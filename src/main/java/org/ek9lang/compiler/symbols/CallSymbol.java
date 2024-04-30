@@ -60,6 +60,22 @@ public class CallSymbol extends MethodSymbol {
     return resolvedSymbolToCall;
   }
 
+  @Override
+  public boolean isReturningSymbolPresent() {
+    if (resolvedSymbolToCall instanceof IMayReturnSymbol canReturn) {
+      return canReturn.isReturningSymbolPresent();
+    }
+    return false;
+  }
+
+  @Override
+  public ISymbol getReturningSymbol() {
+    if (resolvedSymbolToCall instanceof IMayReturnSymbol canReturn) {
+      return canReturn.getReturningSymbol();
+    }
+    return null;
+  }
+
   /**
    * Set the actual method/function that should be called.
    */
@@ -112,7 +128,7 @@ public class CallSymbol extends MethodSymbol {
     int result = super.hashCode();
     result = 31 * result + (getSourceToken() != null ? getSourceToken().hashCode() : 0);
     result = 31 * result + (getResolvedSymbolToCall() != null ? getResolvedSymbolToCall().hashCode() : 0);
-    
+
     return result;
   }
 }

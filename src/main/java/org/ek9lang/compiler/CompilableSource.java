@@ -1,9 +1,11 @@
 package org.ek9lang.compiler;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -262,8 +264,14 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
   public String getSourceAsStringForDebugging() {
 
     final Processor<String> processor = () -> {
-      try (InputStream input = getInputStream()) {
-        return new String(input.readAllBytes());
+      StringBuilder builder = new StringBuilder("\n");
+      int lineNo = 1;
+      try (BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStream()))) {
+        while (reader.ready()) {
+          var line = reader.readLine();
+          builder.append(String.format("%3d %s%n", lineNo++, line));
+        }
+        return builder.toString();
       }
     };
 

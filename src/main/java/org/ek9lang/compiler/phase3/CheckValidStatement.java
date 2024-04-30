@@ -20,7 +20,7 @@ final class CheckValidStatement extends TypedSymbolAccess implements Consumer<EK
 
     super(symbolAndScopeManagement, errorListener);
     this.checkForOperator = new CheckForOperator(symbolAndScopeManagement, errorListener);
-    this.checkMutableOrError = new CheckMutableOrError(errorListener);
+    this.checkMutableOrError = new CheckMutableOrError(symbolAndScopeManagement, errorListener);
 
   }
 

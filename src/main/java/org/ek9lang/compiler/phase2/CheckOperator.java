@@ -324,7 +324,7 @@ final class CheckOperator extends RuleSupport
 
   private Optional<ISymbol> testAnyReturnType(final MethodSymbol methodSymbol) {
 
-    if (!methodSymbol.isReturningSymbolPresent()) {
+    if (!methodSymbol.isReturningSymbolPresent() || isReturningVoidType(methodSymbol)) {
       errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS,
           ErrorListener.SemanticClassification.RETURNING_MISSING);
       return Optional.empty();
@@ -333,13 +333,29 @@ final class CheckOperator extends RuleSupport
 
   }
 
+  /**
+   * If a returning symbol is present then its type must be Void.
+   */
   private void testNoReturn(final MethodSymbol methodSymbol) {
 
     if (methodSymbol.isReturningSymbolPresent() && methodSymbol.getReturningSymbol().getType().isPresent()) {
-      final var theType = methodSymbol.getReturningSymbol().getType().get();
-      errorListener.semanticError(methodSymbol.getSourceToken(), "'" + theType.getFriendlyName() + "'",
-          ErrorListener.SemanticClassification.RETURN_VALUE_NOT_SUPPORTED);
+      methodSymbol.getReturningSymbol().getType().ifPresent(theType -> {
+        if (!symbolAndScopeManagement.getEk9Types().ek9Void().isExactSameType(theType)) {
+          errorListener.semanticError(methodSymbol.getSourceToken(), "'" + theType.getFriendlyName() + "'",
+              ErrorListener.SemanticClassification.RETURN_VALUE_NOT_SUPPORTED);
+        }
+      });
     }
+
+  }
+
+  private boolean isReturningVoidType(final MethodSymbol methodSymbol) {
+    if (!methodSymbol.isReturningSymbolPresent()) {
+      return false;
+    }
+    var possibleType = methodSymbol.getReturningSymbol().getType();
+    return possibleType.filter(symbol -> symbolAndScopeManagement.getEk9Types().ek9Void().isExactSameType(symbol))
+        .isPresent();
 
   }
 

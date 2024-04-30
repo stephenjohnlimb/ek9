@@ -157,6 +157,11 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
   }
 
   @Override
+  public boolean isMutable() {
+    return false;
+  }
+
+  @Override
   public boolean isTerminatedNormally() {
 
     return getEncounteredExceptionToken() == null;

@@ -16,6 +16,7 @@ defines extern module org.ek9.lang
     -?>
     GenericTest
 
+      @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of (String)"
       listOfString <- List() of String
       assert listOfString?
 
@@ -152,6 +153,10 @@ defines extern module org.ek9.lang
     Result of type (O, E)
       Result() as pure
 
+    <!-
+      This is the main item under test in MinimalGenericBootStrapTest.java
+    -!>
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE: "List"
     List of type T as open
       List() as pure
 
@@ -194,9 +199,6 @@ defines extern module org.ek9.lang
         -> arg as List of T
         <- rtn as Boolean?
 
-      operator ? as pure
-        <- rtn as Boolean?
-
       operator + as pure
         -> arg as List of T
         <- rtn as List of T?
@@ -212,12 +214,6 @@ defines extern module org.ek9.lang
       operator - as pure
         -> arg as T
         <- rtn as List of T?
-
-      operator $ as pure
-        <- rtn as String?
-
-      operator #? as pure
-        <- rtn as Integer?
 
       operator #< as pure
         <- rtn as T?
@@ -225,8 +221,17 @@ defines extern module org.ek9.lang
       operator #> as pure
         <- rtn as T?
 
+      operator $ as pure
+        <- rtn as String?
+
+      operator ? as pure
+        <- rtn as Boolean?
+
       operator empty as pure
         <- rtn as Boolean?
+
+      operator #? as pure
+        <- rtn as Integer?
 
       operator length as pure
         <- rtn as Integer?

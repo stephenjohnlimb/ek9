@@ -56,16 +56,34 @@ public class Ek9LanguageBootStrap implements Supplier<SharedThreadContext<Compil
 
     final var compilationSuccess = compiler.compile(workspace, new CompilerFlags(reporter.isVerbose()));
     if (!compilationSuccess) {
-      displaySources();
+      displayErrors(workspace);
+      reporter.report("Source code follows");
+      displaySources(workspace);
       throw new CompilerException("Unable to bootstrap EK9 language, error in " + sources);
     }
 
   }
 
-  @SuppressWarnings("java:S106")
-  private void displaySources() {
+  private void displayErrors(final Workspace workspace) {
+    workspace.getSources().stream().map(CompilableSource::getErrorListener).forEach(errorListener -> {
+      if (errorListener.hasErrors()) {
+        reporter.report("Code errors detected");
+      } else {
+        reporter.report("No code errors detected");
+      }
+      if (errorListener.hasDirectiveErrors()) {
+        reporter.report("Directive errors detected");
+        errorListener.getDirectiveErrors().forEachRemaining(reporter::report);
+      } else {
+        reporter.report("No directive errors detected");
+      }
+    });
+  }
 
-    sourceSupplier.get().stream().map(CompilableSource::getSourceAsStringForDebugging).forEach(reporter::report);
+  @SuppressWarnings("java:S106")
+  private void displaySources(final Workspace workspace) {
+
+    workspace.getSources().stream().map(CompilableSource::getSourceAsStringForDebugging).forEach(reporter::report);
 
   }
 }

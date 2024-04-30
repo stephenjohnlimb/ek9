@@ -16,7 +16,7 @@ import org.ek9lang.compiler.support.ToCommaSeparated;
  * of being overridable in terms of inheritance. In some cases it may also be
  * defined as one of the 'operators' such as '+' or '$' for example.
  */
-public class MethodSymbol extends ScopedSymbol {
+public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -152,7 +152,7 @@ public class MethodSymbol extends ScopedSymbol {
    */
   public MethodSymbol copyMethodProperties(final MethodSymbol newCopy) {
 
-    if (isReturningSymbolPresent()) {
+    if (this.returningSymbol != null) {
       newCopy.returningSymbol = this.returningSymbol.clone(newCopy);
     }
     newCopy.override = this.override;
@@ -357,6 +357,7 @@ public class MethodSymbol extends ScopedSymbol {
    * Provide a symbol that is returned from this method.
    * Note in EK9 this is not just a type but actually a variable symbol (that has a type).
    */
+  @Override
   public ISymbol getReturningSymbol() {
 
     return returningSymbol;
@@ -365,6 +366,7 @@ public class MethodSymbol extends ScopedSymbol {
   /**
    * Sets the returning symbol (variable not just type).
    */
+  @Override
   public void setReturningSymbol(final VariableSymbol returningSymbol) {
 
     returningSymbol.setReturningParameter(true);

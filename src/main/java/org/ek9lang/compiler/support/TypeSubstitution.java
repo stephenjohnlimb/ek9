@@ -129,6 +129,7 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
     final var clonedSymbols = cloneWithEnclosingScope(symbolsToClone, rtnType);
 
     replaceTypeParametersWithTypeArguments(triggeredByToken, rtnType, typeMapping, clonedSymbols);
+    clonedSymbols.forEach(rtnType::define);
 
     if (genericSymbol instanceof FunctionSymbol genericFunctionSymbol
         && parameterisedSymbol instanceof FunctionSymbol functionSymbol
@@ -264,14 +265,13 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
     return this.apply(possibleNewParameterisedType);
   }
 
+  /**
+   * Does not define the new symbol in the enclosing scope, because constructors must have their name altered
+   * Only then can the be added to the enclosing scope via 'define.
+   */
   private List<ISymbol> cloneWithEnclosingScope(final List<ISymbol> symbols, final IScope enclosingScope) {
 
-    return symbols.stream().map(symbol -> {
-      final var clonedSymbol = symbol.clone(enclosingScope);
-
-      enclosingScope.define(clonedSymbol);
-      return clonedSymbol;
-    }).toList();
+    return symbols.stream().map(symbol -> symbol.clone(enclosingScope)).toList();
 
   }
 }

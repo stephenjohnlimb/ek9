@@ -13,7 +13,7 @@ import org.ek9lang.compiler.support.ToCommaSeparated;
  * way we like i.e. classes.
  * We need to ensure that any functions we extend have the same method signature.
  */
-public class FunctionSymbol extends PossibleGenericSymbol {
+public class FunctionSymbol extends PossibleGenericSymbol implements IMayReturnSymbol {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -157,11 +157,13 @@ public class FunctionSymbol extends PossibleGenericSymbol {
    * Provide a symbol that is returned from this function.
    * Note in EK9 this is not just a type but actually a variable symbol (that has a type).
    */
+  @Override
   public VariableSymbol getReturningSymbol() {
 
     return returningSymbol;
   }
 
+  @Override
   public void setReturningSymbol(final VariableSymbol returningSymbol) {
 
     returningSymbol.setReturningParameter(true);

@@ -110,7 +110,7 @@ defines module bad.mutations
 
       //So everything is accessible, but this method has not return value.
       //So the operation is not possible and the operator is not found.
-      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
       arg0.anotherMethod() += 1
 
     CheckEnumerationResolved()

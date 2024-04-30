@@ -18,7 +18,6 @@ import static org.ek9lang.compiler.support.AggregateFactory.EK9_RESOLUTION;
 import static org.ek9lang.compiler.support.AggregateFactory.EK9_STRING;
 import static org.ek9lang.compiler.support.AggregateFactory.EK9_TIME;
 import static org.ek9lang.compiler.support.AggregateFactory.EK9_VERSION;
-import static org.ek9lang.compiler.support.AggregateFactory.EK9_VOID;
 
 import java.util.Optional;
 import org.antlr.v4.runtime.Token;
@@ -73,6 +72,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   private final TextLanguageExtraction textLanguageExtraction;
   private final UnreachableStatement unreachableStatement;
   private final CheckMethod checkMethod;
+  private final ProcessSyntheticReturn processSyntheticReturn;
   private final CheckInappropriateFunctionBody checkInappropriateFunctionBody;
   private final CheckForImplementation checkForImplementation;
   private final CheckThisAndSuperAssignmentStatement checkThisAndSuperAssignmentStatement;
@@ -102,6 +102,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     unreachableStatement = new UnreachableStatement(errorListener);
     textLanguageExtraction = new TextLanguageExtraction(errorListener);
     checkMethod = new CheckMethod(symbolAndScopeManagement, errorListener);
+    processSyntheticReturn = new ProcessSyntheticReturn(symbolAndScopeManagement, symbolFactory, errorListener);
     checkInappropriateFunctionBody = new CheckInappropriateFunctionBody(symbolAndScopeManagement, errorListener);
     checkForImplementation = new CheckForImplementation(errorListener);
 
@@ -213,6 +214,11 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     //Can be null if during definition 'enter' it was a duplicate method
     if (currentScope instanceof MethodSymbol method) {
       checkMethod.accept(method, ctx);
+      if ((ctx.operationDetails() == null || (ctx.operationDetails() != null
+          && ctx.operationDetails().returningParam() == null))
+          && !method.isConstructor()) {
+        processSyntheticReturn.accept(method);
+      }
     }
 
     super.exitMethodDeclaration(ctx);
@@ -235,6 +241,20 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     }
 
     super.enterOperatorDeclaration(ctx);
+  }
+
+  @Override
+  public void exitOperatorDeclaration(EK9Parser.OperatorDeclarationContext ctx) {
+
+    final var currentScope = symbolAndScopeManagement.getTopScope();
+    //Can be null if during definition 'enter' it was a duplicate method
+    if (currentScope instanceof MethodSymbol method
+        && ctx.operationDetails() != null
+        && ctx.operationDetails().returningParam() == null) {
+      processSyntheticReturn.accept(method);
+    }
+
+    super.exitOperatorDeclaration(ctx);
   }
 
   //See later phases for checking operators - because type checking is needed.
@@ -274,14 +294,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     }
 
     //There is returning so use a return of Void, might be null if we had duplicate names.
-    if (functionSymbol != null && ctx.operationDetails().returningParam() == null) {
-      final var simulatedVoid = symbolFactory.newVariable("_rtn", new Ek9Token(ctx.start), false, false);
-      if (symbolAndScopeManagement.getEk9Types() != null) {
-        simulatedVoid.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
-      } else {
-        simulatedVoid.setType(functionSymbol.resolve(new TypeSymbolSearch(EK9_VOID)));
-      }
-      functionSymbol.setReturningSymbol(simulatedVoid);
+    if (functionSymbol != null && ctx.operationDetails() != null && ctx.operationDetails().returningParam() == null) {
+      processSyntheticReturn.accept(functionSymbol);
     }
 
     super.exitFunctionDeclaration(ctx);
@@ -1423,9 +1437,9 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     checkApplicationUseOnMethodDeclaration.accept(ctx);
     final var currentScope = symbolAndScopeManagement.getTopScope();
     if (currentScope instanceof IScopedSymbol scopedSymbol) {
-      final var newTypeSymbol = symbolFactory.newMethod(ctx, scopedSymbol);
+      final var method = symbolFactory.newMethod(ctx, scopedSymbol);
       //Can define directly because overloaded methods are allowed.
-      symbolAndScopeManagement.defineScopedSymbol(newTypeSymbol, ctx);
+      symbolAndScopeManagement.defineScopedSymbol(method, ctx);
     } else {
       symbolAndScopeManagement.recordScopeForStackConsistency(new StackConsistencyScope(currentScope), ctx);
     }

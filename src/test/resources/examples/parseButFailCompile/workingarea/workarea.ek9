@@ -12,13 +12,11 @@ defines module just.workspace
       Then just make a List of String and have it initialised to an empty list.
     -?>
     Checker
-      <!- Defect in generics being looked into
-      propB as List of String: List("Steve")
-      prop1 as List of String: List()
-      -!>
-      propA as String: String()
 
       default Checker() as pure
+
+      aMethod()
+        <- aMethodRtn as Integer: 1
 
   <?-
     The utility functions used for testing in this example.
@@ -29,14 +27,11 @@ defines module just.workspace
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert notDefined?
 
-    TryThis()
-      <- rtn <- List() of String
+    testChecker()
+      checker <- Checker()
+      checker.aMethod() += 3
 
-    TryThat()
-      <- rtn <- [""]
 
-    TryTheOther()
-      <- rtn <- String()
   <!-
 
     SimpleStreamCatMap4()

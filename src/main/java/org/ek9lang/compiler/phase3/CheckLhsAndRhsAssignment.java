@@ -34,7 +34,7 @@ final class CheckLhsAndRhsAssignment extends TypedSymbolAccess implements Consum
     this.checkAssignment
         = new CheckAssignment(symbolAndScopeManagement, errorListener, false);
     this.checkMutableOrError
-        = new CheckMutableOrError(errorListener);
+        = new CheckMutableOrError(symbolAndScopeManagement, errorListener);
 
   }
 
