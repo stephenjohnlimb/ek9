@@ -161,7 +161,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   }
 
   @Override
-  protected Optional<IScope> getAnySuperTypeOrFunction() {
+  public Optional<IScope> getAnySuperTypeOrFunction() {
 
     return Optional.ofNullable(superAggregate);
   }

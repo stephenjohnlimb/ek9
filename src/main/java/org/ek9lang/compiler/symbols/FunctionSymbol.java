@@ -102,7 +102,7 @@ public class FunctionSymbol extends PossibleGenericSymbol implements IMayReturnS
   }
 
   @Override
-  protected Optional<IScope> getAnySuperTypeOrFunction() {
+  public Optional<IScope> getAnySuperTypeOrFunction() {
 
     return Optional.ofNullable(superFunction);
   }

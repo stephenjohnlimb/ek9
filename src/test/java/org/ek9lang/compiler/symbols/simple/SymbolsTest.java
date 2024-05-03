@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbols;
+package org.ek9lang.compiler.symbols.simple;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -16,8 +16,25 @@ import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.RefersToSameSymbol;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.CallSymbol;
+import org.ek9lang.compiler.symbols.CaptureScope;
+import org.ek9lang.compiler.symbols.ConstantSymbol;
+import org.ek9lang.compiler.symbols.ExpressionSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.ParamExpressionSymbol;
+import org.ek9lang.compiler.symbols.StreamCallSymbol;
+import org.ek9lang.compiler.symbols.StreamPipeLineSymbol;
+import org.ek9lang.compiler.symbols.Symbol;
+import org.ek9lang.compiler.symbols.SymbolTable;
+import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.compiler.symbols.base.AbstractSymbolTestBase;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.CompilerException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -57,7 +74,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
 
   @Test
   void testFullyQualifiedName() {
-    assertFalse(ISymbol.isQualifiedName("name"));
+    Assertions.assertFalse(ISymbol.isQualifiedName("name"));
     assertTrue(ISymbol.isQualifiedName("com.name::name"));
 
     assertEquals("com.part", ISymbol.getModuleNameIfPresent("com.part::name"));

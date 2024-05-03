@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbols;
+package org.ek9lang.compiler.symbols.scopes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -20,7 +20,16 @@ import org.ek9lang.compiler.search.TemplateFunctionSymbolSearch;
 import org.ek9lang.compiler.search.TemplateTypeSymbolSearch;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.TypeCreator;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.ConstantSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolTable;
+import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -193,7 +202,7 @@ final class SymbolTableTest {
   @Test
   void testMethodWithParameters() {
     SymbolTable globalSymbolTable = new SymbolTable();
-    assertEquals(IScope.ScopeType.BLOCK, globalSymbolTable.getScopeType());
+    Assertions.assertEquals(IScope.ScopeType.BLOCK, globalSymbolTable.getScopeType());
 
     ISymbol floatType = new AggregateSymbol("Float", globalSymbolTable);
     ISymbol integerType = new AggregateSymbol("Integer", globalSymbolTable);

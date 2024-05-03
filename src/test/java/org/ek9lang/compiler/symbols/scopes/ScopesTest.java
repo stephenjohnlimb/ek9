@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbols;
+package org.ek9lang.compiler.symbols.scopes;
 
 import static org.ek9lang.compiler.support.AggregateFactory.EK9_INTEGER;
 import static org.ek9lang.compiler.support.AggregateFactory.EK9_STRING;
@@ -17,7 +17,29 @@ import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeCreator;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
+import org.ek9lang.compiler.symbols.CallSymbol;
+import org.ek9lang.compiler.symbols.CaptureScope;
+import org.ek9lang.compiler.symbols.ControlSymbol;
+import org.ek9lang.compiler.symbols.ForSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.LocalScope;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.ModuleScope;
+import org.ek9lang.compiler.symbols.ScopedSymbol;
+import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
+import org.ek9lang.compiler.symbols.StackConsistencyScope;
+import org.ek9lang.compiler.symbols.StreamCallSymbol;
+import org.ek9lang.compiler.symbols.SwitchSymbol;
+import org.ek9lang.compiler.symbols.SymbolTable;
+import org.ek9lang.compiler.symbols.TrySymbol;
+import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.compiler.symbols.base.AbstractSymbolTestBase;
 import org.ek9lang.core.SharedThreadContext;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -115,7 +137,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
     assertEquals(local1.hashCode(), local2.hashCode());
 
     assertNotNull(local1);
-    assertEquals(IScope.ScopeType.BLOCK, local1.getScopeType());
+    Assertions.assertEquals(IScope.ScopeType.BLOCK, local1.getScopeType());
     assertFalse(local1.isMarkedPure());
     assertTrue(local1.isScopeAMatchForEnclosingScope(symbolTable));
     assertFalse(local1.isScopeAMatchForEnclosingScope(new SymbolTable()));
@@ -281,17 +303,17 @@ final class ScopesTest extends AbstractSymbolTestBase {
     symbolTable.define(fun);
 
     //We've not defined the return type of the function
-    assertEquals("Unknown <- fun() of type Tee", fun.getFriendlyName());
+    Assertions.assertEquals("Unknown <- fun() of type Tee", fun.getFriendlyName());
 
     //Check it is possible resolve Tee from within 'fun'
     var resolvedTee = fun.resolve(new TypeSymbolSearch("Tee"));
-    assertTrue(resolvedTee.isPresent());
+    Assertions.assertTrue(resolvedTee.isPresent());
     var resolvedString = symbolTable.resolve(new TypeSymbolSearch("String"));
     assertTrue(resolvedString.isPresent());
 
     fun.setReturningSymbol(
         new VariableSymbol("rtn", symbolTable.resolve(new TypeSymbolSearch("Integer"))));
-    assertEquals("Integer <- fun() of type Tee", fun.getFriendlyName());
+    Assertions.assertEquals("Integer <- fun() of type Tee", fun.getFriendlyName());
 
     //This would be a concrete 'fun' with a concrete type of String to replace 'Tee'
     var pFun = creator.apply(fun, List.of(resolvedString.get()));

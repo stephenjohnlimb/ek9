@@ -1,6 +1,5 @@
-package org.ek9lang.compiler.symbols;
+package org.ek9lang.compiler.symbols.generics;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,6 +10,13 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeSubstitution;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.compiler.symbols.base.AbstractSymbolTestBase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -98,14 +104,14 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     var AnotherGenericOfRandS = createAnotherGenericOfRandS(SomeGenericOfKandV);
     assertNotNull(AnotherGenericOfRandS);
     //There should be three methods.
-    assertEquals(3, AnotherGenericOfRandS.getSymbolsForThisScope().size());
+    Assertions.assertEquals(3, AnotherGenericOfRandS.getSymbolsForThisScope().size());
 
     //Now need to make 'YetAnotherGeneric of type (X, Y)'
     var YetAnotherGenericOfXandY = createYetAnotherGenericOfXandY(AnotherGenericOfRandS);
     assertNotNull(YetAnotherGenericOfXandY);
-    assertTrue(YetAnotherGenericOfXandY.isGenericInNature());
-    assertTrue(YetAnotherGenericOfXandY.isConceptualTypeParameter());
-    assertEquals(1, YetAnotherGenericOfXandY.getSymbolsForThisScope().size());
+    Assertions.assertTrue(YetAnotherGenericOfXandY.isGenericInNature());
+    Assertions.assertTrue(YetAnotherGenericOfXandY.isConceptualTypeParameter());
+    Assertions.assertEquals(1, YetAnotherGenericOfXandY.getSymbolsForThisScope().size());
 
     //Should/Could have references to:
     //'AnotherGeneric of (Date, Y)'
@@ -116,17 +122,17 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     //Now lets make the concrete version using: AnotherGeneric of (Float, String)
     var anotherGenericOfFloatandString = createAnotherGenericOfFloatAndString(AnotherGenericOfRandS);
     assertNotNull(anotherGenericOfFloatandString);
-    assertFalse(anotherGenericOfFloatandString.isGenericInNature());
+    Assertions.assertFalse(anotherGenericOfFloatandString.isGenericInNature());
     //We'd also expect 3 methods with the right types in there
-    assertEquals(3, anotherGenericOfFloatandString.getSymbolsForThisScope().size());
+    Assertions.assertEquals(3, anotherGenericOfFloatandString.getSymbolsForThisScope().size());
 
     //Finally need to make 'yetAnotherGenericOfDimensionAndTime as YetAnotherGeneric of (Dimension, Time)'
     var yetAnotherGenericOfDimensionandTime = createYetAnotherGenericOfDimensionandTime(YetAnotherGenericOfXandY);
     assertNotNull(yetAnotherGenericOfDimensionandTime);
     assertNotNull(yetAnotherGenericOfDimensionandTime);
-    assertFalse(yetAnotherGenericOfDimensionandTime.isGenericInNature());
+    Assertions.assertFalse(yetAnotherGenericOfDimensionandTime.isGenericInNature());
     //We'd also expect 1 method with the right types in there
-    assertEquals(1, yetAnotherGenericOfDimensionandTime.getSymbolsForThisScope().size());
+    Assertions.assertEquals(1, yetAnotherGenericOfDimensionandTime.getSymbolsForThisScope().size());
 
     //Conceptual types
     assertResolution("SomeGeneric", ISymbol.SymbolCategory.TEMPLATE_TYPE);

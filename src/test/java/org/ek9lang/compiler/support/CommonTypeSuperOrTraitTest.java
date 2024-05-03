@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.symbols.AbstractSymbolTestBase;
+import org.ek9lang.compiler.symbols.base.AbstractSymbolTestBase;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;

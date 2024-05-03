@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbols;
+package org.ek9lang.compiler.symbols.scopes;
 
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.common.ScopeStack;
+import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.LocalScope;
+import org.ek9lang.compiler.symbols.SymbolTable;
 import org.junit.jupiter.api.Test;
 
 /**

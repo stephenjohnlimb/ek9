@@ -1,8 +1,7 @@
-package org.ek9lang.compiler.symbols;
+package org.ek9lang.compiler.symbols.generics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -15,6 +14,13 @@ import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeSubstitution;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.compiler.symbols.base.AbstractSymbolTestBase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class GenericParameterizationTest extends AbstractSymbolTestBase {
@@ -34,13 +40,13 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     //Just check cloning and equality work OK
     var clonedGenericType1 = aGenericType.clone(symbolTable);
-    assertEquals(aGenericType, clonedGenericType1);
-    assertEquals(aGenericType.hashCode(), clonedGenericType1.hashCode());
+    Assertions.assertEquals(aGenericType, clonedGenericType1);
+    Assertions.assertEquals(aGenericType.hashCode(), clonedGenericType1.hashCode());
     //and self
-    assertEquals(aGenericType, aGenericType);
+    Assertions.assertEquals(aGenericType, aGenericType);
 
     //Just symbol 'public T <- aMethod(arg1 as T)'
-    assertEquals(1, aGenericType.getSymbolsForThisScope().size());
+    Assertions.assertEquals(1, aGenericType.getSymbolsForThisScope().size());
 
     //Let's simulate the fact that internally aGenericType uses another
     //sort of generic type - it could be in a code block, or an input parameter or a return parameter.
@@ -56,11 +62,11 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     //That is NOT a 'dependent' generic type, so we would not add it as a reference.
 
     //Now as we've altered aGenericType lets equality again, we consider these the same now.
-    assertEquals(aGenericType, clonedGenericType1);
-    assertEquals(aGenericType.hashCode(), clonedGenericType1.hashCode());
+    Assertions.assertEquals(aGenericType, clonedGenericType1);
+    Assertions.assertEquals(aGenericType.hashCode(), clonedGenericType1.hashCode());
     var clonedGenericType2 = aGenericType.clone(symbolTable);
-    assertEquals(aGenericType, clonedGenericType2);
-    assertEquals(aGenericType.hashCode(), clonedGenericType2.hashCode());
+    Assertions.assertEquals(aGenericType, clonedGenericType2);
+    Assertions.assertEquals(aGenericType.hashCode(), clonedGenericType2.hashCode());
   }
 
   @Test
@@ -71,8 +77,8 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
     var aGenericType = creationAbstractGenericType();
-    assertTrue(aGenericType.isMarkedAbstract());
-    assertEquals(1, aGenericType.getSymbolsForThisScope().size());
+    Assertions.assertTrue(aGenericType.isMarkedAbstract());
+    Assertions.assertEquals(1, aGenericType.getSymbolsForThisScope().size());
     var theMethod = (MethodSymbol) aGenericType.getSymbolsForThisScope().get(0);
     assertTrue(theMethod.isMarkedAbstract());
 
@@ -80,8 +86,8 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     //type safe as an integer, but it should still be abstract both as class and method level.
     var parameterizedGenericTypeWithInteger = testGenericParameterization(aGenericType, "T", ek9Integer);
     assertNotNull(parameterizedGenericTypeWithInteger);
-    assertTrue(parameterizedGenericTypeWithInteger.isMarkedAbstract());
-    assertFalse(parameterizedGenericTypeWithInteger.isGenericInNature());
+    Assertions.assertTrue(parameterizedGenericTypeWithInteger.isMarkedAbstract());
+    Assertions.assertFalse(parameterizedGenericTypeWithInteger.isGenericInNature());
 
     //Now trigger the type substitution.
     var mutatedParameterizedGenericTypeWithInteger = typeSubstitution.apply(parameterizedGenericTypeWithInteger);
@@ -118,12 +124,12 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     //let's also check that cloning of parameterized type works.
     var clonedParameterizedWithInteger = parameterizedWithInteger.clone(symbolTable);
-    assertEquals(parameterizedWithInteger, clonedParameterizedWithInteger);
-    assertEquals(parameterizedWithInteger.hashCode(), clonedParameterizedWithInteger.hashCode());
+    Assertions.assertEquals(parameterizedWithInteger, clonedParameterizedWithInteger);
+    Assertions.assertEquals(parameterizedWithInteger.hashCode(), clonedParameterizedWithInteger.hashCode());
 
     var parameterizedWithString = testGenericParameterization(aGenericType, "T", ek9String);
     assertNotNull(parameterizedWithString);
-    assertNotEquals(parameterizedWithInteger, parameterizedWithString);
+    Assertions.assertNotEquals(parameterizedWithInteger, parameterizedWithString);
   }
 
   /**
@@ -142,16 +148,16 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     //let's also check that cloning of parameterized type works.
     var clonedParameterizedWithInteger = parameterizedWithInteger.clone(symbolTable);
-    assertEquals(parameterizedWithInteger, clonedParameterizedWithInteger);
-    assertEquals(parameterizedWithInteger.hashCode(), clonedParameterizedWithInteger.hashCode());
+    Assertions.assertEquals(parameterizedWithInteger, clonedParameterizedWithInteger);
+    Assertions.assertEquals(parameterizedWithInteger.hashCode(), clonedParameterizedWithInteger.hashCode());
 
     var parameterizedWithString = testGenericParameterization(aGenericType, "T", ek9String);
     assertNotNull(parameterizedWithString);
-    assertNotEquals(parameterizedWithInteger, parameterizedWithString);
+    Assertions.assertNotEquals(parameterizedWithInteger, parameterizedWithString);
 
     var parameterizedWithFunction = testGenericParameterization(aGenericType, "T", fn.getType().get());
     assertNotNull(parameterizedWithFunction);
-    assertNotEquals(parameterizedWithInteger, parameterizedWithFunction);
+    Assertions.assertNotEquals(parameterizedWithInteger, parameterizedWithFunction);
   }
 
   @Test
@@ -164,8 +170,9 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     //let's also check that cloning of parameterized type works.
     var clonedParameterizedWithConceptualType = parameterizedWithConceptualType.clone(symbolTable);
-    assertEquals(parameterizedWithConceptualType, clonedParameterizedWithConceptualType);
-    assertEquals(parameterizedWithConceptualType.hashCode(), clonedParameterizedWithConceptualType.hashCode());
+    Assertions.assertEquals(parameterizedWithConceptualType, clonedParameterizedWithConceptualType);
+    Assertions.assertEquals(parameterizedWithConceptualType.hashCode(),
+        clonedParameterizedWithConceptualType.hashCode());
   }
 
   /**
@@ -181,19 +188,20 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     //let's also check that cloning of parameterized type works.
     var clonedParameterizedWithConceptualType = parameterizedWithConceptualType.clone(symbolTable);
-    assertEquals(parameterizedWithConceptualType, clonedParameterizedWithConceptualType);
-    assertEquals(parameterizedWithConceptualType.hashCode(), clonedParameterizedWithConceptualType.hashCode());
+    Assertions.assertEquals(parameterizedWithConceptualType, clonedParameterizedWithConceptualType);
+    Assertions.assertEquals(parameterizedWithConceptualType.hashCode(),
+        clonedParameterizedWithConceptualType.hashCode());
   }
 
   @Test
   void testWithMultipleTypeParameters() {
     var tripleGenericType = testCreateGenericTypeWithMultipleParameters("TripleType", List.of("Q", "R", "S"));
     assertNotNull(tripleGenericType);
-    assertEquals(3, tripleGenericType.getAnyConceptualTypeParameters().size());
+    Assertions.assertEquals(3, tripleGenericType.getAnyConceptualTypeParameters().size());
 
     var quadGenericType = testCreateGenericTypeWithMultipleParameters("QuadType", List.of("P", "Q", "R", "S"));
     assertNotNull(quadGenericType);
-    assertEquals(4, quadGenericType.getAnyConceptualTypeParameters().size());
+    Assertions.assertEquals(4, quadGenericType.getAnyConceptualTypeParameters().size());
   }
 
   @Test
@@ -202,15 +210,15 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
 
     var aGenericType = testCreateGenericTypeWithMultipleParameters("AType", List.of("R", "S"));
-    assertEquals(2, aGenericType.getAnyConceptualTypeParameters().size());
+    Assertions.assertEquals(2, aGenericType.getAnyConceptualTypeParameters().size());
     assertNotNull(aGenericType);
-    assertTrue(aGenericType.isGenericInNature());
-    assertTrue(aGenericType.isConceptualTypeParameter());
+    Assertions.assertTrue(aGenericType.isGenericInNature());
+    Assertions.assertTrue(aGenericType.isConceptualTypeParameter());
 
     //Now parameterize it with concrete types
     var parameterizedType = creator.apply(aGenericType, List.of(ek9Integer, ek9String));
     assertNotNull(parameterizedType);
-    assertEquals(ISymbol.SymbolCategory.TYPE, parameterizedType.getCategory());
+    Assertions.assertEquals(ISymbol.SymbolCategory.TYPE, parameterizedType.getCategory());
     assertFalse(parameterizedType.isGenericInNature());
     assertFalse(parameterizedType.isConceptualTypeParameter());
 

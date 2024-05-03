@@ -205,7 +205,7 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
     return actualScope.getEnclosingScope();
   }
 
-  protected Optional<IScope> getAnySuperTypeOrFunction() {
+  public Optional<IScope> getAnySuperTypeOrFunction() {
 
     return Optional.empty();
   }

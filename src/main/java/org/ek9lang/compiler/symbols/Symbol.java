@@ -420,7 +420,7 @@ public class Symbol implements ISymbol {
     return category;
   }
 
-  protected void setCategory(final SymbolCategory category) {
+  public void setCategory(final SymbolCategory category) {
 
     this.category = category;
 

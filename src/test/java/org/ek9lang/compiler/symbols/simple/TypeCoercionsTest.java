@@ -1,10 +1,16 @@
-package org.ek9lang.compiler.symbols;
+package org.ek9lang.compiler.symbols.simple;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
 import org.ek9lang.compiler.support.TypeCoercions;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolTable;
+import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

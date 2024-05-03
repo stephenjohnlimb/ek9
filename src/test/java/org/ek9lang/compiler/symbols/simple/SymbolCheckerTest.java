@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbols;
+package org.ek9lang.compiler.symbols.simple;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -8,6 +8,8 @@ import org.ek9lang.compiler.support.AggregateSymbolCreator;
 import org.ek9lang.compiler.support.FunctionSymbolCreator;
 import org.ek9lang.compiler.support.SymbolChecker;
 import org.ek9lang.compiler.support.VariableSymbolCreator;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolTable;
 import org.junit.jupiter.api.Test;
 
 class SymbolCheckerTest {

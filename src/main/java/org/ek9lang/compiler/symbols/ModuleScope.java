@@ -240,7 +240,7 @@ public class ModuleScope extends SymbolTable {
   }
 
   @Override
-  protected Optional<ISymbol> resolveWithEnclosingScope(final SymbolSearch search) {
+  public Optional<ISymbol> resolveWithEnclosingScope(final SymbolSearch search) {
 
     // Need to get result into a variable we can use outside of lambda
     // but, we need the lambda to ensure access is thread safe.

@@ -427,7 +427,7 @@ public class SymbolTable implements IScope {
    * This class is the root and so there is no enclosing scope.
    * subclasses will override to provide the scope that encloses them
    */
-  protected Optional<ISymbol> resolveWithEnclosingScope(final SymbolSearch search) {
+  public Optional<ISymbol> resolveWithEnclosingScope(final SymbolSearch search) {
     AssertValue.checkNotNull("Search must not be null", search);
     return Optional.empty();
   }

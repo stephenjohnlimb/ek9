@@ -1,9 +1,11 @@
-package org.ek9lang.compiler.symbols;
+package org.ek9lang.compiler.symbols.generics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import org.ek9lang.compiler.support.ConceptualLookupMapping;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.base.AbstractSymbolTestBase;
 import org.junit.jupiter.api.Test;
 
 /**

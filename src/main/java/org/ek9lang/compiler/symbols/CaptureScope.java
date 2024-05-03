@@ -84,7 +84,7 @@ public class CaptureScope extends LocalScope {
   }
 
   @Override
-  protected Optional<ISymbol> resolveWithEnclosingScope(final SymbolSearch search) {
+  public Optional<ISymbol> resolveWithEnclosingScope(final SymbolSearch search) {
 
     if (openToEnclosingScope) {
       return super.resolveWithEnclosingScope(search);

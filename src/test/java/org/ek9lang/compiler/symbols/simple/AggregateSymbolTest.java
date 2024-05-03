@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbols;
+package org.ek9lang.compiler.symbols.simple;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -15,6 +15,12 @@ import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.support.SymbolNameOrFail;
 import org.ek9lang.compiler.support.SymbolTypeNameOrFail;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolTable;
+import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.junit.jupiter.api.Test;
 
 /**

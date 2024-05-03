@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.symbols;
+package org.ek9lang.compiler.symbols.generics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -11,6 +11,13 @@ import org.ek9lang.compiler.ParametricResolveOrDefine;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeSubstitution;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.compiler.symbols.base.AbstractSymbolTestBase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -143,7 +150,7 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
     var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
     var d1OfTypeX = createD1OfTypeX();
-    assertEquals(1, d1OfTypeX.getSymbolsForThisScope().size());
+    Assertions.assertEquals(1, d1OfTypeX.getSymbolsForThisScope().size());
     //Now make a parameterized version
     var d1OfString = creator.apply(d1OfTypeX, List.of(ek9String));
 
@@ -160,7 +167,7 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
     assertEquals(1, d1OfD1OfStringDash.getSymbolsForThisScope().size());
 
     //Check the friendly naming. Can you call it 'friendly'?
-    assertEquals("D1 of type X", d1OfTypeX.getFriendlyName());
+    Assertions.assertEquals("D1 of type X", d1OfTypeX.getFriendlyName());
     assertEquals("D1 of type X of type String", d1OfStringDash.getFriendlyName());
     assertEquals("D1 of type X of type D1 of type X of type String", d1OfD1OfStringDash.getFriendlyName());
 
