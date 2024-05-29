@@ -15,6 +15,7 @@ import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.support.InternalNameFor;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeCreator;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
@@ -51,7 +52,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   private final TypeCreator typeCreator = new TypeCreator();
 
-  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
+  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator(new InternalNameFor());
 
   @Test
   void testSymbolTableEquality() {
@@ -278,7 +279,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   @Test
   void testParameterisedTypeSymbolScope() {
-    var t = support.createGenericT("Tee", symbolTable);
+    var t = aggregateFactory.createGenericT("Tee", symbolTable);
     var z = createTemplateGenericType(symbolTable, t);
     symbolTable.define(z);
 
@@ -298,7 +299,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   @Test
   void testParameterisedFunctionSymbolScope() {
-    var t = support.createGenericT("Tee", symbolTable);
+    var t = aggregateFactory.createGenericT("Tee", symbolTable);
     var fun = createTemplateGenericFunction(symbolTable, t);
     symbolTable.define(fun);
 

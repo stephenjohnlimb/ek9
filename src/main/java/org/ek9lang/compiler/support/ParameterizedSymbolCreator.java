@@ -18,7 +18,12 @@ import org.ek9lang.core.AssertValue;
 public class ParameterizedSymbolCreator
     implements BiFunction<PossibleGenericSymbol, List<ISymbol>, PossibleGenericSymbol> {
 
-  private final InternalNameFor internalNameFor = new InternalNameFor();
+  private final BiFunction<PossibleGenericSymbol, List<ISymbol>, String> internalNameFor;
+
+  public ParameterizedSymbolCreator(final BiFunction<PossibleGenericSymbol, List<ISymbol>, String> internalNameFor) {
+    this.internalNameFor = internalNameFor;
+
+  }
 
   //Not smart enough to work out null pointer cannot happen.
   @SuppressWarnings("java:S2259")

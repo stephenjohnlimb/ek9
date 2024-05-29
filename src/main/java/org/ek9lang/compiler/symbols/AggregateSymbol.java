@@ -480,10 +480,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   @Override
   public ISymbol setType(final Optional<ISymbol> type) {
 
-    //Used when cloning so type can be set if not already populated.
-    if (this.isConceptualTypeParameter() && type.isPresent()) {
-      this.setSuperAggregate((IAggregateSymbol) type.get());
-    } else if (super.getType().isPresent()) {
+    if (super.getType().isPresent()) {
       throw new CompilerException("You cannot set the type of an aggregate Symbol");
     }
 

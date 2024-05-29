@@ -17,8 +17,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Some simple tests on coercions, for this set of tests
  * a number of simulated Aggregates are created with the 'promote' operator added in.
+ * Coercion in EK9 requires explicit promotion operators, there is no implicit coercion at all.
  */
 final class TypeCoercionsTest {
+
   @Test
   void testUnrelatedTypes() {
     SymbolTable symbolTable = new SymbolTable();

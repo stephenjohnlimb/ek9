@@ -27,6 +27,7 @@ import org.ek9lang.core.CompilerException;
  * This is a factory of sorts, not in the pure OO sense; but still a factory.
  */
 public class AggregateFactory {
+  private static final String PUBLIC = "public";
   private static final String PARAM = "param";
   public static final String EK9_LANG = "org.ek9.lang";
   public static final String EK9_MATH = "org.ek9.math";
@@ -137,6 +138,9 @@ public class AggregateFactory {
       newConstructor.setSourceToken(aggregateSymbol.getSourceToken());
       newConstructor.setSynthetic(synthetic);
       newConstructor.setType(aggregateSymbol);
+
+      //TODO consider this: Don't setReturningSymbol just yet.
+      // See error 'Must have a generic type for' in TypeSubstitution 'getReplacementType'
       newConstructor.setCallParameters(constructorArguments);
       aggregateSymbol.define(newConstructor);
     }
@@ -245,6 +249,7 @@ public class AggregateFactory {
     t.setConceptualTypeParameter(true);
 
     //Do not add any methods yet - wait until later phases.
+    //This is especially true when the 'T' is constrained.
     return t;
   }
 
@@ -364,16 +369,15 @@ public class AggregateFactory {
    * Adds a form of a comparison operator.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol addComparatorOperator(IAggregateSymbol aggregateSymbol,
-                                            final IAggregateSymbol arg0,
-                                            final String comparatorType,
-                                            final Optional<ISymbol> returnType) {
+  public void addComparatorOperator(IAggregateSymbol aggregateSymbol,
+                                    final IAggregateSymbol arg0,
+                                    final String comparatorType,
+                                    final Optional<ISymbol> returnType) {
 
     final var operator = createPureArgumentOperatorAndReturnType(aggregateSymbol, arg0, comparatorType, returnType);
 
     aggregateSymbol.define(operator);
 
-    return operator;
   }
 
   /**
@@ -469,7 +473,7 @@ public class AggregateFactory {
       method.setType(resolveVoid(aggregateSymbol));
     }
     method.setParsedModule(aggregateSymbol.getParsedModule());
-    method.setAccessModifier("public");
+    method.setAccessModifier(PUBLIC);
     method.setMarkedPure(true);
     method.setOperator(true);
 
@@ -489,7 +493,7 @@ public class AggregateFactory {
     final var operator = new MethodSymbol(operatorType, aggregateSymbol);
 
     operator.setParsedModule(aggregateSymbol.getParsedModule());
-    operator.setAccessModifier("public");
+    operator.setAccessModifier(PUBLIC);
     operator.setMarkedPure(isPure);
     operator.setOperator(true);
     operator.define(paramT);
@@ -505,12 +509,12 @@ public class AggregateFactory {
    * It also returns a value that is the same as the aggregateSymbol.
    */
   public MethodSymbol createMutatorOperator(final IAggregateSymbol aggregateSymbol,
-                                     final String operatorType) {
+                                            final String operatorType) {
 
     final var operator = new MethodSymbol(operatorType, aggregateSymbol);
 
     operator.setParsedModule(aggregateSymbol.getParsedModule());
-    operator.setAccessModifier("public");
+    operator.setAccessModifier(PUBLIC);
     operator.setMarkedPure(false);
     operator.setOperator(true);
     //returns the same type as itself

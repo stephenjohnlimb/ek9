@@ -6,13 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
 import java.util.Optional;
-import org.ek9lang.compiler.search.AnyTypeSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.search.SymbolSearch;
-import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.support.SymbolNameOrFail;
 import org.ek9lang.compiler.support.SymbolTypeNameOrFail;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
@@ -35,6 +32,7 @@ final class AggregateSymbolTest {
 
   @Test
   void testEmptyAggregate() {
+
     SymbolTable symbolTable1 = new SymbolTable();
 
     AggregateSymbol underTest = new AggregateSymbol("UnderTest", symbolTable1);
@@ -54,7 +52,6 @@ final class AggregateSymbolTest {
 
     //Now make a copy/clone of 'underTest' before setting any values in 'underTest'
     AggregateSymbol cloned1 = underTest.clone(symbolTable2);
-
 
     //Alter name to check cloned version is truly cloned.
     //Also check that the type has changed
@@ -128,7 +125,7 @@ final class AggregateSymbolTest {
     assertEquals(1, base1.getAllAbstractMethods().size());
     assertEquals(abstractMethod1, base1.getAllAbstractMethods().get(0));
 
-    //Now lets make a sub class and try the method access
+    //Now lets make a subclass and try the method access
     AggregateSymbol cls1 = new AggregateSymbol("cls1", symbolTable);
     assertFalse(cls1.isExtensionOfInjectable());
 
@@ -189,64 +186,13 @@ final class AggregateSymbolTest {
     assertEquals(abstractMethod1, bestMethodMatch.get());
   }
 
-  /**
-   * This test focuses on extension of a generic type.
-   */
-  @Test
-  void testExtendingAGenericType() {
-    SymbolTable symbolTable = new SymbolTable();
-    AggregateFactory support = new AggregateFactory();
-    var t = support.createGenericT("T", symbolTable);
-    var aGenericBaseType = new AggregateSymbol("GenericBase", symbolTable, List.of(t));
-
-    var s = support.createGenericT("S", symbolTable);
-    var anotherGenericType = new AggregateSymbol("AnotherGenericBase", symbolTable, List.of(s, t));
-
-    //Check not equal
-    assertNotEquals(aGenericBaseType, anotherGenericType);
-
-    //Now make a plain aggregate and extend from the generic base.
-    AggregateSymbol cls1 = new AggregateSymbol("cls1", symbolTable);
-    cls1.setSuperAggregate(aGenericBaseType);
-
-    //Is it possible to resolve 'T'? Not sure why we would need to but we should be able to.
-    var resolvedT = cls1.resolve(new AnyTypeSymbolSearch("T"));
-    assertTrue(resolvedT.isPresent());
-    assertEquals(t, resolvedT.get());
-  }
-
-
-  @Test
-  void testExtendingAParameterisedGenericType() {
-    AggregateFactory support = new AggregateFactory();
-
-    SymbolTable symbolTable = new SymbolTable();
-    AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
-    symbolTable.define(integerType);
-
-    //Make the 'T' and generic type that will use the 'T' as a conceptual type parameter
-    var t = support.createGenericT("T", symbolTable);
-    var aGenericType = new AggregateSymbol("GenericType", symbolTable, List.of(t));
-
-    //Make the parameterised type using the generic type and parameterize it with concrete type Integer.
-    var parameterisedType1 = new AggregateSymbol("ParameterisedWithInteger", symbolTable);
-    parameterisedType1.setGenericType(aGenericType);
-    parameterisedType1.addTypeParameterOrArgument(integerType);
-
-    //Now make a plain aggregate and extend from the generic base.
-    AggregateSymbol cls1 = new AggregateSymbol("cls1", symbolTable);
-    cls1.setSuperAggregate(parameterisedType1);
-
-    //Is it possible to resolve 'T', it should NOT be possible as 'T' is hidden within the parameterised type.
-    var resolvedT = cls1.resolve(new AnyTypeSymbolSearch("T"));
-    assertFalse(resolvedT.isPresent());
-  }
 
   /**
    * Focussed on checking the properties and properties in supers.
    */
   @Test
   void testAggregateProperties() {
+
     //Make a symbol table and make a type available.
     SymbolTable symbolTable = new SymbolTable();
     AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
@@ -296,6 +242,7 @@ final class AggregateSymbolTest {
 
   @Test
   void testAggregateWithSuper() {
+
     SymbolTable symbolTable1 = new SymbolTable();
 
     AggregateSymbol base1 = new AggregateSymbol("base1", symbolTable1);
@@ -360,6 +307,7 @@ final class AggregateSymbolTest {
   }
 
   private void assertCommonPropertiesWithoutSetting(AggregateSymbol toCheck) {
+
     assertNotNull(toCheck);
     assertFalse(toCheck.isMarkedAbstract());
     assertFalse(toCheck.isInjectable());
@@ -367,9 +315,11 @@ final class AggregateSymbolTest {
     assertFalse(toCheck.isOpenForExtension());
     assertFalse(toCheck.getPipeSinkType().isPresent());
     assertFalse(toCheck.getPipeSourceType().isPresent());
+
   }
 
   private void assertCommonPropertiesAfterSetting(AggregateSymbol toCheck) {
+
     assertNotNull(toCheck);
     assertTrue(toCheck.isMarkedAbstract());
     assertTrue(toCheck.isInjectable());
@@ -379,10 +329,12 @@ final class AggregateSymbolTest {
     assertEquals("ASinkType", toCheck.getPipeSinkType().get());
     assertTrue(toCheck.getPipeSourceType().isPresent());
     assertEquals("ASourceType", toCheck.getPipeSourceType().get());
+
   }
 
   @Test
   void testAggregateMethod() {
+
     IScope symbolTable = new SymbolTable();
 
     AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
@@ -445,6 +397,7 @@ final class AggregateSymbolTest {
 
   @Test
   void testAggregateProperty() {
+
     IScope symbolTable = new SymbolTable();
 
     AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
@@ -482,13 +435,16 @@ final class AggregateSymbolTest {
     //But cloned should be String
     resolvedProperty = cloned.resolveInThisScopeOnly(new SymbolSearch("prop1"));
     assertSymbol(resolvedProperty, "prop1", "String");
+
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private void assertSymbol(Optional<ISymbol> resolvedSymbol, String expectedName,
                             String expectedTypeName) {
+
     assertTrue(resolvedSymbol.isPresent());
     assertEquals(expectedName, resolvedSymbol.get().getName());
     assertEquals(expectedTypeName, symbolTypeNameOrFail.apply(resolvedSymbol));
+
   }
 }

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.ParametricResolveOrDefine;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.support.InternalNameFor;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeSubstitution;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
@@ -76,7 +77,7 @@ import org.junit.jupiter.api.Test;
  */
 class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
 
-  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
+  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator(new InternalNameFor());
 
   private final ErrorListener errorListener = new ErrorListener("test");
   /**
@@ -176,13 +177,13 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
   }
 
   private PossibleGenericSymbol createD1OfTypeX() {
-    var x = support.createGenericT("X", symbolTable);
+    var x = aggregateFactory.createGenericT("X", symbolTable);
     var D1 = new AggregateSymbol("D1", symbolTable);
     D1.setModuleScope(symbolTable);
     D1.addTypeParameterOrArgument(x);
 
     var arg0 = new VariableSymbol("arg0", x);
-    support.addPublicMethod(D1, "methodOnD1", List.of(arg0), Optional.of(ek9Boolean));
+    aggregateFactory.addPublicMethod(D1, "methodOnD1", List.of(arg0), Optional.of(ek9Boolean));
     symbolTable.define(D1);
     return D1;
   }
@@ -227,7 +228,7 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
   }
 
   private PossibleGenericSymbol createG1OfTypeP(final PossibleGenericSymbol D1) {
-    var p = support.createGenericT("P", symbolTable);
+    var p = aggregateFactory.createGenericT("P", symbolTable);
     var G1 = new AggregateSymbol("G1", symbolTable);
     G1.setModuleScope(symbolTable);
     G1.addTypeParameterOrArgument(p);
@@ -239,14 +240,14 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
     var arg0 = new VariableSymbol("arg0", d1OfD1OfP);
     var arg1 = new VariableSymbol("arg1", ek9Integer);
     var arg2 = new VariableSymbol("arg2", d1OfP);
-    support.addPublicMethod(G1, "methodOnG1", List.of(arg0, arg1, arg2), Optional.of(p));
+    aggregateFactory.addPublicMethod(G1, "methodOnG1", List.of(arg0, arg1, arg2), Optional.of(p));
 
     symbolTable.define(G1);
     return G1;
   }
 
   private PossibleGenericSymbol createG2OfTypeQ() {
-    var q = support.createGenericT("Q", symbolTable);
+    var q = aggregateFactory.createGenericT("Q", symbolTable);
     var G2 = new AggregateSymbol("G2", symbolTable);
     G2.setModuleScope(symbolTable);
     G2.addTypeParameterOrArgument(q);
@@ -257,7 +258,7 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
 
   private PossibleGenericSymbol createSingleGenericOfTypeT(final PossibleGenericSymbol G1,
                                                            final PossibleGenericSymbol G2) {
-    var t = support.createGenericT("T", symbolTable);
+    var t = aggregateFactory.createGenericT("T", symbolTable);
     var SingleGeneric = new AggregateSymbol("SingleGeneric", symbolTable);
     SingleGeneric.setModuleScope(symbolTable);
     SingleGeneric.addTypeParameterOrArgument(t);
@@ -273,7 +274,7 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
     var arg2 = new VariableSymbol("arg2", g2OfT);
     var arg3 = new VariableSymbol("arg3", g1OfG2OfT);
 
-    support.addPublicMethod(SingleGeneric, "methodOne", List.of(arg0, arg1, arg2, arg3), Optional.of(g2OfG1OfT));
+    aggregateFactory.addPublicMethod(SingleGeneric, "methodOne", List.of(arg0, arg1, arg2, arg3), Optional.of(g2OfG1OfT));
 
     symbolTable.define(SingleGeneric);
     return SingleGeneric;

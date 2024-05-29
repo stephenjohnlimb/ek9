@@ -122,7 +122,8 @@ public class SymbolFactory {
    * To be used to create parameterised versions of generic types and functions.
    * Will replace parameterizedTypeCreator and parameterizedFunctionCreator.
    */
-  private final ParameterizedSymbolCreator parameterizedSymbolCreator = new ParameterizedSymbolCreator();
+  private final ParameterizedSymbolCreator parameterizedSymbolCreator =
+      new ParameterizedSymbolCreator(new InternalNameFor());
 
   /**
    * Used for low level additions of methods to aggregates.

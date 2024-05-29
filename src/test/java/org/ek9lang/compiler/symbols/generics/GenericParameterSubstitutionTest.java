@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.ek9lang.compiler.ParametricResolveOrDefine;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.support.InternalNameFor;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeSubstitution;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
@@ -26,7 +27,7 @@ import org.junit.jupiter.api.Test;
  */
 class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
 
-  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
+  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator(new InternalNameFor());
 
   private final ErrorListener errorListener = new ErrorListener("test");
   @Test
@@ -34,7 +35,7 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
     var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
-    var t = support.createGenericT("T", symbolTable);
+    var t = aggregateFactory.createGenericT("T", symbolTable);
 
     var aGenericFunction = new FunctionSymbol("SingleGenericFunction", symbolTable);
     aGenericFunction.setModuleScope(symbolTable);
@@ -80,7 +81,7 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
     var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
-    var t = support.createGenericT("T", symbolTable);
+    var t = aggregateFactory.createGenericT("T", symbolTable);
     assertTrue(t.isConceptualTypeParameter());
 
     //This will be our generic type that has one or more 'type parameters'
@@ -93,15 +94,15 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var arg0 = new VariableSymbol("arg0", ek9Integer);
     var arg1 = new VariableSymbol("arg1", t);
     var arg2 = new VariableSymbol("arg2", ek9String);
-    support.addConstructor(aGenericType);
-    support.addConstructor(aGenericType, Optional.of(arg1));
-    support.addPublicMethod(aGenericType, "methodOne", List.of(arg0, arg1), Optional.of(t));
+    aggregateFactory.addConstructor(aGenericType);
+    aggregateFactory.addConstructor(aGenericType, Optional.of(arg1));
+    aggregateFactory.addPublicMethod(aGenericType, "methodOne", List.of(arg0, arg1), Optional.of(t));
     //Now add another method
-    support.addPublicMethod(aGenericType, "methodTwo", List.of(arg0, arg1, arg2), Optional.of(t));
+    aggregateFactory.addPublicMethod(aGenericType, "methodTwo", List.of(arg0, arg1, arg2), Optional.of(t));
     //And another
-    support.addPublicMethod(aGenericType, "methodThree", List.of(arg2, arg1, arg0), Optional.of(ek9Duration));
+    aggregateFactory.addPublicMethod(aGenericType, "methodThree", List.of(arg2, arg1, arg0), Optional.of(ek9Duration));
     //Final one
-    support.addPublicMethod(aGenericType, "methodFour", List.of(arg1, arg0), Optional.of(ek9Duration));
+    aggregateFactory.addPublicMethod(aGenericType, "methodFour", List.of(arg1, arg0), Optional.of(ek9Duration));
     assertEquals(6, aGenericType.getSymbolsForThisScope().size());
 
     //Now make a parameterised version with a String.
@@ -132,16 +133,16 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
     var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
-    var p = support.createGenericT("P", symbolTable);
+    var p = aggregateFactory.createGenericT("P", symbolTable);
     assertTrue(p.isConceptualTypeParameter());
 
-    var q = support.createGenericT("Q", symbolTable);
+    var q = aggregateFactory.createGenericT("Q", symbolTable);
     assertTrue(q.isConceptualTypeParameter());
 
-    var r = support.createGenericT("R", symbolTable);
+    var r = aggregateFactory.createGenericT("R", symbolTable);
     assertTrue(r.isConceptualTypeParameter());
 
-    var s = support.createGenericT("S", symbolTable);
+    var s = aggregateFactory.createGenericT("S", symbolTable);
     assertTrue(s.isConceptualTypeParameter());
 
     //This will be our generic type that has one or more 'type parameters'
@@ -163,7 +164,7 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var arg3 = new VariableSymbol("arg3", q);
     var arg4 = new VariableSymbol("arg4", r);
     var arg5 = new VariableSymbol("arg5", ek9Time);
-    support.addPublicMethod(aGenericType, "methodOne", List.of(arg0, arg1, arg2, arg3, arg4, arg5), Optional.of(s));
+    aggregateFactory.addPublicMethod(aGenericType, "methodOne", List.of(arg0, arg1, arg2, arg3, arg4, arg5), Optional.of(s));
 
     assertEquals(1, aGenericType.getSymbolsForThisScope().size());
 

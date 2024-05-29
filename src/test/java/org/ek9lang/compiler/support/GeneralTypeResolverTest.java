@@ -18,7 +18,7 @@ class GeneralTypeResolverTest {
 
   private final AggregateFactory support = new AggregateFactory();
 
-  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
+  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator(new InternalNameFor());
 
   /**
    * Just a simple type resolution.

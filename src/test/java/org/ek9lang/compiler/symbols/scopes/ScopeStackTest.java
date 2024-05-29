@@ -13,7 +13,7 @@ import org.ek9lang.compiler.symbols.SymbolTable;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just simple tests of the scope stack that will be used in the
+ * Simple tests of the scope stack that will be used in the
  * compiler phases when building the internal model and symbols.
  */
 final class ScopeStackTest {
@@ -50,6 +50,7 @@ final class ScopeStackTest {
 
   /**
    * Checks the traversal back up the scope stack to find blocks of a particular block type.
+   * This is useful when trying to find the correct enclosing scopes.
    */
   @Test
   void testStackTraversal() {

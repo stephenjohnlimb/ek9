@@ -15,7 +15,7 @@ class BadConstantMutationTest extends PhasesTest {
 
   public BadConstantMutationTest() {
     super("/examples/parseButFailCompile/badConstantUse",
-        List.of("bad.mutations"), false, false);
+        List.of("bad.mutations"), false, true);
   }
 
   @Test

@@ -30,6 +30,7 @@ class SymbolCheckerTest {
   }
 
   private void checkViaCreatorFunction(BiFunction<String, SymbolTable, ISymbol> creator) {
+
     ErrorListener errorListener = new ErrorListener("aTest");
     SymbolChecker underTest = new SymbolChecker(errorListener);
 
@@ -43,5 +44,6 @@ class SymbolCheckerTest {
     var someTypeDuplicate = creator.apply("SomeThing", global);
     var expectDuplicate = underTest.errorsIfSymbolAlreadyDefined(global, someTypeDuplicate, true);
     assertTrue(expectDuplicate);
+
   }
 }

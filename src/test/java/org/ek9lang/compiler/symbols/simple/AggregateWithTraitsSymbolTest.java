@@ -18,6 +18,9 @@ import org.ek9lang.compiler.symbols.SymbolTable;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests for classes that have traits ( a little like Java interfaces).
+ */
 final class AggregateWithTraitsSymbolTest {
 
   @Test
@@ -34,6 +37,7 @@ final class AggregateWithTraitsSymbolTest {
 
   @Test
   void testWithTraits() {
+
     SymbolTable symbolTable = new SymbolTable();
     AggregateSymbol booleanType = new AggregateSymbol("Boolean", symbolTable);
     symbolTable.define(booleanType);
@@ -98,7 +102,7 @@ final class AggregateWithTraitsSymbolTest {
     assertFalse(costAssessment.isAssignableTo(extender));
     assertFalse(moniterable.isAssignableTo(extender));
 
-    //So get all those low cost methods! From each of the traits.
+    //So get all those low-cost methods! From each of the traits.
     List<MethodSymbol> nonAbstracts = extender.getAllNonAbstractMethods();
     assertEquals(3, nonAbstracts.size());
 
@@ -123,9 +127,11 @@ final class AggregateWithTraitsSymbolTest {
 
     var assignableWeight = plainAggregate.getAssignableWeightTo(Optional.of(plainAggregate));
     assertTrue(assignableWeight < 0.001 && assignableWeight > -0.0001);
+
   }
 
   private AggregateWithTraitsSymbol makeTraitWithLowCostMethod(final SymbolTable symbolTable, final String traitName) {
+
     var booleanType = symbolTable.resolve(new SymbolSearch("Boolean"));
 
     AggregateWithTraitsSymbol trait = new AggregateWithTraitsSymbol(traitName, symbolTable);

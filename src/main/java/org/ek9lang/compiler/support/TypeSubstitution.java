@@ -34,7 +34,7 @@ import org.ek9lang.core.CompilerException;
  */
 public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
 
-  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
+  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator(new InternalNameFor());
 
   /**
    * Deals with the conceptual mappings.

@@ -8,6 +8,7 @@ import java.util.List;
 import org.ek9lang.compiler.ParametricResolveOrDefine;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
+import org.ek9lang.compiler.support.InternalNameFor;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeSubstitution;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
@@ -82,7 +83,7 @@ import org.junit.jupiter.api.Test;
  */
 class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
 
-  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
+  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator(new InternalNameFor());
 
   private TypeSubstitution typeSubstitution;
 
@@ -152,8 +153,8 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
    * See the conceptual example at the top of this file.
    */
   private PossibleGenericSymbol createSomeGenericOfKandV() {
-    var k = support.createGenericT("K", symbolTable);
-    var v = support.createGenericT("V", symbolTable);
+    var k = aggregateFactory.createGenericT("K", symbolTable);
+    var v = aggregateFactory.createGenericT("V", symbolTable);
 
     var someGenericOfKandV = new AggregateSymbol("SomeGeneric", symbolTable);
     someGenericOfKandV.setModuleScope(symbolTable);
@@ -174,8 +175,8 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
    */
   private PossibleGenericSymbol createAnotherGenericOfRandS(final PossibleGenericSymbol someGenericOfKandV) {
     //So starts out same as above - I've done this 'long hand' so it's quite obvious.
-    var r = support.createGenericT("R", symbolTable);
-    var s = support.createGenericT("S", symbolTable);
+    var r = aggregateFactory.createGenericT("R", symbolTable);
+    var s = aggregateFactory.createGenericT("S", symbolTable);
 
     var anotherGenericRandS = new AggregateSymbol("AnotherGeneric", symbolTable);
     anotherGenericRandS.setModuleScope(symbolTable);
@@ -195,8 +196,8 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
 
   private PossibleGenericSymbol createYetAnotherGenericOfXandY(final PossibleGenericSymbol anotherGenericOfRandS) {
     //Again here we go - this is what the compiler will do for - but we need to ensure that everything gets wired up
-    var x = support.createGenericT("X", symbolTable);
-    var y = support.createGenericT("Y", symbolTable);
+    var x = aggregateFactory.createGenericT("X", symbolTable);
+    var y = aggregateFactory.createGenericT("Y", symbolTable);
 
     var yetAnotherGenericOfXandY = new AggregateSymbol("YetAnotherGeneric", symbolTable);
     yetAnotherGenericOfXandY.setModuleScope(symbolTable);

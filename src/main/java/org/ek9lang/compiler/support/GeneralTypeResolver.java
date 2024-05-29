@@ -16,7 +16,7 @@ import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
  */
 public class GeneralTypeResolver implements Function<SymbolSearchConfiguration, Optional<ISymbol>> {
   private final IScope scopeForResolution;
-  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator();
+  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator(new InternalNameFor());
 
   public GeneralTypeResolver(final IScope scopeForResolution) {
 

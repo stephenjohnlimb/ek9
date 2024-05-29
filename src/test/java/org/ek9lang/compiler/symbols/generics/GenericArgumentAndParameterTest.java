@@ -41,8 +41,8 @@ class GenericArgumentAndParameterTest extends AbstractSymbolTestBase {
   @Test
   void testSimpleConceptualMapping() {
     //(R, S) : (Float, String)
-    var r = support.createGenericT("R", symbolTable);
-    var s = support.createGenericT("S", symbolTable);
+    var r = aggregateFactory.createGenericT("R", symbolTable);
+    var s = aggregateFactory.createGenericT("S", symbolTable);
 
     //These are the parameters on the generic type
     List<ISymbol> typeParameters = List.of(r, s);
@@ -57,8 +57,8 @@ class GenericArgumentAndParameterTest extends AbstractSymbolTestBase {
   @Test
   void testMixedConcreteAndConceptualMapping() {
     //(Boolean, R, Duration, S, Integer) : (Float, String)
-    var r = support.createGenericT("R", symbolTable);
-    var s = support.createGenericT("S", symbolTable);
+    var r = aggregateFactory.createGenericT("R", symbolTable);
+    var s = aggregateFactory.createGenericT("S", symbolTable);
 
     //So this models a sort of partially parameterized type, with the additional concrete types now being provided.
     List<ISymbol> typeParameters = List.of(ek9Boolean, r, ek9Duration, s, ek9Integer);
@@ -72,9 +72,9 @@ class GenericArgumentAndParameterTest extends AbstractSymbolTestBase {
   @Test
   void testConceptualToConceptualMapping() {
     //(Boolean, R, Duration, S, Integer) : (Float, T)
-    var r = support.createGenericT("R", symbolTable);
-    var s = support.createGenericT("S", symbolTable);
-    var t = support.createGenericT("T", symbolTable);
+    var r = aggregateFactory.createGenericT("R", symbolTable);
+    var s = aggregateFactory.createGenericT("S", symbolTable);
+    var t = aggregateFactory.createGenericT("T", symbolTable);
 
     //While not really any different - here the mapping would result in a parameterized type
     //that would need to be parameterized further before being useful.

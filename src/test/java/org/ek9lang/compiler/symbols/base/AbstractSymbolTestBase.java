@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 public class AbstractSymbolTestBase {
 
-  protected final AggregateFactory support = new AggregateFactory();
+  protected final AggregateFactory aggregateFactory = new AggregateFactory();
   private final SymbolTable global = new SymbolTable();
   protected IScope symbolTable = new SymbolTable();
 
