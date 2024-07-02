@@ -6,13 +6,13 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 /**
  * Checks for both abstract and override. As this makes no sense.
  */
-public class CheckOverrideAndAbstract extends RuleSupport implements Consumer<MethodSymbol> {
+public class OverrideOrAbstractOrError extends RuleSupport implements Consumer<MethodSymbol> {
 
   /**
    * Create new checker.
    */
-  public CheckOverrideAndAbstract(final SymbolAndScopeManagement symbolAndScopeManagement,
-                                  final ErrorListener errorListener) {
+  public OverrideOrAbstractOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+                                   final ErrorListener errorListener) {
 
     super(symbolAndScopeManagement, errorListener);
 

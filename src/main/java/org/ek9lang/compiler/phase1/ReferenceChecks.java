@@ -8,7 +8,7 @@ import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.CompilerPhase;
 import org.ek9lang.compiler.Workspace;
-import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
+import org.ek9lang.compiler.common.CompilableSourceHasErrors;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.core.AssertValue;
@@ -21,7 +21,7 @@ import org.ek9lang.core.SharedThreadContext;
  */
 public final class ReferenceChecks extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.REFERENCE_CHECKS;
-  private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
+  private final CompilableSourceHasErrors sourceHasErrors = new CompilableSourceHasErrors();
 
   /**
    * Create a new reference checker for modules contained in the compilable program.
@@ -40,7 +40,7 @@ public final class ReferenceChecks extends CompilerPhase {
         .getSources()
         .forEach(this::resolveReferencedSymbols);
 
-    return !sourceHaveErrors.test(workspace.getSources());
+    return !sourceHasErrors.test(workspace.getSources());
   }
 
   /**

@@ -7,7 +7,7 @@ import org.ek9lang.compiler.CompilableSource;
 /**
  * Check to see if any of the compilable sources have errors.
  */
-public class CompilableSourceErrorCheck implements Predicate<Collection<CompilableSource>> {
+public class CompilableSourceHasErrors implements Predicate<Collection<CompilableSource>> {
   @Override
   public boolean test(final Collection<CompilableSource> compilableSources) {
 

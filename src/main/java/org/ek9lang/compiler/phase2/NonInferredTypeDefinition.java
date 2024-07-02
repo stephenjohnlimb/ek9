@@ -10,7 +10,7 @@ import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.CompilerPhase;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
-import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
+import org.ek9lang.compiler.common.CompilableSourceHasErrors;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.core.SharedThreadContext;
@@ -45,7 +45,7 @@ public final class NonInferredTypeDefinition extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION;
   private final boolean useMultiThreading;
 
-  private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
+  private final CompilableSourceHasErrors sourceHasErrors = new CompilableSourceHasErrors();
 
   /**
    * Create a new phase 1 second pass template type symbol resolution definition instance.
@@ -75,7 +75,7 @@ public final class NonInferredTypeDefinition extends CompilerPhase {
       defineSymbolsSingleThreaded(workspace);
     }
 
-    return !sourceHaveErrors.test(workspace.getSources());
+    return !sourceHasErrors.test(workspace.getSources());
   }
 
   private void defineSymbolsMultiThreaded(final Workspace workspace) {

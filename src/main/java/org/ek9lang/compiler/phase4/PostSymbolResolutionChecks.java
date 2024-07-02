@@ -7,7 +7,7 @@ import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.CompilerPhase;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
-import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
+import org.ek9lang.compiler.common.CompilableSourceHasErrors;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -28,7 +28,7 @@ import org.ek9lang.core.SharedThreadContext;
  */
 public class PostSymbolResolutionChecks extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.POST_RESOLUTION_CHECKS;
-  private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
+  private final CompilableSourceHasErrors sourceHasErrors = new CompilableSourceHasErrors();
 
   /**
    * Create new instance to check everything is logical and cohesive.
@@ -46,7 +46,7 @@ public class PostSymbolResolutionChecks extends CompilerPhase {
 
     checkParameterisedTypes();
 
-    return !sourceHaveErrors.test(workspace.getSources());
+    return !sourceHasErrors.test(workspace.getSources());
   }
 
   private void checkParameterisedTypes() {

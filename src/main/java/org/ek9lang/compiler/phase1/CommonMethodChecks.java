@@ -4,9 +4,9 @@ import static org.ek9lang.compiler.support.SymbolFactory.DEFAULTED;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.common.CheckInappropriateBody;
-import org.ek9lang.compiler.common.CheckOverrideAndAbstract;
+import org.ek9lang.compiler.common.AppropriateBodyOrError;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.OverrideOrAbstractOrError;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -17,16 +17,16 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 final class CommonMethodChecks extends RuleSupport
     implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
 
-  private final CheckInappropriateBody checkInappropriateBody;
+  private final AppropriateBodyOrError appropriateBodyOrError;
 
-  private final CheckOverrideAndAbstract checkOverrideAndAbstract;
+  private final OverrideOrAbstractOrError overrideOrAbstractOrError;
 
   CommonMethodChecks(final SymbolAndScopeManagement symbolAndScopeManagement,
                      final ErrorListener errorListener) {
 
     super(symbolAndScopeManagement, errorListener);
-    checkInappropriateBody = new CheckInappropriateBody(symbolAndScopeManagement, errorListener);
-    checkOverrideAndAbstract = new CheckOverrideAndAbstract(symbolAndScopeManagement, errorListener);
+    appropriateBodyOrError = new AppropriateBodyOrError(symbolAndScopeManagement, errorListener);
+    overrideOrAbstractOrError = new OverrideOrAbstractOrError(symbolAndScopeManagement, errorListener);
 
   }
 
@@ -35,8 +35,8 @@ final class CommonMethodChecks extends RuleSupport
   public void accept(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
 
     final var message = "for method '" + ctx.identifier().getText() + "':";
-    checkInappropriateBody.accept(method, ctx.operationDetails());
-    checkOverrideAndAbstract.accept(method);
+    appropriateBodyOrError.accept(method, ctx.operationDetails());
+    overrideOrAbstractOrError.accept(method);
 
     checkAccessModifier(method, ctx, message);
     checkConstructor(method, message);

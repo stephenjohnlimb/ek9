@@ -8,14 +8,14 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.common.CheckIfContextSupportsAbstractMethod;
-import org.ek9lang.compiler.common.CheckInappropriateBody;
-import org.ek9lang.compiler.common.CheckNonTraitMethod;
-import org.ek9lang.compiler.common.CheckOverrideAndAbstract;
-import org.ek9lang.compiler.common.CheckTraitMethod;
+import org.ek9lang.compiler.common.AppropriateBodyOrError;
+import org.ek9lang.compiler.common.ContextSupportsAbstractMethodOrError;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.OverrideOrAbstractOrError;
+import org.ek9lang.compiler.common.ProcessTraitMethodOrError;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TraitMethodAcceptableOrError;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -30,12 +30,12 @@ final class CheckOperator extends RuleSupport
     implements BiConsumer<MethodSymbol, EK9Parser.OperatorDeclarationContext> {
 
   private static final String OPERATOR_SEMANTICS = "operator semantics:";
-  private final CheckTraitMethod checkTraitMethod;
-  private final CheckNonTraitMethod checkNonTraitMethod;
-  private final CheckIfContextSupportsAbstractMethod checkIfContextSupportsAbstractMethod;
-  private final CheckInappropriateBody checkInappropriateBody;
+  private final ProcessTraitMethodOrError processTraitMethodOrError;
+  private final TraitMethodAcceptableOrError traitMethodAcceptableOrError;
+  private final ContextSupportsAbstractMethodOrError contextSupportsAbstractMethodOrError;
+  private final AppropriateBodyOrError appropriateBodyOrError;
   private final Map<String, Consumer<MethodSymbol>> operatorChecks;
-  private final CheckOverrideAndAbstract checkOverrideAndAbstract;
+  private final OverrideOrAbstractOrError overrideOrAbstractOrError;
 
   /**
    * Create a new operation checker.
@@ -46,12 +46,12 @@ final class CheckOperator extends RuleSupport
     super(symbolAndScopeManagement, errorListener);
     this.operatorChecks = populateOperatorChecks();
 
-    checkNonTraitMethod = new CheckNonTraitMethod(errorListener);
-    checkIfContextSupportsAbstractMethod =
-        new CheckIfContextSupportsAbstractMethod(symbolAndScopeManagement, errorListener);
-    checkTraitMethod = new CheckTraitMethod(errorListener);
-    checkInappropriateBody = new CheckInappropriateBody(symbolAndScopeManagement, errorListener);
-    checkOverrideAndAbstract = new CheckOverrideAndAbstract(symbolAndScopeManagement, errorListener);
+    traitMethodAcceptableOrError = new TraitMethodAcceptableOrError(errorListener);
+    contextSupportsAbstractMethodOrError =
+        new ContextSupportsAbstractMethodOrError(symbolAndScopeManagement, errorListener);
+    processTraitMethodOrError = new ProcessTraitMethodOrError(errorListener);
+    appropriateBodyOrError = new AppropriateBodyOrError(symbolAndScopeManagement, errorListener);
+    overrideOrAbstractOrError = new OverrideOrAbstractOrError(symbolAndScopeManagement, errorListener);
 
   }
 
@@ -67,16 +67,16 @@ final class CheckOperator extends RuleSupport
     }
 
     if (ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext) {
-      checkTraitMethod.accept(methodSymbol, ctx.operationDetails());
+      processTraitMethodOrError.accept(methodSymbol, ctx.operationDetails());
     }
 
     if (!(ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext)) {
-      checkNonTraitMethod.accept(methodSymbol, ctx.operationDetails());
+      traitMethodAcceptableOrError.accept(methodSymbol, ctx.operationDetails());
     }
 
-    checkIfContextSupportsAbstractMethod.accept(methodSymbol, ctx);
-    checkInappropriateBody.accept(methodSymbol, ctx.operationDetails());
-    checkOverrideAndAbstract.accept(methodSymbol);
+    contextSupportsAbstractMethodOrError.accept(methodSymbol, ctx);
+    appropriateBodyOrError.accept(methodSymbol, ctx.operationDetails());
+    overrideOrAbstractOrError.accept(methodSymbol);
 
   }
 

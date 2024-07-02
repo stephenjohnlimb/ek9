@@ -2,9 +2,9 @@ package org.ek9lang.compiler.phase1;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.common.CheckForBody;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.ExternallyImplemented;
+import org.ek9lang.compiler.common.ProcessingBodyPresent;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
@@ -16,7 +16,7 @@ import org.ek9lang.compiler.symbols.FunctionSymbol;
 final class CheckInappropriateFunctionBody extends RuleSupport implements
     BiConsumer<FunctionSymbol, EK9Parser.OperationDetailsContext> {
 
-  private final CheckForBody checkForBody = new CheckForBody();
+  private final ProcessingBodyPresent processingBodyPresent = new ProcessingBodyPresent();
   private final ExternallyImplemented externallyImplemented = new ExternallyImplemented();
 
   CheckInappropriateFunctionBody(final SymbolAndScopeManagement symbolAndScopeManagement,
@@ -30,7 +30,7 @@ final class CheckInappropriateFunctionBody extends RuleSupport implements
   public void accept(final FunctionSymbol functionSymbol,
                      final EK9Parser.OperationDetailsContext ctx) {
 
-    final var hasBody = checkForBody.test(ctx);
+    final var hasBody = processingBodyPresent.test(ctx);
     final var isAbstract = functionSymbol.isMarkedAbstract();
     final var isExternallyImplemented = externallyImplemented.test(functionSymbol);
 

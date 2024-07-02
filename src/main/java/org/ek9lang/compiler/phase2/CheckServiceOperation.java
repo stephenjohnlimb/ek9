@@ -9,8 +9,8 @@ import static org.ek9lang.compiler.support.SymbolFactory.URI_PROTO;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.common.CheckForBody;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.ProcessingBodyPresent;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -24,7 +24,7 @@ import org.ek9lang.core.AssertValue;
 final class CheckServiceOperation extends RuleSupport
     implements BiConsumer<ServiceOperationSymbol, EK9Parser.ServiceOperationDeclarationContext> {
 
-  private final CheckForBody checkForBody = new CheckForBody();
+  private final ProcessingBodyPresent processingBodyPresent = new ProcessingBodyPresent();
   private final CheckPathParameter checkPathParameter;
   private final CheckHttpAccess checkHttpAccess;
 
@@ -157,7 +157,7 @@ final class CheckServiceOperation extends RuleSupport
   private void testServiceBody(final ServiceOperationSymbol operation,
                                final EK9Parser.ServiceOperationDeclarationContext ctx) {
 
-    if (!checkForBody.test(ctx.operationDetails())) {
+    if (!processingBodyPresent.test(ctx.operationDetails())) {
       errorListener.semanticError(operation.getSourceToken(), "",
           ErrorListener.SemanticClassification.SERVICE_WITH_NO_BODY_PROVIDED);
     }

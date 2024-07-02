@@ -7,16 +7,17 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
- * Check trait specifics on methods/operators, Allowing missing body but marking as abstract.
+ * Check trait specifics on constructors/methods/operators, Allowing missing body but marking as abstract.
+ * Issues error if method is marked as a constructor on a trait.
  */
-public class CheckTraitMethod implements BiConsumer<MethodSymbol, EK9Parser.OperationDetailsContext> {
-  private final CheckForBody checkForBody = new CheckForBody();
+public class ProcessTraitMethodOrError implements BiConsumer<MethodSymbol, EK9Parser.OperationDetailsContext> {
+  private final ProcessingBodyPresent processingBodyPresent = new ProcessingBodyPresent();
   private final ErrorListener errorListener;
 
   /**
    * Create new checker.
    */
-  public CheckTraitMethod(final ErrorListener errorListener) {
+  public ProcessTraitMethodOrError(final ErrorListener errorListener) {
 
     this.errorListener = errorListener;
 
@@ -25,13 +26,15 @@ public class CheckTraitMethod implements BiConsumer<MethodSymbol, EK9Parser.Oper
   @Override
   public void accept(final MethodSymbol method, final EK9Parser.OperationDetailsContext ctx) {
 
-    final var hasBody = checkForBody.test(ctx);
-    final var isVirtual = !method.isMarkedAbstract() && !hasBody;
-
     if (method.isConstructor()) {
       errorListener.semanticError(method.getSourceToken(), "", TRAITS_DO_NOT_HAVE_CONSTRUCTORS);
-    } else if (isVirtual) {
+      return;
+    }
+
+    final var isVirtual = !method.isMarkedAbstract() && !processingBodyPresent.test(ctx);
+    if (isVirtual) {
       method.setMarkedAbstract(true);
     }
+
   }
 }

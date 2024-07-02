@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 final class NameForParameterisedTypeTest {
   private final AggregateFactory aggregateFactory = new AggregateFactory();
 
-  private NameForParameterisedType underTest = new NameForParameterisedType();
+  private final NameForParameterisedType underTest = new NameForParameterisedType();
 
   @Test
   void testConceptualTypeArgument() {

@@ -2,12 +2,12 @@ package org.ek9lang.compiler.phase1;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.common.CheckIfContextSupportsAbstractMethod;
-import org.ek9lang.compiler.common.CheckNonTraitMethod;
-import org.ek9lang.compiler.common.CheckTraitMethod;
+import org.ek9lang.compiler.common.ContextSupportsAbstractMethodOrError;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.ProcessTraitMethodOrError;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.TraitMethodAcceptableOrError;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
@@ -18,9 +18,9 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
 final class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
 
   private final CommonMethodChecks commonMethodChecks;
-  private final CheckTraitMethod checkTraitMethod;
-  private final CheckNonTraitMethod checkNonTraitMethod;
-  private final CheckIfContextSupportsAbstractMethod checkIfContextSupportsAbstractMethod;
+  private final ProcessTraitMethodOrError processTraitMethodOrError;
+  private final TraitMethodAcceptableOrError traitMethodAcceptableOrError;
+  private final ContextSupportsAbstractMethodOrError contextSupportsAbstractMethodOrError;
   private final CheckNonExtendableMethod checkNonExtendableMethod;
   private final CheckNotDispatcherMethod checkNotDispatcherMethod;
   private final CheckGenericConstructor checkGenericConstructor;
@@ -39,11 +39,11 @@ final class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol, 
 
     super(symbolAndScopeManagement, errorListener);
     commonMethodChecks = new CommonMethodChecks(symbolAndScopeManagement, errorListener);
-    checkNonTraitMethod = new CheckNonTraitMethod(errorListener);
-    checkIfContextSupportsAbstractMethod =
-        new CheckIfContextSupportsAbstractMethod(symbolAndScopeManagement, errorListener);
+    traitMethodAcceptableOrError = new TraitMethodAcceptableOrError(errorListener);
+    contextSupportsAbstractMethodOrError =
+        new ContextSupportsAbstractMethodOrError(symbolAndScopeManagement, errorListener);
     checkNonExtendableMethod = new CheckNonExtendableMethod(errorListener);
-    checkTraitMethod = new CheckTraitMethod(errorListener);
+    processTraitMethodOrError = new ProcessTraitMethodOrError(errorListener);
     checkNotDispatcherMethod = new CheckNotDispatcherMethod(errorListener);
     checkGenericConstructor = new CheckGenericConstructor(errorListener);
     checkProgramReturns = new CheckProgramReturns(errorListener);
@@ -70,7 +70,7 @@ final class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol, 
     }
 
     if (ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext) {
-      checkTraitMethod.accept(method, ctx.operationDetails());
+      processTraitMethodOrError.accept(method, ctx.operationDetails());
     }
 
     //If not in a class then method must not be marked as dispatcher.
@@ -80,12 +80,12 @@ final class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol, 
     }
 
     if (!(ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext)) {
-      checkNonTraitMethod.accept(method, ctx.operationDetails());
+      traitMethodAcceptableOrError.accept(method, ctx.operationDetails());
     }
 
     commonMethodChecks.accept(method, ctx);
 
-    checkIfContextSupportsAbstractMethod.accept(method, ctx);
+    contextSupportsAbstractMethodOrError.accept(method, ctx);
 
     checkMethodNotOperatorName.accept(method, ctx);
 

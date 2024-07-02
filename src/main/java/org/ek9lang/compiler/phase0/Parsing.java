@@ -9,7 +9,7 @@ import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilationPhaseResult;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Workspace;
-import org.ek9lang.compiler.common.CompilableSourceErrorCheck;
+import org.ek9lang.compiler.common.CompilableSourceHasErrors;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
 
@@ -25,7 +25,7 @@ public final class Parsing
   private static final CompilationPhase thisPhase = CompilationPhase.PREPARE_PARSE;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
-  private final CompilableSourceErrorCheck sourceHaveErrors = new CompilableSourceErrorCheck();
+  private final CompilableSourceHasErrors sourceHasErrors = new CompilableSourceHasErrors();
   private final UnaryOperator<Collection<CompilableSource>> sourcesToBeParsed
       = compilableSources -> compilableSources.stream()
       .filter(source -> source.hasNotBeenSuccessfullyParsed() || source.isModified())
@@ -74,7 +74,7 @@ public final class Parsing
         .map(operator).toList();
 
     affectedSources.forEach(source -> listener.accept(new CompilationEvent(thisPhase, null, source)));
-    return !sourceHaveErrors.test(affectedSources);
+    return !sourceHasErrors.test(affectedSources);
 
   }
 }

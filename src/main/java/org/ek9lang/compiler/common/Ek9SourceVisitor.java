@@ -87,7 +87,6 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
     packagePresent = false;
     foundVersion = false;
     foundDescription = false;
-
     publicAccess = false;
     version = "";
     versionNumberOnLine = 0;
@@ -112,14 +111,15 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
   public Optional<PackageDetails> getPackageDetails() {
 
     return packageDetails;
+
   }
 
   @Override
   public Void visitModuleDeclaration(final ModuleDeclarationContext ctx) {
 
     moduleName = ctx.dottedName().getText();
-
     return super.visitModuleDeclaration(ctx);
+
   }
 
   @Override
@@ -127,23 +127,27 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
 
     ctx.methodDeclaration().forEach(
         methodDeclaration -> programs.add(methodDeclaration.identifier().getText().trim()));
-
     return super.visitProgramBlock(ctx);
+
   }
 
   @Override
   public Void visitPackageBlock(final EK9Parser.PackageBlockContext ctx) {
 
+    //Initialise the state variables.
     packagePresent = true;
     foundVersion = false;
     foundDescription = false;
 
+    //These are the processors that deal with gathering the assignments.
     final var assignments = getAssignmentProcessors();
-    //need to manually traverse down, so we only get version in this context
+
+    //Need to manually traverse down, so we only get version in this context
     ctx.variableDeclaration().forEach(
         vd -> assignments.getOrDefault(vd.identifier().getText(), this::processUnknownProperty)
             .accept(vd.assignmentExpression()));
 
+    //Now we must assert that the description is present as that is mandatory.
     if (!foundDescription) {
       errorListener.semanticError(new Ek9Token(ctx.start),
           "Package: property 'description' is mandatory if a package is declared.",
@@ -151,6 +155,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
     }
 
     return super.visitPackageBlock(ctx);
+
   }
 
   /**
@@ -166,11 +171,13 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
     final var all = deps.toString() + devDeps.toString() + excludeDeps.toString();
 
     return Digest.digest(all).toString();
+
   }
 
   private void setErrorListener(final ErrorListener errorListener) {
 
     this.errorListener = errorListener;
+
   }
 
   private Map<String, Consumer<EK9Parser.AssignmentExpressionContext>> getAssignmentProcessors() {
@@ -197,6 +204,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
     ));
 
     return rtn;
+
   }
 
   private void processUnknownProperty(final EK9Parser.AssignmentExpressionContext ive) {
@@ -210,7 +218,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
 
   private void processPublicAccess(final EK9Parser.AssignmentExpressionContext ive) {
 
-    if (ive.expression() != null && ive.expression().primary() != null) {
+    if (isValidPrimaryAssignmentContext(ive)) {
       publicAccess = Boolean.parseBoolean(getTextFromRuleContext(ive.expression()));
     } else {
       errorListener.semanticError(ive.expression().start,
@@ -225,7 +233,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
       errorListener.semanticError(ive.expression().start,
           "In '" + moduleName + "' package: 'version'.", SemanticClassification.DUPLICATE_VARIABLE);
     }
-    if (ive.expression() != null && ive.expression().primary() != null) {
+    if (isValidPrimaryAssignmentContext(ive)) {
       version = getTextFromRuleContext(ive.expression());
       versionNumberOnLine = ive.expression().getStart().getLine();
       foundVersion = true;
@@ -239,7 +247,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
 
   private void processDescription(final EK9Parser.AssignmentExpressionContext ive) {
 
-    if (ive.expression() != null && ive.expression().primary() != null) {
+    if (isValidPrimaryAssignmentContext(ive)) {
       description = getTextFromRuleContext(ive.expression()).replace("\"", "");
       foundDescription = true;
     } else {
@@ -252,7 +260,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
 
   private void processLicense(final EK9Parser.AssignmentExpressionContext ive) {
 
-    if (ive.expression() != null && ive.expression().primary() != null) {
+    if (isValidPrimaryAssignmentContext(ive)) {
       license = getTextFromRuleContext(ive.expression()).replace("\"", "");
     } else {
       errorListener.semanticError(ive.expression().start,
@@ -265,7 +273,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
   private void processExcludeFiles(final EK9Parser.AssignmentExpressionContext ive) {
 
     //We cannot assume this because user might have not used correct type
-    if (ive.expression() != null && ive.expression().list() != null) {
+    if (isValidListAssignmentContext(ive)) {
       excludeFiles = extractListFromArray(ive.expression().list());
     } else {
       errorListener.semanticError(ive.expression().start,
@@ -277,7 +285,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
 
   private void processApplyStandardExcludes(final EK9Parser.AssignmentExpressionContext ive) {
 
-    if (ive.expression() != null && ive.expression().primary() != null) {
+    if (isValidPrimaryAssignmentContext(ive)) {
       applyStandardExcludes = Boolean.parseBoolean(getTextFromRuleContext(ive.expression()));
     } else {
       errorListener.semanticError(ive.expression().start,
@@ -290,7 +298,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
   private void processIncludeFiles(final EK9Parser.AssignmentExpressionContext ive) {
 
     //We cannot assume this because user might have not used correct type
-    if (ive.expression() != null && ive.expression().list() != null) {
+    if (isValidListAssignmentContext(ive)) {
       includeFiles = extractListFromArray(ive.expression().list());
     } else {
       errorListener.semanticError(ive.expression().start,
@@ -302,7 +310,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
 
   private void processApplyStandardIncludes(final EK9Parser.AssignmentExpressionContext ive) {
 
-    if (ive.expression() != null && ive.expression().primary() != null) {
+    if (isValidPrimaryAssignmentContext(ive)) {
       applyStandardIncludes = Boolean.parseBoolean(getTextFromRuleContext(ive.expression()));
     } else {
       errorListener.semanticError(ive.expression().start,
@@ -315,7 +323,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
   private void processExcludeDeps(final EK9Parser.AssignmentExpressionContext ive) {
 
     //We cannot assume this because user might have not used correct type
-    if (ive.expression() != null && ive.expression().dict() != null) {
+    if (isValidDictAssignmentContext(ive)) {
       excludeDeps = extractMapFromDict(ive.expression().dict());
     } else {
       errorListener.semanticError(ive.expression().start,
@@ -328,7 +336,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
   private void processDevDeps(final EK9Parser.AssignmentExpressionContext ive) {
 
     //We cannot assume this because user might have not used correct type
-    if (ive.expression() != null && ive.expression().dict() != null) {
+    if (isValidDictAssignmentContext(ive)) {
       devDeps = extractMapFromDict(ive.expression().dict());
     } else {
       errorListener.semanticError(ive.expression().start,
@@ -341,7 +349,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
   private void processDeps(final EK9Parser.AssignmentExpressionContext ive) {
 
     //We cannot assume this because user might have not used correct type
-    if (ive.expression() != null && ive.expression().dict() != null) {
+    if (isValidDictAssignmentContext(ive)) {
       deps = extractMapFromDict(ive.expression().dict());
     } else {
       errorListener.semanticError(ive.expression().start,
@@ -354,7 +362,7 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
   private void processTags(final EK9Parser.AssignmentExpressionContext ive) {
 
     //We cannot assume this because user might have not used correct type
-    if (ive.expression() != null && ive.expression().list() != null) {
+    if (isValidListAssignmentContext(ive)) {
       tags = extractListFromArray(ive.expression().list());
     } else {
       errorListener.semanticError(ive.expression().start,
@@ -388,6 +396,24 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
         ));
   }
 
+  private boolean isValidPrimaryAssignmentContext(final EK9Parser.AssignmentExpressionContext ive) {
+
+    return ive.expression() != null && ive.expression().primary() != null;
+
+  }
+
+  private boolean isValidListAssignmentContext(final EK9Parser.AssignmentExpressionContext ive) {
+
+    return ive.expression() != null && ive.expression().list() != null;
+
+  }
+
+  private boolean isValidDictAssignmentContext(final EK9Parser.AssignmentExpressionContext ive) {
+
+    return ive.expression() != null && ive.expression().dict() != null;
+
+  }
+
   private String getUnQuotedTextFromRuleContext(final RuleContext ctx) {
 
     return ctx.getText().trim().replace("\"", "");
@@ -397,4 +423,5 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
 
     return ctx.getText().trim();
   }
+
 }

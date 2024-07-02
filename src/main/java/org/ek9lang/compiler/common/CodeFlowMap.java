@@ -54,6 +54,7 @@ class CodeFlowMap implements CodeFlowAnalyzer {
     return access.keySet().stream()
         .filter(variable -> !meetsCriteria.test(access.get(variable)))
         .toList();
+
   }
 
   /**
@@ -70,6 +71,7 @@ class CodeFlowMap implements CodeFlowAnalyzer {
 
     //IF it not even to be tested then it is ok
     return true;
+
   }
 
   /**
@@ -118,6 +120,7 @@ class CodeFlowMap implements CodeFlowAnalyzer {
     }
 
     getSymbolAccessForVariable(identifierSymbol, enclosingScope);
+
   }
 
   private SymbolAccess getSymbolAccessForVariable(final ISymbol identifierSymbol,
@@ -154,6 +157,7 @@ class CodeFlowMap implements CodeFlowAnalyzer {
     map.get(identifierSymbol).metaData().addAll(toReturn.metaData());
 
     return toReturn;
+
   }
 
   /**
@@ -170,5 +174,6 @@ class CodeFlowMap implements CodeFlowAnalyzer {
     accessMap.put(inScope, access);
 
     return access;
+    
   }
 }

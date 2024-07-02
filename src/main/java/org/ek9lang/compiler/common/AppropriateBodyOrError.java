@@ -9,16 +9,17 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 /**
  * Checks if the body of a method/operator is appropriate.
  * i.e. has it been marked as abstract or default - neither of which need a body.
+ * Emits compiler error if inappropriate.
  */
-public class CheckInappropriateBody extends RuleSupport implements
+public class AppropriateBodyOrError extends RuleSupport implements
     BiConsumer<MethodSymbol, EK9Parser.OperationDetailsContext> {
 
-  private final CheckForBody checkForBody = new CheckForBody();
+  private final ProcessingBodyPresent processingBodyPresent = new ProcessingBodyPresent();
 
   /**
    * Create new checker.
    */
-  public CheckInappropriateBody(final SymbolAndScopeManagement symbolAndScopeManagement,
+  public AppropriateBodyOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
                                 final ErrorListener errorListener) {
 
     super(symbolAndScopeManagement, errorListener);
@@ -29,11 +30,9 @@ public class CheckInappropriateBody extends RuleSupport implements
   public void accept(final MethodSymbol methodSymbol,
                      final EK9Parser.OperationDetailsContext ctx) {
 
-    final var hasBody = checkForBody.test(ctx);
     final var defaulted = "TRUE".equals(methodSymbol.getSquirrelledData(DEFAULTED));
-    final var isAbstract = methodSymbol.isMarkedAbstract();
 
-    if (hasBody && (defaulted || isAbstract)) {
+    if ((defaulted || methodSymbol.isMarkedAbstract()) && processingBodyPresent.test(ctx)) {
       errorListener.semanticError(methodSymbol.getSourceToken(), "",
           ErrorListener.SemanticClassification.ABSTRACT_BUT_BODY_PROVIDED);
     }

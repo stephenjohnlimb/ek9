@@ -5,16 +5,14 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
- * Test to see if an aggregate mandated pure in its construction.
+ * Predicate to see if an aggregate mandated pure in its construction.
  */
 public class AggregateHasPureConstruction implements Predicate<IAggregateSymbol> {
 
   @Override
   public boolean test(final IAggregateSymbol aggregateSymbol) {
 
-    return aggregateSymbol.getAllNonAbstractMethodsInThisScopeOnly()
-        .stream()
-        .filter(MethodSymbol::isConstructor)
-        .anyMatch(MethodSymbol::isMarkedPure);
+    return aggregateSymbol.getConstructors().stream().anyMatch(MethodSymbol::isMarkedPure);
+
   }
 }
