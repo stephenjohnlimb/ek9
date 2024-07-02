@@ -111,7 +111,6 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
   public Optional<PackageDetails> getPackageDetails() {
 
     return packageDetails;
-
   }
 
   @Override
@@ -119,7 +118,6 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
 
     moduleName = ctx.dottedName().getText();
     return super.visitModuleDeclaration(ctx);
-
   }
 
   @Override
@@ -128,7 +126,6 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
     ctx.methodDeclaration().forEach(
         methodDeclaration -> programs.add(methodDeclaration.identifier().getText().trim()));
     return super.visitProgramBlock(ctx);
-
   }
 
   @Override
@@ -155,7 +152,6 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
     }
 
     return super.visitPackageBlock(ctx);
-
   }
 
   /**
@@ -171,7 +167,6 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
     final var all = deps.toString() + devDeps.toString() + excludeDeps.toString();
 
     return Digest.digest(all).toString();
-
   }
 
   private void setErrorListener(final ErrorListener errorListener) {
@@ -204,7 +199,6 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
     ));
 
     return rtn;
-
   }
 
   private void processUnknownProperty(final EK9Parser.AssignmentExpressionContext ive) {
@@ -399,19 +393,16 @@ public class Ek9SourceVisitor extends EK9BaseVisitor<Void> {
   private boolean isValidPrimaryAssignmentContext(final EK9Parser.AssignmentExpressionContext ive) {
 
     return ive.expression() != null && ive.expression().primary() != null;
-
   }
 
   private boolean isValidListAssignmentContext(final EK9Parser.AssignmentExpressionContext ive) {
 
     return ive.expression() != null && ive.expression().list() != null;
-
   }
 
   private boolean isValidDictAssignmentContext(final EK9Parser.AssignmentExpressionContext ive) {
 
     return ive.expression() != null && ive.expression().dict() != null;
-
   }
 
   private String getUnQuotedTextFromRuleContext(final RuleContext ctx) {

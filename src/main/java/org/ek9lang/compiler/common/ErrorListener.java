@@ -813,6 +813,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     public void setSemanticClassification(SemanticClassification semanticClassification) {
 
       this.semanticClassification = semanticClassification;
+
     }
 
     @Override

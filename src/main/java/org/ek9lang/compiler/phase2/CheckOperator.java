@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.phase2;
 
-import static org.ek9lang.compiler.support.SymbolFactory.DEFAULTED;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -10,6 +8,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.AppropriateBodyOrError;
 import org.ek9lang.compiler.common.ContextSupportsAbstractMethodOrError;
+import org.ek9lang.compiler.common.Defaulted;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.OverrideOrAbstractOrError;
 import org.ek9lang.compiler.common.ProcessTraitMethodOrError;
@@ -36,6 +35,7 @@ final class CheckOperator extends RuleSupport
   private final AppropriateBodyOrError appropriateBodyOrError;
   private final Map<String, Consumer<MethodSymbol>> operatorChecks;
   private final OverrideOrAbstractOrError overrideOrAbstractOrError;
+  private final Defaulted defaulted = new Defaulted();
 
   /**
    * Create a new operation checker.
@@ -58,10 +58,8 @@ final class CheckOperator extends RuleSupport
   @Override
   public void accept(final MethodSymbol methodSymbol, final EK9Parser.OperatorDeclarationContext ctx) {
 
-    //Operator can be defaulted and so compiler will create implementation
-    final var defaulted = "TRUE".equals(methodSymbol.getSquirrelledData(DEFAULTED));
 
-    if (!defaulted) {
+    if (!defaulted.test(methodSymbol)) {
       operatorChecks.getOrDefault(ctx.operator().getText(), method -> {
       }).accept(methodSymbol);
     }

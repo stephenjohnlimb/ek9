@@ -57,10 +57,9 @@ public class TypeDefResolver extends EK9BaseVisitor<SymbolSearchConfiguration> {
 
     if (ctx.identifierReference() != null) {
       return byIdentifierReference(ctx.identifierReference());
-    } else {
-      return byParameterizedType(ctx.parameterisedType());
     }
 
+    return byParameterizedType(ctx.parameterisedType());
   }
 
   private SymbolSearchConfiguration byIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
@@ -85,17 +84,16 @@ public class TypeDefResolver extends EK9BaseVisitor<SymbolSearchConfiguration> {
     if (ctx.typeDef() != null) {
       final var parameterizingName = byTypeDef(ctx.typeDef());
       return new SymbolSearchConfiguration(genericTypeName, List.of(parameterizingName));
-    } else {
-      //This is for multiple parameterizing parameters.
-      //Multiple type defs - so we need to try and get them all and hold in a list.
-      final var genericParameterizingNames = new ArrayList<SymbolSearchConfiguration>();
-      for (var typeDefCtx : ctx.parameterisedArgs().typeDef()) {
-        //Multiple recursive calls back around the loop.
-        final var parameterizingName = byTypeDef(typeDefCtx);
-        genericParameterizingNames.add(parameterizingName);
-      }
-
-      return new SymbolSearchConfiguration(genericTypeName, genericParameterizingNames);
     }
+    //This is for multiple parameterizing parameters.
+    //Multiple type defs - so we need to try and get them all and hold in a list.
+    final var genericParameterizingNames = new ArrayList<SymbolSearchConfiguration>();
+    for (var typeDefCtx : ctx.parameterisedArgs().typeDef()) {
+      //Multiple recursive calls back around the loop.
+      final var parameterizingName = byTypeDef(typeDefCtx);
+      genericParameterizingNames.add(parameterizingName);
+    }
+
+    return new SymbolSearchConfiguration(genericTypeName, genericParameterizingNames);
   }
 }

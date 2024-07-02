@@ -6,6 +6,8 @@ import org.ek9lang.compiler.tokenizer.IToken;
 /**
  * Provides basic interface for the EK9 internal @ type directives.
  * The idea is to accept this sort of thing.
+ * These are used in development and testing, so that EK9 can be annotated as part of tests.
+ * <br/>
  * //@Error: SYMBOL_DEFINITION: PARENTHESIS_NOT_REQUIRED
  * //@Error: REFERENCE_CHECKS: NOT_RESOLVED
  * //@Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE: "List"

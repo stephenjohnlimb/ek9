@@ -24,6 +24,5 @@ public class ProcessingBodyPresent implements Predicate<EK9Parser.OperationDetai
     }
 
     return ctx.returningParam() != null && ctx.returningParam().variableDeclaration() != null;
-
   }
 }

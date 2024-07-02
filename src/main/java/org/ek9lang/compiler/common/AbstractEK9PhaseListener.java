@@ -130,7 +130,6 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   protected ParsedModule getParsedModule() {
 
     return parsedModule;
-
   }
 
   /**
@@ -140,13 +139,11 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   public ErrorListener getErrorListener() {
 
     return parsedModule.getSource().getErrorListener();
-
   }
 
   public boolean isScopeStackEmpty() {
 
     return symbolAndScopeManagement.getTopScope() == null;
-
   }
 
   @Override

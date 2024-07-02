@@ -17,7 +17,7 @@ public class ImplementsDirectiveListener extends ResolvedDirectiveListener {
   public void accept(final CompilationEvent compilationEvent) {
 
     if (compilationEvent.parsedModule() != null) {
-      //Only interested in extends directives for this phase.
+
       final var directives =
           compilationEvent.parsedModule().getDirectives(DirectiveType.Implements, compilationEvent.phase());
 

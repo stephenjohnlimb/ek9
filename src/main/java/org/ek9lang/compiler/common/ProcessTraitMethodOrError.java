@@ -25,16 +25,18 @@ public class ProcessTraitMethodOrError implements BiConsumer<MethodSymbol, EK9Pa
 
   @Override
   public void accept(final MethodSymbol method, final EK9Parser.OperationDetailsContext ctx) {
-
-    if (method.isConstructor()) {
+    if (!method.isConstructor()) {
+      markMethodAbstractIfVirtual(method, ctx);
+    } else {
       errorListener.semanticError(method.getSourceToken(), "", TRAITS_DO_NOT_HAVE_CONSTRUCTORS);
-      return;
     }
+  }
 
-    final var isVirtual = !method.isMarkedAbstract() && !processingBodyPresent.test(ctx);
-    if (isVirtual) {
+  private void markMethodAbstractIfVirtual(final MethodSymbol method, final EK9Parser.OperationDetailsContext ctx) {
+
+    if (!method.isMarkedAbstract() && !processingBodyPresent.test(ctx)) {
       method.setMarkedAbstract(true);
     }
-
   }
+
 }

@@ -19,7 +19,7 @@ public abstract class ResolutionDirective implements Directive {
    * The symbol Name can be single like Integer or parameterised like List of (String).
    * If parameterised it must have the parenthesis.
    */
-  protected ResolutionDirective(final DirectiveSpec spec) {
+  ResolutionDirective(final DirectiveSpec spec) {
 
     this.spec = spec;
 

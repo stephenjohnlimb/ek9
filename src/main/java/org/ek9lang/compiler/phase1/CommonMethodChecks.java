@@ -1,10 +1,9 @@
 package org.ek9lang.compiler.phase1;
 
-import static org.ek9lang.compiler.support.SymbolFactory.DEFAULTED;
-
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.AppropriateBodyOrError;
+import org.ek9lang.compiler.common.Defaulted;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.OverrideOrAbstractOrError;
 import org.ek9lang.compiler.common.RuleSupport;
@@ -17,6 +16,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 final class CommonMethodChecks extends RuleSupport
     implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
 
+  private final Defaulted defaulted = new Defaulted();
   private final AppropriateBodyOrError appropriateBodyOrError;
 
   private final OverrideOrAbstractOrError overrideOrAbstractOrError;
@@ -98,9 +98,7 @@ final class CommonMethodChecks extends RuleSupport
                               final EK9Parser.MethodDeclarationContext ctx,
                               final String errorMessage) {
 
-    final var isDefaulted = "TRUE".equals(method.getSquirrelledData(DEFAULTED));
-
-    if (isDefaulted && method.isConstructor() && !method.getCallParameters().isEmpty()) {
+    if (defaulted.test(method) && method.isConstructor() && !method.getCallParameters().isEmpty()) {
       errorListener.semanticError(ctx.DEFAULT().getSymbol(), errorMessage,
           ErrorListener.SemanticClassification.INVALID_DEFAULT_CONSTRUCTOR);
     }

@@ -8,7 +8,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * Just checks if there are any directives that relate to @Resolved in the parsed module and checks the
  * resolution.
  */
-public class ResolvedDirectiveListener extends ResolutionDirectiveListener {
+class ResolvedDirectiveListener extends ResolutionDirectiveListener {
 
   @Override
   public void accept(final CompilationEvent compilationEvent) {
@@ -35,6 +35,7 @@ public class ResolvedDirectiveListener extends ResolutionDirectiveListener {
       compilationEvent.source().getErrorListener().directiveError(directive.getDirectiveToken(), msg,
           ErrorListener.SemanticClassification.DIRECTIVE_SYMBOL_CATEGORY_MISMATCH);
     }
+
   }
 
   @Override

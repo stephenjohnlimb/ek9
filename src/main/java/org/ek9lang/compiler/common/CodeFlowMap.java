@@ -71,7 +71,6 @@ class CodeFlowMap implements CodeFlowAnalyzer {
 
     //IF it not even to be tested then it is ok
     return true;
-
   }
 
   /**
@@ -157,7 +156,6 @@ class CodeFlowMap implements CodeFlowAnalyzer {
     map.get(identifierSymbol).metaData().addAll(toReturn.metaData());
 
     return toReturn;
-
   }
 
   /**
@@ -174,6 +172,5 @@ class CodeFlowMap implements CodeFlowAnalyzer {
     accessMap.put(inScope, access);
 
     return access;
-    
   }
 }

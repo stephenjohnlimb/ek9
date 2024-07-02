@@ -8,9 +8,9 @@ import org.ek9lang.compiler.common.TypeDefResolver;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
- * For resolved and notResolved directives.
+ * For resolved directives.
  */
-public abstract class ResolutionDirectiveListener implements CompilationPhaseListener {
+abstract class ResolutionDirectiveListener implements CompilationPhaseListener {
 
   protected abstract void symbolMatch(final CompilationEvent compilationEvent,
                                       final ResolutionDirective directive,
@@ -23,8 +23,8 @@ public abstract class ResolutionDirectiveListener implements CompilationPhaseLis
    * Process each of the directives and check for resolution or otherwise and call the
    * symbolMatch or noSymbolMatch methods.
    */
-  protected void processDirectives(final CompilationEvent compilationEvent,
-                                   final List<Directive> directives) {
+  void processDirectives(final CompilationEvent compilationEvent,
+                         final List<Directive> directives) {
 
     final var errorListener = compilationEvent.source().getErrorListener();
     final var scope = compilationEvent.parsedModule().getModuleScope();

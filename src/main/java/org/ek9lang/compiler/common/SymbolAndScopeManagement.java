@@ -18,7 +18,7 @@ import org.ek9lang.core.AssertValue;
 /**
  * Used as external helper to record symbols and scopes across the parser.
  * They are held in the parsedModule against specific nodes in the parseTree.
- * This enabled later phases to look up the symbols and scopes when it encounters
+ * This enables later phases to look up the symbols and scopes when it encounters
  * the same node in the parseTree. In this way the symbols get 'fleshed out'
  * with more details in each of the compiler phases.
  * This does push scopes on to the scope stack - that the listener uses.
@@ -29,11 +29,11 @@ import org.ek9lang.core.AssertValue;
  * But the scopeStack is ephemeral - it grows and shrinks based on the language constructs the
  * listener encounters, as stuff is added in - that scope become richer. But when the end of the
  * scope is encountered - it is popped off the scopeStack.
- * All would be lost! - But for the fact that the scope was registered against a ParseTree node in the
+ * All would be lost! - But for the fact that the symbols/scopes were registered against a ParseTree node in the
  * ParsedModule. Hence, it lives on - with all the sub scopes and symbols.
  * This information in the ParsedModule will be enriched further in additional and different passes.
  * <br/>
- * Now also uses a transient stack to assess whether variables in instruction blocks has been initialised.
+ * Now also uses a transient CodeFlowAnalyzer to assess whether variables in instruction blocks has been initialised.
  */
 public class SymbolAndScopeManagement {
   private final ParsedModule parsedModule;

@@ -20,6 +20,7 @@ import org.ek9lang.core.AssertValue;
  * to use a 'getEnclosingScope' method on each scope as the very top level has
  * to be thread safe. Plus it exposes information that should only be available
  * to the scope itself - not any other bit of code.
+ * This class also has logic and code to be able to traverse back up the 'structure stack'.
  */
 public class ScopeStack {
   private final Deque<IScope> actualStack = new ArrayDeque<>();

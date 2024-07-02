@@ -35,6 +35,7 @@ public class JustParser {
   public boolean readSourceFile(final File sourceFile, final Ek9SourceVisitor visitor) {
 
     Processor<Boolean> processor = () -> {
+
       final Source src = sourceFile::getName;
 
       if (!osSupport.isFileReadable(sourceFile)) {
@@ -48,11 +49,11 @@ public class JustParser {
         EK9Parser parser = parserCreator.apply(spec);
 
         final var context = parser.compilationUnit();
-        final var parseIsErrorFree = isErrorFree(errorListener);
+        final var parseIsErrorFree = processAnyErrors(errorListener);
 
         if (parseIsErrorFree) {
           visitor.visit(context, errorListener);
-          return isErrorFree(errorListener);
+          return processAnyErrors(errorListener);
         }
       }
 
@@ -62,12 +63,19 @@ public class JustParser {
     return new ExceptionConverter<Boolean>().apply(processor);
   }
 
-  private boolean isErrorFree(final ErrorListener errorListener) {
+  /**
+   * Processes any errors and returns the status of whether any errors were present to be processed.
+   *
+   * @param errorListener The listener that may or may not contain errors.
+   * @return true if there were no errors to process, false if there were errors to be processed.
+   */
+  private boolean processAnyErrors(final ErrorListener errorListener) {
 
     final var errorFree = errorListener.isErrorFree();
     if (!errorFree && reportErrors) {
       errorListener.getErrors().forEachRemaining(Logger::error);
     }
+
     return errorFree;
   }
 }

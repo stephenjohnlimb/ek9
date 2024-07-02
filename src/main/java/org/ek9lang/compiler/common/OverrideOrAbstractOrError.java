@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
- * Checks for both abstract and override. As this makes no sense.
+ * Checks for both abstract and override. As both in combination makes no sense.
  */
 public class OverrideOrAbstractOrError extends RuleSupport implements Consumer<MethodSymbol> {
 

@@ -61,6 +61,5 @@ public class ContextSupportsAbstractMethodOrError extends RuleSupport
         || containingConstructCtx instanceof EK9Parser.DynamicClassDeclarationContext
         || containingConstructCtx instanceof EK9Parser.ComponentDeclarationContext
         || containingConstructCtx instanceof EK9Parser.RecordDeclarationContext;
-
   }
 }

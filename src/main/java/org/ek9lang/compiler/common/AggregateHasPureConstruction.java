@@ -13,6 +13,5 @@ public class AggregateHasPureConstruction implements Predicate<IAggregateSymbol>
   public boolean test(final IAggregateSymbol aggregateSymbol) {
 
     return aggregateSymbol.getConstructors().stream().anyMatch(MethodSymbol::isMarkedPure);
-
   }
 }

@@ -12,7 +12,7 @@ public abstract class Reporter {
 
   /**
    * While it may seem strange to want to even be able to mute reported errors,
-   * this class can/it used in developer tests and in some cases we don;t want to see the actual errors.
+   * this class can/it used in developer tests and in some cases we don't want to see the actual errors.
    *
    * @param verbose            if true then compiler phase details and other general logging is output.
    * @param muteReportedErrors if true then even compiler errors are not reported (typically only useful in tests).

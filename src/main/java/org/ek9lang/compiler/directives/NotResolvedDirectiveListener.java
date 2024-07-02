@@ -40,7 +40,7 @@ public class NotResolvedDirectiveListener extends ResolutionDirectiveListener {
   protected void noSymbolMatch(final CompilationEvent compilationEvent,
                                final ResolutionDirective directive) {
 
-    //This is a 'no-op' this listener is expecting not to find no symbol!
+    //This is a 'no-op' this listener is expecting not to find the symbol!
 
   }
 }

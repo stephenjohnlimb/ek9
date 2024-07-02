@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.common;
 
-import static org.ek9lang.compiler.support.SymbolFactory.DEFAULTED;
-
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -15,6 +13,7 @@ public class AppropriateBodyOrError extends RuleSupport implements
     BiConsumer<MethodSymbol, EK9Parser.OperationDetailsContext> {
 
   private final ProcessingBodyPresent processingBodyPresent = new ProcessingBodyPresent();
+  private final Defaulted defaulted = new Defaulted();
 
   /**
    * Create new checker.
@@ -30,9 +29,8 @@ public class AppropriateBodyOrError extends RuleSupport implements
   public void accept(final MethodSymbol methodSymbol,
                      final EK9Parser.OperationDetailsContext ctx) {
 
-    final var defaulted = "TRUE".equals(methodSymbol.getSquirrelledData(DEFAULTED));
 
-    if ((defaulted || methodSymbol.isMarkedAbstract()) && processingBodyPresent.test(ctx)) {
+    if ((defaulted.test(methodSymbol) || methodSymbol.isMarkedAbstract()) && processingBodyPresent.test(ctx)) {
       errorListener.semanticError(methodSymbol.getSourceToken(), "",
           ErrorListener.SemanticClassification.ABSTRACT_BUT_BODY_PROVIDED);
     }
