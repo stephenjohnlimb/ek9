@@ -5,15 +5,15 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
- * To be called when an unreachable statement is encountered.
+ * To be called when an unreachable statement is encountered to emit an error.
  * The first token is the point that is unreachable, the second token is
  * the cause of why this point is unreachable.
  */
-final class UnreachableStatement implements BiConsumer<IToken, IToken> {
+final class EmitUnreachableStatementError implements BiConsumer<IToken, IToken> {
 
   private final ErrorListener errorListener;
 
-  UnreachableStatement(final ErrorListener errorListener) {
+  EmitUnreachableStatementError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 
@@ -27,4 +27,5 @@ final class UnreachableStatement implements BiConsumer<IToken, IToken> {
     errorListener.semanticError(unreachablePoint, message,
         ErrorListener.SemanticClassification.STATEMENT_UNREACHABLE);
   }
+
 }

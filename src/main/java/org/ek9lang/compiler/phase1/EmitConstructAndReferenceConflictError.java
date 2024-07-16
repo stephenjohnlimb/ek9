@@ -6,7 +6,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 /**
  * Error if a construct and a reference conflict with each other.
  */
-final class ConstructAndReferenceConflict implements Consumer<ConflictingTokens> {
+final class EmitConstructAndReferenceConflictError implements Consumer<ConflictingTokens> {
   private final String constructType;
   private final ErrorListener errorListener;
   private final ErrorListener.SemanticClassification classification;
@@ -14,9 +14,9 @@ final class ConstructAndReferenceConflict implements Consumer<ConflictingTokens>
   /**
    * Create consumer with specific details for the error.
    */
-  ConstructAndReferenceConflict(final String constructType,
-                                final ErrorListener errorListener,
-                                final ErrorListener.SemanticClassification classification) {
+  EmitConstructAndReferenceConflictError(final String constructType,
+                                         final ErrorListener errorListener,
+                                         final ErrorListener.SemanticClassification classification) {
 
     this.constructType = constructType;
     this.errorListener = errorListener;

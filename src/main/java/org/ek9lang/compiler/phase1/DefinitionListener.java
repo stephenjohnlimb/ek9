@@ -70,7 +70,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   private final BlockScopeName blockScopeName = new BlockScopeName();
   private final SymbolChecker symbolChecker;
   private final TextLanguageExtraction textLanguageExtraction;
-  private final UnreachableStatement unreachableStatement;
+  private final EmitUnreachableStatementError emitUnreachableStatementError;
   private final CheckMethod checkMethod;
   private final ProcessSyntheticReturn processSyntheticReturn;
   private final CheckInappropriateFunctionBody checkInappropriateFunctionBody;
@@ -99,7 +99,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     symbolChecker = new SymbolChecker(errorListener);
     symbolFactory = new SymbolFactory(parsedModule);
 
-    unreachableStatement = new UnreachableStatement(errorListener);
+    emitUnreachableStatementError = new EmitUnreachableStatementError(errorListener);
     textLanguageExtraction = new TextLanguageExtraction(errorListener);
     checkMethod = new CheckMethod(symbolAndScopeManagement, errorListener);
     processSyntheticReturn = new ProcessSyntheticReturn(symbolAndScopeManagement, symbolFactory, errorListener);
@@ -768,7 +768,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     pullBlockTerminationUp(ctx.instructionBlock());
 
     if (!scope.isTerminatedNormally()) {
-      unreachableStatement.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
+      emitUnreachableStatementError.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
     }
 
     super.exitForStatementExpression(ctx);
@@ -794,7 +794,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     pullBlockTerminationUp(ctx.instructionBlock());
 
     if (!scope.isTerminatedNormally()) {
-      unreachableStatement.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
+      emitUnreachableStatementError.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
     }
 
     super.exitWhileStatementExpression(ctx);
@@ -961,7 +961,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     final IScope scope = symbolAndScopeManagement.getTopScope();
     if (!scope.isTerminatedNormally()) {
-      unreachableStatement.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
+      emitUnreachableStatementError.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
     }
 
     super.enterBlockStatement(ctx);
@@ -976,7 +976,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     final IScope scope = symbolAndScopeManagement.getTopScope();
     if (!scope.isTerminatedNormally()) {
-      unreachableStatement.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
+      emitUnreachableStatementError.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
     }
 
     super.enterRegisterStatement(ctx);

@@ -1,11 +1,13 @@
 package org.ek9lang.compiler.phase1;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.CompilerPhase;
+import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceHasErrors;
 import org.ek9lang.compiler.common.CompilationEvent;
@@ -38,33 +40,42 @@ public final class ModuleDuplicateSymbolChecks extends CompilerPhase {
 
   @Override
   public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
-    //This will check and add any errors to the appropriate module source error listener.
-    checkForDuplicateSymbols();
+
+    compilableProgramAccess.accept(this::checkForDuplicateSymbols);
+
     return !sourceHasErrors.test(workspace.getSources());
   }
 
   /**
    * THIS IS WHERE THE duplicates are checked for.
    */
-  private void checkForDuplicateSymbols() {
+  private void checkForDuplicateSymbols(final CompilableProgram program) {
 
-    compilableProgramAccess.accept(program -> {
+    program.getParsedModuleNames()
+        .parallelStream()
+        .map(program::getParsedModules)
+        .forEach(this::checkModules);
 
-      for (var moduleName : program.getParsedModuleNames()) {
-        final var parsedModules = program.getParsedModules(moduleName);
-        final HashSet<ISymbol> dupChecks = new HashSet<>();
-        for (var parsedModule : parsedModules) {
-          final var scope = parsedModule.getModuleScope();
-          for (var symbol : scope.getSymbolsForThisScope()) {
-            if (!dupChecks.add(symbol)) {
-              throw new CompilerException("Duplicate Symbol: '" + symbol.getFriendlyName() + "' "
-                  + symbol.getSourceToken().getSourceName()
-                  + " Line " + symbol.getSourceToken().getLine());
-            }
-          }
-          AssertValue.checkNotNull("ParsedModule must be present for source", parsedModule);
+  }
+
+  private void checkModules(final List<ParsedModule> parsedModules) {
+
+    final HashSet<ISymbol> dupChecks = new HashSet<>();
+
+    for (var parsedModule : parsedModules) {
+      final var scope = parsedModule.getModuleScope();
+
+      for (var symbol : scope.getSymbolsForThisScope()) {
+
+        if (!dupChecks.add(symbol)) {
+          throw new CompilerException("Duplicate Symbol: '" + symbol.getFriendlyName() + "' "
+              + symbol.getSourceToken().getSourceName()
+              + " Line " + symbol.getSourceToken().getLine());
         }
+
       }
-    });
+      AssertValue.checkNotNull("ParsedModule must be present for source", parsedModule);
+    }
+
   }
 }

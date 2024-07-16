@@ -115,7 +115,7 @@ public final class SymbolDefinition extends CompilerPhase {
           "", ErrorListener.SemanticClassification.INVALID_MODULE_NAME);
 
     }
-
+    //Now inform the listener that this phase has been completed for this source file
     listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
 
     //If not boot-strapping then do not record types from a module with same name
@@ -133,4 +133,5 @@ public final class SymbolDefinition extends CompilerPhase {
       compilableProgramAccess.accept(compilableProgram -> compilableProgram.setEk9Types(ek9Types));
     }
   }
+
 }

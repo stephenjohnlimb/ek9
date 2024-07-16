@@ -25,29 +25,28 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
 
   private final CompilableProgram compilableProgram;
   private final ParsedModule parsedModule;
-
   private final SymbolAndScopeManagement symbolAndScopeManagement;
   private final CheckForInvalidUseOfReference checkForInvalidUseOfReference;
-  private final ReferenceDoesNotResolve referenceDoesNotResolve;
-  private final ConstructAndReferenceConflict duplicateSymbolByReference;
-  private final ConstructAndReferenceConflict constantAndReferenceConflict;
-  private final ConstructAndReferenceConflict functionAndReferenceConflict;
-  private final ConstructAndReferenceConflict recordAndReferenceConflict;
-  private final ConstructAndReferenceConflict traitAndReferenceConflict;
-  private final ConstructAndReferenceConflict classAndReferenceConflict;
-  private final ConstructAndReferenceConflict methodAndReferenceConflict;
-  private final ConstructAndReferenceConflict dynamicClassAndReferenceConflict;
-  private final ConstructAndReferenceConflict componentAndReferenceConflict;
-  private final ConstructAndReferenceConflict serviceAndReferenceConflict;
-  private final ConstructAndReferenceConflict serviceOperationAndReferenceConflict;
-  private final ConstructAndReferenceConflict serviceMethodAndReferenceConflict;
-  private final ConstructAndReferenceConflict applicationAndReferenceConflict;
-  private final ConstructAndReferenceConflict parameterisedDetailAndReferenceConflict;
-  private final ConstructAndReferenceConflict textAndReferenceConflict;
-  private final ConstructAndReferenceConflict textBodyAndReferenceConflict;
-  private final ConstructAndReferenceConflict typeAndReferenceConflict;
-  private final ConstructAndReferenceConflict variableAndReferenceConflict;
-  private final ConstructAndReferenceConflict forVariableAndReferenceConflict;
+  private final EmitReferenceDoesNotResolveError emitReferenceDoesNotResolveError;
+  private final EmitConstructAndReferenceConflictError duplicateSymbolByReference;
+  private final EmitConstructAndReferenceConflictError constantAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError functionAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError recordAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError traitAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError classAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError methodAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError dynamicClassAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError componentAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError serviceAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError serviceOperationAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError serviceMethodAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError applicationAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError parameterisedDetailAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError textAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError textBodyAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError typeAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError variableAndReferenceConflict;
+  private final EmitConstructAndReferenceConflictError forVariableAndReferenceConflict;
 
   /**
    * Next phase after symbol definition, now check for explicit references.
@@ -66,48 +65,50 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
         new ScopeStack(parsedModule.getModuleScope()));
 
     this.checkForInvalidUseOfReference = new CheckForInvalidUseOfReference(parsedModule.getSource().getErrorListener());
-    this.duplicateSymbolByReference = new ConstructAndReferenceConflict("reference",
+    this.duplicateSymbolByReference = new EmitConstructAndReferenceConflictError("reference",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.REFERENCES_CONFLICT);
-    this.referenceDoesNotResolve = new ReferenceDoesNotResolve(parsedModule.getSource().getErrorListener());
+    this.emitReferenceDoesNotResolveError
+        = new EmitReferenceDoesNotResolveError(parsedModule.getSource().getErrorListener());
 
     //Errors for constructs
-    this.constantAndReferenceConflict = new ConstructAndReferenceConflict("constant",
+    this.constantAndReferenceConflict = new EmitConstructAndReferenceConflictError("constant",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.functionAndReferenceConflict = new ConstructAndReferenceConflict("function",
+    this.functionAndReferenceConflict = new EmitConstructAndReferenceConflictError("function",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.recordAndReferenceConflict = new ConstructAndReferenceConflict("record",
+    this.recordAndReferenceConflict = new EmitConstructAndReferenceConflictError("record",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.traitAndReferenceConflict = new ConstructAndReferenceConflict("trait",
+    this.traitAndReferenceConflict = new EmitConstructAndReferenceConflictError("trait",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.classAndReferenceConflict = new ConstructAndReferenceConflict("class",
+    this.classAndReferenceConflict = new EmitConstructAndReferenceConflictError("class",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.methodAndReferenceConflict = new ConstructAndReferenceConflict("method",
+    this.methodAndReferenceConflict = new EmitConstructAndReferenceConflictError("method",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.dynamicClassAndReferenceConflict = new ConstructAndReferenceConflict("dynamic class",
+    this.dynamicClassAndReferenceConflict = new EmitConstructAndReferenceConflictError("dynamic class",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.componentAndReferenceConflict = new ConstructAndReferenceConflict("component",
+    this.componentAndReferenceConflict = new EmitConstructAndReferenceConflictError("component",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.serviceAndReferenceConflict = new ConstructAndReferenceConflict("service",
+    this.serviceAndReferenceConflict = new EmitConstructAndReferenceConflictError("service",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.serviceOperationAndReferenceConflict = new ConstructAndReferenceConflict("service operation",
+    this.serviceOperationAndReferenceConflict = new EmitConstructAndReferenceConflictError(
+        "service operation",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.serviceMethodAndReferenceConflict = new ConstructAndReferenceConflict("service method",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-
-    this.applicationAndReferenceConflict = new ConstructAndReferenceConflict("application",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.textAndReferenceConflict = new ConstructAndReferenceConflict("text",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.textBodyAndReferenceConflict = new ConstructAndReferenceConflict("text body",
+    this.serviceMethodAndReferenceConflict = new EmitConstructAndReferenceConflictError("service method",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
 
-    this.typeAndReferenceConflict = new ConstructAndReferenceConflict("type",
+    this.applicationAndReferenceConflict = new EmitConstructAndReferenceConflictError("application",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.variableAndReferenceConflict = new ConstructAndReferenceConflict("variable",
+    this.textAndReferenceConflict = new EmitConstructAndReferenceConflictError("text",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.forVariableAndReferenceConflict = new ConstructAndReferenceConflict("for loop variable",
+    this.textBodyAndReferenceConflict = new EmitConstructAndReferenceConflictError("text body",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
-    this.parameterisedDetailAndReferenceConflict = new ConstructAndReferenceConflict("parameter",
+
+    this.typeAndReferenceConflict = new EmitConstructAndReferenceConflictError("type",
+        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+    this.variableAndReferenceConflict = new EmitConstructAndReferenceConflictError("variable",
+        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+    this.forVariableAndReferenceConflict = new EmitConstructAndReferenceConflictError("for loop variable",
+        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+    this.parameterisedDetailAndReferenceConflict = new EmitConstructAndReferenceConflictError("parameter",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
   }
 
@@ -120,104 +121,104 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
   public void enterReferencesBlock(final EK9Parser.ReferencesBlockContext ctx) {
 
     ctx.identifierReference().forEach(this::processIdentifierReference);
-
     super.enterReferencesBlock(ctx);
+
   }
 
   @Override
   public void enterConstantDeclaration(final EK9Parser.ConstantDeclarationContext ctx) {
 
     processSymbolAndReferenceClash(ctx, constantAndReferenceConflict);
-
     super.enterConstantDeclaration(ctx);
+
   }
 
   @Override
   public void enterFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
 
     processSymbolAndReferenceClash(ctx, functionAndReferenceConflict);
-
     super.enterFunctionDeclaration(ctx);
+
   }
 
   @Override
   public void enterRecordDeclaration(final EK9Parser.RecordDeclarationContext ctx) {
 
     processSymbolAndReferenceClash(ctx, recordAndReferenceConflict);
-
     super.enterRecordDeclaration(ctx);
+
   }
 
   @Override
   public void enterTraitDeclaration(final EK9Parser.TraitDeclarationContext ctx) {
 
     processSymbolAndReferenceClash(ctx, traitAndReferenceConflict);
-
     super.enterTraitDeclaration(ctx);
+
   }
 
   @Override
   public void enterClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
 
     processSymbolAndReferenceClash(ctx, classAndReferenceConflict);
-
     super.enterClassDeclaration(ctx);
+
   }
 
   @Override
   public void enterComponentDeclaration(final EK9Parser.ComponentDeclarationContext ctx) {
 
     processSymbolAndReferenceClash(ctx, componentAndReferenceConflict);
-
     super.enterComponentDeclaration(ctx);
+
   }
 
   @Override
   public void enterTextDeclaration(final EK9Parser.TextDeclarationContext ctx) {
 
     processSymbolAndReferenceClash(ctx, textAndReferenceConflict);
-
     super.enterTextDeclaration(ctx);
+
   }
 
   @Override
   public void enterTextBodyDeclaration(final EK9Parser.TextBodyDeclarationContext ctx) {
 
     processSymbolAndReferenceClash(ctx, textBodyAndReferenceConflict);
-
     super.enterTextBodyDeclaration(ctx);
+
   }
 
   @Override
   public void enterServiceDeclaration(final EK9Parser.ServiceDeclarationContext ctx) {
 
     processSymbolAndReferenceClash(ctx, serviceAndReferenceConflict);
-
     super.enterServiceDeclaration(ctx);
+
   }
 
   @Override
   public void enterServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
 
     processSymbolAndReferenceClash(ctx, serviceOperationAndReferenceConflict);
-
     super.enterServiceOperationDeclaration(ctx);
+
   }
 
   @Override
   public void enterApplicationDeclaration(final EK9Parser.ApplicationDeclarationContext ctx) {
 
     processSymbolAndReferenceClash(ctx, applicationAndReferenceConflict);
-
     super.enterApplicationDeclaration(ctx);
+
   }
 
   @Override
   public void enterDynamicClassDeclaration(final EK9Parser.DynamicClassDeclarationContext ctx) {
 
     processSymbolAndReferenceClash(ctx, dynamicClassAndReferenceConflict);
-
     super.enterDynamicClassDeclaration(ctx);
+
   }
 
   @Override
@@ -225,8 +226,8 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
 
     processSymbolAndReferenceClash(ctx.Identifier().getText(), new Ek9Token(ctx.start),
         parameterisedDetailAndReferenceConflict);
-
     super.enterParameterisedDetail(ctx);
+
   }
 
   @Override
@@ -239,6 +240,7 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
     }
 
     super.enterTypeDeclaration(ctx);
+
   }
 
   @Override
@@ -251,38 +253,39 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
     }
 
     super.enterMethodDeclaration(ctx);
+
   }
 
   @Override
   public void enterForLoop(final EK9Parser.ForLoopContext ctx) {
 
     processSymbolAndReferenceClash(ctx, forVariableAndReferenceConflict);
-
     super.enterForLoop(ctx);
+
   }
 
   @Override
   public void enterForRange(final EK9Parser.ForRangeContext ctx) {
 
     processSymbolAndReferenceClash(ctx, forVariableAndReferenceConflict);
-
     super.enterForRange(ctx);
+
   }
 
   @Override
   public void enterVariableOnlyDeclaration(final EK9Parser.VariableOnlyDeclarationContext ctx) {
 
     processSymbolAndReferenceClash(ctx, variableAndReferenceConflict);
-
     super.enterVariableOnlyDeclaration(ctx);
+
   }
 
   @Override
   public void enterVariableDeclaration(final EK9Parser.VariableDeclarationContext ctx) {
 
     processSymbolAndReferenceClash(ctx, variableAndReferenceConflict);
-
     super.enterVariableDeclaration(ctx);
+
   }
 
   private void processSymbolAndReferenceClash(final ParseTree node, final Consumer<ConflictingTokens> errorConsumer) {
@@ -296,15 +299,16 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
                                               final Consumer<ConflictingTokens> errorConsumer) {
 
     var search = new AnySymbolSearch(ISymbol.getUnqualifiedName(unqualifiedName));
+    final var existingReference = compilableProgram.resolveReferenceFromModule(
+        parsedModule.getModuleName(), search);
 
-    final var existingReference = compilableProgram.resolveReferenceFromModule(parsedModule.getModuleName(),
-        search);
     existingReference.ifPresent(reference -> {
       //There is a conflict
       final var originalLocation = compilableProgram.getOriginalReferenceLocation(parsedModule.getModuleName(), search);
       originalLocation.ifPresent(location -> errorConsumer.accept(
           new ConflictingTokens(token, location, reference)));
     });
+
   }
 
   private void processIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
@@ -340,14 +344,14 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
 
     if (resolved.isEmpty()) {
       //Not good - it means that during definition time it was not defined in that module. So that's an error.
-      referenceDoesNotResolve.accept(identifierToken, fullyQualifiedIdentifierReference);
+      emitReferenceDoesNotResolveError.accept(identifierToken, fullyQualifiedIdentifierReference);
     } else {
-
       //Ok so we can add this to our set of references in our module.
       //But only if we have not already got a reference to it through
       //either this source or another source of this same module namespace
       final var existingReference = compilableProgram.resolveReferenceFromModule(parsedModule.getModuleName(),
           search);
+
       if (existingReference.isEmpty()) {
         parsedModule.getModuleScope().defineReference(identifierToken, resolved.get());
         //Record against the correct context.
@@ -359,5 +363,6 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
             new ConflictingTokens(identifierToken, location, existingReference.get())));
       }
     }
+
   }
 }

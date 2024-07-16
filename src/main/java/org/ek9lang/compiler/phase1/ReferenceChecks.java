@@ -36,9 +36,7 @@ public final class ReferenceChecks extends CompilerPhase {
   @Override
   public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
 
-    workspace
-        .getSources()
-        .forEach(this::resolveReferencedSymbols);
+    workspace.getSources().forEach(this::resolveReferencedSymbols);
 
     return !sourceHasErrors.test(workspace.getSources());
   }
@@ -57,10 +55,10 @@ public final class ReferenceChecks extends CompilerPhase {
 
       parsedModule.acceptCompilationUnitContext(source.getCompilationUnitContext());
 
-      final var phaseListener = new ReferencesPhase1Listener(program, parsedModule);
       final var walker = new ParseTreeWalker();
-      walker.walk(phaseListener, source.getCompilationUnitContext());
+      walker.walk(new ReferencesPhase1Listener(program, parsedModule), source.getCompilationUnitContext());
       listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
     });
+
   }
 }

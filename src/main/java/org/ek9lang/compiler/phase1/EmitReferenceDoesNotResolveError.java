@@ -7,10 +7,10 @@ import org.ek9lang.compiler.tokenizer.IToken;
 /**
  * Error when a reference is made, but it cannot be resolved.
  */
-final class ReferenceDoesNotResolve implements BiConsumer<IToken, String> {
+final class EmitReferenceDoesNotResolveError implements BiConsumer<IToken, String> {
   private final ErrorListener errorListener;
 
-  ReferenceDoesNotResolve(final ErrorListener errorListener) {
+  EmitReferenceDoesNotResolveError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 
