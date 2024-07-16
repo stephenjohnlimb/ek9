@@ -5,7 +5,7 @@ import static org.ek9lang.compiler.symbols.ISymbol.SymbolGenus.VALUE;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.StreamCallSymbol;
 
@@ -17,17 +17,17 @@ import org.ek9lang.compiler.symbols.StreamCallSymbol;
 final class ProcessStreamExpressionTermination extends TypedSymbolAccess implements
     Consumer<EK9Parser.StreamExpressionTerminationContext> {
 
-  ProcessStreamExpressionTermination(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessStreamExpressionTermination(final SymbolsAndScopes symbolsAndScopes,
                                      final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.StreamExpressionTerminationContext ctx) {
 
-    final var terminationSymbol = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var terminationSymbol = (StreamCallSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     final var collectAsType = getRecordedAndTypedSymbol(ctx.typeDef());
 
     //Otherwise an error will have been emitted.

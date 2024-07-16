@@ -2,7 +2,7 @@ package org.ek9lang.compiler.support;
 
 import java.util.Optional;
 import java.util.function.Function;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
@@ -13,11 +13,11 @@ import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
  * If so provides the GenericInGenericData structure - else empty.
  */
 public class AccessGenericInGeneric implements Function<ISymbol, Optional<GenericInGenericData>> {
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
+  private final SymbolsAndScopes symbolsAndScopes;
 
-  public AccessGenericInGeneric(final SymbolAndScopeManagement symbolAndScopeManagement) {
+  public AccessGenericInGeneric(final SymbolsAndScopes symbolsAndScopes) {
 
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
+    this.symbolsAndScopes = symbolsAndScopes;
 
   }
 
@@ -27,7 +27,7 @@ public class AccessGenericInGeneric implements Function<ISymbol, Optional<Generi
     if (typeDef instanceof PossibleGenericSymbol possibleGenericDependent
         && possibleGenericDependent.isGenericInNature()) {
 
-      final var enclosingMainTypeOrFunction = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
+      final var enclosingMainTypeOrFunction = symbolsAndScopes.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
 
       if (enclosingMainTypeOrFunction.isPresent()
           && enclosingMainTypeOrFunction.get() instanceof PossibleGenericSymbol possibleGenericParent

@@ -5,7 +5,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.N
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -20,17 +20,17 @@ public class ProcessIdentifierAsProperty extends TypedSymbolAccess implements Co
   private final MakesIdentifierSubsequenceAccessSafe makesIdentifierSubsequenceAccessSafe
       = new MakesIdentifierSubsequenceAccessSafe();
 
-  protected ProcessIdentifierAsProperty(final SymbolAndScopeManagement symbolAndScopeManagement,
+  protected ProcessIdentifierAsProperty(final SymbolsAndScopes symbolsAndScopes,
                                         final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.IdentifierContext ctx) {
 
-    final var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var symbol = symbolsAndScopes.getRecordedSymbol(ctx);
     if (symbol != null && symbol.isPropertyField()) {
       processSymbol(ctx, symbol);
     }
@@ -39,13 +39,13 @@ public class ProcessIdentifierAsProperty extends TypedSymbolAccess implements Co
 
   private void processSymbol(final EK9Parser.IdentifierContext ctx, final ISymbol symbol) {
 
-    final var scope = symbolAndScopeManagement.getTopScope();
+    final var scope = symbolsAndScopes.getTopScope();
     final var accessSafe = makesIdentifierSubsequenceAccessSafe.test(ctx);
 
     if (accessSafe) {
       //See if this sort of access would be safe and if so mark it as such
-      symbolAndScopeManagement.markSymbolAccessSafe(symbol, scope);
-    } else if (!symbolAndScopeManagement.isSymbolAccessSafe(symbol, scope)) {
+      symbolsAndScopes.markSymbolAccessSafe(symbol, scope);
+    } else if (!symbolsAndScopes.isSymbolAccessSafe(symbol, scope)) {
       emitError(ctx, symbol);
     }
     

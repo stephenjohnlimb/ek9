@@ -6,7 +6,7 @@ import org.ek9lang.compiler.common.ContextSupportsAbstractMethodOrError;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.ProcessTraitMethodOrError;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TraitMethodAcceptableOrError;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
@@ -15,43 +15,44 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * Checks methods from various contexts, typically this is delegated to other functions.
  * Those functions do the detail check.
  */
-final class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
+final class ValidMethodOrError extends RuleSupport implements
+    BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
 
-  private final CommonMethodChecks commonMethodChecks;
+  private final ProcessCommonMethodsOrError processCommonMethodsOrError;
   private final ProcessTraitMethodOrError processTraitMethodOrError;
   private final TraitMethodAcceptableOrError traitMethodAcceptableOrError;
   private final ContextSupportsAbstractMethodOrError contextSupportsAbstractMethodOrError;
-  private final CheckNonExtendableMethod checkNonExtendableMethod;
-  private final CheckNotDispatcherMethod checkNotDispatcherMethod;
-  private final CheckGenericConstructor checkGenericConstructor;
-  private final CheckProgramReturns checkProgramReturns;
-  private final CheckProgramArguments checkProgramArguments;
-  private final CheckForImplementation checkForImplementation;
-  private final CheckNormalTermination checkNormalTermination;
-  private final CheckNoMethodReturn checkNoMethodReturn;
-  private final CheckMethodNotOperatorName checkMethodNotOperatorName;
+  private final NonExtendableMethodOrError nonExtendableMethodOrError;
+  private final NotDispatcherMethodOrError notDispatcherMethodOrError;
+  private final GenericConstructorOrError genericConstructorOrError;
+  private final ProgramReturnOrError programReturnOrError;
+  private final ProgramArgumentsOrError programArgumentsOrError;
+  private final ImplementationPresentOrError implementationPresentOrError;
+  private final NormalTerminationOrError normalTerminationOrError;
+  private final NoMethodReturnOrError noMethodReturnOrError;
+  private final MethodNotOperatorOrError methodNotOperatorOrError;
 
   /**
    * Create a new method checker.
    */
-  CheckMethod(final SymbolAndScopeManagement symbolAndScopeManagement,
-              final ErrorListener errorListener) {
+  ValidMethodOrError(final SymbolsAndScopes symbolsAndScopes,
+                     final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    commonMethodChecks = new CommonMethodChecks(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    processCommonMethodsOrError = new ProcessCommonMethodsOrError(symbolsAndScopes, errorListener);
     traitMethodAcceptableOrError = new TraitMethodAcceptableOrError(errorListener);
     contextSupportsAbstractMethodOrError =
-        new ContextSupportsAbstractMethodOrError(symbolAndScopeManagement, errorListener);
-    checkNonExtendableMethod = new CheckNonExtendableMethod(errorListener);
+        new ContextSupportsAbstractMethodOrError(symbolsAndScopes, errorListener);
+    nonExtendableMethodOrError = new NonExtendableMethodOrError(errorListener);
     processTraitMethodOrError = new ProcessTraitMethodOrError(errorListener);
-    checkNotDispatcherMethod = new CheckNotDispatcherMethod(errorListener);
-    checkGenericConstructor = new CheckGenericConstructor(errorListener);
-    checkProgramReturns = new CheckProgramReturns(errorListener);
-    checkProgramArguments = new CheckProgramArguments(errorListener);
-    checkForImplementation = new CheckForImplementation(errorListener);
-    checkNormalTermination = new CheckNormalTermination(errorListener);
-    checkNoMethodReturn = new CheckNoMethodReturn(symbolAndScopeManagement, errorListener);
-    checkMethodNotOperatorName = new CheckMethodNotOperatorName(symbolAndScopeManagement, errorListener);
+    notDispatcherMethodOrError = new NotDispatcherMethodOrError(errorListener);
+    genericConstructorOrError = new GenericConstructorOrError(errorListener);
+    programReturnOrError = new ProgramReturnOrError(errorListener);
+    programArgumentsOrError = new ProgramArgumentsOrError(errorListener);
+    implementationPresentOrError = new ImplementationPresentOrError(errorListener);
+    normalTerminationOrError = new NormalTerminationOrError(errorListener);
+    noMethodReturnOrError = new NoMethodReturnOrError(symbolsAndScopes, errorListener);
+    methodNotOperatorOrError = new MethodNotOperatorOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -76,43 +77,41 @@ final class CheckMethod extends RuleSupport implements BiConsumer<MethodSymbol, 
     //If not in a class then method must not be marked as dispatcher.
     if (!(ctx.getParent().getParent() instanceof EK9Parser.ClassDeclarationContext)
         && !(ctx.getParent().getParent() instanceof EK9Parser.DynamicClassDeclarationContext)) {
-      checkNotDispatcherMethod.accept(method, ctx);
+      notDispatcherMethodOrError.accept(method, ctx);
     }
 
     if (!(ctx.getParent().getParent() instanceof EK9Parser.TraitDeclarationContext)) {
       traitMethodAcceptableOrError.accept(method, ctx.operationDetails());
     }
 
-    commonMethodChecks.accept(method, ctx);
-
+    processCommonMethodsOrError.accept(method, ctx);
     contextSupportsAbstractMethodOrError.accept(method, ctx);
-
-    checkMethodNotOperatorName.accept(method, ctx);
+    methodNotOperatorOrError.accept(method, ctx);
 
   }
 
   private void checkAsConstructor(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
 
     var startToken = new Ek9Token(ctx.start);
-    checkNormalTermination.accept(startToken, method);
-    checkGenericConstructor.accept(startToken, method);
-    checkNoMethodReturn.accept(method, ctx);
+    normalTerminationOrError.accept(startToken, method);
+    genericConstructorOrError.accept(startToken, method);
+    noMethodReturnOrError.accept(method, ctx);
 
   }
 
   private void checkAsProgram(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
 
     var startToken = new Ek9Token(ctx.start);
-    checkProgramReturns.accept(startToken, method);
-    checkProgramArguments.accept(startToken, method);
-    checkNonExtendableMethod.accept(method, ctx);
+    programReturnOrError.accept(startToken, method);
+    programArgumentsOrError.accept(startToken, method);
+    nonExtendableMethodOrError.accept(method, ctx);
 
   }
 
   private void checkAsServiceMethod(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
 
-    checkForImplementation.accept(ctx);
-    checkNonExtendableMethod.accept(method, ctx);
+    implementationPresentOrError.accept(ctx);
+    nonExtendableMethodOrError.accept(method, ctx);
   }
 
 }

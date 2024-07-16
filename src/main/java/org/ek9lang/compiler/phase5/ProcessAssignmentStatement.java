@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.OperationIsAssignment;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.common.UninitialisedVariableToBeChecked;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -23,10 +23,10 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
   private final UninitialisedVariableToBeChecked uninitialisedVariableToBeChecked =
       new UninitialisedVariableToBeChecked();
 
-  ProcessAssignmentStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessAssignmentStatement(final SymbolsAndScopes symbolsAndScopes,
                              final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
@@ -38,7 +38,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
   public void accept(final EK9Parser.AssignmentStatementContext ctx) {
 
     if (ctx.identifier() != null) {
-      final var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx.identifier());
+      final var symbol = symbolsAndScopes.getRecordedSymbol(ctx.identifier());
       checkGeneralAssignment(ctx, symbol);
     }
 
@@ -58,7 +58,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
 
   private void simpleAssignment(final ISymbol symbol) {
 
-    symbolAndScopeManagement.recordSymbolAssignment(symbol);
+    symbolsAndScopes.recordSymbolAssignment(symbol);
 
   }
 
@@ -68,7 +68,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
    */
   private void checkDeepAssignment(final EK9Parser.AssignmentStatementContext ctx, final ISymbol symbol) {
 
-    final var initialised = symbolAndScopeManagement.isVariableInitialised(symbol);
+    final var initialised = symbolsAndScopes.isVariableInitialised(symbol);
     if (!initialised) {
       errorListener.semanticError(ctx.start, "'" + symbol.getFriendlyName() + "':", USED_BEFORE_INITIALISED);
     }

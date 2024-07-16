@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -20,10 +20,10 @@ final class ProcessIdentifierOrError extends TypedSymbolAccess
    * identifiers can be optional in some contexts (like named argument when calling methods and functions).
    * Also in dynamic classes and functions with variable capture.
    */
-  ProcessIdentifierOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessIdentifierOrError(final SymbolsAndScopes symbolsAndScopes,
                            final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
@@ -31,7 +31,7 @@ final class ProcessIdentifierOrError extends TypedSymbolAccess
   public ISymbol apply(final EK9Parser.IdentifierContext ctx) {
 
     final var toResolve = ctx.getText();
-    final var resolved = symbolAndScopeManagement.getTopScope().resolve(new SymbolSearch(toResolve));
+    final var resolved = symbolsAndScopes.getTopScope().resolve(new SymbolSearch(toResolve));
 
     if (resolved.isPresent()) {
       final var identifierSymbol = resolved.get();

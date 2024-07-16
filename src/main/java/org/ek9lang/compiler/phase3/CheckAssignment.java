@@ -6,7 +6,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.R
 
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
@@ -19,13 +19,13 @@ final class CheckAssignment extends TypedSymbolAccess implements BiConsumer<ITok
   private final boolean isDeclaration;
   private final CheckIsSet checkIsSet;
 
-  CheckAssignment(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckAssignment(final SymbolsAndScopes symbolsAndScopes,
                   final ErrorListener errorListener,
                   final boolean isDeclaration) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.isDeclaration = isDeclaration;
-    this.checkIsSet = new CheckIsSet(symbolAndScopeManagement, errorListener);
+    this.checkIsSet = new CheckIsSet(symbolsAndScopes, errorListener);
 
   }
 

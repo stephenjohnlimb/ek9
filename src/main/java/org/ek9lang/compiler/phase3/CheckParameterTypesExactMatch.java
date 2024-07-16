@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;
 import org.ek9lang.compiler.support.TypeListComparator;
@@ -14,10 +14,10 @@ final class CheckParameterTypesExactMatch extends TypedSymbolAccess implements C
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final TypeListComparator typeListComparator = new TypeListComparator();
 
-  CheckParameterTypesExactMatch(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckParameterTypesExactMatch(final SymbolsAndScopes symbolsAndScopes,
                                 final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

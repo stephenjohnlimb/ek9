@@ -18,7 +18,7 @@ defines module com.customer.traits
         <- response as ProcessingResponse?
 
       override lowCost() as pure
-        <- rtn as Boolean: CostAssessment.lowCost()  
+        <- rtn as Boolean: CostAssessment.lowCost()
 
       operator ? as pure
         <- rtn <- true

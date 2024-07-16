@@ -4,7 +4,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.N
 
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.IMayReturnSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
@@ -16,12 +16,12 @@ import org.ek9lang.compiler.tokenizer.IToken;
  */
 final class CheckMutableOrError implements BiConsumer<IToken, ISymbol> {
 
-  final SymbolAndScopeManagement symbolAndScopeManagement;
+  final SymbolsAndScopes symbolsAndScopes;
   private final ErrorListener errorListener;
 
-  CheckMutableOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckMutableOrError(final SymbolsAndScopes symbolsAndScopes,
                       final ErrorListener errorListener) {
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
+    this.symbolsAndScopes = symbolsAndScopes;
     this.errorListener = errorListener;
 
   }
@@ -44,7 +44,7 @@ final class CheckMutableOrError implements BiConsumer<IToken, ISymbol> {
     }
 
     symbol.getType().ifPresent(symbolType -> {
-      if (symbolAndScopeManagement.getEk9Types().ek9Void().isExactSameType(symbolType)) {
+      if (symbolsAndScopes.getEk9Types().ek9Void().isExactSameType(symbolType)) {
         errorListener.semanticError(locationForError, "'Void' type:", NOT_MUTABLE);
       }
     });

@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
@@ -18,12 +18,12 @@ public class ResolveOrDefineExplicitParameterizedType extends ResolveOrDefineTyp
   /**
    * A bit of a complex function constructor - for a function.
    */
-  public ResolveOrDefineExplicitParameterizedType(final SymbolAndScopeManagement symbolAndScopeManagement,
+  public ResolveOrDefineExplicitParameterizedType(final SymbolsAndScopes symbolsAndScopes,
                                                   final SymbolFactory symbolFactory,
                                                   final ErrorListener errorListener,
                                                   final boolean errorIfNotDefinedOrResolved) {
 
-    super(symbolAndScopeManagement, symbolFactory, errorListener, errorIfNotDefinedOrResolved);
+    super(symbolsAndScopes, symbolFactory, errorListener, errorIfNotDefinedOrResolved);
 
   }
 

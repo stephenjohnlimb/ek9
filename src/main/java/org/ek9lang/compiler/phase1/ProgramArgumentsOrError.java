@@ -9,12 +9,12 @@ import org.ek9lang.compiler.tokenizer.IToken;
 /**
  * A program can only accept specific types of arguments to it.
  */
-final class CheckProgramArguments implements BiConsumer<IToken, MethodSymbol> {
+final class ProgramArgumentsOrError implements BiConsumer<IToken, MethodSymbol> {
 
   private final ProgramArgumentPredicate typePredicate = new ProgramArgumentPredicate();
   private final ErrorListener errorListener;
 
-  CheckProgramArguments(final ErrorListener errorListener) {
+  ProgramArgumentsOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

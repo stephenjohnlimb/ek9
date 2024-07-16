@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -11,10 +11,10 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * This can be useful within blocks - can indicate an error in ek9 developer logic.
  */
 final class CheckReferenced extends TypedSymbolAccess implements Consumer<ISymbol> {
-  CheckReferenced(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckReferenced(final SymbolsAndScopes symbolsAndScopes,
                   final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

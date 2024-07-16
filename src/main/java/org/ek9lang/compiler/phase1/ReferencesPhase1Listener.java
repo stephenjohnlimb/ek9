@@ -8,7 +8,7 @@ import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.ScopeStack;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.search.AnySymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
@@ -25,8 +25,8 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
 
   private final CompilableProgram compilableProgram;
   private final ParsedModule parsedModule;
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
-  private final CheckForInvalidUseOfReference checkForInvalidUseOfReference;
+  private final SymbolsAndScopes symbolsAndScopes;
+  private final ValidUseOfReferenceOrError validUseOfReferenceOrError;
   private final EmitReferenceDoesNotResolveError emitReferenceDoesNotResolveError;
   private final EmitConstructAndReferenceConflictError duplicateSymbolByReference;
   private final EmitConstructAndReferenceConflictError constantAndReferenceConflict;
@@ -61,10 +61,10 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
     this.compilableProgram = compilableProgram;
     this.parsedModule = parsedModule;
 
-    this.symbolAndScopeManagement = new SymbolAndScopeManagement(parsedModule,
+    this.symbolsAndScopes = new SymbolsAndScopes(parsedModule,
         new ScopeStack(parsedModule.getModuleScope()));
 
-    this.checkForInvalidUseOfReference = new CheckForInvalidUseOfReference(parsedModule.getSource().getErrorListener());
+    this.validUseOfReferenceOrError = new ValidUseOfReferenceOrError(parsedModule.getSource().getErrorListener());
     this.duplicateSymbolByReference = new EmitConstructAndReferenceConflictError("reference",
         parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.REFERENCES_CONFLICT);
     this.emitReferenceDoesNotResolveError
@@ -315,7 +315,7 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
 
     final var identifierReference = ctx.getText();
 
-    checkForInvalidUseOfReference.accept(ctx);
+    validUseOfReferenceOrError.accept(ctx);
     if (identifierReference.contains("::")) {
       checkIdentifierReference(ctx, identifierReference);
     }
@@ -340,7 +340,7 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
 
     final var identifierToken = new Ek9Token(ctx.identifier().start);
     final var search = new AnySymbolSearch(fullyQualifiedIdentifierReference);
-    final var resolved = symbolAndScopeManagement.getTopScope().resolve(search);
+    final var resolved = symbolsAndScopes.getTopScope().resolve(search);
 
     if (resolved.isEmpty()) {
       //Not good - it means that during definition time it was not defined in that module. So that's an error.
@@ -355,7 +355,7 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
       if (existingReference.isEmpty()) {
         parsedModule.getModuleScope().defineReference(identifierToken, resolved.get());
         //Record against the correct context.
-        symbolAndScopeManagement.recordSymbol(resolved.get(), ctx);
+        symbolsAndScopes.recordSymbol(resolved.get(), ctx);
       } else {
         final var originalLocation =
             compilableProgram.getOriginalReferenceLocation(parsedModule.getModuleName(), search);

@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
 
@@ -19,10 +19,10 @@ import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
  */
 final class CheckDuplicatedServicePaths extends RuleSupport implements Consumer<IAggregateSymbol> {
 
-  CheckDuplicatedServicePaths(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckDuplicatedServicePaths(final SymbolsAndScopes symbolsAndScopes,
                               final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

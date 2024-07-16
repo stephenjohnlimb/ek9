@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 
 /**
@@ -16,11 +16,11 @@ final class AccessLeftAndRight extends TypedSymbolAccess
     implements Function<EK9Parser.ExpressionContext, Optional<ExprLeftAndRightData>> {
   private final SymbolFromContextOrError symbolFromContextOrError;
 
-  AccessLeftAndRight(final SymbolAndScopeManagement symbolAndScopeManagement,
+  AccessLeftAndRight(final SymbolsAndScopes symbolsAndScopes,
                      final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolsAndScopes, errorListener);
 
   }
 

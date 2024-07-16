@@ -4,22 +4,22 @@ import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
  * Typically used for Constructors, but could be used in other contexts where a method
  * is not expected to return anything. Used in the very early stages of compilation.
  * Will probably need additional checks in the IR phase.
- * But these are basic check we can do as early in the compilation as possible.
+ * But these are basic checks we can do as early in the compilation as possible.
  * Fail as early as possible.
  */
-final class CheckNoMethodReturn extends RuleSupport
+final class NoMethodReturnOrError extends RuleSupport
     implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
-  CheckNoMethodReturn(final SymbolAndScopeManagement symbolAndScopeManagement,
-                      final ErrorListener errorListener) {
+  NoMethodReturnOrError(final SymbolsAndScopes symbolsAndScopes,
+                        final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

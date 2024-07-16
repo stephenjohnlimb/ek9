@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -17,11 +17,11 @@ abstract class OperatorCheck extends TypedSymbolAccess implements BiPredicate<IT
 
   private final CheckForOperator checkForOperator;
 
-  protected OperatorCheck(final SymbolAndScopeManagement symbolAndScopeManagement,
+  protected OperatorCheck(final SymbolsAndScopes symbolsAndScopes,
                           final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.checkForOperator = new CheckForOperator(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.checkForOperator = new CheckForOperator(symbolsAndScopes, errorListener);
 
   }
 

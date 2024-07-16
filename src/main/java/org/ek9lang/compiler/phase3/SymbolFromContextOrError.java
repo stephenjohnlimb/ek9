@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Function;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -15,10 +15,10 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 final class SymbolFromContextOrError extends TypedSymbolAccess implements Function<ParserRuleContext, ISymbol> {
 
-  SymbolFromContextOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  SymbolFromContextOrError(final SymbolsAndScopes symbolsAndScopes,
                            final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

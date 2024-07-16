@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.StreamCallSymbol;
 
@@ -15,17 +15,17 @@ import org.ek9lang.compiler.symbols.StreamCallSymbol;
  */
 final class ProcessStreamFor extends TypedSymbolAccess implements Consumer<EK9Parser.StreamForContext> {
 
-  ProcessStreamFor(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessStreamFor(final SymbolsAndScopes symbolsAndScopes,
                    final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.StreamForContext ctx) {
 
-    final var streamFor = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var streamFor = (StreamCallSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     final var forRange = getRecordedAndTypedSymbol(ctx.forRange());
 
     if (streamFor != null && forRange != null) {

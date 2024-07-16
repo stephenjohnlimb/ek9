@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.CommonTypeSuperOrTrait;
 import org.ek9lang.compiler.support.SymbolFactory;
@@ -23,13 +23,13 @@ final class ProcessRange extends TypedSymbolAccess implements Consumer<EK9Parser
   /**
    * Check range expressions and record an expression for the type.
    */
-  ProcessRange(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessRange(final SymbolsAndScopes symbolsAndScopes,
                final SymbolFactory symbolFactory,
                final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.symbolFactory = symbolFactory;
-    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolsAndScopes, errorListener);
     this.commonTypeSuperOrTrait = new CommonTypeSuperOrTrait(errorListener);
 
   }

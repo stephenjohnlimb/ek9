@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -25,13 +25,13 @@ final class CheckSuitableGenus extends RuleSupport implements Function<ParserRul
   /**
    * Checks that the typedef/identifierReference passed in (when resolved) is suitable genus.
    */
-  CheckSuitableGenus(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckSuitableGenus(final SymbolsAndScopes symbolsAndScopes,
                      final ErrorListener errorListener,
                      final ISymbol.SymbolGenus genus,
                      final boolean allowTemplates,
                      final boolean issueErrorIfNotResolved) {
 
-    this(symbolAndScopeManagement, errorListener, List.of(genus), allowTemplates, issueErrorIfNotResolved);
+    this(symbolsAndScopes, errorListener, List.of(genus), allowTemplates, issueErrorIfNotResolved);
 
   }
 
@@ -39,13 +39,13 @@ final class CheckSuitableGenus extends RuleSupport implements Function<ParserRul
    * Checks that the typedef/identifierReference passed in (when resolved) is suitable genus.
    * Accepts multiple allowed genus. i.e. FUNCTION and FUNCTION_TRAIT.
    */
-  public CheckSuitableGenus(final SymbolAndScopeManagement symbolAndScopeManagement,
+  public CheckSuitableGenus(final SymbolsAndScopes symbolsAndScopes,
                             final ErrorListener errorListener,
                             final List<ISymbol.SymbolGenus> genus,
                             final boolean allowTemplates,
                             final boolean issueErrorIfNotResolved) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.supportedGenus.addAll(genus);
     this.issueErrorIfNotResolved = issueErrorIfNotResolved;
     this.allowTemplates = allowTemplates;
@@ -55,7 +55,7 @@ final class CheckSuitableGenus extends RuleSupport implements Function<ParserRul
   @Override
   public Optional<ISymbol> apply(final ParserRuleContext ctx) {
 
-    var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    var symbol = symbolsAndScopes.getRecordedSymbol(ctx);
     return checkIfValidSymbol(ctx, symbol) ? Optional.of(symbol) : Optional.empty();
 
   }

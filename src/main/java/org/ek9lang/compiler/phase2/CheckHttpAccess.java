@@ -9,17 +9,17 @@ import static org.ek9lang.compiler.support.SymbolFactory.HTTP_SOURCE;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Checks HTTP Access for service operations because some require HTTP_SOURCE, but others do not support it.
  */
 final class CheckHttpAccess extends RuleSupport implements Consumer<ISymbol> {
-  CheckHttpAccess(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckHttpAccess(final SymbolsAndScopes symbolsAndScopes,
                   final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

@@ -13,7 +13,7 @@ import org.ek9lang.core.AssertValue;
 
 /**
  * Used to hold just the transient data that will be used by listeners and visitors and
- * SymbolAndScopeManagement.
+ * SymbolsAndScopes.
  */
 public class ParsedModuleTransientData {
 

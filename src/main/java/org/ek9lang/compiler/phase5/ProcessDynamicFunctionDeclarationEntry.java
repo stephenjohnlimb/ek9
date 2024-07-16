@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase5;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 
@@ -12,20 +12,20 @@ import org.ek9lang.compiler.symbols.FunctionSymbol;
  */
 final class ProcessDynamicFunctionDeclarationEntry extends TypedSymbolAccess
     implements Consumer<EK9Parser.DynamicFunctionDeclarationContext> {
-  ProcessDynamicFunctionDeclarationEntry(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessDynamicFunctionDeclarationEntry(final SymbolsAndScopes symbolsAndScopes,
                                          final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
 
-    final var functionSymbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var functionSymbol = (FunctionSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     if (functionSymbol.isReturningSymbolPresent()) {
       final var variable = functionSymbol.getReturningSymbol();
-      symbolAndScopeManagement.recordSymbolDeclaration(variable, functionSymbol);
+      symbolsAndScopes.recordSymbolDeclaration(variable, functionSymbol);
     }
 
   }

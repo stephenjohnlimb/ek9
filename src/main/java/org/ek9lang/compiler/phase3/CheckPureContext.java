@@ -4,7 +4,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.N
 
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
@@ -13,10 +13,10 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Just check that with in the current 'context' - available from 'TypedSymbolAccess'.
  */
 final class CheckPureContext extends TypedSymbolAccess implements BiConsumer<IToken, ISymbol> {
-  CheckPureContext(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckPureContext(final SymbolsAndScopes symbolsAndScopes,
                    final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

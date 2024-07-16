@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.IScope;
 
 /**
@@ -17,17 +17,17 @@ import org.ek9lang.compiler.symbols.IScope;
 final class ProcessSwitchStatement extends PossibleExpressionConstruct
     implements Consumer<EK9Parser.SwitchStatementExpressionContext> {
 
-  ProcessSwitchStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessSwitchStatement(final SymbolsAndScopes symbolsAndScopes,
                          final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.SwitchStatementExpressionContext ctx) {
 
-    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
     final var possibleGuardVariable = getGuardExpressionVariable(ctx.preFlowAndControl());
 
     possibleGuardVariable.ifPresent(guardVariable ->
@@ -40,10 +40,10 @@ final class ProcessSwitchStatement extends PossibleExpressionConstruct
   private void checkCasesDefaultAndReturn(final EK9Parser.SwitchStatementExpressionContext ctx,
                                           final boolean noGuardExpression) {
 
-    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
     final var allBlocks = getAllBlocks(ctx);
-    final var outerScope = symbolAndScopeManagement.getTopScope();
-    final var switchScope = symbolAndScopeManagement.getRecordedScope(ctx);
+    final var outerScope = symbolsAndScopes.getTopScope();
+    final var switchScope = symbolsAndScopes.getRecordedScope(ctx);
 
     analyzers.forEach(analyzer -> pullUpAcceptableCriteriaToHigherScope(analyzer, allBlocks, switchScope));
 
@@ -64,13 +64,13 @@ final class ProcessSwitchStatement extends PossibleExpressionConstruct
 
     //Which it can be if there is a returning variable as part of the switch. This is the optional 'default'.
     if (ctx.block() != null) {
-      allBlocks.add(symbolAndScopeManagement.getRecordedScope(ctx.block().instructionBlock()));
+      allBlocks.add(symbolsAndScopes.getRecordedScope(ctx.block().instructionBlock()));
     }
 
     final var allCaseInstructionBlocks =
         ctx.caseStatement().stream()
             .map(ifControl -> ifControl.block().instructionBlock())
-            .map(symbolAndScopeManagement::getRecordedScope)
+            .map(symbolsAndScopes::getRecordedScope)
             .toList();
     allBlocks.addAll(allCaseInstructionBlocks);
 

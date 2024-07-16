@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 
@@ -14,9 +14,9 @@ import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 final class CheckNoTraitByVariables extends TypedSymbolAccess
     implements BiConsumer<EK9Parser.TraitsListContext, AggregateWithTraitsSymbol> {
 
-  CheckNoTraitByVariables(final SymbolAndScopeManagement symbolAndScopeManagement, final ErrorListener errorListener) {
+  CheckNoTraitByVariables(final SymbolsAndScopes symbolsAndScopes, final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

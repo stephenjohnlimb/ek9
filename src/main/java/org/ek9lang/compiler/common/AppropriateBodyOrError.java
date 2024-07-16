@@ -18,10 +18,10 @@ public class AppropriateBodyOrError extends RuleSupport implements
   /**
    * Create new checker.
    */
-  public AppropriateBodyOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  public AppropriateBodyOrError(final SymbolsAndScopes symbolsAndScopes,
                                 final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

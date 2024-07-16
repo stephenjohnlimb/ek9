@@ -12,10 +12,10 @@ import org.ek9lang.compiler.common.ErrorListener;
  * This is so when the dynamic method/class is created it is possible for the compiler to
  * declare the properties/fields to align with those being captured.
  */
-final class CheckDynamicVariableCapture implements Consumer<EK9Parser.DynamicVariableCaptureContext> {
+final class DynamicVariableCaptureOrError implements Consumer<EK9Parser.DynamicVariableCaptureContext> {
   private final ErrorListener errorListener;
 
-  CheckDynamicVariableCapture(final ErrorListener errorListener) {
+  DynamicVariableCaptureOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 
@@ -53,6 +53,7 @@ final class CheckDynamicVariableCapture implements Consumer<EK9Parser.DynamicVar
         }
       }
     }
+
   }
 
   private boolean raiseErrorIfParameterNeedsNaming(final EK9Parser.ExpressionParamContext param) {

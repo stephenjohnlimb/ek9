@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.support.ToCommaSeparated;
@@ -25,11 +25,11 @@ final class ProcessSwitchStatementExpression extends TypedSymbolAccess
 
   private final SetTypeFromReturningParam setTypeFromReturningParam;
 
-  ProcessSwitchStatementExpression(SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessSwitchStatementExpression(SymbolsAndScopes symbolsAndScopes,
                                    ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.setTypeFromReturningParam = new SetTypeFromReturningParam(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.setTypeFromReturningParam = new SetTypeFromReturningParam(symbolsAndScopes, errorListener);
 
   }
 
@@ -37,7 +37,7 @@ final class ProcessSwitchStatementExpression extends TypedSymbolAccess
   public void accept(final EK9Parser.SwitchStatementExpressionContext ctx) {
 
     //Now the return type (if viable)
-    final var switchExpression = (SwitchSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var switchExpression = (SwitchSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     setTypeFromReturningParam.accept(switchExpression, ctx.returningParam());
 
     //Then check the cases all make sense.
@@ -118,7 +118,7 @@ final class ProcessSwitchStatementExpression extends TypedSymbolAccess
           return;
         }
 
-        final var caseObjectStart = symbolAndScopeManagement.getRecordedSymbol(caseExpression.objectAccessExpression());
+        final var caseObjectStart = symbolsAndScopes.getRecordedSymbol(caseExpression.objectAccessExpression());
         if (enumValuesEncountered.containsKey(caseObjectStart)) {
           emitDuplicateCaseError(caseStatement.CASE().getSymbol(), caseObjectStart,
               enumValuesEncountered.get(caseObjectStart));
@@ -146,7 +146,7 @@ final class ProcessSwitchStatementExpression extends TypedSymbolAccess
       return false;
     }
 
-    final var caseObjectStart = symbolAndScopeManagement.getRecordedSymbol(caseExpression.objectAccessExpression());
+    final var caseObjectStart = symbolsAndScopes.getRecordedSymbol(caseExpression.objectAccessExpression());
 
     if (caseObjectStart == null || caseObjectStart.getType().isEmpty()) {
       return false;

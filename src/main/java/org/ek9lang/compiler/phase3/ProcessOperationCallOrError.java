@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
@@ -36,23 +36,23 @@ final class ProcessOperationCallOrError extends TypedSymbolAccess
   /**
    * Create a new operation resolver.
    */
-  ProcessOperationCallOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessOperationCallOrError(final SymbolsAndScopes symbolsAndScopes,
                               final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
     this.symbolsFromParamExpression =
-        new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
+        new SymbolsFromParamExpression(symbolsAndScopes, errorListener);
     this.checkValidFunctionDelegateOrError =
-        new CheckValidFunctionDelegateOrError(symbolAndScopeManagement, errorListener);
+        new CheckValidFunctionDelegateOrError(symbolsAndScopes, errorListener);
     this.resolveMethodOrError =
-        new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
+        new ResolveMethodOrError(symbolsAndScopes, errorListener);
     this.mostSpecificScope =
-        new MostSpecificScope(symbolAndScopeManagement);
+        new MostSpecificScope(symbolsAndScopes);
     this.checkAccessToSymbol =
-        new CheckAccessToSymbol(symbolAndScopeManagement, errorListener);
+        new CheckAccessToSymbol(symbolsAndScopes, errorListener);
     this.checkPureContext =
-        new CheckPureContext(symbolAndScopeManagement, errorListener);
+        new CheckPureContext(symbolsAndScopes, errorListener);
 
   }
 

@@ -61,75 +61,75 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
     this.errorListener =
         parsedModule.getSource().getErrorListener();
     this.processValidThisOrSuper =
-        new ProcessValidThisOrSuper(symbolAndScopeManagement, symbolFactory, errorListener);
+        new ProcessValidThisOrSuper(symbolsAndScopes, symbolFactory, errorListener);
     this.processValidPrimary =
-        new ProcessValidPrimary(symbolAndScopeManagement, errorListener);
+        new ProcessValidPrimary(symbolsAndScopes, errorListener);
     this.processValidIdentifierReference =
-        new ProcessValidIdentifierReference(symbolAndScopeManagement, errorListener);
+        new ProcessValidIdentifierReference(symbolsAndScopes, errorListener);
     this.checkValidStatement =
-        new CheckValidStatement(symbolAndScopeManagement, errorListener);
+        new CheckValidStatement(symbolsAndScopes, errorListener);
     this.checkValidExpression =
-        new CheckValidExpression(symbolAndScopeManagement, symbolFactory, errorListener);
+        new CheckValidExpression(symbolsAndScopes, symbolFactory, errorListener);
     this.checkInstructionBlockVariables =
-        new CheckInstructionBlockVariables(symbolAndScopeManagement, errorListener);
+        new CheckInstructionBlockVariables(symbolsAndScopes, errorListener);
     this.processAssignmentExpression =
-        new ProcessAssignmentExpression(symbolAndScopeManagement, errorListener);
+        new ProcessAssignmentExpression(symbolsAndScopes, errorListener);
     this.processAssignmentStatement =
-        new ProcessAssignmentStatement(symbolAndScopeManagement, errorListener);
+        new ProcessAssignmentStatement(symbolsAndScopes, errorListener);
     this.checkValidCall =
-        new CheckValidCall(symbolAndScopeManagement, symbolFactory, errorListener);
+        new CheckValidCall(symbolsAndScopes, symbolFactory, errorListener);
     this.processAndTypeList =
-        new ProcessAndTypeList(symbolAndScopeManagement, symbolFactory, errorListener);
+        new ProcessAndTypeList(symbolsAndScopes, symbolFactory, errorListener);
     this.processAndTypeDict =
-        new ProcessAndTypeDict(symbolAndScopeManagement, symbolFactory, errorListener);
+        new ProcessAndTypeDict(symbolsAndScopes, symbolFactory, errorListener);
     this.processStreamCat =
-        new ProcessStreamCat(symbolAndScopeManagement, errorListener);
+        new ProcessStreamCat(symbolsAndScopes, errorListener);
     this.processStreamFor =
-        new ProcessStreamFor(symbolAndScopeManagement, errorListener);
+        new ProcessStreamFor(symbolsAndScopes, errorListener);
     this.processPipelinePart =
-        new ProcessPipelinePart(symbolAndScopeManagement, errorListener);
+        new ProcessPipelinePart(symbolsAndScopes, errorListener);
     this.processStreamStatementTermination =
-        new ProcessStreamStatementTermination(symbolAndScopeManagement, errorListener);
+        new ProcessStreamStatementTermination(symbolsAndScopes, errorListener);
     this.processStreamStatement =
-        new ProcessStreamStatement(symbolAndScopeManagement, symbolFactory, errorListener);
+        new ProcessStreamStatement(symbolsAndScopes, symbolFactory, errorListener);
     this.processStreamExpressionTermination =
-        new ProcessStreamExpressionTermination(symbolAndScopeManagement, errorListener);
+        new ProcessStreamExpressionTermination(symbolsAndScopes, errorListener);
     this.processStreamExpression =
-        new ProcessStreamExpression(symbolAndScopeManagement, symbolFactory, errorListener);
+        new ProcessStreamExpression(symbolsAndScopes, symbolFactory, errorListener);
     this.processRange =
-        new ProcessRange(symbolAndScopeManagement, symbolFactory, errorListener);
+        new ProcessRange(symbolsAndScopes, symbolFactory, errorListener);
     this.processForLoop =
-        new ProcessForLoop(symbolAndScopeManagement, errorListener);
+        new ProcessForLoop(symbolsAndScopes, errorListener);
     this.processForRange =
-        new ProcessForRange(symbolAndScopeManagement, errorListener);
+        new ProcessForRange(symbolsAndScopes, errorListener);
     this.checkVariableAssignment =
-        new CheckVariableAssignment(symbolAndScopeManagement, errorListener);
+        new CheckVariableAssignment(symbolsAndScopes, errorListener);
     this.checkVariableOnlyDeclaration =
-        new CheckVariableOnlyDeclaration(symbolAndScopeManagement, errorListener);
+        new CheckVariableOnlyDeclaration(symbolsAndScopes, errorListener);
     this.processObjectAccessStartOrError =
-        new ProcessObjectAccessStartOrError(symbolAndScopeManagement, errorListener);
+        new ProcessObjectAccessStartOrError(symbolsAndScopes, errorListener);
     this.processObjectAccessExpressionOrError =
-        new ProcessObjectAccessExpressionOrError(symbolAndScopeManagement, errorListener);
+        new ProcessObjectAccessExpressionOrError(symbolsAndScopes, errorListener);
     this.processGuardExpression =
-        new ProcessGuardExpression(symbolAndScopeManagement, errorListener);
+        new ProcessGuardExpression(symbolsAndScopes, errorListener);
     this.processIfStatement =
-        new ProcessIfStatement(symbolAndScopeManagement, errorListener);
+        new ProcessIfStatement(symbolsAndScopes, errorListener);
     this.processForStatementExpression =
-        new ProcessForStatementExpression(symbolAndScopeManagement, errorListener);
+        new ProcessForStatementExpression(symbolsAndScopes, errorListener);
     this.processWhileStatementExpression =
-        new ProcessWhileStatementExpression(symbolAndScopeManagement, errorListener);
+        new ProcessWhileStatementExpression(symbolsAndScopes, errorListener);
     this.processWhileControlVariable =
-        new ProcessWhileControlVariable(symbolAndScopeManagement, errorListener);
+        new ProcessWhileControlVariable(symbolsAndScopes, errorListener);
     this.processSwitchStatementExpression =
-        new ProcessSwitchStatementExpression(symbolAndScopeManagement, errorListener);
+        new ProcessSwitchStatementExpression(symbolsAndScopes, errorListener);
     this.checkSwitch =
         new CheckSwitch(errorListener);
     this.processCaseExpression =
-        new ProcessCaseExpression(symbolAndScopeManagement, errorListener);
+        new ProcessCaseExpression(symbolsAndScopes, errorListener);
     this.processTryStatementExpression =
-        new ProcessTryStatementExpression(symbolAndScopeManagement, errorListener);
+        new ProcessTryStatementExpression(symbolsAndScopes, errorListener);
     this.checkThrowStatementOrError =
-        new CheckThrowStatementOrError(symbolAndScopeManagement, errorListener);
+        new CheckThrowStatementOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -140,9 +140,9 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
 
   @Override
   public void exitTraitReference(final EK9Parser.TraitReferenceContext ctx) {
-    final var traitReference = symbolAndScopeManagement.getRecordedSymbol(ctx.identifierReference());
+    final var traitReference = symbolsAndScopes.getRecordedSymbol(ctx.identifierReference());
     if (traitReference != null) {
-      symbolAndScopeManagement.recordSymbol(traitReference, ctx);
+      symbolsAndScopes.recordSymbol(traitReference, ctx);
     }
     super.exitTraitReference(ctx);
   }

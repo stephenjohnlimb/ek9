@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -20,11 +20,11 @@ final class CheckInstructionBlockVariables extends TypedSymbolAccess
   /**
    * Check on references to variables in blocks.
    */
-  CheckInstructionBlockVariables(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckInstructionBlockVariables(final SymbolsAndScopes symbolsAndScopes,
                                  final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.symbolCheck = new CheckReferenced(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.symbolCheck = new CheckReferenced(symbolsAndScopes, errorListener);
 
   }
 

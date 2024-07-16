@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.support.ParameterisedLocator;
 import org.ek9lang.compiler.support.ParameterisedTypeData;
 import org.ek9lang.compiler.support.SymbolFactory;
@@ -35,12 +35,12 @@ final class ProcessContextVariableDeclaration extends RuleSupport
     implements Consumer<EK9Parser.VariableDeclarationContext> {
   private final ParameterisedLocator parameterisedLocator;
 
-  ProcessContextVariableDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessContextVariableDeclaration(final SymbolsAndScopes symbolsAndScopes,
                                     final SymbolFactory symbolFactory,
                                     final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.parameterisedLocator = new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
+    super(symbolsAndScopes, errorListener);
+    this.parameterisedLocator = new ParameterisedLocator(symbolsAndScopes, symbolFactory, errorListener, true);
 
   }
 
@@ -48,7 +48,7 @@ final class ProcessContextVariableDeclaration extends RuleSupport
   public void accept(final EK9Parser.VariableDeclarationContext ctx) {
 
     if (ctx.assignmentExpression().expression() != null) {
-      final var variable = symbolAndScopeManagement.getRecordedSymbol(ctx);
+      final var variable = symbolsAndScopes.getRecordedSymbol(ctx);
       checkIfInferredType(ctx, ctx.assignmentExpression().expression(), variable);
     }
 
@@ -77,7 +77,7 @@ final class ProcessContextVariableDeclaration extends RuleSupport
                                             final ISymbol variable) {
 
     final var identifierReferenceCtx = exprCtx.call().identifierReference();
-    final var identifierReference = symbolAndScopeManagement.getRecordedSymbol(identifierReferenceCtx);
+    final var identifierReference = symbolsAndScopes.getRecordedSymbol(identifierReferenceCtx);
     //Here this could be a function call, type construction or an inferred Generic Construction
     if (identifierReference != null
         && (identifierReference.isTemplateFunction() || identifierReference.isTemplateType())) {
@@ -107,7 +107,7 @@ final class ProcessContextVariableDeclaration extends RuleSupport
                                   final ParseTree node,
                                   final ISymbol variable) {
 
-    final var ref = symbolAndScopeManagement.getRecordedSymbol(node);
+    final var ref = symbolsAndScopes.getRecordedSymbol(node);
     if (ref != null) {
       ref.getType().ifPresent(type -> {
         variable.setType(type);
@@ -133,7 +133,7 @@ final class ProcessContextVariableDeclaration extends RuleSupport
     if (allLiteralsInListOrError(listCtx, variable)) {
       final var typeOfList = getListType(listCtx.start, listCtx.expression(), variable);
       if (typeOfList != null) {
-        final var listType = symbolAndScopeManagement.getEk9Types().ek9List();
+        final var listType = symbolsAndScopes.getEk9Types().ek9List();
         final var typeData = new ParameterisedTypeData(new Ek9Token(listCtx.start), listType, List.of(typeOfList));
         final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
         if (resolvedNewType.isEmpty()) {
@@ -166,7 +166,7 @@ final class ProcessContextVariableDeclaration extends RuleSupport
       if (keyValueTypes.isEmpty()) {
         return;
       }
-      final var dictType = symbolAndScopeManagement.getEk9Types().ek9Dictionary();
+      final var dictType = symbolsAndScopes.getEk9Types().ek9Dictionary();
       final var typeData = new ParameterisedTypeData(new Ek9Token(dictCtx.start), dictType, keyValueTypes);
       final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
       if (resolvedNewType.isEmpty()) {
@@ -206,7 +206,7 @@ final class ProcessContextVariableDeclaration extends RuleSupport
     final var distinctTypes = expressions
         .stream()
         .map(expr -> expr.primary().literal())
-        .map(symbolAndScopeManagement::getRecordedSymbol)
+        .map(symbolsAndScopes::getRecordedSymbol)
         .map(ISymbol::getType)
         .flatMap(Optional::stream)
         .distinct()

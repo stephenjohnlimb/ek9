@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
@@ -15,12 +15,12 @@ final class CheckValidStatement extends TypedSymbolAccess implements Consumer<EK
   private final CheckForOperator checkForOperator;
   private final CheckMutableOrError checkMutableOrError;
 
-  CheckValidStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckValidStatement(final SymbolsAndScopes symbolsAndScopes,
                       final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.checkForOperator = new CheckForOperator(symbolAndScopeManagement, errorListener);
-    this.checkMutableOrError = new CheckMutableOrError(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.checkForOperator = new CheckForOperator(symbolsAndScopes, errorListener);
+    this.checkMutableOrError = new CheckMutableOrError(symbolsAndScopes, errorListener);
 
   }
 

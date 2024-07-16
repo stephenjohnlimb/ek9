@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
@@ -13,11 +13,11 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
 final class CheckThrowStatementOrError extends TypedSymbolAccess implements Consumer<EK9Parser.ThrowStatementContext> {
   private final CheckExceptionTypeOrError checkExceptionTypeOrError;
 
-  CheckThrowStatementOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckThrowStatementOrError(final SymbolsAndScopes symbolsAndScopes,
                              final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.checkExceptionTypeOrError = new CheckExceptionTypeOrError(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.checkExceptionTypeOrError = new CheckExceptionTypeOrError(symbolsAndScopes, errorListener);
 
   }
 
@@ -28,10 +28,10 @@ final class CheckThrowStatementOrError extends TypedSymbolAccess implements Cons
 
     if (ctx.identifierReference() != null) {
       checkExceptionTypeOrError.accept(errorLocation,
-          symbolAndScopeManagement.getRecordedSymbol(ctx.identifierReference()));
+          symbolsAndScopes.getRecordedSymbol(ctx.identifierReference()));
     } else if (ctx.call() != null) {
       checkExceptionTypeOrError.accept(errorLocation,
-          symbolAndScopeManagement.getRecordedSymbol(ctx.call()));
+          symbolsAndScopes.getRecordedSymbol(ctx.call()));
     }
 
   }

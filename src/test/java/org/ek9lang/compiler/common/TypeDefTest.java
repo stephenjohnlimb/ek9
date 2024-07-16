@@ -40,7 +40,7 @@ class TypeDefTest {
       var errorListener = parsedModule.getSource().getErrorListener();
 
       this.underTest = new TypeDefResolver(parsedModule.getModuleScope());
-      var symbolAndScopeManagement = new SymbolAndScopeManagement(parsedModule,
+      var symbolAndScopeManagement = new SymbolsAndScopes(parsedModule,
           new ScopeStack(parsedModule.getModuleScope()));
 
       var symbolFactory = new SymbolFactory(parsedModule);

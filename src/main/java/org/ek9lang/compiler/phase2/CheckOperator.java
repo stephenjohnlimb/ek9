@@ -13,7 +13,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.OverrideOrAbstractOrError;
 import org.ek9lang.compiler.common.ProcessTraitMethodOrError;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TraitMethodAcceptableOrError;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
@@ -40,18 +40,18 @@ final class CheckOperator extends RuleSupport
   /**
    * Create a new operation checker.
    */
-  CheckOperator(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckOperator(final SymbolsAndScopes symbolsAndScopes,
                 final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.operatorChecks = populateOperatorChecks();
 
     traitMethodAcceptableOrError = new TraitMethodAcceptableOrError(errorListener);
     contextSupportsAbstractMethodOrError =
-        new ContextSupportsAbstractMethodOrError(symbolAndScopeManagement, errorListener);
+        new ContextSupportsAbstractMethodOrError(symbolsAndScopes, errorListener);
     processTraitMethodOrError = new ProcessTraitMethodOrError(errorListener);
-    appropriateBodyOrError = new AppropriateBodyOrError(symbolAndScopeManagement, errorListener);
-    overrideOrAbstractOrError = new OverrideOrAbstractOrError(symbolAndScopeManagement, errorListener);
+    appropriateBodyOrError = new AppropriateBodyOrError(symbolsAndScopes, errorListener);
+    overrideOrAbstractOrError = new OverrideOrAbstractOrError(symbolsAndScopes, errorListener);
 
   }
 
@@ -338,7 +338,7 @@ final class CheckOperator extends RuleSupport
 
     if (methodSymbol.isReturningSymbolPresent() && methodSymbol.getReturningSymbol().getType().isPresent()) {
       methodSymbol.getReturningSymbol().getType().ifPresent(theType -> {
-        if (!symbolAndScopeManagement.getEk9Types().ek9Void().isExactSameType(theType)) {
+        if (!symbolsAndScopes.getEk9Types().ek9Void().isExactSameType(theType)) {
           errorListener.semanticError(methodSymbol.getSourceToken(), "'" + theType.getFriendlyName() + "'",
               ErrorListener.SemanticClassification.RETURN_VALUE_NOT_SUPPORTED);
         }
@@ -352,7 +352,7 @@ final class CheckOperator extends RuleSupport
       return false;
     }
     var possibleType = methodSymbol.getReturningSymbol().getType();
-    return possibleType.filter(symbol -> symbolAndScopeManagement.getEk9Types().ek9Void().isExactSameType(symbol))
+    return possibleType.filter(symbol -> symbolsAndScopes.getEk9Types().ek9Void().isExactSameType(symbol))
         .isPresent();
 
   }

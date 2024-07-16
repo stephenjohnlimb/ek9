@@ -71,20 +71,20 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   private final SymbolChecker symbolChecker;
   private final TextLanguageExtraction textLanguageExtraction;
   private final EmitUnreachableStatementError emitUnreachableStatementError;
-  private final CheckMethod checkMethod;
+  private final ValidMethodOrError validMethodOrError;
   private final ProcessSyntheticReturn processSyntheticReturn;
-  private final CheckInappropriateFunctionBody checkInappropriateFunctionBody;
-  private final CheckForImplementation checkForImplementation;
-  private final CheckThisAndSuperAssignmentStatement checkThisAndSuperAssignmentStatement;
-  private final CheckVariableOnlyDeclaration checkVariableOnlyDeclaration;
-  private final CheckVariableDeclaration checkVariableDeclaration;
-  private final CheckDynamicVariableCapture checkDynamicVariableCapture;
-  private final CheckDynamicClassDeclaration checkDynamicClassDeclaration;
-  private final CheckParamExpressionNamedParameters checkParamExpressionNamedParameters;
-  private final CheckNormalTermination checkNormalTermination;
-  private final CheckNotABooleanLiteral checkNotABooleanLiteral;
-  private final CheckApplicationUseOnMethodDeclaration checkApplicationUseOnMethodDeclaration;
-  private final CheckForInvalidParameterisedTypeUse checkForInvalidParameterisedTypeUse;
+  private final AppropriateFunctionBodyOrError appropriateFunctionBodyOrError;
+  private final ImplementationPresentOrError implementationPresentOrError;
+  private final ThisAndSuperAssignmentOrError thisAndSuperAssignmentOrError;
+  private final ProcessVariableOnlyOrError processVariableOnlyOrError;
+  private final VariableDeclarationOrError variableDeclarationOrError;
+  private final DynamicVariableCaptureOrError dynamicVariableCaptureOrError;
+  private final DynamicClassDeclarationOrError dynamicClassDeclarationOrError;
+  private final ConsistentNamedParametersOrError consistentNamedParametersOrError;
+  private final NormalTerminationOrError normalTerminationOrError;
+  private final NotABooleanLiteralOrError notABooleanLiteralOrError;
+  private final ApplicationOnMethodOrError applicationOnMethodOrError;
+  private final ValidParameterisedTypeOrError validParameterisedTypeOrError;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
   private String currentTextBlockLanguage;
@@ -101,29 +101,29 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     emitUnreachableStatementError = new EmitUnreachableStatementError(errorListener);
     textLanguageExtraction = new TextLanguageExtraction(errorListener);
-    checkMethod = new CheckMethod(symbolAndScopeManagement, errorListener);
-    processSyntheticReturn = new ProcessSyntheticReturn(symbolAndScopeManagement, symbolFactory, errorListener);
-    checkInappropriateFunctionBody = new CheckInappropriateFunctionBody(symbolAndScopeManagement, errorListener);
-    checkForImplementation = new CheckForImplementation(errorListener);
+    validMethodOrError = new ValidMethodOrError(symbolsAndScopes, errorListener);
+    processSyntheticReturn = new ProcessSyntheticReturn(symbolsAndScopes, symbolFactory, errorListener);
+    appropriateFunctionBodyOrError = new AppropriateFunctionBodyOrError(symbolsAndScopes, errorListener);
+    implementationPresentOrError = new ImplementationPresentOrError(errorListener);
 
-    checkThisAndSuperAssignmentStatement = new CheckThisAndSuperAssignmentStatement(errorListener);
-    checkVariableOnlyDeclaration = new CheckVariableOnlyDeclaration(errorListener);
-    checkVariableDeclaration = new CheckVariableDeclaration(symbolAndScopeManagement, errorListener);
-    checkDynamicClassDeclaration = new CheckDynamicClassDeclaration(symbolAndScopeManagement, errorListener);
-    checkDynamicVariableCapture = new CheckDynamicVariableCapture(errorListener);
-    checkParamExpressionNamedParameters = new CheckParamExpressionNamedParameters(errorListener);
-    checkNormalTermination = new CheckNormalTermination(errorListener);
-    checkNotABooleanLiteral = new CheckNotABooleanLiteral(errorListener);
+    thisAndSuperAssignmentOrError = new ThisAndSuperAssignmentOrError(errorListener);
+    processVariableOnlyOrError = new ProcessVariableOnlyOrError(errorListener);
+    variableDeclarationOrError = new VariableDeclarationOrError(symbolsAndScopes, errorListener);
+    dynamicClassDeclarationOrError = new DynamicClassDeclarationOrError(symbolsAndScopes, errorListener);
+    dynamicVariableCaptureOrError = new DynamicVariableCaptureOrError(errorListener);
+    consistentNamedParametersOrError = new ConsistentNamedParametersOrError(errorListener);
+    normalTerminationOrError = new NormalTerminationOrError(errorListener);
+    notABooleanLiteralOrError = new NotABooleanLiteralOrError(errorListener);
 
-    checkApplicationUseOnMethodDeclaration =
-        new CheckApplicationUseOnMethodDeclaration(symbolAndScopeManagement, errorListener);
+    applicationOnMethodOrError =
+        new ApplicationOnMethodOrError(symbolsAndScopes, errorListener);
 
-    checkForInvalidParameterisedTypeUse = new CheckForInvalidParameterisedTypeUse(errorListener);
+    validParameterisedTypeOrError = new ValidParameterisedTypeOrError(errorListener);
 
-    resolveOrDefineTypeDef = new ResolveOrDefineTypeDef(symbolAndScopeManagement, symbolFactory, errorListener, false);
+    resolveOrDefineTypeDef = new ResolveOrDefineTypeDef(symbolsAndScopes, symbolFactory, errorListener, false);
 
     resolveOrDefineExplicitParameterizedType =
-        new ResolveOrDefineExplicitParameterizedType(symbolAndScopeManagement, symbolFactory, errorListener, false);
+        new ResolveOrDefineExplicitParameterizedType(symbolsAndScopes, symbolFactory, errorListener, false);
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -154,22 +154,21 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     }
 
     super.exitDirective(ctx);
+
   }
 
   @Override
   public void enterPackageBlock(final EK9Parser.PackageBlockContext ctx) {
 
-    final var pack = symbolFactory.newPackage(ctx);
-    checkAndDefineModuleScopedSymbol(pack, ctx);
-
+    checkAndDefineModuleScopedSymbol(symbolFactory.newPackage(ctx), ctx);
     super.enterPackageBlock(ctx);
+
   }
 
   @Override
   public void exitPackageBlock(final EK9Parser.PackageBlockContext ctx) {
 
-    final var pack = symbolAndScopeManagement.getRecordedSymbol(ctx);
-    if (pack instanceof AggregateSymbol packageSymbol) {
+    if (symbolsAndScopes.getRecordedSymbol(ctx) instanceof AggregateSymbol packageSymbol) {
       //Now let's manipulate those properties that have been added
       packageSymbol.getProperties().forEach(prop -> {
         final VariableSymbol symbol = (VariableSymbol) prop;
@@ -181,6 +180,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     }
 
     super.exitPackageBlock(ctx);
+
   }
 
   @SuppressWarnings("java:S1185")
@@ -190,12 +190,13 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     //Nothing to do here, check enterMethodDeclaration - this checks parent and processes
     //a method as if it were a method (which in a way it is).
     super.enterProgramBlock(ctx);
+
   }
 
   @Override
   public void enterMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
 
-    //Now this is used quite widely in the grammar, the parent context is key here
+    //Now this (method) is used quite widely in the grammar, the parent context is key here
     if (ctx.getParent() instanceof EK9Parser.ProgramBlockContext) {
       processProgramDeclaration(ctx);
     } else if (ctx.getParent() instanceof EK9Parser.AggregatePartsContext) {
@@ -205,15 +206,15 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     }
 
     super.enterMethodDeclaration(ctx);
+
   }
 
   @Override
   public void exitMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
     //Can be null if during definition 'enter' it was a duplicate method
-    if (currentScope instanceof MethodSymbol method) {
-      checkMethod.accept(method, ctx);
+    if (symbolsAndScopes.getTopScope() instanceof MethodSymbol method) {
+      validMethodOrError.accept(method, ctx);
       if ((ctx.operationDetails() == null || (ctx.operationDetails() != null
           && ctx.operationDetails().returningParam() == null))
           && !method.isConstructor()) {
@@ -222,31 +223,34 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     }
 
     super.exitMethodDeclaration(ctx);
+
   }
 
   @Override
   public void enterOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
+    final var currentScope = symbolsAndScopes.getTopScope();
     MethodSymbol newOperator = null;
     if (currentScope instanceof IAggregateSymbol aggregate) {
+      //Now attempt to make an operator, but other checks could result in this being null.
       newOperator = symbolFactory.newOperator(ctx, aggregate);
     }
 
     if (newOperator != null) {
       //Can define directly because overloaded methods are allowed.
-      symbolAndScopeManagement.defineScopedSymbol(newOperator, ctx);
+      symbolsAndScopes.defineScopedSymbol(newOperator, ctx);
     } else {
-      symbolAndScopeManagement.recordScopeForStackConsistency(new StackConsistencyScope(currentScope), ctx);
+      symbolsAndScopes.recordScopeForStackConsistency(new StackConsistencyScope(currentScope), ctx);
     }
 
     super.enterOperatorDeclaration(ctx);
+
   }
 
   @Override
   public void exitOperatorDeclaration(EK9Parser.OperatorDeclarationContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
+    final var currentScope = symbolsAndScopes.getTopScope();
     //Can be null if during definition 'enter' it was a duplicate method
     if (currentScope instanceof MethodSymbol method
         && ctx.operationDetails() != null
@@ -255,6 +259,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     }
 
     super.exitOperatorDeclaration(ctx);
+
   }
 
   //See later phases for checking operators - because type checking is needed.
@@ -262,35 +267,35 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterDefaultOperator(final EK9Parser.DefaultOperatorContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
+    final var currentScope = symbolsAndScopes.getTopScope();
     boolean applied = false;
     if (currentScope instanceof IAggregateSymbol aggregate) {
       applied = symbolFactory.addMissingDefaultOperators(ctx, aggregate);
     }
 
     if (!applied) {
-      symbolAndScopeManagement.recordScopeForStackConsistency(new StackConsistencyScope(currentScope), ctx);
+      symbolsAndScopes.recordScopeForStackConsistency(new StackConsistencyScope(currentScope), ctx);
     }
 
     super.enterDefaultOperator(ctx);
+
   }
 
   @Override
   public void enterFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
 
-    final var functionSymbol = symbolFactory.newFunction(ctx);
-    checkAndDefineModuleScopedSymbol(functionSymbol, ctx);
-
+    checkAndDefineModuleScopedSymbol(symbolFactory.newFunction(ctx), ctx);
     super.enterFunctionDeclaration(ctx);
+
   }
 
   @Override
   public void exitFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
 
-    final var functionSymbol = (FunctionSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var functionSymbol = (FunctionSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
 
     if (functionSymbol != null) {
-      checkInappropriateFunctionBody.accept(functionSymbol, ctx.operationDetails());
+      appropriateFunctionBodyOrError.accept(functionSymbol, ctx.operationDetails());
     }
 
     //There is returning so use a return of Void, might be null if we had duplicate names.
@@ -299,76 +304,71 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     }
 
     super.exitFunctionDeclaration(ctx);
+
   }
 
   @Override
   public void enterRecordDeclaration(final EK9Parser.RecordDeclarationContext ctx) {
 
-    final var newTypeSymbol = symbolFactory.newRecord(ctx);
-    checkAndDefineModuleScopedSymbol(newTypeSymbol, ctx);
-
+    checkAndDefineModuleScopedSymbol(symbolFactory.newRecord(ctx), ctx);
     super.enterRecordDeclaration(ctx);
+
   }
 
   @Override
   public void enterTraitDeclaration(final EK9Parser.TraitDeclarationContext ctx) {
 
-    final var newTypeSymbol = symbolFactory.newTrait(ctx);
-    checkAndDefineModuleScopedSymbol(newTypeSymbol, ctx);
-
+    checkAndDefineModuleScopedSymbol(symbolFactory.newTrait(ctx), ctx);
     super.enterTraitDeclaration(ctx);
+
   }
 
   @Override
   public void enterClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
 
-    final var newTypeSymbol = symbolFactory.newClass(ctx);
-    checkAndDefineModuleScopedSymbol(newTypeSymbol, ctx);
-
+    checkAndDefineModuleScopedSymbol(symbolFactory.newClass(ctx), ctx);
     super.enterClassDeclaration(ctx);
+
   }
 
   @Override
   public void enterComponentDeclaration(final EK9Parser.ComponentDeclarationContext ctx) {
 
-    final var newTypeSymbol = symbolFactory.newComponent(ctx);
-    checkAndDefineModuleScopedSymbol(newTypeSymbol, ctx);
-
+    checkAndDefineModuleScopedSymbol(symbolFactory.newComponent(ctx), ctx);
     super.enterComponentDeclaration(ctx);
+
   }
 
   @Override
   public void enterTextBlock(final EK9Parser.TextBlockContext ctx) {
 
     currentTextBlockLanguage = textLanguageExtraction.apply(ctx.stringLit());
-
     super.enterTextBlock(ctx);
+
   }
 
   @Override
   public void exitTextBlock(final EK9Parser.TextBlockContext ctx) {
 
     currentTextBlockLanguage = null;
-
     super.exitTextBlock(ctx);
+
   }
 
   @Override
   public void enterTextDeclaration(final EK9Parser.TextDeclarationContext ctx) {
 
-    final var newTypeSymbol = symbolFactory.newText(ctx, currentTextBlockLanguage);
-    checkAndDefineModuleScopedSymbol(newTypeSymbol, ctx);
-
+    checkAndDefineModuleScopedSymbol(symbolFactory.newText(ctx, currentTextBlockLanguage), ctx);
     super.enterTextDeclaration(ctx);
+
   }
 
   @Override
   public void enterTextBodyDeclaration(final EK9Parser.TextBodyDeclarationContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
-    final var newTypeSymbol = symbolFactory.newTextBody(ctx, currentScope);
     //Can define directly because overloaded methods are allowed.
-    symbolAndScopeManagement.defineScopedSymbol(newTypeSymbol, ctx);
+    symbolsAndScopes.defineScopedSymbol(
+        symbolFactory.newTextBody(ctx, symbolsAndScopes.getTopScope()), ctx);
 
     super.enterTextBodyDeclaration(ctx);
   }
@@ -377,52 +377,49 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   public void exitTextBodyDeclaration(final EK9Parser.TextBodyDeclarationContext ctx) {
     //We have to do this on the exit side, so that the whole method body params are defined
     //That way it can be cloned and added to the conceptual base.
-    final var textMethodSymbol = (MethodSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
-    if (textMethodSymbol != null) {
+
+    if (symbolsAndScopes.getRecordedSymbol(ctx) instanceof MethodSymbol textMethodSymbol) {
       symbolFactory.ensureTextBodyIsInSuper(textMethodSymbol);
     }
 
     super.exitTextBodyDeclaration(ctx);
+
   }
 
   @Override
   public void enterServiceDeclaration(final EK9Parser.ServiceDeclarationContext ctx) {
 
-    final var newTypeSymbol = symbolFactory.newService(ctx);
-    checkAndDefineModuleScopedSymbol(newTypeSymbol, ctx);
-
+    checkAndDefineModuleScopedSymbol(symbolFactory.newService(ctx), ctx);
     super.enterServiceDeclaration(ctx);
+
   }
 
   @Override
   public void enterServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
-    final var newServiceOperationSymbol = symbolFactory.newServiceOperation(ctx, currentScope);
-
     //Duplicates are checked in later phase (EXPLICIT_TYPE_SYMBOL_DEFINITION).
-    symbolAndScopeManagement.defineScopedSymbol(newServiceOperationSymbol, ctx);
-
+    symbolsAndScopes.defineScopedSymbol(
+        symbolFactory.newServiceOperation(ctx, symbolsAndScopes.getTopScope()), ctx);
     super.enterServiceOperationDeclaration(ctx);
+
   }
 
   @Override
   public void enterApplicationDeclaration(final EK9Parser.ApplicationDeclarationContext ctx) {
 
-    final var newTypeSymbol = symbolFactory.newApplication(ctx);
-    checkAndDefineModuleScopedSymbol(newTypeSymbol, ctx);
-
+    checkAndDefineModuleScopedSymbol(symbolFactory.newApplication(ctx), ctx);
     super.enterApplicationDeclaration(ctx);
+
   }
 
   @Override
   public void enterDynamicClassDeclaration(final EK9Parser.DynamicClassDeclarationContext ctx) {
 
-    final var enclosingMainTypeOrFunction = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
+    final var enclosingMainTypeOrFunction = symbolsAndScopes.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
     enclosingMainTypeOrFunction.ifPresentOrElse(scope -> {
       final var newTypeSymbol = symbolFactory.newDynamicClass((IScopedSymbol) scope, ctx);
       checkAndDefineDynamicModuleScopedSymbol(newTypeSymbol, ctx);
-      checkDynamicClassDeclaration.accept(ctx);
+      dynamicClassDeclarationOrError.accept(ctx);
     }, () -> {
       throw new CompilerException("Compiler error dynamic class must be contained");
     });
@@ -433,7 +430,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterDynamicFunctionDeclaration(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
 
-    final var enclosingMainTypeOrFunction = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
+    final var enclosingMainTypeOrFunction = symbolsAndScopes.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
     enclosingMainTypeOrFunction.ifPresentOrElse(scope -> {
       final var newTypeSymbol = symbolFactory.newDynamicFunction((IScopedSymbol) scope, ctx);
       checkAndDefineDynamicModuleScopedSymbol(newTypeSymbol, ctx);
@@ -447,15 +444,15 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterDynamicVariableCapture(final EK9Parser.DynamicVariableCaptureContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
-    checkDynamicVariableCapture.accept(ctx);
+    final var currentScope = symbolsAndScopes.getTopScope();
+    dynamicVariableCaptureOrError.accept(ctx);
 
     if (currentScope instanceof ICanCaptureVariables canCaptureVariables) {
-      final var enclosingBlockScope = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.BLOCK);
+      final var enclosingBlockScope = symbolsAndScopes.traverseBackUpStack(IScope.ScopeType.BLOCK);
       AssertValue.checkTrue("Compiler error expecting block scope", enclosingBlockScope.isPresent());
       final var newScope = symbolFactory.newDynamicVariableCapture(canCaptureVariables, enclosingBlockScope.get());
       newScope.setOpenToEnclosingScope(true);
-      symbolAndScopeManagement.enterNewScope(newScope, ctx);
+      symbolsAndScopes.enterNewScope(newScope, ctx);
     } else {
       throw new CompilerException("Compiler error looking use dynamic variable but current scope is wrong");
     }
@@ -466,10 +463,11 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void exitDynamicVariableCapture(final EK9Parser.DynamicVariableCaptureContext ctx) {
 
-    final CaptureScope captureScope = (CaptureScope) symbolAndScopeManagement.getTopScope();
-    captureScope.setOpenToEnclosingScope(false);
-
+    if (symbolsAndScopes.getTopScope() instanceof CaptureScope captureScope) {
+      captureScope.setOpenToEnclosingScope(false);
+    }
     super.exitDynamicVariableCapture(ctx);
+
   }
 
   @Override
@@ -478,51 +476,46 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     //It is also possible to forward declare template types - but I might be
     //able to get rid of that if I work hard at it.
     if (ctx.Identifier() != null) {
-      final var newTypeSymbol = symbolFactory.newType(ctx);
-      checkAndDefineModuleScopedSymbol(newTypeSymbol, ctx);
+      checkAndDefineModuleScopedSymbol(symbolFactory.newType(ctx), ctx);
     }
-
     super.enterTypeDeclaration(ctx);
+
   }
 
   @Override
   public void enterEnumerationDeclaration(final EK9Parser.EnumerationDeclarationContext ctx) {
 
     //Now get the parent enumeration this enumeration items are to be defined in
-    final var enumerationSymbol = (AggregateSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx.parent);
-    symbolFactory.populateEnumeration(enumerationSymbol, ctx.Identifier());
-
+    if (symbolsAndScopes.getRecordedSymbol(ctx.parent) instanceof AggregateSymbol enumerationSymbol) {
+      symbolFactory.populateEnumeration(enumerationSymbol, ctx.Identifier());
+    }
     super.enterEnumerationDeclaration(ctx);
+
   }
 
   @Override
   public void enterStreamStatement(final EK9Parser.StreamStatementContext ctx) {
 
-    final var streamSymbol = symbolFactory.newStream(ctx);
-    //As it is a statement it returns nothing and hence is void
-    streamSymbol.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
-    symbolAndScopeManagement.recordSymbol(streamSymbol, ctx);
-
+    final var streamSymbol = symbolFactory.newStream(ctx).setType(symbolsAndScopes.getEk9Types().ek9Void());
+    symbolsAndScopes.recordSymbol(streamSymbol, ctx);
     super.enterStreamStatement(ctx);
+
   }
 
   @Override
   public void enterStreamExpression(final EK9Parser.StreamExpressionContext ctx) {
 
-    final var streamSymbol = symbolFactory.newStream(ctx);
-    symbolAndScopeManagement.recordSymbol(streamSymbol, ctx);
-
+    symbolsAndScopes.recordSymbol(symbolFactory.newStream(ctx), ctx);
     super.enterStreamExpression(ctx);
+
   }
 
   @Override
   public void enterStreamCat(final EK9Parser.StreamCatContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
-    final var streamCatSymbol = symbolFactory.newStreamCat(ctx, currentScope);
-    symbolAndScopeManagement.recordSymbol(streamCatSymbol, ctx);
-
+    symbolsAndScopes.recordSymbol(symbolFactory.newStreamCat(ctx, symbolsAndScopes.getTopScope()), ctx);
     super.enterStreamCat(ctx);
+
   }
 
   @Override
@@ -530,28 +523,25 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     //Either cat of for - there is no need to create and intermediate object here.
     final var contextToRecord = ctx.streamCat() != null ? ctx.streamCat() : ctx.streamFor();
-    final var symbolToRecord = symbolAndScopeManagement.getRecordedSymbol(contextToRecord);
-    symbolAndScopeManagement.recordSymbol(symbolToRecord, ctx);
-
+    final var symbolToRecord = symbolsAndScopes.getRecordedSymbol(contextToRecord);
+    symbolsAndScopes.recordSymbol(symbolToRecord, ctx);
     super.exitStreamSource(ctx);
+
   }
 
   @Override
   public void enterStreamFor(final EK9Parser.StreamForContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
-    final var streamForSymbol = symbolFactory.newStreamFor(ctx, currentScope);
-    symbolAndScopeManagement.recordSymbol(streamForSymbol, ctx);
-
+    symbolsAndScopes.recordSymbol(symbolFactory.newStreamFor(ctx, symbolsAndScopes.getTopScope()), ctx);
     super.enterStreamFor(ctx);
+
   }
 
   @Override
   public void enterStreamPart(final EK9Parser.StreamPartContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
-    final var streamPartSymbol = symbolFactory.newStreamPart(ctx, currentScope);
-    symbolAndScopeManagement.recordSymbol(streamPartSymbol, ctx);
+    symbolsAndScopes.recordSymbol(
+        symbolFactory.newStreamPart(ctx, symbolsAndScopes.getTopScope()), ctx);
 
     super.enterStreamPart(ctx);
   }
@@ -559,23 +549,19 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterStreamStatementTermination(final EK9Parser.StreamStatementTerminationContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
-    final var operation = ctx.op.getText();
-    final var terminationSymbol = symbolFactory.newStreamTermination(ctx, operation, currentScope);
-    symbolAndScopeManagement.recordSymbol(terminationSymbol, ctx);
-
+    symbolsAndScopes.recordSymbol(
+        symbolFactory.newStreamTermination(ctx, ctx.op.getText(), symbolsAndScopes.getTopScope()), ctx);
     super.enterStreamStatementTermination(ctx);
+
   }
 
   @Override
   public void enterStreamExpressionTermination(final EK9Parser.StreamExpressionTerminationContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
-    final var operation = ctx.op.getText();
-    final var terminationSymbol = symbolFactory.newStreamTermination(ctx, operation, currentScope);
-    symbolAndScopeManagement.recordSymbol(terminationSymbol, ctx);
-
+    symbolsAndScopes.recordSymbol(
+        symbolFactory.newStreamTermination(ctx, ctx.op.getText(), symbolsAndScopes.getTopScope()), ctx);
     super.enterStreamExpressionTermination(ctx);
+
   }
 
   //Pipeline Part is not defined here, just reference the symbol being employed against the context in phase3.
@@ -590,15 +576,16 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterIfStatement(final EK9Parser.IfStatementContext ctx) {
 
-    final IScope outerScope = symbolAndScopeManagement.getTopScope();
+    final IScope outerScope = symbolsAndScopes.getTopScope();
     final var ifScope = new LocalScope("If-line-" + ctx.start.getLine(), outerScope);
 
-    symbolAndScopeManagement.enterNewScope(ifScope, ctx);
+    symbolsAndScopes.enterNewScope(ifScope, ctx);
     ctx.ifControlBlock().stream()
         .map(ifBlock -> ifBlock.preFlowAndControl().control)
-        .forEach(checkNotABooleanLiteral);
+        .forEach(notABooleanLiteralOrError);
 
     super.enterIfStatement(ctx);
+
   }
 
   @Override
@@ -621,24 +608,23 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterSwitchStatementExpression(final EK9Parser.SwitchStatementExpressionContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
-    final var newSwitchSymbol = symbolFactory.newSwitch(ctx, currentScope);
-    symbolAndScopeManagement.enterNewScopedSymbol(newSwitchSymbol, ctx);
-    checkNotABooleanLiteral.accept(ctx.preFlowAndControl().control);
-
+    symbolsAndScopes.enterNewScopedSymbol(
+        symbolFactory.newSwitch(ctx, symbolsAndScopes.getTopScope()), ctx);
+    notABooleanLiteralOrError.accept(ctx.preFlowAndControl().control);
     super.enterSwitchStatementExpression(ctx);
+
   }
 
   @Override
   public void exitSwitchStatementExpression(final EK9Parser.SwitchStatementExpressionContext ctx) {
 
-    final var thisSwitchScope = symbolAndScopeManagement.getTopScope();
+    final var thisSwitchScope = symbolsAndScopes.getTopScope();
     if (thisSwitchScope != null) {
       pullSwitchCaseDefaultUp(ctx);
 
       if (ctx.returningParam() != null) {
         final var token = new Ek9Token(ctx.returningParam().LEFT_ARROW().getSymbol());
-        checkNormalTermination.accept(token, thisSwitchScope);
+        normalTerminationOrError.accept(token, thisSwitchScope);
       }
       //It is not an error at this point, but in a wider set of statements could be
     }
@@ -649,6 +635,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
       //So pull up this termination type and then if any statements follow and error will be issued.
       pullBlockTerminationUp(ctx);
     }
+
   }
 
   /**
@@ -661,11 +648,10 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterTryStatementExpression(final EK9Parser.TryStatementExpressionContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
-    final var newTrySymbol = symbolFactory.newTry(ctx, currentScope);
-    symbolAndScopeManagement.enterNewScopedSymbol(newTrySymbol, ctx);
-
+    symbolsAndScopes.enterNewScopedSymbol(
+        symbolFactory.newTry(ctx, symbolsAndScopes.getTopScope()), ctx);
     super.enterTryStatementExpression(ctx);
+
   }
 
   /**
@@ -677,13 +663,13 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void exitTryStatementExpression(final EK9Parser.TryStatementExpressionContext ctx) {
 
-    final IScope thisTryScope = symbolAndScopeManagement.getTopScope();
+    final IScope thisTryScope = symbolsAndScopes.getTopScope();
     if (thisTryScope != null) {
       pullTryCatchFinallyUp(ctx);
 
       if (ctx.returningParam() != null) {
         final var token = new Ek9Token(ctx.returningParam().LEFT_ARROW().getSymbol());
-        checkNormalTermination.accept(token, thisTryScope);
+        normalTerminationOrError.accept(token, thisTryScope);
       }
     }
     //It is not an error at this point, but in a wider set of statements could be
@@ -695,43 +681,45 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
       //So pull up this termination type and then if any statements follow and error will be issued.
       pullBlockTerminationUp(ctx);
     }
+
   }
 
   @Override
   public void enterCatchStatementExpression(final EK9Parser.CatchStatementExpressionContext ctx) {
 
-    final IScope outerScope = symbolAndScopeManagement.getTopScope();
+    final IScope outerScope = symbolsAndScopes.getTopScope();
     final var catchScope = new LocalScope("Catch-line-" + ctx.start.getLine(), outerScope);
-    symbolAndScopeManagement.enterNewScope(catchScope, ctx);
-
+    symbolsAndScopes.enterNewScope(catchScope, ctx);
     super.enterCatchStatementExpression(ctx);
+
   }
 
   @Override
   public void exitCatchStatementExpression(final EK9Parser.CatchStatementExpressionContext ctx) {
 
     pullBlockTerminationUp(ctx.instructionBlock());
-
     super.exitCatchStatementExpression(ctx);
+
   }
 
   @Override
   public void enterFinallyStatementExpression(final EK9Parser.FinallyStatementExpressionContext ctx) {
 
     //Don't really need this but for symmetry makes sense - really will just be an instructionBlock.
-    final IScope outerScope = symbolAndScopeManagement.getTopScope();
+    final IScope outerScope = symbolsAndScopes.getTopScope();
     final var catchScope = new LocalScope("Finally-line-" + ctx.start.getLine(), outerScope);
-    symbolAndScopeManagement.enterNewScope(catchScope, ctx);
+    symbolsAndScopes.enterNewScope(catchScope, ctx);
 
     super.enterFinallyStatementExpression(ctx);
+
   }
 
   @Override
   public void exitFinallyStatementExpression(final EK9Parser.FinallyStatementExpressionContext ctx) {
 
     pullBlockTerminationUp(ctx.block());
-
     super.exitFinallyStatementExpression(ctx);
+
   }
 
   /**
@@ -742,29 +730,29 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterThrowStatement(final EK9Parser.ThrowStatementContext ctx) {
 
-    final IScope currentScope = symbolAndScopeManagement.getTopScope();
+    final IScope currentScope = symbolsAndScopes.getTopScope();
 
     if (currentScope.isTerminatedNormally()) {
       currentScope.setEncounteredExceptionToken(new Ek9Token(ctx.getStart()));
     }
 
     super.enterThrowStatement(ctx);
+
   }
 
   @Override
   public void enterForStatementExpression(final EK9Parser.ForStatementExpressionContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
-    final var newForSymbol = symbolFactory.newForLoop(ctx, currentScope);
-    symbolAndScopeManagement.enterNewScopedSymbol(newForSymbol, ctx);
-
+    symbolsAndScopes.enterNewScopedSymbol(
+        symbolFactory.newForLoop(ctx, symbolsAndScopes.getTopScope()), ctx);
     super.enterForStatementExpression(ctx);
+
   }
 
   @Override
   public void exitForStatementExpression(final EK9Parser.ForStatementExpressionContext ctx) {
 
-    final var scope = symbolAndScopeManagement.getTopScope();
+    final var scope = symbolsAndScopes.getTopScope();
     pullBlockTerminationUp(ctx.instructionBlock());
 
     if (!scope.isTerminatedNormally()) {
@@ -772,25 +760,25 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     }
 
     super.exitForStatementExpression(ctx);
+
   }
 
   @Override
   public void enterWhileStatementExpression(final EK9Parser.WhileStatementExpressionContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
-    final var newWhileSymbol = symbolFactory.newWhileLoop(ctx, currentScope);
-    symbolAndScopeManagement.enterNewScopedSymbol(newWhileSymbol, ctx);
+    symbolsAndScopes.enterNewScopedSymbol(
+        symbolFactory.newWhileLoop(ctx, symbolsAndScopes.getTopScope()), ctx);
 
     //EK9 does not allow a literal true in a while.
-    checkNotABooleanLiteral.accept(ctx.control);
-
+    notABooleanLiteralOrError.accept(ctx.control);
     super.enterWhileStatementExpression(ctx);
+
   }
 
   @Override
   public void exitWhileStatementExpression(final EK9Parser.WhileStatementExpressionContext ctx) {
 
-    final var scope = symbolAndScopeManagement.getTopScope();
+    final var scope = symbolsAndScopes.getTopScope();
     pullBlockTerminationUp(ctx.instructionBlock());
 
     if (!scope.isTerminatedNormally()) {
@@ -798,26 +786,24 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     }
 
     super.exitWhileStatementExpression(ctx);
+
   }
 
   @Override
   public void enterForLoop(final EK9Parser.ForLoopContext ctx) {
 
-    checkNotABooleanLiteral.accept(ctx.expression());
-
-    final var variable = symbolFactory.newLoopVariable(ctx);
-    checkAndDefineSymbol(variable, ctx, false);
-
+    notABooleanLiteralOrError.accept(ctx.expression());
+    checkAndDefineSymbol(symbolFactory.newLoopVariable(ctx), ctx, false);
     super.enterForLoop(ctx);
+
   }
 
   @Override
   public void enterForRange(final EK9Parser.ForRangeContext ctx) {
 
-    final var variable = symbolFactory.newLoopVariable(ctx);
-    checkAndDefineSymbol(variable, ctx, false);
-
+    checkAndDefineSymbol(symbolFactory.newLoopVariable(ctx), ctx, false);
     super.enterForRange(ctx);
+
   }
 
   /**
@@ -834,11 +820,12 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterReturningParam(final EK9Parser.ReturningParamContext ctx) {
 
-    final IScope scope = symbolAndScopeManagement.getTopScope();
+    final IScope scope = symbolsAndScopes.getTopScope();
     final LocalScope returningScope = new LocalScope("Returning Param", scope);
-    symbolAndScopeManagement.enterNewScope(returningScope, ctx);
+    symbolsAndScopes.enterNewScope(returningScope, ctx);
 
     super.enterReturningParam(ctx);
+
   }
 
   /**
@@ -856,15 +843,16 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     //Now get back to the parent scope, function, method, try, switch etc.
     super.exitReturningParam(ctx);
-    final var currentScope = symbolAndScopeManagement.getTopScope();
+
+    final var currentScope = symbolsAndScopes.getTopScope();
 
     final ParseTree child =
         ctx.variableDeclaration() != null ? ctx.variableDeclaration() : ctx.variableOnlyDeclaration();
-    final var symbol = symbolAndScopeManagement.getRecordedSymbol(child);
+    final var symbol = symbolsAndScopes.getRecordedSymbol(child);
 
     if (symbol instanceof VariableSymbol variableSymbol) {
       //Now also record the same symbol against this context for later use.
-      symbolAndScopeManagement.recordSymbol(symbol, ctx);
+      symbolsAndScopes.recordSymbol(symbol, ctx);
       variableSymbol.setReturningParameter(true);
       if (!symbolChecker.errorsIfSymbolAlreadyDefined(currentScope, variableSymbol, true)) {
         if (currentScope instanceof MethodSymbol method) {
@@ -882,23 +870,21 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterBlock(final EK9Parser.BlockContext ctx) {
 
-    final IScope scope = symbolAndScopeManagement.getTopScope();
     final var scopeName = blockScopeName.apply(new Ek9Token(ctx.start));
-    final LocalScope instructionBlock = new LocalScope(scopeName, scope);
-    symbolAndScopeManagement.enterNewScope(instructionBlock, ctx);
-
+    final LocalScope instructionBlock = new LocalScope(scopeName, symbolsAndScopes.getTopScope());
+    symbolsAndScopes.enterNewScope(instructionBlock, ctx);
     super.enterBlock(ctx);
+
   }
 
   @Override
   public void enterSingleStatementBlock(final EK9Parser.SingleStatementBlockContext ctx) {
 
-    final IScope scope = symbolAndScopeManagement.getTopScope();
     final var scopeName = blockScopeName.apply(new Ek9Token(ctx.start));
-    final LocalScope instructionBlock = new LocalScope(scopeName, scope);
-    symbolAndScopeManagement.enterNewScope(instructionBlock, ctx);
-
+    final LocalScope instructionBlock = new LocalScope(scopeName, symbolsAndScopes.getTopScope());
+    symbolsAndScopes.enterNewScope(instructionBlock, ctx);
     super.enterSingleStatementBlock(ctx);
+
   }
 
   /**
@@ -915,9 +901,9 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     }
 
     if (ctx.returningParam() != null && ctx.instructionBlock() != null) {
-      final var instructionBlockScope = symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock());
+      final var instructionBlockScope = symbolsAndScopes.getRecordedScope(ctx.instructionBlock());
       final var token = new Ek9Token(ctx.returningParam().LEFT_ARROW().getSymbol());
-      checkNormalTermination.accept(token, instructionBlockScope);
+      normalTerminationOrError.accept(token, instructionBlockScope);
     }
 
     super.exitOperationDetails(ctx);
@@ -927,8 +913,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   public void exitBlock(final EK9Parser.BlockContext ctx) {
 
     pullBlockTerminationUp(ctx.instructionBlock());
-
     super.exitBlock(ctx);
+
   }
 
   /**
@@ -938,12 +924,11 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterInstructionBlock(final EK9Parser.InstructionBlockContext ctx) {
 
-    final IScope scope = symbolAndScopeManagement.getTopScope();
     final var scopeName = blockScopeName.apply(new Ek9Token(ctx.start));
-    final LocalScope instructionBlock = new LocalScope(scopeName, scope);
-    symbolAndScopeManagement.enterNewScope(instructionBlock, ctx);
-
+    final LocalScope instructionBlock = new LocalScope(scopeName, symbolsAndScopes.getTopScope());
+    symbolsAndScopes.enterNewScope(instructionBlock, ctx);
     super.enterInstructionBlock(ctx);
+
   }
 
   /**
@@ -959,12 +944,13 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterBlockStatement(final EK9Parser.BlockStatementContext ctx) {
 
-    final IScope scope = symbolAndScopeManagement.getTopScope();
+    final IScope scope = symbolsAndScopes.getTopScope();
     if (!scope.isTerminatedNormally()) {
       emitUnreachableStatementError.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
     }
 
     super.enterBlockStatement(ctx);
+
   }
 
   /**
@@ -974,22 +960,22 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterRegisterStatement(final EK9Parser.RegisterStatementContext ctx) {
 
-    final IScope scope = symbolAndScopeManagement.getTopScope();
+    final IScope scope = symbolsAndScopes.getTopScope();
     if (!scope.isTerminatedNormally()) {
       emitUnreachableStatementError.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
     }
 
     super.enterRegisterStatement(ctx);
+
   }
 
   @Override
   public void enterCall(final EK9Parser.CallContext ctx) {
 
-    final IScope scope = symbolAndScopeManagement.getTopScope();
-    final var symbol = symbolFactory.newCall(ctx, scope);
-    symbolAndScopeManagement.recordSymbol(symbol, ctx);
-
+    symbolsAndScopes.recordSymbol(
+        symbolFactory.newCall(ctx, symbolsAndScopes.getTopScope()), ctx);
     super.enterCall(ctx);
+
   }
 
 
@@ -999,11 +985,10 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterOperationCall(final EK9Parser.OperationCallContext ctx) {
 
-    final IScope scope = symbolAndScopeManagement.getTopScope();
-    final var symbol = symbolFactory.newOperationCall(ctx, scope);
-    symbolAndScopeManagement.recordSymbol(symbol, ctx);
-
+    symbolsAndScopes.recordSymbol(
+        symbolFactory.newOperationCall(ctx, symbolsAndScopes.getTopScope()), ctx);
     super.enterOperationCall(ctx);
+
   }
 
   //Not sure these List, Dict and DictEntry calls are needed.
@@ -1011,39 +996,33 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterList(final EK9Parser.ListContext ctx) {
 
-    final IScope scope = symbolAndScopeManagement.getTopScope();
-    final var symbol = symbolFactory.newList(ctx, scope);
-    symbolAndScopeManagement.recordSymbol(symbol, ctx);
-
+    symbolsAndScopes.recordSymbol(symbolFactory.newList(ctx, symbolsAndScopes.getTopScope()), ctx);
     super.enterList(ctx);
+
   }
 
   @Override
   public void enterDict(final EK9Parser.DictContext ctx) {
 
-    final IScope scope = symbolAndScopeManagement.getTopScope();
-    final var symbol = symbolFactory.newDict(ctx, scope);
-    symbolAndScopeManagement.recordSymbol(symbol, ctx);
-
+    symbolsAndScopes.recordSymbol(symbolFactory.newDict(ctx, symbolsAndScopes.getTopScope()), ctx);
     super.enterDict(ctx);
+
   }
 
   @Override
   public void enterInitValuePair(final EK9Parser.InitValuePairContext ctx) {
 
-    final IScope scope = symbolAndScopeManagement.getTopScope();
-    final var symbol = symbolFactory.newDictEntry(ctx, scope);
-    symbolAndScopeManagement.recordSymbol(symbol, ctx);
-
+    symbolsAndScopes.recordSymbol(symbolFactory.newDictEntry(ctx, symbolsAndScopes.getTopScope()), ctx);
     super.enterInitValuePair(ctx);
+
   }
 
   @Override
   public void exitParamExpression(final EK9Parser.ParamExpressionContext ctx) {
 
-    checkParamExpressionNamedParameters.accept(ctx);
-
+    consistentNamedParametersOrError.accept(ctx);
     super.exitParamExpression(ctx);
+
   }
 
   @Override
@@ -1051,10 +1030,10 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     //Now as I've altered the grammar we need to add a rule to ensure that it has
     //valid structure in its context.
-    checkForInvalidParameterisedTypeUse.accept(ctx);
+    validParameterisedTypeOrError.accept(ctx);
     resolveOrDefineExplicitParameterizedType.apply(ctx);
-
     super.enterParameterisedType(ctx);
+
   }
 
   @Override
@@ -1064,11 +1043,11 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
     final var varType = resolveOrDefineTypeDef.apply(ctx.typeDef());
     variable.setType(varType);
-    checkVariableOnlyDeclaration.accept(ctx, variable);
+    processVariableOnlyOrError.accept(ctx, variable);
     final var limitToBlocks = variable.isIncomingParameter() || variable.isPropertyField();
     checkAndDefineSymbol(variable, ctx, limitToBlocks);
-
     super.enterVariableOnlyDeclaration(ctx);
+
   }
 
   /**
@@ -1079,13 +1058,13 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     final var variable = symbolFactory.newVariable(ctx);
 
-    checkVariableDeclaration.accept(ctx);
+    variableDeclarationOrError.accept(ctx);
     //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
     final var varType = resolveOrDefineTypeDef.apply(ctx.typeDef());
     variable.setType(varType);
     checkAndDefineSymbol(variable, ctx, false);
-
     super.enterVariableDeclaration(ctx);
+
   }
 
   /**
@@ -1095,7 +1074,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void exitVariableDeclaration(final EK9Parser.VariableDeclarationContext ctx) {
 
-    final VariableSymbol variable = (VariableSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final VariableSymbol variable = (VariableSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     //Might not have been registered if detected as a duplicate.
     if (variable != null) {
       variable.setInitialisedBy(new Ek9Token(ctx.assignmentExpression().start));
@@ -1109,7 +1088,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
           && ctx.assignmentExpression().expression().primary() != null
           && ctx.assignmentExpression().expression().primary().literal() != null) {
         final var symbol =
-            symbolAndScopeManagement.getRecordedSymbol(ctx.assignmentExpression().expression().primary().literal());
+            symbolsAndScopes.getRecordedSymbol(ctx.assignmentExpression().expression().primary().literal());
         variable.setType(symbol.getType());
       }
     }
@@ -1122,14 +1101,14 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     //Record the same symbol at the aggregate property context as well.
     if (ctx.variableDeclaration() != null) {
-      final var field = symbolAndScopeManagement.getRecordedSymbol(ctx.variableDeclaration());
+      final var field = symbolsAndScopes.getRecordedSymbol(ctx.variableDeclaration());
       if (field != null) {
-        symbolAndScopeManagement.recordSymbol(field, ctx);
+        symbolsAndScopes.recordSymbol(field, ctx);
       }
     } else {
-      var field = symbolAndScopeManagement.getRecordedSymbol(ctx.variableOnlyDeclaration());
+      var field = symbolsAndScopes.getRecordedSymbol(ctx.variableOnlyDeclaration());
       if (field != null) {
-        symbolAndScopeManagement.recordSymbol(field, ctx);
+        symbolsAndScopes.recordSymbol(field, ctx);
       }
     }
 
@@ -1150,8 +1129,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     //This always results in a boolean.
     final var expr = symbolFactory.newExpressionSymbol(new Ek9Token(ctx.start), ctx.getText(),
-        Optional.of(symbolAndScopeManagement.getEk9Types().ek9Boolean()));
-    symbolAndScopeManagement.recordSymbol(expr, ctx);
+        Optional.of(symbolsAndScopes.getEk9Types().ek9Boolean()));
+    symbolsAndScopes.recordSymbol(expr, ctx);
 
     super.exitPreFlowStatement(ctx);
   }
@@ -1162,8 +1141,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     //Checkin of the types in the guard assignment is done later - but this results in
     //and expression with a boolean return type.
     final var expr = symbolFactory.newExpressionSymbol(new Ek9Token(ctx.start), ctx.getText(),
-        Optional.of(symbolAndScopeManagement.getEk9Types().ek9Boolean()));
-    symbolAndScopeManagement.recordSymbol(expr, ctx);
+        Optional.of(symbolsAndScopes.getEk9Types().ek9Boolean()));
+    symbolsAndScopes.recordSymbol(expr, ctx);
 
     super.exitGuardExpression(ctx);
   }
@@ -1171,19 +1150,17 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void exitAssignmentStatement(final EK9Parser.AssignmentStatementContext ctx) {
 
-    //There is nothing to record here, but we do need to plug a rule in
-    checkThisAndSuperAssignmentStatement.accept(ctx);
-
+    thisAndSuperAssignmentOrError.accept(ctx);
     super.enterAssignmentStatement(ctx);
+
   }
 
   @Override
   public void enterConstantDeclaration(final EK9Parser.ConstantDeclarationContext ctx) {
 
-    final var constant = symbolFactory.newConstant(ctx);
-    symbolAndScopeManagement.enterNewConstant(constant, ctx, symbolChecker);
-
+    symbolsAndScopes.enterNewConstant(symbolFactory.newConstant(ctx), ctx, symbolChecker);
     super.enterConstantDeclaration(ctx);
+
   }
 
   @Override
@@ -1191,9 +1168,9 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     //Now because constants are and have to be quite simple we can work out the type
     //even in the def phase 1. That's because they can only be simple though.
-    final ConstantSymbol constant = (ConstantSymbol) getParsedModule().getRecordedSymbol(ctx);
+
     //Could be null if detected as duplicate.
-    if (constant != null) {
+    if (getParsedModule().getRecordedSymbol(ctx) instanceof ConstantSymbol constant) {
       //See exitConstantInitialiser below for how this is populated.
       final ISymbol constantValue = getParsedModule().getRecordedSymbol(ctx.constantInitialiser());
       AssertValue.checkNotNull("Need to be able to access the type of the constant.", constantValue);
@@ -1204,6 +1181,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     }
 
     super.exitConstantDeclaration(ctx);
+
   }
 
   // OK down at the lower levels of defining literal
@@ -1220,6 +1198,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     getParsedModule().recordSymbol(ctx, literalSymbol); //pass same symbol back up by recording on ctx.
 
     super.exitConstantInitialiser(ctx);
+
   }
 
   @Override
@@ -1228,6 +1207,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     recordConstant(ctx, ctx.start, EK9_INTEGER);
 
     super.enterIntegerLiteral(ctx);
+
   }
 
   @Override
@@ -1236,6 +1216,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     recordConstant(ctx, ctx.start, EK9_FLOAT);
 
     super.enterFloatingPointLiteral(ctx);
+
   }
 
   @Override
@@ -1244,6 +1225,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     recordConstant(ctx, ctx.start, EK9_BITS);
 
     super.enterBinaryLiteral(ctx);
+
   }
 
   @Override
@@ -1252,6 +1234,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     recordConstant(ctx, ctx.start, EK9_BOOLEAN);
 
     super.enterBooleanLiteral(ctx);
+
   }
 
   @Override
@@ -1260,6 +1243,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     recordConstant(ctx, ctx.start, EK9_CHARACTER);
 
     super.enterCharacterLiteral(ctx);
+
   }
 
   @Override
@@ -1268,136 +1252,137 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     recordConstant(ctx, ctx.start, EK9_STRING);
 
     super.enterStringLiteral(ctx);
+
   }
 
   @Override
   public void enterStringPart(final EK9Parser.StringPartContext ctx) {
 
-    final var scope = symbolAndScopeManagement.getTopScope();
     if (ctx.STRING_TEXT() != null) {
       //Then it is just a snip of TEXT
-      final var literal = symbolFactory.newInterpolatedStringPart(ctx, scope);
-      symbolAndScopeManagement.recordSymbol(literal, ctx);
+      final var literal = symbolFactory.newInterpolatedStringPart(ctx, symbolsAndScopes.getTopScope());
+      symbolsAndScopes.recordSymbol(literal, ctx);
     } else {
       //Ah, so it is an expression part of an interpolated String
       //We don't know what type it will return yet!
       final var expression = symbolFactory.newInterpolatedExpressionPart(ctx);
-      symbolAndScopeManagement.recordSymbol(expression, ctx);
+      symbolsAndScopes.recordSymbol(expression, ctx);
     }
 
     super.enterStringPart(ctx);
+
   }
 
   @Override
   public void enterTimeLiteral(final EK9Parser.TimeLiteralContext ctx) {
 
     recordConstant(ctx, ctx.start, EK9_TIME);
-
     super.enterTimeLiteral(ctx);
+
   }
 
   @Override
   public void enterDateLiteral(final EK9Parser.DateLiteralContext ctx) {
 
     recordConstant(ctx, ctx.start, EK9_DATE);
-
     super.enterDateLiteral(ctx);
+
   }
 
   @Override
   public void enterDateTimeLiteral(final EK9Parser.DateTimeLiteralContext ctx) {
 
     recordConstant(ctx, ctx.start, EK9_DATETIME);
-
     super.enterDateTimeLiteral(ctx);
+
   }
 
   @Override
   public void enterDurationLiteral(final EK9Parser.DurationLiteralContext ctx) {
 
     recordConstant(ctx, ctx.start, EK9_DURATION);
-
     super.enterDurationLiteral(ctx);
+
   }
 
   @Override
   public void enterMillisecondLiteral(final EK9Parser.MillisecondLiteralContext ctx) {
 
     recordConstant(ctx, ctx.start, EK9_MILLISECOND);
-
     super.enterMillisecondLiteral(ctx);
+
   }
 
   @Override
   public void enterDecorationDimensionLiteral(final EK9Parser.DecorationDimensionLiteralContext ctx) {
 
     recordConstant(ctx, ctx.start, EK9_DIMENSION);
-
     super.enterDecorationDimensionLiteral(ctx);
+
   }
 
   @Override
   public void enterDecorationResolutionLiteral(final EK9Parser.DecorationResolutionLiteralContext ctx) {
 
     recordConstant(ctx, ctx.start, EK9_RESOLUTION);
-
     super.enterDecorationResolutionLiteral(ctx);
+
   }
 
   @Override
   public void enterColourLiteral(final EK9Parser.ColourLiteralContext ctx) {
 
     recordConstant(ctx, ctx.start, EK9_COLOUR);
-
     super.enterColourLiteral(ctx);
+
   }
 
   @Override
   public void enterMoneyLiteral(final EK9Parser.MoneyLiteralContext ctx) {
 
     recordConstant(ctx, ctx.start, EK9_MONEY);
-
     super.enterMoneyLiteral(ctx);
+
   }
 
   @Override
   public void enterRegularExpressionLiteral(final EK9Parser.RegularExpressionLiteralContext ctx) {
 
     recordConstant(ctx, ctx.start, EK9_REGEX);
-
     super.enterRegularExpressionLiteral(ctx);
+
   }
 
   @Override
   public void enterVersionNumberLiteral(final EK9Parser.VersionNumberLiteralContext ctx) {
 
     recordConstant(ctx, ctx.start, EK9_VERSION);
-
     super.enterVersionNumberLiteral(ctx);
+
   }
 
   @Override
   public void enterPathLiteral(final EK9Parser.PathLiteralContext ctx) {
 
     recordConstant(ctx, ctx.start, EK9_PATH);
-
     super.enterPathLiteral(ctx);
+
   }
 
   private void processProgramDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
 
     final var program = symbolFactory.newProgram(ctx);
     checkAndDefineModuleScopedSymbol(program, ctx);
-    checkForImplementation.accept(ctx);
+    implementationPresentOrError.accept(ctx);
     //Should we now add in a "main program" method to hold the instruction blocks?
     final var newMainProgramMethod = symbolFactory.newMethod(ctx, "main", program);
     //But record against the operation details as the Program Aggregate is registered again main ctx
     //This will also push this method scope on to the stack. But as this is a method the developer
     //may have use abstract (incorrectly) and left the operation details out.
     if (ctx.operationDetails() != null) {
-      symbolAndScopeManagement.defineScopedSymbol(newMainProgramMethod, ctx.operationDetails());
+      symbolsAndScopes.defineScopedSymbol(newMainProgramMethod, ctx.operationDetails());
     } else {
-      symbolAndScopeManagement.recordScopeForStackConsistency(new StackConsistencyScope(program), ctx);
+      symbolsAndScopes.recordScopeForStackConsistency(new StackConsistencyScope(program), ctx);
     }
 
   }
@@ -1408,9 +1393,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
    */
   private void checkAndDefineSymbol(final ISymbol symbol, final ParseTree node, final boolean limitToBlock) {
 
-    final var scope = symbolAndScopeManagement.getTopScope();
-    if (!symbolChecker.errorsIfSymbolAlreadyDefined(scope, symbol, limitToBlock)) {
-      symbolAndScopeManagement.enterNewSymbol(symbol, node);
+    if (!symbolChecker.errorsIfSymbolAlreadyDefined(symbolsAndScopes.getTopScope(), symbol, limitToBlock)) {
+      symbolsAndScopes.enterNewSymbol(symbol, node);
     }
 
   }
@@ -1422,33 +1406,32 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
    */
   private void checkAndDefineModuleScopedSymbol(final IScopedSymbol symbol, final ParseTree node) {
 
-    symbolAndScopeManagement.enterModuleScopedSymbol(symbol, node, symbolChecker);
+    symbolsAndScopes.enterModuleScopedSymbol(symbol, node, symbolChecker);
 
   }
 
   private void checkAndDefineDynamicModuleScopedSymbol(final IScopedSymbol symbol, final ParseTree node) {
 
-    symbolAndScopeManagement.enterModuleScopedSymbol(symbol, node, symbolChecker);
+    symbolsAndScopes.enterModuleScopedSymbol(symbol, node, symbolChecker);
 
   }
 
   private void processMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
 
-    checkApplicationUseOnMethodDeclaration.accept(ctx);
-    final var currentScope = symbolAndScopeManagement.getTopScope();
+    applicationOnMethodOrError.accept(ctx);
+    final var currentScope = symbolsAndScopes.getTopScope();
     if (currentScope instanceof IScopedSymbol scopedSymbol) {
       final var method = symbolFactory.newMethod(ctx, scopedSymbol);
       //Can define directly because overloaded methods are allowed.
-      symbolAndScopeManagement.defineScopedSymbol(method, ctx);
+      symbolsAndScopes.defineScopedSymbol(method, ctx);
     } else {
-      symbolAndScopeManagement.recordScopeForStackConsistency(new StackConsistencyScope(currentScope), ctx);
+      symbolsAndScopes.recordScopeForStackConsistency(new StackConsistencyScope(currentScope), ctx);
     }
 
   }
 
   private void recordConstant(final ParseTree ctx, final Token start, final String typeName) {
 
-    final var scope = symbolAndScopeManagement.getTopScope();
 
     //Let's account for the optional '-' on some literals
     var literalText = ctx.getChild(0).getText();
@@ -1457,6 +1440,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     }
 
     //Now this type should be resolved as it is passed in and is a built-in type.
+    final var scope = symbolsAndScopes.getTopScope();
     final var resolvedType = scope.resolve(new TypeSymbolSearch(typeName));
 
     //Make the literal
@@ -1475,7 +1459,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     AssertValue.checkTrue(msg, resolvedType.isPresent());
     literal.setType(resolvedType);
-    symbolAndScopeManagement.enterNewLiteral(literal, ctx);
+    symbolsAndScopes.enterNewLiteral(literal, ctx);
 
   }
+
 }

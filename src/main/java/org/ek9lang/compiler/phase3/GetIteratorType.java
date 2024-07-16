@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -23,10 +23,10 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * If this is not possible then Optional.empty() is returned.</p>
  */
 final class GetIteratorType extends TypedSymbolAccess implements Function<IAggregateSymbol, Optional<ISymbol>> {
-  GetIteratorType(final SymbolAndScopeManagement symbolAndScopeManagement,
+  GetIteratorType(final SymbolsAndScopes symbolsAndScopes,
                   final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
@@ -60,7 +60,7 @@ final class GetIteratorType extends TypedSymbolAccess implements Function<IAggre
         && aggregate.getTypeParameterOrArguments().size() == 1) {
 
       final var maybeIteratorType = aggregate.getGenericType().get();
-      if (maybeIteratorType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Iterator())) {
+      if (maybeIteratorType.isExactSameType(symbolsAndScopes.getEk9Types().ek9Iterator())) {
         //The can only be one and this will have been checked earlier
         return Optional.of(aggregate.getTypeParameterOrArguments().get(0));
       }
@@ -72,8 +72,8 @@ final class GetIteratorType extends TypedSymbolAccess implements Function<IAggre
 
       if (resolvedHasNext.isPresent()
           && resolvedNext.isPresent()
-          && resolvedHasNext.get().isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Boolean())
-          && !resolvedNext.get().isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Void())) {
+          && resolvedHasNext.get().isExactSameType(symbolsAndScopes.getEk9Types().ek9Boolean())
+          && !resolvedNext.get().isExactSameType(symbolsAndScopes.getEk9Types().ek9Void())) {
         return resolvedNext;
       }
 

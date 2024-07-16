@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.support.CommonTypeSuperOrTrait;
@@ -39,19 +39,19 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
   /**
    * Check Primary resolves and attempt to 'type' it.
    */
-  CheckValidExpression(final SymbolAndScopeManagement symbolAndScopeManagement, final SymbolFactory symbolFactory,
+  CheckValidExpression(final SymbolsAndScopes symbolsAndScopes, final SymbolFactory symbolFactory,
                        final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.symbolFactory = symbolFactory;
-    this.checkIsSet = new CheckIsSet(symbolAndScopeManagement, errorListener);
-    this.checkForComparator = new CheckForComparator(symbolAndScopeManagement, errorListener);
-    this.checkForOperator = new CheckForOperator(symbolAndScopeManagement, errorListener);
-    this.methodSymbolSearchForExpression = new MethodSymbolSearchForExpression(symbolAndScopeManagement, errorListener);
-    this.checkControlIsBooleanOrError = new CheckControlIsBooleanOrError(symbolAndScopeManagement, errorListener);
+    this.checkIsSet = new CheckIsSet(symbolsAndScopes, errorListener);
+    this.checkForComparator = new CheckForComparator(symbolsAndScopes, errorListener);
+    this.checkForOperator = new CheckForOperator(symbolsAndScopes, errorListener);
+    this.methodSymbolSearchForExpression = new MethodSymbolSearchForExpression(symbolsAndScopes, errorListener);
+    this.checkControlIsBooleanOrError = new CheckControlIsBooleanOrError(symbolsAndScopes, errorListener);
     this.commonTypeSuperOrTrait = new CommonTypeSuperOrTrait(errorListener);
-    this.accessLeftAndRight = new AccessLeftAndRight(symbolAndScopeManagement, errorListener);
-    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+    this.accessLeftAndRight = new AccessLeftAndRight(symbolsAndScopes, errorListener);
+    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolsAndScopes, errorListener);
 
   }
 
@@ -60,7 +60,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
 
     final var symbol = processExpression(ctx);
     if (symbol != null) {
-      symbolAndScopeManagement.recordSymbol(symbol, ctx);
+      symbolsAndScopes.recordSymbol(symbol, ctx);
       if (symbol.getType().isEmpty()) {
         emitTypeNotResolvedError(new Ek9Token(ctx.start), symbol);
       }
@@ -286,11 +286,11 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     if (expr != null && range != null && expr.getType().isPresent() && range.getType().isPresent()) {
       //This just comes down to the range type having a comparator that accepts the expr type
       final var search = new MethodSymbolSearch("<=>").addTypeParameter(expr.getType())
-          .setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Integer());
+          .setOfTypeOrReturn(symbolsAndScopes.getEk9Types().ek9Integer());
       final var data = new CheckOperatorData(range, opToken, search);
       final var locatedReturningType = checkForOperator.apply(data);
       if (locatedReturningType.isPresent()) {
-        final var rtnType = Optional.of(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+        final var rtnType = Optional.of(symbolsAndScopes.getEk9Types().ek9Boolean());
         final var returnExpr =
             symbolFactory.newExpressionSymbol(data.operatorUseToken(), data.symbol().getName(), rtnType);
         return processNegationIfRequired(ctx, returnExpr);
@@ -308,7 +308,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
     if (leftAndRight.isPresent()) {
       //This just comes down to right having the 'contains' that accepts the left type
       final var search = new MethodSymbolSearch("contains").addTypeParameter(leftAndRight.get().left().getType())
-          .setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+          .setOfTypeOrReturn(symbolsAndScopes.getEk9Types().ek9Boolean());
       return processExpressionFromOperatorData(ctx, new CheckOperatorData(leftAndRight.get().right(), opToken, search));
     }
 
@@ -342,7 +342,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
   private ISymbol checkAndProcessNotOperation(final IToken notOpToken, final ISymbol exprSymbol) {
 
     final var search =
-        new MethodSymbolSearch("~").setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+        new MethodSymbolSearch("~").setOfTypeOrReturn(symbolsAndScopes.getEk9Types().ek9Boolean());
     final var located = checkForOperator.apply(new CheckOperatorData(exprSymbol, notOpToken, search));
 
     if (located.isPresent()) {
@@ -359,7 +359,7 @@ final class CheckValidExpression extends TypedSymbolAccess implements Consumer<E
 
     if (checkIsSet.test(opToken, expressionInQuestion)) {
       return symbolFactory.newExpressionSymbol(opToken, expressionInQuestion.getName())
-          .setType(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+          .setType(symbolsAndScopes.getEk9Types().ek9Boolean());
     }
 
     return null;

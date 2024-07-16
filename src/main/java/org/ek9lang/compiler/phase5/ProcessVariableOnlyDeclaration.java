@@ -5,7 +5,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.N
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
@@ -15,10 +15,10 @@ import org.ek9lang.compiler.symbols.VariableSymbol;
  */
 final class ProcessVariableOnlyDeclaration extends TypedSymbolAccess
     implements Consumer<EK9Parser.VariableOnlyDeclarationContext> {
-  ProcessVariableOnlyDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessVariableOnlyDeclaration(final SymbolsAndScopes symbolsAndScopes,
                                  final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
@@ -26,10 +26,10 @@ final class ProcessVariableOnlyDeclaration extends TypedSymbolAccess
   public void accept(final EK9Parser.VariableOnlyDeclarationContext ctx) {
 
     if (ctx.QUESTION() != null) {
-      final var variable = (VariableSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+      final var variable = (VariableSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
       //Then we know it was not initialised at declaration, so record it,
       //this will be recorded against the current scope
-      symbolAndScopeManagement.recordSymbolDeclaration(variable);
+      symbolsAndScopes.recordSymbolDeclaration(variable);
       propertyInitialisedOrError(variable);
     }
 

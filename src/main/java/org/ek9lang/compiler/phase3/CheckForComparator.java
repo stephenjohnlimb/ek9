@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.BiPredicate;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
@@ -12,10 +12,10 @@ import org.ek9lang.compiler.tokenizer.IToken;
  */
 class CheckForComparator extends OperatorCheck implements BiPredicate<IToken, ISymbol> {
 
-  CheckForComparator(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckForComparator(final SymbolsAndScopes symbolsAndScopes,
                      final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
@@ -24,6 +24,6 @@ class CheckForComparator extends OperatorCheck implements BiPredicate<IToken, IS
 
     return new MethodSymbolSearch("<=>")
         .addTypeParameter(symbolType)
-        .setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Integer());
+        .setOfTypeOrReturn(symbolsAndScopes.getEk9Types().ek9Integer());
   }
 }

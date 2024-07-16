@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;
 import org.ek9lang.compiler.support.ToCommaSeparated;
@@ -15,10 +15,10 @@ final class ResolveFunctionOrError extends TypedSymbolAccess implements Function
 
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
 
-  ResolveFunctionOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ResolveFunctionOrError(final SymbolsAndScopes symbolsAndScopes,
                          final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

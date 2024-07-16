@@ -6,23 +6,23 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.ExternallyImplemented;
 import org.ek9lang.compiler.common.ProcessingBodyPresent;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 
 /**
  * Checks if the body of a function is appropriate.
  * i.e has it correctly been marked as abstract.
  */
-final class CheckInappropriateFunctionBody extends RuleSupport implements
+final class AppropriateFunctionBodyOrError extends RuleSupport implements
     BiConsumer<FunctionSymbol, EK9Parser.OperationDetailsContext> {
 
   private final ProcessingBodyPresent processingBodyPresent = new ProcessingBodyPresent();
   private final ExternallyImplemented externallyImplemented = new ExternallyImplemented();
 
-  CheckInappropriateFunctionBody(final SymbolAndScopeManagement symbolAndScopeManagement,
+  AppropriateFunctionBodyOrError(final SymbolsAndScopes symbolsAndScopes,
                                  final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

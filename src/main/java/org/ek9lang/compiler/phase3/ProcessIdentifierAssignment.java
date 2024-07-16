@@ -5,7 +5,7 @@ import static org.ek9lang.compiler.support.SymbolFactory.NO_REFERENCED_RESET;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.OperationIsAssignment;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 
 /**
@@ -15,11 +15,11 @@ final class ProcessIdentifierAssignment extends TypedSymbolAccess implements Con
   private final OperationIsAssignment operationIsAssignment = new OperationIsAssignment();
   private final CheckLhsAndRhsAssignment checkLeftAndRight;
 
-  ProcessIdentifierAssignment(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessIdentifierAssignment(final SymbolsAndScopes symbolsAndScopes,
                               final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.checkLeftAndRight = new CheckLhsAndRhsAssignment(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.checkLeftAndRight = new CheckLhsAndRhsAssignment(symbolsAndScopes, errorListener);
 
   }
 

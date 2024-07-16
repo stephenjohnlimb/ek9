@@ -5,7 +5,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.G
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
@@ -30,13 +30,13 @@ final class CheckVariableAssignment extends TypedSymbolAccess
   /**
    * Create a new checker of variable assignments when variables are being declared.
    */
-  CheckVariableAssignment(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckVariableAssignment(final SymbolsAndScopes symbolsAndScopes,
                           final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.checkTypesCompatible = new CheckTypesCompatible(symbolAndScopeManagement, errorListener);
-    this.checkAssignment = new CheckAssignment(symbolAndScopeManagement, errorListener, true);
-    this.checkPossibleDelegate = new CheckPossibleDelegate(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.checkTypesCompatible = new CheckTypesCompatible(symbolsAndScopes, errorListener);
+    this.checkAssignment = new CheckAssignment(symbolsAndScopes, errorListener, true);
+    this.checkPossibleDelegate = new CheckPossibleDelegate(symbolsAndScopes, errorListener);
 
   }
 
@@ -46,11 +46,11 @@ final class CheckVariableAssignment extends TypedSymbolAccess
     //Note that we use the untyped check to access the symbols
     //This is because for assignments we can use explicit or inferred type (see grammar).
 
-    final var varSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var varSymbol = symbolsAndScopes.getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Expecting a variable symbol to be present Line: "
         + ctx.start.getLine(), varSymbol);
 
-    final var exprSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.assignmentExpression());
+    final var exprSymbol = symbolsAndScopes.getRecordedSymbol(ctx.assignmentExpression());
     //Eventually we should always get an expression here (though it may not be 'typed')
 
     //Now it should have been typed if it has a typeDef - if not then that's an error in previous phases.
@@ -75,7 +75,7 @@ final class CheckVariableAssignment extends TypedSymbolAccess
                                  final ISymbol exprSymbol) {
 
     if (varSymbol.getType().isEmpty()) {
-      final var theType = symbolAndScopeManagement.getRecordedSymbol(ctx.typeDef());
+      final var theType = symbolsAndScopes.getRecordedSymbol(ctx.typeDef());
       if (theType != null) {
         varSymbol.setType(theType);
       }

@@ -8,11 +8,11 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 /**
  * Check not dispatcher methods.
  */
-final class CheckNotDispatcherMethod implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
+final class NotDispatcherMethodOrError implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
 
   private final ErrorListener errorListener;
 
-  CheckNotDispatcherMethod(final ErrorListener errorListener) {
+  NotDispatcherMethodOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

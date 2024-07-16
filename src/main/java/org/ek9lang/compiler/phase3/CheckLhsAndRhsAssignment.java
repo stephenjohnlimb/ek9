@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.OperationIsAssignment;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
@@ -23,18 +23,18 @@ final class CheckLhsAndRhsAssignment extends TypedSymbolAccess implements Consum
   private final CheckAssignment checkAssignment;
   private final CheckMutableOrError checkMutableOrError;
 
-  CheckLhsAndRhsAssignment(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckLhsAndRhsAssignment(final SymbolsAndScopes symbolsAndScopes,
                            final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.checkTypesCompatible
-        = new CheckTypesCompatible(symbolAndScopeManagement, errorListener);
+        = new CheckTypesCompatible(symbolsAndScopes, errorListener);
     this.resolveMethodOrError
-        = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
+        = new ResolveMethodOrError(symbolsAndScopes, errorListener);
     this.checkAssignment
-        = new CheckAssignment(symbolAndScopeManagement, errorListener, false);
+        = new CheckAssignment(symbolsAndScopes, errorListener, false);
     this.checkMutableOrError
-        = new CheckMutableOrError(symbolAndScopeManagement, errorListener);
+        = new CheckMutableOrError(symbolsAndScopes, errorListener);
 
   }
 
@@ -103,7 +103,7 @@ final class CheckLhsAndRhsAssignment extends TypedSymbolAccess implements Consum
   private void checkMutationOperation(final AssignmentData data) {
 
     if (isProcessingScopePure()) {
-      final var maybeMethod = symbolAndScopeManagement.traverseBackUpStackToEnclosingMethod();
+      final var maybeMethod = symbolsAndScopes.traverseBackUpStackToEnclosingMethod();
 
       if (maybeMethod.isEmpty()) {
         //So this is not within a method in an aggregate, so no mutation of anything.

@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -23,10 +23,10 @@ final class ResolveFunctionOrDelegateByNameOrError extends TypedSymbolAccess
    * identifiers can be optional in some contexts (like named argument when calling methods and functions).
    * Also in dynamic classes and functions with variable capture.
    */
-  ResolveFunctionOrDelegateByNameOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ResolveFunctionOrDelegateByNameOrError(final SymbolsAndScopes symbolsAndScopes,
                                          final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
@@ -60,7 +60,7 @@ final class ResolveFunctionOrDelegateByNameOrError extends TypedSymbolAccess
 
   private Optional<ISymbol> resolveFunctionDelegate(final String name) {
 
-    return symbolAndScopeManagement.getTopScope().resolve(new SymbolSearch(name));
+    return symbolsAndScopes.getTopScope().resolve(new SymbolSearch(name));
   }
 
   private Optional<ISymbol> resolveFunctionByName(final EK9Parser.IdentifierContext ctx, final String name) {
@@ -68,7 +68,7 @@ final class ResolveFunctionOrDelegateByNameOrError extends TypedSymbolAccess
     //While it may seem strange - we resolve like this so that it is possible to give more meaningful error messages.
     //EK9 stops the same name being used at module scope for multiple 'types'/'constant' so there should only be one
     //But it might be the wrong type - that is checked later in its context.
-    final var possibleMatches = symbolAndScopeManagement.getModuleScope().getAllSymbolsMatchingName(name);
+    final var possibleMatches = symbolsAndScopes.getModuleScope().getAllSymbolsMatchingName(name);
     if (!possibleMatches.isEmpty()) {
       final var resolved = possibleMatches.get(0);
       if (!resolved.isFunction() && !resolved.isTemplateFunction()) {

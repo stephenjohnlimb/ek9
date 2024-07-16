@@ -5,7 +5,7 @@ import java.util.function.BiConsumer;
 import org.ek9lang.compiler.common.AggregateHasPureConstruction;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -41,11 +41,11 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
 
   final AggregateHasPureConstruction aggregateHasPureConstruction = new AggregateHasPureConstruction();
 
-  CheckAndPopulateConstrainedType(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckAndPopulateConstrainedType(final SymbolsAndScopes symbolsAndScopes,
                                   final AggregateFactory aggregateFactory,
                                   final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.aggregateFactory = aggregateFactory;
 
   }
@@ -58,8 +58,8 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
       return;
     }
 
-    final var isBoolean = constrainedType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Boolean());
-    final var isJson = constrainedType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Json());
+    final var isBoolean = constrainedType.isExactSameType(symbolsAndScopes.getEk9Types().ek9Boolean());
+    final var isJson = constrainedType.isExactSameType(symbolsAndScopes.getEk9Types().ek9Json());
     final var isType = constrainedType.getCategory().equals(ISymbol.SymbolCategory.TYPE);
     final var isAcceptableGenus = constrainedType.getGenus().equals(ISymbol.SymbolGenus.CLASS)
         || constrainedType.getGenus().equals(ISymbol.SymbolGenus.CLASS_CONSTRAINED)

@@ -4,7 +4,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.C
 
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -17,10 +17,10 @@ import org.ek9lang.compiler.tokenizer.IToken;
 final class CheckNotAbstractOrError extends TypedSymbolAccess implements BiConsumer<IToken, ISymbol> {
   private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
 
-  CheckNotAbstractOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckNotAbstractOrError(final SymbolsAndScopes symbolsAndScopes,
                           final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

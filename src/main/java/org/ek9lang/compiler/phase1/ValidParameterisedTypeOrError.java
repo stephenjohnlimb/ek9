@@ -7,10 +7,10 @@ import org.ek9lang.compiler.common.ErrorListener;
 /**
  * Error when use of ParameterisedType has additional expression parameters in wrong context.
  */
-final class CheckForInvalidParameterisedTypeUse implements Consumer<EK9Parser.ParameterisedTypeContext> {
+final class ValidParameterisedTypeOrError implements Consumer<EK9Parser.ParameterisedTypeContext> {
   private final ErrorListener errorListener;
 
-  CheckForInvalidParameterisedTypeUse(final ErrorListener errorListener) {
+  ValidParameterisedTypeOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

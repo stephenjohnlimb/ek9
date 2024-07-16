@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase5;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.common.UninitialisedVariableToBeChecked;
 
@@ -14,19 +14,19 @@ final class ProcessGuardExpression extends TypedSymbolAccess implements Consumer
   private final UninitialisedVariableToBeChecked uninitialisedVariableToBeChecked =
       new UninitialisedVariableToBeChecked();
 
-  ProcessGuardExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessGuardExpression(final SymbolsAndScopes symbolsAndScopes,
                          final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.GuardExpressionContext ctx) {
 
-    final var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx.identifier());
+    final var symbol = symbolsAndScopes.getRecordedSymbol(ctx.identifier());
     if (uninitialisedVariableToBeChecked.test(symbol)) {
-      symbolAndScopeManagement.recordSymbolAssignment(symbol);
+      symbolsAndScopes.recordSymbolAssignment(symbol);
     }
 
   }

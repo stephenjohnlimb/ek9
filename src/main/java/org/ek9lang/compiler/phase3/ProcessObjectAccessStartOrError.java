@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.CompilerException;
@@ -21,12 +21,12 @@ final class ProcessObjectAccessStartOrError extends TypedSymbolAccess
   private final ProcessIdentifierOrError processIdentifierOrError;
   private final EnumerationLocator enumerationLocator;
 
-  ProcessObjectAccessStartOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessObjectAccessStartOrError(final SymbolsAndScopes symbolsAndScopes,
                                   final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.processIdentifierOrError = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
-    this.enumerationLocator = new EnumerationLocator(symbolAndScopeManagement);
+    super(symbolsAndScopes, errorListener);
+    this.processIdentifierOrError = new ProcessIdentifierOrError(symbolsAndScopes, errorListener);
+    this.enumerationLocator = new EnumerationLocator(symbolsAndScopes);
 
   }
 

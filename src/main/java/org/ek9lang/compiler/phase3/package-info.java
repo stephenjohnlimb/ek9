@@ -10,7 +10,7 @@
  * </p>
  * <p>
  * This now follows the same pattern as most of the other Listeners, using
- * {@link org.ek9lang.compiler.common.SymbolAndScopeManagement} for handling scope traversals and locating recorded
+ * {@link org.ek9lang.compiler.common.SymbolsAndScopes} for handling scope traversals and locating recorded
  * symbols and scopes.
  * </p>
  * <p>

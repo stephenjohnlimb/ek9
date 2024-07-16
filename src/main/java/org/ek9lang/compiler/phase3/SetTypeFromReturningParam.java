@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -12,10 +12,10 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 final class SetTypeFromReturningParam extends TypedSymbolAccess
     implements BiConsumer<ISymbol, EK9Parser.ReturningParamContext> {
-  SetTypeFromReturningParam(final SymbolAndScopeManagement symbolAndScopeManagement,
+  SetTypeFromReturningParam(final SymbolsAndScopes symbolsAndScopes,
                             final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
@@ -23,7 +23,7 @@ final class SetTypeFromReturningParam extends TypedSymbolAccess
   public void accept(final ISymbol symbol, final EK9Parser.ReturningParamContext ctx) {
 
     if (ctx == null) {
-      symbol.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
+      symbol.setType(symbolsAndScopes.getEk9Types().ek9Void());
       return;
     }
 

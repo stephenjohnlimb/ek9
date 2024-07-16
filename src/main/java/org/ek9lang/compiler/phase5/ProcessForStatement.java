@@ -4,22 +4,22 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 
 /**
  * Checks the for structure via the code analysers.
  */
 final class ProcessForStatement extends PossibleExpressionConstruct
     implements Consumer<EK9Parser.ForStatementExpressionContext> {
-  ProcessForStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessForStatement(final SymbolsAndScopes symbolsAndScopes,
                       final ErrorListener errorListener) {
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
   }
 
   @Override
   public void accept(final EK9Parser.ForStatementExpressionContext ctx) {
 
-    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
     final var possibleGuardVariable = getGuardExpressionVariable(getPreFlowStatement(ctx));
 
     possibleGuardVariable.ifPresent(guardVariable ->
@@ -32,10 +32,10 @@ final class ProcessForStatement extends PossibleExpressionConstruct
   private void checkLoopBodyAndReturn(final EK9Parser.ForStatementExpressionContext ctx,
                                       final boolean noGuardExpression) {
 
-    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
-    final var forScope = symbolAndScopeManagement.getRecordedScope(ctx);
+    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
+    final var forScope = symbolsAndScopes.getRecordedScope(ctx);
     //Note that none of the body alters the outer loop, only the possible guard expression does that.
-    final var loopBodyScope = List.of(symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock()));
+    final var loopBodyScope = List.of(symbolsAndScopes.getRecordedScope(ctx.instructionBlock()));
 
     analyzers.forEach(analyzer -> pullUpAcceptableCriteriaToHigherScope(analyzer, loopBodyScope, forScope));
 

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
@@ -22,12 +22,12 @@ final class ProcessForRange extends TypedSymbolAccess implements Consumer<EK9Par
   /**
    * Check range expressions and record an expression for the type.
    */
-  ProcessForRange(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessForRange(final SymbolsAndScopes symbolsAndScopes,
                   final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.processIdentifierOrError = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
-    this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.processIdentifierOrError = new ProcessIdentifierOrError(symbolsAndScopes, errorListener);
+    this.resolveMethodOrError = new ResolveMethodOrError(symbolsAndScopes, errorListener);
 
   }
 
@@ -38,7 +38,7 @@ final class ProcessForRange extends TypedSymbolAccess implements Consumer<EK9Par
     final var rangeExpr = getRecordedAndTypedSymbol(ctx.range());
     //Note the different call here, we accept that the loop variable will not yet have been 'typed'
     //So now we can set that type on the loop variable.
-    final var loopVar = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var loopVar = symbolsAndScopes.getRecordedSymbol(ctx);
 
     if (loopVar != null && rangeExpr != null) {
       checkLoopWithRangeExpression(ctx, loopVar, rangeExpr);

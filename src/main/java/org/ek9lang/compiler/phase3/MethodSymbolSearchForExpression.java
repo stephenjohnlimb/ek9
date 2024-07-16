@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 
@@ -16,11 +16,11 @@ final class MethodSymbolSearchForExpression extends TypedSymbolAccess
   private final SymbolFromContextOrError symbolFromContextOrError;
 
   MethodSymbolSearchForExpression(
-      final SymbolAndScopeManagement symbolAndScopeManagement,
+      final SymbolsAndScopes symbolsAndScopes,
       final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolsAndScopes, errorListener);
 
   }
 

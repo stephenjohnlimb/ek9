@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.WhileSymbol;
 
@@ -15,19 +15,19 @@ final class ProcessWhileStatementExpression extends TypedSymbolAccess
   private final SetTypeFromReturningParam setTypeFromReturningParam;
   private final CheckControlIsBooleanOrError checkControlIsBooleanOrError;
 
-  ProcessWhileStatementExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessWhileStatementExpression(final SymbolsAndScopes symbolsAndScopes,
                                   final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.setTypeFromReturningParam = new SetTypeFromReturningParam(symbolAndScopeManagement, errorListener);
-    this.checkControlIsBooleanOrError = new CheckControlIsBooleanOrError(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.setTypeFromReturningParam = new SetTypeFromReturningParam(symbolsAndScopes, errorListener);
+    this.checkControlIsBooleanOrError = new CheckControlIsBooleanOrError(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.WhileStatementExpressionContext ctx) {
 
-    final var whileExpression = (WhileSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var whileExpression = (WhileSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     setTypeFromReturningParam.accept(whileExpression, ctx.returningParam());
     checkControlIsBooleanOrError.accept(ctx.control);
 

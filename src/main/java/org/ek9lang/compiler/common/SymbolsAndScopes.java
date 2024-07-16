@@ -35,7 +35,7 @@ import org.ek9lang.core.AssertValue;
  * <br/>
  * Now also uses a transient CodeFlowAnalyzer to assess whether variables in instruction blocks has been initialised.
  */
-public class SymbolAndScopeManagement {
+public class SymbolsAndScopes {
   private final ParsedModule parsedModule;
   private final ScopeStack scopeStack;
   private final CodeFlowAnalyzer uninitialisedVariableAnalyzer = new UninitialisedVariableAnalyzer();
@@ -45,7 +45,7 @@ public class SymbolAndScopeManagement {
    * Create a new instance for symbol and scope management.
    * If these types are not resolved then OK with a big exception and stop processing (so suppress get warning).
    */
-  public SymbolAndScopeManagement(final ParsedModule parsedModule, final ScopeStack scopeStack) {
+  public SymbolsAndScopes(final ParsedModule parsedModule, final ScopeStack scopeStack) {
 
     AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);
     AssertValue.checkNotNull("ScopeStack cannot be null", scopeStack);

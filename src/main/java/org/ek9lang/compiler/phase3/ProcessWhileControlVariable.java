@@ -5,7 +5,7 @@ import static org.ek9lang.compiler.support.SymbolFactory.NO_REFERENCED_RESET;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.WhileSymbol;
@@ -20,17 +20,17 @@ import org.ek9lang.compiler.symbols.WhileSymbol;
 final class ProcessWhileControlVariable extends TypedSymbolAccess
     implements Consumer<EK9Parser.WhileStatementExpressionContext> {
 
-  ProcessWhileControlVariable(SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessWhileControlVariable(SymbolsAndScopes symbolsAndScopes,
                               ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.WhileStatementExpressionContext ctx) {
 
-    final var whileSymbol = (WhileSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var whileSymbol = (WhileSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     if (ctx.control != null) {
       markAnyIdentifierAsLoopAccessed(whileSymbol, ctx.control);
     }

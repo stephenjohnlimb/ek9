@@ -4,7 +4,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -26,10 +26,10 @@ final class AugmentAggregateWithTraitMethods extends TypedSymbolAccess
   private final CheckIfAbstractMethodsImplemented checkIfAbstractMethodsImplemented
       = new CheckIfAbstractMethodsImplemented();
 
-  AugmentAggregateWithTraitMethods(final SymbolAndScopeManagement symbolAndScopeManagement,
+  AugmentAggregateWithTraitMethods(final SymbolsAndScopes symbolsAndScopes,
                                    final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

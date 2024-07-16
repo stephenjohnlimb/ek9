@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
@@ -64,16 +64,16 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   private final ParameterisedLocator parameterisedLocator;
   private final Map<Integer, BiFunction<EK9Parser.StreamPartContext, ISymbol, ISymbol>> streamFunctionMap;
 
-  protected ProcessStreamAssembly(final SymbolAndScopeManagement symbolAndScopeManagement,
+  protected ProcessStreamAssembly(final SymbolsAndScopes symbolsAndScopes,
                                   final SymbolFactory symbolFactory,
                                   final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.processStreamFunctionOrError = new ProcessStreamFunctionOrError(symbolAndScopeManagement, errorListener);
-    this.checkStreamFunctionArguments = new CheckStreamFunctionArguments(symbolAndScopeManagement, errorListener);
-    this.checkHeadTailSkipOperation = new CheckHeadTailSkipOperation(symbolAndScopeManagement, errorListener);
-    this.getIteratorType = new GetIteratorType(symbolAndScopeManagement, errorListener);
-    this.parameterisedLocator = new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
+    super(symbolsAndScopes, errorListener);
+    this.processStreamFunctionOrError = new ProcessStreamFunctionOrError(symbolsAndScopes, errorListener);
+    this.checkStreamFunctionArguments = new CheckStreamFunctionArguments(symbolsAndScopes, errorListener);
+    this.checkHeadTailSkipOperation = new CheckHeadTailSkipOperation(symbolsAndScopes, errorListener);
+    this.getIteratorType = new GetIteratorType(symbolsAndScopes, errorListener);
+    this.parameterisedLocator = new ParameterisedLocator(symbolsAndScopes, symbolFactory, errorListener, true);
     this.streamFunctionMap = setupOperationToFunctionMapping();
 
   }
@@ -133,7 +133,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
     //Now update the call with what it should expect and what it will produce.
     //If there are type mismatches - then errors will be issued and Void type will be employed.
-    final var streamCallPart = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(streamPartCtx);
+    final var streamCallPart = (StreamCallSymbol) symbolsAndScopes.getRecordedSymbol(streamPartCtx);
 
     streamCallPart.setConsumesSymbolType(currentStreamType);
     streamCallPart.setProducesSymbolType(newStreamType);
@@ -237,7 +237,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
                                      final ISymbol streamSymbolType) {
 
     final var terminalSymbol = getRecordedAndTypedSymbol(terminalPipeLinePartCtx);
-    final var terminalStreamCallSymbol = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(streamPartCtx);
+    final var terminalStreamCallSymbol = (StreamCallSymbol) symbolsAndScopes.getRecordedSymbol(streamPartCtx);
 
     terminalSymbol.getType().ifPresent(
         terminalSymbolType -> processTermination(terminalStreamCallSymbol, terminalSymbolType, streamSymbolType));
@@ -252,7 +252,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
     errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
 
-    return symbolAndScopeManagement.getEk9Types().ek9Void();
+    return symbolsAndScopes.getEk9Types().ek9Void();
   }
 
   private ISymbol checkFunctionOrError(final EK9Parser.PipelinePartContext partCtx,
@@ -261,13 +261,13 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     final var possibleFunction = processStreamFunctionOrError.apply(partCtx);
 
     if (possibleFunction.isEmpty()) {
-      return symbolAndScopeManagement.getEk9Types().ek9Void();
+      return symbolsAndScopes.getEk9Types().ek9Void();
     }
 
     final var function = possibleFunction.get();
     function.getReturningSymbol().getType().ifPresent(returnType -> {
 
-      if (returnType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Void())) {
+      if (returnType.isExactSameType(symbolsAndScopes.getEk9Types().ek9Void())) {
         errorListener.semanticError(partCtx.start, "", RETURNING_MISSING);
       }
     });
@@ -284,7 +284,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
     errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
 
-    return symbolAndScopeManagement.getEk9Types().ek9Void();
+    return symbolsAndScopes.getEk9Types().ek9Void();
   }
 
   private ISymbol checkFunctionAndReturnsBooleanOrError(final EK9Parser.PipelinePartContext partCtx,
@@ -292,7 +292,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
     final var functionReturnType = checkFunctionOrError(partCtx, currentStreamType);
 
-    if (!symbolAndScopeManagement.getEk9Types().ek9Boolean().isExactSameType(functionReturnType)) {
+    if (!symbolsAndScopes.getEk9Types().ek9Boolean().isExactSameType(functionReturnType)) {
       errorListener.semanticError(partCtx.start, "", MUST_RETURN_BOOLEAN);
     }
 
@@ -314,7 +314,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
       errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_NOT_REQUIRED);
     }
 
-    return symbolAndScopeManagement.getEk9Types().ek9Void();
+    return symbolsAndScopes.getEk9Types().ek9Void();
   }
 
   private ISymbol checkViableSortOrError(final EK9Parser.StreamPartContext streamPartCtx,
@@ -363,12 +363,12 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
       return accessAggregateAsTypeOrError(streamPartCtx, currentStreamType)
           .map(aggregate -> new StreamAggregateCheckData(streamPartCtx.op, aggregate, currentStreamType))
           .map(this::getIteratorTypeOrError)
-          .orElseGet(() -> symbolAndScopeManagement.getEk9Types().ek9Void());
+          .orElseGet(() -> symbolsAndScopes.getEk9Types().ek9Void());
     }
 
     errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_NOT_REQUIRED);
 
-    return symbolAndScopeManagement.getEk9Types().ek9Void();
+    return symbolsAndScopes.getEk9Types().ek9Void();
   }
 
   private ISymbol getIteratorTypeOrError(final StreamAggregateCheckData streamAggregateCheckData) {
@@ -380,7 +380,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
     errorListener.semanticError(streamAggregateCheckData.errorLocation(), "", MISSING_ITERATE_METHOD);
 
-    return symbolAndScopeManagement.getEk9Types().ek9Void();
+    return symbolsAndScopes.getEk9Types().ek9Void();
   }
 
   private void checkTypeAsSuitableComparatorOrError(final EK9Parser.StreamPartContext streamPartCtx,
@@ -453,14 +453,14 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
       errorListener.semanticError(errorLocation, errorMsg, REQUIRE_NO_ARGUMENTS);
     } else if (functionSymbol.getReturningSymbol().getType().isPresent()) {
       final var returnType = functionSymbol.getReturningSymbol().getType().get();
-      if (returnType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Void())) {
+      if (returnType.isExactSameType(symbolsAndScopes.getEk9Types().ek9Void())) {
         errorListener.semanticError(errorLocation, errorMsg, FUNCTION_MUST_RETURN_VALUE);
       }
 
       return returnType;
     }
 
-    return symbolAndScopeManagement.getEk9Types().ek9Void();
+    return symbolsAndScopes.getEk9Types().ek9Void();
   }
 
   private void checkHashCodePresentOrError(final StreamAggregateCheckData streamAggregateCheckData) {
@@ -510,7 +510,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
 
     if (functionData.functionSymbol().getReturningSymbol().getType().isPresent()) {
       var returnType = functionData.functionSymbol().getReturningSymbol().getType().get();
-      if (!returnType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Integer())) {
+      if (!returnType.isExactSameType(symbolsAndScopes.getEk9Types().ek9Integer())) {
         errorListener.semanticError(functionData.errorLocation(), errorMsg, MUST_RETURN_INTEGER);
       }
     }
@@ -562,7 +562,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
     if (functionData.functionSymbol().getReturningSymbol().getType().isPresent()) {
       final var returnType = functionData.functionSymbol().getReturningSymbol().getType().get();
 
-      if (returnType.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Void())) {
+      if (returnType.isExactSameType(symbolsAndScopes.getEk9Types().ek9Void())) {
         errorListener.semanticError(functionData.errorLocation(), errorMsg, RETURNING_MISSING);
       } else if (!returnType.isAssignableTo(functionData.currentStreamType())) {
         var typeErrorMsg = "wrt '" + functionData.functionSymbol().getFriendlyName()
@@ -577,13 +577,13 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
   private ISymbol resolveParameterisedListType(final Token opLocation, final ISymbol currentStreamType) {
 
     //Access the generic List type - this has been pre-located for quicker use.
-    final var listType = symbolAndScopeManagement.getEk9Types().ek9List();
+    final var listType = symbolsAndScopes.getEk9Types().ek9List();
 
     //Now get the parameterised type.
     final var typeData = new ParameterisedTypeData(new Ek9Token(opLocation), listType, List.of(currentStreamType));
     final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
 
-    return resolvedNewType.orElseGet(() -> symbolAndScopeManagement.getEk9Types().ek9Void());
+    return resolvedNewType.orElseGet(() -> symbolsAndScopes.getEk9Types().ek9Void());
   }
 
   private ISymbol acceptsTypeOrError(final StreamFunctionCheckData functionData) {
@@ -606,7 +606,7 @@ public class ProcessStreamAssembly extends TypedSymbolAccess implements Consumer
       errorListener.semanticError(functionData.errorLocation(), msg, REQUIRE_ONE_ARGUMENT);
     }
 
-    return symbolAndScopeManagement.getEk9Types().ek9Void();
+    return symbolsAndScopes.getEk9Types().ek9Void();
   }
 
   private void processStreamTermination(final StreamAssemblyData streamAssembly, final ISymbol streamType) {

@@ -12,7 +12,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.ProcessingBodyPresent;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
 import org.ek9lang.core.AssertValue;
@@ -31,11 +31,11 @@ final class CheckServiceOperation extends RuleSupport
   /**
    * Create a new Check Service Operation function.
    */
-  CheckServiceOperation(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckServiceOperation(final SymbolsAndScopes symbolsAndScopes,
                         final ErrorListener errorListener) {
-    super(symbolAndScopeManagement, errorListener);
-    this.checkPathParameter = new CheckPathParameter(symbolAndScopeManagement, errorListener);
-    this.checkHttpAccess = new CheckHttpAccess(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.checkPathParameter = new CheckPathParameter(symbolsAndScopes, errorListener);
+    this.checkHttpAccess = new CheckHttpAccess(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -103,13 +103,13 @@ final class CheckServiceOperation extends RuleSupport
         }
 
         //Must be HTTPRequest
-        if (!paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9HttpRequest())) {
+        if (!paramType.isAssignableTo(symbolsAndScopes.getEk9Types().ek9HttpRequest())) {
           errorListener.semanticError(param.getSourceToken(), "'" + paramType.getFriendlyName() + "':",
               ErrorListener.SemanticClassification.SERVICE_INCOMPATIBLE_PARAM_TYPE_REQUEST);
         }
       } else {
         //Cannot be HTTPRequest
-        if (paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9HttpRequest())) {
+        if (paramType.isAssignableTo(symbolsAndScopes.getEk9Types().ek9HttpRequest())) {
           errorListener.semanticError(param.getSourceToken(), "'" + paramType.getFriendlyName() + "':",
               ErrorListener.SemanticClassification.SERVICE_INCOMPATIBLE_PARAM_TYPE_NON_REQUEST);
         }
@@ -120,14 +120,14 @@ final class CheckServiceOperation extends RuleSupport
 
   private boolean isParameterTypeSupported(final ISymbol paramType) {
 
-    return paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9HttpRequest())
-        || paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9Integer())
-        || paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9String())
-        || paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9Date())
-        || paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9Time())
-        || paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9DateTime())
-        || paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9Millisecond())
-        || paramType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9Duration());
+    return paramType.isAssignableTo(symbolsAndScopes.getEk9Types().ek9HttpRequest())
+        || paramType.isAssignableTo(symbolsAndScopes.getEk9Types().ek9Integer())
+        || paramType.isAssignableTo(symbolsAndScopes.getEk9Types().ek9String())
+        || paramType.isAssignableTo(symbolsAndScopes.getEk9Types().ek9Date())
+        || paramType.isAssignableTo(symbolsAndScopes.getEk9Types().ek9Time())
+        || paramType.isAssignableTo(symbolsAndScopes.getEk9Types().ek9DateTime())
+        || paramType.isAssignableTo(symbolsAndScopes.getEk9Types().ek9Millisecond())
+        || paramType.isAssignableTo(symbolsAndScopes.getEk9Types().ek9Duration());
 
   }
 
@@ -145,7 +145,7 @@ final class CheckServiceOperation extends RuleSupport
 
     if (operation.isReturningSymbolPresent()) {
       operation.getReturningSymbol().getType().ifPresent(returnType -> {
-        if (!returnType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9HttpResponse())) {
+        if (!returnType.isAssignableTo(symbolsAndScopes.getEk9Types().ek9HttpResponse())) {
           errorListener.semanticError(operation.getSourceToken(), "",
               ErrorListener.SemanticClassification.SERVICE_INCOMPATIBLE_RETURN_TYPE);
         }

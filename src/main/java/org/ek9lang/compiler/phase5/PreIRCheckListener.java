@@ -33,37 +33,37 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
     final var errorListener = parsedModule.getSource().getErrorListener();
     
     this.processVariableOnlyDeclaration =
-        new ProcessVariableOnlyDeclaration(symbolAndScopeManagement, errorListener);
+        new ProcessVariableOnlyDeclaration(symbolsAndScopes, errorListener);
     this.processAssignmentStatement =
-        new ProcessAssignmentStatement(symbolAndScopeManagement, errorListener);
+        new ProcessAssignmentStatement(symbolsAndScopes, errorListener);
     this.processGuardExpression =
-        new ProcessGuardExpression(symbolAndScopeManagement, errorListener);
+        new ProcessGuardExpression(symbolsAndScopes, errorListener);
     this.processIdentifierReference =
-        new ProcessIdentifierReference(symbolAndScopeManagement, errorListener);
+        new ProcessIdentifierReference(symbolsAndScopes, errorListener);
     this.processIfStatement =
-        new ProcessIfStatement(symbolAndScopeManagement, errorListener);
+        new ProcessIfStatement(symbolsAndScopes, errorListener);
     this.processSwitchStatement =
-        new ProcessSwitchStatement(symbolAndScopeManagement, errorListener);
+        new ProcessSwitchStatement(symbolsAndScopes, errorListener);
     this.processForStatement =
-        new ProcessForStatement(symbolAndScopeManagement, errorListener);
+        new ProcessForStatement(symbolsAndScopes, errorListener);
     this.processTryStatement =
-        new ProcessTryStatement(symbolAndScopeManagement, errorListener);
+        new ProcessTryStatement(symbolsAndScopes, errorListener);
     this.processWhileStatement =
-        new ProcessWhileStatement(symbolAndScopeManagement, errorListener);
+        new ProcessWhileStatement(symbolsAndScopes, errorListener);
     this.processFunctionDeclaration =
-        new ProcessFunctionDeclaration(symbolAndScopeManagement, errorListener);
+        new ProcessFunctionDeclaration(symbolsAndScopes, errorListener);
     this.processMethodDeclaration =
-        new ProcessMethodDeclaration(symbolAndScopeManagement, errorListener);
+        new ProcessMethodDeclaration(symbolsAndScopes, errorListener);
     this.processOperatorDeclaration =
-        new ProcessOperatorDeclaration(symbolAndScopeManagement, errorListener);
+        new ProcessOperatorDeclaration(symbolsAndScopes, errorListener);
     this.processServiceOperationDeclaration =
-        new ProcessServiceOperationDeclaration(symbolAndScopeManagement, errorListener);
+        new ProcessServiceOperationDeclaration(symbolsAndScopes, errorListener);
     this.processDynamicFunctionDeclarationEntry =
-        new ProcessDynamicFunctionDeclarationEntry(symbolAndScopeManagement, errorListener);
+        new ProcessDynamicFunctionDeclarationEntry(symbolsAndScopes, errorListener);
     this.processDynamicFunctionDeclarationExit =
-        new ProcessDynamicFunctionDeclarationExit(symbolAndScopeManagement, errorListener);
+        new ProcessDynamicFunctionDeclarationExit(symbolsAndScopes, errorListener);
     this.processIdentifierAsProperty =
-        new ProcessIdentifierAsProperty(symbolAndScopeManagement, errorListener);
+        new ProcessIdentifierAsProperty(symbolsAndScopes, errorListener);
     
   }
 

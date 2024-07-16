@@ -7,7 +7,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.C
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -19,11 +19,11 @@ final class CheckVariableOnlyDeclaration extends TypedSymbolAccess
     implements Consumer<EK9Parser.VariableOnlyDeclarationContext> {
   private final CheckPossibleDelegate checkPossibleDelegate;
 
-  CheckVariableOnlyDeclaration(SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckVariableOnlyDeclaration(SymbolsAndScopes symbolsAndScopes,
                                ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.checkPossibleDelegate = new CheckPossibleDelegate(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.checkPossibleDelegate = new CheckPossibleDelegate(symbolsAndScopes, errorListener);
 
   }
 

@@ -9,19 +9,20 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
 /**
  * Check an assignment again 'super' use and some operators against 'this' use.
  */
-final class CheckThisAndSuperAssignmentStatement implements Consumer<EK9Parser.AssignmentStatementContext> {
+final class ThisAndSuperAssignmentOrError implements Consumer<EK9Parser.AssignmentStatementContext> {
 
   private final ErrorListener errorListener;
 
   private final OperationIsAssignment operationIsAssignment = new OperationIsAssignment();
 
-  CheckThisAndSuperAssignmentStatement(final ErrorListener errorListener) {
+  ThisAndSuperAssignmentOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 
   @Override
   public void accept(final EK9Parser.AssignmentStatementContext ctx) {
 
+    //primary references means 'this' or 'super'.
     if (ctx.primaryReference() != null) {
       //no assignment allowed and 'super' use is not appropriate only 'this'
       final var accessType = ctx.primaryReference().getText();

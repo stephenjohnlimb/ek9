@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.support.ToCommaSeparated;
@@ -37,11 +37,11 @@ final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consume
   /**
    * Checks that this/super passed in is a suitable genus.
    */
-  ProcessValidThisOrSuper(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessValidThisOrSuper(final SymbolsAndScopes symbolsAndScopes,
                           final SymbolFactory symbolFactory,
                           final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.symbolFactory = symbolFactory;
 
   }
@@ -50,9 +50,9 @@ final class ProcessValidThisOrSuper extends TypedSymbolAccess implements Consume
   public void accept(final EK9Parser.PrimaryReferenceContext ctx) {
 
     //First check if in a dynamic scope - that is what 'this' would apply to.
-    var appropriateScope = symbolAndScopeManagement.getTopScope().findNearestDynamicBlockScopeInEnclosingScopes();
+    var appropriateScope = symbolsAndScopes.getTopScope().findNearestDynamicBlockScopeInEnclosingScopes();
     if (appropriateScope.isEmpty()) {
-      appropriateScope = symbolAndScopeManagement.getTopScope().findNearestNonBlockScopeInEnclosingScopes();
+      appropriateScope = symbolsAndScopes.getTopScope().findNearestNonBlockScopeInEnclosingScopes();
     }
 
     if (appropriateScope.isPresent() && appropriateScope.get() instanceof ISymbol basicType) {

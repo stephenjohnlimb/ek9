@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
@@ -27,12 +27,12 @@ final class ResolveMethodOrError extends TypedSymbolAccess
   /**
    * Create function with provided errorListener etc.
    */
-  ResolveMethodOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ResolveMethodOrError(final SymbolsAndScopes symbolsAndScopes,
                        final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement);
-    this.checkAccessToSymbol = new CheckAccessToSymbol(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.mostSpecificScope = new MostSpecificScope(symbolsAndScopes);
+    this.checkAccessToSymbol = new CheckAccessToSymbol(symbolsAndScopes, errorListener);
 
   }
 

@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.CodeFlowAnalyzer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -18,17 +18,17 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * means that several forms of symbol analysis can take place.
  */
 final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9Parser.IfStatementContext> {
-  ProcessIfStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessIfStatement(final SymbolsAndScopes symbolsAndScopes,
                      final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.IfStatementContext ctx) {
 
-    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
 
     if (isGuardExpressionPresent(ctx)) {
       processGuardInitialisation(analyzers, ctx);
@@ -59,13 +59,13 @@ final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9
   private void processGuardInitialisation(final CodeFlowAnalyzer analyzer,
                                           final EK9Parser.IfStatementContext ctx) {
 
-    final var variable = symbolAndScopeManagement.getRecordedSymbol(
+    final var variable = symbolsAndScopes.getRecordedSymbol(
         ctx.ifControlBlock().get(0).preFlowAndControl().preFlowStatement().guardExpression().identifier());
-    final var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+    final var scope = symbolsAndScopes.getRecordedScope(ctx);
     final var initialised = analyzer.doesSymbolMeetAcceptableCriteria(variable, scope);
 
     if (initialised) {
-      final var outerScope = symbolAndScopeManagement.getTopScope();
+      final var outerScope = symbolsAndScopes.getTopScope();
       analyzer.markSymbolAsMeetingAcceptableCriteria(variable, outerScope);
     }
 
@@ -82,7 +82,7 @@ final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9
     //And these are all the if else-if else blocks that have to be checked.
     final List<IScope> allIfElseBlocks = getAllBlocks(ctx);
     //This is the outer scope where it may be possible to mark a variable as meeting criteria
-    final var outerScope = symbolAndScopeManagement.getTopScope();
+    final var outerScope = symbolsAndScopes.getTopScope();
 
     //So these are the variables we need to check to see if we can mark them as meeting the criteria.
     analyzers.forEach(analyzer -> pullUpAcceptableCriteriaToHigherScope(analyzer, allIfElseBlocks, outerScope));
@@ -118,12 +118,12 @@ final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9
   private List<IScope> getAllBlocks(final EK9Parser.IfStatementContext ctx) {
 
     final List<IScope> allBlocks = new ArrayList<>();
-    allBlocks.add(symbolAndScopeManagement.getRecordedScope(ctx.elseOnlyBlock().block().instructionBlock()));
+    allBlocks.add(symbolsAndScopes.getRecordedScope(ctx.elseOnlyBlock().block().instructionBlock()));
 
     final var allIfInstructionBlocks =
         ctx.ifControlBlock().stream()
             .map(ifControl -> ifControl.block().instructionBlock())
-            .map(symbolAndScopeManagement::getRecordedScope)
+            .map(symbolsAndScopes::getRecordedScope)
             .toList();
     allBlocks.addAll(allIfInstructionBlocks);
 

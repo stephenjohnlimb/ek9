@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -17,10 +17,10 @@ final class SymbolsFromParamExpression implements Function<EK9Parser.ParamExpres
 
   private final SymbolFromContextOrError symbolFromContextOrError;
 
-  SymbolsFromParamExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
+  SymbolsFromParamExpression(final SymbolsAndScopes symbolsAndScopes,
                              final ErrorListener errorListener) {
 
-    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+    this.symbolFromContextOrError = new SymbolFromContextOrError(symbolsAndScopes, errorListener);
 
   }
 

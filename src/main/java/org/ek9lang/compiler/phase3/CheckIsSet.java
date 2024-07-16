@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.BiPredicate;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -15,10 +15,10 @@ import org.ek9lang.compiler.tokenizer.IToken;
  */
 final class CheckIsSet extends OperatorCheck implements BiPredicate<IToken, ISymbol> {
 
-  CheckIsSet(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckIsSet(final SymbolsAndScopes symbolsAndScopes,
              final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
@@ -53,6 +53,6 @@ final class CheckIsSet extends OperatorCheck implements BiPredicate<IToken, ISym
   protected MethodSymbolSearch getMethodSymbolSearch(final ISymbol symbolType) {
 
     return new MethodSymbolSearch("?")
-        .setOfTypeOrReturn(symbolAndScopeManagement.getEk9Types().ek9Boolean());
+        .setOfTypeOrReturn(symbolsAndScopes.getEk9Types().ek9Boolean());
   }
 }

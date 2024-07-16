@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase5;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 
 /**
@@ -14,11 +14,11 @@ final class ProcessServiceOperationDeclaration extends TypedSymbolAccess
 
   private final ProcessReturningVariable processReturningVariable;
 
-  ProcessServiceOperationDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessServiceOperationDeclaration(final SymbolsAndScopes symbolsAndScopes,
                                      final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.processReturningVariable = new ProcessReturningVariable(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.processReturningVariable = new ProcessReturningVariable(symbolsAndScopes, errorListener);
 
   }
 
@@ -26,7 +26,7 @@ final class ProcessServiceOperationDeclaration extends TypedSymbolAccess
   public void accept(final EK9Parser.ServiceOperationDeclarationContext ctx) {
 
     if (ctx.operationDetails() != null && ctx.operationDetails().returningParam() != null) {
-      final var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+      final var scope = symbolsAndScopes.getRecordedScope(ctx);
       processReturningVariable.accept(scope, ctx.operationDetails());
     }
 

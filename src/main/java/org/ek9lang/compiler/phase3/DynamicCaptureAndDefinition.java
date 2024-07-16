@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.CaptureScope;
@@ -19,11 +19,11 @@ final class DynamicCaptureAndDefinition extends TypedSymbolAccess
   /**
    * Define new variables in the capture scope as they are resolved.
    */
-  DynamicCaptureAndDefinition(final SymbolAndScopeManagement symbolAndScopeManagement,
+  DynamicCaptureAndDefinition(final SymbolsAndScopes symbolsAndScopes,
                               final ErrorListener errorListener,
                               final SymbolFactory symbolFactory) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.symbolFactory = symbolFactory;
 
   }
@@ -31,7 +31,7 @@ final class DynamicCaptureAndDefinition extends TypedSymbolAccess
   @Override
   public void accept(final EK9Parser.DynamicVariableCaptureContext ctx) {
 
-    final CaptureScope scope = (CaptureScope) symbolAndScopeManagement.getRecordedScope(ctx);
+    final CaptureScope scope = (CaptureScope) symbolsAndScopes.getRecordedScope(ctx);
 
     //So now all the 'stuff' we should have resolved should be attached to the appropriate ctx's
     if (ctx.paramExpression() != null

@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.BiFunction;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.MostSpecificScope;
@@ -24,13 +24,13 @@ final class ProcessFieldOrError extends TypedSymbolAccess
   /**
    * Create a new field resolver.
    */
-  ProcessFieldOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessFieldOrError(final SymbolsAndScopes symbolsAndScopes,
                       final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
-    this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement);
-    this.checkAccessToSymbol = new CheckAccessToSymbol(symbolAndScopeManagement, errorListener);
+    this.mostSpecificScope = new MostSpecificScope(symbolsAndScopes);
+    this.checkAccessToSymbol = new CheckAccessToSymbol(symbolsAndScopes, errorListener);
 
   }
 

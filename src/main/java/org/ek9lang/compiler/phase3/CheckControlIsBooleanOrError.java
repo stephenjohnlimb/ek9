@@ -5,7 +5,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.M
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 
 /**
@@ -14,10 +14,10 @@ import org.ek9lang.compiler.common.TypedSymbolAccess;
  */
 final class CheckControlIsBooleanOrError extends TypedSymbolAccess
     implements Consumer<EK9Parser.ExpressionContext> {
-  CheckControlIsBooleanOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckControlIsBooleanOrError(final SymbolsAndScopes symbolsAndScopes,
                                final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
@@ -29,7 +29,7 @@ final class CheckControlIsBooleanOrError extends TypedSymbolAccess
     if (controlExpression != null) {
       //If was null/untyped then - error will have already been emitted.
       controlExpression.getType().ifPresent(controlType -> {
-        if (!controlType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9Boolean())) {
+        if (!controlType.isAssignableTo(symbolsAndScopes.getEk9Types().ek9Boolean())) {
           errorListener.semanticError(ctx.start, "'" + controlType.getFriendlyName() + "':", MUST_BE_A_BOOLEAN);
         }
       });

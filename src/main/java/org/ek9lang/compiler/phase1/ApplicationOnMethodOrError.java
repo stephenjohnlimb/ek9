@@ -4,18 +4,18 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 
 /**
  * Checks for the appropriate use of the APPLICATION of xyz on a method declaration.
  * Only to be used with Programs - this is because the grammar allows this - to keep it simple.
  */
-final class CheckApplicationUseOnMethodDeclaration extends RuleSupport
+final class ApplicationOnMethodOrError extends RuleSupport
     implements Consumer<EK9Parser.MethodDeclarationContext> {
 
-  CheckApplicationUseOnMethodDeclaration(final SymbolAndScopeManagement symbolAndScopeManagement,
-                                         final ErrorListener errorListener) {
-    super(symbolAndScopeManagement, errorListener);
+  ApplicationOnMethodOrError(final SymbolsAndScopes symbolsAndScopes,
+                             final ErrorListener errorListener) {
+    super(symbolsAndScopes, errorListener);
   }
 
   @Override

@@ -5,7 +5,7 @@ import java.util.function.BiConsumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
@@ -23,11 +23,11 @@ final class ProcessTypeConstraint extends TypedSymbolAccess
     implements BiConsumer<AggregateSymbol, EK9Parser.ConstrainDeclarationContext> {
   private final SymbolFactory symbolFactory;
 
-  ProcessTypeConstraint(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessTypeConstraint(final SymbolsAndScopes symbolsAndScopes,
                         final SymbolFactory symbolFactory,
                         final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.symbolFactory = symbolFactory;
 
   }

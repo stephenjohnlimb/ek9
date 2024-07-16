@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.support.ParameterisedLocator;
@@ -20,12 +20,12 @@ final class ProcessEnumeratedType extends TypedSymbolAccess implements Consumer<
   private final ParameterisedLocator parameterisedLocator;
   private final AggregateFactory aggregateFactory;
 
-  ProcessEnumeratedType(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessEnumeratedType(final SymbolsAndScopes symbolsAndScopes,
                         final SymbolFactory symbolFactory,
                         final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.parameterisedLocator = new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
+    super(symbolsAndScopes, errorListener);
+    this.parameterisedLocator = new ParameterisedLocator(symbolsAndScopes, symbolFactory, errorListener, true);
     this.aggregateFactory = symbolFactory.getAggregateFactory();
 
   }
@@ -34,10 +34,10 @@ final class ProcessEnumeratedType extends TypedSymbolAccess implements Consumer<
   public void accept(final EK9Parser.TypeDeclarationContext ctx) {
 
     final var startToken = new Ek9Token(ctx.start);
-    final var enumeratedTypeSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var enumeratedTypeSymbol = symbolsAndScopes.getRecordedSymbol(ctx);
 
     if (enumeratedTypeSymbol instanceof AggregateSymbol enumeration) {
-      final var iteratorType = symbolAndScopeManagement.getEk9Types().ek9Iterator();
+      final var iteratorType = symbolsAndScopes.getEk9Types().ek9Iterator();
 
       final var typeData = new ParameterisedTypeData(startToken, iteratorType, List.of(enumeratedTypeSymbol));
       final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
@@ -25,10 +25,10 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  * TODO not quite sure this is working correctly. See JustTraits.ek9 - ExamplesConstructsTraitsTest.
  */
 final class CheckConflictingMethods extends TypedSymbolAccess implements Predicate<AggregateSymbol> {
-  CheckConflictingMethods(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckConflictingMethods(final SymbolsAndScopes symbolsAndScopes,
                           final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

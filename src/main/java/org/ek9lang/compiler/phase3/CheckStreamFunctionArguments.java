@@ -4,7 +4,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.I
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;
 
@@ -14,10 +14,10 @@ import org.ek9lang.compiler.support.SymbolTypeExtractor;
 final class CheckStreamFunctionArguments extends TypedSymbolAccess implements Consumer<StreamFunctionCheckData> {
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
 
-  CheckStreamFunctionArguments(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckStreamFunctionArguments(final SymbolsAndScopes symbolsAndScopes,
                                final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

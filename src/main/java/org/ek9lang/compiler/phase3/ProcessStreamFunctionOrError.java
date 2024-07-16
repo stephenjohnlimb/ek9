@@ -7,17 +7,17 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 
 final class ProcessStreamFunctionOrError extends TypedSymbolAccess
     implements Function<EK9Parser.PipelinePartContext, Optional<FunctionSymbol>> {
 
-  ProcessStreamFunctionOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessStreamFunctionOrError(final SymbolsAndScopes symbolsAndScopes,
                                final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

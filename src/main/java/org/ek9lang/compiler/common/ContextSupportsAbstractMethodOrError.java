@@ -15,10 +15,10 @@ public class ContextSupportsAbstractMethodOrError extends RuleSupport
   /**
    * Create new.
    */
-  public ContextSupportsAbstractMethodOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  public ContextSupportsAbstractMethodOrError(final SymbolsAndScopes symbolsAndScopes,
                                               final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
@@ -40,7 +40,7 @@ public class ContextSupportsAbstractMethodOrError extends RuleSupport
     if (constructSupportsMethods(containingConstructCtx)) {
 
       //Now get the symbol that relates to the construct context
-      final var parent = symbolAndScopeManagement.getRecordedSymbol(containingConstructCtx);
+      final var parent = symbolsAndScopes.getRecordedSymbol(containingConstructCtx);
 
       //Finally, can check if the method is abstract and the construct is not marked abstract.
       if (parent instanceof ICanBeGeneric possibleGeneric && !possibleGeneric.isMarkedAbstract()) {

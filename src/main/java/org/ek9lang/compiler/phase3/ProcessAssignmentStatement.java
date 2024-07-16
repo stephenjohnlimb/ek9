@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
@@ -25,18 +25,18 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
   /**
    * Check on validity of assignments.
    */
-  ProcessAssignmentStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessAssignmentStatement(final SymbolsAndScopes symbolsAndScopes,
                              final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.symbolFromContextOrError
-        = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+        = new SymbolFromContextOrError(symbolsAndScopes, errorListener);
     this.processIdentifierOrError
-        = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
+        = new ProcessIdentifierOrError(symbolsAndScopes, errorListener);
     this.checkLeftAndRight
-        = new CheckLhsAndRhsAssignment(symbolAndScopeManagement, errorListener);
+        = new CheckLhsAndRhsAssignment(symbolsAndScopes, errorListener);
     this.processIdentifierAssignment
-        = new ProcessIdentifierAssignment(symbolAndScopeManagement, errorListener);
+        = new ProcessIdentifierAssignment(symbolsAndScopes, errorListener);
 
   }
 

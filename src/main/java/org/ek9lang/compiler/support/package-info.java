@@ -39,7 +39,7 @@
  * {@link org.ek9lang.compiler.support.SymbolFactory#newParameterisedSymbol(
  * org.ek9lang.compiler.symbols.PossibleGenericSymbol, java.util.List)}.
  * That method delegated to {@link org.ek9lang.compiler.support.ParameterizedSymbolCreator}.
- * It was then 'routed via {@link org.ek9lang.compiler.common.SymbolAndScopeManagement}, this is a critical component
+ * It was then 'routed via {@link org.ek9lang.compiler.common.SymbolsAndScopes}, this is a critical component
  * used in almost all the 'listeners' that are called when the 'ANTLR' AST is traversed.
  * </p>
  * <p>

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
@@ -46,32 +46,32 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
 
   private final CheckNotAbstractOrError checkNotAbstractOrError;
 
-  ResolveIdentifierReferenceCallOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ResolveIdentifierReferenceCallOrError(final SymbolsAndScopes symbolsAndScopes,
                                         final SymbolFactory symbolFactory,
                                         final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.mostSpecificScope =
-        new MostSpecificScope(symbolAndScopeManagement);
+        new MostSpecificScope(symbolsAndScopes);
     this.resolveMethodOrError =
-        new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
+        new ResolveMethodOrError(symbolsAndScopes, errorListener);
     this.symbolsFromParamExpression =
-        new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
+        new SymbolsFromParamExpression(symbolsAndScopes, errorListener);
     this.parameterisedLocator =
-        new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
+        new ParameterisedLocator(symbolsAndScopes, symbolFactory, errorListener, true);
     this.checkValidFunctionDelegateOrError =
-        new CheckValidFunctionDelegateOrError(symbolAndScopeManagement, errorListener);
+        new CheckValidFunctionDelegateOrError(symbolsAndScopes, errorListener);
     this.resolveFunctionOrError =
-        new ResolveFunctionOrError(symbolAndScopeManagement, errorListener);
+        new ResolveFunctionOrError(symbolsAndScopes, errorListener);
     this.checkNotAbstractOrError =
-        new CheckNotAbstractOrError(symbolAndScopeManagement, errorListener);
+        new CheckNotAbstractOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
   public ScopedSymbol apply(final EK9Parser.CallContext ctx) {
 
     final var callParams = symbolsFromParamExpression.apply(ctx.paramExpression());
-    final var callIdentifier = symbolAndScopeManagement.getRecordedSymbol(ctx.identifierReference());
+    final var callIdentifier = symbolsAndScopes.getRecordedSymbol(ctx.identifierReference());
     final var startToken = new Ek9Token(ctx.start);
 
     return switch (callIdentifier) {

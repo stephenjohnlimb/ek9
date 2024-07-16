@@ -7,7 +7,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
@@ -24,12 +24,12 @@ final class CheckSuitableToExtend extends RuleSupport implements Function<Parser
   /**
    * Checks that the typedef/identifierReference passed in (when resolved) is suitable to be extended from.
    */
-  CheckSuitableToExtend(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckSuitableToExtend(final SymbolsAndScopes symbolsAndScopes,
                         final ErrorListener errorListener,
                         final ISymbol.SymbolGenus genus,
                         final boolean issueErrorIfNotResolved) {
 
-    this(symbolAndScopeManagement, errorListener, List.of(genus), issueErrorIfNotResolved);
+    this(symbolsAndScopes, errorListener, List.of(genus), issueErrorIfNotResolved);
 
   }
 
@@ -37,14 +37,14 @@ final class CheckSuitableToExtend extends RuleSupport implements Function<Parser
    * Checks that the typedef/identifierReference passed in (when resolved) is suitable to be extended from.
    * Accepts multiple allowed genus. i.e. FUNCTION and FUNCTION_TRAIT.
    */
-  public CheckSuitableToExtend(final SymbolAndScopeManagement symbolAndScopeManagement,
+  public CheckSuitableToExtend(final SymbolsAndScopes symbolsAndScopes,
                                final ErrorListener errorListener,
                                final List<ISymbol.SymbolGenus> genus,
                                final boolean issueErrorIfNotResolved) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.checkSuitableGenus =
-        new CheckSuitableGenus(symbolAndScopeManagement, errorListener, genus, true, issueErrorIfNotResolved);
+        new CheckSuitableGenus(symbolsAndScopes, errorListener, genus, true, issueErrorIfNotResolved);
 
   }
 
@@ -86,7 +86,7 @@ final class CheckSuitableToExtend extends RuleSupport implements Function<Parser
 
   private boolean isParameterisedGenericWithinAGeneric(final ParserRuleContext ctx) {
 
-    final var scope = symbolAndScopeManagement.getTopScope();
+    final var scope = symbolsAndScopes.getTopScope();
     //So this is being used by a dynamic class of function
     //And it being used within a generic type in some way,
     //we let the generic nature pass.

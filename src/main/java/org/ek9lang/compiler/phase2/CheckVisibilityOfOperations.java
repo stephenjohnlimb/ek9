@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -31,10 +31,10 @@ final class CheckVisibilityOfOperations extends RuleSupport implements Consumer<
   /**
    * Create a new operations checker an aggregates.
    */
-  CheckVisibilityOfOperations(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckVisibilityOfOperations(final SymbolsAndScopes symbolsAndScopes,
                               final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

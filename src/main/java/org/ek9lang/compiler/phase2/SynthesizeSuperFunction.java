@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase2;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.search.TemplateFunctionSymbolSearch;
 import org.ek9lang.compiler.support.ParameterisedLocator;
 import org.ek9lang.compiler.support.ParameterisedTypeData;
@@ -23,17 +23,17 @@ import org.ek9lang.core.CompilerException;
  * generic function signature. Less coding for the EK9 developer.
  */
 final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
+  private final SymbolsAndScopes symbolsAndScopes;
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final ParameterisedLocator parameterisedLocator;
 
-  SynthesizeSuperFunction(final SymbolAndScopeManagement symbolAndScopeManagement,
+  SynthesizeSuperFunction(final SymbolsAndScopes symbolsAndScopes,
                           final SymbolFactory symbolFactory,
                           final ErrorListener errorListener) {
 
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
+    this.symbolsAndScopes = symbolsAndScopes;
     this.parameterisedLocator =
-        new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
+        new ParameterisedLocator(symbolsAndScopes, symbolFactory, errorListener, true);
 
   }
 
@@ -178,16 +178,16 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
 
     //Void is not a usable return type for any sort of function.
     return function.getReturningSymbol().getType().isPresent()
-        && !symbolAndScopeManagement.getEk9Types().ek9Void().equals(getReturnType(function));
+        && !symbolsAndScopes.getEk9Types().ek9Void().equals(getReturnType(function));
 
   }
 
   private boolean isReturnTypeBoolean(final FunctionSymbol function) {
-    return symbolAndScopeManagement.getEk9Types().ek9Boolean().equals(getReturnType(function));
+    return symbolsAndScopes.getEk9Types().ek9Boolean().equals(getReturnType(function));
   }
 
   private boolean isReturnTypeInteger(final FunctionSymbol function) {
-    return symbolAndScopeManagement.getEk9Types().ek9Integer().equals(getReturnType(function));
+    return symbolsAndScopes.getEk9Types().ek9Integer().equals(getReturnType(function));
   }
 
   private void processParameterisedType(final FunctionSymbol function,

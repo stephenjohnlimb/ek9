@@ -3,7 +3,7 @@ package org.ek9lang.compiler.support;
 import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -15,12 +15,12 @@ public final class ParameterisedLocator extends ResolverOrDefiner
   /**
    * Create a new Function that can define or resolve a specific generic type with a single type parameter.
    */
-  public ParameterisedLocator(final SymbolAndScopeManagement symbolAndScopeManagement,
+  public ParameterisedLocator(final SymbolsAndScopes symbolsAndScopes,
                               final SymbolFactory symbolFactory,
                               final ErrorListener errorListener,
                               final boolean errorIfNotDefinedOrResolved) {
 
-    super(symbolAndScopeManagement, symbolFactory, errorListener, errorIfNotDefinedOrResolved);
+    super(symbolsAndScopes, symbolFactory, errorListener, errorIfNotDefinedOrResolved);
 
   }
 

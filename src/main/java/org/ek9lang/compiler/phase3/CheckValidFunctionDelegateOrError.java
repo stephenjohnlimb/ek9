@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;
 import org.ek9lang.compiler.support.ToCommaSeparated;
@@ -19,12 +19,12 @@ final class CheckValidFunctionDelegateOrError extends TypedSymbolAccess implemen
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final ResolveFunctionOrError resolveFunctionOrError;
 
-  CheckValidFunctionDelegateOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckValidFunctionDelegateOrError(final SymbolsAndScopes symbolsAndScopes,
                                     final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.resolveFunctionOrError =
-        new ResolveFunctionOrError(symbolAndScopeManagement, errorListener);
+        new ResolveFunctionOrError(symbolsAndScopes, errorListener);
 
   }
 

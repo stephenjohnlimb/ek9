@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MatchResult;
 import org.ek9lang.compiler.search.MatchResults;
@@ -27,11 +27,11 @@ final class CheckPossibleDelegate extends TypedSymbolAccess implements Consumer<
   /**
    * Create a new delegate checker.
    */
-  CheckPossibleDelegate(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckPossibleDelegate(final SymbolsAndScopes symbolsAndScopes,
                         final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement);
+    super(symbolsAndScopes, errorListener);
+    this.mostSpecificScope = new MostSpecificScope(symbolsAndScopes);
 
   }
 

@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.CommonTypeDeterminationDetails;
 import org.ek9lang.compiler.support.CommonTypeOrError;
@@ -28,11 +28,11 @@ final class ProcessStreamCat extends TypedSymbolAccess implements Consumer<EK9Pa
   private final CommonTypeOrError commonTypeOrError;
 
 
-  ProcessStreamCat(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessStreamCat(final SymbolsAndScopes symbolsAndScopes,
                    final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.getIteratorType = new GetIteratorType(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.getIteratorType = new GetIteratorType(symbolsAndScopes, errorListener);
     this.commonTypeOrError = new CommonTypeOrError(errorListener);
 
   }
@@ -40,7 +40,7 @@ final class ProcessStreamCat extends TypedSymbolAccess implements Consumer<EK9Pa
   @Override
   public void accept(final EK9Parser.StreamCatContext ctx) {
 
-    final var streamCat = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var streamCat = (StreamCallSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     if (streamCat != null) {
       final var commonTypeToProduce = calculatedCommonTypeOrError(streamCat, ctx);
       commonTypeToProduce.ifPresent(type -> {

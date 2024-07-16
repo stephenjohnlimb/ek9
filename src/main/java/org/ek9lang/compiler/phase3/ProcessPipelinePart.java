@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -17,12 +17,12 @@ final class ProcessPipelinePart extends TypedSymbolAccess implements Consumer<EK
   /**
    * Create a new consumer to handle stream pipeline parts.
    */
-  ProcessPipelinePart(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessPipelinePart(final SymbolsAndScopes symbolsAndScopes,
                       final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.resolveFunctionOrDelegateByNameOrError =
-        new ResolveFunctionOrDelegateByNameOrError(symbolAndScopeManagement, errorListener);
+        new ResolveFunctionOrDelegateByNameOrError(symbolsAndScopes, errorListener);
 
   }
 

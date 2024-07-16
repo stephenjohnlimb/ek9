@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
@@ -20,14 +20,14 @@ final class CheckFunctionOverrides extends TypedSymbolAccess implements Consumer
   /**
    * Create a new function to check overriding of super (method parameters and covariance returns).
    */
-  CheckFunctionOverrides(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckFunctionOverrides(final SymbolsAndScopes symbolsAndScopes,
                          final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.checkTypeCovariance = new CheckTypeCovariance(symbolAndScopeManagement, errorListener);
-    this.checkParameterTypesExactMatch = new CheckParameterTypesExactMatch(symbolAndScopeManagement, errorListener);
-    this.checkFunctionAbstractness = new CheckFunctionAbstractness(symbolAndScopeManagement, errorListener);
-    this.checkPureModifier = new CheckPureModifier(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.checkTypeCovariance = new CheckTypeCovariance(symbolsAndScopes, errorListener);
+    this.checkParameterTypesExactMatch = new CheckParameterTypesExactMatch(symbolsAndScopes, errorListener);
+    this.checkFunctionAbstractness = new CheckFunctionAbstractness(symbolsAndScopes, errorListener);
+    this.checkPureModifier = new CheckPureModifier(symbolsAndScopes, errorListener);
 
   }
 

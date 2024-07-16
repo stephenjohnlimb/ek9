@@ -8,11 +8,11 @@ import org.ek9lang.compiler.common.ProcessingBodyPresent;
 /**
  * Typically used with programs. cannot be abstract and so must always provide some form of implementation.
  */
-final class CheckForImplementation implements Consumer<EK9Parser.MethodDeclarationContext> {
+final class ImplementationPresentOrError implements Consumer<EK9Parser.MethodDeclarationContext> {
   private final ProcessingBodyPresent processingBodyPresent = new ProcessingBodyPresent();
   private final ErrorListener errorListener;
 
-  CheckForImplementation(final ErrorListener errorListener) {
+  ImplementationPresentOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

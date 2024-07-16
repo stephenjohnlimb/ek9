@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.StreamCallSymbol;
@@ -17,19 +17,19 @@ import org.ek9lang.compiler.symbols.StreamCallSymbol;
 final class ProcessStreamExpression extends TypedSymbolAccess implements Consumer<EK9Parser.StreamExpressionContext> {
   private final ProcessStreamAssembly processStreamAssembly;
 
-  ProcessStreamExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessStreamExpression(final SymbolsAndScopes symbolsAndScopes,
                           final SymbolFactory symbolFactory,
                           final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.processStreamAssembly = new ProcessStreamAssembly(symbolAndScopeManagement, symbolFactory, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.processStreamAssembly = new ProcessStreamAssembly(symbolsAndScopes, symbolFactory, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.StreamExpressionContext ctx) {
 
-    final var streamExpressionSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var streamExpressionSymbol = symbolsAndScopes.getRecordedSymbol(ctx);
     final var source = (StreamCallSymbol) getRecordedAndTypedSymbol(ctx.streamSource());
     final var termination = (StreamCallSymbol) getRecordedAndTypedSymbol(ctx.streamExpressionTermination());
     final var streamParts = ctx.streamPart();

@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
@@ -21,16 +21,16 @@ final class ProcessGuardExpression extends TypedSymbolAccess
   /**
    * Check on validity of assignments.
    */
-  ProcessGuardExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessGuardExpression(final SymbolsAndScopes symbolsAndScopes,
                          final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.symbolFromContextOrError
-        = new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+        = new SymbolFromContextOrError(symbolsAndScopes, errorListener);
     this.processIdentifierOrError
-        = new ProcessIdentifierOrError(symbolAndScopeManagement, errorListener);
+        = new ProcessIdentifierOrError(symbolsAndScopes, errorListener);
     this.processIdentifierAssignment
-        = new ProcessIdentifierAssignment(symbolAndScopeManagement, errorListener);
+        = new ProcessIdentifierAssignment(symbolsAndScopes, errorListener);
 
   }
 

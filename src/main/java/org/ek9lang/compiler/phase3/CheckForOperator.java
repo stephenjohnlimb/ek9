@@ -6,7 +6,7 @@ import static org.ek9lang.compiler.support.SymbolFactory.ACCESSED;
 import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
@@ -23,10 +23,10 @@ final class CheckForOperator extends TypedSymbolAccess implements Function<Check
   private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
   private final SymbolTypeOrEmpty symbolTypeOrEmpty = new SymbolTypeOrEmpty();
 
-  CheckForOperator(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckForOperator(final SymbolsAndScopes symbolsAndScopes,
                    final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

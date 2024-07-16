@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 
 /**
@@ -11,10 +11,10 @@ import org.ek9lang.compiler.common.TypedSymbolAccess;
  * This is a check that excludes coercion of types.
  */
 final class CheckTypeCovariance extends TypedSymbolAccess implements Consumer<CovarianceCheckData> {
-  CheckTypeCovariance(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckTypeCovariance(final SymbolsAndScopes symbolsAndScopes,
                       final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

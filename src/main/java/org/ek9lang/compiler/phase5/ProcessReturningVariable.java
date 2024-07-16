@@ -5,24 +5,24 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.R
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 final class ProcessReturningVariable extends TypedSymbolAccess
     implements BiConsumer<IScope, EK9Parser.OperationDetailsContext> {
-  ProcessReturningVariable(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessReturningVariable(final SymbolsAndScopes symbolsAndScopes,
                            final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final IScope mainScope, final EK9Parser.OperationDetailsContext ctx) {
 
-    final var returningVariables = symbolAndScopeManagement.getUninitialisedVariables(mainScope).stream()
+    final var returningVariables = symbolsAndScopes.getUninitialisedVariables(mainScope).stream()
         .filter(ISymbol::isReturningParameter).toList();
 
     returningVariables.forEach(variable -> {
@@ -38,11 +38,11 @@ final class ProcessReturningVariable extends TypedSymbolAccess
                                      final ISymbol variable,
                                      final IScope scope) {
 
-    final var instructionsScope = symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock());
+    final var instructionsScope = symbolsAndScopes.getRecordedScope(ctx.instructionBlock());
     //So now we're at the end of the instruction processing lets see if the return variable was set by the end.
     //Remember only exceptions can cause early return and then the return value is not used.
-    if (symbolAndScopeManagement.isVariableInitialised(variable, instructionsScope)) {
-      symbolAndScopeManagement.markSymbolAsInitialised(variable, scope);
+    if (symbolsAndScopes.isVariableInitialised(variable, instructionsScope)) {
+      symbolsAndScopes.markSymbolAsInitialised(variable, scope);
     }
 
   }
@@ -51,7 +51,7 @@ final class ProcessReturningVariable extends TypedSymbolAccess
                                        final ISymbol variable,
                                        final IScope scope) {
 
-    if (!symbolAndScopeManagement.isVariableInitialised(variable, scope)) {
+    if (!symbolsAndScopes.isVariableInitialised(variable, scope)) {
       errorListener.semanticError(ctx.LEFT_ARROW().getSymbol(),
           "'" + variable.getName() + "':", RETURN_NOT_ALWAYS_INITIALISED);
     }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
@@ -20,12 +20,12 @@ public abstract class ResolverOrDefiner extends RuleSupport {
   protected final SymbolFactory symbolFactory;
   protected final boolean errorIfNotDefinedOrResolved;
 
-  protected ResolverOrDefiner(final SymbolAndScopeManagement symbolAndScopeManagement,
+  protected ResolverOrDefiner(final SymbolsAndScopes symbolsAndScopes,
                               final SymbolFactory symbolFactory,
                               final ErrorListener errorListener,
                               final boolean errorIfNotDefinedOrResolved) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     AssertValue.checkNotNull("symbolFactory cannot be null", symbolFactory);
 
     this.symbolFactory = symbolFactory;
@@ -48,7 +48,7 @@ public abstract class ResolverOrDefiner extends RuleSupport {
       final var theType = symbolFactory.newParameterisedSymbol(genericTypeSymbol, details.typeArguments());
       theType.setInitialisedBy(details.location());
 
-      return symbolAndScopeManagement.resolveOrDefine(theType, errorListener);
+      return symbolsAndScopes.resolveOrDefine(theType, errorListener);
     }
 
     return Optional.empty();

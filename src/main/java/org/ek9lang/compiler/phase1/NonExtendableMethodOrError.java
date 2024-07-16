@@ -12,11 +12,11 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  * stop something that has been allowed in the grammar. But this gives us the opportunity to give more specific
  * error feed back.
  */
-final class CheckNonExtendableMethod implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
+final class NonExtendableMethodOrError implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
 
   private final ErrorListener errorListener;
 
-  CheckNonExtendableMethod(final ErrorListener errorListener) {
+  NonExtendableMethodOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

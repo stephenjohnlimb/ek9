@@ -8,7 +8,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
 /**
  * Designed to be used in phase3 only on or after - FULL_RESOLUTION.
  * Because at this stage whenever a symbol is accessed via 'getRecordedSymbol'
- * in @link org.ek9lang.compiler.common.SymbolAndScopeManagement' it must be typed
+ * in @link org.ek9lang.compiler.common.SymbolsAndScopes' it must be typed
  * or an error issued. Clearly the symbol could still be null at this stage (if there were
  * errors in expressions).
  * But if the symbol provided is not null then it must by now have a type.
@@ -21,26 +21,26 @@ public class TypedSymbolAccess extends RuleSupport {
   /**
    * Constructor to provided typed access.
    */
-  protected TypedSymbolAccess(final SymbolAndScopeManagement symbolAndScopeManagement,
+  protected TypedSymbolAccess(final SymbolsAndScopes symbolsAndScopes,
                               final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
   /**
-   * Uses the SymbolAndScopeManagement to get the main processing scope a method or a function.
+   * Uses the SymbolsAndScopes to get the main processing scope a method or a function.
    * Then checks it that is marked as pure or not.
    *
    * @return true if pure, false if mutable.
    */
   protected boolean isProcessingScopePure() {
 
-    final var scope = symbolAndScopeManagement.traverseBackUpStackToMethodOrFunction();
+    final var scope = symbolsAndScopes.traverseBackUpStackToMethodOrFunction();
 
     if (scope.isEmpty()) {
       //Now this could be inside an aggregate where properties are declared.
-      final var possibleAggregate = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
+      final var possibleAggregate = symbolsAndScopes.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
 
       //So get the enclosing scope, check and cast to IAggregate and check if it has pure construction
       //If so then we deem this scope to also be pure.
@@ -58,7 +58,7 @@ public class TypedSymbolAccess extends RuleSupport {
    */
   public void recordATypedSymbol(final ISymbol symbol, final ParseTree node) {
 
-    symbolAndScopeManagement.recordSymbol(symbol, node);
+    symbolsAndScopes.recordSymbol(symbol, node);
     if (symbol.getType().isEmpty()) {
       emitTypeNotResolvedError(symbol);
     }
@@ -72,7 +72,7 @@ public class TypedSymbolAccess extends RuleSupport {
    */
   public ISymbol getRecordedAndTypedSymbol(final ParseTree node) {
 
-    final var symbol = symbolAndScopeManagement.getRecordedSymbol(node);
+    final var symbol = symbolsAndScopes.getRecordedSymbol(node);
     if (symbol != null && symbol.getType().isEmpty()) {
       emitTypeNotResolvedError(symbol);
     }

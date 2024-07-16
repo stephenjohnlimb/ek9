@@ -5,7 +5,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.U
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.TypeCanReceivePipedData;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -22,10 +22,10 @@ final class ProcessStreamStatementTermination extends TypedSymbolAccess implemen
     Consumer<EK9Parser.StreamStatementTerminationContext> {
   private final TypeCanReceivePipedData typeCanReceivePipedData = new TypeCanReceivePipedData();
 
-  ProcessStreamStatementTermination(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessStreamStatementTermination(final SymbolsAndScopes symbolsAndScopes,
                                     final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
@@ -41,7 +41,7 @@ final class ProcessStreamStatementTermination extends TypedSymbolAccess implemen
   private void processPipeLinePart(final EK9Parser.StreamStatementTerminationContext ctx,
                                    final ISymbol pipeLinePartSymbol) {
 
-    final var terminationSymbol = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var terminationSymbol = (StreamCallSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
 
     pipeLinePartSymbol.getType().ifPresent(pipeLinePartType -> {
       final var sourceToken = new Ek9Token(ctx.pipelinePart().start);

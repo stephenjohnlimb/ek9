@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
@@ -18,10 +18,10 @@ final class ProcessValidPrimary extends TypedSymbolAccess implements Consumer<EK
   /**
    * Check Primary resolves and attempt to 'type' it.
    */
-  ProcessValidPrimary(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessValidPrimary(final SymbolsAndScopes symbolsAndScopes,
                       final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

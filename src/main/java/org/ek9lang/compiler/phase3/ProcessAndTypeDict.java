@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.CommonTypeSuperOrTrait;
 import org.ek9lang.compiler.support.ParameterisedLocator;
@@ -28,14 +28,14 @@ final class ProcessAndTypeDict extends TypedSymbolAccess implements Consumer<EK9
    * So A , B and C must be of the same or compatible type (between each other).
    * And X, Y, Z must also be of the same or compatible type (between each other).
    */
-  ProcessAndTypeDict(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessAndTypeDict(final SymbolsAndScopes symbolsAndScopes,
                      final SymbolFactory symbolFactory,
                      final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
     this.parameterisedLocator =
-        new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
+        new ParameterisedLocator(symbolsAndScopes, symbolFactory, errorListener, true);
 
     this.commonTypeSuperOrTrait = new CommonTypeSuperOrTrait(errorListener);
 
@@ -47,9 +47,9 @@ final class ProcessAndTypeDict extends TypedSymbolAccess implements Consumer<EK9
     final var startToken = new Ek9Token(ctx.start);
     //Now we need to get the symbol - but do not expect it to be typed yet.
     //That's the point of this code! See the last part of this method.
-    final var dictCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var dictCallSymbol = symbolsAndScopes.getRecordedSymbol(ctx);
     //Access the generic Dict type - this has been pre-located for quicker use.
-    final var dictType = symbolAndScopeManagement.getEk9Types().ek9Dictionary();
+    final var dictType = symbolsAndScopes.getEk9Types().ek9Dictionary();
     final var keyArgumentSymbols = getDictArgumentsAsSymbols(ctx, 0);
     final var valueArgumentSymbols = getDictArgumentsAsSymbols(ctx, 1);
     final var commonKeyType = commonTypeSuperOrTrait.apply(startToken, keyArgumentSymbols);

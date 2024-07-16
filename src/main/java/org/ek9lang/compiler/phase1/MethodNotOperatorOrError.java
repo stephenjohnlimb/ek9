@@ -5,7 +5,7 @@ import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
@@ -15,16 +15,16 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  * They are reserved for operators and the semantics that go with those operators.
  * While they could be used with different arguments/parameters - this might be confusing.
  */
-final class CheckMethodNotOperatorName extends RuleSupport
+final class MethodNotOperatorOrError extends RuleSupport
     implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
 
   private final Set<String> namedOperators = Set.of(
       "and", "or", "xor", "mod", "rem", "abs", "sqrt", "open", "close", "contains", "matches", "empty", "length");
 
-  CheckMethodNotOperatorName(final SymbolAndScopeManagement symbolAndScopeManagement,
-                             final ErrorListener errorListener) {
+  MethodNotOperatorOrError(final SymbolsAndScopes symbolsAndScopes,
+                           final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

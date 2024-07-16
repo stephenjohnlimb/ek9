@@ -8,10 +8,10 @@ import org.ek9lang.compiler.common.ErrorListener;
  * Typically used in control expressions to check developer is not doing a while(true).
  * But also used in other controls.
  */
-final class CheckNotABooleanLiteral implements Consumer<EK9Parser.ExpressionContext> {
+final class NotABooleanLiteralOrError implements Consumer<EK9Parser.ExpressionContext> {
   private final ErrorListener errorListener;
 
-  CheckNotABooleanLiteral(final ErrorListener errorListener) {
+  NotABooleanLiteralOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

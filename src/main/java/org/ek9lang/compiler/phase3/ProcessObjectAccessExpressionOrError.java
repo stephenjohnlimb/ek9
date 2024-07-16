@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -32,13 +32,13 @@ final class ProcessObjectAccessExpressionOrError extends TypedSymbolAccess
   private final ProcessFieldOrError processFieldOrError;
   private final ProcessOperationCallOrError processOperationCallOrError;
 
-  ProcessObjectAccessExpressionOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessObjectAccessExpressionOrError(final SymbolsAndScopes symbolsAndScopes,
                                        final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
-    this.processFieldOrError = new ProcessFieldOrError(symbolAndScopeManagement, errorListener);
-    this.processOperationCallOrError = new ProcessOperationCallOrError(symbolAndScopeManagement, errorListener);
+    this.processFieldOrError = new ProcessFieldOrError(symbolsAndScopes, errorListener);
+    this.processOperationCallOrError = new ProcessOperationCallOrError(symbolsAndScopes, errorListener);
 
   }
 
@@ -126,7 +126,7 @@ final class ProcessObjectAccessExpressionOrError extends TypedSymbolAccess
     final var resolved = processOperationCallOrError.apply(ctx.objectAccessType().operationCall(), aggregate);
 
     if (resolved != null) {
-      final var existingCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.objectAccessType().operationCall());
+      final var existingCallSymbol = symbolsAndScopes.getRecordedSymbol(ctx.objectAccessType().operationCall());
 
       if (existingCallSymbol instanceof CallSymbol callSymbol) {
         callSymbol.setResolvedSymbolToCall(resolved);

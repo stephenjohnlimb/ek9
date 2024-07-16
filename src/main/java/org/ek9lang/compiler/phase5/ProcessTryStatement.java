@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.IScope;
 
 /**
@@ -17,17 +17,17 @@ final class ProcessTryStatement extends PossibleExpressionConstruct
     implements Consumer<EK9Parser.TryStatementExpressionContext> {
 
 
-  ProcessTryStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessTryStatement(final SymbolsAndScopes symbolsAndScopes,
                       final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.TryStatementExpressionContext ctx) {
 
-    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
     final var possibleGuardVariable = getGuardExpressionVariable(ctx.preFlowStatement());
 
     possibleGuardVariable.ifPresent(guardVariable ->
@@ -40,11 +40,11 @@ final class ProcessTryStatement extends PossibleExpressionConstruct
   private void checkTryCatchFinallyAndReturn(final EK9Parser.TryStatementExpressionContext ctx,
                                              final boolean noGuardExpression) {
 
-    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
     final var tryCatchBlocks = getTryAndCatchBlocks(ctx);
     final var finallyBlock = getFinallyBlock(ctx);
-    final var outerScope = symbolAndScopeManagement.getTopScope();
-    final var tryScope = symbolAndScopeManagement.getRecordedScope(ctx);
+    final var outerScope = symbolsAndScopes.getTopScope();
+    final var tryScope = symbolsAndScopes.getRecordedScope(ctx);
 
     //This is the outer scope where it may be possible to mark a variable as meeting criteria
     analyzers.forEach(analyzer -> pullUpAcceptableCriteriaToHigherScope(analyzer, tryCatchBlocks, tryScope));
@@ -63,7 +63,7 @@ final class ProcessTryStatement extends PossibleExpressionConstruct
 
     if (ctx.finallyStatementExpression() != null) {
       return List.of(
-          symbolAndScopeManagement.getRecordedScope(ctx.finallyStatementExpression().block().instructionBlock())
+          symbolsAndScopes.getRecordedScope(ctx.finallyStatementExpression().block().instructionBlock())
       );
     }
 
@@ -76,10 +76,10 @@ final class ProcessTryStatement extends PossibleExpressionConstruct
     //There is NOT always a try instruction block to process
     var tryInstructionCtx = ctx.instructionBlock();
     if (tryInstructionCtx != null) {
-      tryAndCatchBlocks.add(symbolAndScopeManagement.getRecordedScope(tryInstructionCtx));
+      tryAndCatchBlocks.add(symbolsAndScopes.getRecordedScope(tryInstructionCtx));
       if (ctx.catchStatementExpression() != null) {
         var catchInstructionCtx = ctx.catchStatementExpression().instructionBlock();
-        tryAndCatchBlocks.add(symbolAndScopeManagement.getRecordedScope(catchInstructionCtx));
+        tryAndCatchBlocks.add(symbolsAndScopes.getRecordedScope(catchInstructionCtx));
       }
     }
     return tryAndCatchBlocks;

@@ -11,10 +11,10 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Checks that a constructor method on a generic aggregate has the same number of
  * parameters as the types being used in the generic type. This enables type inference.
  */
-final class CheckGenericConstructor implements BiConsumer<IToken, MethodSymbol> {
+final class GenericConstructorOrError implements BiConsumer<IToken, MethodSymbol> {
   private final ErrorListener errorListener;
 
-  CheckGenericConstructor(final ErrorListener errorListener) {
+  GenericConstructorOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

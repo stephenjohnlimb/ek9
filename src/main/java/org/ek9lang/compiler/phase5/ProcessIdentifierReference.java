@@ -5,7 +5,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.U
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.common.UninitialisedVariableToBeChecked;
 
@@ -16,20 +16,20 @@ final class ProcessIdentifierReference extends TypedSymbolAccess
   private final UninitialisedVariableToBeChecked uninitialisedVariableToBeChecked =
       new UninitialisedVariableToBeChecked();
 
-  ProcessIdentifierReference(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessIdentifierReference(final SymbolsAndScopes symbolsAndScopes,
                              final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.IdentifierReferenceContext ctx) {
 
-    final var symbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var symbol = symbolsAndScopes.getRecordedSymbol(ctx);
 
     if (uninitialisedVariableToBeChecked.test(symbol)) {
-      var initialised = symbolAndScopeManagement.isVariableInitialised(symbol);
+      var initialised = symbolsAndScopes.isVariableInitialised(symbol);
       if (!initialised) {
         errorListener.semanticError(ctx.start, "'" + symbol.getFriendlyName() + "':", USED_BEFORE_INITIALISED);
       }

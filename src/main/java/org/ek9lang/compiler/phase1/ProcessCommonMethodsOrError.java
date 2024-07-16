@@ -7,13 +7,13 @@ import org.ek9lang.compiler.common.Defaulted;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.OverrideOrAbstractOrError;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
- * Check Methods that apply in all method contexts.
+ * Processes and checks Methods that apply in all method contexts for basic correctness.
  */
-final class CommonMethodChecks extends RuleSupport
+final class ProcessCommonMethodsOrError extends RuleSupport
     implements BiConsumer<MethodSymbol, EK9Parser.MethodDeclarationContext> {
 
   private final Defaulted defaulted = new Defaulted();
@@ -21,12 +21,12 @@ final class CommonMethodChecks extends RuleSupport
 
   private final OverrideOrAbstractOrError overrideOrAbstractOrError;
 
-  CommonMethodChecks(final SymbolAndScopeManagement symbolAndScopeManagement,
-                     final ErrorListener errorListener) {
+  ProcessCommonMethodsOrError(final SymbolsAndScopes symbolsAndScopes,
+                              final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    appropriateBodyOrError = new AppropriateBodyOrError(symbolAndScopeManagement, errorListener);
-    overrideOrAbstractOrError = new OverrideOrAbstractOrError(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    appropriateBodyOrError = new AppropriateBodyOrError(symbolsAndScopes, errorListener);
+    overrideOrAbstractOrError = new OverrideOrAbstractOrError(symbolsAndScopes, errorListener);
 
   }
 
@@ -34,10 +34,10 @@ final class CommonMethodChecks extends RuleSupport
   @Override
   public void accept(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
 
-    final var message = "for method '" + ctx.identifier().getText() + "':";
     appropriateBodyOrError.accept(method, ctx.operationDetails());
     overrideOrAbstractOrError.accept(method);
 
+    final var message = "for method '" + ctx.identifier().getText() + "':";
     checkAccessModifier(method, ctx, message);
     checkConstructor(method, message);
     checkDefaulted(method, ctx, message);

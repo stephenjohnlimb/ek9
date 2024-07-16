@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
@@ -20,11 +20,11 @@ final class CheckPropertyNames extends TypedSymbolAccess implements Consumer<Agg
   private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
   private final ErrorListener.SemanticClassification errorClassification;
 
-  CheckPropertyNames(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckPropertyNames(final SymbolsAndScopes symbolsAndScopes,
                      final ErrorListener errorListener,
                      final ErrorListener.SemanticClassification errorClassification) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.errorClassification = errorClassification;
 
   }

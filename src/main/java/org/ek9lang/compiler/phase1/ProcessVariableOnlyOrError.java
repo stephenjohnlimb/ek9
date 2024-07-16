@@ -17,11 +17,11 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * For aggregate properties and block statements one of ! or ? is needed, but web correlation is not allowed.
  * Note that this does modify the variable and mark it up in various ways.
  */
-final class CheckVariableOnlyDeclaration implements
+final class ProcessVariableOnlyOrError implements
     BiConsumer<EK9Parser.VariableOnlyDeclarationContext, VariableSymbol> {
   private final ErrorListener errorListener;
 
-  CheckVariableOnlyDeclaration(final ErrorListener errorListener) {
+  ProcessVariableOnlyOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 
@@ -35,6 +35,7 @@ final class CheckVariableOnlyDeclaration implements
     } else {
       checkBlockAndAggregateProperty(ctx, variableSymbol);
     }
+
   }
 
   private void checkBlockAndAggregateProperty(final EK9Parser.VariableOnlyDeclarationContext ctx,
@@ -63,6 +64,7 @@ final class CheckVariableOnlyDeclaration implements
     }
 
     markAsUninitialisedAsAppropriate(ctx, variableSymbol);
+
   }
 
   private void checkArgumentParam(final EK9Parser.VariableOnlyDeclarationContext ctx,
@@ -106,5 +108,6 @@ final class CheckVariableOnlyDeclaration implements
       //Make a note that this variable was not initialed when it was declared.
       variableSymbol.putSquirrelledData(UNINITIALISED_AT_DECLARATION, "TRUE");
     }
+
   }
 }

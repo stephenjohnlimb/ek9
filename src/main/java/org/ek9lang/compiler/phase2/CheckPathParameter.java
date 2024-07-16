@@ -8,7 +8,7 @@ import static org.ek9lang.compiler.support.SymbolFactory.URI_PROTO;
 import java.util.function.BiPredicate;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
 
@@ -17,9 +17,9 @@ import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
  * on the operation.
  */
 final class CheckPathParameter extends RuleSupport implements BiPredicate<ServiceOperationSymbol, ISymbol> {
-  CheckPathParameter(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckPathParameter(final SymbolsAndScopes symbolsAndScopes,
                      final ErrorListener errorListener) {
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
   }
 
   @Override

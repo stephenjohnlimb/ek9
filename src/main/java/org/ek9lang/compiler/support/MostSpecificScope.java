@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.support;
 
 import java.util.function.Supplier;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.IScope;
 
 /**
@@ -9,11 +9,11 @@ import org.ek9lang.compiler.symbols.IScope;
  * to check if access to fields or methods should be allowed, or even resolve methods without 'this' prefix.
  */
 public final class MostSpecificScope implements Supplier<IScope> {
-  private final SymbolAndScopeManagement symbolAndScopeManagement;
+  private final SymbolsAndScopes symbolsAndScopes;
 
-  public MostSpecificScope(final SymbolAndScopeManagement symbolAndScopeManagement) {
+  public MostSpecificScope(final SymbolsAndScopes symbolsAndScopes) {
 
-    this.symbolAndScopeManagement = symbolAndScopeManagement;
+    this.symbolsAndScopes = symbolsAndScopes;
 
   }
 
@@ -21,17 +21,17 @@ public final class MostSpecificScope implements Supplier<IScope> {
   public IScope get() {
 
     final var possibleDynamicBlockScope =
-        symbolAndScopeManagement.getTopScope().findNearestDynamicBlockScopeInEnclosingScopes();
+        symbolsAndScopes.getTopScope().findNearestDynamicBlockScopeInEnclosingScopes();
     if (possibleDynamicBlockScope.isPresent()) {
       return possibleDynamicBlockScope.get();
     }
 
     final var possibleNonBlockScope =
-        symbolAndScopeManagement.getTopScope().findNearestNonBlockScopeInEnclosingScopes();
+        symbolsAndScopes.getTopScope().findNearestNonBlockScopeInEnclosingScopes();
     if (possibleNonBlockScope.isPresent()) {
       return possibleNonBlockScope.get();
     }
 
-    return symbolAndScopeManagement.getTopScope();
+    return symbolsAndScopes.getTopScope();
   }
 }

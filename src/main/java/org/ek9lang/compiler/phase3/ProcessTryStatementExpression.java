@@ -5,7 +5,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.S
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.TrySymbol;
 
@@ -17,19 +17,19 @@ final class ProcessTryStatementExpression extends TypedSymbolAccess
   private final SetTypeFromReturningParam setTypeFromReturningParam;
   private final CheckExceptionTypeOrError checkExceptionTypeOrError;
 
-  ProcessTryStatementExpression(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessTryStatementExpression(final SymbolsAndScopes symbolsAndScopes,
                                 final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.setTypeFromReturningParam = new SetTypeFromReturningParam(symbolAndScopeManagement, errorListener);
-    this.checkExceptionTypeOrError = new CheckExceptionTypeOrError(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.setTypeFromReturningParam = new SetTypeFromReturningParam(symbolsAndScopes, errorListener);
+    this.checkExceptionTypeOrError = new CheckExceptionTypeOrError(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.TryStatementExpressionContext ctx) {
 
-    final var tryExpression = (TrySymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var tryExpression = (TrySymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     setTypeFromReturningParam.accept(tryExpression, ctx.returningParam());
 
     checkCatchBlock(ctx);

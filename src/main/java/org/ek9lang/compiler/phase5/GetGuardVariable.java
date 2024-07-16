@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -14,10 +14,10 @@ import org.ek9lang.compiler.symbols.ISymbol;
 final class GetGuardVariable extends TypedSymbolAccess
     implements Function<EK9Parser.PreFlowStatementContext, Optional<ISymbol>> {
 
-  GetGuardVariable(final SymbolAndScopeManagement symbolAndScopeManagement,
+  GetGuardVariable(final SymbolsAndScopes symbolsAndScopes,
                    final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
@@ -26,7 +26,7 @@ final class GetGuardVariable extends TypedSymbolAccess
 
     if (ctx != null && ctx.guardExpression() != null) {
       return Optional.ofNullable(
-          symbolAndScopeManagement.getRecordedSymbol(ctx.guardExpression().identifier()));
+          symbolsAndScopes.getRecordedSymbol(ctx.guardExpression().identifier()));
     }
 
     return Optional.empty();

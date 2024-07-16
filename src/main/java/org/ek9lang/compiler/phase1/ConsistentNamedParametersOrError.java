@@ -8,10 +8,10 @@ import org.ek9lang.compiler.common.ErrorListener;
  * Checks that either all parameters are named when making calls, or none are named at all.
  * This is to drive consistency.
  */
-final class CheckParamExpressionNamedParameters implements Consumer<EK9Parser.ParamExpressionContext> {
+final class ConsistentNamedParametersOrError implements Consumer<EK9Parser.ParamExpressionContext> {
   private final ErrorListener errorListener;
 
-  CheckParamExpressionNamedParameters(final ErrorListener errorListener) {
+  ConsistentNamedParametersOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

@@ -9,7 +9,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.M
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.SymbolSearch;
@@ -40,10 +40,10 @@ final class CheckDefaultOperators extends TypedSymbolAccess implements Consumer<
   private final RetrieveDefaultedOperators retrieveDefaultedOperators = new RetrieveDefaultedOperators();
   private final CheckPropertyNames checkPropertyNames;
 
-  CheckDefaultOperators(final SymbolAndScopeManagement symbolAndScopeManagement, final ErrorListener errorListener) {
+  CheckDefaultOperators(final SymbolsAndScopes symbolsAndScopes, final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.checkPropertyNames = new CheckPropertyNames(symbolAndScopeManagement, errorListener,
+    super(symbolsAndScopes, errorListener);
+    this.checkPropertyNames = new CheckPropertyNames(symbolsAndScopes, errorListener,
         CANNOT_SUPPORT_TO_JSON_DUPLICATE_PROPERTY_FIELD);
 
   }

@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.MethodAndAggregateData;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
@@ -30,20 +30,20 @@ final class ProcessThisSuperCallOrError extends TypedSymbolAccess
   private final ResolveMethodOrError resolveMethodOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
 
-  ProcessThisSuperCallOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessThisSuperCallOrError(final SymbolsAndScopes symbolsAndScopes,
                               final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
-    this.resolveMethodOrError = new ResolveMethodOrError(symbolAndScopeManagement, errorListener);
-    this.symbolsFromParamExpression = new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
+    this.resolveMethodOrError = new ResolveMethodOrError(symbolsAndScopes, errorListener);
+    this.symbolsFromParamExpression = new SymbolsFromParamExpression(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public MethodSymbol apply(final EK9Parser.CallContext ctx) {
 
-    final var methodAndAggregate = symbolAndScopeManagement.traverseBackUpStackToEnclosingMethod();
+    final var methodAndAggregate = symbolsAndScopes.traverseBackUpStackToEnclosingMethod();
 
     if (methodAndAggregate.isPresent()) {
       checkThisOrSuperStatementPosition(ctx, methodAndAggregate.get());

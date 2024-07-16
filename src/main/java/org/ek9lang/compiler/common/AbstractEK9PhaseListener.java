@@ -20,7 +20,7 @@ import org.ek9lang.core.AssertValue;
  */
 public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
 
-  protected final SymbolAndScopeManagement symbolAndScopeManagement;
+  protected final SymbolsAndScopes symbolsAndScopes;
   private final ParsedModule parsedModule;
 
   protected AbstractEK9PhaseListener(final ParsedModule parsedModule) {
@@ -29,25 +29,25 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
 
     this.parsedModule = parsedModule;
     //At construction the ScopeStack will push the module scope on to the stack.
-    this.symbolAndScopeManagement = new SymbolAndScopeManagement(parsedModule,
+    this.symbolsAndScopes = new SymbolsAndScopes(parsedModule,
         new ScopeStack(parsedModule.getModuleScope()));
 
   }
 
   protected void pullSwitchCaseDefaultUp(final EK9Parser.SwitchStatementExpressionContext ctx) {
 
-    final var thisSwitchScope = symbolAndScopeManagement.getTopScope();
+    final var thisSwitchScope = symbolsAndScopes.getTopScope();
 
     var noneExceptionPathPossible = false;
 
     //This is the 'default' if present
     if (ctx.block() != null) {
-      noneExceptionPathPossible = symbolAndScopeManagement.getRecordedScope(ctx.block()).isTerminatedNormally();
+      noneExceptionPathPossible = symbolsAndScopes.getRecordedScope(ctx.block()).isTerminatedNormally();
     }
 
     for (var caseStatement : ctx.caseStatement()) {
       noneExceptionPathPossible |=
-          symbolAndScopeManagement.getRecordedScope(caseStatement.block()).isTerminatedNormally();
+          symbolsAndScopes.getRecordedScope(caseStatement.block()).isTerminatedNormally();
     }
 
     //So no none exception paths.
@@ -59,7 +59,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
 
   protected void pullTryCatchFinallyUp(final EK9Parser.TryStatementExpressionContext ctx) {
 
-    final var thisTryScope = symbolAndScopeManagement.getTopScope();
+    final var thisTryScope = symbolsAndScopes.getTopScope();
 
     //assume bad news
     var noneExceptionPathPossible = true;
@@ -67,19 +67,19 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
     //So may get an exception in the block, so it does not terminate normally
     if (ctx.instructionBlock() != null) {
       noneExceptionPathPossible =
-          symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock()).isTerminatedNormally();
+          symbolsAndScopes.getRecordedScope(ctx.instructionBlock()).isTerminatedNormally();
     }
 
     //But if caught and no in the block exception - we're golden - i.e. exception for instruction block consumed.
     if (ctx.catchStatementExpression() != null) {
       noneExceptionPathPossible =
-          symbolAndScopeManagement.getRecordedScope(ctx.catchStatementExpression()).isTerminatedNormally();
+          symbolsAndScopes.getRecordedScope(ctx.catchStatementExpression()).isTerminatedNormally();
     }
 
     //Now maybe an exception in a finally - block, so this trumps all in an exception.
     if (ctx.finallyStatementExpression() != null) {
       noneExceptionPathPossible &=
-          symbolAndScopeManagement.getRecordedScope(ctx.finallyStatementExpression()).isTerminatedNormally();
+          symbolsAndScopes.getRecordedScope(ctx.finallyStatementExpression()).isTerminatedNormally();
     }
 
     //So no none exception paths.
@@ -96,14 +96,14 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
       return;
     }
 
-    final var thisIfScope = symbolAndScopeManagement.getTopScope();
+    final var thisIfScope = symbolsAndScopes.getTopScope();
 
     //First check the else block for termination, then do all the 'if parts'.
-    var abnormal = !symbolAndScopeManagement.getRecordedScope(ctx.elseOnlyBlock().block()).isTerminatedNormally();
+    var abnormal = !symbolsAndScopes.getRecordedScope(ctx.elseOnlyBlock().block()).isTerminatedNormally();
 
     if (abnormal) {
       boolean normal = ctx.ifControlBlock().stream()
-          .map(ifPart -> symbolAndScopeManagement.getRecordedScope(ifPart.block()))
+          .map(ifPart -> symbolsAndScopes.getRecordedScope(ifPart.block()))
           .map(IScope::isTerminatedNormally)
           .findAny().orElse(false);
       if (!normal) {
@@ -115,8 +115,8 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
 
   protected void pullBlockTerminationUp(final ParseTree node) {
 
-    final var scope = symbolAndScopeManagement.getTopScope();
-    final var childScope = symbolAndScopeManagement.getRecordedScope(node);
+    final var scope = symbolsAndScopes.getTopScope();
+    final var childScope = symbolsAndScopes.getRecordedScope(node);
 
     if (childScope != null && !childScope.isTerminatedNormally()) {
       scope.setEncounteredExceptionToken(childScope.getEncounteredExceptionToken());
@@ -143,13 +143,13 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
 
   public boolean isScopeStackEmpty() {
 
-    return symbolAndScopeManagement.getTopScope() == null;
+    return symbolsAndScopes.getTopScope() == null;
   }
 
   @Override
   public void exitModuleDeclaration(final EK9Parser.ModuleDeclarationContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitModuleDeclaration(ctx);
 
   }
@@ -157,7 +157,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitPackageBlock(final EK9Parser.PackageBlockContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitPackageBlock(ctx);
 
   }
@@ -167,10 +167,10 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
 
     //This will pop the synthetic main method off for the program
     //Program is sort of a method, but the structure is slightly different.
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     //Now the parent scope can be popped off.
     if (ctx.getParent() instanceof EK9Parser.ProgramBlockContext) {
-      symbolAndScopeManagement.exitScope();
+      symbolsAndScopes.exitScope();
     }
 
     super.exitMethodDeclaration(ctx);
@@ -180,7 +180,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitOperatorDeclaration(ctx);
 
   }
@@ -188,7 +188,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitFunctionDeclaration(ctx);
 
   }
@@ -196,7 +196,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitRecordDeclaration(final EK9Parser.RecordDeclarationContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitRecordDeclaration(ctx);
 
   }
@@ -204,7 +204,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitTraitDeclaration(final EK9Parser.TraitDeclarationContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitTraitDeclaration(ctx);
 
   }
@@ -212,7 +212,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitClassDeclaration(ctx);
 
   }
@@ -220,7 +220,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitComponentDeclaration(final EK9Parser.ComponentDeclarationContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitComponentDeclaration(ctx);
 
   }
@@ -228,7 +228,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitTextDeclaration(final EK9Parser.TextDeclarationContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitTextDeclaration(ctx);
 
   }
@@ -236,7 +236,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitTextBodyDeclaration(final EK9Parser.TextBodyDeclarationContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitTextBodyDeclaration(ctx);
 
   }
@@ -244,7 +244,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitServiceDeclaration(final EK9Parser.ServiceDeclarationContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitServiceDeclaration(ctx);
 
   }
@@ -252,7 +252,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitServiceOperationDeclaration(ctx);
 
   }
@@ -260,7 +260,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitApplicationDeclaration(final EK9Parser.ApplicationDeclarationContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitApplicationDeclaration(ctx);
 
   }
@@ -268,7 +268,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitDynamicClassDeclaration(final EK9Parser.DynamicClassDeclarationContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitDynamicClassDeclaration(ctx);
 
   }
@@ -276,7 +276,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitDynamicFunctionDeclaration(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitDynamicFunctionDeclaration(ctx);
 
   }
@@ -284,7 +284,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitDynamicVariableCapture(final EK9Parser.DynamicVariableCaptureContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitDynamicVariableCapture(ctx);
 
   }
@@ -293,7 +293,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   public void exitTypeDeclaration(final EK9Parser.TypeDeclarationContext ctx) {
 
     if (ctx.Identifier() != null) {
-      symbolAndScopeManagement.exitScope();
+      symbolsAndScopes.exitScope();
     }
     super.exitTypeDeclaration(ctx);
 
@@ -302,7 +302,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitIfStatement(final EK9Parser.IfStatementContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitIfStatement(ctx);
 
   }
@@ -310,7 +310,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitSwitchStatementExpression(final EK9Parser.SwitchStatementExpressionContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitSwitchStatementExpression(ctx);
 
   }
@@ -318,7 +318,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitForStatementExpression(final EK9Parser.ForStatementExpressionContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitForStatementExpression(ctx);
 
   }
@@ -326,7 +326,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitWhileStatementExpression(final EK9Parser.WhileStatementExpressionContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitWhileStatementExpression(ctx);
 
   }
@@ -334,7 +334,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitReturningParam(final EK9Parser.ReturningParamContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitReturningParam(ctx);
 
   }
@@ -342,7 +342,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitTryStatementExpression(final EK9Parser.TryStatementExpressionContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitTryStatementExpression(ctx);
 
   }
@@ -350,7 +350,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitCatchStatementExpression(final EK9Parser.CatchStatementExpressionContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitCatchStatementExpression(ctx);
 
   }
@@ -358,7 +358,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitFinallyStatementExpression(final EK9Parser.FinallyStatementExpressionContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitFinallyStatementExpression(ctx);
 
   }
@@ -366,7 +366,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitBlock(final EK9Parser.BlockContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitBlock(ctx);
 
   }
@@ -374,7 +374,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitSingleStatementBlock(final EK9Parser.SingleStatementBlockContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitSingleStatementBlock(ctx);
 
   }
@@ -382,7 +382,7 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   @Override
   public void exitInstructionBlock(final EK9Parser.InstructionBlockContext ctx) {
 
-    symbolAndScopeManagement.exitScope();
+    symbolsAndScopes.exitScope();
     super.exitInstructionBlock(ctx);
 
   }

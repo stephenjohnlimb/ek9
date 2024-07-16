@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.AnySymbolSearch;
 import org.ek9lang.compiler.search.MethodSearchInScope;
@@ -35,11 +35,11 @@ final class ProcessValidIdentifierReference extends TypedSymbolAccess
   /**
    * Checks identifier reference now resolves.
    */
-  ProcessValidIdentifierReference(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessValidIdentifierReference(final SymbolsAndScopes symbolsAndScopes,
                                   final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.mostSpecificScope = new MostSpecificScope(symbolAndScopeManagement);
+    super(symbolsAndScopes, errorListener);
+    this.mostSpecificScope = new MostSpecificScope(symbolsAndScopes);
 
   }
 
@@ -52,9 +52,9 @@ final class ProcessValidIdentifierReference extends TypedSymbolAccess
     if (identifierReference != null) {
       identifierReferenceChecks(ctx, identifierReference);
       //Note that we must also record this against the underlying identifier as well
-      final var identifierSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx.identifier());
+      final var identifierSymbol = symbolsAndScopes.getRecordedSymbol(ctx.identifier());
       if (identifierSymbol == null) {
-        symbolAndScopeManagement.recordSymbol(identifierReference, ctx.identifier());
+        symbolsAndScopes.recordSymbol(identifierReference, ctx.identifier());
       }
     }
 
@@ -67,7 +67,7 @@ final class ProcessValidIdentifierReference extends TypedSymbolAccess
     //See if already resolved, else try and resolve in current scope (this will escalate out to cover types)
     //If still not located then try and find at least one method with that name.
     List<Function<EK9Parser.IdentifierReferenceContext, ISymbol>> resolvers = List.of(
-        symbolAndScopeManagement::getRecordedSymbol,
+        symbolsAndScopes::getRecordedSymbol,
         this::tryToResolveViaCurrentScope,
         this::tryToResolveMethodByNameInNearestBlockScope
     );
@@ -84,7 +84,7 @@ final class ProcessValidIdentifierReference extends TypedSymbolAccess
 
   private ISymbol tryToResolveViaCurrentScope(final EK9Parser.IdentifierReferenceContext ctx) {
 
-    final var currentScope = symbolAndScopeManagement.getTopScope();
+    final var currentScope = symbolsAndScopes.getTopScope();
 
     //Might only be a variable/delegate property reference
     //OK if in a call context it would only be appropriate to search for functions calls
@@ -167,11 +167,11 @@ final class ProcessValidIdentifierReference extends TypedSymbolAccess
     if (!identifierReference.isPublic() && identifierReference.isPropertyField()) {
 
       //Might still be accessible if within the same aggregate/function/dynamic
-      final var resolvedDynamicScope = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.DYNAMIC_BLOCK);
+      final var resolvedDynamicScope = symbolsAndScopes.traverseBackUpStack(IScope.ScopeType.DYNAMIC_BLOCK);
 
       resolvedDynamicScope.ifPresentOrElse(scope -> accessCheckToScope(scope, ctx, identifierReference),
           () -> {
-            var resolvedMainScope = symbolAndScopeManagement.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
+            var resolvedMainScope = symbolsAndScopes.traverseBackUpStack(IScope.ScopeType.NON_BLOCK);
             resolvedMainScope.ifPresent(scope -> accessCheckToScope(scope, ctx, identifierReference));
           });
     }

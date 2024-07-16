@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.CodeFlowAnalyzer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -20,11 +20,11 @@ import org.ek9lang.compiler.symbols.ISymbol;
 abstract class PossibleExpressionConstruct extends TypedSymbolAccess {
   private final GetGuardVariable getGuardVariable;
 
-  protected PossibleExpressionConstruct(final SymbolAndScopeManagement symbolAndScopeManagement,
+  protected PossibleExpressionConstruct(final SymbolsAndScopes symbolsAndScopes,
                                         final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.getGuardVariable = new GetGuardVariable(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.getGuardVariable = new GetGuardVariable(symbolsAndScopes, errorListener);
 
   }
 
@@ -65,11 +65,11 @@ abstract class PossibleExpressionConstruct extends TypedSymbolAccess {
                                                     final ISymbol guardVariable,
                                                     final ParserRuleContext ctx) {
 
-    final var scope = symbolAndScopeManagement.getRecordedScope(ctx);
+    final var scope = symbolsAndScopes.getRecordedScope(ctx);
     final var initialised = analyzer.doesSymbolMeetAcceptableCriteria(guardVariable, scope);
 
     if (initialised) {
-      final var outerScope = symbolAndScopeManagement.getTopScope();
+      final var outerScope = symbolsAndScopes.getTopScope();
       analyzer.markSymbolAsMeetingAcceptableCriteria(guardVariable, outerScope);
     }
 
@@ -97,8 +97,8 @@ abstract class PossibleExpressionConstruct extends TypedSymbolAccess {
 
     if (ctx != null) {
       //Note that the returning variable is registered against the switch scope.
-      final var returningVariable = symbolAndScopeManagement.getRecordedSymbol(ctx);
-      if (!symbolAndScopeManagement.isVariableInitialised(returningVariable, switchScope)) {
+      final var returningVariable = symbolsAndScopes.getRecordedSymbol(ctx);
+      if (!symbolsAndScopes.isVariableInitialised(returningVariable, switchScope)) {
         errorIssuer.accept(returningVariable);
       }
 

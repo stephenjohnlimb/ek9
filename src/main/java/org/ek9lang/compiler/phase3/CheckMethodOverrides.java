@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
@@ -26,14 +26,14 @@ final class CheckMethodOverrides extends TypedSymbolAccess implements Consumer<A
   /**
    * Check various aspects of overriding methods.
    */
-  CheckMethodOverrides(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckMethodOverrides(final SymbolsAndScopes symbolsAndScopes,
                        final ErrorListener errorListener,
                        final ErrorListener.SemanticClassification errorWhenShouldBeMarkedAbstract) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.checkTypeCovariance = new CheckTypeCovariance(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.checkTypeCovariance = new CheckTypeCovariance(symbolsAndScopes, errorListener);
     this.errorWhenShouldBeMarkedAbstract = errorWhenShouldBeMarkedAbstract;
-    this.checkPureModifier = new CheckPureModifier(symbolAndScopeManagement, errorListener);
+    this.checkPureModifier = new CheckPureModifier(symbolsAndScopes, errorListener);
 
   }
 

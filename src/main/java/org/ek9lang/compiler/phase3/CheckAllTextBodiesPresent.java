@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
@@ -18,10 +18,10 @@ final class CheckAllTextBodiesPresent extends TypedSymbolAccess implements Consu
   /**
    * Check various aspects of overriding methods.
    */
-  CheckAllTextBodiesPresent(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckAllTextBodiesPresent(final SymbolsAndScopes symbolsAndScopes,
                             final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

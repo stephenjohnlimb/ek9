@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.CommonTypeSuperOrTrait;
 import org.ek9lang.compiler.support.ParameterisedLocator;
@@ -24,12 +24,12 @@ final class ProcessAndTypeList extends TypedSymbolAccess implements Consumer<EK9
   /**
    * Create a new consumer to handle Lists in the form of '[X, Y, Z]'.
    */
-  ProcessAndTypeList(final SymbolAndScopeManagement symbolAndScopeManagement, final SymbolFactory symbolFactory,
+  ProcessAndTypeList(final SymbolsAndScopes symbolsAndScopes, final SymbolFactory symbolFactory,
                      final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
-    this.parameterisedLocator = new ParameterisedLocator(symbolAndScopeManagement, symbolFactory, errorListener, true);
+    this.parameterisedLocator = new ParameterisedLocator(symbolsAndScopes, symbolFactory, errorListener, true);
     this.commonTypeSuperOrTrait = new CommonTypeSuperOrTrait(errorListener);
 
   }
@@ -40,9 +40,9 @@ final class ProcessAndTypeList extends TypedSymbolAccess implements Consumer<EK9
     final var startToken = new Ek9Token(ctx.start);
     //Here just like the dictionary - we need the untyped symbol.
     //The task of this code it to provide typing via parameterization.
-    final var listCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var listCallSymbol = symbolsAndScopes.getRecordedSymbol(ctx);
     //Access the generic List type - this has been pre-located for quicker use.
-    final var listType = symbolAndScopeManagement.getEk9Types().ek9List();
+    final var listType = symbolsAndScopes.getEk9Types().ek9List();
     final var commonType = commonTypeSuperOrTrait.apply(startToken, getListArgumentsAsSymbols(ctx));
     //If no common type can be found then error will have been emitted
     commonType.ifPresent(type -> {

@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase3;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.AccessGenericInGeneric;
 import org.ek9lang.compiler.support.CheckParameterizationComplete;
@@ -38,25 +38,25 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
   /**
    * Lookup a pre-recorded 'call', now resolve what it is supposed to call and set its type.
    */
-  CheckValidCall(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckValidCall(final SymbolsAndScopes symbolsAndScopes,
                  final SymbolFactory symbolFactory,
                  final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
     this.processThisSuperCallOrError =
-        new ProcessThisSuperCallOrError(symbolAndScopeManagement, errorListener);
+        new ProcessThisSuperCallOrError(symbolsAndScopes, errorListener);
     this.resolveIdentifierReferenceCallOrError =
-        new ResolveIdentifierReferenceCallOrError(symbolAndScopeManagement, symbolFactory, errorListener);
+        new ResolveIdentifierReferenceCallOrError(symbolsAndScopes, symbolFactory, errorListener);
     this.symbolsFromParamExpression =
-        new SymbolsFromParamExpression(symbolAndScopeManagement, errorListener);
+        new SymbolsFromParamExpression(symbolsAndScopes, errorListener);
     this.symbolFromContextOrError =
-        new SymbolFromContextOrError(symbolAndScopeManagement, errorListener);
+        new SymbolFromContextOrError(symbolsAndScopes, errorListener);
     this.checkValidFunctionDelegateOrError =
-        new CheckValidFunctionDelegateOrError(symbolAndScopeManagement, errorListener);
+        new CheckValidFunctionDelegateOrError(symbolsAndScopes, errorListener);
     this.accessGenericInGeneric =
-        new AccessGenericInGeneric(symbolAndScopeManagement);
+        new AccessGenericInGeneric(symbolsAndScopes);
     this.checkPureContext =
-        new CheckPureContext(symbolAndScopeManagement, errorListener);
+        new CheckPureContext(symbolsAndScopes, errorListener);
 
   }
 
@@ -66,7 +66,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
     //Note that we make an untyped check to get the call - because until we resolve
     //the thing we're going to call we won't know that type this existingCallSymbol is.
 
-    final var existingCallSymbol = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var existingCallSymbol = symbolsAndScopes.getRecordedSymbol(ctx);
 
     if (existingCallSymbol instanceof CallSymbol callSymbol) {
       resolveToBeCalled(callSymbol, ctx);
@@ -186,7 +186,7 @@ final class CheckValidCall extends TypedSymbolAccess implements Consumer<EK9Pars
 
     if (symbol != null) {
       callSymbol.setResolvedSymbolToCall(symbol);
-      callSymbol.setType(symbolAndScopeManagement.getEk9Types().ek9Void());
+      callSymbol.setType(symbolsAndScopes.getEk9Types().ek9Void());
       checkPureContext.accept(callSymbol.getSourceToken(), callSymbol);
     }
 

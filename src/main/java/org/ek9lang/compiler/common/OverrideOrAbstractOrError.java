@@ -11,10 +11,10 @@ public class OverrideOrAbstractOrError extends RuleSupport implements Consumer<M
   /**
    * Create new checker.
    */
-  public OverrideOrAbstractOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  public OverrideOrAbstractOrError(final SymbolsAndScopes symbolsAndScopes,
                                    final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

@@ -9,10 +9,10 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Just check is a scope has normal termination.
  * This means does the scope always end up with a guaranteed Exception.
  */
-final class CheckNormalTermination implements BiConsumer<IToken, IScope> {
+final class NormalTerminationOrError implements BiConsumer<IToken, IScope> {
   private final ErrorListener errorListener;
 
-  CheckNormalTermination(final ErrorListener errorListener) {
+  NormalTerminationOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

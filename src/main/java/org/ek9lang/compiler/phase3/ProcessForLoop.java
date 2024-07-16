@@ -5,7 +5,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.M
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -19,11 +19,11 @@ final class ProcessForLoop extends TypedSymbolAccess implements Consumer<EK9Pars
 
   private final GetIteratorType getIteratorType;
 
-  ProcessForLoop(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessForLoop(final SymbolsAndScopes symbolsAndScopes,
                  final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
-    this.getIteratorType = new GetIteratorType(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.getIteratorType = new GetIteratorType(symbolsAndScopes, errorListener);
 
   }
 
@@ -32,7 +32,7 @@ final class ProcessForLoop extends TypedSymbolAccess implements Consumer<EK9Pars
 
     //Note the different call here, we accept that the loop variable will not yet have been 'typed'
     //So now we can set that type on the loop variable.
-    var loopVar = symbolAndScopeManagement.getRecordedSymbol(ctx);
+    var loopVar = symbolsAndScopes.getRecordedSymbol(ctx);
 
     if (loopVar != null) {
       final var expr = getRecordedAndTypedSymbol(ctx.expression());

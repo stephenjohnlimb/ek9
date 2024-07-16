@@ -7,10 +7,10 @@ import org.ek9lang.compiler.common.ErrorListener;
 /**
  * Error when a reference is attempted by the syntax is incorrect.
  */
-final class CheckForInvalidUseOfReference implements Consumer<EK9Parser.IdentifierReferenceContext> {
+final class ValidUseOfReferenceOrError implements Consumer<EK9Parser.IdentifierReferenceContext> {
   private final ErrorListener errorListener;
 
-  CheckForInvalidUseOfReference(final ErrorListener errorListener) {
+  ValidUseOfReferenceOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

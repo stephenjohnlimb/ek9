@@ -31,7 +31,7 @@
  * <p>
  *   In general many of the phases use the 'Listener' approach and 'walk the tree'. Sometimes they process
  *   'ANTLR' contexts on <u>entry</u> and at other times on <u>exit</u>. The 'Listeners' use
- *   {@link org.ek9lang.compiler.common.SymbolAndScopeManagement} and this uses a
+ *   {@link org.ek9lang.compiler.common.SymbolsAndScopes} and this uses a
  *   {@link org.ek9lang.compiler.common.ScopeStack} to 'push and 'pop' scopes as the 'AST' is traversed.
  *   In this way it is possible to add Symbols to the correct scope during AST traversal.
  * </p>

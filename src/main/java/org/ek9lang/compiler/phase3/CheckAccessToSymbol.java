@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -13,10 +13,10 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  */
 final class CheckAccessToSymbol extends TypedSymbolAccess implements Consumer<CheckSymbolAccessData> {
 
-  CheckAccessToSymbol(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckAccessToSymbol(final SymbolsAndScopes symbolsAndScopes,
                       final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 

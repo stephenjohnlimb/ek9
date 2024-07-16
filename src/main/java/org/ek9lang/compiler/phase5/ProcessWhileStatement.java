@@ -4,24 +4,24 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 
 /**
  * Checks the while statement via the code analysers.
  */
 final class ProcessWhileStatement extends PossibleExpressionConstruct
     implements Consumer<EK9Parser.WhileStatementExpressionContext> {
-  ProcessWhileStatement(final SymbolAndScopeManagement symbolAndScopeManagement,
+  ProcessWhileStatement(final SymbolsAndScopes symbolsAndScopes,
                         final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.WhileStatementExpressionContext ctx) {
 
-    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
     final var possibleGuardVariable = getGuardExpressionVariable(ctx.preFlowStatement());
 
     possibleGuardVariable.ifPresent(guardVariable ->
@@ -34,11 +34,11 @@ final class ProcessWhileStatement extends PossibleExpressionConstruct
   private void checkLoopBodyAndReturn(final EK9Parser.WhileStatementExpressionContext ctx,
                                       final boolean noGuardExpression) {
 
-    final var analyzers = symbolAndScopeManagement.getCodeFlowAnalyzers();
+    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
     final var isDoWhile = ctx.DO() != null;
-    final var outerScope = symbolAndScopeManagement.getTopScope();
-    final var whileScope = symbolAndScopeManagement.getRecordedScope(ctx);
-    final var loopBodyScope = List.of(symbolAndScopeManagement.getRecordedScope(ctx.instructionBlock()));
+    final var outerScope = symbolsAndScopes.getTopScope();
+    final var whileScope = symbolsAndScopes.getRecordedScope(ctx);
+    final var loopBodyScope = List.of(symbolsAndScopes.getRecordedScope(ctx.instructionBlock()));
 
     analyzers.forEach(analyzer -> pullUpAcceptableCriteriaToHigherScope(analyzer, loopBodyScope, whileScope));
 

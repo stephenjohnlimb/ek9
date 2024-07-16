@@ -9,10 +9,10 @@ import org.ek9lang.compiler.tokenizer.IToken;
 /**
  * A program can only return an Integer (exit code).
  */
-final class CheckProgramReturns implements BiConsumer<IToken, MethodSymbol> {
+final class ProgramReturnOrError implements BiConsumer<IToken, MethodSymbol> {
   private final ErrorListener errorListener;
 
-  CheckProgramReturns(final ErrorListener errorListener) {
+  ProgramReturnOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

@@ -9,7 +9,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.M
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -22,17 +22,17 @@ import org.ek9lang.compiler.symbols.StreamCallSymbol;
  */
 final class CheckHeadTailSkipOperation extends TypedSymbolAccess implements Consumer<EK9Parser.StreamPartContext> {
 
-  CheckHeadTailSkipOperation(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckHeadTailSkipOperation(final SymbolsAndScopes symbolsAndScopes,
                              final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.StreamPartContext ctx) {
 
-    final var streamCallPart = (StreamCallSymbol) symbolAndScopeManagement.getRecordedSymbol(ctx);
+    final var streamCallPart = (StreamCallSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
 
     if (ctx.pipelinePart().size() == 1) {
       checkVariableOrFunctionUse(ctx.pipelinePart().get(0));
@@ -118,6 +118,6 @@ final class CheckHeadTailSkipOperation extends TypedSymbolAccess implements Cons
 
   private boolean isTypeNotAnInteger(final ISymbol type) {
 
-    return !type.isExactSameType(symbolAndScopeManagement.getEk9Types().ek9Integer());
+    return !type.isExactSameType(symbolsAndScopes.getEk9Types().ek9Integer());
   }
 }

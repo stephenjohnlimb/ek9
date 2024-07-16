@@ -4,7 +4,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.T
 
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
@@ -13,10 +13,10 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Checks that the symbol passed has a type and that the type is compatible with an EK9 Exception.
  */
 final class CheckExceptionTypeOrError extends TypedSymbolAccess implements BiConsumer<IToken, ISymbol> {
-  CheckExceptionTypeOrError(final SymbolAndScopeManagement symbolAndScopeManagement,
+  CheckExceptionTypeOrError(final SymbolsAndScopes symbolsAndScopes,
                             final ErrorListener errorListener) {
 
-    super(symbolAndScopeManagement, errorListener);
+    super(symbolsAndScopes, errorListener);
 
   }
 
@@ -25,7 +25,7 @@ final class CheckExceptionTypeOrError extends TypedSymbolAccess implements BiCon
 
     if (symbol != null) {
       symbol.getType().ifPresent(symbolType -> {
-        if (!symbolType.isAssignableTo(symbolAndScopeManagement.getEk9Types().ek9Exception())) {
+        if (!symbolType.isAssignableTo(symbolsAndScopes.getEk9Types().ek9Exception())) {
           errorListener.semanticError(errorLocation, "wrt '" + symbol.getFriendlyName() + "':",
               TYPE_MUST_EXTEND_EXCEPTION);
         }

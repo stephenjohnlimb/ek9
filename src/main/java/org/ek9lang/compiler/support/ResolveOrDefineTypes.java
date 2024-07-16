@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.SymbolAndScopeManagement;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.search.AnyTypeSymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
@@ -34,12 +34,12 @@ public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
    * A bit of a complex function constructor - for a function.
    * But then this is a bit of a beast of a function.
    */
-  protected ResolveOrDefineTypes(final SymbolAndScopeManagement symbolAndScopeManagement,
+  protected ResolveOrDefineTypes(final SymbolsAndScopes symbolsAndScopes,
                                  final SymbolFactory symbolFactory,
                                  final ErrorListener errorListener,
                                  final boolean errorIfNotDefinedOrResolved) {
 
-    super(symbolAndScopeManagement, symbolFactory, errorListener, errorIfNotDefinedOrResolved);
+    super(symbolsAndScopes, symbolFactory, errorListener, errorIfNotDefinedOrResolved);
 
   }
 
@@ -130,7 +130,7 @@ public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
   protected Optional<ISymbol> resolveTypeByIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
 
     final var forSymbolName = ctx.getText();
-    final var scope = symbolAndScopeManagement.getTopScope();
+    final var scope = symbolsAndScopes.getTopScope();
     final var resolved = scope.resolve(new AnyTypeSymbolSearch(forSymbolName));
 
     if (resolved.isEmpty() && errorIfNotDefinedOrResolved) {
