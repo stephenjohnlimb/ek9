@@ -1,0 +1,8 @@
+#!ek9
+defines module org.ek9.math
+
+  defines function
+    moduleNameWillAlsoCauseError()
+      <- rtn <- false
+
+//EOF

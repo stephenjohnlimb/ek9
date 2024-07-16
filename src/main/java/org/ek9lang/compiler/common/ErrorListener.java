@@ -534,6 +534,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     DUPLICATE_TYPE("Type/Function name duplicated"),
     DUPLICATE_SYMBOL("Symbol duplicated"),
     INVALID_SYMBOL_BY_REFERENCE("invalid reference naming; module scope name missing"),
+    INVALID_MODULE_NAME("invalid module name"),
     CONSTRUCT_REFERENCE_CONFLICT("conflicts with a reference"),
     REFERENCES_CONFLICT("conflicting references"),
     REFERENCE_DOES_NOT_RESOLVED("reference does not resolve"),

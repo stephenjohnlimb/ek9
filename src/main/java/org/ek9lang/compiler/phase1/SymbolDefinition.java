@@ -12,17 +12,21 @@ import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceHasErrors;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
+import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
- * Can be MULTI THREADED for developer source, but single threaded for bootstrapping.
+ * Can be MULTI THREADED for developer source, but must be single threaded for bootstrapping.
  * Goes through the now successfully parse source files and uses
  * a listener to do the first real pass at building the IR - simple Symbol definitions.
  * This means identifying types and other symbols.
  * Uses Java 21 with full virtual Threads.
  * Note that most of the real processing is done in the
  * {@link org.ek9lang.compiler.phase1.DefinitionListener}.
+ * This is just the wrapper entry point that is public, so it can be plugged into the
+ * {@link org.ek9lang.compiler.config.FrontEndSupplier}.
  */
 public final class SymbolDefinition extends CompilerPhase {
 
@@ -58,7 +62,6 @@ public final class SymbolDefinition extends CompilerPhase {
   public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
 
     return underTakeSymbolDefinition(workspace);
-
   }
 
   private boolean underTakeSymbolDefinition(final Workspace workspace) {
@@ -95,20 +98,28 @@ public final class SymbolDefinition extends CompilerPhase {
 
     final ParsedModule parsedModule = new ParsedModule(source, compilableProgramAccess);
     parsedModule.acceptCompilationUnitContext(source.getCompilationUnitContext());
+
     //Need to add this early - even though there may be compiler errors
     //Otherwise several files in same module will not detect duplicate symbols.
     compilableProgramAccess.accept(compilableProgram -> compilableProgram.add(parsedModule));
 
-    final var phaseListener = new DefinitionListener(parsedModule);
     final var walker = new ParseTreeWalker();
-    walker.walk(phaseListener, source.getCompilationUnitContext());
+    walker.walk(new DefinitionListener(parsedModule), source.getCompilationUnitContext());
+
+    //Do not allow use of the EK9 module name-spaces out side of boot-strapping the compiler.
+    if (notBootStrapping
+        && (AggregateFactory.EK9_LANG.equals(parsedModule.getModuleName())
+        || AggregateFactory.EK9_MATH.equals(parsedModule.getModuleName()))) {
+
+      source.getErrorListener().semanticError(new Ek9Token(parsedModule.getModuleName()),
+          "", ErrorListener.SemanticClassification.INVALID_MODULE_NAME);
+
+    }
+
     listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
 
-    //If not boot strapping then do not record types from a module with same name
-    //In fact if the module has this name we must issue an error and not allow EK9 developers to add their code
-    //to this module
+    //If not boot-strapping then do not record types from a module with same name
     if (notBootStrapping) {
-      //TODO emit error is module is name "org.ek9.lang" or "org.ek9.math"
       return;
     }
 

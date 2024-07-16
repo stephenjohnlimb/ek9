@@ -39,8 +39,8 @@
  *   This same philosophy applies in all phases, all files must pass each phase before the compiler moves on.
  *   Importantly the EK9 Compiler attempts to identify issues in code as early as possible in each phase. It does not
  *   attempt to process most of the code to build an 'IR' and then assess the IR. Many of the rules for error detection
- *   are contained within each phase. There is an 'IR' generation phase and error assessment, but EK9 attempts to give
- *   error feedback as soon as it can.
+ *   are contained within each phase. There is an 'IR' generation phase and error assessment, but an EK9 compiler
+ *   attempts to give error feedback as soon as it can.
  * </p>
  * <p>
  *   So you may be thinking 'but where is the state stored'? Basically for phase 0, the

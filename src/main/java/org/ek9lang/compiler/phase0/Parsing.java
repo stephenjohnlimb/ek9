@@ -38,10 +38,12 @@ public final class Parsing
 
   @Override
   public CompilationPhaseResult apply(Workspace workspace, CompilerFlags compilerFlags) {
+
     final var phaseResult = prepare(workspace, compilerFlags);
     if (!phaseResult.phaseSuccess() || phaseResult.phaseMatch()) {
       return phaseResult;
     }
+
     return parseSources(workspace, compilerFlags);
   }
 
@@ -50,9 +52,7 @@ public final class Parsing
     reporter.log(thisPhase);
     final var result = underTakeParsingOperation(workspace, CompilableSource::prepareToParse);
 
-    return new CompilationPhaseResult(thisPhase, result,
-        compilerFlags.getCompileToPhase() == thisPhase);
-
+    return new CompilationPhaseResult(thisPhase, result, compilerFlags.getCompileToPhase() == thisPhase);
   }
 
   private CompilationPhaseResult parseSources(Workspace workspace, CompilerFlags compilerFlags) {
@@ -60,9 +60,7 @@ public final class Parsing
     reporter.log(thisPhase);
     final var result = underTakeParsingOperation(workspace, CompilableSource::completeParsing);
 
-    return new CompilationPhaseResult(thisPhase, result,
-        compilerFlags.getCompileToPhase() == thisPhase);
-
+    return new CompilationPhaseResult(thisPhase, result, compilerFlags.getCompileToPhase() == thisPhase);
   }
 
   private boolean underTakeParsingOperation(Workspace workspace,
@@ -72,9 +70,8 @@ public final class Parsing
         .apply(workspace.getSources())
         .parallelStream()
         .map(operator).toList();
-
     affectedSources.forEach(source -> listener.accept(new CompilationEvent(thisPhase, null, source)));
-    return !sourceHasErrors.test(affectedSources);
 
+    return !sourceHasErrors.test(affectedSources);
   }
 }
