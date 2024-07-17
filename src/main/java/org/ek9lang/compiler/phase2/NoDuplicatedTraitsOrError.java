@@ -11,11 +11,11 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 /**
  * Just checks for duplicated trait names in the list.
  */
-final class CheckNoDuplicatedTraits implements Consumer<AggregateWithTraitsSymbol> {
+final class NoDuplicatedTraitsOrError implements Consumer<AggregateWithTraitsSymbol> {
 
   private final ErrorListener errorListener;
 
-  CheckNoDuplicatedTraits(final ErrorListener errorListener) {
+  NoDuplicatedTraitsOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

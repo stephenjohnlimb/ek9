@@ -25,7 +25,7 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Checks operators from various contexts, typically this is delegated to other functions.
  * Those functions do the detail check. This does not check service operations that are marked as operators.
  */
-final class CheckOperator extends RuleSupport
+final class ValidOperatorOrError extends RuleSupport
     implements BiConsumer<MethodSymbol, EK9Parser.OperatorDeclarationContext> {
 
   private static final String OPERATOR_SEMANTICS = "operator semantics:";
@@ -40,8 +40,8 @@ final class CheckOperator extends RuleSupport
   /**
    * Create a new operation checker.
    */
-  CheckOperator(final SymbolsAndScopes symbolsAndScopes,
-                final ErrorListener errorListener) {
+  ValidOperatorOrError(final SymbolsAndScopes symbolsAndScopes,
+                       final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
     this.operatorChecks = populateOperatorChecks();
@@ -82,56 +82,56 @@ final class CheckOperator extends RuleSupport
 
     final Map<String, Consumer<MethodSymbol>> rtn = new HashMap<>();
     final Map<String, Consumer<MethodSymbol>> logicalOperatorChecks = Map.of(
-        "<", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
-        "<=", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
-        ">", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
-        ">=", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
-        "==", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
-        "<>", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
-        "<=>", addPureCheck(this::testAcceptOneArgumentsReturnInteger),
-        "<~>", addPureCheck(this::testAcceptOneArgumentsReturnInteger),
+        "<", addPureCheck(this::oneArgumentReturnTypeBooleanOrError),
+        "<=", addPureCheck(this::oneArgumentReturnTypeBooleanOrError),
+        ">", addPureCheck(this::oneArgumentReturnTypeBooleanOrError),
+        ">=", addPureCheck(this::oneArgumentReturnTypeBooleanOrError),
+        "==", addPureCheck(this::oneArgumentReturnTypeBooleanOrError),
+        "<>", addPureCheck(this::oneArgumentReturnTypeBooleanOrError),
+        "<=>", addPureCheck(this::oneArgumentReturnTypeIntegerOrError),
+        "<~>", addPureCheck(this::oneArgumentReturnTypeIntegerOrError),
         "!=", addPureCheck(this::emitBadNotEqualsOperator));
 
     final Map<String, Consumer<MethodSymbol>> simpleOperatorChecks = Map.of(
-        "sqrt", addPureCheck(this::testAcceptNoArgumentsReturnAnyType),
-        "!", addPureCheck(this::testAcceptNoArgumentsReturnAnyType),
-        "?", addPureCheck(this::testAcceptNoArgumentsReturnBoolean),
-        "~", addPureCheck(this::testAcceptNoArgumentsReturnConstructType),
-        "-", addPureCheck(this::testMinusOperator),
-        "+", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
-        "*", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
-        "/", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
-        "^", addPureCheck(this::testAcceptOneArgumentsReturnAnyType)
+        "sqrt", addPureCheck(this::noArgumentsReturnAnyTypeOrError),
+        "!", addPureCheck(this::noArgumentsReturnAnyTypeOrError),
+        "?", addPureCheck(this::noArgumentsReturnTypeBooleanOrError),
+        "~", addPureCheck(this::noArgumentsReturnConstructTypeOrError),
+        "-", addPureCheck(this::minusOperatorOrError),
+        "+", addPureCheck(this::oneArgumentReturnAnyTypeOrError),
+        "*", addPureCheck(this::oneArgumentReturnAnyTypeOrError),
+        "/", addPureCheck(this::oneArgumentReturnAnyTypeOrError),
+        "^", addPureCheck(this::oneArgumentReturnAnyTypeOrError)
     );
 
     final Map<String, Consumer<MethodSymbol>> noArgumentWithReturnChecks = Map.of(
-        "#^", addPureCheck(this::testAcceptNoArgumentsReturnAnyTypeOtherThanSelf),
-        "$$", addPureCheck(this::testAcceptNoArgumentsReturnJson),
-        "$", addPureCheck(this::testAcceptNoArgumentsReturnString),
-        "#?", addPureCheck(this::testAcceptNoArgumentsReturnInteger),
-        "#<", addPureCheck(this::testAcceptNoArgumentsReturnAnyType),
-        "#>", addPureCheck(this::testAcceptNoArgumentsReturnAnyType),
+        "#^", addPureCheck(this::noArgumentsReturnAnyTypeOtherThanSelfOrError),
+        "$$", addPureCheck(this::noArgumentsReturnTypeJsonOrError),
+        "$", addPureCheck(this::noArgumentsReturnTypeStringOrError),
+        "#?", addPureCheck(this::noArgumentsReturnTypeIntegerOrError),
+        "#<", addPureCheck(this::noArgumentsReturnAnyTypeOrError),
+        "#>", addPureCheck(this::noArgumentsReturnAnyTypeOrError),
         "not", addPureCheck(this::emitBadNotOperator),
-        "abs", addPureCheck(this::testAcceptNoArgumentsReturnConstructType),
-        "empty", addPureCheck(this::testAcceptNoArgumentsReturnBoolean),
-        "length", addPureCheck(this::testAcceptNoArgumentsReturnInteger)
+        "abs", addPureCheck(this::noArgumentsReturnConstructTypeOrError),
+        "empty", addPureCheck(this::noArgumentsReturnTypeBooleanOrError),
+        "length", addPureCheck(this::noArgumentsReturnTypeIntegerOrError)
     );
 
     final Map<String, Consumer<MethodSymbol>> oneArgumentWithReturnChecks = Map.of(
-        ">>", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
-        "<<", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
-        "and", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
-        "or", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
-        "xor", addPureCheck(this::testAcceptOneArgumentsReturnAnyType),
-        "mod", addPureCheck(this::testAcceptOneArgumentsReturnInteger),
-        "rem", addPureCheck(this::testAcceptOneArgumentsReturnInteger),
-        "contains", addPureCheck(this::testAcceptOneArgumentsReturnBoolean),
-        "matches", addPureCheck(this::testAcceptOneArgumentsReturnBoolean)
+        ">>", addPureCheck(this::oneArgumentReturnAnyTypeOrError),
+        "<<", addPureCheck(this::oneArgumentReturnAnyTypeOrError),
+        "and", addPureCheck(this::oneArgumentReturnAnyTypeOrError),
+        "or", addPureCheck(this::oneArgumentReturnAnyTypeOrError),
+        "xor", addPureCheck(this::oneArgumentReturnAnyTypeOrError),
+        "mod", addPureCheck(this::oneArgumentReturnTypeIntegerOrError),
+        "rem", addPureCheck(this::oneArgumentReturnTypeIntegerOrError),
+        "contains", addPureCheck(this::oneArgumentReturnTypeBooleanOrError),
+        "matches", addPureCheck(this::oneArgumentReturnTypeBooleanOrError)
     );
 
     final Map<String, Consumer<MethodSymbol>> noArgumentNoReturn = Map.of(
-        "open", addPureCheck(this::testAcceptNoArgumentsReturnAnyType),
-        "close", addPureCheck(this::testAcceptNoArgumentsNoReturn)
+        "open", addPureCheck(this::noArgumentsReturnAnyTypeOrError),
+        "close", addPureCheck(this::noArgumentsNoReturnOrError)
     );
 
     rtn.putAll(logicalOperatorChecks);
@@ -142,16 +142,16 @@ final class CheckOperator extends RuleSupport
 
     //Now for each of those operators tag on the is pure check.
     final Map<String, Consumer<MethodSymbol>> mutatorChecks = Map.of(
-        ":~:", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
-        ":^:", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
-        ":=:", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
-        "|", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
-        "+=", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
-        "-=", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
-        "*=", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
-        "/=", addNonPureCheck(this::testAcceptOneArgumentsNoReturn),
-        "++", addNonPureCheck(this::testAcceptNoArgumentsReturnConstructType),
-        "--", addNonPureCheck(this::testAcceptNoArgumentsReturnConstructType)
+        ":~:", addNonPureCheck(this::oneArgumentNoReturnOrError),
+        ":^:", addNonPureCheck(this::oneArgumentNoReturnOrError),
+        ":=:", addNonPureCheck(this::oneArgumentNoReturnOrError),
+        "|", addNonPureCheck(this::oneArgumentNoReturnOrError),
+        "+=", addNonPureCheck(this::oneArgumentNoReturnOrError),
+        "-=", addNonPureCheck(this::oneArgumentNoReturnOrError),
+        "*=", addNonPureCheck(this::oneArgumentNoReturnOrError),
+        "/=", addNonPureCheck(this::oneArgumentNoReturnOrError),
+        "++", addNonPureCheck(this::noArgumentsReturnConstructTypeOrError),
+        "--", addNonPureCheck(this::noArgumentsReturnConstructTypeOrError)
     );
 
     rtn.putAll(mutatorChecks);
@@ -159,123 +159,123 @@ final class CheckOperator extends RuleSupport
     return rtn;
   }
 
-  private void testMinusOperator(final MethodSymbol methodSymbol) {
+  private void minusOperatorOrError(final MethodSymbol methodSymbol) {
 
     if (methodSymbol.getCallParameters().isEmpty()) {
-      testAcceptNoArgumentsReturnConstructType(methodSymbol);
+      noArgumentsReturnConstructTypeOrError(methodSymbol);
     } else {
-      testAcceptOneArgumentsReturnAnyType(methodSymbol);
+      oneArgumentReturnAnyTypeOrError(methodSymbol);
     }
 
   }
 
   private Consumer<MethodSymbol> addPureCheck(final Consumer<MethodSymbol> check) {
 
-    return check.andThen(this::testPure);
+    return check.andThen(this::isPureOrError);
   }
 
   private Consumer<MethodSymbol> addNonPureCheck(final Consumer<MethodSymbol> check) {
 
-    return check.andThen(this::testNotPure);
+    return check.andThen(this::notPureOrError);
   }
 
-  private void testAcceptNoArgumentsReturnAnyTypeOtherThanSelf(final MethodSymbol methodSymbol) {
+  private void noArgumentsReturnAnyTypeOtherThanSelfOrError(final MethodSymbol methodSymbol) {
 
-    testNoArguments(methodSymbol);
-    final var returnType = testAnyReturnType(methodSymbol);
+    noArgumentsOrError(methodSymbol);
+    final var returnType = anyReturnTypeOrError(methodSymbol);
 
     returnType.ifPresent(theType -> {
       if (methodSymbol.getParentScope() instanceof AggregateSymbol parentAggregate) {
         final var errorToken = methodSymbol.getReturningSymbol().getSourceToken();
-        testNotSameType(errorToken, parentAggregate, theType);
+        notSameTypeOrError(errorToken, parentAggregate, theType);
       }
     });
 
   }
 
-  private void testAcceptNoArgumentsReturnAnyType(final MethodSymbol methodSymbol) {
+  private void noArgumentsReturnAnyTypeOrError(final MethodSymbol methodSymbol) {
 
-    testNoArguments(methodSymbol);
-    testAnyReturnType(methodSymbol);
-
-  }
-
-  private void testAcceptNoArgumentsReturnBoolean(final MethodSymbol methodSymbol) {
-
-    testNoArguments(methodSymbol);
-    testReturnIsBoolean(methodSymbol);
+    noArgumentsOrError(methodSymbol);
+    anyReturnTypeOrError(methodSymbol);
 
   }
 
-  private void testAcceptNoArgumentsReturnInteger(final MethodSymbol methodSymbol) {
+  private void noArgumentsReturnTypeBooleanOrError(final MethodSymbol methodSymbol) {
 
-    testNoArguments(methodSymbol);
-    testReturnIsInteger(methodSymbol);
-
-  }
-
-  private void testAcceptNoArgumentsReturnString(final MethodSymbol methodSymbol) {
-
-    testNoArguments(methodSymbol);
-    testReturnType(methodSymbol, "String", ErrorListener.SemanticClassification.MUST_RETURN_STRING);
+    noArgumentsOrError(methodSymbol);
+    returnTypeIsBooleanOrError(methodSymbol);
 
   }
 
-  private void testAcceptNoArgumentsReturnJson(final MethodSymbol methodSymbol) {
+  private void noArgumentsReturnTypeIntegerOrError(final MethodSymbol methodSymbol) {
 
-    testNoArguments(methodSymbol);
-    testReturnType(methodSymbol, "JSON", ErrorListener.SemanticClassification.MUST_RETURN_JSON);
-
-  }
-
-  private void testAcceptOneArgumentsReturnInteger(final MethodSymbol methodSymbol) {
-
-    testSingleArgument(methodSymbol);
-    testReturnIsInteger(methodSymbol);
+    noArgumentsOrError(methodSymbol);
+    returnTypeIsIntegerOrError(methodSymbol);
 
   }
 
-  private void testAcceptOneArgumentsReturnBoolean(final MethodSymbol methodSymbol) {
+  private void noArgumentsReturnTypeStringOrError(final MethodSymbol methodSymbol) {
 
-    testSingleArgument(methodSymbol);
-    testReturnIsBoolean(methodSymbol);
-
-  }
-
-  private void testReturnIsBoolean(final MethodSymbol methodSymbol) {
-
-    testReturnType(methodSymbol, "Boolean", ErrorListener.SemanticClassification.MUST_RETURN_BOOLEAN);
+    noArgumentsOrError(methodSymbol);
+    validReturnTypeOrError(methodSymbol, "String", ErrorListener.SemanticClassification.MUST_RETURN_STRING);
 
   }
 
-  private void testReturnIsInteger(MethodSymbol methodSymbol) {
+  private void noArgumentsReturnTypeJsonOrError(final MethodSymbol methodSymbol) {
 
-    testReturnType(methodSymbol, "Integer", ErrorListener.SemanticClassification.MUST_RETURN_INTEGER);
-
-  }
-
-  private void testAcceptOneArgumentsReturnAnyType(final MethodSymbol methodSymbol) {
-
-    testSingleArgument(methodSymbol);
-    testAnyReturnType(methodSymbol);
+    noArgumentsOrError(methodSymbol);
+    validReturnTypeOrError(methodSymbol, "JSON", ErrorListener.SemanticClassification.MUST_RETURN_JSON);
 
   }
 
-  private void testAcceptOneArgumentsNoReturn(final MethodSymbol methodSymbol) {
+  private void oneArgumentReturnTypeIntegerOrError(final MethodSymbol methodSymbol) {
 
-    testSingleArgument(methodSymbol);
-    testNoReturn(methodSymbol);
-
-  }
-
-  private void testAcceptNoArgumentsNoReturn(final MethodSymbol methodSymbol) {
-
-    testNoArguments(methodSymbol);
-    testNoReturn(methodSymbol);
+    singleArgumentOrError(methodSymbol);
+    returnTypeIsIntegerOrError(methodSymbol);
 
   }
 
-  private void testNotSameType(final IToken token, final ISymbol s1, final ISymbol s2) {
+  private void oneArgumentReturnTypeBooleanOrError(final MethodSymbol methodSymbol) {
+
+    singleArgumentOrError(methodSymbol);
+    returnTypeIsBooleanOrError(methodSymbol);
+
+  }
+
+  private void returnTypeIsBooleanOrError(final MethodSymbol methodSymbol) {
+
+    validReturnTypeOrError(methodSymbol, "Boolean", ErrorListener.SemanticClassification.MUST_RETURN_BOOLEAN);
+
+  }
+
+  private void returnTypeIsIntegerOrError(MethodSymbol methodSymbol) {
+
+    validReturnTypeOrError(methodSymbol, "Integer", ErrorListener.SemanticClassification.MUST_RETURN_INTEGER);
+
+  }
+
+  private void oneArgumentReturnAnyTypeOrError(final MethodSymbol methodSymbol) {
+
+    singleArgumentOrError(methodSymbol);
+    anyReturnTypeOrError(methodSymbol);
+
+  }
+
+  private void oneArgumentNoReturnOrError(final MethodSymbol methodSymbol) {
+
+    singleArgumentOrError(methodSymbol);
+    noReturnOrError(methodSymbol);
+
+  }
+
+  private void noArgumentsNoReturnOrError(final MethodSymbol methodSymbol) {
+
+    noArgumentsOrError(methodSymbol);
+    noReturnOrError(methodSymbol);
+
+  }
+
+  private void notSameTypeOrError(final IToken token, final ISymbol s1, final ISymbol s2) {
 
     if (s1.isExactSameType(s2)) {
       errorListener.semanticError(token, OPERATOR_SEMANTICS,
@@ -284,7 +284,7 @@ final class CheckOperator extends RuleSupport
 
   }
 
-  private void testPure(final MethodSymbol methodSymbol) {
+  private void isPureOrError(final MethodSymbol methodSymbol) {
 
     if (!methodSymbol.isMarkedPure()) {
       errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS,
@@ -293,7 +293,7 @@ final class CheckOperator extends RuleSupport
 
   }
 
-  private void testNotPure(final MethodSymbol methodSymbol) {
+  private void notPureOrError(final MethodSymbol methodSymbol) {
 
     if (methodSymbol.isMarkedPure()) {
       errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS,
@@ -302,11 +302,11 @@ final class CheckOperator extends RuleSupport
 
   }
 
-  private void testAcceptNoArgumentsReturnConstructType(final MethodSymbol methodSymbol) {
+  private void noArgumentsReturnConstructTypeOrError(final MethodSymbol methodSymbol) {
 
-    testNoArguments(methodSymbol);
+    noArgumentsOrError(methodSymbol);
     final var parentScope = methodSymbol.getParentScope();
-    final var returnType = testAnyReturnType(methodSymbol);
+    final var returnType = anyReturnTypeOrError(methodSymbol);
 
     returnType.ifPresent(theType -> {
       if (!theType.isExactSameType((ISymbol) parentScope)) {
@@ -320,7 +320,7 @@ final class CheckOperator extends RuleSupport
 
   }
 
-  private Optional<ISymbol> testAnyReturnType(final MethodSymbol methodSymbol) {
+  private Optional<ISymbol> anyReturnTypeOrError(final MethodSymbol methodSymbol) {
 
     if (!methodSymbol.isReturningSymbolPresent() || isReturningVoidType(methodSymbol)) {
       errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS,
@@ -334,7 +334,7 @@ final class CheckOperator extends RuleSupport
   /**
    * If a returning symbol is present then its type must be Void.
    */
-  private void testNoReturn(final MethodSymbol methodSymbol) {
+  private void noReturnOrError(final MethodSymbol methodSymbol) {
 
     if (methodSymbol.isReturningSymbolPresent() && methodSymbol.getReturningSymbol().getType().isPresent()) {
       methodSymbol.getReturningSymbol().getType().ifPresent(theType -> {
@@ -357,9 +357,9 @@ final class CheckOperator extends RuleSupport
 
   }
 
-  private void testReturnType(final MethodSymbol methodSymbol,
-                              final String expectedType,
-                              final ErrorListener.SemanticClassification errorIfInvalid) {
+  private void validReturnTypeOrError(final MethodSymbol methodSymbol,
+                                      final String expectedType,
+                                      final ErrorListener.SemanticClassification errorIfInvalid) {
 
     var validReturnType = false;
     if (methodSymbol.isReturningSymbolPresent()) {
@@ -376,7 +376,7 @@ final class CheckOperator extends RuleSupport
 
   }
 
-  private void testNoArguments(final MethodSymbol methodSymbol) {
+  private void noArgumentsOrError(final MethodSymbol methodSymbol) {
 
     if (!methodSymbol.getSymbolsForThisScope().isEmpty()) {
       errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS,
@@ -385,7 +385,7 @@ final class CheckOperator extends RuleSupport
 
   }
 
-  private void testSingleArgument(final MethodSymbol methodSymbol) {
+  private void singleArgumentOrError(final MethodSymbol methodSymbol) {
 
     if (methodSymbol.getSymbolsForThisScope().isEmpty()) {
       errorListener.semanticError(methodSymbol.getSourceToken(), OPERATOR_SEMANTICS,

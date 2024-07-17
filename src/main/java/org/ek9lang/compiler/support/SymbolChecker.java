@@ -13,11 +13,11 @@ import org.ek9lang.core.AssertValue;
  */
 public class SymbolChecker {
 
-  private final NameCollisionChecker nameCollisionChecker;
+  private final NoNameCollisionOrError noNameCollisionOrError;
 
   public SymbolChecker(final ErrorListener errorListener) {
 
-    this.nameCollisionChecker = new NameCollisionChecker(errorListener, true);
+    this.noNameCollisionOrError = new NoNameCollisionOrError(errorListener, true);
 
   }
 
@@ -32,8 +32,8 @@ public class SymbolChecker {
     AssertValue.checkNotNull("Scope cannot be null", inScope);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
-    if (!nameCollisionChecker.test(inScope, symbol)) {
-      return nameCollisionChecker.errorsIfResolved(inScope, symbol,
+    if (!noNameCollisionOrError.test(inScope, symbol)) {
+      return noNameCollisionOrError.errorsIfResolved(inScope, symbol,
           new SymbolSearch(symbol.getName()).setLimitToBlocks(limitVarSearchToBlockScope),
           ErrorListener.SemanticClassification.DUPLICATE_VARIABLE);
     }

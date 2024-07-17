@@ -45,26 +45,24 @@ public final class TypeHierarchyChecks extends CompilerPhase {
   @Override
   public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
 
-    checkHierarchies();
+    compilableProgramAccess.accept(this::checkHierarchies);
 
     return !sourceHasErrors.test(workspace.getSources());
   }
 
-  private void checkHierarchies() {
+  private void checkHierarchies(final CompilableProgram program) {
 
-    compilableProgramAccess.accept(program -> {
-      //Memoization, only check if not already checked (else On2 or worse).
-      final HashMap<String, ISymbol> processedSymbols = new HashMap<>();
+    //Memoization, only check if not already checked (else On2 or worse).
+    final HashMap<String, ISymbol> processedSymbols = new HashMap<>();
 
-      for (var moduleName : program.getParsedModuleNames()) {
-        final var parsedModules = program.getParsedModules(moduleName);
+    for (var moduleName : program.getParsedModuleNames()) {
+      final var parsedModules = program.getParsedModules(moduleName);
 
-        for (var parsedModule : parsedModules) {
-          checkParsedModule(parsedModule, processedSymbols);
-          listener.accept(new CompilationEvent(thisPhase, parsedModule, parsedModule.getSource()));
-        }
+      for (var parsedModule : parsedModules) {
+        checkParsedModule(parsedModule, processedSymbols);
+        listener.accept(new CompilationEvent(thisPhase, parsedModule, parsedModule.getSource()));
       }
-    });
+    }
 
   }
 
@@ -72,12 +70,12 @@ public final class TypeHierarchyChecks extends CompilerPhase {
                                  final HashMap<String, ISymbol> processedSymbols) {
 
     final var errorListener = parsedModule.getSource().getErrorListener();
-    final var checkNoDuplicatedTraits = new CheckNoDuplicatedTraits(errorListener);
+    final var noDuplicatedTraitsOrError = new NoDuplicatedTraitsOrError(errorListener);
     final var scope = parsedModule.getModuleScope();
 
     for (var symbol : scope.getSymbolsForThisScope()) {
       checkForLoops(errorListener, processedSymbols, symbol);
-      checkForDuplicateTraits(checkNoDuplicatedTraits, symbol);
+      checkForDuplicateTraits(noDuplicatedTraitsOrError, symbol);
     }
 
   }
@@ -91,7 +89,7 @@ public final class TypeHierarchyChecks extends CompilerPhase {
 
   }
 
-  private void checkForDuplicateTraits(final CheckNoDuplicatedTraits checker, final ISymbol symbol) {
+  private void checkForDuplicateTraits(final NoDuplicatedTraitsOrError checker, final ISymbol symbol) {
 
     if (symbol instanceof AggregateWithTraitsSymbol aggregate) {
       checker.accept(aggregate);
@@ -115,8 +113,9 @@ public final class TypeHierarchyChecks extends CompilerPhase {
     }
 
     //Ok, so not encountered within this hierarchy, but has it already been processed?
+    //Need to stop the recursion.
     if (processedSymbols.containsKey(fullyQualifiedName)) {
-      return; //already checked so stop now
+      return; //already checked so stop further recursion now
     }
 
     //So marked that we've seen this symbol in general terms and

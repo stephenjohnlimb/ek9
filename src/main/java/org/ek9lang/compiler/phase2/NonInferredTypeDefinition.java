@@ -29,7 +29,7 @@ import org.ek9lang.core.SharedThreadContext;
  * </p>
  * <p>
  * So this phase is designed to complete a second pass - but this time as all explicit types should be known
- * (non-inferred use only). The resolver will be configured to emit errors when explicit polymorphic parameterization
+ * (non-inferred use only). The resolver is configured to emit errors when explicit polymorphic parameterization
  * fails.
  * </p>
  * <p>
@@ -80,9 +80,7 @@ public final class NonInferredTypeDefinition extends CompilerPhase {
 
   private void defineSymbolsMultiThreaded(final Workspace workspace) {
 
-    workspace.getSources()
-        .parallelStream()
-        .forEach(this::resolveOrDefineTypeSymbols);
+    workspace.getSources().parallelStream().forEach(this::resolveOrDefineTypeSymbols);
 
   }
 
@@ -97,20 +95,22 @@ public final class NonInferredTypeDefinition extends CompilerPhase {
    */
   private void resolveOrDefineTypeSymbols(final CompilableSource source) {
 
-    //First get the parsed module for this source file.
-    //This has to be done via a mutable holder through a reentrant lock to the program
-    final var holder = new AtomicReference<ParsedModule>();
-    //Only hold the lock for the minimal time.
-    compilableProgramAccess.accept(
-        program -> holder.set(program.getParsedModuleForCompilableSource(source)));
-
-    final var parsedModule = holder.get();
+    final var parsedModule = getParsedModuleForSource(source);
     if (parsedModule != null) {
-      final var phaseListener = new ResolveDefineExplicitTypeListener(parsedModule);
       final var walker = new ParseTreeWalker();
-      walker.walk(phaseListener, source.getCompilationUnitContext());
+      walker.walk(new ResolveDefineExplicitTypeListener(parsedModule), source.getCompilationUnitContext());
       listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
     }
 
+  }
+
+  private ParsedModule getParsedModuleForSource(final CompilableSource source) {
+
+    //Thread safe access to the parsedModule.
+    final var holder = new AtomicReference<ParsedModule>();
+    compilableProgramAccess.accept(
+        program -> holder.set(program.getParsedModuleForCompilableSource(source)));
+
+    return holder.get();
   }
 }

@@ -19,7 +19,7 @@ import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
  */
 final class CheckSuitableToExtend extends RuleSupport implements Function<ParserRuleContext, Optional<ISymbol>> {
 
-  private final CheckSuitableGenus checkSuitableGenus;
+  private final SuitableGenusOrError suitableGenusOrError;
 
   /**
    * Checks that the typedef/identifierReference passed in (when resolved) is suitable to be extended from.
@@ -43,15 +43,15 @@ final class CheckSuitableToExtend extends RuleSupport implements Function<Parser
                                final boolean issueErrorIfNotResolved) {
 
     super(symbolsAndScopes, errorListener);
-    this.checkSuitableGenus =
-        new CheckSuitableGenus(symbolsAndScopes, errorListener, genus, true, issueErrorIfNotResolved);
+    this.suitableGenusOrError =
+        new SuitableGenusOrError(symbolsAndScopes, errorListener, genus, true, issueErrorIfNotResolved);
 
   }
 
   @Override
   public Optional<ISymbol> apply(final ParserRuleContext ctx) {
 
-    final var rtn = checkSuitableGenus.apply(ctx);
+    final var rtn = suitableGenusOrError.apply(ctx);
     if (rtn.isPresent() && checkIfValidSuper(ctx, rtn.get())) {
       return rtn;
     }

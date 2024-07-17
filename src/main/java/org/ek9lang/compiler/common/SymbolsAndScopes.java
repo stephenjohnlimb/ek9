@@ -146,6 +146,19 @@ public class SymbolsAndScopes {
   }
 
   /**
+   * Ensure that the correct scope is pushed on to the stack.
+   * This method takes a context, retrieves the scope, checks for null and then pushes it.
+   *
+   * @param ctx The contact that must have a scope recorded.
+   */
+  public IScope enterScope(final ParseTree ctx) {
+    final var scope = getRecordedScope(ctx);
+    AssertValue.checkNotNull("Scope should have been defined", scope);
+    enterScope(scope);
+    return scope;
+  }
+
+  /**
    * To be used to ensure that a scope has been pushed on to the scopeStack.
    */
   public void enterScope(final IScope scope) {

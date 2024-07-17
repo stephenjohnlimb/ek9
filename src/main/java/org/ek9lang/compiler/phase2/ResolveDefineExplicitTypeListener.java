@@ -11,7 +11,7 @@ import org.ek9lang.compiler.support.AccessGenericInGeneric;
 import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.support.CheckForDuplicateOperations;
 import org.ek9lang.compiler.support.MostSpecificScope;
-import org.ek9lang.compiler.support.NameCollisionChecker;
+import org.ek9lang.compiler.support.NoNameCollisionOrError;
 import org.ek9lang.compiler.support.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.support.ResolveOrDefineIdentifierReference;
 import org.ek9lang.compiler.support.ResolveOrDefineTypeDef;
@@ -64,13 +64,13 @@ import org.ek9lang.core.AssertValue;
  * See exitVariableDeclaration and how this uses a consumer to check this and either resolve types or raise errors.
  * </p>
  */
-public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
+final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final SymbolsAndScopes symbolsAndScopes;
   private final ResolveOrDefineIdentifierReference resolveOrDefineIdentifierReference;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
   private final SynthesizeSuperFunction synthesizeSuperFunction;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
-  private final CheckOperator checkOperator;
+  private final ValidOperatorOrError validOperatorOrError;
   private final SetupGenericT setupGenericT;
   private final CheckServiceOperation checkServiceOperation;
   private final CheckDuplicatedServicePaths checkDuplicatedServicePaths;
@@ -82,13 +82,13 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final CheckSuitableToExtend checkClassTraitSuitableToExtend;
   private final CheckSuitableToExtend checkClassSuitableToExtend;
   private final CheckSuitableToExtend checkComponentSuitableToExtend;
-  private final CheckSuitableGenus checkRegisterGenusValid;
-  private final CheckSuitableGenus checkAllowedClassSuitableGenus;
-  private final CheckSuitableGenus checkApplicationForProgram;
+  private final SuitableGenusOrError registerGenusOrError;
+  private final SuitableGenusOrError allowedClassGenusOrError;
+  private final SuitableGenusOrError applicationForProgramOrError;
   private final SyntheticConstructorCreator syntheticConstructorCreator;
   private final CheckAndPopulateConstrainedType checkAndPopulateConstrainedType;
   private final MostSpecificScope mostSpecificScope;
-  private final NameCollisionChecker nameCollisionChecker;
+  private final NoNameCollisionOrError noNameCollisionOrError;
   private final AccessGenericInGeneric accessGenericInGeneric;
   private final AggregateFactory aggregateFactory;
   private final Ek9Types ek9Types;
@@ -98,35 +98,30 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   /**
    * Still defining some stuff here, but also resolving where possible.
    * This second pass to try and resolve types due to declaration ordering.
+   * TODO refactor some of the methods out to separate functions.
    */
   ResolveDefineExplicitTypeListener(final ParsedModule parsedModule) {
 
     //At construction the ScopeStack will push the module scope on to the stack.
-    this.symbolsAndScopes = new SymbolsAndScopes(parsedModule,
-        new ScopeStack(parsedModule.getModuleScope()));
+    this.symbolsAndScopes = new SymbolsAndScopes(parsedModule, new ScopeStack(parsedModule.getModuleScope()));
     this.ek9Types = parsedModule.getEk9Types();
     this.aggregateFactory = new AggregateFactory(ek9Types);
     this.syntheticConstructorCreator = new SyntheticConstructorCreator(aggregateFactory);
 
-    final var errorListener =
-        parsedModule.getSource().getErrorListener();
-    final SymbolFactory symbolFactory =
-        new SymbolFactory(parsedModule);
+    final var errorListener = parsedModule.getSource().getErrorListener();
+    final SymbolFactory symbolFactory = new SymbolFactory(parsedModule);
 
-    this.checkForDuplicateOperations =
-        new CheckForDuplicateOperations(errorListener);
-    this.checkVisibilityOfOperations =
-        new CheckVisibilityOfOperations(symbolsAndScopes, errorListener);
-    this.checkNotGenericTypeParameter =
-        new CheckNotGenericTypeParameter(errorListener);
+    this.checkForDuplicateOperations = new CheckForDuplicateOperations(errorListener);
+    this.checkVisibilityOfOperations = new CheckVisibilityOfOperations(symbolsAndScopes, errorListener);
+    this.checkNotGenericTypeParameter = new CheckNotGenericTypeParameter(errorListener);
     this.resolveOrDefineIdentifierReference =
         new ResolveOrDefineIdentifierReference(symbolsAndScopes, symbolFactory, errorListener, false);
     this.resolveOrDefineTypeDef =
         new ResolveOrDefineTypeDef(symbolsAndScopes, symbolFactory, errorListener, true);
     this.synthesizeSuperFunction =
         new SynthesizeSuperFunction(symbolsAndScopes, symbolFactory, errorListener);
-    this.checkOperator =
-        new CheckOperator(symbolsAndScopes, errorListener);
+    this.validOperatorOrError =
+        new ValidOperatorOrError(symbolsAndScopes, errorListener);
     this.setupGenericT =
         new SetupGenericT(symbolsAndScopes, aggregateFactory, errorListener);
     this.checkServiceOperation =
@@ -146,12 +141,12 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         new CheckSuitableToExtend(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.CLASS, true);
     this.checkComponentSuitableToExtend =
         new CheckSuitableToExtend(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.COMPONENT, true);
-    this.checkRegisterGenusValid =
-        new CheckSuitableGenus(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.COMPONENT, false, true);
-    this.checkAllowedClassSuitableGenus =
-        new CheckSuitableGenus(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.CLASS, false, true);
-    this.checkApplicationForProgram =
-        new CheckSuitableGenus(symbolsAndScopes, errorListener,
+    this.registerGenusOrError =
+        new SuitableGenusOrError(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.COMPONENT, false, true);
+    this.allowedClassGenusOrError =
+        new SuitableGenusOrError(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.CLASS, false, true);
+    this.applicationForProgramOrError =
+        new SuitableGenusOrError(symbolsAndScopes, errorListener,
             List.of(ISymbol.SymbolGenus.GENERAL_APPLICATION, ISymbol.SymbolGenus.SERVICE_APPLICATION), false, true);
     this.checkAndPopulateConstrainedType =
         new CheckAndPopulateConstrainedType(symbolsAndScopes, aggregateFactory, errorListener);
@@ -159,8 +154,8 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         new AccessGenericInGeneric(symbolsAndScopes);
     this.mostSpecificScope =
         new MostSpecificScope(symbolsAndScopes);
-    this.nameCollisionChecker =
-        new NameCollisionChecker(errorListener, false);
+    this.noNameCollisionOrError =
+        new NoNameCollisionOrError(errorListener, false);
     this.processContextVariableDeclaration =
         new ProcessContextVariableDeclaration(symbolsAndScopes, symbolFactory, errorListener);
 
@@ -196,11 +191,9 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   @Override
   public void enterFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
 
-    final var scope = symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Function should have been defined", scope);
-    symbolsAndScopes.enterScope(scope);
-
+    symbolsAndScopes.enterScope(ctx);
     super.enterFunctionDeclaration(ctx);
+
   }
 
   @Override
@@ -224,11 +217,9 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   @Override
   public void enterRecordDeclaration(final EK9Parser.RecordDeclarationContext ctx) {
 
-    final var scope = symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Record should have been defined as scope", scope);
-    symbolsAndScopes.enterScope(scope);
-
+    symbolsAndScopes.enterScope(ctx);
     super.enterRecordDeclaration(ctx);
+
   }
 
   @Override
@@ -245,11 +236,9 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   @Override
   public void enterTraitDeclaration(final EK9Parser.TraitDeclarationContext ctx) {
 
-    final var scope = symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Trait should have been defined", scope);
-    symbolsAndScopes.enterScope(scope);
-
+    symbolsAndScopes.enterScope(ctx);
     super.enterTraitDeclaration(ctx);
+
   }
 
   @Override
@@ -269,7 +258,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
     if (ctx.allowingOnly() != null) {
       ctx.allowingOnly().identifierReference().forEach(classRef -> {
-        final var resolved = checkAllowedClassSuitableGenus.apply(classRef);
+        final var resolved = allowedClassGenusOrError.apply(classRef);
         resolved.ifPresent(theClass -> symbol.addAllowedExtender((IAggregateSymbol) theClass));
       });
     }
@@ -282,11 +271,9 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   @Override
   public void enterClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
 
-    final var scope = symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Class should have been defined", scope);
-    symbolsAndScopes.enterScope(scope);
-
+    symbolsAndScopes.enterScope(ctx);
     super.enterClassDeclaration(ctx);
+
   }
 
   @Override
@@ -311,11 +298,9 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   @Override
   public void enterComponentDeclaration(final EK9Parser.ComponentDeclarationContext ctx) {
 
-    final var scope = symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Component should have been defined", scope);
-    symbolsAndScopes.enterScope(scope);
-
+    symbolsAndScopes.enterScope(ctx);
     super.enterComponentDeclaration(ctx);
+
   }
 
   @Override
@@ -333,47 +318,41 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   @Override
   public void enterTextDeclaration(final EK9Parser.TextDeclarationContext ctx) {
 
-    final var scope = symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Text should have been defined", scope);
-    symbolsAndScopes.enterScope(scope);
-
+    symbolsAndScopes.enterScope(ctx);
     super.enterTextDeclaration(ctx);
+
   }
 
   @Override
   public void exitTextDeclaration(final EK9Parser.TextDeclarationContext ctx) {
 
     symbolsAndScopes.exitScope();
-
     super.exitTextDeclaration(ctx);
+
   }
 
   @Override
   public void enterTextBodyDeclaration(final EK9Parser.TextBodyDeclarationContext ctx) {
 
-    final var scope = symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Text Body should have been defined", scope);
-    symbolsAndScopes.enterScope(scope);
-
+    symbolsAndScopes.enterScope(ctx);
     super.enterTextBodyDeclaration(ctx);
+
   }
 
   @Override
   public void exitTextBodyDeclaration(final EK9Parser.TextBodyDeclarationContext ctx) {
 
     symbolsAndScopes.exitScope();
-
     super.exitTextBodyDeclaration(ctx);
+
   }
 
   @Override
   public void enterServiceDeclaration(final EK9Parser.ServiceDeclarationContext ctx) {
 
-    final var scope = symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Service should have been defined", scope);
-    symbolsAndScopes.enterScope(scope);
-
+    symbolsAndScopes.enterScope(ctx);
     super.enterServiceDeclaration(ctx);
+
   }
 
   @Override
@@ -393,51 +372,45 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   @Override
   public void enterServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
 
-    final var scope = symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Service Operation should have been defined", scope);
-    symbolsAndScopes.enterScope(scope);
-
+    symbolsAndScopes.enterScope(ctx);
     super.enterServiceOperationDeclaration(ctx);
+
   }
 
   @Override
   public void exitServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
 
-    final var currentScope = symbolsAndScopes.getRecordedScope(ctx);
-    if (currentScope instanceof ServiceOperationSymbol serviceOperation) {
+    if (symbolsAndScopes.getRecordedScope(ctx) instanceof ServiceOperationSymbol serviceOperation) {
       checkServiceOperation.accept(serviceOperation, ctx);
     }
     symbolsAndScopes.exitScope();
 
     super.exitServiceOperationDeclaration(ctx);
+
   }
 
   @Override
   public void enterApplicationDeclaration(final EK9Parser.ApplicationDeclarationContext ctx) {
 
-    final var scope = symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Application should have been defined", scope);
-    symbolsAndScopes.enterScope(scope);
-
+    symbolsAndScopes.enterScope(ctx);
     super.enterApplicationDeclaration(ctx);
+
   }
 
   @Override
   public void exitApplicationDeclaration(final EK9Parser.ApplicationDeclarationContext ctx) {
 
     symbolsAndScopes.exitScope();
-
     super.exitApplicationDeclaration(ctx);
+
   }
 
   @Override
   public void enterDynamicClassDeclaration(final EK9Parser.DynamicClassDeclarationContext ctx) {
 
-    final var scope = symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Dynamic Class should have been defined", scope);
-    symbolsAndScopes.enterScope(scope);
-
+    symbolsAndScopes.enterScope(ctx);
     super.enterDynamicClassDeclaration(ctx);
+
   }
 
   /**
@@ -474,11 +447,9 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   @Override
   public void enterDynamicFunctionDeclaration(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
 
-    final var scope = symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Dynamic Function should have been defined", scope);
-    symbolsAndScopes.enterScope(scope);
-
+    symbolsAndScopes.enterScope(ctx);
     super.enterDynamicFunctionDeclaration(ctx);
+
   }
 
   /**
@@ -500,19 +471,17 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     }
 
     symbolsAndScopes.exitScope();
-
     super.exitDynamicFunctionDeclaration(ctx);
+
   }
 
   @Override
   public void enterDynamicVariableCapture(final EK9Parser.DynamicVariableCaptureContext ctx) {
 
-    final CaptureScope scope = (CaptureScope) symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Dynamic Variable Capture should have been defined", scope);
+    final CaptureScope scope = (CaptureScope) symbolsAndScopes.enterScope(ctx);
     scope.setOpenToEnclosingScope(true);
-    symbolsAndScopes.enterScope(scope);
-
     super.enterDynamicVariableCapture(ctx);
+
   }
 
   @Override
@@ -521,59 +490,53 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     final CaptureScope scope = (CaptureScope) symbolsAndScopes.getRecordedScope(ctx);
     scope.setOpenToEnclosingScope(false);
     symbolsAndScopes.exitScope();
-
     super.exitDynamicVariableCapture(ctx);
+
   }
 
   @Override
   public void enterMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
 
-    final var scope = symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Method should have been defined", scope);
-    symbolsAndScopes.enterScope(scope);
+    symbolsAndScopes.enterScope(ctx);
     final var symbol = symbolsAndScopes.getRecordedSymbol(ctx);
 
     //This can be other types i.e. aggregate in case of Programs for example.
     if (symbol instanceof MethodSymbol methodSymbol && !methodSymbol.isConstructor()) {
       //Now this was not called in the first phase, and we only call it for non-constructors
       //(because they must have same name as a type)
-      nameCollisionChecker.test(mostSpecificScope.get(), methodSymbol);
+      noNameCollisionOrError.test(mostSpecificScope.get(), methodSymbol);
     }
-
     super.enterMethodDeclaration(ctx);
+
   }
 
   @Override
   public void exitMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
 
     if (ctx.identifierReference() != null) {
-      checkApplicationForProgram.apply(ctx.identifierReference());
+      applicationForProgramOrError.apply(ctx.identifierReference());
     }
 
     symbolsAndScopes.exitScope();
-
     super.exitMethodDeclaration(ctx);
+
   }
 
   @Override
   public void enterOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
 
-    final var scope = symbolsAndScopes.getRecordedScope(ctx);
-    AssertValue.checkNotNull("Operator should have been defined", scope);
-    symbolsAndScopes.enterScope(scope);
-
+    symbolsAndScopes.enterScope(ctx);
     super.enterOperatorDeclaration(ctx);
+
   }
 
   @Override
   public void exitOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
 
-    final var currentScope = symbolsAndScopes.getTopScope();
-
     //Can be null if during definition 'enter' it was a duplicate operator
-    if (currentScope instanceof MethodSymbol method) {
+    if (symbolsAndScopes.getTopScope() instanceof MethodSymbol method) {
       //Yes this is correct an operator is just a method but marked as an operator.
-      checkOperator.accept(method, ctx);
+      validOperatorOrError.accept(method, ctx);
     }
 
     symbolsAndScopes.exitScope();
@@ -616,7 +579,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     }
 
     //While there is a check in phase one, this causes an ordering issue. So we run this in this phase.
-    nameCollisionChecker.test(mostSpecificScope.get(), variableSymbol);
+    noNameCollisionOrError.test(mostSpecificScope.get(), variableSymbol);
 
     super.exitVariableOnlyDeclaration(ctx);
   }
@@ -638,7 +601,7 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     }
 
     //While there is a check in phase one, this causes an ordering issue. So we run this in this phase.
-    nameCollisionChecker.test(mostSpecificScope.get(), variableSymbol);
+    noNameCollisionOrError.test(mostSpecificScope.get(), variableSymbol);
 
     super.exitVariableDeclaration(ctx);
   }
@@ -649,12 +612,13 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     //If there are any services registered then the application genus is modified from
     //being a GENERAL_APPLICATION to a SERVICE_APPLICATION.
     if (ctx.identifierReference() != null) {
-      //Then it's component registration
-      checkRegisterGenusValid.apply(ctx.identifierReference());
+      //Then it's component registration; so check it.
+      registerGenusOrError.apply(ctx.identifierReference());
     }
 
     //Else it is probably a service which is dealt with in the next phase.
     super.exitRegisterStatement(ctx);
+
   }
 
   /**
@@ -666,17 +630,17 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   public void exitParameterisedDetail(final EK9Parser.ParameterisedDetailContext ctx) {
 
     setupGenericT.accept(ctx);
-
     super.exitParameterisedDetail(ctx);
+
   }
 
   @Override
   public void exitTypeDef(final EK9Parser.TypeDefContext ctx) {
 
-    final var genericSymbols = accessGenericInGeneric.apply(symbolsAndScopes.getRecordedSymbol(ctx));
-    genericSymbols.ifPresent(genericData -> genericData.parent().addGenericSymbolReference(genericData.dependent()));
-
+    accessGenericInGeneric.apply(symbolsAndScopes.getRecordedSymbol(ctx))
+        .ifPresent(genericData -> genericData.parent().addGenericSymbolReference(genericData.dependent()));
     super.exitTypeDef(ctx);
+
   }
 
   /*
@@ -691,42 +655,39 @@ public final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   public void enterIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
 
     //Now this is a bit different as we need to resolve in the current scope.
-    final var resolved = resolveOrDefineIdentifierReference.apply(ctx);
-    resolved.ifPresent(symbol -> symbolsAndScopes.recordSymbol(symbol, ctx));
-
+    resolveOrDefineIdentifierReference.apply(ctx).ifPresent(symbol -> symbolsAndScopes.recordSymbol(symbol, ctx));
     super.enterIdentifierReference(ctx);
+
   }
 
   @Override
   public void enterTypeDef(final EK9Parser.TypeDefContext ctx) {
 
-    final var resolved = resolveOrDefineTypeDef.apply(ctx);
-    resolved.ifPresent(symbol -> symbolsAndScopes.recordSymbol(symbol, ctx));
-
+    resolveOrDefineTypeDef.apply(ctx).ifPresent(symbol -> symbolsAndScopes.recordSymbol(symbol, ctx));
     super.enterTypeDef(ctx);
+
   }
 
   @Override
   public void enterParameterisedType(final EK9Parser.ParameterisedTypeContext ctx) {
 
-    final var resolved = resolveOrDefineExplicitParameterizedType.apply(ctx);
-    resolved.ifPresent(symbol -> symbolsAndScopes.recordSymbol(symbol, ctx));
-
+    resolveOrDefineExplicitParameterizedType.apply(ctx).ifPresent(symbol -> symbolsAndScopes.recordSymbol(symbol, ctx));
     super.enterParameterisedType(ctx);
+
   }
 
   private void processExtendableConstruct(final IToken token, final AggregateSymbol symbol,
                                           final EK9Parser.ExtendDeclarationContext extendDeclaration,
                                           final CheckSuitableToExtend extendChecker) {
 
-    syntheticConstructorCreator.accept(symbol);
-    checkVisibilityOfOperations.accept(symbol);
+    syntheticConstructorCreator.andThen(checkVisibilityOfOperations).accept(symbol);
     checkForDuplicateOperations.accept(token, symbol);
 
     if (extendDeclaration != null) {
-      final var resolved = extendChecker.apply(extendDeclaration.typeDef());
-      resolved.ifPresent(theSuper -> symbol.setSuperAggregate((IAggregateSymbol) theSuper));
+      extendChecker.apply(extendDeclaration.typeDef())
+          .ifPresent(theSuper -> symbol.setSuperAggregate((IAggregateSymbol) theSuper));
     }
+
   }
 
 }

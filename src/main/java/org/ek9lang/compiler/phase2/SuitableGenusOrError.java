@@ -14,7 +14,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
 /**
  * Checks for a type is resolved and is suitable genus and category.
  */
-final class CheckSuitableGenus extends RuleSupport implements Function<ParserRuleContext, Optional<ISymbol>> {
+final class SuitableGenusOrError extends RuleSupport implements Function<ParserRuleContext, Optional<ISymbol>> {
 
   private final List<ISymbol.SymbolGenus> supportedGenus = new ArrayList<>();
 
@@ -25,11 +25,11 @@ final class CheckSuitableGenus extends RuleSupport implements Function<ParserRul
   /**
    * Checks that the typedef/identifierReference passed in (when resolved) is suitable genus.
    */
-  CheckSuitableGenus(final SymbolsAndScopes symbolsAndScopes,
-                     final ErrorListener errorListener,
-                     final ISymbol.SymbolGenus genus,
-                     final boolean allowTemplates,
-                     final boolean issueErrorIfNotResolved) {
+  SuitableGenusOrError(final SymbolsAndScopes symbolsAndScopes,
+                       final ErrorListener errorListener,
+                       final ISymbol.SymbolGenus genus,
+                       final boolean allowTemplates,
+                       final boolean issueErrorIfNotResolved) {
 
     this(symbolsAndScopes, errorListener, List.of(genus), allowTemplates, issueErrorIfNotResolved);
 
@@ -39,11 +39,11 @@ final class CheckSuitableGenus extends RuleSupport implements Function<ParserRul
    * Checks that the typedef/identifierReference passed in (when resolved) is suitable genus.
    * Accepts multiple allowed genus. i.e. FUNCTION and FUNCTION_TRAIT.
    */
-  public CheckSuitableGenus(final SymbolsAndScopes symbolsAndScopes,
-                            final ErrorListener errorListener,
-                            final List<ISymbol.SymbolGenus> genus,
-                            final boolean allowTemplates,
-                            final boolean issueErrorIfNotResolved) {
+  public SuitableGenusOrError(final SymbolsAndScopes symbolsAndScopes,
+                              final ErrorListener errorListener,
+                              final List<ISymbol.SymbolGenus> genus,
+                              final boolean allowTemplates,
+                              final boolean issueErrorIfNotResolved) {
 
     super(symbolsAndScopes, errorListener);
     this.supportedGenus.addAll(genus);
