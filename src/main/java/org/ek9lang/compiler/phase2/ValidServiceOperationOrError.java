@@ -21,21 +21,21 @@ import org.ek9lang.core.AssertValue;
  * Check that a service operation complies with ek9 rules or return types etc.
  * Also incoming parameters are limited and therefore checked in here.
  */
-final class CheckServiceOperation extends RuleSupport
+final class ValidServiceOperationOrError extends RuleSupport
     implements BiConsumer<ServiceOperationSymbol, EK9Parser.ServiceOperationDeclarationContext> {
 
   private final ProcessingBodyPresent processingBodyPresent = new ProcessingBodyPresent();
-  private final CheckPathParameter checkPathParameter;
-  private final CheckHttpAccess checkHttpAccess;
+  private final ValidPathParameterOrError validPathParameterOrError;
+  private final HttpAccessOrError httpAccessOrError;
 
   /**
    * Create a new Check Service Operation function.
    */
-  CheckServiceOperation(final SymbolsAndScopes symbolsAndScopes,
-                        final ErrorListener errorListener) {
+  ValidServiceOperationOrError(final SymbolsAndScopes symbolsAndScopes,
+                               final ErrorListener errorListener) {
     super(symbolsAndScopes, errorListener);
-    this.checkPathParameter = new CheckPathParameter(symbolsAndScopes, errorListener);
-    this.checkHttpAccess = new CheckHttpAccess(symbolsAndScopes, errorListener);
+    this.validPathParameterOrError = new ValidPathParameterOrError(symbolsAndScopes, errorListener);
+    this.httpAccessOrError = new HttpAccessOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -60,12 +60,12 @@ final class CheckServiceOperation extends RuleSupport
     for (var param : operation.getCallParameters()) {
       defaultPathParameterIfNecessary(param);
 
-      if (checkPathParameter.test(operation, param)) {
+      if (validPathParameterOrError.test(operation, param)) {
         actualNumberOfPathParameters++;
       }
 
       checkServiceOperationType(operation, param);
-      checkHttpAccess.accept(param);
+      httpAccessOrError.accept(param);
     }
     testPathParameterCount(operation, expectedNumberPathParameters, actualNumberOfPathParameters);
 

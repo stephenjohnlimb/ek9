@@ -27,8 +27,8 @@ import org.ek9lang.core.CompilerException;
  * This is a factory of sorts, not in the pure OO sense; but still a factory.
  */
 public class AggregateFactory {
-  private static final String PUBLIC = "public";
-  private static final String PARAM = "param";
+  public static final String PUBLIC = "public";
+  public static final String PARAM = "param";
   public static final String EK9_LANG = "org.ek9.lang";
   public static final String EK9_MATH = "org.ek9.math";
   public static final String EK9_PATH = EK9_LANG + "::Path";

@@ -16,9 +16,9 @@ import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
  * Checks the PATH value (if this is a path parameter) and ensures that the name appears in the path itself
  * on the operation.
  */
-final class CheckPathParameter extends RuleSupport implements BiPredicate<ServiceOperationSymbol, ISymbol> {
-  CheckPathParameter(final SymbolsAndScopes symbolsAndScopes,
-                     final ErrorListener errorListener) {
+final class ValidPathParameterOrError extends RuleSupport implements BiPredicate<ServiceOperationSymbol, ISymbol> {
+  ValidPathParameterOrError(final SymbolsAndScopes symbolsAndScopes,
+                            final ErrorListener errorListener) {
     super(symbolsAndScopes, errorListener);
   }
 

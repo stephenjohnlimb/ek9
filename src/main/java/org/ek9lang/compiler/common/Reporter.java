@@ -8,7 +8,7 @@ import org.ek9lang.core.Logger;
  */
 public abstract class Reporter {
   private final boolean verbose;
-  private final boolean muteReportedErrors;
+  private boolean muteReportedErrors;
 
   /**
    * While it may seem strange to want to even be able to mute reported errors,
@@ -60,4 +60,11 @@ public abstract class Reporter {
 
     return muteReportedErrors;
   }
+
+  public void setMuteReportedErrors(boolean muteReportedErrors) {
+
+    this.muteReportedErrors = muteReportedErrors;
+
+  }
+
 }

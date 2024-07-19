@@ -20,7 +20,7 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Note that it must also ensure that any constructors on the Constraining type if pure are also marked pure.
  * Once one constructor is pure all constructors must be pure.
  */
-class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<AggregateSymbol, ISymbol> {
+class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<AggregateSymbol, ISymbol> {
   final AggregateFactory aggregateFactory;
 
   final List<String> methodNamesToAlsoRetrainOldSignature =
@@ -41,9 +41,9 @@ class CheckAndPopulateConstrainedType extends RuleSupport implements BiConsumer<
 
   final AggregateHasPureConstruction aggregateHasPureConstruction = new AggregateHasPureConstruction();
 
-  CheckAndPopulateConstrainedType(final SymbolsAndScopes symbolsAndScopes,
-                                  final AggregateFactory aggregateFactory,
-                                  final ErrorListener errorListener) {
+  PopulateConstrainedTypeOrError(final SymbolsAndScopes symbolsAndScopes,
+                                 final AggregateFactory aggregateFactory,
+                                 final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
     this.aggregateFactory = aggregateFactory;

@@ -31,11 +31,11 @@ import org.ek9lang.core.CompilerException;
  *   longhand as Integer: 1
  * </pre>
  */
-final class ProcessContextVariableDeclaration extends RuleSupport
+final class ProcessVariableDeclarationOrError extends RuleSupport
     implements Consumer<EK9Parser.VariableDeclarationContext> {
   private final ParameterisedLocator parameterisedLocator;
 
-  ProcessContextVariableDeclaration(final SymbolsAndScopes symbolsAndScopes,
+  ProcessVariableDeclarationOrError(final SymbolsAndScopes symbolsAndScopes,
                                     final SymbolFactory symbolFactory,
                                     final ErrorListener errorListener) {
 
@@ -49,32 +49,32 @@ final class ProcessContextVariableDeclaration extends RuleSupport
 
     if (ctx.assignmentExpression().expression() != null) {
       final var variable = symbolsAndScopes.getRecordedSymbol(ctx);
-      checkIfInferredType(ctx, ctx.assignmentExpression().expression(), variable);
+      processInferredTypeOrError(ctx, ctx.assignmentExpression().expression(), variable);
     }
 
   }
 
-  private void checkIfInferredType(final EK9Parser.VariableDeclarationContext ctx,
-                                   final EK9Parser.ExpressionContext exprCtx,
-                                   final ISymbol variable) {
+  private void processInferredTypeOrError(final EK9Parser.VariableDeclarationContext ctx,
+                                          final EK9Parser.ExpressionContext exprCtx,
+                                          final ISymbol variable) {
 
     if (exprCtx.call() != null && exprCtx.call().identifierReference() != null) {
-      processAsIdentifierReference(ctx, exprCtx, variable);
+      processAsIdentifierReferenceOrError(ctx, exprCtx, variable);
     } else if (exprCtx.call() != null && exprCtx.call().parameterisedType() != null) {
-      processAsParameterisedType(ctx, exprCtx, variable);
+      processAsParameterisedTypeOrError(ctx, exprCtx, variable);
     } else if (exprCtx.list() != null) {
       processAsList(exprCtx.list(), variable);
     } else if (exprCtx.dict() != null) {
-      processAsDictionary(ctx, exprCtx.dict(), variable);
+      processAsDictionaryOrError(ctx, exprCtx.dict(), variable);
     } else {
       emitMustBeSimpleError(ctx.start, "not expecting complex expression", variable);
     }
 
   }
 
-  private void processAsIdentifierReference(final EK9Parser.VariableDeclarationContext ctx,
-                                            final EK9Parser.ExpressionContext exprCtx,
-                                            final ISymbol variable) {
+  private void processAsIdentifierReferenceOrError(final EK9Parser.VariableDeclarationContext ctx,
+                                                   final EK9Parser.ExpressionContext exprCtx,
+                                                   final ISymbol variable) {
 
     final var identifierReferenceCtx = exprCtx.call().identifierReference();
     final var identifierReference = symbolsAndScopes.getRecordedSymbol(identifierReferenceCtx);
@@ -92,10 +92,9 @@ final class ProcessContextVariableDeclaration extends RuleSupport
 
   }
 
-  private void processAsParameterisedType(final EK9Parser.VariableDeclarationContext ctx,
-                                          final EK9Parser.ExpressionContext exprCtx,
-
-                                          final ISymbol variable) {
+  private void processAsParameterisedTypeOrError(final EK9Parser.VariableDeclarationContext ctx,
+                                                 final EK9Parser.ExpressionContext exprCtx,
+                                                 final ISymbol variable) {
 
     final var parameterisedTypeCtx = exprCtx.call().parameterisedType();
     resolveTypeOrError(parameterisedTypeCtx.start, ctx, parameterisedTypeCtx, variable);
@@ -149,7 +148,7 @@ final class ProcessContextVariableDeclaration extends RuleSupport
                                            final ISymbol property) {
 
     for (var exprCtx : list.expression()) {
-      if (errorWhenExpressionIsNotLiteral(exprCtx, property)) {
+      if (emitErrorWhenExpressionIsNotLiteral(exprCtx, property)) {
         return false;
       }
     }
@@ -157,9 +156,9 @@ final class ProcessContextVariableDeclaration extends RuleSupport
     return true;
   }
 
-  private void processAsDictionary(final EK9Parser.VariableDeclarationContext ctx,
-                                   final EK9Parser.DictContext dictCtx,
-                                   final ISymbol property) {
+  private void processAsDictionaryOrError(final EK9Parser.VariableDeclarationContext ctx,
+                                          final EK9Parser.DictContext dictCtx,
+                                          final ISymbol property) {
 
     if (allLiteralsInDictOrError(dictCtx, property)) {
       final var keyValueTypes = extractDictExpressionsAsLists(ctx.start, dictCtx, property);
@@ -225,8 +224,8 @@ final class ProcessContextVariableDeclaration extends RuleSupport
                                            final ISymbol property) {
 
     for (var valuePair : dict.initValuePair()) {
-      if (errorWhenExpressionIsNotLiteral(valuePair.expression(0), property)
-          || errorWhenExpressionIsNotLiteral(valuePair.expression(1), property)) {
+      if (emitErrorWhenExpressionIsNotLiteral(valuePair.expression(0), property)
+          || emitErrorWhenExpressionIsNotLiteral(valuePair.expression(1), property)) {
         return false;
       }
     }
@@ -234,8 +233,8 @@ final class ProcessContextVariableDeclaration extends RuleSupport
     return true;
   }
 
-  private boolean errorWhenExpressionIsNotLiteral(final EK9Parser.ExpressionContext exprCtx,
-                                                  final ISymbol property) {
+  private boolean emitErrorWhenExpressionIsNotLiteral(final EK9Parser.ExpressionContext exprCtx,
+                                                      final ISymbol property) {
     if (exprCtx.primary() == null || exprCtx.primary().literal() == null) {
       emitMustBeSimpleError(exprCtx.start, "expecting literals", property);
       return true;

@@ -15,9 +15,9 @@ import org.ek9lang.compiler.symbols.ISymbol;
 /**
  * Checks HTTP Access for service operations because some require HTTP_SOURCE, but others do not support it.
  */
-final class CheckHttpAccess extends RuleSupport implements Consumer<ISymbol> {
-  CheckHttpAccess(final SymbolsAndScopes symbolsAndScopes,
-                  final ErrorListener errorListener) {
+final class HttpAccessOrError extends RuleSupport implements Consumer<ISymbol> {
+  HttpAccessOrError(final SymbolsAndScopes symbolsAndScopes,
+                    final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
 

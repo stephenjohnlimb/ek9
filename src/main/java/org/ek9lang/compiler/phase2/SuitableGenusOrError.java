@@ -56,24 +56,24 @@ final class SuitableGenusOrError extends RuleSupport implements Function<ParserR
   public Optional<ISymbol> apply(final ParserRuleContext ctx) {
 
     var symbol = symbolsAndScopes.getRecordedSymbol(ctx);
-    return checkIfValidSymbol(ctx, symbol) ? Optional.of(symbol) : Optional.empty();
+    return validSymbolOrError(ctx, symbol) ? Optional.of(symbol) : Optional.empty();
 
   }
 
-  private boolean checkIfValidSymbol(final ParserRuleContext ctx, final ISymbol symbol) {
+  private boolean validSymbolOrError(final ParserRuleContext ctx, final ISymbol symbol) {
 
-    if (!checkResolved(ctx, symbol)) {
+    if (!resolvedOrError(ctx, symbol)) {
       return false;
     }
 
-    if (!checkGenusOK(ctx, symbol)) {
+    if (!validGenusOrError(ctx, symbol)) {
       return false;
     }
 
-    return checkCategoryOK(ctx, symbol);
+    return validCategoryOrError(ctx, symbol);
   }
 
-  private boolean checkCategoryOK(final ParserRuleContext ctx, final ISymbol symbol) {
+  private boolean validCategoryOrError(final ParserRuleContext ctx, final ISymbol symbol) {
 
     if (!allowTemplates && (symbol.isTemplateType() || symbol.isTemplateFunction())) {
       final var msg = "is a '"
@@ -86,7 +86,7 @@ final class SuitableGenusOrError extends RuleSupport implements Function<ParserR
     return true;
   }
 
-  private boolean checkResolved(final ParserRuleContext ctx, final ISymbol symbol) {
+  private boolean resolvedOrError(final ParserRuleContext ctx, final ISymbol symbol) {
 
     if (symbol == null) {
       if (issueErrorIfNotResolved) {
@@ -98,7 +98,7 @@ final class SuitableGenusOrError extends RuleSupport implements Function<ParserR
     return true;
   }
 
-  private boolean checkGenusOK(final ParserRuleContext ctx, final ISymbol symbol) {
+  private boolean validGenusOrError(final ParserRuleContext ctx, final ISymbol symbol) {
 
     if (!supportedGenus.contains(symbol.getGenus())) {
       final var msg = "resolved as a '"

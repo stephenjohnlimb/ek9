@@ -12,27 +12,30 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
  * Does a simple check (excluding any inheritance) for visibility rules on methods/operators on
- * aggregates, such as classes, components, services, traits and dynamic classes.
+ * aggregates.
  * Also limits ability to add methods other than constructors and operators to records.
  * Classes are not missing, here they just support public, protected and private.
  * Whereas the other constructs support different variations.
  * Also note that there is no need to check service web methods or operators as there is now way
  * in the grammar to express an access modifier.
+ * <br/>
+ * Note that class methods can be private, protected or public. But in the case of public we catch that
+ * superfluous "public" if the EK9 developer uses it in the symbol definition phase.
  */
-final class CheckVisibilityOfOperations extends RuleSupport implements Consumer<IAggregateSymbol> {
+final class VisibilityOfOperationsOrError extends RuleSupport implements Consumer<IAggregateSymbol> {
 
   private final Map<ISymbol.SymbolGenus, Consumer<MethodSymbol>> genusChecks = Map.of(
-      ISymbol.SymbolGenus.COMPONENT, this::checkComponentMethodVisibility,
-      ISymbol.SymbolGenus.RECORD, this::checkRecordMethodVisibility,
-      ISymbol.SymbolGenus.CLASS_TRAIT, this::checkTraitMethodVisibility,
-      ISymbol.SymbolGenus.SERVICE, this::checkServiceMethodVisibility
+      ISymbol.SymbolGenus.COMPONENT, this::componentMethodVisibilityOrError,
+      ISymbol.SymbolGenus.RECORD, this::recordMethodVisibilityOrError,
+      ISymbol.SymbolGenus.CLASS_TRAIT, this::traitMethodVisibilityOrError,
+      ISymbol.SymbolGenus.SERVICE, this::serviceMethodVisibilityOrError
   );
 
   /**
    * Create a new operations checker an aggregates.
    */
-  CheckVisibilityOfOperations(final SymbolsAndScopes symbolsAndScopes,
-                              final ErrorListener errorListener) {
+  VisibilityOfOperationsOrError(final SymbolsAndScopes symbolsAndScopes,
+                                final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
 
@@ -56,7 +59,7 @@ final class CheckVisibilityOfOperations extends RuleSupport implements Consumer<
 
   }
 
-  private void checkComponentMethodVisibility(final MethodSymbol method) {
+  private void componentMethodVisibilityOrError(final MethodSymbol method) {
 
     if (method.isProtected()) {
       errorListener.semanticError(method.getSourceToken(), "",
@@ -65,7 +68,7 @@ final class CheckVisibilityOfOperations extends RuleSupport implements Consumer<
 
   }
 
-  private void checkRecordMethodVisibility(final MethodSymbol method) {
+  private void recordMethodVisibilityOrError(final MethodSymbol method) {
 
     if (!method.isConstructor() && !method.isOperator()) {
       errorListener.semanticError(method.getSourceToken(), "'" + method.getFriendlyName() + "'",
@@ -74,7 +77,7 @@ final class CheckVisibilityOfOperations extends RuleSupport implements Consumer<
 
   }
 
-  private void checkTraitMethodVisibility(final MethodSymbol method) {
+  private void traitMethodVisibilityOrError(final MethodSymbol method) {
 
     if (!method.isPublic()) {
       errorListener.semanticError(method.getSourceToken(), "",
@@ -83,7 +86,7 @@ final class CheckVisibilityOfOperations extends RuleSupport implements Consumer<
 
   }
 
-  private void checkServiceMethodVisibility(final MethodSymbol method) {
+  private void serviceMethodVisibilityOrError(final MethodSymbol method) {
 
     if (method.isProtected()) {
       errorListener.semanticError(method.getSourceToken(), "",

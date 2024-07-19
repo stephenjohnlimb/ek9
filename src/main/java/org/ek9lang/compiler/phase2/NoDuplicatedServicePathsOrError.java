@@ -17,10 +17,10 @@ import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
  * Examines all the service operations on a service and looks at the verbs used and the uti proto paths.
  * Checks for duplications and issues errors if paths (irrespective of variable names) are duplicated.
  */
-final class CheckDuplicatedServicePaths extends RuleSupport implements Consumer<IAggregateSymbol> {
+final class NoDuplicatedServicePathsOrError extends RuleSupport implements Consumer<IAggregateSymbol> {
 
-  CheckDuplicatedServicePaths(final SymbolsAndScopes symbolsAndScopes,
-                              final ErrorListener errorListener) {
+  NoDuplicatedServicePathsOrError(final SymbolsAndScopes symbolsAndScopes,
+                                  final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
 

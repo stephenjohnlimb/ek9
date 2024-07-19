@@ -29,7 +29,7 @@ class BadDirectivesTest extends PhasesTest {
       = List.of(31, 36, 41, 64, 82, 90, 98, 105, 123, 133);
 
   public BadDirectivesTest() {
-    super("/examples/parseButFailCompile/badDirectives");
+    super("/examples/parseButFailCompile/badDirectives", List.of(), false, true, false);
   }
 
   @Test

@@ -8,13 +8,13 @@ import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Checks that the variable supplied (if not null and has a type), does not have a type that
- * is a genericTypeParameter as those cannot be used with injection '!'.
+ * is a genericTypeParameter. (those cannot be used with injection '!')
  */
-final class CheckNotGenericTypeParameter implements Consumer<ISymbol> {
+final class NotGenericTypeParameterOrError implements Consumer<ISymbol> {
 
   private final ErrorListener errorListener;
 
-  CheckNotGenericTypeParameter(final ErrorListener errorListener) {
+  NotGenericTypeParameterOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 

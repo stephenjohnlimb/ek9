@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.symbols;
 
+import static org.ek9lang.compiler.support.AggregateFactory.PUBLIC;
+
 import java.io.Serial;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +40,7 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
   /**
    * By default, access to methods is public unless otherwise modified.
    */
-  private String accessModifier = "public";
+  private String accessModifier = PUBLIC;
 
   /**
    * Is this a constructor method or just a normal method.
@@ -236,7 +238,7 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
   @Override
   public boolean isPublic() {
 
-    return accessModifier.equals("public");
+    return accessModifier.equals(PUBLIC);
   }
 
   public boolean isUsedAsProxyForDelegate() {

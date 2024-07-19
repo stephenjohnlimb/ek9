@@ -15,16 +15,16 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
  * be resolved.
  * But also need to consider if it is a Function rather than an Aggregate.
  */
-final class SetupGenericT implements Consumer<EK9Parser.ParameterisedDetailContext> {
+final class SetupGenericTOrError implements Consumer<EK9Parser.ParameterisedDetailContext> {
 
   private final SupportsBeingConstrainingType supportsBeingConstrainingType = new SupportsBeingConstrainingType();
   private final SymbolsAndScopes symbolsAndScopes;
   private final AggregateFactory aggregateFactory;
   private final ErrorListener errorListener;
 
-  SetupGenericT(final SymbolsAndScopes symbolsAndScopes,
-                final AggregateFactory aggregateFactory,
-                final ErrorListener errorListener) {
+  SetupGenericTOrError(final SymbolsAndScopes symbolsAndScopes,
+                       final AggregateFactory aggregateFactory,
+                       final ErrorListener errorListener) {
 
     this.symbolsAndScopes = symbolsAndScopes;
     this.aggregateFactory = aggregateFactory;

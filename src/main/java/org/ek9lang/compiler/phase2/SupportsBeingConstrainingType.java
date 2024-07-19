@@ -6,7 +6,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
 /**
  * Only types of a specific genus can be used as constraints on the generic type 'T'.
  */
-public class SupportsBeingConstrainingType implements Predicate<ISymbol> {
+final class SupportsBeingConstrainingType implements Predicate<ISymbol> {
 
   @Override
   public boolean test(final ISymbol symbol) {

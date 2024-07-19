@@ -17,17 +17,17 @@ import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
  * This does not include the 'allows only' graph that has to be done one the whole type hierarchy has been
  * established.
  */
-final class CheckSuitableToExtend extends RuleSupport implements Function<ParserRuleContext, Optional<ISymbol>> {
+final class SuitableToExtendOrError extends RuleSupport implements Function<ParserRuleContext, Optional<ISymbol>> {
 
   private final SuitableGenusOrError suitableGenusOrError;
 
   /**
    * Checks that the typedef/identifierReference passed in (when resolved) is suitable to be extended from.
    */
-  CheckSuitableToExtend(final SymbolsAndScopes symbolsAndScopes,
-                        final ErrorListener errorListener,
-                        final ISymbol.SymbolGenus genus,
-                        final boolean issueErrorIfNotResolved) {
+  SuitableToExtendOrError(final SymbolsAndScopes symbolsAndScopes,
+                          final ErrorListener errorListener,
+                          final ISymbol.SymbolGenus genus,
+                          final boolean issueErrorIfNotResolved) {
 
     this(symbolsAndScopes, errorListener, List.of(genus), issueErrorIfNotResolved);
 
@@ -37,10 +37,10 @@ final class CheckSuitableToExtend extends RuleSupport implements Function<Parser
    * Checks that the typedef/identifierReference passed in (when resolved) is suitable to be extended from.
    * Accepts multiple allowed genus. i.e. FUNCTION and FUNCTION_TRAIT.
    */
-  public CheckSuitableToExtend(final SymbolsAndScopes symbolsAndScopes,
-                               final ErrorListener errorListener,
-                               final List<ISymbol.SymbolGenus> genus,
-                               final boolean issueErrorIfNotResolved) {
+  public SuitableToExtendOrError(final SymbolsAndScopes symbolsAndScopes,
+                                 final ErrorListener errorListener,
+                                 final List<ISymbol.SymbolGenus> genus,
+                                 final boolean issueErrorIfNotResolved) {
 
     super(symbolsAndScopes, errorListener);
     this.suitableGenusOrError =

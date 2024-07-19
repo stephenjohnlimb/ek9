@@ -34,31 +34,40 @@ public abstract class PhasesTest {
   //This is to that builds can be silent. But when developing you'll probably need to see the actual errors.
   private final CompilerReporter reporter;
 
+  private boolean enableDirectiveErrors = true;
+
   public PhasesTest(final String fromResourcesDirectory) {
     this(fromResourcesDirectory, List.of());
   }
 
   public PhasesTest(final String fromResourcesDirectory, final boolean verbose, final boolean muteReportedErrors) {
-    this(fromResourcesDirectory, List.of(), verbose, muteReportedErrors);
+    this(fromResourcesDirectory, List.of(), verbose, muteReportedErrors, true);
 
   }
+
 
   public PhasesTest(final String fromResourcesDirectory,
                     final List<String> expectedModules,
                     final boolean muteReportedErrors) {
-    this(fromResourcesDirectory, expectedModules, false, muteReportedErrors);
+    this(fromResourcesDirectory, expectedModules, false, muteReportedErrors, true);
   }
 
   public PhasesTest(final String fromResourcesDirectory, final List<String> expectedModules) {
-    this(fromResourcesDirectory, expectedModules, false, true);
+    this(fromResourcesDirectory, expectedModules, false, true, true);
   }
 
   public PhasesTest(final String fromResourcesDirectory, final List<String> expectedModules,
                     final boolean verbose, final boolean muteReportedErrors) {
+    this(fromResourcesDirectory, expectedModules, verbose, muteReportedErrors, true);
+  }
+
+  public PhasesTest(final String fromResourcesDirectory, final List<String> expectedModules,
+                    final boolean verbose, final boolean muteReportedErrors, final boolean enableDirectiveErrors) {
     var workspaceLoader = new WorkSpaceFromResourceDirectoryFiles();
     this.expectedModules = expectedModules;
     ek9Workspace = workspaceLoader.apply(fromResourcesDirectory);
     this.reporter = new CompilerReporter(verbose, muteReportedErrors);
+    this.enableDirectiveErrors = enableDirectiveErrors;
   }
 
   /**
@@ -145,12 +154,22 @@ public abstract class PhasesTest {
       }
 
       if (source.getErrorListener().hasDirectiveErrors()) {
+        //Now if there are directive errors, unmute so they can be easily seen.
+        //We don't really want all the actual compiler errors. It is handy just to see a simple directive failure.
+        final var muted = reporter.isMuteReportedErrors();
+        if(muted && enableDirectiveErrors) {
+          reporter.setMuteReportedErrors(false);
+        }
         reporter.report("Directiv: " + phase + ", source: " + source.getFileName());
         source.getErrorListener().getDirectiveErrors().forEachRemaining(error -> {
           counter.getAndIncrement();
           reporter.report(error);
         });
+        if(muted) {
+          reporter.setMuteReportedErrors(true);
+        }
       }
+
       checkCompilationPhase(phase, source, sharedCompilableProgram);
     };
 
