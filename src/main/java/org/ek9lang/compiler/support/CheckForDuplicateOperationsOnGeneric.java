@@ -14,14 +14,14 @@ import org.ek9lang.compiler.tokenizer.IToken;
  */
 public final class CheckForDuplicateOperationsOnGeneric implements BiConsumer<IToken, IAggregateSymbol> {
 
-  private final CheckForDuplicateOperations checkForDuplicateOperations;
+  private final NoDuplicateOperationsOrError noDuplicateOperationsOrError;
 
   /**
    * Create a new operations checker for parameterised aggregates.
    */
   public CheckForDuplicateOperationsOnGeneric(final ErrorListener errorListener) {
 
-    this.checkForDuplicateOperations = new CheckForDuplicateOperations(errorListener);
+    this.noDuplicateOperationsOrError = new NoDuplicateOperationsOrError(errorListener);
 
   }
 
@@ -29,7 +29,7 @@ public final class CheckForDuplicateOperationsOnGeneric implements BiConsumer<IT
   public void accept(final IToken errorLocationToken, final IAggregateSymbol aggregate) {
 
     if (aggregate != null && aggregate.isParameterisedType()) {
-      checkForDuplicateOperations.accept(errorLocationToken, aggregate);
+      noDuplicateOperationsOrError.accept(errorLocationToken, aggregate);
     }
 
   }

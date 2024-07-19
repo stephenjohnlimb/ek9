@@ -15,14 +15,14 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * This is the first of such checks, in later phases inheritance of methods with invalid return types
  * and also unimplemented abstract methods will be checked (by other checkers).
  */
-public final class CheckForDuplicateOperations implements BiConsumer<IToken, IAggregateSymbol> {
+public final class NoDuplicateOperationsOrError implements BiConsumer<IToken, IAggregateSymbol> {
 
   private final ErrorListener errorListener;
 
   /**
    * Create a new operations checker an aggregates.
    */
-  public CheckForDuplicateOperations(final ErrorListener errorListener) {
+  public NoDuplicateOperationsOrError(final ErrorListener errorListener) {
 
     this.errorListener = errorListener;
 

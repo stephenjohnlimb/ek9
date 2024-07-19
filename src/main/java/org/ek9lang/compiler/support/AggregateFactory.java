@@ -89,6 +89,11 @@ public class AggregateFactory {
 
   }
 
+  public Ek9Types getEk9Types() {
+
+    return ek9Types;
+  }
+
   /**
    * Add a synthetic constructor, if a constructor is not present.
    */

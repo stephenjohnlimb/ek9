@@ -9,8 +9,8 @@ import org.ek9lang.compiler.common.ScopeStack;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.support.AccessGenericInGeneric;
 import org.ek9lang.compiler.support.AggregateFactory;
-import org.ek9lang.compiler.support.CheckForDuplicateOperations;
 import org.ek9lang.compiler.support.MostSpecificScope;
+import org.ek9lang.compiler.support.NoDuplicateOperationsOrError;
 import org.ek9lang.compiler.support.NoNameCollisionOrError;
 import org.ek9lang.compiler.support.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.support.ResolveOrDefineIdentifierReference;
@@ -19,13 +19,11 @@ import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.CaptureScope;
-import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
-import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
@@ -68,14 +66,13 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final SymbolsAndScopes symbolsAndScopes;
   private final ResolveOrDefineIdentifierReference resolveOrDefineIdentifierReference;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
-  private final SynthesizeSuperFunction synthesizeSuperFunction;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
   private final ValidOperatorOrError validOperatorOrError;
   private final SetupGenericTOrError setupGenericTOrError;
   private final ValidServiceOperationOrError validServiceOperationOrError;
   private final NoDuplicatedServicePathsOrError noDuplicatedServicePathsOrError;
   private final VisibilityOfOperationsOrError visibilityOfOperationsOrError;
-  private final CheckForDuplicateOperations checkForDuplicateOperations;
+  private final NoDuplicateOperationsOrError noDuplicateOperationsOrError;
   private final NotGenericTypeParameterOrError notGenericTypeParameterOrError;
   private final SuitableToExtendOrError functionSuitableToExtendOrError;
   private final SuitableToExtendOrError recordSuitableToExtendOrError;
@@ -83,17 +80,15 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final SuitableToExtendOrError classSuitableToExtendOrError;
   private final SuitableToExtendOrError componentSuitableToExtendOrError;
   private final SuitableGenusOrError registerGenusOrError;
-  private final SuitableGenusOrError allowedClassGenusOrError;
   private final SuitableGenusOrError applicationForProgramOrError;
   private final SyntheticConstructorCreator syntheticConstructorCreator;
-  private final PopulateConstrainedTypeOrError populateConstrainedTypeOrError;
   private final MostSpecificScope mostSpecificScope;
   private final NoNameCollisionOrError noNameCollisionOrError;
   private final AccessGenericInGeneric accessGenericInGeneric;
-  private final AggregateFactory aggregateFactory;
-  private final Ek9Types ek9Types;
   private final ProcessVariableDeclarationOrError processVariableDeclarationOrError;
-
+  private final ProcessTypeDeclarationOrError processTypeDeclarationOrError;
+  private final ProcessFunctionDeclarationOrError processFunctionDeclarationOrError;
+  private final ProcessTraitDeclarationOrError processTraitDeclarationOrError;
 
   /**
    * Still defining some stuff here, but also resolving where possible.
@@ -102,24 +97,20 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
    */
   ResolveDefineExplicitTypeListener(final ParsedModule parsedModule) {
 
+    final var aggregateFactory = new AggregateFactory(parsedModule.getEk9Types());
+    final var errorListener = parsedModule.getSource().getErrorListener();
+    final var symbolFactory = new SymbolFactory(parsedModule);
+
     //At construction the ScopeStack will push the module scope on to the stack.
     this.symbolsAndScopes = new SymbolsAndScopes(parsedModule, new ScopeStack(parsedModule.getModuleScope()));
-    this.ek9Types = parsedModule.getEk9Types();
-    this.aggregateFactory = new AggregateFactory(ek9Types);
     this.syntheticConstructorCreator = new SyntheticConstructorCreator(aggregateFactory);
-
-    final var errorListener = parsedModule.getSource().getErrorListener();
-    final SymbolFactory symbolFactory = new SymbolFactory(parsedModule);
-
-    this.checkForDuplicateOperations = new CheckForDuplicateOperations(errorListener);
+    this.noDuplicateOperationsOrError = new NoDuplicateOperationsOrError(errorListener);
     this.visibilityOfOperationsOrError = new VisibilityOfOperationsOrError(symbolsAndScopes, errorListener);
     this.notGenericTypeParameterOrError = new NotGenericTypeParameterOrError(errorListener);
     this.resolveOrDefineIdentifierReference =
         new ResolveOrDefineIdentifierReference(symbolsAndScopes, symbolFactory, errorListener, false);
     this.resolveOrDefineTypeDef =
         new ResolveOrDefineTypeDef(symbolsAndScopes, symbolFactory, errorListener, true);
-    this.synthesizeSuperFunction =
-        new SynthesizeSuperFunction(symbolsAndScopes, symbolFactory, errorListener);
     this.validOperatorOrError =
         new ValidOperatorOrError(symbolsAndScopes, errorListener);
     this.setupGenericTOrError =
@@ -143,13 +134,9 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         new SuitableToExtendOrError(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.COMPONENT, true);
     this.registerGenusOrError =
         new SuitableGenusOrError(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.COMPONENT, false, true);
-    this.allowedClassGenusOrError =
-        new SuitableGenusOrError(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.CLASS, false, true);
     this.applicationForProgramOrError =
         new SuitableGenusOrError(symbolsAndScopes, errorListener,
             List.of(ISymbol.SymbolGenus.GENERAL_APPLICATION, ISymbol.SymbolGenus.SERVICE_APPLICATION), false, true);
-    this.populateConstrainedTypeOrError =
-        new PopulateConstrainedTypeOrError(symbolsAndScopes, aggregateFactory, errorListener);
     this.accessGenericInGeneric =
         new AccessGenericInGeneric(symbolsAndScopes);
     this.mostSpecificScope =
@@ -158,30 +145,19 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         new NoNameCollisionOrError(errorListener, false);
     this.processVariableDeclarationOrError =
         new ProcessVariableDeclarationOrError(symbolsAndScopes, symbolFactory, errorListener);
-
+    this.processTypeDeclarationOrError =
+        new ProcessTypeDeclarationOrError(symbolsAndScopes, aggregateFactory, errorListener);
+    this.processFunctionDeclarationOrError =
+        new ProcessFunctionDeclarationOrError(symbolsAndScopes, symbolFactory, errorListener);
+    this.processTraitDeclarationOrError = new ProcessTraitDeclarationOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
   public void exitTypeDeclaration(final EK9Parser.TypeDeclarationContext ctx) {
 
-    final var aggregateSymbol = (AggregateSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
-    //Might be null if name if the name is duplicated.
-    if (aggregateSymbol != null) {
-      aggregateFactory.addSyntheticConstructorIfRequired(aggregateSymbol);
-      aggregateFactory.addConstructor(aggregateSymbol, new VariableSymbol("arg", aggregateSymbol));
-      if (ctx.typeDef() == null) {
-        //For an enumeration we allow creation via String.
-        final var constructor =
-            aggregateFactory.addConstructor(aggregateSymbol, new VariableSymbol("arg", ek9Types.ek9String()));
-        constructor.setMarkedPure(true);
-      } else {
-        final var theConstrainedType = symbolsAndScopes.getRecordedSymbol(ctx.typeDef());
-        populateConstrainedTypeOrError.accept(aggregateSymbol, theConstrainedType);
-        //else we should already get an error for this missing type.
-      }
-    }
-
+    processTypeDeclarationOrError.accept(ctx);
     super.exitTypeDeclaration(ctx);
+
   }
 
   /**
@@ -199,19 +175,10 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   @Override
   public void exitFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
 
-    final var symbol = (FunctionSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
-    AssertValue.checkNotNull("Function should have been defined as symbol", symbol);
-
-    //Normal functions can extend other normal functions if open/abstract - this code below checks.
-    if (ctx.identifierReference() != null) {
-      final var resolved = functionSuitableToExtendOrError.apply(ctx.identifierReference());
-      resolved.ifPresent(theSuper -> symbol.setSuperFunction((FunctionSymbol) theSuper));
-    } else if (!symbol.isGenericInNature()) {
-      synthesizeSuperFunction.accept(symbol);
-    }
+    processFunctionDeclarationOrError.accept(ctx);
     symbolsAndScopes.exitScope();
-
     super.exitFunctionDeclaration(ctx);
+
   }
 
   @Override
@@ -244,28 +211,10 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   @Override
   public void exitTraitDeclaration(final EK9Parser.TraitDeclarationContext ctx) {
 
-    final var symbol = (AggregateWithTraitsSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
-    AssertValue.checkNotNull("Trait should have been defined as symbol", symbol);
-    visibilityOfOperationsOrError.accept(symbol);
-    checkForDuplicateOperations.accept(new Ek9Token(ctx.start), symbol);
-
-    if (ctx.traitsList() != null) {
-      ctx.traitsList().traitReference().forEach(traitRef -> {
-        final var resolved = classTraitSuitableToExtendOrError.apply(traitRef.identifierReference());
-        resolved.ifPresent(theTrait -> symbol.addTrait((AggregateWithTraitsSymbol) theTrait));
-      });
-    }
-
-    if (ctx.allowingOnly() != null) {
-      ctx.allowingOnly().identifierReference().forEach(classRef -> {
-        final var resolved = allowedClassGenusOrError.apply(classRef);
-        resolved.ifPresent(theClass -> symbol.addAllowedExtender((IAggregateSymbol) theClass));
-      });
-    }
-
+    processTraitDeclarationOrError.accept(ctx);
     symbolsAndScopes.exitScope();
-
     super.exitTraitDeclaration(ctx);
+
   }
 
   @Override
@@ -361,7 +310,7 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     final var symbol = (AggregateSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     syntheticConstructorCreator.accept(symbol);
     visibilityOfOperationsOrError.accept(symbol);
-    checkForDuplicateOperations.accept(new Ek9Token(ctx.start), symbol);
+    noDuplicateOperationsOrError.accept(new Ek9Token(ctx.start), symbol);
     noDuplicatedServicePathsOrError.accept(symbol);
 
     symbolsAndScopes.exitScope();
@@ -425,7 +374,7 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     AssertValue.checkNotNull("Dynamic Class should have been defined as symbol", symbol);
 
     visibilityOfOperationsOrError.accept(symbol);
-    checkForDuplicateOperations.accept(new Ek9Token(ctx.start), symbol);
+    noDuplicateOperationsOrError.accept(new Ek9Token(ctx.start), symbol);
 
     if (ctx.parameterisedType() != null) {
       final var resolved = classSuitableToExtendOrError.apply(ctx.parameterisedType());
@@ -681,7 +630,7 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
                                           final SuitableToExtendOrError extendChecker) {
 
     syntheticConstructorCreator.andThen(visibilityOfOperationsOrError).accept(symbol);
-    checkForDuplicateOperations.accept(token, symbol);
+    noDuplicateOperationsOrError.accept(token, symbol);
 
     if (extendDeclaration != null) {
       extendChecker.apply(extendDeclaration.typeDef())
