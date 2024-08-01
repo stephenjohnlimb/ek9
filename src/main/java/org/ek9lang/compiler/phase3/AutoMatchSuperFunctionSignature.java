@@ -7,7 +7,7 @@ import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 
 /**
- * The ek9 develop does not need to redeclare incoming or returning parameters for dynamic functions.
+ * The ek9 developer does not need to redeclare incoming or returning parameters for dynamic functions.
  * They are inferred for the developer - this is that 'inference'.
  * In short the compiler - uses the same symbols from the super class for incoming and returning parameters.
  */
@@ -28,7 +28,7 @@ final class AutoMatchSuperFunctionSignature extends TypedSymbolAccess implements
         final var clonedReturnSymbol = superFunction.getReturningSymbol().clone(functionSymbol);
         //Ensure not marked as initialised if the super is abstract, this then forces return processing.
         if (superFunction.isMarkedAbstract()) {
-          clonedReturnSymbol.setInitialisedBy(null);
+          clonedReturnSymbol.clearInitialisedBy();
         }
         functionSymbol.setReturningSymbol(clonedReturnSymbol);
       }

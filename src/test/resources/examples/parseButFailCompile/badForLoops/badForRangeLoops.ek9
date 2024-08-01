@@ -110,8 +110,8 @@ defines module bad.forrangeloops.check
       start <- R0()
       end <- R0()
 
-      //No comparator
-      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      //No comparator operator available
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       for i in start ... end
         stdout.println(`Value [${i}]`)
 
@@ -122,7 +122,7 @@ defines module bad.forrangeloops.check
       end <- R1()
 
       //No ++ or -- methods
-      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       for i in start ... end
         stdout.println(`Value [${i}]`)
 

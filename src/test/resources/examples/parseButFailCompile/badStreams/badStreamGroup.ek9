@@ -152,7 +152,8 @@ defines module bad.streams11
     InvalidStreamCatGroupNoHashCodeOperator()
       collection <- List() of List of R1
 
-      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_HASHCODE_FOR_TYPE
+      //Missing hashcode opetator
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       cat [R1("A"), R1("Z"), R1("Z"), R1("P"), R1("B")] | group > collection
       assert collection?
 
@@ -196,7 +197,8 @@ defines module bad.streams11
     InvalidStreamCatGroupWithHashCodeFunction1()
       collection <- List() of List of R1
 
-      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_HASHCODE_FOR_TYPE
+      //Missing hash code operator.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       cat [R1("A"), R1("Z"), R1("Z"), R1("P"), R1("B")] | group with EchoR1 > collection
       assert collection?
 

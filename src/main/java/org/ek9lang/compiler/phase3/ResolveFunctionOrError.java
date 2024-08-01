@@ -11,7 +11,7 @@ import org.ek9lang.compiler.symbols.FunctionSymbol;
 /**
  * Check for valid function parameters.
  */
-final class ResolveFunctionOrError extends TypedSymbolAccess implements Function<FunctionCheckData, FunctionSymbol> {
+final class ResolveFunctionOrError extends TypedSymbolAccess implements Function<FunctionData, FunctionSymbol> {
 
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
 
@@ -23,12 +23,12 @@ final class ResolveFunctionOrError extends TypedSymbolAccess implements Function
   }
 
   @Override
-  public FunctionSymbol apply(final FunctionCheckData functionCheckData) {
+  public FunctionSymbol apply(final FunctionData functionData) {
 
     //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
     //Use the type of the function located here, but employ the parameters
-    final var parameters = functionCheckData.callArgumentTypes();
-    final var function = functionCheckData.function();
+    final var parameters = functionData.callArgumentTypes();
+    final var function = functionData.function();
 
     if (parameters.size() == symbolTypeExtractor.apply(parameters).size()) {
       if (function.isSignatureMatchTo(function.getType(), parameters)) {
@@ -41,7 +41,7 @@ final class ResolveFunctionOrError extends TypedSymbolAccess implements Function
             + params
             + "' not appropriate:";
 
-        errorListener.semanticError(functionCheckData.token(), msg,
+        errorListener.semanticError(functionData.token(), msg,
             ErrorListener.SemanticClassification.FUNCTION_PARAMETER_MISMATCH);
       }
     }

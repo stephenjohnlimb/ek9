@@ -12,7 +12,7 @@ import org.ek9lang.compiler.symbols.WhileSymbol;
 
 /**
  * Deals with checking the 'while' or 'do/while control variable in the statement/expression.
- * There is a check on an identifier for 'ProcessIdentifierAssignment' an assignment.
+ * There is a check on an identifier for 'IdentifierAssignmentOrError' an assignment.
  * This resets the 'referenced' flag on the variable. So for loop variables we must
  * make a note that this is a loop variable to stop this resetting. Otherwise, it looks
  * like the variable is not checked 'after' assignment.

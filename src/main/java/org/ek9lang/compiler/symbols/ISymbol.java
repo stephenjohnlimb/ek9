@@ -160,6 +160,8 @@ public interface ISymbol extends ITokenReference, Serializable {
 
   void setInitialisedBy(final IToken initialisedBy);
 
+  void clearInitialisedBy();
+
   default boolean isInitialised() {
 
     return getInitialisedBy() != null;

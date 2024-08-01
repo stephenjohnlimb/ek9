@@ -41,10 +41,10 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
   private final ResolveMethodOrError resolveMethodOrError;
   private final SymbolsFromParamExpression symbolsFromParamExpression;
   private final ParameterisedLocator parameterisedLocator;
-  private final CheckValidFunctionDelegateOrError checkValidFunctionDelegateOrError;
+  private final FunctionDelegateOrError functionDelegateOrError;
   private final ResolveFunctionOrError resolveFunctionOrError;
 
-  private final CheckNotAbstractOrError checkNotAbstractOrError;
+  private final NotAbstractOrError notAbstractOrError;
 
   ResolveIdentifierReferenceCallOrError(final SymbolsAndScopes symbolsAndScopes,
                                         final SymbolFactory symbolFactory,
@@ -59,12 +59,12 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
         new SymbolsFromParamExpression(symbolsAndScopes, errorListener);
     this.parameterisedLocator =
         new ParameterisedLocator(symbolsAndScopes, symbolFactory, errorListener, true);
-    this.checkValidFunctionDelegateOrError =
-        new CheckValidFunctionDelegateOrError(symbolsAndScopes, errorListener);
+    this.functionDelegateOrError =
+        new FunctionDelegateOrError(symbolsAndScopes, errorListener);
     this.resolveFunctionOrError =
         new ResolveFunctionOrError(symbolsAndScopes, errorListener);
-    this.checkNotAbstractOrError =
-        new CheckNotAbstractOrError(symbolsAndScopes, errorListener);
+    this.notAbstractOrError =
+        new NotAbstractOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -105,7 +105,7 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
     //If the nearest identifier during normal resolution is a variable we may check if it is a suitable delegate
     if (possibleMethods.isEmpty()
         || variable.getType().isPresent() && variable.getType().get() instanceof FunctionSymbol) {
-      return checkValidFunctionDelegateOrError.apply(new DelegateFunctionCheckData(startToken, variable, callParams));
+      return functionDelegateOrError.apply(new DelegateFunctionData(startToken, variable, callParams));
     }
 
     //Or just try and resolve a method with that name.
@@ -125,7 +125,7 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
                                       final ISymbol callIdentifier,
                                       final List<ISymbol> callArguments) {
 
-    checkNotAbstractOrError.accept(token, callIdentifier);
+    notAbstractOrError.accept(token, callIdentifier);
 
     if (aggregate.isGenericInNature()) {
       //So if it is generic but no parameters, just return the generic type.
@@ -173,7 +173,7 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
                                      final ISymbol callIdentifier,
                                      final List<ISymbol> callArguments) {
 
-    checkNotAbstractOrError.accept(token, callIdentifier);
+    notAbstractOrError.accept(token, callIdentifier);
 
     if (function.isGenericInNature()) {
       if (callArguments.isEmpty()) {
@@ -211,7 +211,7 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
     final var paramTypes = symbolTypeExtractor.apply(parameters);
     //maybe earlier types were not defined by the ek9 developer so let's not look at it would be misleading.
     if (parameters.size() == paramTypes.size()) {
-      return resolveFunctionOrError.apply(new FunctionCheckData(token, function, paramTypes));
+      return resolveFunctionOrError.apply(new FunctionData(token, function, paramTypes));
     }
 
     return null;

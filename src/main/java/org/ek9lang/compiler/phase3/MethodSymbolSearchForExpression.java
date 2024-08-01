@@ -12,7 +12,7 @@ import org.ek9lang.compiler.search.MethodSymbolSearch;
  */
 final class MethodSymbolSearchForExpression extends TypedSymbolAccess
     implements Function<EK9Parser.ExpressionContext, MethodSymbolSearch> {
-  private final OperatorText operatorText = new OperatorText();
+  private final MapOperatorText mapOperatorText = new MapOperatorText();
   private final SymbolFromContextOrError symbolFromContextOrError;
 
   MethodSymbolSearchForExpression(
@@ -28,7 +28,7 @@ final class MethodSymbolSearchForExpression extends TypedSymbolAccess
   public MethodSymbolSearch apply(final EK9Parser.ExpressionContext ctx) {
 
     //Some operators can have two different 'names' but can only be defined in a single form.
-    final var searchMethodName = operatorText.apply(ctx);
+    final var searchMethodName = mapOperatorText.apply(ctx);
     final var search = new MethodSymbolSearch(searchMethodName);
 
     if (ctx.expression().size() == 2) {

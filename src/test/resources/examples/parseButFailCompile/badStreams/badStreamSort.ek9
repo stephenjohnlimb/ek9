@@ -211,7 +211,7 @@ defines module bad.streams6
     InvalidComparatorStreamCatSort1()
       collector <- StringCollector()
 
-      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_COMPARATOR_FOR_TYPE
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       cat [R1("last", 2010-10-01), R1("last", 2010-10-02), R1("first", 2010-10-01)] | sort > collector
       assert collector?
 

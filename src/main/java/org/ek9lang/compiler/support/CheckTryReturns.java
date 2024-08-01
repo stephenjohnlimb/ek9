@@ -19,7 +19,8 @@ public class CheckTryReturns extends CheckReturns implements Consumer<EK9Parser.
   @Override
   public void accept(final EK9Parser.TryStatementExpressionContext ctx) {
 
-    check(ctx.parent instanceof EK9Parser.StatementContext, new Ek9Token(ctx.start), ctx.returningParam());
+    returningParamOrError(ctx.parent instanceof EK9Parser.StatementContext, new Ek9Token(ctx.start),
+        ctx.returningParam());
 
   }
 }

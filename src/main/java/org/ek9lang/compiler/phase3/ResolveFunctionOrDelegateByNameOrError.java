@@ -33,28 +33,24 @@ final class ResolveFunctionOrDelegateByNameOrError extends TypedSymbolAccess
   @Override
   public void accept(final EK9Parser.IdentifierContext ctx) {
 
-    final var toResolve = ctx.getText();
+    final var functionNameToResolve = ctx.getText();
 
-    var resolved = getFunction(ctx, toResolve);
-    if (resolved.isEmpty()) {
-      var msg = "'" + toResolve + "':";
-      errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.NOT_RESOLVED);
-      return;
-    }
-
-    final var symbol = resolved.get();
-    symbol.setReferenced(true);
-    recordATypedSymbol(symbol, ctx);
+    var resolved = getFunctionOrError(ctx, functionNameToResolve);
+    resolved.ifPresent(symbol -> {
+      symbol.setReferenced(true);
+      recordATypedSymbol(symbol, ctx);
+    });
   }
 
-  private Optional<ISymbol> getFunction(final EK9Parser.IdentifierContext ctx, final String functionNameToResolve) {
+  private Optional<ISymbol> getFunctionOrError(final EK9Parser.IdentifierContext ctx,
+                                               final String functionNameToResolve) {
 
     final var resolved = resolveFunctionDelegate(functionNameToResolve);
     if (resolved.isPresent()) {
       return resolved;
     }
 
-    return resolveFunctionByName(ctx, functionNameToResolve);
+    return resolveFunctionByNameOrError(ctx, functionNameToResolve);
   }
 
 
@@ -63,7 +59,7 @@ final class ResolveFunctionOrDelegateByNameOrError extends TypedSymbolAccess
     return symbolsAndScopes.getTopScope().resolve(new SymbolSearch(name));
   }
 
-  private Optional<ISymbol> resolveFunctionByName(final EK9Parser.IdentifierContext ctx, final String name) {
+  private Optional<ISymbol> resolveFunctionByNameOrError(final EK9Parser.IdentifierContext ctx, final String name) {
 
     //While it may seem strange - we resolve like this so that it is possible to give more meaningful error messages.
     //EK9 stops the same name being used at module scope for multiple 'types'/'constant' so there should only be one
@@ -77,6 +73,9 @@ final class ResolveFunctionOrDelegateByNameOrError extends TypedSymbolAccess
       }
       return Optional.of(resolved);
     }
+
+    var msg = "'" + name + "':";
+    errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.NOT_RESOLVED);
 
     return Optional.empty();
   }

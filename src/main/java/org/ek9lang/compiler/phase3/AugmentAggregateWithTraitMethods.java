@@ -23,8 +23,7 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
 final class AugmentAggregateWithTraitMethods extends TypedSymbolAccess
     implements BiConsumer<EK9Parser.TraitsListContext, AggregateWithTraitsSymbol> {
 
-  private final CheckIfAbstractMethodsImplemented checkIfAbstractMethodsImplemented
-      = new CheckIfAbstractMethodsImplemented();
+  private final TraverseAbstractMethods traverseAbstractMethods = new TraverseAbstractMethods();
 
   AugmentAggregateWithTraitMethods(final SymbolsAndScopes symbolsAndScopes,
                                    final ErrorListener errorListener) {
@@ -59,7 +58,7 @@ final class AugmentAggregateWithTraitMethods extends TypedSymbolAccess
         }
       };
       //You may think this pointless, but a class may have some traits without 'by'
-      checkIfAbstractMethodsImplemented.accept(trait, actionToTake);
+      traverseAbstractMethods.accept(trait, actionToTake);
     }
 
   }

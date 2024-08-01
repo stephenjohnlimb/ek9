@@ -67,7 +67,7 @@ public class TypedSymbolAccess extends RuleSupport {
 
   /**
    * Gets any symbol associated with this node.
-   * If the symbol is not null then it is marked as referenced and it's type is checked.
+   * If the symbol is not null then its type is checked.
    * If there is no type then an error is emitted.
    */
   public ISymbol getRecordedAndTypedSymbol(final ParseTree node) {

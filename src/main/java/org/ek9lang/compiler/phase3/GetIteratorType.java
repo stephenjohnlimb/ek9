@@ -40,7 +40,7 @@ final class GetIteratorType extends TypedSymbolAccess implements Function<IAggre
 
   private Optional<ISymbol> attemptToResolveIterator(final IAggregateSymbol aggregate) {
 
-    final var resolved = getMethodReturnType(aggregate, "iterator");
+    final var resolved = methodReturnType(aggregate, "iterator");
     if (resolved.isPresent() && resolved.get() instanceof IAggregateSymbol expectedIterator) {
       return attemptToResolveHasNextAndNext(expectedIterator);
     }
@@ -67,8 +67,8 @@ final class GetIteratorType extends TypedSymbolAccess implements Function<IAggre
 
     } else {
       //Not a parameterised type with Iterator, but it might have hasNext() and next().
-      final var resolvedHasNext = getMethodReturnType(aggregate, "hasNext");
-      final var resolvedNext = getMethodReturnType(aggregate, "next");
+      final var resolvedHasNext = methodReturnType(aggregate, "hasNext");
+      final var resolvedNext = methodReturnType(aggregate, "next");
 
       if (resolvedHasNext.isPresent()
           && resolvedNext.isPresent()
@@ -82,7 +82,7 @@ final class GetIteratorType extends TypedSymbolAccess implements Function<IAggre
     return Optional.empty();
   }
 
-  private Optional<ISymbol> getMethodReturnType(final IAggregateSymbol aggregate, final String methodName) {
+  private Optional<ISymbol> methodReturnType(final IAggregateSymbol aggregate, final String methodName) {
 
     final var resolved = aggregate.resolve(new MethodSymbolSearch(methodName));
 

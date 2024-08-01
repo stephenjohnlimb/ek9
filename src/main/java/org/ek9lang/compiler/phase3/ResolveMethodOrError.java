@@ -22,7 +22,7 @@ final class ResolveMethodOrError extends TypedSymbolAccess
     implements BiFunction<IToken, MethodSearchInScope, MethodSymbol> {
   private final PossibleMatchingMethods possibleMatchingMethods = new PossibleMatchingMethods();
   private final MostSpecificScope mostSpecificScope;
-  private final CheckAccessToSymbol checkAccessToSymbol;
+  private final AccessToSymbolOrError accessToSymbolOrError;
 
   /**
    * Create function with provided errorListener etc.
@@ -32,7 +32,7 @@ final class ResolveMethodOrError extends TypedSymbolAccess
 
     super(symbolsAndScopes, errorListener);
     this.mostSpecificScope = new MostSpecificScope(symbolsAndScopes);
-    this.checkAccessToSymbol = new CheckAccessToSymbol(symbolsAndScopes, errorListener);
+    this.accessToSymbolOrError = new AccessToSymbolOrError(symbolsAndScopes, errorListener);
 
   }
 
@@ -44,10 +44,10 @@ final class ResolveMethodOrError extends TypedSymbolAccess
         .resolveMatchingMethods(searchOnAggregate.search(), new MethodSymbolSearchResult());
 
     if (results.isSingleBestMatchPresent() && results.getSingleBestMatchSymbol().isPresent()) {
-      final var resolved = results.getSingleBestMatchSymbol().get();
 
-      checkAccessToSymbol.accept(
-          new CheckSymbolAccessData(errorLocation, accessFromScope, searchOnAggregate.scopeToSearch(),
+      final var resolved = results.getSingleBestMatchSymbol().get();
+      accessToSymbolOrError.accept(
+          new SymbolAccessData(errorLocation, accessFromScope, searchOnAggregate.scopeToSearch(),
               searchOnAggregate.search().getName(), resolved));
 
       return resolved;

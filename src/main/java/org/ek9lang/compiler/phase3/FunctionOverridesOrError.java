@@ -1,0 +1,62 @@
+package org.ek9lang.compiler.phase3;
+
+import java.util.function.Consumer;
+import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
+import org.ek9lang.compiler.common.TypedSymbolAccess;
+import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
+
+/**
+ * Checks that the function correctly overrides the signature if it has a super.
+ */
+final class FunctionOverridesOrError extends TypedSymbolAccess implements Consumer<FunctionSymbol> {
+  private final ParameterTypesExactMatchOrError parameterTypesExactMatchOrError;
+  private final TypeCovarianceOrError typeCovarianceOrError;
+  private final ValidFunctionAbstractnessOrError validFunctionAbstractnessOrError;
+  private final PureModifierOrError pureModifierOrError;
+  private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
+
+  /**
+   * Create a new function to check overriding of super (method parameters and covariance returns).
+   */
+  FunctionOverridesOrError(final SymbolsAndScopes symbolsAndScopes,
+                           final ErrorListener errorListener) {
+
+    super(symbolsAndScopes, errorListener);
+    this.typeCovarianceOrError = new TypeCovarianceOrError(symbolsAndScopes, errorListener);
+    this.parameterTypesExactMatchOrError = new ParameterTypesExactMatchOrError(symbolsAndScopes, errorListener);
+    this.validFunctionAbstractnessOrError = new ValidFunctionAbstractnessOrError(symbolsAndScopes, errorListener);
+    this.pureModifierOrError = new PureModifierOrError(symbolsAndScopes, errorListener);
+
+  }
+
+  @Override
+  public void accept(final FunctionSymbol functionSymbol) {
+
+    //Only if there is a super function, do we execute this.
+    functionSymbol.getSuperFunction().ifPresent(superFunction -> {
+
+      final var errorMessage = getErrorMessageFor(functionSymbol, superFunction);
+      final var paramData = new ParametersData(functionSymbol.getSourceToken(), errorMessage,
+          functionSymbol.getCallParameters(), superFunction.getCallParameters());
+      final var returnData = new CovarianceData(functionSymbol.getSourceToken(), errorMessage,
+          functionSymbol.getReturningSymbol(), superFunction.getReturningSymbol());
+
+      parameterTypesExactMatchOrError.accept(paramData);
+      typeCovarianceOrError.accept(returnData);
+      validFunctionAbstractnessOrError.accept(functionSymbol);
+      pureModifierOrError.accept(new PureCheckData(errorMessage, superFunction, functionSymbol));
+    });
+
+  }
+
+  private String getErrorMessageFor(final FunctionSymbol functionSymbol,
+                                    final FunctionSymbol matchedFunctionSymbol) {
+
+    final var message = String.format("'%s' %s:",
+        matchedFunctionSymbol.getFriendlyName(), locationExtractorFromSymbol.apply(matchedFunctionSymbol));
+
+    return "'" + functionSymbol.getFriendlyName() + "' and " + message;
+  }
+}

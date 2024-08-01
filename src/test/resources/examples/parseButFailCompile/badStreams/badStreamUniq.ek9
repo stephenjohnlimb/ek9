@@ -154,7 +154,8 @@ defines module bad.streams7
     InvalidStreamCatToUniq1()
       collection <- List() of String
 
-      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_HASHCODE_FOR_TYPE
+      //This will emit an error for missing #? hash code operator.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       cat [C2("A"), C2("B"), C2("A"), C2("Z")] | uniq > collection
 
       assert collection?
@@ -178,7 +179,8 @@ defines module bad.streams7
     InvalidStreamCatToUniq4()
       collection <- List() of String
 
-      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_HASHCODE_FOR_TYPE
+      //This will emit an error indicating the #? (hashcode) operator is missing
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       cat [C2("A"), C2("B"), C2("A"), C2("Z")] | uniq by InvalidHashFunction2 > collection
 
       assert collection?

@@ -310,6 +310,13 @@ public class Symbol implements ISymbol {
 
   }
 
+  @Override
+  public void clearInitialisedBy() {
+
+    this.initialisedBy = null;
+
+  }
+
   public Optional<Module> getParsedModule() {
 
     return Optional.ofNullable(parsedModule);

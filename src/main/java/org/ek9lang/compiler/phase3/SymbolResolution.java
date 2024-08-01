@@ -19,9 +19,9 @@ import org.ek9lang.core.SharedThreadContext;
 /**
  * <p>
  * MULTI THREADED
- * Now try check that all symbols used have a type. THIS IS MAJOR MILESTONE!
+ * Now try and check that all symbols used have a type. THIS IS MAJOR MILESTONE!
  * Create expression symbols in here; so we can pass the type base and also enable type checking.
- * Do some basic semantic checks in here before developing an IR.
+ * Do some more basic semantic checks in here before developing an IR.
  * </p>
  * <p>
  * Doing too much focus on the type resolution only we need to call this many times when there a
@@ -30,7 +30,7 @@ import org.ek9lang.core.SharedThreadContext;
  * for classes and specific methods.
  * So quite a bit of the semantic checking can go on in here. As always fail as early as possible
  * in the phases. But process that phase to the end.
- * Note that CallId is particularly complex to deal with all the ways to handle TextForSomething()
+ * Note that CallId is particularly complex to deal with; all the ways to handle TextForSomething()
  * because it could be.
  * </p>
  * <pre>
@@ -117,6 +117,7 @@ public final class SymbolResolution extends CompilerPhase {
       throw new CompilerException("Compiler error, the parsed module must be present for " + source.getFileName());
     } else {
       final var parsedModule = holder.get();
+      //It is the ResolveDefineInferredTypeListener THAT DOES MOST OF THE WORK.
       final var phaseListener = new ResolveDefineInferredTypeListener(parsedModule);
       final var walker = new ParseTreeWalker();
 

@@ -17,9 +17,9 @@ public abstract class CheckReturns {
 
   }
 
-  protected void check(final boolean isStatement,
-                       final IToken parentToken,
-                       final EK9Parser.ReturningParamContext returningParamCtx) {
+  protected void returningParamOrError(final boolean isStatement,
+                                       final IToken parentToken,
+                                       final EK9Parser.ReturningParamContext returningParamCtx) {
 
     if (isStatement && returningParamCtx != null) {
       //We do not allow a return section. As it makes no sense
