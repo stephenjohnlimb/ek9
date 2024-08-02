@@ -24,7 +24,7 @@ import org.ek9lang.core.SharedThreadContext;
  * dynamic and has inference it means that not all checks can be completed until now.
  * It's a bit of brain fuzzer - because it relates to generics and type of types.
  * This class just deals with traversing the compilable program and all the modules,
- * then it calls the ParameterisedTypeChecker to check each in turn.
+ * then it calls the ParameterisedTypeOrError to check each in turn.
  */
 public class PostSymbolResolutionChecks extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.POST_RESOLUTION_CHECKS;
@@ -44,19 +44,19 @@ public class PostSymbolResolutionChecks extends CompilerPhase {
   @Override
   public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
 
-    checkParameterisedTypes();
+    parameterisedTypesValidOrError();
 
     return !sourceHasErrors.test(workspace.getSources());
   }
 
-  private void checkParameterisedTypes() {
+  private void parameterisedTypesValidOrError() {
 
     compilableProgramAccess.accept(program -> {
       for (var moduleName : program.getParsedModuleNames()) {
         final var parsedModules = program.getParsedModules(moduleName);
 
         for (var parsedModule : parsedModules) {
-          checkParameterisedTypesInModule(parsedModule);
+          parameterisedTypesValidInModuleOrError(parsedModule);
           listener.accept(new CompilationEvent(thisPhase, parsedModule, parsedModule.getSource()));
         }
       }
@@ -64,16 +64,16 @@ public class PostSymbolResolutionChecks extends CompilerPhase {
 
   }
 
-  private void checkParameterisedTypesInModule(final ParsedModule parsedModule) {
+  private void parameterisedTypesValidInModuleOrError(final ParsedModule parsedModule) {
 
     final var errorListener = parsedModule.getSource().getErrorListener();
-    final ParameterisedTypeChecker parameterisedTypeChecker = new ParameterisedTypeChecker(errorListener);
+    final ParameterisedTypeOrError parameterisedTypeOrError = new ParameterisedTypeOrError(errorListener);
     final var scope = parsedModule.getModuleScope();
 
     scope.getSymbolsForThisScope().stream()
         .filter(ISymbol::isParameterisedType)
         .map(PossibleGenericSymbol.class::cast)
-        .forEach(parameterisedTypeChecker);
+        .forEach(parameterisedTypeOrError);
   }
 
 }

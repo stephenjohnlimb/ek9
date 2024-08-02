@@ -9,7 +9,6 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.N
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.OPERATOR_NOT_DEFINED;
 import static org.ek9lang.compiler.support.SymbolFactory.ACCESSED;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
@@ -22,11 +21,11 @@ import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 /**
  * Does the detailed for of checking a specific possible generic symbol.
  */
-final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> {
+final class ParameterisedTypeOrError implements Consumer<PossibleGenericSymbol> {
   private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
   private final ErrorListener errorListener;
 
-  ParameterisedTypeChecker(final ErrorListener errorListener) {
+  ParameterisedTypeOrError(final ErrorListener errorListener) {
     this.errorListener = errorListener;
   }
 
@@ -35,19 +34,28 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
 
     possibleGenericSymbol.getGenericType().ifPresent(genericType -> {
 
-      final var parameterizingArguments = possibleGenericSymbol.getTypeParameterOrArguments();
-      final var genericTypeParameters = genericType.getTypeParameterOrArguments();
+      final var arguments = possibleGenericSymbol.getTypeParameterOrArguments();
+      final var parameters = genericType.getTypeParameterOrArguments();
+      parametersAndArgumentValidOrError(genericType, parameters, arguments, possibleGenericSymbol);
 
-      //Now tie up the generic T and its corresponding argument type.
-      for (int i = 0; i < genericTypeParameters.size(); i++) {
-        final var typeParameterT = genericTypeParameters.get(i);
-        final var typeArgumentForT = parameterizingArguments.get(i);
-        if (typeParameterT instanceof IAggregateSymbol aggregateT) {
-          checkParameterAndArgument(new TypeTuple(possibleGenericSymbol, genericType, typeArgumentForT), aggregateT);
-        }
-      }
     });
 
+  }
+
+  private void parametersAndArgumentValidOrError(final PossibleGenericSymbol genericType,
+                                                 final java.util.List<ISymbol> genericTypeParameters,
+                                                 final java.util.List<ISymbol> parameterizingArguments,
+                                                 final PossibleGenericSymbol possibleGenericSymbol) {
+
+    //Now tie up the generic T and its corresponding argument type.
+    for (int i = 0; i < genericTypeParameters.size(); i++) {
+      final var argument = parameterizingArguments.get(i);
+      final var parameter = genericTypeParameters.get(i);
+      if (parameter instanceof IAggregateSymbol aggregateT) {
+        final var tuple = new TypeTuple(possibleGenericSymbol, genericType, argument);
+        parameterAndArgumentValidOrError(tuple, aggregateT);
+      }
+    }
   }
 
   /**
@@ -56,8 +64,8 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
    * If it is not a constrained type then check which methods have been accessed and ensure they exist
    * and are callable on the argType provided.
    */
-  private void checkParameterAndArgument(final TypeTuple typeTuple,
-                                         final IAggregateSymbol aggregateT) {
+  private void parameterAndArgumentValidOrError(final TypeTuple typeTuple,
+                                                final IAggregateSymbol aggregateT) {
 
     aggregateT.getSuperAggregate().ifPresentOrElse(
         constrainedTType -> compatibleTypeOrError(typeTuple, constrainedTType),
@@ -83,14 +91,18 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
 
       final var methodSearch = createSearch(method, aggregateT, typeTuple.typeArgumentForT);
       final var resolved = aggregateArgType.resolveInThisScopeOnly(methodSearch);
-      checkMethodResolutionOrError(typeTuple, methodSearch, resolved, method);
+
+      resolved.ifPresentOrElse(
+          resolvedSymbol -> constructorArgumentNotAbstractOrError(typeTuple, resolvedSymbol),
+          () -> emitMissingMethodOrOperator(typeTuple, methodSearch, method)
+      );
 
     } else {
-      checkFunctionUseOrError(typeTuple, method);
+      functionUseValidOrError(typeTuple, method);
     }
   }
 
-  private void checkFunctionUseOrError(final TypeTuple typeTuple, final MethodSymbol method) {
+  private void functionUseValidOrError(final TypeTuple typeTuple, final MethodSymbol method) {
 
     final var location = locationExtractorFromSymbol.apply(method);
     final var msg = "'" + method.getFriendlyName() + "' " + location + ":";
@@ -103,36 +115,16 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
 
   }
 
-  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private void checkMethodResolutionOrError(final TypeTuple typeTuple,
-                                            final MethodSymbolSearch methodSearch,
-                                            final Optional<ISymbol> resolved,
-                                            final MethodSymbol method) {
+  private void constructorArgumentNotAbstractOrError(final TypeTuple typeTuple,
+                                                     final ISymbol resolvedSymbol) {
 
-    resolved.ifPresentOrElse(
-        resolvedSymbol -> {
-          if (resolvedSymbol instanceof MethodSymbol resolvedMethodSymbol
-              && resolvedMethodSymbol.isConstructor()
-              && typeTuple.typeArgumentForT.isMarkedAbstract()) {
+    if (resolvedSymbol instanceof MethodSymbol resolvedMethodSymbol
+        && resolvedMethodSymbol.isConstructor()
+        && typeTuple.typeArgumentForT.isMarkedAbstract()) {
 
-            final var location = locationExtractorFromSymbol.apply(resolvedSymbol);
-            final var msg = "'" + resolvedSymbol.getFriendlyName() + "' "
-                + location + " cannot be used with '"
-                + typeTuple.typeArgumentForT.getFriendlyName() + "':";
+      emitConstructorUsedWithAbstractTypeError(typeTuple, resolvedSymbol);
 
-            errorListener.semanticError(typeTuple.possibleGenericSymbol.getInitialisedBy(), msg,
-                CONSTRUCTOR_USED_ON_ABSTRACT_TYPE);
-          }
-        },
-        () -> {
-          final var classification = method.isConstructor() ? NOT_RESOLVED : OPERATOR_NOT_DEFINED;
-          final var msg = "'" + method.getFriendlyName() + "' " + "is used in '"
-              + typeTuple.genericType.getFriendlyName() + "', "
-              + "but '" + methodSearch + "' is not defined in '" + typeTuple.typeArgumentForT + "':";
-
-          errorListener.semanticError(typeTuple.possibleGenericSymbol.getInitialisedBy(), msg, classification);
-        });
-
+    }
   }
 
   /**
@@ -150,11 +142,7 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
     }
 
     if (!typeTuple.typeArgumentForT.isAssignableTo(constrainedTType)) {
-      final var msg = "wrt '" + typeTuple.genericType.getFriendlyName()
-          + "', '" + constrainedTType.getFriendlyName()
-          + "' and '" + typeTuple.typeArgumentForT.getFriendlyName() + "':";
-
-      errorListener.semanticError(typeTuple.possibleGenericSymbol.getInitialisedBy(), msg, INCOMPATIBLE_TYPES);
+      emitIncompatibleTypesError(typeTuple, constrainedTType);
     } else {
       minimalMatchingConstructorsOrError(typeTuple, constrainedTType);
     }
@@ -167,24 +155,66 @@ final class ParameterisedTypeChecker implements Consumer<PossibleGenericSymbol> 
     if (constrainedTType instanceof IAggregateSymbol constrainingAggregate
         && typeTuple.typeArgumentForT instanceof IAggregateSymbol typeArgumentAggregate) {
 
-      final var searches = constrainingAggregate.getAllNonAbstractMethodsInThisScopeOnly().stream()
-          .filter(MethodSymbol::isConstructor)
+      final var searches = constrainingAggregate.getConstructors().stream()
           .map(method -> new MethodSymbolSearch(typeTuple.typeArgumentForT.getName(), method))
           .toList();
 
       //Now have a list of searches, need to ensure they exist on the typeTuple.typeArgumentForT
       searches.forEach(search -> {
-        final var resolved = typeArgumentAggregate.resolveInThisScopeOnly(search);
-        if (resolved.isEmpty()) {
-          final var msg = "wrt constraining type '" + constrainedTType.getFriendlyName()
-              + "' and parameterizing type '" + typeTuple.typeArgumentForT.getFriendlyName() + "',"
-              + " constructor '" + search + "' is required:";
-          errorListener.semanticError(typeTuple.possibleGenericSymbol.getInitialisedBy(), msg,
-              CONSTRAINED_TYPE_CONSTRUCTOR_MISSING);
+        if (typeArgumentAggregate.resolveInThisScopeOnly(search).isEmpty()) {
+          emitConstrainedTypeConstructorMissingError(typeTuple, search, constrainingAggregate);
         }
       });
 
     }
+  }
+
+  private void emitMissingMethodOrOperator(final TypeTuple typeTuple,
+                                           final MethodSymbolSearch methodSearch,
+                                           final MethodSymbol method) {
+
+    final var classification = method.isConstructor() ? NOT_RESOLVED : OPERATOR_NOT_DEFINED;
+    final var msg = "'" + method.getFriendlyName() + "' " + "is used in '"
+        + typeTuple.genericType.getFriendlyName() + "', "
+        + "but '" + methodSearch + "' is not defined in '" + typeTuple.typeArgumentForT + "':";
+
+    errorListener.semanticError(typeTuple.possibleGenericSymbol.getInitialisedBy(), msg, classification);
+
+  }
+
+  private void emitConstructorUsedWithAbstractTypeError(final TypeTuple typeTuple,
+                                                        final ISymbol resolvedSymbol) {
+
+    final var location = locationExtractorFromSymbol.apply(resolvedSymbol);
+    final var msg = "'" + resolvedSymbol.getFriendlyName() + "' "
+        + location + " cannot be used with '"
+        + typeTuple.typeArgumentForT.getFriendlyName() + "':";
+
+    errorListener.semanticError(typeTuple.possibleGenericSymbol.getInitialisedBy(), msg,
+        CONSTRUCTOR_USED_ON_ABSTRACT_TYPE);
+
+  }
+
+  private void emitIncompatibleTypesError(final TypeTuple typeTuple,
+                                          final ISymbol constrainedTType) {
+
+    final var msg = "wrt '" + typeTuple.genericType.getFriendlyName()
+        + "', '" + constrainedTType.getFriendlyName()
+        + "' and '" + typeTuple.typeArgumentForT.getFriendlyName() + "':";
+    errorListener.semanticError(typeTuple.possibleGenericSymbol.getInitialisedBy(), msg, INCOMPATIBLE_TYPES);
+
+  }
+
+  private void emitConstrainedTypeConstructorMissingError(final TypeTuple typeTuple,
+                                                          final MethodSymbolSearch search,
+                                                          final IAggregateSymbol constrainedTType) {
+
+    final var msg = "wrt constraining type '" + constrainedTType.getFriendlyName()
+        + "' and parameterizing type '" + typeTuple.typeArgumentForT.getFriendlyName() + "',"
+        + " constructor '" + search + "' is required:";
+    errorListener.semanticError(typeTuple.possibleGenericSymbol.getInitialisedBy(), msg,
+        CONSTRAINED_TYPE_CONSTRUCTOR_MISSING);
+
   }
 
   /**
