@@ -8,69 +8,71 @@ import org.ek9lang.compiler.common.ScopeStackConsistencyListener;
  * Designed to do additional logic checks once everything has been resolved.
  * Initially focused on ensuring that uninitialised variables are initialised before being used.
  * But may extend to other forms of checks. For example booleans set to literals and never altered and used in an 'if'.
+ * This is designed to try and catch as much as possible before creating an Intermediate Representation and doing
+ * further checks.
  */
-final class PreIRCheckListener extends ScopeStackConsistencyListener {
-  private final ProcessVariableOnlyDeclaration processVariableOnlyDeclaration;
-  private final ProcessAssignmentStatement processAssignmentStatement;
+final class PreIRListener extends ScopeStackConsistencyListener {
+  private final VariableOnlyOrError variableOnlyOrError;
+  private final AssignmentStatementOrError assignmentStatementOrError;
   private final ProcessGuardExpression processGuardExpression;
-  private final ProcessIdentifierReference processIdentifierReference;
-  private final ProcessIfStatement processIfStatement;
-  private final ProcessSwitchStatement processSwitchStatement;
-  private final ProcessTryStatement processTryStatement;
-  private final ProcessForStatement processForStatement;
-  private final ProcessWhileStatement processWhileStatement;
-  private final ProcessFunctionDeclaration processFunctionDeclaration;
-  private final ProcessMethodDeclaration processMethodDeclaration;
-  private final ProcessOperatorDeclaration processOperatorDeclaration;
-  private final ProcessServiceOperationDeclaration processServiceOperationDeclaration;
-  private final ProcessDynamicFunctionDeclarationEntry processDynamicFunctionDeclarationEntry;
-  private final ProcessDynamicFunctionDeclarationExit processDynamicFunctionDeclarationExit;
-  private final ProcessIdentifierAsProperty processIdentifierAsProperty;
+  private final IdentifierReferenceOrError identifierReferenceOrError;
+  private final IfStatementOrError ifStatementOrError;
+  private final SwitchStatementOrError switchStatementOrError;
+  private final TryStatementOrError tryStatementOrError;
+  private final ForStatementOrError forStatementOrError;
+  private final WhileStatementOrError whileStatementOrError;
+  private final FunctionOrError functionOrError;
+  private final MethodOrError methodOrError;
+  private final OperatorOrError operatorOrError;
+  private final ServiceOperationOrError serviceOperationOrError;
+  private final ProcessDynamicFunctionEntry processDynamicFunctionDeclarationEntry;
+  private final DynamicFunctionOrError dynamicFunctionOrError;
+  private final IdentifierAsPropertyOrError processIdentifierAsProperty;
 
-  PreIRCheckListener(final ParsedModule parsedModule) {
+  PreIRListener(final ParsedModule parsedModule) {
     
     super(parsedModule);
     final var errorListener = parsedModule.getSource().getErrorListener();
     
-    this.processVariableOnlyDeclaration =
-        new ProcessVariableOnlyDeclaration(symbolsAndScopes, errorListener);
-    this.processAssignmentStatement =
-        new ProcessAssignmentStatement(symbolsAndScopes, errorListener);
+    this.variableOnlyOrError =
+        new VariableOnlyOrError(symbolsAndScopes, errorListener);
+    this.assignmentStatementOrError =
+        new AssignmentStatementOrError(symbolsAndScopes, errorListener);
     this.processGuardExpression =
         new ProcessGuardExpression(symbolsAndScopes, errorListener);
-    this.processIdentifierReference =
-        new ProcessIdentifierReference(symbolsAndScopes, errorListener);
-    this.processIfStatement =
-        new ProcessIfStatement(symbolsAndScopes, errorListener);
-    this.processSwitchStatement =
-        new ProcessSwitchStatement(symbolsAndScopes, errorListener);
-    this.processForStatement =
-        new ProcessForStatement(symbolsAndScopes, errorListener);
-    this.processTryStatement =
-        new ProcessTryStatement(symbolsAndScopes, errorListener);
-    this.processWhileStatement =
-        new ProcessWhileStatement(symbolsAndScopes, errorListener);
-    this.processFunctionDeclaration =
-        new ProcessFunctionDeclaration(symbolsAndScopes, errorListener);
-    this.processMethodDeclaration =
-        new ProcessMethodDeclaration(symbolsAndScopes, errorListener);
-    this.processOperatorDeclaration =
-        new ProcessOperatorDeclaration(symbolsAndScopes, errorListener);
-    this.processServiceOperationDeclaration =
-        new ProcessServiceOperationDeclaration(symbolsAndScopes, errorListener);
+    this.identifierReferenceOrError =
+        new IdentifierReferenceOrError(symbolsAndScopes, errorListener);
+    this.ifStatementOrError =
+        new IfStatementOrError(symbolsAndScopes, errorListener);
+    this.switchStatementOrError =
+        new SwitchStatementOrError(symbolsAndScopes, errorListener);
+    this.forStatementOrError =
+        new ForStatementOrError(symbolsAndScopes, errorListener);
+    this.tryStatementOrError =
+        new TryStatementOrError(symbolsAndScopes, errorListener);
+    this.whileStatementOrError =
+        new WhileStatementOrError(symbolsAndScopes, errorListener);
+    this.functionOrError =
+        new FunctionOrError(symbolsAndScopes, errorListener);
+    this.methodOrError =
+        new MethodOrError(symbolsAndScopes, errorListener);
+    this.operatorOrError =
+        new OperatorOrError(symbolsAndScopes, errorListener);
+    this.serviceOperationOrError =
+        new ServiceOperationOrError(symbolsAndScopes, errorListener);
     this.processDynamicFunctionDeclarationEntry =
-        new ProcessDynamicFunctionDeclarationEntry(symbolsAndScopes, errorListener);
-    this.processDynamicFunctionDeclarationExit =
-        new ProcessDynamicFunctionDeclarationExit(symbolsAndScopes, errorListener);
+        new ProcessDynamicFunctionEntry(symbolsAndScopes, errorListener);
+    this.dynamicFunctionOrError =
+        new DynamicFunctionOrError(symbolsAndScopes, errorListener);
     this.processIdentifierAsProperty =
-        new ProcessIdentifierAsProperty(symbolsAndScopes, errorListener);
+        new IdentifierAsPropertyOrError(symbolsAndScopes, errorListener);
     
   }
 
   @Override
   public void enterVariableOnlyDeclaration(final EK9Parser.VariableOnlyDeclarationContext ctx) {
 
-    processVariableOnlyDeclaration.accept(ctx);
+    variableOnlyOrError.accept(ctx);
 
     super.enterVariableOnlyDeclaration(ctx);
   }
@@ -78,7 +80,7 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
   @Override
   public void enterAssignmentStatement(final EK9Parser.AssignmentStatementContext ctx) {
 
-    processAssignmentStatement.accept(ctx);
+    assignmentStatementOrError.accept(ctx);
 
     super.enterAssignmentStatement(ctx);
   }
@@ -103,7 +105,7 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
   @Override
   public void exitIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx) {
 
-    processIdentifierReference.accept(ctx);
+    identifierReferenceOrError.accept(ctx);
 
     super.exitIdentifierReference(ctx);
   }
@@ -114,7 +116,7 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
     //Note that exit to pop stack first.
     super.exitIfStatement(ctx);
 
-    processIfStatement.accept(ctx);
+    ifStatementOrError.accept(ctx);
   }
 
   @Override
@@ -122,7 +124,7 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
 
     super.exitSwitchStatementExpression(ctx);
 
-    processSwitchStatement.accept(ctx);
+    switchStatementOrError.accept(ctx);
   }
 
   @Override
@@ -130,7 +132,7 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
 
     super.exitTryStatementExpression(ctx);
 
-    processTryStatement.accept(ctx);
+    tryStatementOrError.accept(ctx);
   }
 
   @Override
@@ -138,7 +140,7 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
 
     super.exitForStatementExpression(ctx);
 
-    processForStatement.accept(ctx);
+    forStatementOrError.accept(ctx);
   }
 
   @Override
@@ -146,12 +148,12 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
 
     super.exitWhileStatementExpression(ctx);
 
-    processWhileStatement.accept(ctx);
+    whileStatementOrError.accept(ctx);
   }
 
   /**
-   * On enter dynamic function need to record any return symbol, because we won't parse the text as it is inferred.
-   * The on exit still need to do the same return processing to see if the rtn has been initialised.
+   * On entry of a dynamic function need to record any return symbol, because we won't parse the text as it is inferred.
+   * The on exit handler still needs to do the same return processing to see if the rtn has been initialised.
    * But again cannot depend on source structure because the return is inferred and also the error has to
    * appear on the dynamic function declaration because there will be not '&lt;-' to report the error on.
    * Downside of having dynamic function infer arguments and returns, but worth it for the terseness.
@@ -167,7 +169,7 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
   @Override
   public void exitDynamicFunctionDeclaration(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
 
-    processDynamicFunctionDeclarationExit.accept(ctx);
+    dynamicFunctionOrError.accept(ctx);
 
     super.exitDynamicFunctionDeclaration(ctx);
   }
@@ -175,7 +177,7 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
   @Override
   public void exitFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
 
-    processFunctionDeclaration.accept(ctx);
+    functionOrError.accept(ctx);
 
     super.exitFunctionDeclaration(ctx);
   }
@@ -183,7 +185,7 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
   @Override
   public void exitMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
 
-    processMethodDeclaration.accept(ctx);
+    methodOrError.accept(ctx);
 
     super.exitMethodDeclaration(ctx);
   }
@@ -191,7 +193,7 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
   @Override
   public void exitOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
 
-    processOperatorDeclaration.accept(ctx);
+    operatorOrError.accept(ctx);
 
     super.exitOperatorDeclaration(ctx);
   }
@@ -199,7 +201,7 @@ final class PreIRCheckListener extends ScopeStackConsistencyListener {
   @Override
   public void exitServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
 
-    processServiceOperationDeclaration.accept(ctx);
+    serviceOperationOrError.accept(ctx);
 
     super.exitServiceOperationDeclaration(ctx);
   }

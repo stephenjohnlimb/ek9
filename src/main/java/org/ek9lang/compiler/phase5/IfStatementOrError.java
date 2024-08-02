@@ -17,18 +17,18 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * Initially, this was just were variables initialised. But now the introduction of CodeFlowAnalyzers
  * means that several forms of symbol analysis can take place.
  */
-final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9Parser.IfStatementContext> {
-  ProcessIfStatement(final SymbolsAndScopes symbolsAndScopes,
+final class IfStatementOrError extends TypedSymbolAccess implements Consumer<EK9Parser.IfStatementContext> {
+  private final List<CodeFlowAnalyzer> analyzers;
+
+  IfStatementOrError(final SymbolsAndScopes symbolsAndScopes,
                      final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
-
+    this.analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
   }
 
   @Override
   public void accept(final EK9Parser.IfStatementContext ctx) {
-
-    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
 
     if (isGuardExpressionPresent(ctx)) {
       processGuardInitialisation(analyzers, ctx);
@@ -125,6 +125,7 @@ final class ProcessIfStatement extends TypedSymbolAccess implements Consumer<EK9
             .map(ifControl -> ifControl.block().instructionBlock())
             .map(symbolsAndScopes::getRecordedScope)
             .toList();
+
     allBlocks.addAll(allIfInstructionBlocks);
 
     return allBlocks;

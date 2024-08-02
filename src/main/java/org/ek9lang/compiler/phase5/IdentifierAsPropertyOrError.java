@@ -15,12 +15,12 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * If so it then process the safe access methods to check that a property when not initialised
  * during declaration can be safely accessed within a method body.
  */
-public class ProcessIdentifierAsProperty extends TypedSymbolAccess implements Consumer<EK9Parser.IdentifierContext> {
+public class IdentifierAsPropertyOrError extends TypedSymbolAccess implements Consumer<EK9Parser.IdentifierContext> {
   private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
   private final MakesIdentifierSubsequenceAccessSafe makesIdentifierSubsequenceAccessSafe
       = new MakesIdentifierSubsequenceAccessSafe();
 
-  protected ProcessIdentifierAsProperty(final SymbolsAndScopes symbolsAndScopes,
+  protected IdentifierAsPropertyOrError(final SymbolsAndScopes symbolsAndScopes,
                                         final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);

@@ -3,38 +3,40 @@ package org.ek9lang.compiler.phase5;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.common.CodeFlowAnalyzer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 
 /**
  * Checks the while statement via the code analysers.
  */
-final class ProcessWhileStatement extends PossibleExpressionConstruct
+final class WhileStatementOrError extends PossibleExpressionConstruct
     implements Consumer<EK9Parser.WhileStatementExpressionContext> {
-  ProcessWhileStatement(final SymbolsAndScopes symbolsAndScopes,
+
+  private final List<CodeFlowAnalyzer> analyzers;
+
+  WhileStatementOrError(final SymbolsAndScopes symbolsAndScopes,
                         final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
-
+    this.analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
   }
 
   @Override
   public void accept(final EK9Parser.WhileStatementExpressionContext ctx) {
 
-    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
     final var possibleGuardVariable = getGuardExpressionVariable(ctx.preFlowStatement());
 
     possibleGuardVariable.ifPresent(guardVariable ->
         analyzers.forEach(analyzer -> processPossibleGuardInitialisation(analyzer, guardVariable, ctx)));
 
-    checkLoopBodyAndReturn(ctx, possibleGuardVariable.isEmpty());
+    loopBodyAndReturnValidOrError(ctx, possibleGuardVariable.isEmpty());
 
   }
 
-  private void checkLoopBodyAndReturn(final EK9Parser.WhileStatementExpressionContext ctx,
-                                      final boolean noGuardExpression) {
+  private void loopBodyAndReturnValidOrError(final EK9Parser.WhileStatementExpressionContext ctx,
+                                             final boolean noGuardExpression) {
 
-    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
     final var isDoWhile = ctx.DO() != null;
     final var outerScope = symbolsAndScopes.getTopScope();
     final var whileScope = symbolsAndScopes.getRecordedScope(ctx);
@@ -48,7 +50,7 @@ final class ProcessWhileStatement extends PossibleExpressionConstruct
       analyzers.forEach(analyzer -> pullUpAcceptableCriteriaToHigherScope(analyzer, loopBodyScope, outerScope));
     }
 
-    checkReturningVariableOrError(ctx.returningParam(), whileScope, noGuardExpression);
+    returningVariableValidOrError(ctx.returningParam(), whileScope, noGuardExpression);
 
   }
 

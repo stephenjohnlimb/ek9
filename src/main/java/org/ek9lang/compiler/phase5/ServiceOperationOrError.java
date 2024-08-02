@@ -9,16 +9,16 @@ import org.ek9lang.compiler.common.TypedSymbolAccess;
 /**
  * Typically checks any returning values to see if they have now been initialised on a service operation.
  */
-final class ProcessServiceOperationDeclaration extends TypedSymbolAccess
+final class ServiceOperationOrError extends TypedSymbolAccess
     implements Consumer<EK9Parser.ServiceOperationDeclarationContext> {
 
-  private final ProcessReturningVariable processReturningVariable;
+  private final ReturningVariableOrError returningVariableOrError;
 
-  ProcessServiceOperationDeclaration(final SymbolsAndScopes symbolsAndScopes,
-                                     final ErrorListener errorListener) {
+  ServiceOperationOrError(final SymbolsAndScopes symbolsAndScopes,
+                          final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
-    this.processReturningVariable = new ProcessReturningVariable(symbolsAndScopes, errorListener);
+    this.returningVariableOrError = new ReturningVariableOrError(symbolsAndScopes, errorListener);
 
   }
 
@@ -27,7 +27,7 @@ final class ProcessServiceOperationDeclaration extends TypedSymbolAccess
 
     if (ctx.operationDetails() != null && ctx.operationDetails().returningParam() != null) {
       final var scope = symbolsAndScopes.getRecordedScope(ctx);
-      processReturningVariable.accept(scope, ctx.operationDetails());
+      returningVariableOrError.accept(scope, ctx.operationDetails());
     }
 
   }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.common.CodeFlowAnalyzer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.IScope;
@@ -14,33 +15,34 @@ import org.ek9lang.compiler.symbols.IScope;
  * Initially, this was just were variables initialised. But now the introduction of CodeFlowAnalyzers
  * means that several forms of symbol analysis can take place.
  */
-final class ProcessSwitchStatement extends PossibleExpressionConstruct
+final class SwitchStatementOrError extends PossibleExpressionConstruct
     implements Consumer<EK9Parser.SwitchStatementExpressionContext> {
 
-  ProcessSwitchStatement(final SymbolsAndScopes symbolsAndScopes,
+  private final List<CodeFlowAnalyzer> analyzers;
+
+  SwitchStatementOrError(final SymbolsAndScopes symbolsAndScopes,
                          final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
+    this.analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
 
   }
 
   @Override
   public void accept(final EK9Parser.SwitchStatementExpressionContext ctx) {
 
-    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
     final var possibleGuardVariable = getGuardExpressionVariable(ctx.preFlowAndControl());
 
     possibleGuardVariable.ifPresent(guardVariable ->
         analyzers.forEach(analyzer -> processPossibleGuardInitialisation(analyzer, guardVariable, ctx)));
 
-    checkCasesDefaultAndReturn(ctx, possibleGuardVariable.isEmpty());
+    casesDefaultAndReturnValidOrError(ctx, possibleGuardVariable.isEmpty());
 
   }
 
-  private void checkCasesDefaultAndReturn(final EK9Parser.SwitchStatementExpressionContext ctx,
-                                          final boolean noGuardExpression) {
+  private void casesDefaultAndReturnValidOrError(final EK9Parser.SwitchStatementExpressionContext ctx,
+                                                 final boolean noGuardExpression) {
 
-    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
     final var allBlocks = getAllBlocks(ctx);
     final var outerScope = symbolsAndScopes.getTopScope();
     final var switchScope = symbolsAndScopes.getRecordedScope(ctx);
@@ -51,7 +53,7 @@ final class ProcessSwitchStatement extends PossibleExpressionConstruct
       analyzers.forEach(analyzer -> pullUpAcceptableCriteriaToHigherScope(analyzer, allBlocks, outerScope));
     }
 
-    checkReturningVariableOrError(ctx.returningParam(), switchScope, noGuardExpression);
+    returningVariableValidOrError(ctx.returningParam(), switchScope, noGuardExpression);
 
   }
 
@@ -72,6 +74,7 @@ final class ProcessSwitchStatement extends PossibleExpressionConstruct
             .map(ifControl -> ifControl.block().instructionBlock())
             .map(symbolsAndScopes::getRecordedScope)
             .toList();
+
     allBlocks.addAll(allCaseInstructionBlocks);
 
     return allBlocks;

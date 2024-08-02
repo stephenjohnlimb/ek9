@@ -16,10 +16,10 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * This is on exiting the dynamic function declaration - so here it is necessary to check the
  * returning symbol.
  */
-final class ProcessDynamicFunctionDeclarationExit extends TypedSymbolAccess
+final class DynamicFunctionOrError extends TypedSymbolAccess
     implements Consumer<EK9Parser.DynamicFunctionDeclarationContext> {
-  ProcessDynamicFunctionDeclarationExit(final SymbolsAndScopes symbolsAndScopes,
-                                        final ErrorListener errorListener) {
+  DynamicFunctionOrError(final SymbolsAndScopes symbolsAndScopes,
+                         final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
 
@@ -43,7 +43,7 @@ final class ProcessDynamicFunctionDeclarationExit extends TypedSymbolAccess
         updateReturningSymbol(variable, functionSymbol, instructionsScope);
       }
 
-      checkInitialisedOrError(ctx, variable, functionSymbol);
+      initialisedOrError(ctx, variable, functionSymbol);
     });
 
   }
@@ -61,9 +61,9 @@ final class ProcessDynamicFunctionDeclarationExit extends TypedSymbolAccess
 
   }
 
-  private void checkInitialisedOrError(final EK9Parser.DynamicFunctionDeclarationContext ctx,
-                                       final ISymbol variable,
-                                       final IScope scope) {
+  private void initialisedOrError(final EK9Parser.DynamicFunctionDeclarationContext ctx,
+                                  final ISymbol variable,
+                                  final IScope scope) {
 
     if (!symbolsAndScopes.isVariableInitialised(variable, scope)) {
       errorListener.semanticError(ctx.start, "'" + variable.getName() + "':", RETURN_NOT_ALWAYS_INITIALISED);

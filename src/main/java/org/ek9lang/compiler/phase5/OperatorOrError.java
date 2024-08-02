@@ -10,28 +10,27 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 /**
  * Typically checks any returning values to see if they have now been initialised on an operator.
  */
-final class ProcessOperatorDeclaration extends TypedSymbolAccess
+final class OperatorOrError extends TypedSymbolAccess
     implements Consumer<EK9Parser.OperatorDeclarationContext> {
 
-  private final ProcessReturningVariable processReturningVariable;
+  private final ReturningVariableOrError returningVariableOrError;
 
-  ProcessOperatorDeclaration(final SymbolsAndScopes symbolsAndScopes,
-                             final ErrorListener errorListener) {
+  OperatorOrError(final SymbolsAndScopes symbolsAndScopes,
+                  final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
-    this.processReturningVariable = new ProcessReturningVariable(symbolsAndScopes, errorListener);
+    this.returningVariableOrError = new ReturningVariableOrError(symbolsAndScopes, errorListener);
 
   }
 
   @Override
   public void accept(final EK9Parser.OperatorDeclarationContext ctx) {
 
-    final var method = (MethodSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
-
-    if (!method.isMarkedAbstract() && ctx.operationDetails() != null
+    if (symbolsAndScopes.getRecordedSymbol(ctx) instanceof MethodSymbol method
+        && !method.isMarkedAbstract() && ctx.operationDetails() != null
         && ctx.operationDetails().returningParam() != null) {
       final var scope = symbolsAndScopes.getRecordedScope(ctx);
-      processReturningVariable.accept(scope, ctx.operationDetails());
+      returningVariableOrError.accept(scope, ctx.operationDetails());
     }
 
   }

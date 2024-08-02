@@ -38,12 +38,12 @@ public class PreIntermediateRepresentationChecks extends CompilerPhase {
 
     workspace.getSources()
         .parallelStream()
-        .forEach(this::resolveOrDefineTypeSymbols);
+        .forEach(this::structureValidOrError);
 
     return !sourceHasErrors.test(workspace.getSources());
   }
 
-  private void resolveOrDefineTypeSymbols(final CompilableSource source) {
+  private void structureValidOrError(final CompilableSource source) {
 
     //First get the parsed module for this source file.
     //This has to be done via a mutable holder through a reentrant lock to the program
@@ -56,7 +56,7 @@ public class PreIntermediateRepresentationChecks extends CompilerPhase {
       throw new CompilerException("Compiler error, the parsed module must be present for " + source.getFileName());
     } else {
       final var parsedModule = holder.get();
-      final var phaseListener = new PreIRCheckListener(parsedModule);
+      final var phaseListener = new PreIRListener(parsedModule);
       final var walker = new ParseTreeWalker();
 
       walker.walk(phaseListener, source.getCompilationUnitContext());

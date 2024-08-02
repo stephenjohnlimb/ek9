@@ -10,9 +10,9 @@ import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 
-final class ProcessReturningVariable extends TypedSymbolAccess
+final class ReturningVariableOrError extends TypedSymbolAccess
     implements BiConsumer<IScope, EK9Parser.OperationDetailsContext> {
-  ProcessReturningVariable(final SymbolsAndScopes symbolsAndScopes,
+  ReturningVariableOrError(final SymbolsAndScopes symbolsAndScopes,
                            final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
@@ -29,7 +29,7 @@ final class ProcessReturningVariable extends TypedSymbolAccess
       if (ctx.instructionBlock() != null) {
         updateReturningSymbol(ctx, variable, mainScope);
       }
-      checkInitialisedOrError(ctx.returningParam(), variable, mainScope);
+      initialisedOrError(ctx.returningParam(), variable, mainScope);
     });
 
   }
@@ -47,9 +47,9 @@ final class ProcessReturningVariable extends TypedSymbolAccess
 
   }
 
-  private void checkInitialisedOrError(final EK9Parser.ReturningParamContext ctx,
-                                       final ISymbol variable,
-                                       final IScope scope) {
+  private void initialisedOrError(final EK9Parser.ReturningParamContext ctx,
+                                  final ISymbol variable,
+                                  final IScope scope) {
 
     if (!symbolsAndScopes.isVariableInitialised(variable, scope)) {
       errorListener.semanticError(ctx.LEFT_ARROW().getSymbol(),

@@ -88,17 +88,17 @@ abstract class PossibleExpressionConstruct extends TypedSymbolAccess {
 
   }
 
-  protected void checkReturningVariableOrError(final EK9Parser.ReturningParamContext ctx,
-                                               final IScope switchScope,
+  protected void returningVariableValidOrError(final EK9Parser.ReturningParamContext ctx,
+                                               final IScope constructScope,
                                                final boolean noGuardExpression) {
 
     final Consumer<ISymbol> errorIssuer = variable -> errorListener.semanticError(ctx.LEFT_ARROW().getSymbol(),
         "'" + variable.getName() + "':", RETURN_NOT_ALWAYS_INITIALISED);
 
     if (ctx != null) {
-      //Note that the returning variable is registered against the switch scope.
+      //Note that the returning variable is registered against the scope of the construct.
       final var returningVariable = symbolsAndScopes.getRecordedSymbol(ctx);
-      if (!symbolsAndScopes.isVariableInitialised(returningVariable, switchScope)) {
+      if (!symbolsAndScopes.isVariableInitialised(returningVariable, constructScope)) {
         errorIssuer.accept(returningVariable);
       }
 

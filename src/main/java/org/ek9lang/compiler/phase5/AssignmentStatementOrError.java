@@ -16,14 +16,14 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * Check the assignment to a variable can be a single assignment or a deep copy type assignment.
  * The initialised status of the variable may be modified and will be checked as appropriate.
  */
-final class ProcessAssignmentStatement extends TypedSymbolAccess
+final class AssignmentStatementOrError extends TypedSymbolAccess
     implements Consumer<EK9Parser.AssignmentStatementContext> {
 
   private final OperationIsAssignment operationIsAssignment = new OperationIsAssignment();
   private final UninitialisedVariableToBeChecked uninitialisedVariableToBeChecked =
       new UninitialisedVariableToBeChecked();
 
-  ProcessAssignmentStatement(final SymbolsAndScopes symbolsAndScopes,
+  AssignmentStatementOrError(final SymbolsAndScopes symbolsAndScopes,
                              final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
@@ -39,18 +39,18 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
 
     if (ctx.identifier() != null) {
       final var symbol = symbolsAndScopes.getRecordedSymbol(ctx.identifier());
-      checkGeneralAssignment(ctx, symbol);
+      generalAssignmentOrError(ctx, symbol);
     }
 
   }
 
-  private void checkGeneralAssignment(final EK9Parser.AssignmentStatementContext ctx, final ISymbol symbol) {
+  private void generalAssignmentOrError(final EK9Parser.AssignmentStatementContext ctx, final ISymbol symbol) {
 
     if (uninitialisedVariableToBeChecked.test(symbol)) {
       if (operationIsAssignment.test(new Ek9Token(ctx.op))) {
         simpleAssignment(symbol);
       } else {
-        checkDeepAssignment(ctx, symbol);
+        deepAssignmentOrError(ctx, symbol);
       }
     }
 
@@ -66,7 +66,7 @@ final class ProcessAssignmentStatement extends TypedSymbolAccess
    * It's a deep sort of assignment that requires the variable to have been initialised.
    * So if not - we'd issue an error here.
    */
-  private void checkDeepAssignment(final EK9Parser.AssignmentStatementContext ctx, final ISymbol symbol) {
+  private void deepAssignmentOrError(final EK9Parser.AssignmentStatementContext ctx, final ISymbol symbol) {
 
     final var initialised = symbolsAndScopes.isVariableInitialised(symbol);
     if (!initialised) {

@@ -9,11 +9,12 @@ import org.ek9lang.compiler.symbols.FunctionSymbol;
 
 /**
  * Deals with handling any returning values in a dynamic function.
+ * This is the entry handler into a dynamic function.
  */
-final class ProcessDynamicFunctionDeclarationEntry extends TypedSymbolAccess
+final class ProcessDynamicFunctionEntry extends TypedSymbolAccess
     implements Consumer<EK9Parser.DynamicFunctionDeclarationContext> {
-  ProcessDynamicFunctionDeclarationEntry(final SymbolsAndScopes symbolsAndScopes,
-                                         final ErrorListener errorListener) {
+  ProcessDynamicFunctionEntry(final SymbolsAndScopes symbolsAndScopes,
+                              final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
 

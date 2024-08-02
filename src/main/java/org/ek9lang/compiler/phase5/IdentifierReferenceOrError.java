@@ -10,13 +10,13 @@ import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.common.UninitialisedVariableToBeChecked;
 
 
-final class ProcessIdentifierReference extends TypedSymbolAccess
+final class IdentifierReferenceOrError extends TypedSymbolAccess
     implements Consumer<EK9Parser.IdentifierReferenceContext> {
 
   private final UninitialisedVariableToBeChecked uninitialisedVariableToBeChecked =
       new UninitialisedVariableToBeChecked();
 
-  ProcessIdentifierReference(final SymbolsAndScopes symbolsAndScopes,
+  IdentifierReferenceOrError(final SymbolsAndScopes symbolsAndScopes,
                              final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);

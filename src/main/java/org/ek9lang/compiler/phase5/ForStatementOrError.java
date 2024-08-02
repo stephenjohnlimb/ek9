@@ -3,43 +3,45 @@ package org.ek9lang.compiler.phase5;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.common.CodeFlowAnalyzer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 
 /**
  * Checks the for structure via the code analysers.
  */
-final class ProcessForStatement extends PossibleExpressionConstruct
+final class ForStatementOrError extends PossibleExpressionConstruct
     implements Consumer<EK9Parser.ForStatementExpressionContext> {
-  ProcessForStatement(final SymbolsAndScopes symbolsAndScopes,
+  private final List<CodeFlowAnalyzer> analyzers;
+
+  ForStatementOrError(final SymbolsAndScopes symbolsAndScopes,
                       final ErrorListener errorListener) {
     super(symbolsAndScopes, errorListener);
+    this.analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
   }
 
   @Override
   public void accept(final EK9Parser.ForStatementExpressionContext ctx) {
 
-    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
     final var possibleGuardVariable = getGuardExpressionVariable(getPreFlowStatement(ctx));
 
     possibleGuardVariable.ifPresent(guardVariable ->
         analyzers.forEach(analyzer -> processPossibleGuardInitialisation(analyzer, guardVariable, ctx)));
 
-    checkLoopBodyAndReturn(ctx, possibleGuardVariable.isEmpty());
+    loopBodyAndReturnValidOrError(ctx, possibleGuardVariable.isEmpty());
 
   }
 
-  private void checkLoopBodyAndReturn(final EK9Parser.ForStatementExpressionContext ctx,
-                                      final boolean noGuardExpression) {
-
-    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
+  private void loopBodyAndReturnValidOrError(final EK9Parser.ForStatementExpressionContext ctx,
+                                             final boolean noGuardExpression) {
+    
     final var forScope = symbolsAndScopes.getRecordedScope(ctx);
     //Note that none of the body alters the outer loop, only the possible guard expression does that.
     final var loopBodyScope = List.of(symbolsAndScopes.getRecordedScope(ctx.instructionBlock()));
 
     analyzers.forEach(analyzer -> pullUpAcceptableCriteriaToHigherScope(analyzer, loopBodyScope, forScope));
 
-    checkReturningVariableOrError(ctx.returningParam(), forScope, noGuardExpression);
+    returningVariableValidOrError(ctx.returningParam(), forScope, noGuardExpression);
 
   }
 

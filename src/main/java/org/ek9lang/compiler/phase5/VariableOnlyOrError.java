@@ -13,10 +13,10 @@ import org.ek9lang.compiler.symbols.VariableSymbol;
 /**
  * Accepts a variable only declaration and ensures the variable is recorded if appropriate, for transient flow checks.
  */
-final class ProcessVariableOnlyDeclaration extends TypedSymbolAccess
+final class VariableOnlyOrError extends TypedSymbolAccess
     implements Consumer<EK9Parser.VariableOnlyDeclarationContext> {
-  ProcessVariableOnlyDeclaration(final SymbolsAndScopes symbolsAndScopes,
-                                 final ErrorListener errorListener) {
+  VariableOnlyOrError(final SymbolsAndScopes symbolsAndScopes,
+                      final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
 
@@ -25,8 +25,8 @@ final class ProcessVariableOnlyDeclaration extends TypedSymbolAccess
   @Override
   public void accept(final EK9Parser.VariableOnlyDeclarationContext ctx) {
 
-    if (ctx.QUESTION() != null) {
-      final var variable = (VariableSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
+    if (ctx.QUESTION() != null
+        && symbolsAndScopes.getRecordedSymbol(ctx) instanceof VariableSymbol variable) {
       //Then we know it was not initialised at declaration, so record it,
       //this will be recorded against the current scope
       symbolsAndScopes.recordSymbolDeclaration(variable);

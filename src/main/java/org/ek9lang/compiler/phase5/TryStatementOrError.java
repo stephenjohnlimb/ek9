@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.common.CodeFlowAnalyzer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.IScope;
@@ -13,34 +14,34 @@ import org.ek9lang.compiler.symbols.IScope;
  * This is for each variable at this scope, once we know it is initialised in preflow all good.
  * So this below is a cascade of more checks but once we know it's assigned that's it.
  */
-final class ProcessTryStatement extends PossibleExpressionConstruct
+final class TryStatementOrError extends PossibleExpressionConstruct
     implements Consumer<EK9Parser.TryStatementExpressionContext> {
 
+  private final List<CodeFlowAnalyzer> analyzers;
 
-  ProcessTryStatement(final SymbolsAndScopes symbolsAndScopes,
+  TryStatementOrError(final SymbolsAndScopes symbolsAndScopes,
                       final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
+    this.analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
 
   }
 
   @Override
   public void accept(final EK9Parser.TryStatementExpressionContext ctx) {
 
-    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
     final var possibleGuardVariable = getGuardExpressionVariable(ctx.preFlowStatement());
 
     possibleGuardVariable.ifPresent(guardVariable ->
         analyzers.forEach(analyzer -> processPossibleGuardInitialisation(analyzer, guardVariable, ctx)));
 
-    checkTryCatchFinallyAndReturn(ctx, possibleGuardVariable.isEmpty());
+    tryCatchFinallyAndReturnValidOrError(ctx, possibleGuardVariable.isEmpty());
 
   }
 
-  private void checkTryCatchFinallyAndReturn(final EK9Parser.TryStatementExpressionContext ctx,
-                                             final boolean noGuardExpression) {
+  private void tryCatchFinallyAndReturnValidOrError(final EK9Parser.TryStatementExpressionContext ctx,
+                                                    final boolean noGuardExpression) {
 
-    final var analyzers = symbolsAndScopes.getCodeFlowAnalyzers();
     final var tryCatchBlocks = getTryAndCatchBlocks(ctx);
     final var finallyBlock = getFinallyBlock(ctx);
     final var outerScope = symbolsAndScopes.getTopScope();
@@ -55,7 +56,7 @@ final class ProcessTryStatement extends PossibleExpressionConstruct
       analyzers.forEach(analyzer -> pullUpAcceptableCriteriaToHigherScope(analyzer, finallyBlock, outerScope));
     }
 
-    checkReturningVariableOrError(ctx.returningParam(), tryScope, noGuardExpression);
+    returningVariableValidOrError(ctx.returningParam(), tryScope, noGuardExpression);
 
   }
 
