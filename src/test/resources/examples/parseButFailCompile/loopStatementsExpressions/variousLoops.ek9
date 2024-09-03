@@ -181,5 +181,8 @@ defines module just.various.loops
     R1
       continue <- true
 
+      //This is required because R1 type is used in a preflow guard declaration.
+      default operator ?
+
 //EOF
 

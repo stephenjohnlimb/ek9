@@ -46,14 +46,15 @@ final class GuardExpressionOrError extends TypedSymbolAccess
     if (ctx.identifier() != null) {
       final var data = new TypeCompatibilityData(new Ek9Token(ctx.op),
           identifierOrError.apply(ctx.identifier()), expressionSymbol);
-      processByIdentifier(data);
+      processByIdentifierOrError(data);
+
     } else {
       AssertValue.fail("Expecting finite set of operations on assignment " + ctx.start.getLine());
     }
 
   }
 
-  private void processByIdentifier(final TypeCompatibilityData typeData) {
+  private void processByIdentifierOrError(final TypeCompatibilityData typeData) {
 
     if (typeData.lhs() != null) {
       final var data = new AssignmentData(false, typeData);
@@ -61,4 +62,5 @@ final class GuardExpressionOrError extends TypedSymbolAccess
     }
 
   }
+
 }

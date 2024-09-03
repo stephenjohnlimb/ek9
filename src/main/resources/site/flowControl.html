@@ -377,6 +377,10 @@ defines module introduction
       But sure you want to do this - as it may become confusing or hard to refactor later.
     </p>
     <p>
+      In addition, the use of '?=' guards and the use of '&larr;' mandate that the resulting variable type must have
+      the '?' is-set operator. This is so that the guard functionality can evaluate whether the result is set or not.
+    </p>
+    <p>
       Being able to incorporate an assignment within the <b>if</b> or <b>else if</b> really
       does help to reduce the number of variables that are needed to created and assigned
       before the <b>if</b> statement block. The guarded assignment is particularly useful as the

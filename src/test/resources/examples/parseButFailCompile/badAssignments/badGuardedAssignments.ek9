@@ -4,8 +4,8 @@
   Well first don't confuse ':=?' with '?='
   There are question marks and equal signs involved they both deal with 'is-set'.
   The key difference is:
-  someValue :=? 66 // means that if someValue is currently unset then assign it the value of 66
-  result <- someValue ?= Integer() // means that if the act of assigning someValue to a value (integer in this case)
+  someValue :=? 66 // means that if someValue is currently unset then assign it the value of 66.
+  Whereas result <- someValue ?= Integer() // means that if the act of assigning someValue to a value (integer in this case)
   means that someValue is unset then set result to false, otherwise set it to true.
 -?>
 defines module bad.guardassignment.use

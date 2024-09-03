@@ -329,7 +329,7 @@ webVariableCorrelation
 
 variableDeclaration
     : identifier AS? typeDef QUESTION? op=(ASSIGN | ASSIGN2 | COLON | MERGE | ASSIGN_UNSET) assignmentExpression
-    | identifier LEFT_ARROW assignmentExpression
+    | identifier op=LEFT_ARROW assignmentExpression
     ;
 
 statement
@@ -377,6 +377,7 @@ assignmentStatement
     : (primaryReference | identifier | objectAccessExpression) op=(ASSIGN | ASSIGN2 | COLON | ASSIGN_UNSET | ADD_ASSIGN | SUB_ASSIGN | DIV_ASSIGN | MUL_ASSIGN | MERGE | REPLACE | COPY) assignmentExpression
     ;
 
+//The assignment with a guard will produce a 'Boolean' return tyype
 assignmentExpression
     : expression
     | guardExpression

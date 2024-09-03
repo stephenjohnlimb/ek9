@@ -1,0 +1,115 @@
+#!ek9
+defines module some.bad.ifguards
+
+  <!-
+    First few records and functions here are the test fixtures.
+  -!>
+  defines record
+
+    //Note that this has no 'is-set' operator
+    UnusableAggregate
+      name <- String()
+
+    //But this does have the 'is-set' operator
+    UsableAggregate
+      name <- String()
+
+      default operator ?
+
+  defines function
+
+    <?-
+      Simple function to provide an aggregate (record in this case)
+      that does not have the 'is-set' operator.
+    -?>
+    provideUnusableReturn()
+      <- rtn <- UnusableAggregate()
+
+    <?-
+      Provide a usable aggregate
+    -?>
+    provideUsableReturn()
+      <- rtn <- UsableAggregate()
+
+    <!-
+      These are the demonstrations the prove the positive use and also the negative use.
+    -!>
+    demonstrateInvalidIfGuardedAssignmentUse()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'guard' statement.
+      toCheck <- UnusableAggregate()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      if toCheck ?= provideUnusableReturn() with conditional
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+
+    demonstrateInvalidIfGuardedDeclarationUse1()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      if toCheck <- provideUnusableReturn() with conditional
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+
+    demonstrateInvalidIfGuardedDeclarationUse2()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
+      //This is also a way to declare
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      if toCheck as UnusableAggregate: provideUnusableReturn() with conditional
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+
+    demonstrateValidIfAssignmentUse1()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+      //Note still use UnusableAggregate without an 'is-set' operator, to show it can be used like this.
+      //So this does not use the 'guard' functionality - i.e. there is no is-set functionality triggered.
+      toCheck <- UnusableAggregate()
+      if toCheck := provideUnusableReturn() with conditional
+        stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+
+    demonstrateValidIfGuardedAssignmentUse()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+
+      //As the UsableAggregate does have an is-set operator it can be used in the 'guard' statement.
+      toCheck <- UsableAggregate()
+      if toCheck ?= provideUsableReturn() with conditional
+        stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
+      else
+        stdout.println("Either conditional is false/unset or toCheck is unset")
+
+    demonstrateValidIfGuardedDeclarationUse()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+
+      //As the UnusableAggregate does have an is-set operator it can be used in the 'guard' statement.
+      //Here the declaration 'guard' functionality is triggers, a declaration and the check that what was declared
+      //does actually report to have a meaningful value
+      if toCheck <- provideUsableReturn() with conditional
+        stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
+      else
+        stdout.println("Either conditional is false/unset or toCheck is unset")
+
+    demonstrateValidIfAssignmentUse2()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+
+      //Just for completeness really
+      toCheck <- UsableAggregate()
+      if toCheck := provideUsableReturn() with conditional
+        stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+
+//EOF

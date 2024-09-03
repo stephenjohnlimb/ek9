@@ -41,6 +41,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final StreamExpressionOrError streamExpressionOrError;
   private final ObjectAccessStartOrError objectAccessStartOrError;
   private final ObjectAccessExpressionOrError objectAccessExpressionOrError;
+  private final PreFlowStatementOrError preFlowStatementOrError;
   private final GuardExpressionOrError guardExpressionOrError;
   private final IfStatementOrError ifStatementOrError;
   private final ForStatementExpressionOrError forStatementExpressionOrError;
@@ -112,6 +113,8 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
         new ObjectAccessExpressionOrError(symbolsAndScopes, errorListener);
     this.guardExpressionOrError =
         new GuardExpressionOrError(symbolsAndScopes, errorListener);
+    this.preFlowStatementOrError =
+        new PreFlowStatementOrError(symbolsAndScopes, errorListener);
     this.ifStatementOrError =
         new IfStatementOrError(symbolsAndScopes, errorListener);
     this.forStatementExpressionOrError =
@@ -224,6 +227,12 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   public void exitIfStatement(final EK9Parser.IfStatementContext ctx) {
     ifStatementOrError.accept(ctx);
     super.exitIfStatement(ctx);
+  }
+
+  @Override
+  public void exitPreFlowStatement(EK9Parser.PreFlowStatementContext ctx) {
+    preFlowStatementOrError.accept(ctx);
+    super.exitPreFlowStatement(ctx);
   }
 
   @Override

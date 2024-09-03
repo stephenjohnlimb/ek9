@@ -90,6 +90,10 @@ defines module com.customer.just.ifs
     <?-
       Added ability to do a declaration before the control.
       The new variable is only visible in the current if/else blocks.
+      Also note that the use of '<-' in a guard like this also mandates that the
+      variable type has an 'is-set' (?) operator. So if the result of
+      'selectedTemperature <- currentTemperature("US")' is un-set (i.e. has no meaning)
+      this works in the same way as '?=', resulting in 'false' and so the if predicate resolves to false.
     -?>
     declarationInIf()
       stdout <- Stdout()
