@@ -1,0 +1,111 @@
+#!ek9
+defines module some.bad.forloopguards
+
+  <!-
+    First few records and functions here are the test fixtures.
+  -!>
+  defines record
+
+    //Note that this has no 'is-set' operator
+    UnusableAggregate
+      name <- String()
+
+    //But this does have the 'is-set' operator
+    UsableAggregate
+      name <- String()
+
+      default operator ?
+
+  defines function
+
+    <?-
+      Simple function to provide an aggregate (record in this case)
+      that does not have the 'is-set' operator.
+    -?>
+    provideUnusableReturn()
+      <- rtn <- UnusableAggregate()
+
+    <?-
+      Provide a usable aggregate
+    -?>
+    provideUsableReturn()
+      <- rtn <- UsableAggregate()
+
+    <!-
+      These are the demonstrations the prove the positive use and also the negative use.
+    -!>
+
+    demonstrateValidForLoopAssignmentUse1()
+
+      stdout <- Stdout()
+      //Note still use UnusableAggregate without an 'is-set' operator, to show it can be used like this.
+      //So this does not use the 'guard' functionality - i.e. there is no is-set functionality triggered.
+      toCheck <- UnusableAggregate()
+      for toCheck := provideUnusableReturn() with i in [1, 5, 7]
+        stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+
+    demonstrateValidForLoopAssignmentUse2()
+
+      stdout <- Stdout()
+
+      //Just for completeness really
+      toCheck <- UsableAggregate()
+      for toCheck := provideUsableReturn() with i in [1, 5, 7]
+        stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+
+    demonstrateValidForLoopGuardedDeclarationUse()
+
+      stdout <- Stdout()
+
+      //As the UnusableAggregate does have an is-set operator it can be used in the 'guard' statement.
+      //Here the declaration 'guard' functionality is triggers, a declaration and the check that what was declared
+      //does actually report to have a meaningful value, so in this case only if the UsableReturn 'isSet' and conditional is 'true'
+      //Will the while loop be processed.
+      for toCheck <- provideUsableReturn() with i in [1, 5, 7]
+        stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
+
+    demonstrateValidForLoopGuardedAssignmentUse()
+
+      stdout <- Stdout()
+
+      //As the UsableAggregate does have an is-set operator it can be used in the 'guard' statement.
+      toCheck <- UsableAggregate()
+      for toCheck ?= provideUsableReturn() with i in [1, 5, 7]
+        stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
+
+    <!-
+      Now the invalid scenarios
+    -!>
+
+    demonstrateInvalidForLoopGuardedAssignmentUse()
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'guard' statement.
+      toCheck <- UnusableAggregate()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      for toCheck ?= provideUnusableReturn() with i in [1, 5, 7]
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+
+    demonstrateInvalidForLoopGuardedDeclarationUse1()
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      for toCheck <- provideUnusableReturn() with i in [1, 5, 7]
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+
+    demonstrateInvalidForLoopGuardedDeclarationUse2()
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
+      //This is also a way to declare and initialise a variable in a guarded manner.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      for toCheck as UnusableAggregate: provideUnusableReturn() with i in [1, 5, 7]
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+
+
+//EOF
