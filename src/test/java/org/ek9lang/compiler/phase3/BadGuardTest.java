@@ -15,7 +15,7 @@ class BadGuardTest extends PhasesTest {
 
   public BadGuardTest() {
     super("/examples/parseButFailCompile/badGuards",
-        List.of("some.bad.ifguards", "some.bad.whileguards"));
+        List.of("some.bad.ifguards", "some.bad.whileguards", "some.bad.dowhileguards"));
   }
 
   @Test

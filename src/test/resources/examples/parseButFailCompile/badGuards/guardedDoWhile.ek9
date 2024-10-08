@@ -1,5 +1,5 @@
 #!ek9
-defines module some.bad.whileguards
+defines module some.bad.dowhileguards
 
   <!-
     First few records and functions here are the test fixtures.
@@ -35,27 +35,29 @@ defines module some.bad.whileguards
       These are the demonstrations the prove the positive use and also the negative use.
     -!>
 
-    demonstrateValidWhileAssignmentUse1()
+    demonstrateValidDoWhileAssignmentUse1()
       -> conditional as Boolean
 
       stdout <- Stdout()
       //Note still use UnusableAggregate without an 'is-set' operator, to show it can be used like this.
       //So this does not use the 'guard' functionality - i.e. there is no is-set functionality triggered.
       toCheck <- UnusableAggregate()
-      while toCheck := provideUnusableReturn() with conditional
+      do toCheck := provideUnusableReturn()
         stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+      while conditional
 
-    demonstrateValidWhileAssignmentUse2()
+    demonstrateValidDoWhileAssignmentUse2()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
       //Just for completeness really
       toCheck <- UsableAggregate()
-      while toCheck := provideUsableReturn() with conditional
+      do toCheck := provideUsableReturn()
         stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+      while conditional
 
-    demonstrateValidWhileGuardedDeclarationUse()
+    demonstrateValidDoWhileGuardedDeclarationUse()
       -> conditional as Boolean
 
       stdout <- Stdout()
@@ -64,24 +66,26 @@ defines module some.bad.whileguards
       //Here the declaration 'guard' functionality is triggers, a declaration and the check that what was declared
       //does actually report to have a meaningful value, so in this case only if the UsableReturn 'isSet' and conditional is 'true'
       //Will the while loop be processed.
-      while toCheck <- provideUsableReturn() with conditional
+      do toCheck <- provideUsableReturn()
         stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
+      while conditional
 
-    demonstrateValidWhileGuardedAssignmentUse()
+    demonstrateValidDoWhileGuardedAssignmentUse()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
       //As the UsableAggregate does have an is-set operator it can be used in the 'guard' statement.
       toCheck <- UsableAggregate()
-      while toCheck ?= provideUsableReturn() with conditional
+      do toCheck ?= provideUsableReturn()
         stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
+      while conditional
 
     <!-
       Now the invalid scenarios
     -!>
 
-    demonstrateInvalidWhileGuardedAssignmentUse()
+    demonstrateInvalidDoWhileGuardedAssignmentUse()
       -> conditional as Boolean
 
       stdout <- Stdout()
@@ -90,20 +94,22 @@ defines module some.bad.whileguards
       toCheck <- UnusableAggregate()
 
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      while toCheck ?= provideUnusableReturn() with conditional
+      do toCheck ?= provideUnusableReturn()
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+      while conditional
 
-    demonstrateInvalidWhileGuardedDeclarationUse1()
+    demonstrateInvalidDoWhileGuardedDeclarationUse1()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
       //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      while toCheck <- provideUnusableReturn() with conditional
+      do toCheck <- provideUnusableReturn()
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+      while conditional
 
-    demonstrateInvalidWhileGuardedDeclarationUse2()
+    demonstrateInvalidDoWhileGuardedDeclarationUse2()
       -> conditional as Boolean
 
       stdout <- Stdout()
@@ -111,8 +117,9 @@ defines module some.bad.whileguards
       //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
       //This is also a way to declare and initialise a variable in a guarded manner.
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      while toCheck as UnusableAggregate: provideUnusableReturn() with conditional
+      do toCheck as UnusableAggregate: provideUnusableReturn()
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+      while conditional
 
 
 //EOF
