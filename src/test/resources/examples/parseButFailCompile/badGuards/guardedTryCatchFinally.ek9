@@ -1,0 +1,235 @@
+#!ek9
+defines module some.bad.trycatchfinallyguards
+
+  <!-
+    First few records and functions here are the test fixtures.
+  -!>
+  defines record
+
+    //Note that this has no 'is-set' operator
+    UnusableAggregate
+      name <- String()
+
+    //But this does have the 'is-set' operator
+    UsableAggregate
+      name <- String()
+
+      default operator ?
+
+  defines function
+
+    <?-
+      Simple function to provide an aggregate (record in this case)
+      that does not have the 'is-set' operator.
+    -?>
+    provideUnusableReturn()
+      <- rtn <- UnusableAggregate()
+
+    <?-
+      Provide a usable aggregate
+    -?>
+    provideUsableReturn()
+      <- rtn <- UsableAggregate()
+
+    <!-
+      These are the demonstrations the prove the positive use and also the negative use.
+      'Try' has two forms, as a statement but also as an expression, these are shown below.
+    -!>
+
+    demonstrateValidTryStatementAssignmentUse1()
+
+      stdout <- Stdout()
+      //Note still use UnusableAggregate without an 'is-set' operator, to show it can be used like this.
+      //So this does not use the 'guard' functionality - i.e. there is no is-set functionality triggered.
+      toCheck <- UnusableAggregate()
+      try toCheck := provideUnusableReturn()
+        stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+      catch
+        -> ex as Exception
+        stdout.println(`Exception triggered ${ex}`)
+
+    demonstrateValidTryExpressionAssignmentUse1()
+
+      stdout <- Stdout()
+      //Note still use UnusableAggregate without an 'is-set' operator, to show it can be used like this.
+      //So this does not use the 'guard' functionality - i.e. there is no is-set functionality triggered.
+      toCheck <- UnusableAggregate()
+      name <- try toCheck := provideUnusableReturn()
+          <- rtn as String: toCheck.name
+      catch
+        -> ex as Exception
+        stdout.println(`Exception triggered ${ex}`)
+
+      stdout.println(`But this is just a return from a blind assignment ${name}`)
+
+    demonstrateValidTryStatementAssignmentUse2()
+
+      stdout <- Stdout()
+
+      //Just for completeness really
+      toCheck <- UsableAggregate()
+      try toCheck := provideUsableReturn()
+        stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+      catch
+        -> ex as Exception
+        stdout.println(`Exception triggered ${ex}`)
+
+    demonstrateValidTryExpressionAssignmentUse2()
+
+      stdout <- Stdout()
+      //Again for completeness using a 'usable' aggregate.
+      toCheck <- UsableAggregate()
+      name <- try toCheck := provideUsableReturn()
+          <- rtn as String: toCheck.name
+      catch
+        -> ex as Exception
+        stdout.println(`Exception triggered ${ex}`)
+
+      stdout.println(`But this is just a return from a blind assignment ${name}`)
+
+    demonstrateValidTryStatementGuardedDeclarationUse()
+
+      stdout <- Stdout()
+
+      //As the UnusableAggregate does have an is-set operator it can be used in the 'guard' statement.
+      //Here the declaration 'guard' functionality is triggers, a declaration and the check that what was declared
+      //does actually report to have a meaningful value, so in this case only if the UsableReturn 'isSet' and conditional is 'true'
+      //Will the while loop be processed.
+      try toCheck <- provideUsableReturn()
+        stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
+      catch
+        -> ex as Exception
+        stdout.println(`Exception triggered ${ex}`)
+
+    demonstrateValidTryExpressionGuardedDeclarationUse()
+
+      stdout <- Stdout()
+
+      //As the UnusableAggregate does have an is-set operator it can be used in the 'guard' statement.
+      //Here the declaration 'guard' functionality is triggers, a declaration and the check that what was declared
+      //does actually report to have a meaningful value, so in this case only if the UsableReturn 'isSet' and conditional is 'true'
+      //Will the while loop be processed.
+      name <- try toCheck <- provideUsableReturn()
+        <- rtn as String: toCheck.name
+      catch
+        -> ex as Exception
+        stdout.println(`Exception triggered ${ex}`)
+
+      stdout.println(`But this is just a return from a blind assignment ${name}`)
+
+    demonstrateValidTryStatementGuardedAssignmentUse()
+
+      stdout <- Stdout()
+
+      //As the UsableAggregate does have an is-set operator it can be used in the 'guard' statement.
+      toCheck <- UsableAggregate()
+      try toCheck ?= provideUsableReturn()
+        stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
+      catch
+        -> ex as Exception
+        stdout.println(`Exception triggered ${ex}`)
+
+    demonstrateValidTryExpressionGuardedAssignmentUse()
+
+      stdout <- Stdout()
+
+      //As the UsableAggregate does have an is-set operator it can be used in the 'guard' statement.
+      toCheck <- UsableAggregate()
+      name <- try toCheck ?= provideUsableReturn()
+        <- rtn as String: toCheck.name
+      catch
+        -> ex as Exception
+        stdout.println(`Exception triggered ${ex}`)
+
+      stdout.println(`Do expect this to compile and maybe see ${name}`)
+
+    <!-
+      Now the invalid scenarios
+    -!>
+
+    demonstrateInvalidTryStatementGuardedAssignmentUse()
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'guard' statement.
+      toCheck <- UnusableAggregate()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      try toCheck ?= provideUnusableReturn()
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+      catch
+        -> ex as Exception
+        stdout.println(`Exception triggered ${ex}`)
+
+    demonstrateInvalidTryExpressionGuardedAssignmentUse()
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'guard' statement.
+      toCheck <- UnusableAggregate()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      name <- try toCheck ?= provideUnusableReturn()
+        <- rtn as String: toCheck.name
+      catch
+        -> ex as Exception
+        stdout.println(`Exception triggered ${ex}`)
+
+      stdout.println(`Do expect this to compile and maybe see ${name}`)
+
+    demonstrateInvalidTryStatementGuardedDeclarationUse1()
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      try toCheck <- provideUnusableReturn()
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+      catch
+        -> ex as Exception
+        stdout.println(`Exception triggered ${ex}`)
+
+    demonstrateInvalidTryExpressionGuardedDeclarationUse1()
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      name <- try toCheck <- provideUnusableReturn()
+        <- rtn as String: toCheck.name
+      catch
+        -> ex as Exception
+        stdout.println(`Exception triggered ${ex}`)
+
+      stdout.println(`Do expect this to compile and maybe see ${name}`)
+
+    demonstrateInvalidTryStatementGuardedDeclarationUse2()
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
+      //This is also a way to declare and initialise a variable in a guarded manner.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      try toCheck as UnusableAggregate: provideUnusableReturn()
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+      catch
+        -> ex as Exception
+        stdout.println(`Exception triggered ${ex}`)
+
+    demonstrateInvalidTryExpressionGuardedDeclarationUse2()
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
+      //This is also a way to declare and initialise a variable in a guarded manner.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      name <- try toCheck as UnusableAggregate: provideUnusableReturn()
+        <- rtn as String: toCheck.name
+      catch
+        -> ex as Exception
+        stdout.println(`Exception triggered ${ex}`)
+
+      stdout.println(`Do expect this to compile and maybe see ${name}`)
+
+
+//EOF
