@@ -1,5 +1,5 @@
 #!ek9
-defines module some.bad.ifguards
+defines module some.bad.whileguards
 
   <!-
     First few records and functions here are the test fixtures.
@@ -35,56 +35,53 @@ defines module some.bad.ifguards
       These are the demonstrations the prove the positive use and also the negative use.
     -!>
 
-    demonstrateValidIfAssignmentUse1()
+    demonstrateValidWhileAssignmentUse1()
       -> conditional as Boolean
 
       stdout <- Stdout()
       //Note still use UnusableAggregate without an 'is-set' operator, to show it can be used like this.
       //So this does not use the 'guard' functionality - i.e. there is no is-set functionality triggered.
       toCheck <- UnusableAggregate()
-      if toCheck := provideUnusableReturn() with conditional
+      while toCheck := provideUnusableReturn() with conditional
         stdout.println(`But this is just a blind assignment ${toCheck.name}`)
 
-    demonstrateValidIfAssignmentUse2()
+    demonstrateValidWhileAssignmentUse2()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
       //Just for completeness really
       toCheck <- UsableAggregate()
-      if toCheck := provideUsableReturn() with conditional
+      while toCheck := provideUsableReturn() with conditional
         stdout.println(`But this is just a blind assignment ${toCheck.name}`)
 
-    demonstrateValidIfGuardedDeclarationUse()
+    demonstrateValidWhileGuardedDeclarationUse()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
-      //As the UsableAggregate does have an is-set operator it can be used in the 'guard' statement.
+      //As the UnusableAggregate does have an is-set operator it can be used in the 'guard' statement.
       //Here the declaration 'guard' functionality is triggers, a declaration and the check that what was declared
-      //does actually report to have a meaningful value
-      if toCheck <- provideUsableReturn() with conditional
+      //does actually report to have a meaningful value, so in this case only if the UsableReturn 'isSet' and conditional is 'true'
+      //Will the while loop be processed.
+      while toCheck <- provideUsableReturn() with conditional
         stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
-      else
-        stdout.println("Either conditional is false/unset or toCheck is unset")
 
-    demonstrateValidIfGuardedAssignmentUse()
+    demonstrateValidWhileGuardedAssignmentUse()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
       //As the UsableAggregate does have an is-set operator it can be used in the 'guard' statement.
       toCheck <- UsableAggregate()
-      if toCheck ?= provideUsableReturn() with conditional
+      while toCheck ?= provideUsableReturn() with conditional
         stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
-      else
-        stdout.println("Either conditional is false/unset or toCheck is unset")
 
     <!-
       Now the invalid scenarios
     -!>
 
-    demonstrateInvalidIfGuardedAssignmentUse()
+    demonstrateInvalidWhileGuardedAssignmentUse()
       -> conditional as Boolean
 
       stdout <- Stdout()
@@ -93,17 +90,17 @@ defines module some.bad.ifguards
       toCheck <- UnusableAggregate()
 
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      if toCheck ?= provideUnusableReturn() with conditional
+      while toCheck ?= provideUnusableReturn() with conditional
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
 
-    demonstrateInvalidIfGuardedDeclarationUse1()
+    demonstrateInvalidWhileGuardedDeclarationUse1()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
       //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      if toCheck <- provideUnusableReturn() with conditional
+      while toCheck <- provideUnusableReturn() with conditional
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
 
     demonstrateInvalidIfGuardedDeclarationUse2()
@@ -112,9 +109,9 @@ defines module some.bad.ifguards
       stdout <- Stdout()
 
       //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      //This is also a way to declare
+      //This is also a way to declare and initialise a variable in a guarded manner.
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      if toCheck as UnusableAggregate: provideUnusableReturn() with conditional
+      while toCheck as UnusableAggregate: provideUnusableReturn() with conditional
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
 
 
