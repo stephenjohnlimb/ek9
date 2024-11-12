@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesFlowControlSwitchTest extends PhasesTest {
 
   public ExamplesFlowControlSwitchTest() {
-    super("/examples/flowControlSwitch", false, false);
+    super("/examples/flowControlSwitch");
   }
 
   @Test
@@ -25,6 +25,6 @@ class ExamplesFlowControlSwitchTest extends PhasesTest {
     assertTrue(compilationResult);
     assertEquals(0, numberOfErrors);
 
-    new SymbolCountCheck("com.customer.just.switches", 11).test(program);
+    new SymbolCountCheck("com.customer.just.switches", 10).test(program);
   }
 }

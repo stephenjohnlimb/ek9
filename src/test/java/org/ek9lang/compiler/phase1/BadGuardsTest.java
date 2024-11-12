@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase3;
+package org.ek9lang.compiler.phase1;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -9,18 +9,18 @@ import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad usage of try catch finally.
+ * Just tests bad use of guards in expressions.
  */
-class BadTryCatchFinallyTest extends PhasesTest {
+class BadGuardsTest extends PhasesTest {
 
-  public BadTryCatchFinallyTest() {
-    super("/examples/parseButFailCompile/badTryCatchFinally",
-        List.of("bad.trycatchfinally.example"), true, false);
+  public BadGuardsTest() {
+    super("/examples/parseButFailCompile/badGuardsWithExpressions",
+        List.of("bad.guards"), true, false);
   }
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.SYMBOL_DEFINITION);
   }
 
   @Override

@@ -344,22 +344,6 @@ defines module bad.trycatchfinally.example
       assert result?
 
     <?-
-      This demonstrates and guard assignment - that only if the 'someValue ?= getSomeString()' results in
-      'someValue' being set, executes the rest of the main block.
-      That main block consists of accepting and argument that 'opens' a resource (hence it will get auto-closed at end of scope).
-      Then the try/function has a returning value, that uses the resource to get a value.
-      Any exceptions fly back - but if successful rtn is set and the opened 'SomeResource' is now closed.
-    -?>
-    SimpleTryCatchWithDeclarationGuardReturn()
-      someValue as String?
-
-      result <- function someValue ?= getSomeString()
-        -> theResource <- SomeResource(someValue).open()
-        <- rtn as String: theResource.getValue()
-
-      assert result?
-
-    <?-
       In this situation a new variable is declared and initialised.
       It is then used in the creation and opening of a new 'closable' resource.
       That resource and the new variable are then used to populate the return value.

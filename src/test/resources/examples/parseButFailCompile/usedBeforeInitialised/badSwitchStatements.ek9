@@ -310,57 +310,6 @@ defines module badswitch.initialisations
 
       assert returningValue?
 
-    SwitchExpressionButPreFlowOnUnrelatedVariable1
-      conditionalValue <- 40
-      initialisedByGuard <- Integer()
-      var as Integer?
-
-      returningValue <- switch initialisedByGuard ?= getValueFunction() with conditionalValue
-        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
-        <- rtn666 as Integer?
-        case < 24
-          var: initialisedByGuard
-          rtn666: initialisedByGuard
-        case < 30
-          var: initialisedByGuard
-          //but forget rtn
-        default
-          var: initialisedByGuard
-          //but forget rtn
-
-      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
-      assert var?
-
-      assert returningValue?
-
-    <?-
-      While you may think that 'rtn666' is always set; as it is in each case and the default, but
-      as there is a guard, the whole switch may not execute, so this means that the 'rtn666' value
-      would have been left uninitialised.
-      It is always best to initialise the variables where ever is practical.
-    -?>
-    SwitchExpressionButPreFlowOnUnrelatedVariable2
-      conditionalValue <- 40
-      initialisedByGuard <- Integer()
-      var as Integer?
-
-      returningValue <- switch initialisedByGuard ?= getValueFunction() with conditionalValue
-        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
-        <- rtn666 as Integer?
-        case < 24
-          var: initialisedByGuard
-          rtn666: initialisedByGuard
-        case < 30
-          var: initialisedByGuard
-          rtn666: var
-        default
-          rtn666: 666
-
-      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
-      assert var?
-
-      assert returningValue?
-
     EnumerationExpressionSwitchNotInitialisingReturn1()
       -> val as LimitedEnum
 

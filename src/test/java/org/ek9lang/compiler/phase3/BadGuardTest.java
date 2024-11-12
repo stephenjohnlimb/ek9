@@ -21,7 +21,8 @@ class BadGuardTest extends PhasesTest {
             "some.bad.forloopguards",
             "some.bad.forrangeguards",
             "some.bad.trycatchfinallyguards")
-      );
+        , true, false
+    );
   }
 
   @Test

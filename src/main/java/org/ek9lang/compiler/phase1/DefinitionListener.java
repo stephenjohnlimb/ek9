@@ -87,6 +87,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   private final ValidParameterisedTypeOrError validParameterisedTypeOrError;
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
+  private final ValidPreFlowAndReturnOrError validPreFlowAndReturnOrError;
   private String currentTextBlockLanguage;
 
   /**
@@ -124,6 +125,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     resolveOrDefineExplicitParameterizedType =
         new ResolveOrDefineExplicitParameterizedType(symbolsAndScopes, symbolFactory, errorListener, false);
+
+    validPreFlowAndReturnOrError = new ValidPreFlowAndReturnOrError(symbolsAndScopes, errorListener);
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -635,7 +638,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
       //So pull up this termination type and then if any statements follow and error will be issued.
       pullBlockTerminationUp(ctx);
     }
-
+    validPreFlowAndReturnOrError.accept(ctx.preFlowAndControl().preFlowStatement(), ctx.returningParam());
   }
 
   /**
@@ -682,6 +685,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
       pullBlockTerminationUp(ctx);
     }
 
+    validPreFlowAndReturnOrError.accept(ctx.preFlowStatement(), ctx.returningParam());
   }
 
   @Override
@@ -759,6 +763,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
       emitUnreachableStatementError.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
     }
 
+    final var preFlow = ctx.forLoop() != null ? ctx.forLoop().preFlowStatement() : ctx.forRange().preFlowStatement();
+    validPreFlowAndReturnOrError.accept(preFlow, ctx.returningParam());
     super.exitForStatementExpression(ctx);
 
   }
@@ -785,6 +791,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
       emitUnreachableStatementError.accept(new Ek9Token(ctx.start), scope.getEncounteredExceptionToken());
     }
 
+    validPreFlowAndReturnOrError.accept(ctx.preFlowStatement(), ctx.returningParam());
     super.exitWhileStatementExpression(ctx);
 
   }

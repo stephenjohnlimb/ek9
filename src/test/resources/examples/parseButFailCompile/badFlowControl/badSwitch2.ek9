@@ -52,19 +52,19 @@ defines module bad.switchtypes2
 
       assert resultText?
 
-    ASwitchWithGuard()
+    ASwitchWithAssignment1()
       temperature <- Integer()
 
       //Typo temperature here
       @Error: FULL_RESOLUTION: NOT_RESOLVED
-      resultText <- switch temerature ?= currentTemperature("GB") with temperature
+      resultText <- switch temerature := currentTemperature("GB") with temperature
         <- result String: String()
         case < 12
           result: "Moderate"
 
       assert resultText?
 
-    ASwitchWithAssignment()
+    ASwitchWithAssignment2()
       temperature <- Integer()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       resultText <- switch temperature := currentemperature("GB") with temperature

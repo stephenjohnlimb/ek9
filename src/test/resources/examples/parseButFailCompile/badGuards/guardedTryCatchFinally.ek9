@@ -129,20 +129,6 @@ defines module some.bad.trycatchfinallyguards
         -> ex as Exception
         stdout.println(`Exception triggered ${ex}`)
 
-    demonstrateValidTryExpressionGuardedAssignmentUse()
-
-      stdout <- Stdout()
-
-      //As the UsableAggregate does have an is-set operator it can be used in the 'guard' statement.
-      toCheck <- UsableAggregate()
-      name <- try toCheck ?= provideUsableReturn()
-        <- rtn as String: toCheck.name
-      catch
-        -> ex as Exception
-        stdout.println(`Exception triggered ${ex}`)
-
-      stdout.println(`Do expect this to compile and maybe see ${name}`)
-
     <!-
       Now the invalid scenarios
     -!>
@@ -160,22 +146,6 @@ defines module some.bad.trycatchfinallyguards
       catch
         -> ex as Exception
         stdout.println(`Exception triggered ${ex}`)
-
-    demonstrateInvalidTryExpressionGuardedAssignmentUse()
-
-      stdout <- Stdout()
-
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'guard' statement.
-      toCheck <- UnusableAggregate()
-
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      name <- try toCheck ?= provideUnusableReturn()
-        <- rtn as String: toCheck.name
-      catch
-        -> ex as Exception
-        stdout.println(`Exception triggered ${ex}`)
-
-      stdout.println(`Do expect this to compile and maybe see ${name}`)
 
     demonstrateInvalidTryStatementGuardedDeclarationUse1()
 

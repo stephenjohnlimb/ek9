@@ -279,49 +279,6 @@ defines module badtry.initialisations
 
       assert var? and result?
 
-    <?-
-      Now because a guard is introduced here, it means that the whole try might not
-      get executed, this means that var might still be uninitialized and also the 'rtn' value
-      might not above been initialised.
-    -?>
-    TryCatchWithGuardExpression1()
-      var as Integer?
-      unrelatedValue as Integer?
-
-      result <- try unrelatedValue ?= getValueFunction()
-        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
-        <- rtn as Integer?
-        var: unrelatedValue
-        rtn: var
-      catch
-        -> ex as Exception
-        var: unrelatedValue
-        rtn: var
-
-      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
-      assert var?
-
-      assert result?
-
-    <?-
-      While there is still a guard here the, return value is now initialised.
-    -?>
-    TryCatchWithGuardExpression2()
-      var as Integer?
-      unrelatedValue as Integer?
-
-      result <- try unrelatedValue ?= getValueFunction()
-        <- rtn as Integer: unrelatedValue
-        var: unrelatedValue
-      catch
-        -> ex as Exception
-        var: unrelatedValue
-
-      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
-      assert var?
-
-      assert result?
-
     getValueFunction() as pure
       <- rtn <- 22
 

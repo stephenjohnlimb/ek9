@@ -92,10 +92,11 @@ abstract class PossibleExpressionConstruct extends TypedSymbolAccess {
                                                final IScope constructScope,
                                                final boolean noGuardExpression) {
 
-    final Consumer<ISymbol> errorIssuer = variable -> errorListener.semanticError(ctx.LEFT_ARROW().getSymbol(),
-        "'" + variable.getName() + "':", RETURN_NOT_ALWAYS_INITIALISED);
 
     if (ctx != null) {
+      final Consumer<ISymbol> errorIssuer = variable -> errorListener.semanticError(ctx.LEFT_ARROW().getSymbol(),
+          "'" + variable.getName() + "':", RETURN_NOT_ALWAYS_INITIALISED);
+
       //Note that the returning variable is registered against the scope of the construct.
       final var returningVariable = symbolsAndScopes.getRecordedSymbol(ctx);
       if (!symbolsAndScopes.isVariableInitialised(returningVariable, constructScope)) {

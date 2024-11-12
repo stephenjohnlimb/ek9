@@ -377,7 +377,7 @@ assignmentStatement
     : (primaryReference | identifier | objectAccessExpression) op=(ASSIGN | ASSIGN2 | COLON | ASSIGN_UNSET | ADD_ASSIGN | SUB_ASSIGN | DIV_ASSIGN | MUL_ASSIGN | MERGE | REPLACE | COPY) assignmentExpression
     ;
 
-//The assignment with a guard will produce a 'Boolean' return tyype
+//The assignment with a guard will produce a 'Boolean' return type
 assignmentExpression
     : expression
     | guardExpression
@@ -441,8 +441,7 @@ call
 
 //Now allow the keyword function to be used instead of try, seems to fit better in some scenarios.
 tryStatementExpression
-    : (TRY|FUNCTION) preFlowStatement? NL+ INDENT NL* declareArgumentParam? instructionBlock DEDENT catchStatementExpression? finallyStatementExpression?
-    | (TRY|FUNCTION) preFlowStatement? NL+ INDENT NL* declareArgumentParam? returningParam instructionBlock? DEDENT catchStatementExpression? finallyStatementExpression?
+    : (TRY|FUNCTION) preFlowStatement? NL+ INDENT NL* declareArgumentParam? returningParam? instructionBlock? DEDENT catchStatementExpression? finallyStatementExpression?
     ;
 
 catchStatementExpression

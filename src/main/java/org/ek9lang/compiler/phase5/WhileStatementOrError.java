@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase5;
 
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.RETURN_NOT_ALWAYS_INITIALISED;
+
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
@@ -52,6 +54,15 @@ final class WhileStatementOrError extends PossibleExpressionConstruct
 
     returningVariableValidOrError(ctx.returningParam(), whileScope, noGuardExpression);
 
+    //Because of the conditional the returning value 'if defined as uninitialised' - may never actually be given a
+    //value, this is because at runtime the condition may be false.
+    if (ctx.returningParam() != null
+        && ctx.returningParam().variableOnlyDeclaration() != null
+        && ctx.returningParam().variableOnlyDeclaration().QUESTION() != null) {
+      errorListener.semanticError(ctx.returningParam().LEFT_ARROW().getSymbol(),
+          "'" + ctx.returningParam().variableOnlyDeclaration().identifier().getText() + "':",
+          RETURN_NOT_ALWAYS_INITIALISED);
+    }
   }
 
 }
