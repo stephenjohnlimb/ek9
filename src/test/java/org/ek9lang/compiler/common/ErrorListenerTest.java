@@ -41,7 +41,7 @@ final class ErrorListenerTest {
   @Test
   void testReturningRedundant() {
     ErrorListener underTest = new ErrorListener("test");
-    underTest.raiseReturningRedundant(createSyntheticToken(), "_EK9 Test");
+    underTest.raiseReturningNotRequired(createSyntheticToken(), "_EK9 Test");
     assertInError(underTest);
   }
 
@@ -194,7 +194,7 @@ final class ErrorListenerTest {
     assertTrue(underTest.isExceptionOnFullContext());
 
     IToken token = createSyntheticToken();
-    underTest.raiseReturningRedundant(token, "Test Message");
+    underTest.raiseReturningNotRequired(token, "Test Message");
 
     //Should now be in error
     assertFalse(underTest.isErrorFree());
@@ -203,7 +203,7 @@ final class ErrorListenerTest {
     assertNotNull(details.getClassification());
 
     assertNotNull(details.toString());
-    assertEquals(ErrorListener.SemanticClassification.RETURNING_REDUNDANT,
+    assertEquals(ErrorListener.SemanticClassification.RETURNING_NOT_REQUIRED,
         details.getSemanticClassification());
 
     assertTrue(underTest.isWarningFree());

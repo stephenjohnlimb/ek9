@@ -164,9 +164,9 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
   /**
    * Create new semantic error.
    */
-  public void raiseReturningRedundant(final IToken token, final String msg) {
+  public void raiseReturningNotRequired(final IToken token, final String msg) {
 
-    semanticError(token, msg, SemanticClassification.RETURNING_REDUNDANT);
+    semanticError(token, msg, SemanticClassification.RETURNING_NOT_REQUIRED);
 
   }
 
@@ -430,9 +430,9 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     SERVICE_MISSING_RETURN("Web Service must have return value and it must be compatible with HTTPResponse"),
     GENERIC_TYPE_DEFINITION_CANNOT_EXTEND("this generic class definition cannot extend other classes or generic types"),
     TYPE_REQUIRED_FOR_RETURN("type must be declared for returning values"),
-    RETURNING_REQUIRED("returning block required to assign from switch/try"),
-    RETURNING_REDUNDANT("returning block is redundant for a standard switch/try"),
+    RETURNING_REQUIRED("returning block required for assignment to 'lhs' when used in expression"),
     RETURNING_MISSING("returning variable and type missing"),
+    RETURNING_NOT_REQUIRED("returning block is not required as there is no 'lhs' variable to assign it to"),
     MUST_RETURN_SAME_AS_CONSTRUCT_TYPE("returning type must be same as the construct type"),
     MUST_RETURN_SAME_ARGUMENT_TYPE("returning type must be same as the argument(s) type"),
     MUST_NOT_RETURN_SAME_TYPE("returning type must not be same for promotion"),

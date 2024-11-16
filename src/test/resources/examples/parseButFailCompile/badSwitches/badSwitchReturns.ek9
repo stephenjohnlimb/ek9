@@ -61,24 +61,7 @@ defines module bad.switches.use
 
       assert result?
 
-    InvalidProgram1()
-      val <- "ToCheck"
-
-      //So there is no point in this return from a switch
-      //Because there is no variable receiving the returned value.
-      switch val
-        @Error: FULL_RESOLUTION: RETURNING_REDUNDANT
-        <- resultText as String?
-        case "ToCheck"
-          resultText: "Jackpot"
-        case "This"
-          resultText: "Was this"
-        case "This"
-          resultText: "Was that"
-        default
-          resultText: "Nothing"
-
-    InvalidProgram2()
+    InvalidProgramReturnRequired()
       val <- "ToCheck"
 
       //Here there is no return value but one is expected
@@ -96,6 +79,27 @@ defines module bad.switches.use
 
       //ensure referenced, but it will be a void type as switch error, causes someResult to be 'void'.
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert someResult?
+
+    InvalidProgramReturnNotRequired()
+      val <- "ToCheck"
+
+      someResult <- String()
+
+      //This is also how someone will get the returning part wrong on a switch.
+      //In this case there is no lhs variable to return anything into.
+      switch val
+        @Error: FULL_RESOLUTION: RETURNING_NOT_REQUIRED
+        <- rtn as String: String()
+        case "ToCheck"
+          someResult: "Jackpot"
+        case "This"
+          someResult: "Was this"
+        case "This"
+          someResult: "Was that"
+        default
+          someResult: "Nothing"
+
       assert someResult?
 
     <?-

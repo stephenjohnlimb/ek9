@@ -9,7 +9,7 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Use this just before the statement that should cause a compiler error.
  * The first parameter is the phase that the error should be detected in
  * The second parameter is the type of error that should be generated.
- * {@code @Error:} SYMBOL_DEFINITION: RETURNING_REDUNDANT
+ * {@code @Error:} SYMBOL_DEFINITION: RETURNING_NOT_REQUIRED
  *
  * @see CompilationPhase
  * @see ErrorListener.SemanticClassification

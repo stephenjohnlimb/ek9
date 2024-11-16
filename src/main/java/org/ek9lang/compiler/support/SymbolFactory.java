@@ -132,8 +132,6 @@ public class SymbolFactory {
 
   private final Consumer<Object> checkContextNotNull = ctx -> AssertValue.checkNotNull("CTX cannot be null", ctx);
 
-  private final CheckTryReturns checkTryReturns;
-
   private final CheckForInvalidServiceDefinition checkForInvalidServiceDefinition;
 
   private final CheckForInvalidServiceOperator checkForInvalidServiceOperator;
@@ -153,7 +151,6 @@ public class SymbolFactory {
 
     this.parsedModule = parsedModule;
     this.aggregateFactory = new AggregateFactory(parsedModule.getEk9Types());
-    this.checkTryReturns = new CheckTryReturns(parsedModule.getSource().getErrorListener());
     this.checkForInvalidServiceDefinition =
         new CheckForInvalidServiceDefinition(parsedModule.getSource().getErrorListener());
     this.checkForInvalidServiceOperator =
@@ -1016,7 +1013,6 @@ public class SymbolFactory {
     final var startToken = new Ek9Token(ctx.start);
 
     configureSymbol(trySymbol, startToken);
-    checkTryReturns.accept(ctx);
 
     return trySymbol;
   }

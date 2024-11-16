@@ -57,18 +57,52 @@ defines module some.bad.dowhileguards
         stdout.println(`But this is just a blind assignment ${toCheck.name}`)
       while conditional
 
-    demonstrateValidDoWhileGuardedDeclarationUse()
+    demonstrateValidDoWhileExpressionAssignmentUse1()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+      //Note still use UnusableAggregate without an 'is-set' operator, to show it can be used like this.
+      //So this does not use the 'guard' functionality - i.e. there is no is-set functionality triggered.
+      toCheck <- UnusableAggregate()
+      result <- do toCheck := provideUnusableReturn()
+        <- rtn as String: toCheck.name
+        stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+      while conditional
+      assert result?
+
+
+    demonstrateValidDoWhileExpressionAssignmentUse2()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
-      //As the UnusableAggregate does have an is-set operator it can be used in the 'guard' statement.
-      //Here the declaration 'guard' functionality is triggers, a declaration and the check that what was declared
-      //does actually report to have a meaningful value, so in this case only if the UsableReturn 'isSet' and conditional is 'true'
-      //Will the while loop be processed.
+      //Just for completeness really
+      toCheck <- UsableAggregate()
+      result <- do toCheck := provideUsableReturn()
+        <- rtn as String: toCheck.name
+        stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+      while conditional
+      assert result?
+
+    demonstrateValidDoWhileDeclarationUse()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+
       do toCheck <- provideUsableReturn()
         stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
       while conditional
+
+    demonstrateValidDoWhileExpressionDeclarationUse()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+
+      result <- do toCheck <- provideUsableReturn()
+        <- rtn as String: toCheck.name
+        stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
+      while conditional
+      assert result?
 
     demonstrateValidDoWhileGuardedAssignmentUse()
       -> conditional as Boolean
@@ -98,7 +132,7 @@ defines module some.bad.dowhileguards
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
       while conditional
 
-    demonstrateInvalidDoWhileGuardedDeclarationUse1()
+    demonstrateInvalidDoWhileDeclarationUse1()
       -> conditional as Boolean
 
       stdout <- Stdout()
@@ -109,7 +143,7 @@ defines module some.bad.dowhileguards
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
       while conditional
 
-    demonstrateInvalidDoWhileGuardedDeclarationUse2()
+    demonstrateInvalidDoWhileDeclarationUse2()
       -> conditional as Boolean
 
       stdout <- Stdout()
@@ -121,5 +155,31 @@ defines module some.bad.dowhileguards
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
       while conditional
 
+    demonstrateInvalidDoWhileExpressionDeclarationUse1()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      result <- do toCheck <- provideUnusableReturn()
+        <- rtn as String: toCheck.name
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+      while conditional
+      assert result?
+
+    demonstrateInvalidDoWhileExpressionDeclarationUse2()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
+      //This is also a way to declare and initialise a variable in a guarded manner.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      result <- do toCheck as UnusableAggregate: provideUnusableReturn()
+        <- rtn as String: toCheck.name
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+      while conditional
+      assert result?
 
 //EOF

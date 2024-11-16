@@ -203,6 +203,25 @@ defines module bad.trycatchfinally.example
 
       assert someValue?
 
+    InvalidTryExpressionWithMissingReturn()
+
+      @Error: FULL_RESOLUTION: RETURNING_REQUIRED
+      someVar <- try
+        value <- exceptionFunction()
+        assert value?
+
+      //Because the type defaults to void, because the try did not return anything
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert someVar?
+
+    InvalidTryExpressionWithNotRequiredReturn()
+
+      try
+        @Error: FULL_RESOLUTION: RETURNING_NOT_REQUIRED
+        <- rtn as String: String()
+        value <- exceptionFunction()
+        assert value?
+
     <?-
       Just try and finally (without a catch/handle).
     -?>

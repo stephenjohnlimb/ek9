@@ -53,18 +53,45 @@ defines module some.bad.forloopguards
       for toCheck := provideUsableReturn() with i in [1, 5, 7]
         stdout.println(`But this is just a blind assignment ${toCheck.name}`)
 
-    demonstrateValidForLoopGuardedDeclarationUse()
+    demonstrateValidForLoopExpressionAssignmentUse1()
+
+      stdout <- Stdout()
+      //Note still use UnusableAggregate without an 'is-set' operator, to show it can be used like this.
+      //So this does not use the 'guard' functionality - i.e. there is no is-set functionality triggered.
+      toCheck <- UnusableAggregate()
+      result <- for toCheck := provideUnusableReturn() with i in [1, 5, 7]
+        <- rtn as String: toCheck.name
+        stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+      assert result?
+
+    demonstrateValidForLoopExpressionAssignmentUse2()
 
       stdout <- Stdout()
 
-      //As the UnusableAggregate does have an is-set operator it can be used in the 'guard' statement.
-      //Here the declaration 'guard' functionality is triggers, a declaration and the check that what was declared
-      //does actually report to have a meaningful value, so in this case only if the UsableReturn 'isSet' and conditional is 'true'
-      //Will the while loop be processed.
+      //Just for completeness really
+      toCheck <- UsableAggregate()
+      result <- for toCheck := provideUsableReturn() with i in [1, 5, 7]
+        <- rtn as String: toCheck.name
+        stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+      assert result?
+
+    demonstrateValidForLoopDeclarationUse()
+
+      stdout <- Stdout()
+
       for toCheck <- provideUsableReturn() with i in [1, 5, 7]
         stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
 
-    demonstrateValidForLoopGuardedAssignmentUse()
+    demonstrateValidForLoopExpressionDeclarationUse()
+
+      stdout <- Stdout()
+
+      result <- for toCheck <- provideUsableReturn() with i in [1, 5, 7]
+        <- rtn as String: toCheck.name
+        stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
+      assert result?
+
+    demonstrateValidForLoopAssignmentUse()
 
       stdout <- Stdout()
 
@@ -88,7 +115,7 @@ defines module some.bad.forloopguards
       for toCheck ?= provideUnusableReturn() with i in [1, 5, 7]
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
 
-    demonstrateInvalidForLoopGuardedDeclarationUse1()
+    demonstrateInvalidForLoopDeclarationUse1()
 
       stdout <- Stdout()
 
@@ -97,7 +124,7 @@ defines module some.bad.forloopguards
       for toCheck <- provideUnusableReturn() with i in [1, 5, 7]
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
 
-    demonstrateInvalidForLoopGuardedDeclarationUse2()
+    demonstrateInvalidForLoopDeclarationUse2()
 
       stdout <- Stdout()
 
@@ -107,5 +134,27 @@ defines module some.bad.forloopguards
       for toCheck as UnusableAggregate: provideUnusableReturn() with i in [1, 5, 7]
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
 
+    demonstrateInvalidForLoopExpressionDeclarationUse1()
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      result <- for toCheck <- provideUnusableReturn() with i in [1, 5, 7]
+        <- rtn as String: toCheck.name
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+      assert result?
+
+    demonstrateInvalidForLoopExpressionDeclarationUse2()
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
+      //This is also a way to declare and initialise a variable in a guarded manner.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      result <- for toCheck as UnusableAggregate: provideUnusableReturn() with i in [1, 5, 7]
+        <- rtn as String: toCheck.name
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+      assert result?
 
 //EOF

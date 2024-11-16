@@ -55,17 +55,47 @@ defines module some.bad.whileguards
       while toCheck := provideUsableReturn() with conditional
         stdout.println(`But this is just a blind assignment ${toCheck.name}`)
 
-    demonstrateValidWhileGuardedDeclarationUse()
+    demonstrateValidWhileExpressionAssignmentUse1()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+      //Note still use UnusableAggregate without an 'is-set' operator, to show it can be used like this.
+      //So this does not use the 'guard' functionality - i.e. there is no is-set functionality triggered.
+      toCheck <- UnusableAggregate()
+      result <- while toCheck := provideUnusableReturn() with conditional
+        <- rtn as String: toCheck.name
+        stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+      assert result?
+
+    demonstrateValidWhileExpressionAssignmentUse2()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
-      //As the UnusableAggregate does have an is-set operator it can be used in the 'guard' statement.
-      //Here the declaration 'guard' functionality is triggers, a declaration and the check that what was declared
-      //does actually report to have a meaningful value, so in this case only if the UsableReturn 'isSet' and conditional is 'true'
-      //Will the while loop be processed.
+      //Just for completeness really
+      toCheck <- UsableAggregate()
+      result <- while toCheck := provideUsableReturn() with conditional
+        <- rtn as String: toCheck.name
+        stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+      assert result?
+
+    demonstrateValidWhileDeclarationUse()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+
       while toCheck <- provideUsableReturn() with conditional
         stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
+
+    demonstrateValidWhileExpressionDeclarationUse()
+      -> conditional as Boolean
+
+      stdout <- Stdout()
+
+      result <- while toCheck <- provideUsableReturn() with conditional
+        <- rtn as String: toCheck.name
+        stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
+      assert result?
 
     demonstrateValidWhileGuardedAssignmentUse()
       -> conditional as Boolean
@@ -103,7 +133,7 @@ defines module some.bad.whileguards
       while toCheck <- provideUnusableReturn() with conditional
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
 
-    demonstrateInvalidWhileGuardedDeclarationUse2()
+    demonstrateInvalidWhileDeclarationUse2()
       -> conditional as Boolean
 
       stdout <- Stdout()

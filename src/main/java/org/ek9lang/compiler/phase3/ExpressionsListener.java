@@ -48,7 +48,10 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final WhileStatementExpressionOrError whileStatementExpressionOrError;
   private final ProcessWhileControlVariable processWhileControlVariable;
   private final SwitchStatementExpressionOrError switchStatementExpressionOrError;
-  private final SwitchOrError switchOrError;
+  private final SwitchReturnOrError switchReturnOrError;
+  private final TryReturnOrError tryReturnOrError;
+  private final WhileReturnOrError whileReturnOrError;
+  private final ForReturnOrError forReturnOrError;
   private final TryStatementExpressionOrError tryStatementExpressionOrError;
   private final CaseExpressionOrError caseExpressionOrError;
   private final ThrowStatementOrError throwStatementOrError;
@@ -125,14 +128,20 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
         new ProcessWhileControlVariable(symbolsAndScopes, errorListener);
     this.switchStatementExpressionOrError =
         new SwitchStatementExpressionOrError(symbolsAndScopes, errorListener);
-    this.switchOrError =
-        new SwitchOrError(errorListener);
+    this.switchReturnOrError =
+        new SwitchReturnOrError(errorListener);
     this.caseExpressionOrError =
         new CaseExpressionOrError(symbolsAndScopes, errorListener);
     this.tryStatementExpressionOrError =
         new TryStatementExpressionOrError(symbolsAndScopes, errorListener);
     this.throwStatementOrError =
         new ThrowStatementOrError(symbolsAndScopes, errorListener);
+    this.tryReturnOrError =
+        new TryReturnOrError(errorListener);
+    this.whileReturnOrError =
+        new WhileReturnOrError(errorListener);
+    this.forReturnOrError =
+        new ForReturnOrError(errorListener);
   }
 
   @Override
@@ -243,14 +252,15 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
 
   @Override
   public void exitForStatementExpression(final EK9Parser.ForStatementExpressionContext ctx) {
-    forStatementExpressionOrError.accept(ctx);
+    forStatementExpressionOrError.andThen(forReturnOrError).accept(ctx);
     super.exitForStatementExpression(ctx);
   }
 
   @Override
   public void enterWhileStatementExpression(final EK9Parser.WhileStatementExpressionContext ctx) {
     //Now here it is important to check the while 'control' variable.
-    processWhileControlVariable.accept(ctx);
+    processWhileControlVariable.andThen(whileReturnOrError).accept(ctx);
+
     super.enterWhileStatementExpression(ctx);
   }
 
@@ -263,7 +273,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   @Override
   public void enterSwitchStatementExpression(final EK9Parser.SwitchStatementExpressionContext ctx) {
     //Need to do the basics checks and issue errors on switches before assessing types later in the exit.
-    switchOrError.accept(ctx);
+    switchReturnOrError.accept(ctx);
     super.enterSwitchStatementExpression(ctx);
   }
 
@@ -272,6 +282,12 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
     //Now a more detailed analysis can take place.
     switchStatementExpressionOrError.accept(ctx);
     super.exitSwitchStatementExpression(ctx);
+  }
+
+  @Override
+  public void enterTryStatementExpression(final EK9Parser.TryStatementExpressionContext ctx) {
+    tryReturnOrError.accept(ctx);
+    super.enterTryStatementExpression(ctx);
   }
 
   @Override

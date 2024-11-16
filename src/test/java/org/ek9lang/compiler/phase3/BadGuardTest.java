@@ -20,8 +20,8 @@ class BadGuardTest extends PhasesTest {
             "some.bad.dowhileguards",
             "some.bad.forloopguards",
             "some.bad.forrangeguards",
-            "some.bad.trycatchfinallyguards")
-        , true, false
+            "some.bad.trycatchfinallyguards",
+            "some.bad.switchguards")
     );
   }
 

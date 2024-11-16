@@ -55,7 +55,7 @@ defines module some.bad.ifguards
       if toCheck := provideUsableReturn() with conditional
         stdout.println(`But this is just a blind assignment ${toCheck.name}`)
 
-    demonstrateValidIfGuardedDeclarationUse()
+    demonstrateValidIfDeclarationUse()
       -> conditional as Boolean
 
       stdout <- Stdout()
@@ -96,7 +96,7 @@ defines module some.bad.ifguards
       if toCheck ?= provideUnusableReturn() with conditional
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
 
-    demonstrateInvalidIfGuardedDeclarationUse1()
+    demonstrateInvalidIfDeclarationUse1()
       -> conditional as Boolean
 
       stdout <- Stdout()
@@ -106,7 +106,7 @@ defines module some.bad.ifguards
       if toCheck <- provideUnusableReturn() with conditional
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
 
-    demonstrateInvalidIfGuardedDeclarationUse2()
+    demonstrateInvalidIfDeclarationUse2()
       -> conditional as Boolean
 
       stdout <- Stdout()

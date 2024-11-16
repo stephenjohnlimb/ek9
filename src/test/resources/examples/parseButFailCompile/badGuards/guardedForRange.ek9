@@ -53,18 +53,36 @@ defines module some.bad.forrangeguards
       for toCheck := provideUsableReturn() with i in 1 ... 10 by 2
         stdout.println(`But this is just a blind assignment ${toCheck.name}`)
 
-    demonstrateValidForRangeGuardedDeclarationUse()
+    demonstrateValidForRangeExpressionAssignmentUse1()
+
+      stdout <- Stdout()
+      //Note still use UnusableAggregate without an 'is-set' operator, to show it can be used like this.
+      //So this does not use the 'guard' functionality - i.e. there is no is-set functionality triggered.
+      toCheck <- UnusableAggregate()
+      result <- for toCheck := provideUnusableReturn() with i in 1 ... 10
+        <- rtn as String: toCheck.name
+        stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+      assert result?
+
+    demonstrateValidForRangeExpressionAssignmentUse2()
 
       stdout <- Stdout()
 
-      //As the UnusableAggregate does have an is-set operator it can be used in the 'guard' statement.
-      //Here the declaration 'guard' functionality is triggers, a declaration and the check that what was declared
-      //does actually report to have a meaningful value, so in this case only if the UsableReturn 'isSet' and conditional is 'true'
-      //Will the while loop be processed.
+      //Just for completeness really
+      toCheck <- UsableAggregate()
+      result <- for toCheck := provideUsableReturn() with i in 1 ... 10 by 2
+        <- rtn as String: toCheck.name
+        stdout.println(`But this is just a blind assignment ${toCheck.name}`)
+      assert result?
+
+    demonstrateValidForRangeDeclarationUse()
+
+      stdout <- Stdout()
+
       for toCheck <- provideUsableReturn() with i in 1 ... 10
         stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
 
-    demonstrateValidForRangeGuardedAssignmentUse()
+    demonstrateValidForRangeAssignmentUse()
 
       stdout <- Stdout()
 
@@ -72,6 +90,15 @@ defines module some.bad.forrangeguards
       toCheck <- UsableAggregate()
       for toCheck ?= provideUsableReturn() with i in 1 ... 10
         stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
+
+    demonstrateValidForRangeExpressionDeclarationUse()
+
+      stdout <- Stdout()
+
+      result <- for toCheck <- provideUsableReturn() with i in 1 ... 10
+        <- rtn as String: toCheck.name
+        stdout.println(`Do expect this to compile and maybe see ${toCheck.name}`)
+      assert result?
 
     <!-
       Now the invalid scenarios
@@ -88,7 +115,7 @@ defines module some.bad.forrangeguards
       for toCheck ?= provideUnusableReturn() with i in 1 ... 10
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
 
-    demonstrateInvalidForRangeGuardedDeclarationUse1()
+    demonstrateInvalidForRangeDeclarationUse1()
 
       stdout <- Stdout()
 
@@ -97,7 +124,7 @@ defines module some.bad.forrangeguards
       for toCheck <- provideUnusableReturn() with i in 1 ... 10
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
 
-    demonstrateInvalidForRangeGuardedDeclarationUse2()
+    demonstrateInvalidForRangeDeclarationUse2()
 
       stdout <- Stdout()
 
@@ -107,5 +134,27 @@ defines module some.bad.forrangeguards
       for toCheck as UnusableAggregate: provideUnusableReturn() with i in 1 ... 10
         stdout.println(`Do not expect this to even compile ${toCheck.name}`)
 
+    demonstrateInvalidForRangeExpressionDeclarationUse1()
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      result <- for toCheck <- provideUnusableReturn() with i in 1 ... 10
+        <- rtn as String: toCheck.name
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+      assert result?
+
+    demonstrateInvalidForRangeExpressionDeclarationUse2()
+
+      stdout <- Stdout()
+
+      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
+      //This is also a way to declare and initialise a variable in a guarded manner.
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      result <- for toCheck as UnusableAggregate: provideUnusableReturn() with i in 1 ... 10
+        <- rtn as String: toCheck.name
+        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+      assert result?
 
 //EOF

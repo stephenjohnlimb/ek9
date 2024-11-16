@@ -64,5 +64,29 @@ defines module bad.control.types
 
       assert value?
 
+    InvalidWhileWithMissingReturn()
+
+      control <- true
+
+      @Error: FULL_RESOLUTION: RETURNING_REQUIRED
+      result <- while control
+        var <- "Something"
+        assert var?
+        control: false
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      assert result?
+
+    InvalidWhileWithReturnNotRequired()
+
+      control <- true
+
+      while control
+        @Error: FULL_RESOLUTION: RETURNING_NOT_REQUIRED
+        <- rtn as String: "Some Value"
+        var <- "Something"
+        assert var?
+        control: false
+
 //EOF
 

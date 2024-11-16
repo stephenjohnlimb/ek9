@@ -206,4 +206,17 @@ defines module bad.forrangeloops.check
         @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
         stdout.println(`Value [${i}]`)
 
+    InvalidForLoopMissingReturn()
+
+      @Error: FULL_RESOLUTION: RETURNING_REQUIRED
+      var <- for i in 1 ... 3
+        assert i?
+
+    InvalidForLoopNotRequiredReturn()
+
+      for i in 1 ... 3
+        @Error: FULL_RESOLUTION: RETURNING_NOT_REQUIRED
+        <- rtn as String: String()
+        assert i?
+
 //EOF

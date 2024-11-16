@@ -87,7 +87,7 @@ defines module some.bad.trycatchfinallyguards
 
       stdout.println(`But this is just a return from a blind assignment ${name}`)
 
-    demonstrateValidTryStatementGuardedDeclarationUse()
+    demonstrateValidTryStatementDeclarationUse()
 
       stdout <- Stdout()
 
@@ -101,7 +101,7 @@ defines module some.bad.trycatchfinallyguards
         -> ex as Exception
         stdout.println(`Exception triggered ${ex}`)
 
-    demonstrateValidTryExpressionGuardedDeclarationUse()
+    demonstrateValidTryExpressionDeclarationUse()
 
       stdout <- Stdout()
 
@@ -147,7 +147,7 @@ defines module some.bad.trycatchfinallyguards
         -> ex as Exception
         stdout.println(`Exception triggered ${ex}`)
 
-    demonstrateInvalidTryStatementGuardedDeclarationUse1()
+    demonstrateInvalidTryStatementDeclarationUse1()
 
       stdout <- Stdout()
 
@@ -159,7 +159,7 @@ defines module some.bad.trycatchfinallyguards
         -> ex as Exception
         stdout.println(`Exception triggered ${ex}`)
 
-    demonstrateInvalidTryExpressionGuardedDeclarationUse1()
+    demonstrateInvalidTryExpressionDeclarationUse1()
 
       stdout <- Stdout()
 
@@ -173,7 +173,7 @@ defines module some.bad.trycatchfinallyguards
 
       stdout.println(`Do expect this to compile and maybe see ${name}`)
 
-    demonstrateInvalidTryStatementGuardedDeclarationUse2()
+    demonstrateInvalidTryStatementDeclarationUse2()
 
       stdout <- Stdout()
 
@@ -186,7 +186,7 @@ defines module some.bad.trycatchfinallyguards
         -> ex as Exception
         stdout.println(`Exception triggered ${ex}`)
 
-    demonstrateInvalidTryExpressionGuardedDeclarationUse2()
+    demonstrateInvalidTryExpressionDeclarationUse2()
 
       stdout <- Stdout()
 
@@ -200,6 +200,5 @@ defines module some.bad.trycatchfinallyguards
         stdout.println(`Exception triggered ${ex}`)
 
       stdout.println(`Do expect this to compile and maybe see ${name}`)
-
 
 //EOF

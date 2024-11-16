@@ -15,7 +15,7 @@ class BadTryCatchFinallyTest extends PhasesTest {
 
   public BadTryCatchFinallyTest() {
     super("/examples/parseButFailCompile/badTryCatchFinally",
-        List.of("bad.trycatchfinally.example"), true, false);
+        List.of("bad.trycatchfinally.example"));
   }
 
   @Test

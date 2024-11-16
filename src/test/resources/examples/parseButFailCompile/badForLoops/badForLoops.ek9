@@ -155,7 +155,7 @@ defines module bad.forloops.check
         assert value?
 
     <?-
-      This demonstrates the classes can be used with \duck-typing' but the methods have to match.
+      This demonstrates the classes can be used with 'duck-typing' but the methods have to match.
     -?>
     InvalidForLoop5()
       @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
@@ -163,6 +163,18 @@ defines module bad.forloops.check
         @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
         assert value?
 
+    InvalidForLoopMissingReturn()
+
+      @Error: FULL_RESOLUTION: RETURNING_REQUIRED
+      var <- for i in [1,2,3]
+        assert i?
+
+    InvalidForLoopNotRequiredReturn()
+
+      for i in [1,2,3]
+        @Error: FULL_RESOLUTION: RETURNING_NOT_REQUIRED
+        <- rtn as String: String()
+        assert i?
 
     <!-
     JustFail()

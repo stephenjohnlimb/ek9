@@ -8,11 +8,10 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * Ensures that a switch is used correctly in or out of an expression.
- * This now includes checking for 'default' and it's correct use with statement and expression switches.
  */
-final class SwitchOrError extends CheckReturns implements Consumer<EK9Parser.SwitchStatementExpressionContext> {
+final class SwitchReturnOrError extends CheckReturns implements Consumer<EK9Parser.SwitchStatementExpressionContext> {
 
-  SwitchOrError(final ErrorListener errorListener) {
+  SwitchReturnOrError(final ErrorListener errorListener) {
     super(errorListener);
   }
 

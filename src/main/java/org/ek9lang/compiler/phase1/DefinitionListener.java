@@ -127,6 +127,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
         new ResolveOrDefineExplicitParameterizedType(symbolsAndScopes, symbolFactory, errorListener, false);
 
     validPreFlowAndReturnOrError = new ValidPreFlowAndReturnOrError(symbolsAndScopes, errorListener);
+
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
