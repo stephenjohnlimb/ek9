@@ -34,7 +34,7 @@ public abstract class PhasesTest {
   //This is to that builds can be silent. But when developing you'll probably need to see the actual errors.
   private final CompilerReporter reporter;
 
-  private boolean enableDirectiveErrors = true;
+  private final boolean enableDirectiveErrors;
 
   public PhasesTest(final String fromResourcesDirectory) {
     this(fromResourcesDirectory, List.of());
@@ -63,6 +63,22 @@ public abstract class PhasesTest {
 
   public PhasesTest(final String fromResourcesDirectory, final List<String> expectedModules,
                     final boolean verbose, final boolean muteReportedErrors, final boolean enableDirectiveErrors) {
+
+    //Just so when you see stuff streaming out in errors you can workout which Test class is doing it.
+    if (verbose) {
+
+      System.out.println(this.getClass().getSimpleName() + " is set to verbose");
+
+      if (!muteReportedErrors) {
+        System.out.println(this.getClass().getSimpleName() + " has unmuted reported errors");
+      }
+
+      if (enableDirectiveErrors) {
+        System.out.println(this.getClass().getSimpleName() + " has enabled Directives");
+      }
+
+    }
+
     var workspaceLoader = new WorkSpaceFromResourceDirectoryFiles();
     this.expectedModules = expectedModules;
     ek9Workspace = workspaceLoader.apply(fromResourcesDirectory);
@@ -157,7 +173,7 @@ public abstract class PhasesTest {
         //Now if there are directive errors, unmute so they can be easily seen.
         //We don't really want all the actual compiler errors. It is handy just to see a simple directive failure.
         final var muted = reporter.isMuteReportedErrors();
-        if(muted && enableDirectiveErrors) {
+        if (muted && enableDirectiveErrors) {
           reporter.setMuteReportedErrors(false);
         }
         reporter.report("Directiv: " + phase + ", source: " + source.getFileName());
@@ -165,7 +181,7 @@ public abstract class PhasesTest {
           counter.getAndIncrement();
           reporter.report(error);
         });
-        if(muted) {
+        if (muted) {
           reporter.setMuteReportedErrors(true);
         }
       }

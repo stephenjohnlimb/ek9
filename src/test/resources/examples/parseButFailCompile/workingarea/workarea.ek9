@@ -31,7 +31,6 @@ defines module just.workspace
       checker <- Checker()
       checker.aMethod() += 3
 
-
   <!-
 
     SimpleStreamCatMap4()

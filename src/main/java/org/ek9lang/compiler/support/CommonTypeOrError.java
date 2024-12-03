@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.RuleSupport;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
@@ -17,13 +19,15 @@ import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Attempts to find a common type from the CommonTypeDeterminationDetails or issues errors.
+ * Alteration to this processing is for 'AnyClass' and 'AnyRecord' - those are a last resort.
+ * So supers first, then traits (if appropriate) and finally AnyClass/AnyRecord.
  */
-public class CommonTypeOrError implements Function<CommonTypeDeterminationDetails, Optional<ISymbol>> {
-  final ErrorListener errorListener;
+public class CommonTypeOrError extends RuleSupport
+    implements Function<CommonTypeDeterminationDetails, Optional<ISymbol>> {
 
-  public CommonTypeOrError(final ErrorListener errorListener) {
+  public CommonTypeOrError(final SymbolsAndScopes symbolsAndScopes, final ErrorListener errorListener) {
 
-    this.errorListener = errorListener;
+    super(symbolsAndScopes, errorListener);
 
   }
 
@@ -62,11 +66,24 @@ public class CommonTypeOrError implements Function<CommonTypeDeterminationDetail
     final List<ISymbol> typesToTry = new ArrayList<>();
 
     getTypesToTry(details.argumentTypes().get(0), typesToTry);
+    //We do not want to include these - only later as a last resort
+    var anyClassType = symbolsAndScopes.getEk9Types().ek9AnyClass();
+    var anyRecordType = symbolsAndScopes.getEk9Types().ek9AnyRecord();
+    typesToTry.remove(anyClassType);
+    typesToTry.remove(anyRecordType);
 
     for (var type : typesToTry) {
       if (allAssignableTo(type, details.argumentTypes())) {
         return Optional.of(type);
       }
+    }
+
+    if (allAssignableTo(anyClassType, details.argumentTypes())) {
+      return Optional.of(anyClassType);
+    }
+
+    if (allAssignableTo(anyRecordType, details.argumentTypes())) {
+      return Optional.of(anyRecordType);
     }
 
     emitNoCommonType(details.lineToken(), details.argumentTypes().get(0));
@@ -75,6 +92,7 @@ public class CommonTypeOrError implements Function<CommonTypeDeterminationDetail
   }
 
   private void getTypesToTry(final ISymbol symbolType, final List<ISymbol> addToTypes) {
+
 
     if (addToTypes.contains(symbolType)) {
       return;
@@ -149,6 +167,6 @@ public class CommonTypeOrError implements Function<CommonTypeDeterminationDetail
 
     final var msg = "With '" + argument.getFriendlyName() + "':";
     errorListener.semanticError(lineToken, msg, UNABLE_TO_DETERMINE_COMMON_TYPE);
-    
+
   }
 }

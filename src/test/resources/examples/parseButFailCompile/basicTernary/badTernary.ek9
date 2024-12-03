@@ -51,8 +51,10 @@ defines module just.ternary
       //The first expression 'less than' is fine as it results in Boolean
       //But the types of either of the possibilities are not compatible.
       //So what type would 'notReallyValid'? The EK9 developer needs to have some guarantees here
-      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
-      notReallyValid <- 1 < 2 <- "String" else 67.0
+      //Now as all classes inherit implicitly from 'AnyClass' - that will be the common super type
+      any <- 1 < 2 <- "String" else 67.0
+      assert any?
+      //Though beyond that - you'd need a dispatcher to work out actual type.
 
     TestBadTernary2()
       //While var++ is an expression it does not result in a Boolean

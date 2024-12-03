@@ -35,7 +35,7 @@ defines module bad.callthisandsuper.classmethod.access1
     C1 as open
       C1()
         //Is it possible to call a super here? Even though there isn't one
-        @Error: FULL_RESOLUTION: AGGREGATE_HAS_NO_SUPER
+        //Yes, because all classes inherit from implicit super of AnyClass
         super()
 
       C1()
@@ -48,7 +48,7 @@ defines module bad.callthisandsuper.classmethod.access1
         val <- this()
 
       someMethod2()
-        @Error: FULL_RESOLUTION: AGGREGATE_HAS_NO_SUPER
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
         val <- super()
 
     C2 extends C1

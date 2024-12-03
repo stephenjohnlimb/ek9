@@ -33,7 +33,7 @@ final class StreamCatOrError extends TypedSymbolAccess implements Consumer<EK9Pa
 
     super(symbolsAndScopes, errorListener);
     this.getIteratorType = new GetIteratorType(symbolsAndScopes, errorListener);
-    this.commonTypeOrError = new CommonTypeOrError(errorListener);
+    this.commonTypeOrError = new CommonTypeOrError(symbolsAndScopes, errorListener);
 
   }
 

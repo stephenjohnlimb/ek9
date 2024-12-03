@@ -30,7 +30,7 @@ class BadOperatorUseTest extends PhasesTest {
             "bad.records.operators.examples",
             "bad.abstractuse.example",
             "missing.operators.examples",
-            "bad.defaultoperators.record.examples"), false, true);
+            "bad.defaultoperators.record.examples"));
   }
 
   @Test

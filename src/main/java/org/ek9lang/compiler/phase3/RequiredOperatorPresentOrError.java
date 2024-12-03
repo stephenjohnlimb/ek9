@@ -8,6 +8,7 @@ import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -50,6 +51,10 @@ final class RequiredOperatorPresentOrError extends TypedSymbolAccess
     if (symbolType.isPresent() && checkOperatorData.search() != null
         && symbolType.get() instanceof IAggregateSymbol aggregate) {
 
+      if (isAnyClassRecordIsSetOperator(aggregate, checkOperatorData.search())) {
+        return Optional.of(symbolsAndScopes.getEk9Types().ek9Boolean());
+      }
+
       final var search = checkOperatorData.search();
       final var results = aggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
       final var bestMatch = results.getSingleBestMatchSymbol();
@@ -63,11 +68,26 @@ final class RequiredOperatorPresentOrError extends TypedSymbolAccess
         return operator.getReturningSymbol().getType();
 
       } else {
+        aggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
         emitOperatorNotDefined(aggregate, checkOperatorData);
       }
     }
 
     return Optional.empty();
+  }
+
+  private boolean isAnyClassRecordIsSetOperator(final IAggregateSymbol aggregateSymbol,
+                                                final MethodSymbolSearch search) {
+
+    //We don't define the 'is-set' ? operator on these two built in types.
+    //But we do allow '?' to be used in EK9 code - these are 'special cases' - I hate those but
+    //in this case I need to enable ? operator without mandating it on these two classes
+    //because other rules would force a developer to add in ? operators in weird and non-obvious situations.
+
+    return (symbolsAndScopes.getEk9Types().ek9AnyClass().isExactSameType(aggregateSymbol)
+        || symbolsAndScopes.getEk9Types().ek9AnyRecord().isExactSameType(aggregateSymbol))
+        && search.getName().equals("?");
+
   }
 
   /**

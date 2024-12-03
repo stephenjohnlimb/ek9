@@ -32,6 +32,7 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
   private final CommonTypeSuperOrTraitOrError commonTypeSuperOrTraitOrError;
   private final AccessLeftAndRightOrError accessLeftAndRightOrError;
   private final SymbolFromContextOrError symbolFromContextOrError;
+  private final IsConvertableToStringOrError isConvertableToStringOrError;
 
   private final Function<Optional<ExprLeftAndRightData>, List<ISymbol>> toList =
       exprLeftAndRightData -> exprLeftAndRightData.map(data -> List.of(data.left(), data.right())).orElse(List.of());
@@ -49,9 +50,10 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
     this.requiredOperatorPresentOrError = new RequiredOperatorPresentOrError(symbolsAndScopes, errorListener);
     this.methodSymbolSearchForExpression = new MethodSymbolSearchForExpression(symbolsAndScopes, errorListener);
     this.controlIsBooleanOrError = new ControlIsBooleanOrError(symbolsAndScopes, errorListener);
-    this.commonTypeSuperOrTraitOrError = new CommonTypeSuperOrTraitOrError(errorListener);
+    this.commonTypeSuperOrTraitOrError = new CommonTypeSuperOrTraitOrError(symbolsAndScopes, errorListener);
     this.accessLeftAndRightOrError = new AccessLeftAndRightOrError(symbolsAndScopes, errorListener);
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolsAndScopes, errorListener);
+    this.isConvertableToStringOrError = new IsConvertableToStringOrError(symbolsAndScopes, errorListener);
 
   }
 
@@ -61,8 +63,15 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
     final var symbol = processExpressionOrError(ctx);
     if (symbol != null) {
       symbolsAndScopes.recordSymbol(symbol, ctx);
+      final var errorLocation = new Ek9Token(ctx.start);
       if (symbol.getType().isEmpty()) {
-        emitTypeNotResolvedError(new Ek9Token(ctx.start), symbol);
+        emitTypeNotResolvedError(errorLocation, symbol);
+      } else {
+        //Now if the expression is used as part of an interpolated String need to
+        //Check that the type has $ operator or promotion to String
+        if (ctx.getParent() instanceof EK9Parser.StringPartContext) {
+          isConvertableToStringOrError.test(errorLocation, symbol.getType().get());
+        }
       }
     }
 
@@ -250,6 +259,7 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
                                                 final EK9Parser.ExpressionContext ctx) {
 
     final var leftAndRight = toList.apply(accessLeftAndRightOrError.apply(ctx));
+
 
     if (!leftAndRight.isEmpty()) {
       final var commonType = commonTypeSuperOrTraitOrError.apply(opToken, leftAndRight);

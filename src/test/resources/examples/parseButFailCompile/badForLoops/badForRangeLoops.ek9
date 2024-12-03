@@ -37,6 +37,9 @@ defines module bad.forrangeloops.check
       operator ? as pure
         <- rtn <- true
 
+      operator $ as pure
+        <- rtn as String: $value
+
     R3
       value <- 1
 
@@ -52,6 +55,8 @@ defines module bad.forrangeloops.check
         -> arg0 as R3
         assert arg0?
 
+      default operator $
+
     R4
       value <- 1
 
@@ -64,6 +69,8 @@ defines module bad.forrangeloops.check
         -> arg0 as Integer
         assert arg0?
 
+      default operator $
+
   defines function
     f1()
       -> arg0 as String
@@ -74,18 +81,18 @@ defines module bad.forrangeloops.check
     BadForLoopIncompatibleTypes1
       stdout <- Stdout()
 
-      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       for i in 1 ... 'c'
-        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        @Error: FULL_RESOLUTION: TYPE_MUST_BE_CONVERTABLE_TO_STRING
         stdout.println(`Value [${i}]`)
 
     BadForLoopIncompatibleTypes2
       stdout <- Stdout()
 
       //Because starts with Integer but ends in Float
-      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       for i in 1 ... 5.0 by 1
-        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        @Error: FULL_RESOLUTION: TYPE_MUST_BE_CONVERTABLE_TO_STRING
         stdout.println(`Value [${i}]`)
 
     BadForLoopIncompatibleTypes3
@@ -113,6 +120,7 @@ defines module bad.forrangeloops.check
       //No comparator operator available
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       for i in start ... end
+        @Error: FULL_RESOLUTION: TYPE_MUST_BE_CONVERTABLE_TO_STRING
         stdout.println(`Value [${i}]`)
 
     BadForLoopNoOperators2
@@ -124,6 +132,7 @@ defines module bad.forrangeloops.check
       //No ++ or -- methods
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       for i in start ... end
+        @Error: FULL_RESOLUTION: TYPE_MUST_BE_CONVERTABLE_TO_STRING
         stdout.println(`Value [${i}]`)
 
     OKForLoopWithOperators1

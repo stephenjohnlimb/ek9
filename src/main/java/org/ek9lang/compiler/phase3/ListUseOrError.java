@@ -30,7 +30,7 @@ final class ListUseOrError extends TypedSymbolAccess implements Consumer<EK9Pars
     super(symbolsAndScopes, errorListener);
 
     this.parameterisedLocator = new ParameterisedLocator(symbolsAndScopes, symbolFactory, errorListener, true);
-    this.commonTypeSuperOrTraitOrError = new CommonTypeSuperOrTraitOrError(errorListener);
+    this.commonTypeSuperOrTraitOrError = new CommonTypeSuperOrTraitOrError(symbolsAndScopes, errorListener);
 
   }
 

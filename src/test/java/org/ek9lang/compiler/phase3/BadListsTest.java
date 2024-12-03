@@ -15,7 +15,7 @@ class BadListsTest extends PhasesTest {
 
   public BadListsTest() {
     super("/examples/parseButFailCompile/badLists",
-        List.of("bad.lists.only"), false, true);
+        List.of("bad.lists.only"));
   }
 
   @Test

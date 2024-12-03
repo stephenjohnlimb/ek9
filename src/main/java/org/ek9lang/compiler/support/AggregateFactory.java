@@ -47,6 +47,8 @@ public class AggregateFactory {
   public static final String EK9_STRING = EK9_LANG + "::String";
   public static final String EK9_INTEGER = EK9_LANG + "::Integer";
   public static final String EK9_VOID = EK9_LANG + "::Void";
+  public static final String EK9_ANY_CLASS = EK9_LANG + "::AnyClass";
+  public static final String EK9_ANY_RECORD = EK9_LANG + "::AnyRecord";
   public static final String EK9_FLOAT = EK9_LANG + "::Float";
   public static final String EK9_BOOLEAN = EK9_LANG + "::Boolean";
   public static final String EK9_BITS = EK9_LANG + "::Bits";

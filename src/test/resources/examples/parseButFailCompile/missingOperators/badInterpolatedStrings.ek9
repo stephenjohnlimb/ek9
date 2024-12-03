@@ -1,0 +1,120 @@
+#!ek9
+
+defines module bad.interpolated.strings
+
+  defines class
+
+    //Has no #^ to String and no $ string operator
+    C0
+      default C0() as pure
+      operator ? as pure
+        <- rtn <- false
+
+    C1
+      default C1() as pure
+      default operator $
+
+    C2
+      default C2() as pure
+      operator #^ as pure
+        <- rtn as String: String()
+
+    C3
+      aField <- "Steve"
+
+      default C3() as pure
+
+      default operator $
+
+      operator #^ as pure
+        <- rtn as String: aField
+
+    C4
+      aField <- "Steve"
+
+      default C4() as pure
+
+      //By using this default operators are generated (if possible)
+      //If they cannot be generated then there will be an error
+      default operator
+
+    C5
+      aField <- C0()
+
+      default C5() as pure
+
+      //By using this default operators are generated (if possible)
+      //If they cannot be generated then there will be an error in this case C0 does not have $ operator
+      @Error: FULL_RESOLUTION: MISSING_OPERATOR_IN_PROPERTY_TYPE
+      default operator
+
+  defines function
+
+    basicStringInterpolation()
+      var <- 1
+      aString <- `Value is ${var}`
+      assert aString?
+
+    correctExampleOfStringInterpolation1()
+      var <- C1()
+      aString <- `Value is ${var}`
+      assert aString?
+
+    correctExampleOfStringInterpolation2()
+      var <- C2()
+      aString <- `Value is ${var}`
+      assert aString?
+
+    correctExampleOfStringInterpolation3()
+      var <- C3()
+      aString <- `Value is ${var}`
+      assert aString?
+
+    correctExampleOfStringInterpolation4()
+      var <- C4()
+      aString <- `Value is ${var}`
+      assert aString?
+
+    //While this does not emit any errors, C5 (above) does because the
+    //attempt to enable it to have the $ operator fails.
+    //So that operator is actually defined, but the previous error stops compilation.
+    //The alternative would be a large set of cascading errors all due to C5.
+    //This way once C5 is actually fixed all the result of the code will work.
+    almostCorrectExampleOfStringInterpolation()
+      var <- C5()
+      aString <- `Value is ${var}`
+      assert aString?
+
+    missingConversionToString1()
+      var <- C0()
+      @Error: FULL_RESOLUTION: TYPE_MUST_BE_CONVERTABLE_TO_STRING
+      aString <- `Value is ${var}`
+      assert aString?
+
+    badStringInterpolationWithAny()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      var1 <- `some ${value + 1} interpolated expression`
+      assert var1?
+
+      checkA <- AnyClass()
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      var3 <- `some ${checkA + 1} interpolated expression`
+      assert var3?
+
+      checkB <- AnyClass()
+      @Error: FULL_RESOLUTION: TYPE_MUST_BE_CONVERTABLE_TO_STRING
+      var4 <- `some ${checkB} interpolated expression`
+      assert var4?
+
+      checkC <- AnyRecord()
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      var5 <- `some ${checkC + 1} interpolated expression`
+      assert var5?
+
+      checkD <- AnyRecord()
+      @Error: FULL_RESOLUTION: TYPE_MUST_BE_CONVERTABLE_TO_STRING
+      var6 <- `some ${checkD} interpolated expression`
+      assert var6?
+
+//EOF

@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
+import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -23,9 +24,11 @@ import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
  */
 final class ParameterisedTypeOrError implements Consumer<PossibleGenericSymbol> {
   private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
+  private final Ek9Types ek9Types;
   private final ErrorListener errorListener;
 
-  ParameterisedTypeOrError(final ErrorListener errorListener) {
+  ParameterisedTypeOrError(final Ek9Types ek9Types, final ErrorListener errorListener) {
+    this.ek9Types = ek9Types;
     this.errorListener = errorListener;
   }
 
@@ -87,7 +90,16 @@ final class ParameterisedTypeOrError implements Consumer<PossibleGenericSymbol> 
                                       final IAggregateSymbol aggregateT,
                                       final MethodSymbol method) {
 
+
     if (typeTuple.typeArgumentForT instanceof IAggregateSymbol aggregateArgType) {
+
+      //Do not check these built in types, when we generate the output code we will
+      //add an 'is-set' code block to these and always return a Boolean that is 'un-set'.
+
+      if (ek9Types.ek9AnyClass().isExactSameType(aggregateArgType)
+          || ek9Types.ek9AnyRecord().isExactSameType(aggregateArgType)) {
+        return;
+      }
 
       final var methodSearch = createSearch(method, aggregateT, typeTuple.typeArgumentForT);
       final var resolved = aggregateArgType.resolveInThisScopeOnly(methodSearch);

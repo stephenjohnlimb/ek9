@@ -43,10 +43,9 @@ defines module bad.lists.only
       assert aList?
 
     InvalidTypesListOfDataCombinations()
-      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      @Resolved: FULL_RESOLUTION: TYPE: "List of (AnyClass)"
       aList <- [2023-05-04, 2023]
 
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert aList?
 
     <?-
@@ -93,12 +92,10 @@ defines module bad.lists.only
       aList <- [v1, v2]
       assert aList?
 
-      //But note this will fail, because while Integers can be coerced to Floats
-      //The converse is not true however - it not possible to coerce the other way.
-      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+
+      @Resolved: FULL_RESOLUTION: TYPE: "List of (AnyClass)"
       bList <- [v2, v1]
 
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert bList?
 
     MissingTypeFromEarlierError()

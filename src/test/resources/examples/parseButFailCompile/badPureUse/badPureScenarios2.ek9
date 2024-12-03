@@ -84,8 +84,9 @@ defines module bad.pure.scenarios2
 
         assert var?
 
-        //This makes no sense because there is no super.
-        @Error: FULL_RESOLUTION: AGGREGATE_HAS_NO_SUPER
+        //This makes no sense because there is no explicit super, but will have AnyClass as its super
+        //and that does not have copy '':=:'.
+        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
         super :=: arg0
 
         @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
@@ -106,7 +107,8 @@ defines module bad.pure.scenarios2
 
       checkMethod3()
         <- rtn <- true
-        @Error: FULL_RESOLUTION: AGGREGATE_HAS_NO_SUPER
+        //While C0 does not look like it has a super, there i an implicit super of 'AnyClass'
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
         super()
 
       operator :=:

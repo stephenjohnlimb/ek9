@@ -377,6 +377,8 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     TYPE_AMBIGUOUS("type use is ambiguous"),
     TYPE_CANNOT_BE_CONSTRAINED("is not a candidate to be constrained"),
     TYPE_MUST_BE_STRING("result must be String or can be promoted to String"),
+    TYPE_MUST_BE_CONVERTABLE_TO_STRING(
+        "result must be String, have the $ operator or can be promoted to String"),
     SYMBOL_LOCATED_BUT_TYPE_NOT_RESOLVED("symbol located but its type is not resolved"),
     TYPE_OR_FUNCTION_NOT_RESOLVED("type/function of variable not resolved"),
     //In the generic case where we're not sure what you're looking for.

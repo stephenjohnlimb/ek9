@@ -78,7 +78,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(Boolean|Bits|String|Character|Integer|Float|Date|Time|DateTime|Font|Colour|Colour|Dimension|RegEx|Duration|Millisecond|Money|Path|JSON|Locale|Version)\b</string>
+			<string>\b(Void|AnyClass|AnyRecord|Boolean|Bits|String|Character|Integer|Float|Date|Time|DateTime|Font|Colour|Colour|Dimension|RegEx|Duration|Millisecond|Money|Path|JSON|Locale|Version)\b</string>
 			<key>name</key>
 			<string>storage.type.ek9</string>
 		</dict>

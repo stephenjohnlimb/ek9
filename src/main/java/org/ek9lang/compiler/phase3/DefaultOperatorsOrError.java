@@ -130,6 +130,12 @@ final class DefaultOperatorsOrError extends TypedSymbolAccess implements Consume
   private void operatorOnPropertyTypeOrError(final IAggregateSymbol aggregate,
                                              final MethodSymbol operator) {
 
+    //No need to check any methods on AnyClass or anyRecord
+    if (symbolsAndScopes.getEk9Types().ek9AnyClass().isExactSameType(aggregate)
+        || symbolsAndScopes.getEk9Types().ek9AnyRecord().isExactSameType(aggregate)) {
+      return;
+    }
+
     final var search = new MethodSymbolSearch(operator);
 
     if (aggregate.resolveInThisScopeOnly(search).isEmpty()) {
@@ -185,6 +191,11 @@ final class DefaultOperatorsOrError extends TypedSymbolAccess implements Consume
    */
   private void hasComparatorOrError(final IAggregateSymbol aggregate, final IToken sourceToken,
                                     final ErrorListener.SemanticClassification errorClassification) {
+
+    if (symbolsAndScopes.getEk9Types().ek9AnyClass().isExactSameType(aggregate)
+        || symbolsAndScopes.getEk9Types().ek9AnyRecord().isExactSameType(aggregate)) {
+      return;
+    }
 
     final var search = new MethodSymbolSearch("<=>").addTypeParameter(aggregate);
 

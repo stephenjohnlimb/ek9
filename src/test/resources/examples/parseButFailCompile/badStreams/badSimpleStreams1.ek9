@@ -80,7 +80,7 @@ defines module bad.streams1
 
     BrokenStreamFor1()
       stdout <- Stdout()
-      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       for i in 'a' ... 10 > stdout
 
 //EOF

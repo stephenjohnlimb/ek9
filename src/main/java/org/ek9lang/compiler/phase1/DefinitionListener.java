@@ -1268,11 +1268,10 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     if (ctx.STRING_TEXT() != null) {
       //Then it is just a snip of TEXT
-      final var literal = symbolFactory.newInterpolatedStringPart(ctx, symbolsAndScopes.getTopScope());
+      final var literal = symbolFactory.newInterpolatedStringPart(ctx);
       symbolsAndScopes.recordSymbol(literal, ctx);
     } else {
       //Ah, so it is an expression part of an interpolated String
-      //We don't know what type it will return yet!
       final var expression = symbolFactory.newInterpolatedExpressionPart(ctx);
       symbolsAndScopes.recordSymbol(expression, ctx);
     }

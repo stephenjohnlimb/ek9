@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsRecordsTest extends PhasesTest {
 
   public ExamplesConstructsRecordsTest() {
-    super("/examples/constructs/records", false, false);
+    super("/examples/constructs/records");
   }
 
 

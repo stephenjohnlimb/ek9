@@ -6,6 +6,8 @@ import org.ek9lang.compiler.common.AggregateHasPureConstruction;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -77,6 +79,7 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
       return;
     }
 
+    setSuperAggregate(newType, constrainingAggregate);
     //Now we can safely cast and clone over the methods
     cloneMethodsAndOperators(newType, constrainingAggregate);
 
@@ -85,12 +88,23 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
       newType.getConstructors().forEach(method -> method.setMarkedPure(true));
     }
 
+
+  }
+
+  private void setSuperAggregate(final AggregateSymbol newType, final IAggregateSymbol constrainingAggregate) {
+
+    if (constrainingAggregate.getGenus().equals(ISymbol.SymbolGenus.RECORD)) {
+      newType.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Types().ek9AnyRecord());
+    } else {
+      newType.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Types().ek9AnyClass());
+    }
+
   }
 
   private void cloneMethodsAndOperators(final AggregateSymbol newType, final IAggregateSymbol constrainedType) {
 
-
     aggregateFactory.addConstructor(newType, new VariableSymbol("arg", constrainedType));
+
     final var candidates =
         constrainedType.getAllNonAbstractMethods().stream().filter(MethodSymbol::isNotConstructor).toList();
     for (var method : candidates) {
@@ -106,7 +120,7 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
       } else {
         //For non operators - just clone method and leave type as they are.
         var clonedMethod = method.clone(newType);
-        newType.define(clonedMethod);
+        addMethodIfNotAlreadyPresent(clonedMethod, newType);
       }
 
     }
@@ -120,7 +134,7 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
     if (!methodNamesWithNonAlterableReturnTypes.contains(clonedMethod.getName())) {
       adjustReturnType(clonedMethod, newType, constrainedType);
     }
-    newType.define(clonedMethod);
+    addMethodIfNotAlreadyPresent(clonedMethod, newType);
 
   }
 
@@ -140,12 +154,12 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
       //For some specific methods we duplicate the method but with the old type
       //This is useful for constrained types.
       if (typeAdjusted && methodNamesToAlsoRetrainOldSignature.contains(method.getName())) {
-        newType.define(method.clone(newType));
+        addMethodIfNotAlreadyPresent(method.clone(newType), newType);
+
       }
     }
 
-    newType.define(clonedMethod);
-
+    addMethodIfNotAlreadyPresent(clonedMethod, newType);
   }
 
   private boolean adjustArgumentType(final MethodSymbol clonedMethod,
@@ -160,6 +174,18 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
       }
     }
     return rtn;
+  }
+
+  /**
+   * Now because it is possible to use constructs that have supers, we may find that an existing method has
+   * been overridden, we only want to add the method with matching signatures once.
+   */
+  private void addMethodIfNotAlreadyPresent(final MethodSymbol clonedMethod, final AggregateSymbol newType) {
+    var results = newType.resolveMatchingMethodsInThisScopeOnly(new MethodSymbolSearch(clonedMethod),
+        new MethodSymbolSearchResult());
+    if (results.isEmpty()) {
+      newType.define(clonedMethod);
+    }
   }
 
   private void adjustReturnType(final MethodSymbol clonedMethod,

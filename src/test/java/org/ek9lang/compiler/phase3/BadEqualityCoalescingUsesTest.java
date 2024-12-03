@@ -15,7 +15,7 @@ class BadEqualityCoalescingUsesTest extends PhasesTest {
 
   public BadEqualityCoalescingUsesTest() {
     super("/examples/parseButFailCompile/equalityCoalescing",
-        List.of("equality.coalescing"), false, true);
+        List.of("equality.coalescing"));
   }
 
   @Test

@@ -13,7 +13,7 @@ import org.ek9lang.compiler.support.SymbolFactory;
  * Now some of this may feel upside down, processing on 'exit' and from the 'bottom up'.
  */
 abstract class ExpressionsListener extends ScopeStackConsistencyListener {
-  
+
   protected final SymbolFactory symbolFactory;
   protected final ErrorListener errorListener;
   private final ThisOrSuperOrError thisOrSuperOrError;
@@ -57,7 +57,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final ThrowStatementOrError throwStatementOrError;
 
   protected ExpressionsListener(ParsedModule parsedModule) {
-    
+
     super(parsedModule);
 
     this.symbolFactory =
@@ -379,4 +379,5 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
     streamExpressionOrError.accept(ctx);
     super.exitStreamExpression(ctx);
   }
+
 }

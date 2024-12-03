@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesBasicsTest extends PhasesTest {
 
   public ExamplesBasicsTest() {
-    super("/examples/basics", false, false);
+    super("/examples/basics");
   }
 
   @Test

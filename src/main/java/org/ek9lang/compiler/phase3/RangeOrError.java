@@ -30,7 +30,7 @@ final class RangeOrError extends TypedSymbolAccess implements Consumer<EK9Parser
     super(symbolsAndScopes, errorListener);
     this.symbolFactory = symbolFactory;
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolsAndScopes, errorListener);
-    this.commonTypeSuperOrTraitOrError = new CommonTypeSuperOrTraitOrError(errorListener);
+    this.commonTypeSuperOrTraitOrError = new CommonTypeSuperOrTraitOrError(symbolsAndScopes, errorListener);
 
   }
 

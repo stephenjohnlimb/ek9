@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesProgramsNetworkingTest extends PhasesTest {
 
   public ExamplesProgramsNetworkingTest() {
-    super("/examples/fullPrograms/networking", false, false);
+    super("/examples/fullPrograms/networking");
   }
 
   @Test

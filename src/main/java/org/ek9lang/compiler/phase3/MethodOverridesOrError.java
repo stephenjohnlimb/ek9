@@ -108,14 +108,14 @@ final class MethodOverridesOrError extends TypedSymbolAccess implements Consumer
 
     boolean methodFound = aggregateSymbol
         .getSuperAggregate()
-        .filter(theSuper -> validMethodOrError(methodSymbol, theSuper))
+        .filter(theSuper -> validMethodOrError(aggregateSymbol, methodSymbol, theSuper))
         .isPresent();
 
     if (!methodFound) {
       methodFound = aggregateSymbol
           .getTraits()
           .stream()
-          .anyMatch(trait -> validMethodOrError(methodSymbol, trait));
+          .anyMatch(trait -> validMethodOrError(aggregateSymbol, methodSymbol, trait));
     }
 
     if (!methodFound && methodSymbol.isOverride()) {
@@ -131,7 +131,8 @@ final class MethodOverridesOrError extends TypedSymbolAccess implements Consumer
    * This is left to the calling method, because it is important to check supers and aggregates
    * and only of nothing found maybe issue error.
    */
-  private boolean validMethodOrError(final MethodSymbol methodSymbol,
+  private boolean validMethodOrError(final IAggregateSymbol aggregateSymbol,
+                                     final MethodSymbol methodSymbol,
                                      final IAggregateSymbol superAggregateSymbol) {
 
     final var search = new MethodSymbolSearch(methodSymbol);
@@ -144,7 +145,7 @@ final class MethodOverridesOrError extends TypedSymbolAccess implements Consumer
       //If the super is private then it is not being overridden and so covariance and override does not need checking.
       if (!match.isPrivate()) {
         validCovarianceOnMethodReturnTypesOrError(methodSymbol, match);
-        validOverrideRequiredOrError(methodSymbol);
+        validOverrideRequiredOrError(aggregateSymbol, methodSymbol);
         pureModifierOrError.accept(new PureCheckData(errorMessage, match, methodSymbol));
       } else if (methodSymbol.isOverride()) {
         errorListener.semanticError(methodSymbol.getSourceToken(), errorMessage,
@@ -167,10 +168,11 @@ final class MethodOverridesOrError extends TypedSymbolAccess implements Consumer
     }
   }
 
-  private void validOverrideRequiredOrError(final MethodSymbol methodSymbol) {
+  private void validOverrideRequiredOrError(final IAggregateSymbol aggregateSymbol, final MethodSymbol methodSymbol) {
 
     if (!methodSymbol.isSynthetic() && !methodSymbol.isOverride()) {
-      errorListener.semanticError(methodSymbol.getSourceToken(), "'override' required on '" + methodSymbol + "'",
+      errorListener.semanticError(methodSymbol.getSourceToken(), "'override' required on '"
+              + methodSymbol + "' in '" + aggregateSymbol.getName() + "'",
           ErrorListener.SemanticClassification.METHOD_OVERRIDES);
     } else {
       //So if the ek9 compiler synthetically generated the method it too must mark it with override.

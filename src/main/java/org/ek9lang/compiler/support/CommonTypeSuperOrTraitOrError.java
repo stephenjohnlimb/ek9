@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.RuleSupport;
+import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -21,13 +23,15 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * If there are no common supers then this function will return an empty Optional.
  * This function will emit semantic errors.
  */
-public class CommonTypeSuperOrTraitOrError implements BiFunction<IToken, List<ISymbol>, Optional<ISymbol>> {
+public class CommonTypeSuperOrTraitOrError extends RuleSupport
+    implements BiFunction<IToken, List<ISymbol>, Optional<ISymbol>> {
   private final SymbolTypeExtractor symbolTypeExtractor = new SymbolTypeExtractor();
   private final CommonTypeOrError commonTypeOrError;
 
-  public CommonTypeSuperOrTraitOrError(final ErrorListener errorListener) {
+  public CommonTypeSuperOrTraitOrError(final SymbolsAndScopes symbolsAndScopes, final ErrorListener errorListener) {
 
-    this.commonTypeOrError = new CommonTypeOrError(errorListener);
+    super(symbolsAndScopes, errorListener);
+    this.commonTypeOrError = new CommonTypeOrError(symbolsAndScopes, errorListener);
 
   }
 

@@ -67,13 +67,13 @@ public class PostSymbolResolutionChecks extends CompilerPhase {
   private void parameterisedTypesValidInModuleOrError(final ParsedModule parsedModule) {
 
     final var errorListener = parsedModule.getSource().getErrorListener();
-    final ParameterisedTypeOrError parameterisedTypeOrError = new ParameterisedTypeOrError(errorListener);
+    final ParameterisedTypeOrError consumer = new ParameterisedTypeOrError(parsedModule.getEk9Types(), errorListener);
     final var scope = parsedModule.getModuleScope();
 
     scope.getSymbolsForThisScope().stream()
         .filter(ISymbol::isParameterisedType)
         .map(PossibleGenericSymbol.class::cast)
-        .forEach(parameterisedTypeOrError);
+        .forEach(consumer);
   }
 
 }

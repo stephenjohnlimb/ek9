@@ -20,8 +20,14 @@ defines extern module org.ek9.lang
       listOfString <- List() of String
       assert listOfString?
 
+  defines record
+
+    AnyRecord as open
+
 
   defines class
+
+    AnyClass as open
 
     Void
 

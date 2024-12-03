@@ -37,7 +37,7 @@ final class DictUseOrError extends TypedSymbolAccess implements Consumer<EK9Pars
 
     this.parameterisedLocator =
         new ParameterisedLocator(symbolsAndScopes, symbolFactory, errorListener, true);
-    this.commonTypeSuperOrTraitOrError = new CommonTypeSuperOrTraitOrError(errorListener);
+    this.commonTypeSuperOrTraitOrError = new CommonTypeSuperOrTraitOrError(symbolsAndScopes, errorListener);
 
   }
 

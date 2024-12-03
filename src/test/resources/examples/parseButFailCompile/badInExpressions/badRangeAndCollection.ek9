@@ -55,7 +55,7 @@ defines module bad.range.collections
     CheckBadSimpleIntegerRange3()
       var <- 16
 
-      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       result <- var in 10 ... JustFail()
 
       @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
@@ -64,7 +64,7 @@ defines module bad.range.collections
     CheckBadSimpleIntegerRange4()
       var <- 16
 
-      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       result <- var in JustFail() ... 200
 
       @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED

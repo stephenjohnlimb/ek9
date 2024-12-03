@@ -151,10 +151,9 @@ defines module coalescing.elvis
       weight2 as Float: Float()
 
       //Will detect the types are not compatible (coercion is not applied here)
-      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      //This will result in coalesce being of 'AnyClass' type because the two types used only have that in common
       coalesce <- weight1 ?? weight2
 
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert coalesce?
 
     TestBadNullCoalescing4()
@@ -174,10 +173,9 @@ defines module coalescing.elvis
       weight2 as Float: Float()
 
       //Will detect the types are not compatible (coercion is not applied here)
-      @Error: FULL_RESOLUTION: UNABLE_TO_DETERMINE_COMMON_TYPE
+      //So will result in 'AnyClass' being the type of variable 'elvis'
       elvis <- weight1 ?: weight2
 
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert elvis?
 
 //EOF

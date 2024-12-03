@@ -1080,14 +1080,14 @@ public class SymbolFactory {
   /**
    * Create a new constant that represents the fixed text part of an interpolated String.
    */
-  public ConstantSymbol newInterpolatedStringPart(final EK9Parser.StringPartContext ctx, final IScope scope) {
+  public ConstantSymbol newInterpolatedStringPart(final EK9Parser.StringPartContext ctx) {
 
     //if interpolated string had a " in now needs to be escaped because we will wrapping ""
     //But also if we had and escaped $ i.e. \$ we can turn that back into a dollar now.
     final var literalText = ctx.getChild(0).getText().replace("\"", "\\\"").replace("\\$", "$").replace("\\`", "`");
     final var literal = newLiteral(new Ek9Token(ctx.start), "\"" + literalText + "\"");
 
-    literal.setType(aggregateFactory.resolveString(scope));
+    literal.setType(parsedModule.getEk9Types().ek9String());
 
     return literal;
   }
@@ -1100,7 +1100,8 @@ public class SymbolFactory {
     final var expressionSymbol = new ExpressionSymbol(ctx.getText());
 
     configureSymbol(expressionSymbol, new Ek9Token(ctx.start));
-
+    //Must always return a string.
+    expressionSymbol.setType(parsedModule.getEk9Types().ek9String());
     return expressionSymbol;
   }
 
