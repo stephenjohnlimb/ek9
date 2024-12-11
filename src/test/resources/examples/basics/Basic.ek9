@@ -238,6 +238,14 @@ defines module net.customer.extend
         -> value as Float
         <- rtn as String: `Floating point value of ${value}`
 
+      <?-
+        Note how this 'dynamic class' is dynamically created later in 'getAnyClassFromDynamicClass'
+        But can be referenced here. Dynamic Classes give quite a bit of flexibility.
+      -?>
+      private process()
+        -> value as SteveClass
+        <- rtn as String: `SteveClass value of  ${value.name()}`
+
   defines function
 
     <?-
@@ -254,7 +262,7 @@ defines module net.customer.extend
       Now, show how the dispatcher can be used to detect the type of the variable and trigger
       different functionality (depending on the type).
     -?>
-    demonstrateDispatcherWithAnyClass()
+    demonstrateDispatcherWithAnyClass1()
       dispatch <- DispatcherExample()
       s1 <- dispatch.process(getAnyClass(true))
       s2 <- dispatch.process(getAnyClass(false))
@@ -262,6 +270,33 @@ defines module net.customer.extend
 
       //So now S1 would have been 'typed' as an Integer and a string with that value in it would result
       //and S2 would have been 'typed' as an Float and a string with that value in it would result
+      //But the date would not really be anything other than the default processing
+      assert s1? and s2? and s3?
+
+    <?-
+      Simple demonstration that a 'dynamic class' in this case 'SteveClass' which is being defined on the fly
+      actually has the implicit super class of AnyClass. This shows that it can be passed back via its 'super'.
+    -?>
+    getAnyClassFromDynamicClass()
+      -> check as Boolean
+      <- rtn as AnyClass: AnyClass()
+
+      if check
+        rtn: 1
+      else
+        rtn: SteveClass(firstName: "Steve", lastName: "Limb") as class
+          name()
+            <- rtn as String: `${firstName} ${lastName}`
+
+    demonstrateDispatcherWithAnyClass2()
+
+      dispatch <- DispatcherExample()
+      s1 <- dispatch.process(getAnyClassFromDynamicClass(true))
+      s2 <- dispatch.process(getAnyClassFromDynamicClass(false))
+      s3 <- dispatch.process(2024-12-03)
+
+      //So now S1 would have been 'typed' as an Integer and a string with that value in it would result
+      //and S2 would have been 'typed' as a SteveClass and a string with that value in it would result
       //But the date would not really be anything other than the default processing
       assert s1? and s2? and s3?
 

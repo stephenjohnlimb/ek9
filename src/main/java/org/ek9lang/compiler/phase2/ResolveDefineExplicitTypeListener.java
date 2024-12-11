@@ -250,6 +250,8 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   }
 
+
+
   @Override
   public void enterComponentDeclaration(final EK9Parser.ComponentDeclarationContext ctx) {
 

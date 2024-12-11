@@ -20,7 +20,7 @@ class ExamplesBasicsTest extends PhasesTest {
             "introduction",
             "net.customer.inferred",
             "com.customer.interpolated",
-            "com.customer.starter.example"));
+            "com.customer.starter.example"), true, false);
   }
 
   @Test

@@ -40,6 +40,9 @@ final class ProcessDynamicClassOrError extends RuleSupport implements
       if (ctx.parameterisedType() != null) {
         final var resolved = classSuitableToExtendOrError.apply(ctx.parameterisedType());
         resolved.ifPresent(theSuper -> asAggregate.setSuperAggregate((IAggregateSymbol) theSuper));
+      } else {
+        //Else we give it the implicit super of AnyClass.
+        asAggregate.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Types().ek9AnyClass());
       }
 
       if (ctx.traitsList() != null) {
