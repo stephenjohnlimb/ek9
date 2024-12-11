@@ -464,6 +464,8 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
         "non web service methods cannot be marked with the 'protected' access modifier"),
     METHOD_MODIFIER_PROTECTED_IN_COMPONENT(
         "component methods cannot be marked with the 'protected' access modifier"),
+    METHOD_MODIFIER_PROTECTED_IN_CLOSED_CLASS(
+        "class methods can only be marked with the 'protected' access modifier in classes that are 'open'"),
     METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT(
         "trait methods cannot be marked with an access modifier, they are always public"),
     RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS(
@@ -550,6 +552,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     BAD_ABSTRACT_FUNCTION_USE("cannot use an abstract function in this manner"),
     OVERRIDE_INAPPROPRIATE("cannot override anything"),
     NOT_ABSTRACT_AND_NO_BODY_PROVIDED("implementation not provided so must be declared as abstract"),
+    DISPATCHER_BUT_NO_BODY_PROVIDED("base level implementation must be provided for dispatcher method"),
     DYNAMIC_CLASS_CANNOT_BE_ABSTRACT("a dynamic class cannot have abstract methods"),
     GENERIC_WITH_NAMED_DYNAMIC_CLASS("a named dynamic class cannot be used within a generic type/function"),
     CAPTURED_VARIABLE_MUST_BE_NAMED("variables being captured must be named when not just using identifiers"),
@@ -586,6 +589,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     NOT_MUTABLE("not mutable"),
     ONLY_CONSTANTS_ALLOWED("only constant values allowed"),
     MUTABLE_NOT_ALLOWED("mutable items not allowed"),
+    INCOMPATIBLE_PARAMETER_GENUS("incompatible genus in parameter(s)"),
     INCOMPATIBLE_GENUS("incompatible genus"),
     INCOMPATIBLE_CATEGORY("incompatible category"),
     TRAIT_BY_DELEGATE_FOR_CLASS_ONLY("delegation by a trait is only applicable for classes"),
@@ -598,6 +602,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION("Template/Generic requires parameterization"),
     NOT_A_TEMPLATE("as it is not 'template/generic' in nature"),
     DISPATCHERS_NOT_EXTENDABLE("extension is not possible"),
+    DISPATCHERS_CAN_ONLY_HAVE_ONE_METHOD_MARKED("there can be only one method marked as a dispatcher"),
     INVALID_NUMBER_OF_PARAMETERS("invalid number of parameters"),
     INVALID_PARAMETER_TYPE("invalid parameter type"),
     SIGNATURE_MISMATCH("parameter type mismatch"),
@@ -630,6 +635,9 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     METHOD_ACCESS_MODIFIERS_DIFFER("methods with same signature have different access modifiers"),
     FUNCTION_SIGNATURE_DOES_NOT_MATCH_SUPER("function signature does not match 'super' function"),
     SUPER_IS_PURE("'pure' in super requires 'pure' for this definition"),
+    DISPATCHER_PURE_MISMATCH("'pure' on dispatcher requires 'pure' for matching dispatcher method"),
+    DISPATCHER_PRIVATE_IN_SUPER("same method name as dispatcher, but marked private in super - won't be called"),
+    DISPATCHER_PRIVATE_ENTRY("private dispatcher method, other matching methods cannot be public"),
     SUPER_IS_NOT_PURE("'super is not 'pure', requires this definition not to be marked as 'pure'"),
     MIX_OF_PURE_AND_NOT_PURE_CONSTRUCTORS("if any constructor is marked pure, all constructors must be pure"),
     SWITCH_REQUIRES_EQUALS("switch statement requires type to have '=' operator"),

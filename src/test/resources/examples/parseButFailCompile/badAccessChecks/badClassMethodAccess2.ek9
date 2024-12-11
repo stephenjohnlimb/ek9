@@ -16,7 +16,7 @@ defines module bad.classmethod.access2
         -> arg0 as Duration
         <- rtn <- 0
 
-    Class1 extends Base
+    Class1 extends Base as open
       @Error: FULL_RESOLUTION: DELEGATE_AND_METHOD_NAMES_CLASH
       someDelegate as generalFunction?
       someField <- 1

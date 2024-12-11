@@ -107,4 +107,10 @@ defines module bad.inherited.classes
     Class16 extends GFunction of (Integer, String)
       dob <- Date()
 
+    Class17
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_CLOSED_CLASS
+      protected someMethod()
+        var <- 1
+        assert var?
+
 //EOF

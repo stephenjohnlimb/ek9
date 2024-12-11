@@ -1,20 +1,21 @@
-package org.ek9lang.compiler.main;
+package org.ek9lang.compiler.phase3;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests being worked on.
- * Sometimes it's good to have a small set of tests to focus on then when done put them in the appropriate space.
+ * Just tests bad examples of dispatcher methods.
  */
-class WorkingAreaTest extends PhasesTest {
+class BadDispatcherTest extends PhasesTest {
 
-  public WorkingAreaTest() {
-    super("/examples/parseButFailCompile/workingarea", false, true);
+  public BadDispatcherTest() {
+    super("/examples/parseButFailCompile/badDispatchers",
+        List.of("bad.dispatchermethods"));
   }
 
   @Test

@@ -336,6 +336,10 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
     return operator;
   }
 
+  public boolean isNotOperator() {
+    return !operator;
+  }
+
   public MethodSymbol setOperator(final boolean operator) {
 
     this.operator = operator;

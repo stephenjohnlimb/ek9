@@ -1,0 +1,169 @@
+#!ek9
+<?-
+  Examples of dispatchers working and also lots of common errors.
+-?>
+defines module bad.dispatchermethods
+
+  defines trait
+
+    <?-
+      Define a trait with a couple of methods.
+      These are then used by a class to make them dispatchable.
+    -?>
+    T1
+      process()
+        -> arg as Integer
+        assert arg?
+      process()
+        -> arg as Float
+        assert arg?
+
+  <!-
+    Scenarios to test and find bad dispatcher configurations
+  -!>
+  defines class
+
+    <?-
+      Checks to ensure that private dispatcher entry is Ok with protected matching methods and public ones.
+    -?>
+    ValidDispatcher1 as open
+
+      private process() as dispatcher
+        -> arg as AnyClass
+        assert arg?
+
+      //Do allow protected methods, even though main is private .
+      protected process()
+        -> arg as Float
+        assert arg?
+
+      process()
+        -> arg as Integer
+        assert arg?
+
+    <?-
+      Here is that class that now makes the methods on trait T1 usable
+      not only directly, but also via the dispatcher method as shown.
+    -?>
+    ValidDispatcher2 with trait of T1
+      process() as dispatcher
+        -> arg as AnyClass
+        assert arg?
+
+    <?-
+      There is a mismatch on the sma named method as a dispatcher
+      the first has one parameter, the second two.
+    -?>
+    BadDispatcher1
+
+      process() as dispatcher
+        -> arg as AnyClass
+        assert arg?
+
+      @Error: FULL_RESOLUTION: INVALID_NUMBER_OF_PARAMETERS
+      process()
+        ->
+          arg1 as Integer
+          arg2 as Integer
+        assert arg1? and arg2?
+
+    BadDispatcher2
+
+      <?-
+        Must have either one or two arguments.
+      -?>
+      @Error: FULL_RESOLUTION: INVALID_NUMBER_OF_PARAMETERS
+      process() as dispatcher
+        var <- 1
+        assert var?
+
+    BadDispatcher3
+
+      <?-
+        Must have either one or two arguments.
+      -?>
+      @Error: FULL_RESOLUTION: INVALID_NUMBER_OF_PARAMETERS
+      process() as dispatcher
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+        assert arg1? and arg2? and arg3?
+
+    <?-
+      If the main dispatcher entry point is a pure then all matching dispatcher methods must also be pure.
+    -?>
+    BadDispatcher4
+
+      process() as pure dispatcher
+        -> arg as AnyClass
+        assert arg?
+
+      @Error: FULL_RESOLUTION: DISPATCHER_PURE_MISMATCH
+      process()
+        -> arg as Integer
+        assert arg?
+
+    <?-
+      Used to show that private methods in a super class would not be used in the dispatcher even
+      though the method meets the name and signature suitable to be a dispatcher.
+    -?>
+    SomeBaseClass as open
+
+      @Error: FULL_RESOLUTION: DISPATCHER_PRIVATE_IN_SUPER
+      private process()
+        -> arg as Integer
+        assert arg?
+
+    BadDispatcher5 extends SomeBaseClass
+
+      process() as dispatcher
+        -> arg as AnyClass
+        assert arg?
+
+    <?-
+      Now, while the methods should support dispatcher, the fact the arguments are of differing 'Genus' means this is not allowed.
+    -?>
+    BadDispatcher6
+
+      process() as dispatcher
+        -> arg as AnyClass
+        assert arg?
+
+      process()
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_PARAMETER_GENUS
+        -> arg as Consumer of Integer
+        assert arg?
+
+      process()
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_PARAMETER_GENUS
+        -> arg as AnyRecord
+        assert arg?
+
+    <?-
+      Additional checks on two parameters, mixing up genus and typical EK9 developer errors.
+    -?>
+    BadDispatcher7
+
+      process() as dispatcher
+        ->
+          arg1 as AnyClass
+          arg2 as AnyRecord
+        assert arg1? and arg2?
+
+      process()
+        ->
+          @Error: FULL_RESOLUTION: INCOMPATIBLE_PARAMETER_GENUS
+          arg1 as Consumer of Integer
+          arg2 as AnyRecord
+        assert arg1? and arg2?
+
+      process()
+        ->
+          @Error: FULL_RESOLUTION: INCOMPATIBLE_PARAMETER_GENUS
+          arg1 as AnyRecord
+          @Error: FULL_RESOLUTION: INCOMPATIBLE_PARAMETER_GENUS
+          arg2 as AnyClass
+        assert arg1? and arg2?
+
+//EOF

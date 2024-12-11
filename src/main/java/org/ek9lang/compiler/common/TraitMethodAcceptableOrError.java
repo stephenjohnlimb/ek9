@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.common;
 
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.DEFAULT_AND_ABSTRACT;
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.DISPATCHER_BUT_NO_BODY_PROVIDED;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.NOT_ABSTRACT_AND_NO_BODY_PROVIDED;
 
 import java.util.function.BiConsumer;
@@ -35,7 +36,11 @@ public class TraitMethodAcceptableOrError implements BiConsumer<MethodSymbol, EK
     final var isExternallyImplemented = externallyImplemented.test(method);
 
     if (isVirtual && !isDefaultedMethod && !isExternallyImplemented) {
-      errorListener.semanticError(method.getSourceToken(), "", NOT_ABSTRACT_AND_NO_BODY_PROVIDED);
+      if (method.isMarkedAsDispatcher() && !method.isOperator()) {
+        errorListener.semanticError(method.getSourceToken(), "", DISPATCHER_BUT_NO_BODY_PROVIDED);
+      } else {
+        errorListener.semanticError(method.getSourceToken(), "", NOT_ABSTRACT_AND_NO_BODY_PROVIDED);
+      }
     }
 
     if (isDefaultedMethod && method.isMarkedAbstract()) {

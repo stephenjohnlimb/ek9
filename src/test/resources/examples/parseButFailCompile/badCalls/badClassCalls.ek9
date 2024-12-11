@@ -6,7 +6,7 @@ defines module bad.classcalls.examples1
 
   defines class
 
-    C1
+    C1 as open
       default private C1()
 
       C1()

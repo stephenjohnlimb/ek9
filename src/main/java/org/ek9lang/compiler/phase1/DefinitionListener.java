@@ -231,6 +231,26 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   }
 
   @Override
+  public void exitClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
+    final var symbol = symbolsAndScopes.getRecordedSymbol(ctx);
+    if (symbol instanceof IAggregateSymbol aggregate) {
+      aggregate.setMarkedAsDispatcher(
+          aggregate.getAllNonAbstractMethods().stream().anyMatch(MethodSymbol::isMarkedAsDispatcher));
+    }
+    super.exitClassDeclaration(ctx);
+  }
+
+  @Override
+  public void exitDynamicClassDeclaration(final EK9Parser.DynamicClassDeclarationContext ctx) {
+    final var symbol = symbolsAndScopes.getRecordedSymbol(ctx);
+    if (symbol instanceof IAggregateSymbol aggregate) {
+      aggregate.setMarkedAsDispatcher(
+          aggregate.getAllNonAbstractMethods().stream().anyMatch(MethodSymbol::isMarkedAsDispatcher));
+    }
+    super.exitDynamicClassDeclaration(ctx);
+  }
+
+  @Override
   public void enterOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
 
     final var currentScope = symbolsAndScopes.getTopScope();

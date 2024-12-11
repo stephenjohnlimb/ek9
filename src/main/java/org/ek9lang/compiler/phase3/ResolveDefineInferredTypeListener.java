@@ -1,10 +1,11 @@
 package org.ek9lang.compiler.phase3;
 
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.DUPLICATE_PROPERTY_FIELD;
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS;
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT;
 
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
-import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.CaptureScope;
@@ -39,6 +40,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final DynamicCaptureOrError dynamicCaptureOrError;
   private final NoDuplicatedPropertyNamesOrError noDuplicatedPropertyNamesOrError;
   private final DefaultOperatorsOrError defaultOperatorsOrError;
+  private final ValidDispatcherMethodsOrError validDispatcherMethodsOrError;
   private final MethodOverridesOrError methodOverridesOrError;
   private final MethodOverridesOrError checkDynamicClassMethodOverrides;
   private final CheckConflictingMethods checkNoConflictingMethods;
@@ -65,12 +67,12 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
         new NoDuplicatedPropertyNamesOrError(symbolsAndScopes, errorListener, DUPLICATE_PROPERTY_FIELD);
     this.defaultOperatorsOrError =
         new DefaultOperatorsOrError(symbolsAndScopes, errorListener);
+    this.validDispatcherMethodsOrError =
+        new ValidDispatcherMethodsOrError(symbolsAndScopes, errorListener);
     this.methodOverridesOrError =
-        new MethodOverridesOrError(symbolsAndScopes,
-            errorListener, ErrorListener.SemanticClassification.NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT);
+        new MethodOverridesOrError(symbolsAndScopes, errorListener, NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT);
     this.checkDynamicClassMethodOverrides =
-        new MethodOverridesOrError(symbolsAndScopes,
-            errorListener, ErrorListener.SemanticClassification.DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS);
+        new MethodOverridesOrError(symbolsAndScopes, errorListener, DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS);
     this.checkNoConflictingMethods =
         new CheckConflictingMethods(symbolsAndScopes, errorListener);
     this.functionOverridesOrError =
@@ -173,6 +175,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     final var symbol = (AggregateWithTraitsSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     defaultOperatorsOrError
         .andThen(methodOverridesOrError)
+        .andThen(validDispatcherMethodsOrError)
         .accept(symbol);
     resolveByTraitVariables.accept(ctx.traitsList(), symbol);
 

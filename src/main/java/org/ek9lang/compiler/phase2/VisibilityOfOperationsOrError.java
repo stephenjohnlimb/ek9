@@ -28,6 +28,7 @@ final class VisibilityOfOperationsOrError extends RuleSupport implements Consume
       ISymbol.SymbolGenus.COMPONENT, this::componentMethodVisibilityOrError,
       ISymbol.SymbolGenus.RECORD, this::recordMethodVisibilityOrError,
       ISymbol.SymbolGenus.CLASS_TRAIT, this::traitMethodVisibilityOrError,
+      ISymbol.SymbolGenus.CLASS, this::classMethodVisibilityOrError,
       ISymbol.SymbolGenus.SERVICE, this::serviceMethodVisibilityOrError
   );
 
@@ -57,6 +58,17 @@ final class VisibilityOfOperationsOrError extends RuleSupport implements Consume
       methods.forEach(genusCheck);
     }
 
+  }
+
+  private void classMethodVisibilityOrError(final MethodSymbol method) {
+
+    //So can be marked as protected in a closed class but only if overriding method in super.
+    if (method.isProtected() && !method.isOverride()
+        && method.getParentScope() instanceof IAggregateSymbol aggregate
+        && !aggregate.isOpenForExtension()) {
+      errorListener.semanticError(method.getSourceToken(), "",
+          ErrorListener.SemanticClassification.METHOD_MODIFIER_PROTECTED_IN_CLOSED_CLASS);
+    }
   }
 
   private void componentMethodVisibilityOrError(final MethodSymbol method) {

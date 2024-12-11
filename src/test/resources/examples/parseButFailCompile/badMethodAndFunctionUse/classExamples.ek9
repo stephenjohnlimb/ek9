@@ -198,4 +198,8 @@ defines module bad.classes.examples
         val <- 1
         assert val?
 
+    BadDispatcher1
+
+      @Error: SYMBOL_DEFINITION: DISPATCHER_BUT_NO_BODY_PROVIDED
+      process() as dispatcher
 //EOF

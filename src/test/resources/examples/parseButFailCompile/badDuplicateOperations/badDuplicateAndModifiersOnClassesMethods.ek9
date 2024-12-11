@@ -31,7 +31,7 @@ defines module bad.duplicate.classmethods
         <- rtn <- 0
 
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
-    C2
+    C2 as open
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_DUPLICATED
       protected C2()
@@ -71,7 +71,7 @@ defines module bad.duplicate.classmethods
       So here check not duplicate, even though coercing is possible.
       We should resolve to the most specific method when being called.
     -?>
-    C3
+    C3 as open
       protected method1()
         -> arg0 as Integer
         <- rtn <- 1

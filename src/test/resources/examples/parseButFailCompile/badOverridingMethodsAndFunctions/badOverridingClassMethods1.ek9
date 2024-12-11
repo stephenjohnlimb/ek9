@@ -40,7 +40,7 @@ defines module bad.overriding.classmethods1
         -> arg0 as String
         <- rtn as String: `[ ${arg0} ]`
 
-    C4 extends C1
+    C4 extends C1 as open
       //Acceptable - B
       protected someMethod()
         -> arg0 as String
@@ -101,7 +101,7 @@ defines module bad.overriding.classmethods1
       While it is possible to override a protected method with same signature.
       It must be expressed with 'override'.
     -?>
-    NeedsToExpressOverrides1 extends C5
+    NeedsToExpressOverrides1 extends C5 as open
       @Error: FULL_RESOLUTION: METHOD_OVERRIDES
       protected someMethod()
         -> arg0 as String
@@ -137,7 +137,7 @@ defines module bad.overriding.classmethods1
       But this must be stopped, cannot obscure some thing that is not private.
       In this case trying to alter the public access modifier by trying to make it protected.
     -?>
-    C10 extends C8
+    C10 extends C8 as open
       @Error: FULL_RESOLUTION: METHOD_ACCESS_MODIFIERS_DIFFER
       protected someMethod()
         -> arg0 as String
