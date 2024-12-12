@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.phase3;
 
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.DISPATCHER_PRIVATE_IN_SUPER;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.DISPATCHER_PURE_MISMATCH;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.INCOMPATIBLE_PARAMETER_GENUS;
@@ -93,6 +94,12 @@ final class ValidDispatcherMethodsOrError extends TypedSymbolAccess implements C
         errorListener.semanticError(matchedMethodSymbol.getSourceToken(), msg, DISPATCHER_PRIVATE_IN_SUPER);
       }
 
+      if (matchedMethodSymbol.isMarkedAsDispatcher()) {
+        //Only one method at the entry should be marked as a dispatcher
+        errorListener.semanticError(matchedMethodSymbol.getSourceToken(), msg,
+            DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED);
+      }
+
       validateParameterGenus(methodSymbol, matchedMethodSymbol);
     }
   }
@@ -113,7 +120,6 @@ final class ValidDispatcherMethodsOrError extends TypedSymbolAccess implements C
             errorListener.semanticError(matchedArg.getSourceToken(), fullMsg, INCOMPATIBLE_PARAMETER_GENUS);
           }
         }));
-
       }
     }
 

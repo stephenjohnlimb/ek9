@@ -166,4 +166,25 @@ defines module bad.dispatchermethods
           arg2 as AnyClass
         assert arg1? and arg2?
 
+    <?-
+      There must only be one method marked as a dispatcher method.
+    -?>
+    BadDispatcher8
+
+      @Error: FULL_RESOLUTION: DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED
+      process() as dispatcher
+        -> arg as AnyClass
+        assert arg?
+
+      @Error: FULL_RESOLUTION: DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED
+      process() as dispatcher
+        -> arg as Integer
+        assert arg?
+
+      @Error: FULL_RESOLUTION: DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED
+      process() as dispatcher
+        -> arg as Float
+        assert arg?
+
+
 //EOF

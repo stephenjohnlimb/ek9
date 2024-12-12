@@ -602,7 +602,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION("Template/Generic requires parameterization"),
     NOT_A_TEMPLATE("as it is not 'template/generic' in nature"),
     DISPATCHERS_NOT_EXTENDABLE("extension is not possible"),
-    DISPATCHERS_CAN_ONLY_HAVE_ONE_METHOD_MARKED("there can be only one method marked as a dispatcher"),
+    DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED("only one method can be marked as a dispatcher entry point"),
     INVALID_NUMBER_OF_PARAMETERS("invalid number of parameters"),
     INVALID_PARAMETER_TYPE("invalid parameter type"),
     SIGNATURE_MISMATCH("parameter type mismatch"),
