@@ -193,14 +193,7 @@ public class StreamCallSymbol extends MethodSymbol {
       return true;
     }
 
-    if ((o instanceof StreamCallSymbol that)
-        && super.equals(o)
-        && isConsumesSymbolPromotionRequired() == that.isConsumesSymbolPromotionRequired()
-        && isCapableOfConsumingAnything() == that.isCapableOfConsumingAnything()
-        && isDerivesProducesTypeFromConsumesType() == that.isDerivesProducesTypeFromConsumesType()
-        && isProducesTypeMustBeAFunction() == that.isProducesTypeMustBeAFunction()
-        && isSinkInNature() == that.isSinkInNature()
-        && producerSymbolTypeSameAsConsumerSymbolType == that.producerSymbolTypeSameAsConsumerSymbolType) {
+    if ((o instanceof StreamCallSymbol that) && super.equals(o) && isMarkedUpSameAsThis(that)) {
       if (getConsumesSymbolType() != null ? !getConsumesSymbolType().equals(that.getConsumesSymbolType()) :
           that.getConsumesSymbolType() != null) {
         return false;
@@ -210,6 +203,17 @@ public class StreamCallSymbol extends MethodSymbol {
           that.getProducesSymbolType() == null;
     }
     return false;
+  }
+
+  private boolean isMarkedUpSameAsThis(final StreamCallSymbol that) {
+
+    return isConsumesSymbolPromotionRequired() == that.isConsumesSymbolPromotionRequired()
+        && isCapableOfConsumingAnything() == that.isCapableOfConsumingAnything()
+        && isDerivesProducesTypeFromConsumesType() == that.isDerivesProducesTypeFromConsumesType()
+        && isProducesTypeMustBeAFunction() == that.isProducesTypeMustBeAFunction()
+        && isSinkInNature() == that.isSinkInNature()
+        && producerSymbolTypeSameAsConsumerSymbolType == that.producerSymbolTypeSameAsConsumerSymbolType;
+
   }
 
   @Override

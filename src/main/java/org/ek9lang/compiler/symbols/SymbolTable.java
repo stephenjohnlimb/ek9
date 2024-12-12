@@ -361,11 +361,6 @@ public class SymbolTable implements IScope {
     // I've pulled out common code to in-method functions, so I can capture incoming parameters
     // and re-use the code.
 
-    final Function<List<ISymbol>, List<MethodSymbol>> methodSymbolCast = list -> list
-        .stream()
-        .filter(MethodSymbol.class::isInstance)
-        .map(MethodSymbol.class::cast).toList();
-
     final Function<List<ISymbol>, Optional<ISymbol>> checkAndSelectFirstItem = symbols -> {
       AssertValue.checkRange("Expecting a Single result in the symbol table", symbols.size(), 1, 1);
       return Optional.of(symbols.get(0));
@@ -393,7 +388,7 @@ public class SymbolTable implements IScope {
     final Supplier<MethodSymbolSearchResult> findMethod = () -> {
       MethodSymbolSearchResult result = new MethodSymbolSearchResult();
       Optional.of(symbolList).stream().parallel()
-          .map(methodSymbolCast)
+          .map(getSymbolMethodCast())
           .forEach(methodList -> matcher.addMatchesToResult(result, search, methodList));
       return result;
     };
@@ -414,13 +409,19 @@ public class SymbolTable implements IScope {
         yield canBeAssigned.test(checkType) ? checkType : Optional.empty();
       case VARIABLE:
         var checkVariable = checkAndSelectFirstItem.apply(symbolList);
-        var foundType =
-            checkVariable.stream().map(ISymbol::getType).findFirst().orElse(Optional.empty());
+        var foundType = checkVariable.stream().map(ISymbol::getType).findFirst().orElse(Optional.empty());
         yield canVariableTypeBeAssigned.test(foundType) ? checkVariable : Optional.empty();
       case CONTROL:
         //You can never locate controls. Well not yet; and I don't think we will need to.
         yield Optional.empty();
     };
+  }
+
+  private Function<List<ISymbol>, List<MethodSymbol>> getSymbolMethodCast() {
+    return list -> list
+        .stream()
+        .filter(MethodSymbol.class::isInstance)
+        .map(MethodSymbol.class::cast).toList();
   }
 
   /**

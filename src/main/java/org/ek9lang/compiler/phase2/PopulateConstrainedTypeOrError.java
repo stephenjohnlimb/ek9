@@ -63,10 +63,7 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
     final var isBoolean = constrainedType.isExactSameType(symbolsAndScopes.getEk9Types().ek9Boolean());
     final var isJson = constrainedType.isExactSameType(symbolsAndScopes.getEk9Types().ek9Json());
     final var isType = constrainedType.getCategory().equals(ISymbol.SymbolCategory.TYPE);
-    final var isAcceptableGenus = constrainedType.getGenus().equals(ISymbol.SymbolGenus.CLASS)
-        || constrainedType.getGenus().equals(ISymbol.SymbolGenus.CLASS_CONSTRAINED)
-        || constrainedType.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)
-        || constrainedType.getGenus().equals(ISymbol.SymbolGenus.RECORD);
+    final var isAcceptableGenus = isGenusAcceptable(constrainedType.getGenus());
     final var isAbstract = constrainedType.isMarkedAbstract();
 
     if (!isType || !isAcceptableGenus || isAbstract || isBoolean || isJson) {
@@ -88,6 +85,14 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
       newType.getConstructors().forEach(method -> method.setMarkedPure(true));
     }
 
+  }
+
+  private boolean isGenusAcceptable(final ISymbol.SymbolGenus genus) {
+
+    return genus.equals(ISymbol.SymbolGenus.CLASS)
+        || genus.equals(ISymbol.SymbolGenus.CLASS_CONSTRAINED)
+        || genus.equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)
+        || genus.equals(ISymbol.SymbolGenus.RECORD);
 
   }
 

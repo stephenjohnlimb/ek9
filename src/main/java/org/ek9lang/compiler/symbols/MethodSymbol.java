@@ -486,9 +486,12 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
       return true;
     }
 
-    return (o instanceof MethodSymbol that)
-        && super.equals(o)
-        && isOverride() == that.isOverride()
+    return (o instanceof MethodSymbol that) && super.equals(o) && isMarkedUpSameAsThis(that);
+  }
+
+  private boolean isMarkedUpSameAsThis(final MethodSymbol that) {
+
+    return isOverride() == that.isOverride()
         && isConstructor() == that.isConstructor()
         && isOperator() == that.isOperator()
         && isMarkedAbstract() == that.isMarkedAbstract()

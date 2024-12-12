@@ -358,6 +358,7 @@ final class CommandLineDetails {
     int index = 0;
 
     while (index < strArray.length) {
+
       if (processIfIndexIsEk9FileName(strArray, index)) {
         processingEk9Parameters = false;
         activeParameters = ek9ProgramParameters;
@@ -385,6 +386,7 @@ final class CommandLineDetails {
         activeParameters.add(strArray[index]);
       }
       index++;
+
     }
 
     //Looks like we're potentially good here, next needs assessment.
