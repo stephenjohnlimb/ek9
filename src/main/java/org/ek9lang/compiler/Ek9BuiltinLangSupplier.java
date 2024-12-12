@@ -2943,7 +2943,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
 
             <?-
-              Check if this Result has no value.
+              Check if this Result has an ok value.
             -?>
             operator ? as pure
               <- rtn as Boolean?
