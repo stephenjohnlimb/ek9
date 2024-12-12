@@ -50,8 +50,39 @@ defines module bad.dispatchermethods
         -> arg as AnyClass
         assert arg?
 
+
     <?-
-      There is a mismatch on the sma named method as a dispatcher
+      Demonstration that is is possible to have two separate dispatchers (ig you really want/need to).
+      Should really be avoided if possible as it can lead to a single class doing too much.
+    -?>
+    ValidDispatcher3
+
+      private process() as dispatcher
+        -> arg as AnyClass
+        assert arg?
+
+      private process()
+        -> arg as Float
+        assert arg?
+
+      private process()
+        -> arg as Integer
+        assert arg?
+
+      private yetMoreProcessing() as dispatcher
+        -> arg as AnyClass
+        assert arg?
+
+      private yetMoreProcessing()
+        -> arg as Float
+        assert arg?
+
+      private yetMoreProcessing()
+        -> arg as String
+        assert arg?
+
+    <?-
+      There is a mismatch on the same named method as a dispatcher
       the first has one parameter, the second two.
     -?>
     BadDispatcher1
