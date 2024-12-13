@@ -102,7 +102,15 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
       return symbolFromContextOrError.apply(ctx.call());
     } else if (ctx.objectAccessExpression() != null) {
       return processObjectAccessExpression(ctx);
-    } else if (ctx.list() != null) {
+    }
+
+    return processControlsOrStructures(ctx);
+
+  }
+
+  private ISymbol processControlsOrStructures(final EK9Parser.ExpressionContext ctx) {
+
+    if (ctx.list() != null) {
       return symbolFromContextOrError.apply(ctx.list());
     } else if (ctx.dict() != null) {
       return symbolFromContextOrError.apply(ctx.dict());
@@ -114,9 +122,7 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
       AssertValue.fail(
           "Expecting finite set of operations for expression [" + ctx.getText() + "] line: " + ctx.start.getLine());
     }
-
     return null;
-
   }
 
   private ISymbol processPrimary(final EK9Parser.ExpressionContext ctx) {

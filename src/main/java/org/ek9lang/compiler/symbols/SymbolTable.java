@@ -361,37 +361,17 @@ public class SymbolTable implements IScope {
     // I've pulled out common code to in-method functions, so I can capture incoming parameters
     // and re-use the code.
 
-    final Function<List<ISymbol>, Optional<ISymbol>> checkAndSelectFirstItem = symbols -> {
-      AssertValue.checkRange("Expecting a Single result in the symbol table", symbols.size(), 1, 1);
-      return Optional.of(symbols.get(0));
-    };
+    final var checkAndSelectFirstItem = getCheckAndSelectFirstItem();
 
-    final BiPredicate<Optional<ISymbol>, Optional<ISymbol>> isAssignable =
-        (to, from) -> from
-            .stream()
-            .map(toSet -> toSet.isAssignableTo(to))
-            .findFirst().orElse(false);
+    final var isAssignable = getIsAssignable();
 
-    final Predicate<Optional<ISymbol>> canBeAssigned = toCheck -> {
-      final Optional<ISymbol> searchSymbol = search.getAsSymbol();
-      return isAssignable.test(toCheck, searchSymbol);
-    };
+    final var canBeAssigned = getCanBeAssigned(search, isAssignable);
 
-    final Predicate<Optional<ISymbol>> canVariableTypeBeAssigned = foundType -> {
-      final Optional<ISymbol> toReceive = search.getOfTypeOrReturn();
-      //We do consider this acceptable as the search has not indicated a specific type required.
-      return toReceive.isEmpty() || isAssignable.test(toReceive, foundType);
-    };
+    final var canVariableTypeBeAssigned = getCanVariableTypeBeAssigned(search, isAssignable);
 
     // Finds a method (if present) in a list of ISymbols, by casting to methodSymbols and runs
     // the matcher to add to results.
-    final Supplier<MethodSymbolSearchResult> findMethod = () -> {
-      MethodSymbolSearchResult result = new MethodSymbolSearchResult();
-      Optional.of(symbolList).stream().parallel()
-          .map(getSymbolMethodCast())
-          .forEach(methodList -> matcher.addMatchesToResult(result, search, methodList));
-      return result;
-    };
+    final Supplier<MethodSymbolSearchResult> findMethod = getFindMethod(symbolList, search);
 
     final var searchType = search.getSearchType();
 
@@ -414,6 +394,49 @@ public class SymbolTable implements IScope {
       case CONTROL:
         //You can never locate controls. Well not yet; and I don't think we will need to.
         yield Optional.empty();
+    };
+  }
+
+  private Function<List<ISymbol>, Optional<ISymbol>> getCheckAndSelectFirstItem() {
+    return symbols -> {
+      AssertValue.checkRange("Expecting a Single result in the symbol table", symbols.size(), 1, 1);
+      return Optional.of(symbols.get(0));
+    };
+  }
+
+  private BiPredicate<Optional<ISymbol>, Optional<ISymbol>> getIsAssignable() {
+    return (to, from) -> from
+        .stream()
+        .map(toSet -> toSet.isAssignableTo(to))
+        .findFirst().orElse(false);
+  }
+
+  private Predicate<Optional<ISymbol>> getCanBeAssigned(final SymbolSearch search,
+                                                        final BiPredicate<Optional<ISymbol>,
+                                                            Optional<ISymbol>> isAssignable) {
+    return toCheck -> {
+      final Optional<ISymbol> searchSymbol = search.getAsSymbol();
+      return isAssignable.test(toCheck, searchSymbol);
+    };
+  }
+
+  private Predicate<Optional<ISymbol>> getCanVariableTypeBeAssigned(final SymbolSearch search,
+                                                                    final BiPredicate<Optional<ISymbol>,
+                                                                        Optional<ISymbol>> isAssignable) {
+    return foundType -> {
+      final Optional<ISymbol> toReceive = search.getOfTypeOrReturn();
+      //We do consider this acceptable as the search has not indicated a specific type required.
+      return toReceive.isEmpty() || isAssignable.test(toReceive, foundType);
+    };
+  }
+
+  private Supplier<MethodSymbolSearchResult> getFindMethod(final List<ISymbol> symbolList, final SymbolSearch search) {
+    return () -> {
+      MethodSymbolSearchResult result = new MethodSymbolSearchResult();
+      Optional.of(symbolList).stream().parallel()
+          .map(getSymbolMethodCast())
+          .forEach(methodList -> matcher.addMatchesToResult(result, search, methodList));
+      return result;
     };
   }
 

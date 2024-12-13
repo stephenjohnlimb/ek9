@@ -248,7 +248,7 @@ final class CommandLineDetails {
     return strArray[index].equals("-Cp") || strArray[index].equals("-Cdp");
   }
 
-  private boolean processPhasedCompilationOption(final String[] strArray,
+  private int processPhasedCompilationOption(final String[] strArray,
                                                  final int index,
                                                  final List<String> activeParameters) {
 
@@ -260,7 +260,7 @@ final class CommandLineDetails {
         CompilationPhase.valueOf(compilationPhaseOptionProvided);
         activeParameters.add(compileCommand);
         activeParameters.add(compilationPhaseOptionProvided);
-        return true;
+        return Ek9.RUN_COMMAND_EXIT_CODE;
       } catch (Exception ex) {
         var optionsToChooseFrom = Arrays
             .stream(CompilationPhase.values())
@@ -270,7 +270,7 @@ final class CommandLineDetails {
       }
     }
 
-    return false;
+    return Ek9.BAD_COMMANDLINE_EXIT_CODE;
   }
 
   private boolean isVersioningOption(final String[] strArray, final int index) {
@@ -280,9 +280,9 @@ final class CommandLineDetails {
         || strArray[index].equals("-SF");
   }
 
-  private boolean processVersioningOption(final String[] strArray,
-                                          final int index,
-                                          final List<String> activeParameters) {
+  private int processVersioningOption(final String[] strArray,
+                                      final int index,
+                                      final List<String> activeParameters) {
 
     final var versioningOption = strArray[index];
     if (index < strArray.length - 1) {
@@ -291,7 +291,7 @@ final class CommandLineDetails {
         if (Eve.Version.isInvalidVersionAddressPart(versionParam)) {
           Logger.error(
               "Increment Version: expecting major|minor|patch|build");
-          return false;
+          return Ek9.BAD_COMMANDLINE_EXIT_CODE;
         }
       } else if (versioningOption.equals("-SV")) {
         //If not valid a runtime exception will occur.
@@ -303,10 +303,10 @@ final class CommandLineDetails {
       activeParameters.add(versionParam);
     } else {
       Logger.error("Missing versioning parameter");
-      return false;
+      return Ek9.BAD_COMMANDLINE_EXIT_CODE;
     }
 
-    return true;
+    return Ek9.RUN_COMMAND_EXIT_CODE;
   }
 
   private boolean isDebugOption(final String[] strArray, final int index) {
@@ -314,13 +314,13 @@ final class CommandLineDetails {
     return strArray[index].equals("-d") && index < strArray.length - 1;
   }
 
-  private boolean processDebugOption(final String[] strArray,
-                                     final int index,
-                                     final List<String> activeParameters) {
+  private int processDebugOption(final String[] strArray,
+                                 final int index,
+                                 final List<String> activeParameters) {
 
     if (isParameterUnacceptable(strArray[index])) {
       Logger.error("Incompatible command line options");
-      return false;
+      return Ek9.BAD_COMMANDLINE_EXIT_CODE;
     }
     activeParameters.add(strArray[index]);
     //So next is port to debug on
@@ -328,12 +328,12 @@ final class CommandLineDetails {
 
     if (!Pattern.compile("^(\\d+)$").matcher(port).find()) {
       Logger.error("Debug Mode: expecting integer port number");
-      return false;
+      return Ek9.BAD_COMMANDLINE_EXIT_CODE;
     }
     activeParameters.add(port);
     this.debugPort = Integer.parseInt(port);
 
-    return true;
+    return Ek9.RUN_COMMAND_EXIT_CODE;
   }
 
   private boolean isInvalidEk9Parameter(final boolean processingEk9Parameters, final String parameter) {
@@ -356,8 +356,9 @@ final class CommandLineDetails {
     boolean processingEk9Parameters = true;
     List<String> activeParameters = ek9AppParameters;
     int index = 0;
+    int returnCode = Ek9.RUN_COMMAND_EXIT_CODE;
 
-    while (index < strArray.length) {
+    while (returnCode == Ek9.RUN_COMMAND_EXIT_CODE && index < strArray.length) {
 
       if (processIfIndexIsEk9FileName(strArray, index)) {
         processingEk9Parameters = false;
@@ -365,22 +366,16 @@ final class CommandLineDetails {
       } else if (processIfSimpleOption(strArray, index)) {
         index++;
       } else if (isDebugOption(strArray, index)) {
-        if (!processDebugOption(strArray, index, activeParameters)) {
-          return Ek9.BAD_COMMANDLINE_EXIT_CODE;
-        }
+        returnCode = processDebugOption(strArray, index, activeParameters);
         index++;
       } else if (isPhasedCompilation(strArray, index)) {
-        if (!processPhasedCompilationOption(strArray, index, activeParameters)) {
-          return Ek9.BAD_COMMANDLINE_EXIT_CODE;
-        }
+        returnCode = processPhasedCompilationOption(strArray, index, activeParameters);
         index++;
       } else if (isInvalidEk9Parameter(processingEk9Parameters, strArray[index])) {
         Logger.error("Incompatible command line options");
-        return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
+        returnCode = Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
       } else if (isVersioningOption(strArray, index)) {
-        if (!processVersioningOption(strArray, index, activeParameters)) {
-          return Ek9.BAD_COMMANDLINE_EXIT_CODE;
-        }
+        returnCode = processVersioningOption(strArray, index, activeParameters);
         index++;
       } else {
         activeParameters.add(strArray[index]);
@@ -390,7 +385,7 @@ final class CommandLineDetails {
     }
 
     //Looks like we're potentially good here, next needs assessment.
-    return Ek9.RUN_COMMAND_EXIT_CODE;
+    return returnCode;
   }
 
   private Optional<Integer> checkHelpOrVersion() {
@@ -505,7 +500,7 @@ final class CommandLineDetails {
         ek9ProgramToRun = programs.get(0);
       } else {
         var builder = new StringBuilder("Use '-r' and select one of");
-        programs.stream().map(progName -> " '" + progName + "'").forEach(builder::append);
+        programs.stream().map(programName -> " '" + programName + "'").forEach(builder::append);
         builder.append(" from source file ").append(mainSourceFile.getName());
         Logger.error(builder.toString());
         return Ek9.PROGRAM_NOT_SPECIFIED_EXIT_CODE;
