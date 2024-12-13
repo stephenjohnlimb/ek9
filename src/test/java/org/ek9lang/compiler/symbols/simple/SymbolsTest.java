@@ -22,6 +22,7 @@ import org.ek9lang.compiler.symbols.CaptureScope;
 import org.ek9lang.compiler.symbols.ConstantSymbol;
 import org.ek9lang.compiler.symbols.ExpressionSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.INaming;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -80,21 +81,21 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   @Test
   void testFullyQualifiedName() {
 
-    Assertions.assertFalse(ISymbol.isQualifiedName("name"));
-    assertTrue(ISymbol.isQualifiedName("com.name::name"));
+    Assertions.assertFalse(INaming.isQualifiedName("name"));
+    assertTrue(INaming.isQualifiedName("com.name::name"));
 
-    assertEquals("com.part", ISymbol.getModuleNameIfPresent("com.part::name"));
-    assertEquals("", ISymbol.getModuleNameIfPresent("name"));
+    assertEquals("com.part", INaming.getModuleNameIfPresent("com.part::name"));
+    assertEquals("", INaming.getModuleNameIfPresent("name"));
 
-    assertEquals("name", ISymbol.getUnqualifiedName("com.part::name"));
-    assertEquals("name", ISymbol.getUnqualifiedName("name"));
+    assertEquals("name", INaming.getUnqualifiedName("com.part::name"));
+    assertEquals("name", INaming.getUnqualifiedName("name"));
   }
 
   @Test
   void testCreateGenericTypeT() {
-    AggregateSymbol t = aggregateFactory.createGenericT("T", symbolTable);
+    AggregateSymbol t = aggregateManipulator.createGenericT("T", symbolTable);
     assertNotNull(t);
-    aggregateFactory.addAllSyntheticOperators(t);
+    aggregateManipulator.addAllSyntheticOperators(t);
     assertFalse(t.getSymbolsForThisScope().isEmpty());
 
     assertEquals("T", t.getFriendlyName());
@@ -244,18 +245,18 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     var from = createBasicAggregate("From");
     //Now add in an additional method.
     Optional<ISymbol> integerType = symbolTable.resolve(new TypeSymbolSearch("Integer"));
-    var newMethod1 = aggregateFactory.addPublicMethod(from, "someMethod", List.of(), Optional.of(from));
+    var newMethod1 = aggregateManipulator.addPublicMethod(from, "someMethod", List.of(), Optional.of(from));
 
     assertEquals("public From <- someMethod()", newMethod1.getFriendlyName());
 
     var var1 = new VariableSymbol("v1", integerType);
-    var newMethod2 = aggregateFactory.addPublicMethod(from, "someMethod", List.of(var1), Optional.of(from));
+    var newMethod2 = aggregateManipulator.addPublicMethod(from, "someMethod", List.of(var1), Optional.of(from));
 
     assertEquals("public From <- someMethod(v1 as Integer)", newMethod2.getFriendlyName());
 
     var var2 = new VariableSymbol("v2", integerType);
     var newMethod3 =
-        aggregateFactory.addPublicMethod(from, "someAbstractMethod", List.of(var1, var2), Optional.of(from));
+        aggregateManipulator.addPublicMethod(from, "someAbstractMethod", List.of(var1, var2), Optional.of(from));
     newMethod3.setMarkedAbstract(true);
     assertEquals("public From <- someAbstractMethod(v1 as Integer, v2 as Integer) as abstract",
         newMethod3.getFriendlyName());
@@ -265,7 +266,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     //This addNonAbstractMethods only applies to methods that return a type of "From" so not all abstract methods.
     var to = new AggregateSymbol("To", symbolTable);
 
-    aggregateFactory.addNonAbstractMethods(from, to);
+    aggregateManipulator.addNonAbstractMethods(from, to);
 
     var resolvedMethod1 = to.resolveInThisScopeOnly(new MethodSymbolSearch(newMethod1));
     assertTrue(resolvedMethod1.isPresent());
@@ -279,7 +280,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   @Test
   void testCreateEnumerationType() {
     AggregateSymbol e = new AggregateSymbol("CheckEnum", symbolTable);
-    aggregateFactory.addEnumerationMethods(e);
+    aggregateManipulator.addEnumerationMethods(e);
     assertFalse(e.getSymbolsForThisScope().isEmpty());
   }
 
@@ -291,12 +292,12 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   void testSimpleMethodDelegation() {
 
     AggregateSymbol e = new AggregateSymbol("SomeAgg", symbolTable);
-    var toStringOnE = aggregateFactory.addPurePublicSimpleOperator(e, "$",
+    var toStringOnE = aggregateManipulator.addPurePublicSimpleOperator(e, "$",
         symbolTable.resolve(new TypeSymbolSearch("String")));
 
     AggregateSymbol f = new AggregateSymbol("AdditionalAgg", symbolTable);
     f.define(new VariableSymbol("theDelegate", e));
-    var toStringOnF = aggregateFactory.addPurePublicSimpleOperator(f, "$",
+    var toStringOnF = aggregateManipulator.addPurePublicSimpleOperator(f, "$",
         symbolTable.resolve(new TypeSymbolSearch("String")));
     toStringOnF.setUsedAsProxyForDelegate("theDelegate");
 
@@ -314,7 +315,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     //Only testing the fact the property is set - at this point not that it will dispatch!
     AggregateSymbol e = new AggregateSymbol("SomeAgg", symbolTable);
     var param = new VariableSymbol("p1", symbolTable.resolve(new TypeSymbolSearch("Integer")));
-    var methodOnE = aggregateFactory.addPublicMethod(e, "someMethod", List.of(param),
+    var methodOnE = aggregateManipulator.addPublicMethod(e, "someMethod", List.of(param),
         symbolTable.resolve(new TypeSymbolSearch("String")));
     methodOnE.setMarkedAsDispatcher(true);
     methodOnE.setMarkedNoClone(true);
@@ -332,7 +333,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     AggregateSymbol e = new AggregateSymbol("SomeAgg", symbolTable);
 
     //Add a synthetic comparator operator
-    var comparator = aggregateFactory.addComparatorOperator(e, "<>",
+    var comparator = aggregateManipulator.addComparatorOperator(e, "<>",
         symbolTable.resolve(new TypeSymbolSearch("Boolean")));
 
     assertFalse(comparator.isSynthetic());
@@ -356,11 +357,11 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertFalse(comparator.isParameterSignatureMatchTo(List.of()));
 
     var lt =
-        aggregateFactory.addComparatorOperator(e, "<", symbolTable.resolve(new TypeSymbolSearch("Integer")));
+        aggregateManipulator.addComparatorOperator(e, "<", symbolTable.resolve(new TypeSymbolSearch("Integer")));
     assertFalse(comparator.isSignatureMatchTo(lt));
     assertTrue(lt.isParameterSignatureMatchTo(List.of(e)));
 
-    var isSet = aggregateFactory.addPurePublicSimpleOperator(e, "?",
+    var isSet = aggregateManipulator.addPurePublicSimpleOperator(e, "?",
         symbolTable.resolve(new TypeSymbolSearch("Boolean")));
     assertFalse(comparator.isSignatureMatchTo(isSet));
 
@@ -591,7 +592,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     resolvedMethod = underTest.resolveInThisScopeOnly(search2);
 
     assertFalse(resolvedMethod.isPresent());
-    aggregateFactory.addSyntheticConstructorIfRequired(underTest);
+    aggregateManipulator.addSyntheticConstructorIfRequired(underTest);
     //Now that constructor should exist
     resolvedMethod = underTest.resolveInThisScopeOnly(search2);
     assertTrue(resolvedMethod.isPresent());
@@ -669,9 +670,9 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     rtn.define(new VariableSymbol("v1", stringType));
     rtn.define(new VariableSymbol("v2", integerType));
 
-    aggregateFactory.addConstructor(rtn);
+    aggregateManipulator.addConstructor(rtn);
     //Add another constructor that takes a String as an argument
-    MethodSymbol constructor2 = aggregateFactory.addConstructor(rtn, new VariableSymbol("arg", stringType.get()));
+    MethodSymbol constructor2 = aggregateManipulator.addConstructor(rtn, new VariableSymbol("arg", stringType.get()));
     assertNotNull(constructor2);
     return rtn;
   }

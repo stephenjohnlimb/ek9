@@ -6,7 +6,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
-import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.support.AggregateManipulator;
 import org.ek9lang.compiler.support.ParameterisedLocator;
 import org.ek9lang.compiler.support.ParameterisedTypeData;
 import org.ek9lang.compiler.support.SymbolFactory;
@@ -19,7 +19,7 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  */
 final class EnumeratedTypeOrError extends TypedSymbolAccess implements Consumer<EK9Parser.TypeDeclarationContext> {
   private final ParameterisedLocator parameterisedLocator;
-  private final AggregateFactory aggregateFactory;
+  private final AggregateManipulator aggregateManipulator;
 
   EnumeratedTypeOrError(final SymbolsAndScopes symbolsAndScopes,
                         final SymbolFactory symbolFactory,
@@ -27,7 +27,7 @@ final class EnumeratedTypeOrError extends TypedSymbolAccess implements Consumer<
 
     super(symbolsAndScopes, errorListener);
     this.parameterisedLocator = new ParameterisedLocator(symbolsAndScopes, symbolFactory, errorListener, true);
-    this.aggregateFactory = symbolFactory.getAggregateFactory();
+    this.aggregateManipulator = symbolFactory.getAggregateFactory();
 
   }
 
@@ -42,7 +42,7 @@ final class EnumeratedTypeOrError extends TypedSymbolAccess implements Consumer<
       final var iteratorType = symbolsAndScopes.getEk9Types().ek9Iterator();
       final var typeData = new ParameterisedTypeData(startToken, iteratorType, List.of(enumeration));
       final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
-      aggregateFactory.addPublicMethod(enumeration, "iterator", List.of(), resolvedNewType);
+      aggregateManipulator.addPublicMethod(enumeration, "iterator", List.of(), resolvedNewType);
     }
   }
 

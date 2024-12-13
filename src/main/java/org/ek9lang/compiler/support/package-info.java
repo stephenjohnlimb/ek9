@@ -1,7 +1,7 @@
 /**
  * <b>Contains critical general components</b> used in the {@link org.ek9lang.compiler.Ek9Compiler} listeners.
  * <p>
- * The {@link org.ek9lang.compiler.support.SymbolFactory} and {@link org.ek9lang.compiler.support.AggregateFactory}
+ * The {@link org.ek9lang.compiler.support.SymbolFactory} and {@link org.ek9lang.compiler.support.AggregateManipulator}
  * are the primary sources of new Symbols or additions to exiting symbols.
  * There are also other classes like {@link org.ek9lang.compiler.support.ResolveOrDefineExplicitParameterizedType} that
  * take generic types and parameters and create new parameterised types.

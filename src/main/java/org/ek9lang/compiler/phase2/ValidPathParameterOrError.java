@@ -1,9 +1,9 @@
 package org.ek9lang.compiler.phase2;
 
-import static org.ek9lang.compiler.support.SymbolFactory.HTTP_ACCESS;
-import static org.ek9lang.compiler.support.SymbolFactory.HTTP_PATH;
-import static org.ek9lang.compiler.support.SymbolFactory.HTTP_SOURCE;
-import static org.ek9lang.compiler.support.SymbolFactory.URI_PROTO;
+import static org.ek9lang.compiler.support.ServiceFactory.HTTP_ACCESS;
+import static org.ek9lang.compiler.support.ServiceFactory.HTTP_PATH;
+import static org.ek9lang.compiler.support.ServiceFactory.HTTP_SOURCE;
+import static org.ek9lang.compiler.support.ServiceFactory.URI_PROTO;
 
 import java.util.function.BiPredicate;
 import org.ek9lang.compiler.common.ErrorListener;

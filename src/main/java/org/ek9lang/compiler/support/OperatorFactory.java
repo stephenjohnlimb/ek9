@@ -15,59 +15,59 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  */
 public class OperatorFactory {
 
-  private final AggregateFactory aggregateFactory;
+  private final AggregateManipulator aggregateManipulator;
 
-  public OperatorFactory(final AggregateFactory aggregateFactory) {
+  public OperatorFactory(final AggregateManipulator aggregateManipulator) {
 
-    this.aggregateFactory = aggregateFactory;
+    this.aggregateManipulator = aggregateManipulator;
 
   }
 
   void addEnumerationMethods(final AggregateSymbol enumerationSymbol) {
 
-    final var booleanType = aggregateFactory.resolveBoolean(enumerationSymbol);
-    final var integerType = aggregateFactory.resolveInteger(enumerationSymbol);
-    final var stringType = aggregateFactory.resolveString(enumerationSymbol);
-    final var jsonType = aggregateFactory.resolveJson(enumerationSymbol);
+    final var booleanType = aggregateManipulator.resolveBoolean(enumerationSymbol);
+    final var integerType = aggregateManipulator.resolveInteger(enumerationSymbol);
+    final var stringType = aggregateManipulator.resolveString(enumerationSymbol);
+    final var jsonType = aggregateManipulator.resolveJson(enumerationSymbol);
 
     //Some reasonable operations
 
-    aggregateFactory.addComparatorOperator(enumerationSymbol, "<=>", integerType);
-    aggregateFactory.addComparatorOperator(enumerationSymbol, "==", booleanType);
-    aggregateFactory.addComparatorOperator(enumerationSymbol, "<>", booleanType);
-    aggregateFactory.addComparatorOperator(enumerationSymbol, "<", booleanType);
-    aggregateFactory.addComparatorOperator(enumerationSymbol, ">", booleanType);
-    aggregateFactory.addComparatorOperator(enumerationSymbol, "<=", booleanType);
-    aggregateFactory.addComparatorOperator(enumerationSymbol, ">=", booleanType);
+    aggregateManipulator.addComparatorOperator(enumerationSymbol, "<=>", integerType);
+    aggregateManipulator.addComparatorOperator(enumerationSymbol, "==", booleanType);
+    aggregateManipulator.addComparatorOperator(enumerationSymbol, "<>", booleanType);
+    aggregateManipulator.addComparatorOperator(enumerationSymbol, "<", booleanType);
+    aggregateManipulator.addComparatorOperator(enumerationSymbol, ">", booleanType);
+    aggregateManipulator.addComparatorOperator(enumerationSymbol, "<=", booleanType);
+    aggregateManipulator.addComparatorOperator(enumerationSymbol, ">=", booleanType);
 
     //For an enumeration we provide implementations for comparisons against strings as well.
     //We can convert to the enumeration and then just compare.
     stringType.ifPresent(string -> {
       var argType = (IAggregateSymbol) string;
-      aggregateFactory.addComparatorOperator(enumerationSymbol, argType, "<=>", integerType);
-      aggregateFactory.addComparatorOperator(enumerationSymbol, argType, "==", booleanType);
-      aggregateFactory.addComparatorOperator(enumerationSymbol, argType, "<>", booleanType);
-      aggregateFactory.addComparatorOperator(enumerationSymbol, argType, "<", booleanType);
-      aggregateFactory.addComparatorOperator(enumerationSymbol, argType, ">", booleanType);
-      aggregateFactory.addComparatorOperator(enumerationSymbol, argType, "<=", booleanType);
-      aggregateFactory.addComparatorOperator(enumerationSymbol, argType, ">=", booleanType);
+      aggregateManipulator.addComparatorOperator(enumerationSymbol, argType, "<=>", integerType);
+      aggregateManipulator.addComparatorOperator(enumerationSymbol, argType, "==", booleanType);
+      aggregateManipulator.addComparatorOperator(enumerationSymbol, argType, "<>", booleanType);
+      aggregateManipulator.addComparatorOperator(enumerationSymbol, argType, "<", booleanType);
+      aggregateManipulator.addComparatorOperator(enumerationSymbol, argType, ">", booleanType);
+      aggregateManipulator.addComparatorOperator(enumerationSymbol, argType, "<=", booleanType);
+      aggregateManipulator.addComparatorOperator(enumerationSymbol, argType, ">=", booleanType);
     });
 
     //isSet
-    aggregateFactory.addPurePublicSimpleOperator(enumerationSymbol, "?", booleanType);
+    aggregateManipulator.addPurePublicSimpleOperator(enumerationSymbol, "?", booleanType);
     //Now a _string $ operator
-    aggregateFactory.addPurePublicSimpleOperator(enumerationSymbol, "$", stringType);
+    aggregateManipulator.addPurePublicSimpleOperator(enumerationSymbol, "$", stringType);
     //Promote to String operator
-    aggregateFactory.addPurePublicSimpleOperator(enumerationSymbol, "#^", stringType);
+    aggregateManipulator.addPurePublicSimpleOperator(enumerationSymbol, "#^", stringType);
 
     //To JSON operator
-    aggregateFactory.addPurePublicSimpleOperator(enumerationSymbol, "$$", jsonType);
+    aggregateManipulator.addPurePublicSimpleOperator(enumerationSymbol, "$$", jsonType);
     //hash code
-    aggregateFactory.addPurePublicSimpleOperator(enumerationSymbol, "#?", integerType);
+    aggregateManipulator.addPurePublicSimpleOperator(enumerationSymbol, "#?", integerType);
 
     //First and last
-    aggregateFactory.addPurePublicReturnSameTypeMethod(enumerationSymbol, "#<");
-    aggregateFactory.addPurePublicReturnSameTypeMethod(enumerationSymbol, "#>");
+    aggregateManipulator.addPurePublicReturnSameTypeMethod(enumerationSymbol, "#<");
+    aggregateManipulator.addPurePublicReturnSameTypeMethod(enumerationSymbol, "#>");
 
   }
 
@@ -91,23 +91,23 @@ public class OperatorFactory {
 
   MethodSymbol getDefaultOperator(final IAggregateSymbol aggregate, final String operator) {
 
-    final var integerType = aggregateFactory.resolveInteger(aggregate);
-    final var stringType = aggregateFactory.resolveString(aggregate);
-    final var booleanType = aggregateFactory.resolveBoolean(aggregate);
-    final var jsonType = aggregateFactory.resolveJson(aggregate);
+    final var integerType = aggregateManipulator.resolveInteger(aggregate);
+    final var stringType = aggregateManipulator.resolveString(aggregate);
+    final var booleanType = aggregateManipulator.resolveBoolean(aggregate);
+    final var jsonType = aggregateManipulator.resolveJson(aggregate);
     final var rtn = switch (operator) {
       case "<", "<=", ">", ">=", "==", "<>":
-        yield aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, operator, booleanType);
+        yield aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, operator, booleanType);
       case "<=>":
-        yield aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, operator, integerType);
+        yield aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, operator, integerType);
       case "?":
-        yield aggregateFactory.createPurePublicSimpleOperator(aggregate, operator, booleanType);
+        yield aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, booleanType);
       case "$":
-        yield aggregateFactory.createPurePublicSimpleOperator(aggregate, operator, stringType);
+        yield aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, stringType);
       case "$$":
-        yield aggregateFactory.createPurePublicSimpleOperator(aggregate, operator, jsonType);
+        yield aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, jsonType);
       case "#?":
-        yield aggregateFactory.createPurePublicSimpleOperator(aggregate, operator, integerType);
+        yield aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, integerType);
       default:
         yield null;
     };
@@ -123,53 +123,53 @@ public class OperatorFactory {
 
   List<MethodSymbol> getAllPossibleSyntheticOperators(final IAggregateSymbol aggregate) {
 
-    final var integerType = aggregateFactory.resolveInteger(aggregate);
-    final var booleanType = aggregateFactory.resolveBoolean(aggregate);
+    final var integerType = aggregateManipulator.resolveInteger(aggregate);
+    final var booleanType = aggregateManipulator.resolveBoolean(aggregate);
 
     final var theDefaultOperators = getAllPossibleDefaultOperators(aggregate);
     final var additionalOperators = new ArrayList<>(Arrays.asList(
-        aggregateFactory.createToJsonSimpleOperator(aggregate),
+        aggregateManipulator.createToJsonSimpleOperator(aggregate),
         //Cannot default the promote operator
-        aggregateFactory.createPurePublicReturnSameTypeMethod(aggregate, "#<"),
-        aggregateFactory.createPurePublicReturnSameTypeMethod(aggregate, "#>"),
-        aggregateFactory.createPurePublicReturnSameTypeMethod(aggregate, "~"),
-        aggregateFactory.createPurePublicReturnSameTypeMethod(aggregate, "abs"),
+        aggregateManipulator.createPurePublicReturnSameTypeMethod(aggregate, "#<"),
+        aggregateManipulator.createPurePublicReturnSameTypeMethod(aggregate, "#>"),
+        aggregateManipulator.createPurePublicReturnSameTypeMethod(aggregate, "~"),
+        aggregateManipulator.createPurePublicReturnSameTypeMethod(aggregate, "abs"),
         //This is the unary minus
-        aggregateFactory.createPurePublicReturnSameTypeMethod(aggregate, "-"),
-        aggregateFactory.createPurePublicSimpleOperator(aggregate, "empty", booleanType),
-        aggregateFactory.createPurePublicSimpleOperator(aggregate, "length", integerType),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, ">>", Optional.of(aggregate)),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<<", Optional.of(aggregate)),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "and", Optional.of(aggregate)),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "or", Optional.of(aggregate)),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "xor", Optional.of(aggregate)),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "mod", integerType),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "rem", integerType),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "contains", booleanType),
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "matches", booleanType),
-        aggregateFactory.createPurePublicSimpleOperator(aggregate, "open", Optional.empty()),
-        aggregateFactory.createPurePublicSimpleOperator(aggregate, "close", Optional.empty()),
+        aggregateManipulator.createPurePublicReturnSameTypeMethod(aggregate, "-"),
+        aggregateManipulator.createPurePublicSimpleOperator(aggregate, "empty", booleanType),
+        aggregateManipulator.createPurePublicSimpleOperator(aggregate, "length", integerType),
+        aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, ">>", Optional.of(aggregate)),
+        aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<<", Optional.of(aggregate)),
+        aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "and", Optional.of(aggregate)),
+        aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "or", Optional.of(aggregate)),
+        aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "xor", Optional.of(aggregate)),
+        aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "mod", integerType),
+        aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "rem", integerType),
+        aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "contains", booleanType),
+        aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "matches", booleanType),
+        aggregateManipulator.createPurePublicSimpleOperator(aggregate, "open", Optional.empty()),
+        aggregateManipulator.createPurePublicSimpleOperator(aggregate, "close", Optional.empty()),
 
         //So for operators these will deal in the same type.
-        aggregateFactory.createOperator(aggregate, "+", true),
-        aggregateFactory.createOperator(aggregate, "-", true),
-        aggregateFactory.createOperator(aggregate, "*", true),
-        aggregateFactory.createOperator(aggregate, "/", true),
+        aggregateManipulator.createOperator(aggregate, "+", true),
+        aggregateManipulator.createOperator(aggregate, "-", true),
+        aggregateManipulator.createOperator(aggregate, "*", true),
+        aggregateManipulator.createOperator(aggregate, "/", true),
 
         //Mutator type operators
-        aggregateFactory.createOperator(aggregate, ":~:", false),
-        aggregateFactory.createOperator(aggregate, ":^:", false),
-        aggregateFactory.createOperator(aggregate, ":=:", false),
-        aggregateFactory.createOperator(aggregate, "|", false),
-        aggregateFactory.createOperator(aggregate, "+=", false),
-        aggregateFactory.createOperator(aggregate, "-=", false),
-        aggregateFactory.createOperator(aggregate, "*=", false),
-        aggregateFactory.createOperator(aggregate, "/=", false),
-        aggregateFactory.createMutatorOperator(aggregate, "++"),
-        aggregateFactory.createMutatorOperator(aggregate, "--"),
+        aggregateManipulator.createOperator(aggregate, ":~:", false),
+        aggregateManipulator.createOperator(aggregate, ":^:", false),
+        aggregateManipulator.createOperator(aggregate, ":=:", false),
+        aggregateManipulator.createOperator(aggregate, "|", false),
+        aggregateManipulator.createOperator(aggregate, "+=", false),
+        aggregateManipulator.createOperator(aggregate, "-=", false),
+        aggregateManipulator.createOperator(aggregate, "*=", false),
+        aggregateManipulator.createOperator(aggregate, "/=", false),
+        aggregateManipulator.createMutatorOperator(aggregate, "++"),
+        aggregateManipulator.createMutatorOperator(aggregate, "--"),
 
         //fuzzy compare
-        aggregateFactory.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<~>", integerType)));
+        aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, "<~>", integerType)));
 
     final List<MethodSymbol> rtn = new ArrayList<>(theDefaultOperators.size() + additionalOperators.size());
     rtn.addAll(theDefaultOperators);

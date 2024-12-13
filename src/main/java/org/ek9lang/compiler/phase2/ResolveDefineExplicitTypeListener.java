@@ -8,7 +8,7 @@ import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.ScopeStack;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.support.AccessGenericInGeneric;
-import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.support.AggregateManipulator;
 import org.ek9lang.compiler.support.MostSpecificScope;
 import org.ek9lang.compiler.support.NoDuplicateOperationsOrError;
 import org.ek9lang.compiler.support.NoNameCollisionOrError;
@@ -95,7 +95,7 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
    */
   ResolveDefineExplicitTypeListener(final ParsedModule parsedModule) {
 
-    final var aggregateFactory = new AggregateFactory(parsedModule.getEk9Types());
+    final var aggregateFactory = new AggregateManipulator(parsedModule.getEk9Types());
     final var errorListener = parsedModule.getSource().getErrorListener();
     final var symbolFactory = new SymbolFactory(parsedModule);
 

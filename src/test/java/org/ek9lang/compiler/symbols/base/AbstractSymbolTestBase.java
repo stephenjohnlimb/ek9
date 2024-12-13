@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.common.TypeDefResolver;
-import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.support.AggregateManipulator;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 public class AbstractSymbolTestBase {
 
-  protected final AggregateFactory aggregateFactory = new AggregateFactory();
+  protected final AggregateManipulator aggregateManipulator = new AggregateManipulator();
   private final SymbolTable global = new SymbolTable();
   protected IScope symbolTable = new SymbolTable();
 

@@ -24,16 +24,16 @@ import org.ek9lang.compiler.tokenizer.IToken;
 class CheckAndPopulateOperator
     implements BiFunction<EK9Parser.OperatorDeclarationContext, IAggregateSymbol, MethodSymbol> {
 
-  final AggregateFactory aggregateFactory;
+  final AggregateManipulator aggregateManipulator;
   final ErrorListener errorListener;
 
   final Function<IAggregateSymbol, String> messageFor
       = aggregate -> "wrt to type: '" + aggregate.getFriendlyName() + "':";
 
-  CheckAndPopulateOperator(final AggregateFactory aggregateFactory,
+  CheckAndPopulateOperator(final AggregateManipulator aggregateManipulator,
                            final ErrorListener errorListener) {
 
-    this.aggregateFactory = aggregateFactory;
+    this.aggregateManipulator = aggregateManipulator;
     this.errorListener = errorListener;
 
   }
@@ -65,7 +65,7 @@ class CheckAndPopulateOperator
     }
 
     //Now this can come back empty - meaning it is not an operator that can be defaulted.
-    final var defaultOperator = aggregateFactory.getDefaultOperator(aggregate, ctx.operator().getText());
+    final var defaultOperator = aggregateManipulator.getDefaultOperator(aggregate, ctx.operator().getText());
     if (defaultOperator.isEmpty()) {
       emitOperatorDoesNotSupportDefault(startToken, aggregate);
       return null;
@@ -99,7 +99,7 @@ class CheckAndPopulateOperator
     operator.setMarkedAbstract(ctx.ABSTRACT() != null);
     operator.setOperator(true);
     //Set as Void, unless we have a returning section - processed later.
-    operator.setType(aggregateFactory.resolveVoid(aggregate));
+    operator.setType(aggregateManipulator.resolveVoid(aggregate));
 
     return operator;
   }

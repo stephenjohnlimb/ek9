@@ -13,7 +13,7 @@ import org.ek9lang.compiler.common.CompilableSourceHasErrors;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.support.AggregateManipulator;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.SharedThreadContext;
 
@@ -108,8 +108,8 @@ public final class SymbolDefinition extends CompilerPhase {
 
     //Do not allow use of the EK9 module name-spaces out side of boot-strapping the compiler.
     if (notBootStrapping
-        && (AggregateFactory.EK9_LANG.equals(parsedModule.getModuleName())
-        || AggregateFactory.EK9_MATH.equals(parsedModule.getModuleName()))) {
+        && (AggregateManipulator.EK9_LANG.equals(parsedModule.getModuleName())
+        || AggregateManipulator.EK9_MATH.equals(parsedModule.getModuleName()))) {
 
       source.getErrorListener().semanticError(new Ek9Token(parsedModule.getModuleName()),
           "", ErrorListener.SemanticClassification.INVALID_MODULE_NAME);
@@ -127,7 +127,7 @@ public final class SymbolDefinition extends CompilerPhase {
      * Now for the built-in types, we resolve and hold the types and supply to the compilable program.
      * These can then be passed into ParsedModules as and when requested and then into other components.
      */
-    if (AggregateFactory.EK9_LANG.equals(parsedModule.getModuleName())) {
+    if (AggregateManipulator.EK9_LANG.equals(parsedModule.getModuleName())) {
       final var builtInTypeCacheResolver = new BuiltInTypeCacheResolver();
       final var ek9Types = builtInTypeCacheResolver.apply(parsedModule.getModuleScope());
       compilableProgramAccess.accept(compilableProgram -> compilableProgram.setEk9Types(ek9Types));

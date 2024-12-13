@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.search;
 
+import static org.ek9lang.compiler.support.AggregateManipulator.PRIVATE;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -124,7 +126,7 @@ public class MethodSymbolSearchResult {
             //is either stricter or more lax.
             buildResult.add(result);
             buildResult.setAccessModifierIncompatible(true);
-          } else if (!methodSymbol.getAccessModifier().equals("private")
+          } else if (!methodSymbol.getAccessModifier().equals(PRIVATE)
               && !methodSymbol.isOverride()) {
             //So we are here and the method signatures are the same, so it's an
             //override but has not been marked as such

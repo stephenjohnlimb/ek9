@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase2;
 
 import java.util.List;
 import java.util.function.Consumer;
-import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.support.AggregateManipulator;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 
 /**
@@ -13,18 +13,18 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
  */
 final class SyntheticConstructorCreator implements Consumer<IAggregateSymbol> {
 
-  private final AggregateFactory aggregateFactory;
+  private final AggregateManipulator aggregateManipulator;
 
-  SyntheticConstructorCreator(final AggregateFactory aggregateFactory) {
+  SyntheticConstructorCreator(final AggregateManipulator aggregateManipulator) {
 
-    this.aggregateFactory = aggregateFactory;
+    this.aggregateManipulator = aggregateManipulator;
 
   }
 
   @Override
   public void accept(final IAggregateSymbol aggregate) {
 
-    aggregateFactory.addSyntheticConstructorIfRequired(aggregate, List.of());
+    aggregateManipulator.addSyntheticConstructorIfRequired(aggregate, List.of());
 
   }
 }

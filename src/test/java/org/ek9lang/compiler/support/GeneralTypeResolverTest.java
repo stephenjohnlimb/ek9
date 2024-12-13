@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
  */
 class GeneralTypeResolverTest {
 
-  private final AggregateFactory support = new AggregateFactory();
+  private final AggregateManipulator support = new AggregateManipulator();
 
   private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator(new InternalNameFor());
 

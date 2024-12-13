@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.bootstrap;
 
-import static org.ek9lang.compiler.support.AggregateFactory.EK9_LANG;
+import static org.ek9lang.compiler.support.AggregateManipulator.EK9_LANG;
 import static org.ek9lang.core.AssertValue.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

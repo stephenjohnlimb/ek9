@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.bootstrap;
 
 import static org.ek9lang.compiler.Ek9BuiltinLangSupplier.NUMBER_OF_EK9_SYMBOLS;
-import static org.ek9lang.compiler.support.AggregateFactory.EK9_LANG;
+import static org.ek9lang.compiler.support.AggregateManipulator.EK9_LANG;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.function.Supplier;

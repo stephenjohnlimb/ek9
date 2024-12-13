@@ -100,7 +100,7 @@ public class ModuleScope extends SymbolTable {
     AssertValue.checkNotNull("Token cannot be null", token);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
-    final var shortName = ISymbol.getUnqualifiedName(symbol.getName());
+    final var shortName = INaming.getUnqualifiedName(symbol.getName());
     AssertValue.checkFalse("Duplicate reference bing added", referencesScope.containsKey(shortName));
     referencesScope.put(shortName, symbol);
     originalReferenceResolution.put(shortName, token);
@@ -112,7 +112,7 @@ public class ModuleScope extends SymbolTable {
    */
   public Optional<IToken> getOriginalReferenceLocation(final SymbolSearch search) {
 
-    final var shortName = ISymbol.getUnqualifiedName(search.getName());
+    final var shortName = INaming.getUnqualifiedName(search.getName());
 
     return Optional.ofNullable(originalReferenceResolution.get(shortName));
   }
@@ -209,8 +209,8 @@ public class ModuleScope extends SymbolTable {
       return Optional.empty();
     }
 
-    final var searchName = ISymbol.getUnqualifiedName(search.getName());
-    final var localScopeSearch = new SymbolSearch(ISymbol.makeFullyQualifiedName(getScopeName(), searchName), search);
+    final var searchName = INaming.getUnqualifiedName(search.getName());
+    final var localScopeSearch = new SymbolSearch(INaming.makeFullyQualifiedName(getScopeName(), searchName), search);
     final var resolvedSymbol = super.resolveInThisScopeOnly(localScopeSearch);
 
     if (resolvedSymbol.isPresent()) {
@@ -227,7 +227,7 @@ public class ModuleScope extends SymbolTable {
   public Optional<ISymbol> resolveReferenceInThisScopeOnly(final SymbolSearch search) {
 
     //Check by short name (i.e. unqualified)
-    final var unqualifiedName = ISymbol.getUnqualifiedName(search.getName());
+    final var unqualifiedName = INaming.getUnqualifiedName(search.getName());
     final var resolvedSymbol = Optional.ofNullable(referencesScope.get(unqualifiedName));
 
     //If not the right category then not a match.
@@ -249,8 +249,8 @@ public class ModuleScope extends SymbolTable {
     compilableProgram.accept(program -> {
       //If it is fully qualified let program scope workout module and resolve it.
       //But if it is this module we will have already search for it.
-      final var searchModule = ISymbol.getModuleNameIfPresent(search.getName());
-      if (ISymbol.isQualifiedName(search.getName()) && !getScopeName().equals(searchModule)) {
+      final var searchModule = INaming.getModuleNameIfPresent(search.getName());
+      if (INaming.isQualifiedName(search.getName()) && !getScopeName().equals(searchModule)) {
         rtn.set(program.resolveByFullyQualifiedSearch(search));
       } else {
 

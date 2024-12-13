@@ -8,6 +8,7 @@ import org.ek9lang.compiler.Module;
 import org.ek9lang.compiler.Source;
 import org.ek9lang.compiler.support.ToCommaSeparated;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.INaming;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.SymbolTable;
@@ -289,8 +290,8 @@ public class SymbolSearch {
       return Optional.of(exampleSymbolToMatch);
     }
 
-    final var newSymbolModuleName = ISymbol.getModuleNameIfPresent(name);
-    final var newSymbolName = ISymbol.getUnqualifiedName(name);
+    final var newSymbolModuleName = INaming.getModuleNameIfPresent(name);
+    final var newSymbolName = INaming.getUnqualifiedName(name);
 
     //Make a new symbol (synthetic) and ensure it has the correct module name.
     //Also ensure it has a valid unqualified name in that scope.

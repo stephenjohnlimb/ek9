@@ -36,7 +36,7 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
     var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
-    var t = aggregateFactory.createGenericT("T", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", symbolTable);
 
     var aGenericFunction = new FunctionSymbol("SingleGenericFunction", symbolTable);
     aGenericFunction.setModuleScope(symbolTable);
@@ -82,7 +82,7 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
     var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
-    var t = aggregateFactory.createGenericT("T", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", symbolTable);
     assertTrue(t.isConceptualTypeParameter());
 
     //This will be our generic type that has one or more 'type parameters'
@@ -95,15 +95,15 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var arg0 = new VariableSymbol("arg0", ek9Integer);
     var arg1 = new VariableSymbol("arg1", t);
     var arg2 = new VariableSymbol("arg2", ek9String);
-    aggregateFactory.addConstructor(aGenericType);
-    aggregateFactory.addConstructor(aGenericType, Optional.of(arg1));
-    aggregateFactory.addPublicMethod(aGenericType, "methodOne", List.of(arg0, arg1), Optional.of(t));
+    aggregateManipulator.addConstructor(aGenericType);
+    aggregateManipulator.addConstructor(aGenericType, Optional.of(arg1));
+    aggregateManipulator.addPublicMethod(aGenericType, "methodOne", List.of(arg0, arg1), Optional.of(t));
     //Now add another method
-    aggregateFactory.addPublicMethod(aGenericType, "methodTwo", List.of(arg0, arg1, arg2), Optional.of(t));
+    aggregateManipulator.addPublicMethod(aGenericType, "methodTwo", List.of(arg0, arg1, arg2), Optional.of(t));
     //And another
-    aggregateFactory.addPublicMethod(aGenericType, "methodThree", List.of(arg2, arg1, arg0), Optional.of(ek9Duration));
+    aggregateManipulator.addPublicMethod(aGenericType, "methodThree", List.of(arg2, arg1, arg0), Optional.of(ek9Duration));
     //Final one
-    aggregateFactory.addPublicMethod(aGenericType, "methodFour", List.of(arg1, arg0), Optional.of(ek9Duration));
+    aggregateManipulator.addPublicMethod(aGenericType, "methodFour", List.of(arg1, arg0), Optional.of(ek9Duration));
     assertEquals(6, aGenericType.getSymbolsForThisScope().size());
 
     //Now make a parameterised version with a String.
@@ -134,16 +134,16 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
     var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
-    var p = aggregateFactory.createGenericT("P", symbolTable);
+    var p = aggregateManipulator.createGenericT("P", symbolTable);
     assertTrue(p.isConceptualTypeParameter());
 
-    var q = aggregateFactory.createGenericT("Q", symbolTable);
+    var q = aggregateManipulator.createGenericT("Q", symbolTable);
     assertTrue(q.isConceptualTypeParameter());
 
-    var r = aggregateFactory.createGenericT("R", symbolTable);
+    var r = aggregateManipulator.createGenericT("R", symbolTable);
     assertTrue(r.isConceptualTypeParameter());
 
-    var s = aggregateFactory.createGenericT("S", symbolTable);
+    var s = aggregateManipulator.createGenericT("S", symbolTable);
     assertTrue(s.isConceptualTypeParameter());
 
     //This will be our generic type that has one or more 'type parameters'
@@ -165,7 +165,7 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var arg3 = new VariableSymbol("arg3", q);
     var arg4 = new VariableSymbol("arg4", r);
     var arg5 = new VariableSymbol("arg5", ek9Time);
-    aggregateFactory.addPublicMethod(aGenericType, "methodOne", List.of(arg0, arg1, arg2, arg3, arg4, arg5),
+    aggregateManipulator.addPublicMethod(aGenericType, "methodOne", List.of(arg0, arg1, arg2, arg3, arg4, arg5),
         Optional.of(s));
 
     assertEquals(1, aGenericType.getSymbolsForThisScope().size());

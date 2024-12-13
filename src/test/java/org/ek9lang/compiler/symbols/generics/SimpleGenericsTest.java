@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.search.AnyTypeSymbolSearch;
-import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.support.AggregateManipulator;
 import org.ek9lang.compiler.support.InternalNameFor;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Test;
  */
 final class SimpleGenericsTest {
 
-  private final AggregateFactory aggregateFactory = new AggregateFactory();
+  private final AggregateManipulator aggregateManipulator = new AggregateManipulator();
 
   /**
    * This test focuses on extension of a generic type.
@@ -51,10 +51,10 @@ final class SimpleGenericsTest {
   void testExtendingAGenericType() {
     SymbolTable symbolTable = new SymbolTable();
 
-    var t = aggregateFactory.createGenericT("T", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", symbolTable);
     var aGenericBaseType = new AggregateSymbol("GenericBase", symbolTable, List.of(t));
 
-    var s = aggregateFactory.createGenericT("S", symbolTable);
+    var s = aggregateManipulator.createGenericT("S", symbolTable);
     var anotherGenericType = new AggregateSymbol("AnotherGenericBase", symbolTable, List.of(s, t));
 
     //Check not equal
@@ -78,7 +78,7 @@ final class SimpleGenericsTest {
     symbolTable.define(integerType);
 
     //Make the 'T' and generic type that will use the 'T' as a conceptual type parameter
-    var t = aggregateFactory.createGenericT("T", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", symbolTable);
     var aGenericType = new AggregateSymbol("GenericType", symbolTable, List.of(t));
 
     //Make the parameterised type using the generic type and parameterize it with concrete type Integer.
@@ -113,16 +113,16 @@ final class SimpleGenericsTest {
     //This is what we will use to test the naming.
     BiFunction<PossibleGenericSymbol, List<ISymbol>, String> namer = new InternalNameFor();
 
-    var k = aggregateFactory.createGenericT("K", symbolTable);
-    var v = aggregateFactory.createGenericT("V", symbolTable);
+    var k = aggregateManipulator.createGenericT("K", symbolTable);
+    var v = aggregateManipulator.createGenericT("V", symbolTable);
 
     var someDualGenericType = new AggregateSymbol("SomeDualGeneric", symbolTable, List.of(k, v));
     assertNotNull(someDualGenericType);
 
     var someDualGenericTypeName = someDualGenericType.getName();
 
-    var r = aggregateFactory.createGenericT("R", symbolTable);
-    var s = aggregateFactory.createGenericT("S", symbolTable);
+    var r = aggregateManipulator.createGenericT("R", symbolTable);
+    var s = aggregateManipulator.createGenericT("S", symbolTable);
 
     //I'm thinking that really this should be the same as someDualGenericTypeName. because it is still fully generic
     var parameterisedWithMoreGenericTypes = namer.apply(someDualGenericType, List.of(r, s));
@@ -140,7 +140,7 @@ final class SimpleGenericsTest {
 
     //Now what happens if parameterized with one concrete and on conceptual type
     //So make another generic type parameter.
-    var t = aggregateFactory.createGenericT("T", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", symbolTable);
 
     var parameterisedWithHalfConcreteTypes1 = namer.apply(someDualGenericType, List.of(t, dateType));
     assertNotEquals(someDualGenericTypeName, parameterisedWithHalfConcreteTypes1);

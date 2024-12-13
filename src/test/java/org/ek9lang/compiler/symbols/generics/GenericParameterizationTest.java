@@ -164,7 +164,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
   @Test
   void testConceptualParameterizationAsFunction() {
-    var p = aggregateFactory.createGenericT("P", symbolTable);
+    var p = aggregateManipulator.createGenericT("P", symbolTable);
 
     var aGenericFunction = testCreationOfGenericFunction("F1", "T");
 
@@ -182,7 +182,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
    */
   @Test
   void testConceptualParameterizationAsType() {
-    var p = aggregateFactory.createGenericT("P", symbolTable);
+    var p = aggregateManipulator.createGenericT("P", symbolTable);
 
     var aGenericType = testCreationOfGenericType("G1", "T");
 
@@ -242,7 +242,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     //As that point 'AType of (Integer, V)' would again be parameterized - but only with 'V' (Duration).
     //So we'd end up with yet another parameterized type!! AType of (Integer, Duration).
 
-    var v = aggregateFactory.createGenericT("V", symbolTable);
+    var v = aggregateManipulator.createGenericT("V", symbolTable);
     //This should still be conceptual!
     var conceptualParameterizedType = creator.apply(aGenericType, List.of(ek9Integer, v));
     assertNotNull(conceptualParameterizedType);
@@ -323,7 +323,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
    */
   private PossibleGenericSymbol testCreationOfGenericFunction(final String genericFunctionName,
                                                               final String conceptualTypeParameterName) {
-    var t = aggregateFactory.createGenericT(conceptualTypeParameterName, symbolTable);
+    var t = aggregateManipulator.createGenericT(conceptualTypeParameterName, symbolTable);
     assertTrue(t.isConceptualTypeParameter());
 
     //This will be our generic function that has one or more 'type parameters'
@@ -361,7 +361,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
   }
 
   private PossibleGenericSymbol creationAbstractGenericType() {
-    var t = aggregateFactory.createGenericT("AbsG1", symbolTable);
+    var t = aggregateManipulator.createGenericT("AbsG1", symbolTable);
     var aGenericType = new PossibleGenericSymbol("T", symbolTable);
     aGenericType.setModuleScope(symbolTable);
     aGenericType.setCategory(SymbolCategory.TYPE);
@@ -392,7 +392,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
   private PossibleGenericSymbol testCreationOfGenericType(final String genericTypeName,
                                                           final String conceptualTypeParameterName) {
     //Make a 'conceptual' type like 'T' or 'K' or 'V'.
-    var t = aggregateFactory.createGenericT(conceptualTypeParameterName, symbolTable);
+    var t = aggregateManipulator.createGenericT(conceptualTypeParameterName, symbolTable);
     assertTrue(t.isConceptualTypeParameter());
 
     //This will be our generic type that has one or more 'type parameters'
@@ -446,7 +446,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     //OK now the multiple type parameters - this act makes it generic as it now has 'type parameters'.
     conceptualTypeParameterNames.forEach(typeParameterName -> {
-      var typeParameter = aggregateFactory.createGenericT(typeParameterName, symbolTable);
+      var typeParameter = aggregateManipulator.createGenericT(typeParameterName, symbolTable);
       aGenericType.addTypeParameterOrArgument(typeParameter);
     });
 

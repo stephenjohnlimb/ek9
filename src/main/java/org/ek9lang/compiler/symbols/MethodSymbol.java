@@ -1,6 +1,8 @@
 package org.ek9lang.compiler.symbols;
 
-import static org.ek9lang.compiler.support.AggregateFactory.PUBLIC;
+import static org.ek9lang.compiler.support.AggregateManipulator.PRIVATE;
+import static org.ek9lang.compiler.support.AggregateManipulator.PROTECTED;
+import static org.ek9lang.compiler.support.AggregateManipulator.PUBLIC;
 
 import java.io.Serial;
 import java.util.List;
@@ -226,13 +228,13 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
   @Override
   public boolean isPrivate() {
 
-    return accessModifier.equals("private");
+    return accessModifier.equals(PRIVATE);
   }
 
   @Override
   public boolean isProtected() {
 
-    return accessModifier.equals("protected");
+    return accessModifier.equals(PROTECTED);
   }
 
   @Override

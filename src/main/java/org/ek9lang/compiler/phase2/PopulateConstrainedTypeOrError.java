@@ -8,7 +8,7 @@ import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
-import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.support.AggregateManipulator;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -25,7 +25,7 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * Once one constructor is pure all constructors must be pure.
  */
 class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<AggregateSymbol, ISymbol> {
-  final AggregateFactory aggregateFactory;
+  final AggregateManipulator aggregateManipulator;
 
   final List<String> methodNamesToAlsoRetrainOldSignature =
       List.of("matches", "contains", "<", "<=", ">", ">=", "==", "<>");
@@ -46,11 +46,11 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
   final AggregateHasPureConstruction aggregateHasPureConstruction = new AggregateHasPureConstruction();
 
   PopulateConstrainedTypeOrError(final SymbolsAndScopes symbolsAndScopes,
-                                 final AggregateFactory aggregateFactory,
+                                 final AggregateManipulator aggregateManipulator,
                                  final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
-    this.aggregateFactory = aggregateFactory;
+    this.aggregateManipulator = aggregateManipulator;
 
   }
 
@@ -110,7 +110,7 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
 
   private void cloneMethodsAndOperators(final AggregateSymbol newType, final IAggregateSymbol constrainedType) {
 
-    aggregateFactory.addConstructor(newType, new VariableSymbol("arg", constrainedType));
+    aggregateManipulator.addConstructor(newType, new VariableSymbol("arg", constrainedType));
 
     final var candidates =
         constrainedType.getAllNonAbstractMethods().stream().filter(MethodSymbol::isNotConstructor).toList();

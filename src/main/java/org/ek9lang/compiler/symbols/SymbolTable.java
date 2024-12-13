@@ -309,8 +309,8 @@ public class SymbolTable implements IScope {
    */
   protected boolean searchIsNotInThisScope(final SymbolSearch search) {
     String symbolName = search.getName();
-    if (ISymbol.isQualifiedName(symbolName)) {
-      return !getScopeName().equals(ISymbol.getModuleNameIfPresent(symbolName));
+    if (INaming.isQualifiedName(symbolName)) {
+      return !getScopeName().equals(INaming.getModuleNameIfPresent(symbolName));
     }
     return false;
   }
@@ -326,7 +326,7 @@ public class SymbolTable implements IScope {
       return Optional.empty();
     }
 
-    String searchName = ISymbol.getUnqualifiedName(search.getName());
+    String searchName = INaming.getUnqualifiedName(search.getName());
 
     //So search the valid categories.
     return search.getValidSearchTypes().stream()

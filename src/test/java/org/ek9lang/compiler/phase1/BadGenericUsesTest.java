@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.phase1;
 
-import static org.ek9lang.compiler.support.AggregateFactory.EK9_LANG;
+import static org.ek9lang.compiler.support.AggregateManipulator.EK9_LANG;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.ek9lang.compiler.CompilableProgram;

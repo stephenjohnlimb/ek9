@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.phase1;
 
-import static org.ek9lang.compiler.support.AggregateFactory.EK9_VOID;
+import static org.ek9lang.compiler.support.AggregateManipulator.EK9_VOID;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;

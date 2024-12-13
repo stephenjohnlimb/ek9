@@ -346,7 +346,7 @@ public class Symbol implements ISymbol {
     final var rtn = getName();
 
     //Consider squirreling scopeName at construction.
-    return getParsedModule().map(m -> ISymbol.makeFullyQualifiedName(m.getScopeName(), rtn)).orElse(rtn);
+    return getParsedModule().map(m -> INaming.makeFullyQualifiedName(m.getScopeName(), rtn)).orElse(rtn);
   }
 
   /**

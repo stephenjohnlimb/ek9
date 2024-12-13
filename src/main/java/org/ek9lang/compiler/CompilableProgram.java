@@ -10,8 +10,9 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.ek9lang.compiler.search.SymbolSearch;
-import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.support.AggregateManipulator;
 import org.ek9lang.compiler.symbols.Ek9Types;
+import org.ek9lang.compiler.symbols.INaming;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ModuleScope;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
@@ -165,7 +166,7 @@ public class CompilableProgram implements Serializable {
    */
   public Optional<ISymbol> resolveByFullyQualifiedSearch(final SymbolSearch search) {
 
-    final var moduleName = ISymbol.getModuleNameIfPresent(search.getName());
+    final var moduleName = INaming.getModuleNameIfPresent(search.getName());
 
     return resolveFromModule(moduleName, search);
   }
@@ -179,7 +180,7 @@ public class CompilableProgram implements Serializable {
    */
   public ResolvedOrDefineResult resolveOrDefine(final PossibleGenericSymbol possibleGenericSymbol) {
 
-    final var moduleName = ISymbol.getModuleNameIfPresent(possibleGenericSymbol.getFullyQualifiedName());
+    final var moduleName = INaming.getModuleNameIfPresent(possibleGenericSymbol.getFullyQualifiedName());
     final var search = new SymbolSearch(possibleGenericSymbol);
     final var resolved = resolveFromModule(moduleName, search);
 
@@ -252,14 +253,14 @@ public class CompilableProgram implements Serializable {
     //We need to modify the search.
     final var name = search.getName();
 
-    if (!ISymbol.isQualifiedName(name)) {
-      final var resolved = resolveFromBuiltInModule(AggregateFactory.EK9_LANG, search);
+    if (!INaming.isQualifiedName(name)) {
+      final var resolved = resolveFromBuiltInModule(AggregateManipulator.EK9_LANG, search);
       if (resolved.isPresent()) {
         return resolved;
       }
-      return resolveFromBuiltInModule(AggregateFactory.EK9_MATH, search);
+      return resolveFromBuiltInModule(AggregateManipulator.EK9_MATH, search);
     } else {
-      return Stream.of(AggregateFactory.EK9_LANG, AggregateFactory.EK9_MATH)
+      return Stream.of(AggregateManipulator.EK9_LANG, AggregateManipulator.EK9_MATH)
           .map(moduleName -> this.resolveFromModule(moduleName, search))
           .filter(Optional::isPresent).flatMap(Optional::stream).findFirst();
     }
@@ -268,7 +269,7 @@ public class CompilableProgram implements Serializable {
   private Optional<ISymbol> resolveFromBuiltInModule(final String moduleName, final SymbolSearch search) {
 
     final var name = search.getName();
-    SymbolSearch newSearch = new SymbolSearch(ISymbol.makeFullyQualifiedName(moduleName, name), search);
+    SymbolSearch newSearch = new SymbolSearch(INaming.makeFullyQualifiedName(moduleName, name), search);
 
     return resolveFromModule(moduleName, newSearch);
   }

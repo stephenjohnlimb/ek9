@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
-import org.ek9lang.compiler.support.AggregateFactory;
+import org.ek9lang.compiler.support.AggregateManipulator;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 
@@ -19,15 +19,15 @@ final class SetupGenericTOrError implements Consumer<EK9Parser.ParameterisedDeta
 
   private final SupportsBeingConstrainingType supportsBeingConstrainingType = new SupportsBeingConstrainingType();
   private final SymbolsAndScopes symbolsAndScopes;
-  private final AggregateFactory aggregateFactory;
+  private final AggregateManipulator aggregateManipulator;
   private final ErrorListener errorListener;
 
   SetupGenericTOrError(final SymbolsAndScopes symbolsAndScopes,
-                       final AggregateFactory aggregateFactory,
+                       final AggregateManipulator aggregateManipulator,
                        final ErrorListener errorListener) {
 
     this.symbolsAndScopes = symbolsAndScopes;
-    this.aggregateFactory = aggregateFactory;
+    this.aggregateManipulator = aggregateManipulator;
     this.errorListener = errorListener;
   }
 
@@ -39,10 +39,10 @@ final class SetupGenericTOrError implements Consumer<EK9Parser.ParameterisedDeta
 
       //So it is not constrained an is just a 'T'
       if (ctx.typeDef() == null) {
-        aggregateFactory.addAllSyntheticOperators(aggregateT);
+        aggregateManipulator.addAllSyntheticOperators(aggregateT);
       } else {
         getConstrainingTypeOrError(ctx.typeDef())
-            .ifPresent(constrainingType -> aggregateFactory.updateToConstrainBy(aggregateT, constrainingType));
+            .ifPresent(constrainingType -> aggregateManipulator.updateToConstrainBy(aggregateT, constrainingType));
       }
     }
 

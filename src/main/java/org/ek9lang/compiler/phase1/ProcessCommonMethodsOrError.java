@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.phase1;
 
-import static org.ek9lang.compiler.support.AggregateFactory.PUBLIC;
+import static org.ek9lang.compiler.support.AggregateManipulator.PUBLIC;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;

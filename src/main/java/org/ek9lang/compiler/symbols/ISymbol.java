@@ -8,54 +8,9 @@ import org.ek9lang.compiler.tokenizer.IToken;
 /**
  * Represents the concept of what functionality a Symbol should have.
  */
-public interface ISymbol extends ITokenReference, Serializable {
+public interface ISymbol extends ISymbolNature, ITokenReference, Serializable {
 
   double NOT_ASSIGNABLE = -1000000.0;
-
-  /**
-   * Symbol names can be fully qualified (i.e. with the module name) or just a name.
-   * This method returns the module name if present or "" if not.
-   */
-  static String getModuleNameIfPresent(final String symbolName) {
-
-    if (isQualifiedName(symbolName)) {
-      final var parts = symbolName.split("::");
-      return parts[0];
-    }
-
-    return "";
-  }
-
-  /**
-   * Just returns the actual symbol name in unqualified form (i.e. no module name).
-   */
-  static String getUnqualifiedName(final String symbolName) {
-
-    if (isQualifiedName(symbolName)) {
-      final var parts = symbolName.split("::");
-      return parts[1];
-    }
-
-    return symbolName;
-  }
-
-  static boolean isQualifiedName(final String symbolName) {
-
-    return symbolName.contains("::");
-  }
-
-  /**
-   * Convert a scope name (module name) and a symbol name into a fully qualified symbol name.
-   */
-  static String makeFullyQualifiedName(final String scopeName, final String symbolName) {
-
-    //In come cases (mainly testing) we may have an empty scope name.
-    if (isQualifiedName(symbolName) || scopeName.isEmpty()) {
-      return symbolName;
-    }
-
-    return scopeName + "::" + symbolName;
-  }
 
   //Used for declarations of variables/params where they can be null.
   boolean isNullAllowed();
@@ -96,46 +51,6 @@ public interface ISymbol extends ITokenReference, Serializable {
    * Other symbols like VariableSymbols are un-parented
    */
   ISymbol clone(final IScope withParentAsAppropriate);
-
-  /**
-   * So just to add to the confusion.
-   * A type that has been used with a type that is generic in nature with some parameters.
-   * So this would normally result in a type that is now concrete. i.e. List (generic in nature)
-   * and String (concrete) so this resulting type 'List of String' isAParameterisedType=true
-   * and isGenericInNature=false.
-   * But if List were parameterised with another generic parameter it would still be of a
-   * generic nature.
-   * For example, consider List T and Iterator I when we defined List T and use the Iterator
-   * with it; we parameterise Iterator with 'T'. But they are
-   * still both 'isGenericTypeParameter' it only when we use List (and by implication Iterator)
-   * with String do they both stop being generic in nature.
-   *
-   * @return true if a parameterised type (note parameterised not just of a generic nature).
-   */
-  default boolean isParameterisedType() {
-
-    return false;
-  }
-
-  /**
-   * Is this symbol a type that is generic in nature i.e. can it be parameterised with types.
-   * Aggregate Symbols can be defined to accept one or more parameters ie S and T.
-   */
-  default boolean isGenericInNature() {
-
-    return false;
-  }
-
-  /**
-   * Some symbols are simulated as generic type parameters like T and S and U for example
-   * When they are constructed as AggregateTypes this will be set to true in those classes.
-   * In general this is useful when working with Generic classes and needing types like S and T
-   * But they can never really be generated.
-   */
-  default boolean isConceptualTypeParameter() {
-
-    return false;
-  }
 
   /**
    * This symbol itself can be marked as pure - i.e. an operator with no side effects.
@@ -203,45 +118,6 @@ public interface ISymbol extends ITokenReference, Serializable {
     return false;
   }
 
-  default boolean isTemplateType() {
-
-    return getCategory().equals(SymbolCategory.TEMPLATE_TYPE);
-  }
-
-  default boolean isTemplateFunction() {
-
-    return getCategory().equals(SymbolCategory.TEMPLATE_FUNCTION);
-  }
-
-  default boolean isType() {
-
-    return getCategory().equals(SymbolCategory.TYPE);
-  }
-
-  default boolean isVariable() {
-
-    return getCategory().equals(SymbolCategory.VARIABLE);
-  }
-
-  /**
-   * Is the symbol a core primitive type.
-   */
-  default boolean isPrimitiveType() {
-
-    return isType() && isEk9Core() && !isParameterisedType();
-  }
-
-  /**
-   * Is the symbol an application of some sort.
-   */
-  default boolean isApplication() {
-
-    return switch (getGenus()) {
-      case GENERAL_APPLICATION, SERVICE_APPLICATION -> true;
-      default -> false;
-    };
-  }
-
   /**
    * Only use on symbols, to see if they are directly defined as a constant.
    */
@@ -263,25 +139,6 @@ public interface ISymbol extends ITokenReference, Serializable {
     return this.isLoopVariable() || this.isFromLiteral();
   }
 
-  default boolean isMethod() {
-
-    return getCategory().equals(SymbolCategory.METHOD);
-  }
-
-  default boolean isFunction() {
-
-    return getCategory().equals(SymbolCategory.FUNCTION);
-  }
-
-  default boolean isControl() {
-
-    return getCategory().equals(SymbolCategory.CONTROL);
-  }
-
-  default boolean isConstant() {
-
-    return false;
-  }
 
   default boolean isFromLiteral() {
 
@@ -320,11 +177,6 @@ public interface ISymbol extends ITokenReference, Serializable {
   boolean isExactSameType(final ISymbol symbolType);
 
   /**
-   * Is this a core thing from EK9.
-   */
-  boolean isEk9Core();
-
-  /**
    * For some symbols we might support the _promote method via coercion.
    * i.e. Long -> Float for example
    * But with class structures and traits/interfaces there is a time when
@@ -347,13 +199,6 @@ public interface ISymbol extends ITokenReference, Serializable {
   double getAssignableWeightTo(final ISymbol s);
 
   double getUnCoercedAssignableWeightTo(final ISymbol s);
-
-  SymbolGenus getGenus();
-
-  void setGenus(final SymbolGenus genus);
-
-  SymbolCategory getCategory();
-
 
   /**
    * Provide the internal fully qualified name of this symbol.

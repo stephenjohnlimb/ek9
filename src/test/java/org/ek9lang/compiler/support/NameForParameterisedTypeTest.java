@@ -9,7 +9,7 @@ import org.ek9lang.compiler.symbols.SymbolTable;
 import org.junit.jupiter.api.Test;
 
 final class NameForParameterisedTypeTest {
-  private final AggregateFactory aggregateFactory = new AggregateFactory();
+  private final AggregateManipulator aggregateManipulator = new AggregateManipulator();
 
   private final NameForParameterisedType underTest = new NameForParameterisedType();
 
@@ -17,18 +17,18 @@ final class NameForParameterisedTypeTest {
   void testConceptualTypeArgument() {
     SymbolTable symbolTable = new SymbolTable();
 
-    var t = aggregateFactory.createGenericT("T", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", symbolTable);
     var aGenericType = new AggregateSymbol("aGenericType", symbolTable, List.of(t));
 
     //Now because we have attempted to parameterize this generic type with just a conceptual type argument
     //it is still 'generic'. therefore nothing has changed and we expect the same name!
 
-    var u = aggregateFactory.createGenericT("U", symbolTable);
+    var u = aggregateManipulator.createGenericT("U", symbolTable);
     var nameWithU = underTest.apply(aGenericType, List.of(u));
 
     assertEquals(aGenericType.getFullyQualifiedName(), nameWithU);
 
-    var v = aggregateFactory.createGenericT("V", symbolTable);
+    var v = aggregateManipulator.createGenericT("V", symbolTable);
     var nameWithV = underTest.apply(aGenericType, List.of(v));
 
     assertEquals(aGenericType.getFullyQualifiedName(), nameWithV);
@@ -41,7 +41,7 @@ final class NameForParameterisedTypeTest {
     AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
     symbolTable.define(integerType);
 
-    var t = aggregateFactory.createGenericT("T", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", symbolTable);
     var aGenericType = new AggregateSymbol("aGenericType", symbolTable, List.of(t));
 
     //This time use a real concrete type.
@@ -54,14 +54,14 @@ final class NameForParameterisedTypeTest {
   void testConceptualTypeArguments() {
     SymbolTable symbolTable = new SymbolTable();
 
-    var s = aggregateFactory.createGenericT("S", symbolTable);
-    var t = aggregateFactory.createGenericT("T", symbolTable);
+    var s = aggregateManipulator.createGenericT("S", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", symbolTable);
     var aGenericType = new AggregateSymbol("aGenericType", symbolTable, List.of(s, t));
 
     //Also check with multiple type arguments. Still both conceptual.
 
-    var u = aggregateFactory.createGenericT("U", symbolTable);
-    var v = aggregateFactory.createGenericT("V", symbolTable);
+    var u = aggregateManipulator.createGenericT("U", symbolTable);
+    var v = aggregateManipulator.createGenericT("V", symbolTable);
     var nameWithUV = underTest.apply(aGenericType, List.of(u, v));
 
     assertEquals(aGenericType.getFullyQualifiedName(), nameWithUV);
@@ -76,8 +76,8 @@ final class NameForParameterisedTypeTest {
     AggregateSymbol dateType = new AggregateSymbol("Date", symbolTable);
     symbolTable.define(dateType);
 
-    var s = aggregateFactory.createGenericT("S", symbolTable);
-    var t = aggregateFactory.createGenericT("T", symbolTable);
+    var s = aggregateManipulator.createGenericT("S", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", symbolTable);
     var aGenericType = new AggregateSymbol("aGenericType", symbolTable, List.of(s, t));
 
     //Now use two real concrete types.
@@ -107,12 +107,12 @@ final class NameForParameterisedTypeTest {
     AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
     symbolTable.define(integerType);
 
-    var s = aggregateFactory.createGenericT("S", symbolTable);
-    var t = aggregateFactory.createGenericT("T", symbolTable);
+    var s = aggregateManipulator.createGenericT("S", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", symbolTable);
     var aGenericType = new AggregateSymbol("aGenericType", symbolTable, List.of(s, t));
 
     //Now use one real concrete type and one conceptual type.
-    var u = aggregateFactory.createGenericT("U", symbolTable);
+    var u = aggregateManipulator.createGenericT("U", symbolTable);
     var nameWithIntegerU = underTest.apply(aGenericType, List.of(integerType, u));
     assertNotEquals(aGenericType.getFullyQualifiedName(), nameWithIntegerU);
 
@@ -123,7 +123,7 @@ final class NameForParameterisedTypeTest {
 
     //Now we should also be able to check that if we use an alternative to U (i.e. V)
     //We still get the same names.
-    var v = aggregateFactory.createGenericT("V", symbolTable);
+    var v = aggregateManipulator.createGenericT("V", symbolTable);
     var nameWithIntegerV = underTest.apply(aGenericType, List.of(integerType, v));
     assertNotEquals(aGenericType.getFullyQualifiedName(), nameWithIntegerV);
 

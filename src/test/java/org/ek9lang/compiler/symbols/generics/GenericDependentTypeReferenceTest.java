@@ -153,8 +153,8 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
    * See the conceptual example at the top of this file.
    */
   private PossibleGenericSymbol createSomeGenericOfKandV() {
-    var k = aggregateFactory.createGenericT("K", symbolTable);
-    var v = aggregateFactory.createGenericT("V", symbolTable);
+    var k = aggregateManipulator.createGenericT("K", symbolTable);
+    var v = aggregateManipulator.createGenericT("V", symbolTable);
 
     var someGenericOfKandV = new AggregateSymbol("SomeGeneric", symbolTable);
     someGenericOfKandV.setModuleScope(symbolTable);
@@ -175,8 +175,8 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
    */
   private PossibleGenericSymbol createAnotherGenericOfRandS(final PossibleGenericSymbol someGenericOfKandV) {
     //So starts out same as above - I've done this 'long hand' so it's quite obvious.
-    var r = aggregateFactory.createGenericT("R", symbolTable);
-    var s = aggregateFactory.createGenericT("S", symbolTable);
+    var r = aggregateManipulator.createGenericT("R", symbolTable);
+    var s = aggregateManipulator.createGenericT("S", symbolTable);
 
     var anotherGenericRandS = new AggregateSymbol("AnotherGeneric", symbolTable);
     anotherGenericRandS.setModuleScope(symbolTable);
@@ -196,8 +196,8 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
 
   private PossibleGenericSymbol createYetAnotherGenericOfXandY(final PossibleGenericSymbol anotherGenericOfRandS) {
     //Again here we go - this is what the compiler will do for - but we need to ensure that everything gets wired up
-    var x = aggregateFactory.createGenericT("X", symbolTable);
-    var y = aggregateFactory.createGenericT("Y", symbolTable);
+    var x = aggregateManipulator.createGenericT("X", symbolTable);
+    var y = aggregateManipulator.createGenericT("Y", symbolTable);
 
     var yetAnotherGenericOfXandY = new AggregateSymbol("YetAnotherGeneric", symbolTable);
     yetAnotherGenericOfXandY.setModuleScope(symbolTable);

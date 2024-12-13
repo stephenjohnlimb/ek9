@@ -10,7 +10,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.ScopeStack;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.search.AnySymbolSearch;
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.INaming;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
@@ -298,7 +298,7 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
   private void processSymbolAndReferenceClash(final String unqualifiedName, final IToken token,
                                               final Consumer<ConflictingTokens> errorConsumer) {
 
-    var search = new AnySymbolSearch(ISymbol.getUnqualifiedName(unqualifiedName));
+    var search = new AnySymbolSearch(INaming.getUnqualifiedName(unqualifiedName));
     final var existingReference = compilableProgram.resolveReferenceFromModule(
         parsedModule.getModuleName(), search);
 
