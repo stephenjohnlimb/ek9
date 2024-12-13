@@ -52,7 +52,7 @@ final class Ek9 {
   /**
    * Creates the compilerContext with the commandLine, and a real compiler.
    */
-  private static final Function<CommandLineDetails, CompilationContext> compilationContextCreation =
+  private static final Function<CommandLine, CompilationContext> compilationContextCreation =
       commandLine -> {
         final var muteReportedErrors = false;
         final var compilationReporter = new CompilationReporter(commandLine.options().isVerbose());
@@ -85,10 +85,10 @@ final class Ek9 {
 
     final var osSupport = new OsSupport();
     final var fileHandling = new FileHandling(osSupport);
-    final var commandLine = new CommandLineDetails(languageMetaData, fileHandling, osSupport);
+    final var commandLine = new CommandLine(languageMetaData, fileHandling, osSupport);
 
     try {
-      final var result = commandLine.processCommandLine(argv);
+      final var result = commandLine.process(argv);
       if (result >= Ek9.SUCCESS_EXIT_CODE) {
         System.exit(result);
       }

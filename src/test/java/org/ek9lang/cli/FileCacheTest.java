@@ -141,9 +141,9 @@ class FileCacheTest {
   private void assertCommandResultsInCorrectSources(final String[] command,
                                                     final List<String> fullList) {
     //Now check the commandline is valid, and then we can actually test the FileCache.
-    CommandLineDetails commandLine =
-        new CommandLineDetails(languageMetaData, fileHandling, osSupport);
-    int result = commandLine.processCommandLine(command);
+    CommandLine commandLine =
+        new CommandLine(languageMetaData, fileHandling, osSupport);
+    int result = commandLine.process(command);
     assertTrue(result <= Ek9.SUCCESS_EXIT_CODE);
 
     FileCache underTest = new FileCache(commandLine);

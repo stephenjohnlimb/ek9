@@ -19,7 +19,7 @@ import org.ek9lang.core.Glob;
  */
 final class FileCache {
 
-  private final CommandLineDetails commandLine;
+  private final CommandLine commandLine;
 
   /**
    * We hold dev-build here, because we may have forced it, it was not in compiler command line.
@@ -30,7 +30,7 @@ final class FileCache {
   /**
    * Create a new FileCache referencing a specific commandLine.
    */
-  FileCache(final CommandLineDetails commandLine) {
+  FileCache(final CommandLine commandLine) {
 
     this.commandLine = commandLine;
     this.devBuild = commandLine.options().isDevBuild();

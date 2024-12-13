@@ -12,13 +12,13 @@ import org.ek9lang.compiler.common.Reporter;
  * There's a bit of recursion going on here.
  */
 final class DependencyNodeFactory extends Reporter {
-  private final CommandLineDetails commandLine;
+  private final CommandLine commandLine;
   private final PackageResolver packageResolver;
 
   /**
    * Make a new Dependency Node Factory.
    */
-  DependencyNodeFactory(final CommandLineDetails commandLine, final boolean muteReportedErrors) {
+  DependencyNodeFactory(final CommandLine commandLine, final boolean muteReportedErrors) {
 
     super(commandLine.options().isVerbose(), muteReportedErrors);
     this.commandLine = commandLine;

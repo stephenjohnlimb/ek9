@@ -29,7 +29,7 @@ import org.junit.jupiter.params.provider.ValueSource;
  * Test the main command to run EK9 but from a test pint of view.
  * <p>
  * Only design to test valid command line instructions.
- * See CommandLineDetailsTest of invalid combinations.
+ * See CommandLineTest of invalid combinations.
  */
 //Specific tests that manipulate files and specifics in ek9 must not run in parallel.
 @Execution(SAME_THREAD)
@@ -82,7 +82,7 @@ final class EK9Test {
     assertCompilationArtefactsPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
 
     //Now if we do it again there will be nothing to compile
-    CommandLineDetails commandLine = assertResult(Ek9.SUCCESS_EXIT_CODE, command);
+    CommandLine commandLine = assertResult(Ek9.SUCCESS_EXIT_CODE, command);
     assertCompilationArtefactsPresent(commandLine);
 
     //If we remove the target it will trigger a full re-compile and packaging
@@ -333,7 +333,7 @@ final class EK9Test {
     File sourceFile =
         sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
     assertNotNull(sourceFile);
-    CommandLineDetails commandLine = assertResult(Ek9.BAD_COMMANDLINE_EXIT_CODE, incrementBuildNo);
+    CommandLine commandLine = assertResult(Ek9.BAD_COMMANDLINE_EXIT_CODE, incrementBuildNo);
     assertNotNull(commandLine);
   }
 
@@ -380,10 +380,10 @@ final class EK9Test {
     assertNotNull(sourceFile);
 
     //This should Fail with a file issue, because it should not parse.
-    CommandLineDetails commandLine =
-        new CommandLineDetails(languageMetaData, fileHandling, osSupport);
+    CommandLine commandLine =
+        new CommandLine(languageMetaData, fileHandling, osSupport);
 
-    int result = commandLine.processCommandLine(command);
+    int result = commandLine.process(command);
     assertEquals(Ek9.FILE_ISSUE_EXIT_CODE, result);
   }
 
@@ -567,7 +567,7 @@ final class EK9Test {
     assertNotNull(sourceFile);
 
     //So this should just package up and deploy the artefact.
-    CommandLineDetails commandLine = assertResult(expectedExitCode, deployCommand);
+    CommandLine commandLine = assertResult(expectedExitCode, deployCommand);
 
     if (expectedExitCode == Ek9.SUCCESS_EXIT_CODE) {
       String zipFileName = fileHandling.makePackagedModuleZipFileName(commandLine.getModuleName(),
@@ -592,7 +592,7 @@ final class EK9Test {
     assertNotNull(sourceFile);
 
     //So this should just increment the build number from '0' which is what is in PackageNoDeps.ek9 to '1'
-    CommandLineDetails commandLine = assertResult(Ek9.SUCCESS_EXIT_CODE, incrementBuildNo);
+    CommandLine commandLine = assertResult(Ek9.SUCCESS_EXIT_CODE, incrementBuildNo);
 
     //Now get the line number
     Integer versionLineNumber = commandLine.processEk9FileProperties(true);
@@ -600,15 +600,15 @@ final class EK9Test {
     assertEquals(expectedVersion, commandLine.getVersion());
   }
 
-  private CommandLineDetails assertResult(int expectation, String[] argv) {
-    CommandLineDetails commandLine =
-        new CommandLineDetails(languageMetaData, fileHandling, osSupport);
+  private CommandLine assertResult(int expectation, String[] argv) {
+    CommandLine commandLine =
+        new CommandLine(languageMetaData, fileHandling, osSupport);
     FileCache sourceFileCache = new FileCache(commandLine);
     Compiler compiler = new StubCompiler();
     CompilationContext compilationContext =
         new CompilationContext(commandLine, compiler, sourceFileCache, true);
 
-    int result = commandLine.processCommandLine(argv);
+    int result = commandLine.process(argv);
 
     assertTrue(result <= Ek9.SUCCESS_EXIT_CODE);
 
@@ -633,7 +633,7 @@ final class EK9Test {
     //get keys and check they are ok
   }
 
-  private void assertCompilationArtefactsPresent(CommandLineDetails commandLine) {
+  private void assertCompilationArtefactsPresent(CommandLine commandLine) {
     File propsFile =
         fileHandling.getTargetPropertiesArtefact(commandLine.getFullPathToSourceFileName());
     assertTrue(propsFile.exists());
@@ -644,7 +644,7 @@ final class EK9Test {
     assertTrue(targetArtefact.exists());
   }
 
-  private void assertCompilationArtefactsNotPresent(CommandLineDetails commandLine) {
+  private void assertCompilationArtefactsNotPresent(CommandLine commandLine) {
 
     File targetArtefact =
         fileHandling.getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(),

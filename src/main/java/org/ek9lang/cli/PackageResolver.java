@@ -45,9 +45,9 @@ import org.ek9lang.core.AssertValue;
  */
 final class PackageResolver extends Reporter {
 
-  private final CommandLineDetails commandLine;
+  private final CommandLine commandLine;
 
-  PackageResolver(final CommandLineDetails commandLine, final boolean muteReportedErrors) {
+  PackageResolver(final CommandLine commandLine, final boolean muteReportedErrors) {
 
     super(commandLine.options().isVerbose(), muteReportedErrors);
     this.commandLine = commandLine;

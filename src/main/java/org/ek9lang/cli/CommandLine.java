@@ -24,7 +24,7 @@ import org.ek9lang.core.OsSupport;
  * Just deals with handling the command line options for the compiler.
  * Quite a beast now, but command line argument handling is always a bit complex.
  */
-final class CommandLineDetails {
+final class CommandLine {
 
   //Clone environment variables in, but also allow use to programmatically alter them.
   private static final Map<String, String> DEFAULTS = new HashMap<>(System.getenv());
@@ -59,9 +59,9 @@ final class CommandLineDetails {
   /**
    * Create a new command line details object.
    */
-  CommandLineDetails(final LanguageMetaData languageMetaData,
-                     final FileHandling fileHandling,
-                     final OsSupport osSupport) {
+  CommandLine(final LanguageMetaData languageMetaData,
+              final FileHandling fileHandling,
+              final OsSupport osSupport) {
 
     this.languageMetaData = languageMetaData;
     this.fileHandling = fileHandling;
@@ -100,7 +100,7 @@ final class CommandLineDetails {
    * Process the command line as supplied from main.
    * Expects a single entry in the array.
    */
-  int processCommandLine(final String[] argv) {
+  int process(final String[] argv) {
 
     if (argv == null || argv.length == 0) {
       showHelp();
@@ -108,7 +108,7 @@ final class CommandLineDetails {
     }
     final var fullCommandLine = String.join(" ", argv);
 
-    return processCommandLine(fullCommandLine);
+    return process(fullCommandLine);
   }
 
   /**
@@ -117,7 +117,7 @@ final class CommandLineDetails {
    * @param commandLine The command line the user or remote system used.
    * @return error code, 0 no error - see EK9.java for the use of other error codes.
    */
-  int processCommandLine(final String commandLine) {
+  int process(final String commandLine) {
 
     try {
       if (commandLine == null || commandLine.isEmpty()) {
@@ -429,7 +429,7 @@ final class CommandLineDetails {
   private int showHelp() {
 
     Logger.error("ek9 <options>");
-    Logger.error(CommandLineDetails.getCommandLineHelp());
+    Logger.error(CommandLine.getCommandLineHelp());
     //i.e. no further commands need to run
 
     return Ek9.SUCCESS_EXIT_CODE;
