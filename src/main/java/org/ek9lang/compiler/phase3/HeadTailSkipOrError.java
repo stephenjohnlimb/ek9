@@ -14,6 +14,7 @@ import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.StreamCallSymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 
 /**
  * Checks the possible operation variable, literal or function for suitability for use with
@@ -84,7 +85,7 @@ final class HeadTailSkipOrError extends TypedSymbolAccess implements Consumer<EK
       operationOperand.getType().ifPresent(type -> {
 
         if (type instanceof FunctionSymbol functionSymbol) {
-          if (!operationOperand.getGenus().equals(ISymbol.SymbolGenus.VALUE)
+          if (!operationOperand.getGenus().equals(SymbolGenus.VALUE)
               && type.isMarkedAbstract()) {
             final var msg = "wrt '" + operationOperand.getFriendlyName() + "':";
             errorListener.semanticError(ctx.start, msg, CANNOT_CALL_ABSTRACT_TYPE);

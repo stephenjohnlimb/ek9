@@ -12,10 +12,10 @@ import org.ek9lang.core.SharedThreadContext;
  * This then enables them to be accessed within other components during compilation.
  */
 public abstract class CompilerPhase implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
-  private final CompilationPhase thisPhase;
   protected final Consumer<CompilationEvent> listener;
   protected final CompilerReporter reporter;
   protected final SharedThreadContext<CompilableProgram> compilableProgramAccess;
+  private final CompilationPhase thisPhase;
 
   protected CompilerPhase(final CompilationPhase phase,
                           final SharedThreadContext<CompilableProgram> compilableProgramAccess,

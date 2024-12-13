@@ -8,7 +8,7 @@ import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.support.NoDuplicateOperationsOrError;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 final class ProcessDynamicClassOrError extends RuleSupport implements
@@ -25,9 +25,9 @@ final class ProcessDynamicClassOrError extends RuleSupport implements
     this.visibilityOfOperationsOrError = new VisibilityOfOperationsOrError(symbolsAndScopes, errorListener);
     this.noDuplicateOperationsOrError = new NoDuplicateOperationsOrError(errorListener);
     this.classSuitableToExtendOrError =
-        new SuitableToExtendOrError(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.CLASS, true);
+        new SuitableToExtendOrError(symbolsAndScopes, errorListener, SymbolGenus.CLASS, true);
     this.classTraitSuitableToExtendOrError =
-        new SuitableToExtendOrError(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.CLASS_TRAIT, true);
+        new SuitableToExtendOrError(symbolsAndScopes, errorListener, SymbolGenus.CLASS_TRAIT, true);
 
   }
 

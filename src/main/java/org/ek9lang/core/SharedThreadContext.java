@@ -47,6 +47,6 @@ public class SharedThreadContext<T extends Serializable> implements Consumer<Con
     } finally {
       lock.unlock();
     }
-    
+
   }
 }

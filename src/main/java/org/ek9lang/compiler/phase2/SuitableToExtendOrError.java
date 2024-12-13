@@ -11,6 +11,7 @@ import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 
 /**
  * Checks for a type is resolved and is suitable to be extended from (in basic terms).
@@ -26,7 +27,7 @@ final class SuitableToExtendOrError extends RuleSupport implements Function<Pars
    */
   SuitableToExtendOrError(final SymbolsAndScopes symbolsAndScopes,
                           final ErrorListener errorListener,
-                          final ISymbol.SymbolGenus genus,
+                          final SymbolGenus genus,
                           final boolean issueErrorIfNotResolved) {
 
     this(symbolsAndScopes, errorListener, List.of(genus), issueErrorIfNotResolved);
@@ -39,7 +40,7 @@ final class SuitableToExtendOrError extends RuleSupport implements Function<Pars
    */
   public SuitableToExtendOrError(final SymbolsAndScopes symbolsAndScopes,
                                  final ErrorListener errorListener,
-                                 final List<ISymbol.SymbolGenus> genus,
+                                 final List<SymbolGenus> genus,
                                  final boolean issueErrorIfNotResolved) {
 
     super(symbolsAndScopes, errorListener);

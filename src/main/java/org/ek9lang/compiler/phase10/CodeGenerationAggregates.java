@@ -28,7 +28,7 @@ public class CodeGenerationAggregates extends CompilerPhase {
 
   @Override
   public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
-    
+
     return true;
   }
 }

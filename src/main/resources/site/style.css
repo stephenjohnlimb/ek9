@@ -2,246 +2,246 @@ html {
     font-size: 100%;
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
-    background-color:white;
+    background-color: white;
 }
 
 body {
     margin: 0;
-    padding:0;
+    padding: 0;
 }
 
 ul, ol, li, dl, dt, dd, h1, h2, h3, h4, h5, h6, hgroup, p, blockquote, figure, form, fieldset, input, legend, pre, abbr {
     margin: 0;
-    padding:0;
+    padding: 0;
 }
 
 pre, code, address, caption, th, figcaption {
     font-size: 1em;
     font-weight: normal;
-    font-style:normal;
+    font-style: normal;
 }
 
 fieldset, iframe, img {
-    border:none;
+    border: none;
 }
 
 caption, th {
-    text-align:left;
+    text-align: left;
 }
 
 table {
     border-collapse: collapse;
-    border-spacing:0;
+    border-spacing: 0;
 }
 
 article, aside, footer, header, nav, main, section, summary, details, hgroup, figure, figcaption {
-    display:block;
+    display: block;
 }
 
 audio, canvas, video, progress {
     display: inline-block;
-    vertical-align:baseline;
+    vertical-align: baseline;
 }
 
 button {
     font: inherit;
-    vertical-align:middle;
+    vertical-align: middle;
 }
 
 .highlight {
-    background:#fff;
+    background: #fff;
 }
 
 .highlight .c, .highlight .cm, .highlight .cp, .highlight .c1, .highlight .cs {
-    color:#007400;
+    color: #007400;
 }
 
 .highlight .k, .highlight .kc, .highlight .kd, .highlight .kp, .highlight .kr, .highlight .nb {
-    color:#AA0D91;
+    color: #AA0D91;
 }
 
 .highlight .kt {
-    color:#3F6E74;
+    color: #3F6E74;
 }
 
 .highlight .err {
-    color:#a61717;
+    color: #a61717;
 }
 
 .highlight .o {
-    font-weight:bold
+    font-weight: bold
 }
 
 .highlight .gd {
     color: #000000;
-    background-color:#fdd;
+    background-color: #fdd;
 }
 
 .highlight .gd .x {
     color: #000000;
-    background-color:#faa;
+    background-color: #faa;
 }
 
 .highlight .ge {
-    font-style:italic;
+    font-style: italic;
 }
 
 .highlight .gr {
-    color:#a00;
+    color: #a00;
 }
 
 .highlight .gh {
-    color:#999;
+    color: #999;
 }
 
 .highlight .gi {
     color: #000000;
-    background-color:#dfd;
+    background-color: #dfd;
 }
 
 .highlight .gi .x {
     color: #000000;
-    background-color:#afa;
+    background-color: #afa;
 }
 
 .highlight .go {
-    color:#888;
+    color: #888;
 }
 
 .highlight .gp {
-    color:#555;
+    color: #555;
 }
 
 .highlight .gs {
-    font-weight:bold;
+    font-weight: bold;
 }
 
 .highlight .gu {
-    color:#aaa;
+    color: #aaa;
 }
 
 .highlight .gt {
-    color:#a00;
+    color: #a00;
 }
 
 .highlight .m, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .mo {
-    color:#1C00CF;
+    color: #1C00CF;
 }
 
 .highlight .s {
-    color:#C41A16;
+    color: #C41A16;
 }
 
 .highlight .na {
-    color:teal;
+    color: teal;
 }
 
 .highlight .nc {
-    color:#5C2699;
+    color: #5C2699;
 }
 
 .highlight .no {
-    color:teal;
+    color: teal;
 }
 
 .highlight .ni {
-    color:purple;
+    color: purple;
 }
 
 .highlight .ne {
-    color:#900;
+    color: #900;
 }
 
 .highlight .nn {
-    color:#555;
+    color: #555;
 }
 
 .highlight .nt {
-    color:navy;
+    color: navy;
 }
 
 .highlight .nv, .highlight .nf {
-    color:#3F6E74;
+    color: #3F6E74;
 }
 
 .highlight .ow {
-    font-weight:bold;
+    font-weight: bold;
 }
 
 .highlight .w {
-    color:#bbb;
+    color: #bbb;
 }
 
 .highlight .sb {
-    color:#d14;
+    color: #d14;
 }
 
 .highlight .sc {
-    color:#d14;
+    color: #d14;
 }
 
 .highlight .sd {
-    color:#d14;
+    color: #d14;
 }
 
 .highlight .s2 {
-    color:#d14;
+    color: #d14;
 }
 
 .highlight .se {
-    color:#d14;
+    color: #d14;
 }
 
 .highlight .sh {
-    color:#d14;
+    color: #d14;
 }
 
 .highlight .si {
-    color:#d14;
+    color: #d14;
 }
 
 .highlight .sx {
-    color:#d14;
+    color: #d14;
 }
 
 .highlight .sr {
-    color:#009926;
+    color: #009926;
 }
 
 .highlight .s1 {
-    color:#d14;
+    color: #d14;
 }
 
 .highlight .ss {
-    color:#990073;
+    color: #990073;
 }
 
 .highlight .bp {
-    color:#999;
+    color: #999;
 }
 
 .highlight .vc {
-    color:teal;
+    color: teal;
 }
 
 .highlight .vg {
-    color:teal;
+    color: teal;
 }
 
 .highlight .vi {
-    color:teal;
+    color: teal;
 }
 
 .highlight .il {
-    color:#099;
+    color: #099;
 }
 
 *, * :before, * :after {
-    box-sizing:border-box;
+    box-sizing: border-box;
 }
 
 html, body {
-    height:100%;
+    height: 100%;
 }
 
 body {
@@ -249,7 +249,7 @@ body {
     font-size: 20px;
     line-height: 1.25;
     color: #223;
-    font-weight:300;
+    font-weight: 300;
 }
 
 body pre, body code {
@@ -258,139 +258,141 @@ body pre, body code {
 
 a:link {
     color: #0088cc;
-    text-decoration:none;
+    text-decoration: none;
 }
 
 a:visited {
-    color:#7766cc;
+    color: #7766cc;
 }
 
 a:active {
-    color:#0088cc;
+    color: #0088cc;
 }
 
 a:hover {
     color: #0088cc;
-    text-decoration:underline;
+    text-decoration: underline;
 }
 
 p {
-    margin-bottom:1em;
+    margin-bottom: 1em;
 }
 
 h1 {
     margin-bottom: 0.5em;
     font-size: 3.25em;
     font-weight: 300;
-    line-height:1
+    line-height: 1
 }
 
 h1.active + .main-nav {
-    border-top:1px solid #333
+    border-top: 1px solid #333
 }
 
 h2 {
     margin-bottom: 0.5em;
     font-size: 2.75em;
     font-weight: 300;
-    line-height:1;
+    line-height: 1;
 }
 
 h3 {
     margin-bottom: 0.5em;
     font-size: 1.75em;
     font-weight: 300;
-    line-height:1;
+    line-height: 1;
 }
 
 h4 {
     margin-bottom: 0.5em;
     font-size: 1.5em;
     font-weight: 300;
-    line-height:1;
+    line-height: 1;
 }
 
 h5 {
     margin-bottom: 0.5em;
     font-size: 1.25em;
     font-weight: 500;
-    line-height:1;
+    line-height: 1;
 }
 
 h6 {
     margin-bottom: 0.5em;
     font-size: 1em;
     font-weight: 700;
-    line-height:1;
+    line-height: 1;
 }
 
 div.highlighter-rouge {
-    margin-left:13px;
+    margin-left: 13px;
 }
 
 div.ek9-code {
-    border-left: 5px solid rgba(205,233,244,1);
+    border-left: 5px solid rgba(205, 233, 244, 1);
     padding: 0 0 0 0;
     margin: 0.5em 0 0.5em 10px;
     line-height: 22px;
 }
 
 div.bad-ek9-code {
-    border-left: 5px solid rgba(205,100,100,1);
+    border-left: 5px solid rgba(205, 100, 100, 1);
     padding: 0 0 0 0;
     margin: 0.5em 0 0.5em 10px;
     line-height: 22px;
 }
+
 pre {
     font-size: 12px;
     line-height: 1.2em;
     border-left: 5px solid #cde9f4;
     margin: 0.5em 0 0.5em 10px;
     padding: 4px 0 2px 10px;
-    overflow:hidden;
+    overflow: hidden;
 }
 
 li.show-lines-background {
-  background-image: url("line.png");
-  background-repeat: no-repeat;
+    background-image: url("line.png");
+    background-repeat: no-repeat;
 }
 
 ul.code-lines {
-  padding-left: 0;
-  list-style: none;
+    padding-left: 0;
+    list-style: none;
 }
+
 a > code, p > code, li > code, dd > code, blockquote > code, td > code {
     padding: 0;
     margin: 0;
     font-size: 16px;
     white-space: nowrap;
-    background-color:transparent;
+    background-color: transparent;
 }
 
 p > code, li > code, dd > code, blockquote > code, td > code {
-    color:#666666;
+    color: #666666;
 }
 
 hr {
     border: none;
     border-top: 1px #f3f3f3 solid;
-    margin:2em 0;
+    margin: 2em 0;
 }
 
 hr:last-child {
-    display:none;
+    display: none;
 }
 
 details {
-    margin-bottom:2em;
+    margin-bottom: 2em;
 }
 
 details :first-child {
-    margin-top:1.5em;
+    margin-top: 1.5em;
 }
 
 cite {
-    display:block;
+    display: block;
 }
 
 cite:before {
@@ -403,7 +405,7 @@ cite:before {
     width: 100%;
     margin-top: 20px;
     margin-bottom: 0.5em;
-    padding-bottom:10px;
+    padding-bottom: 10px;
 }
 
 #logo a {
@@ -436,9 +438,9 @@ nav[role="navigation"] ul {
 }
 
 nav[role="navigation"] header p {
-  margin: -32% 23%;
-  font-size: 1.00em;
-  float: right;
+    margin: -32% 23%;
+    font-size: 1.00em;
+    float: right;
 }
 
 nav[role="navigation"] ul ul {
@@ -521,7 +523,7 @@ nav[role="navigation"] h2 {
     text-transform: lowercase;
     font-variant: small-caps;
     color: #999;
-    padding-bottom:1em;
+    padding-bottom: 1em;
 }
 
 nav[role="navigation"] p {
@@ -586,41 +588,41 @@ footer[role="contentinfo"] aside i {
 }
 
 article:first-of-type {
-    padding-bottom:36px;
+    padding-bottom: 36px;
 }
 
 article h2 {
-    padding-top:0.5em;
+    padding-top: 0.5em;
 }
 
 article h3 {
-    padding-top:0.5em;
+    padding-top: 0.5em;
 }
 
 article h4 {
     padding-top: 0.25em;
     border-bottom: 1px #f3f3f3 solid;
-    padding-bottom:0.5em;
+    padding-bottom: 0.5em;
 }
 
 article h5 {
-    margin-top:0.25em;
+    margin-top: 0.25em;
 }
 
 article header {
     width: 100%;
     display: inline-block;
-    padding-bottom:1.5em;
+    padding-bottom: 1.5em;
 }
 
 article header h1 {
-    padding-bottom:0.125em;
+    padding-bottom: 0.125em;
 }
 
 article header .byline {
     float: left;
     font-size: 14px;
-    margin-left:3em;
+    margin-left: 3em;
 }
 
 article header .byline img {
@@ -630,11 +632,11 @@ article header .byline img {
     border: 1px #ccc solid;
     position: absolute;
     margin-right: 0.25em;
-    margin-top:-6px;
+    margin-top: -6px;
 }
 
 article header .byline span {
-    padding-left:42px;
+    padding-left: 42px;
 }
 
 article header .about {
@@ -645,7 +647,7 @@ article header .about {
     color: #aaa;
     border-left: 1px #aaa solid;
     margin: 23px 3em 23px 0;
-    padding:4px 0 4px 10px;
+    padding: 4px 0 4px 10px;
 }
 
 article header time {
@@ -653,65 +655,65 @@ article header time {
     text-transform: uppercase;
     font-size: 14px;
     font-weight: 400;
-    color:#aaa;
+    color: #aaa;
 }
 
 article header .tags {
     display: block;
     font-size: 12px;
     font-weight: 400;
-    margin-top:0;
+    margin-top: 0;
 }
 
 article:not(:first-of-type) {
     border-top: 1px solid #e6e6e6;
-    padding:36px 0;
+    padding: 36px 0;
 }
 
 article blockquote {
     border-left: 5px #c3c3c3 solid;
     margin: 0.5em 0 23px 1em;
     padding: 4px 0 2px 10px;
-    color:#333;
+    color: #333;
 }
 
 article blockquote p:last-child {
-    margin-bottom:0;
+    margin-bottom: 0;
 }
 
 article ul, article ol {
     padding-left: 40px;
-    margin:1em 0;
+    margin: 1em 0;
 }
 
 article ul ul, article ul ol, article ol ul, article ol ol {
-    margin:0;
+    margin: 0;
 }
 
 article ul {
-    list-style:disc;
+    list-style: disc;
 }
 
 article ul ul {
-    list-style:circle;
+    list-style: circle;
 }
 
 article ul ul ul {
-    list-style:square;
+    list-style: square;
 }
 
 article ol {
-    list-style:decimal;
+    list-style: decimal;
 }
 
 article dl {
-    margin:2em 0 1em 0;
+    margin: 2em 0 1em 0;
 }
 
 article dl:after {
     content: "";
     display: table;
-    clear:both;
+    clear: both;
 }
 
 article dl dt {
@@ -720,19 +722,19 @@ article dl dt {
     margin-right: 1em;
     display: block;
     width: 28%;
-    text-align:right;
+    text-align: right;
 }
 
 article dl dd {
     float: right;
     width: 65%;
     margin-bottom: 1em;
-    overflow:scroll;
+    overflow: scroll;
 }
 
 article dl dd {
     padding-bottom: 1em;
-    border-bottom:1px #f3f3f3 solid;
+    border-bottom: 1px #f3f3f3 solid;
 }
 
 article table {
@@ -740,45 +742,45 @@ article table {
     min-width: 68%;
     margin: 2em auto 3em auto;
     border-collapse: separate;
-    border:1px #e3e3e3 solid;
+    border: 1px #e3e3e3 solid;
 }
 
 article table th {
     background: #fafafa;
     font-weight: 700;
-    text-align:center;
+    text-align: center;
 }
 
 article table th, article table td {
     width: 50%;
     padding: 0.5em 1.5em;
-    border-bottom:1px #f3f3f3 solid;
+    border-bottom: 1px #f3f3f3 solid;
 }
 
 article table th:not(:first-child), article table td:not(:first-child) {
-    border-left:1px #f3f3f3 solid;
+    border-left: 1px #f3f3f3 solid;
 }
 
 article table tr:last-child td {
-    border-bottom:none;
+    border-bottom: none;
 }
 
 article details {
     margin-top: 0;
-    cursor:pointer;
+    cursor: pointer;
 }
 
 article details summary {
     padding-bottom: 0.5em;
     outline: none;
-    margin-top:0;
+    margin-top: 0;
 }
 
 article details summary:after {
     content: "Expand";
     text-transform: lowercase;
     font-variant: small-caps;
-    border-bottom:1px #ccc dashed;
+    border-bottom: 1px #ccc dashed;
 }
 
 article details[open] summary:after {
@@ -786,66 +788,66 @@ article details[open] summary:after {
 }
 
 article details[open] * :not(summary) {
-    cursor:auto;
+    cursor: auto;
 }
 
 article details.download {
     margin-top: 0;
-    cursor:pointer;
+    cursor: pointer;
 }
 
 article details.download summary {
     padding-bottom: 0.5em;
     outline: none;
-    margin-top:0;
+    margin-top: 0;
 }
 
 article details.download summary:after {
     content: none;
     text-transform: lowercase;
     font-variant: small-caps;
-    border-bottom:1px #ccc dashed;
+    border-bottom: 1px #ccc dashed;
 }
 
 article details.download[open] summary:after {
-    content:none;
+    content: none;
 }
 
 article details.download[open] * :not(summary) {
-    cursor:auto;
+    cursor: auto;
 }
 
 article > details {
-    margin-left:40px;
+    margin-left: 40px;
 }
 
 article .good pre, article pre.good {
     background: #E6FFE5;
-    border-color:#C0FFBC;
+    border-color: #C0FFBC;
 }
 
 article .good pre:before, article pre.good:before {
     content: "✅";
-    float:right;
+    float: right;
 }
 
 article .bad pre, article pre.bad {
     background: #F9E2E4;
-    border-color:#F6B7BE;
+    border-color: #F6B7BE;
 }
 
 article .bad pre:before, article pre.bad:before {
     content: "⛔️";
-    float:right;
+    float: right;
 }
 
 article .links ul {
-    list-style:none;
+    list-style: none;
 }
 
 article .links ul ul {
     list-style: disc;
-    margin-top:5px;
+    margin-top: 5px;
 }
 
 article .links a:after {
@@ -855,7 +857,7 @@ article .links a:after {
 article footer {
     margin: 4em 0 0 0;
     padding: 1.5em 0 1em 0;
-    border-top:1px #F3F3F3 solid;
+    border-top: 1px #F3F3F3 solid;
 }
 
 article footer:after {
@@ -885,41 +887,41 @@ article footer nav [rel="next"]:after {
 }
 
 .title a:link, .title a:visited {
-    color:#333;
+    color: #333;
 }
 
 .alert, .success, .info, .warning, .danger {
     border-width: 1px;
     border-style: solid;
     padding: 0.5em;
-    margin:0.5em 0 1.5em 0;
+    margin: 0.5em 0 1.5em 0;
 }
 
 .alert p:first-child, .success p:first-child, .info p:first-child, .warning p:first-child, .danger p:first-child {
-    margin-top:0;
+    margin-top: 0;
 }
 
 .alert p:last-child, .success p:last-child, .info p:last-child, .warning p:last-child, .danger p:last-child {
-    margin-bottom:0;
+    margin-bottom: 0;
 }
 
 .alert code, .success code, .info code, .warning code, .danger code {
     border: none;
     background: transparent;
-    padding:0;
+    padding: 0;
 }
 
 code {
-    white-space:pre-line;
+    white-space: pre-line;
 }
 
 pre code {
-    white-space:inherit;
+    white-space: inherit;
 }
 
 pre code .graphic {
     font-size: 19px;
-    line-height:0;
+    line-height: 0;
 }
 
 pre code .commentary, pre code .graphic {
@@ -929,53 +931,53 @@ pre code .commentary, pre code .graphic {
 
 .success {
     border-color: #149e39;
-    background-color:#e0ffe8;
+    background-color: #e0ffe8;
 }
 
 .info {
     border-color: #139CFE;
-    background-color:#DEF0FD;
+    background-color: #DEF0FD;
 }
 
 .warning {
     border-color: #FFFF10;
-    background-color:#FFFFEB;
+    background-color: #FFFFEB;
 }
 
 .danger {
     border-color: #D5001B;
-    background-color:#FEE1E2;
+    background-color: #FEE1E2;
 }
 
 table.downloads {
     width: 100%;
-    table-layout:fixed;
+    table-layout: fixed;
 }
 
 table.downloads th {
-    font-size:0.75em;
+    font-size: 0.75em;
 }
 
 table.downloads .platform {
-    width:40%;
+    width: 40%;
 }
 
 table.downloads .download {
-    width:60%;
+    width: 60%;
 }
 
 table.downloads .download a.debug, table.downloads .download a.signature {
     font-size: 0.7em;
-    display:block;
+    display: block;
 }
 
 table.downloads .download a {
     font-weight: 700;
-    font-size:1em;
+    font-size: 1em;
 }
 
 table.downloads .download a:not([download]) {
-    font-weight:400;
+    font-weight: 400;
 }
 
 table.downloads .download a:not([download]):before {
@@ -998,26 +1000,26 @@ article input.detail[type=checkbox] {
     font-weight: inherit;
     font-family: inherit;
     position: relative;
-    top:-.85rem;
+    top: -.85rem;
 }
 
 article p + input.detail[type=checkbox] {
-    margin-top:auto;
+    margin-top: auto;
 }
 
 article .screenonly {
-    display:none;
+    display: none;
 }
 
 @media screen {
     article .screenonly {
-        display:inherit;
+        display: inherit;
     }
 
     article input.detail[type=checkbox]:before {
         content: "▶ ";
         visibility: visible;
-        font-size:80%;
+        font-size: 80%;
     }
 
     article input.detail[type=checkbox]:after {
@@ -1026,7 +1028,7 @@ article .screenonly {
         border-bottom: 1px #ccc dashed;
         color: #666666;
         content: "More detail";
-        visibility:visible;
+        visibility: visible;
     }
 
     article input.detail[type=checkbox]:checked:before {
@@ -1038,23 +1040,23 @@ article .screenonly {
     }
 
     article input.detail[type=checkbox] + .more {
-        transition:0.5s opacity ease, 0.5s max-height ease;
+        transition: 0.5s opacity ease, 0.5s max-height ease;
     }
 
     article input.detail[type=checkbox]:checked + .more {
         visibility: visible;
-        max-height:1000rem;
+        max-height: 1000rem;
     }
 
     article input.detail[type=checkbox]:not(:checked) + .more {
         overflow: hidden;
         max-height: 0;
-        opacity:0;
+        opacity: 0;
     }
 }
 
 article .more > p:first-of-type {
-    margin-top:0;
+    margin-top: 0;
 }
 
 @media only screen and (max-width: 767px) {
@@ -1073,7 +1075,7 @@ article .more > p:first-of-type {
     }
 
     nav[role="navigation"] > h2, nav[role="navigation"] ul {
-        display:none;
+        display: none;
     }
 
     .menu-toggle {
@@ -1086,16 +1088,16 @@ article .more > p:first-of-type {
         background-size: 21px 21px;
         margin-top: -54px;
         margin-right: 12px;
-        cursor:pointer;
+        cursor: pointer;
     }
 
     .menu-toggle.open {
-        
+
     }
 
     #logo a {
         width: 198px;
-        margin:0 auto;
+        margin: 0 auto;
     }
 
     main {
@@ -1106,69 +1108,69 @@ article .more > p:first-of-type {
     }
 
     footer[role="contentinfo"] {
-        margin-left:0;
+        margin-left: 0;
     }
 
     h1 {
         font-size: 48px;
         font-weight: 300;
-        line-height:1;
+        line-height: 1;
     }
 
     h2 {
         font-size: 40px;
         font-weight: 300;
-        line-height:1.1;
+        line-height: 1.1;
     }
 
     h3 {
         font-size: 38px;
         font-weight: 300;
-        line-height:1.1;
+        line-height: 1.1;
     }
 
     h4 {
         font-size: 36px;
         font-weight: 300;
-        line-height:1.2;
+        line-height: 1.2;
     }
 
     h5 {
         font-size: 24px;
         font-weight: 500;
-        line-height:1.4;
+        line-height: 1.4;
     }
 
     h6 {
         font-size: 18px;
         font-weight: 700;
-        line-height:1.5;
+        line-height: 1.5;
     }
 
     div.highlighter-rouge {
-        margin-left:0;
+        margin-left: 0;
     }
 
     article blockquote {
-        margin-left:0.5em;
+        margin-left: 0.5em;
     }
 
     table.downloads {
-        border:1px #f3f3f3 solid;
+        border: 1px #f3f3f3 solid;
     }
 
     table.downloads, table.downloads thead, table.downloads tbody, table.downloads th, table.downloads td, table.downloads tr {
-        display:block !important;
+        display: block !important;
     }
 
     table.downloads thead tr {
         position: absolute;
         top: -9999px;
-        left:-9999px;
+        left: -9999px;
     }
 
     table.downloads tr {
-        border:1px solid #f3f3f3;
+        border: 1px solid #f3f3f3;
     }
 
     table.downloads td {
@@ -1177,7 +1179,7 @@ article .more > p:first-of-type {
         border-bottom: 1px solid #f3f3f3 !important;
         position: relative;
         padding-left: 35%;
-        width:100% !important;
+        width: 100% !important;
     }
 
     table.downloads td:before {
@@ -1187,7 +1189,7 @@ article .more > p:first-of-type {
         width: 27.5%;
         padding-right: 10px;
         white-space: nowrap;
-        text-align:right;
+        text-align: right;
     }
 
     table.downloads td.platform:before {
@@ -1196,7 +1198,7 @@ article .more > p:first-of-type {
 
     table.downloads td.download:before {
         content: "Download";
-        top:1em;
+        top: 1em;
     }
 
     table.downloads td.date:before {

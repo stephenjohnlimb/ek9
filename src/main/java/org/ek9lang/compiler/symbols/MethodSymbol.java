@@ -319,11 +319,6 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
     return constructor;
   }
 
-  public boolean isNotConstructor() {
-
-    return !isConstructor();
-  }
-
   public MethodSymbol setConstructor(final boolean constructor) {
 
     this.constructor = constructor;
@@ -331,13 +326,14 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
     return this;
   }
 
+  public boolean isNotConstructor() {
+
+    return !isConstructor();
+  }
+
   public boolean isOperator() {
 
     return operator;
-  }
-
-  public boolean isNotOperator() {
-    return !operator;
   }
 
   public MethodSymbol setOperator(final boolean operator) {
@@ -345,6 +341,10 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
     this.operator = operator;
 
     return this;
+  }
+
+  public boolean isNotOperator() {
+    return !operator;
   }
 
   /**

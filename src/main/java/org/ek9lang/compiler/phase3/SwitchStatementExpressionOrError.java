@@ -13,6 +13,7 @@ import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.support.ToCommaSeparated;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
@@ -78,7 +79,7 @@ final class SwitchStatementExpressionOrError extends TypedSymbolAccess
 
     controlSymbol.getType().ifPresent(controlType -> {
 
-      if (controlType.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)
+      if (controlType.getGenus().equals(SymbolGenus.CLASS_ENUMERATION)
           && controlType instanceof IAggregateSymbol controlAsAggregate) {
         enumerationCaseUseOrError(ctx, controlAsAggregate);
       }

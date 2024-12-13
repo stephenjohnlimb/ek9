@@ -8,6 +8,6 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * Used in Stream assembly processing to check aggregate use validity.
  */
 record StreamAggregateCheckData(Token errorLocation,
-                                       IAggregateSymbol aggregateSymbol,
-                                       ISymbol symbolType) {
+                                IAggregateSymbol aggregateSymbol,
+                                ISymbol symbolType) {
 }

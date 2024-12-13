@@ -32,6 +32,6 @@ final class NotAbstractOrError extends TypedSymbolAccess implements BiConsumer<I
       final var msg = "which is a call to '" + symbol.getFriendlyName() + "' " + location + ":";
       errorListener.semanticError(token, msg, CANNOT_CALL_ABSTRACT_TYPE);
     }
-    
+
   }
 }

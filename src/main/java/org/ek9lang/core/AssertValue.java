@@ -207,7 +207,7 @@ public class AssertValue {
    * @param withMessage The message to issue.
    */
   public static void fail(final String withMessage) {
-    
+
     throw new IllegalArgumentException(withMessage);
   }
 }

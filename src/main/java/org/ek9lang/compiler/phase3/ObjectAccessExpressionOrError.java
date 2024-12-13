@@ -9,6 +9,8 @@ import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -82,9 +84,9 @@ final class ObjectAccessExpressionOrError extends TypedSymbolAccess
                                                    final ISymbol varOrTypeSymbol,
                                                    final ISymbol locatedSymbol) {
 
-    if (varOrTypeSymbol.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)
-        && varOrTypeSymbol.getCategory().equals(ISymbol.SymbolCategory.TYPE)
-        && !locatedSymbol.getCategory().equals(ISymbol.SymbolCategory.VARIABLE)) {
+    if (varOrTypeSymbol.getGenus().equals(SymbolGenus.CLASS_ENUMERATION)
+        && varOrTypeSymbol.getCategory().equals(SymbolCategory.TYPE)
+        && !locatedSymbol.getCategory().equals(SymbolCategory.VARIABLE)) {
 
       final var msg = "'" + varOrTypeSymbol.getName() + "' and '" + locatedSymbol.getName() + ":";
       errorListener.semanticError(errorLocation, msg,

@@ -84,8 +84,8 @@ public class SymbolTable implements IScope {
    * It might seem strange but for some symbols like methods we have a single name
    * but a list of actual symbols. i.e. method overloading.
    */
-  private final Map<ISymbol.SymbolCategory, Map<String, List<ISymbol>>> splitSymbols =
-      new EnumMap<>(ISymbol.SymbolCategory.class);
+  private final Map<SymbolCategory, Map<String, List<ISymbol>>> splitSymbols =
+      new EnumMap<>(SymbolCategory.class);
 
   /**
    * But also keep an ordered list - useful for ordered parameters.
@@ -205,7 +205,7 @@ public class SymbolTable implements IScope {
     Map<String, List<ISymbol>> table =
         splitSymbols.computeIfAbsent(symbol.getCategory(), k -> new HashMap<>());
     List<ISymbol> list = table.computeIfAbsent(symbol.getName(), k -> new ArrayList<>());
-    if (!symbol.getCategory().equals(ISymbol.SymbolCategory.METHOD) && list.contains(symbol)) {
+    if (!symbol.getCategory().equals(SymbolCategory.METHOD) && list.contains(symbol)) {
       throw new CompilerException(
           "Compiler Coding Error - Duplicate symbol [" + symbol + "] try to add to [" + this.scopeName + "]");
     }
@@ -215,7 +215,7 @@ public class SymbolTable implements IScope {
   /**
    * Find symbols in a specific category.
    */
-  public List<ISymbol> getSymbolsForThisScopeOfCategory(final ISymbol.SymbolCategory category) {
+  public List<ISymbol> getSymbolsForThisScopeOfCategory(final SymbolCategory category) {
     return orderedSymbols.stream().filter(symbol -> category.equals(symbol.getCategory())).toList();
   }
 
@@ -271,7 +271,7 @@ public class SymbolTable implements IScope {
         .filter(MethodSymbol.class::isInstance)
         .map(MethodSymbol.class::cast).toList();
 
-    Optional.of(getSplitSymbolTable(ISymbol.SymbolCategory.METHOD))
+    Optional.of(getSplitSymbolTable(SymbolCategory.METHOD))
         .stream()
         .map(table -> getSymbolByName(table, search.getName()))
         .map(methodSymbolCast)
@@ -479,7 +479,7 @@ public class SymbolTable implements IScope {
   /**
    * Just a wrapper to make null safe.
    */
-  private Map<String, List<ISymbol>> getSplitSymbolTable(final ISymbol.SymbolCategory category) {
+  private Map<String, List<ISymbol>> getSplitSymbolTable(final SymbolCategory category) {
     var table = splitSymbols.get(category);
     return table != null ? table : Map.of();
   }

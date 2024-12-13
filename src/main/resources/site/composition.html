@@ -2,10 +2,10 @@
 <head>
   <meta charset="UTF-8"/>
   <title>EK9 programming language composition</title>
-  <meta name="description" content="EK9 programming language composition
-    is supported directly in EK9 with syntax through the use of traits."/>
-  <link rel="stylesheet" media="all" href="style.css"/>
-  <link rel="icon" type="image/png" href="ek9favicon.png"/>
+  <meta content="EK9 programming language composition
+    is supported directly in EK9 with syntax through the use of traits." name="description"/>
+  <link href="style.css" media="all" rel="stylesheet"/>
+  <link href="ek9favicon.png" rel="icon" type="image/png"/>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
   <script>
@@ -25,7 +25,7 @@
 <nav role="navigation">
   <header role="banner">
     <h1 id="logo">
-      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+      <a aria-label="EK9lang.org" href="https://www.ek9lang.org/" role="img" title="ek9lang.org">
         EK9lang.org
       </a>
     </h1>
@@ -38,7 +38,7 @@
     V: 0.0.1
   </h2>
   <p>
-    &#169; 2020-2024 S.J.limb
+    &#169; 2020-2025 S.J.limb
   </p>
 
   <ul>
@@ -168,12 +168,12 @@
       <li>refactoring and improvement is simplified</li>
     </ul>
     <p>
-      The <a target="_blank" title="SOLID" href="https://en.wikipedia.org/wiki/SOLID">SOLID</a> principle can be observed and can be followed through the
+      The <a href="https://en.wikipedia.org/wiki/SOLID" target="_blank" title="SOLID">SOLID</a> principle can be observed and can be followed through the
       use of <u>composition</u> more easily than just using inheritance.
     </p>
     <p>
       By supporting delegation and multiple inheritance of <i>traits</i>; EK9 enables the developer
-      to <a target="_blank" title="Interface" href="https://en.wikipedia.org/wiki/Interface_segregation_principle">
+      to <a href="https://en.wikipedia.org/wiki/Interface_segregation_principle" target="_blank" title="Interface">
       apply the 'I' - interface segregation principle</a> with ease.
     </p>
     <p>
@@ -208,7 +208,7 @@
     </p>
     <h5>Small Classes</h5>
     <p>
-      There is a tendency for developers to create <a target="_blank" title="GOD class" href="https://wiki.c2.com/?GodClass">God classes</a>.
+      There is a tendency for developers to create <a href="https://wiki.c2.com/?GodClass" target="_blank" title="GOD class">God classes</a>.
       These have way too much functionality or manipulate other objects (as if they were C structs; though
       they go through the motions of Object-Orientation by just using 'getters'/'setters').
       In general, they tend to be very large, link to many other classes or have very deep hierarchies.
@@ -221,7 +221,7 @@
     <p>
       By creating smaller well-rounded and encapsulated classes; defects and complexity are reduced
       and reuse is increased. They can more easily follow the
-      <a target="_blank" title="Single Responsibility" href="https://en.wikipedia.org/wiki/Single-responsibility_principle">single responsibility principle</a>.
+      <a href="https://en.wikipedia.org/wiki/Single-responsibility_principle" target="_blank" title="Single Responsibility">single responsibility principle</a>.
     </p>
     <h5>Façade</h5>
     <p>
@@ -301,7 +301,7 @@
     <p>
       The use of composition is really a design pattern that can be used with any language.
       The diagrams below are from a
-      <a target="_blank" title="Python Composition" href="https://realpython.com/inheritance-composition-python/">Python example</a>, which
+      <a href="https://realpython.com/inheritance-composition-python/" target="_blank" title="Python Composition">Python example</a>, which
       was originally taken from a book on C++ design. The site is quite long (but well detailed
       and interesting). The main points of contrast are shown in two diagrams, one for inheritance and
       one for composition.
@@ -312,12 +312,12 @@
       example of the issues and proposes a solution that could be used or refined and improved further.
     </p>
     <h5>Inheritance</h5>
-    <img src="ic-class-explosion.jpg" alt="Inheritance" style="width:700px;height:700px;">
+    <img alt="Inheritance" src="ic-class-explosion.jpg" style="width:700px;height:700px;">
     <p>
       As you can see the inheritance design is quite complex and has multiple inheritance.
     </p>
     <h5>Composition</h5>
-    <img src="ic-policy-based-composition.jpg" alt="Composition" style="width:700px;height:700px;">
+    <img alt="Composition" src="ic-policy-based-composition.jpg" style="width:700px;height:700px;">
     <p>
       The composition design is simpler and focuses on composition around the employee. It might have been
       more appropriate to model 'Employment', 'Employee' and 'Person' rather than just use 'Employee'; but
@@ -701,7 +701,7 @@ Concord NH 03301
     </p>
     <h5>SOLID</h5>
     <p>
-      The <a target="_blank" title="SOLID" href="https://en.wikipedia.org/wiki/SOLID">SOLID</a> principle as been observed quite well in the example.
+      The <a href="https://en.wikipedia.org/wiki/SOLID" target="_blank" title="SOLID">SOLID</a> principle as been observed quite well in the example.
     </p>
     <ul>
       <li>Single Responsibility - Each Role is isolated, each PayrollPolicy is isolated</li>

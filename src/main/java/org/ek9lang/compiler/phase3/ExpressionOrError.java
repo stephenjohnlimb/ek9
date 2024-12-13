@@ -13,6 +13,8 @@ import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.support.CommonTypeSuperOrTraitOrError;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
@@ -143,14 +145,14 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
 
   private void checkSuitableCategoryAndGenusOrError(final EK9Parser.ExpressionContext ctx, final ISymbol symbol) {
 
-    if (symbol.getCategory().equals(ISymbol.SymbolCategory.VARIABLE)
-        || symbol.getCategory().equals(ISymbol.SymbolCategory.FUNCTION)
-        || symbol.getCategory().equals(ISymbol.SymbolCategory.TEMPLATE_FUNCTION)) {
+    if (symbol.getCategory().equals(SymbolCategory.VARIABLE)
+        || symbol.getCategory().equals(SymbolCategory.FUNCTION)
+        || symbol.getCategory().equals(SymbolCategory.TEMPLATE_FUNCTION)) {
       return;
     }
 
     //Also allow enumerations to be referenced directly.
-    if (symbol.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)) {
+    if (symbol.getGenus().equals(SymbolGenus.CLASS_ENUMERATION)) {
       return;
     }
 

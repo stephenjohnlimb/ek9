@@ -25,7 +25,7 @@
  *   There are quite a few rules and checks - even at this early stage. Most of these are simple Java 'Consumers'
  *   or 'BiConsumers' and do simple basic checks - issuing errors by calling
  *   {@link org.ek9lang.compiler.common.ErrorListener#semanticError(
- *   org.antlr.v4.runtime.Token, java.lang.String, org.ek9lang.compiler.common.ErrorListener.SemanticClassification)}
+ *org.antlr.v4.runtime.Token, java.lang.String, org.ek9lang.compiler.common.ErrorListener.SemanticClassification)}
  *   with an appropriate {@link org.ek9lang.compiler.common.ErrorListener.SemanticClassification}.
  * </p>
  * <p>

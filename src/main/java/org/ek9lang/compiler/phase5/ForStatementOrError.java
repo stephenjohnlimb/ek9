@@ -34,7 +34,7 @@ final class ForStatementOrError extends PossibleExpressionConstruct
 
   private void loopBodyAndReturnValidOrError(final EK9Parser.ForStatementExpressionContext ctx,
                                              final boolean noGuardExpression) {
-    
+
     final var forScope = symbolsAndScopes.getRecordedScope(ctx);
     //Note that none of the body alters the outer loop, only the possible guard expression does that.
     final var loopBodyScope = List.of(symbolsAndScopes.getRecordedScope(ctx.instructionBlock()));

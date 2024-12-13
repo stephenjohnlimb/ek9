@@ -48,7 +48,7 @@ public class IdentifierAsPropertyOrError extends TypedSymbolAccess implements Co
     } else if (!symbolsAndScopes.isSymbolAccessSafe(symbol, scope)) {
       emitError(ctx, symbol);
     }
-    
+
   }
 
   private void emitError(final EK9Parser.IdentifierContext ctx, final ISymbol symbol) {

@@ -26,6 +26,7 @@ import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.SymbolTable;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
@@ -412,7 +413,7 @@ final class SymbolTableTest {
     assertEquals(1, symbols.size());
     assertEquals("Float", symbols.get(0).getName());
 
-    symbols = underTest.getSymbolsForThisScopeOfCategory(ISymbol.SymbolCategory.TYPE);
+    symbols = underTest.getSymbolsForThisScopeOfCategory(SymbolCategory.TYPE);
     assertEquals(1, symbols.size());
     assertEquals("Float", symbols.get(0).getName());
     assertEquals("global::Float", symbols.get(0).getFullyQualifiedName());

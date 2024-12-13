@@ -10,6 +10,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 
 /**
  * Focus on checking a variable only declaration, now that types are all known.
@@ -44,7 +45,7 @@ final class VariableOnlyOrError extends TypedSymbolAccess
 
   private void validInjectionOrError(final ISymbol symbol, final ISymbol symbolType) {
 
-    if (!symbolType.getGenus().equals(ISymbol.SymbolGenus.COMPONENT)) {
+    if (!symbolType.getGenus().equals(SymbolGenus.COMPONENT)) {
       errorListener.semanticError(symbol.getSourceToken(), "is not a component but a '"
           + symbolType.getGenus() + "':", COMPONENT_INJECTION_NOT_POSSIBLE);
       return;

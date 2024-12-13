@@ -127,7 +127,7 @@ public class Ek9LspDebuggingApp {
     //Give it a short while to shutdown
     System.out.println("Waiting for LSP Server process to shutdown");
     Thread.sleep(2000);
-    if(process.isAlive()) {
+    if (process.isAlive()) {
       System.out.println("Forcefully destroying the LSP Server process");
       process.destroyForcibly();
     } else {

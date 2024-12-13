@@ -43,7 +43,7 @@ public enum CompilationPhase {
   }
 
   public String getDescription() {
-    
+
     return description;
   }
 }

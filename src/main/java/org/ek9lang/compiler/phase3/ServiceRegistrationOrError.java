@@ -5,7 +5,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 
 /**
  * Checks the use of registering a service is valid and then ensures that the 'Application'
@@ -39,8 +39,8 @@ final class ServiceRegistrationOrError extends TypedSymbolAccess
 
       final var genusOfPossibleService = call.getType().get().getGenus();
 
-      if (genusOfPossibleService.equals(ISymbol.SymbolGenus.SERVICE)) {
-        application.setGenus(ISymbol.SymbolGenus.SERVICE_APPLICATION);
+      if (genusOfPossibleService.equals(SymbolGenus.SERVICE)) {
+        application.setGenus(SymbolGenus.SERVICE_APPLICATION);
       } else {
         final var msg = "'" + call.getFriendlyName() + "':";
         errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.INCOMPATIBLE_GENUS);

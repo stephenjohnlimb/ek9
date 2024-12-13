@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.ek9lang.compiler.support.SymbolTypeExtractor;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 
 /**
  * Quite a few option to a method search.
@@ -62,7 +63,7 @@ public final class MethodSymbolSearch extends SymbolSearch {
   public MethodSymbolSearch(final String name) {
 
     super(name);
-    setSearchType(ISymbol.SymbolCategory.METHOD);
+    setSearchType(SymbolCategory.METHOD);
 
   }
 
@@ -70,14 +71,14 @@ public final class MethodSymbolSearch extends SymbolSearch {
   public MethodSymbolSearch(final String name, final Optional<ISymbol> ofTypeOrReturn) {
 
     super(name, ofTypeOrReturn);
-    setSearchType(ISymbol.SymbolCategory.METHOD);
+    setSearchType(SymbolCategory.METHOD);
 
   }
 
   public MethodSymbolSearch(final String name, final ISymbol ofTypeOrReturn) {
 
     super(name, ofTypeOrReturn);
-    setSearchType(ISymbol.SymbolCategory.METHOD);
+    setSearchType(SymbolCategory.METHOD);
 
   }
 

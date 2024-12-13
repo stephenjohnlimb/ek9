@@ -72,6 +72,12 @@ public class CompilableProgram implements Serializable {
     return ek9Types;
   }
 
+  public void setEk9Types(final Ek9Types ek9Types) {
+
+    this.ek9Types = ek9Types;
+
+  }
+
   public CompilationData getCompilationData() {
 
     return compilationData;
@@ -80,12 +86,6 @@ public class CompilableProgram implements Serializable {
   public void setCompilationData(final CompilationData compilationData) {
 
     this.compilationData = compilationData;
-
-  }
-
-  public void setEk9Types(final Ek9Types ek9Types) {
-
-    this.ek9Types = ek9Types;
 
   }
 

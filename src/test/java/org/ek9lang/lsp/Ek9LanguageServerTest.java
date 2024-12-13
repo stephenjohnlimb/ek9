@@ -48,7 +48,7 @@ import org.junit.jupiter.api.parallel.ResourceLock;
 //Because this depends on specific files existing and different tests add and remove them.
 //Specific tests that manipulate files and specifics in ek9 must not run in parallel.
 @Execution(SAME_THREAD)
-@ResourceLock(value="file_access", mode=READ_WRITE)
+@ResourceLock(value = "file_access", mode = READ_WRITE)
 final class Ek9LanguageServerTest {
 
   final static String validSource = "SinglePackage.ek9";

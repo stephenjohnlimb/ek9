@@ -20,9 +20,9 @@ import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.CaptureScope;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -123,18 +123,18 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     this.resolveOrDefineExplicitParameterizedType =
         new ResolveOrDefineExplicitParameterizedType(symbolsAndScopes, symbolFactory, errorListener, true);
     this.recordSuitableToExtendOrError =
-        new SuitableToExtendOrError(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.RECORD, false);
+        new SuitableToExtendOrError(symbolsAndScopes, errorListener, SymbolGenus.RECORD, false);
     this.classTraitSuitableToExtendOrError =
-        new SuitableToExtendOrError(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.CLASS_TRAIT, true);
+        new SuitableToExtendOrError(symbolsAndScopes, errorListener, SymbolGenus.CLASS_TRAIT, true);
     this.classSuitableToExtendOrError =
-        new SuitableToExtendOrError(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.CLASS, true);
+        new SuitableToExtendOrError(symbolsAndScopes, errorListener, SymbolGenus.CLASS, true);
     this.componentSuitableToExtendOrError =
-        new SuitableToExtendOrError(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.COMPONENT, true);
+        new SuitableToExtendOrError(symbolsAndScopes, errorListener, SymbolGenus.COMPONENT, true);
     this.registerGenusOrError =
-        new SuitableGenusOrError(symbolsAndScopes, errorListener, ISymbol.SymbolGenus.COMPONENT, false, true);
+        new SuitableGenusOrError(symbolsAndScopes, errorListener, SymbolGenus.COMPONENT, false, true);
     this.applicationForProgramOrError =
         new SuitableGenusOrError(symbolsAndScopes, errorListener,
-            List.of(ISymbol.SymbolGenus.GENERAL_APPLICATION, ISymbol.SymbolGenus.SERVICE_APPLICATION), false, true);
+            List.of(SymbolGenus.GENERAL_APPLICATION, SymbolGenus.SERVICE_APPLICATION), false, true);
     this.accessGenericInGeneric =
         new AccessGenericInGeneric(symbolsAndScopes);
     this.mostSpecificScope =
@@ -249,7 +249,6 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
     super.exitClassDeclaration(ctx);
 
   }
-
 
 
   @Override
@@ -591,7 +590,7 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
           .ifPresent(theSuper -> symbol.setSuperAggregate((IAggregateSymbol) theSuper));
     } else {
       symbol.getType().ifPresent(theType -> {
-        if (ISymbol.SymbolGenus.CLASS.equals(theType.getGenus())
+        if (SymbolGenus.CLASS.equals(theType.getGenus())
             && !theType.isGenericInNature()
             && !symbolsAndScopes.getEk9Types().ek9AnyClass().equals(theType)) {
           symbol.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Types().ek9AnyClass());

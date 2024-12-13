@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.search;
 
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 
 /**
  * A Search for a concrete actual TYPE like a RECORD or a CLASS for example.
@@ -11,7 +11,7 @@ public final class TypeSymbolSearch extends SymbolSearch {
   public TypeSymbolSearch(final String name) {
 
     super(name);
-    setSearchType(ISymbol.SymbolCategory.TYPE);
+    setSearchType(SymbolCategory.TYPE);
 
   }
 

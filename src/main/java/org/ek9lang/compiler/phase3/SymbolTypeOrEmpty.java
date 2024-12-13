@@ -19,7 +19,7 @@ final class SymbolTypeOrEmpty implements Function<ISymbol, Optional<PossibleGene
         && symbol.getType().get() instanceof PossibleGenericSymbol typeSymbol) {
       return Optional.of(typeSymbol);
     }
-    
+
     return Optional.empty();
   }
 }

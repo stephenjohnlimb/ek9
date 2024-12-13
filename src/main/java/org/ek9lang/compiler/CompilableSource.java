@@ -333,12 +333,6 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
 
   }
 
-  private void setErrorListener(ErrorListener listener) {
-
-    this.errorListener = listener;
-
-  }
-
   /**
    * Access the error listener, only check after parsing.
    */
@@ -347,6 +341,11 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
     return this.errorListener;
   }
 
+  private void setErrorListener(ErrorListener listener) {
+
+    this.errorListener = listener;
+
+  }
 
   private InputStream getInputStream() throws FileNotFoundException {
 

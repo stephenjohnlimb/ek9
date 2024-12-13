@@ -142,11 +142,6 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
     return actualScope.isMarkedPure();
   }
 
-  public boolean isNotMarkedPure() {
-
-    return !isMarkedPure();
-  }
-
   @Override
   public void setMarkedPure(final boolean markedPure) {
 
@@ -154,6 +149,11 @@ public class ScopedSymbol extends Symbol implements IScopedSymbol {
     super.setMarkedPure(markedPure);
     actualScope.setMarkedPure(markedPure);
 
+  }
+
+  public boolean isNotMarkedPure() {
+
+    return !isMarkedPure();
   }
 
   @Override

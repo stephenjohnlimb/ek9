@@ -252,9 +252,9 @@ public interface ISymbol extends ITokenReference, Serializable {
       final var thisGenus = thisType.get().getGenus();
       //We allow enumerations because there is no :=: operator to modify them
       //We also allow function delegates, but they are also constants.
-      if ((thisGenus == ISymbol.SymbolGenus.CLASS_ENUMERATION)
-          || (thisGenus == ISymbol.SymbolGenus.FUNCTION)
-          || (thisGenus == ISymbol.SymbolGenus.FUNCTION_TRAIT)) {
+      if ((thisGenus == SymbolGenus.CLASS_ENUMERATION)
+          || (thisGenus == SymbolGenus.FUNCTION)
+          || (thisGenus == SymbolGenus.FUNCTION_TRAIT)) {
         return true;
       }
     }
@@ -391,73 +391,4 @@ public interface ISymbol extends ITokenReference, Serializable {
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   ISymbol setType(final Optional<ISymbol> type);
 
-  /**
-   * Typically, used on aggregates because we might use a AggregateSymbol
-   * But when coming to process it we need to ensure other aggregate symbols that extend
-   * it are of compatible genus i.e a class can only extend a base class not a style
-   * but one style could extend another style.
-   * We can also use this information when parsing the structure and then doing the semantic
-   * analysis before the IR node generation. We can modify output by using this information.
-   */
-  enum SymbolGenus {
-    GENERAL_APPLICATION("application"),
-    SERVICE_APPLICATION("service application"),
-    COMPONENT("component"),
-    VALUE("value"),
-    CLASS("class"),
-    CLASS_TRAIT("trait"),
-    CLASS_CONSTRAINED("constrained class"),
-    CLASS_ENUMERATION("enumeration"),
-    RECORD("record"),
-    TYPE("type"),
-    FUNCTION("function"),
-    FUNCTION_TRAIT("abstract function"),
-    TEXT_BASE("text base"),
-    TEXT("text"),
-    SERVICE("service"),
-    PROGRAM("program"),
-    META_DATA("meta-data");
-
-    private final String description;
-
-    SymbolGenus(final String description) {
-      this.description = description;
-    }
-
-    public String getDescription() {
-
-      return description;
-    }
-
-  }
-
-  /**
-   * Typically used on symbols; so we know their broad use and type.
-   * A Function is both a type and a method because we want to use it as a types variable
-   * but also call it.
-   * So we may need to alter these methods below to treat a function also as a type and a method.
-   * A control is an example of a switch statement that can return a value - we may add others.
-   */
-  enum SymbolCategory {
-    TYPE("type"),
-    TEMPLATE_TYPE("generic type"), //This is a definition of the template once MyTemplate with type of T
-    // is made read as a type MyTemplate of Integer it becomes a TYPE
-    METHOD("method"),
-    TEMPLATE_FUNCTION("generic function"), // As per the TEMPLATE_TYPE once made concrete becomes a FUNCTION
-    // when used with concrete parameters - has unique name in the combination.
-    FUNCTION("function"),
-    CONTROL("control"),
-    VARIABLE("variable");
-
-    private final String description;
-
-    SymbolCategory(final String description) {
-      this.description = description;
-    }
-
-    public String getDescription() {
-      
-      return description;
-    }
-  }
 }

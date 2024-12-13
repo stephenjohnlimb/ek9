@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.search;
 
 import java.util.List;
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 
 /**
  * Search for a symbol of any types category with the matching name.
@@ -17,9 +17,9 @@ public final class AnyTypeSymbolSearch extends SymbolSearch {
     super(name);
     setSearchType(null);
     setVetoSearchTypes(List.of(
-        ISymbol.SymbolCategory.METHOD,
-        ISymbol.SymbolCategory.VARIABLE,
-        ISymbol.SymbolCategory.CONTROL));
+        SymbolCategory.METHOD,
+        SymbolCategory.VARIABLE,
+        SymbolCategory.CONTROL));
 
   }
 }

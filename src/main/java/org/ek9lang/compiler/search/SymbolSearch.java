@@ -9,6 +9,7 @@ import org.ek9lang.compiler.Source;
 import org.ek9lang.compiler.support.ToCommaSeparated;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.SymbolTable;
 import org.ek9lang.core.AssertValue;
 
@@ -34,11 +35,11 @@ public class SymbolSearch {
   /**
    * These categories are considered viable 'types' to be searched for.
    */
-  private final List<ISymbol.SymbolCategory> justTypes = List.of(
-      ISymbol.SymbolCategory.TYPE,
-      ISymbol.SymbolCategory.TEMPLATE_TYPE,
-      ISymbol.SymbolCategory.TEMPLATE_FUNCTION,
-      ISymbol.SymbolCategory.FUNCTION);
+  private final List<SymbolCategory> justTypes = List.of(
+      SymbolCategory.TYPE,
+      SymbolCategory.TEMPLATE_TYPE,
+      SymbolCategory.TEMPLATE_FUNCTION,
+      SymbolCategory.FUNCTION);
   /**
    * For variables - esp when checking for duplicates we want to allow
    * for class level variables of a name and allow a local variable to have the same name
@@ -55,8 +56,8 @@ public class SymbolSearch {
   /**
    * What type of search is being triggered.
    */
-  private ISymbol.SymbolCategory searchType = ISymbol.SymbolCategory.VARIABLE;
-  private List<ISymbol.SymbolCategory> vetoSearchTypes = new ArrayList<>();
+  private SymbolCategory searchType = SymbolCategory.VARIABLE;
+  private List<SymbolCategory> vetoSearchTypes = new ArrayList<>();
   /**
    * In some cases it's useful to have a symbol as an example to search for.
    */
@@ -136,7 +137,7 @@ public class SymbolSearch {
   /**
    * Uses the search type and any vetos to see if the category passed in is a match on the search.
    */
-  public boolean isCategoryAcceptable(final ISymbol.SymbolCategory category) {
+  public boolean isCategoryAcceptable(final SymbolCategory category) {
 
     //If a single allowed search type must match
     if (searchType != null) {
@@ -162,19 +163,19 @@ public class SymbolSearch {
   /**
    * Provide a list of valid search types if multiple supported.
    */
-  public List<ISymbol.SymbolCategory> getValidSearchTypes() {
+  public List<SymbolCategory> getValidSearchTypes() {
 
     if (searchType != null) {
       return List.of(searchType);
     }
 
-    return Arrays.stream(ISymbol.SymbolCategory.values())
+    return Arrays.stream(SymbolCategory.values())
         .filter(category -> !vetoSearchTypes.contains(category))
         .toList();
   }
 
   @SuppressWarnings("UnusedReturnValue")
-  public SymbolSearch setVetoSearchTypes(final List<ISymbol.SymbolCategory> vetoSearchTypes) {
+  public SymbolSearch setVetoSearchTypes(final List<SymbolCategory> vetoSearchTypes) {
 
     this.vetoSearchTypes = vetoSearchTypes;
 
@@ -267,12 +268,12 @@ public class SymbolSearch {
     return this;
   }
 
-  public ISymbol.SymbolCategory getSearchType() {
+  public SymbolCategory getSearchType() {
 
     return searchType;
   }
 
-  public SymbolSearch setSearchType(final ISymbol.SymbolCategory searchType) {
+  public SymbolSearch setSearchType(final SymbolCategory searchType) {
 
     this.searchType = searchType;
 
@@ -323,7 +324,7 @@ public class SymbolSearch {
     getOfTypeOrReturn().ifPresent(returnType -> buffer.append(returnType.getName()).append(" <- "));
     buffer.append(getName());
 
-    if (this.searchType == ISymbol.SymbolCategory.METHOD) {
+    if (this.searchType == SymbolCategory.METHOD) {
       buffer.append(toCommaSeparated.apply(typeParameters));
     }
 

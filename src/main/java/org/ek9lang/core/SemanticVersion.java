@@ -242,7 +242,7 @@ public final class SemanticVersion implements Comparable<SemanticVersion> {
 
   @Override
   public String toString() {
-    
+
     final var buffer = new StringBuilder();
     buffer.append(major).append(".").append(minor).append(".").append(patch);
     if (feature != null) {

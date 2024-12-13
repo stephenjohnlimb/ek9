@@ -25,7 +25,7 @@ import org.junit.jupiter.api.parallel.ResourceLock;
  */
 //Specific tests that manipulate files and specifics in ek9 must not run in parallel.
 @Execution(SAME_THREAD)
-@ResourceLock(value="file_access", mode=READ_WRITE)
+@ResourceLock(value = "file_access", mode = READ_WRITE)
 final class FileHandlingTest {
   private final FileHandling underTest = new FileHandling(new OsSupport(true));
 

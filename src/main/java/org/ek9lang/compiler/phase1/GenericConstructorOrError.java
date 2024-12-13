@@ -3,8 +3,8 @@ package org.ek9lang.compiler.phase1;
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
@@ -29,7 +29,7 @@ final class GenericConstructorOrError implements BiConsumer<IToken, MethodSymbol
     //to be defined correctly on the lhs.
     if (numParametersInConstructor > 0
         && methodSymbol.getParentScope() instanceof IAggregateSymbol aggregateSymbol
-        && aggregateSymbol.getCategory().equals(ISymbol.SymbolCategory.TEMPLATE_TYPE)) {
+        && aggregateSymbol.getCategory().equals(SymbolCategory.TEMPLATE_TYPE)) {
 
       final var numParameterizingTypes = aggregateSymbol.getTypeParameterOrArguments().size();
 

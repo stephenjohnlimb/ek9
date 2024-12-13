@@ -41,7 +41,7 @@ public class FunctionSymbol extends PossibleGenericSymbol implements IMayReturnS
 
     super(name, enclosingScope);
     super.setCategory(SymbolCategory.FUNCTION);
-    super.setGenus(ISymbol.SymbolGenus.FUNCTION);
+    super.setGenus(SymbolGenus.FUNCTION);
     super.setScopeType(ScopeType.NON_BLOCK);
     super.setProduceFullyQualifiedName(true);
 

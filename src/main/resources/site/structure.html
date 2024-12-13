@@ -2,10 +2,10 @@
 <head>
   <meta charset="UTF-8"/>
   <title>The structure of the EK9 programming language</title>
-  <meta name="description" content="The EK9 programming language has a number of constructs to enable
-    developers to start with simple ideas and progress to more sophisticated solutions."/>
-  <link rel="stylesheet" media="all" href="style.css"/>
-  <link rel="icon" type="image/png" href="ek9favicon.png"/>
+  <meta content="The EK9 programming language has a number of constructs to enable
+    developers to start with simple ideas and progress to more sophisticated solutions." name="description"/>
+  <link href="style.css" media="all" rel="stylesheet"/>
+  <link href="ek9favicon.png" rel="icon" type="image/png"/>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
   <script>
@@ -25,7 +25,7 @@
 <nav role="navigation">
   <header role="banner">
     <h1 id="logo">
-      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+      <a aria-label="EK9lang.org" href="https://www.ek9lang.org/" role="img" title="ek9lang.org">
         EK9lang.org
       </a>
     </h1>
@@ -38,7 +38,7 @@
     V: 0.0.1
   </h2>
   <p>
-    &#169; 2020-2024 S.J.limb
+    &#169; 2020-2025 S.J.limb
   </p>
 
   <ul>
@@ -480,9 +480,9 @@ defines module introduction
       for example.
     </p>
     <h5 id="record">Record</h5>
-    <p>This is the first <b>construct</b> that is an EK9 <a target="_blank" title="Aggregate" href="https://en.wikipedia.org/wiki/Aggregate">aggregate</a>;
+    <p>This is the first <b>construct</b> that is an EK9 <a href="https://en.wikipedia.org/wiki/Aggregate" target="_blank" title="Aggregate">aggregate</a>;
       and it is the simplest.
-      <a target="_blank" title="Tuples" href="https://en.wikipedia.org/wiki/Tuple">Tuples</a> are also available in EK9, but are called
+      <a href="https://en.wikipedia.org/wiki/Tuple" target="_blank" title="Tuples">Tuples</a> are also available in EK9, but are called
       <i>dynamic classes</i>.
     <div class="highlight ek9-code">
       <ul class="code-lines">
@@ -830,8 +830,8 @@ defines module introduction
       <i>private</i>; see <a href="basics.html#class_visibility">basics</a> for details on <b>visibility</b>. There
       is no concept of <i>protected</i> or any special secret, privileged or <i>friend</i>
       arrangement with <u>fields/properties</u> on classes. They are all <b>private</b>, <a
-        target="_blank" title="Hiding" href="https://en.wikipedia.org/wiki/Information_hiding">information hiding</a> and
-      <a target="_blank" title="Least Knowledge" href="https://en.wikipedia.org/wiki/Law_of_Demeter">principle of least knowledge</a> are applied here.
+        href="https://en.wikipedia.org/wiki/Information_hiding" target="_blank" title="Hiding">information hiding</a> and
+      <a href="https://en.wikipedia.org/wiki/Law_of_Demeter" target="_blank" title="Least Knowledge">principle of least knowledge</a> are applied here.
       This also means as a developer when defining any such aggregate the
       visibility of fields/properties is always decided for you (it is always <u>private</u>).
     </p>
@@ -1178,7 +1178,7 @@ defines module introduction
       called <b>draw()</b> that must be implemented by any
       non <i>abstract</i> sub <i>class</i>. If you've never developed in an Object Oriented methodology before it
       might be worth looking at
-      <a target="_blank" title="OOP" href="https://en.wikipedia.org/wiki/Inheritance_(object-oriented_programming)">Wikipedia</a> or other
+      <a href="https://en.wikipedia.org/wiki/Inheritance_(object-oriented_programming)" target="_blank" title="OOP">Wikipedia</a> or other
       resources first.
     </p>
     <p>
@@ -1243,8 +1243,8 @@ defines module introduction
     </p>
     <h5 id="generics">Generics/Templated types</h5>
     <p>
-      Generics or <a target="_blank" title="Parametric polymorphism"
-                     href="https://en.wikibooks.org/wiki/Introduction_to_Programming_Languages/Parametric_Polymorphism">Parametric
+      Generics or <a href="https://en.wikibooks.org/wiki/Introduction_to_Programming_Languages/Parametric_Polymorphism" target="_blank"
+                     title="Parametric polymorphism">Parametric
       polymorphism</a> as it is more formally known, can be applied to both <i>functions</i> and <i>classes</i> in EK9;
       examples of which are shown below.
     </p>

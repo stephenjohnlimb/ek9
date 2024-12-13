@@ -3,6 +3,7 @@ package org.ek9lang.compiler.directives;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 
 /**
  * Just checks if there are any directives that relate to @Genus in the parsed module and checks the
@@ -34,7 +35,7 @@ public class GenusDirectiveListener extends ResolvedDirectiveListener {
 
     try {
 
-      final var genus = ISymbol.SymbolGenus.valueOf(resolutionDirective.getAdditionalName());
+      final var genus = SymbolGenus.valueOf(resolutionDirective.getAdditionalName());
       final var genusMatch = symbol.getGenus().equals(genus);
 
       if (!genusMatch) {

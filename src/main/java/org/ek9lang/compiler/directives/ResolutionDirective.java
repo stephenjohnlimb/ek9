@@ -2,7 +2,7 @@ package org.ek9lang.compiler.directives;
 
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.search.SymbolSearch;
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
@@ -46,7 +46,7 @@ public abstract class ResolutionDirective implements Directive {
     return spec.lineNumber();
   }
 
-  public ISymbol.SymbolCategory getSymbolCategory() {
+  public SymbolCategory getSymbolCategory() {
 
     return spec.symbolCategory();
   }
@@ -63,7 +63,7 @@ public abstract class ResolutionDirective implements Directive {
 
   public boolean isForVariable() {
 
-    return ISymbol.SymbolCategory.VARIABLE.equals(getSymbolCategory());
+    return SymbolCategory.VARIABLE.equals(getSymbolCategory());
   }
 
   public SymbolSearch getSymbolSearch() {

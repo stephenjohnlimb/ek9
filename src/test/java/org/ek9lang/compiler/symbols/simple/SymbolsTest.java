@@ -29,6 +29,8 @@ import org.ek9lang.compiler.symbols.ParamExpressionSymbol;
 import org.ek9lang.compiler.symbols.StreamCallSymbol;
 import org.ek9lang.compiler.symbols.StreamPipeLineSymbol;
 import org.ek9lang.compiler.symbols.Symbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.symbols.SymbolTable;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.symbols.base.AbstractSymbolTestBase;
@@ -555,8 +557,8 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   void testApplicationAggregate() {
 
     AggregateSymbol underTest = createBasicAggregate("UnderTest");
-    underTest.setCategory(ISymbol.SymbolCategory.TYPE);
-    underTest.setGenus(ISymbol.SymbolGenus.GENERAL_APPLICATION);
+    underTest.setCategory(SymbolCategory.TYPE);
+    underTest.setGenus(SymbolGenus.GENERAL_APPLICATION);
 
     assertTrue(underTest.isApplication());
 
@@ -833,7 +835,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
   @Test
   void testUnableToFindControlSymbol() {
 
-    var search = new SymbolSearch("nonSuch").setSearchType(ISymbol.SymbolCategory.CONTROL);
+    var search = new SymbolSearch("nonSuch").setSearchType(SymbolCategory.CONTROL);
     var shouldNotBeFound = symbolTable.resolve(search);
     assertFalse(shouldNotBeFound.isPresent());
 
@@ -920,10 +922,10 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertTrue(c2.isConstant());
     assertTrue(c2.isMutable());
     assertTrue(c2.isFromLiteral());
-    assertEquals(ISymbol.SymbolGenus.VALUE, c2.getGenus());
+    assertEquals(SymbolGenus.VALUE, c2.getGenus());
 
     ConstantSymbol c3 = new ConstantSymbol("1", integerType);
-    assertEquals(ISymbol.SymbolGenus.VALUE, c3.getGenus());
+    assertEquals(SymbolGenus.VALUE, c3.getGenus());
 
     assertFalse(c1.isInjectable());
     assertFalse(c1.isExtensionOfInjectable());
@@ -938,7 +940,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
 
     //Create a type and make it a sort of enumeration
     ISymbol madeUpType1 = new AggregateSymbol("MadeUpType1", symbolTable);
-    madeUpType1.setGenus(ISymbol.SymbolGenus.CLASS_ENUMERATION);
+    madeUpType1.setGenus(SymbolGenus.CLASS_ENUMERATION);
     ConstantSymbol c1 = new ConstantSymbol("ONE", false);
     c1.setType(madeUpType1);
     assertTrue(c1.isDeclaredAsConstant());
@@ -950,7 +952,7 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertTrue(c.isConstant());
     assertFalse(c.isMutable());
     assertTrue(c.isFromLiteral());
-    assertEquals(ISymbol.SymbolGenus.VALUE, c.getGenus());
+    assertEquals(SymbolGenus.VALUE, c.getGenus());
 
   }
 

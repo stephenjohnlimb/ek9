@@ -9,12 +9,12 @@ import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.support.GenericsSymbolCheck;
 import org.ek9lang.compiler.support.SymbolCheck;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 import org.ek9lang.compiler.support.SymbolSearchConfiguration;
 import org.ek9lang.compiler.support.SymbolSearchMapFunction;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +32,7 @@ class ExamplesGenericsUse1Test extends PhasesTest {
   }
 
   @Test
-  //TODO fix up properties not being initialised in objects issue then move to PRE_IR_CHECKS
+    //TODO fix up properties not being initialised in objects issue then move to PRE_IR_CHECKS
   void testPhasedDevelopment() {
     testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
@@ -63,11 +63,11 @@ class ExamplesGenericsUse1Test extends PhasesTest {
         var parsedModule = program.getParsedModuleForCompilableSource(source);
         if (parsedModule.getModuleName().equals(moduleName)) {
           SymbolCheck templateTypeChecker =
-              new SymbolCheck(program, moduleName, true, true, ISymbol.SymbolCategory.TEMPLATE_TYPE);
+              new SymbolCheck(program, moduleName, true, true, SymbolCategory.TEMPLATE_TYPE);
           SymbolCheck basicTypeChecker =
-              new SymbolCheck(program, moduleName, true, true, ISymbol.SymbolCategory.TYPE);
+              new SymbolCheck(program, moduleName, true, true, SymbolCategory.TYPE);
           var missingGenericTypeChecker =
-              new GenericsSymbolCheck(program, moduleName, false, ISymbol.SymbolCategory.TYPE);
+              new GenericsSymbolCheck(program, moduleName, false, SymbolCategory.TYPE);
 
           //So this template generic class should be present
           templateTypeChecker.accept("GenericThing");
@@ -96,10 +96,10 @@ class ExamplesGenericsUse1Test extends PhasesTest {
   private void assertEk9(final CompilableProgram program) {
     //Additional polymorphic parameterised types will have been added to the module.
     //Note these are also checked in the EK9 sourcecode via directives.
-    var typeChecker = new GenericsSymbolCheck(program, EK9_LANG, true, ISymbol.SymbolCategory.TYPE);
+    var typeChecker = new GenericsSymbolCheck(program, EK9_LANG, true, SymbolCategory.TYPE);
     typeChecker.accept(new SymbolSearchConfiguration("Optional", mapFunction.apply(List.of("String"))));
 
-    var functionChecker = new GenericsSymbolCheck(program, EK9_LANG, true, ISymbol.SymbolCategory.FUNCTION);
+    var functionChecker = new GenericsSymbolCheck(program, EK9_LANG, true, SymbolCategory.FUNCTION);
     functionChecker.accept(new SymbolSearchConfiguration("Supplier", mapFunction.apply(List.of("Integer"))));
 
     var numberOfAdditionalSymbols = 10;

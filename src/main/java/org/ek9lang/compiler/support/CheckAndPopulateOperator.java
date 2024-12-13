@@ -9,8 +9,8 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -52,7 +52,7 @@ class CheckAndPopulateOperator
                                              final IToken startToken,
                                              final IAggregateSymbol aggregate) {
 
-    if (aggregate.getGenus().equals(ISymbol.SymbolGenus.CLASS_TRAIT)) {
+    if (aggregate.getGenus().equals(SymbolGenus.CLASS_TRAIT)) {
       emitDefaultAndTraitError(startToken, aggregate);
       return null;
     }

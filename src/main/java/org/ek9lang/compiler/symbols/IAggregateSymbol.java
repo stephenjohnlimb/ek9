@@ -17,14 +17,14 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    */
   ScopeType getScopeType();
 
-  void setMarkedAsDispatcher(final boolean markedAsDispatcher);
-
   /**
    * Is this aggregate a dispatcher or just a normal class component whatever.
    *
    * @return true if marked as a dispatcher.
    */
   boolean isMarkedAsDispatcher();
+
+  void setMarkedAsDispatcher(final boolean markedAsDispatcher);
 
   Optional<String> getPipeSinkType();
 

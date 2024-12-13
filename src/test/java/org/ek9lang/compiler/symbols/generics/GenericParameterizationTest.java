@@ -19,6 +19,7 @@ import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.symbols.base.AbstractSymbolTestBase;
 import org.junit.jupiter.api.Assertions;
@@ -219,7 +220,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     //Now parameterize it with concrete types
     var parameterizedType = creator.apply(aGenericType, List.of(ek9Integer, ek9String));
     assertNotNull(parameterizedType);
-    Assertions.assertEquals(ISymbol.SymbolCategory.TYPE, parameterizedType.getCategory());
+    Assertions.assertEquals(SymbolCategory.TYPE, parameterizedType.getCategory());
     assertFalse(parameterizedType.isGenericInNature());
     assertFalse(parameterizedType.isConceptualTypeParameter());
 
@@ -246,7 +247,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     var conceptualParameterizedType = creator.apply(aGenericType, List.of(ek9Integer, v));
     assertNotNull(conceptualParameterizedType);
     assertEquals(1, conceptualParameterizedType.getAnyConceptualTypeParameters().size());
-    assertEquals(ISymbol.SymbolCategory.TEMPLATE_TYPE, conceptualParameterizedType.getCategory());
+    assertEquals(SymbolCategory.TEMPLATE_TYPE, conceptualParameterizedType.getCategory());
 
     //Finally I can create the AType of (Integer, Duration)
     //This is what the outer type would be passing in/
@@ -255,7 +256,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     var integerDurationParameterizedType = creator.apply(conceptualParameterizedType, List.of(p));
     assertNotNull(integerDurationParameterizedType);
     //It will now be a property type rather than a template.
-    assertEquals(ISymbol.SymbolCategory.TYPE, integerDurationParameterizedType.getCategory());
+    assertEquals(SymbolCategory.TYPE, integerDurationParameterizedType.getCategory());
 
     //Summary, the generic type => to a parameterized but still generic type => concrete type
     //AType of type (R, S) => AType of (Integer, V) => AType of (Integer, Duration)
@@ -332,12 +333,12 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     //Normally the symbol factory would do this bit for us.
     //When we add a parameter it will become a template type
-    aGenericFunction.setCategory(ISymbol.SymbolCategory.FUNCTION);
+    aGenericFunction.setCategory(SymbolCategory.FUNCTION);
     assertFalse(aGenericFunction.isGenericInNature());
     aGenericFunction.addTypeParameterOrArgument(t);
     assertTrue(aGenericFunction.isGenericInNature());
     //And its category will have changed to the template version.
-    assertEquals(ISymbol.SymbolCategory.TEMPLATE_FUNCTION, aGenericFunction.getCategory());
+    assertEquals(SymbolCategory.TEMPLATE_FUNCTION, aGenericFunction.getCategory());
 
     var resolvedT = aGenericFunction.resolve(new TypeSymbolSearch(conceptualTypeParameterName));
     assertTrue(resolvedT.isPresent());
@@ -363,7 +364,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     var t = aggregateFactory.createGenericT("AbsG1", symbolTable);
     var aGenericType = new PossibleGenericSymbol("T", symbolTable);
     aGenericType.setModuleScope(symbolTable);
-    aGenericType.setCategory(ISymbol.SymbolCategory.TYPE);
+    aGenericType.setCategory(SymbolCategory.TYPE);
     aGenericType.addTypeParameterOrArgument(t);
 
     //Now we want to make this 'abstract' because the method we plan to provide will also be abstract
@@ -401,7 +402,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     //Normally the symbol factory would do this bit for us.
     //When we add a parameter it will become a template type
-    aGenericType.setCategory(ISymbol.SymbolCategory.TYPE);
+    aGenericType.setCategory(SymbolCategory.TYPE);
     assertFalse(aGenericType.isGenericInNature());
 
     //So this is the important bit that makes it a generic type
@@ -409,7 +410,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     aGenericType.addTypeParameterOrArgument(t);
     assertTrue(aGenericType.isGenericInNature());
     //And its category will have changed to the template version.
-    assertEquals(ISymbol.SymbolCategory.TEMPLATE_TYPE, aGenericType.getCategory());
+    assertEquals(SymbolCategory.TEMPLATE_TYPE, aGenericType.getCategory());
 
     //Now we will add a method to the generic type it will accept a 'T' and return a 'T'
     var method = new MethodSymbol("aMethod", aGenericType);
@@ -441,7 +442,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     var aGenericType = new PossibleGenericSymbol(genericTypeName, symbolTable);
     //When making a new possible generic type - it starts out as non-generic.
     aGenericType.setModuleScope(symbolTable);
-    aGenericType.setCategory(ISymbol.SymbolCategory.TYPE);
+    aGenericType.setCategory(SymbolCategory.TYPE);
 
     //OK now the multiple type parameters - this act makes it generic as it now has 'type parameters'.
     conceptualTypeParameterNames.forEach(typeParameterName -> {
@@ -451,7 +452,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     //This should now have become a template version - i.e. it is now generic and can be parameterised with
     //'type arguments'.
-    assertEquals(ISymbol.SymbolCategory.TEMPLATE_TYPE, aGenericType.getCategory());
+    assertEquals(SymbolCategory.TEMPLATE_TYPE, aGenericType.getCategory());
 
     //It might seem strange to do check this, but all typeParameters should be conceptual.
     assertEquals(aGenericType.getAnyConceptualTypeParameters(), aGenericType.getTypeParameterOrArguments());

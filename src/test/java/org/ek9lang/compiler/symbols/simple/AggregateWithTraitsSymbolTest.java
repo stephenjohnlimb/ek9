@@ -12,8 +12,8 @@ import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.symbols.SymbolTable;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.junit.jupiter.api.Test;
@@ -135,7 +135,7 @@ final class AggregateWithTraitsSymbolTest {
     var booleanType = symbolTable.resolve(new SymbolSearch("Boolean"));
 
     AggregateWithTraitsSymbol trait = new AggregateWithTraitsSymbol(traitName, symbolTable);
-    trait.setGenus(ISymbol.SymbolGenus.CLASS_TRAIT);
+    trait.setGenus(SymbolGenus.CLASS_TRAIT);
     var lowCostMethod = new MethodSymbol("lowCost", trait);
     lowCostMethod.setReturningSymbol(new VariableSymbol("rtn", booleanType));
     trait.define(lowCostMethod);

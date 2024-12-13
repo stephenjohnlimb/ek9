@@ -6,7 +6,7 @@ import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.support.SymbolMatcher;
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 
 /**
  * Check that the types of two symbol ar compatible with each other.
@@ -46,7 +46,7 @@ final class TypesCompatibleOrError extends TypedSymbolAccess implements Consumer
 
     //This should not be allowed, because you cannot call an abstract function.
     //So it is important to stop one being assigned anywhere.
-    if (toCheck.rhs().getGenus().equals(ISymbol.SymbolGenus.FUNCTION_TRAIT)) {
+    if (toCheck.rhs().getGenus().equals(SymbolGenus.FUNCTION_TRAIT)) {
       errorListener.semanticError(toCheck.location(), "'" + toCheck.rhs().getFriendlyName() + "':",
           ErrorListener.SemanticClassification.BAD_ABSTRACT_FUNCTION_USE);
     }

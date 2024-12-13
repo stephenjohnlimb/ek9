@@ -30,10 +30,10 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   private final IdentifierAsPropertyOrError processIdentifierAsProperty;
 
   PreIRListener(final ParsedModule parsedModule) {
-    
+
     super(parsedModule);
     final var errorListener = parsedModule.getSource().getErrorListener();
-    
+
     this.variableOnlyOrError =
         new VariableOnlyOrError(symbolsAndScopes, errorListener);
     this.assignmentStatementOrError =
@@ -66,7 +66,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
         new DynamicFunctionOrError(symbolsAndScopes, errorListener);
     this.processIdentifierAsProperty =
         new IdentifierAsPropertyOrError(symbolsAndScopes, errorListener);
-    
+
   }
 
   @Override

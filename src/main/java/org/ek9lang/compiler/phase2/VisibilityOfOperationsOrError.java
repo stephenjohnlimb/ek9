@@ -7,8 +7,8 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 
 /**
  * Does a simple check (excluding any inheritance) for visibility rules on methods/operators on
@@ -24,12 +24,12 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  */
 final class VisibilityOfOperationsOrError extends RuleSupport implements Consumer<IAggregateSymbol> {
 
-  private final Map<ISymbol.SymbolGenus, Consumer<MethodSymbol>> genusChecks = Map.of(
-      ISymbol.SymbolGenus.COMPONENT, this::componentMethodVisibilityOrError,
-      ISymbol.SymbolGenus.RECORD, this::recordMethodVisibilityOrError,
-      ISymbol.SymbolGenus.CLASS_TRAIT, this::traitMethodVisibilityOrError,
-      ISymbol.SymbolGenus.CLASS, this::classMethodVisibilityOrError,
-      ISymbol.SymbolGenus.SERVICE, this::serviceMethodVisibilityOrError
+  private final Map<SymbolGenus, Consumer<MethodSymbol>> genusChecks = Map.of(
+      SymbolGenus.COMPONENT, this::componentMethodVisibilityOrError,
+      SymbolGenus.RECORD, this::recordMethodVisibilityOrError,
+      SymbolGenus.CLASS_TRAIT, this::traitMethodVisibilityOrError,
+      SymbolGenus.CLASS, this::classMethodVisibilityOrError,
+      SymbolGenus.SERVICE, this::serviceMethodVisibilityOrError
   );
 
   /**

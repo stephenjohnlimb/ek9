@@ -41,7 +41,7 @@ final class OuterGenericsUseOrError extends RuleSupport implements Consumer<ITok
       final var possibleGenericScope = currentScope.findNearestNonBlockScopeInEnclosingScopes();
       possibleGenericScope.ifPresent(scope -> errorIfGenericInNature(token, scope));
     });
-    
+
   }
 
   private void errorIfGenericInNature(final IToken token, final IScopedSymbol scope) {

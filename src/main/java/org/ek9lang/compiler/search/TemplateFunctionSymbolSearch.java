@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.search;
 
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 
 /**
  * A Search for a TEMPLATE of a FUNCTION.
@@ -13,7 +13,7 @@ public final class TemplateFunctionSymbolSearch extends SymbolSearch {
   public TemplateFunctionSymbolSearch(final String name) {
 
     super(name);
-    setSearchType(ISymbol.SymbolCategory.TEMPLATE_FUNCTION);
+    setSearchType(SymbolCategory.TEMPLATE_FUNCTION);
 
   }
 

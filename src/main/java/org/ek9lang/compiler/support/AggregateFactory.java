@@ -68,17 +68,14 @@ public class AggregateFactory {
   public static final String EK9_UNARY_OPERATOR = EK9_LANG + "::UnaryOperator";
   public static final String EK9_PREDICATE = EK9_LANG + "::Predicate";
   public static final String EK9_COMPARATOR = EK9_LANG + "::Comparator";
-
+  private final OperatorFactory operatorFactory;
+  private final AggregateHasPureConstruction aggregateHasPureConstruction = new AggregateHasPureConstruction();
   /**
    * Typically used when the module is not a core ek9 module.
    * This is so we can bootstrap ek9 but then once the types are defined we can use them quickly.
    * So this can remain null in some situations.
    */
   private Ek9Types ek9Types;
-
-  private final OperatorFactory operatorFactory;
-
-  private final AggregateHasPureConstruction aggregateHasPureConstruction = new AggregateHasPureConstruction();
 
   public AggregateFactory() {
     operatorFactory = new OperatorFactory(this);

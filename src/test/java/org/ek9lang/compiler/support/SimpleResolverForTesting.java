@@ -2,9 +2,9 @@ package org.ek9lang.compiler.support;
 
 import java.util.Optional;
 import java.util.function.Function;
+import org.ek9lang.compiler.search.AnySymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ModuleScope;
-import org.ek9lang.compiler.search.AnySymbolSearch;
 
 /**
  * Just used in testing for resolving a simple symbol.

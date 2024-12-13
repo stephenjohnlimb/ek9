@@ -266,7 +266,7 @@ public final class SigningKeyPair {
       buffer.append(pemText, index, Math.min(index + 64, pemText.length())).append("\n");
       index += 64;
     }
-    
+
     return buffer.toString();
   }
 }

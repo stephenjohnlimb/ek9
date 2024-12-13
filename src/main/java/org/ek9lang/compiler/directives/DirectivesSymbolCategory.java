@@ -5,18 +5,18 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 
 /**
  * Just extracts the symbol category or throws an illegal argument exception.
  */
-public class DirectivesSymbolCategory implements Function<EK9Parser.DirectiveContext, ISymbol.SymbolCategory> {
+public class DirectivesSymbolCategory implements Function<EK9Parser.DirectiveContext, SymbolCategory> {
 
   @Override
-  public ISymbol.SymbolCategory apply(final EK9Parser.DirectiveContext ctx) {
+  public SymbolCategory apply(final EK9Parser.DirectiveContext ctx) {
 
     try {
-      return ISymbol.SymbolCategory.valueOf(ctx.directivePart(1).getText());
+      return SymbolCategory.valueOf(ctx.directivePart(1).getText());
     } catch (IllegalArgumentException ex) {
       throw new IllegalArgumentException("Expecting one of: " + applicableSymbolCategories());
     }
@@ -24,9 +24,9 @@ public class DirectivesSymbolCategory implements Function<EK9Parser.DirectiveCon
 
   private List<String> applicableSymbolCategories() {
 
-    final Predicate<ISymbol.SymbolCategory> acceptableValues = symbolCategory
-        -> ISymbol.SymbolCategory.METHOD != symbolCategory && ISymbol.SymbolCategory.CONTROL != symbolCategory;
+    final Predicate<SymbolCategory> acceptableValues = symbolCategory
+        -> SymbolCategory.METHOD != symbolCategory && SymbolCategory.CONTROL != symbolCategory;
 
-    return Arrays.stream(ISymbol.SymbolCategory.values()).filter(acceptableValues).map(Enum::toString).toList();
+    return Arrays.stream(SymbolCategory.values()).filter(acceptableValues).map(Enum::toString).toList();
   }
 }

@@ -14,6 +14,7 @@ import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
@@ -97,7 +98,7 @@ final class RequiredOperatorPresentOrError extends TypedSymbolAccess
    * But other methods to be on the instance. That concept does not exist in EK9.
    */
   private boolean symbolIsActuallyAnEnumerationType(final ISymbol symbol) {
-    return symbol.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION);
+    return symbol.getGenus().equals(SymbolGenus.CLASS_ENUMERATION);
   }
 
   private void emitOperatorNotDefined(final IAggregateSymbol aggregate, final CheckOperatorData checkOperatorData) {

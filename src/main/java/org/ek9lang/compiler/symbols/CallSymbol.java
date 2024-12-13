@@ -60,22 +60,6 @@ public class CallSymbol extends MethodSymbol {
     return resolvedSymbolToCall;
   }
 
-  @Override
-  public boolean isReturningSymbolPresent() {
-    if (resolvedSymbolToCall instanceof IMayReturnSymbol canReturn) {
-      return canReturn.isReturningSymbolPresent();
-    }
-    return false;
-  }
-
-  @Override
-  public ISymbol getReturningSymbol() {
-    if (resolvedSymbolToCall instanceof IMayReturnSymbol canReturn) {
-      return canReturn.getReturningSymbol();
-    }
-    return null;
-  }
-
   /**
    * Set the actual method/function that should be called.
    */
@@ -90,6 +74,22 @@ public class CallSymbol extends MethodSymbol {
       this.setOperator(method.isOperator());
     }
 
+  }
+
+  @Override
+  public boolean isReturningSymbolPresent() {
+    if (resolvedSymbolToCall instanceof IMayReturnSymbol canReturn) {
+      return canReturn.isReturningSymbolPresent();
+    }
+    return false;
+  }
+
+  @Override
+  public ISymbol getReturningSymbol() {
+    if (resolvedSymbolToCall instanceof IMayReturnSymbol canReturn) {
+      return canReturn.getReturningSymbol();
+    }
+    return null;
   }
 
   @Override

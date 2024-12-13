@@ -69,7 +69,7 @@ public final class Glob {
   }
 
   private boolean excluded(final Path path) {
-    
+
     return excludes.stream().anyMatch(matcher -> matcher.matches(path));
   }
 }

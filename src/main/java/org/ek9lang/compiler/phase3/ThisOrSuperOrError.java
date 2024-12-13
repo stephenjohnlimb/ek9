@@ -15,6 +15,7 @@ import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
@@ -24,15 +25,15 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  */
 final class ThisOrSuperOrError extends TypedSymbolAccess implements Consumer<EK9Parser.PrimaryReferenceContext> {
   private final SymbolFactory symbolFactory;
-  private final List<ISymbol.SymbolGenus> supportedThisAndSuperGenus = List.of(
-      ISymbol.SymbolGenus.CLASS,
-      ISymbol.SymbolGenus.COMPONENT, ISymbol.SymbolGenus.RECORD);
+  private final List<SymbolGenus> supportedThisAndSuperGenus = List.of(
+      SymbolGenus.CLASS,
+      SymbolGenus.COMPONENT, SymbolGenus.RECORD);
 
-  private final List<ISymbol.SymbolGenus> supportedThisOnlyGenus =
-      List.of(ISymbol.SymbolGenus.CLASS_TRAIT, ISymbol.SymbolGenus.SERVICE,
-          ISymbol.SymbolGenus.TEXT, ISymbol.SymbolGenus.FUNCTION, ISymbol.SymbolGenus.FUNCTION_TRAIT,
-          ISymbol.SymbolGenus.GENERAL_APPLICATION, ISymbol.SymbolGenus.CLASS_ENUMERATION,
-          ISymbol.SymbolGenus.SERVICE_APPLICATION, ISymbol.SymbolGenus.PROGRAM);
+  private final List<SymbolGenus> supportedThisOnlyGenus =
+      List.of(SymbolGenus.CLASS_TRAIT, SymbolGenus.SERVICE,
+          SymbolGenus.TEXT, SymbolGenus.FUNCTION, SymbolGenus.FUNCTION_TRAIT,
+          SymbolGenus.GENERAL_APPLICATION, SymbolGenus.CLASS_ENUMERATION,
+          SymbolGenus.SERVICE_APPLICATION, SymbolGenus.PROGRAM);
 
   /**
    * Checks that this/super passed in is a suitable genus.
@@ -101,7 +102,7 @@ final class ThisOrSuperOrError extends TypedSymbolAccess implements Consumer<EK9
       final var superType = asFunction.getSuperFunction().get();
       emitGenusErrorForSymbol(ctx, superType);
     } else if (supportedThisOnlyGenus.contains(basicType.getGenus())) {
-      if (basicType.getGenus().equals(ISymbol.SymbolGenus.CLASS_TRAIT)) {
+      if (basicType.getGenus().equals(SymbolGenus.CLASS_TRAIT)) {
         //It can be a bit misleading for traits - because they really have traits of traits and not a single super.
         //But if sometimes feels like they have a super and so that's likely to be what a developer will think and use.
         emitHasNoTraitSuper(ctx, basicType);
@@ -162,7 +163,7 @@ final class ThisOrSuperOrError extends TypedSymbolAccess implements Consumer<EK9
         + "' which is a '"
         + symbol.getCategory().getDescription()
         + "' rather than a '"
-        + supportedThisAndSuperGenus.stream().map(ISymbol.SymbolGenus::getDescription)
+        + supportedThisAndSuperGenus.stream().map(SymbolGenus::getDescription)
         .collect(Collectors.joining(", "))
         + "':";
     errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.INCOMPATIBLE_GENUS);

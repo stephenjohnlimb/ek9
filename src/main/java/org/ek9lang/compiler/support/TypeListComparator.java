@@ -24,7 +24,7 @@ public class TypeListComparator implements BiPredicate<List<ISymbol>, List<ISymb
         return false;
       }
     }
-    
+
     return true;
   }
 }

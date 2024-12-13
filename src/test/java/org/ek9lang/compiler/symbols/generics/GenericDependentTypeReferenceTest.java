@@ -12,9 +12,9 @@ import org.ek9lang.compiler.support.InternalNameFor;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeSubstitution;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.symbols.base.AbstractSymbolTestBase;
 import org.junit.jupiter.api.Assertions;
@@ -136,16 +136,16 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     Assertions.assertEquals(1, yetAnotherGenericOfDimensionandTime.getSymbolsForThisScope().size());
 
     //Conceptual types
-    assertResolution("SomeGeneric", ISymbol.SymbolCategory.TEMPLATE_TYPE);
-    assertResolution("AnotherGeneric", ISymbol.SymbolCategory.TEMPLATE_TYPE);
-    assertResolution("YetAnotherGeneric", ISymbol.SymbolCategory.TEMPLATE_TYPE);
+    assertResolution("SomeGeneric", SymbolCategory.TEMPLATE_TYPE);
+    assertResolution("AnotherGeneric", SymbolCategory.TEMPLATE_TYPE);
+    assertResolution("YetAnotherGeneric", SymbolCategory.TEMPLATE_TYPE);
 
     //Concrete types
-    assertResolution("SomeGeneric of (Integer, Duration)", ISymbol.SymbolCategory.TYPE);
-    assertResolution("AnotherGeneric of (Float, String)", ISymbol.SymbolCategory.TYPE);
-    assertResolution("SomeGeneric of (Float, String)", ISymbol.SymbolCategory.TYPE);
-    assertResolution("SomeGeneric of (Integer, String)", ISymbol.SymbolCategory.TYPE);
-    assertResolution("YetAnotherGeneric of (Dimension, Time)", ISymbol.SymbolCategory.TYPE);
+    assertResolution("SomeGeneric of (Integer, Duration)", SymbolCategory.TYPE);
+    assertResolution("AnotherGeneric of (Float, String)", SymbolCategory.TYPE);
+    assertResolution("SomeGeneric of (Float, String)", SymbolCategory.TYPE);
+    assertResolution("SomeGeneric of (Integer, String)", SymbolCategory.TYPE);
+    assertResolution("YetAnotherGeneric of (Dimension, Time)", SymbolCategory.TYPE);
   }
 
   /**

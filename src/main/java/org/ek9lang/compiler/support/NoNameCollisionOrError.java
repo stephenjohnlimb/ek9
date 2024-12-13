@@ -6,6 +6,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -36,10 +37,10 @@ public class NoNameCollisionOrError implements BiPredicate<IScope, ISymbol> {
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
     final var searches = Map
-        .of(ISymbol.SymbolCategory.FUNCTION, ErrorListener.SemanticClassification.DUPLICATE_NAME,
-            ISymbol.SymbolCategory.TYPE, ErrorListener.SemanticClassification.DUPLICATE_TYPE,
-            ISymbol.SymbolCategory.TEMPLATE_FUNCTION, ErrorListener.SemanticClassification.DUPLICATE_NAME,
-            ISymbol.SymbolCategory.TEMPLATE_TYPE, ErrorListener.SemanticClassification.DUPLICATE_TYPE
+        .of(SymbolCategory.FUNCTION, ErrorListener.SemanticClassification.DUPLICATE_NAME,
+            SymbolCategory.TYPE, ErrorListener.SemanticClassification.DUPLICATE_TYPE,
+            SymbolCategory.TEMPLATE_FUNCTION, ErrorListener.SemanticClassification.DUPLICATE_NAME,
+            SymbolCategory.TEMPLATE_TYPE, ErrorListener.SemanticClassification.DUPLICATE_TYPE
         );
 
     //Note that we also stop same name as the types above.

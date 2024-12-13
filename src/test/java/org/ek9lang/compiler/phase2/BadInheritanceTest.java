@@ -10,13 +10,13 @@ import java.util.Optional;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
+import org.ek9lang.compiler.support.SimpleResolverForTesting;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.Symbol;
-import org.ek9lang.compiler.support.SimpleResolverForTesting;
 import org.junit.jupiter.api.Test;
 
 /**

@@ -10,13 +10,14 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 
 /**
  * Checks for a type is resolved and is suitable genus and category.
  */
 final class SuitableGenusOrError extends RuleSupport implements Function<ParserRuleContext, Optional<ISymbol>> {
 
-  private final List<ISymbol.SymbolGenus> supportedGenus = new ArrayList<>();
+  private final List<SymbolGenus> supportedGenus = new ArrayList<>();
 
   private final boolean issueErrorIfNotResolved;
 
@@ -27,7 +28,7 @@ final class SuitableGenusOrError extends RuleSupport implements Function<ParserR
    */
   SuitableGenusOrError(final SymbolsAndScopes symbolsAndScopes,
                        final ErrorListener errorListener,
-                       final ISymbol.SymbolGenus genus,
+                       final SymbolGenus genus,
                        final boolean allowTemplates,
                        final boolean issueErrorIfNotResolved) {
 
@@ -41,7 +42,7 @@ final class SuitableGenusOrError extends RuleSupport implements Function<ParserR
    */
   public SuitableGenusOrError(final SymbolsAndScopes symbolsAndScopes,
                               final ErrorListener errorListener,
-                              final List<ISymbol.SymbolGenus> genus,
+                              final List<SymbolGenus> genus,
                               final boolean allowTemplates,
                               final boolean issueErrorIfNotResolved) {
 
@@ -106,7 +107,7 @@ final class SuitableGenusOrError extends RuleSupport implements Function<ParserR
           + "' which is a '"
           + symbol.getCategory().getDescription()
           + "' rather than a '"
-          + supportedGenus.stream().map(ISymbol.SymbolGenus::getDescription).collect(Collectors.joining(", "))
+          + supportedGenus.stream().map(SymbolGenus::getDescription).collect(Collectors.joining(", "))
           + "':";
       errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.INCOMPATIBLE_GENUS);
       return false;

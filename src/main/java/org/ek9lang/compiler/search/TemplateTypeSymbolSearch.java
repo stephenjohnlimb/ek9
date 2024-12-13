@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.search;
 
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 
 /**
  * A Search for a TEMPLATE of a TYPE like a CLASS.
@@ -12,7 +12,7 @@ public final class TemplateTypeSymbolSearch extends SymbolSearch {
   public TemplateTypeSymbolSearch(final String name) {
 
     super(name);
-    setSearchType(ISymbol.SymbolCategory.TEMPLATE_TYPE);
+    setSearchType(SymbolCategory.TEMPLATE_TYPE);
 
   }
 }

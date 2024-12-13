@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.phase3;
 
-import static org.ek9lang.compiler.symbols.ISymbol.SymbolGenus.VALUE;
+import static org.ek9lang.compiler.symbols.SymbolGenus.VALUE;
 
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;

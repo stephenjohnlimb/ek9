@@ -17,11 +17,6 @@ public class CompilableProgramSuitable implements Supplier<SharedThreadContext<C
   //In memory cache of the compiler with ek9 symbols built in.
   private static byte[] serializedCompiler;
 
-  @Override
-  public SharedThreadContext<CompilableProgram> get() {
-    return getCompiler();
-  }
-
   /**
    * Makes the compiler if a serialized version is not available.
    * Otherwise, it just deserialized the byte serialized version.
@@ -57,6 +52,11 @@ public class CompilableProgramSuitable implements Supplier<SharedThreadContext<C
         }, new CompilerReporter(false, true));
 
     return bootStrap.get();
+  }
+
+  @Override
+  public SharedThreadContext<CompilableProgram> get() {
+    return getCompiler();
   }
 
 }

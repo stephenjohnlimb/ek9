@@ -30,6 +30,7 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
   private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator(new InternalNameFor());
 
   private final ErrorListener errorListener = new ErrorListener("test");
+
   @Test
   void testFunctionSingleParameterSubstitution() {
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
@@ -164,7 +165,8 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var arg3 = new VariableSymbol("arg3", q);
     var arg4 = new VariableSymbol("arg4", r);
     var arg5 = new VariableSymbol("arg5", ek9Time);
-    aggregateFactory.addPublicMethod(aGenericType, "methodOne", List.of(arg0, arg1, arg2, arg3, arg4, arg5), Optional.of(s));
+    aggregateFactory.addPublicMethod(aGenericType, "methodOne", List.of(arg0, arg1, arg2, arg3, arg4, arg5),
+        Optional.of(s));
 
     assertEquals(1, aGenericType.getSymbolsForThisScope().size());
 

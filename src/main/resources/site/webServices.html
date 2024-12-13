@@ -2,10 +2,10 @@
 <head>
   <meta charset="UTF-8"/>
   <title>EK9 programming language web services</title>
-  <meta name="description" content="EK9 programming language web services
-    are built into the language to facilitate HTML/REST interactions."/>
-  <link rel="stylesheet" media="all" href="style.css"/>
-  <link rel="icon" type="image/png" href="ek9favicon.png"/>
+  <meta content="EK9 programming language web services
+    are built into the language to facilitate HTML/REST interactions." name="description"/>
+  <link href="style.css" media="all" rel="stylesheet"/>
+  <link href="ek9favicon.png" rel="icon" type="image/png"/>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
   <script>
@@ -25,7 +25,7 @@
 <nav role="navigation">
   <header role="banner">
     <h1 id="logo">
-      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+      <a aria-label="EK9lang.org" href="https://www.ek9lang.org/" role="img" title="ek9lang.org">
         EK9lang.org
       </a>
     </h1>
@@ -38,7 +38,7 @@
     V: 0.0.1
   </h2>
   <p>
-    &#169; 2020-2024 S.J.limb
+    &#169; 2020-2025 S.J.limb
   </p>
 
   <ul>
@@ -99,7 +99,7 @@
     <p>
       In its simplest form; it is possible to serve just pure file content. By using <i>text</i> <b>constructs</b>
       a simple templating solution (similar to
-      <a target="_blank" title="Velocity Templates" href="https://velocity.apache.org/engine/1.7/user-guide.html">velocity templates</a>)
+      <a href="https://velocity.apache.org/engine/1.7/user-guide.html" target="_blank" title="Velocity Templates">velocity templates</a>)
       can be implemented. Web services in EK9 are also aimed at providing full support for REST.
       <br/>
       But there is nothing to prevent developer creating full web UI tool kits.
@@ -143,10 +143,10 @@
     <p>
       For example this site is actually fully deployed in an automated way when the main repository is built and that
       build is successful, as is the
-      <a target="_blank" title="EK9 Compiler Javadoc" href="https://repo.ek9lang.org/apidocs/index.html">Javadoc</a>.
+      <a href="https://repo.ek9lang.org/apidocs/index.html" target="_blank" title="EK9 Compiler Javadoc">Javadoc</a>.
       <br/>
       What this means is that deployment is full and complete (in terms of built artifacts) via a CI/CD pipeline. In this
-      case <a target="_blank" title="Github actions" href="https://github.com/stephenjohnlimb/ek9/actions">GitHub</a>
+      case <a href="https://github.com/stephenjohnlimb/ek9/actions" target="_blank" title="Github actions">GitHub</a>
       actions are used.
     </p>
     <p>
@@ -1155,8 +1155,8 @@ defines module introduction
     </p>
     <p>
       See this
-      <a target="_blank" title="Leadership"
-         href="https://medium.com/@tiagao/what-nasa-and-richard-feynman-knew-about-product-leadership-57cfae62de1c">article</a>
+      <a href="https://medium.com/@tiagao/what-nasa-and-richard-feynman-knew-about-product-leadership-57cfae62de1c" target="_blank"
+         title="Leadership">article</a>
       about the schisms inside organisations.
     </p>
     <p>
@@ -1232,7 +1232,7 @@ defines module introduction
       and Kubernetes for scaling when the code really does have to be called.
     </p>
     <p>
-      You can also use <a target="_blank" title="CQRS" href="https://martinfowler.com/bliki/CQRS.html">Command Query Responsibility Segregation</a>.
+      You can also use <a href="https://martinfowler.com/bliki/CQRS.html" target="_blank" title="CQRS">Command Query Responsibility Segregation</a>.
       While this can add complexity, it does allow 'read' requests to scale through the use of 'replicas'. But does require some tradeoffs in terms
       of very fast data replication or acceptance of short term inconsistency of data from a client view point.
     </p>

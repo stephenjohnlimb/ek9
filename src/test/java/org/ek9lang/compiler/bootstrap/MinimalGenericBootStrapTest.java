@@ -23,6 +23,8 @@ import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -33,6 +35,11 @@ import org.junit.jupiter.api.Test;
  * are correctly generated on the new type when it is parameterized and importantly that they can be resolved.
  */
 class MinimalGenericBootStrapTest {
+  //Note need to use this name so that ek9 types can be used in compiler.
+  //As not actually loading the basics of EK9 source.
+  final Supplier<List<CompilableSource>> sourceSupplier =
+      () -> List.of(new CompilableSource(Objects.requireNonNull(getClass().getResource(
+          "/examples/bootstrap/org-ek9-lang.ek9")).getPath()));
   private final CompilerReporter reporter = new CompilerReporter(false, false);
   private final Supplier<CompilationPhaseListener> listener
       = () -> compilationEvent -> {
@@ -41,12 +48,6 @@ class MinimalGenericBootStrapTest {
       source.getErrorListener().getErrors().forEachRemaining(reporter::report);
     }
   };
-
-  //Note need to use this name so that ek9 types can be used in compiler.
-  //As not actually loading the basics of EK9 source.
-  final Supplier<List<CompilableSource>> sourceSupplier =
-      () -> List.of(new CompilableSource(Objects.requireNonNull(getClass().getResource(
-          "/examples/bootstrap/org-ek9-lang.ek9")).getPath()));
 
   @Test
   void basicMinimalBootStrap() {
@@ -106,8 +107,8 @@ class MinimalGenericBootStrapTest {
     assertFalse(concreteListType.isReturningParameter());
     assertFalse(concreteListType.isIncomingParameter());
 
-    assertEquals(ISymbol.SymbolGenus.CLASS, concreteListType.getGenus());
-    assertEquals(ISymbol.SymbolCategory.TYPE, concreteListType.getCategory());
+    assertEquals(SymbolGenus.CLASS, concreteListType.getGenus());
+    assertEquals(SymbolCategory.TYPE, concreteListType.getCategory());
 
     assertTrue(concreteListType.isType());
     assertTrue(concreteListType.isParameterisedType());

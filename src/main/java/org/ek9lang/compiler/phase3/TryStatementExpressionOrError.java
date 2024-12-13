@@ -38,7 +38,7 @@ final class TryStatementExpressionOrError extends TypedSymbolAccess
         && ctx.catchStatementExpression().argumentParam().variableOnlyDeclaration() != null) {
       catchBlockOrError(ctx);
     }
-    
+
   }
 
   /**

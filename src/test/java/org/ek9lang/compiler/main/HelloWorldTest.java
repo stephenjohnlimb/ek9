@@ -13,9 +13,9 @@ import org.ek9lang.compiler.common.CompilableProgramSuitable;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.config.FullPhaseSupplier;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.support.PathToSourceFromName;
 import org.ek9lang.compiler.support.SymbolCheck;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
@@ -100,17 +100,17 @@ class HelloWorldTest {
 
       //Let's check if it is possible to resolve in the correct scope
       SymbolCheck someExternalVariableChecker =
-          new SymbolCheck(program, someExternal, false, true, ISymbol.SymbolCategory.VARIABLE);
+          new SymbolCheck(program, someExternal, false, true, SymbolCategory.VARIABLE);
       someExternalVariableChecker.accept("helloMessage");
       someExternalVariableChecker.accept("some.external::helloMessage");
 
       //Now lets check for the program itself
       SymbolCheck introductionTypeChecker =
-          new SymbolCheck(program, introduction, true, true, ISymbol.SymbolCategory.TYPE);
+          new SymbolCheck(program, introduction, true, true, SymbolCategory.TYPE);
       introductionTypeChecker.accept("HelloWorld");
 
       SymbolCheck introductionVariableChecker =
-          new SymbolCheck(program, introduction, false, true, ISymbol.SymbolCategory.VARIABLE);
+          new SymbolCheck(program, introduction, false, true, SymbolCategory.VARIABLE);
 
       //Now because we have referenced helloMessage we should be able to resolve it like this.
       introductionVariableChecker.accept("helloMessage");

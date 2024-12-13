@@ -13,6 +13,8 @@ import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -62,7 +64,7 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
 
     final var isBoolean = constrainedType.isExactSameType(symbolsAndScopes.getEk9Types().ek9Boolean());
     final var isJson = constrainedType.isExactSameType(symbolsAndScopes.getEk9Types().ek9Json());
-    final var isType = constrainedType.getCategory().equals(ISymbol.SymbolCategory.TYPE);
+    final var isType = constrainedType.getCategory().equals(SymbolCategory.TYPE);
     final var isAcceptableGenus = isGenusAcceptable(constrainedType.getGenus());
     final var isAbstract = constrainedType.isMarkedAbstract();
 
@@ -87,18 +89,18 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
 
   }
 
-  private boolean isGenusAcceptable(final ISymbol.SymbolGenus genus) {
+  private boolean isGenusAcceptable(final SymbolGenus genus) {
 
-    return genus.equals(ISymbol.SymbolGenus.CLASS)
-        || genus.equals(ISymbol.SymbolGenus.CLASS_CONSTRAINED)
-        || genus.equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)
-        || genus.equals(ISymbol.SymbolGenus.RECORD);
+    return genus.equals(SymbolGenus.CLASS)
+        || genus.equals(SymbolGenus.CLASS_CONSTRAINED)
+        || genus.equals(SymbolGenus.CLASS_ENUMERATION)
+        || genus.equals(SymbolGenus.RECORD);
 
   }
 
   private void setSuperAggregate(final AggregateSymbol newType, final IAggregateSymbol constrainingAggregate) {
 
-    if (constrainingAggregate.getGenus().equals(ISymbol.SymbolGenus.RECORD)) {
+    if (constrainingAggregate.getGenus().equals(SymbolGenus.RECORD)) {
       newType.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Types().ek9AnyRecord());
     } else {
       newType.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Types().ek9AnyClass());

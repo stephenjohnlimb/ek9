@@ -6,6 +6,7 @@ import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -41,10 +42,10 @@ public class ParameterizedSymbolCreator
 
     PossibleGenericSymbol rtn = null;
 
-    if (possibleGenericSymbol.getCategory().equals(ISymbol.SymbolCategory.TEMPLATE_TYPE)) {
+    if (possibleGenericSymbol.getCategory().equals(SymbolCategory.TEMPLATE_TYPE)) {
       //Going to create a TYPE or another TEMPLATE_TYPE
       rtn = createAggregate(possibleGenericSymbol, typeArguments);
-    } else if (possibleGenericSymbol.getCategory().equals(ISymbol.SymbolCategory.TEMPLATE_FUNCTION)) {
+    } else if (possibleGenericSymbol.getCategory().equals(SymbolCategory.TEMPLATE_FUNCTION)) {
       //Going to be a FUNCTION or another TEMPLATE_FUNCTION
       rtn = createFunction(possibleGenericSymbol, typeArguments);
     }

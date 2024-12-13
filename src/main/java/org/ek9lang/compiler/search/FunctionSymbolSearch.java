@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.search;
 
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 
 /**
  * Search just for a matching function by name.
@@ -12,7 +12,7 @@ public final class FunctionSymbolSearch extends SymbolSearch {
   public FunctionSymbolSearch(final String name) {
 
     super(name);
-    setSearchType(ISymbol.SymbolCategory.FUNCTION);
+    setSearchType(SymbolCategory.FUNCTION);
 
   }
 

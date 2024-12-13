@@ -2,11 +2,11 @@
 <head>
   <meta charset="UTF-8"/>
   <title>EK9 programming language network types</title>
-  <meta name="description" content="The EK9 programming language network types
-    include TCP, UDP and HTTP."/>
+  <meta content="The EK9 programming language network types
+    include TCP, UDP and HTTP." name="description"/>
 
-  <link rel="stylesheet" media="all" href="style.css"/>
-  <link rel="icon" type="image/png" href="ek9favicon.png"/>
+  <link href="style.css" media="all" rel="stylesheet"/>
+  <link href="ek9favicon.png" rel="icon" type="image/png"/>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
   <script>
@@ -26,7 +26,7 @@
 <nav role="navigation">
   <header role="banner">
     <h1 id="logo">
-      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+      <a aria-label="EK9lang.org" href="https://www.ek9lang.org/" role="img" title="ek9lang.org">
         EK9lang.org
       </a>
     </h1>
@@ -39,7 +39,7 @@
     V: 0.0.1
   </h2>
   <p>
-    &#169; 2020-2024 S.J.limb
+    &#169; 2020-2025 S.J.limb
   </p>
 
   <ul>
@@ -116,7 +116,7 @@
     <h4 id="udp">UDP Examples</h4>
     <p>
       There are two server examples and two client examples for
-      <a target="_blank" title="UDP" href="https://en.wikipedia.org/wiki/User_Datagram_Protocol">UDP</a>;
+      <a href="https://en.wikipedia.org/wiki/User_Datagram_Protocol" target="_blank" title="UDP">UDP</a>;
       each of which shows different ways that UDP could be used. These range from
       imperative type examples to more functional examples utilising Stream pipelines. The initial
       packet size of a UDPPacket is 512 bytes, you can alter the size of the packet but this may make it more
@@ -373,7 +373,7 @@ defines module introduction
     <h4 id="tcp">TCP Examples</h4>
     <p>
       There are a number of examples for
-      <a target="_blank" title="TCP" href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol">TCP</a>
+      <a href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol" target="_blank" title="TCP">TCP</a>
       (both client and server); each of which shows different ways that TCP could be used.
       The mechanism for TCP is different from UDP - TCP is connection oriented and more reliable than UDP.
     </p>
@@ -580,7 +580,7 @@ defines module introduction
     <p>
       The second (<b>controlServer</b>) is also a TCP
       server that only processes local connections to shut the whole application down
-      (much like <a target="_blank" title="Tomcat" href="http://tomcat.apache.org/">Tomcat</a> works).
+      (much like <a href="http://tomcat.apache.org/" target="_blank" title="Tomcat">Tomcat</a> works).
     </p>
     <p>
       Following this; two <i>dynamic functions</i> (<b>serverFunction</b>) are created that returns <b>serviceConnections</b>.
@@ -719,10 +719,10 @@ defines module introduction
       EK9 does have <a href="webServices.html">Web Services</a>; these are built on top
       of the <b>HTTP</b> server.
       The built-in <b>HTTP</b> server is not designed to be as massively configurable as implementations like
-      <a target="_blank" title="Tomcat" href="http://tomcat.apache.org/">Tomcat</a>,
-      <a target="_blank" title="Jetty" href="https://www.eclipse.org/jetty/">Jetty</a>,
-      <a target="_blank" title="Nginx" href="https://www.nginx.com/">NGINX</a> or
-      <a target="_blank" title="IIS" href="https://www.iis.net/">IIS</a>.
+      <a href="http://tomcat.apache.org/" target="_blank" title="Tomcat">Tomcat</a>,
+      <a href="https://www.eclipse.org/jetty/" target="_blank" title="Jetty">Jetty</a>,
+      <a href="https://www.nginx.com/" target="_blank" title="Nginx">NGINX</a> or
+      <a href="https://www.iis.net/" target="_blank" title="IIS">IIS</a>.
       It is expected that you would front any EK9 web implementation
       with a caching proxy server and would deploy instances of your application via a range of scalable containers.
     </p>
@@ -737,7 +737,7 @@ defines module introduction
       the content (HAL/ATOM or bespoke). This means that <b>etag</b> and <b>last modified</b> headers are 'baked in'.
       So verbs like <b>PUT, PATCH</b> and <b>DELETE</b> can be used to EK9 mandates the use of headers to ensure
       up-to-date versions are being referenced.
-      <a target="_blank" title="RESTFul API" href="https://restfulapi.net/">RESTFULAPI</a> has more details on this
+      <a href="https://restfulapi.net/" target="_blank" title="RESTFul API">RESTFULAPI</a> has more details on this
       if you are new to REST.
     </p>
     <h4>Conclusion</h4>

@@ -50,6 +50,7 @@ import org.ek9lang.compiler.symbols.StreamCallSymbol;
 import org.ek9lang.compiler.symbols.StreamPipeLineSymbol;
 import org.ek9lang.compiler.symbols.SwitchSymbol;
 import org.ek9lang.compiler.symbols.Symbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.symbols.TrySymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.symbols.WhileSymbol;
@@ -246,7 +247,7 @@ public class SymbolFactory {
 
     configureAggregate(pack, new Ek9Token(ctx.start));
     //Also add in a default constructor.
-    pack.setGenus(ISymbol.SymbolGenus.META_DATA);
+    pack.setGenus(SymbolGenus.META_DATA);
     aggregateFactory.addConstructor(pack);
 
     return pack;
@@ -272,7 +273,7 @@ public class SymbolFactory {
       program.putSquirrelledData("APPLICATION", ctx.identifierReference().getText());
     }
 
-    program.setGenus(ISymbol.SymbolGenus.PROGRAM);
+    program.setGenus(SymbolGenus.PROGRAM);
 
     return program;
   }
@@ -291,7 +292,7 @@ public class SymbolFactory {
     final var newClass = newAggregateWithTraitsSymbol(className, new Ek9Token(ctx.start));
 
     newClass.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
-    newClass.setGenus(ISymbol.SymbolGenus.CLASS);
+    newClass.setGenus(SymbolGenus.CLASS);
     newClass.setMarkedAbstract(ctx.ABSTRACT() != null);
 
     final var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);
@@ -316,7 +317,7 @@ public class SymbolFactory {
     final var component = newAggregateWithTraitsSymbol(componentName, new Ek9Token(ctx.start));
 
     component.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
-    component.setGenus(ISymbol.SymbolGenus.COMPONENT);
+    component.setGenus(SymbolGenus.COMPONENT);
     component.setMarkedAbstract(ctx.ABSTRACT() != null);
 
     return component;
@@ -334,7 +335,7 @@ public class SymbolFactory {
     final var trait = newAggregateWithTraitsSymbol(traitName, new Ek9Token(ctx.start));
 
     configureAggregate(trait, new Ek9Token(ctx.start));
-    trait.setGenus(ISymbol.SymbolGenus.CLASS_TRAIT);
+    trait.setGenus(SymbolGenus.CLASS_TRAIT);
 
     //All traits are designed to be open to extending and use/override.
     //Even though trait can have abstract and open - this is just for syntax consistency
@@ -358,7 +359,7 @@ public class SymbolFactory {
 
     configureAggregate(newRecord, new Ek9Token(ctx.start));
     newRecord.setOpenForExtension(ctx.ABSTRACT() != null || ctx.OPEN() != null);
-    newRecord.setGenus(ISymbol.SymbolGenus.RECORD);
+    newRecord.setGenus(SymbolGenus.RECORD);
     newRecord.setMarkedAbstract(ctx.ABSTRACT() != null);
 
     return newRecord;
@@ -395,9 +396,9 @@ public class SymbolFactory {
 
     //While it maybe a function we need to know if it is abstract or not
     if (ctx.ABSTRACT() == null) {
-      newFunction.setGenus(ISymbol.SymbolGenus.FUNCTION);
+      newFunction.setGenus(SymbolGenus.FUNCTION);
     } else {
-      newFunction.setGenus(ISymbol.SymbolGenus.FUNCTION_TRAIT);
+      newFunction.setGenus(SymbolGenus.FUNCTION_TRAIT);
     }
 
     final var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);
@@ -427,7 +428,7 @@ public class SymbolFactory {
 
         final var textBase = new AggregateSymbol(baseName, parsedModule.getModuleScope());
         configureAggregate(textBase, new Ek9Token(ctx.start));
-        textBase.setGenus(ISymbol.SymbolGenus.TEXT);
+        textBase.setGenus(SymbolGenus.TEXT);
 
         parsedModule.getModuleScope().define(textBase);
 
@@ -442,7 +443,7 @@ public class SymbolFactory {
       final var text = new AggregateSymbol(textName, parsedModule.getModuleScope());
 
       configureAggregate(text, new Ek9Token(ctx.start));
-      text.setGenus(ISymbol.SymbolGenus.TEXT);
+      text.setGenus(SymbolGenus.TEXT);
       //Now ensure it is set up as the 'super'.
       text.setSuperAggregate((IAggregateSymbol) base.get());
       //Store both the language this is for and the base name, this will be useful later
@@ -518,7 +519,7 @@ public class SymbolFactory {
     final var uri = ctx.Uriproto().getText();
 
     configureAggregate(service, new Ek9Token(ctx.start));
-    service.setGenus(ISymbol.SymbolGenus.SERVICE);
+    service.setGenus(SymbolGenus.SERVICE);
     service.putSquirrelledData("HTTPURI", uri);
     checkForInvalidServiceDefinition.accept(service);
 
@@ -563,7 +564,7 @@ public class SymbolFactory {
     final var application = new AggregateSymbol(applicationName, parsedModule.getModuleScope());
 
     configureAggregate(application, new Ek9Token(ctx.start));
-    application.setGenus(ISymbol.SymbolGenus.GENERAL_APPLICATION);
+    application.setGenus(SymbolGenus.GENERAL_APPLICATION);
 
     return application;
   }
@@ -600,7 +601,7 @@ public class SymbolFactory {
     newFunction.setOuterMostTypeOrFunction(enclosingMainTypeOrFunction);
     configureSymbol(newFunction, new Ek9Token(ctx.start));
     newFunction.setModuleScope(parsedModule.getModuleScope());
-    newFunction.setGenus(ISymbol.SymbolGenus.FUNCTION);
+    newFunction.setGenus(SymbolGenus.FUNCTION);
     newFunction.setScopeType(IScope.ScopeType.DYNAMIC_BLOCK);
     newFunction.setMarkedPure(ctx.PURE() != null);
     newFunction.setReferenced(true);
@@ -656,7 +657,7 @@ public class SymbolFactory {
 
     final var startToken = new Ek9Token(ctx.DEFAULT().getSymbol());
 
-    if (aggregate.getGenus().equals(ISymbol.SymbolGenus.CLASS_TRAIT)) {
+    if (aggregate.getGenus().equals(SymbolGenus.CLASS_TRAIT)) {
       final var msg = "wrt to type: '" + aggregate.getFriendlyName() + "':";
       final var errorListener = parsedModule.getSource().getErrorListener();
       errorListener.semanticError(startToken, msg, DEFAULT_AND_TRAIT);
@@ -743,9 +744,9 @@ public class SymbolFactory {
     configureAggregate(aggregateSymbol, new Ek9Token(ctx.start));
 
     if (ctx.typeDef() != null) {
-      aggregateSymbol.setGenus(ISymbol.SymbolGenus.CLASS_CONSTRAINED);
+      aggregateSymbol.setGenus(SymbolGenus.CLASS_CONSTRAINED);
     } else if (ctx.enumerationDeclaration() != null) {
-      aggregateSymbol.setGenus(ISymbol.SymbolGenus.CLASS_ENUMERATION);
+      aggregateSymbol.setGenus(SymbolGenus.CLASS_ENUMERATION);
       aggregateFactory.addEnumerationMethods(aggregateSymbol);
     }
 
@@ -1209,7 +1210,7 @@ public class SymbolFactory {
     final var clazz = new AggregateWithTraitsSymbol(className, scope);
 
     configureAggregate(clazz, start);
-    clazz.setGenus(ISymbol.SymbolGenus.CLASS);
+    clazz.setGenus(SymbolGenus.CLASS);
 
     return clazz;
   }

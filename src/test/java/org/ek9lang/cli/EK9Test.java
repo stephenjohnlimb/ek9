@@ -33,7 +33,7 @@ import org.junit.jupiter.params.provider.ValueSource;
  */
 //Specific tests that manipulate files and specifics in ek9 must not run in parallel.
 @Execution(SAME_THREAD)
-@ResourceLock(value="file_access", mode=READ_WRITE)
+@ResourceLock(value = "file_access", mode = READ_WRITE)
 final class EK9Test {
   private final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
   private final OsSupport osSupport = new OsSupport(true);

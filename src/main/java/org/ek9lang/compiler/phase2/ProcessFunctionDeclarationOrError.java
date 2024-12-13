@@ -8,7 +8,7 @@ import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 
 final class ProcessFunctionDeclarationOrError extends RuleSupport
     implements Consumer<EK9Parser.FunctionDeclarationContext> {
@@ -23,7 +23,7 @@ final class ProcessFunctionDeclarationOrError extends RuleSupport
     super(symbolsAndScopes, errorListener);
     this.functionSuitableToExtendOrError =
         new SuitableToExtendOrError(symbolsAndScopes, errorListener,
-            List.of(ISymbol.SymbolGenus.FUNCTION, ISymbol.SymbolGenus.FUNCTION_TRAIT), true);
+            List.of(SymbolGenus.FUNCTION, SymbolGenus.FUNCTION_TRAIT), true);
     this.synthesizeSuperFunction =
         new SynthesizeSuperFunction(symbolsAndScopes, symbolFactory, errorListener);
 

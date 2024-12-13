@@ -8,6 +8,7 @@ import org.ek9lang.compiler.support.AggregateFactory;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.SymbolTable;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -43,7 +44,7 @@ public class AbstractSymbolTestBase {
     symbolTable.define(ek9Time);
   }
 
-  protected void assertResolution(final String typeDefForm, final ISymbol.SymbolCategory expectedCategory) {
+  protected void assertResolution(final String typeDefForm, final SymbolCategory expectedCategory) {
     var typeDefResolver = new TypeDefResolver(symbolTable);
     var resolved = typeDefResolver.typeDefToSymbol(typeDefForm);
     assertTrue(resolved.isPresent());

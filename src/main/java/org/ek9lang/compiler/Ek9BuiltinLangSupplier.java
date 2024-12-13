@@ -3859,7 +3859,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   private InputStream getOrgEk9MathDeclarations() {
 
     var sources = List.of(ORG_EK9_MATH_PREMABLE, DEFINES_CONSTANT, DEFINE_MATH_CONSTANTS);
-    
+
     return new ByteArrayInputStream(String.join("", sources).getBytes());
   }
 }

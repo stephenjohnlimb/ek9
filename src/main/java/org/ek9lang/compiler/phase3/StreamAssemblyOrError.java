@@ -569,7 +569,6 @@ public class StreamAssemblyOrError extends TypedSymbolAccess implements Consumer
   }
 
 
-
   private ISymbol parameterisedListTypeOrError(final Token opLocation, final ISymbol currentStreamType) {
 
     //Access the generic List type - this has been pre-located for quicker use.

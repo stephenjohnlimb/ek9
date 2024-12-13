@@ -11,7 +11,7 @@ import org.ek9lang.compiler.support.ParameterisedLocator;
 import org.ek9lang.compiler.support.ParameterisedTypeData;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
@@ -36,7 +36,7 @@ final class EnumeratedTypeOrError extends TypedSymbolAccess implements Consumer<
 
     //This only deals with enumerations.
     if (symbolsAndScopes.getRecordedSymbol(ctx) instanceof AggregateSymbol enumeration
-        && enumeration.getGenus().equals(ISymbol.SymbolGenus.CLASS_ENUMERATION)) {
+        && enumeration.getGenus().equals(SymbolGenus.CLASS_ENUMERATION)) {
 
       final var startToken = new Ek9Token(ctx.start);
       final var iteratorType = symbolsAndScopes.getEk9Types().ek9Iterator();

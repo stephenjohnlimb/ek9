@@ -2,10 +2,10 @@
 <head>
   <meta charset="UTF-8"/>
   <title>EK9 programming language packaging</title>
-  <meta name="description" content="EK9 programming language packaging
-    is built into the language to enable software built, packaging and publishing."/>
-  <link rel="stylesheet" media="all" href="style.css"/>
-  <link rel="icon" type="image/png" href="ek9favicon.png"/>
+  <meta content="EK9 programming language packaging
+    is built into the language to enable software built, packaging and publishing." name="description"/>
+  <link href="style.css" media="all" rel="stylesheet"/>
+  <link href="ek9favicon.png" rel="icon" type="image/png"/>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6GS00TXGVP"></script>
   <script>
@@ -24,7 +24,7 @@
 <nav role="navigation">
   <header role="banner">
     <h1 id="logo">
-      <a href="https://www.ek9lang.org/" title="ek9lang.org" role="img" aria-label="EK9lang.org">
+      <a aria-label="EK9lang.org" href="https://www.ek9lang.org/" role="img" title="ek9lang.org">
         EK9lang.org
       </a>
     </h1>
@@ -37,7 +37,7 @@
     V: 0.0.1
   </h2>
   <p>
-    &#169; 2020-2024 S.J.limb
+    &#169; 2020-2025 S.J.limb
   </p>
 
   <ul>
@@ -218,7 +218,7 @@ defines module introduction
       This is the <u>second issue</u> developers face; in general you won't want or need to write all the code for your
       application yourself or even with your team. You will probably find someone else has written code
       that you would find useful. That code will most probably have been made available by that developer
-      (or developers) in the <a target="_blank" title="Code Repository" href="https://repo.ek9lang.org">EK9 repository</a>.
+      (or developers) in the <a href="https://repo.ek9lang.org" target="_blank" title="Code Repository">EK9 repository</a>.
     </p>
     <p>
       Conversely, maybe you've developed a number of <b>constructs</b> and what to package those up as a
@@ -403,7 +403,7 @@ defines module introduction
       that feature.
       <br/>
       The <b>version</b> directive is now added to the package declaration, but you should probably align this with
-      some sort of source code repository like <a target="_blank" title="GIT" href="https://git-scm.com">git</a> or something like that.
+      some sort of source code repository like <a href="https://git-scm.com" target="_blank" title="GIT">git</a> or something like that.
     </p>
     <p>
       Now add in your <b>version</b> number, as shown below we've decided this version is <b>2.3.14-0</b>. Now each time
@@ -444,10 +444,10 @@ defines module introduction
     </p>
     <p>
       By using something like
-      <a target="_blank" title="GitHub Actions" href="https://github.com/features/actions">GitHub Actions</a>,
-      <a target="_blank" title="AWS code pipeline" href="https://aws.amazon.com/codepipeline/">AWS</a>,
-      <a target="_blank" title="Azure code pipeline" href="https://azure.microsoft.com/en-gb/services/devops/pipelines/">Azure</a>
-      or <a target="_blank" title="Jenkins" href="https://www.eclipse.org/hudson/">Hudson/Jenkins</a> you can define phases of a build - and this
+      <a href="https://github.com/features/actions" target="_blank" title="GitHub Actions">GitHub Actions</a>,
+      <a href="https://aws.amazon.com/codepipeline/" target="_blank" title="AWS code pipeline">AWS</a>,
+      <a href="https://azure.microsoft.com/en-gb/services/devops/pipelines/" target="_blank" title="Azure code pipeline">Azure</a>
+      or <a href="https://www.eclipse.org/hudson/" target="_blank" title="Jenkins">Hudson/Jenkins</a> you can define phases of a build - and this
       can include alterations to the version being built. See the <a href="commandline.html">command line</a> for
       details on the command line options for updating the version number.
     </p>

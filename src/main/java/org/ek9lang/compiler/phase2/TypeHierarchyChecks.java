@@ -17,6 +17,7 @@ import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
@@ -84,7 +85,7 @@ public final class TypeHierarchyChecks extends CompilerPhase {
                              final HashMap<String, ISymbol> processedSymbols,
                              final ISymbol symbol) {
 
-    final var classTraitHierarchy = symbol.getGenus().equals(ISymbol.SymbolGenus.CLASS_TRAIT);
+    final var classTraitHierarchy = symbol.getGenus().equals(SymbolGenus.CLASS_TRAIT);
     checkForCircularLoops(errorListener, processedSymbols, new HashSet<>(), symbol, classTraitHierarchy);
 
   }

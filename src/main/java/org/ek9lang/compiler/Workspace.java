@@ -126,7 +126,7 @@ public class Workspace {
   }
 
   public Collection<CompilableSource> getSources() {
-    
+
     return sources.values();
   }
 }

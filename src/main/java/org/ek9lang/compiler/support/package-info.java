@@ -28,16 +28,16 @@
  * <p>
  * The method
  * {@link org.ek9lang.compiler.symbols.ModuleScope#resolveOrDefine(
- * org.ek9lang.compiler.symbols.PossibleGenericSymbol,
+ *org.ek9lang.compiler.symbols.PossibleGenericSymbol,
  * org.ek9lang.compiler.common.ErrorListener)}
  * calls into
  * the {@link org.ek9lang.compiler.CompilableProgram#resolveOrDefine(
- * org.ek9lang.compiler.symbols.PossibleGenericSymbol)}
+ *org.ek9lang.compiler.symbols.PossibleGenericSymbol)}
  * This code checks if a parameterised symbol already exists for what is being asked for (the symbol being asked for
  * is not fully defined yet as it is just a form of lookup).
  * This 'lookup' originated in
  * {@link org.ek9lang.compiler.support.SymbolFactory#newParameterisedSymbol(
- * org.ek9lang.compiler.symbols.PossibleGenericSymbol, java.util.List)}.
+ *org.ek9lang.compiler.symbols.PossibleGenericSymbol, java.util.List)}.
  * That method delegated to {@link org.ek9lang.compiler.support.ParameterizedSymbolCreator}.
  * It was then 'routed via {@link org.ek9lang.compiler.common.SymbolsAndScopes}, this is a critical component
  * used in almost all the 'listeners' that are called when the 'ANTLR' AST is traversed.

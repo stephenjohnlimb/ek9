@@ -13,9 +13,9 @@ import org.ek9lang.compiler.support.InternalNameFor;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeSubstitution;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.symbols.base.AbstractSymbolTestBase;
 import org.junit.jupiter.api.Assertions;
@@ -80,6 +80,7 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
   private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator(new InternalNameFor());
 
   private final ErrorListener errorListener = new ErrorListener("test");
+
   /**
    * This is the main test in this file, but there are some minor checks as well.
    */
@@ -127,20 +128,20 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
     assertTrue(methodReturnType.isPresent());
 
     //Conceptual
-    assertResolution("D1", ISymbol.SymbolCategory.TEMPLATE_TYPE);
-    assertResolution("G1", ISymbol.SymbolCategory.TEMPLATE_TYPE);
-    assertResolution("G2", ISymbol.SymbolCategory.TEMPLATE_TYPE);
-    assertResolution("SingleGeneric", ISymbol.SymbolCategory.TEMPLATE_TYPE);
+    assertResolution("D1", SymbolCategory.TEMPLATE_TYPE);
+    assertResolution("G1", SymbolCategory.TEMPLATE_TYPE);
+    assertResolution("G2", SymbolCategory.TEMPLATE_TYPE);
+    assertResolution("SingleGeneric", SymbolCategory.TEMPLATE_TYPE);
 
     //Concrete
-    assertResolution("D1 of (String)", ISymbol.SymbolCategory.TYPE);
-    assertResolution("D1 of (D1 of (String))", ISymbol.SymbolCategory.TYPE);
-    assertResolution("G2 of (String)", ISymbol.SymbolCategory.TYPE);
-    assertResolution("G1 of (String)", ISymbol.SymbolCategory.TYPE);
-    assertResolution("G1 of (G2 of (String))", ISymbol.SymbolCategory.TYPE);
-    assertResolution("D1 of (G2 of (String))", ISymbol.SymbolCategory.TYPE);
-    assertResolution("D1 of (D1 of (G2 of (String)))", ISymbol.SymbolCategory.TYPE);
-    assertResolution("G2 of (G1 of (String))", ISymbol.SymbolCategory.TYPE);
+    assertResolution("D1 of (String)", SymbolCategory.TYPE);
+    assertResolution("D1 of (D1 of (String))", SymbolCategory.TYPE);
+    assertResolution("G2 of (String)", SymbolCategory.TYPE);
+    assertResolution("G1 of (String)", SymbolCategory.TYPE);
+    assertResolution("G1 of (G2 of (String))", SymbolCategory.TYPE);
+    assertResolution("D1 of (G2 of (String))", SymbolCategory.TYPE);
+    assertResolution("D1 of (D1 of (G2 of (String)))", SymbolCategory.TYPE);
+    assertResolution("G2 of (G1 of (String))", SymbolCategory.TYPE);
   }
 
   /**
@@ -200,12 +201,12 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
     var d1OfTypeX = createD1OfTypeX();
     assertTrue(d1OfTypeX.isGenericInNature());
     assertTrue(d1OfTypeX.isConceptualTypeParameter());
-    assertEquals(ISymbol.SymbolCategory.TEMPLATE_TYPE, d1OfTypeX.getCategory());
+    assertEquals(SymbolCategory.TEMPLATE_TYPE, d1OfTypeX.getCategory());
 
     var g1OfTypeP = createG1OfTypeP(d1OfTypeX);
     assertTrue(g1OfTypeP.isGenericInNature());
     assertTrue(g1OfTypeP.isConceptualTypeParameter());
-    assertEquals(ISymbol.SymbolCategory.TEMPLATE_TYPE, g1OfTypeP.getCategory());
+    assertEquals(SymbolCategory.TEMPLATE_TYPE, g1OfTypeP.getCategory());
 
     //Now make a parameterized version
     var g1OfString = creator.apply(g1OfTypeP, List.of(ek9String));
@@ -215,7 +216,7 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
     assertNotNull(g1OfStringDash);
     assertFalse(g1OfStringDash.isGenericInNature());
     assertFalse(g1OfStringDash.isConceptualTypeParameter());
-    assertEquals(ISymbol.SymbolCategory.TYPE, g1OfStringDash.getCategory());
+    assertEquals(SymbolCategory.TYPE, g1OfStringDash.getCategory());
 
     assertEquals(1, g1OfStringDash.getSymbolsForThisScope().size());
 
@@ -274,7 +275,8 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
     var arg2 = new VariableSymbol("arg2", g2OfT);
     var arg3 = new VariableSymbol("arg3", g1OfG2OfT);
 
-    aggregateFactory.addPublicMethod(SingleGeneric, "methodOne", List.of(arg0, arg1, arg2, arg3), Optional.of(g2OfG1OfT));
+    aggregateFactory.addPublicMethod(SingleGeneric, "methodOne", List.of(arg0, arg1, arg2, arg3),
+        Optional.of(g2OfG1OfT));
 
     symbolTable.define(SingleGeneric);
     return SingleGeneric;
