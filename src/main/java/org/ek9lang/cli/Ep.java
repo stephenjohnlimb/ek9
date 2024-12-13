@@ -48,7 +48,7 @@ final class Ep extends E {
       final var fromPath = projectDirectory.toPath();
       final var listOfFiles = compilationContext.sourceFileCache().getPackageFiles();
 
-      if (compilationContext.commandLine().isVerbose()) {
+      if (compilationContext.commandLine().options().isVerbose()) {
         listOfFiles.forEach(file -> log("Zip: " + file.toString()));
       }
 

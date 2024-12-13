@@ -55,14 +55,14 @@ final class Ek9 {
   private static final Function<CommandLineDetails, CompilationContext> compilationContextCreation =
       commandLine -> {
         final var muteReportedErrors = false;
-        final var compilationReporter = new CompilationReporter(commandLine.isVerbose());
-        final var compilerReporter = new CompilerReporter(commandLine.isVerbose(), false);
+        final var compilationReporter = new CompilationReporter(commandLine.options().isVerbose());
+        final var compilerReporter = new CompilerReporter(commandLine.options().isVerbose(), false);
         final var sourceFileCache = new FileCache(commandLine);
         final var sourceSupplier = new Ek9BuiltinLangSupplier();
         final var bootStrap =
             new Ek9LanguageBootStrap(sourceSupplier, compilationReporter::logPhaseCompilation, compilerReporter);
         final var allPhases = new FullPhaseSupplier(bootStrap.get(),
-            compilationReporter::logPhaseCompilation, new CompilerReporter(commandLine.isVerbose(), false));
+            compilationReporter::logPhaseCompilation, new CompilerReporter(commandLine.options().isVerbose(), false));
         final var compiler = new Ek9Compiler(allPhases, muteReportedErrors);
 
         return new CompilationContext(commandLine, compiler, sourceFileCache, muteReportedErrors);
@@ -74,7 +74,7 @@ final class Ek9 {
   Ek9(final CompilationContext compilationContext) {
 
     this.compilationContext = compilationContext;
-    this.reporter = new CompilationReporter(compilationContext.commandLine().isVerbose());
+    this.reporter = new CompilationReporter(compilationContext.commandLine().options().isVerbose());
 
   }
 
@@ -106,7 +106,7 @@ final class Ek9 {
   int run() throws InterruptedException {
 
     //This will cause the application to block and remain running as a language server.
-    if (compilationContext.commandLine().isRunEk9AsLanguageServer()) {
+    if (compilationContext.commandLine().options().isRunEk9AsLanguageServer()) {
       return runAsLanguageServer();
     }
 
@@ -123,11 +123,11 @@ final class Ek9 {
   @SuppressWarnings("java:S106")
   private int runAsLanguageServer() throws InterruptedException {
 
-    reporter.report("EK9 running as LSP languageHelp=" + compilationContext.commandLine()
-        .isEk9LanguageServerHelpEnabled());
-    final var enableDebugOutput = compilationContext.commandLine().isDebugVerbose();
+    final var enabled = compilationContext.commandLine().options().isEk9LanguageServerHelpEnabled();
+    reporter.report("EK9 running as LSP languageHelp=" + enabled);
+    final var enableDebugOutput = compilationContext.commandLine().options().isDebugVerbose();
     final var startListening = Server.runEk9LanguageServer(compilationContext.commandLine().getOsSupport(), System.in,
-        System.out, compilationContext.commandLine().isEk9LanguageServerHelpEnabled(), enableDebugOutput);
+        System.out, compilationContext.commandLine().options().isEk9LanguageServerHelpEnabled(), enableDebugOutput);
 
     try {
       startListening.get();
@@ -151,19 +151,19 @@ final class Ek9 {
     int rtn = BAD_COMMANDLINE_EXIT_CODE;
     E execution = null;
 
-    if (compilationContext.commandLine().isJustBuildTypeOption()) {
+    if (compilationContext.commandLine().options().isJustBuildTypeOption()) {
       execution = getExecutionForBuildTypeOption(compilationContext);
       rtn = SUCCESS_EXIT_CODE;
-    } else if (compilationContext.commandLine().isReleaseVectorOption()) {
+    } else if (compilationContext.commandLine().options().isReleaseVectorOption()) {
       execution = getExecutionForReleaseVectorOption(compilationContext);
       rtn = SUCCESS_EXIT_CODE;
-    } else if (compilationContext.commandLine().isDeveloperManagementOption()) {
+    } else if (compilationContext.commandLine().options().isDeveloperManagementOption()) {
       execution = getExecutionForDeveloperManagementOption(compilationContext);
       rtn = SUCCESS_EXIT_CODE;
-    } else if (compilationContext.commandLine().isUnitTestExecution()) {
+    } else if (compilationContext.commandLine().options().isUnitTestExecution()) {
       execution = new Et(compilationContext);
       rtn = SUCCESS_EXIT_CODE;
-    } else if (compilationContext.commandLine().isRunOption()) {
+    } else if (compilationContext.commandLine().options().isRunOption()) {
       execution = new Er(compilationContext);
       rtn = RUN_COMMAND_EXIT_CODE;
     }
@@ -188,9 +188,9 @@ final class Ek9 {
 
   private E getExecutionForDeveloperManagementOption(final CompilationContext compilationContext) {
 
-    if (compilationContext.commandLine().isGenerateSigningKeys()) {
+    if (compilationContext.commandLine().options().isGenerateSigningKeys()) {
       return new Egk(compilationContext);
-    } else if (compilationContext.commandLine().isUpdateUpgrade()) {
+    } else if (compilationContext.commandLine().options().isUpdateUpgrade()) {
       return new Up(compilationContext);
     }
 
@@ -199,19 +199,19 @@ final class Ek9 {
 
   private E getExecutionForBuildTypeOption(CompilationContext compilationContext) {
 
-    if (compilationContext.commandLine().isCleanAll()) {
+    if (compilationContext.commandLine().options().isCleanAll()) {
       return new Ecl(compilationContext);
-    } else if (compilationContext.commandLine().isResolveDependencies()) {
+    } else if (compilationContext.commandLine().options().isResolveDependencies()) {
       return new Edp(compilationContext);
-    } else if (compilationContext.commandLine().isIncrementalCompile()) {
+    } else if (compilationContext.commandLine().options().isIncrementalCompile()) {
       return new Eic(compilationContext);
-    } else if (compilationContext.commandLine().isFullCompile()) {
+    } else if (compilationContext.commandLine().options().isFullCompile()) {
       return new Efc(compilationContext);
-    } else if (compilationContext.commandLine().isPackaging()) {
+    } else if (compilationContext.commandLine().options().isPackaging()) {
       return new Ep(compilationContext);
-    } else if (compilationContext.commandLine().isInstall()) {
+    } else if (compilationContext.commandLine().options().isInstall()) {
       return new Ei(compilationContext);
-    } else if (compilationContext.commandLine().isDeployment()) {
+    } else if (compilationContext.commandLine().options().isDeployment()) {
       return new Ed(compilationContext);
     }
 
@@ -220,13 +220,13 @@ final class Ek9 {
 
   private E getExecutionForReleaseVectorOption(CompilationContext compilationContext) {
 
-    if (compilationContext.commandLine().isIncrementReleaseVector()) {
+    if (compilationContext.commandLine().options().isIncrementReleaseVector()) {
       return new Eiv(compilationContext);
-    } else if (compilationContext.commandLine().isSetReleaseVector()) {
+    } else if (compilationContext.commandLine().options().isSetReleaseVector()) {
       return new Esv(compilationContext);
-    } else if (compilationContext.commandLine().isSetFeatureVector()) {
+    } else if (compilationContext.commandLine().options().isSetFeatureVector()) {
       return new Esf(compilationContext);
-    } else if (compilationContext.commandLine().isPrintReleaseVector()) {
+    } else if (compilationContext.commandLine().options().isPrintReleaseVector()) {
       return new Epv(compilationContext);
     }
 

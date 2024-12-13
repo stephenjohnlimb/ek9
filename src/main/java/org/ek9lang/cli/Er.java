@@ -41,7 +41,7 @@ class Er extends E {
 
         //OK we can issue run command.
         final var theRunCommand = new StringBuilder("java");
-        if (compilationContext.commandLine().isRunDebugMode()) {
+        if (compilationContext.commandLine().options().isRunDebugMode()) {
           theRunCommand.append(" -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:")
               .append(compilationContext.commandLine().debugPort);
         }

@@ -60,7 +60,7 @@ final class Edp extends E {
       return false;
     }
 
-    if (compilationContext.commandLine().isVerbose()) {
+    if (compilationContext.commandLine().options().isVerbose()) {
       showAnalysisInformation(dependencyManager);
     }
 

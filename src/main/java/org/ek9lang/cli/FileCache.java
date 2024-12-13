@@ -33,7 +33,7 @@ final class FileCache {
   FileCache(final CommandLineDetails commandLine) {
 
     this.commandLine = commandLine;
-    this.devBuild = commandLine.isDevBuild();
+    this.devBuild = commandLine.options().isDevBuild();
 
   }
 

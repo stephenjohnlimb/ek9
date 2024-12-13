@@ -19,7 +19,7 @@ final class Esv extends Eve {
   @Override
   protected boolean doRun() {
 
-    final var newVersionParameter = compilationContext.commandLine().getOptionParameter("-SV");
+    final var newVersionParameter = compilationContext.commandLine().options().getOptionParameter("-SV");
 
     return super.setVersionNewNumber(Version.withNoBuildNumber(newVersionParameter));
   }

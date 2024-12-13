@@ -67,22 +67,22 @@ final class CommandLineDetailsTest {
           .andThen(processStringCommandLineExpectSuccess);
 
   private final Consumer<CommandLineDetails> assertIncrementalCompilation =
-      commandLineDetails -> assertTrue(commandLineDetails.isIncrementalCompile());
+      commandLineDetails -> assertTrue(commandLineDetails.options().isIncrementalCompile());
 
   private final Consumer<CommandLineDetails> assertDevBuild =
-      commandLineDetails -> assertTrue(commandLineDetails.isDevBuild());
+      commandLineDetails -> assertTrue(commandLineDetails.options().isDevBuild());
 
   private final Consumer<CommandLineDetails> assertFullCompilation =
-      commandLineDetails -> assertTrue(commandLineDetails.isFullCompile());
+      commandLineDetails -> assertTrue(commandLineDetails.options().isFullCompile());
 
   private final Consumer<CommandLineDetails> assertDebug =
-      commandLineDetails -> assertTrue(commandLineDetails.isDebuggingInstrumentation());
+      commandLineDetails -> assertTrue(commandLineDetails.options().isDebuggingInstrumentation());
 
   private final Consumer<CommandLineDetails> assertVerbose =
-      commandLineDetails -> assertTrue(commandLineDetails.isVerbose());
+      commandLineDetails -> assertTrue(commandLineDetails.options().isVerbose());
 
   private final Consumer<CommandLineDetails> assertCheckCompile =
-      commandLineDetails -> assertTrue(commandLineDetails.isCheckCompileOnly());
+      commandLineDetails -> assertTrue(commandLineDetails.options().isCheckCompileOnly());
 
   @BeforeAll
   static void disableLogger() {
@@ -154,15 +154,15 @@ final class CommandLineDetailsTest {
   @Test
   void testLanguageServerCommandLine() {
     runCommandLineExpecting("-ls",
-        commandLineDetails -> assertTrue(commandLineDetails.isRunEk9AsLanguageServer()));
+        commandLineDetails -> assertTrue(commandLineDetails.options().isRunEk9AsLanguageServer()));
   }
 
   @Test
   void testLanguageServerWithHoverHelpCommandLine() {
     Consumer<CommandLineDetails> assertion1 =
-        commandLineDetails -> assertTrue(commandLineDetails.isRunEk9AsLanguageServer());
+        commandLineDetails -> assertTrue(commandLineDetails.options().isRunEk9AsLanguageServer());
     Consumer<CommandLineDetails> assertion2 =
-        commandLineDetails -> assertTrue(commandLineDetails.isEk9LanguageServerHelpEnabled());
+        commandLineDetails -> assertTrue(commandLineDetails.options().isEk9LanguageServerHelpEnabled());
 
     runCommandLineExpecting("-ls -lsh", assertion1.andThen(assertion2));
   }
@@ -340,7 +340,7 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine("-Cl " + sourceName));
-    assertTrue(underTest.isCleanAll());
+    assertTrue(underTest.options().isCleanAll());
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 
@@ -357,7 +357,7 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine("-Dp " + sourceName));
-    assertTrue(underTest.isResolveDependencies());
+    assertTrue(underTest.options().isResolveDependencies());
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 
@@ -369,7 +369,7 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine("-P " + sourceName));
-    assertTrue(underTest.isPackaging());
+    assertTrue(underTest.options().isPackaging());
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 
@@ -386,7 +386,7 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine("-I " + sourceName));
-    assertTrue(underTest.isInstall());
+    assertTrue(underTest.options().isInstall());
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 
@@ -394,7 +394,7 @@ final class CommandLineDetailsTest {
   void testCommandLineGenerateKeys() {
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine("-Gk"));
-    assertTrue(underTest.isGenerateSigningKeys());
+    assertTrue(underTest.options().isGenerateSigningKeys());
   }
 
   @Test
@@ -410,7 +410,7 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine("-D " + sourceName));
-    assertTrue(underTest.isDeployment());
+    assertTrue(underTest.options().isDeployment());
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 
@@ -453,8 +453,8 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine("-SV 10.3.1 " + sourceName));
-    assertTrue(underTest.isSetReleaseVector());
-    assertEquals("10.3.1", underTest.getOptionParameter("-SV"));
+    assertTrue(underTest.options().isSetReleaseVector());
+    assertEquals("10.3.1", underTest.options().getOptionParameter("-SV"));
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 
@@ -477,8 +477,8 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine("-SF 10.3.1-special " + sourceName));
-    assertTrue(underTest.isSetFeatureVector());
-    assertEquals("10.3.1-special", underTest.getOptionParameter("-SF"));
+    assertTrue(underTest.options().isSetFeatureVector());
+    assertEquals("10.3.1-special", underTest.options().getOptionParameter("-SF"));
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 
@@ -500,7 +500,7 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine("-t " + sourceName));
-    assertTrue(underTest.isUnitTestExecution());
+    assertTrue(underTest.options().isUnitTestExecution());
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 
@@ -542,7 +542,7 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine("-d 9000 " + sourceName));
-    assertTrue(underTest.isRunDebugMode());
+    assertTrue(underTest.options().isRunDebugMode());
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 
@@ -554,7 +554,7 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine(sourceName));
-    assertTrue(underTest.isRunNormalMode());
+    assertTrue(underTest.options().isRunNormalMode());
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 
@@ -658,7 +658,7 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine("-T java " + sourceName));
-    assertTrue(underTest.isRunNormalMode());
+    assertTrue(underTest.options().isRunNormalMode());
     assertEquals("HelloWorld", underTest.getProgramToRun());
     assertEquals("java", underTest.getTargetArchitecture());
     assertEquals(sourceName, underTest.getSourceFileName());
@@ -675,7 +675,7 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine(sourceName));
-    assertTrue(underTest.isRunNormalMode());
+    assertTrue(underTest.options().isRunNormalMode());
     assertEquals("HelloWorld", underTest.getProgramToRun());
     assertEquals("java", underTest.getTargetArchitecture());
     assertEquals(sourceName, underTest.getSourceFileName());
@@ -689,7 +689,7 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine("-PV " + sourceName));
-    assertTrue(underTest.isPrintReleaseVector());
+    assertTrue(underTest.options().isPrintReleaseVector());
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 
@@ -708,8 +708,8 @@ final class CommandLineDetailsTest {
 
     CommandLineDetails underTest = createClassUnderTest();
     assertEquals(0, underTest.processCommandLine("-IV " + param + " " + sourceName));
-    assertTrue(underTest.isIncrementReleaseVector());
-    assertEquals(param, underTest.getOptionParameter("-IV"));
+    assertTrue(underTest.options().isIncrementReleaseVector());
+    assertEquals(param, underTest.options().getOptionParameter("-IV"));
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 

@@ -22,7 +22,7 @@ abstract class Ec extends E {
   Ec(final CompilationContext compilationContext) {
 
     super(compilationContext);
-    compilerFlags.setVerbose(compilationContext.commandLine().isVerbose());
+    compilerFlags.setVerbose(compilationContext.commandLine().options().isVerbose());
 
   }
 
@@ -67,20 +67,20 @@ abstract class Ec extends E {
     log("Preparing");
     // Set if not already set
     if (!compilerFlags.isDebuggingInstrumentation()) {
-      setDebuggingInstrumentation(compilationContext.commandLine().isDebuggingInstrumentation());
+      setDebuggingInstrumentation(compilationContext.commandLine().options().isDebuggingInstrumentation());
     }
     if (!compilerFlags.isDevBuild()) {
-      setDevBuild(compilationContext.commandLine().isDevBuild());
+      setDevBuild(compilationContext.commandLine().options().isDevBuild());
     }
 
     if (!compilerFlags.isCheckCompilationOnly()) {
-      setCheckCompilationOnly(compilationContext.commandLine().isCheckCompileOnly());
+      setCheckCompilationOnly(compilationContext.commandLine().options().isCheckCompileOnly());
     }
 
-    if (compilationContext.commandLine().isPhasedCompileOnly()) {
-      final var requiredPhase = compilationContext.commandLine().isDevBuild()
-          ? CompilationPhase.valueOf(compilationContext.commandLine().getOptionParameter("-Cdp")) :
-          CompilationPhase.valueOf(compilationContext.commandLine().getOptionParameter("-Cp"));
+    if (compilationContext.commandLine().options().isPhasedCompileOnly()) {
+      final var requiredPhase = compilationContext.commandLine().options().isDevBuild()
+          ? CompilationPhase.valueOf(compilationContext.commandLine().options().getOptionParameter("-Cdp")) :
+          CompilationPhase.valueOf(compilationContext.commandLine().options().getOptionParameter("-Cp"));
       setPhaseToCompileTo(requiredPhase);
     }
 

@@ -33,7 +33,7 @@ final class Eiv extends Eve {
   protected boolean doRun() {
 
     //Need to get from command line.
-    final var partToIncrement = compilationContext.commandLine().getOptionParameter("-IV");
+    final var partToIncrement = compilationContext.commandLine().options().getOptionParameter("-IV");
     final var versionNumber = Version.withBuildNumber(compilationContext.commandLine().getVersion());
     log("Processing increment " + versionNumber);
     //i.e. Find the key or produce a no-op, this is in place of a switch.

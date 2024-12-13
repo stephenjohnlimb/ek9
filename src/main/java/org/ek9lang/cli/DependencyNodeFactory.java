@@ -20,7 +20,7 @@ final class DependencyNodeFactory extends Reporter {
    */
   DependencyNodeFactory(final CommandLineDetails commandLine, final boolean muteReportedErrors) {
 
-    super(commandLine.isVerbose(), muteReportedErrors);
+    super(commandLine.options().isVerbose(), muteReportedErrors);
     this.commandLine = commandLine;
     packageResolver = new PackageResolver(commandLine, muteReportedErrors);
 

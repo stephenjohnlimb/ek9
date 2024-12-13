@@ -13,7 +13,7 @@ abstract class E extends Reporter {
 
   E(final CompilationContext compilationContext) {
 
-    super(compilationContext.commandLine().isVerbose(), compilationContext.muteReportedErrors());
+    super(compilationContext.commandLine().options().isVerbose(), compilationContext.muteReportedErrors());
     this.compilationContext = compilationContext;
 
   }

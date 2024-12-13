@@ -49,7 +49,7 @@ final class PackageResolver extends Reporter {
 
   PackageResolver(final CommandLineDetails commandLine, final boolean muteReportedErrors) {
 
-    super(commandLine.isVerbose(), muteReportedErrors);
+    super(commandLine.options().isVerbose(), muteReportedErrors);
     this.commandLine = commandLine;
 
   }

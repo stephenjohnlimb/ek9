@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.ek9lang.compiler.CompilationPhase;
@@ -29,13 +28,12 @@ final class CommandLineDetails {
 
   //Clone environment variables in, but also allow use to programmatically alter them.
   private static final Map<String, String> DEFAULTS = new HashMap<>(System.getenv());
-
+  private static final CommandLineHelp commandLineHelp = new CommandLineHelp();
+  private final CommandLineOptions options = new CommandLineOptions();
   private final LanguageMetaData languageMetaData;
   private final OsSupport osSupport;
   private final FileHandling fileHandling;
-  private final List<String> ek9AppParameters = new ArrayList<>();
   private final List<String> ek9AppDefines = new ArrayList<>();
-  private final List<String> ek9ProgramParameters = new ArrayList<>();
   String ek9ProgramToRun = null;
   String targetArchitecture = "java";
   int debugPort = 8000;
@@ -80,45 +78,7 @@ final class CommandLineDetails {
    * Just provides the commandline help text.
    */
   static String getCommandLineHelp() {
-
-    return """
-        where possible options include:
-        \t-V The version of the compiler/runtime
-        \t-ls Run compiler as Language Server
-        \t-lsh Provide EK9 Language Help/Hover
-        \t-h Help message
-        \t-c Incremental compile; but don't run
-        \t-ch Incremental compile; but don't link to final executable
-        \t-cg Incremental compile but with debugging information; but don't run
-        \t-cd Incremental compile include dev code and debugging information; but don't run
-        \t-cdh Incremental compile; include dev code, but don't link to final executable
-        \t-Cp [phase] Full recompilation; compile up to a specific phase
-        \t-Cdp [phase] Full recompilation (include dev code); compile up to a specific phase
-        \t-C Force full recompilation; but don't run
-        \t-Ch Force full recompilation; but don't link to final executable
-        \t-Cg Force full recompilation with debugging information; but don't run
-        \t-Cd Force full recompilation include dev code and debugging information; but don't run
-        \t-Cdh Force full recompilation; include dev code, but don't link to final executable
-        \t-Cl Clean all, including dependencies
-        \t-Dp Resolve all dependencies, this triggers -Cl clean all first
-        \t-P Package ready for deployment to artefact server/library.
-        \t-I Install packaged software to your local library.
-        \t-Gk Generate signing keys for deploying packages to an artefact server
-        \t-D Deploy packaged software, this triggers -P packaging first and -Gk if necessary
-        \t-IV [major|minor|patch|build] - increment part of the release vector
-        \t-SV major.minor.patch - setting to a value i.e 6.8.1-0 (zeros build)
-        \t-SF major.minor.patch-feature - setting to a value i.e 6.8.0-specials-0 (zeros build)
-        \t-PV print out the current version i.e 6.8.1-0 or 6.8.0-specials-0 for a feature.
-        \t-Up Check for newer version of ek9 and upgrade if available.
-        \t-v Verbose mode
-        \t-dv Debug mode - produces internal debug information during compilation
-        \t-t Runs all unit tests that have been found, this triggers -Cd full compile first
-        \t-d port Run in debug mode (requires debugging information - on a port)
-        \t-e <name>=<value> set environment variable i.e. user=Steve or user='Steve Limb' for spaces
-        \t-T target architecture - defaults to 'java' if not specified.
-        \tfilename.ek9 - the main file to work with
-        \t-r Program to run (if EK9 file as more than one)
-        """;
+    return commandLineHelp.helpText();
   }
 
   OsSupport getOsSupport() {
@@ -177,11 +137,18 @@ final class CommandLineDetails {
       if (returnCode == Ek9.RUN_COMMAND_EXIT_CODE) {
         return assessCommandLine(commandLine);
       }
+
       return returnCode;
     } catch (ExitException exitException) {
       Logger.error(exitException);
       return exitException.getExitCode();
     }
+
+  }
+
+  public CommandLineOptions options() {
+
+    return options;
 
   }
 
@@ -249,8 +216,8 @@ final class CommandLineDetails {
   }
 
   private int processPhasedCompilationOption(final String[] strArray,
-                                                 final int index,
-                                                 final List<String> activeParameters) {
+                                             final int index,
+                                             final List<String> activeParameters) {
 
     final var compileCommand = strArray[index];
     if (index < strArray.length - 1) {
@@ -318,7 +285,7 @@ final class CommandLineDetails {
                                  final int index,
                                  final List<String> activeParameters) {
 
-    if (isParameterUnacceptable(strArray[index])) {
+    if (options.isParameterUnacceptable(strArray[index])) {
       Logger.error("Incompatible command line options");
       return Ek9.BAD_COMMANDLINE_EXIT_CODE;
     }
@@ -338,7 +305,7 @@ final class CommandLineDetails {
 
   private boolean isInvalidEk9Parameter(final boolean processingEk9Parameters, final String parameter) {
 
-    return processingEk9Parameters && isParameterUnacceptable(parameter);
+    return processingEk9Parameters && options.isParameterUnacceptable(parameter);
   }
 
   /**
@@ -354,7 +321,7 @@ final class CommandLineDetails {
     final var strArray = commandLine.split(" +(?=([^']*+'[^']*+')*+[^']*+$)");
 
     boolean processingEk9Parameters = true;
-    List<String> activeParameters = ek9AppParameters;
+    List<String> activeParameters = options.getEk9AppParameters();
     int index = 0;
     int returnCode = Ek9.RUN_COMMAND_EXIT_CODE;
 
@@ -362,7 +329,7 @@ final class CommandLineDetails {
 
       if (processIfIndexIsEk9FileName(strArray, index)) {
         processingEk9Parameters = false;
-        activeParameters = ek9ProgramParameters;
+        activeParameters = options.getEk9ProgramParameters();
       } else if (processIfSimpleOption(strArray, index)) {
         index++;
       } else if (isDebugOption(strArray, index)) {
@@ -391,9 +358,9 @@ final class CommandLineDetails {
   private Optional<Integer> checkHelpOrVersion() {
 
     Optional<Integer> rtn = Optional.empty();
-    if (isHelp()) {
+    if (options.isHelp()) {
       rtn = Optional.of(showHelp());
-    } else if (isVersionOfEk9Option()) {
+    } else if (options.isVersionOfEk9Option()) {
       rtn = Optional.of(showVersionOfEk9());
     }
 
@@ -407,11 +374,11 @@ final class CommandLineDetails {
 
     Optional<Integer> rtn = Optional.empty();
     if (ek9ProgramToRun != null) {
-      if (isJustBuildTypeOption()) {
+      if (options.isJustBuildTypeOption()) {
         Logger.error("A Build request for " + errorSuffix);
         rtn = Optional.of(Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE);
       }
-      if (isReleaseVectorOption()) {
+      if (options.isReleaseVectorOption()) {
         Logger.error("A modification to version number for " + errorSuffix);
         rtn = Optional.of(Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE);
       }
@@ -430,14 +397,14 @@ final class CommandLineDetails {
       return helpOrVersion.get();
     }
 
-    appendRunOptionIfNecessary();
+    options.appendRunOptionIfNecessary();
 
-    if (isDeveloperManagementOption() && foundEk9File) {
+    if (options.isDeveloperManagementOption() && foundEk9File) {
       Logger.error("EK9 filename not required for this option.");
       return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
     }
 
-    if (!isDeveloperManagementOption() && !isRunEk9AsLanguageServer()) {
+    if (!options.isDeveloperManagementOption() && !options.isRunEk9AsLanguageServer()) {
       if (!foundEk9File) {
         Logger.error("no EK9 file name in command line [" + commandLine + "]");
         return Ek9.FILE_ISSUE_EXIT_CODE;
@@ -450,7 +417,7 @@ final class CommandLineDetails {
         return inappropriateProgramUse.get();
       }
 
-      if (isRunOption()) {
+      if (options.isRunOption()) {
         return assessRunOptions();
       }
     }
@@ -474,16 +441,6 @@ final class CommandLineDetails {
     //i.e. no further commands need to run
 
     return Ek9.SUCCESS_EXIT_CODE;
-  }
-
-  private void appendRunOptionIfNecessary() {
-
-    //Add in run mode if no options supplied as default.
-    if (!isJustBuildTypeOption() && !isReleaseVectorOption() && !isDeveloperManagementOption()
-        && !isRunDebugMode() && !isRunEk9AsLanguageServer() && !isUnitTestExecution()) {
-      ek9AppParameters.add("-r");
-    }
-
   }
 
   private int assessRunOptions() {
@@ -560,12 +517,12 @@ final class CommandLineDetails {
 
     Integer rtn = null;
     if (!versionProperties.isNewerThan(sourceFile) || forceRegeneration) {
-      if (isVerbose()) {
+      if (options.isVerbose()) {
         Logger.error("Props   : Regenerating " + versionProperties.getFileName());
       }
       rtn = reprocessProperties(sourceFile, versionProperties);
     } else {
-      if (isVerbose()) {
+      if (options.isVerbose()) {
         Logger.error("Props   : Reusing " + versionProperties.getFileName());
       }
     }
@@ -716,81 +673,9 @@ final class CommandLineDetails {
         .orElse(Collections.emptyList());
   }
 
-  private boolean isParameterUnacceptable(final String param) {
-
-    if (isModifierParam(param)) {
-      return false;
-    }
-
-    final var builder = new StringBuilder("Option '").append(param);
-
-    if (!isMainParam(param)) {
-      Logger.error(builder.append("' not understood"));
-      return true;
-    }
-    //only if we are not one of these already.
-    if (isJustBuildTypeOption()) {
-      Logger.error(builder.append("' not compatible with existing build option"));
-      return true;
-    }
-    if (isDeveloperManagementOption()) {
-      Logger.error(builder.append("' not compatible with existing management option"));
-      return true;
-    }
-    if (isReleaseVectorOption()) {
-      Logger.error(builder.append("' not compatible with existing release option"));
-      return true;
-    }
-    if (isRunOption()) {
-      Logger.error(builder.append("' not compatible with existing run option"));
-      return true;
-    }
-    if (isUnitTestExecution()) {
-      Logger.error(builder.append("' not compatible with existing unit test option"));
-      return true;
-    }
-
-    return false;
-  }
-
-  private boolean isMainParam(final String param) {
-
-    return Set.of("-c", "-ch", "-cg", "-cd", "-cdh", "-Cp", "-Cdp", "-C", "-Ch", "-Cg", "-Cd",
-        "-Cdh", "-Cl", "-Dp", "-t", "-d", "-P", "-I", "-Gk", "-D", "-IV", "-SV", "-SF", "-PV",
-        "-Up").contains(param);
-  }
-
   public boolean isDependenciesAltered() {
 
     return dependenciesAltered;
-  }
-
-  private boolean isModifierParam(String param) {
-
-    return Set.of("-V", "-h", "-v", "-dv", "-ls", "-lsh").contains(param);
-  }
-
-  public boolean isDebuggingInstrumentation() {
-
-    return isOptionPresentInAppParameters(
-        Set.of("-cg", "-cd", "-cdh", "-Cg", "-Cd", "-Cdh", "-Cdp"));
-  }
-
-  public boolean isDevBuild() {
-
-    return isOptionPresentInAppParameters(Set.of("-cd", "-cdh", "-Cd", "-Cdh", "-Cdp"));
-  }
-
-  public boolean isJustBuildTypeOption() {
-
-    return isCleanAll() || isResolveDependencies() || isIncrementalCompile() || isFullCompile()
-        || isPackaging() || isInstall() || isDeployment();
-  }
-
-  public boolean isReleaseVectorOption() {
-
-    return isPrintReleaseVector() || isIncrementReleaseVector() || isSetReleaseVector()
-        || isSetFeatureVector();
   }
 
   public List<String> getEk9AppDefines() {
@@ -799,8 +684,7 @@ final class CommandLineDetails {
   }
 
   public List<String> getEk9ProgramParameters() {
-
-    return ek9ProgramParameters;
+    return options.getEk9ProgramParameters();
   }
 
   public String getTargetArchitecture() {
@@ -835,153 +719,4 @@ final class CommandLineDetails {
     return mainSourceFile.getParent();
   }
 
-  public boolean isVerbose() {
-
-    return isOptionPresentInAppParameters(Set.of("-v"));
-  }
-
-  public boolean isDebugVerbose() {
-
-    return isOptionPresentInAppParameters(Set.of("-dv"));
-  }
-
-  public boolean isDeveloperManagementOption() {
-
-    return isGenerateSigningKeys() || isUpdateUpgrade();
-  }
-
-  public boolean isGenerateSigningKeys() {
-
-    return isOptionPresentInAppParameters(Set.of("-Gk"));
-  }
-
-  public boolean isUpdateUpgrade() {
-
-    return isOptionPresentInAppParameters(Set.of("-Up"));
-  }
-
-  public boolean isCleanAll() {
-
-    return isOptionPresentInAppParameters(Set.of("-Cl"));
-  }
-
-  public boolean isResolveDependencies() {
-
-    return isOptionPresentInAppParameters(Set.of("-Dp"));
-  }
-
-  public boolean isIncrementalCompile() {
-
-    return isOptionPresentInAppParameters(Set.of("-c", "-ch", "-cg", "-cd", "-cdh"));
-  }
-
-  public boolean isFullCompile() {
-
-    return isOptionPresentInAppParameters(Set.of("-Cp", "-Cdp", "-C", "-Ch", "-Cg", "-Cd", "-Cdh"));
-  }
-
-  public boolean isCheckCompileOnly() {
-
-    return isOptionPresentInAppParameters(Set.of("-Cp", "-Cdp", "-ch", "-cdh", "-Ch", "-Cdh"));
-  }
-
-  public boolean isPhasedCompileOnly() {
-
-    return isOptionPresentInAppParameters(Set.of("-Cp", "-Cdp"));
-  }
-
-  /**
-   * Access a parameter option from the command line.
-   */
-  public String getOptionParameter(final String option) {
-
-    String rtn = null;
-    int optionIndex = ek9AppParameters.indexOf(option);
-    optionIndex++;
-    if (optionIndex < ek9AppParameters.size()) {
-      rtn = ek9AppParameters.get(optionIndex);
-    }
-
-    return rtn;
-  }
-
-  public boolean isInstall() {
-
-    return isOptionPresentInAppParameters(Set.of("-I"));
-  }
-
-  public boolean isPackaging() {
-
-    return isOptionPresentInAppParameters(Set.of("-P"));
-  }
-
-  public boolean isDeployment() {
-
-    return isOptionPresentInAppParameters(Set.of("-D"));
-  }
-
-  public boolean isPrintReleaseVector() {
-
-    return isOptionPresentInAppParameters(Set.of("-PV"));
-  }
-
-  public boolean isIncrementReleaseVector() {
-
-    return isOptionPresentInAppParameters(Set.of("-IV"));
-  }
-
-  public boolean isSetReleaseVector() {
-
-    return isOptionPresentInAppParameters(Set.of("-SV"));
-  }
-
-  public boolean isSetFeatureVector() {
-
-    return isOptionPresentInAppParameters(Set.of("-SF"));
-  }
-
-  public boolean isHelp() {
-
-    return isOptionPresentInAppParameters(Set.of("-h"));
-  }
-
-  public boolean isVersionOfEk9Option() {
-
-    return isOptionPresentInAppParameters(Set.of("-V"));
-  }
-
-  public boolean isRunEk9AsLanguageServer() {
-
-    return isOptionPresentInAppParameters(Set.of("-ls")) || isEk9LanguageServerHelpEnabled();
-  }
-
-  public boolean isEk9LanguageServerHelpEnabled() {
-
-    return isOptionPresentInAppParameters(Set.of("-lsh"));
-  }
-
-  public boolean isRunOption() {
-
-    return isRunDebugMode() || isRunNormalMode();
-  }
-
-  public boolean isUnitTestExecution() {
-
-    return isOptionPresentInAppParameters(Set.of("-t"));
-  }
-
-  public boolean isRunDebugMode() {
-
-    return isOptionPresentInAppParameters(Set.of("-d"));
-  }
-
-  public boolean isRunNormalMode() {
-
-    return isOptionPresentInAppParameters(Set.of("-r"));
-  }
-
-  private boolean isOptionPresentInAppParameters(final Set<String> options) {
-
-    return options.stream().anyMatch(ek9AppParameters::contains);
-  }
 }
