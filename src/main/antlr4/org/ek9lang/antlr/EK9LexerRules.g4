@@ -505,7 +505,7 @@ LT : '<';
 QUESTION : '?'; // used in syntax and as an operator for isSet
 CHECK : '??'; //null coalescing
 ELVIS: '?:'; //null and isSet coalescing
-GUARD : '?='; // a special type of assign that also checks if null on assignment used in if statements
+GUARD : '?='; // a special type of assign that also checks if null on assignment used in controls
 COALESCE_LT : '<?'; //coalescing LT operator
 COALESCE_LE : '<=?'; //coalescing LTE operator
 COALESCE_GT : '>?'; //coalescing GT operator

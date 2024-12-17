@@ -281,6 +281,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterGuardExpression(final EK9Parser.GuardExpressionContext ctx) {
 
+    complexityCounter.incrementComplexity();
     processGuardExpression.accept(ctx);
 
     super.enterGuardExpression(ctx);
@@ -304,10 +305,11 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   }
 
   @Override
-  public void enterIfStatement(EK9Parser.IfStatementContext ctx) {
+  public void enterIfControlBlock(EK9Parser.IfControlBlockContext ctx) {
     complexityCounter.incrementComplexity();
-    super.enterIfStatement(ctx);
+    super.enterIfControlBlock(ctx);
   }
+
 
   @Override
   public void exitIfStatement(final EK9Parser.IfStatementContext ctx) {

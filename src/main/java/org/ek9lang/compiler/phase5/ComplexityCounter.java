@@ -9,7 +9,6 @@ import org.ek9lang.core.AssertValue;
  * Designed to give a broad indication of complexity, this is not true pure Cyclometric Complexity.
  * But it works on a region or code structure approach, looking at anything that may contribute to code
  * being harder to read or taking more thought than just a simple sequence of statements.
- * </p>
  * It takes into account boolean expressions, exception blocks and case statement for example.
  */
 class ComplexityCounter {

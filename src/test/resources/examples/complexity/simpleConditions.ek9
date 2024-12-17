@@ -5,9 +5,12 @@
 defines module simple.conditions
 
   <?-
-    The utility functions used for testing in this example.
+    General tests that check the complexity of code calculations.
   -?>
   defines function
+
+    getSomeIntegerValue()
+      <- rtn <- 1
 
     //Just counts the exit and also the 'is-set' check.
     @Complexity: PRE_IR_CHECKS: FUNCTION: "testSimpleFunctionComplexity": 2
@@ -34,6 +37,18 @@ defines module simple.conditions
         var++
         assert var == 3
 
+    //Counts exit, if (plus the else if) and also the 'is-set'.
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testMultipleIfComplexityWithConditional": 7
+    testMultipleIfComplexityWithConditional()
+      -> var as Integer
+
+      if var > 10
+        var++
+      else if var < -10 or var == 5
+        var*=2
+
+      assert var?
+
     //Counts exit, ternary and the 'is-set' check
     @Complexity: PRE_IR_CHECKS: FUNCTION: "testTernary": 3
     testTernary()
@@ -58,7 +73,7 @@ defines module simple.conditions
       derived <- v1 <? v2
       assert derived?
 
-    //Counts exit, the elvis operator and the 'is-set' check
+    //Counts exit, the if, the elvis operator and the 'is-set' check
     @Complexity: PRE_IR_CHECKS: FUNCTION: "testElvis": 3
     testElvis()
       v1 <- Integer()
@@ -67,5 +82,14 @@ defines module simple.conditions
       derived <- v1 ?: v2
       assert derived?
 
+    //Counts exit, the if, the guard, the control and the 'is-set' check
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testGuardedIfStatement": 5
+    testGuardedIfStatement()
+
+      var <- Integer()
+      if var ?= getSomeIntegerValue() then var > 2
+        var++
+
+      assert var?
 //EOF
 
