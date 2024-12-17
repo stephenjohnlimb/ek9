@@ -1,9 +1,9 @@
 package org.ek9lang.compiler.phase2;
 
-import static org.ek9lang.compiler.support.ServiceFactory.HTTP_ACCESS;
-import static org.ek9lang.compiler.support.ServiceFactory.HTTP_PATH;
-import static org.ek9lang.compiler.support.ServiceFactory.HTTP_SOURCE;
-import static org.ek9lang.compiler.support.ServiceFactory.URI_PROTO;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_ACCESS;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_PATH;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_SOURCE;
+import static org.ek9lang.compiler.support.CommonValues.URI_PROTO;
 
 import java.util.function.BiPredicate;
 import org.ek9lang.compiler.common.ErrorListener;
@@ -26,7 +26,7 @@ final class ValidPathParameterOrError extends RuleSupport implements BiPredicate
   public boolean test(final ServiceOperationSymbol operation, final ISymbol param) {
 
     //When it is a path variable, must check that the path contains the variable.
-    if (param.getSquirrelledData(HTTP_ACCESS).equals(HTTP_PATH)) {
+    if (param.getSquirrelledData(HTTP_ACCESS).equals(HTTP_PATH.toString())) {
       final var sourceName = param.getSquirrelledData(HTTP_SOURCE);
       final var path = operation.getSquirrelledData(URI_PROTO);
       final var pathVar = String.format("{%s}", sourceName);

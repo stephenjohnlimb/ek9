@@ -3,6 +3,7 @@ package org.ek9lang.compiler.symbols;
 import java.io.Serializable;
 import java.util.Optional;
 import org.ek9lang.compiler.Module;
+import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
@@ -28,9 +29,9 @@ public interface ISymbol extends ISymbolNature, ITokenReference, Serializable {
   void setReferenced(final boolean referenced);
 
   //Bits of information we might need to put away for later processing
-  void putSquirrelledData(final String key, final String value);
+  void putSquirrelledData(final CommonValues key, final String value);
 
-  String getSquirrelledData(final String key);
+  String getSquirrelledData(final CommonValues key);
 
   Optional<Module> getParsedModule();
 

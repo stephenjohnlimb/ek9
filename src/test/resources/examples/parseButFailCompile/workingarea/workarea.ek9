@@ -23,13 +23,10 @@ defines module just.workspace
   -?>
   defines function
 
-    JustFail()
-      @Error: FULL_RESOLUTION: NOT_RESOLVED
-      assert notDefined?
 
-    testChecker()
-      checker <- Checker()
-      checker.aMethod() += 3
+    justFail()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      assert missing?
 
   <!-
 

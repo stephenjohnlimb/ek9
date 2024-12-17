@@ -354,6 +354,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     DIRECTIVE_MISSING("but the directive is missing"),
     DIRECTIVE_WRONG_CLASSIFICATION("directive error classification incorrect"),
     ERROR_MISSING("but the error is missing"),
+    DIRECTIVE_SYMBOL_COMPLEXITY("complexity mismatch"),
     DIRECTIVE_SYMBOL_NOT_RESOLVED("symbol not resolved"),
     DIRECTIVE_HIERARCHY_NOT_RESOLVED("symbol hierarchy not in place"),
     DIRECTIVE_SYMBOL_CATEGORY_MISMATCH("symbol category mismatched"),

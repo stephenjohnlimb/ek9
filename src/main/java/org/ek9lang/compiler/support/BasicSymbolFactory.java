@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.support;
 
+import static org.ek9lang.compiler.support.CommonValues.APPLICATION;
+
 import java.util.HashMap;
 import java.util.List;
 import org.antlr.v4.runtime.Token;
@@ -60,7 +62,7 @@ class BasicSymbolFactory extends CommonFactory {
     //But if present then it will be named here. In the resolve phase we will check it.
     //For now just record it.
     if (ctx.APPLICATION() != null) {
-      program.putSquirrelledData("APPLICATION", ctx.identifierReference().getText());
+      program.putSquirrelledData(APPLICATION, ctx.identifierReference().getText());
     }
 
     program.setGenus(SymbolGenus.PROGRAM);

@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.common;
 
-import static org.ek9lang.compiler.support.SymbolFactory.UNINITIALISED_AT_DECLARATION;
+import static org.ek9lang.compiler.support.CommonValues.UNINITIALISED_AT_DECLARATION;
 
 import org.ek9lang.compiler.symbols.VariableSymbol;
 

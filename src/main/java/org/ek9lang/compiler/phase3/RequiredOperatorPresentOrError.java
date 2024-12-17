@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.phase3;
 
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.NO_MUTATION_IN_PURE_CONTEXT;
-import static org.ek9lang.compiler.support.SymbolFactory.ACCESSED;
+import static org.ek9lang.compiler.support.CommonValues.ACCESSED;
 
 import java.util.Optional;
 import java.util.function.Function;

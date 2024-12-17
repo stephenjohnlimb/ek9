@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.phase1;
 
-import static org.ek9lang.compiler.support.SymbolFactory.UNINITIALISED_AT_DECLARATION;
+import static org.ek9lang.compiler.support.CommonValues.UNINITIALISED_AT_DECLARATION;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;

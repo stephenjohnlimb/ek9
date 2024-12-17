@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.phase3;
 
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.TYPE_MUST_BE_FUNCTION;
-import static org.ek9lang.compiler.support.SymbolFactory.ACCESSED;
+import static org.ek9lang.compiler.support.CommonValues.ACCESSED;
 
 import java.util.List;
 import java.util.function.Function;

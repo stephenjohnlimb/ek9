@@ -7,7 +7,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.F
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.INCOMPATIBLE_TYPES;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.NOT_RESOLVED;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.OPERATOR_NOT_DEFINED;
-import static org.ek9lang.compiler.support.SymbolFactory.ACCESSED;
+import static org.ek9lang.compiler.support.CommonValues.ACCESSED;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;

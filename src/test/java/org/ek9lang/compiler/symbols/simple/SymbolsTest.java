@@ -15,6 +15,7 @@ import org.ek9lang.compiler.Source;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
+import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.support.RefersToSameSymbol;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.CallSymbol;
@@ -212,8 +213,8 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     symbol.setSourceToken(new Ek9Token());
     symbol.setInitialisedBy(new Ek9Token());
     symbol.setReferenced(true);
-    symbol.putSquirrelledData("key1", "value1");
-    symbol.putSquirrelledData("key2", "\"value2\"");
+    symbol.putSquirrelledData(CommonValues.DEFAULTED, "value1");
+    symbol.putSquirrelledData(CommonValues.COMPLEXITY, "\"value2\"");
     symbol.setNotMutable();
     //Can the symbol possibly be null i.e. never assigned a value.
     symbol.setNullAllowed(true);
@@ -231,8 +232,8 @@ final class SymbolsTest extends AbstractSymbolTestBase {
     assertNotNull(s);
     assertNotNull(s.getInitialisedBy());
     assertTrue(s.isReferenced());
-    assertEquals("value1", s.getSquirrelledData("key1"));
-    assertEquals("value2", s.getSquirrelledData("key2"));
+    assertEquals("value1", s.getSquirrelledData(CommonValues.DEFAULTED));
+    assertEquals("value2", s.getSquirrelledData(CommonValues.COMPLEXITY));
     assertFalse(s.isMutable());
     assertTrue(s.isNullAllowed());
     assertTrue(s.isInjectionExpected());

@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.common;
 
-import static org.ek9lang.compiler.support.SymbolFactory.EXTERN;
+import static org.ek9lang.compiler.support.CommonValues.EXTERN;
 
 import java.util.function.Predicate;
 import org.ek9lang.compiler.symbols.ISymbol;

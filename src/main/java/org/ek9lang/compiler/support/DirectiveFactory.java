@@ -4,6 +4,7 @@ import java.util.Arrays;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.directives.ComplexityDirective;
 import org.ek9lang.compiler.directives.Directive;
 import org.ek9lang.compiler.directives.DirectiveSpecExtractor;
 import org.ek9lang.compiler.directives.DirectiveType;
@@ -38,6 +39,7 @@ class DirectiveFactory extends CommonFactory {
       final var typeOfDirective = DirectiveType.valueOf(nameOfDirective);
       return switch (typeOfDirective) {
         case Error -> newErrorDirective(ctx);
+        case Complexity -> newComplexityDirective(ctx);
         case Resolved -> newResolutionDirective(ctx, true);
         case Implements -> newImplementsDirective(ctx);
         case NotResolved -> newResolutionDirective(ctx, false);
@@ -72,6 +74,13 @@ class DirectiveFactory extends CommonFactory {
           ErrorListener.SemanticClassification.values()));
     }
 
+  }
+
+  private Directive newComplexityDirective(final EK9Parser.DirectiveContext ctx) {
+    checkContextNotNull.accept(ctx);
+    final var spec = directiveSpecExtractor.apply(ctx);
+
+    return new ComplexityDirective(spec);
   }
 
   private Directive newImplementsDirective(final EK9Parser.DirectiveContext ctx) {

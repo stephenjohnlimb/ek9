@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.support;
 
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.DEFAULT_AND_TRAIT;
+import static org.ek9lang.compiler.support.CommonValues.DEFAULTED;
 
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;

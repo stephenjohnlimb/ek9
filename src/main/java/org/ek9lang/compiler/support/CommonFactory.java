@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.support;
 
+import static org.ek9lang.compiler.support.CommonValues.EXTERN;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,14 +21,6 @@ import org.ek9lang.core.AssertValue;
  * Just for details that are common to all factories.
  */
 class CommonFactory {
-
-  public static final String UNINITIALISED_AT_DECLARATION = "UNINITIALISED";
-  public static final String NO_REFERENCED_RESET = "NO_REFERENCED_RESET";
-  public static final String SUBSTITUTED = "SUBSTITUTED";
-  public static final String ACCESSED = "ACCESSED";
-  public static final String DEFAULTED = "DEFAULTED";
-
-  public static final String EXTERN = "EXTERN";
 
   protected final Consumer<Object> checkContextNotNull = ctx -> AssertValue.checkNotNull("CTX cannot be null", ctx);
   protected final ParsedModule parsedModule;

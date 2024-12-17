@@ -1,11 +1,11 @@
 package org.ek9lang.compiler.phase2;
 
-import static org.ek9lang.compiler.support.ServiceFactory.HTTP_ACCESS;
-import static org.ek9lang.compiler.support.ServiceFactory.HTTP_PATH;
-import static org.ek9lang.compiler.support.ServiceFactory.HTTP_REQUEST;
-import static org.ek9lang.compiler.support.ServiceFactory.HTTP_SOURCE;
-import static org.ek9lang.compiler.support.ServiceFactory.HTTP_VERB;
-import static org.ek9lang.compiler.support.ServiceFactory.URI_PROTO;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_ACCESS;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_PATH;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_REQUEST;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_SOURCE;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_VERB;
+import static org.ek9lang.compiler.support.CommonValues.URI_PROTO;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
@@ -77,10 +77,11 @@ final class ValidServiceOperationOrError extends RuleSupport
     //PATH exists on the operation. So this is an assumption - that is later checked.
     //Because even if ek9 developer declared the PATH and the name - we still have to check it.
     if (param.getSquirrelledData(HTTP_ACCESS) == null) {
-      param.putSquirrelledData(HTTP_ACCESS, HTTP_PATH);
+      param.putSquirrelledData(HTTP_ACCESS, HTTP_PATH.toString());
     }
 
-    if (HTTP_PATH.equals(param.getSquirrelledData(HTTP_ACCESS)) && param.getSquirrelledData(HTTP_SOURCE) == null) {
+    if (param.getSquirrelledData(HTTP_ACCESS).equals(HTTP_PATH.toString())
+        && param.getSquirrelledData(HTTP_SOURCE) == null) {
       param.putSquirrelledData(HTTP_SOURCE, param.getName());
     }
 
@@ -95,7 +96,7 @@ final class ValidServiceOperationOrError extends RuleSupport
             ErrorListener.SemanticClassification.SERVICE_INCOMPATIBLE_PARAM_TYPE);
       }
 
-      if (param.getSquirrelledData(HTTP_ACCESS).equals(HTTP_REQUEST)) {
+      if (param.getSquirrelledData(HTTP_ACCESS).equals(HTTP_REQUEST.toString())) {
 
         if (operation.getCallParameters().size() > 1) {
           errorListener.semanticError(param.getSourceToken(), "'" + param + "':",

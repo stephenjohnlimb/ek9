@@ -16,6 +16,9 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * //@Symbols: SYMBOL_DEFINITION: ALL: 21
  * //@Symbols: SYMBOL_DEFINITION: TYPE: 11
  * //@Symbols: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: 2
+ * Used in specific cases where we make changes to the complexity calculator
+ * With this mechanism you can ensure that complexity calculations are working
+ * //@Complexity: PRE_IR_CHECKS: FUNCTION: "SomeFunction": "12"
  */
 public interface Directive {
   /**

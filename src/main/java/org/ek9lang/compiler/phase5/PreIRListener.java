@@ -12,6 +12,8 @@ import org.ek9lang.compiler.common.ScopeStackConsistencyListener;
  * further checks.
  */
 final class PreIRListener extends ScopeStackConsistencyListener {
+  private final ComplexityCounter complexityCounter = new ComplexityCounter();
+  private final FormOfComparator formOfComparator = new FormOfComparator();
   private final VariableOnlyOrError variableOnlyOrError;
   private final AssignmentStatementOrError assignmentStatementOrError;
   private final ProcessGuardExpression processGuardExpression;
@@ -28,6 +30,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   private final ProcessDynamicFunctionEntry processDynamicFunctionDeclarationEntry;
   private final DynamicFunctionOrError dynamicFunctionOrError;
   private final IdentifierAsPropertyOrError processIdentifierAsProperty;
+
+  private final ComplexityAcceptableOrError complexityAcceptableOrError;
 
   PreIRListener(final ParsedModule parsedModule) {
 
@@ -66,8 +70,197 @@ final class PreIRListener extends ScopeStackConsistencyListener {
         new DynamicFunctionOrError(symbolsAndScopes, errorListener);
     this.processIdentifierAsProperty =
         new IdentifierAsPropertyOrError(symbolsAndScopes, errorListener);
-
+    this.complexityAcceptableOrError =
+        new ComplexityAcceptableOrError(symbolsAndScopes, complexityCounter);
   }
+
+  @Override
+  public void enterServiceDeclaration(final EK9Parser.ServiceDeclarationContext ctx) {
+
+    complexityCounter.push();
+    super.enterServiceDeclaration(ctx);
+  }
+
+  @Override
+  public void exitServiceDeclaration(final EK9Parser.ServiceDeclarationContext ctx) {
+
+    complexityAcceptableOrError.accept(ctx);
+    super.exitServiceDeclaration(ctx);
+  }
+
+  @Override
+  public void enterRecordDeclaration(final EK9Parser.RecordDeclarationContext ctx) {
+
+    complexityCounter.push();
+    super.enterRecordDeclaration(ctx);
+  }
+
+  @Override
+  public void exitRecordDeclaration(final EK9Parser.RecordDeclarationContext ctx) {
+
+    complexityAcceptableOrError.accept(ctx);
+    super.exitRecordDeclaration(ctx);
+  }
+
+  @Override
+  public void enterTraitDeclaration(final EK9Parser.TraitDeclarationContext ctx) {
+
+    complexityCounter.push();
+    super.enterTraitDeclaration(ctx);
+  }
+
+  @Override
+  public void exitTraitDeclaration(final EK9Parser.TraitDeclarationContext ctx) {
+
+    complexityAcceptableOrError.accept(ctx);
+    super.exitTraitDeclaration(ctx);
+  }
+
+  @Override
+  public void enterClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
+
+    complexityCounter.push();
+    super.enterClassDeclaration(ctx);
+  }
+
+  @Override
+  public void exitClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
+
+    complexityAcceptableOrError.accept(ctx);
+    super.exitClassDeclaration(ctx);
+  }
+
+  @Override
+  public void enterComponentDeclaration(final EK9Parser.ComponentDeclarationContext ctx) {
+
+    complexityCounter.push();
+    super.enterComponentDeclaration(ctx);
+  }
+
+  @Override
+  public void exitComponentDeclaration(final EK9Parser.ComponentDeclarationContext ctx) {
+
+    complexityAcceptableOrError.accept(ctx);
+    super.exitComponentDeclaration(ctx);
+  }
+
+  @Override
+  public void enterApplicationDeclaration(final EK9Parser.ApplicationDeclarationContext ctx) {
+
+    complexityCounter.push();
+    super.enterApplicationDeclaration(ctx);
+  }
+
+  @Override
+  public void exitApplicationDeclaration(final EK9Parser.ApplicationDeclarationContext ctx) {
+
+    complexityAcceptableOrError.accept(ctx);
+    super.exitApplicationDeclaration(ctx);
+  }
+
+  @Override
+  public void enterDynamicClassDeclaration(final EK9Parser.DynamicClassDeclarationContext ctx) {
+
+    complexityCounter.push();
+    super.enterDynamicClassDeclaration(ctx);
+  }
+
+  @Override
+  public void exitDynamicClassDeclaration(final EK9Parser.DynamicClassDeclarationContext ctx) {
+
+    complexityAcceptableOrError.accept(ctx);
+    super.exitDynamicClassDeclaration(ctx);
+  }
+
+  @Override
+  public void enterFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
+
+    complexityCounter.push();
+    super.enterFunctionDeclaration(ctx);
+  }
+
+  @Override
+  public void exitFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
+
+    //This is for the standard return
+    complexityCounter.incrementComplexity();
+    functionOrError.andThen(complexityAcceptableOrError).accept(ctx);
+    super.exitFunctionDeclaration(ctx);
+  }
+
+  @Override
+  public void enterMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
+
+    complexityCounter.push();
+    super.enterMethodDeclaration(ctx);
+  }
+
+  @Override
+  public void exitMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
+
+    //This is for the standard return
+    complexityCounter.incrementComplexity();
+    methodOrError.andThen(complexityAcceptableOrError).accept(ctx);
+    super.exitMethodDeclaration(ctx);
+  }
+
+  @Override
+  public void enterOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
+
+    complexityCounter.push();
+    super.enterOperatorDeclaration(ctx);
+  }
+
+  @Override
+  public void exitOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
+
+    //This is for the standard return
+    complexityCounter.incrementComplexity();
+    operatorOrError.andThen(complexityAcceptableOrError).accept(ctx);
+    super.exitOperatorDeclaration(ctx);
+  }
+
+  @Override
+  public void enterServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
+
+    complexityCounter.push();
+    super.enterServiceOperationDeclaration(ctx);
+  }
+
+  @Override
+  public void exitServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
+
+    //This is for the standard return
+    complexityCounter.incrementComplexity();
+    serviceOperationOrError.andThen(complexityAcceptableOrError).accept(ctx);
+    super.exitServiceOperationDeclaration(ctx);
+  }
+
+  /**
+   * On entry of a dynamic function need to record any return symbol, because we won't parse the text as it is inferred.
+   * The on exit handler still needs to do the same return processing to see if the rtn has been initialised.
+   * But again cannot depend on source structure because the return is inferred and also the error has to
+   * appear on the dynamic function declaration because there will be not '&lt;-' to report the error on.
+   * Downside of having dynamic function infer arguments and returns, but worth it for the terseness.
+   */
+  @Override
+  public void enterDynamicFunctionDeclaration(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
+
+    complexityCounter.push();
+    processDynamicFunctionDeclarationEntry.accept(ctx);
+    super.enterDynamicFunctionDeclaration(ctx);
+  }
+
+  @Override
+  public void exitDynamicFunctionDeclaration(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
+
+    //This is for the standard return
+    complexityCounter.incrementComplexity();
+    dynamicFunctionOrError.andThen(complexityAcceptableOrError).accept(ctx);
+
+    super.exitDynamicFunctionDeclaration(ctx);
+  }
+
 
   @Override
   public void enterVariableOnlyDeclaration(final EK9Parser.VariableOnlyDeclarationContext ctx) {
@@ -111,6 +304,12 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   }
 
   @Override
+  public void enterIfStatement(EK9Parser.IfStatementContext ctx) {
+    complexityCounter.incrementComplexity();
+    super.enterIfStatement(ctx);
+  }
+
+  @Override
   public void exitIfStatement(final EK9Parser.IfStatementContext ctx) {
 
     //Note that exit to pop stack first.
@@ -151,59 +350,11 @@ final class PreIRListener extends ScopeStackConsistencyListener {
     whileStatementOrError.accept(ctx);
   }
 
-  /**
-   * On entry of a dynamic function need to record any return symbol, because we won't parse the text as it is inferred.
-   * The on exit handler still needs to do the same return processing to see if the rtn has been initialised.
-   * But again cannot depend on source structure because the return is inferred and also the error has to
-   * appear on the dynamic function declaration because there will be not '&lt;-' to report the error on.
-   * Downside of having dynamic function infer arguments and returns, but worth it for the terseness.
-   */
   @Override
-  public void enterDynamicFunctionDeclaration(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
-
-    processDynamicFunctionDeclarationEntry.accept(ctx);
-
-    super.enterDynamicFunctionDeclaration(ctx);
+  public void exitExpression(final EK9Parser.ExpressionContext ctx) {
+    if (formOfComparator.test(ctx)) {
+      complexityCounter.incrementComplexity();
+    }
+    super.exitExpression(ctx);
   }
-
-  @Override
-  public void exitDynamicFunctionDeclaration(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
-
-    dynamicFunctionOrError.accept(ctx);
-
-    super.exitDynamicFunctionDeclaration(ctx);
-  }
-
-  @Override
-  public void exitFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
-
-    functionOrError.accept(ctx);
-
-    super.exitFunctionDeclaration(ctx);
-  }
-
-  @Override
-  public void exitMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
-
-    methodOrError.accept(ctx);
-
-    super.exitMethodDeclaration(ctx);
-  }
-
-  @Override
-  public void exitOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
-
-    operatorOrError.accept(ctx);
-
-    super.exitOperatorDeclaration(ctx);
-  }
-
-  @Override
-  public void exitServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
-
-    serviceOperationOrError.accept(ctx);
-
-    super.exitServiceOperationDeclaration(ctx);
-  }
-
 }

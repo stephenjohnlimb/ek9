@@ -27,6 +27,7 @@ directive
 
 directivePart
     : identifier
+    | integerLit
     | stringLit
     ;
 
@@ -428,7 +429,7 @@ expression
     | left=expression IS? neg=NOT? IN right=expression
     | left=expression op=(AND | XOR | OR) NL? right=expression
     | expression IS? neg=NOT? IN range
-    | <assoc=right> control=expression LEFT_ARROW left=expression (COLON|ELSE) right=expression
+    | <assoc=right> control=expression LEFT_ARROW left=expression ternary=(COLON|ELSE) right=expression
     ;
 
 call

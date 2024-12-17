@@ -10,6 +10,7 @@ package org.ek9lang.compiler.directives;
 @SuppressWarnings("java:S115")
 public enum DirectiveType {
   Error,
+  Complexity,
   Resolved,
   Implements,
   NotResolved,

@@ -1,11 +1,11 @@
 package org.ek9lang.compiler.symbols;
 
 import java.io.Serial;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.EnumMap;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import org.ek9lang.compiler.Module;
+import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.support.TypeCoercions;
 import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
@@ -25,7 +25,7 @@ public class Symbol implements ISymbol {
    * This is the 'bit bucket' where during the parsing and IR phases
    * information about the symbol can be augmented.
    */
-  private final Map<String, String> squirrelledAway = new HashMap<>();
+  private final EnumMap<CommonValues, String> squirrelledAway = new EnumMap<>(CommonValues.class);
 
   /**
    * This tells you what nature this symbol has.
@@ -191,7 +191,7 @@ public class Symbol implements ISymbol {
    * compilation. This mechanism on a symbol enables arbitrary data to be recorded against
    * a symbol. This can then be retrieved in later stages of compilation.
    */
-  public void putSquirrelledData(final String key, final String value) {
+  public void putSquirrelledData(final CommonValues key, final String value) {
 
     if (value.startsWith("\"") && value.endsWith("\"")) {
       //We only store the value that is in the Quotes not the quotes themselves
@@ -207,7 +207,7 @@ public class Symbol implements ISymbol {
 
   }
 
-  public String getSquirrelledData(final String key) {
+  public String getSquirrelledData(final CommonValues key) {
 
     return squirrelledAway.get(key);
   }

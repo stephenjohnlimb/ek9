@@ -5,6 +5,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.F
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.INTEGER_VAR_OR_FUNCTION_OR_DELEGATE_REQUIRED;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.MUST_BE_INTEGER_GREATER_THAN_ZERO;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.MUST_RETURN_INTEGER;
+import static org.ek9lang.compiler.support.CommonValues.FIXED;
 
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
@@ -41,7 +42,7 @@ final class HeadTailSkipOrError extends TypedSymbolAccess implements Consumer<EK
       validIntegerValueUseOrError(ctx, streamCallPart);
     } else {
       //Just record that this is a fixed value and use 1 my default.
-      streamCallPart.putSquirrelledData("FIXED", Integer.toString(1));
+      streamCallPart.putSquirrelledData(FIXED, Integer.toString(1));
     }
 
   }
@@ -69,7 +70,7 @@ final class HeadTailSkipOrError extends TypedSymbolAccess implements Consumer<EK
 
         } else {
           //OK so again record this is a fixed value and record the value.
-          streamCallPart.putSquirrelledData("FIXED", possibleIntegerSymbol.getName());
+          streamCallPart.putSquirrelledData(FIXED, possibleIntegerSymbol.getName());
         }
       }
     });

@@ -1,10 +1,10 @@
 package org.ek9lang.compiler.phase2;
 
-import static org.ek9lang.compiler.support.ServiceFactory.HTTP_ACCESS;
-import static org.ek9lang.compiler.support.ServiceFactory.HTTP_HEADER;
-import static org.ek9lang.compiler.support.ServiceFactory.HTTP_PATH;
-import static org.ek9lang.compiler.support.ServiceFactory.HTTP_QUERY;
-import static org.ek9lang.compiler.support.ServiceFactory.HTTP_SOURCE;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_ACCESS;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_HEADER;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_PATH;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_QUERY;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_SOURCE;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
@@ -29,7 +29,9 @@ final class HttpAccessOrError extends RuleSupport implements Consumer<ISymbol> {
     final var access = param.getSquirrelledData(HTTP_ACCESS);
     final var sourceName = param.getSquirrelledData(HTTP_SOURCE);
 
-    if ((HTTP_PATH.equals(access) || HTTP_QUERY.equals(access) || HTTP_HEADER.equals(access))) {
+    if (access.equals(HTTP_PATH.toString())
+        || access.equals(HTTP_QUERY.toString())
+        || access.equals(HTTP_HEADER.toString())) {
       if (sourceName == null) {
         //These need a qualifier, so we know when path/query/header value to extract and use
         final var msg = "'" + access + "' requires additional qualifier name:";

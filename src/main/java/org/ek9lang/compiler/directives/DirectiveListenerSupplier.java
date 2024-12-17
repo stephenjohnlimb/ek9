@@ -15,6 +15,7 @@ public class DirectiveListenerSupplier implements Supplier<Consumer<CompilationE
         .andThen(new ResolvedDirectiveListener())
         .andThen(new NotResolvedDirectiveListener())
         .andThen(new ImplementsDirectiveListener())
-        .andThen(new GenusDirectiveListener());
+        .andThen(new GenusDirectiveListener())
+        .andThen(new ComplexityDirectiveListener());
   }
 }

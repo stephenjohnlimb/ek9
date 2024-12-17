@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.support;
 
-import static org.ek9lang.compiler.support.SymbolFactory.DEFAULTED;
+import static org.ek9lang.compiler.support.CommonValues.DEFAULTED;
 
 import java.util.ArrayList;
 import java.util.Arrays;

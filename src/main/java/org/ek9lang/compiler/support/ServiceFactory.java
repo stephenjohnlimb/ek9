@@ -1,5 +1,11 @@
 package org.ek9lang.compiler.support;
 
+import static org.ek9lang.compiler.support.CommonValues.HTTP_ACCESS;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_SOURCE;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_URI;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_VERB;
+import static org.ek9lang.compiler.support.CommonValues.URI_PROTO;
+
 import java.util.Map;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
@@ -17,15 +23,6 @@ public class ServiceFactory extends CommonFactory {
 
   private final CheckForInvalidServiceDefinition checkForInvalidServiceDefinition;
   private final CheckForInvalidServiceOperator checkForInvalidServiceOperator;
-
-  public static final String URI_PROTO = "URIPROTO";
-  public static final String HTTP_REQUEST = "REQUEST";
-  public static final String HTTP_PATH = "PATH";
-  public static final String HTTP_HEADER = "HEADER";
-  public static final String HTTP_QUERY = "QUERY";
-  public static final String HTTP_VERB = "HTTPVERB";
-  public static final String HTTP_ACCESS = "HTTPACCESS";
-  public static final String HTTP_SOURCE = "HTTPSOURCE";
 
   private static final Map<String, String> operatorToHttpVerbMap = Map.of(
       "+", "POST",
@@ -57,7 +54,7 @@ public class ServiceFactory extends CommonFactory {
 
     configureAggregate(service, new Ek9Token(ctx.start));
     service.setGenus(SymbolGenus.SERVICE);
-    service.putSquirrelledData("HTTPURI", uri);
+    service.putSquirrelledData(HTTP_URI, uri);
     checkForInvalidServiceDefinition.accept(service);
 
     return service;

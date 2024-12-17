@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.support;
 
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.SERVICE_URI_WITH_VARS_NOT_SUPPORTED;
+import static org.ek9lang.compiler.support.CommonValues.HTTP_URI;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
@@ -21,7 +22,7 @@ public class CheckForInvalidServiceDefinition implements Consumer<AggregateSymbo
   @Override
   public void accept(final AggregateSymbol serviceSymbol) {
 
-    final var uri = serviceSymbol.getSquirrelledData("HTTPURI");
+    final var uri = serviceSymbol.getSquirrelledData(HTTP_URI);
 
     if (uri.contains("{") || uri.contains("}")) {
       final var msg = "using '" + uri + "' as";

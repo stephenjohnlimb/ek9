@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.phase3;
 
-import static org.ek9lang.compiler.support.SymbolFactory.NO_REFERENCED_RESET;
+import static org.ek9lang.compiler.support.CommonValues.NO_REFERENCED_RESET;
 
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;

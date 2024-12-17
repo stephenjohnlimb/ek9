@@ -1,5 +1,8 @@
 package org.ek9lang.compiler.support;
 
+import static org.ek9lang.compiler.support.CommonValues.BASE_NAME;
+import static org.ek9lang.compiler.support.CommonValues.LANG;
+
 import java.util.Optional;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
@@ -62,8 +65,8 @@ class TextFactory extends CommonFactory {
       //Now ensure it is set up as the 'super'.
       text.setSuperAggregate((IAggregateSymbol) base.get());
       //Store both the language this is for and the base name, this will be useful later
-      text.putSquirrelledData("LANG", forLanguage);
-      text.putSquirrelledData("BASE_NAME", baseName);
+      text.putSquirrelledData(LANG, forLanguage);
+      text.putSquirrelledData(BASE_NAME, baseName);
       return text;
     }
 

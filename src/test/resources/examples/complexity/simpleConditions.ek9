@@ -1,0 +1,71 @@
+#!ek9
+<?-
+  Test complexity calculator with just simple conditions.
+-?>
+defines module simple.conditions
+
+  <?-
+    The utility functions used for testing in this example.
+  -?>
+  defines function
+
+    //Just counts the exit and also the 'is-set' check.
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testSimpleFunctionComplexity": 2
+    testSimpleFunctionComplexity()
+      var <- 2
+      assert var?
+
+    //Counts exit, if and also the comparison or > and ==
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testSingleIfComplexity": 4
+    testSingleIfComplexity()
+      var <- 2
+
+      if var > 1
+        var++
+        assert var == 3
+
+    //Counts exit, if and also the comparison (even if pulled out to a variable)
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testSingleIfComplexityWithConditional": 4
+    testSingleIfComplexityWithConditional()
+      var <- 2
+
+      conditional <- var > 1
+      if conditional
+        var++
+        assert var == 3
+
+    //Counts exit, ternary and the 'is-set' check
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testTernary": 3
+    testTernary()
+      -> conditional as Boolean
+
+      derived <- conditional <- "Something" else "Or Other"
+      assert derived?
+
+    //Counts exit, the matches and the 'is-set' check
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testMatches": 3
+    testMatches()
+
+      derived <- "Steve" matches /[S|s]te(?:ven?|phen)/
+      assert derived?
+
+    //Counts exit, the coalescing operator and the 'is-set' check
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testCoalescingEquality": 3
+    testCoalescingEquality()
+      v1 <- Integer()
+      v2 <- 2
+
+      derived <- v1 <? v2
+      assert derived?
+
+    //Counts exit, the elvis operator and the 'is-set' check
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testElvis": 3
+    testElvis()
+      v1 <- Integer()
+      v2 <- 2
+
+      derived <- v1 ?: v2
+      assert derived?
+
+//EOF
+
