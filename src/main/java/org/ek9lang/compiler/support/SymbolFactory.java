@@ -1,10 +1,8 @@
 package org.ek9lang.compiler.support;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
@@ -29,13 +27,11 @@ import org.ek9lang.compiler.symbols.StreamCallSymbol;
 import org.ek9lang.compiler.symbols.StreamPipeLineSymbol;
 import org.ek9lang.compiler.symbols.SwitchSymbol;
 import org.ek9lang.compiler.symbols.Symbol;
-import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.symbols.TrySymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.symbols.WhileSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
-import org.ek9lang.core.AssertValue;
 
 /**
  * Just a factory for all types of EK9 symbol.
@@ -59,6 +55,7 @@ public class SymbolFactory extends CommonFactory {
   private final FunctionFactory functionFactory;
   private final AggregateFactory aggregateFactory;
   private final OperationFactory operationFactory;
+  private final BasicSymbolFactory basicSymbolFactory;
 
   /**
    * Create a new symbol factory for use with the parsedModule.
@@ -82,6 +79,8 @@ public class SymbolFactory extends CommonFactory {
         = new AggregateFactory(parsedModule);
     this.operationFactory
         = new OperationFactory(parsedModule);
+    this.basicSymbolFactory
+        = new BasicSymbolFactory(parsedModule);
 
   }
 
@@ -99,15 +98,7 @@ public class SymbolFactory extends CommonFactory {
    */
   public AggregateSymbol newPackage(final EK9Parser.PackageBlockContext ctx) {
 
-    checkContextNotNull.accept(ctx);
-    final var pack = new AggregateSymbol("Package", parsedModule.getModuleScope());
-
-    configureAggregate(pack, new Ek9Token(ctx.start));
-    //Also add in a default constructor.
-    pack.setGenus(SymbolGenus.META_DATA);
-    aggregateManipulator.addConstructor(pack);
-
-    return pack;
+    return basicSymbolFactory.newPackage(ctx);
   }
 
   /**
@@ -115,24 +106,7 @@ public class SymbolFactory extends CommonFactory {
    */
   public AggregateSymbol newProgram(final EK9Parser.MethodDeclarationContext ctx) {
 
-    checkContextNotNull.accept(ctx);
-    AssertValue.checkNotNull("Failed to locate program name", ctx.identifier());
-
-    final var programName = ctx.identifier().getText();
-    final var program = new AggregateSymbol(programName, parsedModule.getModuleScope());
-
-    configureAggregate(program, new Ek9Token(ctx.identifier().start));
-
-    //It is not necessary to wire in an application configuration to be used.
-    //But if present then it will be named here. In the resolve phase we will check it.
-    //For now just record it.
-    if (ctx.APPLICATION() != null) {
-      program.putSquirrelledData("APPLICATION", ctx.identifierReference().getText());
-    }
-
-    program.setGenus(SymbolGenus.PROGRAM);
-
-    return program;
+    return basicSymbolFactory.newProgram(ctx);
   }
 
   /**
@@ -172,6 +146,7 @@ public class SymbolFactory extends CommonFactory {
    * Create a new function symbol that represents an EK9 function.
    */
   public FunctionSymbol newFunction(final EK9Parser.FunctionDeclarationContext ctx) {
+
     return functionFactory.newFunction(ctx);
   }
 
@@ -183,6 +158,7 @@ public class SymbolFactory extends CommonFactory {
    * text aggregate.
    */
   public AggregateSymbol newText(final EK9Parser.TextDeclarationContext ctx, final String forLanguage) {
+
     return textFactory.newText(ctx, forLanguage);
   }
 
@@ -198,6 +174,7 @@ public class SymbolFactory extends CommonFactory {
    * Ensures that any method in a specific text block is always added to the base text for that component.
    */
   public void ensureTextBodyIsInSuper(final MethodSymbol textMethodSymbol) {
+
     textFactory.ensureTextBodyIsInSuper(textMethodSymbol);
   }
 
@@ -223,13 +200,7 @@ public class SymbolFactory extends CommonFactory {
    */
   public AggregateSymbol newApplication(final EK9Parser.ApplicationDeclarationContext ctx) {
 
-    final var applicationName = ctx.Identifier().getText();
-    final var application = new AggregateSymbol(applicationName, parsedModule.getModuleScope());
-
-    configureAggregate(application, new Ek9Token(ctx.start));
-    application.setGenus(SymbolGenus.GENERAL_APPLICATION);
-
-    return application;
+    return basicSymbolFactory.newApplication(ctx);
   }
 
   /**
@@ -261,14 +232,7 @@ public class SymbolFactory extends CommonFactory {
    */
   public CaptureScope newDynamicVariableCapture(final ICanCaptureVariables scope, final IScope enclosingBlockScope) {
 
-    //Now we have to jump back the scope stack to find the main enclosing block.
-    //The capture scope will then use this conditionally to resolve items to capture on enter.
-    final var captureScope = new CaptureScope(enclosingBlockScope);
-    //Now the dynamic class/function needs to know about this additional scope it may have to resolve variables in.
-    scope.setCapturedVariables(captureScope);
-
-    //Need to check if the naming is valid.
-    return captureScope;
+    return basicSymbolFactory.newDynamicVariableCapture(scope, enclosingBlockScope);
   }
 
   /**
@@ -289,7 +253,6 @@ public class SymbolFactory extends CommonFactory {
   public boolean addMissingDefaultOperators(final EK9Parser.DefaultOperatorContext ctx,
                                             final IAggregateSymbol aggregate) {
 
-
     return operationFactory.addMissingDefaultOperators(ctx, aggregate);
   }
 
@@ -297,6 +260,7 @@ public class SymbolFactory extends CommonFactory {
    * Create a new method that represents an EK9 class/component method.
    */
   public MethodSymbol newMethod(final EK9Parser.MethodDeclarationContext ctx, final IScopedSymbol scopedSymbol) {
+
     return operationFactory.newMethod(ctx, scopedSymbol);
   }
 
@@ -314,6 +278,7 @@ public class SymbolFactory extends CommonFactory {
    * Create a new aggregate that represents an EK9 type, constrained or enumeration.
    */
   public AggregateSymbol newType(final EK9Parser.TypeDeclarationContext ctx) {
+
     return operationFactory.newType(ctx);
   }
 
@@ -323,42 +288,7 @@ public class SymbolFactory extends CommonFactory {
    */
   public void populateEnumeration(final AggregateSymbol enumerationSymbol, final List<TerminalNode> identifiers) {
 
-    //Quick way to ensure uniqueness, could have used enumerationSymbol to check.
-    //But I want to search irrespective of case and '_' and error on stuff that is similar.
-    final var checkValues = new HashMap<String, Token>();
-
-    identifiers.forEach(identifier -> {
-      //For checking duplicates we uppercase and remove '_', developer may use mixed case in enumerations.
-      //But same/similar word in different cases is highly likely to cause issues or be an error (opinion).
-      final var enumValue = identifier.getText().toUpperCase().replace("_", "");
-      final var existing = checkValues.get(enumValue);
-
-      if (existing == null) {
-        checkValues.put(enumValue, identifier.getSymbol());
-        addEnumeratedValue(identifier, enumerationSymbol);
-      } else {
-        new InvalidEnumeratedValue(parsedModule.getSource().getErrorListener())
-            .accept(new Ek9Token(identifier.getSymbol()), existing);
-      }
-    });
-
-  }
-
-  private void addEnumeratedValue(final TerminalNode ctx, final AggregateSymbol inEnumeration) {
-
-    final var symbol = new ConstantSymbol(ctx.getText());
-    final var startToken = new Ek9Token(ctx.getSymbol());
-
-    configureSymbol(symbol, startToken);
-    symbol.setNotMutable();
-
-    //The nature of an enumeration is to define possible values
-    //These do not have to be referenced to be valuable. So mark referenced.
-    symbol.setNullAllowed(false);
-    symbol.setInitialisedBy(startToken);
-    symbol.setReferenced(true);
-    symbol.setType(inEnumeration);
-    inEnumeration.define(symbol);
+    basicSymbolFactory.populateEnumeration(enumerationSymbol, identifiers);
 
   }
 
@@ -451,13 +381,7 @@ public class SymbolFactory extends CommonFactory {
    */
   public CallSymbol newCall(final EK9Parser.CallContext ctx, final IScope scope) {
 
-    final var callSymbol = new CallSymbol(ctx.getText(), scope);
-    final var startToken = new Ek9Token(ctx.start);
-
-    configureSymbol(callSymbol, startToken);
-    callSymbol.setInitialisedBy(startToken);
-
-    return callSymbol;
+    return basicSymbolFactory.newCall(ctx, scope);
   }
 
   /**
@@ -465,13 +389,7 @@ public class SymbolFactory extends CommonFactory {
    */
   public CallSymbol newList(final EK9Parser.ListContext ctx, final IScope scope) {
 
-    final var callSymbol = new CallSymbol("List", scope);
-    final var startToken = new Ek9Token(ctx.start);
-
-    configureSymbol(callSymbol, startToken);
-    callSymbol.setInitialisedBy(startToken);
-
-    return callSymbol;
+    return basicSymbolFactory.newList(ctx, scope);
   }
 
   /**
@@ -479,13 +397,7 @@ public class SymbolFactory extends CommonFactory {
    */
   public CallSymbol newDict(final EK9Parser.DictContext ctx, final IScope scope) {
 
-    final var callSymbol = new CallSymbol("Dict", scope);
-    final var startToken = new Ek9Token(ctx.start);
-
-    configureSymbol(callSymbol, startToken);
-    callSymbol.setInitialisedBy(startToken);
-
-    return callSymbol;
+    return basicSymbolFactory.newDict(ctx, scope);
   }
 
   /**
@@ -493,13 +405,7 @@ public class SymbolFactory extends CommonFactory {
    */
   public CallSymbol newDictEntry(final EK9Parser.InitValuePairContext ctx, final IScope scope) {
 
-    final var callSymbol = new CallSymbol("DictEntry", scope);
-    final var startToken = new Ek9Token(ctx.start);
-
-    configureSymbol(callSymbol, startToken);
-    callSymbol.setInitialisedBy(startToken);
-
-    return callSymbol;
+    return basicSymbolFactory.newDictEntry(ctx, scope);
   }
 
   /**
@@ -587,7 +493,7 @@ public class SymbolFactory extends CommonFactory {
 
     checkContextNotNull.accept(identifier);
 
-    final var variable = newVariable(identifier, false, false);
+    final var variable = basicSymbolFactory.newVariable(identifier, false, false);
     //Make note is a loop variable and EK9 will initialise it, developer cannot mutate it.
     variable.setLoopVariable(true);
     variable.setInitialisedBy(new Ek9Token(identifier.start));
@@ -601,14 +507,7 @@ public class SymbolFactory extends CommonFactory {
    */
   public ConstantSymbol newInterpolatedStringPart(final EK9Parser.StringPartContext ctx) {
 
-    //if interpolated string had a " in now needs to be escaped because we will wrapping ""
-    //But also if we had and escaped $ i.e. \$ we can turn that back into a dollar now.
-    final var literalText = ctx.getChild(0).getText().replace("\"", "\\\"").replace("\\$", "$").replace("\\`", "`");
-    final var literal = newLiteral(new Ek9Token(ctx.start), "\"" + literalText + "\"");
-
-    literal.setType(parsedModule.getEk9Types().ek9String());
-
-    return literal;
+    return basicSymbolFactory.newInterpolatedStringPart(ctx);
   }
 
   /**
@@ -616,12 +515,7 @@ public class SymbolFactory extends CommonFactory {
    */
   public ExpressionSymbol newInterpolatedExpressionPart(final EK9Parser.StringPartContext ctx) {
 
-    final var expressionSymbol = new ExpressionSymbol(ctx.getText());
-
-    configureSymbol(expressionSymbol, new Ek9Token(ctx.start));
-    //Must always return a string.
-    expressionSymbol.setType(parsedModule.getEk9Types().ek9String());
-    return expressionSymbol;
+    return basicSymbolFactory.newInterpolatedExpressionPart(ctx);
   }
 
   /**
@@ -629,14 +523,7 @@ public class SymbolFactory extends CommonFactory {
    */
   public ConstantSymbol newConstant(final EK9Parser.ConstantDeclarationContext ctx) {
 
-    final var start = new Ek9Token(ctx.start);
-    final var constant = new ConstantSymbol(ctx.Identifier().getText(), false);
-
-    configureSymbol(constant, start);
-    constant.setInitialisedBy(start);
-    constant.setNotMutable();
-
-    return constant;
+    return basicSymbolFactory.newConstant(ctx);
   }
 
   /**
@@ -664,9 +551,7 @@ public class SymbolFactory extends CommonFactory {
    */
   public VariableSymbol newVariable(final EK9Parser.VariableDeclarationContext ctx) {
 
-    checkContextNotNull.accept(ctx);
-
-    return newVariable(ctx.identifier(), ctx.QUESTION() != null, false);
+    return basicSymbolFactory.newVariable(ctx);
   }
 
   /**
@@ -677,23 +562,14 @@ public class SymbolFactory extends CommonFactory {
                                     final boolean nullAllowed,
                                     final boolean injectionExpected) {
 
-    AssertValue.checkNotNull("Failed to locate variable name", name);
-    final var variable = new VariableSymbol(name);
-
-    configureSymbol(variable, token);
-    variable.setNullAllowed(nullAllowed);
-    variable.setInjectionExpected(injectionExpected);
-
-    return variable;
+    return basicSymbolFactory.newVariable(name, token, nullAllowed, injectionExpected);
   }
 
   public VariableSymbol newVariable(final EK9Parser.IdentifierContext identifier,
                                     final boolean nullAllowed,
                                     final boolean injectionExpected) {
 
-    AssertValue.checkNotNull("Failed to locate variable name", identifier);
-
-    return newVariable(identifier.getText(), new Ek9Token(identifier.start), nullAllowed, injectionExpected);
+    return basicSymbolFactory.newVariable(identifier, nullAllowed, injectionExpected);
   }
 
   /**
@@ -701,17 +577,7 @@ public class SymbolFactory extends CommonFactory {
    */
   public ConstantSymbol newLiteral(final IToken start, final String name) {
 
-    AssertValue.checkNotNull("Start token cannot be null", start);
-    AssertValue.checkNotNull("Name cannot be null", name);
-
-    final var literal = new ConstantSymbol(name, true);
-
-    configureSymbol(literal, start);
-    literal.setInitialisedBy(start);
-    //You cannot set this to any other value.
-    literal.setNotMutable();
-
-    return literal;
+    return basicSymbolFactory.newLiteral(start, name);
   }
 
 }
