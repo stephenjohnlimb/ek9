@@ -1,0 +1,62 @@
+#!ek9
+defines module simple.whileloopcomplexity
+
+  defines function
+
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "zeroValue": 1
+    zeroValue()
+      <- rtn <- 0
+
+    <?-
+      Complexity calculations: exit, do/while, '<' comparison, is-set check, so 4
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testDoWhileLoop": 4
+    testDoWhileLoop()
+
+      accumulator <- 0
+      do
+        accumulator++
+      while accumulator < 10
+
+      assert accumulator?
+
+    <?-
+      Complexity calculations: exit, while, '<' comparison, is-set check, so 4
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testWhileLoop": 4
+    testWhileLoop()
+
+      accumulator <- 0
+
+      while accumulator < 10
+        accumulator++
+
+      assert accumulator?
+
+    <?-
+      Complexity calculations: exit, do/while, guard, '<' comparison, is-set check, so 5
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testGuardedDoWhileLoop": 5
+    testGuardedDoWhileLoop()
+
+      accumulator <- Integer()
+      do accumulator ?= zeroValue()
+        accumulator++
+      while accumulator < 10
+
+      assert accumulator?
+
+    <?-
+      Complexity calculations: exit, while, guard, '<' comparison, is-set check, so 5
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testGuardedWhileLoop": 5
+    testGuardedWhileLoop()
+
+      accumulator <- Integer()
+
+      while accumulator ?= zeroValue() then accumulator < 10
+        accumulator++
+
+      assert accumulator?
+
+//EOF

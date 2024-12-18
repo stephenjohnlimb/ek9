@@ -1,0 +1,68 @@
+#!ek9
+defines module simple.forloopcomplexity
+
+  defines function
+
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "startValue": 1
+    startValue()
+      <- rtn <- 2
+
+    <?-
+      Here's the complexity count: exit, 'for' and also 'is-set'.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testSimpleForLoop": 3
+    testSimpleForLoop()
+
+      values <- [1, 2, 4, 8, 16]
+      for i in values
+        assert i?
+
+    <?-
+      Here's the complexity count: exit, 'for' and also 'is-set'.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testSimpleForRangeLoop": 3
+    testSimpleForRangeLoop()
+
+      for i in 1 ... 10
+        assert i?
+
+    <?-
+      Here's the complexity count: exit, 'for', 'by' and also 'is-set'.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testForRangeByLoop": 4
+    testForRangeByLoop()
+
+      for i in 1 ... 10 by 2
+        assert i?
+
+    <?-
+      Here's the complexity count: exit, 'for', guard, 'by' and also 'is-set'.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testGuardedForRangeByLoop": 5
+    testGuardedForRangeByLoop()
+
+      startAt <- Integer()
+      for startAt ?= startValue() then i in startAt ... 10 by 2
+        assert i?
+
+    <?-
+      No added complexity as this is a declaration in the for loop and so no conditional check
+      Here's the complexity count: exit, 'for', 'by' and also 'is-set'.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testDeclarationForRangeByLoop": 4
+    testDeclarationForRangeByLoop()
+
+      for startAt <- startValue() then i in startAt ... 10 by 2
+        assert i?
+
+    <?-
+      No added complexity as this is a declaration in the for loop and so no conditional check
+      Here's the complexity count: exit, 'for', 'by', '|' into a termination expression and also 'is-set'.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testStreamingForLoop": 5
+    testStreamingForLoop()
+
+      list <- for i in 1 ... 10 by 2 | collect as List of Integer
+      assert list?
+
+//EOF

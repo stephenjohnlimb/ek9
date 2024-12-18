@@ -288,10 +288,85 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   }
 
   @Override
-  public void enterCaseExpression(EK9Parser.CaseExpressionContext ctx) {
+  public void enterCaseExpression(final EK9Parser.CaseExpressionContext ctx) {
 
     complexityCounter.incrementComplexity();
     super.enterCaseExpression(ctx);
+  }
+
+  @Override
+  public void enterThrowStatement(final EK9Parser.ThrowStatementContext ctx) {
+
+    complexityCounter.incrementComplexity(2);
+    super.enterThrowStatement(ctx);
+  }
+
+  @Override
+  public void enterTryStatementExpression(final EK9Parser.TryStatementExpressionContext ctx) {
+
+    complexityCounter.incrementComplexity();
+    super.enterTryStatementExpression(ctx);
+  }
+
+  @Override
+  public void enterCatchStatementExpression(final EK9Parser.CatchStatementExpressionContext ctx) {
+
+    complexityCounter.incrementComplexity();
+    super.enterCatchStatementExpression(ctx);
+  }
+
+  @Override
+  public void enterFinallyStatementExpression(final EK9Parser.FinallyStatementExpressionContext ctx) {
+
+    complexityCounter.incrementComplexity();
+    super.enterFinallyStatementExpression(ctx);
+  }
+
+  @Override
+  public void enterForLoop(final EK9Parser.ForLoopContext ctx) {
+
+    complexityCounter.incrementComplexity();
+    super.enterForLoop(ctx);
+  }
+
+  @Override
+  public void enterForRange(final EK9Parser.ForRangeContext ctx) {
+
+    //This does make the for loop harder to understand - hence more complex
+    if (ctx.BY() != null) {
+      complexityCounter.incrementComplexity(2);
+    } else {
+      complexityCounter.incrementComplexity();
+    }
+    super.enterForRange(ctx);
+  }
+
+  @Override
+  public void enterPipelinePart(final EK9Parser.PipelinePartContext ctx) {
+
+    complexityCounter.incrementComplexity();
+    super.enterPipelinePart(ctx);
+  }
+
+  @Override
+  public void enterStreamExpressionTermination(final EK9Parser.StreamExpressionTerminationContext ctx) {
+
+    complexityCounter.incrementComplexity();
+    super.enterStreamExpressionTermination(ctx);
+  }
+
+  @Override
+  public void enterStreamCat(final EK9Parser.StreamCatContext ctx) {
+
+    complexityCounter.incrementComplexity();
+    super.enterStreamCat(ctx);
+  }
+
+  @Override
+  public void enterWhileStatementExpression(final EK9Parser.WhileStatementExpressionContext ctx) {
+
+    complexityCounter.incrementComplexity();
+    super.enterWhileStatementExpression(ctx);
   }
 
   @Override
@@ -312,7 +387,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   }
 
   @Override
-  public void enterIfControlBlock(EK9Parser.IfControlBlockContext ctx) {
+  public void enterIfControlBlock(final EK9Parser.IfControlBlockContext ctx) {
     complexityCounter.incrementComplexity();
     super.enterIfControlBlock(ctx);
   }

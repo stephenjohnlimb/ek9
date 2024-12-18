@@ -1,0 +1,29 @@
+#!ek9
+defines module simple.streamcomplexity
+
+  defines function
+
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "evenValue": 2
+    evenValue()
+      -> arg as Integer
+      <- rtn as Boolean: arg mod 2 == 0
+
+    <?-
+      Complexity calculations: exit, 'cat', "|", '==', so 4
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "simpleCat": 4
+    simpleCat()
+
+      pointless <- cat [1, 3, 5, 12] | collect as List of Integer
+      assert length pointless == 4
+
+    <?-
+      Complexity calculations: exit, 'cat', "| filter", |", '==', so 5
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "filteredCat": 5
+    filteredCat()
+
+      filtered <- cat [1, 3, 5, 12] | select by evenValue | collect as List of Integer
+      assert length filtered == 1
+
+//EOF

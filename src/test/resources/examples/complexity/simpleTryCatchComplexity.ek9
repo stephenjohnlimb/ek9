@@ -1,0 +1,87 @@
+#!ek9
+<?-
+  Designed to highlight how using Exceptions try/catch/finally for flow control adds complexity.
+-?>
+defines module simple.trycatchcomplexity
+
+  defines function
+
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "justReturnValue": 1
+    justReturnValue()
+      <- rtn <- 1
+
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "someProcessing": 2
+    someProcessing()
+      v1 <- 2
+      v2 <- 4
+
+      v3 <- v1 * v2
+      assert v3 == 8
+
+    <?-
+      Here's the complexity count: exit, if and 2 for a throw (yes 2 because it adds lots of complexity).
+      So while this code itself is quite simple, it does load the code base with 'invisible' flow control.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "mayThrowException": 4
+    mayThrowException()
+      -> condition as Boolean
+      <- rtn <- "Success (no exception thrown)"
+
+      if condition
+        throw Exception("Just for demonstration")
+
+    <?-
+      Complexity count: exit, try, 'is-set' - so that's 3.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testBasicTryProcessing": 3
+    testBasicTryProcessing()
+      try
+        result <- mayThrowException(true)
+        assert result?
+
+    <?-
+      Complexity count: exit, try, catch, 'is-set' result and ex - so that's 5.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testTryCatchProcessing": 5
+    testTryCatchProcessing()
+      try
+        result <- mayThrowException(true)
+        assert result?
+      catch
+        -> ex as Exception
+        assert ex?
+
+    <?-
+      Complexity count: exit, try, catch, finally, 'is-set' result and ex - so that's 6.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testTryCatchFinallyProcessing": 6
+    testTryCatchFinallyProcessing()
+      try
+        result <- mayThrowException(true)
+        assert result?
+      catch
+        -> ex as Exception
+        assert ex?
+      finally
+        someProcessing()
+
+    <?-
+      This time add in a guard in the try and ensure it increases the complexity.
+      It adds complexity because is makes the whole try/catch/finally block conditional (like an 'if').
+      So, as you can see this code is much more complex - where Exceptions and try/catch/finally blocks are concerned.
+      Complexity count: exit, try, guard, catch, finally, 'is-set' result and ex - so that's 7.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testGuardedTryCatchFinallyProcessing": 7
+    testGuardedTryCatchFinallyProcessing()
+
+      value <- Integer()
+      try value ?= justReturnValue()
+        result <- mayThrowException(true)
+        assert result?
+      catch
+        -> ex as Exception
+        assert ex?
+      finally
+        someProcessing()
+
+//EOF
