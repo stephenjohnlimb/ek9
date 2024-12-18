@@ -288,6 +288,13 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   }
 
   @Override
+  public void enterCaseExpression(EK9Parser.CaseExpressionContext ctx) {
+
+    complexityCounter.incrementComplexity();
+    super.enterCaseExpression(ctx);
+  }
+
+  @Override
   public void enterIdentifier(final EK9Parser.IdentifierContext ctx) {
 
     //If may or may not be an aggregate property but this consumer will determine that.

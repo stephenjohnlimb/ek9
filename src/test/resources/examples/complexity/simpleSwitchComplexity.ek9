@@ -1,0 +1,103 @@
+#!ek9
+<?-
+  Test complexity calculator with just simple switch and equality checks.
+-?>
+defines module simple.switchcomplexity
+
+  defines type
+    SimpleEnum
+      Alpha,
+      Beta,
+      Charlie
+
+  defines function
+
+    getSimpleIntegerValue()
+      -> condition as Boolean
+      <- rtn as Integer: condition <- 1 else 10
+
+    <?-
+      So now the complexity calculations, what do we expect?
+      Single exit from function, 3 case parts, test for result being set.
+      So I calculate complexity of 5.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testSimpleSwitchComplexity": 5
+    testSimpleSwitchComplexity()
+      -> check as SimpleEnum
+
+      result <- switch check
+        <- rtn as String?
+        case SimpleEnum.Alpha
+          rtn: "It's Alpha"
+        case SimpleEnum.Beta
+          rtn: "It's Beta"
+        case SimpleEnum.Charlie
+          rtn: "Yes it's finally Charlie"
+        default
+          rtn: "Does not seem to have any value, so is unset"
+
+      assert result?
+
+    <?-
+      Example of using multiple values in case, still leaves complexity the same.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testMultipleOnCaseSwitchComplexity": 5
+    testMultipleOnCaseSwitchComplexity()
+      -> check as SimpleEnum
+
+      result <- switch check
+        <- rtn as String?
+        case SimpleEnum.Alpha, SimpleEnum.Beta
+          rtn: "It's Alpha or Beta"
+        case SimpleEnum.Charlie
+          rtn: "Yes it's finally Charlie"
+        default
+          rtn: "Does not seem to have any value, so is unset"
+
+      assert result?
+
+    <?-
+      This time, count exit, guard, 2 cases and is-set check on rtn.
+      So again complexity of 5.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testGuardedSwitchComplexity": 5
+    testGuardedSwitchComplexity()
+      -> variation as Boolean
+
+      check <- Integer()
+      rtn <- String()
+
+      switch check ?= getSimpleIntegerValue(variation) then check
+        case < 5
+          rtn: "It's less than 5"
+        case > 10
+          rtn: "It's greater than ten"
+        default
+          rtn: "It's either unset or between 5 and 10"
+
+      assert rtn?
+
+    <?-
+      This time, count exit, 2 cases and is-set check on rtn.
+      So again complexity of 4.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testDeclarationSwitchComplexity": 4
+    testDeclarationSwitchComplexity()
+      -> variation as Boolean
+
+      rtn <- String()
+
+      //This time there is a direct assignment, so it's no longer conditional
+      switch check <- getSimpleIntegerValue(variation) then check
+        case < 5
+          rtn: "It's less than 5"
+        case > 10
+          rtn: "It's greater than ten"
+        default
+          rtn: "It's either unset or between 5 and 10"
+
+      assert rtn?
+
+
+
+//EOF

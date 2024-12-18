@@ -16,7 +16,7 @@ class VariousComplexityCalculationsTest extends PhasesTest {
 
   public VariousComplexityCalculationsTest() {
     super("/examples/complexity",
-        List.of("simple.conditions"), true, false);
+        List.of("simple.ifcomplexity"), true, false);
   }
 
   @Test

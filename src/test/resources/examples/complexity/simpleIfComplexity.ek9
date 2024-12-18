@@ -1,8 +1,8 @@
 #!ek9
 <?-
-  Test complexity calculator with just simple conditions.
+  Test complexity calculator with just simple if/ternary and equality checks.
 -?>
-defines module simple.conditions
+defines module simple.ifcomplexity
 
   <?-
     General tests that check the complexity of code calculations.
