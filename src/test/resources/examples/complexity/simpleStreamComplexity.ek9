@@ -26,4 +26,15 @@ defines module simple.streamcomplexity
       filtered <- cat [1, 3, 5, 12] | select by evenValue | collect as List of Integer
       assert length filtered == 1
 
+    <?-
+      Complexity calculations: exit, 'cat', "|tee", "| select", |", '==' and "==", so 7
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "filteredAndTeeCat": 7
+    filteredAndTeeCat()
+
+      allValues <- List() of Integer
+      filtered <- cat [1, 3, 5, 12] | tee in allValues | select by evenValue | collect as List of Integer
+      assert length filtered == 1
+      assert length allValues == 4
+
 //EOF
