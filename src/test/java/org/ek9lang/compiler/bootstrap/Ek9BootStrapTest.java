@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 class Ek9BootStrapTest {
   private final Ek9BuiltinLangSupplier sourceSupplier = new Ek9BuiltinLangSupplier();
   //If you need to see the errors here for debugging just alter the muteReportedError flag.
-  private final CompilerReporter reporter = new CompilerReporter(false, true);
+  private final CompilerReporter reporter = new CompilerReporter(false, false);
   private final Supplier<CompilationPhaseListener> listener
       = () -> compilationEvent -> {
     var source = compilationEvent.source();

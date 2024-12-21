@@ -21,7 +21,7 @@ class BadPureUseTest extends PhasesTest {
             "bad.pure.declarations",
             "bad.pure.delegate.scenarios1",
             "bad.pure.delegate.scenarios2",
-            "bad.pure.text.components"));
+            "bad.pure.text.components"), false, true);
   }
 
   @Test

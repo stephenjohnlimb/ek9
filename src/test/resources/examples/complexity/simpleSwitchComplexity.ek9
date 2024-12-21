@@ -18,10 +18,10 @@ defines module simple.switchcomplexity
 
     <?-
       So now the complexity calculations, what do we expect?
-      Single exit from function, 3 case parts, test for result being set.
+      Single exit from function, 3 case parts, un-set return, test for result being set.
       So I calculate complexity of 5.
     -?>
-    @Complexity: PRE_IR_CHECKS: FUNCTION: "testSimpleSwitchComplexity": 5
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testSimpleSwitchComplexity": 6
     testSimpleSwitchComplexity()
       -> check as SimpleEnum
 
@@ -41,7 +41,7 @@ defines module simple.switchcomplexity
     <?-
       Example of using multiple values in case, still leaves complexity the same.
     -?>
-    @Complexity: PRE_IR_CHECKS: FUNCTION: "testMultipleOnCaseSwitchComplexity": 5
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testMultipleOnCaseSwitchComplexity": 6
     testMultipleOnCaseSwitchComplexity()
       -> check as SimpleEnum
 

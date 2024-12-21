@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.phase5;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
@@ -21,7 +21,10 @@ class VariousComplexityCalculationsTest extends PhasesTest {
             "simple.trycatchcomplexity",
             "simple.forloopcomplexity",
             "simple.whileloopcomplexity",
-            "simple.streamcomplexity"), true, false);
+            "simple.streamcomplexity",
+            "simple.unsetassignmentcomplexity",
+            "argument.complexity",
+            "excessive.code.block.complexity"), true, false);
   }
 
   @Test
@@ -31,7 +34,7 @@ class VariousComplexityCalculationsTest extends PhasesTest {
 
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
-    assertTrue(compilationResult);
+    assertFalse(compilationResult);
 
   }
 }

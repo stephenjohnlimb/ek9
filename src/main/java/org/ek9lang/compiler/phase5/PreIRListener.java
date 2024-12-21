@@ -29,6 +29,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   private final ServiceOperationOrError serviceOperationOrError;
   private final ProcessDynamicFunctionEntry processDynamicFunctionDeclarationEntry;
   private final DynamicFunctionOrError dynamicFunctionOrError;
+  private final AcceptableArgumentsOrError acceptableArgumentsOrError;
   private final IdentifierAsPropertyOrError processIdentifierAsProperty;
 
   private final ComplexityAcceptableOrError complexityAcceptableOrError;
@@ -68,6 +69,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
         new ProcessDynamicFunctionEntry(symbolsAndScopes, errorListener);
     this.dynamicFunctionOrError =
         new DynamicFunctionOrError(symbolsAndScopes, errorListener);
+    this.acceptableArgumentsOrError =
+        new AcceptableArgumentsOrError(complexityCounter, errorListener);
     this.processIdentifierAsProperty =
         new IdentifierAsPropertyOrError(symbolsAndScopes, errorListener);
     this.complexityAcceptableOrError =
@@ -265,6 +268,12 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterVariableOnlyDeclaration(final EK9Parser.VariableOnlyDeclarationContext ctx) {
 
+    if (ctx.QUESTION() != null) {
+      //So declaring a variable that is unset, while it may be necessary adds to complexity and
+      //risk as now all paths that use that variable must either check it or assign to it.
+      complexityCounter.incrementComplexity();
+    }
+
     variableOnlyOrError.accept(ctx);
 
     super.enterVariableOnlyDeclaration(ctx);
@@ -272,6 +281,12 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
   @Override
   public void enterAssignmentStatement(final EK9Parser.AssignmentStatementContext ctx) {
+
+    if (ctx.ASSIGN_UNSET() != null) {
+      //Again normally used in a pure context, but can be useful for conditional assignment when lhs is unset.
+      //Basically this is like an if the lhs is unset then assign the rhs to it - i.e. adds complexity of thought.
+      complexityCounter.incrementComplexity();
+    }
 
     assignmentStatementOrError.accept(ctx);
 
@@ -367,6 +382,24 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
     complexityCounter.incrementComplexity();
     super.enterWhileStatementExpression(ctx);
+  }
+
+  @Override
+  public void enterDeclareArgumentParam(EK9Parser.DeclareArgumentParamContext ctx) {
+
+    if (ctx.variableDeclaration() != null && !ctx.variableDeclaration().isEmpty()) {
+      acceptableArgumentsOrError.accept(ctx.start, ctx.variableDeclaration().size());
+    }
+    super.enterDeclareArgumentParam(ctx);
+  }
+
+  @Override
+  public void enterArgumentParam(EK9Parser.ArgumentParamContext ctx) {
+    if (ctx.variableOnlyDeclaration() != null && !ctx.variableOnlyDeclaration().isEmpty()) {
+      acceptableArgumentsOrError.accept(ctx.RIGHT_ARROW().getSymbol(), ctx.variableOnlyDeclaration().size());
+    }
+
+    super.enterArgumentParam(ctx);
   }
 
   @Override

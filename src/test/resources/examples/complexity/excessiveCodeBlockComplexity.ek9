@@ -1,0 +1,102 @@
+#!ek9
+<?-
+  Design to trigger the code block excessive complexity error.
+  The basic idea is to be fairly lenient on the amount of tolerable complexity
+  But to fail the compilation when it is clearly too much.
+  How much is too much is a point of contention, as are the mechanisms of calculating complexity.
+  So, EK9 has taken a pragmatic approach and tried to be logical and rational and not just stick to McCabe etc.
+  @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+-?>
+defines module excessive.code.block.complexity
+
+  defines function
+
+    evenValue() as pure
+      -> arg as Integer
+      <- rtn as Boolean: arg rem 2 == 0
+
+    <?-
+      Start off with quite a few incoming arguments.
+      We always have the 'exit' so that's 1.
+      Five incoming arguments, that's 2 more.
+      An uninitialised return value, so theres 1 more.
+      So we're already at 4 before we do anything.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "veryComplex": 41
+    veryComplex()
+      ->
+        arg1 as Integer
+        arg2 as Integer
+        arg3 as Integer
+        arg4 as Integer
+        arg5 as Integer
+      <-
+        rtn as Integer?
+
+      someStateValue <- 1
+      //A conditional assignment, add 1
+      rtn :=? arg1
+
+      //Logic of is-set check it to try and ensure variables are always passed around in a set form.
+      //is-set checks add 1 (for each), so 5 more
+      assert arg1? and arg2? and arg3? and arg4? and arg5?
+
+      //So even before we really do anything - we are up to complexity 10
+      //Now add another 1
+      someVar as Integer?
+
+      //Lets throw in a couple of loops
+      //For - add 1
+      //Guard - add 1
+      //By - add 1
+      for rtn :=? arg1 then i in 1 ... 10 by 2
+        rtn += i
+
+        //Do - add 1
+        //guard - add 1
+        do someVar :=? arg3
+          var <- 21
+          //another is-set - add 1
+          assert var?
+
+          //More unset variables - add 1
+          anotherVar as Integer?
+          //try - add 1
+          //guard - add 1
+          //is-set check - add 1
+          //catch - add 1
+          try anotherVar :=? arg4
+            //another is-set check - add 1
+            assert anotherVar?
+
+            teeOff <- List() of Integer
+            //cat - add 1
+            //'|' tee - add 1
+            // '|' select - add 1
+            // '|' collect - add 1
+            onlyEven <- cat [1, 2, 3, 4, 5] | tee in teeOff | select by evenValue | collect as List of Integer
+            //is-set add 1 and 1
+            assert teeOff? and onlyEven?
+
+            //If - add 1
+            //Create lots of boolean comparisons - add 6
+            if arg1 < arg2 and arg3 > arg4 and arg1 <> arg5 or
+            arg1 == arg2 and arg3 == arg4 and arg1 < arg5
+              aVar <- 21
+              //is-set check - add 1
+              assert aVar?
+
+          catch
+            -> ex as Exception
+            //is-set - add 1
+            assert ex?
+          finally
+            someStateValue: -6
+
+        //'<' in the while - add 1
+        while rtn < 100
+
+      someVar: 1
+      //Another is-set check - add 1 and 1
+      assert someVar? and someStateValue?
+//EOF

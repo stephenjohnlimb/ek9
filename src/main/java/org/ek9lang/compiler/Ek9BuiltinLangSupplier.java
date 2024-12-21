@@ -3192,28 +3192,28 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Millisecond?
             
             time() as pure
-              <- rtn as Time :=? Time()
+              <- rtn as Time := Time()
               
             date() as pure
-              <- rtn as Date :=? Date()
+              <- rtn as Date := Date()
               
             dateTime() as pure
-              <- rtn as DateTime :=? DateTime()
+              <- rtn as DateTime := DateTime()
 
             operator ? as pure
-              <- rtn as Boolean :=? Boolean()
+              <- rtn as Boolean := Boolean()
 
           StringInput
             next() as pure
-              <- rtn as String :=? String()
+              <- rtn as String := String()
 
             hasNext() as pure
-              <- rtn as Boolean :=? Boolean()
+              <- rtn as Boolean := Boolean()
 
             operator close as pure
             
             operator ? as pure
-              <- rtn as Boolean :=? Boolean()
+              <- rtn as Boolean := Boolean()
           
           <!-
             Just added in a body so it is not marked as abstract.
@@ -3564,7 +3564,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as StringInput?
 
             operator ? as pure
-              <- rtn as Boolean :=? Boolean()
+              <- rtn as Boolean := Boolean()
 
       """;
 

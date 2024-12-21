@@ -41,7 +41,7 @@ defines module bad.pure.declarations
       @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
       var4 as Boolean: NonPureFunction("Steve")
 
-      var5 as Boolean:=? PureFunction("Steve")
+      var5 as Boolean := PureFunction("Steve")
 
       assert var3? and var4? and var5?
 
@@ -55,7 +55,7 @@ defines module bad.pure.declarations
       var3 as Boolean: PureFunction("Steve")
       var3: PureFunction("Stephen")
       var4 as Boolean: NonPureFunction("Steve")
-      var5 as Boolean:=? PureFunction("Steve")
+      var5 as Boolean := PureFunction("Steve")
 
       assert var3? and var4? and var5?
 

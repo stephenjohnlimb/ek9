@@ -10,7 +10,7 @@ defines module bad.pure.scenarios1
     T1
       simpleMethod() as pure
         -> arg0 as String
-        <- rtn as Boolean :=? arg0? //added :=? for consistency, rtn would clearly be unset and so assigned.
+        <- rtn as Boolean := arg0?
 
       failingMethod() as pure
         -> arg0 as String

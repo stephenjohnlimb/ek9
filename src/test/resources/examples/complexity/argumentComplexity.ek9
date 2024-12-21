@@ -1,0 +1,86 @@
+#!ek9
+<?-
+  Shows how increasing the number of arguments to functions (and or methods) increases complexity.
+-?>
+defines module argument.complexity
+
+  defines function
+
+    <?-
+      Complexity calculations: exit, one is-set. So 2.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testNoArguments": 2
+    testNoArguments()
+      var <- 1
+      assert var?
+
+    <?-
+      Complexity calculations: exit, one is-set. So 2.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testOneArgument": 2
+    testOneArgument()
+      -> arg1 as Integer
+      assert arg1?
+
+    <?-
+      Complexity calculations: exit, one equality. So 2.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testTwoArguments": 2
+    testTwoArguments()
+      ->
+        arg1 as Integer
+        arg2 as Integer
+      assert arg1 <> arg2
+
+    <?-
+      Complexity calculations: exit, one equality, but now with three arguments complexity is increased. So 3.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testThreeArguments": 3
+    testThreeArguments()
+      ->
+        arg1 as Integer
+        arg2 as Integer
+        arg3 as Integer
+      assert arg1 <> arg3
+
+    <?-
+      Complexity calculations: exit, one equality, but now with four arguments complexity is increased. So 3.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testFourArguments": 3
+    testFourArguments()
+      ->
+        arg1 as Integer
+        arg2 as Integer
+        arg3 as Integer
+        arg4 as Integer
+      assert arg1 <> arg4
+
+    <?-
+      Complexity calculations: exit, one equality, but now with five arguments complexity is increased again. So 4.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testFiveArguments": 4
+    testFiveArguments()
+      ->
+        arg1 as Integer
+        arg2 as Integer
+        arg3 as Integer
+        arg4 as Integer
+        arg5 as Integer
+      assert arg1 <> arg5
+
+
+    testTooManyArguments()
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+      ->
+        arg1 as Integer
+        arg2 as Integer
+        arg3 as Integer
+        arg4 as Integer
+        arg5 as Integer
+        arg6 as Integer
+        arg7 as Integer
+        arg8 as Integer
+      assert arg1 <> arg8
+
+
+//EOF

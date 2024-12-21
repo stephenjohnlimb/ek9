@@ -1,0 +1,57 @@
+#!ek9
+defines module simple.unsetassignmentcomplexity
+
+  defines function
+
+    <?-
+      Just a simple use of a declaration and assignment in a pure context
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testPureFunction": 1
+    testPureFunction() as pure
+      <- rtn as Time := Time().now()
+
+    <?-
+      Complexity calculations: exit, declaration (but without initialising), ':=?' conditional assignment, "==". So 4.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testConditionalAssignment1": 4
+    testConditionalAssignment1() as pure
+
+      var as Integer?
+
+      //Do complex stuff and then assign but only if not set
+      var :=? 21
+      assert var == 21
+
+    <?-
+      Slightly less complex because var is actually initialised and not left without memory (bigger risk/complexity).
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testConditionalAssignment2": 3
+    testConditionalAssignment2() as pure
+
+      var <- Integer()
+
+      //Do complex stuff and then assign but only if not set
+      var :=? 21
+      assert var == 21
+
+    <?-
+      Complexity calculations: exit, return unset 'if' and 2 conditional assignment. So 5.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testUnsetReturn": 5
+    testUnsetReturn() as pure
+      -> conditional as Boolean
+      <- rtn as Integer?
+      if conditional
+        rtn :=? 1
+      else
+        rtn :=? 2
+
+    <?-
+      Complexity calculations: Much less complex, exit, one ternary. So 2.
+    -?>
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testSetReturn": 2
+    testSetReturn() as pure
+      -> conditional as Boolean
+      <- rtn as Integer := conditional <- 1 else 2
+
+//EOF
