@@ -1,0 +1,278 @@
+#!ek9
+<!-
+  Designed for testing debugging of the ek9 bootstrap process and types.
+-!>
+defines extern module org.ek9.lang
+
+
+  defines record
+
+    AnyRecord as open
+
+  defines class
+
+    AnyClass as open
+
+    Void
+
+    Boolean as open
+      Boolean() as pure
+
+      Boolean() as pure
+        -> arg0 as Boolean
+
+    Integer as open
+      Integer() as pure
+
+      Integer() as pure
+        -> arg0 as Integer
+
+    Float as open
+      Float() as pure
+
+      Float() as pure
+        -> arg0 as Integer
+
+    String as open
+      String() as pure
+
+      String() as pure
+        -> arg0 as String
+
+    Character as open
+
+    Date as open
+
+    DateTime as open
+
+    Time as open
+
+    Duration as open
+
+    JSON as open
+
+    Millisecond as open
+
+    Path as open
+
+    Version as open
+
+    Exception as open
+
+
+  defines function
+
+    Supplier of type T as pure abstract
+      <- r as T?
+
+    Producer of type T as abstract
+      <- r as T?
+
+    Consumer of type T as pure abstract
+      -> t as T
+
+    BiConsumer of type (T, U) as pure abstract
+      ->
+        t as T
+        u as U
+
+    Acceptor of type T as abstract
+      -> t as T
+
+    BiAcceptor of type (T, U) as abstract
+      ->
+        t as T
+        u as U
+
+    UnaryOperator of type T as pure abstract
+      -> t as T
+      <- r as T?
+
+    Function of type (T, R) as pure abstract
+      -> t as T
+      <- r as R?
+
+    BiFunction of type (T, U, R) as pure abstract
+      ->
+        t as T
+        u as U
+      <- r as R?
+
+    Predicate of type T as pure abstract
+      -> t as T
+      <- r as Boolean?
+
+    <?-
+      Similar in concept to a Predicate, but not pure. Can mutate data.
+    -?>
+    Assessor of type T as abstract
+      -> t as T
+      <- r as Boolean?
+
+    BiPredicate of type (T, U) as pure abstract
+      ->
+        t as T
+        u as U
+      <-
+        r as Boolean?
+
+    Comparator of type T as pure abstract
+      ->
+        t1 as T
+        t2 as T
+      <-
+        r as Integer?
+
+  defines trait
+    HTTPRequest as open
+    HTTPResponse as open
+
+  defines class
+
+    Iterator of type T as abstract
+      Iterator() as pure
+
+    Optional of type T
+      Optional() as pure
+
+    Dict of type (K, V) as open
+      Dict() as pure
+
+    DictEntry of type (K, V) as open
+      DictEntry() as pure
+
+    Result of type (O, E)
+      Result() as pure
+
+    List of type T as open
+      List() as pure
+
+      List() as pure
+        -> arg0 as T
+
+      <?-
+        Check bounds or use iterator, else if out of bounds and exception will be thrown.
+      -?>
+      get() as pure
+        -> index as Integer
+        <- rtn as T?
+
+      first() as pure
+        <- rtn as T?
+
+      last() as pure
+        <- rtn as T?
+
+      reverse() as pure
+        <- rtn as List of T?
+
+      operator == as pure
+        -> arg as List of T
+        <- rtn as Boolean?
+
+      operator <> as pure
+        -> arg as List of T
+        <- rtn as Boolean?
+
+      operator + as pure
+        -> arg as List of T
+        <- rtn as List of T?
+
+      operator + as pure
+        -> arg as T
+        <- rtn as List of T?
+
+      operator - as pure
+        -> arg as List of T
+        <- rtn as List of T?
+
+      operator - as pure
+        -> arg as T
+        <- rtn as List of T?
+
+      operator #< as pure
+        <- rtn as T?
+
+      operator #> as pure
+        <- rtn as T?
+
+      operator $ as pure
+        <- rtn as String?
+
+      operator ? as pure
+        <- rtn as Boolean?
+
+      operator empty as pure
+        <- rtn as Boolean?
+
+      operator #? as pure
+        <- rtn as Integer?
+
+      operator length as pure
+        <- rtn as Integer?
+
+      operator contains as pure
+        -> arg as T
+        <- rtn as Boolean?
+
+      operator :~:
+        -> arg as List of T
+
+      operator :^:
+        -> arg as List of T
+
+      operator :=:
+        -> arg as List of T
+
+      operator |
+        -> arg as T
+
+      operator +=
+        -> arg as List of T
+
+      operator +=
+        -> arg as T
+
+      operator -=
+        -> arg as List of T
+
+      operator -=
+        -> arg as T
+
+  <!-
+    Now define a function and see if it's super gets set.
+    Actually get this: SuperFunction Unknown <- Acceptor() as abstract of type Integer
+    I expect Unknown to actually be Void
+    TODO all the other implicit super functions.
+  -!>
+  defines function
+
+    <!-
+      Define a generic function - for now and see if can be processed
+    -!>
+    SimpleGenericFunction() of type T
+      -> arg0 as T
+      var as SimpleGenericFunction of T : this
+      assert var?
+
+    SomeUnary() of type T
+      -> arg0 as T
+      <- rtn as T: arg0
+      //Also even within this definition - create a concrete version of it.
+      //Weird but let's see if it can be done. Have to do declaration long hand within the generic definition.
+      var as SomeUnary of Integer: SomeUnary() of Integer
+      assert var?
+
+    ReferenceToParameterisedGenericType()
+      var as SimpleGenericFunction of Integer?
+      assert var?
+
+    <!-
+      A normal function - see if it can be given an implicit super of 'Consumer of Integer'
+    -!>
+    SomeTestFunctionAsImplicitConsumer()
+      -> arg0 as Integer
+      //assert arg?
+
+
+//EOF

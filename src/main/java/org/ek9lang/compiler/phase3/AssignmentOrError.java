@@ -37,30 +37,32 @@ final class AssignmentOrError extends TypedSymbolAccess implements BiConsumer<IT
       return;
     }
 
+    var isSetCoalescing = ":=?".equals(op.getText());
+
     //This is the apply the null/isSet coalescing operator. To apply that it is necessary that operator '?' isSet exists
-    if (":=?".equals(op.getText())) {
+    if (isSetCoalescing) {
       isSetPresentOrError.test(op, leftHandSideSymbol);
-    } else {
-
-      if (leftHandSideSymbol.isInjectionExpected()) {
-        //So if one of the other assignments we don't just allow reassignment if the lhs is marked for injection.
-        //We do allow that when used with :=? so that a variable can be set if it has not been injected.
-        //This is to try and stop defects where a variable is marked for injection but gets assigned to.
-        //With the :=? that reassignment only happens if the variable has not been assigned(injected) already.
-        errorListener.semanticError(op, "", REASSIGNMENT_OF_INJECTED_COMPONENT);
-      }
-
-      if (leftHandSideSymbol.isIncomingParameter()) {
-        errorListener.semanticError(op, "'" + leftHandSideSymbol.getFriendlyName() + "':",
-            NO_INCOMING_ARGUMENT_REASSIGNMENT);
-      }
-
-      //If it is a declaration then it is not a reassignment - but an initial assignment.
-      if (!isDeclaration && isPureReassignmentDisallowed(op, leftHandSideSymbol)) {
-        errorListener.semanticError(op, "'" + leftHandSideSymbol.getFriendlyName() + "':",
-            NO_PURE_REASSIGNMENT);
-      }
     }
+
+    if (leftHandSideSymbol.isInjectionExpected()) {
+      //So if one of the other assignments we don't just allow reassignment if the lhs is marked for injection.
+      //We do allow that when used with :=? so that a variable can be set if it has not been injected.
+      //This is to try and stop defects where a variable is marked for injection but gets assigned to.
+      //With the :=? that reassignment only happens if the variable has not been assigned(injected) already.
+      errorListener.semanticError(op, "", REASSIGNMENT_OF_INJECTED_COMPONENT);
+    }
+
+    if (leftHandSideSymbol.isIncomingParameter()) {
+      errorListener.semanticError(op, "'" + leftHandSideSymbol.getFriendlyName() + "':",
+          NO_INCOMING_ARGUMENT_REASSIGNMENT);
+    }
+
+    //If it is a declaration then it is not a reassignment - but an initial assignment.
+    if (!isDeclaration && !isSetCoalescing && isPureReassignmentDisallowed(op, leftHandSideSymbol)) {
+      errorListener.semanticError(op, "'" + leftHandSideSymbol.getFriendlyName() + "':",
+          NO_PURE_REASSIGNMENT);
+    }
+
 
   }
 

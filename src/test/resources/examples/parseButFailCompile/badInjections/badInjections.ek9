@@ -50,12 +50,12 @@ defines module bad.injection.examples
       //Now you could check it has been injected with this
       assert injected?
 
-      //or you could do this, just to cover the case where if not injected you want to ensure a default is used
-      //So this means if not injected (i.e. still null) assign it to a new instance of DefaultComp.
-      injected :=? DefaultComp()
+      //But the best way if you're going to adopt a default is like this
+      comp <- injected? <- injected else DefaultComp()
 
-      //Now just ensure it is referenced after a potential assignment (else why did we reassign it)
-      assert injected?
+      //Now you can work with 'comp' and it will use the injected value if it was injected
+      //else it will use the DefaultComp()
+      assert comp?
 
     TryToDirectlyReassignInjectedComponent()
       //So this is the injection

@@ -327,7 +327,10 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     assertTrue(t.isConceptualTypeParameter());
 
     //This will be our generic function that has one or more 'type parameters'
-    var aGenericFunction = new PossibleGenericSymbol(genericFunctionName, symbolTable);
+    var aGenericFunction = new FunctionSymbol(genericFunctionName, symbolTable);
+    final var returnSymbol = createSyntheticReturnVariableWithVoidType();
+    aGenericFunction.setReturningSymbol(returnSymbol);
+
     //just for the test use the symbol table.
     aGenericFunction.setModuleScope(symbolTable);
 
@@ -337,6 +340,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     assertFalse(aGenericFunction.isGenericInNature());
     aGenericFunction.addTypeParameterOrArgument(t);
     assertTrue(aGenericFunction.isGenericInNature());
+
     //And its category will have changed to the template version.
     assertEquals(SymbolCategory.TEMPLATE_FUNCTION, aGenericFunction.getCategory());
 
@@ -357,6 +361,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     assertTrue(resolvedArg.isPresent());
     assertEquals(arg1, resolvedArg.get());
 
+    assertTrue(aGenericFunction.isReturningSymbolPresent());
     return aGenericFunction;
   }
 
@@ -458,5 +463,11 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     assertEquals(aGenericType.getAnyConceptualTypeParameters(), aGenericType.getTypeParameterOrArguments());
 
     return aGenericType;
+  }
+
+  private VariableSymbol createSyntheticReturnVariableWithVoidType() {
+    var rtn = new VariableSymbol("_rtn", this.ek9Void);
+    rtn.setReturningParameter(true);
+    return rtn;
   }
 }

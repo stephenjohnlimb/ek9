@@ -5,6 +5,10 @@
   But to fail the compilation when it is clearly too much.
   How much is too much is a point of contention, as are the mechanisms of calculating complexity.
   So, EK9 has taken a pragmatic approach and tried to be logical and rational and not just stick to McCabe etc.
+  It's fairly accepting of large amounts of complexity - but there's a limit to everything (not sure what that limit is yet).
+  For parameters/arguments - this is hard limit at 8 - see 'argumentComplexity.ek9' for an example of this.
+
+  The 'pragma' for this is shown below.
   @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
 -?>
 defines module excessive.code.block.complexity
@@ -22,7 +26,7 @@ defines module excessive.code.block.complexity
       An uninitialised return value, so theres 1 more.
       So we're already at 4 before we do anything.
     -?>
-    @Complexity: PRE_IR_CHECKS: FUNCTION: "veryComplex": 41
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "veryComplex": 52
     veryComplex()
       ->
         arg1 as Integer
@@ -34,6 +38,7 @@ defines module excessive.code.block.complexity
         rtn as Integer?
 
       someStateValue <- 1
+
       //A conditional assignment, add 1
       rtn :=? arg1
 
@@ -42,46 +47,87 @@ defines module excessive.code.block.complexity
       assert arg1? and arg2? and arg3? and arg4? and arg5?
 
       //So even before we really do anything - we are up to complexity 10
-      //Now add another 1
+      //Uninitialised variable add complexity and risk, so now add another 1
       someVar as Integer?
 
       //Lets throw in a couple of loops
       //For - add 1
-      //Guard - add 1
-      //By - add 1
+      //Guard (conditional assignment/if built in - more complexity)- add 1
+      //By (again makes you have to think more - complexity)- add 1
+
       for rtn :=? arg1 then i in 1 ... 10 by 2
         rtn += i
 
+        //Now we're up to 14 in terms of complexity
+
         //Do - add 1
-        //guard - add 1
+        //guard (again a conditional assignment) - add 1
         do someVar :=? arg3
-          var <- 21
+          var <- someVar
+
           //another is-set - add 1
           assert var?
 
           //More unset variables - add 1
           anotherVar as Integer?
+
+          //Now up to 18 in terms of complexity
+
           //try - add 1
           //guard - add 1
           //is-set check - add 1
           //catch - add 1
           try anotherVar :=? arg4
-            //another is-set check - add 1
-            assert anotherVar?
+            //another check - add 1
+            assert anotherVar != someVar
+
+            //Now we're up to 23 in terms of complexity
+
+            //So now let's throw in the definition of a dynamic class - complexity of this is included in this enclosing function!
+
+            //As we are defining a new class - add 1
+            someDynamicObject <- ATuple(first: arg1, second: arg2, third: arg3, fourth: arg4, fifth: arg5) as class
+              message as String: "Some built in prefix"
+
+              //Method exit - add 1
+              //Return uninitialised - add 1
+              populated() as pure
+                <- rtn as Boolean?
+
+                //Because we did not initialise in declaration and we're in a 'pure' function must us ':=?'
+                //So add 1
+                //But also is-set checks on vars to add 5
+                rtn :=? first? and second? and third? and fourth? and fifth?
+
+              //Just exit on the method - add 1
+              operator $ as pure
+                <- rtn as String: `${message} now a named captured variable ${first}`
+
+              default operator ?
+
+            //Up to 33 complexity now
+
+            //Total complexity of 19 below
+
+            //Is-Set - So add another 1
+            assert someDynamicObject?
 
             teeOff <- List() of Integer
+
             //cat - add 1
             //'|' tee - add 1
             // '|' select - add 1
             // '|' collect - add 1
             onlyEven <- cat [1, 2, 3, 4, 5] | tee in teeOff | select by evenValue | collect as List of Integer
-            //is-set add 1 and 1
+            //is-set add 2
             assert teeOff? and onlyEven?
+
 
             //If - add 1
             //Create lots of boolean comparisons - add 6
             if arg1 < arg2 and arg3 > arg4 and arg1 <> arg5 or
             arg1 == arg2 and arg3 == arg4 and arg1 < arg5
+
               aVar <- 21
               //is-set check - add 1
               assert aVar?
@@ -97,6 +143,7 @@ defines module excessive.code.block.complexity
         while rtn < 100
 
       someVar: 1
-      //Another is-set check - add 1 and 1
+      //Another is-set check - add 2
+
       assert someVar? and someStateValue?
 //EOF

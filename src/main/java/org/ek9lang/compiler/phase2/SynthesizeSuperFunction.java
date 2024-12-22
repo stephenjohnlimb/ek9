@@ -202,12 +202,13 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
     final var data = new ParameterisedTypeData(function.getSourceToken(), genericType.get(), typeArguments);
     final var resolvedParameterizedType = parameterisedLocator.apply(data);
 
-    if (resolvedParameterizedType.isEmpty()) {
-      throw new CompilerException("Must be possible to parameterized type [" + genericTypeName);
-    }
+    resolvedParameterizedType.ifPresentOrElse(
+        newType -> function.setSuperFunction((FunctionSymbol) newType),
+        () -> {
+          throw new CompilerException("Must be possible to parameterized type [" + genericTypeName);
+        }
+    );
 
-    final var superFunction = (FunctionSymbol) resolvedParameterizedType.get();
-    function.setSuperFunction(superFunction);
 
   }
 

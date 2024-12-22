@@ -19,7 +19,10 @@ import org.ek9lang.core.AssertValue;
 public class ParameterizedSymbolCreator
     implements BiFunction<PossibleGenericSymbol, List<ISymbol>, PossibleGenericSymbol> {
 
+  private final ConceptualLookupMapping conceptualLookupMapping = new ConceptualLookupMapping();
+
   private final BiFunction<PossibleGenericSymbol, List<ISymbol>, String> internalNameFor;
+
 
   public ParameterizedSymbolCreator(final BiFunction<PossibleGenericSymbol, List<ISymbol>, String> internalNameFor) {
     this.internalNameFor = internalNameFor;
@@ -45,14 +48,15 @@ public class ParameterizedSymbolCreator
     if (possibleGenericSymbol.getCategory().equals(SymbolCategory.TEMPLATE_TYPE)) {
       //Going to create a TYPE or another TEMPLATE_TYPE
       rtn = createAggregate(possibleGenericSymbol, typeArguments);
-    } else if (possibleGenericSymbol.getCategory().equals(SymbolCategory.TEMPLATE_FUNCTION)) {
+    } else if (possibleGenericSymbol.getCategory().equals(SymbolCategory.TEMPLATE_FUNCTION)
+        && possibleGenericSymbol instanceof FunctionSymbol asFunctionSymbol) {
       //Going to be a FUNCTION or another TEMPLATE_FUNCTION
-      rtn = createFunction(possibleGenericSymbol, typeArguments);
+      rtn = createFunction(asFunctionSymbol, typeArguments);
     }
 
     AssertValue.checkNotNull("PossibleGenericSymbol "
         + possibleGenericSymbol.getCategory()
-        + " does not make sense", rtn);
+        + " does not make sense, rtn is null", rtn);
 
     //Now clone over the abstract/extensibility nature from the generic type
     rtn.setOpenForExtension(possibleGenericSymbol.isOpenForExtension());
@@ -75,14 +79,34 @@ public class ParameterizedSymbolCreator
     return rtn;
   }
 
-  private FunctionSymbol createFunction(final PossibleGenericSymbol possibleGenericSymbol,
+  private FunctionSymbol createFunction(final FunctionSymbol functionGenericSymbol,
                                         final List<ISymbol> typeArguments) {
 
-    final var name = internalNameFor.apply(possibleGenericSymbol, typeArguments);
-    final var rtn = new FunctionSymbol(name, possibleGenericSymbol.getModuleScope());
+    final var name = internalNameFor.apply(functionGenericSymbol, typeArguments);
+    final var rtn = new FunctionSymbol(name, functionGenericSymbol.getModuleScope());
 
-    rtn.setGenericType(possibleGenericSymbol);
+    rtn.setGenericType(functionGenericSymbol);
     typeArguments.forEach(rtn::addTypeParameterOrArgument);
+    //As I missed this before - lets panic if this is not set as it means the result of the processing will
+    //cause other errors that will be hard to track down.
+    AssertValue.checkNotNull("Expecting a returning Symbol", functionGenericSymbol.getReturningSymbol());
+
+    //What about the return type, need to deal with at as well.
+    final var clonedReturnSymbol = functionGenericSymbol.getReturningSymbol().clone(rtn);
+    //But we're not quite finished - because the type might be a 'T' and so we need to find 'T' in the generic type
+    //get its position and look that up in the typeArguments.
+
+    final var returnType = clonedReturnSymbol.getType();
+    AssertValue.checkTrue("Expect returning type to be present", returnType.isPresent());
+
+    if (returnType.get().isConceptualTypeParameter()) {
+      var mapping = conceptualLookupMapping.apply(typeArguments, functionGenericSymbol.getTypeParameterOrArguments());
+      var mappedType = mapping.get(returnType.get());
+      //Now change the type of the cloned return symbol
+      clonedReturnSymbol.setType(mappedType);
+    }
+
+    rtn.setReturningSymbol(clonedReturnSymbol);
 
     return rtn;
   }

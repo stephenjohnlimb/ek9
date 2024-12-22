@@ -312,7 +312,10 @@ defines module bad.pure.scenarios2
 
       assert var2? and var3?
 
-      //This coalescing operator is allowed even on incoming parameters.
+      //This coalescing operator is NOT allowed even on incoming parameters.
+      //Because it is pointless it does not copy any data back or anything
+      //It is basically just a reuse of a variable (create a new one).
+      @Error: FULL_RESOLUTION: NO_INCOMING_ARGUMENT_REASSIGNMENT
       incomingVar :=? 21
       assert incomingVar?
 

@@ -274,8 +274,15 @@ defines module bad.pure.scenarios1
 
     ReassignmentInPure() as pure
       -> arg0 as String
-      //We do allow a null check reassignment - even in pure
+
+      //We do NOT allow a null check reassignment - even in pure
+      //There is no need - just create a new variable as shown below
+      @Error: FULL_RESOLUTION: NO_INCOMING_ARGUMENT_REASSIGNMENT
       arg0 :=? "Stephen"
+
+      //Use this approach instead, rather than reusing incoming arguments.
+      newVar <- arg0? <- arg0: "Stephen"
+      assert newVar?
 
       var1 <- String()
 
@@ -285,7 +292,7 @@ defines module bad.pure.scenarios1
       var2 <- "Ted"
 
       //While you can express this, it would not alter the variable because it is actually set
-      //But you won;t get a compiler warning.
+      //But you won't get a compiler warning.
       var2 :=? "Bill"
 
       assert var1? and var2?

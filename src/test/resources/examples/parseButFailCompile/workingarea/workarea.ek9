@@ -24,9 +24,14 @@ defines module just.workspace
   defines function
 
 
-    justFail()
-      @Error: FULL_RESOLUTION: NOT_RESOLVED
-      assert missing?
+    getStartValue()
+      <- rtn <- 1
+
+    testDeclaration()
+
+      if var <- getStartValue() then var < 10
+        otherValue <- var
+        assert var? and otherValue?
 
   <!-
 

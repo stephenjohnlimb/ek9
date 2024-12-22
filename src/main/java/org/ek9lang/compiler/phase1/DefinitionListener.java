@@ -308,7 +308,16 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
 
-    checkAndDefineModuleScopedSymbol(symbolFactory.newFunction(ctx), ctx);
+    final var functionSymbol = symbolFactory.newFunction(ctx);
+    //There is no returning so use a return of Void, might be null if we had duplicate names.
+    //Must do this on entry - as the body may actually reference its own definition!
+    if (functionSymbol != null
+        && ctx.operationDetails() != null
+        && ctx.operationDetails().returningParam() == null) {
+      processSyntheticReturn.accept(functionSymbol);
+    }
+
+    checkAndDefineModuleScopedSymbol(functionSymbol, ctx);
     super.enterFunctionDeclaration(ctx);
 
   }
@@ -320,11 +329,6 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     if (functionSymbol != null) {
       appropriateFunctionBodyOrError.accept(functionSymbol, ctx.operationDetails());
-    }
-
-    //There is returning so use a return of Void, might be null if we had duplicate names.
-    if (functionSymbol != null && ctx.operationDetails() != null && ctx.operationDetails().returningParam() == null) {
-      processSyntheticReturn.accept(functionSymbol);
     }
 
     super.exitFunctionDeclaration(ctx);

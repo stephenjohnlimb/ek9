@@ -143,6 +143,9 @@ public abstract class PhasesTest {
       if (source.getErrorListener().hasDirectiveErrors()) {
         System.out.println("Dumping all Symbols from all Modules");
         showAllSymbolsInAllModules.accept(sharedCompilableProgram);
+        System.out.println("Directiv: " + phase + ", source: " + source.getFileName());
+        source.getErrorListener().getDirectiveErrors()
+            .forEachRemaining(error -> System.out.println(error + " in " + source.getFileName()));
       }
       assertFalse(source.getErrorListener().hasDirectiveErrors(), "There are '@' directives that have failed");
     }

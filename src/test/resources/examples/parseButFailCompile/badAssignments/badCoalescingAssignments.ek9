@@ -35,6 +35,24 @@ defines module bad.coalescing.assignments
         <- rtn as Boolean: arg0?
 
   defines function
+
+    GetStartValue()
+      <- rtn <- 1
+
+    <?-
+      Show that even in a guard an assignment to incoming parameters is not allowed.
+    -?>
+    TestGuardAssignment()
+      -> var as Integer
+
+      @Error: FULL_RESOLUTION: NO_INCOMING_ARGUMENT_REASSIGNMENT
+      if var :=? GetStartValue() then var < 10
+        otherValue <- var
+        assert var? and otherValue?
+
+      val <- var
+      assert val?
+
     JustFail()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert failure
@@ -80,14 +98,15 @@ defines module bad.coalescing.assignments
 
     TestSimpleAssignmentViaParameter1()
       -> var1 as String
-      //You cannot do this - use the conditional assignment
+      //You cannot do this - no assignment to incoming arguments is allowed
       @Error: FULL_RESOLUTION: NO_INCOMING_ARGUMENT_REASSIGNMENT
       var1: "Steve"
 
     TestSimpleAssignmentViaParameter2()
       -> var1 as String
 
-      //But you can do this
+      //Any you cannot do this either.
+      @Error: FULL_RESOLUTION: NO_INCOMING_ARGUMENT_REASSIGNMENT
       var1 :=? "Steve"
 
 
@@ -111,13 +130,18 @@ defines module bad.coalescing.assignments
 
     TestCoalescingAssignment3()
       //Maybe not set
-      someVar as Comp1!
+      someComp as Comp1!
 
       //In this case the variable will be assigned because it might be unset.
-      //This could be good as a fallback for no injection - i.e. a default. Safer than a null pointer?
-      someVar :=? Comp2()
+      //But this approach is not allowed work with a new variable
+      @Error: FULL_RESOLUTION: REASSIGNMENT_OF_INJECTED_COMPONENT
+      someComp :=? Comp2()
+      assert someComp?
 
-      assert someVar?
+      //Better idiomatic approach, never allow reassignment of injected components
+      //Always use a new variable and if the injected value is there use that or create a new component to use.
+      workingComp <- someComp? <- someComp else Comp2()
+      assert workingComp?
 
     TestBadCoalescingAssignment2()
       @Error: FULL_RESOLUTION: NOT_REFERENCED
