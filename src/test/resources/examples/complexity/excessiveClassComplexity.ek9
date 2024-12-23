@@ -1,0 +1,49 @@
+#!ek9
+defines module excessive.classdefinition.complexity
+
+  //We can put this check here - as it looks up the function my name.
+  @Complexity: PRE_IR_CHECKS: TYPE: "ComplexClassVeryRepetitiveToGetComplexity": 24
+  defines class
+
+    <?-
+      Start off with quite a few incoming method arguments.
+      We always have the class definition so that's 1.
+    -?>
+    //@Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+    ComplexClassVeryRepetitiveToGetComplexity
+      //This type of declaration will add 1 each - so that's 5
+      prop1 as Integer?
+      prop2 as Integer?
+      prop3 as Integer?
+      prop4 as Integer?
+      prop5 as Integer?
+
+      <?-
+      Then constructor definition so that's 1.
+      Five incoming arguments, that's 2.
+      So we're already at 9 before we do anything.
+      -?>
+      ComplexClassVeryRepetitiveToGetComplexity() as pure
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+          arg4 as Integer
+          arg5 as Integer
+
+        //There are 5 'is-set' checks,  that's 5
+        assert arg1? and arg2? and arg3? and arg4? and arg5?
+
+        //Conditional assignments, add 5
+        prop1 :=? arg1
+        prop2 :=? arg2
+        prop3 :=? arg3
+        prop4 :=? arg4
+        prop5 :=? arg5
+
+        //More 'is-set' checks. Add 5.
+        assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //So now we're up to 24.
+
+//EOF

@@ -36,6 +36,17 @@ class ComplexityCounter {
   }
 
   /**
+   * Push a zero value on to this stack.
+   */
+  public AtomicInteger push(final int initialValue) {
+
+    var value = new AtomicInteger(initialValue);
+    complexityCounterStack.push(value);
+
+    return value;
+  }
+
+  /**
    * Take a look at the top of the stack.
    */
   public AtomicInteger peek() {

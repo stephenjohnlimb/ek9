@@ -6,13 +6,13 @@ import java.util.function.ObjIntConsumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.common.ErrorListener;
 
-class AcceptableArgumentsOrError implements ObjIntConsumer<Token> {
+class AcceptableArgumentComplexityOrError implements ObjIntConsumer<Token> {
 
   private final ComplexityCounter complexityCounter;
   private final ErrorListener errorListener;
 
-  AcceptableArgumentsOrError(final ComplexityCounter complexityCounter,
-                             final ErrorListener errorListener) {
+  AcceptableArgumentComplexityOrError(final ComplexityCounter complexityCounter,
+                                      final ErrorListener errorListener) {
     this.complexityCounter = complexityCounter;
     this.errorListener = errorListener;
 

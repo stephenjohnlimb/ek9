@@ -7,14 +7,20 @@
   So, EK9 has taken a pragmatic approach and tried to be logical and rational and not just stick to McCabe etc.
   It's fairly accepting of large amounts of complexity - but there's a limit to everything (not sure what that limit is yet).
   For parameters/arguments - this is hard limit at 8 - see 'argumentComplexity.ek9' for an example of this.
+  Currently method/function/operation complexity is 50 (which as you can see below is pretty high and complex).
 
   The 'pragma' for this is shown below.
   @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+  The 'pragma' to assert the value of complexity is:
+  @Complexity: PRE_IR_CHECKS: FUNCTION|TYPE: "type of function name": expected integer complexity value
 -?>
 defines module excessive.code.block.complexity
 
+  //We can put this check here - as it looks up the function my name.
+  @Complexity: PRE_IR_CHECKS: FUNCTION: "veryComplex": 54
   defines function
 
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "evenValue": 2
     evenValue() as pure
       -> arg as Integer
       <- rtn as Boolean: arg rem 2 == 0
@@ -25,8 +31,9 @@ defines module excessive.code.block.complexity
       Five incoming arguments, that's 2 more.
       An uninitialised return value, so theres 1 more.
       So we're already at 4 before we do anything.
+      Now we expect this error to appear on this line.
     -?>
-    @Complexity: PRE_IR_CHECKS: FUNCTION: "veryComplex": 52
+    @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
     veryComplex()
       ->
         arg1 as Integer
@@ -51,16 +58,16 @@ defines module excessive.code.block.complexity
       someVar as Integer?
 
       //Lets throw in a couple of loops
-      //For - add 1
+      //'for' - add 1
       //Guard (conditional assignment/if built in - more complexity)- add 1
-      //By (again makes you have to think more - complexity)- add 1
+      //'by' (again makes you have to think more - complexity)- add 1
 
       for rtn :=? arg1 then i in 1 ... 10 by 2
         rtn += i
 
         //Now we're up to 14 in terms of complexity
 
-        //Do - add 1
+        //'do' - add 1
         //guard (again a conditional assignment) - add 1
         do someVar :=? arg3
           var <- someVar
@@ -73,10 +80,10 @@ defines module excessive.code.block.complexity
 
           //Now up to 18 in terms of complexity
 
-          //try - add 1
+          //'try' - add 1
           //guard - add 1
           //is-set check - add 1
-          //catch - add 1
+          //'catch' - add 1
           try anotherVar :=? arg4
             //another check - add 1
             assert anotherVar != someVar
@@ -85,7 +92,8 @@ defines module excessive.code.block.complexity
 
             //So now let's throw in the definition of a dynamic class - complexity of this is included in this enclosing function!
 
-            //As we are defining a new class - add 1
+            //As we are defining a new class - add 1 - but adds up to 12 in total
+            @Complexity: PRE_IR_CHECKS: TYPE: "ATuple": 12
             someDynamicObject <- ATuple(first: arg1, second: arg2, third: arg3, fourth: arg4, fifth: arg5) as class
               message as String: "Some built in prefix"
 
@@ -105,7 +113,7 @@ defines module excessive.code.block.complexity
 
               default operator ?
 
-            //Up to 33 complexity now
+            //Up to 35 complexity now
 
             //Total complexity of 19 below
 

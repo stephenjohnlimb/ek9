@@ -29,10 +29,10 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   private final ServiceOperationOrError serviceOperationOrError;
   private final ProcessDynamicFunctionEntry processDynamicFunctionDeclarationEntry;
   private final DynamicFunctionOrError dynamicFunctionOrError;
-  private final AcceptableArgumentsOrError acceptableArgumentsOrError;
+  private final AcceptableArgumentComplexityOrError acceptableArgumentComplexityOrError;
   private final IdentifierAsPropertyOrError processIdentifierAsProperty;
 
-  private final ComplexityAcceptableOrError complexityAcceptableOrError;
+  private final AcceptableConstructComplexityOrError acceptableConstructComplexityOrError;
 
   PreIRListener(final ParsedModule parsedModule) {
 
@@ -69,173 +69,169 @@ final class PreIRListener extends ScopeStackConsistencyListener {
         new ProcessDynamicFunctionEntry(symbolsAndScopes, errorListener);
     this.dynamicFunctionOrError =
         new DynamicFunctionOrError(symbolsAndScopes, errorListener);
-    this.acceptableArgumentsOrError =
-        new AcceptableArgumentsOrError(complexityCounter, errorListener);
+    this.acceptableArgumentComplexityOrError =
+        new AcceptableArgumentComplexityOrError(complexityCounter, errorListener);
     this.processIdentifierAsProperty =
         new IdentifierAsPropertyOrError(symbolsAndScopes, errorListener);
-    this.complexityAcceptableOrError =
-        new ComplexityAcceptableOrError(symbolsAndScopes, complexityCounter);
+    this.acceptableConstructComplexityOrError =
+        new AcceptableConstructComplexityOrError(symbolsAndScopes, errorListener, complexityCounter);
   }
 
   @Override
   public void enterServiceDeclaration(final EK9Parser.ServiceDeclarationContext ctx) {
 
-    complexityCounter.push();
+    //Services are complex by nature.
+    complexityCounter.push(2);
     super.enterServiceDeclaration(ctx);
   }
 
   @Override
   public void exitServiceDeclaration(final EK9Parser.ServiceDeclarationContext ctx) {
 
-    complexityAcceptableOrError.accept(ctx);
+    acceptableConstructComplexityOrError.accept(ctx);
     super.exitServiceDeclaration(ctx);
   }
 
   @Override
   public void enterRecordDeclaration(final EK9Parser.RecordDeclarationContext ctx) {
 
-    complexityCounter.push();
+    complexityCounter.push(1);
     super.enterRecordDeclaration(ctx);
   }
 
   @Override
   public void exitRecordDeclaration(final EK9Parser.RecordDeclarationContext ctx) {
 
-    complexityAcceptableOrError.accept(ctx);
+    acceptableConstructComplexityOrError.accept(ctx);
     super.exitRecordDeclaration(ctx);
   }
 
   @Override
   public void enterTraitDeclaration(final EK9Parser.TraitDeclarationContext ctx) {
 
-    complexityCounter.push();
+    complexityCounter.push(1);
     super.enterTraitDeclaration(ctx);
   }
 
   @Override
   public void exitTraitDeclaration(final EK9Parser.TraitDeclarationContext ctx) {
 
-    complexityAcceptableOrError.accept(ctx);
+    acceptableConstructComplexityOrError.accept(ctx);
     super.exitTraitDeclaration(ctx);
   }
 
   @Override
   public void enterClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
 
-    complexityCounter.push();
+    complexityCounter.push(1);
     super.enterClassDeclaration(ctx);
   }
 
   @Override
   public void exitClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
 
-    complexityAcceptableOrError.accept(ctx);
+    acceptableConstructComplexityOrError.accept(ctx);
     super.exitClassDeclaration(ctx);
   }
 
   @Override
   public void enterComponentDeclaration(final EK9Parser.ComponentDeclarationContext ctx) {
 
-    complexityCounter.push();
+    //Components are also complex by nature with all the injection parts.
+    complexityCounter.push(2);
     super.enterComponentDeclaration(ctx);
   }
 
   @Override
   public void exitComponentDeclaration(final EK9Parser.ComponentDeclarationContext ctx) {
 
-    complexityAcceptableOrError.accept(ctx);
+    acceptableConstructComplexityOrError.accept(ctx);
     super.exitComponentDeclaration(ctx);
   }
 
   @Override
   public void enterApplicationDeclaration(final EK9Parser.ApplicationDeclarationContext ctx) {
 
-    complexityCounter.push();
+    //Applications are also quite complex in their nature - working with Components.
+    complexityCounter.push(2);
     super.enterApplicationDeclaration(ctx);
   }
 
   @Override
   public void exitApplicationDeclaration(final EK9Parser.ApplicationDeclarationContext ctx) {
 
-    complexityAcceptableOrError.accept(ctx);
+    acceptableConstructComplexityOrError.accept(ctx);
     super.exitApplicationDeclaration(ctx);
   }
 
   @Override
   public void enterDynamicClassDeclaration(final EK9Parser.DynamicClassDeclarationContext ctx) {
 
-    complexityCounter.push();
+    //These are also complex, because they inline a class definition.
+    complexityCounter.push(2);
     super.enterDynamicClassDeclaration(ctx);
   }
 
   @Override
   public void exitDynamicClassDeclaration(final EK9Parser.DynamicClassDeclarationContext ctx) {
 
-    complexityAcceptableOrError.accept(ctx);
+    acceptableConstructComplexityOrError.accept(ctx);
     super.exitDynamicClassDeclaration(ctx);
   }
 
   @Override
   public void enterFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
 
-    complexityCounter.push();
+    complexityCounter.push(1);
     super.enterFunctionDeclaration(ctx);
   }
 
   @Override
   public void exitFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
 
-    //This is for the standard return
-    complexityCounter.incrementComplexity();
-    functionOrError.andThen(complexityAcceptableOrError).accept(ctx);
+    functionOrError.andThen(acceptableConstructComplexityOrError).accept(ctx);
     super.exitFunctionDeclaration(ctx);
   }
 
   @Override
   public void enterMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
 
-    complexityCounter.push();
+    complexityCounter.push(1);
     super.enterMethodDeclaration(ctx);
   }
 
   @Override
   public void exitMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
 
-    //This is for the standard return
-    complexityCounter.incrementComplexity();
-    methodOrError.andThen(complexityAcceptableOrError).accept(ctx);
+    methodOrError.andThen(acceptableConstructComplexityOrError).accept(ctx);
     super.exitMethodDeclaration(ctx);
   }
 
   @Override
   public void enterOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
 
-    complexityCounter.push();
+    complexityCounter.push(1);
     super.enterOperatorDeclaration(ctx);
   }
 
   @Override
   public void exitOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
 
-    //This is for the standard return
-    complexityCounter.incrementComplexity();
-    operatorOrError.andThen(complexityAcceptableOrError).accept(ctx);
+    operatorOrError.andThen(acceptableConstructComplexityOrError).accept(ctx);
     super.exitOperatorDeclaration(ctx);
   }
 
   @Override
   public void enterServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
 
-    complexityCounter.push();
+    complexityCounter.push(1);
     super.enterServiceOperationDeclaration(ctx);
   }
 
   @Override
   public void exitServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
 
-    //This is for the standard return
-    complexityCounter.incrementComplexity();
-    serviceOperationOrError.andThen(complexityAcceptableOrError).accept(ctx);
+    serviceOperationOrError.andThen(acceptableConstructComplexityOrError).accept(ctx);
     super.exitServiceOperationDeclaration(ctx);
   }
 
@@ -249,7 +245,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterDynamicFunctionDeclaration(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
 
-    complexityCounter.push();
+    //Quite complex to understand.
+    complexityCounter.push(2);
     processDynamicFunctionDeclarationEntry.accept(ctx);
     super.enterDynamicFunctionDeclaration(ctx);
   }
@@ -257,9 +254,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void exitDynamicFunctionDeclaration(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
 
-    //This is for the standard return
-    complexityCounter.incrementComplexity();
-    dynamicFunctionOrError.andThen(complexityAcceptableOrError).accept(ctx);
+    dynamicFunctionOrError.andThen(acceptableConstructComplexityOrError).accept(ctx);
 
     super.exitDynamicFunctionDeclaration(ctx);
   }
@@ -312,6 +307,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterThrowStatement(final EK9Parser.ThrowStatementContext ctx) {
 
+    //Introducing throws adds complexity.
     complexityCounter.incrementComplexity(2);
     super.enterThrowStatement(ctx);
   }
@@ -388,7 +384,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   public void enterDeclareArgumentParam(EK9Parser.DeclareArgumentParamContext ctx) {
 
     if (ctx.variableDeclaration() != null && !ctx.variableDeclaration().isEmpty()) {
-      acceptableArgumentsOrError.accept(ctx.start, ctx.variableDeclaration().size());
+      acceptableArgumentComplexityOrError.accept(ctx.start, ctx.variableDeclaration().size());
     }
     super.enterDeclareArgumentParam(ctx);
   }
@@ -396,7 +392,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterArgumentParam(EK9Parser.ArgumentParamContext ctx) {
     if (ctx.variableOnlyDeclaration() != null && !ctx.variableOnlyDeclaration().isEmpty()) {
-      acceptableArgumentsOrError.accept(ctx.RIGHT_ARROW().getSymbol(), ctx.variableOnlyDeclaration().size());
+      acceptableArgumentComplexityOrError.accept(ctx.RIGHT_ARROW().getSymbol(), ctx.variableOnlyDeclaration().size());
     }
 
     super.enterArgumentParam(ctx);
