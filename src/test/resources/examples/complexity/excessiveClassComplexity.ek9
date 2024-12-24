@@ -1,15 +1,54 @@
 #!ek9
 defines module excessive.classdefinition.complexity
 
-  //We can put this check here - as it looks up the function my name.
-  @Complexity: PRE_IR_CHECKS: TYPE: "ComplexClassVeryRepetitiveToGetComplexity": 24
+  defines function
+
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "getBasicValue": 1
+    getBasicValue() as pure
+      <- rtn <- 1
+
   defines class
 
     <?-
-      Start off with quite a few incoming method arguments.
-      We always have the class definition so that's 1.
+      Just used to enable resources within a try block.
+      Definition: 1
+      is-set: 1
+      conditional assignment: 1
+      exit: 1
     -?>
-    //@Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+    @Complexity: PRE_IR_CHECKS: TYPE: "SomeResource": 7
+    SomeResource
+      fileIndex as Integer: Integer()
+      SomeResource() as pure
+        -> arg1 as Integer
+        assert arg1?
+        fileIndex :=? arg1
+
+      <?-
+        is-set: 1
+        exit: 1
+      -?>
+      operator close as pure
+        assert fileIndex?
+        //Now would do the closing
+
+      <?-
+        Let EK9 compiler do the implementation of this, basically just run 'is-set' on each property.
+        exit: 1
+      -?>
+      default operator ?
+
+  //We can put this check here - as it looks up the function my name.
+  @Complexity: PRE_IR_CHECKS: TYPE: "ComplexClassVeryRepetitiveToGetComplexity": 549
+  defines class
+
+    <?-
+      Start off with quite a few properties.
+      We always have the class definition so that's 1.
+
+      This class has multiple copies of complex method, to trigger the complexity error.
+    -?>
+    @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
     ComplexClassVeryRepetitiveToGetComplexity
       //This type of declaration will add 1 each - so that's 5
       prop1 as Integer?
@@ -18,11 +57,13 @@ defines module excessive.classdefinition.complexity
       prop4 as Integer?
       prop5 as Integer?
 
+      //So just the class definition with properties is 6.
+
       <?-
       Then constructor definition so that's 1.
       Five incoming arguments, that's 2.
-      So we're already at 9 before we do anything.
       -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
       ComplexClassVeryRepetitiveToGetComplexity() as pure
         ->
           arg1 as Integer
@@ -31,7 +72,7 @@ defines module excessive.classdefinition.complexity
           arg4 as Integer
           arg5 as Integer
 
-        //There are 5 'is-set' checks,  that's 5
+        //There are 5 'is-set' checks, that's 5
         assert arg1? and arg2? and arg3? and arg4? and arg5?
 
         //Conditional assignments, add 5
@@ -45,5 +86,902 @@ defines module excessive.classdefinition.complexity
         assert prop1? and prop2? and prop3? and prop4? and prop5?
 
         //So now we're up to 24.
+
+        someVar <- Integer()
+        //Now lets use a try with resources
+        //'try': 1
+        //guard: 1
+        //Lots of resources: 2
+        //Nice thing about resources being used like this is that
+        try someVar :=? getBasicValue() then
+          ->
+            var1 <- SomeResource(prop1)
+            var2 <- SomeResource(prop2)
+            var3 <- SomeResource(prop3)
+            var4 <- SomeResource(prop4)
+            var5 <- SomeResource(prop5)
+            specialVar <- SomeResource(someVar)
+
+          //Now lets add some loop complexity
+          //Uninitialised var: 1
+          loopVar as Integer?
+
+          //'for': 1
+          //guard: 1
+          //'by': 1
+          for loopVar :=? getBasicValue() then i in 1 ... 20 by 3
+            //'if': 1
+            //equality: 1
+            if i < loopVar
+              //Just add more pointless complexity
+              //More 'is-set' checks. Add 5.
+              assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+            conditional <- Boolean()
+
+            //uninitialised: 1
+            whileVar as Integer?
+            //Now a pointless while loop
+            //'while': 1
+            //guard: 1
+            //it-set: 1
+            do whileVar :=? getBasicValue()
+
+              //Conditional assignment: 1
+              //more is-set * 6: 6
+              conditional :=? prop1? and prop2? and prop3? and prop4? and prop5? and whileVar?
+            while not conditional
+        //'catch': 1
+        catch
+          -> ex as Exception
+          //'is-set': 1
+          assert ex?
+        //'finally': 1
+        finally
+          //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
+          //'is-set * 5': 5
+          assert var1? and var2? and var3? and var4? and var5?
+
+      //End of method
+
+      //Now just duplicate (trim slightly so no more complexity errors on method - but make class complex fail)
+
+      <?-
+      Then method definition so that's 1.
+      Five incoming arguments, that's 2.
+      -?>
+      Copy1OfComplexMethod() as pure
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+          arg4 as Integer
+          arg5 as Integer
+
+        //There are 5 'is-set' checks, that's 5
+        assert arg1? and arg2? and arg3? and arg4? and arg5?
+
+        //Conditional assignments, add 5
+        prop1 :=? arg1
+        prop2 :=? arg2
+        prop3 :=? arg3
+        prop4 :=? arg4
+        prop5 :=? arg5
+
+        //More 'is-set' checks. Add 5.
+        assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //So now we're up to 18.
+
+        someVar <- Integer()
+        //Now lets use a try with resources
+        //'try': 1
+        //guard: 1
+        //Lots of resources: 2
+        //Nice thing about resources being used like this is that
+        try someVar :=? getBasicValue() then
+          ->
+            var1 <- SomeResource(prop1)
+            var2 <- SomeResource(prop2)
+            var3 <- SomeResource(prop3)
+            var4 <- SomeResource(prop4)
+            var5 <- SomeResource(prop5)
+            specialVar <- SomeResource(someVar)
+
+          //Now lets add some loop complexity
+          //Uninitialised var: 1
+          loopVar as Integer?
+
+          //'for': 1
+          //guard: 1
+          //'by': 1
+          for loopVar :=? getBasicValue() then i in 1 ... 20 by 3
+            //'if': 1
+            //equality: 1
+            if i < loopVar
+              //Just add more pointless complexity
+              //More 'is-set' checks. Add 5.
+              assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //'catch': 1
+        catch
+          -> ex as Exception
+          //'is-set': 1
+          assert ex?
+        //'finally': 1
+        finally
+          //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
+          //'is-set * 5': 5
+          assert var1? and var2? and var3? and var4? and var5?
+
+      //Another copy of the complex method.
+
+      <?-
+      Then method definition so that's 1.
+      Five incoming arguments, that's 2.
+      -?>
+      Copy2OfComplexMethod() as pure
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+          arg4 as Integer
+          arg5 as Integer
+
+        //There are 5 'is-set' checks, that's 5
+        assert arg1? and arg2? and arg3? and arg4? and arg5?
+
+        //Conditional assignments, add 5
+        prop1 :=? arg1
+        prop2 :=? arg2
+        prop3 :=? arg3
+        prop4 :=? arg4
+        prop5 :=? arg5
+
+        //More 'is-set' checks. Add 5.
+        assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //So now we're up to 18.
+
+        someVar <- Integer()
+        //Now lets use a try with resources
+        //'try': 1
+        //guard: 1
+        //Lots of resources: 2
+        //Nice thing about resources being used like this is that
+        try someVar :=? getBasicValue() then
+          ->
+            var1 <- SomeResource(prop1)
+            var2 <- SomeResource(prop2)
+            var3 <- SomeResource(prop3)
+            var4 <- SomeResource(prop4)
+            var5 <- SomeResource(prop5)
+            specialVar <- SomeResource(someVar)
+
+          //Now lets add some loop complexity
+          //Uninitialised var: 1
+          loopVar as Integer?
+
+          //'for': 1
+          //guard: 1
+          //'by': 1
+          for loopVar :=? getBasicValue() then i in 1 ... 20 by 3
+            //'if': 1
+            //equality: 1
+            if i < loopVar
+              //Just add more pointless complexity
+              //More 'is-set' checks. Add 5.
+              assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //'catch': 1
+        catch
+          -> ex as Exception
+          //'is-set': 1
+          assert ex?
+        //'finally': 1
+        finally
+          //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
+          //'is-set * 5': 5
+          assert var1? and var2? and var3? and var4? and var5?
+
+      //Another copy of the complex method.
+
+      <?-
+      Then method definition so that's 1.
+      Five incoming arguments, that's 2.
+      -?>
+      Copy3OfComplexMethod() as pure
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+          arg4 as Integer
+          arg5 as Integer
+
+        //There are 5 'is-set' checks, that's 5
+        assert arg1? and arg2? and arg3? and arg4? and arg5?
+
+        //Conditional assignments, add 5
+        prop1 :=? arg1
+        prop2 :=? arg2
+        prop3 :=? arg3
+        prop4 :=? arg4
+        prop5 :=? arg5
+
+        //More 'is-set' checks. Add 5.
+        assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //So now we're up to 18.
+
+        someVar <- Integer()
+        //Now lets use a try with resources
+        //'try': 1
+        //guard: 1
+        //Lots of resources: 2
+        //Nice thing about resources being used like this is that
+        try someVar :=? getBasicValue() then
+          ->
+            var1 <- SomeResource(prop1)
+            var2 <- SomeResource(prop2)
+            var3 <- SomeResource(prop3)
+            var4 <- SomeResource(prop4)
+            var5 <- SomeResource(prop5)
+            specialVar <- SomeResource(someVar)
+
+          //Now lets add some loop complexity
+          //Uninitialised var: 1
+          loopVar as Integer?
+
+          //'for': 1
+          //guard: 1
+          //'by': 1
+          for loopVar :=? getBasicValue() then i in 1 ... 20 by 3
+            //'if': 1
+            //equality: 1
+            if i < loopVar
+              //Just add more pointless complexity
+              //More 'is-set' checks. Add 5.
+              assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //'catch': 1
+        catch
+          -> ex as Exception
+          //'is-set': 1
+          assert ex?
+        //'finally': 1
+        finally
+          //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
+          //'is-set * 5': 5
+          assert var1? and var2? and var3? and var4? and var5?
+
+      //Another copy of the complex method.
+
+      <?-
+      Then method definition so that's 1.
+      Five incoming arguments, that's 2.
+      -?>
+      Copy4OfComplexMethod() as pure
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+          arg4 as Integer
+          arg5 as Integer
+
+        //There are 5 'is-set' checks, that's 5
+        assert arg1? and arg2? and arg3? and arg4? and arg5?
+
+        //Conditional assignments, add 5
+        prop1 :=? arg1
+        prop2 :=? arg2
+        prop3 :=? arg3
+        prop4 :=? arg4
+        prop5 :=? arg5
+
+        //More 'is-set' checks. Add 5.
+        assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //So now we're up to 18.
+
+        someVar <- Integer()
+        //Now lets use a try with resources
+        //'try': 1
+        //guard: 1
+        //Lots of resources: 2
+        //Nice thing about resources being used like this is that
+        try someVar :=? getBasicValue() then
+          ->
+            var1 <- SomeResource(prop1)
+            var2 <- SomeResource(prop2)
+            var3 <- SomeResource(prop3)
+            var4 <- SomeResource(prop4)
+            var5 <- SomeResource(prop5)
+            specialVar <- SomeResource(someVar)
+
+          //Now lets add some loop complexity
+          //Uninitialised var: 1
+          loopVar as Integer?
+
+          //'for': 1
+          //guard: 1
+          //'by': 1
+          for loopVar :=? getBasicValue() then i in 1 ... 20 by 3
+            //'if': 1
+            //equality: 1
+            if i < loopVar
+              //Just add more pointless complexity
+              //More 'is-set' checks. Add 5.
+              assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //'catch': 1
+        catch
+          -> ex as Exception
+          //'is-set': 1
+          assert ex?
+        //'finally': 1
+        finally
+          //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
+          //'is-set * 5': 5
+          assert var1? and var2? and var3? and var4? and var5?
+
+      //Another copy of the complex method.
+
+      <?-
+      Then method definition so that's 1.
+      Five incoming arguments, that's 2.
+      -?>
+      Copy5OfComplexMethod() as pure
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+          arg4 as Integer
+          arg5 as Integer
+
+        //There are 5 'is-set' checks, that's 5
+        assert arg1? and arg2? and arg3? and arg4? and arg5?
+
+        //Conditional assignments, add 5
+        prop1 :=? arg1
+        prop2 :=? arg2
+        prop3 :=? arg3
+        prop4 :=? arg4
+        prop5 :=? arg5
+
+        //More 'is-set' checks. Add 5.
+        assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //So now we're up to 18.
+
+        someVar <- Integer()
+        //Now lets use a try with resources
+        //'try': 1
+        //guard: 1
+        //Lots of resources: 2
+        //Nice thing about resources being used like this is that
+        try someVar :=? getBasicValue() then
+          ->
+            var1 <- SomeResource(prop1)
+            var2 <- SomeResource(prop2)
+            var3 <- SomeResource(prop3)
+            var4 <- SomeResource(prop4)
+            var5 <- SomeResource(prop5)
+            specialVar <- SomeResource(someVar)
+
+          //Now lets add some loop complexity
+          //Uninitialised var: 1
+          loopVar as Integer?
+
+          //'for': 1
+          //guard: 1
+          //'by': 1
+          for loopVar :=? getBasicValue() then i in 1 ... 20 by 3
+            //'if': 1
+            //equality: 1
+            if i < loopVar
+              //Just add more pointless complexity
+              //More 'is-set' checks. Add 5.
+              assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //'catch': 1
+        catch
+          -> ex as Exception
+          //'is-set': 1
+          assert ex?
+        //'finally': 1
+        finally
+          //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
+          //'is-set * 5': 5
+          assert var1? and var2? and var3? and var4? and var5?
+
+      //Another copy of the complex method.
+
+      <?-
+      Then method definition so that's 1.
+      Five incoming arguments, that's 2.
+      -?>
+      Copy6OfComplexMethod() as pure
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+          arg4 as Integer
+          arg5 as Integer
+
+        //There are 5 'is-set' checks, that's 5
+        assert arg1? and arg2? and arg3? and arg4? and arg5?
+
+        //Conditional assignments, add 5
+        prop1 :=? arg1
+        prop2 :=? arg2
+        prop3 :=? arg3
+        prop4 :=? arg4
+        prop5 :=? arg5
+
+        //More 'is-set' checks. Add 5.
+        assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //So now we're up to 18.
+
+        someVar <- Integer()
+        //Now lets use a try with resources
+        //'try': 1
+        //guard: 1
+        //Lots of resources: 2
+        //Nice thing about resources being used like this is that
+        try someVar :=? getBasicValue() then
+          ->
+            var1 <- SomeResource(prop1)
+            var2 <- SomeResource(prop2)
+            var3 <- SomeResource(prop3)
+            var4 <- SomeResource(prop4)
+            var5 <- SomeResource(prop5)
+            specialVar <- SomeResource(someVar)
+
+          //Now lets add some loop complexity
+          //Uninitialised var: 1
+          loopVar as Integer?
+
+          //'for': 1
+          //guard: 1
+          //'by': 1
+          for loopVar :=? getBasicValue() then i in 1 ... 20 by 3
+            //'if': 1
+            //equality: 1
+            if i < loopVar
+              //Just add more pointless complexity
+              //More 'is-set' checks. Add 5.
+              assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //'catch': 1
+        catch
+          -> ex as Exception
+          //'is-set': 1
+          assert ex?
+        //'finally': 1
+        finally
+          //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
+          //'is-set * 5': 5
+          assert var1? and var2? and var3? and var4? and var5?
+
+      //Another copy of the complex method.
+
+      <?-
+      Then method definition so that's 1.
+      Five incoming arguments, that's 2.
+      -?>
+      Copy7OfComplexMethod() as pure
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+          arg4 as Integer
+          arg5 as Integer
+
+        //There are 5 'is-set' checks, that's 5
+        assert arg1? and arg2? and arg3? and arg4? and arg5?
+
+        //Conditional assignments, add 5
+        prop1 :=? arg1
+        prop2 :=? arg2
+        prop3 :=? arg3
+        prop4 :=? arg4
+        prop5 :=? arg5
+
+        //More 'is-set' checks. Add 5.
+        assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //So now we're up to 18.
+
+        someVar <- Integer()
+        //Now lets use a try with resources
+        //'try': 1
+        //guard: 1
+        //Lots of resources: 2
+        //Nice thing about resources being used like this is that
+        try someVar :=? getBasicValue() then
+          ->
+            var1 <- SomeResource(prop1)
+            var2 <- SomeResource(prop2)
+            var3 <- SomeResource(prop3)
+            var4 <- SomeResource(prop4)
+            var5 <- SomeResource(prop5)
+            specialVar <- SomeResource(someVar)
+
+          //Now lets add some loop complexity
+          //Uninitialised var: 1
+          loopVar as Integer?
+
+          //'for': 1
+          //guard: 1
+          //'by': 1
+          for loopVar :=? getBasicValue() then i in 1 ... 20 by 3
+            //'if': 1
+            //equality: 1
+            if i < loopVar
+              //Just add more pointless complexity
+              //More 'is-set' checks. Add 5.
+              assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //'catch': 1
+        catch
+          -> ex as Exception
+          //'is-set': 1
+          assert ex?
+        //'finally': 1
+        finally
+          //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
+          //'is-set * 5': 5
+          assert var1? and var2? and var3? and var4? and var5?
+
+      //Another copy of the complex method.
+
+      <?-
+      Then method definition so that's 1.
+      Five incoming arguments, that's 2.
+      -?>
+      Copy8OfComplexMethod() as pure
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+          arg4 as Integer
+          arg5 as Integer
+
+        //There are 5 'is-set' checks, that's 5
+        assert arg1? and arg2? and arg3? and arg4? and arg5?
+
+        //Conditional assignments, add 5
+        prop1 :=? arg1
+        prop2 :=? arg2
+        prop3 :=? arg3
+        prop4 :=? arg4
+        prop5 :=? arg5
+
+        //More 'is-set' checks. Add 5.
+        assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //So now we're up to 18.
+
+        someVar <- Integer()
+        //Now lets use a try with resources
+        //'try': 1
+        //guard: 1
+        //Lots of resources: 2
+        //Nice thing about resources being used like this is that
+        try someVar :=? getBasicValue() then
+          ->
+            var1 <- SomeResource(prop1)
+            var2 <- SomeResource(prop2)
+            var3 <- SomeResource(prop3)
+            var4 <- SomeResource(prop4)
+            var5 <- SomeResource(prop5)
+            specialVar <- SomeResource(someVar)
+
+          //Now lets add some loop complexity
+          //Uninitialised var: 1
+          loopVar as Integer?
+
+          //'for': 1
+          //guard: 1
+          //'by': 1
+          for loopVar :=? getBasicValue() then i in 1 ... 20 by 3
+            //'if': 1
+            //equality: 1
+            if i < loopVar
+              //Just add more pointless complexity
+              //More 'is-set' checks. Add 5.
+              assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //'catch': 1
+        catch
+          -> ex as Exception
+          //'is-set': 1
+          assert ex?
+        //'finally': 1
+        finally
+          //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
+          //'is-set * 5': 5
+          assert var1? and var2? and var3? and var4? and var5?
+
+      //Another copy of the complex method.
+
+      <?-
+      Then method definition so that's 1.
+      Five incoming arguments, that's 2.
+      -?>
+      Copy9OfComplexMethod() as pure
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+          arg4 as Integer
+          arg5 as Integer
+
+        //There are 5 'is-set' checks, that's 5
+        assert arg1? and arg2? and arg3? and arg4? and arg5?
+
+        //Conditional assignments, add 5
+        prop1 :=? arg1
+        prop2 :=? arg2
+        prop3 :=? arg3
+        prop4 :=? arg4
+        prop5 :=? arg5
+
+        //More 'is-set' checks. Add 5.
+        assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //So now we're up to 18.
+
+        someVar <- Integer()
+        //Now lets use a try with resources
+        //'try': 1
+        //guard: 1
+        //Lots of resources: 2
+        //Nice thing about resources being used like this is that
+        try someVar :=? getBasicValue() then
+          ->
+            var1 <- SomeResource(prop1)
+            var2 <- SomeResource(prop2)
+            var3 <- SomeResource(prop3)
+            var4 <- SomeResource(prop4)
+            var5 <- SomeResource(prop5)
+            specialVar <- SomeResource(someVar)
+
+          //Now lets add some loop complexity
+          //Uninitialised var: 1
+          loopVar as Integer?
+
+          //'for': 1
+          //guard: 1
+          //'by': 1
+          for loopVar :=? getBasicValue() then i in 1 ... 20 by 3
+            //'if': 1
+            //equality: 1
+            if i < loopVar
+              //Just add more pointless complexity
+              //More 'is-set' checks. Add 5.
+              assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //'catch': 1
+        catch
+          -> ex as Exception
+          //'is-set': 1
+          assert ex?
+        //'finally': 1
+        finally
+          //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
+          //'is-set * 5': 5
+          assert var1? and var2? and var3? and var4? and var5?
+
+      //Another copy of the complex method.
+
+      <?-
+      Then method definition so that's 1.
+      Five incoming arguments, that's 2.
+      -?>
+      Copy10OfComplexMethod() as pure
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+          arg4 as Integer
+          arg5 as Integer
+
+        //There are 5 'is-set' checks, that's 5
+        assert arg1? and arg2? and arg3? and arg4? and arg5?
+
+        //Conditional assignments, add 5
+        prop1 :=? arg1
+        prop2 :=? arg2
+        prop3 :=? arg3
+        prop4 :=? arg4
+        prop5 :=? arg5
+
+        //More 'is-set' checks. Add 5.
+        assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //So now we're up to 18.
+
+        someVar <- Integer()
+        //Now lets use a try with resources
+        //'try': 1
+        //guard: 1
+        //Lots of resources: 2
+        //Nice thing about resources being used like this is that
+        try someVar :=? getBasicValue() then
+          ->
+            var1 <- SomeResource(prop1)
+            var2 <- SomeResource(prop2)
+            var3 <- SomeResource(prop3)
+            var4 <- SomeResource(prop4)
+            var5 <- SomeResource(prop5)
+            specialVar <- SomeResource(someVar)
+
+          //Now lets add some loop complexity
+          //Uninitialised var: 1
+          loopVar as Integer?
+
+          //'for': 1
+          //guard: 1
+          //'by': 1
+          for loopVar :=? getBasicValue() then i in 1 ... 20 by 3
+            //'if': 1
+            //equality: 1
+            if i < loopVar
+              //Just add more pointless complexity
+              //More 'is-set' checks. Add 5.
+              assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //'catch': 1
+        catch
+          -> ex as Exception
+          //'is-set': 1
+          assert ex?
+        //'finally': 1
+        finally
+          //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
+          //'is-set * 5': 5
+          assert var1? and var2? and var3? and var4? and var5?
+
+      //Another copy of the complex method.
+
+      <?-
+      Then method definition so that's 1.
+      Five incoming arguments, that's 2.
+      -?>
+      Copy11OfComplexMethod() as pure
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+          arg4 as Integer
+          arg5 as Integer
+
+        //There are 5 'is-set' checks, that's 5
+        assert arg1? and arg2? and arg3? and arg4? and arg5?
+
+        //Conditional assignments, add 5
+        prop1 :=? arg1
+        prop2 :=? arg2
+        prop3 :=? arg3
+        prop4 :=? arg4
+        prop5 :=? arg5
+
+        //More 'is-set' checks. Add 5.
+        assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //So now we're up to 18.
+
+        someVar <- Integer()
+        //Now lets use a try with resources
+        //'try': 1
+        //guard: 1
+        //Lots of resources: 2
+        //Nice thing about resources being used like this is that
+        try someVar :=? getBasicValue() then
+          ->
+            var1 <- SomeResource(prop1)
+            var2 <- SomeResource(prop2)
+            var3 <- SomeResource(prop3)
+            var4 <- SomeResource(prop4)
+            var5 <- SomeResource(prop5)
+            specialVar <- SomeResource(someVar)
+
+          //Now lets add some loop complexity
+          //Uninitialised var: 1
+          loopVar as Integer?
+
+          //'for': 1
+          //guard: 1
+          //'by': 1
+          for loopVar :=? getBasicValue() then i in 1 ... 20 by 3
+            //'if': 1
+            //equality: 1
+            if i < loopVar
+              //Just add more pointless complexity
+              //More 'is-set' checks. Add 5.
+              assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //'catch': 1
+        catch
+          -> ex as Exception
+          //'is-set': 1
+          assert ex?
+        //'finally': 1
+        finally
+          //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
+          //'is-set * 5': 5
+          assert var1? and var2? and var3? and var4? and var5?
+
+      //Another copy of the complex method.
+
+      <?-
+      Then method definition so that's 1.
+      Five incoming arguments, that's 2.
+      -?>
+      Copy12OfComplexMethod() as pure
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+          arg4 as Integer
+          arg5 as Integer
+
+        //There are 5 'is-set' checks, that's 5
+        assert arg1? and arg2? and arg3? and arg4? and arg5?
+
+        //Conditional assignments, add 5
+        prop1 :=? arg1
+        prop2 :=? arg2
+        prop3 :=? arg3
+        prop4 :=? arg4
+        prop5 :=? arg5
+
+        //More 'is-set' checks. Add 5.
+        assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //So now we're up to 18.
+
+        someVar <- Integer()
+        //Now lets use a try with resources
+        //'try': 1
+        //guard: 1
+        //Lots of resources: 2
+        //Nice thing about resources being used like this is that
+        try someVar :=? getBasicValue() then
+          ->
+            var1 <- SomeResource(prop1)
+            var2 <- SomeResource(prop2)
+            var3 <- SomeResource(prop3)
+            var4 <- SomeResource(prop4)
+            var5 <- SomeResource(prop5)
+            specialVar <- SomeResource(someVar)
+
+          //Now lets add some loop complexity
+          //Uninitialised var: 1
+          loopVar as Integer?
+
+          //'for': 1
+          //guard: 1
+          //'by': 1
+          for loopVar :=? getBasicValue() then i in 1 ... 20 by 3
+            //'if': 1
+            //equality: 1
+            if i < loopVar
+              //Just add more pointless complexity
+              //More 'is-set' checks. Add 5.
+              assert prop1? and prop2? and prop3? and prop4? and prop5?
+
+        //'catch': 1
+        catch
+          -> ex as Exception
+          //'is-set': 1
+          assert ex?
+        //'finally': 1
+        finally
+          //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
+          //'is-set * 5': 5
+          assert var1? and var2? and var3? and var4? and var5?
 
 //EOF

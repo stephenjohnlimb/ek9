@@ -57,7 +57,7 @@ class AcceptableConstructComplexityOrError implements Consumer<ParseTree> {
     final var theCalculatedComplexityValue = complexityValue.get();
     if (theCalculatedComplexityValue > maxComplexityValue) {
       final var msg = String.format("Calculated complexity of %d is too high, max allowed on a %s is %d:",
-          theCalculatedComplexityValue, symbol.getGenus(), maxComplexityValue);
+          theCalculatedComplexityValue, symbol.getCategory(), maxComplexityValue);
       errorListener.semanticError(symbol.getSourceToken(), msg, EXCESSIVE_COMPLEXITY);
     }
   }
