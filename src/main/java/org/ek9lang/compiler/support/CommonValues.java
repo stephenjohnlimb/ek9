@@ -4,6 +4,9 @@ package org.ek9lang.compiler.support;
  * Fixed set of constants that tend to be used to 'squirrel' away data - these are the keys.
  */
 public enum CommonValues {
+  LOOP("LOOP"),
+  DO("DO"),
+  WHILE("WHILE"),
   UNINITIALISED_AT_DECLARATION("UNINITIALISED"),
   NO_REFERENCED_RESET("NO_REFERENCED_RESET"),
   SUBSTITUTED("SUBSTITUTED"),

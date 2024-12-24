@@ -644,7 +644,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     MIX_OF_PURE_AND_NOT_PURE_CONSTRUCTORS("if any constructor is marked pure, all constructors must be pure"),
     SWITCH_REQUIRES_EQUALS("switch statement requires type to have '=' operator"),
     USED_BEFORE_DEFINED("used before definition"),
-    USED_BEFORE_INITIALISED("used before being initialised"),
+    USED_BEFORE_INITIALISED("might be used before being initialised"),
     RETURN_NOT_ALWAYS_INITIALISED("return value is not always initialised"),
     NOT_INITIALISED_BEFORE_USE("is/may not be initialised before use"),
     NEVER_INITIALISED("never initialised"),

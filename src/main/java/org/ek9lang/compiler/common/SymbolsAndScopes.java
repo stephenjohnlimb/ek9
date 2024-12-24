@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.compiler.ParsedModule;
+import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.support.SymbolChecker;
 import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -12,6 +13,7 @@ import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ModuleScope;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
+import org.ek9lang.compiler.symbols.ScopedSymbol;
 import org.ek9lang.compiler.symbols.StackConsistencyScope;
 import org.ek9lang.core.AssertValue;
 
@@ -114,7 +116,18 @@ public class SymbolsAndScopes {
    */
   public void recordSymbolAssignment(final ISymbol identifierSymbol) {
 
-    markSymbolAsInitialised(identifierSymbol, this.getTopScope());
+    final var scope = this.getTopScope();
+    markSymbolAsInitialised(identifierSymbol, scope);
+
+    //Now we have to deal with the do/while loop so that do part gets marked as initialised
+    final var parentScope = this.getParentOfTopScope();
+    if (parentScope instanceof ScopedSymbol scopedSymbol
+        && CommonValues.DO.toString().equals(scopedSymbol.getSquirrelledData(CommonValues.LOOP))) {
+      //So image a do while loop - where a previously uninitialised variable is now initialised within the block
+      //In such cases the variable is now initialised for the 'while' part - this only applies to do/while loops.
+      markSymbolAsInitialised(identifierSymbol, parentScope);
+
+    }
 
   }
 
@@ -184,6 +197,13 @@ public class SymbolsAndScopes {
 
     return scopeStack.peek();
 
+  }
+
+  public IScope getParentOfTopScope() {
+    final var top = scopeStack.pop();
+    final var parentScope = scopeStack.peek();
+    scopeStack.push(top);
+    return parentScope;
   }
 
   /**

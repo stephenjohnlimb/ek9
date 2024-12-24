@@ -69,12 +69,12 @@ class CodeFlowMap implements CodeFlowAnalyzer {
       return meetsCriteria.test(symbolAccess);
     }
 
-    //IF it not even to be tested then it is ok
+    //If it is not even to be tested then it is ok
     return true;
   }
 
   /**
-   * Records a symbol against the specific scope if it a variable to be analysed.
+   * Records a symbol against the specific scope if it is a variable to be analysed.
    */
   @Override
   public void recordSymbol(final ISymbol identifierSymbol, final IScope inScope) {

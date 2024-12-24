@@ -5,33 +5,20 @@
 -?>
 defines module just.workspace
 
-  defines class
 
-    <?-
-      Nothing strange here pure constructor which makes all property construction pure.
-      Then just make a List of String and have it initialised to an empty list.
-    -?>
-    Checker
-
-      default Checker() as pure
-
-      aMethod()
-        <- aMethodRtn as Integer: 1
-
-  <?-
-    The utility functions used for testing in this example.
-  -?>
   defines function
 
+    <?-
+      While strange, this is OK, the conditional assignment ensures that conditional has been initailised.
+    -?>
+    simpleValidWhileConditionalAssignment
+      conditional as Boolean?
+      conditional :=? true
 
-    getStartValue()
-      <- rtn <- 1
+      whileVar <- 1
 
-    testDeclaration()
-
-      if var <- getStartValue() then var < 10
-        otherValue <- var
-        assert var? and otherValue?
+      while not conditional
+        conditional :=? whileVar?
 
   <!-
 

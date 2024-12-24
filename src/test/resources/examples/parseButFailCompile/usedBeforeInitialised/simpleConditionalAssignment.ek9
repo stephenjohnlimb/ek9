@@ -1,0 +1,89 @@
+#!ek9
+defines module simple.conditional.assignment
+
+  defines function
+
+    usedBeforeInitialised()
+      var as Boolean?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert var?
+
+    initialised()
+      var <- Boolean()
+
+      assert var?
+
+    simpleAssignment
+      var as Boolean?
+
+      var := true
+      assert var?
+
+    simpleConditionalAssignment
+      var as Boolean?
+
+      var :=? true
+      assert var?
+
+    simpleIfConditionalAssignment
+      var as Boolean?
+
+      if var :=? true then var
+        assert var
+
+    <?-
+      While strange, this is OK, the conditional assignment ensures that conditional has been initailised.
+    -?>
+    simpleValidWhileConditionalAssignment
+      conditional as Boolean?
+      conditional :=? true
+
+      whileVar <- 1
+
+      while not conditional
+        conditional :=? whileVar?
+
+    simpleInvalidWhileConditionalAssignment
+      conditional as Boolean?
+
+      whileVar <- 1
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      while not conditional
+        conditional :=? whileVar?
+
+    simpleDoWhileConditionalAssignment
+      conditional as Boolean?
+
+      whileVar <- 1
+
+      do
+        conditional :=? whileVar?
+      while not conditional
+
+      assert conditional?
+
+    <?-
+      You can argue that 'conditional' will be initialised in this situation.
+      But we've added lots of complexity by using 'conditional as Boolean?'
+      EK9 idiomatic approach is to always initialised a variable even if it is to an 'un-set' value.
+      i.e. in this case conditional <- Boolean(), i.e. a Boolean that is un-set not true and not false.
+    -?>
+    simpleDoWhileWithIfConditionalAssignment
+      conditional as Boolean?
+
+      whileVar <- 1
+
+      do
+        if whileVar < 0
+          conditional :=? whileVar?
+        else
+          conditional :=? whileVar?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      while not conditional
+
+      assert conditional?
+
+//EOF

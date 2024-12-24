@@ -29,8 +29,8 @@ class UsedBeforeInitialisedTest extends PhasesTest {
             "bad.overriding.classmethods6", "bad.guardassignment.uninitialised.use",
             "bad.uninitialised.functionparts",
             "bad.overriding.componentmethods2", "badswitch.initialisations",
-            "badtry.initialisations", "badwhile.initialisations", "badfor.initialisations")
-    );
+            "badtry.initialisations", "badwhile.initialisations", "badfor.initialisations",
+            "simple.conditional.assignment"));
   }
 
   @Test
