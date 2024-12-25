@@ -43,7 +43,6 @@ public class IdentifierAsPropertyOrError extends TypedSymbolAccess implements Co
     final var accessSafe = makesIdentifierSubsequenceAccessSafe.test(ctx);
 
     if (accessSafe) {
-      //See if this sort of access would be safe and if so mark it as such
       symbolsAndScopes.markSymbolAccessSafe(symbol, scope);
     } else if (!symbolsAndScopes.isSymbolAccessSafe(symbol, scope)) {
       emitError(ctx, symbol);

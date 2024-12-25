@@ -210,6 +210,10 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
     return new ArrayList<>(traits);
   }
 
+  private List<String> getFullyQualifiedTraitNames() {
+    return traits.stream().map(IAggregateSymbol::getFullyQualifiedName).toList();
+  }
+
   /**
    * Gets all traits this class implements directly or indirectly through supers that have
    * constraints upon them.
@@ -355,7 +359,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
   public int hashCode() {
 
     int result = super.hashCode();
-    result = 31 * result + getTraits().hashCode();
+    result = 31 * result + getFullyQualifiedTraitNames().hashCode();
     result = 31 * result + allowOnly.hashCode();
 
     return result;

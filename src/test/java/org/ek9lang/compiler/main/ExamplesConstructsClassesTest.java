@@ -22,8 +22,7 @@ class ExamplesConstructsClassesTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    //TODO fix up stack overflow on hashcode. Then move to PRE_IR.
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

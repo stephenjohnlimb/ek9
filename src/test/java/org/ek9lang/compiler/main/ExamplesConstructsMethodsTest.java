@@ -21,9 +21,7 @@ class ExamplesConstructsMethodsTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    //TODO move some comments out 'bad' examples to specific test.
-    //TODO also need to sort out trait method resolution from within a class that has those traits.
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

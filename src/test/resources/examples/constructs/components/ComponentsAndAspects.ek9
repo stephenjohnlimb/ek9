@@ -105,7 +105,7 @@ defines module com.customer.components
 
       LoggingAspect() as pure
         -> level as String
-        loggingLevel :=? level
+        this.loggingLevel :=? level
 
       override beforeAdvice()
         -> joinPoint as JoinPoint
