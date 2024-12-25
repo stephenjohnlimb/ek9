@@ -18,6 +18,10 @@ defines module com.customer.classes
       //Note new declaration indicating no memory allocated is possible
       aField as String?
 
+      Base()
+        //Now initialise the field.
+        aField :=? "Steve"
+
       singleMethod()
         <- rtn String = "Steve"
         

@@ -5,21 +5,10 @@
 -?>
 defines module just.workspace
 
-
   defines function
-
-    <?-
-      While strange, this is OK, the conditional assignment ensures that conditional has been initailised.
-    -?>
-    simpleValidWhileConditionalAssignment
-      conditional as Boolean?
-      conditional :=? true
-
-      whileVar <- 1
-
-      while not conditional
-        conditional :=? whileVar?
-
+    JustPass()
+      var <- 1
+      assert var?
   <!-
 
     SimpleStreamCatMap4()

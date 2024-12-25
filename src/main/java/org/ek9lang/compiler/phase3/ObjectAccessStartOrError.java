@@ -6,6 +6,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -19,15 +20,18 @@ import org.ek9lang.core.CompilerException;
 final class ObjectAccessStartOrError extends TypedSymbolAccess
     implements Consumer<EK9Parser.ObjectAccessStartContext> {
   private final IdentifierOrError identifierOrError;
-  private final EnumerationLocator enumerationLocator;
+  private final GenusLocator enumerationLocator;
+  private final GenusLocator traitLocator;
+  private final TraitAccessibleOrError traitAccessibleOrError;
 
   ObjectAccessStartOrError(final SymbolsAndScopes symbolsAndScopes,
                            final ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
     this.identifierOrError = new IdentifierOrError(symbolsAndScopes, errorListener);
-    this.enumerationLocator = new EnumerationLocator(symbolsAndScopes);
-
+    this.enumerationLocator = new GenusLocator(symbolsAndScopes, SymbolGenus.CLASS_ENUMERATION);
+    this.traitLocator = new GenusLocator(symbolsAndScopes, SymbolGenus.CLASS_TRAIT);
+    this.traitAccessibleOrError = new TraitAccessibleOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -57,12 +61,13 @@ final class ObjectAccessStartOrError extends TypedSymbolAccess
 
   private void identifierOrError(final EK9Parser.ObjectAccessStartContext ctx) {
 
-    //In this context we can resolve the identifier and record it. - its not an identifierReference but an identifier.
+    //In this context we can resolve the identifier and record it. - it's not an identifierReference but an identifier.
     //This is done to find the compromise of reuse in the grammar. But makes this a bit more inconsistent.
     //But it means that we need some more complex logic here to check the identifier reference use.
     final var resolved = resolveByIdentifier(ctx.identifier());
 
     if (resolved != null) {
+      traitAccessibleOrError.accept(ctx.start, resolved);
       //Record against both
       resolved.setReferenced(true);
       recordATypedSymbol(resolved, ctx.identifier());
@@ -83,7 +88,13 @@ final class ObjectAccessStartOrError extends TypedSymbolAccess
   private ISymbol resolveByIdentifier(final EK9Parser.IdentifierContext ctx) {
 
     final var possibleEnumeratedType = enumerationLocator.apply(ctx.getText());
-    return possibleEnumeratedType.orElseGet(() -> identifierOrError.apply(ctx));
+    if (possibleEnumeratedType.isPresent()) {
+      return possibleEnumeratedType.get();
+    }
+
+    final var possibleTraitType = traitLocator.apply(ctx.getText());
+    return possibleTraitType.orElseGet(() -> identifierOrError.apply(ctx));
+
   }
 
 }

@@ -20,7 +20,8 @@ class BadTraitUseTest extends PhasesTest {
             "clashing.implementations",
             "additional.traits.by",
             "bad.trait.by.variables",
-            "trait.with.trait.by"));
+            "trait.with.trait.by",
+            "bad.directtraitcalls"));
   }
 
   @Test

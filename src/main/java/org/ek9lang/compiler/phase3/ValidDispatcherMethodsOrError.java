@@ -14,7 +14,9 @@ import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 
 /**
  * Check if any dispatcher methods on the aggregate and ensure that they are valid.
@@ -115,7 +117,7 @@ final class ValidDispatcherMethodsOrError extends TypedSymbolAccess implements C
         final var dispatcherArg = methodSymbol.getCallParameters().get(i);
         final var matchedArg = matchedMethodSymbol.getCallParameters().get(i);
         dispatcherArg.getType().ifPresent(dispatcherArgType -> matchedArg.getType().ifPresent(matchedArgType -> {
-          if (!dispatcherArgType.getGenus().equals(matchedArgType.getGenus())) {
+          if (!genusCompatible(dispatcherArgType, matchedArgType)) {
             var fullMsg = dispatcherArgType.getGenus() + " vs " + matchedArgType.getGenus() + ": " + msg;
             errorListener.semanticError(matchedArg.getSourceToken(), fullMsg, INCOMPATIBLE_PARAMETER_GENUS);
           }
@@ -123,6 +125,18 @@ final class ValidDispatcherMethodsOrError extends TypedSymbolAccess implements C
       }
     }
 
+  }
+
+  private boolean genusCompatible(final ISymbol dispatcherArgType, final ISymbol matchedArgType) {
+    final var dispatcherArgTypeGenus = dispatcherArgType.getGenus();
+    final var matchedArgTypeGenus = matchedArgType.getGenus();
+    if (dispatcherArgTypeGenus.equals(matchedArgTypeGenus)) {
+      return true;
+    }
+    if (dispatcherArgTypeGenus.equals(SymbolGenus.CLASS) && matchedArgTypeGenus.equals(SymbolGenus.CLASS_TRAIT)) {
+      return true;
+    }
+    return dispatcherArgTypeGenus.equals(SymbolGenus.CLASS_TRAIT) && matchedArgTypeGenus.equals(SymbolGenus.CLASS);
   }
 
   private List<MethodSymbol> getAllOtherMethodsWithSameName(final AggregateSymbol aggregateSymbol,

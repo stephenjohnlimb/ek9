@@ -9,16 +9,17 @@ import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 
 /**
- * Attempts to locate an Enumeration by name.
+ * Attempts to locate an Trait by name.
  */
-final class EnumerationLocator implements Function<String, Optional<ISymbol>> {
+final class GenusLocator implements Function<String, Optional<ISymbol>> {
 
   private final SymbolsAndScopes symbolsAndScopes;
+  private final SymbolGenus genusRequired;
 
-  EnumerationLocator(final SymbolsAndScopes symbolsAndScopes) {
+  GenusLocator(final SymbolsAndScopes symbolsAndScopes, final SymbolGenus genusRequired) {
 
     this.symbolsAndScopes = symbolsAndScopes;
-
+    this.genusRequired = genusRequired;
   }
 
   @Override
@@ -26,7 +27,7 @@ final class EnumerationLocator implements Function<String, Optional<ISymbol>> {
 
     final var resolved = symbolsAndScopes.getTopScope().resolve(new TypeSymbolSearch(toResolve));
     if (resolved.isPresent() && resolved.get() instanceof IAggregateSymbol aggregate
-        && aggregate.getGenus().equals(SymbolGenus.CLASS_ENUMERATION)) {
+        && aggregate.getGenus().equals(genusRequired)) {
       return Optional.of(aggregate);
     }
 

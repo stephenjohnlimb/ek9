@@ -14,12 +14,12 @@ import org.junit.jupiter.api.Test;
 class WorkingAreaTest extends PhasesTest {
 
   public WorkingAreaTest() {
-    super("/examples/parseButFailCompile/workingarea");
+    super("/examples/parseButFailCompile/workingarea", false, true);
   }
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.PRE_IR_CHECKS);
+    testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   @Override

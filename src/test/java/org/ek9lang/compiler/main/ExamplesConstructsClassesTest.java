@@ -22,8 +22,8 @@ class ExamplesConstructsClassesTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    //TODO fix up Trait name resolution in a class i.e. super or Trait.method name.
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    //TODO fix up stack overflow on hashcode. Then move to PRE_IR.
+    testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   @Override

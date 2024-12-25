@@ -53,7 +53,11 @@ defines module net.customer
       //property of whatever is Plugged in as Pluggable1 
       somePluggable as Pluggable1?
       val as Integer: 23
-       
+
+      Component2()
+        -> plugin as Pluggable1
+        somePluggable: plugin
+
       override method2 as
         someThing <- "Limb"
         assert someThing?

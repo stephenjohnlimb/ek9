@@ -1,0 +1,117 @@
+#!ek9
+defines module bad.directtraitcalls
+
+  <?-
+    Also do checks for dynamic classes with trait and negative cases for functions and dynamic functions.
+    All trying to access T2.simpleMessage
+  -?>
+  defines trait
+
+    T2
+      simpleMessage() as pure
+        <- rtn as String: "T2"
+
+    T1 extends T2
+      anotherMessage() as pure
+        <- rtn as String: "T1"
+
+    LenValidator
+      validateLength() abstract
+        -> p as String
+        <- r as Boolean?
+
+  defines class
+
+    <?-
+      Valid scenario to call T2
+    -?>
+    ValidClass1 with trait of T2
+
+      someMethod()
+        var <- T2.simpleMessage()
+        assert var?
+
+    <?-
+      Invalid scenario to call T2
+      Can call T1 because that is explicit and immediate, but do not allow
+      coupling beyond immediate explicit traits. It makes code harder to refactor.
+    -?>
+    inValidClassViaSuperTrait with trait of T1
+
+      someMethod()
+        @Error: FULL_RESOLUTION: NOT_IMMEDIATE_TRAIT
+        var1 <- T2.simpleMessage()
+        assert var1?
+        var2 <- T1.anotherMessage()
+        assert var2?
+
+    <?-
+      Here because this class does not have trait T2 - access is not allowed.
+    -?>
+    InvalidT2AccessFromClass
+
+      someMethod()
+        @Error: FULL_RESOLUTION: NOT_IMMEDIATE_TRAIT
+        var <- T2.simpleMessage()
+        assert var?
+
+    <?-
+      Invalid scenario to call T2
+    -?>
+    InvalidT2AccessFromDynamicFunctionInClass with trait of T2
+
+      NotAllowedFromDynamicClass()
+        var <- String()
+        @Error: FULL_RESOLUTION: TRAIT_ACCESS_NOT_SUPPORTED
+        someFunction <- () is Acceptor of String as function ( t :=: T2.simpleMessage() )
+        //Now call the dynamic function - clearly none of this will work because T2 is not accessible
+        //even though the parent class does have that trait.
+        someFunction(var)
+
+  defines function
+
+    <?-
+      Check that calling a trait method directly is rejected.
+    -?>
+    SomeFunction()
+      @Error: FULL_RESOLUTION: TRAIT_ACCESS_NOT_SUPPORTED
+      var <- T2.simpleMessage()
+      assert var?
+
+    <?-
+      Create a dynamic function inside this function and incorrectly try and access T2
+    -?>
+    TestDynamicFunction()
+      var <- String()
+
+      @Error: FULL_RESOLUTION: TRAIT_ACCESS_NOT_SUPPORTED
+      someFunction <- () is Acceptor of String as function ( t :=: T2.simpleMessage() )
+      //Now call the dynamic function - clearly none of this will work because T2 is not accessible
+      someFunction(var)
+
+    TestValidDynamicClass()
+      lenValidator <- () trait of LenValidator, T2 as class
+        override validateLength()
+          -> p as String
+          <- r as Boolean: false
+          if p?
+            message <- `${T2.simpleMessage()}: ${p}`
+            r := length message < 300
+
+      result <- lenValidator.validateLength("Steve")
+      assert result?
+
+    TestInvalidDynamicClass()
+      lenValidator <- () trait of LenValidator as class
+        override validateLength()
+          -> p as String
+          <- r as Boolean: false
+          if p?
+            @Error: FULL_RESOLUTION: NOT_IMMEDIATE_TRAIT
+            message <- `${T2.simpleMessage()}: ${p}`
+            r := length message < 300
+
+      result <- lenValidator.validateLength("Steve")
+      assert result?
+
+//EOF

@@ -99,7 +99,7 @@ defines module com.customer.just
         Stdout().println("Draw Triangle")
     
     Square is Shape
-      drawingFunction as doDrawing?
+      drawingFunction as doDrawing: doSimpleDrawing
       message as String: "Draw Square"
       
       Square()

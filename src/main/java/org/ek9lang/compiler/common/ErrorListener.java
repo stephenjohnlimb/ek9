@@ -628,6 +628,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     OPERATOR_AMBIGUOUS("operator ambiguous match"),
     METHOD_AMBIGUOUS("ambiguous match"),
     NOT_IMMEDIATE_TRAIT("not an immediate trait of this context"),
+    TRAIT_ACCESS_NOT_SUPPORTED("trait method access not supported here"),
     NOT_IMMEDIATE_SUPER("not an immediate super of this context"),
     NOT_ACCESSIBLE("not accessible from this context"),
     NO_REASSIGNMENT_FROM_CONTEXT_AS_PURE("not re-assignable from this 'pure' context"),
