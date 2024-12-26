@@ -60,6 +60,7 @@ public class CallSymbol extends MethodSymbol {
     return resolvedSymbolToCall;
   }
 
+
   /**
    * Set the actual method/function that should be called.
    */
@@ -68,10 +69,16 @@ public class CallSymbol extends MethodSymbol {
 
     this.resolvedSymbolToCall = symbol;
     this.setType(returnTypeExtractor.apply(symbol));
-    this.setMarkedPure(symbol.isMarkedPure());
+
     //make a note if this method ia actually an operator.
     if (symbol instanceof MethodSymbol method) {
       this.setOperator(method.isOperator());
+      this.setMarkedPure(method.isMarkedPure());
+    } else if (symbol instanceof IAggregateSymbol aggregate) {
+      //If one constructor is marked pure then they are all pure
+      this.setMarkedPure(aggregate.getConstructors().get(0).isMarkedPure());
+    } else if (symbol instanceof FunctionSymbol function) {
+      this.setMarkedPure(function.isMarkedPure());
     }
 
   }

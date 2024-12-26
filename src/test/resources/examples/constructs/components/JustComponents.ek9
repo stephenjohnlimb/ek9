@@ -255,7 +255,7 @@ defines module com.customer.just.employees2
           employee as Employee
           role as Role
           payroll as PayrollCalculator
-        assert employee? and role? and payroll?  
+        assert employee? and role? and payroll?
         this.employee: employee
         this.role: role
         this.payroll: payroll

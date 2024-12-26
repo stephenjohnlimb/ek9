@@ -19,8 +19,7 @@ class ExamplesDependentScenariosTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    //TODO fix up checking that properties have been initialised in constructors
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

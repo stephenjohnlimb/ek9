@@ -17,9 +17,7 @@ class ExamplesStreamBooksTest extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
-    //TODO fix up example code and move to PRE_IR_CHECKS
-    //TODO variable are not marked as initialised.
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

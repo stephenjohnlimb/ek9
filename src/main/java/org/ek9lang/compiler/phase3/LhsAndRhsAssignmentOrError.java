@@ -45,6 +45,11 @@ final class LhsAndRhsAssignmentOrError extends TypedSymbolAccess implements Cons
       mutableOrError.accept(data.typeData().location(), data.typeData().lhs());
       typesCompatibleOrError(data);
       notSelfAssignmentOrError(data);
+
+      //Now make a note that the lhs has now been initialised.
+      if (!data.typeData().lhs().isInitialised() && operationIsAssignment.test(data.typeData().location())) {
+        data.typeData().lhs().setInitialisedBy(data.typeData().location());
+      }
     }
 
   }

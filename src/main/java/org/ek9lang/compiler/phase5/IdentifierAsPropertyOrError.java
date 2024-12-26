@@ -17,8 +17,8 @@ import org.ek9lang.compiler.symbols.ISymbol;
  */
 public class IdentifierAsPropertyOrError extends TypedSymbolAccess implements Consumer<EK9Parser.IdentifierContext> {
   private final LocationExtractorFromSymbol locationExtractorFromSymbol = new LocationExtractorFromSymbol();
-  private final MakesIdentifierSubsequenceAccessSafe makesIdentifierSubsequenceAccessSafe
-      = new MakesIdentifierSubsequenceAccessSafe();
+  private final MakesIdentifierSubsequentAccessSafe makesIdentifierSubsequentAccessSafe
+      = new MakesIdentifierSubsequentAccessSafe();
 
   protected IdentifierAsPropertyOrError(final SymbolsAndScopes symbolsAndScopes,
                                         final ErrorListener errorListener) {
@@ -31,7 +31,7 @@ public class IdentifierAsPropertyOrError extends TypedSymbolAccess implements Co
   public void accept(final EK9Parser.IdentifierContext ctx) {
 
     final var symbol = symbolsAndScopes.getRecordedSymbol(ctx);
-    if (symbol != null && symbol.isPropertyField()) {
+    if (symbol != null && symbol.isPropertyField() && !isBeingIdentifiedInATraitReference(ctx)) {
       processSymbol(ctx, symbol);
     }
 
@@ -40,14 +40,27 @@ public class IdentifierAsPropertyOrError extends TypedSymbolAccess implements Co
   private void processSymbol(final EK9Parser.IdentifierContext ctx, final ISymbol symbol) {
 
     final var scope = symbolsAndScopes.getTopScope();
-    final var accessSafe = makesIdentifierSubsequenceAccessSafe.test(ctx);
+    final var accessSafe = makesIdentifierSubsequentAccessSafe.test(ctx);
 
     if (accessSafe) {
       symbolsAndScopes.markSymbolAccessSafe(symbol, scope);
+      final var methodAndAggregate = symbolsAndScopes.traverseBackUpStackToEnclosingMethod();
+      methodAndAggregate.ifPresent(detail -> {
+        if (detail.methodSymbol().isConstructor()) {
+          //Then this property is being initialised in a constructor - so we mark is safe
+          //even though there maybe other constructors where it is not being initialised.
+          symbolsAndScopes.markSymbolAccessSafe(symbol, detail.aggregateSymbol());
+        }
+      });
     } else if (!symbolsAndScopes.isSymbolAccessSafe(symbol, scope)) {
       emitError(ctx, symbol);
     }
 
+  }
+
+  private boolean isBeingIdentifiedInATraitReference(final EK9Parser.IdentifierContext ctx) {
+
+    return ctx.getParent() instanceof EK9Parser.TraitReferenceContext;
   }
 
   private void emitError(final EK9Parser.IdentifierContext ctx, final ISymbol symbol) {

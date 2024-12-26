@@ -5,10 +5,47 @@
 -?>
 defines module just.workspace
 
+  defines trait
+    T1
+      someMethod()
+        <- rtn <- 1
+
+  defines class
+    JustT1 with trait of T1
+
+    <?-
+      Class with properties defined as uninitialised.
+      But then initialised in a constructor (in a simple way)
+    -?>
+    AClass with trait of T1 by t1
+      someProperty as String?
+      t1 as T1?
+
+      default private AClass()
+
+      AClass()
+        ->
+          arg1 as String
+          arg2 as T1
+        someProperty: arg1
+        this.t1: arg2
+
+      operator $ as pure
+        <- rtn as String: `Value is ${someProperty}`
+
+      operator ? as pure
+        <- rtn as Boolean: someProperty?
+
   defines function
     JustPass()
-      var <- 1
-      assert var?
+      a <- AClass("Initial Value", JustT1())
+      assert a?
+
+    AGenericsTest() as pure
+      //Should be able to create this as the List() constructor is marked pure.
+      aClasses as List of AClass: List() of AClass
+      assert aClasses?
+
   <!-
 
     SimpleStreamCatMap4()

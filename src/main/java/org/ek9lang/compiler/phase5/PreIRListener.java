@@ -401,7 +401,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterIdentifier(final EK9Parser.IdentifierContext ctx) {
 
-    //If may or may not be an aggregate property but this consumer will determine that.
+    //It may or may not be an aggregate property but this consumer will determine that.
     processIdentifierAsProperty.accept(ctx);
 
     super.enterIdentifier(ctx);

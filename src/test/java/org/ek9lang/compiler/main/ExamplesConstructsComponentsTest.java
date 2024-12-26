@@ -20,8 +20,7 @@ class ExamplesConstructsComponentsTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    //TODO look at property initialisations to move or PRE_IR_CHECKS
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

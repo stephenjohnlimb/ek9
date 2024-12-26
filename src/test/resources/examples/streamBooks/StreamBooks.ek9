@@ -75,13 +75,13 @@ defines module com.customer.books
       <- rtn as bookFilter: given selection
         <- theFilter as bookFilter?
         when BookFilterSelection.SkipTwo
-          rtn:=? () is bookFilter as pure function (filtered:=? cat books | skip 2 | collect as List of Book)
+          theFilter:=? () is bookFilter as pure function (filtered:=? cat books | skip 2 | collect as List of Book)
         when BookFilterSelection.JustFirst
-          rtn:=? () is bookFilter as pure function (filtered:=? cat books | head 1 | collect as List of Book)
+          theFilter:=? () is bookFilter as pure function (filtered:=? cat books | head 1 | collect as List of Book)
         when BookFilterSelection.JustLast
-          rtn:=? () is bookFilter as pure function (filtered:=? cat books | tail 1 | collect as List of Book)
+          theFilter:=? () is bookFilter as pure function (filtered:=? cat books | tail 1 | collect as List of Book)
         default
-          rtn:=? () is bookFilter as pure function (filtered:=? t)
+          theFilter:=? () is bookFilter as pure function (filtered:=? t)
 
     filterBooksToOutput()
       ->
@@ -217,8 +217,7 @@ defines module com.customer.books
       Model the concept of a library, just an in-memory map for now
     -?>
     Library
-      //TODO looks like resolving to 'List of T' but should be finding the constructor and checking if pure.
-      books as List of Book: List()
+      books <- List() of Book
 
       Library() as pure
         -> withBooks as List of Book
@@ -432,9 +431,9 @@ defines module com.customer.books
       library <- Library()
       authorId <- () is Function of (Book, AuthorId) as pure function (r:=? t.author().id())
 
-      authorsBooks as List of Book: List()
+      authorsBooks <- List() of Book
 
-      booksByEachAuthor as List of List of Book: List()
+      booksByEachAuthor <- List() of List of Book
 
       stdout.println("Unique signing events on day of publication by authors with three or more books.")
 
@@ -472,7 +471,7 @@ defines module com.customer.books
       stdout <- Stdout()
       library <- Library()
 
-      uniqueAuthors as Dict of (AuthorId, Author): Dict()
+      uniqueAuthors <- Dict() of (AuthorId, Author)
 
       for book in library
         author <- book.author()
