@@ -91,7 +91,11 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               
             trim() as pure
               <- rtn as String?
-              
+            
+            trim() as pure
+              -> char as Character
+              <- rtn as String?
+                            
             upperCase() as pure
               <- rtn as String?
 
@@ -3164,7 +3168,13 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               
             operator -=
               -> arg as Dict of (K, V)
-                
+              
+            operator -=
+              -> arg as DictEntry of (K, V)
+
+            operator -=
+              -> arg as K
+
           Iterator of type T as abstract
             Iterator() as pure
             
@@ -3378,7 +3388,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             
             lastModified() as pure
               <- rtn as DateTime?
-                    
+
+            operator $ as pure
+              <- rtn as String?
+
             operator ? as pure
               <- rtn as Boolean?
 
@@ -3495,10 +3508,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             MutexLock() as pure
               -> value as T
             
-            enter()
+            enter() as pure
               -> withKey as MutexKey of T
               
-            tryEnter()
+            tryEnter() as pure
               -> withKey as MutexKey of T
 
             operator ? as pure
@@ -3526,7 +3539,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_TRAITS = """
           HTTPRequest as open
-
+            <?-
+              Typically if the request what a POST, PUT or PATCH
+            -?>
+            content() as pure
+              <- rtn as String: ""
+              
           HTTPResponse as open
           
             etag()

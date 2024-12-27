@@ -129,19 +129,19 @@ defines module com.customer.services
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "addressDictionaryFromJSON"
     addressDictionaryFromJSON()
       -> json as String
-      <- rtn as Dict of (String, String): Dict()
+      <- rtn <- Dict() of (String, String)
 
       //Just pull out the address bits from within {}'s using a regex
       extractAddressPartsEx <- /\{\s+"address":\s+\{\s+([^}]*?)\s+\}\s+\}/
       //Now break into lines based on commas
-      addressItems <- json.group(extractAddressPartsEx).first().split(/,/)
+      addressItems <- json.split(extractAddressPartsEx).first().split(/,/)
       //Map to a dictionary and return.
       rtn: cat addressItems | map with toDictEntry | collect as Dict of (String, String)      
 
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "toDictEntry"
     toDictEntry()
       -> line as String
-      <- rtn as DictEntry of (String, String): DictEntry()
+      <- rtn as DictEntry of (String, String)?
       keyValues <- line.trim().split(/:/)
       rtn: DictEntry(keyValues.first().trim().trim('"'), keyValues.last().trim().trim('"'))
 
@@ -203,7 +203,7 @@ defines module com.customer.services
         <- rtn as Address?
 
       listAll()
-        <- rtn as List of Address: List()
+        <- rtn as List of Address: List() of Address
 
       operator +=
         -> address as Address
@@ -232,8 +232,8 @@ defines module com.customer.services
     @Resolved: SYMBOL_DEFINITION: TYPE: "AddressSet"
     AddressSet with trait of AddressAccess
       hash as String: HMAC().SHA256(GUID())
-      addresses as Dict of (AddressId, Address): Dict()
-      hashes as Dict of (AddressId, String): Dict()
+      addresses <- Dict() of (AddressId, Address)
+      hashes <- Dict() of (AddressId, String)
 
       override hash()
         <- rtn as String: this.hash
@@ -247,7 +247,7 @@ defines module com.customer.services
         <- rtn as Address: Address(addresses.get(id))
 
       override listAll()
-        <- rtn as List of Address: List()
+        <- rtn <- List() of Address
 
         iter <- addresses.values()
         cat iter | map with copyAddress > rtn
@@ -335,7 +335,7 @@ defines module com.customer.services
         lockedAddressSet.enter(accessKey)
 
       override listAll()
-        <- rtn as List of Address: List()
+        <- rtn <- List() of Address
         accessKey <- (rtn) is MutexKey of AddressSet as function
           rtn += value.listAll()
 
@@ -465,8 +465,8 @@ defines module com.customer.services
         -> id as String :=: PATH "address-id" //required because different name
         <- response as HTTPResponse?
 
-        delegate <- ByETagHTTPResponse(addressId, cacheableHTTPResponse(), false)
         addressId <- AddressId(id)
+        delegate <- ByETagHTTPResponse(addressId, cacheableHTTPResponse(), false)
         response: (addressId, delegate) with trait of HTTPResponse by delegate
           repository as Repository!
 
@@ -474,7 +474,6 @@ defines module com.customer.services
             <- rtn as String: String()
             if delegate.status() <> 404
               rtn: addressToJSON(repository.addresses().byId(addressId))
-              status(200)
 
       //A POST
       operator += :/
@@ -504,9 +503,9 @@ defines module com.customer.services
                 else
                   repository.addresses() += address
 
-            override contentLocation()
+            override contentLocation() as pure
               <- rtn as String: status == 201 <- `/addresses/${address.id}` else String()
-            override status()
+            override status() as pure
               <- rtn as Integer: status
             
       //A DELETE
@@ -515,7 +514,7 @@ defines module com.customer.services
         <- response as HTTPResponse: (
             addressId: AddressId(id),
             delegate: ByETagHTTPResponse(
-              addressId,
+              AddressId(id),
               plainNonCacheableHTTPResponse(),
               false
             )
@@ -541,7 +540,7 @@ defines module com.customer.services
           response as HTTPResponse: (
               addressId: AddressId(id),
               incomingContent: incomingContent,
-              delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
+              delegate: ByETagHTTPResponse(AddressId(id), plainNonCacheableHTTPResponse())
             ) trait HTTPResponse by delegate
             repository as Repository!
 
@@ -567,7 +566,7 @@ defines module com.customer.services
           response as HTTPResponse: (
                 addressId: AddressId(id),
                 incomingContent: content,
-                delegate: ByETagHTTPResponse(addressId, plainNonCacheableHTTPResponse())
+                delegate: ByETagHTTPResponse(AddressId(id), plainNonCacheableHTTPResponse())
               ) trait HTTPResponse by delegate
 
             repository as Repository!
