@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesFlowControlWhileLoopTest extends PhasesTest {
 
   public ExamplesFlowControlWhileLoopTest() {
-    super("/examples/flowControlWhileLoop", false, false);
+    super("/examples/flowControlWhileLoop");
   }
 
   @Test

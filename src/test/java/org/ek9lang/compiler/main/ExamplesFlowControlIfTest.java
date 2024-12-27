@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesFlowControlIfTest extends PhasesTest {
 
   public ExamplesFlowControlIfTest() {
-    super("/examples/flowControlIf", false, false);
+    super("/examples/flowControlIf");
   }
 
   @Test

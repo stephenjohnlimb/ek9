@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesDynamicTest extends PhasesTest {
 
   public ExamplesDynamicTest() {
-    super("/examples/dynamic", false, false);
+    super("/examples/dynamic");
   }
 
   @Test

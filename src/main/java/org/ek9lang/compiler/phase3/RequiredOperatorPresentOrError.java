@@ -14,6 +14,7 @@ import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -37,7 +38,7 @@ final class RequiredOperatorPresentOrError extends TypedSymbolAccess
   public Optional<ISymbol> apply(final CheckOperatorData checkOperatorData) {
 
     final var symbol = checkOperatorData.symbol();
-
+    //Now if generic in nature - must now ensure all methods and types are expanded (if not already done)
     if (symbolIsActuallyAnEnumerationType(symbol)) {
       errorListener.semanticError(checkOperatorData.operatorUseToken(), "wrt '" + symbol.getName() + "':",
           ErrorListener.SemanticClassification.OPERATOR_CANNOT_BE_USED_ON_ENUMERATION);
@@ -51,6 +52,11 @@ final class RequiredOperatorPresentOrError extends TypedSymbolAccess
 
     if (symbolType.isPresent() && checkOperatorData.search() != null
         && symbolType.get() instanceof IAggregateSymbol aggregate) {
+
+      if (aggregate instanceof PossibleGenericSymbol possibleGenericSymbol
+          && possibleGenericSymbol.isParameterisedType()) {
+        symbolsAndScopes.resolveOrDefine(possibleGenericSymbol, errorListener);
+      }
 
       if (isAnyClassRecordIsSetOperator(aggregate, checkOperatorData.search())) {
         return Optional.of(symbolsAndScopes.getEk9Types().ek9Boolean());

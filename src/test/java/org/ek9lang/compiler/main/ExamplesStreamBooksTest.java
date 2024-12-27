@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesStreamBooksTest extends PhasesTest {
 
   public ExamplesStreamBooksTest() {
-    super("/examples/streamBooks", false, false);
+    super("/examples/streamBooks");
   }
 
   @Test

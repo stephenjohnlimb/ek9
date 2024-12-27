@@ -3076,6 +3076,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 k as K
                 v as V
 
+            key() as pure
+              <- rtn as K?
+
+            value() as pure
+              <- rtn as V?
+                            
             operator ? as pure
               <- rtn as Boolean?
             
@@ -3386,6 +3392,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             isReadable() as pure
               <- rtn as Boolean?
             
+            isFile() as pure
+              <- rtn as Boolean?
+
+            isDirectory() as pure
+              <- rtn as Boolean?
+                            
             lastModified() as pure
               <- rtn as DateTime?
 
@@ -3398,6 +3410,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           FileSystem
             FileSystem() as pure
 
+            <?-
+              Get the current working directory
+            -?>
+            cwd() as pure
+              <- rtn as FileSystemPath?
+
             operator ? as pure
               <- rtn as Boolean?
 
@@ -3407,6 +3425,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             FileSystemPath() as pure
               -> pathName as String
             
+            isAbsolute() as pure
+              <- rtn as Boolean?
+                            
             operator + as pure
               -> addition as FileSystemPath
               <- rtn as FileSystemPath?
@@ -3418,6 +3439,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           OS
             OS() as pure
 
+            <?-
+              This process id
+            -?>
+            pid() as pure
+              <- rtn as Integer?
+              
             operator ? as pure
               <- rtn as Boolean?
 
@@ -3448,13 +3475,16 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Signals() as pure
 
             <?-
-              Register a handler for one or more signals
+              Register a handler for one or more signals.
+              Returns the list of signals that have been applied.
             -?>
             register()
               ->
                 signals as List of String
                 handler as SignalHandler
-
+              <-
+                rtn as List of String?
+                
             <?-
               Register a handler for one signal
             -?>
@@ -3472,7 +3502,11 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             get() as pure
               -> environmentVariableName as String
               <- environmentVariableValue as String?
-              
+            
+            operator contains as pure
+              -> environmentVariableName as String
+              <- rtn as Boolean?
+                
             operator ? as pure
               <- rtn as Boolean?
 

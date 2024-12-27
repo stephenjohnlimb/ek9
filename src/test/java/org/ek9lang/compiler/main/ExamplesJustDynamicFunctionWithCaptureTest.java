@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesJustDynamicFunctionWithCaptureTest extends PhasesTest {
 
   public ExamplesJustDynamicFunctionWithCaptureTest() {
-    super("/examples/justDynamicFunctionWithCapture", false, false);
+    super("/examples/justDynamicFunctionWithCapture");
   }
 
   @Test

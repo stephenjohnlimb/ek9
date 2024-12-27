@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesJustResolutionTest extends PhasesTest {
 
   public ExamplesJustResolutionTest() {
-    super("/examples/justResolution", false, false);
+    super("/examples/justResolution");
   }
 
   @Test

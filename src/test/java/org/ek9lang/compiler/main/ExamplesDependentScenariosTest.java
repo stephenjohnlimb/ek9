@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesDependentScenariosTest extends PhasesTest {
 
   public ExamplesDependentScenariosTest() {
-    super("/examples/dependentGenericScenarios", false, false);
+    super("/examples/dependentGenericScenarios");
   }
 
   @Test

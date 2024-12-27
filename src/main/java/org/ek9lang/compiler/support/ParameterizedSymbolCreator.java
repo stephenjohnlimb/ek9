@@ -10,7 +10,7 @@ import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.core.AssertValue;
 
 /**
- * This will just create a Aggregate/Function 'parameterized type' of the 'generic type' with the 'type arguments'
+ * This will just create an Aggregate/Function 'parameterized type' of the 'generic type' with the 'type arguments'
  * But note it will have not - repeat NOT have - traversed the 'generic type' and cloned over the methods and
  * altered all the 'T', 'K', 'V' - 'type parameters' for each of the 'type arguments'
  * There is a separate function (TypeSubstitution) that does that.

@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsGenericsTest extends PhasesTest {
 
   public ExamplesConstructsGenericsTest() {
-    super("/examples/constructs/generics", false, false);
+    super("/examples/constructs/generics");
   }
 
   @Test

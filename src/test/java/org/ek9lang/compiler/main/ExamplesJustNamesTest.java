@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesJustNamesTest extends PhasesTest {
 
   public ExamplesJustNamesTest() {
-    super("/examples/justNames", false, false);
+    super("/examples/justNames");
   }
 
   @Test

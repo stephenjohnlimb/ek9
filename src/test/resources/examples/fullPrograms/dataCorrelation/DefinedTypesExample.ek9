@@ -26,11 +26,10 @@ defines module worked.example
       //namedFileContents <- NamedFileProcessor(verboseMode, debugLevel).processNamedFile(options.get("-f"))
       //Inlined the above as a demonstration of procedural code.
 
-      //TODO fix generics on 'get' as method does exist.
       filename <- options.get("-f")
       if not filename?
         throw Exception("Filename of 'named file' is required", 2)
-      filePath <- FileSystemPath(filename.get())
+      filePath <- FileSystemPath(filename)
       namedFile <- filePath.isAbsolute() <- TextFile(filePath) else TextFile(FileSystem().cwd() + filePath)
       if not namedFile.isReadable()
         throw Exception(`${namedFile} is not readable`, 2)
@@ -40,7 +39,7 @@ defines module worked.example
       if verboseMode or debugLevel > 0
         stderr.println(`About to start processing [${namedFile}]`)
 
-      namedFileContents as Dict of (String, CustomerRecord): Dict()
+      namedFileContents <- Dict() of (String, CustomerRecord)
       try
         -> input <- namedFile.input()
         while input?
@@ -126,7 +125,6 @@ defines module worked.example
         processor as lineToCustomerRecord?
 
       processor: (stderr, debugLevel) is lineToCustomerRecord as pure function
-        rtn: DictEntry()
 
         splitLine <- line.split(/,/)
         if debugLevel == 3
@@ -143,7 +141,7 @@ defines module worked.example
               entryValue <- CustomerRecord(id, firstname, lastname, String(), dob, String())
               if debugLevel == 3
                 stderr.println(`Line [${line}] processed`)
-              rtn: DictEntry(id, entryValue)
+              rtn:=? DictEntry(id, entryValue)
 
         if not rtn?
           stderr.println(`Invalid line [${line}]`)
@@ -159,7 +157,7 @@ defines module worked.example
       group <- aDateInput.split(/(\d{4})(\d{2})(\d{2})/)
       if length group == 3
         dateStr <- cat group | join with dashSeparated | collect as String
-        rtn: DateTime(Date(dateStr))
+        rtn :=? DateTime(Date(dateStr))
       else if throwException
         throw Exception(`Id [${id}] Invalid date [${aDateInput}]`, 2)
       else
@@ -241,12 +239,12 @@ defines module worked.example
 
       merge: (stderr, debugLevel, namedFileContents) is customerRecordMerger
         rtn: String() //Output will be unset by default and there for not output
-        id <- entry.getKey()
+        id <- entry.key()
         if debugLevel == 3
           stderr.println(`Merging id [${id}]`)
         if namedFileContents contains id
-          stdinEntry <- entry.getValue()
-          namedFileEntry <- namedFileContents.get(id).get()
+          stdinEntry <- entry.value()
+          namedFileEntry <- namedFileContents.get(id)
           stdinEntry :~: namedFileEntry
           rtn := $stdinEntry
         else
@@ -263,7 +261,7 @@ defines module worked.example
         getopts <- setupGetOpt(":")
         options := getopts.options(arguments)
 
-      private setupGetOpt()
+      private setupGetOpt() as pure
         -> rqParam as String
         <- getopts as GetOpt of String?
 
@@ -292,11 +290,11 @@ defines module worked.example
       processDebugLevel()
         ->
           verboseMode as Boolean
-          level as Optional of String
+          level as String
         <-
           rtn as Integer: 0 //default to zero
 
-        debugLevel <- cat level | collect as Integer
+        debugLevel <- Integer(level)
 
         rtn := debugLevel in 0 ... 3 <- debugLevel else 0
 
@@ -380,14 +378,16 @@ defines module worked.example
   defines record
 
     CustomerRecord
-      id as String: String()
-      firstName as String: String()
-      lastName as String: String()
-      email as String: String()
-      dob as String: String()
-      lastPurchase as String: String()
+      id as String?
+      firstName as String?
+      lastName as String?
+      email as String?
+      dob as String?
+      lastPurchase as String?
 
-      CustomerRecord()
+      default private CustomerRecord()
+
+      CustomerRecord() as pure
         ->
           id as String
           firstName as String
@@ -395,12 +395,12 @@ defines module worked.example
           email as String
           dob as String
           lastPurchase as String
-        this.id :=: id
-        this.firstName :=: firstName
-        this.lastName :=: lastName
-        this.email :=: email
-        this.dob :=: dob
-        this.lastPurchase :=: lastPurchase
+        this.id :=? String(id)
+        this.firstName :=? String(firstName)
+        this.lastName :=? String(lastName)
+        this.email :=? String(email)
+        this.dob :=? String(dob)
+        this.lastPurchase :=? String(lastPurchase)
 
       operator ? as pure
         <- rtn as Boolean: id?

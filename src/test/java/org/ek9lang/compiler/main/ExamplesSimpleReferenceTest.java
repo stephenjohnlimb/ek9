@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesSimpleReferenceTest extends PhasesTest {
 
   public ExamplesSimpleReferenceTest() {
-    super("/examples/simpleReference", false, false);
+    super("/examples/simpleReference");
   }
 
   @Test

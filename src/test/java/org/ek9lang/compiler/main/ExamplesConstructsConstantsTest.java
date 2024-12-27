@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsConstantsTest extends PhasesTest {
 
   public ExamplesConstructsConstantsTest() {
-    super("/examples/constructs/constants", false, false);
+    super("/examples/constructs/constants");
   }
 
   @Test

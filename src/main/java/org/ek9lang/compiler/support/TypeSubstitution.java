@@ -28,7 +28,7 @@ import org.ek9lang.core.CompilerException;
  * This does mutate the 'possibleGenericSymbol' passed in.
  * <br/>
  * There is recursion and generics being replaced in here. VERY HARD.
- * This now only gets called the thr FULL_RESOLUTION phase, prior to the Parameterized types are just
+ * This now only gets called for the FULL_RESOLUTION phase, prior to the Parameterized types are just
  * a placeholder. Empty of methods, but do have references to the type they are a parameterization of
  * and also dependent generic types.
  */

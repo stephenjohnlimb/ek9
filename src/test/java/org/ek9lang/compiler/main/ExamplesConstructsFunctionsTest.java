@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsFunctionsTest extends PhasesTest {
 
   public ExamplesConstructsFunctionsTest() {
-    super("/examples/constructs/functions", false, false);
+    super("/examples/constructs/functions");
   }
 
 

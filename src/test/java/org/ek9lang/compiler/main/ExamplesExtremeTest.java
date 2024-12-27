@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesExtremeTest extends PhasesTest {
 
   public ExamplesExtremeTest() {
-    super("/examples/extreme", false, false);
+    super("/examples/extreme");
   }
 
   @Test

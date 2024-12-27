@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesLibConfigurationTest extends PhasesTest {
 
   public ExamplesLibConfigurationTest() {
-    super("/examples/libConfiguration", false, false);
+    super("/examples/libConfiguration");
   }
 
   @Test

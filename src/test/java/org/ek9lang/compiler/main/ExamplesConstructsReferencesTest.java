@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsReferencesTest extends PhasesTest {
 
   public ExamplesConstructsReferencesTest() {
-    super("/examples/constructs/references", false, false);
+    super("/examples/constructs/references");
   }
 
 

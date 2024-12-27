@@ -6,9 +6,18 @@
 defines module just.workspace
 
   defines function
+
+    addressDictionaryFromJSON()
+      -> json as String
+      <- rtn <- Dict() of (String, String)
+
     JustFail()
 
-      assert noneSuch?
+      dict <- addressDictionaryFromJSON(`{"some": "thing"}`)
+
+      noValue <- dict.get("Something")
+
+      assert noneSuch? and noValue?
 
   <!-
 

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesLinkingTest extends PhasesTest {
 
   public ExamplesLinkingTest() {
-    super("/examples/linking", false, false);
+    super("/examples/linking");
   }
 
   @Test

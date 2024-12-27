@@ -12,6 +12,7 @@ import org.ek9lang.compiler.search.PossibleMatchingMethods;
 import org.ek9lang.compiler.support.MostSpecificScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
@@ -38,6 +39,14 @@ final class ResolveMethodOrError extends TypedSymbolAccess
 
   @Override
   public MethodSymbol apply(final IToken errorLocation, final MethodSearchInScope searchOnAggregate) {
+
+    //Firstly if this a generic type that has been parameterised, then we must now re-resolve it
+    //in this phase so that its methods and types all get expanded. We cannot wait for it to be
+    //traversed in the ek9 code in definition, because it may be referenced before that.
+    if (searchOnAggregate.scopeToSearch() instanceof PossibleGenericSymbol possibleGenericSymbol
+        && possibleGenericSymbol.isParameterisedType()) {
+      symbolsAndScopes.resolveOrDefine(possibleGenericSymbol, errorListener);
+    }
 
     final var accessFromScope = mostSpecificScope.get();
     final var results = searchOnAggregate.scopeToSearch()

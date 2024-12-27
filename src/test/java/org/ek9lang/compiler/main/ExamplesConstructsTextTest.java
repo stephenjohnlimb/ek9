@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsTextTest extends PhasesTest {
 
   public ExamplesConstructsTextTest() {
-    super("/examples/constructs/text", false, false);
+    super("/examples/constructs/text");
   }
 
 

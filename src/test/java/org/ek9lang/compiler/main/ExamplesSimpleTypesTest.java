@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesSimpleTypesTest extends PhasesTest {
 
   public ExamplesSimpleTypesTest() {
-    super("/examples/simpleTypes", false, false);
+    super("/examples/simpleTypes");
   }
 
   @Test
