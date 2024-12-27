@@ -30,7 +30,7 @@ class UsedBeforeInitialisedTest extends PhasesTest {
             "bad.uninitialised.functionparts",
             "bad.overriding.componentmethods2", "badswitch.initialisations",
             "badtry.initialisations", "badwhile.initialisations", "badfor.initialisations",
-            "simple.conditional.assignment"));
+            "simple.conditional.assignment", "uninitialized.properties"));
   }
 
   @Test

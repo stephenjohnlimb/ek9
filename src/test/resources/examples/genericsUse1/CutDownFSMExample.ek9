@@ -49,6 +49,11 @@ defines module com.utils.fsm.example
       listener as FSMListener of T?
 
       <?-
+        Prevent other forms of construction.
+      -?>
+      default private FSM()
+
+      <?-
         Simple constructor so we can infer generic type when used.
       -?>
       FSM()

@@ -54,6 +54,8 @@ defines module net.customer
       somePluggable as Pluggable1?
       val as Integer: 23
 
+      default private Component2()
+
       Component2()
         -> plugin as Pluggable1
         somePluggable: plugin

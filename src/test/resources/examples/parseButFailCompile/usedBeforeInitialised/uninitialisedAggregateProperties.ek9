@@ -14,6 +14,8 @@ defines module badclass.property.initialisations
     //Note that we could avoid this type of error, as is the type is non-abstract and could have been initialised.
     //i.e. with prop1 <- String() - so if the type has a default constructor for example.
     //But with abstract types held it is not always possible.
+    //So if the EK9 developer does do this then they must also provide constructors.
+    @Error: PRE_IR_CHECKS: EXPLICIT_CONSTRUCTOR_REQUIRED
     C0
       @Error: PRE_IR_CHECKS: NEVER_INITIALISED
       prop1 as String?

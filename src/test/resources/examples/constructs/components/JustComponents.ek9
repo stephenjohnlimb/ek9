@@ -250,6 +250,8 @@ defines module com.customer.just.employees2
       role as Role?
       payroll as PayrollCalculator?
 
+      default private Employment()
+
       Employment()
         ->
           employee as Employee

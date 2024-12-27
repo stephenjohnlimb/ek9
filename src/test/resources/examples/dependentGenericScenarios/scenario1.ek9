@@ -16,8 +16,12 @@ defines module generics.scenario.one
     <?-
       This will act as our dependent type in this scenario
     -?>
+
     DT of type X
       value as X?
+
+      default private DT()
+
       DT()
         -> arg0 as X
         value: arg0

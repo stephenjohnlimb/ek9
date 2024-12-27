@@ -457,6 +457,8 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     OVERRIDE_CONSTRUCTOR("'override' is not required on a constructor"),
     TRAITS_DO_NOT_HAVE_CONSTRUCTORS("traits do not support constructor methods"),
     INVALID_DEFAULT_CONSTRUCTOR("'default' constructor with parameters is not supported"),
+    EXPLICIT_CONSTRUCTOR_REQUIRED(
+        "a developer coded constructor(s) are require where uninitialized properties are used"),
     DUPLICATE_ENUMERATED_VALUES_PRESENT_IN_SWITCH("duplicated enumerated value in switch 'case'"),
     NOT_ALL_ENUMERATED_VALUES_PRESENT_IN_SWITCH("'cases' should cover all enumerated values in 'switch'"),
     DEFAULT_REQUIRED_IN_SWITCH_STATEMENT("'default' is required in this 'switch' statement"),

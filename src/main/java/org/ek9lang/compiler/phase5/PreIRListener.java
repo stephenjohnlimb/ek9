@@ -34,6 +34,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
   private final AcceptableConstructComplexityOrError acceptableConstructComplexityOrError;
 
+  private final SuitablePropertyInitialisationOrError suitablePropertyInitialisationOrError;
+
   PreIRListener(final ParsedModule parsedModule) {
 
     super(parsedModule);
@@ -75,6 +77,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
         new IdentifierAsPropertyOrError(symbolsAndScopes, errorListener);
     this.acceptableConstructComplexityOrError =
         new AcceptableConstructComplexityOrError(symbolsAndScopes, errorListener, complexityCounter);
+    this.suitablePropertyInitialisationOrError =
+        new SuitablePropertyInitialisationOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -88,7 +92,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void exitServiceDeclaration(final EK9Parser.ServiceDeclarationContext ctx) {
 
-    acceptableConstructComplexityOrError.accept(ctx);
+    acceptableConstructComplexityOrError.andThen(suitablePropertyInitialisationOrError).accept(ctx);
     super.exitServiceDeclaration(ctx);
   }
 
@@ -102,7 +106,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void exitRecordDeclaration(final EK9Parser.RecordDeclarationContext ctx) {
 
-    acceptableConstructComplexityOrError.accept(ctx);
+    acceptableConstructComplexityOrError.andThen(suitablePropertyInitialisationOrError).accept(ctx);
     super.exitRecordDeclaration(ctx);
   }
 
@@ -130,7 +134,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void exitClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
 
-    acceptableConstructComplexityOrError.accept(ctx);
+    acceptableConstructComplexityOrError.andThen(suitablePropertyInitialisationOrError).accept(ctx);
     super.exitClassDeclaration(ctx);
   }
 
@@ -145,7 +149,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void exitComponentDeclaration(final EK9Parser.ComponentDeclarationContext ctx) {
 
-    acceptableConstructComplexityOrError.accept(ctx);
+    acceptableConstructComplexityOrError.andThen(suitablePropertyInitialisationOrError).accept(ctx);
     super.exitComponentDeclaration(ctx);
   }
 
@@ -175,7 +179,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void exitDynamicClassDeclaration(final EK9Parser.DynamicClassDeclarationContext ctx) {
 
-    acceptableConstructComplexityOrError.accept(ctx);
+    acceptableConstructComplexityOrError.andThen(suitablePropertyInitialisationOrError).accept(ctx);
     super.exitDynamicClassDeclaration(ctx);
   }
 

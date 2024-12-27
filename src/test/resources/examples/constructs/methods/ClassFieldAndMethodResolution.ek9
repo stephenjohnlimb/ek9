@@ -104,15 +104,20 @@ defines module com.classandfield.resolution
     -?>
     DynamicAlternativeToMixin
       dynamicFunction as plugabbleFunction?
-      
+
+      <?-
+        Stop other forms of construction.
+      -?>
+      default private DynamicAlternativeToMixin()
+
       <?-
         So only at construction do we accept the dynamic method to be used.
         And in this case we only allow you to define a valid function.
       -?>
       DynamicAlternativeToMixin()
         -> useFunction plugabbleFunction
-        if useFunction?
-          dynamicFunction: useFunction
+
+        dynamicFunction: useFunction
       
       <?-
         OK so lets use the dynamic function if it is set.

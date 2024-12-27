@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.phase5;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
@@ -38,15 +39,27 @@ final class MakesIdentifierSubsequentAccessSafe implements Predicate<EK9Parser.I
   }
 
   private Token getAssignmentOp(final EK9Parser.IdentifierContext ctx) {
-    if ((ctx.getParent() instanceof EK9Parser.AssignmentStatementContext assignmentStatement)) {
-      return assignmentStatement.op;
-    } else if (ctx.getParent() instanceof EK9Parser.ObjectAccessTypeContext
-        && ctx.getParent().getParent() instanceof EK9Parser.ObjectAccessContext
-        && ctx.getParent().getParent().getParent() instanceof EK9Parser.ObjectAccessExpressionContext
-        && ctx.getParent().getParent().getParent()
-        .getParent() instanceof EK9Parser.AssignmentStatementContext assignmentStatement) {
-      return assignmentStatement.op;
+
+    return findAssignmentStatementIfPossible(ctx)
+        .map(assignmentStatementContext -> assignmentStatementContext.op)
+        .orElse(null);
+  }
+
+  /**
+   * Now there can be many ways to trigger an assignment via object access in very nested ways.
+   * THis code attempt to traverse back up tree to find an assignment statement, but stops if there is no
+   * parent or if the parent is right at the top (instruction block).
+   */
+  private Optional<EK9Parser.AssignmentStatementContext> findAssignmentStatementIfPossible(
+      final EK9Parser.IdentifierContext ctx) {
+    var parentCtx = ctx.getParent();
+    while (parentCtx != null && !(parentCtx instanceof EK9Parser.InstructionBlockContext)) {
+      if (parentCtx instanceof EK9Parser.AssignmentStatementContext assignmentStatement) {
+        return Optional.of(assignmentStatement);
+      }
+      parentCtx = parentCtx.getParent();
     }
-    return null;
+
+    return Optional.empty();
   }
 }

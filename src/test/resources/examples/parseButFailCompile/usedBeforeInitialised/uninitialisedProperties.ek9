@@ -1,0 +1,106 @@
+#!ek9
+defines module uninitialized.properties
+
+  defines record
+
+    <?-
+      So here the compiler will emit errors, because these properties are not
+      initialised and only the synthetic (implicit) constructor has been used.
+      I decided to do this because it help to focus the EK9 developer on whether
+      uninitialized declarations are an appropriate approach
+    -?>
+    @Error: PRE_IR_CHECKS: EXPLICIT_CONSTRUCTOR_REQUIRED
+    R1
+      prop1 as String?
+
+    <?-
+      Now you can do this if you really want to.
+      Create a Constructor as default and still not initialise the properties.
+      You've be a bit bonkers - but you can do it.
+    -?>
+    R2
+      prop1 as Integer?
+      r1 as R1?
+
+      default R2()
+
+    <?-
+      A little strange, but records are just 'structs' with all public data.
+      A bit alien if you're an 'OO' person. But they can have their place
+      So here the R3 record constructor does lots of initialising via various object access
+      paths (just as a test that it will work - because is messed it up before).
+    -?>
+    R3
+      prop1 as Float?
+      r2 as R2?
+
+      R3()
+        this.prop1 = 3.142
+        r2 = R2()
+        this.r2.prop1 = 10
+        this.r2.r1 = R1()
+        this.r2.r1.prop1 = "Steve"
+
+    <?-
+      Examples of the preferred (idiomatic) approach.
+      Initialise but to values that may be un-set (in the case of Date).
+      So there won't be any errors for this record.
+    -?>
+    R4
+      prop1 <- Date()
+      r3 <- R3()
+
+  defines trait
+
+    T1
+      someMethod()
+        <- rtn <- 1
+
+  defines class
+
+    <?-
+      Simple class that just has trait of T1 and adds no more functionality.
+    -?>
+    JustT1 with trait of T1
+
+    <?-
+      Class with properties defined as uninitialised.
+      But then initialised in a constructor (in a simple way)
+    -?>
+    AClass with trait of T1 by t1
+      someProperty as String?
+      t1 as T1?
+
+      private AClass()
+        //Just an example of how you can initialise in a Constructor
+        //In the case of the trait T - we can create a simple dynamic class using the implementation
+        //of the T1 and there is no need to add anything else.
+        someProperty: String()
+        t1: () with trait of T1 as class
+
+      AClass()
+        ->
+          arg1 as String
+          arg2 as T1
+        someProperty: arg1
+        this.t1: arg2
+
+      operator $ as pure
+        <- rtn as String: `Value is ${someProperty}`
+
+      operator ? as pure
+        <- rtn as Boolean: someProperty?
+
+  defines function
+
+    JustPass()
+      a <- AClass("Initial Value", JustT1())
+      assert a?
+
+    AGenericsTest() as pure
+      //Should be able to create this as the List() constructor is marked pure.
+      aClasses as List of AClass: List() of AClass
+      assert aClasses?
+
+
+//EOF
