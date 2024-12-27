@@ -97,9 +97,9 @@ defines module worked.example
       -> line as String
       <- rtn as Boolean?
 
-    lineToCustomerRecord() as pure abstract
+    lineToCustomerRecord() as pure open
       -> line as String
-      <- rtn as DictEntry of (String, CustomerRecord)?
+      <- rtn <- DictEntry() of (String, CustomerRecord)
 
     customerRecordMerger() as abstract
       -> entry as DictEntry of (String, CustomerRecord)
@@ -141,7 +141,7 @@ defines module worked.example
               entryValue <- CustomerRecord(id, firstname, lastname, String(), dob, String())
               if debugLevel == 3
                 stderr.println(`Line [${line}] processed`)
-              rtn:=? DictEntry(id, entryValue)
+              rtn :=? DictEntry(id, entryValue)
 
         if not rtn?
           stderr.println(`Invalid line [${line}]`)
@@ -259,7 +259,7 @@ defines module worked.example
         <- options as Dict of (String, String)?
 
         getopts <- setupGetOpt(":")
-        options := getopts.options(arguments)
+        options :=? getopts.options(arguments)
 
       private setupGetOpt() as pure
         -> rqParam as String
@@ -267,25 +267,26 @@ defines module worked.example
 
         supportedOptions <- setupSupportedOptions(rqParam)
         usage <- setupUsage()
-        getopts: GetOpt(String()).make(rqParam, supportedOptions, usage)
+        getopts :=? GetOpt(String()).make(rqParam, supportedOptions, usage)
 
       private setupSupportedOptions() as pure
         -> rqParam as String
-        <- rtn as Dict of (String, String): Dict()
+        <- rtn as Dict of (String, String)?
 
-        supportedOptions <- {
+        rtn :=? {
           "-v": String(),
           "-f": rqParam,
           "-d": rqParam
           }
-        rtn: supportedOptions
 
       private setupUsage() as pure
-        <- rtn as String: "Invalid option, only those list below are supported:\n"
+        <- rtn as String?
 
-        rtn += "-v, verbose\n"
-        rtn += "-f filename, use file of filename (mandatory option)\n"
-        rtn += "-d level, use of debugging"
+        desc <- "Invalid option, only those list below are supported:"
+        verbose <- "-v, verbose"
+        filename <- "-f filename, use file of filename (mandatory option)"
+        debug <- "-d level, use of debugging"
+        rtn :=? `${desc}\n${verbose}\n${filename}\n${debug}`
 
       processDebugLevel()
         ->
@@ -296,9 +297,9 @@ defines module worked.example
 
         debugLevel <- Integer(level)
 
-        rtn := debugLevel in 0 ... 3 <- debugLevel else 0
+        rtn := (debugLevel in 0 ... 3) <- debugLevel else 0
 
-        if verboseMode and debugLevel not in 0 ... 3
+        if verboseMode and (debugLevel not in 0 ... 3)
           Stderr().println(`Debug level ${debugLevel} not supported - reverting to debug level '0'`)
 
     NamedFileProcessor
@@ -313,10 +314,8 @@ defines module worked.example
         this.debugLevel = debugLevel
 
       processNamedFile()
-        ->
-          filename as Optional of String
-        <-
-          rtn as Dict of (String, CustomerRecord): Dict()
+        -> filename as Optional of String
+        <- rtn <- Dict() of (String, CustomerRecord)
 
         stderr <- Stderr()
         if not filename?
@@ -329,7 +328,7 @@ defines module worked.example
         if verboseMode or debugLevel > 0
           stderr.println(`About to start processing [${namedFile}]`)
 
-        cat namedFile | filter by validLine | map toEntry > rtn
+        cat namedFile.input() | filter by validLine | map toEntry > rtn
 
         if debugLevel > 1
           stderr.println(`Processing [${namedFile}] complete`)
@@ -352,7 +351,7 @@ defines module worked.example
         <-
           processor as lineToCustomerRecord?
 
-        processor: (stderr, debugLevel) is lineToCustomerRecord as pure function
+        processor :=? (stderr, debugLevel) is lineToCustomerRecord as pure function
           splitLine <- line.split(/:/)
           if debugLevel == 3
             stderr.println(`About to split line [${line}]`)
@@ -372,8 +371,8 @@ defines module worked.example
           entryValue <- CustomerRecord(id, String(), String(), emailAddress, String(), dateLastPurchase)
           if debugLevel == 3
             stderr.println(`Named file line [${line}] processed`)
-          //TODO fix up constructor method location in resolution
-          rtn: DictEntry(id, entryValue)
+
+          rtn :=? DictEntry(id, entryValue)
 
   defines record
 
@@ -385,7 +384,7 @@ defines module worked.example
       dob as String?
       lastPurchase as String?
 
-      default private CustomerRecord()
+      default private CustomerRecord() as pure
 
       CustomerRecord() as pure
         ->
