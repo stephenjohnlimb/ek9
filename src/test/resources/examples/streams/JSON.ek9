@@ -4,14 +4,6 @@
 -?>
 defines module com.customer.jsonexample
 
-  defines type
-    //Check it is possible resolve this template type
-    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "Optional"
-    Optional of JSON
-
-    @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "List"
-    List of Integer
-
   defines program
 
     <?-
@@ -19,7 +11,7 @@ defines module com.customer.jsonexample
     -?>
     PipesWithJSON()
 
-      optionalJson <- Optional(JSON("value", JSON("2")))
+      optionalJson <- Optional(JSON("value", JSON(2)))
       anInteger <- cat optionalJson | collect as Integer
       assert anInteger == 2
 
@@ -29,7 +21,7 @@ defines module com.customer.jsonexample
       assert not nullInteger?
 
       //Same with Floats, not necessary to give a label
-      optionalJson: Optional(JSON("2.88"))
+      optionalJson: Optional(JSON(2.88))
       aFloat <- cat optionalJson | collect as Float
       assert aFloat == 2.88
 

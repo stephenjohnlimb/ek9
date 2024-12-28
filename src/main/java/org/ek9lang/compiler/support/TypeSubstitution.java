@@ -31,6 +31,18 @@ import org.ek9lang.core.CompilerException;
  * This now only gets called for the FULL_RESOLUTION phase, prior to the Parameterized types are just
  * a placeholder. Empty of methods, but do have references to the type they are a parameterization of
  * and also dependent generic types.
+ *
+ * TODO - the main reason that substitution is not working is because of the 'wrong T'.
+ * When List of T, Iterator of T are set up and created - as they are the first encountered the 'T'
+ * is the same. But Optional of T (that's a different T) when it triggers Iterator of T - the T is
+ * from the List of T.
+ * This is a fundamental issue, really it is the fact that T is an unconstrained type that is the important bit.
+ * So there error is probably not in here, but in the way I'm defining the Generic type parameters (like T).
+ *
+ * Where it is K or V or T if it is an unconstrained type then the T is the variable and the type is an aspect of it.
+ * However, it could be in some circumstances a T is constrained to be An Integer or some other type.
+ * So these constraints also need modelling as a type.
+ * I still need the variables of S, T, K, V, T etc for correct replacements but I also need the 'types'.
  */
 public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
 
@@ -171,12 +183,16 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
   private void replaceTypeParametersWithTypeArguments(final IToken triggeredByToken,
                                                       final PossibleGenericSymbol possibleGenericSymbol,
                                                       final Map<ISymbol, ISymbol> typeMapping, List<ISymbol> symbols) {
+
     /*
-    TODO ready for debug and fix of generics.
-    if("Optional of type T of type Integer".equals(possibleGenericSymbol.getFriendlyName())) {
+    var print = false;
+    //TODO ready for debug and fix of generics.
+    if("Optional of type T of type JSON".equals(possibleGenericSymbol.getFriendlyName())) {
+      print = true;
       System.out.printf("Substituting on %s%n", possibleGenericSymbol.getFriendlyName());
     }
-     */
+    final var toPrint = print;
+    */
 
     symbols.forEach(symbol -> {
       if (symbol instanceof MethodSymbol methodSymbol) {
@@ -190,23 +206,31 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
         methodSymbol.getCallParameters().forEach(
             param -> substituteAsAppropriate(triggeredByToken, typeMapping, param)
         );
+
         if (methodSymbol.isReturningSymbolPresent()) {
           var returningSymbol = methodSymbol.getReturningSymbol();
           /*
-          System.out.printf("In  substituting return on method [%s] [%s]%n",
-              methodSymbol.getFriendlyName(),
-              returningSymbol.getFriendlyName());
-          */
+          final var show = "rtn as Iterator of type T of type T".equals(returningSymbol.getFriendlyName()) && toPrint;
+          if(show) {
 
+            System.out.printf("In  substituting return on method [%s] [%s]%n",
+                methodSymbol.getFriendlyName(),
+                returningSymbol.getFriendlyName());
+          }
+          */
           substituteAsAppropriate(triggeredByToken, typeMapping, returningSymbol);
           /*
-          System.out.printf("Now substituting return on method [%s] [%s]%n",
-              methodSymbol.getFriendlyName(),
-              returningSymbol.getFriendlyName());
-           */
+          if(show) {
+
+            System.out.printf("Now substituting return on method [%s] [%s]%n",
+                methodSymbol.getFriendlyName(),
+                returningSymbol.getFriendlyName());
+          }
+          */
         }
       }
       substituteAsAppropriate(triggeredByToken, typeMapping, symbol);
+
     });
   }
 

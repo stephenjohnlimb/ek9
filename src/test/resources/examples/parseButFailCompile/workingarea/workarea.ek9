@@ -7,17 +7,18 @@ defines module just.workspace
 
   defines function
 
-    addressDictionaryFromJSON()
-      -> json as String
-      <- rtn <- Dict() of (String, String)
+    jsonPipe()
+      json <- JSON("value", JSON(2))
+
+      //The expectation here is that the json structure of { "value" : 2 } can be handled within the pipe of Integer
+      //For some reason 'Optional' does not get its 'iterator' return type updated correctly unlike 'List'.
+      //This is because of the 'wrong T' - core generics issue.
+      anInteger <- cat Optional(json) | collect as Integer
+      assert anInteger == 2
 
     JustFail()
 
-      dict <- addressDictionaryFromJSON(`{"some": "thing"}`)
-
-      noValue <- dict.get("Something")
-
-      assert noneSuch? and noValue?
+      assert noneSuch?
 
   <!-
 

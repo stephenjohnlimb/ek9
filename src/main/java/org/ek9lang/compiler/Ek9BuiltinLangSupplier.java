@@ -203,6 +203,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator |
               -> arg as String
 
+            operator |
+              -> arg as JSON
+
             operator +=
               -> arg as String
 
@@ -424,6 +427,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator |
               -> arg as Boolean
+
+            operator |
+              -> arg as JSON
               
           Character
             Character() as pure
@@ -669,6 +675,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator |
               -> arg as Integer
 
+            operator |
+              -> arg as JSON
+
             operator +=
               -> arg as Integer
 
@@ -795,6 +804,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator |
               -> arg as Float
+
+            operator |
+              -> arg as JSON
 
             operator +=
               -> arg as Float
@@ -935,6 +947,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator |
               -> arg as Duration
 
+            operator |
+              -> arg as JSON
+
             operator +=
               -> arg as Duration
 
@@ -1052,6 +1067,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator |
               -> arg as Duration
+
+            operator |
+              -> arg as JSON
 
             operator +=
               -> arg as Duration
@@ -1195,6 +1213,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator |
               -> arg as Millisecond
 
+            operator |
+              -> arg as JSON
+
             operator +=
               -> arg as Millisecond
 
@@ -1328,6 +1349,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator |
               -> arg as Date
+
+            operator |
+              -> arg as JSON
 
             <?-
               Can accept multiple durations and build up from base date.
@@ -1536,6 +1560,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator |
               -> arg as Duration
+
+            operator |
+              -> arg as JSON
               
             operator +=
               -> arg as Duration
@@ -1679,6 +1706,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator |
               -> arg as Money
+
+            operator |
+              -> arg as JSON
 
             operator +=
               -> arg as Money
@@ -2029,6 +2059,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator |
               -> arg as Colour
 
+            operator |
+              -> arg as JSON
+
             operator +=
               -> arg as Colour
 
@@ -2174,6 +2207,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator |
               -> arg as Dimension
 
+            operator |
+              -> arg as JSON
+
             operator +=
               -> arg as Dimension
 
@@ -2317,6 +2353,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator |
               -> arg as Resolution
 
+            operator |
+              -> arg as JSON
+
             operator +=
               -> arg as Resolution
 
@@ -2442,12 +2481,21 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             JSON() as pure
               -> arg0 as String
+
+            JSON() as pure
+              -> arg0 as Integer
+
+            JSON() as pure
+              -> arg0 as Float
+
+            JSON() as pure
+              -> arg0 as Boolean
             
             JSON() as pure
               ->
                 key as String
                 value as JSON
-
+                
             iterator() as pure
               <- rtn as Iterator of JSON?
               
