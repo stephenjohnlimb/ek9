@@ -39,9 +39,24 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
   /**
    * used to add back pointers to subclasses.
    *
-   * @param sub The sub-class to point back to.
+   * @param sub The subclass to point back to.
    */
   void addSubAggregateSymbol(final IAggregateSymbol sub);
+
+  /**
+   * Gets all methods that are effective, by this I mean
+   * if supers (classes or traits) have the same method name
+   * but, it has been overridden then we would only retain the
+   * 'overridden' one as that has taken effect.
+   * In the case of a trait that has multiple traits where the same method
+   * has been overridden in the trait only one method is now in effect.
+   * However, if there are multiple traits (or a super has the same method name)
+   * we would end up with 'duplicate' methods of the same name in this list
+   * 'CheckConflictingMethods' will need to detect this.
+   *
+   * @return A List of methods that are in effect.
+   */
+  List<MethodSymbol> getAllEffectiveMethods();
 
   /**
    * Get all methods on this and any supers or traits.

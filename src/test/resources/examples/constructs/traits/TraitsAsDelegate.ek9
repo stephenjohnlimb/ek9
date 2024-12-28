@@ -68,7 +68,9 @@ defines module com.customer.delegates
     C3 with trait of S1 by delegateS, T1 by delegateT
       delegateT as T1?
       delegateS as S1?
-      
+
+      default private C3()
+
       C3()
         ->
           delegateT as T1

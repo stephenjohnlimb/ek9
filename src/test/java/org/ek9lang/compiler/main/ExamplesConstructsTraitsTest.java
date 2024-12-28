@@ -14,15 +14,13 @@ import org.junit.jupiter.api.Test;
 class ExamplesConstructsTraitsTest extends PhasesTest {
 
   public ExamplesConstructsTraitsTest() {
-    super("/examples/constructs/traits", false, false);
+    super("/examples/constructs/traits");
   }
 
 
   @Test
   void testPhaseDevelopment() {
-    //TODO correct errors:
-    //TODO 'SimpleProcessor' on line 63 position 4: 'public Boolean <- lowCost()' on 'Processor' and 'Processor': conflicting methods to be resolved
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

@@ -250,6 +250,39 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
   }
 
   @Override
+  public List<MethodSymbol> getAllEffectiveMethods() {
+
+    final List<MethodSymbol> rtn = new ArrayList<>(getAllMethodInThisScopeOnly());
+
+    final List<MethodSymbol> additionalMethods = new ArrayList<>();
+
+    //Now we must treat any super as being on a par with a trait and deal with those
+    //possible conflicting methods.
+    getSuperAggregate().ifPresent(
+        superAggregateSymbol -> superAggregateSymbol.getAllEffectiveMethods().forEach(method -> {
+          if (methodNotPresent(rtn, method)) {
+            additionalMethods.add(method);
+          }
+        }));
+
+    //Now must turn to each of the traits in turn, if method is not in list
+    //then add to the list of trait methods, we could end up with duplicates
+    //if the EK9 developer has defined the same method signature multiple times
+    //then combined those traits together.
+    traits.forEach(trait -> trait.getAllEffectiveMethods().forEach(method -> {
+      if (methodNotPresent(rtn, method)) {
+        additionalMethods.add(method);
+      }
+    }));
+
+    //Only now do we have a set of hopefully unique methods, but if the EK9 developer
+    //has not overridden then there will be duplicates.
+    rtn.addAll(additionalMethods);
+
+    return rtn;
+  }
+
+  @Override
   public List<MethodSymbol> getAllMethods() {
 
     final List<MethodSymbol> rtn = super.getAllMethods();

@@ -3,15 +3,13 @@ package org.ek9lang.compiler.phase3;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.METHODS_CONFLICT;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
-import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
-import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
@@ -22,7 +20,6 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  * aggregate that is using the super/traits and then pick the implementation they want or define a
  * totally new one.
  * Returns true if there are no conflicting methods.
- * TODO not quite sure this is working correctly. See JustTraits.ek9 - ExamplesConstructsTraitsTest.
  */
 final class CheckConflictingMethods extends TypedSymbolAccess implements Predicate<AggregateSymbol> {
   CheckConflictingMethods(final SymbolsAndScopes symbolsAndScopes,
@@ -34,73 +31,42 @@ final class CheckConflictingMethods extends TypedSymbolAccess implements Predica
 
   @Override
   public boolean test(final AggregateSymbol symbol) {
+    var clashFree = true;
+    //Used to quickly lookup any potentially clashing methods.
+    final var lookup = new HashMap<String, ArrayList<MethodSymbol>>();
 
-    final var result = new AtomicBoolean(true);
+    //Get the methods that are actually in effect.
+    final var allMethods = symbol.getAllEffectiveMethods();
 
-    //We only need to do this it there is a possibility of multiple implementations of a method signature.
-    if (symbol instanceof AggregateWithTraitsSymbol aggregate) {
-
-      //These are the methods that this aggregate has defined and some may override those in super or traits.
-      final var concreteMethods = aggregate.getAllNonAbstractMethodsInThisScopeOnly();
-
-      //This will get methods from the super and prune out any that match on this.
-      final var nonOverriddenMethods = aggregate.getSuperAggregate().isPresent()
-          ? new ArrayList<>(methodsNotDefinedInList(concreteMethods, aggregate.getSuperAggregate().get()))
-          : new ArrayList<MethodSymbol>();
-
-      symbol.getTraits().forEach(trait -> {
-        //Again get the methods from this trait but prune out any that have been implemented.
-        final var methodsToCheck = methodsNotDefinedInList(concreteMethods, trait);
-        //Now build up the list or emit error if already in list - because that is the clash.
-        methodsToCheck.forEach(method -> {
-          final var acceptable = addToListOrError(aggregate, trait, nonOverriddenMethods, method);
-          result.set(result.get() && acceptable);
-        });
-      });
+    for (var method : allMethods) {
+      if (lookup.containsKey(method.getName())) {
+        final var methodList = lookup.get(method.getName());
+        final var clashingMatches = matchingMethods(methodList, method);
+        if (clashingMatches.isEmpty()) {
+          methodList.add(method);
+        } else {
+          //We have a duplicate
+          final var msg = "method '" + method.getFriendlyName()
+              + "' on '"
+              + method.getParentScope().getFriendlyScopeName()
+              + "' and '"
+              + clashingMatches.get(0).getParentScope().getFriendlyScopeName()
+              + "':";
+          errorListener.semanticError(symbol.getSourceToken(), msg, METHODS_CONFLICT);
+          clashFree = false;
+        }
+      } else {
+        final var methodList = new ArrayList<MethodSymbol>();
+        methodList.add(method);
+        lookup.put(method.getName(), methodList);
+      }
     }
 
-    return result.get();
+    //So if there are any duplicate methods (i.e. with same signature), then that's an error.
+    //It means that the EK9 developer must add an overriding method in to decide on the functionality
+    return clashFree;
   }
 
-  private boolean addToListOrError(final IAggregateSymbol aggregate,
-                                   final IAggregateSymbol trait,
-                                   final List<MethodSymbol> nonOverriddenMethods,
-                                   final MethodSymbol method) {
-
-    final var possibleClashes = matchingMethods(nonOverriddenMethods, method);
-
-    if (!possibleClashes.isEmpty()) {
-
-      final var msg = "'" + method.getFriendlyName()
-          + "' on '"
-          + trait.getFriendlyName()
-          + "' and '"
-          + possibleClashes.get(0).getParentScope().getFriendlyScopeName()
-          + "':";
-      errorListener.semanticError(aggregate.getSourceToken(), msg, METHODS_CONFLICT);
-      return false;
-    }
-
-    nonOverriddenMethods.add(method);
-
-    return true;
-  }
-
-  private List<MethodSymbol> methodsNotDefinedInList(final List<MethodSymbol> defined,
-                                                     final IAggregateSymbol aggregate) {
-
-    return aggregate.getAllMethods().stream()
-        .filter(method -> methodNotPresent(defined, method))
-        .toList();
-
-  }
-
-  private boolean methodNotPresent(final List<MethodSymbol> defined, final MethodSymbol checkMethod) {
-
-    return defined.stream()
-        .noneMatch(method -> methodsMatch(method, checkMethod));
-
-  }
 
   private List<MethodSymbol> matchingMethods(final List<MethodSymbol> defined, final MethodSymbol checkMethod) {
 
@@ -115,4 +81,5 @@ final class CheckConflictingMethods extends TypedSymbolAccess implements Predica
     return m1.getName().equals(m2.getName()) && m1.isExactSignatureMatchTo(m2);
 
   }
+
 }

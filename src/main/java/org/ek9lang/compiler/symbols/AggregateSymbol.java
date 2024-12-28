@@ -288,6 +288,25 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   }
 
   @Override
+  public List<MethodSymbol> getAllEffectiveMethods() {
+
+    //So first get all the methods in this scope and then only add those from super if
+    //present and the method is not already recorded.
+
+    final ArrayList<MethodSymbol> rtn = new ArrayList<>(getAllMethodInThisScopeOnly());
+
+    getSuperAggregate().ifPresent(
+        superAggregateSymbol -> superAggregateSymbol.getAllEffectiveMethods().forEach(method -> {
+          if (methodNotPresent(rtn, method)) {
+            rtn.add(method);
+          }
+        }));
+
+    return rtn;
+  }
+
+
+  @Override
   public List<MethodSymbol> getAllMethods() {
 
     final ArrayList<MethodSymbol> rtn = new ArrayList<>();
@@ -540,6 +559,19 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     }
 
     return rtn;
+  }
+
+  protected boolean methodNotPresent(final List<MethodSymbol> defined, final MethodSymbol checkMethod) {
+
+    return defined.stream()
+        .noneMatch(method -> methodsMatch(method, checkMethod));
+
+  }
+
+  protected boolean methodsMatch(final MethodSymbol m1, final MethodSymbol m2) {
+
+    return m1.getName().equals(m2.getName()) && m1.isExactSignatureMatchTo(m2);
+
   }
 
   private String doGetFriendlyName() {
