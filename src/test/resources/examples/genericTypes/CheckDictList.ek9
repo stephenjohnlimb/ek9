@@ -177,10 +177,9 @@ defines module com.customer.streams.build
       stdout <- Stdout()
       
       aList <- List() of Integer
-      bList as List of Integer: List()
-      cList <- List(1)
+      bList <- List(1)
 
-      assert aList? and bList? and cList?
+      assert aList? and bList?
 
       //You can define like this which is quite nice.
       l1 as List of Integer: [ 57, 55, 26, 24, 21 ]
@@ -240,7 +239,7 @@ defines module com.customer.streams.build
       cat l3 | filter by isSet > stdout
 
       //Can also capture values via tee
-      storedValues as List of Integer := List()
+      storedValues <- List() of Integer
       cat l3 | filter by isSet | tee in storedValues > stdout
       stdout.println("List storedValues is " + $storedValues)
       

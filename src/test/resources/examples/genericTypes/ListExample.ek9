@@ -6,17 +6,11 @@
 -?>
 defines module com.customer.priority.example
 
-  defines type
-    List of String
-    List of Integer
-
-    List of SimpleRecord
-
   defines record
     SimpleRecord
       id as Integer: Integer()
       name as String: "Steve"
-      aliases as List of String: List()
+      aliases as List of String: List() of String
 
       <?-
         make an additional constructor that has no aliases

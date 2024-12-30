@@ -15,7 +15,7 @@ defines module net.customer.constrained
       aTest as T := T()
       
       //Constructor
-      MyList()
+      MyList() as pure
         -> item as T
         var as T: item
         assert var?
@@ -25,12 +25,12 @@ defines module net.customer.constrained
         <- rtn as T := T()
 
       something
-        <- rtn as MyList of T := MyList()
+        <- rtn as MyList of T := MyList() of T
 
       //Add a T to the list.
       operator + as pure
         -> item as T
-        <- rtn as MyList of T := MyList()
+        <- rtn as MyList of T := MyList() of T
           
         if item?
           other as T := T()
@@ -72,7 +72,7 @@ defines module net.customer.constrained
       someMethod()
         
         //In its basic form
-        simple as MyList of String := MyList()
+        simple as MyList of String := MyList() of String
         assert simple?
 
         //So this will be OK as we're making it concrete with a String
@@ -84,7 +84,7 @@ defines module net.customer.constrained
         assert otherStringMyList?
 
         //But look I can have a MyList of EmailAddress because that extends String - even though only very simply as a type
-        emailMyList as MyList of EmailAddress := MyList()
+        emailMyList as MyList of EmailAddress := MyList() of EmailAddress
         assert emailMyList?
 
         anotherEmailMyList <- MyList() of EmailAddress

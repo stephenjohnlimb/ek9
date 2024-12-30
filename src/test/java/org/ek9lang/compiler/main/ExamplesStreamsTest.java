@@ -20,10 +20,8 @@ class ExamplesStreamsTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    //has issues with Generics specifically Optional type still being T rather than JSON.
-    //Big generics issue here to sort out.
-    //TODO fix up example code and move to PRE_IR_CHECKS
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

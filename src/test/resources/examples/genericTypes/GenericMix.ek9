@@ -1,13 +1,7 @@
 #!ek9
 defines module net.customer.generic.mix
 
-  defines type
-    MyList of Float
-    
-    //MyOptional of Integer
-    
-    MyOptional of Float
-    
+
   //See SimpleFunction.ek9 for just normal function processing
   //This focuses on how generic functions will work but in combination with generic classes.
   //i.e. a full implementation of a function but in terms of abstract types like S and T
@@ -43,7 +37,7 @@ defines module net.customer.generic.mix
       //Add a T to the list.
       addDoubleValue
         -> item as T
-        <- rtn as MyList of T := MyList()
+        <- rtn as MyList of T := MyList() of T
         
         //Just check we can define an optional
         ourMyOptional as MyOptional of T := MyOptional(item)

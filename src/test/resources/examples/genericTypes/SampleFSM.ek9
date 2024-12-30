@@ -115,12 +115,8 @@ defines module com.utils
       //Not going at add functionality just use default implementation in this listener
       
       //So we can be more explicit if required
-      floatMachine1 as FSM of Float := FSM()
-      assert floatMachine1?
-
-      //OR use this mechanism which is also quite nice
-      floatMachine2 <- FSM() of Float
-      assert floatMachine2?
+      floatMachine1 <- FSM() of Float
+      assert floatMachine1
 
       //We will pass this in as a captured variable
       //If you wanted to alter the value then you can but not via an := == but += and the like work.
@@ -151,11 +147,8 @@ defines module com.utils
 
       assert cardSuitListener?
 
-      cardSuitFSM as FSM of CardSuit := FSM()
-      
-      //or
-      cardSuitFSM2 <- FSM() of CardSuit
+      cardSuitFSM <- FSM() of CardSuit
 
-      assert cardSuitFSM? and cardSuitFSM2?
+      assert cardSuitFSM?
       
 //EOF

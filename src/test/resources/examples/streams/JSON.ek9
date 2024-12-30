@@ -1,6 +1,7 @@
 #!ek9
 <?-
   This seems a bit confused, needs cleaning up and the examples more meaningful.
+  Altered from Optional to List - need to focus on examples before looking at generic issue.
 -?>
 defines module com.customer.jsonexample
 
@@ -11,23 +12,23 @@ defines module com.customer.jsonexample
     -?>
     PipesWithJSON()
 
-      optionalJson <- Optional(JSON("value", JSON(2)))
-      anInteger <- cat optionalJson | collect as Integer
+      json <- List(JSON("value", JSON(2)))
+      anInteger <- cat json | collect as Integer
       assert anInteger == 2
 
       //You can also just do this
-      optionalJson: Optional(JSON("value", JSON("null")))
-      nullInteger <- cat optionalJson | collect as Integer
+      json: List(JSON("value", JSON("null")))
+      nullInteger <- cat json | collect as Integer
       assert not nullInteger?
 
       //Same with Floats, not necessary to give a label
-      optionalJson: Optional(JSON(2.88))
-      aFloat <- cat optionalJson | collect as Float
+      json: List(JSON(2.88))
+      aFloat <- cat json | collect as Float
       assert aFloat == 2.88
 
       //Character, use the to JSON operator $$ to convert
-      optionalJson: Optional($$ Character('C'))
-      aChar <- cat optionalJson | collect as Character
+      json: List($$ Character('C'))
+      aChar <- cat json | collect as Character
       assert aChar == 'C'
 
       //It's not necessary to wrap in an Optional with JSON as it is
@@ -46,8 +47,8 @@ defines module com.customer.jsonexample
       stdout <- Stdout()
 
       //Now try with a JSON object with some int properties
-      json <- JSON(`{"first": 1, "second": null, "third": 22}`)
-      sumOfProperties <- cat json | collect as Integer
+      justJson <- JSON(`{"first": 1, "second": null, "third": 22}`)
+      sumOfProperties <- cat justJson | collect as Integer
       assert sumOfProperties == 23
 
       //Just check a normal variable can be interpolated

@@ -12,19 +12,19 @@ defines module general.generic.checks
       testList()
         //Note how the phase has to be promoted to EXPLICIT_TYPE_SYMBOL_DEFINITION
         @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of (ExampleClass)"
-        <- rtn as List of ExampleClass: List()
+        <- rtn as List of ExampleClass: List() of ExampleClass
 
       testAGenericClass()
         @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "AGenericClass of (ExampleClass)"
-        <- rtn as AGenericClass of ExampleClass: AGenericClass()
+        <- rtn as AGenericClass of ExampleClass: AGenericClass() of ExampleClass
 
       testMultipleCombination()
         @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of (AGenericClass of (ExampleClass))"
-        <- rtn as List of AGenericClass of ExampleClass: List()
+        <- rtn as List of AGenericClass of ExampleClass: List() of AGenericClass of ExampleClass
 
       @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "AGenericClass of (Integer)"
       testCalculatorCapability()
-        <- rtn as AGenericClass of Integer: AGenericClass()
+        <- rtn as AGenericClass of Integer: AGenericClass() of Integer
 
       default operator ?
 

@@ -31,14 +31,12 @@ import org.ek9lang.core.CompilerException;
  * This now only gets called for the FULL_RESOLUTION phase, prior to the Parameterized types are just
  * a placeholder. Empty of methods, but do have references to the type they are a parameterization of
  * and also dependent generic types.
- *
  * TODO - the main reason that substitution is not working is because of the 'wrong T'.
  * When List of T, Iterator of T are set up and created - as they are the first encountered the 'T'
  * is the same. But Optional of T (that's a different T) when it triggers Iterator of T - the T is
  * from the List of T.
  * This is a fundamental issue, really it is the fact that T is an unconstrained type that is the important bit.
  * So there error is probably not in here, but in the way I'm defining the Generic type parameters (like T).
- *
  * Where it is K or V or T if it is an unconstrained type then the T is the variable and the type is an aspect of it.
  * However, it could be in some circumstances a T is constrained to be An Integer or some other type.
  * So these constraints also need modelling as a type.

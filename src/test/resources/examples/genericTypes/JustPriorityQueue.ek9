@@ -1,9 +1,6 @@
 #!ek9
 defines module com.customer.just
 
-  defines type
-    PriorityQueue of String
-
   defines function
 
     suitableLength
@@ -18,7 +15,7 @@ defines module com.customer.just
       //negate the returned comparison to change the ordering.
       //Note how t1, t2 and r - are picked up from the definition of Comparator (ek9 built-in)
       //TODO not quite sure why this does not resolve 'r'
-      comparator <- () extends Comparator of String as pure function (r: ~(t1 <=> t2))
+      comparator <- () extends Comparator of String as pure function (r:=? ~(t1 <=> t2))
 
       qOne <- PriorityQueue("Bill").useComparator(comparator)
 

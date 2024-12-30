@@ -42,6 +42,7 @@ defines module bad.use.dynamics.generics
 
         //note type inference not supported within generic types, so long hand.
         //TODO fix this up as should be able to consider access via is super naming.
+        //Generics issue.
         dClass1 as AGenericClass of (P, Q) := () is AGenericClass of (P, Q) as class
 
       someMethodForDynamicFunctions()

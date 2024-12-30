@@ -168,9 +168,8 @@ defines module com.customer.dynamic.streams.build
       stdout <- Stdout()
       
       aList <- List() of Integer
-      bList as List of Integer: List()
-      cList <- List(1)
-      assert aList? and bList? and cList?
+      bList <- List(1)
+      assert aList? and bList?
 
       //You can define like this which is quite nice.
       l1 as List of Integer: [ 57, 55, 26, 24, 21 ]

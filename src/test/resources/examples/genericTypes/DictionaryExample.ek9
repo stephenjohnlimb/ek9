@@ -1,13 +1,10 @@
 #!ek9
 defines module com.customer.dictionary.example
 
-  defines type
-    Dict of (String, String)
-
   defines record
     SimpleRecord
       id as Integer: Integer()
-      aliases as Dict of (String, String): Dict()
+      aliases <- Dict() of (String, String)
 
       SimpleRecord
         -> id as Integer
