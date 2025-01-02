@@ -6,6 +6,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.support.AggregateManipulator;
+import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 
@@ -40,9 +41,13 @@ final class SetupGenericTOrError implements Consumer<EK9Parser.ParameterisedDeta
       //So it is not constrained an is just a 'T'
       if (ctx.typeDef() == null) {
         aggregateManipulator.addAllSyntheticOperators(aggregateT);
+        aggregateT.putSquirrelledData(CommonValues.CONSTRAIN, "FALSE");
       } else {
         getConstrainingTypeOrError(ctx.typeDef())
-            .ifPresent(constrainingType -> aggregateManipulator.updateToConstrainBy(aggregateT, constrainingType));
+            .ifPresent(constrainingType -> {
+              aggregateManipulator.updateToConstrainBy(aggregateT, constrainingType);
+              aggregateT.putSquirrelledData(CommonValues.CONSTRAIN, "SUPER");
+            });
       }
     }
 

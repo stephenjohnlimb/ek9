@@ -81,6 +81,7 @@ class CommonFactory {
 
 
   protected List<AggregateSymbol> createAndRegisterParameterisedSymbols(final EK9Parser.ParameterisedParamsContext ctx,
+                                                                        final ISymbol functionOrClass,
                                                                         final IScope scope) {
     final List<AggregateSymbol> rtn = new ArrayList<>();
 
@@ -94,7 +95,9 @@ class CommonFactory {
         //cookie cutting time.
         //getText(i) gives us the parameter name we just us 'T' here to denote a generic param
 
-        final var t = aggregateManipulator.createGenericT(detail.Identifier().getText(), scope);
+        final var t =
+            aggregateManipulator.createGenericT(detail.Identifier().getText(),
+                functionOrClass.getFullyQualifiedName(), scope);
         t.setSourceToken(startToken);
         t.setReferenced(true);
 

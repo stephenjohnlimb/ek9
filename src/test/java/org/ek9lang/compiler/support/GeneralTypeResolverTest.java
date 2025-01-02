@@ -57,7 +57,7 @@ class GeneralTypeResolverTest {
     AggregateSymbol someGenericType = new AggregateSymbol("SomeGenericType", scope);
     someGenericType.setModuleScope(scope);
 
-    var t = support.createGenericT("T", someGenericType);
+    var t = support.createGenericT("T", someGenericType.getFullyQualifiedName(), someGenericType);
     someGenericType.addTypeParameterOrArgument(t);
     scope.define(someGenericType);
 

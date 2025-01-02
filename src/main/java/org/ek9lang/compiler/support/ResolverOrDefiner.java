@@ -20,6 +20,8 @@ public abstract class ResolverOrDefiner extends RuleSupport {
   protected final SymbolFactory symbolFactory;
   protected final boolean errorIfNotDefinedOrResolved;
 
+  private final SameGenericConceptualParameters sameGenericConceptualParameters = new SameGenericConceptualParameters();
+
   protected ResolverOrDefiner(final SymbolsAndScopes symbolsAndScopes,
                               final SymbolFactory symbolFactory,
                               final ErrorListener errorListener,
@@ -44,6 +46,19 @@ public abstract class ResolverOrDefiner extends RuleSupport {
           || errorIfInvalidParameters(details.location(), genericTypeSymbol, details.typeArguments())) {
         return Optional.empty();
       }
+
+      if (sameGenericConceptualParameters.test(details.genericTypeSymbol(), details.typeArguments())) {
+        //It's not really been parameterised, as all the arguments are just the same as the generic type
+        return Optional.of(genericTypeSymbol);
+      }
+
+      //What if this is referenced from within the same type and, it just looks like it is being parameterised.
+      //i.e. within List of type T we refer to List of T? We don't want a "List of T of T".
+      //Only if the 'T' is really from some other generic type do we want that.
+      //i.e. List of T used in the context of Generic of type T - that's not actually thr same 'T'.
+      //If I rewrite as Generic of type G and List of type L - perhaps you can see what I mean.
+      //Now when I say I want a Generic of Integer, that means that List of type L of type G now gets flattened
+      //to a List of Integer, because the G was replaced with the Integer and then the L was replaced with the Integer.
 
       final var theType = symbolFactory.newParameterisedSymbol(genericTypeSymbol, details.typeArguments());
       theType.setInitialisedBy(details.location());

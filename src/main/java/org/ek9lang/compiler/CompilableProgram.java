@@ -186,7 +186,10 @@ public class CompilableProgram implements Serializable {
 
     if (resolved.isEmpty()) {
       //need to define it and return it.
-      final var module = getModuleScopesFunction().apply(moduleName).get(0);
+      final var modules = getModuleScopesFunction().apply(moduleName);
+      AssertValue.checkTrue("Modules cannot be empty", !modules.isEmpty());
+
+      final var module = modules.get(0);
       module.define(possibleGenericSymbol);
 
       return new ResolvedOrDefineResult(Optional.of(possibleGenericSymbol), true);

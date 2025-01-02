@@ -37,7 +37,8 @@ public class AggregateFactory extends CommonFactory {
     newClass.setGenus(SymbolGenus.CLASS);
     newClass.setMarkedAbstract(ctx.ABSTRACT() != null);
 
-    final var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);
+    final var parameterisedSymbols =
+        createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), newClass, moduleScope);
 
     if (!parameterisedSymbols.isEmpty()) {
       //Now need to register against the class we are creating

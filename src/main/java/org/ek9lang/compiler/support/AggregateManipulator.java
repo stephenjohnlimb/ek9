@@ -145,8 +145,6 @@ public class AggregateManipulator {
       newConstructor.setSynthetic(synthetic);
       newConstructor.setType(aggregateSymbol);
 
-      //TODO consider this: Don't setReturningSymbol just yet.
-      // See error 'Must have a generic type for' in TypeSubstitution 'getReplacementType'
       newConstructor.setCallParameters(constructorArguments);
       aggregateSymbol.define(newConstructor);
     }
@@ -246,13 +244,15 @@ public class AggregateManipulator {
    * operators that are supported by those concrete types - this is done in the IR phase.
    * Where are the generic type/functions get checked in the resolve phase.
    *
-   * @param name  - The name of the generic type parameter
-   * @param scope - The scope it should go in.
+   * @param name          - The name of the generic type parameter
+   * @param genericParent - The fully qualified name of the generic function or class this 'T' is defined for.
+   * @param scope         - The scope it should go in.
    */
-  public AggregateSymbol createGenericT(final String name, final IScope scope) {
+  public AggregateSymbol createGenericT(final String name, String genericParent, final IScope scope) {
 
     final var t = new AggregateSymbol(name, scope);
     t.setConceptualTypeParameter(true);
+    t.putSquirrelledData(CommonValues.GENERIC_PARENT, genericParent);
 
     //Do not add any methods yet - wait until later phases.
     //This is especially true when the 'T' is constrained.

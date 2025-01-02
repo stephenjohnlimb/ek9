@@ -51,11 +51,15 @@ final class SimpleGenericsTest {
   void testExtendingAGenericType() {
     SymbolTable symbolTable = new SymbolTable();
 
-    var t = aggregateManipulator.createGenericT("T", symbolTable);
-    var aGenericBaseType = new AggregateSymbol("GenericBase", symbolTable, List.of(t));
+    var aGenericBaseType = new AggregateSymbol("GenericBase", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", aGenericBaseType.getFullyQualifiedName(), symbolTable);
+    aGenericBaseType.addTypeParameterOrArgument(t);
 
-    var s = aggregateManipulator.createGenericT("S", symbolTable);
-    var anotherGenericType = new AggregateSymbol("AnotherGenericBase", symbolTable, List.of(s, t));
+    var anotherGenericType = new AggregateSymbol("AnotherGenericBase", symbolTable);
+    var r = aggregateManipulator.createGenericT("R", anotherGenericType.getFullyQualifiedName(), symbolTable);
+    var s = aggregateManipulator.createGenericT("S", anotherGenericType.getFullyQualifiedName(), symbolTable);
+    anotherGenericType.addTypeParameterOrArgument(r);
+    anotherGenericType.addTypeParameterOrArgument(s);
 
     //Check not equal
     assertNotEquals(aGenericBaseType, anotherGenericType);
@@ -78,8 +82,9 @@ final class SimpleGenericsTest {
     symbolTable.define(integerType);
 
     //Make the 'T' and generic type that will use the 'T' as a conceptual type parameter
-    var t = aggregateManipulator.createGenericT("T", symbolTable);
-    var aGenericType = new AggregateSymbol("GenericType", symbolTable, List.of(t));
+    var aGenericType = new AggregateSymbol("GenericType", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", aGenericType.getFullyQualifiedName(), symbolTable);
+    aGenericType.addTypeParameterOrArgument(t);
 
     //Make the parameterised type using the generic type and parameterize it with concrete type Integer.
     var parameterisedType1 = new AggregateSymbol("ParameterisedWithInteger", symbolTable);
@@ -113,19 +118,26 @@ final class SimpleGenericsTest {
     //This is what we will use to test the naming.
     BiFunction<PossibleGenericSymbol, List<ISymbol>, String> namer = new InternalNameFor();
 
-    var k = aggregateManipulator.createGenericT("K", symbolTable);
-    var v = aggregateManipulator.createGenericT("V", symbolTable);
+    var someDualGenericType = new AggregateSymbol("SomeDualGeneric", symbolTable);
+    var k = aggregateManipulator.createGenericT("K", someDualGenericType.getFullyQualifiedName(), symbolTable);
+    var v = aggregateManipulator.createGenericT("V", someDualGenericType.getFullyQualifiedName(), symbolTable);
+    someDualGenericType.addTypeParameterOrArgument(k);
+    someDualGenericType.addTypeParameterOrArgument(v);
 
-    var someDualGenericType = new AggregateSymbol("SomeDualGeneric", symbolTable, List.of(k, v));
     assertNotNull(someDualGenericType);
 
     var someDualGenericTypeName = someDualGenericType.getName();
 
-    var r = aggregateManipulator.createGenericT("R", symbolTable);
-    var s = aggregateManipulator.createGenericT("S", symbolTable);
+    var someOuterGenericType = new AggregateSymbol("SomeOuterGenericType", symbolTable);
+    var r = aggregateManipulator.createGenericT("R", someOuterGenericType.getFullyQualifiedName(), symbolTable);
+    var s = aggregateManipulator.createGenericT("S", someOuterGenericType.getFullyQualifiedName(), symbolTable);
+    someOuterGenericType.addTypeParameterOrArgument(r);
+    someOuterGenericType.addTypeParameterOrArgument(s);
 
     //I'm thinking that really this should be the same as someDualGenericTypeName. because it is still fully generic
     var parameterisedWithMoreGenericTypes = namer.apply(someDualGenericType, List.of(r, s));
+    assertEquals("_SomeDualGeneric_A8119AC781DF1B471442DAC7CD4E7ACD9134BA8ED65A9DC2BBF2461A5A4E91E0",
+        parameterisedWithMoreGenericTypes);
 
     //Parameterize with two concrete types
     var parameterisedWithConcreteTypes1 = namer.apply(someDualGenericType, List.of(integerType, dateType));
@@ -140,7 +152,9 @@ final class SimpleGenericsTest {
 
     //Now what happens if parameterized with one concrete and on conceptual type
     //So make another generic type parameter.
-    var t = aggregateManipulator.createGenericT("T", symbolTable);
+    var anotherOuterGenericType = new AggregateSymbol("AnotherOuterGenericType", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", anotherOuterGenericType.getFullyQualifiedName(), symbolTable);
+    anotherOuterGenericType.addTypeParameterOrArgument(t);
 
     var parameterisedWithHalfConcreteTypes1 = namer.apply(someDualGenericType, List.of(t, dateType));
     assertNotEquals(someDualGenericTypeName, parameterisedWithHalfConcreteTypes1);

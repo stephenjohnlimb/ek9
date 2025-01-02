@@ -178,8 +178,9 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
   }
 
   private PossibleGenericSymbol createD1OfTypeX() {
-    var x = aggregateManipulator.createGenericT("X", symbolTable);
     var D1 = new AggregateSymbol("D1", symbolTable);
+    var x = aggregateManipulator.createGenericT("X", D1.getFullyQualifiedName(), symbolTable);
+
     D1.setModuleScope(symbolTable);
     D1.addTypeParameterOrArgument(x);
 
@@ -229,8 +230,9 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
   }
 
   private PossibleGenericSymbol createG1OfTypeP(final PossibleGenericSymbol D1) {
-    var p = aggregateManipulator.createGenericT("P", symbolTable);
     var G1 = new AggregateSymbol("G1", symbolTable);
+    var p = aggregateManipulator.createGenericT("P", G1.getFullyQualifiedName(), symbolTable);
+
     G1.setModuleScope(symbolTable);
     G1.addTypeParameterOrArgument(p);
 
@@ -248,8 +250,9 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
   }
 
   private PossibleGenericSymbol createG2OfTypeQ() {
-    var q = aggregateManipulator.createGenericT("Q", symbolTable);
     var G2 = new AggregateSymbol("G2", symbolTable);
+    var q = aggregateManipulator.createGenericT("Q", G2.getFullyQualifiedName(), symbolTable);
+
     G2.setModuleScope(symbolTable);
     G2.addTypeParameterOrArgument(q);
     symbolTable.define(G2);
@@ -259,10 +262,11 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
 
   private PossibleGenericSymbol createSingleGenericOfTypeT(final PossibleGenericSymbol G1,
                                                            final PossibleGenericSymbol G2) {
-    var t = aggregateManipulator.createGenericT("T", symbolTable);
-    var SingleGeneric = new AggregateSymbol("SingleGeneric", symbolTable);
-    SingleGeneric.setModuleScope(symbolTable);
-    SingleGeneric.addTypeParameterOrArgument(t);
+    var singleGeneric = new AggregateSymbol("SingleGeneric", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", singleGeneric.getFullyQualifiedName(), symbolTable);
+
+    singleGeneric.setModuleScope(symbolTable);
+    singleGeneric.addTypeParameterOrArgument(t);
 
     var g1OfT = creator.apply(G1, List.of(t));
     var g2OfT = creator.apply(G2, List.of(t));
@@ -275,10 +279,10 @@ class MoreCompleteGenericSubstitutionTest extends AbstractSymbolTestBase {
     var arg2 = new VariableSymbol("arg2", g2OfT);
     var arg3 = new VariableSymbol("arg3", g1OfG2OfT);
 
-    aggregateManipulator.addPublicMethod(SingleGeneric, "methodOne", List.of(arg0, arg1, arg2, arg3),
+    aggregateManipulator.addPublicMethod(singleGeneric, "methodOne", List.of(arg0, arg1, arg2, arg3),
         Optional.of(g2OfG1OfT));
 
-    symbolTable.define(SingleGeneric);
-    return SingleGeneric;
+    symbolTable.define(singleGeneric);
+    return singleGeneric;
   }
 }

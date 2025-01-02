@@ -266,7 +266,7 @@ public class PossibleGenericSymbol extends CaptureScopedSymbol implements ICanBe
 
     if (isGenericInNature() && (search.isAnyValidTypeSearch())) {
       for (ISymbol parameterType : getTypeParameterOrArguments()) {
-        if (parameterType.isAssignableTo(search.getAsSymbol())) {
+        if (search.getName().equals(parameterType.getName())) {
           return Optional.of(parameterType);
         }
       }

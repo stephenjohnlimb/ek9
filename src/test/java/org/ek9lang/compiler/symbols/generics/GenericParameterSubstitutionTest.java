@@ -36,9 +36,9 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
     var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
-    var t = aggregateManipulator.createGenericT("T", symbolTable);
-
     var aGenericFunction = new FunctionSymbol("SingleGenericFunction", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", aGenericFunction.getFullyQualifiedName(), symbolTable);
+
     aGenericFunction.setModuleScope(symbolTable);
     aGenericFunction.addTypeParameterOrArgument(t);
 
@@ -82,11 +82,11 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
     var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
-    var t = aggregateManipulator.createGenericT("T", symbolTable);
-    assertTrue(t.isConceptualTypeParameter());
-
     //This will be our generic type that has one or more 'type parameters'
     var aGenericType = new AggregateSymbol("SingleGeneric", symbolTable);
+    var t = aggregateManipulator.createGenericT("T", aGenericType.getFullyQualifiedName(), symbolTable);
+    assertTrue(t.isConceptualTypeParameter());
+
     aGenericType.setModuleScope(symbolTable);
     aGenericType.addTypeParameterOrArgument(t);
 
@@ -113,8 +113,8 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     assertEquals(0, aParameterizedStringType.getSymbolsForThisScope().size());
 
     var expecting = """
-        public SingleGeneric of type T of type String <- _SingleGeneric_C7B334A5597C3F213CB74D5A0DB330083ECDFEBEF4E2FAA7E85B115448FC645F()
-        public SingleGeneric of type T of type String <- _SingleGeneric_C7B334A5597C3F213CB74D5A0DB330083ECDFEBEF4E2FAA7E85B115448FC645F(arg1 as String)
+        public SingleGeneric of type T of type String <- _SingleGeneric_4AAC1A1003CCFCA872875C644A3A3DDFE5DE2AFDE221894D05ECA06623F9C9E3()
+        public SingleGeneric of type T of type String <- _SingleGeneric_4AAC1A1003CCFCA872875C644A3A3DDFE5DE2AFDE221894D05ECA06623F9C9E3(arg1 as String)
         public String <- methodOne(arg0 as Integer, arg1 as String)
         public String <- methodTwo(arg0 as Integer, arg1 as String, arg2 as String)
         public Duration <- methodThree(arg2 as String, arg1 as String, arg0 as Integer)
@@ -134,22 +134,24 @@ class GenericParameterSubstitutionTest extends AbstractSymbolTestBase {
     var parametricResolveOrDefine = new ParametricResolveOrDefine(symbolTable);
     var typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
-    var p = aggregateManipulator.createGenericT("P", symbolTable);
+    var aGenericType = new AggregateSymbol("MultiGeneric", symbolTable);
+
+    var p = aggregateManipulator.createGenericT("P", aGenericType.getFullyQualifiedName(), symbolTable);
     assertTrue(p.isConceptualTypeParameter());
 
-    var q = aggregateManipulator.createGenericT("Q", symbolTable);
+    var q = aggregateManipulator.createGenericT("Q", aGenericType.getFullyQualifiedName(), symbolTable);
     assertTrue(q.isConceptualTypeParameter());
 
-    var r = aggregateManipulator.createGenericT("R", symbolTable);
+    var r = aggregateManipulator.createGenericT("R", aGenericType.getFullyQualifiedName(), symbolTable);
     assertTrue(r.isConceptualTypeParameter());
 
-    var s = aggregateManipulator.createGenericT("S", symbolTable);
+    var s = aggregateManipulator.createGenericT("S", aGenericType.getFullyQualifiedName(), symbolTable);
     assertTrue(s.isConceptualTypeParameter());
 
     //This will be our generic type that has one or more 'type parameters'
     //So a horrible mix of conceptual and concrete parameters.
     //But only 4 that need replacing.
-    var aGenericType = new AggregateSymbol("MultiGeneric", symbolTable);
+
     aGenericType.setModuleScope(symbolTable);
     aGenericType.addTypeParameterOrArgument(p);
     aGenericType.addTypeParameterOrArgument(ek9Integer);

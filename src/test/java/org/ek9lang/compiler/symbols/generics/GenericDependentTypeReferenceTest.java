@@ -17,6 +17,7 @@ import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.symbols.base.AbstractSymbolTestBase;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -98,7 +99,7 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     ErrorListener errorListener = new ErrorListener("test");
     typeSubstitution = new TypeSubstitution(parametricResolveOrDefine, errorListener);
 
-    //make the generics outlines in the ek9 source snip above.
+    //make the generics outline in the ek9 source snip above.
     var SomeGenericOfKandV = createSomeGenericOfKandV();
     assertNotNull(SomeGenericOfKandV);
 
@@ -108,7 +109,7 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     Assertions.assertEquals(3, AnotherGenericOfRandS.getSymbolsForThisScope().size());
 
     //Now need to make 'YetAnotherGeneric of type (X, Y)'
-    var YetAnotherGenericOfXandY = createYetAnotherGenericOfXandY(AnotherGenericOfRandS);
+    var YetAnotherGenericOfXandY = createYetAnotherGenericOfXandY();
     assertNotNull(YetAnotherGenericOfXandY);
     Assertions.assertTrue(YetAnotherGenericOfXandY.isGenericInNature());
     Assertions.assertTrue(YetAnotherGenericOfXandY.isConceptualTypeParameter());
@@ -141,22 +142,31 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     assertResolution("YetAnotherGeneric", SymbolCategory.TEMPLATE_TYPE);
 
     //Concrete types
-    assertResolution("SomeGeneric of (Integer, Duration)", SymbolCategory.TYPE);
     assertResolution("AnotherGeneric of (Float, String)", SymbolCategory.TYPE);
-    assertResolution("SomeGeneric of (Float, String)", SymbolCategory.TYPE);
-    assertResolution("SomeGeneric of (Integer, String)", SymbolCategory.TYPE);
     assertResolution("YetAnotherGeneric of (Dimension, Time)", SymbolCategory.TYPE);
+
+    assertResolution("SomeGeneric of (Integer, String)", SymbolCategory.TYPE);
+    assertResolution("SomeGeneric of (Integer, Duration)", SymbolCategory.TYPE);
+    assertResolution("SomeGeneric of (Float, String)", SymbolCategory.TYPE);
   }
 
   /**
    * Helper method to provide the 'SomeGeneric type of (K, V)'.
    * See the conceptual example at the top of this file.
+   * <pre>
+   * SomeGeneric of type (K, V)
+   *   //Just add one method on this.
+   *   lookup()
+   *     -> arg0 as K
+   *     <- rtn as V
+   * </pre>
    */
   private PossibleGenericSymbol createSomeGenericOfKandV() {
-    var k = aggregateManipulator.createGenericT("K", symbolTable);
-    var v = aggregateManipulator.createGenericT("V", symbolTable);
-
     var someGenericOfKandV = new AggregateSymbol("SomeGeneric", symbolTable);
+    var k = aggregateManipulator.createGenericT("K", someGenericOfKandV.getFullyQualifiedName(), symbolTable);
+    var v = aggregateManipulator.createGenericT("V", someGenericOfKandV.getFullyQualifiedName(), symbolTable);
+
+    someGenericOfKandV.setSourceToken(new Ek9Token());
     someGenericOfKandV.setModuleScope(symbolTable);
     someGenericOfKandV.addTypeParameterOrArgument(k);
     someGenericOfKandV.addTypeParameterOrArgument(v);
@@ -172,13 +182,26 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
   /**
    * Helper method to provide 'AnotherGeneric type of (R, S)'.
    * This needs the someGenericOfKandV type to be able to populate the methods it defines.
+   * <pre>
+   * AnotherGeneric of type (R, S)
+   *    someMethod()
+   *    //So this below is a parameterised type with whatever R and S are going to be
+   *    //But it is still 'conceptual' - hence a reference to SomeGeneric is needed
+   *      -> arg0 as SomeGeneric of (R, S)
+   *    anotherMethod()
+   *    //This is still conceptual because it uses S - hence a reference to SomeGeneric is needed
+   *      -> arg0 as SomeGeneric of (Integer, S)
+   *    concreteMethod()
+   *    //But this results in something that can be parameterised and does NOT depend on R or S
+   *      -> arg0 as SomeGeneric of (Integer, Duration)
+   * </pre>
    */
   private PossibleGenericSymbol createAnotherGenericOfRandS(final PossibleGenericSymbol someGenericOfKandV) {
-    //So starts out same as above - I've done this 'long hand' so it's quite obvious.
-    var r = aggregateManipulator.createGenericT("R", symbolTable);
-    var s = aggregateManipulator.createGenericT("S", symbolTable);
-
     var anotherGenericRandS = new AggregateSymbol("AnotherGeneric", symbolTable);
+    //So starts out same as above - I've done this 'long hand' so it's quite obvious.
+    var r = aggregateManipulator.createGenericT("R", anotherGenericRandS.getFullyQualifiedName(), symbolTable);
+    var s = aggregateManipulator.createGenericT("S", anotherGenericRandS.getFullyQualifiedName(), symbolTable);
+
     anotherGenericRandS.setModuleScope(symbolTable);
     anotherGenericRandS.addTypeParameterOrArgument(r);
     anotherGenericRandS.addTypeParameterOrArgument(s);
@@ -194,12 +217,12 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     return anotherGenericRandS;
   }
 
-  private PossibleGenericSymbol createYetAnotherGenericOfXandY(final PossibleGenericSymbol anotherGenericOfRandS) {
+  private PossibleGenericSymbol createYetAnotherGenericOfXandY() {
     //Again here we go - this is what the compiler will do for - but we need to ensure that everything gets wired up
-    var x = aggregateManipulator.createGenericT("X", symbolTable);
-    var y = aggregateManipulator.createGenericT("Y", symbolTable);
-
     var yetAnotherGenericOfXandY = new AggregateSymbol("YetAnotherGeneric", symbolTable);
+    var x = aggregateManipulator.createGenericT("X", yetAnotherGenericOfXandY.getFullyQualifiedName(), symbolTable);
+    var y = aggregateManipulator.createGenericT("Y", yetAnotherGenericOfXandY.getFullyQualifiedName(), symbolTable);
+
     yetAnotherGenericOfXandY.setModuleScope(symbolTable);
     yetAnotherGenericOfXandY.addTypeParameterOrArgument(x);
     yetAnotherGenericOfXandY.addTypeParameterOrArgument(y);
@@ -223,22 +246,6 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     var yetAnotherMethod = new MethodSymbol("yetAnotherMethod", yetAnotherGenericOfXandY);
     yetAnotherMethod.setType(ek9Void);
     yetAnotherGenericOfXandY.define(yetAnotherMethod);
-    //Now to simulate parsing the method body and registering the dependent types.
-    //In two minds about doing this via references - so leave out for now.
-
-    //'g1 as AnotherGeneric of (Date, Y)'
-    //var g1 = creator.apply(anotherGenericOfRandS, List.of(ek9Date, y));
-    //yetAnotherGenericOfXandY.addGenericSymbolReference(typeSubstitution.apply(g1));
-
-    //'g2 as AnotherGeneric of (X, Boolean)'
-    //var g2 = creator.apply(anotherGenericOfRandS, List.of(x, ek9Boolean));
-    //yetAnotherGenericOfXandY.addGenericSymbolReference(typeSubstitution.apply(g2));
-
-    //'g3 as AnotherGeneric of (String, AnotherGeneric of (X, Y))'
-    //var AnotherGenericOfXandY = creator.apply(anotherGenericOfRandS, List.of(x, y));
-    //var AnotherGenericOfXandYDash = typeSubstitution.apply(AnotherGenericOfXandY);
-    //var g3 = creator.apply(anotherGenericOfRandS, List.of(ek9String, AnotherGenericOfXandYDash));
-    //yetAnotherGenericOfXandY.addGenericSymbolReference(typeSubstitution.apply(g3));
   }
 
   private PossibleGenericSymbol createAnotherGenericOfFloatAndString(
@@ -264,7 +271,7 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
   }
 
   /**
-   * Just ass the method 'lookup' with parameter type K and V.
+   * Just add the method 'lookup' with parameter type K and V.
    */
   private void addLookupMethod(final PossibleGenericSymbol someGenericOfKandV) {
     var kv = someGenericOfKandV.getTypeParameterOrArguments();
@@ -274,6 +281,7 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     var arg0 = new VariableSymbol("arg0", k);
     var rtn = new VariableSymbol("rtn", v);
     var someMethod = new MethodSymbol("lookup", someGenericOfKandV);
+    someMethod.setSourceToken(new Ek9Token());
     someMethod.define(arg0);
     someMethod.setReturningSymbol(rtn);
     someGenericOfKandV.define(someMethod);
@@ -301,7 +309,7 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
                                 final PossibleGenericSymbol anotherGenericRandS) {
 
     //firstly let's make the arg0 we will use as the parameter in the method.
-    var newType = createSomeGenericOfIntegerandS(someGenericOfKandV, anotherGenericRandS);
+    var newType = createSomeGenericOfIntegerAndS(someGenericOfKandV, anotherGenericRandS);
     //So this would be what the compiler would call - but it might be in a difference 'phase'
     var arg0Type = typeSubstitution.apply(newType);
 
@@ -337,16 +345,11 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     var rs = anotherGenericRandS.getTypeParameterOrArguments();
     var created = creator.apply(someGenericOfKandV, rs);
     assertTrue(created.isGenericInNature());
-    //So this means that it is a dependent type.
-    /*
-    if (created.isGenericInNature()) {
-      anotherGenericRandS.addGenericSymbolReference(created);
-    }
-    */
+
     return created;
   }
 
-  private PossibleGenericSymbol createSomeGenericOfIntegerandS(final PossibleGenericSymbol someGenericOfKandV,
+  private PossibleGenericSymbol createSomeGenericOfIntegerAndS(final PossibleGenericSymbol someGenericOfKandV,
                                                                final PossibleGenericSymbol anotherGenericRandS) {
     //These are the steps the compiler will take when creating a parameterised type.
 
@@ -359,13 +362,6 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     var created = creator.apply(someGenericOfKandV, List.of(integerType.get(), s));
     //So a mix of concrete and conceptual types means this should still be conceptual.
     assertTrue(created.isGenericInNature());
-
-    //So this means that it is a dependent type.
-    /*
-    if (created.isGenericInNature()) {
-      anotherGenericRandS.addGenericSymbolReference(created);
-    }
-     */
 
     return created;
   }

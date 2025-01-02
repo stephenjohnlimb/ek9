@@ -16,14 +16,32 @@ import org.ek9lang.core.Digest;
  * This is highly unlikely to ever collide with another combination of generic types and parameters.
  */
 public class InternalNameFor implements BiFunction<PossibleGenericSymbol, List<ISymbol>, String> {
+  private final SameGenericConceptualParameters sameGenericConceptualParameters = new SameGenericConceptualParameters();
+
   @Override
   public String apply(final PossibleGenericSymbol possibleGenericSymbol, final List<ISymbol> typeArguments) {
 
-    final var toDigest = possibleGenericSymbol.getFullyQualifiedName() + typeArguments
+    if (sameGenericConceptualParameters.test(possibleGenericSymbol, typeArguments)) {
+      return possibleGenericSymbol.getFullyQualifiedName();
+    }
+
+    final var baseGenericType = getBaseGenericType(possibleGenericSymbol);
+
+    final var toDigest = baseGenericType.getFullyQualifiedName() + "_" + typeArguments
         .stream()
         .map(ISymbol::getFullyQualifiedName)
         .collect(Collectors.joining("_"));
 
     return "_" + possibleGenericSymbol.getName() + "_" + Digest.digest(toDigest);
+  }
+
+  /**
+   * Given the fact that it is possible to partially parameterize a polymorphic type with
+   * a mix of concrete and conceptual type arguments, we need to get to the base, which means traversing the
+   * hierarchy.
+   */
+  private PossibleGenericSymbol getBaseGenericType(final PossibleGenericSymbol possibleGenericSymbol) {
+    var possibleGenericSuper = possibleGenericSymbol.getGenericType();
+    return possibleGenericSuper.map(this::getBaseGenericType).orElse(possibleGenericSymbol);
   }
 }

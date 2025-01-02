@@ -94,8 +94,11 @@ final class SymbolsTest extends AbstractSymbolTestBase {
 
   @Test
   void testCreateGenericTypeT() {
-    AggregateSymbol t = aggregateManipulator.createGenericT("T", symbolTable);
+    var zee = new AggregateSymbol("Zee", symbolTable);
+    AggregateSymbol t = aggregateManipulator.createGenericT("T", zee.getFullyQualifiedName(), symbolTable);
     assertNotNull(t);
+    zee.addTypeParameterOrArgument(t);
+
     aggregateManipulator.addAllSyntheticOperators(t);
     assertFalse(t.getSymbolsForThisScope().isEmpty());
 

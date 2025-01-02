@@ -15,12 +15,12 @@ class DependentGenericTypesTest extends PhasesTest {
 
   public DependentGenericTypesTest() {
     super("/examples/dependentGenericTypes",
-        List.of("dependent.generic.types"), false, false);
+        List.of("dependent.generic.types"));
   }
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

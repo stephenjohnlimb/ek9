@@ -4,7 +4,6 @@ import static org.ek9lang.compiler.support.CommonValues.SUBSTITUTED;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import org.ek9lang.compiler.ResolvedOrDefineResult;
@@ -31,16 +30,18 @@ import org.ek9lang.core.CompilerException;
  * This now only gets called for the FULL_RESOLUTION phase, prior to the Parameterized types are just
  * a placeholder. Empty of methods, but do have references to the type they are a parameterization of
  * and also dependent generic types.
- * TODO - the main reason that substitution is not working is because of the 'wrong T'.
+ * Note that there are examples of interdependent generic types in ek9 source, these actually
+ * refer to each other and in such scenarios it is inevitable that Generic of type (X, Y) ends up
+ * through references being parameterized with the same 'X' and 'Y'. Resulting in (well) 'Generic of (X, Y),
+ * i.e. not really being parameterized at all. In such situations we already have the generic type.
  * When List of T, Iterator of T are set up and created - as they are the first encountered the 'T'
  * is the same. But Optional of T (that's a different T) when it triggers Iterator of T - the T is
- * from the List of T.
+ * from the List of T. So 'T' is not just a common 'T' it is a 'T' that is scoped and defined within a generic Type.
  * This is a fundamental issue, really it is the fact that T is an unconstrained type that is the important bit.
  * So there error is probably not in here, but in the way I'm defining the Generic type parameters (like T).
  * Where it is K or V or T if it is an unconstrained type then the T is the variable and the type is an aspect of it.
  * However, it could be in some circumstances a T is constrained to be An Integer or some other type.
  * So these constraints also need modelling as a type.
- * I still need the variables of S, T, K, V, T etc for correct replacements but I also need the 'types'.
  */
 public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
 
@@ -49,7 +50,7 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
   /**
    * Deals with the conceptual mappings.
    */
-  private final ConceptualLookupMapping conceptualLookupMapping = new ConceptualLookupMapping();
+  private final PositionalConceptualLookupMapping conceptualLookupMapping = new PositionalConceptualLookupMapping();
 
   private final CheckForDuplicateOperationsOnGeneric checkForDuplicateOperationsOnGeneric;
 
@@ -108,6 +109,16 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
 
     AssertValue.checkTrue("Result must be present", resultingType.isPresent());
     final var rtnType = resultingType.get();
+
+    //Now you may not expect it, but it's possible/probable that a generic type when parameterised with
+    //arguments that fully match its own type parameters will result in just the same generic type being provided.
+    //For example List of type T when parameterised with its own 'T' is still just a 'List of T'.
+
+    if (rtnType == genericSymbol) {
+      //There is no need to substitute anything as this is still just a generic class as passed in.
+      return rtnType;
+    }
+
     final var alreadySubstituted = "TRUE".equals(rtnType.getSquirrelledData(SUBSTITUTED));
 
     //Now mark it early as substituted - because this is recursive and will come back into this function!
@@ -132,7 +143,9 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
     //same trigger for any dependent types.
     final var triggeredByToken = rtnType.getInitialisedBy();
 
-    processAnyReferences(triggeredByToken, genericSymbol, typeMapping);
+    final var parameterizedWithArguments = parameterisedSymbol.getTypeParameterOrArguments();
+
+    processAnyReferences(triggeredByToken, genericSymbol, parameterizedWithArguments);
 
     //Otherwise do the business of changing the types.
     final var symbolsToClone = genericSymbol.getSymbolsForThisScope();
@@ -160,14 +173,16 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
 
   private void processAnyReferences(final IToken triggeredByToken,
                                     final PossibleGenericSymbol genericSymbol,
-                                    final Map<ISymbol, ISymbol> typeMapping) {
+                                    final List<ISymbol> parameterizingArguments) {
+
+    final var typeMapping = conceptualLookupMapping.apply(parameterizingArguments,
+        genericSymbol.getAnyConceptualTypeParameters());
 
     if (!genericSymbol.getGenericSymbolReferences().isEmpty()) {
       for (var genericSymbolReference : genericSymbol.getGenericSymbolReferences()) {
 
-        final var newType = getReplacementType(triggeredByToken, typeMapping, genericSymbolReference);
-
-        AssertValue.checkNotNull("Expecting new type to be created", newType);
+        final var possibleNewType = getReplacementType(triggeredByToken, typeMapping, genericSymbolReference);
+        AssertValue.checkNotNull("Expecting new type to be created", possibleNewType);
       }
     }
   }
@@ -180,17 +195,8 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
    */
   private void replaceTypeParametersWithTypeArguments(final IToken triggeredByToken,
                                                       final PossibleGenericSymbol possibleGenericSymbol,
-                                                      final Map<ISymbol, ISymbol> typeMapping, List<ISymbol> symbols) {
-
-    /*
-    var print = false;
-    //TODO ready for debug and fix of generics.
-    if("Optional of type T of type JSON".equals(possibleGenericSymbol.getFriendlyName())) {
-      print = true;
-      System.out.printf("Substituting on %s%n", possibleGenericSymbol.getFriendlyName());
-    }
-    final var toPrint = print;
-    */
+                                                      final PositionalConceptualLookupMapping.Mapping typeMapping,
+                                                      List<ISymbol> symbols) {
 
     symbols.forEach(symbol -> {
       if (symbol instanceof MethodSymbol methodSymbol) {
@@ -207,24 +213,7 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
 
         if (methodSymbol.isReturningSymbolPresent()) {
           var returningSymbol = methodSymbol.getReturningSymbol();
-          /*
-          final var show = "rtn as Iterator of type T of type T".equals(returningSymbol.getFriendlyName()) && toPrint;
-          if(show) {
-
-            System.out.printf("In  substituting return on method [%s] [%s]%n",
-                methodSymbol.getFriendlyName(),
-                returningSymbol.getFriendlyName());
-          }
-          */
           substituteAsAppropriate(triggeredByToken, typeMapping, returningSymbol);
-          /*
-          if(show) {
-
-            System.out.printf("Now substituting return on method [%s] [%s]%n",
-                methodSymbol.getFriendlyName(),
-                returningSymbol.getFriendlyName());
-          }
-          */
         }
       }
       substituteAsAppropriate(triggeredByToken, typeMapping, symbol);
@@ -233,7 +222,7 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
   }
 
   private void substituteAsAppropriate(final IToken triggeredByToken,
-                                       final Map<ISymbol, ISymbol> typeMapping,
+                                       final PositionalConceptualLookupMapping.Mapping typeMapping,
                                        final ISymbol value) {
 
     final var paramType = value.getType();
@@ -243,31 +232,38 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
   }
 
   private ISymbol getReplacementTypeAsAppropriate(final IToken triggeredByToken,
-                                                  final Map<ISymbol, ISymbol> typeMapping, ISymbol forType) {
+                                                  final PositionalConceptualLookupMapping.Mapping typeMapping,
+                                                  ISymbol forType) {
+
 
     //Have to be aware some types might be generic, others are just simple.
     if (forType instanceof PossibleGenericSymbol couldBeGeneric && couldBeGeneric.isGenericInNature()) {
       return getReplacementType(triggeredByToken, typeMapping, couldBeGeneric);
-    } else if (typeMapping.containsKey(forType)) {
-      return typeMapping.get(forType);
+    } else {
+      for (int i = 0; i < typeMapping.typeParameters().size(); i++) {
+        final var conceptualParameter = typeMapping.typeParameters().get(i);
+        if (conceptualParameter.isExactSameType(forType)) {
+          return typeMapping.typeArguments().get(i);
+        }
+      }
     }
 
     return forType;
   }
 
   private ISymbol getReplacementType(final IToken triggeredByToken,
-                                     final Map<ISymbol, ISymbol> typeMapping,
+                                     final PositionalConceptualLookupMapping.Mapping typeMapping,
                                      final PossibleGenericSymbol forType) {
 
     //This is a scenario where we have 'D1 of type X of type P' i.e. conceptual.
     //So if we are now to replace the 'P' with something we need to go all the way down!
     //because this could be a 'D1 of type (X, Y, Z) of type (P, Date, G2 of (P, P))
 
-    final var theGenericType = forType.getGenericType();
-    AssertValue.checkTrue("Must have a generic type for [" + forType.getFriendlyName() + "]",
-        theGenericType.isPresent());
+    //But we may also just be in a simple case of forType being the generic type!
+    //In addition, it is possible the type has been parameterised with its own parameters again!
+    //So thats not really a new type.
 
-    final var genericType = theGenericType.get();
+    final var genericType = forType.getGenericType().isPresent() ? forType.getGenericType().get() : forType;
     final var newTypeArguments = new ArrayList<ISymbol>();
 
     for (var typeArgument : forType.getTypeParameterOrArguments()) {
@@ -289,7 +285,8 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
 
   /**
    * Does not define the new symbol in the enclosing scope, because constructors must have their name altered
-   * Only then can the be added to the enclosing scope via 'define.
+   * Only then can there
+   * .be added to the enclosing scope via 'define.
    */
   private List<ISymbol> cloneWithEnclosingScope(final List<ISymbol> symbols, final IScope enclosingScope) {
 

@@ -40,7 +40,7 @@ class MinimalGenericBootStrapTest {
   final Supplier<List<CompilableSource>> sourceSupplier =
       () -> List.of(new CompilableSource(Objects.requireNonNull(getClass().getResource(
           "/examples/bootstrap/org-ek9-lang.ek9")).getPath()));
-  private final CompilerReporter reporter = new CompilerReporter(false, false);
+  private final CompilerReporter reporter = new CompilerReporter(true, false);
   private final Supplier<CompilationPhaseListener> listener
       = () -> compilationEvent -> {
     var source = compilationEvent.source();
@@ -52,6 +52,8 @@ class MinimalGenericBootStrapTest {
   @Test
   void basicMinimalBootStrap() {
     final var underTest = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), reporter);
+    //This shared context will now hold all the elements of the code as defined in:
+    //"/examples/bootstrap/org-ek9-lang.ek9"
     final var sharedContext = underTest.get();
 
     //Precondition before we even start to try and really test anything.
@@ -71,7 +73,7 @@ class MinimalGenericBootStrapTest {
     var concreteListType = resolveListOfString(program);
     var ek9String = assertCanResolveTypesViaAggregate(concreteListType, "String");
 
-    var nameToResolve = "_List_5A526831B9118422B1770505E4E6E766FB887E59BF3A6211393E89E45ED18237";
+    var nameToResolve = "_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1";
     assertEquals(nameToResolve, concreteListType.getName());
 
     //So we would expect to resolve constructors with this name, with no argument and also with same type.
@@ -140,12 +142,12 @@ class MinimalGenericBootStrapTest {
     assertFalse(concreteListType.isInjectionExpected());
     assertFalse(concreteListType.isMarkedPure());
 
-    //A bit strange I know - but this is how EK9 creates a new specific type from a generic and it is deterministic
-    //So no type erasure.
-    assertEquals("_List_5A526831B9118422B1770505E4E6E766FB887E59BF3A6211393E89E45ED18237",
+    //A bit strange I know - but this is how EK9 creates a new specific type from a generic and,
+    //it is deterministic; so no type erasure.
+    assertEquals("_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1",
         concreteListType.getName());
-    assertEquals("List of type T of type String", concreteListType.getFriendlyName());
-    assertEquals("org.ek9.lang::_List_5A526831B9118422B1770505E4E6E766FB887E59BF3A6211393E89E45ED18237",
+    assertEquals("List of type L of type String", concreteListType.getFriendlyName());
+    assertEquals("org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1",
         concreteListType.getFullyQualifiedName());
 
   }
@@ -164,8 +166,8 @@ class MinimalGenericBootStrapTest {
     assertNoArgMethodReturningType("first", concreteListType, ek9String);
     assertNoArgMethodReturningType("last", concreteListType, ek9String);
     assertNoArgMethodReturningType("reverse", concreteListType, concreteListType);
-    //TODO fix defect
-    //assertNoArgMethodReturningType("~", concreteListType, concreteListType);
+
+    assertNoArgMethodReturningType("~", concreteListType, concreteListType);
 
     assertNoArgMethodReturningType("#<", concreteListType, ek9String);
     assertNoArgMethodReturningType("#>", concreteListType, ek9String);
@@ -264,7 +266,11 @@ class MinimalGenericBootStrapTest {
       }
       assertTrue(method.isReturningSymbolPresent());
       assertTrue(method.getReturningSymbol().getType().isPresent());
-      assertTrue(ek9ReturnType.isExactSameType(method.getReturningSymbol().getType().get()));
+      final var returningType = method.getReturningSymbol().getType().get();
+      if(!ek9ReturnType.isExactSameType(returningType)) {
+        System.out.println("Why");
+      }
+      assertTrue(ek9ReturnType.isExactSameType(returningType));
       return method;
     }
     fail("Expecting a method symbol");
@@ -294,7 +300,10 @@ class MinimalGenericBootStrapTest {
 
     //Ensure not just a 'type' but known to be a template (generic) type.
     assertFalse(scope.resolve(new TypeSymbolSearch("List")).isPresent());
+
     assertTrue(scope.resolve(new TemplateTypeSymbolSearch("List")).isPresent());
+    assertTrue(scope.resolve(new TemplateTypeSymbolSearch("Optional")).isPresent());
+    assertTrue(scope.resolve(new TemplateTypeSymbolSearch("Iterator")).isPresent());
 
   }
 

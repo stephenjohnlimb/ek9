@@ -344,6 +344,13 @@ public class Symbol implements ISymbol {
   public String getFullyQualifiedName() {
 
     final var rtn = getName();
+    final var prefix = getSquirrelledData(CommonValues.GENERIC_PARENT);
+
+    //This 'isConceptualTypeParameter' not just for 'T' but also conceptual types
+    if (this.isConceptualTypeParameter() && prefix != null) {
+
+      return INaming.makeFullyQualifiedName(prefix, rtn);
+    }
 
     //Consider squirreling scopeName at construction.
     return getParsedModule().map(m -> INaming.makeFullyQualifiedName(m.getScopeName(), rtn)).orElse(rtn);
@@ -353,11 +360,6 @@ public class Symbol implements ISymbol {
    * Checks if the type match exactly.
    */
   public boolean isExactSameType(final ISymbol symbolType) {
-
-    //If this is a T or U or whatever then just use the name as is.
-    if (this.isConceptualTypeParameter()) {
-      return getName().equals(symbolType.getName());
-    }
 
     final var thisFullyQualified = getFullyQualifiedName();
     final var thatFullyQualified = symbolType.getFullyQualifiedName();

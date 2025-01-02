@@ -279,19 +279,22 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   @Test
   void testParameterisedTypeSymbolScope() {
-    var t = aggregateManipulator.createGenericT("Tee", symbolTable);
-    var z = createTemplateGenericType(symbolTable, t);
-    symbolTable.define(z);
+    var zee = new AggregateSymbol("Zee", symbolTable);
+    zee.setModuleScope(symbolTable);
 
-    assertEquals("Zee of type Tee", z.getFriendlyName());
+    var t = aggregateManipulator.createGenericT("Tee", zee.getFullyQualifiedName(), symbolTable);
+    zee.addTypeParameterOrArgument(t);
+    symbolTable.define(zee);
+
+    assertEquals("Zee of type Tee", zee.getFriendlyName());
 
     //Check it is possible resolve 'Tee' from within 'Zee'
-    var resolvedTee = z.resolve(new TypeSymbolSearch("Tee"));
+    var resolvedTee = zee.resolve(new TypeSymbolSearch("Tee"));
     assertTrue(resolvedTee.isPresent());
     var resolvedString = symbolTable.resolve(new TypeSymbolSearch("String"));
     assertTrue(resolvedString.isPresent());
     //This would be a concrete Zee with a concrete type of String to replace 'Tee'
-    var pTypeSymbol = creator.apply(z, List.of(resolvedString.get()));
+    var pTypeSymbol = creator.apply(zee, List.of(resolvedString.get()));
     var clonedPTypeSymbol = checkScopedSymbol(pTypeSymbol);
     assertNotNull(clonedPTypeSymbol);
     assertEquals("Zee of type Tee of type String", pTypeSymbol.getFriendlyName());
@@ -299,11 +302,14 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   @Test
   void testParameterisedFunctionSymbolScope() {
-    var t = aggregateManipulator.createGenericT("Tee", symbolTable);
-    var fun = createTemplateGenericFunction(symbolTable, t);
+    var fun = new FunctionSymbol("fun", symbolTable);
+    fun.setModuleScope(symbolTable);
+
+    var t = aggregateManipulator.createGenericT("Tee", fun.getFullyQualifiedName(), symbolTable);
+    fun.addTypeParameterOrArgument(t);
     symbolTable.define(fun);
 
-    //We've not defined the return type of the function
+    //We've not defined the return type of the function, so at this point it will be "Unknown"
     Assertions.assertEquals("Unknown <- fun() of type Tee", fun.getFriendlyName());
 
     //Check it is possible resolve Tee from within 'fun'
@@ -523,15 +529,5 @@ final class ScopesTest extends AbstractSymbolTestBase {
     return clonedSymbol;
   }
 
-  private AggregateSymbol createTemplateGenericType(IScope enclosingScope, AggregateSymbol teeSymbol) {
-    var rtn = new AggregateSymbol("Zee", enclosingScope, List.of(teeSymbol));
-    rtn.setModuleScope(enclosingScope);
-    return rtn;
-  }
 
-  private FunctionSymbol createTemplateGenericFunction(IScope enclosingScope, AggregateSymbol teeSymbol) {
-    var rtn = new FunctionSymbol("fun", enclosingScope, List.of(teeSymbol));
-    rtn.setModuleScope(enclosingScope);
-    return rtn;
-  }
 }

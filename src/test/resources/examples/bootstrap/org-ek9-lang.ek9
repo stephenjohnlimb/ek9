@@ -43,6 +43,9 @@ defines extern module org.ek9.lang
       Integer() as pure
         -> arg0 as Integer
 
+      operator ? as pure
+        <- rtn as Boolean?
+
     Float as open
       Float() as pure
 
@@ -77,64 +80,64 @@ defines extern module org.ek9.lang
 
   defines function
 
-    Supplier of type T as pure abstract
-      <- r as T?
+    Supplier of type S as pure abstract
+      <- r as S?
 
-    Producer of type T as abstract
-      <- r as T?
+    Producer of type P as abstract
+      <- r as P?
 
-    Consumer of type T as pure abstract
-      -> t as T
+    Consumer of type C as pure abstract
+      -> t as C
 
-    BiConsumer of type (T, U) as pure abstract
+    BiConsumer of type (B, C) as pure abstract
       ->
-        t as T
-        u as U
+        t as B
+        u as C
 
-    Acceptor of type T as abstract
-      -> t as T
+    Acceptor of type A as abstract
+      -> t as A
 
-    BiAcceptor of type (T, U) as abstract
+    BiAcceptor of type (B, A) as abstract
       ->
-        t as T
-        u as U
+        t as B
+        u as A
 
-    UnaryOperator of type T as pure abstract
-      -> t as T
-      <- r as T?
+    UnaryOperator of type U as pure abstract
+      -> t as U
+      <- r as U?
 
-    Function of type (T, R) as pure abstract
-      -> t as T
+    Function of type (F, R) as pure abstract
+      -> t as F
       <- r as R?
 
-    BiFunction of type (T, U, R) as pure abstract
+    BiFunction of type (F, I, R) as pure abstract
       ->
-        t as T
-        u as U
+        t as F
+        u as I
       <- r as R?
 
-    Predicate of type T as pure abstract
-      -> t as T
+    Predicate of type P as pure abstract
+      -> t as P
       <- r as Boolean?
 
     <?-
       Similar in concept to a Predicate, but not pure. Can mutate data.
     -?>
-    Assessor of type T as abstract
-      -> t as T
+    Assessor of type A as abstract
+      -> t as A
       <- r as Boolean?
 
-    BiPredicate of type (T, U) as pure abstract
+    BiPredicate of type (B, P) as pure abstract
       ->
-        t as T
-        u as U
+        t as P
+        u as P
       <-
         r as Boolean?
 
-    Comparator of type T as pure abstract
+    Comparator of type C as pure abstract
       ->
-        t1 as T
-        t2 as T
+        t1 as C
+        t2 as C
       <-
         r as Integer?
 
@@ -144,11 +147,23 @@ defines extern module org.ek9.lang
 
   defines class
 
-    Iterator of type T as abstract
+    Iterator of type I as abstract
       Iterator() as pure
 
-    Optional of type T
+      next() as pure
+        <- rtn as I?
+
+      operator ? as pure
+        <- rtn as Boolean?
+
+    Optional of type O
       Optional() as pure
+
+      get() as pure
+        <- rtn as O?
+
+      operator ? as pure
+        <- rtn as Boolean?
 
     Dict of type (K, V) as open
       Dict() as pure
@@ -163,69 +178,63 @@ defines extern module org.ek9.lang
       This is the main item under test in MinimalGenericBootStrapTest.java
     -!>
     @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE: "List"
-    List of type T as open
+    List of type L as open
       List() as pure
 
       List() as pure
-        -> arg0 as T
+        -> arg0 as L
 
       <?-
         Check bounds or use iterator, else if out of bounds and exception will be thrown.
       -?>
       get() as pure
         -> index as Integer
-        <- rtn as T?
+        <- rtn as L?
 
       first() as pure
-        <- rtn as T?
+        <- rtn as L?
 
       last() as pure
-        <- rtn as T?
+        <- rtn as L?
 
       reverse() as pure
-        <- rtn as List of T?
+        <- rtn as List of L?
 
-      <!-
-      //TODO add Iterator in later
       iterator() as pure
-        <- rtn as Iterator of T?
-      -!>
+        <- rtn as Iterator of L?
 
-      <!-
-      TODO sort out generics error: 'List of type T of type T' is not 'List of type T
       operator ~ as pure
-        <- rtn as List of T?
-      -!>
+        <- rtn as List of L?
 
       operator == as pure
-        -> arg as List of T
+        -> arg as List of L
         <- rtn as Boolean?
 
       operator <> as pure
-        -> arg as List of T
+        -> arg as List of L
         <- rtn as Boolean?
 
       operator + as pure
-        -> arg as List of T
-        <- rtn as List of T?
+        -> arg as List of L
+        <- rtn as List of L?
 
       operator + as pure
-        -> arg as T
-        <- rtn as List of T?
+        -> arg as L
+        <- rtn as List of L?
 
       operator - as pure
-        -> arg as List of T
-        <- rtn as List of T?
+        -> arg as List of L
+        <- rtn as List of L?
 
       operator - as pure
-        -> arg as T
-        <- rtn as List of T?
+        -> arg as L
+        <- rtn as List of L?
 
       operator #< as pure
-        <- rtn as T?
+        <- rtn as L?
 
       operator #> as pure
-        <- rtn as T?
+        <- rtn as L?
 
       operator $ as pure
         <- rtn as String?
@@ -243,31 +252,47 @@ defines extern module org.ek9.lang
         <- rtn as Integer?
 
       operator contains as pure
-        -> arg as T
+        -> arg as L
         <- rtn as Boolean?
 
       operator :~:
-        -> arg as List of T
+        -> arg as List of L
 
       operator :^:
-        -> arg as List of T
+        -> arg as List of L
 
       operator :=:
-        -> arg as List of T
+        -> arg as List of L
 
       operator |
-        -> arg as T
+        -> arg as L
 
       operator +=
-        -> arg as List of T
+        -> arg as List of L
 
       operator +=
-        -> arg as T
+        -> arg as L
 
       operator -=
-        -> arg as List of T
+        -> arg as List of L
 
       operator -=
-        -> arg as T
+        -> arg as L
+
+  defines function
+    sumFunction() of type S as open
+      -> item as List of S
+      <- rtn as S := S()
+      assert item?
+      iter as Iterator of S: item.iterator()
+      //I'm getting a I here and not an S!
+      rtn: iter.next()
+
+    testFunction1()
+      l1 <- [1, 4, 9]
+
+      summaryFunction <- () is sumFunction of Integer as function
+      total <- summaryFunction(l1)
+      assert total?
 
 //EOF

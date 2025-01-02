@@ -51,7 +51,8 @@ class FunctionFactory extends CommonFactory {
       newFunction.setGenus(SymbolGenus.FUNCTION_TRAIT);
     }
 
-    final var parameterisedSymbols = createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), moduleScope);
+    final var parameterisedSymbols =
+        createAndRegisterParameterisedSymbols(ctx.parameterisedParams(), newFunction, moduleScope);
     if (!parameterisedSymbols.isEmpty()) {
       //Now need to register against the class we are creating
       parameterisedSymbols.forEach(newFunction::addTypeParameterOrArgument);
