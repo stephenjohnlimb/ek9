@@ -434,7 +434,9 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
         return weight;
       }
 
+      //If we can assign via its super, then we're done.
       canAssign = 0.05 + weight;
+      return canAssign;
     }
 
     if (canAssign >= 0.0 && s instanceof AggregateSymbol toCheck) {

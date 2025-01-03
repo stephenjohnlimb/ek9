@@ -14,13 +14,15 @@ defines module generics.scenario.one
       key as K?
       value as V?
 
+      default private GC()
+
       GC()
         ->
           key as K
           value as V
-        //TODO detect this as an error, because key and value are not set
-        this.key :=: key
-        this.value :=: value
+
+        this.key: key
+        this.value: value
 
       name()
         <- result as V: value

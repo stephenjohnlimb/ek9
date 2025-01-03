@@ -16,9 +16,7 @@ class ExamplesExtendingGenericScenariosTest extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
-    //TODO fix up as generic as super is not quite working correctly.
-    //This is because it does not look like the super type is being set when extending from a parameterised generic type
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

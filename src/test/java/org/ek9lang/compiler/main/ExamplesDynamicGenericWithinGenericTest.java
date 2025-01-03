@@ -16,8 +16,7 @@ class ExamplesDynamicGenericWithinGenericTest extends PhasesTest {
 
   @Test
   void testPhasedDevelopment() {
-    //TODO fix up as generic as super is not quite working correctly.
-    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

@@ -16,14 +16,17 @@ defines module bad.use.dynamics.generics
         ->
           key as K
           value as V
-        this.key :=: key
-        this.value :=: value
+        this.key: key
+        this.value: value
 
       key()
         <- rtn as K: key
 
       value()
         <- rtn as V: value
+
+      operator ? as pure
+        <- rtn as Boolean: true
 
   defines function
     @Resolved: SYMBOL_DEFINITION: TEMPLATE_FUNCTION: "AGenericFunction"
@@ -44,6 +47,7 @@ defines module bad.use.dynamics.generics
         //TODO fix this up as should be able to consider access via is super naming.
         //Generics issue.
         dClass1 as AGenericClass of (P, Q) := () is AGenericClass of (P, Q) as class
+        assert dClass1?
 
       someMethodForDynamicFunctions()
         dFun1 as AGenericFunction of P := () is AGenericFunction of P as function
