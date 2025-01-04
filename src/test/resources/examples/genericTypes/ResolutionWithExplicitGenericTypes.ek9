@@ -37,7 +37,7 @@ defines module general.generic.checks
       AGenericClass()
         -> arg0 as T
         //make a copy
-        item :=: arg0
+        item: T(arg0)
 
       item()
         <- rtn as T: item
@@ -64,6 +64,10 @@ defines module general.generic.checks
     @Resolved: SYMBOL_DEFINITION: TYPE: "ExampleClass"
     ExampleClass
       value <- "Steve"
+
+      ExampleClass()
+        -> arg0 as ExampleClass
+        this.value: String(arg0.value)
 
       value()
         <- rtn as String: value

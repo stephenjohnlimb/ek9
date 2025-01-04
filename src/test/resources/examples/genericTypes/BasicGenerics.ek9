@@ -32,7 +32,9 @@ defines module net.customer.inferred
     SomeTestList of type T as open
 
       aTest as T?
-              
+
+      default private SomeTestList() as pure
+
       //Constructor
       SomeTestList() as pure
         -> item as T

@@ -60,7 +60,9 @@ defines module com.utils
       //Couple of properties to hang on to
       currentState as T?
       listener as FSMListener of T?
-      
+
+      default private FSM()
+
       <?-
         Simple constructor so we can infer generic type when used.
       -?>

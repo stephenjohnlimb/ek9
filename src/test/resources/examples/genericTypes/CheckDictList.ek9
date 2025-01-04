@@ -91,11 +91,11 @@ defines module com.customer.streams.build
       
     idToAddams() as abstract
       -> id as Integer
-      <- rtn as Optional of Addams?
+      <- rtn as Addams?
     
     idToGetAddams() as abstract
       -> id as Integer
-      <- rtn as Optional of getAddams?
+      <- rtn as getAddams?
         
     toString
       -> item as Integer
@@ -306,7 +306,7 @@ defines module com.customer.streams.build
           }
 
         //Now we can use some of the data.
-        results as List of String: List()
+        results <- List() of String
         stdout.println("First with iterator")
         keyIter <- idNameDictionary.keys()
         while keyIter is not empty
@@ -314,7 +314,8 @@ defines module com.customer.streams.build
           name <- idNameDictionary.get(key)
           if name?
             results += `Key ${key} with name ${name}`
-        
+        assert results?
+
         //Some keys that won't ever be found
         invalidValues <- [9, 10, 100]
             
@@ -368,17 +369,17 @@ defines module com.customer.streams.build
         //Now we've used the previous iterator up so need new ones 
         keys1B <- idNameDictionary.keys()
         keys2B <- invalidValues.iterator()
-        validAddams <- cat keys1B, keys2B | map with recordMapping | flatten | collect as List of Addams
+        validAddams <- cat keys1B, keys2B | map with recordMapping | collect as List of Addams
         stdout.println("validAddams " + $ validAddams)
 
         //Function to map Integer id to a function that can get Addams record
         functionMapping <- (idFunctionDictionary) extends idToGetAddams as function
-          rtn: Optional(idFunctionDictionary.get(id))
+          rtn: idFunctionDictionary.get(id)
         
         keys1C <- idNameDictionary.keys()
         keys2C <- invalidValues.iterator()
         //Note map id to Optional of function getAddams then flatten to get the function and call it, collect result
-        addamsFamily <- cat keys1C, keys2C | map with functionMapping | flatten | call | collect as List of Addams
+        addamsFamily <- cat keys1C, keys2C | map with functionMapping | call | collect as List of Addams
         stdout.println("AddamsFamily " + $ addamsFamily)
 
         //Be nice to cat an iterator! Well now you can!
@@ -389,9 +390,8 @@ defines module com.customer.streams.build
         stdout.println("Just Find Gomez")  
         found <- idFunctionDictionary.get(1)
         
-        if found?          
-          m <- found.get()
-          item <- $m()
+        if found?
+          item <- $found()
           stdout.println(item)
         
       //End of methods

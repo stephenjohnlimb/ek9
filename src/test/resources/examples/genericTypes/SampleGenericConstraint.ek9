@@ -40,6 +40,11 @@ defines module com.customer.sample
         <- rtn as Boolean: shapeInfo?
 
     Circle is Shape
+
+      private Circle() as pure
+        -> info as String
+        assert info?
+
       Circle() as pure
         super("Circle")
 
@@ -47,6 +52,11 @@ defines module com.customer.sample
         <- rtn as Float: 0.0
 
     Square is Shape
+
+      private Square() as pure
+        -> info as String
+        assert info?
+
       Square() as pure
         super("Square")
 
@@ -107,7 +117,7 @@ defines module com.customer.sample
       stdout <- Stdout()
       stdout.println("Driver for generic event handler and generic processor")
 
-      eventProcessor as GenericShapeEventProcessor of Shape: GenericShapeEventProcessor()
+      eventProcessor <- GenericShapeEventProcessor() of Shape
 
       shapeHandler <- (eventProcessor) is eventHandler of Shape as function
         eventProcessor.processShapeEvent(shape)

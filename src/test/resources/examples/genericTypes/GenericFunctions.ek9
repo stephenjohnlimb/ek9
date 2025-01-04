@@ -63,8 +63,6 @@ defines module net.customer.generic.functions
     //sumFunction of Integer
     
     //Now introduced the '(' ')' so that you can have generics of generics
-    //So code parses via syntax but BasicEK9PhaseListener: 193 needs to workout what to do!
-    //TODO
     mapFunction of (List of Integer, Integer)
 
   defines class

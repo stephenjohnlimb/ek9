@@ -87,15 +87,15 @@ defines module com.customer.dynamic.streams.build
       
     nameToDate() as abstract
       -> name as String
-      <- rtn as Optional of Date?
+      <- rtn as Date?
       
     idToAddams() as abstract
       -> id as Integer
-      <- rtn as Optional of Addams?
+      <- rtn as Addams?
     
     idToGetAddams() as abstract
       -> id as Integer
-      <- rtn as Optional of getAddams?
+      <- rtn as getAddams?
         
     toString
       -> item as Integer
@@ -198,7 +198,7 @@ defines module com.customer.dynamic.streams.build
       cat l3 | filter by isSet > stdout
 
       //Can also capture values via tee
-      storedValues as List of Integer := List()
+      storedValues <- List() of Integer
       cat l3 | filter by isSet | tee in storedValues > stdout
       stdout.println("List storedValues is " + $storedValues)
       
@@ -265,7 +265,7 @@ defines module com.customer.dynamic.streams.build
           }
 
         //Now we can use some of the data.
-        results as List of String: List()
+        results <- List() of String
         stdout.println("First with iterator")
         keyIter <- idNameDictionary.keys()
         while keyIter is not empty
@@ -273,7 +273,9 @@ defines module com.customer.dynamic.streams.build
           name <- idNameDictionary.get(key)
           if name?
             results += "Key " + $key + " with name " + $name
-        
+
+        assert results?
+
         //Some keys that won't ever be found
         invalidValues <- [9, 10, 100]
             
@@ -301,7 +303,9 @@ defines module com.customer.dynamic.streams.build
           | map with (idNameDictionary) is idToString (rtn: Optional(idNameDictionary.get(id)))
           | flatten
           | collect as List of String          
-        
+
+        assert additionalValues?
+
         //A second dynamic function that will be used to get the date of birth
         dateMapping <- (nameDateDictionary) extends nameToDate as function
           rtn: nameDateDictionary.get(name)
@@ -314,7 +318,6 @@ defines module com.customer.dynamic.streams.build
           | map with nameMapping
           | flatten
           | map with dateMapping
-          | flatten
           |collect as List of Date
 
         stdout.println("validDates " + $ validDates)
@@ -326,7 +329,7 @@ defines module com.customer.dynamic.streams.build
         //Now we've used the previous iterator up so need new ones 
         keys1B <- idNameDictionary.keys()
         keys2B <- invalidValues.iterator()
-        validAddams <- cat keys1B, keys2B | map with recordMapping | flatten | collect as List of Addams
+        validAddams <- cat keys1B, keys2B | map with recordMapping | collect as List of Addams
         stdout.println("validAddams " + $ validAddams)
         
         keys1C <- idNameDictionary.keys()
@@ -335,7 +338,6 @@ defines module com.customer.dynamic.streams.build
         
         addamsFamily <- cat keys1C, keys2C
           | map with (idFunctionDictionary) extends idToGetAddams (rtn: idFunctionDictionary.get(id))
-          | flatten
           | call
           | collect as List of Addams
           
@@ -349,9 +351,8 @@ defines module com.customer.dynamic.streams.build
         stdout.println("Just Find Gomez")  
         found <- idFunctionDictionary.get(1)
         
-        if found?          
-          m <- found.get()
-          item <- $m()
+        if found?
+          item <- $found()
           stdout.println(item)
 
         

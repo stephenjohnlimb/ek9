@@ -2768,11 +2768,8 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             iterator() as pure
               <- rtn as Iterator of T?
 
-            <!-
-            TODO sort out generics error: 'List of type T of type T' is not 'List of type T
             operator ~ as pure
               <- rtn as List of T?
-            -!>
                             
             operator == as pure
               -> arg as List of T

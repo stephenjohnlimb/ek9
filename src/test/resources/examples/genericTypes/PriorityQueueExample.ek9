@@ -1,7 +1,7 @@
 #!ek9
 
 <?-
-  Little test drive of the Priority Queue generic class that is built in
+  Little test drive of the Priority Queue generic class that is built in to EK9.
 -?>
 defines module com.customer.priority.example
 
@@ -29,7 +29,9 @@ defines module com.customer.priority.example
 
       testMethod()
 
-        q1 as PriorityQueue of String := PriorityQueue().useSize(5)
+        //Make a priority queue, but get it to create a new one with specific size.
+        //Note the use of parenthesis to enable 'dot' object access.
+        q1 <- (PriorityQueue() of String).useSize(5)
         
         people <- ["Steve", "Mary", "Mungo", "Midge", "Cain"]
         q1 += people
@@ -44,7 +46,7 @@ defines module com.customer.priority.example
         assert q?
         stdout <- Stdout()
         iter <- q.list().iterator()
-        stdout.println("Queue List is[")
+        stdout.println("Queue List is [")
         while iter?
           stdout.println("PQ " + iter.next())          
         stdout.println("]")

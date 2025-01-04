@@ -6,8 +6,7 @@ defines module com.customer.just
     ShowOptionalType()
       stdout <- Stdout()
 
-      //TODO fix generics fails on 'cat maybeInteger' still thinks it is 'T' not an Integer.
-      maybeInteger as Optional of Integer: Optional()
+      maybeInteger <- Optional() of Integer
 
       stdout.println("Nothing to follow")
       //Nothing will be output
@@ -26,7 +25,7 @@ defines module com.customer.just
       stdout.println("Try lists")
 
       //fully qualified declaration
-      emptyOptionals as List of Optional of Integer: List()
+      emptyOptionals as List of Optional of Integer: List() of Optional of Integer
       assert emptyOptionals?
 
       //type inference mechanism
@@ -36,6 +35,7 @@ defines module com.customer.just
 
       //But could have been defined like this
       someOptionals <- [maybeInteger, item1, Optional(14)]
+      assert someOptionals?
 
       cat aListOfOptionals | flatten > stdout
 
@@ -45,7 +45,8 @@ defines module com.customer.just
 
       //But you could have also done this
       sum: cat [maybeInteger, item1, Optional(14)] | flatten | collect as Integer
-      
+      assert sum?
+
       iter <- item1.iterator()
       while iter is not empty //could have been just iter?
         stdout.println("Value [" + $iter.next() + "]")

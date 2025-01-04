@@ -1,4 +1,17 @@
 #!ek9
+<?-
+  This example demonstrated a typical misunderstanding.
+  EmailAddress does not have a 'super' of String
+  so MyList cannot be used with EmailAddress, because MyList is constrained to String.
+
+  This will be a common misunderstanding - because even I get it wrong!
+  The idea of the 'type' with constrain is to quickly make a new very strong type
+  that is broadly based on another type - but with very strict limitations (i.e. the constraints)
+  But the two types (the new one and the base of the constraint) are not polymorphically compatible.
+  This is 'by design', I do not want (in this example) 'EmailAddress' to be considered to be a sub type of 'String'.
+  It really is not - a String is much more general, I want a very strong type for EmailAddress and Ok it does
+  have to have Characters but it is really not compatible with 'String'.
+-?>
 defines module net.customer.constrained
 
   defines type
@@ -13,7 +26,7 @@ defines module net.customer.constrained
     MyList of type T constrain by String
 
       aTest as T := T()
-      
+
       //Constructor
       MyList() as pure
         -> item as T
@@ -43,6 +56,8 @@ defines module net.customer.constrained
 
 
     //Lets try to define an MyOptional generic class but limit it to a MyList of EmailAddress
+    //This proves that EmailAddress is not compatible with String (even though it is constrained by being like a String)
+    @Error: POST_RESOLUTION_CHECKS: INCOMPATIBLE_TYPES
     MyOptional of type O constrain by MyList of EmailAddress
       
       someVar as O?
@@ -56,8 +71,6 @@ defines module net.customer.constrained
       set()
         -> param as O
         someVar := param
-        //If 'O' were an abstract type this would fail when creating the 
-        other as O: O()
       
       //Get the item back again
       get()
@@ -84,6 +97,7 @@ defines module net.customer.constrained
         assert otherStringMyList?
 
         //But look I can have a MyList of EmailAddress because that extends String - even though only very simply as a type
+        //NO this is wrong EmailAddress is constrained to be String like, but it does not have a super that is a String.
         emailMyList as MyList of EmailAddress := MyList() of EmailAddress
         assert emailMyList?
 
@@ -92,13 +106,14 @@ defines module net.customer.constrained
 
         //Now lets check type compatibility - no issues here
         otherStringMyList := simple
-        
+        assert otherStringMyList?
+
         //But this is not allowed - as they are separate classes/types
         //emailMyList := otherStringMyList
         
         //Now some optionals - generates the same code but look at the simplicity if you are a consumer of these generics
         
-        myMyOptional as MyOptional of MyList of EmailAddress := MyOptional()
+        myMyOptional <- MyOptional() of MyList of EmailAddress
         assert myMyOptional?
 
         //Can I say this - well yes I can (not sure I want to).

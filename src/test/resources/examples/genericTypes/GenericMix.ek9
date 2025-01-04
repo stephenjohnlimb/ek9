@@ -24,7 +24,10 @@ defines module net.customer.generic.mix
     MyList of type T
 
       aTest as T?
-       
+
+      //Forced by compiler to define this
+      default private MyList() as pure
+
       //Constructor
       MyList() as pure
         -> item as T
@@ -48,7 +51,9 @@ defines module net.customer.generic.mix
     MyOptional of type T
       
       someVar as T?
-      
+
+      default private MyOptional()
+
       //Simple constructor taking the item to wrap
       MyOptional
         -> item as T

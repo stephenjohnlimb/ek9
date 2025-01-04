@@ -6,7 +6,7 @@ defines module bad.constrainedtype.examples2
 
   defines trait
     <?-
-      To be used in tests that prove traits cannot be used as a constratined type.
+      To be used in tests that prove traits cannot be used as a constrained type.
     -?>
     T1
       operator == as pure

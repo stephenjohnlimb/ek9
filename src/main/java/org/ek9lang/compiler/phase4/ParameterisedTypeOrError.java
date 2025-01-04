@@ -102,7 +102,7 @@ final class ParameterisedTypeOrError implements Consumer<PossibleGenericSymbol> 
       }
 
       final var methodSearch = createSearch(method, aggregateT, typeTuple.typeArgumentForT);
-      final var resolved = aggregateArgType.resolveInThisScopeOnly(methodSearch);
+      final var resolved = aggregateArgType.resolve(methodSearch);
 
       resolved.ifPresentOrElse(
           resolvedSymbol -> constructorArgumentNotAbstractOrError(typeTuple, resolvedSymbol),

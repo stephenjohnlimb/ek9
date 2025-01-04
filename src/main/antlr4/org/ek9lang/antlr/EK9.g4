@@ -432,9 +432,11 @@ expression
     | <assoc=right> control=expression LEFT_ARROW left=expression ternary=(COLON|ELSE) right=expression
     ;
 
+//Wrap parameterisedType with '(' and ')' to enable use with .method() after creation.
 call
     : identifierReference paramExpression
     | parameterisedType
+    | LPAREN parameterisedType RPAREN
     | primaryReference paramExpression
     | dynamicFunctionDeclaration
     | call paramExpression
