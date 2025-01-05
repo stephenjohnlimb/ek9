@@ -24,7 +24,6 @@
  * with a real parameterizing argument (type), that type did not actually implement the 'equality' operator. Hence, the
  * generic type cannot actually be used with the parameterizing argument (type). An error must be emitted for this.
  * </p>
- *
  */
 
 package org.ek9lang.compiler.phase4;

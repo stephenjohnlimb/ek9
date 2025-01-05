@@ -27,13 +27,13 @@
  *   prop1 as String?
  * </pre>
  * <p>
- *   In such cases the EK9 compiler will mandate that the EK9 developer create all necessary coded constructors,
- *   it will <b>not</b> mandate that that 'prop1' is then initialised - it will leave that to the Ek9 developer to
- *   'take the risk' and understand what may or may not go wrong in their code.
+ * In such cases the EK9 compiler will mandate that the EK9 developer create all necessary coded constructors,
+ * it will <b>not</b> mandate that that 'prop1' is then initialised - it will leave that to the Ek9 developer to
+ * 'take the risk' and understand what may or may not go wrong in their code.
  * </p>
  * <p>
- *   Ideally, all properties and variables are always declared in initialised form (even if the value is 'un-set').
- *   But this cannot always be mandated, so the EK9 compiler has some tolerance for these uninitialised variables.
+ * Ideally, all properties and variables are always declared in initialised form (even if the value is 'un-set').
+ * But this cannot always be mandated, so the EK9 compiler has some tolerance for these uninitialised variables.
  * </p>
  */
 
