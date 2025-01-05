@@ -10,6 +10,9 @@ import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 
+/**
+ * Checks if return variables are initialised.
+ */
 final class ReturningVariableOrError extends TypedSymbolAccess
     implements BiConsumer<IScope, EK9Parser.OperationDetailsContext> {
   ReturningVariableOrError(final SymbolsAndScopes symbolsAndScopes,

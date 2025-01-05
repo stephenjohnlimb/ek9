@@ -10,6 +10,9 @@ import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.common.UninitialisedVariableToBeChecked;
 
 
+/**
+ * Emits an error if an identifier (typically a variable) has been used before being initialised.
+ */
 final class IdentifierReferenceOrError extends TypedSymbolAccess
     implements Consumer<EK9Parser.IdentifierReferenceContext> {
 

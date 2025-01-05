@@ -14,10 +14,9 @@
  * symbols and scopes.
  * </p>
  * <p>
- * This is the phase that is 'in progress' and is quite complex because it involves processing 'calls' and
+ * This phase is quite complex because it involves processing 'calls' and
  * 'expressions'. There are also lot's more rules that can now be applied, because all 'types' are present.
  * </p>
- * <p>...</p>
  */
 
 package org.ek9lang.compiler.phase3;

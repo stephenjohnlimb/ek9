@@ -6,6 +6,9 @@ import java.util.function.ObjIntConsumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.common.ErrorListener;
 
+/**
+ * Emit error if there are too many arguments. More than 7 arguments is too many.
+ */
 class AcceptableArgumentComplexityOrError implements ObjIntConsumer<Token> {
 
   private final ComplexityCounter complexityCounter;

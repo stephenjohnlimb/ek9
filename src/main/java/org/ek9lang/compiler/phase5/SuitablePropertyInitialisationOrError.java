@@ -18,7 +18,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  * there are sometimes (but not always) better ways.
  * This should cause the EK9 developer to consider alternatives and if they still believe this to be the best
  * solution to consider initialisation inside a Constructor.
- * THis is not mandatory, but is very likely to lead to defects, so this is an attempt at making this issue more
+ * This is not mandatory, but is very likely to lead to defects, so this is an attempt at making this issue more
  * obvious.
  */
 class SuitablePropertyInitialisationOrError extends TypedSymbolAccess implements Consumer<ParseTree> {
