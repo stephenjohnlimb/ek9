@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase3;
+package org.ek9lang.compiler.phase5;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -9,22 +9,25 @@ import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
- * Just tests bad construction of generics in an assignment.
+ * Focus on use of the EK9 Result type.
+ * Both valid and invalid use.
  */
-class BadGenericConstructionsTest extends PhasesTest {
+class ResultAccessTest extends PhasesTest {
 
-  public BadGenericConstructionsTest() {
-    super("/examples/parseButFailCompile/inferredConstructionOfGenerics",
-        List.of("bad.generic.constructions"));
+  public ResultAccessTest() {
+    super("/examples/parseButFailCompile/phase5BadResultUse",
+        List.of("error.on.result.access"), true, false);
   }
 
   @Test
   void testPhaseDevelopment() {
+    //Move to PRE_IR_CHECKS when implementing Result method access.
     testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
+
   }
 }

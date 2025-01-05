@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.support;
 
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.NOT_A_TEMPLATE;
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.RESULT_MUST_HAVE_DIFFERENT_TYPES;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +43,9 @@ public abstract class ResolverOrDefiner extends RuleSupport {
 
     if (details.genericTypeSymbol() instanceof PossibleGenericSymbol genericTypeSymbol) {
 
+      if (ek9ResultWithSameParameterizingTypes(details.location(), genericTypeSymbol, details.typeArguments())) {
+        return Optional.empty();
+      }
       if (errorIfNotGeneric(details.location(), genericTypeSymbol)
           || errorIfInvalidParameters(details.location(), genericTypeSymbol, details.typeArguments())) {
         return Optional.empty();
@@ -67,6 +71,25 @@ public abstract class ResolverOrDefiner extends RuleSupport {
     }
 
     return Optional.empty();
+  }
+
+  private boolean ek9ResultWithSameParameterizingTypes(final IToken errorLocation,
+                                                       final PossibleGenericSymbol genericTypeSymbol,
+                                                       final List<ISymbol> types) {
+    //If early in processing might not be set yet.
+    final var ek9Types = symbolsAndScopes.getEk9Types();
+    if (ek9Types != null
+        && ek9Types.ek9Result().isExactSameType(genericTypeSymbol) && types.size() == 2
+        && types.get(0).isExactSameType(types.get(1))) {
+
+      final var params = new ToCommaSeparated(true).apply(types);
+      final var msg = params + " cannot be used to parameterize: '" + genericTypeSymbol.getFriendlyName() + "':";
+      errorListener.semanticError(errorLocation, msg, RESULT_MUST_HAVE_DIFFERENT_TYPES);
+      return true;
+
+
+    }
+    return false;
   }
 
   private boolean errorIfNotGeneric(final IToken token, final ISymbol genericType) {

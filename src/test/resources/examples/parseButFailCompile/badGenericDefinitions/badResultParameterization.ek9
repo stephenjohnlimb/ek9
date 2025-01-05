@@ -1,0 +1,10 @@
+#!ek9
+defines module bad.result.parameterization
+
+  defines function
+
+    notAllowedWithSameType() as abstract
+      @Error: SYMBOL_DEFINITION: RESULT_MUST_HAVE_DIFFERENT_TYPES
+      <- rtn as Result of (String, String)?
+
+//EOF

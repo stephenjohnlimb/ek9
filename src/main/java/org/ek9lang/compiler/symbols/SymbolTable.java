@@ -271,11 +271,14 @@ public class SymbolTable implements IScope {
         .filter(MethodSymbol.class::isInstance)
         .map(MethodSymbol.class::cast).toList();
 
-    Optional.of(getSplitSymbolTable(SymbolCategory.METHOD))
+    final var methods = Optional.of(getSplitSymbolTable(SymbolCategory.METHOD))
         .stream()
         .map(table -> getSymbolByName(table, search.getName()))
         .map(methodSymbolCast)
-        .forEach(methodList -> matcher.addMatchesToResult(result, search, methodList));
+        .toList();
+
+    //Left like this to aid debugging.
+    methods.forEach(methodList -> matcher.addMatchesToResult(result, search, methodList));
 
     return result;
   }

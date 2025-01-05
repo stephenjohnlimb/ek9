@@ -1,0 +1,138 @@
+#!ek9
+defines module error.on.result.access
+
+  <?-
+    Note that it is possible to get a Result that is both OK, but also has some form or error.
+    This is possible and maybe desirable in some situations, where even though an error occurred
+    a value was still produced (perhaps a default value for example).
+  -?>
+  defines function
+
+    <?-
+      Example of how to get a Result that is both OK, but also does have an error.
+      So in this example, if arg0 is unset, then it checks (using the ternary).
+      If present then a Result with that value in is returned and Integer error is unset.
+      But if arg0 is not set, then the 'Default' is used and an error code of -1
+      (indicating there is an error and some other value was provided).
+      Clearly the error type could be more than just an Integer, it could be any type.
+    -?>
+    getResultOKButAlsoWithError() as pure
+      -> arg0 as String
+      <- rtn as Result of (String, Integer)?
+      rtn :=? arg0? <- Result(arg0, Integer()) else Result("Default", -1)
+
+    <?-
+      Example of how to get a Result using a simple constructor with an OK result
+    -?>
+    getResult1() as pure
+      -> arg0 as String
+      <- rtn as Result of (String, Integer): Result(arg0, Integer())
+
+    <?-
+      Example of how to get a Result using a simple constructor with an Error result
+    -?>
+    getResult2() as pure
+      -> arg0 as Integer
+      <- rtn as Result of (String, Integer): Result(String(), arg0)
+
+    <?-
+      Example of how to get a Result using a constructor and then to use that to get just an OK result.
+    -?>
+    getResult3() as pure
+      -> arg0 as String
+      <- rtn as Result of (String, Integer): Result(String(), Integer()).okResult(arg0)
+
+    <?-
+      Example of how to get a Result using a constructor and then to use that to get just an Error result.
+    -?>
+    getResult4() as pure
+      -> arg0 as Integer
+      <- rtn as Result of (String, Integer): Result(String(), Integer()).errorResult(arg0)
+
+    someAcceptor()
+      -> arg0 as String
+      assert arg0?
+
+    someConsumer() as pure
+      -> arg0 as String
+      assert arg0?
+
+    someErrorAcceptor()
+      -> arg0 as Integer
+      assert arg0?
+
+    someErrorConsumer() as pure
+      -> arg0 as Integer
+      assert arg0?
+
+    <?-
+      Demonstration of getting any one of the results from above.
+      Now it is possible to just pass in an acceptor or consumer
+      (EK9 will set the super functions for the above to be Acceptor of T or Consumer of T as appropriate).
+      Note all these calls are possible without doing a call to ? isOk before accessing ok() and also
+      isError before accessing error() (in a block).
+    -?>
+    testAccessResult()
+      r <- getResult1("Steve")
+
+      r.whenOk(someAcceptor)
+      r.whenOk(someConsumer)
+
+      r.whenError(someErrorAcceptor)
+      r.whenError(someErrorConsumer)
+
+      //Now you can also check if the result is in error or ok like this
+      //But remember it is also possible the the result itself is 'un-set' so neither Ok nor Error.
+      assert r.isOk() or r.isError()
+
+      //Now if you are expecting a specific OK value - you can do this.
+      hasOkSteve <- r contains "Steve"
+      assert hasOkSteve?
+
+      maybeTheOkValue <- String()
+      //You can also do this quite safely - because if there is no OK value - the iterator will return false for hasNext()
+      while iter <- r.iterator() then iter.hasNext()
+        maybeTheOkValue :=: iter.next()
+
+      //So if it was set then you'd have the value (or a copy of it)
+      assert maybeTheOkValue?
+
+    testImplicitUseOfResult()
+      //So this will be fine as an implicit declaration and initialisation of a Result
+      r1 <- Result("OK", Float())
+      assert r1?
+
+    <?-
+      Demonstrate that Ok values that are a String can be piped into the Result
+    -?>
+    testPipeOfSuccessValue()
+      r <- cat ["Steve"] | collect as Result of (String, Integer)
+      assert r.isOk()
+      assert r contains "Steve"
+
+    <?-
+      Demonstrate that Error values that are an Integer can be piped into the Result
+    -?>
+    testPipeOfErrorValue()
+      r <- cat [1] | collect as Result of (String, Integer)
+      assert not r.isOk()
+      assert r contains 1
+
+    testPipeOfOkAndError()
+      okValue <- "Steve"
+      errorValue <- 1
+
+      //A bit convoluted, could have just done 'Result(okValue, errorValue)'
+      r <- Result(String(), Integer())
+      cat [okValue] > r
+      cat [errorValue] > r
+      assert r.isOk() and r.isError()
+
+    <?-
+      Now a check that detects that the EK9 developer has not called isOk() before the ok() method.
+      There is also a test for checking isError is called before calling error().
+    -?>
+    testCompilerErrorWhenAccessBeforeCheckingOk()
+      assert todo
+
+//EOF

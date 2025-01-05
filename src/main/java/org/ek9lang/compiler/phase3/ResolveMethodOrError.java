@@ -68,6 +68,10 @@ final class ResolveMethodOrError extends TypedSymbolAccess
     if (results.isAmbiguous()) {
       emitAmbiguousMatch(errorLocation, searchOnAggregate, msgStart, results);
     } else if (results.isEmpty()) {
+      //For debug:
+      searchOnAggregate.scopeToSearch()
+          .resolveMatchingMethods(searchOnAggregate.search(), new MethodSymbolSearchResult());
+
       emitMethodNotResolved(errorLocation, searchOnAggregate, msgStart);
     }
 

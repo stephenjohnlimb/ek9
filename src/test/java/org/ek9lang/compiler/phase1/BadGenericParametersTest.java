@@ -15,7 +15,7 @@ class BadGenericParametersTest extends PhasesTest {
 
   public BadGenericParametersTest() {
     super("/examples/parseButFailCompile/badGenericDefinitions",
-        List.of("incorrect.parameters.on.constructors"));
+        List.of("incorrect.parameters.on.constructors", "bad.result.parameterization"));
   }
 
   @Test

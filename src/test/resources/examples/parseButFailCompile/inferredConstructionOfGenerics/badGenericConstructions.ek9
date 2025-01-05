@@ -177,4 +177,9 @@ defines module bad.generic.constructions
       var as G2 of (Integer, Integer): G2()
       assert var?
 
+    CheckInferredInvalidResultParameterization()
+      //But this must not be allowed, Result must have two different types.
+      @Error: FULL_RESOLUTION: RESULT_MUST_HAVE_DIFFERENT_TYPES
+      r <- Result("Steve", "Error")
+
 //EOF

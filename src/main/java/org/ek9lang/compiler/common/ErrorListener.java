@@ -605,6 +605,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     TEMPLATE_TYPES_NOT_EXTENSIBLE("Template/Generic types cannot be extended"),
     TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION("Template/Generic requires parameterization"),
     NOT_A_TEMPLATE("as it is not 'template/generic' in nature"),
+    RESULT_MUST_HAVE_DIFFERENT_TYPES("EK9 Result must be used with two different types"),
     DISPATCHERS_NOT_EXTENDABLE("extension is not possible"),
     DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED("only one method can be marked as a dispatcher entry point"),
     INVALID_NUMBER_OF_PARAMETERS("invalid number of parameters"),

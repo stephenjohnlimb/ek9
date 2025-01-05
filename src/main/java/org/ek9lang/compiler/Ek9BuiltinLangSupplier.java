@@ -2933,6 +2933,14 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 ok as O
                 error as E
 
+            okResult() as pure
+              -> arg0 as O
+              <- rtn as Result of (O, E)?
+
+            errorResult() as pure
+              -> arg0 as E
+              <- rtn as Result of (O, E)?
+                            
             <?-
               Check if the result is Ok or not.
             -?>
@@ -2956,13 +2964,13 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             <?-
               If the result has a valid ok value the acceptor will be called.
             -?>
-            whenOK()
+            whenOk()
               -> acceptor as Acceptor of O
 
             <?-
               If the result has a valid ok value the consumer will be called.
             -?>
-            whenOK() as pure
+            whenOk() as pure
               -> consumer as Consumer of O
 
             <?-
@@ -3015,17 +3023,15 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator #? as pure
               <- rtn as Integer?
 
-            operator #< as pure
-              <- rtn as O?
-              
-            operator #> as pure
-              <- rtn as E?
-
             operator empty as pure
               <- rtn as Boolean?
 
             operator contains as pure
               -> arg as O
+              <- rtn as Boolean?
+              
+            operator contains as pure
+              -> arg as E
               <- rtn as Boolean?
 
             operator :~:
@@ -3039,7 +3045,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator |
               -> arg as O
-                
+              
+            operator |
+              -> arg as E
+                              
           PriorityQueue of type T as open
             PriorityQueue() as pure
 
