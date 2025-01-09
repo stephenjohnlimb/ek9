@@ -429,7 +429,11 @@ expression
     | left=expression IS? neg=NOT? IN right=expression
     | left=expression op=(AND | XOR | OR) NL? right=expression
     | expression IS? neg=NOT? IN range
-    | <assoc=right> control=expression LEFT_ARROW left=expression ternary=(COLON|ELSE) right=expression
+    | <assoc=right> control=expression LEFT_ARROW ternaryPart ternary=(COLON|ELSE) ternaryPart
+    ;
+
+ternaryPart
+    : expression
     ;
 
 //Wrap parameterisedType with '(' and ')' to enable use with .method() after creation.

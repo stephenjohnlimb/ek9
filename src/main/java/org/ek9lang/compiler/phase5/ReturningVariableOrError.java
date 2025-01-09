@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase5;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.RETURN_NOT_ALWAYS_INITIALISED;
 
 import java.util.function.BiConsumer;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
@@ -29,21 +30,23 @@ final class ReturningVariableOrError extends TypedSymbolAccess
         .filter(ISymbol::isReturningParameter).toList();
 
     returningVariables.forEach(variable -> {
+      //This is OK if there is a block - but what if the return has been set with a single statement?
       if (ctx.instructionBlock() != null) {
-        updateReturningSymbol(ctx, variable, mainScope);
+        updateReturningSymbol(ctx.instructionBlock(), variable, mainScope);
+      }
+      if (ctx.returningParam() != null) {
+        updateReturningSymbol(ctx.returningParam(), variable, mainScope);
       }
       initialisedOrError(ctx.returningParam(), variable, mainScope);
     });
 
   }
 
-  private void updateReturningSymbol(final EK9Parser.OperationDetailsContext ctx,
+  private void updateReturningSymbol(final ParseTree node,
                                      final ISymbol variable,
                                      final IScope scope) {
 
-    final var instructionsScope = symbolsAndScopes.getRecordedScope(ctx.instructionBlock());
-    //So now we're at the end of the instruction processing lets see if the return variable was set by the end.
-    //Remember only exceptions can cause early return and then the return value is not used.
+    final var instructionsScope = symbolsAndScopes.getRecordedScope(node);
     if (symbolsAndScopes.isVariableInitialised(variable, instructionsScope)) {
       symbolsAndScopes.markSymbolAsInitialised(variable, scope);
     }

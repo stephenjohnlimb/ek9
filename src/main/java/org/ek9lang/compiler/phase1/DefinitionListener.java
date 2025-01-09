@@ -752,6 +752,21 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   }
 
   /**
+   * Need to define a scope for the parts of the ternary expressions.
+   * This is used later when assessing if Result/Option ok/error/get access is safe.
+   */
+  @Override
+  public void enterTernaryPart(final EK9Parser.TernaryPartContext ctx) {
+
+    final IScope outerScope = symbolsAndScopes.getTopScope();
+    final var location = ctx.start.getLine() + "-" + ctx.start.getCharPositionInLine();
+    final var catchScope = new LocalScope("Ternary-part-line-" + location, outerScope);
+    symbolsAndScopes.enterNewScope(catchScope, ctx);
+
+    super.enterTernaryPart(ctx);
+  }
+
+  /**
    * This is a key event as it in effect causes the current scope to fail with abnormal termination.
    * Note down that this scope has encountered an exception at this line number
    * but not if it already has encountered one.
@@ -853,7 +868,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   public void enterReturningParam(final EK9Parser.ReturningParamContext ctx) {
 
     final IScope scope = symbolsAndScopes.getTopScope();
-    final LocalScope returningScope = new LocalScope("Returning Param", scope);
+    final LocalScope returningScope = new LocalScope("Returning-param-" + ctx.start.getLine(), scope);
     symbolsAndScopes.enterNewScope(returningScope, ctx);
 
     super.enterReturningParam(ctx);

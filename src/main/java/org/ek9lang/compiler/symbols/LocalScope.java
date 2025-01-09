@@ -65,7 +65,7 @@ public class LocalScope extends SymbolTable {
   @Override
   public int hashCode() {
 
-    int result = super.hashCode();
+    int result = this.getScopeName().hashCode();
     result = 31 * result + getScopeType().hashCode();
 
     return result;

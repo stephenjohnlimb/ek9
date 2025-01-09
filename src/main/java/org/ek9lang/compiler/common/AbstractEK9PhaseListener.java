@@ -364,6 +364,12 @@ public abstract class AbstractEK9PhaseListener extends EK9BaseListener {
   }
 
   @Override
+  public void exitTernaryPart(EK9Parser.TernaryPartContext ctx) {
+    symbolsAndScopes.exitScope();
+    super.exitTernaryPart(ctx);
+  }
+
+  @Override
   public void exitBlock(final EK9Parser.BlockContext ctx) {
 
     symbolsAndScopes.exitScope();

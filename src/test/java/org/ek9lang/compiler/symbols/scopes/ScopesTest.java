@@ -214,19 +214,12 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   @Test
   void testScopedSymbolBasics() {
-    VariableSymbol v1 =
-        new VariableSymbol("v3", symbolTable.resolve(new TypeSymbolSearch("Integer")));
 
     var scopedSymbol1 = new ScopedSymbol("scopedSymbol1", symbolTable);
     var alsoNamedScopedSymbol1 = new ScopedSymbol("scopedSymbol1", symbolTable);
-    var anotherNamedScopedSymbol1 = new ScopedSymbol("scopedSymbol1", symbolTable);
-
+    
     assertEquals(scopedSymbol1.hashCode(), alsoNamedScopedSymbol1.hashCode());
     assertEquals(scopedSymbol1, alsoNamedScopedSymbol1);
-
-    anotherNamedScopedSymbol1.define(v1);
-    assertNotEquals(scopedSymbol1.hashCode(), anotherNamedScopedSymbol1.hashCode());
-    assertNotEquals(scopedSymbol1, anotherNamedScopedSymbol1);
 
     //Even though it has the same name, it is a different 'type' of scope.
     var localScope = new LocalScope("scopedSymbol1", symbolTable);

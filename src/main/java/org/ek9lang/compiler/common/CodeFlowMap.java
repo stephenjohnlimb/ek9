@@ -80,8 +80,7 @@ class CodeFlowMap implements CodeFlowAnalyzer {
   public void recordSymbol(final ISymbol identifierSymbol, final IScope inScope) {
 
     if (isVariableToBeChecked.test(identifierSymbol)) {
-      ensureEnclosingScopeHasVariable(identifierSymbol, inScope);
-      getOrCreateSymbolAccess(identifierSymbol, inScope);
+      getSymbolAccessForVariable(identifierSymbol, inScope);
     }
 
   }
@@ -93,9 +92,8 @@ class CodeFlowMap implements CodeFlowAnalyzer {
   public void markSymbolAsMeetingAcceptableCriteria(final ISymbol identifierSymbol, final IScope inScope) {
 
     if (isVariableToBeChecked.test(identifierSymbol)) {
-      ensureEnclosingScopeHasVariable(identifierSymbol, inScope);
-      final var access = getOrCreateSymbolAccess(identifierSymbol, inScope);
-      markAsMeetingCriteria.accept(access.get(identifierSymbol));
+      final var access = getSymbolAccessForVariable(identifierSymbol, inScope);
+      markAsMeetingCriteria.accept(access);
     }
 
   }
@@ -144,7 +142,7 @@ class CodeFlowMap implements CodeFlowAnalyzer {
     }
 
     //Recursive call to get same but from enclosing scope.
-    final var toReturn = getSymbolAccessForVariable(identifierSymbol, enclosingScope);
+    final var toCopy = getSymbolAccessForVariable(identifierSymbol, enclosingScope);
 
     //Now as this was not present for the 'fromScope' we need to add it in and populate with the values from toReturn
     //In this way we always ensure that whatever the scope path (even when variables were not accessed in intermediate
@@ -153,7 +151,8 @@ class CodeFlowMap implements CodeFlowAnalyzer {
     //So we have to make the entry if not present for scope or variable and then copy of the values from the
     //enclosing scope - this scope may then mutate them or add to them - but we don't want to affect the enclosing scope
     final var map = getOrCreateSymbolAccess(identifierSymbol, fromScope);
-    map.get(identifierSymbol).metaData().addAll(toReturn.metaData());
+    final var toReturn = map.get(identifierSymbol);
+    toReturn.metaData().addAll(toCopy.metaData());
 
     return toReturn;
   }
@@ -164,12 +163,8 @@ class CodeFlowMap implements CodeFlowAnalyzer {
   private Map<ISymbol, SymbolAccess> getOrCreateSymbolAccess(final ISymbol identifierSymbol,
                                                              final IScope inScope) {
 
-    final var access = accessMap.getOrDefault(inScope, new HashMap<>());
-    final var identifierEntry = access.getOrDefault(identifierSymbol, new SymbolAccess(new HashSet<>()));
-
-    //Put either way even if present.
-    access.put(identifierSymbol, identifierEntry);
-    accessMap.put(inScope, access);
+    final var access = accessMap.computeIfAbsent(inScope, k -> new HashMap<>());
+    access.computeIfAbsent(identifierSymbol, k -> new SymbolAccess(new HashSet<>()));
 
     return access;
   }

@@ -16,13 +16,13 @@ class ResultAccessTest extends PhasesTest {
 
   public ResultAccessTest() {
     super("/examples/parseButFailCompile/phase5BadResultUse",
-        List.of("error.on.result.access"), true, false);
+        List.of("error.on.result.access"));
   }
 
   @Test
   void testPhaseDevelopment() {
     //Move to PRE_IR_CHECKS when implementing Result method access.
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override

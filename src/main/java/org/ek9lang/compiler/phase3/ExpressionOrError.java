@@ -33,6 +33,7 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
   private final ControlIsBooleanOrError controlIsBooleanOrError;
   private final CommonTypeSuperOrTraitOrError commonTypeSuperOrTraitOrError;
   private final AccessLeftAndRightOrError accessLeftAndRightOrError;
+  private final AccessTernaryExpressionsOrError accessTernaryExpressionsOrError;
   private final SymbolFromContextOrError symbolFromContextOrError;
   private final IsConvertableToStringOrError isConvertableToStringOrError;
 
@@ -54,6 +55,7 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
     this.controlIsBooleanOrError = new ControlIsBooleanOrError(symbolsAndScopes, errorListener);
     this.commonTypeSuperOrTraitOrError = new CommonTypeSuperOrTraitOrError(symbolsAndScopes, errorListener);
     this.accessLeftAndRightOrError = new AccessLeftAndRightOrError(symbolsAndScopes, errorListener);
+    this.accessTernaryExpressionsOrError = new AccessTernaryExpressionsOrError(symbolsAndScopes, errorListener);
     this.symbolFromContextOrError = new SymbolFromContextOrError(symbolsAndScopes, errorListener);
     this.isConvertableToStringOrError = new IsConvertableToStringOrError(symbolsAndScopes, errorListener);
 
@@ -210,7 +212,7 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
     final var start = new Ek9Token(ctx.start);
     //First lets gather the 'expressions' because if they are not there then there's little we can do here.
     final var control = symbolFromContextOrError.apply(ctx.control);
-    final var leftAndRight = toList.apply(accessLeftAndRightOrError.apply(ctx));
+    final var leftAndRight = toList.apply(accessTernaryExpressionsOrError.apply(ctx));
 
     if (control != null && !leftAndRight.isEmpty()) {
       //So do the checks, this will result in errors being emitted if the values are not acceptable.

@@ -42,6 +42,9 @@ public class SymbolsAndScopes {
   private final ScopeStack scopeStack;
   private final CodeFlowAnalyzer uninitialisedVariableAnalyzer = new UninitialisedVariableAnalyzer();
   private final CodeFlowAnalyzer unSafePropertyAccessAnalyzer = new UnSafePropertyAccessAnalyzer();
+  private final CodeFlowAnalyzer unSafeOkResultAccessAnalyzer = new UnSafeGenericAccessAnalyzer("OK_SAFE_ACCESS");
+  private final CodeFlowAnalyzer unSafeErrorResultAccessAnalyzer = new UnSafeGenericAccessAnalyzer("ERROR_SAFE_ACCESS");
+  private final CodeFlowAnalyzer unSafeGetOptionalAccessAnalyzer = new UnSafeGenericAccessAnalyzer("GET_SAFE_ACCESS");
 
   /**
    * Create a new instance for symbol and scope management.
@@ -111,6 +114,24 @@ public class SymbolsAndScopes {
     uninitialisedVariableAnalyzer.recordSymbol(identifierSymbol, inScope);
   }
 
+  public void recordDeclarationOfVariableUsingResult(final ISymbol identifierSymbol) {
+    if (identifierSymbol.getSquirrelledData(CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS) == null) {
+      //Given the logic required to detect whether an identifier needs a check - just record a flag.
+      identifierSymbol.putSquirrelledData(CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS, "TRUE");
+      identifierSymbol.putSquirrelledData(CommonValues.RESULT_ERROR_ACCESS_REQUIRES_SAFE_ACCESS, "TRUE");
+      unSafeOkResultAccessAnalyzer.recordSymbol(identifierSymbol, this.getTopScope());
+      unSafeErrorResultAccessAnalyzer.recordSymbol(identifierSymbol, this.getTopScope());
+    }
+  }
+
+  public void recordDeclarationOfVariableUsingOptional(final ISymbol identifierSymbol) {
+    //Given the logic required to detect whether an identifier needs a check - just record a flag.
+    if (identifierSymbol.getSquirrelledData(CommonValues.OPTIONAL_GET_ACCESS_REQUIRES_SAFE_ACCESS) == null) {
+      identifierSymbol.putSquirrelledData(CommonValues.OPTIONAL_GET_ACCESS_REQUIRES_SAFE_ACCESS, "TRUE");
+      unSafeGetOptionalAccessAnalyzer.recordSymbol(identifierSymbol, this.getTopScope());
+    }
+  }
+
   /**
    * Record an identifier was assigned and therefore initialised.
    */
@@ -152,10 +173,42 @@ public class SymbolsAndScopes {
   /**
    * true if identifier is safe to access.
    */
-  public boolean isSymbolAccessSafe(final ISymbol identifierSymbol, final IScope inScope) {
+  public boolean isSymbolAccessSafe(final ISymbol identifierSymbol) {
 
-    return unSafePropertyAccessAnalyzer.doesSymbolMeetAcceptableCriteria(identifierSymbol, inScope);
+    return unSafePropertyAccessAnalyzer.doesSymbolMeetAcceptableCriteria(identifierSymbol, getTopScope());
+  }
 
+  public void markOkResultAccessSafe(final ISymbol identifierSymbol, final IScope inScope) {
+
+    unSafeOkResultAccessAnalyzer.markSymbolAsMeetingAcceptableCriteria(identifierSymbol, inScope);
+
+  }
+
+  public boolean isOkResultAccessSafe(final ISymbol identifierSymbol) {
+
+    return unSafeOkResultAccessAnalyzer.doesSymbolMeetAcceptableCriteria(identifierSymbol, getTopScope());
+  }
+
+  public void markErrorResultAccessSafe(final ISymbol identifierSymbol, final IScope inScope) {
+
+    unSafeErrorResultAccessAnalyzer.markSymbolAsMeetingAcceptableCriteria(identifierSymbol, inScope);
+
+  }
+
+  public boolean isErrorResultAccessSafe(final ISymbol identifierSymbol) {
+
+    return unSafeErrorResultAccessAnalyzer.doesSymbolMeetAcceptableCriteria(identifierSymbol, getTopScope());
+  }
+
+  public void markGetOptionalAccessSafe(final ISymbol identifierSymbol, final IScope inScope) {
+
+    unSafeGetOptionalAccessAnalyzer.markSymbolAsMeetingAcceptableCriteria(identifierSymbol, inScope);
+
+  }
+
+  public boolean isGetOptionalAccessSafe(final ISymbol identifierSymbol) {
+
+    return unSafeGetOptionalAccessAnalyzer.doesSymbolMeetAcceptableCriteria(identifierSymbol, getTopScope());
   }
 
   /**

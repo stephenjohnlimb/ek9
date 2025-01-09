@@ -455,7 +455,6 @@ public class Symbol implements ISymbol {
 
     return (o instanceof Symbol symbol)
         && notMutable == symbol.notMutable
-        && squirrelledAway.equals(symbol.squirrelledAway)
         && getCategory() == symbol.getCategory()
         && getGenus() == symbol.getGenus()
         && getName().equals(symbol.getName());
@@ -464,8 +463,7 @@ public class Symbol implements ISymbol {
   @Override
   public int hashCode() {
 
-    int result = squirrelledAway.hashCode();
-    result = 31 * result + getCategory().hashCode();
+    int result = getCategory().hashCode();
     result = 31 * result + getGenus().hashCode();
     result = 31 * result + getName().hashCode();
     result = 31 * result + (notMutable ? 1 : 0);

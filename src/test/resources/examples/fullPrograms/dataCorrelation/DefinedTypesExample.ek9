@@ -19,7 +19,6 @@ defines module worked.example
       optionsHandler <- OptionsHandler()
       options <- optionsHandler.processCommandLine(argv)
 
-      //TODO fix generics issue missing contains operator - but it is defined on 'Dict'
       verboseMode <- options contains "-v"
       debugLevel <- optionsHandler.processDebugLevel(verboseMode, options.get("-d"))
 
@@ -318,20 +317,20 @@ defines module worked.example
         <- rtn <- Dict() of (String, CustomerRecord)
 
         stderr <- Stderr()
-        if not filename?
+        if filename?
+          namedFile <- getNamedFile(filename.get())
+          validLine <- createLineValidator(stderr, debugLevel)
+          toEntry <- createNamedFileLineHandler(stderr, debugLevel)
+
+          if verboseMode or debugLevel > 0
+            stderr.println(`About to start processing [${namedFile}]`)
+
+          cat namedFile.input() | filter by validLine | map toEntry > rtn
+
+          if debugLevel > 1
+            stderr.println(`Processing [${namedFile}] complete`)
+        else
           throw Exception("Filename of 'named file' is required", 2)
-
-        namedFile <- getNamedFile(filename.get())
-        validLine <- createLineValidator(stderr, debugLevel)
-        toEntry <- createNamedFileLineHandler(stderr, debugLevel)
-
-        if verboseMode or debugLevel > 0
-          stderr.println(`About to start processing [${namedFile}]`)
-
-        cat namedFile.input() | filter by validLine | map toEntry > rtn
-
-        if debugLevel > 1
-          stderr.println(`Processing [${namedFile}] complete`)
 
       private getNamedFile()
         -> filename as String

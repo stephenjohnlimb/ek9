@@ -36,6 +36,10 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
   private final SuitablePropertyInitialisationOrError suitablePropertyInitialisationOrError;
 
+  private final ObjectAccessExpressionValidOrError objectAccessExpressionValidOrError;
+  private final IfBlockSafeGenericAccessMarker ifBlockSafeGenericAccessMarker;
+  private final TernaryBlockSafeGenericAccessMarker ternaryBlockSafeGenericAccessMarker;
+
   PreIRListener(final ParsedModule parsedModule) {
 
     super(parsedModule);
@@ -79,6 +83,12 @@ final class PreIRListener extends ScopeStackConsistencyListener {
         new AcceptableConstructComplexityOrError(symbolsAndScopes, errorListener, complexityCounter);
     this.suitablePropertyInitialisationOrError =
         new SuitablePropertyInitialisationOrError(symbolsAndScopes, errorListener);
+    this.objectAccessExpressionValidOrError =
+        new ObjectAccessExpressionValidOrError(symbolsAndScopes, errorListener);
+    this.ifBlockSafeGenericAccessMarker =
+        new IfBlockSafeGenericAccessMarker(symbolsAndScopes, errorListener);
+    this.ternaryBlockSafeGenericAccessMarker =
+        new TernaryBlockSafeGenericAccessMarker(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -279,6 +289,12 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   }
 
   @Override
+  public void enterObjectAccessExpression(EK9Parser.ObjectAccessExpressionContext ctx) {
+    objectAccessExpressionValidOrError.accept(ctx);
+    super.enterObjectAccessExpression(ctx);
+  }
+
+  @Override
   public void enterAssignmentStatement(final EK9Parser.AssignmentStatementContext ctx) {
 
     if (ctx.ASSIGN_UNSET() != null) {
@@ -422,9 +438,20 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterIfControlBlock(final EK9Parser.IfControlBlockContext ctx) {
     complexityCounter.incrementComplexity();
+    //Also need to check if Result/Optional used with isOk()/'?', isError() or '?' for Optional
+    //As this makes ok(), error() and get() safe to access within the block.
+    ifBlockSafeGenericAccessMarker.accept(ctx);
     super.enterIfControlBlock(ctx);
   }
 
+  @Override
+  public void enterExpression(final EK9Parser.ExpressionContext ctx) {
+
+    //This means that this is a ternary
+    if (ctx.control != null && ctx.ternary != null) {
+      ternaryBlockSafeGenericAccessMarker.accept(ctx);
+    }
+  }
 
   @Override
   public void exitIfStatement(final EK9Parser.IfStatementContext ctx) {

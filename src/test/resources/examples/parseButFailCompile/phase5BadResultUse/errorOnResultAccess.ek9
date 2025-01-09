@@ -1,6 +1,16 @@
 #!ek9
 defines module error.on.result.access
 
+  defines record
+    <?-
+      Just used to test the ability to use object access via records and also detect use of Result type
+    -?>
+    Rec
+      propString as String: "Steve"
+      propResult as Result of (String, Integer): Result(String(), Integer())
+
+      default operator ?
+
   <?-
     Note that it is possible to get a Result that is both OK, but also has some form or error.
     This is possible and maybe desirable in some situations, where even though an error occurred
@@ -64,6 +74,19 @@ defines module error.on.result.access
     someErrorConsumer() as pure
       -> arg0 as Integer
       assert arg0?
+
+    testAccessToResultInRecord()
+      rec <- Rec()
+      assert rec?
+      assert rec.propString?
+
+      //Now this should be fine
+      rec.propResult.whenOk(someAcceptor)
+
+      //Now lets see if we detect invalid direct access
+      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+      notValidAccess <- rec.propResult.ok()
+      assert notValidAccess?
 
     <?-
       Demonstration of getting any one of the results from above.
@@ -131,8 +154,156 @@ defines module error.on.result.access
     <?-
       Now a check that detects that the EK9 developer has not called isOk() before the ok() method.
       There is also a test for checking isError is called before calling error().
+      //TODO chaining calls that end up with Result and no checks with isOk or isError and same with Optional.
     -?>
     testCompilerErrorWhenAccessBeforeCheckingOk()
-      assert todo
+      r <- Result(String(), Integer())
+
+      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+      okValue <- r.ok()
+      assert okValue?
+
+      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+      asLower <- r.ok().lowerCase()
+      assert asLower?
+
+      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+      errorValue <- r.error()
+      assert errorValue?
+
+    testValidUseDueToChecks1()
+      r <- Result("Steve", Integer())
+      //So this should be valid as a check has been done
+      if r?
+        okValue <- r.ok()
+        assert okValue?
+
+    testValidUseDueToChecks2()
+      r <- Result("Steve", Integer())
+      //So this should be valid as a check has been done this time isOk()
+      if r.isOk()
+        okValue <- r.ok()
+        assert okValue?
+
+    testValidUseDueToChecks3()
+      r <- Result("Steve", Integer())
+      //So this should be valid as a check has been done this time isOk() via a ternary
+      okValue <- r.isOk() <- r.ok() else String()
+      assert okValue?
+
+    <?-
+      This will be OK, because the logic is simple 'and' logic even with a mix.
+    -?>
+    testValidUseDueToChecks4()
+      r <- Result("Steve", Integer())
+      someBoolean <- true
+
+      okValue <- someBoolean and r? <- r.ok() else String()
+      assert okValue?
+
+    <?-
+      A little bit strange, but control can have expressions in.
+      The 'true'/'false' part of the ternary can also have expressions in.
+    -?>
+    testValidUseDueToChecks5()
+      r <- Result("Steve", 21)
+
+      okValue <- r.isOk() and r.isError() <- `${r.ok()} but with error code ${r.error()}` else String()
+      assert okValue?
+
+    testValidUseDueToChecks6()
+      someVar <- true
+      r1 <- Result("Steve", Integer())
+      r2 <- Result(String(), -1)
+
+      if someVar and r1? and r2.isError()
+        okValue <- r1.ok()
+        assert okValue?
+        errorValue <- r2.error()
+        assert errorValue?
+
+    testValidUseDueToChecks7()
+      r <- Result(String(), -1)
+      //So this should be valid as a check has been done this time isError()
+      if r.isError()
+        errorValue <- r.error()
+        assert errorValue?
+
+    testValidUseDueToChecks8()
+      r <- Result(String(), -1)
+      //So this should be valid as a check has been done this time isError()
+      if r.isOk()
+        okValue <- r.ok()
+        assert okValue?
+      else if r.isError()
+        errorValue <- r.error()
+        assert errorValue?
+
+    <?-
+      While a check is made, the access is then in the wrong scope.
+    -?>
+    testInvalidUseDueToChecksA()
+      r <- Result(String(), Integer())
+      //Now while a check is done it is not completed in a block to make it safe.
+      if r.isError()
+        someUnrelatedProcessing <- "Duff Code"
+        assert someUnrelatedProcessing?
+
+      //So while r.isError() has been called this region of code is not covered by it.
+      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+      errorValue <- r.error()
+      assert errorValue?
+
+    <?-
+      Do a check on isError() but access ok()
+    -?>
+    testInvalidUseDueToWrongCheck()
+      r <- Result("Steve", Integer())
+
+      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+      okValue <- r.isError() <- r.ok() else String()
+      assert okValue?
+
+    <?-
+      EK9 support simple 'and logic' with no negation on result.
+      This makes is simple to detect both for the EK9 developer and in the compiler.
+      So the 'or' logic here will not have made 'ok()' or 'error()' safe.
+    -?>
+    testInvalidUseDueToComplexChecksB()
+      r <- Result(String(), Integer())
+
+      if r.isOk() or r.isError()
+        @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+        okValue <- r.ok()
+        assert okValue?
+
+        @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+        errorValue <- r.error()
+        assert errorValue?
+
+    testInvalidUseDueToComplexChecksC()
+      someVar <- true
+      r <- Result(String(), Integer())
+
+      if someVar and (r.isOk() or r.isError())
+        @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+        okValue <- r.ok()
+        assert okValue?
+
+        @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+        errorValue <- r.error()
+        assert errorValue?
+
+    <?-
+      Complex logic in the control, must just be simple stuff.
+    -?>
+    testInvalidUseDueToComplexChecksD()
+      r <- Result("Steve", Integer())
+      someBoolean <- true
+      somethingElse <- false
+
+      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+      okValue <- someBoolean or somethingElse and r.isError() <- r.ok() else String()
+      assert okValue?
 
 //EOF

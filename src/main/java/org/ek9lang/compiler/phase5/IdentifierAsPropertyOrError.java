@@ -52,7 +52,7 @@ public class IdentifierAsPropertyOrError extends TypedSymbolAccess implements Co
           symbolsAndScopes.markSymbolAccessSafe(symbol, detail.aggregateSymbol());
         }
       });
-    } else if (!symbolsAndScopes.isSymbolAccessSafe(symbol, scope)) {
+    } else if (!symbolsAndScopes.isSymbolAccessSafe(symbol)) {
       emitError(ctx, symbol);
     }
 

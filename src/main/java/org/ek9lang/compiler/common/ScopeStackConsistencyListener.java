@@ -224,6 +224,14 @@ public abstract class ScopeStackConsistencyListener extends AbstractEK9PhaseList
   }
 
   @Override
+  public void enterTernaryPart(final EK9Parser.TernaryPartContext ctx) {
+
+    symbolsAndScopes.enterScope(symbolsAndScopes.getRecordedScope(ctx));
+
+    super.enterTernaryPart(ctx);
+  }
+
+  @Override
   public void enterBlock(final EK9Parser.BlockContext ctx) {
 
     symbolsAndScopes.enterScope(symbolsAndScopes.getRecordedScope(ctx));
