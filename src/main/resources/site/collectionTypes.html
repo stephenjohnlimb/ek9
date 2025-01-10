@@ -89,20 +89,51 @@
       <i>type</i>.
     </p>
     <h3>The Types</h3>
+    <p>
+      These are the main Generic types that can be parameterized with another type.
+      <b>Optional</b> and <b>Result</b> are treated very specifically by the EK9 compiler.
+      This includes checking that before access to specific methods a 'check' has been completed,
+      see the examples that follow for more details.
+    </p>
     <ul>
       <li><a href="#list">List</a></li>
-      <li><a href="#optional">Optional</a></li>
       <li><a href="#priorityQueue">PriorityQueue</a></li>
       <li><a href="#dict">Dict (Dictionary/Map)</a></li>
+      <li><a href="#optional">Optional</a></li>
+      <li><a href="#result">Result</a></li>
     </ul>
     <h3>Supporting Types</h3>
     <ul>
       <li><a href="#iterator">Iterator</a></li>
       <li><a href="#dictEntry">DictEntry (Dictionary Entry)</a></li>
       <li><a href="#string">String</a></li>
-      <li><a href="#result">Result</a></li>
       <li><a href="#bits">Bits</a></li>
     </ul>
+    <h3>Supporting Functions</h3>
+    <p>
+      These generic functions can be used explicitly, but the EK9 compiler will
+      automatically infer them as 'super' of functions where the function signature matches.
+      These functions are sort of classifications of more general functions, they are sort of 'Duck typed'
+      in a way. Meaning that because of the nature of their arguments and returns, plus their use (or otherwise)
+      of <b>pure</b> they fit a specific clssification of function.
+    </p>
+    <p>See some of the examples that follow to see how that inference works.</p>
+    <ul>
+      <li><a href="#supplier">Supplier</a></li>
+      <li><a href="#producer">Producer</a></li>
+      <li><a href="#consumer">Consumer</a></li>
+      <li><a href="#biconsumer">BiConsumer</a></li>
+      <li><a href="#acceptor">Acceptor</a></li>
+      <li><a href="#biacceptor">BiAcceptor</a></li>
+      <li><a href="#unaryoperator">UnaryOperator</a></li>
+      <li><a href="#function">Function</a></li>
+      <li><a href="#bifunction">BiFunction</a></li>
+      <li><a href="#predicate">Predicate</a></li>
+      <li><a href="#assessor">Assessor</a></li>
+      <li><a href="#bipredicate">BiPredicate</a></li>
+      <li><a href="#comparator">Comparator</a></li>
+    </ul>
+
     <h3 id="list">List</h3>
     <p>
       Some of the examples in section <a href="builtInTypes.html">built-in-types</a> have used the <b>List</b> <i>type</i>.
@@ -387,7 +418,7 @@ defines module introduction
       contain that type of object. This is what <b>Optional</b> is aimed at doing.
     </p>
     <p>
-      In the example below; <b>Optional</b> is used with the <b>Integer</b> <i>type</i> but it can
+      In the example below; <b>Optional</b> is used with the <b>Integer</b> <i>type</i> but, it can
       be used with any <i>type</i> or even a <i>function</i> delegate or <i>record</i>.
       The example is designed to show how you can use the Optional in conjunction with other types;
       and how <b>List</b> and pipeline streams can be used with <u>flatten</u> to extract the values
@@ -461,6 +492,53 @@ defines module introduction
       data out of wrappers like <b>Lists</b> and <b>Optionals</b>. The alternative would be a range of
       loops and null (<b>isSet</b>) checks. The pipeline approach reduces the cognitive load for the developer.
     </p>
+    <p>
+      This second set of examples shows how other methods can be used on Optional.
+      Specifically the EK9 compiler checks that the <b>get()</b> method is only called within a 'safe block'.
+      If the <b>get()</b> method is called outside of a 'safe block' the compiler will emit an error.
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+
+    someAcceptor()
+      -> arg0 as String
+      assert arg0?
+
+    someConsumer() as pure
+      -> arg0 as String
+      assert arg0?
+
+    testSimpleValidIfCheck1()
+      o <- Optional("Steve")
+
+      //This use of 'is-set' with an 'if' makes the following block safe to call 'get()'
+      if o?
+        value <- o.get()
+        assert value?
+
+    testUsingConsumer() as pure
+      o <- Optional("Steve")
+
+      //Within a pure context a 'Consumer of T' is inferred for the function 'someConsumer'
+      o.whenPresent(someConsumer)
+
+    testUsingAcceptor()
+      o <- Optional("Steve")
+
+      //Within a none-pure context an 'Acceptor of T' is inferred for the function 'someAcceptor'
+      o.whenPresent(someAcceptor)
+
+    testUsingTernary() as pure
+      o <- Optional("Steve")
+
+      //This use of 'is-set' with a ternary control makes the following block safe to call 'get()'
+      value <- o? <- o.get() else String()
+      assert value?
+
+//EOF</pre>
+    <br/>
     <div class="highlight ek9-code">
       <ul class="code-lines">
         <li>
@@ -500,8 +578,93 @@ defines module introduction
     <p>
       The <b>Result</b> <i>type</i> is a strong type that is similar to the Optional, but takes two types.
       The first type is the valid result type and the second type is the error result type.
-      The EK9 Compiler checks the Result ensuring the the EK9 developer has check the resulting values.
+      The EK9 Compiler checks the Result ensuring that the EK9 developer has checked the resulting values.
     </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines function
+
+    getResult1() as pure
+      -> arg0 as String
+      <- rtn as Result of (String, Integer): Result(arg0, Integer())
+
+    //Note that due to the function signatures the appropriate Consumer/Acceptor super function is inferred
+    someAcceptor()
+      -> arg0 as String
+      assert arg0?
+
+    someConsumer() as pure
+      -> arg0 as String
+      assert arg0?
+
+    someErrorAcceptor()
+      -> arg0 as Integer
+      assert arg0?
+
+    someErrorConsumer() as pure
+      -> arg0 as Integer
+      assert arg0?
+
+    testValidUseDueToChecks1()
+      r <- Result("Steve", Integer())
+      //So this should be valid as a check has been done
+      if r?
+        okValue <- r.ok()
+        assert okValue?
+
+    testValidUseDueToChecks2()
+      r <- Result("Steve", Integer())
+      //So this should be valid as a check has been done this time isOk()
+      if r.isOk()
+        okValue <- r.ok()
+        assert okValue?
+
+    testValidUseDueToChecks3()
+      r <- Result("Steve", Integer())
+      //So this should be valid as a check has been done this time isOk() via a ternary
+      okValue <- r.isOk() <- r.ok() else String()
+      assert okValue?
+
+      //You can also do this
+      errorValue <- r.isError() <- r.error() else Integer()
+      assert not errorValue?
+
+    testValidUseDueToChecks4()
+      r <- Result("Steve", Integer())
+      someBoolean <- true
+
+      okValue <- someBoolean and r? <- r.ok() else String()
+      assert okValue?
+
+    testAccessResult()
+      r <- getResult1("Steve")
+
+      //These methods can be called with spcific acceptors/consumers and those will only be called if the
+      //result has an 'OK' value.
+      r.whenOk(someAcceptor)
+      r.whenOk(someConsumer)
+
+      //Likewise for errors.
+      r.whenError(someErrorAcceptor)
+      r.whenError(someErrorConsumer)
+
+      //Now you can also check if the result is in error or ok like this
+      assert r.isOk() or r.isError()
+
+      //Now if you are expecting a specific OK value - you can do this.
+      hasOkSteve <- r contains "Steve"
+      assert hasOkSteve
+
+      maybeTheOkValue <- String()
+      //You can also do this quite safely - because if there is no OK value - the iterator will return false for hasNext()
+      while iter <- r.iterator() then iter.hasNext()
+        maybeTheOkValue :=: iter.next()
+
+      //So if it was set then you'd have the value (or a copy of it in this case)
+      assert maybeTheOkValue?
+
+//EOF</pre>
     <h3 id="priorityQueue">PriorityQueue</h3>
     <p>
       This is a form of <b>List</b> but can be ordered and can also be finite. Very useful for keeping
@@ -924,11 +1087,113 @@ defines module introduction
       the <i>call</i> or <i>async</i> <b>command</b> can be used to actually execute the <i>function</i> to
       get the return value.
     </p>
+    <h3>Generic Functions and inference</h3>
+    <p>
+      The following Generic functions are used quite widely in EK9. They are also inferred by the compiler
+      when an EK9 developer creates a normal function that meet the appropriate function signature.
+    </p>
+    <p>
+      The EK9 standard libraries use these functions for 'call back' type operations, they are a very flexible way
+      of enabling developer components to interact with libraries in terms of producing/supplying or consuming/accepting
+      objects/functions.
+    </p>
+    <h4 id="supplier">Supplier</h4>
+    <p>Used in a pure context to supply object of type 'T'</p>
+    <pre>Supplier of type T as pure abstract
+  <- r as T?
+    </pre>
+    <h4 id="producer">Producer</h4>
+    <p>Used in a none-pure context to supply object of type 'T' meaning that the construction can mutate objects in the process</p>
+    <pre>Producer of type T as abstract
+  <- r as T?
+    </pre>
+    <h4 id="consumer">Consumer</h4>
+    <p>Again used in the pure context to consume an object of type T (so cannot mutate any objects)</p>
+    <pre>Consumer of type T as pure abstract
+  -> t as T
+    </pre>
+    <h4 id="biconsumer">BiConsumer</h4>
+    <p>Again used in the pure context to consume and objects of type T and U (so cannot mutate any objects)</p>
+    <pre>BiConsumer of type (T, U) as pure abstract
+  ->
+    t as T
+    u as U
+    </pre>
+    <h4 id="acceptor">Acceptor</h4>
+    <p>Used in a non-pure way to accept an object of type 'T', in this case mutation can take place.</p>
+    <pre>Acceptor of type T as abstract
+  -> t as T
+    </pre>
+    <h4 id="biacceptor">BiAcceptor</h4>
+    <p>Used in a non-pure way to accept objects of type 'T' and 'U', in this case mutation can take place.</p>
+    <pre>BiAcceptor of type (T, U) as abstract
+  ->
+    t as T
+    u as U
+    </pre>
+    <h4 id="unaryoperator">UnaryOperator</h4>
+    <p>Accepts an object of type 'T' in a pure way and returns another object of type 'T'.</p>
+    <pre>UnaryOperator of type T as pure abstract
+  -> t as T
+  <- r as T?
+    </pre>
+    <h4 id="function">Function</h4>
+    <p>Accepts an object of type 'T' in a pure way and returns another object of type 'R'.</p>
+    <pre>Function of type (T, R) as pure abstract
+  -> t as T
+  <- r as R?
+    </pre>
+    <h4 id="bifunction">BiFunction</h4>
+    <p>Accepts objects of type 'T' and 'U' in a pure way and returns another object of type 'R'.</p>
+    <pre>BiFunction of type (T, U, R) as pure abstract
+  ->
+    t as T
+    u as U
+  <- r as R?
+    </pre>
+    <h4 id="predicate">Predicate</h4>
+    <p>Accepts an object of type 'T' in a pure way and returns a Boolean. i.e. it is a 'test' function.</p>
+    <pre>Predicate of type T as pure abstract
+  -> t as T
+  <- r as Boolean?
+    </pre>
+    <h4 id="assessor">Assessor</h4>
+    <p>Accepts an object of type 'T' in a none-pure way (it can mutate data) and returns a Boolean. i.e. it is a 'test' function.</p>
+    <pre>Assessor of type T as abstract
+  -> t as T
+  <- r as Boolean?
+    </pre>
+    <h4 id="bipredicate">BiPredicate</h4>
+    <p>Accepts object of type 'T' and 'U' in a pure way and returns a Boolean. i.e. it is a 'test' function.</p>
+    <pre>BiPredicate of type (T, U) as pure abstract
+  ->
+    t as T
+    u as U
+  <-
+    r as Boolean?
+    </pre>
+    <h4 id="comparator">Comparator</h4>
+    <p>
+      Accepts two object of type 'T' and returns an Integer indicating if t1 is greater than, less than or equal to t2.
+      This function cannot mutate data as it is 'pure'.
+    </p>
+    <pre>Comparator of type T as pure abstract
+  ->
+    t1 as T
+    t2 as T
+  <-
+    r as Integer?
+    </pre>
+
     <h3>Summary</h3>
     <p>
       As you can see from the examples above; the collection types and stream pipelines when linked with
       <i>functions</i> create a powerful and consistent combination. The resulting stream pipeline syntax has been
       designed to be separate for methods on <i>Objects</i> and <i>Collections</i>.
+    </p>
+    <p>
+      It is worth taking the time to understand the reasoning and logic behing creating the classifications of specific
+      function signatures. These are very common patterns and use of functions in this way makes software 'composable'.
     </p>
     <h3>Next Steps</h3>
     <p>
