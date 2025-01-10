@@ -2862,7 +2862,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             <?-
               Provide an empty optional of the type.
             -?>
-            none() as pure
+            asEmpty() as pure
               <- rtn as Optional of T?
               
             get() as pure
@@ -2939,11 +2939,11 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 ok as O
                 error as E
 
-            okResult() as pure
+            asOk() as pure
               -> arg0 as O
               <- rtn as Result of (O, E)?
 
-            errorResult() as pure
+            asError() as pure
               -> arg0 as E
               <- rtn as Result of (O, E)?
                             

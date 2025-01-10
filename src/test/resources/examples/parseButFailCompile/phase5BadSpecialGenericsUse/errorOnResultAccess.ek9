@@ -1,4 +1,16 @@
 #!ek9
+<?-
+  Designed to show how EK9 Result generic type can and cannot be used.
+  The aim of the Result generic type (and the main reason it is treated specially)
+  is to aid in accessing the ok() value or the error() value in a very safe way.
+
+  There are a number of ways to access both the ok value and the error value that are safe
+  if those values are not present. But the riskiest methods like ok() and error() which give
+  direct access to the values come with the precondition that isOk() or isError() is called
+  before in a surrounding 'if' or 'ternary'.
+  The aim here is to avoid runtime exception throwing and to force the EK9 developer at compile time
+  to check.
+-?>
 defines module error.on.result.access
 
   defines record
@@ -50,14 +62,16 @@ defines module error.on.result.access
     -?>
     getResult3() as pure
       -> arg0 as String
-      <- rtn as Result of (String, Integer): Result(String(), Integer()).okResult(arg0)
+      <- rtn as Result of (String, Integer): Result(String(), Integer()).asOk(arg0)
 
     <?-
       Example of how to get a Result using a constructor and then to use that to get just an Error result.
+      The 'asError(value)' is probably more useful when you have a Result of the right parameterised type
+      and just want a new version of it with an error value.
     -?>
     getResult4() as pure
       -> arg0 as Integer
-      <- rtn as Result of (String, Integer): Result(String(), Integer()).errorResult(arg0)
+      <- rtn as Result of (String, Integer): Result(String(), Integer()).asError(arg0)
 
     someAcceptor()
       -> arg0 as String
@@ -154,7 +168,7 @@ defines module error.on.result.access
     <?-
       Now a check that detects that the EK9 developer has not called isOk() before the ok() method.
       There is also a test for checking isError is called before calling error().
-      //TODO chaining calls that end up with Result and no checks with isOk or isError and same with Optional.
+      //Chaining calls that end up with Result and no checks with isOk or isError and same with Optional.
     -?>
     testCompilerErrorWhenAccessBeforeCheckingOk()
       r <- Result(String(), Integer())
@@ -185,11 +199,18 @@ defines module error.on.result.access
         okValue <- r.ok()
         assert okValue?
 
+    <?-
+      Demonstrates a nice idiomatic pattern to access the 'ok' value in the result.
+    -?>
     testValidUseDueToChecks3()
       r <- Result("Steve", Integer())
       //So this should be valid as a check has been done this time isOk() via a ternary
       okValue <- r.isOk() <- r.ok() else String()
       assert okValue?
+
+      //You can also do this
+      errorValue <- r.isError() <- r.error() else Integer()
+      assert not errorValue?
 
     <?-
       This will be OK, because the logic is simple 'and' logic even with a mix.
@@ -211,6 +232,11 @@ defines module error.on.result.access
       okValue <- r.isOk() and r.isError() <- `${r.ok()} but with error code ${r.error()}` else String()
       assert okValue?
 
+      //So you could now make a result like this if you wanted to
+      //This does not mutate 'r' but uses it's type to create a new Result but with just the OK value set.
+      someSimpleResult <- r.asOk(okValue)
+      assert someSimpleResult.isOk() and not someSimpleResult.isError()
+
     testValidUseDueToChecks6()
       someVar <- true
       r1 <- Result("Steve", Integer())
@@ -228,10 +254,13 @@ defines module error.on.result.access
       if r.isError()
         errorValue <- r.error()
         assert errorValue?
+        //If you wanted to then map this error in some way (assuming Integers we still OK as codes)
+        anotherResultWithDifferentCode <- r.asError(21)
+        assert anotherResultWithDifferentCode.isError() and not anotherResultWithDifferentCode.isOk()
 
     testValidUseDueToChecks8()
       r <- Result(String(), -1)
-      //So this should be valid as a check has been done this time isError()
+      //So this should be valid as a check has been done this time isOk() and isError() but different blocks.
       if r.isOk()
         okValue <- r.ok()
         assert okValue?
@@ -265,7 +294,7 @@ defines module error.on.result.access
       assert okValue?
 
     <?-
-      EK9 support simple 'and logic' with no negation on result.
+      EK9 supports simple 'and logic' with no negation on result.
       This makes is simple to detect both for the EK9 developer and in the compiler.
       So the 'or' logic here will not have made 'ok()' or 'error()' safe.
     -?>
@@ -303,7 +332,7 @@ defines module error.on.result.access
       somethingElse <- false
 
       @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
-      okValue <- someBoolean or somethingElse and r.isError() <- r.ok() else String()
+      okValue <- someBoolean or somethingElse and r.isOk() <- r.ok() else String()
       assert okValue?
 
 //EOF

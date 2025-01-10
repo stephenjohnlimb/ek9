@@ -12,16 +12,15 @@ import org.junit.jupiter.api.Test;
  * Focus on use of the EK9 Result type.
  * Both valid and invalid use.
  */
-class ResultAccessTest extends PhasesTest {
+class ResultAndOptionalAccessTest extends PhasesTest {
 
-  public ResultAccessTest() {
-    super("/examples/parseButFailCompile/phase5BadResultUse",
-        List.of("error.on.result.access"));
+  public ResultAndOptionalAccessTest() {
+    super("/examples/parseButFailCompile/phase5BadSpecialGenericsUse",
+        List.of("error.on.result.access", "error.on.optional.access"));
   }
 
   @Test
   void testPhaseDevelopment() {
-    //Move to PRE_IR_CHECKS when implementing Result method access.
     testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 

@@ -1,0 +1,251 @@
+#!ek9
+<?-
+  As with Result, the Optional generic type is treated specially by the compiler and forces
+  and 'is-set' '?' operation before a safe call to 'get()' can be made.
+  This sample code also shows several of the other methods and operations on the 'Optional' class.
+  There is also some examples of options around creating empty Optionals and passing Suppliers/Producers
+  around.
+-?>
+defines module error.on.optional.access
+
+  defines function
+
+    <?-
+      Use of a generic function - but for this not sure it's worth it.
+    -?>
+    EmptyOptional() of type T as open
+      <- rtn as Optional of T: Optional(T()).asEmpty()
+
+    <?-
+      Example of a higher order function using the above generic function.
+      Again not really worth the effort.
+    -?>
+    getProducerOfEmptyOptionalOfString()
+      <- rtn as EmptyOptional of String: () is EmptyOptional of String as function
+
+    <?-
+      Example of using the higher order function.
+    -?>
+    testCreateEmptyOptional1()
+      supplier <- getProducerOfEmptyOptionalOfString()
+
+      emptyOptionalOfString <- supplier()
+      assert emptyOptionalOfString is empty
+
+    <?-
+      Or just use this simple approach.
+    -?>
+    testCreateEmptyOptional2()
+      emptyOptionalOfString <- Optional(String()).asEmpty()
+      assert emptyOptionalOfString is empty
+
+    <?-
+      Little need for any generic functions, just use this approach.
+      You can concoct all sorts of combinations with higher order and
+      Producers and Suppliers if you wish - but try and keep it simple.
+      Only use the passing of functions around if you really need it.
+    -?>
+    simplerProducerOfEmptyOptionalOfString()
+      <- rtn as Optional of String: Optional(String()).asEmpty()
+
+    testSimplerProducerOfOptionalOfString()
+      emptyOptionalOfString <- simplerProducerOfEmptyOptionalOfString()
+      assert emptyOptionalOfString is empty
+
+    usesAProducerOfOptionalOfString()
+      -> producer as Producer of Optional of String
+      optionalOfString <- producer()
+      assert optionalOfString is empty
+
+    testProducerUse()
+      usesAProducerOfOptionalOfString(simplerProducerOfEmptyOptionalOfString)
+
+    <?-
+      You can also do the pure form of the above with 'Suppliers'.
+    -?>
+    simplerSupplierOfEmptyOptionalOfString() as pure
+      <- rtn as Optional of String: Optional(String()).asEmpty()
+
+    testSimplerSupplierOfOptionalOfString() as pure
+      emptyOptionalOfString <- simplerSupplierOfEmptyOptionalOfString()
+      assert emptyOptionalOfString is empty
+
+    usesASupplierOfOptionalOfString() as pure
+      -> supplier as Supplier of Optional of String
+      optionalOfString <- supplier()
+      assert optionalOfString is empty
+
+    testSupplierUse() as pure
+      usesASupplierOfOptionalOfString(simplerSupplierOfEmptyOptionalOfString)
+
+    //The above examples, demonstrate what is possible - not always desirable as more complex.
+
+    <?-
+      Just used with whenPresent on Optional - none-pure form.
+    -?>
+    someAcceptor()
+      -> arg0 as String
+      assert arg0?
+
+    <?-
+      Just used with whenPresent on Optional - pure form.
+    -?>
+    someConsumer() as pure
+      -> arg0 as String
+      assert arg0?
+
+    <?-
+      Probably the most common coding pattern for safe access to the value in an Optional.
+      This is the easiest to understand for most developers.
+      Does it hold a value? if yes then access the value and do something with it.
+    -?>
+    testSimpleValidIfCheck1()
+      o <- Optional("Steve")
+
+      if o?
+        value <- o.get()
+        assert value?
+
+    testSimpleValidIfCheck2()
+      o <- Optional("Steve")
+
+      //Just a different way to address the is-set operator
+      if o.?()
+        value <- o.get()
+        assert value?
+
+    <?-
+      Demonstrates that calls to 'whenPresent' can be made without any other checks like 'o?'.
+      Now this form will be most common for developers with a more 'functional' background.
+      Here it uses the Consumer (which is pure in nature).
+    -?>
+    testUsingConsumer() as pure
+      o <- Optional("Steve")
+      o.whenPresent(someConsumer)
+
+    <?-
+      Demonstrates that calls to 'whenPresent' can be made without any other checks like 'o?'.
+      This too will be more common for developers with a functional background.
+      In this case it uses the 'Acceptor' which is non-pure in nature - i.e. is capable of mutations.
+    -?>
+    testUsingAcceptor()
+      o <- Optional("Steve")
+      o.whenPresent(someAcceptor)
+
+    <?-
+      Demonstrates the easiest 'idiomatic' way to get the value out of an Optional
+      or default it if it not present.
+      This is quite a nice patter as it can be used in a 'pure' context if required.
+    -?>
+    testUsingTernary() as pure
+      o <- Optional("Steve")
+
+      value <- o? <- o.get() else String()
+      assert value?
+
+    <?-
+      Demonstrates some additional methods on Optional.
+    -?>
+    testGeneralMethods()
+      o <- Optional("Steve")
+
+      //Just check if it holds a value
+      assert o is not empty
+
+      //Weird, but check it it has a specific value
+      //Again quite nice because 'contains' is pure.
+      assert o contains "Steve"
+
+      //If you have an Optional and you want a new optional of the same parameterised type
+      //that has no value here is a quick way to accomplish that.
+      emptyOptional <- o.asEmpty()
+      assert emptyOptional is empty
+
+      assert o != emptyOptional
+
+      alsoEmptyOptional <- o.asEmpty()
+
+      assert alsoEmptyOptional == emptyOptional
+
+      //You can cat an optional, get the value out and then collect into an Optional via pipe
+      //A bit pointless here, but useful in some situations, especially with other pipe operations
+      //like head, skip, tail etc.
+      alsoOptionalOfSteve <- cat o | collect as Optional of String
+      assert alsoOptionalOfSteve contains "Steve"
+
+      //You can also copy over the contents (if present) of an Optional
+      newO <- Optional(String())
+      newO :=: alsoOptionalOfSteve
+      assert newO contains "Steve"
+
+    testUsingIteratorAndTernary()
+      o <- Optional("Steve")
+      iter <- o.iterator()
+
+      value <- iter.hasNext() <- iter.next() else String()
+      assert value?
+
+    testUsingIteratorAndIf()
+      o <- Optional("Steve")
+
+      possibleValue <- String()
+
+      if iter <- o.iterator() then iter.hasNext()
+        possibleValue: iter.next()
+
+      assert possibleValue?
+
+    <?-
+      Demonstrates how only the 'true' part of the ternary is protected.
+    -?>
+    testInvalidUsingTernary1()
+      o <- Optional("Steve")
+
+      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+      value <- o? <- "Something" else o.get()
+      assert value?
+
+    <?-
+      Again demonstrates that even adding a 'not' in the control logic adds too much
+      complexity for the EK9 developer/compiler. The idea it to ensure tht the logic has to be
+      simple. This aids understanding and ease of comprehension by the EK9 developer.
+      i.e. Avoid complex logic keep it stupid simple/keep it simple stupid (KISS).
+    -?>
+    testInvalidUsingTernary2()
+      o <- Optional("Steve")
+
+      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+      value <- not o? <- "Something" else o.get()
+      assert value?
+
+    <?-
+      Demonstrates how direct access to 'get()' will be detected if a call to 'o?' is not made first.
+    -?>
+    testInvalidGetAccess1()
+      o <- Optional("Steve")
+
+      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+      value <- o.get()
+      assert value?
+
+    <?-
+      While you may think this code is OK, EK9 is quite strict on not allowing access
+      unless it is really obvious to both the EK9 developer and the compiler.
+      So just making a call to Optional '?()' is not enough, it has to be in the context of
+      a protective block, if an 'if' or a 'ternary'.
+    -?>
+    testInvalidGetAccess2()
+      o <- Optional("Steve")
+
+      hasValue <- o?
+      assert hasValue
+
+      if hasValue
+        @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+        value <- o.get()
+        assert value?
+
+      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+      alsoValue <- o.get()
+      assert alsoValue?
+//EOF
