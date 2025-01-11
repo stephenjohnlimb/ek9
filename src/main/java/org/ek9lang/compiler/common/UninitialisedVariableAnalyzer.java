@@ -5,13 +5,12 @@ package org.ek9lang.compiler.common;
  * get initialised before they are used. This also applies to returning variables.
  */
 final class UninitialisedVariableAnalyzer extends CodeFlowMap {
-  private static final String INITIALISED = "INITIALISED";
 
   UninitialisedVariableAnalyzer() {
 
     super(new UninitialisedVariableToBeChecked(),
-        access -> access.metaData().contains(INITIALISED),
-        access -> access.metaData().add(INITIALISED));
+        access -> access.metaData().contains(SAFE_ACCESS),
+        access -> access.metaData().add(SAFE_ACCESS));
 
   }
 }

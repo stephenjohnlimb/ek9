@@ -28,6 +28,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * It may even be extendable to assess if conditionals are always true/false and for assessing cyclo metric complexity.
  */
 class CodeFlowMap implements CodeFlowAnalyzer {
+  protected static final String SAFE_ACCESS = "SAFE_ACCESS";
   private final Map<IScope, Map<ISymbol, SymbolAccess>> accessMap = new HashMap<>();
   private final Predicate<ISymbol> isVariableToBeChecked;
   private final Predicate<SymbolAccess> meetsCriteria;

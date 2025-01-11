@@ -5,11 +5,11 @@ package org.ek9lang.compiler.common;
  */
 final class UnSafeGenericAccessAnalyzer extends CodeFlowMap {
 
-  UnSafeGenericAccessAnalyzer(final String accessMaker) {
+  UnSafeGenericAccessAnalyzer() {
 
     super(symbol -> (true),
-        access -> access.metaData().contains(accessMaker),
-        access -> access.metaData().add(accessMaker));
+        access -> access.metaData().contains(SAFE_ACCESS),
+        access -> access.metaData().add(SAFE_ACCESS));
 
   }
 

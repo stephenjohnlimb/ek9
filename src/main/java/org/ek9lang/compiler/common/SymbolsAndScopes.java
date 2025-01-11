@@ -42,10 +42,10 @@ public class SymbolsAndScopes {
   private final ScopeStack scopeStack;
   private final CodeFlowAnalyzer uninitialisedVariableAnalyzer = new UninitialisedVariableAnalyzer();
   private final CodeFlowAnalyzer unSafePropertyAccessAnalyzer = new UnSafePropertyAccessAnalyzer();
-  private final CodeFlowAnalyzer unSafeOkResultAccessAnalyzer = new UnSafeGenericAccessAnalyzer("OK_SAFE_ACCESS");
-  private final CodeFlowAnalyzer unSafeErrorResultAccessAnalyzer = new UnSafeGenericAccessAnalyzer("ERROR_SAFE_ACCESS");
-  private final CodeFlowAnalyzer unSafeGetOptionalAccessAnalyzer = new UnSafeGenericAccessAnalyzer("GET_SAFE_ACCESS");
-  private final CodeFlowAnalyzer unSafeNextIteratorAccessAnalyzer = new UnSafeGenericAccessAnalyzer("NEXT_SAFE_ACCESS");
+  private final CodeFlowAnalyzer unSafeOkResultAccessAnalyzer = new UnSafeGenericAccessAnalyzer();
+  private final CodeFlowAnalyzer unSafeErrorResultAccessAnalyzer = new UnSafeGenericAccessAnalyzer();
+  private final CodeFlowAnalyzer unSafeGetOptionalAccessAnalyzer = new UnSafeGenericAccessAnalyzer();
+  private final CodeFlowAnalyzer unSafeNextIteratorAccessAnalyzer = new UnSafeGenericAccessAnalyzer();
 
   /**
    * Create a new instance for symbol and scope management.

@@ -40,7 +40,7 @@ class MinimalGenericBootStrapTest {
   final Supplier<List<CompilableSource>> sourceSupplier =
       () -> List.of(new CompilableSource(Objects.requireNonNull(getClass().getResource(
           "/examples/bootstrap/org-ek9-lang.ek9")).getPath()));
-  private final CompilerReporter reporter = new CompilerReporter(true, false);
+  private final CompilerReporter reporter = new CompilerReporter(false, false);
   private final Supplier<CompilationPhaseListener> listener
       = () -> compilationEvent -> {
     var source = compilationEvent.source();
