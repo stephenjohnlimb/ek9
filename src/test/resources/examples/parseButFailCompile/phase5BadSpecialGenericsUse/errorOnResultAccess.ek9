@@ -126,6 +126,11 @@ defines module error.on.result.access
       hasOkSteve <- r contains "Steve"
       assert hasOkSteve?
 
+      //It is also possible to do this
+      if iter <- r.iterator() then iter.hasNext()
+        value <- iter.next()
+        assert value?
+
       maybeTheOkValue <- String()
       //You can also do this quite safely - because if there is no OK value - the iterator will return false for hasNext()
       while iter <- r.iterator() then iter.hasNext()
@@ -133,6 +138,13 @@ defines module error.on.result.access
 
       //So if it was set then you'd have the value (or a copy of it)
       assert maybeTheOkValue?
+
+      //But this results in an error
+      iter <- r.iterator()
+
+      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+      invalidAccess <- iter.next()
+      assert invalidAccess?
 
     testImplicitUseOfResult()
       //So this will be fine as an implicit declaration and initialisation of a Result

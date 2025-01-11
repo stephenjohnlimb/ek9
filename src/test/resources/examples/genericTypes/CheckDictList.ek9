@@ -309,7 +309,7 @@ defines module com.customer.streams.build
         results <- List() of String
         stdout.println("First with iterator")
         keyIter <- idNameDictionary.keys()
-        while keyIter is not empty
+        while keyIter?
           key <- keyIter.next()
           name <- idNameDictionary.get(key)
           if name?

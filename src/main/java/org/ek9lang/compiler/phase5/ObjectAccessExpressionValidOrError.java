@@ -34,7 +34,8 @@ final class ObjectAccessExpressionValidOrError extends TypedSymbolAccess
   private final Map<String, CommonValues> methodNameLookup =
       Map.of("ok", CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS,
           "error", CommonValues.RESULT_ERROR_ACCESS_REQUIRES_SAFE_ACCESS,
-          "get", CommonValues.OPTIONAL_GET_ACCESS_REQUIRES_SAFE_ACCESS);
+          "get", CommonValues.OPTIONAL_GET_ACCESS_REQUIRES_SAFE_ACCESS,
+          "next", CommonValues.ITERATOR_NEXT_ACCESS_REQUIRES_SAFE_ACCESS);
 
   private final Map<CommonValues, Predicate<ISymbol>> methodLookup;
 
@@ -49,7 +50,8 @@ final class ObjectAccessExpressionValidOrError extends TypedSymbolAccess
     //Now create the map of methods to call for specific checks.
     methodLookup = Map.of(CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::isOkResultAccessSafe,
         CommonValues.RESULT_ERROR_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::isErrorResultAccessSafe,
-        CommonValues.OPTIONAL_GET_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::isGetOptionalAccessSafe);
+        CommonValues.OPTIONAL_GET_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::isGetOptionalAccessSafe,
+        CommonValues.ITERATOR_NEXT_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::isNextIteratorAccessSafe);
   }
 
   @Override

@@ -2939,6 +2939,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 ok as O
                 error as E
 
+            asEmpty() as pure
+              -> arg0 as O
+              <- rtn as Result of (O, E)?
+
             asOk() as pure
               -> arg0 as O
               <- rtn as Result of (O, E)?
@@ -3254,10 +3258,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               
             next() as abstract
               <- rtn as T?
-              
-            operator empty as pure
-              <- rtn as Boolean: not hasNext()
-                
+            
             operator ? as pure
               <- rtn as Boolean: hasNext()
 

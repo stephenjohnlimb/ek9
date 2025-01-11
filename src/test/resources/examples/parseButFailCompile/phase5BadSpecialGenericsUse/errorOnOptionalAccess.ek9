@@ -248,4 +248,27 @@ defines module error.on.optional.access
       @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
       alsoValue <- o.get()
       assert alsoValue?
+
+    <?-
+      Really a check of the use of the iterator from the Optional.
+    -?>
+    testInvalidOptionalIterator1()
+      o <- Optional("Steve")
+
+      //A valid use first
+      if iter <- o.iterator() then iter?
+        value <- iter.next()
+        assert value?
+
+      //Can also be used with while
+      while iter <- o.iterator() then iter?
+        value <- iter.next()
+        assert value?
+
+      //But if accessed directly i.e. not is a checked scope - error
+      iter <- o.iterator()
+
+      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+      value <- iter.next()
+      assert value?
 //EOF

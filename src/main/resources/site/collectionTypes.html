@@ -453,7 +453,7 @@ defines module introduction
       cat item1 &gt; stdout
 
       //two different ways of checking if optional has a value
-      assert item1 is not empty
+      assert item1.hasNext()
       assert item1?
 
       //read as List of (Optional of Integer)
@@ -476,14 +476,10 @@ defines module introduction
       assert sum == 19
 
       //Also possible to use an iterator if you wish
-      iter <- item1.iterator()
-      while iter is not empty //could have been just 'while iter?'
+
+      while iter <- item1.iterator() then iter?
         stdout.println("Value [" + $iter.next() + "]")
 
-      //remove the item that was within the optional
-      item1.clear()
-      assert item1 is empty
-      assert not item1?
 //EOF</pre>
     <br/>
     <p>
@@ -558,9 +554,14 @@ defines module introduction
     <p>
       The previous examples of both <b>List</b> and <b>Optional</b> have shown the <b>Iterator</b>.
       It is really only useful in being able to provide a mechanism to step through zero or more items
-      held in some type of collection. The main methods are <b>'?'</b> <b>empty()</b> and <b>next()</b>.
-      You can see in the above examples <b>iter?</b> can be used or <b>iter is not empty</b> second is
+      held in some type of collection. The main methods are <b>'?'</b>, <b>hasNext()</b> and <b>next()</b>.
+      You can see in the above examples <b>iter?</b> can be used or <b>iter.hasNext()</b> second is
       more readable but obviously less terse.
+    </p>
+    <p>
+      Importantly calls to method <b>next()</b> on the iterator are checked to ensure they are in a scope that
+      has been checke to ensure that 'is-set' has been checked. This is only a basic check, so if you called
+      <b>next()</b> twice for example the compiler would not detect this and you'd have a rune time error.
     </p>
     <h3 id="bits">Bits</h3>
     <p>
@@ -895,7 +896,7 @@ defines module introduction
 
         results as List of String: List()
         keyIter <- idNameDictionary.keys()
-        while keyIter is not empty
+        while keyIter?
           key <- keyIter.next()
           name <- idNameDictionary.get(key)
           if name?

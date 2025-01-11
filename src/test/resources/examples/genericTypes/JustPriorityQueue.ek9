@@ -38,7 +38,6 @@ defines module com.customer.just
       stdout.println($limitedEntries)
 
       qTwo += "Missy"
-      //TODO fix generics issue
       iter <- qTwo.iterator()
       while iter?
         stdout.println($iter.next())

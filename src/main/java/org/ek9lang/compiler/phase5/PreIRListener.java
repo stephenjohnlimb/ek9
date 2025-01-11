@@ -40,6 +40,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   private final IfBlockSafeGenericAccessMarker ifBlockSafeGenericAccessMarker;
   private final TernaryBlockSafeGenericAccessMarker ternaryBlockSafeGenericAccessMarker;
 
+  private final WhileLoopSafeGenericAccessMarker whileLoopSafeGenericAccessMarker;
+
   PreIRListener(final ParsedModule parsedModule) {
 
     super(parsedModule);
@@ -89,6 +91,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
         new IfBlockSafeGenericAccessMarker(symbolsAndScopes, errorListener);
     this.ternaryBlockSafeGenericAccessMarker =
         new TernaryBlockSafeGenericAccessMarker(symbolsAndScopes, errorListener);
+    this.whileLoopSafeGenericAccessMarker =
+        new WhileLoopSafeGenericAccessMarker(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -397,6 +401,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   public void enterWhileStatementExpression(final EK9Parser.WhileStatementExpressionContext ctx) {
 
     complexityCounter.incrementComplexity();
+    whileLoopSafeGenericAccessMarker.accept(ctx);
+
     super.enterWhileStatementExpression(ctx);
   }
 
@@ -438,8 +444,6 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterIfControlBlock(final EK9Parser.IfControlBlockContext ctx) {
     complexityCounter.incrementComplexity();
-    //Also need to check if Result/Optional used with isOk()/'?', isError() or '?' for Optional
-    //As this makes ok(), error() and get() safe to access within the block.
     ifBlockSafeGenericAccessMarker.accept(ctx);
     super.enterIfControlBlock(ctx);
   }

@@ -45,6 +45,7 @@ public class SymbolsAndScopes {
   private final CodeFlowAnalyzer unSafeOkResultAccessAnalyzer = new UnSafeGenericAccessAnalyzer("OK_SAFE_ACCESS");
   private final CodeFlowAnalyzer unSafeErrorResultAccessAnalyzer = new UnSafeGenericAccessAnalyzer("ERROR_SAFE_ACCESS");
   private final CodeFlowAnalyzer unSafeGetOptionalAccessAnalyzer = new UnSafeGenericAccessAnalyzer("GET_SAFE_ACCESS");
+  private final CodeFlowAnalyzer unSafeNextIteratorAccessAnalyzer = new UnSafeGenericAccessAnalyzer("NEXT_SAFE_ACCESS");
 
   /**
    * Create a new instance for symbol and scope management.
@@ -132,6 +133,14 @@ public class SymbolsAndScopes {
     }
   }
 
+  public void recordDeclarationOfVariableUsingIterator(final ISymbol identifierSymbol) {
+    //Given the logic required to detect whether an identifier needs a check - just record a flag.
+    if (identifierSymbol.getSquirrelledData(CommonValues.ITERATOR_NEXT_ACCESS_REQUIRES_SAFE_ACCESS) == null) {
+      identifierSymbol.putSquirrelledData(CommonValues.ITERATOR_NEXT_ACCESS_REQUIRES_SAFE_ACCESS, "TRUE");
+      unSafeNextIteratorAccessAnalyzer.recordSymbol(identifierSymbol, this.getTopScope());
+    }
+  }
+
   /**
    * Record an identifier was assigned and therefore initialised.
    */
@@ -209,6 +218,17 @@ public class SymbolsAndScopes {
   public boolean isGetOptionalAccessSafe(final ISymbol identifierSymbol) {
 
     return unSafeGetOptionalAccessAnalyzer.doesSymbolMeetAcceptableCriteria(identifierSymbol, getTopScope());
+  }
+
+  public void markNextIteratorAccessSafe(final ISymbol identifierSymbol, final IScope inScope) {
+
+    unSafeNextIteratorAccessAnalyzer.markSymbolAsMeetingAcceptableCriteria(identifierSymbol, inScope);
+
+  }
+
+  public boolean isNextIteratorAccessSafe(final ISymbol identifierSymbol) {
+
+    return unSafeNextIteratorAccessAnalyzer.doesSymbolMeetAcceptableCriteria(identifierSymbol, getTopScope());
   }
 
   /**

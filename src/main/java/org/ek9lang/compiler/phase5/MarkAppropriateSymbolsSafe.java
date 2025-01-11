@@ -21,6 +21,7 @@ class MarkAppropriateSymbolsSafe extends TypedSymbolAccess implements BiConsumer
   private final HasTypeOfGeneric resultTypeCheck;
   private final HasTypeOfGeneric optionalTypeCheck;
 
+  private final HasTypeOfGeneric iteratorTypeCheck;
 
   private final Map<String, CommonValues> resultMethodNameLookup =
       Map.of("?", CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS,
@@ -32,6 +33,10 @@ class MarkAppropriateSymbolsSafe extends TypedSymbolAccess implements BiConsumer
   private final Map<String, CommonValues> optionalMethodNameLookup =
       Map.of("?", CommonValues.OPTIONAL_GET_ACCESS_REQUIRES_SAFE_ACCESS);
 
+  private final Map<String, CommonValues> iteratorMethodNameLookup =
+      Map.of("?", CommonValues.ITERATOR_NEXT_ACCESS_REQUIRES_SAFE_ACCESS,
+          "hasNext", CommonValues.ITERATOR_NEXT_ACCESS_REQUIRES_SAFE_ACCESS);
+
   /**
    * Constructor to provided typed access.
    */
@@ -39,7 +44,9 @@ class MarkAppropriateSymbolsSafe extends TypedSymbolAccess implements BiConsumer
     super(symbolsAndScopes, errorListener);
     this.resultTypeCheck = new HasTypeOfGeneric(symbolsAndScopes.getEk9Types().ek9Result());
     this.optionalTypeCheck = new HasTypeOfGeneric(symbolsAndScopes.getEk9Types().ek9Optional());
+    this.iteratorTypeCheck = new HasTypeOfGeneric(symbolsAndScopes.getEk9Types().ek9Iterator());
 
+    //For result it's a bit more complex.
     resultMethodLookup =
         Map.of(CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::markOkResultAccessSafe,
             CommonValues.RESULT_ERROR_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::markErrorResultAccessSafe);
@@ -124,6 +131,8 @@ class MarkAppropriateSymbolsSafe extends TypedSymbolAccess implements BiConsumer
         }
       } else if (optionalTypeCheck.test(calledFromSymbol) && optionalMethodNameLookup.get(methodName) != null) {
         symbolsAndScopes.markGetOptionalAccessSafe(calledFromSymbol, scopeMadeSafe);
+      } else if (iteratorTypeCheck.test(calledFromSymbol) && iteratorMethodNameLookup.get(methodName) != null) {
+        symbolsAndScopes.markNextIteratorAccessSafe(calledFromSymbol, scopeMadeSafe);
       }
 
     }
@@ -134,7 +143,10 @@ class MarkAppropriateSymbolsSafe extends TypedSymbolAccess implements BiConsumer
       symbolsAndScopes.markOkResultAccessSafe(toBeAssessed, scopeMadeSafe);
     } else if (optionalTypeCheck.test(toBeAssessed)) {
       symbolsAndScopes.markGetOptionalAccessSafe(toBeAssessed, scopeMadeSafe);
+    } else if (iteratorTypeCheck.test(toBeAssessed)) {
+      symbolsAndScopes.markNextIteratorAccessSafe(toBeAssessed, scopeMadeSafe);
     }
+
     //Else nothing to assess just a normal variable
   }
 }

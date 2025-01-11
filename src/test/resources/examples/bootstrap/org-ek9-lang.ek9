@@ -286,7 +286,8 @@ defines extern module org.ek9.lang
       assert item?
       iter as Iterator of S: item.iterator()
       //I'm getting a I here and not an S!
-      rtn: iter.next()
+      if iter?
+        rtn: iter.next()
 
     testFunction1()
       l1 <- [1, 4, 9]

@@ -9,11 +9,16 @@ defines module just.workspace
 
     testValidUseDueToChecks1()
 
-      r <- Result("Steve", Integer())
-      //So this should be valid as a check has been done
-      //While it looks weird r.?() is the same as r?
-      okValue <- r.?() <- r.ok() else String()
-      assert okValue.lowerCase()?
+      o <- Optional("Steve")
+
+      while iter <- o.iterator() then iter?
+        okValue <- iter.next()
+        assert okValue.lowerCase()?
+
+      iter <- o.iterator()
+      value <- true and iter.hasNext() <- iter.next() else String()
+      assert value?
+
 
   <!-
 

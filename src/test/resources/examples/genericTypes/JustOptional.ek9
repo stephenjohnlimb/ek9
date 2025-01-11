@@ -47,8 +47,7 @@ defines module com.customer.just
       sum: cat [maybeInteger, item1, Optional(14)] | flatten | collect as Integer
       assert sum?
 
-      iter <- item1.iterator()
-      while iter is not empty //could have been just iter?
+      while iter <- item1.iterator() then iter.hasNext()
         stdout.println("Value [" + $iter.next() + "]")
 
       assert item1 is not empty
