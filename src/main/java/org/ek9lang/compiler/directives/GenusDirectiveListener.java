@@ -6,7 +6,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 
 /**
- * Just checks if there are any directives that relate to @Genus in the parsed module and checks the
+ * Checks if there are any directives that relate to @Genus in the parsed module and checks the
  * resolution through the symbol and its genus.
  */
 public class GenusDirectiveListener extends ResolvedDirectiveListener {

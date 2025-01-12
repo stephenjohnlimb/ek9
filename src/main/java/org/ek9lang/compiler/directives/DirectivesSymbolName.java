@@ -4,7 +4,7 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 
 /**
- * Just extracts the symbol name or throws an illegal argument exception.
+ * Extracts the symbol name or throws an illegal argument exception.
  */
 public class DirectivesSymbolName implements Function<EK9Parser.DirectiveContext, String> {
 

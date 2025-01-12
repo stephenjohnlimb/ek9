@@ -11,7 +11,7 @@ import org.ek9lang.compiler.support.LocationExtractorFromToken;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
- * Just checks if there are any directives that relate to errors in the parsed module and tallies those up
+ * Checks if there are any directives that relate to errors in the parsed module and tallies those up
  * with any errors held for the phase of compilation.
  */
 public class ErrorDirectiveListener implements CompilationPhaseListener {

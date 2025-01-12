@@ -8,7 +8,7 @@ import org.ek9lang.compiler.common.TypeDefResolver;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
- * For resolved directives.
+ * Checks for resolutions directives.
  */
 abstract class ResolutionDirectiveListener implements CompilationPhaseListener {
 

@@ -5,7 +5,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
- * Just extract the spec from the free format data in the directive.
+ * Extracts the 'spec' from the free format data in the directive.
  */
 public class DirectiveSpecExtractor implements Function<EK9Parser.DirectiveContext, DirectiveSpec> {
   private final DirectivesNextLineNumber directivesNextLineNumber = new DirectivesNextLineNumber();

@@ -8,7 +8,7 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
- * Just checks if there are any directives that relate to @Implements in the parsed module and checks the
+ * Checks if there are any directives that relate to @Implements in the parsed module and checks the
  * resolution through the symbol and its hierarchy.
  */
 public class ImplementsDirectiveListener extends ResolvedDirectiveListener {

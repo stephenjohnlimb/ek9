@@ -7,8 +7,9 @@ import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * To be used in EK9 source code to assert that a type can or cannot be resolved.
- * //@Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE: "List"
- * //@NotResolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of Integer"
+ * <pre>
+ * {@code @NotResolved}: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "List of Integer"
+ * </pre>
  */
 public abstract class ResolutionDirective implements Directive {
 

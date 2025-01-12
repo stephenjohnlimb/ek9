@@ -8,7 +8,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.CompilationPhase;
 
 /**
- * Just extracts the compilation phase or throws an illegal argument exception.
+ * Extracts the compilation phase or throws an illegal argument exception.
  */
 public class DirectivesCompilationPhase implements Function<EK9Parser.DirectiveContext, CompilationPhase> {
 

@@ -5,7 +5,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
- * Just checks if there are any directives that relate to @Resolved in the parsed module and checks the
+ * Checks if there are any directives that relate to @Resolved in the parsed module and checks the
  * resolution.
  */
 class ResolvedDirectiveListener extends ResolutionDirectiveListener {

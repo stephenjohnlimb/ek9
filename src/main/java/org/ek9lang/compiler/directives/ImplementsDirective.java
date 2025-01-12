@@ -2,11 +2,12 @@ package org.ek9lang.compiler.directives;
 
 /**
  * To be used in EK9 source code to assert that a type can or cannot be resolved as extending a type or function.
- * This can also work with TEMPLATE_TYPE and TEMPLATE_FUNCTION - but not METHODS (yet).
- * //@Implements: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "SomeClass": "SomeBaseCase"
- * //@Implements: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "SomeTrait": "SomeBaseTrait"
- * //@Implements: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "SomeClass": "SomeTrait"
- * //@Implements: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "SomeFunction": "SomeAbstractFunction"
+ * <pre>
+ *  {@code @Implements}: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "SomeClass": "SomeBaseCase"
+ *  {@code @Implements}: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "SomeTrait": "SomeBaseTrait"
+ *  {@code @Implements}: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE: "SomeClass": "SomeTrait"
+ *  {@code @Implements}: EXPLICIT_TYPE_SYMBOL_DEFINITION: FUNCTION: "SomeFunction": "SomeAbstractFunction"
+ * </pre>
  */
 public class ImplementsDirective extends ResolutionDirective {
 

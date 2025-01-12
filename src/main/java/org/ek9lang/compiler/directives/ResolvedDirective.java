@@ -2,7 +2,9 @@ package org.ek9lang.compiler.directives;
 
 /**
  * To be used in EK9 source code to assert that a type can or cannot be resolved.
- * //@Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE: "List"
+ * <pre>
+ * {@code @Resolved}: EXPLICIT_TYPE_SYMBOL_DEFINITION: TEMPLATE_TYPE: "List"
+ * </pre>
  */
 public class ResolvedDirective extends ResolutionDirective {
 

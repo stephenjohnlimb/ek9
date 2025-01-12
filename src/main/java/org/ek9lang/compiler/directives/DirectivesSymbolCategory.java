@@ -8,7 +8,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.symbols.SymbolCategory;
 
 /**
- * Just extracts the symbol category or throws an illegal argument exception.
+ * Extracts the symbol category or throws an illegal argument exception.
  */
 public class DirectivesSymbolCategory implements Function<EK9Parser.DirectiveContext, SymbolCategory> {
 

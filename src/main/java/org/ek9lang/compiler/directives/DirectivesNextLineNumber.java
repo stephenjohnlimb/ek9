@@ -7,6 +7,8 @@ import org.ek9lang.antlr.EK9Parser;
 
 /**
  * Finds the next line number from where a directive has been used.
+ * This is useful for error detection as it enables the location of the directive to indicate where the
+ * error condition is located.
  */
 @SuppressWarnings("java:S4276")
 public class DirectivesNextLineNumber implements Function<EK9Parser.DirectiveContext, Integer> {

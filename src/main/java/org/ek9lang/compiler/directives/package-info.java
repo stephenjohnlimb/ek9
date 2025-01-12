@@ -1,10 +1,10 @@
 /**
  * <p>
  * The directives are really aimed at helping the creation of the EK9 language, but they
- * maybe very useful in the early stages of adoption of ek9 (should there be any).
+ * maybe very useful in the early stages of adoption of EK9 (should there be any).
  * </p>
  * <p>
- * Because they enable an ek9 developer to send the ek9 compiler developers (me) an example of
+ * Because they enable an EK9 developer to send the EK9 compiler developers (me) an example of
  * code that is broken.
  * </p>
  * <p>
@@ -18,14 +18,14 @@
  * </p>
  * <pre>
  * #!ek9
- * defines module bad.assignement.check
+ * defines module bad.assignment.check
  *   defines program
  *
  *     badAssignment()
  *       value as Integer: 1
  *
  *       //As it is an Integer, you cannot assign a Float to it.
- *       {@code @Error:}: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+ *       {@code @Error}: FULL_RESOLUTION: INCOMPATIBLE_TYPES
  *       value := 7.0
  *       assert value?
  *

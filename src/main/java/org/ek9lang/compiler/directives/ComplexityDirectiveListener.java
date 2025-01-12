@@ -7,7 +7,7 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
- * Just checks if there are any directives that relate to complexity in the parsed module.
+ * Checks if there are any directives that relate to complexity in the parsed module.
  */
 public class ComplexityDirectiveListener extends ResolvedDirectiveListener {
   @Override
@@ -33,9 +33,9 @@ public class ComplexityDirectiveListener extends ResolvedDirectiveListener {
     //Check the types and the like.
     super.symbolMatch(compilationEvent, resolutionDirective, symbol);
 
-    final var expectedComplexityValue = Integer.parseInt(resolutionDirective.getAdditionalName());
+    final int expectedComplexityValue = Integer.parseInt(resolutionDirective.getAdditionalName());
 
-    final var symbolComplexityValue = Integer.parseInt(symbol.getSquirrelledData(COMPLEXITY));
+    final int symbolComplexityValue = Integer.parseInt(symbol.getSquirrelledData(COMPLEXITY));
 
     if (expectedComplexityValue != symbolComplexityValue) {
       final var msg = String.format("expected complexity defined as %d, but calculated complexity is %d:",
