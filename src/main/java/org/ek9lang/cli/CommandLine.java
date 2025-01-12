@@ -21,7 +21,7 @@ import org.ek9lang.core.Logger;
 import org.ek9lang.core.OsSupport;
 
 /**
- * Just deals with handling the command line options for the compiler.
+ * Deals with handling the command line options for the compiler.
  * Quite a beast now, but command line argument handling is always a bit complex.
  */
 final class CommandLine {

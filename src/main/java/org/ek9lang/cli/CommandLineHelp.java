@@ -1,7 +1,7 @@
 package org.ek9lang.cli;
 
 /**
- * Just holds the command line help text.
+ * Holds the command line help text only. There are quite a few options, so this encapsulates descriptions.
  */
 public record CommandLineHelp(String helpText) {
 

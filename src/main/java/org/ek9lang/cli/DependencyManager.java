@@ -7,11 +7,14 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * Designed to deal with managing dependencies of ek9 modules.
+ * Deals with managing dependencies of EK9 modules.
+ * <p>
  * So when an ek9 module is defined and packaged it can reference dependencies and
  * development dependencies. These are basically a mix of both the module name and a version number.
  * Note that the module scope package IS public interface to your package, if you want internal,
  * implementations constructs put them in a module under the module you are packaging.
+ * </p>
+ * <p>
  * For example if publishing/packaging ek9open.google.tools.networking, and you want to have
  * internal stuff that can only be used inside the package then use:
  * ek9open.google.tools.networking.internal or ek9open.google.tools.networking.utils etc.
@@ -20,28 +23,37 @@ import java.util.function.Predicate;
  * For feature branch builds it might be 'ek9open.google.tools.networking.utils-1.0.8-VSTS9889-5'
  * module '-' MAJOR '.' MINOR '.' PATCH ('-' FEATURE)? '-' BUILD
  * The actual artefact would have a suffix of '.zip'
- * So what's the big issue here, well we need to:
- * 1. Prohibit and detect circular dependencies.
- * 2. Remove dependencies that the developer does not want to include that other dependencies
- * might pull in.
- * 3. Ensure only a single version (highest based on version numbering) is included.
- * 4. For semanticVersioning - fail build if major version gets pulled up when other dependencies
- * need lower version.
+ * </p>
+ * <p>So what's the big issue here, well we need to:</p>
+ * <ul>
+ * <li>1. Prohibit and detect circular dependencies.</li>
+ * <li>2. Remove dependencies that the developer does not want to include that other dependencies
+ * might pull in.</li>
+ * <li>3. Ensure only a single version (highest based on version numbering) is included.</li>
+ * <li>4. For semanticVersioning - fail build if major version gets pulled up when other dependencies
+ * need lower version.</li>
+ * </ul>
+ * <p>
  * For semantic versioning major > minor > patch > build and patch without feature is higher.
  * Features are ordered by alpha. i.e. Alpha > Beta for example.
  * This is done with a directed graph with back pointers back up the graph tree.
  * The main Nodes in the graph hold both the moduleName and the Version separately and have a flag
  * to denote rejection. They also hold a list of other Nodes that they depend on.
+ * </p>
+ * <p>
  * Once you have checked for circular dependencies (and there are none)
  * You can then use or reject exclude modules.
  * Then use this method so that modules that are the same but different version numbers can be
  * rationalised. This means finding the module of the same name but the highest version
  * (that has not already been rejected). Only keep the highest none rejected version, mark others
  * as rejected.
- * BUT NOTE this sometimes means additional dependencies get included because we might have
+ * </p>
+ * <p>
+ * BUT NOTE: this sometimes means additional dependencies get included because we might have
  * rejected a module that had a number of dependencies that only that version of the module used!
  * At the end it is possible the developer excluded a set of dependencies that were needed.
  * The compiler will let the developer know because there will be missing symbols.
+ * </p>
  */
 final class DependencyManager {
   private final DependencyNode root;
