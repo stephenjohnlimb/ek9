@@ -16,7 +16,7 @@
  * <p>
  * The 'LSP' ({@link org.ek9lang.lsp}) only really does the 'front/middle' end of compilation from
  * {@link org.ek9lang.compiler.config}.
- * Whereas the 'CLI' ({@link org.ek9lang.cli} uses all of the phases from {@link org.ek9lang.compiler.config}.
+ * Whereas the 'CLI' {@link org.ek9lang.cli} uses all of the phases from {@link org.ek9lang.compiler.config}.
  * </p>
  * <p>
  * Boot strapping the compiler is done via {@link org.ek9lang.compiler.Ek9LanguageBootStrap} and
@@ -25,9 +25,9 @@
  * {@link org.ek9lang.compiler.Ek9Compiler} with just the {@link org.ek9lang.compiler.config.FrontEndSupplier}
  * phases to parse and populate a
  * {@link org.ek9lang.compiler.CompilableProgram} with all the basic types and standard library types/functions ready
- * for the developers code to be compiled. All the ek9 types are built in as text inside
+ * for the developers code to be compiled. All the EK9 types are built in as text inside
  * {@link org.ek9lang.compiler.Ek9BuiltinLangSupplier}. The module is marked as 'extern'.
- * Other ek9 developers ek9 source can also employ 'extern' as there is a 'linking' phase that resolves
+ * Other EK9 developers EK9 source can also employ 'extern' as there is a 'linking' phase that resolves
  * the declared constructs later. For the EK9 compiler, the built-in 'extern' constructs are shipped with the compiler.
  * </p>
  * <p>
@@ -52,12 +52,13 @@
  * phase. If that phase fails then the compiler stops and returns 'false' i.e. failed to compile the EK9 source files.
  * During the processing of each phase a listener of {@link org.ek9lang.compiler.common.CompilationEvent} and a
  * {@link org.ek9lang.compiler.common.CompilerReporter} are provided for each phase.
- * It is this mechanism that enables the EK9 developer 'issues' to be issued and reported.
+ * It is this mechanism that enables the EK9 developer 'errors' to be emitted and reported.
  * </p>
  * <p>
  * The main critical functionality is all in the phases. See those packages for details of what each specific phase
  * is attempting to accomplish. Each phase can is numbered, but can have multiple passes within that phase.
  * </p>
+ * <p><b>The compiler is phase driven and modular in nature. Also, parts of it are multi-threaded</b></p>
  */
 
 package org.ek9lang.compiler;
