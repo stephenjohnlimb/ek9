@@ -1,7 +1,7 @@
 package org.ek9lang.cli;
 
 /**
- * Update/Upgrade the Ek9 compiler itself.
+ * Update/Upgrade the EK9 compiler itself.
  */
 final class Up extends E {
   Up(final CompilationContext compilationContext) {

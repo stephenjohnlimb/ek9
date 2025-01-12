@@ -75,6 +75,9 @@ final class FileCache {
         .getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(), commandLine.getTargetArchitecture());
   }
 
+  /**
+   * Removes any final target executable that has been generated.
+   */
   void deleteTargetExecutableArtefact() {
 
     commandLine.getFileHandling().deleteFileIfExists(getTargetExecutableArtefact());

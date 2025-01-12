@@ -6,7 +6,7 @@ import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.OsSupport;
 
 /**
- * Abstract base for the command line ek9 commands.
+ * Abstract base for the command line EK9 commands.
  */
 abstract class E extends Reporter {
   protected final CompilationContext compilationContext;
@@ -24,9 +24,9 @@ abstract class E extends Reporter {
   }
 
   /**
-   * Do a precondition check to ensure run can execute.
+   * Do a pre-condition check to ensure run can execute.
    *
-   * @return true if all Ok false if precondition not met.
+   * @return true if all Ok, false if pre-condition not met.
    */
   boolean preConditionCheck() {
 
@@ -37,6 +37,11 @@ abstract class E extends Reporter {
     return true;
   }
 
+  /**
+   * Do a post-condition check after the command has executed.
+   *
+   * @return true if all Ok, false if the post-condition has not been met.
+   */
   boolean postConditionCheck() {
 
     log("Complete");

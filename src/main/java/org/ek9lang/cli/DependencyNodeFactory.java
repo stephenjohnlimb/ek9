@@ -6,8 +6,8 @@ import org.ek9lang.compiler.common.Ek9SourceVisitor;
 import org.ek9lang.compiler.common.Reporter;
 
 /**
- * Just creates DependencyNodes by using a Source Visitor on some EK9 source that has a package
- * defined in it. Uses a package resolver to get the dependencies and that will unpack zips and
+ * Creates DependencyNodes by using a Source Visitor on some EK9 source files that have a package
+ * defined in it. Uses a package resolver to get the dependencies and will unpack zips and
  * in the future pull them from remote servers can validate the contents.
  * There's a bit of recursion going on here.
  */
