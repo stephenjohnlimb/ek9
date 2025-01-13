@@ -89,6 +89,7 @@ final class ProcessVariableDeclarationOrError extends RuleSupport
 
       //At this point in the phases we have not started to try and resolve expressions, that's the next phase.
       //Consider a shortcut of this to attempt to resolve a inferred parameterised type early.
+      //TODO maybe see if it is possible to detect simple constructor use to determine types.
       emitMustBeSimpleError(ctx.start, "not expecting type inferred Generic", variable);
       return;
     }

@@ -9,6 +9,9 @@ import org.ek9lang.compiler.support.AggregateManipulator;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 
+/**
+ * Adds various synthetic methods to type defined by the EK9 developer.
+ */
 final class ProcessTypeDeclarationOrError extends RuleSupport
     implements Consumer<EK9Parser.TypeDeclarationContext> {
 
