@@ -9,7 +9,7 @@ import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 
 /**
- * Just checks for duplicated trait names in the list.
+ * Checks for duplicated trait names on an aggregate.
  */
 final class NoDuplicatedTraitsOrError implements Consumer<AggregateWithTraitsSymbol> {
 

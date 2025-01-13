@@ -9,6 +9,10 @@ import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 
+/**
+ * Configures the dynamic function with it's 'super', but also checks that the super can be used in the
+ * way the EK9 source code has been defined.
+ */
 final class ProcessDynamicFunctionOrError extends RuleSupport implements
     Consumer<EK9Parser.DynamicFunctionDeclarationContext> {
 
@@ -16,6 +20,7 @@ final class ProcessDynamicFunctionOrError extends RuleSupport implements
 
   ProcessDynamicFunctionOrError(final SymbolsAndScopes symbolsAndScopes,
                                 final ErrorListener errorListener) {
+
     super(symbolsAndScopes, errorListener);
     this.functionSuitableToExtendOrError =
         new SuitableToExtendOrError(symbolsAndScopes, errorListener,
@@ -23,7 +28,8 @@ final class ProcessDynamicFunctionOrError extends RuleSupport implements
   }
 
   @Override
-  public void accept(EK9Parser.DynamicFunctionDeclarationContext ctx) {
+  public void accept(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
+
     if (symbolsAndScopes.getRecordedSymbol(ctx) instanceof FunctionSymbol asFunction) {
       if (ctx.identifierReference() != null) {
         final var resolved = functionSuitableToExtendOrError.apply(ctx.identifierReference());

@@ -7,6 +7,32 @@ defines module just.workspace
 
   defines function
 
+    <!-
+    <?-
+      So this would be nice to accomplish.
+      Maybe possible if simple literals or Single constructors are used.
+    -?>
+    getInferredOptional1()
+      <- rtn <- Optional(String())
+
+
+    getInferredOptional1()
+      <- rtn <- Optional(String()).asEmpty()
+
+    getInferredOptional3()
+      <- rtn <- Optional("Steve")
+
+    getInferredResult1()
+      <- rtn <- Result(String(), Integer())
+
+    getInferredResult2()
+      <- rtn <- Result("Steve", Integer())
+
+    getInferredResult3()
+      <- rtn <- Result(String(), -1)
+
+    -!>
+
     testValidUseDueToChecks1()
 
       o <- Optional("Steve")

@@ -22,11 +22,17 @@ import org.ek9lang.core.SharedThreadContext;
 
 /**
  * SINGLE THREADED - Run across sources to check for types, functions and traits for 'super loops'.
+ * <p>
  * This is a bit nasty, basically there is a need to follow supers all the way back.
  * For aggregates this is just 'getSuperAggregateSymbol' for functions 'getSuperFunctionSymbol'.
+ * </p>
+ * <p>
  * But for traits - you need to get all its traits.
  * But note that it is important to flip between an aggregate hierarchy and a trait one.
+ * </p>
+ * <p>
  * TODO consider checking property loops, not when type typed but when loops in constructor calls.
+ * </p>
  */
 public final class TypeHierarchyChecks extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.TYPE_HIERARCHY_CHECKS;

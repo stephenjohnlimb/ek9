@@ -18,8 +18,8 @@ import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
 import org.ek9lang.core.AssertValue;
 
 /**
- * Check that a service operation complies with ek9 rules or return types etc.
- * Also incoming parameters are limited and therefore checked in here.
+ * Check that a service operation complies with EK9 rules and return types etc.
+ * Also, incoming parameters are limited in type and therefore checked in here.
  */
 final class ValidServiceOperationOrError extends RuleSupport
     implements BiConsumer<ServiceOperationSymbol, EK9Parser.ServiceOperationDeclarationContext> {

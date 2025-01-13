@@ -1,5 +1,5 @@
 /**
- * <b>D - For the first of the compilation phases</b>;it triggers source file <b>Lexing and Parsing</b> using 'ANTLR'.
+ * <b>D - For the first of the compilation phases</b> - it triggers source file <b>Lexing and Parsing</b> using 'ANTLR'.
  * <p>
  * The {@link org.ek9lang.compiler.phase0.Parsing} class is used to coordinate the preparation of
  * the {@link org.ek9lang.compiler.CompilableSource} objects state; that are part of the
@@ -15,7 +15,7 @@
  * </ul>
  * <p>
  *   Are then called in turn for each source file, note that the initial parsing of the source files is multi-threaded.
- *   This can be done in a multi-threaded manner because the compiler does not attempt to to cross reference anything.
+ *   This can be done in a multi-threaded manner because the compiler does not attempt to cross reference anything.
  * </p>
  * <p>
  *   The {@link org.ek9lang.compiler.phase0.Parsing} class uses the methods within each
@@ -24,7 +24,7 @@
  * <p>
  *   {@link org.ek9lang.compiler.tokenizer.ParserCreator} is used by the {@link org.ek9lang.compiler.CompilableSource}
  *   to create the appropriate {@link org.ek9lang.compiler.tokenizer.Ek9LexerForInput} and ANTLR based 'EK9Parser'.
- *   The {@link org.ek9lang.compiler.tokenizer.ParserCreator} configured both the lexer and the parser in an appropriate
+ *   The {@link org.ek9lang.compiler.tokenizer.ParserCreator} configures both the lexer and the parser in an appropriate
  *   manner (typically error listening).
  * </p>
  * <p>
@@ -33,17 +33,20 @@
  *   'ANTLR' style errors.
  * </p>
  * <p>
- *   <b>Only if this phase fully passes for every single source file do the EK9 Compiler continue to the next phase</b>.
+ *   <b>The EK9 Compiler continue to the next phase if this phase fully passes for every single source file.</b>.
  * </p>
  * <p>
  *   This same philosophy applies in all phases, all files must pass each phase before the compiler moves on.
- *   Importantly the EK9 Compiler attempts to identify issues in code as early as possible in each phase. It does not
- *   attempt to process most of the code to build an 'IR' and then assess the IR. Many of the rules for error detection
- *   are contained within each phase. There is an 'IR' generation phase and error assessment, but an EK9 compiler
- *   attempts to give error feedback as soon as it can.
+ *   Importantly the EK9 Compiler attempts to identify issues in code as early as possible in each phase.
  * </p>
  * <p>
- *   So you may be thinking 'but where is the state stored'? Basically for phase 0, the
+ *   It does not attempt to process most of the code to build an 'IR' and then assess the IR. Many of the rules for
+ *   error detection are contained within each phase.
+ *   There is an 'IR' generation phase and error assessment, but an EK9 compiler attempts to give error feedback
+ *   as soon as it can.
+ * </p>
+ * <p>
+ *   You may be thinking 'but where is the state stored'? Basically for phase 0, the
  *   {@link org.ek9lang.compiler.CompilableSource} keeps a reference to the 'ANTLR' 'EK9Parser.CompilationUnitContext'.
  *   The {@link org.ek9lang.compiler.CompilableSource} is used in most of the other phases in conjunction with
  *   {@link org.ek9lang.compiler.ParsedModule} and the {@link org.ek9lang.compiler.CompilableProgram} to build uo

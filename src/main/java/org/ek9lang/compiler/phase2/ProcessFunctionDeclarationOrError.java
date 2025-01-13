@@ -10,6 +10,9 @@ import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 
+/**
+ * Configures a function's 'super' in the most appropriate way.
+ */
 final class ProcessFunctionDeclarationOrError extends RuleSupport
     implements Consumer<EK9Parser.FunctionDeclarationContext> {
 
@@ -30,7 +33,7 @@ final class ProcessFunctionDeclarationOrError extends RuleSupport
   }
 
   @Override
-  public void accept(EK9Parser.FunctionDeclarationContext ctx) {
+  public void accept(final EK9Parser.FunctionDeclarationContext ctx) {
     final var symbol = (FunctionSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     //Could be null if there was a duplicate reference.
 

@@ -14,7 +14,7 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
 
 /**
- * Examines all the service operations on a service and looks at the verbs used and the uti proto paths.
+ * Examines all the service operations on a service and looks at the verbs used and the uri proto paths.
  * Checks for duplications and issues errors if paths (irrespective of variable names) are duplicated.
  */
 final class NoDuplicatedServicePathsOrError extends RuleSupport implements Consumer<IAggregateSymbol> {

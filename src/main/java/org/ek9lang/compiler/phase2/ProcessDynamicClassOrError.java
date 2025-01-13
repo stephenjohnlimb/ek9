@@ -11,6 +11,11 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
+/**
+ * Configures a dynamic class in terms of settings its super and configured traits.
+ * This does use a number of other components to check the suitability of the dynamic class creation
+ * as defined in the EK9 source code.
+ */
 final class ProcessDynamicClassOrError extends RuleSupport implements
     Consumer<EK9Parser.DynamicClassDeclarationContext> {
 
@@ -21,6 +26,7 @@ final class ProcessDynamicClassOrError extends RuleSupport implements
 
   ProcessDynamicClassOrError(final SymbolsAndScopes symbolsAndScopes,
                              final ErrorListener errorListener) {
+
     super(symbolsAndScopes, errorListener);
     this.visibilityOfOperationsOrError = new VisibilityOfOperationsOrError(symbolsAndScopes, errorListener);
     this.noDuplicateOperationsOrError = new NoDuplicateOperationsOrError(errorListener);
@@ -32,8 +38,10 @@ final class ProcessDynamicClassOrError extends RuleSupport implements
   }
 
   @Override
-  public void accept(EK9Parser.DynamicClassDeclarationContext ctx) {
+  public void accept(final EK9Parser.DynamicClassDeclarationContext ctx) {
+
     if (symbolsAndScopes.getRecordedSymbol(ctx) instanceof AggregateWithTraitsSymbol asAggregate) {
+
       visibilityOfOperationsOrError.accept(asAggregate);
       noDuplicateOperationsOrError.accept(new Ek9Token(ctx.start), asAggregate);
 

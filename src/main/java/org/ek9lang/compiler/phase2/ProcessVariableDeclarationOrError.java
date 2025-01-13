@@ -19,13 +19,18 @@ import org.ek9lang.core.CompilerException;
 
 /**
  * Checks for inferred declarations of variables in various contexts.
- * If possible it will attempt to workout what the type is, if it cannot it will emit an error.
+ * <p>
+ * If possible it will attempt to work out what the type is, if it cannot, it will emit an error.
  * This is designed to aid in simple property declarations as much as possible, but property initialisation cannot
  * really trigger full expression processing - that is a potential long and circular trail - that must be done in phase
- * three. The main idea is to ensure that before phase three starts ALL properties on aggregates are 'typed'.
+ * three.
+ * </p>
+ * <p>
+ * The main idea is to ensure that before phase three starts ALL properties on aggregates are 'typed'.
  * This aspect is essential for the phase three expression processing (as that requires types are known on interfaces
  * and aggregate properties to function correctly).
  * Note that it is possible to 'force' the EK9 developer to declare properties in the more long hand way as shown below.
+ * </p>
  * <pre>
  *   shorthand &lt;- 1
  *   longhand as Integer: 1

@@ -13,14 +13,19 @@ import org.ek9lang.compiler.symbols.SymbolGenus;
 /**
  * Does a simple check (excluding any inheritance) for visibility rules on methods/operators on
  * aggregates.
+ * <p>
  * Also limits ability to add methods other than constructors and operators to records.
  * Classes are not missing, here they just support public, protected and private.
  * Whereas the other constructs support different variations.
- * Also note that there is no need to check service web methods or operators as there is now way
+ * </p>
+ * <p>
+ * Note that there is no need to check service web methods or operators as this is now
  * in the grammar to express an access modifier.
- * <br/>
+ * </p>
+ * <p>
  * Note that class methods can be private, protected or public. But in the case of public we catch that
  * superfluous "public" if the EK9 developer uses it in the symbol definition phase.
+ * </p>
  */
 final class VisibilityOfOperationsOrError extends RuleSupport implements Consumer<IAggregateSymbol> {
 

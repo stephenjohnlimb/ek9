@@ -7,14 +7,22 @@ import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 
 /**
- * Checks that if a return is used (i.e. as parent context is part of an expression), then if a preflow is employed
- * that the preflow is NOT a guard.
- * The reason for this is to prevent the lhs of an expression resulting in being uninitialized should the 'guard'
+ * Checks that if a return is used.
+ * <p>
+ * (i.e. as parent context is part of an expression), then if a 'preflow' is employed
+ * that the 'preflow' is NOT a guard.
+ * </p>
+ * <p>
+ * The reason for this is to prevent the 'lhs' of an expression resulting in being uninitialized should the 'guard'
  * trigger the prevention of the whole expression on the rhs not being executed.
  * So, for normal statements using while, for, try, switch the guard can be useful and stop lots of checks and wasted
- * processing. But if this same approach is allowed with the expression form, it means that we have a dandling and
- * uninitialised lhs variable. This is a bigger problem in a 'pure' scope block and we always drive to ensure variables
- * are only assigned to once (except for returns and other very small cases (loop variables etc).
+ * processing.
+ * </p>
+ * <p>
+ * But if this same approach is allowed with the expression form, it means that we have a dangling and
+ * uninitialised 'lhs' variable. This is a bigger problem in a 'pure' scope block and we always drive to
+ * ensure variables are only assigned to once, except for returns and other very small cases (loop variables etc).
+ * </p>
  */
 class ValidPreFlowAndReturnOrError extends RuleSupport
     implements BiConsumer<EK9Parser.PreFlowStatementContext, EK9Parser.ReturningParamContext> {

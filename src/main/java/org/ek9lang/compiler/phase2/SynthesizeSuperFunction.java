@@ -15,12 +15,16 @@ import org.ek9lang.core.CompilerException;
 
 /**
  * Looks at the function and if it has no super function, attempts to work out what would be the
- * best super function generic type it could implement. Also ensures that purity is retained.
+ * best super function generic type it could implement.
+ * <p>
+ * Also ensures that purity is retained.
  * So for some abstract generic functions like UnaryOperator of T for example the function must be pure.
  * i.e. is it really a Supplier of T and Consumer of T, etc.
- * <br/>
+ * </p>
+ * <p>
  * The reason for this, is that it enables just functions to be defined but then accept them via their
  * generic function signature. Less coding for the EK9 developer.
+ * </p>
  */
 final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
   private final SymbolsAndScopes symbolsAndScopes;

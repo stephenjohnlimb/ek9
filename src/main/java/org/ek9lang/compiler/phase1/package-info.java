@@ -22,8 +22,10 @@
  * <p>
  *   The {@link org.ek9lang.compiler.phase1.SymbolDefinition} mainly uses the
  *   {@link org.ek9lang.compiler.phase1.DefinitionListener} with an 'ANTLR' - tree walker to traverse the 'AST'.
- *   There are quite a few rules and checks - even at this early stage. Most of these are simple Java 'Consumers'
- *   or 'BiConsumers' and do simple basic checks - issuing errors by calling
+ *   There are quite a few rules and checks - even at this early stage.
+ * </p>
+ * <p>
+ *   Most of these are simple Java 'Consumers' or 'BiConsumers' and do simple basic checks - issuing errors by calling
  *   {@link org.ek9lang.compiler.common.ErrorListener#semanticError(
  *org.antlr.v4.runtime.Token, java.lang.String, org.ek9lang.compiler.common.ErrorListener.SemanticClassification)}
  *   with an appropriate {@link org.ek9lang.compiler.common.ErrorListener.SemanticClassification}.
@@ -38,8 +40,9 @@
  * <p>
  *   Most of the checks on symbols and constructs are very focussed and have a 'single responsibility'. They are
  *   then composed and applied. Initially most of these were just methods on classes. But this became quite complex,
- *   so it was refactored in to 'many' separate classes (Functions/Consumers). While there are many more it has helped
- *   enable more focus.
+ *   so it was refactored in to 'many' separate classes (Functions/Consumers). While there are many more classes
+ *   it has helped enable more focus. This more functional approach does seem to work quite well and makes each of
+ *   the rules and processing logic much more isolated and composable/reusable.
  * </p>
  * <p>
  *   The latter two passes are really just cross source file and module checks and as such run in a single threaded

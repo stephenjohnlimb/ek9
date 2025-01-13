@@ -12,9 +12,13 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 
 /**
  * The Generic T used in parametric types will exist but won't have any methods on yet.
+ * <p>
  * This is because it is only when we get to this stage can the possible constraining type
  * be resolved.
+ * </p>
+ * <p>
  * But also need to consider if it is a Function rather than an Aggregate.
+ * </p>
  */
 final class SetupGenericTOrError implements Consumer<EK9Parser.ParameterisedDetailContext> {
 

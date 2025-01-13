@@ -9,6 +9,12 @@ import org.ek9lang.compiler.support.MostSpecificScope;
 import org.ek9lang.compiler.support.NoNameCollisionOrError;
 import org.ek9lang.compiler.support.SymbolFactory;
 
+/**
+ * Processes a variable declaration - attempts to resolve the variable type.
+ * <p>
+ *   Also checks for duplicated variable name clashes.
+ * </p>
+ */
 final class ProcessVariableOrError extends RuleSupport implements
     Consumer<EK9Parser.VariableDeclarationContext> {
   private final NoNameCollisionOrError noNameCollisionOrError;
@@ -29,6 +35,7 @@ final class ProcessVariableOrError extends RuleSupport implements
 
   @Override
   public void accept(EK9Parser.VariableDeclarationContext ctx) {
+
     final var variableSymbol = symbolsAndScopes.getRecordedSymbol(ctx);
     if (variableSymbol != null) {
       if (ctx.typeDef() != null) {

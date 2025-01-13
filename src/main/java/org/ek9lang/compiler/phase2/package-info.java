@@ -1,13 +1,17 @@
 /**
- * <b>F - Resolution of Explicitly Defined Type Symbols</b> at this point phase1 processing should have defined
+ * <b>F - Resolution of Explicitly Defined Type Symbols</b> - at this point phase1 processing should have defined
  * most of the explicitly defined symbols, so they should be resolvable.
+ * <p>
+ * While there is focus on explicitly defined type usage, there is some simple inferred typing that is done
+ * for declared variables. This is very simple but useful in terms of properties and return variables.
+ * </p>
  * <p>
  * {@link org.ek9lang.compiler.phase2.NonInferredTypeDefinition} is the main entry point here and it
  * delegates through to {@link org.ek9lang.compiler.phase2.ResolveDefineExplicitTypeListener}.
  * Again the {@link org.ek9lang.compiler.common.SymbolsAndScopes} class is used to manage the scopes.
  * </p>
  * <p>
- * The Symbols and scopes that were defined in phase1 are now lookup up using the
+ * The Symbols and scopes that were defined in phase1 are now looked up up using the
  * {@link org.ek9lang.compiler.common.SymbolsAndScopes} and in some cases augmented or in other cases checked.
  * </p>
  * <p>

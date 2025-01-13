@@ -25,7 +25,8 @@ final class ProcessTypeDeclarationOrError extends RuleSupport
   }
 
   @Override
-  public void accept(EK9Parser.TypeDeclarationContext ctx) {
+  public void accept(final EK9Parser.TypeDeclarationContext ctx) {
+
     final var aggregateSymbol = (AggregateSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     //Might be null if name if the name is duplicated.
     if (aggregateSymbol != null) {

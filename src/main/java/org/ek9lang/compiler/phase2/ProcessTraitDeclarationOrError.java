@@ -11,6 +11,11 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
+/**
+ * Configures the trait declaration and completes a number of checks on that trait once configured.
+ * For example, checks for appropriate method visibility, extendability and that there are no duplicate methods
+ * with the same signatures.
+ */
 final class ProcessTraitDeclarationOrError extends RuleSupport
     implements Consumer<EK9Parser.TraitDeclarationContext> {
 
@@ -33,7 +38,8 @@ final class ProcessTraitDeclarationOrError extends RuleSupport
   }
 
   @Override
-  public void accept(EK9Parser.TraitDeclarationContext ctx) {
+  public void accept(final EK9Parser.TraitDeclarationContext ctx) {
+
     final var symbol = (AggregateWithTraitsSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     if (symbol != null) {
       visibilityOfOperationsOrError.accept(symbol);
