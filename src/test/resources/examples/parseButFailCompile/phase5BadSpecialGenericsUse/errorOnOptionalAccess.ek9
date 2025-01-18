@@ -11,10 +11,102 @@ defines module error.on.optional.access
   defines function
 
     <?-
+      Improved compiler, so that now simple input argument can be used in inference.
+    -?>
+    getInferredFromArgOptional()
+      -> arg0 as String
+      <- rtn <- Optional(arg0)
+
+    getExplicitOptional()
+      <- rtn <- Optional() of String
+
+    tetExplicitOptional()
+      willBeEmpty <- getExplicitOptional()
+      assert not willBeEmpty?
+      assert not willBeEmpty.iterator().hasNext()
+
+    getViaSimpleConstructor()
+      <- rtn <- AClass()
+
+    testViaSimpleConstructor()
+      aClass <- getViaSimpleConstructor()
+      assert aClass.getProperty()?
+
+    getInferredOptional1()
+      <- rtn <- Optional("")
+
+    testInferredOptional1()
+      o <- getInferredOptional1()
+      if o?
+        assert o.get().lowerCase()?
+
+    getInferredOptional2()
+      <- rtn <- Optional(String())
+
+    testInferredOptional2()
+      o <- getInferredOptional2()
+      assert ~o?
+
+    getInferredResult1()
+      <- rtn <- Result(String(), Integer())
+
+    testInferredResult1()
+      r <- getInferredResult1()
+      assert not r.isOk() and not r.isError()
+
+    getInferredResult2()
+      <- rtn <- Result("Steve", Integer())
+
+    testInferredResult2()
+      r <- getInferredResult2()
+      assert r.isOk() and not r.isError()
+
+    getInferredResult3()
+      <- rtn <- Result(String(), 1)
+
+    testInferredResult3()
+      r <- getInferredResult3()
+      assert not r.isOk() and r.isError()
+
+    getInferredOptionalOfResult1()
+      <- rtn <- Optional(Result(String(), Integer()))
+
+    getInferredOptionalOfResult2()
+      <- rtn <- Optional() of Result of (String, Integer)
+
+    testValidUseDueToChecks1()
+
+      o <- Optional("Steve")
+
+      while iter <- o.iterator() then iter?
+        okValue <- iter.next()
+        assert okValue.lowerCase()?
+
+      iter <- o.iterator()
+      value <- true and iter.hasNext() <- iter.next() else String()
+      assert value?
+
+
+  defines class
+
+    <?-
+      Used as an example for determining if return type can be inferred.
+    -?>
+    AClass
+      prop1 <- String()
+
+      getProperty()
+        <- rtn as String: prop1
+
+      default operator ?
+
+  defines function
+
+    <?-
       Use of a generic function - but for this not sure it's worth it.
     -?>
     EmptyOptional() of type T as open
-      <- rtn as Optional of T: Optional(T()).asEmpty()
+      <- rtn as Optional of T: Optional(T())
 
     <?-
       Example of a higher order function using the above generic function.
@@ -36,7 +128,7 @@ defines module error.on.optional.access
       Or just use this simple approach.
     -?>
     testCreateEmptyOptional2()
-      emptyOptionalOfString <- Optional(String()).asEmpty()
+      emptyOptionalOfString <- Optional() of String
       assert emptyOptionalOfString is empty
 
     <?-
@@ -44,12 +136,24 @@ defines module error.on.optional.access
       You can concoct all sorts of combinations with higher order and
       Producers and Suppliers if you wish - but try and keep it simple.
       Only use the passing of functions around if you really need it.
+      This will produce an 'empty' optional.
     -?>
     simplerProducerOfEmptyOptionalOfString()
-      <- rtn as Optional of String: Optional(String()).asEmpty()
+      <- rtn <- Optional() of String
 
     testSimplerProducerOfOptionalOfString()
       emptyOptionalOfString <- simplerProducerOfEmptyOptionalOfString()
+      assert emptyOptionalOfString is empty
+
+    <?-
+      But you can use this 'constructor' based approach, which is slightly simpler.
+      This will produce an Optional that has a String OK value - but this unset.
+    -?>
+    evenSimplerProducerOfEmptyOptionalOfString()
+      <- rtn <- Optional(String())
+
+    testEvenSimplerProducerOfOptionalOfString()
+      emptyOptionalOfString <- evenSimplerProducerOfEmptyOptionalOfString()
       assert emptyOptionalOfString is empty
 
     usesAProducerOfOptionalOfString()
@@ -64,7 +168,7 @@ defines module error.on.optional.access
       You can also do the pure form of the above with 'Suppliers'.
     -?>
     simplerSupplierOfEmptyOptionalOfString() as pure
-      <- rtn as Optional of String: Optional(String()).asEmpty()
+      <- rtn <- Optional() of String
 
     testSimplerSupplierOfOptionalOfString() as pure
       emptyOptionalOfString <- simplerSupplierOfEmptyOptionalOfString()

@@ -5,70 +5,12 @@
 -?>
 defines module just.workspace
 
+
   defines function
 
-    <!-
-    <?-
-      So this would be nice to accomplish.
-      Maybe possible if simple literals or Single constructors are used.
-    -?>
-    getInferredOptional1()
-      <- rtn <- Optional(String())
-
-
-    getInferredOptional1()
-      <- rtn <- Optional(String()).asEmpty()
-
-    getInferredOptional3()
-      <- rtn <- Optional("Steve")
-
-    getInferredResult1()
-      <- rtn <- Result(String(), Integer())
-
-    getInferredResult2()
-      <- rtn <- Result("Steve", Integer())
-
-    getInferredResult3()
-      <- rtn <- Result(String(), -1)
-
-    -!>
-
-    testValidUseDueToChecks1()
-
-      o <- Optional("Steve")
-
-      while iter <- o.iterator() then iter?
-        okValue <- iter.next()
-        assert okValue.lowerCase()?
-
-      iter <- o.iterator()
-      value <- true and iter.hasNext() <- iter.next() else String()
-      assert value?
-
-
-  <!-
-
-    SimpleStreamCatMap4()
-      collector <- StringCollector()
-      //Check if the Optional has an Iterator of type Integer so it can be streamed
-      //Use a function that extends an abstract function.
-      //TODO fix big error in generics processing.
-      cat Optional(1) | map with IntegerToString > collector
-      assert collector?
-
-  //Sort out the normal statements and then do these expressions, or maybe add a separate test file
-  defines function
-    SimpleStreamExpression()
-      //here are some durations to sum up (collect) 2 days, 1 week and 2 hours.
-      collectedDurations <- cat [P2D, P1W, PT2H] | collect as DurationCollector
-      assert collectedDurations.duration()?
-
-    BrokenExpressionTerminator1()
-      //This is currently not quite right, DurationCollector cannot accept integers
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-      collectedDurations <- cat [1, 2, 3] | collect as DurationCollector
-      assert collectedDurations?
-  -!>
+    getInferredFromArgOptional()
+      -> arg0 as String
+      <- rtn <- Optional(arg0)
 
 //EOF
 

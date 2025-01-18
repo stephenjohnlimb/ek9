@@ -10,15 +10,15 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
+import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.ParameterisedLocator;
 import org.ek9lang.compiler.support.ParameterisedTypeData;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
-import org.ek9lang.core.CompilerException;
 
 /**
- * Checks for inferred declarations of variables in various contexts.
+ * Checks for inferred declarations of variables in various contexts. Even though this is phase2 (explicit phase).
  * <p>
  * If possible it will attempt to work out what the type is, if it cannot, it will emit an error.
  * This is designed to aid in simple property declarations as much as possible, but property initialisation cannot
@@ -61,25 +61,29 @@ final class ProcessVariableDeclarationOrError extends RuleSupport
 
   private void processInferredTypeOrError(final EK9Parser.VariableDeclarationContext ctx,
                                           final EK9Parser.ExpressionContext exprCtx,
-                                          final ISymbol variable) {
+                                          final ISymbol returnVariable) {
 
     if (exprCtx.call() != null && exprCtx.call().identifierReference() != null) {
-      processAsIdentifierReferenceOrError(ctx, exprCtx, variable);
+      final var resolvedType = processAsIdentifierReferenceOrError(ctx.start, exprCtx, returnVariable);
+      resolvedType.ifPresent(returnVariable::setType);
     } else if (exprCtx.call() != null && exprCtx.call().parameterisedType() != null) {
-      processAsParameterisedTypeOrError(ctx, exprCtx, variable);
+      final var resolvedType = processAsParameterisedTypeOrError(exprCtx);
+      resolvedType.ifPresent(returnVariable::setType);
     } else if (exprCtx.list() != null) {
-      processAsList(exprCtx.list(), variable);
+      final var resolvedType = processAsList(exprCtx.list(), returnVariable);
+      resolvedType.ifPresent(returnVariable::setType);
     } else if (exprCtx.dict() != null) {
-      processAsDictionaryOrError(ctx, exprCtx.dict(), variable);
+      final var resolvedType = processAsDictionaryOrError(ctx, exprCtx.dict(), returnVariable);
+      resolvedType.ifPresent(returnVariable::setType);
     } else {
-      emitMustBeSimpleError(ctx.start, "not expecting complex expression", variable);
+      emitMustBeSimpleError(ctx.start, "not expecting complex expression", returnVariable);
     }
 
   }
 
-  private void processAsIdentifierReferenceOrError(final EK9Parser.VariableDeclarationContext ctx,
-                                                   final EK9Parser.ExpressionContext exprCtx,
-                                                   final ISymbol variable) {
+  private Optional<ISymbol> processAsIdentifierReferenceOrError(final Token errorLocation,
+                                                                final EK9Parser.ExpressionContext exprCtx,
+                                                                final ISymbol returnVariable) {
 
     final var identifierReferenceCtx = exprCtx.call().identifierReference();
     final var identifierReference = symbolsAndScopes.getRecordedSymbol(identifierReferenceCtx);
@@ -87,43 +91,120 @@ final class ProcessVariableDeclarationOrError extends RuleSupport
     if (identifierReference != null
         && (identifierReference.isTemplateFunction() || identifierReference.isTemplateType())) {
 
-      //At this point in the phases we have not started to try and resolve expressions, that's the next phase.
-      //Consider a shortcut of this to attempt to resolve a inferred parameterised type early.
-      //TODO maybe see if it is possible to detect simple constructor use to determine types.
-      emitMustBeSimpleError(ctx.start, "not expecting type inferred Generic", variable);
-      return;
+      return attemptToEvaluateType(errorLocation, identifierReference, exprCtx, returnVariable);
     }
 
-    resolveTypeOrError(identifierReferenceCtx.start, ctx, identifierReferenceCtx, variable);
+    return resolveTypeOrError(identifierReferenceCtx.start, identifierReferenceCtx, returnVariable);
+  }
+
+  /**
+   * The resolution of expression types is fully done in later stages.
+   * But here it is really nice to be able to look ahead to process types that are used in
+   * properties and return variable (if possible).
+   */
+  private Optional<ISymbol> attemptToEvaluateType(final Token errorLocation,
+                                                  final ISymbol identifierReference,
+                                                  final EK9Parser.ExpressionContext ctx,
+                                                  final ISymbol returnVariable) {
+
+    if (identifierReference.isTemplateType()
+        && ctx.call().paramExpression() != null
+        && ctx.call().paramExpression().expressionParam() != null
+        && !ctx.call().paramExpression().expressionParam().isEmpty()) {
+
+      //Then we know it will need some arguments to parameterize it.
+      //We must have/resolve those so that we can ensure we parameterize the genetic type to
+      //get its actual type. i.e. List of type T -> List of T or String.
+      //Now this could be in the form of literals or Type constructors, i.e. "" or String().
+      final var parameterizingTypes = attemptToGetTypes(errorLocation,
+          ctx.call().paramExpression().expressionParam(), returnVariable);
+
+      if (!parameterizingTypes.isEmpty()) {
+        final var typeData =
+            new ParameterisedTypeData(new Ek9Token(errorLocation), identifierReference, parameterizingTypes);
+        return parameterisedLocator.resolveOrDefine(typeData);
+      }
+    }
+    emitMustBeSimpleError(errorLocation, "not expecting type inferred Generic", returnVariable);
+    return Optional.empty();
+  }
+
+  private List<ISymbol> attemptToGetTypes(final Token errorLocation,
+                                          final List<EK9Parser.ExpressionParamContext> ctxList,
+                                          final ISymbol returnVariable) {
+
+    final var returnList = new ArrayList<ISymbol>();
+    for (var ctx : ctxList) {
+      //Now try and get the symbol (if present in this phase)
+      if (ctx.expression().primary() != null && ctx.expression().primary().literal() != null) {
+        //Just a literal so can guarantee locating that and also know its type
+        final var literal = symbolsAndScopes.getRecordedSymbol(ctx.expression().primary().literal());
+        literal.getType().ifPresent(returnList::add);
+      } else if (ctx.expression().primary() != null && ctx.expression().primary().identifierReference() != null) {
+        //A bit trickier as we cannot be sure the identifier can be located or has a type at this stage.
+        final var identifierReferenceCtx = ctx.expression().primary().identifierReference();
+        final var resolved = symbolsAndScopes.getTopScope().resolve(new SymbolSearch(identifierReferenceCtx.getText()));
+        if (resolved.isEmpty()) {
+          errorListener.semanticError(identifierReferenceCtx.start, "",
+              ErrorListener.SemanticClassification.NOT_RESOLVED);
+        }
+        resolved.flatMap(ISymbol::getType).ifPresent(returnList::add);
+      } else if (ctx.expression().call() != null
+          && ctx.expression().call().identifierReference() != null
+          && ctx.expression().call().paramExpression() != null) {
+        final var resolved = processAsIdentifierReferenceOrError(errorLocation, ctx.expression(), returnVariable);
+        //Unlike the above this method will return the actual type
+        resolved.ifPresent(returnList::add);
+      }
+    }
+    //Only if we could actually locate all the types required do we return the list
+    //If the list is empty on return then errors will be emitted.
+    if (returnList.size() == ctxList.size()) {
+      return returnList;
+    }
+    return List.of();
 
   }
 
-  private void processAsParameterisedTypeOrError(final EK9Parser.VariableDeclarationContext ctx,
-                                                 final EK9Parser.ExpressionContext exprCtx,
-                                                 final ISymbol variable) {
+  /**
+   * <pre>
+   *   typeDef
+   *     : identifierReference
+   *     | parameterisedType
+   *     ;
+   *
+   * //Added optional paramExpression here, to simplify grammar and processing
+   * //But now needs coding check to ensure only used in the correct context.
+   * parameterisedType
+   *     : identifierReference paramExpression? OF LPAREN parameterisedArgs RPAREN
+   *     | identifierReference paramExpression? OF typeDef
+   *     ;
+   * parameterisedArgs
+   *     : typeDef (COMMA typeDef)*
+   *     ;
+   * </pre>
+   */
+  private Optional<ISymbol> processAsParameterisedTypeOrError(final EK9Parser.ExpressionContext exprCtx) {
 
     final var parameterisedTypeCtx = exprCtx.call().parameterisedType();
-    resolveTypeOrError(parameterisedTypeCtx.start, ctx, parameterisedTypeCtx, variable);
-
+    return Optional.ofNullable(symbolsAndScopes.getRecordedSymbol(parameterisedTypeCtx));
   }
 
-  private void resolveTypeOrError(final Token errorLocation,
-                                  final EK9Parser.VariableDeclarationContext ctx,
-                                  final ParseTree node,
-                                  final ISymbol variable) {
+  private Optional<ISymbol> resolveTypeOrError(final Token errorLocation,
+                                               final ParseTree node,
+                                               final ISymbol returnVariable) {
 
     final var ref = symbolsAndScopes.getRecordedSymbol(node);
-    if (ref != null) {
-      ref.getType().ifPresent(type -> {
-        variable.setType(type);
-        if (!type.isType()) {
-          emitMustBeSimpleError(ctx.start, "expecting a valid type", variable);
-        }
-      });
+    if (ref != null && ref.getType().isPresent()) {
+      final var type = ref.getType().get();
+      if (!type.isType()) {
+        emitMustBeSimpleError(errorLocation, "expecting a valid type", returnVariable);
+      }
+      return ref.getType();
     } else {
       errorListener.semanticError(errorLocation, "", ErrorListener.SemanticClassification.NOT_RESOLVED);
     }
-
+    return Optional.empty();
   }
 
   /**
@@ -132,29 +213,25 @@ final class ProcessVariableDeclarationOrError extends RuleSupport
    * they really have to be simple 'literals' and all same type, there is no trying to find a common super or anything
    * like implemented in phase 3. This is supposed to be simple and declarative on the aggregate.
    */
-  private void processAsList(final EK9Parser.ListContext listCtx,
-                             final ISymbol variable) {
+  private Optional<ISymbol> processAsList(final EK9Parser.ListContext listCtx,
+                                          final ISymbol returnVariable) {
 
-    if (allLiteralsInListOrError(listCtx, variable)) {
-      final var typeOfList = getListType(listCtx.start, listCtx.expression(), variable);
+    if (allLiteralsInListOrError(listCtx, returnVariable)) {
+      final var typeOfList = getListType(listCtx.start, listCtx.expression(), returnVariable);
       if (typeOfList != null) {
         final var listType = symbolsAndScopes.getEk9Types().ek9List();
         final var typeData = new ParameterisedTypeData(new Ek9Token(listCtx.start), listType, List.of(typeOfList));
-        final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
-        if (resolvedNewType.isEmpty()) {
-          throw new CompilerException("Unable to create parameterised type");
-        }
-        variable.setType(resolvedNewType);
+        return parameterisedLocator.resolveOrDefine(typeData);
       }
     }
-
+    return Optional.empty();
   }
 
   private boolean allLiteralsInListOrError(final EK9Parser.ListContext list,
-                                           final ISymbol property) {
+                                           final ISymbol returnVariable) {
 
     for (var exprCtx : list.expression()) {
-      if (emitErrorWhenExpressionIsNotLiteral(exprCtx, property)) {
+      if (emitErrorWhenExpressionIsNotLiteral(exprCtx, returnVariable)) {
         return false;
       }
     }
@@ -162,30 +239,25 @@ final class ProcessVariableDeclarationOrError extends RuleSupport
     return true;
   }
 
-  private void processAsDictionaryOrError(final EK9Parser.VariableDeclarationContext ctx,
-                                          final EK9Parser.DictContext dictCtx,
-                                          final ISymbol property) {
+  private Optional<ISymbol> processAsDictionaryOrError(final EK9Parser.VariableDeclarationContext ctx,
+                                                       final EK9Parser.DictContext dictCtx,
+                                                       final ISymbol returnVariable) {
 
-    if (allLiteralsInDictOrError(dictCtx, property)) {
-      final var keyValueTypes = extractDictExpressionsAsLists(ctx.start, dictCtx, property);
+    if (allLiteralsInDictOrError(dictCtx, returnVariable)) {
+      final var keyValueTypes = extractDictExpressionsAsLists(ctx.start, dictCtx, returnVariable);
       if (keyValueTypes.isEmpty()) {
-        return;
+        return Optional.empty();
       }
       final var dictType = symbolsAndScopes.getEk9Types().ek9Dictionary();
       final var typeData = new ParameterisedTypeData(new Ek9Token(dictCtx.start), dictType, keyValueTypes);
-      final var resolvedNewType = parameterisedLocator.resolveOrDefine(typeData);
-      if (resolvedNewType.isEmpty()) {
-        //Something seriously wrong here.
-        throw new CompilerException("Unable to create parameterised type");
-      }
-      property.setType(resolvedNewType);
+      return parameterisedLocator.resolveOrDefine(typeData);
     }
-
+    return Optional.empty();
   }
 
   private List<ISymbol> extractDictExpressionsAsLists(final Token errorLocation,
                                                       final EK9Parser.DictContext dict,
-                                                      final ISymbol property) {
+                                                      final ISymbol returnVariable) {
 
     final List<EK9Parser.ExpressionContext> keyExprList = new ArrayList<>();
     final List<EK9Parser.ExpressionContext> valueExprList = new ArrayList<>();
@@ -195,8 +267,8 @@ final class ProcessVariableDeclarationOrError extends RuleSupport
       valueExprList.add(valuePair.expression(1));
     }
 
-    final var keySymbolType = getListType(errorLocation, keyExprList, property);
-    final var valueSymbolType = getListType(errorLocation, valueExprList, property);
+    final var keySymbolType = getListType(errorLocation, keyExprList, returnVariable);
+    final var valueSymbolType = getListType(errorLocation, valueExprList, returnVariable);
 
     if (keySymbolType == null || valueSymbolType == null) {
       return List.of();
@@ -207,7 +279,8 @@ final class ProcessVariableDeclarationOrError extends RuleSupport
 
   private ISymbol getListType(final Token errorLocation,
                               final List<EK9Parser.ExpressionContext> expressions,
-                              final ISymbol property) {
+                              final ISymbol returnVariable) {
+
     final var distinctTypes = expressions
         .stream()
         .map(expr -> expr.primary().literal())
@@ -218,7 +291,7 @@ final class ProcessVariableDeclarationOrError extends RuleSupport
         .toList();
 
     if (distinctTypes.size() != 1) {
-      emitMustBeSimpleError(errorLocation, "not all types are the same", property);
+      emitMustBeSimpleError(errorLocation, "not all types are the same", returnVariable);
       return null;
     }
 
@@ -227,11 +300,11 @@ final class ProcessVariableDeclarationOrError extends RuleSupport
   }
 
   private boolean allLiteralsInDictOrError(final EK9Parser.DictContext dict,
-                                           final ISymbol property) {
+                                           final ISymbol returnVariable) {
 
     for (var valuePair : dict.initValuePair()) {
-      if (emitErrorWhenExpressionIsNotLiteral(valuePair.expression(0), property)
-          || emitErrorWhenExpressionIsNotLiteral(valuePair.expression(1), property)) {
+      if (emitErrorWhenExpressionIsNotLiteral(valuePair.expression(0), returnVariable)
+          || emitErrorWhenExpressionIsNotLiteral(valuePair.expression(1), returnVariable)) {
         return false;
       }
     }
@@ -240,9 +313,9 @@ final class ProcessVariableDeclarationOrError extends RuleSupport
   }
 
   private boolean emitErrorWhenExpressionIsNotLiteral(final EK9Parser.ExpressionContext exprCtx,
-                                                      final ISymbol property) {
+                                                      final ISymbol returnVariable) {
     if (exprCtx.primary() == null || exprCtx.primary().literal() == null) {
-      emitMustBeSimpleError(exprCtx.start, "expecting literals", property);
+      emitMustBeSimpleError(exprCtx.start, "expecting literals", returnVariable);
       return true;
     }
 
@@ -251,9 +324,9 @@ final class ProcessVariableDeclarationOrError extends RuleSupport
 
   private void emitMustBeSimpleError(final Token errorLocation,
                                      final String additionalErrorInformation,
-                                     final ISymbol property) {
+                                     final ISymbol returnVariable) {
 
-    final var msg = "wrt '" + property.getName() + "' "
+    final var msg = "wrt '" + returnVariable.getName() + "' "
         + additionalErrorInformation + ":";
 
     errorListener.semanticError(errorLocation, msg,

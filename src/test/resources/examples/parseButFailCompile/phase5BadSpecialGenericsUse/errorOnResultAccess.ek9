@@ -14,12 +14,14 @@
 defines module error.on.result.access
 
   defines record
+
     <?-
-      Just used to test the ability to use object access via records and also detect use of Result type
+      Just used to test the ability to use object access via records and also detect use of Result type.
+      If you want an 'unset' Optional or Result - you can use this form below.
     -?>
     Rec
       propString as String: "Steve"
-      propResult as Result of (String, Integer): Result(String(), Integer())
+      propResult <- Result() of (String, Integer)
 
       default operator ?
 
@@ -50,12 +52,20 @@ defines module error.on.result.access
       -> arg0 as String
       <- rtn as Result of (String, Integer): Result(arg0, Integer())
 
+    simplerGetResult1() as pure
+      -> arg0 as String
+      <- rtn <- Result(arg0, Integer())
+
     <?-
       Example of how to get a Result using a simple constructor with an Error result
     -?>
     getResult2() as pure
       -> arg0 as Integer
       <- rtn as Result of (String, Integer): Result(String(), arg0)
+
+    simpleGetResult2() as pure
+      -> arg0 as Integer
+      <- rtn <- Result(String(), arg0)
 
     <?-
       Example of how to get a Result using a constructor and then to use that to get just an OK result.

@@ -42,7 +42,26 @@ defines module bad.inferred.returns
     -?>
     invalidExpressionUse1()
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
-      <- aBitComplex <- List("Steve")
+      <- aBitComplex <- List("Steve").get(0)
 
+    <?-
+      Strangely so is this because '-' and '1' are an expression.
+    -?>
+    invalidExpressionUse2()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
+      <- aBitComplex <- List(-1)
+
+    <?-
+      Also this is considered too complex (at the moment)
+    -?>
+    invalidExpressionUse3()
+      -> arg0 as String
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
+      <- aBitComplex <- List(arg0 + "-Something")
+
+    invalidExpressionUse4()
+      -> arg0 as String
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_RESOLVED
+      <- aBitComplex <- List(nonSuch)
 
 //EOF
