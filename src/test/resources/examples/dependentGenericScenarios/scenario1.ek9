@@ -20,7 +20,7 @@ defines module generics.scenario.one
     DT of type X
       value as X?
 
-      default private DT()
+      default DT()
 
       DT()
         -> arg0 as X
@@ -34,6 +34,12 @@ defines module generics.scenario.one
       Simple Generic/template class with a single type parameter.
     -?>
     GC of type T
+
+      default GC() as pure
+
+      GC() as pure
+        -> arg0 as T
+        assert arg0?
 
       <?-
         Single operation that uses the conceptual type 'T'

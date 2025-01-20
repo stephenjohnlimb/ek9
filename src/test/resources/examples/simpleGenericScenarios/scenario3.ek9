@@ -11,6 +11,16 @@ defines module generics.scenario.three
     -?>
     GC of type (P, Q, R)
 
+      default GC() as pure
+
+      GC() as pure
+        ->
+          arg0 as P
+          arg1 as Q
+          arg2 as R
+
+        assert arg0? and arg1? and arg2?
+
       <?-
         Single operation that uses the conceptual types
         as both an incoming argument type and a return argument type.

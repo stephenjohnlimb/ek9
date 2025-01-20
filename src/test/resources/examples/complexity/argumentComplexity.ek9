@@ -80,7 +80,20 @@ defines module argument.complexity
         arg6 as Integer
         arg7 as Integer
         arg8 as Integer
-      assert arg1 <> arg8
+        arg9 as Integer
+        arg10 as Integer
+        arg11 as Integer
+        arg12 as Integer
+        arg13 as Integer
+        arg14 as Integer
+        arg15 as Integer
+        arg16 as Integer
+        arg17 as Integer
+        arg18 as Integer
+        arg19 as Integer
+        arg20 as Integer
+        arg21 as Integer
+      assert arg1 <> arg21
 
 
 //EOF

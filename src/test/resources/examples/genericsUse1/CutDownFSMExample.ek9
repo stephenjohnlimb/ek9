@@ -49,9 +49,9 @@ defines module com.utils.fsm.example
       listener as FSMListener of T?
 
       <?-
-        Prevent other forms of construction.
+        Must provide this for unset style construction.
       -?>
-      default private FSM()
+      default FSM()
 
       <?-
         Simple constructor so we can infer generic type when used.
@@ -77,6 +77,9 @@ defines module com.utils.fsm.example
         -> listenerToAdd as FSMListener of T
         assert listenerToAdd?
         listener := listenerToAdd
+
+      operator ? as pure
+        <- rtn as Boolean: currentState? and listener?
 
   defines program
 

@@ -28,9 +28,18 @@ defines module equality.coalescing
     GC1 of type T
       default GC1()
 
+      GC1()
+        -> arg0 as T
+        assert arg0?
+
     //Here is another Generic type but this time has the operators needed.
     GC2 of type T
       default GC2()
+
+      GC2()
+        -> arg0 as T
+        assert arg0?
+
       operator ? as pure
         <- rtn as Boolean: false
       operator $ as pure

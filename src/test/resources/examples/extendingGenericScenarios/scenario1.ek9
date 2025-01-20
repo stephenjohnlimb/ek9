@@ -14,7 +14,7 @@ defines module generics.scenario.one
       key as K?
       value as V?
 
-      default private GC()
+      default GC()
 
       GC()
         ->

@@ -8,6 +8,12 @@ defines module bad.duplicate.genericclassmethods
 
     G1 of type T
 
+      default G1()
+
+      G1()
+        -> arg0 as T
+        assert arg0?
+
       methodA()
         -> arg0 as String
         <- rtn as Boolean: true

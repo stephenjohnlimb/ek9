@@ -18,6 +18,12 @@ defines module dependent.generic.types
 
       default G2()
 
+      G2()
+        ->
+          arg0 as P
+          arg1 as Q
+        assert arg0? and arg1?
+
       setProp()
         -> arg as G1 of (P, Q)
         prop1: arg

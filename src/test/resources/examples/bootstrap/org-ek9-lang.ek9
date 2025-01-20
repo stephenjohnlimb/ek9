@@ -150,6 +150,9 @@ defines extern module org.ek9.lang
     Iterator of type I as abstract
       Iterator() as pure
 
+      Iterator() as pure
+        -> arg0 as I
+
       next() as pure
         <- rtn as I?
 
@@ -158,6 +161,9 @@ defines extern module org.ek9.lang
 
     Optional of type O
       Optional() as pure
+
+      Optional() as pure
+        -> arg0 as O
 
       get() as pure
         <- rtn as O?
@@ -168,12 +174,26 @@ defines extern module org.ek9.lang
     Dict of type (K, V) as open
       Dict() as pure
 
+      Dict() as pure
+        ->
+          arg0 as K
+          arg1 as V
+
     DictEntry of type (K, V) as open
       DictEntry() as pure
+
+      DictEntry() as pure
+        ->
+          arg0 as K
+          arg1 as V
 
     Result of type (O, E)
       Result() as pure
 
+      Result() as pure
+        ->
+          arg0 as O
+          arg1 as E
     <!-
       This is the main item under test in MinimalGenericBootStrapTest.java
     -!>

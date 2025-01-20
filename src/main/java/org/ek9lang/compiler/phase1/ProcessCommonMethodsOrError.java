@@ -10,7 +10,9 @@ import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.OverrideOrAbstractOrError;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 
 /**
  * Processes and checks Methods that apply in all method contexts for basic correctness.
@@ -100,7 +102,11 @@ final class ProcessCommonMethodsOrError extends RuleSupport
                               final EK9Parser.MethodDeclarationContext ctx,
                               final String errorMessage) {
 
-    if (defaulted.test(method) && method.isConstructor() && !method.getCallParameters().isEmpty()) {
+    if (defaulted.test(method)
+        && method.isConstructor()
+        && !method.getCallParameters().isEmpty()
+        && method.getParentScope() instanceof IAggregateSymbol aggregate
+        && !aggregate.getCategory().equals(SymbolCategory.TEMPLATE_TYPE)) {
       errorListener.semanticError(ctx.DEFAULT().getSymbol(), errorMessage,
           ErrorListener.SemanticClassification.INVALID_DEFAULT_CONSTRUCTOR);
     }

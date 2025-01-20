@@ -19,7 +19,7 @@ class BadGenericConstrainingSupersTest extends PhasesTest {
             "bad.generic.constraining.resolution1",
             "bad.generic.constraining.resolution2",
             "bad.generic.constraining.resolution3",
-            "bad.functiondelegate.byrecord"), false, true);
+            "bad.functiondelegate.byrecord"));
   }
 
   @Test

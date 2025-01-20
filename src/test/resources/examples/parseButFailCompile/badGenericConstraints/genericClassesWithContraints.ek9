@@ -12,6 +12,9 @@ defines module bad.generic.class.constraints
     UnConstrainedGenericClass of type T
       default UnConstrainedGenericClass()
 
+      default UnConstrainedGenericClass()
+        -> arg0 as T
+
       check() as pure
         -> arg0 as T
         <- rtn as Boolean: arg0?
@@ -71,6 +74,9 @@ defines module bad.generic.class.constraints
     BrokenUnConstrainedGenericClass of type T
       default BrokenUnConstrainedGenericClass()
 
+      default BrokenUnConstrainedGenericClass()
+        -> arg0 as T
+
       //In this case there is no way getProperty1 can be used.
       check()
         -> arg0 as T
@@ -82,7 +88,10 @@ defines module bad.generic.class.constraints
       constraining type can be used (even when defining the generic type).
     -?>
     BrokenConstrainedGenericClass of type T constrain by C0
-      default ConstrainedGenericClass()
+      default BrokenConstrainedGenericClass()
+
+      default BrokenConstrainedGenericClass()
+        -> arg0 as T
 
       //Now because we have constrained to C0, we can be assured of the methods and operators available
       //But note that C0 does not have the '?' operator and so this fails.
@@ -95,7 +104,10 @@ defines module bad.generic.class.constraints
       Now create a generic type that limits use to classes that are a C0A or extend a C0A.
     -?>
     ConstrainedGenericClassCOA of type T constrain by C0A
-      default ConstrainedGenericClassC0A()
+      default ConstrainedGenericClassCOA()
+
+      default ConstrainedGenericClassCOA()
+        -> arg0 as T
 
       //But this will now be OK because it has the operator ?
       check()
@@ -109,6 +121,9 @@ defines module bad.generic.class.constraints
     ConstrainedGenericClass2 of type T constrain by C0
       default ConstrainedGenericClass2()
 
+      default ConstrainedGenericClass2()
+        -> arg0 as T
+
       check()
         -> arg0 as T
         <- rtn as Boolean: arg0.getProperty1()?
@@ -118,6 +133,9 @@ defines module bad.generic.class.constraints
     -?>
     ConstrainedGenericClassC1 of type T constrain by C1
       default ConstrainedGenericClassC1()
+
+      default ConstrainedGenericClassC1()
+        -> arg0 as T
 
       //But this will now be OK because it has the operator '?'
       check()

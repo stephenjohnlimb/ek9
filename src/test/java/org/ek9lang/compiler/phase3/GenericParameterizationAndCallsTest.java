@@ -16,7 +16,7 @@ class GenericParameterizationAndCallsTest extends PhasesTest {
 
   public GenericParameterizationAndCallsTest() {
     super("/examples/parseButFailCompile/genericParameterizationAndCalls",
-        List.of("generic.parameterization"), false, true);
+        List.of("generic.parameterization"));
   }
 
   @Test

@@ -83,6 +83,12 @@ defines module bad.generic.constraining.resolution1
       Check it is possible to constrain by a trait
     -?>
     OKGeneric1 of type T constrain by T1
+
+      default OKGeneric1()
+
+      default OKGeneric1()
+        -> arg0 as T
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
@@ -92,6 +98,12 @@ defines module bad.generic.constraining.resolution1
       Check it is possible to constrain by a component
     -?>
     OKGeneric2 of type T constrain by Comp1
+
+      default OKGeneric2()
+
+      default OKGeneric2()
+        -> arg0 as T
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
@@ -101,6 +113,12 @@ defines module bad.generic.constraining.resolution1
       Check it is possible to constrain by a record
     -?>
     OKGeneric3 of type T constrain by R1
+
+      default OKGeneric3()
+
+      default OKGeneric3()
+        -> arg0 as T
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
@@ -110,6 +128,12 @@ defines module bad.generic.constraining.resolution1
       Check it is possible to constrain by a class
     -?>
     OKGeneric4 of type T constrain by C0
+
+      default OKGeneric4()
+
+      default OKGeneric4()
+        -> arg0 as T
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
@@ -119,12 +143,24 @@ defines module bad.generic.constraining.resolution1
       Check it is possible to constrain by a 'type'
     -?>
     OKGeneric5 of type T constrain by Color
+
+      default OKGeneric5()
+
+      default OKGeneric5()
+        -> arg0 as T
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
       default operator ?
 
     OKGeneric6 of type T constrain by Limited
+
+      default OKGeneric6()
+
+      default OKGeneric6()
+        -> arg0 as T
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true

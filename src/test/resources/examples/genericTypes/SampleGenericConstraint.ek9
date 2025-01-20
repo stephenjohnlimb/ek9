@@ -131,6 +131,12 @@ defines module com.customer.sample
     GenericShapeEventProcessor of type T constrain by Shape
       stdout as Stdout: Stdout()
 
+      default GenericShapeEventProcessor()
+
+      GenericShapeEventProcessor()
+        -> arg0 as T
+        assert arg0?
+
       processShapeEvent()
         -> shape as T
         assert shape?

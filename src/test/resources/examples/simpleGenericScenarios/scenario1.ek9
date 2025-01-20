@@ -19,6 +19,7 @@ defines module generics.scenario.one
 
     <?-
       Simple Generic/template class with a single type parameter.
+      Note that no constructors are defined, but will be synthesized.
     -?>
     GC of type T
 
@@ -32,20 +33,44 @@ defines module generics.scenario.one
 
   <?-
     Some sample programs that show the use of the generic type.
-    The code here does not use inference, it is fully explicit.
+
   -?>
   defines program
 
-    IntegerDriver()
+    <?-
+      The code here does not use inference, it is fully explicit.
+    -?>
+    IntegerDriver1()
       g <- GC() of Integer
 
       echoedValue as Integer: g.operation(21)
       assert echoedValue == 21
 
-    StringDriver()
+    <?-
+      The code here does not use inference, it is fully explicit.
+    -?>
+    StringDriver1()
       g <- GC() of String
 
       echoedValue as String: g.operation("Steve")
+      assert echoedValue == "Steve"
+
+    <?-
+      The code here does use inference.
+    -?>
+    IntegerDriver2()
+      g <- GC(Integer())
+
+      echoedValue <- g.operation(21)
+      assert echoedValue == 21
+
+    <?-
+      The code here does use inference.
+    -?>
+    StringDriver2()
+      g <- GC(String())
+
+      echoedValue <- g.operation("Steve")
       assert echoedValue == "Steve"
 
 //EOF

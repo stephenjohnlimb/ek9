@@ -28,6 +28,8 @@ defines module net.customer.constrained
       aTest as T := T()
 
       //Constructor
+      default MyList() as pure
+
       MyList() as pure
         -> item as T
         var as T: item
@@ -61,7 +63,9 @@ defines module net.customer.constrained
     MyOptional of type O constrain by MyList of EmailAddress
       
       someVar as O?
-      
+
+      default MyOptional()
+
       //Simple constructor taking the item to wrap
       MyOptional()
         -> item as O

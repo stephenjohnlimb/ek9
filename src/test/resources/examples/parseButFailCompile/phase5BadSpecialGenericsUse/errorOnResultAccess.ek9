@@ -32,6 +32,33 @@ defines module error.on.result.access
   -?>
   defines function
 
+    getInferredResult1()
+      <- rtn <- Result(String(), Integer())
+
+    testInferredResult1()
+      r <- getInferredResult1()
+      assert not r.isOk() and not r.isError()
+
+    getInferredResult2()
+      <- rtn <- Result("Steve", Integer())
+
+    testInferredResult2()
+      r <- getInferredResult2()
+      assert r.isOk() and not r.isError()
+
+    getInferredResult3()
+      <- rtn <- Result(String(), 1)
+
+    testInferredResult3()
+      r <- getInferredResult3()
+      assert not r.isOk() and r.isError()
+
+    getInferredOptionalOfResult1()
+      <- rtn <- Optional(Result(String(), Integer()))
+
+    getInferredOptionalOfResult2()
+      <- rtn <- Optional() of Result of (String, Integer)
+
     <?-
       Example of how to get a Result that is both OK, but also does have an error.
       So in this example, if arg0 is unset, then it checks (using the ternary).
@@ -221,6 +248,14 @@ defines module error.on.result.access
         okValue <- r.ok()
         assert okValue?
 
+      //Now you could use this method if you are prepared to supply a default value
+      assuredValue1 <- r.okOrDefault("Stephen")
+      assert assuredValue1?
+
+      //Same functionality as above, but with naming like Optional/Dict
+      assuredValue2 <- r.getOrDefault("Stephen")
+      assert assuredValue2?
+
     <?-
       Demonstrates a nice idiomatic pattern to access the 'ok' value in the result.
     -?>
@@ -255,7 +290,7 @@ defines module error.on.result.access
       assert okValue?
 
       //So you could now make a result like this if you wanted to
-      //This does not mutate 'r' but uses it's type to create a new Result but with just the OK value set.
+      //This does not mutate 'r' but uses it as a prototype to create a new Result but with just the OK value set.
       someSimpleResult <- r.asOk(okValue)
       assert someSimpleResult.isOk() and not someSimpleResult.isError()
 

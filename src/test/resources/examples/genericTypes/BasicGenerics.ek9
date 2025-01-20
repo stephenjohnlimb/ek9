@@ -33,7 +33,7 @@ defines module net.customer.inferred
 
       aTest as T?
 
-      default private SomeTestList() as pure
+      default SomeTestList() as pure
 
       //Constructor
       SomeTestList() as pure

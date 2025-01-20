@@ -13,6 +13,7 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.core.CompilerException;
 
@@ -27,6 +28,7 @@ import org.ek9lang.core.CompilerException;
  * This is a factory of sorts, not in the pure OO sense; but still a factory.
  */
 public class AggregateManipulator {
+  public static final int MAX_ARGUMENTS_PER_CALL = 20;
   public static final String PRIVATE = "private";
   public static final String PROTECTED = "protected";
   public static final String PUBLIC = "public";
@@ -97,16 +99,22 @@ public class AggregateManipulator {
 
   /**
    * Add a synthetic constructor, if a constructor is not present.
+   * Also adds a constructor with all the properties as well (if not present).
    */
   public void addSyntheticConstructorIfRequired(final IAggregateSymbol aggregateSymbol) {
 
-    //Default constructor
-    addSyntheticConstructorIfRequired(aggregateSymbol, new ArrayList<>());
+    //Do not create for generic types, that is done elsewhere.
+    if (!aggregateSymbol.getCategory().equals(SymbolCategory.TEMPLATE_TYPE)) {
 
-    //Constructor with all properties on the aggregate.
-    List<ISymbol> propertiesOfAggregate = aggregateSymbol.getProperties();
-    addSyntheticConstructorIfRequired(aggregateSymbol, propertiesOfAggregate);
+      //Default constructor
+      addSyntheticConstructorIfRequired(aggregateSymbol, new ArrayList<>());
 
+      //Constructor with all properties on the aggregate, max of twenty.
+      List<ISymbol> propertiesOfAggregate = aggregateSymbol.getProperties();
+      if (propertiesOfAggregate.size() < MAX_ARGUMENTS_PER_CALL) {
+        addSyntheticConstructorIfRequired(aggregateSymbol, propertiesOfAggregate);
+      }
+    }
   }
 
   /**
@@ -136,19 +144,68 @@ public class AggregateManipulator {
       //If there are other constructors defined, and we provide a built-in one then we need to ensure we make it
       //pure if any of the others are pure.
       final var needsPure = aggregateHasPureConstruction.test(aggregateSymbol);
-      final var newConstructor = new MethodSymbol(aggregateSymbol.getName(), aggregateSymbol);
-
-      newConstructor.setMarkedPure(needsPure);
-      newConstructor.setConstructor(true);
-      newConstructor.setInitialisedBy(aggregateSymbol.getSourceToken());
-      newConstructor.setSourceToken(aggregateSymbol.getSourceToken());
-      newConstructor.setSynthetic(synthetic);
-      newConstructor.setType(aggregateSymbol);
-
-      newConstructor.setCallParameters(constructorArguments);
-      aggregateSymbol.define(newConstructor);
+      addConstructor(aggregateSymbol, constructorArguments, synthetic, needsPure);
     }
 
+  }
+
+  /**
+   * Create a new constructor for the aggregate with no params.
+   *
+   * @param t The aggregate type to add the constructor to.
+   */
+  public MethodSymbol addConstructor(final IAggregateSymbol t) {
+
+    final var constructor = new MethodSymbol(t.getName(), t);
+    constructor.setConstructor(true);
+    constructor.setType(t);
+    t.define(constructor);
+
+    return constructor;
+  }
+
+  public void addConstructor(final IAggregateSymbol aggregateSymbol,
+                             final List<ISymbol> constructorArguments,
+                             final boolean synthetic,
+                             final boolean markedPure) {
+    final var newConstructor = new MethodSymbol(aggregateSymbol.getName(), aggregateSymbol);
+
+    newConstructor.setMarkedPure(markedPure);
+    newConstructor.setConstructor(true);
+    newConstructor.setInitialisedBy(aggregateSymbol.getSourceToken());
+    newConstructor.setSourceToken(aggregateSymbol.getSourceToken());
+    newConstructor.setSynthetic(synthetic);
+    newConstructor.setType(aggregateSymbol);
+
+    newConstructor.setCallParameters(constructorArguments);
+    aggregateSymbol.define(newConstructor);
+  }
+
+  /**
+   * Add another constructor to type t, but passing in an s as the value in the construction.
+   *
+   * @param t The aggregate type to add the constructor to.
+   * @param s The argument - arg with a symbol type to be passed in as a construction parameter.
+   */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+  public MethodSymbol addConstructor(final AggregateSymbol t, final Optional<ISymbol> s) {
+
+    if (s.isPresent()) {
+      return addConstructor(t, s.get());
+    }
+
+    return addConstructor(t);
+  }
+
+  /**
+   * Add a constructor to the type aggregate with a particular parameter.
+   */
+  public MethodSymbol addConstructor(final AggregateSymbol t, final ISymbol s) {
+
+    final var constructor = addConstructor(t);
+    constructor.define(s);
+
+    return constructor;
   }
 
   /**
@@ -193,47 +250,6 @@ public class AggregateManipulator {
     return method.clone(to, to);
   }
 
-  /**
-   * Create a new constructor for the aggregate with no params.
-   *
-   * @param t The aggregate type to add the constructor to.
-   */
-  public MethodSymbol addConstructor(final IAggregateSymbol t) {
-
-    final var constructor = new MethodSymbol(t.getName(), t);
-    constructor.setConstructor(true);
-    constructor.setType(t);
-    t.define(constructor);
-
-    return constructor;
-  }
-
-  /**
-   * Add another constructor to type t, but passing in an s as the value in the construction.
-   *
-   * @param t The aggregate type to add the constructor to.
-   * @param s The argument - arg with a symbol type to be passed in as a construction parameter.
-   */
-  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public MethodSymbol addConstructor(final AggregateSymbol t, final Optional<ISymbol> s) {
-
-    if (s.isPresent()) {
-      return addConstructor(t, s.get());
-    }
-
-    return addConstructor(t);
-  }
-
-  /**
-   * Add a constructor to the type aggregate with a particular parameter.
-   */
-  public MethodSymbol addConstructor(final AggregateSymbol t, final ISymbol s) {
-
-    final var constructor = addConstructor(t);
-    constructor.define(s);
-
-    return constructor;
-  }
 
   /**
    * Create a generic parameter of specific name.

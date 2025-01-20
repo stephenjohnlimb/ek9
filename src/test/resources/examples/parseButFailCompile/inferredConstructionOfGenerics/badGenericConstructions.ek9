@@ -9,6 +9,12 @@ defines module bad.generic.constructions
 
     G1 of type T
 
+      default G1()
+
+      G1()
+        -> arg0 as T
+        assert arg0?
+
       methodA()
         -> arg0 as String
         <- rtn as Boolean: true
@@ -36,6 +42,8 @@ defines module bad.generic.constructions
     G2 of type (K, V)
       k as K?
       v as V?
+
+      default G2()
 
       G2()
         ->
@@ -81,6 +89,8 @@ defines module bad.generic.constructions
       k as K?
       v as V?
 
+      default DependentForG2()
+
       DependentForG2()
         ->
           k as K
@@ -108,6 +118,8 @@ defines module bad.generic.constructions
     InternalDependentForG2 of type (S, T)
       s as S?
       t as T?
+
+      default InternalDependentForG2()
 
       InternalDependentForG2()
         ->

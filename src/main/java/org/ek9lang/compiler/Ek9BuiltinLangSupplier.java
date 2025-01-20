@@ -185,6 +185,13 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator #> as pure
               <- rtn as Character?
 
+            <?-
+              This means that the String is 'set' but to a value of "".
+              i.e. it has zero length, but has actually been 'set' to that value.
+              Whereas a String that is 'un-set' does not have any value at all, that's different to "".
+              If you want to know it is is all white space, i.e. consists of spaces, tabs, new lines
+              then use 'trim()' and test the result of that.
+            -?>
             operator empty as pure
               <- rtn as Boolean?
 
@@ -2867,6 +2874,14 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               
             get() as pure
               <- rtn as T?
+
+            <?-
+              If the optional value is present, it is returned.
+              Otherwise the default value passed in is returned.
+            -?>
+            getOrDefault() as pure
+              -> arg0 as T
+              <- rtn as T?
               
             iterator() as pure
               <- rtn as Iterator of T?
@@ -2962,6 +2977,26 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               This is the same as get().
             -?>
             ok() as pure
+              <- rtn as O?
+
+            <?-
+              If the OK value is present, it is returned.
+              Otherwise the default value passed in is returned.
+            -?>
+            okOrDefault() as pure
+              -> arg0 as O
+              <- rtn as O?
+
+            <?-
+              If the OK value is present, it is returned.
+              Otherwise the default value passed in is returned.
+              This is the same functionality as okOrDefault.
+              Just that EK9 developers will probably get used to getOrDefault from
+              Optional and Dict and TBH we mainly focus on success and so 'get' will probably be what we want
+              most of the time.
+            -?>
+            getOrDefault() as pure
+              -> arg0 as O
               <- rtn as O?
 
             <?-
@@ -3162,7 +3197,18 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             get() as pure
               -> arg0 as K
               <- rtn as V?
-              
+
+            <?-
+              If the key value (arg0) is present, then the 'V' is returned.
+              Otherwise the default value (arg1) passed in is returned.
+            -?>
+            getOrDefault() as pure
+              ->
+                arg0 as K
+                arg1 as V
+              <-
+                rtn as V?
+               
             iterator() as pure
               <- rtn as DictEntry of (K, V)?
 

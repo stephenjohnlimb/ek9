@@ -5,6 +5,7 @@ Should be a single failure on phase 1
 defines module incorrect.parameters.on.constructors
 
   defines class
+
     SomeGenericType of type T
       aField as T?
 

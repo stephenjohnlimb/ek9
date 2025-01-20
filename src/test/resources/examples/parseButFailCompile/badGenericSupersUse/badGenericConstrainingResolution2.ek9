@@ -66,6 +66,12 @@ defines module bad.generic.constraining.resolution2
       This can be done because the semantics of operators are known - and return types are known.
     -?>
     UnconstrainedGeneric1 of type T
+
+      default UnconstrainedGeneric1()
+
+      default UnconstrainedGeneric1()
+        -> arg0 as T
+
       check()
         ->
           arg0 as T
@@ -83,6 +89,12 @@ defines module bad.generic.constraining.resolution2
       i.e. Like a List or an Optional for example.
     -?>
     UnconstrainedGeneric2 of type T
+
+      default UnconstrainedGeneric2()
+
+      default UnconstrainedGeneric2()
+        -> arg0 as T
+
       check()
         ->
           arg0 as T
@@ -94,6 +106,12 @@ defines module bad.generic.constraining.resolution2
       This just uses the comparator operator, not the new instance constructor.
     -?>
     UnconstrainedGeneric3 of type T
+
+      default UnconstrainedGeneric3()
+
+      default UnconstrainedGeneric3()
+        -> arg0 as T
+
       check()
         ->
           arg0 as T
@@ -105,6 +123,12 @@ defines module bad.generic.constraining.resolution2
       A Generic type, but one that can only accept Color or subtypes of Color.
     -?>
     ConstrainedGeneric of type T constrain by Color
+
+      default ConstrainedGeneric()
+
+      default ConstrainedGeneric()
+        -> arg0 as T
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true

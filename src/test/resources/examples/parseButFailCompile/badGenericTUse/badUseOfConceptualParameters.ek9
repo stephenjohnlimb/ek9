@@ -28,6 +28,8 @@ defines module bad.use.conceptual.parameters
 
     C1 of type T
       prop1 as T?
+
+      default C1()
       C1()
         -> arg T
         prop1: arg

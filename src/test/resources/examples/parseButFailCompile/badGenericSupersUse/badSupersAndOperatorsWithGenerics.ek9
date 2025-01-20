@@ -13,12 +13,18 @@ defines module bad.constraining.supers
     UnConstrainedGenericClass of type T
       default UnConstrainedGenericClass()
 
+      default UnConstrainedGenericClass()
+        -> arg0 as T
+
       check() as pure
         -> arg0 as T
         <- rtn as Boolean: arg0?
 
     ConstrainedGenericClass of type T constrain by C1
       default ConstrainedGenericClass()
+
+      default ConstrainedGenericClass()
+        -> arg0 as T
 
       check() as pure
         -> arg0 as T

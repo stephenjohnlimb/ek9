@@ -10,6 +10,9 @@ defines module bad.generic.class.function.constraints
     UnConstrained of type T
       default UnConstrained()
 
+      default UnConstrained()
+        -> arg0 as T
+
       check() as pure
         -> arg0 as T
         <- rtn as Boolean: arg0?

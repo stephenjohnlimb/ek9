@@ -5,6 +5,7 @@
   This sample code also shows several of the other methods and operations on the 'Optional' class.
   There is also some examples of options around creating empty Optionals and passing Suppliers/Producers
   around.
+  So there is a mix of 'happy working examples' and also so examples of compiler errors.
 -?>
 defines module error.on.optional.access
 
@@ -17,11 +18,18 @@ defines module error.on.optional.access
       -> arg0 as String
       <- rtn <- Optional(arg0)
 
+    <?-
+      Now this will return an Optional that is 'empty'.
+      Similar to the Java code 'Optional.empty()'.
+    -?>
     getExplicitOptional()
       <- rtn <- Optional() of String
 
     tetExplicitOptional()
       willBeEmpty <- getExplicitOptional()
+      //A few assertions all proving the same thing.
+      //'empty' is a normal operator and is implemented by the Optional class.
+      assert willBeEmpty is empty
       assert not willBeEmpty?
       assert not willBeEmpty.iterator().hasNext()
 
@@ -32,13 +40,16 @@ defines module error.on.optional.access
       aClass <- getViaSimpleConstructor()
       assert aClass.getProperty()?
 
+      //Could have just done this
+      assert getViaSimpleConstructor().getProperty()?
+
     getInferredOptional1()
       <- rtn <- Optional("")
 
     testInferredOptional1()
       o <- getInferredOptional1()
       if o?
-        assert o.get().lowerCase()?
+        assert length o.get() == 0
 
     getInferredOptional2()
       <- rtn <- Optional(String())
@@ -46,45 +57,30 @@ defines module error.on.optional.access
     testInferredOptional2()
       o <- getInferredOptional2()
       assert ~o?
-
-    getInferredResult1()
-      <- rtn <- Result(String(), Integer())
-
-    testInferredResult1()
-      r <- getInferredResult1()
-      assert not r.isOk() and not r.isError()
-
-    getInferredResult2()
-      <- rtn <- Result("Steve", Integer())
-
-    testInferredResult2()
-      r <- getInferredResult2()
-      assert r.isOk() and not r.isError()
-
-    getInferredResult3()
-      <- rtn <- Result(String(), 1)
-
-    testInferredResult3()
-      r <- getInferredResult3()
-      assert not r.isOk() and r.isError()
-
-    getInferredOptionalOfResult1()
-      <- rtn <- Optional(Result(String(), Integer()))
-
-    getInferredOptionalOfResult2()
-      <- rtn <- Optional() of Result of (String, Integer)
+      //Or more readably
+      assert o is empty
 
     testValidUseDueToChecks1()
 
       o <- Optional("Steve")
 
-      while iter <- o.iterator() then iter?
+      if iter <- o.iterator() then iter?
         okValue <- iter.next()
         assert okValue.lowerCase()?
 
+      //Now if you want the value of whats in the Optional or a default
+      //here is an EK9 idiomatic way of accomplishing that via an iterator.
       iter <- o.iterator()
       value <- true and iter.hasNext() <- iter.next() else String()
       assert value?
+
+      //But the best EK9 idiomatic way is like this
+      checkValue <- o? <- o.get() else String()
+      assert checkValue?
+
+      //This is a similar capability as above but built into Optional.
+      assuredValue <- o.getOrDefault("Stephen")
+      assert assuredValue?
 
 
   defines class
@@ -93,7 +89,7 @@ defines module error.on.optional.access
       Used as an example for determining if return type can be inferred.
     -?>
     AClass
-      prop1 <- String()
+      prop1 <- "Steve"
 
       getProperty()
         <- rtn as String: prop1

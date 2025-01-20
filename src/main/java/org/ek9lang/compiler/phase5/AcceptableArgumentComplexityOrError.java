@@ -5,9 +5,10 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.E
 import java.util.function.ObjIntConsumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.support.AggregateManipulator;
 
 /**
- * Emit error if there are too many arguments. More than 7 arguments is too many.
+ * Emit error if there are too many arguments. More than 50 arguments is too many.
  */
 class AcceptableArgumentComplexityOrError implements ObjIntConsumer<Token> {
 
@@ -24,7 +25,7 @@ class AcceptableArgumentComplexityOrError implements ObjIntConsumer<Token> {
   @Override
   public void accept(final Token errorLocation, final int numArguments) {
 
-    if (numArguments > 7) {
+    if (numArguments > AggregateManipulator.MAX_ARGUMENTS_PER_CALL) {
       emitTooManyArgumentsError(errorLocation, numArguments);
       //This will be a hard stop
     } else if (numArguments >= 5) {

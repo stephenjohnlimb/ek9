@@ -25,6 +25,11 @@ defines module bad.components.use
 
     @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "SomeGenericClass"
     SomeGenericClass of type T
+      default SomeGenericClass()
+
+      default SomeGenericClass()
+        -> arg0 as T
+
       methodX()
         -> arg0 as T
         <- rtn as T: arg0

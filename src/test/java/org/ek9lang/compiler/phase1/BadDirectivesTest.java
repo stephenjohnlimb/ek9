@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Just tests bad directives. i.e. the very thing we use for testing - needs to be checked.
  * A bit intricate because we're testing errors of error processing.
+ * This is a bit fragile as it embeds line numbers in here, so take car if changing code.
  */
 class BadDirectivesTest extends PhasesTest {
 
@@ -24,12 +25,13 @@ class BadDirectivesTest extends PhasesTest {
   private final List<Integer> badDirectiveErrorLineNumbers
       = List.of(10, 14, 18, 23, 28, 35);
   private final List<Integer> badResolutionLineNumbers
-      = List.of(6, 10, 14, 18, 22, 26, 46, 51, 75);
+      = List.of(6, 10, 14, 18, 22, 26, 46, 51, 57, 75);
   private final List<Integer> badDirectiveResolutionErrorLineNumbers
       = List.of(31, 36, 41, 64, 82, 90, 98, 105, 123, 133);
 
   public BadDirectivesTest() {
-    super("/examples/parseButFailCompile/badDirectives", List.of(), false, true, false);
+    super("/examples/parseButFailCompile/badDirectives", List.of(),
+        false, true, false);
   }
 
   @Test

@@ -88,6 +88,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   private final ResolveOrDefineTypeDef resolveOrDefineTypeDef;
   private final ResolveOrDefineExplicitParameterizedType resolveOrDefineExplicitParameterizedType;
   private final ValidPreFlowAndReturnOrError validPreFlowAndReturnOrError;
+  private final ValidAggregateConstructorsOrError validAggregateConstructorsOrError;
+  private final ProcessAsDispatcherIfNecessary processAsDispatcherIfNecessary = new ProcessAsDispatcherIfNecessary();
   private String currentTextBlockLanguage;
 
   /**
@@ -97,6 +99,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   DefinitionListener(ParsedModule parsedModule) {
     super(parsedModule);
     var errorListener = parsedModule.getSource().getErrorListener();
+
     symbolChecker = new SymbolChecker(errorListener);
     symbolFactory = new SymbolFactory(parsedModule);
 
@@ -127,6 +130,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
         new ResolveOrDefineExplicitParameterizedType(symbolsAndScopes, symbolFactory, errorListener, false);
 
     validPreFlowAndReturnOrError = new ValidPreFlowAndReturnOrError(symbolsAndScopes, errorListener);
+    validAggregateConstructorsOrError = new ValidAggregateConstructorsOrError(symbolsAndScopes, errorListener);
 
   }
 
@@ -233,20 +237,15 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void exitClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
     final var symbol = symbolsAndScopes.getRecordedSymbol(ctx);
-    if (symbol instanceof IAggregateSymbol aggregate) {
-      aggregate.setMarkedAsDispatcher(
-          aggregate.getAllNonAbstractMethods().stream().anyMatch(MethodSymbol::isMarkedAsDispatcher));
-    }
+    processAsDispatcherIfNecessary.andThen(validAggregateConstructorsOrError).accept(symbol);
+
     super.exitClassDeclaration(ctx);
   }
 
   @Override
   public void exitDynamicClassDeclaration(final EK9Parser.DynamicClassDeclarationContext ctx) {
     final var symbol = symbolsAndScopes.getRecordedSymbol(ctx);
-    if (symbol instanceof IAggregateSymbol aggregate) {
-      aggregate.setMarkedAsDispatcher(
-          aggregate.getAllNonAbstractMethods().stream().anyMatch(MethodSymbol::isMarkedAsDispatcher));
-    }
+    processAsDispatcherIfNecessary.andThen(validAggregateConstructorsOrError).accept(symbol);
     super.exitDynamicClassDeclaration(ctx);
   }
 

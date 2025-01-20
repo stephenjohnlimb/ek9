@@ -37,6 +37,11 @@ defines module bad.functiondelegate.byrecord
 
     ConstrainedGeneric of type T constrain by R1
 
+      default ConstrainedGeneric()
+
+      default ConstrainedGeneric()
+        -> arg0 as T
+
       checkAccess()
         ->
           arg0 as T

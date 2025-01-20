@@ -61,7 +61,7 @@ defines module com.utils
       currentState as T?
       listener as FSMListener of T?
 
-      default private FSM()
+      default FSM()
 
       <?-
         Simple constructor so we can infer generic type when used.

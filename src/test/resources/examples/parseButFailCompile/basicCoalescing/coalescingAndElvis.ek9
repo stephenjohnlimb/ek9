@@ -36,9 +36,16 @@ defines module coalescing.elvis
     GC1 of type T
       default GC1()
 
+      default GC1()
+        -> arg0 as T
+
     //Here is another Generic type but this time has the operators needed.
     GC2 of type T
       default GC2()
+
+      default GC2()
+        -> arg0 as T
+
       operator ? as pure
         <- rtn as Boolean: false
       operator $ as pure

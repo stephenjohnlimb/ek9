@@ -52,13 +52,22 @@ defines module bad.inferred.returns
       <- aBitComplex <- List(-1)
 
     <?-
-      Also this is considered too complex (at the moment)
+      Also this is considered too complex (at the moment).
+      That's because it involves an expression. Now the simple cases could
+      be dealt with. But if a parameterized Generic was used, the methods/operators
+      would not yet have been expanded. This would mean that in some cases we could process
+      expressions and in other we could not. So basically for consistency the EK9 compiler
+      (at the moment) only allows constructors where the arguments are really simple.
     -?>
     invalidExpressionUse3()
       -> arg0 as String
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
       <- aBitComplex <- List(arg0 + "-Something")
 
+    <?-
+      Just to show that if an argument is used that cannot be resolved we get a reasonable error.
+      This also means that the List cannot be parameterized (because we did not resolve the variable or its type).
+    -?>
     invalidExpressionUse4()
       -> arg0 as String
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_RESOLVED

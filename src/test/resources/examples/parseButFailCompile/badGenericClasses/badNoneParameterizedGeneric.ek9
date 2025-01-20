@@ -12,6 +12,9 @@ defines module bad.genericnotparameterised.example
 
     C1 of type T
       prop1 as T?
+
+      default C1()
+
       C1()
         -> arg T
         prop1: arg
@@ -49,6 +52,129 @@ defines module bad.genericnotparameterised.example
         @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
         <- rtn as C1 of (String, String, Float): arg
         assert arg?
+
+    <?-
+      For generics, either let EK9 compiler synthesize both constructors or define both yourself.
+    -?>
+    @Error: SYMBOL_DEFINITION: GENERIC_TYPE_REQUIRES_TWO_CONSTRUCTORS
+    C3 of type T
+      default C3()
+
+      <?-
+        Also in generics type inference like this is not supported (yet).
+      -?>
+      check()
+        -> arg0 as T
+        @Error: SYMBOL_DEFINITION: TYPE_INFERENCE_NOT_SUPPORTED
+        <- rtn <- arg0?
+
+    <?-
+      While both constructors are defined they are not public, so that's an error.
+    -?>
+    C4 of type T
+      @Error: SYMBOL_DEFINITION: GENERIC_CONSTRUCTORS_MUST_BE_PUBLIC
+      default private C4()
+
+      @Error: SYMBOL_DEFINITION: GENERIC_CONSTRUCTORS_MUST_BE_PUBLIC
+      default private C4()
+        -> arg0 as T
+
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: arg0?
+
+    <?-
+      While both constructors are defined they are not public, so that's an error.
+    -?>
+    C5 of type T
+      @Error: SYMBOL_DEFINITION: GENERIC_CONSTRUCTORS_MUST_BE_PUBLIC
+      default protected C5()
+
+      @Error: SYMBOL_DEFINITION: GENERIC_CONSTRUCTORS_MUST_BE_PUBLIC
+      default protected C5()
+        -> arg0 as T
+
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: arg0?
+
+    C6 of type (S, T)
+
+      default C6()
+
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_CONSTRUCTOR_INAPPROPRIATE
+      default C6()
+        -> arg0 as T
+
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: arg0?
+
+    C7 of type (S, T)
+
+      default C7()
+
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_CONSTRUCTOR_INAPPROPRIATE
+      default C7()
+        -> arg0 as T
+
+      default C7()
+        ->
+          arg0 as S
+          arg1 as T
+
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: arg0?
+
+    C8 of type (S, T)
+
+      default C8()
+
+      default C8()
+        ->
+          @Error: SYMBOL_DEFINITION: GENERIC_TYPE_REQUIRES_CORRECT_CONSTRUCTOR_ARGUMENT_TYPES
+          arg0 as T
+          arg1 as T
+
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: arg0?
+
+    <?-
+      Use an incorrect (non existent type in the constructor)
+    -?>
+    C9 of type (S, T)
+
+      default C9()
+
+      default C9()
+        ->
+          @Error: SYMBOL_DEFINITION: GENERIC_TYPE_REQUIRES_CORRECT_CONSTRUCTOR_ARGUMENT_TYPES
+          arg0 as P
+          arg1 as T
+
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: arg0?
+
+    <?-
+      This time arguments in the wrong order
+    -?>
+    C10 of type (S, T)
+
+      default C10()
+
+      default C10()
+        ->
+          @Error: SYMBOL_DEFINITION: GENERIC_TYPE_REQUIRES_CORRECT_CONSTRUCTOR_ARGUMENT_TYPES
+          arg0 as T
+          @Error: SYMBOL_DEFINITION: GENERIC_TYPE_REQUIRES_CORRECT_CONSTRUCTOR_ARGUMENT_TYPES
+          arg1 as S
+
+      check()
+        -> arg0 as T
+        <- rtn as Boolean: arg0?
 
   defines function
 

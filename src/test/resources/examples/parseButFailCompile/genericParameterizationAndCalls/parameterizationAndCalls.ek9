@@ -57,6 +57,10 @@ defines module generic.parameterization
 
     GenericClass of type T
       default GenericClass()
+
+      default GenericClass()
+        -> arg0 as T
+
       operator ? as pure
         <- rtn as Boolean: true
 

@@ -40,6 +40,18 @@ defines module bad.use.dynamics.generics
     @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "TestGenericClass"
     TestGenericClass of type (P, Q)
 
+      default TestGenericClass()
+
+      <?-
+        Note for generic construction 'default' is supported with arguments or without.
+        This is not the case for other aggregates, the EK9 developer must provide implementation
+        when defining constructors with arguments.
+      -?>
+      default TestGenericClass()
+        ->
+          arg0 as P
+          arg1 as Q
+
       //Just create any old method to create dynamic versions of the above function/class in
       someMethodForDynamicClasses()
 

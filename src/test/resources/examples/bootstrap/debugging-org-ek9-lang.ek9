@@ -129,20 +129,53 @@ defines extern module org.ek9.lang
 
   defines class
 
-    Iterator of type T as abstract
+    Iterator of type I as abstract
       Iterator() as pure
 
-    Optional of type T
+      Iterator() as pure
+        -> arg0 as I
+
+      next() as pure
+        <- rtn as I?
+
+      operator ? as pure
+        <- rtn as Boolean?
+
+    Optional of type O
       Optional() as pure
+
+      Optional() as pure
+        -> arg0 as O
+
+      get() as pure
+        <- rtn as O?
+
+      operator ? as pure
+        <- rtn as Boolean?
 
     Dict of type (K, V) as open
       Dict() as pure
 
+      Dict() as pure
+        ->
+          arg0 as K
+          arg1 as V
+
     DictEntry of type (K, V) as open
       DictEntry() as pure
 
+      DictEntry() as pure
+        ->
+          arg0 as K
+          arg1 as V
+
     Result of type (O, E)
       Result() as pure
+
+      Result() as pure
+        ->
+          arg0 as O
+          arg1 as E
 
     List of type T as open
       List() as pure

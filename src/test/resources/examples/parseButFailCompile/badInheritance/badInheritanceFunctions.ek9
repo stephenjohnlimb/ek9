@@ -19,8 +19,10 @@ defines module bad.inherited.functions
   defines class
     @Resolved: SYMBOL_DEFINITION: TEMPLATE_TYPE: "AGenericClass"
     AGenericClass of type (K, V)
-      key as K?
-      value as V?
+      key as K: K()
+      value as V: V()
+
+      default AGenericClass()
 
       AGenericClass()
         ->

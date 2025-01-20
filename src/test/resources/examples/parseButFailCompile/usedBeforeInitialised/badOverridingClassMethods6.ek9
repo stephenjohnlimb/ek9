@@ -38,6 +38,12 @@ defines module bad.overriding.classmethods6
 
     //Used with the following dynamic classes.
     SomeAbstractGeneric of type T as abstract
+
+      default SomeAbstractGeneric()
+
+      default SomeAbstractGeneric()
+        -> arg0 as T
+
       absMethod() as abstract
         -> arg0 as T
         <- rtn as Boolean?
@@ -47,6 +53,12 @@ defines module bad.overriding.classmethods6
 
     //Again used with the following dynamic classes.
     SomeGeneric of type T as open
+
+      default SomeGeneric()
+
+      default SomeGeneric()
+        -> arg0 as T
+
       absMethod()
         -> arg0 as T
         <- rtn as Boolean: arg0?

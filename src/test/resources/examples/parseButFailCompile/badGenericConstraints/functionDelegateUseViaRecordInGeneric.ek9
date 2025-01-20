@@ -71,6 +71,12 @@ defines module functiondelegate.inrecord.withgeneric
       due to issues above.
     -?>
     G1 of type T constrain by R1
+
+      default G1()
+
+      default G1()
+        -> arg0 as T
+
       check()
         ->
           arg0 as T
@@ -79,6 +85,12 @@ defines module functiondelegate.inrecord.withgeneric
           rtn as Boolean: arg0.delegate(arg1)
 
     G2 of type T constrain by R2
+
+      default G2()
+
+      default G2()
+        -> arg0 as T
+
       check()
         ->
           arg0 as T

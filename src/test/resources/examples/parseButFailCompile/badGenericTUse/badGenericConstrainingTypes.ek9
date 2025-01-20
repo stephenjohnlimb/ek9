@@ -85,30 +85,64 @@ defines module bad.generic.constraining.types
     -?>
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CONSTRAINED_FUNCTIONS_NOT_SUPPORTED
     BadGeneric1 of type T constrain by CheckFunction
+
+      default BadGeneric1()
+
+      BadGeneric1()
+        -> arg0 as T
+        assert arg0?
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
 
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CONSTRAINED_FUNCTIONS_NOT_SUPPORTED
     BadGeneric2 of type T constrain by AbstractFunction
+
+      default BadGeneric2()
+
+      BadGeneric2()
+        -> arg0 as T
+        assert arg0?
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
 
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
     BadGeneric3 of type T constrain by NAME
+
+      default BadGeneric3()
+
+      BadGeneric3()
+        -> arg0 as T
+        assert arg0?
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
 
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
     BadGeneric4 of type T constrain by NoSuchType
+
+      default BadGeneric4()
+
+      BadGeneric4()
+        -> arg0 as T
+        assert arg0?
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
 
     @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: CONSTRAINED_FUNCTIONS_NOT_SUPPORTED
     BadGeneric5 of type T constrain by SomeText
+      default BadGeneric5()
+
+      BadGeneric5()
+        -> arg0 as T
+        assert arg0?
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
@@ -117,6 +151,12 @@ defines module bad.generic.constraining.types
       Check it is possible to constrain by a trait
     -?>
     OKGeneric1 of type T constrain by T1
+      default OKGeneric1()
+
+      OKGeneric1()
+        -> arg0 as T
+        assert arg0?
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
@@ -125,6 +165,12 @@ defines module bad.generic.constraining.types
       Check it is possible to constrain by a component
     -?>
     OKGeneric2 of type T constrain by Comp1
+      default OKGeneric2()
+
+      OKGeneric2()
+        -> arg0 as T
+        assert arg0?
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
@@ -133,6 +179,12 @@ defines module bad.generic.constraining.types
       Check it is possible to constrain by a record
     -?>
     OKGeneric3 of type T constrain by R1
+      default OKGeneric3()
+
+      OKGeneric3()
+        -> arg0 as T
+        assert arg0?
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
@@ -141,6 +193,13 @@ defines module bad.generic.constraining.types
       Check it is possible to constrain by a class
     -?>
     OKGeneric4 of type T constrain by C0
+
+      default OKGeneric4()
+
+      OKGeneric4()
+        -> arg0 as T
+        assert arg0?
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
@@ -149,16 +208,34 @@ defines module bad.generic.constraining.types
       Check it is possible to constrain by a 'type'
     -?>
     OKGeneric5 of type T constrain by Color
+      default OKGeneric5()
+
+      OKGeneric5()
+        -> arg0 as T
+        assert arg0?
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
 
     OKGeneric6 of type T constrain by Limited
+      default OKGeneric6()
+
+      OKGeneric6()
+        -> arg0 as T
+        assert arg0?
+
       check()
         -> arg0 as T
         <- rtn as Boolean: true
 
     OKGeneric7 of type T constrain by Limited
+      default OKGeneric7()
+
+      OKGeneric7()
+        -> arg0 as T
+        assert arg0?
+
       check()
         -> arg0 as T
         <- rtn as T: T(Limited.Value1)

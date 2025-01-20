@@ -76,6 +76,12 @@ defines module dependent.generic.types
 
       default G1()
 
+      G1()
+        ->
+          arg0 as K
+          arg1 as V
+        assert arg0? and arg1?
+
       setProp()
         -> arg as G2 of (K, V)
         prop1: arg

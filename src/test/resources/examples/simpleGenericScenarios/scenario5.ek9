@@ -1,0 +1,70 @@
+#!ek9
+defines module generics.scenario.five
+
+  defines function
+
+    <?-
+      Just a demo of how in non-generic code - simple Constructor type inference can work
+      even for return parameters.
+    -?>
+    getInferredFromArgOptional()
+      -> arg0 as String
+      <- rtn <- Optional(arg0)
+
+    testSimpleClass()
+      //A default constructor is added
+      s1 <- SimpleClass()
+      assert s1?
+
+      s2 <- SimpleClass("Steve", "Limb")
+      assert s2?
+
+  defines class
+
+    SimpleClass
+      prop1 <- Optional() of String
+      prop2 <- Optional() of String
+
+      <?-
+        You can define your own constructors in a free way with none generic type
+      -?>
+      SimpleClass() as pure
+        ->
+          arg0 as String
+          arg1 as String
+        prop1 :=? Optional(arg0)
+        prop2 :=? Optional(arg1)
+
+      default operator ?
+
+    <?-
+      Check to see that is no constructors are defined then the EK9 compiler with synthesize some.
+      Also shows that for generics you need to be a bit more explicit in return parameters.
+      If you do define constructors there must be two public ones 'default' and one with the
+      correct number and types of arguments (in the right order).
+    -?>
+    GenericClass1 of type T
+
+      toOptional() as pure
+        -> arg0 as T
+        <- rtn as Optional of T: Optional(arg0)
+
+      default operator ?
+
+  defines function
+
+    TestGenericClass1() as pure
+      g1 <- GenericClass1() of String
+      assert g1?
+
+      o1 <- g1.toOptional("Steve")
+      assert o1 contains "Steve"
+
+      //Now check that can do this as well
+      g2 <- GenericClass1(String())
+      assert g2?
+
+      o2 <- g2.toOptional("Stephen")
+      assert o2 contains "Stephen"
+
+//EOF

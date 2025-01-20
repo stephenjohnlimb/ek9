@@ -25,7 +25,7 @@ class VariousComplexityCalculationsTest extends PhasesTest {
             "simple.unsetassignmentcomplexity",
             "argument.complexity",
             "excessive.code.block.complexity",
-            "excessive.classdefinition.complexity"), false, true);
+            "excessive.classdefinition.complexity"));
   }
 
   @Test

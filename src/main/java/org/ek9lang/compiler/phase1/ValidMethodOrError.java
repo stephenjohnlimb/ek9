@@ -24,7 +24,6 @@ final class ValidMethodOrError extends RuleSupport implements
   private final ContextSupportsAbstractMethodOrError contextSupportsAbstractMethodOrError;
   private final NonExtendableMethodOrError nonExtendableMethodOrError;
   private final NotDispatcherMethodOrError notDispatcherMethodOrError;
-  private final GenericConstructorOrError genericConstructorOrError;
   private final ProgramReturnOrError programReturnOrError;
   private final ProgramArgumentsOrError programArgumentsOrError;
   private final ImplementationPresentOrError implementationPresentOrError;
@@ -46,7 +45,6 @@ final class ValidMethodOrError extends RuleSupport implements
     nonExtendableMethodOrError = new NonExtendableMethodOrError(errorListener);
     processTraitMethodOrError = new ProcessTraitMethodOrError(errorListener);
     notDispatcherMethodOrError = new NotDispatcherMethodOrError(errorListener);
-    genericConstructorOrError = new GenericConstructorOrError(errorListener);
     programReturnOrError = new ProgramReturnOrError(errorListener);
     programArgumentsOrError = new ProgramArgumentsOrError(errorListener);
     implementationPresentOrError = new ImplementationPresentOrError(errorListener);
@@ -94,7 +92,6 @@ final class ValidMethodOrError extends RuleSupport implements
 
     var startToken = new Ek9Token(ctx.start);
     normalTerminationOrError.accept(startToken, method);
-    genericConstructorOrError.accept(startToken, method);
     noMethodReturnOrError.accept(method, ctx);
 
   }

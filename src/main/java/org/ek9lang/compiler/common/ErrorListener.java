@@ -398,6 +398,10 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     GENERIC_TYPE_CONSTRUCTOR_INAPPROPRIATE(
         "type is generic, but for type inference to work; the number of generic "
             + "and constructor parameters must be the same"),
+    GENERIC_TYPE_REQUIRES_TWO_CONSTRUCTORS("a generic type requires 2 constructors, default and inferred type"),
+    GENERIC_TYPE_REQUIRES_CORRECT_CONSTRUCTOR_ARGUMENT_TYPES(
+        "a generic type requires correct constructor argument to match parametric types (and order)"),
+    GENERIC_CONSTRUCTORS_MUST_BE_PUBLIC("a generic type does not support private or protected constructors"),
     GENERIC_TYPE_OR_FUNCTION_PARAMETER_MISMATCH(
         "type/function is generic but generic parameters and constructor parameters conflict"),
     GENERIC_TYPE_OR_FUNCTION_NOT_RESOLVED(
