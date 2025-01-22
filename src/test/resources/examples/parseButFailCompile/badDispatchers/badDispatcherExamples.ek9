@@ -29,7 +29,7 @@ defines module bad.dispatchermethods
     ValidDispatcher1 as open
 
       private process() as dispatcher
-        -> arg as AnyClass
+        -> arg as Any
         assert arg?
 
       //Do allow protected methods, even though main is private .
@@ -47,7 +47,7 @@ defines module bad.dispatchermethods
     -?>
     ValidDispatcher2 with trait of T1
       process() as dispatcher
-        -> arg as AnyClass
+        -> arg as Any
         assert arg?
 
 
@@ -58,7 +58,7 @@ defines module bad.dispatchermethods
     ValidDispatcher3
 
       private process() as dispatcher
-        -> arg as AnyClass
+        -> arg as Any
         assert arg?
 
       private process()
@@ -70,7 +70,7 @@ defines module bad.dispatchermethods
         assert arg?
 
       private yetMoreProcessing() as dispatcher
-        -> arg as AnyClass
+        -> arg as Any
         assert arg?
 
       private yetMoreProcessing()
@@ -82,13 +82,33 @@ defines module bad.dispatchermethods
         assert arg?
 
     <?-
+      Now, while the methods should support dispatcher, the fact the arguments are of differing 'Genus' means this is not allowed.
+      But if you use the 'Any' type you can get around this meaning you can pass 'Anything' into a dispatcher.
+      So, if the dispatcher uses a 'Consumer' or a "Float" then the gens on all the dispatcher methods 'process' here below
+      must all be the same. But if the dispatcher argument(s) are 'Any'. Then functions, components, classes, traits can all be handled.
+    -?>
+    ValidDispatcher6
+
+      process() as dispatcher
+        -> arg as Any
+        assert arg?
+
+      process()
+        -> arg as Consumer of Integer
+        assert arg?
+
+      process()
+        -> arg as Float
+        assert arg?
+
+    <?-
       There is a mismatch on the same named method as a dispatcher
       the first has one parameter, the second two.
     -?>
     BadDispatcher1
 
       process() as dispatcher
-        -> arg as AnyClass
+        -> arg as Any
         assert arg?
 
       @Error: FULL_RESOLUTION: INVALID_NUMBER_OF_PARAMETERS
@@ -127,7 +147,7 @@ defines module bad.dispatchermethods
     BadDispatcher4
 
       process() as pure dispatcher
-        -> arg as AnyClass
+        -> arg as Any
         assert arg?
 
       @Error: FULL_RESOLUTION: DISPATCHER_PURE_MISMATCH
@@ -149,62 +169,20 @@ defines module bad.dispatchermethods
     BadDispatcher5 extends SomeBaseClass
 
       process() as dispatcher
-        -> arg as AnyClass
+        -> arg as Any
         assert arg?
-
-    <?-
-      Now, while the methods should support dispatcher, the fact the arguments are of differing 'Genus' means this is not allowed.
-    -?>
-    BadDispatcher6
-
-      process() as dispatcher
-        -> arg as AnyClass
-        assert arg?
-
-      process()
-        @Error: FULL_RESOLUTION: INCOMPATIBLE_PARAMETER_GENUS
-        -> arg as Consumer of Integer
-        assert arg?
-
-      process()
-        @Error: FULL_RESOLUTION: INCOMPATIBLE_PARAMETER_GENUS
-        -> arg as AnyRecord
-        assert arg?
-
-    <?-
-      Additional checks on two parameters, mixing up genus and typical EK9 developer errors.
-    -?>
-    BadDispatcher7
-
-      process() as dispatcher
-        ->
-          arg1 as AnyClass
-          arg2 as AnyRecord
-        assert arg1? and arg2?
-
-      process()
-        ->
-          @Error: FULL_RESOLUTION: INCOMPATIBLE_PARAMETER_GENUS
-          arg1 as Consumer of Integer
-          arg2 as AnyRecord
-        assert arg1? and arg2?
-
-      process()
-        ->
-          @Error: FULL_RESOLUTION: INCOMPATIBLE_PARAMETER_GENUS
-          arg1 as AnyRecord
-          @Error: FULL_RESOLUTION: INCOMPATIBLE_PARAMETER_GENUS
-          arg2 as AnyClass
-        assert arg1? and arg2?
 
     <?-
       There must only be one method marked as a dispatcher method.
+      But also because of the multiple dispatchers the compiler picks up Integer and Float and then
+      looks at 'Any' as well and that means it issues a further error.
     -?>
-    BadDispatcher8
+    BadDispatcher6
 
       @Error: FULL_RESOLUTION: DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED
       process() as dispatcher
-        -> arg as AnyClass
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_PARAMETER_GENUS
+        -> arg as Any
         assert arg?
 
       @Error: FULL_RESOLUTION: DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED

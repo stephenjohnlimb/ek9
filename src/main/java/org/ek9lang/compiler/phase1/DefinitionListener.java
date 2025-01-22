@@ -150,6 +150,13 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     //Take note at module level if implementation is external - we'd expect no bodies.
     getParsedModule().setExternallyImplemented(ctx.EXTERN() != null);
 
+    if ("org.ek9.lang".equals(moduleName)) {
+      final var anySymbol = symbolFactory.newAny(ctx);
+      //This will trigger entry into the Any scope, but as this is synthetic - need to exit that scope.
+      checkAndDefineModuleScopedSymbol(anySymbol, ctx);
+      symbolsAndScopes.exitScope();
+    }
+
   }
 
   @Override
@@ -1105,6 +1112,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     final var variable = symbolFactory.newVariable(ctx);
 
     variableDeclarationOrError.accept(ctx);
+    variable.setInitialisedBy(new Ek9Token(ctx.assignmentExpression().start));
     //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
     final var varType = resolveOrDefineTypeDef.apply(ctx.typeDef());
     variable.setType(varType);
@@ -1122,8 +1130,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     final VariableSymbol variable = (VariableSymbol) symbolsAndScopes.getRecordedSymbol(ctx);
     //Might not have been registered if detected as a duplicate.
-    if (variable != null) {
-      variable.setInitialisedBy(new Ek9Token(ctx.assignmentExpression().start));
+    if (variable != null && variable.getType().isEmpty()) {
       //Now it's not an error if we cannot resolve at this phase - but if these are built in types then we're all good.
       //But parameterised types cannot be resolved at all yet.
       //Nor can we resolve types through expressions.

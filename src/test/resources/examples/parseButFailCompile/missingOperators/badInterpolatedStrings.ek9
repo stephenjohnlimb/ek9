@@ -97,24 +97,14 @@ defines module bad.interpolated.strings
       var1 <- `some ${value + 1} interpolated expression`
       assert var1?
 
-      checkA <- AnyClass()
+      checkA <- Any()
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       var3 <- `some ${checkA + 1} interpolated expression`
       assert var3?
 
-      checkB <- AnyClass()
+      checkB <- Any()
       @Error: FULL_RESOLUTION: TYPE_MUST_BE_CONVERTABLE_TO_STRING
       var4 <- `some ${checkB} interpolated expression`
       assert var4?
-
-      checkC <- AnyRecord()
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      var5 <- `some ${checkC + 1} interpolated expression`
-      assert var5?
-
-      checkD <- AnyRecord()
-      @Error: FULL_RESOLUTION: TYPE_MUST_BE_CONVERTABLE_TO_STRING
-      var6 <- `some ${checkD} interpolated expression`
-      assert var6?
 
 //EOF

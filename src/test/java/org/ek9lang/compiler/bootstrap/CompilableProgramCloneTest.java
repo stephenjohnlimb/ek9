@@ -143,12 +143,12 @@ class CompilableProgramCloneTest {
     if (justStringSymbol instanceof AggregateSymbol aggregate) {
       var methods = aggregate.getAllNonAbstractMethods();
 
-      //Now expect 'AnyClass' as the super of String constructor.
+      //Now expect 'Any' as the super of String constructor.
 
       assertEquals(3, methods.size());
-      var defaultAnyClassConstructor = methods.get(0);
-      assertNotNull(defaultAnyClassConstructor);
-      assertEquals(0, defaultAnyClassConstructor.getCallParameters().size());
+      var defaultAnyConstructor = methods.get(0);
+      assertNotNull(defaultAnyConstructor);
+      assertEquals(0, defaultAnyConstructor.getCallParameters().size());
 
       var defaultStringConstructor = methods.get(1);
       assertNotNull(defaultStringConstructor);

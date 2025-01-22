@@ -133,10 +133,12 @@ final class ValidDispatcherMethodsOrError extends TypedSymbolAccess implements C
     if (dispatcherArgTypeGenus.equals(matchedArgTypeGenus)) {
       return true;
     }
-    if (dispatcherArgTypeGenus.equals(SymbolGenus.CLASS) && matchedArgTypeGenus.equals(SymbolGenus.CLASS_TRAIT)) {
+
+    if (dispatcherArgTypeGenus.equals(SymbolGenus.CLASS) && matchedArgTypeGenus.equals(SymbolGenus.CLASS_TRAIT)
+        || dispatcherArgTypeGenus.equals(SymbolGenus.CLASS_TRAIT) && matchedArgTypeGenus.equals(SymbolGenus.CLASS)) {
       return true;
     }
-    return dispatcherArgTypeGenus.equals(SymbolGenus.CLASS_TRAIT) && matchedArgTypeGenus.equals(SymbolGenus.CLASS);
+    return dispatcherArgTypeGenus.equals(SymbolGenus.ANY);
   }
 
   private List<MethodSymbol> getAllOtherMethodsWithSameName(final AggregateSymbol aggregateSymbol,

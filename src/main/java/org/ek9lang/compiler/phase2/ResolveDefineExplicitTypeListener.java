@@ -592,8 +592,8 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
       symbol.getType().ifPresent(theType -> {
         if (SymbolGenus.CLASS.equals(theType.getGenus())
             && !theType.isGenericInNature()
-            && !symbolsAndScopes.getEk9Types().ek9AnyClass().equals(theType)) {
-          symbol.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Types().ek9AnyClass());
+            && !symbolsAndScopes.getEk9Any().equals(theType)) {
+          symbol.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Any());
         }
       });
     }

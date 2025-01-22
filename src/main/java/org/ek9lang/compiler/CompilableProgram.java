@@ -59,6 +59,11 @@ public class CompilableProgram implements Serializable {
   private Ek9Types ek9Types;
 
   /**
+   * This is baked in at a code level for super of all things.
+   */
+  private ISymbol ek9Any;
+
+  /**
    * For a specific source the ParsedModule is returned.
    */
   public ParsedModule getParsedModuleForCompilableSource(final CompilableSource source) {
@@ -76,6 +81,18 @@ public class CompilableProgram implements Serializable {
   public void setEk9Types(final Ek9Types ek9Types) {
 
     this.ek9Types = ek9Types;
+
+  }
+
+  public ISymbol getEk9Any() {
+
+    return ek9Any;
+
+  }
+
+  public void setEk9Any(ISymbol ek9Any) {
+
+    this.ek9Any = ek9Any;
 
   }
 

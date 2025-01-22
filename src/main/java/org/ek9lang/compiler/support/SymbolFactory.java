@@ -275,6 +275,13 @@ public class SymbolFactory extends CommonFactory {
   }
 
   /**
+   * Creates the builtin 'Any' type super of 'things'.
+   */
+  public AggregateSymbol newAny(final EK9Parser.ModuleDeclarationContext ctx) {
+    return operationFactory.newAny(ctx);
+  }
+
+  /**
    * Create a new aggregate that represents an EK9 type, constrained or enumeration.
    */
   public AggregateSymbol newType(final EK9Parser.TypeDeclarationContext ctx) {

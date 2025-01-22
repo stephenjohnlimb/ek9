@@ -20,14 +20,8 @@ defines extern module org.ek9.lang
       listOfString <- List() of String
       assert listOfString?
 
-  defines record
-
-    AnyRecord as open
-
 
   defines class
-
-    AnyClass as open
 
     Void
 
@@ -300,16 +294,24 @@ defines extern module org.ek9.lang
         -> arg as L
 
   defines function
+
     sumFunction() of type S as open
       -> item as List of S
-      <- rtn as S := S()
+      <- specialReturn as S := S()
       assert item?
       iter as Iterator of S: item.iterator()
-      //I'm getting a I here and not an S!
+
       if iter?
-        rtn: iter.next()
+        specialReturn: iter.next()
 
     testFunction1()
+
+      a as Any: Any()
+      assert a?
+
+      byAny as Any: Boolean()
+      assert byAny?
+
       l1 <- [1, 4, 9]
 
       summaryFunction <- () is sumFunction of Integer as function

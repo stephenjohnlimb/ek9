@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 111;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 110;
 
   //Obviously with ek9 the indentation is important.
 
@@ -237,9 +237,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
           Void
             Void() as pure
-
-          AnyClass as open
-            AnyClass() as pure
             
           Bits as open
             Bits() as pure
@@ -3801,9 +3798,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_RECORDS = """
-
-          AnyRecord as open
-            AnyRecord() as pure
           
           <?-
             Used for various network communications.

@@ -13,8 +13,11 @@ import org.ek9lang.compiler.common.CompilableSourceHasErrors;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.AggregateManipulator;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
@@ -130,7 +133,14 @@ public final class SymbolDefinition extends CompilerPhase {
     if (AggregateManipulator.EK9_LANG.equals(parsedModule.getModuleName())) {
       final var builtInTypeCacheResolver = new BuiltInTypeCacheResolver();
       final var ek9Types = builtInTypeCacheResolver.apply(parsedModule.getModuleScope());
-      compilableProgramAccess.accept(compilableProgram -> compilableProgram.setEk9Types(ek9Types));
+      final var ek9AnySearch = new SymbolSearch("Any").setSearchType(SymbolCategory.ANY);
+      final var ek9Any = parsedModule.getModuleScope().resolve(ek9AnySearch);
+
+      AssertValue.checkTrue("ek9Any must be present", ek9Any.isPresent());
+      compilableProgramAccess.accept(compilableProgram -> {
+        compilableProgram.setEk9Types(ek9Types);
+        compilableProgram.setEk9Any(ek9Any.get());
+      });
     }
   }
 

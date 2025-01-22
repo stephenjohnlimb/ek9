@@ -16,37 +16,52 @@ import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
- * Once we have parsed a module (source file) we need to keep track of the
- * results. Now there is the normal CompilationUnitContext which has the entry
+ * Once we have parsed a module (source file) we need to keep track of the results.
+ * <p>
+ * Now there is the normal CompilationUnitContext which has the entry
  * point into the compiled file. But there are also a set of scopes we create
  * when we visit the context with the visitor.
+ * </p>
+ * <p>
  * The scopes are critical to being able to check for multiple definitions of
  * the same identity (and type) but also when it comes to resolving names.
  * Importantly because we can define the same 'module name' in more than one
  * source file and also because we can 'reference' other modules by name it
  * means we have to be able to resolve names across multiple ParsedModules to
  * find the scope they are in.
+ * </p>
+ * <p>
  * It also means that if a single source code file is altered we need to remove
  * the related ParsedModule (for that source file) but keep the many others we
  * have - because these will not have changed. But the identities they reference
  * may now have been removed (if we alter a source file).
+ * </p>
+ * <p>
  * As there will be very many source files we should only parse them when we
  * really have to - the reading and parsing is the most expensive part.
  * But we may still have to re-run the definition and resolving phases for all
  * ParsedModules. Importantly if we have a module that is parsed but is marked
  * as being in error (i.e. duplicate definition or missing reference) we also
  * need to re-run the redefinition on these modules as well (even though their
- * source code might not have changed). But we might be able to get around unnecessary
+ * source code might not have changed).
+ * </p>
+ * <p>
+ * But we might be able to get around unnecessary
  * definition and resolving if we keep a reference to the compilation unit where we
  * resolved the definition. Clearly when adding new compilation units we may have to
  * complete a resolve again.
+ * </p>
+ * <p>
  * All access to symbol tables of anything shared is via SharedThreadContext.
  * So this will be created on a per source file basis and then can be parsed with a listener
  * or a visitor. An instance of this parsedModule will be given to the visitor/listener
  * then the compilationUnitContext can be set and the scope tree built up.
+ * </p>
+ * <p>
  * So the listener/visitor during the first parse will need to keep a local variable
  * of the current scope and deal with interacting with this object to put both the
  * contexts and scopes into the ParseTreeProperty scopes object.
+ * </p>
  */
 public class ParsedModule implements Module, Serializable {
 
@@ -89,6 +104,8 @@ public class ParsedModule implements Module, Serializable {
   private boolean externallyImplemented = false;
 
   private Ek9Types ek9Types;
+  private ISymbol ek9Any;
+
 
   /**
    * We may hold Nodes in here - but not sure yet.
@@ -127,6 +144,16 @@ public class ParsedModule implements Module, Serializable {
     }
 
     return ek9Types;
+  }
+
+  public ISymbol getEk9Any() {
+    if (ek9Any == null) {
+      final AtomicReference<ISymbol> ref = new AtomicReference<>();
+      compilableProgram.accept(program -> ref.set(program.getEk9Any()));
+      ek9Any = ref.get();
+    }
+
+    return ek9Any;
   }
 
   public boolean isExternallyImplemented() {

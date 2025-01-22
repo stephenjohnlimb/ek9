@@ -11,5 +11,8 @@ defines module just.workspace
       -> arg0 as String
       <- rtn <- Optional(arg0)
 
+    testOperatorIsSetOnFunction()
+      assert getInferredFromArgOptional?
+
 //EOF
 

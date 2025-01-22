@@ -236,7 +236,7 @@ public class SymbolTable implements IScope {
    * Search and resolve from a symbol search.
    */
   public Optional<ISymbol> resolve(final SymbolSearch search) {
-    var rtn = resolveInThisScopeOnly(search);
+    final var rtn = resolveInThisScopeOnly(search);
     return rtn.isPresent() ? rtn : resolveWithEnclosingScope(search);
   }
 
@@ -300,7 +300,7 @@ public class SymbolTable implements IScope {
 
   private Optional<ISymbol> resolveFromSplitSymbolTable(final String symbolName,
                                                         final SymbolSearch search) {
-    var category = search.getSearchType();
+    final var category = search.getSearchType();
     AssertValue.checkNotNull("Search type must be explicit", category);
     return resolveInThisScopeOnly(getSplitSymbolTable(category), symbolName, search);
   }
@@ -332,7 +332,8 @@ public class SymbolTable implements IScope {
     String searchName = INaming.getUnqualifiedName(search.getName());
 
     //So search the valid categories.
-    return search.getValidSearchTypes().stream()
+    final var searchTypes = search.getValidSearchTypes();
+    return searchTypes.stream()
         .map(category -> resolveFromSplitSymbolTable(searchName,
             new SymbolSearch(search).setSearchType(category)))
         .filter(Optional::isPresent)
@@ -364,41 +365,57 @@ public class SymbolTable implements IScope {
     // I've pulled out common code to in-method functions, so I can capture incoming parameters
     // and re-use the code.
 
-    final var checkAndSelectFirstItem = getCheckAndSelectFirstItem();
-
-    final var isAssignable = getIsAssignable();
-
-    final var canBeAssigned = getCanBeAssigned(search, isAssignable);
-
-    final var canVariableTypeBeAssigned = getCanVariableTypeBeAssigned(search, isAssignable);
-
-    // Finds a method (if present) in a list of ISymbols, by casting to methodSymbols and runs
-    // the matcher to add to results.
-    final Supplier<MethodSymbolSearchResult> findMethod = getFindMethod(symbolList, search);
-
     final var searchType = search.getSearchType();
 
     return switch (searchType) {
       case METHOD:
-        var result = findMethod.get();
-        if (result.getSingleBestMatchSymbol().isPresent()) {
-          yield Optional.of(result.getSingleBestMatchSymbol().get());
-        }
-        yield Optional.empty();
-      case FUNCTION, TEMPLATE_TYPE, TEMPLATE_FUNCTION:
-        yield checkAndSelectFirstItem.apply(symbolList);
+        yield byMethod(symbolList, search);
+      case FUNCTION, TEMPLATE_TYPE, TEMPLATE_FUNCTION, ANY:
+        yield byFirstInList(symbolList);
       case TYPE:
-        var checkType = checkAndSelectFirstItem.apply(symbolList);
-        yield canBeAssigned.test(checkType) ? checkType : Optional.empty();
+        yield byType(symbolList, search);
       case VARIABLE:
-        var checkVariable = checkAndSelectFirstItem.apply(symbolList);
-        var foundType = checkVariable.stream().map(ISymbol::getType).findFirst().orElse(Optional.empty());
-        yield canVariableTypeBeAssigned.test(foundType) ? checkVariable : Optional.empty();
+        yield byVariable(symbolList, search);
       case CONTROL:
         //You can never locate controls. Well not yet; and I don't think we will need to.
         yield Optional.empty();
     };
   }
+
+  private Optional<ISymbol> byFirstInList(final List<ISymbol> symbolList) {
+
+    return getCheckAndSelectFirstItem().apply(symbolList);
+  }
+
+  private Optional<ISymbol> byVariable(final List<ISymbol> symbolList,
+                                       final SymbolSearch search) {
+
+    final var canVariableTypeBeAssigned = getCanVariableTypeBeAssigned(search, getIsAssignable());
+
+    var checkVariable = getCheckAndSelectFirstItem().apply(symbolList);
+    var foundType = checkVariable.stream().map(ISymbol::getType).findFirst().orElse(Optional.empty());
+    return canVariableTypeBeAssigned.test(foundType) ? checkVariable : Optional.empty();
+  }
+
+  private Optional<ISymbol> byMethod(final List<ISymbol> symbolList,
+                                     final SymbolSearch search) {
+    final Supplier<MethodSymbolSearchResult> findMethod = getFindMethod(symbolList, search);
+    var result = findMethod.get();
+    if (result.getSingleBestMatchSymbol().isPresent()) {
+      return Optional.of(result.getSingleBestMatchSymbol().get());
+    }
+    return Optional.empty();
+  }
+
+  private Optional<ISymbol> byType(final List<ISymbol> symbolList,
+                                   final SymbolSearch search) {
+
+    final var canBeAssigned = getCanBeAssigned(search, getIsAssignable());
+
+    var checkType = getCheckAndSelectFirstItem().apply(symbolList);
+    return canBeAssigned.test(checkType) ? checkType : Optional.empty();
+  }
+
 
   private Function<List<ISymbol>, Optional<ISymbol>> getCheckAndSelectFirstItem() {
     return symbols -> {

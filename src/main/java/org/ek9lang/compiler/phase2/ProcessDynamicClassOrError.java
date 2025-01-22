@@ -49,8 +49,8 @@ final class ProcessDynamicClassOrError extends RuleSupport implements
         final var resolved = classSuitableToExtendOrError.apply(ctx.parameterisedType());
         resolved.ifPresent(theSuper -> asAggregate.setSuperAggregate((IAggregateSymbol) theSuper));
       } else {
-        //Else we give it the implicit super of AnyClass.
-        asAggregate.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Types().ek9AnyClass());
+        //Else we give it the implicit super of 'Any'.
+        asAggregate.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Any());
       }
 
       if (ctx.traitsList() != null) {

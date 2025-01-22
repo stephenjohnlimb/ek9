@@ -11,10 +11,10 @@ import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
-import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -51,14 +51,13 @@ final class RequiredOperatorPresentOrError extends TypedSymbolAccess
     final var symbolType = symbolTypeOrEmpty.apply(symbol);
 
     if (symbolType.isPresent() && checkOperatorData.search() != null
-        && symbolType.get() instanceof IAggregateSymbol aggregate) {
+        && symbolType.get() instanceof AggregateSymbol aggregate) {
 
-      if (aggregate instanceof PossibleGenericSymbol possibleGenericSymbol
-          && possibleGenericSymbol.isParameterisedType()) {
-        symbolsAndScopes.resolveOrDefine(possibleGenericSymbol, errorListener);
+      if (aggregate.isParameterisedType()) {
+        symbolsAndScopes.resolveOrDefine(aggregate, errorListener);
       }
 
-      if (isAnyClassRecordIsSetOperator(aggregate, checkOperatorData.search())) {
+      if (isAnyIsSetOperator(aggregate, checkOperatorData.search())) {
         return Optional.of(symbolsAndScopes.getEk9Types().ek9Boolean());
       }
 
@@ -70,7 +69,7 @@ final class RequiredOperatorPresentOrError extends TypedSymbolAccess
 
         final var operator = bestMatch.get();
         noteOperatorAccessedIfConceptualType(aggregate, operator);
-        //Now it depends where this operator is called and if it is pure or not.
+        //Now it depends on where this operator is called and if it is pure or not.
         checkPureAccess(checkOperatorData.operatorUseToken(), operator);
         return operator.getReturningSymbol().getType();
 
@@ -83,17 +82,15 @@ final class RequiredOperatorPresentOrError extends TypedSymbolAccess
     return Optional.empty();
   }
 
-  private boolean isAnyClassRecordIsSetOperator(final IAggregateSymbol aggregateSymbol,
-                                                final MethodSymbolSearch search) {
+  private boolean isAnyIsSetOperator(final IAggregateSymbol aggregateSymbol,
+                                     final MethodSymbolSearch search) {
 
     //We don't define the 'is-set' ? operator on these two built in types.
     //But we do allow '?' to be used in EK9 code - these are 'special cases' - I hate those but
     //in this case I need to enable ? operator without mandating it on these two classes
     //because other rules would force a developer to add in ? operators in weird and non-obvious situations.
 
-    return (symbolsAndScopes.getEk9Types().ek9AnyClass().isExactSameType(aggregateSymbol)
-        || symbolsAndScopes.getEk9Types().ek9AnyRecord().isExactSameType(aggregateSymbol))
-        && search.getName().equals("?");
+    return symbolsAndScopes.getEk9Any().isExactSameType(aggregateSymbol) && search.getName().equals("?");
 
   }
 

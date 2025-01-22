@@ -3,6 +3,7 @@ package org.ek9lang.compiler.support;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.DEFAULT_AND_TRAIT;
 import static org.ek9lang.compiler.support.CommonValues.DEFAULTED;
 
+import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
@@ -12,6 +13,7 @@ import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
@@ -149,6 +151,21 @@ class OperationFactory extends CommonFactory {
     return aggregateSymbol;
   }
 
+  public AggregateSymbol newAny(final EK9Parser.ModuleDeclarationContext ctx) {
+    final var aggregateSymbol = new AggregateSymbol("Any", parsedModule.getModuleScope());
+
+    configureAggregate(aggregateSymbol, new Ek9Token(ctx.start));
+    aggregateSymbol.setGenus(SymbolGenus.ANY);
+    aggregateSymbol.setCategory(SymbolCategory.ANY);
+    aggregateSymbol.setOpenForExtension(true);
+    aggregateManipulator.addConstructor(aggregateSymbol, List.of(), true, true);
+
+    //Not sure about operators like "?". catch 22 if this is first type - Boolean won't exist yet.
+    //May have to update or like functions just always accept it as built in.
+
+    return aggregateSymbol;
+  }
+
   /**
    * New call but modelled as an operator if marked as such.
    */
@@ -164,4 +181,5 @@ class OperationFactory extends CommonFactory {
 
     return callSymbol;
   }
+
 }

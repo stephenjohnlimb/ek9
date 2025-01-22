@@ -35,7 +35,7 @@ defines module bad.callthisandsuper.classmethod.access1
     C1 as open
       C1()
         //Is it possible to call a super here? Even though there isn't one
-        //Yes, because all classes inherit from implicit super of AnyClass
+        //Yes, because all classes inherit from implicit super of 'Any'
         super()
 
       C1()

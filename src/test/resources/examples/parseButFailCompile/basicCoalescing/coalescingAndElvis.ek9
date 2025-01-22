@@ -158,7 +158,7 @@ defines module coalescing.elvis
       weight2 as Float: Float()
 
       //Will detect the types are not compatible (coercion is not applied here)
-      //This will result in coalesce being of 'AnyClass' type because the two types used only have that in common
+      //This will result in coalesce being of 'Any' type because the two types used only have that in common
       coalesce <- weight1 ?? weight2
 
       assert coalesce?
@@ -180,7 +180,7 @@ defines module coalescing.elvis
       weight2 as Float: Float()
 
       //Will detect the types are not compatible (coercion is not applied here)
-      //So will result in 'AnyClass' being the type of variable 'elvis'
+      //So will result in 'Any' being the type of variable 'elvis'
       elvis <- weight1 ?: weight2
 
       assert elvis?

@@ -132,21 +132,11 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
       //let any assignments of checks with inference check the type compatibility or alter the type as appropriate.
 
       if (callArguments.isEmpty()) {
-        //Now I want to stop this 'aList as List of Float: List()'
-        //As i have enabled 'aList <- List() of Float' and aList as List of Float: List() of Float
-        //TODO alter error message
-        emitMustBeParameterized(token, "Generic/Template construction", callIdentifier);
+
+        emitMustBeParameterized(token, callIdentifier);
         return aggregate;
       } else {
         return checkGenericConstructionOrInvocation(token, callIdentifier, callArguments);
-        /*
-        //TODO fix generics
-        var parameterizedType =
-        (AggregateSymbol) checkGenericConstructionOrInvocation(token, callIdentifier, callArguments);
-        if (parameterizedType != null) {
-          return checkForMethodOnAggregate(token, parameterizedType, parameterizedType.getName(), callArguments);
-        }
-         */
       }
 
     }
@@ -155,18 +145,6 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
     return checkForMethodOnAggregate(token, aggregate, callIdentifier.getName(), callArguments);
   }
 
-  /**
-   * In some cases we need to provide a method, so that 'pure' access and general use can be checked.
-   * But this is in a situation when we want to allow something like 'aList as List of Float: List()'.
-   * This means we have to temporarily allow the concept of construction of a generic type without the appropriate
-   * parameterizing argument. This then has to be corrected during the assignment statement.
-   * Not ideal but makes the EK9 language use much easier for the EK9 developer. Sort of like reverse inference.
-   * The alternative would be to enforce 'aList <- List() of Float'.
-   */
-  private MethodSymbol locateNoArgumentConstructor(final IToken token,
-                                                   final AggregateSymbol aggregate) {
-    return checkForMethodOnAggregate(token, aggregate, aggregate.getName(), List.of());
-  }
 
   private ScopedSymbol checkFunction(final IToken token,
                                      final FunctionSymbol function,
@@ -255,11 +233,10 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
   }
 
   private void emitMustBeParameterized(final IToken errorLocation,
-                                       final String additionalErrorInformation,
                                        final ISymbol property) {
 
     final var msg = "wrt '" + property.getName() + "' "
-        + additionalErrorInformation + ":";
+        + "Generic/Template construction" + ":";
 
     errorListener.semanticError(errorLocation, msg,
         ErrorListener.SemanticClassification.GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED);

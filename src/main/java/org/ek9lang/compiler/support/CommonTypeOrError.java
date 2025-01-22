@@ -19,8 +19,8 @@ import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Attempts to find a common type from the CommonTypeDeterminationDetails or issues errors.
- * Alteration to this processing is for 'AnyClass' and 'AnyRecord' - those are a last resort.
- * So supers first, then traits (if appropriate) and finally AnyClass/AnyRecord.
+ * Alteration to this processing is for 'Any' - is a last resort.
+ * So supers first, then traits (if appropriate) and finally Any.
  */
 public class CommonTypeOrError extends RuleSupport
     implements Function<CommonTypeDeterminationDetails, Optional<ISymbol>> {
@@ -67,10 +67,8 @@ public class CommonTypeOrError extends RuleSupport
 
     getTypesToTry(details.argumentTypes().get(0), typesToTry);
     //We do not want to include these - only later as a last resort
-    var anyClassType = symbolsAndScopes.getEk9Types().ek9AnyClass();
-    var anyRecordType = symbolsAndScopes.getEk9Types().ek9AnyRecord();
-    typesToTry.remove(anyClassType);
-    typesToTry.remove(anyRecordType);
+    var anyType = symbolsAndScopes.getEk9Any();
+    typesToTry.remove(anyType);
 
     for (var type : typesToTry) {
       if (allAssignableTo(type, details.argumentTypes())) {
@@ -78,12 +76,12 @@ public class CommonTypeOrError extends RuleSupport
       }
     }
 
-    if (allAssignableTo(anyClassType, details.argumentTypes())) {
-      return Optional.of(anyClassType);
+    if (allAssignableTo(anyType, details.argumentTypes())) {
+      return Optional.of(anyType);
     }
 
-    if (allAssignableTo(anyRecordType, details.argumentTypes())) {
-      return Optional.of(anyRecordType);
+    if (allAssignableTo(anyType, details.argumentTypes())) {
+      return Optional.of(anyType);
     }
 
     emitNoCommonType(details.lineToken(), details.argumentTypes().get(0));

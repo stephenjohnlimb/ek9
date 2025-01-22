@@ -4,14 +4,7 @@
 -!>
 defines extern module org.ek9.lang
 
-
-  defines record
-
-    AnyRecord as open
-
   defines class
-
-    AnyClass as open
 
     Void
 

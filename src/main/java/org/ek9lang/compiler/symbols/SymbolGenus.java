@@ -1,12 +1,17 @@
 package org.ek9lang.compiler.symbols;
 
 /**
- * Typically, used on aggregates because we might use a AggregateSymbol
+ * Typically, used on aggregates because we might use a AggregateSymbol.
+ * <p>
  * But when coming to process it we need to ensure other aggregate symbols that extend
  * it are of compatible genus i.e a class can only extend a base class not a style
  * but one style could extend another style.
  * We can also use this information when parsing the structure and then doing the semantic
  * analysis before the IR node generation. We can modify output by using this information.
+ * </p>
+ * <p>
+ *   Note that 'Any' is designed to allow more general 'Object' type use and the super of all supers.
+ * </p>
  */
 public enum SymbolGenus {
   GENERAL_APPLICATION("application"),
@@ -25,7 +30,8 @@ public enum SymbolGenus {
   TEXT("text"),
   SERVICE("service"),
   PROGRAM("program"),
-  META_DATA("meta-data");
+  META_DATA("meta-data"),
+  ANY("any");
 
   private final String description;
 

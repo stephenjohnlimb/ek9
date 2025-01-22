@@ -84,7 +84,7 @@ defines module bad.pure.scenarios2
 
         assert var?
 
-        //This makes no sense because there is no explicit super, but will have AnyClass as its super
+        //This makes no sense because there is no explicit super, but will have 'Any' as its super
         //and that does not have copy '':=:'.
         @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
         super :=: arg0
@@ -107,7 +107,7 @@ defines module bad.pure.scenarios2
 
       checkMethod3()
         <- rtn <- true
-        //While C0 does not look like it has a super, there i an implicit super of 'AnyClass'
+        //While C0 does not look like it has a super, there i an implicit super of 'Any'
         @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
         super()
 

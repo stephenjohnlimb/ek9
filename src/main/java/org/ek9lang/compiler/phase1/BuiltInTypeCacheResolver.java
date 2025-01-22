@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.phase1;
 
-import static org.ek9lang.compiler.support.AggregateManipulator.EK9_ANY_CLASS;
-import static org.ek9lang.compiler.support.AggregateManipulator.EK9_ANY_RECORD;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_BOOLEAN;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_CHARACTER;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_COMPARATOR;
@@ -54,8 +52,6 @@ final class BuiltInTypeCacheResolver implements Function<IScope, Ek9Types> {
 
     if ("org.ek9.lang".equals(scope.getScopeName())) {
       return new Ek9Types(
-          resolveType(scope, EK9_ANY_CLASS),
-          resolveType(scope, EK9_ANY_RECORD),
           resolveType(scope, EK9_VOID),
           resolveType(scope, EK9_BOOLEAN),
           resolveType(scope, EK9_INTEGER),

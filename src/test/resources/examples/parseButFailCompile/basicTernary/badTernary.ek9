@@ -51,7 +51,7 @@ defines module just.ternary
       //The first expression 'less than' is fine as it results in Boolean
       //But the types of either of the possibilities are not compatible.
       //So what type would 'notReallyValid'? The EK9 developer needs to have some guarantees here
-      //Now as all classes inherit implicitly from 'AnyClass' - that will be the common super type
+      //Now as all classes inherit implicitly from 'Any' - that will be the common super type
       any <- 1 < 2 <- "String" else 67.0
       assert any?
       //Though beyond that - you'd need a dispatcher to work out actual type.

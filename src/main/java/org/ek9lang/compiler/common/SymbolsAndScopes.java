@@ -71,6 +71,10 @@ public class SymbolsAndScopes {
     return parsedModule.getEk9Types();
   }
 
+  public ISymbol getEk9Any() {
+    return parsedModule.getEk9Any();
+  }
+
   /**
    * Provide access to the set of code flow analyzers being used for flow analysis.
    */

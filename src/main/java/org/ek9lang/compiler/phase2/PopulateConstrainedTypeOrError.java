@@ -78,7 +78,7 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
       return;
     }
 
-    setSuperAggregate(newType, constrainingAggregate);
+    setSuperAggregate(newType);
     //Now we can safely cast and clone over the methods
     cloneMethodsAndOperators(newType, constrainingAggregate);
 
@@ -98,13 +98,9 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
 
   }
 
-  private void setSuperAggregate(final AggregateSymbol newType, final IAggregateSymbol constrainingAggregate) {
+  private void setSuperAggregate(final AggregateSymbol newType) {
 
-    if (constrainingAggregate.getGenus().equals(SymbolGenus.RECORD)) {
-      newType.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Types().ek9AnyRecord());
-    } else {
-      newType.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Types().ek9AnyClass());
-    }
+    newType.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Any());
 
   }
 

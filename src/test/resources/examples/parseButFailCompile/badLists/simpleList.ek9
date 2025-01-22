@@ -43,7 +43,7 @@ defines module bad.lists.only
       assert aList?
 
     InvalidTypesListOfDataCombinations()
-      @Resolved: FULL_RESOLUTION: TYPE: "List of (AnyClass)"
+      @Resolved: FULL_RESOLUTION: TYPE: "List of (Any)"
       aList <- [2023-05-04, 2023]
 
       assert aList?
@@ -93,7 +93,7 @@ defines module bad.lists.only
       assert aList?
 
 
-      @Resolved: FULL_RESOLUTION: TYPE: "List of (AnyClass)"
+      @Resolved: FULL_RESOLUTION: TYPE: "List of (Any)"
       bList <- [v2, v1]
 
       assert bList?

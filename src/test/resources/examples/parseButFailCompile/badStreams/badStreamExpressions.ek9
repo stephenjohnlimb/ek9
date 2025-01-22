@@ -456,13 +456,13 @@ defines module bad.streams14
 
     <?-
       Use an invalid 'for' with a mix of Character and Integer.
-      This will result in 'AnyClass' being the common type and that does not have the appropriate operators.
+      This will result in 'Any' being the common type and that does not have the appropriate operators.
     -?>
     BrokenStreamFor1()
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       invalidList <- for i in 'a' ... 10 | collect as List of Character
 
-      //So this type will now be known as a List of AnyClass as AnyClass is the common super of a Character and Integer
+      //So this type will now be known as a List of Any as 'Any' is the common super of a Character and Integer
       assert invalidList?
 
 //EOF

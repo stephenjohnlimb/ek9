@@ -40,7 +40,8 @@ public class SymbolSearch {
       SymbolCategory.TYPE,
       SymbolCategory.TEMPLATE_TYPE,
       SymbolCategory.TEMPLATE_FUNCTION,
-      SymbolCategory.FUNCTION);
+      SymbolCategory.FUNCTION,
+      SymbolCategory.ANY);
   /**
    * For variables - esp when checking for duplicates we want to allow
    * for class level variables of a name and allow a local variable to have the same name
