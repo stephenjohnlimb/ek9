@@ -39,7 +39,8 @@ final class CheckConflictingMethods extends TypedSymbolAccess implements Predica
     final var allMethods = symbol.getAllEffectiveMethods();
 
     for (var method : allMethods) {
-      if (lookup.containsKey(method.getName())) {
+      //We don't check for Constructor clashes, to avoid issues with 'Any()' constructor on traits.
+      if (lookup.containsKey(method.getName()) && !method.isConstructor()) {
         final var methodList = lookup.get(method.getName());
         final var clashingMatches = matchingMethods(methodList, method);
         if (clashingMatches.isEmpty()) {

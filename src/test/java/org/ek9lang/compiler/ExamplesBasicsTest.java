@@ -14,13 +14,15 @@ class ExamplesBasicsTest extends PhasesTest {
   public ExamplesBasicsTest() {
     super("/examples/basics",
         List.of("example.placeholder",
-            "net.customer.extend",
+            "net.customer.basics",
             "com.customer.params",
             "net.customer.coercions",
             "introduction",
             "net.customer.inferred",
             "com.customer.interpolated",
-            "com.customer.starter.example"));
+            "com.customer.starter.example",
+            "net.customer.any",
+            "net.customer.flexible.any"));
   }
 
   @Test

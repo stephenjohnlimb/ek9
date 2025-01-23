@@ -80,10 +80,6 @@ public class CommonTypeOrError extends RuleSupport
       return Optional.of(anyType);
     }
 
-    if (allAssignableTo(anyType, details.argumentTypes())) {
-      return Optional.of(anyType);
-    }
-
     emitNoCommonType(details.lineToken(), details.argumentTypes().get(0));
 
     return Optional.empty();

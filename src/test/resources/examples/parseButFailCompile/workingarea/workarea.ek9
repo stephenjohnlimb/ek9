@@ -1,18 +1,10 @@
 #!ek9
 <?-
   Workspace.
+  Consider 'Function' for 'Any' sort of Function.
 -?>
 defines module just.workspace
 
-
-  defines function
-
-    getInferredFromArgOptional()
-      -> arg0 as String
-      <- rtn <- Optional(arg0)
-
-    testOperatorIsSetOnFunction()
-      assert getInferredFromArgOptional?
 
 //EOF
 

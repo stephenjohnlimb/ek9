@@ -1,19 +1,19 @@
 #!ek9
-defines module net.customer.extend
+<?-
+  Now with even just the Generic Editor in eclipse you get folding
+  Add in a little text mate and a viable development environment is there.
+  Note you can also plugin the faint lines from Certiv for Eclipse - very useful for indent based languages like ek9.
+  OK could do all sorts with textmate to improve - but that's for someone else to do.
+  This is workable especially when you expand tabs to spaces and use just two spaces
+  Now with folding you can include all sorts in the same file related traits, classes and function.
+  IntelliJ also works well with the EK9 textmate bundle and has faint lines out of the box.
 
-  <?-
-    Now with even just the Generic Editor in eclipse you get folding
-    Add in a little text mate and a viable development environment is there.
-    Note you can also plugin the faint lines from Certiv for Eclipse - very useful for indent based languages like ek9.
-    OK could do all sorts with textmate to improve - but that's for someone else to do.
-    This is workable especially when you expand tabs to spaces and use just two spaces
-    Now with folding you can include all sorts in the same file related traits, classes and function.
-    IntelliJ also works well with the EK9 textmate bundle and has faint lines out of the box.
+  The EK9 LSP with VSCode is also looking very good for language help.
+  As the compiler gets more complete then symbols and type hierarchies will be available.
+-?>
+defines module net.customer.basics
 
-    The EK9 LSP with VSCode is also looking very good for language help.
-    As the compiler gets more complete then symbols and type hierarchies will be available.
-  -?>
-  
+
   defines constant
 
     anInt <- 1
@@ -190,109 +190,11 @@ defines module net.customer.extend
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "callsVerySimple"
     callsVerySimple()
       <- result Float: verySimple(6)
-
   defines program
 
     @Resolved: SYMBOL_DEFINITION: TYPE: "justMath"
     justMath()
       result <- 60 / 5 * (7-5)
       Stdout().println($result)
-
-    <?-
-      The Any type only has a 'toString' operator.
-      In general it is not really that useful, except when wanting to return 'any' sort of type
-      of object.
-      To get to work with a real type of object a 'dispatcher' must be used as their is no casting
-      or explicit type conversion in ek9.
-    -?>
-    checkAny()
-
-      any1 as Any: Any()
-      assert any1?
-
-  defines class
-
-    <?-
-      This is how the EK9 dispatcher mechanism works.
-      It avoids explicit 'casts' or even 'instanceof' or anything like that.
-      By marking the method process as a dispatcher and having additional methods of the same name
-      (these can be protected, public or private). EK9 will check and see if the 'Any' or base class is
-      actually any of the types defined on any of the other methods and call that method to get the result.
-    -?>
-    DispatcherExample
-
-      process() as dispatcher
-        -> value as Any
-        <- rtn as String: "Unknown type of class"
-
-      private process()
-        -> value as Integer
-        <- rtn as String: `Integer value of ${value}`
-
-      private process()
-        -> value as Float
-        <- rtn as String: `Floating point value of ${value}`
-
-      <?-
-        Note how this 'dynamic class' is dynamically created later in 'getAnyFromDynamicClass'
-        But can be referenced here. Dynamic Classes give quite a bit of flexibility.
-      -?>
-      private process()
-        -> value as SteveClass
-        <- rtn as String: `SteveClass value of  ${value.name()}`
-
-  defines function
-
-    <?-
-      Example of implicit extension of classes from 'Any'.
-      So here this function can return either an Integer or Float - or any class for that matter.
-    -?>
-    getAny() as pure
-      -> check as Boolean
-      <- rtn as Any: check <- 1 : 3.142
-
-    <?-
-      Now demonstrate the use of the function to return 'Any' type (class in this case).
-      This enables information hiding and an easier mechanism to change implementations.
-      Now, show how the dispatcher can be used to detect the type of the variable and trigger
-      different functionality (depending on the type).
-    -?>
-    demonstrateDispatcherWithAny1()
-      dispatch <- DispatcherExample()
-      s1 <- dispatch.process(getAny(true))
-      s2 <- dispatch.process(getAny(false))
-      s3 <- dispatch.process(2024-12-03)
-
-      //So now S1 would have been 'typed' as an Integer and a string with that value in it would result
-      //and S2 would have been 'typed' as an Float and a string with that value in it would result
-      //But the date would not really be anything other than the default processing
-      assert s1? and s2? and s3?
-
-    <?-
-      Simple demonstration that a 'dynamic class' in this case 'SteveClass' which is being defined on the fly
-      actually has the implicit super class of 'Any'. This shows that it can be passed back via its 'super'.
-    -?>
-    getAnyFromDynamicClass()
-      -> check as Boolean
-      <- rtn as Any: Any()
-
-      if check
-        rtn: 1
-      else
-        rtn: SteveClass(firstName: "Steve", lastName: "Limb") as class
-          name()
-            <- rtn as String: `${firstName} ${lastName}`
-
-    demonstrateDispatcherWithAny2()
-
-      dispatch <- DispatcherExample()
-      s1 <- dispatch.process(getAnyFromDynamicClass(true))
-      s2 <- dispatch.process(getAnyFromDynamicClass(false))
-      s3 <- dispatch.process(2024-12-03)
-
-      //So now S1 would have been 'typed' as an Integer and a string with that value in it would result
-      //and S2 would have been 'typed' as a SteveClass and a string with that value in it would result
-      //But the date would not really be anything other than the default processing
-      assert s1? and s2? and s3?
 
 //EOF

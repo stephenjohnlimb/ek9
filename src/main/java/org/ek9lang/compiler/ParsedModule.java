@@ -9,6 +9,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.directives.Directive;
 import org.ek9lang.compiler.directives.DirectiveType;
 import org.ek9lang.compiler.symbols.Ek9Types;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ModuleScope;
@@ -104,7 +105,7 @@ public class ParsedModule implements Module, Serializable {
   private boolean externallyImplemented = false;
 
   private Ek9Types ek9Types;
-  private ISymbol ek9Any;
+  private IAggregateSymbol ek9Any;
 
 
   /**
@@ -146,9 +147,9 @@ public class ParsedModule implements Module, Serializable {
     return ek9Types;
   }
 
-  public ISymbol getEk9Any() {
+  public IAggregateSymbol getEk9Any() {
     if (ek9Any == null) {
-      final AtomicReference<ISymbol> ref = new AtomicReference<>();
+      final AtomicReference<IAggregateSymbol> ref = new AtomicReference<>();
       compilableProgram.accept(program -> ref.set(program.getEk9Any()));
       ek9Any = ref.get();
     }

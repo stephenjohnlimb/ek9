@@ -1,0 +1,98 @@
+#!ek9
+<?-
+  Highlights more flexibility around in using any in quite a wide type use.
+-?>
+defines module net.customer.flexible.any
+
+  defines text for "en"
+
+    Text
+      welcome()
+        "Welcome"
+
+  defines type
+
+    //use the favourite as an example with super of 'Any'.
+    CardSuit
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+
+    //Also use this as a type (constrained)
+    EmailAddress as String constrain as
+      matches /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
+
+  defines record
+    R1
+      property <- String()
+
+      default operator ?
+
+  defines component
+
+    BaseComp as abstract
+      default operator ?
+
+    Comp1 extends BaseComp
+      property <- String()
+
+      default operator ?
+
+  defines trait
+    T1
+      someMethod()
+        -> arg0 as String
+        <- rtn as Boolean: arg0?
+
+  defines class
+    Class1 with trait of T1
+      default operator ?
+
+  defines function
+
+    checkAnyOnText()
+      a as Any: Text("en")
+      assert a?
+
+    checkAnyOnConstrainedType()
+      a as Any: EmailAddress("stephenjohnlimb@gmail.com")
+      assert a?
+
+    checkAnyOnEnumeration()
+      a as Any: CardSuit.Clubs
+      assert a?
+
+    checkAsAnyOnTrait()
+      //Cannot create traits directly, so create class with trait and refer as trait.
+      //Then check that as a trait of T1 with can be handled as 'Any'
+      t as T1: Class1()
+      a as Any: t
+      assert a?
+
+    checkAsAnyOnClass()
+      a as Any: String()
+      assert a?
+
+    checkAsAnyOnRecord()
+      a as Any: R1()
+      assert a?
+
+    checkAsAnyOnComponent()
+      a as Any: Comp1()
+      assert a?
+
+    <?-
+      Demonstrates that by the compiler has got to the PRE_IR_CHECKS phase, it
+      has worked out through type inference that 'List of Any' exists and that
+      'Optional of List of Any' also exists.
+    -?>
+    ListOfAny()
+      @Resolved: PRE_IR_CHECKS: TYPE: "List of (Any)"
+      list <- [1, "2", 2025-01-23, R1()]
+      assert list?
+
+      @Resolved: PRE_IR_CHECKS: TYPE: "Optional of (List of (Any))"
+      optionalOfList <- Optional(list)
+      assert optionalOfList?
+//EOF

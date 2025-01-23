@@ -47,6 +47,9 @@ class TextFactory extends CommonFactory {
         final var textBase = new AggregateSymbol(baseName, parsedModule.getModuleScope());
         configureAggregate(textBase, new Ek9Token(ctx.start));
         textBase.setGenus(SymbolGenus.TEXT);
+        //Now for the base - we set this to be an 'Any'.
+        //That way the 'en' or 'de' Text that extends the Base text is also an 'Any'.
+        textBase.setSuperAggregate(parsedModule.getEk9Any());
 
         parsedModule.getModuleScope().define(textBase);
 
