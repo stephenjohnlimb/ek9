@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.support;
 
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.CONSTRUCTOR_USED_ON_ABSTRACT_TYPE;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.TYPE_NOT_RESOLVED;
 
@@ -78,8 +79,14 @@ public abstract class ResolveOrDefineTypes extends ResolverOrDefiner {
     final var resolvedGenericType = resolveTypeByIdentifierReference(ctx.identifierReference());
 
     if (resolvedGenericType.isPresent()) {
+      final var genericType = resolvedGenericType.get();
       //So as that resolved lets now get any parameterizing parameters.
-      return resolveSimpleTypeByIdentifierReference(triggerToken, resolvedGenericType.get(), ctx);
+      if (ctx.paramExpression() != null && genericType.isMarkedAbstract()) {
+        //Then looks like this is being used to create an instance - so this type cannot be abstract
+        final var msg = "wrt: '" + genericType.getFriendlyName() + "':";
+        errorListener.semanticError(ctx.start, msg, CONSTRUCTOR_USED_ON_ABSTRACT_TYPE);
+      }
+      return resolveSimpleTypeByIdentifierReference(triggerToken, genericType, ctx);
     }
 
     return Optional.empty();

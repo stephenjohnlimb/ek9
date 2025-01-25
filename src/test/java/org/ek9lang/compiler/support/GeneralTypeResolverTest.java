@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import org.ek9lang.compiler.common.TypeDefResolver;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.AnyTypeSymbol;
 import org.ek9lang.compiler.symbols.SymbolTable;
 import org.junit.jupiter.api.Test;
 
@@ -53,6 +54,9 @@ class GeneralTypeResolverTest {
   @Test
   void testGenericTypeResolution() {
     SymbolTable scope = new SymbolTable("some.test");
+
+    //The 'Any' type is needed for supers of parameterised generic types. So have to add it in here in this test.
+    scope.define(new AnyTypeSymbol("Any", scope));
 
     AggregateSymbol someGenericType = new AggregateSymbol("SomeGenericType", scope);
     someGenericType.setModuleScope(scope);

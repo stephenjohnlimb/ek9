@@ -15,7 +15,7 @@ import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.AggregateManipulator;
-import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.AnyTypeSymbol;
 import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
@@ -140,7 +140,7 @@ public final class SymbolDefinition extends CompilerPhase {
       AssertValue.checkTrue("ek9Any must be present", ek9Any.isPresent());
       compilableProgramAccess.accept(compilableProgram -> {
         compilableProgram.setEk9Types(ek9Types);
-        compilableProgram.setEk9Any((IAggregateSymbol) ek9Any.get());
+        compilableProgram.setEk9Any((AnyTypeSymbol) ek9Any.get());
       });
     }
   }

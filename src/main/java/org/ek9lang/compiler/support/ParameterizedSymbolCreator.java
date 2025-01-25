@@ -2,7 +2,9 @@ package org.ek9lang.compiler.support;
 
 import java.util.List;
 import java.util.function.BiFunction;
+import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.AnyTypeSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
@@ -23,6 +25,8 @@ public class ParameterizedSymbolCreator
 
   private final BiFunction<PossibleGenericSymbol, List<ISymbol>, String> internalNameFor;
 
+  //This is resolved on first use.
+  private AnyTypeSymbol anyTypeSymbol;
 
   public ParameterizedSymbolCreator(final BiFunction<PossibleGenericSymbol, List<ISymbol>, String> internalNameFor) {
     this.internalNameFor = internalNameFor;
@@ -42,6 +46,13 @@ public class ParameterizedSymbolCreator
     AssertValue.checkTrue("type parameters and type arguments must be same size "
             + possibleGenericSymbol.getAnyConceptualTypeParameters().size() + " and " + typeArguments.size(),
         possibleGenericSymbol.getAnyConceptualTypeParameters().size() == typeArguments.size());
+
+    //lazy resolve this once.
+    if (anyTypeSymbol == null) {
+      final var resolvedAny = possibleGenericSymbol.resolve(new SymbolSearch("Any").setSearchType(SymbolCategory.ANY));
+      AssertValue.checkTrue("EK9 Any must exist", resolvedAny.isPresent());
+      this.anyTypeSymbol = (AnyTypeSymbol) resolvedAny.get();
+    }
 
     PossibleGenericSymbol rtn = null;
 
@@ -75,6 +86,9 @@ public class ParameterizedSymbolCreator
 
     rtn.setGenericType(possibleGenericSymbol);
     typeArguments.forEach(rtn::addTypeParameterOrArgument);
+    //Now for parameterised generic types - we do set the super to be 'Any'.
+    //This enables more polymorphic use and passing of objects/processing with dispatchers.
+    rtn.setSuperAggregate(this.anyTypeSymbol);
 
     return rtn;
   }
@@ -108,6 +122,7 @@ public class ParameterizedSymbolCreator
 
     rtn.setReturningSymbol(clonedReturnSymbol);
 
+    rtn.setSuperFunction(this.anyTypeSymbol);
     return rtn;
   }
 

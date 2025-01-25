@@ -4,9 +4,15 @@ package org.ek9lang.compiler.symbols;
  * Used by functions and methods as they may return a symbol (variable).
  */
 public interface IMayReturnSymbol {
-  boolean isReturningSymbolPresent();
+  default boolean isReturningSymbolPresent() {
+    return false;
+  }
 
-  ISymbol getReturningSymbol();
+  default VariableSymbol getReturningSymbol() {
+    return null;
+  }
 
-  void setReturningSymbol(final VariableSymbol returningSymbol);
+  default void setReturningSymbol(final VariableSymbol returningSymbol) {
+    //No operation.
+  }
 }

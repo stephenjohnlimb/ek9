@@ -195,6 +195,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     this.aggregateDescription = aggregateDescription;
   }
 
+  @Override
   public Optional<String> getPipeSinkType() {
 
     return Optional.ofNullable(pipeSinkType);
@@ -217,11 +218,13 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     pipeSourceType.ifPresentOrElse(s -> this.pipeSourceType = s, () -> this.pipeSourceType = null);
   }
 
+  @Override
   public boolean isMarkedAsDispatcher() {
 
     return markedAsDispatcher;
   }
 
+  @Override
   public void setMarkedAsDispatcher(final boolean markedAsDispatcher) {
 
     this.markedAsDispatcher = markedAsDispatcher;
@@ -240,6 +243,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
 
   }
 
+  @Override
   public List<IAggregateSymbol> getSubAggregateSymbols() {
 
     return Collections.unmodifiableList(subAggregateSymbols);
@@ -248,6 +252,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   /**
    * We note down any subtypes this type is used with.
    */
+  @Override
   public void addSubAggregateSymbol(final IAggregateSymbol sub) {
 
     if (!subAggregateSymbols.contains(sub)) {
@@ -448,6 +453,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     return canAssign;
   }
 
+  @Override
   public Optional<IAggregateSymbol> getSuperAggregate() {
 
     return Optional.ofNullable(superAggregate);
@@ -456,6 +462,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   /**
    * Set the 'super' of this type.
    */
+  @Override
   public void setSuperAggregate(final Optional<IAggregateSymbol> superAggregate) {
 
     AssertValue.checkNotNull("Optional superAggregateSymbol cannot be null", superAggregate);
@@ -465,6 +472,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
 
   }
 
+  @Override
   public void setSuperAggregate(final IAggregateSymbol baseSymbol) {
 
     setSuperAggregate(Optional.ofNullable(baseSymbol));

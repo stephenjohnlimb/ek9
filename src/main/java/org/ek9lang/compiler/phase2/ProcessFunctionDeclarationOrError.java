@@ -42,7 +42,7 @@ final class ProcessFunctionDeclarationOrError extends RuleSupport
       if (ctx.identifierReference() != null) {
         final var resolved = functionSuitableToExtendOrError.apply(ctx.identifierReference());
         resolved.ifPresent(theSuper -> symbol.setSuperFunction((FunctionSymbol) theSuper));
-      } else if (!symbol.isGenericInNature()) {
+      } else {
         synthesizeSuperFunction.accept(symbol);
       }
     }

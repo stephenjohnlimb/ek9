@@ -53,7 +53,7 @@ final class ProcessTraitDeclarationOrError extends RuleSupport
       }
       //Always set the super of a trait to 'Any'.
       symbol.getType()
-          .ifPresent(theType -> symbol.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Any()));
+          .ifPresent(theType -> symbol.setSuperAggregate(symbolsAndScopes.getEk9Any()));
 
       if (ctx.allowingOnly() != null) {
         ctx.allowingOnly().identifierReference().forEach(classRef -> {

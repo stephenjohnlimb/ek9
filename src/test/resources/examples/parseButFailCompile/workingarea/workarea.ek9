@@ -1,7 +1,6 @@
 #!ek9
 <?-
   Workspace.
-  Consider 'Function' for 'Any' sort of Function.
 -?>
 defines module just.workspace
 

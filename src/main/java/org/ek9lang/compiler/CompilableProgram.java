@@ -11,8 +11,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.AggregateManipulator;
+import org.ek9lang.compiler.symbols.AnyTypeSymbol;
 import org.ek9lang.compiler.symbols.Ek9Types;
-import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.INaming;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ModuleScope;
@@ -62,7 +62,7 @@ public class CompilableProgram implements Serializable {
   /**
    * This is baked in at a code level for super of all things.
    */
-  private IAggregateSymbol ek9Any;
+  private AnyTypeSymbol ek9Any;
 
   /**
    * For a specific source the ParsedModule is returned.
@@ -85,13 +85,13 @@ public class CompilableProgram implements Serializable {
 
   }
 
-  public IAggregateSymbol getEk9Any() {
+  public AnyTypeSymbol getEk9Any() {
 
     return ek9Any;
 
   }
 
-  public void setEk9Any(IAggregateSymbol ek9Any) {
+  public void setEk9Any(AnyTypeSymbol ek9Any) {
 
     this.ek9Any = ek9Any;
 

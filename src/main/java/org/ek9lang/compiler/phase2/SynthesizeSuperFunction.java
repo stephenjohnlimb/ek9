@@ -53,6 +53,11 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
         tryProducersAndAccessors(function);
       }
     }
+    //Now it might not have been possible to set the super function to one of the idiomatic types
+    //Like consumer etc. So set it to 'Any'.
+    if (function.getSuperFunction().isEmpty()) {
+      function.setSuperFunction(symbolsAndScopes.getEk9Any());
+    }
 
   }
 
@@ -200,14 +205,18 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
 
     final var genericType = function.resolve(new TemplateFunctionSymbolSearch(genericTypeName));
     if (genericType.isEmpty()) {
-      throw new CompilerException("Must be possible to resolve build in generic type [" + genericTypeName);
+      throw new CompilerException("Must be possible to resolve built-in generic type [" + genericTypeName);
     }
 
     final var data = new ParameterisedTypeData(function.getSourceToken(), genericType.get(), typeArguments);
     final var resolvedParameterizedType = parameterisedLocator.apply(data);
 
-    resolvedParameterizedType.ifPresentOrElse(
-        newType -> function.setSuperFunction((FunctionSymbol) newType),
+    resolvedParameterizedType.ifPresentOrElse(newType -> {
+          //When processing built-in - do not want to match self!
+          if (!newType.isExactSameType(function)) {
+            function.setSuperFunction((FunctionSymbol) newType);
+          }
+        },
         () -> {
           throw new CompilerException("Must be possible to parameterized type [" + genericTypeName);
         }

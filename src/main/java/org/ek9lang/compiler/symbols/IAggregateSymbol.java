@@ -22,11 +22,17 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    *
    * @return true if marked as a dispatcher.
    */
-  boolean isMarkedAsDispatcher();
+  default boolean isMarkedAsDispatcher() {
+    return false;
+  }
 
-  void setMarkedAsDispatcher(final boolean markedAsDispatcher);
+  default void setMarkedAsDispatcher(final boolean markedAsDispatcher) {
+    //no operation
+  }
 
-  Optional<String> getPipeSinkType();
+  default Optional<String> getPipeSinkType() {
+    return Optional.empty();
+  }
 
   /**
    * To get a full hierarchy you will need to get these subclasses
@@ -34,14 +40,18 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    *
    * @return a list of all the subclasses of this class
    */
-  List<IAggregateSymbol> getSubAggregateSymbols();
+  default List<IAggregateSymbol> getSubAggregateSymbols() {
+    return List.of();
+  }
 
   /**
    * used to add back pointers to subclasses.
    *
    * @param sub The subclass to point back to.
    */
-  void addSubAggregateSymbol(final IAggregateSymbol sub);
+  default void addSubAggregateSymbol(final IAggregateSymbol sub) {
+    //No operation
+  }
 
   /**
    * Gets all methods that are effective, by this I mean
@@ -56,35 +66,45 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    *
    * @return A List of methods that are in effect.
    */
-  List<MethodSymbol> getAllEffectiveMethods();
+  default List<MethodSymbol> getAllEffectiveMethods() {
+    return List.of();
+  }
 
   /**
    * Get all methods on this and any supers or traits.
    *
    * @return the list
    */
-  List<MethodSymbol> getAllMethods();
+  default List<MethodSymbol> getAllMethods() {
+    return List.of();
+  }
 
   /**
    * Get all operators on this and any supers or traits.
    *
    * @return the list
    */
-  List<MethodSymbol> getAllOperators();
+  default List<MethodSymbol> getAllOperators() {
+    return List.of();
+  }
 
   /**
    * Get all methods marked as abstract in this or any supers.
    *
    * @return The list.
    */
-  List<MethodSymbol> getAllAbstractMethods();
+  default List<MethodSymbol> getAllAbstractMethods() {
+    return List.of();
+  }
 
   /**
    * Get all methods not marked as abstract in this or any supers.
    *
    * @return The list.
    */
-  List<MethodSymbol> getAllNonAbstractMethods();
+  default List<MethodSymbol> getAllNonAbstractMethods() {
+    return List.of();
+  }
 
   /**
    * A list of all the defined constructors.
@@ -96,28 +116,36 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
   /**
    * All methods abstract and non-abstract in this scope.
    */
-  List<MethodSymbol> getAllMethodInThisScopeOnly();
+  default List<MethodSymbol> getAllMethodInThisScopeOnly() {
+    return List.of();
+  }
 
   /**
    * Get all methods in this scope only that are not abstract.
    *
    * @return The list
    */
-  List<MethodSymbol> getAllNonAbstractMethodsInThisScopeOnly();
+  default List<MethodSymbol> getAllNonAbstractMethodsInThisScopeOnly() {
+    return List.of();
+  }
 
   /**
    * Get all methods in this scope only that are abstract.
    *
    * @return The list
    */
-  List<MethodSymbol> getAllAbstractMethodsInThisScopeOnly();
+  default List<MethodSymbol> getAllAbstractMethodsInThisScopeOnly() {
+    return List.of();
+  }
 
   /**
    * Just access to the properties in this aggregate - no supers.
    *
    * @return The list
    */
-  List<ISymbol> getProperties();
+  default List<ISymbol> getProperties() {
+    return List.of();
+  }
 
   /**
    * Name of this aggregate.
@@ -129,20 +157,30 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    * Idea is to be able to gather all these up and ensure only one single good result i.e.
    * matching methods does exist and one single method matches best. Else ambiguity or no match.
    */
-  MethodSymbolSearchResult resolveMatchingMethods(final MethodSymbolSearch search,
-                                                  final MethodSymbolSearchResult result);
+  default MethodSymbolSearchResult resolveMatchingMethods(final MethodSymbolSearch search,
+                                                  final MethodSymbolSearchResult result) {
+    return result;
+  }
 
   /**
    * Just try and resolve a member in this or super scopes.
    */
-  Optional<ISymbol> resolveMember(final SymbolSearch search);
+  default Optional<ISymbol> resolveMember(final SymbolSearch search) {
+    return Optional.empty();
+  }
 
-  Optional<IAggregateSymbol> getSuperAggregate();
+  default Optional<IAggregateSymbol> getSuperAggregate() {
+    return Optional.empty();
+  }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  void setSuperAggregate(final Optional<IAggregateSymbol> superAggregate);
+  default void setSuperAggregate(final Optional<IAggregateSymbol> superAggregate) {
+    //No operation
+  }
 
-  void setSuperAggregate(final IAggregateSymbol superAggregateSymbol);
+  default void setSuperAggregate(final IAggregateSymbol superAggregateSymbol) {
+    //No Operation
+  }
 
   boolean isInAggregateHierarchy(final IAggregateSymbol theAggregateToCheck);
 
@@ -155,7 +193,9 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
     return new ArrayList<>();
   }
 
-  List<AggregateWithTraitsSymbol> getAllTraits();
+  default List<AggregateWithTraitsSymbol> getAllTraits() {
+    return List.of();
+  }
 
   default boolean isExtensionConstrained() {
 
@@ -167,7 +207,9 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    * But also super classes or super traits.
    * So can either be implementing directly, super, super - super or traits and supe traits.
    */
-  boolean isImplementingInSomeWay(final IAggregateSymbol aggregate);
+  default boolean isImplementingInSomeWay(final IAggregateSymbol aggregate) {
+    return aggregate == this;
+  }
 
   String getAggregateDescription();
 

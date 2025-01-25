@@ -97,6 +97,7 @@
     </p>
     <h3>The Types</h3>
     <ul>
+      <li><a href="#any">Any</a></li>
       <li><a href="#boolean">Boolean</a></li>
       <li><a href="#character">Character</a></li>
       <li><a href="#string">String</a></li>
@@ -145,6 +146,25 @@
       do return some value.
       This might seem a little strange, but it removes the fixed and binding nature of <b>static</b>
       methods on a fixed class, it reduces the need for specific <i>Factory</i> classes to some degree.
+    </p>
+
+    <h3 id="any">Any</h3>
+    <p>
+      Variables of <i>type</i> <b>Any</b> can have 'any' value and be of 'any' type, including being a function:
+    </p>
+    <ul>
+      <li>Unknown <b>not set</b></li>
+      <li>Any value that the real type can hold</li>
+    </ul>
+    <p>
+      EK9 has the type of 'Any' to enable full polymorphic passing of data items.
+      All types and function have the eventual 'super' of 'Any'. However there are no
+      call semantics/methods or operators on 'Any' other than the 'is-set' operator.
+    </p>
+    <p>
+      When working with the 'Any' type therre comes a time when you will need to 'Know' the type of the
+      object in hand. At this point to make used of those objects/functions employ a 'dispatcher'.
+      See <a href="advancedClassMethods.html">Advanced Class Methods</a> for more details on this.
     </p>
 
     <h3 id="boolean">Boolean</h3>

@@ -9,6 +9,7 @@ import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.directives.Directive;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
+import org.ek9lang.compiler.symbols.AnyTypeSymbol;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.CaptureScope;
 import org.ek9lang.compiler.symbols.ConstantSymbol;
@@ -277,7 +278,7 @@ public class SymbolFactory extends CommonFactory {
   /**
    * Creates the builtin 'Any' type super of 'things'.
    */
-  public AggregateSymbol newAny(final EK9Parser.ModuleDeclarationContext ctx) {
+  public AnyTypeSymbol newAny(final EK9Parser.ModuleDeclarationContext ctx) {
     return operationFactory.newAny(ctx);
   }
 

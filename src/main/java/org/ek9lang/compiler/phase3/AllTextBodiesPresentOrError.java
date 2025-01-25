@@ -34,7 +34,7 @@ final class AllTextBodiesPresentOrError extends TypedSymbolAccess implements Con
           aggregateSymbol.resolveMatchingMethodsInThisScopeOnly(new MethodSymbolSearch(methodToCheck),
               new MethodSymbolSearchResult()).isEmpty();
 
-      //We can only report on a single error on the aggregate, so so at the first one that is missing.
+      //We can only report on a single error on the aggregate, so at the first one that is missing.
       final var firstMissingMethod = supperTextAggregate.getAllNonAbstractMethodsInThisScopeOnly()
           .stream()
           .filter(MethodSymbol::isNotConstructor)

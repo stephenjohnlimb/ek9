@@ -16,6 +16,7 @@ import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.IFunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.Symbol;
 import org.junit.jupiter.api.Test;
@@ -52,8 +53,8 @@ class BadInheritanceTest extends PhasesTest {
     var modules = program.getParsedModules("bad.inherited.functions");
     assertFalse(modules.isEmpty());
     SimpleResolverForTesting resolver = new SimpleResolverForTesting(modules.get(0).getModuleScope(), true);
-    assertNoTypeHierarchy("Function1", resolver);
-    assertNoTypeHierarchy("Function2", resolver);
+    assertAnyTypeHierarchy(ek9Any, "Function1", resolver);
+    assertAnyTypeHierarchy(ek9Any, "Function2", resolver);
 
     //3 and 4 extend
     assertHierarchy(ek9Any, resolver, "Function3", "Function1");
@@ -124,7 +125,7 @@ class BadInheritanceTest extends PhasesTest {
       if (symbol instanceof IAggregateSymbol aggregate) {
         var record2 = assertAndGetAggregateSuper(Optional.of(aggregate), "Record3");
         var record1 = assertAndGetAggregateSuper(record2, "Record2");
-        assertNoAggregateHierarchy(ek9Any, record1, "Record1");
+        assertAnyTypeAggregateHierarchy(ek9Any, record1, "Record1");
       } else {
         fail("Expecting an aggregate");
       }
@@ -155,10 +156,10 @@ class BadInheritanceTest extends PhasesTest {
     mainType.ifPresent(symbol -> {
       if (symbol instanceof IAggregateSymbol aggregate) {
         var superType = assertAndGetAggregateSuper(Optional.of(aggregate), theName);
-        assertNoAggregateHierarchy(ek9Any, superType, theSuperName);
+        assertAnyTypeAggregateHierarchy(ek9Any, superType, theSuperName);
       } else if (symbol instanceof FunctionSymbol function) {
         var superType = assertAndGetFunctionSuper(Optional.of(function), theName);
-        assertNoFunctionHierarchy(superType, theSuperName);
+        assertAnyFunctionHierarchy(ek9Any, superType, theSuperName);
       } else {
         fail("Expecting an aggregate or function");
       }
@@ -184,8 +185,8 @@ class BadInheritanceTest extends PhasesTest {
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private Optional<FunctionSymbol> assertAndGetFunctionSuper(final Optional<FunctionSymbol> type,
-                                                             final String expectName) {
+  private Optional<IFunctionSymbol> assertAndGetFunctionSuper(final Optional<FunctionSymbol> type,
+                                                              final String expectName) {
     assertTrue(type.isPresent());
     assertEquals(expectName, type.get().getName());
     return type.get().getSuperFunction();
@@ -202,7 +203,8 @@ class BadInheritanceTest extends PhasesTest {
       assertTrue(aggregate.getSuperAggregate().isPresent());
       aggregate.getSuperAggregate().ifPresent(superType -> assertTrue(superType.isExactSameType(ek9Any)));
     } else if (type.get() instanceof FunctionSymbol function) {
-      assertFalse(function.getSuperFunction().isPresent());
+      assertTrue(function.getSuperFunction().isPresent());
+      function.getSuperFunction().ifPresent(superFunction -> assertTrue(superFunction.isExactSameType(ek9Any)));
     }
   }
   private void assertNoTypeHierarchy(final String typeName, final SimpleResolverForTesting resolver) {
@@ -220,7 +222,7 @@ class BadInheritanceTest extends PhasesTest {
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private void assertNoAggregateHierarchy(final ISymbol ek9Any, final Optional<IAggregateSymbol> type, final String expectName) {
+  private void assertAnyTypeAggregateHierarchy(final ISymbol ek9Any, final Optional<IAggregateSymbol> type, final String expectName) {
     assertTrue(type.isPresent());
     assertEquals(expectName, type.get().getName());
     assertTrue(type.get().getSuperAggregate().isPresent());
@@ -228,9 +230,10 @@ class BadInheritanceTest extends PhasesTest {
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private void assertNoFunctionHierarchy(final Optional<FunctionSymbol> type, final String expectName) {
+  private void assertAnyFunctionHierarchy(final ISymbol ek9Any, final Optional<IFunctionSymbol> type, final String expectName) {
     assertTrue(type.isPresent());
     assertEquals(expectName, type.get().getName());
-    assertFalse(type.get().getSuperFunction().isPresent());
+    assertTrue(type.get().getSuperFunction().isPresent());
+    type.get().getSuperFunction().ifPresent(superFunctionType -> assertTrue(superFunctionType.isExactSameType(ek9Any)));
   }
 }

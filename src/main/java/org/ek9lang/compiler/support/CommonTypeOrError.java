@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.support;
 
-import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.TYPE_MUST_BE_FUNCTION;
-import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.TYPE_MUST_NOT_BE_FUNCTION;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.UNABLE_TO_DETERMINE_COMMON_TYPE;
 
 import java.util.ArrayList;
@@ -51,14 +49,7 @@ public class CommonTypeOrError extends RuleSupport
 
   private boolean canCommonTypeBeDetermined(final CommonTypeDeterminationDetails details) {
 
-    if (details.argumentTypes().isEmpty()) {
-      return false;
-    }
-
-    return (details.argumentTypes().get(0) instanceof FunctionSymbol
-        && checkFunctionSymbols(details))
-        || (details.argumentTypes().get(0) instanceof AggregateSymbol
-        && checkAggregateSymbols(details));
+    return !details.argumentTypes().isEmpty();
   }
 
   private Optional<ISymbol> determineCommonType(final CommonTypeDeterminationDetails details) {
@@ -112,49 +103,6 @@ public class CommonTypeOrError extends RuleSupport
   private boolean allAssignableTo(final ISymbol typeSymbol, final List<ISymbol> typeList) {
 
     return typeList.stream().filter(fun -> fun.isAssignableTo(typeSymbol)).count() == typeList.size();
-  }
-
-  private boolean checkAggregateSymbols(final CommonTypeDeterminationDetails details) {
-
-    int count = 0;
-
-    for (int i = 0; i < details.argumentTypes().size(); i++) {
-      if (details.argumentTypes().get(i) instanceof AggregateSymbol) {
-        count++;
-      } else {
-        emitExpectingAggregateError(details.lineToken(), details.argumentSymbols().get(i));
-      }
-    }
-
-    return count == details.argumentSymbols().size();
-  }
-
-  private boolean checkFunctionSymbols(final CommonTypeDeterminationDetails details) {
-
-    int count = 0;
-    for (int i = 0; i < details.argumentTypes().size(); i++) {
-      if (details.argumentTypes().get(i) instanceof FunctionSymbol) {
-        count++;
-      } else {
-        emitExpectingFunctionError(details.lineToken(), details.argumentSymbols().get(i));
-      }
-    }
-
-    return count == details.argumentSymbols().size();
-  }
-
-  private void emitExpectingFunctionError(final IToken lineToken, final ISymbol argument) {
-
-    final var msg = "Expecting a function not '" + argument.getFriendlyName() + "':";
-    errorListener.semanticError(lineToken, msg, TYPE_MUST_BE_FUNCTION);
-
-  }
-
-  private void emitExpectingAggregateError(final IToken lineToken, final ISymbol argument) {
-
-    final var msg = "Expecting a non-function not function '" + argument.getName() + "':";
-    errorListener.semanticError(lineToken, msg, TYPE_MUST_NOT_BE_FUNCTION);
-
   }
 
   private void emitNoCommonType(final IToken lineToken, final ISymbol argument) {

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.ek9lang.compiler.common.TypeDefResolver;
 import org.ek9lang.compiler.support.AggregateManipulator;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.AnyTypeSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.SymbolCategory;
@@ -18,6 +19,7 @@ public class AbstractSymbolTestBase {
   private final SymbolTable global = new SymbolTable();
   protected IScope symbolTable = new SymbolTable();
 
+  protected AnyTypeSymbol ek9Any = new AnyTypeSymbol("Any", global);
   protected ISymbol ek9Integer = new AggregateSymbol("Integer", global);
   protected ISymbol ek9Float = new AggregateSymbol("Float", global);
   protected ISymbol ek9String = new AggregateSymbol("String", global);
@@ -33,6 +35,7 @@ public class AbstractSymbolTestBase {
   @BeforeEach
   public void setupBasicSymbols() {
     symbolTable = new SymbolTable();
+    symbolTable.define(ek9Any);
     symbolTable.define(ek9Integer);
     symbolTable.define(ek9Float);
     symbolTable.define(ek9String);

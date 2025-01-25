@@ -1,6 +1,6 @@
 #!ek9
 <?-
-  Highlights more flexibility around in using any in quite a wide type use.
+  Highlights more flexibility around in using 'Any' in quite a wide type use.
 -?>
 defines module net.customer.flexible.any
 
@@ -45,11 +45,40 @@ defines module net.customer.flexible.any
         -> arg0 as String
         <- rtn as Boolean: arg0?
 
+      operator ? as pure
+        <- rtn <- true
+
   defines class
     Class1 with trait of T1
       default operator ?
 
   defines function
+
+    <?-
+      So here is a simple consumer, it's super function will be inferred as
+      Consumer of String and that will have a super function of 'Any'.
+    -?>
+    sampleInferredConsumer() as pure
+      -> arg0 as String
+      assert arg0?
+
+    <?-
+      Here  am using explicit types, so that I can be assured that the type hierarchy is working.
+    -?>
+    checkAccessViaAnyOnFunction()
+
+      consumer as Consumer of String: sampleInferredConsumer
+      assert consumer?
+
+      a as Any: consumer
+      assert a?
+
+    checkAccessViaAnyOnDynamicFunction()
+      consumer as Consumer of String: () is Consumer of String as pure function (assert t?)
+      assert consumer?
+
+      a as Any: consumer
+      assert a?
 
     checkAnyOnText()
       a as Any: Text("en")
@@ -63,10 +92,18 @@ defines module net.customer.flexible.any
       a as Any: CardSuit.Clubs
       assert a?
 
-    checkAsAnyOnTrait()
+    checkAsAnyOnTrait1()
       //Cannot create traits directly, so create class with trait and refer as trait.
       //Then check that as a trait of T1 with can be handled as 'Any'
       t as T1: Class1()
+      assert t?
+      a as Any: t
+      assert a?
+
+    checkAsAnyOnTrait2()
+      //As above but create a dynamic class, no additional implementation, just use the trait.
+      t as T1: () with trait of T1 as class
+      assert t?
       a as Any: t
       assert a?
 
@@ -82,14 +119,20 @@ defines module net.customer.flexible.any
       a as Any: Comp1()
       assert a?
 
+    checkListAsAny()
+      a as Any: List() of String
+      assert a?
+
     <?-
       Demonstrates that by the compiler has got to the PRE_IR_CHECKS phase, it
       has worked out through type inference that 'List of Any' exists and that
       'Optional of List of Any' also exists.
+      Note that this list is now able to hold aggregates and function via 'Any'.
+      To process these you'd need a 'dispatcher'.
     -?>
     ListOfAny()
       @Resolved: PRE_IR_CHECKS: TYPE: "List of (Any)"
-      list <- [1, "2", 2025-01-23, R1()]
+      list <- [1, "2", 2025-01-23, R1(), sampleInferredConsumer]
       assert list?
 
       @Resolved: PRE_IR_CHECKS: TYPE: "Optional of (List of (Any))"

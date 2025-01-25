@@ -32,7 +32,7 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
   /**
    * Keep separate variable for what we are returning because we need its name and type.
    */
-  private ISymbol returningSymbol;
+  private VariableSymbol returningSymbol;
 
   /**
    * So has the developer indicated that this method is an overriding method.
@@ -356,6 +356,7 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
    * So when a Returning Symbol is set we use the type of the returning variable as the type
    * return on the method.
    */
+  @Override
   public boolean isReturningSymbolPresent() {
 
     return returningSymbol != null;
@@ -366,7 +367,7 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
    * Note in EK9 this is not just a type but actually a variable symbol (that has a type).
    */
   @Override
-  public ISymbol getReturningSymbol() {
+  public VariableSymbol getReturningSymbol() {
 
     return returningSymbol;
   }
@@ -384,7 +385,7 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
 
   }
 
-  protected void justSetReturningSymbol(final ISymbol returningSymbol) {
+  protected void justSetReturningSymbol(final VariableSymbol returningSymbol) {
 
     this.returningSymbol = returningSymbol;
 

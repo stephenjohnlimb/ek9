@@ -7,13 +7,13 @@ import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.AnyTypeSymbol;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
-import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
@@ -151,19 +151,16 @@ class OperationFactory extends CommonFactory {
     return aggregateSymbol;
   }
 
-  public AggregateSymbol newAny(final EK9Parser.ModuleDeclarationContext ctx) {
-    final var aggregateSymbol = new AggregateSymbol("Any", parsedModule.getModuleScope());
+  public AnyTypeSymbol newAny(final EK9Parser.ModuleDeclarationContext ctx) {
+    final var anyTypeSymbol = new AnyTypeSymbol("Any", parsedModule.getModuleScope());
 
-    configureAggregate(aggregateSymbol, new Ek9Token(ctx.start));
-    aggregateSymbol.setGenus(SymbolGenus.ANY);
-    aggregateSymbol.setCategory(SymbolCategory.ANY);
-    aggregateSymbol.setOpenForExtension(true);
-    aggregateManipulator.addConstructor(aggregateSymbol, List.of(), true, true);
+    configureAggregate(anyTypeSymbol, new Ek9Token(ctx.start));
+    anyTypeSymbol.setOpenForExtension(true);
+    aggregateManipulator.addConstructor(anyTypeSymbol, List.of(), true, true);
 
-    //Not sure about operators like "?". catch 22 if this is first type - Boolean won't exist yet.
-    //May have to update or like functions just always accept it as built in.
+    //The '?' is baked into compiler code for Any so the operator does not need to exist.
 
-    return aggregateSymbol;
+    return anyTypeSymbol;
   }
 
   /**

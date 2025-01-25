@@ -7,6 +7,10 @@ defines module bad.lists.only
       -> arg0 as Integer
       <- rtn as Boolean?
 
+    anotherFunction()
+      -> arg0 as Integer
+      <- rtn as Boolean: arg0?
+
     <?-
       Just an example of an explicit list use.
     -?>
@@ -71,14 +75,16 @@ defines module bad.lists.only
       assert f2?
       assert f3?
 
-      @Error: FULL_RESOLUTION: TYPE_MUST_NOT_BE_FUNCTION
+      //EK9 now does allow mixed aggregates and functions via the 'Any' type.
+      @Resolved: FULL_RESOLUTION: TYPE: "List of (Any)"
       aList <- [v1, f1]
+      assert aList is not empty
 
-      @Error: FULL_RESOLUTION: TYPE_MUST_NOT_BE_FUNCTION
       bList <- [v1, f2]
+      assert length bList == 2
 
-      @Error: FULL_RESOLUTION: TYPE_MUST_NOT_BE_FUNCTION
       cList <- [v1, f3]
+      assert cList?
 
     CoercedValidMixOfTypes()
       v1 <- 2.0
@@ -109,5 +115,28 @@ defines module bad.lists.only
 
       @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert aList?
+
+  defines class
+    ADispatcher
+      process() as pure dispatcher
+        -> arg0 as Any
+        assert arg0?
+
+      process() as pure
+        -> arg0 as Boolean
+        assert arg0
+
+      process() as pure
+        -> arg0 as someAbstractFunction
+        processedValue <- arg0(21)
+        assert processedValue
+
+      process() as pure
+        -> arg0 as anotherFunction
+        @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+        processedValue <- arg0(21)
+        assert processedValue
+
+
 
 //EOF

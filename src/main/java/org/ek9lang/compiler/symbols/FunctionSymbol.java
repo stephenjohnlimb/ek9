@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.symbols;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.search.SymbolSearch;
@@ -13,7 +14,7 @@ import org.ek9lang.compiler.support.ToCommaSeparated;
  * way we like i.e. classes.
  * We need to ensure that any functions we extend have the same method signature.
  */
-public class FunctionSymbol extends PossibleGenericSymbol implements IMayReturnSymbol {
+public class FunctionSymbol extends PossibleGenericSymbol implements IFunctionSymbol, Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -32,7 +33,7 @@ public class FunctionSymbol extends PossibleGenericSymbol implements IMayReturnS
    * implementation.
    * It is sort of object-oriented but for functions.
    */
-  private FunctionSymbol superFunction;
+  private IFunctionSymbol superFunction;
 
   /**
    * Create a new Function Symbol with a specific unique name (in the enclosing scope).
@@ -85,15 +86,17 @@ public class FunctionSymbol extends PossibleGenericSymbol implements IMayReturnS
   /**
    * Added convenience method to make the parameters a bit more obvious.
    */
+  @Override
   public List<ISymbol> getCallParameters() {
 
     return super.getSymbolsForThisScope();
   }
 
   /**
-   * Does this function directly implement or through its hierarch implement the function passed in.
+   * Does this function directly implement or through its hierarchy implement the function passed in.
    */
-  public boolean isImplementingInSomeWay(final FunctionSymbol function) {
+  @Override
+  public boolean isImplementingInSomeWay(final IFunctionSymbol function) {
     if (function == this) {
       return true;
     }
@@ -122,20 +125,21 @@ public class FunctionSymbol extends PossibleGenericSymbol implements IMayReturnS
     return matcher.getWeightOfMatch(this.getType(), theirReturnType) >= 0.0;
   }
 
-  public Optional<FunctionSymbol> getSuperFunction() {
+  @Override
+  public Optional<IFunctionSymbol> getSuperFunction() {
 
     return Optional.ofNullable(superFunction);
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public void setSuperFunction(final Optional<FunctionSymbol> superFunctionSymbol) {
+  public void setSuperFunction(final Optional<IFunctionSymbol> superFunctionSymbol) {
 
     superFunctionSymbol.ifPresentOrElse(theSuperFunction -> this.superFunction = theSuperFunction,
         () -> this.superFunction = null);
 
   }
 
-  public void setSuperFunction(final FunctionSymbol superFunctionSymbol) {
+  public void setSuperFunction(final IFunctionSymbol superFunctionSymbol) {
 
     this.superFunction = superFunctionSymbol;
 
@@ -148,6 +152,7 @@ public class FunctionSymbol extends PossibleGenericSymbol implements IMayReturnS
    * So when a Returning Symbol is set we use the type of the returning variable as the type
    * return on the function.
    */
+  @Override
   public boolean isReturningSymbolPresent() {
 
     return returningSymbol != null;

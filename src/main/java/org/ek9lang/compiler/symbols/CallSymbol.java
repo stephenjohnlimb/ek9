@@ -92,7 +92,7 @@ public class CallSymbol extends MethodSymbol {
   }
 
   @Override
-  public ISymbol getReturningSymbol() {
+  public VariableSymbol getReturningSymbol() {
     if (resolvedSymbolToCall instanceof IMayReturnSymbol canReturn) {
       return canReturn.getReturningSymbol();
     }

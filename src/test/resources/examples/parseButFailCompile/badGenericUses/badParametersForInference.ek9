@@ -11,6 +11,11 @@ defines module incorrect.generic.uses
 
   defines function
 
+    checkAccessViaAnyOnExplicitConsumer()
+      @Error: SYMBOL_DEFINITION: CONSTRUCTOR_USED_ON_ABSTRACT_TYPE
+      consumer <- Consumer() of String
+      assert consumer?
+
     //This is allowed, because the lhs has the detail.
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "allowedDefaultConstructor"
     allowedDefaultConstructor()

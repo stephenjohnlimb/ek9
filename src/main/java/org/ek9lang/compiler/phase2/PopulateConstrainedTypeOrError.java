@@ -100,7 +100,7 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
 
   private void setSuperAggregate(final AggregateSymbol newType) {
 
-    newType.setSuperAggregate((IAggregateSymbol) symbolsAndScopes.getEk9Any());
+    newType.setSuperAggregate(symbolsAndScopes.getEk9Any());
 
   }
 
@@ -198,7 +198,7 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
     if (clonedMethod.isReturningSymbolPresent() && clonedMethod.getReturningSymbol().getType().isPresent()) {
       final var currentType = clonedMethod.getReturningSymbol().getType().get();
       if (currentType.isExactSameType(constrainedType)) {
-        final var returningSymbol = (VariableSymbol) clonedMethod.getReturningSymbol();
+        final var returningSymbol = clonedMethod.getReturningSymbol();
         returningSymbol.setType(newType);
         clonedMethod.setReturningSymbol(returningSymbol);
       }
