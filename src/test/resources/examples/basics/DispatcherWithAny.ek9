@@ -1,0 +1,85 @@
+#!ek9
+defines module example.dispatch.any
+  defines text for "en"
+    Text
+      welcome()
+        "Welcome"
+
+  defines type
+    CardSuit
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+
+    EmailAddress as String constrain as
+      matches /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
+
+  defines record
+    R1
+      property <- "Steve"
+      default operator ?
+
+  defines function
+    SteveSupplier()
+      <- rtn <- "Steve"
+
+    StephenSupplier()
+      <- rtn <- "Stephen"
+
+  defines class
+    DispatcherExample
+
+      process() as dispatcher
+        -> value as Any
+        <- rtn as String: "Unknown type"
+
+      private process()
+        -> value as Integer
+        <- rtn as String: `Integer value of ${value}`
+
+      private process()
+        -> value as Float
+        <- rtn as String: `Floating point value of ${value}`
+
+      private process()
+        -> value as Text
+        <- rtn as String: `Text value of ${value.welcome()}`
+
+      private process()
+        -> value as CardSuit
+        <- rtn as String: `CardSuit value of ${value}`
+
+      private process()
+        -> value as EmailAddress
+        <- rtn as String: `EmailAddress value of ${value}`
+
+      private process()
+        -> value as R1
+        <- rtn as String: `R1 property value of ${value.property}`
+
+      private process()
+        -> value as Supplier of String
+        <- rtn as String: `Function value of ${value()}`
+
+  defines function
+    showExampleOfAnyAndDispatcher()
+      //The compiler works out the 'Any' is the best 'type'
+      list <- [
+        1,
+        3.142,
+        Text("en"),
+        CardSuit.Hearts,
+        EmailAddress("stephenjohnlimb@gmail.com"),
+        R1(),
+        SteveSupplier,
+        StephenSupplier
+      ]
+
+      //Now use a dispatcher.
+      processor <- DispatcherExample()
+      for listItem in list
+        value <- processor.process(listItem)
+        assert value?
+
+//EOF

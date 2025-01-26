@@ -214,6 +214,22 @@ defines module error.on.result.access
       cat [errorValue] > r
       assert r.isOk() and r.isError()
 
+    testEmptyResult()
+      r <- Result() of (String, Integer)
+      assert not r.isOk() and not r.isError()
+
+    testOkOnlyResult()
+      r <- (Result() of (String, Integer)).asOk("Steve")
+      assert r.isOk() and not r.isError()
+
+    testErrorOnlyResult()
+      r <- (Result() of (String, Integer)).asError(-1)
+      assert not r.isOk() and r.isError()
+
+    testSimpleResultConstruction()
+      r <- Result("Steve", 0)
+      assert r.isOk() and r.isError()
+
     <?-
       Now a check that detects that the EK9 developer has not called isOk() before the ok() method.
       There is also a test for checking isError is called before calling error().

@@ -4,6 +4,38 @@
 -?>
 defines module generic.parameterization
 
+  defines class
+    SomeAbstractGenericClass of type T as abstract
+
+      someOperation() as abstract
+        -> arg0 as String
+        <- rtn as Boolean?
+
+      default operator ?
+
+  defines function
+
+    <?-
+      Demonstration of missing abstract methods that are actually required for instantiation.
+    -?>
+    invalidDynamicClassUse()
+      @Error: FULL_RESOLUTION: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS
+      instance <- () extends SomeAbstractGenericClass of String as class
+
+    <?-
+      Demonstration of what is required to use 'SomeAbstractGenericClass'.
+      Also shows the logic of how that generic class method would function via assertions.
+    -?>
+    validDynamicClassUse()
+      instance <- () extends SomeAbstractGenericClass of String as class
+        override someOperation()
+          -> arg0 as String
+          <- rtn as Boolean: arg0?
+
+      assert instance?
+      assert not instance.someOperation(String())
+      assert instance.someOperation("Steve")
+
   defines function
 
     TestGenericClassExplicitParameterization()

@@ -132,10 +132,17 @@ defines module net.customer.flexible.any
     -?>
     ListOfAny()
       @Resolved: PRE_IR_CHECKS: TYPE: "List of (Any)"
-      list <- [1, "2", 2025-01-23, R1(), sampleInferredConsumer]
+      list <- [1, "2", 2025-01-23, R1(), sampleInferredConsumer, CardSuit.Hearts]
       assert list?
+
+      listAsAny as Any: list
+      assert listAsAny?
 
       @Resolved: PRE_IR_CHECKS: TYPE: "Optional of (List of (Any))"
       optionalOfList <- Optional(list)
       assert optionalOfList?
+
+      optionalListAsAny as Any: optionalOfList
+      assert optionalListAsAny?
+
 //EOF

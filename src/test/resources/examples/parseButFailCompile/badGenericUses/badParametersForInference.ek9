@@ -9,9 +9,21 @@
 -?>
 defines module incorrect.generic.uses
 
+  defines class
+    SomeAbstractGenericClass of type T as abstract
+
+      someOperation() as abstract
+        -> arg0 as String
+        <- rtn as Boolean?
+
   defines function
 
-    checkAccessViaAnyOnExplicitConsumer()
+    invalidAbstractClassUse()
+      @Error: SYMBOL_DEFINITION: CONSTRUCTOR_USED_ON_ABSTRACT_TYPE
+      instance <- SomeAbstractGenericClass() of String
+      assert instance?
+
+    invalidAbstractFunctionUse()
       @Error: SYMBOL_DEFINITION: CONSTRUCTOR_USED_ON_ABSTRACT_TYPE
       consumer <- Consumer() of String
       assert consumer?

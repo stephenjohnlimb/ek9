@@ -22,7 +22,8 @@ class ExamplesBasicsTest extends PhasesTest {
             "com.customer.interpolated",
             "com.customer.starter.example",
             "net.customer.any",
-            "net.customer.flexible.any"));
+            "net.customer.flexible.any",
+            "example.dispatch.any"));
   }
 
   @Test

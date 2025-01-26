@@ -674,6 +674,7 @@ dottedName
  
 identifier
     : Identifier
+    | DISPATCHER
     | SORT
     | CAT
     | FILTER
