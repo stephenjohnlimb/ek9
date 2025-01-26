@@ -23,7 +23,8 @@ class ExamplesBasicsTest extends PhasesTest {
             "com.customer.starter.example",
             "net.customer.any",
             "net.customer.flexible.any",
-            "example.dispatch.any"));
+            "example.dispatch.any",
+            "net.customer.varargs"));
   }
 
   @Test

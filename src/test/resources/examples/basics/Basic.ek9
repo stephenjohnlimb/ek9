@@ -190,6 +190,7 @@ defines module net.customer.basics
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "callsVerySimple"
     callsVerySimple()
       <- result Float: verySimple(6)
+
   defines program
 
     @Resolved: SYMBOL_DEFINITION: TYPE: "justMath"

@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
@@ -14,17 +14,17 @@ import org.junit.jupiter.api.Test;
 class WorkingAreaTest extends PhasesTest {
 
   public WorkingAreaTest() {
-    super("/examples/parseButFailCompile/workingarea", true, false);
+    super("/examples/parseButFailCompile/workingarea");
   }
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.PRE_IR_CHECKS);
+    testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   @Override
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
-    assertTrue(compilationResult);
+    assertFalse(compilationResult);
   }
 }

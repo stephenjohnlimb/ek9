@@ -1,0 +1,57 @@
+#!ek9
+<?-
+  Unlike some other languages, EK9 does NOT support var-args.
+  This is the specific syntax for allowing a varying number of arguments
+  to be passed to a method/function. These are normally the last set of arguments.
+
+  Instead EK9 has a very nice alternative that is provided by the '[ ]' syntax for lists.
+  This has the added benefit of enabling multiple sets of varying arguments to be passed to a
+  method/function.
+
+  The code below demonstrates this functionality.
+-?>
+defines module net.customer.varargs
+
+  defines function
+
+    <?-
+      The EK9 mechanism just uses a 'List' (a strongly typed list) and no special varargs synatax.
+    -?>
+    alternativeVarArgReceiver1()
+      -> arg0 as List of String
+      assert arg0? and length arg0 > 0
+
+    alternativeVarArgReceiver2()
+      ->
+        arg0 as List of String
+        arg1 as Boolean
+        arg2 as List of Integer
+        arg3 as Date
+
+      assert arg0? and arg1? and arg2? and arg3?
+
+    showSimpleVarArgsUse()
+      //This would be the typical call for a language like Java with var-args
+      //alternativeVarArgReceiver1("Steve", "Steven", "Stephen")
+
+      //For EK9 this is the call
+      alternativeVarArgReceiver1(["Steve", "Steven", "Stephen"])
+
+    <?-
+      Shows how multiple var-args (short hand lists) can be used.
+    -?>
+    showMultipleArguments()
+      alternativeVarArgReceiver2(["Steve", "Steven", "Stephen"], true, [1, 2, 3, 4], 2025-01-26)
+
+    <?-
+      As above, but this example used 'named' arguments. This can be more useful when there are quite a few
+      arguments to be passed.
+    -?>
+    showMultipleNamedArguments()
+      alternativeVarArgReceiver2(
+        arg0: ["Steve", "Steven", "Stephen"],
+        arg1: true,
+        arg2: [1, 2, 3, 4],
+        arg3: 2025-01-26
+      )
+//EOF

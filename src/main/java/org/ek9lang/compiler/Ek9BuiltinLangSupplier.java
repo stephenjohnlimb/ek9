@@ -3817,7 +3817,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             NetworkProperties() as pure
               ->
-                duration as Millisecond
+                timeout as Millisecond
             
             NetworkProperties() as pure
               ->

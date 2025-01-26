@@ -1,8 +1,48 @@
 #!ek9
 <?-
   Workspace.
+
+  TODO identify all the possible scenarios where named arguments can be used and
+  provide working and non-working examples.
+  Then plugin ValidNamedArgumentsOrError in the code and check valid and invalid EK9
+  code can be detected.
 -?>
 defines module just.workspace
+
+  defines function
+    receiver()
+      ->
+        arg0 as List of String
+        arg1 as Boolean
+        arg2 as List of Integer
+        arg3 as Date
+
+      assert arg0? and arg1? and arg2? and arg3?
+
+    showInvalidNamedArguments()
+      receiver(
+        arg0: ["Steve", "Steven", "Stephen"],
+        arg1: true,
+        arg2: [1, 2, 3, 4],
+        @Error: FULL_RESOLUTION: NAMED_PARAMETERS_MUST_MATCH_ARGUMENTS
+        arg4: 2025-01-26
+      )
+
+    showNamedArguments()
+      receiver(
+        arg0: ["Steve", "Steven", "Stephen"],
+        arg1: true,
+        arg2: [1, 2, 3, 4],
+        arg3: 2025-01-26
+      )
+
+    showUnNamedArguments()
+      receiver(
+        ["Steve", "Steven", "Stephen"],
+        true,
+        [1, 2, 3, 4],
+        2025-01-26
+      )
 
 //EOF
 

@@ -35,6 +35,8 @@ final class CallOrError extends TypedSymbolAccess implements Consumer<EK9Parser.
   private final AccessGenericInGeneric accessGenericInGeneric;
   private final PureProcessingInPureContextOrError pureProcessingInPureContextOrError;
 
+  private final ValidNamedArgumentsOrError validNamedArgumentsOrError;
+
   /**
    * Lookup a pre-recorded 'call', now resolve what it is supposed to call and set its type.
    */
@@ -57,7 +59,8 @@ final class CallOrError extends TypedSymbolAccess implements Consumer<EK9Parser.
         new AccessGenericInGeneric(symbolsAndScopes);
     this.pureProcessingInPureContextOrError =
         new PureProcessingInPureContextOrError(symbolsAndScopes, errorListener);
-
+    this.validNamedArgumentsOrError =
+        new ValidNamedArgumentsOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -111,9 +114,12 @@ final class CallOrError extends TypedSymbolAccess implements Consumer<EK9Parser.
 
     final var symbol = resolveIdentifierReferenceCallOrError.apply(ctx);
 
+
     //Now this is where the developer has written 'l as List of String : List()'
     //Or fun as SomeFunction of Integer: SomeFunction().
     if (symbol != null) {
+      validNamedArgumentsOrError.accept(ctx.paramExpression(), symbol.getSymbolsForThisScope());
+
       //We must also cater for generics within generics.
       //Just checking isGenericInNature is not enough when used within a generic type.
       final var genericInGenericData = accessGenericInGeneric.apply(symbol);
