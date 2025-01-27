@@ -32,6 +32,7 @@ final class OperationCallOrError extends TypedSymbolAccess
   private final MostSpecificScope mostSpecificScope;
   private final AccessToSymbolOrError accessToSymbolOrError;
   private final PureProcessingInPureContextOrError pureProcessingInPureContextOrError;
+  private final ValidNamedArgumentsOrError validNamedArgumentsOrError;
 
   /**
    * Create a new operation resolver.
@@ -53,7 +54,8 @@ final class OperationCallOrError extends TypedSymbolAccess
         new AccessToSymbolOrError(symbolsAndScopes, errorListener);
     this.pureProcessingInPureContextOrError =
         new PureProcessingInPureContextOrError(symbolsAndScopes, errorListener);
-
+    this.validNamedArgumentsOrError =
+        new ValidNamedArgumentsOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -63,6 +65,9 @@ final class OperationCallOrError extends TypedSymbolAccess
     final var symbol = resolveOperationOrError(startToken, ctx, aggregate);
     if (symbol != null) {
       pureProcessingInPureContextOrError.accept(startToken, symbol);
+
+      validNamedArgumentsOrError.accept(ctx.paramExpression(), symbol.getSymbolsForThisScope());
+
     }
 
     return symbol;

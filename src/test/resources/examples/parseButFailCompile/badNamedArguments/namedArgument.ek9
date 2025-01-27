@@ -1,0 +1,165 @@
+#!ek9
+defines module bad.named.arguments.examples
+
+  defines function
+
+    <?-
+      Test fixture
+    -?>
+    receiver()
+      ->
+        arg0 as List of String
+        arg1 as Boolean
+        arg2 as List of Integer
+        arg3 as Date
+
+      assert arg0? and arg1? and arg2? and arg3?
+
+  defines class
+
+    <?-
+      Test fixture
+    -?>
+    C1
+      aMethod()
+        ->
+          arg0 as String
+          arg1 as Float
+        assert arg0? and arg1?
+
+    <?-
+      Test fixture
+    -?>
+    C2
+      //Set up a property and initialise via construction.
+      c1 <- C1()
+
+      //Simple method to provide access
+      c1()
+        <- rtn as C1: c1
+
+  <?-
+    Directives and examples showing errors and also valid code examples.
+  -?>
+  defines function
+
+    <?-
+      Now demonstrate chained access to a method and valid use of
+      named argument.
+    -?>
+    showValidChainedMethodNamedAccess()
+      c2 <- C2()
+
+      c2.c1().aMethod(arg0: "Steve", arg1: 1)
+
+    <?-
+      Use incorrect named argument.
+    -?>
+    showInvalidChainedMethodNamedAccess1()
+      c2 <- C2()
+
+      c2.c1().aMethod(
+        @Error: FULL_RESOLUTION: NAMED_PARAMETERS_MUST_MATCH_ARGUMENTS
+        badName1: "Steve",
+        @Error: FULL_RESOLUTION: NAMED_PARAMETERS_MUST_MATCH_ARGUMENTS
+        alsoABadName: 1
+        )
+
+    <?-
+      Incorrect use of correctly named arguments.
+    -?>
+    showInvalidChainedMethodNamedAccess2()
+      c2 <- C2()
+
+      c2.c1().aMethod(
+        @Error: FULL_RESOLUTION: NAMED_PARAMETERS_MUST_MATCH_ARGUMENTS
+        arg1: "Steve",
+        @Error: FULL_RESOLUTION: NAMED_PARAMETERS_MUST_MATCH_ARGUMENTS
+        arg0: 1
+        )
+
+    showValidFunctionUnNamedArguments()
+      receiver(
+        ["Steve", "Steven", "Stephen"],
+        true,
+        [1, 2, 3, 4],
+        2025-01-26
+      )
+
+    showValidFunctionNamedArguments()
+
+      receiver(
+        arg0: ["Steve", "Steven", "Stephen"],
+        arg1: true,
+        arg2: [1, 2, 3, 4],
+        arg3: 2025-01-26
+      )
+
+    showInvalidFunctionNamedArguments()
+
+      receiver(
+        arg0: ["Steve", "Steven", "Stephen"],
+        arg1: true,
+        arg2: [1, 2, 3, 4],
+        @Error: FULL_RESOLUTION: NAMED_PARAMETERS_MUST_MATCH_ARGUMENTS
+        arg4: 2025-01-26
+      )
+
+    showValidGenericTypeConstructionNamedArguments()
+      list <- List(arg0: String())
+      assert list?
+
+    showValidSimpleTypeConstructionNamedArguments()
+      string <- String(arg0: "Steve")
+      assert string?
+
+    showValidGenericTypeConstructionUnNamedArguments()
+      list <- List(String())
+      assert list?
+
+    showValidSimpleTypeConstructionUnNamedArguments()
+      string <- String("Steve")
+      assert string?
+
+    showInvalidGenericTypeConstructionNamedArguments()
+      @Error: FULL_RESOLUTION: NAMED_PARAMETERS_MUST_MATCH_ARGUMENTS
+      list <- List(invalidName: String())
+      assert list?
+
+    showInvalidSimpleTypeConstructionNamedArguments()
+      @Error: FULL_RESOLUTION: NAMED_PARAMETERS_MUST_MATCH_ARGUMENTS
+      string <- String(anotherInvalidName: "Steve")
+      assert string?
+
+    showValidDynamicVariableCapture()
+
+      //Now for dynamic capture, there are no predefined names!
+      //So this check is just to ensure that dynamic captured variables when named like this
+      //Can still be used with the new compiler rules.
+
+      //This is really powerful when you think about it (though a bit wordy)
+      //At the moment it needs to be like this so I can use similar syntax for dynamic classes.
+
+      aFunction <- (firstName: "Steve", lastName: "limb") is Function of (Integer, String) as pure function
+        //Note that with dynamic functions the incoming parameters and return parameters are implicit
+        //Because this is pure - the :=? 'assignment if not set' operator must be used.
+        //But as you can see the variables have been captured (with their names)
+        r:=? `${firstName} ${lastName} - ${t}`
+
+      response <- aFunction(1)
+      assert response == "Steve Limb - 1"
+
+      //Just handle and pass around as a Function
+      //But note, this 'Function' as dynamic data bound into it, so now if I make a different call
+      checkFunction as Function of (Integer, String): aFunction
+      assert checkFunction(2) == "Steve Limb - 2"
+
+      //Now you can imagine, creating lots of functions with embedded fixed data and also being able to
+      //accept specific arguments when called. That's quite a handy feature for some domain problems.
+
+      //A 'payment processing application' for example - where the transaction is bound into
+      //Acceptors (mutable) or Consumers (immutable) and the data is hidden but still passed around.
+      //Eventually being bounding into a Supplier - where it can then pop out. But in the transaction in the
+      //processing pipeline was hidden inside functions.
+
+//EOF

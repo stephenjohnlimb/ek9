@@ -390,7 +390,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
         "constructor not resolved, check parameters where this generic type is being created"),
     PARENTHESIS_NOT_REQUIRED("use of parenthesis '( )' not allowed in this context"),
     PARENTHESIS_REQUIRED("parenthesis '( )' required in this context"),
-    VALUES_AND_TYPE_INCOMPATIBLE("choose either parenthesis '( )' with values or a type definition"),
+    VALUES_AND_TYPE_INCOMPATIBLE("choose either empty parenthesis '( )' with values or a type definition"),
     GENERIC_TYPE_OR_FUNCTION_PARAMETERS_NEEDED("type/function is generic but no parameters were supplied"),
     GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INVALID("this generic usage with this type is not allowed"),
     GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT(

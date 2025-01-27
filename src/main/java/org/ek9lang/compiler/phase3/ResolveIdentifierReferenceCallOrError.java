@@ -132,7 +132,6 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
       //let any assignments of checks with inference check the type compatibility or alter the type as appropriate.
 
       if (callArguments.isEmpty()) {
-
         emitMustBeParameterized(token, callIdentifier);
         return aggregate;
       } else {
@@ -175,7 +174,18 @@ final class ResolveIdentifierReferenceCallOrError extends TypedSymbolAccess
       final var theParameterisedType =
           parameterisedLocator.apply(new ParameterisedTypeData(token, genericSymbol, genericTypeArguments));
       if (theParameterisedType.isPresent()) {
-        return (ScopedSymbol) theParameterisedType.get();
+        //Now I think we should not return the 'type', but the appropriate constructor method.
+        if (theParameterisedType.get() instanceof IAggregateSymbol asParameterisedAggregate) {
+          final var resolvedConstructor = asParameterisedAggregate.resolveInThisScopeOnly(
+              new MethodSymbolSearch(asParameterisedAggregate.getName()).setTypeParameters(parameters));
+          if (resolvedConstructor.isPresent()) {
+            return (ScopedSymbol) resolvedConstructor.get();
+          }
+        } else {
+          //It is a generic function.
+          return (ScopedSymbol) theParameterisedType.get();
+        }
+
       }
     }
 
