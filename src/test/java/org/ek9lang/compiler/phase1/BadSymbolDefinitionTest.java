@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase3;
+package org.ek9lang.compiler.phase1;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -9,29 +9,29 @@ import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
- * Abstract base for bad full resolution tests.
+ * Abstract base for bad symbol definition tests.
  */
-abstract class BadFullResolutionTest extends PhasesTest {
+abstract class BadSymbolDefinitionTest extends PhasesTest {
 
-  public BadFullResolutionTest(final String fromResourcesDirectory) {
+  public BadSymbolDefinitionTest(final String fromResourcesDirectory) {
     super(fromResourcesDirectory, List.of());
   }
 
-  public BadFullResolutionTest(final String fromResourcesDirectory, final List<String> expectedModules) {
+  public BadSymbolDefinitionTest(final String fromResourcesDirectory, final List<String> expectedModules) {
     super(fromResourcesDirectory, expectedModules);
   }
 
-  public BadFullResolutionTest(final String fromResourcesDirectory,
-                               final List<String> expectedModules,
-                               final boolean verbose,
-                               final boolean muteReportedErrors) {
+  public BadSymbolDefinitionTest(final String fromResourcesDirectory,
+                                       final List<String> expectedModules,
+                                       final boolean verbose,
+                                       final boolean muteReportedErrors) {
     super(fromResourcesDirectory, expectedModules, verbose, muteReportedErrors, true);
 
   }
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.SYMBOL_DEFINITION);
   }
 
   @Override

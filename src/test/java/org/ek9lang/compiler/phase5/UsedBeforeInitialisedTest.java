@@ -1,12 +1,6 @@
 package org.ek9lang.compiler.phase5;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
 import java.util.List;
-import org.ek9lang.compiler.CompilableProgram;
-import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.PhasesTest;
-import org.junit.jupiter.api.Test;
 
 /**
  * Focus on using variables before they have been initialised.
@@ -19,7 +13,7 @@ import org.junit.jupiter.api.Test;
  * that variables that start out un initialised, are always initialised before they are used.
  * This is non-trivial, and quite expensive to do in processing terms.
  */
-class UsedBeforeInitialisedTest extends PhasesTest {
+class UsedBeforeInitialisedTest extends BadPreIRChecksTest {
 
   public UsedBeforeInitialisedTest() {
     super("/examples/parseButFailCompile/usedBeforeInitialised",
@@ -31,16 +25,5 @@ class UsedBeforeInitialisedTest extends PhasesTest {
             "bad.overriding.componentmethods2", "badswitch.initialisations",
             "badtry.initialisations", "badwhile.initialisations", "badfor.initialisations",
             "simple.conditional.assignment", "uninitialized.properties"));
-  }
-
-  @Test
-  void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.PRE_IR_CHECKS);
-  }
-
-  @Override
-  protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
-    assertFalse(compilationResult);
-
   }
 }

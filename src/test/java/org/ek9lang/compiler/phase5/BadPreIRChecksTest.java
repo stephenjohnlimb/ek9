@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase3;
+package org.ek9lang.compiler.phase5;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -9,19 +9,19 @@ import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
 /**
- * Abstract base for bad full resolution tests.
+ * Abstract base for bad PRE_IR_CHECKS Tests.
  */
-abstract class BadFullResolutionTest extends PhasesTest {
+abstract class BadPreIRChecksTest extends PhasesTest {
 
-  public BadFullResolutionTest(final String fromResourcesDirectory) {
-    super(fromResourcesDirectory, List.of());
+  public BadPreIRChecksTest(final String fromResourcesDirectory) {
+    this(fromResourcesDirectory, List.of());
   }
 
-  public BadFullResolutionTest(final String fromResourcesDirectory, final List<String> expectedModules) {
-    super(fromResourcesDirectory, expectedModules);
+  public BadPreIRChecksTest(final String fromResourcesDirectory, final List<String> expectedModules) {
+    this(fromResourcesDirectory, expectedModules, false, true);
   }
 
-  public BadFullResolutionTest(final String fromResourcesDirectory,
+  public BadPreIRChecksTest(final String fromResourcesDirectory,
                                final List<String> expectedModules,
                                final boolean verbose,
                                final boolean muteReportedErrors) {
@@ -31,11 +31,12 @@ abstract class BadFullResolutionTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
     assertFalse(compilationResult);
+
   }
 }

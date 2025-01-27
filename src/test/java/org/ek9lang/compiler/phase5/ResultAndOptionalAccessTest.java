@@ -1,32 +1,15 @@
 package org.ek9lang.compiler.phase5;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
 import java.util.List;
-import org.ek9lang.compiler.CompilableProgram;
-import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.PhasesTest;
-import org.junit.jupiter.api.Test;
 
 /**
  * Focus on use of the EK9 Result type.
  * Both valid and invalid use.
  */
-class ResultAndOptionalAccessTest extends PhasesTest {
+class ResultAndOptionalAccessTest extends BadPreIRChecksTest {
 
   public ResultAndOptionalAccessTest() {
     super("/examples/parseButFailCompile/phase5BadSpecialGenericsUse",
         List.of("error.on.result.access", "error.on.optional.access"));
-  }
-
-  @Test
-  void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.PRE_IR_CHECKS);
-  }
-
-  @Override
-  protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
-    assertFalse(compilationResult);
-
   }
 }
