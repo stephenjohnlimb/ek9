@@ -1,13 +1,7 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.ek9lang.compiler.CompilableProgram;
-import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.support.SymbolCountCheck;
-import org.junit.jupiter.api.Test;
 
 /**
  * Tests all construct types in basic form, then checks they can be resolved.
@@ -19,28 +13,22 @@ import org.junit.jupiter.api.Test;
  * There's a bit more to this than you'd think because of dynamic classes/functions and also
  * template/genetic types being employed in dynamic classes/functions.
  */
-class ExamplesJustResolutionTest extends PhasesTest {
+class ExamplesJustResolutionTest extends SuccessfulTest {
 
   public ExamplesJustResolutionTest() {
     super("/examples/justResolution");
   }
 
-  @Test
-  void testPhasedDevelopment() {
-    testToPhase(CompilationPhase.PRE_IR_CHECKS);
-  }
-
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
-    assertTrue(compilationResult);
-    assertEquals(0, numberOfErrors);
+    super.assertFinalResults(compilationResult, numberOfErrors, program);
 
-    var mainModuleName = "just.resolution.items";
-    var referencingModuleName = "just.reference.items";
-    var functionsModuleName = "just.functions.resolution";
-    var dynamicFunctionsModuleName = "just.dynamicfunctions.resolution";
+    final var mainModuleName = "just.resolution.items";
+    final var referencingModuleName = "just.reference.items";
+    final var functionsModuleName = "just.functions.resolution";
+    final var dynamicFunctionsModuleName = "just.dynamicfunctions.resolution";
+    final var classesModuleName = "just.classes.resolution";
 
-    var classesModuleName = "just.classes.resolution";
     new SymbolCountCheck(2, mainModuleName, 4).test(program);
     new SymbolCountCheck(1, referencingModuleName, 1).test(program);
     new SymbolCountCheck(1, functionsModuleName, 6).test(program);

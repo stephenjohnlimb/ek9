@@ -1,33 +1,22 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.ek9lang.compiler.CompilableProgram;
-import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.support.SymbolCountCheck;
-import org.junit.jupiter.api.Test;
 
 /**
  * Just test streams all compile.
  */
-class ExamplesStreamsTest extends PhasesTest {
+class ExamplesStreamsTest extends SuccessfulTest {
 
   public ExamplesStreamsTest() {
-    super("/examples/streams", false, false);
+    super("/examples/streams");
   }
 
-  @Test
-  void testPhaseDevelopment() {
-
-    testToPhase(CompilationPhase.PRE_IR_CHECKS);
-  }
 
   @Override
   protected void assertFinalResults(boolean compilationResult, int numberOfErrors, CompilableProgram program) {
-    assertTrue(compilationResult);
-    assertEquals(0, numberOfErrors);
+    super.assertFinalResults(compilationResult, numberOfErrors, program);
+
     new SymbolCountCheck("com.customer.justcat", 5).test(program);
     new SymbolCountCheck("com.customer.justparagraphs", 3).test(program);
     new SymbolCountCheck("com.customer.justmoney", 1).test(program);

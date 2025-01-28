@@ -8,7 +8,6 @@ import java.util.List;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.support.GenericsSymbolCheck;
 import org.ek9lang.compiler.support.SymbolCheck;
 import org.ek9lang.compiler.support.SymbolCountCheck;
@@ -16,24 +15,18 @@ import org.ek9lang.compiler.support.SymbolSearchConfiguration;
 import org.ek9lang.compiler.support.SymbolSearchMapFunction;
 import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.core.SharedThreadContext;
-import org.junit.jupiter.api.Test;
 
 /**
  * Just test generics simple declaration use compiles.
  * But also that the resulting parameterized symbols also get put into the correct module.
  * This test calls is doing far too much, need to split out to separate tests.
  */
-class ExamplesGenericsUse1Test extends PhasesTest {
+class ExamplesGenericsUse1Test extends SuccessfulTest {
 
   private final SymbolSearchMapFunction mapFunction = new SymbolSearchMapFunction();
 
   public ExamplesGenericsUse1Test() {
     super("/examples/genericsUse1");
-  }
-
-  @Test
-  void testPhasedDevelopment() {
-    testToPhase(CompilationPhase.PRE_IR_CHECKS);
   }
 
   /**
