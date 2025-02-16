@@ -25,7 +25,7 @@
 
     <antlr.version>4.13.1</antlr.version>
     <lsp4j.version>0.21.1</lsp4j.version>
-    <asm.version>9.4</asm.version>
+    <asm.version>9.7.1</asm.version>
 
   </properties>
 
