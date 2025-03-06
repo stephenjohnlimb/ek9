@@ -20,7 +20,7 @@
     <jvm.options></jvm.options>
     <surefire.memory>-Xmx1024m</surefire.memory>
 
-    <java.version>21</java.version>
+    <java.version>23</java.version>
     <junit.version>5.8.2</junit.version>
 
     <antlr.version>4.13.1</antlr.version>
