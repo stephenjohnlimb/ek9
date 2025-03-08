@@ -29,6 +29,8 @@ import org.junit.jupiter.api.parallel.ResourceLock;
 final class FileHandlingTest {
   private final FileHandling underTest = new FileHandling(new OsSupport(true));
 
+  private final TargetArchitecture targetArchitecture = TargetArchitecture.JVM;
+
   @AfterEach
   void tidyUp() {
     String testHomeDirectory = underTest.getUsersHomeDirectory();
@@ -57,7 +59,7 @@ final class FileHandlingTest {
   @Test
   void testFileStructure() throws IOException {
     //So this creates a full .ek9 structure under the developers home directory
-    underTest.validateHomeEk9Directory("java");
+    underTest.validateHomeEk9Directory(TargetArchitecture.JVM);
 
     //We need a project directory so that we can try out the other capabilities.
     //i.e. This is a project you will have checked out, here it is empty, we just create it
@@ -82,23 +84,23 @@ final class FileHandlingTest {
     String projectDotEK9Directory = underTest.getDotEk9Directory(aProjectDirectory);
 
     //This will check or make the whole .ek9 tree.
-    underTest.validateEk9Directory(projectDotEK9Directory, "java");
+    underTest.validateEk9Directory(projectDotEK9Directory, targetArchitecture);
 
     File generatedOutputDir =
-        underTest.getMainGeneratedOutputDirectory(projectDotEK9Directory, "java");
+        underTest.getMainGeneratedOutputDirectory(projectDotEK9Directory, targetArchitecture);
     assertNotNull(generatedOutputDir);
 
-    File finalOutputDir = underTest.getMainFinalOutputDirectory(projectDotEK9Directory, "java");
+    File finalOutputDir = underTest.getMainFinalOutputDirectory(projectDotEK9Directory, targetArchitecture);
     assertNotNull(finalOutputDir);
 
     File devGeneratedOutputDir =
-        underTest.getDevGeneratedOutputDirectory(projectDotEK9Directory, "java");
+        underTest.getDevGeneratedOutputDirectory(projectDotEK9Directory, targetArchitecture);
     assertNotNull(devGeneratedOutputDir);
 
-    File devFinalOutputDir = underTest.getDevFinalOutputDirectory(projectDotEK9Directory, "java");
+    File devFinalOutputDir = underTest.getDevFinalOutputDirectory(projectDotEK9Directory, targetArchitecture);
     assertNotNull(devFinalOutputDir);
 
-    File targetArtefact = underTest.getTargetExecutableArtefact(sampleEK9.getPath(), "java");
+    File targetArtefact = underTest.getTargetExecutableArtefact(sampleEK9.getPath(), targetArchitecture);
     //Simulate a build of the target
     assertTrue(targetArtefact.createNewFile());
     assertNotNull(targetArtefact);
@@ -109,10 +111,10 @@ final class FileHandlingTest {
     assertNotNull(targetProperties);
 
     //Clean out
-    underTest.cleanEk9DirectoryStructureFor(sampleEK9, "java");
+    underTest.cleanEk9DirectoryStructureFor(sampleEK9, targetArchitecture);
 
     //make sure they've gone
-    targetArtefact = underTest.getTargetExecutableArtefact(sampleEK9.getPath(), "java");
+    targetArtefact = underTest.getTargetExecutableArtefact(sampleEK9.getPath(), targetArchitecture);
     assertFalse(targetArtefact.exists());
     targetProperties = underTest.getTargetPropertiesArtefact(sampleEK9.getPath());
     assertFalse(targetProperties.exists());
@@ -124,7 +126,7 @@ final class FileHandlingTest {
   @Test
   void testKeySigningPairPersistence() {
     //Ensure it is there
-    underTest.validateHomeEk9Directory("java");
+    underTest.validateHomeEk9Directory(targetArchitecture);
 
     String testHomeDirectory = underTest.getUsersHomeDirectory();
     assertNotNull(testHomeDirectory);
@@ -141,7 +143,7 @@ final class FileHandlingTest {
 
   @Test
   void testZippingAndPackaging() throws IOException {
-    underTest.validateHomeEk9Directory("java");
+    underTest.validateHomeEk9Directory(targetArchitecture);
 
     //We need a project directory so that we can try out the other capabilities.
     //i.e. This is a project you will have checked out, here it is empty, we just create it
@@ -161,7 +163,7 @@ final class FileHandlingTest {
     String projectDotEK9Directory = underTest.getDotEk9Directory(aProjectDirectory);
 
     //This will check or make the whole .ek9 tree.
-    underTest.validateEk9Directory(projectDotEK9Directory, "java");
+    underTest.validateEk9Directory(projectDotEK9Directory, targetArchitecture);
 
     String zipFileName = underTest.makePackagedModuleZipFileName("some.mod.name", "2.3.1");
     String fileName = projectDotEK9Directory + zipFileName;

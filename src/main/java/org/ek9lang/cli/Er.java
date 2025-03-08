@@ -1,8 +1,8 @@
 package org.ek9lang.cli;
 
 import java.util.Objects;
-import org.ek9lang.core.Ek9DirectoryStructure;
 import org.ek9lang.core.Logger;
+import org.ek9lang.core.TargetArchitecture;
 
 /**
  * Run the application that has been built or is already built.
@@ -23,8 +23,7 @@ class Er extends E {
   @Override
   public boolean preConditionCheck() {
 
-    return Objects.equals(compilationContext.commandLine().targetArchitecture,
-        Ek9DirectoryStructure.JAVA)
+    return Objects.equals(compilationContext.commandLine().targetArchitecture, TargetArchitecture.JVM)
         && super.preConditionCheck();
   }
 

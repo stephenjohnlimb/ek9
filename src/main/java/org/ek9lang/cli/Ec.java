@@ -7,7 +7,7 @@ import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.core.AssertValue;
-import org.ek9lang.core.Ek9DirectoryStructure;
+import org.ek9lang.core.TargetArchitecture;
 import org.ek9lang.core.ZipSet;
 
 /**
@@ -138,7 +138,7 @@ abstract class Ec extends E {
       return true;
     }
 
-    final var isJavaBuild = Ek9DirectoryStructure.JAVA.equals(compilationContext.commandLine().targetArchitecture);
+    final var isJavaBuild = TargetArchitecture.JVM.equals(compilationContext.commandLine().targetArchitecture);
 
     //We can only build a jar for java at present.
     if (isJavaBuild) {

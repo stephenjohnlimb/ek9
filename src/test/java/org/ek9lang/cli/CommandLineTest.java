@@ -16,6 +16,7 @@ import java.util.function.Function;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.Logger;
 import org.ek9lang.core.OsSupport;
+import org.ek9lang.core.TargetArchitecture;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -657,10 +658,10 @@ final class CommandLineTest {
     assertNotNull(sourceFile);
 
     CommandLine underTest = createClassUnderTest();
-    assertEquals(0, underTest.process("-T java " + sourceName));
+    assertEquals(0, underTest.process("-T jvm " + sourceName));
     assertTrue(underTest.options().isRunNormalMode());
     assertEquals("HelloWorld", underTest.getProgramToRun());
-    assertEquals("java", underTest.getTargetArchitecture());
+    assertEquals(TargetArchitecture.JVM, underTest.getTargetArchitecture());
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 
@@ -677,7 +678,7 @@ final class CommandLineTest {
     assertEquals(0, underTest.process(sourceName));
     assertTrue(underTest.options().isRunNormalMode());
     assertEquals("HelloWorld", underTest.getProgramToRun());
-    assertEquals("java", underTest.getTargetArchitecture());
+    assertEquals(TargetArchitecture.JVM, underTest.getTargetArchitecture());
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 

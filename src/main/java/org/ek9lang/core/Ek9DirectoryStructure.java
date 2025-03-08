@@ -8,7 +8,6 @@ import java.nio.file.FileSystems;
  * Typically, lib, keys, artefacts and other places where EK9 expects items to be located.
  */
 public final class Ek9DirectoryStructure {
-  public static final String JAVA = "java";
   public static final String CLASSES = "classes";
   public static final String DOT_JAR = ".jar";
   public static final String DOT_EK9 = ".ek9";
@@ -32,7 +31,8 @@ public final class Ek9DirectoryStructure {
   /**
    * Access the final built artefact that can be executed.
    */
-  public File getTargetExecutableArtefact(final String ek9FullPathToFileName, final String targetArchitecture) {
+  public File getTargetExecutableArtefact(final String ek9FullPathToFileName,
+                                          final TargetArchitecture targetArchitecture) {
 
     assertEk9FullPathToFileNameValid(ek9FullPathToFileName);
     assertTargetArchitectureSupported(targetArchitecture);
@@ -63,7 +63,7 @@ public final class Ek9DirectoryStructure {
   /**
    * Check the structure of an Ek9 build directory.
    */
-  public void validateEk9Directory(final String directoryName, final String targetArchitecture) {
+  public void validateEk9Directory(final String directoryName, final TargetArchitecture targetArchitecture) {
 
     AssertValue.checkNotEmpty("DirectoryName is empty", directoryName);
     assertTargetArchitectureSupported(targetArchitecture);
@@ -78,7 +78,8 @@ public final class Ek9DirectoryStructure {
    *
    * @param fromEk9BaseDirectory typically $HOME/.ek9/ or /path/to/project/.ek9/
    */
-  public void makeEk9DevDirectoryStructure(final String fromEk9BaseDirectory, final String targetArchitecture) {
+  public void makeEk9DevDirectoryStructure(final String fromEk9BaseDirectory,
+                                           final TargetArchitecture targetArchitecture) {
 
     assertFromEk9BaseDirectoryValid(fromEk9BaseDirectory);
     assertTargetArchitectureSupported(targetArchitecture);
@@ -104,11 +105,11 @@ public final class Ek9DirectoryStructure {
     addDirectory(generated, LIB);
 
     final var main = addDirectory(generated, MAIN);
-    addDirectory(main, targetArchitecture);
+    addDirectory(main, targetArchitecture.getDescription());
     addDirectory(main, CLASSES);
 
     final var dev = addDirectory(generated, DEV);
-    addDirectory(dev, targetArchitecture);
+    addDirectory(dev, targetArchitecture.getDescription());
     addDirectory(dev, CLASSES);
 
   }
@@ -117,10 +118,10 @@ public final class Ek9DirectoryStructure {
    * This expects an ek9 source file in a specific directory.
    *
    * @param ek9FullPathToFileName i.e. main.ek9
-   * @param targetArchitecture    i.e. "java"
+   * @param targetArchitecture    i.e. "jvm" or "llvm"
    */
   public void cleanEk9DirectoryStructureFor(final String ek9FullPathToFileName,
-                                            final String targetArchitecture) {
+                                            final TargetArchitecture targetArchitecture) {
 
     AssertValue.checkNotEmpty("EK9FullPathToFileName is empty", ek9FullPathToFileName);
     assertTargetArchitectureSupported(targetArchitecture);
@@ -144,19 +145,20 @@ public final class Ek9DirectoryStructure {
    * Get the generated output directory.
    */
   public File getMainGeneratedOutputDirectory(final String fromEk9BaseDirectory,
-                                              final String targetArchitecture) {
+                                              final TargetArchitecture targetArchitecture) {
 
     assertFromEk9BaseDirectoryValid(fromEk9BaseDirectory);
     assertTargetArchitectureSupported(targetArchitecture);
 
     return FileSystems.getDefault()
-        .getPath(fromEk9BaseDirectory, GENERATED, MAIN, targetArchitecture).toFile();
+        .getPath(fromEk9BaseDirectory, GENERATED, MAIN, targetArchitecture.getDescription()).toFile();
   }
 
   /**
    * Get the final output directory - where the artefacts will be.
    */
-  public File getMainFinalOutputDirectory(final String fromEk9BaseDirectory, final String targetArchitecture) {
+  public File getMainFinalOutputDirectory(final String fromEk9BaseDirectory,
+                                          final TargetArchitecture targetArchitecture) {
 
     assertFromEk9BaseDirectoryValid(fromEk9BaseDirectory);
     assertTargetArchitectureSupported(targetArchitecture);
@@ -169,19 +171,20 @@ public final class Ek9DirectoryStructure {
    * Main generated code output directory when in development.
    */
   public File getDevGeneratedOutputDirectory(final String fromEk9BaseDirectory,
-                                             final String targetArchitecture) {
+                                             final TargetArchitecture targetArchitecture) {
 
     assertFromEk9BaseDirectoryValid(fromEk9BaseDirectory);
     assertTargetArchitectureSupported(targetArchitecture);
 
     return FileSystems.getDefault()
-        .getPath(fromEk9BaseDirectory, GENERATED, DEV, targetArchitecture).toFile();
+        .getPath(fromEk9BaseDirectory, GENERATED, DEV, targetArchitecture.getDescription()).toFile();
   }
 
   /**
    * Main final output directory when in development.
    */
-  public File getDevFinalOutputDirectory(final String fromEk9BaseDirectory, final String targetArchitecture) {
+  public File getDevFinalOutputDirectory(final String fromEk9BaseDirectory,
+                                         final TargetArchitecture targetArchitecture) {
 
     assertFromEk9BaseDirectoryValid(fromEk9BaseDirectory);
     assertTargetArchitectureSupported(targetArchitecture);
@@ -248,13 +251,10 @@ public final class Ek9DirectoryStructure {
     return directory.getAbsolutePath();
   }
 
-  private void assertTargetArchitectureSupported(final String targetArchitecture) {
+  private void assertTargetArchitectureSupported(final TargetArchitecture targetArchitecture) {
 
     final Processor<Void> processor = () -> {
-      AssertValue.checkNotEmpty("TargetArchitecture is empty", targetArchitecture);
-      if (!targetArchitecture.equals(JAVA)) {
-        throw new CompilerException("Unsupported target architecture " + targetArchitecture);
-      }
+      AssertValue.checkNotNull("TargetArchitecture is null", targetArchitecture);
       return null;
     };
 

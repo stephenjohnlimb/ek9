@@ -72,7 +72,8 @@ final class FileCache {
   File getTargetExecutableArtefact() {
 
     return commandLine.getFileHandling()
-        .getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(), commandLine.getTargetArchitecture());
+        .getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(),
+            commandLine.getTargetArchitecture());
   }
 
   /**

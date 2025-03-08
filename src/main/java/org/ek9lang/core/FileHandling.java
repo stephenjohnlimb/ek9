@@ -236,7 +236,8 @@ public final class FileHandling {
     return packager.createZip(fileName, set, sourcePropertiesFile);
   }
 
-  public File getTargetExecutableArtefact(final String ek9FullPathToFileName, final String targetArchitecture) {
+  public File getTargetExecutableArtefact(final String ek9FullPathToFileName,
+                                          final TargetArchitecture targetArchitecture) {
 
     return directoryStructure.getTargetExecutableArtefact(ek9FullPathToFileName, targetArchitecture);
   }
@@ -246,46 +247,51 @@ public final class FileHandling {
     return directoryStructure.getTargetPropertiesArtefact(ek9FullPathToFileName);
   }
 
-  public void validateHomeEk9Directory(final String targetArchitecture) {
+  public void validateHomeEk9Directory(final TargetArchitecture targetArchitecture) {
 
     validateEk9Directory(getUsersHomeEk9Directory(), targetArchitecture);
 
   }
 
-  public void validateEk9Directory(final String directoryName, final String targetArchitecture) {
+  public void validateEk9Directory(final String directoryName, final TargetArchitecture targetArchitecture) {
 
     directoryStructure.validateEk9Directory(directoryName, targetArchitecture);
 
   }
 
-  public void cleanEk9DirectoryStructureFor(final File ek9File, final String targetArchitecture) {
+  public void cleanEk9DirectoryStructureFor(final File ek9File, final TargetArchitecture targetArchitecture) {
 
     cleanEk9DirectoryStructureFor(ek9File.getPath(), targetArchitecture);
 
   }
 
-  public void cleanEk9DirectoryStructureFor(final String ek9FullPathToFileName, final String targetArchitecture) {
+  public void cleanEk9DirectoryStructureFor(final String ek9FullPathToFileName,
+                                            final TargetArchitecture targetArchitecture) {
 
     directoryStructure.cleanEk9DirectoryStructureFor(ek9FullPathToFileName, targetArchitecture);
 
   }
 
-  public File getMainGeneratedOutputDirectory(final String fromEk9BaseDirectory, final String targetArchitecture) {
+  public File getMainGeneratedOutputDirectory(final String fromEk9BaseDirectory,
+                                              final TargetArchitecture targetArchitecture) {
 
     return directoryStructure.getMainGeneratedOutputDirectory(fromEk9BaseDirectory, targetArchitecture);
   }
 
-  public File getMainFinalOutputDirectory(final String fromEk9BaseDirectory, final String targetArchitecture) {
+  public File getMainFinalOutputDirectory(final String fromEk9BaseDirectory,
+                                          final TargetArchitecture targetArchitecture) {
 
     return directoryStructure.getMainFinalOutputDirectory(fromEk9BaseDirectory, targetArchitecture);
   }
 
-  public File getDevGeneratedOutputDirectory(final String fromEk9BaseDirectory, final String targetArchitecture) {
+  public File getDevGeneratedOutputDirectory(final String fromEk9BaseDirectory,
+                                             final TargetArchitecture targetArchitecture) {
 
     return directoryStructure.getDevGeneratedOutputDirectory(fromEk9BaseDirectory, targetArchitecture);
   }
 
-  public File getDevFinalOutputDirectory(final String fromEk9BaseDirectory, final String targetArchitecture) {
+  public File getDevFinalOutputDirectory(final String fromEk9BaseDirectory,
+                                         final TargetArchitecture targetArchitecture) {
 
     return directoryStructure.getDevFinalOutputDirectory(fromEk9BaseDirectory, targetArchitecture);
   }

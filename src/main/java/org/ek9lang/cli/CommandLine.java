@@ -19,6 +19,7 @@ import org.ek9lang.core.ExitException;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.Logger;
 import org.ek9lang.core.OsSupport;
+import org.ek9lang.core.TargetArchitecture;
 
 /**
  * Deals with handling the command line options for the compiler.
@@ -35,7 +36,7 @@ final class CommandLine {
   private final FileHandling fileHandling;
   private final List<String> ek9AppDefines = new ArrayList<>();
   String ek9ProgramToRun = null;
-  String targetArchitecture = "java";
+  TargetArchitecture targetArchitecture = TargetArchitecture.JVM;
   int debugPort = 8000;
   private File mainSourceFile;
   private String moduleName = null;
@@ -71,7 +72,7 @@ final class CommandLine {
 
   static void addDefaultSetting() {
 
-    DEFAULTS.put("EK9_TARGET", "java");
+    DEFAULTS.put("EK9_TARGET", "JVM");
   }
 
   /**
@@ -129,8 +130,8 @@ final class CommandLine {
 
       final var returnCode = extractCommandLineDetails(commandLine);
 
-      if (!targetArchitecture.equals("java")) {
-        Logger.error("Only Java is currently supported as a target [" + commandLine + "]");
+      if (!targetArchitecture.equals(TargetArchitecture.JVM)) {
+        Logger.error("Only JVM is currently supported as a target [" + commandLine + "]");
         return Ek9.BAD_COMMANDLINE_EXIT_CODE;
       }
 
@@ -193,7 +194,14 @@ final class CommandLine {
     final var rtn = strArray[index].equals("-T") && index < strArray.length - 1;
 
     if (rtn) {
-      targetArchitecture = strArray[index + 1].toLowerCase();
+      var commandLineArchitecture = strArray[index + 1].toUpperCase();
+      try {
+        targetArchitecture = TargetArchitecture.valueOf(commandLineArchitecture);
+      } catch (IllegalArgumentException e) {
+        Logger.error("Only JVM is currently supported as a target [" + commandLineArchitecture + "]");
+        targetArchitecture = TargetArchitecture.NOT_SUPPORTED;
+      }
+
     }
 
     return rtn;
@@ -454,7 +462,7 @@ final class CommandLine {
     if (ek9ProgramToRun == null) {
       if (programs.size() == 1) {
         //We can default that in.
-        ek9ProgramToRun = programs.get(0);
+        ek9ProgramToRun = programs.getFirst();
       } else {
         var builder = new StringBuilder("Use '-r' and select one of");
         programs.stream().map(programName -> " '" + programName + "'").forEach(builder::append);
@@ -482,14 +490,14 @@ final class CommandLine {
 
   /**
    * Pick up any proposed architect from environment first.
-   * This replaces the built-in default of 'java'
+   * This replaces the built-in default of 'JVM'
    * But even this can be overridden on the command line with -T
    */
   private void processDefaultArchitecture() {
 
     final var proposedTargetArchitecture = DEFAULTS.get("EK9_TARGET");
     if (proposedTargetArchitecture != null && !proposedTargetArchitecture.isEmpty()) {
-      this.targetArchitecture = proposedTargetArchitecture;
+      this.targetArchitecture = TargetArchitecture.valueOf(proposedTargetArchitecture.toUpperCase());
     }
 
   }
@@ -687,7 +695,7 @@ final class CommandLine {
     return options.getEk9ProgramParameters();
   }
 
-  public String getTargetArchitecture() {
+  public TargetArchitecture getTargetArchitecture() {
 
     return targetArchitecture;
   }

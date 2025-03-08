@@ -16,6 +16,7 @@ import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.Logger;
 import org.ek9lang.core.OsSupport;
 import org.ek9lang.core.SigningKeyPair;
+import org.ek9lang.core.TargetArchitecture;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -230,9 +231,9 @@ final class EK9Test {
     var ek9InitialSource = """
         #!ek9
         defines module net.inter1
-            
+        
           defines package
-            
+        
             publicAccess as Boolean := true
             version as Version: 1.2.0-0
             description as String = "Simulation intermediate package"
@@ -259,9 +260,9 @@ final class EK9Test {
     var updatedEk9InitialSource = """
         #!ek9
         defines module net.inter1
-            
+        
           defines package
-            
+        
             publicAccess as Boolean := true
             version as Version: 1.2.0-0
             description as String = "Simulation intermediate package"
@@ -471,7 +472,7 @@ final class EK9Test {
     //Then we can see if we can detect those circular references.
 
     //make sure the structure for packages exists.
-    fileHandling.validateHomeEk9Directory("java");
+    fileHandling.validateHomeEk9Directory(TargetArchitecture.JVM);
 
     simulatePackagedInstallation("Circular2", "net.circular.two", "1.0.1-0");
     simulatePackagedInstallation("Circular1", "net.circular.one", "1.0.0-0");
@@ -484,7 +485,7 @@ final class EK9Test {
   @Test
   void testCircularDependenciesDifferentVersions() {
     //make sure the structure for packages exists.
-    fileHandling.validateHomeEk9Directory("java");
+    fileHandling.validateHomeEk9Directory(TargetArchitecture.JVM);
 
     //Now these should install OK
     installPackage(Ek9.SUCCESS_EXIT_CODE, "CircularVersions3.ek9");
@@ -502,7 +503,7 @@ final class EK9Test {
   void testCircularDependencyResolution() {
     //Similar to above but just checking dependency resolution for circular detections.
     //make sure the structure for packages exists.
-    fileHandling.validateHomeEk9Directory("java");
+    fileHandling.validateHomeEk9Directory(TargetArchitecture.JVM);
 
     simulatePackagedInstallation("Circular2", "net.circular.two", "1.0.1-0");
     simulatePackagedInstallation("Circular1", "net.circular.one", "1.0.0-0");
