@@ -51,7 +51,6 @@ public class LlvmTarget implements Target {
       System.out.println("Could not find clang executable");
     }
     clangExecutable.ifPresent(executable -> {
-      System.out.printf("Found clang executable %s\n", executable.getAbsolutePath());
       listFile(executable);
       if (executable.canExecute()) {
         this.pathToClang = executable;
@@ -64,22 +63,15 @@ public class LlvmTarget implements Target {
   private void listFile(final File file) {
 
     String[] command = {"/bin/ls", "-l", file.getAbsolutePath()};
-    System.out.println("Will try to list with " + Arrays.toString(command));
+    System.err.println("Check execute permissions with " + Arrays.toString(command));
     try {
       var process = Runtime.getRuntime().exec(command);
       BufferedReader stdInput = new BufferedReader(new
           InputStreamReader(process.getInputStream()));
-      BufferedReader stdError = new BufferedReader(new
-          InputStreamReader(process.getErrorStream()));
 
       String s;
-      System.out.println("Will read stdin");
       while ((s = stdInput.readLine()) != null) {
-        System.out.println(s);
-      }
-      System.out.println("Will read stderr");
-      while ((s = stdError.readLine()) != null) {
-        System.out.println(s);
+        System.err.println(s);
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -87,11 +79,13 @@ public class LlvmTarget implements Target {
   }
 
   private void checkLLvmVersionValid() {
+
+    System.err.println("Checking LLVM version");
     if (pathToClang == null) {
       return;
     }
 
-    String[] command = {pathToClang.getPath(), "--version"};
+    String[] command = {pathToClang.getAbsolutePath(), "--version"};
     try {
       var process = Runtime.getRuntime().exec(command);
       BufferedReader stdInput = new BufferedReader(new
@@ -111,6 +105,7 @@ public class LlvmTarget implements Target {
           var majorMinorPatch = justVersion.split("\\.");
 
           var majorVersion = Integer.parseInt(majorMinorPatch[0]);
+          System.err.println(s);
           if (majorVersion >= MIN_LLVM_VERSION_REQUIRED) {
             this.clangExecutableSupported = true;
           } else {
@@ -122,6 +117,7 @@ public class LlvmTarget implements Target {
 
       //There should be no errors for this.
       while (stdError.lines().findAny().isPresent()) {
+        System.err.println("Looks like there are some error lines");
         clangExecutableSupported = false;
       }
     } catch (IOException e) {
