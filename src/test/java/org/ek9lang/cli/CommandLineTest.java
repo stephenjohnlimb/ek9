@@ -666,6 +666,20 @@ final class CommandLineTest {
   }
 
   @Test
+  void testCommandLineRunAsLLVMTarget() {
+    String sourceName = "HelloWorld.ek9";
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    assertNotNull(sourceFile);
+
+    CommandLine underTest = createClassUnderTest();
+    assertEquals(0, underTest.process("-T llvm " + sourceName));
+    assertTrue(underTest.options().isRunNormalMode());
+    assertEquals("HelloWorld", underTest.getProgramToRun());
+    assertEquals(TargetArchitecture.LLVM, underTest.getTargetArchitecture());
+    assertEquals(sourceName, underTest.getSourceFileName());
+  }
+
+  @Test
   void testEnvironmentVariableRunAsJavaTarget() {
     String sourceName = "HelloWorld.ek9";
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);

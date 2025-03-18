@@ -130,8 +130,8 @@ final class CommandLine {
 
       final var returnCode = extractCommandLineDetails(commandLine);
 
-      if (!targetArchitecture.equals(TargetArchitecture.JVM)) {
-        Logger.error("Only JVM is currently supported as a target [" + commandLine + "]");
+      if (targetArchitecture.equals(TargetArchitecture.NOT_SUPPORTED)) {
+        Logger.error("Target Architecture [" + commandLine + "] not supported");
         return Ek9.BAD_COMMANDLINE_EXIT_CODE;
       }
 

@@ -40,7 +40,7 @@ public record CommandLineHelp(String helpText) {
         \t-t Runs all unit tests that have been found, this triggers -Cd full compile first
         \t-d port Run in debug mode (requires debugging information - on a port)
         \t-e <name>=<value> set environment variable i.e. user=Steve or user='Steve Limb' for spaces
-        \t-T target architecture - defaults to 'java' if not specified.
+        \t-T target architecture - defaults to 'jvm' if not specified.
         \tfilename.ek9 - the main file to work with
         \t-r Program to run (if EK9 file as more than one)
         """);

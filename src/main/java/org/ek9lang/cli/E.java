@@ -1,6 +1,7 @@
 package org.ek9lang.cli;
 
 import java.io.File;
+import org.ek9lang.compiler.backend.TargetLocator;
 import org.ek9lang.compiler.common.Reporter;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.OsSupport;
@@ -10,6 +11,10 @@ import org.ek9lang.core.OsSupport;
  */
 abstract class E extends Reporter {
   protected final CompilationContext compilationContext;
+
+  //Used in the backend to ensure that the target architecture can actually be built
+  //So, fail early if it is not going to be possible to use that target architecture.
+  private final TargetLocator targetLocator = new TargetLocator();
 
   E(final CompilationContext compilationContext) {
 
@@ -31,10 +36,11 @@ abstract class E extends Reporter {
   boolean preConditionCheck() {
 
     log("Prepare");
+    var target = compilationContext.commandLine().targetArchitecture;
     //Ensure the .ek9 directory exists in users home directory.
-    getFileHandling().validateHomeEk9Directory(compilationContext.commandLine().targetArchitecture);
+    getFileHandling().validateHomeEk9Directory(target);
 
-    return true;
+    return targetLocator.apply(target).isSupported();
   }
 
   /**
