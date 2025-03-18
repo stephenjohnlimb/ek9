@@ -21,8 +21,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create sym link.
-        run: wget http://archive.ubuntu.com/ubuntu/pool/universe/n/ncurses/libtinfo5_6.4-2_amd64.deb && sudo dpkg -i libtinfo5_6.4-2_amd64.deb && rm -f libtinfo5_6.4-2_amd64.deb
+      - name: Install libtinfo5.
+        run: wget http://archive.ubuntu.com/ubuntu/pool/universe/n/ncurses/libtinfo5_6.3-2ubuntu0.1_amd64.deb && sudo dpkg -i libtinfo5_6.3-2ubuntu0.1_amd64.deb && rm -f libtinfo5_6.3-2ubuntu0.1_amd64.deb
       - uses: actions/checkout@v4
       - name: Install LLVM and Clang
         uses: KyleMayes/install-llvm-action@v2
