@@ -97,6 +97,7 @@ public class LlvmTarget implements Target {
       // Read the output from the command
       String s;
       while ((s = stdInput.readLine()) != null) {
+        System.err.println("Stock output: " + s);
         if (s.contains("version")) {
           //Now pick up everything after the word version (as the 'version').
           //i.e. we'd get something like: Homebrew clang version 19.1.7 and 19.1.7
@@ -105,7 +106,6 @@ public class LlvmTarget implements Target {
           var majorMinorPatch = justVersion.split("\\.");
 
           var majorVersion = Integer.parseInt(majorMinorPatch[0]);
-          System.err.println(s);
           if (majorVersion >= MIN_LLVM_VERSION_REQUIRED) {
             this.clangExecutableSupported = true;
           } else {
@@ -115,9 +115,9 @@ public class LlvmTarget implements Target {
         }
       }
 
-      //There should be no errors for this.
-      while (stdError.lines().findAny().isPresent()) {
-        System.err.println("Looks like there are some error lines");
+      System.err.println("Checking for errors in calling clang executable");
+      while ((s = stdError.readLine()) != null) {
+        System.err.println(s);
         clangExecutableSupported = false;
       }
     } catch (IOException e) {
