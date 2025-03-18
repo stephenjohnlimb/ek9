@@ -50,13 +50,31 @@ public class LlvmTarget implements Target {
       System.out.println("Could not find clang executable");
     }
     clangExecutable.ifPresent(executable -> {
-      System.out.println("Found clang executable");
+      System.out.printf("Found clang executable %s", executable.getAbsolutePath());
+      listFile(executable);
       if (executable.canExecute()) {
         this.pathToClang = executable;
       } else {
         System.out.println("Cannot execute clang executable");
       }
     });
+  }
+
+  private void listFile(final File file) {
+
+    String[] command = {"ls", "-l", file.getAbsolutePath()};
+    System.out.println("Will try to list with " + Arrays.toString(command));
+    try {
+      var process = Runtime.getRuntime().exec(command);
+      BufferedReader stdInput = new BufferedReader(new
+          InputStreamReader(process.getInputStream()));
+      String s;
+      while ((s = stdInput.readLine()) != null) {
+        System.out.println(s);
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private void checkLLvmVersionValid() {
