@@ -44,13 +44,14 @@ public class LlvmTarget implements Target {
     var clangExecutable = Arrays.stream(pathParts)
         .map(part -> part + File.separator + CLANG)
         .map(File::new)
+        .filter(File::canExecute)
         .findFirst();
 
     if (clangExecutable.isEmpty()) {
       System.out.println("Could not find clang executable");
     }
     clangExecutable.ifPresent(executable -> {
-      System.out.printf("Found clang executable %s", executable.getAbsolutePath());
+      System.out.printf("Found clang executable %s\n", executable.getAbsolutePath());
       listFile(executable);
       if (executable.canExecute()) {
         this.pathToClang = executable;
@@ -62,14 +63,22 @@ public class LlvmTarget implements Target {
 
   private void listFile(final File file) {
 
-    String[] command = {"ls", "-l", file.getAbsolutePath()};
+    String[] command = {"/bin/ls", "-l", file.getAbsolutePath()};
     System.out.println("Will try to list with " + Arrays.toString(command));
     try {
       var process = Runtime.getRuntime().exec(command);
       BufferedReader stdInput = new BufferedReader(new
           InputStreamReader(process.getInputStream()));
+      BufferedReader stdError = new BufferedReader(new
+          InputStreamReader(process.getErrorStream()));
+
       String s;
+      System.out.println("Will read stdin");
       while ((s = stdInput.readLine()) != null) {
+        System.out.println(s);
+      }
+      System.out.println("Will read stderr");
+      while ((s = stdError.readLine()) != null) {
         System.out.println(s);
       }
     } catch (IOException e) {
