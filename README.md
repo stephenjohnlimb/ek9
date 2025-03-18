@@ -20,13 +20,16 @@ This is much appreciated as IntelliJ IDEA is without doubt one of the best devel
 of EK9 much easier.
 
 ### Java and binaries
-The base version of Java for this project is now Java 21. I'm now using the lightweight threading mechanism in
-Java 21 to make the compiler as multithreaded as possible (I mean how hard can it be!).
+The base version of Java for this project is now Java 23. I'm now using the lightweight threading mechanism from
+Java 21 onwards to make the compiler as multithreaded as possible (I mean how hard can it be!).
 
 I've also taken a look at [Graalvm](https://www.graalvm.org) to see if I can create a native application from the
 Java compiler. My main reason for doing this - is general interest. But a native application should also start and
 run faster. See the [instructions](https://www.graalvm.org/java/quickstart/) and
 [how to install native-image](https://www.graalvm.org/22.3/reference-manual/native-image/#install-native-image).
+
+But, I'm in the process of designing the 'IR' in EK9 and specifically will enable targets for both Java bytecode and
+llvm IR output.
 
 For this project, once you've built the 'fat jar' (`mvn clean install`), you can use the following command:
 `native-image --no-fallback  -jar ek9c-jar-with-dependencies.jar` to create a native binary.
