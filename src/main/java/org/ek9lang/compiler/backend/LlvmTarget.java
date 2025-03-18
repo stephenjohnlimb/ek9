@@ -32,22 +32,29 @@ public class LlvmTarget implements Target {
 
   @Override
   public boolean isSupported() {
-
+    System.out.println("LLVMTarget isSupported: " + clangExecutableSupported);
     return clangExecutableSupported;
   }
 
   private void checkLlvmAccess() {
     var path = System.getenv("PATH");
 
+    System.out.println("LLVMTarget path: " + path);
     var pathParts = path.split(File.pathSeparator);
     var clangExecutable = Arrays.stream(pathParts)
         .map(part -> part + File.separator + CLANG)
         .map(File::new)
         .findFirst();
 
+    if (clangExecutable.isEmpty()) {
+      System.out.println("Could not find clang executable");
+    }
     clangExecutable.ifPresent(executable -> {
+      System.out.println("Found clang executable");
       if (executable.canExecute()) {
         this.pathToClang = executable;
+      } else {
+        System.out.println("Cannot execute clang executable");
       }
     });
   }

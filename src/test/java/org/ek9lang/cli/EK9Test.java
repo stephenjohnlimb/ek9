@@ -625,11 +625,13 @@ final class EK9Test {
 
     int result = commandLine.process(argv);
 
-    assertTrue(result <= Ek9.SUCCESS_EXIT_CODE);
+    var theCommandLine = String.join(" ", argv);
+    assertTrue(result <= Ek9.SUCCESS_EXIT_CODE, "Processing " + theCommandLine);
 
     //Now should something be run and executed.
     try {
       if (result == Ek9.RUN_COMMAND_EXIT_CODE) {
+        System.out.println("Will run Ek9 with compilation context");
         assertEquals(expectation, new Ek9(compilationContext).run());
       }
     } catch (InterruptedException exception) {

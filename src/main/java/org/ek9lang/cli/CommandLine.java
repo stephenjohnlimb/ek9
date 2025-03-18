@@ -198,7 +198,7 @@ final class CommandLine {
       try {
         targetArchitecture = TargetArchitecture.valueOf(commandLineArchitecture);
       } catch (IllegalArgumentException e) {
-        Logger.error("Only JVM is currently supported as a target [" + commandLineArchitecture + "]");
+        Logger.error("Only JVM/LLVM is currently supported as a target [" + commandLineArchitecture + "]");
         targetArchitecture = TargetArchitecture.NOT_SUPPORTED;
       }
 
