@@ -32,14 +32,12 @@ public class LlvmTarget implements Target {
 
   @Override
   public boolean isSupported() {
-    System.out.println("LLVMTarget isSupported: " + clangExecutableSupported);
     return clangExecutableSupported;
   }
 
   private void checkLlvmAccess() {
     var path = System.getenv("PATH");
 
-    System.out.println("LLVMTarget path: " + path);
     var pathParts = path.split(File.pathSeparator);
     var clangExecutable = Arrays.stream(pathParts)
         .map(part -> part + File.separator + CLANG)
@@ -48,22 +46,20 @@ public class LlvmTarget implements Target {
         .findFirst();
 
     if (clangExecutable.isEmpty()) {
-      System.out.println("Could not find clang executable");
+      System.err.println("Could not find clang executable");
     }
     clangExecutable.ifPresent(executable -> {
-      listFile(executable);
-      if (executable.canExecute()) {
-        this.pathToClang = executable;
-      } else {
-        System.out.println("Cannot execute clang executable");
-      }
+      //listFile(executable);
+      this.pathToClang = executable;
     });
   }
 
+  /**
+   * While not used, maybe useful if I have issues with clang and llvm again.
+   */
   private void listFile(final File file) {
 
     String[] command = {"/bin/ls", "-l", file.getAbsolutePath()};
-    System.err.println("Check execute permissions with " + Arrays.toString(command));
     try {
       var process = Runtime.getRuntime().exec(command);
       BufferedReader stdInput = new BufferedReader(new
@@ -80,7 +76,6 @@ public class LlvmTarget implements Target {
 
   private void checkLLvmVersionValid() {
 
-    System.err.println("Checking LLVM version");
     if (pathToClang == null) {
       return;
     }
@@ -97,7 +92,6 @@ public class LlvmTarget implements Target {
       // Read the output from the command
       String s;
       while ((s = stdInput.readLine()) != null) {
-        System.err.println("Stock output: " + s);
         if (s.contains("version")) {
           //Now pick up everything after the word version (as the 'version').
           //i.e. we'd get something like: Homebrew clang version 19.1.7 and 19.1.7
@@ -115,7 +109,6 @@ public class LlvmTarget implements Target {
         }
       }
 
-      System.err.println("Checking for errors in calling clang executable");
       while ((s = stdError.readLine()) != null) {
         System.err.println(s);
         clangExecutableSupported = false;
