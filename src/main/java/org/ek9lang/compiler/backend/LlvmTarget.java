@@ -5,24 +5,27 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Optional;
+import org.ek9lang.core.CompilerException;
 import org.ek9lang.core.TargetArchitecture;
 
 /**
  * Target for LLVM code output.
  * i.e. this Target would produce LLVM Code that can be
  * converted to an executable by the llvm software.
+ * A check is undertaken to see if the 'clang' executable with the right version can be located and executed.
  */
 public class LlvmTarget implements Target {
   private static final int MIN_LLVM_VERSION_REQUIRED = 18;
   private static final String CLANG = "clang";
-  private File pathToClang;
-  private boolean clangExecutableSupported;
+  private static boolean clangExecutableSupported;
 
-  public LlvmTarget() {
-    checkLlvmAccess();
-    checkLLvmVersionValid();
+  /*
+   * There is only a need to do this check once (hence it is static).
+   */
+  static {
+    locateClangExecutable().ifPresent(LlvmTarget::checkLLvmVersionValid);
   }
-
 
   @Override
   public TargetArchitecture getArchitecture() {
@@ -35,7 +38,7 @@ public class LlvmTarget implements Target {
     return clangExecutableSupported;
   }
 
-  private void checkLlvmAccess() {
+  private static Optional<File> locateClangExecutable() {
     var path = System.getenv("PATH");
 
     var pathParts = path.split(File.pathSeparator);
@@ -46,18 +49,15 @@ public class LlvmTarget implements Target {
         .findFirst();
 
     if (clangExecutable.isEmpty()) {
-      System.err.println("Could not find clang executable");
+      System.err.println("Could not find clang executable in PATH: " + path);
     }
-    clangExecutable.ifPresent(executable -> {
-      //listFile(executable);
-      this.pathToClang = executable;
-    });
+    return clangExecutable;
   }
 
   /**
    * While not used, maybe useful if I have issues with clang and llvm again.
    */
-  private void listFile(final File file) {
+  private static void listFile(final File file) {
 
     String[] command = {"/bin/ls", "-l", file.getAbsolutePath()};
     try {
@@ -70,15 +70,11 @@ public class LlvmTarget implements Target {
         System.err.println(s);
       }
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new CompilerException("Failed to list", e);
     }
   }
 
-  private void checkLLvmVersionValid() {
-
-    if (pathToClang == null) {
-      return;
-    }
+  private static void checkLLvmVersionValid(final File pathToClang) {
 
     String[] command = {pathToClang.getAbsolutePath(), "--version"};
     try {
@@ -101,9 +97,9 @@ public class LlvmTarget implements Target {
 
           var majorVersion = Integer.parseInt(majorMinorPatch[0]);
           if (majorVersion >= MIN_LLVM_VERSION_REQUIRED) {
-            this.clangExecutableSupported = true;
+            clangExecutableSupported = true;
           } else {
-            System.err.printf("LLVM Version too low: %d required, but %d found on PATH",
+            System.err.printf("LLVM Version too low: version %d required, but version %d found on PATH",
                 MIN_LLVM_VERSION_REQUIRED, majorVersion);
           }
         }
@@ -111,11 +107,9 @@ public class LlvmTarget implements Target {
 
       while ((s = stdError.readLine()) != null) {
         System.err.println(s);
-        clangExecutableSupported = false;
       }
     } catch (IOException e) {
       System.err.println("Error in checking LLVM Version: " + e.getMessage());
-      clangExecutableSupported = false;
     }
 
   }
