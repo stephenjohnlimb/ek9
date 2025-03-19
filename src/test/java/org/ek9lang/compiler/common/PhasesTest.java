@@ -26,7 +26,7 @@ public abstract class PhasesTest {
 
   private final Workspace ek9Workspace;
 
-  private final ShowAllSymbolsInAllModules showAllSymbolsInAllModules = new ShowAllSymbolsInAllModules();
+  protected final ShowAllSymbolsInAllModules showAllSymbolsInAllModules = new ShowAllSymbolsInAllModules();
 
   private final List<String> expectedModules;
 
@@ -64,7 +64,7 @@ public abstract class PhasesTest {
   public PhasesTest(final String fromResourcesDirectory, final List<String> expectedModules,
                     final boolean verbose, final boolean muteReportedErrors, final boolean enableDirectiveErrors) {
 
-    //Just so when you see stuff streaming out in errors you can workout which Test class is doing it.
+    //Just so when you see stuff streaming out in errors you can work out which Test class is doing it.
     if (verbose) {
 
       System.out.println(this.getClass().getSimpleName() + " is set to verbose");

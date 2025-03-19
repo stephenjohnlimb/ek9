@@ -1427,7 +1427,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     checkAndDefineModuleScopedSymbol(program, ctx);
     implementationPresentOrError.accept(ctx);
     //Should we now add in a "main program" method to hold the instruction blocks?
-    final var newMainProgramMethod = symbolFactory.newMethod(ctx, "main", program);
+    final var newMainProgramMethod = symbolFactory.newMethod(ctx, "_main", program);
     //But record against the operation details as the Program Aggregate is registered again main ctx
     //This will also push this method scope on to the stack. But as this is a method the developer
     //may have use abstract (incorrectly) and left the operation details out.
