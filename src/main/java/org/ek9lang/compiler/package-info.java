@@ -39,12 +39,12 @@
  * {@link org.ek9lang.compiler.Workspace} and {@link org.ek9lang.compiler.CompilerFlags}.
  * The phases are created and given access to the {@link org.ek9lang.compiler.CompilableProgram}, so that
  * during the processing of that phase it is possible to resolve symbols and also add in a new
- * {@link org.ek9lang.compiler.ParsedModule} to a set of {@link org.ek9lang.compiler.ParsedModules}.
+ * {@link org.ek9lang.compiler.ParsedModule} to a set of {@link org.ek9lang.compiler.Modules}.
  * </p>
  * <p>
  * The {@link org.ek9lang.compiler.CompilableProgram} just keeps the sets of
- * {@link org.ek9lang.compiler.ParsedModules} in a map, it then just coordinates the resolution of symbols in those
- * {@link org.ek9lang.compiler.ParsedModules}.
+ * {@link org.ek9lang.compiler.Modules} in a map, it then just coordinates the resolution of symbols in those
+ * {@link org.ek9lang.compiler.Modules}.
  * </p>
  * <p>
  * Really the only activity the {@link org.ek9lang.compiler.Ek9Compiler} does is trigger each phase in turn with the

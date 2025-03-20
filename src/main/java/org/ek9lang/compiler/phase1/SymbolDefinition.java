@@ -129,7 +129,7 @@ public final class SymbolDefinition extends CompilerPhase {
 
     /*
      * Now for the built-in types, we resolve and hold the types and supply to the compilable program.
-     * These can then be passed into ParsedModules as and when requested and then into other components.
+     * These can then be passed into Modules as and when requested and then into other components.
      */
     if (AggregateManipulator.EK9_LANG.equals(parsedModule.getModuleName())) {
       final var builtInTypeCacheResolver = new BuiltInTypeCacheResolver();

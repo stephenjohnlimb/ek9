@@ -21,14 +21,14 @@ class WorkingAreaTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.SIMPLE_IR_GENERATION);
   }
 
   @Override
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
     assertTrue(compilationResult);
-    //var resolvedProgram = program.resolveFromModule("introduction", new TypeSymbolSearch("HelloWorld"));
+    var resolvedProgram = program.resolveFromModule("introduction", new TypeSymbolSearch("HelloWorld"));
 
     //showAllSymbolsInAllModules.accept(new SharedThreadContext<>(program));
   }

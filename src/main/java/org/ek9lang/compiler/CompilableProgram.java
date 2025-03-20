@@ -37,7 +37,16 @@ public class CompilableProgram implements Serializable {
   /**
    * For developer defined modules. Quick access via module name into the parsedModules that are recorded.
    */
-  private final Map<String, ParsedModules> theParsedModules = new TreeMap<>();
+  private final Map<String, Modules<ParsedModule>> parsedModules = new TreeMap<>();
+
+  /**
+   * The irModules are the Intermediate Representation of the modules for the EK9 developer source code.
+   * The 'parsedModules' (above) really contain the symbols and all the low level EK9 specifics.
+   * These IRModules are designed to start decoupling from EK9 specifics more towards being structures
+   * that can be analysed/optimised and fairly easily converted into some sort of target output.
+   * In effect the bridge between EK9 constructs and really low level constructs.
+   */
+  private final Map<String, Modules<IRModule>> irModules = new TreeMap<>();
 
   /**
    * It is important to maintain a quick mapping from source to parsed module.
@@ -111,8 +120,8 @@ public class CompilableProgram implements Serializable {
   private Function<String, List<ModuleScope>> getModuleScopesFunction() {
 
     if (getModuleScopes == null) {
-      getModuleScopes = moduleName -> Stream.ofNullable(theParsedModules.get(moduleName))
-          .map(ParsedModules::getParsedModules)
+      getModuleScopes = moduleName -> Stream.ofNullable(parsedModules.get(moduleName))
+          .map(Modules::getModules)
           .flatMap(List::stream)
           .map(ParsedModule::getModuleScope)
           .toList();
@@ -132,15 +141,20 @@ public class CompilableProgram implements Serializable {
     AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);
     AssertValue.checkNotNull("ParsedModule getModuleName cannot be null", parsedModule.getModuleName());
 
-    final var parsedModules = getOrCreateParsedModules(parsedModule.getModuleName());
-    parsedModules.add(parsedModule);
+    final var modules = getOrCreateParsedModules(parsedModule.getModuleName());
+    modules.add(parsedModule);
     sourceToParsedModule.put(parsedModule.getSource(), parsedModule);
 
   }
 
-  private ParsedModules getOrCreateParsedModules(final String parsedModuleName) {
+  public void add(final IRModule irModule) {
 
-    return theParsedModules.computeIfAbsent(parsedModuleName, ParsedModules::new);
+    AssertValue.checkNotNull("IRModule cannot be null", irModule);
+    AssertValue.checkNotNull("IRModule getModuleName cannot be null", irModule.getScopeName());
+
+    final var modules = getOrCreateIRModules(irModule.getScopeName());
+    modules.add(irModule);
+
   }
 
   /**
@@ -153,9 +167,18 @@ public class CompilableProgram implements Serializable {
 
     AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);
 
-    final var parsedModules = getOrCreateParsedModules(parsedModule.getModuleName());
-    parsedModules.remove(parsedModule);
+    final var modules = getOrCreateParsedModules(parsedModule.getModuleName());
+    modules.remove(parsedModule);
     sourceToParsedModule.remove(parsedModule.getSource());
+
+  }
+
+  public void remove(final IRModule irModule) {
+
+    AssertValue.checkNotNull("IRModule cannot be null", irModule);
+
+    final var modules = getOrCreateIRModules(irModule.getScopeName());
+    modules.remove(irModule);
 
   }
 
@@ -165,9 +188,9 @@ public class CompilableProgram implements Serializable {
    */
   public List<ParsedModule> getParsedModules(String moduleName) {
 
-    final var parsedModules = getOrCreateParsedModules(moduleName);
+    final var modules = getOrCreateParsedModules(moduleName);
 
-    return parsedModules.getParsedModules();
+    return modules.getModules();
   }
 
   /**
@@ -176,8 +199,19 @@ public class CompilableProgram implements Serializable {
    */
   public List<String> getParsedModuleNames() {
 
-    return theParsedModules.keySet().stream().toList();
+    return parsedModules.keySet().stream().toList();
   }
+
+  private Modules<ParsedModule> getOrCreateParsedModules(final String moduleName) {
+
+    return parsedModules.computeIfAbsent(moduleName, Modules::new);
+  }
+
+  private Modules<IRModule> getOrCreateIRModules(final String moduleName) {
+
+    return irModules.computeIfAbsent(moduleName, Modules::new);
+  }
+
 
   /**
    * Resolve some symbol via a fully qualified search.
@@ -207,7 +241,7 @@ public class CompilableProgram implements Serializable {
       final var modules = getModuleScopesFunction().apply(moduleName);
       AssertValue.checkTrue("Modules cannot be empty", !modules.isEmpty());
 
-      final var module = modules.get(0);
+      final var module = modules.getFirst();
       module.define(possibleGenericSymbol);
 
       return new ResolvedOrDefineResult(Optional.of(possibleGenericSymbol), true);

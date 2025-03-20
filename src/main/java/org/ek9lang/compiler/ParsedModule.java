@@ -28,7 +28,7 @@ import org.ek9lang.core.SharedThreadContext;
  * the same identity (and type) but also when it comes to resolving names.
  * Importantly because we can define the same 'module name' in more than one
  * source file and also because we can 'reference' other modules by name it
- * means we have to be able to resolve names across multiple ParsedModules to
+ * means we have to be able to resolve names across multiple Modules to
  * find the scope they are in.
  * </p>
  * <p>
@@ -41,7 +41,7 @@ import org.ek9lang.core.SharedThreadContext;
  * As there will be very many source files we should only parse them when we
  * really have to - the reading and parsing is the most expensive part.
  * But we may still have to re-run the definition and resolving phases for all
- * ParsedModules. Importantly if we have a module that is parsed but is marked
+ * Modules. Importantly if we have a module that is parsed but is marked
  * as being in error (i.e. duplicate definition or missing reference) we also
  * need to re-run the redefinition on these modules as well (even though their
  * source code might not have changed).
@@ -64,7 +64,7 @@ import org.ek9lang.core.SharedThreadContext;
  * contexts and scopes into the ParseTreeProperty scopes object.
  * </p>
  */
-public class ParsedModule implements Module, Serializable {
+public final class ParsedModule implements Module, Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -88,7 +88,7 @@ public class ParsedModule implements Module, Serializable {
 
   /**
    * The name of the module as defined in the EK9 source code. But remember this same module name
-   * can be used in other 'ParsedModules' any number of source files can make up a 'module' with a
+   * can be used in other 'Modules' any number of source files can make up a 'module' with a
    * distinct name.
    */
   private String moduleName;
@@ -318,7 +318,7 @@ public class ParsedModule implements Module, Serializable {
     return moduleName;
   }
 
-  public void setModuleName(final String moduleName) {
+  private void setModuleName(final String moduleName) {
 
     AssertValue.checkNotNull("ModuleName cannot be null", moduleName);
     this.moduleName = moduleName;

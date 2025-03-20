@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * There is quite a bit on linkage (cross dependency) between:
- * CompilableProgram, ParsedModules, ParsedModule and ModuleScope.
+ * CompilableProgram, Modules, ParsedModule and ModuleScope.
  * So this is a bit beyond a unit test - but I hate mocks.
  * Maybe I could do a bit better here!
  * These four classes provide the overall structure for where to put and hold
