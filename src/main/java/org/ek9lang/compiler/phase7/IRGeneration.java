@@ -76,9 +76,8 @@ public class IRGeneration extends CompilerPhase {
 
     compilableProgramAccess.accept(compilableProgram -> compilableProgram.add(irModule));
 
-    /*
-    final var walker = new ParseTreeWalker();
-    walker.walk(new DefinitionListener(parsedModule), source.getCompilationUnitContext());
-    */
+    final IRDefinitionVisitor irDefinitionVisitor = new IRDefinitionVisitor(compilableProgramAccess, source, irModule);
+    irDefinitionVisitor.visitCompilationUnit(source.getCompilationUnitContext());
+
   }
 }
