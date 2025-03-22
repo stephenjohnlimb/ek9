@@ -6,7 +6,6 @@ import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
-import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 
 /**

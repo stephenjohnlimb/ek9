@@ -18,7 +18,7 @@ import org.ek9lang.core.SharedThreadContext;
  * These parts are then added to the appropriate structures (in an IR graph) and then at the
  * top level (aggregate for example) are added to the IRModule.
  * <p>
- * The concept is to move away from the EK9 grammar, syntax and semantics. But not move too
+ * The concept is to move away from the EK9 grammar, syntax and semantics. But does not move too
  * far towards any concrete final output.
  * </p>
  * <p>
@@ -26,7 +26,7 @@ import org.ek9lang.core.SharedThreadContext;
  * This includes all types of EK9 aggregates and even EK9 functions (as they can hold state).
  * </p>
  * <p>
- * Constants and actual EK9 functions will just be 'instances' of Aggregates.
+ * Constants and actual EK9 functions will just be 'instances' of these 'struct with operations'.
  * </p>
  * <p>
  * Another example is 'for loops', 'while loops' and 'do while loops'. These will all be
@@ -43,15 +43,23 @@ public final class IRDefinitionVisitor extends EK9BaseVisitor<INode> {
   private final SharedThreadContext<CompilableProgram> compilableProgramAccess;
   private ParsedModule parsedModule;
   private final IRModule irModule;
+  private final ProgramCreator programCreator;
 
 
   public IRDefinitionVisitor(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
                              final CompilableSource source,
                              final IRModule irModule) {
+    AssertValue.checkNotNull("compilableProgramAccess cannot be null", compilableProgramAccess);
+    AssertValue.checkNotNull("source cannot be null", source);
+    AssertValue.checkNotNull("irModule cannot be null", irModule);
+
     this.compilableProgramAccess = compilableProgramAccess;
     this.irModule = irModule;
     compilableProgramAccess.accept(compilableProgram ->
-        parsedModule = compilableProgram.getParsedModuleForCompilableSource(source));
+        this.parsedModule = compilableProgram.getParsedModuleForCompilableSource(source));
+
+    programCreator = new ProgramCreator(parsedModule);
+
   }
 
   /**
@@ -63,10 +71,12 @@ public final class IRDefinitionVisitor extends EK9BaseVisitor<INode> {
   @Override
   public INode visitMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
     final var symbol = parsedModule.getRecordedSymbol(ctx);
+    AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
     if (symbol.getGenus() == SymbolGenus.PROGRAM) {
       AssertValue.checkTrue("Expect Program symbol to be Aggregate ", symbol instanceof AggregateSymbol);
-      //TODO implement a Function that can process a Program, using other function(s) as appropriate.
+      irModule.add(programCreator.apply(ctx));
+
     } else {
       throw new CompilerException("visitMethodDeclaration for normal methods not implemented yet");
     }

@@ -1,7 +1,10 @@
 package org.ek9lang.compiler;
 
 import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.ir.Construct;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.SharedThreadContext;
 
@@ -17,6 +20,8 @@ public final class IRModule implements Module {
   private static final long serialVersionUID = 1L;
   private final CompilableSource source;
   private final SharedThreadContext<CompilableProgram> compilableProgram;
+  private final List<Construct> constructs = new ArrayList<>();
+
   private String moduleName;
 
   public IRModule(final CompilableSource source,
@@ -51,5 +56,15 @@ public final class IRModule implements Module {
     AssertValue.checkNotNull("CompilationUnitContext cannot be null", compilationUnitContext);
     this.moduleName = compilationUnitContext.moduleDeclaration().dottedName().getText();
     AssertValue.checkNotEmpty("ModuleName must have a value", moduleName);
+  }
+
+  /**
+   * Adds a new struct operation node (i.e. some form of aggregate/function - i.e. a Construct)
+   *
+   * @param node The node to be added.
+   */
+  public void add(final Construct node) {
+    AssertValue.checkNotNull("Construct cannot be null", node);
+    constructs.add(node);
   }
 }
