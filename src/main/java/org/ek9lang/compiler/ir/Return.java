@@ -6,7 +6,7 @@ import org.ek9lang.core.AssertValue;
 /**
  * Models a return value from a method or function.
  */
-public class Return implements INode {
+public final class Return implements INode {
   private final VariableSymbol variableSymbol;
 
   public Return(final VariableSymbol variableSymbol) {

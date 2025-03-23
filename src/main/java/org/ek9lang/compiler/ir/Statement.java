@@ -6,7 +6,7 @@ import org.ek9lang.core.AssertValue;
  * Represents a single statement, could be also in the form of an expression.
  * For now just hold the text and then move on to deal with processing assignments.
  */
-public class Statement implements INode {
+public final class Statement implements INode {
 
   private final String statementText;
 

@@ -74,6 +74,7 @@ public class CallSymbol extends MethodSymbol {
     if (symbol instanceof MethodSymbol method) {
       this.setOperator(method.isOperator());
       this.setMarkedPure(method.isMarkedPure());
+      this.setConstructor(method.isConstructor());
     } else if (symbol instanceof IAggregateSymbol aggregate) {
       //If one constructor is marked pure then they are all pure
       this.setMarkedPure(aggregate.getConstructors().get(0).isMarkedPure());

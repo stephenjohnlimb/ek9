@@ -18,7 +18,7 @@ import org.ek9lang.core.CompilerException;
  * function signature would be applied (to the 'call' operation).
  * </p>
  */
-public class Operation implements INode {
+public final class Operation implements INode {
 
   private final Return returnValue;
   private final List<Parameter> parameters = new ArrayList<>();

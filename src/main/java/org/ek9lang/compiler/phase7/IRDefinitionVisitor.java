@@ -31,7 +31,7 @@ import org.ek9lang.core.SharedThreadContext;
  * <p>
  * Another example is 'for loops', 'while loops' and 'do while loops'. These will all be
  * defined in terms of executable blocks, with a 'condition' (that will appear in different locations)
- * and a 'Label' for the start and end. So, here this is moving well towards something that can be
+ * and a 'Marker' for the start and end. So, here this is moving well towards something that can be
  * implemented in some form of machine/byte code.
  * </p>
  * <p>

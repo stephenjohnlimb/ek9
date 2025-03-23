@@ -4,7 +4,7 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.ir.Block;
-import org.ek9lang.compiler.ir.Label;
+import org.ek9lang.compiler.ir.Marker;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -35,12 +35,12 @@ final class BlockCreator implements Function<EK9Parser.InstructionBlockContext, 
     return block;
   }
 
-  private Label getStart(final int lineNo, final int start) {
-    return new Label("B-" + lineNo + "-" + start);
+  private Marker getStart(final int lineNo, final int start) {
+    return new Marker("B-" + lineNo + "-" + start);
   }
 
-  private Label getEnd(final int lineNo, final int end) {
-    return new Label("B-" + lineNo + "-" + end);
+  private Marker getEnd(final int lineNo, final int end) {
+    return new Marker("B-" + lineNo + "-" + end);
 
   }
 }
