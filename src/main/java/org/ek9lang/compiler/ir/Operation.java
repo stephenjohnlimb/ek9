@@ -73,10 +73,10 @@ public final class Operation implements INode {
   @Override
   public String toString() {
     return "Operation{" +
-        "returnValue=" + returnValue +
+        "symbol=" + symbol +
         ", parameters=" + parameters +
         ", body=" + body +
-        ", symbol=" + symbol +
+        ", returnValue=" + returnValue +
         '}';
   }
 }

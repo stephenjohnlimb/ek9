@@ -3,12 +3,7 @@ package org.ek9lang.compiler.phase7;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
-import org.ek9lang.compiler.ir.Call;
-import org.ek9lang.compiler.ir.ConstructorCall;
 import org.ek9lang.compiler.ir.INode;
-import org.ek9lang.compiler.symbols.CallSymbol;
-import org.ek9lang.compiler.symbols.MethodSymbol;
-import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -59,9 +54,11 @@ import org.ek9lang.core.CompilerException;
 public final class ExpressionCreator implements Function<EK9Parser.ExpressionContext, INode> {
 
   private final ParsedModule parsedModule;
+  private final CallCreator callCreator;
 
   public ExpressionCreator(final ParsedModule parsedModule) {
     this.parsedModule = parsedModule;
+    callCreator = new CallCreator(parsedModule);
 
   }
 
@@ -69,26 +66,7 @@ public final class ExpressionCreator implements Function<EK9Parser.ExpressionCon
   public INode apply(final EK9Parser.ExpressionContext ctx) {
 
     if (ctx.call() != null) {
-
-      //TODO use a specific function for all this as call can be very complex
-      //Also relocate SymbolsFromParamExpression to common - as it will be needed to
-      //locate the arguments for the call.
-      final var symbol = parsedModule.getRecordedSymbol(ctx.call());
-      AssertValue.checkNotNull("Call symbol should not be null", symbol);
-      final var callSymbol = (CallSymbol) symbol;
-      final var toBeCalled = callSymbol.getResolvedSymbolToCall();
-      AssertValue.checkNotNull("Symbol to be called should not be null", toBeCalled);
-
-      //I would have thought I'd have the arguments to pass in here somewhere.
-      //But cannot see them at present.
-      //TODO investigate as these will be needed for general calls and consructor calls.
-      if (toBeCalled instanceof MethodSymbol methodSymbol) {
-        if (methodSymbol.isConstructor()) {
-          return new ConstructorCall();
-        }
-        return new Call();
-      }
-      //In the fullness of time will deal with Functions as well.
+      return callCreator.apply(ctx.call());
     }
     throw new CompilerException("Expression not fully implemented yet");
   }
