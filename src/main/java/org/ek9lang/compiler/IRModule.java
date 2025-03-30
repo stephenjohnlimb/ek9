@@ -6,7 +6,6 @@ import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.Construct;
 import org.ek9lang.core.AssertValue;
-import org.ek9lang.core.SharedThreadContext;
 
 /**
  * Represents the Intermediate Representation of the EK9 code for a particular EK9 module.
@@ -19,23 +18,19 @@ public final class IRModule implements Module {
   @Serial
   private static final long serialVersionUID = 1L;
   private final CompilableSource source;
-  private final SharedThreadContext<CompilableProgram> compilableProgram;
   private final List<Construct> constructs = new ArrayList<>();
 
   private String moduleName;
 
-  public IRModule(final CompilableSource source,
-                  final SharedThreadContext<CompilableProgram> compilableProgram) {
+  public IRModule(final CompilableSource source) {
 
     AssertValue.checkNotNull("CompilableSource cannot be null", source);
-    AssertValue.checkNotNull("CompilableProgram cannot be null", compilableProgram);
     this.source = source;
-    this.compilableProgram = compilableProgram;
 
   }
 
   @Override
-  public Source getSource() {
+  public CompilableSource getSource() {
     return source;
   }
 

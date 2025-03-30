@@ -9,14 +9,12 @@ import org.ek9lang.core.FileHandling;
 /**
  * Creates the File Object in the appropriate location for llvm output.
  */
-public final class OutputFileCreator implements BiFunction<Construct, String, File> {
+public final class OutputFileAccess implements BiFunction<Construct, String, File> {
 
   private final FileHandling fileHandling;
   private final CompilerFlags compilerFlags;
 
-  public OutputFileCreator(final FileHandling fileHandling, final CompilerFlags compilerFlags)
-
-  {
+  public OutputFileAccess(final FileHandling fileHandling, final CompilerFlags compilerFlags) {
     this.fileHandling = fileHandling;
     this.compilerFlags = compilerFlags;
   }

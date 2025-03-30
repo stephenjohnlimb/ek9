@@ -21,6 +21,11 @@ class WorkingAreaTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
+    //Need to clear out any exising targets (like clean) for this unit test.
+    ek9Workspace.getSources().stream().findFirst().ifPresent(source -> {
+      fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture);
+    });
+
     testToPhase(CompilationPhase.CODE_GENERATION_PREPARATION);
   }
 

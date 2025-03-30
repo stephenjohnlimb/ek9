@@ -53,6 +53,7 @@ public class CompilableProgram implements Serializable {
    */
   private final Map<CompilableSource, ParsedModule> sourceToParsedModule = new HashMap<>();
 
+  private final Map<CompilableSource, IRModule> sourceToIRModule = new HashMap<>();
   /**
    * Provides the list of scopes in a single module for a module name.
    */
@@ -81,6 +82,16 @@ public class CompilableProgram implements Serializable {
     AssertValue.checkNotNull("Compilable source cannot be null", source);
 
     return this.sourceToParsedModule.get(source);
+  }
+
+  /**
+   * For a specific source the IRModule is returned.
+   */
+  public IRModule getIRModuleForCompilableSource(final CompilableSource source) {
+
+    AssertValue.checkNotNull("Compilable source cannot be null", source);
+
+    return this.sourceToIRModule.get(source);
   }
 
   public Ek9Types getEk9Types() {
@@ -154,6 +165,7 @@ public class CompilableProgram implements Serializable {
 
     final var modules = getOrCreateIRModules(irModule.getScopeName());
     modules.add(irModule);
+    sourceToIRModule.put(irModule.getSource(), irModule);
 
   }
 

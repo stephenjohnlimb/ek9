@@ -64,7 +64,7 @@ public class IRGeneration extends CompilerPhase {
    */
   private void defineIR(final CompilableSource source) {
 
-    final var irModule = new IRModule(source, compilableProgramAccess);
+    final var irModule = new IRModule(source);
     irModule.acceptCompilationUnitContext(source.getCompilationUnitContext());
     if (AggregateManipulator.EK9_LANG.equals(irModule.getScopeName())
         || AggregateManipulator.EK9_MATH.equals(irModule.getScopeName())) {

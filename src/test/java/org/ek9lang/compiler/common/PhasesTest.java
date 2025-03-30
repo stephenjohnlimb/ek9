@@ -27,7 +27,7 @@ public abstract class PhasesTest {
 
   private final Supplier<SharedThreadContext<CompilableProgram>> sharedContext = new CompilableProgramSuitable();
 
-  private final Workspace ek9Workspace;
+  protected final Workspace ek9Workspace;
 
   protected final ShowAllSymbolsInAllModules showAllSymbolsInAllModules = new ShowAllSymbolsInAllModules();
 
@@ -37,7 +37,11 @@ public abstract class PhasesTest {
   //This is to that builds can be silent. But when developing you'll probably need to see the actual errors.
   private final CompilerReporter reporter;
 
+  protected final TargetArchitecture targetArchitecture = TargetArchitecture.JVM;
+
   private final boolean enableDirectiveErrors;
+
+  protected final FileHandling fileHandling = new FileHandling(new OsSupport(true));
 
   public PhasesTest(final String fromResourcesDirectory) {
     this(fromResourcesDirectory, List.of());
@@ -194,7 +198,6 @@ public abstract class PhasesTest {
       checkCompilationPhase(phase, source, sharedCompilableProgram);
     };
 
-    final var fileHandling = new FileHandling(new OsSupport(true));
     FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram, fileHandling,
         listener, reporter);
 
@@ -202,7 +205,7 @@ public abstract class PhasesTest {
     sharedCompilableProgram.accept(this::assertPreConditions);
 
     final var flags = new CompilerFlags(upToPhase, reporter.isVerbose());
-    flags.setTargetArchitecture(TargetArchitecture.JVM);
+    flags.setTargetArchitecture(targetArchitecture);
     var compilationResult = compiler.compile(ek9Workspace, flags);
 
     sharedCompilableProgram.accept(program -> checkFinalResults(compilationResult, counter.get(), program));
