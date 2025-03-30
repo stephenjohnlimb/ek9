@@ -8,6 +8,7 @@ import org.ek9lang.compiler.CompilerPhase;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
+import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
@@ -20,7 +21,7 @@ public class PluginLinkage extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.PLUGIN_LINKAGE;
 
   public PluginLinkage(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                       final Consumer<CompilationEvent> listener,
+                       final FileHandling fileHandling, final Consumer<CompilationEvent> listener,
                        final CompilerReporter reporter) {
 
     super(thisPhase, compilableProgramAccess, listener, reporter);

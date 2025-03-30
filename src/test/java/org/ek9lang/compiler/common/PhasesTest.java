@@ -14,6 +14,8 @@ import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.config.FullPhaseSupplier;
 import org.ek9lang.compiler.directives.DirectiveType;
 import org.ek9lang.compiler.support.ShowAllSymbolsInAllModules;
+import org.ek9lang.core.FileHandling;
+import org.ek9lang.core.OsSupport;
 import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Assertions;
 
@@ -44,7 +46,6 @@ public abstract class PhasesTest {
     this(fromResourcesDirectory, List.of(), verbose, muteReportedErrors, true);
 
   }
-
 
   public PhasesTest(final String fromResourcesDirectory,
                     final List<String> expectedModules,
@@ -192,7 +193,8 @@ public abstract class PhasesTest {
       checkCompilationPhase(phase, source, sharedCompilableProgram);
     };
 
-    FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
+    final var fileHandling = new FileHandling(new OsSupport(true));
+    FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram, fileHandling,
         listener, reporter);
 
     var compiler = new Ek9Compiler(allPhases, reporter.isMuteReportedErrors());

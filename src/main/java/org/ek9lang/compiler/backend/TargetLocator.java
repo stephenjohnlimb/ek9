@@ -1,6 +1,8 @@
 package org.ek9lang.compiler.backend;
 
 import java.util.function.Function;
+import org.ek9lang.compiler.backend.jvm.JvmTarget;
+import org.ek9lang.compiler.backend.llvm.LlvmTarget;
 import org.ek9lang.core.CompilerException;
 import org.ek9lang.core.TargetArchitecture;
 

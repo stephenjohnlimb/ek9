@@ -212,6 +212,13 @@ public class CompilableProgram implements Serializable {
     return irModules.computeIfAbsent(moduleName, Modules::new);
   }
 
+  public List<IRModule> getIRModules(final String moduleName) {
+    final var modules = irModules.get(moduleName);
+    if (modules == null) {
+      return List.of();
+    }
+    return modules.getModules();
+  }
 
   /**
    * Resolve some symbol via a fully qualified search.

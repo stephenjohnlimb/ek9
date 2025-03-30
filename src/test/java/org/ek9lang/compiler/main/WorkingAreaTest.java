@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
+import org.ek9lang.compiler.common.NodePrinter;
 import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,11 @@ class WorkingAreaTest extends PhasesTest {
                                     final CompilableProgram program) {
     assertTrue(compilationResult);
     var resolvedProgram = program.resolveFromModule("introduction", new TypeSymbolSearch("HelloWorld"));
+
+    final var printer = new NodePrinter();
+    program.getIRModules("introduction").forEach(irModule -> {
+      irModule.getConstructs().forEach(printer::visit);
+    });
 
     //showAllSymbolsInAllModules.accept(new SharedThreadContext<>(program));
   }

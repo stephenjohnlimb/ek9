@@ -54,6 +54,7 @@ final class Ek9 {
    */
   private static final Function<CommandLine, CompilationContext> compilationContextCreation =
       commandLine -> {
+        final var fileHandling = commandLine.getFileHandling();
         final var muteReportedErrors = false;
         final var compilationReporter = new CompilationReporter(commandLine.options().isVerbose());
         final var compilerReporter = new CompilerReporter(commandLine.options().isVerbose(), false);
@@ -61,7 +62,7 @@ final class Ek9 {
         final var sourceSupplier = new Ek9BuiltinLangSupplier();
         final var bootStrap =
             new Ek9LanguageBootStrap(sourceSupplier, compilationReporter::logPhaseCompilation, compilerReporter);
-        final var allPhases = new FullPhaseSupplier(bootStrap.get(),
+        final var allPhases = new FullPhaseSupplier(bootStrap.get(), fileHandling,
             compilationReporter::logPhaseCompilation, new CompilerReporter(commandLine.options().isVerbose(), false));
         final var compiler = new Ek9Compiler(allPhases, muteReportedErrors);
 

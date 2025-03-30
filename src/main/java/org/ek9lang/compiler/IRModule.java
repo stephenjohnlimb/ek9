@@ -51,6 +51,10 @@ public final class IRModule implements Module {
     return moduleName.startsWith("org.ek9");
   }
 
+  public List<Construct> getConstructs() {
+    return List.copyOf(constructs);
+  }
+
   public void acceptCompilationUnitContext(final EK9Parser.CompilationUnitContext compilationUnitContext) {
 
     AssertValue.checkNotNull("CompilationUnitContext cannot be null", compilationUnitContext);

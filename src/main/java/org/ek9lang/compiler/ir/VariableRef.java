@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.ir;
 
+import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
 
@@ -16,6 +17,12 @@ public final class VariableRef implements INode {
     this.symbol = symbol;
 
   }
+
+  @Override
+  public void accept(final INodeVisitor visitor) {
+    visitor.visit(this);
+  }
+
 
   @SuppressWarnings("checkstyle:OperatorWrap")
   @Override

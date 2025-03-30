@@ -8,7 +8,6 @@ import java.nio.file.FileSystems;
  * Typically, lib, keys, artefacts and other places where EK9 expects items to be located.
  */
 public final class Ek9DirectoryStructure {
-  public static final String CLASSES = "classes";
   public static final String DOT_JAR = ".jar";
   public static final String DOT_EK9 = ".ek9";
   public static final String DOT_PROPERTIES = ".properties";
@@ -87,30 +86,30 @@ public final class Ek9DirectoryStructure {
     //For ALL libraries still in source ek9 but under their full versioned package name.
     //Unpacked form /path/to/project/.ek9/lib/com.some.package-4.9.5-feature23-40/
 
-    //Once the ek9 source is processed to Java/classes - the resulting jar is then stored as
-    // /path/to/project/.ek9/com.some.package-4.9.5-feature23-40.jar
+    //Once the ek9 source is processed to .class/.jar/.so - the resulting lib is then stored as
+    //i.e. /path/to/project/.ek9/com.some.package-4.9.5-feature23-40.jar
+    //or   /path/to/project/.ek9/com.some.package-4.9.5-feature23-40.so
 
     //The alternative is just to compile them up in the
     //$HOME/.ek9/lib/com.some.package-4.9.5-feature23-40/ directory
-    //Then the final jar can be stored in $HOME/.ek9/lib/com.some.package-4.9.5-feature23-40.jar
+    //Then the final jar/executables can be stored in $HOME/.ek9/lib/com.some.package-4.9.5-feature23-40.jar
     //So when it comes to resolving - we can quickly check if we have the package and also if it
     //is already built.
     //We still need to load the ek9 source from the package for resolving and the like.
-    //But no longer need to generate Java/Classes/Jar If it is already up-to-date.
+    //But no longer need to generate .classes/.o/.jar/.so If it is already up-to-date.
 
     addDirectory(fromEk9BaseDirectory, LIB);
 
     //Where we put anything we generate - intermediate formats java/classes etc/
     final var generated = addDirectory(fromEk9BaseDirectory, GENERATED);
-    addDirectory(generated, LIB);
+    final var lib = addDirectory(generated, LIB);
+    addDirectory(lib, targetArchitecture.getDescription());
 
     final var main = addDirectory(generated, MAIN);
     addDirectory(main, targetArchitecture.getDescription());
-    addDirectory(main, CLASSES);
 
     final var dev = addDirectory(generated, DEV);
     addDirectory(dev, targetArchitecture.getDescription());
-    addDirectory(dev, CLASSES);
 
   }
 
@@ -163,7 +162,7 @@ public final class Ek9DirectoryStructure {
     assertFromEk9BaseDirectoryValid(fromEk9BaseDirectory);
     assertTargetArchitectureSupported(targetArchitecture);
 
-    return FileSystems.getDefault().getPath(fromEk9BaseDirectory, GENERATED, MAIN, CLASSES)
+    return FileSystems.getDefault().getPath(fromEk9BaseDirectory, GENERATED, MAIN, targetArchitecture.getDescription())
         .toFile();
   }
 
@@ -189,7 +188,10 @@ public final class Ek9DirectoryStructure {
     assertFromEk9BaseDirectoryValid(fromEk9BaseDirectory);
     assertTargetArchitectureSupported(targetArchitecture);
 
-    return FileSystems.getDefault().getPath(fromEk9BaseDirectory, GENERATED, DEV, CLASSES).toFile();
+    return FileSystems
+        .getDefault()
+        .getPath(fromEk9BaseDirectory, GENERATED, DEV, targetArchitecture.getDescription())
+        .toFile();
   }
 
   /**

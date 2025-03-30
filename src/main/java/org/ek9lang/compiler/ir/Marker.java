@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.ir;
 
+import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -16,6 +17,11 @@ public final class Marker implements INode {
 
   public String getName() {
     return name;
+  }
+
+  @Override
+  public void accept(final INodeVisitor visitor) {
+    visitor.visit(this);
   }
 
   @SuppressWarnings("checkstyle:OperatorWrap")

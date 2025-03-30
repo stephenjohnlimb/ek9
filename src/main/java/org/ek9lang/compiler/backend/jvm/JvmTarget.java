@@ -1,5 +1,6 @@
-package org.ek9lang.compiler.backend;
+package org.ek9lang.compiler.backend.jvm;
 
+import org.ek9lang.compiler.backend.Target;
 import org.ek9lang.core.TargetArchitecture;
 
 /**

@@ -16,9 +16,8 @@
  * </p>
  * <p>
  * {@link org.ek9lang.compiler.phase10.CodeGenerationPreparation},
- * {@link org.ek9lang.compiler.phase10.CodeGenerationConstants},
- * {@link org.ek9lang.compiler.phase10.CodeGenerationAggregates} and
- * {@link org.ek9lang.compiler.phase10.CodeGenerationFunctions}
+ * {@link org.ek9lang.compiler.phase10.CodeGenerationConstants} and
+ * {@link org.ek9lang.compiler.phase10.CodeGenerationAggregates}
  * </p>
  */
 

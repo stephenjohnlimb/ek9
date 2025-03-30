@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.ir;
 
+import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -14,6 +15,11 @@ public final class Statement implements INode {
 
     AssertValue.checkNotNull("Text cannot be null", text);
     this.statementText = text;
+  }
+
+  @Override
+  public void accept(final INodeVisitor visitor) {
+    visitor.visit(this);
   }
 
   @SuppressWarnings("checkstyle:OperatorWrap")

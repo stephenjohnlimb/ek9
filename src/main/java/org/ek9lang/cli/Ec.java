@@ -119,12 +119,12 @@ abstract class Ec extends E {
     if (compilationResult) {
       final var generatedOutputDirectory = getMainGeneratedOutputDirectory();
       AssertValue.checkNotNull("Main generated out file null", generatedOutputDirectory);
-      //This will be some sort of intermediate form (i.e. java we then need to actually compile).
+      //This may be some sort of intermediate form (i.e. java we then need to actually compile).
 
       if (compilerFlags.isDevBuild()) {
         final var devGeneratedOutputDirectory = getDevGeneratedOutputDirectory();
         AssertValue.checkNotNull("Dev generated out file null", devGeneratedOutputDirectory);
-        //This will be some sort of intermediate form (i.e. java we then need to actually compile).
+        //This may be some sort of intermediate form (i.e. java we then need to actually compile).
       }
     }
 

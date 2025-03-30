@@ -10,6 +10,8 @@ import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.config.FullPhaseSupplier;
 import org.ek9lang.compiler.support.PathToSourceFromName;
+import org.ek9lang.core.FileHandling;
+import org.ek9lang.core.OsSupport;
 import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -58,7 +60,8 @@ class Ek9CompilerTest {
 
     var sharedCompilableProgram = sharedContext.get();
 
-    FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram,
+    final var fileHandling = new FileHandling(new OsSupport(true));
+    FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedCompilableProgram, fileHandling,
         listener, reporter);
 
     var compiler = new Ek9Compiler(allPhases, reporter.isMuteReportedErrors());
@@ -70,7 +73,9 @@ class Ek9CompilerTest {
   void testSimpleUnSuccessfulParsing() {
     CompilationPhaseListener listener = compilationEvent -> {
     };
-    FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedContext.get(),
+    final var fileHandling = new FileHandling(new OsSupport(true));
+
+    FullPhaseSupplier allPhases = new FullPhaseSupplier(sharedContext.get(), fileHandling,
         listener, new CompilerReporter(false, reporter.isMuteReportedErrors()));
 
     var compiler = new Ek9Compiler(allPhases, reporter.isMuteReportedErrors());

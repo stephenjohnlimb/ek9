@@ -10,6 +10,7 @@ import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
+import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
@@ -24,13 +25,14 @@ public class FullPhaseSupplier extends PhaseSupplier {
    * Create a new supplier of a full set of compiler phases.
    */
   public FullPhaseSupplier(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
+                           final FileHandling fileHandling,
                            final CompilationPhaseListener listener,
                            final CompilerReporter reporter) {
 
     super(compilableProgramAccess, listener, reporter);
     frontEndSupplier = new FrontEndSupplier(compilableProgramAccess, listener, reporter, true);
     middleEndSupplier = new MiddleEndSupplier(compilableProgramAccess, listener, reporter);
-    backEndSupplier = new BackEndSupplier(compilableProgramAccess, listener, reporter);
+    backEndSupplier = new BackEndSupplier(compilableProgramAccess, fileHandling, listener, reporter);
 
   }
 

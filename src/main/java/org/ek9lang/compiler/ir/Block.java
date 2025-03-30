@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.ir;
 
+import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.core.AssertValue;
 
@@ -27,6 +28,11 @@ public final class Block extends Instructions {
 
   public Marker getEnd() {
     return end;
+  }
+
+  @Override
+  public void accept(final INodeVisitor visitor) {
+    visitor.visit(this);
   }
 
   @SuppressWarnings("checkstyle:OperatorWrap")

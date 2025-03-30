@@ -2,6 +2,7 @@ package org.ek9lang.compiler.ir;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -26,6 +27,11 @@ public final class ChainedAccess implements INode {
 
   List<INode> getItems() {
     return List.copyOf(items);
+  }
+
+  @Override
+  public void accept(final INodeVisitor visitor) {
+    visitor.visit(this);
   }
 
   @SuppressWarnings("checkstyle:OperatorWrap")

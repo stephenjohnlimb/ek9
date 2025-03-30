@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.ir;
 
 import java.util.List;
+import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 
@@ -28,6 +29,11 @@ public class Call implements INode {
 
   List<Argument> getArguments() {
     return arguments;
+  }
+
+  @Override
+  public void accept(final INodeVisitor visitor) {
+    visitor.visit(this);
   }
 
   @SuppressWarnings("checkstyle:OperatorWrap")

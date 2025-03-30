@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.ir;
 
+import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -22,6 +23,10 @@ public final class Assignment implements INode {
     this.rhs = rhs;
   }
 
+  @Override
+  public void accept(final INodeVisitor visitor) {
+    visitor.visit(this);
+  }
 
   @SuppressWarnings("checkstyle:OperatorWrap")
   @Override

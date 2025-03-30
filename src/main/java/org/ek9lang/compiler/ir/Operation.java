@@ -2,6 +2,7 @@ package org.ek9lang.compiler.ir;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.compiler.symbols.IFunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -67,6 +68,11 @@ public final class Operation implements INode {
 
   public void setBody(final Block body) {
     this.body = body;
+  }
+
+  @Override
+  public void accept(final INodeVisitor visitor) {
+    visitor.visit(this);
   }
 
   @SuppressWarnings("checkstyle:OperatorWrap")
