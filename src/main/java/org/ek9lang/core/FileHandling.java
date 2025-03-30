@@ -31,6 +31,7 @@ public final class FileHandling {
 
   }
 
+
   public String getTempDirectory() {
 
     return osSupport.getTempDirectory();
@@ -148,6 +149,12 @@ public final class FileHandling {
   public void makeDirectoryIfNotExists(final File directory) {
 
     osSupport.makeDirectoryIfNotExists(directory);
+  }
+
+  public void createOrRecreateFile(final File file) {
+
+    deleteFileIfExists(file);
+    writer.apply(file::createNewFile);
   }
 
   /**

@@ -19,7 +19,7 @@ public class NodePrinter implements INodeVisitor {
 
   @Override
   public void visit(final Construct construct) {
-    //TODO pretty print just the details of the construct
+
     if (construct.getSymbol().getGenus() == SymbolGenus.PROGRAM) {
       System.out.println("Program: would create static main entry point and call to _main");
     }

@@ -23,6 +23,7 @@ abstract class Ec extends E {
 
     super(compilationContext);
     compilerFlags.setVerbose(compilationContext.commandLine().options().isVerbose());
+    compilerFlags.setTargetArchitecture(compilationContext.commandLine().getTargetArchitecture());
 
   }
 
@@ -104,7 +105,7 @@ abstract class Ec extends E {
 
     log(compilableProjectFiles.size() + " source file(s)");
 
-    final var workspace = new Workspace();
+    final var workspace = new Workspace(compilationContext.commandLine().getSourceFileDirectory());
     compilableProjectFiles.forEach(file -> {
       log(file.getAbsolutePath());
       workspace.addSource(file);

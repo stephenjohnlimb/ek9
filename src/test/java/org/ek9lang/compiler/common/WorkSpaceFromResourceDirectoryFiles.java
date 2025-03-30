@@ -9,9 +9,12 @@ import org.ek9lang.compiler.Workspace;
 public final class WorkSpaceFromResourceDirectoryFiles implements Function<String, Workspace> {
   private final SourceFileList sourceFileList = new SourceFileList();
 
+  private final ActualPathFromResourcesDirectory actualPathFromResourcesDirectory =
+      new ActualPathFromResourcesDirectory();
+
   @Override
   public Workspace apply(String fromDirectory) {
-    Workspace rtn = new Workspace();
+    Workspace rtn = new Workspace(actualPathFromResourcesDirectory.apply(fromDirectory));
     sourceFileList.apply(fromDirectory).forEach(rtn::addSource);
     return rtn;
   }

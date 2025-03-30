@@ -1,5 +1,7 @@
 package org.ek9lang.compiler;
 
+import org.ek9lang.core.TargetArchitecture;
+
 /**
  * Used to drive how the compiler operates.
  * As error message details, future will be to add debug output files for 'edb' the Ek9 Debugger.
@@ -44,6 +46,7 @@ public class CompilerFlags {
    * Also, useful for the language server. You may only want to go up to IR_ANALYSIS.
    */
   private CompilationPhase compileToPhase;
+  private TargetArchitecture targetArchitecture = TargetArchitecture.JVM;
 
   public CompilerFlags() {
 
@@ -163,5 +166,13 @@ public class CompilerFlags {
   public void setVerbose(final boolean verbose) {
 
     this.verbose = verbose;
+  }
+
+  public void setTargetArchitecture(final TargetArchitecture targetArchitecture) {
+    this.targetArchitecture = targetArchitecture;
+  }
+
+  public TargetArchitecture getTargetArchitecture() {
+    return targetArchitecture;
   }
 }

@@ -21,7 +21,7 @@ class WorkingAreaTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.SIMPLE_IR_GENERATION);
+    testToPhase(CompilationPhase.CODE_GENERATION_PREPARATION);
   }
 
   @Override

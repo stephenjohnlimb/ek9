@@ -11,6 +11,7 @@ import org.ek9lang.core.TargetArchitecture;
  * I don't expect there to be many Target Architectures.
  */
 public class TargetLocator implements Function<TargetArchitecture, Target> {
+
   @Override
   public Target apply(final TargetArchitecture targetArchitecture) {
 

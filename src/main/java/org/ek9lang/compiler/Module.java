@@ -10,6 +10,10 @@ public interface Module extends Serializable {
 
   String getScopeName();
 
+  default boolean isNotEk9Core() {
+    return !isEk9Core();
+  }
+
   default boolean isEk9Core() {
     return false;
   }

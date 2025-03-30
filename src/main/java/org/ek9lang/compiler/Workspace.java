@@ -22,6 +22,16 @@ public class Workspace {
   //So uses a linked hashmap to preserve the order of addition.
   private final Map<String, CompilableSource> sources = new LinkedHashMap<>();
 
+  private final String sourceFileBaseDirectory;
+
+  public Workspace() {
+    sourceFileBaseDirectory = ".";
+  }
+
+  public Workspace(String sourceFileBaseDirectory) {
+    this.sourceFileBaseDirectory = sourceFileBaseDirectory;
+  }
+
   /**
    * ReParses or loads and parses a source file.
    */
@@ -128,5 +138,9 @@ public class Workspace {
   public Collection<CompilableSource> getSources() {
 
     return sources.values();
+  }
+
+  public String getSourceFileBaseDirectory() {
+    return sourceFileBaseDirectory;
   }
 }

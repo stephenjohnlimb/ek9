@@ -17,6 +17,7 @@ import org.ek9lang.compiler.support.ShowAllSymbolsInAllModules;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.OsSupport;
 import org.ek9lang.core.SharedThreadContext;
+import org.ek9lang.core.TargetArchitecture;
 import org.junit.jupiter.api.Assertions;
 
 /**
@@ -200,7 +201,9 @@ public abstract class PhasesTest {
     var compiler = new Ek9Compiler(allPhases, reporter.isMuteReportedErrors());
     sharedCompilableProgram.accept(this::assertPreConditions);
 
-    var compilationResult = compiler.compile(ek9Workspace, new CompilerFlags(upToPhase, reporter.isVerbose()));
+    final var flags = new CompilerFlags(upToPhase, reporter.isVerbose());
+    flags.setTargetArchitecture(TargetArchitecture.JVM);
+    var compilationResult = compiler.compile(ek9Workspace, flags);
 
     sharedCompilableProgram.accept(program -> checkFinalResults(compilationResult, counter.get(), program));
   }

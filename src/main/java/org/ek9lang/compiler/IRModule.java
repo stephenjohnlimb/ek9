@@ -44,6 +44,7 @@ public final class IRModule implements Module {
     return moduleName;
   }
 
+
   @Override
   public boolean isEk9Core() {
 
