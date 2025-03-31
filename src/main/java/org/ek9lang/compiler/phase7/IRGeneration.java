@@ -66,9 +66,8 @@ public class IRGeneration extends CompilerPhase {
 
     final var irModule = new IRModule(source);
     irModule.acceptCompilationUnitContext(source.getCompilationUnitContext());
-    if (AggregateManipulator.EK9_LANG.equals(irModule.getScopeName())
-        || AggregateManipulator.EK9_MATH.equals(irModule.getScopeName())) {
-      //Nothing to do with IR generation of built-in ek9 code. As that will be provided as a library
+    if (irModule.isExtern()) {
+      //Nothing to do with IR generation of built-in or extern ek9 code. As that will be provided as a library
       //When generating the final application/lib.
       return;
     }

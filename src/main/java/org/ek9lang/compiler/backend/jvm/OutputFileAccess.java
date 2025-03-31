@@ -35,8 +35,8 @@ public final class OutputFileAccess implements BiFunction<Construct, String, Fil
   }
 
   private File createOutputFile(final File dir, final Construct construct) {
-    final var jvmFQN = fullyQualifiedNameMapper.apply(construct.getFullyQualifiedName());
-    final File rtn = new File(dir, jvmFQN);
+    final var fqn = fullyQualifiedNameMapper.apply(construct.getFullyQualifiedName());
+    final File rtn = new File(dir, fqn);
     fileHandling.makeDirectoryIfNotExists(rtn.getParentFile());
     return rtn;
   }

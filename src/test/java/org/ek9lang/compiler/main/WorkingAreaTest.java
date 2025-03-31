@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.main;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.CompilableProgram;
@@ -21,7 +22,7 @@ class WorkingAreaTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    //Need to clear out any exising targets (like clean) for this unit test.
+    //Need to clear out any existing targets (like clean) for this unit test.
     ek9Workspace.getSources().stream().findFirst().ifPresent(source -> {
       fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture);
     });
@@ -34,6 +35,7 @@ class WorkingAreaTest extends PhasesTest {
                                     final CompilableProgram program) {
     assertTrue(compilationResult);
     var resolvedProgram = program.resolveFromModule("introduction", new TypeSymbolSearch("HelloWorld"));
+    assertNotNull(resolvedProgram);
 
     final var printer = new NodePrinter();
     program.getIRModules("introduction").forEach(irModule -> {

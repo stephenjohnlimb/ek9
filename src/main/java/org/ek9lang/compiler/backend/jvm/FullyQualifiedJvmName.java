@@ -9,7 +9,7 @@ import java.util.function.UnaryOperator;
  * This involves converting something like "some.module.name::ConstructItem" into
  * something that can be used for a filename with the jvm like "com/module/name/ConstructItem".
  */
-public final class FullyQualifiedJvmName implements UnaryOperator<String> {
+final class FullyQualifiedJvmName implements UnaryOperator<String> {
   @Override
   public String apply(final String ek9FullyQualifiedName) {
     return ek9FullyQualifiedName.replace(".", File.separator).replace("::", File.separator);

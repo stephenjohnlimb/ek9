@@ -21,6 +21,7 @@ public final class IRModule implements Module {
   private final List<Construct> constructs = new ArrayList<>();
 
   private String moduleName;
+  private boolean extern;
 
   public IRModule(final CompilableSource source) {
 
@@ -55,7 +56,14 @@ public final class IRModule implements Module {
 
     AssertValue.checkNotNull("CompilationUnitContext cannot be null", compilationUnitContext);
     this.moduleName = compilationUnitContext.moduleDeclaration().dottedName().getText();
+    //Need to know if this module is extern, so that compiler can process but not create final output for it.
+    this.extern = compilationUnitContext.moduleDeclaration().EXTERN() != null;
+
     AssertValue.checkNotEmpty("ModuleName must have a value", moduleName);
+  }
+
+  public boolean isExtern() {
+    return extern;
   }
 
   /**
