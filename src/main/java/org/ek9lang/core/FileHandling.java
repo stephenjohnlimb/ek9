@@ -3,6 +3,7 @@ package org.ek9lang.core;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
@@ -31,6 +32,9 @@ public final class FileHandling {
 
   }
 
+  public File makeFileInTempDirectory(final String fileName) {
+    return FileSystems.getDefault().getPath(getTempDirectory(), fileName).toFile();
+  }
 
   public String getTempDirectory() {
 

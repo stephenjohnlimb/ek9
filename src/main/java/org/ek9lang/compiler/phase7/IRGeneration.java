@@ -11,7 +11,6 @@ import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceHasErrors;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
-import org.ek9lang.compiler.support.AggregateManipulator;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
@@ -71,7 +70,6 @@ public class IRGeneration extends CompilerPhase {
       //When generating the final application/lib.
       return;
     }
-
 
     compilableProgramAccess.accept(compilableProgram -> compilableProgram.add(irModule));
 

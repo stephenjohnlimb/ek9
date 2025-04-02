@@ -87,7 +87,8 @@ public final class OsSupport implements Serializable {
   public void makeDirectoryIfNotExists(final File directory) {
 
     AssertValue.checkNotNull("Directory cannot be null", directory);
-    if (!directory.exists() && !directory.mkdirs()) {
+    final var exists = directory.exists();
+    if (!exists && !directory.mkdirs()) {
       throw new CompilerException("Unable to create directory [" + directory.getPath() + "]");
     }
 

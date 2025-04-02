@@ -27,7 +27,7 @@ class WorkingAreaTest extends PhasesTest {
       fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture);
     });
 
-    testToPhase(CompilationPhase.CODE_GENERATION_PREPARATION);
+    testToPhase(CompilationPhase.CODE_GENERATION_AGGREGATES);
   }
 
   @Override
@@ -42,6 +42,5 @@ class WorkingAreaTest extends PhasesTest {
       irModule.getConstructs().forEach(printer::visit);
     });
 
-    //showAllSymbolsInAllModules.accept(new SharedThreadContext<>(program));
   }
 }
