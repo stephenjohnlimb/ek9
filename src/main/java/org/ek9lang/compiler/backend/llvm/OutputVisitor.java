@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.backend.llvm;
 
 import java.io.File;
+import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.core.AssertValue;
 
@@ -8,10 +9,16 @@ import org.ek9lang.core.AssertValue;
  * The visitor that produces llvm IR text, requires further processing for creation of '.o' files for a Construct.
  */
 public final class OutputVisitor implements INodeVisitor {
-  private final File targetFile;
+  private final ConstructTargetTuple constructTargetTuple;
 
-  public OutputVisitor(final File targetFile) {
-    AssertValue.checkNotNull("File cannot be null", targetFile);
-    this.targetFile = targetFile;
+  public OutputVisitor(final ConstructTargetTuple constructTargetTuple) {
+    AssertValue.checkNotNull("File cannot be null", constructTargetTuple.targetFile());
+    this.constructTargetTuple = constructTargetTuple;
   }
+
+  @Override
+  public void visit() {
+    visit(constructTargetTuple.construct());
+  }
+
 }

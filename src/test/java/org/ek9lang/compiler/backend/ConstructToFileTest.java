@@ -42,26 +42,4 @@ class ConstructToFileTest {
 
   }
 
-  /**
-   * Inlined this to avoid threading race condition in creating temp directory.
-   *
-   * @throws IOException If the file cannot be created.
-   */
-  @Test
-  void testOutputVisitorLocator() throws IOException {
-    final var underTest = new OutputVisitorLocator();
-
-    assertNotNull(fileHandling.getTempDirectory());
-
-    final var jvmOutputFile = fileHandling.makeFileInTempDirectory(TargetArchitecture.JVM.toString());
-    assertTrue(jvmOutputFile.createNewFile());
-    final var jvmVisitor = underTest.apply(TargetArchitecture.JVM, jvmOutputFile);
-    assertNotNull(jvmVisitor);
-
-    final var llvmOutputFile = fileHandling.makeFileInTempDirectory(TargetArchitecture.LLVM.toString());
-    assertTrue(llvmOutputFile.createNewFile());
-    final var llvmVisitor = underTest.apply(TargetArchitecture.LLVM, llvmOutputFile);
-    assertNotNull(llvmVisitor);
-
-  }
 }

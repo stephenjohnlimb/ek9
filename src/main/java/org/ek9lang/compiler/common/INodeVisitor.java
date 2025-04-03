@@ -9,6 +9,7 @@ import org.ek9lang.compiler.ir.Construct;
 import org.ek9lang.compiler.ir.ConstructorCall;
 import org.ek9lang.compiler.ir.Expression;
 import org.ek9lang.compiler.ir.Instructions;
+import org.ek9lang.compiler.ir.Literal;
 import org.ek9lang.compiler.ir.Marker;
 import org.ek9lang.compiler.ir.Operation;
 import org.ek9lang.compiler.ir.Parameter;
@@ -21,6 +22,16 @@ import org.ek9lang.compiler.ir.VariableRef;
  * Used for double dispatch when visiting nodes.
  */
 public interface INodeVisitor {
+
+  /**
+   * Entry point for visitors.
+   */
+  default void visit() {
+
+  }
+
+  default void visit(final Literal literal) {
+  }
 
   default void visit(final Argument argument) {
   }

@@ -2,13 +2,17 @@ package org.ek9lang.compiler.phase10;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.CompilerPhase;
 import org.ek9lang.compiler.IRModule;
 import org.ek9lang.compiler.Workspace;
+import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.backend.OutputFileLocator;
 import org.ek9lang.compiler.backend.OutputVisitorLocator;
 import org.ek9lang.compiler.common.CompilationEvent;
@@ -58,21 +62,33 @@ public class CodeGenerationAggregates extends CompilerPhase {
   }
 
   private void generateOutputMultiThreaded(final Workspace workspace) {
-    final var projectDirectory = workspace.getSourceFileBaseDirectory();
-
-    //Now get the .ek9 directory under that, this is where we will store the built artefacts.
-    final var projectDotEK9Directory = fileHandling.getDotEk9Directory(projectDirectory);
-    final var locator = outputFileLocator.get();
     compilableProgramAccess.accept(program ->
         workspace
             .getSources()
             .parallelStream()
-            .map(program::getIRModuleForCompilableSource)
-            .map(IRModule::getConstructs)
-            .flatMap(List::stream)
-            .map(construct -> new ConstructTargetTuple(construct, locator.apply(construct, projectDotEK9Directory)))
-            .forEach(this::produceConstructOutput));
+            .forEach(compilableSource -> generateForSource(workspace, compilableSource, program)));
 
+  }
+
+  private void generateForSource(final Workspace workspace,
+                                 final CompilableSource compilableSource,
+                                 final CompilableProgram program) {
+
+    //Now get the .ek9 directory under that, this is where we will store the built artefacts.
+    final var projectDirectory = workspace.getSourceFileBaseDirectory();
+    var fileName = compilableSource.getFileName().replace(projectDirectory, "");
+    final var relativeFileName = fileName.startsWith(File.separator) ? fileName.substring(1) : fileName;
+
+    final var projectDotEK9Directory = fileHandling.getDotEk9Directory(projectDirectory);
+    final var locator = outputFileLocator.get();
+
+    Optional.of(compilableSource).stream()
+        .map(program::getIRModuleForCompilableSource)
+        .map(IRModule::getConstructs)
+        .flatMap(List::parallelStream)
+        .map(construct -> new ConstructTargetTuple(construct, relativeFileName, compilerFlags,
+            locator.apply(construct, projectDotEK9Directory)))
+        .forEach(this::produceConstructOutput);
   }
 
   /**
@@ -81,13 +97,8 @@ public class CodeGenerationAggregates extends CompilerPhase {
    */
   private void produceConstructOutput(final ConstructTargetTuple constructTargetTuple) {
     final var outputVisitor =
-        new OutputVisitorLocator().apply(compilerFlags.getTargetArchitecture(), constructTargetTuple.targetFile);
-
-    outputVisitor.visit(constructTargetTuple.construct);
-
-  }
-
-  private record ConstructTargetTuple(Construct construct, File targetFile) {
+        new OutputVisitorLocator().apply(constructTargetTuple);
+    outputVisitor.visit();
 
   }
 }

@@ -53,13 +53,12 @@ import org.ek9lang.core.CompilerException;
  */
 public final class ExpressionCreator implements Function<EK9Parser.ExpressionContext, INode> {
 
-  private final ParsedModule parsedModule;
   private final CallCreator callCreator;
+  private final PrimaryCreator primaryCreator;
 
   public ExpressionCreator(final ParsedModule parsedModule) {
-    this.parsedModule = parsedModule;
     callCreator = new CallCreator(parsedModule);
-
+    primaryCreator = new PrimaryCreator(parsedModule);
   }
 
   @Override
@@ -67,6 +66,8 @@ public final class ExpressionCreator implements Function<EK9Parser.ExpressionCon
 
     if (ctx.call() != null) {
       return callCreator.apply(ctx.call());
+    } else if (ctx.primary() != null) {
+      return primaryCreator.apply(ctx.primary());
     }
     throw new CompilerException("Expression not fully implemented yet");
   }

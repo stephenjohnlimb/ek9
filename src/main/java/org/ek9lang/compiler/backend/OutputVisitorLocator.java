@@ -1,26 +1,25 @@
 package org.ek9lang.compiler.backend;
 
-import java.io.File;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.core.CompilerException;
-import org.ek9lang.core.TargetArchitecture;
 
 /**
  * Locates the appropriate IR node visitor for the appropriate target architecture.
  */
-public final class OutputVisitorLocator implements BiFunction<TargetArchitecture, File, INodeVisitor> {
+public final class OutputVisitorLocator implements Function<ConstructTargetTuple, INodeVisitor> {
 
   @Override
-  public INodeVisitor apply(final TargetArchitecture targetArchitecture, final File targetFile) {
-    return switch (targetArchitecture) {
+  public INodeVisitor apply(final ConstructTargetTuple constructTargetTuple) {
+    return switch (constructTargetTuple.compilerFlags().getTargetArchitecture()) {
       case LLVM:
-        yield new org.ek9lang.compiler.backend.llvm.OutputVisitor(targetFile);
+        yield new org.ek9lang.compiler.backend.llvm.OutputVisitor(constructTargetTuple);
       case JVM:
-        yield new org.ek9lang.compiler.backend.jvm.OutputVisitor(targetFile);
+        yield new org.ek9lang.compiler.backend.jvm.OutputVisitor(constructTargetTuple);
       case NOT_SUPPORTED:
         throw new CompilerException(
-            "Target architecture " + targetArchitecture + " is not supported");
+            "Target architecture " + constructTargetTuple.compilerFlags().getTargetArchitecture()
+                + " is not supported");
     };
   }
 

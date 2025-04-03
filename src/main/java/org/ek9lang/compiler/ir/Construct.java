@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -44,6 +45,10 @@ public final class Construct implements INode {
    */
   public boolean isFunction() {
     return symbol.isFunction();
+  }
+
+  public boolean isProgram() {
+    return symbol.getGenus() == SymbolGenus.PROGRAM;
   }
 
   public void add(final Operation operation) {
