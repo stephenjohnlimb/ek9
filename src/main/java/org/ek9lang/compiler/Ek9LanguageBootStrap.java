@@ -54,7 +54,9 @@ public class Ek9LanguageBootStrap implements Supplier<SharedThreadContext<Compil
 
     sources.forEach(workspace::addSource);
 
-    final var compilationSuccess = compiler.compile(workspace, new CompilerFlags(reporter.isVerbose()));
+    //Set compiler flags to only go as far as plugin resolution.
+    final var compilationSuccess =
+        compiler.compile(workspace, new CompilerFlags(CompilationPhase.PLUGIN_RESOLUTION, reporter.isVerbose()));
     if (!compilationSuccess) {
       displayErrors(workspace);
       reporter.report("Source code follows");

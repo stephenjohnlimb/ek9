@@ -9,8 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 class CompilationPhaseTest {
 
   @ParameterizedTest
-  @ValueSource(strings = {"PREPARE_PARSE",
-      "PARSING",
+  @ValueSource(strings = {"PARSING",
       "SYMBOL_DEFINITION",
       "DUPLICATION_CHECK",
       "REFERENCE_CHECKS",

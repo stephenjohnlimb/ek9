@@ -81,6 +81,12 @@ public final class OsSupport implements Serializable {
     return rtn;
   }
 
+  public String makeSubDirectoryIfNotExists(final File directory, final String subDirectory) {
+    final var newDirectory = new File(directory, subDirectory);
+    makeDirectoryIfNotExists(newDirectory);
+    return newDirectory.getAbsolutePath();
+  }
+
   /**
    * Create directory if it does not exist or exception if failed.
    */
@@ -93,6 +99,7 @@ public final class OsSupport implements Serializable {
     }
 
   }
+
 
   /**
    * Get name of temporary directory.
@@ -216,12 +223,13 @@ public final class OsSupport implements Serializable {
   /**
    * Get files in a particular directory, but not if they start with a prefix.
    */
+  @SuppressWarnings("checkstyle:LambdaParameterName")
   public List<File> getDirectoriesInDirectory(final File inDirectory, final String excludeStartingWith) {
 
     assertInDirectoryValid(inDirectory);
     AssertValue.checkNotNull("ExcludeStartingWith cannot be null", excludeStartingWith);
 
-    final var files = inDirectory.listFiles((d, name) -> !name.startsWith(excludeStartingWith));
+    final var files = inDirectory.listFiles((_, name) -> !name.startsWith(excludeStartingWith));
 
     return Optional.ofNullable(files).stream().flatMap(Arrays::stream)
         .filter(File::isDirectory)
@@ -268,12 +276,13 @@ public final class OsSupport implements Serializable {
   /**
    * Get all files in a directory with a specific suffix.
    */
+  @SuppressWarnings("checkstyle:LambdaParameterName")
   public Collection<File> getFilesFromDirectory(final File inDirectory, final String fileSuffix) {
 
     assertInDirectoryValid(inDirectory);
     AssertValue.checkNotNull("FileSuffix cannot be null", fileSuffix);
 
-    final var files = inDirectory.listFiles((d, name) -> name.endsWith(fileSuffix));
+    final var files = inDirectory.listFiles((_, name) -> name.endsWith(fileSuffix));
 
     return Optional.ofNullable(files).stream().flatMap(Arrays::stream)
         .toList();

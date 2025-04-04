@@ -3,7 +3,6 @@ package org.ek9lang.core;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
@@ -18,7 +17,8 @@ public final class FileHandling {
   private final Packager packager;
   private final Ek9DirectoryStructure directoryStructure;
 
-  private final ExceptionConverter<Boolean> writer = new ExceptionConverter<>();
+  private final ExceptionConverter<Boolean> converter = new ExceptionConverter<>();
+  private final ExceptionIgnore<Boolean> ignore = new ExceptionIgnore<>();
 
   /**
    * Create File Handling with the appropriately configured OS support.
@@ -30,10 +30,6 @@ public final class FileHandling {
     this.packager = new Packager(this);
     this.directoryStructure = new Ek9DirectoryStructure(this);
 
-  }
-
-  public File makeFileInTempDirectory(final String fileName) {
-    return FileSystems.getDefault().getPath(getTempDirectory(), fileName).toFile();
   }
 
   public String getTempDirectory() {
@@ -119,7 +115,7 @@ public final class FileHandling {
       return true;
     };
 
-    return writer.apply(accessor);
+    return converter.apply(accessor);
   }
 
   /**
@@ -134,17 +130,17 @@ public final class FileHandling {
       }
     };
 
-    return writer.apply(accessor);
+    return converter.apply(accessor);
   }
 
   /**
-   * Deletes a file if it exists or a compiler exception if it cannot be deleted.
+   * Deletes a file if it exists.
    */
   public void deleteFileIfExists(final File file) {
 
     AssertValue.checkNotNull("File cannot be null", file);
 
-    writer.apply(() -> Files.deleteIfExists(file.toPath()));
+    ignore.apply(() -> Files.deleteIfExists(file.toPath()));
   }
 
   /**
@@ -158,7 +154,7 @@ public final class FileHandling {
   public void createOrRecreateFile(final File file) {
 
     deleteFileIfExists(file);
-    writer.apply(file::createNewFile);
+    converter.apply(file::createNewFile);
   }
 
   /**
@@ -167,12 +163,13 @@ public final class FileHandling {
    * @param dir             the directory to look in
    * @param fileNamePattern The pattern regex not shell so for * use .* for .txt use \\.txt
    */
+  @SuppressWarnings("checkstyle:LambdaParameterName")
   public void deleteMatchingFiles(final File dir, final String fileNamePattern) {
 
     AssertValue.checkNotNull("Dir cannot be null", dir);
     AssertValue.checkNotNull("FileNamePattern cannot be null", fileNamePattern);
 
-    final var files = dir.listFiles((dir1, name) -> name.matches(fileNamePattern));
+    final var files = dir.listFiles((_, name) -> name.matches(fileNamePattern));
     Optional.ofNullable(files).stream().flatMap(Arrays::stream).forEach(this::deleteFileIfExists);
 
   }

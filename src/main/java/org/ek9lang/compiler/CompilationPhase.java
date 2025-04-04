@@ -5,11 +5,10 @@ package org.ek9lang.compiler;
  * This enables compilation to run upto specific phases.
  * So for example in a language-server - you may never want to get to
  * the 'generate' phase.
- * Or during development - we may wish to focus on work upto a specific phase.
+ * Or during development - we may wish to focus on work up to a specific phase.
  */
 public enum CompilationPhase {
 
-  PREPARE_PARSE("Preparation for Parsing"),
   PARSING("Source Code Parsing"),
   SYMBOL_DEFINITION("Defining Symbols"),
   DUPLICATION_CHECK("Duplicate Type Checking"),

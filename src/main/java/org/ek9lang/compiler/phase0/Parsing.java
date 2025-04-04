@@ -22,7 +22,7 @@ import org.ek9lang.compiler.common.CompilerReporter;
 public final class Parsing
     implements BiFunction<Workspace, CompilerFlags, CompilationPhaseResult> {
 
-  private static final CompilationPhase thisPhase = CompilationPhase.PREPARE_PARSE;
+  private static final CompilationPhase thisPhase = CompilationPhase.PARSING;
   private final Consumer<CompilationEvent> listener;
   private final CompilerReporter reporter;
   private final CompilableSourceHasErrors sourceHasErrors = new CompilableSourceHasErrors();
@@ -51,8 +51,9 @@ public final class Parsing
 
     reporter.log(thisPhase);
     final var result = underTakeParsingOperation(workspace, CompilableSource::prepareToParse);
-
-    return new CompilationPhaseResult(thisPhase, result, compilerFlags.getCompileToPhase() == thisPhase);
+    final var compilationPhase = compilerFlags.getCompileToPhase();
+    final var phaseMatch = compilationPhase == thisPhase;
+    return new CompilationPhaseResult(thisPhase, result,  phaseMatch);
   }
 
   private CompilationPhaseResult parseSources(Workspace workspace, CompilerFlags compilerFlags) {

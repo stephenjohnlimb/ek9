@@ -26,7 +26,7 @@ public class DirectivesCompilationPhase implements Function<EK9Parser.DirectiveC
   private List<String> applicableCompilationPhases() {
 
     final Predicate<CompilationPhase> acceptableValues = compilationPhase
-        -> CompilationPhase.PARSING != compilationPhase && CompilationPhase.PREPARE_PARSE != compilationPhase;
+        -> CompilationPhase.PARSING != compilationPhase;
 
     return Arrays.stream(CompilationPhase.values()).filter(acceptableValues).map(Enum::toString).toList();
   }
