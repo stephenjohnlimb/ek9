@@ -2,6 +2,8 @@ package org.ek9lang.compiler;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
+import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ_WRITE;
 
 import java.io.File;
 import java.util.function.Function;
@@ -16,6 +18,8 @@ import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.OsSupport;
 import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -23,6 +27,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 /**
  * Checks both valid and invalid parsing. For valid source cycles through each of the compilation phases.
  */
+@Execution(SAME_THREAD)
+@ResourceLock(value = "file_access", mode = READ_WRITE)
 class Ek9CompilerTest {
 
   private final CompilerReporter reporter = new CompilerReporter(false, true);
