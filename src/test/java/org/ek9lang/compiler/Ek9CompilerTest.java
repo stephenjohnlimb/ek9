@@ -26,6 +26,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Checks both valid and invalid parsing. For valid source cycles through each of the compilation phases.
+ * Now limited to sequential single threaded runs with other file based tests.
  */
 @Execution(SAME_THREAD)
 @ResourceLock(value = "file_access", mode = READ_WRITE)
