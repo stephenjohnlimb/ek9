@@ -1,4 +1,31 @@
 #!ek9
+defines extern module org.company.dept
+
+  defines program
+
+    Program1()
+
+  defines class
+
+    StringExample
+
+      StringExample() as pure
+
+      upperCase() as pure
+        <- rtn as StringExample?
+
+  defines record
+
+    NetworkProperties
+
+      host as StringExample: StringExample()
+
+      NetworkProperties() as pure
+
+      operator $ as pure
+        <- rtn as String?
+<!-
+#!ek9
 defines module introduction
 
   defines program
@@ -6,6 +33,6 @@ defines module introduction
 
       stdout <- Stdout()
       stdout.println("Hello, World")
-
+-!>
 //EOF
 

@@ -81,6 +81,7 @@ public class CodeGenerationAggregates extends CompilerPhase {
     final var locator = outputFileLocator.get();
 
     Optional.of(compilableSource).stream()
+        .filter(CompilableSource::isNotExtern)
         .map(program::getIRModuleForCompilableSource)
         .map(IRModule::getConstructs)
         .flatMap(List::parallelStream)

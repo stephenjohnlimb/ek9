@@ -107,7 +107,7 @@ final class ValidMethodOrError extends RuleSupport implements
 
   private void checkAsServiceMethod(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
 
-    implementationPresentOrError.accept(ctx);
+    implementationPresentOrError.accept(method, ctx);
     nonExtendableMethodOrError.accept(method, ctx);
   }
 

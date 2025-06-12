@@ -24,7 +24,7 @@ public class ClassLister {
       final var possibleConstruct = construct.getValue().getAnnotationsByType(Ek9Construct.class);
       final var isConstruct = possibleConstruct.length == 1;
       if (isConstruct) {
-        final var constructType = possibleConstruct[0].construct();
+        final var constructType = possibleConstruct[0].value();
         final var constructMap = rtn.computeIfAbsent(constructType, _ -> new HashMap<>());
         constructMap.put(construct.getKey(), construct.getValue());
       }
@@ -48,13 +48,13 @@ public class ClassLister {
     return new HashMap<>();
   }
 
-  @SuppressWarnings("java:S112")
+  @SuppressWarnings({"java:S112", "checkstyle:CatchParameterName"})
   private Class<?> getClass(String className, String packageName) {
     final var name = packageName + "."
         + className.substring(0, className.lastIndexOf('.'));
     try {
       return Class.forName(name);
-    } catch (ClassNotFoundException e) {
+    } catch (ClassNotFoundException _) {
       throw new RuntimeException("Failed to load class: " + name);
     }
   }

@@ -14,7 +14,7 @@ import org.ek9tooling.Ek9Method;
  * This is like a C header and the jar is like the "*.so"/"*.a", but the header is built
  * into the jar/library and can be extracted.
  */
-@Ek9Construct(construct = "class", value = "StringExample")
+@Ek9Construct("class")
 public class StringExample {
 
   private java.lang.String value;
@@ -39,11 +39,11 @@ public class StringExample {
     this.value = value;
   }
 
-  public static StringExample of(final java.lang.String value) {
+  public static StringExample _of(final java.lang.String value) {
     return new StringExample(value);
   }
 
-  public static java.lang.String from(final StringExample string) {
+  public static java.lang.String _from(final StringExample string) {
     return string.value;
   }
 }

@@ -6,11 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * To be used to annotate a Java method that can be exposed as an EK9 method.
+ * To be used to annotate a public Java field/property that can be exposed as an EK9 record property.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target(ElementType.FIELD)
 
-public @interface Ek9Method {
+public @interface Ek9Property {
   String value();
 }

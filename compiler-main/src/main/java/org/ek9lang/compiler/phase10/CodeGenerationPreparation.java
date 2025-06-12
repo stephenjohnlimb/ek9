@@ -67,6 +67,7 @@ public class CodeGenerationPreparation extends CompilerPhase {
         workspace
             .getSources()
             .parallelStream()
+            .filter(CompilableSource::isNotExtern)
             .map(source -> getSourceTargetTuple(program, source, projectDotEK9Directory))
             .flatMap(List::parallelStream)
             .filter(this::targetOutOfDateWithSource)

@@ -908,12 +908,10 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
       symbolsAndScopes.recordSymbol(symbol, ctx);
       variableSymbol.setReturningParameter(true);
       if (!symbolChecker.errorsIfSymbolAlreadyDefined(currentScope, variableSymbol, true)) {
-        if (currentScope instanceof MethodSymbol method) {
-          method.setReturningSymbol(variableSymbol);
-        } else if (currentScope instanceof FunctionSymbol function) {
-          function.setReturningSymbol(variableSymbol);
-        } else {
-          currentScope.define(variableSymbol);
+        switch (currentScope) {
+          case MethodSymbol method -> method.setReturningSymbol(variableSymbol);
+          case FunctionSymbol function -> function.setReturningSymbol(variableSymbol);
+          default -> currentScope.define(variableSymbol);
         }
       }
     }
@@ -1425,7 +1423,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     final var program = symbolFactory.newProgram(ctx);
     checkAndDefineModuleScopedSymbol(program, ctx);
-    implementationPresentOrError.accept(ctx);
+    implementationPresentOrError.accept(program, ctx);
     //Should we now add in a "main program" method to hold the instruction blocks?
     final var newMainProgramMethod = symbolFactory.newMethod(ctx, "_main", program);
     //But record against the operation details as the Program Aggregate is registered again main ctx

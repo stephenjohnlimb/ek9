@@ -97,10 +97,11 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
   /**
    * Informed when a token have been consumed out of the Lexer.
    */
+  @SuppressWarnings("checkstyle:LambdaParameterName")
   @Override
   public void tokenConsumed(final Token token) {
 
-    final var line = tokens.computeIfAbsent(token.getLine(), k -> new ArrayList<>());
+    final var line = tokens.computeIfAbsent(token.getLine(), _ -> new ArrayList<>());
     line.add(new Ek9Token(token));
 
   }
@@ -146,6 +147,18 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
 
     return this.compilationUnitContext == null;
   }
+
+  /**
+   * Marked as external module. i.e. Compiler will not generate code for this.
+   */
+  public boolean isExtern() {
+    return getCompilationUnitContext().moduleDeclaration().EXTERN() != null;
+  }
+
+  public boolean isNotExtern() {
+    return !isExtern();
+  }
+
 
   @Override
   public boolean isDev() {

@@ -12,6 +12,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 
 public @interface Ek9Construct {
-  String construct();
   String value();
 }

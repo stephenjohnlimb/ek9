@@ -15,9 +15,9 @@ class StringExampleTest {
 
   @Test
   void testCreation() {
-    final var example1 = StringExample.of("SomeValue");
+    final var example1 = StringExample._of("SomeValue");
     assertNotNull(example1);
-    final var example1JavaString = StringExample.from(example1);
+    final var example1JavaString = StringExample._from(example1);
     assertEquals("SomeValue", example1JavaString);
 
     final var asUpperCase = example1.upperCase();
@@ -27,10 +27,10 @@ class StringExampleTest {
 
   @Test
   void testMethodCall() {
-    final var example1 = StringExample.of("SomeValue");
+    final var example1 = StringExample._of("SomeValue");
 
     final var asUpperCase = example1.upperCase();
-    assertEquals("SOMEVALUE", StringExample.from(asUpperCase));
+    assertEquals("SOMEVALUE", StringExample._from(asUpperCase));
 
   }
 }
