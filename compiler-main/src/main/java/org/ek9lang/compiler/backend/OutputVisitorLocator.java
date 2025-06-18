@@ -12,14 +12,11 @@ public final class OutputVisitorLocator implements Function<ConstructTargetTuple
   @Override
   public INodeVisitor apply(final ConstructTargetTuple constructTargetTuple) {
     return switch (constructTargetTuple.compilerFlags().getTargetArchitecture()) {
-      case LLVM:
-        yield new org.ek9lang.compiler.backend.llvm.OutputVisitor(constructTargetTuple);
-      case JVM:
-        yield new org.ek9lang.compiler.backend.jvm.OutputVisitor(constructTargetTuple);
-      case NOT_SUPPORTED:
-        throw new CompilerException(
-            "Target architecture " + constructTargetTuple.compilerFlags().getTargetArchitecture()
-                + " is not supported");
+      case LLVM -> new org.ek9lang.compiler.backend.llvm.OutputVisitor(constructTargetTuple);
+      case JVM -> new org.ek9lang.compiler.backend.jvm.OutputVisitor(constructTargetTuple);
+      case NOT_SUPPORTED -> throw new CompilerException(
+          "Target architecture " + constructTargetTuple.compilerFlags().getTargetArchitecture()
+              + " is not supported");
     };
   }
 

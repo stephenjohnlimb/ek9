@@ -26,13 +26,10 @@ public class OutputFileLocator implements Supplier<BiFunction<Construct, String,
   public BiFunction<Construct, String, File> get() {
 
     return switch (compilerFlags.getTargetArchitecture()) {
-      case LLVM:
-        yield new org.ek9lang.compiler.backend.llvm.OutputFileAccess(fileHandling, compilerFlags);
-      case JVM:
-        yield new org.ek9lang.compiler.backend.jvm.OutputFileAccess(fileHandling, compilerFlags);
-      case NOT_SUPPORTED:
-        throw new CompilerException(
-            "Target architecture " + compilerFlags.getTargetArchitecture() + " is not supported");
+      case LLVM -> new org.ek9lang.compiler.backend.llvm.OutputFileAccess(fileHandling, compilerFlags);
+      case JVM -> new org.ek9lang.compiler.backend.jvm.OutputFileAccess(fileHandling, compilerFlags);
+      case NOT_SUPPORTED -> throw new CompilerException(
+          "Target architecture " + compilerFlags.getTargetArchitecture() + " is not supported");
     };
   }
 

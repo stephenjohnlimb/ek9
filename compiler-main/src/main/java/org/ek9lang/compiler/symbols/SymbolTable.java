@@ -201,10 +201,11 @@ public class SymbolTable implements IScope {
    * each of those has a map with a list of symbols of the same name.
    * So this means we can handle multiple methods with same name but different signatures.
    */
+  @SuppressWarnings("checkstyle:LambdaParameterName")
   private void addToSplitSymbols(final ISymbol symbol) {
     Map<String, List<ISymbol>> table =
-        splitSymbols.computeIfAbsent(symbol.getCategory(), k -> new HashMap<>());
-    List<ISymbol> list = table.computeIfAbsent(symbol.getName(), k -> new ArrayList<>());
+        splitSymbols.computeIfAbsent(symbol.getCategory(), _ -> new HashMap<>());
+    List<ISymbol> list = table.computeIfAbsent(symbol.getName(), _ -> new ArrayList<>());
     if (!symbol.getCategory().equals(SymbolCategory.METHOD) && list.contains(symbol)) {
       throw new CompilerException(
           "Compiler Coding Error - Duplicate symbol [" + symbol + "] try to add to [" + this.scopeName + "]");
@@ -368,17 +369,11 @@ public class SymbolTable implements IScope {
     final var searchType = search.getSearchType();
 
     return switch (searchType) {
-      case METHOD:
-        yield byMethod(symbolList, search);
-      case FUNCTION, TEMPLATE_TYPE, TEMPLATE_FUNCTION, ANY:
-        yield byFirstInList(symbolList);
-      case TYPE:
-        yield byType(symbolList, search);
-      case VARIABLE:
-        yield byVariable(symbolList, search);
-      case CONTROL:
-        //You can never locate controls. Well not yet; and I don't think we will need to.
-        yield Optional.empty();
+      case METHOD -> byMethod(symbolList, search);
+      case FUNCTION, TEMPLATE_TYPE, TEMPLATE_FUNCTION, ANY -> byFirstInList(symbolList);
+      case TYPE -> byType(symbolList, search);
+      case VARIABLE -> byVariable(symbolList, search);
+      case CONTROL -> Optional.empty();
     };
   }
 
@@ -420,7 +415,7 @@ public class SymbolTable implements IScope {
   private Function<List<ISymbol>, Optional<ISymbol>> getCheckAndSelectFirstItem() {
     return symbols -> {
       AssertValue.checkRange("Expecting a Single result in the symbol table", symbols.size(), 1, 1);
-      return Optional.of(symbols.get(0));
+      return Optional.of(symbols.getFirst());
     };
   }
 

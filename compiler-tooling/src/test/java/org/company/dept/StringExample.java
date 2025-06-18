@@ -1,7 +1,7 @@
 package org.company.dept;
 
 
-import org.ek9tooling.Ek9Construct;
+import org.ek9tooling.Ek9Class;
 import org.ek9tooling.Ek9Constructor;
 import org.ek9tooling.Ek9Method;
 
@@ -14,10 +14,10 @@ import org.ek9tooling.Ek9Method;
  * This is like a C header and the jar is like the "*.so"/"*.a", but the header is built
  * into the jar/library and can be extracted.
  */
-@Ek9Construct("class")
+@Ek9Class
 public class StringExample {
 
-  private java.lang.String value;
+  private String value;
 
   @Ek9Constructor("StringExample() as pure")
   public StringExample() {
@@ -35,15 +35,15 @@ public class StringExample {
   }
 
 
-  private StringExample(final java.lang.String value) {
+  private StringExample(final String value) {
     this.value = value;
   }
 
-  public static StringExample _of(final java.lang.String value) {
+  public static StringExample _of(final String value) {
     return new StringExample(value);
   }
 
-  public static java.lang.String _from(final StringExample string) {
+  public static String _from(final StringExample string) {
     return string.value;
   }
 }

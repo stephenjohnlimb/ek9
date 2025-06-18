@@ -6,11 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * To be used to annotate a public Java field/property that can be exposed as an EK9 record property or enum value.
+ * To be used to annotate a Java class that can be exposed as an EK9 application.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target(ElementType.TYPE)
 
-public @interface Ek9Property {
-  String value() default "fieldName";
+public @interface Ek9Application {
+  String value() default "className";
 }

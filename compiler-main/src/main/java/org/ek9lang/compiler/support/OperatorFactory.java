@@ -96,20 +96,15 @@ public class OperatorFactory {
     final var booleanType = aggregateManipulator.resolveBoolean(aggregate);
     final var jsonType = aggregateManipulator.resolveJson(aggregate);
     final var rtn = switch (operator) {
-      case "<", "<=", ">", ">=", "==", "<>":
-        yield aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, operator, booleanType);
-      case "<=>":
-        yield aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, operator, integerType);
-      case "?":
-        yield aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, booleanType);
-      case "$":
-        yield aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, stringType);
-      case "$$":
-        yield aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, jsonType);
-      case "#?":
-        yield aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, integerType);
-      default:
-        yield null;
+      case "<", "<=", ">", ">=", "==", "<>" ->
+          aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, operator, booleanType);
+      case "<=>" ->
+          aggregateManipulator.createPureAcceptSameTypeOperatorAndReturnType(aggregate, operator, integerType);
+      case "?" -> aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, booleanType);
+      case "$" -> aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, stringType);
+      case "$$" -> aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, jsonType);
+      case "#?" -> aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, integerType);
+      default -> null;
     };
 
     if (rtn != null) {

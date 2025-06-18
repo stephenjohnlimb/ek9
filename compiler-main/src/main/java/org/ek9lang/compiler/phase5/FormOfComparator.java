@@ -24,10 +24,8 @@ class FormOfComparator implements Predicate<EK9Parser.ExpressionContext> {
   private boolean isASortOfComparisonOperator(final String op) {
 
     return switch (op) {
-      case "<", "<=", ">", ">=", "==", "<>", "!=", "<=>", "<~>", "matches", "contains", "?":
-        yield true;
-      default:
-        yield false;
+      case "<", "<=", ">", ">=", "==", "<>", "!=", "<=>", "<~>", "matches", "contains", "?" -> true;
+      default -> false;
     };
 
   }

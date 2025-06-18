@@ -16,12 +16,10 @@ public class TargetLocator implements Function<TargetArchitecture, Target> {
   public Target apply(final TargetArchitecture targetArchitecture) {
 
     return switch (targetArchitecture) {
-      case LLVM:
-        yield new LlvmTarget();
-      case JVM:
-        yield new JvmTarget();
-      case NOT_SUPPORTED:
-        throw new CompilerException("Target architecture " + targetArchitecture + " is not supported");
+      case LLVM -> new LlvmTarget();
+      case JVM -> new JvmTarget();
+      case NOT_SUPPORTED ->
+          throw new CompilerException("Target architecture " + targetArchitecture + " is not supported");
     };
   }
 }

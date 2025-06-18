@@ -5,6 +5,7 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.N
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.ExternallyImplemented;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -15,6 +16,9 @@ import org.ek9lang.compiler.symbols.VariableSymbol;
  */
 final class VariableOnlyOrError extends TypedSymbolAccess
     implements Consumer<EK9Parser.VariableOnlyDeclarationContext> {
+
+  private final ExternallyImplemented externallyImplemented = new ExternallyImplemented();
+
   VariableOnlyOrError(final SymbolsAndScopes symbolsAndScopes,
                       final ErrorListener errorListener) {
 
@@ -40,6 +44,12 @@ final class VariableOnlyOrError extends TypedSymbolAccess
    * If not then that's an error.
    */
   private void propertyInitialisedOrError(final ISymbol variable) {
+
+    //Might be part of an 'extern' module, where the field/property is declared but not assigned.
+    //This is fine for an 'extern' declaration as the implementation will have actually dealt with it.
+    if (externallyImplemented.test(variable)) {
+      return;
+    }
 
     if (variable.isPropertyField() && !variable.isInitialised()) {
       errorListener.semanticError(variable.getSourceToken(), "'" + variable.getFriendlyName() + ":", NEVER_INITIALISED);

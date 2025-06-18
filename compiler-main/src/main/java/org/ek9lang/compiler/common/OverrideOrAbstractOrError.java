@@ -8,6 +8,8 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  */
 public class OverrideOrAbstractOrError extends RuleSupport implements Consumer<MethodSymbol> {
 
+  private final ExternallyImplemented externallyImplemented = new ExternallyImplemented();
+
   /**
    * Create new checker.
    */
@@ -21,8 +23,14 @@ public class OverrideOrAbstractOrError extends RuleSupport implements Consumer<M
   @Override
   public void accept(final MethodSymbol methodSymbol) {
 
+    //If this method is externally defined package/code then no need to check this.
+    if (externallyImplemented.test(methodSymbol)) {
+      return;
+    }
+
     if (methodSymbol.isMarkedAbstract() && methodSymbol.isOverride()) {
       //This makes no sense to define a method abstract and also say it overrides something.
+
       errorListener.semanticError(methodSymbol.getSourceToken(), "",
           ErrorListener.SemanticClassification.OVERRIDE_AND_ABSTRACT);
     }

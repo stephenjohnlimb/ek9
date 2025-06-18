@@ -3,8 +3,11 @@ package org.ek9tooling;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -14,23 +17,55 @@ import java.util.stream.Collectors;
  */
 public class ClassLister {
 
+  /**
+   * Set of valid Ek9 constructs.
+   */
+  private final Set<Class<? extends Annotation>> ek9Constructs = Set.of(
+      Ek9Application.class,
+      Ek9Class.class,
+      Ek9Component.class,
+      Ek9Function.class,
+      Ek9Package.class,
+      Ek9Program.class,
+      Ek9Record.class,
+      Ek9Service.class,
+      Ek9Text.class,
+      Ek9Trait.class,
+      Ek9EnumType.class,
+      Ek9ConstrainedType.class
+  );
+
 
   @SuppressWarnings("checkstyle:LambdaParameterName")
-  public Map<String, Map<String, Class<?>>> findByConstruct(final Map<String, Class<?>> allInPackage) {
+  public Map<Class<?>, Map<String, Class<?>>> findByConstruct(final Map<String, Class<?>> allInPackage) {
 
-    final HashMap<String, Map<String, Class<?>>> rtn = new HashMap<>();
+    final HashMap<Class<?>, Map<String, Class<?>>> rtn = new HashMap<>();
     for (var construct : allInPackage.entrySet()) {
       //Might not be a construct could be the package level (i.e. the module).
-      final var possibleConstruct = construct.getValue().getAnnotationsByType(Ek9Construct.class);
-      final var isConstruct = possibleConstruct.length == 1;
-      if (isConstruct) {
-        final var constructType = possibleConstruct[0].value();
+
+      final var possibleConstruct = ek9ConstructFromAnnotation(construct.getValue().getAnnotations());
+
+      possibleConstruct.ifPresent(constructType -> {
         final var constructMap = rtn.computeIfAbsent(constructType, _ -> new HashMap<>());
         constructMap.put(construct.getKey(), construct.getValue());
-      }
+      });
     }
 
     return rtn;
+  }
+
+  private Optional<Class<?>> ek9ConstructFromAnnotation(Annotation[] annotations) {
+    if (annotations == null) {
+      return Optional.empty();
+    }
+
+    for (var annotation : annotations) {
+      final var annotationType = annotation.annotationType();
+      if (ek9Constructs.contains(annotationType)) {
+        return Optional.of(annotationType);
+      }
+    }
+    return Optional.empty();
   }
 
   public Map<String, Class<?>> findAllClassesUsingClassLoader(String packageName) {
@@ -58,4 +93,5 @@ public class ClassLister {
       throw new RuntimeException("Failed to load class: " + name);
     }
   }
+
 }

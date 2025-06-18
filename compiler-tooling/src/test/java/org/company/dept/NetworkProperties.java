@@ -1,9 +1,9 @@
 package org.company.dept;
 
-import org.ek9tooling.Ek9Construct;
 import org.ek9tooling.Ek9Constructor;
 import org.ek9tooling.Ek9Operator;
 import org.ek9tooling.Ek9Property;
+import org.ek9tooling.Ek9Record;
 
 /**
  * Needs to map to EK9 record construct.
@@ -13,17 +13,23 @@ import org.ek9tooling.Ek9Property;
    host as StringExample: StringExample()
 
    operator $ as pure
-     &lt;- rtn as StringExample?
+     &lt;- rtn as String?
  </pre>
  */
-@Ek9Construct("record")
+@Ek9Record
 public class NetworkProperties {
 
   /**
    * For records all properties are public and so have to be declared and hence accessible.
    */
-  @Ek9Property("host as StringExample: StringExample()")
+  @Ek9Property("host as StringExample?")
   public StringExample host = new StringExample();
+
+  @Ek9Property("port as Integer?")
+  public Integer port;
+
+  @Ek9Property("packetSize as Integer?")
+  public Integer packetSize;
 
   @Ek9Constructor("NetworkProperties() as pure")
   public NetworkProperties() {
@@ -35,10 +41,9 @@ public class NetworkProperties {
    */
   @Ek9Operator("""
       operator $ as pure
-        <- rtn as String?
-      """)
-  public StringExample _string() {
-    return StringExample._of("Any Value");
+        <- rtn as String?""")
+  public String _string() {
+    return "Any Value";
   }
 
 }

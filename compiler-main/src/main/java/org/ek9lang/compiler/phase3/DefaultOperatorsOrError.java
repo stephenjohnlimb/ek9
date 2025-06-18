@@ -65,11 +65,12 @@ final class DefaultOperatorsOrError extends TypedSymbolAccess implements Consume
 
   }
 
+  @SuppressWarnings("checkstyle:LambdaParameterName")
   private void propertiesAreNotDelegatesOrError(final AggregateSymbol aggregateSymbol,
                                                 final List<MethodSymbol> operators) {
 
 
-    final Consumer<ISymbol> propertyOperatorError = property -> operators.stream()
+    final Consumer<ISymbol> propertyOperatorError = _ -> operators.stream()
         .filter(operator -> !"?".equals(operator.getName()))
         .forEach(operator -> errorListener.semanticError(operator.getSourceToken(), "",
             FUNCTION_DELEGATE_WITH_DEFAULT_OPERATORS));
@@ -156,6 +157,7 @@ final class DefaultOperatorsOrError extends TypedSymbolAccess implements Consume
 
   }
 
+  @SuppressWarnings("checkstyle:LambdaParameterName")
   private void checkToJsonSupportableIfRequired(final AggregateSymbol aggregateSymbol,
                                                 final List<MethodSymbol> operators) {
 
@@ -164,7 +166,7 @@ final class DefaultOperatorsOrError extends TypedSymbolAccess implements Consume
         .stream()
         .filter(operator -> "$$".equals(operator.getName()))
         .findFirst()
-        .ifPresent(toJSON -> noDuplicatedPropertyNamesOrError.accept(aggregateSymbol));
+        .ifPresent(_ -> noDuplicatedPropertyNamesOrError.accept(aggregateSymbol));
 
   }
 
@@ -177,10 +179,8 @@ final class DefaultOperatorsOrError extends TypedSymbolAccess implements Consume
   private boolean isASortOfComparisonOperator(final MethodSymbol operator) {
 
     return switch (operator.getName()) {
-      case "<", "<=", ">", ">=", "==", "<>", "<=>":
-        yield true;
-      default:
-        yield false;
+      case "<", "<=", ">", ">=", "==", "<>", "<=>" -> true;
+      default -> false;
     };
 
   }

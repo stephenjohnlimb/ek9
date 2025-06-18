@@ -1,29 +1,140 @@
 #!ek9
+<?-
+  Reverse engineered from Java package.
+  Do not manually edit.
+-?>
 defines extern module org.company.dept
 
-  defines program
+  defines package
 
-    Program1()
+    publicAccess <- true
+    version <- 3.2.1-0
+    description <- "Example of handy tools"
+    license <- "MIT"
 
-  defines class
+    tags <- [
+      "general",
+      "tools"
+      ]
 
-    StringExample
+  defines type
 
-      StringExample() as pure
+    CardRank
+      Two
+      Three
+      Four
+      Five
+      Six
+      Seven
+      Eight
+      Nine
+      Ten
+      Jack
+      Queen
+      King
+      Ace
 
-      upperCase() as pure
-        <- rtn as StringExample?
+    CardSuit
+      Hearts
+      Diamonds
+      Clubs
+      Spades
+
+    EmployeeId as Integer constrain
+      > 0
+
+  defines text for "de"
+
+    WelcomePageText
+      namedWelcome()
+        -> name String
+        ``
+
+
+  defines text for "en_GB"
+
+    WelcomePageText
+      namedWelcome()
+        -> name String
+        ``
+
+
+  defines trait
+
+    CostAssessment
+      lowCost() as pure
+        <- rtn as Boolean?
+
+
+    Monitorable
+      available() as pure
+        <- rtn as Boolean?
+
+      lowCost() as pure
+        <- rtn as Boolean?
+
+
+    Processor with trait of Monitorable, CostAssessment
+      override lowCost() as pure
+        <- rtn as Boolean?
+
+      process() as pure
+        <- rtn as Boolean?
+
 
   defines record
 
     NetworkProperties
+      host as StringExample?
 
-      host as StringExample: StringExample()
+      packetSize as Integer?
+
+      port as Integer?
 
       NetworkProperties() as pure
 
       operator $ as pure
         <- rtn as String?
+
+
+  defines function
+
+    MathOperation() as pure abstract
+      -> value as Float
+      <- result as Float?
+
+    Multiplier() as pure
+      <- value as Float?
+
+    Multiply() is MathOperation as pure
+      -> value as Float
+      <- result as Float?
+
+  defines class
+
+    General
+      General() as pure
+
+      operator ? as pure
+        <- rtn as Boolean?
+
+
+    StringExample
+      StringExample() as pure
+
+      upperCase() as pure
+        <- rtn as StringExample?
+
+
+  defines program
+
+    Program1()
+
+    Program2()
+      -> arg1 as String
+
+//EOF
+
 <!-
 #!ek9
 defines module introduction
