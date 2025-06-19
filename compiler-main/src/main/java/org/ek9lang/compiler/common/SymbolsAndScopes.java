@@ -62,6 +62,10 @@ public class SymbolsAndScopes {
 
   }
 
+  public boolean isExternallyImplemented() {
+    return parsedModule.isExternallyImplemented();
+  }
+
   public ModuleScope getModuleScope() {
 
     return parsedModule.getModuleScope();

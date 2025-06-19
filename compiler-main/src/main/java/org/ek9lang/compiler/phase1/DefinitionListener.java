@@ -90,6 +90,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   private final ValidPreFlowAndReturnOrError validPreFlowAndReturnOrError;
   private final ValidAggregateConstructorsOrError validAggregateConstructorsOrError;
   private final ProcessAsDispatcherIfNecessary processAsDispatcherIfNecessary = new ProcessAsDispatcherIfNecessary();
+  private final ApplicationBodyOrError applicationBodyOrError;
   private String currentTextBlockLanguage;
 
   /**
@@ -121,7 +122,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     applicationOnMethodOrError =
         new ApplicationOnMethodOrError(symbolsAndScopes, errorListener);
-
+    applicationBodyOrError = new ApplicationBodyOrError(symbolsAndScopes, errorListener);
     validParameterisedTypeOrError = new ValidParameterisedTypeOrError(errorListener);
 
     resolveOrDefineTypeDef = new ResolveOrDefineTypeDef(symbolsAndScopes, symbolFactory, errorListener, false);
@@ -441,6 +442,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterApplicationDeclaration(final EK9Parser.ApplicationDeclarationContext ctx) {
 
+    applicationBodyOrError.accept(ctx);
     checkAndDefineModuleScopedSymbol(symbolFactory.newApplication(ctx), ctx);
     super.enterApplicationDeclaration(ctx);
 

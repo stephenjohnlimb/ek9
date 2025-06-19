@@ -1,0 +1,17 @@
+#!ek9
+<?-
+  Reverse engineered from Java package.
+  Do not manually edit.
+-?>
+defines module bad.application.body
+
+  defines application
+
+    @Error: SYMBOL_DEFINITION: IMPLEMENTATION_MUST_BE_PROVIDED
+    DemoApp
+
+    SomeValidApp
+      name <- "Steve"
+      assert name?
+
+//EOF

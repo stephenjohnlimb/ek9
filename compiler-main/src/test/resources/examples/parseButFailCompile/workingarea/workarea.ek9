@@ -126,6 +126,10 @@ defines extern module org.company.dept
         <- rtn as StringExample?
 
 
+  defines application
+
+    DemoApp
+
   defines program
 
     Program1()

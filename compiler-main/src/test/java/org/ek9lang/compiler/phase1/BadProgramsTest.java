@@ -10,6 +10,6 @@ class BadProgramsTest extends BadSymbolDefinitionTest {
 
   public BadProgramsTest() {
     super("/examples/parseButFailCompile/badPrograms",
-        List.of("bad.program.return", "bad.argument.parameters"));
+        List.of("bad.program.return", "bad.argument.parameters", "bad.application.body"));
   }
 }

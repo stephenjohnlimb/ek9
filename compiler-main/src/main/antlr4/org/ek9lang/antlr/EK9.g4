@@ -147,8 +147,9 @@ serviceDeclaration
     : Identifier FOR? Uriproto AS? NL+ INDENT NL* (directive? (methodDeclaration | serviceOperationDeclaration))* DEDENT
     ;
 
+//While it seems strange to have an application with no body - this is needed for 'extern' definitions.
 applicationDeclaration
-    : Identifier (LPAREN RPAREN)? AS? NL+ INDENT NL* (directive? (blockStatement | registerStatement) NL+)+ DEDENT
+    : Identifier (LPAREN RPAREN)? (AS? NL+ INDENT NL* (directive? (blockStatement | registerStatement) NL+)+ DEDENT)?
     ;
 
 registerStatement
