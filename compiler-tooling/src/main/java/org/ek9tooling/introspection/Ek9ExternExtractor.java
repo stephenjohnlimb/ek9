@@ -8,6 +8,7 @@ import org.ek9tooling.ClassLister;
 import org.ek9tooling.Ek9Application;
 import org.ek9tooling.Ek9Class;
 import org.ek9tooling.Ek9Component;
+import org.ek9tooling.Ek9Constants;
 import org.ek9tooling.Ek9Function;
 import org.ek9tooling.Ek9Package;
 import org.ek9tooling.Ek9Record;
@@ -59,6 +60,7 @@ public class Ek9ExternExtractor implements Function<String, Ek9InterfaceOrError>
         //This a logical order that I would typically lay out a module in.
 
         //Constants
+        new ConstantsIntrospector(printStream).accept(byConstructType.get(Ek9Constants.class));
 
         new TypeIntrospector(printStream).accept(byConstructType);
         new TextIntrospector(printStream).accept(byConstructType);

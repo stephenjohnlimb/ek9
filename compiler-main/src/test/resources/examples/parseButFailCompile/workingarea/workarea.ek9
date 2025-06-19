@@ -17,6 +17,12 @@ defines extern module org.company.dept
       "tools"
       ]
 
+  defines constant
+
+    MyPi <- 3.142
+    MyRoot2 <- 1.41421356237309504880
+    Mye <- 2.7182818284
+
   defines type
 
     CardRank
@@ -124,6 +130,25 @@ defines extern module org.company.dept
 
       upperCase() as pure
         <- rtn as StringExample?
+
+
+  defines component
+
+    OutputInterface as abstract
+      output() as pure
+        -> value as String
+
+
+    StderrInterface is OutputInterface
+      override output() as pure
+        -> value as String
+
+
+  defines service
+
+    Site :/site
+      index() as GET for :/index.html
+        <- response as HTTPResponse?
 
 
   defines application

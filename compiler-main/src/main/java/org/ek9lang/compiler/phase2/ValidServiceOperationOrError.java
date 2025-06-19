@@ -10,6 +10,7 @@ import static org.ek9lang.compiler.support.CommonValues.URI_PROTO;
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.ExternallyImplemented;
 import org.ek9lang.compiler.common.ProcessingBodyPresent;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
@@ -24,6 +25,7 @@ import org.ek9lang.core.AssertValue;
 final class ValidServiceOperationOrError extends RuleSupport
     implements BiConsumer<ServiceOperationSymbol, EK9Parser.ServiceOperationDeclarationContext> {
 
+  private final ExternallyImplemented externallyImplemented = new ExternallyImplemented();
   private final ProcessingBodyPresent processingBodyPresent = new ProcessingBodyPresent();
   private final ValidPathParameterOrError validPathParameterOrError;
   private final HttpAccessOrError httpAccessOrError;
@@ -158,7 +160,8 @@ final class ValidServiceOperationOrError extends RuleSupport
   private void testServiceBody(final ServiceOperationSymbol operation,
                                final EK9Parser.ServiceOperationDeclarationContext ctx) {
 
-    if (!processingBodyPresent.test(ctx.operationDetails())) {
+    //No requirement for body if the module is extern - i.e. the ek9 code is just a signature.
+    if (!externallyImplemented.test(operation) && !processingBodyPresent.test(ctx.operationDetails())) {
       errorListener.semanticError(operation.getSourceToken(), "",
           ErrorListener.SemanticClassification.SERVICE_WITH_NO_BODY_PROVIDED);
     }

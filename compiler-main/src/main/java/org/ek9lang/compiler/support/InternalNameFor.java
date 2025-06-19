@@ -2,10 +2,8 @@ package org.ek9lang.compiler.support;
 
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
-import org.ek9lang.core.Digest;
 
 /**
  * Given some sort of generic type a function or a type with a set of 'type parameters',
@@ -18,6 +16,8 @@ import org.ek9lang.core.Digest;
 public class InternalNameFor implements BiFunction<PossibleGenericSymbol, List<ISymbol>, String> {
   private final SameGenericConceptualParameters sameGenericConceptualParameters = new SameGenericConceptualParameters();
 
+  private final DecoratedName decoratedName = new DecoratedName();
+
   @Override
   public String apply(final PossibleGenericSymbol possibleGenericSymbol, final List<ISymbol> typeArguments) {
 
@@ -27,12 +27,12 @@ public class InternalNameFor implements BiFunction<PossibleGenericSymbol, List<I
 
     final var baseGenericType = getBaseGenericType(possibleGenericSymbol);
 
-    final var toDigest = baseGenericType.getFullyQualifiedName() + "_" + typeArguments
-        .stream()
-        .map(ISymbol::getFullyQualifiedName)
-        .collect(Collectors.joining("_"));
+    final var details = new InternalNameDetails(possibleGenericSymbol.getName(),
+        baseGenericType.getFullyQualifiedName(),
+        typeArguments.stream().map(ISymbol::getFullyQualifiedName).toList());
 
-    return "_" + possibleGenericSymbol.getName() + "_" + Digest.digest(toDigest);
+    return decoratedName.apply(details);
+
   }
 
   /**

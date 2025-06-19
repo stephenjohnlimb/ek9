@@ -24,6 +24,7 @@ public class ClassLister {
       Ek9Application.class,
       Ek9Class.class,
       Ek9Component.class,
+      Ek9Constants.class,
       Ek9Function.class,
       Ek9Package.class,
       Ek9Program.class,
