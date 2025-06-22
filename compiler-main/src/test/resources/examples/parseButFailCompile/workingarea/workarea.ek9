@@ -25,6 +25,10 @@ defines extern module org.company.dept
 
   defines type
 
+    EventHandler of StringExample
+    IteratorExample of StringExample
+    ListExample of StringExample
+
     CardRank
       Two
       Three
@@ -105,6 +109,9 @@ defines extern module org.company.dept
 
   defines function
 
+    EventHandler of type T
+      -> event as T
+
     MathOperation() as pure abstract
       -> value as Float
       <- result as Float?
@@ -123,6 +130,32 @@ defines extern module org.company.dept
 
       operator ? as pure
         <- rtn as Boolean?
+
+
+    IteratorExample of type T as abstract
+      IteratorExample() as pure
+        -> arg0 as T
+
+      IteratorExample() as pure
+
+      hasNext() as pure abstract
+        <- rtn as Boolean?
+
+      next() as abstract
+        <- rtn as T?
+
+      operator ? as pure
+        <- rtn as Boolean?
+
+
+    ListExample of type T as open
+      ListExample() as pure
+
+      ListExample() as pure
+        -> arg0 as T
+
+      iterator() as pure
+        <- rtn as IteratorExample of T?
 
 
     StringExample

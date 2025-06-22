@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import org.ek9tooling.Ek9ConstrainedType;
 import org.ek9tooling.Ek9EnumType;
+import org.ek9tooling.Ek9ParameterisedType;
 
 /**
  * Deals with both the constrained types and the enumeration types.
@@ -24,13 +25,27 @@ class TypeIntrospector extends Introspector implements Consumer<Map<Class<?>, Ma
   public void accept(final Map<Class<?>, Map<String, Class<?>>> constructs) {
     final var enums = constructs.get(Ek9EnumType.class);
     final var constrainedTypes = constructs.get(Ek9ConstrainedType.class);
+    final var parameterisedTypes = constructs.get(Ek9ParameterisedType.class);
 
     //If there are none of either then don;t output anything.
-    if ((enums == null || enums.isEmpty()) && (constrainedTypes == null || constrainedTypes.isEmpty())) {
+    if ((enums == null || enums.isEmpty())
+        && (constrainedTypes == null || constrainedTypes.isEmpty())
+        && (parameterisedTypes == null || parameterisedTypes.isEmpty())) {
       return;
     }
 
     printStream.printf("%n  defines type%n");
+
+    if (parameterisedTypes != null) {
+      parameterisedTypes.values().stream()
+          .map(cls -> cls.getAnnotationsByType(Ek9ParameterisedType.class))
+          .flatMap(Arrays::stream)
+          .map(Ek9ParameterisedType::value)
+          .sorted()
+          .forEach(declaration -> printStream.printf(formatFormalDeclaration(declaration)));
+
+      printStream.printf("%n");
+    }
 
     if (enums != null) {
       enums.keySet().stream().sorted()

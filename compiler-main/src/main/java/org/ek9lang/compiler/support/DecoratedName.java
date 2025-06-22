@@ -15,12 +15,12 @@ import org.ek9lang.core.Digest;
  *   So it can be run from the Java command line as follows (from the project root):
  * </p>
  * <pre>
- *   java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName List org.ek9.lang::List org.ek9.lang::String
+ *   java -cp ./compiler-main/target/classes
+ *   org.ek9lang.compiler.support.DecoratedName List org.ek9.lang::List org.ek9.lang::String
  *   # Response will be
  *   _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
  * </pre>
  */
-@SuppressWarnings("checkstyle:LineLength")
 public class DecoratedName implements Function<InternalNameDetails, String> {
 
   public static void main(String[] args) {

@@ -27,6 +27,7 @@ public class ClassLister {
       Ek9Constants.class,
       Ek9Function.class,
       Ek9Package.class,
+      Ek9ParameterisedType.class,
       Ek9Program.class,
       Ek9Record.class,
       Ek9Service.class,
@@ -74,14 +75,27 @@ public class ClassLister {
         .getResourceAsStream(packageName.replaceAll("[.]", "/"));
 
     final Function<Class<?>, String> classToName = Class::getCanonicalName;
+
     if (stream != null) {
       BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
       return reader.lines()
           .filter(line -> line.endsWith(".class"))
           .map(line -> getClass(line, packageName))
+          .filter(this::usableClass)
           .collect(Collectors.toMap(classToName, Function.identity()));
     }
     return new HashMap<>();
+  }
+
+  /**
+   * Never process any inner Java classes.
+   * Those can never be used via EK9
+   */
+  private Boolean usableClass(Class<?> cls) {
+    final var name = cls.getCanonicalName();
+
+    return name != null && !name.contains("$");
+
   }
 
   @SuppressWarnings({"java:S112", "checkstyle:CatchParameterName"})
