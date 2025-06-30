@@ -85,7 +85,11 @@ public class Ek9LanguageBootStrap implements Supplier<SharedThreadContext<Compil
   @SuppressWarnings("java:S106")
   private void displaySources(final Workspace workspace) {
 
-    workspace.getSources().stream().map(CompilableSource::getSourceAsStringForDebugging).forEach(reporter::report);
+    workspace
+        .getSources()
+        .stream()
+        .map(CompilableSource::getSourceAsStringForDebugging)
+        .forEach(reporter::report);
 
   }
 }

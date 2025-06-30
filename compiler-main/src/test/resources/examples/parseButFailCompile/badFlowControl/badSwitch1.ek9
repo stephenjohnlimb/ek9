@@ -49,8 +49,6 @@ defines module bad.switchtypes1
         @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
         case someCallWrongType()
           resultText: "Errors here, due to a Boolean return"
-        case contains 13
-          resultText: "Nice"
         case < 12
           resultText: "Moderate"
         case > 10*multiplier

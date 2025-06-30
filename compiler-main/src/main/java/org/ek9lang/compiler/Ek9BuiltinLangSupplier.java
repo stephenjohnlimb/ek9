@@ -208,10 +208,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as String
 
             operator |
-              -> arg as String
-
-            operator |
-              -> arg as JSON
+              -> arg as Any
 
             operator +=
               -> arg as String
@@ -577,9 +574,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator ? as pure
               <- rtn as Boolean?
 
-            operator ~ as pure
-              <- rtn as Integer?
-
             operator + as pure
               -> arg as Integer
               <- rtn as Integer?
@@ -666,10 +660,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Integer
               <- rtn as Integer?
 
-            operator contains as pure
-              -> arg as Integer
-              <- rtn as Boolean?
-
             operator :~:
               -> arg as Integer
 
@@ -750,9 +740,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator ? as pure
               <- rtn as Boolean?
 
-            operator ~ as pure
-              <- rtn as Float?
-
             operator + as pure
               -> arg as Float
               <- rtn as Float?
@@ -789,7 +776,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Integer?
 
             operator #> as pure
-              <- rtn as Integer?
+              <- rtn as Float?
 
             operator abs as pure
               <- rtn as Float?

@@ -28,35 +28,6 @@
 
   <build>
     <finalName>ek9-tooling</finalName>
-
-    <plugins>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <header>EK9 compiler tooling</header>
-          <doctitle>
-            <![CDATA[<a href="https://ek9.io">EK9</a> ${project.name} ${project.version} API. Language details on <a href="https://ek9.io">EK9</a> website]]></doctitle>
-          <bottom><![CDATA[Copyright &#169; {inceptionYear}&#x2013;{currentYear} <a href="https://ek9.io">EK9</a>. All rights reserved.]]></bottom>
-          <keywords>true</keywords>
-          <quiet>true</quiet>
-          <destDir>${project.version}</destDir>
-          <doclint>all,-missing</doclint>
-          <source>${java.version}</source>
-          <release>${java.version}</release>
-          <additionalOptions>${jvm.options}</additionalOptions>
-          <show>package</show>
-          <groups>
-            <group>
-              <title>Compiler Tooling</title>
-              <packages>org.ek9tooling*</packages>
-            </group>
-          </groups>
-        </configuration>
-      </plugin>
-
-    </plugins>
   </build>
 
 </project>

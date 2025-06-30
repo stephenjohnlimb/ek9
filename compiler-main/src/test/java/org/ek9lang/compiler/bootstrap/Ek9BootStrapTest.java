@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class Ek9BootStrapTest {
+
   private final Ek9BuiltinLangSupplier sourceSupplier = new Ek9BuiltinLangSupplier();
   //If you need to see the errors here for debugging just alter the muteReportedError flag.
   private final CompilerReporter reporter = new CompilerReporter(false, false);
@@ -80,14 +81,14 @@ class Ek9BootStrapTest {
     // 'List of type T' because this T can be used inside that template type as if it were an actual type.
     //So it must resolve! But it's only a conceptual type within the class!
 
-    var scope = program.getParsedModules(moduleName).get(0).getModuleScope();
+    var scope = program.getParsedModules(moduleName).getFirst().getModuleScope();
     var resolver = new SimpleResolverForTesting(scope, true);
     var resolved = resolver.apply("List");
 
     resolved.ifPresentOrElse(listSymbol -> {
       if (listSymbol instanceof IAggregateSymbol list) {
         var resolvedT = list.resolve(new AnyTypeSymbolSearch("T"));
-        resolvedT.ifPresentOrElse(t -> {
+        resolvedT.ifPresentOrElse(_ -> {
         }, () -> Assertions.fail("Expecting 'T' to be found"));
       }
     }, () -> Assertions.fail("Expecting 'List' to be found"));

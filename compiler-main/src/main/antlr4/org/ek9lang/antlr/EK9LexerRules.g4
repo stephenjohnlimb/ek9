@@ -343,8 +343,8 @@ FloatingPointLiteral
 //Versions number must look like this major.minor.patch-buildNo is 3.2.1-9
 //Or look like this major.minor.patch-buildNo is 3.2.1-feature12-9 for a feature based version
 VersionNumberLiteral
-    : Digits ('.' Digits) ('.' Digits) ('-' Digits)
-    | Digits ('.' Digits) ('.' Digits) ('-' StringCharacter+ Digits* StringCharacter*) ('-' Digits)
+    : Digit+ ('.' Digit+) ('.' Digit+) ('-' Digit+)
+    | Digit+ ('.' Digit+) ('.' Digit+) ('-' StringCharacter+ Digits* StringCharacter*) ('-' Digit+)
     ;
 
 fragment

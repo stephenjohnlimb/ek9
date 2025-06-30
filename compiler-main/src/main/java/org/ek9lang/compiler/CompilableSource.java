@@ -40,6 +40,7 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
   // This is the full path to the filename.
   private final String filename;
 
+  private transient boolean suppliedInputStream;
   /**
    * For some resources like builtin.ek9 inside the jar we load from an inputStream.
    */
@@ -76,6 +77,7 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
 
     AssertValue.checkNotEmpty("Filename cannot be empty or null", filename);
     this.filename = filename;
+    suppliedInputStream = false;
     resetDetails();
 
   }
@@ -84,12 +86,13 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
    * Create a compilable source with a name, but provide the inputStream.
    * This is useful for internal supplied sources.
    */
-  public CompilableSource(final String filename, final InputStream inputStream) {
+  public CompilableSource(final String filename, final InputStream is) {
 
     AssertValue.checkNotEmpty("Filename cannot be empty or null", filename);
-    AssertValue.checkNotNull("InputStream cannot be empty or null", inputStream);
+    AssertValue.checkNotNull("InputStream cannot be empty or null", is);
     this.filename = filename;
-    this.inputStream = inputStream;
+    this.inputStream = is;
+    suppliedInputStream = true;
     resetDetails();
 
   }
@@ -276,6 +279,12 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
    */
   public String getSourceAsStringForDebugging() {
 
+    //Could have been given as an inputStream, which would be consumed, the tokens will not be
+    //empty if the inputStream has not yet been consumed.
+    if (suppliedInputStream && !tokens.isEmpty()) {
+      return "Original Source not available as 'built-in' supplied as inputStream.";
+    }
+
     final Processor<String> processor = () -> {
       StringBuilder builder = new StringBuilder("\n");
       int lineNo = 1;
@@ -308,12 +317,12 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
   /**
    * Prepare to parse but with a provided input stream of what to parse.
    */
-  public CompilableSource prepareToParse(final InputStream inputStream) {
+  public CompilableSource prepareToParse(final InputStream is) {
 
-    AssertValue.checkNotNull("InputStream cannot be null", inputStream);
+    AssertValue.checkNotNull("InputStream cannot be null", is);
     initialiseErrorListener();
 
-    final var spec = new ParserSpec(this::getGeneralIdentifier, inputStream, errorListener, this);
+    final var spec = new ParserSpec(this::getGeneralIdentifier, is, errorListener, this);
     parser = new ParserCreator().apply(spec);
 
     return this;

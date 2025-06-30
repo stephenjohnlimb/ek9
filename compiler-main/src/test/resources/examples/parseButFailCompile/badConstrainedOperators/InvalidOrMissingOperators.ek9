@@ -51,8 +51,6 @@ defines module bad.constrainedtypeoperators.examples1
           or
         (>=90 and <= 450)
           or
-        contains 66
-          or
         == 5000
       )
 

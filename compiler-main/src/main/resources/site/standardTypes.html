@@ -1148,7 +1148,6 @@ defines module introduction
 
       operator :~:
         -&gt; arg as CustomerRecord
-        &lt;- rtn as CustomerRecord: this
         id :=? String(arg.id)
         firstName :=? String(arg.firstName)
         lastName :=? String(arg.lastName)
@@ -1176,7 +1175,7 @@ defines module introduction
       The <u>merge</u> <i>operator</i> is used to 'merge' the <u>stdin</u> partial <i>record</i> and the
       <u>named file</u> partial <i>record</i> into one fully populated <i>record</i>.
       The assignment coalescing operator is used in the merge. This only assigns the property/field if
-      it is currently <b>un set</b>. i.e it coalesces the field and the argument field.
+      it is currently <b>un set</b>. i.e. it coalesces the field and the argument field.
     </p>
     <h5>operator $</h5>
     <p>
