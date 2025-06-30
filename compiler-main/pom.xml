@@ -107,6 +107,7 @@
           <bottom><![CDATA[Copyright &#169; {inceptionYear}&#x2013;{currentYear} <a href="https://ek9.io">EK9</a>. All rights reserved.]]></bottom>
           <keywords>true</keywords>
           <quiet>true</quiet>
+          <skip>false</skip>
           <destDir>${project.version}</destDir>
           <doclint>all,-missing</doclint>
           <source>${java.version}</source>
