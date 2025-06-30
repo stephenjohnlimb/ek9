@@ -163,17 +163,10 @@ public class Integer extends BuiltinType {
         <- rtn as Integer?""")
   public Integer _fac() {
     Integer rtn = _new();
-    if (isSet) {
-
-      //calc the factorial of this current state and return a new Integer.
-      if (this.state < 0) {
-        final var val = -1 * factorial(this.state * -1);
-        rtn.assign(val);
-      } else {
-        final var val = factorial(this.state);
-        rtn.assign(val);
-      }
+    if (isSet && this.state >= 0) {
+      rtn.assign(factorial(this.state));
     }
+
     return rtn;
   }
 
@@ -514,7 +507,7 @@ public class Integer extends BuiltinType {
 
   /**
    * Handy when you want to set the arg inside a function, normal := just alters the object you point to
-   * This, sets the underlying data so used more like a holder i.e copy/clone.
+   * This, sets the underlying data so used more like a holder i.e. copy/clone.
    *
    * @param arg The arg to set this to.
    */
@@ -533,16 +526,7 @@ public class Integer extends BuiltinType {
       operator |
         -> arg as Integer""")
   public void _pipe(Integer arg) {
-    //For pipe we can accept incoming even if not set
-    //Then default to initial arg and accumulate the incoming.
-
-    if (!isSet && isValid(arg)) {
-      assign(0);
-    }
-
-    if (isValid(arg)) {
-      assign(state + arg.state);
-    }
+    _merge(arg);
   }
 
   @Ek9Operator("""

@@ -31,8 +31,11 @@ class IntegerTest extends Common {
     final var unset2 = Integer._of((java.lang.String) null);
     assertUnset.accept(unset2);
 
-    assertSet.accept(i0);
-    assertEquals(0, i0.state);
+    final var unset3 = new Integer(new String());
+    assertUnset.accept(unset3);
+
+    final var checkZero = new Integer(String._of("0"));
+    assertEquals(0, checkZero.state);
 
     assertSet.accept(i1);
     assertEquals(1, i1.state);
@@ -40,7 +43,6 @@ class IntegerTest extends Common {
     assertSet.accept(i2);
     assertEquals(2, i2.state);
 
-    assertSet.accept(i3);
     assertSet.accept(i3);
     assertEquals(3L, i3.state);
 
@@ -52,8 +54,9 @@ class IntegerTest extends Common {
     assertSet.accept(again3);
     assertEquals(3L, again3.state);
 
-    assertSet.accept(i4);
-    assertEquals(4L, i4.state);
+    final var check4 = new Integer(i4);
+    assertSet.accept(check4);
+    assertEquals(i4, check4);
   }
 
   @Test
@@ -174,6 +177,52 @@ class IntegerTest extends Common {
     assertEquals(unset, i0._div(unset));
     assertEquals(unset, unset._div(i2));
 
+    assertEquals(i2, i1._inc());
+    assertEquals(unset, unset._inc());
+
+    assertEquals(iMinus1, i0._dec());
+    assertEquals(unset, unset._dec());
+
+  }
+
+  @Test
+  void testFloatingPointMathematics() {
+
+    //Sqrt
+    assertUnset.accept(unset._sqrt());
+    assertEquals(i2._promote(), i4._sqrt());
+    assertEquals(unset._promote(), i0._sqrt());
+
+    //Pow
+    assertEquals(unset._promote(), i2._pow(unset));
+    assertEquals(i2._promote(), i2._pow(i1));
+    assertEquals(i4._promote(), i2._pow(i2));
+
+    assertEquals(unset._promote(), i2._pow(unset._promote()));
+    assertEquals(i2._promote(), i2._pow(i1._promote()));
+    assertEquals(i4._promote(), i2._pow(i2._promote()));
+
+    //Addition
+    assertEquals(iMinus1._promote(), i0._add(iMinus1._promote()));
+    assertEquals(i0._promote(), i1._add(iMinus1._promote()));
+    assertEquals(i0._promote(), iMinus1._add(i1._promote()));
+
+    assertEquals(unset._promote(), unset._add(i1._promote()));
+    assertEquals(unset._promote(), i0._add(unset._promote()));
+
+    //Specific calculations
+    assertEquals(Float._of(2.456), i1._add(Float._of(1.456)));
+
+    assertEquals(Float._of(-0.4), i1._sub(Float._of(1.400)));
+    assertEquals(unset._promote(), i0._sub(unset._promote()));
+
+    assertEquals(Float._of(2.8), i2._mul(Float._of(1.400)));
+    assertEquals(unset._promote(), i0._mul(unset._promote()));
+
+    assertEquals(Float._of(0.9955201592832256), i2._div(Float._of(2.0090)));
+    assertEquals(Float._of(1.9999999999999998E15), i2._div(Float._of(0.000000000000001)));
+    assertEquals(unset._promote(), i0._div(unset._promote()));
+
   }
 
   @Test
@@ -185,6 +234,7 @@ class IntegerTest extends Common {
     assertEquals(String._of("1"), i1._string());
     assertEquals(String._of("-1"), iMinus1._string());
 
+    assertEquals("1", i1.toString());
   }
 
   @Test
@@ -225,6 +275,11 @@ class IntegerTest extends Common {
     assertEquals(i2, i2._abs());
     assertEquals(i2, iMinus2._abs());
     assertEquals(unset, unset._abs());
+
+    assertEquals(Integer._of(24L), i4._fac());
+    assertEquals(unset, iMinus2._fac());
+    assertEquals(i1, i0._fac());
+    assertEquals(unset, unset._fac());
   }
 
   @Test
@@ -250,6 +305,10 @@ class IntegerTest extends Common {
     assertUnset.accept(unset._or(i1));
     assertUnset.accept(unset._xor(i1));
 
+    assertUnset.accept(i1._and(unset));
+    assertUnset.accept(i1._or(unset));
+    assertUnset.accept(i1._xor(unset));
+
     assertEquals(i3, i1._or(i2));
     assertEquals(i3, i3._or(i2));
 
@@ -257,5 +316,87 @@ class IntegerTest extends Common {
     assertEquals(i0, i1._and(i2));
 
     assertEquals(i1, i3._xor(i2));
+    assertEquals(i4._negate(), iMinus2._xor(i2));
+    assertEquals(iMinus1, i2._xor(i3._negate()));
   }
+
+  @Test
+  void testModulusAndRemainder() {
+    assertUnset.accept(unset._mod(i1));
+    assertUnset.accept(unset._rem(i1));
+
+    assertUnset.accept(i1._mod(unset));
+    assertUnset.accept(i1._rem(unset));
+
+    assertEquals(i0, i1._rem(i1));
+    assertEquals(i0, i1._mod(i1));
+
+    //Firstly the negative case
+    final var charlie1 = Integer._of(-21);
+    //Remainder
+
+    assertEquals(iMinus1, charlie1._rem(i4));
+    assertEquals(iMinus1, charlie1._rem(i4._negate()));
+    //Modulus
+
+    assertEquals(i3, charlie1._mod(i4));
+    assertEquals(iMinus1, charlie1._mod(i4._negate()));
+
+    final var charlie2 = Integer._of(21);
+
+    //Remainder
+    assertEquals(i1, charlie2._rem(i4));
+    assertEquals(i1, charlie2._rem(i4._negate()));
+    //Modulus
+    assertEquals(i1, charlie2._mod(i4));
+    assertEquals(i3._negate(), charlie2._mod(i4._negate()));
+  }
+
+  @Test
+  void testPipeLogic() {
+
+    var mutatedInteger = new Integer();
+    assertEquals(unset, mutatedInteger);
+
+    mutatedInteger._pipe(unset);
+    assertEquals(unset, mutatedInteger);
+
+    mutatedInteger._pipe(i1);
+    assertEquals(i1, mutatedInteger);
+
+    //basically just keep adding
+    mutatedInteger._pipe(i2);
+    assertEquals(i3, mutatedInteger);
+
+    //Even if we pipe in something unset, for pipes this is ignored.
+    //This is the main different over addAssign. With that the result becomes unset.
+    //But with pipes you can pipe anything in.
+    mutatedInteger._pipe(unset);
+    assertEquals(i3, mutatedInteger);
+
+    //Now just show a negative being added.
+    mutatedInteger._pipe(i4._negate());
+    assertEquals(iMinus1, mutatedInteger);
+  }
+
+  @Test
+  void testReplaceAndCopyLogic() {
+
+    var mutatedInteger = Integer._of(0L);
+    assertEquals(i0, mutatedInteger);
+
+    mutatedInteger._replace(i1);
+    assertEquals(i1, mutatedInteger);
+
+    mutatedInteger._replace(i2);
+    assertEquals(i2, mutatedInteger);
+
+    mutatedInteger._replace(unset);
+    assertEquals(unset, mutatedInteger);
+
+    //Now just check that it can take a value after being unset
+    mutatedInteger._replace(i4);
+    assertEquals(i4, mutatedInteger);
+  }
+
 }
