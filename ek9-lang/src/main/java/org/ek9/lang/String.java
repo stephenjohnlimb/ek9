@@ -77,7 +77,8 @@ public class String extends BuiltinType implements Any {
         <- rtn as String?""")
   public String rightPadded(Integer totalWidth) {
     if (canProcess(totalWidth)) {
-      return String._of(java.lang.String.format("%-" + totalWidth.state + "s", this.state));
+      final var formatStr = "%-" + totalWidth.state + "s";
+      return String._of(java.lang.String.format(formatStr, this.state));
     }
     return _new();
   }
@@ -88,7 +89,8 @@ public class String extends BuiltinType implements Any {
         <- rtn as String?""")
   public String leftPadded(Integer totalWidth) {
     if (canProcess(totalWidth)) {
-      return String._of(java.lang.String.format("%" + totalWidth.state + "s", this.state));
+      final var formatStr = "%" + totalWidth.state + "s";
+      return String._of(java.lang.String.format(formatStr, this.state));
     }
     return _new();
   }
@@ -179,7 +181,7 @@ public class String extends BuiltinType implements Any {
         -> arg as String
         <- rtn as Integer?""")
   public Integer _fuzzy(String arg) {
-    if (arg == null || !arg.isSet || !isSet || this.state.isEmpty()) {
+    if (!this.canProcess(arg)) {
       return new Integer();
     }
 
@@ -201,12 +203,8 @@ public class String extends BuiltinType implements Any {
         <- rtn as String?""")
   public String _add(String arg) {
     String rtn = _new();
-    if (isSet) {
-      if (isValid(arg)) {
-        rtn.assign(this.state + arg.state);
-      } else {
-        rtn.assign(this.state);
-      }
+    if (canProcess(arg)) {
+      rtn.assign(state + arg.state);
     }
     return rtn;
   }
@@ -295,17 +293,7 @@ public class String extends BuiltinType implements Any {
       operator |
         -> arg as Any""")
   public void _pipe(Any arg) {
-    //For pipe we can accept incoming even if not set
-    //Then default to initial arg and accumulate the incoming.
-
-    final var argValueUsable = arg._isSet().isSet && arg._string().isSet;
-    if (!isSet && argValueUsable) {
-      assign("");
-    }
-
-    if (argValueUsable) {
-      assign(state + arg._string().state);
-    }
+    _merge(arg._string());
 
   }
 
@@ -315,6 +303,8 @@ public class String extends BuiltinType implements Any {
   public void _addAss(String value) {
     if (canProcess(value)) {
       assign(state + value.state);
+    } else {
+      unSet();
     }
   }
 
@@ -399,21 +389,27 @@ public class String extends BuiltinType implements Any {
     return rtn;
   }
 
-  public static String _of(String value) {
+  public static String _of(String arg) {
     String rtn = new String();
-    rtn.assign(value);
+    if (isValid(arg)) {
+      rtn.assign(arg);
+    }
     return rtn;
   }
 
-  public static String _of(Integer value) {
+  public static String _of(Integer arg) {
     String rtn = new String();
-    rtn.assign(value.state + "");
+    if (isValid(arg)) {
+      rtn.assign(arg.toString());
+    }
     return rtn;
   }
 
-  public static String _of(Float value) {
+  public static String _of(Float arg) {
     String rtn = new String();
-    rtn.assign(value.state + "");
+    if (isValid(arg)) {
+      rtn.assign(arg.toString());
+    }
     return rtn;
   }
 
