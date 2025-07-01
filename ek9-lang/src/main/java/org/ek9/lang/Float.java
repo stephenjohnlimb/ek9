@@ -365,7 +365,7 @@ public class Float extends BuiltinType {
       operator empty as pure
         <- rtn as Boolean?""")
   public Boolean _empty() {
-    //This is what is deemed to be empty, i.e as close to zero as possible where a arg is present.
+    //This is what is deemed to be empty, i.e. as close to zero as possible where an arg is present.
     Boolean rtn = new Boolean();
     if (isSet) {
       rtn.assign(nearEnoughToZero(state));
@@ -426,16 +426,7 @@ public class Float extends BuiltinType {
       operator |
         -> arg as Float""")
   public void _pipe(Float arg) {
-    //For pipe we can accept incoming even if not set
-    //Then default to initial arg and accumulate the incoming.
-
-    if (!isSet && isValid(arg)) {
-      assign(0);
-    }
-
-    if (isValid(arg)) {
-      assign(state + arg.state);
-    }
+    _merge(arg);
   }
 
   @Ek9Operator("""
@@ -444,6 +435,8 @@ public class Float extends BuiltinType {
   public void _addAss(Float arg) {
     if (canProcess(arg)) {
       assign(state + arg.state);
+    } else {
+      unSet();
     }
   }
 
@@ -453,6 +446,8 @@ public class Float extends BuiltinType {
   public void _addAss(Integer arg) {
     if (canProcess(arg)) {
       assign(state + arg.state);
+    } else {
+      unSet();
     }
   }
 
@@ -462,6 +457,8 @@ public class Float extends BuiltinType {
   public void _subAss(Float arg) {
     if (canProcess(arg)) {
       assign(state - arg.state);
+    } else {
+      unSet();
     }
   }
 
@@ -471,6 +468,8 @@ public class Float extends BuiltinType {
   public void _subAss(Integer arg) {
     if (canProcess(arg)) {
       assign(state - arg.state);
+    } else {
+      unSet();
     }
   }
 
@@ -480,6 +479,8 @@ public class Float extends BuiltinType {
   public void _mulAss(Float arg) {
     if (canProcess(arg)) {
       assign(state * arg.state);
+    } else {
+      unSet();
     }
   }
 
@@ -489,6 +490,8 @@ public class Float extends BuiltinType {
   public void _mulAss(Integer arg) {
     if (canProcess(arg)) {
       assign(state * arg.state);
+    } else {
+      unSet();
     }
   }
 
@@ -497,12 +500,14 @@ public class Float extends BuiltinType {
         -> arg as Float""")
   public void _divAss(Float arg) {
     if (canProcess(arg)) {
-      final var nearZero = _empty();
+      final var nearZero = arg._empty();
       if (nearZero.state || !nearZero.isSet) {
         unSet();
       } else {
         assign(state / arg.state);
       }
+    } else {
+      unSet();
     }
   }
 
@@ -511,12 +516,13 @@ public class Float extends BuiltinType {
         -> arg as Integer""")
   public void _divAss(Integer arg) {
     if (canProcess(arg)) {
-      final var nearZero = _empty();
-      if (nearZero.state || !nearZero.isSet) {
+      if (arg.state == 0) {
         unSet();
       } else {
         assign(state / arg.state);
       }
+    } else {
+      unSet();
     }
   }
 
@@ -554,6 +560,12 @@ public class Float extends BuiltinType {
   }
 
   public void assign(double arg) {
+
+    if (!Double.isFinite(arg)) {
+      unSet();
+      return;
+    }
+
     double before = state;
     boolean beforeIsValid = isSet;
     state = arg;
@@ -572,7 +584,8 @@ public class Float extends BuiltinType {
   }
 
   /**
-   * Compares within a threshold - for full math checking programmer should be checking within their own threshold limits and not using equals.
+   * Compares within a threshold.
+   * For full math checking programmer should be checking within their own threshold limits and not using equals.
    */
   @Override
   public boolean equals(Object obj) {
@@ -594,22 +607,30 @@ public class Float extends BuiltinType {
   }
 
   private boolean nearEnoughToZero(final double arg) {
-    return Math.abs(arg) < 0.0000000000001;
+    return Math.abs(arg) < 10E-323;
   }
 
+  @SuppressWarnings("checkstyle:CatchParameterName")
   public static Double parse(java.lang.String arg) {
-    try {
-      return Double.parseDouble(arg);
-    } catch (NumberFormatException ex) {
-      return null;
+    if (arg != null) {
+      try {
+        return Double.parseDouble(arg);
+      } catch (NumberFormatException _) {
+        //just respond with null
+      }
     }
+    return null;
+  }
+
+  public static Float _of(Float arg) {
+    return new Float(arg);
   }
 
   public static Float _of(java.lang.String arg) {
     Float rtn = new Float();
-    final var possiblearg = parse(arg);
-    if (possiblearg != null) {
-      rtn.assign(possiblearg);
+    final var possibleValue = parse(arg);
+    if (possibleValue != null) {
+      rtn.assign(possibleValue);
     }
     return rtn;
   }

@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.List;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 
 class IntegerTest extends Common {
@@ -213,7 +215,7 @@ class IntegerTest extends Common {
     //Specific calculations
     assertEquals(Float._of(2.456), i1._add(Float._of(1.456)));
 
-    assertEquals(Float._of(-0.4), i1._sub(Float._of(1.400)));
+    assertEquals(Float._of(-0.3999999999999999), i1._sub(Float._of(1.400)));
     assertEquals(unset._promote(), i0._sub(unset._promote()));
 
     assertEquals(Float._of(2.8), i2._mul(Float._of(1.400)));
@@ -223,6 +225,13 @@ class IntegerTest extends Common {
     assertEquals(Float._of(1.9999999999999998E15), i2._div(Float._of(0.000000000000001)));
     assertEquals(unset._promote(), i0._div(unset._promote()));
 
+    //Check division of small numbers by smaller numbers.
+    assertEquals(Float._of(1.0019913530064882E122), Float._of(10E-200)._div(Float._of(10E-322)));
+    //Check loss of precision leading to infinity.
+    assertEquals(unset._promote(), i2._div(Float._of(10E-322)));
+
+    //Divide by zero check
+    assertEquals(unset._promote(), i2._div(i0._promote()));
   }
 
   @Test
@@ -293,7 +302,7 @@ class IntegerTest extends Common {
     assertUnset.accept(unset._len());
     assertEquals(i1, i0._len());
     assertEquals(i1, i1._len());
-    //The length includes the minua sign.
+    //The length includes the minus sign.
     assertEquals(i2, iMinus1._len());
 
     assertEquals(i4, Integer._of(1234)._len());
@@ -355,48 +364,84 @@ class IntegerTest extends Common {
   @Test
   void testPipeLogic() {
 
-    var mutatedInteger = new Integer();
-    assertEquals(unset, mutatedInteger);
+    var mutatedValue = new Integer();
+    assertEquals(unset, mutatedValue);
 
-    mutatedInteger._pipe(unset);
-    assertEquals(unset, mutatedInteger);
+    mutatedValue._pipe(unset);
+    assertEquals(unset, mutatedValue);
 
-    mutatedInteger._pipe(i1);
-    assertEquals(i1, mutatedInteger);
+    mutatedValue._pipe(i1);
+    assertEquals(i1, mutatedValue);
 
     //basically just keep adding
-    mutatedInteger._pipe(i2);
-    assertEquals(i3, mutatedInteger);
+    mutatedValue._pipe(i2);
+    assertEquals(i3, mutatedValue);
 
     //Even if we pipe in something unset, for pipes this is ignored.
     //This is the main different over addAssign. With that the result becomes unset.
     //But with pipes you can pipe anything in.
-    mutatedInteger._pipe(unset);
-    assertEquals(i3, mutatedInteger);
+    mutatedValue._pipe(unset);
+    assertEquals(i3, mutatedValue);
 
     //Now just show a negative being added.
-    mutatedInteger._pipe(i4._negate());
-    assertEquals(iMinus1, mutatedInteger);
+    mutatedValue._pipe(i4._negate());
+    assertEquals(iMinus1, mutatedValue);
   }
+
+  private List<Consumer<Integer>> getIntegerAssignmentOperations(final Integer from) {
+    return List.of(from::_addAss, from::_subAss, from::_mulAss, from::_divAss);
+  }
+
+  @Test
+  void testMutationOperatorsWithUnsetInteger() {
+
+    final var mutatedValue = Integer._of(0);
+
+    for (var operator : getIntegerAssignmentOperations(mutatedValue)) {
+      operator.accept(new Integer());
+      assertEquals(unset, mutatedValue);
+      //Now set it back again for next time around loop.
+      mutatedValue._copy(i0);
+      assertEquals(i0, mutatedValue);
+    }
+  }
+
+  @Test
+  void testMutationOperators() {
+
+    final var mutatedValue = Integer._of(0);
+    mutatedValue._addAss(i1);
+    assertEquals(i1, mutatedValue);
+
+    mutatedValue._mulAss(i4);
+    assertEquals(i4, mutatedValue);
+
+    mutatedValue._divAss(i2);
+    assertEquals(i2, mutatedValue);
+
+    mutatedValue._subAss(i2);
+    assertEquals(i0, mutatedValue);
+  }
+
 
   @Test
   void testReplaceAndCopyLogic() {
 
-    var mutatedInteger = Integer._of(0L);
-    assertEquals(i0, mutatedInteger);
+    var mutatedValue = Integer._of(0L);
+    assertEquals(i0, mutatedValue);
 
-    mutatedInteger._replace(i1);
-    assertEquals(i1, mutatedInteger);
+    mutatedValue._replace(i1);
+    assertEquals(i1, mutatedValue);
 
-    mutatedInteger._replace(i2);
-    assertEquals(i2, mutatedInteger);
+    mutatedValue._replace(i2);
+    assertEquals(i2, mutatedValue);
 
-    mutatedInteger._replace(unset);
-    assertEquals(unset, mutatedInteger);
+    mutatedValue._replace(unset);
+    assertEquals(unset, mutatedValue);
 
     //Now just check that it can take a value after being unset
-    mutatedInteger._replace(i4);
-    assertEquals(i4, mutatedInteger);
+    mutatedValue._replace(i4);
+    assertEquals(i4, mutatedValue);
   }
 
 }

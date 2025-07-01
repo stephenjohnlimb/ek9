@@ -535,6 +535,8 @@ public class Integer extends BuiltinType {
   public void _addAss(Integer arg) {
     if (canProcess(arg)) {
       assign(state + arg.state);
+    } else {
+      unSet();
     }
   }
 
@@ -544,6 +546,8 @@ public class Integer extends BuiltinType {
   public void _subAss(Integer arg) {
     if (canProcess(arg)) {
       assign(state - arg.state);
+    } else {
+      unSet();
     }
   }
 
@@ -553,6 +557,8 @@ public class Integer extends BuiltinType {
   public void _mulAss(Integer arg) {
     if (canProcess(arg)) {
       assign(state * arg.state);
+    } else {
+      unSet();
     }
   }
 
@@ -566,6 +572,8 @@ public class Integer extends BuiltinType {
       } else {
         assign(state / arg.state);
       }
+    } else {
+      unSet();
     }
   }
 
