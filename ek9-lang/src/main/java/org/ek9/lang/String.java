@@ -294,7 +294,6 @@ public class String extends BuiltinType implements Any {
         -> arg as Any""")
   public void _pipe(Any arg) {
     _merge(arg._string());
-
   }
 
   @Ek9Operator("""
@@ -379,6 +378,13 @@ public class String extends BuiltinType implements Any {
       return this.state;
     }
     return "";
+  }
+
+  public static String _of(char value) {
+    String rtn = new String();
+    rtn.assign(value + "");
+
+    return rtn;
   }
 
   public static String _of(java.lang.String value) {

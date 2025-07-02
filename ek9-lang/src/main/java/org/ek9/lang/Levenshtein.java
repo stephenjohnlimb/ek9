@@ -12,7 +12,7 @@ public class Levenshtein {
     if (a == b) {
       return 0;
     }
-    if (Character.toLowerCase(a) == Character.toLowerCase(b)) {
+    if (java.lang.Character.toLowerCase(a) == java.lang.Character.toLowerCase(b)) {
       return 1;
     }
     return 2;

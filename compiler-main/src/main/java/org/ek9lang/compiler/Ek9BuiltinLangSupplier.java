@@ -436,7 +436,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             Character() as pure
 
             Character() as pure
-              -> arg0 as String
+              -> arg0 as Character
 
             upperCase() as pure
               <- rtn as Character?
