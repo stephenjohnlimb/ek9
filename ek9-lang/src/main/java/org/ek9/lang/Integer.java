@@ -566,15 +566,14 @@ public class Integer extends BuiltinType {
       operator /=
         -> arg as Integer""")
   public void _divAss(Integer arg) {
-    if (canProcess(arg)) {
-      if (arg.state == 0) {
-        unSet();
-      } else {
-        assign(state / arg.state);
-      }
-    } else {
-      unSet();
+
+    if (canProcess(arg) && arg.state != 0) {
+      assign(state / arg.state);
+      return;
     }
+
+    unSet();
+
   }
 
   @Ek9Operator("""

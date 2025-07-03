@@ -1,5 +1,8 @@
 package org.ek9.lang;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Built in type for ek9 constructs.
  * Has useful methods. All use '_' so there is no chance of any collisions with normal mthods.
@@ -41,6 +44,12 @@ public abstract class BuiltinType implements Any {
   protected Boolean validateConstraints() {
     //by default all is fine
     return Boolean._of(true);
+  }
+
+  protected boolean isBoundByDoubleQuotes(java.lang.String state) {
+    Pattern p = Pattern.compile("\"([^\"]*)\"");
+    Matcher m = p.matcher(state);
+    return m.find();
   }
 
   public static boolean isValid(BuiltinType value) {

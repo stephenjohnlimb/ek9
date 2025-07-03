@@ -223,13 +223,12 @@ public class Character extends BuiltinType {
   @Ek9Operator("""
       operator :=:
         -> arg as Character""")
-  public Character _copy(Character value) {
+  public void _copy(Character value) {
     if (isValid(value)) {
       assign(value);
     } else {
       unSet();
     }
-    return this;
   }
 
   @Ek9Operator("""

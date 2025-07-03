@@ -28,7 +28,7 @@ public class Date extends BuiltinType implements TemporalItem {
   public Date(String arg0) {
     unSet();
     if (isValid(arg0)) {
-      assign(java.time.LocalDate.parse(arg0.state));
+      parse(arg0.state).ifPresent(this::assign);
     }
   }
 
@@ -42,7 +42,6 @@ public class Date extends BuiltinType implements TemporalItem {
     }
   }
 
-
   @Ek9Constructor("""
       Date() as pure
         -> daysFromEpoch as Integer""")
@@ -53,13 +52,13 @@ public class Date extends BuiltinType implements TemporalItem {
     }
   }
 
-
   @SuppressWarnings("checkstyle:CatchParameterName")
   @Ek9Constructor("""
       Date() as pure
-        -> year as Integer
-        -> month as Integer
-        -> dayOfMonth as Integer""")
+        ->
+          year as Integer
+          month as Integer
+          dayOfMonth as Integer""")
   public Date(Integer year, Integer month, Integer dayOfMonth) {
     unSet();
     if (isValid(year) && isValid(month) && isValid(dayOfMonth)) {
@@ -321,13 +320,12 @@ public class Date extends BuiltinType implements TemporalItem {
   @Ek9Operator("""
       operator :=:
         -> arg as Date""")
-  public Date _copy(Date arg) {
+  public void _copy(Date arg) {
     if (isValid(arg)) {
       assign(arg.state);
     } else {
       unSet();
     }
-    return this;
   }
 
 
@@ -404,19 +402,25 @@ public class Date extends BuiltinType implements TemporalItem {
   public static Date _of(java.time.LocalDate value) {
     Date rtn = new Date();
     //make fresh copy
-    rtn.assign(java.time.LocalDate.parse(value.toString()));
+    parse(value.toString()).ifPresent(rtn::assign);
     return rtn;
   }
 
   @SuppressWarnings("checkstyle:CatchParameterName")
   public static Date _of(java.lang.String value) {
     Date rtn = new Date();
+    parse(value).ifPresent(rtn::assign);
+    return rtn;
+  }
+
+  @SuppressWarnings("checkstyle:CatchParameterName")
+  private static java.util.Optional<java.time.LocalDate> parse(java.lang.String arg) {
     try {
-      rtn.assign(java.time.LocalDate.parse(value));
+      return java.util.Optional.of(java.time.LocalDate.parse(arg));
     } catch (RuntimeException _) {
       //ignore and leave rtn unset
     }
-    return rtn;
+    return java.util.Optional.empty();
   }
 
 }
