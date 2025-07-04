@@ -209,8 +209,9 @@ public class Integer extends BuiltinType {
     Float rtn = arg._new();
     if (canProcess(arg)) {
       rtn.assign(this.state);
+      rtn._addAss(arg);
     }
-    rtn._addAss(arg);
+
     return rtn;
   }
 
@@ -222,8 +223,9 @@ public class Integer extends BuiltinType {
     Integer rtn = _new();
     if (canProcess(arg)) {
       rtn.assign(this.state);
+      rtn._subAss(arg);
     }
-    rtn._subAss(arg);
+
     return rtn;
   }
 
@@ -235,8 +237,9 @@ public class Integer extends BuiltinType {
     Float rtn = arg._new();
     if (canProcess(arg)) {
       rtn.assign(this.state);
+      rtn._subAss(arg);
     }
-    rtn._subAss(arg);
+
     return rtn;
   }
 
@@ -249,8 +252,9 @@ public class Integer extends BuiltinType {
     Integer rtn = _new();
     if (canProcess(arg)) {
       rtn.assign(this.state);
+      rtn._mulAss(arg);
     }
-    rtn._mulAss(arg);
+
     return rtn;
   }
 
@@ -263,8 +267,9 @@ public class Integer extends BuiltinType {
     Float rtn = arg._new();
     if (canProcess(arg)) {
       rtn.assign(this.state);
+      rtn._mulAss(arg);
     }
-    rtn._mulAss(arg);
+
     return rtn;
   }
 
@@ -277,8 +282,9 @@ public class Integer extends BuiltinType {
     Integer rtn = _new();
     if (canProcess(arg)) {
       rtn.assign(this.state);
+      rtn._divAss(arg);
     }
-    rtn._divAss(arg);
+
     return rtn;
   }
 
@@ -291,8 +297,9 @@ public class Integer extends BuiltinType {
     Float rtn = arg._new();
     if (canProcess(arg)) {
       rtn.assign(this.state);
+      rtn._divAss(arg);
     }
-    rtn._divAss(arg);
+
     return rtn;
   }
 

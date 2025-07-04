@@ -359,7 +359,65 @@ class IntegerTest extends Common {
     //Modulus
     assertEquals(i1, charlie2._mod(i4));
     assertEquals(i3._negate(), charlie2._mod(i4._negate()));
+
   }
+    //Additional tests
+    /**
+     * Example of Remainder:
+     *<br/>
+     * 10 % 3 = 1 [here divisible is 10 which is positively signed so the result will also be positively signed]
+     *<br/>
+     * -10 % 3 = -1 [here divisible is -10 which is negatively signed so the result will also be negatively signed]
+     *<br/>
+     * 10 % -3 = 1 [here divisible is 10 which is positively signed so the result will also be positively signed]
+     *<br/>
+     * -10 % -3 = -1 [here divisible is -10 which is negatively signed so the result will also be negatively signed]
+     *<br/>
+     * Example of Modulus:
+     *<br/>
+     * 5 % 3 = 2 [here divisible is 5 which is positively signed so the remainder will also be positively
+     * signed and the divisor is also positively signed. As both remainder and divisor are of same sign the
+     * result will be same as remainder]
+     *<br/>
+     * -5 % 3 = 1 [here divisible is -5 which is negatively signed so the remainder will also be negatively
+     * signed and the divisor is positively signed. As both remainder and divisor are of opposite sign the
+     * result will be sum of remainder and divisor -2 + 3 = 1]
+     *<br/>
+     * 5 % -3 = -1 [here divisible is 5 which is positively signed so the remainder will also be positively
+     * signed and the divisor is negatively signed. As both remainder and divisor are of opposite sign the
+     * result will be sum of remainder and divisor 2 + -3 = -1]
+     *<br/>
+     * -5 % -3 = -2 [here divisible is -5 which is negatively signed so the remainder will also be negatively
+     * signed and the divisor is also negatively signed. As both remainder and divisor are of same sign the
+     * result will be same as remainder]
+     */
+    @Test
+    void testModulusAndRemainderByHand() {
+      final var ten = Integer._of(10);
+      final var minusTen = Integer._of(-10);
+      final var one = Integer._of(1);
+      final var minusOne = Integer._of(-1);
+      final var two = Integer._of(2);
+      final var minusTwo = Integer._of(-2);
+      final var three = Integer._of(3);
+      final var minusThree = Integer._of(-3);
+      final var five = Integer._of(5);
+      final var minusFive = Integer._of(-5);
+
+      //Remainder tests from above
+      assertEquals(one, ten._rem(three));
+      assertEquals(minusOne, minusTen._rem(three));
+      assertEquals(one, ten._rem(minusThree));
+      assertEquals(minusOne, minusTen._rem(minusThree));
+
+      //Now Modulus
+      assertEquals(two, five._mod(three));
+      assertEquals(one, minusFive._mod(three));
+      assertEquals(minusOne, five._mod(minusThree));
+      assertEquals(minusTwo, minusFive._mod(minusThree));
+
+      System.out.println(Integer._of(-250)._mod(Integer._of(100)));
+    }
 
   @Test
   void testPipeLogic() {
