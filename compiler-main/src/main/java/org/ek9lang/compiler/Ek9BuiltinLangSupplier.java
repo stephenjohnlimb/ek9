@@ -2181,14 +2181,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator abs as pure
               <- rtn as Dimension?
 
-            operator mod as pure
-              -> arg as Dimension
-              <- rtn as Integer?
-
-            operator rem as pure
-              -> arg as Dimension
-              <- rtn as Integer?
-
             operator :~:
               -> arg as Dimension
 

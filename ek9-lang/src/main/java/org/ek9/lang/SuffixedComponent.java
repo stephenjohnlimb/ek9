@@ -36,8 +36,10 @@ public abstract class SuffixedComponent extends BuiltinType {
     if (!super.equals(o)) {
       return false;
     }
-
-    return Objects.equals(suffix, that.suffix);
+    if (isSet) {
+      return Objects.equals(suffix, that.suffix);
+    }
+    return true;
   }
 
   @Override

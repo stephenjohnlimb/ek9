@@ -47,7 +47,7 @@ public abstract class BuiltinType implements Any {
   }
 
   protected boolean isBoundByDoubleQuotes(java.lang.String state) {
-    Pattern p = Pattern.compile("\"([^\"]*)\"");
+    Pattern p = Pattern.compile("^\"([^\"]*)\"$");
     Matcher m = p.matcher(state);
     return m.find();
   }
