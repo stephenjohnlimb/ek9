@@ -1,0 +1,54 @@
+package org.ek9.lang;
+
+import org.ek9tooling.Ek9Constructor;
+import org.ek9tooling.Ek9Function;
+import org.ek9tooling.Ek9Operator;
+
+/**
+ * This is a template function type, that basically supplies an object (but is not pure in nature).
+ * Here, it is defined with 'Any'.
+ * When the Supplier is parameterised with a real type the T will be replaced by that type.
+ * Hence, 'call() <- r as Any', will become 'call() r <- Integer'.
+ * If Supplier was parameterised with an Integer.
+ */
+@SuppressWarnings("checkstyle:MethodName")
+@Ek9Function("""
+    Supplier of type T as pure abstract
+      <- r as T?""")
+public class Supplier implements Any {
+
+  @Ek9Constructor("Supplier() as pure")
+  public Supplier() {
+    //Default constructor - not exposed in any way to EK9
+  }
+
+  //Expect that class (actually function) that 'IS' a Supplier to implement this.
+
+  public Any _call() {
+    return new Any() {
+    };
+  }
+
+  /**
+   * The EK9 compiler will expect even a function to have 'the ?' operator i.e. _isSet()
+   * This is so that EK9 can pass around functions.
+   * Note it will always be true! But the EK9 generated code will also check for null.
+   * <p>
+   * You do not need to declare it as an Operator though, the EK9 compiler just expects this method.
+   * Whereas the EK9 grammar does not expect the declaration.
+   * </p>
+   * <p>
+   * I've altered the introspector for functions to just ignore these, as I keep adding them in to
+   * the source code!
+   * </p>
+   */
+  @Override
+  @Ek9Operator("""
+      operator ? as pure
+        <- rtn as Boolean?""")
+  public Boolean _isSet() {
+    return Boolean._of(true);
+  }
+
+
+}
