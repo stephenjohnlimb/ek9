@@ -45,7 +45,7 @@ public class Time extends BuiltinType implements TemporalItem {
       LocalTime proposed;
       try {
         proposed = LocalTime.ofSecondOfDay(secondOfDay.state);
-      } catch (Exception ex) {
+      } catch (java.lang.Exception ex) {
         throw new RuntimeException("Constraint violation invalid time", ex);
       }
       assign(proposed);
@@ -63,7 +63,7 @@ public class Time extends BuiltinType implements TemporalItem {
       LocalTime proposed;
       try {
         proposed = LocalTime.of((int) hour.state, (int) minute.state);
-      } catch (Exception ex) {
+      } catch (java.lang.Exception ex) {
         throw new RuntimeException("Constraint violation invalid time", ex);
       }
       assign(proposed);
@@ -83,7 +83,7 @@ public class Time extends BuiltinType implements TemporalItem {
       LocalTime proposed;
       try {
         proposed = LocalTime.of((int) hour.state, (int) minute.state, (int) second.state);
-      } catch (Exception ex) {
+      } catch (java.lang.Exception ex) {
         throw new RuntimeException("Constraint violation invalid time", ex);
       }
       assign(proposed);
@@ -360,7 +360,7 @@ public class Time extends BuiltinType implements TemporalItem {
     Time rtn = new Time();
     try {
       rtn.assign(java.time.LocalTime.parse(value));
-    } catch (Exception _) {
+    } catch (java.lang.Exception _) {
       //Leave as unset.
     }
 

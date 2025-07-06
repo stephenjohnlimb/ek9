@@ -349,6 +349,8 @@ class ResolutionTest extends Common {
     assertEquals("dpi", negated._suffix().state);
     assertUnset.accept(unset._negate());
 
+    assertFalse.accept(unset._isSet());
+    assertTrue.accept(dpi100._isSet());
     // Increment
     final var dpi1 = Resolution._of("100dpi");
     dpi1._inc();

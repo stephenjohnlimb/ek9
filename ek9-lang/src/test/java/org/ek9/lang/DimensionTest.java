@@ -300,6 +300,9 @@ class DimensionTest extends Common {
     assertEquals("px", negated._suffix().state);
     assertUnset.accept(unset._negate());
 
+    assertFalse.accept(unset._isSet());
+    assertTrue.accept(px100._isSet());
+
     // Increment
     final var px1 = Dimension._of("100px");
     px1._inc();

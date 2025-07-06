@@ -295,6 +295,9 @@ class MillisecondTest extends Common {
     assertEquals(-100, negated._prefix().state);
     assertUnset.accept(unset._negate());
 
+    assertFalse.accept(unset._isSet());
+    assertTrue.accept(ms100._isSet());
+
     // Increment
     final var ms1 = Millisecond._of(100);
     ms1._inc();

@@ -43,7 +43,7 @@ public class DateTime extends BuiltinType implements TemporalItem {
     try {
       TemporalAccessor result = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss O").parse(httpDateTime);
       rtn.assign(ZonedDateTime.from(result));
-    } catch (Exception _) {
+    } catch (java.lang.Exception _) {
       //ignore and leave rtn unset
 
     }
@@ -67,7 +67,7 @@ public class DateTime extends BuiltinType implements TemporalItem {
     if (isValid(value)) {
       try {
         assign(java.time.ZonedDateTime.parse(value.state));
-      } catch (Exception _) {
+      } catch (java.lang.Exception _) {
         //ignore and leave rtn unset
       }
     }
