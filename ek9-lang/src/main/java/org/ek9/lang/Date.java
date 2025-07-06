@@ -361,7 +361,6 @@ public class Date extends BuiltinType implements TemporalItem {
       isSet = beforeIsValid;
       throw new RuntimeException("Constraint violation can't change " + state + " to " + value);
     }
-    set();
 
   }
 

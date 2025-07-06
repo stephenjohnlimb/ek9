@@ -447,12 +447,14 @@ public class DateTime extends BuiltinType implements TemporalItem {
 
   private void assign(java.time.ZonedDateTime value) {
     java.time.ZonedDateTime before = state;
+    boolean beforeIsValid = isSet;
     state = value;
+    set();
     if (!validateConstraints().state) {
       state = before;
+      isSet = beforeIsValid;
       throw new RuntimeException("Constraint violation can't change " + state + " to " + value);
     }
-    isSet = true;
   }
 
   @Override

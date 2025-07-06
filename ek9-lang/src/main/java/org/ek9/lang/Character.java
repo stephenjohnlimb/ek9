@@ -284,7 +284,6 @@ public class Character extends BuiltinType {
       isSet = beforeIsValid;
       throw new RuntimeException("Constraint violation can't change " + state + " to " + value);
     }
-    set();
 
   }
 

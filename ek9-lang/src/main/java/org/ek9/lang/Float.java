@@ -575,7 +575,7 @@ public class Float extends BuiltinType {
       isSet = beforeIsValid;
       throw new RuntimeException("Constraint violation can't change " + state + " to " + arg);
     }
-    set();
+
   }
 
   @Override

@@ -128,6 +128,14 @@ public class Dimension extends SuffixedComponent {
     return new String();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator ? as pure
+        <- rtn as Boolean?""")
+  public Boolean _isSet() {
+    return Boolean._of(this.isSet);
+  }
+
   @Ek9Operator("""
       operator length as pure
         <- rtn as Integer?""")
@@ -470,18 +478,21 @@ public class Dimension extends SuffixedComponent {
     }
 
     double stateBefore = this.state;
+
+    boolean beforeIsValid = isSet;
     java.lang.String suffixBefore = this.suffix;
 
     state = theSize;
     suffix = theSuffix;
+
     set();
     if (!validateConstraints().isSet) {
       java.lang.String stringTo = this.toString();
       state = stateBefore;
       suffix = suffixBefore;
+      isSet = beforeIsValid;
       throw new RuntimeException("Constraint violation can't change " + this + " to " + stringTo);
     }
-    set();
 
   }
 

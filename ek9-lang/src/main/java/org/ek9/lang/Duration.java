@@ -466,6 +466,7 @@ public class Duration extends BuiltinType {
   private void assign(java.time.Period p, java.time.Duration d) {
     java.time.Period periodBefore = this.thePeriod;
     java.time.Duration durationBefore = this.theDuration;
+    boolean beforeIsValid = isSet;
 
     thePeriod = p;
     theDuration = d;
@@ -474,9 +475,10 @@ public class Duration extends BuiltinType {
       java.lang.String stringTo = this.toString();
       thePeriod = periodBefore;
       theDuration = durationBefore;
+      isSet = beforeIsValid;
       throw new RuntimeException("Constraint violation can't change " + this + " to " + stringTo);
     }
-    set();
+
   }
 
   @Override

@@ -97,6 +97,9 @@ public class Millisecond extends SuffixedComponent {
     return new Integer();
   }
 
+  @Ek9Operator("""
+      operator :~:
+        -> arg as Millisecond""")
   public void _merge(Millisecond arg) {
     if (isValid(arg)) {
       if (isSet) {
@@ -107,14 +110,16 @@ public class Millisecond extends SuffixedComponent {
     }
   }
 
+  @Ek9Operator("""
+      operator :^:
+        -> arg as Millisecond""")
   public void _replace(Millisecond arg) {
     _copy(arg);
   }
 
   @Ek9Operator("""
       operator :=:
-        -> arg as Millisecond
-        <- rtn as Millisecond?""")
+        -> arg as Millisecond""")
   public void _copy(Millisecond arg) {
     if (isValid(arg)) {
       assign(arg);
@@ -125,8 +130,7 @@ public class Millisecond extends SuffixedComponent {
 
   @Ek9Operator("""
       operator |
-        -> arg as Millisecond
-        <- rtn as Millisecond?""")
+        -> arg as Millisecond""")
   public void _pipe(Millisecond arg) {
     _merge(arg);
   }
@@ -508,6 +512,14 @@ public class Millisecond extends SuffixedComponent {
     return new Float();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator ? as pure
+        <- rtn as Boolean?""")
+  public Boolean _isSet() {
+    return Boolean._of(this.isSet);
+  }
+
   @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")
@@ -535,9 +547,11 @@ public class Millisecond extends SuffixedComponent {
     }
   }
 
+  @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
   private void assign(long theSize, java.lang.String theSuffix) {
     long stateBefore = this.state;
     java.lang.String suffixBefore = this.suffix;
+    boolean beforeIsValid = isSet;
 
     state = theSize;
     suffix = theSuffix;
@@ -546,9 +560,9 @@ public class Millisecond extends SuffixedComponent {
       java.lang.String stringTo = this.toString();
       state = stateBefore;
       suffix = suffixBefore;
+      isSet = beforeIsValid;
       throw new RuntimeException("Constraint violation can't change " + this + " to " + stringTo);
     }
-    set();
 
   }
 
@@ -591,7 +605,7 @@ public class Millisecond extends SuffixedComponent {
   }
 
   protected void parse(java.lang.String arg) {
-    Pattern p = Pattern.compile("(\\d+)(ms)");
+    Pattern p = Pattern.compile("^(-?\\d+)(ms)$");
     Matcher m = p.matcher(arg);
 
     if (m.find()) {

@@ -2453,9 +2453,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator +=
               -> arg as String
 
-            operator *=
-              -> arg as Path
-
             operator +=
               -> arg as Character
 

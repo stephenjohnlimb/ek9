@@ -347,7 +347,6 @@ public class String extends BuiltinType implements Any {
       isSet = beforeIsValid;
       throw new RuntimeException("Constraint violation can't change " + state + " to " + value);
     }
-    set();
 
   }
 

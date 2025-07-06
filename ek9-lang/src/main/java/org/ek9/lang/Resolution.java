@@ -137,6 +137,14 @@ public class Resolution extends SuffixedComponent {
     return new String();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator ? as pure
+        <- rtn as Boolean?""")
+  public Boolean _isSet() {
+    return Boolean._of(this.isSet);
+  }
+
   @Ek9Operator("""
       operator length as pure
         <- rtn as Integer?""")
@@ -460,9 +468,11 @@ public class Resolution extends SuffixedComponent {
     }
   }
 
+  @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
   private void assign(long theSize, java.lang.String theSuffix) {
     long stateBefore = this.state;
     java.lang.String suffixBefore = this.suffix;
+    boolean beforeIsValid = isSet;
 
     if (!theSuffix.equals("dpi") && !theSuffix.equals("dpc")) {
       unSet();
@@ -476,9 +486,9 @@ public class Resolution extends SuffixedComponent {
       java.lang.String stringTo = this.toString();
       state = stateBefore;
       suffix = suffixBefore;
+      isSet = beforeIsValid;
       throw new RuntimeException("Constraint violation can't change " + this + " to " + stringTo);
     }
-    set();
 
   }
 
