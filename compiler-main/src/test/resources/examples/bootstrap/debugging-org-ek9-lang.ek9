@@ -91,6 +91,16 @@ defines extern module org.ek9.lang
         u as U
       <- r as R?
 
+    Routine of type (T, R) as abstract
+      -> t as T
+      <- r as R?
+
+    BiRoutine of type (T, U, R) as abstract
+      ->
+        t as T
+        u as U
+      <- r as R?
+
     Predicate of type T as pure abstract
       -> t as T
       <- r as Boolean?

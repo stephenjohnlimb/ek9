@@ -23,6 +23,7 @@ import static org.ek9lang.compiler.support.AggregateManipulator.EK9_OPTIONAL;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_PATH;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_PREDICATE;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_RESULT;
+import static org.ek9lang.compiler.support.AggregateManipulator.EK9_ROUTINE;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_STRING;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_SUPPLIER;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_TIME;
@@ -78,6 +79,7 @@ final class BuiltInTypeCacheResolver implements Function<IScope, Ek9Types> {
           resolveTemplateFunction(scope, EK9_SUPPLIER),
           resolveTemplateFunction(scope, EK9_CONSUMER),
           resolveTemplateFunction(scope, EK9_FUNCTION),
+          resolveTemplateFunction(scope, EK9_ROUTINE),
           resolveTemplateFunction(scope, EK9_UNARY_OPERATOR),
           resolveTemplateFunction(scope, EK9_PREDICATE),
           resolveTemplateFunction(scope, EK9_COMPARATOR));

@@ -32,6 +32,7 @@ public record Ek9Types(ISymbol ek9Void,
                        ISymbol ek9Supplier,
                        ISymbol ek9Consumer,
                        ISymbol ek9Function,
+                       ISymbol ek9Routine,
                        ISymbol ek9UnaryOperator,
                        ISymbol ek9Predicate,
                        ISymbol ek9Comparator) implements Serializable {

@@ -67,6 +67,7 @@ public class AggregateManipulator {
   public static final String EK9_SUPPLIER = EK9_LANG + "::Supplier";
   public static final String EK9_CONSUMER = EK9_LANG + "::Consumer";
   public static final String EK9_FUNCTION = EK9_LANG + "::Function";
+  public static final String EK9_ROUTINE = EK9_LANG + "::Routine";
   public static final String EK9_UNARY_OPERATOR = EK9_LANG + "::UnaryOperator";
   public static final String EK9_PREDICATE = EK9_LANG + "::Predicate";
   public static final String EK9_COMPARATOR = EK9_LANG + "::Comparator";

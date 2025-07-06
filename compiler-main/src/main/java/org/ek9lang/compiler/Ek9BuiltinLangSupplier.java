@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 113;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 114;
 
   //Obviously with ek9 the indentation is important.
 
@@ -2695,6 +2695,19 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               u as U
             <- r as R?
 
+          <?-
+            Same concept as a Function but not pure in nature
+          -?>
+          Routine of type (T, R) as abstract
+            -> t as T
+            <- r as R?
+
+          BiRoutine of type (T, U, R) as abstract
+            ->
+              t as T
+              u as U
+            <- r as R?
+
           Predicate of type T as pure abstract
             -> t as T
             <- r as Boolean?
@@ -2713,7 +2726,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             -> t as T
             <- r as Boolean?
 
-          BiAssessor of type (T, U) as pure abstract
+          BiAssessor of type (T, U) as abstract
             ->
               t as T
               u as U
