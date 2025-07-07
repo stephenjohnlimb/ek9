@@ -418,6 +418,14 @@ public class DateTime extends BuiltinType implements TemporalItem {
     }
   }
 
+  @Override
+  @Ek9Operator("""
+      operator ? as pure
+        <- rtn as Boolean?""")
+  public Boolean _isSet() {
+    return Boolean._of(this.isSet);
+  }
+
   @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")

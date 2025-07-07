@@ -43,7 +43,8 @@ defines module com.customer.just
         stdout.println($iter.next())
 
       //Alternative way to get the list - but in reverse order.
-      asList <- ~qOne.list()
+      //Also see the ~ operator for reverse.
+      asList <- qOne.list().reverse()
       stdout.println($asList)
       assert $asList == "[Adventure, And, Bill]"
 

@@ -2768,6 +2768,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             iterator() as pure
               <- rtn as Iterator of T?
 
+            <?- Reverse shorthand -?>
             operator ~ as pure
               <- rtn as List of T?
 
@@ -2831,12 +2832,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator :=:
               -> arg as List of T
-
-            <!-
-            Generics issue in here: 'List of type T of type T' is not 'List of type T'
-            operator ~ as pure
-              <- rtn as List of T?
-            -!>
 
             operator |
               -> arg as T

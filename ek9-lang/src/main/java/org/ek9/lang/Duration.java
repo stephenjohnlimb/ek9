@@ -300,23 +300,13 @@ public class Duration extends BuiltinType {
     }
   }
 
-  private int compare(Duration arg) {
-    if (this.thePeriod.getDays() < arg.thePeriod.getDays()) {
-      return -1;
-    }
-    if (this.thePeriod.getDays() > arg.thePeriod.getDays()) {
-      return 1;
-    }
-
-    final var durationCompareResult = java.lang.Integer.compare(this.theDuration.compareTo(arg.theDuration), 0);
-    if (durationCompareResult < 0) {
-      return -1;
-    } else if (durationCompareResult > 0) {
-      return 1;
-    }
-    return 0;
+  @Override
+  @Ek9Operator("""
+      operator ? as pure
+        <- rtn as Boolean?""")
+  public Boolean _isSet() {
+    return Boolean._of(this.isSet);
   }
-
 
   @Ek9Operator("""
       operator <=> as pure
@@ -328,7 +318,6 @@ public class Duration extends BuiltinType {
     }
     return new Integer();
   }
-
 
   @Ek9Operator("""
       operator < as pure
@@ -424,6 +413,23 @@ public class Duration extends BuiltinType {
 
   //Start of Utility methods.
 
+  private int compare(Duration arg) {
+    if (this.thePeriod.getDays() < arg.thePeriod.getDays()) {
+      return -1;
+    }
+    if (this.thePeriod.getDays() > arg.thePeriod.getDays()) {
+      return 1;
+    }
+
+    final var durationCompareResult = java.lang.Integer.compare(this.theDuration.compareTo(arg.theDuration), 0);
+    if (durationCompareResult < 0) {
+      return -1;
+    } else if (durationCompareResult > 0) {
+      return 1;
+    }
+    return 0;
+  }
+
   @SuppressWarnings("checkstyle:CatchParameterName")
   private void parse(java.lang.String value) {
     //Need to check if starts with a '-' - which means the overall value is minus
@@ -463,6 +469,7 @@ public class Duration extends BuiltinType {
     }
   }
 
+  @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
   private void assign(java.time.Period p, java.time.Duration d) {
     java.time.Period periodBefore = this.thePeriod;
     java.time.Duration durationBefore = this.theDuration;

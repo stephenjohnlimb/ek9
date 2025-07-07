@@ -190,7 +190,6 @@ public class Float extends BuiltinType {
     return rtn;
   }
 
-
   @Ek9Operator("""
       operator + as pure
         -> arg as Integer

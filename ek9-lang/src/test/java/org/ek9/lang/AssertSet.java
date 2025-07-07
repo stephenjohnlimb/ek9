@@ -9,6 +9,7 @@ public class AssertSet implements Consumer<BuiltinType> {
   @Override
   public void accept(final BuiltinType builtinType) {
     assertNotNull(builtinType);
-    assertTrue(builtinType.isSet);
+    final var set = builtinType._isSet();
+    assertTrue(set.isSet && set.state);
   }
 }
