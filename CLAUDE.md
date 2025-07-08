@@ -78,6 +78,18 @@ The EK9 compiler follows a **12-phase compilation pipeline**:
 
 ## Development Guidelines
 
+### EK9 Built-in Type Development
+For comprehensive guidance on developing EK9 built-in types and unit tests, see:
+- **`EK9_DEVELOPMENT_CONTEXT.md`** - Complete reference with patterns, conventions, and best practices
+
+This context file contains:
+- EK9 type system architecture and inheritance patterns
+- Standard implementation patterns for constructors, operators, and validation
+- Comprehensive testing patterns and assertion helpers
+- Type-specific insights (Boolean, Integer, Float, String, Collections, etc.)
+- Common compilation issues and solutions
+- Advanced patterns and best practices
+
 ### Code Style
 - Java 23 with virtual threads support
 - Follow existing naming conventions (CamelCase for classes, camelCase for methods)
@@ -88,6 +100,7 @@ The EK9 compiler follows a **12-phase compilation pipeline**:
 - Test files are located in `src/test/resources/examples/`
 - Bad examples (should fail compilation) are in `src/test/resources/badExamples/`
 - Use `ExamplesBasicsTest` pattern for testing language features
+- For built-in type testing, follow patterns in `EK9_DEVELOPMENT_CONTEXT.md`
 
 ### EK9 Source Files
 - EK9 uses indentation-based syntax (similar to Python)
