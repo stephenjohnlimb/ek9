@@ -2939,7 +2939,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 error as E
 
             asEmpty() as pure
-              -> arg0 as O
               <- rtn as Result of (O, E)?
 
             asOk() as pure
@@ -3067,9 +3066,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator |
               -> arg as O
-
-            operator |
-              -> arg as E
 
           PriorityQueue of type T as open
             PriorityQueue() as pure

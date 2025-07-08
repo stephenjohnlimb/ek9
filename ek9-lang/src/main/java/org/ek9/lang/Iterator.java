@@ -90,6 +90,7 @@ public class Iterator extends BuiltinType {
 
   private void assign(java.util.Iterator<Any> value) {
     this.state = value;
+    set();
   }
 
   @Override

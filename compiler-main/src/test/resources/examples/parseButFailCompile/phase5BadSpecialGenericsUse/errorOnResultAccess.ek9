@@ -196,23 +196,14 @@ defines module error.on.result.access
       assert r.isOk()
       assert r contains "Steve"
 
-    <?-
-      Demonstrate that Error values that are an Integer can be piped into the Result
-    -?>
-    testPipeOfErrorValue()
-      r <- cat [1] | collect as Result of (String, Integer)
-      assert not r.isOk()
-      assert r contains 1
-
     testPipeOfOkAndError()
       okValue <- "Steve"
-      errorValue <- 1
 
-      //A bit convoluted, could have just done 'Result(okValue, errorValue)'
+      //A bit convoluted, could have just done 'Result(okValue, Integer())'
       r <- Result(String(), Integer())
       cat [okValue] > r
-      cat [errorValue] > r
-      assert r.isOk() and r.isError()
+
+      assert r.isOk() and not r.isError()
 
     testEmptyResult()
       r <- Result() of (String, Integer)

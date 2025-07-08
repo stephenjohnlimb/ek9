@@ -431,12 +431,13 @@ public Integer _fuzzy(String arg) {
 }
 ```
 
-### Collection Types (List, Optional, Iterator)
+### Collection Types (List, Optional, Iterator, Result)
 
 #### Key Patterns
 - **List**: Always set (empty list ≠ unset list), supports generics
 - **Optional**: Represents potentially absent values, different from unset
 - **Iterator**: Stateful, `_isSet()` indicates `hasNext()`
+- **Result**: Dual-state error handling type with OK and ERROR values
 
 #### Collection-Specific Operations
 ```java
@@ -465,6 +466,35 @@ public Any getOrDefault(Any arg) {
     }
     return arg; // Return provided default
 }
+
+// Result dual-state operations
+@Ek9Method("""
+    isOk() as pure
+      <- rtn as Boolean?""")
+public Boolean isOk() {
+    return Boolean._of(okValue != null);
+}
+
+@Ek9Method("""
+    okOrDefault() as pure
+      -> arg0 as O
+      <- rtn as O?""")
+public Any okOrDefault(Any arg0) {
+    if (okValue != null) {
+        return okValue;
+    }
+    return arg0;
+}
+
+// Result conditional execution
+@Ek9Method("""
+    whenOk() as pure
+      -> consumer as Consumer of O""")
+public void whenOk(Consumer consumer) {
+    if (okValue != null && canProcess(consumer)) {
+        consumer._call(okValue);
+    }
+}
 ```
 
 ### Meta Types (Exception, Any)
@@ -481,6 +511,273 @@ public Exception(String arg0) {
     } else {
         assign(String._of("Generic exception"));
     }
+}
+```
+
+### Result Type - Dual-State Error Handling
+
+#### Characteristics
+The Result type is a sophisticated error handling construct that represents either success (OK) or failure (ERROR) states, providing explicit error handling without exceptions.
+
+#### Key Design Principles
+- **Dual-state management**: OK and ERROR are mutually exclusive states
+- **Type safety**: Separate type parameters for OK (O) and ERROR (E) values
+- **Explicit state checking**: `isOk()` and `isError()` methods for state validation
+- **Safe value access**: `okOrDefault()` and error access patterns
+- **Unset state**: Empty Result when neither OK nor ERROR values are present
+
+#### State Management Pattern
+```java
+// Three distinct states: UNSET, OK, ERROR
+private Any okValue;    // Contains success value when in OK state
+private Any errorValue; // Contains error value when in ERROR state
+
+// State checking methods
+public Boolean isOk() {
+    return Boolean._of(okValue != null);
+}
+
+public Boolean isError() {
+    return Boolean._of(errorValue != null);
+}
+
+// _isSet() returns true only for OK state (following EK9 spec)
+@Override
+public Boolean _isSet() {
+    return Boolean._of(okValue != null);
+}
+
+// _empty() returns true only when neither OK nor ERROR
+public Boolean _empty() {
+    return Boolean._of(okValue == null && errorValue == null);
+}
+```
+
+#### Factory Method Patterns
+```java
+// Create unset Result
+public static Result _of() {
+    return new Result();
+}
+
+// Create OK Result using anonymous Any to bypass validation
+public static Result _ofOk(Any okValue) {
+    return new Result(okValue, new Any() {});
+}
+
+// Create ERROR Result using anonymous Any to bypass validation
+public static Result _ofError(Any errorValue) {
+    return new Result(new Any() {}, errorValue);
+}
+
+// Create mixed Result (both OK and ERROR values)
+public static Result _of(Any okValue, Any errorValue) {
+    return new Result(okValue, errorValue);
+}
+```
+
+#### Safe Value Access Patterns
+```java
+// Safe OK value access with default
+@Ek9Method("""
+    okOrDefault() as pure
+      -> arg0 as O
+      <- rtn as O?""")
+public Any okOrDefault(Any arg0) {
+    if (okValue != null) {
+        return okValue;
+    }
+    return arg0; // Return default when no OK value
+}
+
+// Throws exception if wrong state accessed
+@Ek9Method("""
+    ok() as pure
+      <- rtn as O?""")
+public Any ok() {
+    if (okValue != null) {
+        return okValue;
+    }
+    throw new Exception(String._of("No such element"));
+}
+```
+
+#### Conditional Execution Patterns
+```java
+// Execute only if OK state
+@Ek9Method("""
+    whenOk() as pure
+      -> consumer as Consumer of O""")
+public void whenOk(Consumer consumer) {
+    if (okValue != null && canProcess(consumer)) {
+        consumer._call(okValue);
+    }
+}
+
+// Execute only if ERROR state
+@Ek9Method("""
+    whenError() as pure
+      -> consumer as Consumer of E""")
+public void whenError(Consumer consumer) {
+    if (errorValue != null && canProcess(consumer)) {
+        consumer._call(errorValue);
+    }
+}
+```
+
+#### Iterator Integration Pattern
+```java
+// Iterator returns OK value or empty iterator
+@Ek9Method("""
+    iterator() as pure
+      <- rtn as Iterator of O?""")
+public Iterator iterator() {
+    if (okValue != null) {
+        return Iterator._of(okValue); // Single-item iterator
+    }
+    return Iterator._of(); // Empty iterator
+}
+```
+
+#### Complex Equality Pattern
+```java
+// Result equality checks both OK and ERROR values
+@Ek9Operator("""
+    operator == as pure
+      -> arg as Result of (O, E)
+      <- rtn as Boolean?""")
+public Boolean _eq(Result arg) {
+    final var rtn = new Boolean();
+    
+    if (canProcess(arg)) {
+        // Check for mismatched null states
+        if ((okValue != null && arg.okValue == null) ||
+            (okValue == null && arg.okValue != null) ||
+            (errorValue != null && arg.errorValue == null) ||
+            (errorValue == null && arg.errorValue != null)) {
+            return Boolean._of(false);
+        }
+        
+        // Compare actual values if present
+        if (okValue != null) {
+            rtn._pipe(this.okValue._eq(arg.okValue));
+        }
+        if (errorValue != null) {
+            rtn._pipe(this.errorValue._eq(arg.errorValue));
+        }
+    }
+    return rtn;
+}
+```
+
+#### String Representation Pattern
+```java
+// Result string shows both OK and ERROR values
+@Override
+public String _string() {
+    if (isSet) {
+        StringBuilder builder = new StringBuilder("{");
+        if (okValue != null) {
+            builder.append(okValue._string());
+        }
+        if (errorValue != null) {
+            if (builder.length() > 1) {
+                builder.append(", ");
+            }
+            builder.append(errorValue._string());
+        }
+        builder.append("}");
+        return String._of(builder.toString());
+    }
+    return new String();
+}
+```
+
+#### Merge and Copy Patterns
+```java
+// Merge fills empty slots without overwriting
+@Ek9Operator("""
+    operator :~:
+      -> arg as Result of (O, E)""")
+public void _merge(Result arg) {
+    if (arg != null) {
+        if (this.okValue == null) {
+            this.okValue = arg.okValue;
+        }
+        if (this.errorValue == null) {
+            this.errorValue = arg.errorValue;
+        }
+        if (this.okValue != null || this.errorValue != null) {
+            set();
+        }
+    }
+}
+
+// Copy replaces entire state
+@Ek9Operator("""
+    operator :=:
+      -> arg as Result of (O, E)""")
+public void _copy(Result arg) {
+    if (arg != null) {
+        this.okValue = arg.okValue;
+        this.errorValue = arg.errorValue;
+        if (arg.isSet) {
+            set();
+        } else {
+            unSet();
+        }
+    } else {
+        unSet();
+        this.okValue = null;
+        this.errorValue = null;
+    }
+}
+```
+
+#### Result Testing Patterns
+```java
+// Test all three states
+@Test
+void testResultStates() {
+    final var unsetResult = new Result();
+    final var okResult = Result._ofOk(testValue);
+    final var errorResult = Result._ofError(testError);
+    
+    // UNSET state
+    assertTrue.accept(unsetResult._empty());
+    assertFalse.accept(unsetResult.isOk());
+    assertFalse.accept(unsetResult.isError());
+    assertFalse.accept(unsetResult._isSet());
+    
+    // OK state
+    assertFalse.accept(okResult._empty());
+    assertTrue.accept(okResult.isOk());
+    assertFalse.accept(okResult.isError());
+    assertTrue.accept(okResult._isSet()); // _isSet() returns isOk()
+    
+    // ERROR state
+    assertFalse.accept(errorResult._empty());
+    assertFalse.accept(errorResult.isOk());
+    assertTrue.accept(errorResult.isError());
+    assertFalse.accept(errorResult._isSet()); // _isSet() returns isOk()
+}
+
+// Test conditional execution
+@Test
+void testConditionalExecution() {
+    final var okResult = Result._ofOk(testValue);
+    final var errorResult = Result._ofError(testError);
+    
+    final var mockConsumer = new MockConsumer();
+    
+    // OK result calls consumer
+    okResult.whenOk(mockConsumer);
+    assertTrue(mockConsumer.verifyCalledWith(testValue));
+    
+    // ERROR result doesn't call OK consumer
+    final var mockConsumer2 = new MockConsumer();
+    errorResult.whenOk(mockConsumer2);
+    assertTrue(mockConsumer2.verifyNotCalled());
 }
 ```
 
@@ -874,6 +1171,7 @@ mvn clean test -pl ek9-lang
 - **StringTest.java** - Text processing patterns
 - **ListTest.java** - Collection patterns
 - **OptionalTest.java** - Wrapper type patterns
+- **ResultTest.java** - Dual-state error handling patterns
 - **ExceptionTest.java** - Error handling patterns
 
 ## Quick Development Checklist
