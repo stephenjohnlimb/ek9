@@ -2894,10 +2894,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Optional of T
               <- rtn as Boolean?
 
-            operator <=> as pure
-              -> arg as Optional of T
-              <- rtn as Integer?
-
             <?-
               Does this optional have a valid value in it.
             -?>

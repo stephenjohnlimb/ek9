@@ -26,14 +26,12 @@ class GeneralConstructIntrospector extends Introspector implements Consumer<Map<
       return;
     }
 
-    final var name = annotationType.getSimpleName().replace("Ek9", "").toLowerCase();
-
-    printStream.printf("%n  defines %s%n", name);
+    outputDefines(annotationType);
 
     classes
         .keySet()
         .stream()
         .sorted()
-        .forEach(key -> introspectClass(printStream, classes.get(key)));
+        .forEach(key -> introspectClass(classes.get(key)));
   }
 }

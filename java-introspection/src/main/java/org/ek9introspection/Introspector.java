@@ -1,6 +1,7 @@
 package org.ek9introspection;
 
 import java.io.PrintStream;
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Optional;
@@ -28,7 +29,23 @@ abstract class Introspector {
 
   }
 
-  protected void introspectClass(final PrintStream printStream, final Class<?> cls) {
+  protected void outputDefines(final Class<? extends Annotation> annotationType) {
+    final var name = annotationType.getSimpleName().replace("Ek9", "").toLowerCase();
+    printStream.printf("%n  defines %s%n", name);
+  }
+
+  protected void introspectFunction(final Class<?> cls) {
+
+    final var declaration = valueFromConstruct.apply(cls);
+
+    declaration.ifPresent(constructDeclaration -> {
+      final var theConstructDeclaration = formatFormalDeclaration(constructDeclaration);
+      printStream.println(theConstructDeclaration);
+
+    });
+  }
+
+  protected void introspectClass(final Class<?> cls) {
 
     final var declaration = valueFromConstruct.apply(cls);
 

@@ -8,6 +8,7 @@ import org.ek9tooling.Ek9Application;
 import org.ek9tooling.Ek9Class;
 import org.ek9tooling.Ek9Component;
 import org.ek9tooling.Ek9Constants;
+import org.ek9tooling.Ek9Function;
 import org.ek9tooling.Ek9Package;
 import org.ek9tooling.Ek9Record;
 import org.ek9tooling.Ek9Service;
@@ -51,20 +52,25 @@ public class Ek9ExternExtractor implements Function<String, Ek9InterfaceOrError>
       if (validEk9Interface.test(interfaceOrError)) {
         final var byConstructType = classLister.findByConstruct(classes);
 
+        //The order of these has been designed to pull in constructs in a reasonable way
+
         new ReferencesIntrospector(printStream).accept(classes);
 
-        //This a logical order that I would typically lay out a module in.
+        new GenericAwareIntrospector(printStream, false, Ek9Class.class).accept(byConstructType);
+        new GenericAwareIntrospector(printStream, false, Ek9Function.class).accept(byConstructType);
 
-        //Constants
         new ConstantsIntrospector(printStream).accept(byConstructType.get(Ek9Constants.class));
 
         new TypeIntrospector(printStream).accept(byConstructType);
-        new TextIntrospector(printStream).accept(byConstructType);
+
+        new GenericAwareIntrospector(printStream, true, Ek9Function.class).accept(byConstructType);
+        new GenericAwareIntrospector(printStream, true, Ek9Class.class).accept(byConstructType);
 
         new GeneralConstructIntrospector(printStream, Ek9Trait.class).accept(byConstructType);
         new GeneralConstructIntrospector(printStream, Ek9Record.class).accept(byConstructType);
-        new FunctionIntrospector(printStream).accept(byConstructType);
-        new GeneralConstructIntrospector(printStream, Ek9Class.class).accept(byConstructType);
+
+        new TextIntrospector(printStream).accept(byConstructType);
+
         new GeneralConstructIntrospector(printStream, Ek9Component.class).accept(byConstructType);
         new GeneralConstructIntrospector(printStream, Ek9Service.class).accept(byConstructType);
         new GeneralConstructIntrospector(printStream, Ek9Application.class).accept(byConstructType);

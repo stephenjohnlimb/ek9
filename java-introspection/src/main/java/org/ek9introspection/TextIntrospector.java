@@ -37,7 +37,7 @@ class TextIntrospector extends Introspector implements Consumer<Map<Class<?>, Ma
       printStream.printf("%n  defines text for \"%s\"%n", lang);
 
       final var texts = byLanguage.get(lang);
-      texts.forEach(text -> introspectClass(printStream, text));
+      texts.forEach(this::introspectClass);
     });
 
   }

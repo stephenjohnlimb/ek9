@@ -131,4 +131,15 @@ public class Iterator extends BuiltinType {
     }
     return rtn;
   }
+
+  public static Iterator _of(Any value) {
+    if (value != null) {
+      return new Iterator(value);
+    }
+    return new Iterator();
+  }
+
+  public static Iterator _of() {
+    return new Iterator();
+  }
 }

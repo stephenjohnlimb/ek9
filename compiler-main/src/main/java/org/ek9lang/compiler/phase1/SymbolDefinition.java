@@ -110,7 +110,7 @@ public final class SymbolDefinition extends CompilerPhase {
     final var walker = new ParseTreeWalker();
     walker.walk(new DefinitionListener(parsedModule), source.getCompilationUnitContext());
 
-    //Do not allow use of the EK9 module name-spaces out side of boot-strapping the compiler.
+    //Do not allow use of the EK9 module name-spaces outside of boot-strapping the compiler.
     if (notBootStrapping
         && (AggregateManipulator.EK9_LANG.equals(parsedModule.getModuleName())
         || AggregateManipulator.EK9_MATH.equals(parsedModule.getModuleName()))) {

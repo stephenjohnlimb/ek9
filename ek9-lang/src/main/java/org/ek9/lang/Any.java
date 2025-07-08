@@ -31,6 +31,23 @@ public interface Any {
     return Boolean._of(false);
   }
 
+  @Ek9Operator("""
+      operator == as pure
+        -> arg as Any
+        <- rtn as Boolean?""")
+  default Boolean _eq(Any arg) {
+    return Boolean._of(this == arg);
+  }
+
+  @Ek9Operator("""
+      operator <> as pure
+        -> arg as Any
+        <- rtn as Boolean?""")
+  default Boolean _neq(Any arg) {
+
+    return Boolean._of(this != arg);
+
+  }
 
   @Ek9Operator("""
       operator $ as pure
@@ -45,7 +62,8 @@ public interface Any {
    * @return An instance of an 'Any'.
    */
   static Any _new() {
-    return new Any() {};
+    return new Any() {
+    };
   }
 
 }

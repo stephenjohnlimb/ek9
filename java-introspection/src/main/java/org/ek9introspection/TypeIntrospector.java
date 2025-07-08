@@ -55,7 +55,7 @@ class TypeIntrospector extends Introspector implements Consumer<Map<Class<?>, Ma
     if (constrainedTypes != null) {
 
       constrainedTypes.keySet().stream().sorted()
-          .forEach(key -> introspectClass(printStream, constrainedTypes.get(key)));
+          .forEach(key -> introspectClass(constrainedTypes.get(key)));
     }
   }
 

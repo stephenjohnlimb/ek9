@@ -44,6 +44,10 @@ class SameGenericConceptualParameters implements BiPredicate<ISymbol, List<ISymb
     final var paramParentGeneric = param.getSquirrelledData(CommonValues.GENERIC_PARENT);
     final var argumentParentGeneric = arg.getSquirrelledData(CommonValues.GENERIC_PARENT);
 
+    //TODO Steve, if they are both conceptual then surely we've not really parameterised anything.
+    //Perhaps I do want the List of T of P - then flatten out when concrete parameter used.
+    //i.e. List of Type T is parametrised with T or U or P is still a type in need of parameterization.
+    //Think a bit more about this.
     return (param.isConceptualTypeParameter()
         && arg.isConceptualTypeParameter()
         && paramParentGeneric != null

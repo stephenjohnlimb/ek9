@@ -59,10 +59,13 @@ public abstract class ResolverOrDefiner extends RuleSupport {
       //What if this is referenced from within the same type and, it just looks like it is being parameterised.
       //i.e. within List of type T we refer to List of T? We don't want a "List of T of T".
       //Only if the 'T' is really from some other generic type do we want that.
-      //i.e. List of T used in the context of Generic of type T - that's not actually thr same 'T'.
+      //i.e. List of T used in the context of Generic of type T - that's not actually the same 'T'.
       //If I rewrite as Generic of type G and List of type L - perhaps you can see what I mean.
       //Now when I say I want a Generic of Integer, that means that List of type L of type G now gets flattened
       //to a List of Integer, because the G was replaced with the Integer and then the L was replaced with the Integer.
+
+      //TODO, precondition to check that the generic type has all return and argument types defined.
+      //TODO If not then it cannot be parameterised yet so return Optional.empty.
 
       final var theType = symbolFactory.newParameterisedSymbol(genericTypeSymbol, details.typeArguments());
       theType.setInitialisedBy(details.location());
