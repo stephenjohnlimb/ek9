@@ -169,7 +169,8 @@ defines module error.on.result.access
         assert value?
 
       maybeTheOkValue <- String()
-      //You can also do this quite safely - because if there is no OK value - the iterator will return false for hasNext()
+      //You can also do this quite safely - because if there is no OK value - the iterator will be unset
+      //So the loop won't be processed
       while iter <- r.iterator() then iter.hasNext()
         maybeTheOkValue :=: iter.next()
 

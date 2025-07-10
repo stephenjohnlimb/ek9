@@ -3073,11 +3073,11 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             PriorityQueue() as pure
               -> arg0 as T
 
-            useComparator() as pure
+            withComparator() as pure
               -> comparator as Comparator of T
               <- rtn as PriorityQueue of T?
 
-            useSize() as pure
+            withSize() as pure
               -> size as Integer
               <- rtn as PriorityQueue of T?
 

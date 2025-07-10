@@ -20,9 +20,9 @@ defines module com.customer.priority.example
       checkUsingList()
         people <- ["Steve", "Mark", "Matthew" ]
 
-        //useSize and useComparator - creates a new queue from the existing (leaving the existing as is)
+        //withSize and useComparator - creates a new queue from the existing (leaving the existing as is)
         q1 <- PriorityQueue() of String
-        q2 <- q1.useSize(5)
+        q2 <- q1.withSize(5)
         
         q2 += people
         assert q2?
@@ -31,7 +31,7 @@ defines module com.customer.priority.example
 
         //Make a priority queue, but get it to create a new one with specific size.
         //Note the use of parenthesis to enable 'dot' object access.
-        q1 <- (PriorityQueue() of String).useSize(5)
+        q1 <- (PriorityQueue() of String).withSize(5)
         
         people <- ["Steve", "Mary", "Mungo", "Midge", "Cain"]
         q1 += people

@@ -17,7 +17,7 @@ defines module com.customer.just
       //TODO not quite sure why this does not resolve 'r'
       comparator <- () extends Comparator of String as pure function (r:=? -(t1 <=> t2))
 
-      qOne <- PriorityQueue("Bill").useComparator(comparator)
+      qOne <- PriorityQueue("Bill").withComparator(comparator)
 
       qOne += "And"
       qOne += "Ted"
@@ -30,7 +30,7 @@ defines module com.customer.just
       stdout.println($allEntries)
       assert $allEntries == "[Ted, Outrageous, Excellent, Bogus, Bill, And, Adventure]"
 
-      qTwo <- qOne.useSize(3)
+      qTwo <- qOne.withSize(3)
 
       //TODO fix up generics issues
       limitedEntries <- qTwo.list()
@@ -49,7 +49,7 @@ defines module com.customer.just
       assert $asList == "[Adventure, And, Bill]"
 
       q <- PriorityQueue() of String
-      bestTwo <- q.useSize(2).useComparator(comparator)
+      bestTwo <- q.withSize(2).withComparator(comparator)
       cat allEntries | filter by suitableLength > bestTwo
       stdout.println($~bestTwo.list())
       assert $~bestTwo.list() == "[Adventure, Excellent]"

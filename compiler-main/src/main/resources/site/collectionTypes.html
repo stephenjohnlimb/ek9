@@ -658,7 +658,8 @@ defines module introduction
       assert hasOkSteve
 
       maybeTheOkValue <- String()
-      //You can also do this quite safely - because if there is no OK value - the iterator will return false for hasNext()
+      //You can also do this quite safely - because if there is no OK value - the iterator will unset
+      //So the loop won't be processed
       while iter <- r.iterator() then iter.hasNext()
         maybeTheOkValue :=: iter.next()
 
@@ -706,7 +707,7 @@ defines module introduction
 
     ShowPriorityQueue()
 
-      qOne <- PriorityQueue("Bill").useComparator(StringCompare())
+      qOne <- PriorityQueue("Bill").withComparator(StringCompare())
 
       qOne += "And"
       qOne += "Ted"
@@ -734,7 +735,7 @@ defines module introduction
       assert $asList == "[Adventure, And, Bill]" //No 'Missy' did not make it.
 
       //Use PriorityQueue to collect up and keep ordered as part of pipeline
-      bestTwo as PriorityQueue of String: PriorityQueue().setSize(2).useComparator(StringCompare())
+      bestTwo as PriorityQueue of String: PriorityQueue().withSize(2).withComparator(StringCompare())
 
       //Note this uses allEntries again, but filter before queueing
       cat allEntries | filter by suitableLength > bestTwo
