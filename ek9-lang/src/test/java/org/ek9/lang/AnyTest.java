@@ -1,5 +1,6 @@
 package org.ek9.lang;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -20,6 +21,28 @@ class AnyTest extends Common {
 
     final var asString = any._string();
     assertUnset.accept(asString);
+
+  }
+
+  @Test
+  void testAnyComparisons() {
+    final var a1 = new Any() {
+    };
+    final var a2 = new Any() {
+    };
+
+    assertEquals(0, a1._cmp(a1).state);
+    assertUnset.accept(a1._cmp(null));
+    assertUnset.accept(a1._cmp(a2));
+    assertUnset.accept(a2._cmp(a1));
+
+    assertUnset.accept(a1._lt(a2));
+    assertUnset.accept(a1._lteq(a2));
+    assertUnset.accept(a1._gteq(a2));
+    assertUnset.accept(a1._gt(a2));
+
+    assertUnset.accept(a1._eq(a2));
+    assertUnset.accept(a1._neq(a2));
 
   }
 }

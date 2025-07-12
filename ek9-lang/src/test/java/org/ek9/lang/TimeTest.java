@@ -130,7 +130,8 @@ class TimeTest extends Common {
     assertEquals(Integer._of(-1), time1._cmp(time2));
     assertEquals(Integer._of(1), time2._cmp(time1));
 
-    assertUnset.accept(unset._cmp(time1));
+    assertUnset.accept(time1._cmp(unset));
+    assertUnset.accept(time1._cmp(new Any(){}));
   }
 
   @Test

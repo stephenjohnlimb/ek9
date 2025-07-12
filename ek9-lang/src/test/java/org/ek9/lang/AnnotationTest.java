@@ -17,9 +17,6 @@ class AnnotationTest {
     final var possibleEk9Interface = underTest.apply(packageName);
     assertNotNull(possibleEk9Interface.ek9Interface());
     assertNull(possibleEk9Interface.errorMessage());
-
-    System.out.println(possibleEk9Interface.ek9Interface());
-
   }
 
   @Test

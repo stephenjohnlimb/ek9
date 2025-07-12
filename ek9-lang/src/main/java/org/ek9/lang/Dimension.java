@@ -339,6 +339,18 @@ public class Dimension extends SuffixedComponent {
     return new Integer();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as Any
+        <- rtn as Integer?""")
+  public Integer _cmp(Any arg) {
+    if (arg instanceof Dimension asDimension) {
+      return _cmp(asDimension);
+    }
+    return new Integer();
+  }
+
   @Ek9Operator("""
       operator < as pure
         -> arg as Dimension
@@ -446,15 +458,7 @@ public class Dimension extends SuffixedComponent {
   }
 
   private java.lang.Integer compare(Dimension arg) {
-
-    if (this.state < arg.state) {
-      return -1;
-    }
-    if (this.state > arg.state) {
-      return 1;
-    }
-    return 0;
-
+    return Double.compare(this.state, arg.state);
   }
 
   private void assign(Dimension arg) {

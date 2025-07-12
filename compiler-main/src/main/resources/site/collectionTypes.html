@@ -684,6 +684,10 @@ defines module introduction
       specified. Then; as is shown in the example below, a finite number of elements are retained but in the
       priority order specified.
     </p>
+    <p>
+      When defining your comparator, numbers greater than zero are higher priority. So those items when compared will
+      be retained in that order. If you want your final result in the reverse order, then use list() and reverse that.
+    </p>
     <pre id="priority_queue_example">#!ek9
 defines module introduction
 
@@ -701,7 +705,7 @@ defines module introduction
           o1 as String
           o2 as String
         <-
-          rtn as Integer: ~(o1 <=> o2)
+          rtn as Integer: (o1 <=> o2)
 
   defines program
 
@@ -717,7 +721,7 @@ defines module introduction
       qOne += "Bogus"
 
       allEntries <- cat qOne | collect as List of String
-      //Check they are in reverse order by String comparison not order added.
+      //Check they are in the order by String comparison not order added.
       assert $allEntries == "[Ted, Outrageous, Excellent, Bogus, Bill, And, Adventure]"
 
       //Now make the list finite with just 3 entries
@@ -725,24 +729,19 @@ defines module introduction
 
       //Access to a list can be done just like this
       limitedEntries <- qOne.list()
-      assert $limitedEntries == "[Bill, And, Adventure]"
+      assert $limitedEntries == "[Ted, Outrageous, Excellent]"
 
-      //Not sure Missy will make the cut!
+      //Missy will make the cut!
       qOne += "Missy"
 
-      //Get the list again but in reverse order.
-      asList <- ~qOne.list()
-      assert $asList == "[Adventure, And, Bill]" //No 'Missy' did not make it.
+      asList <- qOne.list()
+      assert $asList == "[Ted, Outrageous, Missy]"
 
       //Use PriorityQueue to collect up and keep ordered as part of pipeline
       bestTwo as PriorityQueue of String: PriorityQueue().withSize(2).withComparator(StringCompare())
 
       //Note this uses allEntries again, but filter before queueing
       cat allEntries | filter by suitableLength > bestTwo
-
-      //Check the string representation or the reverse ordered list.
-      //'Outrageous' qualified in the filter, but was not in the top two when ordered in the queue
-      assert $~bestTwo.list() == "[Adventure, Excellent]"
 
 //EOF</pre>
     <br/>

@@ -138,6 +138,18 @@ public class Float extends BuiltinType {
     return new Integer();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as Any
+        <- rtn as Integer?""")
+  public Integer _cmp(Any arg) {
+    if (arg instanceof Float asFloat) {
+      return _cmp(asFloat);
+    }
+    return new Integer();
+  }
+
   @Ek9Operator("""
       operator <~> as pure
         -> arg as Float

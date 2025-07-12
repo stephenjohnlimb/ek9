@@ -170,6 +170,7 @@ class DimensionTest extends Common {
     assertUnset.accept(unset._cmp(px100));
     assertUnset.accept(px100._cmp(unset));
     assertUnset.accept(px50._cmp(m50)); // Different suffix
+    assertUnset.accept(px100._cmp(new Any(){}));
   }
 
   @Test

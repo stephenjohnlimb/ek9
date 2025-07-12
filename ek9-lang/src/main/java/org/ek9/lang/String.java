@@ -176,6 +176,18 @@ public class String extends BuiltinType implements Any {
     return new Integer();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as Any
+        <- rtn as Integer?""")
+  public Integer _cmp(Any arg) {
+    if (arg instanceof String string) {
+      return _cmp(string);
+    }
+    return new Integer();
+  }
+
   @Ek9Operator("""
       operator <~> as pure
         -> arg as String

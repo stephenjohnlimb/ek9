@@ -124,6 +124,7 @@ class MillisecondTest extends Common {
     assertEquals(1, (int) ms150._cmp(ms100).state);
     assertUnset.accept(unset._cmp(ms100));
     assertUnset.accept(ms100._cmp(unset));
+    assertUnset.accept(ms100._cmp(new Any(){}));
   }
 
   @Test

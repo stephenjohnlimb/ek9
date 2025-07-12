@@ -425,6 +425,18 @@ public class Millisecond extends SuffixedComponent {
     return new Integer();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as Any
+        <- rtn as Integer?""")
+  public Integer _cmp(Any arg) {
+    if (arg instanceof Millisecond asMillisecond) {
+      return _cmp(asMillisecond);
+    }
+    return new Integer();
+  }
+
   @Ek9Operator("""
       operator < as pure
         -> arg as Millisecond

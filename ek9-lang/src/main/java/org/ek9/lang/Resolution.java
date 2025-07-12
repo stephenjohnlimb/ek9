@@ -350,6 +350,18 @@ public class Resolution extends SuffixedComponent {
     return new Integer();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as Any
+        <- rtn as Integer?""")
+  public Integer _cmp(Any arg) {
+    if (arg instanceof Resolution asResolution) {
+      return _cmp(asResolution);
+    }
+    return new Integer();
+  }
+
   @Ek9Operator("""
       operator < as pure
         -> arg as Resolution

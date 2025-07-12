@@ -169,6 +169,7 @@ class ResolutionTest extends Common {
     assertUnset.accept(unset._cmp(dpi100));
     assertUnset.accept(dpi100._cmp(unset));
     assertUnset.accept(dpi50._cmp(dpc50)); // Different suffix
+    assertUnset.accept(dpi100._cmp(new Any(){}));
   }
 
   @Test

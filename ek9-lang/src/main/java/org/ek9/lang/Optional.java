@@ -132,7 +132,10 @@ public class Optional extends BuiltinType {
         <- rtn as Boolean?""")
   public Boolean _contains(Any arg) {
     if (canProcess(arg)) {
-      return this.state._eq(arg);
+      final var eqResult = this.state._eq(arg);
+      if (eqResult.isSet) {
+        return Boolean._of(eqResult.state);
+      }
     }
     return new Boolean();
   }

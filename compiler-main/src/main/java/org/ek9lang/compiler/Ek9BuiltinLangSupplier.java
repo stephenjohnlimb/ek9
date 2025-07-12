@@ -3106,10 +3106,24 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as List of T
               <- rtn as PriorityQueue of T?
 
+            operator - as pure
+              -> arg as T
+              <- rtn as PriorityQueue of T?
+
+            operator - as pure
+              -> arg as List of T
+              <- rtn as PriorityQueue of T?
+
             operator +=
               -> arg as T
 
             operator +=
+              -> arg as List of T
+
+            operator -=
+              -> arg as T
+
+            operator -=
               -> arg as List of T
 
             operator $$ as pure
@@ -3120,12 +3134,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator #? as pure
               <- rtn as Integer?
-
-            operator #< as pure
-              <- rtn as T?
-
-            operator #> as pure
-              <- rtn as T?
 
             operator empty as pure
               <- rtn as Boolean?

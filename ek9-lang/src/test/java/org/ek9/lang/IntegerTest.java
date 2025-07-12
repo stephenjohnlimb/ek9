@@ -415,8 +415,6 @@ class IntegerTest extends Common {
       assertEquals(one, minusFive._mod(three));
       assertEquals(minusOne, five._mod(minusThree));
       assertEquals(minusTwo, minusFive._mod(minusThree));
-
-      System.out.println(Integer._of(-250)._mod(Integer._of(100)));
     }
 
   @Test

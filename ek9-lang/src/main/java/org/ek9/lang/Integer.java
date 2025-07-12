@@ -74,7 +74,6 @@ public class Integer extends BuiltinType {
     return new Boolean();
   }
 
-
   @Ek9Operator("""
       operator > as pure
         -> arg as Integer
@@ -136,6 +135,18 @@ public class Integer extends BuiltinType {
         return Integer._of(1);
       }
       return Integer._of(0);
+    }
+    return new Integer();
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as Any
+        <- rtn as Integer?""")
+  public Integer _cmp(Any arg) {
+    if (arg instanceof Integer asInteger) {
+      return _cmp(asInteger);
     }
     return new Integer();
   }

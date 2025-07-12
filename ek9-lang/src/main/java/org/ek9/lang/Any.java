@@ -32,11 +32,68 @@ public interface Any {
   }
 
   @Ek9Operator("""
+      operator < as pure
+        -> arg as Any
+        <- rtn as Boolean?""")
+  default Boolean _lt(Any arg) {
+    final var cmpResult = this._cmp(arg);
+    if (cmpResult.isSet) {
+      return Boolean._of(cmpResult.state < 0);
+    }
+
+    return new Boolean();
+  }
+
+
+  @Ek9Operator("""
+      operator <= as pure
+        -> arg as Any
+        <- rtn as Boolean?""")
+  default Boolean _lteq(Any arg) {
+    final var cmpResult = this._cmp(arg);
+    if (cmpResult.isSet) {
+      return Boolean._of(cmpResult.state <= 0);
+    }
+
+    return new Boolean();
+  }
+
+  @Ek9Operator("""
+      operator > as pure
+        -> arg as Any
+        <- rtn as Boolean?""")
+  default Boolean _gt(Any arg) {
+    final var cmpResult = this._cmp(arg);
+    if (cmpResult.isSet) {
+      return Boolean._of(cmpResult.state > 0);
+    }
+
+    return new Boolean();
+  }
+
+
+  @Ek9Operator("""
+      operator >= as pure
+        -> arg as Any
+        <- rtn as Boolean?""")
+  default Boolean _gteq(Any arg) {
+    final var cmpResult = this._cmp(arg);
+    if (cmpResult.isSet) {
+      return Boolean._of(cmpResult.state >= 0);
+    }
+    return new Boolean();
+  }
+
+  @Ek9Operator("""
       operator == as pure
         -> arg as Any
         <- rtn as Boolean?""")
   default Boolean _eq(Any arg) {
-    return Boolean._of(this == arg);
+    final var cmpResult = this._cmp(arg);
+    if (cmpResult.isSet) {
+      return Boolean._of(cmpResult.state == 0);
+    }
+    return new Boolean();
   }
 
   @Ek9Operator("""
@@ -44,9 +101,11 @@ public interface Any {
         -> arg as Any
         <- rtn as Boolean?""")
   default Boolean _neq(Any arg) {
-
-    return Boolean._of(this != arg);
-
+    final var cmpResult = this._cmp(arg);
+    if (cmpResult.isSet) {
+      return Boolean._of(cmpResult.state != 0);
+    }
+    return new Boolean();
   }
 
   @Ek9Operator("""
@@ -54,6 +113,21 @@ public interface Any {
         <- rtn as String?""")
   default String _string() {
     return new String();
+  }
+
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as Any
+        <- rtn as Integer?""")
+  default Integer _cmp(Any arg) {
+    if (arg == null || !arg._isSet().isSet) {
+      return new Integer();
+    }
+    if (this == arg) {
+      return Integer._of(0);
+    }
+    //Expect classes to override.
+    return new Integer();
   }
 
   /**

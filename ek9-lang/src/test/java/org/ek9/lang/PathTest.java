@@ -209,6 +209,7 @@ class PathTest extends Common {
     assertEquals(1, (int) pathB._cmp(pathA).state);
     assertUnset.accept(unset._cmp(pathA));
     assertUnset.accept(pathA._cmp(unset));
+    assertUnset.accept(pathA._cmp(new Any(){}));
 
     // Fuzzy comparison
     final var fuzzyResult = pathA._fuzzy(pathA2);

@@ -176,6 +176,18 @@ public class Version extends BuiltinType {
     return new Integer();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as Any
+        <- rtn as Integer?""")
+  public Integer _cmp(Any arg) {
+    if (arg instanceof Version asVersion) {
+      return _cmp(asVersion);
+    }
+    return new Integer();
+  }
+
   @Ek9Operator("""
       operator < as pure
         -> arg as Version

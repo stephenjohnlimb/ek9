@@ -340,6 +340,18 @@ public class DateTime extends BuiltinType implements TemporalItem {
     return new Integer();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as Any
+        <- rtn as Integer?""")
+  public Integer _cmp(Any arg) {
+    if (arg instanceof DateTime asDateTime) {
+      return _cmp(asDateTime);
+    }
+    return new Integer();
+  }
+
   @Ek9Operator("""
       operator <> as pure
         -> arg as DateTime

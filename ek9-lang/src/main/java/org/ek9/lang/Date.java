@@ -262,6 +262,18 @@ public class Date extends BuiltinType implements TemporalItem {
     return new Integer();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as Any
+        <- rtn as Integer?""")
+  public Integer _cmp(Any arg) {
+    if (arg instanceof Date asDate) {
+      return _cmp(asDate);
+    }
+    return new Integer();
+  }
+
   @Ek9Operator("""
       operator <~> as pure
         -> arg as Date

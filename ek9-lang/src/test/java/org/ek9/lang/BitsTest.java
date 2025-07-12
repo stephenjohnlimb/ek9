@@ -348,6 +348,8 @@ class BitsTest extends Common {
     assertUnset.accept(unsetBits._eq(bits010011));
     assertUnset.accept(bits010011._lt(unsetBits));
     assertUnset.accept(unsetBits._cmp(bits010011));
+    assertUnset.accept(bits010011._cmp(new Any() {
+    }));
   }
 
   @Test
@@ -388,7 +390,7 @@ class BitsTest extends Common {
     assertEquals(20L, longBits._len().state);
 
     // Operations with empty bits
-    final var emptyPlus = empty._add((Bits) bits010011);
+    final var emptyPlus = empty._add(bits010011);
     assertEquals("010011", emptyPlus.toString());
 
     final var emptyAnd = empty._and(bits010011);
@@ -598,7 +600,7 @@ class BitsTest extends Common {
     final var nullAdd = bits010011._add((Bits) null);
     assertUnset.accept(nullAdd);
 
-    final var nullSub = bits010011._sub((Bits) null);
+    final var nullSub = bits010011._sub(null);
     assertUnset.accept(nullSub);
 
     final var nullAddBool = bits010011._add((Boolean) null);

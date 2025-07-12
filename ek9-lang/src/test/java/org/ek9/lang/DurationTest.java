@@ -293,6 +293,7 @@ class DurationTest extends Common {
     assertEquals(Integer._of(1), oneMinute._cmp(oneSecond));
 
     assertUnset.accept(unset._cmp(oneSecond));
+    assertUnset.accept(oneMinute._cmp(new Any(){}));
   }
 
   @Test

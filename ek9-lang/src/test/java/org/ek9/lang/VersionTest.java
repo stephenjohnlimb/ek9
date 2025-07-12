@@ -182,6 +182,10 @@ class VersionTest extends Common {
 
     v2.incrementPatch();
     assertEquals(1, v2._cmp(v3).state);
+
+    assertUnset.accept(unset._cmp(v2));
+    assertUnset.accept(v2._cmp(unset));
+    assertUnset.accept(v2._cmp(new Any(){}));
   }
 
   @Test

@@ -218,6 +218,8 @@ class DateTimeTest extends Common {
     assertEquals(Integer._of(1), dateTime2._cmp(dateTime1));
 
     assertUnset.accept(unset._cmp(dateTime1));
+    assertUnset.accept(dateTime2._cmp(new Any(){}));
+
   }
 
   @Test

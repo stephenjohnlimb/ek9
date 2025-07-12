@@ -3,6 +3,7 @@ package org.ek9.lang;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -115,11 +116,12 @@ class CharacterTest extends Common {
   void testComparison() {
     final var cAA = Character._of('A');
 
-    assertEquals(Integer._of(0), cA._cmp(cAA));
-    assertEquals(Integer._of(-1), cA._cmp(cB));
-    assertEquals(Integer._of(1), cB._cmp(cA));
+    assertEquals(0, cA._cmp(cAA).state);
+    assertTrue(cA._cmp(cB).state < 0);
+    assertTrue(cB._cmp(cA).state > 0);
     assertUnset.accept(unset._cmp(cA));
     assertUnset.accept(cA._cmp(unset));
+    assertUnset.accept(cA._cmp(new Any(){}));
 
   }
 

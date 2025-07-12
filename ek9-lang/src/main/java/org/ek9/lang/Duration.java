@@ -319,6 +319,18 @@ public class Duration extends BuiltinType {
     return new Integer();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as Any
+        <- rtn as Integer?""")
+  public Integer _cmp(Any arg) {
+    if (arg instanceof Duration asDuration) {
+      return _cmp(asDuration);
+    }
+    return new Integer();
+  }
+
   @Ek9Operator("""
       operator < as pure
         -> arg as Duration

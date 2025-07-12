@@ -35,6 +35,7 @@ public class Comparator implements Any {
       operator ? as pure
         <- rtn as Boolean?""")
   public Boolean _isSet() {
+    //This is set but will result return an unset Integer.
     return Boolean._of(true);
   }
 

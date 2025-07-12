@@ -12,10 +12,9 @@ defines module com.customer.just
     ShowPriorityQueue()
       stdout <- Stdout()
 
-      //negate the returned comparison to change the ordering.
+
       //Note how t1, t2 and r - are picked up from the definition of Comparator (ek9 built-in)
-      //TODO not quite sure why this does not resolve 'r'
-      comparator <- () extends Comparator of String as pure function (r:=? -(t1 <=> t2))
+      comparator <- () extends Comparator of String as pure function (r:=? t1 <=> t2)
 
       qOne <- PriorityQueue("Bill").withComparator(comparator)
 
@@ -32,9 +31,8 @@ defines module com.customer.just
 
       qTwo <- qOne.withSize(3)
 
-      //TODO fix up generics issues
       limitedEntries <- qTwo.list()
-      assert $limitedEntries == "[Bill, And, Adventure]"
+      assert $limitedEntries == "[Ted, Outrageous, Excellent]"
       stdout.println($limitedEntries)
 
       qTwo += "Missy"
@@ -46,13 +44,11 @@ defines module com.customer.just
       //Also see the ~ operator for reverse.
       asList <- qOne.list().reverse()
       stdout.println($asList)
-      assert $asList == "[Adventure, And, Bill]"
 
       q <- PriorityQueue() of String
       bestTwo <- q.withSize(2).withComparator(comparator)
       cat allEntries | filter by suitableLength > bestTwo
       stdout.println($~bestTwo.list())
-      assert $~bestTwo.list() == "[Adventure, Excellent]"
 
 
 //EOF

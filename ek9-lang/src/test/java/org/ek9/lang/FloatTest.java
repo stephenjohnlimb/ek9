@@ -125,6 +125,8 @@ class FloatTest extends Common {
     assertEquals(Integer._of(1), f1._fuzzy(f0));
     assertUnset.accept(unset._fuzzy(f0));
     assertUnset.accept(f0._fuzzy(unset));
+    assertUnset.accept(f0._cmp(new Any(){}));
+
   }
 
   @Test

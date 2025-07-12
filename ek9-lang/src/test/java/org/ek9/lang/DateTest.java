@@ -131,6 +131,7 @@ class DateTest extends Common {
     assertEquals(Integer._of(1), date2._cmp(date1));
     assertEquals(Integer._of(0), date1._fuzzy(date1Again));
 
+    assertUnset.accept(date1._cmp(new Any(){}));
     assertUnset.accept(unset._cmp(date1));
     assertUnset.accept(unset._fuzzy(date1));
 

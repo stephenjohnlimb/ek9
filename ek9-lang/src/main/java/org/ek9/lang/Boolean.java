@@ -79,6 +79,18 @@ public class Boolean extends BuiltinType {
     return rtn;
   }
 
+  @Override
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as Any
+        <- rtn as Integer?""")
+  public Integer _cmp(Any arg) {
+    if (arg instanceof Boolean asBoolean) {
+      return _cmp(asBoolean);
+    }
+    return new Integer();
+  }
+
   @Ek9Operator("""
       operator <~> as pure
         -> arg as Boolean

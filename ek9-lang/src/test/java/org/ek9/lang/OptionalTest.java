@@ -284,10 +284,12 @@ class OptionalTest extends Common {
     assertEquals(unset.hashCode(), anotherUnset.hashCode());
     assertEquals(setOptional.hashCode(), anotherSet.hashCode());
 
-    // Test mixed type operations
+    // Test mixed type operations, the answer is unset because we should not be
+    //mixing incompatible types
     final var mixedOptional = new Optional(Integer._of(123));
-    assertFalse.accept(mixedOptional._contains(String._of("123")));
-    assertFalse.accept(setOptional._contains(Integer._of(123)));
+    assertUnset.accept(mixedOptional._contains(String._of("123")));
+    //Also unset result because it is holding a String type.
+    assertUnset.accept(setOptional._contains(Integer._of(123)));
   }
 
   @Test
