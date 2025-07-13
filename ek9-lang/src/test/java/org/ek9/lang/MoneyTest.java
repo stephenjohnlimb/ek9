@@ -295,15 +295,8 @@ class MoneyTest extends Common {
     assertSet.accept(squared);
     assertEquals("25.00#GBP", squared._string().state);
 
-    // Modulus
-    final var mod = tenPounds._rem(fivePounds);
-    assertSet.accept(mod);
-    assertEquals("0.00#GBP", mod._string().state);
 
-    final var thirteenPounds = Money._of("13.00#GBP");
-    final var modResult = thirteenPounds._rem(fivePounds);
-    assertSet.accept(modResult);
-    assertEquals("3.00#GBP", modResult._string().state);
+
   }
 
   @Test
@@ -514,7 +507,6 @@ class MoneyTest extends Common {
     assertUnset.accept(tenPounds._cmp(thirtyDollars));
     assertUnset.accept(tenPounds._fuzzy(thirtyDollars));
     assertUnset.accept(tenPounds._div(thirtyDollars));
-    assertUnset.accept(tenPounds._rem(thirtyDollars));
 
     // Assignment operations with different currencies should unset
     final var mutable = new Money(tenPounds);

@@ -329,20 +329,6 @@ public class Money extends BuiltinType {
     return new Float();
   }
 
-  @Ek9Operator("""
-      operator rem as pure
-        -> arg as Money
-        <- rtn as Money?""")
-  public Money _rem(Money arg) {
-    if (canProcessSameCurrency(arg) && arg.state.compareTo(BigDecimal.ZERO) != 0) {
-      Money result = _new();
-      BigDecimal remainder = this.state.remainder(arg.state);
-      result.assign(remainder, this.currency);
-      return result;
-    }
-    return _new();
-  }
-
   @SuppressWarnings("checkstyle:CatchParameterName")
   @Ek9Operator("""
       operator ^ as pure
