@@ -79,6 +79,8 @@ Any (interface) - Universal base interface
 - Operations with unset operands typically result in unset results
 - Exception: `_merge()` and `_pipe()` operations ignore unset inputs
 - `_isSet()` always returns a set Boolean indicating state
+- Collection types (List, Dict) are always set, even when empty
+- Error handling: Some operations throw exceptions rather than returning unset
 
 ## EK9 Annotation Formatting
 
@@ -95,10 +97,18 @@ EK9 uses specific formatting conventions for annotations that must be followed p
 #### @Ek9Class Annotations
 ```java
 @Ek9Class("""
-    TypeName of type T as open""")
+    TypeName of type T as open""")  // Extensible types
 
 @Ek9Class("""
-    Iterator of type T as abstract""")
+    Iterator of type T as abstract""")  // Abstract base types
+
+@Ek9Class  // Simple types without additional modifiers
+
+@Ek9Class("""
+    String as open""")  // Built-in types marked as open
+
+@Ek9Class("""
+    Result of type (O, E)""")  // Multi-type generics
 ```
 
 #### @Ek9Constructor Annotations
@@ -148,7 +158,239 @@ EK9 uses specific formatting conventions for annotations that must be followed p
       -> arg as T""")  // Assignment operators typically not pure
 ```
 
+## Modern Java Code Style Patterns
+
+### Java 23 Language Features
+EK9 implementations use modern Java syntax and conventions for cleaner, more maintainable code:
+
+```java
+// Modern variable declarations
+final var result = _new();
+final var scale = currency.getDefaultFractionDigits();
+final var multiplier = BigDecimal.valueOf(arg.state);
+final var product = this.state.multiply(multiplier).setScale(scale, RoundingMode.HALF_UP);
+
+// Unnamed variables in catch blocks (Java 21+)
+@SuppressWarnings("checkstyle:CatchParameterName")
+private void parseMoneyString(java.lang.String input) {
+    try {
+        // parsing logic
+    } catch (IllegalArgumentException _) {
+        // Invalid currency code - ignore exception details
+        unSet();
+    }
+}
+
+// Pattern matching with instanceof
+@Override
+public Boolean _eq(Any arg) {
+    if (arg instanceof Money asMoney) {
+        return _eq(asMoney);
+    }
+    return new Boolean();
+}
+```
+
+### Exception Handling Patterns
+```java
+// Granular exception handling with specific comments
+try {
+    final var amount = new BigDecimal(amountStr);
+    final var curr = Currency.getInstance(currencyStr);
+    assign(scaled, curr);
+} catch (NumberFormatException _) {
+    // Invalid number format
+    unSet();
+} catch (IllegalArgumentException _) {
+    // Invalid currency code
+    unSet();
+}
+
+// Checkstyle suppression for unnamed variables
+@SuppressWarnings("checkstyle:CatchParameterName")
+public Money _sqrt() {
+    try {
+        // calculation logic
+    } catch (ArithmeticException _) {
+        return _new();
+    }
+}
+```
+
+### Code Organization Patterns
+```java
+// Method-level suppression for specific checkstyle rules
+@SuppressWarnings("checkstyle:CatchParameterName")
+@Ek9Method("""
+    convert() as pure
+      ->
+        multiplier as Float
+        currencyCode as String
+      <-
+        rtn as Money?""")
+public Money convert(Float multiplier, String currencyCode) {
+    // implementation
+}
+
+// Consistent use of final for immutability
+private Money convertInternal(BigDecimal exchangeRate, Currency targetCurrency) {
+    final var result = _new();
+    final var scale = targetCurrency.getDefaultFractionDigits();
+    final var convertedAmount = this.state.multiply(exchangeRate).setScale(scale, RoundingMode.HALF_UP);
+    result.assign(convertedAmount, targetCurrency);
+    return result;
+}
+```
+
 ## Standard Implementation Patterns
+
+### Polymorphic Operator Patterns
+
+#### Dual Implementation Strategy
+Many EK9 types implement operators in two forms: a type-specific version and a polymorphic Any version that dispatches to the specific implementation:
+
+```java
+// Type-specific implementation
+@Ek9Operator("""
+    operator <=> as pure
+      -> arg as Boolean
+      <- rtn as Integer?""")
+public Integer _cmp(Boolean arg) {
+    // Direct implementation
+}
+
+// Polymorphic Any version
+@Override
+@Ek9Operator("""
+    operator <=> as pure
+      -> arg as Any
+      <- rtn as Integer?""")
+public Integer _cmp(Any arg) {
+    if (arg instanceof Boolean asBoolean) {
+        return _cmp(asBoolean);
+    }
+    return new Integer();
+}
+```
+
+**Key Benefits:**
+- Type safety with specific implementations
+- Polymorphic flexibility through Any interface
+- Pattern matching for type dispatch
+- Consistent unset handling for unsupported types
+
+## Complex Type Implementation Patterns
+
+### Multi-Field Type Management
+For types with multiple related fields (like Money with amount + currency), specific patterns ensure atomic state management:
+
+```java
+// Multiple private fields requiring coordinated updates
+public class Money extends BuiltinType {
+    BigDecimal state;      // Amount
+    Currency currency;     // Currency code
+
+    // Atomic assignment method for multi-field updates
+    private void assign(BigDecimal amount, Currency curr) {
+        this.state = amount;
+        this.currency = curr;
+        set();  // Mark as set only after both fields updated
+    }
+
+    // Domain-specific validation combining multiple fields
+    private boolean canProcessSameCurrency(Money arg) {
+        return canProcess(arg) && this.currency.equals(arg.currency);
+    }
+}
+```
+
+### Domain-Specific Validation Patterns
+```java
+// Layered validation for complex business rules
+private void parseMoneyString(java.lang.String input) {
+    try {
+        // Format validation
+        int hashIndex = input.indexOf('#');
+        if (hashIndex == -1 || hashIndex == 0 || hashIndex == input.length() - 1) {
+            return; // Invalid format
+        }
+
+        // Length validation
+        final var currencyStr = input.substring(hashIndex + 1);
+        if (currencyStr.length() != 3) {
+            return; // Currency code must be 3 characters
+        }
+
+        // Type validation and conversion
+        final var amount = new BigDecimal(amountStr);
+        final var curr = Currency.getInstance(currencyStr);
+
+        // Business rule application (automatic scaling)
+        final int scale = curr.getDefaultFractionDigits();
+        final var scaled = amount.setScale(scale, RoundingMode.HALF_UP);
+
+        assign(scaled, curr);
+    } catch (IllegalArgumentException _) {
+        unSet();
+    }
+}
+```
+
+### Conditional Logic in Assignment Operations
+```java
+// Complex merge behavior based on domain rules
+@Ek9Operator("""
+    operator :~:
+      -> arg as Money""")
+public void _merge(Money arg) {
+    if (isValid(arg)) {
+        if (!isSet) {
+            // If this is not set then just assign and take new value
+            assign(arg.state, arg.currency);
+        } else if (this.currency.equals(arg.currency)) {
+            // Merge by addition if same currency
+            this.state = this.state.add(arg.state);
+        } else {
+            // Different currencies cannot be merged - unset result
+            unSet();
+        }
+    }
+}
+```
+
+### Precision and Scaling Management
+```java
+// Automatic precision handling based on domain rules
+@Ek9Operator("""
+    operator * as pure
+      -> arg as Float
+      <- rtn as Money?""")
+public Money _mul(Float arg) {
+    if (canProcess(arg)) {
+        Money result = _new();
+        final var scale = currency.getDefaultFractionDigits();
+        final var multiplier = BigDecimal.valueOf(arg.state);
+        final var product = this.state.multiply(multiplier).setScale(scale, RoundingMode.HALF_UP);
+        result.assign(product, this.currency);
+        return result;
+    }
+    return _new();
+}
+
+// Zero detection using inherited utility methods
+@Ek9Operator("""
+    operator /=
+      -> arg as Float""")
+public void _divAss(Float arg) {
+    if (canProcess(arg) && !nearEnoughToZero(arg.state)) {
+        final var divisor = BigDecimal.valueOf(arg.state);
+        final var scale = currency.getDefaultFractionDigits();
+        this.state = this.state.divide(divisor, scale, RoundingMode.HALF_UP);
+    } else {
+        unSet();
+    }
+}
+```
 
 ### Constructor Patterns
 
@@ -431,13 +673,16 @@ public Integer _fuzzy(String arg) {
 }
 ```
 
-### Collection Types (List, Optional, Iterator, Result)
+### Collection Types (List, Optional, Iterator, Result, Money)
 
 #### Key Patterns
-- **List**: Always set (empty list ≠ unset list), supports generics
+- **List**: Always set (empty list ≠ unset list), supports generics, throws exceptions for invalid operations
 - **Optional**: Represents potentially absent values, different from unset
 - **Iterator**: Stateful, `_isSet()` indicates `hasNext()`
 - **Result**: Dual-state error handling type with OK and ERROR values
+- **Dict**: Key-value collections with integrated DictEntry iteration
+- **PriorityQueue**: Ordered collections with comparator support and duplicate handling
+- **Money**: Currency-safe arithmetic, automatic precision scaling, business rule enforcement
 
 #### Collection-Specific Operations
 ```java
@@ -955,6 +1200,121 @@ void testEdgeCases() {
 }
 ```
 
+## Enhanced Testing Patterns
+
+### JUnit 5 Integration Patterns
+```java
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+/**
+ * Modern JUnit 5 test patterns for EK9 types.
+ */
+class MoneyTest extends Common {
+
+    @Test
+    void testDomainSpecificBehavior() {
+        // Enhanced null safety checking
+        final var anotherTenPounds = Money._of("10.00#GBP");
+        assertNotNull(anotherTenPounds);
+        assertTrue.accept(tenPounds._eq(anotherTenPounds));
+        
+        // Business logic validation with explanatory comments
+        // Merge with different currency - you cannot do this it is meaningless.
+        // If you want to replace then use replace/copy.
+        final var mergeTarget3 = new Money(tenPounds);
+        mergeTarget3._merge(thirtyDollars);
+        assertUnset.accept(mergeTarget3);
+    }
+}
+```
+
+### Comprehensive Edge Case Testing
+```java
+@Test
+void testCrossCurrencyOperationFailures() {
+    // Systematic testing of all cross-currency operations
+    assertUnset.accept(tenPounds._add(thirtyDollars));
+    assertUnset.accept(tenPounds._sub(thirtyDollars));
+    assertUnset.accept(tenPounds._eq(thirtyDollars));
+    assertUnset.accept(tenPounds._lt(thirtyDollars));
+    assertUnset.accept(tenPounds._gt(thirtyDollars));
+    assertUnset.accept(tenPounds._cmp(thirtyDollars));
+    assertUnset.accept(tenPounds._fuzzy(thirtyDollars));
+    assertUnset.accept(tenPounds._div(thirtyDollars));
+    assertUnset.accept(tenPounds._rem(thirtyDollars));
+
+    // Assignment operations with different currencies should unset
+    final var mutable = new Money(tenPounds);
+    assertNotNull(mutable);
+    mutable._addAss(thirtyDollars);
+    assertUnset.accept(mutable);
+}
+```
+
+### Domain-Specific Testing Patterns
+```java
+@Test
+void testCurrencyDecimalPlaces() {
+    // Test automatic scaling to currency-specific decimal places
+    final var usd = Money._of("10.123#USD");
+    assertSet.accept(usd);
+    assertEquals("10.12#USD", usd._string().state); // Should round to 2 places
+
+    // JPY has 0 decimal places
+    final var jpy = Money._of("1000.5#JPY");
+    assertSet.accept(jpy);
+    assertEquals("1001#JPY", jpy._string().state); // Should round to 0 places
+
+    // Handle optional currencies gracefully
+    try {
+        final var clf = Money._of("45.99999#CLF");
+        if (clf._isSet().state) {
+            assertEquals("46.0000#CLF", clf._string().state);
+        }
+    } catch (Exception _) {
+        // CLF might not be available in all Java installations
+    }
+}
+```
+
+### Business Logic Testing
+```java
+@Test
+void testRoundingBehavior() {
+    // Test real-world scenarios from documentation
+    final var amount = Money._of("99.51#GBP");
+    final var halved = amount._div(Float._of(2.0));
+    assertSet.accept(halved);
+    assertEquals("49.76#GBP", halved._string().state); // Should round up
+
+    // Test complex calculation from documentation
+    final var fortyEightSeventySix = Money._of("49.76#GBP");
+    final var result = fortyEightSeventySix._mul(Float._of(-8.754));
+    assertSet.accept(result);
+    assertEquals("-435.60#GBP", result._string().state);
+}
+```
+
+### Polymorphic Operation Testing
+```java
+@Test
+void testPolymorphicOperations() {
+    // Test both specific and Any versions of operators
+    final var cmpResult = tenPounds._cmp(fivePounds);
+    assertSet.accept(cmpResult);
+    assertTrue.accept(Boolean._of(cmpResult.state > 0));
+
+    // Polymorphic comparison
+    assertSet.accept(tenPounds._cmp((Any) fivePounds));
+    assertUnset.accept(tenPounds._cmp((Any) String._of("not money")));
+
+    // Polymorphic equality with Any
+    assertTrue.accept(tenPounds._eq((Any) anotherTenPounds));
+    assertUnset.accept(tenPounds._eq((Any) String._of("not money")));
+}
+```
+
 ### Mock Integration Patterns
 
 #### Lightweight Mock Usage
@@ -1115,9 +1475,167 @@ public YourType _add(YourType arg) {
 }
 ```
 
+## Advanced Operator Implementation Patterns
+
+### Remainder vs Modulus Operator Distinction
+```java
+// Use 'rem' for remainder operations instead of 'mod'
+@Ek9Operator("""
+    operator rem as pure
+      -> arg as Money
+      <- rtn as Money?""")
+public Money _rem(Money arg) {
+    if (canProcessSameCurrency(arg) && arg.state.compareTo(BigDecimal.ZERO) != 0) {
+        Money result = _new();
+        BigDecimal remainder = this.state.remainder(arg.state);
+        result.assign(remainder, this.currency);
+        return result;
+    }
+    return _new();
+}
+```
+
+### Cross-Type Return Type Patterns
+```java
+// Money ÷ Money returns Float (ratio), not Money
+@Ek9Operator("""
+    operator / as pure
+      -> arg as Money
+      <- rtn as Float?""")
+public Float _div(Money arg) {
+    if (canProcessSameCurrency(arg) && arg.state.compareTo(BigDecimal.ZERO) != 0) {
+        BigDecimal ratio = this.state.divide(arg.state, 10, RoundingMode.HALF_UP);
+        return Float._of(ratio.doubleValue());
+    }
+    return new Float();
+}
+
+// Money × Integer/Float returns Money with proper scaling
+@Ek9Operator("""
+    operator * as pure
+      -> arg as Float
+      <- rtn as Money?""")
+public Money _mul(Float arg) {
+    if (canProcess(arg)) {
+        Money result = _new();
+        final var scale = currency.getDefaultFractionDigits();
+        final var multiplier = BigDecimal.valueOf(arg.state);
+        final var product = this.state.multiply(multiplier).setScale(scale, RoundingMode.HALF_UP);
+        result.assign(product, this.currency);
+        return result;
+    }
+    return _new();
+}
+```
+
+### Advanced Mathematical Algorithms
+```java
+// Newton's method for BigDecimal square root
+private BigDecimal sqrt(BigDecimal value) {
+    BigDecimal x = value;
+    BigDecimal previous;
+    BigDecimal two = BigDecimal.valueOf(2);
+    int scale = currency.getDefaultFractionDigits() + 10; // Extra precision for calculation
+
+    do {
+        previous = x;
+        x = x.add(value.divide(x, scale, RoundingMode.HALF_UP))
+             .divide(two, scale, RoundingMode.HALF_UP);
+    } while (x.subtract(previous).abs().compareTo(BigDecimal.valueOf(0.0001)) > 0);
+
+    return x.setScale(currency.getDefaultFractionDigits(), RoundingMode.HALF_UP);
+}
+
+@Ek9Operator("""
+    operator sqrt as pure
+      <- rtn as Money?""")
+public Money _sqrt() {
+    if (isSet && state.compareTo(BigDecimal.ZERO) >= 0) {
+        try {
+            BigDecimal sqrtValue = sqrt(state);
+            Money result = _new();
+            result.assign(sqrtValue, currency);
+            return result;
+        } catch (ArithmeticException _) {
+            return _new();
+        }
+    }
+    return _new();
+}
+```
+
+### Domain-Specific Validation in Operators
+```java
+// Currency-safe operations with business rule enforcement
+@Ek9Operator("""
+    operator + as pure
+      -> arg as Money
+      <- rtn as Money?""")
+public Money _add(Money arg) {
+    if (canProcessSameCurrency(arg)) {  // Business rule: same currency only
+        Money result = _new();
+        result.assign(this.state.add(arg.state), this.currency);
+        return result;
+    }
+    return _new();  // Different currencies return unset
+}
+
+// Assignment operators that unset on business rule violations
+@Ek9Operator("""
+    operator +=
+      -> arg as Money""")
+public void _addAss(Money arg) {
+    if (canProcessSameCurrency(arg)) {
+        this.state = this.state.add(arg.state);
+    } else {
+        unSet();  // Violates currency compatibility rule
+    }
+}
+```
+
+### Utility Method Integration
+```java
+// Using inherited utility methods for precision
+@Ek9Operator("""
+    operator /=
+      -> arg as Float""")
+public void _divAss(Float arg) {
+    if (canProcess(arg) && !nearEnoughToZero(arg.state)) {  // Use inherited zero check
+        final var divisor = BigDecimal.valueOf(arg.state);
+        final var scale = currency.getDefaultFractionDigits();
+        this.state = this.state.divide(divisor, scale, RoundingMode.HALF_UP);
+    } else {
+        unSet();
+    }
+}
+```
+
 ### 5. **Fuzzy Matching Pattern**
 ```java
-// Fuzzy comparison for approximate matching
+// String: Levenshtein distance implementation
+@Ek9Operator("""
+    operator <~> as pure
+      -> arg as String
+      <- rtn as Integer?""")
+public Integer _fuzzy(String arg) {
+    if (!this.canProcess(arg)) {
+        return new Integer();
+    }
+    Levenshtein fuzzy = new Levenshtein();
+    return Integer._of(fuzzy.costOfMatch(this.state, arg.state));
+}
+
+// Boolean: Fuzzy match delegates to comparison
+@Ek9Operator("""
+    operator <~> as pure
+      -> arg as Boolean
+      <- rtn as Integer?""")
+public Integer _fuzzy(Boolean arg) {
+    //For boolean fuzzy match is just compare.
+    return _cmp(arg);
+}
+
+// General pattern for distance-based fuzzy matching
 @Ek9Operator("""
     operator <~> as pure
       -> arg as T
@@ -1127,6 +1645,131 @@ public Integer _fuzzy(YourType arg) {
         return Integer._of(calculateDistance(this.state, arg.state));
     }
     return new Integer();
+}
+```
+
+## Business Logic Integration Patterns
+
+### Format Parsing with Business Rules
+```java
+// Multi-layer validation implementing business format requirements
+private void parseMoneyString(java.lang.String input) {
+    try {
+        // Format: amount#CurrencyCode (e.g., "10.50#USD", "99.99#GBP")
+        int hashIndex = input.indexOf('#');
+        if (hashIndex == -1 || hashIndex == 0 || hashIndex == input.length() - 1) {
+            return; // Invalid format
+        }
+
+        final var amountStr = input.substring(0, hashIndex);
+        final var currencyStr = input.substring(hashIndex + 1);
+
+        if (currencyStr.length() != 3) {
+            return; // Currency code must be 3 characters
+        }
+
+        final var amount = new BigDecimal(amountStr);
+        final var curr = Currency.getInstance(currencyStr);
+
+        // Automatic business rule: set scale to currency's default fraction digits
+        final int scale = curr.getDefaultFractionDigits();
+        final var scaled = amount.setScale(scale, RoundingMode.HALF_UP);
+
+        assign(scaled, curr);
+    } catch (IllegalArgumentException _) {
+        unSet();
+    }
+}
+```
+
+### Currency Conversion with Exchange Rates
+```java
+// Business method for currency conversion
+@Ek9Method("""
+    convert() as pure
+      ->
+        multiplier as Float
+        currencyCode as String
+      <-
+        rtn as Money?""")
+public Money convert(Float multiplier, String currencyCode) {
+    if (canProcess(multiplier) && canProcess(currencyCode)) {
+        try {
+            Currency targetCurrency = Currency.getInstance(currencyCode.state);
+            return convertInternal(BigDecimal.valueOf(multiplier.state), targetCurrency);
+        } catch (IllegalArgumentException _) {
+            return _new();
+        }
+    }
+    return _new();
+}
+
+// Internal conversion with automatic scaling
+private Money convertInternal(BigDecimal exchangeRate, Currency targetCurrency) {
+    final var result = _new();
+    final var scale = targetCurrency.getDefaultFractionDigits();
+    final var convertedAmount = this.state.multiply(exchangeRate).setScale(scale, RoundingMode.HALF_UP);
+    result.assign(convertedAmount, targetCurrency);
+    return result;
+}
+```
+
+### Domain-Specific String Representation
+```java
+// Business-aware string formatting
+@Override
+@Ek9Operator("""
+    operator $ as pure
+      <- rtn as String?""")
+public String _string() {
+    if (isSet) {
+        // Format: "amount#currencyCode" for business clarity
+        return String._of(state.toPlainString() + "#" + currency.getCurrencyCode());
+    }
+    return new String();
+}
+```
+
+### Business Rule Enforcement in Operations
+```java
+// Merge operation with explicit business logic
+@Ek9Operator("""
+    operator :~:
+      -> arg as Money""")
+public void _merge(Money arg) {
+    if (isValid(arg)) {
+        if (!isSet) {
+            // Business rule: unset target accepts any valid currency
+            assign(arg.state, arg.currency);
+        } else if (this.currency.equals(arg.currency)) {
+            // Business rule: same currency values can be added
+            this.state = this.state.add(arg.state);
+        } else {
+            // Business rule: different currencies cannot be merged
+            unSet();
+        }
+    }
+}
+```
+
+### Automatic Precision Management
+```java
+// Automatic scaling based on currency business rules
+@Ek9Operator("""
+    operator * as pure
+      -> arg as Float
+      <- rtn as Money?""")
+public Money _mul(Float arg) {
+    if (canProcess(arg)) {
+        Money result = _new();
+        // Business rule: automatically apply currency-specific decimal places
+        final var scale = currency.getDefaultFractionDigits();
+        final var multiplier = BigDecimal.valueOf(arg.state);
+        final var product = this.state.multiply(multiplier).setScale(scale, RoundingMode.HALF_UP);
+        result.assign(product, this.currency);
+        return result;
+    }
+    return _new();
 }
 ```
 
@@ -1168,11 +1811,17 @@ mvn clean test -pl ek9-lang
 - **Common.java** - Test base class with assertion helpers
 - **BooleanTest.java** - Three-state logic patterns
 - **IntegerTest.java** - Comprehensive numeric testing
-- **StringTest.java** - Text processing patterns
-- **ListTest.java** - Collection patterns
+- **StringTest.java** - Text processing patterns, Levenshtein distance
+- **ListTest.java** - Collection patterns, exception handling
 - **OptionalTest.java** - Wrapper type patterns
 - **ResultTest.java** - Dual-state error handling patterns
 - **ExceptionTest.java** - Error handling patterns
+- **DictTest.java** - Dictionary patterns, key-value operations
+- **DictEntryTest.java** - Key-value pair patterns
+- **PriorityQueueTest.java** - Ordered collection patterns
+- **MoneyTest.java** - Currency-safe operations, business logic testing, precision handling
+- **Money.java** - Multi-field type implementation, business rule enforcement, domain-specific validation
+- **MockAcceptor.java**, **MockConsumer.java**, **MockFunction.java** - Lightweight mock patterns
 
 ## Quick Development Checklist
 
@@ -1199,11 +1848,18 @@ When developing a new EK9 built-in type:
 - [ ] Use Common assertion helpers for EK9 types
 - [ ] Test unset value propagation scenarios
 - [ ] Include null handling tests
-- [ ] Test cross-type operations
+- [ ] Test cross-type operations and type promotion
 - [ ] Test constraint violations
-- [ ] Verify exception handling and messages
+- [ ] Verify exception handling and messages (List.first(), List.get())
 - [ ] Test equality and hashCode consistency
+- [ ] Test polymorphic operator patterns (specific type + Any versions)
+- [ ] Test fuzzy matching operators where applicable
+- [ ] Test pipeline operations (_pipe)
 - [ ] Follow established naming patterns
+- [ ] Test merge vs copy vs replace operator behaviors
+- [ ] Test business rule enforcement in domain-specific operations
+- [ ] Test automatic precision and scaling where applicable
+- [ ] Use JUnit 5 static imports and assertNotNull for robustness
 - [ ] Run `mvn test -Dtest={TestName} -pl ek9-lang` to verify
 
 **Code Quality:**
@@ -1215,7 +1871,86 @@ When developing a new EK9 built-in type:
 - [ ] Validate all inputs and handle null safely
 - [ ] Follow unset propagation principles
 - [ ] Test with representative data sets
+- [ ] Use modern Java syntax (final var, unnamed catch variables, pattern matching)
+- [ ] Apply @SuppressWarnings appropriately for checkstyle
+- [ ] Implement domain-specific validation methods for complex types
+- [ ] Use rem instead of mod for remainder operations
+
+## State Initialization Patterns
+
+### Collection Types (Always Set)
+```java
+// Collections are always set, even when empty
+@Ek9Constructor("""
+    List() as pure""")
+public List() {
+    set();  // Mark as set immediately
+    // state is initialized to new ArrayList<>()
+}
+```
+
+### Value Types (Initially Unset)
+```java
+// Most value types start unset
+@Ek9Constructor("""
+    Boolean() as pure""")
+public Boolean() {
+    super.unSet();  // Start unset
+}
+```
+
+### String Type (Special Case)
+```java
+// String initializes state but starts unset
+public class String extends BuiltinType {
+    java.lang.String state = "";  // Initialize to empty
+    
+    public String() {
+        super.unSet();  // But mark as unset
+    }
+}
+```
+
+## Exception vs Unset Patterns
+
+### When to Throw Exceptions
+- **List operations on empty collections**: `first()`, `last()`, `get(invalid_index)`
+- **Result access with wrong state**: `ok()` when in ERROR state, `error()` when in OK state
+- **Invalid constraint violations**: Overflow, invalid state transitions
+
+### When to Return Unset
+- **Arithmetic with unset operands**: All mathematical operations
+- **Comparison with unset operands**: All comparison operations
+- **Cross-type operations with incompatible types**: Any polymorphic operations
+
+```java
+// Exception pattern
+public Any first() {
+    if (state.isEmpty()) {
+        throw new Exception(String._of("List is empty"));
+    }
+    return state.getFirst();
+}
+
+// Unset pattern
+public Boolean _eq(Any arg) {
+    if (!(arg instanceof TypeName)) {
+        return new Boolean();  // Return unset for wrong type
+    }
+    // ... specific implementation
+}
+```
 
 ---
 
 *This document provides comprehensive guidance based on analysis of all EK9 built-in types and their tests. Update as new patterns emerge.*
+
+**Last Updated**: Based on analysis of Boolean, String, List, Result, Dict, PriorityQueue, Money, and mock classes (July 2025)
+
+**Major Additions in this Update:**
+- Modern Java code style patterns (final var, unnamed catch variables, pattern matching)
+- Complex type implementation for multi-field types (Money with amount + currency)
+- Enhanced testing patterns with JUnit 5 and business logic validation
+- Advanced operator implementation (remainder vs modulus, cross-type returns, mathematical algorithms)
+- Business logic integration patterns (currency conversion, format parsing, automatic precision)
+- Currency-safe operations and domain-specific validation methods

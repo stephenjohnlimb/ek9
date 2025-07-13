@@ -1681,14 +1681,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator abs as pure
               <- rtn as Money?
 
-            operator mod as pure
-              -> arg as Money
-              <- rtn as Integer?
-
-            operator rem as pure
-              -> arg as Money
-              <- rtn as Integer?
-
             operator :~:
               -> arg as Money
 

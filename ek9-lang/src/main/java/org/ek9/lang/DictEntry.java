@@ -20,10 +20,8 @@ import org.ek9tooling.Ek9Operator;
 public class DictEntry extends BuiltinType {
 
   // Key and value for this entry
-  private Any keyValue = new Any() {
-  };
-  private Any entryValue = new Any() {
-  };
+  private Any keyValue = Any._new();
+  private Any entryValue = Any._new();
 
   @Ek9Constructor("DictEntry() as pure")
   public DictEntry() {
