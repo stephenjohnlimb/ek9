@@ -386,6 +386,62 @@ public class Money extends BuiltinType {
   }
 
   @Ek9Operator("""
+      operator #< as pure
+        <- rtn as Float?""")
+  public Float _amount() {
+    if (isSet) {
+      return Float._of(state.doubleValue());
+    }
+    return new Float();
+  }
+
+  @Ek9Operator("""
+      operator #> as pure
+        <- rtn as String?""")
+  public String _currency() {
+    if (isSet) {
+      return String._of(currency.getCurrencyCode());
+    }
+    return new String();
+  }
+
+  @Ek9Operator("""
+      operator ++
+        <- rtn as Money?""")
+  public Money _inc() {
+    if (isSet) {
+      Money result = _new();
+      BigDecimal increment = getSmallestUnit();
+      result.assign(this.state.add(increment), this.currency);
+      return result;
+    }
+    return _new();
+  }
+
+  @Ek9Operator("""
+      operator --
+        <- rtn as Money?""")
+  public Money _dec() {
+    if (isSet) {
+      Money result = _new();
+      BigDecimal decrement = getSmallestUnit();
+      result.assign(this.state.subtract(decrement), this.currency);
+      return result;
+    }
+    return _new();
+  }
+
+  @Ek9Operator("""
+      operator empty as pure
+        <- rtn as Boolean?""")
+  public Boolean _empty() {
+    if (isSet) {
+      return Boolean._of(state.compareTo(BigDecimal.ZERO) == 0);
+    }
+    return new Boolean();
+  }
+
+  @Ek9Operator("""
       operator +=
         -> arg as Money""")
   public void _addAss(Money arg) {
@@ -573,6 +629,15 @@ public class Money extends BuiltinType {
     } while (x.subtract(previous).abs().compareTo(BigDecimal.valueOf(0.0001)) > 0);
 
     return x.setScale(currency.getDefaultFractionDigits(), RoundingMode.HALF_UP);
+  }
+
+  // Get smallest unit for currency (e.g., 0.01 for USD, 1 for JPY)
+  private BigDecimal getSmallestUnit() {
+    int scale = currency.getDefaultFractionDigits();
+    if (scale == 0) {
+      return BigDecimal.ONE;
+    }
+    return BigDecimal.ONE.scaleByPowerOfTen(-scale);
   }
 
   // Factory methods

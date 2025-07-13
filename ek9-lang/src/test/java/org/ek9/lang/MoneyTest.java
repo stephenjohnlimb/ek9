@@ -530,4 +530,205 @@ class MoneyTest extends Common {
     assertUnset.accept(unset._abs());
     assertUnset.accept(unset._negate());
   }
+
+  @Test
+  void testAmountCurrencyExtraction() {
+    // Test amount extraction (#<)
+    final var amount = tenPounds._amount();
+    assertSet.accept(amount);
+    assertTrue.accept(Boolean._of(Math.abs(amount.state - 10.0) < 0.001));
+
+    // Test currency extraction (#>)
+    final var currency = tenPounds._currency();
+    assertSet.accept(currency);
+    assertEquals("GBP", currency.state);
+
+    // Test with different currency and decimal places
+    final var usd = Money._of("25.50#USD");
+    final var usdAmount = usd._amount();
+    final var usdCurrency = usd._currency();
+    assertSet.accept(usdAmount);
+    assertSet.accept(usdCurrency);
+    assertTrue.accept(Boolean._of(Math.abs(usdAmount.state - 25.5) < 0.001));
+    assertEquals("USD", usdCurrency.state);
+
+    // Test with JPY (0 decimal places)
+    final var jpy = Money._of("1000#JPY");
+    final var jpyAmount = jpy._amount();
+    final var jpyCurrency = jpy._currency();
+    assertSet.accept(jpyAmount);
+    assertSet.accept(jpyCurrency);
+    assertTrue.accept(Boolean._of(Math.abs(jpyAmount.state - 1000.0) < 0.001));
+    assertEquals("JPY", jpyCurrency.state);
+
+    // Test with unset Money
+    assertUnset.accept(unset._amount());
+    assertUnset.accept(unset._currency());
+
+    // Test with zero amount
+    final var zeroAmount = zeroPounds._amount();
+    final var zeroCurrency = zeroPounds._currency();
+    assertSet.accept(zeroAmount);
+    assertSet.accept(zeroCurrency);
+    assertTrue.accept(Boolean._of(Math.abs(zeroAmount.state - 0.0) < 0.001));
+    assertEquals("GBP", zeroCurrency.state);
+  }
+
+  @Test
+  void testIncrementDecrement() {
+    // Test increment with GBP (2 decimal places)
+    final var incremented = tenPounds._inc();
+    assertSet.accept(incremented);
+    assertEquals("10.01#GBP", incremented._string().state);
+
+    // Test decrement with GBP
+    final var decremented = tenPounds._dec();
+    assertSet.accept(decremented);
+    assertEquals("9.99#GBP", decremented._string().state);
+
+    // Test increment with JPY (0 decimal places)
+    final var jpy = Money._of("1000#JPY");
+    final var jpyIncremented = jpy._inc();
+    assertSet.accept(jpyIncremented);
+    assertEquals("1001#JPY", jpyIncremented._string().state);
+
+    final var jpyDecremented = jpy._dec();
+    assertSet.accept(jpyDecremented);
+    assertEquals("999#JPY", jpyDecremented._string().state);
+
+    // Test multiple increments
+    final var twice = tenPounds._inc()._inc();
+    assertSet.accept(twice);
+    assertEquals("10.02#GBP", twice._string().state);
+
+    // Test multiple decrements
+    final var twiceDown = tenPounds._dec()._dec();
+    assertSet.accept(twiceDown);
+    assertEquals("9.98#GBP", twiceDown._string().state);
+
+    // Test with zero amount
+    final var zeroIncremented = zeroPounds._inc();
+    assertSet.accept(zeroIncremented);
+    assertEquals("0.01#GBP", zeroIncremented._string().state);
+
+    final var zeroDecremented = zeroPounds._dec();
+    assertSet.accept(zeroDecremented);
+    assertEquals("-0.01#GBP", zeroDecremented._string().state);
+
+    // Test with unset Money
+    assertUnset.accept(unset._inc());
+    assertUnset.accept(unset._dec());
+
+    // Test with negative amounts
+    final var negativeIncremented = negativePounds._inc();
+    assertSet.accept(negativeIncremented);
+    assertEquals("-25.49#GBP", negativeIncremented._string().state);
+
+    final var negativeDecremented = negativePounds._dec();
+    assertSet.accept(negativeDecremented);
+    assertEquals("-25.51#GBP", negativeDecremented._string().state);
+  }
+
+  @Test
+  void testEmptyOperator() {
+    // Test with zero amounts - should be empty
+    assertTrue.accept(zeroPounds._empty());
+
+    // Test with non-zero amounts - should not be empty
+    assertFalse.accept(tenPounds._empty());
+    assertFalse.accept(fivePounds._empty());
+    assertFalse.accept(negativePounds._empty());
+
+    // Test with different currencies
+    final var zeroUSD = Money._of("0.00#USD");
+    assertTrue.accept(zeroUSD._empty());
+
+    final var zeroJPY = Money._of("0#JPY");
+    assertTrue.accept(zeroJPY._empty());
+
+    final var nonZeroUSD = Money._of("1.00#USD");
+    assertFalse.accept(nonZeroUSD._empty());
+
+    // Test with unset Money - should return unset Boolean
+    assertUnset.accept(unset._empty());
+
+    // Compare with _isSet behavior
+    assertTrue.accept(zeroPounds._isSet()); // Zero is set
+    assertTrue.accept(zeroPounds._empty()); // Zero is empty
+
+    assertFalse.accept(unset._isSet()); // Unset is not set
+    assertUnset.accept(unset._empty()); // Unset empty is unset
+
+    // Test edge case: very small amount that rounds to zero
+    final var verySmall = Money._of("0.000001#USD");
+    // Should be rounded to 0.00 for USD (2 decimal places)
+    assertTrue.accept(verySmall._empty());
+    assertEquals("0.00#USD", verySmall._string().state);
+  }
+
+  @Test
+  void testCurrencySpecificIncrements() {
+    // Test different currency decimal place behaviors
+    
+    // USD/EUR/GBP: 2 decimal places, increment by 0.01
+    final var usd = Money._of("5.99#USD");
+    final var usdInc = usd._inc();
+    assertEquals("6.00#USD", usdInc._string().state);
+
+    // JPY: 0 decimal places, increment by 1
+    final var jpy = Money._of("999#JPY");
+    final var jpyInc = jpy._inc();
+    assertEquals("1000#JPY", jpyInc._string().state);
+
+    // Test currencies with different decimal places if available
+    try {
+      // Test CLF (Chilean Unidad de Fomento) - has 4 decimal places
+      final var clf = Money._of("99.9999#CLF");
+      if (clf._isSet().state) {
+        final var clfInc = clf._inc();
+        assertEquals("100.0000#CLF", clfInc._string().state);
+      }
+    } catch (Exception _) {
+      // CLF might not be available in all Java installations - that's ok
+    }
+
+    // Test increment around currency boundaries
+    final var almostDollar = Money._of("0.99#USD");
+    final var dollar = almostDollar._inc();
+    assertEquals("1.00#USD", dollar._string().state);
+
+    // Test decrement around currency boundaries
+    final var oneDollar = Money._of("1.00#USD");
+    final var cents = oneDollar._dec();
+    assertEquals("0.99#USD", cents._string().state);
+
+    // Test with negative amounts crossing zero
+    final var negativeCent = Money._of("-0.01#USD");
+    final var zero = negativeCent._inc();
+    assertEquals("0.00#USD", zero._string().state);
+    assertTrue.accept(zero._empty());
+
+    final var backToNegative = zero._dec();
+    assertEquals("-0.01#USD", backToNegative._string().state);
+
+    // Test large increments don't affect precision
+    final var large = Money._of("999999.98#USD");
+    final var largeInc = large._inc();
+    assertEquals("999999.99#USD", largeInc._string().state);
+
+    final var largeInc2 = largeInc._inc();
+    assertEquals("1000000.00#USD", largeInc2._string().state);
+
+    // Test precision is maintained with JPY (integer amounts)
+    final var jpyZero = Money._of("0#JPY");
+    final var jpyOne = jpyZero._inc();
+    assertEquals("1#JPY", jpyOne._string().state);
+
+    final var jpyMinusOne = jpyZero._dec();
+    assertEquals("-1#JPY", jpyMinusOne._string().state);
+
+    // Verify increment/decrement maintains currency
+    assertTrue.accept(usdInc._currency()._eq(String._of("USD")));
+    assertTrue.accept(jpyInc._currency()._eq(String._of("JPY")));
+  }
 }
