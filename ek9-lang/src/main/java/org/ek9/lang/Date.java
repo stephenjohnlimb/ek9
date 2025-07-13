@@ -101,12 +101,11 @@ public class Date extends BuiltinType implements TemporalItem {
   @Ek9Operator("""
       operator |
         -> arg as Date""")
-  public Date _pipe(Date value) {
+  public void _pipe(Date value) {
     //We can only overwrite if piping in dates. not additive
     if (isValid(value)) {
       assign(value.state);
     }
-    return this;
   }
 
   //TODO pipe in Duration.
@@ -301,13 +300,14 @@ public class Date extends BuiltinType implements TemporalItem {
     return new String();
   }
 
+  @Override
   @Ek9Operator("""
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
     final var rtn = new Integer();
     if (isSet) {
-      rtn.assign(this.hashCode());
+      rtn.assign(state.hashCode());
     }
     return rtn;
   }
@@ -316,14 +316,14 @@ public class Date extends BuiltinType implements TemporalItem {
 
   @Ek9Operator("""
       operator :~:
-        -> arg as Character""")
+        -> arg as Date""")
   public void _merge(Date arg) {
     _copy(arg);
   }
 
   @Ek9Operator("""
       operator :^:
-        -> arg as Character""")
+        -> arg as Date""")
   public void _replace(Date arg) {
     _copy(arg);
   }
@@ -339,7 +339,6 @@ public class Date extends BuiltinType implements TemporalItem {
       unSet();
     }
   }
-
 
   @Ek9Operator("""
       operator ++
@@ -373,33 +372,7 @@ public class Date extends BuiltinType implements TemporalItem {
       isSet = beforeIsValid;
       throw new RuntimeException("Constraint violation can't change " + state + " to " + value);
     }
-
   }
-
-  @Override
-  public int hashCode() {
-    return state.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (super.equals(obj) && obj instanceof Date date) {
-      if (isSet) {
-        return state.equals(date.state);
-      }
-      return true;
-    }
-    return false;
-  }
-
-  @Override
-  public java.lang.String toString() {
-    if (isSet) {
-      return this.state.toString();
-    }
-    return "";
-  }
-
 
   protected Date _new() {
     return new Date();

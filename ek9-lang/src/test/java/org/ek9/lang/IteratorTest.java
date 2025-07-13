@@ -263,8 +263,9 @@ class IteratorTest extends Common {
     singleIterator.next(); // Consume the element
     
     final var exception = assertThrows(Exception.class, singleIterator::next);
-    assertNotNull(exception.toString());
-    assertTrue.accept(Boolean._of(exception.toString().contains("No such element")));
+    final var exceptionMessage = exception._string();
+    assertSet.accept(exceptionMessage);
+    assertTrue.accept(exceptionMessage._contains(String._of("No such element")));
     
     // Empty iterator exception
     final var emptyIterator = new Iterator();

@@ -94,6 +94,19 @@ public class List extends BuiltinType {
     return reverse();
   }
 
+
+  @Override
+  @Ek9Operator("""
+      operator == as pure
+        -> arg as Any
+        <- rtn as Boolean?""")
+  public Boolean _eq(Any arg) {
+    if (arg instanceof List asList) {
+      return _eq(asList);
+    }
+    return new Boolean();
+  }
+
   @Ek9Operator("""
       operator == as pure
         -> arg as List of T
@@ -110,10 +123,7 @@ public class List extends BuiltinType {
         -> arg as List of T
         <- rtn as Boolean?""")
   public Boolean _neq(List arg) {
-    if (canProcess(arg)) {
-      return Boolean._of(!this.state.equals(arg.state));
-    }
-    return new Boolean();
+    return _eq(arg)._negate();
   }
 
   @Override
@@ -200,16 +210,17 @@ public class List extends BuiltinType {
       operator $ as pure
         <- rtn as String?""")
   public String _string() {
-    return String._of(toString());
+    return String._of(asString());
   }
 
+  @Override
   @Ek9Operator("""
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
     final var rtn = new Integer();
     if (isSet) {
-      rtn.assign(this.hashCode());
+      rtn.assign(Objects.hashCode(state));
     }
     return rtn;
   }
@@ -351,7 +362,6 @@ public class List extends BuiltinType {
       isSet = beforeIsValid;
       throw new RuntimeException("Constraint violation can't change " + state + " to " + value);
     }
-
   }
 
   @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
@@ -364,8 +374,8 @@ public class List extends BuiltinType {
     throw new Exception(String._of("Index out of bounds: " + numElements + "<=" + index));
   }
 
-  @Override
-  public java.lang.String toString() {
+
+  private java.lang.String asString() {
     StringBuilder buffer = new StringBuilder();
     buffer.append("[");
     int size = this.state.size();
@@ -387,25 +397,6 @@ public class List extends BuiltinType {
   @Override
   protected List _new() {
     return new List();
-  }
-
-  @Override
-  public final boolean equals(final Object o) {
-    if (!(o instanceof final List list)) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
-
-    return Objects.equals(state, list.state);
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = 31 * result + Objects.hashCode(state);
-    return result;
   }
 
   public static List _of(java.util.List<Any> value) {

@@ -108,15 +108,39 @@ public class Optional extends BuiltinType {
     return rtn;
   }
 
+  @Override
   @Ek9Operator("""
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
     final var rtn = new Integer();
     if (isSet) {
-      rtn.assign(this.hashCode());
+      rtn.assign(Objects.hashCode(state));
     }
     return rtn;
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator == as pure
+        -> arg as Any
+        <- rtn as Boolean?""")
+  public Boolean _eq(Any arg) {
+    if (arg instanceof Optional asOptional) {
+      return _eq(asOptional);
+    }
+    return new Boolean();
+  }
+
+  @Ek9Operator("""
+      operator == as pure
+        -> arg as Optional of T
+        <- rtn as Boolean?""")
+  public Boolean _eq(Optional arg) {
+    if (canProcess(arg)) {
+      return Boolean._of(Objects.equals(state, arg.state));
+    }
+    return new Boolean();
   }
 
   @Ek9Operator("""
@@ -184,33 +208,6 @@ public class Optional extends BuiltinType {
   @Override
   protected Optional _new() {
     return new Optional();
-  }
-
-  @Override
-  public final boolean equals(final Object o) {
-    if (!(o instanceof final Optional optional)) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
-
-    return Objects.equals(state, optional.state);
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = 31 * result + Objects.hashCode(state);
-    return result;
-  }
-
-  @Override
-  public java.lang.String toString() {
-    if (isSet) {
-      return this.state + "";
-    }
-    return "";
   }
 
   public static Optional _of() {

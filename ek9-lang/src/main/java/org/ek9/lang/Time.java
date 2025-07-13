@@ -275,10 +275,7 @@ public class Time extends BuiltinType implements TemporalItem {
         -> arg as Time
         <- rtn as Boolean?""")
   public Boolean _neq(Time arg) {
-    if (canProcess(arg)) {
-      return Boolean._of(!this.state.equals(arg.state));
-    }
-    return new Boolean();
+    return _eq(arg)._negate();
   }
 
   @Ek9Operator("""
@@ -318,6 +315,18 @@ public class Time extends BuiltinType implements TemporalItem {
     return new String();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator #? as pure
+        <- rtn as Integer?""")
+  public Integer _hashcode() {
+    final var rtn = new Integer();
+    if (isSet) {
+      rtn.assign(state.hashCode());
+    }
+    return rtn;
+  }
+
   //Start of Utility methods
 
   @Override
@@ -347,32 +356,6 @@ public class Time extends BuiltinType implements TemporalItem {
 
   protected Time _new() {
     return new Time();
-  }
-
-
-  @Override
-  public java.lang.String toString() {
-    if (isSet) {
-      return this.state.toString();
-    }
-    return "";
-  }
-
-  @Override
-  public int hashCode() {
-    return state.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (super.equals(obj) && obj instanceof Time time) {
-      if (isSet) {
-        return state.equals(time.state);
-      }
-      return true;
-    }
-
-    return false;
   }
 
   @SuppressWarnings("checkstyle:CatchParameterName")

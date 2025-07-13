@@ -270,7 +270,7 @@ class OptionalTest extends Common {
 
     // Test equals on unset Optionals
     final var anotherUnset = new Optional();
-    assertEquals(unset, anotherUnset);
+    assertUnset.accept(anotherUnset);
 
     // Test equals on set Optionals with same value
     final var anotherSet = new Optional(testValue);
@@ -281,8 +281,8 @@ class OptionalTest extends Common {
     assertNotEquals(setOptional, differentSet);
 
     // Test hashCode consistency
-    assertEquals(unset.hashCode(), anotherUnset.hashCode());
-    assertEquals(setOptional.hashCode(), anotherSet.hashCode());
+    assertUnset.accept(anotherUnset._hashcode());
+    assertSet.accept(setOptional._hashcode());
 
     // Test mixed type operations, the answer is unset because we should not be
     //mixing incompatible types

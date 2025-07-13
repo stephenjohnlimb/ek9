@@ -1,6 +1,7 @@
 package org.ek9.lang;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.ek9tooling.Ek9Class;
@@ -401,7 +402,7 @@ public class Dimension extends SuffixedComponent {
         <- rtn as Boolean?""")
   public Boolean _eq(Dimension arg) {
     if (canProcess(arg)) {
-      return Boolean._of(compare(arg) == 0);
+      return Boolean._of(nearEnoughToZero(this.state - arg.state) && Objects.equals(this.suffix, arg.suffix));
     }
     return new Boolean();
   }
@@ -411,10 +412,7 @@ public class Dimension extends SuffixedComponent {
         -> arg as Dimension
         <- rtn as Boolean?""")
   public Boolean _neq(Dimension arg) {
-    if (canProcess(arg)) {
-      return Boolean._of(compare(arg) != 0);
-    }
-    return new Boolean();
+    return _eq(arg)._negate();
   }
 
   @Ek9Operator("""
@@ -446,9 +444,21 @@ public class Dimension extends SuffixedComponent {
   @Override
   public String _string() {
     if (isSet) {
-      return String._of(this.toString());
+      return String._of(state + suffix);
     }
     return new String();
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator #? as pure
+        <- rtn as Integer?""")
+  public Integer _hashcode() {
+    final var rtn = new Integer();
+    if (isSet) {
+      rtn.assign(31L * Double.hashCode(state) + suffix.hashCode());
+    }
+    return rtn;
   }
 
   //Start of Utility methods
@@ -508,31 +518,6 @@ public class Dimension extends SuffixedComponent {
       state = 0L;
     }
   }
-
-  @Override
-  public int hashCode() {
-    return Double.hashCode(state) + super.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (super.equals(obj) && obj instanceof Dimension dimension) {
-      if (isSet) {
-        return state == dimension.state && suffix.equals(dimension.suffix);
-      }
-      return true;
-    }
-    return false;
-  }
-
-  @Override
-  public java.lang.String toString() {
-    if (isSet) {
-      return state + suffix;
-    }
-    return "";
-  }
-
 
   protected Dimension _new() {
     return new Dimension();

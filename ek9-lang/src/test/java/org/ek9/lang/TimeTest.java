@@ -141,7 +141,7 @@ class TimeTest extends Common {
     mutatedValue._copy(time2);
     assertEquals(time2, mutatedValue);
     mutatedValue._copy(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     // Set logic
     mutatedValue = new Time();

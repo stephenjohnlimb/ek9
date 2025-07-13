@@ -220,7 +220,7 @@ class CharacterTest extends Common {
     assertEquals(cC, mutatedValue);
 
     mutatedValue._replace(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     //Now just check that it can take a value after being unset
     mutatedValue._replace(cA);
@@ -230,10 +230,10 @@ class CharacterTest extends Common {
   @Test
   void testMergeLogic() {
     var mutatedValue = new Character();
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._merge(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._merge(cA);
     assertEquals(cA, mutatedValue);
@@ -242,16 +242,16 @@ class CharacterTest extends Common {
     assertEquals(cB, mutatedValue);
 
     mutatedValue._merge(unset);
-    assertEquals(unset, mutatedValue);
+    assertEquals(cB, mutatedValue);
   }
 
   @Test
   void testPipeLogic() {
     var mutatedValue = new Character();
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(cA);
     assertEquals(cA, mutatedValue);
@@ -260,7 +260,7 @@ class CharacterTest extends Common {
     assertEquals(cB, mutatedValue);
 
     mutatedValue._pipe(unset);
-    assertEquals(unset, mutatedValue);
+    assertEquals(cB, mutatedValue);
   }
 
   @Test

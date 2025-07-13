@@ -20,39 +20,39 @@ class ExceptionTest extends Common {
   void testConstruction() {
     // Default constructor - creates unset exception
     final var defaultConstructor = new Exception();
-    assertEquals("", defaultConstructor.toString());
-
     assertFalse.accept(defaultConstructor._isSet());
 
     // Constructor with String reason
     final var reasonException = new Exception(simpleReason);
     assertTrue.accept(reasonException._isSet());
-    assertEquals("Exception: Simple error message", reasonException.toString());
+    assertEquals(String._of("Exception: Simple error message"), reasonException._string());
 
     // Constructor with String reason and exit code
     final var reasonExitCodeException = new Exception(complexReason, exitCode42);
-    assertEquals("Exception: Complex error with details: Exit Code: 42", reasonExitCodeException.toString());
+    assertEquals(String._of("Exception: Complex error with details: Exit Code: 42"), reasonExitCodeException._string());
 
     // Constructor with Exception cause
     final var causeException = new Exception(reasonException);
     assertTrue.accept(causeException._isSet());
 
-
     // Constructor with String reason and Exception cause
     final var reasonCauseException = new Exception(simpleReason, reasonException);
-    assertEquals("Exception: Simple error message: Root Cause: Exception: Simple error message", reasonCauseException.toString());
+    assertEquals(String._of("Exception: Simple error message: Root Cause: Exception: Simple error message"),
+        reasonCauseException._string());
 
     // Constructor with String reason, Exception cause, and exit code
     final var fullException = new Exception(complexReason, reasonException, exitCode42);
-    assertEquals("Exception: Complex error with details: Root Cause: Exception: Simple error message: Exit Code: 42", fullException.toString());
+    assertEquals(
+        String._of("Exception: Complex error with details: Root Cause: Exception: Simple error message: Exit Code: 42"),
+        fullException._string());
 
     // Test with unset String
     final var unsetReasonException = new Exception(new String());
-    assertEquals("Exception: ", unsetReasonException.toString());
+    assertUnset.accept(unsetReasonException._string());
 
     // Test with unset exit code
     final var unsetExitException = new Exception(simpleReason, unsetExitCode);
-    assertEquals("Exception: Simple error message", unsetExitException.toString());
+    assertEquals(String._of("Exception: Simple error message"), unsetExitException._string());
   }
 
   @Test
@@ -190,32 +190,33 @@ class ExceptionTest extends Common {
 
     // Just reason
     final var reasonOnly = new Exception(String._of("Error occurred"));
-    assertEquals("Exception: Error occurred", reasonOnly.toString());
+    assertEquals(String._of("Exception: Error occurred"), reasonOnly._string());
 
     // Just exit code (with unset reason)
     final var exitCodeOnly = new Exception(new String(), Integer._of(5));
-    assertEquals("Exception: Exit Code: 5", exitCodeOnly.toString());
+    assertEquals(String._of("Exception: Exit Code: 5"), exitCodeOnly._string());
 
     // Both reason and exit code
     final var bothReasonExit = new Exception(String._of("Fatal error"), Integer._of(255));
-    assertEquals("Exception: Fatal error: Exit Code: 255", bothReasonExit.toString());
+    assertEquals(String._of("Exception: Fatal error: Exit Code: 255"), bothReasonExit._string());
 
     // Empty reason string
     final var emptyReason = new Exception(String._of(""));
-    assertEquals("Exception: ", emptyReason.toString());
+    assertEquals(String._of("Exception: "), emptyReason._string());
 
     // Zero exit code
     final var zeroExit = new Exception(String._of("Success"), Integer._of(0));
-    assertEquals("Exception: Success: Exit Code: 0", zeroExit.toString());
+    assertEquals(String._of("Exception: Success: Exit Code: 0"), zeroExit._string());
 
     // Negative exit code
     final var negativeExit = new Exception(String._of("Error"), Integer._of(-1));
-    assertEquals("Exception: Error: Exit Code: -1", negativeExit.toString());
+    assertEquals(String._of("Exception: Error: Exit Code: -1"), negativeExit._string());
 
     // Very long reason string
-    final var longReason = String._of("This is a very long error message that contains many details about what went wrong in the application and should still be properly formatted");
+    final var longReason = String._of(
+        "This is a very long error message that contains many details about what went wrong in the application and should still be properly formatted");
     final var longReasonException = new Exception(longReason);
-    assertEquals("Exception: This is a very long error message that contains many details about what went wrong in the application and should still be properly formatted", longReasonException.toString());
+    assertEquals(String._of("Exception: " + longReason._string()), longReasonException._string());
   }
 
   @Test
@@ -233,7 +234,9 @@ class ExceptionTest extends Common {
     // Check toString behavior doesn't include cause details (as per implementation)
     assertEquals("Exception: Root cause error", rootCause.toString());
     assertEquals("Exception: Middle cause: Root Cause: Exception: Root cause error", middleCause.toString());
-    assertEquals("Exception: Top level error: Root Cause: Exception: Middle cause: Root Cause: Exception: Root cause error", topLevel.toString());
+    assertEquals(
+        "Exception: Top level error: Root Cause: Exception: Middle cause: Root Cause: Exception: Root cause error",
+        topLevel.toString());
 
     // Check cause chain exists
     assertEquals(middleCause, topLevel.getCause());
@@ -280,9 +283,10 @@ class ExceptionTest extends Common {
     final var level1 = new Exception(String._of("Level 1"));
     final var level2 = new Exception(String._of("Level 2"), level1);
     final var level3 = new Exception(String._of("Level 3"), level2, exitCode42);
-    
+
     assertTrue.accept(level3._isSet());
-    assertEquals("Exception: Level 3: Root Cause: Exception: Level 2: Root Cause: Exception: Level 1: Exit Code: 42", level3.toString());
+    assertEquals("Exception: Level 3: Root Cause: Exception: Level 2: Root Cause: Exception: Level 1: Exit Code: 42",
+        level3.toString());
     assertEquals(level2, level3.getCause());
     assertEquals(level1, level2.getCause());
   }
@@ -299,14 +303,12 @@ class ExceptionTest extends Common {
     assertNotEquals(exception1, exception3);
 
     // But their string representations should be equal if same
-    assertEquals(exception1.toString(), exception2.toString());
-    assertNotEquals(exception1.toString(), exception3.toString());
+    assertEquals(exception1._string(), exception2._string());
+    assertNotEquals(exception1._string(), exception3._string());
 
     // Unset exceptions
     final var unset1 = new Exception();
-    final var unset2 = new Exception();
-    assertEquals(unset1.toString(), unset2.toString());
-    assertEquals("", unset1.toString());
+    assertUnset.accept(unset1._string());
   }
 
   @Test
@@ -314,16 +316,16 @@ class ExceptionTest extends Common {
     // Test with special characters in reason
     final var specialCharsReason = String._of("Error: Invalid input! @#$%^&*()");
     final var specialCharsException = new Exception(specialCharsReason);
-    assertEquals("Exception: Error: Invalid input! @#$%^&*()", specialCharsException.toString());
+    assertEquals(String._of("Exception: Error: Invalid input! @#$%^&*()"), specialCharsException._string());
 
     // Test with newlines and tabs
     final var newlineReason = String._of("Line 1\nLine 2\tTabbed");
     final var newlineException = new Exception(newlineReason);
-    assertEquals("Exception: Line 1\nLine 2\tTabbed", newlineException.toString());
+    assertEquals(String._of("Exception: Line 1\nLine 2\tTabbed"), newlineException._string());
 
     // Test with Unicode characters
     final var unicodeReason = String._of("Unicode test: \u2603 \u263A \u2665");
     final var unicodeException = new Exception(unicodeReason);
-    assertEquals("Exception: Unicode test: \u2603 \u263A \u2665", unicodeException.toString());
+    assertEquals(String._of("Exception: Unicode test: \u2603 \u263A \u2665"), unicodeException._string());
   }
 }

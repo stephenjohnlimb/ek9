@@ -455,10 +455,23 @@ public class Resolution extends SuffixedComponent {
   @Override
   public String _string() {
     if (isSet) {
-      return String._of(this.toString());
+      return String._of(state + suffix);
     }
     return new String();
   }
+
+  @Override
+  @Ek9Operator("""
+      operator #? as pure
+        <- rtn as Integer?""")
+  public Integer _hashcode() {
+    final var rtn = new Integer();
+    if (isSet) {
+      rtn.assign(31L * Long.hashCode(state) + suffix.hashCode());
+    }
+    return rtn;
+  }
+
 
   //Start of Utility methods
 
@@ -511,30 +524,6 @@ public class Resolution extends SuffixedComponent {
     if (suffix != null) {
       state = 0L;
     }
-  }
-
-  @Override
-  public int hashCode() {
-    return Double.hashCode(state) + super.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (super.equals(obj) && obj instanceof Resolution resolution) {
-      if (isSet) {
-        return state == resolution.state && suffix.equals(resolution.suffix);
-      }
-      return true;
-    }
-    return false;
-  }
-
-  @Override
-  public java.lang.String toString() {
-    if (isSet) {
-      return state + suffix;
-    }
-    return "";
   }
 
   protected Resolution _new() {

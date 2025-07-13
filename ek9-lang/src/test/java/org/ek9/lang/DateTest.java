@@ -152,14 +152,14 @@ class DateTest extends Common {
     mutatedValue._replace(date2);
     assertEquals(date2, mutatedValue);
     mutatedValue._replace(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     // Merge logic
     mutatedValue = new Date();
     mutatedValue._merge(date1);
     assertEquals(date1, mutatedValue);
     mutatedValue._merge(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     // Pipe logic
     mutatedValue = new Date();

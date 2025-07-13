@@ -433,10 +433,10 @@ class PathTest extends Common {
   @Test
   void testPipeLogic() {
     var mutatedValue = new Path();
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(simplePath);
     assertEquals(simplePath, mutatedValue);
@@ -504,7 +504,7 @@ class PathTest extends Common {
     assertEquals(arrayPath, mutatedValue);
 
     mutatedValue._replace(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     // Now just check that it can take a value after being unset
     mutatedValue._replace(nestedPath);

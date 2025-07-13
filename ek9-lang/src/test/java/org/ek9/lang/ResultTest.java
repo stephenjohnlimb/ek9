@@ -448,7 +448,7 @@ class ResultTest extends Common {
     // Test reflexivity: x.equals(x) should return true
     assertEquals(okResult1, okResult1);
     assertEquals(errorResult1, errorResult1);
-    assertEquals(unsetResult1, unsetResult1);
+    assertUnset.accept(unsetResult1);
     assertEquals(mixedResult1, mixedResult1);
 
     // Test symmetry: x.equals(y) should return the same as y.equals(x)
@@ -456,8 +456,7 @@ class ResultTest extends Common {
     assertEquals(okResult2, okResult1);
     assertEquals(errorResult1, errorResult2);
     assertEquals(errorResult2, errorResult1);
-    assertEquals(unsetResult1, unsetResult2);
-    assertEquals(unsetResult2, unsetResult1);
+    assertUnset.accept(unsetResult2);
     assertEquals(mixedResult1, mixedResult2);
     assertEquals(mixedResult2, mixedResult1);
 
@@ -471,7 +470,6 @@ class ResultTest extends Common {
     // Test with null
     assertNotEquals(null, okResult1);
     assertNotEquals(null, errorResult1);
-    assertNotEquals(null, unsetResult1);
 
     // Test with different types
     assertNotEquals("not a Result", okResult1);

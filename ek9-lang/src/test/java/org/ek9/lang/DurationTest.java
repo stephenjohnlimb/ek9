@@ -293,7 +293,8 @@ class DurationTest extends Common {
     assertEquals(Integer._of(1), oneMinute._cmp(oneSecond));
 
     assertUnset.accept(unset._cmp(oneSecond));
-    assertUnset.accept(oneMinute._cmp(new Any(){}));
+    assertUnset.accept(oneMinute._cmp(new Any() {
+    }));
   }
 
   @Test
@@ -315,7 +316,9 @@ class DurationTest extends Common {
 
     // Chain piping
     var mutable4 = new Duration();
-    mutable4._pipe(oneSecond)._pipe(oneSecond)._pipe(oneSecond);
+    mutable4._pipe(oneSecond);
+    mutable4._pipe(oneSecond);
+    mutable4._pipe(oneSecond);
     assertEquals(Integer._of(3), mutable4.seconds());
   }
 

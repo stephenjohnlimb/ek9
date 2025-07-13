@@ -14,6 +14,7 @@ import org.ek9tooling.Ek9Operator;
     Exception as open""")
 public class Exception extends RuntimeException implements Any {
 
+  //Note that the isSet nature also includes state if we had an actual java exception reason in the super
   boolean isSet = true;
 
   String reason = new String();
@@ -63,7 +64,11 @@ public class Exception extends RuntimeException implements Any {
       Exception() as pure
         -> reason as String""")
   public Exception(String reason) {
-    this.reason = reason;
+    this();
+    if (reason.isSet) {
+      this.reason = reason;
+      isSet = true;
+    }
   }
 
   @Ek9Constructor("""
@@ -73,7 +78,10 @@ public class Exception extends RuntimeException implements Any {
           exitCode as Integer""")
   public Exception(String reason, Integer exitCode) {
     this(reason);
-    this.exitCode._copy(exitCode);
+    if (exitCode.isSet) {
+      this.exitCode._copy(exitCode);
+      isSet = true;
+    }
   }
 
   @Ek9Constructor("""
@@ -131,6 +139,30 @@ public class Exception extends RuntimeException implements Any {
     return Boolean._of(isSet);
   }
 
+  @Override
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as Any
+        <- rtn as Integer?""")
+  public Integer _cmp(Any arg) {
+    if (arg instanceof Exception asException) {
+      return _string()._cmp(asException._string());
+    }
+    return new Integer();
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator #? as pure
+        <- rtn as Integer?""")
+  public Integer _hashcode() {
+    final var rtn = new Integer();
+    if (isSet) {
+      rtn.assign(_string().hashCode());
+    }
+    return rtn;
+  }
+
   //Start of Utility methods
 
   @Override
@@ -141,7 +173,7 @@ public class Exception extends RuntimeException implements Any {
         builder.append(reason.state);
       }
 
-      final var underlyingMessage = getMessage();
+      final var underlyingMessage = super.getMessage();
       if (underlyingMessage != null) {
         if (!builder.isEmpty()) {
           builder.append(": ");
@@ -161,7 +193,6 @@ public class Exception extends RuntimeException implements Any {
     }
     return "";
   }
-
 
   public static Exception _of(java.lang.String reason) {
     return new Exception(reason);

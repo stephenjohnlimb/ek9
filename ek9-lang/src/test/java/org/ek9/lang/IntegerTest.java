@@ -142,21 +142,21 @@ class IntegerTest extends Common {
 
     //Negate
     assertEquals(iMinus1, i1._negate());
-    assertEquals(unset, unset._negate());
+    assertUnset.accept(unset._negate());
 
     //Addition
     assertEquals(iMinus1, i0._add(iMinus1));
     assertEquals(i0, i1._add(iMinus1));
     assertEquals(i0, iMinus1._add(i1));
-    assertEquals(unset, unset._add(i1));
-    assertEquals(unset, i0._add(unset));
+    assertUnset.accept(unset._add(i1));
+    assertUnset.accept(i0._add(unset));
 
     //Substraction
     assertEquals(iMinus1, i0._sub(i1));
     assertEquals(i0, i1._sub(i1));
     assertEquals(i0, iMinus1._sub(iMinus1));
-    assertEquals(unset, unset._sub(i1));
-    assertEquals(unset, i0._sub(unset));
+    assertUnset.accept(unset._sub(i1));
+    assertUnset.accept(i0._sub(unset));
 
     //Multiplication
     assertEquals(i0, i0._mul(i1));
@@ -165,8 +165,8 @@ class IntegerTest extends Common {
     assertEquals(iMinus2, i2._mul(iMinus1));
     assertEquals(i4, i2._mul(i2));
     assertEquals(i4, iMinus2._mul(iMinus2));
-    assertEquals(unset, unset._mul(i1));
-    assertEquals(unset, i0._mul(unset));
+    assertUnset.accept(unset._mul(i1));
+    assertUnset.accept(i0._mul(unset));
 
     //Division
     assertEquals(i1, i2._div(i2));
@@ -175,15 +175,15 @@ class IntegerTest extends Common {
     assertEquals(iMinus2, i4._div(iMinus2));
     assertEquals(i0, i0._div(i2));
 
-    assertEquals(unset, i0._div(i0));
-    assertEquals(unset, i0._div(unset));
-    assertEquals(unset, unset._div(i2));
+    assertUnset.accept(i0._div(i0));
+    assertUnset.accept( i0._div(unset));
+    assertUnset.accept(unset._div(i2));
 
     assertEquals(i2, i1._inc());
-    assertEquals(unset, unset._inc());
+    assertUnset.accept(unset._inc());
 
     assertEquals(iMinus1, i0._dec());
-    assertEquals(unset, unset._dec());
+    assertUnset.accept(unset._dec());
 
   }
 
@@ -193,14 +193,14 @@ class IntegerTest extends Common {
     //Sqrt
     assertUnset.accept(unset._sqrt());
     assertEquals(i2._promote(), i4._sqrt());
-    assertEquals(unset._promote(), i0._sqrt());
+    assertUnset.accept(i0._sqrt());
 
     //Pow
-    assertEquals(unset._promote(), i2._pow(unset));
+    assertUnset.accept(i2._pow(unset));
     assertEquals(i2._promote(), i2._pow(i1));
     assertEquals(i4._promote(), i2._pow(i2));
 
-    assertEquals(unset._promote(), i2._pow(unset._promote()));
+    assertUnset.accept(i2._pow(unset._promote()));
     assertEquals(i2._promote(), i2._pow(i1._promote()));
     assertEquals(i4._promote(), i2._pow(i2._promote()));
 
@@ -209,29 +209,29 @@ class IntegerTest extends Common {
     assertEquals(i0._promote(), i1._add(iMinus1._promote()));
     assertEquals(i0._promote(), iMinus1._add(i1._promote()));
 
-    assertEquals(unset._promote(), unset._add(i1._promote()));
-    assertEquals(unset._promote(), i0._add(unset._promote()));
+    assertUnset.accept(unset._add(i1._promote()));
+    assertUnset.accept(i0._add(unset._promote()));
 
     //Specific calculations
     assertEquals(Float._of(2.456), i1._add(Float._of(1.456)));
 
     assertEquals(Float._of(-0.3999999999999999), i1._sub(Float._of(1.400)));
-    assertEquals(unset._promote(), i0._sub(unset._promote()));
+    assertUnset.accept(i0._sub(unset._promote()));
 
     assertEquals(Float._of(2.8), i2._mul(Float._of(1.400)));
-    assertEquals(unset._promote(), i0._mul(unset._promote()));
+    assertUnset.accept(i0._mul(unset._promote()));
 
     assertEquals(Float._of(0.9955201592832256), i2._div(Float._of(2.0090)));
     assertEquals(Float._of(1.9999999999999998E15), i2._div(Float._of(0.000000000000001)));
-    assertEquals(unset._promote(), i0._div(unset._promote()));
+    assertUnset.accept(i0._div(unset._promote()));
 
     //Check division of small numbers by smaller numbers.
     assertEquals(Float._of(1.0019913530064882E122), Float._of(10E-200)._div(Float._of(10E-322)));
     //Check loss of precision leading to infinity.
-    assertEquals(unset._promote(), i2._div(Float._of(10E-322)));
+    assertUnset.accept(i2._div(Float._of(10E-322)));
 
     //Divide by zero check
-    assertEquals(unset._promote(), i2._div(i0._promote()));
+    assertUnset.accept( i2._div(i0._promote()));
   }
 
   @Test
@@ -283,12 +283,14 @@ class IntegerTest extends Common {
     assertEquals(i0, i0._abs());
     assertEquals(i2, i2._abs());
     assertEquals(i2, iMinus2._abs());
-    assertEquals(unset, unset._abs());
+    assertUnset.accept(unset._abs());
 
     assertEquals(Integer._of(24L), i4._fac());
-    assertEquals(unset, iMinus2._fac());
+
+    //Not logical to be able to get the factorial of a negative number.
+    assertUnset.accept(iMinus2._fac());
     assertEquals(i1, i0._fac());
-    assertEquals(unset, unset._fac());
+    assertUnset.accept(unset._fac());
   }
 
   @Test
@@ -421,10 +423,10 @@ class IntegerTest extends Common {
   void testPipeLogic() {
 
     var mutatedValue = new Integer();
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept( mutatedValue);
 
     mutatedValue._pipe(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept( mutatedValue);
 
     mutatedValue._pipe(i1);
     assertEquals(i1, mutatedValue);
@@ -455,7 +457,7 @@ class IntegerTest extends Common {
 
     for (var operator : getIntegerAssignmentOperations(mutatedValue)) {
       operator.accept(new Integer());
-      assertEquals(unset, mutatedValue);
+      assertUnset.accept(mutatedValue);
       //Now set it back again for next time around loop.
       mutatedValue._copy(i0);
       assertEquals(i0, mutatedValue);
@@ -493,7 +495,7 @@ class IntegerTest extends Common {
     assertEquals(i2, mutatedValue);
 
     mutatedValue._replace(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     //Now just check that it can take a value after being unset
     mutatedValue._replace(i4);

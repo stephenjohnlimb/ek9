@@ -32,12 +32,10 @@ class BooleanTest extends Common {
     assertEquals(true1, alsoTrue);
 
     final var unset = new Boolean(new Boolean());
-    assertEquals(new Boolean(), unset);
+    assertUnset.accept(unset._eq(new Boolean()));
 
     final var viaString = new Boolean(String._of("true"));
     assertEquals(true1, viaString);
-    final var viaUnsetString = new Boolean(new String());
-    assertEquals(unset, viaUnsetString);
   }
 
   @Test
@@ -120,9 +118,8 @@ class BooleanTest extends Common {
 
     //Now, no matter what you do with unset, it will always be unset
 
-    assertEquals(unset1, unset2);
-    assertEquals(unset1, unset2._negate());
-    assertEquals(unset1, unset1._negate());
+    assertUnset.accept(unset2);
+    assertUnset.accept( unset2._negate());
   }
 
   @Test
@@ -137,7 +134,7 @@ class BooleanTest extends Common {
     final var falseExpected = new Boolean(falseStr);
     assertEquals(false1, falseExpected);
 
-    assertEquals(new String(), new Boolean()._string());
+    assertUnset.accept(new Boolean()._string());
   }
 
   @Test
@@ -158,20 +155,20 @@ class BooleanTest extends Common {
     assertEquals(Boolean._of("true"), true1._and(true2));
     assertEquals(Boolean._of("false"), true1._and(false1));
     assertEquals(Boolean._of("false"), false1._and(true1));
-    assertEquals(unset, false1._and(unset));
-    assertEquals(unset, unset._and(false1));
+    assertUnset.accept(false1._and(unset));
+    assertUnset.accept(unset._and(false1));
 
     assertEquals(Boolean._of("true"), true1._or(true2));
     assertEquals(Boolean._of("true"), true1._or(false1));
     assertEquals(Boolean._of("true"), false1._or(true1));
     assertEquals(Boolean._of("false"), false1._or(false2));
-    assertEquals(unset, false1._or(unset));
-    assertEquals(unset, unset._or(false1));
+    assertUnset.accept( false1._or(unset));
+    assertUnset.accept(unset._or(false1));
 
     assertEquals(Boolean._of("false"), true1._xor(true2));
     assertEquals(Boolean._of("false"), false1._xor(false2));
-    assertEquals(unset, false1._xor(unset));
-    assertEquals(unset, unset._xor(false1));
+    assertUnset.accept(false1._xor(unset));
+    assertUnset.accept(unset._xor(false1));
 
     assertEquals(Boolean._of("true"), true1._xor(false2));
     assertEquals(Boolean._of("true"), false1._xor(true2));
@@ -187,8 +184,8 @@ class BooleanTest extends Common {
     assertEquals(Boolean._of("true"), false1._add(true1));
     assertEquals(Boolean._of("false"), false1._add(false2));
 
-    assertEquals(unset, false1._add(unset));
-    assertEquals(unset, unset._add(false1));
+    assertUnset.accept(false1._add(unset));
+    assertUnset.accept(unset._add(false1));
 
   }
 
@@ -199,13 +196,13 @@ class BooleanTest extends Common {
     assertEquals(true1, mutatedBoolean);
 
     mutatedBoolean._addAss(unset);
-    assertEquals(unset, mutatedBoolean);
+    assertUnset.accept(mutatedBoolean);
 
     mutatedBoolean._addAss(true1);
-    assertEquals(unset, mutatedBoolean);
+    assertUnset.accept( mutatedBoolean);
 
     mutatedBoolean._addAss(false1);
-    assertEquals(unset, mutatedBoolean);
+    assertUnset.accept(mutatedBoolean);
 
   }
 
@@ -251,7 +248,7 @@ class BooleanTest extends Common {
     assertEquals(false1, mutatedBoolean);
 
     mutatedBoolean._replace(unset);
-    assertEquals(unset, mutatedBoolean);
+    assertUnset.accept(mutatedBoolean);
 
     //Now just check that it can take a value after being unset
     mutatedBoolean._replace(true1);
@@ -264,10 +261,10 @@ class BooleanTest extends Common {
 
     final var unset = new Boolean();
     var mutatedBoolean = new Boolean();
-    assertEquals(unset, mutatedBoolean);
+    assertUnset.accept(mutatedBoolean);
 
     mutatedBoolean._pipe(unset);
-    assertEquals(unset, mutatedBoolean);
+    assertUnset.accept(mutatedBoolean);
 
     mutatedBoolean._pipe(false1);
     assertEquals(false1, mutatedBoolean);
@@ -275,9 +272,14 @@ class BooleanTest extends Common {
     mutatedBoolean._pipe(true1);
     assertEquals(true1, mutatedBoolean);
 
-    //But now it's true it will always be tru
+    //But now it's true it will always be true
     mutatedBoolean._pipe(false1);
     assertEquals(true1, mutatedBoolean);
+
+    //Even if we pipe unset back in - that will be ignored for pipes.
+    mutatedBoolean._pipe(unset);
+    assertEquals(true1, mutatedBoolean);
+
   }
 
 }

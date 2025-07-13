@@ -616,8 +616,8 @@ class BitsTest extends Common {
     assertNotEquals(null, bits010011);
     assertNotEquals("not a bits", bits010011);
 
-    // Unset bits are equal
-    assertEquals(new Bits(), new Bits());
+    //No point in comparing to unset bits, they are unset and so that has no meaning.
+    assertUnset.accept(new Bits());
 
     // Hash code consistency
     assertEquals(bits010011.hashCode(), Bits._of("010011").hashCode());

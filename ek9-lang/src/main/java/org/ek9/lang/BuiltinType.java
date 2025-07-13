@@ -30,7 +30,7 @@ public abstract class BuiltinType implements Any {
    * Given the current build in type and the value built in type can the processing go ahead.
    *
    * @param value The value checked for null and isSet.
-   * @return true if the processing can go ahead, false otherised.
+   * @return true if the processing can go ahead, false otherwise.
    */
   protected boolean canProcess(final BuiltinType value) {
     return isSet && isValid(value);
@@ -38,6 +38,10 @@ public abstract class BuiltinType implements Any {
 
   protected boolean canProcess(final Any value) {
     return isSet && isValid(value);
+  }
+
+  protected boolean nearEnoughToZero(final double arg) {
+    return Math.abs(arg) < 10E-323;
   }
 
   /*
@@ -70,15 +74,37 @@ public abstract class BuiltinType implements Any {
 
   @Override
   public boolean equals(final Object o) {
-    if (!(o instanceof final BuiltinType that)) {
+
+    //Cannot possibly be equal.
+    if (!(o instanceof final Any any)) {
       return false;
     }
 
-    return isSet == that.isSet;
+    //Might be equal, so delegate to the Ek9 implementation if defined to see.
+    final var ek9Result = _eq(any);
+    return ek9Result.isSet && ek9Result.state;
+
   }
 
   @Override
   public int hashCode() {
+
+    //Delegate to the Ek9 implementation if defined beyond the default in 'Any'
+    final var ek9Result = _hashcode();
+    if (ek9Result.isSet) {
+      return (int) ek9Result.state;
+    }
     return java.lang.Boolean.hashCode(isSet);
+  }
+
+  @Override
+  public java.lang.String toString() {
+
+    //Also just delegate to Ek9 for a String representation.
+    final var ek9Result = _string();
+    if (ek9Result.isSet) {
+      return ek9Result.state;
+    }
+    return "";
   }
 }

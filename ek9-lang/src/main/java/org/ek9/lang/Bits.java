@@ -87,13 +87,14 @@ public class Bits extends BuiltinType {
     return new String();
   }
 
+  @Override
   @Ek9Operator("""
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
     final var rtn = new Integer();
     if (isSet) {
-      rtn.assign(this.hashCode());
+      rtn.assign(java.util.Objects.hash(state, length));
     }
     return rtn;
   }
@@ -661,34 +662,6 @@ public class Bits extends BuiltinType {
     }
 
     return 0; // Equal
-  }
-
-  @Override
-  public int hashCode() {
-    if (!isSet) {
-      return super.hashCode();
-    }
-    return java.util.Objects.hash(state, length);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (!super.equals(obj) || !(obj instanceof Bits other)) {
-      return false;
-    }
-
-    if (isSet) {
-      return length == other.length && state.equals(other.state);
-    }
-    return true;
-  }
-
-  @Override
-  public java.lang.String toString() {
-    if (isSet) {
-      return toBitString();
-    }
-    return "";
   }
 
   // Factory methods

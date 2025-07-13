@@ -115,10 +115,7 @@ public class Float extends BuiltinType {
         -> arg as Float
         <- rtn as Boolean?""")
   public Boolean _neq(Float arg) {
-    if (canProcess(arg)) {
-      return Boolean._of(!nearEnoughToZero(this.state - arg.state));
-    }
-    return new Boolean();
+    return _eq(arg)._negate();
   }
 
   @Ek9Operator("""
@@ -127,13 +124,15 @@ public class Float extends BuiltinType {
         <- rtn as Integer?""")
   public Integer _cmp(Float arg) {
     if (canProcess(arg)) {
+      if (nearEnoughToZero(this.state - arg.state)) {
+        return Integer._of(0);
+      }
       if (this.state < arg.state) {
         return Integer._of(-1);
       }
       if (this.state > arg.state) {
         return Integer._of(1);
       }
-      return Integer._of(0);
     }
     return new Integer();
   }
@@ -300,7 +299,6 @@ public class Float extends BuiltinType {
     return rtn;
   }
 
-
   @Ek9Operator("""
       operator ^ as pure
         -> arg as Float
@@ -324,13 +322,14 @@ public class Float extends BuiltinType {
     return new String();
   }
 
+  @Override
   @Ek9Operator("""
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
     final var rtn = new Integer();
     if (isSet) {
-      rtn.assign(this.hashCode());
+      rtn.assign(Double.hashCode(state));
     }
     return rtn;
   }
@@ -587,38 +586,6 @@ public class Float extends BuiltinType {
       throw new RuntimeException("Constraint violation can't change " + state + " to " + arg);
     }
 
-  }
-
-  @Override
-  public int hashCode() {
-    return Double.hashCode(state);
-  }
-
-  /**
-   * Compares within a threshold.
-   * For full math checking programmer should be checking within their own threshold limits and not using equals.
-   */
-  @Override
-  public boolean equals(Object obj) {
-    if (super.equals(obj) && obj instanceof Float value) {
-      if (isSet) {
-        return nearEnoughToZero(state - value.state);
-      }
-      return true;
-    }
-    return false;
-  }
-
-  @Override
-  public java.lang.String toString() {
-    if (this.isSet) {
-      return this.state + "";
-    }
-    return "";
-  }
-
-  private boolean nearEnoughToZero(final double arg) {
-    return Math.abs(arg) < 10E-323;
   }
 
   @SuppressWarnings("checkstyle:CatchParameterName")

@@ -2,6 +2,7 @@ package org.ek9.lang;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.ek9tooling.Ek9Class;
@@ -353,7 +354,6 @@ public class Millisecond extends SuffixedComponent {
   }
 
 
-
   @Ek9Operator("""
       operator -=
         -> arg as Duration""")
@@ -481,6 +481,18 @@ public class Millisecond extends SuffixedComponent {
     return new Boolean();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator == as pure
+        -> arg as Any
+        <- rtn as Boolean?""")
+  public Boolean _eq(Any arg) {
+    if (arg instanceof Millisecond asMillisecond) {
+      return _eq(asMillisecond);
+    }
+    return new Boolean();
+  }
+
   @Ek9Operator("""
       operator == as pure
         -> arg as Millisecond
@@ -538,17 +550,27 @@ public class Millisecond extends SuffixedComponent {
   @Override
   public String _string() {
     if (isSet) {
-      return String._of(this.toString());
+      return String._of(state + suffix);
     }
     return new String();
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator #? as pure
+        <- rtn as Integer?""")
+  public Integer _hashcode() {
+    final var rtn = new Integer();
+    if (isSet) {
+      rtn.assign(Objects.hashCode(state + suffix));
+    }
+    return rtn;
   }
 
   //Start of Utility methods
 
   private java.lang.Integer compare(Millisecond arg) {
-
     return Long.compare(this.state, arg.state);
-
   }
 
   private void assign(Millisecond arg) {
@@ -575,7 +597,6 @@ public class Millisecond extends SuffixedComponent {
       isSet = beforeIsValid;
       throw new RuntimeException("Constraint violation can't change " + this + " to " + stringTo);
     }
-
   }
 
   @Override
@@ -586,31 +607,6 @@ public class Millisecond extends SuffixedComponent {
       state = 0L;
     }
   }
-
-  @Override
-  public int hashCode() {
-    return Double.hashCode(state) + super.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (super.equals(obj) && obj instanceof Millisecond millisecond) {
-      if (isSet) {
-        return state == millisecond.state && suffix.equals(millisecond.suffix);
-      }
-      return true;
-    }
-    return false;
-  }
-
-  @Override
-  public java.lang.String toString() {
-    if (isSet) {
-      return state + suffix;
-    }
-    return "";
-  }
-
 
   protected Millisecond _new() {
     return new Millisecond();

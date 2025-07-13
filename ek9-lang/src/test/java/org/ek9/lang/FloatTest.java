@@ -154,21 +154,21 @@ class FloatTest extends Common {
 
     //Negate
     assertEquals(fMinus1, f1._negate());
-    assertEquals(unset, unset._negate());
+    assertUnset.accept( unset._negate());
 
     //Addition
     assertEquals(fMinus1, f0._add(fMinus1));
     assertEquals(f0, f1._add(fMinus1));
     assertEquals(f0, fMinus1._add(f1));
-    assertEquals(unset, unset._add(f1));
-    assertEquals(unset, f0._add(unset));
+    assertUnset.accept(unset._add(f1));
+    assertUnset.accept(f0._add(unset));
 
     //Substraction
     assertEquals(fMinus1, f0._sub(f1));
     assertEquals(f0, f1._sub(f1));
     assertEquals(f0, fMinus1._sub(fMinus1));
-    assertEquals(unset, unset._sub(f1));
-    assertEquals(unset, f0._sub(unset));
+    assertUnset.accept(unset._sub(f1));
+    assertUnset.accept(f0._sub(unset));
 
     //Multiplication
     assertEquals(f0, f0._mul(f1));
@@ -177,8 +177,8 @@ class FloatTest extends Common {
     assertEquals(fMinus2, f2._mul(fMinus1));
     assertEquals(f4, f2._mul(f2));
     assertEquals(f4, fMinus2._mul(fMinus2));
-    assertEquals(unset, unset._mul(f1));
-    assertEquals(unset, f0._mul(unset));
+    assertUnset.accept(unset._mul(f1));
+    assertUnset.accept(f0._mul(unset));
 
     //Division
     assertEquals(f1, f2._div(f2));
@@ -187,15 +187,15 @@ class FloatTest extends Common {
     assertEquals(fMinus2, f4._div(fMinus2));
     assertEquals(f0, f0._div(f2));
 
-    assertEquals(unset, f0._div(f0));
-    assertEquals(unset, f0._div(unset));
-    assertEquals(unset, unset._div(f2));
+    assertUnset.accept(f0._div(f0));
+    assertUnset.accept( f0._div(unset));
+    assertUnset.accept(unset._div(f2));
 
     assertEquals(f2, f1._inc());
-    assertEquals(unset, unset._inc());
+    assertUnset.accept(unset._inc());
 
     assertEquals(fMinus1, f0._dec());
-    assertEquals(unset, unset._dec());
+    assertUnset.accept(unset._dec());
 
   }
 
@@ -204,26 +204,26 @@ class FloatTest extends Common {
 
     assertEquals(Float._of(4.5f), f4Point5._add(Integer._of(0)));
     assertEquals(Float._of(5.5f), f4Point5._add(Integer._of(1)));
-    assertEquals(unset, f4Point5._add(new Integer()));
-    assertEquals(unset, unset._add(Integer._of(0)));
+    assertUnset.accept(f4Point5._add(new Integer()));
+    assertUnset.accept(unset._add(Integer._of(0)));
 
 
     assertEquals(Float._of(3.5f), f4Point5._sub(Integer._of(1)));
     assertEquals(Float._of(5.5f), f4Point5._sub(Integer._of(-1)));
-    assertEquals(unset, f4Point5._sub(new Integer()));
-    assertEquals(unset, unset._sub(Integer._of(0)));
+    assertUnset.accept(f4Point5._sub(new Integer()));
+    assertUnset.accept(unset._sub(Integer._of(0)));
 
     assertEquals(Float._of(9.0f), f4Point5._mul(Integer._of(2)));
     assertEquals(Float._of(-9.0f), f4Point5._mul(Integer._of(-2)));
-    assertEquals(unset, f4Point5._mul(new Integer()));
-    assertEquals(unset, unset._mul(Integer._of(0)));
+    assertUnset.accept(f4Point5._mul(new Integer()));
+    assertUnset.accept(unset._mul(Integer._of(0)));
 
     assertEquals(Float._of(2.25f), f4Point5._div(Integer._of(2)));
     assertEquals(Float._of(-2.25f), f4Point5._div(Integer._of(-2)));
     //Now try divide by zero and divide by unset
-    assertEquals(unset, f4Point5._div(Integer._of(0)));
-    assertEquals(unset, f4Point5._div(new Integer()));
-    assertEquals(unset, unset._div(Integer._of(0)));
+    assertUnset.accept(f4Point5._div(Integer._of(0)));
+    assertUnset.accept(f4Point5._div(new Integer()));
+    assertUnset.accept(unset._div(Integer._of(0)));
 
   }
 
@@ -233,10 +233,10 @@ class FloatTest extends Common {
     //Sqrt
     assertUnset.accept(unset._sqrt());
     assertEquals(f2, f4._sqrt());
-    assertEquals(unset, f0._sqrt());
+    assertUnset.accept(f0._sqrt());
 
     //Pow
-    assertEquals(unset, f2._pow(unset));
+    assertUnset.accept(f2._pow(unset));
     assertEquals(f2, f2._pow(f1));
     assertEquals(f4, f2._pow(f2));
 
@@ -245,29 +245,29 @@ class FloatTest extends Common {
     assertEquals(f0, f1._add(fMinus1));
     assertEquals(f0, fMinus1._add(f1));
 
-    assertEquals(unset, unset._add(f1));
-    assertEquals(unset, f0._add(unset));
+    assertUnset.accept(unset._add(f1));
+    assertUnset.accept(f0._add(unset));
 
     //Specific calculations
     assertEquals(Float._of(2.456), f1._add(Float._of(1.456)));
 
     assertEquals(Float._of(-0.3999999999999999), f1._sub(Float._of(1.400)));
-    assertEquals(unset, f0._sub(unset));
+    assertUnset.accept(f0._sub(unset));
 
     assertEquals(Float._of(2.8), f2._mul(Float._of(1.400)));
-    assertEquals(unset, f0._mul(unset));
+    assertUnset.accept(f0._mul(unset));
 
     assertEquals(Float._of(0.9955201592832256), f2._div(Float._of(2.0090)));
     assertEquals(Float._of(1.9999999999999998E15), f2._div(Float._of(0.000000000000001)));
-    assertEquals(unset, f0._div(unset));
+    assertUnset.accept(f0._div(unset));
 
     //Check division of small numbers by smaller numbers.
     assertEquals(Float._of(1.0019913530064882E122), Float._of(10E-200)._div(Float._of(10E-322)));
     //Check loss of precision leading to infinity.
-    assertEquals(unset, f2._div(Float._of(10E-322)));
+    assertUnset.accept(f2._div(Float._of(10E-322)));
 
     //Divide by zero check
-    assertEquals(unset, f2._div(f0));
+    assertUnset.accept(f2._div(f0));
   }
 
   @Test
@@ -320,7 +320,7 @@ class FloatTest extends Common {
     assertEquals(f0, f0._abs());
     assertEquals(f2, f2._abs());
     assertEquals(f2, fMinus2._abs());
-    assertEquals(unset, unset._abs());
+    assertUnset.accept(unset._abs());
   }
 
   @Test
@@ -344,10 +344,10 @@ class FloatTest extends Common {
   void testPipeLogic() {
 
     var mutatedValue = new Float();
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(f1);
     assertEquals(f1, mutatedValue);
@@ -382,7 +382,7 @@ class FloatTest extends Common {
 
     for (var operator : getFloatAssignmentOperations(mutatedValue)) {
       operator.accept(unset);
-      assertEquals(unset, mutatedValue);
+      assertUnset.accept(mutatedValue);
       //Now set it back again for next time around loop.
       mutatedValue._copy(f0);
       assertEquals(f0, mutatedValue);
@@ -396,7 +396,7 @@ class FloatTest extends Common {
 
     for (var operator : getIntegerAssignmentOperations(mutatedValue)) {
       operator.accept(new Integer());
-      assertEquals(unset, mutatedValue);
+      assertUnset.accept(mutatedValue);
       //Now set it back again for next time around loop.
       mutatedValue._copy(f0);
       assertEquals(f0, mutatedValue);
@@ -446,7 +446,7 @@ class FloatTest extends Common {
     assertEquals(f2, mutatedValue);
 
     mutatedValue._replace(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     //Now just check that it can take a value after being unset
     mutatedValue._replace(f4);

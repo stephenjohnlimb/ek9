@@ -1,7 +1,5 @@
 package org.ek9.lang;
 
-import java.util.Objects;
-
 /**
  * Used as an abstract base for several classes that have a prefix and a suffix.
  * These are typically fairly simple classes that have a value but also some type of
@@ -26,26 +24,5 @@ public abstract class SuffixedComponent extends BuiltinType {
     if (!suffix.equals(suffixToTest)) {
       throw new RuntimeException("For type " + this.getClass().getSimpleName() + " " + suffix + " <> " + suffixToTest);
     }
-  }
-
-  @Override
-  public boolean equals(final Object o) {
-    if (!(o instanceof final SuffixedComponent that)) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
-    if (isSet) {
-      return Objects.equals(suffix, that.suffix);
-    }
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = 31 * result + Objects.hashCode(suffix);
-    return result;
   }
 }

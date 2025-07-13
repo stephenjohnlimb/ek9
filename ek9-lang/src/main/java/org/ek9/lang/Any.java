@@ -12,7 +12,13 @@ import org.ek9tooling.Ek9Operator;
  * dealt with as an Any.
  * </p>
  * <p>
- * The only thing is that 'Any' does have the _isSet operator.
+ * For Ek9 to be able to have a Java implementation that relies on some of the
+ * core classes in Java like list, queues etc., it needs to have the Ek9 equivalent
+ * of equals, toString and hashCode.
+ * </p>
+ * <p>
+ *   Importantly classes/constructs in Ek9 should override these Ek9 methods to provide
+ *   a more meaningful implementation *just as you do in Java).
  * </p>
  */
 @SuppressWarnings("checkstyle:MethodName")
@@ -44,7 +50,6 @@ public interface Any {
     return new Boolean();
   }
 
-
   @Ek9Operator("""
       operator <= as pure
         -> arg as Any
@@ -70,7 +75,6 @@ public interface Any {
 
     return new Boolean();
   }
-
 
   @Ek9Operator("""
       operator >= as pure
@@ -101,11 +105,7 @@ public interface Any {
         -> arg as Any
         <- rtn as Boolean?""")
   default Boolean _neq(Any arg) {
-    final var cmpResult = this._cmp(arg);
-    if (cmpResult.isSet) {
-      return Boolean._of(cmpResult.state != 0);
-    }
-    return new Boolean();
+    return this._eq(arg)._negate();
   }
 
   @Ek9Operator("""
@@ -113,6 +113,14 @@ public interface Any {
         <- rtn as String?""")
   default String _string() {
     return new String();
+  }
+
+  @Ek9Operator("""
+      operator #? as pure
+        <- rtn as Integer?""")
+  default Integer _hashcode() {
+    //Expect deriving classes to implement if they want reasonable behaviour.
+    return Integer._of(1);
   }
 
   @Ek9Operator("""

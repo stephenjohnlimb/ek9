@@ -472,10 +472,10 @@ class DimensionTest extends Common {
   @Test
   void testPipeLogic() {
     var mutatedValue = new Dimension();
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(onePx);
     assertEquals(onePx, mutatedValue);
@@ -579,7 +579,7 @@ class DimensionTest extends Common {
     assertEquals(twoPx, mutatedValue);
 
     mutatedValue._replace(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     // Now just check that it can take a value after being unset
     mutatedValue._replace(fourPx);

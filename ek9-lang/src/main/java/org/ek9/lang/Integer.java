@@ -62,7 +62,6 @@ public class Integer extends BuiltinType {
     return new Boolean();
   }
 
-
   @Ek9Operator("""
       operator <= as pure
         -> arg as Integer
@@ -85,7 +84,6 @@ public class Integer extends BuiltinType {
     return new Boolean();
   }
 
-
   @Ek9Operator("""
       operator >= as pure
         -> arg as Integer
@@ -97,7 +95,6 @@ public class Integer extends BuiltinType {
     return new Boolean();
   }
 
-
   @Ek9Operator("""
       operator == as pure
         -> arg as Integer
@@ -108,7 +105,6 @@ public class Integer extends BuiltinType {
     }
     return new Boolean();
   }
-
 
   @Ek9Operator("""
       operator <> as pure
@@ -254,7 +250,6 @@ public class Integer extends BuiltinType {
     return rtn;
   }
 
-
   @Ek9Operator("""
       operator * as pure
         -> arg as Integer
@@ -268,7 +263,6 @@ public class Integer extends BuiltinType {
 
     return rtn;
   }
-
 
   @Ek9Operator("""
       operator * as pure
@@ -284,7 +278,6 @@ public class Integer extends BuiltinType {
     return rtn;
   }
 
-
   @Ek9Operator("""
       operator / as pure
         -> arg as Integer
@@ -295,10 +288,8 @@ public class Integer extends BuiltinType {
       rtn.assign(this.state);
       rtn._divAss(arg);
     }
-
     return rtn;
   }
-
 
   @Ek9Operator("""
       operator / as pure
@@ -310,7 +301,6 @@ public class Integer extends BuiltinType {
       rtn.assign(this.state);
       rtn._divAss(arg);
     }
-
     return rtn;
   }
 
@@ -324,7 +314,6 @@ public class Integer extends BuiltinType {
     }
     return new Float();
   }
-
 
   @Ek9Operator("""
       operator ^ as pure
@@ -359,13 +348,14 @@ public class Integer extends BuiltinType {
     return new String();
   }
 
+  @Override
   @Ek9Operator("""
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
     final var rtn = new Integer();
     if (isSet) {
-      rtn.assign(this.hashCode());
+      rtn.assign(Long.hashCode(state));
     }
     return rtn;
   }
@@ -523,12 +513,6 @@ public class Integer extends BuiltinType {
     _copy(arg);
   }
 
-  /**
-   * Handy when you want to set the arg inside a function, normal := just alters the object you point to
-   * This, sets the underlying data so used more like a holder i.e. copy/clone.
-   *
-   * @param arg The arg to set this to.
-   */
   @Ek9Operator("""
       operator :=:
         -> arg as Integer""")
@@ -589,7 +573,6 @@ public class Integer extends BuiltinType {
       assign(state / arg.state);
       return;
     }
-
     unSet();
 
   }
@@ -638,32 +621,6 @@ public class Integer extends BuiltinType {
       throw new RuntimeException("Constraint violation can't change " + state + " to " + arg);
     }
 
-  }
-
-  @Override
-  public int hashCode() {
-    return Long.hashCode(state);
-  }
-
-
-  @Override
-  public boolean equals(Object obj) {
-    if (super.equals(obj) && obj instanceof Integer value) {
-      if (isSet) {
-        return state == value.state;
-      }
-      return true;
-    }
-    return false;
-  }
-
-
-  @Override
-  public java.lang.String toString() {
-    if (isSet) {
-      return this.state + "";
-    }
-    return "";
   }
 
   @SuppressWarnings("checkstyle:CatchParameterName")
@@ -715,6 +672,4 @@ public class Integer extends BuiltinType {
     rtn.assign(arg);
     return rtn;
   }
-
-
 }

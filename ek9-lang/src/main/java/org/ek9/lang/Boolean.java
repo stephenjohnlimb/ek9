@@ -131,18 +131,19 @@ public class Boolean extends BuiltinType {
   public String _string() {
     final var rtn = new String();
     if (isSet) {
-      rtn.assign(toString());
+      rtn.assign(this.state + "");
     }
     return rtn;
   }
 
+  @Override
   @Ek9Operator("""
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
     final var rtn = new Integer();
     if (isSet) {
-      rtn.assign(this.hashCode());
+      rtn.assign(java.lang.Boolean.hashCode(state));
     }
     return rtn;
   }
@@ -200,7 +201,7 @@ public class Boolean extends BuiltinType {
    * This does mutate the current arg.
    */
   @Ek9Operator("""
-      operator += as pure
+      operator +=
         -> arg as Boolean""")
   public void _addAss(Boolean arg) {
     //If presented with an unset value then this becomes unset.
@@ -253,7 +254,6 @@ public class Boolean extends BuiltinType {
     _merge(arg);
   }
 
-
   //Start of utility methods
 
   protected Boolean _new() {
@@ -273,32 +273,6 @@ public class Boolean extends BuiltinType {
     state = arg;
     //You cannot constrain a boolean! So unlike other types we don't try to constrain.
     set();
-  }
-
-  @Override
-  public int hashCode() {
-    return java.lang.Boolean.hashCode(state);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-
-    if (super.equals(obj) && obj instanceof Boolean value) {
-      if (isSet) {
-        return state == value.state;
-      }
-      return true;
-    }
-    return false;
-
-  }
-
-  @Override
-  public java.lang.String toString() {
-    if (isSet) {
-      return this.state + "";
-    }
-    return "";
   }
 
   public static Boolean _of(java.lang.String arg) {

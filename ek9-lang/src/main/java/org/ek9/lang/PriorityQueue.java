@@ -22,18 +22,18 @@ import org.ek9tooling.Ek9Operator;
  * of elements are retained but in the priority order specified.
  * </p>
  * <p>
- *   The main driver for this class is to be able to create an ordered list of finite size.
- *   There is a general need in IT to have finite lists where the least most important is trimmed off.
+ * The main driver for this class is to be able to create an ordered list of finite size.
+ * There is a general need in IT to have finite lists where the least most important is trimmed off.
  * </p>
  * <p>
- *   That's what this class is all about. But I also want the resulting 'list()' to be in the
- *   appropriate order when viewing and processing. So the PriorityQueue is a sort of
- *   'transient' working, ordered, finite set. When you want to actually process the items in the
- *   list then extract them via 'list()' or 'iterator()'.
+ * That's what this class is all about. But I also want the resulting 'list()' to be in the
+ * appropriate order when viewing and processing. So the PriorityQueue is a sort of
+ * 'transient' working, ordered, finite set. When you want to actually process the items in the
+ * list then extract them via 'list()' or 'iterator()'.
  * </p>
  * <p>
- *   The same values can be added multiple times and these will be kept in priority order.
- *   So, if you remove one of those items, the rest (with the same value will remain).
+ * The same values can be added multiple times and these will be kept in priority order.
+ * So, if you remove one of those items, the rest (with the same value will remain).
  * </p>
  * <p>
  * See <a href="https://www.ek9.io/collectionTypes.html#priorityQueue">EK9 PriorityQueue</a>.
@@ -154,16 +154,31 @@ public class PriorityQueue extends BuiltinType {
     return Boolean._of(isSet);
   }
 
+  @Override
+  @Ek9Operator("""
+      operator == as pure
+        -> arg as Any
+        <- rtn as Boolean?""")
+  public Boolean _eq(Any arg) {
+    if (arg instanceof PriorityQueue asPriorityQueue) {
+      return _eq(asPriorityQueue);
+    }
+    return new Boolean();
+  }
+
   @Ek9Operator("""
       operator == as pure
         -> arg as PriorityQueue of T
         <- rtn as Boolean?""")
   public Boolean _eq(PriorityQueue arg) {
     if (canProcess(arg)) {
-      // Two priority queues are equal if they contain the same elements in the same priority order
-      final var thisList = this.list();
-      final var argList = arg.list();
-      return thisList._eq(argList);
+      //While quite expensive this seems to be the only way to compare java priority queues.
+      final var l1 = list();
+      final var l2 = arg.list();
+      if (l1.isSet && l2.isSet) {
+        final var result = Objects.equals(l1.state, l2.state);
+        return Boolean._of(result);
+      }
     }
     return new Boolean();
   }
@@ -289,7 +304,6 @@ public class PriorityQueue extends BuiltinType {
     }
   }
 
-
   @Ek9Operator("""
       operator +=
         -> arg as PriorityQueue of T""")
@@ -321,7 +335,6 @@ public class PriorityQueue extends BuiltinType {
     }
   }
 
-
   @Ek9Operator("""
       operator -=
         -> arg as PriorityQueue of T""")
@@ -343,11 +356,12 @@ public class PriorityQueue extends BuiltinType {
     return list()._string();
   }
 
+  @Override
   @Ek9Operator("""
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
-    return Integer._of(this.hashCode());
+    return Integer._of(Objects.hashCode(list().state));
   }
 
   @Ek9Operator("""
@@ -456,25 +470,6 @@ public class PriorityQueue extends BuiltinType {
     if (maxSize.isSet && state.size() > maxSize.state) {
       state.remove();
     }
-  }
-
-  @Override
-  public int hashCode() {
-    return list().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (!super.equals(obj) || !(obj instanceof PriorityQueue other)) {
-      return false;
-    }
-
-    return Objects.equals(this.list().state, other.list().state);
-  }
-
-  @Override
-  public java.lang.String toString() {
-    return list().toString();
   }
 
   // Factory methods

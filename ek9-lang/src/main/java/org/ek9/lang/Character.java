@@ -196,17 +196,17 @@ public class Character extends BuiltinType {
     return _promote();
   }
 
+  @Override
   @Ek9Operator("""
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
     final var rtn = new Integer();
     if (isSet) {
-      rtn.assign(this.hashCode());
+      rtn.assign(java.lang.Character.hashCode(state));
     }
     return rtn;
   }
-
 
   @Ek9Operator("""
       operator length as pure
@@ -222,7 +222,9 @@ public class Character extends BuiltinType {
       operator :~:
         -> arg as Character""")
   public void _merge(Character arg) {
-    _copy(arg);
+    if (isValid(arg)) {
+      assign(arg);
+    }
   }
 
   @Ek9Operator("""
@@ -307,31 +309,6 @@ public class Character extends BuiltinType {
    */
   protected Character _new() {
     return new Character();
-  }
-
-  @Override
-  public int hashCode() {
-    return java.lang.Character.hashCode(state);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (super.equals(obj) && obj instanceof Character character) {
-      if (isSet) {
-        return state == (character.state);
-      }
-      return true;
-    }
-    return false;
-  }
-
-
-  @Override
-  public java.lang.String toString() {
-    if (this.isSet) {
-      return this.state + "";
-    }
-    return "";
   }
 
   public static Character _of(Character value) {

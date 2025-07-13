@@ -26,10 +26,8 @@ class AnyTest extends Common {
 
   @Test
   void testAnyComparisons() {
-    final var a1 = new Any() {
-    };
-    final var a2 = new Any() {
-    };
+    final var a1 = Any._new();
+    final var a2 = Any._new();
 
     assertEquals(0, a1._cmp(a1).state);
     assertUnset.accept(a1._cmp(null));

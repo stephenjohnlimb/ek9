@@ -168,7 +168,6 @@ public class Path extends BuiltinType {
     return new Boolean();
   }
 
-
   @Ek9Operator("""
       operator + as pure
         -> arg as Path
@@ -239,7 +238,6 @@ public class Path extends BuiltinType {
     }
   }
 
-
   @Override
   @Ek9Operator("""
       operator ? as pure
@@ -254,22 +252,22 @@ public class Path extends BuiltinType {
   @Override
   public String _string() {
     if (isSet) {
-      return String._of(this.toString());
+      return String._of("$?" + state);
     }
     return new String();
   }
 
+  @Override
   @Ek9Operator("""
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
     final var rtn = new Integer();
     if (isSet) {
-      rtn.assign(this.hashCode());
+      rtn.assign(Objects.hashCode(state));
     }
     return rtn;
   }
-
 
   @Ek9Operator("""
       operator empty as pure
@@ -363,34 +361,6 @@ public class Path extends BuiltinType {
   }
 
   //Start of Utility methods
-
-
-  @Override
-  public final boolean equals(final Object obj) {
-
-    if (super.equals(obj) && obj instanceof Path path) {
-      if (isSet) {
-        return Objects.equals(state, path.state);
-      }
-      return true;
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = 31 * result + Objects.hashCode(state);
-    return result;
-  }
-
-  @Override
-  public java.lang.String toString() {
-    if (isSet) {
-      return "$?" + state;
-    }
-    return "";
-  }
 
   private java.lang.Integer compare(Path arg) {
 

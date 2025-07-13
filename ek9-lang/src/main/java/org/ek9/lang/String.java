@@ -7,7 +7,7 @@ import org.ek9tooling.Ek9Method;
 import org.ek9tooling.Ek9Operator;
 
 /**
- * A mutable String, perhaps we also need an Immutable String or perhaps we alter this string to be immutable
+ * A mutable String, perhaps we also need an Immutable String, or perhaps we alter this string to be immutable
  * and create a mutable string.
  */
 @SuppressWarnings("checkstyle:MethodName")
@@ -235,13 +235,14 @@ public class String extends BuiltinType implements Any {
     return rtn;
   }
 
+  @Override
   @Ek9Operator("""
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
     final var rtn = new Integer();
     if (isSet) {
-      rtn.assign(this.hashCode());
+      rtn.assign(state.hashCode());
     }
     return rtn;
   }
@@ -366,30 +367,6 @@ public class String extends BuiltinType implements Any {
     return this.state.compareTo(to);
   }
 
-  @Override
-  public int hashCode() {
-    return state.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (super.equals(obj) && obj instanceof String value) {
-      if (isSet) {
-        return state.equals(value.state);
-      }
-      return true;
-    }
-    return false;
-  }
-
-
-  @Override
-  public java.lang.String toString() {
-    if (this.isSet) {
-      return this.state;
-    }
-    return "";
-  }
 
   public static String _of(char value) {
     String rtn = new String();

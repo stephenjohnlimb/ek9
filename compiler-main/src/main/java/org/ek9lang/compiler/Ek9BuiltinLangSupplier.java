@@ -3238,12 +3238,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator #? as pure
               <- rtn as Integer?
 
-            operator #< as pure
-              <- rtn as DictEntry of (K, V)?
-
-            operator #> as pure
-              <- rtn as DictEntry of (K, V)?
-
             operator empty as pure
               <- rtn as Boolean?
 

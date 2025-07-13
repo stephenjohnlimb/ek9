@@ -150,7 +150,6 @@ public class Duration extends BuiltinType {
     return rtn;
   }
 
-
   @Ek9Operator("""
       operator * as pure
         -> arg as Float
@@ -163,7 +162,6 @@ public class Duration extends BuiltinType {
     }
     return rtn;
   }
-
 
   @Ek9Operator("""
       operator / as pure
@@ -193,9 +191,8 @@ public class Duration extends BuiltinType {
 
   @Ek9Operator("""
       operator |
-        -> arg as Duration
-        <- rtn as Duration?""")
-  public Duration _pipe(Duration arg) {
+        -> arg as Duration""")
+  public void _pipe(Duration arg) {
     if (isValid(arg)) {
       if (!isSet) {
         assign(arg);
@@ -203,13 +200,11 @@ public class Duration extends BuiltinType {
         _addAss(arg);
       }
     }
-    return this;
   }
 
   @Ek9Operator("""
       operator +=
-        -> arg as Duration
-        <- rtn as Duration?""")
+        -> arg as Duration""")
   public void _addAss(Duration arg) {
     if (canProcess(arg)) {
       long totalSeconds = this._getAsSeconds() + arg._getAsSeconds();
@@ -217,13 +212,11 @@ public class Duration extends BuiltinType {
     } else {
       unSet();
     }
-
   }
 
   @Ek9Operator("""
       operator -=
-        -> arg as Duration
-        <- rtn as Duration?""")
+        -> arg as Duration""")
   public void _subAss(Duration arg) {
     if (canProcess(arg)) {
       long totalSeconds = this._getAsSeconds() - arg._getAsSeconds();
@@ -235,8 +228,7 @@ public class Duration extends BuiltinType {
 
   @Ek9Operator("""
       operator *=
-        -> arg as Integer
-        <- rtn as Duration?""")
+        -> arg as Integer""")
   public void _mulAss(Integer arg) {
     if (canProcess(arg)) {
       long totalSeconds = this._getAsSeconds() * arg.state;
@@ -248,8 +240,7 @@ public class Duration extends BuiltinType {
 
   @Ek9Operator("""
       operator *=
-        -> arg as Float
-        <- rtn as Duration?""")
+        -> arg as Float""")
   public void _mulAss(Float arg) {
     if (canProcess(arg)) {
       long totalSeconds = (long) (this._getAsSeconds() * arg.state);
@@ -257,27 +248,23 @@ public class Duration extends BuiltinType {
     } else {
       unSet();
     }
-
   }
 
   @Ek9Operator("""
       operator /=
-        -> arg as Integer
-        <- rtn as Duration?""")
+        -> arg as Integer""")
   public void _divAss(Integer arg) {
     if (canProcess(arg) && arg.state != 0) {
       long totalSeconds = this._getAsSeconds() / arg.state;
       assign(getPeriodPart(totalSeconds), getDurationPart(totalSeconds));
       return;
-
     }
     unSet();
   }
 
   @Ek9Operator("""
       operator /=
-        -> arg as Float
-        <- rtn as Duration?""")
+        -> arg as Float""")
   public void _divAss(Float arg) {
     if (canProcess(arg) && !arg._empty().state) {
       long totalSeconds = (long) (this._getAsSeconds() / arg.state);
@@ -290,8 +277,7 @@ public class Duration extends BuiltinType {
 
   @Ek9Operator("""
       operator :=:
-        -> arg as Duration
-        <- rtn as Duration?""")
+        -> arg as Duration""")
   public void _copy(Duration arg) {
     if (isValid(arg)) {
       assign(arg);
@@ -366,7 +352,6 @@ public class Duration extends BuiltinType {
     return new Boolean();
   }
 
-
   @Ek9Operator("""
       operator >= as pure
         -> arg as Duration
@@ -377,7 +362,6 @@ public class Duration extends BuiltinType {
     }
     return new Boolean();
   }
-
 
   @Ek9Operator("""
       operator == as pure
@@ -390,18 +374,16 @@ public class Duration extends BuiltinType {
     return new Boolean();
   }
 
-
   @Ek9Operator("""
       operator <> as pure
         -> arg as Duration
         <- rtn as Boolean?""")
   public Boolean _neq(Duration arg) {
     if (canProcess(arg)) {
-      return Boolean._of(compare(arg) != 0);
+      return _eq(arg)._negate();
     }
     return new Boolean();
   }
-
 
   @Ek9Operator("""
       operator - as pure
@@ -418,9 +400,21 @@ public class Duration extends BuiltinType {
         <- rtn as String?""")
   public String _string() {
     if (isSet) {
-      return String._of(toString());
+      return String._of(asString());
     }
     return new String();
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator #? as pure
+        <- rtn as Integer?""")
+  public Integer _hashcode() {
+    final var rtn = new Integer();
+    if (isSet) {
+      rtn.assign(31L * theDuration.hashCode() + thePeriod.hashCode());
+    }
+    return rtn;
   }
 
   //Start of Utility methods.
@@ -500,25 +494,7 @@ public class Duration extends BuiltinType {
 
   }
 
-  @Override
-  public int hashCode() {
-    return theDuration.hashCode() + thePeriod.hashCode();
-  }
-
-  @Override
-
-  public boolean equals(Object obj) {
-    if (super.equals(obj) && obj instanceof Duration duration) {
-      if (isSet) {
-        return theDuration.equals(duration.theDuration) && thePeriod.equals(duration.thePeriod);
-      }
-      return true;
-    }
-    return false;
-  }
-
-  @Override
-  public java.lang.String toString() {
+  private java.lang.String asString() {
     if (isSet) {
       if (thePeriod.isZero() && theDuration.isZero()) {
         return "PT0S";

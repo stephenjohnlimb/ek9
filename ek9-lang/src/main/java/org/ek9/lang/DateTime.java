@@ -232,14 +232,12 @@ public class DateTime extends BuiltinType implements TemporalItem {
 
   @Ek9Operator("""
       operator |
-        -> arg as DateTime
-        <- rtn as DateTime?""")
-  public DateTime _pipe(DateTime value) {
+        -> arg as DateTime""")
+  public void _pipe(DateTime value) {
     //If valid we just assign to the value overwriting what was there
     if (isValid(value)) {
       assign(value.state);
     }
-    return this;
   }
 
   //TODO pipe duration
@@ -420,8 +418,7 @@ public class DateTime extends BuiltinType implements TemporalItem {
 
   @Ek9Operator("""
       operator :=:
-        -> arg as DateTime
-        <- rtn as DateTime?""")
+        -> arg as DateTime""")
   public void _copy(DateTime arg) {
     if (isValid(arg)) {
       assign(arg.state);
@@ -447,6 +444,18 @@ public class DateTime extends BuiltinType implements TemporalItem {
       return String._of(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(this.state));
     }
     return new String();
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator #? as pure
+        <- rtn as Integer?""")
+  public Integer _hashcode() {
+    final var rtn = new Integer();
+    if (isSet) {
+      rtn.assign(state.hashCode());
+    }
+    return rtn;
   }
 
   @Ek9Method("""
@@ -477,25 +486,4 @@ public class DateTime extends BuiltinType implements TemporalItem {
     }
   }
 
-  @Override
-  public int hashCode() {
-    return state.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (super.equals(obj) && obj instanceof DateTime dateTime && isSet) {
-      return state.equals(dateTime.state);
-    }
-
-    return false;
-  }
-
-  @Override
-  public java.lang.String toString() {
-    if (isSet) {
-      return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(this.state);
-    }
-    return "";
-  }
 }

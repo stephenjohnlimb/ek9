@@ -174,6 +174,18 @@ public class Result extends BuiltinType {
     return Iterator._of();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator == as pure
+        -> arg as Any
+        <- rtn as Boolean?""")
+  public Boolean _eq(Any arg) {
+    if (arg instanceof Result asResult) {
+      return _eq(asResult);
+    }
+    return new Boolean();
+  }
+
   @Ek9Operator("""
       operator == as pure
         -> arg as Result of (O, E)
@@ -209,11 +221,7 @@ public class Result extends BuiltinType {
         -> arg as Result of (O, E)
         <- rtn as Boolean?""")
   public Boolean _neq(Result arg) {
-    Boolean eq = _eq(arg);
-    if (eq.isSet) {
-      return eq._negate();
-    }
-    return new Boolean();
+    return _eq(arg)._negate();
   }
 
   @Override
@@ -247,13 +255,16 @@ public class Result extends BuiltinType {
     return new String();
   }
 
+  @Override
   @Ek9Operator("""
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
     final var rtn = new Integer();
     if (isSet) {
-      rtn.assign(this.hashCode());
+      int result = Objects.hashCode(okValue);
+      result = 31 * result + Objects.hashCode(errorValue);
+      rtn.assign(result);
     }
     return rtn;
   }
@@ -347,30 +358,6 @@ public class Result extends BuiltinType {
     return new Result();
   }
 
-  @Override
-  public final boolean equals(final Object o) {
-    if (!(o instanceof final Result result)) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
-
-    return Objects.equals(okValue, result.okValue) && Objects.equals(errorValue, result.errorValue);
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = 31 * result + Objects.hashCode(okValue);
-    result = 31 * result + Objects.hashCode(errorValue);
-    return result;
-  }
-
-  @Override
-  public java.lang.String toString() {
-    return _string().state;
-  }
 
   // Factory methods
   public static Result _of() {

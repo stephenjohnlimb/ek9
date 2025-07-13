@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 class StringTest extends Common {
 
   final String unset = new String();
-  final Boolean unsetBoolean = new Boolean();
   final Integer unsetInteger = new Integer();
   final Boolean trueBoolean = Boolean._of(true);
   final Boolean falseBoolean = Boolean._of(false);
@@ -83,23 +82,23 @@ class StringTest extends Common {
     final var bSimpleValue = String._of("B simple value");
 
     //First all the unset combinations.
-    assertEquals(unsetBoolean, aSimpleValue._lt(unset));
-    assertEquals(unsetBoolean, unset._lt(aSimpleValue));
+    assertUnset.accept(aSimpleValue._lt(unset));
+    assertUnset.accept(unset._lt(aSimpleValue));
 
-    assertEquals(unsetBoolean, aSimpleValue._lteq(unset));
-    assertEquals(unsetBoolean, unset._lteq(aSimpleValue));
+    assertUnset.accept(aSimpleValue._lteq(unset));
+    assertUnset.accept(unset._lteq(aSimpleValue));
 
-    assertEquals(unsetBoolean, aSimpleValue._gt(unset));
-    assertEquals(unsetBoolean, unset._gt(aSimpleValue));
+    assertUnset.accept(aSimpleValue._gt(unset));
+    assertUnset.accept(unset._gt(aSimpleValue));
 
-    assertEquals(unsetBoolean, aSimpleValue._gteq(unset));
-    assertEquals(unsetBoolean, unset._gteq(aSimpleValue));
+    assertUnset.accept(aSimpleValue._gteq(unset));
+    assertUnset.accept(unset._gteq(aSimpleValue));
 
-    assertEquals(unsetBoolean, aSimpleValue._eq(unset));
-    assertEquals(unsetBoolean, unset._eq(aSimpleValue));
+    assertUnset.accept(aSimpleValue._eq(unset));
+    assertUnset.accept(unset._eq(aSimpleValue));
 
-    assertEquals(unsetBoolean, aSimpleValue._neq(unset));
-    assertEquals(unsetBoolean, unset._neq(aSimpleValue));
+    assertUnset.accept(aSimpleValue._neq(unset));
+    assertUnset.accept(unset._neq(aSimpleValue));
 
     //Now test the actual values
 
@@ -145,10 +144,10 @@ class StringTest extends Common {
     final var steven = String._of("Steven");
 
     //First check with unset values.
-    assertEquals(unsetInteger, steve._cmp(unset));
-    assertEquals(unsetInteger, unset._cmp(steve));
-    assertEquals(unsetInteger, steve._fuzzy(unset));
-    assertEquals(unsetInteger, unset._fuzzy(steve));
+    assertUnset.accept(steve._cmp(unset));
+    assertUnset.accept(unset._cmp(steve));
+    assertUnset.accept(steve._fuzzy(unset));
+    assertUnset.accept(unset._fuzzy(steve));
 
     //Normal comparison
     assertEquals(i0, steve._cmp(steve));
@@ -241,10 +240,10 @@ class StringTest extends Common {
     final var twentyOne = Integer._of(21);
 
     final var mutatedValue = new String();
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     //Example of how an unset value can become set when adding values
     mutatedValue._pipe(steve);
@@ -274,7 +273,7 @@ class StringTest extends Common {
     assertEquals(limb, mutatedValue);
 
     mutatedValue._replace(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     //Now just check that it can take a value after being unset
     mutatedValue._replace(steve);

@@ -115,7 +115,7 @@ public class Version extends BuiltinType {
   }
 
   @Ek9Method("""
-      incrementMinor()
+      incrementPatch()
       """)
   public void incrementPatch() {
     patch++;
@@ -221,9 +221,8 @@ public class Version extends BuiltinType {
     return new Boolean();
   }
 
-
   @Ek9Operator("""
-      operator > as pure
+      operator >= as pure
         -> arg as Version
         <- rtn as Boolean?""")
   public Boolean _gteq(Version arg) {
@@ -273,13 +272,14 @@ public class Version extends BuiltinType {
     return new String();
   }
 
+  @Override
   @Ek9Operator("""
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
     final var rtn = new Integer();
     if (isSet) {
-      rtn.assign(this.hashCode());
+      rtn.assign(_string().hashCode());
     }
     return rtn;
   }
@@ -345,24 +345,6 @@ public class Version extends BuiltinType {
     this.feature = m.group("feature");
     this.buildNumber = java.lang.Integer.parseInt(m.group("buildNumber"));
     this.isSet = true;
-  }
-
-  @Override
-  public int hashCode() {
-    return _string().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (super.equals(obj) && obj instanceof Version version) {
-      return _string().equals(version._string());
-    }
-    return false;
-  }
-
-  @Override
-  public java.lang.String toString() {
-    return _string().toString();
   }
 
   public static Version _of(java.lang.String value) {

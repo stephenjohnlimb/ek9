@@ -37,7 +37,7 @@ public class Iterator extends BuiltinType {
       Iterator() as pure
         -> arg0 as T""")
   public Iterator(Any arg0) {
-    //Really just for Ek9 type inference.
+    //Really just for Ek9 type inference, but can be used like an Optional with one consumable value.
 
     assign(new java.util.Iterator<>() {
       private boolean supplied;
@@ -86,6 +86,30 @@ public class Iterator extends BuiltinType {
     return hasNext();
   }
 
+  @Ek9Operator("""
+      operator == as pure
+        -> arg as Iterator of T
+        <- rtn as Boolean?""")
+  public Boolean _eq(Iterator arg) {
+    if (canProcess(arg)) {
+      return Boolean._of(Objects.equals(this.state, arg.state));
+    }
+    return new Boolean();
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator #? as pure
+        <- rtn as Integer?""")
+  public Integer _hashcode() {
+    final var rtn = new Integer();
+    if (isSet) {
+      rtn.assign(Objects.hashCode(state));
+    }
+    return rtn;
+  }
+
+
   //Start of Utility methods
 
   private void assign(java.util.Iterator<Any> value) {
@@ -96,25 +120,6 @@ public class Iterator extends BuiltinType {
   @Override
   protected Iterator _new() {
     return new Iterator();
-  }
-
-  @Override
-  public final boolean equals(final Object o) {
-    if (!(o instanceof final Iterator iterator)) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
-
-    return Objects.equals(state, iterator.state);
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = 31 * result + Objects.hashCode(state);
-    return result;
   }
 
   public static Iterator _of(java.util.List<Any> value) {

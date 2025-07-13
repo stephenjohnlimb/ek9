@@ -529,10 +529,10 @@ class ResolutionTest extends Common {
   @Test
   void testPipeLogic() {
     var mutatedValue = new Resolution();
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(oneDpi);
     assertEquals(oneDpi, mutatedValue);
@@ -636,7 +636,7 @@ class ResolutionTest extends Common {
     assertEquals(twoDpi, mutatedValue);
 
     mutatedValue._replace(unset);
-    assertEquals(unset, mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     // Now just check that it can take a value after being unset
     mutatedValue._replace(fourDpi);
