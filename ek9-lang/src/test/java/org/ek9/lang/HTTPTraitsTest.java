@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-class HTTPTraitsTest extends Common{
+class HTTPTraitsTest extends Common {
 
   @Test
   void testHttpRequestTrait() {
