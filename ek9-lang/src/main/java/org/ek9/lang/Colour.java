@@ -34,7 +34,7 @@ public class Colour extends SuffixedComponent {
       Colour() as pure
         -> arg0 as Colour""")
   public Colour(Colour arg0) {
-    unSet();
+    this();
     if (isValid(arg0)) {
       assign(arg0);
     }
@@ -44,7 +44,7 @@ public class Colour extends SuffixedComponent {
       Colour() as pure
         -> arg0 as String""")
   public Colour(String arg0) {
-    unSet();
+    this();
     if (isValid(arg0)) {
       parse(arg0.state);
     }
@@ -54,9 +54,8 @@ public class Colour extends SuffixedComponent {
       Colour() as pure
         -> arg0 as Bits""")
   public Colour(Bits arg0) {
-    unSet();
+    this();
     if (isValid(arg0)) {
-      // Convert bits to hex string - need to implement bit-to-hex conversion
       java.lang.String hexValue = convertBitsToHex(arg0);
       if (hexValue != null) {
         assign(hexValue);
@@ -354,9 +353,7 @@ public class Colour extends SuffixedComponent {
       operator |
         -> arg0 as Colour""")
   public void _pipe(Colour arg0) {
-    if (isValid(arg0)) {
-      assign(arg0);
-    }
+    _merge(arg0);
   }
 
   @Ek9Operator("""
@@ -382,7 +379,7 @@ public class Colour extends SuffixedComponent {
     if (isValid(arg0)) {
       assign(arg0);
     } else {
-      super.unSet();
+      unSet();
     }
   }
 
@@ -400,6 +397,7 @@ public class Colour extends SuffixedComponent {
         <- rtn as String?""")
   public String _string() {
     if (isSet) {
+      //Here suffix holds the actual argb value.
       return String._of("#" + suffix);
     }
     return new String();
@@ -432,7 +430,7 @@ public class Colour extends SuffixedComponent {
    * Convert bits to hex string representation.
    */
   private java.lang.String convertBitsToHex(Bits bits) {
-    if (!bits._isSet().state) {
+    if (!bits.isSet) {
       return null;
     }
 
@@ -530,7 +528,7 @@ public class Colour extends SuffixedComponent {
   private long asLong() {
     if (isSet) {
       try {
-        if (suffix.length() == 6) {
+        if (isAlphaNotPresent()) {
           // RGB format - add FF alpha
           return Long.parseLong("FF" + suffix, 16);
         } else {
@@ -558,6 +556,9 @@ public class Colour extends SuffixedComponent {
     }
   }
 
+  /**
+   * A bit gnarly to convert argb to hsl.
+   */
   private void updateHSL() {
     long argb = asLong();
 
@@ -608,6 +609,7 @@ public class Colour extends SuffixedComponent {
 
   @SuppressWarnings("checkstyle:MultipleVariableDeclarations")
   private java.lang.String createFromHSL(long alpha, long hue, double saturation, double lightness) {
+
     double h = hue / 360.0;
     double s = saturation / 100.0;
     double l = lightness / 100.0;

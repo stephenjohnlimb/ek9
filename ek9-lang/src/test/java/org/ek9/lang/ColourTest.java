@@ -476,15 +476,36 @@ class ColourTest extends Common {
   void testColorArithmeticWithAlpha() {
     // Test mixed alpha operations
     final var redWithAlpha = Colour._of("#80FF0000");
+    final var greenWithAlpha = Colour._of("#2000FF00");
     final var blueNoAlpha = Colour._of("#0000FF");
 
-    final var mixedAddition = redWithAlpha._add(blueNoAlpha);
-    assertSet.accept(mixedAddition);
-    assertEquals("#80FF00FF", mixedAddition._string().state);
+    final var mixedAddition1 = redWithAlpha._add(blueNoAlpha);
+    assertSet.accept(mixedAddition1);
+    assertEquals("#80FF00FF", mixedAddition1._string().state);
 
-    final var mixedSubtraction = redWithAlpha._sub(blueNoAlpha);
-    assertSet.accept(mixedSubtraction);
-    assertEquals("#80FF0000", mixedSubtraction._string().state);
+    final var mixedAddition2 = blueNoAlpha._add(redWithAlpha);
+    assertSet.accept(mixedAddition2);
+    assertEquals("#80FF00FF", mixedAddition2._string().state);
+
+
+    final var mixedSubtraction1 = redWithAlpha._sub(blueNoAlpha);
+    assertSet.accept(mixedSubtraction1);
+    assertEquals("#80FF0000", mixedSubtraction1._string().state);
+
+    final var mixedSubtraction2 = blueNoAlpha._sub(redWithAlpha);
+    assertSet.accept(mixedSubtraction2);
+    assertEquals("#800000FF", mixedSubtraction2._string().state);
+
+    //Now alpha on alpha.
+    final var mixedAddition3 = redWithAlpha._add(greenWithAlpha);
+    assertSet.accept(mixedAddition3);
+    assertEquals("#90FFFF00", mixedAddition3._string().state);
+
+    final var mixedSubtraction3 = greenWithAlpha._sub(redWithAlpha);
+    assertSet.accept(mixedSubtraction3);
+    assertEquals("#0F00FF00", mixedSubtraction3._string().state);
+
+
   }
 
   @Test

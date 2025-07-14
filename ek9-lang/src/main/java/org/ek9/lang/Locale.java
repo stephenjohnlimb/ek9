@@ -207,71 +207,6 @@ public class Locale extends SuffixedComponent {
   }
 
   @Ek9Method("""
-      format() as pure
-        -> arg0 as Integer
-        <- rtn as String?""")
-  public String format(Integer arg0) {
-    if (!canProcess(arg0)) {
-      return new String();
-    }
-    return String._of(format(arg0.state));
-  }
-
-  @Ek9Method("""
-      format() as pure
-        -> arg0 as Float
-        <- rtn as String?""")
-  public String format(Float arg0) {
-    if (!canProcess(arg0)) {
-      return new String();
-    }
-    return String._of(decimalFormat(arg0.state));
-  }
-
-  @Ek9Method("""
-      format() as pure
-        ->
-          arg0 as Float
-          precision as Integer
-        <-
-          rtn as String?""")
-  public String format(Float arg0, Integer precision) {
-    if (!canProcess(arg0) || !canProcess(precision)) {
-      return new String();
-    }
-    return String._of(decimalFormat(arg0.state, (int) precision.state));
-  }
-
-  @Ek9Method("""
-      format() as pure
-        -> arg0 as Money
-        <- rtn as String?""")
-  public String format(Money arg0) {
-    if (!canProcess(arg0)) {
-      return new String();
-    }
-
-    return String._of(moneyFormat(arg0, true, true));
-  }
-
-  @Ek9Method("""
-      format() as pure
-        ->
-          arg0 as Money
-          showSymbol as Boolean
-          showFractionalPart as Boolean
-        <-
-          rtn as String?""")
-  public String format(Money arg0, Boolean showSymbol, Boolean showFractionalPart) {
-    if (!canProcess(arg0) || !canProcess(showSymbol) || !canProcess(showFractionalPart)) {
-      return new String();
-    }
-
-    return String._of(
-        moneyFormat(arg0, showSymbol.state, showFractionalPart.state));
-  }
-
-  @Ek9Method("""
       shortFormat() as pure
         -> arg0 as Money
         <- rtn as String?""")
@@ -449,6 +384,71 @@ public class Locale extends SuffixedComponent {
 
   @Ek9Method("""
       format() as pure
+        -> arg0 as Integer
+        <- rtn as String?""")
+  public String format(Integer arg0) {
+    if (!canProcess(arg0)) {
+      return new String();
+    }
+    return String._of(format(arg0.state));
+  }
+
+  @Ek9Method("""
+      format() as pure
+        -> arg0 as Float
+        <- rtn as String?""")
+  public String format(Float arg0) {
+    if (!canProcess(arg0)) {
+      return new String();
+    }
+    return String._of(decimalFormat(arg0.state));
+  }
+
+  @Ek9Method("""
+      format() as pure
+        ->
+          arg0 as Float
+          precision as Integer
+        <-
+          rtn as String?""")
+  public String format(Float arg0, Integer precision) {
+    if (!canProcess(arg0) || !canProcess(precision)) {
+      return new String();
+    }
+    return String._of(decimalFormat(arg0.state, (int) precision.state));
+  }
+
+  @Ek9Method("""
+      format() as pure
+        -> arg0 as Money
+        <- rtn as String?""")
+  public String format(Money arg0) {
+    if (!canProcess(arg0)) {
+      return new String();
+    }
+
+    return String._of(moneyFormat(arg0, true, true));
+  }
+
+  @Ek9Method("""
+      format() as pure
+        ->
+          arg0 as Money
+          showSymbol as Boolean
+          showFractionalPart as Boolean
+        <-
+          rtn as String?""")
+  public String format(Money arg0, Boolean showSymbol, Boolean showFractionalPart) {
+    if (!canProcess(arg0) || !canProcess(showSymbol) || !canProcess(showFractionalPart)) {
+      return new String();
+    }
+
+    return String._of(
+        moneyFormat(arg0, showSymbol.state, showFractionalPart.state));
+  }
+
+  @Ek9Method("""
+      format() as pure
         -> arg0 as Boolean
         <- rtn as String?""")
   public String format(Boolean arg0) {
@@ -578,7 +578,10 @@ public class Locale extends SuffixedComponent {
   }
 
   private java.util.Locale getAsJavaLocale() {
-    return java.util.Locale.forLanguageTag(this.lang + "-" + this.suffix);
+    if (suffix != null && !suffix.isEmpty()) {
+      return java.util.Locale.forLanguageTag(this.lang + "-" + this.suffix);
+    }
+    return java.util.Locale.forLanguageTag(this.lang);
   }
 
   protected void parse(java.lang.String value) {
