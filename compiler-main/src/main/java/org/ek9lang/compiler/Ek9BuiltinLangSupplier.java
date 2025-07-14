@@ -1893,14 +1893,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator #> as pure
               <- rtn as Locale?
 
-            operator contains as pure
-              -> arg as Locale
-              <- rtn as Boolean?
-
-            operator matches as pure
-              -> arg as Locale
-              <- rtn as Boolean?
-
             operator matches as pure
               -> arg as RegEx
               <- rtn as Boolean?

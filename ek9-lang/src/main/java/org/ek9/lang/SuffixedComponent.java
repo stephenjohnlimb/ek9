@@ -16,9 +16,7 @@ public abstract class SuffixedComponent extends BuiltinType {
     //Default constructor
   }
 
-
   protected abstract void parse(java.lang.String value);
-
 
   protected void assertValidSuffix(java.lang.String suffixToTest) {
     if (!suffix.equals(suffixToTest)) {
