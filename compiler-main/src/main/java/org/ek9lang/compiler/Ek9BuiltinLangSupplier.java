@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 114;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 113;
 
   //Obviously with ek9 the indentation is important.
 
@@ -2515,8 +2515,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator |
               -> arg as JSON
-
-          JSONInput as abstract
 
           RegEx as open
             RegEx() as pure
