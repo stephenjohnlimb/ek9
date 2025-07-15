@@ -9,7 +9,8 @@
 
   Now Suppliers/Consumers and BiConsumers are pure by default. So only pure functions that meet
   the semantics will have those generic function types auto applied as supers.
-  For none pure versions use Producer, Acceptor and BiAcceptor.
+  For none pure versions use Producer, Acceptor, BiAcceptor, Assessor, BiAssessor (non-pure predicates)
+  and Routine, BiRoutine (non-pure functions).
 
   TODO add in tests and also check variable names and comments.
 -?>
@@ -96,9 +97,9 @@ defines module auto.function.checks
       <- rtn as Integer: length arg0
 
     <?-
-      As above but not pure and hence not an EK9 Function
+      As above but not pure and hence not an EK9 Function, but is an EK9 Routine
     -?>
-    CannotBeAFunction()
+    CouldBeARoutine()
       -> arg0 as String
       <- rtn as Integer: length arg0
 
@@ -110,9 +111,9 @@ defines module auto.function.checks
       <- rtn as Boolean: arg0?
 
     <?-
-      As above but not pure and hence not an EK9 Predicate
+      As above but not pure and hence not an EK9 Predicate, but it is an assessor.
     -?>
-    CannotBeAPredicate()
+    CouldBeAnAssessor()
       -> arg0 as String
       <- rtn as Boolean: arg0?
 
@@ -147,9 +148,9 @@ defines module auto.function.checks
         rtn as Boolean: length arg0 > arg1
 
     <?-
-      As above but not pure and hence not an EK9 BiPredicate
+      As above but not pure and hence not an EK9 BiPredicate, but it is a BiAssessor.
     -?>
-    CannotBeABiPredicate()
+    CouldBeABiAssessor()
       ->
         arg0 as String
         arg1 as Integer
@@ -167,9 +168,9 @@ defines module auto.function.checks
         rtn as String: arg0 + $arg1
 
     <?-
-      As above but not pure and hence not an EK9 BiFunction
+      As above but not pure and hence not an EK9 BiFunction, but it is a BiRoutine.
     -?>
-    CannotBeABiFunction()
+    CouldBeABiRoutine()
       ->
         arg0 as String
         arg1 as Integer
@@ -213,8 +214,16 @@ defines module auto.function.checks
       -> arg0 as Function of (String, Integer)
       assert arg0?
 
+    CheckRoutineOfStringInteger()
+      -> arg0 as Routine of (String, Integer)
+      assert arg0?
+
     CheckPredicateOfString()
       -> arg0 as Predicate of String
+      assert arg0?
+
+    CheckAssessorOfString()
+      -> arg0 as Assessor of String
       assert arg0?
 
     CheckComparatorOfString()
@@ -225,8 +234,16 @@ defines module auto.function.checks
       -> arg0 as BiFunction of (String, Integer, String)
       assert arg0?
 
+    CheckBiRoutineOfStringIntegerString()
+      -> arg0 as BiRoutine of (String, Integer, String)
+      assert arg0?
+
     CheckBiPredicateOfStringInteger()
       -> arg0 as BiPredicate of (String, Integer)
+      assert arg0?
+
+    CheckBiAssessorOfStringInteger()
+      -> arg0 as BiAssessor of (String, Integer)
       assert arg0?
 
     //Now the drivers that use the 'Checker' functions with the various functions.
@@ -296,35 +313,66 @@ defines module auto.function.checks
       This includes the 'Bi' versions of Predicate and Function.
     -?>
     CheckUnaryFunctionAndPredicate()
+
+      //UnaryOperator checks
       CheckUnaryOperatorOfString(CouldBeAUnaryOperator)
 
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
       CheckUnaryOperatorOfString(CannotBeAUnaryOperator)
 
+      //Function checks
       CheckFunctionOfStringInteger(CouldBeAFunction)
 
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
-      CheckFunctionOfStringInteger(CannotBeAFunction)
+      CheckFunctionOfStringInteger(CouldBeARoutine)
 
+      //Predicate checks
       CheckPredicateOfString(CouldBeAPredicate)
 
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
-      CheckPredicateOfString(CannotBeAPredicate)
+      CheckPredicateOfString(CouldBeAnAssessor)
 
+      //Comparator checks
       CheckComparatorOfString(CouldBeAComparator)
 
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
       CheckComparatorOfString(CannotBeAComparator)
 
+      //BiFunction checks
       CheckBiFunctionOfStringIntegerString(CouldBeABiFunction)
 
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
-      CheckBiFunctionOfStringIntegerString(CannotBeABiFunction)
+      CheckBiFunctionOfStringIntegerString(CouldBeABiRoutine)
 
+      //BiPredicate checks
       CheckBiPredicateOfStringInteger(CouldBeABiPredicate)
 
       @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
-      CheckBiPredicateOfStringInteger(CannotBeABiPredicate)
+      CheckBiPredicateOfStringInteger(CouldBeABiAssessor)
+
+      //Routine checks - AKA non-pure Functions
+      CheckRoutineOfStringInteger(CouldBeARoutine)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckRoutineOfStringInteger(CouldBeAFunction)
+
+      //Assessor checks - AKA non-pure Predicates
+      CheckAssessorOfString(CouldBeAnAssessor)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckAssessorOfString(CouldBeAPredicate)
+
+      //BiRoutine checks - AKA non-pure BiFunctions
+      CheckBiRoutineOfStringIntegerString(CouldBeABiRoutine)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckBiRoutineOfStringIntegerString(CouldBeABiFunction)
+
+      //BiAssessor checks - AKA - non-pure BiPredicates
+      CheckBiAssessorOfStringInteger(CouldBeABiAssessor)
+
+      @Error: FULL_RESOLUTION: FUNCTION_PARAMETER_MISMATCH
+      CheckBiAssessorOfStringInteger(CouldBeABiPredicate)
 
 //EOF
 

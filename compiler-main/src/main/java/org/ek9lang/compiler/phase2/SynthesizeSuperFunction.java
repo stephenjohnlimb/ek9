@@ -51,6 +51,7 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
         tryPredicatesAndFunctions(function);
       } else {
         tryProducersAndAccessors(function);
+        tryAssessorsAndRoutines(function);
       }
     }
     //Now it might not have been possible to set the super function to one of the idiomatic types
@@ -169,10 +170,45 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
         final var functionTypes = List.of(types.get(0), types.get(1), returnType);
         processParameterisedType(function, "org.ek9.lang::BiFunction", functionTypes);
       }
+    }
+  }
 
+  private void tryAssessorsAndRoutines(final FunctionSymbol function) {
+
+    //Cannot be any of the possible stock generic types.
+    if (!isUsableReturnTypePresent(function)) {
+      return;
+    }
+
+    final var types = symbolTypeExtractor.apply(function.getCallParameters());
+    final var returnType = getReturnType(function);
+
+    if (types.size() == 1) {
+
+      if (isReturnTypeBoolean(function)) {
+        //Then it is an assessor
+        processParameterisedType(function, "org.ek9.lang::Assessor", types);
+      } else {
+        //It is a Routine
+        final var functionTypes = List.of(types.getFirst(), returnType);
+        processParameterisedType(function, "org.ek9.lang::Routine", functionTypes);
+      } //There is no non-pure Unary operation.
+
+    } else if (types.size() == 2) {
+
+      if (isReturnTypeBoolean(function)) {
+        //Then it is a bi-assessor
+        processParameterisedType(function, "org.ek9.lang::BiAssessor", types);
+      } else {
+        //It is a bi routine.
+        final var functionTypes = List.of(types.get(0), types.get(1), returnType);
+        processParameterisedType(function, "org.ek9.lang::BiRoutine", functionTypes);
+      }
+      //There is no non-pure comparator.
     }
 
   }
+
 
   private ISymbol getReturnType(final FunctionSymbol function) {
 

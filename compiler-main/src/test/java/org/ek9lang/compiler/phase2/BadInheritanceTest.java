@@ -71,7 +71,7 @@ class BadInheritanceTest extends PhasesTest {
     SimpleResolverForTesting resolver = new SimpleResolverForTesting(modules.getFirst().getModuleScope(), true);
 
     assertAnyTypeHierarchy(ek9Any, "Component1", resolver);
-    assertAnyTypeHierarchy(ek9Any,"Component2", resolver);
+    assertAnyTypeHierarchy(ek9Any, "Component2", resolver);
 
     assertHierarchy(ek9Any, resolver, "Component3", "Component1");
     assertHierarchy(ek9Any, resolver, "Component4", "Component2");
@@ -88,24 +88,24 @@ class BadInheritanceTest extends PhasesTest {
     assertFalse(modules.isEmpty());
     SimpleResolverForTesting resolver = new SimpleResolverForTesting(modules.getFirst().getModuleScope(), true);
 
-    assertAnyTypeHierarchy(ek9Any,"Trait1", resolver);
-    assertAnyTypeHierarchy(ek9Any,"Trait2", resolver);
+    assertAnyTypeHierarchy(ek9Any, "Trait1", resolver);
+    assertAnyTypeHierarchy(ek9Any, "Trait2", resolver);
 
     //When Traits extend Traits they 'have a trait of' not a 'is a' type relationship.
-    assertAnyTypeHierarchy(ek9Any,"Trait3", resolver);
-    assertAnyTypeHierarchy(ek9Any,"Trait4", resolver);
-    assertAnyTypeHierarchy(ek9Any,"Trait5", resolver);
-    assertAnyTypeHierarchy(ek9Any,"Trait6", resolver);
+    assertAnyTypeHierarchy(ek9Any, "Trait3", resolver);
+    assertAnyTypeHierarchy(ek9Any, "Trait4", resolver);
+    assertAnyTypeHierarchy(ek9Any, "Trait5", resolver);
+    assertAnyTypeHierarchy(ek9Any, "Trait6", resolver);
 
     assertTraits(resolver, "Trait3", "Trait1", "Trait2");
     assertTraits(resolver, "Trait4", "Trait2", "Trait1");
     assertTraits(resolver, "Trait5", "Trait3", "Trait1");
     assertTraits(resolver, "Trait6", "Trait4", "Trait2");
 
-    assertAnyTypeHierarchy(ek9Any,"Trait7", resolver);
-    assertAnyTypeHierarchy(ek9Any,"Trait8", resolver);
-    assertAnyTypeHierarchy(ek9Any,"Trait9", resolver);
-    assertAnyTypeHierarchy(ek9Any,"Trait10", resolver);
+    assertAnyTypeHierarchy(ek9Any, "Trait7", resolver);
+    assertAnyTypeHierarchy(ek9Any, "Trait8", resolver);
+    assertAnyTypeHierarchy(ek9Any, "Trait9", resolver);
+    assertAnyTypeHierarchy(ek9Any, "Trait10", resolver);
   }
 
   private void assertRecords(final ISymbol ek9Any, final CompilableProgram program) {
@@ -192,21 +192,44 @@ class BadInheritanceTest extends PhasesTest {
     return type.get().getSuperFunction();
   }
 
-  private void assertAnyTypeHierarchy(final ISymbol ek9Any, final String typeName, final SimpleResolverForTesting resolver) {
+  private void assertAnyTypeHierarchy(final ISymbol ek9Any, final String typeName,
+                                      final SimpleResolverForTesting resolver) {
     assertAnyTypeHierarchy(ek9Any, resolver.apply(typeName));
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   private void assertAnyTypeHierarchy(final ISymbol ek9Any, final Optional<ISymbol> type) {
+    //Is recursive up the supers - until if finds there is no super, then that must be EK9 'Any'.
+
     assertTrue(type.isPresent());
     if (type.get() instanceof AggregateSymbol aggregate) {
-      assertTrue(aggregate.getSuperAggregate().isPresent());
-      aggregate.getSuperAggregate().ifPresent(superType -> assertTrue(superType.isExactSameType(ek9Any)));
+      final var theSuper = aggregate.getSuperAggregate();
+      assertTrue(theSuper.isPresent());
+      theSuper.ifPresent(superType -> {
+        final var superSuperType = superType.getSuperAggregate();
+        if (superSuperType.isPresent()) {
+          assertAnyTypeHierarchy(ek9Any, Optional.of(superType));
+        } else {
+          //It has no super and so must be ek9Any.
+          assertTrue(superType.isExactSameType(ek9Any));
+        }
+      });
+
     } else if (type.get() instanceof FunctionSymbol function) {
-      assertTrue(function.getSuperFunction().isPresent());
-      function.getSuperFunction().ifPresent(superFunction -> assertTrue(superFunction.isExactSameType(ek9Any)));
+      final var theSuper = function.getSuperFunction();
+      assertTrue(theSuper.isPresent());
+      theSuper.ifPresent(superType -> {
+        final var superSuperType = superType.getSuperFunction();
+        if (superSuperType.isPresent()) {
+          assertAnyTypeHierarchy(ek9Any, Optional.of(superType));
+        } else {
+          //It has no super and so must be ek9Any.
+          assertTrue(superType.isExactSameType(ek9Any));
+        }
+      });
     }
   }
+
   private void assertNoTypeHierarchy(final String typeName, final SimpleResolverForTesting resolver) {
     assertNoTypeHierarchy(resolver.apply(typeName));
   }
@@ -222,18 +245,25 @@ class BadInheritanceTest extends PhasesTest {
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private void assertAnyTypeAggregateHierarchy(final ISymbol ek9Any, final Optional<IAggregateSymbol> type, final String expectName) {
+  private void assertAnyTypeAggregateHierarchy(final ISymbol ek9Any, final Optional<IAggregateSymbol> type,
+                                               final String expectName) {
+
     assertTrue(type.isPresent());
-    assertEquals(expectName, type.get().getName());
-    assertTrue(type.get().getSuperAggregate().isPresent());
-    type.get().getSuperAggregate().ifPresent(superType -> assertTrue(superType.isExactSameType(ek9Any)));
+
+    final var theType = type.get();
+    assertEquals(expectName, theType.getName());
+    assertTrue(theType.getSuperAggregate().isPresent());
+    assertAnyTypeHierarchy(ek9Any, Optional.of(theType));
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private void assertAnyFunctionHierarchy(final ISymbol ek9Any, final Optional<IFunctionSymbol> type, final String expectName) {
+  private void assertAnyFunctionHierarchy(final ISymbol ek9Any, final Optional<IFunctionSymbol> type,
+                                          final String expectName) {
     assertTrue(type.isPresent());
-    assertEquals(expectName, type.get().getName());
-    assertTrue(type.get().getSuperFunction().isPresent());
-    type.get().getSuperFunction().ifPresent(superFunctionType -> assertTrue(superFunctionType.isExactSameType(ek9Any)));
+    final var theType = type.get();
+    assertEquals(expectName, theType.getName());
+    assertTrue(theType.getSuperFunction().isPresent());
+    assertAnyTypeHierarchy(ek9Any, Optional.of(theType));
+
   }
 }

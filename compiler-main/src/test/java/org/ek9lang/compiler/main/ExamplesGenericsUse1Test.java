@@ -95,7 +95,7 @@ class ExamplesGenericsUse1Test extends SuccessfulTest {
     var functionChecker = new GenericsSymbolCheck(program, EK9_LANG, true, SymbolCategory.FUNCTION);
     functionChecker.accept(new SymbolSearchConfiguration("Supplier", mapFunction.apply(List.of("Integer"))));
 
-    var numberOfAdditionalSymbols = 11;
+    var numberOfAdditionalSymbols = 12;
     new SymbolCountCheck(EK9_LANG, NUMBER_OF_EK9_SYMBOLS + numberOfAdditionalSymbols).test(program);
   }
 
