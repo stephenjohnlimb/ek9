@@ -13,9 +13,10 @@ class ClockTest extends Common {
     };
     assertNotNull(theDefault);
 
-    //The clock itself is set and usable - but by default it's values are not.
+    //The clock itself is set and usable - but by default its values are not.
     assertTrue.accept(theDefault._isSet());
 
+    assertUnset.accept(theDefault.nanos());
     assertUnset.accept(theDefault.millisecond());
     assertUnset.accept(theDefault.time());
     assertUnset.accept(theDefault.date());

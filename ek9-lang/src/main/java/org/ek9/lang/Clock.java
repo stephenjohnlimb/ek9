@@ -14,6 +14,13 @@ import org.ek9tooling.Ek9Trait;
 public interface Clock extends Any {
 
   @Ek9Method("""
+      nanos() as pure
+        <- rtn as Integer?""")
+  default Integer nanos() {
+    return new Integer();
+  }
+
+  @Ek9Method("""
       millisecond() as pure
         <- rtn as Millisecond?""")
   default Millisecond millisecond() {
