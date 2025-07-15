@@ -3,20 +3,22 @@ package org.ek9lang.compiler.bootstrap;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_LANG;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.function.Supplier;
 import org.ek9lang.compiler.CompilableProgram;
+import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.Ek9BuiltinIntrospectionSupplier;
 import org.ek9lang.compiler.Ek9LanguageBootStrap;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.support.SimpleResolverForTesting;
+import org.ek9lang.core.CompilerException;
 import org.junit.jupiter.api.Test;
 
 /**
  * Uses the Java introspection supplier to get the source 'extern' interface.
- * If this fails, use Ek9BuiltinIntrospectionSupplierTest and check the actual source code generated.
- * Because internal built-in source is supplied as an inputStream it get consumed.
+ * If this fails, the Java code is introspected again and displayed.
  */
 class Ek9IntrospectedBootStrapTest {
 
@@ -36,12 +38,18 @@ class Ek9IntrospectedBootStrapTest {
 
     final var underTest = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), reporter);
 
-    final var sharedContext = underTest.get();
+    try {
+      final var sharedContext = underTest.get();
 
-    sharedContext.accept(compilableProgram
-        -> assertEquals(1, compilableProgram.getParsedModules(EK9_LANG).size()));
+      sharedContext.accept(compilableProgram
+          -> assertEquals(1, compilableProgram.getParsedModules(EK9_LANG).size()));
 
-    sharedContext.accept(this::assertEk9);
+      sharedContext.accept(this::assertEk9);
+    } catch (CompilerException _) {
+      final var sources = new Ek9BuiltinIntrospectionSupplier().get();
+      sources.stream().map(CompilableSource::getSourceAsStringForDebugging).forEach(System.out::println);
+      fail("Unable to load introspected Java->EK9 interface definition.");
+    }
 
   }
 

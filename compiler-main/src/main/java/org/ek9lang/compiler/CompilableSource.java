@@ -40,7 +40,7 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
   // This is the full path to the filename.
   private final String filename;
 
-  private transient boolean suppliedInputStream;
+  private final transient boolean suppliedInputStream;
   /**
    * For some resources like builtin.ek9 inside the jar we load from an inputStream.
    */
@@ -282,7 +282,7 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
     //Could have been given as an inputStream, which would be consumed, the tokens will not be
     //empty if the inputStream has not yet been consumed.
     if (suppliedInputStream && !tokens.isEmpty()) {
-      return "Original Source not available as 'built-in' supplied as inputStream.";
+      return "Original Source extracted separately.";
     }
 
     final Processor<String> processor = () -> {
