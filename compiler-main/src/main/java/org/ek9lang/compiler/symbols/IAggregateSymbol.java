@@ -158,7 +158,7 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
    * matching methods does exist and one single method matches best. Else ambiguity or no match.
    */
   default MethodSymbolSearchResult resolveMatchingMethods(final MethodSymbolSearch search,
-                                                  final MethodSymbolSearchResult result) {
+                                                          final MethodSymbolSearchResult result) {
     return result;
   }
 

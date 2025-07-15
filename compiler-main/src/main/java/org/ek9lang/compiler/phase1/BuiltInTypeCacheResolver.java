@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.phase1;
 
+import static org.ek9lang.compiler.support.AggregateManipulator.EK9_ANY;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_BOOLEAN;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_CHARACTER;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_COMPARATOR;
@@ -32,12 +33,15 @@ import static org.ek9lang.compiler.support.AggregateManipulator.EK9_VERSION;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_VOID;
 
 import java.util.function.Function;
+import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.search.TemplateFunctionSymbolSearch;
 import org.ek9lang.compiler.search.TemplateTypeSymbolSearch;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
+import org.ek9lang.compiler.symbols.AnyTypeSymbol;
 import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 
 /**
  * Just resolves a number of built-in types so that internal compiler code can be more explicit.
@@ -53,6 +57,7 @@ final class BuiltInTypeCacheResolver implements Function<IScope, Ek9Types> {
 
     if ("org.ek9.lang".equals(scope.getScopeName())) {
       return new Ek9Types(
+          resolveAny(scope),
           resolveType(scope, EK9_VOID),
           resolveType(scope, EK9_BOOLEAN),
           resolveType(scope, EK9_INTEGER),
@@ -87,6 +92,15 @@ final class BuiltInTypeCacheResolver implements Function<IScope, Ek9Types> {
 
     return null;
 
+  }
+
+  private AnyTypeSymbol resolveAny(final IScope scope) {
+    final var ek9AnySearch = new SymbolSearch(EK9_ANY).setSearchType(SymbolCategory.ANY);
+    final var resolved = scope.resolve(ek9AnySearch);
+    if (resolved.isPresent()) {
+      return (AnyTypeSymbol) resolved.get();
+    }
+    throw new RuntimeException("Unable to resolve type " + EK9_ANY);
   }
 
   private ISymbol resolveType(final IScope scope, final String type) {

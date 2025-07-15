@@ -56,9 +56,9 @@ public class CommonTypeOrError extends RuleSupport
 
     final List<ISymbol> typesToTry = new ArrayList<>();
 
-    getTypesToTry(details.argumentTypes().get(0), typesToTry);
+    getTypesToTry(details.argumentTypes().getFirst(), typesToTry);
     //We do not want to include these - only later as a last resort
-    var anyType = symbolsAndScopes.getEk9Any();
+    var anyType = symbolsAndScopes.getEk9Types().ek9Any();
     typesToTry.remove(anyType);
 
     for (var type : typesToTry) {
@@ -71,7 +71,7 @@ public class CommonTypeOrError extends RuleSupport
       return Optional.of(anyType);
     }
 
-    emitNoCommonType(details.lineToken(), details.argumentTypes().get(0));
+    emitNoCommonType(details.lineToken(), details.argumentTypes().getFirst());
 
     return Optional.empty();
   }

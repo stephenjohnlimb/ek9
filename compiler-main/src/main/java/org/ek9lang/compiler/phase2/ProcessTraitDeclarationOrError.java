@@ -37,6 +37,7 @@ final class ProcessTraitDeclarationOrError extends RuleSupport
 
   }
 
+  @SuppressWarnings("checkstyle:LambdaParameterName")
   @Override
   public void accept(final EK9Parser.TraitDeclarationContext ctx) {
 
@@ -53,7 +54,7 @@ final class ProcessTraitDeclarationOrError extends RuleSupport
       }
       //Always set the super of a trait to 'Any'.
       symbol.getType()
-          .ifPresent(theType -> symbol.setSuperAggregate(symbolsAndScopes.getEk9Any()));
+          .ifPresent(_ -> symbol.setSuperAggregate(symbolsAndScopes.getEk9Types().ek9Any()));
 
       if (ctx.allowingOnly() != null) {
         ctx.allowingOnly().identifierReference().forEach(classRef -> {

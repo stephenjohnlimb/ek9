@@ -100,7 +100,7 @@ class PopulateConstrainedTypeOrError extends RuleSupport implements BiConsumer<A
 
   private void setSuperAggregate(final AggregateSymbol newType) {
 
-    newType.setSuperAggregate(symbolsAndScopes.getEk9Any());
+    newType.setSuperAggregate(symbolsAndScopes.getEk9Types().ek9Any());
 
   }
 

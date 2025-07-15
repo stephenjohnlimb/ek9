@@ -46,9 +46,10 @@ class Ek9IntrospectedBootStrapTest {
 
       sharedContext.accept(this::assertEk9);
     } catch (CompilerException _) {
+      //Now we have reload the introspected classes again, so we can display them.
       final var sources = new Ek9BuiltinIntrospectionSupplier().get();
       sources.stream().map(CompilableSource::getSourceAsStringForDebugging).forEach(System.out::println);
-      fail("Unable to load introspected Java->EK9 interface definition.");
+      fail("Unable to load introspected Java->EK9 interface definition, check reported error and look for that line.");
     }
 
   }

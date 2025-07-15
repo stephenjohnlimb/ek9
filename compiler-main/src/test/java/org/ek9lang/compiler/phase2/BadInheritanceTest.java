@@ -40,7 +40,7 @@ class BadInheritanceTest extends PhasesTest {
                                     final CompilableProgram program) {
     assertFalse(compilationResult);
 
-    final var ek9Any = program.getEk9Any();
+    final var ek9Any = program.getEk9Types().ek9Any();
     assertNotNull(ek9Any);
 
     assertRecords(ek9Any, program);
@@ -52,7 +52,7 @@ class BadInheritanceTest extends PhasesTest {
   private void assertFunctions(final ISymbol ek9Any, final CompilableProgram program) {
     var modules = program.getParsedModules("bad.inherited.functions");
     assertFalse(modules.isEmpty());
-    SimpleResolverForTesting resolver = new SimpleResolverForTesting(modules.get(0).getModuleScope(), true);
+    SimpleResolverForTesting resolver = new SimpleResolverForTesting(modules.getFirst().getModuleScope(), true);
     assertAnyTypeHierarchy(ek9Any, "Function1", resolver);
     assertAnyTypeHierarchy(ek9Any, "Function2", resolver);
 
@@ -68,7 +68,7 @@ class BadInheritanceTest extends PhasesTest {
   private void assertComponents(final ISymbol ek9Any, final CompilableProgram program) {
     var modules = program.getParsedModules("bad.inherited.components");
     assertFalse(modules.isEmpty());
-    SimpleResolverForTesting resolver = new SimpleResolverForTesting(modules.get(0).getModuleScope(), true);
+    SimpleResolverForTesting resolver = new SimpleResolverForTesting(modules.getFirst().getModuleScope(), true);
 
     assertAnyTypeHierarchy(ek9Any, "Component1", resolver);
     assertAnyTypeHierarchy(ek9Any,"Component2", resolver);
@@ -86,7 +86,7 @@ class BadInheritanceTest extends PhasesTest {
   private void assertTraits(final ISymbol ek9Any, final CompilableProgram program) {
     var modules = program.getParsedModules("bad.inherited.traits");
     assertFalse(modules.isEmpty());
-    SimpleResolverForTesting resolver = new SimpleResolverForTesting(modules.get(0).getModuleScope(), true);
+    SimpleResolverForTesting resolver = new SimpleResolverForTesting(modules.getFirst().getModuleScope(), true);
 
     assertAnyTypeHierarchy(ek9Any,"Trait1", resolver);
     assertAnyTypeHierarchy(ek9Any,"Trait2", resolver);
@@ -111,7 +111,7 @@ class BadInheritanceTest extends PhasesTest {
   private void assertRecords(final ISymbol ek9Any, final CompilableProgram program) {
     var modules = program.getParsedModules("bad.inherited.records");
     assertFalse(modules.isEmpty());
-    SimpleResolverForTesting resolver = new SimpleResolverForTesting(modules.get(0).getModuleScope(), true);
+    SimpleResolverForTesting resolver = new SimpleResolverForTesting(modules.getFirst().getModuleScope(), true);
 
     assertRecord3Hierarchy(ek9Any, resolver);
     assertNoTypeHierarchy("Record4", resolver);

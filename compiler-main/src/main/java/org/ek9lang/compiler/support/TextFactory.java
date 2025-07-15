@@ -49,7 +49,7 @@ class TextFactory extends CommonFactory {
         textBase.setGenus(SymbolGenus.TEXT);
         //Now for the base - we set this to be an 'Any'.
         //That way the 'en' or 'de' Text that extends the Base text is also an 'Any'.
-        textBase.setSuperAggregate(parsedModule.getEk9Any());
+        textBase.setSuperAggregate(parsedModule.getEk9Types().ek9Any());
 
         parsedModule.getModuleScope().define(textBase);
 

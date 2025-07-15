@@ -56,7 +56,7 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
     //Now it might not have been possible to set the super function to one of the idiomatic types
     //Like consumer etc. So set it to 'Any'.
     if (function.getSuperFunction().isEmpty()) {
-      function.setSuperFunction(symbolsAndScopes.getEk9Any());
+      function.setSuperFunction(symbolsAndScopes.getEk9Types().ek9Any());
     }
 
   }
@@ -140,7 +140,7 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
     final var returnType = getReturnType(function);
 
     if (types.size() == 1) {
-      final var paramAndReturnTypeSame = types.get(0).isExactSameType(returnType);
+      final var paramAndReturnTypeSame = types.getFirst().isExactSameType(returnType);
 
       if (isReturnTypeBoolean(function)) {
         //Then it is a predicate
@@ -150,7 +150,7 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
         processParameterisedType(function, "org.ek9.lang::UnaryOperator", types);
       } else {
         //It is a Function
-        final var functionTypes = List.of(types.get(0), returnType);
+        final var functionTypes = List.of(types.getFirst(), returnType);
         processParameterisedType(function, "org.ek9.lang::Function", functionTypes);
       }
 
@@ -159,7 +159,7 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
 
       if (isReturnTypeInteger(function) && paramTypesSame) {
         //Then it is a comparator - if the type of both arguments are the same
-        final var comparatorType = List.of(types.get(0));
+        final var comparatorType = List.of(types.getFirst());
         processParameterisedType(function, "org.ek9.lang::Comparator", comparatorType);
       } else if (isReturnTypeBoolean(function)) {
         //Then it is a bi-predicate

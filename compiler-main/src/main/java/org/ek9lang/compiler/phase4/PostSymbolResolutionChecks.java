@@ -67,7 +67,8 @@ public class PostSymbolResolutionChecks extends CompilerPhase {
   private void parameterisedTypesValidInModuleOrError(final ParsedModule parsedModule) {
 
     final var errorListener = parsedModule.getSource().getErrorListener();
-    final ParameterisedTypeOrError consumer = new ParameterisedTypeOrError(parsedModule.getEk9Any(), errorListener);
+    final ParameterisedTypeOrError consumer =
+        new ParameterisedTypeOrError(parsedModule.getEk9Types().ek9Any(), errorListener);
     final var scope = parsedModule.getModuleScope();
 
     scope.getSymbolsForThisScope().stream()

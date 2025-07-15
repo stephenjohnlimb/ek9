@@ -90,7 +90,7 @@ final class RequiredOperatorPresentOrError extends TypedSymbolAccess
     //in this case I need to enable ? operator without mandating it on these two classes
     //because other rules would force a developer to add in ? operators in weird and non-obvious situations.
 
-    return symbolsAndScopes.getEk9Any().isExactSameType(aggregateSymbol) && search.getName().equals("?");
+    return symbolsAndScopes.getEk9Types().ek9Any().isExactSameType(aggregateSymbol) && search.getName().equals("?");
 
   }
 

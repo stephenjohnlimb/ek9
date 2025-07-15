@@ -341,7 +341,7 @@ public class StreamAssemblyOrError extends TypedSymbolAccess implements Consumer
     if (streamPartCtx.pipelinePart().isEmpty()) {
       typeAsSuitableComparatorOrError(streamPartCtx, currentStreamType);
     } else if (streamPartCtx.pipelinePart().size() == 1) {
-      sortFunctionOrError(streamPartCtx.pipelinePart().get(0), currentStreamType);
+      sortFunctionOrError(streamPartCtx.pipelinePart().getFirst(), currentStreamType);
     }
 
     //No matter what 'sort' not alter the stream type being used, so return the same type.
@@ -354,7 +354,7 @@ public class StreamAssemblyOrError extends TypedSymbolAccess implements Consumer
     if (streamPartCtx.pipelinePart().isEmpty()) {
       hasHashCodeOrError(streamPartCtx, currentStreamType);
     } else if (streamPartCtx.pipelinePart().size() == 1) {
-      hashCodeFunctionOrError(streamPartCtx.pipelinePart().get(0), currentStreamType);
+      hashCodeFunctionOrError(streamPartCtx.pipelinePart().getFirst(), currentStreamType);
     }
 
     //No matter what 'uniq' not alter the stream type being used, so return the same type.
@@ -367,7 +367,7 @@ public class StreamAssemblyOrError extends TypedSymbolAccess implements Consumer
     if (streamPartCtx.pipelinePart().isEmpty()) {
       errorListener.semanticError(streamPartCtx.op, "", FUNCTION_OR_DELEGATE_REQUIRED);
     } else if (streamPartCtx.pipelinePart().size() == 1) {
-      joinFunctionOrError(streamPartCtx.pipelinePart().get(0), currentStreamType);
+      joinFunctionOrError(streamPartCtx.pipelinePart().getFirst(), currentStreamType);
     }
 
     //No matter what 'join' not alter the stream type being used, so return the same type.
@@ -585,7 +585,7 @@ public class StreamAssemblyOrError extends TypedSymbolAccess implements Consumer
 
     if (functionData.functionSymbol().getCallParameters().size() == 1) {
       //OK so now check if the type that we have here could be received.
-      final var paramType = functionData.functionSymbol().getCallParameters().get(0).getType();
+      final var paramType = functionData.functionSymbol().getCallParameters().getFirst().getType();
 
       if (functionData.currentStreamType().isAssignableTo(paramType)) {
         if (functionData.functionSymbol().getReturningSymbol().getType().isPresent()) {
@@ -619,6 +619,9 @@ public class StreamAssemblyOrError extends TypedSymbolAccess implements Consumer
       final var search = new MethodSymbolSearch("|").addTypeParameter(streamType);
       final var result = terminationTypeAggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
 
+      final var msg = "wrt pipeline type '" + streamType.getFriendlyName()
+          + "' and terminal type '" + terminationTypeAggregate.getFriendlyName() + "':";
+
       if (result.isSingleBestMatchPresent()) {
 
         result.getSingleBestMatchSymbol().ifPresent(bestTypeMatch -> {
@@ -628,16 +631,27 @@ public class StreamAssemblyOrError extends TypedSymbolAccess implements Consumer
           termination.setConsumesSymbolPromotionRequired(!bestTypeMatch.isExactSameType(streamType));
         });
 
+      } else if (result.isAmbiguous()) {
+        emitAmbiguousMatch(termination.getSourceToken(), msg, result);
       } else {
-        final var msg = "wrt pipeline type '" + streamType.getFriendlyName()
-            + "' and terminal type '" + terminationType.getFriendlyName() + "':";
         errorListener.semanticError(termination.getSourceToken(), msg, UNABLE_TO_FIND_PIPE_FOR_TYPE);
       }
-
     } else {
       final var msg = "termination/tee requires an aggregate type, '" + terminationType.getFriendlyName() + ":";
       errorListener.semanticError(termination.getSourceToken(), msg, IS_NOT_AN_AGGREGATE_TYPE);
     }
+  }
+
+  private void emitAmbiguousMatch(final IToken errorLocation,
+                                  final String msgStart,
+                                  final MethodSymbolSearchResult results) {
+
+    final var msg = msgStart
+        + " resolved: "
+        + results.getAmbiguousMethodParameters();
+
+    errorListener.semanticError(errorLocation, msg, ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
+
   }
 
 }

@@ -9,6 +9,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
  * Models a set of result for a search for methods.
+ * This uses a weighting mechanism to find the most appropriate match.
  */
 public class MethodSymbolSearchResult {
 
@@ -145,7 +146,7 @@ public class MethodSymbolSearchResult {
   public Optional<MethodSymbol> getSingleBestMatchSymbol() {
 
     if (isSingleBestMatchPresent()) {
-      return Optional.of(results.get(0).getMethodSymbol());
+      return Optional.of(results.getFirst().getMethodSymbol());
     }
 
     return Optional.empty();
@@ -195,11 +196,11 @@ public class MethodSymbolSearchResult {
     final var buffer = new StringBuilder();
 
     if (results.size() > 1) {
-      final var symbol1 = results.get(0).getMethodSymbol();
+      final var symbol1 = results.getFirst().getMethodSymbol();
       buffer.append(symbol1.toString()).append(" line ").append(symbol1.getSourceToken().getLine());
 
       //need to check first and second to see if weight is same.
-      final var firstWeight = results.get(0).getWeight();
+      final var firstWeight = results.getFirst().getWeight();
       for (int i = 1; i < results.size(); i++) {
         if (Math.abs(firstWeight - results.get(i).getWeight()) < 0.001) {
           final var symbol2 = results.get(i).getMethodSymbol();

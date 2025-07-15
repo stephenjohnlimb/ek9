@@ -8,7 +8,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.directives.Directive;
 import org.ek9lang.compiler.directives.DirectiveType;
-import org.ek9lang.compiler.symbols.AnyTypeSymbol;
 import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -105,8 +104,6 @@ public final class ParsedModule implements Module, Serializable {
   private boolean externallyImplemented = false;
 
   private Ek9Types ek9Types;
-  private AnyTypeSymbol ek9Any;
-
 
   /**
    * We may hold Nodes in here - but not sure yet.
@@ -147,15 +144,6 @@ public final class ParsedModule implements Module, Serializable {
     return ek9Types;
   }
 
-  public AnyTypeSymbol getEk9Any() {
-    if (ek9Any == null) {
-      final AtomicReference<AnyTypeSymbol> ref = new AtomicReference<>();
-      compilableProgram.accept(program -> ref.set(program.getEk9Any()));
-      ek9Any = ref.get();
-    }
-
-    return ek9Any;
-  }
 
   public boolean isExternallyImplemented() {
 

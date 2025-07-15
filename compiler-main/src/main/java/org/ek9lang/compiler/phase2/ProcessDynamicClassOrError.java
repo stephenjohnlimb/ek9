@@ -50,7 +50,7 @@ final class ProcessDynamicClassOrError extends RuleSupport implements
         resolved.ifPresent(theSuper -> asAggregate.setSuperAggregate((IAggregateSymbol) theSuper));
       } else {
         //Else we give it the implicit super of 'Any'.
-        asAggregate.setSuperAggregate(symbolsAndScopes.getEk9Any());
+        asAggregate.setSuperAggregate(symbolsAndScopes.getEk9Types().ek9Any());
       }
 
       if (ctx.traitsList() != null) {

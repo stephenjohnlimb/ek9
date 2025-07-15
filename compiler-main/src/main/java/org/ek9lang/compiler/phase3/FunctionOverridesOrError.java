@@ -42,7 +42,7 @@ final class FunctionOverridesOrError extends TypedSymbolAccess implements Consum
 
     functionSymbol.getSuperFunction().ifPresent(superFunction -> {
 
-      if (!superFunction.isExactSameType(symbolsAndScopes.getEk9Any())) {
+      if (!superFunction.isExactSameType(symbolsAndScopes.getEk9Types().ek9Any())) {
         final var errorMessage = getErrorMessageFor(functionSymbol, superFunction);
         final var paramData = new ParametersData(functionSymbol.getSourceToken(), errorMessage,
             functionSymbol.getCallParameters(), superFunction.getCallParameters());

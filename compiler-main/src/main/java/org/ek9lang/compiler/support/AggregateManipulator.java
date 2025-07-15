@@ -29,12 +29,14 @@ import org.ek9lang.core.CompilerException;
  */
 public class AggregateManipulator {
   public static final int MAX_ARGUMENTS_PER_CALL = 20;
+
   public static final String PRIVATE = "private";
   public static final String PROTECTED = "protected";
   public static final String PUBLIC = "public";
   public static final String PARAM = "param";
   public static final String EK9_LANG = "org.ek9.lang";
   public static final String EK9_MATH = "org.ek9.math";
+  public static final String EK9_ANY = EK9_LANG + "::Any";
   public static final String EK9_PATH = EK9_LANG + "::Path";
   public static final String EK9_VERSION = EK9_LANG + "::Version";
   public static final String EK9_REGEX = EK9_LANG + "::RegEx";

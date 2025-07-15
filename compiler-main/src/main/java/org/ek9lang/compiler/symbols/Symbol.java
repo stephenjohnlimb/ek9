@@ -394,6 +394,7 @@ public class Symbol implements ISymbol {
   public double getAssignableWeightTo(final ISymbol s) {
 
     final var canAssign = getUnCoercedAssignableWeightTo(s);
+
     //Well if not the same symbol can we coerce/promote?
     if (canAssign < 0.0 && TypeCoercions.get().isCoercible(this, s)) {
       return 0.5;

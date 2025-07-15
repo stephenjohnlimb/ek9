@@ -509,10 +509,10 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterTypeDeclaration(final EK9Parser.TypeDeclarationContext ctx) {
 
-    //It is also possible to forward declare template types - but I might be
-    //able to get rid of that if I work hard at it.
     if (ctx.Identifier() != null) {
-      checkAndDefineModuleScopedSymbol(symbolFactory.newType(ctx), ctx);
+      final var newType = symbolFactory.newType(ctx);
+      newType.setSuperAggregate(symbolsAndScopes.getEk9Types().ek9Any());
+      checkAndDefineModuleScopedSymbol(newType, ctx);
     }
     super.enterTypeDeclaration(ctx);
 

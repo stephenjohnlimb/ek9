@@ -6,7 +6,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.support.SymbolChecker;
-import org.ek9lang.compiler.symbols.AnyTypeSymbol;
 import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
@@ -74,10 +73,6 @@ public class SymbolsAndScopes {
   public Ek9Types getEk9Types() {
 
     return parsedModule.getEk9Types();
-  }
-
-  public AnyTypeSymbol getEk9Any() {
-    return parsedModule.getEk9Any();
   }
 
   /**

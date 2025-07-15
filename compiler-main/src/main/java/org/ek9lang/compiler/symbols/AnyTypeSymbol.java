@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 /**
  * Special type that is super of Aggregate and super of Function (if they don't have supers).
+ * Also need to make sure that Enumeration type have this as well.
  */
 public class AnyTypeSymbol extends AggregateSymbol implements IFunctionSymbol, Serializable {
   @Serial

@@ -543,7 +543,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     var buildResult = new MethodSymbolSearchResult(result);
 
     //Do supers first then do own
-    //So if we have a super then this will bee a peer of anything we already have passed
+    //So if we have a super then this will be a peer of anything we already have passed
     //in could be traits/interfaces
 
     if (getSuperAggregate().isPresent()) {
