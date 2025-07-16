@@ -102,6 +102,78 @@ This context file contains:
 - Use `ExamplesBasicsTest` pattern for testing language features
 - For built-in type testing, follow patterns in `EK9_DEVELOPMENT_CONTEXT.md`
 
+### EK9 Built-in Type Testing Best Practices
+
+Based on FileSystemPath testing patterns, follow these guidelines:
+
+#### Resource Management
+- **Always use try-with-resources** for streams and closeable resources:
+  ```java
+  try (var stream = Files.walk(path)) {
+    stream.sorted(Comparator.reverseOrder())
+        .forEach(p -> { /* process */ });
+  }
+  ```
+- Use `Comparator.reverseOrder()` instead of custom lambdas like `(a, b) -> b.compareTo(a)`
+- Proper cleanup in `@AfterEach` methods with comprehensive error handling
+
+#### EK9 Type System Testing
+- **Test both SET and UNSET states** for all operations:
+  ```java
+  // Test with set values
+  assertTrue(setPath.exists().state);
+  
+  // Test with unset values  
+  assertUnset.accept(unsetPath.exists());
+  ```
+- **Test all parameter combinations** including unset/null inputs:
+  ```java
+  // Test normal operation
+  assertTrue(path.startsWith(validPath).state);
+  
+  // Test with unset parameter
+  assertUnset.accept(path.startsWith(new FileSystemPath()));
+  ```
+- **Test method overloads** separately (e.g., `createFile()` vs `createFile(Boolean)`)
+
+#### Test Organization
+- **Structure tests with clear sections** and explanatory comments
+- **Use descriptive variable names** that indicate the test scenario
+- **Group related assertions** logically within test methods
+- **Test edge cases explicitly** with comments explaining the scenario:
+  ```java
+  //I know I just created it this is to check unset value being passed in
+  assertUnset.accept(nestedFile.createFile(new Boolean()));
+  ```
+
+#### Comprehensive Coverage Patterns
+- **Test operators with unset values**:
+  ```java
+  assertUnset.accept(pathA._lt(new FileSystemPath()));
+  assertUnset.accept(pathA._lteq(new FileSystemPath()));
+  assertUnset.accept(pathA._gt(new FileSystemPath()));
+  assertUnset.accept(pathA._gteq(new FileSystemPath()));
+  ```
+- **Test assignment operations that can corrupt state**:
+  ```java
+  //Now corrupt it with unset
+  mutablePath1._addAss(new FileSystemPath());
+  assertUnset.accept(mutablePath1);
+  ```
+- **Test polymorphic operations** (e.g., `_cmp(Any)` vs `_cmp(SpecificType)`)
+
+#### Thread Safety and Isolation
+- Use `@Execution(SAME_THREAD)` for file system operations
+- Use `@ResourceLock` for shared resource access
+- Create isolated temporary directories per test
+- Clean up all test artifacts reliably
+
+#### Portable Testing
+- Use temporary directories and files only
+- Handle OS-specific behavior gracefully (e.g., file permissions)
+- Use `File.separator` for cross-platform path operations
+- Avoid hardcoded paths or OS-specific assumptions
+
 ### EK9 Source Files
 - EK9 uses indentation-based syntax (similar to Python)
 - Files must end with `.ek9` extension
@@ -134,3 +206,60 @@ Currently supports:
 
 ### Running Single Tests
 Use the existing test infrastructure and examples directory structure for validation.
+
+## Session Notes: EK9 Annotation Work (2025-01-16)
+
+### Task Completed
+Added `@Ek9Method` annotations to FileSystemPath component at `ek9-lang/src/main/java/org/ek9/lang/FileSystemPath.java`.
+
+**15 Methods Annotated:**
+1. `withCurrentWorkingDirectory()` - Factory method returning current working directory
+2. `withTemporaryDirectory()` - Factory method returning temporary directory
+3. `startsWith(FileSystemPath)` - Path testing method
+4. `endsWith(String)` - Path testing method (String variant)
+5. `endsWith(FileSystemPath)` - Path testing method (FileSystemPath variant)
+6. `exists()` - File system query method
+7. `isFile()` - File system query method
+8. `isDirectory()` - File system query method
+9. `isWritable()` - File system query method
+10. `isReadable()` - File system query method
+11. `isExecutable()` - File system query method
+12. `isAbsolute()` - File system query method
+13. `createFile()` - File creation method (no parameters)
+14. `createFile(Boolean)` - File creation method (with directory creation option)
+15. `createDirectory()` - Directory creation method (no parameters)
+16. `createDirectory(Boolean)` - Directory creation method (with parent creation option)
+17. `absolutePath()` - Path transformation method
+
+### EK9 Annotation Patterns Used
+```java
+@Ek9Method("""
+    methodName() as pure
+      -> param as ParamType
+      <- rtn as ReturnType?""")
+```
+
+### Key Validation Test
+**`Ek9IntrospectedBootStrapTest`** (`compiler-main/src/test/java/org/ek9lang/compiler/bootstrap/Ek9IntrospectedBootStrapTest.java`)
+- Introspects Java classes with EK9 annotations
+- Generates EK9 source code from annotations
+- Parses generated code with EK9 parser
+- Detects syntax errors with precise location (line/position)
+- Example error: `EK9Comp : Syntax : 'Unknown' on line 965 position 24: extraneous input 'pureish' expecting {'pure', 'dispatcher', 'abstract', NL}`
+
+### Multi-Module Build Challenge
+**Issue**: Changes in `ek9-lang` module not reflected in `compiler-main` test
+**Required Workflow**: 
+1. `mvn package -pl ek9-lang` (rebuild and package the dependency)
+2. `mvn clean compile -pl compiler-main` (clean and rebuild dependent module)
+3. `mvn test -Dtest=Ek9IntrospectedBootStrapTest -pl compiler-main` (run validation test)
+
+### Status
+- All annotations added successfully
+- Validation test demonstrates proper error detection
+- Need to resolve Maven build dependency issue to complete verification
+
+## Personal Preferences
+- **Always refer to Steve by name** (not "user" or "the user")
+- Steve prefers direct, concise communication
+- Focus on practical implementation details and patterns
