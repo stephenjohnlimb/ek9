@@ -229,6 +229,7 @@ class IteratorTest extends Common {
     final var iterator2 = Iterator._of(javaList2);
     
     // Different iterators should not be equal even with same content
+    assertFalse.accept(iterator1._eq(iterator2));
     assertNotEquals(iterator1, iterator2);
     assertNotEquals(iterator1.hashCode(), iterator2.hashCode());
     

@@ -117,11 +117,6 @@ public class Iterator extends BuiltinType {
     set();
   }
 
-  @Override
-  protected Iterator _new() {
-    return new Iterator();
-  }
-
   public static Iterator _of(java.util.List<Any> value) {
     Iterator rtn = new Iterator();
     if (value != null) {

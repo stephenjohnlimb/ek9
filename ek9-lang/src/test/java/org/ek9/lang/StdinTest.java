@@ -2,16 +2,23 @@ package org.ek9.lang;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
+import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ_WRITE;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ResourceLock;
 
 /**
  * Test the Ek9 version of Stdin by replacing the Java input stream with known values.
+ * While not actually file access, we are tinkering with System here and need to serialize access.
  */
+@Execution(SAME_THREAD)
+@ResourceLock(value = "file_access", mode = READ_WRITE)
 class StdinTest extends Common {
 
   private InputStream originalIn;

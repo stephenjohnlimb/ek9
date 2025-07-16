@@ -16,7 +16,9 @@ public abstract class BuiltinType implements Any {
    *
    * @return use covariant to return the right type.
    */
-  protected abstract BuiltinType _new();
+  protected Any _new() {
+    return new Any(){};
+  }
 
   public void unSet() {
     this.isSet = false;

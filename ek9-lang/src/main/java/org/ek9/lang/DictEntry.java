@@ -143,12 +143,6 @@ public class DictEntry extends BuiltinType {
 
   // Utility methods
 
-  @Override
-  protected DictEntry _new() {
-    return new DictEntry();
-  }
-
-
   // Factory methods
   public static DictEntry _of() {
     return new DictEntry();

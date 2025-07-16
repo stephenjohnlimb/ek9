@@ -573,10 +573,6 @@ public class Locale extends SuffixedComponent {
 
   //Start of Utility methods
 
-  protected Locale _new() {
-    return new Locale();
-  }
-
   private java.util.Locale getAsJavaLocale() {
     if (suffix != null && !suffix.isEmpty()) {
       return java.util.Locale.forLanguageTag(this.lang + "-" + this.suffix);

@@ -24,9 +24,4 @@ public class Void extends BuiltinType {
     return Boolean._of(false);
   }
 
-  //Start of Utility methods.
-  @Override
-  protected BuiltinType _new() {
-    return new Void();
-  }
 }

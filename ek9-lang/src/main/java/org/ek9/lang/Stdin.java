@@ -12,7 +12,7 @@ import org.ek9tooling.Ek9Operator;
  */
 @Ek9Class("""
     Stdin with trait of StringInput""")
-public class Stdin implements StringInput {
+public class Stdin extends BuiltinType implements StringInput {
   private final Scanner scanner;
   private boolean closed = false;
 
