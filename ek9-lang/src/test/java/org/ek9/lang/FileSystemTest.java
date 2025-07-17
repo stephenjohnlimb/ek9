@@ -2,22 +2,16 @@ package org.ek9.lang;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
-import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ_WRITE;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ResourceLock;
 
-@Execution(SAME_THREAD)
-@ResourceLock(value = "file_access", mode = READ_WRITE)
 class FileSystemTest extends Common {
 
   @Test
   void testConstructionAndIsSet() {
     final var fileSystem = new FileSystem();
     assertNotNull(fileSystem);
-    
+
     // FileSystem is always set
     assertTrue(fileSystem._isSet().state);
     assertSet.accept(fileSystem);
@@ -59,7 +53,7 @@ class FileSystemTest extends Common {
     // Multiple calls should return equivalent results
     assertTrue.accept(fileSystem.cwd()._eq(fileSystem.cwd()));
     assertTrue.accept(fileSystem.tmp()._eq(fileSystem.tmp()));
-    
+
     // Multiple instances should return equivalent results
     final var fileSystem2 = new FileSystem();
     assertTrue.accept(fileSystem.cwd()._eq(fileSystem2.cwd()));
