@@ -32,8 +32,8 @@ defines module worked.example
       namedFile <- filePath.isAbsolute() <- TextFile(filePath) else TextFile(FileSystem().cwd() + filePath)
       if not namedFile.isReadable()
         throw Exception(`${namedFile} is not readable`, 2)
-      if not namedFile.isFile()
-        throw Exception(`${namedFile} is not a file`, 2)
+      if not namedFile.isWritable()
+        throw Exception(`Not able to write to ${namedFile}`, 2)
 
       if verboseMode or debugLevel > 0
         stderr.println(`About to start processing [${namedFile}]`)
@@ -340,8 +340,8 @@ defines module worked.example
         rtn := filePath.isAbsolute() <- TextFile(filePath) else TextFile(FileSystem().cwd() + filePath)
         if not rtn.isReadable()
           throw Exception($rtn + " is not readable", 2)
-        if not rtn.isFile()
-          throw Exception($rtn + " is not a file", 2)
+        if not rtn.isWritable()
+          throw Exception($rtn + " is not a file that can be written to", 2)
 
       private createNamedFileLineHandler() as pure
         ->

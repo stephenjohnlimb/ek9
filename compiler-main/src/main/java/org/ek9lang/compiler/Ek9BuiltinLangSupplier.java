@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 115;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 116;
 
   //Obviously with ek9 the indentation is important.
 
@@ -3405,6 +3405,23 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg0 as Exception
               assert arg0?
 
+          File
+
+            isReadable() as pure
+              <- rtn as Boolean?
+
+            isWritable() as pure
+              <- rtn as Boolean?
+
+            lastModified() as pure
+              <- rtn as DateTime?
+
+            operator $ as pure
+              <- rtn as String?
+
+            operator ? as pure
+              <- rtn as Boolean?
+
       """;
 
   @SuppressWarnings({"Indentation"})
@@ -3449,7 +3466,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             override operator ? as pure
               <- rtn as Boolean?
 
-          TextFile
+          TextFile with trait of File
             TextFile() as pure
 
             TextFile() as pure
@@ -3461,22 +3478,19 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             input() as pure
               <- rtn as StringInput?
 
-            isReadable() as pure
+            override isReadable() as pure
               <- rtn as Boolean?
 
-            isFile() as pure
+            override isWritable() as pure
               <- rtn as Boolean?
 
-            isDirectory() as pure
-              <- rtn as Boolean?
-
-            lastModified() as pure
+            override lastModified() as pure
               <- rtn as DateTime?
 
-            operator $ as pure
+            override operator $ as pure
               <- rtn as String?
 
-            operator ? as pure
+            override operator ? as pure
               <- rtn as Boolean?
 
           FileSystem
