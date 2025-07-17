@@ -90,6 +90,8 @@ This context file contains:
 - Common compilation issues and solutions
 - Advanced patterns and best practices
 
+**CRITICAL**: Always follow the [EK9 Annotation Validation Process](#ek9-annotation-validation-process) when developing new EK9 built-in types to ensure annotations are syntactically correct.
+
 ### Code Style
 - Java 23 with virtual threads support
 - Follow existing naming conventions (CamelCase for classes, camelCase for methods)
@@ -173,6 +175,78 @@ Based on FileSystemPath testing patterns, follow these guidelines:
 - Handle OS-specific behavior gracefully (e.g., file permissions)
 - Use `File.separator` for cross-platform path operations
 - Avoid hardcoded paths or OS-specific assumptions
+
+### EK9 Annotation Validation Process
+
+**CRITICAL**: When developing new EK9 built-in types in the `ek9-lang` module, follow this exact build sequence to validate EK9 annotations:
+
+#### 1. Development Phase
+```bash
+# Make changes to ek9-lang classes with @Ek9Class, @Ek9Constructor, @Ek9Method, @Ek9Operator annotations
+# Add comprehensive unit tests
+mvn test -pl ek9-lang  # Verify unit tests pass
+```
+
+#### 2. Annotation Validation Phase
+```bash
+# STEP 1: Install ek9-lang to local Maven repository
+mvn clean install -pl ek9-lang
+
+# STEP 2: Rebuild compiler-main to pick up updated dependency
+mvn clean compile -pl compiler-main
+
+# STEP 3: Run bootstrap test to validate EK9 annotations
+mvn test -Dtest=Ek9IntrospectedBootStrapTest -pl compiler-main
+```
+
+#### 3. Understanding Bootstrap Test Results
+
+**If Test Passes**: EK9 annotations are syntactically correct and properly formatted.
+
+**If Test Fails**: The test will output the generated EK9 source code showing the exact syntax error:
+- Look for the specific line and position in the error message
+- Common issues:
+  - Missing newlines in multi-line annotations (use `"""` triple quotes)
+  - Incorrect indentation in EK9 syntax
+  - Missing `as pure` qualifiers
+  - Incorrect parameter/return type formatting
+
+#### 4. Common Annotation Patterns
+
+**Correct Operator Formatting**:
+```java
+@Ek9Operator("""
+    operator ? as pure
+      <- rtn as Boolean?""")
+```
+
+**Incorrect (Single Line)**:
+```java
+@Ek9Operator("operator ? as pure <- rtn as Boolean?")  // WRONG: Missing newlines
+```
+
+**Method with Parameters**:
+```java
+@Ek9Method("""
+    methodName() as pure
+      -> param as ParamType
+      <- rtn as ReturnType?""")
+```
+
+#### 5. Why This Process is Required
+
+- **Multi-module Dependency**: `compiler-main` depends on `ek9-lang`
+- **Introspection Process**: `Ek9IntrospectedBootStrapTest` uses Java reflection to find `@Ek9Class` annotated classes
+- **EK9 Code Generation**: Annotations are converted to EK9 source code and parsed
+- **Syntax Validation**: The EK9 parser catches annotation formatting errors
+
+#### 6. Integration with Development Workflow
+
+Always run the bootstrap test when:
+- Adding new EK9 built-in types
+- Modifying existing EK9 annotations
+- Adding new methods/operators to existing types
+- Before committing changes to EK9 built-in types
 
 ### EK9 Source Files
 - EK9 uses indentation-based syntax (similar to Python)
@@ -365,6 +439,85 @@ GUID
 - GUID implementation complete and fully tested
 - All 28 tests passing
 - Bootstrap integration successful  
+- Ready for production use in EK9 language
+
+## Session Notes: EK9 HMAC Implementation (2025-01-17)
+
+### Task Completed
+Implemented complete EK9 HMAC component as stateless cryptographic utility at `ek9-lang/src/main/java/org/ek9/lang/HMAC.java`.
+
+### Key HMAC Implementation Insights
+
+#### **HMAC Interface Requirements** (from `Ek9BuiltinLangSupplier.java`)
+```
+HMAC
+  HMAC() as pure                              // Default constructor
+  SHA256() as pure -> arg0 as String <- rtn as String?    // Hash String
+  SHA256() as pure -> arg0 as GUID <- rtn as String?      // Hash GUID  
+  operator ? as pure <- rtn as Boolean?                   // Set/unset check (always true)
+```
+
+#### **Critical Design Differences from GUID**
+1. **Stateless**: No instance fields, unlike GUID which holds UUID state
+2. **Always Set**: `_isSet()` always returns `Boolean._of(true)`
+3. **Utility Methods**: SHA256 methods are pure functions with no side effects
+4. **No State Operators**: No comparison, assignment, or string conversion operators needed
+
+#### **Implementation Details**
+- **Java Integration**: Uses `MessageDigest.getInstance("SHA-256")` and `StandardCharsets.UTF_8`
+- **Hex Output**: Converts hash bytes to lowercase hex string format
+- **Error Handling**: Returns unset String for null/invalid inputs
+- **Method Overloading**: Two SHA256 methods for String and GUID inputs
+
+#### **Critical Annotation Formatting Issue Discovered**
+**Root Cause**: Incorrect EK9 operator annotation syntax caused parser failure.
+
+**Wrong Format**:
+```java
+@Ek9Operator("operator ? as pure <- rtn as Boolean?")  // Single line - WRONG
+```
+
+**Correct Format**:
+```java
+@Ek9Operator("""
+    operator ? as pure
+      <- rtn as Boolean?""")  // Multi-line with proper indentation
+```
+
+#### **Multi-Module Build Process Issue**
+**Problem**: HMAC class not found during introspection because compiler-main couldn't access updated ek9-lang classes.
+
+**Solution**: Correct build sequence for EK9 annotation validation:
+1. `mvn clean install -pl ek9-lang` (install to local Maven repository)
+2. `mvn clean compile -pl compiler-main` (rebuild with updated dependency)
+3. `mvn test -Dtest=Ek9IntrospectedBootStrapTest -pl compiler-main` (validate annotations)
+
+#### **Key Validation Test**
+**`Ek9IntrospectedBootStrapTest`** - Critical test that:
+- Uses Java reflection to find all `@Ek9Class` annotated classes
+- Generates EK9 source code from Java annotations
+- Parses generated code with EK9 parser
+- Fails with exact syntax error location if annotations are malformed
+- Dumps generated EK9 source code when parsing fails
+
+### Implementation Files
+- **HMAC.java**: Main implementation (73 lines)
+- **HMACTest.java**: Comprehensive test suite (17 tests)
+- **Integration**: Verified with `Ek9IntrospectedBootStrapTest`
+
+### Key Lessons for EK9 Development Process
+1. **Always use proper Maven build sequence** for annotation validation
+2. **Use multi-line string annotations** with proper EK9 indentation
+3. **Test annotations early and often** with bootstrap test
+4. **Multi-module dependencies require explicit installation** to local repository
+5. **Bootstrap test is definitive validation** for EK9 annotation syntax
+6. **Document build process clearly** to prevent future issues
+
+### Status
+- HMAC implementation complete and fully tested
+- All 17 tests passing
+- Bootstrap integration successful
+- Proper multi-module build process documented
 - Ready for production use in EK9 language
 
 ## Personal Preferences
