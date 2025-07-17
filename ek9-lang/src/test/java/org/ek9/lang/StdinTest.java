@@ -1,5 +1,6 @@
 package org.ek9.lang;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
@@ -61,6 +62,7 @@ class StdinTest extends Common {
 
     //Now check there is no more.
     assertFalse.accept(underTest.hasNext());
+    assertDoesNotThrow(underTest::_close);
   }
 
   @Test

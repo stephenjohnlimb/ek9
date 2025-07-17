@@ -150,7 +150,7 @@ public class Result extends BuiltinType {
       whenError()
         -> acceptor as Acceptor of E""")
   public void whenError(Acceptor acceptor) {
-    if (errorValue != null && canProcess(acceptor)) {
+    if (errorValue != null && isValid(acceptor)) {
       acceptor._call(errorValue);
     }
   }
@@ -159,7 +159,7 @@ public class Result extends BuiltinType {
       whenError() as pure
         -> consumer as Consumer of E""")
   public void whenError(Consumer consumer) {
-    if (errorValue != null && canProcess(consumer)) {
+    if (errorValue != null && isValid(consumer)) {
       consumer._call(errorValue);
     }
   }

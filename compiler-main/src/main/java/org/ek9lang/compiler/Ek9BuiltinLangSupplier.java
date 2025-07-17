@@ -3324,6 +3324,8 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg0 as String
               assert arg0?
 
+            operator close as pure
+
             operator ? as pure
               <- rtn as Boolean?
 
@@ -3457,11 +3459,15 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           Stdout with trait of StringOutput, PipedOutput
             Stdout() as pure
 
+            override operator close as pure
+
             override operator ? as pure
               <- rtn as Boolean?
 
           Stderr with trait of StringOutput, PipedOutput
             Stderr() as pure
+
+            override operator close as pure
 
             override operator ? as pure
               <- rtn as Boolean?
@@ -3536,6 +3542,22 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
           GUID
             GUID() as pure
+
+            operator == as pure
+              -> arg as GUID
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as GUID
+              <- rtn as Boolean?
+
+            operator <=> as pure
+              -> arg as GUID
+              <- rtn as Integer?
+
+            operator <=> as pure
+              -> arg as Any
+              <- rtn as Integer?
 
             operator #^ as pure
               <- rtn as String?

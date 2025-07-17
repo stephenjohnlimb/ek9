@@ -38,10 +38,6 @@ public abstract class BuiltinType implements Any {
     return isSet && isValid(value);
   }
 
-  protected boolean canProcess(final Any value) {
-    return isSet && isValid(value);
-  }
-
   protected boolean nearEnoughToZero(final double arg) {
     return Math.abs(arg) < 10E-323;
   }
@@ -64,14 +60,6 @@ public abstract class BuiltinType implements Any {
 
   public static boolean isValid(BuiltinType value) {
     return value != null && value.isSet;
-  }
-
-  public static boolean isValid(Any value) {
-    if (value != null) {
-      final var set = value._isSet();
-      return set.isSet && set.state;
-    }
-    return false;
   }
 
   @Override

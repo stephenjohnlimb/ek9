@@ -18,6 +18,7 @@ class FileTest extends Common {
     assertUnset.accept(theDefault.isReadable());
     assertUnset.accept(theDefault.isWritable());
     assertUnset.accept(theDefault.lastModified());
+    assertUnset.accept(theDefault._len());
     assertUnset.accept(theDefault._string());
     assertUnset.accept(theDefault._hashcode());
   }

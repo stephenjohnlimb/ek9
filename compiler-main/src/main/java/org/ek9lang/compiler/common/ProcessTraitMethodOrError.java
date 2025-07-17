@@ -11,6 +11,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  * Issues error if method is marked as a constructor on a trait.
  */
 public class ProcessTraitMethodOrError implements BiConsumer<MethodSymbol, EK9Parser.OperationDetailsContext> {
+  private final ExternallyImplemented externallyImplemented = new ExternallyImplemented();
   private final ProcessingBodyPresent processingBodyPresent = new ProcessingBodyPresent();
   private final ErrorListener errorListener;
 
@@ -33,6 +34,13 @@ public class ProcessTraitMethodOrError implements BiConsumer<MethodSymbol, EK9Pa
   }
 
   private void markMethodAbstractIfVirtual(final MethodSymbol method, final EK9Parser.OperationDetailsContext ctx) {
+
+    if (externallyImplemented.test(method)) {
+      //There is no need to check if there is a body - because for extern there won't be.
+      //Therefore, it is up to the APi provider in extern to correctly indicate which method are implemented and
+      // which are not
+      return;
+    }
 
     if (!method.isMarkedAbstract() && !processingBodyPresent.test(ctx)) {
       method.setMarkedAbstract(true);

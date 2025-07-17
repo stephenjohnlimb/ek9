@@ -1,0 +1,46 @@
+#!ek9
+<?-
+  Workspace for checking open and abstract traits.
+  Just to check if it is possible to detect and emit errors when incorrectly annotated.
+
+  Traits are by their nature both open and abstract, but we enable the use of the open/abstract
+  key word with them.
+
+  With 'extern', there will be no method implementation bodies.
+  So when defining traits for an interface, use the 'abstract' keywork on the methods and
+  operators that are actually abstract.
+
+
+-?>
+defines extern module marked.open.but.stillabstract
+
+  defines trait
+
+    //First the happy paths - 'extern' is used in the file/module.
+
+    //This should be fine because we've said it is abstract
+    ValidFullTrait
+      provideValue()
+        <- rtn <- true
+
+    //Here I have indicated that the method on the trait is abstract.
+    ValidAbstractTrait
+      provideValue() as abstract
+        <- rtn as Boolean?
+
+    //Now the unhappy paths
+
+    //Here I am fully defining a trait and all its methods, but stating it is abstract
+    InvalidFullTrait
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      provideValue() as abstract
+        <- rtn <- true
+
+    //Here, as this is 'extern' the API developer might be OK and this really is implemented.
+    //Or they may have not done the implementation and this will be assumed to be implemented.
+    //But that will come down to the API developer correctly defining unit tests to check.
+    InvalidAbstractTrait
+      provideValue()
+        <- rtn as Boolean?
+
+//EOF

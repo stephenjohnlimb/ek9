@@ -58,7 +58,6 @@ class StderrTest extends StdCommon {
 
   @Test
   void testPrint() {
-
     assertPrint(new Stderr(), errContent);
   }
 

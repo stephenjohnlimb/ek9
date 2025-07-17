@@ -133,7 +133,7 @@ public abstract class ScopeStackConsistencyListener extends AbstractEK9PhaseList
     symbolsAndScopes.enterScope(symbolsAndScopes.getRecordedScope(ctx));
     if (ctx.getParent() instanceof EK9Parser.ProgramBlockContext && ctx.operationDetails() != null) {
       //There is a slight difference in scope stack management for programs.
-      //This inner scope will actually be the main body, but if extern there won't be a a body.
+      //This inner scope will actually be the main body, but if extern there won't be a body.
       var bodyScope = symbolsAndScopes.getRecordedScope(ctx.operationDetails());
       symbolsAndScopes.enterScope(bodyScope);
     }

@@ -13,11 +13,14 @@ import org.ek9tooling.Ek9Operator;
     Stderr with trait of StringOutput""")
 public class Stderr extends BuiltinType implements StringOutput {
 
+  private final StringOutputImpl err;
+
   @Ek9Constructor("""
       Stderr() as pure""")
   public Stderr() {
     //default constructor.
     set();
+    err = new StringOutputImpl(System.err);
   }
 
   @Override
@@ -25,19 +28,7 @@ public class Stderr extends BuiltinType implements StringOutput {
       override println() as pure
         -> arg0 as String""")
   public void println(String arg0) {
-    if (canProcess(arg0)) {
-      System.err.println(arg0.state);
-    }
-  }
-
-  @Override
-  @Ek9Method("""
-      override println() as pure
-        -> arg0 as Any""")
-  public void println(Any arg0) {
-    if (canProcess(arg0)) {
-      println(arg0._string());
-    } //else ignore it.
+    err.println(arg0);
   }
 
   @Override
@@ -45,37 +36,14 @@ public class Stderr extends BuiltinType implements StringOutput {
       override print() as pure
         -> arg0 as String""")
   public void print(String arg0) {
-    if (canProcess(arg0)) {
-      System.err.print(arg0.state);
-    } // else ignore it
-  }
-
-  @Override
-  @Ek9Method("""
-      override print() as pure
-        -> arg0 as Any""")
-  public void print(Any arg0) {
-    if (canProcess(arg0)) {
-      print(arg0._string());
-    } //else ignore it.
+    err.print(arg0);
   }
 
   @Override
   @Ek9Operator("""
-      override operator |
-        -> arg0 as String""")
-  public void _pipe(String arg0) {
-    println(arg0);
-  }
-
-  @Override
-  @Ek9Operator("""
-      override operator |
-        -> arg0 as Any""")
-  public void _pipe(Any arg0) {
-    if (canProcess(arg0)) {
-      println(arg0._string());
-    } //else ignore it.
+      override operator close as pure""")
+  public void _close() {
+    err._close();
   }
 
   @Override
@@ -83,7 +51,6 @@ public class Stderr extends BuiltinType implements StringOutput {
       override operator ? as pure
         <- rtn as Boolean?""")
   public Boolean _isSet() {
-
-    return Boolean._of(isSet);
+    return err._isSet();
   }
 }

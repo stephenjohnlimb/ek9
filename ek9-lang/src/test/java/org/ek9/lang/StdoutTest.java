@@ -58,7 +58,6 @@ class StdoutTest extends StdCommon {
 
   @Test
   void testPrint() {
-
     assertPrint(new Stdout(), outContent);
   }
 

@@ -138,6 +138,19 @@ public interface Any {
     return new Integer();
   }
 
+  default boolean canProcess(final Any value) {
+    final var set = _isSet();
+    return set.isSet && set.state && isValid(value);
+  }
+
+  default boolean isValid(Any value) {
+    if (value != null) {
+      final var set = value._isSet();
+      return set.isSet && set.state;
+    }
+    return false;
+  }
+
   /**
    * Now while you cannot 'new' an interface, you can do this to get an 'Any'.
    *

@@ -20,5 +20,6 @@ class StringOutputTest extends Common {
     assertDoesNotThrow(() -> theDefault.print(new Any() {}));
     assertDoesNotThrow(() -> theDefault._pipe(new String()));
     assertDoesNotThrow(() -> theDefault._pipe(new Any() {}));
+    assertDoesNotThrow(theDefault::_close);
   }
 }

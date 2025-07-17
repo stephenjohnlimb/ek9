@@ -23,7 +23,9 @@ public interface StringOutput extends Any {
       println() as pure
         -> arg0 as Any""")
   default void println(Any arg0) {
-    //By default a 'no-op'.
+    if (canProcess(arg0)) {
+      println(arg0._string());
+    } //else ignore it.
   }
 
   @Ek9Method("""
@@ -37,22 +39,30 @@ public interface StringOutput extends Any {
       print() as pure
         -> arg0 as Any""")
   default void print(Any arg0) {
-    //By default a 'no-op'.
+    if (canProcess(arg0)) {
+      print(arg0._string());
+    } //else ignore it.
   }
 
   @Ek9Operator("""
       operator |
         -> arg0 as String""")
   default void _pipe(String arg0) {
-    //By default a 'no-op'.
+    println(arg0);
   }
 
   @Ek9Operator("""
       operator |
         -> arg0 as Any""")
   default void _pipe(Any arg0) {
-    //Would expect implementation to use
-    //arg0._isSet() and arg0._string()
+    if (canProcess(arg0)) {
+      println(arg0._string());
+    } //else ignore it.
+  }
+
+  @Ek9Operator("""
+      operator close as pure""")
+  default void _close() {
     //By default a 'no-op'.
   }
 

@@ -40,6 +40,13 @@ public interface File extends Any {
     return new DateTime();
   }
 
+  @Ek9Operator("""
+      operator length as pure
+        <- rtn as Integer?""")
+  default Integer _len() {
+    return new Integer();
+  }
+
   @Override
   @Ek9Operator("""
       operator $ as pure

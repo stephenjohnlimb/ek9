@@ -1,6 +1,5 @@
 package org.ek9.lang;
 
-import java.util.Scanner;
 import org.ek9tooling.Ek9Class;
 import org.ek9tooling.Ek9Constructor;
 import org.ek9tooling.Ek9Method;
@@ -13,14 +12,13 @@ import org.ek9tooling.Ek9Operator;
 @Ek9Class("""
     Stdin with trait of StringInput""")
 public class Stdin extends BuiltinType implements StringInput {
-  private final Scanner scanner;
-  private boolean closed = false;
+  private final StringInputImpl stringInput;
 
   @Ek9Constructor("""
       Stdin() as pure""")
   public Stdin() {
     //Just the default constructor
-    scanner = new Scanner(System.in);
+    stringInput = new StringInputImpl((System.in));
   }
 
   @Override
@@ -28,11 +26,7 @@ public class Stdin extends BuiltinType implements StringInput {
       override next() as pure
         <- rtn as String?""")
   public String next() {
-
-    if (!closed && scanner.hasNext()) {
-      return String._of(scanner.nextLine());
-    }
-    return new String();
+    return stringInput.next();
   }
 
   @Override
@@ -40,20 +34,14 @@ public class Stdin extends BuiltinType implements StringInput {
       override hasNext() as pure
         <- rtn as Boolean?""")
   public Boolean hasNext() {
-    if (closed) {
-      return Boolean._of(false);
-    }
-    return Boolean._of(scanner.hasNext());
+    return stringInput.hasNext();
   }
 
   @Override
   @Ek9Operator("""
       override operator close as pure""")
   public void _close() {
-    if (!closed) {
-      closed = true;
-      scanner.close();
-    }
+    stringInput._close();
   }
 
   @Override
@@ -61,6 +49,6 @@ public class Stdin extends BuiltinType implements StringInput {
       override operator ? as pure
         <- rtn as Boolean?""")
   public Boolean _isSet() {
-    return hasNext();
+    return stringInput._isSet();
   }
 }

@@ -1,5 +1,6 @@
 package org.ek9.lang;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayOutputStream;
@@ -24,6 +25,8 @@ abstract class StdCommon extends Common {
     //Now another test via the println(Any) method but this time a value that is set.
     underTest.println(endOfTheDay);
     assertEquals("Steve\n23:59:59\n", outputStream.toString());
+
+    assertDoesNotThrow(underTest::_close);
   }
 
   void assertPipe(StringOutput underTest, ByteArrayOutputStream outputStream) {
@@ -40,6 +43,7 @@ abstract class StdCommon extends Common {
     //Now another test via the _pipe(Any) method but this time a value that is set.
     underTest._pipe(endOfTheDay);
     assertEquals("Steve\n23:59:59\n", outputStream.toString());
+    assertDoesNotThrow(underTest::_close);
   }
 
   void assertPrint(StringOutput underTest, ByteArrayOutputStream outputStream) {
@@ -56,5 +60,6 @@ abstract class StdCommon extends Common {
     //Now another test via the print(Any) method but this time a value that is set.
     underTest.print(endOfTheDay);
     assertEquals("Steve - 23:59:59", outputStream.toString());
+    assertDoesNotThrow(underTest::_close);
   }
 }
