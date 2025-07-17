@@ -3622,6 +3622,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           EnvVars
             EnvVars() as pure
 
+            keys() as pure
+              <- rtn as StringInput?
+
             get() as pure
               -> environmentVariableName as String
               <- environmentVariableValue as String?
@@ -3685,7 +3688,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
           <?-
             Applies each of the configurations to a new NetworkProperties record and returns that
-            mutated NetworkProperties record.
+            mutated NetworkProperties record. Maybe not needs right now.
           -?>
           ConfigureNetworkProperties()
             -> configurations as List of Acceptor of NetworkProperties
