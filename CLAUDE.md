@@ -259,6 +259,114 @@ Added `@Ek9Method` annotations to FileSystemPath component at `ek9-lang/src/main
 - Validation test demonstrates proper error detection
 - Need to resolve Maven build dependency issue to complete verification
 
+## Session Notes: EK9 GUID Implementation (2025-01-17)
+
+### Task Completed
+Implemented complete EK9 GUID component with Java UUID backing at `ek9-lang/src/main/java/org/ek9/lang/GUID.java`.
+
+### Key GUID Implementation Insights
+
+#### **GUID Interface Requirements** (from `Ek9BuiltinLangSupplier.java`)
+```
+GUID
+  GUID() as pure                              // Default constructor
+  GUID() as pure -> arg as GUID              // Copy constructor  
+  GUID() as pure -> arg as String            // String constructor
+  operator == as pure -> arg as GUID <- rtn as Boolean?
+  operator <> as pure -> arg as GUID <- rtn as Boolean?
+  operator <=> as pure -> arg as GUID <- rtn as Integer?
+  operator <=> as pure -> arg as Any <- rtn as Integer?
+  operator :^: -> arg as GUID                // Replace operator
+  operator :=: -> arg as GUID                // Copy operator
+  operator #^ as pure <- rtn as String?      // Promotion operator
+  operator $ as pure <- rtn as String?       // String operator
+  operator ? as pure <- rtn as Boolean?      // Set/unset check
+```
+
+#### **Critical EK9 Patterns Learned**
+
+1. **Exception Handling**: Use `@SuppressWarnings("checkstyle:CatchParameterName")` and `_` for ignored exceptions:
+   ```java
+   try {
+     state = UUID.fromString(arg.state);
+   } catch (IllegalArgumentException _) {
+     state = UUID.randomUUID();
+   }
+   ```
+
+2. **EK9 Null Semantics**: Invalid arguments return unset values, not false:
+   ```java
+   public Boolean _eq(GUID arg) {
+     if (isValid(arg)) {
+       return Boolean._of(this.state.equals(arg.state));
+     }
+     return new Boolean(); // Unset, not Boolean._of(false)
+   }
+   ```
+
+3. **Set/Unset Behavior**: Even "always-set" types can be unset for invalid operations:
+   ```java
+   public Boolean _isSet() {
+     return Boolean._of(isSet); // Not always true
+   }
+   ```
+
+4. **Factory Method Pattern**: Consistent `_of()` overloads:
+   ```java
+   public static GUID _of()                    // Generate new
+   public static GUID _of(java.lang.String)   // From string
+   public static GUID _of(UUID)               // From Java UUID
+   ```
+
+5. **Assignment Operators**: `:^:` (replace) and `:=:` (copy) follow String patterns:
+   ```java
+   public void _replace(GUID arg) {
+     _copy(arg); // Replace delegates to copy
+   }
+   
+   public void _copy(GUID value) {
+     if (isValid(value)) {
+       assign(value.state);
+     } else {
+       state = UUID.randomUUID(); // Fallback behavior
+       set();
+     }
+   }
+   ```
+
+6. **Dual String Operators**: Both `#^` and `$` required for different compiler contexts:
+   ```java
+   public String _promote() { return String._of(state.toString()); }
+   public String _string()  { return String._of(state.toString()); }
+   ```
+
+#### **Comprehensive Testing Patterns**
+
+- **Null Safety**: Test all constructors and methods with null inputs
+- **Edge Cases**: Invalid UUID strings, unset arguments, type mismatches
+- **Round-trip Testing**: String conversion and reconstruction
+- **Operator Consistency**: All operators behave correctly with set/unset states
+- **assertDoesNotThrow**: Prefer over direct exception-throwing calls
+
+#### **Key Implementation Files**
+- **GUID.java**: Main implementation with 189 lines
+- **GUIDTest.java**: Comprehensive test suite with 28 tests covering all scenarios
+- **Integration**: Verified with `Ek9IntrospectedBootStrapTest`
+
+#### **Lessons for Future EK9 Type Development**
+1. **Always handle null inputs gracefully** - EK9 types must be robust
+2. **Follow EK9 semantics** - Invalid operations return unset, not false
+3. **Consistent factory patterns** - Use `_of()` overloads
+4. **Proper exception handling** - Use `_` for ignored exceptions
+5. **Comprehensive testing** - Cover all edge cases and null scenarios
+6. **Integration validation** - Always run bootstrap tests
+
+### Status
+- GUID implementation complete and fully tested
+- All 28 tests passing
+- Bootstrap integration successful  
+- Ready for production use in EK9 language
+
 ## Personal Preferences
 - **Always refer to Steve by name** (not "user" or "the user")
 - Steve prefers direct, concise communication

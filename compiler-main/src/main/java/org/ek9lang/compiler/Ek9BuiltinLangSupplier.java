@@ -3543,6 +3543,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           GUID
             GUID() as pure
 
+            GUID() as pure
+              -> arg as GUID
+
+            GUID() as pure
+              -> arg as String
+
             operator == as pure
               -> arg as GUID
               <- rtn as Boolean?
@@ -3559,7 +3565,16 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Any
               <- rtn as Integer?
 
+            operator :^:
+              -> arg as GUID
+
+            operator :=:
+              -> arg as GUID
+
             operator #^ as pure
+              <- rtn as String?
+
+            operator $ as pure
               <- rtn as String?
 
             operator ? as pure
