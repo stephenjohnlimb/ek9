@@ -520,6 +520,23 @@ HMAC
 - Proper multi-module build process documented
 - Ready for production use in EK9 language
 
+## Analysis and Planning Requirements
+
+### Critical Analysis Process
+**Before proposing any changes, additions, or improvements, ALWAYS:**
+
+1. **Systematically map existing functionality** - Catalog what each existing test, method, or component already covers
+2. **Identify genuine gaps** - Focus on what's actually missing rather than theoretical improvements
+3. **Avoid redundancy** - Check thoroughly against existing coverage before proposing new tests or features
+4. **Be specific about what's missing** - Don't use generic improvement checklists
+
+### Example of Proper Analysis
+When asked to improve test coverage:
+- ✅ "The existing tests cover X, Y, and Z scenarios. Missing coverage includes A and B."
+- ❌ "We should add tests for parameter validation" (when parameter validation is already tested)
+
+**Key Lesson**: When Steve asks to "review" or "analyze" existing code, do thorough analysis before jumping to solutions.
+
 ## Personal Preferences
 - **Always refer to Steve by name** (not "user" or "the user")
 - Steve prefers direct, concise communication

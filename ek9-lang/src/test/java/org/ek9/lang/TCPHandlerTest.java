@@ -2,6 +2,7 @@ package org.ek9.lang;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -81,4 +82,81 @@ class TCPHandlerTest extends Common {
     //Now check input has not been consumed.
     assertTrue.accept(input._isSet());
   }
+
+  @Test
+  void testEmptyInput() {
+    final var underTest = new TCPHandler();
+    assertNotNull(underTest);
+
+    //Empty input stream
+    final var is = new ByteArrayInputStream(new byte[0]);
+    final var response = new ByteArrayOutputStream();
+    final var ps = new PrintStream(response);
+
+    final var input = new StringInputImpl(is);
+    final var output = new StringOutputImpl(ps);
+
+    underTest._call(input, output);
+
+    //Verify no output produced
+    assertEquals("", response.toString());
+
+    //Verify streams are closed/unset
+    assertFalse.accept(input._isSet());
+    assertTrue.accept(output._isSet());
+  }
+
+  @Test
+  void testLargeInput() {
+    final var underTest = new TCPHandler();
+    assertNotNull(underTest);
+
+    //Generate large input (1000 lines)
+    final var inputBuilder = new StringBuilder();
+    for (int i = 0; i < 1000; i++) {
+      inputBuilder.append("line").append(i).append("\n");
+    }
+    final var inputText = inputBuilder.toString();
+
+    final var is = new ByteArrayInputStream(inputText.getBytes());
+    final var response = new ByteArrayOutputStream();
+    final var ps = new PrintStream(response);
+
+    final var input = new StringInputImpl(is);
+    final var output = new StringOutputImpl(ps);
+
+    underTest._call(input, output);
+
+    //Verify complete output matches input
+    assertEquals(inputText, response.toString());
+
+    //Verify streams are closed/unset
+    assertFalse.accept(input._isSet());
+    assertFalse.accept(output._isSet());
+  }
+
+  @Test
+  void testWhitespaceInput() {
+    final var underTest = new TCPHandler();
+    assertNotNull(underTest);
+
+    //Test input with various whitespace
+    final var inputText = "   \n\t\t\n\n  spaces  \n\n";
+    final var is = new ByteArrayInputStream(inputText.getBytes());
+    final var response = new ByteArrayOutputStream();
+    final var ps = new PrintStream(response);
+
+    final var input = new StringInputImpl(is);
+    final var output = new StringOutputImpl(ps);
+
+    underTest._call(input, output);
+
+    //Only check that real content is present.
+    assertTrue(response.toString().contains("spaces"));
+
+    //Verify streams are closed/unset
+    assertFalse.accept(input._isSet());
+    assertFalse.accept(output._isSet());
+  }
+
 }
