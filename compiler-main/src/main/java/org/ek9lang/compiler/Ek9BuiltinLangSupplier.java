@@ -3809,8 +3809,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
           <?-
             Used for various network communications.
-            See 'ConfigureNetworkProperties' on how to create a bespoke or specific
-            network property configuration - rather than using a specific constructor.
           -?>
           NetworkProperties
             host as String: String()
@@ -3884,8 +3882,43 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 maxConcurrent as Integer
                 localOnly as Boolean
 
+            operator == as pure
+              -> arg as Any
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as NetworkProperties
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as NetworkProperties
+              <- rtn as Boolean?
+
+            operator <=> as pure
+              -> arg as NetworkProperties
+              <- rtn as Integer?
+
+            operator <=> as pure
+              -> arg as Any
+              <- rtn as Integer?
+
+            operator :~:
+              -> arg as NetworkProperties
+
+            operator :^:
+              -> arg as NetworkProperties
+
+            operator :=:
+              -> arg as NetworkProperties
+
             operator ? as pure
               <- rtn as Boolean?
+
+            operator #^ as pure
+              <- rtn as String?
+
+            operator #? as pure
+              <- rtn as Integer?
 
             operator $ as pure
               <- rtn as String?
