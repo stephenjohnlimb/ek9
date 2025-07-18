@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 116;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 111;
 
   //Obviously with ek9 the indentation is important.
 
@@ -3685,15 +3685,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_NETWORK_FUNCTIONS = """
-
-          <?-
-            Applies each of the configurations to a new NetworkProperties record and returns that
-            mutated NetworkProperties record. Maybe not needs right now.
-          -?>
-          ConfigureNetworkProperties()
-            -> configurations as List of Acceptor of NetworkProperties
-            <- networkProperties as NetworkProperties?
-
           TCPHandler as abstract
             ->
               input as StringInput
