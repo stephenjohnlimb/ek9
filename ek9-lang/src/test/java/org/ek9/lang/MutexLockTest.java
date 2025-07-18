@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 
@@ -152,5 +154,92 @@ class MutexLockTest extends Common {
     //Now assert access was actually triggered.
     assertTrue(accessed.get());
 
+  }
+
+  @Test
+  void testTryEnterWithLockContention() throws InterruptedException {
+    //This test validates the critical missing scenario: tryEnter() when lock is held by another thread
+    //It tests the return Boolean._of(false) path on line 92 of MutexLock.java that was never executed
+    
+    final var lockedItem = String._of("Steve");
+    final var mutexLock = new MutexLock(lockedItem);
+    
+    //Thread synchronization
+    final var threadAReady = new CountDownLatch(1);
+    final var threadAHoldsLock = new CountDownLatch(1);
+    final var threadBCanProceed = new CountDownLatch(1);
+    
+    //Result tracking
+    final var threadASuccess = new AtomicBoolean(false);
+    final var threadBResult = new AtomicBoolean(true); // Start as true, should become false
+    final var threadBKeyCalled = new AtomicBoolean(false);
+    
+    //Thread A: Will hold the lock for a controlled duration
+    final var threadAKey = new MutexKey() {
+      @Override
+      public void _call(final Any t) {
+        assertEquals(lockedItem, t);
+        threadAHoldsLock.countDown(); // Signal that Thread A now holds the lock
+        try {
+          // Wait for Thread B to attempt tryEnter
+          assertTrue(threadBCanProceed.await(5, TimeUnit.SECONDS));
+          // Hold the lock briefly to ensure Thread B encounters contention
+          Thread.sleep(100);
+        } catch (InterruptedException _) {
+          Thread.currentThread().interrupt();
+        }
+      }
+    };
+    
+    //Thread B: Will attempt tryEnter while Thread A holds the lock  
+    final var threadBKey = new MutexKey() {
+      @Override
+      public void _call(final Any t) {
+        threadBKeyCalled.set(true); // This should NEVER be called under contention
+      }
+    };
+    
+    //Start Thread A (will block on enter)
+    final var threadA = new Thread(() -> {
+      threadAReady.countDown();
+      final var result = mutexLock.enter(threadAKey);
+      threadASuccess.set(result != null && result.isSet && result.state);
+    });
+    
+    //Start Thread B (will attempt tryEnter while Thread A holds lock)
+    final var threadB = new Thread(() -> {
+      try {
+        // Wait for Thread A to be ready
+        assertTrue(threadAReady.await(5, TimeUnit.SECONDS));
+        // Wait for Thread A to actually hold the lock
+        assertTrue(threadAHoldsLock.await(5, TimeUnit.SECONDS));
+        
+        // Now attempt tryEnter - this should return false immediately
+        final var result = mutexLock.tryEnter(threadBKey);
+        threadBResult.set(result != null && result.isSet && result.state);
+        
+        // Signal that Thread B has completed its tryEnter attempt
+        threadBCanProceed.countDown();
+      } catch (InterruptedException _) {
+        Thread.currentThread().interrupt();
+      }
+    });
+    
+    //Execute the test
+    threadA.start();
+    threadB.start();
+    
+    //Wait for both threads to complete
+    threadA.join(10000); // 10 second timeout
+    threadB.join(10000);
+    
+    //Verify results
+    assertTrue(threadASuccess.get(), "Thread A should have successfully entered the lock");
+    assertFalse(threadBResult.get(), "Thread B should have received false from tryEnter (lock contention)");
+    assertFalse(threadBKeyCalled.get(), "Thread B's MutexKey should NOT have been called when lock was contended");
+    
+    //Verify threads completed properly
+    assertFalse(threadA.isAlive(), "Thread A should have completed");
+    assertFalse(threadB.isAlive(), "Thread B should have completed");
   }
 }
