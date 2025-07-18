@@ -262,11 +262,11 @@ defines module worked.example
 
       private setupGetOpt() as pure
         -> rqParam as String
-        <- getopts as GetOpt of String?
+        <- getopts as GetOpt?
 
         supportedOptions <- setupSupportedOptions(rqParam)
         usage <- setupUsage()
-        getopts :=? GetOpt(String()).make(rqParam, supportedOptions, usage)
+        getopts :=? GetOpt(rqParam, supportedOptions, usage)
 
       private setupSupportedOptions() as pure
         -> rqParam as String

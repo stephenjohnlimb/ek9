@@ -23,7 +23,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
   /**
    * As we add more, update this.
    */
-  public static final int NUMBER_OF_EK9_SYMBOLS = 111;
+  public static final int NUMBER_OF_EK9_SYMBOLS = 108;
 
   //Obviously with ek9 the indentation is important.
 
@@ -3636,19 +3636,14 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator ? as pure
               <- rtn as Boolean?
 
-          GetOpt of type T
+          GetOpt
             GetOpt() as pure
 
             GetOpt() as pure
-              -> value as T
-
-            make() as pure
               ->
-                value as T
-                pattern as Dict of (String, T)
+                value as String
+                pattern as Dict of (String, String)
                 usage as String
-              <-
-                rtn as GetOpt of T?
 
             options() as pure
               -> arguments as List of String

@@ -935,11 +935,11 @@ defines module introduction
 
       private setupGetOpt() as pure
         -&gt; rqParam as String
-        &lt;- getopts as GetOpt of String?
+        &lt;- getopts as GetOpt?
 
         supportedOptions &lt;- setupSupportedOptions(rqParam)
         usage &lt;- setupUsage()
-        getopts: GetOpt(String()).make(rqParam, supportedOptions, usage)
+        getopts: GetOpt(rqParam, supportedOptions, usage)
 
       private setupSupportedOptions() as pure
         -&gt; rqParam as String
@@ -976,7 +976,7 @@ defines module introduction
     <h5 id="getOpt">GetOpt</h5>
     <p>
       The <b>processCommandLine</b> <i>method</i> on the <i>class</i> <b>OptionsHandler</b> uses
-      <i>private methods</i> to setup and configure the <b>GetOpt</b> generic <i>class</i>.
+      <i>private methods</i> to setup and configure the <b>GetOpt</b> <i>class</i>.
       Each of the <i>private methods</i>perform a specific task; configuring the supported options and
       configuring the help text options.
     </p>
