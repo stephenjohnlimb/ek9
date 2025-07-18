@@ -3,7 +3,7 @@ defines module com.lock
   
   defines function
     createProtectedName()
-      <- lock as MutexLock of String: MutexLock("Steve")
+      <- lock <- MutexLock("Steve")
        
   defines program
     LockExample()
@@ -17,12 +17,20 @@ defines module com.lock
       accessKey <- (stdout) extends MutexKey of String as function
         stdout.println("Accessing [" + $value + "]")
         //Now update the value - by copying data into it.
+        //You cannot just reassign the data i.e. value := "Stephen"
+        //You must copy data right into the locked value.
+        //Otherwise the reference in the lockableItem could still be accessible from outside
+        //the mutex lock - thereby circumventing the locked/limited/controlled access
+        //So, you still have to be carful with mutex.
         value :=: "Stephen"
 
       //Now try access via key and wait on mutex
       lockableItem.enter(accessKey)
 
+      //So the flow when calling lockableItem.enter - 'appears' to jump back to the previous
+      //code block in accessKey line 17-25.
+
       //As there are no other threads access will be granted here
-      //If other held the lock this would return false and key.access() would not be called. 
+      //If another thread held the lock this would return false and key.access() would not be called.
       assert lockableItem.tryEnter(accessKey)
 //EOF

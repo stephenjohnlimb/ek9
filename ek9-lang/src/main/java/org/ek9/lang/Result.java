@@ -1,6 +1,5 @@
 package org.ek9.lang;
 
-import java.util.Objects;
 import org.ek9tooling.Ek9Class;
 import org.ek9tooling.Ek9Constructor;
 import org.ek9tooling.Ek9Method;
@@ -262,9 +261,7 @@ public class Result extends BuiltinType {
   public Integer _hashcode() {
     final var rtn = new Integer();
     if (isSet) {
-      int result = Objects.hashCode(okValue);
-      result = 31 * result + Objects.hashCode(errorValue);
-      rtn.assign(result);
+      return _string()._hashcode();
     }
     return rtn;
   }

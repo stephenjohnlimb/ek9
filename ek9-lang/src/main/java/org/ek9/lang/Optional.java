@@ -103,7 +103,7 @@ public class Optional extends BuiltinType {
   public String _string() {
     final var rtn = new String();
     if (isSet) {
-      rtn.assign(state._string());
+      return state._string();
     }
     return rtn;
   }
@@ -115,7 +115,7 @@ public class Optional extends BuiltinType {
   public Integer _hashcode() {
     final var rtn = new Integer();
     if (isSet) {
-      rtn.assign(Objects.hashCode(state));
+      return state._hashcode();
     }
     return rtn;
   }

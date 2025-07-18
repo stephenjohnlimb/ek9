@@ -3669,9 +3669,11 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             enter() as pure
               -> withKey as MutexKey of T
+              <- rtn as Boolean?
 
             tryEnter() as pure
               -> withKey as MutexKey of T
+              <- rtn as Boolean?
 
             operator ? as pure
               <- rtn as Boolean?
