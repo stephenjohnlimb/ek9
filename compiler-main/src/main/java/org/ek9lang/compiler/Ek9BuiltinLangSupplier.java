@@ -3734,7 +3734,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as StringInput?
 
             operator ? as pure
-              <- rtn as Boolean := Boolean()
+              <- rtn as Boolean?
 
       """;
 
