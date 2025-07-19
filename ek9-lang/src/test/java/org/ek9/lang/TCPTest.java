@@ -5,23 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
-import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ_WRITE;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ResourceLock;
 
 /**
  * Comprehensive test suite for TCP class implementation.
  * Tests both server and client modes, threading, and resource management.
  */
-@Execution(SAME_THREAD)
-@ResourceLock(value = "file_access", mode = READ_WRITE)
 class TCPTest extends Common {
 
   @Test
@@ -101,7 +95,7 @@ class TCPTest extends Common {
 
   @Test
   void testClientModeConstruction() {
-    final var properties = new NetworkProperties(String._of("localhost"), Integer._of(80));
+    final var properties = new NetworkProperties(String._of("localhost"), Integer._of(8085));
     final var tcp = new TCP(properties);
     assertNotNull(tcp);
 
@@ -110,7 +104,7 @@ class TCPTest extends Common {
     assertTrue(tcp._string().state.contains("client"));
   }
 
-  //@Test
+  @Test
   void testClientModeInvalidProperties() {
     // Missing port
     final var properties1 = new NetworkProperties(String._of("localhost"));
@@ -120,7 +114,7 @@ class TCPTest extends Common {
 
     // Missing host  
     final var properties2 = new NetworkProperties();
-    properties2.port = Integer._of(80);
+    properties2.port = Integer._of(8085);
     properties2.host = new String(); // Unset host
     final var tcp2 = new TCP(properties2);
     // Should default to server mode since no host specified
@@ -155,7 +149,7 @@ class TCPTest extends Common {
 
   @Test
   void testServerAcceptInClientMode() {
-    final var properties = new NetworkProperties(String._of("localhost"), Integer._of(80));
+    final var properties = new NetworkProperties(String._of("localhost"), Integer._of(8085));
     final var tcp = new TCP(properties);
 
     final var handler = new TCPHandler();
@@ -396,7 +390,7 @@ class TCPTest extends Common {
     serverTcp._close();
 
     // Client TCP
-    final var clientProperties = new NetworkProperties(String._of("localhost"), Integer._of(80));
+    final var clientProperties = new NetworkProperties(String._of("localhost"), Integer._of(8085));
     final var clientTcp = new TCP(clientProperties);
     String clientString = clientTcp._string();
     assertTrue(clientString.state.contains("client"));
