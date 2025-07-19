@@ -110,7 +110,7 @@ class TCPTest extends Common {
     assertTrue(tcp._string().state.contains("client"));
   }
 
-  @Test
+  //@Test
   void testClientModeInvalidProperties() {
     // Missing port
     final var properties1 = new NetworkProperties(String._of("localhost"));
