@@ -36,9 +36,10 @@ public class SocketConnection implements TCPConnection {
    * @param timeout The read timeout in milliseconds (can be unset)
    * @throws IOException if there's an error setting up I/O streams
    */
+  @SuppressWarnings("checkstyle:CatchParameterName")
   public SocketConnection(Socket socket, Millisecond timeout) throws IOException {
     if (socket == null || !socket.isConnected()) {
-      throw new IllegalArgumentException("Socket must be connected");
+      throw Exception._of("Socket must be connected");
     }
 
     this.socket = socket;
@@ -48,9 +49,8 @@ public class SocketConnection implements TCPConnection {
       try {
         int timeoutMs = (int) timeout._prefix().state;
         socket.setSoTimeout(timeoutMs);
-      } catch (Exception e) {
-        // If timeout setting fails, continue without timeout
-        System.err.println("Warning: Failed to set socket timeout: " + e.getMessage());
+      } catch (Exception _) {
+        //Ignore.
       }
     }
 

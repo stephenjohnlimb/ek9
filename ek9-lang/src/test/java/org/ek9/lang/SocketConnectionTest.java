@@ -35,12 +35,12 @@ class SocketConnectionTest extends Common {
 
   @Test
   void testConstructionWithInvalidSocket() throws IOException {
-    assertThrows(IllegalArgumentException.class, () ->
+    assertThrows(Exception.class, () ->
         new SocketConnection(null, new Millisecond()));
 
     // Test with unconnected socket
     try (Socket unconnectedSocket = new Socket()) {
-      assertThrows(IllegalArgumentException.class, () ->
+      assertThrows(Exception.class, () ->
           new SocketConnection(unconnectedSocket, new Millisecond()));
     }
   }

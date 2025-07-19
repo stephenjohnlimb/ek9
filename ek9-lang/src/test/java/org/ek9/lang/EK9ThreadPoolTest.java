@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test the internal EK9ThreadPool class.
- * This tests the Java implementation that supports EK9 TCP functionality.
+ * This tests the Java implementation that supports EK9 Threaded functionality.
  */
 class EK9ThreadPoolTest {
 
