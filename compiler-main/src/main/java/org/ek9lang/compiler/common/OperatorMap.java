@@ -54,7 +54,7 @@ public class OperatorMap extends BiMap {
     put("#^", "_promote");
     put("$", "_string");
     put("$$", "_json");
-    put("#?", "_hashCode");
+    put("#?", "_hashcode");
 
     //Suitable for object types that can have prefix and suffix
     //EG for Money prefix is amount suffix is currency

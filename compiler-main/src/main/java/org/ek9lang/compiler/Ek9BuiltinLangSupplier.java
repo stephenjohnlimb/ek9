@@ -3932,16 +3932,53 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             UDPPacket() as pure
               ->
                 properties as NetworkProperties
+
+            UDPPacket() as pure
+              ->
+                source as UDPPacket
+
+            UDPPacket() as pure
+              ->
+                properties as NetworkProperties
                 content as String
 
-            <?-
-              Allow to be promoted to a String for output.
-            -?>
+            operator == as pure
+              -> arg as Any
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as UDPPacket
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as UDPPacket
+              <- rtn as Boolean?
+
+            operator <=> as pure
+              -> arg as UDPPacket
+              <- rtn as Integer?
+
+            operator <=> as pure
+              -> arg as Any
+              <- rtn as Integer?
+
+            operator :~:
+              -> arg as UDPPacket
+
+            operator :^:
+              -> arg as UDPPacket
+
+            operator :=:
+              -> arg as UDPPacket
+
             operator #^ as pure
-              <- rtn as String: $this
+              <- rtn as String?
 
             operator ? as pure
               <- rtn as Boolean?
+
+            operator #? as pure
+              <- rtn as Integer?
 
             operator $ as pure
               <- rtn as String?

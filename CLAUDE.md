@@ -117,6 +117,24 @@ This context file contains:
 - Common compilation issues and solutions
 - Advanced patterns and best practices
 
+#### EK9 Operator Method Names
+**CRITICAL**: For correct EK9 operator implementation, always reference the definitive mapping at:
+- **`compiler-main/src/main/java/org/ek9lang/compiler/common/OperatorMap.java`**
+
+Key operator mappings include:
+- `"<>"` → `_neq` (not `_ne`)
+- `"#?"` → `_hashcode` (lowercase 'c')
+- `"=="` → `_eq`
+- `"<=>"` → `_cmp`
+- `":=:"` → `_copy`
+- `":^:"` → `_replace`
+- `":~:"` → `_merge`
+- `"?"` → `_isSet`
+- `"$"` → `_string`
+- `"#^"` → `_promote`
+
+All method names are consistent between OperatorMap and actual implementations.
+
 **CRITICAL**: Always follow the [EK9 Annotation Validation Process](#ek9-annotation-validation-process) when developing new EK9 built-in types to ensure annotations are syntactically correct.
 
 ### Code Style
