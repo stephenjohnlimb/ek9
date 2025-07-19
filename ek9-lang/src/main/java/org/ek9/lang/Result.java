@@ -192,7 +192,15 @@ public class Result extends BuiltinType {
   public Boolean _eq(Result arg) {
     final var rtn = new Boolean();
 
-    if (canProcess(arg)) {
+    if (arg != null) {
+
+      if (isNotMeaningful(this)) {
+        return new Boolean();
+      }
+
+      if (isNotMeaningful(arg)) {
+        return new Boolean();
+      }
 
       if ((okValue != null && arg.okValue == null)
           || (okValue == null && arg.okValue != null)) {
@@ -349,6 +357,23 @@ public class Result extends BuiltinType {
   }
 
   //Start of Utility methods
+
+  private boolean isNotMeaningful(Result value) {
+    boolean okSet = false;
+    boolean errorSet = false;
+
+    if (value.okValue != null) {
+      final var checkOk = value.okValue._isSet();
+      okSet = checkOk.isSet && checkOk.state;
+    }
+
+    if (value.errorValue != null) {
+      final var checkError = value.errorValue._isSet();
+      errorSet = checkError.isSet && checkError.state;
+    }
+
+    return !okSet && !errorSet;
+  }
 
   @Override
   protected Result _new() {

@@ -37,6 +37,10 @@ public class Exception extends RuntimeException implements Any {
     super(rex);
   }
 
+  private Exception(java.lang.Exception ex) {
+    super(ex);
+  }
+
   @Ek9Constructor("""
       Exception() as pure""")
   public Exception() {
@@ -200,5 +204,9 @@ public class Exception extends RuntimeException implements Any {
 
   public static Exception _of(RuntimeException rex) {
     return new Exception(rex);
+  }
+
+  public static Exception _of(java.lang.Exception ex) {
+    return new Exception(ex);
   }
 }

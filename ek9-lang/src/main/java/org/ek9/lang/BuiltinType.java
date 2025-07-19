@@ -17,7 +17,8 @@ public abstract class BuiltinType implements Any {
    * @return use covariant to return the right type.
    */
   protected Any _new() {
-    return new Any(){};
+    return new Any() {
+    };
   }
 
   public void unSet() {
@@ -59,7 +60,11 @@ public abstract class BuiltinType implements Any {
   }
 
   public static boolean isValid(BuiltinType value) {
-    return value != null && value.isSet;
+    if (value == null) {
+      return false;
+    }
+    final var checkIsSet = value._isSet();
+    return checkIsSet.isSet && checkIsSet.state;
   }
 
   @Override

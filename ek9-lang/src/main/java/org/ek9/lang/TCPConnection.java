@@ -65,4 +65,11 @@ public interface TCPConnection extends Any {
     // Concrete implementations should provide connection details
     return new String();
   }
+
+  @Ek9Operator("""
+      operator close as pure""")
+  default void _close() {
+    //By default a 'no-op'.
+  }
+
 }
