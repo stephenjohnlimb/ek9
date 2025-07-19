@@ -57,7 +57,7 @@ defines module example.networking
     //For all types of file including source to build includes and then excludes.
     //Uses fairly stock globs to match files, just a list of globs to include
     //Relative to this file's directory.
-    //If you omit includeFiles then everything is included (**.*), subequently excludes can remove matches
+    //If you omit includeFiles then everything is included (**.*), subsequently excludes can remove matches
 
     //If your project is fairly standard leave this flag as true and files like
     //**.ek9, **.properties, **.png, **.gif, **.js, **.jpg, **.css all get included

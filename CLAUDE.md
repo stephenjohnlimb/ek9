@@ -6,6 +6,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 EK9 is a new programming language implementation with a comprehensive compiler written in Java 23. The project consists of a multi-pass compiler that transforms EK9 source code (`.ek9` files) into various target formats, primarily Java bytecode.
 
+## Architecture Documentation
+
+### Comprehensive Technical References
+For detailed understanding of the EK9 compiler architecture and implementation:
+
+- **`EK9_Compiler_Architecture_and_Design.md`** - Complete 85-page technical specification covering:
+  - 22-phase compilation pipeline (detailed analysis of each phase)
+  - Module structure and Maven dependencies
+  - Symbol table and type system architecture
+  - Bootstrap process and built-in type loading
+  - Intermediate representation and code generation
+  - Language Server Protocol integration
+  - Performance considerations and threading
+  - Implementation status and future roadmap
+
+- **`architecture_diagrams.md`** - Visual architecture diagrams including:
+  - Module dependency graphs
+  - 22-phase compilation pipeline flow
+  - Symbol system class hierarchies
+  - LSP integration architecture
+  - Bootstrap process flow
+  - Multi-target code generation
+  - Generic type system architecture
+  - Error handling and diagnostics flow
+
+These documents provide comprehensive technical context for all EK9 compiler development work and should be referenced for understanding the complete architecture.
+
 ## Build System and Common Commands
 
 This is a Maven-based project with a multi-module structure. All commands should be run from the root directory.
@@ -519,6 +546,44 @@ HMAC
 - Bootstrap integration successful
 - Proper multi-module build process documented
 - Ready for production use in EK9 language
+
+## Session Notes: EK9 TCP Skeleton Implementation (2025-01-18)
+
+### Task Completed
+Created TCP.java skeleton implementation with proper EK9 annotations at `ek9-lang/src/main/java/org/ek9/lang/TCP.java`.
+
+### Key EK9 Constructor Annotation Pattern
+**CRITICAL**: EK9 constructors require the full EK9 syntax specification in the annotation:
+
+**Correct Format:**
+```java
+@Ek9Constructor("TCP() as pure")                    // Default constructor
+@Ek9Constructor("""
+    TCP() as pure
+      -> properties as NetworkProperties""")        // Parameterized constructor
+```
+
+**Wrong Format:**
+```java
+@Ek9Constructor                                     // Missing EK9 syntax - WRONG
+```
+
+### TCP Implementation Structure
+- **Extends BuiltinType** following EK9 built-in type patterns
+- **State Fields**: NetworkProperties, ServerSocketChannel, error tracking
+- **Two Constructors**: Default and NetworkProperties-based
+- **Core Methods**: `connect()`, `accept()`, `lastErrorMessage()`
+- **Operators**: `close`, `?` (isSet), `$` (string)
+- **Java NIO Integration**: Uses ServerSocketChannel for TCP operations
+
+### Key Implementation Files
+- **TCP.java**: Complete skeleton (83 lines) with proper EK9 annotations
+- **Integration**: Ready for implementation phases and testing
+
+### Status
+- TCP skeleton complete with proper EK9 annotations
+- All method signatures match EK9 interface requirements
+- Ready for detailed implementation in subsequent phases
 
 ## Analysis and Planning Requirements
 
