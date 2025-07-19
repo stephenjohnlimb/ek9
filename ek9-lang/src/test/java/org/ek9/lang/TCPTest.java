@@ -5,17 +5,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
+import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ_WRITE;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ResourceLock;
 
 /**
  * Comprehensive test suite for TCP class implementation.
  * Tests both server and client modes, threading, and resource management.
  */
+@Execution(SAME_THREAD)
+@ResourceLock(value = "file_access", mode = READ_WRITE)
 class TCPTest extends Common {
 
   @Test
