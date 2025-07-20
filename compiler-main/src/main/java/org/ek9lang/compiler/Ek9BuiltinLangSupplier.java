@@ -3746,19 +3746,12 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             UDP() as pure
               -> properties as NetworkProperties
 
-            timeout() as pure
-              -> duration as Millisecond
-              <- rtn as UDP?
-
             send()
               -> packet as UDPPacket
 
             hasNext() as pure
               <- rtn as Boolean?
 
-            <?-
-              Same functionality as receive.
-            -?>
             next()
               <- packet as UDPPacket?
 
@@ -4003,14 +3996,57 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           JoinPoint as open
             JoinPoint() as pure
 
+            JoinPoint() as pure
+              ->
+                componentName as String
+                methodName as String
+
             componentName() as pure
               <- rtn as String?
 
             methodName() as pure
               <- rtn as String?
 
+            operator == as pure
+              -> arg as Any
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as JoinPoint
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as JoinPoint
+              <- rtn as Boolean?
+
+            operator <=> as pure
+              -> arg as JoinPoint
+              <- rtn as Integer?
+
+            operator <=> as pure
+              -> arg as Any
+              <- rtn as Integer?
+
+            operator :~:
+              -> arg as JoinPoint
+
+            operator :^:
+              -> arg as JoinPoint
+
+            operator :=:
+              -> arg as JoinPoint
+
+            operator #^ as pure
+              <- rtn as String?
+
             operator ? as pure
               <- rtn as Boolean?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator $ as pure
+              <- rtn as String?
 
           PreparedMetaData as open
             PreparedMetaData() as pure
@@ -4021,8 +4057,46 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             joinPoint() as pure
               <- rtn as JoinPoint?
 
+            operator == as pure
+              -> arg as Any
+              <- rtn as Boolean?
+
+            operator == as pure
+              -> arg as PreparedMetaData
+              <- rtn as Boolean?
+
+            operator <> as pure
+              -> arg as PreparedMetaData
+              <- rtn as Boolean?
+
+            operator <=> as pure
+              -> arg as PreparedMetaData
+              <- rtn as Integer?
+
+            operator <=> as pure
+              -> arg as Any
+              <- rtn as Integer?
+
+            operator :~:
+              -> arg as PreparedMetaData
+
+            operator :^:
+              -> arg as PreparedMetaData
+
+            operator :=:
+              -> arg as PreparedMetaData
+
+            operator #^ as pure
+              <- rtn as String?
+
             operator ? as pure
               <- rtn as Boolean?
+
+            operator #? as pure
+              <- rtn as Integer?
+
+            operator $ as pure
+              <- rtn as String?
 
       """;
 
