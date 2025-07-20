@@ -3987,7 +3987,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> joinPoint as JoinPoint
               <- rtn as PreparedMetaData?
 
-            afterAdvice()
+            afterAdvice() as dispatcher
               -> preparedMetaData as PreparedMetaData
 
             operator ? as pure
