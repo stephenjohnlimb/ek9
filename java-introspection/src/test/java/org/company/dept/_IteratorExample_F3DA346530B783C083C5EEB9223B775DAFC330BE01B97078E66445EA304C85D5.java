@@ -5,6 +5,7 @@ import org.ek9tooling.Ek9ParameterisedType;
 /**
  * Note how it is declared. Also, it must have the right methods almost like it 'overrides'
  * the generic type that it has parameterised.
+ * Use org.ek9lang.compiler.support.DecoratedName to calculate the decorated name.
  * <p>
  * For example Object next(), becomes StringExample next().
  * </p>
@@ -13,20 +14,20 @@ import org.ek9tooling.Ek9ParameterisedType;
  * being parameterised.
  * </p>
  * <p>
- *   In effect, you are manually providing the implementation of the generic type but with your selected type
- *   arguments. Clearly you should do the minimal amount of this, the EK9 compiler will in time generate this
- *   code (byte-code) given a generic type and the parameters.
+ * In effect, you are manually providing the implementation of the generic type but with your selected type
+ * arguments. Clearly you should do the minimal amount of this, the EK9 compiler will in time generate this
+ * code (byte-code) given a generic type and the parameters.
  * </p>
  * <p>
- *   But for API development it is sometimes necessary to do these by hand. Because you actually do need
- *   a '_IteratorExample_F3DA346530B783C083C5EEB9223B775DAFC330BE01B97078E66445EA304C85D5' class to be present
- *   to get your code to compile.
+ * But for API development it is sometimes necessary to do these by hand. Because you actually do need
+ * a '_IteratorExample_F3DA346530B783C083C5EEB9223B775DAFC330BE01B97078E66445EA304C85D5' class to be present
+ * to get your code to compile.
  * </p>
  * <p>
- *   When the EK9 compiler encounters multiple implementations of
- *   '_IteratorExample_F3DA346530B783C083C5EEB9223B775DAFC330BE01B97078E66445EA304C85D5'
- *   (as it may if an application references multiple third party EK9 modules), it will resolve
- *   those to a single implementation (not quite sure how yet, but it will).
+ * When the EK9 compiler encounters multiple implementations of
+ * '_IteratorExample_F3DA346530B783C083C5EEB9223B775DAFC330BE01B97078E66445EA304C85D5'
+ * (as it may if an application references multiple third party EK9 modules), it will resolve
+ * those to a single implementation (not quite sure how yet, but it will).
  * </p>
  */
 @Ek9ParameterisedType("""

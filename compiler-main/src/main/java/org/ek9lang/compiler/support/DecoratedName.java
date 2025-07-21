@@ -12,13 +12,30 @@ import org.ek9lang.core.Digest;
  *   to create parameterised generic types.
  * </p>
  * <p>
- *   So it can be run from the Java command line as follows (from the project root):
+ *   So to produce 'List of String' for example,
+ *   the Java command line is as follows (from the project root):
  * </p>
  * <pre>
  *   java -cp ./compiler-main/target/classes
  *   org.ek9lang.compiler.support.DecoratedName List org.ek9.lang::List org.ek9.lang::String
  *   # Response will be
  *   _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+ * </pre>
+ * <p>
+ *   To product a Dict of (String, String) for example:
+ *   the java command line would be:
+ * </p>
+ * <pre>
+ *   java -cp ./compiler-main/target/classes
+ *   org.ek9lang.compiler.support.DecoratedName Dict org.ek9.lang::Dict org.ek9.lang::String org.ek9.lang::String
+ *   #Response will be
+ *   _Dict_E9A1EFF0D62E8EB35F7B0572E7F2C5492D6C980FE8B69376B38612DE6EBEC25F
+ * </pre>
+ * <p>For Dict of (String, Integer) it would be:</p>
+ * <pre>
+ *   java -cp ./compiler-main/target/classes
+ *   org.ek9lang.compiler.support.DecoratedName Dict org.ek9.lang::Dict org.ek9.lang::String org.ek9.lang::Integer
+ *   _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6
  * </pre>
  */
 public class DecoratedName implements Function<InternalNameDetails, String> {

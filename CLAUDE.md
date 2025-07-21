@@ -50,6 +50,244 @@ After building, the EK9 compiler provides these commands:
 - `java -jar compiler-main/target/ek9c-jar-with-dependencies.jar -t <file.ek9>` - Run tests
 - `java -jar compiler-main/target/ek9c-jar-with-dependencies.jar -d <file.ek9>` - Debug mode
 
+### EK9 Generic Type Decorated Name Generation
+To generate decorated names for parameterized generic types (used internally by the compiler):
+- `java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName <primaryName> <genericFQN> <param1FQN> [param2FQN...]`
+
+**Examples:**
+- List of String: `java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName List org.ek9.lang::List org.ek9.lang::String`
+  - Result: `_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1`
+- Iterator of String: `java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName Iterator org.ek9.lang::Iterator org.ek9.lang::String`
+  - Result: `_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2`
+- Dict of (String, String): `java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName Dict org.ek9.lang::Dict org.ek9.lang::String org.ek9.lang::String`
+  - Result: `_Dict_E9A1EFF0D62E8EB35F7B0572E7F2C5492D6C980FE8B69376B38612DE6EBEC25F`
+- Dict of (String, Integer): `java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName Dict org.ek9.lang::Dict org.ek9.lang::String org.ek9.lang::Integer`
+  - Result: `_Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6`
+
+**Pattern:** `_<primaryName>_<SHA256-hash-of-fully-qualified-names>`
+
+## EK9 Generic Type Parameterization Pattern
+
+EK9 implements generic types using a **Delegation Pattern with Type Parameterization**. When EK9 needs a concrete parameterized type like `Iterator<Character>`, it generates a type-safe wrapper that delegates to the generic base.
+
+### **Core Pattern Structure**
+
+1. **Decorated Name Generation**: Use DecoratedName utility to create unique class names
+2. **Delegation to Generic Base**: Parameterized type contains `private final <Generic> delegate`
+3. **Type-Safe Wrapper**: All methods delegate to base with appropriate type casting
+4. **Annotation Preservation**: **All annotated methods from generic base must be replicated with type substitution**
+
+### **Implementation Requirements**
+
+**CRITICAL**: The parameterized type must implement **every annotated method** from the generic base:
+- **Same method signature** but with type parameters substituted (e.g., `T` → `Character`)
+- **All implementations delegate** to the base class with casting where needed
+- **Maintains EK9 annotation consistency** across parameterizations
+
+### **Example: Iterator<Character> Implementation**
+
+```java
+@Ek9ParameterisedType("Iterator of Character")
+public class _Iterator_<hash> extends BuiltinType {
+    private final Iterator delegate;  // Delegation to generic base
+    
+    // Constructor delegates
+    public _Iterator_<hash>() {
+        delegate = new Iterator();
+    }
+    
+    public _Iterator_<hash>(Character arg0) {
+        delegate = new Iterator(arg0);  // Accepts Character, passes as Any
+    }
+    
+    // All annotated methods from base Iterator with type substitution:
+    
+    // Base: hasNext() <- rtn as Boolean?
+    public Boolean hasNext() {
+        return delegate.hasNext();  // Direct delegation
+    }
+    
+    // Base: next() <- rtn as T?  →  Parameterized: next() <- rtn as Character?
+    public Character next() {
+        return (Character) delegate.next();  // Delegate + cast
+    }
+    
+    // Base: operator ? <- rtn as Boolean?
+    @Override
+    public Boolean _isSet() {
+        return delegate.hasNext();  // Delegate to base logic
+    }
+    
+    // Base: operator == -> arg as Iterator of T <- rtn as Boolean?
+    // Parameterized: -> arg as Iterator of Character
+    public Boolean _eq(_Iterator_<hash> arg) {
+        return delegate._eq(arg.delegate);  // Delegate comparison
+    }
+    
+    // Base: operator #? <- rtn as Integer?
+    @Override
+    public Integer _hashcode() {
+        return delegate._hashcode();  // Direct delegation
+    }
+}
+```
+
+### **Implementation Steps**
+
+1. **Generate Decorated Name**: Use DecoratedName utility for unique class name
+2. **Create Wrapper Class**: Extend BuiltinType with `@Ek9ParameterisedType` annotation
+3. **Add Delegate Field**: `private final <GenericType> delegate`
+4. **Implement All Constructors**: Delegate to base constructors with type handling
+5. **Replicate All Annotated Methods**: 
+   - Copy method signatures from generic base
+   - Substitute type parameters (T → ConcreteType)
+   - Delegate all implementations to base
+   - Add casting for return types where needed
+6. **Type-Specific Methods**: Add casting for methods returning parameterized types
+
+### **Benefits**
+- **Code Reuse**: Generic logic written once in base class
+- **Type Safety**: Each parameterization is type-safe at EK9 level
+- **Performance**: Minimal overhead (delegation + casting)
+- **EK9 Consistency**: All annotations preserved with correct types
+- **Java Interop**: Works seamlessly with Java's type system
+
+### **Usage Pattern for Other Generic Types**
+This pattern applies to all EK9 generics:
+- `List<String>` → `_List_<hash>` with String-typed methods
+- `Dict<String,Integer>` → `_Dict_<hash>` with appropriate key/value typing
+- `Optional<Boolean>` → `_Optional_<hash>` with Boolean-typed methods
+
+## EK9 Iterator and String Integration Analysis
+
+### **String Character Iteration Pattern**
+The String class demonstrates sophisticated integration with parameterized generic Iterator types, enabling natural iteration through characters:
+
+**String.iterator() Implementation:**
+```java
+@Ek9Method("""
+    iterator() as pure
+      <- rtn as Iterator of Character?""")
+public _Iterator_7E0CA90C1F947ECE11C43ED0BB21B854FFD82455CECBC0C3EA4CC4A6EA343408 iterator() {
+  if (isSet) {
+    // Multi-stage type conversion for EK9 semantics:
+    final var iterator = Iterator._of(
+      this.state.chars()                    // Java IntStream of chars
+        .mapToObj(Character::_of)           // Stream<Character> (EK9 Characters)  
+        .map(Any.class::cast)              // Stream<Any> (required for generic Iterator)
+        .iterator()                        // java.util.Iterator<Any>
+    );
+    return _Iterator_7E0CA90C1F947ECE11C43ED0BB21B854FFD82455CECBC0C3EA4CC4A6EA343408._of(iterator);
+  }
+  return _Iterator_7E0CA90C1F947ECE11C43ED0BB21B854FFD82455CECBC0C3EA4CC4A6EA343408._of();
+}
+```
+
+### **Enhanced Parameterized Iterator Implementation**
+Recent improvements to the Iterator of Character implementation include:
+
+**1. Internal Constructor Pattern:**
+```java
+// Public constructors delegate to internal constructor
+public _Iterator_...(Character arg0) {
+  this(new Iterator(arg0));
+}
+
+// Internal constructor for factory methods
+private _Iterator_...(Iterator delegate) {
+  this.delegate = delegate;
+}
+```
+
+**2. Comprehensive Factory Methods:**
+```java
+public static _Iterator_... _of() {
+  return new _Iterator_...();
+}
+
+public static _Iterator_... _of(Iterator iterator) {
+  if (iterator != null) {
+    return new _Iterator_...(iterator);
+  }
+  return new _Iterator_...();
+}
+```
+
+**3. Perfect Type Safety with Delegation:**
+```java
+// All annotated methods from base Iterator are replicated with type substitution
+public Boolean hasNext() {
+  return delegate.hasNext();  // Direct delegation
+}
+
+public Character next() {
+  return (Character) delegate.next();  // Delegate + safe cast
+}
+
+public Boolean _eq(_Iterator_... arg) {
+  return delegate._eq(arg.delegate);  // Delegate comparison
+}
+```
+
+### **Integration Testing Patterns**
+The String and Iterator tests demonstrate comprehensive validation:
+
+**String Character Iteration Test:**
+```java
+@Test
+void testIterator() {
+  final var underTest = String._of("Steve");
+  final var iterator = underTest.iterator();
+  assertSet.accept(iterator);
+  
+  final var expect = new char[] {'S', 't', 'e', 'v', 'e'};
+  for (final char c : expect) {
+    assertTrue.accept(iterator.hasNext());
+    final var ch = iterator.next();
+    assertSet.accept(ch);
+    assertEquals(Character._of(c), ch);
+  }
+  assertFalse.accept(iterator.hasNext());
+}
+```
+
+**Factory Method Validation:**
+```java
+@Test
+void testFactoryMethods() {
+  // Unset factory
+  final var unset1 = _Iterator_..._of();
+  assertUnset.accept(unset1);
+  
+  // Null safety
+  final var unset2 = _Iterator_..._of(null);
+  assertUnset.accept(unset2);
+  
+  // Valid Iterator wrapping
+  final var set1 = _Iterator_..._of(Iterator._of(Character._of("S")));
+  assertSet.accept(set1);
+  assertEquals(Character._of('S'), set1.next());
+}
+```
+
+### **Key Architectural Benefits**
+
+1. **Seamless Type Conversion**: Java chars → EK9 Characters → Any → Iterator → Parameterized Iterator
+2. **EK9 Semantic Preservation**: All set/unset behavior and operators work correctly
+3. **Type Safety**: Compile-time guarantee that iterator returns Character objects
+4. **Performance**: Minimal overhead through delegation pattern
+5. **Java Interoperability**: Uses Java streams and collections efficiently
+6. **Extensible Pattern**: Same approach works for all parameterized generics
+
+### **Iterator Design Patterns Summary**
+
+The Iterator implementation showcases three key EK9 design patterns:
+- **Delegation Pattern**: Parameterized types wrap generic base implementations
+- **Factory Method Pattern**: Static `_of()` methods with proper null handling
+- **Type Bridge Pattern**: Safe conversion between Java and EK9 type systems
+
+This enables natural EK9 syntax like iterating through String characters while maintaining full type safety and EK9 semantic consistency.
+
 ### Native Binary (GraalVM)
 - `native-image --no-fallback -jar ek9c-jar-with-dependencies.jar` - Create native binary
 - `./ek9` - Run native binary directly

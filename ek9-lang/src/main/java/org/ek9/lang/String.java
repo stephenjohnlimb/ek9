@@ -1,6 +1,7 @@
 package org.ek9.lang;
 
 
+import java.util.regex.Pattern;
 import org.ek9tooling.Ek9Class;
 import org.ek9tooling.Ek9Constructor;
 import org.ek9tooling.Ek9Method;
@@ -42,8 +43,27 @@ public class String extends BuiltinType implements Any {
     return _new();
   }
 
-  //TODO need Character for trimming by character.
-
+  @Ek9Method("""
+      trim() as pure
+        -> char as Character
+        <- rtn as String?""")
+  public String trim(Character character) {
+    if (!canProcess(character)) {
+      return _new(); // Return unset String when canProcess fails
+    }
+    
+    if (state.isEmpty()) {
+      return String._of(state); // Return copy of empty string
+    }
+    
+    // Escape the character for regex (handle special regex chars like ., *, +, etc.)
+    java.lang.String charToTrim = Pattern.quote(java.lang.String.valueOf(character.state));
+    
+    // Regex: ^[char]+ removes from start, [char]+$ removes from end
+    java.lang.String trimmed = state.replaceAll("^" + charToTrim + "+|" + charToTrim + "+$", "");
+    
+    return String._of(trimmed);
+  }
 
   @Ek9Method("""
       upperCase() as pure
@@ -67,9 +87,40 @@ public class String extends BuiltinType implements Any {
     return rtn;
   }
 
-  //TODO Iterator of Character
+  @Ek9Method("""
+      iterator() as pure
+        <- rtn as Iterator of Character?""")
+  public _Iterator_7E0CA90C1F947ECE11C43ED0BB21B854FFD82455CECBC0C3EA4CC4A6EA343408 iterator() {
+    //This type is Iterator of Character.
+    //So need each java char converted to an EK9 Character.
+    if (isSet) {
+      //First we need just an Iterator (Any) but actually it has to have Characters in it.
+      final var iterator = Iterator._of(this.state.chars().mapToObj(Character::_of).map(Any.class::cast).iterator());
+      return _Iterator_7E0CA90C1F947ECE11C43ED0BB21B854FFD82455CECBC0C3EA4CC4A6EA343408._of(iterator);
+    }
+    return _Iterator_7E0CA90C1F947ECE11C43ED0BB21B854FFD82455CECBC0C3EA4CC4A6EA343408._of();
 
-  //TODO first and last with Character
+  }
+
+  @Ek9Method("""
+      first() as pure
+        <- rtn as Character?""")
+  public Character first() {
+    if (isSet && !state.isEmpty()) {
+      return Character._of(state.charAt(0));
+    }
+    return new Character(); // Return unset Character
+  }
+
+  @Ek9Method("""
+      last() as pure
+        <- rtn as Character?""")
+  public Character last() {
+    if (isSet && !state.isEmpty()) {
+      return Character._of(state.charAt(state.length() - 1));
+    }
+    return new Character(); // Return unset Character
+  }
 
   @Ek9Method("""
       rightPadded() as pure
@@ -95,7 +146,31 @@ public class String extends BuiltinType implements Any {
     return _new();
   }
 
-  //TODO count with Character
+  @Ek9Method("""
+      count() as pure
+        -> char as Character
+        <- rtn as Integer?""")
+  public Integer count(Character character) {
+    if (!canProcess(character)) {
+      return new Integer(); // Return unset Integer
+    }
+    
+    if (state.isEmpty()) {
+      return Integer._of(0); // Empty string has 0 occurrences
+    }
+    
+    char targetChar = character.state;
+    int count = 0;
+    
+    // Iterate through string counting occurrences
+    for (int i = 0; i < state.length(); i++) {
+      if (state.charAt(i) == targetChar) {
+        count++;
+      }
+    }
+    
+    return Integer._of(count);
+  }
 
   //TODO split with RegEX
 
@@ -247,8 +322,19 @@ public class String extends BuiltinType implements Any {
     return rtn;
   }
 
-  //TODO _prefix and _suffix returning a Character
+  @Ek9Operator("""
+      operator #< as pure
+        <- rtn as Character?""")
+  public Character _prefix() {
+    return first(); // Delegate to first() method
+  }
 
+  @Ek9Operator("""
+      operator #> as pure
+        <- rtn as Character?""")
+  public Character _suffix() {
+    return last(); // Delegate to last() method
+  }
 
   @Ek9Operator("""
       operator empty as pure
@@ -337,6 +423,7 @@ public class String extends BuiltinType implements Any {
 
   //Start of utility methods
 
+  @Override
   protected String _new() {
     return new String();
   }
