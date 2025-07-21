@@ -94,7 +94,6 @@ public class List extends BuiltinType {
     return reverse();
   }
 
-
   @Override
   @Ek9Operator("""
       operator == as pure

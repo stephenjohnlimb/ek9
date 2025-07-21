@@ -158,6 +158,170 @@ This pattern applies to all EK9 generics:
 - `Dict<String,Integer>` → `_Dict_<hash>` with appropriate key/value typing
 - `Optional<Boolean>` → `_Optional_<hash>` with Boolean-typed methods
 
+## EK9 Generic Type Parameterization Implementation Guide
+
+### **Complete Implementation Pattern - All Components Required**
+
+Based on successful implementations of Iterator of String, Optional of String, Acceptor of String, Consumer of String, and List of String, this is the definitive guide for implementing EK9 parameterized generic types.
+
+#### **1. Decorated Name Generation**
+```bash
+java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName <PrimaryName> <GenericFQN> <Param1FQN> [Param2FQN...]
+```
+
+**Examples:**
+- List of String: `_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1`
+- Iterator of String: `_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2`
+- Optional of String: `_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC`
+- Acceptor of String: `_Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA`
+- Consumer of String: `_Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0`
+
+#### **2. Class Structure Template**
+```java
+@SuppressWarnings({"checkstyle:MethodName", "checkstyle:AbbreviationAsWordInName", "checkstyle:TypeName"})
+@Ek9ParameterisedType("<GenericType> of <ConcreteType>")  // or @Ek9Function for functions
+public class _<DecoratedName> extends BuiltinType {
+  
+  private final <GenericType> delegate;
+
+  // Constructors - delegate to base
+  public _<DecoratedName>() {
+    this.delegate = new <GenericType>();
+  }
+
+  public _<DecoratedName>(<ConcreteType> arg0) {
+    this.delegate = new <GenericType>(arg0);
+  }
+
+  // Internal constructor for factory methods
+  private _<DecoratedName>(<GenericType> delegate) {
+    this.delegate = delegate;
+  }
+
+  // Factory methods
+  public static _<DecoratedName> _of() { ... }
+  public static _<DecoratedName> _of(<GenericType>) { ... }
+  // Additional _of() overloads as needed
+}
+```
+
+#### **3. Method Implementation Requirements**
+**CRITICAL**: Every annotated method from the base generic type MUST be implemented:
+
+```java
+// Base method: someMethod() <- rtn as T?
+public <ConcreteType> someMethod() {
+  return (<ConcreteType>) delegate.someMethod();  // Delegate + cast
+}
+
+// Base method: someMethod() -> arg as List of T <- rtn as Boolean?  
+public Boolean someMethod(_<DecoratedListName> arg) {
+  if (arg != null) {
+    return delegate.someMethod(arg.delegate);  // Delegate unwrapping
+  }
+  return new Boolean();
+}
+
+// Base operator: operator + -> arg as T <- rtn as List of T?
+public _<DecoratedListName> _add(<ConcreteType> arg) {
+  return new _<DecoratedListName>(delegate._add(arg));  // Delegate + wrap
+}
+```
+
+#### **4. Integration Patterns**
+
+**Iterator Integration (Collections):**
+```java
+// List of String iterator() method
+public _Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2 iterator() {
+  return _Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2._of(delegate.iterator());
+}
+```
+
+**Function Integration (Optional):**
+```java
+// Optional of String whenPresent() method
+public void whenPresent(_Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA acceptor) {
+  if (acceptor != null && delegate._isSet().state) {
+    acceptor._call(get()); // Call parameterized function with concrete type
+  }
+}
+```
+
+#### **5. Complete Test Coverage Pattern**
+```java
+@SuppressWarnings({"checkstyle:MethodName", "checkstyle:AbbreviationAsWordInName", "checkstyle:TypeName"})
+class _<DecoratedName>Test extends Common {
+
+  @Test
+  void testConstruction() {
+    // Test all constructor patterns
+  }
+
+  @Test  
+  void testFactoryMethods() {
+    // Test all _of() variants with null handling
+  }
+
+  @Test
+  void testTypeSpecificMethods() {
+    // Test methods returning concrete types (not Any)
+  }
+
+  @Test
+  void testIteratorIntegration() {
+    // Test iterator() returns correct parameterized type
+  }
+
+  @Test
+  void testAllOperators() {
+    // Test ALL operators from base type with type substitution
+  }
+
+  @Test
+  void testDelegationBehavior() {
+    // Verify consistency with base type behavior
+  }
+
+  @Test
+  void testEdgeCasesAndNullHandling() {
+    // Comprehensive null and edge case testing
+  }
+}
+```
+
+#### **6. Implementation Validation Process**
+1. **Unit Test Validation**: `mvn test -pl ek9-lang` - All parameterized type tests pass
+2. **EK9 Annotation Validation**: 
+   - `mvn clean install -pl ek9-lang`
+   - `mvn clean compile -pl compiler-main` 
+   - `mvn test -Dtest=Ek9IntrospectedBootStrapTest -pl compiler-main`
+3. **Integration Validation**: Full test suite passes (`mvn test`)
+
+#### **7. Key Implementation Lessons**
+
+**Type Safety Requirements:**
+- ALL methods returning `T` must cast to concrete type: `(ConcreteType) delegate.method()`
+- ALL methods accepting parameterized types must unwrap: `arg.delegate`
+- ALL methods returning parameterized types must wrap: `new _DecoratedName(result)`
+
+**Null Handling Patterns:**
+- Factory methods: `_of(null)` returns valid empty/default instance
+- Parameter validation: Check `if (arg != null)` before delegation
+- EK9 semantics: Invalid operations return unset values, not exceptions
+
+**Integration Dependencies:**
+- Collections need parameterized Iterator: `List<String>` needs `Iterator<String>`
+- Functions need concrete types: `Optional<String>` needs `Acceptor<String>`, `Consumer<String>`
+- Always implement dependent types first
+
+**Complete API Coverage:**
+- Count ALL `@Ek9Method`, `@Ek9Operator`, `@Ek9Constructor` annotations in base type
+- Implement EVERY single one with proper type substitution
+- Example: List has 27 annotated methods - ALL must be implemented
+
+This comprehensive pattern ensures consistent, type-safe, and fully-functional parameterized generic types that integrate seamlessly with the EK9 type system.
+
 ## EK9 Iterator and String Integration Analysis
 
 ### **String Character Iteration Pattern**
