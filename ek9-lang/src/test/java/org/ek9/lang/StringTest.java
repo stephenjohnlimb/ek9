@@ -721,4 +721,197 @@ class StringTest extends Common {
     assertEquals(Integer._of(1), single.count(Character._of('z')));
     assertEquals(Integer._of(0), single.count(Character._of('y')));
   }
+
+  @Test
+  void testAddCharacterOperator() {
+    // Test operator + with Character (non-mutating)
+    
+    // Test canProcess scenarios (EK9 pattern validation)
+    
+    // Unset String with valid Character should return unset String
+    assertUnset.accept(unset._add(Character._of('a')));
+    
+    // Valid String with unset Character should return unset String
+    final var validString = String._of("hello");
+    assertUnset.accept(validString._add(new Character()));
+    
+    // Both unset should return unset String
+    assertUnset.accept(unset._add(new Character()));
+    
+    // Basic functionality tests
+    
+    // Add single character to empty string
+    final var empty = String._of("");
+    assertEquals(String._of("a"), empty._add(Character._of('a')));
+    
+    // Add character to existing string
+    final var hello = String._of("hello");
+    assertEquals(String._of("hello!"), hello._add(Character._of('!')));
+    
+    // Add space character
+    assertEquals(String._of("hello "), hello._add(Character._of(' ')));
+    
+    // Add number character
+    assertEquals(String._of("hello1"), hello._add(Character._of('1')));
+    
+    // Original string should remain unchanged (non-mutating)
+    assertEquals(String._of("hello"), hello);
+    
+    // Special characters
+    final var test = String._of("test");
+    assertEquals(String._of("test."), test._add(Character._of('.')));
+    assertEquals(String._of("test*"), test._add(Character._of('*')));
+    assertEquals(String._of("test?"), test._add(Character._of('?')));
+    
+    // Unicode characters
+    assertEquals(String._of("testα"), test._add(Character._of('α')));
+    assertEquals(String._of("testβ"), test._add(Character._of('β')));
+  }
+
+  @Test
+  void testAddCharacterConsistencyWithStringAdd() {
+    // Verify that adding Character behaves consistently with adding String
+    
+    final var base = String._of("hello");
+    final var charToAdd = Character._of('!');
+    final var stringToAdd = String._of("!");
+    
+    // Adding Character should produce same result as adding single-char String
+    assertEquals(base._add(stringToAdd), base._add(charToAdd));
+    
+    // Test with space
+    final var space = Character._of(' ');
+    final var spaceString = String._of(" ");
+    assertEquals(base._add(spaceString), base._add(space));
+    
+    // Test with various characters
+    final var chars = new char[] {'a', 'Z', '1', '@', '.', '*'};
+    for (char c : chars) {
+      final var character = Character._of(c);
+      final var string = String._of(java.lang.String.valueOf(c));
+      assertEquals(base._add(string), base._add(character));
+    }
+  }
+
+  @Test
+  void testAddAssignCharacterOperator() {
+    // Test operator += with Character (mutating)
+    
+    // Test basic functionality
+    
+    // Add character to empty string
+    var empty = String._of("");
+    empty._addAss(Character._of('a'));
+    assertEquals(String._of("a"), empty);
+    
+    // Add character to existing string
+    var hello = String._of("hello");
+    hello._addAss(Character._of('!'));
+    assertEquals(String._of("hello!"), hello);
+    
+    // Add multiple characters sequentially
+    var build = String._of("test");
+    build._addAss(Character._of(' '));
+    assertEquals(String._of("test "), build);
+    build._addAss(Character._of('1'));
+    assertEquals(String._of("test 1"), build);
+    build._addAss(Character._of('.'));
+    assertEquals(String._of("test 1."), build);
+    
+    // Test canProcess scenarios (EK9 pattern validation)
+    
+    // Valid String with unset Character should become unset
+    var validString = String._of("hello");
+    validString._addAss(new Character());
+    assertUnset.accept(validString);
+    
+    // Already unset String with valid Character should remain unset
+    var alreadyUnset = new String();
+    assertUnset.accept(alreadyUnset);
+    alreadyUnset._addAss(Character._of('a'));
+    assertUnset.accept(alreadyUnset);
+    
+    // Test that mutation corrupts with unset
+    var mutableString = String._of("hello");
+    assertSet.accept(mutableString);
+    mutableString._addAss(new Character()); // Add unset Character
+    assertUnset.accept(mutableString); // Should become unset
+  }
+
+  @Test
+  void testAddAssignCharacterSpecialCases() {
+    // Test += operator with various special characters
+    
+    // Whitespace characters
+    var whitespace = String._of("text");
+    whitespace._addAss(Character._of(' '));
+    assertEquals(String._of("text "), whitespace);
+    
+    var tabs = String._of("text");
+    tabs._addAss(Character._of('\t'));
+    assertEquals(String._of("text\t"), tabs);
+    
+    var newlines = String._of("text");
+    newlines._addAss(Character._of('\n'));
+    assertEquals(String._of("text\n"), newlines);
+    
+    // Special regex characters
+    var dots = String._of("file");
+    dots._addAss(Character._of('.'));
+    assertEquals(String._of("file."), dots);
+    
+    var stars = String._of("glob");
+    stars._addAss(Character._of('*'));
+    assertEquals(String._of("glob*"), stars);
+    
+    // Punctuation
+    var punctuation = String._of("hello");
+    punctuation._addAss(Character._of(','));
+    assertEquals(String._of("hello,"), punctuation);
+    punctuation._addAss(Character._of(' '));
+    assertEquals(String._of("hello, "), punctuation);
+    punctuation._addAss(Character._of('w'));
+    assertEquals(String._of("hello, w"), punctuation);
+    
+    // Unicode characters
+    var unicode = String._of("test");
+    unicode._addAss(Character._of('α'));
+    assertEquals(String._of("testα"), unicode);
+    unicode._addAss(Character._of('β'));
+    assertEquals(String._of("testαβ"), unicode);
+  }
+
+  @Test
+  void testAddAssignCharacterConsistencyWithStringAddAssign() {
+    // Verify that += Character behaves consistently with += String
+    
+    var stringVersion = String._of("hello");
+    var characterVersion = String._of("hello");
+    
+    // Add exclamation mark both ways
+    stringVersion._addAss(String._of("!"));
+    characterVersion._addAss(Character._of('!'));
+    assertEquals(stringVersion, characterVersion);
+    
+    // Add space both ways
+    var stringSpace = String._of("test");
+    var characterSpace = String._of("test");
+    stringSpace._addAss(String._of(" "));
+    characterSpace._addAss(Character._of(' '));
+    assertEquals(stringSpace, characterSpace);
+    
+    // Test corruption behavior with unset values
+    var stringCorrupt = String._of("hello");
+    var characterCorrupt = String._of("hello");
+    
+    stringCorrupt._addAss(new String()); // Add unset String
+    characterCorrupt._addAss(new Character()); // Add unset Character
+    
+    assertUnset.accept(stringCorrupt);
+    assertUnset.accept(characterCorrupt);
+    
+    // Both should be unset - can't use assertEquals on unset values as they are different instances
+    // But their EK9 equality should both return unset (not comparable)
+    assertUnset.accept(stringCorrupt._eq(characterCorrupt));
+  }
 }

@@ -51,17 +51,17 @@ public class String extends BuiltinType implements Any {
     if (!canProcess(character)) {
       return _new(); // Return unset String when canProcess fails
     }
-    
+
     if (state.isEmpty()) {
       return String._of(state); // Return copy of empty string
     }
-    
+
     // Escape the character for regex (handle special regex chars like ., *, +, etc.)
     java.lang.String charToTrim = Pattern.quote(java.lang.String.valueOf(character.state));
-    
+
     // Regex: ^[char]+ removes from start, [char]+$ removes from end
     java.lang.String trimmed = state.replaceAll("^" + charToTrim + "+|" + charToTrim + "+$", "");
-    
+
     return String._of(trimmed);
   }
 
@@ -154,21 +154,21 @@ public class String extends BuiltinType implements Any {
     if (!canProcess(character)) {
       return new Integer(); // Return unset Integer
     }
-    
+
     if (state.isEmpty()) {
       return Integer._of(0); // Empty string has 0 occurrences
     }
-    
+
     char targetChar = character.state;
     int count = 0;
-    
+
     // Iterate through string counting occurrences
     for (int i = 0; i < state.length(); i++) {
       if (state.charAt(i) == targetChar) {
         count++;
       }
     }
-    
+
     return Integer._of(count);
   }
 
@@ -296,7 +296,17 @@ public class String extends BuiltinType implements Any {
     return rtn;
   }
 
-  //TODO add Character
+  @Ek9Operator("""
+      operator + as pure
+        -> arg as Character
+        <- rtn as String?""")
+  public String _add(Character arg) {
+    String rtn = _new();
+    if (canProcess(arg)) {
+      rtn.assign(state + arg.state);
+    }
+    return rtn;
+  }
 
   @Override
   @Ek9Operator("""
@@ -380,9 +390,9 @@ public class String extends BuiltinType implements Any {
   @Ek9Operator("""
       operator :=:
         -> arg as String""")
-  public void _copy(String value) {
-    if (isValid(value)) {
-      assign(value.state);
+  public void _copy(String arg) {
+    if (isValid(arg)) {
+      assign(arg.state);
     } else {
       super.unSet();
     }
@@ -398,15 +408,24 @@ public class String extends BuiltinType implements Any {
   @Ek9Operator("""
       operator +=
         -> arg as String""")
-  public void _addAss(String value) {
-    if (canProcess(value)) {
-      assign(state + value.state);
+  public void _addAss(String arg) {
+    if (canProcess(arg)) {
+      assign(state + arg.state);
     } else {
       unSet();
     }
   }
 
-  //TODO addAss Character
+  @Ek9Operator("""
+      operator +=
+        -> arg as Character""")
+  public void _addAss(Character arg) {
+    if (canProcess(arg)) {
+      assign(state + arg.state);
+    } else {
+      unSet();
+    }
+  }
 
   @Ek9Operator("""
       operator contains as pure
