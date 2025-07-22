@@ -20,6 +20,12 @@ class DateTest extends Common {
   final Date futureDate = Date._of("2025-06-15");
   final Date before2000 = Date._of("1999-12-31");
 
+  // Common test constants for all temporal arithmetic tests
+  final Millisecond oneSecond = Millisecond._of(1000);
+  final Millisecond oneDay = Millisecond._of(86400000L);
+  final Duration oneDayDuration = Duration._of(86400L);
+  final Duration twoDaysDuration = Duration._of(172800L);
+
   @Test
   void testConstruction() {
     // Default constructor
@@ -93,12 +99,10 @@ class DateTest extends Common {
 
   @Test
   void testOperators() {
-    final var date1Again = Date._of("2023-01-01");
-
     // Equality operators
-    assertEquals(date1Again, date1);
-    assertEquals(true1, date1._eq(date1Again));
-    assertEquals(false1, date1._neq(date1Again));
+    assertEquals(date1, date1);
+    assertEquals(true1, date1._eq(date1));
+    assertEquals(false1, date1._neq(date1));
 
     assertUnset.accept(date1._eq(unset));
     assertUnset.accept(unset._eq(unset));
@@ -117,19 +121,19 @@ class DateTest extends Common {
     assertUnset.accept(date2._gt(unset));
     assertUnset.accept(unset._gt(date1));
 
-    assertTrue.accept(date1._lteq(date1Again));
+    assertTrue.accept(date1._lteq(date1));
     assertUnset.accept(date2._lteq(unset));
     assertUnset.accept(unset._lteq(date1));
 
-    assertTrue.accept(date1._gteq(date1Again));
+    assertTrue.accept(date1._gteq(date1));
     assertUnset.accept(date2._gteq(unset));
     assertUnset.accept(unset._gteq(date1));
 
     // Comparison and fuzzy operators
-    assertEquals(Integer._of(0), date1._cmp(date1Again));
+    assertEquals(Integer._of(0), date1._cmp(date1));
     assertEquals(Integer._of(-1), date1._cmp(date2));
     assertEquals(Integer._of(1), date2._cmp(date1));
-    assertEquals(Integer._of(0), date1._fuzzy(date1Again));
+    assertEquals(Integer._of(0), date1._fuzzy(date1));
 
     assertUnset.accept(date1._cmp(new Any(){}));
     assertUnset.accept(unset._cmp(date1));
@@ -266,5 +270,143 @@ class DateTest extends Common {
     final var backToDate = Date._of(asJavaDate);
     assertEquals(originalDate, backToDate);
     assertEquals(originalDate.toString(), backToDate.toString());
+  }
+
+  @Test
+  void testArithmeticOperators() {
+    // Test Date + Millisecond
+    assertEquals(date1, date1._add(oneSecond)); // Adding 1 second doesn't change date
+    assertEquals(date2, date1._add(oneDay)); // Adding 1 day via milliseconds
+    assertUnset.accept(unset._add(oneSecond));
+    assertUnset.accept(date1._add(new Millisecond()));
+
+    // Test Date + Duration  
+    assertEquals(date2, date1._add(oneDayDuration));
+    assertEquals(Date._of("2023-01-03"), date1._add(twoDaysDuration));
+    assertUnset.accept(unset._add(oneDayDuration));
+    assertUnset.accept(date1._add(new Duration()));
+
+    // Test Date - Millisecond
+    assertEquals(date2, date2._sub(oneSecond)); // Subtracting 1 second doesn't change date
+    assertEquals(date1, date2._sub(oneDay));
+    assertUnset.accept(unset._sub(oneSecond));
+    assertUnset.accept(date1._sub(new Millisecond()));
+
+    // Test Date - Duration
+    assertEquals(date1, date2._sub(oneDayDuration));
+    assertUnset.accept(unset._sub(oneDayDuration));
+    assertUnset.accept(date1._sub(new Duration()));
+
+    // Test Date - Date → Duration
+    assertEquals(oneDayDuration, date2._sub(date1));
+    assertEquals(Duration._of(0), date1._sub(date1));
+    assertEquals(Duration._of(-86400L), date1._sub(date2));
+    assertUnset.accept(unset._sub(date1));
+    assertUnset.accept(date1._sub(unset));
+  }
+
+  @Test
+  void testAssignmentOperators() {
+    // Test Date += Millisecond
+    var testDate = Date._of("2023-01-01");
+    testDate._addAss(oneDay);
+    assertEquals(date2, testDate);
+    testDate._addAss(new Millisecond()); // unset input corrupts state
+    assertUnset.accept(testDate);
+
+    // Test Date += Duration
+    testDate = Date._of("2023-01-01");
+    testDate._addAss(oneDayDuration);
+    assertEquals(date2, testDate);
+    testDate._addAss(new Duration()); // unset input corrupts state
+    assertUnset.accept(testDate);
+
+    // Test Date -= Millisecond
+    testDate = Date._of("2023-01-02");
+    testDate._subAss(oneDay);
+    assertEquals(date1, testDate);
+    
+    // Test Date -= Duration
+    testDate = Date._of("2023-01-02");
+    testDate._subAss(oneDayDuration);
+    assertEquals(date1, testDate);
+
+    // Test unset object behavior
+    var unsetDate = new Date();
+    unsetDate._addAss(oneDay);
+    assertUnset.accept(unsetDate);
+  }
+
+  @Test
+  void testPipeOperators() {
+    // Test Date | Millisecond (pipes behave like += assignment)
+    var testDate = Date._of("2023-01-01");
+    testDate._pipe(oneDay);
+    assertEquals(date2, testDate);
+
+    // Test Date | Duration
+    testDate = Date._of("2023-01-01");
+    testDate._pipe(oneDayDuration);
+    assertEquals(date2, testDate);
+
+    // Test unset behavior
+    var unsetDate = new Date();
+    unsetDate._pipe(oneDay);
+    assertUnset.accept(unsetDate);
+  }
+
+  @Test
+  void testSpecialOperators() {
+    // Test Date #^ promotion to DateTime
+    final var promotedDateTime = date1._promote();
+    assertSet.accept(promotedDateTime);
+    assertEquals(Integer._of(2023), promotedDateTime.year());
+    assertEquals(Integer._of(1), promotedDateTime.month());
+    assertEquals(Integer._of(1), promotedDateTime.day());
+    assertEquals(Integer._of(0), promotedDateTime.hour());
+    assertEquals(Integer._of(0), promotedDateTime.minute());
+    assertEquals(Integer._of(0), promotedDateTime.second());
+    assertEquals(String._of("Z"), promotedDateTime.zone());
+    
+    final var unsetPromoted = unset._promote();
+    assertUnset.accept(unsetPromoted);
+
+    // Test Date #< prefix operator (day)
+    assertEquals(Integer._of(1), date1._prefix());
+    assertEquals(Integer._of(2), date2._prefix());
+    assertEquals(Integer._of(31), date3._prefix());
+    assertEquals(Integer._of(29), leapYear._prefix());
+    assertUnset.accept(unset._prefix());
+
+    // Test Date #> suffix operator (year)
+    assertEquals(Integer._of(2023), date1._suffix());
+    assertEquals(Integer._of(2023), date2._suffix());
+    assertEquals(Integer._of(2023), date3._suffix());
+    assertEquals(Integer._of(2024), leapYear._suffix());
+    assertEquals(Integer._of(1970), epochDate._suffix());
+    assertEquals(Integer._of(2025), futureDate._suffix());
+    assertUnset.accept(unset._suffix());
+  }
+
+  @Test
+  void testEdgeCasesAndLargeDurations() {
+    // Test with exactly 10 days to verify arithmetic
+    final var tenDays = Millisecond._of(86400000L * 10);
+    final var tenDaysDuration = Duration._of(86400L * 10);
+    
+    assertEquals(Date._of("1970-01-11"), epochDate._add(tenDays));
+    assertEquals(Date._of("1970-01-11"), epochDate._add(tenDaysDuration));
+
+    // Test negative milliseconds and durations (adding negative = subtracting positive)
+    final var negativeDay = Millisecond._of(-86400000L);
+    final var negativeDayDuration = Duration._of(-86400L);
+    
+    assertEquals(date1, date2._add(negativeDay));
+    assertEquals(date1, date2._add(negativeDayDuration));
+
+    // Test leap year boundaries
+    final var feb28 = Date._of("2024-02-28");
+    assertEquals(Date._of("2024-02-29"), feb28._add(oneDay));
+    assertEquals(Date._of("2024-03-01"), leapYear._add(oneDay));
   }
 }

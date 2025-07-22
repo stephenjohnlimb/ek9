@@ -14,6 +14,9 @@ import org.ek9tooling.Ek9Operator;
     Date as open""")
 public class Date extends BuiltinType implements TemporalItem {
 
+  private static final long SECONDS_PER_DAY = 86400L;
+  private static final long MILLISECONDS_PER_SECOND = 1000L;
+
   java.time.LocalDate state = java.time.LocalDate.now();
 
   @Ek9Constructor("""
@@ -95,8 +98,120 @@ public class Date extends BuiltinType implements TemporalItem {
   }
 
 
-  //TODO milliseconds
-  //TODO durations
+  @Ek9Operator("""
+      operator + as pure
+        -> arg as Millisecond
+        <- rtn as Date?""")
+  public Date _add(Millisecond arg) {
+    Date rtn = _new();
+    if (canProcess(arg)) {
+      long seconds = arg.state / MILLISECONDS_PER_SECOND;
+      rtn.assign(this.state.plusDays(seconds / SECONDS_PER_DAY));
+    }
+    return rtn;
+  }
+
+  @Ek9Operator("""
+      operator + as pure
+        -> arg as Duration
+        <- rtn as Date?""")
+  public Date _add(Duration arg) {
+    Date rtn = _new();
+    if (canProcess(arg)) {
+      long seconds = arg._getAsSeconds();
+      rtn.assign(this.state.plusDays(seconds / SECONDS_PER_DAY));
+    }
+    return rtn;
+  }
+
+  @Ek9Operator("""
+      operator - as pure
+        -> arg as Millisecond
+        <- rtn as Date?""")
+  public Date _sub(Millisecond arg) {
+    Date rtn = _new();
+    if (canProcess(arg)) {
+      long seconds = arg.state / MILLISECONDS_PER_SECOND;
+      rtn.assign(this.state.minusDays(seconds / SECONDS_PER_DAY));
+    }
+    return rtn;
+  }
+
+  @Ek9Operator("""
+      operator - as pure
+        -> arg as Duration
+        <- rtn as Date?""")
+  public Date _sub(Duration arg) {
+    Date rtn = _new();
+    if (canProcess(arg)) {
+      long seconds = arg._getAsSeconds();
+      rtn.assign(this.state.minusDays(seconds / SECONDS_PER_DAY));
+    }
+    return rtn;
+  }
+
+  @Ek9Operator("""
+      operator - as pure
+        -> arg as Date
+        <- rtn as Duration?""")
+  public Duration _sub(Date arg) {
+    if (canProcess(arg)) {
+      long thisDays = this.state.toEpochDay();
+      long argDays = arg.state.toEpochDay();
+      long differenceDays = thisDays - argDays;
+      long differenceSeconds = differenceDays * SECONDS_PER_DAY;
+      return Duration._of(differenceSeconds);
+    }
+    return new Duration();
+  }
+
+  @Ek9Operator("""
+      operator +=
+        -> arg as Millisecond""")
+  public void _addAss(Millisecond arg) {
+    if (canProcess(arg)) {
+      long seconds = arg.state / MILLISECONDS_PER_SECOND;
+      assign(this.state.plusDays(seconds / SECONDS_PER_DAY));
+    } else {
+      unSet();
+    }
+  }
+
+  @Ek9Operator("""
+      operator +=
+        -> arg as Duration""")
+  public void _addAss(Duration arg) {
+    if (canProcess(arg)) {
+      long seconds = arg._getAsSeconds();
+      assign(this.state.plusDays(seconds / SECONDS_PER_DAY));
+    } else {
+      unSet();
+    }
+  }
+
+  @Ek9Operator("""
+      operator -=
+        -> arg as Millisecond""")
+  public void _subAss(Millisecond arg) {
+    if (canProcess(arg)) {
+      long seconds = arg.state / MILLISECONDS_PER_SECOND;
+      assign(this.state.minusDays(seconds / SECONDS_PER_DAY));
+    } else {
+      unSet();
+    }
+  }
+
+  @Ek9Operator("""
+      operator -=
+        -> arg as Duration""")
+  public void _subAss(Duration arg) {
+    if (canProcess(arg)) {
+      long seconds = arg._getAsSeconds();
+      assign(this.state.minusDays(seconds / SECONDS_PER_DAY));
+    } else {
+      unSet();
+    }
+  }
 
   @Ek9Operator("""
       operator |
@@ -108,7 +223,19 @@ public class Date extends BuiltinType implements TemporalItem {
     }
   }
 
-  //TODO pipe in Duration.
+  @Ek9Operator("""
+      operator |
+        -> arg as Millisecond""")
+  public void _pipe(Millisecond value) {
+    _addAss(value);
+  }
+
+  @Ek9Operator("""
+      operator |
+        -> arg as Duration""")
+  public void _pipe(Duration value) {
+    _addAss(value);
+  }
 
   @Ek9Method("""
       year() as pure
@@ -312,7 +439,26 @@ public class Date extends BuiltinType implements TemporalItem {
     return rtn;
   }
 
-  //TODO prefix and suffix
+  @Ek9Operator("""
+      operator #^ as pure
+        <- rtn as DateTime?""")
+  public DateTime _promote() {
+    return new DateTime(this);
+  }
+
+  @Ek9Operator("""
+      operator #< as pure
+        <- rtn as Integer?""")
+  public Integer _prefix() {
+    return day();
+  }
+
+  @Ek9Operator("""
+      operator #> as pure
+        <- rtn as Integer?""")
+  public Integer _suffix() {
+    return year();
+  }
 
   @Ek9Operator("""
       operator :~:
@@ -374,6 +520,7 @@ public class Date extends BuiltinType implements TemporalItem {
     }
   }
 
+  @Override
   protected Date _new() {
     return new Date();
   }
