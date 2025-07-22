@@ -45,9 +45,13 @@ public class Dict extends BuiltinType {
         <- rtn as V?""")
   public Any get(Any arg0) {
     if (canProcess(arg0)) {
-      return state.get(arg0);
+      final var located = state.get(arg0);
+      if (located != null) {
+        return located;
+      }
+      throw new Exception(String._of("arg0 (key) provided is not valid: " + arg0.toString()));
     }
-    return null;
+    throw new Exception(String._of("arg0 (key) provided is not valid"));
   }
 
   @Ek9Method("""

@@ -3,7 +3,8 @@ package org.ek9.lang;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.LinkedHashMap;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ class DictTest extends Common {
   final String value4 = String._of("NYC");
 
   final Dict emptyDict = new Dict();
-  
+
   @Test
   void testConstruction() {
     // Default constructor creates empty but set dict
@@ -68,7 +69,7 @@ class DictTest extends Common {
     assertEquals(value2, factoryFromMap.get(key2));
 
     // Factory with null map
-    final var nullMapDict = Dict._of((java.util.Map<Any, Any>) null);
+    final var nullMapDict = Dict._of(null);
     assertSet.accept(nullMapDict);
     assertTrue.accept(nullMapDict._empty());
   }
@@ -97,15 +98,15 @@ class DictTest extends Common {
     assertEquals(value2, testDict.get(key2));
     assertEquals(value3, testDict.get(key3));
 
-    // Invalid key
-    assertNull(testDict.get(key4));
+    // Invalid key - now throws exception
+    assertThrows(Exception.class, () -> testDict.get(key4));
 
-    // Null key
-    assertNull(testDict.get(null));
+    // Null key - now throws exception
+    assertThrows(Exception.class, () -> testDict.get(null));
 
-    // Unset key (should handle gracefully)
+    // Unset key (should handle gracefully) - now throws exception
     final var unsetKey = new String();
-    assertNull(testDict.get(unsetKey));
+    assertThrows(Exception.class, () -> testDict.get(unsetKey));
   }
 
   @Test
@@ -139,12 +140,14 @@ class DictTest extends Common {
     final var singleIterator = singleDict.iterator();
     assertSet.accept(singleIterator);
     assertTrue.accept(singleIterator.hasNext());
-    
+
     final var entry = singleIterator.next();
-    assertTrue.accept(Boolean._of(entry instanceof DictEntry));
-    final var dictEntry = (DictEntry) entry;
-    assertEquals(key1, dictEntry.key());
-    assertEquals(value1, dictEntry.value());
+    if(entry instanceof DictEntry dictEntry) {
+      assertEquals(key1, dictEntry.key());
+      assertEquals(value1, dictEntry.value());
+    } else {
+      fail("Expecting type of DictEntry");
+    }
     assertFalse.accept(singleIterator.hasNext());
 
     // Multiple entry iterator
@@ -176,7 +179,7 @@ class DictTest extends Common {
     // Test keys iterator
     final var keysIterator = testDict.keys();
     assertSet.accept(keysIterator);
-    
+
     final var keysList = new java.util.ArrayList<Any>();
     while (keysIterator.hasNext().state) {
       keysList.add(keysIterator.next());
@@ -189,7 +192,7 @@ class DictTest extends Common {
     // Test values iterator
     final var valuesIterator = testDict.values();
     assertSet.accept(valuesIterator);
-    
+
     final var valuesList = new java.util.ArrayList<Any>();
     while (valuesIterator.hasNext().state) {
       valuesList.add(valuesIterator.next());
@@ -285,8 +288,10 @@ class DictTest extends Common {
     assertEquals(2L, subtractedDict._len().state);
     assertEquals(value1, subtractedDict.get(key1));
     assertEquals(value3, subtractedDict.get(key3));
-    assertNull(subtractedDict.get(key2)); // Should be removed
-    assertNull(subtractedDict.get(key4)); // Wasn't there anyway
+    // Should be removed - now throws exception
+    assertThrows(Exception.class, () -> subtractedDict.get(key2));
+    // Wasn't there anyway - now throws exception
+    assertThrows(Exception.class, () -> subtractedDict.get(key4));
 
     // Original dicts unchanged
     assertEquals(3L, dict1._len().state);
@@ -344,7 +349,8 @@ class DictTest extends Common {
     assertEquals(2L, dict1._len().state);
     assertEquals(value1, dict1.get(key1));
     assertEquals(value3, dict1.get(key3));
-    assertNull(dict1.get(key2));
+    // key2 was removed - now throws exception
+    assertThrows(Exception.class, () -> dict1.get(key2));
 
     // Subtract non-existent key should do nothing
     final var beforeNonExistentSub = dict1._len().state;
@@ -510,7 +516,7 @@ class DictTest extends Common {
     }
 
     assertEquals(2, entries.size());
-    
+
     // Verify entry equality
     boolean foundEntry1 = false;
     boolean foundEntry2 = false;
