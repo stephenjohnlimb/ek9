@@ -340,10 +340,10 @@ class LocaleTest extends Common {
     final var deutsch = new Locale(String._of("de_DE"));
     final var skSK = new Locale(String._of("sk"), String._of("SK"));
 
-    assertEquals("en_GB", enGB._string()._string().state);
-    assertEquals("en_US", enUS._string()._string().state);
-    assertEquals("de_DE", deutsch._string()._string().state);
-    assertEquals("sk_SK", skSK._string()._string().state);
+    assertEquals("en_GB", enGB._string().state);
+    assertEquals("en_US", enUS._string().state);
+    assertEquals("de_DE", deutsch._string().state);
+    assertEquals("sk_SK", skSK._string().state);
 
     assertUnset.accept(unset._string());
   }

@@ -3616,6 +3616,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
                 signal as String
                 handler as SignalHandler
 
+            operator $ as pure
+              <- rtn as String?
+
             operator ? as pure
               <- rtn as Boolean?
 
