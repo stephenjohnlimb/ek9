@@ -55,6 +55,13 @@ For specific EK9 development tasks, refer to these comprehensive guides:
   - Common compilation issues and solutions
   - **Use this guide when:** Adding new EK9 built-in types like GUID, HMAC, FileSystemPath
 
+### EK9 Language Semantics
+- **`EK9_OPERATOR_SEMANTICS.md`** - EK9 operator behavior and semantics documentation
+  - Increment/decrement operator semantics (different from Java/C++)
+  - Mutating vs non-mutating operator distinctions
+  - Testing implications for operators that mutate objects
+  - **Use this when:** Working with EK9 operators or debugging operator behavior
+
 ### Historical Context and Lessons
 - **`EK9_SESSION_NOTES.md`** - Session-specific implementation notes and lessons learned
   - Detailed session notes from specific implementation challenges
