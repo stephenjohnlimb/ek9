@@ -33,6 +33,56 @@ For detailed understanding of the EK9 compiler architecture and implementation:
 
 These documents provide comprehensive technical context for all EK9 compiler development work and should be referenced for understanding the complete architecture.
 
+## Specialized Implementation Guides
+
+For specific EK9 development tasks, refer to these comprehensive guides:
+
+### EK9 Generic Type Implementation
+- **`EK9_GENERIC_TYPES_IMPLEMENTATION.md`** - Complete guide for implementing parameterized generic types
+  - Decorated name generation process and patterns
+  - Delegation pattern implementation with type parameterization
+  - Single and two-parameter generic implementation examples
+  - Integration patterns and comprehensive testing strategies
+  - Critical lessons learned from complex implementations
+  - **Use this guide when:** Implementing `Iterator<String>`, `Dict<K,V>`, `Optional<T>`, `List<String>`, etc.
+
+### EK9 Built-in Type Development  
+- **`EK9_DEVELOPMENT_CONTEXT.md`** - Built-in type development patterns and conventions
+  - EK9 type system architecture and inheritance patterns
+  - Standard implementation patterns for constructors, operators, and validation
+  - Comprehensive testing patterns and assertion helpers
+  - Type-specific insights (Boolean, Integer, Float, String, Collections, etc.)
+  - Common compilation issues and solutions
+  - **Use this guide when:** Adding new EK9 built-in types like GUID, HMAC, FileSystemPath
+
+### Historical Context and Lessons
+- **`EK9_SESSION_NOTES.md`** - Session-specific implementation notes and lessons learned
+  - Detailed session notes from specific implementation challenges
+  - Evolution of patterns and best practices
+  - Common pitfalls and their solutions
+  - Multi-module build process lessons
+  - **Use this for:** Understanding past implementation challenges and proven solutions
+
+### Compiler Implementation Guides
+- **`EK9_COMPILER_PHASES.md`** - Detailed compiler phase implementation and pipeline
+  - 22-phase compilation pipeline specifics
+  - Symbol table management across phases
+  - Phase interdependencies and error handling
+  - **Use this guide when:** Working on compiler phase implementation and pipeline optimization
+
+- **`EK9_IR_AND_CODE_GENERATION.md`** - IR generation and multi-target code generation
+  - Intermediate representation structure and patterns
+  - Java bytecode generation and future LLVM support
+  - Optimization passes and target-specific considerations
+  - **Use this guide when:** Working on compiler backend, IR generation, or code generation
+
+### Language and Examples
+- **`EK9_LANGUAGE_EXAMPLES.md`** - Idiomatic EK9 source code examples and patterns
+  - EK9 syntax and semantic demonstrations
+  - Best practices and coding patterns
+  - Real-world examples and migration guidance
+  - **Use this guide when:** Writing EK9 code examples or demonstrating language features
+
 ## Build System and Common Commands
 
 This is a Maven-based project with a multi-module structure. All commands should be run from the root directory.
@@ -49,408 +99,6 @@ After building, the EK9 compiler provides these commands:
 - `java -jar compiler-main/target/ek9c-jar-with-dependencies.jar -ls` - Start Language Server mode
 - `java -jar compiler-main/target/ek9c-jar-with-dependencies.jar -t <file.ek9>` - Run tests
 - `java -jar compiler-main/target/ek9c-jar-with-dependencies.jar -d <file.ek9>` - Debug mode
-
-### EK9 Generic Type Decorated Name Generation
-To generate decorated names for parameterized generic types (used internally by the compiler):
-- `java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName <primaryName> <genericFQN> <param1FQN> [param2FQN...]`
-
-**Examples:**
-- List of String: `java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName List org.ek9.lang::List org.ek9.lang::String`
-  - Result: `_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1`
-- Iterator of String: `java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName Iterator org.ek9.lang::Iterator org.ek9.lang::String`
-  - Result: `_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2`
-- Dict of (String, String): `java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName Dict org.ek9.lang::Dict org.ek9.lang::String org.ek9.lang::String`
-  - Result: `_Dict_E9A1EFF0D62E8EB35F7B0572E7F2C5492D6C980FE8B69376B38612DE6EBEC25F`
-- Dict of (String, Integer): `java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName Dict org.ek9.lang::Dict org.ek9.lang::String org.ek9.lang::Integer`
-  - Result: `_Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6`
-
-**Pattern:** `_<primaryName>_<SHA256-hash-of-fully-qualified-names>`
-
-## EK9 Generic Type Parameterization Pattern
-
-EK9 implements generic types using a **Delegation Pattern with Type Parameterization**. When EK9 needs a concrete parameterized type like `Iterator<Character>`, it generates a type-safe wrapper that delegates to the generic base.
-
-### **Core Pattern Structure**
-
-1. **Decorated Name Generation**: Use DecoratedName utility to create unique class names
-2. **Delegation to Generic Base**: Parameterized type contains `private final <Generic> delegate`
-3. **Type-Safe Wrapper**: All methods delegate to base with appropriate type casting
-4. **Annotation Preservation**: **All annotated methods from generic base must be replicated with type substitution**
-
-### **Implementation Requirements**
-
-**CRITICAL**: The parameterized type must implement **every annotated method** from the generic base:
-- **Same method signature** but with type parameters substituted (e.g., `T` → `Character`)
-- **All implementations delegate** to the base class with casting where needed
-- **Maintains EK9 annotation consistency** across parameterizations
-
-### **Example: Iterator<Character> Implementation**
-
-```java
-@Ek9ParameterisedType("Iterator of Character")
-public class _Iterator_<hash> extends BuiltinType {
-    private final Iterator delegate;  // Delegation to generic base
-    
-    // Constructor delegates
-    public _Iterator_<hash>() {
-        delegate = new Iterator();
-    }
-    
-    public _Iterator_<hash>(Character arg0) {
-        delegate = new Iterator(arg0);  // Accepts Character, passes as Any
-    }
-    
-    // All annotated methods from base Iterator with type substitution:
-    
-    // Base: hasNext() <- rtn as Boolean?
-    public Boolean hasNext() {
-        return delegate.hasNext();  // Direct delegation
-    }
-    
-    // Base: next() <- rtn as T?  →  Parameterized: next() <- rtn as Character?
-    public Character next() {
-        return (Character) delegate.next();  // Delegate + cast
-    }
-    
-    // Base: operator ? <- rtn as Boolean?
-    @Override
-    public Boolean _isSet() {
-        return delegate.hasNext();  // Delegate to base logic
-    }
-    
-    // Base: operator == -> arg as Iterator of T <- rtn as Boolean?
-    // Parameterized: -> arg as Iterator of Character
-    public Boolean _eq(_Iterator_<hash> arg) {
-        return delegate._eq(arg.delegate);  // Delegate comparison
-    }
-    
-    // Base: operator #? <- rtn as Integer?
-    @Override
-    public Integer _hashcode() {
-        return delegate._hashcode();  // Direct delegation
-    }
-}
-```
-
-### **Implementation Steps**
-
-1. **Generate Decorated Name**: Use DecoratedName utility for unique class name
-2. **Create Wrapper Class**: Extend BuiltinType with `@Ek9ParameterisedType` annotation
-3. **Add Delegate Field**: `private final <GenericType> delegate`
-4. **Implement All Constructors**: Delegate to base constructors with type handling
-5. **Replicate All Annotated Methods**: 
-   - Copy method signatures from generic base
-   - Substitute type parameters (T → ConcreteType)
-   - Delegate all implementations to base
-   - Add casting for return types where needed
-6. **Type-Specific Methods**: Add casting for methods returning parameterized types
-
-### **Benefits**
-- **Code Reuse**: Generic logic written once in base class
-- **Type Safety**: Each parameterization is type-safe at EK9 level
-- **Performance**: Minimal overhead (delegation + casting)
-- **EK9 Consistency**: All annotations preserved with correct types
-- **Java Interop**: Works seamlessly with Java's type system
-
-### **Usage Pattern for Other Generic Types**
-This pattern applies to all EK9 generics:
-- `List<String>` → `_List_<hash>` with String-typed methods
-- `Dict<String,Integer>` → `_Dict_<hash>` with appropriate key/value typing
-- `Optional<Boolean>` → `_Optional_<hash>` with Boolean-typed methods
-
-## EK9 Generic Type Parameterization Implementation Guide
-
-### **Complete Implementation Pattern - All Components Required**
-
-Based on successful implementations of Iterator of String, Optional of String, Acceptor of String, Consumer of String, and List of String, this is the definitive guide for implementing EK9 parameterized generic types.
-
-#### **1. Decorated Name Generation**
-```bash
-java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName <PrimaryName> <GenericFQN> <Param1FQN> [Param2FQN...]
-```
-
-**Examples:**
-- List of String: `_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1`
-- Iterator of String: `_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2`
-- Optional of String: `_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC`
-- Acceptor of String: `_Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA`
-- Consumer of String: `_Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0`
-
-#### **2. Class Structure Template**
-```java
-@SuppressWarnings({"checkstyle:MethodName", "checkstyle:AbbreviationAsWordInName", "checkstyle:TypeName"})
-@Ek9ParameterisedType("<GenericType> of <ConcreteType>")  // or @Ek9Function for functions
-public class _<DecoratedName> extends BuiltinType {
-  
-  private final <GenericType> delegate;
-
-  // Constructors - delegate to base
-  public _<DecoratedName>() {
-    this.delegate = new <GenericType>();
-  }
-
-  public _<DecoratedName>(<ConcreteType> arg0) {
-    this.delegate = new <GenericType>(arg0);
-  }
-
-  // Internal constructor for factory methods
-  private _<DecoratedName>(<GenericType> delegate) {
-    this.delegate = delegate;
-  }
-
-  // Factory methods
-  public static _<DecoratedName> _of() { ... }
-  public static _<DecoratedName> _of(<GenericType>) { ... }
-  // Additional _of() overloads as needed
-}
-```
-
-#### **3. Method Implementation Requirements**
-**CRITICAL**: Every annotated method from the base generic type MUST be implemented:
-
-```java
-// Base method: someMethod() <- rtn as T?
-public <ConcreteType> someMethod() {
-  return (<ConcreteType>) delegate.someMethod();  // Delegate + cast
-}
-
-// Base method: someMethod() -> arg as List of T <- rtn as Boolean?  
-public Boolean someMethod(_<DecoratedListName> arg) {
-  if (arg != null) {
-    return delegate.someMethod(arg.delegate);  // Delegate unwrapping
-  }
-  return new Boolean();
-}
-
-// Base operator: operator + -> arg as T <- rtn as List of T?
-public _<DecoratedListName> _add(<ConcreteType> arg) {
-  return new _<DecoratedListName>(delegate._add(arg));  // Delegate + wrap
-}
-```
-
-#### **4. Integration Patterns**
-
-**Iterator Integration (Collections):**
-```java
-// List of String iterator() method
-public _Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2 iterator() {
-  return _Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2._of(delegate.iterator());
-}
-```
-
-**Function Integration (Optional):**
-```java
-// Optional of String whenPresent() method
-public void whenPresent(_Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA acceptor) {
-  if (acceptor != null && delegate._isSet().state) {
-    acceptor._call(get()); // Call parameterized function with concrete type
-  }
-}
-```
-
-#### **5. Complete Test Coverage Pattern**
-```java
-@SuppressWarnings({"checkstyle:MethodName", "checkstyle:AbbreviationAsWordInName", "checkstyle:TypeName"})
-class _<DecoratedName>Test extends Common {
-
-  @Test
-  void testConstruction() {
-    // Test all constructor patterns
-  }
-
-  @Test  
-  void testFactoryMethods() {
-    // Test all _of() variants with null handling
-  }
-
-  @Test
-  void testTypeSpecificMethods() {
-    // Test methods returning concrete types (not Any)
-  }
-
-  @Test
-  void testIteratorIntegration() {
-    // Test iterator() returns correct parameterized type
-  }
-
-  @Test
-  void testAllOperators() {
-    // Test ALL operators from base type with type substitution
-  }
-
-  @Test
-  void testDelegationBehavior() {
-    // Verify consistency with base type behavior
-  }
-
-  @Test
-  void testEdgeCasesAndNullHandling() {
-    // Comprehensive null and edge case testing
-  }
-}
-```
-
-#### **6. Implementation Validation Process**
-1. **Unit Test Validation**: `mvn test -pl ek9-lang` - All parameterized type tests pass
-2. **EK9 Annotation Validation**: 
-   - `mvn clean install -pl ek9-lang`
-   - `mvn clean compile -pl compiler-main` 
-   - `mvn test -Dtest=Ek9IntrospectedBootStrapTest -pl compiler-main`
-3. **Integration Validation**: Full test suite passes (`mvn test`)
-
-#### **7. Key Implementation Lessons**
-
-**Type Safety Requirements:**
-- ALL methods returning `T` must cast to concrete type: `(ConcreteType) delegate.method()`
-- ALL methods accepting parameterized types must unwrap: `arg.delegate`
-- ALL methods returning parameterized types must wrap: `new _DecoratedName(result)`
-
-**Null Handling Patterns:**
-- Factory methods: `_of(null)` returns valid empty/default instance
-- Parameter validation: Check `if (arg != null)` before delegation
-- EK9 semantics: Invalid operations return unset values, not exceptions
-
-**Integration Dependencies:**
-- Collections need parameterized Iterator: `List<String>` needs `Iterator<String>`
-- Functions need concrete types: `Optional<String>` needs `Acceptor<String>`, `Consumer<String>`
-- Always implement dependent types first
-
-**Complete API Coverage:**
-- Count ALL `@Ek9Method`, `@Ek9Operator`, `@Ek9Constructor` annotations in base type
-- Implement EVERY single one with proper type substitution
-- Example: List has 27 annotated methods - ALL must be implemented
-
-This comprehensive pattern ensures consistent, type-safe, and fully-functional parameterized generic types that integrate seamlessly with the EK9 type system.
-
-## EK9 Iterator and String Integration Analysis
-
-### **String Character Iteration Pattern**
-The String class demonstrates sophisticated integration with parameterized generic Iterator types, enabling natural iteration through characters:
-
-**String.iterator() Implementation:**
-```java
-@Ek9Method("""
-    iterator() as pure
-      <- rtn as Iterator of Character?""")
-public _Iterator_7E0CA90C1F947ECE11C43ED0BB21B854FFD82455CECBC0C3EA4CC4A6EA343408 iterator() {
-  if (isSet) {
-    // Multi-stage type conversion for EK9 semantics:
-    final var iterator = Iterator._of(
-      this.state.chars()                    // Java IntStream of chars
-        .mapToObj(Character::_of)           // Stream<Character> (EK9 Characters)  
-        .map(Any.class::cast)              // Stream<Any> (required for generic Iterator)
-        .iterator()                        // java.util.Iterator<Any>
-    );
-    return _Iterator_7E0CA90C1F947ECE11C43ED0BB21B854FFD82455CECBC0C3EA4CC4A6EA343408._of(iterator);
-  }
-  return _Iterator_7E0CA90C1F947ECE11C43ED0BB21B854FFD82455CECBC0C3EA4CC4A6EA343408._of();
-}
-```
-
-### **Enhanced Parameterized Iterator Implementation**
-Recent improvements to the Iterator of Character implementation include:
-
-**1. Internal Constructor Pattern:**
-```java
-// Public constructors delegate to internal constructor
-public _Iterator_...(Character arg0) {
-  this(new Iterator(arg0));
-}
-
-// Internal constructor for factory methods
-private _Iterator_...(Iterator delegate) {
-  this.delegate = delegate;
-}
-```
-
-**2. Comprehensive Factory Methods:**
-```java
-public static _Iterator_... _of() {
-  return new _Iterator_...();
-}
-
-public static _Iterator_... _of(Iterator iterator) {
-  if (iterator != null) {
-    return new _Iterator_...(iterator);
-  }
-  return new _Iterator_...();
-}
-```
-
-**3. Perfect Type Safety with Delegation:**
-```java
-// All annotated methods from base Iterator are replicated with type substitution
-public Boolean hasNext() {
-  return delegate.hasNext();  // Direct delegation
-}
-
-public Character next() {
-  return (Character) delegate.next();  // Delegate + safe cast
-}
-
-public Boolean _eq(_Iterator_... arg) {
-  return delegate._eq(arg.delegate);  // Delegate comparison
-}
-```
-
-### **Integration Testing Patterns**
-The String and Iterator tests demonstrate comprehensive validation:
-
-**String Character Iteration Test:**
-```java
-@Test
-void testIterator() {
-  final var underTest = String._of("Steve");
-  final var iterator = underTest.iterator();
-  assertSet.accept(iterator);
-  
-  final var expect = new char[] {'S', 't', 'e', 'v', 'e'};
-  for (final char c : expect) {
-    assertTrue.accept(iterator.hasNext());
-    final var ch = iterator.next();
-    assertSet.accept(ch);
-    assertEquals(Character._of(c), ch);
-  }
-  assertFalse.accept(iterator.hasNext());
-}
-```
-
-**Factory Method Validation:**
-```java
-@Test
-void testFactoryMethods() {
-  // Unset factory
-  final var unset1 = _Iterator_..._of();
-  assertUnset.accept(unset1);
-  
-  // Null safety
-  final var unset2 = _Iterator_..._of(null);
-  assertUnset.accept(unset2);
-  
-  // Valid Iterator wrapping
-  final var set1 = _Iterator_..._of(Iterator._of(Character._of("S")));
-  assertSet.accept(set1);
-  assertEquals(Character._of('S'), set1.next());
-}
-```
-
-### **Key Architectural Benefits**
-
-1. **Seamless Type Conversion**: Java chars → EK9 Characters → Any → Iterator → Parameterized Iterator
-2. **EK9 Semantic Preservation**: All set/unset behavior and operators work correctly
-3. **Type Safety**: Compile-time guarantee that iterator returns Character objects
-4. **Performance**: Minimal overhead through delegation pattern
-5. **Java Interoperability**: Uses Java streams and collections efficiently
-6. **Extensible Pattern**: Same approach works for all parameterized generics
-
-### **Iterator Design Patterns Summary**
-
-The Iterator implementation showcases three key EK9 design patterns:
-- **Delegation Pattern**: Parameterized types wrap generic base implementations
-- **Factory Method Pattern**: Static `_of()` methods with proper null handling
-- **Type Bridge Pattern**: Safe conversion between Java and EK9 type systems
-
-This enables natural EK9 syntax like iterating through String characters while maintaining full type safety and EK9 semantic consistency.
 
 ### Native Binary (GraalVM)
 - `native-image --no-fallback -jar ek9c-jar-with-dependencies.jar` - Create native binary
@@ -507,19 +155,7 @@ The EK9 compiler follows a **12-phase compilation pipeline**:
 
 ## Development Guidelines
 
-### EK9 Built-in Type Development
-For comprehensive guidance on developing EK9 built-in types and unit tests, see:
-- **`EK9_DEVELOPMENT_CONTEXT.md`** - Complete reference with patterns, conventions, and best practices
-
-This context file contains:
-- EK9 type system architecture and inheritance patterns
-- Standard implementation patterns for constructors, operators, and validation
-- Comprehensive testing patterns and assertion helpers
-- Type-specific insights (Boolean, Integer, Float, String, Collections, etc.)
-- Common compilation issues and solutions
-- Advanced patterns and best practices
-
-#### EK9 Operator Method Names
+### EK9 Operator Method Names
 **CRITICAL**: For correct EK9 operator implementation, always reference the definitive mapping at:
 - **`compiler-main/src/main/java/org/ek9lang/compiler/common/OperatorMap.java`**
 
@@ -536,8 +172,6 @@ Key operator mappings include:
 - `"#^"` → `_promote`
 
 All method names are consistent between OperatorMap and actual implementations.
-
-**CRITICAL**: Always follow the [EK9 Annotation Validation Process](#ek9-annotation-validation-process) when developing new EK9 built-in types to ensure annotations are syntactically correct.
 
 ### Code Style
 - Java 23 with virtual threads support
@@ -727,283 +361,6 @@ Currently supports:
 
 ### Running Single Tests
 Use the existing test infrastructure and examples directory structure for validation.
-
-## Session Notes: EK9 Annotation Work (2025-01-16)
-
-### Task Completed
-Added `@Ek9Method` annotations to FileSystemPath component at `ek9-lang/src/main/java/org/ek9/lang/FileSystemPath.java`.
-
-**15 Methods Annotated:**
-1. `withCurrentWorkingDirectory()` - Factory method returning current working directory
-2. `withTemporaryDirectory()` - Factory method returning temporary directory
-3. `startsWith(FileSystemPath)` - Path testing method
-4. `endsWith(String)` - Path testing method (String variant)
-5. `endsWith(FileSystemPath)` - Path testing method (FileSystemPath variant)
-6. `exists()` - File system query method
-7. `isFile()` - File system query method
-8. `isDirectory()` - File system query method
-9. `isWritable()` - File system query method
-10. `isReadable()` - File system query method
-11. `isExecutable()` - File system query method
-12. `isAbsolute()` - File system query method
-13. `createFile()` - File creation method (no parameters)
-14. `createFile(Boolean)` - File creation method (with directory creation option)
-15. `createDirectory()` - Directory creation method (no parameters)
-16. `createDirectory(Boolean)` - Directory creation method (with parent creation option)
-17. `absolutePath()` - Path transformation method
-
-### EK9 Annotation Patterns Used
-```java
-@Ek9Method("""
-    methodName() as pure
-      -> param as ParamType
-      <- rtn as ReturnType?""")
-```
-
-### Key Validation Test
-**`Ek9IntrospectedBootStrapTest`** (`compiler-main/src/test/java/org/ek9lang/compiler/bootstrap/Ek9IntrospectedBootStrapTest.java`)
-- Introspects Java classes with EK9 annotations
-- Generates EK9 source code from annotations
-- Parses generated code with EK9 parser
-- Detects syntax errors with precise location (line/position)
-- Example error: `EK9Comp : Syntax : 'Unknown' on line 965 position 24: extraneous input 'pureish' expecting {'pure', 'dispatcher', 'abstract', NL}`
-
-### Multi-Module Build Challenge
-**Issue**: Changes in `ek9-lang` module not reflected in `compiler-main` test
-**Required Workflow**: 
-1. `mvn package -pl ek9-lang` (rebuild and package the dependency)
-2. `mvn clean compile -pl compiler-main` (clean and rebuild dependent module)
-3. `mvn test -Dtest=Ek9IntrospectedBootStrapTest -pl compiler-main` (run validation test)
-
-### Status
-- All annotations added successfully
-- Validation test demonstrates proper error detection
-- Need to resolve Maven build dependency issue to complete verification
-
-## Session Notes: EK9 GUID Implementation (2025-01-17)
-
-### Task Completed
-Implemented complete EK9 GUID component with Java UUID backing at `ek9-lang/src/main/java/org/ek9/lang/GUID.java`.
-
-### Key GUID Implementation Insights
-
-#### **GUID Interface Requirements** (from `Ek9BuiltinLangSupplier.java`)
-```
-GUID
-  GUID() as pure                              // Default constructor
-  GUID() as pure -> arg as GUID              // Copy constructor  
-  GUID() as pure -> arg as String            // String constructor
-  operator == as pure -> arg as GUID <- rtn as Boolean?
-  operator <> as pure -> arg as GUID <- rtn as Boolean?
-  operator <=> as pure -> arg as GUID <- rtn as Integer?
-  operator <=> as pure -> arg as Any <- rtn as Integer?
-  operator :^: -> arg as GUID                // Replace operator
-  operator :=: -> arg as GUID                // Copy operator
-  operator #^ as pure <- rtn as String?      // Promotion operator
-  operator $ as pure <- rtn as String?       // String operator
-  operator ? as pure <- rtn as Boolean?      // Set/unset check
-```
-
-#### **Critical EK9 Patterns Learned**
-
-1. **Exception Handling**: Use `@SuppressWarnings("checkstyle:CatchParameterName")` and `_` for ignored exceptions:
-   ```java
-   try {
-     state = UUID.fromString(arg.state);
-   } catch (IllegalArgumentException _) {
-     state = UUID.randomUUID();
-   }
-   ```
-
-2. **EK9 Null Semantics**: Invalid arguments return unset values, not false:
-   ```java
-   public Boolean _eq(GUID arg) {
-     if (isValid(arg)) {
-       return Boolean._of(this.state.equals(arg.state));
-     }
-     return new Boolean(); // Unset, not Boolean._of(false)
-   }
-   ```
-
-3. **Set/Unset Behavior**: Even "always-set" types can be unset for invalid operations:
-   ```java
-   public Boolean _isSet() {
-     return Boolean._of(isSet); // Not always true
-   }
-   ```
-
-4. **Factory Method Pattern**: Consistent `_of()` overloads:
-   ```java
-   public static GUID _of()                    // Generate new
-   public static GUID _of(java.lang.String)   // From string
-   public static GUID _of(UUID)               // From Java UUID
-   ```
-
-5. **Assignment Operators**: `:^:` (replace) and `:=:` (copy) follow String patterns:
-   ```java
-   public void _replace(GUID arg) {
-     _copy(arg); // Replace delegates to copy
-   }
-   
-   public void _copy(GUID value) {
-     if (isValid(value)) {
-       assign(value.state);
-     } else {
-       state = UUID.randomUUID(); // Fallback behavior
-       set();
-     }
-   }
-   ```
-
-6. **Dual String Operators**: Both `#^` and `$` required for different compiler contexts:
-   ```java
-   public String _promote() { return String._of(state.toString()); }
-   public String _string()  { return String._of(state.toString()); }
-   ```
-
-#### **Comprehensive Testing Patterns**
-
-- **Null Safety**: Test all constructors and methods with null inputs
-- **Edge Cases**: Invalid UUID strings, unset arguments, type mismatches
-- **Round-trip Testing**: String conversion and reconstruction
-- **Operator Consistency**: All operators behave correctly with set/unset states
-- **assertDoesNotThrow**: Prefer over direct exception-throwing calls
-
-#### **Key Implementation Files**
-- **GUID.java**: Main implementation with 189 lines
-- **GUIDTest.java**: Comprehensive test suite with 28 tests covering all scenarios
-- **Integration**: Verified with `Ek9IntrospectedBootStrapTest`
-
-#### **Lessons for Future EK9 Type Development**
-1. **Always handle null inputs gracefully** - EK9 types must be robust
-2. **Follow EK9 semantics** - Invalid operations return unset, not false
-3. **Consistent factory patterns** - Use `_of()` overloads
-4. **Proper exception handling** - Use `_` for ignored exceptions
-5. **Comprehensive testing** - Cover all edge cases and null scenarios
-6. **Integration validation** - Always run bootstrap tests
-
-### Status
-- GUID implementation complete and fully tested
-- All 28 tests passing
-- Bootstrap integration successful  
-- Ready for production use in EK9 language
-
-## Session Notes: EK9 HMAC Implementation (2025-01-17)
-
-### Task Completed
-Implemented complete EK9 HMAC component as stateless cryptographic utility at `ek9-lang/src/main/java/org/ek9/lang/HMAC.java`.
-
-### Key HMAC Implementation Insights
-
-#### **HMAC Interface Requirements** (from `Ek9BuiltinLangSupplier.java`)
-```
-HMAC
-  HMAC() as pure                              // Default constructor
-  SHA256() as pure -> arg0 as String <- rtn as String?    // Hash String
-  SHA256() as pure -> arg0 as GUID <- rtn as String?      // Hash GUID  
-  operator ? as pure <- rtn as Boolean?                   // Set/unset check (always true)
-```
-
-#### **Critical Design Differences from GUID**
-1. **Stateless**: No instance fields, unlike GUID which holds UUID state
-2. **Always Set**: `_isSet()` always returns `Boolean._of(true)`
-3. **Utility Methods**: SHA256 methods are pure functions with no side effects
-4. **No State Operators**: No comparison, assignment, or string conversion operators needed
-
-#### **Implementation Details**
-- **Java Integration**: Uses `MessageDigest.getInstance("SHA-256")` and `StandardCharsets.UTF_8`
-- **Hex Output**: Converts hash bytes to lowercase hex string format
-- **Error Handling**: Returns unset String for null/invalid inputs
-- **Method Overloading**: Two SHA256 methods for String and GUID inputs
-
-#### **Critical Annotation Formatting Issue Discovered**
-**Root Cause**: Incorrect EK9 operator annotation syntax caused parser failure.
-
-**Wrong Format**:
-```java
-@Ek9Operator("operator ? as pure <- rtn as Boolean?")  // Single line - WRONG
-```
-
-**Correct Format**:
-```java
-@Ek9Operator("""
-    operator ? as pure
-      <- rtn as Boolean?""")  // Multi-line with proper indentation
-```
-
-#### **Multi-Module Build Process Issue**
-**Problem**: HMAC class not found during introspection because compiler-main couldn't access updated ek9-lang classes.
-
-**Solution**: Correct build sequence for EK9 annotation validation:
-1. `mvn clean install -pl ek9-lang` (install to local Maven repository)
-2. `mvn clean compile -pl compiler-main` (rebuild with updated dependency)
-3. `mvn test -Dtest=Ek9IntrospectedBootStrapTest -pl compiler-main` (validate annotations)
-
-#### **Key Validation Test**
-**`Ek9IntrospectedBootStrapTest`** - Critical test that:
-- Uses Java reflection to find all `@Ek9Class` annotated classes
-- Generates EK9 source code from Java annotations
-- Parses generated code with EK9 parser
-- Fails with exact syntax error location if annotations are malformed
-- Dumps generated EK9 source code when parsing fails
-
-### Implementation Files
-- **HMAC.java**: Main implementation (73 lines)
-- **HMACTest.java**: Comprehensive test suite (17 tests)
-- **Integration**: Verified with `Ek9IntrospectedBootStrapTest`
-
-### Key Lessons for EK9 Development Process
-1. **Always use proper Maven build sequence** for annotation validation
-2. **Use multi-line string annotations** with proper EK9 indentation
-3. **Test annotations early and often** with bootstrap test
-4. **Multi-module dependencies require explicit installation** to local repository
-5. **Bootstrap test is definitive validation** for EK9 annotation syntax
-6. **Document build process clearly** to prevent future issues
-
-### Status
-- HMAC implementation complete and fully tested
-- All 17 tests passing
-- Bootstrap integration successful
-- Proper multi-module build process documented
-- Ready for production use in EK9 language
-
-## Session Notes: EK9 TCP Skeleton Implementation (2025-01-18)
-
-### Task Completed
-Created TCP.java skeleton implementation with proper EK9 annotations at `ek9-lang/src/main/java/org/ek9/lang/TCP.java`.
-
-### Key EK9 Constructor Annotation Pattern
-**CRITICAL**: EK9 constructors require the full EK9 syntax specification in the annotation:
-
-**Correct Format:**
-```java
-@Ek9Constructor("TCP() as pure")                    // Default constructor
-@Ek9Constructor("""
-    TCP() as pure
-      -> properties as NetworkProperties""")        // Parameterized constructor
-```
-
-**Wrong Format:**
-```java
-@Ek9Constructor                                     // Missing EK9 syntax - WRONG
-```
-
-### TCP Implementation Structure
-- **Extends BuiltinType** following EK9 built-in type patterns
-- **State Fields**: NetworkProperties, ServerSocketChannel, error tracking
-- **Two Constructors**: Default and NetworkProperties-based
-- **Core Methods**: `connect()`, `accept()`, `lastErrorMessage()`
-- **Operators**: `close`, `?` (isSet), `$` (string)
-- **Java NIO Integration**: Uses ServerSocketChannel for TCP operations
-
-### Key Implementation Files
-- **TCP.java**: Complete skeleton (83 lines) with proper EK9 annotations
-- **Integration**: Ready for implementation phases and testing
-
-### Status
-- TCP skeleton complete with proper EK9 annotations
-- All method signatures match EK9 interface requirements
-- Ready for detailed implementation in subsequent phases
 
 ## Analysis and Planning Requirements
 
