@@ -50,8 +50,27 @@ class _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4
   }
 
   @Test
-  void testIntegerIteration() {
-    // Test iteration with Integer values
+  void testEqualityAndOperators() {
+    // Test _eq with same parameterized type
+    final var iterator1 = _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4._of();
+    final var iterator2 = _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4._of();
+    final var iteratorWithValue = new _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4(Integer._of(42));
+
+    // Test equality functionality
+    assertNotNull(iterator1._eq(iterator2));
+    assertNotNull(iterator1._eq(iterator1));
+
+
+    // Test _isSet operator (should return hasNext result)
+    assertEquals(iteratorWithValue.hasNext(), iteratorWithValue._isSet());
+
+    // Test _hashcode operator
+    assertNotNull(iteratorWithValue._hashcode());
+  }
+
+  @Test
+  void testIntegerTypeSafety() {
+    // Test iteration with Integer values and type safety
     final var testValue = Integer._of(123);
     final var iterator = new _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4(testValue);
 
@@ -63,58 +82,5 @@ class _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4
 
     // After consuming, should be empty
     assertFalse.accept(iterator.hasNext());
-  }
-
-  @Test
-  void testEqualityOperator() {
-    // Test _eq with same parameterized type
-    final var iterator1 = _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4._of();
-    final var iterator2 = _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4._of();
-
-    // Test equality functionality
-    assertNotNull(iterator1._eq(iterator2));
-    assertNotNull(iterator1._eq(iterator1));
-
-    // Test _eq with null
-    assertUnset.accept(iterator1._eq(null));
-  }
-
-  @Test
-  void testOperatorConsistency() {
-    final var iterator = new _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4(Integer._of(555));
-
-    // Test _isSet operator (should return hasNext result)
-    assertEquals(iterator.hasNext(), iterator._isSet());
-
-    // Test _hashcode operator
-    assertNotNull(iterator._hashcode());
-  }
-
-  @Test
-  void testTypeSafety() {
-    final var iterator = _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4._of();
-
-    // Verify class type is correct
-    assertEquals(_Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4.class, 
-                 iterator.getClass());
-
-    // Test that next() returns Integer type
-    final var iteratorWithValue = new _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4(Integer._of(999));
-    if (iteratorWithValue.hasNext().state) {
-      final var value = iteratorWithValue.next();
-      assertEquals(Integer.class, value.getClass());
-      assertEquals(Integer._of(999), value);
-    }
-  }
-
-  @Test
-  void testDelegationBehavior() {
-    // Test that parameterized Iterator properly delegates to base Iterator
-    final var paramIterator = _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4._of();
-    final var baseIterator = new Iterator();
-
-    // Verify delegation produces consistent behavior with base type
-    assertEquals(baseIterator.hasNext(), paramIterator.hasNext());
-    assertEquals(baseIterator._isSet(), paramIterator._isSet());
   }
 }

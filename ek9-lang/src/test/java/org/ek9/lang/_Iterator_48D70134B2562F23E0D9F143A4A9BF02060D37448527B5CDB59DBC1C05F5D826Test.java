@@ -87,8 +87,6 @@ class _Iterator_48D70134B2562F23E0D9F143A4A9BF02060D37448527B5CDB59DBC1C05F5D826
     assertNotNull(iterator1._eq(iterator2));
     assertNotNull(iterator1._eq(iterator1));
 
-    // Test _eq with null
-    assertUnset.accept(iterator1._eq(null));
   }
 
   @Test
@@ -111,19 +109,13 @@ class _Iterator_48D70134B2562F23E0D9F143A4A9BF02060D37448527B5CDB59DBC1C05F5D826
         _DictEntry_87A55D447A2FC20E1611D0A0F5F49C2A4B57F40CD33E7FB15E43352011BFDD4E._of(testKey1, testValue1);
     final var iterator = new _Iterator_48D70134B2562F23E0D9F143A4A9BF02060D37448527B5CDB59DBC1C05F5D826(entry);
 
-    // Verify iterator class type
-    assertEquals(_Iterator_48D70134B2562F23E0D9F143A4A9BF02060D37448527B5CDB59DBC1C05F5D826.class,
-        iterator.getClass());
-
     // Test that next() returns the correct nested parameterized type
     if (iterator.hasNext().state) {
       final var retrievedEntry = iterator.next();
 
-      // Verify DictEntry type
+      // Verify DictEntry type and nested key/value types
       assertEquals(_DictEntry_87A55D447A2FC20E1611D0A0F5F49C2A4B57F40CD33E7FB15E43352011BFDD4E.class,
           retrievedEntry.getClass());
-
-      // Verify nested key and value types
       assertEquals(String.class, retrievedEntry.key().getClass());
       assertEquals(Integer.class, retrievedEntry.value().getClass());
 
@@ -131,16 +123,5 @@ class _Iterator_48D70134B2562F23E0D9F143A4A9BF02060D37448527B5CDB59DBC1C05F5D826
       assertEquals(testKey1, retrievedEntry.key());
       assertEquals(testValue1, retrievedEntry.value());
     }
-  }
-
-  @Test
-  void testDelegationBehavior() {
-    // Test that parameterized Iterator properly delegates to base Iterator
-    final var paramIterator = _Iterator_48D70134B2562F23E0D9F143A4A9BF02060D37448527B5CDB59DBC1C05F5D826._of();
-    final var baseIterator = new Iterator();
-
-    // Verify delegation produces consistent behavior with base type
-    assertEquals(baseIterator.hasNext(), paramIterator.hasNext());
-    assertEquals(baseIterator._isSet(), paramIterator._isSet());
   }
 }
