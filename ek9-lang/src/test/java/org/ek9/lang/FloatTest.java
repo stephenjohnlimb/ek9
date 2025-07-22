@@ -23,6 +23,34 @@ class FloatTest extends Common {
   final Float f4 = Float._of(4);
   final Float f4Point5 = Float._of(4.5);
 
+  // Helper methods for eliminating duplication
+
+  /**
+   * Helper method to test comparison operations with unset values.
+   */
+  private void assertComparisonOperatorsWithUnset(Float validValue) {
+    // Test all comparison operators with unset
+    assertUnset.accept(validValue._eq(unset));
+    assertUnset.accept(unset._eq(validValue));
+    assertUnset.accept(unset._eq(unset));
+    
+    assertUnset.accept(validValue._neq(unset));
+    assertUnset.accept(unset._neq(validValue));
+    assertUnset.accept(unset._neq(unset));
+    
+    assertUnset.accept(validValue._lt(unset));
+    assertUnset.accept(unset._lt(validValue));
+    
+    assertUnset.accept(validValue._gt(unset));
+    assertUnset.accept(unset._gt(validValue));
+    
+    assertUnset.accept(validValue._lteq(unset));
+    assertUnset.accept(unset._lteq(validValue));
+    
+    assertUnset.accept(validValue._gteq(unset));
+    assertUnset.accept(unset._gteq(validValue));
+  }
+
   @Test
   void testConstruction() {
     final var defaultConstructor = new Float();
@@ -75,45 +103,33 @@ class FloatTest extends Common {
   void testEquality() {
     final var f00 = Float._of(0);
 
+    // Test all comparison operators with unset values using helper
+    assertComparisonOperatorsWithUnset(f0);
+
     //Eq
     assertEquals(f00, f0);
     assertEquals(true1, f0._eq(f00));
 
-    assertUnset.accept(f0._eq(unset));
-    assertUnset.accept(unset._eq(unset));
-    assertUnset.accept(unset._eq(f0));
-
     //Neq
     assertEquals(false1, f0._neq(f00));
-    assertUnset.accept(f0._neq(unset));
-    assertUnset.accept(unset._neq(unset));
-    assertUnset.accept(unset._neq(f0));
 
     //Lt
     assertTrue.accept(f0._lt(f1));
     assertFalse.accept(f1._lt(f0));
-    assertUnset.accept(unset._lt(f1));
-    assertUnset.accept(f0._lt(unset));
 
     //gt
     assertTrue.accept(f1._gt(f0));
     assertFalse.accept(f0._gt(f1));
-    assertUnset.accept(unset._gt(f1));
-    assertUnset.accept(f0._gt(unset));
 
     //Lteq
     assertTrue.accept(f0._lteq(f00));
     assertTrue.accept(f0._lteq(f1));
     assertFalse.accept(f1._lteq(f0));
-    assertUnset.accept(unset._lteq(f0));
-    assertUnset.accept(f0._lteq(unset));
 
     //Gteq
     assertTrue.accept(f0._gteq(f00));
     assertTrue.accept(f1._gteq(f0));
     assertFalse.accept(f0._gteq(f1));
-    assertUnset.accept(unset._gteq(f0));
-    assertUnset.accept(f0._gteq(unset));
   }
 
   @Test
@@ -191,10 +207,13 @@ class FloatTest extends Common {
     assertUnset.accept( f0._div(unset));
     assertUnset.accept(unset._div(f2));
 
-    assertEquals(f2, f1._inc());
+    // Create fresh objects for mutating inc/dec operations to avoid corrupting constants
+    final var freshF1 = Float._of(1);
+    assertEquals(f2, freshF1._inc());
     assertUnset.accept(unset._inc());
 
-    assertEquals(fMinus1, f0._dec());
+    final var freshF0 = Float._of(0);
+    assertEquals(fMinus1, freshF0._dec());
     assertUnset.accept(unset._dec());
 
   }

@@ -21,17 +21,103 @@ class ResultTest extends Common {
   private final Boolean testOkBool = Boolean._of(true);
   private final Boolean testErrorBool = Boolean._of(false);
 
+  // Helper methods for eliminating duplication
+  
+  /**
+   * Helper method to assert that a Result is unset and verify all related state.
+   */
+  private void assertResultUnset(Result result) {
+    assertUnset.accept(result);
+    assertFalse.accept(result._isSet());
+    assertTrue.accept(result._empty());
+    assertFalse.accept(result.isOk());
+    assertFalse.accept(result.isError());
+  }
+  
+  /**
+   * Helper method to assert that a Result is OK and verify all related state.
+   */
+  private void assertResultOk(Result result) {
+    assertSet.accept(result);
+    assertTrue.accept(result._isSet());
+    assertFalse.accept(result._empty());
+    assertTrue.accept(result.isOk());
+    assertFalse.accept(result.isError());
+  }
+  
+  /**
+   * Helper method to assert that a Result is ERROR and verify all related state.
+   */
+  private void assertResultError(Result result) {
+    assertNotNull(result);
+    assertFalse.accept(result._isSet()); // _isSet() returns isOk()
+    assertFalse.accept(result._empty());
+    assertFalse.accept(result.isOk());
+    assertTrue.accept(result.isError());
+  }
+  
+  /**
+   * Helper method to test whenOk behavior with both Acceptor and Consumer.
+   * Tests that the callbacks are called with the expected value.
+   */
+  private void assertWhenOkCalled(Result result, Any expectedValue) {
+    final var acceptor = new MockAcceptor();
+    result.whenOk(acceptor);
+    assertTrue.accept(Boolean._of(acceptor.verifyCalledWith(expectedValue)));
+    
+    final var consumer = new MockConsumer();
+    result.whenOk(consumer);
+    assertTrue.accept(Boolean._of(consumer.verifyCalledWith(expectedValue)));
+  }
+  
+  /**
+   * Helper method to test whenOk behavior with both Acceptor and Consumer.
+   * Tests that the callbacks are NOT called.
+   */
+  private void assertWhenOkNotCalled(Result result) {
+    final var acceptor = new MockAcceptor();
+    result.whenOk(acceptor);
+    assertTrue.accept(Boolean._of(acceptor.verifyNotCalled()));
+    
+    final var consumer = new MockConsumer();
+    result.whenOk(consumer);
+    assertTrue.accept(Boolean._of(consumer.verifyNotCalled()));
+  }
+  
+  /**
+   * Helper method to test whenError behavior with both Acceptor and Consumer.
+   * Tests that the callbacks are called with the expected value.
+   */
+  private void assertWhenErrorCalled(Result result, Any expectedValue) {
+    final var acceptor = new MockAcceptor();
+    result.whenError(acceptor);
+    assertTrue.accept(Boolean._of(acceptor.verifyCalledWith(expectedValue)));
+    
+    final var consumer = new MockConsumer();
+    result.whenError(consumer);
+    assertTrue.accept(Boolean._of(consumer.verifyCalledWith(expectedValue)));
+  }
+  
+  /**
+   * Helper method to test whenError behavior with both Acceptor and Consumer.
+   * Tests that the callbacks are NOT called.
+   */
+  private void assertWhenErrorNotCalled(Result result) {
+    final var acceptor = new MockAcceptor();
+    result.whenError(acceptor);
+    assertTrue.accept(Boolean._of(acceptor.verifyNotCalled()));
+    
+    final var consumer = new MockConsumer();
+    result.whenError(consumer);
+    assertTrue.accept(Boolean._of(consumer.verifyNotCalled()));
+  }
+
   @Test
   void testConstruction() {
     // Default constructor should create unset Result
     final var defaultConstructor = new Result();
     assertNotNull(defaultConstructor);
-
-    assertUnset.accept(defaultConstructor);
-    assertFalse.accept(defaultConstructor._isSet());
-    assertTrue.accept(defaultConstructor._empty());
-    assertFalse.accept(defaultConstructor.isOk());
-    assertFalse.accept(defaultConstructor.isError());
+    assertResultUnset(defaultConstructor);
 
     // Two-parameter constructor should not be empty
     final var twoParamConstructor = new Result(testOkValue, testErrorValue);
@@ -42,25 +128,15 @@ class ResultTest extends Common {
 
     // Factory method with no args should create empty Result
     final var factoryEmpty = Result._of();
-    assertUnset.accept(factoryEmpty);
-    assertFalse.accept(factoryEmpty._isSet());
-    assertTrue.accept(factoryEmpty._empty());
+    assertResultUnset(factoryEmpty);
 
     // Factory method with OK value should create OK Result and not be empty.
     final var factoryOk = Result._ofOk(testOkValue);
-    assertSet.accept(factoryOk);
-    assertTrue.accept(factoryOk._isSet());
-    assertFalse.accept(factoryOk._empty());
-    assertTrue.accept(factoryOk.isOk());
-    assertFalse.accept(factoryOk.isError());
+    assertResultOk(factoryOk);
 
     // Factory method with error value should create ERROR Result
     final var factoryError = Result._ofError(testErrorValue);
-    assertNotNull(factoryError);
-    assertFalse.accept(factoryError._isSet()); // _isSet() returns isOk()
-    assertFalse.accept(factoryError._empty());
-    assertFalse.accept(factoryError.isOk());
-    assertTrue.accept(factoryError.isError());
+    assertResultError(factoryError);
   }
 
   @Test
@@ -153,91 +229,35 @@ class ResultTest extends Common {
   }
 
   @Test
-  void testWhenOkWithAcceptor() {
+  void testWhenOk() {
     final var okResult = Result._ofOk(testOkValue);
     final var errorResult = Result._ofError(testErrorValue);
     final var unsetResult = new Result();
 
-    // OK Result should call acceptor
-    final var mockAcceptor1 = new MockAcceptor();
-    okResult.whenOk(mockAcceptor1);
-    assertTrue.accept(Boolean._of(mockAcceptor1.verifyCalledWith(testOkValue)));
+    // OK Result should call acceptor using helper
+    assertWhenOkCalled(okResult, testOkValue);
 
-    // ERROR Result should not call acceptor
-    final var mockAcceptor2 = new MockAcceptor();
-    errorResult.whenOk(mockAcceptor2);
-    assertTrue.accept(Boolean._of(mockAcceptor2.verifyNotCalled()));
+    // ERROR Result should not call acceptor using helper
+    assertWhenOkNotCalled(errorResult);
 
-    // unset Result should not call acceptor
-    final var mockAcceptor3 = new MockAcceptor();
-    unsetResult.whenOk(mockAcceptor3);
-    assertTrue.accept(Boolean._of(mockAcceptor3.verifyNotCalled()));
+    // unset Result should not call acceptor using helper
+    assertWhenOkNotCalled(unsetResult);
   }
 
   @Test
-  void testWhenOkWithConsumer() {
+  void testWhenError() {
     final var okResult = Result._ofOk(testOkValue);
     final var errorResult = Result._ofError(testErrorValue);
     final var unsetResult = new Result();
 
-    // OK Result should call consumer
-    final var mockConsumer1 = new MockConsumer();
-    okResult.whenOk(mockConsumer1);
-    assertTrue.accept(Boolean._of(mockConsumer1.verifyCalledWith(testOkValue)));
+    // ERROR Result should call acceptor using helper
+    assertWhenErrorCalled(errorResult, testErrorValue);
 
-    // ERROR Result should not call consumer
-    final var mockConsumer2 = new MockConsumer();
-    errorResult.whenOk(mockConsumer2);
-    assertTrue.accept(Boolean._of(mockConsumer2.verifyNotCalled()));
+    // OK Result should not call acceptor using helper
+    assertWhenErrorNotCalled(okResult);
 
-    // unset Result should not call consumer
-    final var mockConsumer3 = new MockConsumer();
-    unsetResult.whenOk(mockConsumer3);
-    assertTrue.accept(Boolean._of(mockConsumer3.verifyNotCalled()));
-  }
-
-  @Test
-  void testWhenErrorWithAcceptor() {
-    final var okResult = Result._ofOk(testOkValue);
-    final var errorResult = Result._ofError(testErrorValue);
-    final var unsetResult = new Result();
-
-    // ERROR Result should call acceptor
-    final var mockAcceptor1 = new MockAcceptor();
-    errorResult.whenError(mockAcceptor1);
-    assertTrue.accept(Boolean._of(mockAcceptor1.verifyCalledWith(testErrorValue)));
-
-    // OK Result should not call acceptor
-    final var mockAcceptor2 = new MockAcceptor();
-    okResult.whenError(mockAcceptor2);
-    assertTrue.accept(Boolean._of(mockAcceptor2.verifyNotCalled()));
-
-    // unset Result should not call acceptor
-    final var mockAcceptor3 = new MockAcceptor();
-    unsetResult.whenError(mockAcceptor3);
-    assertTrue.accept(Boolean._of(mockAcceptor3.verifyNotCalled()));
-  }
-
-  @Test
-  void testWhenErrorWithConsumer() {
-    final var okResult = Result._ofOk(testOkValue);
-    final var errorResult = Result._ofError(testErrorValue);
-    final var unsetResult = new Result();
-
-    // ERROR Result should call consumer
-    final var mockConsumer1 = new MockConsumer();
-    errorResult.whenError(mockConsumer1);
-    assertTrue.accept(Boolean._of(mockConsumer1.verifyCalledWith(testErrorValue)));
-
-    // OK Result should not call consumer
-    final var mockConsumer2 = new MockConsumer();
-    okResult.whenError(mockConsumer2);
-    assertTrue.accept(Boolean._of(mockConsumer2.verifyNotCalled()));
-
-    // unset Result should not call consumer
-    final var mockConsumer3 = new MockConsumer();
-    unsetResult.whenError(mockConsumer3);
-    assertTrue.accept(Boolean._of(mockConsumer3.verifyNotCalled()));
+    // unset Result should not call acceptor using helper
+    assertWhenErrorNotCalled(unsetResult);
   }
 
   @Test
@@ -428,7 +448,6 @@ class ResultTest extends Common {
     final var result2 = new Result();
     result2._pipe(null);
     assertTrue.accept(result2._empty());
-
 
   }
 

@@ -22,6 +22,34 @@ class IntegerTest extends Common {
   final Integer i3 = Integer._of(3);
   final Integer i4 = Integer._of(4);
 
+  // Helper methods for eliminating duplication
+
+  /**
+   * Helper method to test comparison operations with unset values.
+   */
+  private void assertComparisonOperatorsWithUnset(Integer validValue) {
+    // Test all comparison operators with unset
+    assertUnset.accept(validValue._eq(unset));
+    assertUnset.accept(unset._eq(validValue));
+    assertUnset.accept(unset._eq(unset));
+
+    assertUnset.accept(validValue._neq(unset));
+    assertUnset.accept(unset._neq(validValue));
+    assertUnset.accept(unset._neq(unset));
+
+    assertUnset.accept(validValue._lt(unset));
+    assertUnset.accept(unset._lt(validValue));
+
+    assertUnset.accept(validValue._gt(unset));
+    assertUnset.accept(unset._gt(validValue));
+
+    assertUnset.accept(validValue._lteq(unset));
+    assertUnset.accept(unset._lteq(validValue));
+
+    assertUnset.accept(validValue._gteq(unset));
+    assertUnset.accept(unset._gteq(validValue));
+  }
+
   @Test
   void testConstruction() {
     final var defaultConstructor = new Integer();
@@ -65,45 +93,33 @@ class IntegerTest extends Common {
   void testEquality() {
     final var i00 = Integer._of(0);
 
+    // Test all comparison operators with unset values using helper
+    assertComparisonOperatorsWithUnset(i0);
+
     //Eq
     assertEquals(i00, i0);
     assertEquals(true1, i0._eq(i00));
 
-    assertUnset.accept(i0._eq(unset));
-    assertUnset.accept(unset._eq(unset));
-    assertUnset.accept(unset._eq(i0));
-
     //Neq
     assertEquals(false1, i0._neq(i00));
-    assertUnset.accept(i0._neq(unset));
-    assertUnset.accept(unset._neq(unset));
-    assertUnset.accept(unset._neq(i0));
 
     //Lt
     assertTrue.accept(i0._lt(i1));
     assertFalse.accept(i1._lt(i0));
-    assertUnset.accept(unset._lt(i1));
-    assertUnset.accept(i0._lt(unset));
 
     //gt
     assertTrue.accept(i1._gt(i0));
     assertFalse.accept(i0._gt(i1));
-    assertUnset.accept(unset._gt(i1));
-    assertUnset.accept(i0._gt(unset));
 
     //Lteq
     assertTrue.accept(i0._lteq(i00));
     assertTrue.accept(i0._lteq(i1));
     assertFalse.accept(i1._lteq(i0));
-    assertUnset.accept(unset._lteq(i0));
-    assertUnset.accept(i0._lteq(unset));
 
     //Gteq
     assertTrue.accept(i0._gteq(i00));
     assertTrue.accept(i1._gteq(i0));
     assertFalse.accept(i0._gteq(i1));
-    assertUnset.accept(unset._gteq(i0));
-    assertUnset.accept(i0._gteq(unset));
   }
 
   @Test
@@ -113,6 +129,7 @@ class IntegerTest extends Common {
     assertEquals(Integer._of(0), i0._fuzzy(i00));
     assertEquals(Integer._of(-1), i0._fuzzy(i1));
     assertEquals(Integer._of(1), i1._fuzzy(i0));
+    // Test unset behavior for fuzzy comparison
     assertUnset.accept(unset._fuzzy(i0));
     assertUnset.accept(i0._fuzzy(unset));
   }
@@ -134,83 +151,83 @@ class IntegerTest extends Common {
   @Test
   void testSimpleMathematics() {
 
+    // Test unary operations with unset values
+    assertUnset.accept(unset._negate());
+    assertUnset.accept(unset._inc());
+    assertUnset.accept(unset._dec());
+
     final var minusZero = i0._negate();
     assertEquals(i0, minusZero);
 
-    final var stillUnset = unset._negate();
-    assertUnset.accept(stillUnset);
-
     //Negate
     assertEquals(iMinus1, i1._negate());
-    assertUnset.accept(unset._negate());
 
-    //Addition
+    // Create fresh objects for mutating inc/dec operations to avoid corrupting constants
+    final var freshI1 = Integer._of(1);
+    assertEquals(i2, freshI1._inc());
+
+    final var freshI0 = Integer._of(0);
+    assertEquals(iMinus1, freshI0._dec());
+
+    //Addition - test unset behavior and specific examples
+    assertUnset.accept(unset._add(i1));
+    assertUnset.accept(i0._add(unset));
     assertEquals(iMinus1, i0._add(iMinus1));
     assertEquals(i0, i1._add(iMinus1));
     assertEquals(i0, iMinus1._add(i1));
-    assertUnset.accept(unset._add(i1));
-    assertUnset.accept(i0._add(unset));
 
-    //Substraction
+    //Subtraction - test unset behavior and specific examples  
+    assertUnset.accept(unset._sub(i1));
+    assertUnset.accept(i0._sub(unset));
     assertEquals(iMinus1, i0._sub(i1));
     assertEquals(i0, i1._sub(i1));
     assertEquals(i0, iMinus1._sub(iMinus1));
-    assertUnset.accept(unset._sub(i1));
-    assertUnset.accept(i0._sub(unset));
 
-    //Multiplication
+    //Multiplication - test unset behavior and specific examples
+    assertUnset.accept(unset._mul(i1));
+    assertUnset.accept(i0._mul(unset));
     assertEquals(i0, i0._mul(i1));
     assertEquals(i0, i0._mul(iMinus1));
     assertEquals(i2, i1._mul(i2));
     assertEquals(iMinus2, i2._mul(iMinus1));
     assertEquals(i4, i2._mul(i2));
     assertEquals(i4, iMinus2._mul(iMinus2));
-    assertUnset.accept(unset._mul(i1));
-    assertUnset.accept(i0._mul(unset));
 
-    //Division
+    //Division - test unset behavior and specific examples
+    assertUnset.accept(i0._div(unset));
+    assertUnset.accept(unset._div(i2));
     assertEquals(i1, i2._div(i2));
-
     assertEquals(i2, i4._div(i2));
     assertEquals(iMinus2, i4._div(iMinus2));
     assertEquals(i0, i0._div(i2));
 
+    // Special division cases (divide by zero)
     assertUnset.accept(i0._div(i0));
-    assertUnset.accept( i0._div(unset));
-    assertUnset.accept(unset._div(i2));
-
-    assertEquals(i2, i1._inc());
-    assertUnset.accept(unset._inc());
-
-    assertEquals(iMinus1, i0._dec());
-    assertUnset.accept(unset._dec());
 
   }
 
   @Test
   void testFloatingPointMathematics() {
 
-    //Sqrt
+    //Sqrt - test unset behavior
     assertUnset.accept(unset._sqrt());
     assertEquals(i2._promote(), i4._sqrt());
     assertUnset.accept(i0._sqrt());
 
-    //Pow
+    //Pow - test unset behavior for both Integer and Float variants
     assertUnset.accept(i2._pow(unset));
+    assertUnset.accept(i2._pow(unset._promote()));
     assertEquals(i2._promote(), i2._pow(i1));
     assertEquals(i4._promote(), i2._pow(i2));
-
-    assertUnset.accept(i2._pow(unset._promote()));
     assertEquals(i2._promote(), i2._pow(i1._promote()));
     assertEquals(i4._promote(), i2._pow(i2._promote()));
 
-    //Addition
+    //Addition with Float - test unset behavior
+    assertUnset.accept(unset._add(i1._promote()));
+    assertUnset.accept(i0._add(unset._promote()));
     assertEquals(iMinus1._promote(), i0._add(iMinus1._promote()));
     assertEquals(i0._promote(), i1._add(iMinus1._promote()));
     assertEquals(i0._promote(), iMinus1._add(i1._promote()));
-
-    assertUnset.accept(unset._add(i1._promote()));
-    assertUnset.accept(i0._add(unset._promote()));
 
     //Specific calculations
     assertEquals(Float._of(2.456), i1._add(Float._of(1.456)));
@@ -231,12 +248,12 @@ class IntegerTest extends Common {
     assertUnset.accept(i2._div(Float._of(10E-322)));
 
     //Divide by zero check
-    assertUnset.accept( i2._div(i0._promote()));
+    assertUnset.accept(i2._div(i0._promote()));
   }
 
   @Test
   void testAsString() {
-
+    // Test string conversion with unset values
     assertUnset.accept(unset._string());
 
     assertEquals(String._of("0"), i0._string());
@@ -248,6 +265,7 @@ class IntegerTest extends Common {
 
   @Test
   void testHashCode() {
+    // Test hash code with unset values
     assertUnset.accept(unset._hashcode());
     assertEquals(i0._hashcode(), i0._hashcode());
     assertNotEquals(i0._hashcode(), i1._hashcode());
@@ -262,6 +280,7 @@ class IntegerTest extends Common {
    */
   @Test
   void testPrefixSuffix() {
+    // Test prefix/suffix operations with unset values
     assertUnset.accept(unset._prefix());
     assertUnset.accept(unset._suffix());
 
@@ -279,14 +298,14 @@ class IntegerTest extends Common {
 
   @Test
   void testAdditionalMathematicalOperators() {
-
+    // Test absolute value with unset and specific examples
+    assertUnset.accept(unset._abs());
     assertEquals(i0, i0._abs());
     assertEquals(i2, i2._abs());
     assertEquals(i2, iMinus2._abs());
-    assertUnset.accept(unset._abs());
 
+    // Test factorial with unset and specific examples
     assertEquals(Integer._of(24L), i4._fac());
-
     //Not logical to be able to get the factorial of a negative number.
     assertUnset.accept(iMinus2._fac());
     assertEquals(i1, i0._fac());
@@ -295,13 +314,14 @@ class IntegerTest extends Common {
 
   @Test
   void testUtilityOperators() {
+    // Test utility operations with unset values
     assertUnset.accept(unset._empty());
+    assertUnset.accept(unset._len());
 
     assertEquals(true1, i0._empty());
     assertEquals(false1, i1._empty());
     assertEquals(false1, iMinus2._empty());
 
-    assertUnset.accept(unset._len());
     assertEquals(i1, i0._len());
     assertEquals(i1, i1._len());
     //The length includes the minus sign.
@@ -312,6 +332,7 @@ class IntegerTest extends Common {
 
   @Test
   void testBitWiseOnIntegers() {
+    // Test bitwise operations with unset values
     assertUnset.accept(unset._and(i1));
     assertUnset.accept(unset._or(i1));
     assertUnset.accept(unset._xor(i1));
@@ -333,6 +354,7 @@ class IntegerTest extends Common {
 
   @Test
   void testModulusAndRemainder() {
+    // Test modulus and remainder operations with unset values
     assertUnset.accept(unset._mod(i1));
     assertUnset.accept(unset._rem(i1));
 
@@ -363,70 +385,71 @@ class IntegerTest extends Common {
     assertEquals(i3._negate(), charlie2._mod(i4._negate()));
 
   }
-    //Additional tests
-    /**
-     * Example of Remainder:
-     *<br/>
-     * 10 % 3 = 1 [here divisible is 10 which is positively signed so the result will also be positively signed]
-     *<br/>
-     * -10 % 3 = -1 [here divisible is -10 which is negatively signed so the result will also be negatively signed]
-     *<br/>
-     * 10 % -3 = 1 [here divisible is 10 which is positively signed so the result will also be positively signed]
-     *<br/>
-     * -10 % -3 = -1 [here divisible is -10 which is negatively signed so the result will also be negatively signed]
-     *<br/>
-     * Example of Modulus:
-     *<br/>
-     * 5 % 3 = 2 [here divisible is 5 which is positively signed so the remainder will also be positively
-     * signed and the divisor is also positively signed. As both remainder and divisor are of same sign the
-     * result will be same as remainder]
-     *<br/>
-     * -5 % 3 = 1 [here divisible is -5 which is negatively signed so the remainder will also be negatively
-     * signed and the divisor is positively signed. As both remainder and divisor are of opposite sign the
-     * result will be sum of remainder and divisor -2 + 3 = 1]
-     *<br/>
-     * 5 % -3 = -1 [here divisible is 5 which is positively signed so the remainder will also be positively
-     * signed and the divisor is negatively signed. As both remainder and divisor are of opposite sign the
-     * result will be sum of remainder and divisor 2 + -3 = -1]
-     *<br/>
-     * -5 % -3 = -2 [here divisible is -5 which is negatively signed so the remainder will also be negatively
-     * signed and the divisor is also negatively signed. As both remainder and divisor are of same sign the
-     * result will be same as remainder]
-     */
-    @Test
-    void testModulusAndRemainderByHand() {
-      final var ten = Integer._of(10);
-      final var minusTen = Integer._of(-10);
-      final var one = Integer._of(1);
-      final var minusOne = Integer._of(-1);
-      final var two = Integer._of(2);
-      final var minusTwo = Integer._of(-2);
-      final var three = Integer._of(3);
-      final var minusThree = Integer._of(-3);
-      final var five = Integer._of(5);
-      final var minusFive = Integer._of(-5);
+  //Additional tests
 
-      //Remainder tests from above
-      assertEquals(one, ten._rem(three));
-      assertEquals(minusOne, minusTen._rem(three));
-      assertEquals(one, ten._rem(minusThree));
-      assertEquals(minusOne, minusTen._rem(minusThree));
+  /**
+   * Example of Remainder:
+   * <br/>
+   * 10 % 3 = 1 [here divisible is 10 which is positively signed so the result will also be positively signed]
+   * <br/>
+   * -10 % 3 = -1 [here divisible is -10 which is negatively signed so the result will also be negatively signed]
+   * <br/>
+   * 10 % -3 = 1 [here divisible is 10 which is positively signed so the result will also be positively signed]
+   * <br/>
+   * -10 % -3 = -1 [here divisible is -10 which is negatively signed so the result will also be negatively signed]
+   * <br/>
+   * Example of Modulus:
+   * <br/>
+   * 5 % 3 = 2 [here divisible is 5 which is positively signed so the remainder will also be positively
+   * signed and the divisor is also positively signed. As both remainder and divisor are of same sign the
+   * result will be same as remainder]
+   * <br/>
+   * -5 % 3 = 1 [here divisible is -5 which is negatively signed so the remainder will also be negatively
+   * signed and the divisor is positively signed. As both remainder and divisor are of opposite sign the
+   * result will be sum of remainder and divisor -2 + 3 = 1]
+   * <br/>
+   * 5 % -3 = -1 [here divisible is 5 which is positively signed so the remainder will also be positively
+   * signed and the divisor is negatively signed. As both remainder and divisor are of opposite sign the
+   * result will be sum of remainder and divisor 2 + -3 = -1]
+   * <br/>
+   * -5 % -3 = -2 [here divisible is -5 which is negatively signed so the remainder will also be negatively
+   * signed and the divisor is also negatively signed. As both remainder and divisor are of same sign the
+   * result will be same as remainder]
+   */
+  @Test
+  void testModulusAndRemainderByHand() {
+    final var ten = Integer._of(10);
+    final var minusTen = Integer._of(-10);
+    final var one = Integer._of(1);
+    final var minusOne = Integer._of(-1);
+    final var two = Integer._of(2);
+    final var minusTwo = Integer._of(-2);
+    final var three = Integer._of(3);
+    final var minusThree = Integer._of(-3);
+    final var five = Integer._of(5);
+    final var minusFive = Integer._of(-5);
 
-      //Now Modulus
-      assertEquals(two, five._mod(three));
-      assertEquals(one, minusFive._mod(three));
-      assertEquals(minusOne, five._mod(minusThree));
-      assertEquals(minusTwo, minusFive._mod(minusThree));
-    }
+    //Remainder tests from above
+    assertEquals(one, ten._rem(three));
+    assertEquals(minusOne, minusTen._rem(three));
+    assertEquals(one, ten._rem(minusThree));
+    assertEquals(minusOne, minusTen._rem(minusThree));
+
+    //Now Modulus
+    assertEquals(two, five._mod(three));
+    assertEquals(one, minusFive._mod(three));
+    assertEquals(minusOne, five._mod(minusThree));
+    assertEquals(minusTwo, minusFive._mod(minusThree));
+  }
 
   @Test
   void testPipeLogic() {
 
     var mutatedValue = new Integer();
-    assertUnset.accept( mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(unset);
-    assertUnset.accept( mutatedValue);
+    assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(i1);
     assertEquals(i1, mutatedValue);

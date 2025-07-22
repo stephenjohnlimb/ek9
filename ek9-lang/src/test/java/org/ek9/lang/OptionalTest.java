@@ -28,75 +28,98 @@ class OptionalTest extends Common {
   private final Boolean testBool = Boolean._of(true);
   private final Optional boolOptional = new Optional(testBool);
 
+  // Helper methods for eliminating duplication
+  
+  /**
+   * Helper method to assert that an Optional is unset and verify all related state.
+   */
+  private void assertOptionalUnset(Optional optional) {
+    assertUnset.accept(optional);
+    assertFalse.accept(optional._isSet());
+    assertTrue.accept(optional._empty());
+  }
+  
+  /**
+   * Helper method to assert that an Optional is set and verify all related state.
+   */
+  private void assertOptionalSet(Optional optional) {
+    assertSet.accept(optional);
+    assertTrue.accept(optional._isSet());
+    assertFalse.accept(optional._empty());
+  }
+  
+  /**
+   * Helper method to test whenPresent behavior with both Acceptor and Consumer.
+   * Tests that the callbacks are called with the expected value.
+   */
+  private void assertWhenPresentCalled(Optional optional, Any expectedValue) {
+    final var acceptor = new MockAcceptor();
+    optional.whenPresent(acceptor);
+    assertTrue(acceptor.verifyCalledWith(expectedValue));
+    
+    final var consumer = new MockConsumer();
+    optional.whenPresent(consumer);
+    assertTrue(consumer.verifyCalledWith(expectedValue));
+  }
+  
+  /**
+   * Helper method to test whenPresent behavior with both Acceptor and Consumer.
+   * Tests that the callbacks are NOT called.
+   */
+  private void assertWhenPresentNotCalled(Optional optional) {
+    final var acceptor = new MockAcceptor();
+    optional.whenPresent(acceptor);
+    assertTrue(acceptor.verifyNotCalled());
+    
+    final var consumer = new MockConsumer();
+    optional.whenPresent(consumer);
+    assertTrue(consumer.verifyNotCalled());
+  }
+
   @Test
   void testConstruction() {
     // Default constructor should create unset Optional
     final var defaultConstructor = new Optional();
     assertNotNull(defaultConstructor);
-    assertUnset.accept(defaultConstructor);
-    assertFalse.accept(defaultConstructor._isSet());
-    assertTrue.accept(defaultConstructor._empty());
+    assertOptionalUnset(defaultConstructor);
 
     // Value constructor should create set Optional
     final var valueConstructor = new Optional(Boolean._of(true));
-    assertSet.accept(valueConstructor);
-    assertTrue.accept(valueConstructor._isSet());
-    assertFalse.accept(valueConstructor._empty());
+    assertOptionalSet(valueConstructor);
 
     // Factory method with no args should create unset Optional
     final var factoryEmpty = Optional._of();
-    assertUnset.accept(factoryEmpty);
-    assertFalse.accept(factoryEmpty._isSet());
-    assertTrue.accept(factoryEmpty._empty());
+    assertOptionalUnset(factoryEmpty);
 
     // Factory method with value should create set Optional
     final var factoryWithValue = Optional._of(String._of("test"));
-    assertSet.accept(factoryWithValue);
-    assertTrue.accept(factoryWithValue._isSet());
-    assertFalse.accept(factoryWithValue._empty());
+    assertOptionalSet(factoryWithValue);
 
     // Null value should create unset Optional
     final var nullValue = new Optional(null);
-    assertUnset.accept(nullValue);
-    assertFalse.accept(nullValue._isSet());
-    assertTrue.accept(nullValue._empty());
+    assertOptionalUnset(nullValue);
 
     // Factory method with null should create unset Optional
     final var factoryWithNull = Optional._of(null);
-    assertUnset.accept(factoryWithNull);
-    assertFalse.accept(factoryWithNull._isSet());
-    assertTrue.accept(factoryWithNull._empty());
+    assertOptionalUnset(factoryWithNull);
   }
 
   @Test
   void testStateManagement() {
-    // Test _isSet operator (?) on unset Optional
-    assertFalse.accept(unset._isSet());
-    assertUnset.accept(unset);
+    // Test state of unset Optional using helper
+    assertOptionalUnset(unset);
 
-    // Test _empty operator on unset Optional
-    assertTrue.accept(unset._empty());
+    // Test state of set Optional using helper
+    assertOptionalSet(setOptional);
 
-    // Test _isSet operator (?) on set Optional
-    assertTrue.accept(setOptional._isSet());
-    assertSet.accept(setOptional);
-
-    // Test _empty operator on set Optional
-    assertFalse.accept(setOptional._empty());
-
-    // Test state consistency for different value types
-    assertTrue.accept(intOptional._isSet());
-    assertFalse.accept(intOptional._empty());
-
-    assertTrue.accept(boolOptional._isSet());
-    assertFalse.accept(boolOptional._empty());
+    // Test state consistency for different value types using helper
+    assertOptionalSet(intOptional);
+    assertOptionalSet(boolOptional);
 
     // Test state after creating empty Optional
     final var emptyOptional = setOptional.asEmpty();
     assertNotNull(emptyOptional);
-    assertFalse.accept(emptyOptional._isSet());
-    assertTrue.accept(emptyOptional._empty());
-    assertUnset.accept(emptyOptional);
+    assertOptionalUnset(emptyOptional);
   }
 
   @Test
@@ -157,23 +180,11 @@ class OptionalTest extends Common {
     assertTrue.accept(setIterator._isSet());
     assertTrue.accept(setIterator.hasNext());
 
-    // Test whenPresent with set Optional
-    final var acceptor = new MockAcceptor();
-    setOptional.whenPresent(acceptor);
-    assertTrue(acceptor.verifyCalledWith(testValue));
+    // Test whenPresent with set Optional using helper
+    assertWhenPresentCalled(setOptional, testValue);
 
-    final var consumer = new MockConsumer();
-    setOptional.whenPresent(consumer);
-    assertTrue(consumer.verifyCalledWith(testValue));
-
-    // Test whenPresent with unset Optional
-    final var unsetAcceptor = new MockAcceptor();
-    unset.whenPresent(unsetAcceptor);
-    assertTrue(unsetAcceptor.verifyNotCalled());
-
-    final var unsetConsumer = new MockConsumer();
-    unset.whenPresent(unsetConsumer);
-    assertTrue(unsetConsumer.verifyNotCalled());
+    // Test whenPresent with unset Optional using helper
+    assertWhenPresentNotCalled(unset);
   }
 
   @Test
@@ -332,15 +343,10 @@ class OptionalTest extends Common {
     final var optionalOfString = new Optional(String._of("test"));
     final var optionalOfBoolean = new Optional(Boolean._of(true));
 
-    // All should be set
-    assertTrue.accept(optionalOfInteger._isSet());
-    assertTrue.accept(optionalOfString._isSet());
-    assertTrue.accept(optionalOfBoolean._isSet());
-
-    // All should not be empty
-    assertFalse.accept(optionalOfInteger._empty());
-    assertFalse.accept(optionalOfString._empty());
-    assertFalse.accept(optionalOfBoolean._empty());
+    // All should be set using helper
+    assertOptionalSet(optionalOfInteger);
+    assertOptionalSet(optionalOfString);
+    assertOptionalSet(optionalOfBoolean);
 
     // Test Optional with unset built-in types
     final var unsetInt = new Integer();
@@ -348,8 +354,7 @@ class OptionalTest extends Common {
     final var optionalOfUnsetInt = new Optional(unsetInt);
 
     //So the Optional is set, but the item in the Optional is not set.
-    assertSet.accept(optionalOfUnsetInt); // Optional itself is set
-    assertTrue.accept(optionalOfUnsetInt._isSet());
+    assertOptionalSet(optionalOfUnsetInt);
 
   }
 
@@ -360,15 +365,8 @@ class OptionalTest extends Common {
     final var any = String._of("Test Value");
     final var asUnset = new Optional(any);
 
-    final var acceptor = new MockAcceptor();
-    asUnset.whenPresent(acceptor);
-    assertTrue(acceptor.verifyCalledWith(any));
-
-    //Now the 'pure version', looks the same at the Java level
-
-    final var consumer = new MockConsumer();
-    asUnset.whenPresent(consumer);
-    assertTrue(consumer.verifyCalledWith(any));
+    // Test whenPresent called with set Optional using helper
+    assertWhenPresentCalled(asUnset, any);
   }
 
   @Test
@@ -376,15 +374,8 @@ class OptionalTest extends Common {
 
     final var asUnset = new Optional();
 
-    final var acceptor = new MockAcceptor();
-    asUnset.whenPresent(acceptor);
-    assertTrue(acceptor.verifyNotCalled());
-
-    //Now the 'pure version', looks the same at the Java level
-
-    final var consumer = new MockConsumer();
-    asUnset.whenPresent(consumer);
-    assertTrue(consumer.verifyNotCalled());
+    // Test whenPresent not called with unset Optional using helper
+    assertWhenPresentNotCalled(asUnset);
   }
 
 }

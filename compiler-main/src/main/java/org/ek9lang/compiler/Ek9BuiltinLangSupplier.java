@@ -3649,6 +3649,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arguments as List of String
               <- rtn as Dict of (String, String)?
 
+            operator $ as pure
+              <- rtn as String?
+
             operator ? as pure
               <- rtn as Boolean?
 
