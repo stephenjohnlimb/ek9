@@ -42,10 +42,50 @@ EK9 implements generic types using a **Delegation Pattern with Type Parameteriza
 - **All implementations delegate** to the base class with casting where needed
 - **Maintains EK9 annotation consistency** across parameterizations
 
+### **EK9 Annotation Multi-Line Format**
+
+**CRITICAL**: All EK9 annotations must use triple-quote multi-line format for consistency:
+
+```java
+// CORRECT - Multi-line format
+@Ek9ParameterisedType("""
+    Dict of (String, String)""")
+
+// WRONG - Single line format  
+@Ek9ParameterisedType("Dict of (String, String)")
+```
+
+**Factory Method Organization**: Place all factory methods at the END of the class, after all operators and core methods.
+
+### **Advanced Constructor Logic Patterns**
+
+**Conditional Set Logic**: Some EK9 types require sophisticated constructor logic beyond simple null checking:
+
+```java
+// GetOpt example - Only set if arguments valid AND pattern non-empty
+public GetOpt(String value, _Dict_E9A1... pattern, String usage) {
+    if (isValid(value) && isValid(pattern) && isValid(usage)) {
+        this.value = value;      // Reference semantics - no deep copy
+        this.pattern = pattern;  // Reference semantics - no deep copy  
+        this.usage = usage;      // Reference semantics - no deep copy
+        if (!pattern._empty().state) {
+            set();  // Only set if pattern contains options to parse
+        }
+        // Remains unset if pattern is empty (no options = no utility)
+    }
+}
+```
+
+**Key Principles:**
+- **Reference Semantics**: Store references to complex objects, not deep copies
+- **Business Logic Validation**: Beyond null checks, apply domain-specific logic
+- **Explicit Set Control**: Use conditional `set()` calls based on meaningful state
+
 ### **Example: Iterator<Character> Implementation**
 
 ```java
-@Ek9ParameterisedType("Iterator of Character")
+@Ek9ParameterisedType("""
+    Iterator of Character""")
 public class _Iterator_<hash> extends BuiltinType {
     private final Iterator delegate;  // Delegation to generic base
     

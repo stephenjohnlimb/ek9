@@ -62,6 +62,16 @@ For specific EK9 development tasks, refer to these comprehensive guides:
   - Testing implications for operators that mutate objects
   - **Use this when:** Working with EK9 operators or debugging operator behavior
 
+### Code Quality and Standards
+- **`EK9_CODING_STANDARDS.md`** - Comprehensive coding standards and style guide
+  - Formatting rules (2-space indentation, 120-char lines, no tabs)
+  - Import organization and package structure guidelines
+  - EK9-specific annotation formatting and operator naming conventions
+  - Control flow standards (mandatory braces, final variables)
+  - Complete examples of properly formatted EK9 classes and tests
+  - IDE configuration instructions for automatic compliance
+  - **Use this when:** Writing any Java code for the EK9 project to ensure consistency
+
 ### Historical Context and Lessons
 - **`EK9_SESSION_NOTES.md`** - Session-specific implementation notes and lessons learned
   - Detailed session notes from specific implementation challenges
@@ -335,6 +345,13 @@ Always run the bootstrap test when:
 - Modifying existing EK9 annotations
 - Adding new methods/operators to existing types
 - Before committing changes to EK9 built-in types
+
+### Collection Types Set/Unset Semantics
+**CRITICAL**: Collection types (Dict, List, etc.) are **always set/valid** even when empty:
+- `new Dict()` → **set** (empty dict with 0 items)
+- `new List()` → **set** (empty list with 0 items) 
+- Only explicit `unSet()` calls or invalid constructor arguments make collections unset
+- Empty collections ≠ unset collections
 
 ### EK9 Source Files
 - EK9 uses indentation-based syntax (similar to Python)
