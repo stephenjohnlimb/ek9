@@ -381,7 +381,6 @@ public class Path extends BuiltinType {
     java.lang.String stateBefore = this.state;
     boolean beforeIsValid = isSet;
     parse(value);
-    set();
     if (!validateConstraints().isSet) {
       java.lang.String stringTo = this.toString();
       state = stateBefore;
@@ -400,6 +399,7 @@ public class Path extends BuiltinType {
       //Remove the $? we don't store that.
       this.state = value.substring(2);
       //Then we can just use the String
+      set();
     } //else remains Unset.
   }
 
