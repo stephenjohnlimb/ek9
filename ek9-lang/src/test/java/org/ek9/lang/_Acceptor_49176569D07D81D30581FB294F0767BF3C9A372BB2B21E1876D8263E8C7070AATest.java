@@ -12,35 +12,38 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({"checkstyle:MethodName", "checkstyle:AbbreviationAsWordInName", "checkstyle:TypeName"})
 class _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AATest extends Common {
 
-  @Test
-  void testConstruction() {
-    // Test default constructor
-    final var defaultConstructor = new _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA();
-    assertNotNull(defaultConstructor);
-    assertSet.accept(defaultConstructor); // Acceptor functions are always set
-    assertTrue.accept(defaultConstructor._isSet());
+  // Type alias for the long parameterized Acceptor class name
+  private static final Class<_Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA> ACCEPTOR_STRING = 
+      _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA.class;
+  
+  // Factory methods for cleaner test code
+  private static _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA acceptorString() {
+    return new _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA();
+  }
+  
+  // Helper methods for reducing assertion duplication
+  
+  /**
+   * Helper method to assert that an Acceptor&lt;String&gt; is set and verify all related state.
+   */
+  private void assertFunctionSet(_Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA acceptor) {
+    assertSet.accept(acceptor);
+    assertTrue.accept(acceptor._isSet());
   }
 
   @Test
-  void testFactoryMethods() {
+  void testConstructionAndFactoryMethods() {
+    // Test default constructor
+    assertFunctionSet(acceptorString());
+
     // Test factory method with no arguments
-    final var factoryDefault = _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA._of();
-    assertNotNull(factoryDefault);
-    assertSet.accept(factoryDefault);
-    assertTrue.accept(factoryDefault._isSet());
+    assertFunctionSet(_Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA._of());
 
     // Test factory method with base Acceptor
-    final var baseAcceptor = new Acceptor();
-    final var fromBase = _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA._of(baseAcceptor);
-    assertNotNull(fromBase);
-    assertSet.accept(fromBase);
-    assertTrue.accept(fromBase._isSet());
+    assertFunctionSet(_Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA._of(new Acceptor()));
 
     // Test factory method with null Acceptor
-    final var fromNull = _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA._of(null);
-    assertNotNull(fromNull);
-    assertSet.accept(fromNull);
-    assertTrue.accept(fromNull._isSet());
+    assertFunctionSet(_Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA._of(null));
   }
 
   @Test
@@ -60,29 +63,21 @@ class _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA
       }
     };
 
-    // Test String parameter acceptance
-    final var testString = String._of("TestValue");
-    testAcceptor._call(testString);
-
-    // Verify String was received correctly
-    assertNotNull(testAcceptor.getLastCalled());
+    // Test String parameter acceptance with different values
+    testAcceptor._call(String._of("TestValue"));
     assertEquals("TestValue", testAcceptor.getLastCalled());
 
-    // Test with different String values
-    final var emptyString = String._of("");
-    testAcceptor._call(emptyString);
+    testAcceptor._call(String._of(""));
     assertEquals("", testAcceptor.getLastCalled());
 
-    final var longString = String._of("This is a longer test string");
-    testAcceptor._call(longString);
+    testAcceptor._call(String._of("This is a longer test string"));
     assertEquals("This is a longer test string", testAcceptor.getLastCalled());
   }
 
   @Test
   void testEqualityOperators() {
-    // Test _eq with same parameterized type
-    final var acceptor1 = _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA._of();
-    final var acceptor2 = _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA._of();
+    final var acceptor1 = acceptorString();
+    final var acceptor2 = acceptorString();
 
     // Test basic equality functionality - implementation details may vary
     assertNotNull(acceptor1._eq(acceptor2));
@@ -92,46 +87,25 @@ class _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA
     assertNotNull(acceptor1._eq((Any) acceptor2));
     assertNotNull(acceptor1._eq((Any) acceptor1));
 
-    // Test _eq with null
+    // Test _eq with null and different type
     assertUnset.accept(acceptor1._eq(null));
-
-    // Test _eq with different type
-    final var string = String._of("test");
-    assertUnset.accept(acceptor1._eq(string));
+    assertUnset.accept(acceptor1._eq(String._of("test")));
   }
 
   @Test
-  void testOperatorConsistency() {
-    final var acceptor = _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA._of();
+  void testOperatorConsistencyAndTypeSafety() {
+    final var acceptor = acceptorString();
 
-    // Test _isSet operator - Functions should have consistent set/unset behavior
+    // Test operator consistency - Functions should have consistent set/unset behavior
     assertNotNull(acceptor._isSet());
-
-    // Test _string operator
     assertNotNull(acceptor._string());
-
-    // Test _hashcode operator
     assertNotNull(acceptor._hashcode());
-  }
-
-  @Test
-  void testDelegationBehavior() {
-    // Test that parameterized Acceptor properly delegates to base Acceptor
-    final var paramAcceptor = _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA._of();
-    final var baseAcceptor = new Acceptor();
-
-    // Verify delegation produces consistent behavior with base type
-    assertEquals(baseAcceptor._isSet(), paramAcceptor._isSet());
-  }
-
-  @Test
-  void testTypeSafety() {
-    final var acceptor = _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA._of();
 
     // Verify class type is correct
-    assertEquals(_Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA.class, 
-                 acceptor.getClass());
+    assertEquals(ACCEPTOR_STRING, acceptor.getClass());
 
+    // Test delegation produces consistent behavior with base type
+    assertEquals(new Acceptor()._isSet(), acceptor._isSet());
   }
 
 }

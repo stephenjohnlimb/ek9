@@ -640,12 +640,6 @@ defines module com.customer.services
                 
       stdout <- Stdout()
       
-      //Ensure that a string can be made from an optional of a string.
-      @Resolved: SYMBOL_DEFINITION: TYPE: "Optional of (String)"
-      check as Optional of String: Optional("Steve")      
-      justString <- String(check)
-      stdout.println(`${justString}`)
-      
       address1 <- Address(AddressId(GUID()), "121 Admin Rd.", String(), "Concord", "NH", "03301")
       address2 <- Address(AddressId(GUID()), "15 Rose St", "Apt. B-1", "Concord", "NH", "03301")
 

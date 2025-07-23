@@ -14,35 +14,38 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({"checkstyle:MethodName", "checkstyle:AbbreviationAsWordInName", "checkstyle:TypeName"})
 class _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0Test extends Common {
 
-  @Test
-  void testConstruction() {
-    // Test default constructor
-    final var defaultConstructor = new _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0();
-    assertNotNull(defaultConstructor);
-    assertSet.accept(defaultConstructor); // Consumer functions are always set
-    assertTrue.accept(defaultConstructor._isSet());
+  // Type alias for the long parameterized Consumer class name
+  private static final Class<_Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0> CONSUMER_STRING = 
+      _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0.class;
+  
+  // Factory methods for cleaner test code
+  private static _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0 consumerString() {
+    return new _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0();
+  }
+  
+  // Helper methods for reducing assertion duplication
+  
+  /**
+   * Helper method to assert that a Consumer&lt;String&gt; is set and verify all related state.
+   */
+  private void assertFunctionSet(_Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0 consumer) {
+    assertSet.accept(consumer);
+    assertTrue.accept(consumer._isSet());
   }
 
   @Test
-  void testFactoryMethods() {
+  void testConstructionAndFactoryMethods() {
+    // Test default constructor
+    assertFunctionSet(consumerString());
+
     // Test factory method with no arguments
-    final var factoryDefault = _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0._of();
-    assertNotNull(factoryDefault);
-    assertSet.accept(factoryDefault);
-    assertTrue.accept(factoryDefault._isSet());
+    assertFunctionSet(_Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0._of());
 
     // Test factory method with base Consumer
-    final var baseConsumer = new Consumer();
-    final var fromBase = _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0._of(baseConsumer);
-    assertNotNull(fromBase);
-    assertSet.accept(fromBase);
-    assertTrue.accept(fromBase._isSet());
+    assertFunctionSet(_Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0._of(new Consumer()));
 
     // Test factory method with null Consumer
-    final var fromNull = _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0._of(null);
-    assertNotNull(fromNull);
-    assertSet.accept(fromNull);
-    assertTrue.accept(fromNull._isSet());
+    assertFunctionSet(_Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0._of(null));
   }
 
   @Test
@@ -62,43 +65,26 @@ class _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0
       }
     };
 
-    // Test String parameter acceptance
-    final var testString = String._of("TestValue");
-    testConsumer._call(testString);
-
-    // Verify String was received correctly
-    assertNotNull(testConsumer.getLastCalled());
+    // Test String parameter acceptance with different values
+    testConsumer._call(String._of("TestValue"));
     assertEquals("TestValue", testConsumer.getLastCalled());
 
-    // Test with different String values
-    final var emptyString = String._of("");
-    testConsumer._call(emptyString);
+    testConsumer._call(String._of(""));
     assertEquals("", testConsumer.getLastCalled());
 
-    final var longString = String._of("This is a longer test string for Consumer");
-    testConsumer._call(longString);
+    testConsumer._call(String._of("This is a longer test string for Consumer"));
     assertEquals("This is a longer test string for Consumer", testConsumer.getLastCalled());
-  }
-
-  @Test
-  void testPureSemantics() {
-    // Consumer is marked as pure in EK9, meaning it should not have side effects
-    // This is a behavioral test to ensure the pure semantic is maintained
-    final var consumer = _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0._of();
-    final var testString = String._of("PureTest");
-
-    // Call should complete without throwing exceptions
-    assertDoesNotThrow(() -> consumer._call(testString));
-
-    // Consumer state should remain consistent (always set for functions)
-    assertTrue.accept(consumer._isSet());
+    
+    // Test pure semantics - Consumer is marked as pure in EK9
+    final var consumer = consumerString();
+    assertDoesNotThrow(() -> consumer._call(String._of("PureTest")));
+    assertFunctionSet(consumer); // Consumer state should remain consistent
   }
 
   @Test
   void testEqualityOperators() {
-    // Test _eq with same parameterized type
-    final var consumer1 = _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0._of();
-    final var consumer2 = _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0._of();
+    final var consumer1 = consumerString();
+    final var consumer2 = consumerString();
 
     // Test basic equality functionality - implementation details may vary
     assertNotNull(consumer1._eq(consumer2));
@@ -108,45 +94,25 @@ class _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0
     assertNotNull(consumer1._eq((Any) consumer2));
     assertNotNull(consumer1._eq((Any) consumer1));
 
-    // Test _eq with null
+    // Test _eq with null and different type
     assertUnset.accept(consumer1._eq(null));
-
-    // Test _eq with different type
-    final var string = String._of("test");
-    assertUnset.accept(consumer1._eq(string));
+    assertUnset.accept(consumer1._eq(String._of("test")));
   }
 
   @Test
-  void testOperatorConsistency() {
-    final var consumer = _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0._of();
+  void testOperatorConsistencyAndTypeSafety() {
+    final var consumer = consumerString();
 
-    // Test _isSet operator - Functions should have consistent set/unset behavior
+    // Test operator consistency - Functions should have consistent set/unset behavior
     assertNotNull(consumer._isSet());
-
-    // Test _string operator
     assertNotNull(consumer._string());
-
-    // Test _hashcode operator
     assertNotNull(consumer._hashcode());
-  }
-
-  @Test
-  void testDelegationBehavior() {
-    // Test that parameterized Consumer properly delegates to base Consumer
-    final var paramConsumer = _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0._of();
-    final var baseConsumer = new Consumer();
-
-    // Verify delegation produces consistent behavior with base type
-    assertEquals(baseConsumer._isSet(), paramConsumer._isSet());
-  }
-
-  @Test
-  void testTypeSafety() {
-    final var consumer = _Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0._of();
 
     // Verify class type is correct
-    assertEquals(_Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0.class, 
-                 consumer.getClass());
+    assertEquals(CONSUMER_STRING, consumer.getClass());
+
+    // Test delegation produces consistent behavior with base type
+    assertEquals(new Consumer()._isSet(), consumer._isSet());
   }
 
 

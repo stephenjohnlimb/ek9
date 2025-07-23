@@ -68,6 +68,19 @@ public class Bits extends BuiltinType {
     }
   }
 
+  @Ek9Constructor("""
+      Bits() as pure
+        -> arg0 as Colour""")
+  public Bits(Colour arg0) {
+    unSet();
+    if (isValid(arg0)) {
+      final var colourBits = arg0.bits();
+      if (isValid(colourBits)) {
+        assign(colourBits);
+      }
+    }
+  }
+
   @Override
   @Ek9Operator("""
       operator ? as pure
@@ -466,7 +479,7 @@ public class Bits extends BuiltinType {
   @Ek9Method("""
       iterator() as pure
         <- rtn as Iterator of Boolean?""")
-  public Iterator iterator() {
+  public _Iterator_6E53B4C9D56633C9606BBF50DB03B8B3D0E6FDD8FC70D7C04705495D86D9FD65 iterator() {
     if (isSet) {
       // Create iterator that streams bits from LSB to MSB (right to left)
       // Example: 0b010011 streams as [false, true, false, false, true, false]
@@ -474,9 +487,9 @@ public class Bits extends BuiltinType {
       for (int i = 0; i < this.length; i++) {
         booleanList.add(Boolean._of(this.state.get(i)));
       }
-      return Iterator._of(booleanList);
+      return _Iterator_6E53B4C9D56633C9606BBF50DB03B8B3D0E6FDD8FC70D7C04705495D86D9FD65._of(Iterator._of(booleanList));
     }
-    return new Iterator();
+    return _Iterator_6E53B4C9D56633C9606BBF50DB03B8B3D0E6FDD8FC70D7C04705495D86D9FD65._of();
   }
 
   @Ek9Operator("""

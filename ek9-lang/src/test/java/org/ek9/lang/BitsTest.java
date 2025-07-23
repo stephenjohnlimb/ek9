@@ -1,6 +1,7 @@
 package org.ek9.lang;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -54,6 +55,21 @@ class BitsTest extends Common {
 
     final var fromUnsetBoolean = new Bits(new Boolean());
     assertUnset.accept(fromUnsetBoolean);
+
+    // Colour constructor
+    final var redColour = Colour._of("FF0000");
+    final var fromColour = new Bits(redColour);
+    assertSet.accept(fromColour);
+
+    // Verify roundtrip conversion: Bits(colour) should equal colour.bits()
+    final var colourBits = redColour.bits();
+    assertSet.accept(colourBits);
+    assertEquals(colourBits, fromColour);
+    assertEquals(colourBits.toString(), fromColour.toString());
+
+    // Null/unset Colour handling
+    final var fromUnsetColour = new Bits(new Colour());
+    assertUnset.accept(fromUnsetColour);
 
     assertEquals("", Bits._of().toString());
     assertEquals("1", Bits._of(true).toString());
@@ -111,6 +127,9 @@ class BitsTest extends Common {
   @Test
   void testFirstAndLastBits() {
     // Test first bit (LSB/rightmost)
+    assertNotNull(bits010011);
+    assertNotNull(bits101010);
+
     assertTrue.accept(bits010011._prefix()); // 010011 -> rightmost is 1
     assertFalse.accept(bits101010._prefix()); // 101010 -> rightmost is 0
 
@@ -270,13 +289,20 @@ class BitsTest extends Common {
   void testIteratorLSBFirst() {
     // 0b010011 should stream as: [true, true, false, false, true, false]
     final var iter = bits010011.iterator();
+
+    // Verify return type is parameterized Iterator of Boolean
+    assertNotNull(iter);
+    assertSet.accept(iter);
+    assertInstanceOf(_Iterator_6E53B4C9D56633C9606BBF50DB03B8B3D0E6FDD8FC70D7C04705495D86D9FD65.class, iter);
+
     final var bits = new ArrayList<Boolean>();
 
     while (iter.hasNext()._isSet().state && iter.hasNext().state) {
       final var next = iter.next();
-      if (next instanceof Boolean bool) {
-        bits.add(bool);
-      }
+      // With parameterized Iterator of Boolean, next() returns Boolean directly
+      assertNotNull(next);
+      assertInstanceOf(Boolean.class, next);
+      bits.add(next);
     }
 
     // Verify LSB-first order (right to left)
@@ -288,8 +314,11 @@ class BitsTest extends Common {
     assertTrue.accept(Boolean._of(bits.get(4).state));   // position 4
     assertFalse.accept(Boolean._of(bits.get(5).state));  // leftmost bit (MSB) - position 5
 
-
-    assertUnset.accept(unsetBits.iterator());
+    // Test iterator on unset Bits
+    final var unsetIterator = unsetBits.iterator();
+    assertNotNull(unsetIterator);
+    assertUnset.accept(unsetIterator);
+    assertFalse.accept(unsetIterator.hasNext());
   }
 
   @Test
@@ -337,6 +366,8 @@ class BitsTest extends Common {
   @Test
   void testUnsetPropagation() {
     // Operations with unset operands should return unset
+    assertNotNull(unsetBits);
+    assertNotNull(bits010011);
     assertUnset.accept(unsetBits._add(bits010011));
     assertUnset.accept(bits010011._add(unsetBits));
     assertUnset.accept(unsetBits._and(bits010011));

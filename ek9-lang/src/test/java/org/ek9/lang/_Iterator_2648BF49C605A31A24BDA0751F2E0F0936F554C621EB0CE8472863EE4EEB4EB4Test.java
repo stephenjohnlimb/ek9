@@ -12,75 +12,89 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({"checkstyle:MethodName", "checkstyle:AbbreviationAsWordInName", "checkstyle:TypeName"})
 class _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4Test extends Common {
 
+  // Type alias for cleaner code
+
+  // Factory methods for cleaner object creation
+  private static _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4 iterInteger() {
+    return new _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4();
+  }
+  
+  private static _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4 iterInteger(Integer value) {
+    return new _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4(value);
+  }
+  
+  private static _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4 iterIntegerFromBase(Iterator base) {
+    return _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4._of(base);
+  }
+  
+  // Helper methods for set/unset assertions
+  private void assertIteratorSet(_Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4 iterator) {
+    assertSet.accept(iterator);
+    assertTrue.accept(iterator.hasNext());
+  }
+  
+  private void assertIteratorUnset(_Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4 iterator) {
+    assertUnset.accept(iterator);
+    assertFalse.accept(iterator.hasNext());
+  }
+
   @Test
-  void testConstruction() {
+  void testConstructionAndBasicOperations() {
     // Test default constructor
-    final var defaultConstructor = new _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4();
-    assertNotNull(defaultConstructor);
-    assertUnset.accept(defaultConstructor);
-    assertFalse.accept(defaultConstructor.hasNext());
+    final var defaultIterator = iterInteger();
+    assertNotNull(defaultIterator);
+    assertIteratorUnset(defaultIterator);
 
     // Test value constructor
-    final var valueConstructor = new _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4(Integer._of(42));
-    assertNotNull(valueConstructor);
-    assertSet.accept(valueConstructor);
-    assertTrue.accept(valueConstructor.hasNext());
+    final var valueIterator = iterInteger(Integer._of(42));
+    assertNotNull(valueIterator);
+    assertIteratorSet(valueIterator);
   }
 
   @Test
-  void testFactoryMethods() {
-    // Test _of() - empty iterator
+  void testFactoryMethodsAndDelegation() {
+    // Test _of() factory method - empty iterator
     final var emptyIterator = _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4._of();
     assertNotNull(emptyIterator);
-    assertUnset.accept(emptyIterator);
-    assertFalse.accept(emptyIterator.hasNext());
+    assertIteratorUnset(emptyIterator);
 
-    // Test _of(Iterator) - from base Iterator
-    final var baseIterator = Iterator._of(Integer._of(100));
-    final var fromBase = _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4._of(baseIterator);
-    assertNotNull(fromBase);
-    assertSet.accept(fromBase);
-    assertTrue.accept(fromBase.hasNext());
-
-    // Test _of(null Iterator)
-    final var fromNull = _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4._of(null);
+    // Test _of(null) factory method
+    final var fromNull = iterIntegerFromBase(null);
     assertNotNull(fromNull);
-    assertUnset.accept(fromNull);
-    assertFalse.accept(fromNull.hasNext());
+    assertIteratorUnset(fromNull);
+
+    // Test _of(Iterator) factory method - from base Iterator
+    final var baseIterator = Iterator._of(Integer._of(100));
+    final var fromBase = iterIntegerFromBase(baseIterator);
+    assertNotNull(fromBase);
+    assertIteratorSet(fromBase);
   }
 
   @Test
-  void testEqualityAndOperators() {
-    // Test _eq with same parameterized type
-    final var iterator1 = _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4._of();
-    final var iterator2 = _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4._of();
-    final var iteratorWithValue = new _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4(Integer._of(42));
+  void testOperatorsAndTypeSafety() {
+    // Test operators with different states
+    final var iterator1 = iterInteger();
+    final var iterator2 = iterInteger();
+    final var iteratorWithValue = iterInteger(Integer._of(42));
 
     // Test equality functionality
     assertNotNull(iterator1._eq(iterator2));
     assertNotNull(iterator1._eq(iterator1));
-
 
     // Test _isSet operator (should return hasNext result)
     assertEquals(iteratorWithValue.hasNext(), iteratorWithValue._isSet());
 
     // Test _hashcode operator
     assertNotNull(iteratorWithValue._hashcode());
-  }
-
-  @Test
-  void testIntegerTypeSafety() {
-    // Test iteration with Integer values and type safety
+    
+    // Test Integer type safety
     final var testValue = Integer._of(123);
-    final var iterator = new _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4(testValue);
-
-    // Verify hasNext and next behavior
-    assertTrue.accept(iterator.hasNext());
-    final var result = iterator.next();
+    final var typeIterator = iterInteger(testValue);
+    assertTrue.accept(typeIterator.hasNext());
+    final var result = typeIterator.next();
     assertEquals(testValue, result);
     assertEquals(Integer.class, result.getClass());
-
-    // After consuming, should be empty
-    assertFalse.accept(iterator.hasNext());
+    assertIteratorUnset(typeIterator);
   }
+
 }
