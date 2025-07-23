@@ -199,7 +199,7 @@ public class Optional extends BuiltinType {
   //Start of Utility methods
 
   void assign(Any arg) {
-    if (arg != null) {
+    if (isValid(arg)) {
       this.state = arg;
       set();
     }

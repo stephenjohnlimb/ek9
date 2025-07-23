@@ -353,8 +353,9 @@ class OptionalTest extends Common {
     assertNotNull(unsetInt);
     final var optionalOfUnsetInt = new Optional(unsetInt);
 
-    //So the Optional is set, but the item in the Optional is not set.
-    assertOptionalSet(optionalOfUnsetInt);
+    //Now because the item in the optional is unset, then the Optional itself is unset.
+    //Not this is different to collection types like Lists and dictionaries.
+    assertOptionalUnset(optionalOfUnsetInt);
 
   }
 
