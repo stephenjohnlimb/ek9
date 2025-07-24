@@ -146,6 +146,17 @@ public class Result extends BuiltinType {
   }
 
   @Ek9Method("""
+      errorOrDefault() as pure
+        -> arg0 as E
+        <- rtn as E?""")
+  public Any errorOrDefault(Any arg0) {
+    if (errorValue != null) {
+      return errorValue;
+    }
+    return arg0;
+  }
+
+  @Ek9Method("""
       whenError()
         -> acceptor as Acceptor of E""")
   public void whenError(Acceptor acceptor) {

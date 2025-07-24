@@ -683,6 +683,7 @@ public Integer _fuzzy(String arg) {
 - **Dict**: Key-value collections with integrated DictEntry iteration
 - **PriorityQueue**: Ordered collections with comparator support and duplicate handling
 - **Money**: Currency-safe arithmetic, automatic precision scaling, business rule enforcement
+- **JSON**: Jackson-integrated JSON handling with nature-specific iterator behavior
 
 #### Collection-Specific Operations
 ```java
@@ -739,6 +740,138 @@ public void whenOk(Consumer consumer) {
     if (okValue != null && canProcess(consumer)) {
         consumer._call(okValue);
     }
+}
+
+// JSON nature-specific iteration (Array, Object, Value)
+@Ek9Method("""
+    iterator() as pure
+      <- rtn as Iterator of JSON?""")
+public _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C iterator() {
+    if (!hasValidJson()) {
+        return _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C._of();
+    }
+    
+    if (jsonNode.isArray()) {
+        // Array: iterate over elements as JSON objects
+        java.util.Spliterator<JsonNode> spliterator = 
+            java.util.Spliterators.spliteratorUnknownSize(jsonNode.elements(), 
+                java.util.Spliterator.ORDERED);
+        return createIteratorFromStream(
+            java.util.stream.StreamSupport.stream(spliterator, false)
+                .map(JSON::_of));
+    } else if (jsonNode.isObject()) {
+        // Object: iterate over key-value pairs as named JSON objects
+        ObjectNode objectNode = (ObjectNode) jsonNode;
+        return createIteratorFromEntries(objectNode.properties().iterator());
+    } else {
+        // Value: single-element iterator containing this JSON
+        return createSingleElementIterator(this);
+    }
+}
+```
+
+### Jackson-Integrated JSON Type
+
+#### Key Characteristics
+The JSON type provides comprehensive JSON manipulation using Jackson databind for high-performance JSON operations with nature-specific behavior patterns.
+
+#### Core Design Principles
+- **Jackson Integration**: Uses `JsonNode`, `ObjectNode`, `ArrayNode` for native JSON operations
+- **Three JSON Natures**: Array, Object, and Value types with distinct behaviors
+- **Type-Safe Operations**: All operations respect JSON nature and return appropriate types
+- **Iterator Integration**: Nature-specific iteration patterns using Jackson's native iterators
+- **Path Query Support**: JSONPath integration for complex data navigation
+
+#### Jackson Iterator Conversion Pattern
+```java
+// Converting Jackson iterators to EK9 streams using Spliterators
+private java.util.Iterator<Any> convertJacksonIterator() {
+    java.util.Spliterator<JsonNode> spliterator = 
+        java.util.Spliterators.spliteratorUnknownSize(jsonNode.elements(), 
+            java.util.Spliterator.ORDERED);
+    return java.util.stream.StreamSupport.stream(spliterator, false)
+        .map(JSON::_of)
+        .map(json -> (Any) json)
+        .iterator();
+}
+```
+
+#### Nature-Specific Iterator Behavior
+```java
+// Array nature: iterate over elements
+if (jsonNode.isArray()) {
+    // Elements returned as individual JSON objects
+    javaIterator = convertArrayElements();
+}
+
+// Object nature: iterate over key-value pairs  
+else if (jsonNode.isObject()) {
+    // Properties returned as named JSON objects using JSON(String, JSON) constructor
+    ObjectNode objectNode = (ObjectNode) jsonNode;
+    javaIterator = convertObjectProperties(objectNode);
+}
+
+// Value nature: single element
+else {
+    // Single-element iterator containing the JSON value itself
+    javaIterator = java.util.List.of((Any) this).iterator();
+}
+```
+
+#### EK9 Iterator Semantics
+```java
+// Critical: Empty structures return UNSET iterators (nothing to iterate over)
+if (!hasValidJson()) {
+    return _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C._of();
+}
+
+// Even empty arrays/objects return unset iterators if no content
+// This follows EK9 principle: iterator unset when nothing to iterate over
+```
+
+#### Named JSON Object Pattern
+```java
+// Object properties preserve both key and value using named constructor
+.map(entry -> {
+    java.lang.String key = entry.getKey();
+    JsonNode valueNode = entry.getValue();
+    JSON valueJson = JSON._of(valueNode);
+    return (Any) new JSON(String._of(key), valueJson); // Named JSON object
+})
+```
+
+#### Required Jackson Imports
+```java
+import java.util.Spliterators;
+import java.util.stream.StreamSupport;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+```
+
+#### Testing Pattern for JSON Iterator
+```java
+@Test
+void testJSONIterator() {
+    // Array iteration
+    final var arrayJson = JSON._of("[1, 2, 3]");
+    final var arrayIterator = arrayJson.iterator();
+    assertTrue.accept(arrayIterator._isSet());
+    
+    // Object iteration - returns named JSON objects
+    final var objectJson = JSON._of("{\"name\": \"test\", \"value\": 42}");
+    final var objectIterator = objectJson.iterator();
+    
+    // Verify named JSON structure
+    final var firstEntry = (JSON) objectIterator.next();
+    assertTrue.accept(firstEntry.objectNature());
+    
+    // Value iteration
+    final var valueJson = JSON._of("\"simple string\"");
+    final var valueIterator = valueJson.iterator();
+    assertEquals(valueJson, valueIterator.next());
+    
+    // Unset JSON returns unset iterator
+    final var unsetJson = new JSON();
+    assertUnset.accept(unsetJson.iterator());
 }
 ```
 
@@ -1860,6 +1993,8 @@ When developing a new EK9 built-in type:
 - [ ] Test business rule enforcement in domain-specific operations
 - [ ] Test automatic precision and scaling where applicable
 - [ ] Use JUnit 5 static imports and assertNotNull for robustness
+- [ ] For iterator implementations: test that empty structures return unset iterators (EK9 semantics)
+- [ ] For Jackson integration: use Spliterators.spliteratorUnknownSize() and StreamSupport for iterator conversion
 - [ ] Run `mvn test -Dtest={TestName} -pl ek9-lang` to verify
 
 **Code Quality:**

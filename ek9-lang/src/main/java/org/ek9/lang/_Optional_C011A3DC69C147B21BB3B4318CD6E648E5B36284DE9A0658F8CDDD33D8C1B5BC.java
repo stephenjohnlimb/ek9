@@ -56,6 +56,7 @@ public class _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D
   }
 
   public void whenPresent(_Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA acceptor) {
+
     if (acceptor != null && delegate._isSet().state) {
       acceptor._call(get()); // Call parameterized Acceptor with String
     }

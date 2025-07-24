@@ -17,6 +17,8 @@ To generate decorated names for parameterized generic types (used internally by 
   - Result: `_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1`
 - Iterator of String: `java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName Iterator org.ek9.lang::Iterator org.ek9.lang::String`
   - Result: `_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2`
+- Iterator of JSON: `java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName Iterator org.ek9.lang::Iterator org.ek9.lang::JSON`
+  - Result: `_Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C`
 - Dict of (String, String): `java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName Dict org.ek9.lang::Dict org.ek9.lang::String org.ek9.lang::String`
   - Result: `_Dict_E9A1EFF0D62E8EB35F7B0572E7F2C5492D6C980FE8B69376B38612DE6EBEC25F`
 - Dict of (String, Integer): `java -cp ./compiler-main/target/classes org.ek9lang.compiler.support.DecoratedName Dict org.ek9.lang::Dict org.ek9.lang::String org.ek9.lang::Integer`
@@ -320,7 +322,7 @@ class _<DecoratedName>Test extends Common {
 
 This comprehensive pattern ensures consistent, type-safe, and fully-functional parameterized generic types that integrate seamlessly with the EK9 type system.
 
-## EK9 Iterator and String Integration Analysis
+## EK9 Iterator Integration Patterns
 
 ### **String Character Iteration Pattern**
 The String class demonstrates sophisticated integration with parameterized generic Iterator types, enabling natural iteration through characters:
@@ -342,6 +344,95 @@ public _Iterator_7E0CA90C1F947ECE11C43ED0BB21B854FFD82455CECBC0C3EA4CC4A6EA34340
     return _Iterator_7E0CA90C1F947ECE11C43ED0BB21B854FFD82455CECBC0C3EA4CC4A6EA343408._of(iterator);
   }
   return _Iterator_7E0CA90C1F947ECE11C43ED0BB21B854FFD82455CECBC0C3EA4CC4A6EA343408._of();
+}
+```
+
+### **JSON Nature-Specific Iteration Pattern**
+The JSON class demonstrates advanced Jackson integration with nature-aware iterator behavior:
+
+**JSON.iterator() Implementation:**
+```java
+@Ek9Method("""
+    iterator() as pure
+      <- rtn as Iterator of JSON?""")
+public _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C iterator() {
+    if (!hasValidJson()) {
+        // Return unset iterator when there's nothing to iterate over
+        return _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C._of();
+    }
+    
+    java.util.Iterator<Any> javaIterator;
+    
+    if (jsonNode.isArray()) {
+        // Array: iterate over elements as JSON objects
+        java.util.Spliterator<JsonNode> spliterator = 
+            java.util.Spliterators.spliteratorUnknownSize(jsonNode.elements(), 
+                java.util.Spliterator.ORDERED);
+        javaIterator = java.util.stream.StreamSupport.stream(spliterator, false)
+            .map(JSON::_of)
+            .map(json -> (Any) json)
+            .iterator();
+    } else if (jsonNode.isObject()) {
+        // Object: iterate over key-value pairs as named JSON objects
+        ObjectNode objectNode = (ObjectNode) jsonNode;
+        java.util.Spliterator<java.util.Map.Entry<java.lang.String, JsonNode>> spliterator = 
+            java.util.Spliterators.spliteratorUnknownSize(objectNode.properties().iterator(), 
+                java.util.Spliterator.ORDERED);
+        javaIterator = java.util.stream.StreamSupport.stream(spliterator, false)
+            .map(entry -> {
+                java.lang.String key = entry.getKey();
+                JsonNode valueNode = entry.getValue();
+                JSON valueJson = JSON._of(valueNode);
+                return (Any) new JSON(String._of(key), valueJson); // Named JSON object
+            })
+            .iterator();
+    } else {
+        // Value: single-element iterator containing this JSON
+        javaIterator = java.util.List.of((Any) this).iterator();
+    }
+    
+    final var baseIterator = Iterator._of(javaIterator);
+    return _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C._of(baseIterator);
+}
+```
+
+### **Key Iterator Implementation Insights**
+
+**Critical EK9 Iterator Semantics:**
+- **Unset Condition**: Return unset iterator when there's nothing to iterate over (empty collections, unset values)
+- **Type Safety**: All elements must be cast to `(Any)` for the generic Iterator base
+- **Delegation Pattern**: Create base Iterator first, then wrap in parameterized type
+
+**Jackson Integration Pattern:**
+- **Use Spliterators**: Convert Jackson iterators using `Spliterators.spliteratorUnknownSize()`
+- **StreamSupport**: Convert spliterators to streams with `StreamSupport.stream()`
+- **Order Preservation**: Use `Spliterator.ORDERED` for deterministic iteration
+
+**Required Imports for Jackson Iterator Pattern:**
+```java
+import java.util.Spliterators;
+import java.util.stream.StreamSupport;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+```
+
+**Testing Pattern for Iterator Methods:**
+```java
+@Test
+void testIteratorIntegration() {
+    // Verify parameterized Iterator type is correctly returned
+    final var iterator = myType.iterator();
+    assertTrue.accept(iterator._isSet());
+    
+    // Test unset behavior - critical EK9 semantic
+    final var unsetType = new MyType();
+    final var unsetIterator = unsetType.iterator();
+    assertUnset.accept(unsetIterator);
+    
+    // Verify type-safe element access
+    while (iterator.hasNext().state) {
+        final var element = iterator.next();
+        assertTrue(element instanceof ExpectedType);
+    }
 }
 ```
 

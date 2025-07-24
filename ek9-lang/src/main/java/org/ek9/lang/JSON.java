@@ -1,15 +1,11 @@
 package org.ek9.lang;
 
-import jakarta.json.Json;
-import jakarta.json.JsonArray;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonReader;
-import jakarta.json.JsonValue;
-import jakarta.json.JsonWriter;
-import jakarta.json.JsonWriterFactory;
-import jakarta.json.stream.JsonGenerator;
-import java.io.StringReader;
-import java.io.StringWriter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.ek9tooling.Ek9Class;
 import org.ek9tooling.Ek9Constructor;
 import org.ek9tooling.Ek9Method;
@@ -24,85 +20,158 @@ import org.ek9tooling.Ek9Operator;
  * the result will be unset.
  * </p>
  */
-@SuppressWarnings("checkstyle:MethodName")
+@SuppressWarnings({"checkstyle:MethodName", "checkstyle:CatchParameterName"})
 @Ek9Class("""
     JSON as open""")
 public class JSON extends BuiltinType {
-  //We use tri-state here.
-  //But is array is set and true then this is an array '[]'.
-  //Else if it is set and false it is a structure '{}'
-  //If it is unset then it is just a value.
-  Boolean natureOf = new Boolean();
 
-  //We can support the actual value alone or a key value pair.
-  java.lang.String name = null;
-  java.lang.String state = "";
+  private static final ObjectMapper objectMapper = new ObjectMapper();
+  private static final JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+
+  private JsonNode jsonNode;
 
   @Ek9Constructor("""
       JSON() as pure""")
   public JSON() {
-    super.unSet();
-  }
-
-  @Ek9Constructor("""
-      JSON() as pure
-        -> arg0 as JSON""")
-  public JSON(JSON value) {
     unSet();
-    assign(value);
+    this.jsonNode = null;
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as Boolean""")
-  public JSON(Boolean type) {
-    unSet();
-    natureOf._copy(type);
-    if (type.isSet) {
-      //If true then the type is an array, else it is an object.
-      if (type.state) {
-        assign("[]");
-      } else {
-        assign("{}");
-      }
+  public JSON(Boolean arg0) {
+    this();
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.booleanNode(arg0.state);
     }
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as String""")
-  public JSON(String fromValue) {
-    unSet();
-    if (fromValue.isSet) {
-      String trimmed = fromValue.trim();
-      if (trimmed.state.startsWith("[") && trimmed.state.endsWith("]")) {
-        natureOf._copy(Boolean._of(true));
-      }
-      if (trimmed.state.startsWith("{") && trimmed.state.endsWith("}")) {
-        natureOf._copy(Boolean._of(false));
-      }
-      assign(trimmed.state);
+  public JSON(String arg0) {
+    this();
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0.state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as JSON""")
+  public JSON(JSON arg0) {
+    this();
+    if (isValid(arg0)) {
+      assign(arg0.jsonNode.deepCopy());
     }
   }
 
   @Ek9Constructor("""
       JSON() as pure
         ->
-          keyName as String
+          name as String
           value as JSON""")
-  public JSON(String keyName, JSON value) {
-    unSet();
-    assign(value);
-    if (keyName.isSet) {
-      assignName(keyName.state);
+  public JSON(String name, JSON value) {
+    if (isValid(name) && isValid(value)) {
+      super.set();
+      ObjectNode objectNode = nodeFactory.objectNode();
+      objectNode.set(name.state, value.jsonNode.deepCopy());
+      this.jsonNode = objectNode;
     }
   }
 
-
-  protected JSON _new() {
-    return new JSON();
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as Integer""")
+  public JSON(Integer arg0) {
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.numberNode(arg0.state);
+    }
   }
 
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as Float""")
+  public JSON(Float arg0) {
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.numberNode(arg0.state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as Character""")
+  public JSON(Character arg0) {
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0._string().state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as Date""")
+  public JSON(Date arg0) {
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0._string().state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as DateTime""")
+  public JSON(DateTime arg0) {
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0._string().state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as Time""")
+  public JSON(Time arg0) {
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0._string().state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as Millisecond""")
+  public JSON(Millisecond arg0) {
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0._string().state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as Duration""")
+  public JSON(Duration arg0) {
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0._string().state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as Money""")
+  public JSON(Money arg0) {
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0._string().state);
+    }
+  }
 
   /**
    * Is this an array JSON?.
@@ -111,7 +180,10 @@ public class JSON extends BuiltinType {
       arrayNature() as pure
         <- rtn as Boolean?""")
   public Boolean arrayNature() {
-    return Boolean._of(natureOf.isSet && natureOf.state);
+    if (hasValidJson()) {
+      return Boolean._of(jsonNode.isArray());
+    }
+    return new Boolean();
   }
 
   /**
@@ -121,30 +193,23 @@ public class JSON extends BuiltinType {
       objectNature() as pure
         <- rtn as Boolean?""")
   public Boolean objectNature() {
-    return Boolean._of(natureOf.isSet && !natureOf.state);
+    if (hasValidJson()) {
+      return Boolean._of(jsonNode.isObject());
+    }
+    return new Boolean();
   }
 
   /**
-   * Is this a value, ie not an array nor a structured object; may or may not be named.
+   * Is this a value, ie not an array nor a structured object, it is just a value.
    */
   @Ek9Method("""
       valueNature() as pure
         <- rtn as Boolean?""")
   public Boolean valueNature() {
-    return Boolean._of(!natureOf.isSet);
-  }
-
-  /**
-   * Is this a named - sort of property JSON with a value.
-   */
-  @Ek9Method("""
-      named() as pure
-        <- rtn as Boolean?""")
-  public Boolean named() {
-    if (name != null) {
-      return Boolean._of(true);
+    if (hasValidJson()) {
+      return Boolean._of(jsonNode.isValueNode());
     }
-    return Boolean._of(false);
+    return new Boolean();
   }
 
   /**
@@ -157,217 +222,25 @@ public class JSON extends BuiltinType {
         <- rtn as Integer?""")
   @SuppressWarnings("checkstyle:CatchParameterName")
   public Integer arrayLength() {
-    if (natureOf.isSet && natureOf.state) {
-      try (JsonReader jr = Json.createReader(new StringReader(this.state))) {
-        JsonArray jsonArray = jr.readArray();
-        return Integer._of(jsonArray.size());
-      } catch (RuntimeException _) {
-        //ignore
-      }
+    if (hasValidJson() && jsonNode.isArray()) {
+      return Integer._of(jsonNode.size());
     }
     return new Integer();
   }
-
 
   @Ek9Method("""
       get() as pure
         -> index as Integer
         <- rtn as JSON?""")
-  @SuppressWarnings("checkstyle:CatchParameterName")
   public JSON get(Integer index) {
-    if (index.isSet && natureOf.isSet && natureOf.state) {
-      try (JsonReader jr = Json.createReader(new StringReader(this.state))) {
-        JsonArray jsonArray = jr.readArray();
-        JsonValue value = jsonArray.get((int) index.state);
-        if (value != null) {
-          return JSON._of(value.toString());
-        }
-      } catch (RuntimeException _) {
-        //ignore
+    if (hasValidJson() && isValid(index) && jsonNode.isArray()) {
+      final JsonNode element = jsonNode.get((int) index.state);
+      if (element != null) {
+        return JSON._of(element);
       }
     }
-    return new JSON();
+    return _new();
   }
-
-  /**
-   * If a named object you will receive the name else unset.
-   */
-  @Ek9Method("""
-      name() as pure
-        <- rtn as String?""")
-  public String name() {
-    if (this.isSet && this.name != null) {
-      return String._of("\"" + this.name + "\"");
-    }
-    return new String();
-  }
-
-  @Ek9Method("""
-      value() as pure
-        <- rtn as JSON?""")
-  public JSON value() {
-    if (this.isSet && !natureOf.isSet) {
-      return JSON._of(this.state);
-    }
-    return new JSON();
-  }
-
-  @Ek9Operator("""
-      operator == as pure
-        -> arg as JSON
-        <- rtn as Boolean?""")
-  public Boolean _eq(JSON value) {
-    if (this.isSet && value != null && value.isSet) {
-      return Boolean._of(this.state.equals(value.state));
-    }
-    return new Boolean();
-  }
-
-  @Ek9Operator("""
-      operator <> as pure
-        -> arg as JSON
-        <- rtn as Boolean?""")
-  public Boolean _neq(JSON value) {
-    if (this.isSet && value != null && value.isSet) {
-      return Boolean._of(!this.state.equals(value.state));
-    }
-    return new Boolean();
-  }
-
-
-  @Ek9Operator("""
-      operator empty as pure
-        <- rtn as Boolean?""")
-  public Boolean _empty() {
-    if (isSet) {
-      java.lang.String fullyTrimmed = this.state.replaceAll("\\s", "");
-      if (!natureOf.isSet) {
-        return Boolean._of(fullyTrimmed.isEmpty() || fullyTrimmed.equals("\"\"")); //ie nothing
-      }
-      return Boolean._of(fullyTrimmed.length() == 2); //ie it is '[]' or '{}'
-    }
-    return new Boolean();
-  }
-
-  @Ek9Operator("""
-      operator length as pure
-        <- rtn as Integer?""")
-  public Integer _len() {
-    if (isSet) {
-      return Integer._of(this.state.length());
-    }
-    Integer rtn = Integer._of(0);
-    rtn.unSet();
-    return rtn;
-  }
-
-  public int compare(java.lang.String to) {
-    return this.state.compareTo(to);
-  }
-
-  @Ek9Operator("""
-      operator <=> as pure
-        -> arg as JSON
-        <- rtn as Integer?""")
-  public Integer _cmp(JSON to) {
-    if (this.isSet && to != null && to.isSet) {
-      return Integer._of(compare(to.state));
-    }
-    return new Integer();
-  }
-
-  @Override
-  @Ek9Operator("""
-      operator <=> as pure
-        -> arg as Any
-        <- rtn as Integer?""")
-  public Integer _cmp(Any arg) {
-    if (arg instanceof JSON asJson) {
-      return _cmp(asJson);
-    }
-    return new Integer();
-  }
-  /**
-   * Remember this creates a new JSON object with the current value plus the new value (if possible).
-   * It does not mutate this JSON object.
-   * Only meaningful if this JSON object is an array or an object structure.
-   * i.e. a [] or a {}.
-   * But not if it is just a value or a name value pair.
-   * With an [] you can add a value or an object, but not a name/value or another [] directly.
-   * With an {} you can add a nameValue pair, but not just a value or just and object or just a []
-   */
-  @Ek9Operator("""
-      operator + as pure
-        -> arg as JSON
-        <- rtn as JSON?""")
-  public JSON _add(JSON value) {
-    if (isSet && natureOf.isSet) {
-      //So if array or structure we can add a json value on to the end
-      //You cannot add a named property type non-object/array or just value into an array
-      if (natureOf.state && value.named().state) {
-        return new JSON();
-      }
-      //conversely, you cannot add a non-named JSON into a JSON object
-      if (!natureOf.state && !value.named().state) {
-        return new JSON();
-      }
-      java.lang.String asJson = printToJsonString(false).state;
-      java.lang.String truncated = asJson.substring(0, asJson.length() - 1);
-      StringBuilder buffer = new StringBuilder(truncated);
-      if (truncated.length() > 1) {
-        buffer.append(',');
-      }
-
-      buffer.append(value.printToJsonString(false).state);
-
-      if (natureOf.isSet && natureOf.state) {
-        buffer.append(']');
-      } else {
-        buffer.append('}');
-      }
-      return JSON._of(buffer.toString());
-    }
-
-    return new JSON(value);
-  }
-
-  @Ek9Operator("""
-      operator :=:
-        -> arg as JSON""")
-  public void _copy(JSON value) {
-    assign(value);
-  }
-
-  @Ek9Method("""
-      clear()
-        <- rtn as JSON?""")
-  public JSON clear() {
-    name = null;
-    state = "";
-    super.unSet();
-    return this;
-  }
-
-  @Ek9Operator("""
-      operator #^ as pure
-        <- rtn as String?""")
-  public String _promote() {
-    if (isSet) {
-      return String._of(getName() + this.state);
-    }
-    return String._of(getName() + "null");
-  }
-
-  @Ek9Operator("""
-      operator $ as pure
-        <- rtn as String?""")
-  @Override
-  public String _string() {
-    return _promote();
-  }
-
-
-  //TODO add in access to property keys as  List of String.
 
   /**
    * Access a property from within the JSON.
@@ -382,145 +255,517 @@ public class JSON extends BuiltinType {
         <- rtn as JSON?""")
   @SuppressWarnings("checkstyle:CatchParameterName")
   public JSON get(String property) {
-    if (this.isSet && property.isSet) {
-      java.lang.String trimmed = this.state.trim();
-      if (trimmed.startsWith("{")) {
-        try (JsonReader jr = Json.createReader(new StringReader(this.state))) {
-          JsonObject jsonStructure = jr.readObject();
-          JsonValue value = jsonStructure.get(property.state);
-          if (value != null) {
-            return new JSON(property, JSON._of(value.toString()));
-          }
-        } catch (RuntimeException _) {
-          //ignore.
-        }
+    if (hasValidJson() && isValid(property) && jsonNode.isObject()) {
+      JsonNode element = jsonNode.get(property.state);
+      if (element != null) {
+        return JSON._of(element);
       }
     }
-    return new JSON();
+
+    return _new();
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator == as pure
+        -> arg as Any
+        <- rtn as Boolean?""")
+  public Boolean _eq(Any arg) {
+    if (arg instanceof JSON asJson) {
+      return _eq(asJson);
+    }
+    return new Boolean();
+  }
+
+  @Ek9Operator("""
+      operator == as pure
+        -> arg as JSON
+        <- rtn as Boolean?""")
+  public Boolean _eq(JSON arg) {
+    if (!canProcess(arg)) {
+      return new Boolean();
+    }
+    return Boolean._of(jsonNode.equals(arg.jsonNode));
+  }
+
+  @Ek9Operator("""
+      operator <> as pure
+        -> arg as JSON
+        <- rtn as Boolean?""")
+  public Boolean _neq(JSON arg) {
+    return _eq(arg)._negate();
+  }
+
+  @Ek9Operator("""
+      operator empty as pure
+        <- rtn as Boolean?""")
+  public Boolean _empty() {
+    if (!hasValidJson()) {
+      return new Boolean();
+    }
+
+    if (jsonNode.isArray() || jsonNode.isObject()) {
+      return Boolean._of(jsonNode.isEmpty());
+    } else if (jsonNode.isTextual()) {
+      return Boolean._of(jsonNode.asText().isEmpty());
+    } else if (jsonNode.isNull()) {
+      return Boolean._of(true);
+    }
+
+    return Boolean._of(false);
+  }
+
+  @Ek9Operator("""
+      operator length as pure
+        <- rtn as Integer?""")
+  public Integer _len() {
+    if (!hasValidJson()) {
+      return new Integer();
+    }
+
+    if (jsonNode.isArray() || jsonNode.isObject()) {
+      return Integer._of(jsonNode.size());
+    } else if (jsonNode.isTextual()) {
+      return Integer._of(jsonNode.asText().length());
+    }
+
+    return Integer._of(1); // single value
+  }
+
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as JSON
+        <- rtn as Integer?""")
+  public Integer _cmp(JSON arg) {
+    if (!canProcess(arg)) {
+      return new Integer();
+    }
+
+    // For JSON comparison, compare string representations
+    java.lang.String thisStr = jsonNode.toString();
+    java.lang.String argStr = arg.jsonNode.toString();
+    return Integer._of(thisStr.compareTo(argStr));
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator <=> as pure
+        -> arg as Any
+        <- rtn as Integer?""")
+  public Integer _cmp(Any arg) {
+    if (arg instanceof JSON asJson) {
+      return _cmp(asJson);
+    }
+    return new Integer();
+  }
+
+  /**
+   * Remember this creates a new JSON object with the current value plus the new value (if possible).
+   * It does not mutate this JSON object.
+   * Only meaningful if this JSON object is an array or an object structure.
+   * i.e. a [] or a {}.
+   * But not if it is just a value or a name value pair.
+   * With an [] you can add a value or an object, but not a name/value or another [] directly.
+   * With an {} you can add a nameValue pair, but not just a value or just and object or just a []
+   */
+
+  @Ek9Operator("""
+      operator + as pure
+        -> arg as JSON
+        <- rtn as JSON?""")
+  public JSON _add(JSON arg) {
+    JSON result = _new();
+    if (!canProcess(arg)) {
+      return result;
+    }
+
+    // Array + anything: add to array
+    if (jsonNode.isArray()) {
+      ArrayNode newArray = jsonNode.deepCopy();
+      newArray.add(arg.jsonNode);
+      result.jsonNode = newArray;
+    } else if (jsonNode.isObject() && arg.jsonNode.isObject()) {
+      // Object + Object: merge objects
+      ObjectNode newObject = jsonNode.deepCopy();
+      newObject.setAll((ObjectNode) arg.jsonNode);
+      result.jsonNode = newObject;
+    } else if (jsonNode.isObject()) {
+      // Object + named value (if arg has name): add property
+      ObjectNode newObject = jsonNode.deepCopy();
+      // For now, add as indexed property
+      newObject.set("value_" + newObject.size(), arg.jsonNode);
+      result.jsonNode = newObject;
+    } else {
+      // Value + Value: create array
+      ArrayNode newArray = nodeFactory.arrayNode();
+      newArray.add(jsonNode);
+      newArray.add(arg.jsonNode);
+      result.jsonNode = newArray;
+    }
+    result.set();
+
+    return result;
+  }
+
+  @Ek9Operator("""
+      operator <~> as pure
+        -> arg as JSON
+        <- rtn as Integer?""")
+  public Integer _fuzzy(JSON value) {
+    // For JSON, fuzzy comparison is same as regular comparison
+    return _cmp(value);
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator #? as pure
+        <- rtn as Integer?""")
+  public Integer _hashcode() {
+    if (!hasValidJson()) {
+      return new Integer();
+    }
+    return Integer._of(jsonNode.hashCode());
+  }
+
+  @Ek9Operator("""
+      operator contains as pure
+        -> arg as JSON
+        <- rtn as Boolean?""")
+  public Boolean _contains(JSON value) {
+    if (!canProcess(value)) {
+      return new Boolean();
+    }
+
+    if (jsonNode.isArray()) {
+      for (JsonNode element : jsonNode) {
+        if (element.equals(value.jsonNode)) {
+          return Boolean._of(true);
+        }
+      }
+      return Boolean._of(false);
+    } else if (jsonNode.isObject()) {
+      return Boolean._of(jsonNode.has(value.jsonNode.asText()));
+    } else {
+      return Boolean._of(jsonNode.equals(value.jsonNode));
+    }
+  }
+
+  @Ek9Operator("""
+      operator :~:
+        -> arg as JSON""")
+  public void _merge(JSON arg) {
+    if (!isValid(arg)) {
+      // If argument is invalid, no change
+      return;
+    }
+
+    if (!hasValidJson()) {
+      // If this is unset, just copy the argument
+      assign(arg.jsonNode.deepCopy());
+      return;
+    }
+
+    // Both are valid, perform merge based on types
+    if (jsonNode.isObject() && arg.jsonNode.isObject()) {
+      // Object + Object: only add properties if key is missing
+      ObjectNode thisObject = (ObjectNode) jsonNode;
+      ObjectNode argObject = (ObjectNode) arg.jsonNode;
+
+      for (final java.util.Map.Entry<java.lang.String, JsonNode> field : argObject.properties()) {
+        java.lang.String key = field.getKey();
+        JsonNode value = field.getValue();
+
+        // Only add if key doesn't exist
+        if (!thisObject.has(key)) {
+          thisObject.set(key, value.deepCopy());
+        }
+      }
+    } else if (jsonNode.isArray() && arg.jsonNode.isArray()) {
+      // Array + Array: append elements from argument
+      ArrayNode thisArray = (ArrayNode) jsonNode;
+      ArrayNode argArray = (ArrayNode) arg.jsonNode;
+      thisArray.addAll(argArray);
+    } else if (jsonNode.isArray()) {
+      // Array + Value: add value to array
+      ArrayNode thisArray = (ArrayNode) jsonNode;
+      thisArray.add(arg.jsonNode);
+    } else {
+      // Value + anything: convert to array with both values
+      ArrayNode newArray = nodeFactory.arrayNode();
+      newArray.add(jsonNode);
+      newArray.add(arg.jsonNode);
+      assign(newArray);
+    }
+  }
+
+  @Ek9Operator("""
+      operator :^:
+        -> arg as JSON""")
+  public void _replace(JSON arg) {
+    if (!isValid(arg)) {
+      // If argument is invalid, no change
+      return;
+    }
+
+    if (!hasValidJson()) {
+      // If this is unset, no replacement can occur
+      return;
+    }
+
+    // Both are valid, perform replace based on types
+    if (jsonNode.isObject() && arg.jsonNode.isObject()) {
+      // Object + Object: only replace properties if key already exists
+      ObjectNode thisObject = (ObjectNode) jsonNode;
+      ObjectNode argObject = (ObjectNode) arg.jsonNode;
+
+      for (final java.util.Map.Entry<java.lang.String, JsonNode> field : argObject.properties()) {
+        java.lang.String key = field.getKey();
+        JsonNode value = field.getValue();
+
+        // Only replace if key already exists
+        if (thisObject.has(key)) {
+          thisObject.set(key, value.deepCopy());
+        }
+      }
+    } else {
+      // For non-object types, do full replacement (existing behavior)
+      assign(arg.jsonNode);
+    }
+  }
+
+  @Ek9Operator("""
+      operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+    _merge(arg);
+  }
+
+  @Ek9Operator("""
+      operator :=:
+        -> arg as JSON""")
+  public void _copy(JSON arg) {
+    if (isValid(arg)) {
+      // Copy with deep copy of the argument's JsonNode
+      assign(arg.jsonNode.deepCopy());
+    } else {
+      // If argument is invalid, become unset
+      assign(null);
+    }
+  }
+
+  @Ek9Method("""
+      clear()
+        <- rtn as JSON?""")
+  public JSON clear() {
+    super.unSet();
+    this.jsonNode = null;
+    return this;
+  }
+
+  @Ek9Operator("""
+      operator #^ as pure
+        <- rtn as String?""")
+  public String _promote() {
+    return _string();
+  }
+
+  @Ek9Operator("""
+      operator $ as pure
+        <- rtn as String?""")
+  @Override
+  public String _string() {
+    if (!hasValidJson()) {
+      return new String();
+    }
+    try {
+      return String._of(objectMapper.writeValueAsString(jsonNode));
+    } catch (JsonProcessingException _) {
+      return new String();
+    }
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator ? as pure
+        <- rtn as Boolean?""")
+  public Boolean _isSet() {
+    return Boolean._of(isSet);
   }
 
   @Ek9Method("""
       prettyPrint() as pure
         <- rtn as String?""")
   public String prettyPrint() {
-    return printToJsonString(true);
-  }
-
-  private java.lang.String getName() {
-    if (name != null) {
-      return "\"" + this.name + "\":";
+    if (!hasValidJson()) {
+      return new String();
     }
-    return "";
+
+    try {
+      return String._of(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
+    } catch (JsonProcessingException _) {
+      return new String();
+    }
   }
 
-  //TODO add in iterator.
+  /**
+   * Factory method to create a new JSON array.
+   */
+  @Ek9Method("""
+      array() as pure
+        <- rtn as JSON?""")
+  public JSON array() {
+    return JSON._of(nodeFactory.arrayNode());
+  }
 
-  //TODO add in conversion to list of JSON.
+  /**
+   * Factory method to create a new JSON object.
+   */
+  @Ek9Method("""
+      object() as pure
+        <- rtn as JSON?""")
+  public JSON object() {
+    return JSON._of(nodeFactory.objectNode());
+  }
 
-  //TODO add in pipe based processing
+  /**
+   * Use JSON Path to locate part of the json structure.
+   * Returns Result of (JSON, String) for explicit error handling.
+   */
+  @Ek9Method("""
+      read() as pure
+        -> arg as Path
+        <- rtn as Result of (JSON, String)?""")
+  public _Result_F734611776882C04A5CCDA69711ED473DD228A77B04C00E81CD193016B024456 read(Path path) {
+    final var result = new _Result_F734611776882C04A5CCDA69711ED473DD228A77B04C00E81CD193016B024456();
+
+    if (!hasValidJson()) {
+      return result.asError(String._of("Invalid JSON: JSON object is not set or contains invalid data"));
+    }
+
+    if (!isValid(path)) {
+      return result.asError(String._of("Invalid Path: Path is null or unset"));
+    }
+
+    try {
+      // Use JSON Path library to query the JSON structure
+      var pathExpression = path._string().state;
+      // Convert EK9 paths ($?.somepath) to JSONPath format ($.somepath)
+      if (pathExpression.startsWith("$?")) {
+        pathExpression = "$" + pathExpression.substring(2); // Replace "$?" with "$"
+      }
+      var jsonPathContext = com.jayway.jsonpath.JsonPath.parse(jsonNode.toString());
+      Object pathResult = jsonPathContext.read(pathExpression);
+
+      return result.asOk(JSON._of(objectMapper.valueToTree(pathResult)));
+    } catch (com.jayway.jsonpath.PathNotFoundException e) {
+      // JSONPath throws this for non-existent paths
+      return result.asError(String._of("Path not found: " + e.getMessage()));
+    } catch (com.jayway.jsonpath.InvalidPathException e) {
+      // JSONPath throws this for invalid path syntax
+      return result.asError(String._of("Invalid path syntax: " + e.getMessage()));
+    } catch (java.lang.Exception e) {
+      // Catch any other JSONPath or Jackson exceptions
+      return result.asError(String._of("JSON Path query failed: " + e.getMessage()));
+    }
+  }
 
   //Start of Utility methods.
 
-  @Override
-  public int hashCode() {
-    return toString().hashCode();
+  private boolean hasValidJson() {
+    return isSet && jsonNode != null;
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (super.equals(obj) && obj instanceof JSON) {
-      if (isSet) {
-        return toString().equals(obj.toString());
-      }
-      return true;
-    }
-    return false;
+  protected JSON _new() {
+    return new JSON();
   }
 
-  private String printToJsonString(boolean pretty) {
-    if (this.isSet) {
-      java.lang.String trimmed = this.state.trim();
-      if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
-        java.util.Map<java.lang.String, java.lang.Boolean> config = new java.util.HashMap<>();
-        if (pretty) {
-          config.put(JsonGenerator.PRETTY_PRINTING, true);
-        }
-
-        try (JsonReader jr = Json.createReader(new StringReader(this.state))) {
-          JsonWriterFactory jwf = Json.createWriterFactory(config);
-          StringWriter sw = new StringWriter();
-          try (JsonWriter jsonWriter = jwf.createWriter(sw)) {
-
-            if (trimmed.startsWith("{")) {
-              jsonWriter.write(jr.readObject());
-            } else {
-              jsonWriter.write(jr.readArray());
-            }
-            return String._of(getName() + sw.toString());
-          } catch (RuntimeException _) {
-            //ignore.
-          }
-        }
-      } else {
-        return String._of(getName() + trimmed);
-      }
+  private void assign(JsonNode value) {
+    if (value == null) {
+      super.unSet();
+      this.jsonNode = null;
+    } else {
+      super.set();
+      this.jsonNode = value;
     }
-    return String._of(getName() + "null");
   }
 
   @Override
   public java.lang.String toString() {
-    if (this.isSet) {
-      return getName() + this.state;
-    }
-    return getName();
-  }
-
-  private void assign(java.lang.String value) {
-    java.lang.String before = state;
-    boolean beforeIsValid = isSet;
-    state = value;
-    set();
-    if (!validateConstraints().state) {
-      state = before;
-      isSet = beforeIsValid;
-      throw new RuntimeException("Constraint violation can't change " + state + " to " + value);
-    }
-
-  }
-
-  //Consider moving these methods to a Mutable version of String.
-  private void assign(JSON value) {
-    if (isValid(value)) {
-      assign(value.state);
-    } else {
-      super.unSet();
-    }
-    assignName(value.name);
-  }
-
-  private void assignName(java.lang.String value) {
-    this.name = value;
+    return _string().state;
   }
 
   public static JSON _of(java.lang.String value) {
-    return new JSON(String._of(value));
-  }
-
-  public static JSON _of(JSON value) {
-    JSON rtn = new JSON();
-    rtn.assign(value);
-    return rtn;
+    JSON result = new JSON();
+    if (value != null) {
+      try {
+        result.set();
+        result.jsonNode = objectMapper.readTree(value);
+      } catch (JsonProcessingException _) {
+        result.unSet();
+        result.jsonNode = null;
+      }
+    }
+    return result;
   }
 
   public static JSON _of(String value) {
-    JSON rtn = new JSON();
-    //If just null comes in not \"null\" which is actually a String then we leave unset.
+    return new JSON(value);
+  }
 
-    if (value.isSet && value.state.isEmpty()) {
-      rtn.assign(value.state);
+  public static JSON _of(JsonNode jsonNode) {
+    JSON rtn = new JSON();
+    rtn.assign(jsonNode);
+    return rtn;
+  }
+
+  /**
+   * Create an iterator over this JSON based on its nature.
+   * - Array: iterates over elements as JSON objects
+   * - Object: iterates over key-value pairs as named JSON objects
+   * - Value: iterates over single JSON value
+   * - Unset: empty iterator
+   */
+  @Ek9Method("""
+      iterator() as pure
+        <- rtn as Iterator of JSON?""")
+  public _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C iterator() {
+    if (!hasValidJson()) {
+      // Return unset iterator when there's nothing to iterate over
+      return _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C._of();
     }
 
-    return rtn;
+    java.util.Iterator<Any> javaIterator;
+
+    if (jsonNode.isArray()) {
+      // Array: iterate over elements as JSON objects
+      java.util.Spliterator<JsonNode> spliterator =
+          java.util.Spliterators.spliteratorUnknownSize(jsonNode.elements(),
+              java.util.Spliterator.ORDERED);
+      javaIterator = java.util.stream.StreamSupport.stream(spliterator, false)
+          .map(JSON::_of)
+          .map(Any.class::cast)
+          .iterator();
+    } else if (jsonNode.isObject()) {
+      // Object: iterate over key-value pairs as named JSON objects
+      ObjectNode objectNode = (ObjectNode) jsonNode;
+      java.util.Spliterator<java.util.Map.Entry<java.lang.String, JsonNode>> spliterator =
+          java.util.Spliterators.spliteratorUnknownSize(objectNode.properties().iterator(),
+              java.util.Spliterator.ORDERED);
+      javaIterator = java.util.stream.StreamSupport.stream(spliterator, false)
+          .map(entry -> {
+            java.lang.String key = entry.getKey();
+            JsonNode valueNode = entry.getValue();
+            JSON valueJson = JSON._of(valueNode);
+            return (Any) new JSON(String._of(key), valueJson); // Named JSON object
+          })
+          .iterator();
+    } else {
+      // Value: single-element iterator containing this JSON
+      javaIterator = java.util.List.of((Any) this).iterator();
+    }
+
+    final var baseIterator = Iterator._of(javaIterator);
+    return _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C._of(baseIterator);
   }
 }

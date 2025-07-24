@@ -2464,6 +2464,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg0 as String
 
             JSON() as pure
+              -> arg0 as Character
+
+            JSON() as pure
               -> arg0 as Integer
 
             JSON() as pure
@@ -2473,8 +2476,29 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg0 as Boolean
 
             JSON() as pure
+              -> arg0 as Date
+
+            JSON() as pure
+              -> arg0 as DateTime
+
+            JSON() as pure
+              -> arg0 as Time
+
+            JSON() as pure
+              -> arg0 as Millisecond
+
+            JSON() as pure
+              -> arg0 as Duration
+
+            JSON() as pure
+              -> arg0 as Money
+
+            <?-
+              Used to associate a name with a JSON value.
+            -?>
+            JSON() as pure
               ->
-                key as String
+                name as String
                 value as JSON
 
             iterator() as pure
@@ -2513,10 +2537,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator length as pure
               <- rtn as Integer?
-
-            operator contains as pure
-              -> arg as JSON
-              <- rtn as Boolean?
 
             operator :~:
               -> arg as JSON
@@ -2977,6 +2997,14 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             getOrDefault() as pure
               -> arg0 as O
               <- rtn as O?
+
+            <?-
+              If the Error value is present, it is returned.
+              Otherwise the default value passed in is returned.
+            -?>
+            errorOrDefault() as pure
+              -> arg0 as E
+              <- rtn as E?
 
             <?-
               If the result has a valid ok value the acceptor will be called.

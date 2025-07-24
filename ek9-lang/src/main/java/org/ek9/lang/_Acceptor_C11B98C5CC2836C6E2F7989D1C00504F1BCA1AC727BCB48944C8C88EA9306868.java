@@ -4,7 +4,7 @@ import org.ek9tooling.Ek9ParameterisedType;
 
 /**
  * Definition of the parameterization of a generic/template EK9 Function type.
- * In this case the EK9 Acceptor generic function type has been parameterised with String.
+ * In this case the EK9 Acceptor generic function type has been parameterised with JSON.
  * <p>
  * The solution in EK9 is to create an entirely new type and then just use the EK9 Generic function type
  * (which is actually just a normal type in Java where the 'T' is just 'Any').
@@ -21,26 +21,26 @@ import org.ek9tooling.Ek9ParameterisedType;
  */
 @SuppressWarnings({"checkstyle:MethodName", "checkstyle:AbbreviationAsWordInName", "checkstyle:TypeName"})
 @Ek9ParameterisedType("""
-    Acceptor of String""")
-public class _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA extends BuiltinType {
+    Acceptor of JSON""")
+public class _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868 extends BuiltinType {
 
-  final Acceptor delegate;
+  private final Acceptor delegate;
 
-  public _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA() {
+  public _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868() {
     this(new Acceptor());
   }
 
   //Internal constructor.
-  private _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA(Acceptor delegate) {
+  private _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868(Acceptor delegate) {
     this.delegate = delegate;
   }
 
   /**
-   * The primary function call method - accepts String parameter instead of Any.
-   * This provides type safety for the parameterized Acceptor of String.
+   * The primary function call method - accepts JSON parameter instead of Any.
+   * This provides type safety for the parameterized Acceptor of JSON.
    */
-  public void _call(String t) {
-    delegate._call(t); // Delegate to base Acceptor, String is compatible with Any
+  public void _call(JSON t) {
+    delegate._call(t); // Delegate to base Acceptor, JSON is compatible with Any
   }
 
   @Override
@@ -60,28 +60,28 @@ public class _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8
 
   @Override
   public Boolean _eq(Any arg) {
-    if (arg instanceof _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA asAcceptor) {
+    if (arg instanceof _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868 asAcceptor) {
       return _eq(asAcceptor);
     }
     return new Boolean();
   }
 
-  public Boolean _eq(_Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA arg) {
+  public Boolean _eq(_Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868 arg) {
     if (arg == null) {
       return new Boolean();
     }
     return delegate._eq(arg.delegate);
   }
 
-  public static _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA _of() {
-    return new _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA();
+  public static _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868 _of() {
+    return new _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868();
   }
 
-  public static _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA _of(Acceptor acceptor) {
+  public static _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868 _of(Acceptor acceptor) {
     if (acceptor != null) {
-      return new _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA(acceptor);
+      return new _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868(acceptor);
     }
-    return new _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA();
+    return new _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868();
   }
 
 }

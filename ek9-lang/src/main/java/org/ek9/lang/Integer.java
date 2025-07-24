@@ -643,6 +643,10 @@ public class Integer extends BuiltinType {
     }
   }
 
+  public static Integer _of() {
+    return new Integer();
+  }
+
   public static Integer _of(java.lang.String arg) {
     final var rtn = new Integer();
 

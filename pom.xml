@@ -24,7 +24,8 @@
     <junit.version>5.8.2</junit.version>
     <antlr.version>4.13.1</antlr.version>
     <lsp4j.version>0.21.1</lsp4j.version>
-    <asm.version>9.7.1</asm.version>
+    <slf4j.version>2.0.11</slf4j.version>
+    <asm.version>9.8</asm.version>
 
     <checkstyle-plugin.version>3.3.1</checkstyle-plugin.version>
     <compiler-plugin.version>3.12.1</compiler-plugin.version>
@@ -55,6 +56,24 @@
         <type>pom</type>
         <version>${junit.version}</version>
         <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-nop</artifactId>
+        <version>${slf4j.version}</version>
       </dependency>
 
     </dependencies>

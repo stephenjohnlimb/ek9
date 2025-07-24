@@ -1,8 +1,8 @@
 package org.ek9.lang;
 
+import com.jayway.jsonpath.InvalidPathException;
+import com.jayway.jsonpath.JsonPath;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.ek9tooling.Ek9Class;
 import org.ek9tooling.Ek9Constructor;
 import org.ek9tooling.Ek9Operator;
@@ -390,17 +390,44 @@ public class Path extends BuiltinType {
 
   }
 
+  /**
+   * Helper method to validate JSONPath expressions using Jayway JsonPath library.
+   * This replaces complex regex validation with authoritative JsonPath validation.
+   */
+  @SuppressWarnings("checkstyle:CatchParameterName")
+  private boolean isValidJsonPath(java.lang.String jsonPathExpression) {
+    try {
+      JsonPath.compile(jsonPathExpression);
+      return true;
+    } catch (InvalidPathException _) {
+      return false;
+    }
+  }
+
   protected void parse(java.lang.String value) {
-
-    Pattern p = Pattern.compile("^\\$\\?(?:\\.[a-zA-Z_][\\w-]*|\\[\\d+])+$");
-
-    Matcher m = p.matcher(value);
-    if (m.matches()) {
-      //Remove the $? we don't store that.
-      this.state = value.substring(2);
-      //Then we can just use the String
+    // Handle root access case - special EK9 syntax
+    if (value.equals("$?")) {
+      this.state = "";
       set();
-    } //else remains Unset.
+      return;
+    }
+
+    // Convert EK9 path format ($?.path) to standard JsonPath format ($.path)
+    java.lang.String jsonPathExpression;
+    if (value.startsWith("$?")) {
+      jsonPathExpression = "$" + value.substring(2);
+    } else {
+      // Invalid: must start with $? in EK9
+      return; // remains unset
+    }
+
+    // Use Jayway JsonPath to validate the expression
+    if (isValidJsonPath(jsonPathExpression)) {
+      // Store the EK9 path part (without $? prefix) 
+      this.state = value.substring(2);
+      set();
+    }
+    // else remains unset for invalid paths
   }
 
   /**
