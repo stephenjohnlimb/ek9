@@ -28,24 +28,6 @@ public class _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812
     this.delegate = delegate;
   }
 
-  // Factory method - empty dict
-  public static _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6 _of() {
-    return new _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6();
-  }
-
-  // Factory method - from String key and Integer value
-  public static _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6 _of(String key, Integer value) {
-    return new _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6(key, value);
-  }
-
-  // Factory method - from base Dict
-  public static _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6 _of(Dict dict) {
-    if (dict != null) {
-      return new _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6(dict);
-    }
-    return new _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6();
-  }
-
   // Method 1: get() with Integer return type (V → Integer)
   public Integer get(String arg0) {
     return (Integer) delegate.get(arg0);
@@ -103,6 +85,11 @@ public class _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812
       return delegate._neq(arg.delegate);
     }
     return new Boolean();
+  }
+
+  @Override
+  public JSON _json() {
+    return delegate._json();
   }
 
   // Operator 5: $ (string representation)
@@ -197,5 +184,23 @@ public class _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812
   // Operator 19: -= with String parameter (K → String)
   public void _subAss(String arg) {
     delegate._subAss(arg);
+  }
+
+  // Factory method - empty dict
+  public static _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6 _of() {
+    return new _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6();
+  }
+
+  // Factory method - from String key and Integer value
+  public static _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6 _of(String key, Integer value) {
+    return new _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6(key, value);
+  }
+
+  // Factory method - from base Dict
+  public static _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6 _of(Dict dict) {
+    if (dict != null) {
+      return new _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6(dict);
+    }
+    return new _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6();
   }
 }

@@ -323,7 +323,13 @@ class JSONTest extends Common {
     assertUnset.accept(unsetName);
 
     final var unsetValue = createNamedJson("name", new JSON());
-    assertUnset.accept(unsetValue);
+    assertSet.accept(unsetValue);
+    // Should create {"name": null} - unset EK9 value mapped to JSON null
+    assertTrue.accept(unsetValue.objectNature());
+    final var nameProperty = unsetValue.get(String._of("name"));
+    assertSet.accept(nameProperty);
+    assertTrue.accept(nameProperty.valueNature());
+    assertEquals("null", nameProperty._string().state);
 
     final var bothUnset = new JSON(new String(), new JSON());
     assertUnset.accept(bothUnset);
@@ -2178,7 +2184,7 @@ class JSONTest extends Common {
               "employees": [
                 {
                   "name": "Eva Brown",
-                  "role": "Marketing Manager", 
+                  "role": "Marketing Manager",
                   "skills": ["SEO", "Content Marketing", "Analytics"],
                   "salary": 72000
                 }
@@ -2541,5 +2547,101 @@ class JSONTest extends Common {
       itemCount++;
     }
     assertEquals(TWO, Integer._of(itemCount));
+  }
+
+  @Test
+  void testJsonNullValueMapping() {
+    // Test the new behavior where unset EK9 values are mapped to JSON null
+
+    final var unsetJson = new JSON(); // Unset JSON value
+    final var namedNullJson = new JSON(String._of("nullField"), unsetJson);
+
+    assertSet.accept(namedNullJson);
+    assertTrue.accept(namedNullJson.objectNature());
+    assertFalse.accept(namedNullJson.arrayNature());
+    assertFalse.accept(namedNullJson.valueNature());
+
+    // Should contain the property with null value
+    final var nullProperty = namedNullJson.get(String._of("nullField"));
+    assertSet.accept(nullProperty);
+    assertTrue.accept(nullProperty.valueNature());
+    assertEquals("null", nullProperty._string().state);
+
+    // Test JSON string representation
+    assertEquals("{\"nullField\":null}", namedNullJson._string().state);
+
+    // Test 2: Mixed object with set and unset values
+    final var mixedObject = createJsonObject();
+    mixedObject._merge(createNamedJson("setField", jsonFromString("value")));
+    mixedObject._merge(createNamedJson("nullField", new JSON())); // Unset value → null
+    mixedObject._merge(createNamedJson("numberField", jsonFromInt(42)));
+    mixedObject._merge(createNamedJson("anotherNullField", new JSON())); // Another unset value
+
+    assertSet.accept(mixedObject);
+    assertEquals(FOUR, mixedObject._len());
+
+    // Verify set properties
+    final var setField = mixedObject.get(String._of("setField"));
+    assertQuoted("value", setField);
+
+    final var numberField = mixedObject.get(String._of("numberField"));
+    assertEquals("42", numberField._string().state);
+
+    // Verify null properties
+    final var nullField1 = mixedObject.get(String._of("nullField"));
+    assertSet.accept(nullField1);
+    assertEquals("null", nullField1._string().state);
+
+    final var nullField2 = mixedObject.get(String._of("anotherNullField"));
+    assertSet.accept(nullField2);
+    assertEquals("null", nullField2._string().state);
+
+    final var missingField = mixedObject.get(String._of("nonExistentField"));
+    assertUnset.accept(missingField); // Missing property → unset
+
+    // But null field is set with null value
+    assertTrue.accept(nullField1._isSet());
+    assertTrue.accept(nullField1.valueNature());
+
+    final var arrayWithNulls = createJsonArray();
+    arrayWithNulls._merge(jsonFromString("first"));
+    // We can't directly add null to array, but this tests that null properties work in complex structures
+    final var objectWithNull = createJsonObject();
+    objectWithNull._merge(createNamedJson("inner", new JSON())); // null value
+    arrayWithNulls._merge(objectWithNull);
+    arrayWithNulls._merge(jsonFromString("last"));
+
+    assertEquals(THREE, arrayWithNulls._len());
+
+    final var firstElement = arrayWithNulls.get(Integer._of(0));
+    assertQuoted("first", firstElement);
+
+    final var objectElement = arrayWithNulls.get(Integer._of(1));
+    assertTrue.accept(objectElement.objectNature());
+    final var innerNull = objectElement.get(String._of("inner"));
+    assertEquals("null", innerNull._string().state);
+
+    final var lastElement = arrayWithNulls.get(Integer._of(2));
+    assertQuoted("last", lastElement);
+
+    // Test 5: Verify null semantics in complex JSON structures
+    final var complexStructure = createJsonObject();
+    complexStructure._merge(createNamedJson("user", jsonFromString("alice")));
+    complexStructure._merge(createNamedJson("email", new JSON())); // null - not provided
+    complexStructure._merge(createNamedJson("age", jsonFromInt(30)));
+    complexStructure._merge(createNamedJson("phone", new JSON())); // null - not provided
+
+    // This represents a realistic scenario where some fields are optional/unknown
+    final var jsonString = complexStructure._string().state;
+    assertTrue.accept(Boolean._of(jsonString.contains("\"email\":null")));
+    assertTrue.accept(Boolean._of(jsonString.contains("\"phone\":null")));
+    assertTrue.accept(Boolean._of(jsonString.contains("\"user\":\"alice\"")));
+    assertTrue.accept(Boolean._of(jsonString.contains("\"age\":30")));
+
+    final var unsetName = new JSON(new String(), jsonFromString("value"));
+    assertUnset.accept(unsetName);
+
+    final var bothUnset = new JSON(new String(), new JSON());
+    assertUnset.accept(bothUnset);
   }
 }

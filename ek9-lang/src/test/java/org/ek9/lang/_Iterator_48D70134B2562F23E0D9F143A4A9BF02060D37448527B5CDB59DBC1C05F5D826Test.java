@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 class _Iterator_48D70134B2562F23E0D9F143A4A9BF02060D37448527B5CDB59DBC1C05F5D826Test extends Common {
 
   // Type aliases for cleaner code
-
   private static final Class<_DictEntry_87A55D447A2FC20E1611D0A0F5F49C2A4B57F40CD33E7FB15E43352011BFDD4E> DICT_ENTRY_SI = 
       _DictEntry_87A55D447A2FC20E1611D0A0F5F49C2A4B57F40CD33E7FB15E43352011BFDD4E.class;
 
@@ -35,8 +34,12 @@ class _Iterator_48D70134B2562F23E0D9F143A4A9BF02060D37448527B5CDB59DBC1C05F5D826
     return _Iterator_48D70134B2562F23E0D9F143A4A9BF02060D37448527B5CDB59DBC1C05F5D826._of(base);
   }
   
+  private static _DictEntry_87A55D447A2FC20E1611D0A0F5F49C2A4B57F40CD33E7FB15E43352011BFDD4E dictEntryStrInt(String key, Integer value) {
+    return _DictEntry_87A55D447A2FC20E1611D0A0F5F49C2A4B57F40CD33E7FB15E43352011BFDD4E._of(key, value);
+  }
+
   private _DictEntry_87A55D447A2FC20E1611D0A0F5F49C2A4B57F40CD33E7FB15E43352011BFDD4E testEntry() {
-    return _DictEntry_87A55D447A2FC20E1611D0A0F5F49C2A4B57F40CD33E7FB15E43352011BFDD4E._of(testKey1, testValue1);
+    return dictEntryStrInt(testKey1, testValue1);
   }
   
   // Helper methods for set/unset assertions
@@ -66,7 +69,7 @@ class _Iterator_48D70134B2562F23E0D9F143A4A9BF02060D37448527B5CDB59DBC1C05F5D826
   @Test
   void testFactoryMethodsAndDelegation() {
     // Test _of() factory method - empty iterator
-    final var emptyIterator = _Iterator_48D70134B2562F23E0D9F143A4A9BF02060D37448527B5CDB59DBC1C05F5D826._of();
+    final var emptyIterator = iterDictEntryStrInt();
     assertNotNull(emptyIterator);
     assertIteratorUnset(emptyIterator);
 

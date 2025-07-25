@@ -5,64 +5,60 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test Acceptor of String parameterized function type.
- * This tests the delegation pattern and String-specific type safety.
+ * Test Acceptor of Boolean parameterized type.
+ * Tests the delegation pattern and Boolean-specific type safety.
  */
 @SuppressWarnings({"checkstyle:MethodName", "checkstyle:AbbreviationAsWordInName", "checkstyle:TypeName"})
-class _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AATest extends Common {
+class _Acceptor_2C592A33B214C92F1431194345F7C7534F5C064A0710DC28946BDF0EC13E6817Test extends Common {
 
-  private static _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA acceptorString() {
-    return _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA._of();
+  private static _Acceptor_2C592A33B214C92F1431194345F7C7534F5C064A0710DC28946BDF0EC13E6817 acceptorBoolean() {
+    return _Acceptor_2C592A33B214C92F1431194345F7C7534F5C064A0710DC28946BDF0EC13E6817._of();
   }
 
-  private static _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA acceptorString(
-      Acceptor value) {
-    return _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA._of(value);
+  private static _Acceptor_2C592A33B214C92F1431194345F7C7534F5C064A0710DC28946BDF0EC13E6817 acceptorBoolean(Acceptor value) {
+    return _Acceptor_2C592A33B214C92F1431194345F7C7534F5C064A0710DC28946BDF0EC13E6817._of(value);
   }
-
-  // Helper methods for reducing assertion duplication
-
 
   @Test
   void testConstruction() {
 
     // Test factory method
-    final var factoryAcceptor = acceptorString();
+    final var factoryAcceptor = acceptorBoolean();
     assertNotNull(factoryAcceptor);
     assertSet.accept(factoryAcceptor);
 
     // Test factory method with base Acceptor
     final var baseAcceptor = new Acceptor();
-    final var fromBase = acceptorString(baseAcceptor);
+    final var fromBase = acceptorBoolean(baseAcceptor);
     assertNotNull(fromBase);
     assertSet.accept(fromBase);
 
     // Test factory method with null
-    final var fromNull = acceptorString(null);
+    final var fromNull = acceptorBoolean(null);
     assertNotNull(fromNull);
     assertSet.accept(fromNull);
   }
 
   @Test
   void testFunctionCall() {
-    final var acceptor = acceptorString();
+    final var acceptor = acceptorBoolean();
     assertNotNull(acceptor);
-
-    // Test call with String - should not throw exception
-    final var testString = String._of("test");
-    acceptor._call(testString);
-
-    final var emptyString = String._of("");
-    acceptor._call(emptyString);
-
-    // Test call with null String - should not throw exception
+    
+    // Test call with Boolean - should not throw exception
+    final var testBoolean = Boolean._of(true);
+    acceptor._call(testBoolean);
+    
+    final var falseBoolean = Boolean._of(false);
+    acceptor._call(falseBoolean);
+    
+    // Test call with null Boolean - should not throw exception
     acceptor._call(null);
   }
 
   @Test
   void testEquality() {
-    final var acceptor1 = acceptorString();
-    final var acceptor2 = acceptorString();
+    final var acceptor1 = acceptorBoolean();
+    final var acceptor2 = acceptorBoolean();
 
     // Test basic equality functionality - implementation details may vary
     assertNotNull(acceptor1._eq(acceptor2));
@@ -79,7 +75,7 @@ class _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA
 
   @Test
   void testStringAndHashOperators() {
-    final var acceptor = acceptorString();
+    final var acceptor = acceptorBoolean();
 
     // Test operator consistency - Functions should have consistent set/unset behavior
     assertNotNull(acceptor._isSet());
@@ -90,14 +86,13 @@ class _Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA
   @Test
   void testDelegationConsistency() {
     // Test delegation produces consistent behavior with base type
-    final var acceptor = acceptorString();
+    final var acceptor = acceptorBoolean();
     final var baseAcceptor = new Acceptor();
-
+    
     // Both should be set and functional
     assertTrue.accept(acceptor._isSet());
     assertTrue.accept(baseAcceptor._isSet());
     assertNotNull(acceptor._string());
     assertNotNull(baseAcceptor._string());
   }
-
 }

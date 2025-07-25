@@ -15,11 +15,15 @@ class _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
 
   // Factory methods for cleaner test code
   private static _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC optString() {
-    return new _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC();
+    return _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC._of();
   }
 
   private static _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC optString(String value) {
-    return new _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC(value);
+    return _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC._of(value);
+  }
+
+  private static _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC optOptional(Optional value) {
+    return _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC._of(value);
   }
 
   // Test data setup - String-specific
@@ -68,16 +72,15 @@ class _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
     assertStringType(valueConstructor.get());
 
     // Factory method with no args should create unset Optional
-    assertOptionalUnset(_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC._of());
+    assertOptionalUnset(optString());
 
     // Factory method with String should create set Optional
-    final var factoryWithValue =
-        _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC._of(String._of("test"));
+    final var factoryWithValue = optString(String._of("test"));
     assertOptionalSet(factoryWithValue);
     assertEquals(String._of("test"), factoryWithValue.get());
 
     // Null String should create unset Optional
-    assertOptionalUnset(_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC._of((String) null));
+    assertOptionalUnset(optString(null));
 
     // Factory method with base Optional
     final var fromBase = _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC._of(
@@ -129,7 +132,7 @@ class _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
 
     // Test complete iteration workflow
     final var testString = String._of("IteratorTest");
-    final var optional = _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC._of(testString);
+    final var optional = optString(testString);
 
     int iterationCount = 0;
     final var iter = optional.iterator();
@@ -336,8 +339,7 @@ class _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
   void testTypeConsistencyWithBase() {
     // Verify delegation to base Optional works correctly
     final var baseOptional = Optional._of(testValue);
-    final var paramOptional =
-        _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC._of(baseOptional);
+    final var paramOptional = optOptional(baseOptional);
 
     // Both should have same set/unset state
     assertEquals(baseOptional._isSet().state, paramOptional._isSet().state);
@@ -350,6 +352,40 @@ class _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
     // String operations should work consistently
     assertTrue.accept(paramOptional._contains(testValue));
     assertEquals(testValue, paramOptional.getOrDefault(String._of("default")));
+  }
+
+  @Test
+  void testAsJson() {
+    // Test unset Optional of String
+    final var unsetJson = unset._json();
+    assertNotNull(unsetJson);
+    assertUnset.accept(unsetJson);
+
+    final var setJson = setOptional._json();
+    assertSet.accept(setJson);
+    assertTrue.accept(setJson.objectNature());
+
+    // Verify the wrapper structure
+    final var optionalProperty = setJson.get(String._of("optional"));
+    assertSet.accept(optionalProperty);
+    assertTrue.accept(optionalProperty.valueNature());
+
+    // Verify the inner value matches the original string's JSON representation
+    final var expectedInnerJson = testValue._json();
+    assertTrue.accept(optionalProperty._eq(expectedInnerJson));
+
+    // Test with different string value
+    final var anotherValue = String._of("AnotherValue");
+    final var anotherOptional = optString(anotherValue);
+    final var anotherJson = anotherOptional._json();
+    
+    assertSet.accept(anotherJson);
+    assertTrue.accept(anotherJson.objectNature());
+    
+    final var anotherOptionalProperty = anotherJson.get(String._of("optional"));
+    assertSet.accept(anotherOptionalProperty);
+    final var expectedAnotherJson = anotherValue._json();
+    assertTrue.accept(anotherOptionalProperty._eq(expectedAnotherJson));
   }
 
 }

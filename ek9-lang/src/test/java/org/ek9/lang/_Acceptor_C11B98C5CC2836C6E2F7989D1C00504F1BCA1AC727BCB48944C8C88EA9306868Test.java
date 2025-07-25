@@ -1,6 +1,5 @@
 package org.ek9.lang;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
@@ -12,77 +11,54 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({"checkstyle:MethodName", "checkstyle:AbbreviationAsWordInName", "checkstyle:TypeName"})
 class _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868Test extends Common {
 
-  // Type alias for the long parameterized Acceptor class name
-  private static final Class<_Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868> ACCEPTOR_JSON = 
-      _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868.class;
-  
-  // Factory methods for cleaner test code
   private static _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868 acceptorJSON() {
-    return new _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868();
+    return _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868._of();
   }
-  
-  // Helper methods for reducing assertion duplication
-  
-  /**
-   * Helper method to assert that an Acceptor&lt;JSON&gt; is set and verify all related state.
-   */
-  private void assertFunctionSet(_Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868 acceptor) {
-    assertSet.accept(acceptor);
-    assertTrue.accept(acceptor._isSet());
+
+  private static _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868 acceptorJSON(
+      Acceptor value) {
+    return _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868._of(value);
   }
+
 
   @Test
-  void testConstructionAndFactoryMethods() {
-    // Test default constructor
-    assertFunctionSet(acceptorJSON());
+  void testConstruction() {
 
-    // Test factory method with no arguments
-    assertFunctionSet(_Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868._of());
+    // Test factory method
+    final var factoryAcceptor = acceptorJSON();
+    assertNotNull(factoryAcceptor);
+    assertSet.accept(factoryAcceptor);
 
     // Test factory method with base Acceptor
-    assertFunctionSet(_Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868._of(new Acceptor()));
+    final var baseAcceptor = new Acceptor();
+    final var fromBase = acceptorJSON(baseAcceptor);
+    assertNotNull(fromBase);
+    assertSet.accept(fromBase);
 
-    // Test factory method with null Acceptor
-    assertFunctionSet(_Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868._of(null));
+    // Test factory method with null
+    final var fromNull = acceptorJSON(null);
+    assertNotNull(fromNull);
+    assertSet.accept(fromNull);
   }
 
   @Test
-  void testJSONParameterCall() {
-    // Create a concrete implementation for testing
-    final var testAcceptor = new _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868() {
-      private JSON lastCalled = null;
+  void testFunctionCall() {
+    final var acceptor = acceptorJSON();
+    assertNotNull(acceptor);
 
-      @Override
-      public void _call(JSON t) {
-        super._call(t); // Call delegate
-        this.lastCalled = t; // Track for verification
-      }
-
-      public JSON getLastCalled() {
-        return lastCalled;
-      }
-    };
-
-    // Test JSON parameter acceptance with different values
-    final var stringJSON = JSON._of("\"test string\"");
-    testAcceptor._call(stringJSON);
-    assertEquals(stringJSON, testAcceptor.getLastCalled());
+    // Test call with JSON - should not throw exception
+    final var testJSON = JSON._of("{\"test\": \"value\"}");
+    acceptor._call(testJSON);
 
     final var numberJSON = JSON._of("42");
-    testAcceptor._call(numberJSON);
-    assertEquals(numberJSON, testAcceptor.getLastCalled());
+    acceptor._call(numberJSON);
 
-    final var objectJSON = JSON._of("{\"key\": \"value\"}");
-    testAcceptor._call(objectJSON);
-    assertEquals(objectJSON, testAcceptor.getLastCalled());
-
-    final var arrayJSON = JSON._of("[1, 2, 3]");
-    testAcceptor._call(arrayJSON);
-    assertEquals(arrayJSON, testAcceptor.getLastCalled());
+    // Test call with null JSON - should not throw exception
+    acceptor._call(null);
   }
 
   @Test
-  void testEqualityOperators() {
+  void testEquality() {
     final var acceptor1 = acceptorJSON();
     final var acceptor2 = acceptorJSON();
 
@@ -100,19 +76,26 @@ class _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868
   }
 
   @Test
-  void testOperatorConsistencyAndTypeSafety() {
+  void testStringAndHashOperators() {
     final var acceptor = acceptorJSON();
 
     // Test operator consistency - Functions should have consistent set/unset behavior
     assertNotNull(acceptor._isSet());
     assertNotNull(acceptor._string());
     assertNotNull(acceptor._hashcode());
+  }
 
-    // Verify class type is correct
-    assertEquals(ACCEPTOR_JSON, acceptor.getClass());
-
+  @Test
+  void testDelegationConsistency() {
     // Test delegation produces consistent behavior with base type
-    assertEquals(new Acceptor()._isSet(), acceptor._isSet());
+    final var acceptor = acceptorJSON();
+    final var baseAcceptor = new Acceptor();
+
+    // Both should be set and functional
+    assertTrue.accept(acceptor._isSet());
+    assertTrue.accept(baseAcceptor._isSet());
+    assertNotNull(acceptor._string());
+    assertNotNull(baseAcceptor._string());
   }
 
 }

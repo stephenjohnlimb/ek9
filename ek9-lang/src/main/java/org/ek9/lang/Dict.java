@@ -205,6 +205,25 @@ public class Dict extends BuiltinType {
     return new Integer();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      final var jsonObject = new JSON().object(); // Create JSON object
+      for (final var entry : state.entrySet()) {
+        final var keyString = entry.getKey()._string();
+        final var valueJson = entry.getValue()._json();
+        // Use JSON constructor with name-value pair and merge into object
+        final var keyValuePair = new JSON(keyString, valueJson);
+        jsonObject._merge(keyValuePair);
+      }
+      return jsonObject;
+    }
+    return new JSON();
+  }
+
   @Ek9Operator("""
       operator empty as pure
         <- rtn as Boolean?""")

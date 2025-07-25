@@ -175,6 +175,11 @@ public class _Result_F734611776882C04A5CCDA69711ED473DD228A77B04C00E81CD193016B0
     delegate._pipe(arg);
   }
 
+  @Override
+  public JSON _json() {
+    return delegate._json();
+  }
+
   // Factory methods
   public static _Result_F734611776882C04A5CCDA69711ED473DD228A77B04C00E81CD193016B024456 _of() {
     return new _Result_F734611776882C04A5CCDA69711ED473DD228A77B04C00E81CD193016B024456();

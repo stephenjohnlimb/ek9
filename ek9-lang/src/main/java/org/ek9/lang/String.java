@@ -483,6 +483,10 @@ public class String extends BuiltinType implements Any {
   }
 
 
+  public static String _of() {
+    return new String();
+  }
+
   public static String _of(char value) {
     String rtn = new String();
     rtn.assign(value + "");

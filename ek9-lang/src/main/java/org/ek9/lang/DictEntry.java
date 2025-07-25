@@ -35,7 +35,7 @@ public class DictEntry extends BuiltinType {
           v as V""")
   public DictEntry(Any k, Any v) {
     unSet();
-    if (isValid(k) && isValid(v)) {
+    if (isValid(k) && v != null) {
       this.keyValue = k;
       this.entryValue = v;
       set();
@@ -61,6 +61,7 @@ public class DictEntry extends BuiltinType {
       operator ? as pure
         <- rtn as Boolean?""")
   public Boolean _isSet() {
+    // DictEntry is set when container is set (key is valid)
     return Boolean._of(isSet);
   }
 
@@ -97,8 +98,15 @@ public class DictEntry extends BuiltinType {
     if (canProcess(arg)) {
       final var keyCompare = this.keyValue._cmp(arg.keyValue);
       if (keyCompare.isSet && keyCompare.state == 0) {
-        //then now use comparison of the values as the final comparison.
-        return this.entryValue._cmp(arg.entryValue);
+        // If keys are equal, compare values
+        final var valueCompare = this.entryValue._cmp(arg.entryValue);
+        // If both values are unset, comparison returns unset - fall back to key comparison
+        if (valueCompare.isSet) {
+          return valueCompare;
+        } else {
+          // Both values are unset, use key comparison result (which is 0)
+          return keyCompare;
+        }
       }
       return keyCompare;
     }

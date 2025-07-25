@@ -255,22 +255,22 @@ public class Result extends BuiltinType {
         <- rtn as String?""")
   @Override
   public String _string() {
-
-    if (isSet) {
-      StringBuilder builder = new StringBuilder("{");
-      if (okValue != null) {
-        builder.append(okValue._string());
-      }
-      if (errorValue != null) {
-        if (builder.length() > 1) {
-          builder.append(", ");
-        }
-        builder.append(errorValue._string());
-      }
-      builder.append("}");
-      return String._of(builder.toString());
+    if (isNotMeaningful(this)) {
+      return new String();
     }
-    return new String();
+
+    StringBuilder builder = new StringBuilder("{");
+    if (okValue != null) {
+      builder.append(okValue._string());
+    }
+    if (errorValue != null) {
+      if (builder.length() > 1) {
+        builder.append(", ");
+      }
+      builder.append(errorValue._string());
+    }
+    builder.append("}");
+    return String._of(builder.toString());
   }
 
   @Override
@@ -278,11 +278,34 @@ public class Result extends BuiltinType {
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
-    final var rtn = new Integer();
-    if (isSet) {
-      return _string()._hashcode();
+    if (isNotMeaningful(this)) {
+      return new Integer();
     }
-    return rtn;
+    return _string()._hashcode();
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isNotMeaningful(this)) {
+      return new JSON();
+    }
+    final var innerObject = new JSON().object();
+
+    if (okValue != null) {
+      final var okPair = new JSON(String._of("ok"), okValue._json());
+      innerObject._merge(okPair);
+    }
+
+    if (errorValue != null) {
+      final var errorPair = new JSON(String._of("error"), errorValue._json());
+      innerObject._merge(errorPair);
+    }
+
+    return new JSON(String._of("result"), innerObject);
+
   }
 
   @Ek9Operator("""

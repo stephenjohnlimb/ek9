@@ -202,7 +202,16 @@ public class List extends BuiltinType {
   }
 
 
-  //TODO JSON methods
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      return JSON._of(state.stream().map(Any::_json).toList());
+    }
+    return new JSON();
+  }
 
   @Override
   @Ek9Operator("""

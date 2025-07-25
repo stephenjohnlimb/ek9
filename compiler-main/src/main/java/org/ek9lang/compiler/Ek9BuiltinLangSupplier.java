@@ -897,8 +897,16 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Duration
               <- rtn as Time?
 
+            operator + as pure
+              -> arg as Millisecond
+              <- rtn as Time?
+
             operator - as pure
               -> arg as Duration
+              <- rtn as Time?
+
+            operator - as pure
+              -> arg as Millisecond
               <- rtn as Time?
 
             operator - as pure
@@ -936,6 +944,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Time
 
             operator |
+              -> arg as Millisecond
+
+            operator |
               -> arg as Duration
 
             operator |
@@ -944,8 +955,14 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator +=
               -> arg as Duration
 
+            operator +=
+              -> arg as Millisecond
+
             operator -=
               -> arg as Duration
+
+            operator -=
+              -> arg as Millisecond
 
           Duration as open
             Duration() as pure
@@ -1004,11 +1021,19 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Duration
               <- rtn as Duration?
 
+            operator + as pure
+              -> arg as Millisecond
+              <- rtn as Duration?
+
             operator - as pure
               <- rtn as Duration?
 
             operator - as pure
               -> arg as Duration
+              <- rtn as Duration?
+
+            operator - as pure
+              -> arg as Millisecond
               <- rtn as Duration?
 
             operator * as pure
@@ -1060,13 +1085,22 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Duration
 
             operator |
+              -> arg as Millisecond
+
+            operator |
               -> arg as JSON
 
             operator +=
               -> arg as Duration
 
+            operator +=
+              -> arg as Millisecond
+
             operator -=
               -> arg as Duration
+
+            operator -=
+              -> arg as Millisecond
 
             operator *=
               -> arg as Integer
@@ -1528,7 +1562,15 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Boolean?
 
             operator + as pure
+              -> arg as Millisecond
+              <- rtn as DateTime?
+
+            operator + as pure
               -> arg as Duration
+              <- rtn as DateTime?
+
+            operator - as pure
+              -> arg as Millisecond
               <- rtn as DateTime?
 
             operator - as pure
@@ -1567,13 +1609,22 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as DateTime
 
             operator |
+              -> arg as Millisecond
+
+            operator |
               -> arg as Duration
 
             operator |
               -> arg as JSON
 
             operator +=
+              -> arg as Millisecond
+
+            operator +=
               -> arg as Duration
+
+            operator -=
+              -> arg as Millisecond
 
             operator -=
               -> arg as Duration

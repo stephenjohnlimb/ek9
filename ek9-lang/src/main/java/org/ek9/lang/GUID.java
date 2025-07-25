@@ -132,6 +132,14 @@ public class GUID extends BuiltinType {
 
   @Override
   @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    return new JSON(this._string());
+  }
+
+  @Override
+  @Ek9Operator("""
       operator ? as pure
         <- rtn as Boolean?""")
   public Boolean _isSet() {

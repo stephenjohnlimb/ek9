@@ -87,7 +87,7 @@ public class GetOpt extends BuiltinType {
           // Option without parameter
           result._addAss(
               _DictEntry_8179CD93B60C7CEF656D347EFAA68A41FCC0DFA832E9FC8E5DE6D645B02AC487._of(String._of(argStr),
-                  String._of("")));
+                  String._of()));
         }
       }
 
@@ -111,6 +111,45 @@ public class GetOpt extends BuiltinType {
           + ", usage=" + usageStr._string().state + ")");
     }
     return String._of("GetOpt()");
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      final var jsonObject = new JSON().object(); // Create JSON object
+      
+      // Add "value" property
+      final var valueJson = this.value._json();
+      if (valueJson._isSet().state) {
+        final var valueProperty = new JSON(String._of("value"), valueJson);
+        jsonObject._merge(valueProperty);
+      }
+      
+      // Add "pattern" property - handle unset case
+      final var patternJson = this.pattern._json();
+      if (patternJson._isSet().state) {
+        final var patternProperty = new JSON(String._of("pattern"), patternJson);
+        jsonObject._merge(patternProperty);
+      } else {
+        // If pattern JSON is unset, create empty JSON object as fallback
+        final var emptyPatternJson = new JSON().object();
+        final var patternProperty = new JSON(String._of("pattern"), emptyPatternJson);
+        jsonObject._merge(patternProperty);
+      }
+      
+      // Add "usage" property
+      final var usageJson = this.usage._json();
+      if (usageJson._isSet().state) {
+        final var usageProperty = new JSON(String._of("usage"), usageJson);
+        jsonObject._merge(usageProperty);
+      }
+      
+      return jsonObject;
+    }
+    return new JSON();
   }
 
   @Ek9Operator("""

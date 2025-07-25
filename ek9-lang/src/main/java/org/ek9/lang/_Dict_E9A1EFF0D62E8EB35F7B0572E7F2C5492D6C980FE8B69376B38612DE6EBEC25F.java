@@ -88,6 +88,11 @@ public class _Dict_E9A1EFF0D62E8EB35F7B0572E7F2C5492D6C980FE8B69376B38612DE6EBEC
     return new Boolean();
   }
 
+  @Override
+  public JSON _json() {
+    return delegate._json();
+  }
+
   // Operator 5: $ (string representation)
   @Override
   public String _string() {

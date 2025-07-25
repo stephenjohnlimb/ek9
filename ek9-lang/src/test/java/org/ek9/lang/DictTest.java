@@ -23,6 +23,56 @@ class DictTest extends Common {
 
   final Dict emptyDict = new Dict();
 
+  // Helper methods to reduce duplication
+
+  /**
+   * Creates a standard 3-entry dict with key1->value1, key2->value2, key3->value3
+   */
+  private Dict createThreeEntryDict() {
+    final var dict = new Dict(key1, value1);
+    dict._addAss(DictEntry._of(key2, value2));
+    dict._addAss(DictEntry._of(key3, value3));
+    return dict;
+  }
+
+  /**
+   * Creates a standard 2-entry dict with key1->value1, key2->value2
+   */
+  private Dict createTwoEntryDict() {
+    final var dict = new Dict(key1, value1);
+    dict._addAss(DictEntry._of(key2, value2));
+    return dict;
+  }
+
+  /**
+   * Collects all items from an iterator into an ArrayList
+   */
+  private <T> java.util.ArrayList<T> collectIterator(Iterator iterator, Class<T> type) {
+    final var items = new java.util.ArrayList<T>();
+    while (iterator.hasNext().state) {
+      items.add(type.cast(iterator.next()));
+    }
+    return items;
+  }
+
+  /**
+   * Asserts that an operation doesn't change the dict size
+   */
+  private void assertNoSizeChange(Dict dict, Runnable operation) {
+    final var sizeBefore = dict._len().state;
+    operation.run();
+    assertEquals(sizeBefore, dict._len().state);
+  }
+
+  /**
+   * Creates two identical dicts for equality testing
+   */
+  private Dict[] createEqualDictPair() {
+    final var dict1 = createTwoEntryDict();
+    final var dict2 = createTwoEntryDict();
+    return new Dict[]{dict1, dict2};
+  }
+
   @Test
   void testConstruction() {
     // Default constructor creates empty but set dict
@@ -89,9 +139,7 @@ class DictTest extends Common {
 
   @Test
   void testGetMethod() {
-    final var testDict = new Dict(key1, value1);
-    testDict._addAss(DictEntry._of(key2, value2));
-    testDict._addAss(DictEntry._of(key3, value3));
+    final var testDict = createThreeEntryDict();
 
     // Valid keys
     assertEquals(value1, testDict.get(key1));
@@ -151,17 +199,11 @@ class DictTest extends Common {
     assertFalse.accept(singleIterator.hasNext());
 
     // Multiple entry iterator
-    final var multiDict = new Dict(key1, value1);
-    multiDict._addAss(DictEntry._of(key2, value2));
-    multiDict._addAss(DictEntry._of(key3, value3));
+    final var multiDict = createThreeEntryDict();
     final var multiIterator = multiDict.iterator();
 
     // Collect all entries
-    final var entries = new java.util.ArrayList<DictEntry>();
-    while (multiIterator.hasNext().state) {
-      final var nextEntry = (DictEntry) multiIterator.next();
-      entries.add(nextEntry);
-    }
+    final var entries = collectIterator(multiIterator, DictEntry.class);
 
     assertEquals(3, entries.size());
     // Should maintain insertion order (LinkedHashMap)
@@ -172,18 +214,13 @@ class DictTest extends Common {
 
   @Test
   void testKeysAndValues() {
-    final var testDict = new Dict(key1, value1);
-    testDict._addAss(DictEntry._of(key2, value2));
-    testDict._addAss(DictEntry._of(key3, value3));
+    final var testDict = createThreeEntryDict();
 
     // Test keys iterator
     final var keysIterator = testDict.keys();
     assertSet.accept(keysIterator);
 
-    final var keysList = new java.util.ArrayList<Any>();
-    while (keysIterator.hasNext().state) {
-      keysList.add(keysIterator.next());
-    }
+    final var keysList = collectIterator(keysIterator, Any.class);
     assertEquals(3, keysList.size());
     assertTrue.accept(Boolean._of(keysList.contains(key1)));
     assertTrue.accept(Boolean._of(keysList.contains(key2)));
@@ -193,10 +230,7 @@ class DictTest extends Common {
     final var valuesIterator = testDict.values();
     assertSet.accept(valuesIterator);
 
-    final var valuesList = new java.util.ArrayList<Any>();
-    while (valuesIterator.hasNext().state) {
-      valuesList.add(valuesIterator.next());
-    }
+    final var valuesList = collectIterator(valuesIterator, Any.class);
     assertEquals(3, valuesList.size());
     assertTrue.accept(Boolean._of(valuesList.contains(value1)));
     assertTrue.accept(Boolean._of(valuesList.contains(value2)));
@@ -211,10 +245,9 @@ class DictTest extends Common {
 
   @Test
   void testEquality() {
-    final var dict1 = new Dict(key1, value1);
-    dict1._addAss(DictEntry._of(key2, value2));
-    final var dict2 = new Dict(key1, value1);
-    dict2._addAss(DictEntry._of(key2, value2));
+    final var equalPair = createEqualDictPair();
+    final var dict1 = equalPair[0];
+    final var dict2 = equalPair[1];
     final var dict3 = new Dict(key1, value1);
     dict3._addAss(DictEntry._of(key3, value3));
 
@@ -276,10 +309,7 @@ class DictTest extends Common {
 
   @Test
   void testImmutableSubtraction() {
-    final var dict1 = new Dict(key1, value1);
-    dict1._addAss(DictEntry._of(key2, value2));
-    dict1._addAss(DictEntry._of(key3, value3));
-
+    final var dict1 = createThreeEntryDict();
     final var dict2 = new Dict(key2, value2);
     dict2._addAss(DictEntry._of(key4, value4)); // key4 not in dict1
 
@@ -328,21 +358,15 @@ class DictTest extends Common {
     assertEquals(value4, dict1.get(key4));
 
     // Add with empty dict should do nothing
-    final var beforeEmptyAdd = dict1._len().state;
-    dict1._addAss(emptyDict);
-    assertEquals(beforeEmptyAdd, dict1._len().state);
+    assertNoSizeChange(dict1, () -> dict1._addAss(emptyDict));
 
     // Add with null should do nothing
-    final var beforeNullAdd = dict1._len().state;
-    dict1._addAss((Dict) null);
-    assertEquals(beforeNullAdd, dict1._len().state);
+    assertNoSizeChange(dict1, () -> dict1._addAss((Dict) null));
   }
 
   @Test
   void testMutableSubtraction() {
-    final var dict1 = new Dict(key1, value1);
-    dict1._addAss(DictEntry._of(key2, value2));
-    dict1._addAss(DictEntry._of(key3, value3));
+    final var dict1 = createThreeEntryDict();
 
     // Subtract key from dict (mutable)
     dict1._subAss(key2);
@@ -353,21 +377,16 @@ class DictTest extends Common {
     assertThrows(Exception.class, () -> dict1.get(key2));
 
     // Subtract non-existent key should do nothing
-    final var beforeNonExistentSub = dict1._len().state;
-    dict1._subAss(key4);
-    assertEquals(beforeNonExistentSub, dict1._len().state);
+    assertNoSizeChange(dict1, () -> dict1._subAss(key4));
 
     // Subtract with null key should do nothing
-    final var beforeNullSub = dict1._len().state;
-    dict1._subAss(null);
-    assertEquals(beforeNullSub, dict1._len().state);
+    assertNoSizeChange(dict1, () -> dict1._subAss(null));
   }
 
   @Test
   void testAssignmentOperators() {
     // Test copy (:=:)
-    final var original = new Dict(key1, value1);
-    original._addAss(DictEntry._of(key2, value2));
+    final var original = createTwoEntryDict();
 
     final var copy = new Dict();
     copy._copy(original);
@@ -411,15 +430,12 @@ class DictTest extends Common {
     assertEquals(value3, dict.get(key3));
 
     // Pipe with null entry should do nothing
-    final var beforeNullPipe = dict._len().state;
-    dict._pipe(null);
-    assertEquals(beforeNullPipe, dict._len().state);
+    assertNoSizeChange(dict, () -> dict._pipe(null));
   }
 
   @Test
   void testUtilityOperators() {
-    final var testDict = new Dict(key1, value1);
-    testDict._addAss(DictEntry._of(key2, value2));
+    final var testDict = createTwoEntryDict();
 
     // Empty check
     assertFalse.accept(testDict._empty());
@@ -510,10 +526,7 @@ class DictTest extends Common {
 
     // Iterate and verify entries
     final var iterator = dict.iterator();
-    final var entries = new java.util.ArrayList<DictEntry>();
-    while (iterator.hasNext().state) {
-      entries.add((DictEntry) iterator.next());
-    }
+    final var entries = collectIterator(iterator, DictEntry.class);
 
     assertEquals(2, entries.size());
 
@@ -548,11 +561,9 @@ class DictTest extends Common {
   @Test
   void testEqualsAndHashCode() {
     // Test equals contract
-    final var dict1 = new Dict(key1, value1);
-    dict1._addAss(DictEntry._of(key2, value2));
-
-    final var dict2 = new Dict(key1, value1);
-    dict2._addAss(DictEntry._of(key2, value2));
+    final var equalPair = createEqualDictPair();
+    final var dict1 = equalPair[0];
+    final var dict2 = equalPair[1];
 
     assertEquals(dict1, dict1); // reflexive
     assertEquals(dict1, dict2); // symmetric

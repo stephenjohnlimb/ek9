@@ -190,6 +190,69 @@ Key operator mappings include:
 
 All method names are consistent between OperatorMap and actual implementations.
 
+### EK9 Tri-State Semantics
+
+**CRITICAL**: EK9 implements a sophisticated tri-state object model that distinguishes between different states of object validity. Understanding this is essential for correct EK9 development.
+
+#### The Three States
+
+1. **Object Absent** - Object doesn't exist (e.g., missing key in Dict)
+2. **Object Present but Unset** - Object exists in memory but has no meaningful value
+3. **Object Present and Set** - Object exists with a valid, usable value
+
+#### Type-Specific Semantics
+
+**Primitive/Basic Types** (String, Integer, Boolean, etc.):
+- Can be unset: `new String()` creates an unset but defined object
+- `_isSet()` returns false for unset, true for set
+- **Never accept Java `null`** - always reject null to maintain type safety
+
+**Collections** (List, Dict, etc.):
+- **Always set when created**, even if empty: `new List()` → set (0 items)
+- Empty ≠ unset: an empty collection is a valid, usable state
+- Only become unset via explicit `unSet()` call or invalid construction
+
+**Container Types** (DictEntry, Result, Optional):
+- Complex tri-state logic based on contained values
+- DictEntry: set when key is valid, regardless of value state
+- Result/Optional: specific semantics for contained value states
+
+#### Implementation Guidelines
+
+**Constructor Patterns**:
+```java
+// Accept unset EK9 objects (tri-state semantics)
+public DictEntry(Any k, Any v) {
+  if (isValid(k) && v != null) {  // Reject null, accept unset
+    this.keyValue = k;
+    this.entryValue = v;  // v can be unset EK9 object
+    set();
+  }
+}
+```
+
+**Testing Patterns**:
+```java
+// Test with unset EK9 objects, not null
+final var unsetValue = new String();  // Unset but defined
+final var entry = new DictEntry(key, unsetValue);
+assertSet.accept(entry);  // Container is set
+assertFalse.accept(((BuiltinType) entry.value())._isSet());  // Value is unset
+```
+
+**JSON Integration**:
+- Unset EK9 values map to JSON null: `{"key": null}`
+- Enables proper JSON serialization of tri-state data
+
+#### Logical Consistency
+
+The `_isSet()` method defines "meaningful, normal, usable value":
+- **Primitives**: Has actual data (not default/empty state)
+- **Collections**: Always meaningful when created (empty is valid)
+- **Containers**: Based on container-specific logic (e.g., DictEntry set when key valid)
+
+This tri-state model enables EK9 to handle optional data, partial initialization, and complex data states while maintaining type safety and avoiding null pointer exceptions.
+
 ### Code Style
 - Java 23 with virtual threads support
 - Follow existing naming conventions (CamelCase for classes, camelCase for methods)

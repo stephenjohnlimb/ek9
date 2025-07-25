@@ -132,6 +132,11 @@ public class _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D
     delegate._pipe(arg);
   }
 
+  @Override
+  public JSON _json() {
+    return delegate._json();
+  }
+
   public static _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC _of() {
     return new _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC();
   }

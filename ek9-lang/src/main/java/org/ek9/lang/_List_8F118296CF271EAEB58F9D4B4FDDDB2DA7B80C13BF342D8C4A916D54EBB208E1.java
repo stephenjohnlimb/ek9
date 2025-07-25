@@ -209,6 +209,11 @@ public class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB20
     delegate._subAss(arg);
   }
 
+  @Override
+  public JSON _json() {
+    return delegate._json();
+  }
+
   // Factory method - empty list
   public static _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1 _of() {
     return new _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1();

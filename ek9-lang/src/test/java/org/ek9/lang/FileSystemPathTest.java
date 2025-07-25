@@ -639,4 +639,39 @@ class FileSystemPathTest extends Common {
     assertTrue(copied.isReadable().state);
     assertTrue(copied.isWritable().state);
   }
+
+  @Test
+  void testAsJson() {
+    // Test unset FileSystemPath - should return unset JSON
+    final var unsetPath = new FileSystemPath();
+    assertNotNull(unsetPath);
+    final var unsetJson = unsetPath._json();
+    assertUnset.accept(unsetJson);
+
+    // Test set FileSystemPath with valid path string
+    final var validPath = new FileSystemPath(String._of("/tmp/test/json_test.txt"));
+    final var validJson = validPath._json();
+    assertSet.accept(validJson);
+    
+    // Verify JSON content matches string representation
+    final var expectedJsonContent = validPath._string()._json();
+    assertTrue.accept(validJson._eq(expectedJsonContent));
+    
+    // Test JSON structure - should be a string value
+    assertTrue.accept(validJson.valueNature());
+    assertFalse.accept(validJson.objectNature());
+    assertFalse.accept(validJson.arrayNature());
+    
+    // Test with different path types
+    final var dirPath = new FileSystemPath(String._of("/home/user/documents"));
+    final var dirJson = dirPath._json();
+    assertSet.accept(dirJson);
+    assertTrue.accept(dirJson.valueNature());
+    
+    // Test with relative path
+    final var relativePath = new FileSystemPath(String._of("./relative/path.txt"));
+    final var relativeJson = relativePath._json();
+    assertSet.accept(relativeJson);
+    assertTrue.accept(relativeJson.valueNature());
+  }
 }

@@ -5,63 +5,61 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test Consumer of JSON parameterized function type.
- * This tests the delegation pattern and JSON-specific type safety.
- * Consumer is marked as pure in EK9, maintaining that semantic.
+ * Test Consumer of Boolean parameterized type.
+ * Tests the delegation pattern and Boolean-specific type safety.
  */
 @SuppressWarnings({"checkstyle:MethodName", "checkstyle:AbbreviationAsWordInName", "checkstyle:TypeName"})
-class _Consumer_376C0B739AC00DD9FA60B1DE33853E8AA9F76AF08832303EB1027CCB027B8588Test extends Common {
+class _Consumer_6CA5F5837A13FA80F86ADE72D1698B4441C50614A56BEA015D595402027DE326Test extends Common {
 
-  private static _Consumer_376C0B739AC00DD9FA60B1DE33853E8AA9F76AF08832303EB1027CCB027B8588 consumerJSON() {
-    return _Consumer_376C0B739AC00DD9FA60B1DE33853E8AA9F76AF08832303EB1027CCB027B8588._of();
+  private static _Consumer_6CA5F5837A13FA80F86ADE72D1698B4441C50614A56BEA015D595402027DE326 consumerBoolean() {
+    return _Consumer_6CA5F5837A13FA80F86ADE72D1698B4441C50614A56BEA015D595402027DE326._of();
   }
 
-  private static _Consumer_376C0B739AC00DD9FA60B1DE33853E8AA9F76AF08832303EB1027CCB027B8588 consumerJSON(
+  private static _Consumer_6CA5F5837A13FA80F86ADE72D1698B4441C50614A56BEA015D595402027DE326 consumerBoolean(
       Consumer value) {
-    return _Consumer_376C0B739AC00DD9FA60B1DE33853E8AA9F76AF08832303EB1027CCB027B8588._of(value);
+    return _Consumer_6CA5F5837A13FA80F86ADE72D1698B4441C50614A56BEA015D595402027DE326._of(value);
   }
-
 
   @Test
   void testConstruction() {
 
     // Test factory method
-    final var factoryConsumer = consumerJSON();
+    final var factoryConsumer = consumerBoolean();
     assertNotNull(factoryConsumer);
     assertSet.accept(factoryConsumer);
 
     // Test factory method with base Consumer
     final var baseConsumer = new Consumer();
-    final var fromBase = consumerJSON(baseConsumer);
+    final var fromBase = consumerBoolean(baseConsumer);
     assertNotNull(fromBase);
     assertSet.accept(fromBase);
 
     // Test factory method with null
-    final var fromNull = consumerJSON(null);
+    final var fromNull = consumerBoolean(null);
     assertNotNull(fromNull);
     assertSet.accept(fromNull);
   }
 
   @Test
   void testFunctionCall() {
-    final var consumer = consumerJSON();
+    final var consumer = consumerBoolean();
     assertNotNull(consumer);
 
-    // Test call with JSON - should not throw exception
-    final var testJSON = JSON._of("{\"test\": \"value\"}");
-    consumer._call(testJSON);
+    // Test call with Boolean - should not throw exception
+    final var testBoolean = Boolean._of(true);
+    consumer._call(testBoolean);
 
-    final var numberJSON = JSON._of("42");
-    consumer._call(numberJSON);
+    final var falseBoolean = Boolean._of(false);
+    consumer._call(falseBoolean);
 
-    // Test call with null JSON - should not throw exception
+    // Test call with null Boolean - should not throw exception
     consumer._call(null);
   }
 
   @Test
   void testEquality() {
-    final var consumer1 = consumerJSON();
-    final var consumer2 = consumerJSON();
+    final var consumer1 = consumerBoolean();
+    final var consumer2 = consumerBoolean();
 
     // Test basic equality functionality - implementation details may vary
     assertNotNull(consumer1._eq(consumer2));
@@ -78,7 +76,7 @@ class _Consumer_376C0B739AC00DD9FA60B1DE33853E8AA9F76AF08832303EB1027CCB027B8588
 
   @Test
   void testStringAndHashOperators() {
-    final var consumer = consumerJSON();
+    final var consumer = consumerBoolean();
 
     // Test operator consistency - Functions should have consistent set/unset behavior
     assertNotNull(consumer._isSet());
@@ -89,7 +87,7 @@ class _Consumer_376C0B739AC00DD9FA60B1DE33853E8AA9F76AF08832303EB1027CCB027B8588
   @Test
   void testDelegationConsistency() {
     // Test delegation produces consistent behavior with base type
-    final var consumer = consumerJSON();
+    final var consumer = consumerBoolean();
     final var baseConsumer = new Consumer();
 
     // Both should be set and functional
@@ -98,5 +96,4 @@ class _Consumer_376C0B739AC00DD9FA60B1DE33853E8AA9F76AF08832303EB1027CCB027B8588
     assertNotNull(consumer._string());
     assertNotNull(baseConsumer._string());
   }
-
 }

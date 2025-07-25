@@ -77,12 +77,18 @@ public class JSON extends BuiltinType {
           name as String
           value as JSON""")
   public JSON(String name, JSON value) {
-    if (isValid(name) && isValid(value)) {
+    if (isValid(name)) {
       super.set();
       ObjectNode objectNode = nodeFactory.objectNode();
-      objectNode.set(name.state, value.jsonNode.deepCopy());
+      if (isValid(value)) {
+        objectNode.set(name.state, value.jsonNode.deepCopy());
+      } else {
+        // Map unset EK9 value to JSON null
+        objectNode.set(name.state, nodeFactory.nullNode());
+      }
       this.jsonNode = objectNode;
     }
+    // If name is unset, entire JSON remains unset
   }
 
   @Ek9Constructor("""
@@ -529,6 +535,56 @@ public class JSON extends BuiltinType {
     }
   }
 
+  /**
+   * Create an iterator over this JSON based on its nature.
+   * - Array: iterates over elements as JSON objects
+   * - Object: iterates over key-value pairs as named JSON objects
+   * - Value: iterates over single JSON value
+   * - Unset: empty iterator
+   */
+  @Ek9Method("""
+      iterator() as pure
+        <- rtn as Iterator of JSON?""")
+  public _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C iterator() {
+    if (!hasValidJson()) {
+      // Return unset iterator when there's nothing to iterate over
+      return _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C._of();
+    }
+
+    java.util.Iterator<Any> javaIterator;
+
+    if (jsonNode.isArray()) {
+      // Array: iterate over elements as JSON objects
+      java.util.Spliterator<JsonNode> spliterator =
+          java.util.Spliterators.spliteratorUnknownSize(jsonNode.elements(),
+              java.util.Spliterator.ORDERED);
+      javaIterator = java.util.stream.StreamSupport.stream(spliterator, false)
+          .map(JSON::_of)
+          .map(Any.class::cast)
+          .iterator();
+    } else if (jsonNode.isObject()) {
+      // Object: iterate over key-value pairs as named JSON objects
+      ObjectNode objectNode = (ObjectNode) jsonNode;
+      java.util.Spliterator<java.util.Map.Entry<java.lang.String, JsonNode>> spliterator =
+          java.util.Spliterators.spliteratorUnknownSize(objectNode.properties().iterator(),
+              java.util.Spliterator.ORDERED);
+      javaIterator = java.util.stream.StreamSupport.stream(spliterator, false)
+          .map(entry -> {
+            java.lang.String key = entry.getKey();
+            JsonNode valueNode = entry.getValue();
+            JSON valueJson = JSON._of(valueNode);
+            return (Any) new JSON(String._of(key), valueJson); // Named JSON object
+          })
+          .iterator();
+    } else {
+      // Value: single-element iterator containing this JSON
+      javaIterator = java.util.List.of((Any) this).iterator();
+    }
+
+    final var baseIterator = Iterator._of(javaIterator);
+    return _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C._of(baseIterator);
+  }
+
   @Ek9Operator("""
       operator :~:
         -> arg as JSON""")
@@ -648,10 +704,20 @@ public class JSON extends BuiltinType {
     return _string();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    //Seems a bit pointless - but when other code just calls $$ _json via
+    //Any then we need this type to return itself.
+    return this;
+  }
+
+  @Override
   @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")
-  @Override
   public String _string() {
     if (!hasValidJson()) {
       return new String();
@@ -798,53 +864,12 @@ public class JSON extends BuiltinType {
     return rtn;
   }
 
-  /**
-   * Create an iterator over this JSON based on its nature.
-   * - Array: iterates over elements as JSON objects
-   * - Object: iterates over key-value pairs as named JSON objects
-   * - Value: iterates over single JSON value
-   * - Unset: empty iterator
-   */
-  @Ek9Method("""
-      iterator() as pure
-        <- rtn as Iterator of JSON?""")
-  public _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C iterator() {
-    if (!hasValidJson()) {
-      // Return unset iterator when there's nothing to iterate over
-      return _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C._of();
-    }
-
-    java.util.Iterator<Any> javaIterator;
-
-    if (jsonNode.isArray()) {
-      // Array: iterate over elements as JSON objects
-      java.util.Spliterator<JsonNode> spliterator =
-          java.util.Spliterators.spliteratorUnknownSize(jsonNode.elements(),
-              java.util.Spliterator.ORDERED);
-      javaIterator = java.util.stream.StreamSupport.stream(spliterator, false)
-          .map(JSON::_of)
-          .map(Any.class::cast)
-          .iterator();
-    } else if (jsonNode.isObject()) {
-      // Object: iterate over key-value pairs as named JSON objects
-      ObjectNode objectNode = (ObjectNode) jsonNode;
-      java.util.Spliterator<java.util.Map.Entry<java.lang.String, JsonNode>> spliterator =
-          java.util.Spliterators.spliteratorUnknownSize(objectNode.properties().iterator(),
-              java.util.Spliterator.ORDERED);
-      javaIterator = java.util.stream.StreamSupport.stream(spliterator, false)
-          .map(entry -> {
-            java.lang.String key = entry.getKey();
-            JsonNode valueNode = entry.getValue();
-            JSON valueJson = JSON._of(valueNode);
-            return (Any) new JSON(String._of(key), valueJson); // Named JSON object
-          })
-          .iterator();
-    } else {
-      // Value: single-element iterator containing this JSON
-      javaIterator = java.util.List.of((Any) this).iterator();
-    }
-
-    final var baseIterator = Iterator._of(javaIterator);
-    return _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C._of(baseIterator);
+  public static JSON _of(java.util.List<JSON> list) {
+    JSON rtn = new JSON();
+    final var jsonNode = nodeFactory.arrayNode();
+    final var nodes = list.stream().map(json -> json.jsonNode).toList();
+    jsonNode.addAll(nodes);
+    rtn.assign(jsonNode);
+    return rtn;
   }
 }

@@ -122,8 +122,6 @@ public class Duration extends BuiltinType {
     return rtn;
   }
 
-  //TODO add in Milliseconds
-
   @Ek9Operator("""
       operator - as pure
         -> arg as Duration

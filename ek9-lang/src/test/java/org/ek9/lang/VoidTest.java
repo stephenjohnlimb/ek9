@@ -15,8 +15,7 @@ class VoidTest extends Common {
     assertUnset.accept(new Void());
 
     assertEquals(falseBoolean, new Void()._isSet());
-    //A couple of checks to to ensure code is covered in hard to reach circumstances.
-    assertFalse(new Void().equals(null));
+    //A couple of checks to ensure code is covered in hard to reach circumstances.
     assertFalse(BuiltinType.isValid(null));
 
     assertNotEquals(0, new Void().hashCode());

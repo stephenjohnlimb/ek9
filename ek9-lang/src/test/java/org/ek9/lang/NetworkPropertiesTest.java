@@ -654,4 +654,89 @@ class NetworkPropertiesTest extends Common {
     // Both fields set with different values should not be equal
     assertFalse.accept(props3._eq(props5));
   }
+
+  @Test
+  void testJsonOperator() {
+    // Test unset NetworkProperties returns unset JSON
+    final var unset = new NetworkProperties();
+    assertUnset.accept(unset._json());
+
+    // Test single property creates proper JSON object
+    final var singleProps = new NetworkProperties(String._of("localhost"));
+    final var json1 = singleProps._json();
+    assertSet.accept(json1);
+    
+    final var expectedJson1 = """
+        {
+          "host" : "localhost"
+        }""";
+    assertEquals(expectedJson1, json1.prettyPrint().state);
+
+    // Test multiple properties create proper JSON with all fields
+    final var multiProps = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var json2 = multiProps._json();
+    assertSet.accept(json2);
+    
+    final var expectedJson2 = """
+        {
+          "host" : "localhost",
+          "port" : 8080
+        }""";
+    assertEquals(expectedJson2, json2.prettyPrint().state);
+
+    // Test all properties set
+    final var allProps = new NetworkProperties();
+    allProps.host = String._of("localhost");
+    allProps.port = Integer._of(8080);
+    allProps.packetSize = Integer._of(1024);
+    allProps.timeout = Millisecond._of(5000);
+    allProps.backlog = Integer._of(50);
+    allProps.maxConcurrent = Integer._of(100);
+    allProps.localOnly = Boolean._of(true);
+
+    final var json3 = allProps._json();
+    assertSet.accept(json3);
+    
+    final var expectedJson3 = """
+        {
+          "host" : "localhost",
+          "port" : 8080,
+          "packetSize" : 1024,
+          "timeout" : "5000ms",
+          "backlog" : 50,
+          "maxConcurrent" : 100,
+          "localOnly" : true
+        }""";
+    assertEquals(expectedJson3, json3.prettyPrint().state);
+
+    // Test mixed set/unset properties only include set ones
+    final var mixedProps = new NetworkProperties();
+    mixedProps.host = String._of("example.com");
+    mixedProps.port = Integer._of(9090);
+    // packetSize, timeout, backlog, maxConcurrent, localOnly remain unset
+    
+    final var json4 = mixedProps._json();
+    assertSet.accept(json4);
+    
+    final var expectedJson4 = """
+        {
+          "host" : "example.com",
+          "port" : 9090
+        }""";
+    assertEquals(expectedJson4, json4.prettyPrint().state);
+
+    // Verify JSON structure and property existence
+    assertTrue(json4.objectNature().state); // Verify it's an object
+    assertSet.accept(json4.get(String._of("host"))); // Verify host property exists
+    assertSet.accept(json4.get(String._of("port"))); // Verify port property exists
+    assertUnset.accept(json4.get(String._of("packetSize"))); // Verify packetSize property doesn't exist
+    assertUnset.accept(json4.get(String._of("timeout"))); // Verify timeout property doesn't exist
+    assertUnset.accept(json4.get(String._of("backlog"))); // Verify backlog property doesn't exist
+    assertUnset.accept(json4.get(String._of("maxConcurrent"))); // Verify maxConcurrent property doesn't exist
+    assertUnset.accept(json4.get(String._of("localOnly"))); // Verify localOnly property doesn't exist
+
+    // Test that JSON can be parsed back and contains correct values
+    assertEquals("example.com", json4.get(String._of("host"))._string().state.replaceAll("\"", ""));
+    assertEquals("9090", json4.get(String._of("port"))._string().state);
+  }
 }

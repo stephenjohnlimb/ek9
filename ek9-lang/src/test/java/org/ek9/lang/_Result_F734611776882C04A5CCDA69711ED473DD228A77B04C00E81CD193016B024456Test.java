@@ -582,4 +582,65 @@ class _Result_F734611776882C04A5CCDA69711ED473DD228A77B04C00E81CD193016B024456Te
     assertFalse.accept(nullResult._empty());
   }
 
+  @Test
+  void testAsJson() {
+    // Test unset Result of (JSON, String)
+    final var unsetResult = resultJsonString();
+    assertNotNull(unsetResult);
+    final var unsetJson = unsetResult._json();
+    assertUnset.accept(unsetJson);
+
+    final var okResult = resultJsonString().asOk(testJsonString);
+    final var okJson = okResult._json();
+    assertSet.accept(okJson);
+    assertTrue.accept(okJson.objectNature());
+
+    // Verify the wrapper structure
+    final var resultProperty = okJson.get(String._of("result"));
+    assertSet.accept(resultProperty);
+    assertTrue.accept(resultProperty.objectNature());
+
+    // Verify the inner OK value - should be the JSON value itself since OK type is JSON
+    final var okProperty = resultProperty.get(String._of("ok"));
+    assertSet.accept(okProperty);
+    assertTrue.accept(okProperty._eq(testJsonString));
+
+    // Test ERROR Result
+    final var errorResult = resultJsonString().asError(testErrorValue);
+    final var errorJson = errorResult._json();
+    assertSet.accept(errorJson);
+    assertTrue.accept(errorJson.objectNature());
+
+    // Verify the wrapper structure
+    final var errorResultProperty = errorJson.get(String._of("result"));
+    assertSet.accept(errorResultProperty);
+    assertTrue.accept(errorResultProperty.objectNature());
+
+    // Verify the inner ERROR value
+    final var errorInnerProperty = errorResultProperty.get(String._of("error"));
+    assertSet.accept(errorInnerProperty);
+    final var expectedErrorJson = testErrorValue._json();
+    assertTrue.accept(errorInnerProperty._eq(expectedErrorJson));
+
+    // Test Result with both values (simulating mixed state for coverage)
+    final var mixedResult = _Result_F734611776882C04A5CCDA69711ED473DD228A77B04C00E81CD193016B024456._of(testJsonObject, testAnotherError);
+    final var mixedJson = mixedResult._json();
+    assertSet.accept(mixedJson);
+    assertTrue.accept(mixedJson.objectNature());
+
+    final var mixedResultProperty = mixedJson.get(String._of("result"));
+    assertSet.accept(mixedResultProperty);
+    assertTrue.accept(mixedResultProperty.objectNature());
+
+    // Both OK and ERROR should have their JSON representations
+    final var mixedOkProperty = mixedResultProperty.get(String._of("ok"));
+    final var mixedErrorProperty = mixedResultProperty.get(String._of("error"));
+    
+    assertSet.accept(mixedOkProperty);
+    assertSet.accept(mixedErrorProperty);
+    
+    assertTrue.accept(mixedOkProperty._eq(testJsonObject)); // JSON directly
+    assertTrue.accept(mixedErrorProperty._eq(testAnotherError._json())); // String to JSON
+  }
+
 }

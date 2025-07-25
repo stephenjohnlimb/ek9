@@ -65,10 +65,6 @@ public class Locale extends SuffixedComponent {
     }
   }
 
-  //TODO include constructor using Optional
-  //TODO include constructor using JSON
-
-
   @Ek9Operator("""
       operator |
         -> arg0 as Locale""")

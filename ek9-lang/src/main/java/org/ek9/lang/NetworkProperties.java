@@ -1,5 +1,7 @@
 package org.ek9.lang;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.ek9tooling.Ek9Constructor;
 import org.ek9tooling.Ek9Operator;
 import org.ek9tooling.Ek9Property;
@@ -17,6 +19,8 @@ import org.ek9tooling.Ek9Record;
 @Ek9Record("""
     NetworkProperties""")
 public class NetworkProperties extends BuiltinType {
+
+  private static final JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
   @Ek9Property("host as String?")
   public String host = new String();
@@ -282,6 +286,41 @@ public class NetworkProperties extends BuiltinType {
     }
 
     return String._of("NetworkProperties{" + builder + "}");
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (calculateIsSet()) {
+      ObjectNode objectNode = nodeFactory.objectNode();
+      
+      if (host.isSet) {
+        objectNode.put("host", host.state);
+      }
+      if (port.isSet) {
+        objectNode.put("port", port.state);
+      }
+      if (packetSize.isSet) {
+        objectNode.put("packetSize", packetSize.state);
+      }
+      if (timeout.isSet) {
+        objectNode.put("timeout", timeout._string().state);
+      }
+      if (backlog.isSet) {
+        objectNode.put("backlog", backlog.state);
+      }
+      if (maxConcurrent.isSet) {
+        objectNode.put("maxConcurrent", maxConcurrent.state);
+      }
+      if (localOnly.isSet) {
+        objectNode.put("localOnly", localOnly.state);
+      }
+      
+      return JSON._of(objectNode);
+    }
+    return new JSON();
   }
 
   @Override

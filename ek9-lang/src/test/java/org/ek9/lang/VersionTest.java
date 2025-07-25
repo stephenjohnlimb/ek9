@@ -329,4 +329,73 @@ class VersionTest extends Common {
     assertNotEquals(v1._hashcode(), v2._hashcode());
   }
 
+  @Test
+  void testJsonOperator() {
+    // Test unset Version returns unset JSON
+    final var unset = new Version();
+    assertUnset.accept(unset._json());
+
+    // Test Version without feature
+    final var v1 = Version._of("1.2.3-9");
+    final var json1 = v1._json();
+    assertSet.accept(json1);
+    
+    final var expectedJson1 = """
+        {
+          "major" : 1,
+          "minor" : 2,
+          "patch" : 3,
+          "buildNumber" : 9
+        }""";
+    assertEquals(expectedJson1, json1.prettyPrint().state);
+
+    // Test Version with feature
+    final var v2 = Version._of("10.21.3-feature16-19");
+    final var json2 = v2._json();
+    assertSet.accept(json2);
+    
+    final var expectedJson2 = """
+        {
+          "major" : 10,
+          "minor" : 21,
+          "patch" : 3,
+          "feature" : "feature16",
+          "buildNumber" : 19
+        }""";
+    assertEquals(expectedJson2, json2.prettyPrint().state);
+
+    // Test Version with no build number (using _withNoBuildNumber)
+    final var v3 = Version._withNoBuildNumber("5.4.3-alpha");
+    final var json3 = v3._json();
+    assertSet.accept(json3);
+    
+    final var expectedJson3 = """
+        {
+          "major" : 5,
+          "minor" : 4,
+          "patch" : 3,
+          "feature" : "alpha",
+          "buildNumber" : 0
+        }""";
+    assertEquals(expectedJson3, json3.prettyPrint().state);
+
+    // Test Version with no feature and no build number
+    final var v4 = Version._withNoBuildNumber("2.1.0");
+    final var json4 = v4._json();
+    assertSet.accept(json4);
+    
+    final var expectedJson4 = """
+        {
+          "major" : 2,
+          "minor" : 1,
+          "patch" : 0,
+          "buildNumber" : 0
+        }""";
+    assertEquals(expectedJson4, json4.prettyPrint().state);
+
+    // Test that feature is conditionally excluded (verify no "feature" property exists)
+    assertTrue(json4.objectNature().state); // Verify it's an object
+    assertUnset.accept(json4.get(String._of("feature"))); // Verify no feature property
+  }
+
 }

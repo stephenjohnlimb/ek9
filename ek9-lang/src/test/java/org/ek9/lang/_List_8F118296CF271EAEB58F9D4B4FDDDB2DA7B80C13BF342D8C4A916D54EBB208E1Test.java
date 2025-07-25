@@ -14,6 +14,30 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({"checkstyle:MethodName", "checkstyle:AbbreviationAsWordInName", "checkstyle:TypeName"})
 class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test extends Common {
 
+  // Type aliases for cleaner code
+  private static final Class<_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1> LIST_STRING = 
+      _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.class;
+
+  private static final Class<_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2> ITERATOR_STRING = 
+      _Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2.class;
+
+  // Factory methods for cleaner object creation
+  private static _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1 listString() {
+    return _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+  }
+
+  private static _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1 listString(String value) {
+    return new _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1(value);
+  }
+
+  private static _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1 listStringFromBase(List base) {
+    return _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of(base);
+  }
+
+  private static _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1 listStringFromJava(java.util.List<Any> javaList) {
+    return _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of(javaList);
+  }
+
   // Test data setup
   private final String testString1 = String._of("Hello");
   private final String testString2 = String._of("World");
@@ -22,7 +46,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
   @Test
   void testConstruction() {
     // Test default constructor
-    final var defaultList = new _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1();
+    final var defaultList = listString();
     assertNotNull(defaultList);
     assertSet.accept(defaultList);
     assertTrue.accept(defaultList._isSet());
@@ -30,7 +54,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
     assertEquals(Integer._of(0), defaultList._len());
 
     // Test value constructor
-    final var valueList = new _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1(testString1);
+    final var valueList = listString(testString1);
     assertNotNull(valueList);
     assertSet.accept(valueList);
     assertFalse.accept(valueList._empty());
@@ -41,7 +65,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
   @Test
   void testFactoryMethods() {
     // Test _of() - empty list
-    final var emptyList = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var emptyList = listString();
     assertNotNull(emptyList);
     assertSet.accept(emptyList);
     assertTrue.accept(emptyList._empty());
@@ -49,7 +73,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
     // Test _of(List) - from base List
     final var baseList = new List(testString1);
     baseList._addAss(testString2);
-    final var fromBase = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of(baseList);
+    final var fromBase = listStringFromBase(baseList);
     assertNotNull(fromBase);
     assertSet.accept(fromBase);
     assertEquals(Integer._of(2), fromBase._len());
@@ -57,7 +81,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
     assertEquals(testString2, fromBase.last());
 
     // Test _of(null List)
-    final var fromNull = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of((List) null);
+    final var fromNull = listStringFromBase(null);
     assertNotNull(fromNull);
     assertSet.accept(fromNull);
     assertTrue.accept(fromNull._empty());
@@ -66,7 +90,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
     final var javaList = new java.util.ArrayList<Any>();
     javaList.add(testString1);
     javaList.add(testString2);
-    final var fromJavaList = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of(javaList);
+    final var fromJavaList = listStringFromJava(javaList);
     assertNotNull(fromJavaList);
     assertSet.accept(fromJavaList);
     assertEquals(Integer._of(2), fromJavaList._len());
@@ -75,7 +99,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
   @Test
   void testAccessMethods() {
     // Setup test list
-    final var list = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list = listString();
     list._addAss(testString1);
     list._addAss(testString2);
     list._addAss(testString3);
@@ -102,7 +126,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
 
   @Test
   void testAccessMethodsOnEmptyList() {
-    final var emptyList = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var emptyList = listString();
 
     // Test exceptions on empty list
     assertThrows(Exception.class, emptyList::first);
@@ -114,14 +138,13 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
   @Test
   void testIteratorIntegration() {
     // Test iterator() returns correct parameterized type
-    final var list = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list = listString();
     list._addAss(testString1);
     list._addAss(testString2);
 
     final var iterator = list.iterator();
     assertNotNull(iterator);
-    assertEquals(_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2.class,
-        iterator.getClass());
+    assertEquals(ITERATOR_STRING, iterator.getClass());
     assertSet.accept(iterator);
 
     // Test iteration produces String objects
@@ -141,7 +164,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
   @Test
   void testIteratorWorkflow() {
     // Test complete iteration workflow
-    final var list = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list = listString();
     final var expected = new String[]{testString1, testString2, testString3};
     
     for (String s : expected) {
@@ -162,7 +185,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
   @Test
   void testListTransformations() {
     // Setup test list
-    final var list = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list = listString();
     list._addAss(testString1);
     list._addAss(testString2);
     list._addAss(testString3);
@@ -170,8 +193,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
     // Test reverse() returns new List of String
     final var reversed = list.reverse();
     assertNotNull(reversed);
-    assertEquals(_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.class,
-        reversed.getClass());
+    assertEquals(LIST_STRING, reversed.getClass());
     assertEquals(Integer._of(3), reversed._len());
     assertEquals(testString3, reversed.first()); // Reversed order
     assertEquals(testString1, reversed.last());
@@ -189,18 +211,17 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
   @Test
   void testArithmeticOperators() {
     // Setup test lists
-    final var list1 = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list1 = listString();
     list1._addAss(testString1);
     list1._addAss(testString2);
 
-    final var list2 = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list2 = listString();
     list2._addAss(testString3);
 
     // Test + operator with List of String
     final var added = list1._add(list2);
     assertNotNull(added);
-    assertEquals(_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.class,
-        added.getClass());
+    assertEquals(LIST_STRING, added.getClass());
     assertEquals(Integer._of(3), added._len());
     assertEquals(testString1, added.get(Integer._of(0)));
     assertEquals(testString2, added.get(Integer._of(1)));
@@ -212,7 +233,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
     assertEquals(testString3, addedString.last());
 
     // Test - operator with List of String
-    final var listWithDuplicates = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var listWithDuplicates = listString();
     listWithDuplicates._addAss(testString1);
     listWithDuplicates._addAss(testString2);
     listWithDuplicates._addAss(testString3); // Different string, not duplicate
@@ -228,16 +249,16 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
   @Test
   void testEqualityOperators() {
     // Setup identical lists
-    final var list1 = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list1 = listString();
     assertNotNull(list1);
     list1._addAss(testString1);
     list1._addAss(testString2);
 
-    final var list2 = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list2 = listString();
     list2._addAss(testString1);
     list2._addAss(testString2);
 
-    final var list3 = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list3 = listString();
     list3._addAss(testString3);
 
     // Test _eq with List of String
@@ -258,7 +279,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
   @Test
   void testQueryOperators() {
     // Setup test list
-    final var list = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list = listString();
     list._addAss(testString1);
     list._addAss(testString2);
 
@@ -267,7 +288,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
 
     // Test _empty operator
     assertFalse.accept(list._empty());
-    final var emptyList = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var emptyList = listString();
     assertTrue.accept(emptyList._empty());
 
     // Test _len operator
@@ -291,25 +312,25 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
   @Test
   void testAssignmentOperators() {
     // Test _copy operator
-    final var sourceList = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var sourceList = listString();
     sourceList._addAss(testString1);
     sourceList._addAss(testString2);
 
-    final var targetList = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var targetList = listString();
     targetList._copy(sourceList);
     assertEquals(Integer._of(2), targetList._len());
     assertEquals(testString1, targetList.first());
     assertEquals(testString2, targetList.last());
 
     // Test _replace operator (same as copy)
-    final var replaceTarget = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var replaceTarget = listString();
     replaceTarget._addAss(testString3);
     replaceTarget._replace(sourceList);
     assertEquals(Integer._of(2), replaceTarget._len());
     assertEquals(testString1, replaceTarget.first());
 
     // Test null handling
-    final var nullTarget = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var nullTarget = listString();
     nullTarget._addAss(testString1);
     assertDoesNotThrow(() -> nullTarget._copy(null));
     assertDoesNotThrow(() -> nullTarget._replace(null));
@@ -318,10 +339,10 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
   @Test
   void testMergeOperators() {
     // Setup test list
-    final var list1 = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list1 = listString();
     list1._addAss(testString1);
 
-    final var list2 = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list2 = listString();
     list2._addAss(testString2);
     list2._addAss(testString3);
 
@@ -333,13 +354,13 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
     assertEquals(testString3, list1.get(Integer._of(2)));
 
     // Test _merge with String
-    final var mergeTarget = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var mergeTarget = listString();
     mergeTarget._merge(testString1);
     assertEquals(Integer._of(1), mergeTarget._len());
     assertEquals(testString1, mergeTarget.first());
 
     // Test _pipe operator (same as merge with String)
-    final var pipeTarget = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var pipeTarget = listString();
     pipeTarget._pipe(testString1);
     assertEquals(Integer._of(1), pipeTarget._len());
     assertEquals(testString1, pipeTarget.first());
@@ -348,10 +369,10 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
   @Test
   void testAssignmentArithmeticOperators() {
     // Test += with List of String
-    final var list1 = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list1 = listString();
     list1._addAss(testString1);
 
-    final var list2 = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list2 = listString();
     list2._addAss(testString2);
 
     list1._addAss(list2);
@@ -364,7 +385,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
     assertEquals(testString3, list1.last());
 
     // Test -= with List of String
-    final var subList = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var subList = listString();
     subList._addAss(testString2);
     list1._subAss(subList);
     assertEquals(Integer._of(2), list1._len()); // testString2 removed
@@ -376,7 +397,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
 
   @Test
   void testEdgeCasesAndNullHandling() {
-    final var list = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list = listString();
 
     // Test operations with null parameters  
     assertDoesNotThrow(() -> list._merge((String) null));
@@ -416,7 +437,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
     baseList._addAss(testString2);
 
     // Create parameterized list from base
-    final var paramList = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of(baseList);
+    final var paramList = listStringFromBase(baseList);
 
     // Both should have consistent behavior
     assertEquals(baseList._len(), paramList._len());
@@ -433,7 +454,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
   @Test
   void testCompleteOperatorCoverage() {
     // Verify all operators work without exceptions
-    final var list = _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+    final var list = listString();
     list._addAss(testString1);
 
     // Test all query operators
@@ -461,5 +482,120 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
     assertNotNull(list.first());
     assertNotNull(list.last());
     assertNotNull(list.get(Integer._of(0)));
+  }
+
+  @Test
+  void testAsJson() {
+    // Test empty List of String - should be empty JSON array
+    final var emptyList = listString();
+    final var emptyJson = emptyList._json();
+    assertSet.accept(emptyJson);
+    assertTrue.accept(emptyJson.arrayNature());
+    assertTrue.accept(emptyJson._empty());
+    assertEquals(Integer._of(0), emptyJson._len());
+
+    // Test List with single string
+    final var singleList = listString(testString1);
+    final var singleJson = singleList._json();
+    assertSet.accept(singleJson);
+    assertTrue.accept(singleJson.arrayNature());
+    assertEquals(Integer._of(1), singleJson._len());
+
+    // Verify the first element matches the string's JSON representation
+    final var firstElement = singleJson.get(Integer._of(0));
+    assertSet.accept(firstElement);
+    final var expectedStringJson = testString1._json();
+    assertTrue.accept(firstElement._eq(expectedStringJson));
+
+    // Test List with multiple strings
+    final var multiList = listString();
+    multiList._addAss(testString1);
+    multiList._addAss(testString2);
+    multiList._addAss(testString3);
+
+    final var multiJson = multiList._json();
+    assertSet.accept(multiJson);
+    assertTrue.accept(multiJson.arrayNature());
+    assertEquals(Integer._of(3), multiJson._len());
+
+    // Verify each element matches its corresponding string's JSON representation
+    final var element0 = multiJson.get(Integer._of(0));
+    final var element1 = multiJson.get(Integer._of(1));
+    final var element2 = multiJson.get(Integer._of(2));
+
+    assertSet.accept(element0);
+    assertSet.accept(element1);
+    assertSet.accept(element2);
+
+    assertTrue.accept(element0._eq(testString1._json()));
+    assertTrue.accept(element1._eq(testString2._json()));
+    assertTrue.accept(element2._eq(testString3._json()));
+
+    // Note: Collections are always set even when empty, so no unset test needed
+  }
+
+  @Test
+  void testJsonStructureAsString() {
+    // Test that clearly shows the actual JSON structure as pretty-printed strings
+    // This makes it very clear what the JSON array structure looks like
+
+    // Test empty List of String - should produce empty JSON array
+    final var emptyList = listString();
+    final var emptyJson = emptyList._json();
+    
+    final var expectedEmptyJson = """
+        []"""; // Empty JSON array
+    
+    assertEquals(expectedEmptyJson.trim(), emptyJson._string().state.trim());
+
+    // Test List with single String element
+    final var singleList = listString(testString1);
+    final var singleJson = singleList._json();
+    
+    final var expectedSingleJson = """
+        ["Hello"]"""; // Array with one String element
+    
+    assertEquals(expectedSingleJson.trim(), singleJson._string().state.trim());
+
+    // Test List with multiple String elements showing full structure
+    final var multiList = listString();
+    multiList._addAss(testString1); // "Hello"
+    multiList._addAss(testString2); // "World"
+    multiList._addAss(testString3); // "Test"
+    
+    final var multiJson = multiList._json();
+    
+    final var expectedMultiJson = """
+        ["Hello","World","Test"]"""; // Array with multiple String elements
+    
+    assertEquals(expectedMultiJson.trim(), multiJson._string().state.trim());
+
+    // Test List with edge case strings
+    final var specialList = listString();
+    specialList._addAss(String._of(""));           // Empty string
+    specialList._addAss(String._of("with spaces")); // String with spaces
+    specialList._addAss(String._of("special-chars!@#")); // String with special characters
+    
+    final var specialJson = specialList._json();
+    
+    final var expectedSpecialJson = """
+        ["","with spaces","special-chars!@#"]"""; // Array with edge case strings
+    
+    assertEquals(expectedSpecialJson.trim(), specialJson._string().state.trim());
+
+    // Test List with longer content to show structure scales
+    final var longList = listString();
+    longList._addAss(String._of("First"));
+    longList._addAss(String._of("Second"));
+    longList._addAss(String._of("Third"));
+    longList._addAss(String._of("Fourth"));
+    longList._addAss(String._of("Fifth"));
+    
+    final var longJson = longList._json();
+    
+    final var expectedLongJson = """
+        ["First","Second","Third","Fourth","Fifth"]"""; // Array with many String elements
+    
+    assertEquals(expectedLongJson.trim(), longJson._string().state.trim());
   }
 }

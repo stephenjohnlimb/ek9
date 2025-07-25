@@ -196,6 +196,18 @@ public class Optional extends BuiltinType {
     _copy(arg);
   }
 
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      final var valueJson = state._json();
+      return new JSON(String._of("optional"), valueJson);
+    }
+    return new JSON();
+  }
+
   //Start of Utility methods
 
   void assign(Any arg) {

@@ -336,8 +336,6 @@ public class FileSystemPath extends BuiltinType {
     return _new();
   }
 
-  //TODO add in textFile() maybe
-
   @Ek9Operator("""
       operator +=
         -> arg as FileSystemPath""")
@@ -398,6 +396,14 @@ public class FileSystemPath extends BuiltinType {
       return String._of(state.toString());
     }
     return new String();
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    return new JSON(this._string());
   }
 
   @Override

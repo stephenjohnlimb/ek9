@@ -1,5 +1,7 @@
 package org.ek9.lang;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.ek9tooling.Ek9Class;
@@ -26,6 +28,7 @@ public class Version extends BuiltinType {
 
   private static final Pattern fullPattern;
   private static final Pattern noBuilderNumberPattern;
+  private static final JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
   static {
     final var majorMinorPatchPart = "(?<major>\\d+)(\\.)(?<minor>\\d+)(\\.)(?<patch>\\d+)";
@@ -274,6 +277,27 @@ public class Version extends BuiltinType {
 
   @Override
   @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      ObjectNode objectNode = nodeFactory.objectNode();
+      objectNode.put("major", major);
+      objectNode.put("minor", minor);
+      objectNode.put("patch", patch);
+
+      if (feature != null) {
+        objectNode.put("feature", feature);
+      }
+
+      objectNode.put("buildNumber", buildNumber);
+      return JSON._of(objectNode);
+    }
+    return new JSON();
+  }
+
+  @Override
+  @Ek9Operator("""
       operator #? as pure
         <- rtn as Integer?""")
   public Integer _hashcode() {
@@ -294,6 +318,7 @@ public class Version extends BuiltinType {
 
   //Start of utility methods
 
+  @Override
   protected Version _new() {
     return new Version();
   }

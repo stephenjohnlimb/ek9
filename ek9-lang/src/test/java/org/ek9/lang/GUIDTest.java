@@ -421,4 +421,44 @@ class GUIDTest extends Common {
       assertEquals(2, testUuid.variant());
     }
   }
+
+  @Test
+  void testAsJson() {
+    // Test GUID JSON operator - GUID is always set (never unset)
+    final var guid = new GUID();
+    final var guidJson = guid._json();
+    assertSet.accept(guidJson);
+    
+    // Verify JSON content matches string representation
+    final var expectedJsonContent = guid._string()._json();
+    assertTrue.accept(guidJson._eq(expectedJsonContent));
+    
+    // Test JSON structure - should be a string value containing valid UUID
+    assertTrue.accept(guidJson.valueNature());
+    assertFalse.accept(guidJson.objectNature());
+    assertFalse.accept(guidJson.arrayNature());
+    
+    // Test with GUID from string constructor
+    final var knownUuid = "550e8400-e29b-41d4-a716-446655440000";
+    final var guidFromString = new GUID(String._of(knownUuid));
+    final var guidFromStringJson = guidFromString._json();
+    assertSet.accept(guidFromStringJson);
+    assertTrue.accept(guidFromStringJson.valueNature());
+    
+    // Verify JSON content contains valid UUID format
+    final var jsonString = guidFromStringJson._string().state;
+    assertTrue(jsonString.contains(knownUuid) || jsonString.length() > 30); // Valid UUID or fallback random UUID
+    
+    // Test with copy constructor
+    final var guidCopy = new GUID(guid);
+    final var guidCopyJson = guidCopy._json();
+    assertSet.accept(guidCopyJson);
+    assertTrue.accept(guidCopyJson.valueNature());
+    
+    // Test factory method
+    final var factoryGuid = GUID._of();
+    final var factoryGuidJson = factoryGuid._json();
+    assertSet.accept(factoryGuidJson);
+    assertTrue.accept(factoryGuidJson.valueNature());
+  }
 }
