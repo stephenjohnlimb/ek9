@@ -255,6 +255,22 @@ class StringTest extends Common {
   }
 
   @Test
+  void testAsJson() {
+    // Test JSON conversion with set values
+    final var steve = createTestString("Steve");
+    assertNotNull(steve);
+    final var steveJson = steve._json();
+    assertSet.accept(steveJson);
+
+    final var empty = createTestString("");
+    final var emptyJson = empty._json();
+    assertSet.accept(emptyJson);
+
+    // Test JSON conversion with unset value
+    assertUnset.accept(unset._json());
+  }
+
+  @Test
   void testHashCode() {
     final var steve = createTestString("Steve");
     final var steven = createTestString("Steven");

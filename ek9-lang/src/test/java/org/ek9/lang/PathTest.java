@@ -320,6 +320,12 @@ class PathTest extends Common {
     assertEquals("$?.data.items[5].name", testPath.toString());
     assertEquals("", unset.toString());
 
+    // JSON operations
+    final var testPathJson = testPath._json();
+    assertSet.accept(testPathJson);
+
+    assertUnset.accept(unset._json());
+
     // Hash code
     assertSet.accept(testPath._hashcode());
     assertUnset.accept(unset._hashcode());

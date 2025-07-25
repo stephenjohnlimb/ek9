@@ -313,6 +313,17 @@ public class Float extends BuiltinType {
 
   @Override
   @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      return new JSON(this);
+    }
+    return new JSON();
+  }
+
+  @Override
+  @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")
   public String _string() {

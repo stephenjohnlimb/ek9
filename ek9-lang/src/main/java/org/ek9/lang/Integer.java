@@ -337,6 +337,17 @@ public class Integer extends BuiltinType {
     return new Float();
   }
 
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      return new JSON(this);
+    }
+    return new JSON();
+  }
+
   @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")

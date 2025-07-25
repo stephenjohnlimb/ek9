@@ -31,8 +31,6 @@ public class String extends BuiltinType implements Any {
     assign(arg0);
   }
 
-  //TODO need Optional for Optional of String in a constructor.
-
   @Ek9Method("""
       trim() as pure
         <- rtn as String?""")
@@ -306,6 +304,17 @@ public class String extends BuiltinType implements Any {
       rtn.assign(state + arg.state);
     }
     return rtn;
+  }
+
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      return new JSON(this);
+    }
+    return new JSON();
   }
 
   @Override

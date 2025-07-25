@@ -167,6 +167,17 @@ public class Exception extends RuntimeException implements Any {
     return rtn;
   }
 
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      return new JSON(_string());
+    }
+    return new JSON();
+  }
+
   //Start of Utility methods
 
   @Override

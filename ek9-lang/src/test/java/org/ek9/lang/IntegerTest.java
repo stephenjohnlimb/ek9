@@ -264,6 +264,23 @@ class IntegerTest extends Common {
   }
 
   @Test
+  void testAsJson() {
+    // Test JSON conversion with set values
+    final var zeroJson = i0._json();
+    assertNotNull(zeroJson);
+    assertSet.accept(zeroJson);
+    
+    final var oneJson = i1._json();
+    assertSet.accept(oneJson);
+    
+    final var minusOneJson = iMinus1._json();
+    assertSet.accept(minusOneJson);
+    
+    // Test JSON conversion with unset value
+    assertUnset.accept(unset._json());
+  }
+
+  @Test
   void testHashCode() {
     // Test hash code with unset values
     assertUnset.accept(unset._hashcode());

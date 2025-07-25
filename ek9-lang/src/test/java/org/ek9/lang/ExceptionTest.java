@@ -262,6 +262,51 @@ class ExceptionTest extends Common {
   }
 
   @Test
+  void testJavaExceptionFactory() {
+    // Test static factory method with java.lang.Exception
+    final var javaException = new java.lang.Exception("Java exception message");
+    final var ek9FromJavaException = Exception._of(javaException);
+    assertTrue.accept(ek9FromJavaException._isSet());
+    
+    // The toString should show the underlying Java exception message
+    final var toStringResult = ek9FromJavaException.toString();
+    assertNotNull(toStringResult);
+    assertTrue.accept(Boolean._of(toStringResult.contains("Exception:")));
+    assertTrue.accept(Boolean._of(toStringResult.contains("Java exception message")));
+    
+    // Test with IOException (subclass of java.lang.Exception)
+    final var ioException = new java.io.IOException("IO error occurred");
+    final var ek9FromIOException = Exception._of(ioException);
+    assertTrue.accept(ek9FromIOException._isSet());
+    final var ioToString = ek9FromIOException.toString();
+    assertTrue.accept(Boolean._of(ioToString.contains("IO error occurred")));
+    
+    // Test with null java.lang.Exception
+    final var nullJavaException = Exception._of((java.lang.Exception) null);
+    assertTrue.accept(nullJavaException._isSet());
+    
+    // Test cause chain from Java exception
+    final var javaExceptionWithCause = new java.lang.Exception("Outer", javaException);
+    final var ek9WithCause = Exception._of(javaExceptionWithCause);
+    assertTrue.accept(ek9WithCause._isSet());
+    assertEquals(javaExceptionWithCause, ek9WithCause.getCause());
+    
+    // Test that the EK9 Exception wraps the Java exception properly
+    final var checkedEx = new java.lang.Exception("Checked exception");
+    final var wrappedEx = Exception._of(checkedEx);
+    assertTrue.accept(wrappedEx._isSet());
+    assertEquals(checkedEx, wrappedEx.getCause());
+    
+    // Test reason() method returns unset for Java exception factory (no EK9 reason set)
+    final var reasonResult = ek9FromJavaException.reason();
+    assertUnset.accept(reasonResult);
+    
+    // Test exitCode() method returns unset for Java exception factory (no exit code set)
+    final var exitCodeResult = ek9FromJavaException.exitCode();
+    assertUnset.accept(exitCodeResult);
+  }
+
+  @Test
   void testEdgeCases() {
     // Exception with null RuntimeException
     final var nullRuntimeEx = Exception._of((RuntimeException) null);
@@ -327,5 +372,113 @@ class ExceptionTest extends Common {
     final var unicodeReason = String._of("Unicode test: \u2603 \u263A \u2665");
     final var unicodeException = new Exception(unicodeReason);
     assertEquals(String._of("Exception: Unicode test: \u2603 \u263A \u2665"), unicodeException._string());
+  }
+
+  @Test
+  void testComparisonOperator() {
+    // Test _cmp operator behavior
+    final var exception1 = new Exception(String._of("Error A"));
+    final var exception2 = new Exception(String._of("Error A"));
+    final var exception3 = new Exception(String._of("Error B"));
+
+    // Same string content should compare equal (0)
+    final var compareEqual = exception1._cmp(exception2);
+    assertSet.accept(compareEqual);
+    assertEquals(0, compareEqual.state);
+
+    // Different string content should compare unequal
+    final var compareDifferent = exception1._cmp(exception3);
+    assertSet.accept(compareDifferent);
+    // "Error A" < "Error B" lexicographically
+    assertTrue.accept(Boolean._of(compareDifferent.state < 0));
+
+    // Reverse comparison
+    final var compareReverse = exception3._cmp(exception1);
+    assertSet.accept(compareReverse);
+    // "Error B" > "Error A" lexicographically
+    assertTrue.accept(Boolean._of(compareReverse.state > 0));
+
+    // Compare unset exception with set exception
+    assertUnset.accept(unset._cmp(exception1));
+    assertUnset.accept(exception1._cmp(unset));
+
+    // Compare unset exception with unset exception
+    assertUnset.accept(unset._cmp(unset));
+
+    // Compare exception with non-exception Any type
+    final var nonException = new Any() {};
+    assertUnset.accept(exception1._cmp(nonException));
+
+    // Compare exception with null
+    assertUnset.accept(exception1._cmp(null));
+  }
+
+  @Test
+  void testHashCodeOperator() {
+    // Test _hashcode operator behavior
+    final var exception1 = new Exception(String._of("Test message"));
+    final var exception2 = new Exception(String._of("Test message"));
+    final var exception3 = new Exception(String._of("Different message"));
+
+    // Set exceptions should have set hashcodes
+    final var hash1 = exception1._hashcode();
+    assertSet.accept(hash1);
+    final var hash2 = exception2._hashcode();
+    assertSet.accept(hash2);
+    final var hash3 = exception3._hashcode();
+    assertSet.accept(hash3);
+
+    // Exceptions with same string content should have same hashcode
+    assertEquals(hash1.state, hash2.state);
+
+    // Exceptions with different string content should have different hashcodes
+    assertNotEquals(hash1.state, hash3.state);
+
+    // Unset exception should have unset hashcode
+    final var unsetHash = unset._hashcode();
+    assertUnset.accept(unsetHash);
+
+    // Test hashcode consistency with string hashcode
+    final var stringHash = exception1._string()._hashcode();
+    assertSet.accept(stringHash);
+    assertEquals(hash1.state, stringHash.state);
+
+    // Test with various exception types
+    final var exitCodeException = new Exception(String._of("Exit error"), exitCode42);
+    final var exitCodeHash = exitCodeException._hashcode();
+    assertSet.accept(exitCodeHash);
+
+    final var causeException = new Exception(String._of("Cause error"), exception1);
+    final var causeHash = causeException._hashcode();
+    assertSet.accept(causeHash);
+  }
+
+  @Test
+  void testAsJson() {
+    // Test JSON conversion with set values
+    final var reasonException = new Exception(simpleReason);
+    final var reasonJson = reasonException._json();
+    assertSet.accept(reasonJson);
+
+    final var exitCodeException = new Exception(complexReason, exitCode42);
+    final var exitCodeJson = exitCodeException._json();
+    assertSet.accept(exitCodeJson);
+
+    final var causeException = new Exception(simpleReason, reasonException);
+    final var causeJson = causeException._json();
+    assertSet.accept(causeJson);
+
+    // Test JSON conversion with unset value
+    assertUnset.accept(unset._json());
+
+    // Test that JSON content matches string representation
+    final var testException = new Exception(String._of("JSON test"));
+    final var testJson = testException._json();
+    assertSet.accept(testJson);
+    
+    // Verify JSON was created from string representation
+    // (We can't directly test JSON content, but we can verify it's set and non-null)
+    assertNotNull(testJson);
+    assertTrue.accept(testJson._isSet());
   }
 }

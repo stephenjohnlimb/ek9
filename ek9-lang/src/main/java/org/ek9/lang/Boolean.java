@@ -124,6 +124,17 @@ public class Boolean extends BuiltinType {
     return rtn;
   }
 
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      return new JSON(this);
+    }
+    return new JSON();
+  }
+
   @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")
@@ -256,6 +267,7 @@ public class Boolean extends BuiltinType {
 
   //Start of utility methods
 
+  @Override
   protected Boolean _new() {
     return new Boolean();
   }

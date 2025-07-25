@@ -89,10 +89,21 @@ public class Bits extends BuiltinType {
     return Boolean._of(isSet);
   }
 
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      return new JSON(this);
+    }
+    return new JSON();
+  }
+
+  @Override
   @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")
-  @Override
   public String _string() {
     if (isSet) {
       return String._of(toBitString());

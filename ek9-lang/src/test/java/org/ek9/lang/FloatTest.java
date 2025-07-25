@@ -302,6 +302,23 @@ class FloatTest extends Common {
   }
 
   @Test
+  void testAsJson() {
+    // Test JSON conversion with set values
+    final var zeroJson = f0._json();
+    assertNotNull(zeroJson);
+    assertSet.accept(zeroJson);
+    
+    final var oneJson = f1._json();
+    assertSet.accept(oneJson);
+    
+    final var minusOneJson = fMinus1._json();
+    assertSet.accept(minusOneJson);
+    
+    // Test JSON conversion with unset value
+    assertUnset.accept(unset._json());
+  }
+
+  @Test
   void testHashCode() {
     assertUnset.accept(unset._hashcode());
     assertEquals(f0._hashcode(), f0._hashcode());

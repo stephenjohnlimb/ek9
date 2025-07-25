@@ -20,6 +20,8 @@ import org.ek9tooling.Ek9Operator;
  * the result will be unset.
  * </p>
  */
+
+//TODO create helper supporting classes so this is more manageable.
 @SuppressWarnings({"checkstyle:MethodName", "checkstyle:CatchParameterName"})
 @Ek9Class("""
     JSON as open""")
@@ -167,6 +169,83 @@ public class JSON extends BuiltinType {
       JSON() as pure
         -> arg0 as Money""")
   public JSON(Money arg0) {
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0._string().state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as Locale""")
+  public JSON(Locale arg0) {
+    this();
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0._string().state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as Dimension""")
+  public JSON(Dimension arg0) {
+    this();
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0._string().state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as Resolution""")
+  public JSON(Resolution arg0) {
+    this();
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0._string().state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as Colour""")
+  public JSON(Colour arg0) {
+    this();
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0._string().state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as Bits""")
+  public JSON(Bits arg0) {
+    this();
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0._string().state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as Path""")
+  public JSON(Path arg0) {
+    this();
+    if (isValid(arg0)) {
+      super.set();
+      this.jsonNode = nodeFactory.textNode(arg0._string().state);
+    }
+  }
+
+  @Ek9Constructor("""
+      JSON() as pure
+        -> arg0 as RegEx""")
+  public JSON(RegEx arg0) {
+    this();
     if (isValid(arg0)) {
       super.set();
       this.jsonNode = nodeFactory.textNode(arg0._string().state);

@@ -193,6 +193,23 @@ class CharacterTest extends Common {
   }
 
   @Test
+  void testAsJson() {
+    // Test JSON conversion with set values
+    final var aJson = cA._json();
+    assertNotNull(aJson);
+    assertSet.accept(aJson);
+    
+    final var bJson = cB._json();
+    assertSet.accept(bJson);
+    
+    final var spaceJson = cSpace._json();
+    assertSet.accept(spaceJson);
+    
+    // Test JSON conversion with unset value
+    assertUnset.accept(unset._json());
+  }
+
+  @Test
   void testHashCode() {
     assertUnset.accept(unset._hashcode());
     assertEquals(cA._hashcode(), cA._hashcode());

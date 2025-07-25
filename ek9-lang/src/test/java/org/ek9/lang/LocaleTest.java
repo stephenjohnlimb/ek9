@@ -346,6 +346,15 @@ class LocaleTest extends Common {
     assertEquals("sk_SK", skSK._string().state);
 
     assertUnset.accept(unset._string());
+
+    // JSON operations
+    final var enGBJson = enGB._json();
+    assertSet.accept(enGBJson);
+
+    final var deutschJson = deutsch._json();
+    assertSet.accept(deutschJson);
+
+    assertUnset.accept(unset._json());
   }
 
   @Test

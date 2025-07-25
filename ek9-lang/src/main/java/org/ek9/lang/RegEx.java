@@ -157,6 +157,17 @@ public class RegEx extends BuiltinType implements Any {
 
   @Override
   @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      return new JSON(this);
+    }
+    return new JSON();
+  }
+
+  @Override
+  @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")
   public String _string() {

@@ -469,4 +469,21 @@ class DurationTest extends Common {
     final var mult = a._mul(int1);
     assertEquals(a.seconds(), mult.seconds());
   }
+
+  @Test
+  void testAsJson() {
+    // Test JSON conversion with set values
+    final var oneSecondJson = oneSecond._json();
+    assertNotNull(oneSecondJson);
+    assertSet.accept(oneSecondJson);
+    
+    final var oneMinuteJson = oneMinute._json();
+    assertSet.accept(oneMinuteJson);
+    
+    final var complexJson = complex._json();
+    assertSet.accept(complexJson);
+    
+    // Test JSON conversion with unset value
+    assertUnset.accept(unset._json());
+  }
 }

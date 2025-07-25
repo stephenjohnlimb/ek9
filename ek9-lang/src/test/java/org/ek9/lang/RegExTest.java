@@ -30,6 +30,12 @@ class RegExTest extends Common {
     assertSet.accept(copiedRegex);
     assertEquals("\\d+", copiedRegex._string().state);
 
+    // JSON operations
+    final var validRegexJson = validRegex._json();
+    assertSet.accept(validRegexJson);
+
+    assertUnset.accept(unsetRegex._json());
+
     // Copy constructor with unset value
     final var copiedUnset = new RegEx(unsetRegex);
     assertUnset.accept(copiedUnset);
@@ -43,18 +49,18 @@ class RegExTest extends Common {
   void testSplitMethod() {
     final var regex = new RegEx(String._of("\\s+"));
     final var input = String._of("hello world test");
-    
+
     // Valid split operation
     final var result = regex.split(input);
     assertSet.accept(result);
     assertEquals(3, result._len().state);
-    
+
     // Split with unset regex
     final var unsetRegex = new RegEx();
     final var unsetResult = unsetRegex.split(input);
     assertSet.accept(unsetResult);
     assertTrue.accept(unsetResult._empty());
-    
+
     // Split with unset input
     final var unsetInput = new String();
     final var unsetInputResult = regex.split(unsetInput);
@@ -65,6 +71,7 @@ class RegExTest extends Common {
   @Test
   void testEqualityOperators() {
     final var regex1 = new RegEx(String._of("\\d+"));
+    assertNotNull(regex1);
     final var regex2 = new RegEx(String._of("\\d+"));
     final var regex3 = new RegEx(String._of("\\w+"));
     final var unsetRegex = new RegEx();
@@ -89,6 +96,7 @@ class RegExTest extends Common {
   @Test
   void testComparisonOperators() {
     final var regexA = new RegEx(String._of("abc"));
+    assertNotNull(regexA);
     final var regexB = new RegEx(String._of("def"));
     final var regexC = new RegEx(String._of("abc"));
     final var unsetRegex = new RegEx();
@@ -111,6 +119,7 @@ class RegExTest extends Common {
   @Test
   void testIsSetOperator() {
     final var setRegex = new RegEx(String._of("\\d+"));
+    assertNotNull(setRegex);
     final var unsetRegex = new RegEx();
 
     assertTrue.accept(setRegex._isSet());
@@ -168,6 +177,7 @@ class RegExTest extends Common {
   @Test
   void testUtilityOperators() {
     final var emptyRegex = new RegEx(String._of(""));
+    assertNotNull(emptyRegex);
     final var nonEmptyRegex = new RegEx(String._of("\\d+"));
     final var unsetRegex = new RegEx();
 
@@ -185,6 +195,7 @@ class RegExTest extends Common {
   @Test
   void testMatchesOperators() {
     final var digitRegex = new RegEx(String._of("\\d+"));
+    assertNotNull(digitRegex);
     final var unsetRegex = new RegEx();
 
     // Matches with String
@@ -198,20 +209,20 @@ class RegExTest extends Common {
     final var pathRegex = new RegEx(String._of("\\$\\?.*"));
     final var validPath = new Path(String._of("$?.name"));
     final var anotherPath = new Path(String._of("$?.config"));
-    
+
     // Test with valid paths if they are set, otherwise expect unset
     if (validPath._isSet().state) {
       assertTrue.accept(pathRegex._matches(validPath));
     } else {
       assertUnset.accept(pathRegex._matches(validPath));
     }
-    
+
     if (anotherPath._isSet().state) {
       assertTrue.accept(pathRegex._matches(anotherPath));
     } else {
       assertUnset.accept(pathRegex._matches(anotherPath));
     }
-    
+
     assertUnset.accept(pathRegex._matches(new Path()));
     assertUnset.accept(unsetRegex._matches(validPath));
 
@@ -219,7 +230,7 @@ class RegExTest extends Common {
     final var filePathRegex = new RegEx(String._of(".*\\.txt"));
     final var txtPath = new FileSystemPath(String._of("/test/file.txt"));
     final var binPath = new FileSystemPath(String._of("/test/file.bin"));
-    
+
     assertTrue.accept(filePathRegex._matches(txtPath));
     assertFalse.accept(filePathRegex._matches(binPath));
     assertUnset.accept(filePathRegex._matches(new FileSystemPath()));
@@ -229,7 +240,7 @@ class RegExTest extends Common {
     final var localeRegex = new RegEx(String._of("en.*"));
     final var enLocale = new Locale(String._of("en-US"));
     final var frLocale = new Locale(String._of("fr-FR"));
-    
+
     assertTrue.accept(localeRegex._matches(enLocale));
     assertFalse.accept(localeRegex._matches(frLocale));
     assertUnset.accept(localeRegex._matches(new Locale()));
@@ -275,7 +286,7 @@ class RegExTest extends Common {
   void testOrOperator() {
     final var regex1 = new RegEx(String._of("abc"));
     final var regex2 = new RegEx(String._of("def"));
-    
+
     regex1._or(regex2);
     assertSet.accept(regex1);
     assertEquals("abc|def", regex1._string().state);
@@ -348,15 +359,16 @@ class RegExTest extends Common {
   void testComplexPatterns() {
     // Test complex regex patterns
     final var emailRegex = new RegEx(String._of("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"));
+    assertNotNull(emailRegex);
     assertSet.accept(emailRegex);
-    
+
     assertTrue.accept(emailRegex._matches(String._of("test@example.com")));
     assertFalse.accept(emailRegex._matches(String._of("invalid-email")));
 
     // Test pattern with groups
     final var groupRegex = new RegEx(String._of("(\\d{4})-(\\d{2})-(\\d{2})"));
     assertSet.accept(groupRegex);
-    
+
     assertTrue.accept(groupRegex._matches(String._of("2023-12-25")));
     assertFalse.accept(groupRegex._matches(String._of("invalid-date")));
   }
@@ -364,15 +376,17 @@ class RegExTest extends Common {
   @Test
   void testInvalidPatternHandling() {
     // Test various invalid regex patterns
-    final var invalidPatterns = new java.lang.String[]{
+    final var invalidPatterns = new java.lang.String[] {
         "[unclosed",
         "(?invalid-group)",
         "*invalid-quantifier",
         "(?<incomplete-named-group"
     };
+    assertNotNull(invalidPatterns);
 
     for (final var pattern : invalidPatterns) {
       final var regex = new RegEx(String._of(pattern));
+      assertNotNull(regex);
       assertUnset.accept(regex);
     }
   }
@@ -381,6 +395,7 @@ class RegExTest extends Common {
   void testEdgeCases() {
     // Test empty pattern
     final var emptyPattern = new RegEx(String._of(""));
+    assertNotNull(emptyPattern);
     assertSet.accept(emptyPattern);
     assertTrue.accept(emptyPattern._matches(String._of("")));
     assertFalse.accept(emptyPattern._matches(String._of("non-empty")));
@@ -405,16 +420,16 @@ class RegExTest extends Common {
   void testAssignMethod() {
     final var regex1 = new RegEx();
     final var regex2 = new RegEx(String._of("test"));
-    
+
     // Test assignment from set regex
     regex1.assign(regex2);
     assertSet.accept(regex1);
     assertEquals("test", regex1._string().state);
-    
+
     // Test assignment from unset regex
     regex1.assign(new RegEx());
     assertUnset.accept(regex1);
-    
+
     // Test assignment from different type
     // Test assignment from different type would need cast, so test with null
     regex1.assign(null);

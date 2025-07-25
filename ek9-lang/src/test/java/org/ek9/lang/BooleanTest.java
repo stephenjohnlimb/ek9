@@ -3,6 +3,7 @@ package org.ek9.lang;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -135,6 +136,21 @@ class BooleanTest extends Common {
     assertEquals(false1, falseExpected);
 
     assertUnset.accept(new Boolean()._string());
+  }
+
+  @Test
+  void testAsJson() {
+    // Test JSON conversion with set true value
+    final var trueJson = true1._json();
+    assertNotNull(trueJson);
+    assertSet.accept(trueJson);
+    
+    // Test JSON conversion with set false value
+    final var falseJson = false1._json();
+    assertSet.accept(falseJson);
+    
+    // Test JSON conversion with unset value
+    assertUnset.accept(new Boolean()._json());
   }
 
   @Test

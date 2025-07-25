@@ -246,6 +246,17 @@ public class Path extends BuiltinType {
     return Boolean._of(this.isSet);
   }
 
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      return new JSON(this);
+    }
+    return new JSON();
+  }
+
   @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")

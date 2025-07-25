@@ -317,4 +317,24 @@ class TimeTest extends Common {
     assertEquals("00:00:00", startOfDay._string().state);
     assertEquals("23:59:59", endOfDay._string().state);
   }
+
+  @Test
+  void testAsJson() {
+    // Test JSON conversion with set values
+    final var time1Json = time1._json();
+    assertNotNull(time1Json);
+    assertSet.accept(time1Json);
+    
+    final var time2Json = time2._json();
+    assertSet.accept(time2Json);
+    
+    final var startOfDayJson = startOfDay._json();
+    assertSet.accept(startOfDayJson);
+    
+    final var endOfDayJson = endOfDay._json();
+    assertSet.accept(endOfDayJson);
+    
+    // Test JSON conversion with unset value
+    assertUnset.accept(unset._json());
+  }
 }

@@ -115,8 +115,6 @@ class DateTest extends Common {
     assertFalse.accept(date2._lt(date1));
     assertUnset.accept(date1._lt(unset));
     assertUnset.accept(unset._lt(unset));
-
-
     assertTrue.accept(date2._gt(date1));
     assertUnset.accept(date2._gt(unset));
     assertUnset.accept(unset._gt(date1));
@@ -249,6 +247,15 @@ class DateTest extends Common {
     assertEquals(String._of("2023-01-01"), date1._string());
     assertEquals("2023-01-01", date1.toString());
     assertEquals("", unset.toString());
+
+    // JSON operations
+    final var date1Json = date1._json();
+    assertSet.accept(date1Json);
+
+    final var date2Json = date2._json();
+    assertSet.accept(date2Json);
+
+    assertUnset.accept(unset._json());
 
     // Hash code
     assertUnset.accept(unset._hashcode());

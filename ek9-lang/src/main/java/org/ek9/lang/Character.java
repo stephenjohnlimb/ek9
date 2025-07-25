@@ -190,6 +190,17 @@ public class Character extends BuiltinType {
 
   @Override
   @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      return new JSON(this);
+    }
+    return new JSON();
+  }
+
+  @Override
+  @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")
   public String _string() {
@@ -307,6 +318,7 @@ public class Character extends BuiltinType {
    * Why have a 'new method' so that extending classes can override and provide a new version of what they are.
    * Using covariance we can return a class that extends 'Integer' and use it as an Integer
    */
+  @Override
   protected Character _new() {
     return new Character();
   }

@@ -297,6 +297,17 @@ public class Time extends BuiltinType implements TemporalItem {
     return Boolean._of(this.isSet);
   }
 
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      return new JSON(this);
+    }
+    return new JSON();
+  }
+
   @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")
@@ -354,6 +365,7 @@ public class Time extends BuiltinType implements TemporalItem {
     }
   }
 
+  @Override
   protected Time _new() {
     return new Time();
   }

@@ -30,8 +30,6 @@ class MoneyTest extends Common {
     assertSet.accept(copyConstructor);
 
     assertTrue.accept(copyConstructor._eq(tenPounds));
-
-
     // String constructor with valid format
     final var stringConstructor = new Money(String._of("99.99#EUR"));
     assertSet.accept(stringConstructor);
@@ -157,7 +155,7 @@ class MoneyTest extends Common {
 
     // Polymorphic equality with Any
     assertTrue.accept(tenPounds._eq((Any) anotherTenPounds));
-    assertUnset.accept(tenPounds._eq((Any) String._of("not money")));
+    assertUnset.accept(tenPounds._eq(String._of("not money")));
   }
 
   @Test
@@ -192,7 +190,7 @@ class MoneyTest extends Common {
 
     // Polymorphic comparison
     assertSet.accept(tenPounds._cmp((Any) fivePounds));
-    assertUnset.accept(tenPounds._cmp((Any) String._of("not money")));
+    assertUnset.accept(tenPounds._cmp(String._of("not money")));
   }
 
   @Test
@@ -294,8 +292,6 @@ class MoneyTest extends Common {
     final var squared = fivePounds._pow(Integer._of(2));
     assertSet.accept(squared);
     assertEquals("25.00#GBP", squared._string().state);
-
-
 
   }
 
@@ -730,5 +726,22 @@ class MoneyTest extends Common {
     // Verify increment/decrement maintains currency
     assertTrue.accept(usdInc._currency()._eq(String._of("USD")));
     assertTrue.accept(jpyInc._currency()._eq(String._of("JPY")));
+  }
+
+  @Test
+  void testAsJson() {
+    // Test JSON conversion with set values
+    final var tenPoundsJson = tenPounds._json();
+    assertNotNull(tenPoundsJson);
+    assertSet.accept(tenPoundsJson);
+
+    final var thirtyDollarsJson = thirtyDollars._json();
+    assertSet.accept(thirtyDollarsJson);
+
+    final var zeroPoundsJson = zeroPounds._json();
+    assertSet.accept(zeroPoundsJson);
+
+    // Test JSON conversion with unset value
+    assertUnset.accept(unset._json());
   }
 }

@@ -2,6 +2,7 @@ package org.ek9.lang;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
@@ -334,34 +335,47 @@ class MillisecondTest extends Common {
   @Test
   void testUtilityMethods() {
     // Duration conversion
-    final var ms1000 = Millisecond._of(1000);
-    final var duration = ms1000.duration();
+    final var duration = oneThousandMs.duration();
     assertSet.accept(duration);
     assertEquals(1, duration._getAsSeconds());
     assertUnset.accept(unset.duration());
 
     // Promotion to Duration
-    final var promoted = ms1000._promote();
+    final var promoted = oneThousandMs._promote();
     assertSet.accept(promoted);
     assertEquals(1, promoted._getAsSeconds());
 
     // Prefix (numeric value)
-    assertEquals(1000, ms1000._prefix().state);
+    assertEquals(1000, oneThousandMs._prefix().state);
     assertUnset.accept(unset._prefix());
 
     // Suffix (unit string)
-    assertEquals("ms", ms1000._suffix().state);
+    assertEquals("ms", oneThousandMs._suffix().state);
     assertUnset.accept(unset._suffix());
 
     // Length
-    assertEquals(6, ms1000._len().state); // "1000ms" = 6 characters
+    assertEquals(6, oneThousandMs._len().state); // "1000ms" = 6 characters
     assertEquals(0, unset._len().state);
 
     // String conversion
-    assertEquals("1000ms", ms1000._string().state);
+    assertEquals("1000ms", oneThousandMs._string().state);
     assertEquals("", unset._string().state);
-    assertEquals("1000ms", ms1000.toString());
+    assertEquals("1000ms", oneThousandMs.toString());
     assertEquals("", unset.toString());
+  }
+
+  @Test
+  void testAsJson() {
+    // Test JSON conversion with set values
+    final var oneThousandMsJson = oneThousandMs._json();
+    assertNotNull(oneThousandMsJson);
+    assertSet.accept(oneThousandMsJson);
+
+    final var zeroMsJson = zeroMs._json();
+    assertSet.accept(zeroMsJson);
+
+    // Test JSON conversion with unset value
+    assertUnset.accept(unset._json());
   }
 
   @Test

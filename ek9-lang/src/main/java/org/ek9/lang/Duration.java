@@ -396,6 +396,17 @@ public class Duration extends BuiltinType {
 
   @Override
   @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      return new JSON(this);
+    }
+    return new JSON();
+  }
+
+  @Override
+  @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")
   public String _string() {
@@ -538,6 +549,7 @@ public class Duration extends BuiltinType {
     return java.time.Period.of(years, months, days);
   }
 
+  @Override
   protected Duration _new() {
     return new Duration();
   }

@@ -302,6 +302,22 @@ class DateTimeTest extends Common {
     assertEquals("2023-01-01T12:00:00Z", dateTime1.toString());
     assertEquals("2023-01-02T14:30:15Z", dateTime2.toString());
     assertEquals("", unset.toString());
+  }
+
+  @Test
+  void testAsJson() {
+    // Test JSON conversion with set values
+    final var dateTime1Json = dateTime1._json();
+    assertSet.accept(dateTime1Json);
+
+    final var dateTime2Json = dateTime2._json();
+    assertSet.accept(dateTime2Json);
+
+    final var epochJson = epoch._json();
+    assertSet.accept(epochJson);
+
+    // Test JSON conversion with unset value
+    assertUnset.accept(unset._json());
 
     // Test rfc7231() method (HTTP date format)
     assertUnset.accept(unset.rfc7231());
@@ -390,8 +406,6 @@ class DateTimeTest extends Common {
     assertEquals(Integer._of(15), fromHttp1.hour());
     assertEquals(Integer._of(30), fromHttp1.minute());
     assertEquals(Integer._of(45), fromHttp1.second());
-
-
     // Test invalid HTTP date
     final var invalidHttp = DateTime._ofHttpDateTime("not-a-date");
     assertUnset.accept(invalidHttp);

@@ -2,6 +2,7 @@ package org.ek9.lang;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -20,8 +21,6 @@ class ColourTest extends Common {
   private final Colour greenRgb = Colour._of("00FF00");
   private final Colour blueRgb = Colour._of("0000FF");
   private final Colour redArgb = Colour._of("FFFF0000");
-
-
   @Test
   void testConstruction() {
     // Default constructor creates unset
@@ -141,6 +140,7 @@ class ColourTest extends Common {
   void testEquality() {
     // Same color equality
     final var red1 = Colour._of("#FF0000");
+    assertNotNull(red1);
     final var red2 = Colour._of("FF0000");
     assertTrue.accept(red1._eq(red2));
     assertFalse.accept(red1._neq(red2));
@@ -344,6 +344,7 @@ class ColourTest extends Common {
   void testAssignmentOperators() {
     // Copy operation
     final var target = new Colour();
+    assertNotNull(target);
     target._copy(redRgb);
     assertSet.accept(target);
     assertTrue.accept(target._eq(redRgb));
@@ -486,8 +487,6 @@ class ColourTest extends Common {
     final var mixedAddition2 = blueNoAlpha._add(redWithAlpha);
     assertSet.accept(mixedAddition2);
     assertEquals("#80FF00FF", mixedAddition2._string().state);
-
-
     final var mixedSubtraction1 = redWithAlpha._sub(blueNoAlpha);
     assertSet.accept(mixedSubtraction1);
     assertEquals("#80FF0000", mixedSubtraction1._string().state);
@@ -504,8 +503,6 @@ class ColourTest extends Common {
     final var mixedSubtraction3 = greenWithAlpha._sub(redWithAlpha);
     assertSet.accept(mixedSubtraction3);
     assertEquals("#0F00FF00", mixedSubtraction3._string().state);
-
-
   }
 
   @Test
@@ -526,5 +523,21 @@ class ColourTest extends Common {
     assertTrue.accept(hslResult._isSet());
     assertEquals("#80DFDF20", hslResult._string().state);
 
+  }
+
+  @Test
+  void testAsJson() {
+    // Test JSON conversion with set values
+    final var redColour = new Colour(String._of("#FF0000"));
+    assertNotNull(redColour);
+    final var redJson = redColour._json();
+    assertSet.accept(redJson);
+
+    final var blueColour = new Colour(String._of("#0000FF"));
+    final var blueJson = blueColour._json();
+    assertSet.accept(blueJson);
+
+    // Test JSON conversion with unset value
+    assertUnset.accept(unset._json());
   }
 }

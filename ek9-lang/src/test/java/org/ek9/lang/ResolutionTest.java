@@ -8,8 +8,6 @@ import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 
 class ResolutionTest extends Common {
-
-
   final Resolution unset = new Resolution();
   final Resolution zeroDpi = Resolution._of("0dpi");
   final Resolution oneDpi = Resolution._of("1dpi");
@@ -412,6 +410,12 @@ class ResolutionTest extends Common {
     // String conversion
     assertEquals("1000dpi", dpi1000._string().state);
     assertEquals("", unset._string().state);
+
+    // JSON operations
+    final var dpi1000Json = dpi1000._json();
+    assertSet.accept(dpi1000Json);
+
+    assertUnset.accept(unset._json());
     assertEquals("1000dpi", dpi1000.toString());
     assertEquals("", unset.toString());
 

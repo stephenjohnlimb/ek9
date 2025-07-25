@@ -199,8 +199,6 @@ class BitsTest extends Common {
     assertUnset.accept(unsetBits._lteq(bits010011));
     assertUnset.accept(unsetBits._gt(bits010011));
     assertUnset.accept(unsetBits._gteq(bits010011));
-
-
     // Test equality
     final var copy = Bits._of("0b010011");
     assertNotNull(copy);
@@ -392,6 +390,12 @@ class BitsTest extends Common {
 
     // Unset string
     assertUnset.accept(unsetBits._string());
+
+    // JSON operations
+    final var bitsJson = bits010011._json();
+    assertSet.accept(bitsJson);
+
+    assertUnset.accept(unsetBits._json());
 
     // Hash code
     final var hash = bits010011._hashcode();

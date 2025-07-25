@@ -109,6 +109,13 @@ public interface Any {
   }
 
   @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  default JSON _json() {
+    return new JSON();
+  }
+
+  @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")
   default String _string() {

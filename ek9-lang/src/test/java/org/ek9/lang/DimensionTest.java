@@ -365,6 +365,12 @@ class DimensionTest extends Common {
     // String conversion
     assertEquals("1000.0px", px1000._string().state);
     assertEquals("", unset._string().state);
+
+    // JSON operations
+    final var px1000Json = px1000._json();
+    assertSet.accept(px1000Json);
+
+    assertUnset.accept(unset._json());
     assertEquals("1000.0px", px1000.toString());
     assertEquals("", unset.toString());
 

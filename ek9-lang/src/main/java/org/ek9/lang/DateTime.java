@@ -435,6 +435,17 @@ public class DateTime extends BuiltinType implements TemporalItem {
     return Boolean._of(this.isSet);
   }
 
+  @Override
+  @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    if (isSet) {
+      return new JSON(this);
+    }
+    return new JSON();
+  }
+
   @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")
@@ -469,7 +480,7 @@ public class DateTime extends BuiltinType implements TemporalItem {
   }
 
   //Start of Utility methods
-
+  @Override
   protected DateTime _new() {
     return new DateTime();
   }

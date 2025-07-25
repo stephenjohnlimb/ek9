@@ -22,6 +22,8 @@ class AnyTest extends Common {
     final var asString = any._string();
     assertUnset.accept(asString);
 
+    final var asJSON = any._json();
+    assertUnset.accept(asJSON);
   }
 
   @Test
