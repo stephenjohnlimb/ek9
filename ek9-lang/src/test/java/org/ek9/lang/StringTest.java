@@ -960,4 +960,100 @@ class StringTest extends Common {
     // But their EK9 equality should both return unset (not comparable)
     assertUnset.accept(stringCorrupt._eq(characterCorrupt));
   }
+
+  @Test
+  void testMatchesWithRegEx() {
+    // Test basic pattern matching functionality with RegEx delegation
+
+    // Test canProcess scenarios (EK9 pattern validation)
+
+    // Unset String with valid RegEx should return unset Boolean
+    final var digitRegex = new RegEx(String._of("\\d+"));
+    assertNotNull(digitRegex);
+    assertUnset.accept(unset._matches(digitRegex));
+
+    // Valid String with unset RegEx should return unset Boolean
+    final var numberString = createTestString("123");
+    assertUnset.accept(numberString._matches(new RegEx()));
+
+    // Both unset should return unset Boolean
+    assertUnset.accept(unset._matches(new RegEx()));
+
+    // Basic functionality tests
+
+    // Simple hit - string matches pattern
+    assertTrue.accept(numberString._matches(digitRegex));
+
+    // Simple miss - string doesn't match pattern
+    final var textString = createTestString("abc");
+    assertFalse.accept(textString._matches(digitRegex));
+
+    // Test with empty string
+    final var emptyString = createTestString("");
+    final var emptyRegex = new RegEx(String._of(""));
+    assertTrue.accept(emptyString._matches(emptyRegex));
+
+    // Test with more patterns
+    final var wordRegex = new RegEx(String._of("\\w+"));
+    assertTrue.accept(textString._matches(wordRegex));
+    assertFalse.accept(createTestString("@#$")._matches(wordRegex));
+  }
+
+  @Test
+  void testSplitWithRegEx() {
+    // Test basic string splitting functionality with RegEx delegation
+
+    // Test canProcess scenarios (EK9 pattern validation)
+
+    // Unset String with valid RegEx should return empty List
+    final var commaRegex = new RegEx(String._of(","));
+    final var unsetResult = unset.split(commaRegex);
+    assertSet.accept(unsetResult);
+    assertTrue.accept(unsetResult._empty());
+
+    // Valid String with unset RegEx should return empty List
+    final var csvString = createTestString("a,b,c");
+    final var unsetRegexResult = csvString.split(new RegEx());
+    assertSet.accept(unsetRegexResult);
+    assertTrue.accept(unsetRegexResult._empty());
+
+    // Both unset should return empty List
+    final var bothUnsetResult = unset.split(new RegEx());
+    assertSet.accept(bothUnsetResult);
+    assertTrue.accept(bothUnsetResult._empty());
+
+    // Basic functionality tests
+
+    // No match split - pattern doesn't match, should return single-item list
+    final var noMatchString = createTestString("hello");
+    final var noMatchResult = noMatchString.split(commaRegex);
+    assertSet.accept(noMatchResult);
+    assertEquals(1, noMatchResult._len().state);
+    assertEquals(noMatchString, noMatchResult.get(Integer._of(0)));
+
+    // Three-group split - split on comma should produce 3 parts
+    final var threeGroupResult = csvString.split(commaRegex);
+    assertSet.accept(threeGroupResult);
+    assertEquals(3, threeGroupResult._len().state);
+    assertEquals(createTestString("a"), threeGroupResult.get(Integer._of(0)));
+    assertEquals(createTestString("b"), threeGroupResult.get(Integer._of(1)));
+    assertEquals(createTestString("c"), threeGroupResult.get(Integer._of(2)));
+
+    // Test with whitespace splitting
+    final var spaceString = createTestString("hello world test");
+    final var whitespaceRegex = new RegEx(String._of("\\s+"));
+    final var wordResult = spaceString.split(whitespaceRegex);
+    assertSet.accept(wordResult);
+    assertEquals(3, wordResult._len().state);
+    assertEquals(createTestString("hello"), wordResult.get(Integer._of(0)));
+    assertEquals(createTestString("world"), wordResult.get(Integer._of(1)));
+    assertEquals(createTestString("test"), wordResult.get(Integer._of(2)));
+
+    // Test with empty string
+    final var emptyString = createTestString("");
+    final var emptyResult = emptyString.split(commaRegex);
+    assertSet.accept(emptyResult);
+    assertEquals(1, emptyResult._len().state);
+    assertEquals(emptyString, emptyResult.get(Integer._of(0)));
+  }
 }

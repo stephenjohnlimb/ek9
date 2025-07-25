@@ -170,7 +170,20 @@ public class String extends BuiltinType implements Any {
     return Integer._of(count);
   }
 
-  //TODO split with RegEX
+
+  @Ek9Method("""
+      split() as pure
+        -> with as RegEx
+        <- rtn as List of String?""")
+  public _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1 split(final RegEx with) {
+    //Sometimes I think this way around, I have a String and what to split with a RegEx
+    //Other times I have a RegEx and what to split several Strings.
+    //But either way is fine. this supports this.
+    if (canProcess(with)) {
+      return with.split(this);
+    }
+    return _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of();
+  }
 
   @Ek9Operator("""
       operator < as pure
@@ -447,7 +460,17 @@ public class String extends BuiltinType implements Any {
     return new Boolean();
   }
 
-  //TODO matches with RegEx
+  @Ek9Operator("""
+      operator matches as pure
+        -> arg as RegEx
+        <- rtn as Boolean?""")
+  public Boolean _matches(final RegEx arg) {
+    if (canProcess(arg)) {
+      return arg._matches(this);
+    }
+
+    return new Boolean();
+  }
 
   //Start of utility methods
 
