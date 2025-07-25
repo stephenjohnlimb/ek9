@@ -58,6 +58,16 @@ public class Millisecond extends SuffixedComponent {
     }
   }
 
+  @Ek9Constructor("""
+      Millisecond() as pure
+        -> arg0 as Integer""")
+  public Millisecond(Integer arg0) {
+    unSet();
+    if (isValid(arg0)) {
+      assign(arg0.state, "ms");
+    }
+  }
+
   @Ek9Method("""
       duration() as pure
         <- rtn as Duration?""")
@@ -71,6 +81,9 @@ public class Millisecond extends SuffixedComponent {
     return Duration._of(seconds);
   }
 
+  @Ek9Operator("""
+      operator #^ as pure
+        <- rtn as Duration?""")
   public Duration _promote() {
     return duration();
   }
@@ -135,8 +148,6 @@ public class Millisecond extends SuffixedComponent {
   public void _pipe(Millisecond arg) {
     _merge(arg);
   }
-
-  //TODO more stock methods and operators like less than etc.
 
   @Ek9Operator("""
       operator - as pure
@@ -435,6 +446,14 @@ public class Millisecond extends SuffixedComponent {
       return _cmp(asMillisecond);
     }
     return new Integer();
+  }
+
+  @Ek9Operator("""
+      operator <~> as pure
+        -> arg as Millisecond
+        <- rtn as Integer?""")
+  public Integer _fuzzy(Millisecond arg) {
+    return _cmp(arg);
   }
 
   @Ek9Operator("""

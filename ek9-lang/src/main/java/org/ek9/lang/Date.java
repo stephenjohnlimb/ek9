@@ -485,7 +485,6 @@ public class Date extends BuiltinType implements TemporalItem {
     _copy(arg);
   }
 
-
   @Ek9Operator("""
       operator :=:
         -> arg as Date""")

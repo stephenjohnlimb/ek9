@@ -71,7 +71,7 @@ defines module com.customer.just
       stdout.println("VeryLong timeout [" + $veryLongTime + " " + $asDuration + "]")
 
       nearlyASecond <- 501ms
-      nearlyMinus1Second <- ~nearlyASecond
+      nearlyMinus1Second <- -nearlyASecond
       stdout.println("More timeouts [" + $nearlyASecond.duration() + " " + $nearlyMinus1Second.duration() + "]")
 
       //Lets say I already have a duration and want to add some milliseconds to it.

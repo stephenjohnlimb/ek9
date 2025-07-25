@@ -421,12 +421,10 @@ public class Money extends BuiltinType {
         <- rtn as Money?""")
   public Money _inc() {
     if (isSet) {
-      Money result = _new();
       BigDecimal increment = getSmallestUnit();
-      result.assign(this.state.add(increment), this.currency);
-      return result;
+      this.state = this.state.add(increment);
     }
-    return _new();
+    return this;
   }
 
   @Ek9Operator("""
@@ -434,12 +432,10 @@ public class Money extends BuiltinType {
         <- rtn as Money?""")
   public Money _dec() {
     if (isSet) {
-      Money result = _new();
       BigDecimal decrement = getSmallestUnit();
-      result.assign(this.state.subtract(decrement), this.currency);
-      return result;
+      this.state = this.state.subtract(decrement);
     }
-    return _new();
+    return this;
   }
 
   @Ek9Operator("""

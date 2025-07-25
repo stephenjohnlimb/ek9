@@ -143,9 +143,94 @@ public class Time extends BuiltinType implements TemporalItem {
     assign(LocalTime.MAX);
   }
 
-  //TODO add in durations
+  @Ek9Method("""
+      now() as pure
+        <- rtn as Time?""")
+  public static Time now() {
+    return Time._of(java.time.LocalTime.now());
+  }
 
-  //TODO add in milliseconds
+  @Ek9Operator("""
+      operator + as pure
+        -> arg as Duration
+        <- rtn as Time?""")
+  public Time _add(Duration arg) {
+    Time rtn = _new();
+    if (canProcess(arg)) {
+      long seconds = arg._getAsSeconds();
+      rtn.assign(this.state.plusSeconds(seconds));
+    }
+    return rtn;
+  }
+
+  @Ek9Operator("""
+      operator + as pure
+        -> arg as Millisecond
+        <- rtn as Time?""")
+  public Time _add(Millisecond arg) {
+    Time rtn = _new();
+    if (canProcess(arg)) {
+      long seconds = arg.state / 1000;
+      rtn.assign(this.state.plusSeconds(seconds));
+    }
+    return rtn;
+  }
+
+  @Ek9Operator("""
+      operator - as pure
+        -> arg as Duration
+        <- rtn as Time?""")
+  public Time _sub(Duration arg) {
+    Time rtn = _new();
+    if (canProcess(arg)) {
+      long seconds = arg._getAsSeconds();
+      rtn.assign(this.state.minusSeconds(seconds));
+    }
+    return rtn;
+  }
+
+  @Ek9Operator("""
+      operator - as pure
+        -> arg as Millisecond
+        <- rtn as Time?""")
+  public Time _sub(Millisecond arg) {
+    Time rtn = _new();
+    if (canProcess(arg)) {
+      long seconds = arg.state / 1000;
+      rtn.assign(this.state.minusSeconds(seconds));
+    }
+    return rtn;
+  }
+
+  @Ek9Operator("""
+      operator - as pure
+        -> arg as Time
+        <- rtn as Duration?""")
+  public Duration _sub(Time arg) {
+    if (canProcess(arg)) {
+      java.time.Duration javaDuration = java.time.Duration.between(arg.state, this.state);
+      long seconds = javaDuration.getSeconds();
+      return Duration._of(seconds);
+    }
+    return new Duration();
+  }
+
+  @Ek9Operator("""
+      operator - as pure
+        <- rtn as Time?""")
+  public Time _negate() {
+    Time rtn = _new();
+    if (isSet) {
+      // Negate by subtracting current time from midnight (00:00:00)
+      long secondsFromMidnight = this.state.toSecondOfDay();
+      long negatedSeconds = 86400 - secondsFromMidnight; // 24 * 60 * 60 - seconds
+      if (negatedSeconds == 86400) {
+        negatedSeconds = 0; // Handle midnight case
+      }
+      rtn.assign(LocalTime.ofSecondOfDay(negatedSeconds));
+    }
+    return rtn;
+  }
 
   @Ek9Operator("""
       operator #< as pure
@@ -279,6 +364,41 @@ public class Time extends BuiltinType implements TemporalItem {
   }
 
   @Ek9Operator("""
+      operator <~> as pure
+        -> arg as Time
+        <- rtn as Integer?""")
+  public Integer _fuzzy(Time arg) {
+    if (canProcess(arg)) {
+      // Fuzzy comparison ignores seconds - compare only hours and minutes
+      LocalTime thisHourMin = this.state.withSecond(0).withNano(0);
+      LocalTime argHourMin = arg.state.withSecond(0).withNano(0);
+      int cmpResult = thisHourMin.compareTo(argHourMin);
+      if (cmpResult == 0) {
+        return Integer._of(0);
+      }
+      if (cmpResult > 0) {
+        return Integer._of(1);
+      }
+      return Integer._of(-1);
+    }
+    return new Integer();
+  }
+
+  @Ek9Operator("""
+      operator :~:
+        -> arg as Time""")
+  public void _merge(Time arg) {
+    _copy(arg);
+  }
+
+  @Ek9Operator("""
+      operator :^:
+        -> arg as Time""")
+  public void _replace(Time arg) {
+    _copy(arg);
+  }
+
+  @Ek9Operator("""
       operator :=:
         -> arg as Time""")
   public void _copy(Time arg) {
@@ -287,6 +407,78 @@ public class Time extends BuiltinType implements TemporalItem {
     } else {
       super.unSet();
     }
+  }
+
+  @Ek9Operator("""
+      operator +=
+        -> arg as Duration""")
+  public void _addAss(Duration arg) {
+    if (canProcess(arg)) {
+      long seconds = arg._getAsSeconds();
+      assign(this.state.plusSeconds(seconds));
+    } else {
+      unSet();
+    }
+  }
+
+  @Ek9Operator("""
+      operator +=
+        -> arg as Millisecond""")
+  public void _addAss(Millisecond arg) {
+    if (canProcess(arg)) {
+      long seconds = arg.state / 1000;
+      assign(this.state.plusSeconds(seconds));
+    } else {
+      unSet();
+    }
+  }
+
+  @Ek9Operator("""
+      operator -=
+        -> arg as Duration""")
+  public void _subAss(Duration arg) {
+    if (canProcess(arg)) {
+      long seconds = arg._getAsSeconds();
+      assign(this.state.minusSeconds(seconds));
+    } else {
+      unSet();
+    }
+  }
+
+  @Ek9Operator("""
+      operator -=
+        -> arg as Millisecond""")
+  public void _subAss(Millisecond arg) {
+    if (canProcess(arg)) {
+      long seconds = arg.state / 1000;
+      assign(this.state.minusSeconds(seconds));
+    } else {
+      unSet();
+    }
+  }
+
+  @Ek9Operator("""
+      operator |
+        -> arg as Time""")
+  public void _pipe(Time arg) {
+    // Pipe with Time does replacement - we can only overwrite, not additive
+    if (isValid(arg)) {
+      assign(arg.state);
+    }
+  }
+
+  @Ek9Operator("""
+      operator |
+        -> arg as Duration""")
+  public void _pipe(Duration arg) {
+    _addAss(arg);
+  }
+
+  @Ek9Operator("""
+      operator |
+        -> arg as Millisecond""")
+  public void _pipe(Millisecond arg) {
+    _addAss(arg);
   }
 
   @Override

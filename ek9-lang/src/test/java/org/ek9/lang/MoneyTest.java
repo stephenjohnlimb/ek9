@@ -580,7 +580,7 @@ class MoneyTest extends Common {
     // Test decrement with GBP
     final var decremented = tenPounds._dec();
     assertSet.accept(decremented);
-    assertEquals("9.99#GBP", decremented._string().state);
+    assertEquals("10.00#GBP", decremented._string().state);
 
     // Test increment with JPY (0 decimal places)
     final var jpy = Money._of("1000#JPY");
@@ -590,7 +590,7 @@ class MoneyTest extends Common {
 
     final var jpyDecremented = jpy._dec();
     assertSet.accept(jpyDecremented);
-    assertEquals("999#JPY", jpyDecremented._string().state);
+    assertEquals("1000#JPY", jpyDecremented._string().state);
 
     // Test multiple increments
     final var twice = tenPounds._inc()._inc();
@@ -600,7 +600,7 @@ class MoneyTest extends Common {
     // Test multiple decrements
     final var twiceDown = tenPounds._dec()._dec();
     assertSet.accept(twiceDown);
-    assertEquals("9.98#GBP", twiceDown._string().state);
+    assertEquals("10.00#GBP", twiceDown._string().state);
 
     // Test with zero amount
     final var zeroIncremented = zeroPounds._inc();
@@ -609,7 +609,7 @@ class MoneyTest extends Common {
 
     final var zeroDecremented = zeroPounds._dec();
     assertSet.accept(zeroDecremented);
-    assertEquals("-0.01#GBP", zeroDecremented._string().state);
+    assertEquals("0.00#GBP", zeroDecremented._string().state);
 
     // Test with unset Money
     assertUnset.accept(unset._inc());
@@ -622,7 +622,7 @@ class MoneyTest extends Common {
 
     final var negativeDecremented = negativePounds._dec();
     assertSet.accept(negativeDecremented);
-    assertEquals("-25.51#GBP", negativeDecremented._string().state);
+    assertEquals("-25.50#GBP", negativeDecremented._string().state);
   }
 
   @Test
@@ -665,7 +665,8 @@ class MoneyTest extends Common {
   @Test
   void testCurrencySpecificIncrements() {
     // Test different currency decimal place behaviors
-    
+    //Remember ++ and -- mutate the value - they are not pure.
+
     // USD/EUR/GBP: 2 decimal places, increment by 0.01
     final var usd = Money._of("5.99#USD");
     final var usdInc = usd._inc();
@@ -721,7 +722,7 @@ class MoneyTest extends Common {
     assertEquals("1#JPY", jpyOne._string().state);
 
     final var jpyMinusOne = jpyZero._dec();
-    assertEquals("-1#JPY", jpyMinusOne._string().state);
+    assertEquals("0#JPY", jpyMinusOne._string().state);
 
     // Verify increment/decrement maintains currency
     assertTrue.accept(usdInc._currency()._eq(String._of("USD")));

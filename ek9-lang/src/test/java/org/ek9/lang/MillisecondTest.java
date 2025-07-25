@@ -50,6 +50,15 @@ class MillisecondTest extends Common {
     final var fromUnsetDuration = new Millisecond(new Duration());
     assertUnset.accept(fromUnsetDuration);
 
+    // Integer constructor
+    final var fromInteger = new Millisecond(Integer._of(750));
+    assertSet.accept(fromInteger);
+    assertEquals("750ms", fromInteger.toString());
+    assertEquals(750, fromInteger._prefix().state);
+
+    final var fromUnsetInteger = new Millisecond(new Integer());
+    assertUnset.accept(fromUnsetInteger);
+
     // Static factory methods
     final var factoryMs = Millisecond._of(500);
     assertSet.accept(factoryMs);

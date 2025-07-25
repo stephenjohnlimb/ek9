@@ -827,9 +827,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg0 as String
 
             Time() as pure
-              -> hour as Integer
-
-            Time() as pure
               ->
                 hour as Integer
                 minute as Integer
@@ -1220,12 +1217,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Millisecond
               <- rtn as Integer?
 
-            <?-
-              Inverts the value.
-            -?>
-            operator ~ as pure
-              <- rtn as Millisecond?
-
             operator :~:
               -> arg as Millisecond
 
@@ -1496,6 +1487,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             day() as pure
               <- rtn as Integer?
 
+            date() as pure
+              <- rtn as Date?
+
             hour() as pure
               <- rtn as Integer?
 
@@ -1504,6 +1498,9 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             second() as pure
               <- rtn as Integer?
+
+            time() as pure
+              <- rtn as Time?
 
             dayOfYear() as pure
               <- rtn as Integer?
@@ -1591,10 +1588,10 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Integer?
 
             operator #< as pure
-              <- rtn as Integer?
+              <- rtn as Date?
 
             operator #> as pure
-              <- rtn as Integer?
+              <- rtn as Time?
 
             operator :~:
               -> arg as DateTime
