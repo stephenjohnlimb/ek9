@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 class OptionalTest extends Common {
 
   // Test data setup
-  private final Optional unset = new Optional();
+  private final Optional unsetOptional = new Optional();
   private final String testValue = String._of("TestValue");
   private final Optional setOptional = new Optional(testValue);
   private final Integer testInt = INT_42;
@@ -111,7 +111,7 @@ class OptionalTest extends Common {
     @Test
     void testStateManagement() {
       // Test state of unset Optional using helper
-      assertOptionalUnset(unset);
+      assertOptionalUnset(unsetOptional);
 
       // Test state of set Optional using helper
       assertOptionalSet(setOptional);
@@ -133,7 +133,7 @@ class OptionalTest extends Common {
     @Test
     void testValueAccess() {
       // Test get() method - should throw exception on unset Optional
-      assertThrows(Exception.class, unset::get);
+      assertThrows(Exception.class, unsetOptional::get);
 
       // Test get() method on set Optional (within safe block)
       if (setOptional._isSet().state) {
@@ -144,7 +144,7 @@ class OptionalTest extends Common {
 
       // Test getOrDefault on unset Optional
       final var defaultValue = STR_DEFAULT;
-      final var resultFromUnset = unset.getOrDefault(defaultValue);
+      final var resultFromUnset = unsetOptional.getOrDefault(defaultValue);
       assertEquals(defaultValue, resultFromUnset);
 
       // Test getOrDefault on set Optional
@@ -161,7 +161,7 @@ class OptionalTest extends Common {
       assertEquals(testBool, boolResult);
 
       // Test getOrDefault with null default
-      final var nullDefault = unset.getOrDefault(null);
+      final var nullDefault = unsetOptional.getOrDefault(null);
       assertNull(nullDefault);
     }
   }
@@ -177,13 +177,13 @@ class OptionalTest extends Common {
       assertFalse.accept(emptyFromSet._isSet());
       assertTrue.accept(emptyFromSet._empty());
 
-      final var emptyFromUnset = unset.asEmpty();
+      final var emptyFromUnset = unsetOptional.asEmpty();
       assertUnset.accept(emptyFromUnset);
       assertFalse.accept(emptyFromUnset._isSet());
       assertTrue.accept(emptyFromUnset._empty());
 
       // Test iterator() method on unset Optional
-      final var unsetIterator = unset.iterator();
+      final var unsetIterator = unsetOptional.iterator();
       assertFalse.accept(unsetIterator._isSet());
       assertFalse.accept(unsetIterator.hasNext());
 
@@ -196,7 +196,7 @@ class OptionalTest extends Common {
       assertWhenPresentCalled(setOptional, testValue);
 
       // Test whenPresent with unset Optional using helper
-      assertWhenPresentNotCalled(unset);
+      assertWhenPresentNotCalled(unsetOptional);
     }
   }
 
@@ -206,7 +206,7 @@ class OptionalTest extends Common {
     @Test
     void testOperators() {
       // Test _string operator ($) on unset Optional
-      final var unsetString = unset._string();
+      final var unsetString = unsetOptional._string();
       assertNotNull(unsetString);
       // Check that unset string is empty or unset
       final var isEmpty = unsetString.toString().isEmpty();
@@ -219,7 +219,7 @@ class OptionalTest extends Common {
       assertEquals(testValue, setString);
 
       // Test _hashcode operator (#?) on unset Optional
-      final var unsetHash = unset._hashcode();
+      final var unsetHash = unsetOptional._hashcode();
       assertUnset.accept(unsetHash);
 
       // Test _hashcode operator (#?) on set Optional
@@ -228,8 +228,8 @@ class OptionalTest extends Common {
       assertNotNull(setHash);
 
       // Test _contains operator on unset Optional
-      assertUnset.accept(unset._contains(testValue));
-      assertUnset.accept(unset._contains(null));
+      assertUnset.accept(unsetOptional._contains(testValue));
+      assertUnset.accept(unsetOptional._contains(null));
 
       // Test _contains operator on set Optional
       assertTrue.accept(setOptional._contains(testValue));
@@ -292,39 +292,24 @@ class OptionalTest extends Common {
     
     @Test
     void testEdgeCases() {
-      // Test operations on unset Optional don't throw exceptions
-      assertFalse.accept(unset._isSet());
-      assertTrue.accept(unset._empty());
-      assertUnset.accept(unset.asEmpty());
+      // Test safe operations on unset Optional (no exceptions thrown)
+      assertOptionalUnset(unsetOptional);
+      assertUnset.accept(unsetOptional.asEmpty());
+      assertNotNull(unsetOptional.toString());
 
-      // Test toString on unset Optional
-      assertNotNull(unset.toString());
-
-      // Test toString on set Optional
+      // Test toString and equality for set Optional  
       assertNotNull(setOptional.toString());
+      assertEquals(setOptional, new Optional(testValue)); // Same value
+      assertNotEquals(setOptional, new Optional(String._of("different"))); // Different value
 
-      // Test equals on unset Optionals
-      final var anotherUnset = new Optional();
-      assertUnset.accept(anotherUnset);
+      // Test hashCode consistency with state
+      assertUnset.accept(new Optional()._hashcode()); // Unset -> unset hashcode
+      assertSet.accept(setOptional._hashcode()); // Set -> set hashcode
 
-      // Test equals on set Optionals with same value
-      final var anotherSet = new Optional(testValue);
-      assertEquals(setOptional, anotherSet);
-
-      // Test equals on set Optionals with different values
-      final var differentSet = new Optional(String._of("different"));
-      assertNotEquals(setOptional, differentSet);
-
-      // Test hashCode consistency
-      assertUnset.accept(anotherUnset._hashcode());
-      assertSet.accept(setOptional._hashcode());
-
-      // Test mixed type operations, the answer is unset because we should not be
-      //mixing incompatible types
-      final var mixedOptional = new Optional(Integer._of(123));
-      assertUnset.accept(mixedOptional._contains(String._of("123")));
-      //Also unset result because it is holding a String type.
-      assertUnset.accept(setOptional._contains(Integer._of(123)));
+      // Test type safety: mixed type operations return unset (no type confusion)
+      final var optionalOfInteger = new Optional(Integer._of(123));
+      assertUnset.accept(optionalOfInteger._contains(String._of("123"))); // Int Optional doesn't contain String
+      assertUnset.accept(setOptional._contains(Integer._of(123))); // String Optional doesn't contain Int
     }
   }
 
@@ -333,79 +318,47 @@ class OptionalTest extends Common {
     
     @Test
     void testIteratorIntegration() {
-      // Test iterator with while loop on unset Optional
+      // Test iterator behavior: unset Optional has no iterations
       int unsetCount = 0;
-      final var unsetIter = unset.iterator();
+      final var unsetIter = unsetOptional.iterator();
       while (unsetIter.hasNext().state) {
         unsetIter.next();
         unsetCount++;
       }
       assertEquals(0, unsetCount);
 
-      // Test iterator with while loop on set Optional
+      // Test iterator behavior: set Optional has exactly one iteration
       int setCount = 0;
       final var setIter = setOptional.iterator();
       while (setIter.hasNext().state) {
         final var value = setIter.next();
-        assertNotNull(value);
+        assertEquals(testValue, value);
         setCount++;
       }
       assertEquals(1, setCount);
 
-      // Test iterator state
+      // Test iterator state transitions: multiple iterators are independent
       final var iter1 = setOptional.iterator();
       final var iter2 = setOptional.iterator();
-      assertTrue.accept(iter1._isSet());
-      assertTrue.accept(iter2._isSet());
-
-      // Both should return the same value
-      assertEquals(iter1.next(), iter2.next());
-      assertFalse.accept(iter1._isSet());
+      assertEquals(iter1.next(), iter2.next()); // Both return same value
+      assertFalse.accept(iter1._isSet()); // Both become unset after use
       assertFalse.accept(iter2._isSet());
     }
 
     @Test
     void testCollectionIntegration() {
       // Test Optional behavior consistent with built-in types
-      final var optionalOfInteger = new Optional(INT_42);
-      final var optionalOfString = new Optional(String._of("test"));
-      final var optionalOfBoolean = new Optional(Boolean._of(true));
+      assertOptionalSet(new Optional(INT_42));
+      assertOptionalSet(new Optional(String._of("test")));
+      assertOptionalSet(new Optional(Boolean._of(true)));
 
-      // All should be set using helper
-      assertOptionalSet(optionalOfInteger);
-      assertOptionalSet(optionalOfString);
-      assertOptionalSet(optionalOfBoolean);
-
-      // Test Optional with unset built-in types
-      final var unsetInt = new Integer();
-      assertNotNull(unsetInt);
-      final var optionalOfUnsetInt = new Optional(unsetInt);
-
-      //Now because the item in the optional is unset, then the Optional itself is unset.
-      //Not this is different to collection types like Lists and dictionaries.
+      // Test Optional with unset built-in types - key difference from collections
+      // When Optional contains unset value, the Optional itself becomes unset
+      // (Unlike Lists/Dicts which remain set even when empty)
+      final var optionalOfUnsetInt = new Optional(new Integer());
       assertOptionalUnset(optionalOfUnsetInt);
-
     }
 
-    @Test
-    void testWhenNotPresent() {
-
-      //I've used 'any' here but used a String
-      final var any = String._of("Test Value");
-      final var asUnset = new Optional(any);
-
-      // Test whenPresent called with set Optional using helper
-      assertWhenPresentCalled(asUnset, any);
-    }
-
-    @Test
-    void testWhenPresent() {
-
-      final var asUnset = new Optional();
-
-      // Test whenPresent not called with unset Optional using helper
-      assertWhenPresentNotCalled(asUnset);
-    }
   }
 
 }

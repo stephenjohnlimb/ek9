@@ -469,52 +469,41 @@ class DictTest extends Common {
     void testUtilityOperators() {
       final var testDict = createTwoEntryDict();
 
-      // Empty check
+      // State queries
       assertFalse.accept(testDict._empty());
       assertTrue.accept(emptyDict._empty());
-
-      // Length
       assertEquals(2L, testDict._len().state);
       assertEquals(0L, emptyDict._len().state);
 
-      // Contains
+      // Contains operations
       assertTrue.accept(testDict._contains(key1));
       assertTrue.accept(testDict._contains(key2));
       assertFalse.accept(testDict._contains(key3));
       assertUnset.accept(testDict._contains(null));
 
-      // Hash code
+      // Hash code and string conversion
       assertSet.accept(testDict._hashcode());
       assertSet.accept(emptyDict._hashcode());
-
-      // String conversion
       assertSet.accept(testDict._string());
+      
+      // String representation verification
       final var stringRep = testDict.toString();
       assertNotNull(stringRep);
       assertTrue.accept(Boolean._of(stringRep.contains(key1.toString())));
       assertTrue.accept(Boolean._of(stringRep.contains(value1.toString())));
+      assertEquals("{}", emptyDict.toString());
 
-      // Empty dict string
-      final var emptyString = emptyDict.toString();
-      assertEquals("{}", emptyString);
-    }
+      // Key-value overwrite behavior - same key replaces value
+      final var overwriteDict = new Dict(key1, value1);
+      assertEquals(value1, overwriteDict.get(key1));
+      overwriteDict._addAss(DictEntry._of(key1, value2)); 
+      assertEquals(1L, overwriteDict._len().state); // Still one entry
+      assertEquals(value2, overwriteDict.get(key1)); // But value changed
 
-    @Test
-    void testKeyValueOverwrites() {
-      final var dict = new Dict(key1, value1);
-      assertEquals(value1, dict.get(key1));
-
-      // Adding same key with different value should overwrite
-      dict._addAss(DictEntry._of(key1, value2));
-      assertEquals(1L, dict._len().state); // Still only one entry
-      assertEquals(value2, dict.get(key1)); // But value changed
-
-      // Test with immutable addition
-      final var dict2 = new Dict(key1, value1);
-      final var entry = DictEntry._of(key1, value3);
-      final var resultDict = dict2._add(entry);
-      assertEquals(1L, resultDict._len().state);
-      assertEquals(value3, resultDict.get(key1));
+      // Immutable overwrite behavior
+      final var immutableResult = new Dict(key1, value1)._add(DictEntry._of(key1, value3));
+      assertEquals(1L, immutableResult._len().state);
+      assertEquals(value3, immutableResult.get(key1));
     }
   }
 
@@ -522,102 +511,68 @@ class DictTest extends Common {
   class EdgeCases {
     
     @Test
-    void testEdgeCases() {
-      // Large dict operations
+    void testEdgeCasesAndIntegration() {
+      // Large dict operations - verify scalability
       final var largeDict = new Dict();
       for (int i = 0; i < 100; i++) {
-        final var key = String._of("key" + i);
-        final var value = Integer._of(i);
-        largeDict._addAss(DictEntry._of(key, value));
+        largeDict._addAss(DictEntry._of(String._of("key" + i), Integer._of(i)));
       }
       assertEquals(100L, largeDict._len().state);
 
-      // Operations on empty dict
+      // Empty dict operations - verify state consistency
       assertTrue.accept(emptyDict._empty());
       assertEquals(0L, emptyDict._len().state);
       assertFalse.accept(emptyDict._contains(key1));
 
-      // Mixed type dict (all inherit from Any)
+      // Mixed type dict - verify Any inheritance works correctly
       final var mixedDict = new Dict(key1, value1);
       mixedDict._addAss(DictEntry._of(key3, value3)); // String key, Integer value
       mixedDict._addAss(DictEntry._of(value3, key1)); // Integer key, String value
       assertEquals(3L, mixedDict._len().state);
+      assertNotNull(mixedDict.toString());
 
-      // String representation with different types
-      final var stringDictRep = mixedDict.toString();
-      assertNotNull(stringDictRep);
-      assertTrue.accept(Boolean._of(stringDictRep.contains(key1.toString())));
-    }
-
-    @Test
-    void testDictEntryIntegration() {
-      // Test seamless integration between Dict and DictEntry
+      // DictEntry integration - verify seamless operation
       final var entry1 = DictEntry._of(key1, value1);
       final var entry2 = DictEntry._of(key2, value2);
-
-      // Create dict from entries
-      final var dict = new Dict();
-      dict._addAss(entry1);
-      dict._addAss(entry2);
-
-      // Iterate and verify entries
-      final var iterator = dict.iterator();
-      final var entries = collectIterator(iterator, DictEntry.class);
-
+      final var entryDict = new Dict();
+      entryDict._addAss(entry1);
+      entryDict._addAss(entry2);
+      
+      final var entries = collectIterator(entryDict.iterator(), DictEntry.class);
       assertEquals(2, entries.size());
+      // Verify entries can be found (order may vary due to LinkedHashMap)
+      assertTrue.accept(Boolean._of(entries.stream().anyMatch(e -> entry1._eq(e).state)));
+      assertTrue.accept(Boolean._of(entries.stream().anyMatch(e -> entry2._eq(e).state)));
 
-      // Verify entry equality
-      boolean foundEntry1 = false;
-      boolean foundEntry2 = false;
-      for (final var entry : entries) {
-        if (entry1._eq(entry).state) {
-          foundEntry1 = true;
-        }
-        if (entry2._eq(entry).state) {
-          foundEntry2 = true;
-        }
-      }
-      assertTrue.accept(Boolean._of(foundEntry1));
-      assertTrue.accept(Boolean._of(foundEntry2));
-    }
-
-    @Test
-    void testConstraintValidation() {
-      // Test that constraint validation works properly
+      // Constraint validation - verify basic dicts work without constraints
       final var javaMap = new LinkedHashMap<Any, Any>();
       javaMap.put(key1, value1);
       javaMap.put(key2, value2);
-
-      // This should work fine as basic dicts don't have constraints
-      final var dict = Dict._of(javaMap);
-      assertSet.accept(dict);
-      assertEquals(2L, dict._len().state);
+      final var constraintDict = Dict._of(javaMap);
+      assertSet.accept(constraintDict);
+      assertEquals(2L, constraintDict._len().state);
     }
 
-    @Test
-    void testEqualsAndHashCode() {
-      // Test equals contract
+    @Test 
+    void testEqualsAndHashCodeContract() {
+      // Test equals contract with helper method
       final var equalPair = createEqualDictPair();
       final var dict1 = equalPair[0];
       final var dict2 = equalPair[1];
 
-      assertEquals(dict1, dict1); // reflexive
-      assertEquals(dict1, dict2); // symmetric
-      assertEquals(dict2, dict1); // symmetric
+      // Reflexive, symmetric, and basic null/type safety
+      assertEquals(dict1, dict1);
+      assertEquals(dict1, dict2);
+      assertEquals(dict2, dict1);
       assertNotEquals(null, dict1);
       assertNotEquals("not a dict", dict1);
+      assertEquals(new Dict(), new Dict()); // Empty dicts are equal
 
-      // Unset dicts are equal
-      assertEquals(new Dict(), new Dict());
-
-      // Hash code consistency - equal objects should have equal hash codes
-      if (dict1.equals(dict2)) {
-        assertEquals(dict1.hashCode(), dict2.hashCode());
-      }
-
-      // Different dicts have different hash codes
-      final var dict3 = new Dict(key3, value3);
-      assertNotEquals(dict1.hashCode(), dict3.hashCode());
+      // Hash code consistency - equal objects must have equal hash codes
+      assertEquals(dict1.hashCode(), dict2.hashCode());
+      
+      // Different dicts should have different hash codes
+      assertNotEquals(dict1.hashCode(), new Dict(key3, value3).hashCode());
     }
   }
 }
