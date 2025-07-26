@@ -3,7 +3,6 @@ package org.ek9.lang;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.ek9tooling.Ek9Class;
@@ -21,7 +20,7 @@ import org.ek9tooling.Ek9Operator;
  * </p>
  */
 
-//TODO create helper supporting classes so this is more manageable.
+
 @SuppressWarnings({"checkstyle:MethodName", "checkstyle:CatchParameterName"})
 @Ek9Class("""
     JSON as open""")
@@ -30,7 +29,16 @@ public class JSON extends BuiltinType {
   private static final ObjectMapper objectMapper = new ObjectMapper();
   private static final JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
-  private JsonNode jsonNode;
+  private final NodeEmpty nodeEmpty = new NodeEmpty();
+  private final NodeLength nodeLength = new NodeLength();
+  private final NodeAdd nodeAdd = new NodeAdd();
+  private final NodeMerge nodeMerge = new NodeMerge();
+  private final NodeReplace nodeReplace = new NodeReplace();
+  private final NodeContains nodeContains = new NodeContains();
+  private final NodeIterator nodeIterator = new NodeIterator();
+  private final NodeRead nodeRead = new NodeRead();
+
+  JsonNode jsonNode;
 
   @Ek9Constructor("""
       JSON() as pure""")
@@ -45,7 +53,7 @@ public class JSON extends BuiltinType {
   public JSON(Boolean arg0) {
     this();
     if (isValid(arg0)) {
-      super.set();
+      set();
       this.jsonNode = nodeFactory.booleanNode(arg0.state);
     }
   }
@@ -54,11 +62,7 @@ public class JSON extends BuiltinType {
       JSON() as pure
         -> arg0 as String""")
   public JSON(String arg0) {
-    this();
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0.state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   @Ek9Constructor("""
@@ -96,7 +100,7 @@ public class JSON extends BuiltinType {
         -> arg0 as Integer""")
   public JSON(Integer arg0) {
     if (isValid(arg0)) {
-      super.set();
+      set();
       this.jsonNode = nodeFactory.numberNode(arg0.state);
     }
   }
@@ -106,7 +110,7 @@ public class JSON extends BuiltinType {
         -> arg0 as Float""")
   public JSON(Float arg0) {
     if (isValid(arg0)) {
-      super.set();
+      set();
       this.jsonNode = nodeFactory.numberNode(arg0.state);
     }
   }
@@ -115,147 +119,98 @@ public class JSON extends BuiltinType {
       JSON() as pure
         -> arg0 as Character""")
   public JSON(Character arg0) {
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0._string().state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as Date""")
   public JSON(Date arg0) {
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0._string().state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as DateTime""")
   public JSON(DateTime arg0) {
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0._string().state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as Time""")
   public JSON(Time arg0) {
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0._string().state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as Millisecond""")
   public JSON(Millisecond arg0) {
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0._string().state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as Duration""")
   public JSON(Duration arg0) {
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0._string().state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as Money""")
   public JSON(Money arg0) {
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0._string().state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as Locale""")
   public JSON(Locale arg0) {
-    this();
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0._string().state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as Dimension""")
   public JSON(Dimension arg0) {
-    this();
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0._string().state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as Resolution""")
   public JSON(Resolution arg0) {
-    this();
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0._string().state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as Colour""")
   public JSON(Colour arg0) {
-    this();
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0._string().state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as Bits""")
   public JSON(Bits arg0) {
-    this();
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0._string().state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as Path""")
   public JSON(Path arg0) {
-    this();
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0._string().state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   @Ek9Constructor("""
       JSON() as pure
         -> arg0 as RegEx""")
   public JSON(RegEx arg0) {
-    this();
-    if (isValid(arg0)) {
-      super.set();
-      this.jsonNode = nodeFactory.textNode(arg0._string().state);
-    }
+    toTextNodeIfValid(arg0);
   }
 
   /**
@@ -389,15 +344,7 @@ public class JSON extends BuiltinType {
       return new Boolean();
     }
 
-    if (jsonNode.isArray() || jsonNode.isObject()) {
-      return Boolean._of(jsonNode.isEmpty());
-    } else if (jsonNode.isTextual()) {
-      return Boolean._of(jsonNode.asText().isEmpty());
-    } else if (jsonNode.isNull()) {
-      return Boolean._of(true);
-    }
-
-    return Boolean._of(false);
+    return Boolean._of(nodeEmpty.test(jsonNode));
   }
 
   @Ek9Operator("""
@@ -407,14 +354,7 @@ public class JSON extends BuiltinType {
     if (!hasValidJson()) {
       return new Integer();
     }
-
-    if (jsonNode.isArray() || jsonNode.isObject()) {
-      return Integer._of(jsonNode.size());
-    } else if (jsonNode.isTextual()) {
-      return Integer._of(jsonNode.asText().length());
-    }
-
-    return Integer._of(1); // single value
+    return Integer._of(nodeLength.applyAsInt(jsonNode));
   }
 
   @Ek9Operator("""
@@ -459,37 +399,10 @@ public class JSON extends BuiltinType {
         -> arg as JSON
         <- rtn as JSON?""")
   public JSON _add(JSON arg) {
-    JSON result = _new();
-    if (!canProcess(arg)) {
-      return result;
+    if (canProcess(arg)) {
+      return JSON._of(nodeAdd.apply(jsonNode, arg.jsonNode));
     }
-
-    // Array + anything: add to array
-    if (jsonNode.isArray()) {
-      ArrayNode newArray = jsonNode.deepCopy();
-      newArray.add(arg.jsonNode);
-      result.jsonNode = newArray;
-    } else if (jsonNode.isObject() && arg.jsonNode.isObject()) {
-      // Object + Object: merge objects
-      ObjectNode newObject = jsonNode.deepCopy();
-      newObject.setAll((ObjectNode) arg.jsonNode);
-      result.jsonNode = newObject;
-    } else if (jsonNode.isObject()) {
-      // Object + named value (if arg has name): add property
-      ObjectNode newObject = jsonNode.deepCopy();
-      // For now, add as indexed property
-      newObject.set("value_" + newObject.size(), arg.jsonNode);
-      result.jsonNode = newObject;
-    } else {
-      // Value + Value: create array
-      ArrayNode newArray = nodeFactory.arrayNode();
-      newArray.add(jsonNode);
-      newArray.add(arg.jsonNode);
-      result.jsonNode = newArray;
-    }
-    result.set();
-
-    return result;
+    return _new();
   }
 
   @Ek9Operator("""
@@ -517,22 +430,10 @@ public class JSON extends BuiltinType {
         -> arg as JSON
         <- rtn as Boolean?""")
   public Boolean _contains(JSON value) {
-    if (!canProcess(value)) {
-      return new Boolean();
+    if (canProcess(value)) {
+      return Boolean._of(nodeContains.test(jsonNode, value.jsonNode));
     }
-
-    if (jsonNode.isArray()) {
-      for (JsonNode element : jsonNode) {
-        if (element.equals(value.jsonNode)) {
-          return Boolean._of(true);
-        }
-      }
-      return Boolean._of(false);
-    } else if (jsonNode.isObject()) {
-      return Boolean._of(jsonNode.has(value.jsonNode.asText()));
-    } else {
-      return Boolean._of(jsonNode.equals(value.jsonNode));
-    }
+    return new Boolean();
   }
 
   /**
@@ -551,37 +452,8 @@ public class JSON extends BuiltinType {
       return _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C._of();
     }
 
-    java.util.Iterator<Any> javaIterator;
 
-    if (jsonNode.isArray()) {
-      // Array: iterate over elements as JSON objects
-      java.util.Spliterator<JsonNode> spliterator =
-          java.util.Spliterators.spliteratorUnknownSize(jsonNode.elements(),
-              java.util.Spliterator.ORDERED);
-      javaIterator = java.util.stream.StreamSupport.stream(spliterator, false)
-          .map(JSON::_of)
-          .map(Any.class::cast)
-          .iterator();
-    } else if (jsonNode.isObject()) {
-      // Object: iterate over key-value pairs as named JSON objects
-      ObjectNode objectNode = (ObjectNode) jsonNode;
-      java.util.Spliterator<java.util.Map.Entry<java.lang.String, JsonNode>> spliterator =
-          java.util.Spliterators.spliteratorUnknownSize(objectNode.properties().iterator(),
-              java.util.Spliterator.ORDERED);
-      javaIterator = java.util.stream.StreamSupport.stream(spliterator, false)
-          .map(entry -> {
-            java.lang.String key = entry.getKey();
-            JsonNode valueNode = entry.getValue();
-            JSON valueJson = JSON._of(valueNode);
-            return (Any) new JSON(String._of(key), valueJson); // Named JSON object
-          })
-          .iterator();
-    } else {
-      // Value: single-element iterator containing this JSON
-      javaIterator = java.util.List.of((Any) this).iterator();
-    }
-
-    final var baseIterator = Iterator._of(javaIterator);
+    final var baseIterator = nodeIterator.apply(this);
     return _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C._of(baseIterator);
   }
 
@@ -600,71 +472,17 @@ public class JSON extends BuiltinType {
       return;
     }
 
-    // Both are valid, perform merge based on types
-    if (jsonNode.isObject() && arg.jsonNode.isObject()) {
-      // Object + Object: only add properties if key is missing
-      ObjectNode thisObject = (ObjectNode) jsonNode;
-      ObjectNode argObject = (ObjectNode) arg.jsonNode;
+    //This function may return the same jsonNode or a new one with the current json node inside it.
+    jsonNode = nodeMerge.apply(jsonNode, arg.jsonNode);
 
-      for (final java.util.Map.Entry<java.lang.String, JsonNode> field : argObject.properties()) {
-        java.lang.String key = field.getKey();
-        JsonNode value = field.getValue();
-
-        // Only add if key doesn't exist
-        if (!thisObject.has(key)) {
-          thisObject.set(key, value.deepCopy());
-        }
-      }
-    } else if (jsonNode.isArray() && arg.jsonNode.isArray()) {
-      // Array + Array: append elements from argument
-      ArrayNode thisArray = (ArrayNode) jsonNode;
-      ArrayNode argArray = (ArrayNode) arg.jsonNode;
-      thisArray.addAll(argArray);
-    } else if (jsonNode.isArray()) {
-      // Array + Value: add value to array
-      ArrayNode thisArray = (ArrayNode) jsonNode;
-      thisArray.add(arg.jsonNode);
-    } else {
-      // Value + anything: convert to array with both values
-      ArrayNode newArray = nodeFactory.arrayNode();
-      newArray.add(jsonNode);
-      newArray.add(arg.jsonNode);
-      assign(newArray);
-    }
   }
 
   @Ek9Operator("""
       operator :^:
         -> arg as JSON""")
   public void _replace(JSON arg) {
-    if (!isValid(arg)) {
-      // If argument is invalid, no change
-      return;
-    }
-
-    if (!hasValidJson()) {
-      // If this is unset, no replacement can occur
-      return;
-    }
-
-    // Both are valid, perform replace based on types
-    if (jsonNode.isObject() && arg.jsonNode.isObject()) {
-      // Object + Object: only replace properties if key already exists
-      ObjectNode thisObject = (ObjectNode) jsonNode;
-      ObjectNode argObject = (ObjectNode) arg.jsonNode;
-
-      for (final java.util.Map.Entry<java.lang.String, JsonNode> field : argObject.properties()) {
-        java.lang.String key = field.getKey();
-        JsonNode value = field.getValue();
-
-        // Only replace if key already exists
-        if (thisObject.has(key)) {
-          thisObject.set(key, value.deepCopy());
-        }
-      }
-    } else {
-      // For non-object types, do full replacement (existing behavior)
-      assign(arg.jsonNode);
+    if (hasValidJson() && isValid(arg)) {
+      assign(nodeReplace.apply(jsonNode, arg.jsonNode));
     }
   }
 
@@ -791,27 +609,7 @@ public class JSON extends BuiltinType {
       return result.asError(String._of("Invalid Path: Path is null or unset"));
     }
 
-    try {
-      // Use JSON Path library to query the JSON structure
-      var pathExpression = path._string().state;
-      // Convert EK9 paths ($?.somepath) to JSONPath format ($.somepath)
-      if (pathExpression.startsWith("$?")) {
-        pathExpression = "$" + pathExpression.substring(2); // Replace "$?" with "$"
-      }
-      var jsonPathContext = com.jayway.jsonpath.JsonPath.parse(jsonNode.toString());
-      Object pathResult = jsonPathContext.read(pathExpression);
-
-      return result.asOk(JSON._of(objectMapper.valueToTree(pathResult)));
-    } catch (com.jayway.jsonpath.PathNotFoundException e) {
-      // JSONPath throws this for non-existent paths
-      return result.asError(String._of("Path not found: " + e.getMessage()));
-    } catch (com.jayway.jsonpath.InvalidPathException e) {
-      // JSONPath throws this for invalid path syntax
-      return result.asError(String._of("Invalid path syntax: " + e.getMessage()));
-    } catch (java.lang.Exception e) {
-      // Catch any other JSONPath or Jackson exceptions
-      return result.asError(String._of("JSON Path query failed: " + e.getMessage()));
-    }
+    return nodeRead.apply(jsonNode, path);
   }
 
   //Start of Utility methods.
@@ -838,6 +636,15 @@ public class JSON extends BuiltinType {
   @Override
   public java.lang.String toString() {
     return _string().state;
+  }
+
+  private void toTextNodeIfValid(Any any) {
+    if (isValid(any)) {
+      set();
+      this.jsonNode = nodeFactory.textNode(any._string().state);
+    } else {
+      unSet();
+    }
   }
 
   public static JSON _of(java.lang.String value) {
