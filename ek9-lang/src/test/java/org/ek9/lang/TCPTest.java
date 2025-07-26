@@ -95,7 +95,7 @@ class TCPTest extends Common {
 
   @Test
   void testClientModeConstruction() {
-    final var properties = new NetworkProperties(String._of("localhost"), Integer._of(8085));
+    final var properties = new NetworkProperties(STR_LOCALHOST, Integer._of(8085));
     final var tcp = new TCP(properties);
     assertNotNull(tcp);
 
@@ -107,7 +107,7 @@ class TCPTest extends Common {
   @Test
   void testClientModeInvalidProperties() {
     // Missing port
-    final var properties1 = new NetworkProperties(String._of("localhost"));
+    final var properties1 = new NetworkProperties(STR_LOCALHOST);
     final var tcp1 = new TCP(properties1);
     assertFalse.accept(tcp1._isSet());
     assertTrue(tcp1.lastErrorMessage().state.contains("port"));
@@ -149,7 +149,7 @@ class TCPTest extends Common {
 
   @Test
   void testServerAcceptInClientMode() {
-    final var properties = new NetworkProperties(String._of("localhost"), Integer._of(8085));
+    final var properties = new NetworkProperties(STR_LOCALHOST, Integer._of(8085));
     final var tcp = new TCP(properties);
 
     final var handler = new TCPHandler();
@@ -249,7 +249,7 @@ class TCPTest extends Common {
 
     try {
       // Test client connection
-      final var clientProperties = new NetworkProperties(String._of("localhost"), Integer._of(serverPort));
+      final var clientProperties = new NetworkProperties(STR_LOCALHOST, Integer._of(serverPort));
       final var client = new TCP(clientProperties);
       assertTrue.accept(client._isSet());
 
@@ -280,7 +280,7 @@ class TCPTest extends Common {
   void testClientConnectionFailure() {
     // Try to connect to non-existent server
     final var properties =
-        new NetworkProperties(String._of("localhost"), Integer._of(1)); // Port 1 should be unavailable
+        new NetworkProperties(STR_LOCALHOST, Integer._of(1)); // Port 1 should be unavailable
     assertNotNull(properties);
     final var tcp = new TCP(properties);
 
@@ -341,7 +341,7 @@ class TCPTest extends Common {
       for (int i = 0; i < 3; i++) {
         clientThreads[i] = new Thread(() -> {
           try {
-            final var clientProperties = new NetworkProperties(String._of("localhost"), Integer._of(serverPort));
+            final var clientProperties = new NetworkProperties(STR_LOCALHOST, Integer._of(serverPort));
             final var client = new TCP(clientProperties);
             final var connection = client.connect();
 
@@ -390,7 +390,7 @@ class TCPTest extends Common {
     serverTcp._close();
 
     // Client TCP
-    final var clientProperties = new NetworkProperties(String._of("localhost"), Integer._of(8085));
+    final var clientProperties = new NetworkProperties(STR_LOCALHOST, Integer._of(8085));
     final var clientTcp = new TCP(clientProperties);
     String clientString = clientTcp._string();
     assertTrue(clientString.state.contains("client"));

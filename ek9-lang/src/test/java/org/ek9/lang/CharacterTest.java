@@ -9,19 +9,6 @@ import org.junit.jupiter.api.Test;
 
 class CharacterTest extends Common {
 
-  final Boolean true1 = Boolean._of("true");
-  final Boolean false1 = Boolean._of("false");
-
-  final Character unset = new Character();
-  final Character cA = Character._of('A');
-  final Character cB = Character._of('B');
-  final Character cC = Character._of('C');
-  final Character cLowerA = Character._of('a');
-  final Character cSpace = Character._of(' ');
-  final Character cZ = Character._of('Z');
-  final Character cZero = Character._of('0');
-  final Character cOne = Character._of('1');
-
   @Test
   void testConstruction() {
     final var defaultConstructor = new Character();
@@ -73,43 +60,43 @@ class CharacterTest extends Common {
 
     //Eq
     assertEquals(cAA, cA);
-    assertEquals(true1, cA._eq(cAA));
+    assertEquals(trueBoolean, cA._eq(cAA));
 
-    assertUnset.accept(cA._eq(unset));
-    assertUnset.accept(unset._eq(unset));
-    assertUnset.accept(unset._eq(cA));
+    assertUnset.accept(cA._eq(unsetCharacter));
+    assertUnset.accept(unsetCharacter._eq(unsetCharacter));
+    assertUnset.accept(unsetCharacter._eq(cA));
 
     //Neq
-    assertEquals(false1, cA._neq(cAA));
-    assertUnset.accept(cA._neq(unset));
-    assertUnset.accept(unset._neq(unset));
-    assertUnset.accept(unset._neq(cA));
+    assertEquals(falseBoolean, cA._neq(cAA));
+    assertUnset.accept(cA._neq(unsetCharacter));
+    assertUnset.accept(unsetCharacter._neq(unsetCharacter));
+    assertUnset.accept(unsetCharacter._neq(cA));
 
     //Lt
     assertTrue.accept(cA._lt(cB));
     assertFalse.accept(cB._lt(cA));
-    assertUnset.accept(unset._lt(cB));
-    assertUnset.accept(cA._lt(unset));
+    assertUnset.accept(unsetCharacter._lt(cB));
+    assertUnset.accept(cA._lt(unsetCharacter));
 
     //gt
     assertTrue.accept(cB._gt(cA));
     assertFalse.accept(cA._gt(cB));
-    assertUnset.accept(unset._gt(cB));
-    assertUnset.accept(cA._gt(unset));
+    assertUnset.accept(unsetCharacter._gt(cB));
+    assertUnset.accept(cA._gt(unsetCharacter));
 
     //Lteq
     assertTrue.accept(cA._lteq(cAA));
     assertTrue.accept(cA._lteq(cB));
     assertFalse.accept(cB._lteq(cA));
-    assertUnset.accept(unset._lteq(cA));
-    assertUnset.accept(cA._lteq(unset));
+    assertUnset.accept(unsetCharacter._lteq(cA));
+    assertUnset.accept(cA._lteq(unsetCharacter));
 
     //Gteq
     assertTrue.accept(cA._gteq(cAA));
     assertTrue.accept(cB._gteq(cA));
     assertFalse.accept(cA._gteq(cB));
-    assertUnset.accept(unset._gteq(cA));
-    assertUnset.accept(cA._gteq(unset));
+    assertUnset.accept(unsetCharacter._gteq(cA));
+    assertUnset.accept(cA._gteq(unsetCharacter));
   }
 
   @Test
@@ -119,16 +106,16 @@ class CharacterTest extends Common {
     assertEquals(0, cA._cmp(cAA).state);
     assertTrue(cA._cmp(cB).state < 0);
     assertTrue(cB._cmp(cA).state > 0);
-    assertUnset.accept(unset._cmp(cA));
-    assertUnset.accept(cA._cmp(unset));
+    assertUnset.accept(unsetCharacter._cmp(cA));
+    assertUnset.accept(cA._cmp(unsetCharacter));
     assertUnset.accept(cA._cmp(new Any(){}));
 
   }
 
   @Test
   void testIsSet() {
-    assertNotNull(unset);
-    assertFalse.accept(unset._isSet());
+    assertNotNull(unsetCharacter);
+    assertFalse.accept(unsetCharacter._isSet());
 
     final var v1 = Character._of('X');
     assertNotNull(v1);
@@ -137,8 +124,8 @@ class CharacterTest extends Common {
 
   @Test
   void testCaseOperations() {
-    assertUnset.accept(unset.upperCase());
-    assertUnset.accept(unset.lowerCase());
+    assertUnset.accept(unsetCharacter.upperCase());
+    assertUnset.accept(unsetCharacter.lowerCase());
 
     assertEquals(cA, cA.upperCase());
     assertEquals(cLowerA, cA.lowerCase());
@@ -176,20 +163,20 @@ class CharacterTest extends Common {
     underFlow._dec();
     assertUnset.accept(underFlow);
 
-    assertUnset.accept(unset._inc());
-    assertUnset.accept(unset._dec());
+    assertUnset.accept(unsetCharacter._inc());
+    assertUnset.accept(unsetCharacter._dec());
   }
 
   @Test
   void testAsString() {
-    assertUnset.accept(unset._string());
+    assertUnset.accept(unsetCharacter._string());
 
     assertEquals(String._of("A"), cA._string());
     assertEquals(String._of("B"), cB._string());
     assertEquals(String._of(" "), cSpace._string());
 
     assertEquals("A", cA.toString());
-    assertEquals("", unset.toString());
+    assertEquals("", unsetCharacter.toString());
   }
 
   @Test
@@ -206,12 +193,12 @@ class CharacterTest extends Common {
     assertSet.accept(spaceJson);
     
     // Test JSON conversion with unset value
-    assertUnset.accept(unset._json());
+    assertUnset.accept(unsetCharacter._json());
   }
 
   @Test
   void testHashCode() {
-    assertUnset.accept(unset._hashcode());
+    assertUnset.accept(unsetCharacter._hashcode());
     assertEquals(cA._hashcode(), cA._hashcode());
     assertNotEquals(cA._hashcode(), cB._hashcode());
     assertNotEquals(cA._hashcode(), cLowerA._hashcode());
@@ -219,7 +206,7 @@ class CharacterTest extends Common {
 
   @Test
   void testUtilityOperators() {
-    assertUnset.accept(unset._len());
+    assertUnset.accept(unsetCharacter._len());
     assertEquals(Integer._of(1), cA._len());
     assertEquals(Integer._of(1), cB._len());
     assertEquals(Integer._of(1), cSpace._len());
@@ -236,7 +223,7 @@ class CharacterTest extends Common {
     mutatedValue._replace(cC);
     assertEquals(cC, mutatedValue);
 
-    mutatedValue._replace(unset);
+    mutatedValue._replace(unsetCharacter);
     assertUnset.accept(mutatedValue);
 
     //Now just check that it can take a value after being unset
@@ -249,7 +236,7 @@ class CharacterTest extends Common {
     var mutatedValue = new Character();
     assertUnset.accept(mutatedValue);
 
-    mutatedValue._merge(unset);
+    mutatedValue._merge(unsetCharacter);
     assertUnset.accept(mutatedValue);
 
     mutatedValue._merge(cA);
@@ -258,7 +245,7 @@ class CharacterTest extends Common {
     mutatedValue._merge(cB);
     assertEquals(cB, mutatedValue);
 
-    mutatedValue._merge(unset);
+    mutatedValue._merge(unsetCharacter);
     assertEquals(cB, mutatedValue);
   }
 
@@ -267,7 +254,7 @@ class CharacterTest extends Common {
     var mutatedValue = new Character();
     assertUnset.accept(mutatedValue);
 
-    mutatedValue._pipe(unset);
+    mutatedValue._pipe(unsetCharacter);
     assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(cA);
@@ -276,13 +263,13 @@ class CharacterTest extends Common {
     mutatedValue._pipe(cB);
     assertEquals(cB, mutatedValue);
 
-    mutatedValue._pipe(unset);
+    mutatedValue._pipe(unsetCharacter);
     assertEquals(cB, mutatedValue);
   }
 
   @Test
   void testPromotion() {
-    assertUnset.accept(unset._promote());
+    assertUnset.accept(unsetCharacter._promote());
 
     assertEquals(String._of("A"), cA._promote());
     assertEquals(String._of("B"), cB._promote());
@@ -291,9 +278,9 @@ class CharacterTest extends Common {
 
   @Test
   void testFuzzy() {
-    assertUnset.accept(unset._fuzzy(cA));
-    assertUnset.accept(cA._fuzzy(unset));
-    assertUnset.accept(unset._fuzzy(unset));
+    assertUnset.accept(unsetCharacter._fuzzy(cA));
+    assertUnset.accept(cA._fuzzy(unsetCharacter));
+    assertUnset.accept(unsetCharacter._fuzzy(unsetCharacter));
 
     final var cAA = Character._of('A');
     assertEquals(Integer._of(0), cA._fuzzy(cAA));

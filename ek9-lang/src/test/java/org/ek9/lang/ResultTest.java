@@ -16,7 +16,7 @@ class ResultTest extends Common {
   // Test data setup
   private final String testOkValue = String._of("SuccessValue");
   private final String testErrorValue = String._of("ErrorValue");
-  private final Integer testOkInt = Integer._of(42);
+  private final Integer testOkInt = INT_42;
   private final Integer testErrorInt = Integer._of(-1);
   private final Boolean testOkBool = Boolean._of(true);
   private final Boolean testErrorBool = Boolean._of(false);
@@ -208,14 +208,14 @@ class ResultTest extends Common {
 
     // OK value access
     assertEquals(testOkValue, okResult.ok());
-    assertEquals(testOkValue, okResult.okOrDefault(String._of("default")));
-    assertEquals(testOkValue, okResult.getOrDefault(String._of("default")));
+    assertEquals(testOkValue, okResult.okOrDefault(STR_DEFAULT));
+    assertEquals(testOkValue, okResult.getOrDefault(STR_DEFAULT));
 
     // ERROR value access
     assertEquals(testErrorValue, errorResult.error());
 
     // Default value access
-    final var defaultValue = String._of("default");
+    final var defaultValue = STR_DEFAULT;
     assertEquals(defaultValue, unsetResult.okOrDefault(defaultValue));
     assertEquals(defaultValue, unsetResult.getOrDefault(defaultValue));
     assertEquals(defaultValue, errorResult.okOrDefault(defaultValue));

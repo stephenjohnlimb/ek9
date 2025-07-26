@@ -8,26 +8,9 @@ import org.junit.jupiter.api.Test;
 
 class TimeTest extends Common {
 
-  final Boolean true1 = Boolean._of("true");
-  final Boolean false1 = Boolean._of("false");
+  // Use true1 and false1 from Common base class
 
-  // ============ COMMON INTEGER CONSTANTS ============
-  final Integer INT_MINUS_1 = Integer._of(-1);
-  final Integer INT_0 = Integer._of(0);
-  final Integer INT_1 = Integer._of(1);
-  final Integer INT_2 = Integer._of(2);
-  final Integer INT_3 = Integer._of(3);
-  final Integer INT_9 = Integer._of(9);
-  final Integer INT_12 = Integer._of(12);
-  final Integer INT_14 = Integer._of(14);
-  final Integer INT_15 = Integer._of(15);
-  final Integer INT_23 = Integer._of(23);
-  final Integer INT_30 = Integer._of(30);
-  final Integer INT_34 = Integer._of(34);
-  final Integer INT_45 = Integer._of(45);
-  final Integer INT_56 = Integer._of(56);
-  final Integer INT_59 = Integer._of(59);
-  final Integer INT_86399 = Integer._of(86399);
+  // Use integer constants from Common base class
   final Integer INT_NOON_SECONDS = Integer._of(12 * 3600);
 
   // ============ COMMON STRING CONSTANTS ============
@@ -36,7 +19,7 @@ class TimeTest extends Common {
   final String STR_TIME2 = String._of("14:45:30");
   final String STR_END_OF_DAY = String._of("23:59:59");
 
-  final Time unset = new Time();
+  final Time unsetTime = new Time();
   final Time startOfDay = Time._of("00:00:00");
   final Time endOfDay = Time._of("23:59:59");
   final Time noon = Time._of("12:00:00");
@@ -123,39 +106,39 @@ class TimeTest extends Common {
 
     // Equality operators
     assertEquals(time1Copy, time1);
-    assertEquals(true1, time1._eq(time1Copy));
-    assertEquals(false1, time1._neq(time1Copy));
+    assertEquals(trueBoolean, time1._eq(time1Copy));
+    assertEquals(falseBoolean, time1._neq(time1Copy));
 
-    assertUnset.accept(time1._eq(unset));
-    assertUnset.accept(unset._eq(unset));
+    assertUnset.accept(time1._eq(unsetTime));
+    assertUnset.accept(unsetTime._eq(unsetTime));
 
-    assertUnset.accept(time1._neq(unset));
-    assertUnset.accept(unset._neq(unset));
+    assertUnset.accept(time1._neq(unsetTime));
+    assertUnset.accept(unsetTime._neq(unsetTime));
 
     // Comparison operators
     assertTrue.accept(time1._lt(time2));
     assertFalse.accept(time2._lt(time1));
-    assertUnset.accept(time1._lt(unset));
-    assertUnset.accept(unset._lt(unset));
+    assertUnset.accept(time1._lt(unsetTime));
+    assertUnset.accept(unsetTime._lt(unsetTime));
 
     assertTrue.accept(time2._gt(time1));
-    assertUnset.accept(time2._gt(unset));
-    assertUnset.accept(unset._gt(time1));
+    assertUnset.accept(time2._gt(unsetTime));
+    assertUnset.accept(unsetTime._gt(time1));
 
     assertTrue.accept(time1._lteq(time1Copy));
-    assertUnset.accept(time2._lteq(unset));
-    assertUnset.accept(unset._lteq(time1));
+    assertUnset.accept(time2._lteq(unsetTime));
+    assertUnset.accept(unsetTime._lteq(time1));
 
     assertTrue.accept(time1._gteq(time1Copy));
-    assertUnset.accept(time2._gteq(unset));
-    assertUnset.accept(unset._gteq(time1));
+    assertUnset.accept(time2._gteq(unsetTime));
+    assertUnset.accept(unsetTime._gteq(time1));
 
     // Comparison operator
     assertEquals(INT_0, time1._cmp(time1Copy));
     assertEquals(INT_MINUS_1, time1._cmp(time2));
     assertEquals(INT_1, time2._cmp(time1));
 
-    assertUnset.accept(time1._cmp(unset));
+    assertUnset.accept(time1._cmp(unsetTime));
     assertUnset.accept(time1._cmp(new Any(){}));
   }
 
@@ -165,7 +148,7 @@ class TimeTest extends Common {
     var mutatedValue = Time._of("09:30:15");
     mutatedValue._copy(time2);
     assertEquals(time2, mutatedValue);
-    mutatedValue._copy(unset);
+    mutatedValue._copy(unsetTime);
     assertUnset.accept(mutatedValue);
 
     // Set logic
@@ -177,9 +160,9 @@ class TimeTest extends Common {
   @Test
   void testTimeSpecificMethods() {
     // Test with unset
-    assertUnset.accept(unset.hour());
-    assertUnset.accept(unset.minute());
-    assertUnset.accept(unset.second());
+    assertUnset.accept(unsetTime.hour());
+    assertUnset.accept(unsetTime.minute());
+    assertUnset.accept(unsetTime.second());
 
     // Test various times
     assertEquals(INT_9, time1.hour());
@@ -236,14 +219,14 @@ class TimeTest extends Common {
     assertEquals(INT_14, time2._prefix());
     assertEquals(INT_0, startOfDay._prefix());
     assertEquals(INT_23, endOfDay._prefix());
-    assertUnset.accept(unset._prefix());
+    assertUnset.accept(unsetTime._prefix());
 
     // Suffix operator (second)
     assertEquals(INT_15, time1._suffix());
     assertEquals(INT_30, time2._suffix());
     assertEquals(INT_0, startOfDay._suffix());
     assertEquals(INT_59, endOfDay._suffix());
-    assertUnset.accept(unset._suffix());
+    assertUnset.accept(unsetTime._suffix());
   }
 
   @Test
@@ -296,7 +279,7 @@ class TimeTest extends Common {
   @Test
   void testUtilityMethods() {
     // String operations
-    assertUnset.accept(unset._string());
+    assertUnset.accept(unsetTime._string());
     assertEquals(STR_TIME1, time1._string());
     assertEquals(STR_TIME2, time2._string());
     assertEquals(STR_START_OF_DAY, startOfDay._string());
@@ -304,7 +287,7 @@ class TimeTest extends Common {
 
     assertEquals("09:30:15", time1.toString());
     assertEquals("14:45:30", time2.toString());
-    assertEquals("", unset.toString());
+    assertEquals("", unsetTime.toString());
 
     // Hash code
     assertEquals(time1.hashCode(), time1.hashCode());
@@ -360,7 +343,7 @@ class TimeTest extends Common {
     assertSet.accept(endOfDayJson);
     
     // Test JSON conversion with unset value
-    assertUnset.accept(unset._json());
+    assertUnset.accept(unsetTime._json());
   }
 
   @Test 
@@ -401,8 +384,8 @@ class TimeTest extends Common {
     assertEquals(INT_0, startOfDay._fuzzy(justAfterMidnight)); // 00:00 fuzzy equal
 
     // Test fuzzy with unset
-    assertUnset.accept(time1._fuzzy(unset));
-    assertUnset.accept(unset._fuzzy(time1));
+    assertUnset.accept(time1._fuzzy(unsetTime));
+    assertUnset.accept(unsetTime._fuzzy(time1));
   }
 
   @Test
@@ -430,9 +413,9 @@ class TimeTest extends Common {
 
     // Test with unset
     assertUnset.accept(time1._add(new Duration()));
-    assertUnset.accept(unset._add(oneHour));
+    assertUnset.accept(unsetTime._add(oneHour));
     assertUnset.accept(time1._sub(new Duration()));
-    assertUnset.accept(time1._sub(unset));
+    assertUnset.accept(time1._sub(unsetTime));
   }
 
   @Test
@@ -455,9 +438,9 @@ class TimeTest extends Common {
 
     // Test with unset
     assertUnset.accept(time1._add(new Millisecond()));
-    assertUnset.accept(unset._add(oneSecondMs));
+    assertUnset.accept(unsetTime._add(oneSecondMs));
     assertUnset.accept(time1._sub(new Millisecond()));
-    assertUnset.accept(time1._sub(unset));
+    assertUnset.accept(time1._sub(unsetTime));
   }
 
   @Test
@@ -477,7 +460,7 @@ class TimeTest extends Common {
     assertEquals(Time._of("06:00:00"), negated18); // 24:00 - 18:00 = 06:00
 
     // Test with unset
-    assertUnset.accept(unset._negate());
+    assertUnset.accept(unsetTime._negate());
   }
 
   @Test
@@ -487,7 +470,7 @@ class TimeTest extends Common {
     testMerge._merge(time1);
     assertEquals(time1, testMerge);
 
-    testMerge._merge(unset);
+    testMerge._merge(unsetTime);
     assertUnset.accept(testMerge);
 
     // Test replace (:^:) - should delegate to copy
@@ -495,7 +478,7 @@ class TimeTest extends Common {
     testReplace._replace(time2);
     assertEquals(time2, testReplace);
 
-    testReplace._replace(unset);
+    testReplace._replace(unsetTime);
     assertUnset.accept(testReplace);
 
     // Test copy (:=:) - already tested in testCopyOperations
@@ -551,7 +534,7 @@ class TimeTest extends Common {
 
     // Test with unset
     final var testPipeUnset = Time._of("12:00:00");
-    testPipeUnset._pipe(unset);
+    testPipeUnset._pipe(unsetTime);
     assertEquals(Time._of("12:00:00"), testPipeUnset); // No change when piping unset Time
   }
 

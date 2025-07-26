@@ -8,47 +8,17 @@ import org.junit.jupiter.api.Test;
 
 class DateTest extends Common {
 
-  final Boolean true1 = Boolean._of("true");
-  final Boolean false1 = Boolean._of("false");
-
-  // ============ COMMON INTEGER CONSTANTS ============
-  final Integer INT_MINUS_1 = Integer._of(-1);
-  final Integer INT_0 = Integer._of(0);
-  final Integer INT_1 = Integer._of(1);
-  final Integer INT_2 = Integer._of(2);
-  final Integer INT_6 = Integer._of(6);
-  final Integer INT_7 = Integer._of(7);
-  final Integer INT_12 = Integer._of(12);
-  final Integer INT_13 = Integer._of(13);
-  final Integer INT_15 = Integer._of(15);
-  final Integer INT_29 = Integer._of(29);
-  final Integer INT_30 = Integer._of(30);
-  final Integer INT_31 = Integer._of(31);
-  final Integer INT_60 = Integer._of(60);
-  final Integer INT_365 = Integer._of(365);
-  final Integer INT_1970 = Integer._of(1970);
-  final Integer INT_2023 = Integer._of(2023);
-  final Integer INT_2024 = Integer._of(2024);
-  final Integer INT_2025 = Integer._of(2025);
-
-  // ============ COMMON STRING CONSTANTS ============
-  final String STR_DATE1 = String._of("2023-01-01");
-  final String STR_ZONE_UTC = String._of("Z");
-
-  final Date unset = new Date();
-  final Date date1 = Date._of("2023-01-01");
-  final Date date2 = Date._of("2023-01-02");
-  final Date date3 = Date._of("2023-12-31");
-  final Date leapYear = Date._of("2024-02-29");
+  // Use constants from Common base class
+  final Date unsetDate = new Date(); // Local unset for this test class
+  
+  // Use Common String constants for dates
+  final Date date1 = Date._of(DATE_2023_01_01.state); 
+  final Date date2 = Date._of(DATE_2023_01_02.state);
+  final Date date3 = Date._of(DATE_2023_12_31.state);
+  final Date leapYearDate = Date._of(DATE_2024_02_29.state);
   final Date epochDate = new Date(INT_0); // 1970-01-01
-  final Date futureDate = Date._of("2025-06-15");
-  final Date before2000 = Date._of("1999-12-31");
-
-  // Common test constants for all temporal arithmetic tests
-  final Millisecond oneSecond = Millisecond._of(1000);
-  final Millisecond oneDay = Millisecond._of(86400000L);
-  final Duration oneDayDuration = Duration._of(86400L);
-  final Duration twoDaysDuration = Duration._of(172800L);
+  final Date futureDate = Date._of(DATE_2025_06_15.state);
+  final Date before2000 = Date._of(DATE_1999_12_31.state);
 
   @Test
   void testConstruction() {
@@ -64,9 +34,9 @@ class DateTest extends Common {
     final var unset3 = new Date(new String());
     assertUnset.accept(unset3);
 
-    final var checkDate1 = new Date(STR_DATE1);
+    final var checkDate1 = new Date(DATE_2023_01_01);
     assertSet.accept(checkDate1);
-    assertEquals(STR_DATE1.state, checkDate1.toString());
+    assertEquals(DATE_2023_01_01.state, checkDate1.toString());
 
     // Copy constructor
     final var againDate1 = new Date(date1);
@@ -125,31 +95,31 @@ class DateTest extends Common {
   void testOperators() {
     // Equality operators
     assertEquals(date1, date1);
-    assertEquals(true1, date1._eq(date1));
-    assertEquals(false1, date1._neq(date1));
+    assertEquals(trueBoolean, date1._eq(date1));
+    assertEquals(falseBoolean, date1._neq(date1));
 
-    assertUnset.accept(date1._eq(unset));
-    assertUnset.accept(unset._eq(unset));
+    assertUnset.accept(date1._eq(unsetDate));
+    assertUnset.accept(unsetDate._eq(unsetDate));
 
-    assertUnset.accept(date1._neq(unset));
-    assertUnset.accept(unset._neq(unset));
+    assertUnset.accept(date1._neq(unsetDate));
+    assertUnset.accept(unsetDate._neq(unsetDate));
 
     // Comparison operators
     assertTrue.accept(date1._lt(date2));
     assertFalse.accept(date2._lt(date1));
-    assertUnset.accept(date1._lt(unset));
-    assertUnset.accept(unset._lt(unset));
+    assertUnset.accept(date1._lt(unsetDate));
+    assertUnset.accept(unsetDate._lt(unsetDate));
     assertTrue.accept(date2._gt(date1));
-    assertUnset.accept(date2._gt(unset));
-    assertUnset.accept(unset._gt(date1));
+    assertUnset.accept(date2._gt(unsetDate));
+    assertUnset.accept(unsetDate._gt(date1));
 
     assertTrue.accept(date1._lteq(date1));
-    assertUnset.accept(date2._lteq(unset));
-    assertUnset.accept(unset._lteq(date1));
+    assertUnset.accept(date2._lteq(unsetDate));
+    assertUnset.accept(unsetDate._lteq(date1));
 
     assertTrue.accept(date1._gteq(date1));
-    assertUnset.accept(date2._gteq(unset));
-    assertUnset.accept(unset._gteq(date1));
+    assertUnset.accept(date2._gteq(unsetDate));
+    assertUnset.accept(unsetDate._gteq(date1));
 
     // Comparison and fuzzy operators
     assertEquals(INT_0, date1._cmp(date1));
@@ -158,8 +128,8 @@ class DateTest extends Common {
     assertEquals(INT_0, date1._fuzzy(date1));
 
     assertUnset.accept(date1._cmp(new Any(){}));
-    assertUnset.accept(unset._cmp(date1));
-    assertUnset.accept(unset._fuzzy(date1));
+    assertUnset.accept(unsetDate._cmp(date1));
+    assertUnset.accept(unsetDate._fuzzy(date1));
 
     // Increment/decrement
     final var mutatedDate = Date._of("2023-01-01");
@@ -167,8 +137,8 @@ class DateTest extends Common {
     assertEquals(date2, mutatedDate);
     mutatedDate._dec();
     assertEquals(date1, mutatedDate);
-    assertUnset.accept(unset._inc());
-    assertUnset.accept(unset._dec());
+    assertUnset.accept(unsetDate._inc());
+    assertUnset.accept(unsetDate._dec());
   }
 
   @Test
@@ -177,14 +147,14 @@ class DateTest extends Common {
     var mutatedValue = Date._of("2023-01-01");
     mutatedValue._replace(date2);
     assertEquals(date2, mutatedValue);
-    mutatedValue._replace(unset);
+    mutatedValue._replace(unsetDate);
     assertUnset.accept(mutatedValue);
 
     // Merge logic
     mutatedValue = new Date();
     mutatedValue._merge(date1);
     assertEquals(date1, mutatedValue);
-    mutatedValue._merge(unset);
+    mutatedValue._merge(unsetDate);
     assertUnset.accept(mutatedValue);
 
     // Pipe logic
@@ -198,12 +168,12 @@ class DateTest extends Common {
   @Test
   void testDateSpecificMethods() {
     // Test with unset
-    assertUnset.accept(unset.year());
-    assertUnset.accept(unset.month());
-    assertUnset.accept(unset.day());
-    assertUnset.accept(unset.dayOfWeek());
-    assertUnset.accept(unset.dayOfMonth());
-    assertUnset.accept(unset.dayOfYear());
+    assertUnset.accept(unsetDate.year());
+    assertUnset.accept(unsetDate.month());
+    assertUnset.accept(unsetDate.day());
+    assertUnset.accept(unsetDate.dayOfWeek());
+    assertUnset.accept(unsetDate.dayOfMonth());
+    assertUnset.accept(unsetDate.dayOfYear());
 
     // Test various dates
     assertEquals(INT_2023, date1.year());
@@ -218,10 +188,10 @@ class DateTest extends Common {
     assertEquals(INT_31, date3.day());
     assertEquals(INT_365, date3.dayOfYear()); // Dec 31st in non-leap year
 
-    assertEquals(INT_2024, leapYear.year());
-    assertEquals(INT_2, leapYear.month());
-    assertEquals(INT_29, leapYear.day());
-    assertEquals(INT_60, leapYear.dayOfYear()); // Feb 29th is day 60 in leap year
+    assertEquals(INT_2024, leapYearDate.year());
+    assertEquals(INT_2, leapYearDate.month());
+    assertEquals(INT_29, leapYearDate.day());
+    assertEquals(INT_60, leapYearDate.dayOfYear()); // Feb 29th is day 60 in leap year
 
     // Today and clear operations
     final var todaysDate = new Date().today();
@@ -234,13 +204,13 @@ class DateTest extends Common {
 
   @Test
   void testDateRanges() {
-    // Test chronological ordering: epochDate < before2000 < date1 < date2 < date3 < leapYear < futureDate
+    // Test chronological ordering: epochDate < before2000 < date1 < date2 < date3 < leapYearDate < futureDate
     assertTrue.accept(epochDate._lt(before2000)); // 1970 < 1999
     assertTrue.accept(before2000._lt(date1)); // 1999 < 2023
     assertTrue.accept(date1._lt(date2));
     assertTrue.accept(date2._lt(date3));
-    assertTrue.accept(date3._lt(leapYear)); // 2023 < 2024
-    assertTrue.accept(leapYear._lt(futureDate)); // 2024 < 2025
+    assertTrue.accept(date3._lt(leapYearDate)); // 2023 < 2024
+    assertTrue.accept(leapYearDate._lt(futureDate)); // 2024 < 2025
 
     // Test comparison operators across ranges
     assertEquals(INT_1, before2000._cmp(epochDate)); // 1999 > 1970
@@ -263,14 +233,14 @@ class DateTest extends Common {
   @Test
   void testUtilityMethods() {
     // IsSet
-    assertFalse.accept(unset._isSet());
+    assertFalse.accept(unsetDate._isSet());
     assertTrue.accept(date1._isSet());
 
     // String operations
-    assertUnset.accept(unset._string());
-    assertEquals(STR_DATE1, date1._string());
-    assertEquals(STR_DATE1.state, date1.toString());
-    assertEquals("", unset.toString());
+    assertUnset.accept(unsetDate._string());
+    assertEquals(DATE_2023_01_01, date1._string());
+    assertEquals(DATE_2023_01_01.state, date1.toString());
+    assertEquals("", unsetDate.toString());
 
     // JSON operations
     final var date1Json = date1._json();
@@ -279,10 +249,10 @@ class DateTest extends Common {
     final var date2Json = date2._json();
     assertSet.accept(date2Json);
 
-    assertUnset.accept(unset._json());
+    assertUnset.accept(unsetDate._json());
 
     // Hash code
-    assertUnset.accept(unset._hashcode());
+    assertUnset.accept(unsetDate._hashcode());
     assertEquals(date1._hashcode(), date1._hashcode());
     assertNotEquals(date1._hashcode(), date2._hashcode());
 
@@ -291,7 +261,7 @@ class DateTest extends Common {
     assertNotNull(javaDate1);
     assertEquals(java.time.LocalDate.of(2023, 1, 1), javaDate1);
 
-    final var javaDate2 = leapYear._getAsJavaTemporalAccessor();
+    final var javaDate2 = leapYearDate._getAsJavaTemporalAccessor();
     assertNotNull(javaDate2);
     assertEquals(java.time.LocalDate.of(2024, 2, 29), javaDate2);
 
@@ -306,41 +276,41 @@ class DateTest extends Common {
   @Test
   void testArithmeticOperators() {
     // Test Date + Millisecond
-    assertEquals(date1, date1._add(oneSecond)); // Adding 1 second doesn't change date
-    assertEquals(date2, date1._add(oneDay)); // Adding 1 day via milliseconds
-    assertUnset.accept(unset._add(oneSecond));
+    assertEquals(date1, date1._add(oneSecondMs)); // Adding 1 second doesn't change date
+    assertEquals(date2, date1._add(oneDayMs)); // Adding 1 day via milliseconds
+    assertUnset.accept(unsetDate._add(oneSecondMs));
     assertUnset.accept(date1._add(new Millisecond()));
 
     // Test Date + Duration  
     assertEquals(date2, date1._add(oneDayDuration));
     assertEquals(Date._of("2023-01-03"), date1._add(twoDaysDuration));
-    assertUnset.accept(unset._add(oneDayDuration));
+    assertUnset.accept(unsetDate._add(oneDayDuration));
     assertUnset.accept(date1._add(new Duration()));
 
     // Test Date - Millisecond
-    assertEquals(date2, date2._sub(oneSecond)); // Subtracting 1 second doesn't change date
-    assertEquals(date1, date2._sub(oneDay));
-    assertUnset.accept(unset._sub(oneSecond));
+    assertEquals(date2, date2._sub(oneSecondMs)); // Subtracting 1 second doesn't change date
+    assertEquals(date1, date2._sub(oneDayMs));
+    assertUnset.accept(unsetDate._sub(oneSecondMs));
     assertUnset.accept(date1._sub(new Millisecond()));
 
     // Test Date - Duration
     assertEquals(date1, date2._sub(oneDayDuration));
-    assertUnset.accept(unset._sub(oneDayDuration));
+    assertUnset.accept(unsetDate._sub(oneDayDuration));
     assertUnset.accept(date1._sub(new Duration()));
 
     // Test Date - Date → Duration
     assertEquals(oneDayDuration, date2._sub(date1));
     assertEquals(Duration._of(0), date1._sub(date1));
     assertEquals(Duration._of(-86400L), date1._sub(date2));
-    assertUnset.accept(unset._sub(date1));
-    assertUnset.accept(date1._sub(unset));
+    assertUnset.accept(unsetDate._sub(date1));
+    assertUnset.accept(date1._sub(unsetDate));
   }
 
   @Test
   void testAssignmentOperators() {
     // Test Date += Millisecond
     var testDate = Date._of("2023-01-01");
-    testDate._addAss(oneDay);
+    testDate._addAss(oneDayMs);
     assertEquals(date2, testDate);
     testDate._addAss(new Millisecond()); // unset input corrupts state
     assertUnset.accept(testDate);
@@ -354,7 +324,7 @@ class DateTest extends Common {
 
     // Test Date -= Millisecond
     testDate = Date._of("2023-01-02");
-    testDate._subAss(oneDay);
+    testDate._subAss(oneDayMs);
     assertEquals(date1, testDate);
     
     // Test Date -= Duration
@@ -363,16 +333,16 @@ class DateTest extends Common {
     assertEquals(date1, testDate);
 
     // Test unset object behavior
-    var unsetDate = new Date();
-    unsetDate._addAss(oneDay);
-    assertUnset.accept(unsetDate);
+    var unsetMutation = new Date();
+    unsetMutation._addAss(oneDayMs);
+    assertUnset.accept(unsetMutation);
   }
 
   @Test
   void testPipeOperators() {
     // Test Date | Millisecond (pipes behave like += assignment)
     var testDate = Date._of("2023-01-01");
-    testDate._pipe(oneDay);
+    testDate._pipe(oneDayMs);
     assertEquals(date2, testDate);
 
     // Test Date | Duration
@@ -381,9 +351,9 @@ class DateTest extends Common {
     assertEquals(date2, testDate);
 
     // Test unset behavior
-    var unsetDate = new Date();
-    unsetDate._pipe(oneDay);
-    assertUnset.accept(unsetDate);
+    var unsetMutation = new Date();
+    unsetMutation._pipe(oneDayMs);
+    assertUnset.accept(unsetMutation);
   }
 
   @Test
@@ -397,26 +367,26 @@ class DateTest extends Common {
     assertEquals(INT_0, promotedDateTime.hour());
     assertEquals(INT_0, promotedDateTime.minute());
     assertEquals(INT_0, promotedDateTime.second());
-    assertEquals(STR_ZONE_UTC, promotedDateTime.zone());
+    assertEquals(TIMEZONE_UTC_Z, promotedDateTime.zone());
     
-    final var unsetPromoted = unset._promote();
+    final var unsetPromoted = unsetDate._promote();
     assertUnset.accept(unsetPromoted);
 
     // Test Date #< prefix operator (day)
     assertEquals(INT_1, date1._prefix());
     assertEquals(INT_2, date2._prefix());
     assertEquals(INT_31, date3._prefix());
-    assertEquals(INT_29, leapYear._prefix());
-    assertUnset.accept(unset._prefix());
+    assertEquals(INT_29, leapYearDate._prefix());
+    assertUnset.accept(unsetDate._prefix());
 
     // Test Date #> suffix operator (year)
     assertEquals(INT_2023, date1._suffix());
     assertEquals(INT_2023, date2._suffix());
     assertEquals(INT_2023, date3._suffix());
-    assertEquals(INT_2024, leapYear._suffix());
+    assertEquals(INT_2024, leapYearDate._suffix());
     assertEquals(INT_1970, epochDate._suffix());
     assertEquals(INT_2025, futureDate._suffix());
-    assertUnset.accept(unset._suffix());
+    assertUnset.accept(unsetDate._suffix());
   }
 
   @Test
@@ -437,7 +407,7 @@ class DateTest extends Common {
 
     // Test leap year boundaries
     final var feb28 = Date._of("2024-02-28");
-    assertEquals(Date._of("2024-02-29"), feb28._add(oneDay));
-    assertEquals(Date._of("2024-03-01"), leapYear._add(oneDay));
+    assertEquals(Date._of("2024-02-29"), feb28._add(oneDayMs));
+    assertEquals(Date._of("2024-03-01"), leapYearDate._add(oneDayMs));
   }
 }

@@ -14,7 +14,7 @@ class _DictEntry_87A55D447A2FC20E1611D0A0F5F49C2A4B57F40CD33E7FB15E43352011BFDD4
 
   // Test data
   private final String testKey = String._of("testKey");
-  private final Integer testValue = Integer._of(42);
+  private final Integer testValue = INT_42;
   private final String testKey2 = String._of("anotherKey");
   private final Integer testValue2 = Integer._of(99);
 
@@ -83,9 +83,9 @@ class _DictEntry_87A55D447A2FC20E1611D0A0F5F49C2A4B57F40CD33E7FB15E43352011BFDD4
     assertEquals(Integer.class, value.getClass());
 
     // Test with different key-value pairs
-    final var entry2 = _DictEntry_87A55D447A2FC20E1611D0A0F5F49C2A4B57F40CD33E7FB15E43352011BFDD4E._of(String._of("name"), Integer._of(100));
-    assertEquals(String._of("name"), entry2.key());
-    assertEquals(Integer._of(100), entry2.value());
+    final var entry2 = _DictEntry_87A55D447A2FC20E1611D0A0F5F49C2A4B57F40CD33E7FB15E43352011BFDD4E._of(STR_NAME, INT_100);
+    assertEquals(STR_NAME, entry2.key());
+    assertEquals(INT_100, entry2.value());
   }
 
   @Test

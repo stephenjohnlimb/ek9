@@ -14,9 +14,7 @@ class MillisecondTest extends Common {
 
   final Duration oneSecond = Duration._of("PT1S");
 
-  final Integer int2 = Integer._of(2);
-  final Integer int3 = Integer._of(3);
-  final Float float2 = Float._of(2.0);
+  // Use INT_2, INT_3, FLOAT_2_0 from Common base class
 
   @Test
   void testConstruction() {
@@ -168,27 +166,27 @@ class MillisecondTest extends Common {
     assertUnset.accept(ms100._sub(new Duration()));
 
     // Multiplication with Integer
-    final var mulIntResult = ms100._mul(int2);
+    final var mulIntResult = ms100._mul(INT_2);
     assertEquals(200, mulIntResult._prefix().state);
-    assertUnset.accept(unset._mul(int2));
+    assertUnset.accept(unset._mul(INT_2));
     assertUnset.accept(ms100._mul(new Integer()));
 
     // Division with Integer
-    final var divIntResult = ms200._div(int2);
+    final var divIntResult = ms200._div(INT_2);
     assertEquals(100, divIntResult._prefix().state);
-    assertUnset.accept(unset._div(int2));
+    assertUnset.accept(unset._div(INT_2));
     assertUnset.accept(ms200._div(new Integer()));
 
     // Multiplication with Float
-    final var mulFloatResult = ms100._mul(float2);
+    final var mulFloatResult = ms100._mul(FLOAT_2_0);
     assertEquals(200, mulFloatResult._prefix().state);
-    assertUnset.accept(unset._mul(float2));
+    assertUnset.accept(unset._mul(FLOAT_2_0));
     assertUnset.accept(ms100._mul(new Float()));
 
     // Division with Float
-    final var divFloatResult = ms200._div(float2);
+    final var divFloatResult = ms200._div(FLOAT_2_0);
     assertEquals(100, divFloatResult._prefix().state);
-    assertUnset.accept(unset._div(float2));
+    assertUnset.accept(unset._div(FLOAT_2_0));
     assertUnset.accept(ms200._div(new Float()));
 
     // Division returning Float
@@ -274,22 +272,22 @@ class MillisecondTest extends Common {
 
     // Multiplication assignment with Integer
     final var ms5 = Millisecond._of(100);
-    ms5._mulAss(int3);
+    ms5._mulAss(INT_3);
     assertEquals(300, ms5._prefix().state);
 
     // Division assignment with Integer
     final var ms6 = Millisecond._of(300);
-    ms6._divAss(int3);
+    ms6._divAss(INT_3);
     assertEquals(100, ms6._prefix().state);
 
     // Multiplication assignment with Float
     final var ms7 = Millisecond._of(100);
-    ms7._mulAss(float2);
+    ms7._mulAss(FLOAT_2_0);
     assertEquals(200, ms7._prefix().state);
 
     // Division assignment with Float
     final var ms8 = Millisecond._of(200);
-    ms8._divAss(float2);
+    ms8._divAss(FLOAT_2_0);
     assertEquals(100, ms8._prefix().state);
 
     // Test unset propagation

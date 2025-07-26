@@ -52,7 +52,7 @@ class _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6Test
 
   // Test data
   private final String testKey1 = String._of("key1");
-  private final Integer testValue1 = Integer._of(100);
+  private final Integer testValue1 = INT_100;
   private final String testKey2 = String._of("key2");
   private final Integer testValue2 = Integer._of(200);
   private final String testKey3 = String._of("key3");
@@ -313,12 +313,12 @@ class _Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6Test
     final var dict = dictStringInteger();
 
     // Add entries using different methods to test comprehensive functionality
-    dict._pipe(dictEntryStrInt(String._of("name"), Integer._of(100)));
+    dict._pipe(dictEntryStrInt(STR_NAME, INT_100));
     dict._pipe(dictEntryStrInt(String._of("age"), Integer._of(25)));
     dict._pipe(dictEntryStrInt(String._of("score"), Integer._of(95)));
 
     // Verify all entries exist and are correctly typed
-    assertEquals(Integer._of(100), dict.get(String._of("name")));
+    assertEquals(INT_100, dict.get(STR_NAME));
     assertEquals(Integer._of(25), dict.get(String._of("age")));
     assertEquals(Integer._of(95), dict.get(String._of("score")));
     assertEquals(Integer._of(3), dict._len());

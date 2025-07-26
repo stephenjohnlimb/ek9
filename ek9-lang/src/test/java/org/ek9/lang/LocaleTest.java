@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class LocaleTest extends Common {
 
   // Test data setup matching documentation examples
-  final Locale unset = new Locale();
+  final Locale unsetLocale = new Locale();
 
   // Test data from builtInTypes.html documentation
   final Integer i1 = Integer._of(-92208);
@@ -21,9 +21,6 @@ class LocaleTest extends Common {
   final Money thirtyDollars = Money._of("30.89#USD");
   final Money chileanCurrency = Money._of("6798.9288#CLF");
 
-  // Additional test data
-  final Boolean trueBoolean = Boolean._of(true);
-  final Boolean falseBoolean = Boolean._of(false);
 
   @Test
   void testConstruction() {
@@ -82,18 +79,18 @@ class LocaleTest extends Common {
     assertFalse.accept(enGB._eq(enUS));
 
     // Unset propagation
-    assertUnset.accept(unset._eq(enGB));
-    assertUnset.accept(enGB._eq(unset));
-    assertUnset.accept(unset._eq(unset));
+    assertUnset.accept(unsetLocale._eq(enGB));
+    assertUnset.accept(enGB._eq(unsetLocale));
+    assertUnset.accept(unsetLocale._eq(unsetLocale));
 
     // Not equal
     assertFalse.accept(enGB._neq(anotherEnGB));
     assertTrue.accept(enGB._neq(enUS));
 
     // Unset propagation for neq
-    assertUnset.accept(unset._neq(enGB));
-    assertUnset.accept(enGB._neq(unset));
-    assertUnset.accept(unset._neq(unset));
+    assertUnset.accept(unsetLocale._neq(enGB));
+    assertUnset.accept(enGB._neq(unsetLocale));
+    assertUnset.accept(unsetLocale._neq(unsetLocale));
   }
 
   @Test
@@ -113,9 +110,9 @@ class LocaleTest extends Common {
     assertTrue(enUS._cmp(enGB).state > 0);
 
     // Unset propagation
-    assertUnset.accept(unset._cmp(enGB));
-    assertUnset.accept(enGB._cmp(unset));
-    assertUnset.accept(unset._cmp(unset));
+    assertUnset.accept(unsetLocale._cmp(enGB));
+    assertUnset.accept(enGB._cmp(unsetLocale));
+    assertUnset.accept(unsetLocale._cmp(unsetLocale));
 
     // Less than
     assertTrue.accept(enGB._lt(enUS));
@@ -138,20 +135,20 @@ class LocaleTest extends Common {
     assertFalse.accept(enGB._gteq(enUS));
 
     // Unset propagation for comparison operators
-    assertUnset.accept(unset._lt(enGB));
-    assertUnset.accept(enGB._lt(unset));
-    assertUnset.accept(unset._lteq(enGB));
-    assertUnset.accept(enGB._lteq(unset));
-    assertUnset.accept(unset._gt(enGB));
-    assertUnset.accept(enGB._gt(unset));
-    assertUnset.accept(unset._gteq(enGB));
-    assertUnset.accept(enGB._gteq(unset));
+    assertUnset.accept(unsetLocale._lt(enGB));
+    assertUnset.accept(enGB._lt(unsetLocale));
+    assertUnset.accept(unsetLocale._lteq(enGB));
+    assertUnset.accept(enGB._lteq(unsetLocale));
+    assertUnset.accept(unsetLocale._gt(enGB));
+    assertUnset.accept(enGB._gt(unsetLocale));
+    assertUnset.accept(unsetLocale._gteq(enGB));
+    assertUnset.accept(enGB._gteq(unsetLocale));
   }
 
   @Test
   void testIsSet() {
-    assertNotNull(unset);
-    assertFalse.accept(unset._isSet());
+    assertNotNull(unsetLocale);
+    assertFalse.accept(unsetLocale._isSet());
 
     final var enGB = new Locale(String._of("en_GB"));
     assertNotNull(enGB);
@@ -182,8 +179,8 @@ class LocaleTest extends Common {
     assertEquals("SK", skSK._suffix()._string().state);
 
     // Test with unset locale
-    assertUnset.accept(unset._prefix());
-    assertUnset.accept(unset._suffix());
+    assertUnset.accept(unsetLocale._prefix());
+    assertUnset.accept(unsetLocale._suffix());
 
     // Test that language() and country() methods delegate to operators
     assertEquals(enGB._prefix()._string().state, enGB.language()._string().state);
@@ -198,12 +195,12 @@ class LocaleTest extends Common {
     // Test language() method
     assertEquals("en", enGB.language()._string().state);
     assertEquals("de", deutsch.language()._string().state);
-    assertUnset.accept(unset.language());
+    assertUnset.accept(unsetLocale.language());
 
     // Test country() method
     assertEquals("GB", enGB.country()._string().state);
     assertEquals("DE", deutsch.country()._string().state);
-    assertUnset.accept(unset.country());
+    assertUnset.accept(unsetLocale.country());
   }
 
   @Test
@@ -227,7 +224,7 @@ class LocaleTest extends Common {
     assertEquals("675\u00A0807", skSK.format(i2)._string().state);
 
     // Unset handling
-    assertUnset.accept(unset.format(i1));
+    assertUnset.accept(unsetLocale.format(i1));
     assertUnset.accept(enGB.format(new Integer()));
   }
 
@@ -254,7 +251,7 @@ class LocaleTest extends Common {
     assertEquals("-1\u00A0797\u00A0693\u00A0134\u00A0862,395", skSK.format(f2)._string().state);
 
     // Unset handling
-    assertUnset.accept(unset.format(f1));
+    assertUnset.accept(unsetLocale.format(f1));
     assertUnset.accept(enGB.format(new Float()));
     assertUnset.accept(enGB.format(f1, new Integer()));
   }
@@ -285,7 +282,7 @@ class LocaleTest extends Common {
     assertEquals("6,799", enGB.format(chileanCurrency, Boolean._of(false), Boolean._of(false))._string().state);
 
     // Unset handling
-    assertUnset.accept(unset.format(tenPounds));
+    assertUnset.accept(unsetLocale.format(tenPounds));
     assertUnset.accept(enGB.format(new Money()));
     assertUnset.accept(enGB.format(tenPounds, new Boolean(), Boolean._of(true)));
     assertUnset.accept(enGB.format(tenPounds, Boolean._of(true), new Boolean()));
@@ -315,10 +312,10 @@ class LocaleTest extends Common {
     assertEquals("CLF6,798.9288", enGB.fullFormat(chileanCurrency)._string().state);
 
     // Unset handling
-    assertUnset.accept(unset.shortFormat(tenPounds));
-    assertUnset.accept(unset.mediumFormat(tenPounds));
-    assertUnset.accept(unset.longFormat(tenPounds));
-    assertUnset.accept(unset.fullFormat(tenPounds));
+    assertUnset.accept(unsetLocale.shortFormat(tenPounds));
+    assertUnset.accept(unsetLocale.mediumFormat(tenPounds));
+    assertUnset.accept(unsetLocale.longFormat(tenPounds));
+    assertUnset.accept(unsetLocale.fullFormat(tenPounds));
   }
 
   @Test
@@ -329,7 +326,7 @@ class LocaleTest extends Common {
     assertEquals("false", enGB.format(falseBoolean)._string().state);
 
     // Unset handling
-    assertUnset.accept(unset.format(trueBoolean));
+    assertUnset.accept(unsetLocale.format(trueBoolean));
     assertUnset.accept(enGB.format(new Boolean()));
   }
 
@@ -345,7 +342,7 @@ class LocaleTest extends Common {
     assertEquals("de_DE", deutsch._string().state);
     assertEquals("sk_SK", skSK._string().state);
 
-    assertUnset.accept(unset._string());
+    assertUnset.accept(unsetLocale._string());
 
     // JSON operations
     final var enGBJson = enGB._json();
@@ -354,7 +351,7 @@ class LocaleTest extends Common {
     final var deutschJson = deutsch._json();
     assertSet.accept(deutschJson);
 
-    assertUnset.accept(unset._json());
+    assertUnset.accept(unsetLocale._json());
   }
 
   @Test
@@ -363,7 +360,7 @@ class LocaleTest extends Common {
     final var enUS = new Locale(String._of("en-US"));
     final var deutsch = new Locale(String._of("de_DE"));
 
-    assertUnset.accept(unset._hashcode());
+    assertUnset.accept(unsetLocale._hashcode());
     assertEquals(enGB._hashcode(), enGB._hashcode());
     assertNotEquals(enGB._hashcode(), enUS._hashcode());
     assertNotEquals(enGB._hashcode(), deutsch._hashcode());
@@ -405,7 +402,7 @@ class LocaleTest extends Common {
     assertUnset.accept(target);
 
     final var unsetTarget = new Locale();
-    unsetTarget._copy(unset);
+    unsetTarget._copy(unsetLocale);
     assertUnset.accept(unsetTarget);
   }
 
@@ -543,11 +540,11 @@ class LocaleTest extends Common {
     assertEquals("03.10.20, 12:00", germanDateTimeShort._string().state);
 
     // Test unset handling
-    assertUnset.accept(unset.format(testDate));
+    assertUnset.accept(unsetLocale.format(testDate));
     assertUnset.accept(enGB.format(new Date()));
-    assertUnset.accept(unset.format(testTime));
+    assertUnset.accept(unsetLocale.format(testTime));
     assertUnset.accept(enGB.format(new Time()));
-    assertUnset.accept(unset.format(testDateTime));
+    assertUnset.accept(unsetLocale.format(testDateTime));
     assertUnset.accept(enGB.format(new DateTime()));
   }
 
@@ -568,7 +565,7 @@ class LocaleTest extends Common {
     assertEquals(String._of("100.00"), precisionFormat);
 
     // Test unset handling
-    assertUnset.accept(unset.format(testDimension));
+    assertUnset.accept(unsetLocale.format(testDimension));
     assertUnset.accept(enGB.format(new Dimension()));
     assertUnset.accept(enGB.format(testDimension, new Integer()));
   }
@@ -589,7 +586,7 @@ class LocaleTest extends Common {
     assertEquals(String._of("Samstag"), deutschDayOfWeek);
 
     // Test unset handling
-    assertUnset.accept(unset.dayOfWeek(testDate));
+    assertUnset.accept(unsetLocale.dayOfWeek(testDate));
     assertUnset.accept(enGB.dayOfWeek(new Date()));
   }
 }

@@ -13,14 +13,6 @@ import org.junit.jupiter.api.Test;
  */
 class ColourTest extends Common {
 
-  // Test data - key colors from JustColour.ek9
-  private final Colour unset = new Colour();
-  private final Colour testColour = Colour._of("FF186276");
-  private final Colour modifiedColour = Colour._of("B7106236");
-  private final Colour redRgb = Colour._of("FF0000");
-  private final Colour greenRgb = Colour._of("00FF00");
-  private final Colour blueRgb = Colour._of("0000FF");
-  private final Colour redArgb = Colour._of("FFFF0000");
   @Test
   void testConstruction() {
     // Default constructor creates unset
@@ -131,7 +123,7 @@ class ColourTest extends Common {
   @Test
   void testStateManagement() {
     // Test _isSet operator
-    assertFalse.accept(unset._isSet());
+    assertFalse.accept(unsetColour._isSet());
     assertTrue.accept(testColour._isSet());
     assertTrue.accept(redRgb._isSet());
   }
@@ -150,10 +142,10 @@ class ColourTest extends Common {
     assertTrue.accept(redRgb._neq(blueRgb));
 
     // Unset propagation
-    assertUnset.accept(unset._eq(redRgb));
-    assertUnset.accept(redRgb._eq(unset));
-    assertUnset.accept(unset._neq(redRgb));
-    assertUnset.accept(redRgb._neq(unset));
+    assertUnset.accept(unsetColour._eq(redRgb));
+    assertUnset.accept(redRgb._eq(unsetColour));
+    assertUnset.accept(unsetColour._neq(redRgb));
+    assertUnset.accept(redRgb._neq(unsetColour));
   }
 
   @Test
@@ -190,10 +182,10 @@ class ColourTest extends Common {
     assertUnset.accept(white._lt(Any._new()));
 
     // Unset propagation
-    assertUnset.accept(unset._lt(red));
-    assertUnset.accept(red._lt(unset));
-    assertUnset.accept(unset._cmp(red));
-    assertUnset.accept(red._cmp(unset));
+    assertUnset.accept(unsetColour._lt(red));
+    assertUnset.accept(red._lt(unsetColour));
+    assertUnset.accept(unsetColour._cmp(red));
+    assertUnset.accept(red._cmp(unsetColour));
   }
 
   @Test
@@ -217,9 +209,9 @@ class ColourTest extends Common {
     assertEquals(50.0, blueRgb.lightness().state, 0.0001);
 
     // Unset handling
-    assertUnset.accept(unset.hue());
-    assertUnset.accept(unset.saturation());
-    assertUnset.accept(unset.lightness());
+    assertUnset.accept(unsetColour.hue());
+    assertUnset.accept(unsetColour.saturation());
+    assertUnset.accept(unsetColour.lightness());
   }
 
   @Test
@@ -240,10 +232,10 @@ class ColourTest extends Common {
     assertTrue(redBits._string().state.contains("1111")); // Should contain binary representation
 
     // Unset handling
-    assertUnset.accept(unset.RGB());
-    assertUnset.accept(unset.RGBA());
-    assertUnset.accept(unset.ARGB());
-    assertUnset.accept(unset.bits());
+    assertUnset.accept(unsetColour.RGB());
+    assertUnset.accept(unsetColour.RGBA());
+    assertUnset.accept(unsetColour.ARGB());
+    assertUnset.accept(unsetColour.bits());
   }
 
   @Test
@@ -276,10 +268,10 @@ class ColourTest extends Common {
     assertUnset.accept(invalidHue);
 
     // Unset handling
-    assertUnset.accept(unset.withOpaque(Integer._of(50)));
-    assertUnset.accept(unset.withHue(Integer._of(120)));
-    assertUnset.accept(unset.withLightness(Float._of(50)));
-    assertUnset.accept(unset.withSaturation(Float._of(50)));
+    assertUnset.accept(unsetColour.withOpaque(Integer._of(50)));
+    assertUnset.accept(unsetColour.withHue(Integer._of(120)));
+    assertUnset.accept(unsetColour.withLightness(Float._of(50)));
+    assertUnset.accept(unsetColour.withSaturation(Float._of(50)));
   }
 
   @Test
@@ -312,11 +304,11 @@ class ColourTest extends Common {
     assertEquals("#FF00FFFF", complementRed._string().state);
 
     // Unset handling
-    assertUnset.accept(unset._add(redRgb));
-    assertUnset.accept(redRgb._add(unset));
-    assertUnset.accept(unset._sub(redRgb));
-    assertUnset.accept(redRgb._sub(unset));
-    assertUnset.accept(unset._negate());
+    assertUnset.accept(unsetColour._add(redRgb));
+    assertUnset.accept(redRgb._add(unsetColour));
+    assertUnset.accept(unsetColour._sub(redRgb));
+    assertUnset.accept(redRgb._sub(unsetColour));
+    assertUnset.accept(unsetColour._negate());
   }
 
   @Test
@@ -372,7 +364,7 @@ class ColourTest extends Common {
     assertUnset.accept(target);
 
     final var unsetTarget = new Colour();
-    unsetTarget._copy(unset);
+    unsetTarget._copy(unsetColour);
     assertUnset.accept(unsetTarget);
   }
 
@@ -408,22 +400,22 @@ class ColourTest extends Common {
   @Test
   void testUnsetPropagation() {
     // All operations with unset should return unset
-    assertUnset.accept(unset._add(redRgb));
-    assertUnset.accept(unset._sub(redRgb));
-    assertUnset.accept(unset._negate());
-    assertUnset.accept(unset.withOpaque(Integer._of(50)));
-    assertUnset.accept(unset.withHue(Integer._of(120)));
-    assertUnset.accept(unset.withLightness(Float._of(50)));
-    assertUnset.accept(unset.withSaturation(Float._of(50)));
-    assertUnset.accept(unset.hue());
-    assertUnset.accept(unset.saturation());
-    assertUnset.accept(unset.lightness());
-    assertUnset.accept(unset.bits());
-    assertUnset.accept(unset.RGB());
-    assertUnset.accept(unset.RGBA());
-    assertUnset.accept(unset.ARGB());
-    assertUnset.accept(unset._string());
-    assertUnset.accept(unset._hashcode());
+    assertUnset.accept(unsetColour._add(redRgb));
+    assertUnset.accept(unsetColour._sub(redRgb));
+    assertUnset.accept(unsetColour._negate());
+    assertUnset.accept(unsetColour.withOpaque(INT_50));
+    assertUnset.accept(unsetColour.withHue(INT_120));
+    assertUnset.accept(unsetColour.withLightness(FLOAT_50));
+    assertUnset.accept(unsetColour.withSaturation(FLOAT_50));
+    assertUnset.accept(unsetColour.hue());
+    assertUnset.accept(unsetColour.saturation());
+    assertUnset.accept(unsetColour.lightness());
+    assertUnset.accept(unsetColour.bits());
+    assertUnset.accept(unsetColour.RGB());
+    assertUnset.accept(unsetColour.RGBA());
+    assertUnset.accept(unsetColour.ARGB());
+    assertUnset.accept(unsetColour._string());
+    assertUnset.accept(unsetColour._hashcode());
   }
 
   @Test
@@ -458,7 +450,7 @@ class ColourTest extends Common {
     assertNotEquals(redRgb._hashcode(), blueRgb._hashcode());
 
     // Unset colors should have unset hash
-    assertUnset.accept(unset._hashcode());
+    assertUnset.accept(unsetColour._hashcode());
   }
 
   @Test
@@ -470,7 +462,7 @@ class ColourTest extends Common {
     assertEquals("#FFFF0000", redArgb._string().state);
 
     // Unset representation
-    assertUnset.accept(unset._string());
+    assertUnset.accept(unsetColour._string());
   }
 
   @Test
@@ -538,6 +530,6 @@ class ColourTest extends Common {
     assertSet.accept(blueJson);
 
     // Test JSON conversion with unset value
-    assertUnset.accept(unset._json());
+    assertUnset.accept(unsetColour._json());
   }
 }

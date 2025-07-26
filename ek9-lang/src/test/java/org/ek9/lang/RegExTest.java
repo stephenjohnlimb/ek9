@@ -95,10 +95,10 @@ class RegExTest extends Common {
 
   @Test
   void testComparisonOperators() {
-    final var regexA = new RegEx(String._of("abc"));
+    final var regexA = new RegEx(STR_ABC);
     assertNotNull(regexA);
     final var regexB = new RegEx(String._of("def"));
-    final var regexC = new RegEx(String._of("abc"));
+    final var regexC = new RegEx(STR_ABC);
     final var unsetRegex = new RegEx();
 
     // Comparison tests
@@ -128,7 +128,7 @@ class RegExTest extends Common {
 
   @Test
   void testAdditionOperators() {
-    final var regex1 = new RegEx(String._of("abc"));
+    final var regex1 = new RegEx(STR_ABC);
     final var regex2 = new RegEx(String._of("def"));
     final var unsetRegex = new RegEx();
 
@@ -200,7 +200,7 @@ class RegExTest extends Common {
 
     // Matches with String
     assertTrue.accept(digitRegex._matches(String._of("123")));
-    assertFalse.accept(digitRegex._matches(String._of("abc")));
+    assertFalse.accept(digitRegex._matches(STR_ABC));
     assertUnset.accept(digitRegex._matches(new String()));
     assertUnset.accept(unsetRegex._matches(String._of("123")));
 
@@ -250,7 +250,7 @@ class RegExTest extends Common {
   @Test
   void testMutatingOperators() {
     // Test merge operator (:~:)
-    final var regex1 = new RegEx(String._of("abc"));
+    final var regex1 = new RegEx(STR_ABC);
     final var regex2 = new RegEx(String._of("def"));
     regex1._merge(regex2);
     assertSet.accept(regex1);
@@ -284,7 +284,7 @@ class RegExTest extends Common {
 
   @Test
   void testOrOperator() {
-    final var regex1 = new RegEx(String._of("abc"));
+    final var regex1 = new RegEx(STR_ABC);
     final var regex2 = new RegEx(String._of("def"));
 
     regex1._or(regex2);
@@ -306,7 +306,7 @@ class RegExTest extends Common {
   @Test
   void testAddAssignmentOperators() {
     // Test += with RegEx
-    final var regex1 = new RegEx(String._of("abc"));
+    final var regex1 = new RegEx(STR_ABC);
     final var regex2 = new RegEx(String._of("def"));
     regex1._addAss(regex2);
     assertSet.accept(regex1);
@@ -413,7 +413,7 @@ class RegExTest extends Common {
     assertSet.accept(whitespacePattern);
     assertTrue.accept(whitespacePattern._matches(String._of(" ")));
     assertTrue.accept(whitespacePattern._matches(String._of("\t\n")));
-    assertFalse.accept(whitespacePattern._matches(String._of("abc")));
+    assertFalse.accept(whitespacePattern._matches(STR_ABC));
   }
 
   @Test

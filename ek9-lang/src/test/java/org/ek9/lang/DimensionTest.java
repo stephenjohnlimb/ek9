@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 class DimensionTest extends Common {
 
-  final Dimension unset = new Dimension();
+  final Dimension unsetDimension = new Dimension();
   final Dimension zeroPx = Dimension._of("0px");
   final Dimension onePx = Dimension._of("1px");
   final Dimension twoPx = Dimension._of("2px");
@@ -51,7 +51,7 @@ class DimensionTest extends Common {
     assertSet.accept(copyPx);
     assertEquals("100.0px", copyPx.toString());
 
-    final var copyUnset = new Dimension(unset);
+    final var copyUnset = new Dimension(unsetDimension);
     assertUnset.accept(copyUnset);
 
     // Float + String constructor
@@ -103,8 +103,8 @@ class DimensionTest extends Common {
     // Equality with same suffix
     assertTrue.accept(px1._eq(px2));
     assertFalse.accept(px1._eq(px3));
-    assertUnset.accept(unset._eq(px1));
-    assertUnset.accept(px1._eq(unset));
+    assertUnset.accept(unsetDimension._eq(px1));
+    assertUnset.accept(px1._eq(unsetDimension));
 
     // Equality with different suffix should return unset
     assertUnset.accept(px1._eq(m1));
@@ -112,8 +112,8 @@ class DimensionTest extends Common {
     // Inequality
     assertFalse.accept(px1._neq(px2));
     assertTrue.accept(px1._neq(px3));
-    assertUnset.accept(unset._neq(px1));
-    assertUnset.accept(px1._neq(unset));
+    assertUnset.accept(unsetDimension._neq(px1));
+    assertUnset.accept(px1._neq(unsetDimension));
     assertUnset.accept(px1._neq(m1));
 
     // Java equals and hashCode
@@ -135,40 +135,40 @@ class DimensionTest extends Common {
     assertTrue.accept(px50._lt(px100));
     assertFalse.accept(px100._lt(px50));
     assertFalse.accept(px100._lt(px100));
-    assertUnset.accept(unset._lt(px100));
-    assertUnset.accept(px100._lt(unset));
+    assertUnset.accept(unsetDimension._lt(px100));
+    assertUnset.accept(px100._lt(unsetDimension));
     assertUnset.accept(px50._lt(m50)); // Different suffix
 
     // Less than or equal
     assertTrue.accept(px50._lteq(px100));
     assertTrue.accept(px100._lteq(px100));
     assertFalse.accept(px150._lteq(px100));
-    assertUnset.accept(unset._lteq(px100));
-    assertUnset.accept(px100._lteq(unset));
+    assertUnset.accept(unsetDimension._lteq(px100));
+    assertUnset.accept(px100._lteq(unsetDimension));
     assertUnset.accept(px50._lteq(m50)); // Different suffix
 
     // Greater than
     assertTrue.accept(px150._gt(px100));
     assertFalse.accept(px50._gt(px100));
     assertFalse.accept(px100._gt(px100));
-    assertUnset.accept(unset._gt(px100));
-    assertUnset.accept(px100._gt(unset));
+    assertUnset.accept(unsetDimension._gt(px100));
+    assertUnset.accept(px100._gt(unsetDimension));
     assertUnset.accept(px150._gt(m50)); // Different suffix
 
     // Greater than or equal
     assertTrue.accept(px150._gteq(px100));
     assertTrue.accept(px100._gteq(px100));
     assertFalse.accept(px50._gteq(px100));
-    assertUnset.accept(unset._gteq(px100));
-    assertUnset.accept(px100._gteq(unset));
+    assertUnset.accept(unsetDimension._gteq(px100));
+    assertUnset.accept(px100._gteq(unsetDimension));
     assertUnset.accept(px150._gteq(m50)); // Different suffix
 
     // Compare
     assertEquals(-1, (int) px50._cmp(px100).state);
     assertEquals(0, (int) px100._cmp(px100).state);
     assertEquals(1, (int) px150._cmp(px100).state);
-    assertUnset.accept(unset._cmp(px100));
-    assertUnset.accept(px100._cmp(unset));
+    assertUnset.accept(unsetDimension._cmp(px100));
+    assertUnset.accept(px100._cmp(unsetDimension));
     assertUnset.accept(px50._cmp(m50)); // Different suffix
     assertUnset.accept(px100._cmp(new Any(){}));
   }
@@ -184,8 +184,8 @@ class DimensionTest extends Common {
     final var addResult = px100._add(px50);
     assertEquals(150.0, addResult._prefix().state);
     assertEquals("px", addResult._suffix().state);
-    assertUnset.accept(unset._add(px100));
-    assertUnset.accept(px100._add(unset));
+    assertUnset.accept(unsetDimension._add(px100));
+    assertUnset.accept(px100._add(unsetDimension));
 
     // Addition with different suffix should return unset
     assertUnset.accept(px100._add(m100));
@@ -194,8 +194,8 @@ class DimensionTest extends Common {
     final var subResult = px200._sub(px50);
     assertEquals(150.0, subResult._prefix().state);
     assertEquals("px", subResult._suffix().state);
-    assertUnset.accept(unset._sub(px100));
-    assertUnset.accept(px100._sub(unset));
+    assertUnset.accept(unsetDimension._sub(px100));
+    assertUnset.accept(px100._sub(unsetDimension));
 
     // Subtraction with different suffix should return unset
     assertUnset.accept(px200._sub(m100));
@@ -204,35 +204,35 @@ class DimensionTest extends Common {
     final var mulIntResult = px100._mul(int2);
     assertEquals(200.0, mulIntResult._prefix().state);
     assertEquals("px", mulIntResult._suffix().state);
-    assertUnset.accept(unset._mul(int2));
+    assertUnset.accept(unsetDimension._mul(int2));
     assertUnset.accept(px100._mul(new Integer()));
 
     // Division with Integer
     final var divIntResult = px200._div(int2);
     assertEquals(100.0, divIntResult._prefix().state);
     assertEquals("px", divIntResult._suffix().state);
-    assertUnset.accept(unset._div(int2));
+    assertUnset.accept(unsetDimension._div(int2));
     assertUnset.accept(px200._div(new Integer()));
 
     // Multiplication with Float
     final var mulFloatResult = px100._mul(float2);
     assertEquals(200.0, mulFloatResult._prefix().state);
     assertEquals("px", mulFloatResult._suffix().state);
-    assertUnset.accept(unset._mul(float2));
+    assertUnset.accept(unsetDimension._mul(float2));
     assertUnset.accept(px100._mul(new Float()));
 
     // Division with Float
     final var divFloatResult = px200._div(float2);
     assertEquals(100.0, divFloatResult._prefix().state);
     assertEquals("px", divFloatResult._suffix().state);
-    assertUnset.accept(unset._div(float2));
+    assertUnset.accept(unsetDimension._div(float2));
     assertUnset.accept(px200._div(new Float()));
 
     // Division returning Float (same suffix)
     final var divDimResult = px200._div(px100);
     assertEquals(2.0, divDimResult.state, 0.001);
-    assertUnset.accept(unset._div(px100));
-    assertUnset.accept(px200._div(unset));
+    assertUnset.accept(unsetDimension._div(px100));
+    assertUnset.accept(px200._div(unsetDimension));
 
     // Division with different suffix should return unset
     assertUnset.accept(px200._div(m100));
@@ -299,9 +299,9 @@ class DimensionTest extends Common {
     final var negated = px100._negate();
     assertEquals(-100.0, negated._prefix().state);
     assertEquals("px", negated._suffix().state);
-    assertUnset.accept(unset._negate());
+    assertUnset.accept(unsetDimension._negate());
 
-    assertFalse.accept(unset._isSet());
+    assertFalse.accept(unsetDimension._isSet());
     assertTrue.accept(px100._isSet());
 
     // Increment
@@ -331,14 +331,14 @@ class DimensionTest extends Common {
     final var absResult2 = pxPos._abs();
     assertEquals(100.0, absResult2._prefix().state);
     assertEquals("px", absResult2._suffix().state);
-    assertUnset.accept(unset._abs());
+    assertUnset.accept(unsetDimension._abs());
 
     // Square root
     final var px100Sqrt = Dimension._of("100px");
     final var sqrtResult = px100Sqrt._sqrt();
     assertEquals(10.0, sqrtResult._prefix().state, 0.001);
     assertEquals("px", sqrtResult._suffix().state);
-    assertUnset.accept(unset._sqrt());
+    assertUnset.accept(unsetDimension._sqrt());
 
     // Square root of negative should return unset
     final var pxNegSqrt = Dimension._of("-100px");
@@ -352,27 +352,27 @@ class DimensionTest extends Common {
 
     // Prefix (numeric value)
     assertEquals(1000.0, px1000._prefix().state);
-    assertUnset.accept(unset._prefix());
+    assertUnset.accept(unsetDimension._prefix());
 
     // Suffix (unit string)
     assertEquals("px", px1000._suffix().state);
-    assertUnset.accept(unset._suffix());
+    assertUnset.accept(unsetDimension._suffix());
 
     // Length
     assertEquals(8, px1000._len().state); // "1000.0px" = 8 characters
-    assertEquals(0, unset._len().state);
+    assertEquals(0, unsetDimension._len().state);
 
     // String conversion
     assertEquals("1000.0px", px1000._string().state);
-    assertEquals("", unset._string().state);
+    assertEquals("", unsetDimension._string().state);
 
     // JSON operations
     final var px1000Json = px1000._json();
     assertSet.accept(px1000Json);
 
-    assertUnset.accept(unset._json());
+    assertUnset.accept(unsetDimension._json());
     assertEquals("1000.0px", px1000.toString());
-    assertEquals("", unset.toString());
+    assertEquals("", unsetDimension.toString());
 
     // Test floating point precision
     final var pxFloat = Dimension._of("123.456px");
@@ -391,7 +391,7 @@ class DimensionTest extends Common {
 
     // Copy unset
     final var pxSet = Dimension._of("300px");
-    pxSet._copy(unset);
+    pxSet._copy(unsetDimension);
     assertUnset.accept(pxSet);
 
     // Replace operation
@@ -480,7 +480,7 @@ class DimensionTest extends Common {
     var mutatedValue = new Dimension();
     assertUnset.accept(mutatedValue);
 
-    mutatedValue._pipe(unset);
+    mutatedValue._pipe(unsetDimension);
     assertUnset.accept(mutatedValue);
 
     mutatedValue._pipe(onePx);
@@ -491,7 +491,7 @@ class DimensionTest extends Common {
     assertEquals(threePx, mutatedValue);
 
     // Even if we pipe in something unset, for pipes this is ignored
-    mutatedValue._pipe(unset);
+    mutatedValue._pipe(unsetDimension);
     assertEquals(threePx, mutatedValue);
 
     // Now just show a negative being added
@@ -516,7 +516,7 @@ class DimensionTest extends Common {
     final var mutatedValue = Dimension._of("100px");
 
     for (var operator : getDimensionAssignmentOperations(mutatedValue)) {
-      operator.accept(unset);
+      operator.accept(unsetDimension);
       assertUnset.accept(mutatedValue);
       // Set it back again for next time around loop
       mutatedValue._copy(oneHundredPx);
@@ -584,7 +584,7 @@ class DimensionTest extends Common {
     mutatedValue._replace(twoPx);
     assertEquals(twoPx, mutatedValue);
 
-    mutatedValue._replace(unset);
+    mutatedValue._replace(unsetDimension);
     assertUnset.accept(mutatedValue);
 
     // Now just check that it can take a value after being unset

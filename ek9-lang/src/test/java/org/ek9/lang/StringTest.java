@@ -7,47 +7,41 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 
 class StringTest extends Common {
-
-  final String unset = new String();
-  final Integer unsetInteger = new Integer();
-  final Boolean trueBoolean = Boolean._of(true);
-  final Boolean falseBoolean = Boolean._of(false);
-
-  // Helper methods for eliminating duplication
+  
 
   /**
-   * Helper method to test all comparison operators with unset values.
+   * Helper method to test all comparison operators with unsetString values.
    */
   private void assertComparisonOperatorsWithUnset(String validValue) {
-    // Test _lt operator with unset values
-    assertUnset.accept(validValue._lt(unset));
-    assertUnset.accept(unset._lt(validValue));
-    assertUnset.accept(unset._lt(unset));
+    // Test _lt operator with unsetString values
+    assertUnset.accept(validValue._lt(unsetString));
+    assertUnset.accept(unsetString._lt(validValue));
+    assertUnset.accept(unsetString._lt(unsetString));
 
-    // Test _lteq operator with unset values
-    assertUnset.accept(validValue._lteq(unset));
-    assertUnset.accept(unset._lteq(validValue));
-    assertUnset.accept(unset._lteq(unset));
+    // Test _lteq operator with unsetString values
+    assertUnset.accept(validValue._lteq(unsetString));
+    assertUnset.accept(unsetString._lteq(validValue));
+    assertUnset.accept(unsetString._lteq(unsetString));
 
-    // Test _gt operator with unset values
-    assertUnset.accept(validValue._gt(unset));
-    assertUnset.accept(unset._gt(validValue));
-    assertUnset.accept(unset._gt(unset));
+    // Test _gt operator with unsetString values
+    assertUnset.accept(validValue._gt(unsetString));
+    assertUnset.accept(unsetString._gt(validValue));
+    assertUnset.accept(unsetString._gt(unsetString));
 
-    // Test _gteq operator with unset values
-    assertUnset.accept(validValue._gteq(unset));
-    assertUnset.accept(unset._gteq(validValue));
-    assertUnset.accept(unset._gteq(unset));
+    // Test _gteq operator with unsetString values
+    assertUnset.accept(validValue._gteq(unsetString));
+    assertUnset.accept(unsetString._gteq(validValue));
+    assertUnset.accept(unsetString._gteq(unsetString));
 
-    // Test _eq operator with unset values
-    assertUnset.accept(validValue._eq(unset));
-    assertUnset.accept(unset._eq(validValue));
-    assertUnset.accept(unset._eq(unset));
+    // Test _eq operator with unsetString values
+    assertUnset.accept(validValue._eq(unsetString));
+    assertUnset.accept(unsetString._eq(validValue));
+    assertUnset.accept(unsetString._eq(unsetString));
 
-    // Test _neq operator with unset values
-    assertUnset.accept(validValue._neq(unset));
-    assertUnset.accept(unset._neq(validValue));
-    assertUnset.accept(unset._neq(unset));
+    // Test _neq operator with unsetString values
+    assertUnset.accept(validValue._neq(unsetString));
+    assertUnset.accept(unsetString._neq(validValue));
+    assertUnset.accept(unsetString._neq(unsetString));
   }
 
   /**
@@ -75,7 +69,7 @@ class StringTest extends Common {
 
   @Test
   void testEmptyIterator() {
-    final var underTest = String._of("");
+    final var underTest = EMPTY_STRING;
     assertNotNull(underTest);
 
     final var iterator = underTest.iterator();
@@ -105,7 +99,7 @@ class StringTest extends Common {
 
   @Test
   void testTrimming() {
-    // Test unset behavior for trimming
+    // Test unsetString behavior for trimming
     assertUnset.accept(new String().trim());
 
     //String with some white space at the start and end, to be trimmed.
@@ -116,9 +110,9 @@ class StringTest extends Common {
 
   @Test
   void testCaseTransform() {
-    // Test unset behavior for case transformation
-    assertUnset.accept(unset.upperCase());
-    assertUnset.accept(unset.lowerCase());
+    // Test unsetString behavior for case transformation
+    assertUnset.accept(unsetString.upperCase());
+    assertUnset.accept(unsetString.lowerCase());
 
     //String with some white space at the start and end, to be trimmed.
     final var validString = createTestString("A simple value");
@@ -133,7 +127,7 @@ class StringTest extends Common {
     final var validString = createTestString("A simple value");
     final var tooLongString = createTestString("A value that is longer than the padding of 20");
 
-    // Test unset behavior for padding operations
+    // Test unsetString behavior for padding operations
     assertUnset.accept(new String().rightPadded(pad20));
     assertUnset.accept(new String().leftPadded(pad20));
     assertUnset.accept(validString.rightPadded(unsetInteger));
@@ -154,7 +148,7 @@ class StringTest extends Common {
     final var aSimpleValueButLonger = createTestString("A simple value ");
     final var bSimpleValue = createTestString("B simple value");
 
-    // Test all unset combinations using helper method
+    // Test all unsetString combinations using helper method
     assertComparisonOperatorsWithUnset(aSimpleValue);
 
     //Now test the actual values
@@ -181,8 +175,8 @@ class StringTest extends Common {
 
   @Test
   void testIsSet() {
-    assertNotNull(unset);
-    assertFalse.accept(unset._isSet());
+    assertNotNull(unsetString);
+    assertFalse.accept(unsetString._isSet());
 
     final var v1 = String._of("Some valid value");
     assertNotNull(v1);
@@ -192,19 +186,19 @@ class StringTest extends Common {
   @Test
   void testComparison() {
 
-    final var i0 = Integer._of(0);
+    final var i0 = INT_0;
     final var iMinus1 = Integer._of(-1);
-    final var i1 = Integer._of(1);
-    final var i2 = Integer._of(2);
+    final var i1 = INT_1;
+    final var i2 = INT_2;
     final var i3 = Integer._of(3);
     final var steve = createTestString("Steve");
     final var steven = createTestString("Steven");
 
-    // Test unset behavior for comparison methods
-    assertUnset.accept(steve._cmp(unset));
-    assertUnset.accept(unset._cmp(steve));
-    assertUnset.accept(steve._fuzzy(unset));
-    assertUnset.accept(unset._fuzzy(steve));
+    // Test unsetString behavior for comparison methods
+    assertUnset.accept(steve._cmp(unsetString));
+    assertUnset.accept(unsetString._cmp(steve));
+    assertUnset.accept(steve._fuzzy(unsetString));
+    assertUnset.accept(unsetString._fuzzy(steve));
 
     //Normal comparison
     assertEquals(i0, steve._cmp(steve));
@@ -234,10 +228,10 @@ class StringTest extends Common {
     final var limb = createTestString("Limb");
     final var steveLimb = createTestString("Steve Limb");
 
-    // Test unset behavior for string concatenation
-    assertUnset.accept(unset._add(unset));
-    assertUnset.accept(unset._add(steve));
-    assertUnset.accept(steve._add(unset));
+    // Test unsetString behavior for string concatenation
+    assertUnset.accept(unsetString._add(unsetString));
+    assertUnset.accept(unsetString._add(steve));
+    assertUnset.accept(steve._add(unsetString));
 
     assertEquals(steveLimb, steve._add(createTestString(" "))._add(limb));
 
@@ -247,8 +241,8 @@ class StringTest extends Common {
   void testAsString() {
     final var steve = createTestString("Steve");
 
-    // Test unset behavior
-    assertUnset.accept(unset._string());
+    // Test unsetString behavior
+    assertUnset.accept(unsetString._string());
     assertSet.accept(steve._string());
     assertEquals("Steve", steve._string().toString());
 
@@ -266,8 +260,8 @@ class StringTest extends Common {
     final var emptyJson = empty._json();
     assertSet.accept(emptyJson);
 
-    // Test JSON conversion with unset value
-    assertUnset.accept(unset._json());
+    // Test JSON conversion with unsetString value
+    assertUnset.accept(unsetString._json());
   }
 
   @Test
@@ -275,8 +269,8 @@ class StringTest extends Common {
     final var steve = createTestString("Steve");
     final var steven = createTestString("Steven");
 
-    // Test unset behavior
-    assertUnset.accept(unset._hashcode());
+    // Test unsetString behavior
+    assertUnset.accept(unsetString._hashcode());
     assertEquals(steve._hashcode(), steve._hashcode());
     assertNotEquals(steven._hashcode(), steve._hashcode());
   }
@@ -286,10 +280,10 @@ class StringTest extends Common {
     final var steve = createTestString("Steve");
     final var whitespace = createTestString(" \n \t ");
 
-    // Test unset behavior for utility operators
-    assertUnset.accept(unset._empty());
-    assertUnset.accept(unset._len());
-    assertUnset.accept(unset._contains(steve));
+    // Test unsetString behavior for utility operators
+    assertUnset.accept(unsetString._empty());
+    assertUnset.accept(unsetString._len());
+    assertUnset.accept(unsetString._contains(steve));
 
     assertFalse.accept(steve._empty());
     assertEquals(Integer._of(5), steve._len());
@@ -319,16 +313,16 @@ class StringTest extends Common {
     final var mutatedValue = new String();
     assertUnset.accept(mutatedValue);
 
-    mutatedValue._pipe(unset);
+    mutatedValue._pipe(unsetString);
     assertUnset.accept(mutatedValue);
 
-    //Example of how an unset value can become set when adding values
+    //Example of how an unsetString value can become set when adding values
     mutatedValue._pipe(steve);
     mutatedValue._pipe(createTestString(" "));
     mutatedValue._pipe(limb);
 
-    //Note that unlike other operators the pipe ignores unset values.
-    mutatedValue._pipe(unset);
+    //Note that unlike other operators the pipe ignores unsetString values.
+    mutatedValue._pipe(unsetString);
 
     mutatedValue._pipe(createTestString(" "));
     mutatedValue._pipe(twentyOne);
@@ -349,10 +343,10 @@ class StringTest extends Common {
     mutatedValue._replace(limb);
     assertEquals(limb, mutatedValue);
 
-    mutatedValue._replace(unset);
+    mutatedValue._replace(unsetString);
     assertUnset.accept(mutatedValue);
 
-    //Now just check that it can take a value after being unset
+    //Now just check that it can take a value after being unsetString
     mutatedValue._replace(steve);
     assertEquals(steve, mutatedValue);
   }
@@ -368,17 +362,17 @@ class StringTest extends Common {
 
     assertEquals(steveLimb, mutatedValue._string());
 
-    //Check that is something unset is added then it results in the mutated value being unset.
-    mutatedValue._addAss(unset);
+    //Check that is something unsetString is added then it results in the mutated value being unsetString.
+    mutatedValue._addAss(unsetString);
     assertUnset.accept(mutatedValue);
 
   }
 
   @Test
   void testFirstAndLastMethods() {
-    // Test unset behavior for first/last methods
-    assertUnset.accept(unset.first());
-    assertUnset.accept(unset.last());
+    // Test unsetString behavior for first/last methods
+    assertUnset.accept(unsetString.first());
+    assertUnset.accept(unsetString.last());
 
     // Test with empty string
     final var emptyString = createTestString("");
@@ -418,9 +412,9 @@ class StringTest extends Common {
 
   @Test
   void testPrefixAndSuffixOperators() {
-    // Test unset behavior for prefix/suffix operators
-    assertUnset.accept(unset._prefix());
-    assertUnset.accept(unset._suffix());
+    // Test unsetString behavior for prefix/suffix operators
+    assertUnset.accept(unsetString._prefix());
+    assertUnset.accept(unsetString._suffix());
 
     // Test with empty string
     final var emptyString = createTestString("");
@@ -493,12 +487,12 @@ class StringTest extends Common {
   void testTrimWithCharacter() {
     // Test canProcess scenarios (EK9 pattern validation)
 
-    // Test unset behavior for trim with character parameter
+    // Test unsetString behavior for trim with character parameter
     final var testChar = Character._of('a');
-    assertUnset.accept(unset.trim(testChar));
-    assertUnset.accept(unset.trim(new Character()));
+    assertUnset.accept(unsetString.trim(testChar));
+    assertUnset.accept(unsetString.trim(new Character()));
 
-    // Valid String with unset Character should return unset String  
+    // Valid String with unsetString Character should return unsetString String  
     final var validString = createTestString("hello");
     assertUnset.accept(validString.trim(new Character()));
 
@@ -510,27 +504,23 @@ class StringTest extends Common {
 
     // Trim specific character from both ends
     final var aPadded = String._of("aaahelloaaa");
-    assertEquals(String._of("hello"), aPadded.trim(Character._of('a')));
+    assertEquals(STR_HELLO, aPadded.trim(Character._of('a')));
 
     // No change when character not present at ends
-    final var noChange = String._of("hello");
-    assertEquals(String._of("hello"), noChange.trim(Character._of('x')));
+    assertEquals(STR_HELLO, STR_HELLO.trim(Character._of('x')));
 
     // Empty string stays empty
-    final var emptyString = String._of("");
-    assertEquals(String._of(""), emptyString.trim(Character._of('a')));
+    assertEquals(EMPTY_STRING, EMPTY_STRING.trim(Character._of('a')));
 
     // String with only trim character becomes empty
     final var onlyTrimChar = String._of("aaaa");
-    assertEquals(String._of(""), onlyTrimChar.trim(Character._of('a')));
+    assertEquals(EMPTY_STRING, onlyTrimChar.trim(Character._of('a')));
 
     // Single character - trim itself
-    final var singleChar = String._of("a");
-    assertEquals(String._of(""), singleChar.trim(Character._of('a')));
+    assertEquals(EMPTY_STRING, STR_LETTER_A.trim(Character._of('a')));
 
     // Single character - different char (no change)
-    final var singleDifferentChar = String._of("a");
-    assertEquals(String._of("a"), singleDifferentChar.trim(Character._of('b')));
+    assertEquals(STR_LETTER_A, STR_LETTER_A.trim(Character._of('b')));
   }
 
   @Test
@@ -551,7 +541,7 @@ class StringTest extends Common {
 
     // Question mark (regex special)
     final var questionPadded = String._of("???test???");
-    assertEquals(String._of("test"), questionPadded.trim(Character._of('?')));
+    assertEquals(STR_TEST, questionPadded.trim(Character._of('?')));
 
     // Caret character (regex special)
     final var caretPadded = String._of("^^^data^^^");
@@ -593,15 +583,15 @@ class StringTest extends Common {
 
     // Single char at each end
     final var singleAtEnds = String._of("ahelloa");
-    assertEquals(String._of("hello"), singleAtEnds.trim(Character._of('a')));
+    assertEquals(STR_HELLO, singleAtEnds.trim(Character._of('a')));
 
     // Multiple chars at each end  
     final var multipleAtEnds = String._of("aaaahelloaaaa");
-    assertEquals(String._of("hello"), multipleAtEnds.trim(Character._of('a')));
+    assertEquals(STR_HELLO, multipleAtEnds.trim(Character._of('a')));
 
     // Uneven amounts at ends
     final var unevenEnds = String._of("ahelloaaaaa");
-    assertEquals(String._of("hello"), unevenEnds.trim(Character._of('a')));
+    assertEquals(STR_HELLO, unevenEnds.trim(Character._of('a')));
 
     // Very long string with trim chars
     final var longString = String._of("xxxxxxxxxxxxxxxxhello worldxxxxxxxxxxxxxxxx");
@@ -618,7 +608,7 @@ class StringTest extends Common {
     // Test difference: trim() removes all whitespace, trim(Character) only removes specific char
     final var mixedWhitespace = String._of(" \t hello \t ");
     // trim() removes all whitespace (spaces and tabs)
-    assertEquals(String._of("hello"), mixedWhitespace.trim());
+    assertEquals(STR_HELLO, mixedWhitespace.trim());
     // trim(Character(' ')) only removes spaces, leaving tabs
     assertEquals(String._of("\t hello \t"), mixedWhitespace.trim(Character._of(' ')));
     // trim(Character('\t')) only removes tabs, leaving spaces  
@@ -630,52 +620,50 @@ class StringTest extends Common {
     // Test basic character counting functionality
 
     // Multiple occurrences
-    final var hello = String._of("hello");
-    assertEquals(Integer._of(2), hello.count(Character._of('l')));
-    assertEquals(Integer._of(1), hello.count(Character._of('h')));
-    assertEquals(Integer._of(1), hello.count(Character._of('e')));
-    assertEquals(Integer._of(1), hello.count(Character._of('o')));
+    final var hello = STR_HELLO;
+    assertEquals(INT_2, hello.count(Character._of('l')));
+    assertEquals(INT_1, hello.count(Character._of('h')));
+    assertEquals(INT_1, hello.count(Character._of('e')));
+    assertEquals(INT_1, hello.count(Character._of('o')));
 
     // Character not present
-    assertEquals(Integer._of(0), hello.count(Character._of('x')));
-    assertEquals(Integer._of(0), hello.count(Character._of('z')));
+    assertEquals(INT_0, hello.count(Character._of('x')));
+    assertEquals(INT_0, hello.count(Character._of('z')));
 
     // Single character string
-    final var singleChar = String._of("a");
-    assertEquals(Integer._of(1), singleChar.count(Character._of('a')));
-    assertEquals(Integer._of(0), singleChar.count(Character._of('b')));
+    final var singleChar = STR_LETTER_A;
+    assertEquals(INT_1, singleChar.count(Character._of('a')));
+    assertEquals(INT_0, singleChar.count(Character._of('b')));
 
     // String with only repeated character
     final var repeated = String._of("aaaa");
-    assertEquals(Integer._of(4), repeated.count(Character._of('a')));
-    assertEquals(Integer._of(0), repeated.count(Character._of('b')));
+    assertEquals(INT_4, repeated.count(Character._of('a')));
+    assertEquals(INT_0, repeated.count(Character._of('b')));
 
     // Case sensitivity
     final var mixed = String._of("Hello");
-    assertEquals(Integer._of(1), mixed.count(Character._of('H')));
-    assertEquals(Integer._of(0), mixed.count(Character._of('h')));  // Different case - not present
-    assertEquals(Integer._of(2), mixed.count(Character._of('l')));
+    assertEquals(INT_1, mixed.count(Character._of('H')));
+    assertEquals(INT_0, mixed.count(Character._of('h')));  // Different case - not present
+    assertEquals(INT_2, mixed.count(Character._of('l')));
   }
 
   @Test
   void testCountEdgeCases() {
     // Test canProcess scenarios (EK9 pattern validation)
 
-    // Unset String with valid Character should return unset Integer
-    assertUnset.accept(unset.count(Character._of('a')));
+    // unsetString String with valid Character should return unsetString Integer
+    assertUnset.accept(unsetString.count(Character._of('a')));
 
-    // Valid String with unset Character should return unset Integer  
-    final var validString = String._of("hello");
-    assertUnset.accept(validString.count(new Character()));
+    // Valid String with unsetString Character should return unsetString Integer  
+    assertUnset.accept(STR_HELLO.count(new Character()));
 
-    // Both unset should return unset Integer
-    assertUnset.accept(unset.count(new Character()));
+    // Both unsetString should return unsetString Integer
+    assertUnset.accept(unsetString.count(new Character()));
 
-    // Empty string should return 0 (not unset)
-    final var emptyString = String._of("");
-    final var emptyResult = emptyString.count(Character._of('a'));
+    // Empty string should return 0 (not unsetString)
+    final var emptyResult = EMPTY_STRING.count(Character._of('a'));
     assertSet.accept(emptyResult);
-    assertEquals(Integer._of(0), emptyResult);
+    assertEquals(INT_0, emptyResult);
   }
 
   @Test
@@ -688,17 +676,17 @@ class StringTest extends Common {
 
     // Newline characters
     final var newlines = String._of("a\nb\nc");
-    assertEquals(Integer._of(2), newlines.count(Character._of('\n')));
+    assertEquals(INT_2, newlines.count(Character._of('\n')));
 
     // Tab characters
     final var tabs = String._of("a\tb\tc");
-    assertEquals(Integer._of(2), tabs.count(Character._of('\t')));
+    assertEquals(INT_2, tabs.count(Character._of('\t')));
 
     // Punctuation
     final var punctuation = String._of("Hello, world! How are you?");
-    assertEquals(Integer._of(1), punctuation.count(Character._of(',')));
-    assertEquals(Integer._of(1), punctuation.count(Character._of('!')));
-    assertEquals(Integer._of(1), punctuation.count(Character._of('?')));
+    assertEquals(INT_1, punctuation.count(Character._of(',')));
+    assertEquals(INT_1, punctuation.count(Character._of('!')));
+    assertEquals(INT_1, punctuation.count(Character._of('?')));
 
     // Special regex characters (should work as literals)
     final var dots = String._of("a.b.c.d");
@@ -710,8 +698,8 @@ class StringTest extends Common {
     // Unicode characters
     final var unicode = String._of("αβγαβα");
     assertEquals(Integer._of(3), unicode.count(Character._of('α')));
-    assertEquals(Integer._of(2), unicode.count(Character._of('β')));
-    assertEquals(Integer._of(1), unicode.count(Character._of('γ')));
+    assertEquals(INT_2, unicode.count(Character._of('β')));
+    assertEquals(INT_1, unicode.count(Character._of('γ')));
   }
 
   @Test
@@ -726,7 +714,7 @@ class StringTest extends Common {
 
     // Long string with no occurrences
     final var longWithNone = String._of("bcdefghijklmnopqrstuvwxyz");
-    assertEquals(Integer._of(0), longWithNone.count(Character._of('a')));
+    assertEquals(INT_0, longWithNone.count(Character._of('a')));
 
     // String with only target character
     final var onlyTarget = String._of("xxxxxxxxxx");
@@ -736,7 +724,7 @@ class StringTest extends Common {
     final var pattern = String._of("ababababab");
     assertEquals(Integer._of(5), pattern.count(Character._of('a')));
     assertEquals(Integer._of(5), pattern.count(Character._of('b')));
-    assertEquals(Integer._of(0), pattern.count(Character._of('c')));
+    assertEquals(INT_0, pattern.count(Character._of('c')));
   }
 
   @Test
@@ -746,26 +734,25 @@ class StringTest extends Common {
     final var testString = String._of("hello world");
 
     // Count spaces should match what we expect
-    assertEquals(Integer._of(1), testString.count(Character._of(' ')));
+    assertEquals(INT_1, testString.count(Character._of(' ')));
 
     // Count first character should be 1
     final var firstChar = testString.first();
     assertSet.accept(firstChar);
-    assertEquals(Integer._of(1), testString.count(firstChar));
+    assertEquals(INT_1, testString.count(firstChar));
 
     // Count last character
     final var lastChar = testString.last();
     assertSet.accept(lastChar);
-    assertEquals(Integer._of(1), testString.count(lastChar));
+    assertEquals(INT_1, testString.count(lastChar));
 
     // For empty string, count should be 0
-    final var empty = String._of("");
-    assertEquals(Integer._of(0), empty.count(Character._of('a')));
+    assertEquals(INT_0, EMPTY_STRING.count(Character._of('a')));
 
     // Single character string
     final var single = String._of("z");
-    assertEquals(Integer._of(1), single.count(Character._of('z')));
-    assertEquals(Integer._of(0), single.count(Character._of('y')));
+    assertEquals(INT_1, single.count(Character._of('z')));
+    assertEquals(INT_0, single.count(Character._of('y')));
   }
 
   @Test
@@ -774,24 +761,22 @@ class StringTest extends Common {
 
     // Test canProcess scenarios (EK9 pattern validation)
 
-    // Unset String with valid Character should return unset String
-    assertUnset.accept(unset._add(Character._of('a')));
+    // unsetString String with valid Character should return unsetString String
+    assertUnset.accept(unsetString._add(Character._of('a')));
 
-    // Valid String with unset Character should return unset String
-    final var validString = String._of("hello");
-    assertUnset.accept(validString._add(new Character()));
+    // Valid String with unsetString Character should return unsetString String
+    assertUnset.accept(STR_HELLO._add(new Character()));
 
-    // Both unset should return unset String
-    assertUnset.accept(unset._add(new Character()));
+    // Both unsetString should return unsetString String
+    assertUnset.accept(unsetString._add(new Character()));
 
     // Basic functionality tests
 
     // Add single character to empty string
-    final var empty = String._of("");
-    assertEquals(String._of("a"), empty._add(Character._of('a')));
+    assertEquals(STR_LETTER_A, EMPTY_STRING._add(Character._of('a')));
 
     // Add character to existing string
-    final var hello = String._of("hello");
+    final var hello = STR_HELLO;
     assertEquals(String._of("hello!"), hello._add(Character._of('!')));
 
     // Add space character
@@ -801,10 +786,10 @@ class StringTest extends Common {
     assertEquals(String._of("hello1"), hello._add(Character._of('1')));
 
     // Original string should remain unchanged (non-mutating)
-    assertEquals(String._of("hello"), hello);
+    assertEquals(STR_HELLO, hello);
 
     // Special characters
-    final var test = String._of("test");
+    final var test = STR_TEST;
     assertEquals(String._of("test."), test._add(Character._of('.')));
     assertEquals(String._of("test*"), test._add(Character._of('*')));
     assertEquals(String._of("test?"), test._add(Character._of('?')));
@@ -848,7 +833,7 @@ class StringTest extends Common {
     // Add character to empty string
     var empty = String._of("");
     empty._addAss(Character._of('a'));
-    assertEquals(String._of("a"), empty);
+    assertEquals(STR_LETTER_A, empty);
 
     // Add character to existing string
     var hello = String._of("hello");
@@ -866,22 +851,22 @@ class StringTest extends Common {
 
     // Test canProcess scenarios (EK9 pattern validation)
 
-    // Valid String with unset Character should become unset
+    // Valid String with unsetString Character should become unsetString
     var validString = String._of("hello");
     validString._addAss(new Character());
     assertUnset.accept(validString);
 
-    // Already unset String with valid Character should remain unset
+    // Already unsetString String with valid Character should remain unsetString
     var alreadyUnset = new String();
     assertUnset.accept(alreadyUnset);
     alreadyUnset._addAss(Character._of('a'));
     assertUnset.accept(alreadyUnset);
 
-    // Test that mutation corrupts with unset
+    // Test that mutation corrupts with unsetString
     var mutableString = String._of("hello");
     assertSet.accept(mutableString);
-    mutableString._addAss(new Character()); // Add unset Character
-    assertUnset.accept(mutableString); // Should become unset
+    mutableString._addAss(new Character()); // Add unsetString Character
+    assertUnset.accept(mutableString); // Should become unsetString
   }
 
   @Test
@@ -946,18 +931,18 @@ class StringTest extends Common {
     characterSpace._addAss(Character._of(' '));
     assertEquals(stringSpace, characterSpace);
 
-    // Test corruption behavior with unset values
+    // Test corruption behavior with unsetString values
     var stringCorrupt = String._of("hello");
     var characterCorrupt = String._of("hello");
 
-    stringCorrupt._addAss(new String()); // Add unset String
-    characterCorrupt._addAss(new Character()); // Add unset Character
+    stringCorrupt._addAss(new String()); // Add unsetString String
+    characterCorrupt._addAss(new Character()); // Add unsetString Character
 
     assertUnset.accept(stringCorrupt);
     assertUnset.accept(characterCorrupt);
 
-    // Both should be unset - can't use assertEquals on unset values as they are different instances
-    // But their EK9 equality should both return unset (not comparable)
+    // Both should be unsetString - can't use assertEquals on unsetString values as they are different instances
+    // But their EK9 equality should both return unsetString (not comparable)
     assertUnset.accept(stringCorrupt._eq(characterCorrupt));
   }
 
@@ -967,17 +952,17 @@ class StringTest extends Common {
 
     // Test canProcess scenarios (EK9 pattern validation)
 
-    // Unset String with valid RegEx should return unset Boolean
+    // unsetString String with valid RegEx should return unsetString Boolean
     final var digitRegex = new RegEx(String._of("\\d+"));
     assertNotNull(digitRegex);
-    assertUnset.accept(unset._matches(digitRegex));
+    assertUnset.accept(unsetString._matches(digitRegex));
 
-    // Valid String with unset RegEx should return unset Boolean
+    // Valid String with unsetString RegEx should return unsetString Boolean
     final var numberString = createTestString("123");
     assertUnset.accept(numberString._matches(new RegEx()));
 
-    // Both unset should return unset Boolean
-    assertUnset.accept(unset._matches(new RegEx()));
+    // Both unsetString should return unsetString Boolean
+    assertUnset.accept(unsetString._matches(new RegEx()));
 
     // Basic functionality tests
 
@@ -990,7 +975,7 @@ class StringTest extends Common {
 
     // Test with empty string
     final var emptyString = createTestString("");
-    final var emptyRegex = new RegEx(String._of(""));
+    final var emptyRegex = new RegEx(EMPTY_STRING);
     assertTrue.accept(emptyString._matches(emptyRegex));
 
     // Test with more patterns
@@ -1005,20 +990,20 @@ class StringTest extends Common {
 
     // Test canProcess scenarios (EK9 pattern validation)
 
-    // Unset String with valid RegEx should return empty List
+    // unsetString String with valid RegEx should return empty List
     final var commaRegex = new RegEx(String._of(","));
-    final var unsetResult = unset.split(commaRegex);
+    final var unsetResult = unsetString.split(commaRegex);
     assertSet.accept(unsetResult);
     assertTrue.accept(unsetResult._empty());
 
-    // Valid String with unset RegEx should return empty List
+    // Valid String with unsetString RegEx should return empty List
     final var csvString = createTestString("a,b,c");
     final var unsetRegexResult = csvString.split(new RegEx());
     assertSet.accept(unsetRegexResult);
     assertTrue.accept(unsetRegexResult._empty());
 
-    // Both unset should return empty List
-    final var bothUnsetResult = unset.split(new RegEx());
+    // Both unsetString should return empty List
+    final var bothUnsetResult = unsetString.split(new RegEx());
     assertSet.accept(bothUnsetResult);
     assertTrue.accept(bothUnsetResult._empty());
 
@@ -1029,15 +1014,15 @@ class StringTest extends Common {
     final var noMatchResult = noMatchString.split(commaRegex);
     assertSet.accept(noMatchResult);
     assertEquals(1, noMatchResult._len().state);
-    assertEquals(noMatchString, noMatchResult.get(Integer._of(0)));
+    assertEquals(noMatchString, noMatchResult.get(INT_0));
 
     // Three-group split - split on comma should produce 3 parts
     final var threeGroupResult = csvString.split(commaRegex);
     assertSet.accept(threeGroupResult);
     assertEquals(3, threeGroupResult._len().state);
-    assertEquals(createTestString("a"), threeGroupResult.get(Integer._of(0)));
-    assertEquals(createTestString("b"), threeGroupResult.get(Integer._of(1)));
-    assertEquals(createTestString("c"), threeGroupResult.get(Integer._of(2)));
+    assertEquals(createTestString("a"), threeGroupResult.get(INT_0));
+    assertEquals(createTestString("b"), threeGroupResult.get(INT_1));
+    assertEquals(createTestString("c"), threeGroupResult.get(INT_2));
 
     // Test with whitespace splitting
     final var spaceString = createTestString("hello world test");
@@ -1045,15 +1030,15 @@ class StringTest extends Common {
     final var wordResult = spaceString.split(whitespaceRegex);
     assertSet.accept(wordResult);
     assertEquals(3, wordResult._len().state);
-    assertEquals(createTestString("hello"), wordResult.get(Integer._of(0)));
-    assertEquals(createTestString("world"), wordResult.get(Integer._of(1)));
-    assertEquals(createTestString("test"), wordResult.get(Integer._of(2)));
+    assertEquals(createTestString("hello"), wordResult.get(INT_0));
+    assertEquals(createTestString("world"), wordResult.get(INT_1));
+    assertEquals(createTestString("test"), wordResult.get(INT_2));
 
     // Test with empty string
     final var emptyString = createTestString("");
     final var emptyResult = emptyString.split(commaRegex);
     assertSet.accept(emptyResult);
     assertEquals(1, emptyResult._len().state);
-    assertEquals(emptyString, emptyResult.get(Integer._of(0)));
+    assertEquals(emptyString, emptyResult.get(INT_0));
   }
 }

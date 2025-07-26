@@ -43,7 +43,7 @@ class NetworkPropertiesTest extends Common {
     assertSet.accept(timeoutProps); // Record is set because timeout is set
 
     // Test host constructor
-    final var hostProps = new NetworkProperties(String._of("localhost"));
+    final var hostProps = new NetworkProperties(STR_LOCALHOST);
     assertSet.accept(hostProps.host);
     assertUnset.accept(hostProps.port);
     assertUnset.accept(hostProps.packetSize);
@@ -54,7 +54,7 @@ class NetworkPropertiesTest extends Common {
     assertSet.accept(hostProps); // Record is set because host is set
 
     // Test port constructor
-    final var portProps = new NetworkProperties(Integer._of(8080));
+    final var portProps = new NetworkProperties(INT_8080);
     assertUnset.accept(portProps.host);
     assertSet.accept(portProps.port);
     assertUnset.accept(portProps.packetSize);
@@ -68,7 +68,7 @@ class NetworkPropertiesTest extends Common {
   @Test
   void testMultiParameterConstructors() {
     // Test host and port constructor
-    final var hostPortProps = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var hostPortProps = new NetworkProperties(STR_LOCALHOST, INT_8080);
     assertNotNull(hostPortProps);
 
     assertSet.accept(hostPortProps.host);
@@ -81,7 +81,7 @@ class NetworkPropertiesTest extends Common {
     assertSet.accept(hostPortProps);
 
     // Test port and packetSize constructor
-    final var portPacketProps = new NetworkProperties(Integer._of(8080), Integer._of(1024));
+    final var portPacketProps = new NetworkProperties(INT_8080, Integer._of(1024));
     assertUnset.accept(portPacketProps.host);
     assertSet.accept(portPacketProps.port);
     assertSet.accept(portPacketProps.packetSize);
@@ -92,7 +92,7 @@ class NetworkPropertiesTest extends Common {
     assertSet.accept(portPacketProps);
 
     // Test port and localOnly constructor
-    final var portLocalProps = new NetworkProperties(Integer._of(8080), Boolean._of(true));
+    final var portLocalProps = new NetworkProperties(INT_8080, Boolean._of(true));
     assertUnset.accept(portLocalProps.host);
     assertSet.accept(portLocalProps.port);
     assertUnset.accept(portLocalProps.packetSize);
@@ -107,8 +107,8 @@ class NetworkPropertiesTest extends Common {
   void testComplexConstructors() {
     // Test 4-parameter constructor
     final var fourParamProps = new NetworkProperties(
-        String._of("localhost"),
-        Integer._of(8080),
+        STR_LOCALHOST,
+        INT_8080,
         Integer._of(1024),
         Millisecond._of(5000)
     );
@@ -125,10 +125,10 @@ class NetworkPropertiesTest extends Common {
 
     // Test 5-parameter constructor
     final var fiveParamProps = new NetworkProperties(
-        Integer._of(8080),
+        INT_8080,
         Millisecond._of(5000),
         Integer._of(50),
-        Integer._of(100),
+        INT_100,
         Boolean._of(false)
     );
     assertUnset.accept(fiveParamProps.host);
@@ -144,7 +144,7 @@ class NetworkPropertiesTest extends Common {
   @Test
   void testConstructorsWithUnsetValues() {
     // Test constructor with unset values
-    final var props = new NetworkProperties(new String(), Integer._of(8080));
+    final var props = new NetworkProperties(new String(), INT_8080);
     assertNotNull(props);
 
     assertUnset.accept(props.host); // Should remain unset
@@ -159,21 +159,21 @@ class NetworkPropertiesTest extends Common {
     assertEquals("NetworkProperties{}", unsetProps._string().state);
 
     // Test single field
-    final var singleProps = new NetworkProperties(String._of("localhost"));
+    final var singleProps = new NetworkProperties(STR_LOCALHOST);
     assertEquals("NetworkProperties{host: localhost}", singleProps._string().state);
 
     // Test multiple fields
-    final var multiProps = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var multiProps = new NetworkProperties(STR_LOCALHOST, INT_8080);
     assertEquals("NetworkProperties{host: localhost, port: 8080}", multiProps._string().state);
 
     // Test all fields
     final var allProps = new NetworkProperties();
-    allProps.host = String._of("localhost");
-    allProps.port = Integer._of(8080);
+    allProps.host = STR_LOCALHOST;
+    allProps.port = INT_8080;
     allProps.packetSize = Integer._of(1024);
     allProps.timeout = Millisecond._of(5000);
     allProps.backlog = Integer._of(50);
-    allProps.maxConcurrent = Integer._of(100);
+    allProps.maxConcurrent = INT_100;
     allProps.localOnly = Boolean._of(true);
 
     assertEquals(
@@ -188,20 +188,20 @@ class NetworkPropertiesTest extends Common {
     assertUnset.accept(unsetProps._hashcode());
 
     // Test set record
-    final var setProps = new NetworkProperties(String._of("localhost"));
+    final var setProps = new NetworkProperties(STR_LOCALHOST);
     assertSet.accept(setProps._hashcode());
 
     // Test same values produce same hashcode
-    final var props1 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
-    final var props2 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var props1 = new NetworkProperties(STR_LOCALHOST, INT_8080);
+    final var props2 = new NetworkProperties(STR_LOCALHOST, INT_8080);
     assertEquals(props1._hashcode().state, props2._hashcode().state);
   }
 
   @Test
   void testEquality() {
     // Test equality with same values
-    final var props1 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
-    final var props2 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var props1 = new NetworkProperties(STR_LOCALHOST, INT_8080);
+    final var props2 = new NetworkProperties(STR_LOCALHOST, INT_8080);
     assertNotNull(props1);
     assertNotNull(props2);
 
@@ -209,7 +209,7 @@ class NetworkPropertiesTest extends Common {
     assertTrue.accept(props2._eq(props1));
 
     // Test equality with different values
-    final var props3 = new NetworkProperties(String._of("localhost"), Integer._of(8081));
+    final var props3 = new NetworkProperties(STR_LOCALHOST, Integer._of(8081));
     assertFalse.accept(props1._eq(props3));
     assertFalse.accept(props3._eq(props1));
 
@@ -221,8 +221,8 @@ class NetworkPropertiesTest extends Common {
     assertUnset.accept(unsetProps1._eq(unsetProps2));
 
     // Test equality with mixed set/unset
-    final var mixedProps1 = new NetworkProperties(String._of("localhost"));
-    final var mixedProps2 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var mixedProps1 = new NetworkProperties(STR_LOCALHOST);
+    final var mixedProps2 = new NetworkProperties(STR_LOCALHOST, INT_8080);
     assertFalse.accept(mixedProps1._eq(mixedProps2));
 
     assertUnset.accept(unsetProps1._eq(mixedProps1));
@@ -233,7 +233,7 @@ class NetworkPropertiesTest extends Common {
   void testMergeOperator() {
     // Test merge with empty target
     final var target = new NetworkProperties();
-    final var source = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var source = new NetworkProperties(STR_LOCALHOST, INT_8080);
 
     target._merge(source);
 
@@ -288,7 +288,7 @@ class NetworkPropertiesTest extends Common {
     assertUnset.accept(props);
 
     // Setting any field should make record set
-    props.host = String._of("localhost");
+    props.host = STR_LOCALHOST;
     assertSet.accept(props);
 
     // Unsetting the field should make record unset again
@@ -296,7 +296,7 @@ class NetworkPropertiesTest extends Common {
     assertUnset.accept(props);
 
     // Setting a different field should make record set
-    props.port = Integer._of(8080);
+    props.port = INT_8080;
     assertSet.accept(props);
   }
 
@@ -307,11 +307,11 @@ class NetworkPropertiesTest extends Common {
 
     // Direct field access should work
     props.host = String._of("test");
-    props.port = Integer._of(8080);
+    props.port = INT_8080;
     props.packetSize = Integer._of(1024);
     props.timeout = Millisecond._of(5000);
     props.backlog = Integer._of(50);
-    props.maxConcurrent = Integer._of(100);
+    props.maxConcurrent = INT_100;
     props.localOnly = Boolean._of(true);
 
     // All fields should be accessible and set
@@ -345,8 +345,8 @@ class NetworkPropertiesTest extends Common {
   void testMissingThreeParameterConstructors() {
     // Test 3-parameter constructor: (String host, Integer port, Millisecond timeout)
     final var hostPortTimeoutProps = new NetworkProperties(
-        String._of("localhost"),
-        Integer._of(8080),
+        STR_LOCALHOST,
+        INT_8080,
         Millisecond._of(5000)
     );
     assertNotNull(hostPortTimeoutProps);
@@ -361,8 +361,8 @@ class NetworkPropertiesTest extends Common {
 
     // Test 3-parameter constructor: (String host, Integer port, Integer packetSize)
     final var hostPortPacketProps = new NetworkProperties(
-        String._of("localhost"),
-        Integer._of(8080),
+        STR_LOCALHOST,
+        INT_8080,
         Integer._of(1024)
     );
     assertNotNull(hostPortPacketProps);
@@ -380,9 +380,9 @@ class NetworkPropertiesTest extends Common {
   void testMissingFourParameterConstructor() {
     // Test 4-parameter constructor: (Integer port, Integer backlog, Integer maxConcurrent, Boolean localOnly)
     final var portBacklogProps = new NetworkProperties(
-        Integer._of(8080),
+        INT_8080,
         Integer._of(50),
-        Integer._of(100),
+        INT_100,
         Boolean._of(true)
     );
     assertNotNull(portBacklogProps);
@@ -459,7 +459,7 @@ class NetworkPropertiesTest extends Common {
     // Test mixed null, unset, and valid parameters
     final var mixedProps1 = new NetworkProperties(
         null,        // null
-        Integer._of(8080),    // valid
+        INT_8080,    // valid
         new Integer()         // unset
     );
     assertNotNull(mixedProps1);
@@ -470,7 +470,7 @@ class NetworkPropertiesTest extends Common {
     assertSet.accept(mixedProps1); // Should be set because port is valid
 
     final var mixedProps2 = new NetworkProperties(
-        String._of("localhost"),  // valid
+        STR_LOCALHOST,  // valid
         null,           // null
         Integer._of(1024),        // valid
         new Millisecond()         // unset
@@ -485,10 +485,10 @@ class NetworkPropertiesTest extends Common {
   @Test
   void testInequalityOperator() {
     // Test inequality operator
-    final var props1 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var props1 = new NetworkProperties(STR_LOCALHOST, INT_8080);
     assertNotNull(props1);
-    final var props2 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
-    final var props3 = new NetworkProperties(String._of("localhost"), Integer._of(8081));
+    final var props2 = new NetworkProperties(STR_LOCALHOST, INT_8080);
+    final var props3 = new NetworkProperties(STR_LOCALHOST, Integer._of(8081));
 
     // Same values should be not unequal
     assertFalse.accept(props1._neq(props2));
@@ -508,9 +508,9 @@ class NetworkPropertiesTest extends Common {
   @Test
   void testComparisonOperators() {
     // Test comparison operators
-    final var props1 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
-    final var props2 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
-    final var props3 = new NetworkProperties(String._of("localhost"), Integer._of(8081));
+    final var props1 = new NetworkProperties(STR_LOCALHOST, INT_8080);
+    final var props2 = new NetworkProperties(STR_LOCALHOST, INT_8080);
+    final var props3 = new NetworkProperties(STR_LOCALHOST, Integer._of(8081));
 
     // Same values should compare as equal (0)
     assertEquals(0, props1._cmp(props2).state);
@@ -530,10 +530,10 @@ class NetworkPropertiesTest extends Common {
   @Test
   void testEqualityWithAnyParameter() {
     // Test equality with Any parameter
-    final var props1 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var props1 = new NetworkProperties(STR_LOCALHOST, INT_8080);
     assertNotNull(props1);
-    final var props2 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
-    final var props3 = new NetworkProperties(String._of("localhost"), Integer._of(8081));
+    final var props2 = new NetworkProperties(STR_LOCALHOST, INT_8080);
+    final var props3 = new NetworkProperties(STR_LOCALHOST, Integer._of(8081));
 
     // Test with NetworkProperties cast to Any
     Any anyProps2 = props2;
@@ -555,7 +555,7 @@ class NetworkPropertiesTest extends Common {
     final var unsetProps1 = new NetworkProperties();
     assertNotNull(unsetProps1);
     final var unsetProps2 = new NetworkProperties();
-    final var setProps = new NetworkProperties(String._of("localhost"));
+    final var setProps = new NetworkProperties(STR_LOCALHOST);
 
     // Unset records should not be equal to anything
     assertUnset.accept(unsetProps1._eq(unsetProps2));
@@ -637,8 +637,8 @@ class NetworkPropertiesTest extends Common {
     final var props1 = new NetworkProperties();
     assertNotNull(props1);
     final var props2 = new NetworkProperties();
-    final var props3 = new NetworkProperties(String._of("localhost"));
-    final var props4 = new NetworkProperties(String._of("localhost"));
+    final var props3 = new NetworkProperties(STR_LOCALHOST);
+    final var props4 = new NetworkProperties(STR_LOCALHOST);
     final var props5 = new NetworkProperties(String._of("different"));
 
     // Both fields unset should return unset Boolean
@@ -662,7 +662,7 @@ class NetworkPropertiesTest extends Common {
     assertUnset.accept(unset._json());
 
     // Test single property creates proper JSON object
-    final var singleProps = new NetworkProperties(String._of("localhost"));
+    final var singleProps = new NetworkProperties(STR_LOCALHOST);
     final var json1 = singleProps._json();
     assertSet.accept(json1);
     
@@ -673,7 +673,7 @@ class NetworkPropertiesTest extends Common {
     assertEquals(expectedJson1, json1.prettyPrint().state);
 
     // Test multiple properties create proper JSON with all fields
-    final var multiProps = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var multiProps = new NetworkProperties(STR_LOCALHOST, INT_8080);
     final var json2 = multiProps._json();
     assertSet.accept(json2);
     
@@ -686,12 +686,12 @@ class NetworkPropertiesTest extends Common {
 
     // Test all properties set
     final var allProps = new NetworkProperties();
-    allProps.host = String._of("localhost");
-    allProps.port = Integer._of(8080);
+    allProps.host = STR_LOCALHOST;
+    allProps.port = INT_8080;
     allProps.packetSize = Integer._of(1024);
     allProps.timeout = Millisecond._of(5000);
     allProps.backlog = Integer._of(50);
-    allProps.maxConcurrent = Integer._of(100);
+    allProps.maxConcurrent = INT_100;
     allProps.localOnly = Boolean._of(true);
 
     final var json3 = allProps._json();

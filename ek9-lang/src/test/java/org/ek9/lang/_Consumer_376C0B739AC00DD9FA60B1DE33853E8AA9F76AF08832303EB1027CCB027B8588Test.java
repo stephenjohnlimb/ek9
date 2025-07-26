@@ -51,8 +51,7 @@ class _Consumer_376C0B739AC00DD9FA60B1DE33853E8AA9F76AF08832303EB1027CCB027B8588
     final var testJSON = JSON._of("{\"test\": \"value\"}");
     consumer._call(testJSON);
 
-    final var numberJSON = JSON._of("42");
-    consumer._call(numberJSON);
+    consumer._call(JSON_42);
 
     // Test call with null JSON - should not throw exception
     consumer._call(null);

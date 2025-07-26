@@ -96,11 +96,11 @@ class _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
     assertStringType(setOptional.get());
 
     // Test getOrDefault with String parameters
-    assertEquals(testValue, setOptional.getOrDefault(String._of("default")));
-    assertStringType(setOptional.getOrDefault(String._of("default")));
+    assertEquals(testValue, setOptional.getOrDefault(STR_DEFAULT));
+    assertStringType(setOptional.getOrDefault(STR_DEFAULT));
 
-    assertEquals(String._of("default"), unset.getOrDefault(String._of("default")));
-    assertStringType(unset.getOrDefault(String._of("default")));
+    assertEquals(STR_DEFAULT, unset.getOrDefault(STR_DEFAULT));
+    assertStringType(unset.getOrDefault(STR_DEFAULT));
 
     // Test asEmpty returns parameterized type
     final var emptyFromSet = setOptional.asEmpty();
@@ -351,7 +351,7 @@ class _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
 
     // String operations should work consistently
     assertTrue.accept(paramOptional._contains(testValue));
-    assertEquals(testValue, paramOptional.getOrDefault(String._of("default")));
+    assertEquals(testValue, paramOptional.getOrDefault(STR_DEFAULT));
   }
 
   @Test

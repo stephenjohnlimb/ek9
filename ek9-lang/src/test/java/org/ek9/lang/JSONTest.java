@@ -326,7 +326,7 @@ class JSONTest extends Common {
     assertSet.accept(unsetValue);
     // Should create {"name": null} - unset EK9 value mapped to JSON null
     assertTrue.accept(unsetValue.objectNature());
-    final var nameProperty = unsetValue.get(String._of("name"));
+    final var nameProperty = unsetValue.get(STR_NAME);
     assertSet.accept(nameProperty);
     assertTrue.accept(nameProperty.valueNature());
     assertEquals("null", nameProperty._string().state);
@@ -705,7 +705,7 @@ class JSONTest extends Common {
     assertEquals(FIVE, merged._len()); // 3 from person + 2 from address
 
     // Verify merged properties are accessible
-    assertSet.accept(merged.get(String._of("name")));
+    assertSet.accept(merged.get(STR_NAME));
     assertSet.accept(merged.get(String._of("street")));
     assertSet.accept(merged.get(String._of("city")));
 
@@ -716,14 +716,14 @@ class JSONTest extends Common {
 
     assertEquals(FOUR, target._len()); // 1 + 3 from person
     assertSet.accept(target.get(String._of("id")));
-    assertSet.accept(target.get(String._of("name")));
+    assertSet.accept(target.get(STR_NAME));
 
     // Test property replacement (only replaces existing properties)
     final var override = new JSON().object();
     override._merge(createNamedJson("name", jsonFromString("Bob")));
     target._replace(override);
 
-    final var replacedName = target.get(String._of("name"));
+    final var replacedName = target.get(STR_NAME);
     assertQuoted("Bob", replacedName);
 
     // Test object + value operations (creates indexed property)
@@ -882,7 +882,7 @@ class JSONTest extends Common {
     assertTrue.accept(parsedJson.objectNature());
 
     // Verify parsed object has same properties
-    final var parsedName = parsedJson.get(String._of("name"));
+    final var parsedName = parsedJson.get(STR_NAME);
     assertQuoted("Test User", parsedName);
 
     final var parsedAge = parsedJson.get(String._of("age"));
@@ -1010,7 +1010,7 @@ class JSONTest extends Common {
     baseObject._merge(newProperties);
 
     // Verify existing property was NOT overwritten
-    final var nameAfterMerge = baseObject.get(String._of("name"));
+    final var nameAfterMerge = baseObject.get(STR_NAME);
     assertQuoted("Alice", nameAfterMerge); // Should still be Alice, not Bob
 
     // Verify new properties were added
@@ -1034,7 +1034,7 @@ class JSONTest extends Common {
     baseObject._replace(replaceProperties);
 
     // Verify existing properties were updated
-    final var nameAfterReplace = baseObject.get(String._of("name"));
+    final var nameAfterReplace = baseObject.get(STR_NAME);
     assertQuoted("Charlie", nameAfterReplace); // Should now be Charlie
 
     final var ageAfterReplace = baseObject.get(String._of("age"));
@@ -1054,9 +1054,9 @@ class JSONTest extends Common {
     assertEquals(beforeEmptyMerge, baseObject._len()); // Should be unchanged
 
     // Test _replace with empty object (should change nothing)
-    final var beforeEmptyReplace = baseObject.get(String._of("name"));
+    final var beforeEmptyReplace = baseObject.get(STR_NAME);
     baseObject._replace(emptyObject);
-    final var afterEmptyReplace = baseObject.get(String._of("name"));
+    final var afterEmptyReplace = baseObject.get(STR_NAME);
     assertEquals(beforeEmptyReplace._string().state, afterEmptyReplace._string().state); // Should be unchanged
 
     // Test _merge on unset JSON (should copy entire structure)
@@ -1079,11 +1079,11 @@ class JSONTest extends Common {
     addStringProperty(objectForUnsetReplace, "name", "original");
     addIntProperty(objectForUnsetReplace, "age", 25);
     final var originalLength = objectForUnsetReplace._len();
-    final var originalName = objectForUnsetReplace.get(String._of("name"));
+    final var originalName = objectForUnsetReplace.get(STR_NAME);
 
     objectForUnsetReplace._replace(unsetSource);
     assertEquals(originalLength, objectForUnsetReplace._len()); // Should be unchanged
-    final var nameAfterUnsetReplace = objectForUnsetReplace.get(String._of("name"));
+    final var nameAfterUnsetReplace = objectForUnsetReplace.get(STR_NAME);
     assertTrue.accept(originalName._eq(nameAfterUnsetReplace)); // Should be unchanged
 
     // Test array._replace(unset) should do nothing
@@ -1891,7 +1891,7 @@ class JSONTest extends Common {
 
     objTarget._pipe(objToAdd);
     assertEquals(TWO, objTarget._len());
-    assertQuoted("John", objTarget.get(String._of("name")));
+    assertQuoted("John", objTarget.get(STR_NAME));
 
     // Test pipe with value nature (delegates to _merge)
     var valueTarget = jsonFromString("Hello");
@@ -2059,7 +2059,7 @@ class JSONTest extends Common {
     assertSet.accept(jsonFromValidObject);
     assertTrue.accept(jsonFromValidObject.objectNature());
     assertEquals(THREE, jsonFromValidObject._len());
-    assertQuoted("John", jsonFromValidObject.get(String._of("name")));
+    assertQuoted("John", jsonFromValidObject.get(STR_NAME));
 
     // Test _of(java.lang.String) factory method with valid JSON array
     final var validArrayJson = "[1,2,3,\"test\",true]";
@@ -2124,7 +2124,7 @@ class JSONTest extends Common {
     assertTrue.accept(jsonFromNested.objectNature());
     final var userObject = jsonFromNested.get(String._of("user"));
     assertTrue.accept(userObject.objectNature());
-    assertQuoted("Alice", userObject.get(String._of("name")));
+    assertQuoted("Alice", userObject.get(STR_NAME));
   }
 
   // ===== PATH TESTING METHODS =====

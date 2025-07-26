@@ -10,45 +10,34 @@ import org.junit.jupiter.api.Test;
 
 class FloatTest extends Common {
 
-  final Boolean true1 = Boolean._of("true");
-  final Boolean false1 = Boolean._of("false");
-
-  final Float unset = new Float();
-  final Float f0 = Float._of(0);
-  final Float fMinus1 = Float._of(-1);
-  final Float f1 = Float._of(1);
-  final Float f2 = Float._of(2);
-  final Float fMinus2 = Float._of(-2);
-  final Float f3 = Float._of(3);
-  final Float f4 = Float._of(4);
-  final Float f4Point5 = Float._of(4.5);
+  // Use true1, false1, and Float constants from Common base class
 
   // Helper methods for eliminating duplication
 
   /**
-   * Helper method to test comparison operations with unset values.
+   * Helper method to test comparison operations with unsetFloat values.
    */
   private void assertComparisonOperatorsWithUnset(Float validValue) {
-    // Test all comparison operators with unset
-    assertUnset.accept(validValue._eq(unset));
-    assertUnset.accept(unset._eq(validValue));
-    assertUnset.accept(unset._eq(unset));
+    // Test all comparison operators with unsetFloat
+    assertUnset.accept(validValue._eq(unsetFloat));
+    assertUnset.accept(unsetFloat._eq(validValue));
+    assertUnset.accept(unsetFloat._eq(unsetFloat));
     
-    assertUnset.accept(validValue._neq(unset));
-    assertUnset.accept(unset._neq(validValue));
-    assertUnset.accept(unset._neq(unset));
+    assertUnset.accept(validValue._neq(unsetFloat));
+    assertUnset.accept(unsetFloat._neq(validValue));
+    assertUnset.accept(unsetFloat._neq(unsetFloat));
     
-    assertUnset.accept(validValue._lt(unset));
-    assertUnset.accept(unset._lt(validValue));
+    assertUnset.accept(validValue._lt(unsetFloat));
+    assertUnset.accept(unsetFloat._lt(validValue));
     
-    assertUnset.accept(validValue._gt(unset));
-    assertUnset.accept(unset._gt(validValue));
+    assertUnset.accept(validValue._gt(unsetFloat));
+    assertUnset.accept(unsetFloat._gt(validValue));
     
-    assertUnset.accept(validValue._lteq(unset));
-    assertUnset.accept(unset._lteq(validValue));
+    assertUnset.accept(validValue._lteq(unsetFloat));
+    assertUnset.accept(unsetFloat._lteq(validValue));
     
-    assertUnset.accept(validValue._gteq(unset));
-    assertUnset.accept(unset._gteq(validValue));
+    assertUnset.accept(validValue._gteq(unsetFloat));
+    assertUnset.accept(unsetFloat._gteq(validValue));
   }
 
   @Test
@@ -77,78 +66,78 @@ class FloatTest extends Common {
     final var checkZero4 = new Float(Integer._of("0"));
     assertEquals(0.0, checkZero4.state);
 
-    assertSet.accept(f1);
-    assertEquals(1.0, f1.state);
+    assertSet.accept(FLOAT_1);
+    assertEquals(1.0, FLOAT_1.state);
 
-    assertSet.accept(f2);
-    assertEquals(2.0, f2.state);
+    assertSet.accept(FLOAT_2);
+    assertEquals(2.0, FLOAT_2.state);
 
-    assertSet.accept(f3);
-    assertEquals(3.0, f3.state);
+    assertSet.accept(FLOAT_3);
+    assertEquals(3.0, FLOAT_3.state);
 
-    final var also3 = Float._of(f3);
+    final var also3 = Float._of(FLOAT_3);
     assertSet.accept(also3);
     assertEquals(3.0, also3.state);
 
-    final var again3 = new Float(f3);
+    final var again3 = new Float(FLOAT_3);
     assertSet.accept(again3);
     assertEquals(3.0, again3.state);
 
-    final var check4 = new Float(f4);
+    final var check4 = new Float(FLOAT_4);
     assertSet.accept(check4);
-    assertEquals(f4, check4);
+    assertEquals(FLOAT_4, check4);
   }
 
   @Test
   void testEquality() {
     final var f00 = Float._of(0);
 
-    // Test all comparison operators with unset values using helper
-    assertComparisonOperatorsWithUnset(f0);
+    // Test all comparison operators with unsetFloat values using helper
+    assertComparisonOperatorsWithUnset(FLOAT_0);
 
     //Eq
-    assertEquals(f00, f0);
-    assertEquals(true1, f0._eq(f00));
+    assertEquals(f00, FLOAT_0);
+    assertEquals(trueBoolean, FLOAT_0._eq(f00));
 
     //Neq
-    assertEquals(false1, f0._neq(f00));
+    assertEquals(falseBoolean, FLOAT_0._neq(f00));
 
     //Lt
-    assertTrue.accept(f0._lt(f1));
-    assertFalse.accept(f1._lt(f0));
+    assertTrue.accept(FLOAT_0._lt(FLOAT_1));
+    assertFalse.accept(FLOAT_1._lt(FLOAT_0));
 
     //gt
-    assertTrue.accept(f1._gt(f0));
-    assertFalse.accept(f0._gt(f1));
+    assertTrue.accept(FLOAT_1._gt(FLOAT_0));
+    assertFalse.accept(FLOAT_0._gt(FLOAT_1));
 
     //Lteq
-    assertTrue.accept(f0._lteq(f00));
-    assertTrue.accept(f0._lteq(f1));
-    assertFalse.accept(f1._lteq(f0));
+    assertTrue.accept(FLOAT_0._lteq(f00));
+    assertTrue.accept(FLOAT_0._lteq(FLOAT_1));
+    assertFalse.accept(FLOAT_1._lteq(FLOAT_0));
 
     //Gteq
-    assertTrue.accept(f0._gteq(f00));
-    assertTrue.accept(f1._gteq(f0));
-    assertFalse.accept(f0._gteq(f1));
+    assertTrue.accept(FLOAT_0._gteq(f00));
+    assertTrue.accept(FLOAT_1._gteq(FLOAT_0));
+    assertFalse.accept(FLOAT_0._gteq(FLOAT_1));
   }
 
   @Test
   void testComparison() {
     final var i00 = Float._of(0);
 
-    assertEquals(Integer._of(0), f0._fuzzy(i00));
-    assertEquals(Integer._of(-1), f0._fuzzy(f1));
-    assertEquals(Integer._of(1), f1._fuzzy(f0));
-    assertUnset.accept(unset._fuzzy(f0));
-    assertUnset.accept(f0._fuzzy(unset));
-    assertUnset.accept(f0._cmp(new Any(){}));
+    assertEquals(INT_0, FLOAT_0._fuzzy(i00));
+    assertEquals(INT_MINUS_1, FLOAT_0._fuzzy(FLOAT_1));
+    assertEquals(INT_1, FLOAT_1._fuzzy(FLOAT_0));
+    assertUnset.accept(unsetFloat._fuzzy(FLOAT_0));
+    assertUnset.accept(FLOAT_0._fuzzy(unsetFloat));
+    assertUnset.accept(FLOAT_0._cmp(new Any(){}));
 
   }
 
   @Test
   void testIsSet() {
-    assertNotNull(unset);
-    assertFalse.accept(unset._isSet());
+    assertNotNull(unsetFloat);
+    assertFalse.accept(unsetFloat._isSet());
 
     final var v1 = Float._of(90);
     assertNotNull(v1);
@@ -162,87 +151,87 @@ class FloatTest extends Common {
   @Test
   void testSimpleMathematics() {
 
-    final var minusZero = f0._negate();
-    assertEquals(f0, minusZero);
+    final var minusZero = FLOAT_0._negate();
+    assertEquals(FLOAT_0, minusZero);
 
-    final var stillUnset = unset._negate();
+    final var stillUnset = unsetFloat._negate();
     assertUnset.accept(stillUnset);
 
     //Negate
-    assertEquals(fMinus1, f1._negate());
-    assertUnset.accept( unset._negate());
+    assertEquals(FLOAT_MINUS_1, FLOAT_1._negate());
+    assertUnset.accept( unsetFloat._negate());
 
     //Addition
-    assertEquals(fMinus1, f0._add(fMinus1));
-    assertEquals(f0, f1._add(fMinus1));
-    assertEquals(f0, fMinus1._add(f1));
-    assertUnset.accept(unset._add(f1));
-    assertUnset.accept(f0._add(unset));
+    assertEquals(FLOAT_MINUS_1, FLOAT_0._add(FLOAT_MINUS_1));
+    assertEquals(FLOAT_0, FLOAT_1._add(FLOAT_MINUS_1));
+    assertEquals(FLOAT_0, FLOAT_MINUS_1._add(FLOAT_1));
+    assertUnset.accept(unsetFloat._add(FLOAT_1));
+    assertUnset.accept(FLOAT_0._add(unsetFloat));
 
     //Substraction
-    assertEquals(fMinus1, f0._sub(f1));
-    assertEquals(f0, f1._sub(f1));
-    assertEquals(f0, fMinus1._sub(fMinus1));
-    assertUnset.accept(unset._sub(f1));
-    assertUnset.accept(f0._sub(unset));
+    assertEquals(FLOAT_MINUS_1, FLOAT_0._sub(FLOAT_1));
+    assertEquals(FLOAT_0, FLOAT_1._sub(FLOAT_1));
+    assertEquals(FLOAT_0, FLOAT_MINUS_1._sub(FLOAT_MINUS_1));
+    assertUnset.accept(unsetFloat._sub(FLOAT_1));
+    assertUnset.accept(FLOAT_0._sub(unsetFloat));
 
     //Multiplication
-    assertEquals(f0, f0._mul(f1));
-    assertEquals(f0, f0._mul(fMinus1));
-    assertEquals(f2, f1._mul(f2));
-    assertEquals(fMinus2, f2._mul(fMinus1));
-    assertEquals(f4, f2._mul(f2));
-    assertEquals(f4, fMinus2._mul(fMinus2));
-    assertUnset.accept(unset._mul(f1));
-    assertUnset.accept(f0._mul(unset));
+    assertEquals(FLOAT_0, FLOAT_0._mul(FLOAT_1));
+    assertEquals(FLOAT_0, FLOAT_0._mul(FLOAT_MINUS_1));
+    assertEquals(FLOAT_2, FLOAT_1._mul(FLOAT_2));
+    assertEquals(FLOAT_MINUS_2, FLOAT_2._mul(FLOAT_MINUS_1));
+    assertEquals(FLOAT_4, FLOAT_2._mul(FLOAT_2));
+    assertEquals(FLOAT_4, FLOAT_MINUS_2._mul(FLOAT_MINUS_2));
+    assertUnset.accept(unsetFloat._mul(FLOAT_1));
+    assertUnset.accept(FLOAT_0._mul(unsetFloat));
 
     //Division
-    assertEquals(f1, f2._div(f2));
+    assertEquals(FLOAT_1, FLOAT_2._div(FLOAT_2));
 
-    assertEquals(f2, f4._div(f2));
-    assertEquals(fMinus2, f4._div(fMinus2));
-    assertEquals(f0, f0._div(f2));
+    assertEquals(FLOAT_2, FLOAT_4._div(FLOAT_2));
+    assertEquals(FLOAT_MINUS_2, FLOAT_4._div(FLOAT_MINUS_2));
+    assertEquals(FLOAT_0, FLOAT_0._div(FLOAT_2));
 
-    assertUnset.accept(f0._div(f0));
-    assertUnset.accept( f0._div(unset));
-    assertUnset.accept(unset._div(f2));
+    assertUnset.accept(FLOAT_0._div(FLOAT_0));
+    assertUnset.accept( FLOAT_0._div(unsetFloat));
+    assertUnset.accept(unsetFloat._div(FLOAT_2));
 
     // Create fresh objects for mutating inc/dec operations to avoid corrupting constants
     final var freshF1 = Float._of(1);
-    assertEquals(f2, freshF1._inc());
-    assertUnset.accept(unset._inc());
+    assertEquals(FLOAT_2, freshF1._inc());
+    assertUnset.accept(unsetFloat._inc());
 
     final var freshF0 = Float._of(0);
-    assertEquals(fMinus1, freshF0._dec());
-    assertUnset.accept(unset._dec());
+    assertEquals(FLOAT_MINUS_1, freshF0._dec());
+    assertUnset.accept(unsetFloat._dec());
 
   }
 
   @Test
   void testIntegerCombinedFloatingPointMathematics() {
 
-    assertEquals(Float._of(4.5f), f4Point5._add(Integer._of(0)));
-    assertEquals(Float._of(5.5f), f4Point5._add(Integer._of(1)));
-    assertUnset.accept(f4Point5._add(new Integer()));
-    assertUnset.accept(unset._add(Integer._of(0)));
+    assertEquals(Float._of(4.5f), FLOAT_4_5._add(INT_0));
+    assertEquals(Float._of(5.5f), FLOAT_4_5._add(INT_1));
+    assertUnset.accept(FLOAT_4_5._add(new Integer()));
+    assertUnset.accept(unsetFloat._add(INT_0));
 
 
-    assertEquals(Float._of(3.5f), f4Point5._sub(Integer._of(1)));
-    assertEquals(Float._of(5.5f), f4Point5._sub(Integer._of(-1)));
-    assertUnset.accept(f4Point5._sub(new Integer()));
-    assertUnset.accept(unset._sub(Integer._of(0)));
+    assertEquals(Float._of(3.5f), FLOAT_4_5._sub(INT_1));
+    assertEquals(Float._of(5.5f), FLOAT_4_5._sub(INT_MINUS_1));
+    assertUnset.accept(FLOAT_4_5._sub(new Integer()));
+    assertUnset.accept(unsetFloat._sub(INT_0));
 
-    assertEquals(Float._of(9.0f), f4Point5._mul(Integer._of(2)));
-    assertEquals(Float._of(-9.0f), f4Point5._mul(Integer._of(-2)));
-    assertUnset.accept(f4Point5._mul(new Integer()));
-    assertUnset.accept(unset._mul(Integer._of(0)));
+    assertEquals(Float._of(9.0f), FLOAT_4_5._mul(INT_2));
+    assertEquals(Float._of(-9.0f), FLOAT_4_5._mul(Integer._of(-2)));
+    assertUnset.accept(FLOAT_4_5._mul(new Integer()));
+    assertUnset.accept(unsetFloat._mul(INT_0));
 
-    assertEquals(Float._of(2.25f), f4Point5._div(Integer._of(2)));
-    assertEquals(Float._of(-2.25f), f4Point5._div(Integer._of(-2)));
-    //Now try divide by zero and divide by unset
-    assertUnset.accept(f4Point5._div(Integer._of(0)));
-    assertUnset.accept(f4Point5._div(new Integer()));
-    assertUnset.accept(unset._div(Integer._of(0)));
+    assertEquals(Float._of(2.25f), FLOAT_4_5._div(INT_2));
+    assertEquals(Float._of(-2.25f), FLOAT_4_5._div(Integer._of(-2)));
+    //Now try divide by zero and divide by unsetFloat
+    assertUnset.accept(FLOAT_4_5._div(INT_0));
+    assertUnset.accept(FLOAT_4_5._div(new Integer()));
+    assertUnset.accept(unsetFloat._div(INT_0));
 
   }
 
@@ -250,80 +239,80 @@ class FloatTest extends Common {
   void testFloatingPointMathematics() {
 
     //Sqrt
-    assertUnset.accept(unset._sqrt());
-    assertEquals(f2, f4._sqrt());
-    assertUnset.accept(f0._sqrt());
+    assertUnset.accept(unsetFloat._sqrt());
+    assertEquals(FLOAT_2, FLOAT_4._sqrt());
+    assertUnset.accept(FLOAT_0._sqrt());
 
     //Pow
-    assertUnset.accept(f2._pow(unset));
-    assertEquals(f2, f2._pow(f1));
-    assertEquals(f4, f2._pow(f2));
+    assertUnset.accept(FLOAT_2._pow(unsetFloat));
+    assertEquals(FLOAT_2, FLOAT_2._pow(FLOAT_1));
+    assertEquals(FLOAT_4, FLOAT_2._pow(FLOAT_2));
 
     //Addition
-    assertEquals(fMinus1, f0._add(fMinus1));
-    assertEquals(f0, f1._add(fMinus1));
-    assertEquals(f0, fMinus1._add(f1));
+    assertEquals(FLOAT_MINUS_1, FLOAT_0._add(FLOAT_MINUS_1));
+    assertEquals(FLOAT_0, FLOAT_1._add(FLOAT_MINUS_1));
+    assertEquals(FLOAT_0, FLOAT_MINUS_1._add(FLOAT_1));
 
-    assertUnset.accept(unset._add(f1));
-    assertUnset.accept(f0._add(unset));
+    assertUnset.accept(unsetFloat._add(FLOAT_1));
+    assertUnset.accept(FLOAT_0._add(unsetFloat));
 
     //Specific calculations
-    assertEquals(Float._of(2.456), f1._add(Float._of(1.456)));
+    assertEquals(Float._of(2.456), FLOAT_1._add(Float._of(1.456)));
 
-    assertEquals(Float._of(-0.3999999999999999), f1._sub(Float._of(1.400)));
-    assertUnset.accept(f0._sub(unset));
+    assertEquals(Float._of(-0.3999999999999999), FLOAT_1._sub(Float._of(1.400)));
+    assertUnset.accept(FLOAT_0._sub(unsetFloat));
 
-    assertEquals(Float._of(2.8), f2._mul(Float._of(1.400)));
-    assertUnset.accept(f0._mul(unset));
+    assertEquals(Float._of(2.8), FLOAT_2._mul(Float._of(1.400)));
+    assertUnset.accept(FLOAT_0._mul(unsetFloat));
 
-    assertEquals(Float._of(0.9955201592832256), f2._div(Float._of(2.0090)));
-    assertEquals(Float._of(1.9999999999999998E15), f2._div(Float._of(0.000000000000001)));
-    assertUnset.accept(f0._div(unset));
+    assertEquals(Float._of(0.9955201592832256), FLOAT_2._div(Float._of(2.0090)));
+    assertEquals(Float._of(1.9999999999999998E15), FLOAT_2._div(Float._of(0.000000000000001)));
+    assertUnset.accept(FLOAT_0._div(unsetFloat));
 
     //Check division of small numbers by smaller numbers.
     assertEquals(Float._of(1.0019913530064882E122), Float._of(10E-200)._div(Float._of(10E-322)));
     //Check loss of precision leading to infinity.
-    assertUnset.accept(f2._div(Float._of(10E-322)));
+    assertUnset.accept(FLOAT_2._div(Float._of(10E-322)));
 
     //Divide by zero check
-    assertUnset.accept(f2._div(f0));
+    assertUnset.accept(FLOAT_2._div(FLOAT_0));
   }
 
   @Test
   void testAsString() {
 
-    assertUnset.accept(unset._string());
+    assertUnset.accept(unsetFloat._string());
 
-    assertEquals(String._of("0.0"), f0._string());
-    assertEquals(String._of("1.0"), f1._string());
-    assertEquals(String._of("-1.0"), fMinus1._string());
+    assertEquals(String._of("0.0"), FLOAT_0._string());
+    assertEquals(String._of("1.0"), FLOAT_1._string());
+    assertEquals(String._of("-1.0"), FLOAT_MINUS_1._string());
 
-    assertEquals("1.0", f1.toString());
+    assertEquals("1.0", FLOAT_1.toString());
   }
 
   @Test
   void testAsJson() {
     // Test JSON conversion with set values
-    final var zeroJson = f0._json();
+    final var zeroJson = FLOAT_0._json();
     assertNotNull(zeroJson);
     assertSet.accept(zeroJson);
     
-    final var oneJson = f1._json();
+    final var oneJson = FLOAT_1._json();
     assertSet.accept(oneJson);
     
-    final var minusOneJson = fMinus1._json();
+    final var minusOneJson = FLOAT_MINUS_1._json();
     assertSet.accept(minusOneJson);
     
-    // Test JSON conversion with unset value
-    assertUnset.accept(unset._json());
+    // Test JSON conversion with unsetFloat value
+    assertUnset.accept(unsetFloat._json());
   }
 
   @Test
   void testHashCode() {
-    assertUnset.accept(unset._hashcode());
-    assertEquals(f0._hashcode(), f0._hashcode());
-    assertNotEquals(f0._hashcode(), f1._hashcode());
-    assertNotEquals(fMinus1._hashcode(), f1._hashcode());
+    assertUnset.accept(unsetFloat._hashcode());
+    assertEquals(FLOAT_0._hashcode(), FLOAT_0._hashcode());
+    assertNotEquals(FLOAT_0._hashcode(), FLOAT_1._hashcode());
+    assertNotEquals(FLOAT_MINUS_1._hashcode(), FLOAT_1._hashcode());
   }
 
   /**
@@ -335,11 +324,11 @@ class FloatTest extends Common {
    */
   @Test
   void testPrefixSuffix() {
-    assertUnset.accept(unset._prefix());
-    assertUnset.accept(unset._suffix());
+    assertUnset.accept(unsetFloat._prefix());
+    assertUnset.accept(unsetFloat._suffix());
 
-    assertEquals(Integer._of(0), f0._prefix());
-    assertEquals(Float._of(0), f0._suffix());
+    assertEquals(INT_0, FLOAT_0._prefix());
+    assertEquals(Float._of(0), FLOAT_0._suffix());
 
     final var example = Float._of(1234.77);
     assertEquals(Integer._of(1234), example._prefix());
@@ -353,25 +342,25 @@ class FloatTest extends Common {
   @Test
   void testAdditionalMathematicalOperators() {
 
-    assertEquals(f0, f0._abs());
-    assertEquals(f2, f2._abs());
-    assertEquals(f2, fMinus2._abs());
-    assertUnset.accept(unset._abs());
+    assertEquals(FLOAT_0, FLOAT_0._abs());
+    assertEquals(FLOAT_2, FLOAT_2._abs());
+    assertEquals(FLOAT_2, FLOAT_MINUS_2._abs());
+    assertUnset.accept(unsetFloat._abs());
   }
 
   @Test
   void testUtilityOperators() {
-    assertUnset.accept(unset._empty());
+    assertUnset.accept(unsetFloat._empty());
 
-    assertEquals(true1, f0._empty());
-    assertEquals(false1, f1._empty());
-    assertEquals(false1, fMinus2._empty());
+    assertEquals(trueBoolean, FLOAT_0._empty());
+    assertEquals(falseBoolean, FLOAT_1._empty());
+    assertEquals(falseBoolean, FLOAT_MINUS_2._empty());
 
-    assertUnset.accept(unset._len());
-    assertEquals(Integer._of(3), f0._len());
-    assertEquals(Integer._of(3), f1._len());
+    assertUnset.accept(unsetFloat._len());
+    assertEquals(Integer._of(3), FLOAT_0._len());
+    assertEquals(Integer._of(3), FLOAT_1._len());
     //The length includes the minus sign.
-    assertEquals(Integer._of(4), fMinus1._len());
+    assertEquals(INT_4, FLOAT_MINUS_1._len());
 
     assertEquals(Integer._of(6), Float._of(1234.9)._len());
   }
@@ -382,25 +371,25 @@ class FloatTest extends Common {
     var mutatedValue = new Float();
     assertUnset.accept(mutatedValue);
 
-    mutatedValue._pipe(unset);
+    mutatedValue._pipe(unsetFloat);
     assertUnset.accept(mutatedValue);
 
-    mutatedValue._pipe(f1);
-    assertEquals(f1, mutatedValue);
+    mutatedValue._pipe(FLOAT_1);
+    assertEquals(FLOAT_1, mutatedValue);
 
     //basically just keep adding
-    mutatedValue._pipe(f2);
-    assertEquals(f3, mutatedValue);
+    mutatedValue._pipe(FLOAT_2);
+    assertEquals(FLOAT_3, mutatedValue);
 
-    //Even if we pipe in something unset, for pipes this is ignored.
-    //This is the main different over addAssign. With that the result becomes unset.
+    //Even if we pipe in something unsetFloat, for pipes this is ignored.
+    //This is the main different over addAssign. With that the result becomes unsetFloat.
     //But with pipes you can pipe anything in.
-    mutatedValue._pipe(unset);
-    assertEquals(f3, mutatedValue);
+    mutatedValue._pipe(unsetFloat);
+    assertEquals(FLOAT_3, mutatedValue);
 
     //Now just show a negative being added.
-    mutatedValue._pipe(f4._negate());
-    assertEquals(fMinus1, mutatedValue);
+    mutatedValue._pipe(FLOAT_4._negate());
+    assertEquals(FLOAT_MINUS_1, mutatedValue);
   }
 
   private List<Consumer<Float>> getFloatAssignmentOperations(final Float from) {
@@ -417,11 +406,11 @@ class FloatTest extends Common {
     final var mutatedValue = Float._of(0);
 
     for (var operator : getFloatAssignmentOperations(mutatedValue)) {
-      operator.accept(unset);
+      operator.accept(unsetFloat);
       assertUnset.accept(mutatedValue);
       //Now set it back again for next time around loop.
-      mutatedValue._copy(f0);
-      assertEquals(f0, mutatedValue);
+      mutatedValue._copy(FLOAT_0);
+      assertEquals(FLOAT_0, mutatedValue);
     }
   }
 
@@ -434,8 +423,8 @@ class FloatTest extends Common {
       operator.accept(new Integer());
       assertUnset.accept(mutatedValue);
       //Now set it back again for next time around loop.
-      mutatedValue._copy(f0);
-      assertEquals(f0, mutatedValue);
+      mutatedValue._copy(FLOAT_0);
+      assertEquals(FLOAT_0, mutatedValue);
     }
   }
 
@@ -443,50 +432,50 @@ class FloatTest extends Common {
   void testMutationOperators() {
 
     final var mutatedValue = Float._of(0);
-    mutatedValue._addAss(f1);
-    assertEquals(f1, mutatedValue);
+    mutatedValue._addAss(FLOAT_1);
+    assertEquals(FLOAT_1, mutatedValue);
 
-    mutatedValue._mulAss(f4);
-    assertEquals(f4, mutatedValue);
+    mutatedValue._mulAss(FLOAT_4);
+    assertEquals(FLOAT_4, mutatedValue);
 
-    mutatedValue._divAss(f2);
-    assertEquals(f2, mutatedValue);
+    mutatedValue._divAss(FLOAT_2);
+    assertEquals(FLOAT_2, mutatedValue);
 
-    mutatedValue._subAss(f2);
-    assertEquals(f0, mutatedValue);
+    mutatedValue._subAss(FLOAT_2);
+    assertEquals(FLOAT_0, mutatedValue);
 
     //Now Integer args
-    mutatedValue._addAss(Integer._of(1));
-    assertEquals(f1, mutatedValue);
+    mutatedValue._addAss(INT_1);
+    assertEquals(FLOAT_1, mutatedValue);
 
-    mutatedValue._mulAss(Integer._of(4));
-    assertEquals(f4, mutatedValue);
+    mutatedValue._mulAss(INT_4);
+    assertEquals(FLOAT_4, mutatedValue);
 
-    mutatedValue._divAss(Integer._of(2));
-    assertEquals(f2, mutatedValue);
+    mutatedValue._divAss(INT_2);
+    assertEquals(FLOAT_2, mutatedValue);
 
-    mutatedValue._subAss(Integer._of(2));
-    assertEquals(f0, mutatedValue);
+    mutatedValue._subAss(INT_2);
+    assertEquals(FLOAT_0, mutatedValue);
   }
 
   @Test
   void testReplaceAndCopyLogic() {
 
     var mutatedValue = Float._of(0.0);
-    assertEquals(f0, mutatedValue);
+    assertEquals(FLOAT_0, mutatedValue);
 
-    mutatedValue._replace(f1);
-    assertEquals(f1, mutatedValue);
+    mutatedValue._replace(FLOAT_1);
+    assertEquals(FLOAT_1, mutatedValue);
 
-    mutatedValue._replace(f2);
-    assertEquals(f2, mutatedValue);
+    mutatedValue._replace(FLOAT_2);
+    assertEquals(FLOAT_2, mutatedValue);
 
-    mutatedValue._replace(unset);
+    mutatedValue._replace(unsetFloat);
     assertUnset.accept(mutatedValue);
 
-    //Now just check that it can take a value after being unset
-    mutatedValue._replace(f4);
-    assertEquals(f4, mutatedValue);
+    //Now just check that it can take a value after being unsetFloat
+    mutatedValue._replace(FLOAT_4);
+    assertEquals(FLOAT_4, mutatedValue);
   }
 
 }

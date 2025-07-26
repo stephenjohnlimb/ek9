@@ -46,7 +46,7 @@ class _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4
     assertIteratorUnset(defaultIterator);
 
     // Test value constructor
-    final var valueIterator = iterInteger(Integer._of(42));
+    final var valueIterator = iterInteger(INT_42);
     assertNotNull(valueIterator);
     assertIteratorSet(valueIterator);
   }
@@ -64,7 +64,7 @@ class _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4
     assertIteratorUnset(fromNull);
 
     // Test _of(Iterator) factory method - from base Iterator
-    final var baseIterator = Iterator._of(Integer._of(100));
+    final var baseIterator = Iterator._of(INT_100);
     final var fromBase = iterIntegerFromBase(baseIterator);
     assertNotNull(fromBase);
     assertIteratorSet(fromBase);
@@ -75,7 +75,7 @@ class _Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4
     // Test operators with different states
     final var iterator1 = iterInteger();
     final var iterator2 = iterInteger();
-    final var iteratorWithValue = iterInteger(Integer._of(42));
+    final var iteratorWithValue = iterInteger(INT_42);
 
     // Test equality functionality
     assertNotNull(iterator1._eq(iterator2));

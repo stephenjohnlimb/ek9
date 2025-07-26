@@ -50,8 +50,7 @@ class _Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868
     final var testJSON = JSON._of("{\"test\": \"value\"}");
     acceptor._call(testJSON);
 
-    final var numberJSON = JSON._of("42");
-    acceptor._call(numberJSON);
+    acceptor._call(JSON_42);
 
     // Test call with null JSON - should not throw exception
     acceptor._call(null);

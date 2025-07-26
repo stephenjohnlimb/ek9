@@ -25,67 +25,6 @@ class UDPTest extends Common {
 
   private UDP testUdp;
 
-
-  /**
-   * Quick check to see if I can send a message via golang and receive it via this UDP implementation.
-   * Set up to receive with timeout of ten seconds, then loops around again.
-   * <p>Here's an example of golang that will transmit a UDP message:</p>
-   * <pre>
-   * package main
-   * import (
-   *         "fmt"
-   *         "net"
-   * )
-   * func main() {
-   *         // Resolve the UDP address
-   *         serverAddr, err := net.ResolveUDPAddr("udp", "localhost:8080")
-   *         if err != nil {
-   *                 fmt.Println("Error resolving address:", err)
-   *                 return
-   *         }
-   *
-   *         // Create a UDP connection
-   *         conn, err := net.DialUDP("udp", nil, serverAddr)
-   *         if err != nil {
-   *                 fmt.Println("Error creating connection:", err)
-   *                 return
-   *         }
-   *         defer conn.Close()
-   *
-   *         // Send data
-   *         message := "Hello, UDP server!"
-   *         _, err = conn.Write([]byte(message))
-   *         if err != nil {
-   *                 fmt.Println("Error sending data:", err)
-   *                 return
-   *         }
-   *         fmt.Println("Message sent successfully!")
-   * }
-   * </pre>
-   */
-  public static void main(java.lang.String[] args) {
-    final var properties = new NetworkProperties(String._of("localhost"),
-        Integer._of(8080), Millisecond._of(10000));
-    final var udp = new UDP(properties);
-
-    int count = 0;
-    System.out.println("Waiting for packets: " + udp);
-    while (udp._isSet().state) {
-      final var packet = udp.receive();
-      if (packet.isSet) {
-        System.out.println("Received [" + packet + "]");
-        count++;
-      }
-      if (count >= 5) {
-        //This will break the loop, by closing the udp connection.
-        udp._close();
-      }
-    }
-
-    //Just check it is not still open for receiving messages.
-    System.out.println("UDP state is now: " + udp);
-  }
-
   @AfterEach
   void tearDown() {
     if (testUdp != null) {
@@ -176,14 +115,13 @@ class UDPTest extends Common {
   @Test
   void testSendPacketValid() {
     // Create UDP socket
-    final var properties = new NetworkProperties(Integer._of(0));
+    final var properties = new NetworkProperties(INT_0);
     testUdp = new UDP(properties);
     assertSet.accept(testUdp);
 
     // Create valid packet
-    final var packetProperties = new NetworkProperties(String._of("localhost"), Integer._of(12345));
-    final var content = String._of("Test message");
-    final var packet = new UDPPacket(packetProperties, content);
+    final var packetProperties = new NetworkProperties(STR_LOCALHOST, INT_12345);
+    final var packet = new UDPPacket(packetProperties, STR_TEST_MESSAGE);
 
     // Send should not throw
     assertDoesNotThrow(() -> testUdp.send(packet));
@@ -216,7 +154,7 @@ class UDPTest extends Common {
     testUdp = new UDP(properties);
 
     // Packet with port but no host (missing destination host)
-    final var packetProperties = new NetworkProperties(Integer._of(12345)); // Port only, no host
+    final var packetProperties = new NetworkProperties(INT_12345); // Port only, no host
     final var packet = new UDPPacket(packetProperties, String._of("test"));
     testUdp.send(packet);
     assertTrue(testUdp.lastErrorMessage().state.contains("destination"));
@@ -228,7 +166,7 @@ class UDPTest extends Common {
     testUdp = new UDP(properties);
     assertSet.accept(testUdp);
 
-    final var packetProperties = new NetworkProperties(String._of("localhost"), Integer._of(12345));
+    final var packetProperties = new NetworkProperties(STR_LOCALHOST, INT_12345);
     final var packet = new UDPPacket(packetProperties, String._of("Pipe test"));
 
     // Test pipe operator
@@ -308,7 +246,7 @@ class UDPTest extends Common {
     final var actualPort = Integer._of(getActualPort(testUdp));
 
     // Create packet to send to ourselves
-    final var packetProperties = new NetworkProperties(String._of("localhost"), actualPort);
+    final var packetProperties = new NetworkProperties(STR_LOCALHOST, actualPort);
     final var content = String._of("Loopback test message");
     final var packet = new UDPPacket(packetProperties, content);
 
@@ -355,7 +293,7 @@ class UDPTest extends Common {
       final int messageNumber = i;
       Thread.ofVirtual().start(() -> {
         try {
-          final var packetProperties = new NetworkProperties(String._of("localhost"), actualPort);
+          final var packetProperties = new NetworkProperties(STR_LOCALHOST, actualPort);
           final var content = String._of("Message " + messageNumber);
           final var packet = new UDPPacket(packetProperties, content);
           testUdp.send(packet);
@@ -502,14 +440,14 @@ class UDPTest extends Common {
     testUdp.send(null);
     assertTrue(testUdp.lastErrorMessage().state.contains("Invalid packet"));
 
-    final var invalidPacketProperties = new NetworkProperties(Integer._of(12345)); // Port only, no host
+    final var invalidPacketProperties = new NetworkProperties(INT_12345); // Port only, no host
     final var invalidPacket = new UDPPacket(invalidPacketProperties, String._of("test"));
     testUdp.send(invalidPacket);
     assertTrue(testUdp.lastErrorMessage().state.contains("destination"));
 
     // Clear error by successful operation
     final var validPacket = new UDPPacket(
-        new NetworkProperties(String._of("localhost"), Integer._of(12345)),
+        new NetworkProperties(STR_LOCALHOST, INT_12345),
         String._of("Test")
     );
     testUdp.send(validPacket);
@@ -525,7 +463,7 @@ class UDPTest extends Common {
     // Send multiple packets quickly
     for (int i = 0; i < 3; i++) {
       final var packet = new UDPPacket(
-          new NetworkProperties(String._of("localhost"), actualPort),
+          new NetworkProperties(STR_LOCALHOST, actualPort),
           String._of("Message " + i)
       );
       testUdp.send(packet);

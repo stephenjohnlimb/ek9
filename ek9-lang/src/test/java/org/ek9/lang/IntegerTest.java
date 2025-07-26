@@ -10,18 +10,6 @@ import org.junit.jupiter.api.Test;
 
 class IntegerTest extends Common {
 
-  final Boolean true1 = Boolean._of("true");
-  final Boolean false1 = Boolean._of("false");
-
-  final Integer unset = new Integer();
-  final Integer i0 = Integer._of(0);
-  final Integer iMinus1 = Integer._of(-1);
-  final Integer i1 = Integer._of(1);
-  final Integer i2 = Integer._of(2);
-  final Integer iMinus2 = Integer._of(-2);
-  final Integer i3 = Integer._of(3);
-  final Integer i4 = Integer._of(4);
-
   // Helper methods for eliminating duplication
 
   /**
@@ -29,25 +17,25 @@ class IntegerTest extends Common {
    */
   private void assertComparisonOperatorsWithUnset(Integer validValue) {
     // Test all comparison operators with unset
-    assertUnset.accept(validValue._eq(unset));
-    assertUnset.accept(unset._eq(validValue));
-    assertUnset.accept(unset._eq(unset));
+    assertUnset.accept(validValue._eq(unsetInteger));
+    assertUnset.accept(unsetInteger._eq(validValue));
+    assertUnset.accept(unsetInteger._eq(unsetInteger));
 
-    assertUnset.accept(validValue._neq(unset));
-    assertUnset.accept(unset._neq(validValue));
-    assertUnset.accept(unset._neq(unset));
+    assertUnset.accept(validValue._neq(unsetInteger));
+    assertUnset.accept(unsetInteger._neq(validValue));
+    assertUnset.accept(unsetInteger._neq(unsetInteger));
 
-    assertUnset.accept(validValue._lt(unset));
-    assertUnset.accept(unset._lt(validValue));
+    assertUnset.accept(validValue._lt(unsetInteger));
+    assertUnset.accept(unsetInteger._lt(validValue));
 
-    assertUnset.accept(validValue._gt(unset));
-    assertUnset.accept(unset._gt(validValue));
+    assertUnset.accept(validValue._gt(unsetInteger));
+    assertUnset.accept(unsetInteger._gt(validValue));
 
-    assertUnset.accept(validValue._lteq(unset));
-    assertUnset.accept(unset._lteq(validValue));
+    assertUnset.accept(validValue._lteq(unsetInteger));
+    assertUnset.accept(unsetInteger._lteq(validValue));
 
-    assertUnset.accept(validValue._gteq(unset));
-    assertUnset.accept(unset._gteq(validValue));
+    assertUnset.accept(validValue._gteq(unsetInteger));
+    assertUnset.accept(unsetInteger._gteq(validValue));
   }
 
   @Test
@@ -67,77 +55,77 @@ class IntegerTest extends Common {
     final var checkZero = new Integer(String._of("0"));
     assertEquals(0, checkZero.state);
 
-    assertSet.accept(i1);
-    assertEquals(1, i1.state);
+    assertSet.accept(INT_1);
+    assertEquals(1, INT_1.state);
 
-    assertSet.accept(i2);
-    assertEquals(2, i2.state);
+    assertSet.accept(INT_2);
+    assertEquals(2, INT_2.state);
 
-    assertSet.accept(i3);
-    assertEquals(3L, i3.state);
+    assertSet.accept(INT_3);
+    assertEquals(3L, INT_3.state);
 
-    final var also3 = Integer._of(i3);
+    final var also3 = Integer._of(INT_3);
     assertSet.accept(also3);
     assertEquals(3L, also3.state);
 
-    final var again3 = new Integer(i3);
+    final var again3 = new Integer(INT_3);
     assertSet.accept(again3);
     assertEquals(3L, again3.state);
 
-    final var check4 = new Integer(i4);
+    final var check4 = new Integer(INT_4);
     assertSet.accept(check4);
-    assertEquals(i4, check4);
+    assertEquals(INT_4, check4);
   }
 
   @Test
   void testEquality() {
-    final var i00 = Integer._of(0);
+    final var intZero = Integer._of(0);
 
     // Test all comparison operators with unset values using helper
-    assertComparisonOperatorsWithUnset(i0);
+    assertComparisonOperatorsWithUnset(INT_0);
 
     //Eq
-    assertEquals(i00, i0);
-    assertEquals(true1, i0._eq(i00));
+    assertEquals(intZero, INT_0);
+    assertEquals(trueBoolean, INT_0._eq(intZero));
 
     //Neq
-    assertEquals(false1, i0._neq(i00));
+    assertEquals(falseBoolean, INT_0._neq(intZero));
 
     //Lt
-    assertTrue.accept(i0._lt(i1));
-    assertFalse.accept(i1._lt(i0));
+    assertTrue.accept(INT_0._lt(INT_1));
+    assertFalse.accept(INT_1._lt(INT_0));
 
     //gt
-    assertTrue.accept(i1._gt(i0));
-    assertFalse.accept(i0._gt(i1));
+    assertTrue.accept(INT_1._gt(INT_0));
+    assertFalse.accept(INT_0._gt(INT_1));
 
     //Lteq
-    assertTrue.accept(i0._lteq(i00));
-    assertTrue.accept(i0._lteq(i1));
-    assertFalse.accept(i1._lteq(i0));
+    assertTrue.accept(INT_0._lteq(intZero));
+    assertTrue.accept(INT_0._lteq(INT_1));
+    assertFalse.accept(INT_1._lteq(INT_0));
 
     //Gteq
-    assertTrue.accept(i0._gteq(i00));
-    assertTrue.accept(i1._gteq(i0));
-    assertFalse.accept(i0._gteq(i1));
+    assertTrue.accept(INT_0._gteq(intZero));
+    assertTrue.accept(INT_1._gteq(INT_0));
+    assertFalse.accept(INT_0._gteq(INT_1));
   }
 
   @Test
   void testComparison() {
-    final var i00 = Integer._of(0);
+    final var int00 = Integer._of(0);
 
-    assertEquals(Integer._of(0), i0._fuzzy(i00));
-    assertEquals(Integer._of(-1), i0._fuzzy(i1));
-    assertEquals(Integer._of(1), i1._fuzzy(i0));
+    assertEquals(INT_0, INT_0._fuzzy(int00));
+    assertEquals(INT_MINUS_1, INT_0._fuzzy(INT_1));
+    assertEquals(INT_1, INT_1._fuzzy(INT_0));
     // Test unset behavior for fuzzy comparison
-    assertUnset.accept(unset._fuzzy(i0));
-    assertUnset.accept(i0._fuzzy(unset));
+    assertUnset.accept(unsetInteger._fuzzy(INT_0));
+    assertUnset.accept(INT_0._fuzzy(unsetInteger));
   }
 
   @Test
   void testIsSet() {
-    assertNotNull(unset);
-    assertFalse.accept(unset._isSet());
+    assertNotNull(unsetInteger);
+    assertFalse.accept(unsetInteger._isSet());
 
     final var v1 = Integer._of(90);
     assertNotNull(v1);
@@ -152,57 +140,57 @@ class IntegerTest extends Common {
   void testSimpleMathematics() {
 
     // Test unary operations with unset values
-    assertUnset.accept(unset._negate());
-    assertUnset.accept(unset._inc());
-    assertUnset.accept(unset._dec());
+    assertUnset.accept(unsetInteger._negate());
+    assertUnset.accept(unsetInteger._inc());
+    assertUnset.accept(unsetInteger._dec());
 
-    final var minusZero = i0._negate();
-    assertEquals(i0, minusZero);
+    final var minusZero = INT_0._negate();
+    assertEquals(INT_0, minusZero);
 
     //Negate
-    assertEquals(iMinus1, i1._negate());
+    assertEquals(INT_MINUS_1, INT_1._negate());
 
     // Create fresh objects for mutating inc/dec operations to avoid corrupting constants
     final var freshI1 = Integer._of(1);
-    assertEquals(i2, freshI1._inc());
+    assertEquals(INT_2, freshI1._inc());
 
     final var freshI0 = Integer._of(0);
-    assertEquals(iMinus1, freshI0._dec());
+    assertEquals(INT_MINUS_1, freshI0._dec());
 
     //Addition - test unset behavior and specific examples
-    assertUnset.accept(unset._add(i1));
-    assertUnset.accept(i0._add(unset));
-    assertEquals(iMinus1, i0._add(iMinus1));
-    assertEquals(i0, i1._add(iMinus1));
-    assertEquals(i0, iMinus1._add(i1));
+    assertUnset.accept(unsetInteger._add(INT_1));
+    assertUnset.accept(INT_0._add(unsetInteger));
+    assertEquals(INT_MINUS_1, INT_0._add(INT_MINUS_1));
+    assertEquals(INT_0, INT_1._add(INT_MINUS_1));
+    assertEquals(INT_0, INT_MINUS_1._add(INT_1));
 
     //Subtraction - test unset behavior and specific examples  
-    assertUnset.accept(unset._sub(i1));
-    assertUnset.accept(i0._sub(unset));
-    assertEquals(iMinus1, i0._sub(i1));
-    assertEquals(i0, i1._sub(i1));
-    assertEquals(i0, iMinus1._sub(iMinus1));
+    assertUnset.accept(unsetInteger._sub(INT_1));
+    assertUnset.accept(INT_0._sub(unsetInteger));
+    assertEquals(INT_MINUS_1, INT_0._sub(INT_1));
+    assertEquals(INT_0, INT_1._sub(INT_1));
+    assertEquals(INT_0, INT_MINUS_1._sub(INT_MINUS_1));
 
     //Multiplication - test unset behavior and specific examples
-    assertUnset.accept(unset._mul(i1));
-    assertUnset.accept(i0._mul(unset));
-    assertEquals(i0, i0._mul(i1));
-    assertEquals(i0, i0._mul(iMinus1));
-    assertEquals(i2, i1._mul(i2));
-    assertEquals(iMinus2, i2._mul(iMinus1));
-    assertEquals(i4, i2._mul(i2));
-    assertEquals(i4, iMinus2._mul(iMinus2));
+    assertUnset.accept(unsetInteger._mul(INT_1));
+    assertUnset.accept(INT_0._mul(unsetInteger));
+    assertEquals(INT_0, INT_0._mul(INT_1));
+    assertEquals(INT_0, INT_0._mul(INT_MINUS_1));
+    assertEquals(INT_2, INT_1._mul(INT_2));
+    assertEquals(INT_MINUS_2, INT_2._mul(INT_MINUS_1));
+    assertEquals(INT_4, INT_2._mul(INT_2));
+    assertEquals(INT_4, INT_MINUS_2._mul(INT_MINUS_2));
 
     //Division - test unset behavior and specific examples
-    assertUnset.accept(i0._div(unset));
-    assertUnset.accept(unset._div(i2));
-    assertEquals(i1, i2._div(i2));
-    assertEquals(i2, i4._div(i2));
-    assertEquals(iMinus2, i4._div(iMinus2));
-    assertEquals(i0, i0._div(i2));
+    assertUnset.accept(INT_0._div(unsetInteger));
+    assertUnset.accept(unsetInteger._div(INT_2));
+    assertEquals(INT_1, INT_2._div(INT_2));
+    assertEquals(INT_2, INT_4._div(INT_2));
+    assertEquals(INT_MINUS_2, INT_4._div(INT_MINUS_2));
+    assertEquals(INT_0, INT_0._div(INT_2));
 
     // Special division cases (divide by zero)
-    assertUnset.accept(i0._div(i0));
+    assertUnset.accept(INT_0._div(INT_0));
 
   }
 
@@ -210,83 +198,83 @@ class IntegerTest extends Common {
   void testFloatingPointMathematics() {
 
     //Sqrt - test unset behavior
-    assertUnset.accept(unset._sqrt());
-    assertEquals(i2._promote(), i4._sqrt());
-    assertUnset.accept(i0._sqrt());
+    assertUnset.accept(unsetInteger._sqrt());
+    assertEquals(INT_2._promote(), INT_4._sqrt());
+    assertUnset.accept(INT_0._sqrt());
 
     //Pow - test unset behavior for both Integer and Float variants
-    assertUnset.accept(i2._pow(unset));
-    assertUnset.accept(i2._pow(unset._promote()));
-    assertEquals(i2._promote(), i2._pow(i1));
-    assertEquals(i4._promote(), i2._pow(i2));
-    assertEquals(i2._promote(), i2._pow(i1._promote()));
-    assertEquals(i4._promote(), i2._pow(i2._promote()));
+    assertUnset.accept(INT_2._pow(unsetInteger));
+    assertUnset.accept(INT_2._pow(unsetInteger._promote()));
+    assertEquals(INT_2._promote(), INT_2._pow(INT_1));
+    assertEquals(INT_4._promote(), INT_2._pow(INT_2));
+    assertEquals(INT_2._promote(), INT_2._pow(INT_1._promote()));
+    assertEquals(INT_4._promote(), INT_2._pow(INT_2._promote()));
 
     //Addition with Float - test unset behavior
-    assertUnset.accept(unset._add(i1._promote()));
-    assertUnset.accept(i0._add(unset._promote()));
-    assertEquals(iMinus1._promote(), i0._add(iMinus1._promote()));
-    assertEquals(i0._promote(), i1._add(iMinus1._promote()));
-    assertEquals(i0._promote(), iMinus1._add(i1._promote()));
+    assertUnset.accept(unsetInteger._add(INT_1._promote()));
+    assertUnset.accept(INT_0._add(unsetInteger._promote()));
+    assertEquals(INT_MINUS_1._promote(), INT_0._add(INT_MINUS_1._promote()));
+    assertEquals(INT_0._promote(), INT_1._add(INT_MINUS_1._promote()));
+    assertEquals(INT_0._promote(), INT_MINUS_1._add(INT_1._promote()));
 
     //Specific calculations
-    assertEquals(Float._of(2.456), i1._add(Float._of(1.456)));
+    assertEquals(Float._of(2.456), INT_1._add(Float._of(1.456)));
 
-    assertEquals(Float._of(-0.3999999999999999), i1._sub(Float._of(1.400)));
-    assertUnset.accept(i0._sub(unset._promote()));
+    assertEquals(Float._of(-0.3999999999999999), INT_1._sub(Float._of(1.400)));
+    assertUnset.accept(INT_0._sub(unsetInteger._promote()));
 
-    assertEquals(Float._of(2.8), i2._mul(Float._of(1.400)));
-    assertUnset.accept(i0._mul(unset._promote()));
+    assertEquals(Float._of(2.8), INT_2._mul(Float._of(1.400)));
+    assertUnset.accept(INT_0._mul(unsetInteger._promote()));
 
-    assertEquals(Float._of(0.9955201592832256), i2._div(Float._of(2.0090)));
-    assertEquals(Float._of(1.9999999999999998E15), i2._div(Float._of(0.000000000000001)));
-    assertUnset.accept(i0._div(unset._promote()));
+    assertEquals(Float._of(0.9955201592832256), INT_2._div(Float._of(2.0090)));
+    assertEquals(Float._of(1.9999999999999998E15), INT_2._div(Float._of(0.000000000000001)));
+    assertUnset.accept(INT_0._div(unsetInteger._promote()));
 
     //Check division of small numbers by smaller numbers.
     assertEquals(Float._of(1.0019913530064882E122), Float._of(10E-200)._div(Float._of(10E-322)));
     //Check loss of precision leading to infinity.
-    assertUnset.accept(i2._div(Float._of(10E-322)));
+    assertUnset.accept(INT_2._div(Float._of(10E-322)));
 
     //Divide by zero check
-    assertUnset.accept(i2._div(i0._promote()));
+    assertUnset.accept(INT_2._div(INT_0._promote()));
   }
 
   @Test
   void testAsString() {
     // Test string conversion with unset values
-    assertUnset.accept(unset._string());
+    assertUnset.accept(unsetInteger._string());
 
-    assertEquals(String._of("0"), i0._string());
-    assertEquals(String._of("1"), i1._string());
-    assertEquals(String._of("-1"), iMinus1._string());
+    assertEquals(String._of("0"), INT_0._string());
+    assertEquals(String._of("1"), INT_1._string());
+    assertEquals(String._of("-1"), INT_MINUS_1._string());
 
-    assertEquals("1", i1.toString());
+    assertEquals("1", INT_1.toString());
   }
 
   @Test
   void testAsJson() {
     // Test JSON conversion with set values
-    final var zeroJson = i0._json();
+    final var zeroJson = INT_0._json();
     assertNotNull(zeroJson);
     assertSet.accept(zeroJson);
     
-    final var oneJson = i1._json();
+    final var oneJson = INT_1._json();
     assertSet.accept(oneJson);
     
-    final var minusOneJson = iMinus1._json();
+    final var minusOneJson = INT_MINUS_1._json();
     assertSet.accept(minusOneJson);
     
     // Test JSON conversion with unset value
-    assertUnset.accept(unset._json());
+    assertUnset.accept(unsetInteger._json());
   }
 
   @Test
   void testHashCode() {
     // Test hash code with unset values
-    assertUnset.accept(unset._hashcode());
-    assertEquals(i0._hashcode(), i0._hashcode());
-    assertNotEquals(i0._hashcode(), i1._hashcode());
-    assertNotEquals(iMinus1._hashcode(), i1._hashcode());
+    assertUnset.accept(unsetInteger._hashcode());
+    assertEquals(INT_0._hashcode(), INT_0._hashcode());
+    assertNotEquals(INT_0._hashcode(), INT_1._hashcode());
+    assertNotEquals(INT_MINUS_1._hashcode(), INT_1._hashcode());
   }
 
   /**
@@ -298,108 +286,108 @@ class IntegerTest extends Common {
   @Test
   void testPrefixSuffix() {
     // Test prefix/suffix operations with unset values
-    assertUnset.accept(unset._prefix());
-    assertUnset.accept(unset._suffix());
+    assertUnset.accept(unsetInteger._prefix());
+    assertUnset.accept(unsetInteger._suffix());
 
-    assertEquals(i0, i0._prefix());
-    assertEquals(i0, i0._suffix());
+    assertEquals(INT_0, INT_0._prefix());
+    assertEquals(INT_0, INT_0._suffix());
 
     final var example = Integer._of(1234);
-    assertEquals(i1, example._prefix());
-    assertEquals(i4, example._suffix());
+    assertEquals(INT_1, example._prefix());
+    assertEquals(INT_4, example._suffix());
 
     final var minusExample = example._negate();
-    assertEquals(iMinus1, minusExample._prefix());
-    assertEquals(i4._negate(), minusExample._suffix());
+    assertEquals(INT_MINUS_1, minusExample._prefix());
+    assertEquals(INT_4._negate(), minusExample._suffix());
   }
 
   @Test
   void testAdditionalMathematicalOperators() {
     // Test absolute value with unset and specific examples
-    assertUnset.accept(unset._abs());
-    assertEquals(i0, i0._abs());
-    assertEquals(i2, i2._abs());
-    assertEquals(i2, iMinus2._abs());
+    assertUnset.accept(unsetInteger._abs());
+    assertEquals(INT_0, INT_0._abs());
+    assertEquals(INT_2, INT_2._abs());
+    assertEquals(INT_2, INT_MINUS_2._abs());
 
     // Test factorial with unset and specific examples
-    assertEquals(Integer._of(24L), i4._fac());
+    assertEquals(Integer._of(24L), INT_4._fac());
     //Not logical to be able to get the factorial of a negative number.
-    assertUnset.accept(iMinus2._fac());
-    assertEquals(i1, i0._fac());
-    assertUnset.accept(unset._fac());
+    assertUnset.accept(INT_MINUS_2._fac());
+    assertEquals(INT_1, INT_0._fac());
+    assertUnset.accept(unsetInteger._fac());
   }
 
   @Test
   void testUtilityOperators() {
     // Test utility operations with unset values
-    assertUnset.accept(unset._empty());
-    assertUnset.accept(unset._len());
+    assertUnset.accept(unsetInteger._empty());
+    assertUnset.accept(unsetInteger._len());
 
-    assertEquals(true1, i0._empty());
-    assertEquals(false1, i1._empty());
-    assertEquals(false1, iMinus2._empty());
+    assertEquals(trueBoolean, INT_0._empty());
+    assertEquals(falseBoolean, INT_1._empty());
+    assertEquals(falseBoolean, INT_MINUS_2._empty());
 
-    assertEquals(i1, i0._len());
-    assertEquals(i1, i1._len());
+    assertEquals(INT_1, INT_0._len());
+    assertEquals(INT_1, INT_1._len());
     //The length includes the minus sign.
-    assertEquals(i2, iMinus1._len());
+    assertEquals(INT_2, INT_MINUS_1._len());
 
-    assertEquals(i4, Integer._of(1234)._len());
+    assertEquals(INT_4, Integer._of(1234)._len());
   }
 
   @Test
   void testBitWiseOnIntegers() {
     // Test bitwise operations with unset values
-    assertUnset.accept(unset._and(i1));
-    assertUnset.accept(unset._or(i1));
-    assertUnset.accept(unset._xor(i1));
+    assertUnset.accept(unsetInteger._and(INT_1));
+    assertUnset.accept(unsetInteger._or(INT_1));
+    assertUnset.accept(unsetInteger._xor(INT_1));
 
-    assertUnset.accept(i1._and(unset));
-    assertUnset.accept(i1._or(unset));
-    assertUnset.accept(i1._xor(unset));
+    assertUnset.accept(INT_1._and(unsetInteger));
+    assertUnset.accept(INT_1._or(unsetInteger));
+    assertUnset.accept(INT_1._xor(unsetInteger));
 
-    assertEquals(i3, i1._or(i2));
-    assertEquals(i3, i3._or(i2));
+    assertEquals(INT_3, INT_1._or(INT_2));
+    assertEquals(INT_3, INT_3._or(INT_2));
 
-    assertEquals(i2, i3._and(i2));
-    assertEquals(i0, i1._and(i2));
+    assertEquals(INT_2, INT_3._and(INT_2));
+    assertEquals(INT_0, INT_1._and(INT_2));
 
-    assertEquals(i1, i3._xor(i2));
-    assertEquals(i4._negate(), iMinus2._xor(i2));
-    assertEquals(iMinus1, i2._xor(i3._negate()));
+    assertEquals(INT_1, INT_3._xor(INT_2));
+    assertEquals(INT_4._negate(), INT_MINUS_2._xor(INT_2));
+    assertEquals(INT_MINUS_1, INT_2._xor(INT_3._negate()));
   }
 
   @Test
   void testModulusAndRemainder() {
     // Test modulus and remainder operations with unset values
-    assertUnset.accept(unset._mod(i1));
-    assertUnset.accept(unset._rem(i1));
+    assertUnset.accept(unsetInteger._mod(INT_1));
+    assertUnset.accept(unsetInteger._rem(INT_1));
 
-    assertUnset.accept(i1._mod(unset));
-    assertUnset.accept(i1._rem(unset));
+    assertUnset.accept(INT_1._mod(unsetInteger));
+    assertUnset.accept(INT_1._rem(unsetInteger));
 
-    assertEquals(i0, i1._rem(i1));
-    assertEquals(i0, i1._mod(i1));
+    assertEquals(INT_0, INT_1._rem(INT_1));
+    assertEquals(INT_0, INT_1._mod(INT_1));
 
     //Firstly the negative case
     final var charlie1 = Integer._of(-21);
     //Remainder
 
-    assertEquals(iMinus1, charlie1._rem(i4));
-    assertEquals(iMinus1, charlie1._rem(i4._negate()));
+    assertEquals(INT_MINUS_1, charlie1._rem(INT_4));
+    assertEquals(INT_MINUS_1, charlie1._rem(INT_4._negate()));
     //Modulus
 
-    assertEquals(i3, charlie1._mod(i4));
-    assertEquals(iMinus1, charlie1._mod(i4._negate()));
+    assertEquals(INT_3, charlie1._mod(INT_4));
+    assertEquals(INT_MINUS_1, charlie1._mod(INT_4._negate()));
 
     final var charlie2 = Integer._of(21);
 
     //Remainder
-    assertEquals(i1, charlie2._rem(i4));
-    assertEquals(i1, charlie2._rem(i4._negate()));
+    assertEquals(INT_1, charlie2._rem(INT_4));
+    assertEquals(INT_1, charlie2._rem(INT_4._negate()));
     //Modulus
-    assertEquals(i1, charlie2._mod(i4));
-    assertEquals(i3._negate(), charlie2._mod(i4._negate()));
+    assertEquals(INT_1, charlie2._mod(INT_4));
+    assertEquals(INT_3._negate(), charlie2._mod(INT_4._negate()));
 
   }
   //Additional tests
@@ -465,25 +453,25 @@ class IntegerTest extends Common {
     var mutatedValue = new Integer();
     assertUnset.accept(mutatedValue);
 
-    mutatedValue._pipe(unset);
+    mutatedValue._pipe(unsetInteger);
     assertUnset.accept(mutatedValue);
 
-    mutatedValue._pipe(i1);
-    assertEquals(i1, mutatedValue);
+    mutatedValue._pipe(INT_1);
+    assertEquals(INT_1, mutatedValue);
 
     //basically just keep adding
-    mutatedValue._pipe(i2);
-    assertEquals(i3, mutatedValue);
+    mutatedValue._pipe(INT_2);
+    assertEquals(INT_3, mutatedValue);
 
     //Even if we pipe in something unset, for pipes this is ignored.
     //This is the main different over addAssign. With that the result becomes unset.
     //But with pipes you can pipe anything in.
-    mutatedValue._pipe(unset);
-    assertEquals(i3, mutatedValue);
+    mutatedValue._pipe(unsetInteger);
+    assertEquals(INT_3, mutatedValue);
 
     //Now just show a negative being added.
-    mutatedValue._pipe(i4._negate());
-    assertEquals(iMinus1, mutatedValue);
+    mutatedValue._pipe(INT_4._negate());
+    assertEquals(INT_MINUS_1, mutatedValue);
   }
 
   private List<Consumer<Integer>> getIntegerAssignmentOperations(final Integer from) {
@@ -499,8 +487,8 @@ class IntegerTest extends Common {
       operator.accept(new Integer());
       assertUnset.accept(mutatedValue);
       //Now set it back again for next time around loop.
-      mutatedValue._copy(i0);
-      assertEquals(i0, mutatedValue);
+      mutatedValue._copy(INT_0);
+      assertEquals(INT_0, mutatedValue);
     }
   }
 
@@ -508,17 +496,17 @@ class IntegerTest extends Common {
   void testMutationOperators() {
 
     final var mutatedValue = Integer._of(0);
-    mutatedValue._addAss(i1);
-    assertEquals(i1, mutatedValue);
+    mutatedValue._addAss(INT_1);
+    assertEquals(INT_1, mutatedValue);
 
-    mutatedValue._mulAss(i4);
-    assertEquals(i4, mutatedValue);
+    mutatedValue._mulAss(INT_4);
+    assertEquals(INT_4, mutatedValue);
 
-    mutatedValue._divAss(i2);
-    assertEquals(i2, mutatedValue);
+    mutatedValue._divAss(INT_2);
+    assertEquals(INT_2, mutatedValue);
 
-    mutatedValue._subAss(i2);
-    assertEquals(i0, mutatedValue);
+    mutatedValue._subAss(INT_2);
+    assertEquals(INT_0, mutatedValue);
   }
 
 
@@ -526,20 +514,20 @@ class IntegerTest extends Common {
   void testReplaceAndCopyLogic() {
 
     var mutatedValue = Integer._of(0L);
-    assertEquals(i0, mutatedValue);
+    assertEquals(INT_0, mutatedValue);
 
-    mutatedValue._replace(i1);
-    assertEquals(i1, mutatedValue);
+    mutatedValue._replace(INT_1);
+    assertEquals(INT_1, mutatedValue);
 
-    mutatedValue._replace(i2);
-    assertEquals(i2, mutatedValue);
+    mutatedValue._replace(INT_2);
+    assertEquals(INT_2, mutatedValue);
 
-    mutatedValue._replace(unset);
+    mutatedValue._replace(unsetInteger);
     assertUnset.accept(mutatedValue);
 
     //Now just check that it can take a value after being unset
-    mutatedValue._replace(i4);
-    assertEquals(i4, mutatedValue);
+    mutatedValue._replace(INT_4);
+    assertEquals(INT_4, mutatedValue);
   }
 
 }

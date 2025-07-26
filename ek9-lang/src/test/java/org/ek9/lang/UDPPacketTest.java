@@ -27,7 +27,7 @@ class UDPPacketTest extends Common {
   @Test
   void testNetworkPropertiesConstructor() {
     // Test with set NetworkProperties
-    final var properties = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var properties = new NetworkProperties(STR_LOCALHOST, INT_8080);
     final var packet = new UDPPacket(properties);
     assertNotNull(packet);
 
@@ -52,7 +52,7 @@ class UDPPacketTest extends Common {
   @Test
   void testFullConstructor() {
     // Test with both properties and content set
-    final var properties = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var properties = new NetworkProperties(STR_LOCALHOST, INT_8080);
     final var content = String._of("Hello UDP");
     final var packet = new UDPPacket(properties, content);
     assertNotNull(packet);
@@ -90,9 +90,8 @@ class UDPPacketTest extends Common {
   @Test
   void testCopyConstructor() {
     // Test copying set packet
-    final var properties = new NetworkProperties(String._of("localhost"), Integer._of(8080));
-    final var content = String._of("Test message");
-    final var originalPacket = new UDPPacket(properties, content);
+    final var properties = new NetworkProperties(STR_LOCALHOST, INT_8080);
+    final var originalPacket = new UDPPacket(properties, STR_TEST_MESSAGE);
     final var copiedPacket = new UDPPacket(originalPacket);
 
     assertSet.accept(copiedPacket.properties);
@@ -115,11 +114,11 @@ class UDPPacketTest extends Common {
 
   @Test
   void testEqualityOperators() {
-    final var properties1 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var properties1 = new NetworkProperties(STR_LOCALHOST, INT_8080);
     final var content1 = String._of("Message");
     final var packet1 = new UDPPacket(properties1, content1);
 
-    final var properties2 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var properties2 = new NetworkProperties(STR_LOCALHOST, INT_8080);
     final var content2 = String._of("Message");
     final var packet2 = new UDPPacket(properties2, content2);
 
@@ -149,11 +148,11 @@ class UDPPacketTest extends Common {
 
   @Test
   void testComparisonOperators() {
-    final var properties1 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var properties1 = new NetworkProperties(STR_LOCALHOST, INT_8080);
     final var content1 = String._of("Message1");
     final var packet1 = new UDPPacket(properties1, content1);
 
-    final var properties2 = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var properties2 = new NetworkProperties(STR_LOCALHOST, INT_8080);
     final var content2 = String._of("Message2");
     final var packet2 = new UDPPacket(properties2, content2);
 
@@ -185,7 +184,7 @@ class UDPPacketTest extends Common {
 
   @Test
   void testAssignmentOperators() {
-    final var originalProperties = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var originalProperties = new NetworkProperties(STR_LOCALHOST, INT_8080);
     final var originalContent = String._of("Original");
     final var packet = new UDPPacket(originalProperties, originalContent);
 
@@ -230,9 +229,8 @@ class UDPPacketTest extends Common {
 
   @Test
   void testUnaryOperators() {
-    final var properties = new NetworkProperties(String._of("localhost"), Integer._of(8080));
-    final var content = String._of("Test message");
-    final var packet = new UDPPacket(properties, content);
+    final var properties = new NetworkProperties(STR_LOCALHOST, INT_8080);
+    final var packet = new UDPPacket(properties, STR_TEST_MESSAGE);
 
     // Test isSet operator
     assertTrue(packet._isSet().state);
@@ -246,15 +244,15 @@ class UDPPacketTest extends Common {
 
     // Test that equal packets have equal hash codes
     final var packet2 = new UDPPacket(
-        new NetworkProperties(String._of("localhost"), Integer._of(8080)),
-        String._of("Test message")
+        new NetworkProperties(STR_LOCALHOST, INT_8080),
+        STR_TEST_MESSAGE
     );
     assertEquals(packet._hashcode().state, packet2._hashcode().state);
   }
 
   @Test
   void testStringOperators() {
-    final var properties = new NetworkProperties(String._of("localhost"), Integer._of(8080));
+    final var properties = new NetworkProperties(STR_LOCALHOST, INT_8080);
     final var content = String._of("Hello UDP");
     final var packet = new UDPPacket(properties, content);
 
@@ -295,7 +293,7 @@ class UDPPacketTest extends Common {
     assertDoesNotThrow(() -> unsetPacket._copy(null));
 
     // Test with mixed set/unset properties
-    final var setProperties = new NetworkProperties(String._of("localhost"));
+    final var setProperties = new NetworkProperties(STR_LOCALHOST);
     final var unsetContent = new String();
     final var mixedPacket = new UDPPacket(setProperties, unsetContent);
     assertSet.accept(mixedPacket);
@@ -321,7 +319,7 @@ class UDPPacketTest extends Common {
 
     // Properties set, content unset - record set
     final var propertiesSetPacket = new UDPPacket(
-        new NetworkProperties(String._of("localhost")),
+        new NetworkProperties(STR_LOCALHOST),
         new String()
     );
     assertSet.accept(propertiesSetPacket);
@@ -335,7 +333,7 @@ class UDPPacketTest extends Common {
 
     // Both set - record set
     final var bothSetPacket = new UDPPacket(
-        new NetworkProperties(String._of("localhost")),
+        new NetworkProperties(STR_LOCALHOST),
         String._of("Content")
     );
     assertSet.accept(bothSetPacket);
@@ -346,7 +344,7 @@ class UDPPacketTest extends Common {
     // Test chaining operations with UDPPackets
     final var packet1 = new UDPPacket();
     final var sourcePacket = new UDPPacket(
-        new NetworkProperties(String._of("localhost"), Integer._of(8080)),
+        new NetworkProperties(STR_LOCALHOST, INT_8080),
         String._of("Test")
     );
     packet1._replace(sourcePacket);
@@ -358,15 +356,15 @@ class UDPPacketTest extends Common {
 
     // Test comparison consistency for UDPPackets
     final var packetA = new UDPPacket(
-        new NetworkProperties(String._of("hostA"), Integer._of(8080)),
+        new NetworkProperties(String._of("hostA"), INT_8080),
         String._of("MessageA")
     );
     final var packetB = new UDPPacket(
-        new NetworkProperties(String._of("hostB"), Integer._of(8080)),
+        new NetworkProperties(String._of("hostB"), INT_8080),
         String._of("MessageB")
     );
     final var packetC = new UDPPacket(
-        new NetworkProperties(String._of("hostC"), Integer._of(8080)),
+        new NetworkProperties(String._of("hostC"), INT_8080),
         String._of("MessageC")
     );
 

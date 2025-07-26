@@ -194,20 +194,20 @@ class VersionTest extends Common {
     final var v1 = Version._of("1.0.0-0");
     final var v2 = Version._of("1.0.0-0");
 
-    assertEquals(Integer._of(0), v1._cmp(v2));
+    assertEquals(INT_0, v1._cmp(v2));
 
     v2.incrementBuildNumber();
-    assertEquals(Integer._of(-1), v1._cmp(v2));
+    assertEquals(INT_MINUS_1, v1._cmp(v2));
 
     //Now just move up through patch, minor, major
     v1.incrementPatch();
-    assertEquals(Integer._of(1), v1._cmp(v2));
+    assertEquals(INT_1, v1._cmp(v2));
 
     v1.incrementMinor();
-    assertEquals(Integer._of(1), v1._cmp(v2));
+    assertEquals(INT_1, v1._cmp(v2));
 
     v1.incrementMajor();
-    assertEquals(Integer._of(1), v1._cmp(v2));
+    assertEquals(INT_1, v1._cmp(v2));
   }
 
   @Test
@@ -216,7 +216,7 @@ class VersionTest extends Common {
     final var v1 = Version._of("1.0.0-special_one-0");
     final var v2 = Version._of("1.0.0-special_one-0");
 
-    assertEquals(Integer._of(0), v1._cmp(v2));
+    assertEquals(INT_0, v1._cmp(v2));
 
     v2._copy(Version._of("1.0.0-special_two-0"));
     //Now compare with a slightly different feature.
@@ -229,13 +229,13 @@ class VersionTest extends Common {
     //Now just move up through patch, minor, major
     //So the patch, minor and major all more important than the feature name.
     v1.incrementPatch();
-    assertEquals(Integer._of(1), v1._cmp(v2));
+    assertEquals(INT_1, v1._cmp(v2));
 
     v1.incrementMinor();
-    assertEquals(Integer._of(1), v1._cmp(v2));
+    assertEquals(INT_1, v1._cmp(v2));
 
     v1.incrementMajor();
-    assertEquals(Integer._of(1), v1._cmp(v2));
+    assertEquals(INT_1, v1._cmp(v2));
 
   }
 
@@ -245,8 +245,8 @@ class VersionTest extends Common {
     final var v1 = Version._of("1.0.0-special_one-0");
     final var v2 = Version._of("1.0.0-0");
 
-    assertEquals(Integer._of(-1), v1._cmp(v2));
-    assertEquals(Integer._of(1), v2._cmp(v1));
+    assertEquals(INT_MINUS_1, v1._cmp(v2));
+    assertEquals(INT_1, v2._cmp(v1));
 
   }
 

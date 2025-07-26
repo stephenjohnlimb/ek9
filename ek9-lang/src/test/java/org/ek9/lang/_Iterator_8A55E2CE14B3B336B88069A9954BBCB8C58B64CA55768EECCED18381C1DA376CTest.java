@@ -60,7 +60,7 @@ class _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C
     assertIteratorUnset(unset2);
 
     // Test _of(Iterator) factory method - from base Iterator
-    final var testJSON = JSON._of("42");
+    final var testJSON = JSON_42;
     final var set1 = iterJSONFromBase(Iterator._of(testJSON));
     assertNotNull(set1);
     assertIteratorSet(set1);
@@ -81,14 +81,14 @@ class _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C
     // Test iteration over multiple JSON values
     final var jsonList = new java.util.ArrayList<Any>();
     jsonList.add(JSON._of("\"first\""));
-    jsonList.add(JSON._of("42"));
-    jsonList.add(JSON._of("true"));
+    jsonList.add(JSON_42);
+    jsonList.add(JSON_TRUE);
     
     final var multiElementIterator = iterJSONFromBase(Iterator._of(jsonList));
     assertIteratorSet(multiElementIterator);
     assertEquals(JSON._of("\"first\""), multiElementIterator.next());
-    assertEquals(JSON._of("42"), multiElementIterator.next());
-    assertEquals(JSON._of("true"), multiElementIterator.next());
+    assertEquals(JSON_42, multiElementIterator.next());
+    assertEquals(JSON_TRUE, multiElementIterator.next());
     assertIteratorUnset(multiElementIterator);
   }
 
@@ -98,7 +98,7 @@ class _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C
     final var stringJson = JSON._of("\"text\"");
     final var numberJson = JSON._of("123");
     final var booleanJson = JSON._of("false");
-    final var nullJson = JSON._of("null");
+    final var nullJson = JSON_NULL;
     
     // Create list with mixed JSON types
     final var mixedJsonList = new java.util.ArrayList<Any>();

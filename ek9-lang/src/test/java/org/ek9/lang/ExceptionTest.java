@@ -9,11 +9,11 @@ import org.junit.jupiter.api.Test;
 
 class ExceptionTest extends Common {
 
-  final Exception unset = new Exception();
+  final Exception unsetException = new Exception();
   final String simpleReason = String._of("Simple error message");
   final String complexReason = String._of("Complex error with details");
   final Integer exitCode1 = Integer._of(1);
-  final Integer exitCode42 = Integer._of(42);
+  final Integer exitCode42 = INT_42;
   final Integer unsetExitCode = new Integer();
 
   @Test
@@ -73,8 +73,8 @@ class ExceptionTest extends Common {
 
   @Test
   void testIsSet() {
-    assertNotNull(unset);
-    assertFalse.accept(unset._isSet());
+    assertNotNull(unsetException);
+    assertFalse.accept(unsetException._isSet());
 
     final var setException = new Exception(simpleReason);
     assertNotNull(setException);
@@ -103,7 +103,7 @@ class ExceptionTest extends Common {
   @Test
   void testReasonMethod() {
     // Unset exception should have unset reason
-    final var unsetReason = unset.reason();
+    final var unsetReason = unsetException.reason();
     assertUnset.accept(unsetReason);
 
     // Exception with reason
@@ -127,7 +127,7 @@ class ExceptionTest extends Common {
   @Test
   void testExitCodeMethod() {
     // Default exception should have unset exit code
-    final var defaultExitCode = unset.exitCode();
+    final var defaultExitCode = unsetException.exitCode();
     assertUnset.accept(defaultExitCode);
 
     // Exception without exit code should have unset exit code
@@ -156,9 +156,9 @@ class ExceptionTest extends Common {
   @Test
   void testStringConversion() {
     // Unset exception
-    final var unsetString = unset._string();
+    final var unsetString = unsetException._string();
     assertUnset.accept(unsetString);
-    assertEquals("", unset.toString());
+    assertEquals("", unsetException.toString());
 
     // Simple reason exception
     final var reasonException = new Exception(simpleReason);
@@ -172,7 +172,7 @@ class ExceptionTest extends Common {
     assertEquals("Exception: Complex error with details: Exit Code: 42", exitCodeException.toString());
 
     // Exception with both reason and exit code
-    final var fullToString = new Exception(String._of("Test message"), exitCode1);
+    final var fullToString = new Exception(STR_TEST_MESSAGE, exitCode1);
     assertEquals("Exception: Test message: Exit Code: 1", fullToString.toString());
 
     // Exception with unset reason but set exit code
@@ -399,11 +399,11 @@ class ExceptionTest extends Common {
     assertTrue.accept(Boolean._of(compareReverse.state > 0));
 
     // Compare unset exception with set exception
-    assertUnset.accept(unset._cmp(exception1));
-    assertUnset.accept(exception1._cmp(unset));
+    assertUnset.accept(unsetException._cmp(exception1));
+    assertUnset.accept(exception1._cmp(unsetException));
 
     // Compare unset exception with unset exception
-    assertUnset.accept(unset._cmp(unset));
+    assertUnset.accept(unsetException._cmp(unsetException));
 
     // Compare exception with non-exception Any type
     final var nonException = new Any() {};
@@ -416,8 +416,8 @@ class ExceptionTest extends Common {
   @Test
   void testHashCodeOperator() {
     // Test _hashcode operator behavior
-    final var exception1 = new Exception(String._of("Test message"));
-    final var exception2 = new Exception(String._of("Test message"));
+    final var exception1 = new Exception(STR_TEST_MESSAGE);
+    final var exception2 = new Exception(STR_TEST_MESSAGE);
     final var exception3 = new Exception(String._of("Different message"));
 
     // Set exceptions should have set hashcodes
@@ -435,7 +435,7 @@ class ExceptionTest extends Common {
     assertNotEquals(hash1.state, hash3.state);
 
     // Unset exception should have unset hashcode
-    final var unsetHash = unset._hashcode();
+    final var unsetHash = unsetException._hashcode();
     assertUnset.accept(unsetHash);
 
     // Test hashcode consistency with string hashcode
@@ -469,7 +469,7 @@ class ExceptionTest extends Common {
     assertSet.accept(causeJson);
 
     // Test JSON conversion with unset value
-    assertUnset.accept(unset._json());
+    assertUnset.accept(unsetException._json());
 
     // Test that JSON content matches string representation
     final var testException = new Exception(String._of("JSON test"));

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 class DurationTest extends Common {
 
-  final Duration unset = new Duration();
+  final Duration unsetDuration = new Duration();
   final Duration zeroDuration = Duration._of("PT0S");
   final Duration oneSecond = Duration._of("PT1S");
   final Duration oneMinute = Duration._of("PT1M");
@@ -25,12 +25,7 @@ class DurationTest extends Common {
   //It means: P2Y5MT11H30M
   final Duration mixedNegative = Duration._of("-P-2Y-5MT-12H30M");
 
-  final Integer int1 = Integer._of(1);
-  final Integer int2 = Integer._of(2);
-  final Integer int3 = Integer._of(3);
-
-  final Float float2 = Float._of(2.0);
-  final Float float0Point5 = Float._of(0.5);
+  // Use INT_1, INT_2, INT_3, FLOAT_2_0, FLOAT_0_5 from Common base class
 
   @Test
   void testConstruction() {
@@ -56,19 +51,19 @@ class DurationTest extends Common {
     // Test various ISO 8601 formats
     final var seconds30 = Duration._of("PT30S");
     assertSet.accept(seconds30);
-    assertEquals(Integer._of(30), seconds30.seconds());
+    assertEquals(INT_30, seconds30.seconds());
 
     final var minutes5 = Duration._of("PT5M");
     assertSet.accept(minutes5);
-    assertEquals(Integer._of(5), minutes5.minutes());
+    assertEquals(INT_5, minutes5.minutes());
 
     final var hours2 = Duration._of("PT2H");
     assertSet.accept(hours2);
-    assertEquals(Integer._of(2), hours2.hours());
+    assertEquals(INT_2, hours2.hours());
 
     final var days7 = Duration._of("P7D");
     assertSet.accept(days7);
-    assertEquals(Integer._of(7), days7.days());
+    assertEquals(INT_7, days7.days());
   }
 
   @Test
@@ -77,74 +72,74 @@ class DurationTest extends Common {
     // Addition with Duration
     final var sum1 = oneSecond._add(oneMinute);
     assertSet.accept(sum1);
-    assertEquals(Integer._of(61), sum1.seconds());
+    assertEquals(INT_61, sum1.seconds());
 
     final var sum2 = oneHour._add(oneDay);
     assertSet.accept(sum2);
-    assertEquals(Integer._of(25), sum2.hours());
+    assertEquals(INT_25, sum2.hours());
 
-    assertUnset.accept(oneSecond._add(unset));
-    assertUnset.accept(unset._add(oneSecond));
+    assertUnset.accept(oneSecond._add(unsetDuration));
+    assertUnset.accept(unsetDuration._add(oneSecond));
 
     // Subtraction with Duration
     final var diff1 = oneMinute._sub(oneSecond);
     assertSet.accept(diff1);
-    assertEquals(Integer._of(59), diff1.seconds());
+    assertEquals(INT_59, diff1.seconds());
 
     final var diff2 = oneDay._sub(oneHour);
     assertSet.accept(diff2);
-    assertEquals(Integer._of(23), diff2.hours());
+    assertEquals(INT_23, diff2.hours());
 
-    assertUnset.accept(oneSecond._sub(unset));
-    assertUnset.accept(unset._sub(oneSecond));
+    assertUnset.accept(oneSecond._sub(unsetDuration));
+    assertUnset.accept(unsetDuration._sub(oneSecond));
 
     // Multiplication with Integer
-    final var mult1 = oneSecond._mul(int3);
+    final var mult1 = oneSecond._mul(INT_3);
     assertSet.accept(mult1);
-    assertEquals(Integer._of(3), mult1.seconds());
+    assertEquals(INT_3, mult1.seconds());
 
-    final var mult2 = oneHour._mul(int2);
+    final var mult2 = oneHour._mul(INT_2);
     assertSet.accept(mult2);
-    assertEquals(Integer._of(2), mult2.hours());
+    assertEquals(INT_2, mult2.hours());
 
     assertUnset.accept(oneSecond._mul(new Integer()));
-    assertUnset.accept(unset._mul(int2));
+    assertUnset.accept(unsetDuration._mul(INT_2));
 
     // Multiplication with Float
-    final var multFloat1 = oneSecond._mul(float2);
+    final var multFloat1 = oneSecond._mul(FLOAT_2_0);
     assertSet.accept(multFloat1);
-    assertEquals(Integer._of(2), multFloat1.seconds());
+    assertEquals(INT_2, multFloat1.seconds());
 
-    final var multFloat2 = oneHour._mul(float0Point5);
+    final var multFloat2 = oneHour._mul(FLOAT_0_5);
     assertSet.accept(multFloat2);
-    assertEquals(Integer._of(30), multFloat2.minutes());
+    assertEquals(INT_30, multFloat2.minutes());
 
     assertUnset.accept(oneSecond._mul(new Float()));
-    assertUnset.accept(unset._mul(float2));
+    assertUnset.accept(unsetDuration._mul(FLOAT_2_0));
 
     // Division with Integer
-    final var div1 = Duration._of("PT6S")._div(int3);
+    final var div1 = Duration._of("PT6S")._div(INT_3);
     assertSet.accept(div1);
-    assertEquals(Integer._of(2), div1.seconds());
+    assertEquals(INT_2, div1.seconds());
 
-    final var div2 = Duration._of("PT4H")._div(int2);
+    final var div2 = Duration._of("PT4H")._div(INT_2);
     assertSet.accept(div2);
-    assertEquals(Integer._of(2), div2.hours());
+    assertEquals(INT_2, div2.hours());
 
     //Check division by zero
-    assertUnset.accept(oneSecond._div(Integer._of(0)));
+    assertUnset.accept(oneSecond._div(INT_0));
     assertUnset.accept(oneSecond._div(new Integer()));
-    assertUnset.accept(unset._div(int2));
+    assertUnset.accept(unsetDuration._div(INT_2));
 
     // Division with Float
-    final var divFloat1 = Duration._of("PT4S")._div(float2);
+    final var divFloat1 = Duration._of("PT4S")._div(FLOAT_2_0);
     assertSet.accept(divFloat1);
-    assertEquals(Integer._of(2), divFloat1.seconds());
+    assertEquals(INT_2, divFloat1.seconds());
 
     //Check division by zero
     assertUnset.accept(oneSecond._div(Float._of(0.0)));
     assertUnset.accept(oneSecond._div(new Float()));
-    assertUnset.accept(unset._div(float2));
+    assertUnset.accept(unsetDuration._div(FLOAT_2_0));
   }
 
   @Test
@@ -160,7 +155,7 @@ class DurationTest extends Common {
     // Addition assignment
     var mutable1 = Duration._of("PT30S");
     mutable1._addAss(Duration._of("PT30S"));
-    assertEquals(Integer._of(60), mutable1.seconds());
+    assertEquals(INT_60, mutable1.seconds());
 
     mutable1 = new Duration();
     mutable1._addAss(oneSecond);
@@ -169,7 +164,7 @@ class DurationTest extends Common {
     // Subtraction assignment
     var mutable2 = Duration._of("PT2M");
     mutable2._subAss(Duration._of("PT30S"));
-    assertEquals(Integer._of(90), mutable2.seconds()); // 1 minute 30 seconds = 90 seconds
+    assertEquals(INT_90, mutable2.seconds()); // 1 minute 30 seconds = 90 seconds
 
     mutable2 = new Duration();
     mutable2._subAss(oneSecond);
@@ -177,48 +172,48 @@ class DurationTest extends Common {
 
     // Multiplication assignment with Integer
     var mutable3 = Duration._of("PT15S");
-    mutable3._mulAss(int2);
+    mutable3._mulAss(INT_2);
     assertEquals(Duration._of("PT30S"), mutable3);
 
     mutable3 = new Duration();
-    mutable3._mulAss(int2);
+    mutable3._mulAss(INT_2);
     assertUnset.accept(mutable3);
 
     // Multiplication assignment with Float
     var mutable4 = Duration._of("PT20S");
-    mutable4._mulAss(float0Point5);
+    mutable4._mulAss(FLOAT_0_5);
     assertEquals(Duration._of("PT10S"), mutable4);
 
     mutable4 = new Duration();
-    mutable4._mulAss(float2);
+    mutable4._mulAss(FLOAT_2_0);
     assertUnset.accept(mutable4);
 
     // Division assignment with Integer
     var mutable5 = Duration._of("PT60S");
-    mutable5._divAss(int2);
+    mutable5._divAss(INT_2);
     assertEquals(Duration._of("PT30S"), mutable5);
 
     mutable5 = new Duration();
-    mutable5._divAss(int2);
+    mutable5._divAss(INT_2);
     assertUnset.accept(mutable5);
 
     // Division assignment with Float
     var mutable6 = Duration._of("PT40S");
-    mutable6._divAss(float2);
+    mutable6._divAss(FLOAT_2_0);
     assertEquals(Duration._of("PT20S"), mutable6);
 
     mutable6 = new Duration();
-    mutable6._divAss(float2);
+    mutable6._divAss(FLOAT_2_0);
     assertUnset.accept(mutable6);
 
     //Check that div assignment with zero results in unset
 
     var mutable7 = Duration._of("PT40S");
-    mutable7._divAss(Integer._of(0));
+    mutable7._divAss(INT_0);
     assertUnset.accept(mutable7);
 
     var mutable8 = Duration._of("PT40S");
-    mutable8._divAss(Integer._of(0));
+    mutable8._divAss(INT_0);
     assertUnset.accept(mutable8);
 
   }
@@ -226,33 +221,33 @@ class DurationTest extends Common {
   @Test
   void testTimeUnitConversion() {
     // Test with unset
-    assertUnset.accept(unset.seconds());
-    assertUnset.accept(unset.minutes());
-    assertUnset.accept(unset.hours());
-    assertUnset.accept(unset.days());
-    assertUnset.accept(unset.months());
-    assertUnset.accept(unset.years());
+    assertUnset.accept(unsetDuration.seconds());
+    assertUnset.accept(unsetDuration.minutes());
+    assertUnset.accept(unsetDuration.hours());
+    assertUnset.accept(unsetDuration.days());
+    assertUnset.accept(unsetDuration.months());
+    assertUnset.accept(unsetDuration.years());
 
     // Test simple conversions
-    assertEquals(Integer._of(1), oneSecond.seconds());
-    assertEquals(Integer._of(60), oneMinute.seconds());
-    assertEquals(Integer._of(3600), oneHour.seconds());
-    assertEquals(Integer._of(86400), oneDay.seconds());
+    assertEquals(INT_1, oneSecond.seconds());
+    assertEquals(INT_60, oneMinute.seconds());
+    assertEquals(INT_3600, oneHour.seconds());
+    assertEquals(INT_86400, oneDay.seconds());
 
-    assertEquals(Integer._of(1), oneMinute.minutes());
-    assertEquals(Integer._of(60), oneHour.minutes());
+    assertEquals(INT_1, oneMinute.minutes());
+    assertEquals(INT_60, oneHour.minutes());
     assertEquals(Integer._of(1440), oneDay.minutes());
 
-    assertEquals(Integer._of(1), oneHour.hours());
-    assertEquals(Integer._of(24), oneDay.hours());
+    assertEquals(INT_1, oneHour.hours());
+    assertEquals(INT_24, oneDay.hours());
 
-    assertEquals(Integer._of(1), oneDay.days());
+    assertEquals(INT_1, oneDay.days());
 
     // Test complex duration - just verify it's set and positive
     final var complexSeconds = complex.seconds();
     assertSet.accept(complexSeconds);
     // The exact calculation depends on the Duration implementation, but it should be a large positive number
-    assertTrue.accept(complexSeconds._gt(Integer._of(0)));
+    assertTrue.accept(complexSeconds._gt(INT_0));
   }
 
   @Test
@@ -263,36 +258,36 @@ class DurationTest extends Common {
     assertTrue.accept(oneSecond._eq(oneSecondAgain));
     assertFalse.accept(oneSecond._neq(oneSecondAgain));
 
-    assertUnset.accept(oneSecond._eq(unset));
-    assertUnset.accept(unset._eq(unset));
+    assertUnset.accept(oneSecond._eq(unsetDuration));
+    assertUnset.accept(unsetDuration._eq(unsetDuration));
 
-    assertUnset.accept(oneSecond._neq(unset));
-    assertUnset.accept(unset._neq(unset));
+    assertUnset.accept(oneSecond._neq(unsetDuration));
+    assertUnset.accept(unsetDuration._neq(unsetDuration));
 
     // Comparison operators
     assertTrue.accept(oneSecond._lt(oneMinute));
     assertFalse.accept(oneMinute._lt(oneSecond));
-    assertUnset.accept(oneSecond._lt(unset));
-    assertUnset.accept(unset._lt(unset));
+    assertUnset.accept(oneSecond._lt(unsetDuration));
+    assertUnset.accept(unsetDuration._lt(unsetDuration));
 
     assertTrue.accept(oneMinute._gt(oneSecond));
-    assertUnset.accept(oneMinute._gt(unset));
-    assertUnset.accept(unset._gt(oneSecond));
+    assertUnset.accept(oneMinute._gt(unsetDuration));
+    assertUnset.accept(unsetDuration._gt(oneSecond));
 
     assertTrue.accept(oneSecond._lteq(oneSecondAgain));
-    assertUnset.accept(oneMinute._lteq(unset));
-    assertUnset.accept(unset._lteq(oneSecond));
+    assertUnset.accept(oneMinute._lteq(unsetDuration));
+    assertUnset.accept(unsetDuration._lteq(oneSecond));
 
     assertTrue.accept(oneSecond._gteq(oneSecondAgain));
-    assertUnset.accept(oneMinute._gteq(unset));
-    assertUnset.accept(unset._gteq(oneSecond));
+    assertUnset.accept(oneMinute._gteq(unsetDuration));
+    assertUnset.accept(unsetDuration._gteq(oneSecond));
 
     // Comparison operator
-    assertEquals(Integer._of(0), oneSecond._cmp(oneSecondAgain));
-    assertEquals(Integer._of(-1), oneSecond._cmp(oneMinute));
-    assertEquals(Integer._of(1), oneMinute._cmp(oneSecond));
+    assertEquals(INT_0, oneSecond._cmp(oneSecondAgain));
+    assertEquals(INT_MINUS_1, oneSecond._cmp(oneMinute));
+    assertEquals(INT_1, oneMinute._cmp(oneSecond));
 
-    assertUnset.accept(unset._cmp(oneSecond));
+    assertUnset.accept(unsetDuration._cmp(oneSecond));
     assertUnset.accept(oneMinute._cmp(new Any() {
     }));
   }
@@ -307,19 +302,19 @@ class DurationTest extends Common {
     // Pipe into set duration (should add)
     var mutable2 = Duration._of("PT30S");
     mutable2._pipe(Duration._of("PT30S"));
-    assertEquals(Integer._of(60), mutable2.seconds());
+    assertEquals(INT_60, mutable2.seconds());
 
     // Pipe with unset source
     var mutable3 = Duration._of("PT1S");
-    mutable3._pipe(unset);
-    assertEquals(Integer._of(1), mutable3.seconds()); // Should remain unchanged
+    mutable3._pipe(unsetDuration);
+    assertEquals(INT_1, mutable3.seconds()); // Should remain unchanged
 
     // Chain piping
     var mutable4 = new Duration();
     mutable4._pipe(oneSecond);
     mutable4._pipe(oneSecond);
     mutable4._pipe(oneSecond);
-    assertEquals(Integer._of(3), mutable4.seconds());
+    assertEquals(INT_3, mutable4.seconds());
   }
 
   @Test
@@ -360,9 +355,9 @@ class DurationTest extends Common {
   void testEdgeCases() {
     // Zero duration
     assertSet.accept(zeroDuration);
-    assertEquals(Integer._of(0), zeroDuration.seconds());
-    assertEquals(Integer._of(0), zeroDuration.minutes());
-    assertEquals(Integer._of(0), zeroDuration.hours());
+    assertEquals(INT_0, zeroDuration.seconds());
+    assertEquals(INT_0, zeroDuration.minutes());
+    assertEquals(INT_0, zeroDuration.hours());
 
     // Very large duration
     assertSet.accept(largeValue);
@@ -373,17 +368,17 @@ class DurationTest extends Common {
     final var fromSeconds = Duration._of(3661L); // 1 hour, 1 minute, 1 second
     assertSet.accept(fromSeconds);
     assertEquals(Integer._of(3661), fromSeconds.seconds());
-    assertEquals(Integer._of(61), fromSeconds.minutes());
-    assertEquals(Integer._of(1), fromSeconds.hours());
+    assertEquals(INT_61, fromSeconds.minutes());
+    assertEquals(INT_1, fromSeconds.hours());
 
     final var fromJavaDuration = Duration._of(java.time.Duration.ofMinutes(90));
     assertSet.accept(fromJavaDuration);
-    assertEquals(Integer._of(90), fromJavaDuration.minutes());
+    assertEquals(INT_90, fromJavaDuration.minutes());
 
     // Test with Period and Duration
     final var fromBoth = Duration._of(java.time.Duration.ofHours(2), java.time.Period.ofDays(1));
     assertSet.accept(fromBoth);
-    assertEquals(Integer._of(26), fromBoth.hours()); // 24 + 2
+    assertEquals(INT_26, fromBoth.hours()); // 24 + 2
   }
 
   @Test
@@ -393,7 +388,7 @@ class DurationTest extends Common {
     assertNotNull(mutatedValue);
     mutatedValue._copy(oneMinute);
     assertTrue.accept(mutatedValue._eq(oneMinute));
-    mutatedValue._copy(unset);
+    mutatedValue._copy(unsetDuration);
     assertUnset.accept(mutatedValue);
   }
 
@@ -406,26 +401,26 @@ class DurationTest extends Common {
     // Note: Month and year comparisons may not work as expected due to approximations
 
     // Test comparison operators across ranges
-    assertEquals(Integer._of(1), oneMinute._cmp(oneSecond));
-    assertEquals(Integer._of(-1), oneSecond._cmp(oneMinute));
+    assertEquals(INT_1, oneMinute._cmp(oneSecond));
+    assertEquals(INT_MINUS_1, oneSecond._cmp(oneMinute));
 
     // Test arithmetic across ranges
     final var dayPlusHour = oneDay._add(oneHour);
     assertSet.accept(dayPlusHour);
-    assertEquals(Integer._of(25), dayPlusHour.hours());
+    assertEquals(INT_25, dayPlusHour.hours());
   }
 
   @Test
   void testUtilityMethods() {
     // String operations
-    assertUnset.accept(unset._string());
+    assertUnset.accept(unsetDuration._string());
     assertEquals(String._of("PT1S"), oneSecond._string());
     assertEquals(String._of("PT1M"), oneMinute._string());
     assertEquals(String._of("P1Y2M3DT4H5M6S"), complex._string());
 
     assertEquals("PT1S", oneSecond.toString());
     assertEquals("PT1M", oneMinute.toString());
-    assertEquals("", unset.toString());
+    assertEquals("", unsetDuration.toString());
 
     // Hash code
     assertEquals(oneSecond.hashCode(), oneSecond.hashCode());
@@ -457,8 +452,8 @@ class DurationTest extends Common {
 
     // Test distributivity: a * (b + c) = a * b + a * c (conceptually)
     final var sum = Duration._of("PT50S"); // 20 + 30
-    final var mult1 = sum._mul(int2);
-    final var mult2 = b._mul(int2)._add(c._mul(int2));
+    final var mult1 = sum._mul(INT_2);
+    final var mult2 = b._mul(INT_2)._add(c._mul(INT_2));
     assertEquals(mult1.seconds(), mult2.seconds());
 
     // Test identity: a + 0 = a
@@ -466,7 +461,7 @@ class DurationTest extends Common {
     assertEquals(a.seconds(), identity.seconds());
 
     // Test multiplication by 1: a * 1 = a
-    final var mult = a._mul(int1);
+    final var mult = a._mul(INT_1);
     assertEquals(a.seconds(), mult.seconds());
   }
 
@@ -484,6 +479,6 @@ class DurationTest extends Common {
     assertSet.accept(complexJson);
     
     // Test JSON conversion with unset value
-    assertUnset.accept(unset._json());
+    assertUnset.accept(unsetDuration._json());
   }
 }

@@ -21,7 +21,7 @@ class _Result_F734611776882C04A5CCDA69711ED473DD228A77B04C00E81CD193016B024456Te
   
   // Test data setup - JSON values
   private final JSON testJsonString = JSON._of("\"SuccessValue\"");
-  private final JSON testJsonNumber = JSON._of("42");
+  private final JSON testJsonNumber = JSON_42;
   private final JSON testJsonObject = JSON._of("{\"key\": \"value\"}");
   private final JSON testJsonArray = JSON._of("[1, 2, 3]");
   
@@ -559,8 +559,8 @@ class _Result_F734611776882C04A5CCDA69711ED473DD228A77B04C00E81CD193016B024456Te
   @Test
   void testEdgeCasesWithJsonTypes() {
     // Test with various JSON natures
-    final var nullResult = resultJsonString().asOk(JSON._of("null"));
-    final var boolResult = resultJsonString().asOk(JSON._of("true"));
+    final var nullResult = resultJsonString().asOk(JSON_NULL);
+    final var boolResult = resultJsonString().asOk(JSON_TRUE);
     final var arrayResult = resultJsonString().asOk(JSON._of("[]"));
     final var objectResult = resultJsonString().asOk(JSON._of("{}"));
 

@@ -9,93 +9,12 @@ import org.junit.jupiter.api.Test;
 
 class DateTimeTest extends Common {
 
-  final Boolean true1 = Boolean._of("true");
-  final Boolean false1 = Boolean._of("false");
-
-  final DateTime unset = new DateTime();
-  final DateTime epoch = DateTime._of("1970-01-01T00:00:00Z");
-  final DateTime dateTime1 = DateTime._of("2023-01-01T12:00:00Z");
-  final DateTime dateTime2 = DateTime._of("2023-01-02T14:30:15Z");
-  final DateTime dateTime3 = DateTime._of("2023-12-31T23:59:59Z");
-  final DateTime leapYear = DateTime._of("2024-02-29T18:45:30Z");
-  final DateTime futureDateTime = DateTime._of("2025-06-15T09:15:45Z");
-  final DateTime beforeY2K = DateTime._of("1999-12-31T23:59:59Z");
-
-  // Time zone test data
-  final DateTime newYearUTC = DateTime._of("2023-01-01T00:00:00Z");
-  final DateTime newYearTokyo = DateTime._of("2023-01-01T00:00:00+09:00");
-
   final Date simpleDate = Date._of("2023-06-15");
-
-  // ============ COMMON INTEGER CONSTANTS ============
-  final Integer INT_MINUS_1 = Integer._of(-1);
-  final Integer INT_0 = Integer._of(0);
-  final Integer INT_1 = Integer._of(1);
-  final Integer INT_2 = Integer._of(2);
-  final Integer INT_4 = Integer._of(4);
-  final Integer INT_5 = Integer._of(5);
-  final Integer INT_6 = Integer._of(6);
-  final Integer INT_7 = Integer._of(7);
-  final Integer INT_8 = Integer._of(8);
-  final Integer INT_11 = Integer._of(11);
-  final Integer INT_12 = Integer._of(12);
-  final Integer INT_13 = Integer._of(13);
-  final Integer INT_14 = Integer._of(14);
-  final Integer INT_15 = Integer._of(15);
-  final Integer INT_16 = Integer._of(16);
-  final Integer INT_18 = Integer._of(18);
-  final Integer INT_20 = Integer._of(20);
-  final Integer INT_21 = Integer._of(21);
-  final Integer INT_22 = Integer._of(22);
-  final Integer INT_23 = Integer._of(23);
-  final Integer INT_28 = Integer._of(28);
-  final Integer INT_29 = Integer._of(29);
-  final Integer INT_30 = Integer._of(30);
-  final Integer INT_31 = Integer._of(31);
-  final Integer INT_45 = Integer._of(45);
-  final Integer INT_59 = Integer._of(59);
-  final Integer INT_167 = Integer._of(167);
-  final Integer INT_1970 = Integer._of(1970);
-  final Integer INT_2023 = Integer._of(2023);
-  final Integer INT_2024 = Integer._of(2024);
-  final Integer INT_2025 = Integer._of(2025);
-  final Integer INT_3600 = Integer._of(3600);
-  final Integer INT_7200 = Integer._of(7200);
-  final Integer INT_14400 = Integer._of(14400);
-  final Integer INT_86400 = Integer._of(86400);
-  final Integer INT_604800 = Integer._of(604800);
-  final Integer INT_1000000000 = Integer._of(1000000000);
-  final Integer INT_17 = Integer._of(17);
-  final Integer INT_19 = Integer._of(19);
-  final Integer INT_25 = Integer._of(25);
-  final Integer INT_32 = Integer._of(32);
-  final Integer INT_44 = Integer._of(44);
-  final Integer INT_46 = Integer._of(46);
-  final Integer INT_55 = Integer._of(55);
-  final Integer INT_60 = Integer._of(60);
-  final Integer INT_61 = Integer._of(61);
-  final Integer INT_166 = Integer._of(166);
-  final Integer INT_365 = Integer._of(365);
-  final Integer INT_366 = Integer._of(366);
-
-
-  // ============ TIME/DURATION CONSTANTS ============
-  // Millisecond Constants
-  final Millisecond oneSecondMs = Millisecond._of(1000);
-  final Millisecond oneMinuteMs = Millisecond._of(60000);
-  final Millisecond oneHourMs = Millisecond._of(3600000);
-  final Millisecond oneDayMs = Millisecond._of(86400000L);
-
-  // Duration Constants
-  final Duration oneHourDuration = Duration._of(3600L);
-  final Duration oneDayDuration = Duration._of(86400L);
-  final Duration twoDaysDuration = Duration._of(172800L);
-  final Duration oneWeekDuration = Duration._of(604800L);
 
   // ============ COMMON TEST DATETIME INSTANCES ============
   // Base DateTimes for arithmetic tests
   final DateTime baseDateTime = DateTime._of("2023-06-15T12:30:45Z");
-  final DateTime baseUTC = DateTime._of("2023-06-15T12:00:00Z");
+  final DateTime baseUTC = DateTime._of(DATETIME_JUNE_15_NOON_UTC.state);
   
   // Timezone Variants (same dates, different zones)
   final DateTime baseEST = DateTime._of("2023-06-15T12:30:45-04:00");
@@ -103,10 +22,10 @@ class DateTimeTest extends Common {
   final DateTime basePST = DateTime._of("2023-06-15T12:30:45-08:00");
 
   // Edge Case DateTimes
-  final DateTime newYearEveUTC = DateTime._of("2023-12-31T23:59:59Z");
+  final DateTime newYearEveUTC = DateTime._of(DATETIME_NEW_YEAR_EVE.state);
   final DateTime newYearDayUTC = DateTime._of("2024-01-01T00:00:00Z");
   final DateTime leapFeb28 = DateTime._of("2024-02-28T12:00:00Z");
-  final DateTime leapFeb29 = DateTime._of("2024-02-29T12:00:00Z");
+  final DateTime leapFeb29 = DateTime._of(DATETIME_LEAP_FEB_29_NOON.state);
   final DateTime leapMar01 = DateTime._of("2024-03-01T12:00:00Z");
 
   // Month Boundary DateTimes
@@ -114,7 +33,7 @@ class DateTimeTest extends Common {
   final DateTime startOfJuly = DateTime._of("2023-07-01T08:15:20Z");
 
   // Fuzzy Comparison Test DateTimes
-  final DateTime fuzzyBase = DateTime._of("2023-06-15T12:00:00Z");
+  final DateTime fuzzyBase = DateTime._of(DATETIME_JUNE_15_NOON_UTC.state);
   final DateTime fuzzyOneHourLater = DateTime._of("2023-06-15T13:00:00Z");
   final DateTime fuzzyTwoHoursLater = DateTime._of("2023-06-15T14:00:00Z");
   final DateTime fuzzyOneDayLater = DateTime._of("2023-06-16T12:00:00Z");
@@ -123,10 +42,10 @@ class DateTimeTest extends Common {
   final DateTime fuzzyOneDayEarlier = DateTime._of("2023-06-14T12:00:00Z");
 
   // Timezone Test Pairs (same instant, different zones)
-  final DateTime utcNoon = DateTime._of("2023-06-15T12:00:00Z");
-  final DateTime nyNoon = DateTime._of("2023-06-15T12:00:00-04:00"); // 4 hours later than UTC noon
+  final DateTime utcNoon = DateTime._of(DATETIME_JUNE_15_NOON_UTC.state);
+  final DateTime nyNoon = DateTime._of(DATETIME_JUNE_15_NOON_NY.state); // 4 hours later than UTC noon
   final DateTime utc1600 = DateTime._of("2023-06-15T16:00:00Z");
-  final DateTime ny1200 = DateTime._of("2023-06-15T12:00:00-04:00"); // Same instant as UTC 16:00
+  final DateTime ny1200 = DateTime._of(DATETIME_JUNE_15_NOON_NY.state); // Same instant as UTC 16:00
 
   // Offset Test DateTimes (for offsetFromUTC tests)
   final DateTime indiaOffset = DateTime._of("2023-06-15T12:00:00+05:30");
@@ -145,9 +64,9 @@ class DateTimeTest extends Common {
     final var unset3 = new DateTime(new String());
     assertUnset.accept(unset3);
 
-    final var checkDateTime1 = new DateTime(String._of("2023-01-01T12:00:00Z"));
+    final var checkDateTime1 = new DateTime(DATETIME_BASE_UTC);
     assertSet.accept(checkDateTime1);
-    assertEquals("2023-01-01T12:00:00Z", checkDateTime1.toString());
+    assertEquals(DATETIME_BASE_UTC.state, checkDateTime1.toString());
 
     // Copy constructor
     final var againDateTime1 = new DateTime(dateTime1);
@@ -163,7 +82,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_0, fromDate.hour());
     assertEquals(INT_0, fromDate.minute());
     assertEquals(INT_0, fromDate.second());
-    assertEquals(String._of("Z"), fromDate.zone());
+    assertEquals(TIMEZONE_UTC_Z, fromDate.zone());
 
     // Component constructor (year, month, day)
     final var ymd = new DateTime(INT_2023, INT_1, INT_1);
@@ -172,7 +91,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_1, ymd.month());
     assertEquals(INT_1, ymd.day());
     assertEquals(INT_0, ymd.hour());
-    assertEquals(String._of("Z"), ymd.zone());
+    assertEquals(TIMEZONE_UTC_Z, ymd.zone());
 
     // Component constructor (year, month, day, hour)
     final var ymdh = new DateTime(INT_2023, INT_1, INT_1, INT_12);
@@ -192,7 +111,7 @@ class DateTimeTest extends Common {
     assertSet.accept(ymdhms);
     assertEquals(INT_45, ymdhms.second());
 
-    // Test invalid date components - these should not throw exceptions but return unset
+    // Test invalid date components - these should not throw exceptions but return unsetDateTime
     final var unsetDate = new DateTime(new Integer(), INT_1, INT_1);
     assertUnset.accept(unsetDate);
   }
@@ -200,30 +119,30 @@ class DateTimeTest extends Common {
   @Test
   void testTimeZoneOperations() {
     // Test withSameInstant - same moment in time, different zone
-    final var utcToNY = baseUTC.withSameInstant(String._of("America/New_York"));
+    final var utcToNY = baseUTC.withSameInstant(TIMEZONE_NEW_YORK);
     assertSet.accept(utcToNY);
-    assertEquals(String._of("America/New_York"), utcToNY.zone());
+    assertEquals(TIMEZONE_NEW_YORK, utcToNY.zone());
     // UTC 12:00 = EDT 08:00 (UTC-4)
     assertEquals(INT_8, utcToNY.hour());
     assertEquals(baseUTC.minute(), utcToNY.minute());
     assertEquals(baseUTC.second(), utcToNY.second());
 
-    final var utcToLondon = baseUTC.withSameInstant(String._of("Europe/London"));
+    final var utcToLondon = baseUTC.withSameInstant(TIMEZONE_LONDON);
     assertSet.accept(utcToLondon);
-    assertEquals(String._of("Europe/London"), utcToLondon.zone());
+    assertEquals(TIMEZONE_LONDON, utcToLondon.zone());
     // UTC 12:00 = BST 13:00 (UTC+1)
     assertEquals(INT_13, utcToLondon.hour());
 
-    final var utcToTokyo = baseUTC.withSameInstant(String._of("Asia/Tokyo"));
+    final var utcToTokyo = baseUTC.withSameInstant(TIMEZONE_TOKYO);
     assertSet.accept(utcToTokyo);
-    assertEquals(String._of("Asia/Tokyo"), utcToTokyo.zone());
+    assertEquals(TIMEZONE_TOKYO, utcToTokyo.zone());
     // UTC 12:00 = JST 21:00 (UTC+9)
     assertEquals(INT_21, utcToTokyo.hour());
 
     // Test withZone - same local time, different zone
-    final var utcWithNYZone = baseUTC.withZone(String._of("America/New_York"));
+    final var utcWithNYZone = baseUTC.withZone(TIMEZONE_NEW_YORK);
     assertSet.accept(utcWithNYZone);
-    assertEquals(String._of("America/New_York"), utcWithNYZone.zone());
+    assertEquals(TIMEZONE_NEW_YORK, utcWithNYZone.zone());
     // Same local time 12:00, but now in NY timezone
     assertEquals(INT_12, utcWithNYZone.hour());
     assertEquals(baseUTC.minute(), utcWithNYZone.minute());
@@ -232,47 +151,47 @@ class DateTimeTest extends Common {
     // Test with invalid timezone - these may throw exceptions, so we need to handle them
     // The implementation might throw exceptions for invalid zones, so we'll test valid zones only
 
-    // Test with unset
-    assertUnset.accept(unset.withSameInstant(String._of("UTC")));
-    assertUnset.accept(unset.withZone(String._of("UTC")));
+    // Test with unsetDateTime
+    assertUnset.accept(unsetDateTime.withSameInstant(TIMEZONE_UTC));
+    assertUnset.accept(unsetDateTime.withZone(TIMEZONE_UTC));
   }
 
   @Test
   void testCrossTimezoneComparisons() {
     // Test basic timezone conversion without comparing across different timezone representations
-    final var utc1200 = DateTime._of("2023-06-15T12:00:00Z");
+    final var utc1200 = DateTime._of(DATETIME_JUNE_15_NOON_UTC.state);
 
     // Convert to different timezone and verify components
-    final var ny0800 = utc1200.withSameInstant(String._of("America/New_York"));
+    final var ny0800 = utc1200.withSameInstant(TIMEZONE_NEW_YORK);
     assertSet.accept(ny0800);
     // Just verify the conversion worked
     assertNotEquals(utc1200.hour(), ny0800.hour()); // Hours should be different
 
     // Test back to UTC
-    final var backToUTC = ny0800.withSameInstant(String._of("UTC"));
+    final var backToUTC = ny0800.withSameInstant(TIMEZONE_UTC);
     assertTrue.accept(utc1200._eq(backToUTC));
 
     // Test inequality - different instants
     final var ny0900 = DateTime._of("2023-06-15T09:00:00-04:00"); // 1 hour later than ny0800
-    assertEquals(true1, ny0800._lt(ny0900));
-    assertEquals(true1, ny0900._gt(ny0800));
+    assertEquals(trueBoolean, ny0800._lt(ny0900));
+    assertEquals(trueBoolean, ny0900._gt(ny0800));
     assertEquals(INT_MINUS_1, ny0800._cmp(ny0900));
     assertEquals(INT_1, ny0900._cmp(ny0800));
 
     // Test New Year across timezones
     // Tokyo New Year happens 9 hours before UTC New Year
-    assertEquals(true1, newYearTokyo._lt(newYearUTC));
+    assertEquals(trueBoolean, newYearTokyo._lt(newYearUTC));
     assertEquals(INT_MINUS_1, newYearTokyo._cmp(newYearUTC));
 
     // Test edge case: same local time, different zones
-    final var localTime1200UTC = DateTime._of("2023-06-15T12:00:00Z");
-    final var localTime1200NY = DateTime._of("2023-06-15T12:00:00-04:00");
+    final var localTime1200UTC = DateTime._of(DATETIME_JUNE_15_NOON_UTC.state);
+    final var localTime1200NY = DateTime._of(DATETIME_JUNE_15_NOON_NY.state);
     // These are different instants (4 hours apart)
-    assertEquals(true1, localTime1200UTC._lt(localTime1200NY));
+    assertEquals(trueBoolean, localTime1200UTC._lt(localTime1200NY));
     assertEquals(INT_MINUS_1, localTime1200UTC._cmp(localTime1200NY));
 
     //So twelve in UTC on this date, will be 8AM in new york. But the same instant in time.
-    final var checkWhatItWouldBeInNY = localTime1200UTC.withSameInstant(String._of("America/New_York"));
+    final var checkWhatItWouldBeInNY = localTime1200UTC.withSameInstant(TIMEZONE_NEW_YORK);
     assertEquals("2023-06-15T08:00:00-04:00", checkWhatItWouldBeInNY.toString());
 
     //That's what date times mean in EK9 - are they the same instant.
@@ -283,36 +202,36 @@ class DateTimeTest extends Common {
 
   @Test
   void testOperators() {
-    final var dateTime1Again = DateTime._of("2023-01-01T12:00:00Z");
+    final var dateTime1Again = DateTime._of(DATETIME_BASE_UTC.state);
 
     // Equality operators
     assertEquals(dateTime1Again, dateTime1);
-    assertEquals(true1, dateTime1._eq(dateTime1Again));
-    assertEquals(false1, dateTime1._neq(dateTime1Again));
+    assertEquals(trueBoolean, dateTime1._eq(dateTime1Again));
+    assertEquals(falseBoolean, dateTime1._neq(dateTime1Again));
 
-    assertUnset.accept(dateTime1._eq(unset));
-    assertUnset.accept(unset._eq(unset));
+    assertUnset.accept(dateTime1._eq(unsetDateTime));
+    assertUnset.accept(unsetDateTime._eq(unsetDateTime));
 
-    assertUnset.accept(dateTime1._neq(unset));
-    assertUnset.accept(unset._neq(unset));
+    assertUnset.accept(dateTime1._neq(unsetDateTime));
+    assertUnset.accept(unsetDateTime._neq(unsetDateTime));
 
     // Comparison operators
     assertTrue.accept(dateTime1._lt(dateTime2));
     assertFalse.accept(dateTime2._lt(dateTime1));
-    assertUnset.accept(dateTime1._lt(unset));
-    assertUnset.accept(unset._lt(unset));
+    assertUnset.accept(dateTime1._lt(unsetDateTime));
+    assertUnset.accept(unsetDateTime._lt(unsetDateTime));
 
     assertTrue.accept(dateTime2._gt(dateTime1));
-    assertUnset.accept(dateTime2._gt(unset));
-    assertUnset.accept(unset._gt(dateTime1));
+    assertUnset.accept(dateTime2._gt(unsetDateTime));
+    assertUnset.accept(unsetDateTime._gt(dateTime1));
 
     assertTrue.accept(dateTime1._lteq(dateTime1Again));
-    assertUnset.accept(dateTime2._lteq(unset));
-    assertUnset.accept(unset._lteq(dateTime1));
+    assertUnset.accept(dateTime2._lteq(unsetDateTime));
+    assertUnset.accept(unsetDateTime._lteq(dateTime1));
 
     assertTrue.accept(dateTime1._gteq(dateTime1Again));
-    assertUnset.accept(dateTime2._gteq(unset));
-    assertUnset.accept(unset._gteq(dateTime1));
+    assertUnset.accept(dateTime2._gteq(unsetDateTime));
+    assertUnset.accept(unsetDateTime._gteq(dateTime1));
 
     // Comparison operator
     assertEquals(INT_0, dateTime1._cmp(dateTime1Again));
@@ -320,7 +239,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_MINUS_1, dateTime1._cmp(dateTime2));
     assertEquals(INT_1, dateTime2._cmp(dateTime1));
 
-    assertUnset.accept(unset._cmp(dateTime1));
+    assertUnset.accept(unsetDateTime._cmp(dateTime1));
     assertUnset.accept(dateTime2._cmp(new Any(){}));
 
   }
@@ -328,10 +247,10 @@ class DateTimeTest extends Common {
   @Test
   void testCopyOperations() {
     // Copy logic
-    var mutatedValue = DateTime._of("2023-01-01T12:00:00Z");
+    var mutatedValue = DateTime._of(DATETIME_BASE_UTC.state);
     mutatedValue._copy(dateTime2);
     assertTrue.accept(mutatedValue._eq(dateTime2));
-    mutatedValue._copy(unset);
+    mutatedValue._copy(unsetDateTime);
     assertUnset.accept(mutatedValue);
 
     // Pipe logic
@@ -344,15 +263,15 @@ class DateTimeTest extends Common {
 
   @Test
   void testDateTimeComponents() {
-    // Test with unset
-    assertUnset.accept(unset.year());
-    assertUnset.accept(unset.month());
-    assertUnset.accept(unset.day());
-    assertUnset.accept(unset.hour());
-    assertUnset.accept(unset.minute());
-    assertUnset.accept(unset.second());
-    assertUnset.accept(unset.zone());
-    assertUnset.accept(unset.dayOfWeek());
+    // Test with unsetDateTime
+    assertUnset.accept(unsetDateTime.year());
+    assertUnset.accept(unsetDateTime.month());
+    assertUnset.accept(unsetDateTime.day());
+    assertUnset.accept(unsetDateTime.hour());
+    assertUnset.accept(unsetDateTime.minute());
+    assertUnset.accept(unsetDateTime.second());
+    assertUnset.accept(unsetDateTime.zone());
+    assertUnset.accept(unsetDateTime.dayOfWeek());
 
     // Test various datetimes
     assertEquals(INT_2023, dateTime1.year());
@@ -361,7 +280,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_12, dateTime1.hour());
     assertEquals(INT_0, dateTime1.minute());
     assertEquals(INT_0, dateTime1.second());
-    assertEquals(String._of("Z"), dateTime1.zone());
+    assertEquals(TIMEZONE_UTC_Z, dateTime1.zone());
     assertEquals(INT_7, dateTime1.dayOfWeek()); // Sunday
 
     assertEquals(INT_2023, dateTime2.year());
@@ -388,23 +307,23 @@ class DateTimeTest extends Common {
     assertEquals(INT_4, epoch.dayOfWeek()); // Thursday
 
     // Test timezone components
-    assertEquals(String._of("Z"), baseUTC.zone());
-    final var nyTime = baseUTC.withSameInstant(String._of("America/New_York"));
-    assertEquals(String._of("America/New_York"), nyTime.zone());
+    assertEquals(TIMEZONE_UTC_Z, baseUTC.zone());
+    final var nyTime = baseUTC.withSameInstant(TIMEZONE_NEW_YORK);
+    assertEquals(TIMEZONE_NEW_YORK, nyTime.zone());
   }
 
   @Test
   void testStringConversion() {
     // Test _string() method (ISO format)
-    assertUnset.accept(unset._string());
-    assertEquals(String._of("2023-01-01T12:00:00Z"), dateTime1._string());
+    assertUnset.accept(unsetDateTime._string());
+    assertEquals(DATETIME_BASE_UTC, dateTime1._string());
     assertEquals(String._of("2023-01-02T14:30:15Z"), dateTime2._string());
     assertEquals(String._of("1970-01-01T00:00:00Z"), epoch._string());
 
     // Test toString() method
-    assertEquals("2023-01-01T12:00:00Z", dateTime1.toString());
+    assertEquals(DATETIME_BASE_UTC.state, dateTime1.toString());
     assertEquals("2023-01-02T14:30:15Z", dateTime2.toString());
-    assertEquals("", unset.toString());
+    assertEquals("", unsetDateTime.toString());
   }
 
   @Test
@@ -419,11 +338,11 @@ class DateTimeTest extends Common {
     final var epochJson = epoch._json();
     assertSet.accept(epochJson);
 
-    // Test JSON conversion with unset value
-    assertUnset.accept(unset._json());
+    // Test JSON conversion with unsetDateTime value
+    assertUnset.accept(unsetDateTime._json());
 
     // Test rfc7231() method (HTTP date format)
-    assertUnset.accept(unset.rfc7231());
+    assertUnset.accept(unsetDateTime.rfc7231());
 
     // RFC 7231 format: "EEE, dd MMM yyyy HH:mm:ss O"
     final var rfc1 = dateTime1.rfc7231();
@@ -444,7 +363,7 @@ class DateTimeTest extends Common {
     Assertions.assertTrue(rfc2String.contains("14:30:15"));
 
     // Test with timezone
-    final var newYorkDateTime = baseUTC.withSameInstant(String._of("America/New_York"));
+    final var newYorkDateTime = baseUTC.withSameInstant(TIMEZONE_NEW_YORK);
     final var nyRfc = newYorkDateTime.rfc7231();
     assertSet.accept(nyRfc);
     // Should contain the NY timezone offset
@@ -466,7 +385,7 @@ class DateTimeTest extends Common {
     assertEquals(todaysDateTime.day(), nowDateTime.day());
 
     // Clear operation
-    final var clearedDateTime = DateTime._of("2023-01-01T12:00:00Z");
+    final var clearedDateTime = DateTime._of(DATETIME_BASE_UTC.state);
     clearedDateTime.clear();
     assertUnset.accept(clearedDateTime);
 
@@ -553,23 +472,23 @@ class DateTimeTest extends Common {
 
     // Test same instant in different zones during DST
     final var utcDuringDST = DateTime._of("2023-07-15T16:00:00Z");
-    final var nyDuringDST = utcDuringDST.withSameInstant(String._of("America/New_York"));
+    final var nyDuringDST = utcDuringDST.withSameInstant(TIMEZONE_NEW_YORK);
     assertEquals(INT_12, nyDuringDST.hour()); // EDT is UTC-4
 
     // Test same instant in different zones during standard time
     final var utcDuringStandard = DateTime._of("2023-01-15T17:00:00Z");
-    final var nyDuringStandard = utcDuringStandard.withSameInstant(String._of("America/New_York"));
+    final var nyDuringStandard = utcDuringStandard.withSameInstant(TIMEZONE_NEW_YORK);
     assertEquals(INT_12, nyDuringStandard.hour()); // EST is UTC-5
 
     // Test round-trip timezone conversion
     final var original = DateTime._of("2023-06-15T14:30:00Z");
-    final var toNY = original.withSameInstant(String._of("America/New_York"));
-    final var backToUTC = toNY.withSameInstant(String._of("UTC"));
-    assertEquals(true1, original._eq(backToUTC));
+    final var toNY = original.withSameInstant(TIMEZONE_NEW_YORK);
+    final var backToUTC = toNY.withSameInstant(TIMEZONE_UTC);
+    assertEquals(trueBoolean, original._eq(backToUTC));
 
     // Test withZone vs withSameInstant difference
-    final var sameInstantNY = baseUTC.withSameInstant(String._of("America/New_York"));
-    final var sameLocalNY = baseUTC.withZone(String._of("America/New_York"));
+    final var sameInstantNY = baseUTC.withSameInstant(TIMEZONE_NEW_YORK);
+    final var sameLocalNY = baseUTC.withZone(TIMEZONE_NEW_YORK);
 
     // Same instant should show 08:00 in NY (EDT = UTC-4)
     assertEquals(INT_8, sameInstantNY.hour());
@@ -577,13 +496,13 @@ class DateTimeTest extends Common {
     assertEquals(INT_12, sameLocalNY.hour());
 
     // These represent different instants in time
-    assertEquals(true1, sameLocalNY._gt(sameInstantNY));
+    assertEquals(trueBoolean, sameLocalNY._gt(sameInstantNY));
   }
 
   @Test
   void testDateAndTimeExtraction() {
     // Test date() method
-    final var sourceDateTime = DateTime._of("2023-06-15T14:30:45Z");
+    final var sourceDateTime = DateTime._of(DATETIME_JUNE_15_AFTERNOON.state);
     final var extractedDate = sourceDateTime.date();
     assertSet.accept(extractedDate);
     assertEquals(INT_2023, extractedDate.year());
@@ -606,15 +525,15 @@ class DateTimeTest extends Common {
     assertEquals(INT_30, nyTime.minute());
     assertEquals(INT_45, nyTime.second());
 
-    // Test with unset DateTime
-    assertUnset.accept(unset.date());
-    assertUnset.accept(unset.time());
+    // Test with unsetDateTime DateTime
+    assertUnset.accept(unsetDateTime.date());
+    assertUnset.accept(unsetDateTime.time());
   }
 
   @Test
   void testPrefixAndSuffixOperators() {
     // Test _prefix operator (should return Date - same as date())
-    final var prefixTestDateTime = DateTime._of("2023-06-15T14:30:45Z");
+    final var prefixTestDateTime = DateTime._of(DATETIME_JUNE_15_AFTERNOON.state);
     final var prefixResult = prefixTestDateTime._prefix();
     final var dateResult = prefixTestDateTime.date();
     
@@ -643,12 +562,12 @@ class DateTimeTest extends Common {
     assertEquals(INT_30, nySuffixResult.minute());
     assertEquals(INT_45, nySuffixResult.second());
 
-    // Test with unset DateTime
-    assertUnset.accept(unset._prefix());
-    assertUnset.accept(unset._suffix());
+    // Test with unsetDateTime DateTime
+    assertUnset.accept(unsetDateTime._prefix());
+    assertUnset.accept(unsetDateTime._suffix());
 
     // Test leap year edge case
-    final var leapDateTime = DateTime._of("2024-02-29T12:00:00Z");
+    final var leapDateTime = DateTime._of(DATETIME_LEAP_FEB_29_NOON.state);
     final var leapPrefix = leapDateTime._prefix();
     assertSet.accept(leapPrefix);
     assertEquals(INT_2024, leapPrefix.year());
@@ -656,7 +575,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_29, leapPrefix.day());
 
     // Test end of year edge case
-    final var endOfYear = DateTime._of("2023-12-31T23:59:59Z");
+    final var endOfYear = DateTime._of(DATETIME_NEW_YEAR_EVE.state);
     final var endYearSuffix = endOfYear._suffix();
     assertSet.accept(endYearSuffix);
     assertEquals(INT_23, endYearSuffix.hour());
@@ -683,7 +602,7 @@ class DateTimeTest extends Common {
     assertEquals(originalDateTime.toString(), backToDateTime.toString());
 
     // Test with different timezone
-    final var newYorkDateTime = DateTime._of("2023-06-15T12:00:00-04:00");
+    final var newYorkDateTime = DateTime._of(DATETIME_JUNE_15_NOON_NY.state);
     final var javaNY = newYorkDateTime._getAsJavaTemporalAccessor();
     assertNotNull(javaNY);
     assertEquals(java.time.ZonedDateTime.of(2023, 6, 15, 12, 0, 0, 0, java.time.ZoneId.of("-04:00")), javaNY);
@@ -809,7 +728,7 @@ class DateTimeTest extends Common {
   @Test
   void testStartOfDay() {
     // Test basic functionality - time should be set to 00:00:00.000000000
-    final var midDayDateTime = DateTime._of("2023-06-15T14:30:45Z");
+    final var midDayDateTime = DateTime._of(DATETIME_JUNE_15_AFTERNOON.state);
     final var startOfDayResult = midDayDateTime.startOfDay();
     assertSet.accept(startOfDayResult);
     
@@ -824,7 +743,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_15, startOfDayResult.day());
     
     // Verify timezone is preserved
-    assertEquals(String._of("Z"), startOfDayResult.zone());
+    assertEquals(TIMEZONE_UTC_Z, startOfDayResult.zone());
     
     // Test with different timezone - timezone should be preserved
     final var nyDateTime = DateTime._of("2023-06-15T14:30:45-04:00");
@@ -848,7 +767,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_29, leapStartOfDay.day());
     
     // Test with year boundary dates
-    final var newYearEve = DateTime._of("2023-12-31T23:59:59Z");
+    final var newYearEve = DateTime._of(DATETIME_NEW_YEAR_EVE.state);
     final var newYearEveStart = newYearEve.startOfDay();
     assertEquals(INT_0, newYearEveStart.hour());
     assertEquals(INT_31, newYearEveStart.day());
@@ -859,8 +778,8 @@ class DateTimeTest extends Common {
     assertEquals(INT_1, newYearDayStart.day());
     assertEquals(INT_2024, newYearDayStart.year());
     
-    // Test with unset DateTime
-    assertUnset.accept(unset.startOfDay());
+    // Test with unsetDateTime DateTime
+    assertUnset.accept(unsetDateTime.startOfDay());
     
     // Test that original DateTime is unchanged
     assertEquals(INT_14, midDayDateTime.hour());
@@ -871,7 +790,7 @@ class DateTimeTest extends Common {
   @Test
   void testEndOfDay() {
     // Test basic functionality - time should be set to 23:59:59.999999999
-    final var testDateTime = DateTime._of("2023-06-15T14:30:45Z");
+    final var testDateTime = DateTime._of(DATETIME_JUNE_15_AFTERNOON.state);
     final var endOfDayResult = testDateTime.endOfDay();
     assertSet.accept(endOfDayResult);
     
@@ -886,7 +805,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_15, endOfDayResult.day());
     
     // Verify timezone is preserved
-    assertEquals(String._of("Z"), endOfDayResult.zone());
+    assertEquals(TIMEZONE_UTC_Z, endOfDayResult.zone());
     
     // Test with different timezone - timezone should be preserved
     final var tokyoDateTime = DateTime._of("2023-06-15T14:30:45+09:00");
@@ -926,8 +845,8 @@ class DateTimeTest extends Common {
     assertTrue.accept(startOfDay._lt(endOfDay));
     assertTrue.accept(endOfDay._gt(startOfDay));
     
-    // Test with unset DateTime
-    assertUnset.accept(unset.endOfDay());
+    // Test with unsetDateTime DateTime
+    assertUnset.accept(unsetDateTime.endOfDay());
     
     // Test that original DateTime is unchanged
     assertEquals(INT_14, testDateTime.hour());
@@ -938,7 +857,7 @@ class DateTimeTest extends Common {
   @Test
   void testDayOfYear() {
     // Test January 1st (should be day 1)
-    final var jan1 = DateTime._of("2023-01-01T12:00:00Z");
+    final var jan1 = DateTime._of(DATETIME_BASE_UTC.state);
     assertEquals(INT_1, jan1.dayOfYear());
     
     // Test leap year January 1st
@@ -954,7 +873,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_59, feb28NonLeap.dayOfYear());
     
     // Test February 29th in leap year (should be day 60)
-    final var feb29Leap = DateTime._of("2024-02-29T12:00:00Z");
+    final var feb29Leap = DateTime._of(DATETIME_LEAP_FEB_29_NOON.state);
     assertEquals(INT_60, feb29Leap.dayOfYear());
     
     // Test March 1st in non-leap year (should be day 60)
@@ -966,7 +885,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_61, mar1Leap.dayOfYear());
     
     // Test December 31st in non-leap year (should be day 365)
-    final var dec31NonLeap = DateTime._of("2023-12-31T23:59:59Z");
+    final var dec31NonLeap = DateTime._of(DATETIME_NEW_YEAR_EVE.state);
     assertEquals(INT_365, dec31NonLeap.dayOfYear());
     
     // Test December 31st in leap year (should be day 366)
@@ -974,7 +893,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_366, dec31Leap.dayOfYear());
     
     // Test mid-year date (June 15th in non-leap year should be day 166)
-    final var midYear = DateTime._of("2023-06-15T14:30:45Z");
+    final var midYear = DateTime._of(DATETIME_JUNE_15_AFTERNOON.state);
     assertEquals(INT_166, midYear.dayOfYear());
     
     // Test same date in leap year (June 15th in leap year should be day 167)
@@ -990,8 +909,8 @@ class DateTimeTest extends Common {
     final var earlyEST = DateTime._of("2023-06-15T19:30:00-04:00"); // Same instant
     assertEquals(lateUTC.dayOfYear(), earlyEST.dayOfYear());
     
-    // Test with unset DateTime
-    assertUnset.accept(unset.dayOfYear());
+    // Test with unsetDateTime DateTime
+    assertUnset.accept(unsetDateTime.dayOfYear());
     
     // Verify historical dates work correctly
     final var y2k = DateTime._of("2000-01-01T00:00:00Z");
@@ -1004,11 +923,11 @@ class DateTimeTest extends Common {
   @Test
   void testDayOfMonth() {
     // Test that dayOfMonth() delegates to day() method correctly
-    final var testDateTime = DateTime._of("2023-06-15T14:30:45Z");
+    final var testDateTime = DateTime._of(DATETIME_JUNE_15_AFTERNOON.state);
     assertEquals(testDateTime.day(), testDateTime.dayOfMonth());
     
     // Test with various dates
-    final var jan1 = DateTime._of("2023-01-01T12:00:00Z");
+    final var jan1 = DateTime._of(DATETIME_BASE_UTC.state);
     assertEquals(INT_1, jan1.dayOfMonth());
     assertEquals(jan1.day(), jan1.dayOfMonth());
     
@@ -1021,7 +940,7 @@ class DateTimeTest extends Common {
     assertEquals(feb28.day(), feb28.dayOfMonth());
     
     // Test leap year February 29th
-    final var feb29 = DateTime._of("2024-02-29T12:00:00Z");
+    final var feb29 = DateTime._of(DATETIME_LEAP_FEB_29_NOON.state);
     assertEquals(INT_29, feb29.dayOfMonth());
     assertEquals(feb29.day(), feb29.dayOfMonth());
     
@@ -1031,7 +950,7 @@ class DateTimeTest extends Common {
     assertEquals(apr30.day(), apr30.dayOfMonth());
     
     // Test December 31st
-    final var dec31 = DateTime._of("2023-12-31T23:59:59Z");
+    final var dec31 = DateTime._of(DATETIME_NEW_YEAR_EVE.state);
     assertEquals(INT_31, dec31.dayOfMonth());
     assertEquals(dec31.day(), dec31.dayOfMonth());
     
@@ -1045,10 +964,10 @@ class DateTimeTest extends Common {
     final var estEarly = DateTime._of("2023-06-15T19:30:00-04:00"); // Same instant
     assertEquals(utcLate.dayOfMonth(), estEarly.dayOfMonth());
     
-    // Test with unset DateTime - both should return unset
-    assertUnset.accept(unset.dayOfMonth());
-    assertUnset.accept(unset.day());
-    assertEquals(unset.day()._isSet(), unset.dayOfMonth()._isSet());
+    // Test with unsetDateTime DateTime - both should return unsetDateTime
+    assertUnset.accept(unsetDateTime.dayOfMonth());
+    assertUnset.accept(unsetDateTime.day());
+    assertEquals(unsetDateTime.day()._isSet(), unsetDateTime.dayOfMonth()._isSet());
     
     // Cross-validation: ensure all existing day() functionality works through dayOfMonth()
     final var allTestDates = java.util.List.of(
@@ -1080,7 +999,7 @@ class DateTimeTest extends Common {
     assertEquals(Long.valueOf(9 * 3600), tokyoOffset._getAsSeconds()); // 9 hours = 32400 seconds
     
     // Test negative offset - New York EDT (UTC-4, should return -14400 seconds)
-    final var nyDateTime = DateTime._of("2023-06-15T12:00:00-04:00");
+    final var nyDateTime = DateTime._of(DATETIME_JUNE_15_NOON_NY.state);
     final var nyOffset = nyDateTime.offSetFromUTC();
     assertSet.accept(nyOffset);
     assertEquals(Long.valueOf(-4 * 3600), nyOffset._getAsSeconds()); // -4 hours = -14400 seconds
@@ -1126,8 +1045,8 @@ class DateTimeTest extends Common {
     assertEquals(Long.valueOf(-4 * 3600), springForward.offSetFromUTC()._getAsSeconds());
     assertEquals(Long.valueOf(-5 * 3600), fallBack.offSetFromUTC()._getAsSeconds());
     
-    // Test with unset DateTime
-    assertUnset.accept(unset.offSetFromUTC());
+    // Test with unsetDateTime DateTime
+    assertUnset.accept(unsetDateTime.offSetFromUTC());
     
     // Verify offset conversion works both ways
     final var originalDateTime = DateTime._of("2023-06-15T12:00:00+05:00");
@@ -1136,7 +1055,7 @@ class DateTimeTest extends Common {
     assertEquals(Long.valueOf(5 * 3600), offsetSeconds); // Should be 5 hours
     
     // Test that same instant in different zones have different offsets
-    final var utcInstant = DateTime._of("2023-06-15T12:00:00Z");
+    final var utcInstant = DateTime._of(DATETIME_JUNE_15_NOON_UTC.state);
 
     assertEquals(Long.valueOf(0), utcInstant.offSetFromUTC()._getAsSeconds());
     // Note: withSameInstant may produce different results based on DST rules
@@ -1161,7 +1080,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_30, plusOneHour.minute());
     assertEquals(INT_45, plusOneHour.second());
     assertEquals(INT_15, plusOneHour.day());
-    assertEquals(String._of("Z"), plusOneHour.zone());
+    assertEquals(TIMEZONE_UTC_Z, plusOneHour.zone());
     
     // Add one day
     final var plusOneDay = baseDateTime._add(oneDayDuration);
@@ -1217,10 +1136,10 @@ class DateTimeTest extends Common {
     assertEquals(INT_0, utcPlusOneHour.hour()); // Midnight next day
     assertEquals(INT_16, utcPlusOneHour.day()); // Next day
     
-    // Test with unset inputs
-    assertUnset.accept(unset._add(oneHourDuration));
+    // Test with unsetDateTime inputs
+    assertUnset.accept(unsetDateTime._add(oneHourDuration));
     assertUnset.accept(baseDateTime._add(new Duration()));
-    assertUnset.accept(unset._add(oneHourMs));
+    assertUnset.accept(unsetDateTime._add(oneHourMs));
     assertUnset.accept(baseDateTime._add(new Millisecond()));
     
     // Test edge cases
@@ -1336,13 +1255,13 @@ class DateTimeTest extends Common {
     assertSet.accept(timeDiff);
     assertEquals(Long.valueOf(0), timeDiff._getAsSeconds()); // Same instant = 0 difference
     
-    // Test with unset inputs
-    assertUnset.accept(unset._sub(oneHourDuration));
+    // Test with unsetDateTime inputs
+    assertUnset.accept(unsetDateTime._sub(oneHourDuration));
     assertUnset.accept(baseDateTime._sub(new Duration()));
-    assertUnset.accept(unset._sub(oneHourMs));
+    assertUnset.accept(unsetDateTime._sub(oneHourMs));
     assertUnset.accept(baseDateTime._sub(new Millisecond()));
-    assertUnset.accept(unset._sub(baseDateTime));
-    assertUnset.accept(baseDateTime._sub(unset));
+    assertUnset.accept(unsetDateTime._sub(baseDateTime));
+    assertUnset.accept(baseDateTime._sub(unsetDateTime));
     
     // Test edge cases
     // New Year to New Year's Eve (previous year)
@@ -1372,7 +1291,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_45, testDateTime.second());
     assertEquals(INT_15, testDateTime.day());
     
-    // Test _addAss with unset Duration corrupts state
+    // Test _addAss with unsetDateTime Duration corrupts state
     testDateTime._addAss(new Duration());
     assertUnset.accept(testDateTime);
     
@@ -1382,7 +1301,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_13, testDateTime.hour());
     assertEquals(INT_30, testDateTime.minute());
     
-    // Test _addAss with unset Millisecond corrupts state
+    // Test _addAss with unsetDateTime Millisecond corrupts state
     testDateTime._addAss(new Millisecond());
     assertUnset.accept(testDateTime);
     
@@ -1393,7 +1312,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_30, testDateTime.minute());
     assertEquals(INT_45, testDateTime.second());
     
-    // Test _subAss with unset Duration corrupts state
+    // Test _subAss with unsetDateTime Duration corrupts state
     testDateTime._subAss(new Duration());
     assertUnset.accept(testDateTime);
     
@@ -1403,7 +1322,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_11, testDateTime.hour());
     assertEquals(INT_30, testDateTime.minute());
     
-    // Test _subAss with unset Millisecond corrupts state
+    // Test _subAss with unsetDateTime Millisecond corrupts state
     testDateTime._subAss(new Millisecond());
     assertUnset.accept(testDateTime);
     
@@ -1436,7 +1355,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_23, newYear.hour());
     assertEquals(INT_30, newYear.minute());
     
-    // Test with unset DateTime
+    // Test with unsetDateTime DateTime
     var unsetTest = new DateTime();
     unsetTest._addAss(oneHourDuration);
     assertUnset.accept(unsetTest);
@@ -1460,10 +1379,10 @@ class DateTimeTest extends Common {
     assertEquals(INT_7, testDateTime.month());
     assertEquals(String._of("+09:00"), testDateTime.zone());
     
-    // Test _pipe with unset DateTime (should not change state if unset)
+    // Test _pipe with unsetDateTime DateTime (should not change state if unsetDateTime)
     testDateTime = new DateTime(baseDateTime);
     final var originalString = testDateTime.toString();
-    testDateTime._pipe(unset);
+    testDateTime._pipe(unsetDateTime);
     assertEquals(originalString, testDateTime.toString()); // Should remain unchanged
     
     // Test _pipe with Duration (additive operation)
@@ -1496,7 +1415,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_13, nyDateTime.hour());
     assertEquals(String._of("-04:00"), nyDateTime.zone());
     
-    // Test pipe with unset Duration/Millisecond (should not affect state)
+    // Test pipe with unsetDateTime Duration/Millisecond (should not affect state)
     testDateTime = new DateTime(baseDateTime);
     final var beforePipe = testDateTime.toString();
     testDateTime._pipe(new Duration());
@@ -1522,19 +1441,19 @@ class DateTimeTest extends Common {
     assertEquals(INT_12, testDateTime.hour());
     assertEquals(INT_16, testDateTime.day());
     
-    // Test with unset DateTime
+    // Test with unsetDateTime DateTime
     var unsetTest = new DateTime();
     unsetTest._pipe(sourceDateTime);
-    assertSet.accept(unsetTest); // DateTime pipe assigns even to unset target
+    assertSet.accept(unsetTest); // DateTime pipe assigns even to unsetDateTime target
     assertEquals(sourceDateTime.toString(), unsetTest.toString());
     
-    unsetTest = new DateTime(); // Reset to unset
+    unsetTest = new DateTime(); // Reset to unsetDateTime
     unsetTest._pipe(oneHourDuration);
-    assertSet.accept(unsetTest); // Duration pipe works even on unset DateTime
+    assertSet.accept(unsetTest); // Duration pipe works even on unsetDateTime DateTime
     
-    unsetTest = new DateTime(); // Reset to unset
+    unsetTest = new DateTime(); // Reset to unsetDateTime
     unsetTest._pipe(oneHourMs);
-    assertSet.accept(unsetTest); // Millisecond pipe works even on unset DateTime
+    assertSet.accept(unsetTest); // Millisecond pipe works even on unsetDateTime DateTime
   }
 
   @Test
@@ -1586,10 +1505,10 @@ class DateTimeTest extends Common {
     assertSet.accept(diff);
     assertTrue.accept(diff._gt(INT_1000000000)); // More than ~31 years in seconds
     
-    // Test with unset DateTimes
-    assertUnset.accept(unset._fuzzy(fuzzyBase));
-    assertUnset.accept(fuzzyBase._fuzzy(unset));
-    assertUnset.accept(unset._fuzzy(unset));
+    // Test with unsetDateTime DateTimes
+    assertUnset.accept(unsetDateTime._fuzzy(fuzzyBase));
+    assertUnset.accept(fuzzyBase._fuzzy(unsetDateTime));
+    assertUnset.accept(unsetDateTime._fuzzy(unsetDateTime));
     
     // Test that fuzzy comparison is commutative
     final var localTime1 = dateTime1;
@@ -1622,20 +1541,20 @@ class DateTimeTest extends Common {
     assertEquals(INT_2023, testDateTime.year());
     assertEquals(String._of("+09:00"), testDateTime.zone());
     
-    // Test merge with unset DateTime (should make target unset)
+    // Test merge with unsetDateTime DateTime (should make target unsetDateTime)
     testDateTime = new DateTime(baseDateTime);
-    testDateTime._merge(unset);
+    testDateTime._merge(unsetDateTime);
     assertUnset.accept(testDateTime);
     
-    // Test merge on unset DateTime with valid source
+    // Test merge on unsetDateTime DateTime with valid source
     testDateTime = new DateTime();
     testDateTime._merge(sourceDateTime);
     assertEquals(sourceDateTime.toString(), testDateTime.toString());
     assertSet.accept(testDateTime);
     
-    // Test merge on unset DateTime with unset source
+    // Test merge on unsetDateTime DateTime with unsetDateTime source
     testDateTime = new DateTime();
-    testDateTime._merge(unset);
+    testDateTime._merge(unsetDateTime);
     assertUnset.accept(testDateTime);
     
     // Test timezone preservation during merge
@@ -1693,20 +1612,20 @@ class DateTimeTest extends Common {
     assertEquals(INT_2023, testDateTime.year());
     assertEquals(String._of("+09:00"), testDateTime.zone());
     
-    // Test replace with unset DateTime (should make target unset)
+    // Test replace with unsetDateTime DateTime (should make target unsetDateTime)
     testDateTime = new DateTime(baseDateTime);
-    testDateTime._replace(unset);
+    testDateTime._replace(unsetDateTime);
     assertUnset.accept(testDateTime);
     
-    // Test replace on unset DateTime with valid source
+    // Test replace on unsetDateTime DateTime with valid source
     testDateTime = new DateTime();
     testDateTime._replace(sourceDateTime);
     assertEquals(sourceDateTime.toString(), testDateTime.toString());
     assertSet.accept(testDateTime);
     
-    // Test replace on unset DateTime with unset source
+    // Test replace on unsetDateTime DateTime with unsetDateTime source
     testDateTime = new DateTime();
-    testDateTime._replace(unset);
+    testDateTime._replace(unsetDateTime);
     assertUnset.accept(testDateTime);
     
     // Verify _replace and _merge behave identically
@@ -1718,12 +1637,12 @@ class DateTimeTest extends Common {
     testB._replace(source);
     assertEquals(testA.toString(), testB.toString());
     
-    // Test with unset source - both should behave the same
+    // Test with unsetDateTime source - both should behave the same
     final var testC = new DateTime(baseUTC);
     final var testD = new DateTime(baseUTC);
     
-    testC._merge(unset);
-    testD._replace(unset);
+    testC._merge(unsetDateTime);
+    testD._replace(unsetDateTime);
     assertUnset.accept(testC);
     assertUnset.accept(testD);
     assertEquals(testC._isSet().state, testD._isSet().state);
@@ -1748,7 +1667,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_2024, testDateTime.year());
     assertEquals(INT_2, testDateTime.month());
     assertEquals(INT_29, testDateTime.day());
-    assertEquals(String._of("Z"), testDateTime.zone());
+    assertEquals(TIMEZONE_UTC_Z, testDateTime.zone());
   }
 
   @Test
@@ -1853,7 +1772,7 @@ class DateTimeTest extends Common {
     assertEquals(INT_45, testDateTime.second());
     assertEquals(String._of("-08:00"), testDateTime.zone());
     
-    // Test with unset DateTime (should remain unset and return unset)
+    // Test with unsetDateTime DateTime (should remain unsetDateTime and return unsetDateTime)
     var unsetTest = new DateTime();
     final var unsetIncResult = unsetTest._inc();
     assertUnset.accept(unsetTest);

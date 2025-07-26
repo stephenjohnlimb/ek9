@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 
 class VoidTest extends Common {
 
-  final Boolean falseBoolean = Boolean._of(false);
-
   @Test
   void generalTest() {
     assertUnset.accept(new Void());
