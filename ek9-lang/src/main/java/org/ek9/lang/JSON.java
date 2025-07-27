@@ -20,7 +20,6 @@ import org.ek9tooling.Ek9Operator;
  * </p>
  */
 
-
 @SuppressWarnings({"checkstyle:MethodName", "checkstyle:CatchParameterName"})
 @Ek9Class("""
     JSON as open""")

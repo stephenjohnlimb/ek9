@@ -72,6 +72,15 @@ For specific EK9 development tasks, refer to these comprehensive guides:
   - IDE configuration instructions for automatic compliance
   - **Use this when:** Writing any Java code for the EK9 project to ensure consistency
 
+### Architectural Design Philosophy
+- **`EK9_FUNCTIONAL_DESIGN_PHILOSOPHY.md`** - Core architectural patterns used throughout EK9
+  - Functional decomposition pattern with helper classes
+  - Java functional interface selection and usage guidelines
+  - Single responsibility principle applied systematically
+  - Node* helper class pattern extensively used in compiler design
+  - Standard library refactoring techniques and best practices
+  - **Use this when:** Refactoring complex classes or understanding EK9's architectural approach
+
 ### Historical Context and Lessons
 - **`EK9_SESSION_NOTES.md`** - Session-specific implementation notes and lessons learned
   - Detailed session notes from specific implementation challenges
