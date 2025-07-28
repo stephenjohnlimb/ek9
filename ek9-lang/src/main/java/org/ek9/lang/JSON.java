@@ -451,7 +451,6 @@ public class JSON extends BuiltinType {
       return _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C._of();
     }
 
-
     final var baseIterator = nodeIterator.apply(this);
     return _Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C._of(baseIterator);
   }
@@ -589,6 +588,28 @@ public class JSON extends BuiltinType {
     return JSON._of(nodeFactory.objectNode());
   }
 
+  @Ek9Method("""
+      parse() as pure
+        -> jsonText as String
+        <- rtn as Result of (JSON, String)?""")
+  public _Result_F734611776882C04A5CCDA69711ED473DD228A77B04C00E81CD193016B024456 parse(String jsonText) {
+    final var result = new _Result_F734611776882C04A5CCDA69711ED473DD228A77B04C00E81CD193016B024456();
+
+    if (!isValid(jsonText)) {
+      return result.asError(String._of("Invalid jsonText: jsonText is null or unset"));
+    }
+
+    try {
+      final var parsedNode = objectMapper.readTree(jsonText.state);
+      if (parsedNode != null) {
+        return result.asOk(JSON._of(parsedNode));
+      }
+      return result.asError(String._of("Unable to parse jsonText"));
+    } catch (JsonProcessingException ex) {
+      return result.asError(String._of("Invalid jsonText: " + ex.getMessage()));
+    }
+  }
+
   /**
    * Use JSON Path to locate part of the json structure.
    * Returns Result of (JSON, String) for explicit error handling.
@@ -648,14 +669,10 @@ public class JSON extends BuiltinType {
 
   public static JSON _of(java.lang.String value) {
     JSON result = new JSON();
-    if (value != null) {
-      try {
-        result.set();
-        result.jsonNode = objectMapper.readTree(value);
-      } catch (JsonProcessingException _) {
-        result.unSet();
-        result.jsonNode = null;
-      }
+    final var parsedJsonNode = parse(value);
+    if (parsedJsonNode != null) {
+      result.jsonNode = parsedJsonNode;
+      result.set();
     }
     return result;
   }
@@ -677,5 +694,16 @@ public class JSON extends BuiltinType {
     jsonNode.addAll(nodes);
     rtn.assign(jsonNode);
     return rtn;
+  }
+
+  private static JsonNode parse(java.lang.String value) {
+    if (value != null) {
+      try {
+        return objectMapper.readTree(value);
+      } catch (JsonProcessingException _) {
+        //Ignore not parsable.
+      }
+    }
+    return null;
   }
 }

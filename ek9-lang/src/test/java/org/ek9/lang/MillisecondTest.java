@@ -462,4 +462,90 @@ class MillisecondTest extends Common {
     assertUnset.accept(invalidString3);
   }
 
+  @Test
+  void testSimplePipedJSONValue() {
+    // Test piping individual JSON millisecond values
+    final var mutatedMillisecond = new Millisecond();
+    final var json1000ms = new JSON(String._of("1000ms"));
+    final var json500ms = new JSON(String._of("500ms"));
+    final var jsonInvalidMs = new JSON(String._of("invalid")); // Should be ignored
+
+    // Start unset
+    assertUnset.accept(mutatedMillisecond);
+
+    // Pipe "1000ms" - should become 1000ms
+    mutatedMillisecond._pipe(json1000ms);
+    assertSet.accept(mutatedMillisecond);
+    assertEquals(1000, mutatedMillisecond._prefix().state);
+
+    // Pipe "500ms" - should add to get 1500ms (merge behavior)
+    mutatedMillisecond._pipe(json500ms);
+    assertEquals(1500, mutatedMillisecond._prefix().state);
+
+    // Test invalid millisecond - should be ignored
+    final var beforeInvalid = mutatedMillisecond._prefix().state;
+    mutatedMillisecond._pipe(jsonInvalidMs);
+    assertEquals(beforeInvalid, mutatedMillisecond._prefix().state); // Should remain unchanged
+  }
+
+  @Test
+  void testSimplePipedJSONArray() {
+    final var mutatedMillisecond = new Millisecond();
+    final var json1Result = new JSON().parse(String._of("[\"2000ms\", \"1000ms\"]"));
+    final var json2Result = new JSON().parse(String._of("[\"3000ms\", \"2000ms\"]"));
+
+    // Check that the JSON text was parsed
+    assertSet.accept(json1Result);
+    assertSet.accept(json2Result);
+
+    // Pipe array with "2000ms" and "1000ms" - should add to 3000ms
+    mutatedMillisecond._pipe(json1Result.ok());
+    assertSet.accept(mutatedMillisecond);
+    assertEquals(3000, mutatedMillisecond._prefix().state);
+
+    // Pipe second array - should add 5000ms to get 8000ms
+    mutatedMillisecond._pipe(json2Result.ok());
+    assertEquals(8000, mutatedMillisecond._prefix().state);
+  }
+
+  @Test
+  void testStructuredPipedJSONObject() {
+    final var mutatedMillisecond = new Millisecond();
+    final var jsonStr = """
+        {
+          "delay": "1500ms",
+          "timeout": "2500ms"
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedMillisecond._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedMillisecond);
+    // Should add the millisecond values: 1500 + 2500 = 4000ms
+    assertEquals(4000, mutatedMillisecond._prefix().state);
+  }
+
+  @Test
+  void testNestedPipedJSONObject() {
+    final var mutatedMillisecond = new Millisecond();
+    final var jsonStr = """
+        {
+          "timing": ["1000ms", "2000ms"],
+          "interval": "500ms",
+          "buffer": "250ms",
+          "nested": {"wait": "750ms", "pause": "1250ms"}
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedMillisecond._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedMillisecond);
+    // Should add all millisecond values: 1000 + 2000 + 500 + 250 + 750 + 1250 = 5750ms
+    assertEquals(5750, mutatedMillisecond._prefix().state);
+  }
+
 }

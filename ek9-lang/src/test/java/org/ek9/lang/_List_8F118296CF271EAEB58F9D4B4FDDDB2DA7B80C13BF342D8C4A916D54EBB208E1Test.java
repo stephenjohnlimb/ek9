@@ -401,7 +401,7 @@ class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1Test
 
     // Test operations with null parameters  
     assertDoesNotThrow(() -> list._merge((String) null));
-    assertDoesNotThrow(() -> list._pipe(null));
+    assertDoesNotThrow(() -> list._pipe((String) null));
     assertDoesNotThrow(() -> list._addAss((String) null));
     assertDoesNotThrow(() -> list._subAss((String) null));
 

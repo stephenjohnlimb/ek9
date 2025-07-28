@@ -1,5 +1,6 @@
 package org.ek9.lang;
 
+import org.ek9tooling.Ek9Operator;
 import org.ek9tooling.Ek9ParameterisedType;
 
 /**
@@ -183,6 +184,15 @@ public class _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB20
   // Operator 21: | (pipe) with String parameter
   public void _pipe(String arg) {
     delegate._pipe(arg);
+  }
+
+  @Ek9Operator("""
+      operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+    //because this is a list of String we can just put this straight in.
+    //if this were a list of Integer we'd need to construct and add in.
+    jsonTraversal.accept(arg, this::_pipe);
   }
 
   // Operator 22: += (add assignment) with List of String parameter

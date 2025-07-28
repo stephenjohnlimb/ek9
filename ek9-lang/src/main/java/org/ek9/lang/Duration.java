@@ -201,6 +201,24 @@ public class Duration extends BuiltinType {
   }
 
   @Ek9Operator("""
+      operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+
+    jsonTraversal.accept(arg, str -> {
+      Duration d = new Duration(str);
+      if (!d._isSet().state) {
+        // Try as millisecond value if Duration parsing failed
+        Millisecond ms = new Millisecond(str);
+        if (ms._isSet().state) {
+          d = Duration._of(ms._prefix().state / 1000L);
+        }
+      }
+      _pipe(d);
+    });
+  }
+
+  @Ek9Operator("""
       operator +=
         -> arg as Duration""")
   public void _addAss(Duration arg) {

@@ -497,7 +497,7 @@ class UDPTest extends Common {
 
     // All methods should handle null gracefully
     assertDoesNotThrow(() -> testUdp.send(null));
-    assertDoesNotThrow(() -> testUdp._pipe(null));
+    assertDoesNotThrow(() -> testUdp._pipe((UDPPacket) null));
 
     // Constructors should handle null
     assertDoesNotThrow(() -> new UDP(null));

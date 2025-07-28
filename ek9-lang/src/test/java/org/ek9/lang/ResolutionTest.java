@@ -715,4 +715,91 @@ class ResolutionTest extends Common {
     assertSet.accept(dpcLow);
     assertSet.accept(dpcHigh);
   }
+
+  @Test
+  void testSimplePipedJSONValue() {
+    // Test piping individual JSON resolution values
+    final var mutatedResolution = new Resolution();
+    final var json72dpi = new JSON(String._of("72dpi"));
+    final var json150dpi = new JSON(String._of("150dpi"));
+    final var jsonInvalidRes = new JSON(String._of("invalid")); // Should be ignored
+
+    // Start unset
+    assertUnset.accept(mutatedResolution);
+
+    // Pipe "72dpi" - should become 72dpi
+    mutatedResolution._pipe(json72dpi);
+    assertSet.accept(mutatedResolution);
+    assertEquals("72dpi", mutatedResolution.toString());
+
+    // Pipe "150dpi" - should add to get 222dpi
+    mutatedResolution._pipe(json150dpi);
+    assertEquals("222dpi", mutatedResolution.toString());
+
+    // Test invalid resolution - should be ignored
+    final var beforeInvalid = mutatedResolution.toString();
+    mutatedResolution._pipe(jsonInvalidRes);
+    assertEquals(beforeInvalid, mutatedResolution.toString()); // Should remain unchanged
+  }
+
+  @Test
+  void testSimplePipedJSONArray() {
+    final var mutatedResolution = new Resolution();
+    final var json1Result = new JSON().parse(String._of("[\"72dpi\", \"150dpi\"]"));
+    final var json2Result = new JSON().parse(String._of("[\"300dpi\", \"600dpi\"]"));
+
+    // Check that the JSON text was parsed
+    assertSet.accept(json1Result);
+    assertSet.accept(json2Result);
+
+    // Pipe array with "72dpi" and "150dpi" - should add to 222dpi
+    mutatedResolution._pipe(json1Result.ok());
+    assertSet.accept(mutatedResolution);
+    assertEquals("222dpi", mutatedResolution.toString());
+
+    // Pipe second array - should add 900dpi to get 1122dpi
+    mutatedResolution._pipe(json2Result.ok());
+    assertEquals("1122dpi", mutatedResolution.toString());
+  }
+
+  @Test
+  void testStructuredPipedJSONObject() {
+    final var mutatedResolution = new Resolution();
+    final var jsonStr = """
+        {
+          "screen": "96dpi",
+          "print": "300dpi"
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedResolution._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedResolution);
+    // Should add the resolution values: 96 + 300 = 396dpi
+    assertEquals("396dpi", mutatedResolution.toString());
+  }
+
+  @Test
+  void testNestedPipedJSONObject() {
+    final var mutatedResolution = new Resolution();
+    final var jsonStr = """
+        {
+          "display": ["72dpi", "96dpi"],
+          "print": "300dpi",
+          "high_res": "600dpi",
+          "nested": {"web": "72dpi", "professional": "1200dpi"}
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedResolution._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedResolution);
+    // Should add all resolution values: 72 + 96 + 300 + 600 + 72 + 1200 = 2340dpi
+    assertEquals("2340dpi", mutatedResolution.toString());
+  }
+
 }

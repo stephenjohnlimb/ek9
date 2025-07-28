@@ -97,6 +97,14 @@ public class Dimension extends SuffixedComponent {
   }
 
   @Ek9Operator("""
+      operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+
+    jsonTraversal.accept(arg, str -> _pipe(new Dimension(str)));
+  }
+
+  @Ek9Operator("""
       operator - as pure
         <- rtn as Dimension?""")
   public Dimension _negate() {

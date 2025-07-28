@@ -4,7 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.math.BigDecimal;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Unit tests for Money class.
@@ -745,4 +749,146 @@ class MoneyTest extends Common {
     // Test JSON conversion with unset value
     assertUnset.accept(unset._json());
   }
+
+  @Test
+  void testSimplePipedJSONValue() {
+    // Test piping individual JSON money values with currency logic
+    final var mutatedMoney = new Money();
+    final var jsonGbp10 = new JSON(String._of("10.00#GBP"));
+    final var jsonGbp5 = new JSON(String._of("5.00#GBP"));
+    final var jsonUsd30 = new JSON(String._of("30.20#USD")); // Different currency
+    final var jsonInvalid = new JSON(String._of("invalid")); // Should be ignored
+
+    // Start unset
+    assertUnset.accept(mutatedMoney);
+
+    // Pipe GBP 10.00 - should assign (unset + value = assign)
+    mutatedMoney._pipe(jsonGbp10);
+    assertSet.accept(mutatedMoney);
+    assertEquals("10.00#GBP", mutatedMoney.toString());
+
+    // Pipe GBP 5.00 - same currency, should add: 10.00 + 5.00 = 15.00
+    mutatedMoney._pipe(jsonGbp5);
+    assertEquals("15.00#GBP", mutatedMoney.toString());
+
+    // Pipe USD 30.20 - different currency, should unset the Money
+    mutatedMoney._pipe(jsonUsd30);
+    assertUnset.accept(mutatedMoney);
+
+    // Once unset, pipe GBP again - should assign (unset + value = assign)
+    mutatedMoney._pipe(jsonGbp10);
+    assertSet.accept(mutatedMoney);
+    assertEquals("10.00#GBP", mutatedMoney.toString());
+
+    // Test invalid format - should be ignored
+    final var beforeInvalid = mutatedMoney.toString();
+    mutatedMoney._pipe(jsonInvalid);
+    assertEquals(beforeInvalid, mutatedMoney.toString());
+  }
+
+  @Test
+  void testSimplePipedJSONArray() {
+    final var mutatedMoney = new Money();
+    final var json1Result = new JSON().parse(String._of("[\"20.00#USD\", \"10.50#USD\"]"));
+    final var json2Result = new JSON().parse(String._of("[\"5.00#GBP\", \"15.00#USD\"]")); // Mixed currencies
+
+    // Check that the JSON text was parsed
+    assertSet.accept(json1Result);
+    assertSet.accept(json2Result);
+
+    // Pipe array with same currency USD - should add: 20.00 + 10.50 = 30.50
+    mutatedMoney._pipe(json1Result.ok());
+    assertSet.accept(mutatedMoney);
+    assertEquals("30.50#USD", mutatedMoney.toString());
+
+    // Pipe array with mixed currencies - should process first GBP (which conflicts with USD), causing unset
+    // Then USD tries to be processed on unset Money, which assigns the USD 
+    mutatedMoney._pipe(json2Result.ok());
+    assertSet.accept(mutatedMoney); // Actually ends up set with the last valid currency
+    assertEquals("15.00#USD", mutatedMoney.toString()); // Should be the USD amount after GBP caused unset
+  }
+
+  private static Stream<Arguments> getComplexJSONPipeTestCases() {
+    return Stream.of(
+        // Structured object - same currency addition
+        Arguments.of(
+            """
+            {
+              "price": "25.50#EUR",
+              "tax": "5.10#EUR"
+            }""",
+            "30.60#EUR"
+        ),
+        
+        // Nested complex object - all same currency
+        Arguments.of(
+            """
+            {
+              "costs": ["15.00#GBP", "10.00#GBP"],
+              "subtotal": "5.00#GBP",
+              "fees": {"service": "2.50#GBP", "processing": "1.50#GBP"}
+            }""",
+            "34.00#GBP"
+        ),
+        
+        // Mixed valid/invalid values - valid ones sum
+        Arguments.of(
+            """
+            {
+              "valid1": "10.00#USD",
+              "invalid1": "not-money",
+              "valid2": "15.50#USD",
+              "invalid2": "100#INVALID",
+              "valid3": "5.25#USD"
+            }""",
+            "30.75#USD"
+        )
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("getComplexJSONPipeTestCases")
+  void testComplexJSONPipeScenarios(java.lang.String jsonString, java.lang.String expectedResult) {
+    final var mutatedMoney = new Money();
+    final var jsonResult = new JSON().parse(String._of(jsonString));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedMoney._pipe(jsonResult.ok());
+    
+    assertSet.accept(mutatedMoney);
+    assertEquals(expectedResult, mutatedMoney.toString());
+  }
+
+  @Test
+  void testCurrencyMismatchScenarios() {
+    final var mutatedMoney = new Money();
+
+    // Start with USD
+    mutatedMoney._pipe(new JSON(String._of("100.00#USD")));
+    assertSet.accept(mutatedMoney);
+    assertEquals("100.00#USD", mutatedMoney.toString());
+
+    // Add more USD - should work
+    mutatedMoney._pipe(new JSON(String._of("25.50#USD")));
+    assertEquals("125.50#USD", mutatedMoney.toString());
+
+    // Try to add GBP - should unset due to currency mismatch
+    mutatedMoney._pipe(new JSON(String._of("10.00#GBP")));
+    assertUnset.accept(mutatedMoney);
+
+    // From unset, pipe EUR - should assign
+    mutatedMoney._pipe(new JSON(String._of("50.75#EUR")));
+    assertSet.accept(mutatedMoney);
+    assertEquals("50.75#EUR", mutatedMoney.toString());
+
+    // Add more EUR - should work
+    mutatedMoney._pipe(new JSON(String._of("24.25#EUR")));
+    assertEquals("75.00#EUR", mutatedMoney.toString());
+
+    // Try JPY (different currency) - should unset again
+    mutatedMoney._pipe(new JSON(String._of("1000#JPY")));
+    assertUnset.accept(mutatedMoney);
+  }
+
 }

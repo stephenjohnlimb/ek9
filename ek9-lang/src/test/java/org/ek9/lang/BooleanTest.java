@@ -292,4 +292,106 @@ class BooleanTest extends Common {
 
   }
 
+  @Test
+  void testSimplePipedJSONValue() {
+    // Test piping individual JSON boolean values
+    final var mutatedBoolean = new Boolean();
+    final var jsonFalse = new JSON(falseBoolean);
+    final var jsonTrue = new JSON(trueBoolean);
+    final var jsonStringTrue = new JSON(String._of("true"));
+    final var jsonStringFalse = new JSON(String._of("false"));
+    final var jsonStringOther = new JSON(String._of("other")); // Should parse as false
+
+    // Start unset
+    assertUnset.accept(mutatedBoolean);
+
+    // Pipe false - should become false
+    mutatedBoolean._pipe(jsonFalse);
+    assertSet.accept(mutatedBoolean);
+    assertEquals(falseBoolean, mutatedBoolean);
+
+    // Pipe true - should become true (once true, always true)
+    mutatedBoolean._pipe(jsonTrue);
+    assertEquals(trueBoolean, mutatedBoolean);
+
+    // Pipe false again - should remain true  
+    mutatedBoolean._pipe(jsonFalse);
+    assertEquals(trueBoolean, mutatedBoolean);
+
+    //String are stripped or " and so can be used directly.
+    final var stringFalseTest = new Boolean();
+    stringFalseTest._pipe(jsonStringFalse);
+    assertEquals(falseBoolean, stringFalseTest);
+
+    final var stringTrueTest = new Boolean();
+    stringTrueTest._pipe(jsonStringTrue);
+    assertEquals(trueBoolean, stringTrueTest);
+
+    // Test non-boolean string (should parse as false)
+    final var otherTest = new Boolean();
+    otherTest._pipe(jsonStringOther);
+    assertEquals(falseBoolean, otherTest);
+  }
+
+  @Test
+  void testSimplePipedJSONArray() {
+    final var mutatedBoolean = new Boolean();
+    final var json1Result = new JSON().parse(String._of("[false, true]"));
+    final var json2Result = new JSON().parse(String._of("[false, false]"));
+
+    // Check that the JSON text was parsed
+    assertSet.accept(json1Result);
+    assertSet.accept(json2Result);
+
+    // Pipe array with false and true - should end up true
+    mutatedBoolean._pipe(json1Result.ok());
+    assertSet.accept(mutatedBoolean);
+    assertEquals(trueBoolean, mutatedBoolean); // false OR true = true
+
+    // Create new boolean for second test
+    final var anotherBoolean = new Boolean();
+    anotherBoolean._pipe(json2Result.ok()); 
+    assertSet.accept(anotherBoolean);
+    assertEquals(falseBoolean, anotherBoolean); // false OR false = false
+  }
+
+  @Test
+  void testStructuredPipedJSONObject() {
+    final var mutatedBoolean = new Boolean();
+    final var jsonStr = """
+        {
+          "prop1": false,
+          "prop2": true
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedBoolean._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedBoolean);
+    assertEquals(trueBoolean, mutatedBoolean); // false OR true = true
+  }
+
+  @Test
+  void testNestedPipedJSONObject() {
+    final var mutatedBoolean = new Boolean();
+    final var jsonStr = """
+        {
+          "prop1": [false, true],
+          "prop2": false,
+          "prop3": "Just a String",
+          "prop4": [{"val1": true, "val2": false}, {"other": false}]
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedBoolean._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedBoolean);  
+    // Should be true because there are multiple true values in the nested structure
+    assertEquals(trueBoolean, mutatedBoolean);
+  }
+
 }

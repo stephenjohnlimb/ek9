@@ -82,6 +82,7 @@ public class Common {
   final Integer INT_7 = Integer._of(7);
   final Integer INT_8 = Integer._of(8);
   final Integer INT_9 = Integer._of(9);
+  final Integer INT_10 = Integer._of(10);
   final Integer INT_11 = Integer._of(11);
   final Integer INT_12 = Integer._of(12);
   final Integer INT_13 = Integer._of(13);

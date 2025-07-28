@@ -546,6 +546,14 @@ public class Money extends BuiltinType {
   }
 
   @Ek9Operator("""
+      operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+
+    jsonTraversal.accept(arg, str -> _pipe(new Money(str)));
+  }
+
+  @Ek9Operator("""
       operator :^:
         -> arg as Money""")
   public void _replace(Money arg) {

@@ -278,6 +278,31 @@ public class DateTime extends BuiltinType implements TemporalItem {
 
   @Ek9Operator("""
       operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+    final java.util.function.Consumer<String> consumer = str -> {
+      final var tryDateTime = new DateTime(str);
+      if (tryDateTime.isSet) {
+        _pipe(tryDateTime);
+        return;
+      }
+      final var tryDuration = new Duration(str);
+      if (tryDuration.isSet) {
+        _pipe(tryDuration);
+        return;
+      }
+
+      final var tryMillisecond = new Millisecond(str);
+      if (tryMillisecond.isSet) {
+        _pipe(tryMillisecond);
+      }
+    };
+
+    jsonTraversal.accept(arg, consumer);
+  }
+
+  @Ek9Operator("""
+      operator |
         -> arg as Duration""")
   public void _pipe(Duration arg) {
     if (isValid(arg)) {

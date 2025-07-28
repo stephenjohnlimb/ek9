@@ -257,15 +257,100 @@ class IntegerTest extends Common {
     final var zeroJson = INT_0._json();
     assertNotNull(zeroJson);
     assertSet.accept(zeroJson);
-    
+
     final var oneJson = INT_1._json();
     assertSet.accept(oneJson);
-    
+
     final var minusOneJson = INT_MINUS_1._json();
     assertSet.accept(minusOneJson);
-    
+
     // Test JSON conversion with unset value
     assertUnset.accept(unsetInteger._json());
+  }
+
+  @Test
+  void testSimplePipedJSONValue() {
+
+    //Just a simple piping of individual values
+    final var mutatedInteger = new Integer();
+    final var json1 = new JSON(INT_1);
+    final var json3 = new JSON(INT_3);
+    final var jsonButADate = new JSON(epoch);
+    final var jsonNumberButAString = new JSON(String._of("12"));
+
+    mutatedInteger._pipe(json1);
+    assertSet.accept(mutatedInteger);
+
+    mutatedInteger._pipe(json3);
+    assertSet.accept(mutatedInteger);
+
+    //We can pipe this in but it cannot be converted to an integer (via String).
+    //So it will be ignored
+    mutatedInteger._pipe(jsonButADate);
+
+    mutatedInteger._pipe(jsonNumberButAString);
+
+    assertEquals(INT_16, mutatedInteger);
+
+  }
+
+  @Test
+  void testSimplePipedJSONArray() {
+    final var mutatedInteger = new Integer();
+    final var json1Result = new JSON().parse(String._of("[1, 3]"));
+    final var json2Result = new JSON().parse(String._of("[9, 16]"));
+
+    //Check that the JSON text was parsed.
+    assertSet.accept(json1Result);
+    assertSet.accept(json2Result);
+
+    //Now when you pipe an array in, it will traverse the array and
+    //recursively call _pipe(JSON) with each of the components.
+    mutatedInteger._pipe(json1Result.ok());
+    assertSet.accept(mutatedInteger);
+
+    mutatedInteger._pipe(json2Result.ok());
+    assertSet.accept(mutatedInteger);
+
+    assertEquals(INT_29, mutatedInteger);
+
+  }
+
+  @Test
+  void testStructuredPipedJSONObject() {
+    final var mutatedInteger = new Integer();
+    final var jsonStr = """
+        {
+          "prop1": 6,
+           "prop2": 4
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    //pre condition check that is ok
+    assertSet.accept(jsonResult);
+    mutatedInteger._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedInteger);
+    assertEquals(INT_10, mutatedInteger);
+
+  }
+
+  @Test
+  void testNestedPipedJSONObject() {
+    final var mutatedInteger = new Integer();
+    final var jsonStr = """
+        {
+          "prop1": [9, 8],
+          "prop2": 4,
+          "prop3": "Just a String",
+          "prop4" : [{"val1": 17, "val2" : 21}, {"other": -9}]
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    //pre condition check that is ok
+    assertSet.accept(jsonResult);
+    mutatedInteger._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedInteger);
+    assertEquals(INT_50, mutatedInteger);
   }
 
   @Test

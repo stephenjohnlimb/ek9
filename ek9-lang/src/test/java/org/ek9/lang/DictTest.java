@@ -458,7 +458,7 @@ class DictTest extends Common {
       assertEquals(value3, dict.get(key3));
 
       // Pipe with null entry should do nothing
-      assertNoSizeChange(dict, () -> dict._pipe(null));
+      assertNoSizeChange(dict, () -> dict._pipe((DictEntry)null));
     }
   }
 

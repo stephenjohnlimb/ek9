@@ -543,6 +543,13 @@ public class Integer extends BuiltinType {
   }
 
   @Ek9Operator("""
+      operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+    jsonTraversal.accept(arg, str -> _pipe(new Integer(str)));
+  }
+
+  @Ek9Operator("""
       operator +=
         -> arg as Integer""")
   public void _addAss(Integer arg) {

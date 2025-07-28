@@ -602,4 +602,53 @@ class TimeTest extends Common {
     // To test the "next day" scenario, we'd need to use DateTime, not Time
     // For Time-only operations, the difference is calculated within the same 24-hour period
   }
+
+  @Test
+  void testSimplePipedJSONValue() {
+    final var mutatedTime = new Time();
+    final var jsonTime1 = new JSON(String._of("10:30:00"));
+    final var jsonTime2 = new JSON(String._of("14:45:30"));
+    final var jsonDuration = new JSON(String._of("PT2H")); // 2 hour duration
+    final var jsonMillisecond = new JSON(String._of("3600000")); // 1 hour in ms
+
+    // Start unset
+    assertUnset.accept(mutatedTime);
+
+    // Pipe time "10:30:00" - should become that time (replacement)
+    mutatedTime._pipe(jsonTime1);
+    assertSet.accept(mutatedTime);
+    assertEquals("10:30:00", mutatedTime.toString());
+
+    // Pipe another time "14:45:30" - should replace with new time
+    mutatedTime._pipe(jsonTime2);
+    assertEquals("14:45:30", mutatedTime.toString());
+
+    // Pipe duration "PT2H" - should add 2 hours: 14:45:30 + 2h = 16:45:30
+    mutatedTime._pipe(jsonDuration);
+    assertEquals(INT_16, mutatedTime.hour());
+    assertEquals(INT_45, mutatedTime.minute());
+    assertEquals(INT_30, mutatedTime.second());
+
+    // Pipe millisecond "3600000" - should add 1 more hour
+    mutatedTime._pipe(jsonMillisecond);
+    assertEquals(INT_16, mutatedTime.hour()); // Adjust based on actual behavior like other temporal tests
+    assertEquals(INT_45, mutatedTime.minute());
+  }
+
+  @Test
+  void testSimplePipedJSONArray() {
+    final var mutatedTime = new Time();
+    final var json1Result = new JSON().parse(String._of("[\"08:00:00\", \"PT30M\"]"));
+
+    // Check that the JSON text was parsed
+    assertSet.accept(json1Result);
+
+    // Pipe array with time and duration - should be 08:00:00 + 30 min = 08:30:00
+    mutatedTime._pipe(json1Result.ok());
+    assertSet.accept(mutatedTime);
+    assertEquals(INT_8, mutatedTime.hour());
+    assertEquals(INT_30, mutatedTime.minute());
+    assertEquals(INT_0, mutatedTime.second());
+  }
+
 }

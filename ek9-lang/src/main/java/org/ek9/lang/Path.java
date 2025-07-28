@@ -373,6 +373,14 @@ public class Path extends BuiltinType {
 
   @Ek9Operator("""
       operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+
+    jsonTraversal.accept(arg, str -> _pipe(new Path(str)));
+  }
+
+  @Ek9Operator("""
+      operator |
         -> arg as String""")
   public void _pipe(String arg) {
     if (isValid(arg)) {

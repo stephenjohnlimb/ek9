@@ -264,6 +264,14 @@ public class Character extends BuiltinType {
   }
 
   @Ek9Operator("""
+      operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+
+    jsonTraversal.accept(arg, str -> _pipe(new Character(str)));
+  }
+
+  @Ek9Operator("""
       operator ++
         <- rtn as Character?""")
   public Character _inc() {

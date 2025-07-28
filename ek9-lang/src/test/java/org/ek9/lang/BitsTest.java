@@ -362,6 +362,24 @@ class BitsTest extends Common {
   }
 
   @Test
+  void testStructuredPipedJSONObject() {
+    final var mutatedBits = new Bits();
+    final var jsonStr = """
+        {
+          "prop1": "0b010011",
+          "prop2": "0b101010"
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedBits._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedBits);
+    assertEquals(Bits._of("010011101010"), mutatedBits); // false OR true = true
+  }
+
+  @Test
   void testUnsetPropagation() {
     // Operations with unset operands should return unset
     assertNotNull(unsetBits);

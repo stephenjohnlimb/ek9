@@ -838,4 +838,91 @@ class PathTest extends Common {
     assertSet.accept(mixedPattern2);
     assertEquals("$?.data[*].items[?(@.active == true)].name", mixedPattern2.toString());
   }
+
+  @Test
+  void testSimplePipedJSONValue() {
+    // Test piping individual JSON path values
+    final var mutatedPath = new Path();
+    final var jsonPath1 = new JSON(String._of(".store"));
+    final var jsonPath2 = new JSON(String._of(".book[0]"));
+    final var jsonInvalidPath = new JSON(String._of("invalid")); // Should be ignored
+
+    // Start unset
+    assertUnset.accept(mutatedPath);
+
+    // Pipe ".store" - should become "$?.store"
+    mutatedPath._pipe(jsonPath1);
+    assertSet.accept(mutatedPath);
+    assertEquals("$?.store", mutatedPath.toString());
+
+    // Pipe ".book[0]" - should concatenate to "$?$?.store.book[0]"
+    mutatedPath._pipe(jsonPath2);
+    assertEquals("$?.store.book[0]", mutatedPath.toString());
+
+    // Test invalid path - should be ignored (Path construction fails)
+    final var beforeInvalid = mutatedPath.toString();
+    mutatedPath._pipe(jsonInvalidPath);
+    assertEquals(beforeInvalid, mutatedPath.toString()); // Should remain unchanged
+  }
+
+  @Test
+  void testSimplePipedJSONArray() {
+    final var mutatedPath = new Path();
+    final var json1Result = new JSON().parse(String._of("[\".store\", \".book\"]"));
+    final var json2Result = new JSON().parse(String._of("[\".author\", \"[0]\"]"));
+
+    // Check that the JSON text was parsed
+    assertSet.accept(json1Result);
+    assertSet.accept(json2Result);
+
+    // Pipe array with ".store" and ".book"
+    mutatedPath._pipe(json1Result.ok());
+    assertSet.accept(mutatedPath);
+    assertEquals("$?.store.book", mutatedPath.toString());
+
+    // Pipe second array to continue building path
+    mutatedPath._pipe(json2Result.ok());
+    assertEquals("$?.store.book.author[0]", mutatedPath.toString());
+  }
+
+  @Test
+  void testStructuredPipedJSONObject() {
+    final var mutatedPath = new Path();
+    final var jsonStr = """
+        {
+          "base": ".store",
+          "collection": ".books"
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedPath._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedPath);
+    // Should concatenate the path components
+    assertEquals("$?.store.books", mutatedPath.toString());
+  }
+
+  @Test
+  void testNestedPipedJSONObject() {
+    final var mutatedPath = new Path();
+    final var jsonStr = """
+        {
+          "root": [".store", ".inventory"],
+          "target": ".books",
+          "filter": "[0]",
+          "nested": {"field": ".title", "index": "[1]"}
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedPath._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedPath);
+    // Should build a complex path from all components
+    assertEquals("$?.store.inventory.books[0].title[1]", mutatedPath.toString());
+  }
+
 }

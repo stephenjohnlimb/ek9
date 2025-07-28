@@ -481,4 +481,100 @@ class DurationTest extends Common {
     // Test JSON conversion with unset value
     assertUnset.accept(unsetDuration._json());
   }
+
+  @Test
+  void testSimplePipedJSONValue() {
+    // Test piping individual JSON duration and millisecond values
+    final var mutatedDuration = new Duration();
+    final var jsonDuration1 = new JSON(String._of("PT1H"));
+    final var jsonDuration2 = new JSON(String._of("PT30M"));
+    final var jsonMillisecond = new JSON(String._of("1800000ms")); // 30 minutes in ms
+    final var jsonInvalid = new JSON(String._of("invalid")); // Should be ignored
+    final var jsonPlainNumber = new JSON(String._of("3600000")); // No "ms" suffix, should be ignored
+
+    // Start unset
+    assertUnset.accept(mutatedDuration);
+
+    // Pipe duration "PT1H" - should become 1 hour
+    mutatedDuration._pipe(jsonDuration1);
+    assertSet.accept(mutatedDuration);
+    assertEquals(INT_1, mutatedDuration.hours());
+
+    // Pipe duration "PT30M" - should add to get 1.5 hours (additive behavior)
+    mutatedDuration._pipe(jsonDuration2);
+    assertEquals(INT_90, mutatedDuration.minutes()); // 60 + 30 = 90 minutes
+
+    // Pipe millisecond "1800000ms" - should add 30 more minutes to get 2 hours
+    mutatedDuration._pipe(jsonMillisecond);
+    assertEquals(INT_2, mutatedDuration.hours()); // 90 + 30 = 120 minutes = 2 hours
+
+    // Test invalid string - should be ignored
+    final var beforeInvalid = mutatedDuration.hours().state;
+    mutatedDuration._pipe(jsonInvalid);
+    assertEquals(beforeInvalid, mutatedDuration.hours().state); // Should remain unchanged
+
+    // Test plain number without "ms" - should be ignored
+    mutatedDuration._pipe(jsonPlainNumber);
+    assertEquals(beforeInvalid, mutatedDuration.hours().state); // Should remain unchanged
+  }
+
+  @Test
+  void testSimplePipedJSONArray() {
+    final var mutatedDuration = new Duration();
+    final var json1Result = new JSON().parse(String._of("[\"PT1H\", \"3600000ms\"]"));
+    final var json2Result = new JSON().parse(String._of("[\"PT2H\", \"1800000ms\"]"));
+
+    // Check that the JSON text was parsed
+    assertSet.accept(json1Result);
+    assertSet.accept(json2Result);
+
+    // Pipe array with duration and milliseconds - should be 1h + 1h = 2 hours
+    mutatedDuration._pipe(json1Result.ok());
+    assertSet.accept(mutatedDuration);
+    assertEquals(INT_2, mutatedDuration.hours()); // 1h + 3600000ms(1h) = 2h
+
+    // Pipe second array - should add 2h + 30min = 2.5h total = 4.5h
+    mutatedDuration._pipe(json2Result.ok());
+    assertEquals(Integer._of(270), mutatedDuration.minutes()); // 4.5 hours = 270 minutes
+  }
+
+  @Test
+  void testStructuredPipedJSONObject() {
+    final var mutatedDuration = new Duration();
+    final var jsonStr = """
+        {
+          "duration": "PT2H",
+          "delay": "1800000ms"
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedDuration._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedDuration);
+    // Should add the durations: 2h + 30min = 2.5 hours = 150 minutes
+    assertEquals(Integer._of(150), mutatedDuration.minutes());
+  }
+
+  @Test
+  void testNestedPipedJSONObject() {
+    final var mutatedDuration = new Duration();
+    final var jsonStr = """
+        {
+          "timeouts": ["PT1H", "1800000ms"],
+          "interval": "PT30M",
+          "buffer": "900000ms",
+          "nested": {"wait": "PT15M", "pause": "600000ms"}
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedDuration._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedDuration);
+    // Should add all durations: 1h + 30min(ms) + 30min + 15min(ms) + 15min + 10min(ms) = 2h 40min = 160min
+    assertEquals(Integer._of(160), mutatedDuration.minutes());
+  }
 }

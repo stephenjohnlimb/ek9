@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("checkstyle:MethodName")
 public abstract class BuiltinType implements Any {
+  final JSONTraversal jsonTraversal = new JSONTraversal();
   boolean isSet = false;
 
   /**

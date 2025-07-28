@@ -1041,4 +1041,96 @@ class StringTest extends Common {
     assertEquals(1, emptyResult._len().state);
     assertEquals(emptyString, emptyResult.get(INT_0));
   }
+
+  @Test
+  void testSimplePipedJSONValue() {
+    // Test piping individual JSON string values
+    final var mutatedString = new String();
+    final var jsonHello = new JSON(createTestString("Hello"));
+    final var jsonWorld = new JSON(createTestString(" World"));
+    final var jsonNumber = new JSON(Integer._of(123)); // Should convert to "123"
+    final var jsonBoolean = new JSON(Boolean._of(true)); // Should convert to "true"
+
+    // Start unset
+    assertUnset.accept(mutatedString);
+
+    // Pipe "Hello" - should become "Hello"
+    mutatedString._pipe(jsonHello);
+    assertSet.accept(mutatedString);
+    assertEquals(createTestString("Hello"), mutatedString);
+
+    // Pipe " World" - should concatenate to "Hello World"
+    mutatedString._pipe(jsonWorld);
+    assertEquals(createTestString("Hello World"), mutatedString);
+
+    // Test non-string JSON values - should convert via _string()
+    final var numberTest = new String();
+    numberTest._pipe(jsonNumber);
+    assertEquals(createTestString("123"), numberTest);
+
+    final var boolTest = new String();
+    boolTest._pipe(jsonBoolean);
+    assertEquals(createTestString("true"), boolTest);
+  }
+
+  @Test
+  void testSimplePipedJSONArray() {
+    final var mutatedString = new String();
+    final var json1Result = new JSON().parse(String._of("[\"Hello\", \" \", \"World\"]"));
+    final var json2Result = new JSON().parse(String._of("[\"!\", \" How\", \" are\", \" you?\"]"));
+
+    // Check that the JSON text was parsed
+    assertSet.accept(json1Result);
+    assertSet.accept(json2Result);
+
+    // Pipe array with "Hello", " ", "World" - should concatenate to "Hello World"
+    mutatedString._pipe(json1Result.ok());
+    assertSet.accept(mutatedString);
+    assertEquals(createTestString("Hello World"), mutatedString);
+
+    // Pipe second array - should append to get "Hello World! How are you?"
+    mutatedString._pipe(json2Result.ok());
+    assertEquals(createTestString("Hello World! How are you?"), mutatedString);
+  }
+
+  @Test
+  void testStructuredPipedJSONObject() {
+    final var mutatedString = new String();
+    final var jsonStr = """
+        {
+          "greeting": "Hello",
+          "target": " World"
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedString._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedString);
+    // Should concatenate the string values from the object
+    assertEquals(createTestString("Hello World"), mutatedString);
+  }
+
+  @Test
+  void testNestedPipedJSONObject() {
+    final var mutatedString = new String();
+    final var jsonStr = """
+        {
+          "words": ["Hello", " "],
+          "target": "World",
+          "punctuation": "!",
+          "nested": {"question": " How", "verb": " are", "pronoun": " you?"}
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedString._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedString);
+    // Should concatenate all string values: "Hello World! How are you?"
+    assertEquals(createTestString("Hello World! How are you?"), mutatedString);
+  }
+
 }

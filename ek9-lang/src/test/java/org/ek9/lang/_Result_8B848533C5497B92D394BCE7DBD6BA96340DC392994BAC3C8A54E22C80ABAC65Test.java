@@ -522,7 +522,7 @@ class _Result_8B848533C5497B92D394BCE7DBD6BA96340DC392994BAC3C8A54E22C80ABAC65Te
 
     // Pipe null values should not change state
     final var result3 = resultStringBoolean();
-    result3._pipe(null);
+    result3._pipe((String)null);
     assertTrue.accept(result3._empty());
   }
 

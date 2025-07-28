@@ -451,6 +451,13 @@ public class Float extends BuiltinType {
   }
 
   @Ek9Operator("""
+      operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+    jsonTraversal.accept(arg, str -> _pipe(new Float(str)));
+  }
+
+  @Ek9Operator("""
       operator +=
         -> arg as Float""")
   public void _addAss(Float arg) {

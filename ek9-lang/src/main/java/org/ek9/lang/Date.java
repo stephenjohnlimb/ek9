@@ -225,6 +225,32 @@ public class Date extends BuiltinType implements TemporalItem {
 
   @Ek9Operator("""
       operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+
+    final java.util.function.Consumer<String> consumer = str -> {
+      final var tryDate = new Date(str);
+      if (tryDate.isSet) {
+        _pipe(tryDate);
+        return;
+      }
+      final var tryDuration = new Duration(str);
+      if (tryDuration.isSet) {
+        _pipe(tryDuration);
+        return;
+      }
+
+      final var tryMillisecond = new Millisecond(str);
+      if (tryMillisecond.isSet) {
+        _pipe(tryMillisecond);
+      }
+    };
+
+    jsonTraversal.accept(arg, consumer);
+  }
+
+  @Ek9Operator("""
+      operator |
         -> arg as Millisecond""")
   public void _pipe(Millisecond value) {
     _addAss(value);

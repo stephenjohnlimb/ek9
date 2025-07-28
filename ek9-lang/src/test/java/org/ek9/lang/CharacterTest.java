@@ -295,4 +295,98 @@ class CharacterTest extends Common {
     assertEquals(Integer._of(0x7fffffff), cOne._fuzzy(cZero));
 
   }
+
+  @Test
+  void testSimplePipedJSONValue() {
+    // Test piping individual JSON character values
+    final var mutatedCharacter = new Character();
+    final var jsonA = new JSON(cA);
+    final var jsonB = new JSON(cB);
+    final var jsonStringHello = new JSON(String._of("Hello")); // Should take first char 'H'
+    final var jsonEmptyString = new JSON(String._of("")); // Should be ignored (unset)
+
+    // Start unset
+    assertUnset.accept(mutatedCharacter);
+
+    // Pipe 'A' - should become 'A'
+    mutatedCharacter._pipe(jsonA);
+    assertSet.accept(mutatedCharacter);
+    assertEquals(cA, mutatedCharacter);
+
+    // Pipe 'B' - should replace with 'B' 
+    mutatedCharacter._pipe(jsonB);
+    assertEquals(cB, mutatedCharacter);
+
+    // Test string parsing - should take first character
+    final var stringTest = new Character();
+    stringTest._pipe(jsonStringHello);
+    assertEquals('H', stringTest.state);
+
+    // Test empty string - should be ignored
+    stringTest._pipe(jsonEmptyString);  
+    assertEquals('H', stringTest.state); // Should remain 'H'
+  }
+
+  @Test
+  void testSimplePipedJSONArray() {
+    final var mutatedCharacter = new Character();
+    final var json1Result = new JSON().parse(String._of("[\"A\", \"Hello\"]"));
+    final var json2Result = new JSON().parse(String._of("[\"X\", \"Y\", \"Z\"]"));
+
+    // Check that the JSON text was parsed
+    assertSet.accept(json1Result);
+    assertSet.accept(json2Result);
+
+    // Pipe array with "A" and "Hello" - should end up as 'H' (last valid)
+    mutatedCharacter._pipe(json1Result.ok());
+    assertSet.accept(mutatedCharacter);
+    assertEquals('H', mutatedCharacter.state); // "Hello" -> 'H' was the last value
+
+    // Create new character for second test - should end up as 'Z' (last value)
+    final var anotherCharacter = new Character();
+    anotherCharacter._pipe(json2Result.ok());
+    assertSet.accept(anotherCharacter);
+    assertEquals('Z', anotherCharacter.state);
+  }
+
+  @Test
+  void testStructuredPipedJSONObject() {
+    final var mutatedCharacter = new Character();
+    final var jsonStr = """
+        {
+          "prop1": "A",
+          "prop2": "World"
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedCharacter._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedCharacter);
+    // Should be 'W' from "World" (as that would be processed last in traversal)
+    assertEquals('W', mutatedCharacter.state);
+  }
+
+  @Test
+  void testNestedPipedJSONObject() {
+    final var mutatedCharacter = new Character();
+    final var jsonStr = """
+        {
+          "prop1": ["A", "B"],
+          "prop2": "C",
+          "prop3": "Just a String",
+          "prop4": [{"val1": "X", "val2": "Y"}, {"other": "Z"}]
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedCharacter._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedCharacter);
+    // Should end up with 'Z' as that's likely the last character processed
+    assertEquals('Z', mutatedCharacter.state);
+  }
+
 }

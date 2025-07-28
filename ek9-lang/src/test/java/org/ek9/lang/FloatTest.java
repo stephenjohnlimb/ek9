@@ -478,4 +478,95 @@ class FloatTest extends Common {
     assertEquals(FLOAT_4, mutatedValue);
   }
 
+  @Test
+  void testSimplePipedJSONValue() {
+    // Test piping individual JSON float values
+    final var mutatedFloat = new Float();
+    final var jsonOne = new JSON(FLOAT_1);
+    final var jsonTwo = new JSON(FLOAT_2);
+    final var jsonStringPi = new JSON(String._of("3.14159"));
+    final var jsonInvalidString = new JSON(String._of("not a number")); // Should be ignored
+
+    // Start unset
+    assertUnset.accept(mutatedFloat);
+
+    // Pipe 1.0 - should become 1.0
+    mutatedFloat._pipe(jsonOne);
+    assertSet.accept(mutatedFloat);
+    assertEquals(FLOAT_1, mutatedFloat);
+
+    // Pipe 2.0 - should accumulate to 3.0
+    mutatedFloat._pipe(jsonTwo);
+    assertEquals(FLOAT_3, mutatedFloat);
+
+    // Test string parsing - should add pi
+    final var stringTest = new Float();
+    stringTest._pipe(jsonStringPi);
+    assertEquals(3.14159, stringTest.state, 0.00001);
+
+    // Test invalid string - should be ignored
+    final var beforeInvalid = stringTest.state;
+    stringTest._pipe(jsonInvalidString);
+    assertEquals(beforeInvalid, stringTest.state, 0.00001); // Should remain unchanged
+  }
+
+  @Test
+  void testSimplePipedJSONArray() {
+    final var mutatedFloat = new Float();
+    final var json1Result = new JSON().parse(String._of("[1.0, 2.0]"));
+    final var json2Result = new JSON().parse(String._of("[10.0, 5.0]"));
+
+    // Check that the JSON text was parsed
+    assertSet.accept(json1Result);
+    assertSet.accept(json2Result);
+
+    // Pipe array with 1.0 and 2.0 - should end up as 3.0
+    mutatedFloat._pipe(json1Result.ok());
+    assertSet.accept(mutatedFloat);
+    assertEquals(3.0, mutatedFloat.state, 0.00001);
+
+    // Pipe second array - should add 15.0 to get 18.0
+    mutatedFloat._pipe(json2Result.ok());
+    assertEquals(18.0, mutatedFloat.state, 0.00001);
+  }
+
+  @Test
+  void testStructuredPipedJSONObject() {
+    final var mutatedFloat = new Float();
+    final var jsonStr = """
+        {
+          "prop1": 2.0,
+          "prop2": 3.0
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedFloat._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedFloat);
+    assertEquals(5.0, mutatedFloat.state, 0.00001); // 2.0 + 3.0 = 5.0
+  }
+
+  @Test
+  void testNestedPipedJSONObject() {
+    final var mutatedFloat = new Float();
+    final var jsonStr = """
+        {
+          "prop1": [1.0, 2.0],
+          "prop2": 3.0,
+          "prop3": "Just a String",
+          "prop4": [{"val1": 4.0, "val2": 5.0}, {"other": 6.0}]
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedFloat._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedFloat);
+    // Should be 21.0 (1.0 + 2.0 + 3.0 + 4.0 + 5.0 + 6.0 = 21.0)
+    assertEquals(21.0, mutatedFloat.state, 0.00001);
+  }
+
 }

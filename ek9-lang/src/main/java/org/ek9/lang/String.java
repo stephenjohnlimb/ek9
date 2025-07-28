@@ -428,6 +428,14 @@ public class String extends BuiltinType implements Any {
   }
 
   @Ek9Operator("""
+      operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+
+    jsonTraversal.accept(arg, this::_pipe);
+  }
+
+  @Ek9Operator("""
       operator +=
         -> arg as String""")
   public void _addAss(String arg) {

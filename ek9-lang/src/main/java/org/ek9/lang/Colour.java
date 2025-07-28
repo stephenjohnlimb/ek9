@@ -366,11 +366,24 @@ public class Colour extends SuffixedComponent {
   }
 
   @Ek9Operator("""
+      operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+
+    jsonTraversal.accept(arg, str -> _pipe(new Colour(str)));
+  }
+
+  @Ek9Operator("""
       operator :~:
         -> arg0 as Colour""")
   public void _merge(Colour arg0) {
     if (isValid(arg0)) {
-      assign(arg0);
+      if (isSet) {
+        final var hexValue = performColourAddition(this, arg0);
+        assign(hexValue);
+      } else {
+        assign(arg0);
+      }
     }
   }
 

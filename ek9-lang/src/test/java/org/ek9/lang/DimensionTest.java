@@ -686,4 +686,91 @@ class DimensionTest extends Common {
     assertUnset.accept(pxDim._add(percentDim));
     assertUnset.accept(emDim._add(vwDim));
   }
+
+  @Test
+  void testSimplePipedJSONValue() {
+    // Test piping individual JSON dimension values
+    final var mutatedDimension = new Dimension();
+    final var json100px = new JSON(String._of("100px"));
+    final var json50px = new JSON(String._of("50px"));
+    final var jsonInvalidDim = new JSON(String._of("invalid")); // Should be ignored
+
+    // Start unset
+    assertUnset.accept(mutatedDimension);
+
+    // Pipe "100px" - should become 100px
+    mutatedDimension._pipe(json100px);
+    assertSet.accept(mutatedDimension);
+    assertEquals("100.0px", mutatedDimension.toString());
+
+    // Pipe "50px" - should add to get 150px (same suffix)
+    mutatedDimension._pipe(json50px);
+    assertEquals("150.0px", mutatedDimension.toString());
+
+    // Test invalid dimension - should be ignored
+    final var beforeInvalid = mutatedDimension.toString();
+    mutatedDimension._pipe(jsonInvalidDim);
+    assertEquals(beforeInvalid, mutatedDimension.toString()); // Should remain unchanged
+  }
+
+  @Test
+  void testSimplePipedJSONArray() {
+    final var mutatedDimension = new Dimension();
+    final var json1Result = new JSON().parse(String._of("[\"100px\", \"50px\"]"));
+    final var json2Result = new JSON().parse(String._of("[\"200px\", \"100px\"]"));
+
+    // Check that the JSON text was parsed
+    assertSet.accept(json1Result);
+    assertSet.accept(json2Result);
+
+    // Pipe array with "100px" and "50px" - should add to 150px
+    mutatedDimension._pipe(json1Result.ok());
+    assertSet.accept(mutatedDimension);
+    assertEquals("150.0px", mutatedDimension.toString());
+
+    // Pipe second array - should add 300px to get 450px
+    mutatedDimension._pipe(json2Result.ok());
+    assertEquals("450.0px", mutatedDimension.toString());
+  }
+
+  @Test
+  void testStructuredPipedJSONObject() {
+    final var mutatedDimension = new Dimension();
+    final var jsonStr = """
+        {
+          "width": "100px",
+          "height": "200px"
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedDimension._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedDimension);
+    // Should add the dimension values: 100 + 200 = 300px
+    assertEquals("300.0px", mutatedDimension.toString());
+  }
+
+  @Test
+  void testNestedPipedJSONObject() {
+    final var mutatedDimension = new Dimension();
+    final var jsonStr = """
+        {
+          "margin": ["10px", "20px"],
+          "padding": "30px",
+          "border": "5px",
+          "nested": {"left": "15px", "right": "25px"}
+        }""";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    // Pre-condition check that parsing succeeded
+    assertSet.accept(jsonResult);
+    mutatedDimension._pipe(jsonResult.ok());
+
+    assertSet.accept(mutatedDimension);
+    // Should add all dimension values: 10 + 20 + 30 + 5 + 15 + 25 = 105px
+    assertEquals("105.0px", mutatedDimension.toString());
+  }
+
 }

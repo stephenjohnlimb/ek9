@@ -718,5 +718,133 @@ class FileSystemPathTest extends Common {
       assertSet.accept(relativeJson);
       assertTrue.accept(relativeJson.valueNature());
     }
+
+    @Test
+    void testSimplePipedJSONValue() {
+      // Test piping individual JSON path values with absolute vs relative logic
+      final var tempPath = tempDir.toString();
+      final var mutatedPath = new FileSystemPath();
+      final var absolutePathJson = new JSON(String._of(tempPath + "/absolute.txt"));
+      final var relativePathJson1 = new JSON(String._of("relative1.txt"));
+      final var relativePathJson2 = new JSON(String._of("subdir/relative2.txt"));
+      final var emptyPathJson = new JSON(String._of("")); // Empty string should be ignored
+
+      // Start unset
+      assertUnset.accept(mutatedPath);
+
+      // Pipe absolute path - should assign (like Date with specific date)
+      mutatedPath._pipe(absolutePathJson);
+      assertSet.accept(mutatedPath);
+      assertEquals(tempPath + "/absolute.txt", mutatedPath.toString());
+
+      // Pipe relative path - should resolve/add to existing path
+      mutatedPath._pipe(relativePathJson1);
+      assertEquals(tempPath + "/absolute.txt/relative1.txt", mutatedPath.toString());
+
+      // Pipe another relative path - should continue resolving
+      mutatedPath._pipe(relativePathJson2);
+      assertEquals(tempPath + "/absolute.txt/relative1.txt/subdir/relative2.txt", mutatedPath.toString());
+
+      // Pipe another absolute path - should replace completely (assignment behavior)
+      final var newAbsoluteJson = new JSON(String._of(tempPath + "/newabs.txt"));
+      mutatedPath._pipe(newAbsoluteJson);
+      assertEquals(tempPath + "/newabs.txt", mutatedPath.toString());
+
+      // Test empty path - should be ignored (doesn't change existing path)
+      final var beforeEmpty = mutatedPath.toString();
+      mutatedPath._pipe(emptyPathJson);
+      assertEquals(beforeEmpty, mutatedPath.toString());
+    }
+
+    @Test
+    void testSimplePipedJSONArray() {
+      final var tempPath = tempDir.toString();
+      final var mutatedPath = new FileSystemPath();
+      final var json1Result = new JSON().parse(String._of("[\"" + tempPath + "/base\", \"file1.txt\"]"));
+      final var json2Result = new JSON().parse(String._of("[\"subdir\", \"file2.txt\"]"));
+
+      // Check that the JSON text was parsed
+      assertSet.accept(json1Result);
+      assertSet.accept(json2Result);
+
+      // Pipe array with absolute + relative - absolute assigns, relative resolves
+      mutatedPath._pipe(json1Result.ok());
+      assertSet.accept(mutatedPath);
+      assertEquals(tempPath + "/base/file1.txt", mutatedPath.toString());
+
+      // Pipe second array - both relative, so both resolve
+      mutatedPath._pipe(json2Result.ok());
+      assertEquals(tempPath + "/base/file1.txt/subdir/file2.txt", mutatedPath.toString());
+    }
+
+    @Test
+    void testStructuredPipedJSONObject() {
+      final var tempPath = tempDir.toString();
+      final var mutatedPath = new FileSystemPath();
+      final var jsonStr = """
+          {
+            "basePath": \"""" + tempPath + """
+/project",
+            "subPath": "src/main"
+          }""";
+      final var jsonResult = new JSON().parse(String._of(jsonStr));
+      
+      // Pre-condition check that parsing succeeded
+      assertSet.accept(jsonResult);
+      mutatedPath._pipe(jsonResult.ok());
+
+      assertSet.accept(mutatedPath);
+      // Should process: absolute basePath (assign) then relative subPath (resolve)
+      assertEquals(tempPath + "/project/src/main", mutatedPath.toString());
+    }
+
+    @Test
+    void testNestedPipedJSONObject() {
+      final var tempPath = tempDir.toString();
+      final var mutatedPath = new FileSystemPath();
+      final var jsonStr = """
+          {
+            "paths": [\"""" + tempPath + """
+/root", "dir1"],
+            "filename": "test.txt",
+            "nested": {"subdir": "nested", "file": "data.json"}
+          }""";
+      final var jsonResult = new JSON().parse(String._of(jsonStr));
+      
+      // Pre-condition check that parsing succeeded
+      assertSet.accept(jsonResult);
+      mutatedPath._pipe(jsonResult.ok());
+
+      assertSet.accept(mutatedPath);
+      // Should process: absolute /root (assign), then all relatives resolve sequentially
+      assertEquals(tempPath + "/root/dir1/test.txt/nested/data.json", mutatedPath.toString());
+    }
+
+    @Test
+    void testAbsoluteVsRelativePathLogic() {
+      final var tempPath = tempDir.toString();
+      final var mutatedPath = new FileSystemPath();
+      
+      // Start with relative path setting initial state
+      mutatedPath._pipe(new JSON(String._of("initial/path")));
+      assertSet.accept(mutatedPath);
+      assertEquals("initial/path", mutatedPath.toString());
+
+      // Add relative path - should resolve
+      mutatedPath._pipe(new JSON(String._of("relative/addition")));
+      assertEquals("initial/path/relative/addition", mutatedPath.toString());
+
+      // Pipe absolute path - should completely replace (assignment)
+      mutatedPath._pipe(new JSON(String._of(tempPath + "/absolute/replacement")));
+      assertEquals(tempPath + "/absolute/replacement", mutatedPath.toString());
+
+      // Add another relative - should resolve from the absolute path
+      mutatedPath._pipe(new JSON(String._of("more/relative")));
+      assertEquals(tempPath + "/absolute/replacement/more/relative", mutatedPath.toString());
+
+      // Another absolute - should replace again
+      mutatedPath._pipe(new JSON(String._of("/another/absolute")));
+      assertEquals("/another/absolute", mutatedPath.toString());
+    }
   }
 }

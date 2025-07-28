@@ -547,6 +547,14 @@ public class Bits extends BuiltinType {
   }
 
   @Ek9Operator("""
+      operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+
+    jsonTraversal.accept(arg, str -> _pipe(new Bits(str)));
+  }
+
+  @Ek9Operator("""
       operator +=
         -> arg as Bits""")
   public void _addAss(Bits arg) {

@@ -2,6 +2,7 @@ package org.ek9.lang;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Nested;
@@ -129,6 +130,7 @@ class ColourTest extends Common {
       void testEquality() {
         // Same color equality
         final var red1 = Colour._of("#FF0000");
+        assertNotNull(red1);
         final var red2 = Colour._of("FF0000");
         assertTrue.accept(red1._eq(red2));
         assertFalse.accept(red1._neq(red2));
@@ -330,6 +332,25 @@ class ColourTest extends Common {
         assertUnset.accept(unsetTarget);
       }
     }
+    @Test
+    void testStructuredPipedJSONObject() {
+      final var mutatedColour = new Colour();
+      final var jsonStr = """
+        {
+          "prop1": "#FF0000",
+          "prop2": "#0000FF"
+        }""";
+      final var jsonResult = new JSON().parse(String._of(jsonStr));
+
+      // Pre-condition check that parsing succeeded
+      assertSet.accept(jsonResult);
+      mutatedColour._pipe(jsonResult.ok());
+
+      //This should merge the colours together.
+      assertSet.accept(mutatedColour);
+      assertEquals(Colour._of("#FF00FF"), mutatedColour); // false OR true = true
+    }
+
   }
 
   @Nested
@@ -420,6 +441,7 @@ class ColourTest extends Common {
     void testAsJson() {
       // Test JSON conversion with set values (no need to check specific JSON content)
       final var redColour = new Colour(String._of("#FF0000"));
+      assertNotNull(redColour);
       assertTrue.accept(redColour._json()._isSet());
 
       final var blueColour = new Colour(String._of("#0000FF"));

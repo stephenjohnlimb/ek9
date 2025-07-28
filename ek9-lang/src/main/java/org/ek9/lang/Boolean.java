@@ -265,6 +265,14 @@ public class Boolean extends BuiltinType {
     _merge(arg);
   }
 
+  @Ek9Operator("""
+      operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+
+    jsonTraversal.accept(arg, str -> _pipe(new Boolean(str)));
+  }
+
   //Start of utility methods
 
   @Override

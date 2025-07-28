@@ -430,7 +430,7 @@ public class FileSystemPath extends BuiltinType {
         -> arg as FileSystemPath""")
   public void _merge(FileSystemPath arg) {
     if (isValid(arg)) {
-      if (isSet) {
+      if (isSet && !arg.isAbsolute().state) {
         _addAss(arg);
       } else {
         assign(arg.state);
@@ -461,6 +461,14 @@ public class FileSystemPath extends BuiltinType {
         -> arg as Path""")
   public void _pipe(FileSystemPath arg) {
     _merge(arg);
+  }
+
+  @Ek9Operator("""
+      operator |
+        -> arg as JSON""")
+  public void _pipe(JSON arg) {
+
+    jsonTraversal.accept(arg, str -> _pipe(new FileSystemPath(str)));
   }
 
   //Factory and Utility methods
