@@ -144,6 +144,15 @@ After building, the EK9 compiler provides these commands:
 - `mvn test -Dtest=ExamplesBasicsTest` - Run specific test class
 - `mvn test -pl compiler-main` - Run tests for specific module
 
+### JUnit 5 Parameterized Testing
+- **`EK9_JUNIT_PARAMETERIZED_TESTING_PATTERNS.md`** - Best practices for JUnit 5 parameterized tests
+  - Direct parameter provision vs wrapper objects
+  - Fluent API patterns for test data creation
+  - Common anti-patterns and elegant solutions
+  - When to use/avoid parameterized tests
+  - Static method data provider guidelines
+  - **Use this guide when:** Refactoring repetitive tests or creating parameterized test suites
+
 ## Module Structure
 
 ### compiler-main
