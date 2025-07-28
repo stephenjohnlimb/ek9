@@ -350,6 +350,14 @@ public class PriorityQueue extends BuiltinType {
 
   @Override
   @Ek9Operator("""
+      operator $$ as pure
+        <- rtn as JSON?""")
+  public JSON _json() {
+    return list()._json();
+  }
+
+  @Override
+  @Ek9Operator("""
       operator $ as pure
         <- rtn as String?""")
   public String _string() {

@@ -187,7 +187,7 @@ public class Millisecond extends SuffixedComponent {
     return _string()._len();
   }
 
-  @Ek9Method("""
+  @Ek9Operator("""
       operator ++
         <- rtn as Millisecond?""")
   public Millisecond _inc() {
@@ -197,7 +197,7 @@ public class Millisecond extends SuffixedComponent {
     return this;
   }
 
-  @Ek9Method("""
+  @Ek9Operator("""
       operator --
         <- rtn as Millisecond?""")
   public Millisecond _dec() {

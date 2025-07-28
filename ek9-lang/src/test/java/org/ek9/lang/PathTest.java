@@ -334,6 +334,159 @@ class PathTest extends Common {
   }
 
   @Test
+  void testMatchesWithRegEx() {
+    // Test basic pattern matching functionality with RegEx delegation
+
+    // === 1. EK9 Tri-State Validation (canProcess scenarios) ===
+
+    // Unset Path + valid RegEx → unset Boolean
+    final var digitRegex = new RegEx(String._of("\\d+"));
+    assertNotNull(digitRegex);
+    assertUnset.accept(unset._matches(digitRegex));
+
+    // Valid Path + unset RegEx → unset Boolean
+    assertUnset.accept(simplePath._matches(new RegEx()));
+
+    // Both unset → unset Boolean
+    assertUnset.accept(unset._matches(new RegEx()));
+
+    // === 2. Exact Path Matching (Full Escaping) ===
+
+    // Match $?.prop exactly - escape $, ?, and .
+    final var propPattern = new RegEx(String._of("^\\$\\?\\.prop$"));
+    assertTrue.accept(simplePath._matches(propPattern));
+
+    // Match $?.arr[0] exactly - escape $, ?, ., [, ]
+    final var arrayPattern = new RegEx(String._of("^\\$\\?\\.arr\\[0\\]$"));
+    assertTrue.accept(arrayPath._matches(arrayPattern));
+
+    // Verify non-matches
+    assertFalse.accept(simplePath._matches(arrayPattern));
+    assertFalse.accept(arrayPath._matches(propPattern));
+
+    // === 3. Component Pattern Matching (Selective Escaping) ===
+
+    // Match any path containing "prop" (no escaping needed for letters)
+    final var containsProp = new RegEx(String._of(".*prop.*"));
+    assertTrue.accept(simplePath._matches(containsProp));
+    assertFalse.accept(arrayPath._matches(containsProp));
+
+    // Match any array access [digits] - escape brackets, not digits
+    final var anyArray = new RegEx(String._of(".*\\[\\d+\\].*"));
+    assertTrue.accept(arrayPath._matches(anyArray));
+    assertTrue.accept(nestedPath._matches(anyArray)); // has [1]
+    assertFalse.accept(simplePath._matches(anyArray));
+
+    // === 4. Property Name Matching (Dots Need Escaping) ===
+
+    // Match paths ending with specific property (escape dot)
+    final var endsWithValue = new RegEx(String._of(".*\\.value$"));
+    assertTrue.accept(nestedPath._matches(endsWithValue)); // $?.deep.nested[1].value
+    assertFalse.accept(simplePath._matches(endsWithValue)); // $?.prop
+    assertFalse.accept(arrayPath._matches(endsWithValue)); // $?.arr[0]
+
+    // Match paths with "nested" property (no escaping for word)
+    final var hasNested = new RegEx(String._of(".*nested.*"));
+    assertTrue.accept(nestedPath._matches(hasNested));
+    assertFalse.accept(arrayPath._matches(hasNested));
+    assertFalse.accept(simplePath._matches(hasNested));
+
+    // === 5. Array Index Pattern Matching (Brackets Need Escaping) ===
+
+    // Match specific array index [1] - escape brackets
+    final var indexOne = new RegEx(String._of(".*\\[1\\].*"));
+    assertTrue.accept(nestedPath._matches(indexOne)); // $?.deep.nested[1].value
+    assertFalse.accept(arrayPath._matches(indexOne)); // $?.arr[0]
+    assertFalse.accept(simplePath._matches(indexOne));
+
+    // Match specific array index [0] - escape brackets
+    final var indexZero = new RegEx(String._of(".*\\[0\\].*"));
+    assertTrue.accept(arrayPath._matches(indexZero)); // $?.arr[0]
+    assertFalse.accept(nestedPath._matches(indexZero)); // has [1]
+    assertFalse.accept(simplePath._matches(indexZero));
+
+    // === 6. Prefix Pattern Matching ($ and ? Need Escaping) ===
+
+    // All paths start with $? - must escape both characters
+    final var startsEk9 = new RegEx(String._of("^\\$\\?.*"));
+    assertTrue.accept(simplePath._matches(startsEk9));
+    assertTrue.accept(arrayPath._matches(startsEk9));
+    assertTrue.accept(nestedPath._matches(startsEk9));
+
+    // Root path $? exact match - escape both characters
+    final var rootPath = Path._of("$?");
+    final var exactRoot = new RegEx(String._of("^\\$\\?$"));
+    assertTrue.accept(rootPath._matches(exactRoot));
+    assertFalse.accept(simplePath._matches(exactRoot));
+    assertFalse.accept(arrayPath._matches(exactRoot));
+
+    // === 7. Complex Multi-Component Patterns ===
+
+    // Match "word followed by array" pattern - escape brackets
+    final var wordThenArray = new RegEx(String._of(".*\\w+\\[\\d+\\].*"));
+    assertTrue.accept(nestedPath._matches(wordThenArray)); // nested[1]
+    assertTrue.accept(arrayPath._matches(wordThenArray)); // arr[0]
+    assertFalse.accept(simplePath._matches(wordThenArray)); // just prop
+    assertFalse.accept(rootPath._matches(wordThenArray)); // just $?
+
+    // Match multi-level property access - escape dots
+    final var multiLevel = new RegEx(String._of(".*\\w+\\.\\w+.*"));
+    assertTrue.accept(nestedPath._matches(multiLevel)); // deep.nested and nested[1].value
+    assertFalse.accept(simplePath._matches(multiLevel)); // just .prop
+    assertFalse.accept(arrayPath._matches(multiLevel)); // just .arr
+
+    // === 8. Using Realistic Path from testUtilityMethods ===
+
+    final var testPath = Path._of("$?.data.items[5].name");
+
+    // Match specific components
+    final var hasData = new RegEx(String._of(".*data.*"));
+    assertTrue.accept(testPath._matches(hasData));
+
+    final var hasItems = new RegEx(String._of(".*items.*"));
+    assertTrue.accept(testPath._matches(hasItems));
+
+    final var hasFive = new RegEx(String._of(".*\\[5\\].*"));
+    assertTrue.accept(testPath._matches(hasFive));
+
+    final var hasName = new RegEx(String._of(".*name$"));
+    assertTrue.accept(testPath._matches(hasName));
+
+    // Match structure patterns
+    final var itemsWithIndex = new RegEx(String._of(".*items\\[\\d+\\].*"));
+    assertTrue.accept(testPath._matches(itemsWithIndex));
+
+    final var dataToName = new RegEx(String._of(".*data.*name.*"));
+    assertTrue.accept(testPath._matches(dataToName));
+
+    // === 9. Negative Testing (Should NOT Match) ===
+
+    // Pattern for different array index
+    final var wrongIndex = new RegEx(String._of(".*\\[99\\].*"));
+    assertFalse.accept(testPath._matches(wrongIndex));
+    assertFalse.accept(arrayPath._matches(wrongIndex));
+
+    // Pattern for non-existent property
+    final var nonExistent = new RegEx(String._of(".*missing.*"));
+    assertFalse.accept(testPath._matches(nonExistent));
+    assertFalse.accept(simplePath._matches(nonExistent));
+    assertFalse.accept(nestedPath._matches(nonExistent));
+
+    // Pattern requiring different structure
+    final var onlyArray = new RegEx(String._of("^\\$\\?\\[\\d+\\]$")); // just $?[0]
+    assertFalse.accept(simplePath._matches(onlyArray)); // $?.prop
+    assertFalse.accept(arrayPath._matches(onlyArray)); // $?.arr[0] has .arr
+    assertFalse.accept(testPath._matches(onlyArray)); // complex path
+
+    // Pattern that should match array but test with non-array
+    final var requiresArray = new RegEx(String._of(".*\\[\\d+\\].*"));
+    assertTrue.accept(arrayPath._matches(requiresArray));
+    assertTrue.accept(nestedPath._matches(requiresArray));
+    assertFalse.accept(simplePath._matches(requiresArray));
+    assertFalse.accept(rootPath._matches(requiresArray));
+  }
+
+  @Test
   void testCopyAndAssignmentOperators() {
     final var path1 = Path._of("$?.first");
     final var path2 = Path._of("$?.second");

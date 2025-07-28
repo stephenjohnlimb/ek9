@@ -166,8 +166,17 @@ class ResolutionTest extends Common {
     assertEquals(1, (int) dpi150._cmp(dpi100).state);
     assertUnset.accept(unset._cmp(dpi100));
     assertUnset.accept(dpi100._cmp(unset));
-    assertUnset.accept(dpi50._cmp(dpc50)); // Different suffix
+    assertUnset.accept(dpi50._cmp(dpc50));
     assertUnset.accept(dpi100._cmp(new Any(){}));
+
+    // Fuzzy just the same as _cmp at the moment.
+    assertEquals(-1, (int) dpi50._fuzzy(dpi100).state);
+    assertEquals(0, (int) dpi100._fuzzy(dpi100).state);
+    assertEquals(1, (int) dpi150._fuzzy(dpi100).state);
+    assertUnset.accept(unset._fuzzy(dpi100));
+    assertUnset.accept(dpi100._fuzzy(unset));
+    assertUnset.accept(dpi50._fuzzy(dpc50));
+
   }
 
   @Test

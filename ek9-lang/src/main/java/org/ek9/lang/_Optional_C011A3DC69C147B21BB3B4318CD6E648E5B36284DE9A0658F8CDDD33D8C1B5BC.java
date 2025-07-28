@@ -108,13 +108,13 @@ public class _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D
 
   public void _merge(_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC arg) {
     if (arg != null && arg._isSet().state) {
-      delegate._merge(arg.get());
+      delegate._merge(arg.delegate);
     }
   }
 
   public void _replace(_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC arg) {
     if (arg != null && arg._isSet().state) {
-      delegate._replace(arg.get());
+      delegate._replace(arg.delegate);
     } else {
       delegate._replace(null);
     }
@@ -122,7 +122,7 @@ public class _Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D
 
   public void _copy(_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC arg) {
     if (arg != null && arg._isSet().state) {
-      delegate._copy(arg.get());
+      delegate._copy(arg.delegate);
     } else {
       delegate._copy(null);
     }

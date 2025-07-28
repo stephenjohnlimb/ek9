@@ -277,6 +277,15 @@ public class Colour extends SuffixedComponent {
   }
 
   @Ek9Operator("""
+      operator <~> as pure
+        -> arg as Colour
+        <- rtn as Integer?""")
+  public Integer _fuzzy(Colour arg) {
+    //Just simple deleat
+    return _cmp(arg);
+  }
+
+  @Ek9Operator("""
       operator <=> as pure
         -> arg as Colour
         <- rtn as Integer?""")

@@ -76,6 +76,37 @@ class OptionalTest extends Common {
     optional.whenPresent(consumer);
     assertTrue(consumer.verifyNotCalled());
   }
+  
+  /**
+   * Helper method to test contains behavior with expected and unexpected values.
+   * Tests both positive and negative contains cases.
+   */
+  private void assertContainsBehavior(Optional optional, Any expectedValue, Any unexpectedValue) {
+    assertTrue.accept(optional._contains(expectedValue));
+    assertFalse.accept(optional._contains(unexpectedValue));
+    assertUnset.accept(optional._contains(null));
+  }
+  
+  /**
+   * Helper method to test assignment operators (copy, replace, merge).
+   * Tests that the operator correctly assigns from source to target.
+   */
+  private void assertAssignmentOperator(java.util.function.BiConsumer<Optional, Optional> operator, 
+                                       Optional source, Any expectedValue) {
+    final var target = new Optional();
+    operator.accept(target, source);
+    assertOptionalSet(target);
+    assertEquals(expectedValue, target._string());
+  }
+  
+  /**
+   * Helper method to assert that an Optional created via asEmpty() has proper empty state.
+   */
+  private void assertEmptyOptionalState(Optional optional) {
+    final var emptyOptional = optional.asEmpty();
+    assertNotNull(emptyOptional);
+    assertOptionalUnset(emptyOptional);
+  }
 
   @Nested
   class Construction {
@@ -121,9 +152,7 @@ class OptionalTest extends Common {
       assertOptionalSet(boolOptional);
 
       // Test state after creating empty Optional
-      final var emptyOptional = setOptional.asEmpty();
-      assertNotNull(emptyOptional);
-      assertOptionalUnset(emptyOptional);
+      assertEmptyOptionalState(setOptional);
     }
   }
 
@@ -172,15 +201,8 @@ class OptionalTest extends Common {
     @Test
     void testUtilityMethods() {
       // Test asEmpty() method
-      final var emptyFromSet = setOptional.asEmpty();
-      assertUnset.accept(emptyFromSet);
-      assertFalse.accept(emptyFromSet._isSet());
-      assertTrue.accept(emptyFromSet._empty());
-
-      final var emptyFromUnset = unsetOptional.asEmpty();
-      assertUnset.accept(emptyFromUnset);
-      assertFalse.accept(emptyFromUnset._isSet());
-      assertTrue.accept(emptyFromUnset._empty());
+      assertEmptyOptionalState(setOptional);
+      assertEmptyOptionalState(unsetOptional);
 
       // Test iterator() method on unset Optional
       final var unsetIterator = unsetOptional.iterator();
@@ -232,16 +254,25 @@ class OptionalTest extends Common {
       assertUnset.accept(unsetOptional._contains(null));
 
       // Test _contains operator on set Optional
-      assertTrue.accept(setOptional._contains(testValue));
-      assertFalse.accept(setOptional._contains(String._of("different")));
-      assertUnset.accept(setOptional._contains(null));
+      assertContainsBehavior(setOptional, testValue, String._of("different"));
 
       // Test _contains with different types
-      assertTrue.accept(intOptional._contains(testInt));
-      assertFalse.accept(intOptional._contains(Integer._of(999)));
+      assertContainsBehavior(intOptional, testInt, Integer._of(999));
+      assertContainsBehavior(boolOptional, testBool, Boolean._of(false));
 
-      assertTrue.accept(boolOptional._contains(testBool));
-      assertFalse.accept(boolOptional._contains(Boolean._of(false)));
+      //Same values but different instances.
+      final var anotherOptional = Optional._of(testValue);
+      final var checkOptional = Optional._of( String._of("TestValue"));
+      final var differentOptional = Optional._of( String._of("DifferentValue"));
+
+      final Any viaAny = checkOptional;
+
+      assertTrue.accept(anotherOptional._eq(checkOptional));
+      assertTrue.accept(anotherOptional._eq(viaAny));
+      assertTrue.accept(anotherOptional._neq(differentOptional));
+
+      assertUnset.accept(anotherOptional._eq(unsetOptional));
+      assertUnset.accept(anotherOptional._eq(new Any(){}));
     }
   }
 
@@ -250,40 +281,26 @@ class OptionalTest extends Common {
     
     @Test
     void testAssignmentOperators() {
-      // Test _copy operator (:=:)
-      final var copyTarget = new Optional();
-      copyTarget._copy(testValue);
-      assertSet.accept(copyTarget);
-      assertTrue.accept(copyTarget._isSet());
-      assertEquals(testValue, copyTarget._string());
+      // Test assignment operators with set values
+      assertAssignmentOperator(Optional::_copy, setOptional, testValue);
+      assertAssignmentOperator(Optional::_replace, Optional._of(String._of("new")), String._of("new"));  
+      assertAssignmentOperator(Optional::_merge, Optional._of(Boolean._of(true)), Boolean._of(true)._string());
 
       // Test _copy with null (should result in unset)
       final var copyTargetNull = new Optional(String._of("initial"));
       copyTargetNull._copy(null);
-      assertUnset.accept(copyTargetNull);
-      assertFalse.accept(copyTargetNull._isSet());
-
-      // Test _replace operator (:^:)
-      final var replaceTarget = new Optional(String._of("old"));
-      replaceTarget._replace(String._of("new"));
-      assertSet.accept(replaceTarget);
-      assertEquals(String._of("new"), replaceTarget._string());
-
-      // Test _merge operator (:~:)
-      final var mergeTarget = new Optional();
-      mergeTarget._merge(Boolean._of(true));
-      assertSet.accept(mergeTarget);
+      assertOptionalUnset(copyTargetNull);
 
       // Test _pipe operator (|)
       final var pipeTarget = new Optional();
       pipeTarget._pipe(testValue);
-      assertSet.accept(pipeTarget);
+      assertOptionalSet(pipeTarget);
       assertEquals(testValue, pipeTarget._string());
 
       // Test assignment operators with unset values
       final var unsetTarget = new Optional(String._of("initial"));
       unsetTarget._copy(null);
-      assertUnset.accept(unsetTarget);
+      assertOptionalUnset(unsetTarget);
     }
   }
 
@@ -294,7 +311,7 @@ class OptionalTest extends Common {
     void testEdgeCases() {
       // Test safe operations on unset Optional (no exceptions thrown)
       assertOptionalUnset(unsetOptional);
-      assertUnset.accept(unsetOptional.asEmpty());
+      assertEmptyOptionalState(unsetOptional);
       assertNotNull(unsetOptional.toString());
 
       // Test toString and equality for set Optional  

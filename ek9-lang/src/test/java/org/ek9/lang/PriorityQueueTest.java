@@ -720,6 +720,7 @@ class PriorityQueueTest extends Common {
   void testErrorConditions() {
     // Null handling in factory methods
     final var fromNull = PriorityQueue._of((java.util.Collection<Any>) null);
+    assertNotNull(fromNull);
     assertSet.accept(fromNull);
     assertTrue.accept(fromNull._empty());
 
@@ -838,6 +839,125 @@ class PriorityQueueTest extends Common {
     // Different number of duplicates should not be equal
     queue2._addAss(excellent); // One more duplicate
     assertFalse.accept(queue1._eq(queue2));
+  }
+
+  @Test
+  void testJsonOperator() {
+    // Test empty PriorityQueue - should produce empty JSON array
+    final var emptyQueue = new PriorityQueue();
+    final var emptyJson = emptyQueue._json();
+    assertSet.accept(emptyJson);
+    assertTrue.accept(emptyJson.arrayNature());
+    assertTrue.accept(emptyJson._empty());
+    assertEquals(Integer._of(0), emptyJson._len());
+
+    // Test empty queue JSON pretty print format
+    final var emptyJsonString = emptyQueue._json().prettyPrint();
+    assertSet.accept(emptyJsonString);
+    
+    final var expectedEmptyJson = """
+        [ ]"""; // Empty JSON array with pretty print formatting
+    
+    assertEquals(expectedEmptyJson.trim(), emptyJsonString.state.trim());
+
+    // Test PriorityQueue with single element
+    final var singleQueue = new PriorityQueue(bill);
+    final var singleJson = singleQueue._json();
+    assertSet.accept(singleJson);
+    assertTrue.accept(singleJson.arrayNature());
+    assertEquals(Integer._of(1), singleJson._len());
+    
+    // Verify the first element matches the string's JSON representation
+    final var firstElement = singleJson.get(Integer._of(0));
+    assertSet.accept(firstElement);
+    final var expectedBillJson = bill._json();
+    assertTrue.accept(firstElement._eq(expectedBillJson));
+
+    // Test single element JSON pretty print format
+    final var singleJsonString = singleQueue._json().prettyPrint();
+    assertSet.accept(singleJsonString);
+    
+    final var expectedSingleJson = """
+        [ "Bill" ]"""; // Array with one String element (pretty printed)
+    
+    assertEquals(expectedSingleJson.trim(), singleJsonString.state.trim());
+
+    // Test PriorityQueue with multiple elements and comparator (shows priority ordering)
+    final var priorityQueue = new PriorityQueue(bill).withComparator(stringComparator);
+    priorityQueue._addAss(ted);
+    priorityQueue._addAss(excellent);
+    priorityQueue._addAss(adventure);
+    
+    final var priorityJson = priorityQueue._json();
+    assertSet.accept(priorityJson);
+    assertTrue.accept(priorityJson.arrayNature());
+    assertEquals(Integer._of(4), priorityJson._len());
+    
+    // Verify priority order is preserved in JSON (Ted > Excellent > Bill > Adventure)
+    final var elem0 = priorityJson.get(Integer._of(0));
+    final var elem1 = priorityJson.get(Integer._of(1));
+    final var elem2 = priorityJson.get(Integer._of(2));
+    final var elem3 = priorityJson.get(Integer._of(3));
+    
+    assertTrue.accept(elem0._eq(ted._json()));
+    assertTrue.accept(elem1._eq(excellent._json()));
+    assertTrue.accept(elem2._eq(bill._json()));
+    assertTrue.accept(elem3._eq(adventure._json()));
+
+    // Test multiple elements JSON pretty print format showing priority order
+    final var priorityJsonString = priorityQueue._json().prettyPrint();
+    assertSet.accept(priorityJsonString);
+    
+    final var expectedPriorityJson = """
+        [ "Ted", "Excellent", "Bill", "Adventure" ]"""; // Array showing priority order (pretty printed)
+    
+    assertEquals(expectedPriorityJson.trim(), priorityJsonString.state.trim());
+
+    // Test size-limited PriorityQueue JSON
+    final var limitedQueue = new PriorityQueue()
+        .withComparator(stringComparator)
+        .withSize(Integer._of(2));
+    limitedQueue._addAss(bill);
+    limitedQueue._addAss(ted);
+    limitedQueue._addAss(excellent);
+    limitedQueue._addAss(adventure); // Will be evicted
+    
+    final var limitedJson = limitedQueue._json();
+    assertSet.accept(limitedJson);
+    assertEquals(Integer._of(2), limitedJson._len());
+    
+    // Should contain top 2 elements: Ted and Excellent
+    final var topElem0 = limitedJson.get(Integer._of(0));
+    final var topElem1 = limitedJson.get(Integer._of(1));
+    assertTrue.accept(topElem0._eq(ted._json()));
+    assertTrue.accept(topElem1._eq(excellent._json()));
+
+    // Test size-limited queue JSON pretty print format
+    final var limitedJsonString = limitedQueue._json().prettyPrint();
+    assertSet.accept(limitedJsonString);
+    
+    final var expectedLimitedJson = """
+        [ "Ted", "Excellent" ]"""; // Array with top 2 priority elements only (pretty printed)
+    
+    assertEquals(expectedLimitedJson.trim(), limitedJsonString.state.trim());
+
+    // Test PriorityQueue with different string values showing clear priority structure
+    final var demonstrationQueue = new PriorityQueue()
+        .withComparator(stringComparator)
+        .withSize(Integer._of(3));
+    demonstrationQueue._addAss(String._of("Alpha"));
+    demonstrationQueue._addAss(String._of("Zulu"));
+    demonstrationQueue._addAss(String._of("Beta"));
+    demonstrationQueue._addAss(String._of("Charlie"));
+    demonstrationQueue._addAss(String._of("Delta"));
+
+    final var demonstrationJsonString = demonstrationQueue._json().prettyPrint();
+    assertSet.accept(demonstrationJsonString);
+    
+    final var expectedDemonstrationJson = """
+        [ "Zulu", "Delta", "Charlie" ]"""; // Top 3 in reverse alphabetical order (pretty printed)
+    
+    assertEquals(expectedDemonstrationJson.trim(), demonstrationJsonString.state.trim());
   }
 
   @Test

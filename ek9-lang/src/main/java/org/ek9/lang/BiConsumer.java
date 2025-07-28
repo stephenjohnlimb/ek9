@@ -19,7 +19,7 @@ import org.ek9tooling.Ek9Operator;
         u as U""")
 public class BiConsumer implements Any {
 
-  @Ek9Constructor("Consumer() as pure")
+  @Ek9Constructor("BiConsumer() as pure")
   public BiConsumer() {
     //Default constructor - not exposed in any way to EK9
   }

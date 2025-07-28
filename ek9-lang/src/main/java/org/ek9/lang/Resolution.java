@@ -104,8 +104,6 @@ public class Resolution extends SuffixedComponent {
     _merge(arg);
   }
 
-  //TODO more stock methods and operators like less than etc.
-
   @Ek9Operator("""
       operator - as pure
         <- rtn as Resolution?""")
@@ -186,7 +184,6 @@ public class Resolution extends SuffixedComponent {
     return rtn;
   }
 
-
   @Ek9Operator("""
       operator - as pure
         -> arg as Resolution
@@ -200,7 +197,6 @@ public class Resolution extends SuffixedComponent {
     return rtn;
   }
 
-
   @Ek9Operator("""
       operator * as pure
         -> arg as Float
@@ -211,7 +207,6 @@ public class Resolution extends SuffixedComponent {
       rtn.assign(this.state, this.suffix);
       rtn._mulAss(arg);
     }
-
     return rtn;
   }
 
@@ -264,7 +259,6 @@ public class Resolution extends SuffixedComponent {
       rtn.assign(this.state);
       rtn._divAss(Integer._of(arg.state));
     }
-
     return rtn;
   }
 
@@ -277,9 +271,7 @@ public class Resolution extends SuffixedComponent {
     } else {
       unSet();
     }
-
   }
-
 
   @Ek9Operator("""
       operator -=
@@ -312,7 +304,6 @@ public class Resolution extends SuffixedComponent {
     } else {
       unSet();
     }
-
   }
 
   @Ek9Operator("""
@@ -324,7 +315,6 @@ public class Resolution extends SuffixedComponent {
     } else {
       unSet();
     }
-
   }
 
   @Ek9Operator("""
@@ -336,7 +326,14 @@ public class Resolution extends SuffixedComponent {
     } else {
       unSet();
     }
+  }
 
+  @Ek9Operator("""
+      operator <~> as pure
+        -> arg as Resolution
+        <- rtn as Integer?""")
+  public Integer _fuzzy(Resolution arg) {
+    return _cmp(arg);
   }
 
   @Ek9Operator("""
@@ -525,7 +522,6 @@ public class Resolution extends SuffixedComponent {
       isSet = beforeIsValid;
       throw new RuntimeException("Constraint violation can't change " + this + " to " + stringTo);
     }
-
   }
 
   @Override
@@ -560,9 +556,6 @@ public class Resolution extends SuffixedComponent {
     if (arg != null) {
       rtn.parse(arg);
     }
-
     return rtn;
   }
-
-
 }

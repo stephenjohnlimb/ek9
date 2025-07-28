@@ -144,6 +144,14 @@ public class Optional extends BuiltinType {
   }
 
   @Ek9Operator("""
+      operator <> as pure
+        -> arg as Optional of T
+        <- rtn as Boolean?""")
+  public Boolean _neq(Optional arg) {
+    return _eq(arg)._negate();
+  }
+
+  @Ek9Operator("""
       operator empty as pure
         <- rtn as Boolean?""")
   public Boolean _empty() {
@@ -166,22 +174,22 @@ public class Optional extends BuiltinType {
 
   @Ek9Operator("""
       operator :~:
-        -> arg as Any""")
-  public void _merge(Any arg) {
+        -> arg as Optional of T""")
+  public void _merge(Optional arg) {
     _copy(arg);
   }
 
   @Ek9Operator("""
       operator :^:
-        -> arg as Any""")
-  public void _replace(Any arg) {
+        -> arg as Optional of T""")
+  public void _replace(Optional arg) {
     _copy(arg);
   }
 
   @Ek9Operator("""
-      operator :=:
-        -> arg as Any""")
-  public void _copy(Any arg) {
+      operator |
+        -> arg as T""")
+  public void _pipe(Any arg) {
     if (arg != null) {
       assign(arg);
     } else {
@@ -190,10 +198,14 @@ public class Optional extends BuiltinType {
   }
 
   @Ek9Operator("""
-      operator |
-        -> arg as Any""")
-  public void _pipe(Any arg) {
-    _copy(arg);
+      operator :=:
+        -> arg as Optional of T""")
+  public void _copy(Optional arg) {
+    if (isValid(arg)) {
+      assign(arg.state);
+    } else {
+      unSet();
+    }
   }
 
   @Override

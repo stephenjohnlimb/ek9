@@ -149,7 +149,9 @@ public class Common {
   final Float FLOAT_3 = Float._of(3);
   final Float FLOAT_4 = Float._of(4);
   final Float FLOAT_4_5 = Float._of(4.5);
+  final Float FLOAT_25 = Float._of(25.0);
   final Float FLOAT_50 = Float._of(50.0);
+  final Float FLOAT_75 = Float._of(75.0);
   // ============ TIME/DURATION CONSTANTS ============
   // Millisecond Constants
   final Millisecond oneSecondMs = Millisecond._of(1000);
@@ -172,10 +174,62 @@ public class Common {
   final Colour unsetColour = new Colour();
   final Colour testColour = Colour._of("FF186276");
   final Colour modifiedColour = Colour._of("B7106236");
+  
+  // Primary RGB colors
   final Colour redRgb = Colour._of("FF0000");
   final Colour greenRgb = Colour._of("00FF00");
   final Colour blueRgb = Colour._of("0000FF");
+  final Colour blackRgb = Colour._of("000000");
+  final Colour whiteRgb = Colour._of("FFFFFF");
+  final Colour grayRgb = Colour._of("808080");
+  
+  // ARGB colors with alpha channel
   final Colour redArgb = Colour._of("FFFF0000");
+  final Colour redHalfAlpha = Colour._of("80FF0000");
+  final Colour greenWithAlpha = Colour._of("2000FF00");
+  final Colour transparentBlack = Colour._of("00000000");
+  final Colour transparentWhite = Colour._of("FFFFFFFF");
+  
+  // Composite colors (results of arithmetic operations)
+  final Colour purpleRgb = Colour._of("FF00FF");    // red + blue
+  final Colour yellowRgb = Colour._of("FFFF00");    // red + green  
+  final Colour cyanRgb = Colour._of("00FFFF");      // green + blue
+  
+  // ============ COMMON DIMENSION CONSTANTS ============
+  final Dimension unsetDimension = new Dimension();
+
+  // Basic pixel dimensions (most commonly used)
+  final Dimension DIMENSION_0PX = Dimension._of("0px");
+  final Dimension DIMENSION_1PX = Dimension._of("1px");
+  final Dimension DIMENSION_2PX = Dimension._of("2px");
+  final Dimension DIMENSION_3PX = Dimension._of("3px");
+  final Dimension DIMENSION_4PX = Dimension._of("4px");
+  final Dimension DIMENSION_8PX = Dimension._of("8px");
+  final Dimension DIMENSION_50PX = Dimension._of("50px");
+  final Dimension DIMENSION_100PX = Dimension._of("100px");
+  final Dimension DIMENSION_150PX = Dimension._of("150px");
+  final Dimension DIMENSION_200PX = Dimension._of("200px");
+  final Dimension DIMENSION_1000PX = Dimension._of("1000px");
+
+  // Different units for testing unit compatibility
+  final Dimension DIMENSION_50M = Dimension._of("50m");
+  final Dimension DIMENSION_100M = Dimension._of("100m");
+
+  // Negative dimensions for testing
+  final Dimension DIMENSION_NEG_2PX = Dimension._of("-2px");
+  final Dimension DIMENSION_NEG_100PX = Dimension._of("-100px");
+  final Dimension DIMENSION_NEG_1000PX = Dimension._of("-1000px");
+
+  // ============ TEST DATA CONSTANTS ============
+  // Bit patterns for color testing (Java strings for Bits._of)
+  final java.lang.String BITS_RGB_RED = "111111110000000000000000";
+  final java.lang.String BITS_ARGB_RED = "11111111111111110000000000000000";
+  final java.lang.String BITS_MIXED_COLOR = "11111111000000001111111100000000";
+  
+  // Invalid hex test strings (Java strings for Colour._of)
+  final java.lang.String HEX_INVALID_CHARS = "#GGGGGG";
+  final java.lang.String HEX_TOO_SHORT = "#F0";
+  final java.lang.String HEX_TOO_LONG = "#FF0000000";
 
   protected final AssertUnset assertUnset = new AssertUnset();
   protected final AssertSet assertSet = new AssertSet();

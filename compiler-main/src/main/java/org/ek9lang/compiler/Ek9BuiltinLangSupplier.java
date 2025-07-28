@@ -1204,7 +1204,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               <- rtn as Integer?
 
             operator #> as pure
-              <- rtn as Integer?
+              <- rtn as String?
 
             operator abs as pure
               <- rtn as Millisecond?
@@ -2343,10 +2343,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg as Float
               <- rtn as Resolution?
 
-            operator ^ as pure
-              -> arg as Integer
-              <- rtn as Resolution?
-
             operator $$ as pure
               <- rtn as JSON?
 
@@ -2460,12 +2456,6 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
             operator #? as pure
               <- rtn as Integer?
-
-            operator #< as pure
-              <- rtn as String?
-
-            operator #> as pure
-              <- rtn as String?
 
             operator empty as pure
               <- rtn as Boolean?

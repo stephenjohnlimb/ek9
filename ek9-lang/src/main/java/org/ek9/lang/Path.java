@@ -298,6 +298,19 @@ public class Path extends BuiltinType {
     return _string()._len();
   }
 
+
+  @Ek9Operator("""
+      operator matches as pure
+        -> arg as RegEx
+        <- rtn as Boolean?""")
+  public Boolean _matches(final RegEx arg) {
+    if (canProcess(arg)) {
+      return arg._matches(this);
+    }
+
+    return new Boolean();
+  }
+
   @Ek9Operator("""
       operator contains as pure
         -> arg as String

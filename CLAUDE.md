@@ -55,6 +55,16 @@ For specific EK9 development tasks, refer to these comprehensive guides:
   - Common compilation issues and solutions
   - **Use this guide when:** Adding new EK9 built-in types like GUID, HMAC, FileSystemPath
 
+### EK9 Built-in Type Analysis
+- **`EK9_CONSTRUCTS_INTERFACE_ANALYSIS.md`** - Comprehensive analysis of EK9 built-in language constructs
+  - Complete catalog of 76 interface constructs vs 77 implementations
+  - Interface definitions from Ek9BuiltinLangSupplier.java analysis
+  - Implementation status mapping for all construct types (classes, traits, functions, records)
+  - Special type documentation (Any as built-in base type)
+  - Gap analysis framework for method/operator completeness checking
+  - Foundation for identifying missing implementations toward 107-symbol target
+  - **Use this guide when:** Understanding EK9 construct completeness, analyzing missing methods/operators, or planning built-in type development
+
 ### EK9 Language Semantics
 - **`EK9_OPERATOR_SEMANTICS.md`** - EK9 operator behavior and semantics documentation
   - Increment/decrement operator semantics (different from Java/C++)

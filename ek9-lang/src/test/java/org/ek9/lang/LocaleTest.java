@@ -104,15 +104,29 @@ class LocaleTest extends Common {
     assertTrue(de._cmp(en).state < 0);
     assertTrue(en._cmp(de).state > 0);
 
+    assertEquals(Integer._of(0), en._fuzzy(en));
+    assertTrue(de._fuzzy(en).state < 0);
+    assertTrue(en._fuzzy(de).state > 0);
+
+
     // Normal comparison
     assertEquals(Integer._of(0), enGB._cmp(enGB));
     assertTrue(enGB._cmp(enUS).state < 0); // GB < US lexicographically (difference between G and U)
     assertTrue(enUS._cmp(enGB).state > 0);
 
+    //Now for fuzzy match, both are 'en' so that's a fuzzy match!
+    assertEquals(Integer._of(0), enGB._fuzzy(enGB));
+    assertEquals(0, enGB._fuzzy(enUS).state);
+    assertEquals(0, enUS._fuzzy(enGB).state);
+
     // Unset propagation
     assertUnset.accept(unsetLocale._cmp(enGB));
     assertUnset.accept(enGB._cmp(unsetLocale));
     assertUnset.accept(unsetLocale._cmp(unsetLocale));
+
+    assertUnset.accept(unsetLocale._fuzzy(enGB));
+    assertUnset.accept(enGB._fuzzy(unsetLocale));
+    assertUnset.accept(unsetLocale._fuzzy(unsetLocale));
 
     // Less than
     assertTrue.accept(enGB._lt(enUS));

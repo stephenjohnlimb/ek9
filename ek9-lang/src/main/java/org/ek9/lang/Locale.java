@@ -100,11 +100,22 @@ public class Locale extends SuffixedComponent {
   }
 
   @Ek9Operator("""
+      operator <~> as pure
+        -> arg0 as Locale
+        <- rtn as Integer?""")
+  public Integer _fuzzy(Locale arg0) {
+    if (canProcess(arg0)) {
+      return Integer._of(this.lang.compareTo(arg0.lang));
+    }
+    return new Integer();
+  }
+
+  @Ek9Operator("""
       operator <=> as pure
         -> arg0 as Locale
         <- rtn as Integer?""")
   public Integer _cmp(Locale arg0) {
-    if (isSet && isValid(arg0)) {
+    if (canProcess(arg0)) {
       return Integer._of(this.compare(arg0));
     }
     return new Integer();
@@ -120,6 +131,18 @@ public class Locale extends SuffixedComponent {
       return _cmp(asLocale);
     }
     return new Integer();
+  }
+
+  @Ek9Operator("""
+      operator matches as pure
+        -> arg as RegEx
+        <- rtn as Boolean?""")
+  public Boolean _matches(final RegEx arg) {
+    if (canProcess(arg)) {
+      return arg._matches(this);
+    }
+
+    return new Boolean();
   }
 
   @Ek9Operator("""

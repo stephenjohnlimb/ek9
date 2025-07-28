@@ -18,7 +18,7 @@ import org.ek9tooling.Ek9Operator;
     Dimension as open""")
 public class Dimension extends SuffixedComponent {
 
-  //Take the same restrictions and definitions for the ek9 grammar for checking String convertions.
+  //Take the same restrictions and definitions for the ek9 grammar for checking String conversions.
   private static final List<java.lang.String> validSuffix = List.of(
       "km", "m", "cm", "mm", "mile", "in", "pc", "pt", "px", "em", "ex", "ch", "rem", "vw", "vh", "vmin", "vmax", "%");
 
@@ -95,8 +95,6 @@ public class Dimension extends SuffixedComponent {
   public void _pipe(Dimension arg) {
     _merge(arg);
   }
-
-  //TODO more stock methods and operators like less than etc.
 
   @Ek9Operator("""
       operator - as pure
@@ -256,6 +254,32 @@ public class Dimension extends SuffixedComponent {
       rtn._divAss(Float._of(arg.state));
     }
 
+    return rtn;
+  }
+
+  @Ek9Operator("""
+      operator ^ as pure
+        -> arg as Integer
+        <- rtn as Dimension?""")
+  public Dimension _pow(Integer arg) {
+    Dimension rtn = _new();
+    if (canProcess(arg)) {
+      rtn.assign(Math.pow(this.state, arg.state), this.suffix);
+
+    }
+    return rtn;
+  }
+
+  @Ek9Operator("""
+      operator ^ as pure
+        -> arg as Float
+        <- rtn as Dimension?""")
+  public Dimension _pow(Float arg) {
+    Dimension rtn = _new();
+    if (canProcess(arg)) {
+      rtn.assign(Math.pow(this.state, arg.state), this.suffix);
+
+    }
     return rtn;
   }
 
