@@ -1,0 +1,58 @@
+#!ek9
+<?-
+  Demonstrates EK9's tri-state object semantics using the '?' (isSet) operator
+  on basic types String and Date.
+  
+  This example shows the difference between:
+  - Unset objects: Created with default constructors like String() or Date()
+  - Set objects: Created with values like String("hello") or date literal 2024-01-15
+  
+  The '?' operator returns true for set objects and false for unset objects,
+  which is different from null checking in other languages.
+  
+  @author ClaudeCode
+  @version 1.0
+  @since EK9 0.0.1-0
+-?>
+defines module net.customer.issettests
+
+  defines function
+
+    <?-
+      Tests String tri-state semantics.
+      Demonstrates unset String() vs set String("value") behavior.
+    -?>
+    testString()
+      stdout <- Stdout()
+      
+      unsetValue <- String()
+      stdout.println(`Unset String isSet: ${unsetValue?}`)
+      
+      setValue <- String(`hello world`)
+      stdout.println(`Set String isSet: ${setValue?}`)
+
+    <?-
+      Tests Date tri-state semantics.
+      Demonstrates unset Date() vs set date literal behavior.
+      Note: Uses EK9's native date literal syntax (2024-01-15).
+    -?>
+    testDate()
+      stdout <- Stdout()
+      
+      unsetValue <- Date()
+      stdout.println(`Unset Date isSet: ${unsetValue?}`)
+      
+      setValue <- 2024-01-15
+      stdout.println(`Set Date isSet: ${setValue?}`)
+
+  defines program
+
+    <?-
+      Main program entry point.
+      Executes all tri-state isSet tests for basic types.
+    -?>
+    main()
+      testString()
+      testDate()
+
+//EOF

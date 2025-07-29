@@ -1,211 +1,162 @@
 #!ek9
+
 <?-
-  Reverse engineered from Java package.
-  Do not manually edit.
+  Designed to identify the resolution to ambiguous method calls.
+  So, we will need to fairly varied class hierarchies and also promotions.
+  It is this latter point where I have found an issue.
+
+  When a type supports promotion (TypeY), because it was not directly usable, if it then
+  'becomes' via type promotion another type (TypeX) and that type is say type X and by inference is an 'Any'.
+  Then if a class (TypeA) has the same named method or operator that can accept X, but is overloaded to be
+  able to accept 'Any'. Then there is a viable solution to call the named method.
+
+  But we have to decide which of these overloaded methods to call. They are both compatible.
+  We should choose the method that as the type parameter (or parameters) that are most specific.
+  Giving them a lower 'cost'.
+
+  However, it is still possible/probable there will be situations where even with this logic, there
+  is more than one method that could be called and they are both the same cost. This has to be resolved by the
+  developer.
+
+  But what this means is that, in the core EK9 libraries (where the developer has no control), the provision of
+  overloaded methods with different types must be very carefully considered.
+
+  The obvious example is the '|' (pipe) operator. Let say we have both '| String' and '| Any'. Now consider an enumerated type E.
+
+  The EK9 compiler basically generates quite a lot of implicit operators when the developed defines an Enumerated type.
+  One of these is the '#^' (promotion) operator and that is to a String. But note the enumerated type itself is also an 'Any'.
+  String too is also an 'Any'.
+
+  Now consider a type T that has overloaded operators of '| String' and '| Any', but does not have '| E' (the enumerated type).
+
+  So when we come to resolve the '|', should we just use 'Any' because E is also an 'Any'. Or do we elected to use the promotion
+  to get to the String type?
+
+  If we then get to promote to String, we now have two possible options '| String' or '| Any'. They are both compatible. But we need to select
+  so we need to devise the 'cost' of use so that the selection of the method/operator is predictable and can be known by developers.
+
+  Proposal:
+  A. Avoid promotion/conversion if possible.
+  B. Apply 'Any' as the last resort (if there is a method/operator that supports Any).
+  C. Use the type hierarchy increasing cost as moving back up the hierarchy.
+  D. Use traits and trait hierarchy again increasing the cost as moving back up the hierarchy.
+  F. If C/D result in final designation of 'Any', then stop and apply promotion (but only once!), then apply C/D again.
+  G. If the final result is still 'Any' after promotion, then do NOT promote just use 'Any' from normal hierarchy.
+
+  This approach, gives the developer a chance to create the #^ (promotion/conversion) method so as to be able to make their types
+  compatible with existing API's and libraries they wish to use.
+
+  So it's not enough to see that a type is compatible with a method/operator - we actually need to know the cost of that compatibility.
 -?>
-defines extern module org.company.dept
-
-  defines package
-
-    publicAccess <- true
-    version <- 3.2.1-0
-    description <- "Example of handy tools"
-    license <- "MIT"
-
-    tags <- [
-      "general",
-      "tools"
-      ]
-
-  defines constant
-
-    MyPi <- 3.142
-    MyRoot2 <- 1.41421356237309504880
-    Mye <- 2.7182818284
-
-  defines type
-
-    EventHandler of StringExample
-    IteratorExample of StringExample
-    ListExample of StringExample
-
-    CardRank
-      Two
-      Three
-      Four
-      Five
-      Six
-      Seven
-      Eight
-      Nine
-      Ten
-      Jack
-      Queen
-      King
-      Ace
-
-    CardSuit
-      Hearts
-      Diamonds
-      Clubs
-      Spades
-
-    EmployeeId as Integer constrain
-      > 0
-
-  defines text for "de"
-
-    WelcomePageText
-      namedWelcome()
-        -> name String
-        ``
-
-
-  defines text for "en_GB"
-
-    WelcomePageText
-      namedWelcome()
-        -> name String
-        ``
-
-
-  defines trait
-
-    CostAssessment
-      lowCost() as pure
-        <- rtn as Boolean?
-
-
-    Monitorable
-      available() as pure
-        <- rtn as Boolean?
-
-      lowCost() as pure
-        <- rtn as Boolean?
-
-
-    Processor with trait of Monitorable, CostAssessment
-      override lowCost() as pure
-        <- rtn as Boolean?
-
-      process() as pure
-        <- rtn as Boolean?
-
-
-  defines record
-
-    NetworkProperties
-      host as StringExample?
-
-      packetSize as Integer?
-
-      port as Integer?
-
-      NetworkProperties() as pure
-
-      operator $ as pure
-        <- rtn as String?
-
-
-  defines function
-
-    EventHandler of type T
-      -> event as T
-
-    MathOperation() as pure abstract
-      -> value as Float
-      <- result as Float?
-
-    Multiplier() as pure
-      <- value as Float?
-
-    Multiply() is MathOperation as pure
-      -> value as Float
-      <- result as Float?
+defines module introduction
 
   defines class
 
-    General
-      General() as pure
+    TypeX
+
+      //I don't wish to do anything in the body here.
+      //But I do need to say it is pure, so it can be used elsewhere (in a pure context).
+      default TypeX() as pure
 
       operator ? as pure
-        <- rtn as Boolean?
+        <- rtn <- true
 
+    <?-
+      This type can be promoted to a TypeX, but is itself also an 'Any'.
+    -?>
+    TypeY
 
-    IteratorExample of type T as abstract
-      IteratorExample() as pure
-        -> arg0 as T
+      default TypeY() as pure
 
-      IteratorExample() as pure
-
-      hasNext() as pure abstract
-        <- rtn as Boolean?
-
-      next() as abstract
-        <- rtn as T?
+      operator #^ as pure
+        <- rtn as TypeX: TypeX()
 
       operator ? as pure
-        <- rtn as Boolean?
+        <- rtn <- true
 
+    TypeZ
+      operator #^ as pure
+        <- rtn as TypeY: TypeY()
 
-    ListExample of type T as open
-      ListExample() as pure
+      operator ? as pure
+        <- rtn <- true
 
-      ListExample() as pure
-        -> arg0 as T
+    TypeA
+      methodToTry()
+        -> arg as TypeX
+        assert arg?
 
-      iterator() as pure
-        <- rtn as IteratorExample of T?
+      methodToTry()
+        -> arg as Any
+        assert arg?
 
+      operator ? as pure
+        <- rtn <- true
 
-    StringExample
-      StringExample() as pure
+    TypeB
+      methodToTry()
+        -> arg as TypeX
+        assert arg?
 
-      upperCase() as pure
-        <- rtn as StringExample?
-
-
-  defines component
-
-    OutputInterface as abstract
-      output() as pure
-        -> value as String
-
-
-    StderrInterface is OutputInterface
-      override output() as pure
-        -> value as String
-
-
-  defines service
-
-    Site :/site
-      index() as GET for :/index.html
-        <- response as HTTPResponse?
-
-
-  defines application
-
-    DemoApp
+      operator ? as pure
+        <- rtn <- true
 
   defines program
 
-    Program1()
+    CanResolveToCallTypeXTest1()
 
-    Program2()
-      -> arg1 as String
+      //This is the type we will use to try and call the methods
+      //on TypeA. But it is not directly compatible (other than 'Any').
+      typeY <- TypeY()
+      assert typeY?
 
-//EOF
+      //This is a the class we will call the method on.
+      typeA <- TypeA()
+      assert typeA?
 
-<!-
-#!ek9
-defines module introduction
+      //So, what a developer and the compiler needs to know is which overloaded method is to be called
+      //and why! We need the call with 'Any' to be the last resort.
+      //So this would call methodToTry with typeX, by using the coercion on TypeY.
+      typeA.methodToTry(typeY)
 
-  defines program
-    HelloWorld()
+    CanResolveToCallTypeXTest2()
 
-      stdout <- Stdout()
-      stdout.println("Hello, World")
--!>
+      typeY <- TypeY()
+      assert typeY?
+
+      //This is a the class we will call the method on.
+      typeB <- TypeB()
+      assert typeB?
+
+      //Simple typeY can be promoted to typeX and therefore method resolved.
+      typeB.methodToTry(typeY)
+
+    CanResolveToCallTypeAnyTest2()
+
+      typeZ <- TypeZ()
+      assert typeZ?
+
+      //This is a the class we will call the method on.
+      typeA <- TypeA()
+      assert typeA?
+
+      //So, what a developer and the compiler needs to know is which overloaded method is to be called
+      //and why! We need the call with 'Any' to be the last resort.
+      //HOWEVER, we only allow for one coercion - so this will call methodToTry with type 'Any'
+      //This is because only one coercion is allowed when looking to match types.
+      typeA.methodToTry(typeZ)
+
+    CannotResolveToCallTest1()
+
+      typeZ <- TypeZ()
+      assert typeZ?
+
+      //This is a the class we will call the method on.
+      typeB <- TypeB()
+      assert typeB?
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      typeB.methodToTry(typeZ)
+
 //EOF
 

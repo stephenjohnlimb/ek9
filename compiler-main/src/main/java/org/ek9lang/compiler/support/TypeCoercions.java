@@ -48,10 +48,17 @@ public class TypeCoercions {
       //that is the promotion symbol
       final var promoteMethod = fromAggregate.resolve(new MethodSymbolSearch("#^"));
 
+      //Now because we have promoted/coerced once, we avoid using 'isAssignable' because that will
+      //effectively enable more coercions. We only want to trigger one coercion when trying to match types.
+      //because it could be quite possible for several groups of types, to have a circular coercions if designed badly.
+      //Plus is makes more sense as a developer, you can easily check one coercion, but allowing chaining of coercions
+      //is likely to cause problems - Even one coercion is a bit risky, as it is sort of implicit and not that visible
+
       return promoteMethod
           .flatMap(ISymbol::getType)
-          .map(type -> type.isAssignableTo(to))
-          .orElse(false);
+          .map(type -> type.getUnCoercedAssignableWeightTo(to))
+          .stream()
+          .anyMatch(weight -> weight >= 0.0f);
     }
 
     return false;

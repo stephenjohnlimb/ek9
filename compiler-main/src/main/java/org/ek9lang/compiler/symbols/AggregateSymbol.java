@@ -427,6 +427,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     return canAssign;
   }
 
+  @SuppressWarnings("checkstyle:Indentation")
   @Override
   public double getUnCoercedAssignableWeightTo(final ISymbol s) {
 
@@ -434,11 +435,16 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
 
     if (getSuperAggregate().isPresent() && canAssign < 0.0) {
       //now we can check superclass matches. but add some weight because this did not match
-      double weight = getSuperAggregate().get().getUnCoercedAssignableWeightTo(s);
+      final var theSuperAggregate = getSuperAggregate().get();
+      double weight = theSuperAggregate.getUnCoercedAssignableWeightTo(s);
       if (weight < 0.0) {
         return weight;
       }
 
+      //We push the weight of being able to assign to Any down.
+      if (theSuperAggregate.getFullyQualifiedName().equals("org.ek9.lang::Any")) {
+        return 20.0;
+      }
       //If we can assign via its super, then we're done.
       canAssign = 0.05 + weight;
       return canAssign;

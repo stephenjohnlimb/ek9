@@ -15,6 +15,11 @@ abstract class SuccessfulTest extends PhasesTest {
 
   private final CompilationPhase toPhase;
 
+  public SuccessfulTest(final String fromResourcesDirectory, final boolean verbose, final boolean showErrors) {
+    super(fromResourcesDirectory, verbose, !showErrors);
+    this.toPhase = CompilationPhase.PRE_IR_CHECKS;
+  }
+
   public SuccessfulTest(final String fromResourcesDirectory, final boolean showErrors) {
     this(fromResourcesDirectory, CompilationPhase.PRE_IR_CHECKS, showErrors);
   }

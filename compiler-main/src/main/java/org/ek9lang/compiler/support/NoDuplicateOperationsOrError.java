@@ -80,8 +80,13 @@ public final class NoDuplicateOperationsOrError implements BiConsumer<IToken, IA
     //are in.
 
     if (initializedByToken != null) {
-      errorListener.semanticError(initializedByToken, "Parameterization caused method signatures to be duplicated:",
-          errorType);
+      if (aggregate.isParameterisedType()) {
+        errorListener.semanticError(initializedByToken, "Parameterization caused method signatures to be duplicated:",
+            errorType);
+      } else {
+        errorListener.semanticError(initializedByToken, "Error in definition of" + operation + " :",
+            errorType);
+      }
     }
 
     errorListener.semanticError(errorLocationToken, "Is a source of method duplication:", errorType);

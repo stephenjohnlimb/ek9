@@ -37,6 +37,15 @@ These documents provide comprehensive technical context for all EK9 compiler dev
 
 For specific EK9 development tasks, refer to these comprehensive guides:
 
+### EK9 Example Development and Learning
+- **`EK9_CLAUDE_LEARNING_EXAMPLES.md`** - Claude Code learning experience and example development patterns
+  - Test-driven learning approach with immediate compiler feedback
+  - EK9 unique language features (native literals, tri-state semantics, assignment operators)
+  - Successful example patterns and common pitfalls
+  - Error-driven learning methodology for understanding EK9 compiler diagnostics
+  - Template patterns for basic type testing and educational examples
+  - **Use this guide when:** Creating EK9 examples, learning EK9 language features, or developing educational materials
+
 ### EK9 Generic Type Implementation
 - **`EK9_GENERIC_TYPES_IMPLEMENTATION.md`** - Complete guide for implementing parameterized generic types
   - Decorated name generation process and patterns
