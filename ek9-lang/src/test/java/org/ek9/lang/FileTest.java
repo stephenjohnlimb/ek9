@@ -12,8 +12,7 @@ class FileTest extends Common {
     };
     assertNotNull(theDefault);
 
-    assertFalse.accept(theDefault._isSet());
-
+    assertUnset.accept(theDefault._isSet());
     assertUnset.accept(theDefault.isExecutable());
     assertUnset.accept(theDefault.isReadable());
     assertUnset.accept(theDefault.isWritable());

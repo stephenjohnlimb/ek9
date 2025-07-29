@@ -429,7 +429,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator |
               -> arg as JSON
 
-          Character
+          Character as open
             Character() as pure
 
             Character() as pure
@@ -3356,7 +3356,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
 
   @SuppressWarnings({"Indentation"})
   private static final String DEFINE_BUILT_IN_TRAITS = """
-          Clock
+          Clock as open
             millisecond() as pure
               <- rtn as Millisecond?
 
@@ -3372,7 +3372,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             operator ? as pure
               <- rtn as Boolean := Boolean()
 
-          StringInput
+          StringInput as open
             next() as pure
               <- rtn as String := String()
 
@@ -3387,7 +3387,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
           <!-
             Just added in a body so it is not marked as abstract.
           -!>
-          StringOutput
+          StringOutput as open
             println() as pure
               -> arg0 as String
               assert arg0?
@@ -3487,7 +3487,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
               -> arg0 as Exception
               assert arg0?
 
-          File
+          File as open
 
             isReadable() as pure
               <- rtn as Boolean?
@@ -3579,7 +3579,7 @@ public class Ek9BuiltinLangSupplier implements Supplier<List<CompilableSource>> 
             override operator ? as pure
               <- rtn as Boolean?
 
-          FileSystem
+          FileSystem as open
             FileSystem() as pure
 
             <?-

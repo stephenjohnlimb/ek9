@@ -22,7 +22,7 @@ import org.ek9tooling.Ek9Operator;
 
 @SuppressWarnings({"checkstyle:MethodName", "checkstyle:CatchParameterName"})
 @Ek9Class("""
-    JSON as open""")
+    JSON""")
 public class JSON extends BuiltinType {
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -696,6 +696,7 @@ public class JSON extends BuiltinType {
     return rtn;
   }
 
+  @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
   private static JsonNode parse(java.lang.String value) {
     if (value != null) {
       try {

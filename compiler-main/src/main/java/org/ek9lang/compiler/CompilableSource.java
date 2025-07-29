@@ -291,7 +291,7 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
       try (BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStream()))) {
         while (reader.ready()) {
           var line = reader.readLine();
-          builder.append(String.format("%3d %s%n", lineNo++, line));
+          builder.append(String.format("%4d %s%n", lineNo++, line));
         }
         return builder.toString();
       }

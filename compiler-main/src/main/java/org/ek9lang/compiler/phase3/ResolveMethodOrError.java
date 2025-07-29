@@ -16,7 +16,7 @@ import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
- * Given a search for a method from an aggregate - and include supers/traits etc,
+ * Given a search for a method from an aggregate - and include supers/traits etc.,
  * this function will try and locate the method. But if not found or ambiguous it will issue errors.
  */
 final class ResolveMethodOrError extends TypedSymbolAccess

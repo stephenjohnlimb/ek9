@@ -62,4 +62,12 @@ public interface File extends Any {
   default Integer _hashcode() {
     return new Integer();
   }
+
+  @Override
+  @Ek9Operator("""
+      operator ? as pure
+        <- rtn as Boolean?""")
+  default Boolean _isSet() {
+    return new Boolean();
+  }
 }

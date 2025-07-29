@@ -45,6 +45,25 @@ static Stream<TestCase> getTestCases() {
 ### 3. Compile-Time Safety
 Prefer compile-time safety over runtime string matching and conditionals.
 
+### 4. Type Precision in Method Signatures
+When using parameterized tests with mixed EK9 and Java types, be explicit about parameter types to avoid JUnit comparison issues.
+
+```java
+// ✅ GOOD: Explicit Java types prevent comparison issues
+@ParameterizedTest
+@MethodSource("getTestCases")
+void testMethod(java.lang.String input, java.lang.String expected) {
+    // JUnit can properly compare java.lang.String parameters
+}
+
+// ❌ PROBLEMATIC: Mixed type assumptions
+@ParameterizedTest  
+@MethodSource("getTestCases")
+void testMethod(String input, String expected) {
+    // May cause comparison issues between org.ek9.lang.String and java.lang.String
+}
+```
+
 ## Common Anti-Patterns and Solutions
 
 ### Anti-Pattern: Over-Engineered Record Wrappers
@@ -188,7 +207,89 @@ void testMethod(JsonTestCase testCase)
 
 ## Real-World Examples
 
-### Example 1: Testing Constructor Behaviors
+### Example 1: Successful Parameterized Test Refactoring (Money JSON Tests)
+
+**Problem**: Three repetitive test methods testing Money JSON pipe operations with different JSON structures.
+
+**Original Code (Repetitive)**:
+```java
+@Test
+void testNestedPipedJSONObject() {
+    final var mutatedMoney = new Money();
+    final var jsonStr = "{ /* complex nested JSON */ }";
+    final var jsonResult = new JSON().parse(String._of(jsonStr));
+    
+    mutatedMoney._pipe(jsonResult.ok());
+    assertEquals("34.00#GBP", mutatedMoney.toString());
+}
+
+// Two more similar methods with different JSON and expectations...
+```
+
+**Refactored Solution**:
+```java
+private static Stream<Arguments> getComplexJSONPipeTestCases() {
+    return Stream.of(
+        // Structured object - same currency addition
+        Arguments.of(
+            """
+            {
+              "price": "25.50#EUR",
+              "tax": "5.10#EUR"  
+            }""",
+            "30.60#EUR"
+        ),
+        
+        // Nested complex object - all same currency
+        Arguments.of(
+            """
+            {
+              "costs": ["15.00#GBP", "10.00#GBP"],
+              "subtotal": "5.00#GBP", 
+              "fees": {"service": "2.50#GBP", "processing": "1.50#GBP"}
+            }""",
+            "34.00#GBP"
+        ),
+        
+        // Mixed valid/invalid values - valid ones sum
+        Arguments.of(
+            """
+            {
+              "valid1": "10.00#USD",
+              "invalid1": "not-money",
+              "valid2": "15.50#USD",
+              "invalid2": "100#INVALID",
+              "valid3": "5.25#USD"
+            }""",
+            "30.75#USD"
+        )
+    );
+}
+
+@ParameterizedTest
+@MethodSource("getComplexJSONPipeTestCases")
+void testComplexJSONPipeScenarios(java.lang.String jsonString, java.lang.String expectedResult) {
+    final var mutatedMoney = new Money();
+    final var jsonResult = new JSON().parse(String._of(jsonString));
+    
+    assertSet.accept(jsonResult);
+    mutatedMoney._pipe(jsonResult.ok());
+    
+    assertSet.accept(mutatedMoney);
+    assertEquals(expectedResult, mutatedMoney.toString());
+}
+```
+
+**Key Benefits**:
+- Reduced from 3 methods (~60 lines) to 1 method + data provider (~50 lines total)
+- Eliminated code duplication in assertion logic
+- Made test cases more readable and maintainable  
+- Used explicit `java.lang.String` types to avoid JUnit comparison issues
+- Test data is self-documenting with clear input/output pairs
+
+**Critical Insight**: The explicit `java.lang.String` parameter types prevent JUnit from getting confused between `org.ek9.lang.String` and `java.lang.String` during parameterized test execution.
+
+### Example 2: Testing Constructor Behaviors
 
 ```java
 static Stream<UnsetConstructorTestCase> getUnsetConstructorTestCases() {
@@ -288,7 +389,49 @@ When setup logic is completely different and has no common pattern, parameteriza
 
 ## Key Lessons Learned
 
-### 1. Question Every Abstraction
+### 1. Type Safety in Mixed EK9/Java Environments
+When working with parameterized tests that involve both EK9 types (`org.ek9.lang.String`) and Java types (`java.lang.String`), always be explicit about parameter types in method signatures. JUnit's parameter comparison mechanism can get confused between these similar but distinct types.
+
+**Problem Pattern**:
+```java
+// This can cause JUnit comparison failures
+@ParameterizedTest
+void testMethod(String input, String expected) { /* ... */ }
+```
+
+**Solution Pattern**:
+```java  
+// This works reliably
+@ParameterizedTest
+void testMethod(java.lang.String input, java.lang.String expected) { /* ... */ }
+```
+
+**Root Cause**: JUnit's parameterized test mechanism performs type checking and value comparison. When it encounters `org.ek9.lang.String` vs `java.lang.String`, the type mismatch can cause test failures even when the string values are identical.
+
+### 2. JSON Test Data with Multi-line Strings
+Use Java's text blocks (`"""`) for complex JSON test data in parameterized tests. This makes the test data much more readable and maintainable than escaped JSON strings.
+
+**Good Pattern**:
+```java
+Arguments.of(
+    """
+    {
+      "price": "25.50#EUR",
+      "tax": "5.10#EUR"  
+    }""",
+    "30.60#EUR"
+)
+```
+
+**Avoid**:
+```java
+Arguments.of(
+    "{\"price\": \"25.50#EUR\", \"tax\": \"5.10#EUR\"}", 
+    "30.60#EUR"
+)
+```
+
+### 3. Question Every Abstraction
 Before creating wrapper objects or complex data structures, ask:
 - "What problem does this solve?"
 - "Can I provide the data directly?"
@@ -302,11 +445,30 @@ Before creating wrapper objects or complex data structures, ask:
 ### 3. Optimize for Readability
 The most elegant code is often the most readable code. If someone else (or future you) can't immediately understand what a test does, it needs simplification.
 
-### 4. Static vs Instance Method Issues
+### 4. When to Refactor to Parameterized Tests
+Consider parameterized test refactoring when you have:
+- **3+ test methods** with nearly identical logic
+- **Different test data** but same assertion patterns  
+- **Clear input/output pairs** that can be expressed simply
+- **Repetitive setup code** that can be eliminated
+
+**Don't refactor when**:
+- Test methods have significantly different assertion logic
+- Setup requirements vary dramatically between test cases
+- The parameterization makes the test harder to understand
+
+### 5. Static vs Instance Method Issues
 If you're fighting static method access issues in data providers, you're probably over-complicating the solution. Step back and look for a simpler approach.
 
 ## Conclusion
 
 The best parameterized tests are those where the parameterization feels natural and obvious. If you find yourself creating complex infrastructure just to parameterize a test, that's usually a sign that a simpler approach exists.
+
+**Key Success Metrics for Parameterized Tests**:
+- Reduced overall lines of code
+- Eliminated repetitive assertion logic
+- Improved test readability and maintainability
+- Clear, self-documenting test data
+- Proper type handling in mixed EK9/Java environments
 
 Remember: **The goal of parameterized tests is to reduce duplication and improve clarity, not to showcase clever abstractions.**
