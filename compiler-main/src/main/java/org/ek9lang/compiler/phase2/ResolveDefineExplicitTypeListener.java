@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9BaseListener;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
+import org.ek9lang.compiler.common.ProcessSyntheticReturn;
 import org.ek9lang.compiler.common.ScopeStack;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.support.AccessGenericInGeneric;
@@ -19,6 +20,7 @@ import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.CaptureScope;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.ServiceOperationSymbol;
@@ -88,6 +90,7 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   private final ProcessVariableOrError processVariableOrError;
   private final ProcessDynamicClassOrError processDynamicClassOrError;
   private final ProcessDynamicFunctionOrError processDynamicFunctionOrError;
+  private final ProcessSyntheticReturn processSyntheticReturn;
 
   /**
    * Still defining some stuff here, but also resolving where possible.
@@ -155,6 +158,8 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
         new ProcessDynamicClassOrError(symbolsAndScopes, errorListener);
     this.processDynamicFunctionOrError =
         new ProcessDynamicFunctionOrError(symbolsAndScopes, errorListener);
+    this.processSyntheticReturn =
+        new ProcessSyntheticReturn(symbolsAndScopes, symbolFactory, errorListener);
   }
 
   @Override
@@ -179,6 +184,10 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
 
   @Override
   public void exitFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
+
+    if (symbolsAndScopes.getRecordedSymbol(ctx) instanceof FunctionSymbol asFunction) {
+      processSyntheticReturn.accept(ctx.operationDetails(), asFunction);
+    }
 
     processFunctionDeclarationOrError.accept(ctx);
     symbolsAndScopes.exitScope();
@@ -447,6 +456,10 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
       applicationForProgramOrError.apply(ctx.identifierReference());
     }
 
+    if (symbolsAndScopes.getRecordedSymbol(ctx) instanceof MethodSymbol methodSymbol && !methodSymbol.isConstructor()) {
+      processSyntheticReturn.accept(ctx.operationDetails(), methodSymbol);
+    }
+
     symbolsAndScopes.exitScope();
     super.exitMethodDeclaration(ctx);
 
@@ -464,6 +477,7 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   public void exitOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
 
     if (symbolsAndScopes.getTopScope() instanceof MethodSymbol method) {
+      processSyntheticReturn.accept(ctx.operationDetails(), method);
       //Yes this is correct an operator is just a method but marked as an operator.
       validOperatorOrError.accept(method, ctx);
     }

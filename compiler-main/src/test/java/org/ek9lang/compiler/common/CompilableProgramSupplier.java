@@ -13,7 +13,7 @@ import org.ek9lang.core.SharedThreadContext;
  * i.e. org.ek9.lang and other built in modules.
  * Does not employ any phase listeners or verbose compilation reporting.
  */
-public class CompilableProgramSuitable implements Supplier<SharedThreadContext<CompilableProgram>> {
+public class CompilableProgramSupplier implements Supplier<SharedThreadContext<CompilableProgram>> {
   //In memory cache of the compiler with ek9 symbols built in.
   private static byte[] serializedCompiler;
 

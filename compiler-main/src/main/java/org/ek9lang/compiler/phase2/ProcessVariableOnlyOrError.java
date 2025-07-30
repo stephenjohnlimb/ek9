@@ -37,7 +37,7 @@ final class ProcessVariableOnlyOrError extends RuleSupport implements
     //Might have been a duplicate and so could be null (other errors emitted).
     if (variableSymbol != null) {
       final var theType = symbolsAndScopes.getRecordedSymbol(ctx.typeDef());
-      //Can set the type now if known.
+      //Can set the type now if known. Might not be if Parameterized type - not got that far yet.
       if (theType != null) {
         variableSymbol.setType(theType);
       }

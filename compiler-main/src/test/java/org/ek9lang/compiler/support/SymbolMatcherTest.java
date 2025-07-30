@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.ek9lang.compiler.CompilableProgram;
-import org.ek9lang.compiler.common.CompilableProgramSuitable;
+import org.ek9lang.compiler.common.CompilableProgramSupplier;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.SharedThreadContext;
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.TestInstance;
 class SymbolMatcherTest {
 
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
-      = new CompilableProgramSuitable();
+      = new CompilableProgramSupplier();
   private final SymbolMatcher underTest = new SymbolMatcher();
   private Optional<ISymbol> integerType;
   private Optional<ISymbol> floatType;

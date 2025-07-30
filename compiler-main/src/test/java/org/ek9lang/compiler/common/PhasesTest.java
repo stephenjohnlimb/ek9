@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Assertions;
  */
 public abstract class PhasesTest {
 
-  private final Supplier<SharedThreadContext<CompilableProgram>> sharedContext = new CompilableProgramSuitable();
+  private final Supplier<SharedThreadContext<CompilableProgram>> sharedContext = new CompilableProgramSupplier();
 
   protected final Workspace ek9Workspace;
 

@@ -25,6 +25,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.AbstractEK9PhaseListener;
+import org.ek9lang.compiler.common.ProcessSyntheticReturn;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.support.ResolveOrDefineTypeDef;
@@ -231,10 +232,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     //Can be null if during definition 'enter' it was a duplicate method
     if (symbolsAndScopes.getTopScope() instanceof MethodSymbol method) {
       validMethodOrError.accept(method, ctx);
-      if ((ctx.operationDetails() == null || (ctx.operationDetails() != null
-          && ctx.operationDetails().returningParam() == null))
-          && !method.isConstructor()) {
-        processSyntheticReturn.accept(method);
+      if (!method.isConstructor()) {
+        processSyntheticReturn.accept(ctx.operationDetails(), method);
       }
     }
 
@@ -283,10 +282,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     final var currentScope = symbolsAndScopes.getTopScope();
     //Can be null if during definition 'enter' it was a duplicate method
-    if (currentScope instanceof MethodSymbol method
-        && ctx.operationDetails() != null
-        && ctx.operationDetails().returningParam() == null) {
-      processSyntheticReturn.accept(method);
+    if (currentScope instanceof MethodSymbol method) {
+      processSyntheticReturn.accept(ctx.operationDetails(), method);
     }
 
     super.exitOperatorDeclaration(ctx);
@@ -318,10 +315,8 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     final var functionSymbol = symbolFactory.newFunction(ctx);
     //There is no returning so use a return of Void, might be null if we had duplicate names.
     //Must do this on entry - as the body may actually reference its own definition!
-    if (functionSymbol != null
-        && ctx.operationDetails() != null
-        && ctx.operationDetails().returningParam() == null) {
-      processSyntheticReturn.accept(functionSymbol);
+    if (functionSymbol != null) {
+      processSyntheticReturn.accept(ctx.operationDetails(), functionSymbol);
     }
 
     checkAndDefineModuleScopedSymbol(functionSymbol, ctx);

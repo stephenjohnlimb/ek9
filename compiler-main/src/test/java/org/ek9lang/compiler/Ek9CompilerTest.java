@@ -9,7 +9,7 @@ import java.io.File;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import org.ek9lang.compiler.common.CompilableProgramSuitable;
+import org.ek9lang.compiler.common.CompilableProgramSupplier;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.config.FullPhaseSupplier;
@@ -36,7 +36,7 @@ class Ek9CompilerTest {
   private final OsSupport osSupport = new OsSupport(true);
 
   private final Supplier<SharedThreadContext<CompilableProgram>> sharedContext
-      = new CompilableProgramSuitable();
+      = new CompilableProgramSupplier();
 
   private final Function<String, Workspace> validEk9Workspace = subDir -> {
     final var fullPath = new PathToSourceFromName().apply("/examples/basics/HelloWorld.ek9");

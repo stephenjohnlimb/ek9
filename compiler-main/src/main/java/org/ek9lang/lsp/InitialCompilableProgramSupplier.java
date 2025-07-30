@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.DeSerializer;
-import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
+import org.ek9lang.compiler.Ek9BuiltinIntrospectionSupplier;
 import org.ek9lang.compiler.Ek9LanguageBootStrap;
 import org.ek9lang.compiler.Serializer;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
@@ -24,7 +24,7 @@ final class InitialCompilableProgramSupplier implements Supplier<SharedThreadCon
   private byte[] serialisedBuiltinEk9Symbols;
 
   //Use the introspection version to get the EK9 built-in source code.
-  private final Supplier<List<CompilableSource>> sourceSupplier = new Ek9BuiltinLangSupplier();
+  private final Supplier<List<CompilableSource>> sourceSupplier = new Ek9BuiltinIntrospectionSupplier();
   private final CompilerReporter reporter = new CompilerReporter(false, false);
   private final Supplier<CompilationPhaseListener> listener = () -> compilationEvent -> {
     var source = compilationEvent.source();
