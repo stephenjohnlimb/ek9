@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "ek9-validator": {
+      "command": "node",
+      "args": [
+        "./standalone-mcp-ek9.js"
+      ],
+      "env": {
+        "EK9_PROJECT_ROOT": "..",
+        "EK9_AUTO_REBUILD": "true",
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}

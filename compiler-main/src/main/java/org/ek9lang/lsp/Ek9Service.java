@@ -71,11 +71,12 @@ abstract class Ek9Service {
     return getPath(textDocument.getUri()).toString();
   }
 
+  @SuppressWarnings("checkstyle:CatchParameterName")
   protected Path getPath(final String uri) {
 
     try {
       return Paths.get(new URI(uri));
-    } catch (URISyntaxException e) {
+    } catch (URISyntaxException _) {
       return null;
     }
 
@@ -106,6 +107,7 @@ abstract class Ek9Service {
    */
   void sendDiagnostics(final PublishDiagnosticsParams diagnostics) {
 
+    Logger.debugf("Sending back diagnostics %d", diagnostics.getDiagnostics().size());
     getLanguageServer().getClient().ifPresent(client -> client.publishDiagnostics(diagnostics));
 
   }

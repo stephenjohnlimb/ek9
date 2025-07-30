@@ -162,6 +162,16 @@ After building, the EK9 compiler provides these commands:
   - Static method data provider guidelines
   - **Use this guide when:** Refactoring repetitive tests or creating parameterized test suites
 
+### MCP Integration and LSP Testing
+- **`MCP_EK9_LSP_TESTING_GUIDE.md`** - Complete guide for testing EK9 files using Model Context Protocol with EK9 LSP
+  - MCP-EK9 server setup and configuration (`mcp-server/` directory structure)
+  - EK9 compiler integration in Language Server Protocol mode (`-ls` flag)
+  - Step-by-step testing procedures with exact commands
+  - Debug output analysis and LSP message flow verification
+  - Known limitations with diagnostic generation in LSP mode
+  - Complete restoration process for working MCP-LSP integration
+  - **Use this guide when:** Setting up MCP integration, testing EK9 LSP functionality, or debugging MCP-EK9 communication
+
 ## Module Structure
 
 ### compiler-main

@@ -14,8 +14,12 @@ class Ek9BuiltinIntrospectionSupplierTest {
     final var compilableSources = underTest.get();
     assertNotNull(compilableSources);
     assertFalse(compilableSources.isEmpty());
-    //To do - add a few more assertions in to check the contents are reasonable.
-    compilableSources.forEach(source -> System.out.println(source.getSourceAsStringForDebugging()));
 
+    //No need to fully check the contents - see Ek9IntrospectedBootStrapTest
+    //That actually uses the supplier and compiles (checks the contents).
+    //This is just a simple check to make sure the content is at least not empty.
+    //The Ek9 compiler does allow for empty input, hence the need for this test - we are not expecting empty.
+
+    compilableSources.forEach(source -> assertFalse(source.getSourceAsStringForDebugging().isEmpty()));
   }
 }

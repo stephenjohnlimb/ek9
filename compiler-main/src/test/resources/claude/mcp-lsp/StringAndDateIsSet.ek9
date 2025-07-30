@@ -39,7 +39,7 @@ defines module net.customer.issettests
     testDate()
       stdout <- Stdout()
       
-      unsetValue <- Date()
+      unsetValue = Date()
       stdout.println(`Unset Date isSet: ${unsetValue?}`)
       
       setValue <- 2024-01-15
