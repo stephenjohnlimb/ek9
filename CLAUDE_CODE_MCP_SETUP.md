@@ -13,10 +13,10 @@ The MCP-EK9 server has been successfully configured and is ready for use with Cl
     "ek9-validator": {
       "command": "node",
       "args": [
-        "/Users/stevelimb/IdeaProjects/ek9/standalone-mcp-lsp-ek9.js"
+        "./mcp-server/standalone-mcp-ek9.js"
       ],
       "env": {
-        "EK9_PROJECT_ROOT": "/Users/stevelimb/IdeaProjects/ek9",
+        "EK9_PROJECT_ROOT": ".",
         "EK9_AUTO_REBUILD": "true",
         "NODE_ENV": "production"
       }
@@ -75,9 +75,11 @@ defines module test.example
 
 ### **Method 2: Automatic Integration**
 Claude Code will automatically use the EK9 validator when:
-- Working with `.ek9` files
+- Working with `.ek9` files in `compiler-main/src/test/resources/claude/mcp-lsp/`
 - Asked to validate EK9 code snippets
 - Creating new EK9 examples or programs
+
+**📍 Note**: All EK9 test files for MCP validation are located in `compiler-main/src/test/resources/claude/mcp-lsp/`
 
 ## ✅ **Validation Examples**
 
@@ -172,7 +174,7 @@ Sending back diagnostics 0
 3. Errors detected but not converted to LSP diagnostic format
 
 ### **📂 Configuration Maintained:**
-- **Directory**: `compiler-main/src/test/resources/claude/mcp-lsp/`
+- **📍 Test File Directory**: `compiler-main/src/test/resources/claude/mcp-lsp/` ⚠️ **ALL MCP TEST FILES HERE**
 - **Debug Mode**: Enabled in EK9 LSP server
 - **File Processing**: Direct validation of source files (no temporary copies)
 - **LSP Communication**: Complete handshake and proper message parsing

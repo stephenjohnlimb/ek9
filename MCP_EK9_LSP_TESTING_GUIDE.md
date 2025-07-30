@@ -25,7 +25,7 @@ ek9/
 │   ├── target/
 │   │   └── ek9c-jar-with-dependencies.jar  # EK9 compiler JAR
 │   └── src/test/resources/claude/mcp-lsp/   # EK9 test files (Maven structure)
-│       └── StringAndDateIsSet.ek9           # Test file with syntax error
+│       └── StringAndDateIsSet.ek9           # ⚠️  ALL MCP TEST FILES LOCATED HERE
 └── (other project files...)
 ```
 
@@ -110,6 +110,12 @@ class StandaloneMcpEk9Server {
 ```
 
 ### Step 4: Create Test EK9 File
+
+**📍 IMPORTANT: All EK9 files for MCP testing must be placed in:**
+```
+compiler-main/src/test/resources/claude/mcp-lsp/
+```
+
 Create `compiler-main/src/test/resources/claude/mcp-lsp/StringAndDateIsSet.ek9` with intentional syntax error:
 
 ```ek9
@@ -221,6 +227,9 @@ DEBUG: EK9: Exit
 
 ### 1. `validate_ek9_file`
 **Purpose**: Validate EK9 files from filesystem using LSP
+
+**📍 File Location**: All test files are located in `compiler-main/src/test/resources/claude/mcp-lsp/`
+
 **Usage**:
 ```json
 {
@@ -328,7 +337,7 @@ The integration is working correctly at this point - the diagnostic generation i
 - **MCP Configuration**: `mcp-server/.mcp.json`
 - **MCP Server**: `mcp-server/standalone-mcp-ek9.js`
 - **EK9 Compiler JAR**: `compiler-main/target/ek9c-jar-with-dependencies.jar`
-- **EK9 Test Files**: `compiler-main/src/test/resources/claude/mcp-lsp/`
+- **📍 EK9 Test Files**: `compiler-main/src/test/resources/claude/mcp-lsp/` ⚠️ **ALL MCP TEST FILES HERE**
 - **Documentation**: `mcp-server/README.md`
 
 This guide provides a complete restoration path to the working MCP-EK9 LSP integration state.

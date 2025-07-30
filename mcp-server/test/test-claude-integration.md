@@ -52,6 +52,6 @@ defines module test.integration.bad
 ## MCP Server Configuration
 
 The server is configured in `.mcp.json` with:
-- Command: `node /Users/stevelimb/IdeaProjects/ek9/standalone-mcp-ek9.js`
+- Command: `node ../standalone-mcp-ek9.js`
 - Environment: EK9 project root and auto-rebuild enabled
 - Available tools: `validate_ek9_syntax`, `check_ek9_jar_status`
