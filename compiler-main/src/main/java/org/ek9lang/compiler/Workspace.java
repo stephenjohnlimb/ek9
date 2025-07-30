@@ -1,7 +1,6 @@
 package org.ek9lang.compiler;
 
 import java.io.File;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -41,19 +40,6 @@ public class Workspace {
   }
 
   /**
-   * Typically used via the language server.
-   */
-  public CompilableSource reParseSource(final String uri, final InputStream inputStream) {
-
-    Logger.debug("parsing/re-parsing [" + uri + "] but with direct input stream");
-
-    final var compilableSource = ensureCompilableSourceAvailable(uri);
-    compilableSource.prepareToParse(inputStream).parse();
-
-    return compilableSource;
-  }
-
-  /**
    * Triggers the re-parsing of the source file. Normally after an edit so errors can be checked.
    */
   public CompilableSource reParseSource(final String uri) {
@@ -68,7 +54,7 @@ public class Workspace {
     return compilableSource;
   }
 
-  private CompilableSource ensureCompilableSourceAvailable(final String uri) {
+  public CompilableSource ensureCompilableSourceAvailable(final String uri) {
 
     if (isSourcePresent(uri)) {
       return getSource(uri);
@@ -76,10 +62,6 @@ public class Workspace {
 
     return addSource(new CompilableSource(uri));
   }
-
-  /*
-  ParsedModule and IRModule to be added in
-  */
 
   public void addSource(final File file) {
 
@@ -101,7 +83,9 @@ public class Workspace {
 
   public CompilableSource addSource(final CompilableSource source) {
 
-    sources.put(source.getFileName(), source);
+    if (!sources.containsKey(source.getFileName())) {
+      sources.put(source.getFileName(), source);
+    }
 
     return source;
   }
@@ -120,6 +104,7 @@ public class Workspace {
 
     return sources.get(fileName);
   }
+
 
   /**
    * Remove some source code from the work space. Maybe a file has been deleted or renamed.

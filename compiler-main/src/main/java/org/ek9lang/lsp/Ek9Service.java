@@ -1,15 +1,10 @@
 package org.ek9lang.lsp;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.tokenizer.TokenResult;
@@ -19,12 +14,9 @@ import org.ek9lang.core.Logger;
  * Base service for EK9 language compilation.
  */
 abstract class Ek9Service {
+  protected final PathExtractor pathExtractor = new PathExtractor();
   private final ErrorsToDiagnostics diagnosticExtractor = new ErrorsToDiagnostics();
-  private Ek9LanguageServer languageServer;
-
-  Ek9Service() {
-
-  }
+  private final Ek9LanguageServer languageServer;
 
   Ek9Service(final Ek9LanguageServer languageServer) {
 
@@ -41,6 +33,15 @@ abstract class Ek9Service {
   protected Workspace getWorkspace() {
 
     return getLanguageServer().getWorkspaceService().getEk9WorkSpace();
+  }
+
+  protected CompilerFlags getCompilerFlags() {
+    return getLanguageServer().getCompilerConfig();
+  }
+
+
+  protected Ek9CompilerService getCompilerService() {
+    return getLanguageServer().getCompilerService();
   }
 
   protected TokenResult getNearestToken(final TextDocumentPositionParams params) {
@@ -63,24 +64,14 @@ abstract class Ek9Service {
 
   protected String getFilename(final TextDocumentIdentifier textDocument) {
 
-    return getPath(textDocument.getUri()).toString();
+    return pathExtractor.apply(textDocument.getUri()).toString();
   }
 
   protected String getFilename(final TextDocumentItem textDocument) {
 
-    return getPath(textDocument.getUri()).toString();
+    return pathExtractor.apply(textDocument.getUri()).toString();
   }
 
-  @SuppressWarnings("checkstyle:CatchParameterName")
-  protected Path getPath(final String uri) {
-
-    try {
-      return Paths.get(new URI(uri));
-    } catch (URISyntaxException _) {
-      return null;
-    }
-
-  }
 
   protected void reportOnCompiledSource(final ErrorListener errorListener) {
 
@@ -107,38 +98,8 @@ abstract class Ek9Service {
    */
   void sendDiagnostics(final PublishDiagnosticsParams diagnostics) {
 
-    Logger.debugf("Sending back diagnostics %d", diagnostics.getDiagnostics().size());
+    Logger.debugf("Sending back diagnostics %d\n", diagnostics.getDiagnostics().size());
     getLanguageServer().getClient().ifPresent(client -> client.publishDiagnostics(diagnostics));
-
-  }
-
-  void sendWarningBackToClient(final String message) {
-
-    sendLogMessageBackToClient(new MessageParams(MessageType.Warning, message));
-
-  }
-
-  void sendErrorBackToClient(final String message) {
-
-    sendLogMessageBackToClient(new MessageParams(MessageType.Error, message));
-
-  }
-
-  void sendInfoBackToClient(final String message) {
-
-    sendLogMessageBackToClient(new MessageParams(MessageType.Info, message));
-
-  }
-
-  void sendLogBackToClient(final String message) {
-
-    sendLogMessageBackToClient(new MessageParams(MessageType.Log, message));
-
-  }
-
-  void sendLogMessageBackToClient(final MessageParams message) {
-
-    getLanguageServer().getClient().ifPresent(client -> client.logMessage(message));
 
   }
 }

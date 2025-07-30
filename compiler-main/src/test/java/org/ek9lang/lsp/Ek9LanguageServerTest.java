@@ -54,7 +54,12 @@ final class Ek9LanguageServerTest {
   static final String VALID_SOURCE = "SinglePackage.ek9";
   static final String RELATIVE_PATH_TO_VALID_SOURCE = "/examples/constructs/packages/";
   static final String INVALID_SOURCE = "unevenIndentation.ek9";
+  static final String OTHER_INVALID_SOURCE = "FlowControl.ek9";
   static final String RELATIVE_PATH_TO_INVALID_SOURCE = "/badExamples/basics/";
+  static final String RELATIVE_PATH_TO_OTHER_INVALID_SOURCE = "/examples/parseButFailCompile/abnormalBlockTermination/";
+  static final String RELATIVE_PATH_TO_CLAUDE_SOURCE = "/claude/mcp-lsp/";
+  static final String CLAUDE_SOURCE = "StringAndDateIsSet.ek9";
+
   private static final OsSupport osSupport = new OsSupport(true);
   private static final FileHandling fileHandling = new FileHandling(osSupport);
   private static final SourceFileSupport sourceFileSupport =
@@ -92,10 +97,23 @@ final class Ek9LanguageServerTest {
     Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
     SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
 
-    //As SinglePackage.ek9 is valid we'd expect zero length error diagnotics.
+    //As SinglePackage.ek9 is valid we'd expect zero length error diagnostics.
     assertNoErrors(client);
     languageServer.shutdown();
   }
+
+  @Test
+  void testClaudeStartupWithValidEk9Source() {
+    sourceFileSupport.copyFileToTestCWD(RELATIVE_PATH_TO_CLAUDE_SOURCE, CLAUDE_SOURCE);
+
+    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
+    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
+
+    //As SinglePackage.ek9 is valid we'd expect zero length error diagnostics.
+    assertNoErrors(client);
+    languageServer.shutdown();
+  }
+
 
   @Test
     /*
@@ -109,7 +127,7 @@ final class Ek9LanguageServerTest {
     Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
     SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
 
-    //As SinglePackage.ek9 is valid we'd expect zero length error diagnotics.
+    //As SinglePackage.ek9 is valid we'd expect zero length error diagnostics.
     assertNoErrors(client);
     //Now lets see if we can get a language completion.
     //line 1 position 9 (both zero based) should give us 'module'
@@ -124,7 +142,7 @@ final class Ek9LanguageServerTest {
     assertTrue(result.isLeft());
     assertFalse(result.isRight());
     assertEquals(1, result.getLeft().size());
-    var completionItem = result.getLeft().get(0);
+    var completionItem = result.getLeft().getFirst();
     assertNotNull(completionItem);
     assertEquals("module", completionItem.getLabel());
 
@@ -146,7 +164,7 @@ final class Ek9LanguageServerTest {
     Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
     SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
 
-    //As SinglePackage.ek9 is valid we'd expect zero length error diagnotics.
+    //As SinglePackage.ek9 is valid we'd expect zero length error diagnostics.
     assertNoErrors(client);
 
     //Now we wish to simulate a change to that file.
@@ -175,13 +193,13 @@ final class Ek9LanguageServerTest {
 
   @Test
   void testBasicStartupWithInvalidEk9Source() {
-    sourceFileSupport.copyFileToTestCWD(RELATIVE_PATH_TO_INVALID_SOURCE, INVALID_SOURCE);
+    sourceFileSupport.copyFileToTestCWD(RELATIVE_PATH_TO_OTHER_INVALID_SOURCE, OTHER_INVALID_SOURCE);
 
     Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
     SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
 
     //Now we'd expect errors
-    assertOddNumberOfSpacesError(client);
+    assertPointlessOrUnReachableErrors(client);
 
     languageServer.shutdown();
   }
@@ -194,6 +212,7 @@ final class Ek9LanguageServerTest {
     SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
 
     assertOddNumberOfSpacesError(client);
+
     //We will now simulate some events
     var textDocService = languageServer.getTextDocumentService();
 
@@ -213,17 +232,43 @@ final class Ek9LanguageServerTest {
     languageServer.shutdown();
   }
 
+  private void assertPointlessOrUnReachableErrors(final SimulatedLspClient client) {
+    //For this file, it has been designed to have lots of defects in various scenarios.
+    client.getLastDiagnostics().ifPresent(diagnostics -> {
+      assertEquals(34, diagnostics.getDiagnostics().size());
+      var theError = diagnostics.getDiagnostics().getFirst();
+      assertTrue(containsBadFlowControlTypeErrorMessage(theError.getMessage()));
+    });
+  }
+
+  private boolean containsBadFlowControlTypeErrorMessage(final String errorMessage) {
+    final boolean rtn = errorMessage.contains("return not possible")
+        || errorMessage.contains("expression is pointless")
+        || errorMessage.contains("all paths lead to an Exception")
+        || errorMessage.contains("Unreachable, because of 'throw'");
+
+    if (!rtn) {
+      System.out.println("Assertion failed because of Error Message [" + errorMessage + "]");
+    }
+    return rtn;
+  }
+
   private void assertOddNumberOfSpacesError(final SimulatedLspClient client) {
     client.getLastDiagnostics().ifPresent(diagnostics -> {
       assertEquals(1, diagnostics.getDiagnostics().size());
-      var theError = diagnostics.getDiagnostics().get(0);
+      var theError = diagnostics.getDiagnostics().getFirst();
       assertEquals("Odd number of spaces for indentation", theError.getMessage());
     });
   }
 
   private void assertNoErrors(final SimulatedLspClient client) {
     client.getLastDiagnostics()
-        .ifPresent(diagnostics -> assertEquals(0, diagnostics.getDiagnostics().size()));
+        .ifPresent(diagnostics -> {
+          if (!diagnostics.getDiagnostics().isEmpty()) {
+            diagnostics.getDiagnostics().forEach(System.out::println);
+          }
+          assertEquals(0, diagnostics.getDiagnostics().size());
+        });
   }
 
   @Test
@@ -271,7 +316,6 @@ final class Ek9LanguageServerTest {
     @Override
     public void showMessage(MessageParams messageParams) {
       System.out.println(messageParams);
-
     }
 
     public Optional<MessageParams> getLastMessage() {

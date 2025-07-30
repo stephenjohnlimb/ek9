@@ -17,7 +17,7 @@ final class Ek9CompilerConfig extends CompilerFlags {
 
   Ek9CompilerConfig() {
 
-    this(CompilationPhase.APPLICATION_PACKAGING);
+    this(CompilationPhase.IR_ANALYSIS);
 
   }
 

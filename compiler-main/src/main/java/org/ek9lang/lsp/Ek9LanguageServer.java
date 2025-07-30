@@ -5,6 +5,8 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -16,13 +18,16 @@ import org.ek9lang.core.OsSupport;
 /**
  * The Language Server Implementation into the modular EK9 compiler.
  */
-final class Ek9LanguageServer extends Ek9Service
-    implements IEk9LanguageServer {
+final class Ek9LanguageServer implements IEk9LanguageServer {
+
+  private final PathExtractor pathExtractor = new PathExtractor();
 
   private final OsSupport osSupport;
   private final Ek9CompilerConfig compilerConfig;
   private final Ek9TextDocumentService textDocumentService;
   private final Ek9WorkspaceService workspaceService;
+  private final Ek9CompilerService compilerService;
+
   private LanguageClient client;
   //To be used when the application exits, set to zero on shutdown by client.
   private int errorCode = 1;
@@ -32,17 +37,13 @@ final class Ek9LanguageServer extends Ek9Service
    */
   Ek9LanguageServer(final OsSupport osSupport) {
 
+    //TODO as compiler has more implementation move phase to IR_ANALYSIS.
     this.osSupport = osSupport;
+    this.compilerService = new Ek9CompilerService(this);
     this.textDocumentService = new Ek9TextDocumentService(this);
     this.workspaceService = new Ek9WorkspaceService(this);
-    this.compilerConfig = new Ek9CompilerConfig(CompilationPhase.IR_ANALYSIS);
+    this.compilerConfig = new Ek9CompilerConfig(CompilationPhase.PRE_IR_CHECKS);
 
-  }
-
-  @Override
-  protected Ek9LanguageServer getLanguageServer() {
-
-    return this;
   }
 
   @Override
@@ -67,23 +68,16 @@ final class Ek9LanguageServer extends Ek9Service
       final var folders = params.getWorkspaceFolders();
       if (folders != null) {
         folders.forEach(folder -> {
-          final var path = getPath(folder.getUri());
+          final var path = pathExtractor.apply(folder.getUri());
 
           final var searchCondition = new Glob("**.ek9");
           final var fileList = osSupport.getFilesRecursivelyFrom(path.toFile(), searchCondition);
 
           Logger.debug("EK9: Found " + fileList.size() + " files");
-          fileList.forEach(file -> {
-            //Use new JDK21 virtual threads for this.
-            try {
-              final var compilableSource = getWorkspace().reParseSource(file.toPath());
-              reportOnCompiledSource(compilableSource.getErrorListener());
-            } catch (RuntimeException rex) {
-              Logger.error("EK9: Failed to load and parse " + file.toString());
-            }
-          });
+          fileList.forEach(file -> getWorkspaceService().getWorkspace().addSource(file));
         });
       }
+      compilerService.recompileWorkSpace();
     } else {
       Logger.debug("EK9: Initialised with no parameters");
     }
@@ -140,5 +134,39 @@ final class Ek9LanguageServer extends Ek9Service
     Logger.debug("EK9: getWorkspaceService");
 
     return workspaceService;
+  }
+
+  public Ek9CompilerService getCompilerService() {
+    return compilerService;
+  }
+
+  void sendWarningBackToClient(final String message) {
+
+    sendLogMessageBackToClient(new MessageParams(MessageType.Warning, message));
+
+  }
+
+  void sendErrorBackToClient(final String message) {
+
+    sendLogMessageBackToClient(new MessageParams(MessageType.Error, message));
+
+  }
+
+  void sendInfoBackToClient(final String message) {
+
+    sendLogMessageBackToClient(new MessageParams(MessageType.Info, message));
+
+  }
+
+  void sendLogBackToClient(final String message) {
+
+    sendLogMessageBackToClient(new MessageParams(MessageType.Log, message));
+
+  }
+
+  void sendLogMessageBackToClient(final MessageParams message) {
+
+    client.logMessage(message);
+
   }
 }

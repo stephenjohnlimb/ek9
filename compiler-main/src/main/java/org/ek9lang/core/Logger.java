@@ -66,6 +66,7 @@ public class Logger {
   public static void debugf(final String format, final Object... args) {
 
     if (debugEnabled && !muteStderrOutput) {
+      System.err.print("DEBUG: ");
       System.err.printf(format, args);
     }
 

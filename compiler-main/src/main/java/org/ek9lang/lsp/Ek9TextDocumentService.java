@@ -1,6 +1,5 @@
 package org.ek9lang.lsp;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -105,10 +104,10 @@ final class Ek9TextDocumentService extends Ek9Service implements TextDocumentSer
 
     final var uri = getFilename(params.getTextDocument());
     Logger.debug("didOpen Opened Source [" + uri + "]");
+    getWorkspace().addSource(uri);
 
-    final var inputStream = new ByteArrayInputStream(params.getTextDocument().getText().getBytes());
-    reportOnCompiledSource(getWorkspace().reParseSource(uri, inputStream).getErrorListener());
 
+    getCompilerService().recompileWorkSpace();
   }
 
   @Override

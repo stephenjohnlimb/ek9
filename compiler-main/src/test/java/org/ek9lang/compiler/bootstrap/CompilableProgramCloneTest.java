@@ -35,11 +35,11 @@ import org.junit.jupiter.api.Test;
  * start over (but without the overhead of the initial bootstrap).
  * <br/>
  * For example, we may do the boostrap and load all dependant libraries (which as we use source may take some time),
- * then just focus on the EK9 code under development. We don't really want to be having to re-parse all the bootstrap
+ * then just focus on the EK9 code under development. We don't really want to be having to reparse all the bootstrap
  * and dependent library code over and over.
  * <br/>
- * We may find that actually we need to persist the basics in a tight binary form in time, i.e. buult-in and
- * library processed EK9 source. Then just load it up again (if versions change, bit it and re-parse).
+ * We may find that actually we need to persist the basics in a tight binary form in time, i.e. built-in and
+ * library processed EK9 source. Then just load it up again (if versions change, bit it and reparse).
  * But let's wait and see.
  * <br/>
  * For now lets just ensure that it is possible to create a compilable programs with various modules and clone it and
@@ -64,7 +64,7 @@ class CompilableProgramCloneTest {
    * But we will in effect need the 'interface' into that library - but we don't want to have to
    * reparse all its source again. So when we build the 'library' artefact we also build a
    * serialized version of the interface and save it in binary '*.ser' format.
-   * Clearly if the compiler data structures change then the main lib source will need re-parsing and
+   * Clearly if the compiler data structures change then the main lib source will need reparsing and
    * new artefact and *.ser interface file regenerating.
    */
   @Test
@@ -106,7 +106,7 @@ class CompilableProgramCloneTest {
     assertEquals(1, moduleNames.size());
 
     //Now lets get that module
-    assertEquals("org.ek9.lang", moduleNames.get(0));
+    assertEquals("org.ek9.lang", moduleNames.getFirst());
 
     assertModules(program.getParsedModules("org.ek9.lang"));
   }
@@ -117,7 +117,7 @@ class CompilableProgramCloneTest {
     assertFalse(modules.isEmpty());
     assertEquals(1, modules.size());
 
-    var module = modules.get(0);
+    var module = modules.getFirst();
     assertNotNull(module);
 
     var moduleScope = module.getModuleScope();
@@ -146,7 +146,7 @@ class CompilableProgramCloneTest {
       //Now expect 'Any' as the super of String constructor.
 
       assertEquals(3, methods.size());
-      var defaultAnyConstructor = methods.get(0);
+      var defaultAnyConstructor = methods.getFirst();
       assertNotNull(defaultAnyConstructor);
       assertEquals(0, defaultAnyConstructor.getCallParameters().size());
 
@@ -159,7 +159,7 @@ class CompilableProgramCloneTest {
       assertNotNull(copyConstructor);
       var params = copyConstructor.getCallParameters();
       assertEquals(1, params.size());
-      var arg0 = params.get(0);
+      var arg0 = params.getFirst();
       assertNotNull(arg0);
       assertTrue(arg0.getType().isPresent());
 

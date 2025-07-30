@@ -15,7 +15,7 @@ final class Ek9CompilerConfigTest {
   @Test
   void testDefaultToFullPackaging() {
     var underTest = new Ek9CompilerConfig();
-    assertEquals(CompilationPhase.APPLICATION_PACKAGING, underTest.getCompileToPhase());
+    assertEquals(CompilationPhase.IR_ANALYSIS, underTest.getCompileToPhase());
   }
 
   @Test

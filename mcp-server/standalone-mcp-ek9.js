@@ -256,7 +256,7 @@ class StandaloneMcpEk9Server {
                 method: 'exit',
                 params: {}
               });
-            }, 2000);
+            }, 10000);
           } else if (message.method === 'textDocument/publishDiagnostics') {
             diagnostics = diagnostics.concat(message.params.diagnostics || []);
           }
