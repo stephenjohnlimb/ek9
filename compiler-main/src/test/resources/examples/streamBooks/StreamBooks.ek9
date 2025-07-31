@@ -62,7 +62,7 @@ defines module com.customer.books
       <-
         rtn as Integer?
 
-      surnameComparison<- author1.surname() <=> author2.surname()
+      surnameComparison <- author1.surname() <=> author2.surname()
       rtn :=? surnameComparison != 0 <- surnameComparison else author1.firstname() <=> author2.firstname()
 
     <?-

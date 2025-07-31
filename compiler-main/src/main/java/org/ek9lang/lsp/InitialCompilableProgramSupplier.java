@@ -21,28 +21,27 @@ import org.ek9lang.core.SharedThreadContext;
  */
 final class InitialCompilableProgramSupplier implements Supplier<SharedThreadContext<CompilableProgram>> {
 
-  private byte[] serialisedBuiltinEk9Symbols;
+  //We can hold these as the class level, then no matter how many instances are created.
+  //Once these are loaded, they are loaded for all.
+  private static byte[] serialisedBuiltinEk9Symbols;
 
   //Use the introspection version to get the EK9 built-in source code.
-  private final Supplier<List<CompilableSource>> sourceSupplier = new Ek9BuiltinIntrospectionSupplier();
-  private final CompilerReporter reporter = new CompilerReporter(false, false);
-  private final Supplier<CompilationPhaseListener> listener = () -> compilationEvent -> {
-    var source = compilationEvent.source();
-    if (source.getErrorListener().hasErrors()) {
-      source.getErrorListener().getErrors().forEachRemaining(reporter::report);
-    }
-  };
 
   @Override
   public SharedThreadContext<CompilableProgram> get() {
+    return getCompilableProgram();
+  }
+
+  private static SharedThreadContext<CompilableProgram> getCompilableProgram() {
 
     //Lazy load the core Ek9 built-in types into a Compilable program
     //Hold that as byte data - so we only introspect the core libraries once.
     //But do this in the thread safe way.
-    synchronized (this) {
+
+    synchronized (InitialCompilableProgramSupplier.class) {
       if (serialisedBuiltinEk9Symbols == null) {
-        final var bootStrap = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), reporter);
-        final var builtinEk9Symbols = bootStrap.get();
+
+        final var builtinEk9Symbols = getCompilableProgramSharedThreadContext();
         var serializer = new Serializer();
         serialisedBuiltinEk9Symbols = serializer.apply(builtinEk9Symbols);
         return builtinEk9Symbols;
@@ -55,4 +54,18 @@ final class InitialCompilableProgramSupplier implements Supplier<SharedThreadCon
     return deserializer.apply(serialisedBuiltinEk9Symbols);
   }
 
+  private static SharedThreadContext<CompilableProgram> getCompilableProgramSharedThreadContext() {
+
+    final Supplier<List<CompilableSource>> sourceSupplier = new Ek9BuiltinIntrospectionSupplier();
+    final CompilerReporter reporter = new CompilerReporter(false, false);
+    final Supplier<CompilationPhaseListener> listener = () -> compilationEvent -> {
+      var source = compilationEvent.source();
+      if (source.getErrorListener().hasErrors()) {
+        source.getErrorListener().getErrors().forEachRemaining(reporter::report);
+      }
+    };
+
+    final var bootStrap = new Ek9LanguageBootStrap(sourceSupplier, listener.get(), reporter);
+    return bootStrap.get();
+  }
 }

@@ -12,10 +12,16 @@ import org.ek9lang.core.SharedThreadContext;
  * A simple shared context of a CompilableProgram with the Ek9 language modules already loaded.
  * i.e. org.ek9.lang and other built in modules.
  * Does not employ any phase listeners or verbose compilation reporting.
+ * Similar to InitialCompilableProgramSupplier (but in a different context of use).
  */
 public class CompilableProgramSupplier implements Supplier<SharedThreadContext<CompilableProgram>> {
-  //In memory cache of the compiler with ek9 symbols built in.
-  private static byte[] serializedCompiler;
+
+  private static byte[] serialisedBuiltinEk9Symbols;
+
+  @Override
+  public SharedThreadContext<CompilableProgram> get() {
+    return getCompilableProgram();
+  }
 
   /**
    * Makes the compiler if a serialized version is not available.
@@ -23,20 +29,25 @@ public class CompilableProgramSupplier implements Supplier<SharedThreadContext<C
    *
    * @return a compilable program.
    */
-  private static synchronized SharedThreadContext<CompilableProgram> getCompiler() {
+  private static synchronized SharedThreadContext<CompilableProgram> getCompilableProgram() {
 
-    if (serializedCompiler == null) {
-      var serializer = new Serializer();
-      var rtn = makeCompiler();
-      serializedCompiler = serializer.apply(rtn);
-      return rtn;
+    synchronized (CompilableProgramSupplier.class) {
+      if (serialisedBuiltinEk9Symbols == null) {
+
+        final var builtinEk9Symbols = getCompilableProgramSharedThreadContext();
+        var serializer = new Serializer();
+        serialisedBuiltinEk9Symbols = serializer.apply(builtinEk9Symbols);
+        return builtinEk9Symbols;
+      }
     }
 
+    //Outside the thread lock, we can take the block of bytes and deserialize.
+    //OK now lets try and reload it.
     var deserializer = new DeSerializer();
-    return deserializer.apply(serializedCompiler);
+    return deserializer.apply(serialisedBuiltinEk9Symbols);
   }
 
-  private static SharedThreadContext<CompilableProgram> makeCompiler() {
+  private static SharedThreadContext<CompilableProgram> getCompilableProgramSharedThreadContext() {
     Ek9LanguageBootStrap bootStrap =
         new Ek9LanguageBootStrap(new Ek9BuiltinLangSupplier(), compilationEvent -> {
           var source = compilationEvent.source();
@@ -52,11 +63,6 @@ public class CompilableProgramSupplier implements Supplier<SharedThreadContext<C
         }, new CompilerReporter(false, true));
 
     return bootStrap.get();
-  }
-
-  @Override
-  public SharedThreadContext<CompilableProgram> get() {
-    return getCompiler();
   }
 
 }
