@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
+import org.ek9lang.compiler.Ek9BuiltinIntrospectionSupplier;
 import org.ek9lang.compiler.Ek9LanguageBootStrap;
 import org.ek9lang.compiler.support.ResolveOrDefineTypeDef;
 import org.ek9lang.compiler.support.SymbolFactory;
@@ -27,13 +27,13 @@ class TypeDefTest {
 
   public TypeDefTest() {
     //OK boot up the ek9 main module scope loaded for testing resolutions.
-    final var ek9 = new Ek9LanguageBootStrap(new Ek9BuiltinLangSupplier(), compilationEvent -> {
+    final var ek9 = new Ek9LanguageBootStrap(new Ek9BuiltinIntrospectionSupplier(), _ -> {
     }, new CompilerReporter(false, true));
 
     final var sharedContext = ek9.get();
 
     sharedContext.accept(compilableProgram -> {
-      var parsedModule = compilableProgram.getParsedModules(EK9_LANG).get(0);
+      var parsedModule = compilableProgram.getParsedModules(EK9_LANG).getFirst();
       if (parsedModule == null) {
         Assertions.fail("Unable to load ek9 scope");
       }

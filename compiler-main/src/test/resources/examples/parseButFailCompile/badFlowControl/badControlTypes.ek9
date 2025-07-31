@@ -74,7 +74,6 @@ defines module bad.control.types
         assert var?
         control: false
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       assert result?
 
     InvalidWhileWithReturnNotRequired()

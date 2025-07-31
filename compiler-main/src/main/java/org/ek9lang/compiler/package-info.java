@@ -20,13 +20,13 @@
  * </p>
  * <p>
  * Boot strapping the compiler is done via {@link org.ek9lang.compiler.Ek9LanguageBootStrap} and
- * {@link org.ek9lang.compiler.Ek9BuiltinLangSupplier}.
+ * {@link org.ek9lang.compiler.Ek9BuiltinIntrospectionSupplier}.
  * Strangely the {@link org.ek9lang.compiler.Ek9LanguageBootStrap}  uses an 'empty'
  * {@link org.ek9lang.compiler.Ek9Compiler} with just the {@link org.ek9lang.compiler.config.FrontEndSupplier}
  * phases to parse and populate a
  * {@link org.ek9lang.compiler.CompilableProgram} with all the basic types and standard library types/functions ready
- * for the developers code to be compiled. All the EK9 types are built in as text inside
- * {@link org.ek9lang.compiler.Ek9BuiltinLangSupplier}. The module is marked as 'extern'.
+ * for the developers code to be compiled. All the EK9 types are built by introspecting Java classes
+ * {@link org.ek9lang.compiler.Ek9BuiltinIntrospectionSupplier}. The module is marked as 'extern'.
  * Other EK9 developers EK9 source can also employ 'extern' as there is a 'linking' phase that resolves
  * the declared constructs later. For the EK9 compiler, the built-in 'extern' constructs are shipped with the compiler.
  * </p>

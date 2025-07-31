@@ -88,7 +88,8 @@ defines module bad.higherfunctionandmethodcalls.examples
         @Error: FULL_RESOLUTION: RETURN_TYPE_VOID_MEANINGLESS
         notActuallyADelegate1 <- JustAFunction1("Steve")
 
-        @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+        //This will not error in compiler, but error above is all you need.
+        //because this is Void and Void does have an ? operator that is always false.
         assert notActuallyADelegate1?
 
         @Error: FULL_RESOLUTION: NOT_A_FUNCTION_DELEGATE

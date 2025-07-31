@@ -2,7 +2,7 @@ package org.ek9lang.cli;
 
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
-import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
+import org.ek9lang.compiler.Ek9BuiltinIntrospectionSupplier;
 import org.ek9lang.compiler.Ek9Compiler;
 import org.ek9lang.compiler.Ek9LanguageBootStrap;
 import org.ek9lang.compiler.common.CompilationEvent;
@@ -59,7 +59,7 @@ final class Ek9 {
         final var compilationReporter = new CompilationReporter(commandLine.options().isVerbose());
         final var compilerReporter = new CompilerReporter(commandLine.options().isVerbose(), false);
         final var sourceFileCache = new FileCache(commandLine);
-        final var sourceSupplier = new Ek9BuiltinLangSupplier();
+        final var sourceSupplier = new Ek9BuiltinIntrospectionSupplier();
         final var bootStrap =
             new Ek9LanguageBootStrap(sourceSupplier, compilationReporter::logPhaseCompilation, compilerReporter);
         final var allPhases = new FullPhaseSupplier(bootStrap.get(), fileHandling,
@@ -133,7 +133,7 @@ final class Ek9 {
     try {
       startListening.get();
     } catch (ExecutionException executionException) {
-      reporter.report("Failed to Start Language Server");
+      reporter.report("Failed to Start Language Server + " + executionException.getMessage());
       return LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE;
     } catch (InterruptedException interruptedException) {
       reporter.report("Start Language Server Interrupted Stopping");

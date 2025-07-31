@@ -3,7 +3,7 @@ package org.ek9lang.compiler.common;
 import java.util.function.Supplier;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.DeSerializer;
-import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
+import org.ek9lang.compiler.Ek9BuiltinIntrospectionSupplier;
 import org.ek9lang.compiler.Ek9LanguageBootStrap;
 import org.ek9lang.compiler.Serializer;
 import org.ek9lang.core.SharedThreadContext;
@@ -49,7 +49,7 @@ public class CompilableProgramSupplier implements Supplier<SharedThreadContext<C
 
   private static SharedThreadContext<CompilableProgram> getCompilableProgramSharedThreadContext() {
     Ek9LanguageBootStrap bootStrap =
-        new Ek9LanguageBootStrap(new Ek9BuiltinLangSupplier(), compilationEvent -> {
+        new Ek9LanguageBootStrap(new Ek9BuiltinIntrospectionSupplier(), compilationEvent -> {
           var source = compilationEvent.source();
           var phase = compilationEvent.phase();
           if (!source.getErrorListener().isErrorFree()) {

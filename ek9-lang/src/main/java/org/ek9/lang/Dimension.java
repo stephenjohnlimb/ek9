@@ -19,7 +19,7 @@ import org.ek9tooling.Ek9Operator;
 public class Dimension extends SuffixedComponent {
 
   //Take the same restrictions and definitions for the ek9 grammar for checking String conversions.
-  private static final List<java.lang.String> validSuffix = List.of(
+  static final List<java.lang.String> validSuffix = List.of(
       "km", "m", "cm", "mm", "mile", "in", "pc", "pt", "px", "em", "ex", "ch", "rem", "vw", "vh", "vmin", "vmax", "%");
 
   double state = 0;
@@ -34,7 +34,7 @@ public class Dimension extends SuffixedComponent {
       Dimension() as pure
         -> arg0 as Dimension""")
   public Dimension(Dimension arg0) {
-    unSet();
+    this();
     if (isValid(arg0)) {
       assign(arg0.state, arg0.suffix);
     }
@@ -44,19 +44,53 @@ public class Dimension extends SuffixedComponent {
       Dimension() as pure
         -> arg0 as String""")
   public Dimension(String arg0) {
-    unSet();
+    this();
     if (isValid(arg0)) {
       assign(Dimension._of(arg0.state));
     }
   }
 
+  @Ek9Constructor("""
+      Dimension() as pure
+        ->
+          value as Float
+          suffix as String""")
   public Dimension(Float value, String suffix) {
-    unSet();
+    this();
     if (isValid(value) && isValid(suffix)) {
       assign(value.state, suffix.state);
     }
   }
 
+  @Ek9Method("""
+      convert() as pure
+        -> arg0 as Dimension
+        <- rtn as Dimension?
+      """)
+  public Dimension convert(Dimension arg0) {
+    Dimension rtn = _new();
+
+    if (isSet && isValid(arg0)) {
+      final var factor = DimensionConversion.getConversionFactor(this.suffix, arg0.suffix);
+      factor.ifPresent(multiplier -> rtn.assign(this.state * multiplier, arg0.suffix));
+    }
+    return rtn;
+  }
+
+  @Ek9Method("""
+      convert() as pure
+        ->
+          multiplier as Float
+          typeOfDimension as String
+        <-
+          rtn as Dimension?""")
+  public Dimension convert(Float multiplier, String typeOfDimension) {
+    Dimension rtn = _new();
+    if (canProcess(multiplier) && canProcess(typeOfDimension)) {
+      rtn.assign(this.state * multiplier.state, typeOfDimension.state);
+    }
+    return rtn;
+  }
 
   @Ek9Operator("""
       operator :~:
@@ -185,6 +219,34 @@ public class Dimension extends SuffixedComponent {
   }
 
   @Ek9Operator("""
+      operator + as pure
+        -> arg as Float
+        <- rtn as Dimension?""")
+  public Dimension _add(Float arg) {
+    Dimension rtn = _new();
+    if (canProcess(arg)) {
+      rtn.assign(this.state, this.suffix);
+      rtn._addAss(arg);
+    }
+
+    return rtn;
+  }
+
+  @Ek9Operator("""
+      operator + as pure
+        -> arg as Integer
+        <- rtn as Dimension?""")
+  public Dimension _add(Integer arg) {
+    Dimension rtn = _new();
+    if (canProcess(arg)) {
+      rtn.assign(this.state, this.suffix);
+      rtn._addAss(arg);
+    }
+
+    return rtn;
+  }
+
+  @Ek9Operator("""
       operator - as pure
         -> arg as Dimension
         <- rtn as Dimension?""")
@@ -197,6 +259,31 @@ public class Dimension extends SuffixedComponent {
     return rtn;
   }
 
+  @Ek9Operator("""
+      operator - as pure
+        -> arg as Float
+        <- rtn as Dimension?""")
+  public Dimension _sub(Float arg) {
+    Dimension rtn = _new();
+    if (canProcess(arg)) {
+      rtn.assign(this.state, this.suffix);
+      rtn._subAss(arg);
+    }
+    return rtn;
+  }
+
+  @Ek9Operator("""
+      operator - as pure
+        -> arg as Integer
+        <- rtn as Dimension?""")
+  public Dimension _sub(Integer arg) {
+    Dimension rtn = _new();
+    if (canProcess(arg)) {
+      rtn.assign(this.state, this.suffix);
+      rtn._subAss(arg);
+    }
+    return rtn;
+  }
 
   @Ek9Operator("""
       operator * as pure
@@ -304,9 +391,55 @@ public class Dimension extends SuffixedComponent {
   }
 
   @Ek9Operator("""
+      operator +=
+        -> arg as Float""")
+  public void _addAss(Float arg) {
+    if (canProcess(arg)) {
+      assign(this.state + arg.state, this.suffix);
+    } else {
+      unSet();
+    }
+
+  }
+
+  @Ek9Operator("""
+      operator +=
+        -> arg as Integer""")
+  public void _addAss(Integer arg) {
+    if (canProcess(arg)) {
+      assign(this.state + arg.state, this.suffix);
+    } else {
+      unSet();
+    }
+
+  }
+
+  @Ek9Operator("""
       operator -=
         -> arg as Dimension""")
   public void _subAss(Dimension arg) {
+    if (canProcess(arg)) {
+      assign(this.state - arg.state, this.suffix);
+    } else {
+      unSet();
+    }
+  }
+
+  @Ek9Operator("""
+      operator -=
+        -> arg as Float""")
+  public void _subAss(Float arg) {
+    if (canProcess(arg)) {
+      assign(this.state - arg.state, this.suffix);
+    } else {
+      unSet();
+    }
+  }
+
+  @Ek9Operator("""
+      operator -=
+        -> arg as Integer""")
+  public void _subAss(Integer arg) {
     if (canProcess(arg)) {
       assign(this.state - arg.state, this.suffix);
     } else {

@@ -14,10 +14,10 @@ import org.ek9tooling.Ek9Record;
     UDPPacket""")
 public class UDPPacket extends BuiltinType {
 
-  @Ek9Property("properties as NetworkProperties?")
+  @Ek9Property("properties as NetworkProperties: NetworkProperties()")
   public NetworkProperties properties = new NetworkProperties();
 
-  @Ek9Property("content as String?")
+  @Ek9Property("content as String: String()")
   public String content = new String();
 
   @Ek9Constructor("""

@@ -77,8 +77,7 @@ defines module bad.switches.use
         default
           someResult: "Nothing"
 
-      //ensure referenced, but it will be a void type as switch error, causes someResult to be 'void'.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      //This will be a Void, but that now does have ? 'isSet' and is always false.
       assert someResult?
 
     InvalidProgramReturnNotRequired()

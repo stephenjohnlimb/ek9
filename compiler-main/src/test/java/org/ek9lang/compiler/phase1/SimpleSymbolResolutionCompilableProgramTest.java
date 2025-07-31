@@ -12,7 +12,7 @@ import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationData;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
-import org.ek9lang.compiler.Ek9BuiltinLangSupplier;
+import org.ek9lang.compiler.Ek9BuiltinIntrospectionSupplier;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.AggregateManipulator;
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
  */
 class SimpleSymbolResolutionCompilableProgramTest {
 
-  private static final Supplier<List<CompilableSource>> ek9BuiltInTypesSource = new Ek9BuiltinLangSupplier();
+  private static final Supplier<List<CompilableSource>> ek9BuiltInTypesSource = new Ek9BuiltinIntrospectionSupplier();
 
   private static final Supplier<SharedThreadContext<CompilableProgram>> sharedContext =
       () -> new SharedThreadContext<>(new CompilableProgram());

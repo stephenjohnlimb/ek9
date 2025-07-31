@@ -210,8 +210,7 @@ defines module bad.trycatchfinally.example
         value <- exceptionFunction()
         assert value?
 
-      //Because the type defaults to void, because the try did not return anything
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      //Because the type defaults to Void, Void does have is_set and its always false.
       assert someVar?
 
     InvalidTryExpressionWithNotRequiredReturn()

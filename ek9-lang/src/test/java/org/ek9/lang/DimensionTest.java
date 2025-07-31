@@ -172,6 +172,20 @@ class DimensionTest extends Common {
     // Addition with different suffix should return unset
     assertUnset.accept(DIMENSION_100PX._add(DIMENSION_100M));
 
+    // Addition with Float
+    final var addFloatResult = DIMENSION_100PX._add(float2);
+    assertEquals(102.0, addFloatResult._prefix().state);
+    assertEquals("px", addFloatResult._suffix().state);
+    assertUnset.accept(unsetDimension._add(float2));
+    assertUnset.accept(DIMENSION_100PX._add(new Float()));
+
+    // Addition with Integer
+    final var addIntResult = DIMENSION_100PX._add(int3);
+    assertEquals(103.0, addIntResult._prefix().state);
+    assertEquals("px", addIntResult._suffix().state);
+    assertUnset.accept(unsetDimension._add(int3));
+    assertUnset.accept(DIMENSION_100PX._add(new Integer()));
+
     // Subtraction with same suffix
     final var subResult = DIMENSION_200PX._sub(DIMENSION_50PX);
     assertEquals(150.0, subResult._prefix().state);
@@ -181,6 +195,20 @@ class DimensionTest extends Common {
 
     // Subtraction with different suffix should return unset
     assertUnset.accept(DIMENSION_200PX._sub(DIMENSION_100M));
+
+    // Subtraction with Float
+    final var subFloatResult = DIMENSION_100PX._sub(float2);
+    assertEquals(98.0, subFloatResult._prefix().state);
+    assertEquals("px", subFloatResult._suffix().state);
+    assertUnset.accept(unsetDimension._sub(float2));
+    assertUnset.accept(DIMENSION_100PX._sub(new Float()));
+
+    // Subtraction with Integer
+    final var subIntResult = DIMENSION_100PX._sub(int3);
+    assertEquals(97.0, subIntResult._prefix().state);
+    assertEquals("px", subIntResult._suffix().state);
+    assertUnset.accept(unsetDimension._sub(int3));
+    assertUnset.accept(DIMENSION_100PX._sub(new Integer()));
 
     // Multiplication with Integer
     final var mulIntResult = DIMENSION_100PX._mul(int2);
@@ -273,45 +301,86 @@ class DimensionTest extends Common {
     px2._addAss(Dimension._of("50m"));
     assertUnset.accept(px2);
 
-    // Subtraction assignment with same suffix
-    final var px3 = Dimension._of("200px");
-    px3._subAss(Dimension._of("50px"));
-    assertEquals(150.0, px3._prefix().state);
+    // Addition assignment with Float
+    final var px3 = Dimension._of("100px");
+    px3._addAss(float2);
+    assertEquals(102.0, px3._prefix().state);
     assertEquals("px", px3._suffix().state);
 
-    // Subtraction assignment with different suffix should unset
-    final var px4 = Dimension._of("200px");
-    px4._subAss(Dimension._of("50m"));
-    assertUnset.accept(px4);
+    // Addition assignment with Integer
+    final var px4 = Dimension._of("100px");
+    px4._addAss(int3);
+    assertEquals(103.0, px4._prefix().state);
+    assertEquals("px", px4._suffix().state);
 
-    // Multiplication assignment with Integer
-    final var px5 = Dimension._of("100px");
-    px5._mulAss(int3);
-    assertEquals(300.0, px5._prefix().state);
+    // Subtraction assignment with same suffix
+    final var px5 = Dimension._of("200px");
+    px5._subAss(Dimension._of("50px"));
+    assertEquals(150.0, px5._prefix().state);
     assertEquals("px", px5._suffix().state);
 
-    // Division assignment with Integer
-    final var px6 = Dimension._of("300px");
-    px6._divAss(int3);
-    assertEquals(100.0, px6._prefix().state);
-    assertEquals("px", px6._suffix().state);
+    // Subtraction assignment with different suffix should unset
+    final var px6 = Dimension._of("200px");
+    px6._subAss(Dimension._of("50m"));
+    assertUnset.accept(px6);
 
-    // Multiplication assignment with Float
+    // Subtraction assignment with Float
     final var px7 = Dimension._of("100px");
-    px7._mulAss(float2);
-    assertEquals(200.0, px7._prefix().state, 0.001);
+    px7._subAss(float2);
+    assertEquals(98.0, px7._prefix().state);
     assertEquals("px", px7._suffix().state);
 
-    // Division assignment with Float
-    final var px8 = Dimension._of("200px");
-    px8._divAss(float2);
-    assertEquals(100.0, px8._prefix().state, 0.001);
+    // Subtraction assignment with Integer
+    final var px8 = Dimension._of("100px");
+    px8._subAss(int3);
+    assertEquals(97.0, px8._prefix().state);
     assertEquals("px", px8._suffix().state);
+
+    // Multiplication assignment with Integer
+    final var px9 = Dimension._of("100px");
+    px9._mulAss(int3);
+    assertEquals(300.0, px9._prefix().state);
+    assertEquals("px", px9._suffix().state);
+
+    // Division assignment with Integer
+    final var px10 = Dimension._of("300px");
+    px10._divAss(int3);
+    assertEquals(100.0, px10._prefix().state);
+    assertEquals("px", px10._suffix().state);
+
+    // Multiplication assignment with Float
+    final var px11 = Dimension._of("100px");
+    px11._mulAss(float2);
+    assertEquals(200.0, px11._prefix().state, 0.001);
+    assertEquals("px", px11._suffix().state);
+
+    // Division assignment with Float
+    final var px12 = Dimension._of("200px");
+    px12._divAss(float2);
+    assertEquals(100.0, px12._prefix().state, 0.001);
+    assertEquals("px", px12._suffix().state);
 
     // Test unset propagation
     final var dimUnset = new Dimension();
     dimUnset._addAss(Dimension._of("100px"));
     assertUnset.accept(dimUnset);
+
+    // Test unset inputs for new operations
+    final var px13 = Dimension._of("100px");
+    px13._addAss(new Float());
+    assertUnset.accept(px13);
+
+    final var px14 = Dimension._of("100px");
+    px14._addAss(new Integer());
+    assertUnset.accept(px14);
+
+    final var px15 = Dimension._of("100px");
+    px15._subAss(new Float());
+    assertUnset.accept(px15);
+
+    final var px16 = Dimension._of("100px");
+    px16._subAss(new Integer());
+    assertUnset.accept(px16);
   }
 
   @Test
@@ -549,11 +618,11 @@ class DimensionTest extends Common {
   }
 
   private List<Consumer<Integer>> getIntegerAssignmentOperations(final Dimension from) {
-    return List.of(from::_mulAss, from::_divAss);
+    return List.of(from::_addAss, from::_subAss, from::_mulAss, from::_divAss);
   }
 
   private List<Consumer<Float>> getFloatAssignmentOperations(final Dimension from) {
-    return List.of(from::_mulAss, from::_divAss);
+    return List.of(from::_addAss, from::_subAss, from::_mulAss, from::_divAss);
   }
 
   @Test
@@ -615,6 +684,20 @@ class DimensionTest extends Common {
     assertEquals(Dimension._of("200px"), mutatedValue);
 
     mutatedValue._divAss(float2);
+    assertEquals(DIMENSION_100PX, mutatedValue);
+
+    // Test new Float arithmetic assignments
+    mutatedValue._addAss(float2);
+    assertEquals(Dimension._of("102px"), mutatedValue);
+
+    mutatedValue._subAss(float2);
+    assertEquals(DIMENSION_100PX, mutatedValue);
+
+    // Test new Integer arithmetic assignments
+    mutatedValue._addAss(int3);
+    assertEquals(Dimension._of("103px"), mutatedValue);
+
+    mutatedValue._subAss(int3);
     assertEquals(DIMENSION_100PX, mutatedValue);
   }
 
@@ -685,6 +768,125 @@ class DimensionTest extends Common {
     assertUnset.accept(kmDim._add(mDim));
     assertUnset.accept(pxDim._add(percentDim));
     assertUnset.accept(emDim._add(vwDim));
+  }
+
+  @Test
+  void testConversionMethods() {
+    // Test convert(Dimension) method - valid physical unit conversions
+    final var km1 = Dimension._of("1km");
+    final var meterTarget = Dimension._of("0m");  // Template for target suffix
+    final var converted1 = km1.convert(meterTarget);
+    assertSet.accept(converted1);
+    assertEquals(1000.0, converted1._prefix().state, 0.001);
+    assertEquals("m", converted1._suffix().state);
+
+    // Convert meters to centimeters
+    final var m5 = Dimension._of("5m");
+    final var cmTarget = Dimension._of("0cm");
+    final var converted2 = m5.convert(cmTarget);
+    assertSet.accept(converted2);
+    assertEquals(500.0, converted2._prefix().state, 0.001);
+    assertEquals("cm", converted2._suffix().state);
+
+    // Convert centimeters to millimeters
+    final var cm10 = Dimension._of("10cm");
+    final var mmTarget = Dimension._of("0mm");
+    final var converted3 = cm10.convert(mmTarget);
+    assertSet.accept(converted3);
+    assertEquals(100.0, converted3._prefix().state, 0.001);
+    assertEquals("mm", converted3._suffix().state);
+
+    // Convert miles to kilometers
+    final var mile1 = Dimension._of("1mile");
+    final var kmTarget = Dimension._of("0km");
+    final var converted4 = mile1.convert(kmTarget);
+    assertSet.accept(converted4);
+    assertEquals(1.60934, converted4._prefix().state, 0.001);
+    assertEquals("km", converted4._suffix().state);
+
+    // Convert inches to points (typography)
+    final var in1 = Dimension._of("1in");
+    final var ptTarget = Dimension._of("0pt");
+    final var converted5 = in1.convert(ptTarget);
+    assertSet.accept(converted5);
+    assertEquals(72.0, converted5._prefix().state, 0.001);
+    assertEquals("pt", converted5._suffix().state);
+
+    // Convert points to picas
+    final var pt12 = Dimension._of("12pt");
+    final var pcTarget = Dimension._of("0pc");
+    final var converted6 = pt12.convert(pcTarget);
+    assertSet.accept(converted6);
+    assertEquals(1.0, converted6._prefix().state, 0.001);
+    assertEquals("pc", converted6._suffix().state);
+
+    // Same unit conversion should work (identity)
+    final var px100 = Dimension._of("100px");
+    final var pxTarget = Dimension._of("0px");
+    final var converted7 = px100.convert(pxTarget);
+    assertSet.accept(converted7);
+    assertEquals(100.0, converted7._prefix().state, 0.001);
+    assertEquals("px", converted7._suffix().state);
+  }
+
+  @Test
+  void testConversionMethodsInvalidCases() {
+    // Test convert(Dimension) method - invalid conversions
+    final var px100 = Dimension._of("100px");
+    assertNotNull(px100);
+    final var mTarget = Dimension._of("0m");
+    final var invalidConversion1 = px100.convert(mTarget);
+    assertUnset.accept(invalidConversion1);  // px to m not supported
+
+    // Context-dependent to physical conversion
+    final var em10 = Dimension._of("10em");
+    final var cmTarget = Dimension._of("0cm");
+    final var invalidConversion2 = em10.convert(cmTarget);
+    assertUnset.accept(invalidConversion2);  // em to cm not supported
+
+    // Percentage to physical conversion
+    final var percent50 = Dimension._of("50%");
+    final var inTarget = Dimension._of("0in");
+    final var invalidConversion3 = percent50.convert(inTarget);
+    assertUnset.accept(invalidConversion3);  // % to in not supported
+
+    // Unset source
+    final var unsetSource = new Dimension();
+    final var validTarget = Dimension._of("0km");
+    final var invalidConversion4 = unsetSource.convert(validTarget);
+    assertUnset.accept(invalidConversion4);
+
+    // Unset target
+    final var validSource = Dimension._of("100m");
+    final var unsetTarget = new Dimension();
+    final var invalidConversion5 = validSource.convert(unsetTarget);
+    assertUnset.accept(invalidConversion5);
+
+    // Both unset
+    final var invalidConversion6 = unsetSource.convert(unsetTarget);
+    assertUnset.accept(invalidConversion6);
+  }
+
+  @Test
+  void testConvertWithMultiplierMethod() {
+    // Test the existing convert(Float, String) method
+    final var px100 = Dimension._of("100px");
+    final var converted1 = px100.convert(Float._of(2.0), String._of("em"));
+    assertSet.accept(converted1);
+    assertEquals(200.0, converted1._prefix().state, 0.001);
+    assertEquals("em", converted1._suffix().state);
+
+    // Test with unset multiplier
+    final var invalidConversion1 = px100.convert(new Float(), String._of("em"));
+    assertUnset.accept(invalidConversion1);
+
+    // Test with unset target suffix
+    final var invalidConversion2 = px100.convert(Float._of(2.0), new String());
+    assertUnset.accept(invalidConversion2);
+
+    // Test with invalid suffix
+    final var invalidConversion3 = px100.convert(Float._of(2.0), String._of("invalid"));
+    assertUnset.accept(invalidConversion3);
   }
 
   @Test
@@ -771,6 +973,67 @@ class DimensionTest extends Common {
     assertSet.accept(mutatedDimension);
     // Should add all dimension values: 10 + 20 + 30 + 5 + 15 + 25 = 105px
     assertEquals("105.0px", mutatedDimension.toString());
+  }
+
+  @Test
+  void testConversionEdgeCasesWithInvalidSuffixes() {
+    // Test conversion attempts with Dimensions that have invalid suffixes
+    // This should trigger the DimensionConversion edge cases internally
+    
+    // Create dimensions with valid suffixes
+    final var validKm = Dimension._of("1km");
+    final var validM = Dimension._of("0m");
+    
+    // Test conversions that should work
+    final var validConversion = validKm.convert(validM);
+    assertSet.accept(validConversion);
+    assertEquals(1000.0, validConversion._prefix().state, 0.001);
+    
+    // Test edge cases that would trigger DimensionConversion internal validation:
+    // These test scenarios exercise the null/invalid paths in DimensionConversion
+    // by using dimensions with states that would cause those paths to execute
+    
+    // Create dimension with constructor that might have edge cases
+    final var edgeCaseDim1 = new Dimension(new Float(), String._of("m"));
+    assertUnset.accept(edgeCaseDim1);
+    
+    // Try to convert unset dimension - this tests internal null/invalid handling
+    final var edgeConversion1 = edgeCaseDim1.convert(validM);
+    assertUnset.accept(edgeConversion1);
+    
+    // Try to convert to unset dimension
+    final var edgeConversion2 = validKm.convert(edgeCaseDim1);
+    assertUnset.accept(edgeConversion2);
+    
+    // Test with dimension created with invalid suffix (should be unset)
+    final var invalidSuffixDim = new Dimension(Float._of(100.0), String._of("invalid"));
+    assertUnset.accept(invalidSuffixDim);
+    
+    // Try conversion with invalid suffix dimension
+    final var edgeConversion3 = validKm.convert(invalidSuffixDim);
+    assertUnset.accept(edgeConversion3);
+    
+    final var edgeConversion4 = invalidSuffixDim.convert(validM);
+    assertUnset.accept(edgeConversion4);
+    
+    // Test comprehensive cross-category combinations to ensure all paths are tested
+    final var contextDim1 = Dimension._of("100px");
+    final var contextDim2 = Dimension._of("50em");
+    final var contextDim3 = Dimension._of("75%");
+    final var physicalDim = Dimension._of("10m");
+    
+    // All these should return unset, testing different DimensionConversion paths
+    assertUnset.accept(contextDim1.convert(physicalDim));
+    assertUnset.accept(physicalDim.convert(contextDim1));
+    assertUnset.accept(contextDim1.convert(contextDim2));
+    assertUnset.accept(contextDim2.convert(contextDim3));
+    assertUnset.accept(contextDim3.convert(contextDim1));
+    
+    // Test same-unit conversion (identity case)
+    final var identityConversion = contextDim1.convert(Dimension._of("0px"));
+    assertSet.accept(identityConversion);
+    assertEquals(100.0, identityConversion._prefix().state, 0.001);
+    assertEquals("px", identityConversion._suffix().state);
   }
 
 }

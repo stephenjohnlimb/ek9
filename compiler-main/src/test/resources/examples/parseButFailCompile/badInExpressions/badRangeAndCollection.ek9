@@ -79,13 +79,14 @@ defines module bad.range.collections
       @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert result
 
-    CheckBadSimpleIntegerRange6()
+    IllogicalSimpleIntegerRange6()
       var <- C1()
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      //But C1 is not within the range of 10 ... 30 - due to Any this will compile
+      //It will result in Boolean that tells out var (a type of C1) is not in the range (or these Integers).
       result <- var in 10 ... 30
 
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      //This will a Boolean.
       assert result
 
     CheckValueInCollection()

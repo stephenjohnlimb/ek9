@@ -10,7 +10,7 @@
  * </p>
  * <ul>
  *   <li>Bootstrap - {@link org.ek9lang.compiler.Ek9LanguageBootStrap},
- *   {@link org.ek9lang.compiler.Ek9BuiltinLangSupplier}</li>
+ *   {@link org.ek9lang.compiler.Ek9BuiltinIntrospectionSupplier}</li>
  *   <li>LSP - {@link org.ek9lang.compiler.config.FrontEndSupplier},
  *   {@link org.ek9lang.compiler.config.MiddleEndSupplier}</li>
  *   <li>CommandLine - {@link org.ek9lang.compiler.config}</li>

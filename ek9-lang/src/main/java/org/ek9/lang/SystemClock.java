@@ -56,7 +56,7 @@ public class SystemClock implements Clock {
 
   @Override
   @Ek9Method("""
-      override dateTime()
+      override dateTime() as pure
         <- rtn as DateTime?""")
   public DateTime dateTime() {
     return DateTime._of(ZonedDateTime.now());

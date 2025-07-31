@@ -42,7 +42,7 @@ public interface Clock extends Any {
   }
 
   @Ek9Method("""
-      dateTime()
+      dateTime() as pure
         <- rtn as DateTime?""")
   default DateTime dateTime() {
     return new DateTime();
