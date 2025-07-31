@@ -3,6 +3,9 @@
  * to interrogate a jar/package and then find all the constructs within.
  * It can then formulate the EK9 'extern' signatures of the module and all the constructs
  * and their methods/functions and properties.
+ * <p>
+ *   While these are not used in any way, the point is to test the detection of the annotations.
+ * </p>
  */
 @Ek9Module("defines extern module org.company.dept")
 @Ek9Package("""

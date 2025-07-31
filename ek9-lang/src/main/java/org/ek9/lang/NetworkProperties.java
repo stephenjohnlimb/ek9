@@ -22,25 +22,25 @@ public class NetworkProperties extends BuiltinType {
 
   private static final JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
-  @Ek9Property("host as String?")
+  @Ek9Property("host as String: String()")
   public String host = new String();
 
-  @Ek9Property("port as Integer?")
+  @Ek9Property("port as Integer: Integer()")
   public Integer port = new Integer();
 
-  @Ek9Property("packetSize as Integer?")
+  @Ek9Property("packetSize as Integer: Integer()")
   public Integer packetSize = new Integer();
 
-  @Ek9Property("timeout as Millisecond?")
+  @Ek9Property("timeout as Millisecond: Millisecond()")
   public Millisecond timeout = new Millisecond();
 
-  @Ek9Property("backlog as Integer?")
+  @Ek9Property("backlog as Integer: Integer()")
   public Integer backlog = new Integer();
 
-  @Ek9Property("maxConcurrent as Integer?")
+  @Ek9Property("maxConcurrent as Integer: Integer()")
   public Integer maxConcurrent = new Integer();
 
-  @Ek9Property("localOnly as Boolean?")
+  @Ek9Property("localOnly as Boolean: Boolean()")
   public Boolean localOnly = new Boolean();
 
   @Ek9Constructor("""
