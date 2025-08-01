@@ -126,7 +126,7 @@ defines module bad.pure.scenarios2
         if arg0?
           this.propA :^: arg0.propA
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: propA?
 
     C1 extends C0

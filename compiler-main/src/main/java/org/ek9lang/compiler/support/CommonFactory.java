@@ -35,7 +35,7 @@ class CommonFactory {
 
   }
 
-  public AggregateManipulator getAggregateFactory() {
+  public AggregateManipulator getAggregateManipulator() {
 
     return aggregateManipulator;
   }

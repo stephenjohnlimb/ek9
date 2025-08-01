@@ -69,7 +69,9 @@ defines module com.classandfield.resolution
       u()
         -> param String
         <- uVal String: `OK ${param}`
-        
+      override operator ? as pure
+        <- rtn <- Boolean()
+
   defines function
   
     <?-

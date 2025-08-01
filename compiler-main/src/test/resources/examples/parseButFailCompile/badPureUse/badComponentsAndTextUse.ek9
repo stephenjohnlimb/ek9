@@ -70,7 +70,7 @@ defines module bad.pure.text.components
       nonPureGetDelegate() as abstract
         <- rtn as somePureFunction?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
     Comp1 extends Base

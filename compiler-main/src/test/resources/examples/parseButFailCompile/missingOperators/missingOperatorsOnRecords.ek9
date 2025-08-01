@@ -65,7 +65,7 @@ defines module bad.defaulted.recordoperators
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       assert ~(val1 <> val2)?
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      //This is now defined because Any has the operator ?
       assert ~val1?
 
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
@@ -96,7 +96,7 @@ defines module bad.defaulted.recordoperators
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       assert ~(val1 > val2)?
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      //Any has the ? defined so this will resolve, but will be unset by default.
       assert val1?
 
   defines record

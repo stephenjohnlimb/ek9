@@ -24,7 +24,7 @@ defines module com.customer.records
 
       operator $ as pure
         <- rtn as String: $id + " " + $createdAt
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: id?
       operator == as pure
         -> item as IdRecord

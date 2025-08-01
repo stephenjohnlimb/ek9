@@ -27,7 +27,7 @@ final class EnumeratedTypeOrError extends TypedSymbolAccess implements Consumer<
 
     super(symbolsAndScopes, errorListener);
     this.parameterisedLocator = new ParameterisedLocator(symbolsAndScopes, symbolFactory, errorListener, true);
-    this.aggregateManipulator = symbolFactory.getAggregateFactory();
+    this.aggregateManipulator = symbolFactory.getAggregateManipulator();
 
   }
 

@@ -50,7 +50,7 @@ public interface Clock extends Any {
 
   @Override
   @Ek9Operator("""
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean?""")
   default Boolean _isSet() {
     return Boolean._of(true);

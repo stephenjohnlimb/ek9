@@ -95,7 +95,7 @@ defines module bad.blockvariable.uses
     Record2 is Record1
       recField2 <- "Limb"
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
       //As record fields are public they should be accessible anywhere.

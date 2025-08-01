@@ -50,7 +50,7 @@ defines module bad.assignments.classes
 
         assert val1?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
       operator :=:

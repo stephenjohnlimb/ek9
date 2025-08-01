@@ -16,7 +16,7 @@ defines module com.customer.delegates
         -> p Float
         <- r String: "{" + $p + "}"
         //Could have written `{${p}}` - but I prefer the above.
-      operator ? as pure
+      override operator ? as pure
         <- rtn Boolean := true
           
     <?-
@@ -28,7 +28,7 @@ defines module com.customer.delegates
         -> p String
         <- r String?
         
-      operator ? as pure
+      override operator ? as pure
         <- rtn Boolean: true
               
   defines class

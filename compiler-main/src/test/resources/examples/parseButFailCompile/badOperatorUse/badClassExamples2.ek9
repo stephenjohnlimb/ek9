@@ -17,7 +17,7 @@ defines module bad.classes.operators.examples2
 
       //The 'is set' operator
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Integer: 1
 
       //The not/negate operator
@@ -73,7 +73,7 @@ defines module bad.classes.operators.examples2
         assert val?
 
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-      operator ? as pure
+      override operator ? as pure
         -> arg0 as C2
         <- rtn as Integer: 1
 

@@ -5,11 +5,14 @@ import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.M
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
@@ -20,6 +23,9 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  * aggregate that is using the super/traits and then pick the implementation they want or define a
  * totally new one.
  * Returns true if there are no conflicting methods.
+ * Now this may mean because all constructs inherit from 'Any', then there a multiple routes to Any.
+ * Also, if we have a defined implementation anywhere, then we want to evict the Any method because that's just
+ * a default no operation.
  */
 final class CheckConflictingMethods extends TypedSymbolAccess implements Predicate<AggregateSymbol> {
   CheckConflictingMethods(final SymbolsAndScopes symbolsAndScopes,
@@ -33,7 +39,7 @@ final class CheckConflictingMethods extends TypedSymbolAccess implements Predica
   public boolean test(final AggregateSymbol symbol) {
     var clashFree = true;
     //Used to quickly lookup any potentially clashing methods.
-    final var lookup = new HashMap<String, ArrayList<MethodSymbol>>();
+    final Map<String, ArrayList<MethodSymbol>> lookup = new HashMap<>();
 
     //Get the methods that are actually in effect.
     final var allMethods = symbol.getAllEffectiveMethods();
@@ -41,18 +47,14 @@ final class CheckConflictingMethods extends TypedSymbolAccess implements Predica
     for (var method : allMethods) {
       //We don't check for Constructor clashes, to avoid issues with 'Any()' constructor on traits.
       if (lookup.containsKey(method.getName()) && !method.isConstructor()) {
-        final var methodList = lookup.get(method.getName());
-        final var clashingMatches = matchingMethods(methodList, method);
-        if (clashingMatches.isEmpty()) {
-          methodList.add(method);
-        } else {
+
+        final var possibleClash = getAnyClashingMethod(lookup, method);
+        if (possibleClash.isPresent()) {
           //We have a duplicate
-          final var msg = "method '" + method.getFriendlyName()
-              + "' on '"
-              + method.getParentScope().getFriendlyScopeName()
-              + "' and '"
-              + clashingMatches.get(0).getParentScope().getFriendlyScopeName()
-              + "':";
+          final var msg = String.format("method '%s' on '%s' and '%s' :",
+              method.getFriendlyName(), method.getParentScope().getFriendlyScopeName(),
+              possibleClash.get().getParentScope().getFriendlyScopeName());
+
           errorListener.semanticError(symbol.getSourceToken(), msg, METHODS_CONFLICT);
           clashFree = false;
         }
@@ -66,6 +68,33 @@ final class CheckConflictingMethods extends TypedSymbolAccess implements Predica
     //So if there are any duplicate methods (i.e. with same signature), then that's an error.
     //It means that the EK9 developer must add an overriding method in to decide on the functionality
     return clashFree;
+  }
+
+  private Optional<MethodSymbol> getAnyClashingMethod(final Map<String, ArrayList<MethodSymbol>> lookup,
+                                                      final MethodSymbol method) {
+
+    //Gte name of method, look for list of matching methods in the list of methods of the same name/signature.
+    final var methodList = lookup.get(method.getName());
+    final var clashingMatches = matchingMethods(methodList, method);
+
+    //Ok nothing clashes, so add that one in and we're all good.
+    if (clashingMatches.isEmpty()) {
+      methodList.add(method);
+      return Optional.empty();
+    }
+
+    //Otherwise we have a duplicate, but here we want to see if the one in the list is on 'Any'. if so we will
+    //evict it and use this new method (which could also be on Any, but that's not important, because Any is fine if
+    //that's all there is - but because of traits and classes, it is possible to find Any by many routes.
+    //This is not ambiguous, it's clear - just call 'Any' / operator like ? for example
+    if (symbolsAndScopes.getEk9Types().ek9Any()
+        .isExactSameType((ISymbol) clashingMatches.getFirst().getParentScope())) {
+      methodList.removeFirst();
+      methodList.add(method);
+      return Optional.empty();
+    }
+
+    return Optional.of(clashingMatches.getFirst());
   }
 
 

@@ -10,7 +10,7 @@ class BadAssignmentsTest extends BadFullResolutionTest {
   public BadAssignmentsTest() {
     super("/examples/parseButFailCompile/badAssignments",
         List.of("bad.assignment.use", "bad.assignments.classes",
-            "bad.coalescing.assignments", "bad.guardassignment.use"));
+            "bad.coalescing.assignments", "bad.guardassignment.use"), false, true);
   }
 
 }

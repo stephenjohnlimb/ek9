@@ -58,7 +58,7 @@ defines module introduction
       //But I do need to say it is pure, so it can be used elsewhere (in a pure context).
       default TypeX() as pure
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
     <?-
@@ -71,14 +71,14 @@ defines module introduction
       operator #^ as pure
         <- rtn as TypeX: TypeX()
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
     TypeZ
       operator #^ as pure
         <- rtn as TypeY: TypeY()
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
     TypeA
@@ -90,7 +90,7 @@ defines module introduction
         -> arg as Any
         assert arg?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
     TypeB
@@ -98,7 +98,7 @@ defines module introduction
         -> arg as TypeX
         assert arg?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
   defines program

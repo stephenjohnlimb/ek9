@@ -17,7 +17,7 @@ defines module bad.streams2
           else
             joined: String(arg0)
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: joined?
 
     DurationCollector
@@ -34,7 +34,7 @@ defines module bad.streams2
         else
           total += arg0
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: total?
 
   defines function

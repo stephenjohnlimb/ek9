@@ -41,7 +41,7 @@ defines module com.customer.enumerations
         this.rank: rank
         this.suit: suit
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: rank? and suit?
       
       operator $ as pure

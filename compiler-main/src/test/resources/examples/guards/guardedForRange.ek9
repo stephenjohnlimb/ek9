@@ -1,5 +1,5 @@
 #!ek9
-defines module some.bad.forrangeguards
+defines module some.ok.forrangeguards
 
   <!-
     First few records and functions here are the test fixtures.
@@ -104,57 +104,45 @@ defines module some.bad.forrangeguards
       Now the invalid scenarios
     -!>
 
-    demonstrateInvalidForRangeGuardedAssignmentUse()
+    demonstrateValidForRangeGuardedAssignmentUseViaAny()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'guard' statement.
       toCheck <- UnusableAggregate()
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       for toCheck ?= provideUnusableReturn() with i in 1 ... 10
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile and use ? from Any ${toCheck.name}`)
 
-    demonstrateInvalidForRangeDeclarationUse1()
+    demonstrateValidForRangeDeclarationUseViaAny1()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       for toCheck <- provideUnusableReturn() with i in 1 ... 10
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile and use ? from Any ${toCheck.name}`)
 
-    demonstrateInvalidForRangeDeclarationUse2()
+    demonstrateValidForRangeDeclarationUseViaAny2()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      //This is also a way to declare and initialise a variable in a guarded manner.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       for toCheck as UnusableAggregate: provideUnusableReturn() with i in 1 ... 10
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile and use ? from Any ${toCheck.name}`)
 
-    demonstrateInvalidForRangeExpressionDeclarationUse1()
+    demonstrateValidForRangeExpressionDeclarationUseViaAny1()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       result <- for toCheck <- provideUnusableReturn() with i in 1 ... 10
         <- rtn as String: toCheck.name
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile and use ? from Any ${toCheck.name}`)
       assert result?
 
-    demonstrateInvalidForRangeExpressionDeclarationUse2()
+    demonstrateValidForRangeExpressionDeclarationUseViaAny2()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      //This is also a way to declare and initialise a variable in a guarded manner.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       result <- for toCheck as UnusableAggregate: provideUnusableReturn() with i in 1 ... 10
         <- rtn as String: toCheck.name
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile and use ? from Any ${toCheck.name}`)
       assert result?
 
 //EOF

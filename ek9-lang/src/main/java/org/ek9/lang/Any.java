@@ -38,57 +38,6 @@ public interface Any {
   }
 
   @Ek9Operator("""
-      operator < as pure
-        -> arg as Any
-        <- rtn as Boolean?""")
-  default Boolean _lt(Any arg) {
-    final var cmpResult = this._cmp(arg);
-    if (cmpResult.isSet) {
-      return Boolean._of(cmpResult.state < 0);
-    }
-
-    return new Boolean();
-  }
-
-  @Ek9Operator("""
-      operator <= as pure
-        -> arg as Any
-        <- rtn as Boolean?""")
-  default Boolean _lteq(Any arg) {
-    final var cmpResult = this._cmp(arg);
-    if (cmpResult.isSet) {
-      return Boolean._of(cmpResult.state <= 0);
-    }
-
-    return new Boolean();
-  }
-
-  @Ek9Operator("""
-      operator > as pure
-        -> arg as Any
-        <- rtn as Boolean?""")
-  default Boolean _gt(Any arg) {
-    final var cmpResult = this._cmp(arg);
-    if (cmpResult.isSet) {
-      return Boolean._of(cmpResult.state > 0);
-    }
-
-    return new Boolean();
-  }
-
-  @Ek9Operator("""
-      operator >= as pure
-        -> arg as Any
-        <- rtn as Boolean?""")
-  default Boolean _gteq(Any arg) {
-    final var cmpResult = this._cmp(arg);
-    if (cmpResult.isSet) {
-      return Boolean._of(cmpResult.state >= 0);
-    }
-    return new Boolean();
-  }
-
-  @Ek9Operator("""
       operator == as pure
         -> arg as Any
         <- rtn as Boolean?""")
@@ -98,14 +47,6 @@ public interface Any {
       return Boolean._of(cmpResult.state == 0);
     }
     return new Boolean();
-  }
-
-  @Ek9Operator("""
-      operator <> as pure
-        -> arg as Any
-        <- rtn as Boolean?""")
-  default Boolean _neq(Any arg) {
-    return this._eq(arg)._negate();
   }
 
   @Ek9Operator("""

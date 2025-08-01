@@ -17,7 +17,7 @@ defines module bad.overriding.classmethods5
         <- rtn as Boolean?
 
       //To be able to use 'failure1 <- () with trait of T1 as class' need to define the ? operator.
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: true
 
       operator + as pure
@@ -39,7 +39,7 @@ defines module bad.overriding.classmethods5
         -> arg0 as T
         <- rtn as Boolean?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: true
 
   defines function

@@ -221,6 +221,9 @@ defines module com.customer.exceptions
           -> newDateTime as DateTime
           this.currentDateTime = newDateTime
 
+        override operator ? as pure
+          <- rtn <- true
+
       //use the simulated clock
       example1 <- ExceptionExample(simulatedClock)
 

@@ -43,6 +43,8 @@ defines module com.customer.resolution
       u()
         -> param String
         <- uVal String := "OK " + param
+      override operator ? as pure
+        <- rtn <- true
 
   defines function
   

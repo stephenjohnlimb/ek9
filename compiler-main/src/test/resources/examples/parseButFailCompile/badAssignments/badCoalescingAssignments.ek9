@@ -24,7 +24,7 @@ defines module bad.coalescing.assignments
     Comp1 extends Base as abstract
       default Comp1()
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
     Comp2 extends Comp1
@@ -89,11 +89,10 @@ defines module bad.coalescing.assignments
       //Expect injection - but it never comes!
       var1 as Base!
 
-      //Now we want a conditional reassignment but there is no '?' operator on Base
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      //and you cannot assign it.
+      @Error: FULL_RESOLUTION: REASSIGNMENT_OF_INJECTED_COMPONENT
       var1 :=? Comp2()
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       assert var1?
 
     TestSimpleAssignmentViaParameter1()
@@ -147,14 +146,12 @@ defines module bad.coalescing.assignments
       @Error: FULL_RESOLUTION: NOT_REFERENCED
       aC1 <- C1()
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       aC1 :=? C1()
 
     TestBadCoalescingAssignment3()
       @Error: FULL_RESOLUTION: NOT_REFERENCED
       aC1 as C1?
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       aC1 :=? C1()
 
 //EOF

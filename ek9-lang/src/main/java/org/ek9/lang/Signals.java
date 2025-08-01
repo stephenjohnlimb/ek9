@@ -186,7 +186,7 @@ public class Signals extends BuiltinType {
   }
 
   @Ek9Operator("""
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean?""")
   @Override
   public Boolean _isSet() {

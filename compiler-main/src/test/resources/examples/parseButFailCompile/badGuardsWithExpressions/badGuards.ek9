@@ -53,7 +53,7 @@ defines module bad.guards
       operator close as pure
         closed :=? true
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: opened? and opened and not (closed? and closed)
 
   defines function

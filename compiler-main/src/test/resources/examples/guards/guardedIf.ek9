@@ -1,5 +1,5 @@
 #!ek9
-defines module some.bad.ifguards
+defines module some.ok.ifguards
 
   <!-
     First few records and functions here are the test fixtures.
@@ -84,38 +84,15 @@ defines module some.bad.ifguards
       Now the invalid scenarios
     -!>
 
-    demonstrateInvalidIfGuardedAssignmentUse()
+    demonstrateValidIfGuardedAssignmentUseViaAny()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'guard' statement.
+      //As the record UnusableAggregate does not have an is-set operator, but 'Any' does.
       toCheck <- UnusableAggregate()
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       if toCheck ?= provideUnusableReturn() with conditional
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
-
-    demonstrateInvalidIfDeclarationUse1()
-      -> conditional as Boolean
-
-      stdout <- Stdout()
-
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      if toCheck <- provideUnusableReturn() with conditional
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
-
-    demonstrateInvalidIfDeclarationUse2()
-      -> conditional as Boolean
-
-      stdout <- Stdout()
-
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      //This is also a way to declare
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      if toCheck as UnusableAggregate: provideUnusableReturn() with conditional
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
-
+        stdout.println(`This will compile because Any has ? operator ${toCheck.name}`)
 
 //EOF

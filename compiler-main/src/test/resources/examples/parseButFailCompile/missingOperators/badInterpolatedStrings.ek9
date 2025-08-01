@@ -7,7 +7,7 @@ defines module bad.interpolated.strings
     //Has no #^ to String and no $ string operator
     C0
       default C0() as pure
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- false
 
     C1

@@ -141,7 +141,7 @@ defines extern module org.ek9.lang
       next() as pure
         <- rtn as I?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean?
 
     Optional of type O
@@ -153,7 +153,7 @@ defines extern module org.ek9.lang
       get() as pure
         <- rtn as O?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean?
 
     Dict of type (K, V) as open
@@ -235,7 +235,7 @@ defines extern module org.ek9.lang
       operator $ as pure
         <- rtn as String?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean?
 
       operator empty as pure

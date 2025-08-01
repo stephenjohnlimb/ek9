@@ -65,7 +65,7 @@ public interface File extends Any {
 
   @Override
   @Ek9Operator("""
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean?""")
   default Boolean _isSet() {
     return new Boolean();

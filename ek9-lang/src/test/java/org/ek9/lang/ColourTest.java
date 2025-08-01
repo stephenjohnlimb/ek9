@@ -173,8 +173,7 @@ class ColourTest extends Common {
 
         //Should have unset result.
         assertUnset.accept(whiteRgb._cmp(Any._new()));
-        //This will go via Any and back up to Colour.
-        assertUnset.accept(whiteRgb._lt(Any._new()));
+
 
         // Unset propagation
         assertUnset.accept(unsetColour._lt(redRgb));

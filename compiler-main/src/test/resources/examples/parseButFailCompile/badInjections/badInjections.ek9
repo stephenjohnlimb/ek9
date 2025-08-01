@@ -21,7 +21,7 @@ defines module bad.injection.examples
         -> arg0 as String
         <- rtn <- true
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
     Comp2 extends Comp1

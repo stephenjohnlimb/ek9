@@ -120,7 +120,7 @@ defines module bad.pure.delegate.scenarios1
         @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
         functionNonPureD :=? HigherOrderNonPureCreateNonPureFunction()
 
-      operator ? as pure
+      override operator ? as pure
         @Error: FULL_RESOLUTION: NOT_RESOLVED
         <- rtn as Boolean: justBroken()
 

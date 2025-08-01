@@ -124,7 +124,7 @@ defines module bad.pure.delegate.scenarios2
       aNonPureMethod()
         <- rtn <- false
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
   defines record
@@ -142,7 +142,7 @@ defines module bad.pure.delegate.scenarios2
 
       default R1() as pure
 
-      operator ? as pure
+      override operator ? as pure
         @Error: FULL_RESOLUTION: NOT_RESOLVED
         <- rtn as Boolean: justBroken()
 

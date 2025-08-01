@@ -16,7 +16,7 @@ defines module com.customer.justparagraphs
       name()
         <- rtn as String: name
       
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: name?
       
       //Add this in to collect via piping  

@@ -22,7 +22,7 @@ defines module bad.componentcalls.examples1
         -> arg0 as String
         assert arg0?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
       operator == as pure

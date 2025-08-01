@@ -42,7 +42,7 @@ defines module good.components.operators.examples
       operator ! as pure
         <- rtn as C1: this
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: true
 
       operator ~ as pure

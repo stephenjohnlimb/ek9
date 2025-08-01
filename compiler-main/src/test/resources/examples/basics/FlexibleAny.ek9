@@ -45,7 +45,7 @@ defines module net.customer.flexible.any
         -> arg0 as String
         <- rtn as Boolean: arg0?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
   defines class
@@ -102,7 +102,10 @@ defines module net.customer.flexible.any
 
     checkAsAnyOnTrait2()
       //As above but create a dynamic class, no additional implementation, just use the trait.
+      //have to provide operator to resolve Any and T1 as they have the ? operator
       t as T1: () with trait of T1 as class
+        default operator ?
+
       assert t?
       a as Any: t
       assert a?

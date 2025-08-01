@@ -10,7 +10,7 @@ defines module bad.overridden.classoperators
     CheckC4Operator()
       c4 <- C4()
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      //This now resolves.
       assert c4?
 
       //So even though we cannot instantiate a 'C1' we can still continue to try and compile
@@ -31,7 +31,7 @@ defines module bad.overridden.classoperators
     CheckT1Operator()
       -> arg0 as T1
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      //This also resolves.
       assert arg0?
 
       result <- $arg0
@@ -47,6 +47,7 @@ defines module bad.overridden.classoperators
       //There are tests for this already - but just highlight in this test context
       @Error: FULL_RESOLUTION: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS
       dynamic1 <- () with trait of T1 as class
+        default operator ?
 
     CheckDynamic2Class()
       //This is what is needed
@@ -55,6 +56,7 @@ defines module bad.overridden.classoperators
         personName()
           <- rtn as String: name
         default operator $
+        default operator ?
 
       result <- $dynamic2
       assert result?
@@ -94,6 +96,7 @@ defines module bad.overridden.classoperators
     C1 with trait of T1 as abstract
       operator $$ as pure
         <- rtn as JSON: JSON()
+      default operator ?
 
     //This is caused by the trait T1 and its abstract operator $
     @Error: FULL_RESOLUTION: NOT_MARKED_ABSTRACT_BUT_IS_ABSTRACT
@@ -102,6 +105,7 @@ defines module bad.overridden.classoperators
       //So this is not abstract and so you may accidentally think C2 is not abstract.
       operator #? as pure
         <- rtn as Integer: 0
+      default operator ?
 
     C3 with trait of T1
 
@@ -115,6 +119,7 @@ defines module bad.overridden.classoperators
       @Error: FULL_RESOLUTION: METHOD_OVERRIDES
       operator $ as pure
         <- rtn as String: String()
+      default operator ?
 
     C4 with trait of T1
 
@@ -128,6 +133,8 @@ defines module bad.overridden.classoperators
       override operator $ as pure
         <- rtn as String: String()
 
+      default operator ?
+
     //Now we can define some concrete operator implementations.
     //But also override the $ operator from T1 - but with a default implementation
     C5 with trait of T1
@@ -139,5 +146,6 @@ defines module bad.overridden.classoperators
         <- rtn as Integer: 0
 
       default operator $
+      default operator ?
 
 //EOF

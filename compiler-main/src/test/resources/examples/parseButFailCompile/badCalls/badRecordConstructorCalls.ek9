@@ -14,7 +14,7 @@ defines module bad.recordcalls.examples1
         this()
         assert arg0?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
       operator <> as pure

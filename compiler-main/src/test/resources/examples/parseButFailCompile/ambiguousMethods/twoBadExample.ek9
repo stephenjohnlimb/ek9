@@ -1,0 +1,23 @@
+#!ek9
+<?-
+  This example shows that a class with multiple traits can have methods that match
+  that are the same weight and are therefore ambiguous and neither the developer nor the
+  compiler can reasonably determine when methods should be called.
+-?>
+defines module ambiguous.methods.two
+
+  defines class
+    C1
+      default C1 as pure
+
+      override operator ? as pure
+        <- rtn <- true
+
+  defines trait
+    T1
+      methodA()
+        -> c1 as C1
+        assert c1?
+
+
+//EOF

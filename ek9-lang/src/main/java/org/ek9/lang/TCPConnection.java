@@ -48,7 +48,7 @@ public interface TCPConnection extends Any {
 
   @Override
   @Ek9Operator("""
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean?""")
   default Boolean _isSet() {
     // Default implementation returns unset Boolean

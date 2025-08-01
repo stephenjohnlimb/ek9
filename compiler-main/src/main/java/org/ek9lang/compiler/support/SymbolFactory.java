@@ -282,6 +282,10 @@ public class SymbolFactory extends CommonFactory {
     return operationFactory.newAny(ctx);
   }
 
+  public void addMethodsToAny(final AggregateSymbol anyTypeSymbol) {
+    operationFactory.addMethodsToAny(anyTypeSymbol);
+  }
+
   /**
    * Create a new aggregate that represents an EK9 type, constrained or enumeration.
    */

@@ -45,7 +45,7 @@ defines module com.customer.just.employees
         this.state :=: state
         this.zipcode :=: zipcode
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: street? and city? and state? and zipcode?
 
       operator $ as pure
@@ -102,6 +102,8 @@ defines module com.customer.just.employees
       operator $ as pure
         <- rtn as String: $id + " - " + name
 
+      default operator ?
+
     AddressBook
       employeeAddresses as Dict of (Integer, Address): {
         1: Address("121 Admin Rd.", String(), "Concord", "NH", "03301"),
@@ -138,6 +140,7 @@ defines module com.customer.just.employees
         for employee in employees
           employee.work(hours)
         stdout.print("\n")
+      default operator ?
 
     // Employee roles
 
@@ -145,21 +148,25 @@ defines module com.customer.just.employees
       override performDuties()
         -> hours as Integer
         <- activity as String: `screams and yells for ${hours} hours.`
+      default operator ?
 
     SecretaryRole with trait of IRole
       override performDuties()
         -> hours as Integer
         <- activity as String: `does paperwork for ${hours} hours.`
+      default operator ?
 
     SalesRole with trait of IRole
       override performDuties()
         -> hours as Integer
         <- activity as String: `expends ${hours} hours on the phone.`
+      default operator ?
 
     FactoryRole with trait of IRole
       override performDuties()
         -> hours as Integer
         <- activity as String: `manufactures gadgets for ${hours} hours.`
+      default operator ?
 
     //Payroll classes
 

@@ -1,16 +1,16 @@
 #!ek9
-defines module some.bad.dowhileguards
+defines module some.ok.dowhileguards
 
   <!-
     First few records and functions here are the test fixtures.
   -!>
   defines record
 
-    //Note that this has no 'is-set' operator
+    //Note that this has no 'is-set' operator but 'Any' does
     UnusableAggregate
       name <- String()
 
-    //But this does have the 'is-set' operator
+    //But this does have the 'is-set' operator, overriding/defaulting its implementation.
     UsableAggregate
       name <- String()
 
@@ -20,7 +20,7 @@ defines module some.bad.dowhileguards
 
     <?-
       Simple function to provide an aggregate (record in this case)
-      that does not have the 'is-set' operator.
+      that does not have the 'is-set' operator directly.
     -?>
     provideUnusableReturn()
       <- rtn <- UnusableAggregate()
@@ -70,7 +70,6 @@ defines module some.bad.dowhileguards
       while conditional
       assert result?
 
-
     demonstrateValidDoWhileExpressionAssignmentUse2()
       -> conditional as Boolean
 
@@ -116,69 +115,60 @@ defines module some.bad.dowhileguards
       while conditional
 
     <!-
-      Now the invalid scenarios
+      Now the other scenarios that depend on 'Any' '?' operator.
     -!>
 
-    demonstrateInvalidDoWhileGuardedAssignmentUse()
+    demonstrateValidDoWhileGuardedAssignmentUseViaAny()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'guard' statement.
+      //Even though it has not ? operator the implicit super 'Any' does and that's what will be used.
       toCheck <- UnusableAggregate()
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       do toCheck ?= provideUnusableReturn()
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile by using Any ? ${toCheck.name}`)
       while conditional
 
-    demonstrateInvalidDoWhileDeclarationUse1()
+    demonstrateValidDoWhileDeclarationUseViaAny1()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      //So even though this is a declaration of toCHeck, the ? operator will still be called
+      //after toCheck has been initialised to see if it is 'set', if not then the loop will not execute.
       do toCheck <- provideUnusableReturn()
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile by using Any ? ${toCheck.name}`)
       while conditional
 
-    demonstrateInvalidDoWhileDeclarationUse2()
+    demonstrateValidDoWhileDeclarationUseViaAny2()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      //This is also a way to declare and initialise a variable in a guarded manner.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       do toCheck as UnusableAggregate: provideUnusableReturn()
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile by using Any ? ${toCheck.name}`)
       while conditional
 
-    demonstrateInvalidDoWhileExpressionDeclarationUse1()
+    demonstrateValidDoWhileExpressionDeclarationUseViaAny1()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       result <- do toCheck <- provideUnusableReturn()
         <- rtn as String: toCheck.name
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile by using Any ? ${toCheck.name}`)
       while conditional
       assert result?
 
-    demonstrateInvalidDoWhileExpressionDeclarationUse2()
+    demonstrateValidDoWhileExpressionDeclarationUseViaAny2()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      //This is also a way to declare and initialise a variable in a guarded manner.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       result <- do toCheck as UnusableAggregate: provideUnusableReturn()
         <- rtn as String: toCheck.name
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile by using Any ? ${toCheck.name}`)
       while conditional
       assert result?
 

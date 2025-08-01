@@ -15,7 +15,7 @@ defines module bad.pure.expressions
       nonPureMethod()
         <- rtn <- false
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
   defines function

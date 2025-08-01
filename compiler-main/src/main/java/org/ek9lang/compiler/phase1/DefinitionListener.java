@@ -26,6 +26,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.AbstractEK9PhaseListener;
 import org.ek9lang.compiler.common.ProcessSyntheticReturn;
+import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.ek9lang.compiler.support.ResolveOrDefineExplicitParameterizedType;
 import org.ek9lang.compiler.support.ResolveOrDefineTypeDef;
@@ -44,6 +45,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.LocalScope;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.StackConsistencyScope;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
@@ -68,6 +70,7 @@ import org.ek9lang.core.CompilerException;
 final class DefinitionListener extends AbstractEK9PhaseListener {
 
   private final SymbolFactory symbolFactory;
+  private final SetGenericSuperIfAppropriate setGenericSuperIfAppropriate = new SetGenericSuperIfAppropriate();
   private final BlockScopeName blockScopeName = new BlockScopeName();
   private final SymbolChecker symbolChecker;
   private final TextLanguageExtraction textLanguageExtraction;
@@ -92,6 +95,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   private final ValidAggregateConstructorsOrError validAggregateConstructorsOrError;
   private final ProcessAsDispatcherIfNecessary processAsDispatcherIfNecessary = new ProcessAsDispatcherIfNecessary();
   private final ApplicationBodyOrError applicationBodyOrError;
+
   private String currentTextBlockLanguage;
 
   /**
@@ -159,6 +163,23 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
       symbolsAndScopes.exitScope();
     }
 
+  }
+
+  @Override
+  public void exitModuleDeclaration(final EK9Parser.ModuleDeclarationContext ctx) {
+    final var moduleName = ctx.dottedName().getText();
+    if ("org.ek9.lang".equals(moduleName)) {
+      final var anyType = getParsedModule()
+          .getModuleScope()
+          .resolve(new SymbolSearch("org.ek9.lang::Any").setSearchType(SymbolCategory.ANY));
+      anyType.ifPresent(any -> {
+        if (any instanceof AggregateSymbol asAggregate) {
+          symbolFactory.addMethodsToAny(asAggregate);
+        }
+      });
+    }
+
+    super.exitModuleDeclaration(ctx);
   }
 
   @Override
@@ -244,7 +265,9 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void exitClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
     final var symbol = symbolsAndScopes.getRecordedSymbol(ctx);
-    processAsDispatcherIfNecessary.andThen(validAggregateConstructorsOrError).accept(symbol);
+    setGenericSuperIfAppropriate
+        .andThen(processAsDispatcherIfNecessary)
+        .andThen(validAggregateConstructorsOrError).accept(symbol);
 
     super.exitClassDeclaration(ctx);
   }
@@ -252,6 +275,10 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void exitDynamicClassDeclaration(final EK9Parser.DynamicClassDeclarationContext ctx) {
     final var symbol = symbolsAndScopes.getRecordedSymbol(ctx);
+    //If there is no extends then this class should have a super of Any, otherwise it will have what it extends.
+    if (ctx.extendPreamble() != null) {
+      setGenericSuperIfAppropriate.accept(symbol);
+    }
     processAsDispatcherIfNecessary.andThen(validAggregateConstructorsOrError).accept(symbol);
     super.exitDynamicClassDeclaration(ctx);
   }

@@ -24,7 +24,7 @@ class ExamplesBasicsTest extends PhasesTest {
             "net.customer.any",
             "net.customer.flexible.any",
             "example.dispatch.any",
-            "net.customer.varargs"));
+            "net.customer.varargs"), false, false);
   }
 
   @Test

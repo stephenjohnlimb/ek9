@@ -39,7 +39,7 @@ defines module bad.generic.class.constraints
         -> arg0 as Integer
         super(arg0)
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: getProperty1()?
 
     <?-
@@ -94,11 +94,11 @@ defines module bad.generic.class.constraints
         -> arg0 as T
 
       //Now because we have constrained to C0, we can be assured of the methods and operators available
-      //But note that C0 does not have the '?' operator and so this fails.
+      //But note that C0 does not have the '$$' JSON conversion operator. So this method fails.
       check()
         -> arg0 as T
         @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-        <- rtn as Boolean: arg0?
+        <- rtn as Boolean: ($$arg0)?
 
     <?-
       Now create a generic type that limits use to classes that are a C0A or extend a C0A.

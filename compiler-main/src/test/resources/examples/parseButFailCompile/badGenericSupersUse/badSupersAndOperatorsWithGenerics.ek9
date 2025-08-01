@@ -59,11 +59,10 @@ defines module bad.constraining.supers
   defines function
 
     <?-
-      Expect to fail because no '?' operator
+      No longer fails because no '?' operator as it extends `'Any'.
     -?>
     UnConstrainedGenericClassDemo1()
 
-      @Error: POST_RESOLUTION_CHECKS: OPERATOR_NOT_DEFINED
       demo <- UnConstrainedGenericClass() of C0
 
       result <- demo.check(C0(22))

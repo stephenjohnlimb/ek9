@@ -10,7 +10,7 @@ class GenericParameterizationAndCallsTest extends BadFullResolutionTest {
 
   public GenericParameterizationAndCallsTest() {
     super("/examples/parseButFailCompile/genericParameterizationAndCalls",
-        List.of("generic.parameterization"));
+        List.of("generic.parameterization"), false, true);
   }
 
 }

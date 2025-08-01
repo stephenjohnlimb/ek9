@@ -145,7 +145,8 @@ class CompilableProgramCloneTest {
 
       //Now expect 'Any' as the super of String constructor.
 
-      assertEquals(3, methods.size());
+      //TODO rework tests a bit fragile on the order methods come back.
+      assertEquals(4, methods.size());
       var defaultAnyConstructor = methods.getFirst();
       assertNotNull(defaultAnyConstructor);
       assertEquals(0, defaultAnyConstructor.getCallParameters().size());
@@ -155,7 +156,7 @@ class CompilableProgramCloneTest {
       assertEquals(0, defaultStringConstructor.getCallParameters().size());
 
 
-      var copyConstructor = methods.get(2);
+      var copyConstructor = methods.get(3);
       assertNotNull(copyConstructor);
       var params = copyConstructor.getCallParameters();
       assertEquals(1, params.size());

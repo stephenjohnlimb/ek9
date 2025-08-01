@@ -9,7 +9,7 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class ExamplesConstructsComponentsTest extends SuccessfulTest {
 
   public ExamplesConstructsComponentsTest() {
-    super("/examples/constructs/components");
+    super("/examples/constructs/components", false, true);
   }
 
 

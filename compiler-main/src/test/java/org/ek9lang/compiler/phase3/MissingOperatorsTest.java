@@ -10,7 +10,7 @@ class MissingOperatorsTest extends BadFullResolutionTest {
   public MissingOperatorsTest() {
     super("/examples/parseButFailCompile/missingOperators",
         List.of("bad.defaulted.recordoperators", "bad.defaulted.classoperators",
-            "bad.overridden.classoperators", "bad.interpolated.strings"));
+            "bad.overridden.classoperators", "bad.interpolated.strings"), false, true);
   }
 
 }

@@ -28,6 +28,6 @@ defines module dependent.generic.types
         -> arg as G1 of (P, Q)
         prop1: arg
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: prop1?
 //EOF

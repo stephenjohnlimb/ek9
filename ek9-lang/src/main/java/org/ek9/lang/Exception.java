@@ -136,7 +136,7 @@ public class Exception extends RuntimeException implements Any {
   }
 
   @Ek9Operator("""
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean?""")
   @Override
   public Boolean _isSet() {

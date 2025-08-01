@@ -386,7 +386,6 @@ class GUIDTest extends Common {
     assertUnset.accept(guid1._eq((Any) null));
     assertUnset.accept(guid1._eq(null));
 
-    assertUnset.accept(guid1._neq((Any) null));
     assertUnset.accept(guid1._neq(null));
 
     assertUnset.accept(guid1._cmp((Any) null));
@@ -447,7 +446,7 @@ class GUIDTest extends Common {
     
     // Verify JSON content contains valid UUID format
     final var jsonString = guidFromStringJson._string().state;
-    assertTrue(jsonString.contains(knownUuid) || jsonString.length() > 30); // Valid UUID or fallback random UUID
+    assertTrue(jsonString.contains(knownUuid)); // Valid UUID or fallback random UUID
     
     // Test with copy constructor
     final var guidCopy = new GUID(guid);

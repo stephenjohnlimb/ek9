@@ -169,7 +169,7 @@ defines module com.customer.books
       operator $ as pure
         <- rtn as String: `Author: ${firstname} ${surname}, Age: ${age}`
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: age? and firstname? and surname?
 
       operator :=:

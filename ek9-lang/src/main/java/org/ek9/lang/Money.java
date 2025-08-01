@@ -211,7 +211,7 @@ public class Money extends BuiltinType {
 
   @Override
   @Ek9Operator("""
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean?""")
   public Boolean _isSet() {
     return Boolean._of(isSet);
@@ -546,18 +546,18 @@ public class Money extends BuiltinType {
   }
 
   @Ek9Operator("""
+      operator :^:
+        -> arg as Money""")
+  public void _replace(Money arg) {
+    _copy(arg);
+  }
+
+  @Ek9Operator("""
       operator |
         -> arg as JSON""")
   public void _pipe(JSON arg) {
 
     jsonTraversal.accept(arg, str -> _pipe(new Money(str)));
-  }
-
-  @Ek9Operator("""
-      operator :^:
-        -> arg as Money""")
-  public void _replace(Money arg) {
-    _copy(arg);
   }
 
   @Ek9Operator("""

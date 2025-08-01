@@ -1,5 +1,5 @@
 #!ek9
-defines module some.bad.whileguards
+defines module some.ok.whileguards
 
   <!-
     First few records and functions here are the test fixtures.
@@ -111,38 +111,31 @@ defines module some.bad.whileguards
       Now the invalid scenarios
     -!>
 
-    demonstrateInvalidWhileGuardedAssignmentUse()
+    demonstrateValidWhileGuardedAssignmentUseViaAny()
       -> conditional as Boolean
 
       stdout <- Stdout()
-
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'guard' statement.
       toCheck <- UnusableAggregate()
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       while toCheck ?= provideUnusableReturn() with conditional
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Uses Any ? ${toCheck.name}`)
 
-    demonstrateInvalidWhileGuardedDeclarationUse1()
+    demonstrateValidWhileGuardedDeclarationUseViaAny1()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       while toCheck <- provideUnusableReturn() with conditional
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Uses Any ? ${toCheck.name}`)
 
-    demonstrateInvalidWhileDeclarationUse2()
+    demonstrateValidWhileDeclarationUseViaAny2()
       -> conditional as Boolean
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      //This is also a way to declare and initialise a variable in a guarded manner.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+
       while toCheck as UnusableAggregate: provideUnusableReturn() with conditional
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Uses Any ? ${toCheck.name}`)
 
 
 //EOF

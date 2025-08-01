@@ -32,7 +32,7 @@ public class Comparator implements Any {
 
   @Override
   @Ek9Operator("""
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean?""")
   public Boolean _isSet() {
     //This is set but will result return an unset Integer.

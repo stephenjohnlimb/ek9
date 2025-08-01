@@ -51,4 +51,5 @@ defines module com.customer.webserver
             <- rtn as String: String()
             if lastModified?
               cat textFile().input() > rtn
+          default operator ?
 //EOF

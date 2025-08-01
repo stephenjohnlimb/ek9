@@ -93,7 +93,7 @@ defines module generic.parameterization
       default GenericClass()
         -> arg0 as T
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: true
 
 //EOF

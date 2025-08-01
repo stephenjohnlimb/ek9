@@ -110,11 +110,11 @@ defines module bad.dynamicclasses.operators.examples
 
         //The 'is set' operator
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
-        operator ? as pure
+        override operator ? as pure
           <- rtn as Integer: 1
 
         @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
-        operator ? as pure
+        override operator ? as pure
           -> arg0 as T1
           <- rtn as Integer: 1
 

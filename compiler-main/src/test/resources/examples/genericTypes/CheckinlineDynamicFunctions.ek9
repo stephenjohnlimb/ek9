@@ -69,7 +69,7 @@ defines module com.customer.dynamic.streams.build
       operator $ as pure
         <- rtn as String: name + " " + $dob
         
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: name? and dob?
 
       operator #^ as pure

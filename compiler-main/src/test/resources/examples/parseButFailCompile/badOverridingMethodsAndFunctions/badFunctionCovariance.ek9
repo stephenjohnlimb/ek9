@@ -9,7 +9,7 @@ defines module bad.functions.covariance.examples
       someMethod()
         <- rtn <- true
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
     T2 extends T1

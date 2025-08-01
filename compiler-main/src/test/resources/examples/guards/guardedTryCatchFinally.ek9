@@ -1,5 +1,5 @@
 #!ek9
-defines module some.bad.trycatchfinallyguards
+defines module some.ok.trycatchfinallyguards
 
   <!-
     First few records and functions here are the test fixtures.
@@ -133,38 +133,33 @@ defines module some.bad.trycatchfinallyguards
       Now the invalid scenarios
     -!>
 
-    demonstrateInvalidTryStatementGuardedAssignmentUse()
+    demonstrateValidTryStatementGuardedAssignmentUseViaAny()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'guard' statement.
       toCheck <- UnusableAggregate()
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       try toCheck ?= provideUnusableReturn()
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile by using Any ? ${toCheck.name}`)
       catch
         -> ex as Exception
         stdout.println(`Exception triggered ${ex}`)
 
-    demonstrateInvalidTryStatementDeclarationUse1()
+    demonstrateValidTryStatementDeclarationUseViaAny1()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+
       try toCheck <- provideUnusableReturn()
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile by using Any ? ${toCheck.name}`)
       catch
         -> ex as Exception
         stdout.println(`Exception triggered ${ex}`)
 
-    demonstrateInvalidTryExpressionDeclarationUse1()
+    demonstrateValidTryExpressionDeclarationUseViaAny1()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       name <- try toCheck <- provideUnusableReturn()
         <- rtn as String: toCheck.name
       catch
@@ -173,32 +168,27 @@ defines module some.bad.trycatchfinallyguards
 
       stdout.println(`Do expect this to compile and maybe see ${name}`)
 
-    demonstrateInvalidTryStatementDeclarationUse2()
+    demonstrateValidTryStatementDeclarationUseViaAny2()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      //This is also a way to declare and initialise a variable in a guarded manner.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       try toCheck as UnusableAggregate: provideUnusableReturn()
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile by using Any ? ${toCheck.name}`)
       catch
         -> ex as Exception
         stdout.println(`Exception triggered ${ex}`)
 
-    demonstrateInvalidTryExpressionDeclarationUse2()
+    demonstrateValidTryExpressionDeclarationUseViaAny2()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      //This is also a way to declare and initialise a variable in a guarded manner.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+
       name <- try toCheck as UnusableAggregate: provideUnusableReturn()
         <- rtn as String: toCheck.name
       catch
         -> ex as Exception
         stdout.println(`Exception triggered ${ex}`)
 
-      stdout.println(`Do expect this to compile and maybe see ${name}`)
+      stdout.println(`Will compile by using Any ? ${name}`)
 
 //EOF

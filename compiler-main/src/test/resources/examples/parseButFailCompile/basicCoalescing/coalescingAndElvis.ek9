@@ -21,8 +21,8 @@ defines module coalescing.elvis
 
     SomethingCommon
 
-      operator ? as pure abstract
-        <- rtn as Boolean?
+      override operator ? as pure
+        <- rtn as Boolean: Boolean()
       operator $ as pure abstract
         <- rtn as String?
 
@@ -46,7 +46,7 @@ defines module coalescing.elvis
       default GC2()
         -> arg0 as T
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: false
       operator $ as pure
         <- rtn as String: "C3"
@@ -127,28 +127,6 @@ defines module coalescing.elvis
       //Will detect the $ operator is missing.
       @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       coalesce <- $ ($weight1 ?? $weight2)
-
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-      assert coalesce?
-
-    TestBadNullCoalescing2()
-      -> weight1 as C1
-      weight2 as C1: C1()
-
-      //Will detect the ? operator is missing.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      coalesce <- weight1 ?? weight2
-
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
-      assert coalesce?
-
-    TestBadGenericNullCoalescing1()
-      -> weight1 as GC1 of String
-      weight2 <- GC1() of String
-
-      //Will detect the ? operator is missing.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
-      coalesce <- weight1 ?? weight2
 
       @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
       assert coalesce?

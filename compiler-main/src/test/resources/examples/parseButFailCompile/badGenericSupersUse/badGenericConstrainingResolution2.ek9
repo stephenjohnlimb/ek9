@@ -15,7 +15,7 @@ defines module bad.generic.constraining.resolution2
         -> arg0 as Date
         <- rtn as Boolean: arg0?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
   defines type

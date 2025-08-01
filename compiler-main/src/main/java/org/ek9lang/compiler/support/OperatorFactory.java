@@ -110,6 +110,8 @@ public class OperatorFactory {
     if (rtn != null) {
       //It has been default and is a synthetic method (i.e. not one defined explicitly by the developer)
       rtn.putSquirrelledData(DEFAULTED, "TRUE");
+      //We need a source token, so we have to use the same one for the aggregate as there is no other code.
+      rtn.setSourceToken(aggregate.getSourceToken());
       rtn.setSynthetic(true);
     }
 

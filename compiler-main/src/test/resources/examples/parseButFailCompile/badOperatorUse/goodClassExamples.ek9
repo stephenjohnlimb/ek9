@@ -70,7 +70,7 @@ defines module good.classes.operators.examples
         <- rtn as C1: this
 
       //The 'is set' operator
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: true
 
       //The not/negate operator

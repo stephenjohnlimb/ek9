@@ -343,7 +343,7 @@ defines module net.customer
       method1()
         <- rtn as String := "OK again"        
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
     //We can say Trait3 with trait of Trait1, Trait2 or just

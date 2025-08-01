@@ -1,5 +1,5 @@
 #!ek9
-defines module some.bad.forloopguards
+defines module some.ok.forloopguards
 
   <!-
     First few records and functions here are the test fixtures.
@@ -104,57 +104,47 @@ defines module some.bad.forloopguards
       Now the invalid scenarios
     -!>
 
-    demonstrateInvalidForLoopGuardedAssignmentUse()
+    demonstrateValidForLoopGuardedAssignmentUseViaAny()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'guard' statement.
       toCheck <- UnusableAggregate()
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+
       for toCheck ?= provideUnusableReturn() with i in [1, 5, 7]
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile by using Any ? ${toCheck.name}`)
 
-    demonstrateInvalidForLoopDeclarationUse1()
+    demonstrateValidForLoopDeclarationUseViaAny1()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       for toCheck <- provideUnusableReturn() with i in [1, 5, 7]
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile by using Any ? ${toCheck.name}`)
 
-    demonstrateInvalidForLoopDeclarationUse2()
+    demonstrateValidForLoopDeclarationUseViaAny2()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      //This is also a way to declare and initialise a variable in a guarded manner.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       for toCheck as UnusableAggregate: provideUnusableReturn() with i in [1, 5, 7]
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile by using Any ? ${toCheck.name}`)
 
-    demonstrateInvalidForLoopExpressionDeclarationUse1()
+    demonstrateValidForLoopExpressionDeclarationUseViaAny1()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+
       result <- for toCheck <- provideUnusableReturn() with i in [1, 5, 7]
         <- rtn as String: toCheck.name
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile by using Any ? ${toCheck.name}`)
       assert result?
 
-    demonstrateInvalidForLoopExpressionDeclarationUse2()
+    demonstrateValidForLoopExpressionDeclarationUseViaAny2()
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      //This is also a way to declare and initialise a variable in a guarded manner.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       result <- for toCheck as UnusableAggregate: provideUnusableReturn() with i in [1, 5, 7]
         <- rtn as String: toCheck.name
-        stdout.println(`Do not expect this to even compile ${toCheck.name}`)
+        stdout.println(`Will compile by using Any ? ${toCheck.name}`)
       assert result?
 
 //EOF

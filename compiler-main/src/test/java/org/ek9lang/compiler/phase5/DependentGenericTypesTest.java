@@ -15,7 +15,7 @@ class DependentGenericTypesTest extends PhasesTest {
 
   public DependentGenericTypesTest() {
     super("/examples/dependentGenericTypes",
-        List.of("dependent.generic.types"));
+        List.of("dependent.generic.types"), false, false);
   }
 
   @Test

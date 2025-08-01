@@ -34,7 +34,7 @@ defines module bad.forrangeloops.check
       operator --
         <- rtn as R2: this
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
       operator $ as pure
@@ -43,7 +43,7 @@ defines module bad.forrangeloops.check
     R3
       value <- 1
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
       //Just for now return equals, don't try and compare all fields.

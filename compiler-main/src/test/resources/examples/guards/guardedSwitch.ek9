@@ -1,5 +1,5 @@
 #!ek9
-defines module some.bad.switchguards
+defines module some.ok.switchguards
 
   <!-
     First few records and functions here are the test fixtures.
@@ -135,41 +135,35 @@ defines module some.bad.switchguards
       Now the invalid scenarios
     -!>
 
-    demonstrateInvalidTryStatementGuardedAssignmentUse()
+    demonstrateValidTryStatementGuardedAssignmentUseViaAny()
       -> condition as String
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'guard' statement.
       toCheck <- UnusableAggregate()
 
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       switch toCheck ?= provideUnusableReturn() with condition
         case "Steve"
           stdout.println(`But this is just a blind assignment ${toCheck.name} is Steve`)
         default
           stdout.println(`But this is just a blind assignment ${toCheck.name} is NOT Steve`)
 
-    demonstrateInvalidSwitchStatementDeclarationUse1()
+    demonstrateValidSwitchStatementDeclarationUseViaAny1()
       -> condition as String
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       switch toCheck <- provideUnusableReturn() with condition
         case "Steve"
           stdout.println(`But this is just a blind assignment ${toCheck.name} is Steve`)
         default
           stdout.println(`But this is just a blind assignment ${toCheck.name} is NOT Steve`)
 
-    demonstrateInvalidSwitchExpressionDeclarationUse1()
+    demonstrateValidSwitchExpressionDeclarationUseViaAny1()
       -> condition as String
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       name <- switch toCheck <- provideUnusableReturn() with condition
         <- rtn as String: toCheck.name
         case "Steve"
@@ -177,30 +171,24 @@ defines module some.bad.switchguards
         default
           rtn: `Not Steve but ${toCheck.name}`
 
-      stdout.println(`Do not expect this to compile so no ${name}`)
+      stdout.println(`Will compile by using Any ? ${name}`)
 
-    demonstrateInvalidSwitchStatementDeclarationUse2()
+    demonstrateValidSwitchStatementDeclarationUseViaAny2()
       -> condition as String
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      //This is also a way to declare and initialise a variable in a guarded manner.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       switch toCheck as UnusableAggregate: provideUnusableReturn() with condition
         case "Steve"
           stdout.println(`But this is just a blind assignment ${toCheck.name} is Steve`)
         default
           stdout.println(`But this is just a blind assignment ${toCheck.name} is NOT Steve`)
 
-    demonstrateInvalidSwitchExpressionDeclarationUse2()
+    demonstrateValidSwitchExpressionDeclarationUseViaAny2()
       -> condition as String
 
       stdout <- Stdout()
 
-      //As the record UnusableAggregate does not have an is-set operator it cannot be used in the 'declaration guard' statement.
-      //This is also a way to declare and initialise a variable in a guarded manner.
-      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       name <- switch toCheck as UnusableAggregate: provideUnusableReturn() then condition
         <- rtn as String: toCheck.name
         case "Steve"
@@ -208,6 +196,6 @@ defines module some.bad.switchguards
         default
           rtn: `Not Steve but ${toCheck.name}`
 
-      stdout.println(`Do not expect this to compile so no ${name}`)
+      stdout.println(`Will compile by using Any ? ${name}`)
 
 //EOF

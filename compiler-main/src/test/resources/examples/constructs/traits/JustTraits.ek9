@@ -20,7 +20,7 @@ defines module com.customer.traits
       override lowCost() as pure
         <- rtn as Boolean: CostAssessment.lowCost()
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
     ProcessingResponse allow only StringResponse, StructuredResponse

@@ -62,7 +62,7 @@ defines module bad.defaultoperators.record.examples
         property1 :=: arg0
 
       //We will define/implement this operator
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: property1?
 
       //But that's it - we don't implement other operators

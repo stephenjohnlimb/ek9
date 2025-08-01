@@ -78,7 +78,7 @@ defines module com.utils.fsm.example
         assert listenerToAdd?
         listener := listenerToAdd
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: currentState? and listener?
 
   defines program

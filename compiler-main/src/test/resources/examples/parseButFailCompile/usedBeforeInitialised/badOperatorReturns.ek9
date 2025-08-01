@@ -9,7 +9,7 @@ defines module bad.operators.return
   defines record
 
     R1
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
       operator <=> as pure
@@ -22,7 +22,7 @@ defines module bad.operators.return
 
     //Valid example to be used with dynamic class later
     T0
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
       operator <=> as pure
@@ -30,7 +30,7 @@ defines module bad.operators.return
         <- rtn as Integer: 0
 
     T1
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
       operator <=> as pure
@@ -42,7 +42,7 @@ defines module bad.operators.return
   defines class
     Class1
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
       operator <=> as pure
@@ -53,7 +53,7 @@ defines module bad.operators.return
 
   defines component
     Component1
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
       operator <=> as pure

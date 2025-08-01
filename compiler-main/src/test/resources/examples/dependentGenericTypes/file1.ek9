@@ -86,7 +86,7 @@ defines module dependent.generic.types
         -> arg as G2 of (K, V)
         prop1: arg
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: prop1?
 
 //EOF

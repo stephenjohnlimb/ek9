@@ -25,7 +25,7 @@ defines module bad.use.dynamics.generics
       value()
         <- rtn as V: value
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: true
 
   defines function

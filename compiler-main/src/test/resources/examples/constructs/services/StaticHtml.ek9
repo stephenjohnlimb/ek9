@@ -42,4 +42,5 @@ defines module com.customer.html
             <- rtn as String: webSite.index()
           override status() as pure
             <- rtn as Integer: 200
+          default operator ?
 //EOF

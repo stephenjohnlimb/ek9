@@ -36,7 +36,7 @@ defines module com.customer.sample
       description() as pure
         <- rtn as String: String(shapeInfo)
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: shapeInfo?
 
     Circle is Shape

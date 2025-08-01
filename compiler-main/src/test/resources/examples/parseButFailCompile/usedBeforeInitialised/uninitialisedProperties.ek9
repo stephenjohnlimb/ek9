@@ -88,7 +88,7 @@ defines module uninitialized.properties
       operator $ as pure
         <- rtn as String: `Value is ${someProperty}`
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: someProperty?
 
   defines function

@@ -303,7 +303,7 @@ defines module net.customer
       operator length as pure
         <- rtn as Integer := 10
       
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean := true
               
       //promote Class1 to a Class2

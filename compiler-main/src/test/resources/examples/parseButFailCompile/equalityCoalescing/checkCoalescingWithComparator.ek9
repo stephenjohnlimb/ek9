@@ -9,8 +9,8 @@ defines module equality.coalescing
 
     SomethingCommon
 
-      operator ? as pure abstract
-        <- rtn as Boolean?
+      override operator ? as pure
+        <- rtn as Boolean: Boolean()
       operator $ as pure abstract
         <- rtn as String?
       operator <=> as pure
@@ -40,7 +40,7 @@ defines module equality.coalescing
         -> arg0 as T
         assert arg0?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: false
       operator $ as pure
         <- rtn as String: "C3"

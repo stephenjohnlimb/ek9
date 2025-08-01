@@ -35,14 +35,7 @@ class AnyTest extends Common {
     assertUnset.accept(a1._cmp(null));
     assertUnset.accept(a1._cmp(a2));
     assertUnset.accept(a2._cmp(a1));
-
-    assertUnset.accept(a1._lt(a2));
-    assertUnset.accept(a1._lteq(a2));
-    assertUnset.accept(a1._gteq(a2));
-    assertUnset.accept(a1._gt(a2));
-
     assertUnset.accept(a1._eq(a2));
-    assertUnset.accept(a1._neq(a2));
 
   }
 }

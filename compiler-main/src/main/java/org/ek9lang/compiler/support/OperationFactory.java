@@ -158,9 +158,14 @@ class OperationFactory extends CommonFactory {
     anyTypeSymbol.setOpenForExtension(true);
     aggregateManipulator.addConstructor(anyTypeSymbol, List.of(), true, true);
 
-    //The '?' is baked into compiler code for Any so the operator does not need to exist.
-
     return anyTypeSymbol;
+  }
+
+  public void addMethodsToAny(final AggregateSymbol anyTypeSymbol) {
+    final var isSetOperator = aggregateManipulator.getDefaultOperator(anyTypeSymbol, "?");
+    isSetOperator.ifPresent(anyTypeSymbol::define);
+
+    //The '?' is baked into compiler code for Any so the operator does not need to exist.
   }
 
   /**

@@ -42,7 +42,7 @@ defines module good.records.operators.examples
       operator ! as pure
         <- rtn as R1: this
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: true
 
       operator ~ as pure

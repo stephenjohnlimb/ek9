@@ -68,7 +68,7 @@ public interface StringOutput extends Any {
 
   @Override
   @Ek9Operator("""
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean?""")
   default Boolean _isSet() {
     //Not sure if set or not, implementation must define.

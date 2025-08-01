@@ -400,7 +400,7 @@ defines module worked.example
         this.dob :=? String(dob)
         this.lastPurchase :=? String(lastPurchase)
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: id?
 
       operator :~:

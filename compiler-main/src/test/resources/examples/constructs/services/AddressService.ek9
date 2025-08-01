@@ -65,7 +65,7 @@ defines module com.customer.services
         if address.zipcode?        
           zipcode :=: address.zipcode
         
-      operator ? as pure
+      override operator ? as pure
         //street2 is optional and can be omitted
         <- rtn as Boolean: id? and street? and city? and state? and zipcode?                
 
@@ -296,7 +296,7 @@ defines module com.customer.services
                         
         if this contains address
           includeAddress(address)
-      
+
       operator contains as pure
         -> address as Address
         <- rtn as Boolean: this contains address.id      
@@ -304,7 +304,8 @@ defines module com.customer.services
       override operator contains as pure
         -> addressId as AddressId
         <- rtn as Boolean: addresses contains addressId      
-      
+
+      default operator ?
 
     //Example of wrapping shared data set in a mutex lock.
     @Resolved: SYMBOL_DEFINITION: TYPE: "LockableAddressSet"
@@ -379,7 +380,8 @@ defines module com.customer.services
           rtn :=: value contains addressId
 
         lockedAddressSet.enter(accessKey)
-        
+
+      default operator ?
 
   defines function
 
@@ -392,6 +394,7 @@ defines module com.customer.services
           <- rtn as String: "text/plain"
         override contentLanguage() as pure
           <- rtn as String: "en"
+        default operator ?
 
     @Resolved: SYMBOL_DEFINITION: FUNCTION: "cacheableHTTPResponse"
     cacheableHTTPResponse()
@@ -402,6 +405,7 @@ defines module com.customer.services
           <- rtn as String: "application/json"
         override contentLanguage() as pure
           <- rtn as String: "en"
+        default operator ?
 
   defines class
 
@@ -450,7 +454,7 @@ defines module com.customer.services
         <- rtn as Integer: status
       override contentLocation() as pure
         <- rtn as String: status < 400 and provideContentLocation <- `/addresses/${addressId}` else String()
-                     
+      default operator ?
   <?-
     REST web service.    
   -?>
@@ -474,6 +478,7 @@ defines module com.customer.services
             <- rtn as String: String()
             if delegate.status() <> 404
               rtn: addressToJSON(repository.addresses().byId(addressId))
+          default operator ?
 
       //A POST
       operator += :/
@@ -507,6 +512,7 @@ defines module com.customer.services
               <- rtn as String: status == 201 <- `/addresses/${address.id}` else String()
             override status() as pure
               <- rtn as Integer: status
+            default operator ?
             
       //A DELETE
       operator -= :/{id}
@@ -528,6 +534,7 @@ defines module com.customer.services
               if delegate.status() <> 404
                 repository.addresses() -= repository.addresses().byId(addressId)
                 delegate.status(204)
+            default operator ?
 
       //A PATCH which is a merge
 
@@ -555,6 +562,7 @@ defines module com.customer.services
                 else
                   repository.addresses() :~: address
                   delegate.status(204)
+            default operator ?
 
       //A PUT which is a replace for an existing address
       //Now the dynamic variable capture allowed multiple lines and various formatting within the ()
@@ -582,6 +590,7 @@ defines module com.customer.services
                 else
                   repository.addresses() :^: address
                   delegate.status(204)
+            default operator ?
 
       //Note it is now possible to use named parameters in dynamic variable capture
       //So now, we can do a simpler one liner, define the name of the property and use an expression
@@ -597,6 +606,7 @@ defines module com.customer.services
             <- rtn as String: repository.addresses().hash()
           override content()
             <- rtn as String: addressListToJSON(repository.addresses().listAll())
+          default operator ?
 
   defines component
 

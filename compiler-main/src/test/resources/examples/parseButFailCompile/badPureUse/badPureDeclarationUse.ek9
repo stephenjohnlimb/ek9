@@ -9,7 +9,7 @@ defines module bad.pure.declarations
       value <- "Steve"
       default R1() as pure
 
-      operator ? as pure
+      override operator ? as pure
         @Error: FULL_RESOLUTION: NOT_RESOLVED
         <- rtn as Boolean: justBroken()
 

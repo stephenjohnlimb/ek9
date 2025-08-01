@@ -164,7 +164,7 @@ defines module bad.streams6
           else
             joined: String(arg0)
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: joined?
 
   defines function

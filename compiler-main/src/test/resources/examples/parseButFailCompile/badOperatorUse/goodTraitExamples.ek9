@@ -50,7 +50,7 @@ defines module good.traits.operators.examples
       operator ! as pure
         <- rtn as T1: this
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: true
 
       operator ~ as pure

@@ -36,7 +36,7 @@ defines module trait.test.support
         -> arg0 as String
         <- rtn as Boolean?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
   defines function

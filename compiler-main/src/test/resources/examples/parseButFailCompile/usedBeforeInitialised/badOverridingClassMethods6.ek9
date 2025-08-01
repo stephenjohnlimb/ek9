@@ -21,7 +21,7 @@ defines module bad.overriding.classmethods6
         -> arg0 as Float
         <- rtn as Float?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
     T2
@@ -31,7 +31,7 @@ defines module bad.overriding.classmethods6
         <- rtn as Boolean?
         assert arg0?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
   defines class
@@ -48,7 +48,7 @@ defines module bad.overriding.classmethods6
         -> arg0 as T
         <- rtn as Boolean?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: true
 
     //Again used with the following dynamic classes.
@@ -63,7 +63,7 @@ defines module bad.overriding.classmethods6
         -> arg0 as T
         <- rtn as Boolean: arg0?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: true
 
     //Check a normal class with a trait, but fail to initialise the return.

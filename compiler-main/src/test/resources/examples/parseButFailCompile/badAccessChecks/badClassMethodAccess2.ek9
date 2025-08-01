@@ -37,7 +37,7 @@ defines module bad.classmethod.access2
         -> arg0 as String
         <- rtn <- 0
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn <- true
 
     Class2 extends Base

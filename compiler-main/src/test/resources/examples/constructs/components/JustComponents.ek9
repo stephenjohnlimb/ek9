@@ -41,7 +41,7 @@ defines module com.customer.just.employees2
         this.state :=? state
         this.zipcode :=? zipcode
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: street? and city? and state? and zipcode?
 
       operator $ as pure
@@ -59,7 +59,7 @@ defines module com.customer.just.employees2
         -> hours as Integer
         <- activity as String?
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: true
 
     PayrollCalculator
@@ -71,8 +71,8 @@ defines module com.customer.just.employees2
       calculatePayroll() as pure
         <- amount as Money?
       
-      operator ? as pure
-        <- rtn as Boolean?
+      override operator ? as pure
+        <- rtn as Boolean: Boolean()
         
     RoleDB
       findRole() as pure
@@ -173,30 +173,35 @@ defines module com.customer.just.employees2
       override performDuties()
         -> hours as Integer
         <- activity as String: "screams and yells for " + $hours + " hours."
+      default operator ?
 
     SecretaryRole with trait of Role
       default SecretaryRole() as pure
       override performDuties()
         -> hours as Integer
         <- activity as String: "does paperwork for " + $hours + " hours."
+      default operator ?
 
     SalesRole with trait of Role
       default SalesRole() as pure
       override performDuties()
         -> hours as Integer
         <- activity as String: "expends " + $hours + " hours on the phone."
+      default operator ?
 
     FactoryRole with trait of Role
       default FactoryRole() as pure
       override performDuties()
         -> hours as Integer
         <- activity as String: "manufactures gadgets for " + $hours + " hours."
+      default operator ?
 
     GeneralRole with trait of Role
       default GeneralRole() as pure
       override performDuties()
         -> hours as Integer
         <- activity as String: "general activities for " + $hours + " hours."
+      default operator ?
 
     Person
       name <- Name()
@@ -215,7 +220,7 @@ defines module com.customer.just.employees2
       address() as pure
         <- rtn as Address: address
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: name? and address?
 
       operator $ as pure
@@ -239,7 +244,7 @@ defines module com.customer.just.employees2
       person() as pure
         <- rtn as Person: person
 
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean: id? and person?
         
       operator $ as pure
@@ -298,6 +303,7 @@ defines module com.customer.just.employees2
       override findRole() as pure
         -> roleName as RoleName
         <- rtn as Role: roles contains roleName <- roles.get(roleName) else GeneralRole()
+      default operator ?
 
     InMemoryAddressDB with trait of AddressDB
       employeeAddresses as Dict of (EmployeeId, Address): {
@@ -317,7 +323,8 @@ defines module com.customer.just.employees2
           employeeId as EmployeeId
           address as Address
         employeeAddresses += DictEntry(employeeId, address)
-    
+      default operator ?
+
     InMemoryPayrollPolicyDB with trait of PayrollPolicyDB
       employeePayrollPolicies as Dict of (EmployeeId, PayrollPolicy): {
         EmployeeId(1): SalaryPolicy(3000#USD),
@@ -336,6 +343,7 @@ defines module com.customer.just.employees2
           employeeId as EmployeeId
           payrollPolicy as PayrollPolicy
         employeePayrollPolicies += DictEntry(employeeId, payrollPolicy)
+      default operator ?
 
     DummySuper as open
       default DummySuper()
@@ -344,6 +352,8 @@ defines module com.customer.just.employees2
         ->
           arg0 as String
         assert arg0?
+
+      default operator ?
 
     InMemoryEmployeeDB extends DummySuper with trait of EmployeeDB, RoleDB by roleDB, AddressDB by addressDB, PayrollPolicyDB by payrollPolicyDB
       roleDB as RoleDB?
@@ -419,7 +429,9 @@ defines module com.customer.just.employees2
       private addEmployment()
         -> employment as Employment
         employedStaff += DictEntry(employment.employee().id(), employment)
-          
+
+      default operator ?
+
     ProductivitySystem with trait of StringOutput by output
       output as StringOutput?
 
@@ -443,6 +455,8 @@ defines module com.customer.just.employees2
           println("")
         println("")
 
+      default operator ?
+
     PayrollSystem with trait of StringOutput by output
       output as StringOutput?
 
@@ -464,6 +478,7 @@ defines module com.customer.just.employees2
               println("- Sent to:")
               println($employment.employeeAddress())
           println("")
+      default operator ?
 
   defines component
 

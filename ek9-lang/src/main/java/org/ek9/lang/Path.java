@@ -240,7 +240,7 @@ public class Path extends BuiltinType {
 
   @Override
   @Ek9Operator("""
-      operator ? as pure
+      override operator ? as pure
         <- rtn as Boolean?""")
   public Boolean _isSet() {
     return Boolean._of(this.isSet);
