@@ -82,7 +82,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
     var aGenericType = creationAbstractGenericType();
     Assertions.assertTrue(aGenericType.isMarkedAbstract());
     Assertions.assertEquals(1, aGenericType.getSymbolsForThisScope().size());
-    var theMethod = (MethodSymbol) aGenericType.getSymbolsForThisScope().get(0);
+    var theMethod = (MethodSymbol) aGenericType.getSymbolsForThisScope().getFirst();
     assertTrue(theMethod.isMarkedAbstract());
 
     //Now let's use an integer to parameterize this abstract generic class, to give use something that is
@@ -97,7 +97,8 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
 
     //Now lets get the method - even though it was abstract - it should now be of T -> Integer and still be abstract.
     assertEquals(1, mutatedParameterizedGenericTypeWithInteger.getSymbolsForThisScope().size());
-    var parameterisedMethod = (MethodSymbol) mutatedParameterizedGenericTypeWithInteger.getSymbolsForThisScope().get(0);
+    var parameterisedMethod =
+        (MethodSymbol) mutatedParameterizedGenericTypeWithInteger.getSymbolsForThisScope().getFirst();
     assertTrue(parameterisedMethod.isMarkedAbstract());
 
     assertTrue(parameterisedMethod.getType().isPresent());
@@ -376,7 +377,7 @@ class GenericParameterizationTest extends AbstractSymbolTestBase {
   }
 
   private PossibleGenericSymbol creationAbstractGenericType() {
-    var aGenericType = new PossibleGenericSymbol("GType", symbolTable);
+    var aGenericType = new AggregateSymbol("GType", symbolTable);
     var t = aggregateManipulator.createGenericT("AbsG1", aGenericType.getFullyQualifiedName(), symbolTable);
 
     aGenericType.setModuleScope(symbolTable);

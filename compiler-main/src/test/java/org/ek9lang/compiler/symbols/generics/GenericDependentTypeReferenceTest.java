@@ -244,7 +244,7 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
    */
   private void addYetAnotherMethod(PossibleGenericSymbol yetAnotherGenericOfXandY) {
     var yetAnotherMethod = new MethodSymbol("yetAnotherMethod", yetAnotherGenericOfXandY);
-    yetAnotherMethod.setType(ek9Void);
+    addSyntheticVoidReturnToMethod(yetAnotherMethod);
     yetAnotherGenericOfXandY.define(yetAnotherMethod);
   }
 
@@ -287,6 +287,12 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     someGenericOfKandV.define(someMethod);
   }
 
+  private void addSyntheticVoidReturnToMethod(final MethodSymbol methodSymbol) {
+    //Now to correctly create this we must add a synthetic return variable, because thats what the compiler does
+    final var simulatedVoidRtn = new VariableSymbol("_rtn", symbolTable.resolve(new TypeSymbolSearch("Void")));
+    methodSymbol.setReturningSymbol(simulatedVoidRtn);
+  }
+
   /**
    * Yes more helper functions. this time to create the 'someMethod' with a parameterized someGenericOfKandV.
    */
@@ -299,10 +305,11 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     var arg0Type = typeSubstitution.apply(newType);
 
     var arg0 = new VariableSymbol("arg0", arg0Type);
-    var someMethod = new MethodSymbol("someMethod", anotherGenericRandS);
-    someMethod.define(arg0);
-    someMethod.setType(symbolTable.resolve(new TypeSymbolSearch("Void")));
-    anotherGenericRandS.define(someMethod);
+    var method = new MethodSymbol("someMethod", anotherGenericRandS);
+    method.define(arg0);
+    addSyntheticVoidReturnToMethod(method);
+
+    anotherGenericRandS.define(method);
   }
 
   private void addAnotherMethod(final PossibleGenericSymbol someGenericOfKandV,
@@ -314,10 +321,10 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     var arg0Type = typeSubstitution.apply(newType);
 
     var arg0 = new VariableSymbol("arg0", arg0Type);
-    var someMethod = new MethodSymbol("anotherMethod", anotherGenericRandS);
-    someMethod.define(arg0);
-    someMethod.setType(symbolTable.resolve(new TypeSymbolSearch("Void")));
-    anotherGenericRandS.define(someMethod);
+    var method = new MethodSymbol("anotherMethod", anotherGenericRandS);
+    method.define(arg0);
+    addSyntheticVoidReturnToMethod(method);
+    anotherGenericRandS.define(method);
   }
 
   private void addConcreteMethod(final PossibleGenericSymbol someGenericOfKandV,
@@ -328,10 +335,10 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     var arg0Type = typeSubstitution.apply(newType);
 
     var arg0 = new VariableSymbol("arg0", arg0Type);
-    var someMethod = new MethodSymbol("concreteMethod", anotherGenericRandS);
-    someMethod.define(arg0);
-    someMethod.setType(symbolTable.resolve(new TypeSymbolSearch("Void")));
-    anotherGenericRandS.define(someMethod);
+    var method = new MethodSymbol("concreteMethod", anotherGenericRandS);
+    method.define(arg0);
+    addSyntheticVoidReturnToMethod(method);
+    anotherGenericRandS.define(method);
   }
 
   /**

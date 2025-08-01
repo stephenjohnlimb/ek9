@@ -45,7 +45,11 @@ import org.ek9lang.core.CompilerException;
  */
 public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
 
-  private final ParameterizedSymbolCreator creator = new ParameterizedSymbolCreator(new InternalNameFor());
+  private final ParameterizedSymbolCreator creator
+      = new ParameterizedSymbolCreator(new InternalNameFor());
+
+  private final ValidPossibleGenericSymbolOrException validPossibleGenericSymbolOrError
+      = new ValidPossibleGenericSymbolOrException();
 
   /**
    * Deals with the conceptual mappings.
@@ -75,19 +79,12 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
   @Override
   public PossibleGenericSymbol apply(final PossibleGenericSymbol parameterisedSymbol) {
 
-    //mainly just preconditions
-    AssertValue.checkNotNull("parameterisedSymbol cannot be null", parameterisedSymbol);
-    AssertValue.checkFalse("parameterisedSymbol does not have any type arguments",
-        parameterisedSymbol.getTypeParameterOrArguments().isEmpty());
+    validPossibleGenericSymbolOrError.accept(parameterisedSymbol);
 
     final var theGenericType = parameterisedSymbol.getGenericType();
 
-    AssertValue.checkTrue("parameterisedSymbol does not have a generic type",
-        theGenericType.isPresent());
-    AssertValue.checkFalse("theGenericType withing the parameterisedSymbol does not have any type arguments",
-        theGenericType.get().getTypeParameterOrArguments().isEmpty());
-
     //OK now on to the processing.
+    AssertValue.checkTrue("Generic Type for Parameterization must be present", theGenericType.isPresent());
     return doApply(parameterisedSymbol, theGenericType.get());
   }
 
@@ -121,7 +118,8 @@ public class TypeSubstitution implements UnaryOperator<PossibleGenericSymbol> {
 
     final var alreadySubstituted = "TRUE".equals(rtnType.getSquirrelledData(SUBSTITUTED));
 
-    //Now mark it early as substituted - because this is recursive and will come back into this function!
+    //Now mark it early as substituted - because this is indirectly recursive and will come back into this function!
+    //This recursion is not immediately obvious. But there is a flow, that looks for types that need to be created.
     if (!alreadySubstituted) {
       rtnType.putSquirrelledData(SUBSTITUTED, "TRUE");
     }

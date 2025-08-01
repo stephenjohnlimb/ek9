@@ -26,7 +26,7 @@ import org.ek9lang.core.CompilerException;
  * but 'just in time'.
  * </p>
  * <p>
- * Due to the ways tha antlr employs listeners, breaking up the processing of listener events in to
+ * Due to the ways that antlr employs listeners, breaking up the processing of listener events in to
  * separate listeners in a type hierarchy seems to make most sense.
  * But the bulk of any real actual processing is pulled out to separate functions and classes.
  * So that these large and quite complex 'flows' can just focus on the event cycles and manage the scope stacks.
