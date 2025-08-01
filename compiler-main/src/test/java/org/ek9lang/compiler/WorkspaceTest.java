@@ -17,34 +17,6 @@ final class WorkspaceTest {
   }
 
   @Test
-  void testWorkspaceParseSourceFile() {
-    var workspace = new Workspace();
-
-    //Go through path to increase testing.
-    URL helloWorld = WorkspaceTest.class.getResource("/examples/basics/HelloWorld.ek9");
-    assertNotNull(helloWorld);
-    Path path = Path.of(helloWorld.getPath());
-    var errorListener = workspace.reParseSource(path).getErrorListener();
-    assertNotNull(errorListener);
-    assertTrue(errorListener.isErrorFree());
-
-    assertTrue(workspace.isSourcePresent(helloWorld.getPath()));
-  }
-
-  @Test
-  void testWorkspaceAddSourceAndParse() {
-    var workspace = new Workspace();
-
-    URL helloWorld = WorkspaceTest.class.getResource("/examples/basics/HelloWorld.ek9");
-    assertNotNull(helloWorld);
-    workspace.addSource(new CompilableSource(helloWorld.getPath()));
-    assertTrue(workspace.isSourcePresent(helloWorld.getPath()));
-    var errorListener = workspace.reParseSource(helloWorld.getPath()).getErrorListener();
-    assertNotNull(errorListener);
-    assertTrue(errorListener.isErrorFree());
-  }
-
-  @Test
   void testCheckingSources() {
     var workspace = new Workspace();
     assertTrue(workspace.getSources().isEmpty());

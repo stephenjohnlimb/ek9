@@ -40,9 +40,10 @@ final class IfStatementOrError extends TypedSymbolAccess implements Consumer<EK9
 
   private boolean isGuardExpressionPresent(final EK9Parser.IfStatementContext ctx) {
 
-    return ctx.ifControlBlock().get(0).preFlowAndControl() != null
-        && ctx.ifControlBlock().get(0).preFlowAndControl().preFlowStatement() != null
-        && ctx.ifControlBlock().get(0).preFlowAndControl().preFlowStatement().guardExpression() != null;
+    final var first = ctx.ifControlBlock().getFirst();
+    return first.preFlowAndControl() != null
+        && first.preFlowAndControl().preFlowStatement() != null
+        && first.preFlowAndControl().preFlowStatement().guardExpression() != null;
 
   }
 
@@ -60,7 +61,7 @@ final class IfStatementOrError extends TypedSymbolAccess implements Consumer<EK9
                                           final EK9Parser.IfStatementContext ctx) {
 
     final var variable = symbolsAndScopes.getRecordedSymbol(
-        ctx.ifControlBlock().get(0).preFlowAndControl().preFlowStatement().guardExpression().identifier());
+        ctx.ifControlBlock().getFirst().preFlowAndControl().preFlowStatement().guardExpression().identifier());
     final var scope = symbolsAndScopes.getRecordedScope(ctx);
     final var initialised = analyzer.doesSymbolMeetAcceptableCriteria(variable, scope);
 

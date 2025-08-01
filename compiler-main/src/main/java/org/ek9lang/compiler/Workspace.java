@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.core.Logger;
 
 /**
  * Designed to represent one or more source files that are part of a workspace.
@@ -31,38 +30,6 @@ public class Workspace {
     this.sourceFileBaseDirectory = sourceFileBaseDirectory;
   }
 
-  /**
-   * ReParses or loads and parses a source file.
-   */
-  public CompilableSource reParseSource(final Path path) {
-
-    return reParseSource(path.toString());
-  }
-
-  /**
-   * Triggers the re-parsing of the source file. Normally after an edit so errors can be checked.
-   */
-  public CompilableSource reParseSource(final String uri) {
-
-    //Consider a queue of requests per uri as in an interactive mode the same file
-    //will be triggered for parsing over and over again. We only need one request to be honoured!
-    Logger.debug("parsing/re-parsing [" + uri + "]");
-
-    final var compilableSource = ensureCompilableSourceAvailable(uri);
-    compilableSource.prepareToParse().parse();
-
-    return compilableSource;
-  }
-
-  public CompilableSource ensureCompilableSourceAvailable(final String uri) {
-
-    if (isSourcePresent(uri)) {
-      return getSource(uri);
-    }
-
-    return addSource(new CompilableSource(uri));
-  }
-
   public void addSource(final File file) {
 
     addSource(file.toPath());
@@ -81,13 +48,12 @@ public class Workspace {
 
   }
 
-  public CompilableSource addSource(final CompilableSource source) {
+  public void addSource(final CompilableSource source) {
 
-    if (!sources.containsKey(source.getFileName())) {
+    if (!isSourcePresent(source.getFileName())) {
       sources.put(source.getFileName(), source);
     }
 
-    return source;
   }
 
   public boolean isSourcePresent(final String fileName) {

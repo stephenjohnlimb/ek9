@@ -6,7 +6,7 @@ import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
- * Designed to be used in phase3 only on or after - FULL_RESOLUTION.
+ * Designed to be used in phase3 or after - FULL_RESOLUTION.
  * Because at this stage whenever a symbol is accessed via 'getRecordedSymbol'
  * in @link org.ek9lang.compiler.common.SymbolsAndScopes' it must be typed
  * or an error issued. Clearly the symbol could still be null at this stage (if there were

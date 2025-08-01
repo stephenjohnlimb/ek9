@@ -1,7 +1,7 @@
 /**
  * <b>I - PRE Intermediate Representation</b> generation checks.
  * <p>
- * At this point, before the compiler builds the intermediate representation it complete some more basic checks.
+ * At this point, before the compiler builds the intermediate representation it completes some more checks.
  * </p>
  * <p>
  * {@link org.ek9lang.compiler.phase5.PreIntermediateRepresentationChecks} is the main entry point for this phase.
@@ -16,7 +16,7 @@
  * There is a 'complexity' calculator built into this phase, it is quite tolerant of high complexity. It does
  * emit compiler errors if a single method/function has complexity at level 50 or higher or if an aggregate has a
  * total complexity of 500 or higher. The rules for calculating complexity are based on a modified McCabe region
- * algorithm. It is quite simple in it's approach, as code elements are encountered a level of complexity is
+ * algorithm. It is quite simple in its approach, as code elements are encountered a level of complexity is
  * incremented.
  * </p>
  * <p>
@@ -28,7 +28,7 @@
  * </pre>
  * <p>
  * In such cases the EK9 compiler will mandate that the EK9 developer create all necessary coded constructors,
- * it will <b>not</b> mandate that that 'prop1' is then initialised - it will leave that to the Ek9 developer to
+ * it will <b>not</b> mandate that 'prop1' is then initialised - it will leave that to the Ek9 developer to
  * 'take the risk' and understand what may or may not go wrong in their code.
  * </p>
  * <p>

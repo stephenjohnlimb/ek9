@@ -6,12 +6,14 @@ import org.ek9lang.compiler.common.ScopeStackConsistencyListener;
 
 /**
  * Designed to do additional logic checks once everything has been resolved.
+ * One of the main things it does it check that variables are 'typed', but this extends to expressions as well.
  * Initially focused on ensuring that uninitialised variables are initialised before being used.
  * But may extend to other forms of checks. For example booleans set to literals and never altered and used in an 'if'.
  * This is designed to try and catch as much as possible before creating an Intermediate Representation and doing
  * further checks.
  */
 final class PreIRListener extends ScopeStackConsistencyListener {
+
   private final ComplexityCounter complexityCounter = new ComplexityCounter();
   private final FormOfComparator formOfComparator = new FormOfComparator();
   private final VariableOnlyOrError variableOnlyOrError;
@@ -31,16 +33,13 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   private final DynamicFunctionOrError dynamicFunctionOrError;
   private final AcceptableArgumentComplexityOrError acceptableArgumentComplexityOrError;
   private final IdentifierAsPropertyOrError processIdentifierAsProperty;
-
   private final AcceptableConstructComplexityOrError acceptableConstructComplexityOrError;
-
   private final SuitablePropertyInitialisationOrError suitablePropertyInitialisationOrError;
-
   private final ObjectAccessExpressionValidOrError objectAccessExpressionValidOrError;
   private final IfBlockSafeGenericAccessMarker ifBlockSafeGenericAccessMarker;
   private final TernaryBlockSafeGenericAccessMarker ternaryBlockSafeGenericAccessMarker;
-
   private final WhileLoopSafeGenericAccessMarker whileLoopSafeGenericAccessMarker;
+  private final SymbolHasTypeOrError symbolHasTypeOrError;
 
   PreIRListener(final ParsedModule parsedModule) {
 
@@ -93,10 +92,14 @@ final class PreIRListener extends ScopeStackConsistencyListener {
         new TernaryBlockSafeGenericAccessMarker(symbolsAndScopes, errorListener);
     this.whileLoopSafeGenericAccessMarker =
         new WhileLoopSafeGenericAccessMarker(symbolsAndScopes, errorListener);
+    this.symbolHasTypeOrError =
+        new SymbolHasTypeOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
   public void enterServiceDeclaration(final EK9Parser.ServiceDeclarationContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
 
     //Services are complex by nature.
     complexityCounter.push(2);
@@ -113,6 +116,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterRecordDeclaration(final EK9Parser.RecordDeclarationContext ctx) {
 
+    symbolHasTypeOrError.accept(ctx);
+
     complexityCounter.push(1);
     super.enterRecordDeclaration(ctx);
   }
@@ -126,6 +131,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
   @Override
   public void enterTraitDeclaration(final EK9Parser.TraitDeclarationContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
 
     complexityCounter.push(1);
     super.enterTraitDeclaration(ctx);
@@ -141,6 +148,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
 
+    symbolHasTypeOrError.accept(ctx);
+
     complexityCounter.push(1);
     super.enterClassDeclaration(ctx);
   }
@@ -154,6 +163,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
   @Override
   public void enterComponentDeclaration(final EK9Parser.ComponentDeclarationContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
 
     //Components are also complex by nature with all the injection parts.
     complexityCounter.push(2);
@@ -170,6 +181,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterApplicationDeclaration(final EK9Parser.ApplicationDeclarationContext ctx) {
 
+    symbolHasTypeOrError.accept(ctx);
+
     //Applications are also quite complex in their nature - working with Components.
     complexityCounter.push(2);
     super.enterApplicationDeclaration(ctx);
@@ -184,6 +197,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
   @Override
   public void enterDynamicClassDeclaration(final EK9Parser.DynamicClassDeclarationContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
 
     //These are also complex, because they inline a class definition.
     complexityCounter.push(2);
@@ -200,6 +215,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
 
+    symbolHasTypeOrError.accept(ctx);
+
     complexityCounter.push(1);
     super.enterFunctionDeclaration(ctx);
   }
@@ -213,6 +230,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
   @Override
   public void enterMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
 
     complexityCounter.push(1);
     super.enterMethodDeclaration(ctx);
@@ -228,6 +247,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
 
+    symbolHasTypeOrError.accept(ctx);
+
     complexityCounter.push(1);
     super.enterOperatorDeclaration(ctx);
   }
@@ -241,6 +262,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
   @Override
   public void enterServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
 
     complexityCounter.push(1);
     super.enterServiceOperationDeclaration(ctx);
@@ -263,6 +286,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterDynamicFunctionDeclaration(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
 
+    symbolHasTypeOrError.accept(ctx);
+
     //Quite complex to understand.
     complexityCounter.push(2);
     processDynamicFunctionDeclarationEntry.accept(ctx);
@@ -277,9 +302,50 @@ final class PreIRListener extends ScopeStackConsistencyListener {
     super.exitDynamicFunctionDeclaration(ctx);
   }
 
+  @Override
+  public void enterTextDeclaration(final EK9Parser.TextDeclarationContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterTextDeclaration(ctx);
+  }
+
+  @Override
+  public void enterTextBodyDeclaration(final EK9Parser.TextBodyDeclarationContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterTextBodyDeclaration(ctx);
+  }
+
+  @Override
+  public void enterTypeDeclaration(final EK9Parser.TypeDeclarationContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterTypeDeclaration(ctx);
+  }
+
+  @Override
+  public void enterParameterisedType(final EK9Parser.ParameterisedTypeContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterParameterisedType(ctx);
+  }
+
+  @Override
+  public void enterTraitReference(final EK9Parser.TraitReferenceContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterTraitReference(ctx);
+  }
 
   @Override
   public void enterVariableOnlyDeclaration(final EK9Parser.VariableOnlyDeclarationContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
 
     if (ctx.QUESTION() != null) {
       //So declaring a variable that is unset, while it may be necessary adds to complexity and
@@ -293,9 +359,52 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   }
 
   @Override
+  public void enterVariableDeclaration(final EK9Parser.VariableDeclarationContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterVariableDeclaration(ctx);
+  }
+
+  @Override
+  public void enterTypeDef(final EK9Parser.TypeDefContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterTypeDef(ctx);
+  }
+
+  @Override
+  public void enterObjectAccessStart(final EK9Parser.ObjectAccessStartContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterObjectAccessStart(ctx);
+  }
+
+  @Override
   public void enterObjectAccessExpression(EK9Parser.ObjectAccessExpressionContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
     objectAccessExpressionValidOrError.accept(ctx);
+
     super.enterObjectAccessExpression(ctx);
+  }
+
+  @Override
+  public void enterObjectAccess(final EK9Parser.ObjectAccessContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterObjectAccess(ctx);
+  }
+
+  @Override
+  public void enterObjectAccessType(final EK9Parser.ObjectAccessTypeContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterObjectAccessType(ctx);
   }
 
   @Override
@@ -315,14 +424,52 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterGuardExpression(final EK9Parser.GuardExpressionContext ctx) {
 
+    symbolHasTypeOrError.accept(ctx);
+
     complexityCounter.incrementComplexity();
     processGuardExpression.accept(ctx);
 
     super.enterGuardExpression(ctx);
   }
 
+
+
+  @Override
+  public void enterForStatementExpression(final EK9Parser.ForStatementExpressionContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterForStatementExpression(ctx);
+  }
+
+  @Override
+  public void enterAssignmentExpression(final EK9Parser.AssignmentExpressionContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterAssignmentExpression(ctx);
+  }
+
+  @Override
+  public void enterCall(final EK9Parser.CallContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterCall(ctx);
+  }
+
+  @Override
+  public void enterOperationCall(final EK9Parser.OperationCallContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterOperationCall(ctx);
+  }
+
   @Override
   public void enterCaseExpression(final EK9Parser.CaseExpressionContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
 
     complexityCounter.incrementComplexity();
     super.enterCaseExpression(ctx);
@@ -338,6 +485,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
   @Override
   public void enterTryStatementExpression(final EK9Parser.TryStatementExpressionContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
 
     complexityCounter.incrementComplexity();
     super.enterTryStatementExpression(ctx);
@@ -360,6 +509,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterForLoop(final EK9Parser.ForLoopContext ctx) {
 
+    symbolHasTypeOrError.accept(ctx);
+
     complexityCounter.incrementComplexity();
     super.enterForLoop(ctx);
   }
@@ -377,14 +528,34 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   }
 
   @Override
+  public void enterStreamSource(final EK9Parser.StreamSourceContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterStreamSource(ctx);
+  }
+
+  @Override
   public void enterPipelinePart(final EK9Parser.PipelinePartContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
 
     complexityCounter.incrementComplexity();
     super.enterPipelinePart(ctx);
   }
 
   @Override
+  public void enterStreamExpression(final EK9Parser.StreamExpressionContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterStreamExpression(ctx);
+  }
+
+  @Override
   public void enterStreamExpressionTermination(final EK9Parser.StreamExpressionTerminationContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
 
     complexityCounter.incrementComplexity();
     super.enterStreamExpressionTermination(ctx);
@@ -393,17 +564,52 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterStreamCat(final EK9Parser.StreamCatContext ctx) {
 
+    symbolHasTypeOrError.accept(ctx);
     complexityCounter.incrementComplexity();
     super.enterStreamCat(ctx);
   }
 
   @Override
+  public void enterStreamFor(final EK9Parser.StreamForContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterStreamFor(ctx);
+  }
+
+  @Override
   public void enterWhileStatementExpression(final EK9Parser.WhileStatementExpressionContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
 
     complexityCounter.incrementComplexity();
     whileLoopSafeGenericAccessMarker.accept(ctx);
 
     super.enterWhileStatementExpression(ctx);
+  }
+
+  @Override
+  public void enterExpressionParam(final EK9Parser.ExpressionParamContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterExpressionParam(ctx);
+  }
+
+  @Override
+  public void enterPrimaryReference(final EK9Parser.PrimaryReferenceContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterPrimaryReference(ctx);
+  }
+
+  @Override
+  public void enterPrimary(final EK9Parser.PrimaryContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterPrimary(ctx);
   }
 
   @Override
@@ -451,10 +657,20 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void enterExpression(final EK9Parser.ExpressionContext ctx) {
 
+    symbolHasTypeOrError.accept(ctx);
+
     //This means that this is a ternary
     if (ctx.control != null && ctx.ternary != null) {
       ternaryBlockSafeGenericAccessMarker.accept(ctx);
     }
+  }
+
+  @Override
+  public void enterTernaryPart(final EK9Parser.TernaryPartContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterTernaryPart(ctx);
   }
 
   @Override
@@ -464,6 +680,14 @@ final class PreIRListener extends ScopeStackConsistencyListener {
     super.exitIfStatement(ctx);
 
     ifStatementOrError.accept(ctx);
+  }
+
+  @Override
+  public void enterSwitchStatementExpression(final EK9Parser.SwitchStatementExpressionContext ctx) {
+
+    symbolHasTypeOrError.accept(ctx);
+
+    super.enterSwitchStatementExpression(ctx);
   }
 
   @Override
