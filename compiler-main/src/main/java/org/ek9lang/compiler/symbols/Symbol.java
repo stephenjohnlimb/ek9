@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import org.ek9lang.compiler.Module;
 import org.ek9lang.compiler.support.CommonValues;
+import org.ek9lang.compiler.support.SymbolMatcher;
 import org.ek9lang.compiler.support.TypeCoercions;
 import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
@@ -375,19 +376,19 @@ public class Symbol implements ISymbol {
   @Override
   public boolean isAssignableTo(final ISymbol s) {
 
-    return getAssignableCostTo(s) >= 0.0;
+    return getAssignableCostTo(s) >= SymbolMatcher.ZERO_COST;
   }
 
   @Override
   public boolean isAssignableTo(final Optional<ISymbol> s) {
 
-    return getAssignableCostTo(s) >= 0.0;
+    return getAssignableCostTo(s) >= SymbolMatcher.ZERO_COST;
   }
 
   @Override
   public double getAssignableCostTo(final Optional<ISymbol> s) {
 
-    return s.map(this::getAssignableCostTo).orElse(NOT_ASSIGNABLE);
+    return s.map(this::getAssignableCostTo).orElse(SymbolMatcher.INVALID_COST);
   }
 
   @Override
@@ -396,8 +397,8 @@ public class Symbol implements ISymbol {
     final var canAssign = getUnCoercedAssignableCostTo(s);
 
     //Well if not the same symbol can we coerce/promote?
-    if (canAssign < 0.0 && TypeCoercions.get().isCoercible(this, s)) {
-      return 0.5;
+    if (canAssign < SymbolMatcher.ZERO_COST && TypeCoercions.isCoercible(this, s)) {
+      return SymbolMatcher.COERCION_COST;
     }
 
     return canAssign;
@@ -408,7 +409,7 @@ public class Symbol implements ISymbol {
 
     //Check if any need to promote might be same type
     if (!isExactSameType(s)) {
-      return TypeCoercions.get().isCoercible(this, s);
+      return TypeCoercions.isCoercible(this, s);
     }
 
     return false;
@@ -419,10 +420,10 @@ public class Symbol implements ISymbol {
 
     AssertValue.checkNotNull("Symbol cannot be null", s);
     if (isExactSameType(s)) {
-      return 0.0;
+      return SymbolMatcher.ZERO_COST;
     }
 
-    return NOT_ASSIGNABLE;
+    return SymbolMatcher.INVALID_COST;
   }
 
   public SymbolCategory getCategory() {

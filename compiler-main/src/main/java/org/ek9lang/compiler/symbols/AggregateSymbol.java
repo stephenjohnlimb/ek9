@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.search.SymbolSearch;
+import org.ek9lang.compiler.support.SymbolMatcher;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -410,15 +411,15 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   private double checkParameterisedTypesAssignable(final List<ISymbol> listA, final List<ISymbol> listB) {
 
     if (listA.size() != listB.size()) {
-      return -1.0;
+      return SymbolMatcher.INVALID_COST;
     }
 
-    double totalCost = 0.0;
+    double totalCost = SymbolMatcher.ZERO_COST;
     for (int i = 0; i < listA.size(); i++) {
       final var cost = listA.get(i).getAssignableCostTo(listB.get(i));
 
       //If cost less than zero - then it is not assignable.
-      if (cost < 0.0) {
+      if (cost < SymbolMatcher.ZERO_COST) {
         return cost;
       }
 
@@ -434,24 +435,24 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
 
     double totalCost = super.getUnCoercedAssignableCostTo(s);
 
-    if (getSuperAggregate().isPresent() && totalCost < 0.0) {
+    if (getSuperAggregate().isPresent() && totalCost < SymbolMatcher.ZERO_COST) {
       //now we can check superclass matches. but add some cost because this did not match
       final var theSuperAggregate = getSuperAggregate().get();
       double cost = theSuperAggregate.getUnCoercedAssignableCostTo(s);
-      if (cost < 0.0) {
+      if (cost < SymbolMatcher.ZERO_COST) {
         return cost;
       }
 
       //We push the cost of being able to assign to Any down.
       if (theSuperAggregate.getFullyQualifiedName().equals("org.ek9.lang::Any")) {
-        return 20.0;
+        return SymbolMatcher.HIGH_COST;
       }
       //If we can assign via its super, then we're done.
-      totalCost = 0.05 + cost;
+      totalCost = SymbolMatcher.SUPER_COST + cost;
       return totalCost;
     }
 
-    if (totalCost >= 0.0 && s instanceof AggregateSymbol toCheck) {
+    if (totalCost >= SymbolMatcher.ZERO_COST && s instanceof AggregateSymbol toCheck) {
       final var parameterisedCost =
           checkParameterisedTypesAssignable(getTypeParameterOrArguments(), toCheck.getTypeParameterOrArguments());
       totalCost += parameterisedCost;

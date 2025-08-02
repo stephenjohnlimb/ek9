@@ -20,6 +20,10 @@ public class SymbolMatcher implements Serializable {
 
   //Models the cost of the match
   public static final double ZERO_COST = 0.0;
+  public static final double SUPER_COST = 0.05;
+  public static final double TRAIT_COST = 0.10;
+  public static final double COERCION_COST = 0.5;
+  public static final double HIGH_COST = 20.0;
   public static final double INVALID_COST = -1.0;
 
   //Models the percentage match, the nearer 100.0 the match is the better

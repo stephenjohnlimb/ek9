@@ -14,18 +14,16 @@ import org.ek9lang.core.AssertValue;
  * An Integer could not also have a promotion to String or something else as well.
  */
 public class TypeCoercions {
-  private static final TypeCoercions instance = new TypeCoercions();
 
-  public static TypeCoercions get() {
-
-    return instance;
+  private TypeCoercions() {
+    //Just to stop instantiation.
   }
 
   /**
    * Can the 'from' token type be coerced to the 'to' type.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public boolean isCoercible(final Optional<ISymbol> from, final Optional<ISymbol> to) {
+  public static boolean isCoercible(final Optional<ISymbol> from, final Optional<ISymbol> to) {
     AssertValue.checkNotNull("Coercion from cannot be null", from);
     AssertValue.checkNotNull("Coercion to cannot be null", to);
 
@@ -39,7 +37,7 @@ public class TypeCoercions {
   /**
    * Can the 'from' token type be coerced to the 'to' type.
    */
-  public boolean isCoercible(final ISymbol from, final ISymbol to) {
+  public static boolean isCoercible(final ISymbol from, final ISymbol to) {
 
     AssertValue.checkNotNull("Coercion from cannot be null", from);
     AssertValue.checkNotNull("Coercion to cannot be null", to);
@@ -58,7 +56,7 @@ public class TypeCoercions {
           .flatMap(ISymbol::getType)
           .map(type -> type.getUnCoercedAssignableCostTo(to))
           .stream()
-          .anyMatch(cost -> cost >= 0.0f);
+          .anyMatch(cost -> cost >= SymbolMatcher.ZERO_COST);
     }
 
     return false;

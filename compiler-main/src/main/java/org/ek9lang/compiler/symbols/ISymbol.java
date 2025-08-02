@@ -11,8 +11,6 @@ import org.ek9lang.compiler.tokenizer.IToken;
  */
 public interface ISymbol extends ISymbolNature, ITokenReference, Serializable {
 
-  double NOT_ASSIGNABLE = -1000000.0;
-
   //Used for declarations of variables/params where they can be null.
   boolean isNullAllowed();
 

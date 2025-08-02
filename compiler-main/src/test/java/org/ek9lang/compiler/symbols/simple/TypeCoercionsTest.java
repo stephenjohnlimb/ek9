@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
+import org.ek9lang.compiler.support.SymbolMatcher;
 import org.ek9lang.compiler.support.TypeCoercions;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
@@ -28,13 +29,13 @@ final class TypeCoercionsTest {
     ISymbol typeA = new AggregateSymbol("TypeA", symbolTable);
     ISymbol typeB = new AggregateSymbol("TypeB", symbolTable);
 
-    Assertions.assertFalse(TypeCoercions.get().isCoercible(Optional.of(typeA), Optional.of(typeB)));
-    assertFalse(TypeCoercions.get().isCoercible(Optional.of(typeA), Optional.empty()));
+    Assertions.assertFalse(TypeCoercions.isCoercible(Optional.of(typeA), Optional.of(typeB)));
+    assertFalse(TypeCoercions.isCoercible(Optional.of(typeA), Optional.empty()));
 
-    assertFalse(TypeCoercions.get().isCoercible(typeB, typeA));
+    assertFalse(TypeCoercions.isCoercible(typeB, typeA));
 
-    assertTrue(typeA.getAssignableCostTo(typeB) < -1000.0);
-    assertTrue(typeB.getAssignableCostTo(typeA) < -1000.0);
+    assertTrue(typeA.getAssignableCostTo(typeB) < 0.0);
+    assertTrue(typeB.getAssignableCostTo(typeA) < 0.0);
   }
 
   @Test
@@ -43,7 +44,7 @@ final class TypeCoercionsTest {
     //two unrelated types
     ISymbol typeA = new AggregateSymbol("TypeA", symbolTable);
     ISymbol typeB = new FunctionSymbol("Func1", symbolTable);
-    assertFalse(TypeCoercions.get().isCoercible(typeB, typeA));
+    assertFalse(TypeCoercions.isCoercible(typeB, typeA));
   }
 
   @Test
@@ -60,11 +61,11 @@ final class TypeCoercionsTest {
     typeA.define(promotion);
 
     //OK now check it can be coerced
-    assertTrue(TypeCoercions.get().isCoercible(typeA, typeB));
-    assertTrue(typeA.getAssignableCostTo(typeB) > ISymbol.NOT_ASSIGNABLE);
+    assertTrue(TypeCoercions.isCoercible(typeA, typeB));
+    assertTrue(typeA.getAssignableCostTo(typeB) > SymbolMatcher.INVALID_COST);
 
     //But only one way
-    assertFalse(TypeCoercions.get().isCoercible(typeB, typeA));
-    assertTrue(typeB.getAssignableCostTo(typeA) < -1000.0);
+    assertFalse(TypeCoercions.isCoercible(typeB, typeA));
+    assertTrue(typeB.getAssignableCostTo(typeA) < 0.0);
   }
 }

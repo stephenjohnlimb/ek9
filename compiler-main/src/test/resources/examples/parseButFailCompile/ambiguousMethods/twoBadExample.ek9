@@ -1,23 +1,85 @@
 #!ek9
 <?-
-  This example shows that a class with multiple traits can have methods that match
-  that are the same weight and are therefore ambiguous and neither the developer nor the
-  compiler can reasonably determine when methods should be called.
+  This example shows that a class with multiple overloaded methods in combination
+  with a type hierarchy can result in method resolution ambiguity.
 -?>
 defines module ambiguous.methods.two
 
   defines class
-    C1
+
+    C1 as open
       default C1 as pure
 
       override operator ? as pure
         <- rtn <- true
 
-  defines trait
-    T1
-      methodA()
-        -> c1 as C1
-        assert c1?
+    C2 extends C1 as open
+      default C2 as pure
 
+      override operator ? as pure
+        <- rtn <- true
+
+    C3 extends C2
+      default C3 as pure
+
+      override operator ? as pure
+        <- rtn <- true
+
+  defines class
+    CheckClass
+
+      //First methodA
+      methodA()
+        ->
+          arg0 as C1
+          arg1 as C2
+        assert arg0? and arg1?
+
+      //Second methodA
+      methodA()
+        ->
+          arg0 as C2
+          arg1 as C1
+        assert arg0? and arg1?
+
+  defines program
+
+    TestProgram1()
+
+      //The test variables for use with methodA.
+      c1 <- C1()
+      c2 <- C2()
+      c3 <- C3()
+
+      //Now the tests.
+      checkClass <- CheckClass()
+      checkClass.methodA(c1, c2)
+      checkClass.methodA(c2, c1)
+      checkClass.methodA(c1, c3)
+
+      //Now due to the multiple methods and the type hierarchy this below is deemed ambiguous.
+      //It looks like it should be Ok - but see below for rationale.
+      @Error: FULL_RESOLUTION: METHOD_AMBIGUOUS
+      checkClass.methodA(c2, c3)
+
+      <!-
+        The Matching tried by the compiler would be:
+        c2 -> c1, c3 -> c2 := First Method A (cost: 0.05 + 0.05)
+        c2, c3 -> c2 -> c1 := Second Method A (cost: 0.05 + 0.05)
+        So the costs are the same; you can imagine with several parameters and various class/trait hierarchies
+        the combination of using supers/traits (and their supers), plus #^ (promotions) are many!
+      -!>
+
+      //So how to resolve, as follows (if you cannot/don't want to alter the methods).
+
+      //If you wanted to match the first methodA, then just pass in a 'C1' variable - as below.
+      forFirst as C1 := c2
+      checkClass.methodA(forFirst, c3)
+
+      //Same approach to match the second methodA on the second parameter (if required).
+      forSecond as C1 := c3
+      checkClass.methodA(c2, forSecond)
+
+      //While method overloading is very useful and powerful, it can become confusing with promotions and hierarchies.
 
 //EOF

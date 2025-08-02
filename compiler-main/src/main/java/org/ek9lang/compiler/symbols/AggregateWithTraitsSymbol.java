@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.search.SymbolSearch;
+import org.ek9lang.compiler.support.SymbolMatcher;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -148,7 +149,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
 
     //easy if same type and parameterization
     double totalCost = super.getUnCoercedAssignableCostTo(s);
-    if (totalCost >= 0.0) {
+    if (totalCost >= SymbolMatcher.ZERO_COST) {
       return totalCost;
     }
 
@@ -156,11 +157,11 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
     for (IAggregateSymbol trait : traits) {
       totalCost = trait.getUnCoercedAssignableCostTo(s);
       //Add some cost a bit more because it is a trait
-      if (totalCost >= 0.0) {
-        return 0.05 + totalCost;
+      if (totalCost >= SymbolMatcher.ZERO_COST) {
+        return SymbolMatcher.TRAIT_COST + totalCost;
       }
     }
-    return NOT_ASSIGNABLE;
+    return SymbolMatcher.INVALID_COST;
   }
 
   @Override
@@ -168,7 +169,7 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
 
     //easy if same type and parameterization
     double totalCost = super.getAssignableCostTo(s);
-    if (totalCost >= 0.0) {
+    if (totalCost >= SymbolMatcher.ZERO_COST) {
       return totalCost;
     }
 
@@ -176,11 +177,11 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
     for (IAggregateSymbol trait : traits) {
       totalCost = trait.getAssignableCostTo(s);
       //Add some cost a bit more because it is a trait
-      if (totalCost >= 0.0) {
-        return 0.05 + totalCost;
+      if (totalCost >= SymbolMatcher.ZERO_COST) {
+        return SymbolMatcher.TRAIT_COST + totalCost;
       }
     }
-    return NOT_ASSIGNABLE;
+    return SymbolMatcher.INVALID_COST;
   }
 
   @Override

@@ -401,13 +401,13 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
 
     double cost = getCostOfParameterMatches(toMethod.getSymbolsForThisScope(), getSymbolsForThisScope());
 
-    if (cost < 0.0) {
+    if (cost < SymbolMatcher.ZERO_COST) {
       return false;
     }
 
     cost += getSymbolMatcher().getCostOfMatch(this.getType(), toMethod.getType());
 
-    return cost >= 0.0;
+    return cost >= SymbolMatcher.ZERO_COST;
   }
 
   /**
@@ -428,7 +428,7 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
    */
   public boolean isParameterSignatureMatchTo(final List<ISymbol> params) {
 
-    return getCostOfParameterMatches(params, getSymbolsForThisScope()) >= 0.0;
+    return getCostOfParameterMatches(params, getSymbolsForThisScope()) >= SymbolMatcher.ZERO_COST;
   }
 
   private double getCostOfParameterMatches(final List<ISymbol> fromSymbols, final List<ISymbol> toSymbols) {

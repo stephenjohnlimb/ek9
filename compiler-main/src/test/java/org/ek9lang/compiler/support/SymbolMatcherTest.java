@@ -117,17 +117,17 @@ class SymbolMatcherTest {
     var nextSpecificTo2 = getTypeSymbols(List.of(integerType, floatType, stringType, floatType));
     var leastSpecificTo = getTypeSymbols(List.of(floatType, floatType, stringType, floatType));
 
-    var mostSpecificmatchCost = underTest.getCostOfParameterMatch(from, mostSpecificTo);
-    Assertions.assertFalse(mostSpecificmatchCost < 0.0 || mostSpecificmatchCost > 0.0);
+    var mostSpecificMatchCost = underTest.getCostOfParameterMatch(from, mostSpecificTo);
+    Assertions.assertFalse(mostSpecificMatchCost < 0.0 || mostSpecificMatchCost > 0.0);
 
-    var nextmatchCost1 = underTest.getCostOfParameterMatch(from, nextSpecificTo1);
-    Assertions.assertTrue(nextmatchCost1 >= 0.5 && nextmatchCost1 < 0.6);
+    var nextMatchCost1 = underTest.getCostOfParameterMatch(from, nextSpecificTo1);
+    Assertions.assertTrue(nextMatchCost1 >= 0.5 && nextMatchCost1 < 0.6);
 
-    var nextmatchCost2 = underTest.getCostOfParameterMatch(from, nextSpecificTo2);
-    Assertions.assertTrue(nextmatchCost2 >= 0.5 && nextmatchCost2 < 0.6);
+    var nextMatchCost2 = underTest.getCostOfParameterMatch(from, nextSpecificTo2);
+    Assertions.assertTrue(nextMatchCost2 >= 0.5 && nextMatchCost2 < 0.6);
 
-    var leastSpecificmatchCost = underTest.getCostOfParameterMatch(from, leastSpecificTo);
-    Assertions.assertTrue(leastSpecificmatchCost >= 1.0 && leastSpecificmatchCost < 1.1);
+    var leastSpecificMatchCost = underTest.getCostOfParameterMatch(from, leastSpecificTo);
+    Assertions.assertTrue(leastSpecificMatchCost >= 1.0 && leastSpecificMatchCost < 1.1);
 
   }
 

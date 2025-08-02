@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
+import org.ek9lang.compiler.support.SymbolMatcher;
 
 /**
  * Checks the covariance compatibility of two variables, this will traverse them to get their types.
@@ -40,7 +41,7 @@ final class TypeCovarianceOrError extends TypedSymbolAccess implements Consumer<
       final var toMethodReturnType = data.toVar().getType();
       final var assignableCost = fromReturnType.get().getUnCoercedAssignableCostTo(toMethodReturnType.get());
 
-      if (assignableCost < 0.0) {
+      if (assignableCost < SymbolMatcher.ZERO_COST) {
         emitCovarianceMismatch(data, "incompatible return types; ");
       }
     }
