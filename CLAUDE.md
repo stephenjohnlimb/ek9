@@ -74,6 +74,17 @@ For specific EK9 development tasks, refer to these comprehensive guides:
   - Foundation for identifying missing implementations toward 107-symbol target
   - **Use this guide when:** Understanding EK9 construct completeness, analyzing missing methods/operators, or planning built-in type development
 
+### EK9 Method Resolution and Matching
+- **`EK9_METHOD_RESOLUTION_AND_MATCHING.md`** - Complete analysis of EK9's method resolution mechanism
+  - Cost-based method matching algorithm with SymbolMatcher implementation
+  - 'Any' type's critical role as universal base type with HIGH_COST (20.0) penalty
+  - Ambiguity detection logic with 0.001 tolerance threshold
+  - Method resolution priority hierarchy (exact → superclass → trait → coercion → Any)
+  - Real-world examples including workarea.ek9 ambiguity scenarios
+  - Integration with FULL_RESOLUTION compilation phase (Phase 7 of 22)
+  - Polymorphic method patterns enabling gradual typing
+  - **Use this guide when:** Understanding method call resolution, debugging ambiguous method errors, implementing method overloading, or working with 'Any' type parameters
+
 ### EK9 Language Semantics
 - **`EK9_OPERATOR_SEMANTICS.md`** - EK9 operator behavior and semantics documentation
   - Increment/decrement operator semantics (different from Java/C++)
