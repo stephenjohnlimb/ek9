@@ -633,7 +633,6 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
         "operator must be defined when using a generic implementation with a specific type"),
     IMPLIED_OPERATOR_NOT_DEFINED_FROM_GENERIC(
         "implied operator must be defined when using a generic implementation with a specific type"),
-    OPERATOR_AMBIGUOUS("operator ambiguous match"),
     METHOD_AMBIGUOUS("ambiguous match"),
     NOT_IMMEDIATE_TRAIT("not an immediate trait of this context"),
     TRAIT_ACCESS_NOT_SUPPORTED("trait method access not supported here"),

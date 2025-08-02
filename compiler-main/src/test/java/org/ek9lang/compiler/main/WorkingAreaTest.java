@@ -23,11 +23,8 @@ class WorkingAreaTest extends PhasesTest {
   @Test
   void testPhaseDevelopment() {
     //Need to clear out any existing targets (like clean) for this unit test.
-    ek9Workspace.getSources()
-        .stream()
-        .findFirst()
-        .ifPresent(source -> fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(),
-            targetArchitecture));
+    ek9Workspace.getSources().stream().findFirst()
+        .ifPresent(source -> fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture));
 
     testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
@@ -40,9 +37,7 @@ class WorkingAreaTest extends PhasesTest {
     assertNotNull(resolvedProgram);
 
     final var printer = new NodePrinter();
-    program.getIRModules("introduction").forEach(irModule -> {
-      irModule.getConstructs().forEach(printer::visit);
-    });
+    program.getIRModules("introduction").forEach(irModule -> irModule.getConstructs().forEach(printer::visit));
 
   }
 }

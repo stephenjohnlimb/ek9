@@ -195,11 +195,11 @@ public interface ISymbol extends ISymbolNature, ITokenReference, Serializable {
   boolean isAssignableTo(final Optional<ISymbol> s);
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  double getAssignableWeightTo(final Optional<ISymbol> s);
+  double getAssignableCostTo(final Optional<ISymbol> s);
 
-  double getAssignableWeightTo(final ISymbol s);
+  double getAssignableCostTo(final ISymbol s);
 
-  double getUnCoercedAssignableWeightTo(final ISymbol s);
+  double getUnCoercedAssignableCostTo(final ISymbol s);
 
   /**
    * Provide the internal fully qualified name of this symbol.

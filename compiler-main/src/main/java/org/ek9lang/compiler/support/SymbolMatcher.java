@@ -5,8 +5,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
+import org.ek9lang.compiler.search.PercentageMethodSymbolMatch;
 import org.ek9lang.compiler.search.SymbolSearch;
-import org.ek9lang.compiler.search.WeightedMethodSymbolMatch;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.core.AssertValue;
@@ -18,12 +18,21 @@ import org.ek9lang.core.AssertValue;
  */
 public class SymbolMatcher implements Serializable {
 
+  //Models the cost of the match
+  public static final double ZERO_COST = 0.0;
+  public static final double INVALID_COST = -1.0;
+
+  //Models the percentage match, the nearer 100.0 the match is the better
+  public static final double PERCENT_100 = 100.0;
+  public static final double PERCENT_ZERO = 0.0;
+  public static final double PERCENT_INVALID = -1.0;
+
   @Serial
   private static final long serialVersionUID = 1L;
 
   /**
    * Match the search criteria against one or more symbol methods.
-   * We use a weighting algorithm to try and find the best match where there are methods of
+   * We use a percentage match  algorithm to try and find the best match where there are methods of
    * the same name.
    */
   public void addMatchesToResult(final MethodSymbolSearchResult result,
@@ -34,10 +43,10 @@ public class SymbolMatcher implements Serializable {
     AssertValue.checkNotNull("MethodSymbols cannot be null", methodSymbols);
 
     methodSymbols.forEach(methodSymbol -> {
-      final var weight = getWeightOfMethodMatch(criteria, methodSymbol);
+      final var percentageMatch = getPercentageMethodMatch(criteria, methodSymbol);
 
-      if (weight >= 0.0) {
-        result.add(new WeightedMethodSymbolMatch(methodSymbol, weight));
+      if (percentageMatch >= PERCENT_ZERO) {
+        result.add(new PercentageMethodSymbolMatch(methodSymbol, percentageMatch));
       }
     });
   }
@@ -46,43 +55,43 @@ public class SymbolMatcher implements Serializable {
    * Determines how good a fit the search criteria is against the Method Symbol.
    * We match (perfect fit for method name), then return types and parameter types.
    * 100.0 being perfect fit and 0.0 or negative being not fit at all.
-   * If between these values we've had to coerce
+   * If between these values we've had to coerce or go via traits or super.s
    *
    * @param criteria     The method criteria we are trying to match
    * @param methodSymbol The method symbol to check against
-   * @return The weight of the match.
+   * @return The percentage of the match.
    */
-  private double getWeightOfMethodMatch(final SymbolSearch criteria, final MethodSymbol methodSymbol) {
-    double rtn = -1.0;
+  private double getPercentageMethodMatch(final SymbolSearch criteria, final MethodSymbol methodSymbol) {
+    double rtn = PERCENT_INVALID;
 
     if (criteria.getName().equals(methodSymbol.getName())) {
 
       //Only check if we have a criteria to match - acts more like a veto.
       if (criteria.getOfTypeOrReturn().isPresent()
-          && getWeightOfMatch(criteria.getOfTypeOrReturn(), methodSymbol.getType()) < 0.0) {
+          && getCostOfMatch(criteria.getOfTypeOrReturn(), methodSymbol.getType()) < ZERO_COST) {
         return rtn;
       }
 
       //Now need to check on method parameter symbols and match those against the parameters
       //on the method.
       final var paramCost =
-          getWeightOfParameterMatch(criteria.getTypeParameters(), methodSymbol.getSymbolsForThisScope());
-      if (paramCost < 0.0) {
+          getCostOfParameterMatch(criteria.getTypeParameters(), methodSymbol.getSymbolsForThisScope());
+      if (paramCost < ZERO_COST) {
         return rtn;
       }
-      rtn = 100.0 - paramCost;
+      rtn = PERCENT_100 - paramCost;
     }
     return rtn;
   }
 
   /**
-   * Calculates the weight of matching these two lists of parameters. This is useful for
+   * Calculates the percentage of matching these two lists of parameters. This is useful for
    * calculating matches to overloaded methods and coercions.
    * But if the symbols do not have types then it's an immediate failure to match.
    */
-  public double getWeightOfParameterMatch(final List<ISymbol> fromSymbols, final List<ISymbol> toSymbols) {
+  public double getCostOfParameterMatch(final List<ISymbol> fromSymbols, final List<ISymbol> toSymbols) {
 
-    double rtn = -1.0;
+    double rtn = INVALID_COST;
 
     final var numParams1LookedFor = fromSymbols.size();
     final var numParams2lookedFor = toSymbols.size();
@@ -97,7 +106,7 @@ public class SymbolMatcher implements Serializable {
       return rtn;
     }
 
-    double paramCost = 0.0;
+    double paramCost = ZERO_COST;
     for (int i = 0; i < numParams1LookedFor; i++) {
       final var fromSymbol = fromSymbols.get(i);
       final var fromType = fromSymbol.getType().orElseThrow();
@@ -106,7 +115,7 @@ public class SymbolMatcher implements Serializable {
       var toType = toSymbol.getType().orElseThrow();
 
       final var thisCost = getCostOfSymbolMatch(fromType, toType);
-      if (thisCost < 0.0) {
+      if (thisCost < ZERO_COST) {
         return rtn; //No match
       }
       paramCost += thisCost;
@@ -122,20 +131,20 @@ public class SymbolMatcher implements Serializable {
   }
 
   /**
-   * Calculates te weight of matching two symbols, which may or may not be present.
+   * Calculates the cost of matching two symbols, which may or may not be present.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  public double getWeightOfMatch(final Optional<ISymbol> fromSymbol, final Optional<ISymbol> toSymbol) {
+  public double getCostOfMatch(final Optional<ISymbol> fromSymbol, final Optional<ISymbol> toSymbol) {
 
     //So neither is set that's Ok
     if (fromSymbol.isEmpty() && toSymbol.isEmpty()) {
-      return 0.0;
+      return ZERO_COST;
     }
     if (fromSymbol.isPresent() && toSymbol.isEmpty()) {
-      return -1.0;
+      return INVALID_COST;
     }
     if (fromSymbol.isEmpty()) {
-      return -1.0;
+      return INVALID_COST;
     }
 
     //Ok so both set lets see what the cost is
@@ -144,8 +153,8 @@ public class SymbolMatcher implements Serializable {
     ISymbol to = toSymbol.get();
 
     final var costOfMatch = getCostOfSymbolMatch(from, to);
-    if (costOfMatch < 0.0) {
-      return -1.0; //not a match
+    if (costOfMatch < ZERO_COST) {
+      return INVALID_COST; //not a match
     }
 
     return costOfMatch;
@@ -153,6 +162,6 @@ public class SymbolMatcher implements Serializable {
 
   private double getCostOfSymbolMatch(final ISymbol from, final ISymbol to) {
 
-    return from.getAssignableWeightTo(to);
+    return from.getAssignableCostTo(to);
   }
 }

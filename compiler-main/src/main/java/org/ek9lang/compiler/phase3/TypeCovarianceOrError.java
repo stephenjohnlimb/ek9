@@ -38,9 +38,9 @@ final class TypeCovarianceOrError extends TypedSymbolAccess implements Consumer<
       //But if they both return something - then lets check the types and see if they are compatible (without coercion).
       final var fromReturnType = data.fromVar().getType();
       final var toMethodReturnType = data.toVar().getType();
-      final var assignableWeight = fromReturnType.get().getUnCoercedAssignableWeightTo(toMethodReturnType.get());
+      final var assignableCost = fromReturnType.get().getUnCoercedAssignableCostTo(toMethodReturnType.get());
 
-      if (assignableWeight < 0.0) {
+      if (assignableCost < 0.0) {
         emitCovarianceMismatch(data, "incompatible return types; ");
       }
     }

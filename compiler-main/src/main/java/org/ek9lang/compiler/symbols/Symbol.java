@@ -375,25 +375,25 @@ public class Symbol implements ISymbol {
   @Override
   public boolean isAssignableTo(final ISymbol s) {
 
-    return getAssignableWeightTo(s) >= 0.0;
+    return getAssignableCostTo(s) >= 0.0;
   }
 
   @Override
   public boolean isAssignableTo(final Optional<ISymbol> s) {
 
-    return getAssignableWeightTo(s) >= 0.0;
+    return getAssignableCostTo(s) >= 0.0;
   }
 
   @Override
-  public double getAssignableWeightTo(final Optional<ISymbol> s) {
+  public double getAssignableCostTo(final Optional<ISymbol> s) {
 
-    return s.map(this::getAssignableWeightTo).orElse(NOT_ASSIGNABLE);
+    return s.map(this::getAssignableCostTo).orElse(NOT_ASSIGNABLE);
   }
 
   @Override
-  public double getAssignableWeightTo(final ISymbol s) {
+  public double getAssignableCostTo(final ISymbol s) {
 
-    final var canAssign = getUnCoercedAssignableWeightTo(s);
+    final var canAssign = getUnCoercedAssignableCostTo(s);
 
     //Well if not the same symbol can we coerce/promote?
     if (canAssign < 0.0 && TypeCoercions.get().isCoercible(this, s)) {
@@ -415,7 +415,7 @@ public class Symbol implements ISymbol {
   }
 
   @Override
-  public double getUnCoercedAssignableWeightTo(final ISymbol s) {
+  public double getUnCoercedAssignableCostTo(final ISymbol s) {
 
     AssertValue.checkNotNull("Symbol cannot be null", s);
     if (isExactSameType(s)) {

@@ -144,40 +144,40 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
   }
 
   @Override
-  public double getUnCoercedAssignableWeightTo(final ISymbol s) {
+  public double getUnCoercedAssignableCostTo(final ISymbol s) {
 
     //easy if same type and parameterization
-    double canAssign = super.getUnCoercedAssignableWeightTo(s);
-    if (canAssign >= 0.0) {
-      return canAssign;
+    double totalCost = super.getUnCoercedAssignableCostTo(s);
+    if (totalCost >= 0.0) {
+      return totalCost;
     }
 
     //if not then we have to cycle through the traits.
     for (IAggregateSymbol trait : traits) {
-      canAssign = trait.getUnCoercedAssignableWeightTo(s);
-      //Add some weight a bit more because it is a trait
-      if (canAssign >= 0.0) {
-        return 0.05 + canAssign;
+      totalCost = trait.getUnCoercedAssignableCostTo(s);
+      //Add some cost a bit more because it is a trait
+      if (totalCost >= 0.0) {
+        return 0.05 + totalCost;
       }
     }
     return NOT_ASSIGNABLE;
   }
 
   @Override
-  public double getAssignableWeightTo(final ISymbol s) {
+  public double getAssignableCostTo(final ISymbol s) {
 
     //easy if same type and parameterization
-    double canAssign = super.getAssignableWeightTo(s);
-    if (canAssign >= 0.0) {
-      return canAssign;
+    double totalCost = super.getAssignableCostTo(s);
+    if (totalCost >= 0.0) {
+      return totalCost;
     }
 
     //if not then we have to cycle through the traits.
     for (IAggregateSymbol trait : traits) {
-      canAssign = trait.getAssignableWeightTo(s);
-      //Add some weight a bit more because it is a trait
-      if (canAssign >= 0.0) {
-        return 0.05 + canAssign;
+      totalCost = trait.getAssignableCostTo(s);
+      //Add some cost a bit more because it is a trait
+      if (totalCost >= 0.0) {
+        return 0.05 + totalCost;
       }
     }
     return NOT_ASSIGNABLE;

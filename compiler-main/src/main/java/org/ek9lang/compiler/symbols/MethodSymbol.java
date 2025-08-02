@@ -399,15 +399,15 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
    */
   public boolean isSignatureMatchTo(final MethodSymbol toMethod) {
 
-    double weight = getWeightOfParameterMatches(toMethod.getSymbolsForThisScope(), getSymbolsForThisScope());
+    double cost = getCostOfParameterMatches(toMethod.getSymbolsForThisScope(), getSymbolsForThisScope());
 
-    if (weight < 0.0) {
+    if (cost < 0.0) {
       return false;
     }
 
-    weight += getSymbolMatcher().getWeightOfMatch(this.getType(), toMethod.getType());
+    cost += getSymbolMatcher().getCostOfMatch(this.getType(), toMethod.getType());
 
-    return weight >= 0.0;
+    return cost >= 0.0;
   }
 
   /**
@@ -417,8 +417,8 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
    */
   public boolean isExactSignatureMatchTo(final MethodSymbol toMethod) {
 
-    double weight = getWeightOfParameterMatches(toMethod.getSymbolsForThisScope(), getSymbolsForThisScope());
-    return Math.abs(weight) < 1e-6;
+    double cost = getCostOfParameterMatches(toMethod.getSymbolsForThisScope(), getSymbolsForThisScope());
+    return Math.abs(cost) < 1e-6;
   }
 
   /**
@@ -428,12 +428,12 @@ public class MethodSymbol extends ScopedSymbol implements IMayReturnSymbol {
    */
   public boolean isParameterSignatureMatchTo(final List<ISymbol> params) {
 
-    return getWeightOfParameterMatches(params, getSymbolsForThisScope()) >= 0.0;
+    return getCostOfParameterMatches(params, getSymbolsForThisScope()) >= 0.0;
   }
 
-  private double getWeightOfParameterMatches(final List<ISymbol> fromSymbols, final List<ISymbol> toSymbols) {
+  private double getCostOfParameterMatches(final List<ISymbol> fromSymbols, final List<ISymbol> toSymbols) {
 
-    return getSymbolMatcher().getWeightOfParameterMatch(fromSymbols, toSymbols);
+    return getSymbolMatcher().getCostOfParameterMatch(fromSymbols, toSymbols);
   }
 
   /**

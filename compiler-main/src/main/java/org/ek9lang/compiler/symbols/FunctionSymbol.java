@@ -118,11 +118,11 @@ public class FunctionSymbol extends PossibleGenericSymbol implements IFunctionSy
                                     final List<ISymbol> theirParams) {
 
     final List<ISymbol> ourParams = this.getSymbolsForThisScope();
-    if (matcher.getWeightOfParameterMatch(theirParams, ourParams) < 0.0) {
+    if (matcher.getCostOfParameterMatch(theirParams, ourParams) < 0.0) {
       return false;
     }
 
-    return matcher.getWeightOfMatch(this.getType(), theirReturnType) >= 0.0;
+    return matcher.getCostOfMatch(this.getType(), theirReturnType) >= 0.0;
   }
 
   @Override
@@ -183,21 +183,21 @@ public class FunctionSymbol extends PossibleGenericSymbol implements IFunctionSy
   }
 
   @Override
-  public double getAssignableWeightTo(final ISymbol s) {
+  public double getAssignableCostTo(final ISymbol s) {
 
-    return getUnCoercedAssignableWeightTo(s);
+    return this.getUnCoercedAssignableCostTo(s);
   }
 
   @Override
-  public double getUnCoercedAssignableWeightTo(final ISymbol s) {
+  public double getUnCoercedAssignableCostTo(final ISymbol s) {
 
-    final var canAssign = super.getUnCoercedAssignableWeightTo(s);
+    final var canAssign = super.getUnCoercedAssignableCostTo(s);
     if (canAssign >= 0.0) {
       return canAssign;
     }
 
-    //now we can check superclass matches. but add some weight because this did not match
-    return getSuperFunction().map(value -> 0.05 + value.getUnCoercedAssignableWeightTo(s))
+    //now we can check superclass matches. but add some cost because this did not match
+    return getSuperFunction().map(cost -> 0.05 + cost.getUnCoercedAssignableCostTo(s))
         .orElse(-1.0);
   }
 

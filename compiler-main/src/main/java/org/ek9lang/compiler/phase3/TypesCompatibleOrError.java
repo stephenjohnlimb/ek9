@@ -58,9 +58,9 @@ final class TypesCompatibleOrError extends TypedSymbolAccess implements Consumer
     final var fromType = toCheck.rhs().getType();
     final var toType = toCheck.lhs().getType();
     final var position = locationExtractorFromSymbol.apply(toCheck.lhs());
-    final var weightOfMatch = matcher.getWeightOfMatch(fromType, toType);
+    final var costOfMatch = matcher.getCostOfMatch(fromType, toType);
 
-    if (weightOfMatch < 0.0) {
+    if (costOfMatch < 0.0) {
       final var msg = "'" + toCheck.lhs().getFriendlyName() + "' "
           + position + " and '"
           + toCheck.rhs().getFriendlyName() + "':";

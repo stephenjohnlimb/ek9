@@ -84,7 +84,7 @@ final class AggregateWithTraitsSymbolTest {
     limitedExtender.addTrait(limitedProcessor);
 
     assertEquals(1, limitedExtender.getAllExtensionConstrainedTraits().size());
-    assertEquals(limitedProcessor, limitedExtender.getAllExtensionConstrainedTraits().get(0));
+    assertEquals(limitedProcessor, limitedExtender.getAllExtensionConstrainedTraits().getFirst());
 
     //Now make an aggregate with trait of processor -> moniterable and costAssessment
     var extender = new AggregateWithTraitsSymbol("Extender", symbolTable);
@@ -125,8 +125,8 @@ final class AggregateWithTraitsSymbolTest {
     //Even though indirect - it is implemented.
     assertTrue(plainAggregate.isImplementingInSomeWay(costAssessment));
 
-    var assignableWeight = plainAggregate.getAssignableWeightTo(Optional.of(plainAggregate));
-    assertTrue(assignableWeight < 0.001 && assignableWeight > -0.0001);
+    var assignableCost = plainAggregate.getAssignableCostTo(Optional.of(plainAggregate));
+    assertTrue(assignableCost < 0.001 && assignableCost > -0.0001);
 
   }
 

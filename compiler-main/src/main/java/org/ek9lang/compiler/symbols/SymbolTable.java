@@ -48,7 +48,7 @@ import org.ek9lang.core.CompilerException;
  * 1. Are we looking for a class(type), function/method or variable/constant in this context.
  * 2. What is it's name - in this case 'A'
  * 3. What type (or return type) are we expecting - but here we should accept a super class match
- * with some weight match value
+ * with some cost match value
  * 4. What is the order and type of parameters - again we need to try and match with some weight
  * using super class matches.
  * </pre>
@@ -69,7 +69,7 @@ import org.ek9lang.core.CompilerException;
  * Now for methods we can store in a hash map of method names - so in a simple case with just one
  * method of name A we're done!
  * But in that hashmap we store and List of all methods of that name - now we have the costly
- * activity of going through each and getting the weight of each to find a match. in local scopes
+ * activity of going through each and getting the cost of each to find a match. in local scopes
  * which ever is the best match we return - but clearly it is possible there is no match then we
  * resort to moving back up the scope tree (as we do now).
  * </pre>

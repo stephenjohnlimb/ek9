@@ -56,9 +56,9 @@ public class TypeCoercions {
 
       return promoteMethod
           .flatMap(ISymbol::getType)
-          .map(type -> type.getUnCoercedAssignableWeightTo(to))
+          .map(type -> type.getUnCoercedAssignableCostTo(to))
           .stream()
-          .anyMatch(weight -> weight >= 0.0f);
+          .anyMatch(cost -> cost >= 0.0f);
     }
 
     return false;

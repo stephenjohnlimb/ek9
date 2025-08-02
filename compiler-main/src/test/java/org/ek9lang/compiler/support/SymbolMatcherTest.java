@@ -41,72 +41,72 @@ class SymbolMatcherTest {
 
   @Test
   void testEmptyParameters() {
-    var matchWeight = underTest.getWeightOfParameterMatch(List.of(), List.of());
-    Assertions.assertFalse(matchWeight < 0.0 || matchWeight > 0.0);
+    var matchCost = underTest.getCostOfParameterMatch(List.of(), List.of());
+    Assertions.assertFalse(matchCost < 0.0 || matchCost > 0.0);
   }
 
   @Test
   void testPartialEmptyParameters1() {
     var from = getTypeSymbols(List.of(integerType));
     var to = getTypeSymbols(List.of());
-    var matchWeight = underTest.getWeightOfParameterMatch(from, to);
-    Assertions.assertTrue(matchWeight < 0.0);
+    var matchCost = underTest.getCostOfParameterMatch(from, to);
+    Assertions.assertTrue(matchCost < 0.0);
   }
 
   @Test
   void testPartialEmptyParameters2() {
     var from = getTypeSymbols(List.of());
     var to = getTypeSymbols(List.of(integerType));
-    var matchWeight = underTest.getWeightOfParameterMatch(from, to);
-    Assertions.assertTrue(matchWeight < 0.0);
+    var matchCost = underTest.getCostOfParameterMatch(from, to);
+    Assertions.assertTrue(matchCost < 0.0);
   }
 
   @Test
   void testBasicCoercion() {
-    var integerToFloatCoercionWeight = underTest.getWeightOfMatch(integerType, floatType);
-    Assertions.assertTrue(integerToFloatCoercionWeight > 0.0);
-    var floatToIntegerCoercionWeight = underTest.getWeightOfMatch(floatType, integerType);
-    Assertions.assertTrue(floatToIntegerCoercionWeight < 0.0);
+    var integerToFloatCoercionCost = underTest.getCostOfMatch(integerType, floatType);
+    Assertions.assertTrue(integerToFloatCoercionCost > 0.0);
+    var floatToIntegerCoercionCost = underTest.getCostOfMatch(floatType, integerType);
+    Assertions.assertTrue(floatToIntegerCoercionCost < 0.0);
   }
 
   @Test
   void testValidParameterTypeMatches() {
     var from = getTypeSymbols(List.of(integerType));
     var to = getTypeSymbols(List.of(integerType));
-    var matchWeight = underTest.getWeightOfParameterMatch(from, to);
-    Assertions.assertFalse(matchWeight < 0.0 || matchWeight > 0.0);
+    var matchCost = underTest.getCostOfParameterMatch(from, to);
+    Assertions.assertFalse(matchCost < 0.0 || matchCost > 0.0);
   }
 
   @Test
   void testMultipleValidParameterTypeMatches() {
     var from = getTypeSymbols(List.of(integerType, floatType, stringType));
     var to = getTypeSymbols(List.of(integerType, floatType, stringType));
-    var matchWeight = underTest.getWeightOfParameterMatch(from, to);
-    Assertions.assertFalse(matchWeight < 0.0 || matchWeight > 0.0);
+    var matchCost = underTest.getCostOfParameterMatch(from, to);
+    Assertions.assertFalse(matchCost < 0.0 || matchCost > 0.0);
   }
 
   @Test
   void testMultipleInValidParameterTypeMatches() {
     var from = getTypeSymbols(List.of(integerType, floatType, stringType));
     var to = getTypeSymbols(List.of(stringType, floatType, stringType));
-    var matchWeight = underTest.getWeightOfParameterMatch(from, to);
-    Assertions.assertTrue(matchWeight < 0.0);
+    var matchCost = underTest.getCostOfParameterMatch(from, to);
+    Assertions.assertTrue(matchCost < 0.0);
   }
 
   @Test
   void testValidCoercibleParameterTypeMatches() {
     var from = getTypeSymbols(List.of(integerType));
     var to = getTypeSymbols(List.of(floatType));
-    var matchWeight = underTest.getWeightOfParameterMatch(from, to);
-    Assertions.assertTrue(matchWeight > 0.0);
+    var matchCost = underTest.getCostOfParameterMatch(from, to);
+    Assertions.assertTrue(matchCost > 0.0);
   }
 
   @Test
   void testInvalidCoercibleParameterTypeMatches() {
     var from = getTypeSymbols(List.of(floatType));
     var to = getTypeSymbols(List.of(integerType));
-    var matchWeight = underTest.getWeightOfParameterMatch(from, to);
-    Assertions.assertTrue(matchWeight < 0.0);
+    var matchCost = underTest.getCostOfParameterMatch(from, to);
+    Assertions.assertTrue(matchCost < 0.0);
   }
 
   @Test
@@ -117,17 +117,17 @@ class SymbolMatcherTest {
     var nextSpecificTo2 = getTypeSymbols(List.of(integerType, floatType, stringType, floatType));
     var leastSpecificTo = getTypeSymbols(List.of(floatType, floatType, stringType, floatType));
 
-    var mostSpecificMatchWeight = underTest.getWeightOfParameterMatch(from, mostSpecificTo);
-    Assertions.assertFalse(mostSpecificMatchWeight < 0.0 || mostSpecificMatchWeight > 0.0);
+    var mostSpecificmatchCost = underTest.getCostOfParameterMatch(from, mostSpecificTo);
+    Assertions.assertFalse(mostSpecificmatchCost < 0.0 || mostSpecificmatchCost > 0.0);
 
-    var nextMatchWeight1 = underTest.getWeightOfParameterMatch(from, nextSpecificTo1);
-    Assertions.assertTrue(nextMatchWeight1 >= 0.5 && nextMatchWeight1 < 0.6);
+    var nextmatchCost1 = underTest.getCostOfParameterMatch(from, nextSpecificTo1);
+    Assertions.assertTrue(nextmatchCost1 >= 0.5 && nextmatchCost1 < 0.6);
 
-    var nextMatchWeight2 = underTest.getWeightOfParameterMatch(from, nextSpecificTo2);
-    Assertions.assertTrue(nextMatchWeight2 >= 0.5 && nextMatchWeight2 < 0.6);
+    var nextmatchCost2 = underTest.getCostOfParameterMatch(from, nextSpecificTo2);
+    Assertions.assertTrue(nextmatchCost2 >= 0.5 && nextmatchCost2 < 0.6);
 
-    var leastSpecificMatchWeight = underTest.getWeightOfParameterMatch(from, leastSpecificTo);
-    Assertions.assertTrue(leastSpecificMatchWeight >= 1.0 && leastSpecificMatchWeight < 1.1);
+    var leastSpecificmatchCost = underTest.getCostOfParameterMatch(from, leastSpecificTo);
+    Assertions.assertTrue(leastSpecificmatchCost >= 1.0 && leastSpecificmatchCost < 1.1);
 
   }
 

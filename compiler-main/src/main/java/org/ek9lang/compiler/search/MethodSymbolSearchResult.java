@@ -9,7 +9,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
  * Models a set of result for a search for methods.
- * This uses a weighting mechanism to find the most appropriate match.
+ * This uses a percentage match mechanism to find the most appropriate match.
  */
 public class MethodSymbolSearchResult {
 
@@ -18,7 +18,7 @@ public class MethodSymbolSearchResult {
    * It's a bit tricky matching methods in aggregate hierarchies and with method overloading
    * but also with class compatibility or parameters and possible coercions.
    */
-  private final List<WeightedMethodSymbolMatch> results = new ArrayList<>();
+  private final List<PercentageMethodSymbolMatch> results = new ArrayList<>();
   private boolean accessModifierIncompatible = false;
   private boolean methodNotMarkedWithOverride = false;
 
@@ -62,7 +62,7 @@ public class MethodSymbolSearchResult {
   /**
    * Typically used with traits and class/trait combinations so that multiple methods of the
    * same name and parameters. These are merged together this may then mean that the results
-   * have two results of the same weight and this indicates ambiguity.
+   * have two results of the same percentage match and this indicates ambiguity.
    * So for example if you had ClassA implementing interfaceZ (lets say default method methodBoo
    * in interfaceZ) all is good.
    * Now say we have interfaceP (also with method methodBoo) and now add ClassK that extends
@@ -111,8 +111,8 @@ public class MethodSymbolSearchResult {
       buildResult.add(results);
     }
 
-    for (WeightedMethodSymbolMatch newResult : withResults.results) {
-      for (WeightedMethodSymbolMatch result : results) {
+    for (PercentageMethodSymbolMatch newResult : withResults.results) {
+      for (PercentageMethodSymbolMatch result : results) {
         final var methodSymbol = newResult.getMethodSymbol();
         //You need to get this the right way around in terms of checking params
         //and compatible return types.
@@ -156,7 +156,7 @@ public class MethodSymbolSearchResult {
    * Is there a single best match available.
    * Could be there are no results, could be a single (very good result - perfect match),
    * Could be a match but not perfect but acceptable.
-   * But could also be several results. Of equal weight; in which case we have an ambiguity.
+   * But could also be several results. Of equal percentage match; in which case we have an ambiguity.
    *
    * @return true if there is a single best match.
    */
@@ -164,12 +164,12 @@ public class MethodSymbolSearchResult {
 
     if (!isEmpty()) {
       if (results.size() > 1) {
-        //need to check first and second to see if weight is same.
-        final var firstWeight = results.get(0).getWeight();
-        final var secondWeight = results.get(1).getWeight();
+        //need to check first and second to see if percentage match is same.
+        final var firstPercentage = results.get(0).getPercentageMatch();
+        final var secondPercentage = results.get(1).getPercentageMatch();
 
         //are these two within a tolerance of each other - if so ambiguous.
-        return Math.abs(firstWeight - secondWeight) >= 0.001;
+        return Math.abs(firstPercentage - secondPercentage) >= 0.001;
         //No one is better than the other.
       }
       //yes we have one best match.
@@ -199,10 +199,10 @@ public class MethodSymbolSearchResult {
       final var symbol1 = results.getFirst().getMethodSymbol();
       buffer.append(symbol1.toString()).append(" line ").append(symbol1.getSourceToken().getLine());
 
-      //need to check first and second to see if weight is same.
-      final var firstWeight = results.getFirst().getWeight();
+      //need to check first and second to see if percentage match is same.
+      final var firstPercentage = results.getFirst().getPercentageMatch();
       for (int i = 1; i < results.size(); i++) {
-        if (Math.abs(firstWeight - results.get(i).getWeight()) < 0.001) {
+        if (Math.abs(firstPercentage - results.get(i).getPercentageMatch()) < 0.001) {
           final var symbol2 = results.get(i).getMethodSymbol();
           buffer.append(" , ");
           buffer.append(symbol2.toString()).append(" line ").append(symbol2.getSourceToken().getLine());
@@ -221,7 +221,8 @@ public class MethodSymbolSearchResult {
   public MatchResults toMatchResults() {
 
     final var rtn = new MatchResults(results.size());
-    results.forEach(result -> rtn.add(new MatchResult((int) (result.getWeight() * 10), result.getMethodSymbol())));
+    results.forEach(
+        result -> rtn.add(new MatchResult((int) (result.getPercentageMatch() * 10), result.getMethodSymbol())));
 
     return rtn;
   }
@@ -232,7 +233,7 @@ public class MethodSymbolSearchResult {
     final var buffer = new StringBuilder();
     buffer.append("[");
     boolean first = true;
-    for (WeightedMethodSymbolMatch result : results) {
+    for (PercentageMethodSymbolMatch result : results) {
       if (!first) {
         buffer.append(", ");
       }
@@ -252,7 +253,7 @@ public class MethodSymbolSearchResult {
   /**
    * Add more results and sort the list held.
    */
-  public MethodSymbolSearchResult add(final List<WeightedMethodSymbolMatch> moreResults) {
+  public MethodSymbolSearchResult add(final List<PercentageMethodSymbolMatch> moreResults) {
 
     results.addAll(moreResults);
     sortResults();
@@ -263,9 +264,9 @@ public class MethodSymbolSearchResult {
   /**
    * Add a result and sort the list held.
    */
-  public MethodSymbolSearchResult add(final WeightedMethodSymbolMatch weightedMethodSymbolMatch) {
+  public MethodSymbolSearchResult add(final PercentageMethodSymbolMatch percentageMethodSymbolMatch) {
 
-    results.add(weightedMethodSymbolMatch);
+    results.add(percentageMethodSymbolMatch);
     sortResults();
 
     return this;
@@ -273,6 +274,6 @@ public class MethodSymbolSearchResult {
 
   private void sortResults() {
 
-    results.sort((o1, o2) -> Double.compare(o2.getWeight(), o1.getWeight()));
+    results.sort((o1, o2) -> Double.compare(o2.getPercentageMatch(), o1.getPercentageMatch()));
   }
 }

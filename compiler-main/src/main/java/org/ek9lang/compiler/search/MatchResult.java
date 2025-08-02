@@ -34,7 +34,7 @@ public class MatchResult {
     return symbol;
   }
 
-  public int getBestWeight() {
+  private int getBestWeight() {
 
     return bestWeight;
   }

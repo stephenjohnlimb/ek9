@@ -413,50 +413,51 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
       return -1.0;
     }
 
-    double canAssign = 0.0;
+    double totalCost = 0.0;
     for (int i = 0; i < listA.size(); i++) {
-      final var weight = listA.get(i).getAssignableWeightTo(listB.get(i));
+      final var cost = listA.get(i).getAssignableCostTo(listB.get(i));
 
-      if (weight < 0.0) {
-        return weight;
+      //If cost less than zero - then it is not assignable.
+      if (cost < 0.0) {
+        return cost;
       }
 
-      canAssign += weight;
+      totalCost += cost;
     }
 
-    return canAssign;
+    return totalCost;
   }
 
   @SuppressWarnings("checkstyle:Indentation")
   @Override
-  public double getUnCoercedAssignableWeightTo(final ISymbol s) {
+  public double getUnCoercedAssignableCostTo(final ISymbol s) {
 
-    double canAssign = super.getUnCoercedAssignableWeightTo(s);
+    double totalCost = super.getUnCoercedAssignableCostTo(s);
 
-    if (getSuperAggregate().isPresent() && canAssign < 0.0) {
-      //now we can check superclass matches. but add some weight because this did not match
+    if (getSuperAggregate().isPresent() && totalCost < 0.0) {
+      //now we can check superclass matches. but add some cost because this did not match
       final var theSuperAggregate = getSuperAggregate().get();
-      double weight = theSuperAggregate.getUnCoercedAssignableWeightTo(s);
-      if (weight < 0.0) {
-        return weight;
+      double cost = theSuperAggregate.getUnCoercedAssignableCostTo(s);
+      if (cost < 0.0) {
+        return cost;
       }
 
-      //We push the weight of being able to assign to Any down.
+      //We push the cost of being able to assign to Any down.
       if (theSuperAggregate.getFullyQualifiedName().equals("org.ek9.lang::Any")) {
         return 20.0;
       }
       //If we can assign via its super, then we're done.
-      canAssign = 0.05 + weight;
-      return canAssign;
+      totalCost = 0.05 + cost;
+      return totalCost;
     }
 
-    if (canAssign >= 0.0 && s instanceof AggregateSymbol toCheck) {
-      final var parameterisedWeight =
+    if (totalCost >= 0.0 && s instanceof AggregateSymbol toCheck) {
+      final var parameterisedCost =
           checkParameterisedTypesAssignable(getTypeParameterOrArguments(), toCheck.getTypeParameterOrArguments());
-      canAssign += parameterisedWeight;
+      totalCost += parameterisedCost;
     }
 
-    return canAssign;
+    return totalCost;
   }
 
   @Override
