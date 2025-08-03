@@ -68,7 +68,7 @@ public interface Any {
         <- rtn as Integer?""")
   default Integer _hashcode() {
     //Expect deriving classes to implement if they want reasonable behaviour.
-    return Integer._of(1);
+    return new Integer();
   }
 
   @Ek9Operator("""

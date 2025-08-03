@@ -20,8 +20,6 @@ import org.ek9lang.core.CompilerException;
  */
 class IsConvertableToStringOrError extends RuleSupport implements BiPredicate<IToken, ISymbol> {
 
-  private final TypeCoercions typeCoercions = new TypeCoercions();
-
   /**
    * Constructor to provided typed access.
    */
@@ -46,7 +44,7 @@ class IsConvertableToStringOrError extends RuleSupport implements BiPredicate<IT
         return true;
       }
 
-      if (!typeCoercions.isCoercible(typeSymbol, stringType)) {
+      if (!TypeCoercions.isCoercible(typeSymbol, stringType)) {
         emitIsNotConvertableToString(errorReportingLocation, typeSymbol);
       }
 

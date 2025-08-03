@@ -1,7 +1,19 @@
 #!ek9
 <?-
-  TODO change this to show coercion/promotion (only once) and also how it can
-  result in method ambiguity.
+  Demonstration, that shows type coercion leading to method resolution ambiguity.
+  Then how a developer can resolve that ambiguity.
+  Also shows that automatic coercion in method resolution is constrained to a single
+  coercion/promotion.
+
+  This latter point is by design, to prevent possible circular coercion loops but also
+  to make it much clearer to a developer. Otherwise small changes in classes adding/removing
+  coercions in deeply nest type hierarchies (not a good idea) would lead to issues in code
+  that was 'far distant' in its definition.
+  What I mean by this is weird side effects in your code when some other API has coercion changes.
+
+  So by limiting automatic coercion to one single coercion per type (when resolving methods), it becomes
+  easier for the developer to just look at the type they are passing in and see a single coercion, rather
+  than having to chase the coercions through the type hierarchy.
 -?>
 defines module ambiguous.methods.three
 
@@ -139,4 +151,3 @@ defines module ambiguous.methods.three
       checkClass.methodA(#^c2, #^c2)
 
 //EOF
-
