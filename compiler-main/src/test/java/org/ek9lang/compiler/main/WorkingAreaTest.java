@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 class WorkingAreaTest extends PhasesTest {
 
   public WorkingAreaTest() {
-    super("/examples/parseButFailCompile/workingarea", false, true);
+    super("/examples/parseButFailCompile/workingarea", true, true);
   }
 
   @Test
@@ -26,13 +26,13 @@ class WorkingAreaTest extends PhasesTest {
     ek9Workspace.getSources().stream().findFirst()
         .ifPresent(source -> fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture));
 
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.PACKAGING_POST_PROCESSING);
   }
 
   @Override
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
-    assertFalse(compilationResult);
+    assertTrue(compilationResult);
     var resolvedProgram = program.resolveFromModule("introduction", new TypeSymbolSearch("HelloWorld"));
     assertNotNull(resolvedProgram);
 

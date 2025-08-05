@@ -65,7 +65,7 @@ final class AsmStructureCreator {
 
   private void processProgram() {
 
-    AssertValue.checkTrue("Their should be only one method on a program",
+    AssertValue.checkTrue("There should be only one method on a program",
         constructTargetTuple.construct().getOperations().size() == 1);
 
     //First create a class structure
