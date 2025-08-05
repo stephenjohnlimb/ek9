@@ -28,11 +28,12 @@ BasicBlock guardEval:
 
 ## Key Design Decisions
 
-### 1. **Compile-Time Resolution, Not Runtime**
+### 1. **Compile-Time Resolution, With Dispatcher Exception**
 - **Method Resolution**: Use EK9's cost-based resolution during compilation
 - **Symbol Information**: Capture resolved method signatures in IR
-- **No Runtime Dispatch**: Direct method calls in generated code
-- **Performance**: Eliminates runtime method resolution overhead
+- **Direct Method Calls**: Most method calls resolved at compile-time
+- **Dispatcher Methods**: Special runtime dispatch for methods marked `as dispatcher`
+- **Performance**: Eliminates runtime method resolution overhead for 95%+ of calls
 
 ### 2. **Simple IR Instruction Set**
 ```java
@@ -41,7 +42,7 @@ public enum IROpcode {
   LOAD, STORE, ALLOCA,
   
   // Method calls (with resolved signatures)
-  CALL, CALL_VIRTUAL, CALL_STATIC,
+  CALL, CALL_VIRTUAL, CALL_STATIC, CALL_DISPATCHER,
   
   // Control flow
   BRANCH, BRANCH_TRUE, BRANCH_FALSE, RETURN,
@@ -90,6 +91,266 @@ IR:  CALL result = a._add(b), CALL a._addAss(b)
 ```
 EK9: Integer obj = new Integer(42)
 IR:  ALLOC_OBJECT obj, RETAIN obj, ... , RELEASE obj
+```
+
+**Dispatcher Methods** → Runtime type analysis + method resolution:
+```
+EK9: processor.process(someValue)
+IR:  GET_RUNTIME_TYPE type = LOAD_TYPE_NAME(someValue)
+     DISPATCH_RESOLVE method = MATRIX_LOOKUP("process", type)
+     CALL result = INVOKE_METHOD(method, processor, someValue)
+```
+
+## EK9 Dispatcher Methods and Runtime Resolution
+
+### **Critical Design Principle: Selective Runtime Dispatch**
+
+While EK9 uses **compile-time method resolution** for 95%+ of method calls, methods marked with the `as dispatcher` modifier require **runtime type analysis** to select the most appropriate implementation.
+
+### **Universal Runtime Type Information (RTTI)**
+
+**All EK9 objects carry runtime type information** because any object can be passed as an argument to a dispatcher method:
+
+```java
+public class EK9Object {
+  protected String typeName;        // "List of String", "Circle", "Integer"
+  protected String superTypeName;   // "Shape", "Any", etc.
+  protected boolean isSet;          // Tri-state information
+  // ... actual object data
+}
+```
+
+**Why Universal RTTI**:
+- **Dispatcher Arguments**: Any type can be passed to dispatcher methods
+- **Type Reversibility**: Human-readable names ("List of String") vs decorated names ("List_of_String_456hash")
+- **Inheritance Chain**: Required for runtime resolution fallback algorithm
+- **Debugging Support**: Enhanced error reporting and introspection
+
+### **Selective Dispatch Matrix Generation**
+
+**Only classes with `as dispatcher` methods** generate runtime dispatch matrices:
+
+```java
+// Pre-computed at compile-time for dispatcher classes
+class DispatchMatrix {
+  Map<String, MethodEntry> dispatchTable;
+  
+  class MethodEntry {
+    String methodSignature;     // "process(Circle,Rectangle)"
+    double matchCost;          // 0.0 = perfect, 15.0 = Any fallback
+    MethodHandle methodPtr;    // Direct method reference
+  }
+}
+```
+
+**Matrix Generation Process**:
+1. **Enumerate all type combinations** from available types in compilation unit
+2. **Apply EK9's cost-based resolution** to find best matches for each combination
+3. **Pre-compute match costs** and method pointers at compile-time
+4. **Generate static dispatch matrix** as lookup table
+
+### **Runtime Dispatch Algorithm**
+
+```java
+public Object dispatchMethod(String methodName, Object... args) {
+  // 1. Extract runtime type information from arguments
+  String[] argTypes = extractArgumentTypes(args);  // ["Circle", "Rectangle"]
+  
+  // 2. Build lookup key for dispatch matrix
+  String lookupKey = buildKey(methodName, argTypes);  // "intersect(Circle,Rectangle)"
+  
+  // 3. Try direct matrix lookup
+  MethodEntry entry = dispatchMatrix.get(lookupKey);
+  
+  // 4. If not found, walk inheritance hierarchy using RTTI
+  if (entry == null) {
+    entry = findBestMatchWithInheritance(methodName, argTypes);
+  }
+  
+  // 5. Invoke resolved method (guaranteed to exist)
+  return entry.methodPtr.invoke(this, args);
+}
+
+private MethodEntry findBestMatchWithInheritance(String methodName, String[] argTypes) {
+  // Walk inheritance chain for each argument type
+  for (int i = 0; i < argTypes.length; i++) {
+    String currentType = argTypes[i];
+    
+    // Try superclass hierarchy: Circle → Shape → Any
+    while (currentType != null) {
+      String[] testTypes = argTypes.clone();
+      testTypes[i] = currentType;
+      String testKey = buildKey(methodName, testTypes);
+      
+      MethodEntry entry = dispatchMatrix.get(testKey);
+      if (entry != null) {
+        return entry;  // Found match with inheritance
+      }
+      
+      // Move up inheritance chain using RTTI
+      currentType = getSuperType(currentType);
+    }
+  }
+  
+  // Fallback: should never happen due to Any base type
+  throw new RuntimeException("No dispatcher method found for " + methodName);
+}
+```
+
+### **Compile-Time Ambiguity Detection**
+
+**Critical Innovation**: Dispatcher ambiguities are detected **at compile-time** during matrix generation, preventing runtime surprises:
+
+```java
+// During compilation - Phase 7: FULL_RESOLUTION
+for (TypeCombination combo : allPossibleTypeCombinations) {
+  List<MethodMatch> matches = applyEK9CostResolution(methodName, combo);
+  
+  // Check for ambiguity using same algorithm as regular method resolution
+  if (hasAmbiguousMatches(matches, AMBIGUITY_TOLERANCE)) {
+    // COMPILE-TIME ERROR - no runtime surprises!
+    emitError("Ambiguous dispatcher methods for " + methodName + combo + ":\n" +
+              formatAmbiguousMatches(matches) + "\n" +
+              "Add more specific overload to resolve ambiguity.");
+  }
+  
+  // Store unique best match in matrix
+  dispatchMatrix.put(combo, matches.getBest());
+}
+```
+
+**Error Example**:
+```java
+@Error: FULL_RESOLUTION: AMBIGUOUS_DISPATCHER_METHODS
+process() as dispatcher -> arg1 as Shape, arg2 as Shape
+
+Ambiguous matches for process(Circle, Rectangle):
+  - process(Circle, Shape) cost: 10.0  
+  - process(Shape, Rectangle) cost: 10.0
+  
+Add more specific overload process(Circle, Rectangle) to resolve ambiguity.
+```
+
+### **Dispatcher Constraints and Validation**
+
+**EK9 Dispatcher Rules** (enforced at compile-time):
+1. **Parameter Limit**: Dispatchers accept **1 or 2 arguments only**
+2. **Single Entry Point**: Only **one method per class** marked `as dispatcher`
+3. **Pure Consistency**: If dispatcher is `pure`, all implementations must be `pure`
+4. **Access Consistency**: Private dispatchers can call protected/public implementations
+5. **Inheritance Compatibility**: Dispatcher methods in subclasses must be accessible
+
+### **Integration with EK9 Method Resolution**
+
+**Consistency Principle**: Dispatcher methods use **identical resolution algorithm** as regular EK9 methods:
+
+| Aspect | Regular Methods | Dispatcher Methods |
+|--------|-----------------|--------------------|
+| **Resolution Algorithm** | EK9 cost-based matching | **Same algorithm** |
+| **Ambiguity Detection** | Compile-time error | **Same compile-time error** |
+| **Inheritance Handling** | Superclass → trait → Any | **Same hierarchy** |
+| **Cost Calculation** | Distance-based scoring | **Same cost calculation** |
+| **Execution Time** | **Compile-time resolution** | **Runtime resolution** |
+
+### **Dispatcher IR Generation**
+
+**IR Instruction**: `CALL_DISPATCHER`
+```java
+CALL_DISPATCHER result = object.method(args)
+```
+
+**IR Decomposition**:
+```java
+// EK9: processor.process(circleObj, rectObj)
+BasicBlock dispatcher_call:
+  GET_RUNTIME_TYPE type1 = LOAD_TYPE_NAME(circleObj)     // "Circle"
+  GET_RUNTIME_TYPE type2 = LOAD_TYPE_NAME(rectObj)       // "Rectangle" 
+  BUILD_LOOKUP_KEY key = CONCAT("process", type1, type2)  // "process(Circle,Rectangle)"
+  DISPATCH_RESOLVE method = MATRIX_LOOKUP(key)           // → intersect_circle_rectangle_ptr
+  CALL result = INVOKE_METHOD(method, processor, circleObj, rectObj)
+  BRANCH -> next_block
+```
+
+### **Performance Characteristics**
+
+**Runtime Overhead Analysis**:
+- **Type Name Extraction**: O(1) field access per argument
+- **Matrix Lookup**: O(1) hash table lookup
+- **Inheritance Fallback**: O(depth) in worst case, typically O(1-2)
+- **Method Invocation**: Direct method call, same cost as regular methods
+
+**Memory Overhead**:
+- **Per Object**: +16 bytes for type name + super type name
+- **Per Dispatcher Class**: Dispatch matrix size = O(type_combinations)
+- **Matrix Entry**: ~64 bytes per combination (method pointer + metadata)
+
+**Optimization Opportunities**:
+- **Matrix Caching**: JVM method handle caching
+- **Type Interning**: String interning for type names reduces memory
+- **Lazy Loading**: Generate matrix entries on first access
+- **Monomorphic Optimization**: Cache last lookup for repeated calls
+
+### **Cross-Target Implementation**
+
+#### **JVM Target (Current)**
+```java
+// Dispatcher matrix as static Map
+class DispatcherClass {
+  private static final Map<String, MethodHandle> DISPATCH_MATRIX = 
+    Map.of(
+      "process(Integer)", methodHandle_process_integer,
+      "process(Float)", methodHandle_process_float,
+      "process(Any)", methodHandle_process_any
+    );
+    
+  public Object process(Any arg) {                    // Dispatcher entry point
+    String argType = arg.getTypeName();               // Get RTTI
+    String lookupKey = "process(" + argType + ")";     // Build key
+    MethodHandle method = DISPATCH_MATRIX.get(lookupKey);
+    
+    if (method == null) {
+      // Fallback: try superclass hierarchy
+      method = findMethodWithInheritance("process", argType);
+    }
+    
+    return method.invoke(this, arg);                  // Direct invocation
+  }
+}
+```
+
+#### **LLVM Target (Future)**
+```c
+// Dispatcher matrix as function pointer table  
+struct DispatchEntry {
+  char* type_signature;                    // "process(Circle,Rectangle)"
+  double match_cost;                       // Pre-computed cost
+  void* (*method_ptr)(void*, void*, void*); // Function pointer
+};
+
+struct DispatchMatrix {
+  size_t entry_count;
+  DispatchEntry entries[];
+};
+
+// Runtime dispatcher implementation
+void* dispatch_method(void* object, char* method_name, void** args, size_t arg_count) {
+  // Extract type names from object headers
+  char** arg_types = extract_runtime_types(args, arg_count);
+  
+  // Build lookup key
+  char* lookup_key = build_lookup_key(method_name, arg_types, arg_count);
+  
+  // Matrix lookup
+  DispatchEntry* entry = matrix_lookup(dispatch_matrix, lookup_key);
+  
+  if (!entry) {
+    // Inheritance fallback using RTTI
+    entry = find_best_match_with_inheritance(method_name, arg_types, arg_count);
+  }
+  
+  // Direct function call
+  return entry->method_ptr(object, args[0], args[1]);
+}
 ```
 
 ## EK9 Always-Allocated Tri-State Memory Model
@@ -434,9 +695,11 @@ String var3 = nameGen.generateSSAVersion("result");      // "result_1"
 ```java
 public class IRGenerationVisitor extends EK9BaseVisitor<IRNode> {
   private final IRNameGenerator nameGen;
+  private final DispatcherMatrixRegistry dispatchRegistry;
   
-  public IRGenerationVisitor(String functionName) {
+  public IRGenerationVisitor(String functionName, DispatcherMatrixRegistry registry) {
     this.nameGen = new IRNameGenerator(functionName);
+    this.dispatchRegistry = registry;
   }
   
   @Override
@@ -516,6 +779,55 @@ public class IRGenerationVisitor extends EK9BaseVisitor<IRNode> {
     
     return new BasicBlockSequence(irNodes);
   }
+  
+  @Override
+  public IRNode visitDispatcherMethodCall(DispatcherMethodCallContext ctx) {
+    List<IRNode> irNodes = new ArrayList<>();
+    
+    // Generate systematic names for dispatcher call
+    String targetObj = ctx.targetObject().getText();
+    String methodName = ctx.methodName().getText();
+    String dispatchScope = nameGen.generateScope("dispatch");     // "_s3_dispatch"
+    String resultTemp = nameGen.generateTemp("dispatch_result"); // "_t8_dispatch_result"
+    
+    // Scope for dispatcher call (manages argument retention)
+    irNodes.add(new ScopeInstruction(SCOPE_ENTER, dispatchScope));
+    
+    // Retain target object and all arguments
+    irNodes.add(new MemoryInstruction(RETAIN, targetObj));
+    irNodes.add(new ScopeInstruction(SCOPE_REGISTER, targetObj, dispatchScope));
+    
+    List<String> arguments = new ArrayList<>();
+    for (ExpressionContext argCtx : ctx.arguments()) {
+      String argVar = nameGen.generateTemp("dispatch_arg");     // "_t9_dispatch_arg", etc.
+      irNodes.addAll(expandExpression(argCtx, argVar));
+      irNodes.add(new MemoryInstruction(RETAIN, argVar));
+      irNodes.add(new ScopeInstruction(SCOPE_REGISTER, argVar, dispatchScope));
+      arguments.add(argVar);
+    }
+    
+    // Generate dispatcher call IR
+    String matrixRef = getDispatchMatrixReference(targetObj, methodName);
+    irNodes.add(new DispatcherCallInstruction(resultTemp, targetObj, methodName, arguments, matrixRef));
+    irNodes.add(new MemoryInstruction(ALLOC_OBJECT, resultTemp, "Any"));
+    irNodes.add(new MemoryInstruction(RETAIN, resultTemp));
+    irNodes.add(new ScopeInstruction(SCOPE_REGISTER, resultTemp, dispatchScope));
+    
+    // Cleanup dispatcher scope
+    irNodes.add(new ScopeInstruction(SCOPE_EXIT, dispatchScope));
+    nameGen.exitScope();
+    
+    return new BasicBlockSequence(irNodes);
+  }
+  
+  private String getDispatchMatrixReference(String targetObj, String methodName) {
+    // Get dispatcher matrix reference from compilation phase
+    ISymbol targetSymbol = symbolTable.resolve(targetObj);
+    if (targetSymbol instanceof IAggregateSymbol aggregate && aggregate.isMarkedAsDispatcher()) {
+      return aggregate.getDispatchMatrixReference(methodName);
+    }
+    throw new CompilerException("Target object is not a dispatcher class: " + targetObj);
+  }
 }
 ```
 
@@ -567,6 +879,221 @@ IRNameGenerator nameGen = new IRNameGenerator("processUserData");
 ```
 
 This systematic naming approach ensures **zero naming conflicts**, provides **excellent debugging support**, maintains **SSA form compatibility**, and works seamlessly with **both JVM and LLVM targets**.
+
+### **Dispatcher Matrix Compilation Integration**
+
+**Phase 7: FULL_RESOLUTION** - Extended for dispatcher processing:
+
+```java
+public class DispatcherMatrixGenerator {
+  private final SymbolTable symbolTable;
+  private final SymbolMatcher symbolMatcher;  // Reuse existing cost-based resolution
+  
+  public Map<String, DispatchMatrix> generateDispatchMatrices(List<IAggregateSymbol> dispatcherClasses) {
+    Map<String, DispatchMatrix> matrices = new HashMap<>();
+    
+    for (IAggregateSymbol dispatcherClass : dispatcherClasses) {
+      if (!dispatcherClass.isMarkedAsDispatcher()) continue;
+      
+      // Find all dispatcher methods in this class
+      List<MethodSymbol> dispatcherMethods = dispatcherClass.getAllNonAbstractMethods()
+        .stream()
+        .filter(MethodSymbol::isMarkedAsDispatcher)
+        .toList();
+        
+      for (MethodSymbol dispatcherMethod : dispatcherMethods) {
+        DispatchMatrix matrix = generateMatrixForMethod(dispatcherClass, dispatcherMethod);
+        matrices.put(dispatcherClass.getName() + "." + dispatcherMethod.getName(), matrix);
+      }
+    }
+    
+    return matrices;
+  }
+  
+  private DispatchMatrix generateMatrixForMethod(IAggregateSymbol dispatcherClass, MethodSymbol dispatcherMethod) {
+    DispatchMatrix matrix = new DispatchMatrix();
+    List<ISymbol> parameterTypes = dispatcherMethod.getParameters();
+    
+    // Get all available types in current compilation unit
+    Set<ISymbol> availableTypes = symbolTable.getAllTypesInScope();
+    
+    // Generate all possible argument combinations (1 or 2 arguments only)
+    if (parameterTypes.size() == 1) {
+      generateSingleArgumentCombinations(dispatcherClass, dispatcherMethod, availableTypes, matrix);
+    } else if (parameterTypes.size() == 2) {
+      generateTwoArgumentCombinations(dispatcherClass, dispatcherMethod, availableTypes, matrix);
+    } else {
+      throw new CompilerException("Dispatcher methods must have 1 or 2 arguments: " + dispatcherMethod);
+    }
+    
+    return matrix;
+  }
+  
+  private void generateSingleArgumentCombinations(IAggregateSymbol dispatcherClass, 
+                                                MethodSymbol dispatcherMethod,
+                                                Set<ISymbol> availableTypes,
+                                                DispatchMatrix matrix) {
+    String methodName = dispatcherMethod.getName();
+    
+    for (ISymbol argType : availableTypes) {
+      // Build method call signature for resolution
+      List<ISymbol> callSignature = List.of(argType);
+      
+      // Use existing EK9 cost-based resolution (same as regular method calls!)
+      MethodSymbolSearchResult searchResult = symbolMatcher.findBestMatchingMethod(
+        dispatcherClass, methodName, callSignature
+      );
+      
+      if (searchResult.hasAmbiguity()) {
+        // COMPILE-TIME ERROR - same as regular method ambiguity
+        String errorMsg = formatAmbiguityError(methodName, callSignature, searchResult.getAmbiguousMethods());
+        throw new CompilerException("AMBIGUOUS_DISPATCHER_METHODS: " + errorMsg);
+      }
+      
+      if (searchResult.getBestMatch().isPresent()) {
+        MethodSymbol bestMethod = searchResult.getBestMatch().get();
+        double cost = searchResult.getBestMatchCost();
+        
+        String lookupKey = methodName + "(" + argType.getName() + ")";
+        DispatchEntry entry = new DispatchEntry(bestMethod, cost, lookupKey);
+        matrix.addEntry(lookupKey, entry);
+      }
+    }
+  }
+  
+  private void generateTwoArgumentCombinations(IAggregateSymbol dispatcherClass,
+                                             MethodSymbol dispatcherMethod, 
+                                             Set<ISymbol> availableTypes,
+                                             DispatchMatrix matrix) {
+    String methodName = dispatcherMethod.getName();
+    
+    // All combinations of two argument types
+    for (ISymbol argType1 : availableTypes) {
+      for (ISymbol argType2 : availableTypes) {
+        List<ISymbol> callSignature = List.of(argType1, argType2);
+        
+        // Use existing EK9 cost-based resolution
+        MethodSymbolSearchResult searchResult = symbolMatcher.findBestMatchingMethod(
+          dispatcherClass, methodName, callSignature
+        );
+        
+        if (searchResult.hasAmbiguity()) {
+          // COMPILE-TIME ERROR
+          String errorMsg = formatAmbiguityError(methodName, callSignature, searchResult.getAmbiguousMethods());
+          throw new CompilerException("AMBIGUOUS_DISPATCHER_METHODS: " + errorMsg);
+        }
+        
+        if (searchResult.getBestMatch().isPresent()) {
+          MethodSymbol bestMethod = searchResult.getBestMatch().get();
+          double cost = searchResult.getBestMatchCost();
+          
+          String lookupKey = methodName + "(" + argType1.getName() + "," + argType2.getName() + ")";
+          DispatchEntry entry = new DispatchEntry(bestMethod, cost, lookupKey);
+          matrix.addEntry(lookupKey, entry);
+        }
+      }
+    }
+  }
+  
+  private String formatAmbiguityError(String methodName, List<ISymbol> callSignature, 
+                                    List<MethodSymbol> ambiguousMethods) {
+    StringBuilder error = new StringBuilder();
+    error.append("Ambiguous dispatcher methods for ").append(methodName)
+         .append("(").append(callSignature.stream().map(ISymbol::getName).collect(Collectors.joining(",")))
+         .append("):\n");
+    
+    for (MethodSymbol method : ambiguousMethods) {
+      error.append("  - ").append(method.getFriendlyName()).append(" cost: ")
+           .append(String.format("%.1f", method.getLastMatchCost())).append("\n");
+    }
+    
+    error.append("Add more specific overload to resolve ambiguity.");
+    return error.toString();
+  }
+}
+
+class DispatchMatrix {
+  private final Map<String, DispatchEntry> entries = new HashMap<>();
+  
+  void addEntry(String lookupKey, DispatchEntry entry) {
+    entries.put(lookupKey, entry);
+  }
+  
+  DispatchEntry getEntry(String lookupKey) {
+    return entries.get(lookupKey);
+  }
+  
+  Set<String> getAllKeys() {
+    return entries.keySet();
+  }
+}
+
+class DispatchEntry {
+  private final MethodSymbol method;
+  private final double matchCost;
+  private final String signature;
+  
+  DispatchEntry(MethodSymbol method, double matchCost, String signature) {
+    this.method = method;
+    this.matchCost = matchCost;
+    this.signature = signature;
+  }
+  
+  // Getters...
+}
+```
+
+### **Key Benefits of EK9 Dispatcher Design**
+
+#### **1. Compile-Time Safety with Runtime Flexibility**
+- **No Runtime Surprises**: All ambiguities detected at compile-time using same algorithm as regular methods
+- **Deterministic Behavior**: Pre-computed dispatch matrices ensure consistent method selection
+- **Type Safety**: Universal RTTI provides type information while maintaining EK9's object model
+- **Performance Predictability**: Runtime dispatch overhead is well-defined and measurable
+
+#### **2. Consistency with EK9 Language Design**
+- **Same Resolution Algorithm**: Dispatchers use identical cost-based matching as regular method calls
+- **Same Error Reporting**: Ambiguity errors formatted consistently with compile-time method resolution
+- **Same Inheritance Model**: Dispatcher resolution follows same superclass → trait → Any hierarchy
+- **Same Performance Model**: Most method calls (95%+) remain compile-time resolved
+
+#### **3. Architectural Integration**
+- **IR Design Compatibility**: Dispatcher calls fit naturally into existing IR instruction set
+- **Symbol Table Reuse**: Leverages existing symbol resolution infrastructure
+- **Memory Management**: Dispatcher calls integrate seamlessly with ARC/GC memory model
+- **Cross-Target Support**: Same IR design works for both JVM and LLVM targets
+
+#### **4. Selective Performance Trade-offs**
+- **Universal RTTI**: Small memory overhead (+16 bytes/object) enables powerful dispatcher capability
+- **Matrix-Based Dispatch**: O(1) runtime lookup for most calls, O(inheritance-depth) for fallbacks
+- **Lazy Matrix Generation**: Only dispatcher classes pay compilation and memory costs
+- **Optimizable**: Standard compiler optimizations (inlining, caching) apply to dispatcher code
+
+#### **5. Developer Experience**
+- **Intuitive Semantics**: Dispatcher behavior matches developer expectations from other languages
+- **Clear Error Messages**: Compile-time ambiguity detection with actionable resolution suggestions
+- **Debugging Support**: Human-readable type names in RTTI aid debugging and introspection
+- **Migration Path**: Existing EK9 code unaffected, dispatchers are opt-in feature
+
+### **Implementation Roadmap Integration**
+
+**Phase 1: JVM Target (Immediate)**
+- Implement DispatcherMatrixGenerator in Phase 7 (FULL_RESOLUTION)
+- Extend IRGenerationVisitor with CALL_DISPATCHER support
+- Add DispatcherCallInstruction → ASM method handle generation
+- Integrate with existing symbol table and method resolution infrastructure
+
+**Phase 2: LLVM-Go Target (Medium Term)**
+- Generate dispatch matrices as C-exported data structures from Go
+- Implement runtime dispatch functions in Go standard library
+- CALL_DISPATCHER → LLVM IR calls to Go dispatch functions
+- Maintain same matrix format and lookup algorithm as JVM target
+
+**Phase 3: Optimization (Ongoing)**
+- Monomorphic inline caching for repeated dispatcher calls
+- Matrix compression techniques for large type spaces
+- Profile-guided optimization for hot dispatcher call sites
+- Integration with target-specific optimization passes
 
 ## LLVM Target Implementation Options Analysis
 
@@ -785,6 +1312,124 @@ The language-agnostic design ensures:
 - Consistent optimization across targets
 - Maintainable codebase
 - Future-proof architecture
+
+### **Dispatcher Method Examples**
+
+#### **Simple Dispatcher with Any Fallback**
+```ek9  
+// EK9 Source - from DispatcherWithAny.ek9
+class DispatcherExample
+  process() as dispatcher
+    -> value as Any
+    <- rtn as String: "Unknown type"
+    
+  private process()
+    -> value as Integer
+    <- rtn as String: `Integer value of ${value}`
+    
+  private process()
+    -> value as Float  
+    <- rtn as String: `Floating point value of ${value}`
+```
+
+```java
+// Pre-computed Dispatch Matrix (generated at compile-time)
+Map<String, MethodEntry> DISPATCH_MATRIX = Map.of(
+  "process(Integer)", new MethodEntry("process_integer_impl", 0.0, method_handle_integer),
+  "process(Float)",   new MethodEntry("process_float_impl", 0.0, method_handle_float),
+  "process(Any)",     new MethodEntry("process_any_impl", 20.0, method_handle_any)  // High cost fallback
+);
+
+// IR Decomposition for: processor.process(someInteger)
+BasicBlock dispatcher_call:
+  GET_RUNTIME_TYPE argType = LOAD_TYPE_NAME(someInteger)     // "Integer"
+  BUILD_LOOKUP_KEY key = CONCAT("process", argType)          // "process(Integer)"
+  DISPATCH_RESOLVE entry = MATRIX_LOOKUP(key)               // → cost: 0.0, method: process_integer_impl
+  CALL result = INVOKE_METHOD(entry.method, processor, someInteger)
+  BRANCH -> next_block
+```
+
+#### **Complex Dispatcher with Two Arguments**
+```ek9
+// EK9 Source - from DispatcherClass.ek9  
+class Intersector extends SpecialIntersector
+  override intersect() as pure dispatcher
+    -> s1 as Shape, s2 as Shape
+    <- intersection as Intersection: Intersection("Intersection just two shapes!")
+    
+  override intersect() as pure
+    -> s1 as Circle, s2 as Rectangle  
+    <- intersection as Intersection: ArcIntersection("Arc Intersection circle and rectangle")
+    
+  override intersect() as pure
+    -> s1 as Square, s2 as Square
+    <- intersection as Intersection: intersectSquares(s1, s2)  // Delegate to function
+```
+
+```java
+// Pre-computed Dispatch Matrix (two-argument combinations)
+Map<String, MethodEntry> INTERSECT_DISPATCH_MATRIX = Map.of(
+  "intersect(Circle,Rectangle)",  new MethodEntry("intersect_circle_rectangle", 0.0, method_handle_1),
+  "intersect(Square,Square)",     new MethodEntry("intersect_square_square", 0.0, method_handle_2), 
+  "intersect(Circle,Circle)",     new MethodEntry("intersect_circle_circle", 0.0, method_handle_3),
+  "intersect(Shape,Shape)",       new MethodEntry("intersect_shape_shape", 15.0, method_handle_fallback)
+);
+
+// IR Decomposition for: intersector.intersect(circleObj, rectObj)
+BasicBlock two_arg_dispatcher:
+  GET_RUNTIME_TYPE type1 = LOAD_TYPE_NAME(circleObj)         // "Circle"
+  GET_RUNTIME_TYPE type2 = LOAD_TYPE_NAME(rectObj)           // "Rectangle"
+  BUILD_LOOKUP_KEY key = CONCAT("intersect", type1, type2)   // "intersect(Circle,Rectangle)"
+  DISPATCH_RESOLVE entry = MATRIX_LOOKUP(key)               // → exact match, cost: 0.0
+  CALL result = INVOKE_METHOD(entry.method, intersector, circleObj, rectObj)
+  BRANCH -> next_block
+  
+// If no exact match found, inheritance fallback:
+inheritance_fallback:
+  GET_SUPER_TYPE super1 = LOAD_SUPER_TYPE(circleObj)        // "Shape"
+  BUILD_FALLBACK_KEY key2 = CONCAT("intersect", super1, type2) // "intersect(Shape,Rectangle)"
+  DISPATCH_RESOLVE entry2 = MATRIX_LOOKUP(key2)
+  // Continue until match found (guaranteed due to Shape,Shape fallback)
+```
+
+#### **Compile-Time Ambiguity Prevention**
+```ek9
+// EK9 Source - Potential ambiguity scenario
+class BadDispatcher
+  process() as dispatcher -> arg as Shape <- rtn as String: "Shape"
+  
+  process() -> arg as Circle <- rtn as String: "Circle"      // Cost: 0.0 for Circle
+  process() -> arg as Rectangle <- rtn as String: "Rectangle" // Cost: 0.0 for Rectangle
+  // Missing: process() -> arg as Square <- rtn as String: "Square"
+```
+
+```java
+// Compile-time matrix generation detects ambiguity:
+// For call: process(squareObj) where Square extends Shape
+//   - process(Circle) cost: 15.0 (Square → Shape, no Circle relation)
+//   - process(Rectangle) cost: 15.0 (Square → Shape, no Rectangle relation)  
+//   - process(Shape) cost: 10.0 (Square → Shape direct inheritance)
+//
+// Result: Unambiguous - process(Shape) selected with cost 10.0
+
+// But for: process(ellipseObj) where Ellipse extends Shape
+//   - process(Circle) cost: 15.0 (Ellipse → Shape, no Circle relation)
+//   - process(Rectangle) cost: 15.0 (Ellipse → Shape, no Rectangle relation)
+//   - process(Shape) cost: 10.0 (Ellipse → Shape direct inheritance)
+//
+// Still unambiguous - this design is sound!
+
+// Actual ambiguity would occur if:
+class AmbiguousDispatcher
+  process() as dispatcher -> arg as Shape <- rtn as String: "Shape"
+  process() -> arg as Drawable <- rtn as String: "Drawable"
+  
+// And: class Square extends Shape with trait of Drawable
+// Then: process(squareObj)
+//   - process(Shape) cost: 10.0 (direct superclass)
+//   - process(Drawable) cost: 10.0 (direct trait)
+//   → COMPILE ERROR: Ambiguous dispatcher methods!
+```
 
 ## EK9 Language Features → IR Decomposition Examples
 
@@ -1044,6 +1689,14 @@ public class CallInstruction extends IRInstruction {
   private final boolean requiresPromotion;  // If _promote call needed
 }
 
+public class DispatcherCallInstruction extends IRInstruction {
+  private final String result;              // Variable to store result
+  private final String targetObject;        // Object containing dispatcher method
+  private final String dispatcherName;      // Dispatcher method name (e.g., "process")
+  private final List<String> arguments;     // Runtime arguments for type analysis
+  private final String dispatchMatrixRef;   // Reference to pre-computed dispatch matrix
+}
+
 public class LoadInstruction extends IRInstruction {
   private final String destination;   // Variable to load into
   private final String source;        // Variable/field/literal to load from
@@ -1153,6 +1806,22 @@ ALOAD a_localIndex              // Load 'a' object
 ALOAD b_localIndex              // Load 'b' argument
 INVOKEVIRTUAL org/ek9/lang/Integer/_eq(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
 ASTORE result_localIndex        // Store returned Boolean object
+```
+
+#### **Dispatcher Methods**
+```java
+// EK9: processor.process(someValue)  
+// IR: CALL_DISPATCHER result = processor.process(someValue)
+// ASM Output:
+ALOAD processor_localIndex       // Load dispatcher object
+ALOAD someValue_localIndex       // Load argument
+INVOKEVIRTUAL processDispatcher(Lorg/ek9/lang/Any;)Lorg/ek9/lang/Any;
+ASTORE result_localIndex         // Store result
+
+// The processDispatcher method contains the runtime dispatch logic:
+//   1. Extract argument type: someValue.getTypeName()
+//   2. Matrix lookup: DISPATCH_MATRIX.get("process(" + argType + ")")
+//   3. Method invocation: methodHandle.invoke(this, someValue)
 ```
 
 #### **Control Flow**
@@ -1284,6 +1953,38 @@ release_object:
 cleanup_done:
   ret void
 }
+```
+
+#### **Dispatcher Methods with Runtime Type Analysis**
+```llvm
+; EK9: processor.process(circleObj, rectObj)
+; IR: CALL_DISPATCHER result = processor.process(circleObj, rectObj)
+; LLVM Output:
+
+; Extract runtime type information from arguments
+%type1_ptr = getelementptr inbounds %EK9Object, ptr %circleObj, i32 0, i32 0
+%type1 = load ptr, ptr %type1_ptr                ; Load "Circle" type name
+%type2_ptr = getelementptr inbounds %EK9Object, ptr %rectObj, i32 0, i32 0  
+%type2 = load ptr, ptr %type2_ptr                ; Load "Rectangle" type name
+
+; Build dispatch lookup key
+%lookup_key = call ptr @build_dispatch_key(ptr %type1, ptr %type2)  ; "process(Circle,Rectangle)"
+
+; Matrix lookup for best method
+%method_ptr = call ptr @dispatch_matrix_lookup(ptr %dispatch_matrix, ptr %lookup_key)
+
+; Handle inheritance fallback if needed
+%cmp_null = icmp eq ptr %method_ptr, null
+br i1 %cmp_null, label %inheritance_fallback, label %direct_call
+
+inheritance_fallback:
+  %fallback_method = call ptr @find_best_match_inheritance(ptr %lookup_key, ptr %type1, ptr %type2)
+  br label %direct_call
+
+direct_call:
+  %final_method = phi ptr [ %method_ptr, %entry ], [ %fallback_method, %inheritance_fallback ]
+  ; Direct function call with resolved method
+  %result = call ptr %final_method(ptr %processor, ptr %circleObj, ptr %rectObj)
 ```
 
 #### **Control Flow**
