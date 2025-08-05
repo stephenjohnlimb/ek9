@@ -106,22 +106,14 @@ final class EK9Test {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"-T jvm -Ch", "-T llvm -Ch"})
-  void testTargetArchitectureCompilation(final String flag) {
-    String sourceName = "HelloWorld.ek9";
-    String[] command = new String[] {String.format("%s %s", flag, sourceName)};
-
-    //We will copy this into a working directory and process it.
-    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
-    assertNotNull(sourceFile);
-
-    //This will actually trigger a full compile first, but no artefact should be created in a check.
-    assertCompilationArtefactsNotPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {"-Cdp IR_ANALYSIS", "-Cp IR_ANALYSIS", "-ch", "-Cl"})
-  void testNoneArtifactCompilation(final String flag) {
+  @ValueSource(strings = {"-T jvm -Ch",
+      "-T llvm-go -Ch",
+      "-T llvm-cpp -Ch",
+      "-Cdp IR_ANALYSIS",
+      "-Cp IR_ANALYSIS",
+      "-ch",
+      "-Cl"})
+  void testVariousFlagsCompilation(final String flag) {
     String sourceName = "HelloWorld.ek9";
     String[] command = new String[] {String.format("%s %s", flag, sourceName)};
 

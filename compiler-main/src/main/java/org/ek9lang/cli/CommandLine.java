@@ -70,11 +70,6 @@ final class CommandLine {
 
   }
 
-  static void addDefaultSetting() {
-
-    DEFAULTS.put("EK9_TARGET", "JVM");
-  }
-
   /**
    * Just provides the commandline help text.
    */
@@ -195,15 +190,12 @@ final class CommandLine {
 
     if (rtn) {
       var commandLineArchitecture = strArray[index + 1].toUpperCase();
-      try {
-        targetArchitecture = TargetArchitecture.valueOf(commandLineArchitecture);
-      } catch (IllegalArgumentException e) {
-        Logger.error("Only JVM/LLVM is currently supported as a target [" + commandLineArchitecture + "]");
-        targetArchitecture = TargetArchitecture.NOT_SUPPORTED;
+      targetArchitecture = TargetArchitecture.from(commandLineArchitecture);
+      if (targetArchitecture == TargetArchitecture.NOT_SUPPORTED) {
+        Logger.error("Only jvm/llvm-go/llvm-cpp is currently supported as a target [" + commandLineArchitecture + "]");
       }
 
     }
-
     return rtn;
   }
 
@@ -223,6 +215,7 @@ final class CommandLine {
     return strArray[index].equals("-Cp") || strArray[index].equals("-Cdp");
   }
 
+  @SuppressWarnings("checkstyle:CatchParameterName")
   private int processPhasedCompilationOption(final String[] strArray,
                                              final int index,
                                              final List<String> activeParameters) {
@@ -236,7 +229,7 @@ final class CommandLine {
         activeParameters.add(compileCommand);
         activeParameters.add(compilationPhaseOptionProvided);
         return Ek9.RUN_COMMAND_EXIT_CODE;
-      } catch (Exception ex) {
+      } catch (Exception _) {
         var optionsToChooseFrom = Arrays
             .stream(CompilationPhase.values())
             .map(Enum::name)
@@ -497,9 +490,8 @@ final class CommandLine {
 
     final var proposedTargetArchitecture = DEFAULTS.get("EK9_TARGET");
     if (proposedTargetArchitecture != null && !proposedTargetArchitecture.isEmpty()) {
-      this.targetArchitecture = TargetArchitecture.valueOf(proposedTargetArchitecture.toUpperCase());
+      this.targetArchitecture = TargetArchitecture.from(proposedTargetArchitecture);
     }
-
   }
 
   /**

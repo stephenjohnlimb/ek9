@@ -198,7 +198,6 @@ final class CommandLineTest {
     assertNull(underTest.processEk9FileProperties(false));
     //Now with forced reloading
     assertNotNull(underTest.processEk9FileProperties(true));
-    //TODO
   }
 
   @Test
@@ -665,34 +664,21 @@ final class CommandLineTest {
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 
-  @Test
-  void testCommandLineRunAsLLVMTarget() {
+
+  @ParameterizedTest
+  @CsvSource({"-T llvm-go,LLVM_GO",
+      "-T llvm-cpp,LLVM_CPP",
+      "-T jvm,JVM"})
+  void testCommandLineRunAs(final String targetArchitectureOption, final String expectedArchitecture) {
     String sourceName = "HelloWorld.ek9";
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
     assertNotNull(sourceFile);
 
     CommandLine underTest = createClassUnderTest();
-    assertEquals(0, underTest.process("-T llvm " + sourceName));
+    assertEquals(0, underTest.process(targetArchitectureOption + " " + sourceName));
     assertTrue(underTest.options().isRunNormalMode());
     assertEquals("HelloWorld", underTest.getProgramToRun());
-    assertEquals(TargetArchitecture.LLVM, underTest.getTargetArchitecture());
-    assertEquals(sourceName, underTest.getSourceFileName());
-  }
-
-  @Test
-  void testEnvironmentVariableRunAsJavaTarget() {
-    String sourceName = "HelloWorld.ek9";
-    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
-    assertNotNull(sourceFile);
-
-    //Simulate picking up from environment variables.
-    CommandLine.addDefaultSetting();
-
-    CommandLine underTest = createClassUnderTest();
-    assertEquals(0, underTest.process(sourceName));
-    assertTrue(underTest.options().isRunNormalMode());
-    assertEquals("HelloWorld", underTest.getProgramToRun());
-    assertEquals(TargetArchitecture.JVM, underTest.getTargetArchitecture());
+    assertEquals(TargetArchitecture.valueOf(expectedArchitecture), underTest.getTargetArchitecture());
     assertEquals(sourceName, underTest.getSourceFileName());
   }
 

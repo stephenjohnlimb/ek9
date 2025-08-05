@@ -15,19 +15,22 @@ public final class OutputFileAccess implements BiFunction<Construct, String, Fil
   private final FileHandling fileHandling;
   private final CompilerFlags compilerFlags;
   private final FullyQualifiedFileName fullyQualifiedNameMapper = new FullyQualifiedFileName();
+  private final TargetArchitecture llvmTarget;
 
-  public OutputFileAccess(final FileHandling fileHandling, final CompilerFlags compilerFlags) {
+  public OutputFileAccess(final FileHandling fileHandling, final CompilerFlags compilerFlags,
+                          final TargetArchitecture llvmTarget) {
     this.fileHandling = fileHandling;
     this.compilerFlags = compilerFlags;
+    this.llvmTarget = llvmTarget;
   }
 
   @Override
   public File apply(final Construct construct, final String projectDotEK9Directory) {
     if (compilerFlags.isDevBuild()) {
-      final File dir = fileHandling.getDevGeneratedOutputDirectory(projectDotEK9Directory, TargetArchitecture.LLVM);
+      final File dir = fileHandling.getDevGeneratedOutputDirectory(projectDotEK9Directory, llvmTarget);
       return (createOutputFile(dir, construct));
     }
-    final File dir = fileHandling.getMainGeneratedOutputDirectory(projectDotEK9Directory, TargetArchitecture.LLVM);
+    final File dir = fileHandling.getMainGeneratedOutputDirectory(projectDotEK9Directory, llvmTarget);
     return (createOutputFile(dir, construct));
 
   }

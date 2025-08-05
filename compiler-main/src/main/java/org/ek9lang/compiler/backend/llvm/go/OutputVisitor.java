@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.backend.llvm;
+package org.ek9lang.compiler.backend.llvm.go;
 
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.common.INodeVisitor;

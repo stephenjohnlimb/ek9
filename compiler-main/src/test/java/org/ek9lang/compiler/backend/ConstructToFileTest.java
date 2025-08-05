@@ -16,11 +16,11 @@ class ConstructToFileTest {
   private final FileHandling fileHandling = new FileHandling(osSupport);
 
   @ParameterizedTest
-  @CsvSource({"JVM", "LLVM"})
+  @CsvSource({"jvm", "llvm-go", "llvm-cpp"})
   void testOutputFileLocator(final String architecture) {
 
     final var compilerFlags = new CompilerFlags();
-    compilerFlags.setTargetArchitecture(TargetArchitecture.valueOf(architecture));
+    compilerFlags.setTargetArchitecture(TargetArchitecture.from(architecture));
 
     final var underTest = new OutputFileLocator(fileHandling, compilerFlags);
     final var locator = underTest.get();
@@ -29,11 +29,11 @@ class ConstructToFileTest {
   }
 
   @ParameterizedTest
-  @CsvSource({"JVM", "LLVM"})
+  @CsvSource({"jvm", "llvm-go", "llvm-cpp"})
   void testTargetLocator(final String architecture) {
     final var underTest = new TargetLocator();
 
-    final var targetArchitecture = TargetArchitecture.valueOf(architecture);
+    final var targetArchitecture = TargetArchitecture.from(architecture);
     final var target = underTest.apply(targetArchitecture);
     assertEquals(targetArchitecture, target.getArchitecture());
 

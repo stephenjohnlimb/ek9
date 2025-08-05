@@ -8,18 +8,21 @@ import java.util.Arrays;
 import java.util.Optional;
 import org.ek9lang.compiler.backend.Target;
 import org.ek9lang.core.CompilerException;
-import org.ek9lang.core.TargetArchitecture;
 
 /**
- * Target for LLVM code output.
+ * Abstract Target for LLVM code output, can be for Go or C++ (with different Ek9 std library and
+ * memory management.
  * i.e. this Target would produce LLVM Code that can be
- * converted to an executable by the llvm software.
+ * converted to an executable by the llvm software. But still need to link to an appropriate GO or C++
+ * Ek9 standard library that has appropriate implementation and suitable memory management.
+ * But either way llvm is required, just the llvm instructions we create are slightly different based on
+ * a Go target or a C++ target.
  * A check is undertaken to see if the 'clang' executable with the right version can be located and executed.
  */
-public class LlvmTarget implements Target {
+public abstract class LlvmTarget implements Target {
   private static final int MIN_LLVM_VERSION_REQUIRED = 18;
   private static final String CLANG = "clang";
-  private static boolean clangExecutableSupported;
+  protected static boolean clangExecutableSupported;
 
   /*
    * There is only a need to do this check once (hence it is static).
@@ -28,15 +31,8 @@ public class LlvmTarget implements Target {
     locateClangExecutable().ifPresent(LlvmTarget::checkLLvmVersionValid);
   }
 
-  @Override
-  public TargetArchitecture getArchitecture() {
-
-    return TargetArchitecture.LLVM;
-  }
-
-  @Override
-  public boolean isSupported() {
-    return clangExecutableSupported;
+  protected LlvmTarget() {
+    //Only useful when extended.
   }
 
   private static Optional<File> locateClangExecutable() {
@@ -54,6 +50,7 @@ public class LlvmTarget implements Target {
     }
     return clangExecutable;
   }
+
 
   /**
    * While not used, maybe useful if I have issues with clang and llvm again.

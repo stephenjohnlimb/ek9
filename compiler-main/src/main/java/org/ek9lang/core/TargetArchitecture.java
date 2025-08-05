@@ -5,10 +5,21 @@ package org.ek9lang.core;
  */
 public enum TargetArchitecture {
   JVM("jvm"),
-  LLVM("llvm"),
+  LLVM_GO("llvm-go"),
+  LLVM_CPP("llvm-cpp"),
   NOT_SUPPORTED("not-supported");
 
   private final String description;
+
+  @SuppressWarnings("checkstyle:CatchParameterName")
+  public static TargetArchitecture from(final String description) {
+    final var proposed = description.toUpperCase().replace("-", "_");
+    try {
+      return TargetArchitecture.valueOf(proposed);
+    } catch (IllegalArgumentException _) {
+      return TargetArchitecture.NOT_SUPPORTED;
+    }
+  }
 
   TargetArchitecture(final String description) {
 

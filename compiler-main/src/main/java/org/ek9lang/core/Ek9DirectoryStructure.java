@@ -117,7 +117,7 @@ public final class Ek9DirectoryStructure {
    * This expects an ek9 source file in a specific directory.
    *
    * @param ek9FullPathToFileName i.e. main.ek9
-   * @param targetArchitecture    i.e. "jvm" or "llvm"
+   * @param targetArchitecture    i.e. "jvm" or "llvm-go/llvm-cpp"
    */
   public void cleanEk9DirectoryStructureFor(final String ek9FullPathToFileName,
                                             final TargetArchitecture targetArchitecture) {
