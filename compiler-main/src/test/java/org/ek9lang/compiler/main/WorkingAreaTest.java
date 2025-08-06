@@ -17,7 +17,16 @@ import org.junit.jupiter.api.Test;
 class WorkingAreaTest extends PhasesTest {
 
   public WorkingAreaTest() {
-    super("/examples/parseButFailCompile/workingarea", true, true);
+    super("/examples/parseButFailCompile/workingarea", false, true);
+  }
+
+  /**
+   * For this test I've like to enable debugging output in the IR and Code generation (once implemented).
+   * @return true enable debug instrumentation.
+   */
+  @Override
+  protected boolean addDebugInstrumentation() {
+    return true;
   }
 
   @Test
@@ -26,7 +35,7 @@ class WorkingAreaTest extends PhasesTest {
     ek9Workspace.getSources().stream().findFirst()
         .ifPresent(source -> fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture));
 
-    testToPhase(CompilationPhase.PACKAGING_POST_PROCESSING);
+    testToPhase(CompilationPhase.SIMPLE_IR_GENERATION);
   }
 
   @Override
@@ -37,7 +46,9 @@ class WorkingAreaTest extends PhasesTest {
     assertNotNull(resolvedProgram);
 
     final var printer = new NodePrinter();
-    program.getIRModules("introduction").forEach(irModule -> irModule.getConstructs().forEach(printer::visit));
+    program
+        .getIRModules("introduction")
+        .forEach(irModule -> irModule.getConstructs().forEach(printer::visit));
 
   }
 }

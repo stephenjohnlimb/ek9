@@ -20,7 +20,7 @@ class NoOpNodeVisitorTest {
   void testEmptyConstruct() {
     final var global = new SymbolTable();
     final var any = new AnyTypeSymbol("Any", global);
-    final var construct = new Construct(any);
+    final var construct = new IRConstruct(any);
 
     assertNotNull(construct.toString());
     underTest.visit(construct);

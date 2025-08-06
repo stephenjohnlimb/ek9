@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import org.ek9lang.compiler.CompilerFlags;
-import org.ek9lang.compiler.ir.Construct;
+import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.core.CompilerException;
 import org.ek9lang.core.FileHandling;
 
@@ -15,7 +15,7 @@ import org.ek9lang.core.FileHandling;
  * Given a TargetArchitecture from the configFlags, this function will provide a function that creates (if not present)
  * and returns the File for a Construct.
  */
-public class OutputFileLocator implements Supplier<BiFunction<Construct, String, File>> {
+public class OutputFileLocator implements Supplier<BiFunction<IRConstruct, String, File>> {
 
   private final FileHandling fileHandling;
   private final CompilerFlags compilerFlags;
@@ -26,7 +26,7 @@ public class OutputFileLocator implements Supplier<BiFunction<Construct, String,
   }
 
   @Override
-  public BiFunction<Construct, String, File> get() {
+  public BiFunction<IRConstruct, String, File> get() {
 
     return switch (compilerFlags.getTargetArchitecture()) {
       case LLVM_GO -> new org.ek9lang.compiler.backend.llvm.OutputFileAccess(fileHandling, compilerFlags, LLVM_GO);

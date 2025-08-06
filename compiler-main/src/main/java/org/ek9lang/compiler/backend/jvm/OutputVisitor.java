@@ -4,7 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.common.INodeVisitor;
-import org.ek9lang.compiler.ir.Construct;
+import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.Operation;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
@@ -44,7 +44,7 @@ public final class OutputVisitor implements INodeVisitor {
   }
 
   @Override
-  public void visit(final Construct construct) {
+  public void visit(final IRConstruct construct) {
     asmStructureCreator.processClass();
   }
 

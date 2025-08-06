@@ -2,12 +2,13 @@ package org.ek9lang.compiler.common;
 
 import org.ek9lang.compiler.ir.Argument;
 import org.ek9lang.compiler.ir.Assignment;
-import org.ek9lang.compiler.ir.Block;
+import org.ek9lang.compiler.ir.BasicBlock;
 import org.ek9lang.compiler.ir.Call;
 import org.ek9lang.compiler.ir.ChainedAccess;
-import org.ek9lang.compiler.ir.Construct;
+import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.ConstructorCall;
 import org.ek9lang.compiler.ir.Expression;
+import org.ek9lang.compiler.ir.IRInstruction;
 import org.ek9lang.compiler.ir.Instructions;
 import org.ek9lang.compiler.ir.Literal;
 import org.ek9lang.compiler.ir.Marker;
@@ -39,16 +40,13 @@ public interface INodeVisitor {
   default void visit(final Assignment assignment) {
   }
 
-  default void visit(final Block block) {
-  }
-
   default void visit(final Call call) {
   }
 
   default void visit(final ChainedAccess chainedAccess) {
   }
 
-  default void visit(final Construct construct) {
+  default void visit(final IRConstruct construct) {
   }
 
   default void visit(final ConstructorCall constructorCall) {
@@ -79,6 +77,13 @@ public interface INodeVisitor {
   }
 
   default void visit(final VariableRef variableRef) {
+  }
+
+  // New IR instruction visitor methods
+  default void visit(final BasicBlock basicBlock) {
+  }
+
+  default void visit(final IRInstruction irInstruction) {
   }
 
 }

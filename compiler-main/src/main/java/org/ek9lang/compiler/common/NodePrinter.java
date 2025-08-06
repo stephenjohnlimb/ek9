@@ -1,13 +1,13 @@
 package org.ek9lang.compiler.common;
 
 import org.ek9lang.compiler.ir.Assignment;
-import org.ek9lang.compiler.ir.Block;
+import org.ek9lang.compiler.ir.BasicBlock;
 import org.ek9lang.compiler.ir.ChainedAccess;
-import org.ek9lang.compiler.ir.Construct;
+import org.ek9lang.compiler.ir.IRConstruct;
+import org.ek9lang.compiler.ir.IRInstruction;
 import org.ek9lang.compiler.ir.Instructions;
 import org.ek9lang.compiler.ir.Operation;
 import org.ek9lang.compiler.ir.VariableDecl;
-import org.ek9lang.compiler.symbols.SymbolGenus;
 
 /**
  * Just to enable viewing and printing of nodes.
@@ -18,11 +18,7 @@ import org.ek9lang.compiler.symbols.SymbolGenus;
 public class NodePrinter implements INodeVisitor {
 
   @Override
-  public void visit(final Construct construct) {
-
-    if (construct.getSymbol().getGenus() == SymbolGenus.PROGRAM) {
-      System.out.println("Program: would create static main entry point and call to _main");
-    }
+  public void visit(final IRConstruct construct) {
 
     System.out.printf("Construct: %s%n", construct.getFullyQualifiedName());
     construct.getOperations().forEach(operation -> operation.accept(this));
@@ -33,17 +29,11 @@ public class NodePrinter implements INodeVisitor {
     System.out.printf("Start Method: %s %s %s%n", operation.getReturn().getReturnType(), operation.getOperationName(),
         operation.getParameters());
 
+    // Using BasicBlock IR
     operation.getBody().accept(this);
 
     System.out.printf("End Method: %s %s %s%n", operation.getReturn().getReturnType(), operation.getOperationName(),
         operation.getParameters());
-  }
-
-  @Override
-  public void visit(final Block block) {
-    System.out.printf("Start Block Marker: %s%n", block.getStart());
-    block.getItems().forEach(item -> item.accept(this));
-    System.out.printf("End Block Marker: %s%n", block.getEnd());
   }
 
   @Override
@@ -64,5 +54,26 @@ public class NodePrinter implements INodeVisitor {
   @Override
   public void visit(final ChainedAccess chainedAccess) {
     System.out.printf("ChainedAccess Declaration: %s%n", chainedAccess.toString());
+  }
+
+  // New IR visitor methods
+  @Override
+  public void visit(final BasicBlock basicBlock) {
+    System.out.printf("BasicBlock: %s%n", basicBlock.getLabel());
+    for (IRInstruction instruction : basicBlock.getInstructions()) {
+      System.out.printf("  %s%n", instruction);
+    }
+
+    if (!basicBlock.getSuccessors().isEmpty()) {
+      System.out.printf("  Successors: %s%n",
+          basicBlock.getSuccessors().stream()
+              .map(BasicBlock::getLabel)
+              .toList());
+    }
+  }
+
+  @Override
+  public void visit(final IRInstruction irInstruction) {
+    System.out.printf("IRInstruction: %s%n", irInstruction);
   }
 }

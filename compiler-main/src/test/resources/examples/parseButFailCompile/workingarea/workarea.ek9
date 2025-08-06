@@ -6,5 +6,9 @@ defines module introduction
       //While Stdout is not defined here, it should be resolvable
       @Resolved: SYMBOL_DEFINITION: TYPE: "Stdout"
       stdout <- Stdout()
-      stdout.println("Hello, World")
+      notToOutput <- 2
+      alsoNotToOutput <- 2024-12-25
+      assert notToOutput? and alsoNotToOutput?
+      toOutput <- "Hello, World"
+      stdout.println(toOutput)
 //EOF

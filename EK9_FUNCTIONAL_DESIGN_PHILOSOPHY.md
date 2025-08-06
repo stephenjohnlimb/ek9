@@ -74,6 +74,56 @@ final class NodeEmpty implements java.util.function.Predicate<JsonNode> {
 - Method inlining opportunities through delegation
 - No performance degradation from decomposition
 
+## **Cross-Cutting Concern Encapsulation Pattern**
+
+### **DebugInfoCreator Pattern Example**
+
+A specific application of the functional decomposition philosophy for handling cross-cutting concerns like debug information:
+
+```java
+// Encapsulation class
+final class DebugInfoCreator implements Function<ISymbol, DebugInfo> {
+  private final IRGenerationContext context;
+  
+  public DebugInfoCreator(final IRGenerationContext context) {
+    this.context = context;
+  }
+  
+  @Override
+  public DebugInfo apply(final ISymbol symbol) {
+    return context.getCompilerFlags().isDebuggingInstrumentation()
+        ? DebugInfo.from(context.getParsedModule().getSource(), symbol) : null;
+  }
+}
+
+// Usage pattern in instruction creators
+public final class ObjectAccessInstructionCreator {
+  private final IRGenerationContext context;
+  private final DebugInfoCreator debugInfoCreator;  // Consistent field pattern
+  
+  public ObjectAccessInstructionCreator(final IRGenerationContext context) {
+    this.context = context;
+    this.debugInfoCreator = new DebugInfoCreator(context);  // Constructor initialization
+  }
+  
+  // In methods - clean delegation
+  final var debugInfo = debugInfoCreator.apply(symbol);  // No direct conditional logic
+}
+```
+
+### **Key Benefits of This Pattern**
+- **Encapsulation**: Debug logic completely isolated from instruction generation
+- **Consistency**: Same pattern applied across all instruction creators
+- **Testability**: DebugInfoCreator can be tested independently
+- **Maintainability**: Changes to debug info generation affect only one class
+- **Clean Code**: Instruction creators focus on their primary responsibility
+
+### **When to Use This Pattern**
+- Cross-cutting concerns that appear in multiple classes
+- Complex conditional logic that can be encapsulated
+- Operations that need consistent behavior across the codebase
+- Logic that benefits from independent testing
+
 ## **Implementation Guidelines**
 
 ### **When to Apply This Pattern**
@@ -97,6 +147,7 @@ final class NodeEmpty implements java.util.function.Predicate<JsonNode> {
 **Helper Classes:**
 - `Node[Operation]` for JSON operations (NodeAdd, NodeEmpty, etc.)
 - `[Type][Operation]` for type-specific operations
+- `[Purpose]Creator` for encapsulated creation logic (DebugInfoCreator, InstructionCreator, etc.)
 - Descriptive names that clearly indicate purpose
 
 **Method Patterns:**
@@ -108,9 +159,10 @@ final class NodeEmpty implements java.util.function.Predicate<JsonNode> {
 
 ### **Primary Usage: EK9 Compiler**
 This pattern is **extensively used** throughout the main EK9 compiler architecture:
-- 22-phase compilation pipeline likely uses similar decomposition
-- Complex compiler operations broken into focused components
-- Each phase probably leverages similar functional patterns
+- 22-phase compilation pipeline uses consistent decomposition
+- Complex compiler operations broken into focused components (IR generation, symbol resolution, etc.)
+- Encapsulation pattern for cross-cutting concerns (DebugInfoCreator for debug information generation)
+- Each phase leverages similar functional patterns for maintainable, testable code
 
 ### **Secondary Usage: Standard Library**
 The JSON class refactoring demonstrates applying compiler design principles to stdlib:

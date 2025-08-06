@@ -3,14 +3,14 @@ package org.ek9lang.compiler.backend.llvm;
 import java.io.File;
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.CompilerFlags;
-import org.ek9lang.compiler.ir.Construct;
+import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.TargetArchitecture;
 
 /**
  * Creates the File Object in the appropriate location for llvm output.
  */
-public final class OutputFileAccess implements BiFunction<Construct, String, File> {
+public final class OutputFileAccess implements BiFunction<IRConstruct, String, File> {
 
   private final FileHandling fileHandling;
   private final CompilerFlags compilerFlags;
@@ -25,7 +25,7 @@ public final class OutputFileAccess implements BiFunction<Construct, String, Fil
   }
 
   @Override
-  public File apply(final Construct construct, final String projectDotEK9Directory) {
+  public File apply(final IRConstruct construct, final String projectDotEK9Directory) {
     if (compilerFlags.isDevBuild()) {
       final File dir = fileHandling.getDevGeneratedOutputDirectory(projectDotEK9Directory, llvmTarget);
       return (createOutputFile(dir, construct));
@@ -35,7 +35,7 @@ public final class OutputFileAccess implements BiFunction<Construct, String, Fil
 
   }
 
-  private File createOutputFile(final File dir, final Construct construct) {
+  private File createOutputFile(final File dir, final IRConstruct construct) {
     final var fqn = fullyQualifiedNameMapper.apply(construct.getFullyQualifiedName());
     final File rtn = new File(dir, fqn);
     fileHandling.makeDirectoryIfNotExists(rtn.getParentFile());

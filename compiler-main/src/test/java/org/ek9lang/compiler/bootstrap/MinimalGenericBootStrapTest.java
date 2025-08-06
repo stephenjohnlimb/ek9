@@ -39,6 +39,7 @@ class MinimalGenericBootStrapTest {
   //As not actually loading the basics of EK9 source.
   final Supplier<List<CompilableSource>> sourceSupplier =
       () -> List.of(new CompilableSource(Objects.requireNonNull(getClass().getResource(
+          "/examples/bootstrap/")).getPath(), Objects.requireNonNull(getClass().getResource(
           "/examples/bootstrap/org-ek9-lang.ek9")).getPath()));
   private final CompilerReporter reporter = new CompilerReporter(false, false);
   private final Supplier<CompilationPhaseListener> listener

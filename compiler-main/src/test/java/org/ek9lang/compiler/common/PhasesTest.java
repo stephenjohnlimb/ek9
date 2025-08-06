@@ -43,6 +43,10 @@ public abstract class PhasesTest {
 
   protected final FileHandling fileHandling = new FileHandling(new OsSupport(true));
 
+  protected boolean addDebugInstrumentation() {
+    return false;
+  }
+
   public PhasesTest(final String fromResourcesDirectory) {
     this(fromResourcesDirectory, List.of());
   }
@@ -206,6 +210,7 @@ public abstract class PhasesTest {
 
     final var flags = new CompilerFlags(upToPhase, reporter.isVerbose());
     flags.setTargetArchitecture(targetArchitecture);
+    flags.setDebuggingInstrumentation(addDebugInstrumentation());
     var compilationResult = compiler.compile(ek9Workspace, flags);
 
     sharedCompilableProgram.accept(program -> checkFinalResults(compilationResult, counter.get(), program));

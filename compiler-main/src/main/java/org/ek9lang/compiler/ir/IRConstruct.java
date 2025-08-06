@@ -21,13 +21,13 @@ import org.ek9lang.core.AssertValue;
  * fixed named functions. It also means it is very easy to pass functions around as data.
  * </p>
  */
-public final class Construct implements INode {
+public final class IRConstruct implements INode {
 
   private final ISymbol symbol;
 
   private final List<Operation> operations = new ArrayList<>();
 
-  public Construct(final ISymbol symbol) {
+  public IRConstruct(final ISymbol symbol) {
 
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
     this.symbol = symbol;

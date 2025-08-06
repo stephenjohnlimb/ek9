@@ -38,21 +38,21 @@ public class IRGeneration extends CompilerPhase {
 
   @Override
   public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
-    return underTakeIRDefinition(workspace);
+    return underTakeIRDefinition(workspace, compilerFlags);
   }
 
-  private boolean underTakeIRDefinition(final Workspace workspace) {
+  private boolean underTakeIRDefinition(final Workspace workspace, final CompilerFlags compilerFlags) {
 
-    defineIRMultiThreaded(workspace);
+    defineIRMultiThreaded(workspace, compilerFlags);
 
     return !sourceHasErrors.test(workspace.getSources());
   }
 
-  private void defineIRMultiThreaded(final Workspace workspace) {
+  private void defineIRMultiThreaded(final Workspace workspace, final CompilerFlags compilerFlags) {
 
     workspace.getSources()
         .parallelStream()
-        .forEach(this::defineIR);
+        .forEach(source -> defineIR(source, compilerFlags));
 
   }
 
@@ -61,7 +61,7 @@ public class IRGeneration extends CompilerPhase {
    * Here, we are creating the Intermediate Representation of code.
    * Clearly we do not create that for built-in EK9 code (as that will be provided).
    */
-  private void defineIR(final CompilableSource source) {
+  private void defineIR(final CompilableSource source, final CompilerFlags compilerFlags) {
 
     final var irModule = new IRModule(source);
     irModule.acceptCompilationUnitContext(source.getCompilationUnitContext());
@@ -73,8 +73,10 @@ public class IRGeneration extends CompilerPhase {
 
     compilableProgramAccess.accept(compilableProgram -> compilableProgram.add(irModule));
 
-    final IRDefinitionVisitor irDefinitionVisitor = new IRDefinitionVisitor(compilableProgramAccess, source, irModule);
-    irDefinitionVisitor.visitCompilationUnit(source.getCompilationUnitContext());
+    final var irDefinitionCreator = new IRDefinitionCreator(compilableProgramAccess, source, irModule, compilerFlags);
+
+    //Now for the particular source and its new IR Module, create the IR.
+    irDefinitionCreator.create(source.getCompilationUnitContext());
 
   }
 }

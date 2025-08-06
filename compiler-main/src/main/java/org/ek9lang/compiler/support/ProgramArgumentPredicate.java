@@ -11,6 +11,7 @@ import static org.ek9lang.compiler.support.AggregateManipulator.EK9_DURATION;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_FLOAT;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_INTEGER;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_LIST;
+import static org.ek9lang.compiler.support.AggregateManipulator.EK9_LIST_OF_STRING;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_MILLISECOND;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_MONEY;
 import static org.ek9lang.compiler.support.AggregateManipulator.EK9_REGEX;
@@ -34,7 +35,7 @@ public class ProgramArgumentPredicate implements Predicate<ISymbol> {
       EK9_REGEX, EK9_MONEY, EK9_COLOUR, EK9_RESOLUTION, EK9_DIMENSION,
       EK9_MILLISECOND, EK9_DURATION, EK9_DATETIME, EK9_DATE, EK9_TIME,
       EK9_CHARACTER, EK9_STRING, EK9_INTEGER, EK9_FLOAT, EK9_BOOLEAN, EK9_BITS,
-      EK9_LIST
+      EK9_LIST_OF_STRING
   );
 
   @Override
@@ -50,7 +51,7 @@ public class ProgramArgumentPredicate implements Predicate<ISymbol> {
         //only used with an EK9 String.
         if (EK9_LIST.equals(theGenericTypeName) && parameterisedSymbol.getTypeParameterOrArguments().size() == 1) {
           final var parameterisedWith =
-              parameterisedSymbol.getTypeParameterOrArguments().get(0).getFullyQualifiedName();
+              parameterisedSymbol.getTypeParameterOrArguments().getFirst().getFullyQualifiedName();
           return EK9_STRING.equals(parameterisedWith);
         }
 

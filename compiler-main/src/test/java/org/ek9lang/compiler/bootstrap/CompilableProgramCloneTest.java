@@ -87,6 +87,7 @@ class CompilableProgramCloneTest {
   private SharedThreadContext<CompilableProgram> createCompilableProgram() {
     final Supplier<List<CompilableSource>> sourceSupplier =
         () -> List.of(new CompilableSource(Objects.requireNonNull(getClass().getResource(
+            "/examples/bootstrap")).getPath(), Objects.requireNonNull(getClass().getResource(
             "/examples/bootstrap/org-ek9-lang.ek9")).getPath()));
 
     final var ek9BootStrap = new Ek9LanguageBootStrap(sourceSupplier, listener.get(),

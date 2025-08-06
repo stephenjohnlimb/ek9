@@ -17,7 +17,7 @@ public class Ek9BuiltinIntrospectionSupplier implements Supplier<List<Compilable
 
   @Override
   public List<CompilableSource> get() {
-    return List.of(new CompilableSource("org-ek9-lang.ek9", getOrgEk9LangDeclarations()));
+    return List.of(new CompilableSource(".", "org-ek9-lang.ek9", getOrgEk9LangDeclarations()));
   }
 
   private InputStream getOrgEk9LangDeclarations() {

@@ -44,7 +44,7 @@ public class Workspace {
 
   public void addSource(final String fileName) {
 
-    addSource(new CompilableSource(fileName));
+    addSource(new CompilableSource(this.sourceFileBaseDirectory, fileName));
 
   }
 

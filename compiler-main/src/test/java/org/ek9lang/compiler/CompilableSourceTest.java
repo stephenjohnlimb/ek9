@@ -10,10 +10,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
+import org.ek9lang.compiler.support.PathToSourceFromName;
 import org.ek9lang.compiler.tokenizer.TokenResult;
 import org.ek9lang.core.CompilerException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -52,11 +54,25 @@ final class CompilableSourceTest {
   @ValueSource(strings = {"", " ", "no_such_file"})
   void testConstruction(String fileName) {
     try {
-      new CompilableSource(fileName);
+      new CompilableSource(".", fileName);
       fail("Expecting an exception as file does not exist");
     } catch (IllegalArgumentException ex) {
       assertNotNull(ex.getMessage());
     }
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      "/examples, ./basics/HelloWorld.ek9",
+      "/examples/basics, ./HelloWorld.ek9"
+  })
+  void testRelativeFileName(final String base, final String expectedRelativePath) {
+    //To make this portable, I need to use this mechanism to avoid hardcoded names in tests
+    var basePath = new PathToSourceFromName().apply(base);
+    var fullPath = new PathToSourceFromName().apply("/examples/basics/HelloWorld.ek9");
+    final var underTest = new CompilableSource(basePath, fullPath);
+    assertEquals(expectedRelativePath, underTest.getRelativeFileName());
+
   }
 
   @Test

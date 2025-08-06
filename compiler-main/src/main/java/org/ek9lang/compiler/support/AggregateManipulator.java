@@ -73,6 +73,10 @@ public class AggregateManipulator {
   public static final String EK9_UNARY_OPERATOR = EK9_LANG + "::UnaryOperator";
   public static final String EK9_PREDICATE = EK9_LANG + "::Predicate";
   public static final String EK9_COMPARATOR = EK9_LANG + "::Comparator";
+  //Special type parameterised list with String, so we can accept on the commandline.
+  public static final String EK9_LIST_OF_STRING
+      = EK9_LANG + "::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1";
+
   private final OperatorFactory operatorFactory;
   private final AggregateHasPureConstruction aggregateHasPureConstruction = new AggregateHasPureConstruction();
   /**

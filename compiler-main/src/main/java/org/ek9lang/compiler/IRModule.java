@@ -4,7 +4,7 @@ import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.Construct;
+import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -18,7 +18,7 @@ public final class IRModule implements Module {
   @Serial
   private static final long serialVersionUID = 1L;
   private final CompilableSource source;
-  private final List<Construct> constructs = new ArrayList<>();
+  private final List<IRConstruct> constructs = new ArrayList<>();
 
   private String moduleName;
   private boolean extern;
@@ -48,7 +48,7 @@ public final class IRModule implements Module {
     return moduleName.startsWith("org.ek9");
   }
 
-  public List<Construct> getConstructs() {
+  public List<IRConstruct> getConstructs() {
     return List.copyOf(constructs);
   }
 
@@ -67,12 +67,16 @@ public final class IRModule implements Module {
   }
 
   /**
-   * Adds a new struct operation node (i.e. some form of aggregate/function - i.e. a Construct)
+   * Adds a new construct operation node (i.e. some form of aggregate/function - i.e. a Construct)
    *
    * @param node The node to be added.
    */
-  public void add(final Construct node) {
+  public void add(final IRConstruct node) {
     AssertValue.checkNotNull("Construct cannot be null", node);
-    constructs.add(node);
+
+    //Because we may multi-thread the IR generation, just need to ensure the list we add to is thread safe for addition.
+    synchronized (constructs) {
+      constructs.add(node);
+    }
   }
 }

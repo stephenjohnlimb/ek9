@@ -23,7 +23,7 @@ public final class Operation implements INode {
 
   private final Return returnValue;
   private final List<Parameter> parameters = new ArrayList<>();
-  private Block body;
+  private BasicBlock basicBlockBody;
   private final ISymbol symbol;
 
   public Operation(final ISymbol symbol) {
@@ -62,12 +62,12 @@ public final class Operation implements INode {
     return List.copyOf(parameters);
   }
 
-  public Block getBody() {
-    return body;
+  public BasicBlock getBody() {
+    return basicBlockBody;
   }
 
-  public void setBody(final Block body) {
-    this.body = body;
+  public void setBody(final BasicBlock basicBlockBody) {
+    this.basicBlockBody = basicBlockBody;
   }
 
   @Override
@@ -81,7 +81,7 @@ public final class Operation implements INode {
     return "Operation{" +
         "symbol=" + symbol +
         ", parameters=" + parameters +
-        ", body=" + body +
+        ", body=" + basicBlockBody +
         ", returnValue=" + returnValue +
         '}';
   }

@@ -40,6 +40,10 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
   // This is the full path to the filename.
   private final String filename;
 
+  //This is the full path to the base directory for sources.
+  //This is available so that it is possible to get the relative path.
+  final String sourceBaseDirectory;
+
   private final transient boolean suppliedInputStream;
   /**
    * For some resources like builtin.ek9 inside the jar we load from an inputStream.
@@ -73,10 +77,12 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
   /**
    * Create compilable source for a specific filename.
    */
-  public CompilableSource(final String filename) {
+  public CompilableSource(final String sourceBaseDirectory, final String filename) {
 
     AssertValue.checkNotEmpty("Filename cannot be empty or null", filename);
+    AssertValue.checkNotEmpty("SourceBaseDirectory cannot be empty or null", sourceBaseDirectory);
     this.filename = filename;
+    this.sourceBaseDirectory = sourceBaseDirectory;
     suppliedInputStream = false;
     resetDetails();
 
@@ -86,12 +92,14 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
    * Create a compilable source with a name, but provide the inputStream.
    * This is useful for internal supplied sources.
    */
-  public CompilableSource(final String filename, final InputStream is) {
+  public CompilableSource(final String sourceBaseDirectory, final String filename, final InputStream is) {
 
     AssertValue.checkNotEmpty("Filename cannot be empty or null", filename);
     AssertValue.checkNotNull("InputStream cannot be empty or null", is);
+    AssertValue.checkNotEmpty("SourceBaseDirectory cannot be empty or null", sourceBaseDirectory);
     this.filename = filename;
     this.inputStream = is;
+    this.sourceBaseDirectory = sourceBaseDirectory;
     suppliedInputStream = true;
     resetDetails();
 
@@ -389,6 +397,17 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
   public String getFileName() {
 
     return filename;
+  }
+
+  public String getRelativeFileName() {
+    if (!sourceBaseDirectory.equals(".")) {
+      //means it is from the root - so we can remove this part from the file filename
+      final var relative = this.filename.replace(sourceBaseDirectory, "");
+      if(relative.startsWith(File.separator)) {
+        return "." + relative;
+      }
+    }
+    return this.filename;
   }
 
   public String getGeneralIdentifier() {
