@@ -107,7 +107,6 @@ final class EK9Test {
 
   @ParameterizedTest
   @ValueSource(strings = {"-T jvm -Ch",
-      "-T llvm-go -Ch",
       "-T llvm-cpp -Ch",
       "-Cdp IR_ANALYSIS",
       "-Cp IR_ANALYSIS",

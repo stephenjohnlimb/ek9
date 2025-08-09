@@ -25,6 +25,22 @@ defines module bad.range.collections
       //But miss out any operators.
 
   defines function
+
+    CheckAssertOnlyWithBoolean()
+
+      int1 <- 1
+      boolean1 <- true
+      boolean2 <- false
+
+      //All of these will be fine.
+      assert boolean1
+      assert boolean2
+      assert int1?
+
+      //But this won't be fine, assert needs a boolean to check.
+      @Error: FULL_RESOLUTION: ONLY_COMPATIBLE_WITH_BOOLEAN
+      assert int1
+
     JustFail()
       @Error: FULL_RESOLUTION: NOT_RESOLVED
       assert failure

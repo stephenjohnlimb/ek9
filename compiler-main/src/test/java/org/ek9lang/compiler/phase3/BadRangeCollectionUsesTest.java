@@ -9,7 +9,7 @@ class BadRangeCollectionUsesTest extends BadFullResolutionTest {
 
   public BadRangeCollectionUsesTest() {
     super("/examples/parseButFailCompile/badInExpressions",
-        List.of("bad.range.collections"));
+        List.of("bad.range.collections"), false, true);
   }
 
 }

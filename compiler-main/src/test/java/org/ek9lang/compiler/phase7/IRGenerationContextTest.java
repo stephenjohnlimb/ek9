@@ -36,14 +36,14 @@ class IRGenerationContextTest {
 
   private ParsedModule mockParsedModule;
   private CompilerFlags mockCompilerFlags;
-  private IRGenerationContext underTest;
+  private IRContext underTest;
 
   @BeforeEach
   void setUp() {
     // Create a simple mock ParsedModule without external dependencies
     mockParsedModule = createMockParsedModule();
     mockCompilerFlags = new CompilerFlags();
-    underTest = new IRGenerationContext(mockParsedModule, mockCompilerFlags);
+    underTest = new IRContext(mockParsedModule, mockCompilerFlags);
   }
 
   /**
@@ -62,7 +62,7 @@ class IRGenerationContextTest {
 
       // Create CompilableSource and SharedThreadContext
       var source = new CompilableSource(tempFile.getParent(), tempFile.getAbsolutePath());
-      var sharedContext = new SharedThreadContext<CompilableProgram>(new CompilableProgram());
+      var sharedContext = new SharedThreadContext<>(new CompilableProgram());
 
       return new ParsedModule(source, sharedContext);
     } catch (IOException e) {
@@ -74,7 +74,7 @@ class IRGenerationContextTest {
 
   @Test
   void testConstructorWithValidParsedModule() {
-    var context = new IRGenerationContext(mockParsedModule, mockCompilerFlags);
+    var context = new IRContext(mockParsedModule, mockCompilerFlags);
     assertNotNull(context);
     assertEquals(mockParsedModule, context.getParsedModule());
   }
@@ -82,14 +82,14 @@ class IRGenerationContextTest {
   @Test
   void testConstructorWithNullParsedModuleThrowsException() {
     var exception = assertThrows(IllegalArgumentException.class,
-        () -> new IRGenerationContext(null, mockCompilerFlags));
+        () -> new IRContext(null, mockCompilerFlags));
     assertTrue(exception.getMessage().contains("ParsedModule cannot be null"));
   }
 
   @Test
   void testConstructorWithNullCompilerFlagsThrowsException() {
     var exception = assertThrows(IllegalArgumentException.class,
-        () -> new IRGenerationContext(mockParsedModule, null));
+        () -> new IRContext(mockParsedModule, null));
     assertTrue(exception.getMessage().contains("CompilerFlags cannot be null"));
   }
 
@@ -182,8 +182,9 @@ class IRGenerationContextTest {
   @Test
   void testGenerateScopeIdWithPrefix() {
     assertEquals("_main_1", underTest.generateScopeId("main"));
-    assertEquals("_if_2", underTest.generateScopeId("if"));
-    assertEquals("_loop_3", underTest.generateScopeId("loop"));
+    assertEquals("_if_1", underTest.generateScopeId("if"));    // Each prefix starts at 1
+    assertEquals("_loop_1", underTest.generateScopeId("loop")); // Each prefix starts at 1
+    assertEquals("_main_2", underTest.generateScopeId("main")); // Same prefix increments
   }
 
   @Test
@@ -216,13 +217,21 @@ class IRGenerationContextTest {
 
   @Test
   void testScopeCounterProgression() {
-    assertEquals(0, underTest.getScopeCounter());
+    assertEquals(0, underTest.getCounterFor("main"));
+    assertEquals(0, underTest.getCounterFor("if"));
 
     underTest.generateScopeId("main");
-    assertEquals(1, underTest.getScopeCounter());
+    assertEquals(1, underTest.getCounterFor("main"));
+    assertEquals(0, underTest.getCounterFor("if"));
 
     underTest.generateScopeId("if");
-    assertEquals(2, underTest.getScopeCounter());
+    assertEquals(1, underTest.getCounterFor("main"));
+    assertEquals(1, underTest.getCounterFor("if"));
+    
+    // Test that same prefix increments independently
+    underTest.generateScopeId("main");
+    assertEquals(2, underTest.getCounterFor("main"));
+    assertEquals(1, underTest.getCounterFor("if"));
   }
 
   @Test
@@ -236,8 +245,9 @@ class IRGenerationContextTest {
   @Test
   void testGenerateBlockLabelWithPrefix() {
     assertEquals("_entry_1", underTest.generateBlockLabel("entry"));
-    assertEquals("_if_then_2", underTest.generateBlockLabel("if_then"));
-    assertEquals("_loop_body_3", underTest.generateBlockLabel("loop_body"));
+    assertEquals("_if_then_1", underTest.generateBlockLabel("if_then"));  // Each prefix starts at 1
+    assertEquals("_loop_body_1", underTest.generateBlockLabel("loop_body")); // Each prefix starts at 1
+    assertEquals("_entry_2", underTest.generateBlockLabel("entry"));      // Same prefix increments
   }
 
   @Test
@@ -270,13 +280,21 @@ class IRGenerationContextTest {
 
   @Test
   void testBlockCounterProgression() {
-    assertEquals(0, underTest.getBlockCounter());
+    assertEquals(0, underTest.getCounterFor("entry"));
+    assertEquals(0, underTest.getCounterFor("if_then"));
 
     underTest.generateBlockLabel("entry");
-    assertEquals(1, underTest.getBlockCounter());
+    assertEquals(1, underTest.getCounterFor("entry"));
+    assertEquals(0, underTest.getCounterFor("if_then"));
 
     underTest.generateBlockLabel("if_then");
-    assertEquals(2, underTest.getBlockCounter());
+    assertEquals(1, underTest.getCounterFor("entry"));
+    assertEquals(1, underTest.getCounterFor("if_then"));
+    
+    // Test that same prefix increments independently
+    underTest.generateBlockLabel("entry");
+    assertEquals(2, underTest.getCounterFor("entry"));
+    assertEquals(1, underTest.getCounterFor("if_then"));
   }
 
   // ================== General Label Generation Tests ==================
@@ -284,8 +302,9 @@ class IRGenerationContextTest {
   @Test
   void testGenerateLabelNameWithPrefix() {
     assertEquals("_var1_unset_1", underTest.generateLabelName("var1_unset"));
-    assertEquals("_end_label_2", underTest.generateLabelName("end_label"));
-    assertEquals("_continue_3", underTest.generateLabelName("continue"));
+    assertEquals("_end_label_1", underTest.generateLabelName("end_label"));  // Each prefix starts at 1
+    assertEquals("_continue_1", underTest.generateLabelName("continue"));    // Each prefix starts at 1
+    assertEquals("_var1_unset_2", underTest.generateLabelName("var1_unset")); // Same prefix increments
   }
 
   @Test
@@ -324,35 +343,49 @@ class IRGenerationContextTest {
   }
 
   @Test
-  void testGetScopeCounterInitialValue() {
-    assertEquals(0, underTest.getScopeCounter());
+  void testGetCounterForUnusedPrefix() {
+    assertEquals(0, underTest.getCounterFor("unused"));
   }
 
   @Test
-  void testGetBlockCounterInitialValue() {
-    assertEquals(0, underTest.getBlockCounter());
+  void testUniquePrefixCount() {
+    assertEquals(0, underTest.getUniquePrefixCount());
+    
+    underTest.generateScopeId("test");
+    assertEquals(1, underTest.getUniquePrefixCount());
+    
+    underTest.generateBlockLabel("block");
+    assertEquals(2, underTest.getUniquePrefixCount());
   }
 
   @Test
   void testCountersIndependentIncrement() {
-    // Generate one of each type
-    underTest.generateTempName();      // temp counter = 1
-    underTest.generateScopeId("test"); // scope counter = 1
-    underTest.generateBlockLabel("test"); // block counter = 1
-    underTest.generateLabelName("test");  // label counter = 1 (no getter, but independent)
+    // Generate one of each type with different prefixes
+    underTest.generateTempName();         // temp counter = 1
+    underTest.generateScopeId("scope");   // scope counter = 1  
+    underTest.generateBlockLabel("block"); // block counter = 1
+    underTest.generateLabelName("label"); // label counter = 1
 
-    // Verify counters are independent
+    // Verify counters are independent per prefix
     assertEquals(1, underTest.getTempCounter());
-    assertEquals(1, underTest.getScopeCounter());
-    assertEquals(1, underTest.getBlockCounter());
+    assertEquals(1, underTest.getCounterFor("scope"));
+    assertEquals(1, underTest.getCounterFor("block"));
+    assertEquals(1, underTest.getCounterFor("label"));
 
     // Generate more temps, verify others don't change
     underTest.generateTempName();
     underTest.generateTempName();
 
     assertEquals(3, underTest.getTempCounter());
-    assertEquals(1, underTest.getScopeCounter());  // Unchanged
-    assertEquals(1, underTest.getBlockCounter());  // Unchanged
+    assertEquals(1, underTest.getCounterFor("scope"));  // Unchanged
+    assertEquals(1, underTest.getCounterFor("block"));  // Unchanged
+    assertEquals(1, underTest.getCounterFor("label"));  // Unchanged
+    
+    // Generate more with same prefix, verify independent incrementing
+    underTest.generateScopeId("scope");
+    assertEquals(3, underTest.getTempCounter());        // Unchanged
+    assertEquals(2, underTest.getCounterFor("scope"));  // Incremented
+    assertEquals(1, underTest.getCounterFor("block"));  // Unchanged
   }
 
   // ================== Integration and Edge Case Tests ==================
@@ -395,7 +428,11 @@ class IRGenerationContextTest {
     String scopeId3 = underTest.generateScopeId("a_b_c");
 
     assertEquals("_test_prefix_1", scopeId1);
-    assertEquals("_prefix123_2", scopeId2);
-    assertEquals("_a_b_c_3", scopeId3);
+    assertEquals("_prefix123_1", scopeId2);   // Each prefix starts at 1
+    assertEquals("_a_b_c_1", scopeId3);       // Each prefix starts at 1
+    
+    // Test same prefix increments
+    String scopeId4 = underTest.generateScopeId("prefix123");
+    assertEquals("_prefix123_2", scopeId4);   // Second use of same prefix
   }
 }

@@ -192,7 +192,7 @@ final class CommandLine {
       var commandLineArchitecture = strArray[index + 1].toUpperCase();
       targetArchitecture = TargetArchitecture.from(commandLineArchitecture);
       if (targetArchitecture == TargetArchitecture.NOT_SUPPORTED) {
-        Logger.error("Only jvm/llvm-go/llvm-cpp is currently supported as a target [" + commandLineArchitecture + "]");
+        Logger.error("Only jvm/llvm-cpp is currently supported as a target [" + commandLineArchitecture + "]");
       }
 
     }

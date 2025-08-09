@@ -17,6 +17,9 @@ defines module com.customer.classes
     Base as abstract
       //Note new declaration indicating no memory allocated is possible
       aField as String?
+      //A couple of additional fields
+      bField as String := "Stephen"
+      cField <- "Steve"
 
       Base()
         //Now initialise the field.

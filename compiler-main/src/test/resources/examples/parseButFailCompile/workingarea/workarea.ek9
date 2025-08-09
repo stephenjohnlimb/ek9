@@ -1,14 +1,27 @@
 #!ek9
 defines module introduction
+
+  defines function
+    aSimpleFunction()
+      -> arg0 as String
+      <- rtn as String: String()
+
+      someLocal as String?
+      someLocal = "Hi"
+      assert someLocal?
+
+      set <- arg0?
+      assert set
+
+      claude <- "Hello Claude"
+      rtn: claude
+
   defines program
     HelloWorld()
 
       //While Stdout is not defined here, it should be resolvable
       @Resolved: SYMBOL_DEFINITION: TYPE: "Stdout"
       stdout <- Stdout()
-      notToOutput <- 2
-      alsoNotToOutput <- 2024-12-25
-      assert notToOutput? and alsoNotToOutput?
       toOutput <- "Hello, World"
       stdout.println(toOutput)
 //EOF

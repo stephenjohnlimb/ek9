@@ -678,9 +678,7 @@ final class CommandLineTest {
 
 
   @ParameterizedTest
-  @CsvSource({"-T llvm-go,LLVM_GO",
-      "-T llvm-cpp,LLVM_CPP",
-      "-T jvm,JVM"})
+  @CsvSource({"-T llvm-cpp,LLVM_CPP", "-T jvm,JVM"})
   void testCommandLineRunAs(final String targetArchitectureOption, final String expectedArchitecture) {
     String sourceName = "HelloWorld.ek9";
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);

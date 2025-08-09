@@ -179,7 +179,7 @@ defines module bad.pure.scenarios2
 
       callMethod()
         -> arg0 as C0
-        assert arg0
+        assert arg0?
 
       anotherMethod()
         <- rtn <- false

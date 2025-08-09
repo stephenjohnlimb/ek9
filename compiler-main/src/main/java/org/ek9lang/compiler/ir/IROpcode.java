@@ -10,7 +10,6 @@ package org.ek9lang.compiler.ir;
  * <p>
  * This design ensures target-agnostic IR that works equally well for:
  * - JVM bytecode generation
- * - LLVM-Go target
  * - LLVM-C++ target
  * </p>
  */
@@ -37,10 +36,12 @@ public enum IROpcode {
   LOAD_LITERAL,
 
   /**
-   * Allocate memory space for local variable.
-   * Format: ALLOCA variable_name, type_info
+   * Declare variable reference (no memory allocation).
+   * Format: REFERENCE variable_name, type_info
+   * Used for parameters and variable-only declarations.
+   * Backend handles appropriate reference storage.
    */
-  ALLOCA,
+  REFERENCE,
 
   // Method call operations (handles ALL EK9 operators and method calls)
   /**
@@ -94,6 +95,13 @@ public enum IROpcode {
    */
   RETURN,
 
+  /**
+   * Assert that condition is true.
+   * Format: ASSERT condition
+   * Traps/throws if condition is false.
+   */
+  ASSERT,
+
   // Exception handling operations
   /**
    * Throw exception.
@@ -112,13 +120,6 @@ public enum IROpcode {
    * Format: CLEANUP
    */
   CLEANUP,
-
-  // Memory management operations (ARC for LLVM targets, no-ops for JVM)
-  /**
-   * Allocate object on heap.
-   * Format: ALLOC_OBJECT result = constructor_call
-   */
-  ALLOC_OBJECT,
 
   /**
    * Increment object reference count.

@@ -5,7 +5,6 @@ package org.ek9lang.core;
  */
 public enum TargetArchitecture {
   JVM("jvm"),
-  LLVM_GO("llvm-go"),
   LLVM_CPP("llvm-cpp"),
   NOT_SUPPORTED("not-supported");
 

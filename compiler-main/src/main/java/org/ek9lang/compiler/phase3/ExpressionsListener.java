@@ -55,6 +55,7 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final TryStatementExpressionOrError tryStatementExpressionOrError;
   private final CaseExpressionOrError caseExpressionOrError;
   private final ThrowStatementOrError throwStatementOrError;
+  private final AssertStatementOrError assertStatementOrError;
 
   protected ExpressionsListener(ParsedModule parsedModule) {
 
@@ -142,6 +143,8 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
         new WhileReturnOrError(errorListener);
     this.forReturnOrError =
         new ForReturnOrError(errorListener);
+    this.assertStatementOrError =
+        new AssertStatementOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -288,6 +291,12 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   public void enterTryStatementExpression(final EK9Parser.TryStatementExpressionContext ctx) {
     tryReturnOrError.accept(ctx);
     super.enterTryStatementExpression(ctx);
+  }
+
+  @Override
+  public void exitAssertStatement(final EK9Parser.AssertStatementContext ctx) {
+    assertStatementOrError.accept(ctx);
+    super.exitAssertStatement(ctx);
   }
 
   @Override

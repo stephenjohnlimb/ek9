@@ -32,7 +32,7 @@ defines module bad.constrainedtypecall.examples1
       assert index2B?
 
       index2C <- Index(index2B)
-      assert index2C
+      assert index2C?
 
     //So if you want to construct from a String, it is necessary to go 'via' and Integer
     TestValidIndexCall2D()

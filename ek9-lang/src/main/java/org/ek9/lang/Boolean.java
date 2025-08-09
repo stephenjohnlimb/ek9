@@ -295,6 +295,20 @@ public class Boolean extends BuiltinType {
     set();
   }
 
+  //Useful external methods, for use with IR and code generation
+
+  public boolean _true() {
+    return this.isSet && this.state;
+  }
+
+  public boolean _false() {
+    return this.isSet && !this.state;
+  }
+
+  public boolean _set() {
+    return this.isSet;
+  }
+
   public static Boolean _of(java.lang.String arg) {
     return _of(java.lang.Boolean.parseBoolean(arg));
   }

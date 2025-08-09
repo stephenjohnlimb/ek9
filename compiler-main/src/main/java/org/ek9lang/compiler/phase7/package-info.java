@@ -6,12 +6,12 @@
  * code can be fully analysed/optimised and prepared for code generation.
  * </p>
  * <p>
- *   The key aspect of generating the IR, it to very clearly move away from EK9 semantics and structures and,
- *   move very firmly and clearly to sets of instructions that are much closer to what we will need in final code
- *   generation.
+ * The key aspect of generating the IR, it to very clearly move away from EK9 semantics and structures and,
+ * move very firmly and clearly to sets of instructions that are much closer to what we will need in final code
+ * generation.
  * </p>
  * <p>
- *   In this respect a simple ek9 expression like:
+ * In this respect a simple ek9 expression like:
  * </p>
  * <pre>
  *   var1 &lt;- "Goose"  // Set to "Goose"
@@ -22,9 +22,9 @@
  *
  * </pre>
  * <p>
- *   When actually expanded to an IR it would be more like (are you ready?).
- *   We are moving into old style Assembly type code, basically we are using
- *   SSA (Static Single Assignment)
+ * When actually expanded to an IR it would be more like (are you ready?).
+ * We are moving into old style Assembly type code, basically we are using
+ * SSA (Static Single Assignment)
  * </p>
  * <pre>
  *   BasicBlock: _coalescing_block_1
@@ -128,7 +128,12 @@
  *     STORE greaterThan, _temp_result2     // greaterThan = "Goose"
  * </pre>
  * <p>
- * {@link org.ek9lang.compiler.phase7.IRGeneration} is the main entry point for this phase.
+ * {@link org.ek9lang.compiler.phase7.IRGenerator} is the main entry point for this phase.
+ * </p>
+ * <p>
+ * This does not use the ANTLR visitor or listener patterns. Instead, the 'generators' follow the
+ * 'flow' of the AST in a very specific way. This is to be able to generate the appropriate IR for
+ * that code.
  * </p>
  */
 

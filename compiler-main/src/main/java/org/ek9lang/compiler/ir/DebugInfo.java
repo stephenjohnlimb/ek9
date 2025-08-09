@@ -49,17 +49,6 @@ public record DebugInfo(
   }
 
   /**
-   * Format debug info with original text for detailed output.
-   * Example: "// workarea.ek9:12:15 'Hello, World'"
-   */
-  public String toDetailedIRComment() {
-    if (originalText != null && !originalText.isEmpty()) {
-      return String.format("// %s:%d:%d '%s'", sourceFile, lineNumber, columnNumber, originalText);
-    }
-    return toIRComment();
-  }
-
-  /**
    * Check if this debug info represents a valid source location.
    */
   public boolean isValidLocation() {

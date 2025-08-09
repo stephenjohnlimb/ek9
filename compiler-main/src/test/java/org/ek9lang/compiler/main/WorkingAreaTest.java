@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 class WorkingAreaTest extends PhasesTest {
 
   public WorkingAreaTest() {
-    super("/examples/parseButFailCompile/workingarea", false, true);
+    super("/examples/parseButFailCompile/workingarea", false, false);
   }
 
   /**

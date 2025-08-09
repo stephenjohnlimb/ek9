@@ -16,7 +16,7 @@ class ConstructToFileTest {
   private final FileHandling fileHandling = new FileHandling(osSupport);
 
   @ParameterizedTest
-  @CsvSource({"jvm", "llvm-go", "llvm-cpp"})
+  @CsvSource({"jvm", "llvm-cpp"})
   void testOutputFileLocator(final String architecture) {
 
     final var compilerFlags = new CompilerFlags();
@@ -29,7 +29,7 @@ class ConstructToFileTest {
   }
 
   @ParameterizedTest
-  @CsvSource({"jvm", "llvm-go", "llvm-cpp"})
+  @CsvSource({"jvm", "llvm-cpp"})
   void testTargetLocator(final String architecture) {
     final var underTest = new TargetLocator();
 

@@ -515,6 +515,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     STREAM_GT_REQUIRES_CLEAR("a method named 'clear()' is required with that stream operator"),
     STREAM_PARAMETERS_ONLY_ONE_PRODUCER("only a single producer type is supported"),
     MUST_RETURN_BOOLEAN("must return a Boolean"),
+    ONLY_COMPATIBLE_WITH_BOOLEAN("only compatible with Boolean type"),
     MUST_BE_A_BOOLEAN("is not compatible with a Boolean type"),
     MUST_RETURN_INTEGER("must return an Integer"),
     MUST_BE_INTEGER_GREATER_THAN_ZERO("must be an Integer with a value greater than zero"),

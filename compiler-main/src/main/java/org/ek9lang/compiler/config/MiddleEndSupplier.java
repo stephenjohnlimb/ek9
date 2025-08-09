@@ -8,7 +8,7 @@ import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
-import org.ek9lang.compiler.phase7.IRGeneration;
+import org.ek9lang.compiler.phase7.IRGenerator;
 import org.ek9lang.compiler.phase7.ProgramWithIR;
 import org.ek9lang.compiler.phase8.TemplateGeneration;
 import org.ek9lang.compiler.phase9.IRAnalysis;
@@ -36,7 +36,7 @@ public class MiddleEndSupplier extends PhaseSupplier {
 
     //Yes the notorious 'middle-end' - build the intermediate representation, analyse and optimise.
     return List.of(
-        new IRGeneration(compilableProgramAccess, listener, reporter),
+        new IRGenerator(compilableProgramAccess, listener, reporter),
         new ProgramWithIR(compilableProgramAccess, listener, reporter),
         new TemplateGeneration(compilableProgramAccess, listener, reporter),
         new IRAnalysis(compilableProgramAccess, listener, reporter),

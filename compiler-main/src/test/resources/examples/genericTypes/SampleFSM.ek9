@@ -118,7 +118,7 @@ defines module com.utils
       
       //So we can be more explicit if required
       floatMachine1 <- FSM() of Float
-      assert floatMachine1
+      assert floatMachine1?
 
       //We will pass this in as a captured variable
       //If you wanted to alter the value then you can but not via an := == but += and the like work.

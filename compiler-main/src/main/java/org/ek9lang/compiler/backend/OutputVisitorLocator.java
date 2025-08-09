@@ -12,7 +12,6 @@ public final class OutputVisitorLocator implements Function<ConstructTargetTuple
   @Override
   public INodeVisitor apply(final ConstructTargetTuple constructTargetTuple) {
     return switch (constructTargetTuple.compilerFlags().getTargetArchitecture()) {
-      case LLVM_GO -> new org.ek9lang.compiler.backend.llvm.go.OutputVisitor(constructTargetTuple);
       case LLVM_CPP -> new org.ek9lang.compiler.backend.llvm.cpp.OutputVisitor(constructTargetTuple);
       case JVM -> new org.ek9lang.compiler.backend.jvm.OutputVisitor(constructTargetTuple);
       case NOT_SUPPORTED -> throw new CompilerException(

@@ -33,8 +33,8 @@
 The EK9 compiler represents a sophisticated, modern compiler architecture implemented in Java 23.
 It successfully balances language expressiveness, type safety, compilation performance, and developer experience.
 Built as a multi-phase, multi-threaded system,
-the compiler transforms EK9 source code through a comprehensive 22-phase pipeline into Java bytecode.
-With planned support for native compilation via LLVM.
+the compiler transforms EK9 source code through a comprehensive 22-phase pipeline into Java bytecode,
+with C++ LLVM backend development underway for native binary generation.
 
 ### Key Architectural Achievements
 
@@ -50,7 +50,7 @@ With planned support for native compilation via LLVM.
 - **Language**: Java 23 with virtual thread support
 - **Build System**: Maven multi-module (4 modules)
 - **Parser**: ANTLR4 with Python-like indentation syntax
-- **Target Platforms**: JVM (current), LLVM (planned)
+- **Target Platforms**: JVM (current), C++ LLVM (planned for native binaries)
 - **IDE Integration**: Eclipse LSP4J for Language Server Protocol
 - **Code Generation**: ASM library for Java bytecode generation
 - **Testing**: JUnit 5 with parallel execution (8 threads)
@@ -454,7 +454,7 @@ The compilation pipeline uses three configurable suppliers:
 - **Default Phase**: `APPLICATION_PACKAGING` for full compilation
 - **LSP Optimization**: Can stop at `IR_ANALYSIS` for Language Server efficiency
 - **Suggestion System**: 5 suggestions by default, 0 disables
-- **Target Architecture**: Defaults to JVM, supports future LLVM target
+- **Target Architecture**: Defaults to JVM, with C++ LLVM backend for native compilation
 
 ---
 
@@ -691,29 +691,35 @@ public record Ek9Types(AnyTypeSymbol ek9Any,
 ### IR Architecture
 
 #### IRModule Structure
-**Purpose**: Target-neutral container for EK9 module intermediate representation
+**Purpose**: Target-neutral container for EK9 module intermediate representation with comprehensive memory management
 
 **Key Components**:
 - **Construct**: Universal IR representation for all EK9 constructs
-- **Operation**: Methods/functions within constructs
-- **Block**: Code blocks with scope information
-- **Statement**: Individual statements/expressions
-- **Parameter/Return/Argument**: Method signatures and calls
+- **Operation**: Methods/functions within constructs with complete memory safety
+- **BasicBlock**: Code blocks with precise scope and lifetime management
+- **IRInstr**: Memory-safe IR instructions (REFERENCE, RETAIN, RELEASE, SCOPE_*)
+- **Parameter/Return/Argument**: Method signatures with proper ownership semantics
 
 #### IR Generation Process
 
-**IRDefinitionVisitor** transforms EK9 parse trees into IR:
-1. **Parse Tree Traversal**: ANTLR visitor pattern
-2. **Symbol Mapping**: Access symbols from `ParsedModule`
-3. **IR Construction**: Create appropriate IR nodes
-4. **Context Preservation**: Maintain scope and symbol relationships
+**Phase 10 IR Generation** transforms EK9 parse trees into memory-safe IR:
+1. **Parse Tree Traversal**: ANTLR visitor pattern with symbol resolution
+2. **Symbol Mapping**: Access resolved symbols from `ParsedModule` 
+3. **Memory-Safe IR Construction**: Generate REFERENCE-based instructions
+4. **Scope Management**: Precise object and variable lifetime tracking
 
-#### Target-Neutral Design
+For comprehensive technical details on the memory management architecture, see **`EK9_IR_MEMORY_MANAGEMENT.md`**.
+5. **Cross-Scope Safety**: RETAIN/RELEASE for ownership transfer
+
+#### Target-Neutral Design with Memory Safety
 **Key Principles**:
-- **EK9 Decoupling**: Remove EK9-specific syntax and semantics
-- **Universal Constructs**: All EK9 types become "struct with operations"
-- **Basic Block Structure**: Complex control flow reduced to basic blocks
-- **Function Unification**: Consistent Operation representation for all callables
+- **Unified REFERENCE Model**: All variables use REFERENCE instructions (no ALLOCA)
+- **Dual Tracking**: Both objects and variables registered in appropriate scopes
+- **Reference Counting**: Precise RETAIN/RELEASE for memory management
+- **Cross-Platform Consistency**: Same semantics on JVM and C++ LLVM backends
+- **Universal Memory Safety**: No memory leaks, use-after-free, or double-free errors
+
+**See**: [EK9_IR_MEMORY_MANAGEMENT.md](./EK9_IR_MEMORY_MANAGEMENT.md) for complete memory management architecture.
 
 ### Code Generation Framework
 
@@ -983,17 +989,22 @@ AggregateSymbol   FunctionSymbol
 2. **Symbol System**: Full symbol table, type resolution, and generic support
 3. **Bootstrap System**: Complete built-in type loading with validation
 4. **LSP Integration**: Full Language Server Protocol support for IDE integration
-5. **Basic IR Generation** (Phase 10): IR creation for simple constructs
+5. **Complete Memory-Safe IR Generation** (Phase 10): Production-ready with full memory management
+   - **REFERENCE-based Variable Model**: Unified cross-platform variable handling
+   - **Dual Object/Variable Tracking**: Complete scope-based memory management
+   - **RETAIN/RELEASE Pattern**: Memory-safe assignment and cross-scope ownership transfer
+   - **Per-Prefix Counter System**: Logical scope numbering (_param_1, _return_1, _scope_1)
+   - **Operator Support**: Complete `?` operator and assert statement processing
+   - **Cross-Platform Safety**: JVM and C++ LLVM compatible memory semantics with ARC
 6. **File Management** (Phase 15): Output file preparation and directory structure
 7. **JVM Code Generation** (Phase 16): Basic bytecode generation for programs
 
 #### Current Limitations
 
 **Scope Limitations**:
-- Only EK9 Programs supported (not classes, traits, components)
-- Basic method bodies (hardcoded examples)
-- No template/generic instantiation
-- Limited control flow support
+- Only EK9 Programs and Functions supported (not classes, traits, components)
+- No template/generic instantiation in IR generation
+- Limited control flow support (basic blocks only)
 - No optimization passes
 
 **Architecture Limitations**:
@@ -1077,10 +1088,24 @@ All placeholder phases return `true` but contain architectural planning for futu
 
 ### Long-term Architecture Goals
 
-#### Multi-Target Support
-1. **LLVM Backend**: Native compilation capability
-2. **WebAssembly Target**: Browser deployment
-3. **Cross-compilation**: Multiple target architectures
+#### C++ Native Runtime Development
+1. **C++ Standard Library Port**: Convert existing Java `org.ek9.lang` types to C++ with ARC
+2. **LLVM IR Backend**: Generate LLVM IR that calls into C++ runtime functions
+3. **ARC Memory Management**: Intrusive reference counting with atomic operations
+4. **Property System**: Implement EK9 property lifecycle distinct from local variables
+5. **Inheritance Support**: C++ class hierarchy with virtual method dispatch
+6. **Static Linking**: Self-contained native binaries with embedded runtime
+
+**Development Phases**:
+- **Phase 1**: Port core types (String, Integer, Boolean) with ARC implementation
+- **Phase 2**: Collections and generics using C++ templates  
+- **Phase 3**: I/O and system integration with native performance
+- **Phase 4**: Cross-platform deployment and optimization
+
+#### Additional Target Support
+1. **WebAssembly**: Browser deployment via LLVM toolchain
+2. **Cross-compilation**: Multiple architectures through LLVM infrastructure  
+3. **Embedded Systems**: Resource-constrained deployment options
 
 #### Plugin Architecture
 1. **Plugin System**: Extensible compilation pipeline
@@ -1134,7 +1159,9 @@ The EK9 compiler demonstrates exceptional architectural design with several key 
 - **Stream Processing**: Built-in pipeline operators for functional programming paradigms
 
 #### Compiler Technology
-- **Multi-Target Support**: Clean abstraction enabling both JVM and future LLVM targets
+- **Dual-Target Strategy**: Clean abstraction supporting JVM (development/deployment) and C++ LLVM (native performance)
+- **Memory Management Excellence**: RETAIN/RELEASE IR instructions map perfectly to both GC (JVM) and ARC (C++) models
+- **Property-Aware IR**: Distinct handling of object properties vs local variables with proper lifecycle management
 - **Performance Optimization**: Virtual thread support, parallel processing, and intelligent caching
 - **Error Quality**: Rich error context with suggestion systems and precise source location tracking
 - **Incremental Compilation**: LSP-friendly incremental processing with file-level granularity

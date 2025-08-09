@@ -3,6 +3,7 @@ package org.ek9lang.compiler.ir;
 import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.compiler.common.INodeVisitor;
+import org.ek9lang.compiler.common.SymbolSignatureExtractor;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.core.AssertValue;
@@ -26,6 +27,7 @@ public final class IRConstruct implements INode {
   private final ISymbol symbol;
 
   private final List<Operation> operations = new ArrayList<>();
+  private final SymbolSignatureExtractor symbolSignatureExtractor = new SymbolSignatureExtractor();
 
   public IRConstruct(final ISymbol symbol) {
 
@@ -36,6 +38,20 @@ public final class IRConstruct implements INode {
 
   public String getFullyQualifiedName() {
     return symbol.getFullyQualifiedName();
+  }
+
+  /**
+   * Returns signature-qualified name including parameter types and return type.
+   * For functions and methods, this includes the complete signature to enable
+   * method overloading resolution and target code generation.
+   * <p>
+   * Format: "module::construct(org.ek9.lang::ParamType1,org.ek9.lang::ParamType2)->org.ek9.lang::ReturnType"
+   * </p>
+   *
+   * @return Signature-qualified name for overload resolution.
+   */
+  public String getSignatureQualifiedName() {
+    return symbolSignatureExtractor.apply(symbol);
   }
 
   /**

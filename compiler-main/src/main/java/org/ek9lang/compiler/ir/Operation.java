@@ -1,13 +1,8 @@
 package org.ek9lang.compiler.ir;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.ek9lang.compiler.common.INodeVisitor;
-import org.ek9lang.compiler.symbols.IFunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.core.AssertValue;
-import org.ek9lang.core.CompilerException;
 
 /**
  * An operation of some sort on a Construct.
@@ -21,68 +16,39 @@ import org.ek9lang.core.CompilerException;
  */
 public final class Operation implements INode {
 
-  private final Return returnValue;
-  private final List<Parameter> parameters = new ArrayList<>();
-  private BasicBlock basicBlockBody;
+  private BasicBlockInstr basicBlockBody;
   private final ISymbol symbol;
 
   public Operation(final ISymbol symbol) {
-
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
     this.symbol = symbol;
 
-    if (symbol instanceof MethodSymbol methodSymbol) {
-      processParameters(methodSymbol.getCallParameters());
-      this.returnValue = new Return(methodSymbol.getReturningSymbol());
-    } else if (symbol instanceof IFunctionSymbol functionSymbol) {
-      processParameters(functionSymbol.getCallParameters());
-      this.returnValue = new Return(functionSymbol.getReturningSymbol());
-    } else {
-      throw new CompilerException("Operation can only support functions and methods");
-    }
   }
 
-  private void processParameters(final List<ISymbol> callParameters) {
-    callParameters.forEach(parameter -> parameters.add(new Parameter(parameter)));
-  }
-
-  public String getOperationName() {
-    if (symbol.isFunction()) {
-      return "_call";
-    }
-
-    return symbol.getName();
-  }
-
-  public Return getReturn() {
-    return returnValue;
-  }
-
-  public List<Parameter> getParameters() {
-    return List.copyOf(parameters);
-  }
-
-  public BasicBlock getBody() {
+  public BasicBlockInstr getBody() {
     return basicBlockBody;
   }
 
-  public void setBody(final BasicBlock basicBlockBody) {
+  public void setBody(final BasicBlockInstr basicBlockBody) {
     this.basicBlockBody = basicBlockBody;
   }
 
-  @Override
-  public void accept(final INodeVisitor visitor) {
-    visitor.visit(this);
+  public ISymbol getSymbol() {
+    return symbol;
   }
+
 
   @SuppressWarnings("checkstyle:OperatorWrap")
   @Override
   public String toString() {
     return "Operation{" +
         "symbol=" + symbol +
-        ", parameters=" + parameters +
         ", body=" + basicBlockBody +
-        ", returnValue=" + returnValue +
         '}';
+  }
+
+  @Override
+  public void accept(final INodeVisitor visitor) {
+    visitor.visit(this);
   }
 }

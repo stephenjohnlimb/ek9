@@ -81,8 +81,8 @@ defines module bad.pure.expressions
       assert ($ var1)? //to string
       assert (#^ var1)? //promote to float
       assert (length of var1)?
-      assert (#< 500#GBP) //Use money because has two parts
-      assert (#> 500#GBP) //prefix and suffix
+      assert (#< 500#GBP)? //Use money because has two parts
+      assert (#> 500#GBP)? //prefix and suffix
       assert (#? var1)? //Hash code
       assert (abs var4)?
       assert (sqrt var1)?

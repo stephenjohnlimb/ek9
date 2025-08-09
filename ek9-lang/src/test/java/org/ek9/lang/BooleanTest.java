@@ -34,6 +34,31 @@ class BooleanTest extends Common {
     assertEquals(trueBoolean, viaString);
   }
 
+  /**
+   * Test to show the tri-nature of the EK9 Boolean.
+   * These methods are not exposed to EK9 developers.
+   * But they are used in the IR and Code generation phases.
+   */
+  @Test
+  void testInternalIRAndCodeGenerationMethods() {
+    final var unsetBoolean = new Boolean();
+    assertFalse(unsetBoolean._set());
+    assertFalse(unsetBoolean._true());
+    assertFalse(unsetBoolean._false());
+
+    final var trueBoolean = Boolean._of(true);
+    assertTrue(trueBoolean._set());
+    assertTrue(trueBoolean._true());
+    assertFalse(trueBoolean._false());
+
+    final var falseBoolean = Boolean._of(false);
+    assertTrue(falseBoolean._set());
+    assertFalse(falseBoolean._true());
+    assertTrue(falseBoolean._false());
+
+
+  }
+
   @Test
   void testByStringConstruction() {
 

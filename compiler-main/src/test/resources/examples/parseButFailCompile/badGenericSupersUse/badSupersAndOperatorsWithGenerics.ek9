@@ -85,7 +85,8 @@ defines module bad.constraining.supers
       demo <- ConstrainedGenericClass() of C0
 
       result <- demo.check(C0(22))
-      assert result
+      //This returns an integer so need to check if Integer is set.
+      assert result?
 
     <?-
       Will be acceptable.
@@ -94,7 +95,8 @@ defines module bad.constraining.supers
       demo <- ConstrainedGenericClass() of C1
 
       result <- demo.check(C1(22))
-      assert result
+      //This returns an integer so need to check if Integer is set.
+      assert result?
 
 //EOF
 
