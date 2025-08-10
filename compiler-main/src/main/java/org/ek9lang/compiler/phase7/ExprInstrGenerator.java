@@ -19,13 +19,13 @@ import org.ek9lang.core.AssertValue;
  * Creates IR instructions for expressions.
  * Generates new BasicBlock IR (IRInstructions) instead of old Block IR (INode).
  */
-final class ExpressionInstrGenerator {
+final class ExprInstrGenerator {
 
   private final IRContext context;
   private final ObjectAccessInstrGenerator objectAccessCreator;
   private final DebugInfoCreator debugInfoCreator;
 
-  ExpressionInstrGenerator(final IRContext context) {
+  ExprInstrGenerator(final IRContext context) {
     AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
 
     this.context = context;

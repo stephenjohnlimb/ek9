@@ -5,22 +5,33 @@ import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 
 /**
  * Creates IR instructions for block statements.
  * Handles variable declarations, variable only declarations, and statements.
+ * <p>
+ *   Deals with the following ANLR grammar.
+ * </p>
+ * <pre>
+ *   blockStatement
+ *     : variableDeclaration
+ *     | variableOnlyDeclaration
+ *     | statement
+ *     ;
+ * </pre>
  */
-final class BlockStatementInstrGenerator {
+final class BlockStmtInstrGenerator {
 
   private final VariableDeclInstrGenerator variableDeclarationCreator;
   private final VariableOnlyDeclInstrGenerator variableOnlyDeclarationCreator;
-  private final StatementInstrGenerator statementInstructionCreator;
+  private final StmtInstrGenerator statementInstructionCreator;
 
-  BlockStatementInstrGenerator(final IRContext context) {
+  BlockStmtInstrGenerator(final IRContext context) {
     AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
     this.variableDeclarationCreator = new VariableDeclInstrGenerator(context);
     this.variableOnlyDeclarationCreator = new VariableOnlyDeclInstrGenerator(context);
-    this.statementInstructionCreator = new StatementInstrGenerator(context);
+    this.statementInstructionCreator = new StmtInstrGenerator(context);
   }
 
   /**
@@ -38,6 +49,8 @@ final class BlockStatementInstrGenerator {
       instructions.addAll(variableOnlyDeclarationCreator.apply(ctx.variableOnlyDeclaration(), scopeId));
     } else if (ctx.statement() != null) {
       instructions.addAll(statementInstructionCreator.apply(ctx.statement(), scopeId));
+    } else {
+      throw new CompilerException("Not expecting any other type of block statement");
     }
 
     return instructions;

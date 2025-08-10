@@ -155,5 +155,12 @@ public enum IROpcode {
    * Format: SCOPE_REGISTER object, scope_id
    * Object will be RELEASE'd when scope exits
    */
-  SCOPE_REGISTER
+  SCOPE_REGISTER,
+
+  // Comparison operations for conditional logic
+  /**
+   * Check if reference/object is null or uninitialized.
+   * Format: IS_NULL result = operand
+   */
+  IS_NULL
 }

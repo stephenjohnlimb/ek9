@@ -58,11 +58,7 @@ public final class LiteralInstr extends IRInstr {
    * Get the literal type (could be decorated for generic contexts).
    */
   public String getLiteralType() {
-    return getOperands().get(1);
+    return getOperands().getLast();
   }
 
-  @Override
-  public String toString() {
-    return getResult() + " = " + getOpcode() + " " + getLiteralValue() + " (" + getLiteralType() + ")";
-  }
 }

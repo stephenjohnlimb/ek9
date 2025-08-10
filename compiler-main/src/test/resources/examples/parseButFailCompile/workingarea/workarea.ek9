@@ -1,6 +1,16 @@
 #!ek9
 defines module introduction
 
+  defines class
+    Example
+      aField as String?
+      bField as String := String()
+      cField as String := "Steve"
+      dField <- "Stephen"
+
+      Example() as pure
+        aField :=? "Now Initialised"
+
   defines function
     aSimpleFunction()
       -> arg0 as String

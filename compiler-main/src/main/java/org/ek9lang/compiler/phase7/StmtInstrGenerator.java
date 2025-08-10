@@ -13,19 +13,38 @@ import org.ek9lang.core.AssertValue;
 /**
  * Creates IR instructions for statements.
  * Generates new BasicBlock IR (IRInstructions).
+ * <p>From the ANTLR grammar this has to support the following:</p>
+ * <pre>
+ *   statement
+ *     : ifStatement
+ *     | assertStatement
+ *     | assignmentStatement
+ *     | identifierReference op=(INC | DEC)
+ *     | call
+ *     | throwStatement
+ *     | objectAccessExpression
+ *     | switchStatementExpression
+ *     | tryStatementExpression
+ *     | whileStatementExpression
+ *     | forStatementExpression
+ *     | streamStatement
+ *     ;
+ * </pre>
+ * TODO put in full if/else with exceptions for not implemented yet.
+ * Also TODO pull out the methods to separate functions as this will get too large otherwise.
  */
-final class StatementInstrGenerator {
+final class StmtInstrGenerator {
 
   private final IRContext context;
   private final ObjectAccessInstrGenerator objectAccessCreator;
-  private final ExpressionInstrGenerator expressionCreator;
+  private final ExprInstrGenerator expressionCreator;
   private final DebugInfoCreator debugInfoCreator;
 
-  StatementInstrGenerator(final IRContext context) {
+  StmtInstrGenerator(final IRContext context) {
     AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
     this.context = context;
     this.objectAccessCreator = new ObjectAccessInstrGenerator(context);
-    this.expressionCreator = new ExpressionInstrGenerator(context);
+    this.expressionCreator = new ExprInstrGenerator(context);
     this.debugInfoCreator = new DebugInfoCreator(context);
   }
 
@@ -82,6 +101,7 @@ final class StatementInstrGenerator {
    * Process assignment statement: variable = expression
    * Uses RELEASE-then-RETAIN pattern for memory-safe assignments.
    * Handles assignments like someLocal = "Hi" and cross-scope assignments like rtn: claude.
+   * For property fields, uses "this.fieldName" naming convention.
    */
   private List<IRInstr> processAssignmentStatement(final EK9Parser.AssignmentStatementContext ctx,
                                                    final String scopeId) {
@@ -90,7 +110,17 @@ final class StatementInstrGenerator {
     // Get the target variable (left side of assignment)
     String targetVariable = null;
     if (ctx.identifier() != null) {
-      targetVariable = ctx.identifier().getText();
+      final var identifierName = ctx.identifier().getText();
+      
+      // Check if this is a property field assignment by looking up the symbol
+      final var symbol = context.getParsedModule().getRecordedSymbol(ctx.identifier());
+      if (symbol instanceof org.ek9lang.compiler.symbols.VariableSymbol varSymbol && varSymbol.isPropertyField()) {
+        // Use "this.fieldName" for property fields
+        targetVariable = "this." + identifierName;
+      } else {
+        // Use regular variable name (potentially with scope qualification later)
+        targetVariable = identifierName;
+      }
     }
 
     if (targetVariable != null) {

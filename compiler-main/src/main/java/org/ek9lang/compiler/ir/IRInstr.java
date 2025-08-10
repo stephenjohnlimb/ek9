@@ -12,10 +12,17 @@ import org.ek9lang.core.AssertValue;
  * Each instruction represents a single operation in the target-agnostic IR,
  * which can be translated to JVM bytecode, LLVM IR, or other target formats.
  * </p>
+ * <p>
+ * The subclasses from this calls will actually hold the appropriate
+ * details accessible via method calls. The idea is not to have to parse or
+ * process these operands. Its just very useful to see a human-readable form
+ * when debugging and also for testing IR output.
+ * </p>
  */
 public class IRInstr implements INode {
 
   private final IROpcode opcode;
+  //Note these are really aimed as enabling human visualisation of the call.
   private final List<String> operands = new ArrayList<>();
   private final String result;
 

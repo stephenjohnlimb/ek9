@@ -79,6 +79,9 @@ public final class CallInstr extends IRInstr {
     this.callDetails = callDetails;
 
     // Build operands: target.method(arg1, arg2, ...) - keeps IR output clean
+    //This is just for human and debugging purposes.
+    //When processing the IR, the actual methods on this class will be used.
+    //There is no intention to serialise the operands to file to be processed.
     super.addOperand(formatMethodCall());
   }
 

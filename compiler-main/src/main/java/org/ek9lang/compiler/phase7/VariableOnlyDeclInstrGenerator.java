@@ -28,7 +28,7 @@ final class VariableOnlyDeclInstrGenerator extends AbstractVariableDeclGenerator
     AssertValue.checkNotNull("VariableOnlyDeclarationContext cannot be null", ctx);
     AssertValue.checkNotNull("scopeId cannot be null", scopeId);
 
-    return getDeclInstructions(ctx, scopeId);
+    return getDeclInstrs(ctx, scopeId);
   }
 
 }

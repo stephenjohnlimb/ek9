@@ -84,6 +84,20 @@ public final class MemoryInstr extends IRInstr {
     return new MemoryInstr(IROpcode.RELEASE, null, debugInfo).addOperand(object);
   }
 
+  /**
+   * Create IS_NULL instruction: IS_NULL result = operand.
+   */
+  public static MemoryInstr isNull(final String result, final String operand) {
+    return new MemoryInstr(IROpcode.IS_NULL, result, null).addOperand(operand);
+  }
+
+  /**
+   * Create IS_NULL instruction with debug info: IS_NULL result = operand.
+   */
+  public static MemoryInstr isNull(final String result, final String operand, final DebugInfo debugInfo) {
+    return new MemoryInstr(IROpcode.IS_NULL, result, debugInfo).addOperand(operand);
+  }
+
   private MemoryInstr(final IROpcode opcode, final String result, final DebugInfo debugInfo) {
     super(opcode, result, debugInfo);
   }

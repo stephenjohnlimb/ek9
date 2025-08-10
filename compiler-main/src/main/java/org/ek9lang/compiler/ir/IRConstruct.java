@@ -25,8 +25,8 @@ import org.ek9lang.core.AssertValue;
 public final class IRConstruct implements INode {
 
   private final ISymbol symbol;
-
   private final List<Operation> operations = new ArrayList<>();
+
   private final SymbolSignatureExtractor symbolSignatureExtractor = new SymbolSignatureExtractor();
 
   public IRConstruct(final ISymbol symbol) {

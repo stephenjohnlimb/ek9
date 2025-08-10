@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.ir;
 
 import java.util.Objects;
+import javax.annotation.Nonnull;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -66,5 +67,11 @@ public record DebugInfo(
     if (columnNumber < 1) {
       throw new IllegalArgumentException("columnNumber must be >= 1, got: " + columnNumber);
     }
+  }
+
+  @Override
+  @Nonnull
+  public String toString() {
+    return String.format("DebugInfo{%s}", toIRComment());
   }
 }

@@ -31,14 +31,14 @@ final class VariableDeclInstrGenerator extends AbstractVariableDeclGenerator
     AssertValue.checkNotNull("VariableDeclarationContext cannot be null", ctx);
     AssertValue.checkNotNull("scopeId cannot be null", scopeId);
 
-    final var instructions = getDeclInstructions(ctx, scopeId);
+    final var instructions = getDeclInstrs(ctx, scopeId);
 
 
     // Process the assignment expression (right-hand side)
     if (ctx.assignmentExpression() != null) {
       final var tempResult = context.generateTempName();
-      final var assignmentExpressionGenerator = new AssignmentExpressionInstrGenerator(context, scopeId);
-      instructions.addAll(assignmentExpressionGenerator.apply(ctx.assignmentExpression(), tempResult));
+      final var assignmentExprInstrGenerator = new AssignmentExprInstrGenerator(context, scopeId);
+      instructions.addAll(assignmentExprInstrGenerator.apply(ctx.assignmentExpression(), tempResult));
 
       final var varSymbol = context.getParsedModule().getRecordedSymbol(ctx);
       final var varName = varSymbol.getName();

@@ -129,7 +129,7 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
    */
   private List<IRInstr> processInstructionBlock(final EK9Parser.InstructionBlockContext ctx, final IRContext context) {
     final var instructions = new ArrayList<IRInstr>();
-    final var blockStatementCreator = new BlockStatementInstrGenerator(context);
+    final var blockStatementCreator = new BlockStmtInstrGenerator(context);
     final var scopeId = context.generateScopeId("scope");
 
     // Enter scope for memory management
