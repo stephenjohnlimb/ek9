@@ -16,12 +16,15 @@ import org.ek9lang.core.AssertValue;
  */
 public final class Operation implements INode {
 
+  private final DebugInfo debugInfo;
   private BasicBlockInstr basicBlockBody;
   private final ISymbol symbol;
 
-  public Operation(final ISymbol symbol) {
+
+  public Operation(final ISymbol symbol, final DebugInfo debugInfo) {
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
     this.symbol = symbol;
+    this.debugInfo = debugInfo;
 
   }
 
@@ -37,6 +40,9 @@ public final class Operation implements INode {
     return symbol;
   }
 
+  public DebugInfo getDebugInfo() {
+    return debugInfo;
+  }
 
   @SuppressWarnings("checkstyle:OperatorWrap")
   @Override

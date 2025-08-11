@@ -78,31 +78,15 @@ public final class CallInstr extends IRInstr {
     super(opcode, result, debugInfo);
     this.callDetails = callDetails;
 
-    // Build operands: target.method(arg1, arg2, ...) - keeps IR output clean
     //This is just for human and debugging purposes.
     //When processing the IR, the actual methods on this class will be used.
     //There is no intention to serialise the operands to file to be processed.
-    super.addOperand(formatMethodCall());
+    super.addOperand(callDetails.toString());
   }
 
   @Override
   public void accept(final INodeVisitor visitor) {
     visitor.visit(this);
-  }
-
-  private String formatMethodCall() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(callDetails.targetObject()).append(".").append(callDetails.methodName());
-
-    if (!callDetails.arguments().isEmpty()) {
-      sb.append("(");
-      sb.append(String.join(", ", callDetails.arguments()));
-      sb.append(")");
-    } else {
-      sb.append("()");
-    }
-
-    return sb.toString();
   }
 
   public String getTargetObject() {

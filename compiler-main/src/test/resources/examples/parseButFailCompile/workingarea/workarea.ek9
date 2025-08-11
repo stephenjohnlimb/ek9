@@ -20,6 +20,7 @@ defines module introduction
       //Also there is no need for me to define a constructor
       //But Ek9 should define an implicit constructor, so we should see that in the IR
 
+<!-
   defines function
     aSimpleFunction()
       -> arg0 as String
@@ -43,4 +44,5 @@ defines module introduction
       stdout <- Stdout()
       toOutput <- "Hello, World"
       stdout.println(toOutput)
+-!>
 //EOF

@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.common;
 
 import org.ek9lang.compiler.ir.BasicBlockInstr;
+import org.ek9lang.compiler.ir.Field;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.Operation;
@@ -18,6 +19,9 @@ public interface INodeVisitor {
   }
 
   default void visit(final IRConstruct construct) {
+  }
+
+  default void visit(final Field field) {
   }
 
   default void visit(final Operation operation) {

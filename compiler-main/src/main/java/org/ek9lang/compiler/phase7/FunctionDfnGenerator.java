@@ -21,10 +21,12 @@ import org.ek9lang.core.CompilerException;
 final class FunctionDfnGenerator implements Function<EK9Parser.FunctionDeclarationContext, IRConstruct> {
 
   private final ParsedModule parsedModule;
+  private final CompilerFlags compilerFlags;
   private final OperationDfnGenerator operationDfnGenerator;
 
   FunctionDfnGenerator(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
     this.parsedModule = parsedModule;
+    this.compilerFlags = compilerFlags;
     this.operationDfnGenerator = new OperationDfnGenerator(parsedModule, compilerFlags);
   }
 
@@ -45,12 +47,14 @@ final class FunctionDfnGenerator implements Function<EK9Parser.FunctionDeclarati
 
   private void createOperation(final IRConstruct construct, final FunctionSymbol functionSymbol,
                                final EK9Parser.FunctionDeclarationContext ctx) {
-    
+
+    final var context = new IRContext(parsedModule, compilerFlags);
+
     // Create synthetic _call method following AggregateManipulator patterns
     final var callMethod = createSyntheticCallMethod(functionSymbol);
-    
+    final var debugInfo = new DebugInfoCreator(context).apply(callMethod);
     // Create Operation for the synthetic _call method (not the function itself)
-    final var operation = new Operation(callMethod);
+    final var operation = new Operation(callMethod, debugInfo);
     
     // Process executable content using OperationDfnGenerator if operationDetails is present
     if (ctx.operationDetails() != null) {

@@ -19,12 +19,15 @@ import org.ek9lang.core.CompilerException;
 final class ProgramDfnGenerator implements Function<EK9Parser.MethodDeclarationContext, IRConstruct> {
 
   private final ParsedModule parsedModule;
+  private final CompilerFlags compilerFlags;
   private final OperationDfnGenerator operationDfnGenerator;
 
   ProgramDfnGenerator(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
     AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);
     AssertValue.checkNotNull("CompilerFlags cannot be null", compilerFlags);
+
     this.parsedModule = parsedModule;
+    this.compilerFlags = compilerFlags;
     this.operationDfnGenerator = new OperationDfnGenerator(parsedModule, compilerFlags);
   }
 
@@ -54,9 +57,11 @@ final class ProgramDfnGenerator implements Function<EK9Parser.MethodDeclarationC
     AssertValue.checkTrue("Expecting only one method on program",
         aggregateSymbol.getAllMethods().size() == 1);
 
+    final var context = new IRContext(parsedModule, compilerFlags);
     final var optionalMethod = aggregateSymbol.getAllMethods().stream().findFirst();
     optionalMethod.ifPresent(method -> {
-      final var operation = new Operation(method);
+      final var debugInfo = new DebugInfoCreator(context).apply(method);
+      final var operation = new Operation(method, debugInfo);
       operationDfnGenerator.accept(operation, ctx.operationDetails());
       construct.add(operation);
     });

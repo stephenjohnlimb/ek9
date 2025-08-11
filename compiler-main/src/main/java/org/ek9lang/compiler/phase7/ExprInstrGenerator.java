@@ -17,7 +17,49 @@ import org.ek9lang.core.AssertValue;
 
 /**
  * Creates IR instructions for expressions.
- * Generates new BasicBlock IR (IRInstructions) instead of old Block IR (INode).
+ * <p>
+ * This is the real backbone of processing and is very big! It is also recursive calling upon
+ * expression (sometimes directly and sometimes directly.<br>
+ * The ANTLR grammar follows:
+ * </p>
+ * <pre>
+ *   expression
+ *     : expression op=(INC | DEC | BANG)
+ *     | op=SUB expression
+ *     | expression op=QUESTION
+ *     | op=TOJSON expression
+ *     | op=DOLLAR expression
+ *     | op=PROMOTE expression
+ *     | op=LENGTH OF? expression
+ *     | op=PREFIX expression
+ *     | op=SUFFIX expression
+ *     | op=HASHCODE expression
+ *     | op=ABS OF? expression
+ *     | op=SQRT OF? expression
+ *     | &lt;assoc=right&gt; left=expression coalescing=(CHECK | ELVIS) right=expression
+ *     | primary
+ *     | call
+ *     | objectAccessExpression
+ *     | list
+ *     | dict
+ *     | expression IS? neg=NOT? op=EMPTY
+ *     | op=(NOT | TILDE) expression
+ *     | left=expression op=CARET right=expression
+ *     | left=expression op=(DIV | MUL | MOD | REM ) NL? right=expression
+ *     | left=expression op=(ADD | SUB) NL? right=expression
+ *     | left=expression op=(SHFTL | SHFTR) right=expression
+ *     | left=expression op=(CMP | FUZ) NL? right=expression
+ *     | left=expression op=(LE | GE | GT | LT) NL? right=expression
+ *     | left=expression op=(EQUAL | NOTEQUAL | NOTEQUAL2) NL? right=expression
+ *     | &lt;assoc=right&gt; left=expression coalescing_equality=(COALESCE_LE | COALESCE_GE | COALESCE_GT | COALESCE_LT) right=expression
+ *     | left=expression neg=NOT? op=MATCHES right=expression
+ *     | left=expression neg=NOT? op=CONTAINS right=expression
+ *     | left=expression IS? neg=NOT? IN right=expression
+ *     | left=expression op=(AND | XOR | OR) NL? right=expression
+ *     | expression IS? neg=NOT? IN range
+ *     | &lt;assoc=right&gt; control=expression LEFT_ARROW ternaryPart ternary=(COLON|ELSE) ternaryPart
+ *     ;
+ * </pre>
  */
 final class ExprInstrGenerator {
 

@@ -37,6 +37,7 @@ final class ObjectAccessInstrGenerator {
    */
   public List<IRInstr> apply(final EK9Parser.ObjectAccessExpressionContext ctx, final String resultVar,
                              final String scopeId) {
+
     AssertValue.checkNotNull("ObjectAccessExpressionContext cannot be null", ctx);
     AssertValue.checkNotNull("resultVar cannot be null", resultVar);
     AssertValue.checkNotNull("scopeId cannot be null", scopeId);

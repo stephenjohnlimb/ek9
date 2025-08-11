@@ -152,7 +152,7 @@ public class IRInstr implements INode {
 
     // Add debug information as comment if available
     if (debugInfo != null && debugInfo.isValidLocation()) {
-      sb.append("  ").append(debugInfo.toIRComment());
+      sb.append("  ").append(debugInfo);
     }
 
     return sb.toString();

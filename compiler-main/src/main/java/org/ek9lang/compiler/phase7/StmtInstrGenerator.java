@@ -2,12 +2,9 @@ package org.ek9lang.compiler.phase7;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.BranchInstr;
-import org.ek9lang.compiler.ir.CallDetails;
-import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -31,28 +28,27 @@ import org.ek9lang.core.CompilerException;
  *     | streamStatement
  *     ;
  * </pre>
- * TODO put in full if/else with exceptions for not implemented yet.
- * Also TODO pull out the methods to separate functions as this will get too large otherwise.
  */
-final class StmtInstrGenerator {
+final class StmtInstrGenerator implements BiFunction<EK9Parser.StatementContext, String, List<IRInstr>> {
 
   private final IRContext context;
-  private final ObjectAccessInstrGenerator objectAccessCreator;
-  private final ExprInstrGenerator expressionCreator;
-  private final DebugInfoCreator debugInfoCreator;
+  private final ObjectAccessInstrGenerator objectAccessGenerator;
+  private final AssertStmtGenerator assertStmtGenerator;
+  private final AssignmentStmtGenerator assignmentStmtGenerator;
 
   StmtInstrGenerator(final IRContext context) {
     AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
     this.context = context;
-    this.objectAccessCreator = new ObjectAccessInstrGenerator(context);
-    this.expressionCreator = new ExprInstrGenerator(context);
-    this.debugInfoCreator = new DebugInfoCreator(context);
+    this.objectAccessGenerator = new ObjectAccessInstrGenerator(context);
+    this.assertStmtGenerator = new AssertStmtGenerator(context);
+    this.assignmentStmtGenerator = new AssignmentStmtGenerator(context);
   }
 
   /**
    * Generate IR instructions for a statement.
    */
   public List<IRInstr> apply(final EK9Parser.StatementContext ctx, final String scopeId) {
+
     AssertValue.checkNotNull("StatementContext cannot be null", ctx);
     AssertValue.checkNotNull("scopeId cannot be null", scopeId);
 
@@ -91,79 +87,23 @@ final class StmtInstrGenerator {
 
   private void processObjectAccessExpression(final EK9Parser.ObjectAccessExpressionContext ctx,
                                              final String scopeId, final List<IRInstr> instructions) {
+
     final var tempResult = context.generateTempName();
-    instructions.addAll(objectAccessCreator.apply(ctx, tempResult, scopeId));
+    instructions.addAll(objectAccessGenerator.apply(ctx, tempResult, scopeId));
+
   }
 
-  /**
-   * Process assert statement: ASSERT expression
-   * Uses EK9 Boolean._true() method to get primitive boolean for assertion.
-   */
   private void processAssertStatement(final EK9Parser.AssertStatementContext ctx,
                                       final String scopeId, final List<IRInstr> instructions) {
 
-    // Evaluate the assert expression 
-    final var tempExprResult = context.generateTempName();
-    instructions.addAll(expressionCreator.apply(ctx.expression(), tempExprResult, scopeId));
-
-    // Call the _true() method to get primitive boolean (true if set AND true)
-    final var tempBoolResult = context.generateTempName();
-    final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx.expression());
-    final var debugInfo = debugInfoCreator.apply(exprSymbol);
-
-    // Create method call with type information (_true() method on Boolean)
-    final var callDetails = new CallDetails(tempExprResult,
-        "org.ek9.lang::Boolean", "_true",
-        List.of(), "boolean", List.of());
-
-    instructions.add(CallInstr.call(tempBoolResult, debugInfo, callDetails));
-
-    // Assert on the primitive boolean result  
-    instructions.add(BranchInstr.assertValue(tempBoolResult, debugInfo));
+    instructions.addAll(assertStmtGenerator.apply(ctx, scopeId));
 
   }
 
-  /**
-   * Process assignment statement: variable = expression
-   * Uses RELEASE-then-RETAIN pattern for memory-safe assignments.
-   * Handles assignments like someLocal = "Hi" and cross-scope assignments like rtn: claude.
-   * For property fields, uses "this.fieldName" naming convention.
-   */
   private void processAssignmentStatement(final EK9Parser.AssignmentStatementContext ctx,
                                           final String scopeId, final List<IRInstr> instructions) {
 
-    // Get the target variable (left side of assignment)
-    String targetVariable = null;
-    if (ctx.identifier() != null) {
-      final var identifierName = ctx.identifier().getText();
-
-      // Check if this is a property field assignment by looking up the symbol
-      final var symbol = context.getParsedModule().getRecordedSymbol(ctx.identifier());
-      if (symbol instanceof org.ek9lang.compiler.symbols.VariableSymbol varSymbol && varSymbol.isPropertyField()) {
-        // Use "this.fieldName" for property fields
-        targetVariable = "this." + identifierName;
-      } else {
-        // Use regular variable name (potentially with scope qualification later)
-        targetVariable = identifierName;
-      }
-    }
-
-    if (targetVariable != null) {
-      final var debugInfo = debugInfoCreator.apply(context.getParsedModule().getRecordedSymbol(ctx));
-
-      // RELEASE: Decrement reference count of current target value (tolerant of uninitialized)
-      instructions.add(MemoryInstr.release(targetVariable, debugInfo));
-
-      // Evaluate the assignment expression (right side)
-      final var tempResult = context.generateTempName();
-      instructions.addAll(expressionCreator.apply(ctx.assignmentExpression().expression(), tempResult, scopeId));
-
-      // RETAIN: Increment reference count of new value to keep it alive
-      instructions.add(MemoryInstr.retain(tempResult, debugInfo));
-
-      // STORE: Assign new value to target variable
-      instructions.add(MemoryInstr.store(targetVariable, tempResult, debugInfo));
-    }
+    instructions.addAll(assignmentStmtGenerator.apply(ctx, scopeId));
 
   }
 }

@@ -9,13 +9,12 @@ import org.ek9lang.compiler.ir.BasicBlockInstr;
 import org.ek9lang.compiler.ir.BranchInstr;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
+import org.ek9lang.compiler.ir.Field;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.ir.Operation;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
-import org.ek9lang.compiler.symbols.IAggregateSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.symbols.VariableSymbol;
@@ -61,6 +60,9 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
     if (symbol instanceof AggregateSymbol aggregateSymbol && symbol.getGenus() == SymbolGenus.CLASS) {
       final var construct = new IRConstruct(symbol);
 
+      // Create field declarations from symbol table
+      createFieldDeclarations(construct, aggregateSymbol);
+
       // Create three-phase initialization operations
       createClassInitializationOperations(construct, aggregateSymbol, ctx);
 
@@ -72,6 +74,28 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
       return construct;
     }
     throw new CompilerException("Cannot create Class - expect AggregateSymbol of CLASS Genus");
+  }
+
+  /**
+   * Create field declarations using AggregateSymbol.getProperties().
+   * This provides structural metadata about the class's data members,
+   * separate from the behavioral operations (methods).
+   */
+  private void createFieldDeclarations(final IRConstruct construct, final AggregateSymbol aggregateSymbol) {
+    final var properties = aggregateSymbol.getProperties();
+    final var typeNameOrException = new TypeNameOrException();
+    final var debugInfoCreator = new DebugInfoCreator(new IRContext(parsedModule, compilerFlags));
+
+    for (final var property : properties) {
+      if (property instanceof VariableSymbol variableSymbol && variableSymbol.isPropertyField()) {
+        final var fieldName = variableSymbol.getName();
+        final var typeName = typeNameOrException.apply(variableSymbol);
+        final var debugInfo = debugInfoCreator.apply(variableSymbol);
+
+        final var field = new Field(variableSymbol, fieldName, typeName, debugInfo);
+        construct.addField(field);
+      }
+    }
   }
 
   /**
@@ -98,14 +122,14 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
    * This runs once per class loading.
    */
   private void createClassInitOperation(final IRConstruct construct, final AggregateSymbol aggregateSymbol) {
-    // Create a synthetic method symbol for c_init
-    final var cInitSymbol = createSyntheticInitMethodSymbol(aggregateSymbol, "c_init",
-        parsedModule.getEk9Types().ek9Void());
-
-    final var cInitOperation = new Operation(cInitSymbol);
+    // Create a synthetic method symbol for c_init is when the class/construct definition is actually loaded.
+    final var context = new IRContext(parsedModule, compilerFlags);
+    final var method = newSyntheticInitMethodSymbol(aggregateSymbol, "c_init");
+    final var debugInfo = new DebugInfoCreator(context).apply(method);
+    final var cInitOperation = new Operation(method, debugInfo);
 
     // Generate c_init body
-    final var context = new IRContext(parsedModule, compilerFlags);
+
     final var allInstructions = new java.util.ArrayList<IRInstr>();
 
     // Call super class c_init if this class explicitly extends another class
@@ -115,7 +139,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
       // Only make super call if it's not the implicit base class (like Object)
       // Check if this is an explicit inheritance (not implicit base class)
-      if (!isImplicitSuperClass(superSymbol)) {
+      if (isNotImplicitSuperClass(superSymbol)) {
         final var callDetails = new CallDetails(
             null, // No target object for static call
             superSymbol.getFullyQualifiedName(),
@@ -148,15 +172,13 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
   private void createInstanceInitOperation(final IRConstruct construct,
                                            final AggregateSymbol aggregateSymbol,
                                            final EK9Parser.AggregatePartsContext ctx) {
-
-    // Create a synthetic method symbol for i_init
-    final var iInitSymbol = createSyntheticInitMethodSymbol(aggregateSymbol, "i_init",
-        parsedModule.getEk9Types().ek9Void());
-
-    final var iInitOperation = new Operation(iInitSymbol);
+    final var context = new IRContext(parsedModule, compilerFlags);
+    final var method = newSyntheticInitMethodSymbol(aggregateSymbol, "i_init");
+    final var debugInfo = new DebugInfoCreator(context).apply(method);
+    final var iInitOperation = new Operation(method, debugInfo);
 
     // Generate i_init body
-    final var context = new IRContext(parsedModule, compilerFlags);
+
     final var allInstructions = new java.util.ArrayList<IRInstr>();
 
     // Call super class i_init if this class explicitly extends another class
@@ -165,7 +187,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
       final var superSymbol = superAggregateOpt.get();
 
       // Only make super call if it's not the implicit base class (like Object)
-      if (!isImplicitSuperClass(superSymbol)) {
+      if (isNotImplicitSuperClass(superSymbol)) {
         final var callDetails = new CallDetails(
             "this", // Target this object for instance call
             superSymbol.getFullyQualifiedName(),
@@ -248,33 +270,6 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
     return instructions;
   }
 
-  /**
-   * Check if the given super class is an implicit base class that should be ignored for initialization calls.
-   * In EK9, classes might implicitly extend base types that don't need explicit super initialization.
-   */
-  private boolean isImplicitSuperClass(final IAggregateSymbol superSymbol) {
-    // Check if this is an implicit base class like "Any" or similar
-    final var superName = superSymbol.getFullyQualifiedName();
-
-    // EK9's implicit base classes that don't need explicit super initialization
-    return "org.ek9.lang::Any".equals(superName)
-        || superSymbol.getName().isEmpty(); // Handle cases where name might be empty
-  }
-
-  /**
-   * Create a synthetic method symbol for initialization methods (c_init, i_init).
-   */
-  private MethodSymbol createSyntheticInitMethodSymbol(
-      final AggregateSymbol aggregateSymbol, final String methodName,
-      final ISymbol returnType) {
-
-    final var methodSymbol = new MethodSymbol(methodName, aggregateSymbol);
-    methodSymbol.setType(returnType);
-    methodSymbol.setReturningSymbol(new VariableSymbol("_rtn", returnType));
-    methodSymbol.setMarkedPure(true); // Initialization methods are pure
-
-    return methodSymbol;
-  }
 
   private void createOperationsForAggregateParts(final IRConstruct construct,
                                                  final AggregateSymbol aggregateSymbol,
@@ -282,18 +277,148 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
     // Properties are now handled in i_init operation - no processing needed here
 
-    // Create Operation nodes for each method in the class (including constructors)
+    // Process ALL methods from symbol table (explicit + synthetic)
+    final var allMethods = aggregateSymbol.getAllMethodInThisScopeOnly();
+
+    if (allMethods.isEmpty()) {
+      throw new CompilerException("No methods found for class " +
+          aggregateSymbol.getFullyQualifiedName() + " - earlier phases may have failed");
+    }
+
+    for (final var method : allMethods) {
+      if (method.isSynthetic()) {
+        processSyntheticMethod(construct, method);
+      } else {
+        processExplicitMethod(construct, method, ctx);
+      }
+    }
+  }
+
+  /**
+   * Process a synthetic method (generated by earlier compiler phases).
+   * These include synthetic constructors, operators from 'default operator', and other generated methods.
+   */
+  private void processSyntheticMethod(final IRConstruct construct, final MethodSymbol method) {
+    if (method.isConstructor()) {
+      // Synthetic default constructor
+      processSyntheticConstructor(construct, method);
+    } else if (method.isOperator()) {
+      // Synthetic operators from default operator
+      processSyntheticOperator(construct, method);
+    } else {
+      // Synthetic regular methods (e.g., _isSet, _hash)
+      processSyntheticRegularMethod(construct, method);
+    }
+  }
+
+  /**
+   * Process an explicit method (defined in source code with parse context).
+   */
+  private void processExplicitMethod(final IRConstruct construct, final MethodSymbol method,
+                                     final EK9Parser.AggregatePartsContext ctx) {
+    // Find the corresponding parse context for this method
+    final var operationCtx = findOperationContext(method, ctx);
+
+    if (operationCtx != null) {
+      // Process using existing logic with parse context
+      processAsMethodOrOperator(construct, method, operationCtx);
+    } else {
+      throw new CompilerException("No parse context found for explicit method: " + method.getName());
+    }
+  }
+
+  /**
+   * Find the parse context for a specific method symbol.
+   * Returns null if the method is synthetic (no source code).
+   */
+  private EK9Parser.OperationDetailsContext findOperationContext(final MethodSymbol method,
+                                                                 final EK9Parser.AggregatePartsContext ctx) {
+    if (ctx == null) {
+      return null;
+    }
+
+    // Search through methodDeclaration contexts
     for (final var methodCtx : ctx.methodDeclaration()) {
-      final var symbol = parsedModule.getRecordedSymbol(methodCtx);
-      processAsMethodOrOperator(construct, symbol, methodCtx.operationDetails());
+      final var contextSymbol = parsedModule.getRecordedSymbol(methodCtx);
+      if (contextSymbol == method) {
+        return methodCtx.operationDetails();
+      }
     }
 
-    // Create Operation nodes for each operator in the class
+    // Search through operatorDeclaration contexts  
     for (final var operatorCtx : ctx.operatorDeclaration()) {
-      final var symbol = parsedModule.getRecordedSymbol(operatorCtx);
-      processAsMethodOrOperator(construct, symbol, operatorCtx.operationDetails());
+      final var contextSymbol = parsedModule.getRecordedSymbol(operatorCtx);
+      if (contextSymbol == method) {
+        return operatorCtx.operationDetails();
+      }
     }
 
+    return null; // No parse context found (method is synthetic)
+  }
+
+  /**
+   * Process a synthetic constructor (default constructor created by earlier phases).
+   */
+  private void processSyntheticConstructor(final IRConstruct construct, final MethodSymbol constructorSymbol) {
+    // Create minimal synthetic constructor operation
+    final var context = new IRContext(parsedModule, compilerFlags);
+    final var debugInfo = new DebugInfoCreator(context).apply(constructorSymbol);
+    final var operation = new Operation(constructorSymbol, debugInfo);
+
+    // Generate simple constructor body: RETURN this
+    final var instructions = new java.util.ArrayList<IRInstr>();
+    instructions.add(BranchInstr.returnValue("this", debugInfo));
+
+    final var basicBlock = new BasicBlockInstr("entry");
+    basicBlock.addInstructions(instructions);
+    operation.setBody(basicBlock);
+
+    construct.add(operation);
+  }
+
+  /**
+   * Process a synthetic operator (generated from 'default operator' declarations).
+   * For now, creates placeholder - full implementation will be added later.
+   */
+  private void processSyntheticOperator(final IRConstruct construct, final MethodSymbol operatorSymbol) {
+    // Create placeholder synthetic operator operation
+    final var context = new IRContext(parsedModule, compilerFlags);
+    final var debugInfo = new DebugInfoCreator(context).apply(operatorSymbol);
+    final var operation = new Operation(operatorSymbol, debugInfo);
+
+    // TODO: Implement based on operator type and base operators
+    // This will be complex and handled in later implementation phases
+    final var instructions = new java.util.ArrayList<IRInstr>();
+
+    instructions.add(BranchInstr.returnVoid()); // Placeholder
+
+    final var basicBlock = new BasicBlockInstr("entry");
+    basicBlock.addInstructions(instructions);
+    operation.setBody(basicBlock);
+
+    construct.add(operation);
+  }
+
+  /**
+   * Process a synthetic regular method (e.g., _isSet, _hash generated from properties).
+   * For now, creates placeholder - full implementation will be added later.
+   */
+  private void processSyntheticRegularMethod(final IRConstruct construct, final MethodSymbol methodSymbol) {
+    // Create placeholder synthetic regular method operation
+    final var context = new IRContext(parsedModule, compilerFlags);
+    final var debugInfo = new DebugInfoCreator(context).apply(methodSymbol);
+    final var operation = new Operation(methodSymbol, debugInfo);
+
+    // TODO: Implement based on method semantics (e.g., _isSet, _hash)
+    final var instructions = new java.util.ArrayList<IRInstr>();
+
+    instructions.add(BranchInstr.returnVoid()); // Placeholder
+
+    final var basicBlock = new BasicBlockInstr("entry");
+    basicBlock.addInstructions(instructions);
+    operation.setBody(basicBlock);
+
+    construct.add(operation);
   }
 
 }

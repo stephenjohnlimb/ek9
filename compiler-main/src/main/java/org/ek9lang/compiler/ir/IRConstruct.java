@@ -25,6 +25,7 @@ import org.ek9lang.core.AssertValue;
 public final class IRConstruct implements INode {
 
   private final ISymbol symbol;
+  private final List<Field> fields = new ArrayList<>();
   private final List<Operation> operations = new ArrayList<>();
 
   private final SymbolSignatureExtractor symbolSignatureExtractor = new SymbolSignatureExtractor();
@@ -67,6 +68,11 @@ public final class IRConstruct implements INode {
     return symbol.getGenus() == SymbolGenus.PROGRAM;
   }
 
+  public void addField(final Field field) {
+    AssertValue.checkNotNull("Field cannot be null", field);
+    fields.add(field);
+  }
+
   public void add(final Operation operation) {
     AssertValue.checkNotNull("Operation cannot be null", operation);
     operations.add(operation);
@@ -74,6 +80,10 @@ public final class IRConstruct implements INode {
 
   public ISymbol getSymbol() {
     return symbol;
+  }
+
+  public List<Field> getFields() {
+    return List.copyOf(fields);
   }
 
   public List<Operation> getOperations() {
@@ -90,6 +100,7 @@ public final class IRConstruct implements INode {
   public String toString() {
     return "Construct{" +
         "symbol=" + symbol +
+        ", fields=" + fields +
         ", operations=" + operations +
         '}';
   }

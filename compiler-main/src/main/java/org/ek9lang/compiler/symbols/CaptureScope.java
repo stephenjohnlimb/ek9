@@ -10,7 +10,7 @@ import org.ek9lang.compiler.search.SymbolSearch;
  * Used to actually hold the captured symbols.
  * Note that the resolution out to the enclosing scope is switched on and off.
  * This switching is based on entering and exiting the 'capture' via the antlr listeners.
- * It is important because on entering the capture scope it must be possible to resolve varaiables
+ * It is important because on entering the capture scope it must be possible to resolve variables
  * in the enclosing Blocks before, so that variables can be captured).
  * But on exiting the capture scope, the resolution must then only be within this scope and must not
  * look outside to the enclosing scope.

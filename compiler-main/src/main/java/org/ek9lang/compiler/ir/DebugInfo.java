@@ -72,6 +72,6 @@ public record DebugInfo(
   @Override
   @Nonnull
   public String toString() {
-    return String.format("DebugInfo{%s}", toIRComment());
+    return toIRComment();
   }
 }
