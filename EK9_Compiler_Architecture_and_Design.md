@@ -690,11 +690,35 @@ public record Ek9Types(AnyTypeSymbol ek9Any,
 
 ### IR Architecture
 
+#### Critical Two-Phase Field/Struct Generation
+
+EK9's IR architecture implements a **critical two-phase process** that enables backend-agnostic design while supporting both managed (JVM) and unmanaged (C++ LLVM) memory models:
+
+**Phase 1: Structural Definition from Symbol Table**
+- **Source**: `AggregateSymbol.getProperties()` from symbol table
+- **Purpose**: Generate class/struct field layouts for target backends
+- **JVM Target**: Creates class fields using ASM `ClassWriter.visitField()`
+- **LLVM Target**: Creates struct type definitions with precise field ordering
+
+**Phase 2: Field Operations from IR Instructions**
+- **Source**: IR instructions (`REFERENCE`, `STORE`, `LOAD`, `CALL`)
+- **Purpose**: Generate field access and mutation operations
+- **JVM Target**: Maps to `GETFIELD`/`PUTFIELD` bytecode instructions
+- **LLVM Target**: Maps to `getelementptr` and `load`/`store` instructions
+
+**Why This Separation is Essential**:
+1. **Backend Independence**: Same IR works for both managed and unmanaged memory
+2. **Type Safety**: Symbol table provides authoritative field type information
+3. **Memory Model Abstraction**: Field operations work with pre-defined structures
+4. **Semantic Correctness**: Operations reference well-defined field layouts
+
+For comprehensive implementation details, see **[EK9_IR_GENERATION_ARCHITECTURE.md](./EK9_IR_GENERATION_ARCHITECTURE.md#two-phase-fieldstruct-generation-architecture)**.
+
 #### IRModule Structure
 **Purpose**: Target-neutral container for EK9 module intermediate representation with comprehensive memory management
 
 **Key Components**:
-- **Construct**: Universal IR representation for all EK9 constructs
+- **Construct**: Universal IR representation for all EK9 constructs with symbol table integration
 - **Operation**: Methods/functions within constructs with complete memory safety
 - **BasicBlock**: Code blocks with precise scope and lifetime management
 - **IRInstr**: Memory-safe IR instructions (REFERENCE, RETAIN, RELEASE, SCOPE_*)
@@ -708,7 +732,9 @@ public record Ek9Types(AnyTypeSymbol ek9Any,
 3. **Memory-Safe IR Construction**: Generate REFERENCE-based instructions
 4. **Scope Management**: Precise object and variable lifetime tracking
 
-For comprehensive technical details on the memory management architecture, see **`EK9_IR_MEMORY_MANAGEMENT.md`**.
+For comprehensive technical details on the memory management architecture, see **[EK9_IR_MEMORY_MANAGEMENT.md](./EK9_IR_MEMORY_MANAGEMENT.md)**.
+
+For detailed two-phase field/struct generation implementation, see **[EK9_IR_GENERATION_ARCHITECTURE.md](./EK9_IR_GENERATION_ARCHITECTURE.md#two-phase-fieldstruct-generation-architecture)**.
 5. **Cross-Scope Safety**: RETAIN/RELEASE for ownership transfer
 
 #### Target-Neutral Design with Memory Safety
@@ -719,7 +745,9 @@ For comprehensive technical details on the memory management architecture, see *
 - **Cross-Platform Consistency**: Same semantics on JVM and C++ LLVM backends
 - **Universal Memory Safety**: No memory leaks, use-after-free, or double-free errors
 
-**See**: [EK9_IR_MEMORY_MANAGEMENT.md](./EK9_IR_MEMORY_MANAGEMENT.md) for complete memory management architecture.
+**Architecture References**:
+- **[EK9_IR_MEMORY_MANAGEMENT.md](./EK9_IR_MEMORY_MANAGEMENT.md)** - Complete memory management architecture
+- **[EK9_IR_GENERATION_ARCHITECTURE.md](./EK9_IR_GENERATION_ARCHITECTURE.md)** - IR generation patterns and two-phase field generation
 
 ### Code Generation Framework
 
@@ -749,8 +777,38 @@ public INodeVisitor apply(final ConstructTargetTuple constructTargetTuple) {
 
 **AsmStructureCreator**:
 - **Java 23 Compatibility**: Uses `V23` bytecode version
+- **Two-Phase Generation**: Implements critical symbol table → field generation pattern
+  - **Phase 1**: Generates class fields from `AggregateSymbol.getProperties()`
+  - **Phase 2**: Generates field operations from IR instructions
 - **Program Handling**: Creates main entry points and constructors
-- **Method Generation**: Transforms IR Operations into JVM methods
+- **Method Generation**: Transforms IR Operations into JVM methods with field access
+
+**Field Generation Implementation**:
+```java
+// Phase 1: Generate class structure from symbol table
+final var aggregateSymbol = (AggregateSymbol) construct.getSymbol();
+final var properties = aggregateSymbol.getProperties();
+
+for (final var property : properties) {
+  final var fieldName = property.getName();
+  final var fieldType = convertEk9TypeToJvmDescriptor(property.getType());
+  
+  classWriter.visitField(
+    ACC_PRIVATE,
+    fieldName, 
+    fieldType,
+    null, null
+  );
+}
+
+// Phase 2: Generate field operations from IR instructions
+for (final var instruction : operation.getAllInstructions()) {
+  if (instruction.getOpcode() == IROpcode.STORE && instruction.isFieldAccess()) {
+    // Generate PUTFIELD bytecode
+    methodVisitor.visitFieldInsn(PUTFIELD, className, fieldName, fieldType);
+  }
+}
+```
 
 ### Template and Generic Support
 

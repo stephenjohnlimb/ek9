@@ -4,17 +4,18 @@ This document details the architectural patterns, naming conventions, and implem
 
 ## Table of Contents
 1. [Architecture Overview](#architecture-overview)
-2. [Naming Conventions](#naming-conventions) 
-3. [IR vs Instructions vs Definitions](#ir-vs-instructions-vs-definitions)
-4. [Implementation Patterns](#implementation-patterns)
-5. [Context Management](#context-management)
-6. [Type Information Enhancement](#type-information-enhancement)
-7. [Class Hierarchy and Organization](#class-hierarchy-and-organization)
-8. [Missing Components Analysis](#missing-components-analysis)
-9. [Development Guidelines](#development-guidelines)
-10. [Integration with CallInstr Enhancements](#integration-with-callinstr-enhancements)
-11. [Property Initialization and Inheritance IR Patterns](#property-initialization-and-inheritance-ir-patterns)
-12. [C++ Runtime Integration Architecture](#c-runtime-integration-architecture)
+2. [Two-Phase Field/Struct Generation Architecture](#two-phase-fieldstruct-generation-architecture)
+3. [Naming Conventions](#naming-conventions) 
+4. [IR vs Instructions vs Definitions](#ir-vs-instructions-vs-definitions)
+5. [Implementation Patterns](#implementation-patterns)
+6. [Context Management](#context-management)
+7. [Type Information Enhancement](#type-information-enhancement)
+8. [Class Hierarchy and Organization](#class-hierarchy-and-organization)
+9. [Missing Components Analysis](#missing-components-analysis)
+10. [Development Guidelines](#development-guidelines)
+11. [Integration with CallInstr Enhancements](#integration-with-callinstr-enhancements)
+12. [Property Initialization and Inheritance IR Patterns](#property-initialization-and-inheritance-ir-patterns)
+13. [C++ Runtime Integration Architecture](#c-runtime-integration-architecture)
 
 ## Architecture Overview
 
@@ -639,3 +640,363 @@ EK9's IR generation architecture provides a clean, extensible foundation for com
 - **Independent Layers**: Definition and instruction generators can be developed in parallel
 
 This architecture enables systematic completion of EK9's IR generation while maintaining clean separation of concerns, eliminating code duplication, and preparing for multi-target code generation with significantly reduced development overhead.
+
+### Backend Code Generation Workflow
+
+**Complete Generation Process**:
+
+1. **Symbol Resolution** (Phases 1-6): Build complete symbol table with type information
+2. **IR Generation** (Phase 7): Create target-neutral instruction sequences
+3. **Backend Selection** (Phase 11): Choose JVM or LLVM target based on compiler flags
+4. **Phase 1 Generation**: Extract field layout from symbol table, generate target structures
+5. **Phase 2 Generation**: Process IR instructions, generate target-specific operations
+6. **Output Generation**: Write final bytecode/LLVM IR to target files
+
+**Thread Safety**: Each backend runs independently with read-only access to symbol table and IR, enabling parallel multi-target compilation.
+
+## Two-Phase Field/Struct Generation Architecture
+
+### Critical Architectural Pattern: Symbol Table → Structure Generation
+
+EK9's backend code generation implements a **critical two-phase process** that separates structural definition from operational instruction processing. This pattern is essential for understanding how EK9's IR design successfully abstracts both managed (JVM) and unmanaged (LLVM/C++) memory models.
+
+#### Phase 1: Structural Definition from Symbol Table
+**Source**: Symbol table (`AggregateSymbol.getProperties()`)  
+**Purpose**: Define class/struct layout and field allocation  
+**Backends**: Both JVM and LLVM
+
+#### Phase 2: Field Operations from IR Instructions
+**Source**: IR instructions (`REFERENCE`, `STORE`, `LOAD`)  
+**Purpose**: Generate field access and mutation operations  
+**Backends**: Target-specific implementations
+
+### Why This Separation is Critical
+
+1. **Backend-Agnostic IR Design**: IR instructions don't need to know about target-specific struct layouts
+2. **Memory Model Abstraction**: Same IR works for managed (JVM) and unmanaged (C++ LLVM) memory
+3. **Type Safety**: Symbol table provides complete type information for field generation
+4. **Semantic Correctness**: Field operations reference pre-defined structures
+
+### Symbol Table → LLVM Struct Generation
+
+**Phase 1: LLVM Struct Definition**
+```cpp
+// From AggregateSymbol.getProperties() → LLVM struct definition
+%MyClass = type {
+  %String*,     // property1 as String?
+  i32,          // property2 as Integer
+  %Boolean*     // property3 as Boolean?
+}
+```
+
+**Symbol Table Processing**:
+```java
+// Extract field layout from symbol table
+final var aggregateSymbol = (AggregateSymbol) construct.getSymbol();
+final var properties = aggregateSymbol.getProperties();
+
+// Generate LLVM struct type definition
+for (int i = 0; i < properties.size(); i++) {
+  final var property = properties.get(i);
+  final var fieldType = convertEk9TypeToLLVM(property.getType());
+  // Add field to struct definition
+}
+```
+
+**Phase 2: LLVM Field Operations**
+```cpp
+// From IR: STORE myInstance.property1, "Hello"
+%field_ptr = getelementptr %MyClass, %MyClass* %myInstance, i32 0, i32 0
+store %String* %temp1, %String** %field_ptr
+```
+
+### Symbol Table → JVM Class Field Generation
+
+**Phase 1: ASM Field Generation**
+```java
+// From AggregateSymbol.getProperties() → JVM class fields
+public class MyClass {
+  private org.ek9.lang.String property1;  // from symbol table
+  private org.ek9.lang.Integer property2; // from symbol table  
+  private org.ek9.lang.Boolean property3; // from symbol table
+}
+```
+
+**ASM Field Generation Implementation**:
+```java
+// AsmStructureCreator processes symbol table for field generation
+final var aggregateSymbol = (AggregateSymbol) construct.getSymbol();
+final var properties = aggregateSymbol.getProperties();
+
+for (final var property : properties) {
+  final var fieldName = property.getName();
+  final var fieldType = convertEk9TypeToJvmDescriptor(property.getType());
+  
+  // Generate JVM field using ASM
+  classWriter.visitField(
+    ACC_PRIVATE,
+    fieldName,
+    fieldType,
+    null,  // signature
+    null   // default value
+  );
+}
+```
+
+**Phase 2: JVM Field Operations**
+```java
+// From IR: STORE myInstance.property1, "Hello"
+// → JVM bytecode:
+ALOAD 0          // load 'this'
+ALOAD 1          // load "Hello" 
+PUTFIELD MyClass/property1 Lorg/ek9/lang/String;
+```
+
+### Backend Mapping Examples
+
+#### Same Symbol Table → Different Target Formats
+
+**EK9 Source**:
+```ek9
+Person
+  name as String?
+  age as Integer
+  active as Boolean?
+```
+
+**Symbol Table Properties**:
+```java
+List<ISymbol> properties = {
+  VariableSymbol("name", StringSymbol),
+  VariableSymbol("age", IntegerSymbol), 
+  VariableSymbol("active", BooleanSymbol)
+}
+```
+
+**LLVM Target Generation**:
+```cpp
+// Phase 1: Struct definition from symbol table
+%Person = type {
+  %String*,    // name as String?
+  i32,         // age as Integer 
+  %Boolean*    // active as Boolean?
+}
+
+// Phase 2: Field access from IR instructions
+// IR: REFERENCE person, Person
+%person = alloca %Person
+
+// IR: STORE person.name, "Alice"
+%name_ptr = getelementptr %Person, %Person* %person, i32 0, i32 0
+store %String* %temp_alice, %String** %name_ptr
+```
+
+**JVM Target Generation**:
+```java
+// Phase 1: Class fields from symbol table
+public class Person {
+  private org.ek9.lang.String name;
+  private org.ek9.lang.Integer age;
+  private org.ek9.lang.Boolean active;
+}
+
+// Phase 2: Field access from IR instructions  
+// IR: REFERENCE person, Person
+NEW Person
+DUP
+INVOKESPECIAL Person/<init>
+ASTORE 1
+
+// IR: STORE person.name, "Alice"
+ALOAD 1          // load person
+LDC "Alice"      // load constant
+PUTFIELD Person/name Lorg/ek9/lang/String;
+```
+
+### IR Instruction → Target Code Mapping
+
+#### Memory Reference Instructions
+
+**IR Instruction**: `REFERENCE person, Person`
+
+**LLVM Implementation**:
+```cpp
+%person = alloca %Person
+```
+
+**JVM Implementation**:
+```java
+// Local variable table entry
+// person -> local slot N, type Person
+```
+
+#### Field Access Instructions
+
+**IR Instruction**: `LOAD person.name`
+
+**LLVM Implementation**:
+```cpp
+%field_ptr = getelementptr %Person, %Person* %person, i32 0, i32 0
+%loaded_value = load %String*, %String** %field_ptr
+```
+
+**JVM Implementation**:
+```java
+ALOAD person_slot     // Load person reference
+GETFIELD Person/name Lorg/ek9/lang/String;
+```
+
+#### Field Storage Instructions
+
+**IR Instruction**: `STORE person.age, 25`
+
+**LLVM Implementation**:
+```cpp
+%age_ptr = getelementptr %Person, %Person* %person, i32 0, i32 1
+store i32 25, i32* %age_ptr
+```
+
+**JVM Implementation**:
+```java
+ALOAD person_slot     // Load person reference
+BIPUSH 25            // Load constant 25
+PUTFIELD Person/age I;
+```
+
+### Complete ASM Field Generation Example
+
+**AsmStructureCreator Enhancement**:
+```java
+public final class AsmStructureCreator {
+  
+  void processClass() {
+    final var construct = constructTargetTuple.construct();
+    final var aggregateSymbol = (AggregateSymbol) construct.getSymbol();
+    
+    // Phase 1: Generate class structure from symbol table
+    generateClassStructure(aggregateSymbol);
+    
+    // Phase 2: Generate method implementations from IR instructions
+    for (final var operation : construct.getOperations()) {
+      generateMethodFromIR(operation);
+    }
+  }
+  
+  private void generateClassStructure(final AggregateSymbol aggregateSymbol) {
+    // Create class using symbol information
+    final var className = aggregateSymbol.getFullyQualifiedName().replace("::", "/");
+    classWriter.visit(V21, ACC_PUBLIC, className, null, "java/lang/Object", null);
+    
+    // Generate fields from symbol table properties
+    final var properties = aggregateSymbol.getProperties();
+    for (final var property : properties) {
+      generateFieldFromProperty(property);
+    }
+    
+    // Generate constructor
+    generateDefaultConstructor(properties);
+  }
+  
+  private void generateFieldFromProperty(final ISymbol property) {
+    final var fieldName = property.getName();
+    final var fieldType = convertEk9TypeToJvmDescriptor(property.getType());
+    
+    classWriter.visitField(
+      ACC_PRIVATE,
+      fieldName,
+      fieldType,
+      null,  // generic signature
+      null   // default value
+    );
+  }
+  
+  private void generateMethodFromIR(final Operation operation) {
+    // Generate method implementation from IR instruction sequences
+    final var methodVisitor = classWriter.visitMethod(/* method signature */);
+    
+    for (final var instruction : operation.getAllInstructions()) {
+      generateInstructionBytecode(methodVisitor, instruction);
+    }
+  }
+  
+  private void generateInstructionBytecode(final MethodVisitor mv, final IRInstr instruction) {
+    switch (instruction.getOpcode()) {
+      case STORE -> {
+        if (instruction instanceof MemoryInstr memInstr && memInstr.isFieldAccess()) {
+          // Generate PUTFIELD for field storage
+          final var targetField = memInstr.getTargetField();
+          final var fieldDescriptor = getFieldDescriptor(targetField);
+          mv.visitFieldInsn(PUTFIELD, getClassName(), targetField, fieldDescriptor);
+        }
+      }
+      case LOAD -> {
+        if (instruction instanceof MemoryInstr memInstr && memInstr.isFieldAccess()) {
+          // Generate GETFIELD for field loading
+          final var targetField = memInstr.getTargetField();
+          final var fieldDescriptor = getFieldDescriptor(targetField);
+          mv.visitFieldInsn(GETFIELD, getClassName(), targetField, fieldDescriptor);
+        }
+      }
+      // Other IR instruction mappings...
+    }
+  }
+}
+```
+
+### Architecture Benefits
+
+#### 1. Clean Separation of Concerns
+- **Structural Phase**: Symbol table provides authoritative field layout
+- **Operational Phase**: IR instructions provide field access patterns
+- **No Duplication**: Field information defined once in symbol table
+
+#### 2. Backend Independence  
+- **Same Symbol Processing**: Both LLVM and JVM read identical symbol table
+- **Different Structure Generation**: LLVM creates structs, JVM creates classes
+- **Same IR Instructions**: Field operations use identical IR instruction patterns
+
+#### 3. Memory Model Abstraction
+- **Managed Memory (JVM)**: Garbage collection handles object lifecycle
+- **Unmanaged Memory (C++ LLVM)**: Reference counting via RETAIN/RELEASE instructions
+- **Unified Semantics**: Same field access semantics regardless of memory model
+
+#### 4. Type Safety and Validation
+- **Compile-Time Validation**: Symbol table ensures field types are resolved
+- **Runtime Safety**: Generated code matches symbol table contracts
+- **Cross-Platform Consistency**: Same type safety across all targets
+
+### Integration with IR Memory Management
+
+The two-phase generation integrates seamlessly with EK9's memory management:
+
+**Phase 1: Structure Definition** (Memory Layout)
+```cpp
+// LLVM struct defines memory layout
+%Person = type { %String*, i32, %Boolean* }
+```
+
+**Phase 2: Memory Operations** (Reference Counting)
+```cpp
+// IR instructions with memory management
+REFERENCE person, Person          // Declare variable reference
+STORE person.name, "Alice"        // Store with automatic RETAIN
+RELEASE person                    // Scope cleanup
+```
+
+This pattern ensures that:
+1. **Field layout** is defined consistently from symbol table
+2. **Memory operations** follow target-specific patterns
+3. **Reference counting** works with pre-defined struct layouts
+4. **Scope management** cleans up both objects and field references
+
+### Conclusion: Why This Pattern is Essential
+
+The two-phase field/struct generation pattern is **critical** to EK9's IR architecture because:
+
+1. **Enables Multi-Target Support**: Same IR generates both JVM bytecode and C++ LLVM IR
+2. **Maintains Type Safety**: Symbol table provides authoritative field type information
+3. **Abstracts Memory Models**: Works with both managed and unmanaged memory
+4. **Preserves Semantic Correctness**: Field operations reference well-defined structures
+5. **Enables Backend Optimization**: Backends can optimize based on complete struct knowledge
+
+Without this separation, EK9 would need different IR designs for each target backend, significantly complicating the compiler architecture and reducing maintainability.
