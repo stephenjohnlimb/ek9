@@ -13,7 +13,6 @@ import org.ek9lang.core.AssertValue;
 final class VariableOnlyDeclInstrGenerator extends AbstractVariableDeclGenerator
     implements BiFunction<EK9Parser.VariableOnlyDeclarationContext, String, List<IRInstr>> {
 
-
   VariableOnlyDeclInstrGenerator(final IRContext context) {
     super(context);
   }

@@ -2,7 +2,7 @@
 defines module introduction
 
   defines class
-    Example
+    Example as open
       aField as String?
       bField as String := String()
       cField as String := "Steve"
@@ -10,6 +10,15 @@ defines module introduction
 
       Example() as pure
         aField :=? "Now Initialised"
+
+    Example2 extends Example
+      //Note I've done this to highlight that fields are private in classes
+      //Therefore same variable name can be reused.
+      aField <- 6
+      zField <- 2025-08-11
+
+      //Also there is no need for me to define a constructor
+      //But Ek9 should define an implicit constructor, so we should see that in the IR
 
   defines function
     aSimpleFunction()

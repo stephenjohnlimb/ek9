@@ -9,6 +9,7 @@ import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 
 /**
  * Creates IR instructions for statements.
@@ -57,27 +58,53 @@ final class StmtInstrGenerator {
 
     final var instructions = new ArrayList<IRInstr>();
 
-    if (ctx.assertStatement() != null) {
-      instructions.addAll(processAssertStatement(ctx.assertStatement(), scopeId));
+    if (ctx.ifStatement() != null) {
+      throw new CompilerException("If not implemented");
+    } else if (ctx.assertStatement() != null) {
+      processAssertStatement(ctx.assertStatement(), scopeId, instructions);
     } else if (ctx.assignmentStatement() != null) {
-      instructions.addAll(processAssignmentStatement(ctx.assignmentStatement(), scopeId));
+      processAssignmentStatement(ctx.assignmentStatement(), scopeId, instructions);
+    } else if (ctx.identifierReference() != null) {
+      throw new CompilerException("Identifier inc/dec not implemented");
+    } else if (ctx.call() != null) {
+      throw new CompilerException("Call not implemented");
+    } else if (ctx.throwStatement() != null) {
+      throw new CompilerException("Throw not implemented");
     } else if (ctx.objectAccessExpression() != null) {
-      final var tempResult = context.generateTempName();
-      instructions.addAll(objectAccessCreator.apply(ctx.objectAccessExpression(), tempResult, scopeId));
+      processObjectAccessExpression(ctx.objectAccessExpression(), scopeId, instructions);
+    } else if (ctx.switchStatementExpression() != null) {
+      throw new CompilerException("Switch not implemented");
+    } else if (ctx.tryStatementExpression() != null) {
+      throw new CompilerException("Try not implemented");
+    } else if (ctx.whileStatementExpression() != null) {
+      throw new CompilerException("While not implemented");
+    } else if (ctx.forStatementExpression() != null) {
+      throw new CompilerException("For not implemented");
+    } else if (ctx.streamStatement() != null) {
+      throw new CompilerException("Stream not implemented");
+    } else {
+      throw new CompilerException("Unexpected condition");
     }
 
     return instructions;
+  }
+
+  private void processObjectAccessExpression(final EK9Parser.ObjectAccessExpressionContext ctx,
+                                             final String scopeId, final List<IRInstr> instructions) {
+    final var tempResult = context.generateTempName();
+    instructions.addAll(objectAccessCreator.apply(ctx, tempResult, scopeId));
   }
 
   /**
    * Process assert statement: ASSERT expression
    * Uses EK9 Boolean._true() method to get primitive boolean for assertion.
    */
-  private List<IRInstr> processAssertStatement(final EK9Parser.AssertStatementContext ctx, final String scopeId) {
+  private void processAssertStatement(final EK9Parser.AssertStatementContext ctx,
+                                      final String scopeId, final List<IRInstr> instructions) {
 
     // Evaluate the assert expression 
     final var tempExprResult = context.generateTempName();
-    final var instructions = new ArrayList<>(expressionCreator.apply(ctx.expression(), tempExprResult, scopeId));
+    instructions.addAll(expressionCreator.apply(ctx.expression(), tempExprResult, scopeId));
 
     // Call the _true() method to get primitive boolean (true if set AND true)
     final var tempBoolResult = context.generateTempName();
@@ -94,7 +121,6 @@ final class StmtInstrGenerator {
     // Assert on the primitive boolean result  
     instructions.add(BranchInstr.assertValue(tempBoolResult, debugInfo));
 
-    return instructions;
   }
 
   /**
@@ -103,15 +129,14 @@ final class StmtInstrGenerator {
    * Handles assignments like someLocal = "Hi" and cross-scope assignments like rtn: claude.
    * For property fields, uses "this.fieldName" naming convention.
    */
-  private List<IRInstr> processAssignmentStatement(final EK9Parser.AssignmentStatementContext ctx,
-                                                   final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
+  private void processAssignmentStatement(final EK9Parser.AssignmentStatementContext ctx,
+                                          final String scopeId, final List<IRInstr> instructions) {
 
     // Get the target variable (left side of assignment)
     String targetVariable = null;
     if (ctx.identifier() != null) {
       final var identifierName = ctx.identifier().getText();
-      
+
       // Check if this is a property field assignment by looking up the symbol
       final var symbol = context.getParsedModule().getRecordedSymbol(ctx.identifier());
       if (symbol instanceof org.ek9lang.compiler.symbols.VariableSymbol varSymbol && varSymbol.isPropertyField()) {
@@ -140,6 +165,5 @@ final class StmtInstrGenerator {
       instructions.add(MemoryInstr.store(targetVariable, tempResult, debugInfo));
     }
 
-    return instructions;
   }
 }

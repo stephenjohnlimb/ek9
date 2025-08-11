@@ -10,19 +10,15 @@ import org.ek9lang.compiler.ir.ScopeInstr;
 import org.ek9lang.core.AssertValue;
 
 /**
- * Pulls out the common code for variable and variable-only declarations. DRY).
+ * Pulls out the common code for variable and variable-only declarations. DRY.
  */
-abstract class AbstractVariableDeclGenerator {
+abstract class AbstractVariableDeclGenerator extends AbstractGenerator {
 
-  protected final IRContext context;
-  private final DebugInfoCreator debugInfoCreator;
   private final ShouldRegisterVariableInScope shouldRegisterVariableInScope = new ShouldRegisterVariableInScope();
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
   AbstractVariableDeclGenerator(final IRContext context) {
-    AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
-    this.context = context;
-    this.debugInfoCreator = new DebugInfoCreator(context);
+    super(context);
   }
 
   public List<IRInstr> getDeclInstrs(final ParseTree ctx,
