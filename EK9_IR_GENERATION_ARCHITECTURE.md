@@ -4,18 +4,21 @@ This document details the architectural patterns, naming conventions, and implem
 
 ## Table of Contents
 1. [Architecture Overview](#architecture-overview)
-2. [Two-Phase Field/Struct Generation Architecture](#two-phase-fieldstruct-generation-architecture)
-3. [Naming Conventions](#naming-conventions) 
-4. [IR vs Instructions vs Definitions](#ir-vs-instructions-vs-definitions)
-5. [Implementation Patterns](#implementation-patterns)
-6. [Context Management](#context-management)
-7. [Type Information Enhancement](#type-information-enhancement)
-8. [Class Hierarchy and Organization](#class-hierarchy-and-organization)
-9. [Missing Components Analysis](#missing-components-analysis)
-10. [Development Guidelines](#development-guidelines)
-11. [Integration with CallInstr Enhancements](#integration-with-callinstr-enhancements)
-12. [Property Initialization and Inheritance IR Patterns](#property-initialization-and-inheritance-ir-patterns)
-13. [C++ Runtime Integration Architecture](#c-runtime-integration-architecture)
+2. [Symbol-Based IR Generation Architecture](#symbol-based-ir-generation-architecture)
+3. [Fully Qualified Method Names Requirement](#fully-qualified-method-names-requirement)
+4. [Comprehensive Synthetic Method Generation](#comprehensive-synthetic-method-generation)
+5. [Two-Phase Field/Struct Generation Architecture](#two-phase-fieldstruct-generation-architecture)
+6. [Naming Conventions](#naming-conventions) 
+7. [IR vs Instructions vs Definitions](#ir-vs-instructions-vs-definitions)
+8. [Implementation Patterns](#implementation-patterns)
+9. [Context Management](#context-management)
+10. [Type Information Enhancement](#type-information-enhancement)
+11. [Class Hierarchy and Organization](#class-hierarchy-and-organization)
+12. [Missing Components Analysis](#missing-components-analysis)
+13. [Development Guidelines](#development-guidelines)
+14. [Integration with CallInstr Enhancements](#integration-with-callinstr-enhancements)
+15. [Property Initialization and Inheritance IR Patterns](#property-initialization-and-inheritance-ir-patterns)
+16. [C++ Runtime Integration Architecture](#c-runtime-integration-architecture)
 
 ## Architecture Overview
 
@@ -40,6 +43,288 @@ IRInstr classes (individual IR instructions)
 2. **Target-Agnostic IR**: Clean intermediate representation that targets JVM and C++ LLVM backends
 3. **Scope Isolation**: Each executable context gets its own `IRContext` for unique naming
 4. **Type Information Preservation**: Complete type information captured for multi-target code generation
+
+## Symbol-Based IR Generation Architecture
+
+### Critical Architectural Shift
+
+EK9's IR generation must operate primarily on **symbol table information** rather than ANTLR parse context. This shift is essential due to EK9's sophisticated synthetic method generation capabilities.
+
+### Parse Context Limitations
+
+**ANTLR Parse Context Approach (Incomplete)**:
+```java
+// Only captures explicit methods from source code
+for (var methodCtx : ctx.methodDeclaration()) {
+    processMethod(methodCtx);  // Misses synthetic methods!
+}
+```
+
+**Symbol Table Approach (Complete)**:
+```java
+// Captures ALL methods for this class scope (explicit + synthetic)
+List<MethodSymbol> allMethods = aggregateSymbol.getAllMethodInThisScopeOnly();
+for (MethodSymbol method : allMethods) {
+    if (method.isSynthetic()) {
+        generateSyntheticMethodIR(method);  // Generate IR based on semantics
+    } else {
+        generateExplicitMethodIR(method);   // Use parse context
+    }
+}
+```
+
+### Method Enumeration Strategy
+
+**Critical Method**: `aggregateSymbol.getAllMethodInThisScopeOnly()`
+
+**Returns**:
+- **Explicit methods** from source code
+- **Synthetic constructors** created by earlier compilation phases
+- **Synthetic operators** from `default operator` declarations
+- **Synthetic methods** from property analysis (e.g., `_isSet()`, `_hash()`)
+
+**Excludes**:
+- **Inherited methods** from parent classes (proper scope isolation)
+- **Trait methods** from parent traits (handled in their own scopes)
+
+### Architecture Entry Points
+
+1. **ANTLR AST**: Provides entry point to specific construct (class, function, etc.)
+2. **Symbol Table**: Provides complete method/operator inventory for IR generation
+3. **IR Generation**: Traverses symbol-based structure, not parse tree
+
+### Implementation Benefits
+
+- **Complete Method Coverage**: No missing synthetic methods in IR
+- **Proper Scope Isolation**: Each class generates IR only for its own methods
+- **Inheritance Correctness**: Super calls handled through explicit call chains
+- **Synthetic Method Support**: Enables `default operator` and other advanced features
+
+## Fully Qualified Method Names Requirement
+
+### Critical Design Principle
+
+All method calls in EK9 IR **must use fully qualified names** to ensure proper resolution in complex inheritance and trait hierarchies.
+
+### Disambiguation Scenarios
+
+#### **Multi-Module Name Conflicts**
+```ek9
+// moduleA.ek9
+defines module moduleA
+  defines class
+    Example
+      doSomething() as pure
+        <- result as String
+
+// moduleB.ek9  
+defines module moduleB
+  defines class
+    Example  
+      doSomething() as pure
+        <- result as Boolean
+
+// moduleC.ek9
+defines module moduleC
+  defines class
+    MyClass extends moduleB::Example
+```
+
+**IR Must Generate**:
+```
+IRInstruction: _temp1 = CALL moduleB::Example.doSomething()  // Unambiguous
+```
+
+#### **Multiple Trait Method Resolution**
+```ek9
+defines module example
+  defines trait
+    TraitA
+      process() as abstract
+        -> item as String
+        <- result as Boolean
+
+    TraitB
+      process() as abstract
+        -> item as String  
+        <- result as Boolean
+
+  defines class
+    MyClass with trait of TraitA, TraitB
+      // Compiler forces explicit resolution
+      process() as override
+        -> item as String
+        <- result as Boolean
+```
+
+**IR Must Generate**:
+```
+IRInstruction: _temp1 = CALL example::TraitA.process(item)   // Explicit trait resolution
+IRInstruction: _temp2 = CALL example::TraitB.process(item)   // Different trait method
+```
+
+### JVM Parallel Architecture
+
+EK9's fully qualified approach mirrors JVM's resolution strategy:
+- **JVM Bytecode**: `INVOKEINTERFACE org/example/TraitA.process(Ljava/lang/String;)Z`
+- **LLVM IR**: `call i1 @"example::TraitA.process"(%String* %item)`
+
+### Current Implementation Issue
+
+**CallInstr.formatMethodCall() Problem**:
+```java
+// Current (generates ambiguous calls)
+private String formatMethodCall() {
+    return callDetails.targetObject() + "." + callDetails.methodName() + "()";
+    // Results in: "this.doSomething()" or "null.c_init()" (ambiguous!)
+}
+
+// Required (generates fully qualified calls)  
+private String formatMethodCall() {
+    return callDetails.targetTypeName() + "." + callDetails.methodName() + "()";
+    // Results in: "moduleB::Example.doSomething()" (unambiguous!)
+}
+```
+
+### Backend Integration Benefits
+
+- **JVM ASM**: Direct mapping to fully qualified bytecode method references
+- **LLVM IR**: Clean symbol names for linker resolution  
+- **Optimization**: Safe inlining decisions based on exact method targets
+- **Testing**: Precise `@IR` directive validation
+
+## Comprehensive Synthetic Method Generation
+
+### Overview
+
+Based on `OperatorFactory.java` analysis, EK9 can synthesize **40+ different operators** across multiple categories when developers use the `default operator` declaration.
+
+### Default Operators (11 Total)
+
+Generated when developer provides explicit implementation and uses `default operator`:
+
+#### **Comparison Operators** (7)
+- `<=>` → Base comparator (explicit implementation required)
+- `==` → Synthetic: calls `<=>` and checks `== 0`
+- `<>` → Synthetic: calls `<=>` and checks `!= 0`
+- `<` → Synthetic: calls `<=>` and checks `< 0`
+- `<=` → Synthetic: calls `<=>` and checks `<= 0`
+- `>` → Synthetic: calls `<=>` and checks `> 0`  
+- `>=` → Synthetic: calls `<=>` and checks `>= 0`
+
+#### **State and Conversion Operators** (4)
+- `?` → `_isSet()` - Synthetic: analyzes object/property state
+- `$` → `_string()` - Synthetic: generates string representation
+- `$$` → `_json()` - Synthetic: generates JSON representation
+- `#?` → `_hashcode()` - Synthetic: generates hash code
+
+### Additional Synthetic Operators (30+ Total)
+
+#### **Arithmetic Operators** (8)
+- **Binary**: `+`, `-`, `*`, `/` (work with same type)
+- **Unary**: `-` (unary minus), `abs`, `~`, `mod`, `rem`
+
+#### **Assignment Operators** (9)  
+- **Arithmetic Assignment**: `+=`, `-=`, `*=`, `/=`
+- **Mutator Assignment**: `:~:` (merge), `:^:` (replace), `:=:` (copy)
+- **Increment/Decrement**: `++`, `--`
+- **Pipe**: `|`
+
+#### **Bitwise/Logical Operators** (5)
+- **Shift**: `>>`, `<<`
+- **Logical**: `and`, `or`, `xor`
+
+#### **Collection/String Operators** (6)
+- **State**: `empty`, `length`
+- **Search**: `contains`, `matches`
+- **Range**: `#<` (first), `#>` (last)
+
+#### **Resource Management** (2)
+- **Lifecycle**: `open`, `close`
+
+#### **Specialized** (3)
+- **Fuzzy Operations**: `<~>` (fuzzy comparison)
+- **Type Operations**: Various type-specific conversions
+
+### Synthetic Method IR Generation Patterns
+
+#### **Comparison Operator Pattern**
+```java
+// Synthetic < operator IR generation
+_temp1 = CALL this._cmp(other)           // Call explicit <=>
+_temp2 = LOAD_LITERAL 0, org.ek9.lang::Integer
+_temp3 = CALL _temp1._lt(_temp2)         // Compare with 0
+RETURN _temp3
+```
+
+#### **Assignment Operator Pattern**  
+```java
+// Synthetic += operator IR generation
+_temp1 = CALL this._add(other)           // Call explicit +
+STORE this, _temp1                       // Assign result back
+RETURN this
+```
+
+#### **State Operator Pattern**
+```java
+// Synthetic ? (isSet) operator IR generation  
+_temp1 = LOAD this.field1
+_temp2 = CALL _temp1._isSet()
+if (!_temp2) RETURN false
+_temp3 = LOAD this.field2  
+_temp4 = CALL _temp3._isSet()
+RETURN _temp4
+```
+
+#### **Conversion Operator Pattern**
+```java
+// Synthetic $ (toString) operator IR generation
+_temp1 = CALL StringBuilder.<init>()
+_temp2 = CALL _temp1.append(this.field1)
+_temp3 = CALL _temp2.append(", ")
+_temp4 = CALL _temp3.append(this.field2)
+_temp5 = CALL _temp4.toString()
+RETURN _temp5
+```
+
+### Synthetic Method Identification
+
+**Method Classification**:
+```java
+MethodSymbol method = ...;
+
+// Check synthetic status
+if (method.isSynthetic()) {
+    // Generated by compiler, needs IR synthesis
+}
+
+// Check method type
+if (method.isConstructor()) {
+    // Synthetic default constructor
+} else if (method.isOperator()) {
+    // Synthetic operator from default operator
+} else {
+    // Synthetic regular method (e.g., _isSet, _hash)
+}
+```
+
+**SourceToken Preservation**:
+```java
+// Synthetic methods maintain debug info
+if (method.getSourceToken().isPresent()) {
+    SourceToken token = method.getSourceToken().get();
+    // Use aggregate's source location for synthetic methods
+}
+```
+
+### Implementation Strategy
+
+1. **Detect Synthetic Methods**: Check `method.isSynthetic()` flag
+2. **Determine Pattern**: Classify operator type for appropriate IR generation
+3. **Generate IR**: Create instruction sequences based on operator semantics
+4. **Preserve Debug Info**: Maintain source location from aggregate symbol
+
+This comprehensive synthetic method system enables EK9's advanced language features while maintaining clean, analyzable IR generation.
 
 ## Naming Conventions
 
