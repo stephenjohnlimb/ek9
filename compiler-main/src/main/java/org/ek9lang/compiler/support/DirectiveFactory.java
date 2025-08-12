@@ -12,6 +12,7 @@ import org.ek9lang.compiler.directives.DirectivesCompilationPhase;
 import org.ek9lang.compiler.directives.DirectivesNextLineNumber;
 import org.ek9lang.compiler.directives.ErrorDirective;
 import org.ek9lang.compiler.directives.GenusDirective;
+import org.ek9lang.compiler.directives.IRDirective;
 import org.ek9lang.compiler.directives.ImplementsDirective;
 import org.ek9lang.compiler.directives.NotResolvedDirective;
 import org.ek9lang.compiler.directives.ResolvedDirective;
@@ -44,7 +45,8 @@ class DirectiveFactory extends CommonFactory {
         case Implements -> newImplementsDirective(ctx);
         case NotResolved -> newResolutionDirective(ctx, false);
         case Genus -> newGenusDirective(ctx);
-        case IR, Symbols, Compiler, Instrument ->
+        case IR -> newIRDirective(ctx);
+        case Symbols, Compiler, Instrument ->
             throw new IllegalArgumentException("Unsupported '@" + nameOfDirective + "':");
       };
     } catch (IllegalArgumentException ex) {
@@ -90,6 +92,14 @@ class DirectiveFactory extends CommonFactory {
     final var spec = directiveSpecExtractor.apply(ctx);
 
     return new ImplementsDirective(spec);
+  }
+
+  private Directive newIRDirective(final EK9Parser.DirectiveContext ctx) {
+
+    checkContextNotNull.accept(ctx);
+    final var spec = directiveSpecExtractor.apply(ctx);
+
+    return new IRDirective(spec);
   }
 
   private Directive newResolutionDirective(final EK9Parser.DirectiveContext ctx, final boolean resolve) {

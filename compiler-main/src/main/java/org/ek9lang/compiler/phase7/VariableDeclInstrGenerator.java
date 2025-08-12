@@ -14,12 +14,9 @@ import org.ek9lang.core.AssertValue;
 final class VariableDeclInstrGenerator extends AbstractVariableDeclGenerator
     implements BiFunction<EK9Parser.VariableDeclarationContext, String, List<IRInstr>> {
 
-  private final DebugInfoCreator debugInfoCreator;
-
   VariableDeclInstrGenerator(final IRContext context) {
     super(context);
     AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
-    this.debugInfoCreator = new DebugInfoCreator(context);
   }
 
   /**
@@ -44,8 +41,8 @@ final class VariableDeclInstrGenerator extends AbstractVariableDeclGenerator
       final var varName = varSymbol.getName();
       final var debugInfo = debugInfoCreator.apply(varSymbol);
 
-      instructions.add(MemoryInstr.retain(tempResult, debugInfo));
       instructions.add(MemoryInstr.store(varName, tempResult, debugInfo));
+      instructions.add(MemoryInstr.retain(varName, debugInfo));
     }
 
     return instructions;

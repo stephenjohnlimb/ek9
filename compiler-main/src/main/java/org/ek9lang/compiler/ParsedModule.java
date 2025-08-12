@@ -324,4 +324,13 @@ public final class ParsedModule implements Module, Serializable {
 
     return getModuleName();
   }
+
+  /**
+   * Provides the Intermediate Representation for all sources in this module.
+   */
+  public List<IRModule> getIRModules() {
+    AtomicReference<List<IRModule>> rtn = new AtomicReference<>();
+    compilableProgram.accept(program -> rtn.set(program.getIRModules(getModuleName())));
+    return rtn.get();
+  }
 }

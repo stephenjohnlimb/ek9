@@ -39,6 +39,7 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * <pre>
  *  {@code @Complexity}: PRE_IR_CHECKS: FUNCTION: "SomeFunction": 12
  *  {@code @Complexity}: PRE_IR_CHECKS: FUNCTION: "testNoArguments": 2
+ *  {@code @IR}: SIMPLE_IR_GENERATION: TYPE: "Example": `ConstructDfn: introduction::Example ...`
  *  {@code @Error}: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
  * </pre>
  */

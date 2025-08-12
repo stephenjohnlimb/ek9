@@ -3,7 +3,66 @@ defines module introduction
 
   defines class
 
-
+    @IR: SIMPLE_IR_GENERATION: TYPE: "introduction::Example": `
+    ConstructDfn: introduction::Example
+    Field: aField, org.ek9.lang::String  // ./workarea.ek9:67:7
+    Field: bField, org.ek9.lang::String  // ./workarea.ek9:68:7
+    Field: cField, org.ek9.lang::String  // ./workarea.ek9:69:7
+    Field: dField, org.ek9.lang::String  // ./workarea.ek9:70:7
+    OperationDfn: introduction::Example.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    IRInstruction: RETURN
+    OperationDfn: introduction::Example.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    IRInstruction: REFERENCE this.aField, org.ek9.lang::String  // ./workarea.ek9:67:7
+    IRInstruction: REFERENCE this.bField, org.ek9.lang::String  // ./workarea.ek9:68:7
+    IRInstruction: _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>()  // ./workarea.ek9:68:27
+    IRInstruction: RETAIN _temp1  // ./workarea.ek9:68:27
+    IRInstruction: SCOPE_REGISTER _temp1, _i_init  // ./workarea.ek9:68:27
+    IRInstruction: STORE this.bField, _temp1  // ./workarea.ek9:68:7
+    IRInstruction: RETAIN this.bField  // ./workarea.ek9:68:7
+    IRInstruction: REFERENCE this.cField, org.ek9.lang::String  // ./workarea.ek9:69:7
+    IRInstruction: _temp2 = LOAD_LITERAL "Steve", org.ek9.lang::String  // ./workarea.ek9:69:27
+    IRInstruction: RETAIN _temp2  // ./workarea.ek9:69:27
+    IRInstruction: SCOPE_REGISTER _temp2, _i_init  // ./workarea.ek9:69:27
+    IRInstruction: STORE this.cField, _temp2  // ./workarea.ek9:69:7
+    IRInstruction: RETAIN this.cField  // ./workarea.ek9:69:7
+    IRInstruction: REFERENCE this.dField, org.ek9.lang::String  // ./workarea.ek9:70:7
+    IRInstruction: _temp3 = LOAD_LITERAL "Stephen", org.ek9.lang::String  // ./workarea.ek9:70:17
+    IRInstruction: RETAIN _temp3  // ./workarea.ek9:70:17
+    IRInstruction: SCOPE_REGISTER _temp3, _i_init  // ./workarea.ek9:70:17
+    IRInstruction: STORE this.dField, _temp3  // ./workarea.ek9:70:7
+    IRInstruction: RETAIN this.dField  // ./workarea.ek9:70:7
+    IRInstruction: RETURN
+    OperationDfn: introduction::Example.Example()->introduction::Example  // ./workarea.ek9:72:7
+    BasicBlock: _entry_1
+    IRInstruction: _temp_i_init = CALL (introduction::Example)this.i_init()  // ./workarea.ek9:72:7
+    IRInstruction: SCOPE_ENTER _scope_1
+    IRInstruction: RELEASE this.aField
+    IRInstruction: _temp1 = LOAD_LITERAL "Now Initialised", org.ek9.lang::String  // ./workarea.ek9:73:17
+    IRInstruction: RETAIN _temp1  // ./workarea.ek9:73:17
+    IRInstruction: SCOPE_REGISTER _temp1, _scope_1  // ./workarea.ek9:73:17
+    IRInstruction: STORE this.aField, _temp1
+    IRInstruction: RETAIN this.aField
+    IRInstruction: REFERENCE local1, org.ek9.lang::Integer  // ./workarea.ek9:75:9
+    IRInstruction: SCOPE_REGISTER local1, _scope_1  // ./workarea.ek9:75:9
+    IRInstruction: _temp2 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./workarea.ek9:75:19
+    IRInstruction: RETAIN _temp2  // ./workarea.ek9:75:19
+    IRInstruction: SCOPE_REGISTER _temp2, _scope_1  // ./workarea.ek9:75:19
+    IRInstruction: STORE local1, _temp2  // ./workarea.ek9:75:9
+    IRInstruction: RETAIN local1  // ./workarea.ek9:75:9
+    IRInstruction: RELEASE local1
+    IRInstruction: _temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./workarea.ek9:76:17
+    IRInstruction: RETAIN _temp3  // ./workarea.ek9:76:17
+    IRInstruction: SCOPE_REGISTER _temp3, _scope_1  // ./workarea.ek9:76:17
+    IRInstruction: STORE local1, _temp3
+    IRInstruction: RETAIN local1
+    IRInstruction: _temp5 = LOAD local1  // ./workarea.ek9:75:9
+    IRInstruction: _temp4 = CALL (org.ek9.lang::Any)_temp5._isSet()  // ./workarea.ek9:77:22
+    IRInstruction: _temp6 = CALL (org.ek9.lang::Boolean)_temp4._true()  // ./workarea.ek9:77:22
+    IRInstruction: ASSERT _temp6  // ./workarea.ek9:77:22
+    IRInstruction: SCOPE_EXIT _scope_1
+    IRInstruction: RETURN`
     Example as open
       aField as String?
       bField as String := String()

@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.phase7;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
@@ -7,6 +8,7 @@ import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.CompilerPhase;
 import org.ek9lang.compiler.IRModule;
+import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceHasErrors;
 import org.ek9lang.compiler.common.CompilationEvent;
@@ -78,5 +80,11 @@ public final class IRGenerator extends CompilerPhase {
     //Now for the particular source and its new IR Module, create the IR.
     generator.create(source.getCompilationUnitContext());
 
+    final var holder = new AtomicReference<ParsedModule>();
+    compilableProgramAccess.accept(
+        program -> holder.set(program.getParsedModuleForCompilableSource(source))
+    );
+
+    listener.accept(new CompilationEvent(thisPhase, holder.get(), source));
   }
 }

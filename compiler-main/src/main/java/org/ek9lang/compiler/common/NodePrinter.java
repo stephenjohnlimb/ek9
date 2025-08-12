@@ -25,7 +25,7 @@ public class NodePrinter implements INodeVisitor {
   @Override
   public void visit(final IRConstruct construct) {
 
-    printWriter.printf("ConstructDfn: %s%n", construct.getSignatureQualifiedName());
+    printWriter.printf("%nConstructDfn: %s%n", construct.getSignatureQualifiedName());
     
     // Print field declarations first
     construct.getFields().forEach(field -> field.accept(this));

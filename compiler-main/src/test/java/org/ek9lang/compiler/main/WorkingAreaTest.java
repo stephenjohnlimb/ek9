@@ -2,6 +2,7 @@ package org.ek9lang.compiler.main;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -54,9 +55,8 @@ class WorkingAreaTest extends PhasesTest {
           .getIRModules("introduction")
           .forEach(irModule -> irModule.getConstructs().forEach(printer::visit));
     } catch(Exception _) {
-      System.err.println("Failed to produce output.");
-      //Ignore.
+      fail("Failed to produce output.");
     }
-    System.out.println(output);
+
   }
 }

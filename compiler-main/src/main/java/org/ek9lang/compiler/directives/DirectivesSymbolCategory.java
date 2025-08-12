@@ -12,12 +12,13 @@ import org.ek9lang.compiler.symbols.SymbolCategory;
  */
 public class DirectivesSymbolCategory implements Function<EK9Parser.DirectiveContext, SymbolCategory> {
 
+  @SuppressWarnings("checkstyle:CatchParameterName")
   @Override
   public SymbolCategory apply(final EK9Parser.DirectiveContext ctx) {
 
     try {
       return SymbolCategory.valueOf(ctx.directivePart(1).getText());
-    } catch (IllegalArgumentException ex) {
+    } catch (IllegalArgumentException _) {
       throw new IllegalArgumentException("Expecting one of: " + applicableSymbolCategories());
     }
   }

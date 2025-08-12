@@ -25,6 +25,7 @@ public class GenusDirectiveListener extends ResolvedDirectiveListener {
 
   }
 
+  @SuppressWarnings("checkstyle:CatchParameterName")
   @Override
   protected void symbolMatch(final CompilationEvent compilationEvent,
                              final ResolutionDirective resolutionDirective,
@@ -44,7 +45,7 @@ public class GenusDirectiveListener extends ResolvedDirectiveListener {
             ErrorListener.SemanticClassification.DIRECTIVE_SYMBOL_GENUS_MISMATCH);
       }
 
-    } catch (IllegalArgumentException badGenus) {
+    } catch (IllegalArgumentException _) {
       compilationEvent.source().getErrorListener().directiveError(resolutionDirective.getDirectiveToken(),
           "'" + resolutionDirective.getAdditionalName() + "':",
           ErrorListener.SemanticClassification.DIRECTIVE_SYMBOL_NO_SUCH_GENUS);
