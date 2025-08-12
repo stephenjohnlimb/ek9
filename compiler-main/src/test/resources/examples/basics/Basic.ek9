@@ -180,7 +180,7 @@ defines module net.customer.basics
       //Can also negate and switch the String and RegEx around
       assert Stephene not matches regEx and regEx not matches stephene
 
-    @Resolved: SYMBOL_DEFINITION: FUNCTION: "verySimple"
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: `verySimple`
     verySimple()
       -> param as Integer
       <- rtn as Float: 2.0 * param

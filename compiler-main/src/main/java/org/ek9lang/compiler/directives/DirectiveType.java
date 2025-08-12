@@ -17,5 +17,6 @@ public enum DirectiveType {
   Genus,
   Symbols,
   Compiler,
-  Instrument
+  Instrument,
+  IR
 }

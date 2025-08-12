@@ -6,6 +6,7 @@ import org.ek9lang.core.AssertValue;
 
 /**
  * Represents a field/property declaration in an EK9 construct (class, record, component, etc.).
+ * Note that this also include 'capture' variables in dynamic classes and dynamic functions.
  * <p>
  * Fields are structural declarations that define the data members of a construct,
  * separate from the behavioral operations (methods). They map directly to:
@@ -27,9 +28,9 @@ public final class Field implements INode {
   /**
    * Create a new Field IR node.
    *
-   * @param symbol The VariableSymbol representing this property field
-   * @param name The field name (e.g., "aField")
-   * @param typeName The fully qualified type name (e.g., "org.ek9.lang::String")
+   * @param symbol    The VariableSymbol representing this property field
+   * @param name      The field name (e.g., "aField")
+   * @param typeName  The fully qualified type name (e.g., "org.ek9.lang::String")
    * @param debugInfo Source location information
    */
   public Field(final ISymbol symbol, final String name, final String typeName, final DebugInfo debugInfo) {
@@ -86,10 +87,10 @@ public final class Field implements INode {
 
   @Override
   public String toString() {
-    return "Field{" +
-        "name='" + name + '\'' +
-        ", typeName='" + typeName + '\'' +
-        ", symbol=" + symbol +
-        '}';
+    return "Field{"
+        + "name='" + name + '\''
+        + ", typeName='" + typeName + '\''
+        + ", symbol=" + symbol
+        + '}';
   }
 }

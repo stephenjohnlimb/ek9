@@ -124,9 +124,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
   private void createClassInitOperation(final IRConstruct construct, final AggregateSymbol aggregateSymbol) {
     // Create a synthetic method symbol for c_init is when the class/construct definition is actually loaded.
     final var context = new IRContext(parsedModule, compilerFlags);
-    final var method = newSyntheticInitMethodSymbol(aggregateSymbol, "c_init");
-    final var debugInfo = new DebugInfoCreator(context).apply(method);
-    final var cInitOperation = new Operation(method, debugInfo);
+    final var cInitOperation = newSyntheticInitOperation(context, aggregateSymbol, "c_init");
 
     // Generate c_init body
 
@@ -173,32 +171,15 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
                                            final AggregateSymbol aggregateSymbol,
                                            final EK9Parser.AggregatePartsContext ctx) {
     final var context = new IRContext(parsedModule, compilerFlags);
-    final var method = newSyntheticInitMethodSymbol(aggregateSymbol, "i_init");
-    final var debugInfo = new DebugInfoCreator(context).apply(method);
-    final var iInitOperation = new Operation(method, debugInfo);
+    final var iInitOperation = newSyntheticInitOperation(context, aggregateSymbol, "i_init");
 
     // Generate i_init body
 
     final var allInstructions = new java.util.ArrayList<IRInstr>();
 
-    // Call super class i_init if this class explicitly extends another class
-    final var superAggregateOpt = aggregateSymbol.getSuperAggregate();
-    if (superAggregateOpt.isPresent()) {
-      final var superSymbol = superAggregateOpt.get();
-
-      // Only make super call if it's not the implicit base class (like Object)
-      if (isNotImplicitSuperClass(superSymbol)) {
-        final var callDetails = new CallDetails(
-            "this", // Target this object for instance call
-            superSymbol.getFullyQualifiedName(),
-            "i_init",
-            java.util.List.of(), // No parameters
-            "org.ek9.lang::Void", // Return type
-            java.util.List.of() // No arguments
-        );
-        allInstructions.add(CallInstr.call("_temp_i_init", null, callDetails));
-      }
-    }
+    // i_init methods do NOT call superclass i_init methods
+    // Each i_init only initializes its own class's fields
+    // The constructor inheritance chain handles calling superclass constructors
 
     // Process properties for this class (REFERENCE declarations and immediate initialization)
     allInstructions.addAll(processPropertiesForInstanceInit(ctx, context));
@@ -246,8 +227,9 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
             final var assignmentExprInstrGenerator = new AssignmentExprInstrGenerator(context, "_i_init");
             instructions.addAll(assignmentExprInstrGenerator.apply(assignmentCtx, tempResult));
 
-            // Property assignment: RETAIN + STORE + RETAIN (no SCOPE_REGISTER for properties)
-            instructions.add(MemoryInstr.retain(tempResult, debugInfo));
+            // Property assignment: STORE reference, then property takes ownership
+            // AssignmentExprInstrGenerator handles temp creation + SCOPE_REGISTER
+            // Property needs to RETAIN to take ownership
             instructions.add(MemoryInstr.store(propertyName, tempResult, debugInfo));
             instructions.add(MemoryInstr.retain(propertyName, debugInfo));
           }
@@ -358,15 +340,50 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
   /**
    * Process a synthetic constructor (default constructor created by earlier phases).
+   * Implements proper constructor inheritance chain:
+   * 1. Call super constructor (if not implicit base class)
+   * 2. Call own class's i_init method
+   * 3. Return this
    */
   private void processSyntheticConstructor(final IRConstruct construct, final MethodSymbol constructorSymbol) {
-    // Create minimal synthetic constructor operation
     final var context = new IRContext(parsedModule, compilerFlags);
     final var debugInfo = new DebugInfoCreator(context).apply(constructorSymbol);
     final var operation = new Operation(constructorSymbol, debugInfo);
 
-    // Generate simple constructor body: RETURN this
     final var instructions = new java.util.ArrayList<IRInstr>();
+    final var aggregateSymbol = (AggregateSymbol) constructorSymbol.getParentScope();
+
+    // 1. Call super constructor if this class explicitly extends another class
+    final var superAggregateOpt = aggregateSymbol.getSuperAggregate();
+    if (superAggregateOpt.isPresent()) {
+      final var superSymbol = superAggregateOpt.get();
+      
+      // Only make super call if it's not the implicit base class (like Object)
+      if (isNotImplicitSuperClass(superSymbol)) {
+        final var callDetails = new CallDetails(
+            "super", // Target super object
+            superSymbol.getFullyQualifiedName(),
+            superSymbol.getName(), // Constructor name matches class name
+            java.util.List.of(), // No parameters for default constructor
+            superSymbol.getFullyQualifiedName(), // Return type is the super class
+            java.util.List.of() // No arguments
+        );
+        instructions.add(CallInstr.call("_temp_super_init", debugInfo, callDetails));
+      }
+    }
+
+    // 2. Call own class's i_init method to initialize this class's fields
+    final var iInitCallDetails = new CallDetails(
+        "this", // Target this object
+        aggregateSymbol.getFullyQualifiedName(),
+        "i_init",
+        java.util.List.of(), // No parameters
+        "org.ek9.lang::Void", // Return type
+        java.util.List.of() // No arguments
+    );
+    instructions.add(CallInstr.call("_temp_i_init", debugInfo, iInitCallDetails));
+
+    // 3. Return this
     instructions.add(BranchInstr.returnValue("this", debugInfo));
 
     final var basicBlock = new BasicBlockInstr("entry");

@@ -9,9 +9,14 @@ import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.ir.BasicBlockInstr;
 import org.ek9lang.compiler.ir.BranchInstr;
 import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.ir.CallDetails;
+import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.Operation;
 import org.ek9lang.compiler.ir.ScopeInstr;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.IMayReturnSymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
  * Deals with the generation of the IR for OperationDetails.
@@ -43,6 +48,13 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
     final var context = new IRContext(parsedModule, compilerFlags);
     final var allInstructions = new ArrayList<IRInstr>();
     String returnScopeId = null;
+
+    // Add constructor initialization logic if this is a constructor
+    if (operation.getSymbol() instanceof MethodSymbol method && method.isConstructor()) {
+      //TODO Need to check if the set of instructions already has a call to super()!
+      //If so we just need that by itself and not generate this.
+      allInstructions.addAll(generateConstructorInitialization(method, context));
+    }
 
     // Process in correct order: parameters -> returns -> body
 
@@ -181,5 +193,62 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
     }
 
     return instructions;
+  }
+
+  /**
+   * Generate constructor initialization sequence:
+   * 1. Call super constructor (if applicable)
+   * 2. Call own class's i_init method
+   * This ensures consistent initialization for both explicit and synthetic constructors.
+   */
+  private List<IRInstr> generateConstructorInitialization(final MethodSymbol constructorSymbol, 
+                                                          final IRContext context) {
+
+    //TODO what if the ek9 developer has already included a call to the super?
+    final var instructions = new ArrayList<IRInstr>();
+    final var debugInfoCreator = new DebugInfoCreator(context);
+    final var debugInfo = debugInfoCreator.apply(constructorSymbol);
+    final var aggregateSymbol = (AggregateSymbol) constructorSymbol.getParentScope();
+
+    // 1. Call super constructor if this class explicitly extends another class
+    final var superAggregateOpt = aggregateSymbol.getSuperAggregate();
+    if (superAggregateOpt.isPresent()) {
+      final var superSymbol = superAggregateOpt.get();
+      
+      // Only make super call if it's not the implicit base class (like Object)  
+      if (isNotImplicitSuperClass(superSymbol)) {
+        final var callDetails = new CallDetails(
+            "super", // Target super object
+            superSymbol.getFullyQualifiedName(),
+            superSymbol.getName(), // Constructor name matches class name
+            java.util.List.of(), // No parameters for default constructor
+            superSymbol.getFullyQualifiedName(), // Return type is the super class
+            java.util.List.of() // No arguments
+        );
+        instructions.add(CallInstr.call("_temp_super_init", debugInfo, callDetails));
+      }
+    }
+
+    // 2. Call own class's i_init method to initialize this class's fields
+    final var iInitCallDetails = new CallDetails(
+        "this", // Target this object
+        aggregateSymbol.getFullyQualifiedName(),
+        "i_init",
+        java.util.List.of(), // No parameters
+        "org.ek9.lang::Void", // Return type
+        java.util.List.of() // No arguments
+    );
+    instructions.add(CallInstr.call("_temp_i_init", debugInfo, iInitCallDetails));
+
+    return instructions;
+  }
+
+  /**
+   * Check if the super class is not an implicit base class.
+   * This logic should match ClassDfnGenerator.isNotImplicitSuperClass()
+   */
+  private boolean isNotImplicitSuperClass(final IAggregateSymbol superSymbol) {
+    //TODO refactor to reusable function.
+    return !parsedModule.getEk9Types().ek9Any().isExactSameType(superSymbol);
   }
 }

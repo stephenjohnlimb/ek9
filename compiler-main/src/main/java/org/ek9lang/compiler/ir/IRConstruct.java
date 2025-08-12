@@ -37,6 +37,11 @@ public final class IRConstruct implements INode {
 
   }
 
+  public boolean isForSymbol(final ISymbol toCheck) {
+    //Has to be for the actual same object.
+    return symbol == toCheck;
+  }
+
   public String getFullyQualifiedName() {
     return symbol.getFullyQualifiedName();
   }

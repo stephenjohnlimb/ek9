@@ -5,7 +5,8 @@ import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
 
 /**
- * An operation of some sort on a Construct.
+ * An operation on some sort on a Construct.
+ * By this we are talking about methods and operators, but also constructors and 'init' operations.
  * <p>
  * For example in the case of normal classes/traits/components etc. this would just be a method.
  * </p>
@@ -20,8 +21,8 @@ public final class Operation implements INode {
   private BasicBlockInstr basicBlockBody;
   private final ISymbol symbol;
 
-
   public Operation(final ISymbol symbol, final DebugInfo debugInfo) {
+
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
     this.symbol = symbol;
     this.debugInfo = debugInfo;
@@ -47,10 +48,10 @@ public final class Operation implements INode {
   @SuppressWarnings("checkstyle:OperatorWrap")
   @Override
   public String toString() {
-    return "Operation{" +
-        "symbol=" + symbol +
-        ", body=" + basicBlockBody +
-        '}';
+    return "Operation{"
+        + "symbol=" + symbol
+        + ", body=" + basicBlockBody
+        + '}';
   }
 
   @Override

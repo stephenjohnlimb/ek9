@@ -5,6 +5,11 @@ import org.ek9lang.compiler.ir.DebugInfo;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
 
+/**
+ * Creates the debug information for the symbol provided. Filename, line number and position.
+ * This helps when translating the IR into a real back end to debug information can be incorporated
+ * in to the final output.
+ */
 final class DebugInfoCreator implements Function<ISymbol, DebugInfo> {
 
   private final IRContext context;

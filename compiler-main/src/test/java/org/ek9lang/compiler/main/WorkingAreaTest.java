@@ -3,6 +3,8 @@ package org.ek9lang.compiler.main;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.NodePrinter;
@@ -45,10 +47,16 @@ class WorkingAreaTest extends PhasesTest {
     var resolvedProgram = program.resolveFromModule("introduction", new TypeSymbolSearch("HelloWorld"));
     assertNotNull(resolvedProgram);
 
-    final var printer = new NodePrinter();
-    program
-        .getIRModules("introduction")
-        .forEach(irModule -> irModule.getConstructs().forEach(printer::visit));
-
+    final var output = new ByteArrayOutputStream();
+    try (final var printWriter = new PrintWriter(output)) {
+      final var printer = new NodePrinter(printWriter);
+      program
+          .getIRModules("introduction")
+          .forEach(irModule -> irModule.getConstructs().forEach(printer::visit));
+    } catch(Exception _) {
+      System.err.println("Failed to produce output.");
+      //Ignore.
+    }
+    System.out.println(output);
   }
 }

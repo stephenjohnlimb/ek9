@@ -23,7 +23,7 @@ public class DirectivesSymbolName implements Function<EK9Parser.DirectiveContext
   public String apply(final EK9Parser.DirectiveContext ctx) {
 
     final var symbolName = ctx.directivePart(position).getText();
-    if (!symbolName.startsWith("\"")) {
+    if (!symbolName.startsWith("\"") && !symbolName.startsWith("`")) {
       //If not quoted then expect only integer value
       final var intValue = Integer.parseInt(symbolName);
       return Integer.toString(intValue);

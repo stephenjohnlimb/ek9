@@ -14,6 +14,8 @@ import org.ek9lang.core.CompilerException;
 
 /**
  * Acts as a base for the main construct definitions.
+ * As there are lots of common processing aspects across constructs and, they are
+ * only really very focussed on IR generation (and not reusable elsewhere) they are defined in this base.
  */
 abstract class AbstractDfnGenerator {
 
@@ -32,8 +34,7 @@ abstract class AbstractDfnGenerator {
                                            final EK9Parser.OperationDetailsContext ctx) {
 
     if (symbol instanceof MethodSymbol method) {
-      final var context = new IRContext(parsedModule, compilerFlags);
-      final var debugInfo = new DebugInfoCreator(context).apply(method);
+      final var debugInfo = new DebugInfoCreator(new IRContext(parsedModule, compilerFlags)).apply(method);
       final var operation = new Operation(method, debugInfo);
       operationDfnGenerator.accept(operation, ctx);
       construct.add(operation);
@@ -50,12 +51,21 @@ abstract class AbstractDfnGenerator {
     return !parsedModule.getEk9Types().ek9Any().isExactSameType(superSymbol);
   }
 
+  protected Operation newSyntheticInitOperation(final IRContext context,
+                                                final AggregateSymbol aggregateSymbol,
+                                                final String methodName) {
+    final var method = newSyntheticInitMethodSymbol(aggregateSymbol, methodName);
+    final var debugInfo = new DebugInfoCreator(context).apply(method);
+    return new Operation(method, debugInfo);
+
+  }
+
   /**
    * Create a synthetic method symbol for initialization methods (c_init, i_init).
    * These are basic very early methods, that can be triggered during construction of the construct.
    */
-  protected MethodSymbol newSyntheticInitMethodSymbol(final AggregateSymbol aggregateSymbol,
-                                                      final String methodName) {
+  private MethodSymbol newSyntheticInitMethodSymbol(final AggregateSymbol aggregateSymbol,
+                                                    final String methodName) {
     final var methodSymbol = new MethodSymbol(methodName, aggregateSymbol);
     final ISymbol returnType = parsedModule.getEk9Types().ek9Void();
     methodSymbol.setType(returnType);

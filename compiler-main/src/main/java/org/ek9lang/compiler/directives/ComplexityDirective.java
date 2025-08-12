@@ -11,7 +11,6 @@ package org.ek9lang.compiler.directives;
  */
 public class ComplexityDirective extends ResolutionDirective {
 
-
   /**
    * The Directive to test for complexity values in EK9 instrumented code.
    */

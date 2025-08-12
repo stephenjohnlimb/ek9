@@ -44,7 +44,7 @@ class DirectiveFactory extends CommonFactory {
         case Implements -> newImplementsDirective(ctx);
         case NotResolved -> newResolutionDirective(ctx, false);
         case Genus -> newGenusDirective(ctx);
-        case Symbols, Compiler, Instrument ->
+        case IR, Symbols, Compiler, Instrument ->
             throw new IllegalArgumentException("Unsupported '@" + nameOfDirective + "':");
       };
     } catch (IllegalArgumentException ex) {
@@ -56,6 +56,7 @@ class DirectiveFactory extends CommonFactory {
     return null;
   }
 
+  @SuppressWarnings("checkstyle:CatchParameterName")
   private Directive newErrorDirective(final EK9Parser.DirectiveContext ctx) {
 
     checkContextNotNull.accept(ctx);
@@ -69,7 +70,7 @@ class DirectiveFactory extends CommonFactory {
       final var errorClassification = ErrorListener.SemanticClassification.valueOf(ctx.directivePart(1).getText());
 
       return new ErrorDirective(new Ek9Token(ctx.start), compilerPhase, errorClassification, applyToLine);
-    } catch (IllegalArgumentException ex) {
+    } catch (IllegalArgumentException _) {
       throw new IllegalArgumentException("Expecting one of: " + Arrays.toString(
           ErrorListener.SemanticClassification.values()));
     }

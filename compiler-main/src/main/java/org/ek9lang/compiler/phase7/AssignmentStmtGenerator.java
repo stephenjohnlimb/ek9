@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase7;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
@@ -42,6 +43,8 @@ final class AssignmentStmtGenerator implements
   @Override
   public List<IRInstr> apply(final EK9Parser.AssignmentStatementContext ctx, final String scopeId) {
 
+    assertOperationImplemented(ctx.op);
+
     final var instructions = new ArrayList<IRInstr>();
     if (ctx.primaryReference() != null) {
       throw new CompilerException("PrimaryReference assignment not implemented");
@@ -52,6 +55,15 @@ final class AssignmentStmtGenerator implements
     }
 
     return instructions;
+
+  }
+
+  private void assertOperationImplemented(final Token op) {
+    if (op.getType() != EK9Parser.ASSIGN
+        && op.getType() != EK9Parser.ASSIGN2
+        && op.getType() != EK9Parser.COLON) {
+      throw new CompilerException("Operation " + op.getText() + " not yet implemented");
+    }
 
   }
 
@@ -81,11 +93,11 @@ final class AssignmentStmtGenerator implements
       final var tempResult = context.generateTempName();
       instructions.addAll(expressionGenerator.apply(ctx.assignmentExpression().expression(), tempResult, scopeId));
 
-      // RETAIN: Increment reference count of new value to keep it alive
-      instructions.add(MemoryInstr.retain(tempResult, debugInfo));
-
       // STORE: Assign new value to target variable
       instructions.add(MemoryInstr.store(targetVariable, tempResult, debugInfo));
+
+      // RETAIN: Increment reference count of new value to keep it alive
+      instructions.add(MemoryInstr.retain(targetVariable, debugInfo));
     }
 
   }

@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.common;
 
+import java.io.PrintWriter;
 import org.ek9lang.compiler.ir.BasicBlockInstr;
 import org.ek9lang.compiler.ir.Field;
 import org.ek9lang.compiler.ir.IRConstruct;
@@ -14,12 +15,17 @@ import org.ek9lang.compiler.ir.Operation;
  */
 public class NodePrinter implements INodeVisitor {
 
+  private final PrintWriter printWriter;
   private final SymbolSignatureExtractor symbolSignatureGenerator = new SymbolSignatureExtractor();
+
+  public NodePrinter(final PrintWriter printWriter) {
+    this.printWriter = printWriter;
+  }
 
   @Override
   public void visit(final IRConstruct construct) {
 
-    System.out.printf("Construct: %s%n", construct.getSignatureQualifiedName());
+    printWriter.printf("ConstructDfn: %s%n", construct.getSignatureQualifiedName());
     
     // Print field declarations first
     construct.getFields().forEach(field -> field.accept(this));
@@ -31,7 +37,7 @@ public class NodePrinter implements INodeVisitor {
   @Override
   public void visit(final Field field) {
     final var debugLocation = field.getDebugInfo() != null ? field.getDebugInfo() : "";
-    System.out.printf("Field: %s, %s  %s%n", field.getName(), field.getTypeName(), debugLocation);
+    printWriter.printf("Field: %s, %s  %s%n", field.getName(), field.getTypeName(), debugLocation);
   }
 
   @Override
@@ -40,7 +46,7 @@ public class NodePrinter implements INodeVisitor {
     final var symbol = operation.getSymbol();
     final var debugLocation = operation.getDebugInfo() != null ? operation.getDebugInfo() : "";
     final var operationSignature = symbolSignatureGenerator.apply(symbol);
-    System.out.printf("Operation: %s  %s%n", operationSignature, debugLocation);
+    printWriter.printf("OperationDfn: %s  %s%n", operationSignature, debugLocation);
     // Using BasicBlock IR
     operation.getBody().accept(this);
 
@@ -49,13 +55,13 @@ public class NodePrinter implements INodeVisitor {
   // New IR visitor methods
   @Override
   public void visit(final BasicBlockInstr basicBlock) {
-    System.out.printf("BasicBlock: %s%n", basicBlock.getLabel());
+    printWriter.printf("BasicBlock: %s%n", basicBlock.getLabel());
     for (IRInstr instruction : basicBlock.getInstructions()) {
       instruction.accept(this);
     }
 
     if (!basicBlock.getSuccessors().isEmpty()) {
-      System.out.printf("  Successors: %s%n",
+      printWriter.printf("  Successors: %s%n",
           basicBlock.getSuccessors().stream()
               .map(BasicBlockInstr::getLabel)
               .toList());
@@ -64,6 +70,6 @@ public class NodePrinter implements INodeVisitor {
 
   @Override
   public void visit(final IRInstr irInstruction) {
-    System.out.printf("IRInstruction: %s%n", irInstruction);
+    printWriter.printf("IRInstruction: %s%n", irInstruction);
   }
 }

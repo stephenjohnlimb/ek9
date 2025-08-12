@@ -2,14 +2,20 @@
 defines module introduction
 
   defines class
+
+
     Example as open
       aField as String?
       bField as String := String()
       cField as String := "Steve"
       dField <- "Stephen"
 
-      Example() as pure
-        aField :=? "Now Initialised"
+      Example()
+        aField: "Now Initialised"
+
+        local1 <- 1
+        local1: 2
+        assert local1?
 
     Example2 extends Example
       //Note I've done this to highlight that fields are private in classes
