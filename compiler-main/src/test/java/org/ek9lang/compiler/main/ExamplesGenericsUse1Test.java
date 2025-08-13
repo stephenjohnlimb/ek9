@@ -25,7 +25,7 @@ class ExamplesGenericsUse1Test extends SuccessfulTest {
   private final SymbolSearchMapFunction mapFunction = new SymbolSearchMapFunction();
 
   public ExamplesGenericsUse1Test() {
-    super("/examples/genericsUse1");
+    super("/examples/parseAndCompile/genericsUse1");
   }
 
   /**

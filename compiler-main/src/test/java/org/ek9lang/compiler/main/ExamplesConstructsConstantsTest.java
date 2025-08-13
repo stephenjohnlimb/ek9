@@ -9,7 +9,7 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class ExamplesConstructsConstantsTest extends SuccessfulTest {
 
   public ExamplesConstructsConstantsTest() {
-    super("/examples/constructs/constants");
+    super("/examples/parseAndCompile/constructs/constants");
   }
 
   @Override

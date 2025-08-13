@@ -9,7 +9,7 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class ExamplesConstructsFunctionsTest extends SuccessfulTest {
 
   public ExamplesConstructsFunctionsTest() {
-    super("/examples/constructs/functions");
+    super("/examples/parseAndCompile/constructs/functions");
   }
 
   @Override

@@ -52,7 +52,7 @@ import org.junit.jupiter.api.parallel.ResourceLock;
 final class Ek9LanguageServerTest {
 
   static final String VALID_SOURCE = "SinglePackage.ek9";
-  static final String RELATIVE_PATH_TO_VALID_SOURCE = "/examples/constructs/packages/";
+  static final String RELATIVE_PATH_TO_VALID_SOURCE = "/examples/parseAndCompile/constructs/packages/";
   static final String INVALID_SOURCE = "unevenIndentation.ek9";
   static final String OTHER_INVALID_SOURCE = "FlowControl.ek9";
   static final String RELATIVE_PATH_TO_INVALID_SOURCE = "/badExamples/basics/";

@@ -9,7 +9,7 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class ExamplesConstructsReferencesTest extends SuccessfulTest {
 
   public ExamplesConstructsReferencesTest() {
-    super("/examples/constructs/references");
+    super("/examples/parseAndCompile/constructs/references");
   }
 
   @Override

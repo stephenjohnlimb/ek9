@@ -39,7 +39,7 @@ class Ek9CompilerTest {
       = new CompilableProgramSupplier();
 
   private final Function<String, Workspace> validEk9Workspace = subDir -> {
-    final var fullPath = new PathToSourceFromName().apply("/examples/basics/HelloWorld.ek9");
+    final var fullPath = new PathToSourceFromName().apply("/examples/parseAndCompile/basics/HelloWorld.ek9");
     final var base = osSupport.makeSubDirectoryIfNotExists(new File(osSupport.getTempDirectory()), subDir);
     Workspace rtn = new Workspace(base);
     rtn.addSource(fullPath);

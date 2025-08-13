@@ -21,7 +21,7 @@ final class WorkspaceTest {
     var workspace = new Workspace();
     assertTrue(workspace.getSources().isEmpty());
 
-    URL helloWorld = WorkspaceTest.class.getResource("/examples/basics/HelloWorld.ek9");
+    URL helloWorld = WorkspaceTest.class.getResource("/examples/parseAndCompile/basics/HelloWorld.ek9");
     assertNotNull(helloWorld);
     Path path = Path.of(helloWorld.getPath());
 

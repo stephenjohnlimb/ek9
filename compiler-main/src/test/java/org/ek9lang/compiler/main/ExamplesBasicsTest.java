@@ -6,7 +6,7 @@ package org.ek9lang.compiler.main;
 class ExamplesBasicsTest extends SuccessfulTest {
 
   public ExamplesBasicsTest() {
-    super("/examples/basics");
+    super("/examples/parseAndCompile/basics");
   }
 
 }

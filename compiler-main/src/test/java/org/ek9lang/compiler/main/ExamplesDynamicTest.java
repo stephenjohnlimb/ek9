@@ -6,7 +6,7 @@ package org.ek9lang.compiler.main;
 class ExamplesDynamicTest extends SuccessfulTest {
 
   public ExamplesDynamicTest() {
-    super("/examples/dynamic");
+    super("/examples/parseAndCompile/dynamic");
   }
 
 }

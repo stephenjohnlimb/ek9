@@ -1,0 +1,84 @@
+#!ek9
+<?-
+  The expected IR that should be generated for the ek9 construct is defined in
+  a directive. The unit tests, then compile the ek9 source and generate the IR.
+  The unit test then checks the generated IR against the expected IR.
+-?>
+defines module simpleClasses
+
+  defines class
+
+    @IR: IR_GENERATION: TYPE: "simpleClasses::Example": `
+    ConstructDfn: simpleClasses::Example
+    Field: aField, org.ek9.lang::String  // ./singleClass.ek9:72:7
+    Field: bField, org.ek9.lang::String  // ./singleClass.ek9:73:7
+    Field: cField, org.ek9.lang::String  // ./singleClass.ek9:74:7
+    Field: dField, org.ek9.lang::String  // ./singleClass.ek9:75:7
+    OperationDfn: simpleClasses::Example.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    IRInstruction: RETURN
+    OperationDfn: simpleClasses::Example.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    IRInstruction: REFERENCE this.aField, org.ek9.lang::String  // ./singleClass.ek9:72:7
+    IRInstruction: REFERENCE this.bField, org.ek9.lang::String  // ./singleClass.ek9:73:7
+    IRInstruction: _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>()  // ./singleClass.ek9:73:27
+    IRInstruction: RETAIN _temp1  // ./singleClass.ek9:73:27
+    IRInstruction: SCOPE_REGISTER _temp1, _i_init  // ./singleClass.ek9:73:27
+    IRInstruction: STORE this.bField, _temp1  // ./singleClass.ek9:73:7
+    IRInstruction: RETAIN this.bField  // ./singleClass.ek9:73:7
+    IRInstruction: REFERENCE this.cField, org.ek9.lang::String  // ./singleClass.ek9:74:7
+    IRInstruction: _temp2 = LOAD_LITERAL "Steve", org.ek9.lang::String  // ./singleClass.ek9:74:27
+    IRInstruction: RETAIN _temp2  // ./singleClass.ek9:74:27
+    IRInstruction: SCOPE_REGISTER _temp2, _i_init  // ./singleClass.ek9:74:27
+    IRInstruction: STORE this.cField, _temp2  // ./singleClass.ek9:74:7
+    IRInstruction: RETAIN this.cField  // ./singleClass.ek9:74:7
+    IRInstruction: REFERENCE this.dField, org.ek9.lang::String  // ./singleClass.ek9:75:7
+    IRInstruction: _temp3 = LOAD_LITERAL "Stephen", org.ek9.lang::String  // ./singleClass.ek9:75:17
+    IRInstruction: RETAIN _temp3  // ./singleClass.ek9:75:17
+    IRInstruction: SCOPE_REGISTER _temp3, _i_init  // ./singleClass.ek9:75:17
+    IRInstruction: STORE this.dField, _temp3  // ./singleClass.ek9:75:7
+    IRInstruction: RETAIN this.dField  // ./singleClass.ek9:75:7
+    IRInstruction: RETURN
+    OperationDfn: simpleClasses::Example.Example()->simpleClasses::Example  // ./singleClass.ek9:77:7
+    BasicBlock: _entry_1
+    IRInstruction: _temp_i_init = CALL (simpleClasses::Example)this.i_init()  // ./singleClass.ek9:77:7
+    IRInstruction: SCOPE_ENTER _scope_1
+    IRInstruction: RELEASE this.aField
+    IRInstruction: _temp1 = LOAD_LITERAL "Now Initialised", org.ek9.lang::String  // ./singleClass.ek9:78:17
+    IRInstruction: RETAIN _temp1  // ./singleClass.ek9:78:17
+    IRInstruction: SCOPE_REGISTER _temp1, _scope_1  // ./singleClass.ek9:78:17
+    IRInstruction: STORE this.aField, _temp1
+    IRInstruction: RETAIN this.aField
+    IRInstruction: REFERENCE local1, org.ek9.lang::Integer  // ./singleClass.ek9:80:9
+    IRInstruction: SCOPE_REGISTER local1, _scope_1  // ./singleClass.ek9:80:9
+    IRInstruction: _temp2 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./singleClass.ek9:80:19
+    IRInstruction: RETAIN _temp2  // ./singleClass.ek9:80:19
+    IRInstruction: SCOPE_REGISTER _temp2, _scope_1  // ./singleClass.ek9:80:19
+    IRInstruction: STORE local1, _temp2  // ./singleClass.ek9:80:9
+    IRInstruction: RETAIN local1  // ./singleClass.ek9:80:9
+    IRInstruction: RELEASE local1
+    IRInstruction: _temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./singleClass.ek9:81:17
+    IRInstruction: RETAIN _temp3  // ./singleClass.ek9:81:17
+    IRInstruction: SCOPE_REGISTER _temp3, _scope_1  // ./singleClass.ek9:81:17
+    IRInstruction: STORE local1, _temp3
+    IRInstruction: RETAIN local1
+    IRInstruction: _temp5 = LOAD local1  // ./singleClass.ek9:80:9
+    IRInstruction: _temp4 = CALL (org.ek9.lang::Any)_temp5._isSet()  // ./singleClass.ek9:82:22
+    IRInstruction: _temp6 = CALL (org.ek9.lang::Boolean)_temp4._true()  // ./singleClass.ek9:82:22
+    IRInstruction: ASSERT _temp6  // ./singleClass.ek9:82:22
+    IRInstruction: SCOPE_EXIT _scope_1
+    IRInstruction: RETURN`
+    Example as open
+      aField as String?
+      bField as String := String()
+      cField as String := "Steve"
+      dField <- "Stephen"
+
+      Example()
+        aField: "Now Initialised"
+
+        local1 <- 1
+        local1: 2
+        assert local1?
+
+//EOF

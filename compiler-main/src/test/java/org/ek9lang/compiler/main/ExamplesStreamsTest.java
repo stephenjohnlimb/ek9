@@ -9,7 +9,7 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class ExamplesStreamsTest extends SuccessfulTest {
 
   public ExamplesStreamsTest() {
-    super("/examples/streams");
+    super("/examples/parseAndCompile/streams");
   }
 
 

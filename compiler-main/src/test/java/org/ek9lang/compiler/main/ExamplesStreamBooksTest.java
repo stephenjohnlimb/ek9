@@ -6,7 +6,7 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class ExamplesStreamBooksTest extends SuccessfulTest {
 
   public ExamplesStreamBooksTest() {
-    super("/examples/streamBooks", false, true);
+    super("/examples/parseAndCompile/streamBooks", false, true);
   }
 
   @Override

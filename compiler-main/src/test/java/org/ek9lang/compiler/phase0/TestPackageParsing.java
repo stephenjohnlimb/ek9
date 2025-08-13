@@ -149,7 +149,7 @@ final class TestPackageParsing {
   @SuppressWarnings("java:S2699")
   void testBadPackages() {
     // A couple of source file with bad packaging in them.
-    Stream.of("/examples/constructs/packages/BadPackage.ek9",
+    Stream.of("/examples/parseAndCompile/constructs/packages/BadPackage.ek9",
             "/badExamples/basics/unevenIndentation.ek9")
         .map(fileForClassPathResource)
         .forEach(checkBadPackage);
@@ -157,9 +157,9 @@ final class TestPackageParsing {
 
   @Test
   void testPackaging() {
-    var toTest = Map.of("/examples/constructs/packages/HandyTools.ek9", validateSmallPackage,
-        "/examples/fullPrograms/networking/TCPExample.ek9", validateFullPackage,
-        "/examples/constructs/packages/SinglePackage.ek9", validateSimplePackage);
+    var toTest = Map.of("/examples/parseAndCompile/constructs/packages/HandyTools.ek9", validateSmallPackage,
+        "/examples/parseAndCompile/fullPrograms/networking/TCPExample.ek9", validateFullPackage,
+        "/examples/parseAndCompile/constructs/packages/SinglePackage.ek9", validateSimplePackage);
 
     toTest.forEach(this::processTest);
   }

@@ -6,7 +6,7 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class ExamplesJustNamesTest extends SuccessfulTest {
 
   public ExamplesJustNamesTest() {
-    super("/examples/justNames");
+    super("/examples/parseAndCompile/justNames");
   }
 
   @Override

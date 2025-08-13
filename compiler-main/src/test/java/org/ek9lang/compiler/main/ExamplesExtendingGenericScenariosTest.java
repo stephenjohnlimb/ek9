@@ -3,7 +3,7 @@ package org.ek9lang.compiler.main;
 class ExamplesExtendingGenericScenariosTest extends SuccessfulTest {
 
   public ExamplesExtendingGenericScenariosTest() {
-    super("/examples/extendingGenericScenarios");
+    super("/examples/parseAndCompile/extendingGenericScenarios");
   }
 
 }

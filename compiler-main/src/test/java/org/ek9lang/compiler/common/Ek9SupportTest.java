@@ -17,7 +17,7 @@ final class Ek9SupportTest {
   @Test
   void testEk9SupportPreparation() throws IOException {
 
-    var fileName = sourceFileSupport.getPath("/examples/basics/",
+    var fileName = sourceFileSupport.getPath("/examples/parseAndCompile/basics/",
         "HelloWorld.ek9");
     Ek9Support underTest = new Ek9Support(fileName, false);
     assertNotNull(underTest, "UnderTest was not created");

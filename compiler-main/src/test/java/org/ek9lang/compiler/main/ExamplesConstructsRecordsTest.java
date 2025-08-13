@@ -6,7 +6,7 @@ package org.ek9lang.compiler.main;
 class ExamplesConstructsRecordsTest extends SuccessfulTest {
 
   public ExamplesConstructsRecordsTest() {
-    super("/examples/constructs/records");
+    super("/examples/parseAndCompile/constructs/records");
   }
 
 }

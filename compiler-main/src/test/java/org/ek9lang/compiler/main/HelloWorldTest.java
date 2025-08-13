@@ -55,8 +55,9 @@ class HelloWorldTest {
   private static final Supplier<Workspace> helloWorldEk9Workspace = () -> {
     Workspace rtn = new Workspace();
 
-    var constantPath = new PathToSourceFromName().apply("/examples/simpleReference/ExternalReference.ek9");
-    var programPath = new PathToSourceFromName().apply("/examples/simpleReference/HelloReference.ek9");
+    var constantPath = new PathToSourceFromName().apply(
+        "/examples/parseAndCompile/simpleReference/ExternalReference.ek9");
+    var programPath = new PathToSourceFromName().apply("/examples/parseAndCompile/simpleReference/HelloReference.ek9");
     rtn.addSource(constantPath);
     rtn.addSource(programPath);
     return rtn;

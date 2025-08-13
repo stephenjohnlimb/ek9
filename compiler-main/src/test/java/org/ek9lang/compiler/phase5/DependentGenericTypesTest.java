@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class DependentGenericTypesTest extends PhasesTest {
 
   public DependentGenericTypesTest() {
-    super("/examples/dependentGenericTypes",
+    super("/examples/parseAndCompile/dependentGenericTypes",
         List.of("dependent.generic.types"), false, false);
   }
 

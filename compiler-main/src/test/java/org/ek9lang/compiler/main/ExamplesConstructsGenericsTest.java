@@ -9,7 +9,7 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class ExamplesConstructsGenericsTest extends SuccessfulTest {
 
   public ExamplesConstructsGenericsTest() {
-    super("/examples/constructs/generics");
+    super("/examples/parseAndCompile/constructs/generics");
   }
 
   @Override

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesBasicsTest extends PhasesTest {
 
   public ExamplesBasicsTest() {
-    super("/examples/basics",
+    super("/examples/parseAndCompile/basics",
         List.of("example.placeholder",
             "net.customer.basics",
             "com.customer.params",

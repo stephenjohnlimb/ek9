@@ -6,6 +6,6 @@ package org.ek9lang.compiler.main;
 class BadGuardTest extends SuccessfulTest {
 
   public BadGuardTest() {
-    super("/examples/guards");
+    super("/examples/parseAndCompile/guards");
   }
 }

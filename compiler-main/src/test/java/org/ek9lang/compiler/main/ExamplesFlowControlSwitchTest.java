@@ -6,7 +6,7 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class ExamplesFlowControlSwitchTest extends SuccessfulTest {
 
   public ExamplesFlowControlSwitchTest() {
-    super("/examples/flowControlSwitch");
+    super("/examples/parseAndCompile/flowControlSwitch");
   }
 
   @Override

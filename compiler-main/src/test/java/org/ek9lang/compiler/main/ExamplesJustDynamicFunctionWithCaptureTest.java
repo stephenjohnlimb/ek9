@@ -6,7 +6,7 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class ExamplesJustDynamicFunctionWithCaptureTest extends SuccessfulTest {
 
   public ExamplesJustDynamicFunctionWithCaptureTest() {
-    super("/examples/justDynamicFunctionWithCapture");
+    super("/examples/parseAndCompile/justDynamicFunctionWithCapture");
   }
 
   @Override

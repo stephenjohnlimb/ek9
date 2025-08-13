@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 class ExamplesTernaryTest extends PhasesTest {
 
   public ExamplesTernaryTest() {
-    super("/examples/ternary");
+    super("/examples/parseAndCompile/ternary");
   }
 
   @Test

@@ -6,7 +6,7 @@ package org.ek9lang.compiler.main;
 class ExamplesConstructsTraitsTest extends SuccessfulTest {
 
   public ExamplesConstructsTraitsTest() {
-    super("/examples/constructs/traits");
+    super("/examples/parseAndCompile/constructs/traits");
   }
 
 }

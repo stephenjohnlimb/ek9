@@ -35,7 +35,7 @@ class FileCacheTest {
       new SourceFileSupport(fileHandling, osSupport);
 
   private final Supplier<SourceResource> helloWorldSource = () ->
-      new SourceResource(false, "/examples/basics/",
+      new SourceResource(false, "/examples/parseAndCompile/basics/",
           "HelloWorld.ek9", ".");
 
   @AfterEach
@@ -48,7 +48,7 @@ class FileCacheTest {
 
   @Test
   void checkSingleEk9SourceFileOnly() {
-    var resourceDirectory = "/examples/constructs/constants/";
+    var resourceDirectory = "/examples/parseAndCompile/constructs/constants/";
     var ek9SourceFilename = "SingleConstant.ek9";
 
     testSourceFilesIdentified("-c",
@@ -58,7 +58,7 @@ class FileCacheTest {
 
   @Test
   void checkMultipleNamedSourceFiles() {
-    var resourceDirectory = "/examples/constructs/references/";
+    var resourceDirectory = "/examples/parseAndCompile/constructs/references/";
     var ek9SourceFilename = "ConstantRef1.ek9";
 
     testSourceFilesIdentified("-c", new SourceResource(resourceDirectory, ek9SourceFilename,
@@ -73,7 +73,7 @@ class FileCacheTest {
    */
   @Test
   void checkStandardIncludesSourceFiles() {
-    var resourceDirectory = "/examples/constructs/references/";
+    var resourceDirectory = "/examples/parseAndCompile/constructs/references/";
     var ek9SourceFilename = "PairPackage.ek9";
 
     testSourceFilesIdentified("-c", new SourceResource(resourceDirectory, ek9SourceFilename,
@@ -86,7 +86,7 @@ class FileCacheTest {
    */
   @Test
   void checkStandardIncludesSourceFilesNoneDev() {
-    var resourceDirectory = "/examples/constructs/references/";
+    var resourceDirectory = "/examples/parseAndCompile/constructs/references/";
     var ek9SourceFilename = "PairPackage.ek9";
 
     testSourceFilesIdentified("-c", new SourceResource(resourceDirectory, ek9SourceFilename,
@@ -99,7 +99,7 @@ class FileCacheTest {
    */
   @Test
   void checkStandardIncludesSourceFilesDev() {
-    var resourceDirectory = "/examples/constructs/references/";
+    var resourceDirectory = "/examples/parseAndCompile/constructs/references/";
     var ek9SourceFilename = "PairPackage.ek9";
 
     testSourceFilesIdentified("-cd", new SourceResource(resourceDirectory, ek9SourceFilename,

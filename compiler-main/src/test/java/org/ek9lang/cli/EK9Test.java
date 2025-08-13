@@ -76,7 +76,7 @@ final class EK9Test {
     String[] command = new String[] {"-c " + sourceName};
 
     //We will copy this into a working directory and process it.
-    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/basics/", sourceName);
     assertNotNull(sourceFile);
 
     //This will actually trigger a full compile first.
@@ -117,7 +117,7 @@ final class EK9Test {
     String[] command = new String[] {String.format("%s %s", flag, sourceName)};
 
     //We will copy this into a working directory and process it.
-    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/basics/", sourceName);
     assertNotNull(sourceFile);
 
     //This will actually trigger a full compile first, but no artefact should be created in a check.
@@ -153,7 +153,7 @@ final class EK9Test {
     String[] command = new String[] {"-Cd " + sourceName};
 
     //We will copy this into a working directory and process it.
-    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/basics/", sourceName);
     assertNotNull(sourceFile);
 
     assertCompilationArtefactsPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
@@ -164,7 +164,7 @@ final class EK9Test {
     String sourceName = "HelloWorld.ek9";
     String[] command = new String[] {sourceName};
 
-    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/basics/", sourceName);
     assertNotNull(sourceFile);
 
     assertCompilationArtefactsPresent(assertResult(Ek9.RUN_COMMAND_EXIT_CODE, command));
@@ -175,7 +175,7 @@ final class EK9Test {
     String sourceName = "HelloWorld.ek9";
     String[] command = new String[] {"-d 9999 " + sourceName};
 
-    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/basics/", sourceName);
     assertNotNull(sourceFile);
 
     assertCompilationArtefactsPresent(assertResult(Ek9.RUN_COMMAND_EXIT_CODE, command));
@@ -186,7 +186,7 @@ final class EK9Test {
     String sourceName = "HelloWorlds.ek9";
     String[] command = new String[] {"-t " + sourceName};
 
-    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/basics/", sourceName);
     assertNotNull(sourceFile);
 
     //This will actually trigger a full compile and then run.
@@ -198,7 +198,7 @@ final class EK9Test {
     String sourceName = "HelloWorlds.ek9";
     String[] command = new String[] {sourceName + " -r HelloMars"};
 
-    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/basics/", sourceName);
     assertNotNull(sourceFile);
 
     //This will actually trigger a full compile and then run.
@@ -210,7 +210,7 @@ final class EK9Test {
     String sourceName = "HelloWorlds.ek9";
     String[] command = new String[] {"-I " + sourceName};
 
-    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/basics/", sourceName);
     assertNotNull(sourceFile);
 
     //Should fail because this source does not define a package.
@@ -222,7 +222,7 @@ final class EK9Test {
     String sourceName = "PackageNoDeps.ek9";
     String[] command = new String[] {"-P " + sourceName};
 
-    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/",
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/constructs/packages/",
         sourceName);
     assertNotNull(sourceFile);
 
@@ -292,7 +292,7 @@ final class EK9Test {
     String sourceName = "HelloWorlds.ek9";
     String[] command = new String[] {"-e " + user + " " + sourceName + " -r HelloMars"};
 
-    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+    File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/basics/", sourceName);
     assertNotNull(sourceFile);
 
     //Should fail because this source does not define a package.
@@ -337,7 +337,7 @@ final class EK9Test {
     String[] incrementBuildNo = new String[] {"-SV 3.6.7 " + sourceName};
 
     File sourceFile =
-        sourceFileSupport.copyFileToTestCWD("/examples/basics/", sourceName);
+        sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/basics/", sourceName);
     assertNotNull(sourceFile);
     CommandLine commandLine = assertResult(Ek9.BAD_COMMANDLINE_EXIT_CODE, incrementBuildNo);
     assertNotNull(commandLine);
@@ -382,7 +382,7 @@ final class EK9Test {
     String[] command = new String[] {"-I " + sourceName};
 
     File sourceFile =
-        sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+        sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/constructs/packages/", sourceName);
     assertNotNull(sourceFile);
 
     //This should Fail with a file issue, because it should not parse.
@@ -518,7 +518,7 @@ final class EK9Test {
     String[] command = new String[] {"-Dp " + sourceName};
 
     File sourceFile =
-        sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+        sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/constructs/packages/", sourceName);
     assertNotNull(sourceFile);
     assertResult(Ek9.BAD_COMMANDLINE_EXIT_CODE, command);
   }
@@ -535,7 +535,7 @@ final class EK9Test {
     String[] command = new String[] {"-I " + sourceName};
 
     File sourceFile =
-        sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+        sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/constructs/packages/", sourceName);
     assertNotNull(sourceFile);
 
     //This should succeed and install the package in users lib directory
@@ -553,14 +553,14 @@ final class EK9Test {
     }
 
     URL simulatedProperties = getClass().getResource(
-        "/examples/constructs/packages/" + sourceName + ".package.properties");
+        "/examples/parseAndCompile/constructs/packages/" + sourceName + ".package.properties");
     assertNotNull(simulatedProperties);
     fileHandling.copy(new File(simulatedProperties.getPath()),
         new File(unpackedDir, ".package.properties"));
 
     //Now the source file for that package
     URL simulatedSource =
-        getClass().getResource("/examples/constructs/packages/" + sourceName + ".ek9");
+        getClass().getResource("/examples/parseAndCompile/constructs/packages/" + sourceName + ".ek9");
     assertNotNull(simulatedSource);
     fileHandling.copy(new File(simulatedSource.getPath()),
         new File(unpackedDir, sourceName + ".ek9"));
@@ -569,7 +569,7 @@ final class EK9Test {
   private void deployPackage(int expectedExitCode, String sourceName) {
     String[] deployCommand = new String[] {"-D " + sourceName};
     File sourceFile =
-        sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+        sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/constructs/packages/", sourceName);
     assertNotNull(sourceFile);
 
     //So this should just package up and deploy the artefact.
@@ -594,7 +594,7 @@ final class EK9Test {
     String[] incrementBuildNo = new String[] {command + " " + sourceName};
 
     File sourceFile =
-        sourceFileSupport.copyFileToTestCWD("/examples/constructs/packages/", sourceName);
+        sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/constructs/packages/", sourceName);
     assertNotNull(sourceFile);
 
     //So this should just increment the build number from '0' which is what is in PackageNoDeps.ek9 to '1'

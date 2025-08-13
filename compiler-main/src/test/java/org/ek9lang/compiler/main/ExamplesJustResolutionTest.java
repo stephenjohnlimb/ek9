@@ -16,7 +16,7 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class ExamplesJustResolutionTest extends SuccessfulTest {
 
   public ExamplesJustResolutionTest() {
-    super("/examples/justResolution");
+    super("/examples/parseAndCompile/justResolution");
   }
 
   @Override

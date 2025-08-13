@@ -12,7 +12,7 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class ExamplesConstructsClassesTest extends SuccessfulTest {
 
   public ExamplesConstructsClassesTest() {
-    super("/examples/constructs/classes");
+    super("/examples/parseAndCompile/constructs/classes");
   }
 
 

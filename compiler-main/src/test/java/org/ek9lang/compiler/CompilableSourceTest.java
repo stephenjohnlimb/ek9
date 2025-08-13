@@ -63,13 +63,14 @@ final class CompilableSourceTest {
 
   @ParameterizedTest
   @CsvSource({
-      "/examples, ./basics/HelloWorld.ek9",
-      "/examples/basics, ./HelloWorld.ek9"
+      "/examples, ./parseAndCompile/basics/HelloWorld.ek9",
+      "/examples/parseAndCompile, ./basics/HelloWorld.ek9",
+      "/examples/parseAndCompile/basics, ./HelloWorld.ek9"
   })
   void testRelativeFileName(final String base, final String expectedRelativePath) {
     //To make this portable, I need to use this mechanism to avoid hardcoded names in tests
     var basePath = new PathToSourceFromName().apply(base);
-    var fullPath = new PathToSourceFromName().apply("/examples/basics/HelloWorld.ek9");
+    var fullPath = new PathToSourceFromName().apply("/examples/parseAndCompile/basics/HelloWorld.ek9");
     final var underTest = new CompilableSource(basePath, fullPath);
     assertEquals(expectedRelativePath, underTest.getRelativeFileName());
 

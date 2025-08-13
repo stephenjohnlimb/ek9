@@ -9,7 +9,7 @@ import java.util.List;
 class VariousComplexityCalculationsTest extends BadPreIRChecksTest {
 
   public VariousComplexityCalculationsTest() {
-    super("/examples/complexity",
+    super("/examples/parseAndCompile/complexity",
         List.of("simple.ifcomplexity",
             "simple.switchcomplexity",
             "simple.trycatchcomplexity",

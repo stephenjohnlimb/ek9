@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 final class BasicLexingTest extends LexingBase {
   @Override
   protected String getEK9FileName() {
-    return "/examples/basics/HelloWorld.ek9";
+    return "/examples/parseAndCompile/basics/HelloWorld.ek9";
   }
 
   /**

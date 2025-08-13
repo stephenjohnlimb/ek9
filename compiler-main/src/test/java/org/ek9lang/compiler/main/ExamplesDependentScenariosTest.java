@@ -6,7 +6,7 @@ package org.ek9lang.compiler.main;
 class ExamplesDependentScenariosTest extends SuccessfulTest {
 
   public ExamplesDependentScenariosTest() {
-    super("/examples/dependentGenericScenarios");
+    super("/examples/parseAndCompile/dependentGenericScenarios");
   }
 
 }

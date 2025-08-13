@@ -6,6 +6,6 @@ package org.ek9lang.compiler.phase0;
 final class TestBasicParsing extends ParsingBase {
   @Override
   protected String getEK9FileName() {
-    return "/examples/basics/HelloWorld.ek9";
+    return "/examples/parseAndCompile/basics/HelloWorld.ek9";
   }
 }

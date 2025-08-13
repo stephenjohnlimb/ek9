@@ -12,8 +12,8 @@ public class HelloWorldSupplier implements Supplier<CompilableSource> {
 
   @Override
   public CompilableSource get() {
-    var basePath = new PathToSourceFromName().apply("/examples/basics");
-    var fullPath = new PathToSourceFromName().apply("/examples/basics/HelloWorld.ek9");
+    var basePath = new PathToSourceFromName().apply("/examples/parseAndCompile/basics");
+    var fullPath = new PathToSourceFromName().apply("/examples/parseAndCompile/basics/HelloWorld.ek9");
     var helloWorldSource = new CompilableSource(basePath, fullPath);
     assertNotNull(helloWorldSource, "Expecting source to be available");
     return helloWorldSource;

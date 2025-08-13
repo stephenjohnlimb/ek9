@@ -6,7 +6,7 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class ExamplesLibConfigurationTest extends SuccessfulTest {
 
   public ExamplesLibConfigurationTest() {
-    super("/examples/libConfiguration");
+    super("/examples/parseAndCompile/libConfiguration");
   }
 
   @Override
