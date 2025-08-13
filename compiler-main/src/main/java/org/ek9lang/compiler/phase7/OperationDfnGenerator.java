@@ -8,9 +8,9 @@ import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.ir.BasicBlockInstr;
 import org.ek9lang.compiler.ir.BranchInstr;
-import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
+import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.Operation;
 import org.ek9lang.compiler.ir.ScopeInstr;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
@@ -79,7 +79,7 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
     allInstructions.addAll(generateReturnStatement(operation, context, returnScopeId));
 
     // Create BasicBlock with all instructions
-    final var basicBlock = new BasicBlockInstr(context.generateBlockLabel("entry"));
+    final var basicBlock = new BasicBlockInstr(context.generateBlockLabel(IRConstants.ENTRY_LABEL));
     basicBlock.addInstructions(allInstructions);
     operation.setBody(basicBlock);
   }
@@ -91,7 +91,7 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
   private List<IRInstr> processArgumentParam(final EK9Parser.ArgumentParamContext ctx, final IRContext context) {
     final var instructions = new ArrayList<IRInstr>();
     final var variableCreator = new VariableOnlyDeclInstrGenerator(context);
-    final var scopeId = context.generateScopeId("param");
+    final var scopeId = context.generateScopeId(IRConstants.PARAM_SCOPE);
 
     for (final var varOnlyCtx : ctx.variableOnlyDeclaration()) {
       instructions.addAll(variableCreator.apply(varOnlyCtx, scopeId));
@@ -115,7 +115,7 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
     final var instructions = new ArrayList<IRInstr>();
     final var variableCreator = new VariableDeclInstrGenerator(context);
     final var variableOnlyCreator = new VariableOnlyDeclInstrGenerator(context);
-    final var scopeId = context.generateScopeId("return");
+    final var scopeId = context.generateScopeId(IRConstants.RETURN_SCOPE);
 
     // Enter scope for return parameter memory management
     instructions.add(ScopeInstr.enter(scopeId));
@@ -142,7 +142,7 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
   private List<IRInstr> processInstructionBlock(final EK9Parser.InstructionBlockContext ctx, final IRContext context) {
     final var instructions = new ArrayList<IRInstr>();
     final var blockStatementCreator = new BlockStmtInstrGenerator(context);
-    final var scopeId = context.generateScopeId("scope");
+    final var scopeId = context.generateScopeId(IRConstants.GENERAL_SCOPE);
 
     // Enter scope for memory management
     instructions.add(ScopeInstr.enter(scopeId));
@@ -201,7 +201,7 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
    * 2. Call own class's i_init method
    * This ensures consistent initialization for both explicit and synthetic constructors.
    */
-  private List<IRInstr> generateConstructorInitialization(final MethodSymbol constructorSymbol, 
+  private List<IRInstr> generateConstructorInitialization(final MethodSymbol constructorSymbol,
                                                           final IRContext context) {
 
     //TODO what if the ek9 developer has already included a call to the super?
@@ -214,7 +214,7 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
     final var superAggregateOpt = aggregateSymbol.getSuperAggregate();
     if (superAggregateOpt.isPresent()) {
       final var superSymbol = superAggregateOpt.get();
-      
+
       // Only make super call if it's not the implicit base class (like Object)  
       if (isNotImplicitSuperClass(superSymbol)) {
         final var callDetails = new CallDetails(
@@ -233,7 +233,7 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
     final var iInitCallDetails = new CallDetails(
         "this", // Target this object
         aggregateSymbol.getFullyQualifiedName(),
-        "i_init",
+        IRConstants.I_INIT_METHOD,
         java.util.List.of(), // No parameters
         "org.ek9.lang::Void", // Return type
         java.util.List.of() // No arguments

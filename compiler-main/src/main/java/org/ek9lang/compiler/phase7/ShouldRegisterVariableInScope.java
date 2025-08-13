@@ -4,7 +4,7 @@ import java.util.function.Predicate;
 
 /**
  * Determine if a variable should be registered in scope for cleanup.
- * While we will be targeting JVM and Go, so memory management is not needed
+ * While we will be targeting JVM, so memory management is not needed
  * we may also want to target LLVM-C++ where we will need to reference count objects.
  * <p>
  * Variables that should NOT be registered:

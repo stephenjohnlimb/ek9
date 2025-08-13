@@ -7,7 +7,6 @@ import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
-import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -32,18 +31,24 @@ final class AssignmentStmtGenerator implements
   private final IRContext context;
   private final ExprInstrGenerator expressionGenerator;
   private final DebugInfoCreator debugInfoCreator;
+  private final VariableNameForIR variableNameForIR = new VariableNameForIR();
 
   AssignmentStmtGenerator(final IRContext context) {
+
     AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
     this.context = context;
     this.expressionGenerator = new ExprInstrGenerator(context);
     this.debugInfoCreator = new DebugInfoCreator(context);
+
   }
 
   @Override
   public List<IRInstr> apply(final EK9Parser.AssignmentStatementContext ctx, final String scopeId) {
 
-    assertOperationImplemented(ctx.op);
+    AssertValue.checkNotNull("Ctx cannot be null", ctx);
+    AssertValue.checkNotNull("ScopeId cannot be null", scopeId);
+
+    operationImplementedOrException(ctx.op);
 
     final var instructions = new ArrayList<IRInstr>();
     if (ctx.primaryReference() != null) {
@@ -58,7 +63,8 @@ final class AssignmentStmtGenerator implements
 
   }
 
-  private void assertOperationImplemented(final Token op) {
+  private void operationImplementedOrException(final Token op) {
+
     if (op.getType() != EK9Parser.ASSIGN
         && op.getType() != EK9Parser.ASSIGN2
         && op.getType() != EK9Parser.COLON) {
@@ -69,36 +75,24 @@ final class AssignmentStmtGenerator implements
 
   private void processIdentifierAssignment(final EK9Parser.AssignmentStatementContext ctx,
                                            final String scopeId, final List<IRInstr> instructions) {
-    // Get the target variable (left side of assignment)
-    String targetVariable = null;
 
-    // Check if this is a property field assignment by looking up the symbol
+
     final var symbol = context.getParsedModule().getRecordedSymbol(ctx.identifier());
-    if (symbol instanceof VariableSymbol varSymbol && varSymbol.isPropertyField()) {
-      // Use "this.fieldName" for property fields
-      targetVariable = "this." + symbol.getName();
-    } else {
-      // Use regular variable name (potentially with scope qualification later)
-      targetVariable = symbol.getName();
-    }
+    final var targetVariable = variableNameForIR.apply(symbol);
+    final var debugInfo = debugInfoCreator.apply(context.getParsedModule().getRecordedSymbol(ctx));
 
+    // RELEASE: Decrement reference count of current target value (tolerant of uninitialized)
+    instructions.add(MemoryInstr.release(targetVariable, debugInfo));
 
-    if (targetVariable != null) {
-      final var debugInfo = debugInfoCreator.apply(context.getParsedModule().getRecordedSymbol(ctx));
+    // Evaluate the assignment expression (right side)
+    final var tempResult = context.generateTempName();
+    instructions.addAll(expressionGenerator.apply(ctx.assignmentExpression().expression(), tempResult, scopeId));
 
-      // RELEASE: Decrement reference count of current target value (tolerant of uninitialized)
-      instructions.add(MemoryInstr.release(targetVariable, debugInfo));
+    // STORE: Assign new value to target variable
+    instructions.add(MemoryInstr.store(targetVariable, tempResult, debugInfo));
 
-      // Evaluate the assignment expression (right side)
-      final var tempResult = context.generateTempName();
-      instructions.addAll(expressionGenerator.apply(ctx.assignmentExpression().expression(), tempResult, scopeId));
-
-      // STORE: Assign new value to target variable
-      instructions.add(MemoryInstr.store(targetVariable, tempResult, debugInfo));
-
-      // RETAIN: Increment reference count of new value to keep it alive
-      instructions.add(MemoryInstr.retain(targetVariable, debugInfo));
-    }
+    // RETAIN: Increment reference count of new value to keep it alive
+    instructions.add(MemoryInstr.retain(targetVariable, debugInfo));
 
   }
 

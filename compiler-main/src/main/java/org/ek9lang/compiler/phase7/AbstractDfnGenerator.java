@@ -10,6 +10,7 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -22,6 +23,7 @@ abstract class AbstractDfnGenerator {
   private final ParsedModule parsedModule;
   private final CompilerFlags compilerFlags;
   private final OperationDfnGenerator operationDfnGenerator;
+  protected final VariableNameForIR variableNameForIR = new VariableNameForIR();
 
   AbstractDfnGenerator(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
     this.parsedModule = parsedModule;
@@ -32,6 +34,10 @@ abstract class AbstractDfnGenerator {
   protected void processAsMethodOrOperator(final IRConstruct construct,
                                            final ISymbol symbol,
                                            final EK9Parser.OperationDetailsContext ctx) {
+
+    AssertValue.checkNotNull("IRConstruct cannot be null", construct);
+    AssertValue.checkNotNull("ISymbol cannot be null", symbol);
+    AssertValue.checkNotNull("Ctx cannot be null", ctx);
 
     if (symbol instanceof MethodSymbol method) {
       final var debugInfo = new DebugInfoCreator(new IRContext(parsedModule, compilerFlags)).apply(method);
@@ -54,22 +60,19 @@ abstract class AbstractDfnGenerator {
   protected Operation newSyntheticInitOperation(final IRContext context,
                                                 final AggregateSymbol aggregateSymbol,
                                                 final String methodName) {
+
     final var method = newSyntheticInitMethodSymbol(aggregateSymbol, methodName);
     final var debugInfo = new DebugInfoCreator(context).apply(method);
     return new Operation(method, debugInfo);
 
   }
 
-  /**
-   * Create a synthetic method symbol for initialization methods (c_init, i_init).
-   * These are basic very early methods, that can be triggered during construction of the construct.
-   */
   private MethodSymbol newSyntheticInitMethodSymbol(final AggregateSymbol aggregateSymbol,
                                                     final String methodName) {
     final var methodSymbol = new MethodSymbol(methodName, aggregateSymbol);
     final ISymbol returnType = parsedModule.getEk9Types().ek9Void();
     methodSymbol.setType(returnType);
-    methodSymbol.setReturningSymbol(new VariableSymbol("_rtn", returnType));
+    methodSymbol.setReturningSymbol(new VariableSymbol(IRConstants.RETURN_VARIABLE, returnType));
     methodSymbol.setMarkedPure(true); // Initialization methods are pure
 
     return methodSymbol;

@@ -6,8 +6,6 @@ import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.IRModule;
 import org.ek9lang.compiler.ParsedModule;
-import org.ek9lang.compiler.symbols.IMayReturnSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 import org.ek9lang.core.SharedThreadContext;
@@ -51,9 +49,9 @@ final class IRDfnGenerator {
 
 
   IRDfnGenerator(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
-                        final CompilableSource source,
-                        final IRModule irModule,
-                        final CompilerFlags compilerFlags) {
+                 final CompilableSource source,
+                 final IRModule irModule,
+                 final CompilerFlags compilerFlags) {
 
     AssertValue.checkNotNull("compilableProgramAccess cannot be null", compilableProgramAccess);
     AssertValue.checkNotNull("source cannot be null", source);
@@ -199,8 +197,6 @@ final class IRDfnGenerator {
 
   private void processConstantDeclaration(final EK9Parser.ConstantDeclarationContext ctx) {
     // Constants may have initialization expressions - need IRGenerationContext
-    final var context = new IRContext(parsedModule, compilerFlags);
-    //TODO - Process constant initialization with context
   }
 
   private void processTextDeclaration(final EK9Parser.TextDeclarationContext ctx) {
@@ -208,28 +204,6 @@ final class IRDfnGenerator {
     for (final var textBodyCtx : ctx.textBodyDeclaration()) {
       final var context = new IRContext(parsedModule, compilerFlags);
       processTextBodyDeclaration(textBodyCtx, context);
-    }
-  }
-
-  // Note: Individual method and operator processing is now handled within the creators
-  // These methods are kept for potential future use but are no longer called directly
-  public void processMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
-    // Methods are now processed within their parent aggregate creators
-    // This method is kept for potential standalone method processing
-    final var context = new IRContext(parsedModule, compilerFlags);
-
-    if (ctx.operationDetails() != null) {
-      processOperationDetails(context, ctx.operationDetails());
-    }
-  }
-
-  public void processOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
-    // Operators are now processed within their parent aggregate creators
-    // This method is kept for potential standalone operator processing
-    final var context = new IRContext(parsedModule, compilerFlags);
-
-    if (ctx.operationDetails() != null) {
-      processOperationDetails(context, ctx.operationDetails());
     }
   }
 
@@ -252,92 +226,10 @@ final class IRDfnGenerator {
     //TODO - Process embedded expressions in stringLit when string interpolation is implemented
   }
 
-  public void processServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
-    final var context = new IRContext(parsedModule, compilerFlags);
-
-    if (ctx.operationDetails() != null) {
-      processOperationDetails(context, ctx.operationDetails());
-    }
-  }
-
-  public void processOperationDetails(final IRContext context, final EK9Parser.OperationDetailsContext ctx) {
-    //now we can process the following, but note the order.
-    //We have to ensure all the incoming arguments/parameters are declared to be referenced.
-    //BUT we also need to have to ensure that the returning argument are declared - UNLESS the type is Void.
-
-    ISymbol processingMechanism = parsedModule.getRecordedSymbol(ctx.parent);
-    if (processingMechanism instanceof IMayReturnSymbol mayReturnSymbol && mayReturnSymbol.isReturningSymbolPresent()) {
-      mayReturnSymbol.getReturningSymbol().getType().ifPresent(returnType -> {
-        if (!parsedModule.getEk9Types().ek9Void().isExactSameType(returnType)) {
-          if (ctx.returningParam().variableDeclaration() != null) {
-            processVariableDeclarationWithContext(ctx.returningParam().variableDeclaration(), context,
-                "rtn_init");
-          } else if (ctx.returningParam().variableOnlyDeclaration() != null) {
-            // Property declaration needs to allocate storage for later reference
-            processVariableOnlyDeclarationWithContext(ctx.returningParam().variableOnlyDeclaration(), context,
-                "rtn_decl");
-          }
-        }
-      });
-    }
-    //use this ; to check if the return type is void
-    //Then we can focus on the instruction block body and do all of that processing.
-
-    //ctx.argumentParam();
-    //ctx.returningParam();
-    //ctx.instructionBlock();
-  }
-
-  public void processAggregateParts(final EK9Parser.AggregatePartsContext ctx) {
-    // Process aggregate properties (fields/members) that may have initialization expressions
-    // Property with initialization expression needs IRGenerationContext
-    final var context = new IRContext(parsedModule, compilerFlags);
-    for (final var propertyCtx : ctx.aggregateProperty()) {
-      processAggregateProperty(context, propertyCtx);
-    }
-
-    // Process methods - each gets its own IRGenerationContext
-    for (final var methodCtx : ctx.methodDeclaration()) {
-      processMethodDeclaration(methodCtx);
-    }
-
-    // Process operators - each gets its own IRGenerationContext  
-    for (final var operatorCtx : ctx.operatorDeclaration()) {
-      processOperatorDeclaration(operatorCtx);
-    }
-  }
-
-  private void processAggregateProperty(final IRContext context,
-                                        final EK9Parser.AggregatePropertyContext ctx) {
-    if (ctx.variableDeclaration() != null) {
-      processVariableDeclarationWithContext(ctx.variableDeclaration(), context, "property_init");
-    } else if (ctx.variableOnlyDeclaration() != null) {
-      // Property declaration needs to allocate storage for later reference
-      processVariableOnlyDeclarationWithContext(ctx.variableOnlyDeclaration(), context, "property_decl");
-    }
-  }
-
-  private void processVariableDeclarationWithContext(final EK9Parser.VariableDeclarationContext ctx,
-                                                     final IRContext context,
-                                                     final String scopePrefix) {
-    // Use existing VariableDeclarationInstructionCreator to generate IR
-    final var variableDeclarationCreator = new VariableDeclInstrGenerator(context);
-    final var scopeId = context.generateScopeId(scopePrefix);
-
-    // Generate IR instructions for variable initialization (e.g., var <- calculateValue())
-    final var instructions = variableDeclarationCreator.apply(ctx, scopeId);
-
-    //TODO - Add these instructions to the appropriate BasicBlock
-  }
 
   private void processVariableOnlyDeclarationWithContext(final EK9Parser.VariableOnlyDeclarationContext ctx,
                                                          final IRContext context,
                                                          final String scopePrefix) {
-    final var variableOnlyDeclarationCreator = new VariableOnlyDeclInstrGenerator(context);
-    final var scopeId = context.generateScopeId(scopePrefix);
-
-    final var instructions = variableOnlyDeclarationCreator.apply(ctx, scopeId);
-
     //TODO - Add these instructions to the appropriate BasicBlock
   }
 }

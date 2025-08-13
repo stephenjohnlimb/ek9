@@ -34,7 +34,7 @@ final class BasicBlockInstrGenerator implements Function<EK9Parser.InstructionBl
     AssertValue.checkNotNull("InstructionBlockContext cannot be null", ctx);
 
     final var blockLabel = context.generateBlockLabel("block");
-    final var scopeId = context.generateScopeId("scope");
+    final var scopeId = context.generateScopeId(IRConstants.GENERAL_SCOPE);
     final var block = new BasicBlockInstr(blockLabel);
 
     // Enter scope for memory management

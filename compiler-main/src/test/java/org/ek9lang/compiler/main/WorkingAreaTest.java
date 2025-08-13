@@ -57,6 +57,6 @@ class WorkingAreaTest extends PhasesTest {
     } catch(Exception _) {
       fail("Failed to produce output.");
     }
-
+    System.out.println(output);
   }
 }

@@ -23,11 +23,14 @@ abstract class AbstractVariableDeclGenerator extends AbstractGenerator {
 
   public List<IRInstr> getDeclInstrs(final ParseTree ctx,
                                      final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
 
+    AssertValue.checkNotNull("Ctx cannot be null", ctx);
+    AssertValue.checkNotNull("ScopeId cannot be null", scopeId);
     // Get the resolved variable symbol
     final var varSymbol = context.getParsedModule().getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Variable symbol cannot be null", varSymbol);
+
+    final var instructions = new ArrayList<IRInstr>();
 
     final var varName = varSymbol.getName();
     final var typeName = typeNameOrException.apply(varSymbol);
@@ -35,6 +38,8 @@ abstract class AbstractVariableDeclGenerator extends AbstractGenerator {
 
     instructions.add(MemoryInstr.reference(varName, typeName, debugInfo));
 
+    //It's not always appropriate the register the variable in a scope.
+    //This is because we may wish to hang on to the memory used.
     if (shouldRegisterVariableInScope.test(scopeId)) {
       instructions.add(ScopeInstr.register(varName, scopeId, debugInfo));
     }

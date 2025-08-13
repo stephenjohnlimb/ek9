@@ -46,11 +46,13 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
   private final ParsedModule parsedModule;
   private final CompilerFlags compilerFlags;
+  private final String voidStr;
 
   ClassDfnGenerator(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
     super(parsedModule, compilerFlags);
     this.parsedModule = parsedModule;
     this.compilerFlags = compilerFlags;
+    voidStr = parsedModule.getEk9Types().ek9Void().getFullyQualifiedName();
   }
 
   @Override
@@ -141,9 +143,9 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
         final var callDetails = new CallDetails(
             null, // No target object for static call
             superSymbol.getFullyQualifiedName(),
-            "c_init",
+            IRConstants.C_INIT_METHOD,
             java.util.List.of(), // No parameters
-            "org.ek9.lang::Void", // Return type
+            voidStr, // Return type
             java.util.List.of() // No arguments
         );
         allInstructions.add(CallInstr.call("_temp_c_init", null, callDetails));
@@ -156,7 +158,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
     allInstructions.add(BranchInstr.returnVoid());
 
     // Create BasicBlock with all instructions
-    final var basicBlock = new org.ek9lang.compiler.ir.BasicBlockInstr(context.generateBlockLabel("entry"));
+    final var basicBlock = new BasicBlockInstr(context.generateBlockLabel(IRConstants.ENTRY_LABEL));
     basicBlock.addInstructions(allInstructions);
     cInitOperation.setBody(basicBlock);
 
@@ -171,24 +173,17 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
                                            final AggregateSymbol aggregateSymbol,
                                            final EK9Parser.AggregatePartsContext ctx) {
     final var context = new IRContext(parsedModule, compilerFlags);
-    final var iInitOperation = newSyntheticInitOperation(context, aggregateSymbol, "i_init");
+    final var iInitOperation = newSyntheticInitOperation(context, aggregateSymbol, IRConstants.I_INIT_METHOD);
 
     // Generate i_init body
 
-    final var allInstructions = new java.util.ArrayList<IRInstr>();
-
-    // i_init methods do NOT call superclass i_init methods
-    // Each i_init only initializes its own class's fields
-    // The constructor inheritance chain handles calling superclass constructors
-
-    // Process properties for this class (REFERENCE declarations and immediate initialization)
-    allInstructions.addAll(processPropertiesForInstanceInit(ctx, context));
+    final var allInstructions = new java.util.ArrayList<>(processPropertiesForInstanceInit(ctx, context));
 
     // Return void
     allInstructions.add(BranchInstr.returnVoid());
 
     // Create BasicBlock with all instructions
-    final var basicBlock = new BasicBlockInstr(context.generateBlockLabel("entry"));
+    final var basicBlock = new BasicBlockInstr(context.generateBlockLabel(IRConstants.ENTRY_LABEL));
     basicBlock.addInstructions(allInstructions);
     iInitOperation.setBody(basicBlock);
 
@@ -213,7 +208,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
         final var propertySymbol = parsedModule.getRecordedSymbol(propertyCtx.variableDeclaration());
         if (propertySymbol instanceof VariableSymbol variableSymbol && variableSymbol.isPropertyField()) {
 
-          final var propertyName = "this." + variableSymbol.getName();
+          final var propertyName = variableNameForIR.apply(variableSymbol);
           final var typeName = typeNameOrException.apply(variableSymbol);
           final var debugInfo = debugInfoCreator.apply(variableSymbol);
 
@@ -239,7 +234,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
         final var propertySymbol = parsedModule.getRecordedSymbol(propertyCtx.variableOnlyDeclaration());
         if (propertySymbol instanceof VariableSymbol variableSymbol && variableSymbol.isPropertyField()) {
 
-          final var propertyName = "this." + variableSymbol.getName();
+          final var propertyName = variableNameForIR.apply(variableSymbol);
           final var typeName = typeNameOrException.apply(variableSymbol);
           final var debugInfo = debugInfoCreator.apply(variableSymbol);
 
@@ -376,9 +371,9 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
     final var iInitCallDetails = new CallDetails(
         "this", // Target this object
         aggregateSymbol.getFullyQualifiedName(),
-        "i_init",
+        IRConstants.I_INIT_METHOD,
         java.util.List.of(), // No parameters
-        "org.ek9.lang::Void", // Return type
+        voidStr, // Return type
         java.util.List.of() // No arguments
     );
     instructions.add(CallInstr.call("_temp_i_init", debugInfo, iInitCallDetails));
@@ -386,7 +381,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
     // 3. Return this
     instructions.add(BranchInstr.returnValue("this", debugInfo));
 
-    final var basicBlock = new BasicBlockInstr("entry");
+    final var basicBlock = new BasicBlockInstr(IRConstants.ENTRY_LABEL);
     basicBlock.addInstructions(instructions);
     operation.setBody(basicBlock);
 
@@ -409,7 +404,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
     instructions.add(BranchInstr.returnVoid()); // Placeholder
 
-    final var basicBlock = new BasicBlockInstr("entry");
+    final var basicBlock = new BasicBlockInstr(IRConstants.ENTRY_LABEL);
     basicBlock.addInstructions(instructions);
     operation.setBody(basicBlock);
 
@@ -431,7 +426,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
     instructions.add(BranchInstr.returnVoid()); // Placeholder
 
-    final var basicBlock = new BasicBlockInstr("entry");
+    final var basicBlock = new BasicBlockInstr(IRConstants.ENTRY_LABEL);
     basicBlock.addInstructions(instructions);
     operation.setBody(basicBlock);
 

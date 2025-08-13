@@ -17,14 +17,19 @@ final class AssertStmtGenerator implements BiFunction<EK9Parser.AssertStatementC
   private final DebugInfoCreator debugInfoCreator;
 
   AssertStmtGenerator(final IRContext context) {
-    AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
+
+    AssertValue.checkNotNull("IRContext cannot be null", context);
     this.context = context;
     this.expressionGenerator = new ExprInstrGenerator(context);
     this.debugInfoCreator = new DebugInfoCreator(context);
+
   }
 
   @Override
   public List<IRInstr> apply(final EK9Parser.AssertStatementContext ctx, final String scopeId) {
+
+    AssertValue.checkNotNull("Ctx cannot be null", ctx);
+    AssertValue.checkNotNull("ScopeId cannot be null", scopeId);
 
     // Evaluate the assert expression
     final var tempExprResult = context.generateTempName();
@@ -35,10 +40,9 @@ final class AssertStmtGenerator implements BiFunction<EK9Parser.AssertStatementC
     final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx.expression());
     final var debugInfo = debugInfoCreator.apply(exprSymbol);
 
-    // Create method call with type information (_true() method on Boolean)
     final var booleanTypeName = context.getParsedModule().getEk9Types().ek9Boolean().getFullyQualifiedName();
-    final var callDetails = new CallDetails(tempExprResult, booleanTypeName, "_true",
-        List.of(), "boolean", List.of());
+    final var callDetails = new CallDetails(tempExprResult, booleanTypeName, IRConstants.TRUE_METHOD,
+        List.of(), IRConstants.BOOLEAN, List.of());
 
     instructions.add(CallInstr.call(tempBoolResult, debugInfo, callDetails));
 
