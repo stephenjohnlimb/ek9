@@ -8,7 +8,7 @@ import java.util.List;
 class BadTryCatchFinallyTest extends BadFullResolutionTest {
 
   public BadTryCatchFinallyTest() {
-    super("/examples/parseButFailCompile/badTryCatchFinally",
+    super("/examples/parseButFailCompile/phase3/badTryCatchFinally",
         List.of("bad.trycatchfinally.example"));
   }
 

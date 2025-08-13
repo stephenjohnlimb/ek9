@@ -12,7 +12,7 @@ EK9 is a new programming language implementation with a comprehensive compiler w
 For detailed understanding of the EK9 compiler architecture and implementation:
 
 - **`EK9_Compiler_Architecture_and_Design.md`** - Complete 85-page technical specification covering:
-  - 22-phase compilation pipeline (detailed analysis of each phase)
+  - 20-phase compilation pipeline (detailed analysis of each phase)
   - Module structure and Maven dependencies
   - Symbol table and type system architecture
   - Bootstrap process and built-in type loading
@@ -23,7 +23,7 @@ For detailed understanding of the EK9 compiler architecture and implementation:
 
 - **`architecture_diagrams.md`** - Visual architecture diagrams including:
   - Module dependency graphs
-  - 22-phase compilation pipeline flow
+  - 20-phase compilation pipeline flow
   - Symbol system class hierarchies
   - LSP integration architecture
   - Bootstrap process flow
@@ -121,7 +121,7 @@ For specific EK9 development tasks, refer to these comprehensive guides:
 
 ### Compiler Implementation Guides
 - **`EK9_COMPILER_PHASES.md`** - Detailed compiler phase implementation and pipeline
-  - 22-phase compilation pipeline specifics
+  - 20-phase compilation pipeline specifics
   - Symbol table management across phases
   - Phase interdependencies and error handling
   - **Use this guide when:** Working on compiler phase implementation and pipeline optimization
@@ -188,7 +188,7 @@ After building, the EK9 compiler provides these commands:
 ### compiler-main
 The core compiler implementation containing:
 - **CLI commands** (`org.ek9lang.cli`) - All command-line tools and entry points
-- **Compiler core** (`org.ek9lang.compiler`) - Multi-pass compiler engine with 12 phases
+- **Compiler core** (`org.ek9lang.compiler`) - Multi-pass compiler engine with 20 phases
 - **LSP server** (`org.ek9lang.lsp`) - Language Server Protocol implementation
 
 ### compiler-tooling
@@ -202,25 +202,33 @@ Core EK9 language runtime and built-in types.
 
 ## Compiler Architecture
 
-The EK9 compiler follows a **12-phase compilation pipeline**:
+The EK9 compiler follows a **20-phase compilation pipeline**:
 
-### Frontend (Phases 0-3)
-1. **PARSING** - ANTLR4-based parsing
-2. **SYMBOL_DEFINITION** - Symbol table creation
-3. **DUPLICATION_CHECK** - Duplicate detection
-4. **REFERENCE_CHECKS** - Reference validation
+### Frontend (Phases 0-9)
+0. **PARSING** - ANTLR4-based parsing
+1. **SYMBOL_DEFINITION** - Symbol table creation
+2. **DUPLICATION_CHECK** - Duplicate detection
+3. **REFERENCE_CHECKS** - Reference validation
+4. **EXPLICIT_TYPE_SYMBOL_DEFINITION** - Type resolution
+5. **TYPE_HIERARCHY_CHECKS** - Inheritance validation
+6. **FULL_RESOLUTION** - Template and generic resolution
+7. **POST_RESOLUTION_CHECKS** - Symbol validation
+8. **PRE_IR_CHECKS** - Code flow analysis
+9. **PLUGIN_RESOLUTION** - Plugin resolution
 
-### Middle-end (Phases 4-8)
-5. **EXPLICIT_TYPE_SYMBOL_DEFINITION** - Type resolution
-6. **TYPE_HIERARCHY_CHECKS** - Inheritance validation
-7. **FULL_RESOLUTION** - Template and generic resolution
-8. **POST_RESOLUTION_CHECKS** - Symbol validation
-9. **PRE_IR_CHECKS** - Code flow analysis
-
-### Backend (Phases 9-11)
+### Middle-end (Phases 10-13)
 10. **IR_GENERATION** - Intermediate representation generation
-11. **CODE_GENERATION** - Target code generation
-12. **PACKAGING** - Application packaging
+11. **IR_ANALYSIS** - IR analysis and validation
+12. **IR_OPTIMISATION** - IR-level optimizations
+
+### Backend (Phases 14-19)
+14. **CODE_GENERATION_PREPARATION** - Code generation preparation
+15. **CODE_GENERATION_AGGREGATES** - Generate code for aggregates
+16. **CODE_GENERATION_CONSTANTS** - Generate code for constants
+17. **CODE_OPTIMISATION** - Target code optimizations
+18. **PLUGIN_LINKAGE** - Link external plugins
+19. **APPLICATION_PACKAGING** - Application packaging
+20. **PACKAGING_POST_PROCESSING** - Final packaging cleanup
 
 ### Key Classes
 - `Ek9Compiler` - Main compiler orchestrator

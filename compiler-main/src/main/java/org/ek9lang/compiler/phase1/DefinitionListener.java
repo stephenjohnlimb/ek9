@@ -58,7 +58,7 @@ import org.ek9lang.core.CompilerException;
  * So at the end of phase one - we will have the names of Classes/Types/Functions etc. recorded even though they
  * won't be fully defined.
  * This will also include the definition of generic/template types. But we cannot fully turn those into concrete
- * versions until all modules have been parsed by phase1. Only then will all types at least be recorded.
+ * versions until all modules have been parsed by phase3. Only then will all types at least be recorded.
  * Now that if symbols are already defined we might need to push a dummy item on so the rest of the parsing can
  * take place with push and pop of what's on the stack. Else we get out of sync.
  * So yes we need to record errors and not put the named item on, but we need to put something in there to deal
@@ -1269,7 +1269,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   public void exitConstantInitialiser(final EK9Parser.ConstantInitialiserContext ctx) {
 
     final var literalSymbol = getParsedModule().getRecordedSymbol(ctx.literal());
-    AssertValue.checkNotNull("Need to have literals resolved in phase1: " + ctx.getText(), literalSymbol);
+    AssertValue.checkNotNull("Need to have literals resolved in phase3: " + ctx.getText(), literalSymbol);
     getParsedModule().recordSymbol(ctx, literalSymbol); //pass same symbol back up by recording on ctx.
 
     super.exitConstantInitialiser(ctx);

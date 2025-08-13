@@ -8,7 +8,7 @@ import java.util.List;
 class BadRangeCollectionUsesTest extends BadFullResolutionTest {
 
   public BadRangeCollectionUsesTest() {
-    super("/examples/parseButFailCompile/badInExpressions",
+    super("/examples/parseButFailCompile/phase3/badInExpressions",
         List.of("bad.range.collections"), false, true);
   }
 

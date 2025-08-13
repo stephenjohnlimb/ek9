@@ -8,7 +8,7 @@ import java.util.List;
 class BadClassOperatorsInAssignmentTest extends BadSymbolDefinitionTest {
 
   public BadClassOperatorsInAssignmentTest() {
-    super("/examples/parseButFailCompile/badClassAssignments",
+    super("/examples/parseButFailCompile/phase1/badClassAssignments",
         List.of("bad.classassignment.use"));
   }
 }

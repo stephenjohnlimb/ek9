@@ -10,7 +10,7 @@ import java.util.List;
 class BadCallResolutionTest extends BadFullResolutionTest {
 
   public BadCallResolutionTest() {
-    super("/examples/parseButFailCompile/badCallResolution",
+    super("/examples/parseButFailCompile/phase3/badCallResolution",
         List.of("bad.simple.resolution", "bad.detailed.resolution"));
   }
 

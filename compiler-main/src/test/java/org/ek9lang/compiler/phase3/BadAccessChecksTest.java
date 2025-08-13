@@ -8,7 +8,7 @@ import java.util.List;
 class BadAccessChecksTest extends BadFullResolutionTest {
 
   public BadAccessChecksTest() {
-    super("/examples/parseButFailCompile/badAccessChecks",
+    super("/examples/parseButFailCompile/phase3/badAccessChecks",
         List.of("bad.callthisandsuper.classmethod.access1",
             "bad.classfield.access",
             "bad.classmethod.access1",

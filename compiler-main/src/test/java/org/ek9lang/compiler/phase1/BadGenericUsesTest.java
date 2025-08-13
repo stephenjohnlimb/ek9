@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class BadGenericUsesTest extends PhasesTest {
 
   public BadGenericUsesTest() {
-    super("/examples/parseButFailCompile/badGenericUses");
+    super("/examples/parseButFailCompile/phase1/badGenericUses");
   }
 
   @Test

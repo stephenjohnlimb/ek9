@@ -8,7 +8,7 @@ import java.util.List;
 class BadGenericParametersTest extends BadSymbolDefinitionTest {
 
   public BadGenericParametersTest() {
-    super("/examples/parseButFailCompile/badGenericDefinitions",
+    super("/examples/parseButFailCompile/phase1/badGenericDefinitions",
         List.of("incorrect.parameters.on.constructors", "bad.result.parameterization"));
   }
 }

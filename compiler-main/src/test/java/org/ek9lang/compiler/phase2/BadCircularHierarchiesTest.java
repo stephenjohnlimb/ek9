@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class BadCircularHierarchiesTest extends PhasesTest {
 
   public BadCircularHierarchiesTest() {
-    super("/examples/parseButFailCompile/circularHierarchies",
+    super("/examples/parseButFailCompile/phase2/circularHierarchies",
         List.of("bad.classes.hierarchies", "multiple.trait.use", "more.complex.trait.use"));
   }
 

@@ -8,7 +8,7 @@ import java.util.List;
 class BadCallsTest extends BadFullResolutionTest {
 
   public BadCallsTest() {
-    super("/examples/parseButFailCompile/badCalls",
+    super("/examples/parseButFailCompile/phase3/badCalls",
         List.of("bad.functioncall.examples1",
             "bad.enumeratedtypecall.examples1",
             "bad.constrainedtypecall.examples1",

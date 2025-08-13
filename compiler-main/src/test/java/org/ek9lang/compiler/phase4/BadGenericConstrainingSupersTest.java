@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class BadGenericConstrainingSupersTest extends PhasesTest {
 
   public BadGenericConstrainingSupersTest() {
-    super("/examples/parseButFailCompile/badGenericSupersUse",
+    super("/examples/parseButFailCompile/phase4/badGenericSupersUse",
         List.of("bad.constraining.supers",
             "bad.generic.constraining.resolution1",
             "bad.generic.constraining.resolution2",

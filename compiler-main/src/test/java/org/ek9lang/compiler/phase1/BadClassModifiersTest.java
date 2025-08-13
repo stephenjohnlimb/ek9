@@ -8,7 +8,7 @@ import java.util.List;
 class BadClassModifiersTest extends BadSymbolDefinitionTest {
 
   public BadClassModifiersTest() {
-    super("/examples/parseButFailCompile/badClassMethods",
+    super("/examples/parseButFailCompile/phase1/badClassMethods",
         List.of("bad.classmodifier.use"));
   }
 }

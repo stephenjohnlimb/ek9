@@ -10,7 +10,7 @@ import java.util.List;
 class BadInferredTypesTest extends BadExplicitTypeDefinitionTest {
 
   public BadInferredTypesTest() {
-    super("/examples/parseButFailCompile/badInferredTypes",
+    super("/examples/parseButFailCompile/phase2/badInferredTypes",
         List.of("bad.inferred.properties", "bad.inferred.returns"));
   }
 }

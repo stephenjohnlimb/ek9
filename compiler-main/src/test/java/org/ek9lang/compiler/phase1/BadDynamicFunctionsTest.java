@@ -8,7 +8,7 @@ import java.util.List;
 class BadDynamicFunctionsTest extends BadSymbolDefinitionTest {
 
   public BadDynamicFunctionsTest() {
-    super("/examples/parseButFailCompile/badDynamicFunctions",
+    super("/examples/parseButFailCompile/phase1/badDynamicFunctions",
         List.of("bad.function.use"));
   }
 }

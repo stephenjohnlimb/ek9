@@ -9,7 +9,7 @@ class BadUseOfTypeTest extends BadFullResolutionTest {
 
 
   public BadUseOfTypeTest() {
-    super("/examples/parseButFailCompile/badTypeUse",
+    super("/examples/parseButFailCompile/phase3/badTypeUse",
         List.of("bad.type.use"));
   }
 

@@ -19,7 +19,7 @@ class IllegalPackageNameTest extends PhasesTest {
 
 
   public IllegalPackageNameTest() {
-    super("/examples/parseButFailCompile/illegalPackageNames");
+    super("/examples/parseButFailCompile/phase1/illegalPackageNames");
   }
 
   @Test

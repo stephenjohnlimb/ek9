@@ -8,7 +8,7 @@ import java.util.List;
 class BadThisAndSuperTest extends BadExplicitTypeDefinitionTest {
 
   public BadThisAndSuperTest() {
-    super("/examples/parseButFailCompile/badThisAndSuper",
+    super("/examples/parseButFailCompile/phase2/badThisAndSuper",
         List.of("bad.functions.thisandsuper", "bad.classes.thisandsuper", "bad.components.thisandsuper"),
         false, true);
   }

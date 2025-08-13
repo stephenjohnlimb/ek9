@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.phase5;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.CompilableProgram;
@@ -8,12 +7,10 @@ import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.CompilerPhase;
-import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceHasErrors;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
-import org.ek9lang.core.CompilerException;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
@@ -45,22 +42,12 @@ public class PreIntermediateRepresentationChecks extends CompilerPhase {
 
   private void structureValidOrError(final CompilableSource source) {
 
-    //First get the parsed module for this source file.
-    //This has to be done via a mutable holder through a reentrant lock to the program
-    final var holder = new AtomicReference<ParsedModule>();
-    compilableProgramAccess.accept(
-        program -> holder.set(program.getParsedModuleForCompilableSource(source))
-    );
+    final var parsedModule = getParsedModuleForSource(source);
+    final var phaseListener = new PreIRListener(parsedModule);
+    final var walker = new ParseTreeWalker();
 
-    if (holder.get() == null) {
-      throw new CompilerException("Compiler error, the parsed module must be present for " + source.getFileName());
-    } else {
-      final var parsedModule = holder.get();
-      final var phaseListener = new PreIRListener(parsedModule);
-      final var walker = new ParseTreeWalker();
-
-      walker.walk(phaseListener, source.getCompilationUnitContext());
-      listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
-    }
+    walker.walk(phaseListener, source.getCompilationUnitContext());
+    listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
   }
+
 }

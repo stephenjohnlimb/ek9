@@ -8,7 +8,7 @@ import java.util.List;
 class BadOperatorUseTest extends BadExplicitTypeDefinitionTest {
 
   public BadOperatorUseTest() {
-    super("/examples/parseButFailCompile/badOperatorUse",
+    super("/examples/parseButFailCompile/phase2/badOperatorUse",
         List.of("good.classes.operators.examples",
             "bad.classes.operators.examples1",
             "bad.classes.operators.examples2",

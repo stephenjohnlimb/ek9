@@ -8,7 +8,7 @@ import java.util.List;
 class BadDuplicateConstructsTest extends BadSymbolDefinitionTest {
 
   public BadDuplicateConstructsTest() {
-    super("/examples/parseButFailCompile/badDuplicateConstructs",
+    super("/examples/parseButFailCompile/phase1/badDuplicateConstructs",
         List.of("bad.duplicate.constructs"));
   }
 }

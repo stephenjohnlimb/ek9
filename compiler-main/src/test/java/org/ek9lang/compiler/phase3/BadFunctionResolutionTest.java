@@ -8,7 +8,7 @@ import java.util.List;
 class BadFunctionResolutionTest extends BadFullResolutionTest {
 
   public BadFunctionResolutionTest() {
-    super("/examples/parseButFailCompile/badFunctionResolution",
+    super("/examples/parseButFailCompile/phase3/badFunctionResolution",
         List.of("bad.functions.resolution", "auto.function.checks"));
   }
 

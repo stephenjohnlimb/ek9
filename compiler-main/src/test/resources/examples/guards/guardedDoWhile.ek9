@@ -117,7 +117,6 @@ defines module some.ok.dowhileguards
     <!-
       Now the other scenarios that depend on 'Any' '?' operator.
     -!>
-
     demonstrateValidDoWhileGuardedAssignmentUseViaAny()
       -> conditional as Boolean
 

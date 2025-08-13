@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.phase2;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ek9lang.compiler.CompilableProgram;
@@ -8,7 +7,6 @@ import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.CompilerPhase;
-import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.common.CompilableSourceHasErrors;
 import org.ek9lang.compiler.common.CompilationEvent;
@@ -102,15 +100,5 @@ public final class NonInferredTypeDefinition extends CompilerPhase {
       listener.accept(new CompilationEvent(thisPhase, parsedModule, source));
     }
 
-  }
-
-  private ParsedModule getParsedModuleForSource(final CompilableSource source) {
-
-    //Thread safe access to the parsedModule.
-    final var holder = new AtomicReference<ParsedModule>();
-    compilableProgramAccess.accept(
-        program -> holder.set(program.getParsedModuleForCompilableSource(source)));
-
-    return holder.get();
   }
 }

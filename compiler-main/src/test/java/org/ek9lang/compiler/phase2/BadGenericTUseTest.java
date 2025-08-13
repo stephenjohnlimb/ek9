@@ -8,7 +8,7 @@ import java.util.List;
 class BadGenericTUseTest extends BadExplicitTypeDefinitionTest {
 
   public BadGenericTUseTest() {
-    super("/examples/parseButFailCompile/badGenericTUse",
+    super("/examples/parseButFailCompile/phase2/badGenericTUse",
         List.of("bad.use.conceptual.parameters", "bad.generic.constraining.types"));
   }
 }

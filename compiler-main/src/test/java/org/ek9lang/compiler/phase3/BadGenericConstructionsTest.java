@@ -8,7 +8,7 @@ import java.util.List;
 class BadGenericConstructionsTest extends BadFullResolutionTest {
 
   public BadGenericConstructionsTest() {
-    super("/examples/parseButFailCompile/inferredConstructionOfGenerics",
+    super("/examples/parseButFailCompile/phase3/inferredConstructionOfGenerics",
         List.of("bad.generic.constructions"));
   }
 

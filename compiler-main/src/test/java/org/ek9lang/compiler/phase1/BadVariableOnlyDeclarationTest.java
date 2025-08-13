@@ -9,7 +9,7 @@ class BadVariableOnlyDeclarationTest extends BadSymbolDefinitionTest {
 
 
   public BadVariableOnlyDeclarationTest() {
-    super("/examples/parseButFailCompile/badVariableOnlyDeclarations",
+    super("/examples/parseButFailCompile/phase1/badVariableOnlyDeclarations",
         List.of("bad.variableonly.use"));
   }
 }

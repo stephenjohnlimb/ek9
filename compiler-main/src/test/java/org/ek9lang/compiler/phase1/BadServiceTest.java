@@ -8,7 +8,7 @@ import java.util.List;
 class BadServiceTest extends BadSymbolDefinitionTest {
 
   public BadServiceTest() {
-    super("/examples/parseButFailCompile/badServiceDefinition",
+    super("/examples/parseButFailCompile/phase1/badServiceDefinition",
         List.of("bad.services.use"));
   }
 }

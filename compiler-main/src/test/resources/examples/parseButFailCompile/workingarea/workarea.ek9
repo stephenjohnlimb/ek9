@@ -3,7 +3,7 @@ defines module introduction
 
   defines class
 
-    @IR: SIMPLE_IR_GENERATION: TYPE: "introduction::Example": `
+    @IR: IR_GENERATION: TYPE: "introduction::Example": `
     ConstructDfn: introduction::Example
     Field: aField, org.ek9.lang::String  // ./workarea.ek9:67:7
     Field: bField, org.ek9.lang::String  // ./workarea.ek9:68:7

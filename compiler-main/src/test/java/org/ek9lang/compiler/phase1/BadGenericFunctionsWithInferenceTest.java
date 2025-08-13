@@ -8,7 +8,7 @@ import java.util.List;
 class BadGenericFunctionsWithInferenceTest extends BadSymbolDefinitionTest {
 
   public BadGenericFunctionsWithInferenceTest() {
-    super("/examples/parseButFailCompile/badGenericFunctions",
+    super("/examples/parseButFailCompile/phase1/badGenericFunctions",
         List.of("bad.functions.inference.example"));
   }
 }

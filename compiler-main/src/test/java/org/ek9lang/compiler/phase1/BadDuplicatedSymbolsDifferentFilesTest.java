@@ -10,7 +10,7 @@ import java.util.List;
 class BadDuplicatedSymbolsDifferentFilesTest extends BadSymbolDefinitionTest {
 
   public BadDuplicatedSymbolsDifferentFilesTest() {
-    super("/examples/parseButFailCompile/duplicatedInDifferentFiles",
+    super("/examples/parseButFailCompile/phase1/duplicatedInDifferentFiles",
         List.of("duplications"));
   }
 }

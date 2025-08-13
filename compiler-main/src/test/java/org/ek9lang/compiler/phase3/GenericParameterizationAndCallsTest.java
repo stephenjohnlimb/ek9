@@ -9,7 +9,7 @@ import java.util.List;
 class GenericParameterizationAndCallsTest extends BadFullResolutionTest {
 
   public GenericParameterizationAndCallsTest() {
-    super("/examples/parseButFailCompile/genericParameterizationAndCalls",
+    super("/examples/parseButFailCompile/phase3/genericParameterizationAndCalls",
         List.of("generic.parameterization"), false, true);
   }
 

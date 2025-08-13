@@ -8,7 +8,7 @@ import java.util.List;
 class BadGuardsTest extends BadSymbolDefinitionTest {
 
   public BadGuardsTest() {
-    super("/examples/parseButFailCompile/badGuardsWithExpressions",
+    super("/examples/parseButFailCompile/phase1/badGuardsWithExpressions",
         List.of("bad.guards"));
   }
 }

@@ -8,7 +8,7 @@ import java.util.List;
 class BadListsTest extends BadFullResolutionTest {
 
   public BadListsTest() {
-    super("/examples/parseButFailCompile/badLists",
+    super("/examples/parseButFailCompile/phase3/badLists",
         List.of("bad.lists.only"));
   }
 

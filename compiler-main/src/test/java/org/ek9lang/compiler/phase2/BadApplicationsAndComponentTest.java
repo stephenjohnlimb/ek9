@@ -9,7 +9,7 @@ class BadApplicationsAndComponentTest extends BadExplicitTypeDefinitionTest {
 
 
   public BadApplicationsAndComponentTest() {
-    super("/examples/parseButFailCompile/badApplicationsAndComponents",
+    super("/examples/parseButFailCompile/phase2/badApplicationsAndComponents",
         List.of("bad.components.use"));
   }
 }

@@ -6,8 +6,8 @@ package org.ek9lang.compiler.directives;
  * Note use the 'back ticks' for the string as the IR is very likely to have double quotes used within it.
  * </p>
  * <pre>
- *  {@code @IR}: SIMPLE_IR_GENERATION: TYPE: "Example": `ConstructDfn: introduction::Example ...`
- *  {@code @IR}: SIMPLE_IR_GENERATION: FUNCTION: "TestFunction": `ConstructDfn: introduction::TestFunction ...`
+ *  {@code @IR}: IR_GENERATION: TYPE: "Example": `ConstructDfn: introduction::Example ...`
+ *  {@code @IR}: IR_GENERATION: FUNCTION: "TestFunction": `ConstructDfn: introduction::TestFunction ...`
  * </pre>
  */
 public class IRDirective extends ResolutionDirective {

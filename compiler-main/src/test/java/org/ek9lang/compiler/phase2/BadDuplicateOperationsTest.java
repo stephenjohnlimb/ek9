@@ -8,7 +8,7 @@ import java.util.List;
 class BadDuplicateOperationsTest extends BadExplicitTypeDefinitionTest {
 
   public BadDuplicateOperationsTest() {
-    super("/examples/parseButFailCompile/badDuplicateOperations",
+    super("/examples/parseButFailCompile/phase2/badDuplicateOperations",
         List.of("bad.duplicate.classmethods",
             "bad.duplicate.traitmethods",
             "bad.duplicate.recordmethods",

@@ -8,7 +8,7 @@ import java.util.List;
 class BadOpenAbstractTraitsTest extends BadSymbolDefinitionTest {
 
   public BadOpenAbstractTraitsTest() {
-    super("/examples/parseButFailCompile/badOpenAbstractTraits",
+    super("/examples/parseButFailCompile/phase1/badOpenAbstractTraits",
         List.of("marked.open.but.stillabstract"));
   }
 }

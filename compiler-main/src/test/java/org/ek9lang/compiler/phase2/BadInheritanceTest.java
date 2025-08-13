@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 class BadInheritanceTest extends PhasesTest {
 
   public BadInheritanceTest() {
-    super("/examples/parseButFailCompile/badInheritance");
+    super("/examples/parseButFailCompile/phase2/badInheritance");
   }
 
   @Test

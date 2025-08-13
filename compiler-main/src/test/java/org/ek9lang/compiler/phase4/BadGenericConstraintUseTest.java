@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class BadGenericConstraintUseTest extends PhasesTest {
 
   public BadGenericConstraintUseTest() {
-    super("/examples/parseButFailCompile/badGenericConstraintUse",
+    super("/examples/parseButFailCompile/phase4/badGenericConstraintUse",
         List.of("net.customer.constrained"));
   }
 

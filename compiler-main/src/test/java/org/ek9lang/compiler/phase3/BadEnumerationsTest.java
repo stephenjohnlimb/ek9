@@ -6,7 +6,7 @@ package org.ek9lang.compiler.phase3;
 class BadEnumerationsTest extends BadFullResolutionTest {
 
   public BadEnumerationsTest() {
-    super("/examples/parseButFailCompile/badEnumerationOperatorUse");
+    super("/examples/parseButFailCompile/phase3/badEnumerationOperatorUse");
   }
 
 }

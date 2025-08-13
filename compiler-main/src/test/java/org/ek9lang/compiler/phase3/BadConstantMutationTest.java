@@ -8,7 +8,7 @@ import java.util.List;
 class BadConstantMutationTest extends BadFullResolutionTest {
 
   public BadConstantMutationTest() {
-    super("/examples/parseButFailCompile/badConstantUse",
+    super("/examples/parseButFailCompile/phase3/badConstantUse",
         List.of("bad.mutations"));
   }
 

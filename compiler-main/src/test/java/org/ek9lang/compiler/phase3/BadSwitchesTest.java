@@ -9,7 +9,7 @@ class BadSwitchesTest extends BadFullResolutionTest {
 
 
   public BadSwitchesTest() {
-    super("/examples/parseButFailCompile/badSwitches",
+    super("/examples/parseButFailCompile/phase3/badSwitches",
         List.of("bad.switches.enums", "bad.switches.use"));
   }
 

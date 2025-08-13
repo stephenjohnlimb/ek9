@@ -8,7 +8,7 @@ import java.util.List;
 class BadDispatcherTest extends BadFullResolutionTest {
 
   public BadDispatcherTest() {
-    super("/examples/parseButFailCompile/badDispatchers",
+    super("/examples/parseButFailCompile/phase3/badDispatchers",
         List.of("bad.dispatchermethods"));
   }
 

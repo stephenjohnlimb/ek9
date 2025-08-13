@@ -8,7 +8,7 @@ import java.util.List;
 class BadForLoopsTest extends BadFullResolutionTest {
 
   public BadForLoopsTest() {
-    super("/examples/parseButFailCompile/badForLoops",
+    super("/examples/parseButFailCompile/phase3/badForLoops",
         List.of("bad.forloops.check", "bad.forrangeloops.check"));
   }
 

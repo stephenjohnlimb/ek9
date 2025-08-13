@@ -8,7 +8,7 @@ import java.util.List;
 class BadOperatorsOnConstrainedTypesTest extends BadFullResolutionTest {
 
   public BadOperatorsOnConstrainedTypesTest() {
-    super("/examples/parseButFailCompile/badConstrainedOperators",
+    super("/examples/parseButFailCompile/phase3/badConstrainedOperators",
         List.of("bad.constrainedtypeoperators.examples1"));
   }
 

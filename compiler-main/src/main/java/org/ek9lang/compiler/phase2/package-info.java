@@ -1,5 +1,5 @@
 /**
- * <b>F - Resolution of Explicitly Defined Type Symbols</b> - at this point phase1 processing should have defined
+ * <b>F - Resolution of Explicitly Defined Type Symbols</b> - at this point phase3 processing should have defined
  * most of the explicitly defined symbols, so they should be resolvable.
  * <p>
  * While there is focus on explicitly defined type usage, there is some simple inferred typing that is done
@@ -11,7 +11,7 @@
  * Again the {@link org.ek9lang.compiler.common.SymbolsAndScopes} class is used to manage the scopes.
  * </p>
  * <p>
- * The Symbols and scopes that were defined in phase1 are now looked up up using the
+ * The Symbols and scopes that were defined in phase3 are now looked up up using the
  * {@link org.ek9lang.compiler.common.SymbolsAndScopes} and in some cases augmented or in other cases checked.
  * </p>
  * <p>

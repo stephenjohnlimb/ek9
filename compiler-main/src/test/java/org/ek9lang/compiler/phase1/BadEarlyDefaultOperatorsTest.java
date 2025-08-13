@@ -8,7 +8,7 @@ import java.util.List;
 class BadEarlyDefaultOperatorsTest extends BadSymbolDefinitionTest {
 
   public BadEarlyDefaultOperatorsTest() {
-    super("/examples/parseButFailCompile/badDefaultUse",
+    super("/examples/parseButFailCompile/phase1/badDefaultUse",
         List.of("earlybad.defaultoperators.examples"));
   }
 }

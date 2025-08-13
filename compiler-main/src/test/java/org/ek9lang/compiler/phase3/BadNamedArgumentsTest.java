@@ -8,7 +8,7 @@ import java.util.List;
 class BadNamedArgumentsTest extends BadFullResolutionTest {
 
   public BadNamedArgumentsTest() {
-    super("/examples/parseButFailCompile/badNamedArguments",
+    super("/examples/parseButFailCompile/phase3/badNamedArguments",
         List.of("bad.named.arguments.examples"));
   }
 

@@ -8,7 +8,7 @@ import java.util.List;
 class BadVariableDuplicationDeclarationTest extends BadSymbolDefinitionTest {
 
   public BadVariableDuplicationDeclarationTest() {
-    super("/examples/parseButFailCompile/existingVariables",
+    super("/examples/parseButFailCompile/phase1/existingVariables",
         List.of("bad.variable.duplications"));
   }
 }

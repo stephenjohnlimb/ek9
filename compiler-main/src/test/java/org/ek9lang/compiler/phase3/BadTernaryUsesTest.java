@@ -8,7 +8,7 @@ import java.util.List;
 class BadTernaryUsesTest extends BadFullResolutionTest {
 
   public BadTernaryUsesTest() {
-    super("/examples/parseButFailCompile/basicTernary",
+    super("/examples/parseButFailCompile/phase3/basicTernary",
         List.of("just.ternary"));
   }
 

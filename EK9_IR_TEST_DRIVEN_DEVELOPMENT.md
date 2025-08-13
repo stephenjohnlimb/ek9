@@ -17,14 +17,14 @@ The `@IR` directive embeds expected IR output directly into EK9 source files usi
 ```
 
 **Components:**
-- `<TEST_TYPE>` - Descriptive test category (e.g., `SIMPLE_IR_GENERATION`, `FOR_LOOP_GENERATION`)
+- `<TEST_TYPE>` - Descriptive test category (e.g., `IR_GENERATION`, `FOR_LOOP_GENERATION`)
 - `<fully_qualified_name>` - Target construct's fully qualified name
 - Backtick-delimited multi-line expected IR output
 
 ### Example: Basic Class IR Testing
 
 ```ek9
-@IR: SIMPLE_IR_GENERATION: TYPE: "introduction::Example" : `
+@IR: IR_GENERATION: TYPE: "introduction::Example" : `
 ConstructDfn: introduction::Example
 Field: aField, org.ek9.lang::String  // ./workarea.ek9:67:7
 Field: bField, org.ek9.lang::String  // ./workarea.ek9:68:7

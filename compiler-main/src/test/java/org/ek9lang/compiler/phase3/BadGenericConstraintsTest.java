@@ -8,7 +8,7 @@ import java.util.List;
 class BadGenericConstraintsTest extends BadFullResolutionTest {
 
   public BadGenericConstraintsTest() {
-    super("/examples/parseButFailCompile/badGenericConstraints",
+    super("/examples/parseButFailCompile/phase3/badGenericConstraints",
         List.of("bad.generic.class.constraints",
             "bad.generic.class.function.constraints",
             "functiondelegate.inrecord.withgeneric"));

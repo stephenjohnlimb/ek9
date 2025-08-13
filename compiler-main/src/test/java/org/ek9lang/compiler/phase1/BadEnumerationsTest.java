@@ -8,7 +8,7 @@ import java.util.List;
 class BadEnumerationsTest extends BadSymbolDefinitionTest {
 
   public BadEnumerationsTest() {
-    super("/examples/parseButFailCompile/badEnumerations",
+    super("/examples/parseButFailCompile/phase1/badEnumerations",
         List.of("bad.enumerations.check"));
   }
 }

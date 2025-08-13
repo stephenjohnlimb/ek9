@@ -9,7 +9,7 @@ class BadProgramsTest extends BadSymbolDefinitionTest {
 
 
   public BadProgramsTest() {
-    super("/examples/parseButFailCompile/badPrograms",
+    super("/examples/parseButFailCompile/phase1/badPrograms",
         List.of("bad.program.return", "bad.argument.parameters", "bad.application.body"));
   }
 }

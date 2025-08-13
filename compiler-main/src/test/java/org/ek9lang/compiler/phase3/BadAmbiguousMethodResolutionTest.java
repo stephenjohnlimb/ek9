@@ -8,7 +8,7 @@ import java.util.List;
 class BadAmbiguousMethodResolutionTest extends BadFullResolutionTest {
 
   public BadAmbiguousMethodResolutionTest() {
-    super("/examples/parseButFailCompile/ambiguousMethods",
+    super("/examples/parseButFailCompile/phase3/ambiguousMethods",
         List.of("ambiguous.methods.one", "ambiguous.methods.two"), false, true);
   }
 

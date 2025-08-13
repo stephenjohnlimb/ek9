@@ -8,7 +8,7 @@ import java.util.List;
 class BadAssignmentsTest extends BadFullResolutionTest {
 
   public BadAssignmentsTest() {
-    super("/examples/parseButFailCompile/badAssignments",
+    super("/examples/parseButFailCompile/phase3/badAssignments",
         List.of("bad.assignment.use", "bad.assignments.classes",
             "bad.coalescing.assignments", "bad.guardassignment.use"), false, true);
   }

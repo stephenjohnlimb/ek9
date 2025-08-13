@@ -8,7 +8,7 @@ import java.util.List;
 class BadTraitUseTest extends BadFullResolutionTest {
 
   public BadTraitUseTest() {
-    super("/examples/parseButFailCompile/badTraitUse",
+    super("/examples/parseButFailCompile/phase3/badTraitUse",
         List.of("missing.trait.implementations1",
             "mix.traits.implementation",
             "clashing.implementations",

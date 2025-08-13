@@ -8,7 +8,7 @@ import java.util.List;
 class BadContainedTypeTest extends BadExplicitTypeDefinitionTest {
 
   public BadContainedTypeTest() {
-    super("/examples/parseButFailCompile/badConstrainedTypes",
+    super("/examples/parseButFailCompile/phase2/badConstrainedTypes",
         List.of("bad.constrainedtype.examples1", "bad.constrainedtype.examples2"));
   }
 }

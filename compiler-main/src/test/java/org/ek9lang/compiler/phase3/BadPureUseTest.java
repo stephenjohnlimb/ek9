@@ -8,7 +8,7 @@ import java.util.List;
 class BadPureUseTest extends BadFullResolutionTest {
 
   public BadPureUseTest() {
-    super("/examples/parseButFailCompile/badPureUse",
+    super("/examples/parseButFailCompile/phase3/badPureUse",
         List.of("bad.pure.scenarios1",
             "bad.pure.scenarios2",
             "bad.pure.expressions",

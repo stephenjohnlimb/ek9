@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 class BadReferencesTest extends PhasesTest {
 
   public BadReferencesTest() {
-    super("/examples/parseButFailCompile/multipleReferences",
+    super("/examples/parseButFailCompile/phase1/multipleReferences",
         List.of("alpha", "beta", "fails.to.compile", "another.reference.module", "main.reference.module"));
   }
 

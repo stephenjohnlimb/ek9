@@ -9,7 +9,7 @@ import java.util.List;
 class VariousLoopsTest extends BadPreIRChecksTest {
 
   public VariousLoopsTest() {
-    super("/examples/parseButFailCompile/loopStatementsExpressions",
+    super("/examples/parseButFailCompile/phase5/loopStatementsExpressions",
         List.of("just.various.loops"));
   }
 }

@@ -10,7 +10,7 @@ class BadExceptionUseWithAbnormalTerminationTest extends BadSymbolDefinitionTest
 
 
   public BadExceptionUseWithAbnormalTerminationTest() {
-    super("/examples/parseButFailCompile/abnormalBlockTermination",
+    super("/examples/parseButFailCompile/phase1/abnormalBlockTermination",
         List.of("bad.flowcontrol.examples"));
   }
 }

@@ -9,7 +9,7 @@ import java.util.List;
 class BadVariableUsesTest extends BadFullResolutionTest {
 
   public BadVariableUsesTest() {
-    super("/examples/parseButFailCompile/badVariableUses",
+    super("/examples/parseButFailCompile/phase3/badVariableUses",
         List.of("bad.blockvariable.uses", "bad.duplicateproperties.uses"));
   }
 

@@ -8,7 +8,7 @@ import java.util.List;
 class BadNoneGenericUsesTest extends BadExplicitTypeDefinitionTest {
 
   public BadNoneGenericUsesTest() {
-    super("/examples/parseButFailCompile/badNoneGenericUses",
+    super("/examples/parseButFailCompile/phase2/badNoneGenericUses",
         List.of("bad.use.non.generic"));
   }
 }

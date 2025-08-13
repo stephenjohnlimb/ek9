@@ -1,5 +1,6 @@
 package org.ek9lang.compiler;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.CompilationEvent;
@@ -52,5 +53,15 @@ public abstract class CompilerPhase implements BiFunction<Workspace, CompilerFla
     //Make a report that this phase has started.
     reporter.log(compilationData.phase());
 
+  }
+
+  protected ParsedModule getParsedModuleForSource(final CompilableSource source) {
+
+    //Thread safe access to the parsedModule.
+    final var holder = new AtomicReference<ParsedModule>();
+    compilableProgramAccess.accept(
+        program -> holder.set(program.getParsedModuleForCompilableSource(source)));
+
+    return holder.get();
   }
 }

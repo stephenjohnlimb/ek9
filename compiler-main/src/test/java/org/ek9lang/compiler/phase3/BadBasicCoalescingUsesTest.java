@@ -8,7 +8,7 @@ import java.util.List;
 class BadBasicCoalescingUsesTest extends BadFullResolutionTest {
 
   public BadBasicCoalescingUsesTest() {
-    super("/examples/parseButFailCompile/basicCoalescing",
+    super("/examples/parseButFailCompile/phase3/basicCoalescing",
         List.of("coalescing.elvis"), false, true);
   }
 

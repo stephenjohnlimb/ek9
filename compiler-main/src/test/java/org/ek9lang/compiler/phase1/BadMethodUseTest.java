@@ -8,7 +8,7 @@ import java.util.List;
 class BadMethodUseTest extends BadSymbolDefinitionTest {
 
   public BadMethodUseTest() {
-    super("/examples/parseButFailCompile/badMethodAndFunctionUse",
+    super("/examples/parseButFailCompile/phase1/badMethodAndFunctionUse",
         List.of("bad.programs.examples",
             "bad.traits.examples",
             "bad.classes.examples",

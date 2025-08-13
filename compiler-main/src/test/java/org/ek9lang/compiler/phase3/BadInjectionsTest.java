@@ -8,7 +8,7 @@ import java.util.List;
 class BadInjectionsTest extends BadFullResolutionTest {
 
   public BadInjectionsTest() {
-    super("/examples/parseButFailCompile/badInjections",
+    super("/examples/parseButFailCompile/phase3/badInjections",
         List.of("bad.injection.examples"));
   }
 

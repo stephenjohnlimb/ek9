@@ -8,7 +8,7 @@ import java.util.List;
 class BadMethodOverridingTest extends BadFullResolutionTest {
 
   public BadMethodOverridingTest() {
-    super("/examples/parseButFailCompile/badOverridingMethodsAndFunctions",
+    super("/examples/parseButFailCompile/phase3/badOverridingMethodsAndFunctions",
         List.of("bad.overriding.componentmethods1",
             "bad.overriding.classmethods1",
             "bad.overriding.classmethods2",

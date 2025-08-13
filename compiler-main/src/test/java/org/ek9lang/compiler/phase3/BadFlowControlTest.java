@@ -8,7 +8,7 @@ import java.util.List;
 class BadFlowControlTest extends BadFullResolutionTest {
 
   public BadFlowControlTest() {
-    super("/examples/parseButFailCompile/badFlowControl",
+    super("/examples/parseButFailCompile/phase3/badFlowControl",
         List.of("bad.switchtypes1", "bad.switchtypes2", "bad.control.types"));
   }
 

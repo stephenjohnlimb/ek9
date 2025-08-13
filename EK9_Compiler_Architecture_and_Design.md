@@ -14,7 +14,7 @@
 2. [Project Overview](#project-overview)
 3. [Architecture Overview](#architecture-overview)
 4. [Module Structure and Dependencies](#module-structure-and-dependencies)
-5. [22-Phase Compilation Pipeline](#22-phase-compilation-pipeline)
+5. [20-Phase Compilation Pipeline](#20-phase-compilation-pipeline)
 6. [Core Compiler Classes](#core-compiler-classes)
 7. [Symbol Table and Type System](#symbol-table-and-type-system)
 8. [Bootstrap Process](#bootstrap-process)
@@ -33,12 +33,12 @@
 The EK9 compiler represents a sophisticated, modern compiler architecture implemented in Java 23.
 It successfully balances language expressiveness, type safety, compilation performance, and developer experience.
 Built as a multi-phase, multi-threaded system,
-the compiler transforms EK9 source code through a comprehensive 22-phase pipeline into Java bytecode,
+the compiler transforms EK9 source code through a comprehensive 20-phase pipeline into Java bytecode,
 with C++ LLVM backend development underway for native binary generation.
 
 ### Key Architectural Achievements
 
-- **Multi-Phase Pipeline**: 22 distinct compilation phases enabling targeted compilation and LSP optimization
+- **Multi-Phase Pipeline**: 20 distinct compilation phases enabling targeted compilation and LSP optimization
 - **Thread Safety**: Comprehensive thread-safe design supporting both batch compilation and interactive IDE usage
 - **Modular Design**: Clean separation between frontend, middle-end, and backend with clear module dependencies
 - **Language Server Integration**: Full IDE support while reusing 75% of the compiler infrastructure
@@ -200,11 +200,11 @@ mvn test -Dtest=Ek9IntrospectedBootStrapTest -pl compiler-main
 
 ---
 
-## 22-Phase Compilation Pipeline
+## 20-Phase Compilation Pipeline
 
 ### Overview
 
-The EK9 compiler implements a sophisticated 22-phase compilation pipeline (not 12 as originally documented in CLAUDE.md). Each phase has specific responsibilities and can be executed independently for development and debugging.
+The EK9 compiler implements a sophisticated 20-phase compilation pipeline (streamlined from an earlier 22-phase design). Each phase has specific responsibilities and can be executed independently for development and debugging.
 
 ### Phase Organization
 
@@ -276,61 +276,54 @@ The EK9 compiler implements a sophisticated 22-phase compilation pipeline (not 1
     - **Current Status**: Placeholder (returns `true`)
     - **Future Purpose**: External library and plugin resolution
 
-11. **SIMPLE_IR_GENERATION** (`IRGeneration.java`)
+11. **IR_GENERATION** (`IRGeneration.java`)
     - **Input**: Validated symbols and code flow
     - **Output**: IRModules with intermediate representation
     - **Threading**: Multi-threaded
-    - **Key Operations**: Generate IR for non-generic constructs using IRDefinitionVisitor
+    - **Key Operations**: Generate IR for all constructs including non-generic and template types
+    - **Consolidation**: Combines previous SIMPLE_IR_GENERATION, PROGRAM_IR_CONFIGURATION, and TEMPLATE_IR_GENERATION phases
 
-12. **PROGRAM_IR_CONFIGURATION** (`ProgramWithIR.java`)
-    - **Current Status**: Placeholder (returns `true`)
-    - **Purpose**: Integrate IR modules into main program structure
-
-13. **TEMPLATE_IR_GENERATION** (`TemplateGeneration.java`)
-    - **Current Status**: Placeholder (returns `true`)
-    - **Future Purpose**: Generate IR for template/generic type instantiations
-
-14. **IR_ANALYSIS** (`IRAnalysis.java`)
+12. **IR_ANALYSIS** (`IRAnalysis.java`)
     - **Current Status**: Placeholder (returns `true`)
     - **Future Purpose**: Whole-program IR analysis and validation
     - **LSP Integration**: LSP stops compilation at this phase for performance
 
-15. **IR_OPTIMISATION** (`IROptimisation.java`)
+13. **IR_OPTIMISATION** (`IROptimisation.java`)
     - **Current Status**: Placeholder (returns `true`)
     - **Future Purpose**: IR-level optimizations before code generation
 
-#### Backend Phases (15-21)
+#### Backend Phases (14-19)
 **Purpose**: Code generation and packaging
 
-16. **CODE_GENERATION_PREPARATION** (`CodeGenerationPreparation.java`)
+14. **CODE_GENERATION_PREPARATION** (`CodeGenerationPreparation.java`)
     - **Input**: Optimized IR
     - **Output**: Empty target files ready for code generation
     - **Threading**: Multi-threaded
     - **Key Operations**: Creates `.ek9` directory structure, file preparation
 
-17. **CODE_GENERATION_AGGREGATES** (`CodeGenerationAggregates.java`)
+15. **CODE_GENERATION_AGGREGATES** (`CodeGenerationAggregates.java`)
     - **Input**: Prepared output files and IRModules
     - **Output**: Generated aggregate type code
     - **Threading**: Multi-threaded
     - **Key Operations**: Generate target code using OutputVisitorLocator
 
-18. **CODE_GENERATION_CONSTANTS** (`CodeGenerationConstants.java`)
+16. **CODE_GENERATION_CONSTANTS** (`CodeGenerationConstants.java`)
     - **Current Status**: Placeholder (returns `true`)
     - **Future Purpose**: Generate code for constant definitions
 
-19. **CODE_OPTIMISATION** (`CodeOptimisation.java`)
+17. **CODE_OPTIMISATION** (`CodeOptimisation.java`)
     - **Current Status**: Placeholder (returns `true`)
     - **Future Purpose**: Target code-level optimizations
 
-20. **PLUGIN_LINKAGE** (`PluginLinkage.java`)
+18. **PLUGIN_LINKAGE** (`PluginLinkage.java`)
     - **Current Status**: Placeholder (returns `true`)
     - **Future Purpose**: Link external plugins and native libraries
 
-21. **APPLICATION_PACKAGING** (`Packaging.java`)
+19. **APPLICATION_PACKAGING** (`Packaging.java`)
     - **Current Status**: Placeholder (returns `true`)
     - **Future Purpose**: Package code into deployment artifacts (JAR, etc.)
 
-22. **PACKAGING_POST_PROCESSING** (`PackagingPostProcessing.java`)
+20. **PACKAGING_POST_PROCESSING** (`PackagingPostProcessing.java`)
     - **Current Status**: Placeholder (returns `true`)
     - **Future Purpose**: Final post-processing (binary conversion, etc.)
 
@@ -452,7 +445,7 @@ The compilation pipeline uses three configurable suppliers:
 
 **Key Configuration**:
 - **Default Phase**: `APPLICATION_PACKAGING` for full compilation
-- **LSP Optimization**: Can stop at `IR_ANALYSIS` for Language Server efficiency
+- **LSP Optimization**: Can stop at `IR_ANALYSIS` (phase 12) for Language Server efficiency
 - **Suggestion System**: 5 suggestions by default, 0 disables
 - **Target Architecture**: Defaults to JVM, with C++ LLVM backend for native compilation
 
@@ -848,7 +841,7 @@ for (final var instruction : operation.getAllInstructions()) {
 **File**: `org.ek9lang.lsp.Ek9LanguageServer`
 
 **Key Features**:
-- Limits compilation to `CompilationPhase.IR_ANALYSIS` for performance
+- Limits compilation to `CompilationPhase.IR_ANALYSIS` (phase 12) for performance
 - Recursive `.ek9` file discovery using `Glob("**.ek9")`
 - Virtual threads (JDK 21+) for concurrent file parsing
 - Pre-parses all workspace files during initialization
@@ -899,8 +892,8 @@ Map<FileChangeType, Consumer<FileEvent>> changeHandlers =
 **Key Insight**: LSP reuses EK9 compiler's frontend and middle-end but stops at `IR_ANALYSIS`
 
 **Available Phases for LSP**:
-1. PARSING through 14. IR_ANALYSIS (75% of compilation pipeline)
-- Excludes expensive code generation phases (15-21)
+1. PARSING through 12. IR_ANALYSIS (65% of compilation pipeline)
+- Excludes expensive code generation phases (14-19)
 - Provides complete semantic analysis for IDE features
 
 #### Real-time Error Processing
@@ -979,17 +972,17 @@ CompilableSource.parse() → ErrorListener → ErrorsToDiagnostics → LSP Clien
 ### 22-Phase Compilation Pipeline
 
 ```
-FRONTEND (0-9)              MIDDLE-END (10-14)          BACKEND (15-21)
+FRONTEND (0-9)              MIDDLE-END (10-13)          BACKEND (14-19)
 ┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
-│ 0: PARSING          │    │10: SIMPLE_IR_GEN    │    │15: CODE_GEN_PREP    │
-│ 1: SYMBOL_DEF       │    │11: PROGRAM_IR_CFG   │    │16: CODE_GEN_AGG     │
-│ 2: DUPLICATION      │    │12: TEMPLATE_IR_GEN  │    │17: CODE_GEN_CONST   │
-│ 3: REFERENCE        │    │13: IR_ANALYSIS ◄────┼────┤   LSP STOPS HERE    │
-│ 4: EXPLICIT_TYPE    │    │14: IR_OPTIMISATION  │    │18: CODE_OPTIMISE    │
-│ 5: TYPE_HIERARCHY   │    └─────────────────────┘    │19: PLUGIN_LINKAGE   │
-│ 6: FULL_RESOLUTION  │                               │20: APP_PACKAGING    │
-│ 7: POST_RESOLUTION  │                               │21: PACKAGING_POST   │
-│ 8: PRE_IR_CHECKS    │                               └─────────────────────┘
+│ 0: PARSING          │    │10: IR_GENERATION    │    │14: CODE_GEN_PREP    │
+│ 1: SYMBOL_DEF       │    │11: IR_ANALYSIS ◄────┼────┤   LSP STOPS HERE    │
+│ 2: DUPLICATION      │    │12: IR_OPTIMISATION  │    │15: CODE_GEN_AGG     │
+│ 3: REFERENCE        │    └─────────────────────┘    │16: CODE_GEN_CONST   │
+│ 4: EXPLICIT_TYPE    │                               │17: CODE_OPTIMISE    │
+│ 5: TYPE_HIERARCHY   │                               │18: PLUGIN_LINKAGE   │
+│ 6: FULL_RESOLUTION  │                               │19: APP_PACKAGING    │
+│ 7: POST_RESOLUTION  │                               └─────────────────────┘
+│ 8: PRE_IR_CHECKS    │
 │ 9: PLUGIN_RESOLVE   │
 └─────────────────────┘
 ```

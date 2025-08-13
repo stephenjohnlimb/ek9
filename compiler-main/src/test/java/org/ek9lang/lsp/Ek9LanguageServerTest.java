@@ -56,7 +56,8 @@ final class Ek9LanguageServerTest {
   static final String INVALID_SOURCE = "unevenIndentation.ek9";
   static final String OTHER_INVALID_SOURCE = "FlowControl.ek9";
   static final String RELATIVE_PATH_TO_INVALID_SOURCE = "/badExamples/basics/";
-  static final String RELATIVE_PATH_TO_OTHER_INVALID_SOURCE = "/examples/parseButFailCompile/abnormalBlockTermination/";
+  static final String RELATIVE_PATH_TO_OTHER_INVALID_SOURCE =
+      "/examples/parseButFailCompile/phase1/abnormalBlockTermination/";
   static final String RELATIVE_PATH_TO_CLAUDE_SOURCE = "/claude/mcp-lsp/";
   static final String CLAUDE_SOURCE = "StringAndDateIsSet.ek9";
 

@@ -16,7 +16,7 @@ import java.util.List;
 class UsedBeforeInitialisedTest extends BadPreIRChecksTest {
 
   public UsedBeforeInitialisedTest() {
-    super("/examples/parseButFailCompile/usedBeforeInitialised",
+    super("/examples/parseButFailCompile/phase5/usedBeforeInitialised",
         List.of("badifelse.functions", "badclass.method.initialisations",
             "badclass.property.initialisations",
             "bad.operators.return", "bad.serviceoperation.return",

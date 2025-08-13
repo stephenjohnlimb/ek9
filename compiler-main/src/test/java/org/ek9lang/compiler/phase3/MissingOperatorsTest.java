@@ -8,7 +8,7 @@ import java.util.List;
 class MissingOperatorsTest extends BadFullResolutionTest {
 
   public MissingOperatorsTest() {
-    super("/examples/parseButFailCompile/missingOperators",
+    super("/examples/parseButFailCompile/phase3/missingOperators",
         List.of("bad.defaulted.recordoperators", "bad.defaulted.classoperators",
             "bad.overridden.classoperators", "bad.interpolated.strings"), false, true);
   }

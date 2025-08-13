@@ -9,7 +9,7 @@ class BadTypesUsedWithGenericsTest extends BadExplicitTypeDefinitionTest {
 
 
   public BadTypesUsedWithGenericsTest() {
-    super("/examples/parseButFailCompile/unresolvedTypeWithGenerics",
+    super("/examples/parseButFailCompile/phase2/unresolvedTypeWithGenerics",
         List.of("bad.generics.use.types"));
   }
 }

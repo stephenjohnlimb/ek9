@@ -9,7 +9,7 @@ import java.util.List;
 class ResultAndOptionalAccessTest extends BadPreIRChecksTest {
 
   public ResultAndOptionalAccessTest() {
-    super("/examples/parseButFailCompile/phase5BadSpecialGenericsUse",
+    super("/examples/parseButFailCompile/phase5/badSpecialGenericsUse",
         List.of("error.on.result.access", "error.on.optional.access"));
   }
 }

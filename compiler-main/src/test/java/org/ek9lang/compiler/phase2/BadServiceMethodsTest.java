@@ -8,7 +8,7 @@ import java.util.List;
 class BadServiceMethodsTest extends BadExplicitTypeDefinitionTest {
 
   public BadServiceMethodsTest() {
-    super("/examples/parseButFailCompile/badServiceMethods",
+    super("/examples/parseButFailCompile/phase2/badServiceMethods",
         List.of("bad.servicemethod.returntypes", "bad.servicemethod.argumenttypes"));
   }
 }

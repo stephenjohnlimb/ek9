@@ -8,7 +8,7 @@ import java.util.List;
 class BadMixedResolutionTest extends BadFullResolutionTest {
 
   public BadMixedResolutionTest() {
-    super("/examples/parseButFailCompile/badMixedResolution",
+    super("/examples/parseButFailCompile/phase3/badMixedResolution",
         List.of("bad.mixed.resolution", "bad.access.attempts"));
   }
 

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class BadDuplicatedTraitReferencesTest extends PhasesTest {
 
   public BadDuplicatedTraitReferencesTest() {
-    super("/examples/parseButFailCompile/duplicateTraitUse",
+    super("/examples/parseButFailCompile/phase2/duplicateTraitUse",
         List.of("bad.trait.use"));
   }
 
