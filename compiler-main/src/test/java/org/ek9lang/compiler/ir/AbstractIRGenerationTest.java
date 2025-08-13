@@ -10,7 +10,7 @@ import org.ek9lang.compiler.common.PhasesTest;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 import org.junit.jupiter.api.Test;
 
-class AbstractIRGenerationTest extends PhasesTest {
+abstract class AbstractIRGenerationTest extends PhasesTest {
 
   private final List<SymbolCountCheck> expectedSymbols;
   public AbstractIRGenerationTest(final String fromResourcesDirectory,
