@@ -65,7 +65,7 @@ defines module simpleClasses
     IRInstruction: STORE local1, _temp3  // ./singleClass.ek9:82:9
     IRInstruction: RETAIN local1  // ./singleClass.ek9:82:9
     IRInstruction: _temp5 = LOAD local1  // ./singleClass.ek9:82:9
-    IRInstruction: _temp4 = CALL (org.ek9.lang::Any)_temp5._isSet()  // ./singleClass.ek9:84:22
+    IRInstruction: _temp4 = CALL (org.ek9.lang::Boolean)_temp5._isSet()  // ./singleClass.ek9:84:22
     IRInstruction: _temp6 = CALL (org.ek9.lang::Boolean)_temp4._true()  // ./singleClass.ek9:84:22
     IRInstruction: ASSERT _temp6  // ./singleClass.ek9:84:22
     IRInstruction: SCOPE_EXIT _scope_1

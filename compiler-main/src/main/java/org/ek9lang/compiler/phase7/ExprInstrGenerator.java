@@ -3,6 +3,8 @@ package org.ek9lang.compiler.phase7;
 import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.common.OperatorMap;
+import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
@@ -22,7 +24,7 @@ import org.ek9lang.core.AssertValue;
  * Creates IR instructions for expressions.
  * <p>
  * This is the real backbone of processing and is very big! It is also recursive calling upon
- * expression (sometimes directly and sometimes directly.<br>
+ * expression (sometimes directly and sometimes indirectly).<br>
  * The ANTLR grammar follows:
  * </p>
  * <pre>
@@ -66,69 +68,94 @@ import org.ek9lang.core.AssertValue;
  */
 final class ExprInstrGenerator extends AbstractGenerator {
 
+  private static final OperatorMap operatorMap = new OperatorMap();
+
+  private final EK9Parser.ExpressionContext antlrCtx;
+  private final String initialScopeId;
   private final ObjectAccessInstrGenerator objectAccessCreator;
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
+  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
-  ExprInstrGenerator(final IRContext context) {
+
+  ExprInstrGenerator(final IRContext context,
+                     final EK9Parser.ExpressionContext ctx,
+                     final String initialScopeId) {
     super(context);
+    AssertValue.checkNotNull("ExpressionContext cannot be null", ctx);
+    AssertValue.checkNotNull("initialScopeId cannot be null", initialScopeId);
+    this.antlrCtx = ctx;
+    this.initialScopeId = initialScopeId;
     this.objectAccessCreator = new ObjectAccessInstrGenerator(context);
   }
 
   /**
    * Generate IR instructions for expression.
    */
-  public List<IRInstr> apply(final EK9Parser.ExpressionContext ctx,
-                             final String resultVar,
-                             final String scopeId) {
-    AssertValue.checkNotNull("ExpressionContext cannot be null", ctx);
-    AssertValue.checkNotNull("resultVar cannot be null", resultVar);
-    AssertValue.checkNotNull("scopeId cannot be null", scopeId);
+  public List<IRInstr> apply(final String rhsExprResult) {
+    AssertValue.checkNotNull("RhsExprResult cannot be null", rhsExprResult);
 
-    final var instructions = new ArrayList<IRInstr>();
+    //Now while it seems a bit pointless just to call another method here.
+    //Actually some of the methods call back with new deeper contexts.
+    //So this allows for recursion.
+    return process(antlrCtx, rhsExprResult, initialScopeId);
 
-    // Handle postfix question operator: expression?
-    if (ctx.op != null && "?".equals(ctx.op.getText())) {
-      instructions.addAll(processQuestionOperator(ctx, resultVar, scopeId));
-    } else if (ctx.call() != null) {
+  }
 
-      // Get the resolved symbol for the call
-      final var callSymbol = context.getParsedModule().getRecordedSymbol(ctx.call());
+  private List<IRInstr> process(final EK9Parser.ExpressionContext ctx,
+                                final String rhsExprResult,
+                                final String scopeId) {
 
-      if (callSymbol instanceof CallSymbol resolvedCallSymbol) {
-        final var toBeCalled = resolvedCallSymbol.getResolvedSymbolToCall();
+    //The idea here is that rather than have a giant 'if else' combo, the process is grouped.
+    //This is just like earlier phases.
 
-        if (toBeCalled instanceof MethodSymbol methodSymbol && methodSymbol.isConstructor()) {
-          // This is a constructor call
-          final var parentScope = methodSymbol.getParentScope();
-          final var typeName =
-              (parentScope instanceof Symbol symbol) ? symbol.getFullyQualifiedName() : parentScope.toString();
-
-          // Extract debug info if debugging instrumentation is enabled
-          final var debugInfo = debugInfoCreator.apply(callSymbol);
-
-          // Extract parameter types from constructor parameters
-          final var parameterTypes = methodSymbol.getCallParameters().stream()
-              .map(param -> param.getType().map(ISymbol::getFullyQualifiedName).orElse("org.ek9.lang::Any"))
-              .toList();
-
-          // Generate constructor call using actual resolved type name with complete type information
-          final var callDetails = new CallDetails(typeName, typeName, IRConstants.INIT_METHOD,
-              parameterTypes, typeName, List.of());
-
-          instructions.add(CallInstr.constructor(resultVar, debugInfo, callDetails));
-
-          // Add memory management for LLVM targets (no-ops on JVM)
-          instructions.add(MemoryInstr.retain(resultVar, debugInfo));
-          instructions.add(ScopeInstr.register(resultVar, scopeId, debugInfo));
-        }
-      }
-    } else if (ctx.objectAccessExpression() != null) {
-      instructions.addAll(objectAccessCreator.apply(ctx.objectAccessExpression(), resultVar, scopeId));
+    if (ctx.op != null) {
+      return processOperation(ctx, rhsExprResult, scopeId);
+    } else if (ctx.coalescing != null) {
+      return processCoalescing(ctx, rhsExprResult, scopeId);
+    } else if (ctx.coalescing_equality != null) {
+      return processCoalescingEquality(ctx, rhsExprResult, scopeId);
     } else if (ctx.primary() != null) {
-      // Handle primary expressions: literals, identifier references, parenthesized expressions
-      instructions.addAll(processPrimaryExpression(ctx.primary(), resultVar, scopeId));
+      return processPrimary(ctx, rhsExprResult, scopeId);
+    } else if (ctx.call() != null) {
+      return processCall(ctx, rhsExprResult, scopeId);
+    } else if (antlrCtx.objectAccessExpression() != null) {
+      return processObjectAccessExpression(ctx, rhsExprResult, scopeId);
     }
 
+    return processControlsOrStructures(ctx, rhsExprResult, scopeId);
+
+  }
+
+  private List<IRInstr> processOperation(final EK9Parser.ExpressionContext ctx,
+                                         final String rhsExprResult,
+                                         final String scopeId) {
+    final var instructions = new ArrayList<IRInstr>();
+
+    //TODO you may find there is a more automated way to do this.
+    //TODO The symbol and operator map may give a way to workout the Calldetails needed.
+
+    // Handle postfix question operator: expression?
+    if (ctx.op.getType() == EK9Parser.QUESTION) {
+      instructions.addAll(processQuestionOperator(ctx, rhsExprResult, scopeId));
+    } else {
+      AssertValue.fail("Other Operations not yet implemented: " + ctx.op.getText());
+    }
+    return instructions;
+  }
+
+  private List<IRInstr> processCoalescing(final EK9Parser.ExpressionContext ctx,
+                                          final String rhsExprResult,
+                                          final String scopeId) {
+    final var instructions = new ArrayList<IRInstr>();
+    AssertValue.fail("ProcessCoalescing not yet implemented");
+    return instructions;
+  }
+
+  private List<IRInstr> processCoalescingEquality(final EK9Parser.ExpressionContext ctx,
+                                                  final String rhsExprResult,
+                                                  final String scopeId) {
+    final var instructions = new ArrayList<IRInstr>();
+    AssertValue.fail("ProcessCoalescingEquality not yet implemented");
     return instructions;
   }
 
@@ -136,23 +163,82 @@ final class ExprInstrGenerator extends AbstractGenerator {
    * Process primary expressions using symbol-driven approach.
    * Primary expressions include: literals, identifier references, parenthesized expressions.
    */
-  private List<IRInstr> processPrimaryExpression(final EK9Parser.PrimaryContext ctx,
-                                                 final String resultVar,
-                                                 final String scopeId) {
+  private List<IRInstr> processPrimary(final EK9Parser.ExpressionContext ctx,
+                                       final String rhsExprResult,
+                                       final String scopeId) {
     final var instructions = new ArrayList<IRInstr>();
 
-    if (ctx.literal() != null) {
+    if (ctx.primary().literal() != null) {
       // Handle literals: string, numeric, boolean, etc.
-      instructions.addAll(processLiteral(ctx.literal(), resultVar, scopeId));
-    } else if (ctx.identifierReference() != null) {
+      instructions.addAll(processLiteral(ctx.primary().literal(), rhsExprResult, scopeId));
+    } else if (ctx.primary().identifierReference() != null) {
       // Handle identifier references: variable names
-      instructions.addAll(processIdentifierReference(ctx.identifierReference(), resultVar));
+      instructions.addAll(processIdentifierReference(ctx.primary().identifierReference(), rhsExprResult));
     } else if (ctx.expression() != null) {
       // Handle parenthesized expressions: (expression)
-      instructions.addAll(apply(ctx.expression(), resultVar, scopeId));
+      //TODO I think I need a new temp variable here, but not sure.
+      instructions.addAll(process(ctx, rhsExprResult, scopeId));
+    } else {
+      AssertValue.fail("PrimaryReference not yes Implemented");
     }
-    // primaryReference (THIS, SUPER) would be handled here too if needed
 
+    return instructions;
+  }
+
+  private List<IRInstr> processCall(final EK9Parser.ExpressionContext ctx,
+                                    final String rhsExprResult,
+                                    final String scopeId) {
+
+    final var instructions = new ArrayList<IRInstr>();
+
+    // Get the resolved symbol for the call
+    final var callSymbol = context.getParsedModule().getRecordedSymbol(ctx.call());
+
+    if (callSymbol instanceof CallSymbol resolvedCallSymbol) {
+      final var toBeCalled = resolvedCallSymbol.getResolvedSymbolToCall();
+
+      if (toBeCalled instanceof MethodSymbol methodSymbol && methodSymbol.isConstructor()) {
+        // This is a constructor call
+        final var parentScope = methodSymbol.getParentScope();
+        final var typeName =
+            (parentScope instanceof Symbol symbol) ? symbol.getFullyQualifiedName() : parentScope.toString();
+
+        // Extract debug info if debugging instrumentation is enabled
+        final var debugInfo = debugInfoCreator.apply(callSymbol);
+
+        // Extract parameter types from constructor parameters
+        final var parameterTypes = methodSymbol.getCallParameters().stream()
+            .map(param -> param.getType().map(ISymbol::getFullyQualifiedName).orElse("org.ek9.lang::Any"))
+            .toList();
+
+        // Generate constructor call using actual resolved type name with complete type information
+        final var callDetails = new CallDetails(typeName, typeName, IRConstants.INIT_METHOD,
+            parameterTypes, typeName, List.of());
+
+        instructions.add(CallInstr.constructor(rhsExprResult, debugInfo, callDetails));
+
+        // Add memory management for LLVM targets (no-ops on JVM)
+        instructions.add(MemoryInstr.retain(rhsExprResult, debugInfo));
+        instructions.add(ScopeInstr.register(rhsExprResult, scopeId, debugInfo));
+      } else {
+        AssertValue.fail("Expecting method to have been resolved");
+      }
+    }
+    return instructions;
+  }
+
+  private List<IRInstr> processObjectAccessExpression(final EK9Parser.ExpressionContext ctx,
+                                                      final String rhsExprResult,
+                                                      final String scopeId) {
+    return new ArrayList<>(objectAccessCreator.apply(ctx.objectAccessExpression(), rhsExprResult, scopeId));
+
+  }
+
+  private List<IRInstr> processControlsOrStructures(final EK9Parser.ExpressionContext ctx,
+                                                    final String rhsExprResult,
+                                                    final String scopeId) {
+    final var instructions = new ArrayList<IRInstr>();
+    AssertValue.fail("processControlsOrStructures not implemented");
     return instructions;
   }
 
@@ -161,7 +247,7 @@ final class ExprInstrGenerator extends AbstractGenerator {
    * This ensures we get correct type information, including decorated names for generic types.
    */
   private List<IRInstr> processLiteral(final EK9Parser.LiteralContext ctx,
-                                       final String resultVar,
+                                       final String rhsExprResult,
                                        final String scopeId) {
     final var instructions = new ArrayList<IRInstr>();
 
@@ -174,18 +260,17 @@ final class ExprInstrGenerator extends AbstractGenerator {
         .map(ISymbol::getFullyQualifiedName)
         .orElseThrow(() -> new RuntimeException("Literal should have resolved type by phase 7"));
 
-
     final var literalValue = literalSymbol.getName();
 
     // Extract debug info if debugging instrumentation is enabled
     final var debugInfo = debugInfoCreator.apply(literalSymbol);
 
     // Create literal instruction with resolved type information
-    instructions.add(LiteralInstr.literal(resultVar, literalValue, literalType, debugInfo));
+    instructions.add(LiteralInstr.literal(rhsExprResult, literalValue, literalType, debugInfo));
 
     // Add memory management for EK9 object reference counting (consistent with constructor calls)
-    instructions.add(MemoryInstr.retain(resultVar, debugInfo));
-    instructions.add(ScopeInstr.register(resultVar, scopeId, debugInfo));
+    instructions.add(MemoryInstr.retain(rhsExprResult, debugInfo));
+    instructions.add(ScopeInstr.register(rhsExprResult, scopeId, debugInfo));
 
     return instructions;
   }
@@ -194,7 +279,7 @@ final class ExprInstrGenerator extends AbstractGenerator {
    * Process identifier references using resolved symbol information.
    */
   private List<IRInstr> processIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx,
-                                                   final String resultVar) {
+                                                   final String rhsExprResult) {
     final var instructions = new ArrayList<IRInstr>();
 
     // Get the resolved symbol for this identifier - phases 1-6 ensure all identifiers are resolved
@@ -207,7 +292,7 @@ final class ExprInstrGenerator extends AbstractGenerator {
     // Extract debug info if debugging instrumentation is enabled
     final var debugInfo = debugInfoCreator.apply(identifierSymbol);
 
-    instructions.add(MemoryInstr.load(resultVar, variableName, debugInfo));
+    instructions.add(MemoryInstr.load(rhsExprResult, variableName, debugInfo));
 
     return instructions;
   }
@@ -217,7 +302,7 @@ final class ExprInstrGenerator extends AbstractGenerator {
    * Generates _isSet() method call on the expression result.
    */
   private List<IRInstr> processQuestionOperator(final EK9Parser.ExpressionContext ctx,
-                                                final String resultVar,
+                                                final String rhsExprResult,
                                                 final String scopeId) {
     final var instructions = new ArrayList<IRInstr>();
 
@@ -226,18 +311,25 @@ final class ExprInstrGenerator extends AbstractGenerator {
 
     // ctx.expression(0) gets the first (and only) child expression for postfix operators
     if (!ctx.expression().isEmpty()) {
-      instructions.addAll(apply(ctx.expression(0), tempExprResult, scopeId));
+      instructions.addAll(process(ctx.expression(0), tempExprResult, scopeId));
     }
 
     // Call _isSet() method on the expression result
     final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
     final var debugInfo = debugInfoCreator.apply(exprSymbol);
 
-    // Generate method call: resultVar = tempExprResult._isSet()
-    final var callDetails = new CallDetails(tempExprResult, "org.ek9.lang::Any",
-        "_isSet", List.of(), "org.ek9.lang::Boolean", List.of());
+    final var typeName = typeNameOrException.apply(exprSymbol);
+    final var methodName = operatorMap.getForward(ctx.op.getText());
 
-    instructions.add(CallInstr.operator(resultVar, debugInfo, callDetails));
+    // Generate method call: rhsExprResult = tempExprResult._isSet()
+    //TODO if there is only one expression then there are no arguments
+    //For operators there is only ever zero or one argument and we can get the types
+    //So I think this could be much more general.
+    //Then we can use the SymbolSearch to get the Method and its return type.
+    final var callDetails = new CallDetails(tempExprResult, typeName,
+        methodName, List.of(), "org.ek9.lang::Boolean", List.of());
+
+    instructions.add(CallInstr.operator(rhsExprResult, debugInfo, callDetails));
 
     return instructions;
   }

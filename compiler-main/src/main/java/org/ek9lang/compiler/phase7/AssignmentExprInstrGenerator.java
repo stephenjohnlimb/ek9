@@ -35,7 +35,6 @@ final class AssignmentExprInstrGenerator implements
 
   private final ExprInstrGenerator exprInstrGenerator;
   private final EK9Parser.AssignmentExpressionContext ctx;
-  private final String scopeId;
 
   AssignmentExprInstrGenerator(final IRContext context,
                                final EK9Parser.AssignmentExpressionContext ctx,
@@ -44,21 +43,20 @@ final class AssignmentExprInstrGenerator implements
     AssertValue.checkNotNull("AssignmentExpressionContext cannot be null", ctx);
     AssertValue.checkNotNull("scopeId cannot be null", scopeId);
 
-    this.exprInstrGenerator = new ExprInstrGenerator(context);
+    this.exprInstrGenerator = new ExprInstrGenerator(context, ctx.expression(), scopeId);
     this.ctx = ctx;
-    this.scopeId = scopeId;
   }
 
   /**
    * Generate IR instructions for assignment expression.
    */
-  public List<IRInstr> apply(final String resultVar) {
+  public List<IRInstr> apply(final String rhsExprResult) {
 
 
-    AssertValue.checkNotNull("resultVar cannot be null", resultVar);
+    AssertValue.checkNotNull("RhsExprResult cannot be null", rhsExprResult);
 
     if (ctx.expression() != null) {
-      return exprInstrGenerator.apply(ctx.expression(), resultVar, scopeId);
+      return exprInstrGenerator.apply(rhsExprResult);
     } else if (ctx.guardExpression() != null) {
       AssertValue.fail("guardExpression not implemented");
     } else if (ctx.dynamicClassDeclaration() != null) {

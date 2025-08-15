@@ -15,11 +15,9 @@ import org.ek9lang.core.AssertValue;
 final class AssertStmtGenerator extends AbstractGenerator
     implements BiFunction<EK9Parser.AssertStatementContext, String, List<IRInstr>> {
 
-  private final ExprInstrGenerator expressionGenerator;
 
   AssertStmtGenerator(final IRContext context) {
     super(context);
-    this.expressionGenerator = new ExprInstrGenerator(context);
   }
 
   @Override
@@ -28,9 +26,10 @@ final class AssertStmtGenerator extends AbstractGenerator
     AssertValue.checkNotNull("Ctx cannot be null", ctx);
     AssertValue.checkNotNull("ScopeId cannot be null", scopeId);
 
+    final var expressionGenerator = new ExprInstrGenerator(context, ctx.expression(), scopeId);
     // Evaluate the assert expression
     final var rhsExprResult = context.generateTempName();
-    final var instructions = new ArrayList<>(expressionGenerator.apply(ctx.expression(), rhsExprResult, scopeId));
+    final var instructions = new ArrayList<>(expressionGenerator.apply(rhsExprResult));
 
     // Call the _true() method to get primitive boolean (true if set AND true)
     final var rhsResult = context.generateTempName();
