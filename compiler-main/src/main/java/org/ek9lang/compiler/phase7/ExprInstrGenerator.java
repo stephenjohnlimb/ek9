@@ -9,6 +9,9 @@ import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.LiteralInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
+import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
+import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -66,6 +69,7 @@ final class ExprInstrGenerator {
   private final IRContext context;
   private final ObjectAccessInstrGenerator objectAccessCreator;
   private final DebugInfoCreator debugInfoCreator;
+  private final VariableNameForIR variableNameForIR = new VariableNameForIR();
 
   ExprInstrGenerator(final IRContext context) {
     AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
@@ -147,7 +151,7 @@ final class ExprInstrGenerator {
       instructions.addAll(processLiteral(ctx.literal(), resultVar, scopeId));
     } else if (ctx.identifierReference() != null) {
       // Handle identifier references: variable names
-      instructions.addAll(processIdentifierReference(ctx.identifierReference(), resultVar, scopeId));
+      instructions.addAll(processIdentifierReference(ctx.identifierReference(), resultVar));
     } else if (ctx.expression() != null) {
       // Handle parenthesized expressions: (expression)
       instructions.addAll(apply(ctx.expression(), resultVar, scopeId));
@@ -195,8 +199,7 @@ final class ExprInstrGenerator {
    * Process identifier references using resolved symbol information.
    */
   private List<IRInstr> processIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx,
-                                                   final String resultVar,
-                                                   final String scopeId) {
+                                                   final String resultVar) {
     final var instructions = new ArrayList<IRInstr>();
 
     // Get the resolved symbol for this identifier - phases 1-6 ensure all identifiers are resolved
@@ -204,7 +207,7 @@ final class ExprInstrGenerator {
     AssertValue.checkNotNull("Identifier symbol should be resolved by phases 1-6", identifierSymbol);
 
     // Load the variable using its resolved name (could be decorated for generic contexts)
-    final var variableName = identifierSymbol.getName();
+    final var variableName = variableNameForIR.apply(identifierSymbol);
 
     // Extract debug info if debugging instrumentation is enabled
     final var debugInfo = debugInfoCreator.apply(identifierSymbol);

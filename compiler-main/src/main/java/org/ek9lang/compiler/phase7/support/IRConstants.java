@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase7;
+package org.ek9lang.compiler.phase7.support;
 
 /**
  * Rather than smatter the Java code with 'stringy' constants for the IR, they are defined here.
@@ -13,7 +13,7 @@ package org.ek9lang.compiler.phase7;
  * loading int main(int argc, char *argv[]).
  * </p>
  */
-public class IRConstants {
+public final class IRConstants {
 
   private IRConstants() {
     //Just to stop creation.

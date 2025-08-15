@@ -6,7 +6,7 @@ import java.util.function.BiFunction;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.MemoryInstr;
+import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -29,16 +29,11 @@ final class AssignmentStmtGenerator implements
     BiFunction<EK9Parser.AssignmentStatementContext, String, List<IRInstr>> {
 
   private final IRContext context;
-  private final ExprInstrGenerator expressionGenerator;
-  private final DebugInfoCreator debugInfoCreator;
-  private final VariableNameForIR variableNameForIR = new VariableNameForIR();
 
   AssignmentStmtGenerator(final IRContext context) {
 
     AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
     this.context = context;
-    this.expressionGenerator = new ExprInstrGenerator(context);
-    this.debugInfoCreator = new DebugInfoCreator(context);
 
   }
 
@@ -77,22 +72,10 @@ final class AssignmentStmtGenerator implements
                                            final String scopeId, final List<IRInstr> instructions) {
 
 
-    final var symbol = context.getParsedModule().getRecordedSymbol(ctx.identifier());
-    final var targetVariable = variableNameForIR.apply(symbol);
-    final var debugInfo = debugInfoCreator.apply(context.getParsedModule().getRecordedSymbol(ctx));
+    final var lhsSymbol = context.getParsedModule().getRecordedSymbol(ctx.identifier());
+    final var assignExpressionToSymbol = new AssignExpressionToSymbol(context, true, scopeId);
 
-    // RELEASE: Decrement reference count of current target value (tolerant of uninitialized)
-    instructions.add(MemoryInstr.release(targetVariable, debugInfo));
-
-    // Evaluate the assignment expression (right side)
-    final var tempResult = context.generateTempName();
-    instructions.addAll(expressionGenerator.apply(ctx.assignmentExpression().expression(), tempResult, scopeId));
-
-    // STORE: Assign new value to target variable
-    instructions.add(MemoryInstr.store(targetVariable, tempResult, debugInfo));
-
-    // RETAIN: Increment reference count of new value to keep it alive
-    instructions.add(MemoryInstr.retain(targetVariable, debugInfo));
+    instructions.addAll(assignExpressionToSymbol.apply(lhsSymbol, ctx.assignmentExpression()));
 
   }
 

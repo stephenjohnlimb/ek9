@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase7;
 import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.core.AssertValue;
 
 /**

@@ -4,6 +4,8 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.BasicBlockInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
+import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.core.AssertValue;
 
 /**

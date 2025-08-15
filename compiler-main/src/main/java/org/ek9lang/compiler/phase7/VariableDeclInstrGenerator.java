@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.MemoryInstr;
+import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -30,19 +30,13 @@ final class VariableDeclInstrGenerator extends AbstractVariableDeclGenerator
 
     final var instructions = getDeclInstrs(ctx, scopeId);
 
-
     // Process the assignment expression (right-hand side)
     if (ctx.assignmentExpression() != null) {
-      final var tempResult = context.generateTempName();
-      final var assignmentExprInstrGenerator = new AssignmentExprInstrGenerator(context, scopeId);
-      instructions.addAll(assignmentExprInstrGenerator.apply(ctx.assignmentExpression(), tempResult));
 
-      final var varSymbol = context.getParsedModule().getRecordedSymbol(ctx);
-      final var varName = varSymbol.getName();
-      final var debugInfo = debugInfoCreator.apply(varSymbol);
+      final var lhsSymbol = context.getParsedModule().getRecordedSymbol(ctx);
 
-      instructions.add(MemoryInstr.store(varName, tempResult, debugInfo));
-      instructions.add(MemoryInstr.retain(varName, debugInfo));
+      final var assignExpressionToSymbol = new AssignExpressionToSymbol(context, false, scopeId);
+      instructions.addAll(assignExpressionToSymbol.apply(lhsSymbol, ctx.assignmentExpression()));
     }
 
     return instructions;

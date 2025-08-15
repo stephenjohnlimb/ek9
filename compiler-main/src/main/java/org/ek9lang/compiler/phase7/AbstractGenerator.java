@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase7;
 
+import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
+import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.core.AssertValue;
 
 /**

@@ -5,6 +5,9 @@ import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.Operation;
+import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
+import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -16,14 +19,13 @@ import org.ek9lang.core.CompilerException;
 /**
  * Acts as a base for the main construct definitions.
  * As there are lots of common processing aspects across constructs and, they are
- * only really very focussed on IR generation (and not reusable elsewhere) they are defined in this base.
+ * only really very focussed on IR generation (and not reusable elsewhere) hence defined in this base.
  */
 abstract class AbstractDfnGenerator {
 
   private final ParsedModule parsedModule;
   private final CompilerFlags compilerFlags;
   private final OperationDfnGenerator operationDfnGenerator;
-  protected final VariableNameForIR variableNameForIR = new VariableNameForIR();
 
   AbstractDfnGenerator(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
     this.parsedModule = parsedModule;

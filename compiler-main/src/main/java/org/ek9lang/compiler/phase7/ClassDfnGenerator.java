@@ -12,8 +12,10 @@ import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.Field;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.ir.Operation;
+import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
+import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
@@ -47,6 +49,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
   private final ParsedModule parsedModule;
   private final CompilerFlags compilerFlags;
   private final String voidStr;
+  final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
   ClassDfnGenerator(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
     super(parsedModule, compilerFlags);
@@ -85,7 +88,6 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
    */
   private void createFieldDeclarations(final IRConstruct construct, final AggregateSymbol aggregateSymbol) {
     final var properties = aggregateSymbol.getProperties();
-    final var typeNameOrException = new TypeNameOrException();
     final var debugInfoCreator = new DebugInfoCreator(new IRContext(parsedModule, compilerFlags));
 
     for (final var property : properties) {
@@ -198,49 +200,16 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
       final EK9Parser.AggregatePartsContext ctx, final IRContext context) {
 
     final var instructions = new java.util.ArrayList<IRInstr>();
-    final var debugInfoCreator = new DebugInfoCreator(context);
-    final var typeNameOrException = new TypeNameOrException();
+    final var scopeId = context.generateScopeId(IRConstants.I_INIT_METHOD);
 
     // Process each property in the aggregate
     for (final var propertyCtx : ctx.aggregateProperty()) {
       if (propertyCtx.variableDeclaration() != null) {
-        // Property with immediate initialization (bField := String(), cField := "Steve", etc.)
-        final var propertySymbol = parsedModule.getRecordedSymbol(propertyCtx.variableDeclaration());
-        if (propertySymbol instanceof VariableSymbol variableSymbol && variableSymbol.isPropertyField()) {
-
-          final var propertyName = variableNameForIR.apply(variableSymbol);
-          final var typeName = typeNameOrException.apply(variableSymbol);
-          final var debugInfo = debugInfoCreator.apply(variableSymbol);
-
-          // Add REFERENCE declaration
-          instructions.add(MemoryInstr.reference(propertyName, typeName, debugInfo));
-
-          // Process immediate initialization
-          final var assignmentCtx = propertyCtx.variableDeclaration().assignmentExpression();
-          if (assignmentCtx != null) {
-            final var tempResult = context.generateTempName();
-            final var assignmentExprInstrGenerator = new AssignmentExprInstrGenerator(context, "_i_init");
-            instructions.addAll(assignmentExprInstrGenerator.apply(assignmentCtx, tempResult));
-
-            // Property assignment: STORE reference, then property takes ownership
-            // AssignmentExprInstrGenerator handles temp creation + SCOPE_REGISTER
-            // Property needs to RETAIN to take ownership
-            instructions.add(MemoryInstr.store(propertyName, tempResult, debugInfo));
-            instructions.add(MemoryInstr.retain(propertyName, debugInfo));
-          }
-        }
+        final var variableDeclInstrGenerator = new VariableDeclInstrGenerator(context);
+        instructions.addAll(variableDeclInstrGenerator.apply(propertyCtx.variableDeclaration(), scopeId));
       } else if (propertyCtx.variableOnlyDeclaration() != null) {
-        // Property without immediate initialization (aField as String?)
-        final var propertySymbol = parsedModule.getRecordedSymbol(propertyCtx.variableOnlyDeclaration());
-        if (propertySymbol instanceof VariableSymbol variableSymbol && variableSymbol.isPropertyField()) {
-
-          final var propertyName = variableNameForIR.apply(variableSymbol);
-          final var typeName = typeNameOrException.apply(variableSymbol);
-          final var debugInfo = debugInfoCreator.apply(variableSymbol);
-
-          // Add REFERENCE declaration only (no immediate initialization)
-          instructions.add(MemoryInstr.reference(propertyName, typeName, debugInfo));
-        }
+        final var variableOnlyDeclInstrGenerator = new VariableOnlyDeclInstrGenerator(context);
+        instructions.addAll(variableOnlyDeclInstrGenerator.apply(propertyCtx.variableOnlyDeclaration(), scopeId));
       }
     }
 
@@ -258,8 +227,8 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
     final var allMethods = aggregateSymbol.getAllMethodInThisScopeOnly();
 
     if (allMethods.isEmpty()) {
-      throw new CompilerException("No methods found for class " +
-          aggregateSymbol.getFullyQualifiedName() + " - earlier phases may have failed");
+      throw new CompilerException("No methods found for class "
+          + aggregateSymbol.getFullyQualifiedName() + " - earlier phases may have failed");
     }
 
     for (final var method : allMethods) {
@@ -352,7 +321,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
     final var superAggregateOpt = aggregateSymbol.getSuperAggregate();
     if (superAggregateOpt.isPresent()) {
       final var superSymbol = superAggregateOpt.get();
-      
+
       // Only make super call if it's not the implicit base class (like Object)
       if (isNotImplicitSuperClass(superSymbol)) {
         final var callDetails = new CallDetails(

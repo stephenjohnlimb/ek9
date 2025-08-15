@@ -9,6 +9,8 @@ import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
+import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
+import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;

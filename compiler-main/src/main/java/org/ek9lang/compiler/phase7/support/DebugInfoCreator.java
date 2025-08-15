@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase7;
+package org.ek9lang.compiler.phase7.support;
 
 import java.util.function.Function;
 import org.ek9lang.compiler.ir.DebugInfo;
@@ -10,11 +10,11 @@ import org.ek9lang.core.AssertValue;
  * This helps when translating the IR into a real back end to debug information can be incorporated
  * in to the final output.
  */
-final class DebugInfoCreator implements Function<ISymbol, DebugInfo> {
+public final class DebugInfoCreator implements Function<ISymbol, DebugInfo> {
 
   private final IRContext context;
 
-  DebugInfoCreator(final IRContext context) {
+  public DebugInfoCreator(final IRContext context) {
     AssertValue.checkNotNull("Context cannot be Null", context);
     this.context = context;
   }

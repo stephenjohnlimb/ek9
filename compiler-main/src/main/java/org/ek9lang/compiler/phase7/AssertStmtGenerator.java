@@ -8,6 +8,9 @@ import org.ek9lang.compiler.ir.BranchInstr;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
+import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.core.AssertValue;
 
 final class AssertStmtGenerator implements BiFunction<EK9Parser.AssertStatementContext, String, List<IRInstr>> {

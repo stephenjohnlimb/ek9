@@ -20,6 +20,7 @@ import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.ParsedModule;
+import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

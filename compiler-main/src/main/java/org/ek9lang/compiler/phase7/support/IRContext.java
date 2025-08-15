@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase7;
+package org.ek9lang.compiler.phase7.support;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,21 +24,21 @@ import org.ek9lang.core.AssertValue;
  * opportunities to optimise the IR in a much more significant way - before we get to code generation.
  * </p>
  */
-final class IRContext {
+public final class IRContext {
 
   private final ParsedModule parsedModule;
   private final CompilerFlags compilerFlags;
-  
+
   // Per-prefix counters for logical numbering: _temp1, _param1, _return1, _scope1, etc.
   private final ConcurrentHashMap<String, AtomicInteger> prefixCounters = new ConcurrentHashMap<>();
 
   /**
    * Create new IR generation context for an executable scope.
    *
-   * @param parsedModule The parsed module containing resolved symbols
+   * @param parsedModule  The parsed module containing resolved symbols
    * @param compilerFlags The compiler flags for controlling debug instrumentation
    */
-  IRContext(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
+  public IRContext(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
     AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);
     AssertValue.checkNotNull("CompilerFlags cannot be null", compilerFlags);
     this.parsedModule = parsedModule;

@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase7;
+package org.ek9lang.compiler.phase7.support;
 
 import java.util.function.Predicate;
 
@@ -14,7 +14,7 @@ import java.util.function.Predicate;
  * Variables that SHOULD be registered:
  * - Local variables (function-managed): _scope_1, _scope_2, etc.
  */
-final class ShouldRegisterVariableInScope implements Predicate<String> {
+public final class ShouldRegisterVariableInScope implements Predicate<String> {
 
   @Override
   public boolean test(final String scopeId) {

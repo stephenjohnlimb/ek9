@@ -6,6 +6,8 @@ import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.Operation;
+import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
+import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.core.AssertValue;
