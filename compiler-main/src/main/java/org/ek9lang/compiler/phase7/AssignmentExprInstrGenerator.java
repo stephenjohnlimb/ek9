@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.phase7;
 
 import java.util.List;
+import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.phase7.support.IRContext;
@@ -10,11 +11,11 @@ import org.ek9lang.core.AssertValue;
  * Creates IR instructions for assignment expressions.
  * Generates new BasicBlock IR (IRInstructions).
  * <p>
- *   Note that this is just really a 'pointer' assignment to some existing allocated object/memory.
- *   It is not a deep copy in any way.
+ * Note that this is just really a 'pointer' assignment to some existing allocated object/memory.
+ * It is not a deep copy in any way.
  * </p>
  * <p>
- *   THis deals with the following ANTLR grammar.
+ * THis deals with the following ANTLR grammar.
  * </p>
  * <pre>
  *   assignmentExpression
@@ -29,26 +30,31 @@ import org.ek9lang.core.AssertValue;
  *     ;
  * </pre>
  */
-final class AssignmentExprInstrGenerator {
+final class AssignmentExprInstrGenerator implements
+    Function<String, List<IRInstr>> {
 
   private final ExprInstrGenerator exprInstrGenerator;
+  private final EK9Parser.AssignmentExpressionContext ctx;
   private final String scopeId;
 
-  AssignmentExprInstrGenerator(final IRContext context, final String scopeId) {
+  AssignmentExprInstrGenerator(final IRContext context,
+                               final EK9Parser.AssignmentExpressionContext ctx,
+                               final String scopeId) {
     AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
+    AssertValue.checkNotNull("AssignmentExpressionContext cannot be null", ctx);
     AssertValue.checkNotNull("scopeId cannot be null", scopeId);
 
     this.exprInstrGenerator = new ExprInstrGenerator(context);
+    this.ctx = ctx;
     this.scopeId = scopeId;
   }
 
   /**
    * Generate IR instructions for assignment expression.
    */
-  public List<IRInstr> apply(final EK9Parser.AssignmentExpressionContext ctx,
-                             final String resultVar) {
+  public List<IRInstr> apply(final String resultVar) {
 
-    AssertValue.checkNotNull("AssignmentExpressionContext cannot be null", ctx);
+
     AssertValue.checkNotNull("resultVar cannot be null", resultVar);
 
     if (ctx.expression() != null) {

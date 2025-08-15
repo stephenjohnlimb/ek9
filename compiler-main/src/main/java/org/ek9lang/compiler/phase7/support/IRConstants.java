@@ -19,6 +19,10 @@ public final class IRConstants {
     //Just to stop creation.
   }
 
+  //Known object references
+  public static final String THIS = "this";
+  public static final String SUPER = "super";
+
   //labels
   public static final String ENTRY_LABEL = "entry";
 
@@ -33,6 +37,7 @@ public final class IRConstants {
   public static final String WHILE_SCOPE = "while";
 
   //method calls
+  public static final String INIT_METHOD = "<init>";
   public static final String CALL_METHOD = "_call";
   public static final String C_INIT_METHOD = "c_init";
   public static final String I_INIT_METHOD = "i_init";
@@ -45,6 +50,11 @@ public final class IRConstants {
 
   //known specific variable names
   public static final String RETURN_VARIABLE = "_rtn";
+
+  //known temporary variable prefix
+  public static final String TEMP_C_INIT = "_temp_c_init";
+  public static final String TEMP_I_INIT = "_temp_i_init";
+  public static final String TEMP_SUPER_INIT = "_temp_super_init";
 
   //access_modifiers
   public static final String PUBLIC = "public";

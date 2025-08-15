@@ -49,6 +49,5 @@ abstract class AbstractVariableDeclGenerator extends AbstractGenerator {
     }
 
     return instructions;
-
   }
 }

@@ -9,6 +9,7 @@ import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.LiteralInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
+import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.compiler.symbols.CallSymbol;
@@ -111,7 +112,7 @@ final class ExprInstrGenerator extends AbstractGenerator {
               .toList();
 
           // Generate constructor call using actual resolved type name with complete type information
-          final var callDetails = new CallDetails(typeName, typeName, "<init>",
+          final var callDetails = new CallDetails(typeName, typeName, IRConstants.INIT_METHOD,
               parameterTypes, typeName, List.of());
 
           instructions.add(CallInstr.constructor(resultVar, debugInfo, callDetails));

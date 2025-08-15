@@ -16,6 +16,7 @@ import org.ek9lang.compiler.phase7.support.FieldCreator;
 import org.ek9lang.compiler.phase7.support.FieldsFromCapture;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -45,6 +46,8 @@ import org.ek9lang.core.CompilerException;
  */
 final class ClassDfnGenerator extends AbstractDfnGenerator
     implements Function<EK9Parser.ClassDeclarationContext, IRConstruct> {
+
+  private final NotImplicitSuper notImplicitSuper = new NotImplicitSuper();
 
   ClassDfnGenerator(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
     super(parsedModule, compilerFlags);
@@ -125,7 +128,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
       // Only make super call if it's not the implicit base class (like Object)
       // Check if this is an explicit inheritance (not implicit base class)
-      if (isNotImplicitSuperClass(superSymbol)) {
+      if (notImplicitSuper.test(superSymbol)) {
         final var callDetails = new CallDetails(
             null, // No target object for static call
             superSymbol.getFullyQualifiedName(),
@@ -134,7 +137,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
             voidStr, // Return type
             java.util.List.of() // No arguments
         );
-        allInstructions.add(CallInstr.call("_temp_c_init", null, callDetails));
+        allInstructions.add(CallInstr.call(IRConstants.TEMP_C_INIT, null, callDetails));
       }
     }
 
@@ -310,32 +313,32 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
       final var superSymbol = superAggregateOpt.get();
 
       // Only make super call if it's not the implicit base class (like Object)
-      if (isNotImplicitSuperClass(superSymbol)) {
+      if (notImplicitSuper.test(superSymbol)) {
         final var callDetails = new CallDetails(
-            "super", // Target super object
+            IRConstants.SUPER, // Target super object
             superSymbol.getFullyQualifiedName(),
             superSymbol.getName(), // Constructor name matches class name
             java.util.List.of(), // No parameters for default constructor
             superSymbol.getFullyQualifiedName(), // Return type is the super class
             java.util.List.of() // No arguments
         );
-        instructions.add(CallInstr.call("_temp_super_init", debugInfo, callDetails));
+        instructions.add(CallInstr.call(IRConstants.TEMP_SUPER_INIT, debugInfo, callDetails));
       }
     }
 
     // 2. Call own class's i_init method to initialize this class's fields
     final var iInitCallDetails = new CallDetails(
-        "this", // Target this object
+        IRConstants.THIS, // Target this object
         aggregateSymbol.getFullyQualifiedName(),
         IRConstants.I_INIT_METHOD,
         java.util.List.of(), // No parameters
         voidStr, // Return type
         java.util.List.of() // No arguments
     );
-    instructions.add(CallInstr.call("_temp_i_init", debugInfo, iInitCallDetails));
+    instructions.add(CallInstr.call(IRConstants.TEMP_I_INIT, debugInfo, iInitCallDetails));
 
     // 3. Return this
-    instructions.add(BranchInstr.returnValue("this", debugInfo));
+    instructions.add(BranchInstr.returnValue(IRConstants.THIS, debugInfo));
 
     final var basicBlock = new BasicBlockInstr(context.generateBlockLabel(IRConstants.ENTRY_LABEL));
     basicBlock.addInstructions(instructions);

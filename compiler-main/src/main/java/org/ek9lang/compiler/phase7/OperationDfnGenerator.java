@@ -221,27 +221,27 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
       // Only make super call if it's not the implicit base class (like Object)  
       if (isNotImplicitSuperClass(superSymbol)) {
         final var callDetails = new CallDetails(
-            "super", // Target super object
+            IRConstants.SUPER, // Target super object
             superSymbol.getFullyQualifiedName(),
             superSymbol.getName(), // Constructor name matches class name
             java.util.List.of(), // No parameters for default constructor
             superSymbol.getFullyQualifiedName(), // Return type is the super class
             java.util.List.of() // No arguments
         );
-        instructions.add(CallInstr.call("_temp_super_init", debugInfo, callDetails));
+        instructions.add(CallInstr.call(IRConstants.TEMP_SUPER_INIT, debugInfo, callDetails));
       }
     }
 
     // 2. Call own class's i_init method to initialize this class's fields
     final var iInitCallDetails = new CallDetails(
-        "this", // Target this object
+        IRConstants.THIS, // Target this object
         aggregateSymbol.getFullyQualifiedName(),
         IRConstants.I_INIT_METHOD,
         java.util.List.of(), // No parameters
         "org.ek9.lang::Void", // Return type
         java.util.List.of() // No arguments
     );
-    instructions.add(CallInstr.call("_temp_i_init", debugInfo, iInitCallDetails));
+    instructions.add(CallInstr.call(IRConstants.TEMP_I_INIT, debugInfo, iInitCallDetails));
 
     return instructions;
   }

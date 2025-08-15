@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.phase7;
 
-import static org.ek9lang.compiler.symbols.SymbolGenus.CLASS_TRAIT;
-
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.ParsedModule;
@@ -53,19 +51,6 @@ abstract class AbstractDfnGenerator {
     } else {
       throw new CompilerException("Expecting a Method Symbol");
     }
-  }
-
-  /**
-   * Check if the given super class is an implicit base class that should be ignored for initialization calls.
-   * In EK9, classes might implicitly extend base types that don't need explicit super initialization.
-   */
-  protected boolean isNotImplicitSuperClass(final ISymbol superSymbol) {
-    if (CLASS_TRAIT == superSymbol.getGenus()) {
-      return true;
-    }
-    final var fqn = superSymbol.getFullyQualifiedName();
-    return !fqn.startsWith("org.ek9.lang::_") && !parsedModule.getEk9Types().ek9Any().isExactSameType(superSymbol);
-
   }
 
   protected Operation newSyntheticInitOperation(final IRContext context,

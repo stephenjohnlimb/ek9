@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase7;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.IRInstr;
@@ -17,13 +18,14 @@ final class AssignExpressionToSymbol extends AbstractGenerator
 
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
-  private final String scopeId;
+  private final Function<String, List<IRInstr>> assignmentGenerator;
   private final boolean referenceAndRelease;
 
-  AssignExpressionToSymbol(final IRContext context, final boolean referenceAndRelease, final String scopeId) {
+  AssignExpressionToSymbol(final IRContext context,
+                           final boolean referenceAndRelease,
+                           final Function<String, List<IRInstr>> assignmentGenerator) {
     super(context);
-    AssertValue.checkNotNull("ScopeId cannot be null", scopeId);
-    this.scopeId = scopeId;
+    this.assignmentGenerator = assignmentGenerator;
     this.referenceAndRelease = referenceAndRelease;
   }
 
@@ -37,7 +39,6 @@ final class AssignExpressionToSymbol extends AbstractGenerator
     final var lhsTypeName = typeNameOrException.apply(lhsSymbol);
     final var lhsVariableName = variableNameForIR.apply(lhsSymbol);
     final var lhsDebugInfo = debugInfoCreator.apply(lhsSymbol);
-    final var assignmentExprInstrGenerator = new AssignmentExprInstrGenerator(context, scopeId);
 
     final var instructions = new ArrayList<IRInstr>();
     if (referenceAndRelease) {
@@ -45,7 +46,7 @@ final class AssignExpressionToSymbol extends AbstractGenerator
       instructions.add(MemoryInstr.release(lhsVariableName, lhsDebugInfo));
     }
     final var rhsResult = context.generateTempName();
-    instructions.addAll(assignmentExprInstrGenerator.apply(ctx, rhsResult));
+    instructions.addAll(assignmentGenerator.apply(rhsResult));
 
     instructions.add(MemoryInstr.store(lhsVariableName, rhsResult, lhsDebugInfo));
     instructions.add(MemoryInstr.retain(lhsVariableName, lhsDebugInfo));
