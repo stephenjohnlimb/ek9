@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase7;
 
+import static org.ek9lang.compiler.symbols.SymbolGenus.CLASS_TRAIT;
+
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.ParsedModule;
@@ -8,8 +10,7 @@ import org.ek9lang.compiler.ir.Operation;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
-import org.ek9lang.compiler.symbols.AggregateSymbol;
-import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
@@ -23,14 +24,17 @@ import org.ek9lang.core.CompilerException;
  */
 abstract class AbstractDfnGenerator {
 
-  private final ParsedModule parsedModule;
-  private final CompilerFlags compilerFlags;
+  protected final ParsedModule parsedModule;
+  protected final CompilerFlags compilerFlags;
+  protected final String voidStr;
+
   private final OperationDfnGenerator operationDfnGenerator;
 
   AbstractDfnGenerator(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
     this.parsedModule = parsedModule;
     this.compilerFlags = compilerFlags;
     this.operationDfnGenerator = new OperationDfnGenerator(parsedModule, compilerFlags);
+    this.voidStr = parsedModule.getEk9Types().ek9Void().getFullyQualifiedName();
   }
 
   protected void processAsMethodOrOperator(final IRConstruct construct,
@@ -55,23 +59,28 @@ abstract class AbstractDfnGenerator {
    * Check if the given super class is an implicit base class that should be ignored for initialization calls.
    * In EK9, classes might implicitly extend base types that don't need explicit super initialization.
    */
-  protected boolean isNotImplicitSuperClass(final IAggregateSymbol superSymbol) {
-    return !parsedModule.getEk9Types().ek9Any().isExactSameType(superSymbol);
+  protected boolean isNotImplicitSuperClass(final ISymbol superSymbol) {
+    if (CLASS_TRAIT == superSymbol.getGenus()) {
+      return true;
+    }
+    final var fqn = superSymbol.getFullyQualifiedName();
+    return !fqn.startsWith("org.ek9.lang::_") && !parsedModule.getEk9Types().ek9Any().isExactSameType(superSymbol);
+
   }
 
   protected Operation newSyntheticInitOperation(final IRContext context,
-                                                final AggregateSymbol aggregateSymbol,
+                                                final IScope scope,
                                                 final String methodName) {
 
-    final var method = newSyntheticInitMethodSymbol(aggregateSymbol, methodName);
+    final var method = newSyntheticInitMethodSymbol(scope, methodName);
     final var debugInfo = new DebugInfoCreator(context).apply(method);
     return new Operation(method, debugInfo);
 
   }
 
-  private MethodSymbol newSyntheticInitMethodSymbol(final AggregateSymbol aggregateSymbol,
+  private MethodSymbol newSyntheticInitMethodSymbol(final IScope scope,
                                                     final String methodName) {
-    final var methodSymbol = new MethodSymbol(methodName, aggregateSymbol);
+    final var methodSymbol = new MethodSymbol(methodName, scope);
     final ISymbol returnType = parsedModule.getEk9Types().ek9Void();
     methodSymbol.setType(returnType);
     methodSymbol.setReturningSymbol(new VariableSymbol(IRConstants.RETURN_VARIABLE, returnType));

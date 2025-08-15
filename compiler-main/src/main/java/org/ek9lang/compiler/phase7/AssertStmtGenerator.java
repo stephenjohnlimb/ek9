@@ -8,24 +8,18 @@ import org.ek9lang.compiler.ir.BranchInstr;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.core.AssertValue;
 
-final class AssertStmtGenerator implements BiFunction<EK9Parser.AssertStatementContext, String, List<IRInstr>> {
+final class AssertStmtGenerator extends AbstractGenerator
+    implements BiFunction<EK9Parser.AssertStatementContext, String, List<IRInstr>> {
 
-  private final IRContext context;
   private final ExprInstrGenerator expressionGenerator;
-  private final DebugInfoCreator debugInfoCreator;
 
   AssertStmtGenerator(final IRContext context) {
-
-    AssertValue.checkNotNull("IRContext cannot be null", context);
-    this.context = context;
+    super(context);
     this.expressionGenerator = new ExprInstrGenerator(context);
-    this.debugInfoCreator = new DebugInfoCreator(context);
-
   }
 
   @Override
@@ -35,22 +29,22 @@ final class AssertStmtGenerator implements BiFunction<EK9Parser.AssertStatementC
     AssertValue.checkNotNull("ScopeId cannot be null", scopeId);
 
     // Evaluate the assert expression
-    final var tempExprResult = context.generateTempName();
-    final var instructions = new ArrayList<>(expressionGenerator.apply(ctx.expression(), tempExprResult, scopeId));
+    final var rhsExprResult = context.generateTempName();
+    final var instructions = new ArrayList<>(expressionGenerator.apply(ctx.expression(), rhsExprResult, scopeId));
 
     // Call the _true() method to get primitive boolean (true if set AND true)
-    final var tempBoolResult = context.generateTempName();
+    final var rhsResult = context.generateTempName();
     final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx.expression());
     final var debugInfo = debugInfoCreator.apply(exprSymbol);
 
-    final var booleanTypeName = context.getParsedModule().getEk9Types().ek9Boolean().getFullyQualifiedName();
-    final var callDetails = new CallDetails(tempExprResult, booleanTypeName, IRConstants.TRUE_METHOD,
+    final var booleanTypeName = getEk9BooleanFullyQualifiedName();
+    final var callDetails = new CallDetails(rhsExprResult, booleanTypeName, IRConstants.TRUE_METHOD,
         List.of(), IRConstants.BOOLEAN, List.of());
 
-    instructions.add(CallInstr.call(tempBoolResult, debugInfo, callDetails));
+    instructions.add(CallInstr.call(rhsResult, debugInfo, callDetails));
 
     // Assert on the primitive boolean result
-    instructions.add(BranchInstr.assertValue(tempBoolResult, debugInfo));
+    instructions.add(BranchInstr.assertValue(rhsResult, debugInfo));
 
     return instructions;
   }

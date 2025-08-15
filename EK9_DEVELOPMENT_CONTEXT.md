@@ -82,6 +82,69 @@ Any (interface) - Universal base interface
 - Collection types (List, Dict) are always set, even when empty
 - Error handling: Some operations throw exceptions rather than returning unset
 
+## EK9 IR Generation Memory Management Patterns
+
+### Parameter Memory Ownership Rules
+
+**Critical Memory Management Insight**: EK9's IR generation distinguishes between caller-owned and function-owned memory through scope registration rules:
+
+#### ShouldRegisterVariableInScope Logic
+- **Parameters** (`_param_*` scopes): **FALSE** - caller-managed memory, no SCOPE_REGISTER
+- **Return variables** (`_return_*` scopes): **FALSE** - ownership transferred to caller  
+- **Local variables** (`_scope_*` scopes): **TRUE** - function-managed memory, needs SCOPE_REGISTER
+
+**Key Implementation**: Parameters get REFERENCE declaration only, never SCOPE_REGISTER:
+```java
+// Parameters: REFERENCE declaration only - caller owns the memory
+instructions.add(MemoryInstr.reference(paramName, paramType, debugInfo));
+// NO SCOPE_REGISTER for parameters
+
+// Local variables: both REFERENCE and SCOPE_REGISTER
+instructions.add(MemoryInstr.reference(localName, localType, debugInfo));
+instructions.add(ScopeInstr.register(localName, scopeId, debugInfo));
+```
+
+**Memory Ownership Rule**: Functions should never attempt to manage memory they don't own. Function parameters are caller-owned and remain outside the function's scope management system.
+
+### Function-to-Class IR Generation Pattern
+
+EK9 transforms functions into class-like constructs following the "Everything as Object" design principle:
+
+**IR Generation Components:**
+- **FunctionDfnGenerator**: Creates function-as-class constructs with synthetic `_call` methods
+- **OperationDfnGenerator**: Handles function body processing with proper scope management
+- **AssertStmtGenerator**: Converts `assert expression` to Boolean._true() + ASSERT IR instruction
+
+**Function IR Structure:**
+```
+ConstructDfn: module::functionName
+OperationDfn: module::functionName._call()->returnType
+BasicBlock: _entry_1
+IRInstruction: REFERENCE param, paramType  // Parameter declaration only
+IRInstruction: SCOPE_ENTER _scope_1  // Function body scope
+IRInstruction: [function body instructions]
+IRInstruction: SCOPE_EXIT _scope_1
+IRInstruction: RETURN
+```
+
+### Assert Statement IR Processing
+
+EK9 assert statements follow a specific IR generation pattern:
+
+**Processing Steps:**
+1. **Expression Evaluation**: Generate IR to evaluate the assert expression to a temporary variable
+2. **Boolean Conversion**: Call `_true()` method on the Boolean object to get primitive boolean value  
+3. **Assertion**: Use ASSERT IR instruction with the primitive boolean result
+
+**IR Pattern:**
+```
+_temp1 = LOAD parameter
+_temp2 = CALL (org.ek9.lang::Boolean)_temp1._true()
+ASSERT _temp2
+```
+
+This demonstrates EK9's "Everything as Object" philosophy where even primitive boolean operations require method calls.
+
 ## EK9 Annotation Formatting
 
 ### General Formatting Rules

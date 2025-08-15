@@ -9,7 +9,6 @@ import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.LiteralInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
-import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.compiler.symbols.CallSymbol;
@@ -64,19 +63,14 @@ import org.ek9lang.core.AssertValue;
  *     ;
  * </pre>
  */
-final class ExprInstrGenerator {
+final class ExprInstrGenerator extends AbstractGenerator {
 
-  private final IRContext context;
   private final ObjectAccessInstrGenerator objectAccessCreator;
-  private final DebugInfoCreator debugInfoCreator;
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
 
   ExprInstrGenerator(final IRContext context) {
-    AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
-
-    this.context = context;
+    super(context);
     this.objectAccessCreator = new ObjectAccessInstrGenerator(context);
-    this.debugInfoCreator = new DebugInfoCreator(context);
   }
 
   /**

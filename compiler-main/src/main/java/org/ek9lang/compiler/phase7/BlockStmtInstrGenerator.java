@@ -12,7 +12,7 @@ import org.ek9lang.core.CompilerException;
  * Creates IR instructions for block statements.
  * Handles variable declarations, variable only declarations, and statements.
  * <p>
- *   Deals with the following ANLR grammar.
+ * Deals with the following ANTLR grammar.
  * </p>
  * <pre>
  *   blockStatement
@@ -22,14 +22,14 @@ import org.ek9lang.core.CompilerException;
  *     ;
  * </pre>
  */
-final class BlockStmtInstrGenerator {
+final class BlockStmtInstrGenerator extends AbstractGenerator {
 
   private final VariableDeclInstrGenerator variableDeclarationCreator;
   private final VariableOnlyDeclInstrGenerator variableOnlyDeclarationCreator;
   private final StmtInstrGenerator statementInstructionCreator;
 
   BlockStmtInstrGenerator(final IRContext context) {
-    AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
+    super(context);
     this.variableDeclarationCreator = new VariableDeclInstrGenerator(context);
     this.variableOnlyDeclarationCreator = new VariableOnlyDeclInstrGenerator(context);
     this.statementInstructionCreator = new StmtInstrGenerator(context);

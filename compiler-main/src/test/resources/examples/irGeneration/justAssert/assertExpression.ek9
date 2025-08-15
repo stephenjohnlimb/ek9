@@ -1,0 +1,33 @@
+#!ek9
+<?-
+  Proof that assert expression generates working IR.
+-?>
+defines module justAssert
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "justAssert::checkAssert": `
+        ConstructDfn: justAssert::checkAssert(org.ek9.lang::Boolean)->org.ek9.lang::Void
+        OperationDfn: justAssert::checkAssert.c_init()->org.ek9.lang::Void
+        BasicBlock: _entry_1
+        IRInstruction: RETURN
+        OperationDfn: justAssert::checkAssert.i_init()->org.ek9.lang::Void
+        BasicBlock: _entry_1
+        IRInstruction: RETURN
+        OperationDfn: justAssert::checkAssert.checkAssert()->justAssert::checkAssert  // ./assertExpression.ek9:30:5
+        BasicBlock: _entry_1
+        IRInstruction: _temp_i_init = CALL (justAssert::checkAssert)this.i_init()  // ./assertExpression.ek9:30:5
+        IRInstruction: RETURN this  // ./assertExpression.ek9:30:5
+        OperationDfn: justAssert::checkAssert._call(org.ek9.lang::Boolean)->org.ek9.lang::Void  // ./assertExpression.ek9:30:5
+        BasicBlock: _entry_1
+        IRInstruction: REFERENCE arg0, org.ek9.lang::Boolean  // ./assertExpression.ek9:31:10
+        IRInstruction: SCOPE_ENTER _scope_1
+        IRInstruction: _temp1 = LOAD arg0  // ./assertExpression.ek9:31:10
+        IRInstruction: _temp2 = CALL (org.ek9.lang::Boolean)_temp1._true()  // ./assertExpression.ek9:31:10
+        IRInstruction: ASSERT _temp2  // ./assertExpression.ek9:31:10
+        IRInstruction: SCOPE_EXIT _scope_1
+        IRInstruction: RETURN`
+    checkAssert()
+      -> arg0 as Boolean
+      assert arg0
+//EOF

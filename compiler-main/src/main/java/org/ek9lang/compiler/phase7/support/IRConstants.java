@@ -19,8 +19,10 @@ public final class IRConstants {
     //Just to stop creation.
   }
 
+  //labels
   public static final String ENTRY_LABEL = "entry";
 
+  //scopes
   public static final String PARAM_SCOPE = "param";
   public static final String RETURN_SCOPE = "return";
   public static final String GENERAL_SCOPE = "scope";
@@ -30,14 +32,22 @@ public final class IRConstants {
   public static final String DO_SCOPE = "do";
   public static final String WHILE_SCOPE = "while";
 
+  //method calls
+  public static final String CALL_METHOD = "_call";
   public static final String C_INIT_METHOD = "c_init";
   public static final String I_INIT_METHOD = "i_init";
   public static final String TRUE_METHOD = "_true";
   public static final String FALSE_METHOD = "_false";
 
+  //primitive types
   public static final String VOID = "void";
   public static final String BOOLEAN = "boolean";
 
-
+  //known specific variable names
   public static final String RETURN_VARIABLE = "_rtn";
+
+  //access_modifiers
+  public static final String PUBLIC = "public";
+  public static final String PRIVATE = "private";
+
 }

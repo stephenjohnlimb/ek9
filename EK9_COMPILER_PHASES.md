@@ -1,6 +1,6 @@
 # EK9 Compiler Phases Implementation Guide
 
-This document provides detailed guidance for implementing and understanding the EK9 compiler's 22-phase compilation pipeline. This is the specialized reference for compiler phase development, symbol table management, and phase interdependencies.
+This document provides detailed guidance for implementing and understanding the EK9 compiler's 20-phase compilation pipeline. This is the specialized reference for compiler phase development, symbol table management, and phase interdependencies.
 
 **Related Documentation:**
 - **`CLAUDE.md`** - Main project overview and daily development guidelines  
@@ -9,21 +9,32 @@ This document provides detailed guidance for implementing and understanding the 
 
 ## Compilation Pipeline Overview
 
-The EK9 compiler follows a **22-phase compilation pipeline** organized into three main stages:
+The EK9 compiler follows a **20-phase compilation pipeline** organized into three main stages:
 
-### Frontend Phases (0-3)
+### Frontend Phases (0-9)
 - **Phase 0: PARSING** - ANTLR4-based parsing
 - **Phase 1: SYMBOL_DEFINITION** - Symbol table creation  
 - **Phase 2: DUPLICATION_CHECK** - Duplicate detection
 - **Phase 3: REFERENCE_CHECKS** - Reference validation
+- **Phase 4: EXPLICIT_TYPE_SYMBOL_DEFINITION** - Type resolution
+- **Phase 5: TYPE_HIERARCHY_CHECKS** - Inheritance validation
+- **Phase 6: FULL_RESOLUTION** - Template and generic resolution
+- **Phase 7: POST_RESOLUTION_CHECKS** - Symbol validation
+- **Phase 8: PRE_IR_CHECKS** - Code flow analysis
+- **Phase 9: PLUGIN_RESOLUTION** - Plugin resolution
 
-### Middle-end Phases (4-18)
-*Detailed phase implementations will be documented here*
+### Middle-end Phases (10-13)
+- **Phase 10: IR_GENERATION** - Intermediate representation generation
+- **Phase 11: IR_ANALYSIS** - IR analysis and validation
+- **Phase 12: IR_OPTIMISATION** - IR-level optimizations
 
-### Backend Phases (19-21)
-- **Phase 19: IR_GENERATION** - Intermediate representation generation
-- **Phase 20: CODE_GENERATION** - Target code generation  
-- **Phase 21: PACKAGING** - Application packaging
+### Backend Phases (14-19)
+- **Phase 14: CODE_GENERATION_PREPARATION** - Code generation preparation
+- **Phase 15: CODE_GENERATION_AGGREGATES** - Generate code for aggregates
+- **Phase 16: CODE_GENERATION_CONSTANTS** - Generate code for constants
+- **Phase 17: CODE_OPTIMISATION** - Target code optimizations
+- **Phase 18: PLUGIN_LINKAGE** - Link external plugins
+- **Phase 19: APPLICATION_PACKAGING** - Application packaging
 
 ## Phase Implementation Patterns
 
@@ -79,10 +90,97 @@ The EK9 compiler follows a **22-phase compilation pipeline** organized into thre
 - Dead code detection
 - Optimization opportunity identification
 
-### Code Generation Phases (19-21)
+### IR Generation Phase (10)
+
+**Phase 10: IR_GENERATION** is the critical phase that transforms resolved symbols from frontend phases into target-agnostic intermediate representation.
+
+#### Function-to-Class Transformation
+
+EK9 functions are transformed into class-like constructs using the "Everything as Object" design principle:
+
+**Function Processing Flow:**
+1. **FunctionDfnGenerator** creates function-as-class construct with synthetic `_call` method
+2. **OperationDfnGenerator** processes function body with proper scope management
+3. **Parameter handling** with caller-owned memory semantics (no SCOPE_REGISTER)
+4. **Local variable handling** with function-owned memory semantics (includes SCOPE_REGISTER)
+
+**Example Function IR Pattern:**
+```ek9
+// EK9 Source:
+checkAssert()
+  -> arg0 as Boolean
+  assert arg0
+
+// Generated IR:
+ConstructDfn: justAssert::checkAssert
+OperationDfn: justAssert::checkAssert._call()->org.ek9.lang::Void
+BasicBlock: _entry_1
+IRInstruction: REFERENCE arg0, org.ek9.lang::Boolean  // Parameter declaration only
+IRInstruction: SCOPE_ENTER _scope_1  // Function body scope
+IRInstruction: _temp1 = LOAD arg0  // Load parameter value
+IRInstruction: _temp2 = CALL (org.ek9.lang::Boolean)_temp1._true()  // Boolean conversion
+IRInstruction: ASSERT _temp2  // Primitive boolean assertion
+IRInstruction: SCOPE_EXIT _scope_1
+IRInstruction: RETURN
+```
+
+#### Memory Ownership and Scope Management
+
+**Critical Memory Management Rules:**
+- **Parameters**: Caller-owned memory, receive REFERENCE declaration only
+- **Return Variables**: Ownership transferred to caller, no SCOPE_REGISTER
+- **Local Variables**: Function-owned memory, require both REFERENCE and SCOPE_REGISTER
+
+**ShouldRegisterVariableInScope Logic:**
+```java
+// Parameters (_param_*): FALSE - caller manages memory
+// Return variables (_return_*): FALSE - transferred to caller
+// Local variables (_scope_*): TRUE - function manages memory
+```
+
+#### Assert Statement Processing
+
+Assert statements demonstrate EK9's "Everything as Object" philosophy:
+
+**Processing Steps:**
+1. **Expression Evaluation**: Convert assert expression to temporary variable
+2. **Boolean Conversion**: Call `_true()` method on Boolean object for primitive boolean
+3. **Assertion**: Use ASSERT IR instruction with primitive boolean result
+
+**IR Pattern:**
+```
+_temp1 = LOAD parameter
+_temp2 = CALL (org.ek9.lang::Boolean)_temp1._true()
+ASSERT _temp2
+```
+
+#### Key IR Generation Components
+
+- **IRGenerator**: Main orchestration class processing CompilableSource modules
+- **IRDfnGenerator**: Processes different EK9 constructs (classes, functions, programs)
+- **AbstractDfnGenerator**: Base class providing common processing patterns
+- **OperationDfnGenerator**: Handles method/function body processing
+- **AssertStmtGenerator**: Specific processing for assert statements
+- **ExprInstrGenerator**: Expression evaluation and temporary variable generation
+
+#### Scope-Based Resource Management
+
+**Scope Lifecycle Pattern:**
+```
+SCOPE_ENTER _scope_1
+// ... function body instructions with SCOPE_REGISTER for locals
+SCOPE_EXIT _scope_1  // Automatic RELEASE of all registered variables
+```
+
+**Scope Types:**
+- `_param_*`: Parameter scope (no automatic cleanup)
+- `_return_*`: Return scope (ownership transfer)
+- `_scope_*`: General scope (automatic cleanup)
+
+### Code Generation Phases (14-19)
 *This section will contain:*
-- IR generation strategies
-- Target-specific optimizations
+- Target-specific code generation strategies
+- Backend optimizations
 - Resource management
 - Output file generation
 

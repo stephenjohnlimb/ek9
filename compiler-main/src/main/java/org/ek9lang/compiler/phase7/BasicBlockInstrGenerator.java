@@ -12,7 +12,7 @@ import org.ek9lang.core.AssertValue;
  * Creates BasicBlock IR from EK9 instruction block contexts.
  * Follows the Creator pattern used throughout the EK9 compiler phase7 package.
  * <p>
- *   For the following ANTLR grammar.
+ * For the following ANTLR grammar.
  * </p>
  * <pre>
  *   instructionBlock
@@ -20,14 +20,13 @@ import org.ek9lang.core.AssertValue;
  *     ;
  * </pre>
  */
-final class BasicBlockInstrGenerator implements Function<EK9Parser.InstructionBlockContext, BasicBlockInstr> {
+final class BasicBlockInstrGenerator extends AbstractGenerator
+    implements Function<EK9Parser.InstructionBlockContext, BasicBlockInstr> {
 
-  private final IRContext context;
   private final BlockStmtInstrGenerator blockStatementCreator;
 
   BasicBlockInstrGenerator(final IRContext context) {
-    AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
-    this.context = context;
+    super(context);
     this.blockStatementCreator = new BlockStmtInstrGenerator(context);
   }
 

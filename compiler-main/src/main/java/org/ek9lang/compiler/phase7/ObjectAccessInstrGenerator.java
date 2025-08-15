@@ -20,7 +20,7 @@ import org.ek9lang.core.AssertValue;
 /**
  * Creates IR instructions for object access expressions.
  * Handles constructor calls and method calls using resolved symbols.
- * Generates new BasicBlock IR (IRInstructions) instead of old Block IR (INode).
+ * Generates new BasicBlock IR (IRInstructions).
  */
 final class ObjectAccessInstrGenerator {
 

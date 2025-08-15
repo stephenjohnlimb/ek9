@@ -25,15 +25,11 @@ import org.ek9lang.core.CompilerException;
  *     ;
  * </pre>
  */
-final class AssignmentStmtGenerator implements
+final class AssignmentStmtGenerator extends AbstractGenerator implements
     BiFunction<EK9Parser.AssignmentStatementContext, String, List<IRInstr>> {
 
-  private final IRContext context;
-
   AssignmentStmtGenerator(final IRContext context) {
-
-    AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
-    this.context = context;
+    super(context);
 
   }
 

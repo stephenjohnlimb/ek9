@@ -4,22 +4,22 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.ParsedModule;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.BasicBlockInstr;
 import org.ek9lang.compiler.ir.BranchInstr;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.Field;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.Operation;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
+import org.ek9lang.compiler.phase7.support.FieldCreator;
+import org.ek9lang.compiler.phase7.support.FieldsFromCapture;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
-import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -46,16 +46,8 @@ import org.ek9lang.core.CompilerException;
 final class ClassDfnGenerator extends AbstractDfnGenerator
     implements Function<EK9Parser.ClassDeclarationContext, IRConstruct> {
 
-  private final ParsedModule parsedModule;
-  private final CompilerFlags compilerFlags;
-  private final String voidStr;
-  final TypeNameOrException typeNameOrException = new TypeNameOrException();
-
   ClassDfnGenerator(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
     super(parsedModule, compilerFlags);
-    this.parsedModule = parsedModule;
-    this.compilerFlags = compilerFlags;
-    voidStr = parsedModule.getEk9Types().ek9Void().getFullyQualifiedName();
   }
 
   @Override
@@ -69,7 +61,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
       createFieldDeclarations(construct, aggregateSymbol);
 
       // Create three-phase initialization operations
-      createClassInitializationOperations(construct, aggregateSymbol, ctx);
+      createInitializationOperations(construct, aggregateSymbol, ctx);
 
       // Process aggregateParts if present (methods, operators, properties)
       if (ctx.aggregateParts() != null) {
@@ -87,19 +79,13 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
    * separate from the behavioral operations (methods).
    */
   private void createFieldDeclarations(final IRConstruct construct, final AggregateSymbol aggregateSymbol) {
-    final var properties = aggregateSymbol.getProperties();
+
     final var debugInfoCreator = new DebugInfoCreator(new IRContext(parsedModule, compilerFlags));
+    final var fieldCreator = new FieldCreator(construct, debugInfoCreator);
+    final var fieldsFromCapture = new FieldsFromCapture(fieldCreator);
 
-    for (final var property : properties) {
-      if (property instanceof VariableSymbol variableSymbol && variableSymbol.isPropertyField()) {
-        final var fieldName = variableSymbol.getName();
-        final var typeName = typeNameOrException.apply(variableSymbol);
-        final var debugInfo = debugInfoCreator.apply(variableSymbol);
-
-        final var field = new Field(variableSymbol, fieldName, typeName, debugInfo);
-        construct.addField(field);
-      }
-    }
+    aggregateSymbol.getProperties().forEach(fieldCreator);
+    fieldsFromCapture.accept(aggregateSymbol);
   }
 
   /**
@@ -108,27 +94,25 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
    * 2. i_init - Instance initialization (property declarations and immediate initialization)
    * 3. Constructor methods will be processed separately in createOperationsForAggregateParts
    */
-  private void createClassInitializationOperations(final IRConstruct construct,
-                                                   final AggregateSymbol aggregateSymbol,
-                                                   final EK9Parser.ClassDeclarationContext ctx) {
+  private void createInitializationOperations(final IRConstruct construct,
+                                              final AggregateSymbol aggregateSymbol,
+                                              final EK9Parser.ClassDeclarationContext ctx) {
 
     // Create c_init operation for class/static initialization
-    createClassInitOperation(construct, aggregateSymbol);
+    createInitOperation(construct, aggregateSymbol);
 
-    // Create i_init operation for instance initialization
-    if (ctx.aggregateParts() != null) {
-      createInstanceInitOperation(construct, aggregateSymbol, ctx.aggregateParts());
-    }
+    createInstanceInitOperation(construct, aggregateSymbol, ctx.aggregateParts());
+
   }
 
   /**
    * Create c_init operation for class/static initialization.
    * This runs once per class loading.
    */
-  private void createClassInitOperation(final IRConstruct construct, final AggregateSymbol aggregateSymbol) {
+  private void createInitOperation(final IRConstruct construct, final AggregateSymbol aggregateSymbol) {
     // Create a synthetic method symbol for c_init is when the class/construct definition is actually loaded.
     final var context = new IRContext(parsedModule, compilerFlags);
-    final var cInitOperation = newSyntheticInitOperation(context, aggregateSymbol, "c_init");
+    final var cInitOperation = newSyntheticInitOperation(context, aggregateSymbol, IRConstants.C_INIT_METHOD);
 
     // Generate c_init body
 
@@ -172,18 +156,21 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
    * This handles property REFERENCE declarations and immediate initializations.
    */
   private void createInstanceInitOperation(final IRConstruct construct,
-                                           final AggregateSymbol aggregateSymbol,
+                                           final IScope aggregateSymbol,
                                            final EK9Parser.AggregatePartsContext ctx) {
     final var context = new IRContext(parsedModule, compilerFlags);
     final var iInitOperation = newSyntheticInitOperation(context, aggregateSymbol, IRConstants.I_INIT_METHOD);
 
     // Generate i_init body
+    final var allInstructions = new java.util.ArrayList<IRInstr>();
 
-    final var allInstructions = new java.util.ArrayList<>(processPropertiesForInstanceInit(ctx, context));
+    //Now it is possible that there are captured variables, TODO
 
-    // Return void
+    if (ctx != null) {
+      allInstructions.addAll(processPropertiesForInstanceInit(ctx, context));
+    }
+
     allInstructions.add(BranchInstr.returnVoid());
-
     // Create BasicBlock with all instructions
     final var basicBlock = new BasicBlockInstr(context.generateBlockLabel(IRConstants.ENTRY_LABEL));
     basicBlock.addInstructions(allInstructions);
@@ -350,7 +337,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
     // 3. Return this
     instructions.add(BranchInstr.returnValue("this", debugInfo));
 
-    final var basicBlock = new BasicBlockInstr(IRConstants.ENTRY_LABEL);
+    final var basicBlock = new BasicBlockInstr(context.generateBlockLabel(IRConstants.ENTRY_LABEL));
     basicBlock.addInstructions(instructions);
     operation.setBody(basicBlock);
 
@@ -373,7 +360,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
     instructions.add(BranchInstr.returnVoid()); // Placeholder
 
-    final var basicBlock = new BasicBlockInstr(IRConstants.ENTRY_LABEL);
+    final var basicBlock = new BasicBlockInstr(context.generateBlockLabel(IRConstants.ENTRY_LABEL));
     basicBlock.addInstructions(instructions);
     operation.setBody(basicBlock);
 
@@ -395,7 +382,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
     instructions.add(BranchInstr.returnVoid()); // Placeholder
 
-    final var basicBlock = new BasicBlockInstr(IRConstants.ENTRY_LABEL);
+    final var basicBlock = new BasicBlockInstr(context.generateBlockLabel(IRConstants.ENTRY_LABEL));
     basicBlock.addInstructions(instructions);
     operation.setBody(basicBlock);
 

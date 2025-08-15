@@ -162,13 +162,145 @@ final var debugInfo = debugInfoCreator.apply(symbol);
 - Method call tracking: `CALL _temp6.println(toOutput) // ./workarea.ek9:13:14`
 - Constructor call tracking: `CALL org.ek9.lang::Stdout.<init>() // ./workarea.ek9:8:17`
 
+## IR Generation Patterns
+
+### Function-to-Class Transformation Pattern
+
+EK9 functions are transformed into class-like constructs with synthetic `_call` methods, following the "Everything as Object" design principle:
+
+**EK9 Source:**
+```ek9
+checkAssert()
+  -> arg0 as Boolean
+  assert arg0
+```
+
+**Generated IR Structure:**
+```
+ConstructDfn: justAssert::checkAssert
+OperationDfn: justAssert::checkAssert._call()->org.ek9.lang::Void
+BasicBlock: _entry_1
+IRInstruction: REFERENCE arg0, org.ek9.lang::Boolean  // Parameter declaration
+IRInstruction: SCOPE_ENTER _scope_1  // Function body scope
+IRInstruction: _temp1 = LOAD arg0  // Load parameter value
+IRInstruction: _temp2 = CALL (org.ek9.lang::Boolean)_temp1._true()  // Boolean conversion
+IRInstruction: ASSERT _temp2  // Primitive boolean assertion
+IRInstruction: SCOPE_EXIT _scope_1
+IRInstruction: RETURN
+```
+
+**Key Transformation Components:**
+- **FunctionDfnGenerator**: Creates function-as-class constructs with synthetic `_call` methods
+- **OperationDfnGenerator**: Handles function body processing with proper scope management
+- **Synthetic Method Pattern**: Functions become classes with `_call()` methods for uniform invocation
+
+### Assert Statement Processing Pattern
+
+EK9 assert statements convert Boolean expressions to primitive booleans before assertion:
+
+**Processing Steps:**
+1. **Expression Evaluation**: Generate IR to evaluate the assert expression to a temporary variable
+2. **Boolean Conversion**: Call `_true()` method on the Boolean object to get primitive boolean value
+3. **Assertion**: Use ASSERT IR instruction with the primitive boolean result
+
+**AssertStmtGenerator Implementation:**
+```java
+// Evaluate the assert expression
+final var rhsExprResult = context.generateTempName();
+final var instructions = new ArrayList<>(expressionGenerator.apply(ctx.expression(), rhsExprResult, scopeId));
+
+// Call the _true() method to get primitive boolean
+final var rhsResult = context.generateTempName();
+final var callDetails = new CallDetails(rhsExprResult, booleanTypeName, "_true", 
+    List.of(), "boolean", List.of());
+instructions.add(CallInstr.call(rhsResult, debugInfo, callDetails));
+
+// Assert on the primitive boolean result
+instructions.add(BranchInstr.assertValue(rhsResult, debugInfo));
+```
+
+### Memory Management and Scope Ownership Rules
+
+EK9's IR generation includes sophisticated memory ownership tracking through scope registration:
+
+**ShouldRegisterVariableInScope Logic:**
+- **Parameters** (`_param_*` scopes): **FALSE** - caller-managed memory, no SCOPE_REGISTER
+- **Return variables** (`_return_*` scopes): **FALSE** - ownership transferred to caller
+- **Local variables** (`_scope_*` scopes): **TRUE** - function-managed memory, needs SCOPE_REGISTER
+
+**Parameter Handling Pattern:**
+```java
+// Parameters get REFERENCE declaration only - no scope registration
+instructions.add(MemoryInstr.reference(paramName, paramType, debugInfo));
+// NO SCOPE_REGISTER for parameters - caller owns the memory
+
+// Local variables get both REFERENCE and SCOPE_REGISTER
+instructions.add(MemoryInstr.reference(localName, localType, debugInfo));
+instructions.add(ScopeInstr.register(localName, scopeId, debugInfo));
+```
+
+**Critical Memory Ownership Rule:** Function parameters are caller-owned and should NOT be registered in function scope for cleanup. This prevents the function from attempting to manage memory it doesn't own.
+
+### Variable Declaration Processing Pattern
+
+**AbstractVariableDeclGenerator** provides common processing for variable declarations:
+
+**Variable-Only Declarations** (parameters, uninitialized variables):
+```
+REFERENCE variableName, typeName
+SCOPE_REGISTER variableName, scopeId  // Only if shouldRegisterVariableInScope returns true
+```
+
+**Variable Declarations with Initialization** (local variables with values):
+```
+REFERENCE variableName, typeName
+SCOPE_REGISTER variableName, scopeId
+_temp1 = [initialization expression IR]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, scopeId
+STORE variableName, _temp1
+RETAIN variableName
+```
+
+### Scope Management Pattern
+
+EK9 uses hierarchical scope management for memory cleanup:
+
+**Function Scope Structure:**
+1. **Parameter Scope** (`_param_*`): No automatic cleanup - caller-managed
+2. **Return Scope** (`_return_*`): No automatic cleanup - transferred to caller
+3. **Function Body Scope** (`_scope_*`): Automatic cleanup with SCOPE_EXIT
+
+**Scope Lifecycle:**
+```
+SCOPE_ENTER _scope_1
+// ... function body instructions
+// ... SCOPE_REGISTER for local variables only
+SCOPE_EXIT _scope_1  // Automatic RELEASE of all registered variables
+```
+
 ## Implementation Patterns
 
-*This section will contain:*
-- Common IR transformation patterns
-- Error handling in code generation
-- Resource management strategies
-- Testing and validation approaches
+### Common IR Transformation Patterns
+- **Symbol-Driven Processing**: Always use `parsedModule.getRecordedSymbol(ctx)` instead of text parsing
+- **Temporary Variable Generation**: Use `context.generateTempName()` for intermediate results
+- **Debug Information Integration**: Apply consistent debug info from `DebugInfoCreator`
+- **Type-Safe Operations**: All operations use fully qualified type names
+
+### Error Handling in Code Generation
+- **Null Validation**: All generators validate input parameters with `AssertValue.checkNotNull()`
+- **Symbol Type Checking**: Verify expected symbol types before processing (e.g., `instanceof AggregateSymbol`)
+- **Context Preservation**: Maintain parse context relationships for error reporting
+
+### Resource Management Strategies
+- **Scope-Based Cleanup**: Use SCOPE_ENTER/SCOPE_EXIT for automatic memory management
+- **Ownership Tracking**: Distinguish between caller-owned (parameters) and function-owned (locals) memory
+- **Reference Counting**: Apply RETAIN/RELEASE based on ownership and scope registration
+
+### Testing and Validation Approaches
+- **@IR Directive Pattern**: Embed expected IR in EK9 source files for test-driven IR development
+- **AbstractIRGenerationTest**: Standard test infrastructure for IR generation validation
+- **Debug Instrumentation**: Enable debug output with `-Dek9.instructionInstrumentation=true` for verification
 
 ---
 

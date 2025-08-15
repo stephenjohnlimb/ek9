@@ -17,4 +17,17 @@ abstract class AbstractGenerator {
     this.context = context;
     this.debugInfoCreator = new DebugInfoCreator(context);
   }
+
+  protected String getEk9BooleanFullyQualifiedName() {
+    return context.getParsedModule().getEk9Types().ek9Boolean().getFullyQualifiedName();
+  }
+
+  protected String getEk9VoidFullyQualifiedName() {
+    return context.getParsedModule().getEk9Types().ek9Void().getFullyQualifiedName();
+  }
+
+  protected String getEk9AnyFullyQualifiedName() {
+    return context.getParsedModule().getEk9Types().ek9Any().getFullyQualifiedName();
+  }
+
 }
