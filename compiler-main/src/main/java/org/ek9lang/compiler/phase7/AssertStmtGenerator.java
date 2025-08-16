@@ -5,16 +5,16 @@ import java.util.List;
 import java.util.function.BiFunction;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.BranchInstr;
-import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.phase7.support.CallDetailsForTrue;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.core.AssertValue;
 
 final class AssertStmtGenerator extends AbstractGenerator
     implements BiFunction<EK9Parser.AssertStatementContext, String, List<IRInstr>> {
 
+  private final CallDetailsForTrue callDetailsForTrue = new CallDetailsForTrue();
 
   AssertStmtGenerator(final IRContext context) {
     super(context);
@@ -36,9 +36,7 @@ final class AssertStmtGenerator extends AbstractGenerator
     final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx.expression());
     final var debugInfo = debugInfoCreator.apply(exprSymbol);
 
-    final var booleanTypeName = getEk9BooleanFullyQualifiedName();
-    final var callDetails = new CallDetails(rhsExprResult, booleanTypeName, IRConstants.TRUE_METHOD,
-        List.of(), IRConstants.BOOLEAN, List.of());
+    final var callDetails = callDetailsForTrue.apply(rhsExprResult);
 
     instructions.add(CallInstr.call(rhsResult, debugInfo, callDetails));
 

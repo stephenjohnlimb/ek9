@@ -3,6 +3,35 @@ defines module introduction
 
 
   defines function
+
+    andBooleanExpression()
+      ->
+        arg0 as Boolean
+        arg1 as Boolean
+      <-
+        rtn as Boolean?
+
+      rtn: arg0 and arg1
+
+    orBooleanExpression()
+      ->
+        arg0 as Boolean
+        arg1 as Boolean
+      <-
+        rtn as Boolean: Boolean()
+
+      rtn: arg0 or arg1
+
+    mixedBooleanExpression()
+      ->
+        arg0 as Boolean
+        arg1 as Boolean
+        arg2 as Boolean
+      <-
+        rtn as Boolean: Boolean()
+
+      rtn: arg0 and (arg1 or arg2)
+<!-
     aSimpleFunction()
       -> arg0 as String
       <- rtn as String: String()
@@ -25,5 +54,6 @@ defines module introduction
       stdout <- Stdout()
       toOutput <- "Hello, World"
       stdout.println(toOutput)
+-!>
 
 //EOF

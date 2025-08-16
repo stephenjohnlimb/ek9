@@ -5,12 +5,16 @@ import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.TypeNameOrException;
+import org.ek9lang.compiler.ir.BranchInstr;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.ir.LabelInstr;
 import org.ek9lang.compiler.ir.LiteralInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
+import org.ek9lang.compiler.ir.PhiInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
+import org.ek9lang.compiler.phase7.support.CallDetailsForTrue;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
@@ -75,7 +79,7 @@ final class ExprInstrGenerator extends AbstractGenerator {
   private final ObjectAccessInstrGenerator objectAccessCreator;
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
-
+  private final CallDetailsForTrue callDetailsForTrue = new CallDetailsForTrue();
 
   ExprInstrGenerator(final IRContext context,
                      final EK9Parser.ExpressionContext ctx,
@@ -137,6 +141,10 @@ final class ExprInstrGenerator extends AbstractGenerator {
     // Handle postfix question operator: expression?
     if (ctx.op.getType() == EK9Parser.QUESTION) {
       instructions.addAll(processQuestionOperator(ctx, rhsExprResult, scopeId));
+    } else if (ctx.op.getType() == EK9Parser.AND) {
+      instructions.addAll(processAndExpression(ctx, rhsExprResult, scopeId));
+    } else if (ctx.op.getType() == EK9Parser.OR) {
+      instructions.addAll(processOrExpression(ctx, rhsExprResult, scopeId));
     } else {
       AssertValue.fail("Other Operations not yet implemented: " + ctx.op.getText());
     }
@@ -174,12 +182,12 @@ final class ExprInstrGenerator extends AbstractGenerator {
     } else if (ctx.primary().identifierReference() != null) {
       // Handle identifier references: variable names
       instructions.addAll(processIdentifierReference(ctx.primary().identifierReference(), rhsExprResult));
-    } else if (ctx.expression() != null) {
-      // Handle parenthesized expressions: (expression)
-      //TODO I think I need a new temp variable here, but not sure.
-      instructions.addAll(process(ctx, rhsExprResult, scopeId));
+    } else if (ctx.primary().expression() != null && !ctx.primary().expression().isEmpty()) {
+      instructions.addAll(process(ctx.primary().expression(), rhsExprResult, scopeId));
+    } else if (ctx.primary().primaryReference() != null) {
+      AssertValue.fail("PrimaryReference not yet Implemented");
     } else {
-      AssertValue.fail("PrimaryReference not yes Implemented");
+      AssertValue.fail("Unexpected path.");
     }
 
     return instructions;
@@ -238,7 +246,11 @@ final class ExprInstrGenerator extends AbstractGenerator {
                                                     final String rhsExprResult,
                                                     final String scopeId) {
     final var instructions = new ArrayList<IRInstr>();
-    AssertValue.fail("processControlsOrStructures not implemented");
+
+
+    AssertValue.fail("processControlsOrStructures: Unsupported expression pattern");
+
+
     return instructions;
   }
 
@@ -302,22 +314,24 @@ final class ExprInstrGenerator extends AbstractGenerator {
    * Generates _isSet() method call on the expression result.
    */
   private List<IRInstr> processQuestionOperator(final EK9Parser.ExpressionContext ctx,
-                                                final String rhsExprResult,
+                                                final String exprResult,
                                                 final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
 
-    // Evaluate the expression that the ? operator is applied to
-    final var tempExprResult = context.generateTempName();
+    AssertValue.checkFalse("Must have expression present", ctx.expression().isEmpty());
 
-    // ctx.expression(0) gets the first (and only) child expression for postfix operators
-    if (!ctx.expression().isEmpty()) {
-      instructions.addAll(process(ctx.expression(0), tempExprResult, scopeId));
-    }
-
-    // Call _isSet() method on the expression result
+    // Get debug information
     final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
     final var debugInfo = debugInfoCreator.apply(exprSymbol);
 
+    // Evaluate the expression that the ? operator is applied to
+    final var tempExprResult = context.generateTempName();
+    final var instructions = new ArrayList<>(process(ctx.expression(0), tempExprResult, scopeId));
+
+    // Register temp for proper memory management and exception safety
+    instructions.add(MemoryInstr.retain(tempExprResult, debugInfo));
+    instructions.add(ScopeInstr.register(tempExprResult, scopeId, debugInfo));
+
+    // Call _isSet() method on the expression result
     final var typeName = typeNameOrException.apply(exprSymbol);
     final var methodName = operatorMap.getForward(ctx.op.getText());
 
@@ -329,9 +343,162 @@ final class ExprInstrGenerator extends AbstractGenerator {
     final var callDetails = new CallDetails(tempExprResult, typeName,
         methodName, List.of(), "org.ek9.lang::Boolean", List.of());
 
-    instructions.add(CallInstr.operator(rhsExprResult, debugInfo, callDetails));
+    instructions.add(CallInstr.operator(exprResult, debugInfo, callDetails));
 
     return instructions;
   }
+
+  /**
+   * Process AND expression with proper short-circuit evaluation using branches and PHI nodes.
+   * Pattern: left and right
+   * Short-circuit: if left is false, result is false without evaluating right
+   * Uses SSA form with PHI node for LLVM/JVM compatibility.
+   */
+  private List<IRInstr> processAndExpression(final EK9Parser.ExpressionContext ctx,
+                                             final String exprResult,
+                                             final String scopeId) {
+
+    // Get debug information
+    final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
+    final var debugInfo = debugInfoCreator.apply(exprSymbol);
+
+    // Generate block labels for SSA basic blocks
+    final var normalBlockLabel = context.generateBlockLabel("and_normal");
+    final var shortCircuitBlockLabel = context.generateBlockLabel("and_shortcircuit");
+    final var mergeBlockLabel = context.generateBlockLabel("and_merge");
+
+    // Evaluate left operand
+    final var lhsTemp = context.generateTempName();
+    final var instructions = new ArrayList<>(process(ctx.left, lhsTemp, scopeId));
+
+    // Register left temp for proper memory management and exception safety
+    instructions.add(MemoryInstr.retain(lhsTemp, debugInfo));
+    instructions.add(ScopeInstr.register(lhsTemp, scopeId, debugInfo));
+
+    // Check if left is true - if false, short-circuit
+    final var lhsTrueTemp = context.generateTempName();
+    final var lhsTrueCallDetails = callDetailsForTrue.apply(lhsTemp);
+    instructions.add(CallInstr.operator(lhsTrueTemp, debugInfo, lhsTrueCallDetails));
+
+    // Note: lhsTrueTemp is a primitive boolean (not EK9 object), so no RETAIN/SCOPE_REGISTER needed
+
+    // Branch: if left is false, short-circuit; if true, continue to normal evaluation
+    instructions.add(BranchInstr.branchFalse(lhsTrueTemp, shortCircuitBlockLabel, debugInfo));
+
+    // Normal evaluation block: left is true, evaluate right operand
+    instructions.add(LabelInstr.label(normalBlockLabel, debugInfo));
+    final var rhsTemp = context.generateTempName();
+    instructions.addAll(process(ctx.right, rhsTemp, scopeId));
+
+    // Register right temp for proper memory management and exception safety
+    instructions.add(MemoryInstr.retain(rhsTemp, debugInfo));
+    instructions.add(ScopeInstr.register(rhsTemp, scopeId, debugInfo));
+
+    // Call left._and(right) for final result in normal path
+    final var andResultTemp = context.generateTempName(); // Unique variable for normal path
+    final var andCallDetails = new CallDetails(lhsTemp, "org.ek9.lang::Boolean",
+        "_and", List.of("org.ek9.lang::Boolean"), "org.ek9.lang::Boolean", List.of(rhsTemp));
+    instructions.add(CallInstr.operator(andResultTemp, debugInfo, andCallDetails));
+
+    // Memory management for the new Boolean object returned by _and (pure method)
+    instructions.add(MemoryInstr.retain(andResultTemp, debugInfo));
+    instructions.add(ScopeInstr.register(andResultTemp, scopeId, debugInfo));
+
+    // Branch to merge block
+    instructions.add(BranchInstr.branch(mergeBlockLabel, debugInfo));
+
+    // Short-circuit block: left is false, use left directly as result
+    instructions.add(LabelInstr.label(shortCircuitBlockLabel, debugInfo));
+    final var shortCircuitResultTemp = context.generateTempName(); // Unique variable for short-circuit path
+    instructions.add(MemoryInstr.load(shortCircuitResultTemp, lhsTemp, debugInfo));
+    instructions.add(MemoryInstr.retain(shortCircuitResultTemp, debugInfo));
+    instructions.add(ScopeInstr.register(shortCircuitResultTemp, scopeId, debugInfo));
+
+    // Merge block: PHI node combines results from both paths
+    instructions.add(LabelInstr.label(mergeBlockLabel, debugInfo));
+    instructions.add(PhiInstr.phi(exprResult, debugInfo)
+        .addPhiPair(andResultTemp, normalBlockLabel)
+        .addPhiPair(shortCircuitResultTemp, shortCircuitBlockLabel));
+
+    return instructions;
+  }
+
+  /**
+   * Process OR expression with proper short-circuit evaluation using branches and PHI nodes.
+   * Pattern: left or right
+   * Short-circuit: if left is true, result is true without evaluating right
+   * Uses SSA form with PHI node for LLVM/JVM compatibility.
+   */
+  private List<IRInstr> processOrExpression(final EK9Parser.ExpressionContext ctx,
+                                            final String exprResult,
+                                            final String scopeId) {
+
+    // Get debug information
+    final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
+    final var debugInfo = debugInfoCreator.apply(exprSymbol);
+
+    // Generate block labels for SSA basic blocks
+    final var normalBlockLabel = context.generateBlockLabel("or_normal");
+    final var shortCircuitBlockLabel = context.generateBlockLabel("or_shortcircuit");
+    final var mergeBlockLabel = context.generateBlockLabel("or_merge");
+
+    // Evaluate left operand
+    final var lhsTemp = context.generateTempName();
+    final var instructions = new ArrayList<>(process(ctx.left, lhsTemp, scopeId));
+
+    // Register left temp for proper memory management and exception safety
+    instructions.add(MemoryInstr.retain(lhsTemp, debugInfo));
+    instructions.add(ScopeInstr.register(lhsTemp, scopeId, debugInfo));
+
+    // Check if left is true - if true, short-circuit
+    final var lhsTrueTemp = context.generateTempName();
+    final var lhsTrueCallDetails = callDetailsForTrue.apply(lhsTemp);
+    instructions.add(CallInstr.operator(lhsTrueTemp, debugInfo, lhsTrueCallDetails));
+
+    // Note: lhsTrueTemp is a primitive boolean (not EK9 object), so no RETAIN/SCOPE_REGISTER needed
+
+    // Branch: if left is true, short-circuit; if false, continue to normal evaluation
+    instructions.add(BranchInstr.branchTrue(lhsTrueTemp, shortCircuitBlockLabel, debugInfo));
+
+    // Normal evaluation block: left is false, evaluate right operand
+    instructions.add(LabelInstr.label(normalBlockLabel, debugInfo));
+
+    final var rhsTemp = context.generateTempName();
+    instructions.addAll(process(ctx.right, rhsTemp, scopeId));
+
+    // Register right temp for proper memory management and exception safety
+    instructions.add(MemoryInstr.retain(rhsTemp, debugInfo));
+    instructions.add(ScopeInstr.register(rhsTemp, scopeId, debugInfo));
+
+    // Call left._or(right) for final result in normal path
+    final var orResultTemp = context.generateTempName(); // Unique variable for normal path
+    final var orCallDetails = new CallDetails(lhsTemp, "org.ek9.lang::Boolean",
+        "_or", List.of("org.ek9.lang::Boolean"), "org.ek9.lang::Boolean", List.of(rhsTemp));
+    instructions.add(CallInstr.operator(orResultTemp, debugInfo, orCallDetails));
+
+    // Memory management for the new Boolean object returned by _or (pure method)
+    instructions.add(MemoryInstr.retain(orResultTemp, debugInfo));
+    instructions.add(ScopeInstr.register(orResultTemp, scopeId, debugInfo));
+
+    // Branch to merge block
+    instructions.add(BranchInstr.branch(mergeBlockLabel, debugInfo));
+
+    // Short-circuit block: left is true, use left directly as result
+    instructions.add(LabelInstr.label(shortCircuitBlockLabel, debugInfo));
+    final var shortCircuitResultTemp = context.generateTempName(); // Unique variable for short-circuit path
+
+    instructions.add(MemoryInstr.load(shortCircuitResultTemp, lhsTemp, debugInfo));
+    instructions.add(MemoryInstr.retain(shortCircuitResultTemp, debugInfo));
+    instructions.add(ScopeInstr.register(shortCircuitResultTemp, scopeId, debugInfo));
+
+    // Merge block: PHI node combines results from both paths
+    instructions.add(LabelInstr.label(mergeBlockLabel, debugInfo));
+    instructions.add(PhiInstr.phi(exprResult, debugInfo)
+        .addPhiPair(orResultTemp, normalBlockLabel)
+        .addPhiPair(shortCircuitResultTemp, shortCircuitBlockLabel));
+
+    return instructions;
+  }
+
 
 }

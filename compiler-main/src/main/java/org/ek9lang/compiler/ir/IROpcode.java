@@ -162,5 +162,21 @@ public enum IROpcode {
    * Check if reference/object is null or uninitialized.
    * Format: IS_NULL result = operand
    */
-  IS_NULL
+  IS_NULL,
+
+  // Control flow label operations
+  /**
+   * Mark instruction position as branch target.
+   * Format: LABEL label_name
+   * Used by BRANCH, BRANCH_TRUE, BRANCH_FALSE instructions for control flow
+   */
+  LABEL,
+
+  // SSA operations for LLVM compatibility
+  /**
+   * PHI node for merging values from different control flow paths.
+   * Format: PHI result = [value1, block1], [value2, block2], ...
+   * Essential for SSA form and LLVM IR generation.
+   */
+  PHI
 }

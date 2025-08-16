@@ -69,8 +69,8 @@ public class IRDirectiveListener extends ResolvedDirectiveListener {
     if (expectedLines.length != generatedLines.length) {
       System.err.printf("Number of lines in expected versus generated differ %d != %d %n",
           expectedLines.length, generatedLines.length);
+      //But carry on so that we can see where they start to diverge.
 
-      return false;
     }
     for (int i = 0; i < expectedLines.length; i++) {
       final var expected = expectedLines[i].trim();
