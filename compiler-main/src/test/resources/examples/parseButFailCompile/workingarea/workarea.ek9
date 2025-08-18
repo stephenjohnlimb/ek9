@@ -4,6 +4,7 @@ defines module introduction
 
   defines function
 
+    <!-
     andBooleanExpression()
       ->
         arg0 as Boolean
@@ -22,6 +23,7 @@ defines module introduction
 
       rtn: arg0 or arg1
 
+    -!>
     mixedBooleanExpression()
       ->
         arg0 as Boolean
@@ -31,6 +33,7 @@ defines module introduction
         rtn as Boolean: Boolean()
 
       rtn: arg0 and (arg1 or arg2)
+
 <!-
     aSimpleFunction()
       -> arg0 as String

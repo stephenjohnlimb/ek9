@@ -279,6 +279,353 @@ SCOPE_ENTER _scope_1
 SCOPE_EXIT _scope_1  // Automatic RELEASE of all registered variables
 ```
 
+## Medium-Level IR: LOGICAL_AND_BLOCK and LOGICAL_OR_BLOCK
+
+### Overview: Declarative Control Flow IR
+
+EK9 introduces a novel medium-level IR approach for Boolean logical operations that moves beyond traditional low-level branching and PHI nodes to **declarative conditional blocks**. This approach pre-computes all execution paths while maintaining backend flexibility for optimization strategies.
+
+**Key Innovation**: Complete path pre-computation with dual semantic preservation (primitive boolean conditions + EK9 Boolean object results).
+
+### Architecture Philosophy
+
+**Problem with Traditional Approaches:**
+- **Low-level PHI nodes**: LLVM PHI predecessor relationship issues, complex maintenance
+- **Basic block IRs**: Backend-specific, poor cross-target portability  
+- **Pure functional IRs**: Loss of imperative execution semantics
+- **Runtime branching**: Limited optimization opportunities
+
+**EK9's Solution: Medium-Level Declarative Blocks**
+```
+LOGICAL_AND_BLOCK result_var condition: primitive_boolean_condition
+{
+  left_operand: ek9_boolean_left
+  left_condition: primitive_boolean_left  
+  right_evaluation: { /* complete instruction sequence */ }
+  right_operand: ek9_boolean_right
+  result_computation: { /* EK9 Boolean._and() call sequence */ }
+  logical_result: ek9_boolean_result
+  scope_id: memory_scope
+}
+```
+
+### IR Structure Definition
+
+#### LOGICAL_AND_BLOCK Structure
+```
+_temp_result = LOGICAL_AND_BLOCK  // debug_info
+{
+  left_operand: _temp_left_ek9_boolean      // EK9 Boolean left operand
+  left_condition: _temp_left_primitive      // primitive boolean (from _true())
+  right_evaluation:                         // Instructions to evaluate right operand
+  {
+    _temp_right_load = LOAD right_source
+    RETAIN _temp_right_load  
+    SCOPE_REGISTER _temp_right_load, scope_id
+    // ... additional nested logical operations
+  }
+  right_operand: _temp_right_ek9_boolean    // EK9 Boolean right operand
+  result_computation:                       // Instructions for full evaluation  
+  {
+    _temp_and_result = CALL (org.ek9.lang::Boolean)_temp_left._and(_temp_right)
+    RETAIN _temp_and_result
+    SCOPE_REGISTER _temp_and_result, scope_id
+  }
+  logical_result: _temp_and_result          // EK9 Boolean final result
+  scope_id: _scope_1                        // Memory management scope
+}
+```
+
+#### LOGICAL_OR_BLOCK Structure
+```
+_temp_result = LOGICAL_OR_BLOCK  // debug_info  
+{
+  left_operand: _temp_left_ek9_boolean      // EK9 Boolean left operand
+  left_condition: _temp_left_primitive      // primitive boolean (from _true())
+  right_evaluation:                         // Instructions to evaluate right operand
+  {
+    _temp_right_load = LOAD right_source
+    RETAIN _temp_right_load
+    SCOPE_REGISTER _temp_right_load, scope_id
+    // ... additional nested logical operations
+  }
+  right_operand: _temp_right_ek9_boolean    // EK9 Boolean right operand  
+  result_computation:                       // Instructions for full evaluation
+  {
+    _temp_or_result = CALL (org.ek9.lang::Boolean)_temp_left._or(_temp_right)
+    RETAIN _temp_or_result
+    SCOPE_REGISTER _temp_or_result, scope_id
+  }
+  logical_result: _temp_or_result           // EK9 Boolean final result
+  scope_id: _scope_1                        // Memory management scope
+}
+```
+
+### Complex Expression Example
+
+**EK9 Source:**
+```ek9
+rtn: arg0 and (arg1 or arg2)
+```
+
+**Generated IR:**
+```
+_temp2 = LOGICAL_AND_BLOCK  // ./workarea.ek9:35:17
+{
+  left_operand: _temp3                      // arg0
+  left_condition: _temp4                    // arg0._true()
+  right_evaluation:
+  {
+    _temp6 = LOAD arg1
+    RETAIN _temp6
+    SCOPE_REGISTER _temp6, _scope_1
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp6._true()
+    _temp5 = LOGICAL_OR_BLOCK  // ./workarea.ek9:35:27
+    {
+      left_operand: _temp6                  // arg1
+      left_condition: _temp7                // arg1._true()  
+      right_evaluation:
+      {
+        _temp8 = LOAD arg2
+        RETAIN _temp8
+        SCOPE_REGISTER _temp8, _scope_1
+      }
+      right_operand: _temp8                 // arg2
+      result_computation:
+      {
+        _temp9 = CALL (org.ek9.lang::Boolean)_temp6._or(_temp8)
+        RETAIN _temp9
+        SCOPE_REGISTER _temp9, _scope_1
+      }
+      logical_result: _temp9                // arg1._or(arg2)
+      scope_id: _scope_1
+    }
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, _scope_1
+  }
+  right_operand: _temp5                     // (arg1 or arg2)
+  result_computation:
+  {
+    _temp10 = CALL (org.ek9.lang::Boolean)_temp3._and(_temp5)
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_1
+  }
+  logical_result: _temp10                   // arg0._and(arg1._or(arg2))
+  scope_id: _scope_1
+}
+```
+
+### Key Design Principles
+
+#### 1. Complete Path Pre-computation
+- **All execution paths** are evaluated during IR generation
+- **Right operand evaluation** instructions fully computed
+- **Result computation** instructions (EK9 method calls) fully specified
+- **No runtime path construction** required
+
+#### 2. Dual Semantic Preservation  
+- **Primitive boolean conditions** (`left_condition`) for backend control flow optimization
+- **EK9 Boolean objects** (`left_operand`, `right_operand`, `logical_result`) for language semantics
+- **Both representations available** simultaneously for backend choice
+
+#### 3. Single Condition Model
+- Only **left condition needed** for short-circuit decisions
+- **AND operation**: if `left_condition` is false → short-circuit to `left_operand`
+- **OR operation**: if `left_condition` is true → short-circuit to `left_operand` 
+- **Right condition irrelevant** in short-circuit evaluation
+
+#### 4. Context-Aware Memory Management
+**Fundamental Rule**: The location where a variable is first created/accessed owns the memory management responsibility.
+
+- **First creation point** determines `RETAIN`/`SCOPE_REGISTER` responsibility
+- **Context awareness**: Different variable origins (parameter, local, return) have different scope rules
+- **No duplication**: Only one location handles memory management per variable
+- **Lifecycle correctness**: Variables managed according to their actual usage context
+
+**Example Applications**:
+- **Return parameters**: Should NOT be scope-registered (outlive current scope)
+- **Local variables**: Should be scope-registered for cleanup  
+- **Parameters**: Context-dependent scope registration
+- **Intermediate results**: Appropriate scope management based on role
+
+### Backend Mapping Strategies
+
+#### LLVM Backend Lowering
+
+**Short-Circuit Branch Strategy:**
+```llvm
+; Left operand evaluation and condition check
+%left_operand = call %EK9Boolean @evaluate_left_operand()
+%left_condition = call i1 @EK9Boolean.true(%left_operand)
+
+; Short-circuit decision branch
+br i1 %left_condition, label %evaluate_right, label %and_short_circuit
+
+evaluate_right:
+  ; Execute pre-computed right_evaluation instructions
+  %right_operand = call %EK9Boolean @evaluate_right_operand()
+  
+  ; Execute pre-computed result_computation instructions  
+  %logical_result = call %EK9Boolean @EK9Boolean.and(%left_operand, %right_operand)
+  br label %merge
+
+and_short_circuit:
+  br label %merge
+  
+merge:
+  ; PHI node with correct predecessor relationships
+  %final_result = phi %EK9Boolean [%left_operand, %and_short_circuit], 
+                                  [%logical_result, %evaluate_right]
+```
+
+**LLVM Advantages:**
+- **Proper PHI predecessors**: Each PHI has correct basic block relationships  
+- **Pre-computed instruction sequences**: LLVM optimization passes can analyze complete paths
+- **Speculative execution support**: Both paths available for parallel execution
+
+#### JVM Backend Lowering
+
+**Flexible Strategy Selection:**
+
+**Option 1: Short-Circuit Bytecode**
+```java
+// Load left operand and evaluate condition
+ALOAD left_operand_var           // EK9 Boolean
+DUP
+INVOKEVIRTUAL EK9Boolean.true()Z // primitive boolean condition  
+IFEQ short_circuit_label         // Jump if false for AND
+
+// Execute pre-computed right_evaluation bytecode sequence
+[right_evaluation bytecode sequence]
+
+// Execute pre-computed result_computation bytecode sequence  
+[result_computation bytecode sequence]
+GOTO merge_label
+
+short_circuit_label:
+// Left operand already on stack
+
+merge_label:
+// Final result on stack
+```
+
+**Option 2: Full Method Call (Non-Short-Circuit)**
+```java
+// Simply execute all EK9 method calls - no branching
+ALOAD left_operand_var
+ALOAD right_operand_var  
+INVOKEVIRTUAL EK9Boolean.and(EK9Boolean;)EK9Boolean;
+```
+
+**JVM Advantages:**
+- **Context-driven optimization**: Can choose short-circuit vs full evaluation per usage
+- **Stack-based efficiency**: Natural fit for JVM execution model
+- **JIT optimization opportunities**: HotSpot can optimize frequent patterns
+
+### Performance Characteristics and CPU Architecture Benefits
+
+#### Modern CPU Optimization Opportunities
+
+**Branch Prediction Enhancement:**
+- **Pre-computed paths enable unprecedented branch prediction optimization**
+- **Static analysis hints**: Backends can provide branch probability information
+- **Dual path prefetching**: CPUs can prefetch both short-circuit and full evaluation paths
+- **Pipeline preparation**: Method calls and instruction sequences can be pre-pipelined
+
+**Speculative Execution Benefits:**
+- **Parallel path execution**: Modern CPUs can execute both paths speculatively
+- **Result selection**: Choose correct path when condition resolves  
+- **Cache optimization**: Pre-computed instruction sequences enable superior cache layout
+
+**CPU Architecture Specific Advantages:**
+
+**Intel Ice Lake/Sapphire Rapids:**
+- **µop Cache optimization**: Pre-computed paths fit perfectly in micro-op cache patterns
+- **Enhanced branch prediction**: Static hints improve branch predictor accuracy
+- **Better execution port utilization**: Known instruction sequences improve scheduling
+
+**AMD Zen 4:**
+- **Op Cache optimization**: Predictable instruction patterns improve op cache usage
+- **Branch Target Buffer**: Better BTB utilization with pre-known targets  
+- **Execution unit scheduling**: Pre-computed dependency chains improve parallel execution
+
+**ARM Neoverse V1/V2:**
+- **Branch Target Identification**: Enhanced security with compile-time known targets
+- **Instruction fetch patterns**: Improved instruction fetch with predictable sequences
+- **SVE integration**: Vector operations can be pre-planned and optimized
+
+#### Competitive Analysis vs Industry IRs
+
+| Feature | EK9 LOGICAL_BLOCK | MLIR | XLA HLO | Swift SIL | V8 Turbofan |
+|---------|-------------------|------|---------|-----------|-------------|
+| **Abstraction Level** | **Medium-High** | Medium | High | Medium-Low | Medium-Low |
+| **Path Pre-computation** | **✅ Complete** | ❌ On-demand | ❌ Functional | ❌ Basic blocks | ❌ Speculative |
+| **Dual Semantics** | **✅ Primitive + Object** | ❌ Single | ❌ Functional | ❌ Basic blocks | ❌ Speculative |  
+| **Backend Agnostic** | **✅ Clean mapping** | Requires dialects | Tensor-focused | Swift-specific | JS-specific |
+| **Branch Prediction** | **✅ Advanced hints** | Standard | N/A | Standard | Profile-guided |
+| **CPU Architecture** | **✅ Future-optimized** | General | ML-optimized | Mobile-focused | JS-optimized |
+
+**Strategic Positioning:**
+- **More structured** than low-level basic block IRs
+- **More explicit** than pure functional IRs  
+- **More self-contained** than dialect-based systems
+- **Better backend flexibility** than runtime-specific IRs
+- **Future-proof** for modern CPU architectures
+
+### Implementation Classes and Patterns
+
+#### Core IR Instructions
+- **`LogicalOperationInstr`**: Base class for LOGICAL_AND_BLOCK and LOGICAL_OR_BLOCK
+- **`IROpcode.LOGICAL_AND_BLOCK`**: Enum value for AND operations
+- **`IROpcode.LOGICAL_OR_BLOCK`**: Enum value for OR operations
+
+#### Generator Classes
+- **`ShortCircuitAndGenerator`**: Generates LOGICAL_AND_BLOCK IR structures
+- **`ShortCircuitOrGenerator`**: Generates LOGICAL_OR_BLOCK IR structures  
+- **`CallDetailsForTrue`**: Helper for consistent Boolean-to-primitive conversion
+
+#### Integration Points
+- **`ExprInstrGenerator`**: Uses logical generators for AND/OR expressions
+- **`RecordExprProcessing`**: Handles nested expression evaluation with proper memory management
+- **Memory Management**: Context-aware RETAIN/SCOPE_REGISTER following first-creation ownership rules
+
+### Testing and Validation
+
+#### Test-Driven Development Pattern
+- **`WorkingAreaTest`**: Live testing environment for IR generation validation
+- **Complex expression testing**: Mixed AND/OR expressions like `arg0 and (arg1 or arg2)`
+- **Memory management validation**: Ensures no duplicate RETAIN/SCOPE_REGISTER calls
+- **Formatting validation**: Clean, readable IR output with proper nested indentation
+
+#### Debug Output Analysis
+```
+// Enable debug instrumentation for detailed IR analysis
+mvn test -Dtest=WorkingAreaTest -Dek9.instructionInstrumentation=true
+```
+
+**Example debug output shows:**
+- **Complete path pre-computation**: All right_evaluation and result_computation instructions visible
+- **Proper nesting**: Nested LOGICAL_OR_BLOCK inside LOGICAL_AND_BLOCK correctly formatted
+- **Memory management**: Context-aware, non-duplicated memory handling
+- **Debug location tracking**: Each instruction annotated with source location
+
+### Future Extensions
+
+The LOGICAL_AND_BLOCK/LOGICAL_OR_BLOCK pattern establishes a foundation for **comprehensive medium-level IR constructs**:
+
+#### Planned Control Flow Extensions
+- **`CONDITIONAL_BLOCK`**: if/else statements with similar pre-computation approach
+- **`SWITCH_CHAIN_BLOCK`**: EK9 switch statements with sequential case evaluation
+- **`WHILE_BLOCK`**: Loop constructs with condition and body pre-computation  
+- **`EXCEPTION_BLOCK`**: try/catch with exception handling path pre-computation
+- **`ITERATION_BLOCK`**: for loops with iterator and body pre-computation
+
+#### Consistency Benefits
+- **Unified IR vocabulary**: All control flow uses similar declarative block structures
+- **Common optimization patterns**: Backends can apply similar optimization strategies across all constructs
+- **Consistent memory management**: Same context-aware ownership rules apply to all blocks
+- **Predictable performance**: Similar CPU architecture optimization opportunities across all control flow
+
 ## Implementation Patterns
 
 ### Common IR Transformation Patterns

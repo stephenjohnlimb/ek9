@@ -178,5 +178,27 @@ public enum IROpcode {
    * Format: PHI result = [value1, block1], [value2, block2], ...
    * Essential for SSA form and LLVM IR generation.
    */
-  PHI
+  PHI,
+
+  // Higher-level control flow constructs
+  /**
+   * High-level conditional block construct.
+   * Format: CONDITIONAL_BLOCK condition_var, result_var, true_block, false_block
+   * Backends lower this to appropriate target-specific control flow.
+   */
+  CONDITIONAL_BLOCK,
+
+  /**
+   * Logical AND block construct with short-circuit capability.
+   * Format: LOGICAL_AND_BLOCK result = left_operand, condition, right_evaluation, logical_result
+   * Contains complete evaluation paths for both short-circuit and full evaluation.
+   */
+  LOGICAL_AND_BLOCK,
+
+  /**
+   * Logical OR block construct with short-circuit capability.
+   * Format: LOGICAL_OR_BLOCK result = left_operand, condition, right_evaluation, logical_result
+   * Contains complete evaluation paths for both short-circuit and full evaluation.
+   */
+  LOGICAL_OR_BLOCK
 }

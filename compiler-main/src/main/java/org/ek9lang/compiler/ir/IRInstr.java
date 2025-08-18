@@ -136,13 +136,6 @@ public class IRInstr implements INode {
     return opcode == IROpcode.LABEL;
   }
 
-  /**
-   * Check if this instruction is a PHI node for SSA form.
-   */
-  public boolean isPhi() {
-    return opcode == IROpcode.PHI;
-  }
-
   @Override
   public void accept(final INodeVisitor visitor) {
     visitor.visit(this);

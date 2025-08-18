@@ -12,50 +12,6 @@ import java.util.List;
 public final class BranchInstr extends IRInstr {
 
   /**
-   * Create unconditional branch: BRANCH target_label.
-   */
-  public static BranchInstr branch(final String targetLabel) {
-    return new BranchInstr(IROpcode.BRANCH, null, null).addOperand(targetLabel);
-  }
-
-  /**
-   * Create unconditional branch with debug info: BRANCH target_label.
-   */
-  public static BranchInstr branch(final String targetLabel, final DebugInfo debugInfo) {
-    return new BranchInstr(IROpcode.BRANCH, null, debugInfo).addOperand(targetLabel);
-  }
-
-  /**
-   * Create conditional branch (true): BRANCH_TRUE condition, target_label.
-   */
-  public static BranchInstr branchTrue(final String condition, final String targetLabel) {
-    return new BranchInstr(IROpcode.BRANCH_TRUE, null, null).addOperands(condition, targetLabel);
-  }
-
-  /**
-   * Create conditional branch (true) with debug info: BRANCH_TRUE condition, target_label.
-   */
-  public static BranchInstr branchTrue(final String condition, final String targetLabel,
-                                       final DebugInfo debugInfo) {
-    return new BranchInstr(IROpcode.BRANCH_TRUE, null, debugInfo).addOperands(condition, targetLabel);
-  }
-
-  /**
-   * Create conditional branch (false): BRANCH_FALSE condition, target_label.
-   */
-  public static BranchInstr branchFalse(final String condition, final String targetLabel) {
-    return new BranchInstr(IROpcode.BRANCH_FALSE, null, null).addOperands(condition, targetLabel);
-  }
-
-  /**
-   * Create conditional branch (false) with debug info: BRANCH_FALSE condition, target_label.
-   */
-  public static BranchInstr branchFalse(final String condition, final String targetLabel,
-                                        final DebugInfo debugInfo) {
-    return new BranchInstr(IROpcode.BRANCH_FALSE, null, debugInfo).addOperands(condition, targetLabel);
-  }
-
-  /**
    * Create return with no value: RETURN.
    */
   public static BranchInstr returnVoid() {

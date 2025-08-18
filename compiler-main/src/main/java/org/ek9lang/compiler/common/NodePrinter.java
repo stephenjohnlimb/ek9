@@ -70,6 +70,6 @@ public class NodePrinter implements INodeVisitor {
 
   @Override
   public void visit(final IRInstr irInstruction) {
-    printWriter.printf("IRInstruction: %s%n", irInstruction);
+    printWriter.printf("%s%n", irInstruction);
   }
 }

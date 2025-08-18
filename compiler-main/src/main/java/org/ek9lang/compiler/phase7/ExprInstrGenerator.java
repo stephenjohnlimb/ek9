@@ -5,18 +5,18 @@ import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.TypeNameOrException;
-import org.ek9lang.compiler.ir.BranchInstr;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.LabelInstr;
-import org.ek9lang.compiler.ir.LiteralInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
-import org.ek9lang.compiler.ir.PhiInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
-import org.ek9lang.compiler.phase7.support.CallDetailsForTrue;
+import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.LiteralProcessingDetails;
+import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
+import org.ek9lang.compiler.phase7.support.ShortCircuitAndGenerator;
+import org.ek9lang.compiler.phase7.support.ShortCircuitOrGenerator;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -79,7 +79,9 @@ final class ExprInstrGenerator extends AbstractGenerator {
   private final ObjectAccessInstrGenerator objectAccessCreator;
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
-  private final CallDetailsForTrue callDetailsForTrue = new CallDetailsForTrue();
+  private final RecordExprProcessing recordExprProcessing;
+  private final ShortCircuitAndGenerator shortCircuitAndGenerator;
+  private final ShortCircuitOrGenerator shortCircuitOrGenerator;
 
   ExprInstrGenerator(final IRContext context,
                      final EK9Parser.ExpressionContext ctx,
@@ -90,6 +92,9 @@ final class ExprInstrGenerator extends AbstractGenerator {
     this.antlrCtx = ctx;
     this.initialScopeId = initialScopeId;
     this.objectAccessCreator = new ObjectAccessInstrGenerator(context);
+    this.recordExprProcessing = new RecordExprProcessing(this::process);
+    this.shortCircuitAndGenerator = new ShortCircuitAndGenerator(context, recordExprProcessing);
+    this.shortCircuitOrGenerator = new ShortCircuitOrGenerator(context, recordExprProcessing);
   }
 
   /**
@@ -101,67 +106,59 @@ final class ExprInstrGenerator extends AbstractGenerator {
     //Now while it seems a bit pointless just to call another method here.
     //Actually some of the methods call back with new deeper contexts.
     //So this allows for recursion.
-    return process(antlrCtx, rhsExprResult, initialScopeId);
+    return process(new ExprProcessingDetails(antlrCtx, rhsExprResult, initialScopeId, null));
 
   }
 
-  private List<IRInstr> process(final EK9Parser.ExpressionContext ctx,
-                                final String rhsExprResult,
-                                final String scopeId) {
+  private List<IRInstr> process(final ExprProcessingDetails details) {
 
     //The idea here is that rather than have a giant 'if else' combo, the process is grouped.
     //This is just like earlier phases.
-
+    final var ctx = details.ctx();
     if (ctx.op != null) {
-      return processOperation(ctx, rhsExprResult, scopeId);
+      return processOperation(details);
     } else if (ctx.coalescing != null) {
-      return processCoalescing(ctx, rhsExprResult, scopeId);
+      return processCoalescing(details);
     } else if (ctx.coalescing_equality != null) {
-      return processCoalescingEquality(ctx, rhsExprResult, scopeId);
+      return processCoalescingEquality(details);
     } else if (ctx.primary() != null) {
-      return processPrimary(ctx, rhsExprResult, scopeId);
+      return processPrimary(details);
     } else if (ctx.call() != null) {
-      return processCall(ctx, rhsExprResult, scopeId);
+      return processCall(details);
     } else if (antlrCtx.objectAccessExpression() != null) {
-      return processObjectAccessExpression(ctx, rhsExprResult, scopeId);
+      return processObjectAccessExpression(details);
     }
 
-    return processControlsOrStructures(ctx, rhsExprResult, scopeId);
+    return processControlsOrStructures(details);
 
   }
 
-  private List<IRInstr> processOperation(final EK9Parser.ExpressionContext ctx,
-                                         final String rhsExprResult,
-                                         final String scopeId) {
+  private List<IRInstr> processOperation(final ExprProcessingDetails details) {
     final var instructions = new ArrayList<IRInstr>();
 
     //TODO you may find there is a more automated way to do this.
     //TODO The symbol and operator map may give a way to workout the Calldetails needed.
-
+    final var ctx = details.ctx();
     // Handle postfix question operator: expression?
     if (ctx.op.getType() == EK9Parser.QUESTION) {
-      instructions.addAll(processQuestionOperator(ctx, rhsExprResult, scopeId));
+      instructions.addAll(processQuestionOperator(details));
     } else if (ctx.op.getType() == EK9Parser.AND) {
-      instructions.addAll(processAndExpression(ctx, rhsExprResult, scopeId));
+      instructions.addAll(processAndExpression(details));
     } else if (ctx.op.getType() == EK9Parser.OR) {
-      instructions.addAll(processOrExpression(ctx, rhsExprResult, scopeId));
+      instructions.addAll(processOrExpression(details));
     } else {
       AssertValue.fail("Other Operations not yet implemented: " + ctx.op.getText());
     }
     return instructions;
   }
 
-  private List<IRInstr> processCoalescing(final EK9Parser.ExpressionContext ctx,
-                                          final String rhsExprResult,
-                                          final String scopeId) {
+  private List<IRInstr> processCoalescing(final ExprProcessingDetails details) {
     final var instructions = new ArrayList<IRInstr>();
     AssertValue.fail("ProcessCoalescing not yet implemented");
     return instructions;
   }
 
-  private List<IRInstr> processCoalescingEquality(final EK9Parser.ExpressionContext ctx,
-                                                  final String rhsExprResult,
-                                                  final String scopeId) {
+  private List<IRInstr> processCoalescingEquality(final ExprProcessingDetails details) {
     final var instructions = new ArrayList<IRInstr>();
     AssertValue.fail("ProcessCoalescingEquality not yet implemented");
     return instructions;
@@ -171,19 +168,22 @@ final class ExprInstrGenerator extends AbstractGenerator {
    * Process primary expressions using symbol-driven approach.
    * Primary expressions include: literals, identifier references, parenthesized expressions.
    */
-  private List<IRInstr> processPrimary(final EK9Parser.ExpressionContext ctx,
-                                       final String rhsExprResult,
-                                       final String scopeId) {
+  private List<IRInstr> processPrimary(final ExprProcessingDetails details) {
+    final var ctx = details.ctx();
+    final var exprResult = details.exprResult();
+    final var scopeId = details.scopeId();
+    final var debugInfo = details.debugInfo();
+
     final var instructions = new ArrayList<IRInstr>();
 
     if (ctx.primary().literal() != null) {
       // Handle literals: string, numeric, boolean, etc.
-      instructions.addAll(processLiteral(ctx.primary().literal(), rhsExprResult, scopeId));
+      instructions.addAll(processLiteral(ctx.primary().literal(), exprResult, scopeId));
     } else if (ctx.primary().identifierReference() != null) {
-      // Handle identifier references: variable names
-      instructions.addAll(processIdentifierReference(ctx.primary().identifierReference(), rhsExprResult));
+      instructions.addAll(processIdentifierReference(ctx.primary().identifierReference(), exprResult));
     } else if (ctx.primary().expression() != null && !ctx.primary().expression().isEmpty()) {
-      instructions.addAll(process(ctx.primary().expression(), rhsExprResult, scopeId));
+      instructions.addAll(
+          process(new ExprProcessingDetails(ctx.primary().expression(), exprResult, scopeId, debugInfo)));
     } else if (ctx.primary().primaryReference() != null) {
       AssertValue.fail("PrimaryReference not yet Implemented");
     } else {
@@ -193,9 +193,10 @@ final class ExprInstrGenerator extends AbstractGenerator {
     return instructions;
   }
 
-  private List<IRInstr> processCall(final EK9Parser.ExpressionContext ctx,
-                                    final String rhsExprResult,
-                                    final String scopeId) {
+  private List<IRInstr> processCall(final ExprProcessingDetails details) {
+    final var ctx = details.ctx();
+    final var exprResult = details.exprResult();
+    final var scopeId = details.scopeId();
 
     final var instructions = new ArrayList<IRInstr>();
 
@@ -223,11 +224,11 @@ final class ExprInstrGenerator extends AbstractGenerator {
         final var callDetails = new CallDetails(typeName, typeName, IRConstants.INIT_METHOD,
             parameterTypes, typeName, List.of());
 
-        instructions.add(CallInstr.constructor(rhsExprResult, debugInfo, callDetails));
+        instructions.add(CallInstr.constructor(exprResult, debugInfo, callDetails));
 
         // Add memory management for LLVM targets (no-ops on JVM)
-        instructions.add(MemoryInstr.retain(rhsExprResult, debugInfo));
-        instructions.add(ScopeInstr.register(rhsExprResult, scopeId, debugInfo));
+        instructions.add(MemoryInstr.retain(exprResult, debugInfo));
+        instructions.add(ScopeInstr.register(exprResult, scopeId, debugInfo));
       } else {
         AssertValue.fail("Expecting method to have been resolved");
       }
@@ -235,18 +236,14 @@ final class ExprInstrGenerator extends AbstractGenerator {
     return instructions;
   }
 
-  private List<IRInstr> processObjectAccessExpression(final EK9Parser.ExpressionContext ctx,
-                                                      final String rhsExprResult,
-                                                      final String scopeId) {
-    return new ArrayList<>(objectAccessCreator.apply(ctx.objectAccessExpression(), rhsExprResult, scopeId));
+  private List<IRInstr> processObjectAccessExpression(final ExprProcessingDetails details) {
+    return new ArrayList<>(objectAccessCreator
+        .apply(details.ctx().objectAccessExpression(), details.exprResult(), details.scopeId()));
 
   }
 
-  private List<IRInstr> processControlsOrStructures(final EK9Parser.ExpressionContext ctx,
-                                                    final String rhsExprResult,
-                                                    final String scopeId) {
+  private List<IRInstr> processControlsOrStructures(final ExprProcessingDetails details) {
     final var instructions = new ArrayList<IRInstr>();
-
 
     AssertValue.fail("processControlsOrStructures: Unsupported expression pattern");
 
@@ -261,30 +258,13 @@ final class ExprInstrGenerator extends AbstractGenerator {
   private List<IRInstr> processLiteral(final EK9Parser.LiteralContext ctx,
                                        final String rhsExprResult,
                                        final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
 
     // Get the resolved symbol for this literal - phases 1-6 ensure all literals have resolved types
     final var literalSymbol = context.getParsedModule().getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Literal symbol should be resolved by phases 1-6", literalSymbol);
 
-    // Get the type from the resolved symbol (could be decorated for generic contexts)
-    final var literalType = literalSymbol.getType()
-        .map(ISymbol::getFullyQualifiedName)
-        .orElseThrow(() -> new RuntimeException("Literal should have resolved type by phase 7"));
-
-    final var literalValue = literalSymbol.getName();
-
-    // Extract debug info if debugging instrumentation is enabled
-    final var debugInfo = debugInfoCreator.apply(literalSymbol);
-
-    // Create literal instruction with resolved type information
-    instructions.add(LiteralInstr.literal(rhsExprResult, literalValue, literalType, debugInfo));
-
-    // Add memory management for EK9 object reference counting (consistent with constructor calls)
-    instructions.add(MemoryInstr.retain(rhsExprResult, debugInfo));
-    instructions.add(ScopeInstr.register(rhsExprResult, scopeId, debugInfo));
-
-    return instructions;
+    final var literalGenerator = new LiteralGenerator(context);
+    return new ArrayList<>(literalGenerator.apply(new LiteralProcessingDetails(literalSymbol, rhsExprResult, scopeId)));
   }
 
   /**
@@ -313,9 +293,10 @@ final class ExprInstrGenerator extends AbstractGenerator {
    * Process question operator: expression?
    * Generates _isSet() method call on the expression result.
    */
-  private List<IRInstr> processQuestionOperator(final EK9Parser.ExpressionContext ctx,
-                                                final String exprResult,
-                                                final String scopeId) {
+  private List<IRInstr> processQuestionOperator(final ExprProcessingDetails details) {
+    final var ctx = details.ctx();
+    final var exprResult = details.exprResult();
+    final var scopeId = details.scopeId();
 
     AssertValue.checkFalse("Must have expression present", ctx.expression().isEmpty());
 
@@ -325,17 +306,15 @@ final class ExprInstrGenerator extends AbstractGenerator {
 
     // Evaluate the expression that the ? operator is applied to
     final var tempExprResult = context.generateTempName();
-    final var instructions = new ArrayList<>(process(ctx.expression(0), tempExprResult, scopeId));
 
-    // Register temp for proper memory management and exception safety
-    instructions.add(MemoryInstr.retain(tempExprResult, debugInfo));
-    instructions.add(ScopeInstr.register(tempExprResult, scopeId, debugInfo));
+    final var instructions = new ArrayList<>(
+        recordExprProcessing.apply(new ExprProcessingDetails(ctx.expression(0), tempExprResult, scopeId, debugInfo)));
 
     // Call _isSet() method on the expression result
     final var typeName = typeNameOrException.apply(exprSymbol);
     final var methodName = operatorMap.getForward(ctx.op.getText());
 
-    // Generate method call: rhsExprResult = tempExprResult._isSet()
+    // Generate method call: exprResult = tempExprResult._isSet()
     //TODO if there is only one expression then there are no arguments
     //For operators there is only ever zero or one argument and we can get the types
     //So I think this could be much more general.
@@ -349,156 +328,23 @@ final class ExprInstrGenerator extends AbstractGenerator {
   }
 
   /**
-   * Process AND expression with proper short-circuit evaluation using branches and PHI nodes.
+   * Process AND expression using high-level short-circuit instruction.
    * Pattern: left and right
    * Short-circuit: if left is false, result is false without evaluating right
-   * Uses SSA form with PHI node for LLVM/JVM compatibility.
+   * Uses ShortCircuitInstr for backend-appropriate lowering.
    */
-  private List<IRInstr> processAndExpression(final EK9Parser.ExpressionContext ctx,
-                                             final String exprResult,
-                                             final String scopeId) {
-
-    // Get debug information
-    final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
-    final var debugInfo = debugInfoCreator.apply(exprSymbol);
-
-    // Generate block labels for SSA basic blocks
-    final var normalBlockLabel = context.generateBlockLabel("and_normal");
-    final var shortCircuitBlockLabel = context.generateBlockLabel("and_shortcircuit");
-    final var mergeBlockLabel = context.generateBlockLabel("and_merge");
-
-    // Evaluate left operand
-    final var lhsTemp = context.generateTempName();
-    final var instructions = new ArrayList<>(process(ctx.left, lhsTemp, scopeId));
-
-    // Register left temp for proper memory management and exception safety
-    instructions.add(MemoryInstr.retain(lhsTemp, debugInfo));
-    instructions.add(ScopeInstr.register(lhsTemp, scopeId, debugInfo));
-
-    // Check if left is true - if false, short-circuit
-    final var lhsTrueTemp = context.generateTempName();
-    final var lhsTrueCallDetails = callDetailsForTrue.apply(lhsTemp);
-    instructions.add(CallInstr.operator(lhsTrueTemp, debugInfo, lhsTrueCallDetails));
-
-    // Note: lhsTrueTemp is a primitive boolean (not EK9 object), so no RETAIN/SCOPE_REGISTER needed
-
-    // Branch: if left is false, short-circuit; if true, continue to normal evaluation
-    instructions.add(BranchInstr.branchFalse(lhsTrueTemp, shortCircuitBlockLabel, debugInfo));
-
-    // Normal evaluation block: left is true, evaluate right operand
-    instructions.add(LabelInstr.label(normalBlockLabel, debugInfo));
-    final var rhsTemp = context.generateTempName();
-    instructions.addAll(process(ctx.right, rhsTemp, scopeId));
-
-    // Register right temp for proper memory management and exception safety
-    instructions.add(MemoryInstr.retain(rhsTemp, debugInfo));
-    instructions.add(ScopeInstr.register(rhsTemp, scopeId, debugInfo));
-
-    // Call left._and(right) for final result in normal path
-    final var andResultTemp = context.generateTempName(); // Unique variable for normal path
-    final var andCallDetails = new CallDetails(lhsTemp, "org.ek9.lang::Boolean",
-        "_and", List.of("org.ek9.lang::Boolean"), "org.ek9.lang::Boolean", List.of(rhsTemp));
-    instructions.add(CallInstr.operator(andResultTemp, debugInfo, andCallDetails));
-
-    // Memory management for the new Boolean object returned by _and (pure method)
-    instructions.add(MemoryInstr.retain(andResultTemp, debugInfo));
-    instructions.add(ScopeInstr.register(andResultTemp, scopeId, debugInfo));
-
-    // Branch to merge block
-    instructions.add(BranchInstr.branch(mergeBlockLabel, debugInfo));
-
-    // Short-circuit block: left is false, use left directly as result
-    instructions.add(LabelInstr.label(shortCircuitBlockLabel, debugInfo));
-    final var shortCircuitResultTemp = context.generateTempName(); // Unique variable for short-circuit path
-    instructions.add(MemoryInstr.load(shortCircuitResultTemp, lhsTemp, debugInfo));
-    instructions.add(MemoryInstr.retain(shortCircuitResultTemp, debugInfo));
-    instructions.add(ScopeInstr.register(shortCircuitResultTemp, scopeId, debugInfo));
-
-    // Merge block: PHI node combines results from both paths
-    instructions.add(LabelInstr.label(mergeBlockLabel, debugInfo));
-    instructions.add(PhiInstr.phi(exprResult, debugInfo)
-        .addPhiPair(andResultTemp, normalBlockLabel)
-        .addPhiPair(shortCircuitResultTemp, shortCircuitBlockLabel));
-
-    return instructions;
+  private List<IRInstr> processAndExpression(final ExprProcessingDetails details) {
+    return shortCircuitAndGenerator.apply(details);
   }
 
   /**
-   * Process OR expression with proper short-circuit evaluation using branches and PHI nodes.
+   * Process OR expression using high-level short-circuit instruction.
    * Pattern: left or right
    * Short-circuit: if left is true, result is true without evaluating right
-   * Uses SSA form with PHI node for LLVM/JVM compatibility.
+   * Uses ShortCircuitInstr for backend-appropriate lowering.
    */
-  private List<IRInstr> processOrExpression(final EK9Parser.ExpressionContext ctx,
-                                            final String exprResult,
-                                            final String scopeId) {
-
-    // Get debug information
-    final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
-    final var debugInfo = debugInfoCreator.apply(exprSymbol);
-
-    // Generate block labels for SSA basic blocks
-    final var normalBlockLabel = context.generateBlockLabel("or_normal");
-    final var shortCircuitBlockLabel = context.generateBlockLabel("or_shortcircuit");
-    final var mergeBlockLabel = context.generateBlockLabel("or_merge");
-
-    // Evaluate left operand
-    final var lhsTemp = context.generateTempName();
-    final var instructions = new ArrayList<>(process(ctx.left, lhsTemp, scopeId));
-
-    // Register left temp for proper memory management and exception safety
-    instructions.add(MemoryInstr.retain(lhsTemp, debugInfo));
-    instructions.add(ScopeInstr.register(lhsTemp, scopeId, debugInfo));
-
-    // Check if left is true - if true, short-circuit
-    final var lhsTrueTemp = context.generateTempName();
-    final var lhsTrueCallDetails = callDetailsForTrue.apply(lhsTemp);
-    instructions.add(CallInstr.operator(lhsTrueTemp, debugInfo, lhsTrueCallDetails));
-
-    // Note: lhsTrueTemp is a primitive boolean (not EK9 object), so no RETAIN/SCOPE_REGISTER needed
-
-    // Branch: if left is true, short-circuit; if false, continue to normal evaluation
-    instructions.add(BranchInstr.branchTrue(lhsTrueTemp, shortCircuitBlockLabel, debugInfo));
-
-    // Normal evaluation block: left is false, evaluate right operand
-    instructions.add(LabelInstr.label(normalBlockLabel, debugInfo));
-
-    final var rhsTemp = context.generateTempName();
-    instructions.addAll(process(ctx.right, rhsTemp, scopeId));
-
-    // Register right temp for proper memory management and exception safety
-    instructions.add(MemoryInstr.retain(rhsTemp, debugInfo));
-    instructions.add(ScopeInstr.register(rhsTemp, scopeId, debugInfo));
-
-    // Call left._or(right) for final result in normal path
-    final var orResultTemp = context.generateTempName(); // Unique variable for normal path
-    final var orCallDetails = new CallDetails(lhsTemp, "org.ek9.lang::Boolean",
-        "_or", List.of("org.ek9.lang::Boolean"), "org.ek9.lang::Boolean", List.of(rhsTemp));
-    instructions.add(CallInstr.operator(orResultTemp, debugInfo, orCallDetails));
-
-    // Memory management for the new Boolean object returned by _or (pure method)
-    instructions.add(MemoryInstr.retain(orResultTemp, debugInfo));
-    instructions.add(ScopeInstr.register(orResultTemp, scopeId, debugInfo));
-
-    // Branch to merge block
-    instructions.add(BranchInstr.branch(mergeBlockLabel, debugInfo));
-
-    // Short-circuit block: left is true, use left directly as result
-    instructions.add(LabelInstr.label(shortCircuitBlockLabel, debugInfo));
-    final var shortCircuitResultTemp = context.generateTempName(); // Unique variable for short-circuit path
-
-    instructions.add(MemoryInstr.load(shortCircuitResultTemp, lhsTemp, debugInfo));
-    instructions.add(MemoryInstr.retain(shortCircuitResultTemp, debugInfo));
-    instructions.add(ScopeInstr.register(shortCircuitResultTemp, scopeId, debugInfo));
-
-    // Merge block: PHI node combines results from both paths
-    instructions.add(LabelInstr.label(mergeBlockLabel, debugInfo));
-    instructions.add(PhiInstr.phi(exprResult, debugInfo)
-        .addPhiPair(orResultTemp, normalBlockLabel)
-        .addPhiPair(shortCircuitResultTemp, shortCircuitBlockLabel));
-
-    return instructions;
+  private List<IRInstr> processOrExpression(final ExprProcessingDetails details) {
+    return shortCircuitOrGenerator.apply(details);
   }
-
 
 }
