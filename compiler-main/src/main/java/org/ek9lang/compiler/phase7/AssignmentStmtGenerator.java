@@ -56,23 +56,47 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
   private void operationImplementedOrException(final Token op) {
 
-    if (op.getType() != EK9Parser.ASSIGN
-        && op.getType() != EK9Parser.ASSIGN2
-        && op.getType() != EK9Parser.COLON) {
+    if (isNotSimpleAssignment(op) && !isGuardedAssignment(op)) {
       throw new CompilerException("Operation " + op.getText() + " not yet implemented");
     }
 
   }
 
+  private boolean isNotSimpleAssignment(final Token op) {
+    return op.getType() != EK9Parser.ASSIGN
+        && op.getType() != EK9Parser.ASSIGN2
+        && op.getType() != EK9Parser.COLON;
+  }
+
+  private boolean isGuardedAssignment(final Token op) {
+    return op.getType() == EK9Parser.ASSIGN_UNSET;
+  }
+
+  private boolean isMethodBasedAssignment(final Token op) {
+    return isNotSimpleAssignment(op) && !isGuardedAssignment(op);
+  }
+
   private void processIdentifierAssignment(final EK9Parser.AssignmentStatementContext ctx,
                                            final String scopeId, final List<IRInstr> instructions) {
-
 
     final var lhsSymbol = context.getParsedModule().getRecordedSymbol(ctx.identifier());
     final var generator = new AssignmentExprInstrGenerator(context, ctx.assignmentExpression(), scopeId);
 
+    if (isMethodBasedAssignment(ctx.op)) {
+      throw new CompilerException("Method Based Operation " + ctx.op.getText() + " not yet implemented");
+    }
     final var assignExpressionToSymbol = new AssignExpressionToSymbol(context, true, generator, scopeId);
 
+    if (isGuardedAssignment(ctx.op)) {
+      // Generate conditional assignment: only assign if lhs IS_NULL or _isSet() is false
+      final var guardedGenerator = new GuardedAssignmentGenerator(context, assignExpressionToSymbol);
+      final var guardedDetails = new GuardedAssignmentGenerator.GuardedAssignmentDetails(
+          lhsSymbol, ctx.assignmentExpression(), scopeId);
+      instructions.addAll(guardedGenerator.apply(guardedDetails));
+      return; // Early return since guarded assignment is complete
+    }
+
+    //So it is a simple assignment.
     instructions.addAll(assignExpressionToSymbol.apply(lhsSymbol, ctx.assignmentExpression()));
 
   }

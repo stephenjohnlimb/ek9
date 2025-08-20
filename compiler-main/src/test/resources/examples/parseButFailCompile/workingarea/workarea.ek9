@@ -1,38 +1,29 @@
 #!ek9
-defines module introduction
+defines module assignments
 
 
   defines function
 
-    <!-
-    andBooleanExpression()
-      ->
-        arg0 as Boolean
-        arg1 as Boolean
-      <-
-        rtn as Boolean?
+    basicAssignment1()
+      value as Integer?
+      value: 1
+      assert value?
 
-      rtn: arg0 and arg1
+    basicAssignment2()
+      value as Integer?
+      value = 1
+      assert value?
 
-    orBooleanExpression()
-      ->
-        arg0 as Boolean
-        arg1 as Boolean
-      <-
-        rtn as Boolean: Boolean()
+    basicAssignment3()
+      value as Integer?
+      value:= 1
+      assert value?
 
-      rtn: arg0 or arg1
-
-    -!>
-    mixedBooleanExpression()
-      ->
-        arg0 as Boolean
-        arg1 as Boolean
-        arg2 as Boolean
+    guardedAssignment()
       <-
         rtn as Boolean: Boolean()
 
-      rtn: arg0 and (arg1 or arg2)
+      rtn :=? true
 
 <!-
     aSimpleFunction()
