@@ -55,7 +55,7 @@ final class AssignExpressionToSymbol extends AbstractGenerator
     }
 
     instructions.add(MemoryInstr.store(lhsVariableName, rhsResult, rhsExprDebugInfo));
-    if (lhsSymbol.isPropertyField()) {
+    if (lhsSymbol.isPropertyField() || lhsSymbol.isReturningParameter()) {
       instructions.add(MemoryInstr.retain(lhsVariableName, rhsExprDebugInfo));
     } else if (shouldRegisterVariableInScope.test(scopeId)) {
       instructions.add(MemoryInstr.retain(lhsVariableName, rhsExprDebugInfo));

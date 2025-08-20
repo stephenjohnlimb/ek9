@@ -30,6 +30,7 @@ public final class LogicalOperationInstr extends IRInstr {
   }
 
   private final Operation operation;
+  private final List<IRInstr> leftEvaluationInstructions;
   private final String leftOperand;
   private final String condition;
   private final List<IRInstr> rightEvaluationInstructions;
@@ -42,6 +43,7 @@ public final class LogicalOperationInstr extends IRInstr {
    * Create logical AND operation.
    */
   public static LogicalOperationInstr andOperation(final String result,
+                                                   final List<IRInstr> leftEvaluationInstructions,
                                                    final String leftOperand,
                                                    final String condition,
                                                    final List<IRInstr> rightEvaluationInstructions,
@@ -51,7 +53,7 @@ public final class LogicalOperationInstr extends IRInstr {
                                                    final String scopeId,
                                                    final DebugInfo debugInfo) {
     return new LogicalOperationInstr(IROpcode.LOGICAL_AND_BLOCK, result, Operation.AND,
-        leftOperand, condition, rightEvaluationInstructions, rightOperand,
+        leftEvaluationInstructions, leftOperand, condition, rightEvaluationInstructions, rightOperand,
         resultComputationInstructions, logicalResult, scopeId, debugInfo);
   }
 
@@ -59,6 +61,7 @@ public final class LogicalOperationInstr extends IRInstr {
    * Create logical OR operation.
    */
   public static LogicalOperationInstr orOperation(final String result,
+                                                  final List<IRInstr> leftEvaluationInstructions,
                                                   final String leftOperand,
                                                   final String condition,
                                                   final List<IRInstr> rightEvaluationInstructions,
@@ -68,13 +71,14 @@ public final class LogicalOperationInstr extends IRInstr {
                                                   final String scopeId,
                                                   final DebugInfo debugInfo) {
     return new LogicalOperationInstr(IROpcode.LOGICAL_OR_BLOCK, result, Operation.OR,
-        leftOperand, condition, rightEvaluationInstructions, rightOperand,
+        leftEvaluationInstructions, leftOperand, condition, rightEvaluationInstructions, rightOperand,
         resultComputationInstructions, logicalResult, scopeId, debugInfo);
   }
 
   private LogicalOperationInstr(final IROpcode opcode,
                                 final String result,
                                 final Operation operation,
+                                final List<IRInstr> leftEvaluationInstructions,
                                 final String leftOperand,
                                 final String condition,
                                 final List<IRInstr> rightEvaluationInstructions,
@@ -86,6 +90,7 @@ public final class LogicalOperationInstr extends IRInstr {
     super(opcode, result, debugInfo);
 
     AssertValue.checkNotNull("Operation cannot be null", operation);
+    AssertValue.checkNotNull("Left evaluation instructions cannot be null", leftEvaluationInstructions);
     AssertValue.checkNotNull("Left operand cannot be null", leftOperand);
     AssertValue.checkNotNull("Condition cannot be null", condition);
     AssertValue.checkNotNull("Right evaluation instructions cannot be null", rightEvaluationInstructions);
@@ -95,6 +100,7 @@ public final class LogicalOperationInstr extends IRInstr {
     AssertValue.checkNotNull("Scope ID cannot be null", scopeId);
 
     this.operation = operation;
+    this.leftEvaluationInstructions = List.copyOf(leftEvaluationInstructions);
     this.leftOperand = leftOperand;
     this.condition = condition;
     this.rightEvaluationInstructions = List.copyOf(rightEvaluationInstructions);
@@ -116,6 +122,14 @@ public final class LogicalOperationInstr extends IRInstr {
    */
   public Operation getOperation() {
     return operation;
+  }
+
+  /**
+   * Get the left operand evaluation instructions.
+   * These instructions evaluate the left EK9 Boolean operand.
+   */
+  public List<IRInstr> getLeftEvaluationInstructions() {
+    return leftEvaluationInstructions;
   }
 
   /**
@@ -183,14 +197,30 @@ public final class LogicalOperationInstr extends IRInstr {
     if (getDebugInfo().isPresent() && getDebugInfo().get().isValidLocation()) {
       sb.append("  ").append(getDebugInfo().get());
     }
-    sb.append("\n{\n");
+    sb.append("\n[\n");
+
+    // Left operand evaluation section
+    sb.append("left_evaluation:\n[\n");
+    if (leftEvaluationInstructions.isEmpty()) {
+      sb.append("no instructions\n");
+    } else {
+      for (IRInstr instr : leftEvaluationInstructions) {
+        String instrStr = instr.toString();
+        sb.append(instrStr);
+        // Add newline if instruction doesn't already end with one
+        if (!instrStr.endsWith("\n")) {
+          sb.append("\n");
+        }
+      }
+    }
+    sb.append("]\n");
 
     // Left operand section
     sb.append("left_operand: ").append(leftOperand).append("\n");
     sb.append("left_condition: ").append(condition).append("\n");
 
     // Right operand evaluation section
-    sb.append("right_evaluation:\n{\n");
+    sb.append("right_evaluation:\n[\n");
     if (rightEvaluationInstructions.isEmpty()) {
       sb.append("no instructions\n");
     } else {
@@ -203,11 +233,11 @@ public final class LogicalOperationInstr extends IRInstr {
         }
       }
     }
-    sb.append("}\n");
+    sb.append("]\n");
     sb.append("right_operand: ").append(rightOperand).append("\n");
 
     // Result computation section
-    sb.append("result_computation:\n{\n");
+    sb.append("result_computation:\n[\n");
     if (resultComputationInstructions.isEmpty()) {
       sb.append("no instructions\n");
     } else {
@@ -219,11 +249,11 @@ public final class LogicalOperationInstr extends IRInstr {
         }
       }
     }
-    sb.append("}\n");
+    sb.append("]\n");
     sb.append("logical_result: ").append(logicalResult).append("\n");
     sb.append("scope_id: ").append(scopeId).append("\n");
 
-    sb.append("}");
+    sb.append("]");
 
     return sb.toString();
   }

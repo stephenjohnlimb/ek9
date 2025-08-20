@@ -48,15 +48,15 @@ public final class ShortCircuitAndGenerator implements Function<ExprProcessingDe
     final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
 
-    // Left operand evaluation
+    // Left operand evaluation instructions (for LOGICAL_AND_BLOCK)
     final var lhsTemp = context.generateTempName();
-    final var instructions = new ArrayList<>(
+    final var leftEvaluationInstructions = new ArrayList<>(
         recordExprProcessing.apply(new ExprProcessingDetails(ctx.left, lhsTemp, scopeId, debugInfo)));
 
     // Convert left operand to primitive boolean condition
     final var lhsPrimitive = context.generateTempName();
     final var lhsCallDetails = callDetailsForTrue.apply(lhsTemp);
-    instructions.add(CallInstr.call(lhsPrimitive, debugInfo, lhsCallDetails));
+    leftEvaluationInstructions.add(CallInstr.call(lhsPrimitive, debugInfo, lhsCallDetails));
 
     // Right operand evaluation instructions (for non-short-circuit pathway)
     final var rhsTemp = context.generateTempName();
@@ -76,9 +76,10 @@ public final class ShortCircuitAndGenerator implements Function<ExprProcessingDe
     resultComputationInstructions.add(MemoryInstr.retain(andResult, debugInfo));
     resultComputationInstructions.add(ScopeInstr.register(andResult, scopeId, debugInfo));
 
-    // Create logical AND operation block
+    // Create logical AND operation block with left evaluation instructions
     final var logicalOperation = LogicalOperationInstr.andOperation(
         exprResult,
+        leftEvaluationInstructions,
         lhsTemp,
         lhsPrimitive,
         rightEvaluationInstructions,
@@ -88,6 +89,9 @@ public final class ShortCircuitAndGenerator implements Function<ExprProcessingDe
         scopeId,
         debugInfo
     );
+
+    // Main instructions list only contains the LOGICAL_AND_BLOCK
+    final var instructions = new ArrayList<IRInstr>();
     instructions.add(logicalOperation);
 
     return instructions;
