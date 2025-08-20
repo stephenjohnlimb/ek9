@@ -6,8 +6,6 @@ import java.util.function.Function;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.LiteralInstr;
-import org.ek9lang.compiler.ir.MemoryInstr;
-import org.ek9lang.compiler.ir.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.LiteralProcessingDetails;
@@ -36,14 +34,11 @@ final class LiteralGenerator implements Function<LiteralProcessingDetails, List<
     final var literalValue = variableNameForIR.apply(details.literalSymbol());
 
     // Extract debug info if debugging instrumentation is enabled
-    final var debugInfo = debugInfoCreator.apply(details.literalSymbol());
+    final var debugInfo = debugInfoCreator.apply(details.literalSymbol().getSourceToken());
 
     // Create literal instruction with resolved type information
     instructions.add(LiteralInstr.literal(details.literalResult(), literalValue, literalType, debugInfo));
 
-    // Add memory management for EK9 object reference counting (consistent with constructor calls)
-    instructions.add(MemoryInstr.retain(details.literalResult(), debugInfo));
-    instructions.add(ScopeInstr.register(details.literalResult(), details.scopeId(), debugInfo));
     return instructions;
   }
 }

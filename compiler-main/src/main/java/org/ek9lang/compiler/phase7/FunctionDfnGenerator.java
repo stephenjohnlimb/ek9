@@ -156,7 +156,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
 
     // Create synthetic _call method following AggregateManipulator patterns
     final var callMethod = createSyntheticCallMethod(functionSymbol);
-    final var callDebugInfo = debugCreator.apply(callMethod);
+    final var callDebugInfo = debugCreator.apply(callMethod.getSourceToken());
     // Create Operation for the synthetic _call method (not the function itself)
     final var callOperation = new Operation(callMethod, callDebugInfo);
 
@@ -237,7 +237,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
    */
   private void processSyntheticConstructor(final IRConstruct construct, final MethodSymbol constructorSymbol) {
     final var context = new IRContext(parsedModule, compilerFlags);
-    final var debugInfo = new DebugInfoCreator(context).apply(constructorSymbol);
+    final var debugInfo = new DebugInfoCreator(context).apply(constructorSymbol.getSourceToken());
     final var operation = new Operation(constructorSymbol, debugInfo);
 
     final var instructions = new java.util.ArrayList<IRInstr>();

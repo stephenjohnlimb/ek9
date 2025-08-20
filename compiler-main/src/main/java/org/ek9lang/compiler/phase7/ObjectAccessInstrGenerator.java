@@ -8,7 +8,6 @@ import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
-import org.ek9lang.compiler.ir.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
@@ -62,7 +61,7 @@ final class ObjectAccessInstrGenerator {
               (parentScope instanceof Symbol symbol) ? symbol.getFullyQualifiedName() : parentScope.toString();
 
           // Extract debug info if debugging instrumentation is enabled
-          final var debugInfo = debugInfoCreator.apply(callSymbol);
+          final var debugInfo = debugInfoCreator.apply(callSymbol.getSourceToken());
 
           // Extract parameter types from constructor parameters
           final var parameterTypes = methodSymbol.getCallParameters().stream()
@@ -75,9 +74,6 @@ final class ObjectAccessInstrGenerator {
 
           instructions.add(CallInstr.constructor(resultVar, debugInfo, callDetails));
 
-          // Add memory management for LLVM targets (no-ops on JVM)
-          instructions.add(MemoryInstr.retain(resultVar, debugInfo));
-          instructions.add(ScopeInstr.register(resultVar, scopeId, debugInfo));
         }
       }
     } else if (ctx.objectAccess() != null) {
@@ -116,11 +112,11 @@ final class ObjectAccessInstrGenerator {
             final var methodName = toBeCalled.getName();
 
             // Extract debug info if debugging instrumentation is enabled
-            final var debugInfo = debugInfoCreator.apply(methodSymbol);
+            final var debugInfo = debugInfoCreator.apply(methodSymbol.getSourceToken());
 
             // Extract type information from resolved MethodSymbol
             final var parentScope = toBeCalled.getParentScope();
-            final var targetTypeName = (parentScope instanceof ISymbol symbol) 
+            final var targetTypeName = (parentScope instanceof ISymbol symbol)
                 ? symbol.getFullyQualifiedName() : parentScope.toString();
             final var returnTypeName = toBeCalled.getType()
                 .map(ISymbol::getFullyQualifiedName)

@@ -3,7 +3,7 @@ package org.ek9lang.compiler.ir;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import org.ek9lang.compiler.CompilableSource;
-import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 
 /**
  * Debug information for IR instructions to enable source mapping and debugging.
@@ -21,9 +21,8 @@ public record DebugInfo(
    * Returns null if the symbol has no source token information.
    * Uses filename only (without path) for portability and consistency with EK9 error reporting.
    */
-  public static DebugInfo from(final CompilableSource compilableSource, final ISymbol symbol) {
-    if (symbol != null && symbol.getSourceToken() != null) {
-      var token = symbol.getSourceToken();
+  public static DebugInfo from(final CompilableSource compilableSource, final IToken token) {
+    if (token != null) {
       return new DebugInfo(
           compilableSource.getRelativeFileName(),
           token.getLine(),

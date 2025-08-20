@@ -22,11 +22,11 @@ defines module justAssert
         BasicBlock: _entry_1
         REFERENCE arg0, org.ek9.lang::Boolean  // ./assertExpression.ek9:33:10
         SCOPE_ENTER _scope_1
-        _temp1 = LOAD arg0  // ./assertExpression.ek9:33:10
-        RETAIN _temp1  // ./assertExpression.ek9:33:10
-        SCOPE_REGISTER _temp1, _scope_1  // ./assertExpression.ek9:33:10
-        _temp2 = CALL (org.ek9.lang::Boolean)_temp1._true()  // ./assertExpression.ek9:33:10
-        ASSERT _temp2  // ./assertExpression.ek9:33:10
+        _temp1 = LOAD arg0  // ./assertExpression.ek9:34:7
+        RETAIN _temp1  // ./assertExpression.ek9:34:7
+        SCOPE_REGISTER _temp1, _scope_1  // ./assertExpression.ek9:34:7
+        _temp2 = CALL (org.ek9.lang::Boolean)_temp1._true()  // ./assertExpression.ek9:34:7
+        ASSERT _temp2  // ./assertExpression.ek9:34:7
         SCOPE_EXIT _scope_1
         RETURN`
     checkAssert()

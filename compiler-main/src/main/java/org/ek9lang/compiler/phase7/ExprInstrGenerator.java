@@ -2,14 +2,15 @@ package org.ek9lang.compiler.phase7;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
+import org.ek9lang.compiler.ir.DebugInfo;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
-import org.ek9lang.compiler.ir.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
@@ -70,12 +71,11 @@ import org.ek9lang.core.AssertValue;
  *     ;
  * </pre>
  */
-final class ExprInstrGenerator extends AbstractGenerator {
+final class ExprInstrGenerator extends AbstractGenerator
+    implements Function<ExprProcessingDetails, List<IRInstr>> {
 
   private static final OperatorMap operatorMap = new OperatorMap();
 
-  private final EK9Parser.ExpressionContext antlrCtx;
-  private final String initialScopeId;
   private final ObjectAccessInstrGenerator objectAccessCreator;
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
@@ -83,14 +83,9 @@ final class ExprInstrGenerator extends AbstractGenerator {
   private final ShortCircuitAndGenerator shortCircuitAndGenerator;
   private final ShortCircuitOrGenerator shortCircuitOrGenerator;
 
-  ExprInstrGenerator(final IRContext context,
-                     final EK9Parser.ExpressionContext ctx,
-                     final String initialScopeId) {
+  ExprInstrGenerator(final IRContext context) {
     super(context);
-    AssertValue.checkNotNull("ExpressionContext cannot be null", ctx);
-    AssertValue.checkNotNull("initialScopeId cannot be null", initialScopeId);
-    this.antlrCtx = ctx;
-    this.initialScopeId = initialScopeId;
+
     this.objectAccessCreator = new ObjectAccessInstrGenerator(context);
     this.recordExprProcessing = new RecordExprProcessing(this::process);
     this.shortCircuitAndGenerator = new ShortCircuitAndGenerator(context, recordExprProcessing);
@@ -100,13 +95,11 @@ final class ExprInstrGenerator extends AbstractGenerator {
   /**
    * Generate IR instructions for expression.
    */
-  public List<IRInstr> apply(final String rhsExprResult) {
-    AssertValue.checkNotNull("RhsExprResult cannot be null", rhsExprResult);
+  public List<IRInstr> apply(final ExprProcessingDetails details) {
 
-    //Now while it seems a bit pointless just to call another method here.
-    //Actually some of the methods call back with new deeper contexts.
-    //So this allows for recursion.
-    return process(new ExprProcessingDetails(antlrCtx, rhsExprResult, initialScopeId, null));
+    AssertValue.checkNotNull("Details cannot be null", details);
+
+    return process(details);
 
   }
 
@@ -125,7 +118,7 @@ final class ExprInstrGenerator extends AbstractGenerator {
       return processPrimary(details);
     } else if (ctx.call() != null) {
       return processCall(details);
-    } else if (antlrCtx.objectAccessExpression() != null) {
+    } else if (details.ctx().objectAccessExpression() != null) {
       return processObjectAccessExpression(details);
     }
 
@@ -180,7 +173,7 @@ final class ExprInstrGenerator extends AbstractGenerator {
       // Handle literals: string, numeric, boolean, etc.
       instructions.addAll(processLiteral(ctx.primary().literal(), exprResult, scopeId));
     } else if (ctx.primary().identifierReference() != null) {
-      instructions.addAll(processIdentifierReference(ctx.primary().identifierReference(), exprResult));
+      instructions.addAll(processIdentifierReference(ctx.primary().identifierReference(), exprResult, debugInfo));
     } else if (ctx.primary().expression() != null && !ctx.primary().expression().isEmpty()) {
       instructions.addAll(
           process(new ExprProcessingDetails(ctx.primary().expression(), exprResult, scopeId, debugInfo)));
@@ -196,7 +189,6 @@ final class ExprInstrGenerator extends AbstractGenerator {
   private List<IRInstr> processCall(final ExprProcessingDetails details) {
     final var ctx = details.ctx();
     final var exprResult = details.exprResult();
-    final var scopeId = details.scopeId();
 
     final var instructions = new ArrayList<IRInstr>();
 
@@ -213,7 +205,7 @@ final class ExprInstrGenerator extends AbstractGenerator {
             (parentScope instanceof Symbol symbol) ? symbol.getFullyQualifiedName() : parentScope.toString();
 
         // Extract debug info if debugging instrumentation is enabled
-        final var debugInfo = debugInfoCreator.apply(callSymbol);
+        final var debugInfo = debugInfoCreator.apply(callSymbol.getSourceToken());
 
         // Extract parameter types from constructor parameters
         final var parameterTypes = methodSymbol.getCallParameters().stream()
@@ -226,9 +218,6 @@ final class ExprInstrGenerator extends AbstractGenerator {
 
         instructions.add(CallInstr.constructor(exprResult, debugInfo, callDetails));
 
-        // Add memory management for LLVM targets (no-ops on JVM)
-        instructions.add(MemoryInstr.retain(exprResult, debugInfo));
-        instructions.add(ScopeInstr.register(exprResult, scopeId, debugInfo));
       } else {
         AssertValue.fail("Expecting method to have been resolved");
       }
@@ -271,7 +260,7 @@ final class ExprInstrGenerator extends AbstractGenerator {
    * Process identifier references using resolved symbol information.
    */
   private List<IRInstr> processIdentifierReference(final EK9Parser.IdentifierReferenceContext ctx,
-                                                   final String rhsExprResult) {
+                                                   final String rhsExprResult, final DebugInfo debugInfo) {
     final var instructions = new ArrayList<IRInstr>();
 
     // Get the resolved symbol for this identifier - phases 1-6 ensure all identifiers are resolved
@@ -280,9 +269,6 @@ final class ExprInstrGenerator extends AbstractGenerator {
 
     // Load the variable using its resolved name (could be decorated for generic contexts)
     final var variableName = variableNameForIR.apply(identifierSymbol);
-
-    // Extract debug info if debugging instrumentation is enabled
-    final var debugInfo = debugInfoCreator.apply(identifierSymbol);
 
     instructions.add(MemoryInstr.load(rhsExprResult, variableName, debugInfo));
 
@@ -302,7 +288,7 @@ final class ExprInstrGenerator extends AbstractGenerator {
 
     // Get debug information
     final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
-    final var debugInfo = debugInfoCreator.apply(exprSymbol);
+    final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
 
     // Evaluate the expression that the ? operator is applied to
     final var tempExprResult = context.generateTempName();

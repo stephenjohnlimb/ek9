@@ -28,7 +28,7 @@ public class FieldCreator implements Consumer<ISymbol> {
     if (symbol instanceof VariableSymbol variableSymbol && variableSymbol.isPropertyField()) {
       final var fieldName = variableSymbol.getName();
       final var typeName = typeNameOrException.apply(variableSymbol);
-      final var debugInfo = debugInfoCreator.apply(variableSymbol);
+      final var debugInfo = debugInfoCreator.apply(variableSymbol.getSourceToken());
 
       final var field = new Field(variableSymbol, fieldName, typeName, debugInfo);
       construct.addField(field);

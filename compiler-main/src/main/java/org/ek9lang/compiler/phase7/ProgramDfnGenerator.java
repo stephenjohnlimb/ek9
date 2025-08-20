@@ -62,7 +62,7 @@ final class ProgramDfnGenerator implements Function<EK9Parser.MethodDeclarationC
     final var context = new IRContext(parsedModule, compilerFlags);
     final var optionalMethod = aggregateSymbol.getAllMethods().stream().findFirst();
     optionalMethod.ifPresent(method -> {
-      final var debugInfo = new DebugInfoCreator(context).apply(method);
+      final var debugInfo = new DebugInfoCreator(context).apply(method.getSourceToken());
       final var operation = new Operation(method, debugInfo);
       operationDfnGenerator.accept(operation, ctx.operationDetails());
       construct.add(operation);

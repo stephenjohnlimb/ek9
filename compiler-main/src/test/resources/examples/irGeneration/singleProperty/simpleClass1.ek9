@@ -1,0 +1,54 @@
+#!ek9
+<?-
+  Simple single property, initialised when declared, but also
+  altered during construction. Then asserted (just to get it to compile).
+-?>
+defines module singleProperty
+
+  defines class
+
+    @IR: IR_GENERATION: TYPE: "singleProperty::Example1": `
+    ConstructDfn: singleProperty::Example1
+    Field: aField, org.ek9.lang::String  // ./simpleClass1.ek9:46:7
+    OperationDfn: singleProperty::Example1.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: singleProperty::Example1.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    REFERENCE this.aField, org.ek9.lang::String  // ./simpleClass1.ek9:46:7
+    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>()  // ./simpleClass1.ek9:46:27
+    RETAIN _temp1  // ./simpleClass1.ek9:46:27
+    SCOPE_REGISTER _temp1, _i_init_1  // ./simpleClass1.ek9:46:27
+    STORE this.aField, _temp1  // ./simpleClass1.ek9:46:27
+    RETAIN this.aField  // ./simpleClass1.ek9:46:27
+    RETURN
+    OperationDfn: singleProperty::Example1.Example1()->singleProperty::Example1  // ./simpleClass1.ek9:48:7
+    BasicBlock: _entry_1
+    _temp_i_init = CALL (singleProperty::Example1)this.i_init()  // ./simpleClass1.ek9:48:7
+    SCOPE_ENTER _scope_1
+    _temp1 = LOAD_LITERAL "Steve", org.ek9.lang::String  // ./simpleClass1.ek9:51:17
+    RETAIN _temp1  // ./simpleClass1.ek9:51:17
+    SCOPE_REGISTER _temp1, _scope_1  // ./simpleClass1.ek9:51:17
+    RELEASE this.aField  // ./simpleClass1.ek9:51:17
+    STORE this.aField, _temp1  // ./simpleClass1.ek9:51:17
+    RETAIN this.aField  // ./simpleClass1.ek9:51:17
+    _temp3 = LOAD this.aField  // ./simpleClass1.ek9:52:22
+    RETAIN _temp3  // ./simpleClass1.ek9:52:22
+    SCOPE_REGISTER _temp3, _scope_1  // ./simpleClass1.ek9:52:22
+    _temp2 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./simpleClass1.ek9:52:22
+    RETAIN _temp2  // ./simpleClass1.ek9:52:9
+    SCOPE_REGISTER _temp2, _scope_1  // ./simpleClass1.ek9:52:9
+    _temp4 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./simpleClass1.ek9:52:9
+    ASSERT _temp4  // ./simpleClass1.ek9:52:9
+    SCOPE_EXIT _scope_1
+    RETURN`
+    Example1
+      aField as String := String()
+
+      Example1()
+
+        //Now do a re-assignment - ensure gets released and retained (but not registered for delete at end of method).
+        aField: "Steve"
+        assert aField?
+
+//EOF

@@ -301,7 +301,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
    */
   private void processSyntheticConstructor(final IRConstruct construct, final MethodSymbol constructorSymbol) {
     final var context = new IRContext(parsedModule, compilerFlags);
-    final var debugInfo = new DebugInfoCreator(context).apply(constructorSymbol);
+    final var debugInfo = new DebugInfoCreator(context).apply(constructorSymbol.getSourceToken());
     final var operation = new Operation(constructorSymbol, debugInfo);
 
     final var instructions = new java.util.ArrayList<IRInstr>();
@@ -354,7 +354,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
   private void processSyntheticOperator(final IRConstruct construct, final MethodSymbol operatorSymbol) {
     // Create placeholder synthetic operator operation
     final var context = new IRContext(parsedModule, compilerFlags);
-    final var debugInfo = new DebugInfoCreator(context).apply(operatorSymbol);
+    final var debugInfo = new DebugInfoCreator(context).apply(operatorSymbol.getSourceToken());
     final var operation = new Operation(operatorSymbol, debugInfo);
 
     // TODO: Implement based on operator type and base operators
@@ -377,7 +377,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
   private void processSyntheticRegularMethod(final IRConstruct construct, final MethodSymbol methodSymbol) {
     // Create placeholder synthetic regular method operation
     final var context = new IRContext(parsedModule, compilerFlags);
-    final var debugInfo = new DebugInfoCreator(context).apply(methodSymbol);
+    final var debugInfo = new DebugInfoCreator(context).apply(methodSymbol.getSourceToken());
     final var operation = new Operation(methodSymbol, debugInfo);
 
     // TODO: Implement based on method semantics (e.g., _isSet, _hash)

@@ -184,7 +184,7 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
 
       if (returnType != null && !context.getParsedModule().getEk9Types().ek9Void().isExactSameType(returnType)) {
         // Function returns a value - return the return variable
-        final var debugInfo = debugInfoCreator.apply(returnSymbol);
+        final var debugInfo = debugInfoCreator.apply(returnSymbol.getSourceToken());
         instructions.add(BranchInstr.returnValue(returnSymbol.getName(), debugInfo));
       } else {
         // Function returns void or has no explicit return type
@@ -210,7 +210,7 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
     //TODO what if the ek9 developer has already included a call to the super?
     final var instructions = new ArrayList<IRInstr>();
     final var debugInfoCreator = new DebugInfoCreator(context);
-    final var debugInfo = debugInfoCreator.apply(constructorSymbol);
+    final var debugInfo = debugInfoCreator.apply(constructorSymbol.getSourceToken());
     final var aggregateSymbol = (AggregateSymbol) constructorSymbol.getParentScope();
 
     // 1. Call super constructor if this class explicitly extends another class

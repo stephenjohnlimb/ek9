@@ -46,7 +46,7 @@ public final class ShortCircuitAndGenerator implements Function<ExprProcessingDe
 
     // Get debug information
     final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
-    final var debugInfo = debugInfoCreator.apply(exprSymbol);
+    final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
 
     // Left operand evaluation
     final var lhsTemp = context.generateTempName();

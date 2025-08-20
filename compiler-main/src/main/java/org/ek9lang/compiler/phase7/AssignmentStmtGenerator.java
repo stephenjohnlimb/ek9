@@ -71,7 +71,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     final var lhsSymbol = context.getParsedModule().getRecordedSymbol(ctx.identifier());
     final var generator = new AssignmentExprInstrGenerator(context, ctx.assignmentExpression(), scopeId);
 
-    final var assignExpressionToSymbol = new AssignExpressionToSymbol(context, true, generator);
+    final var assignExpressionToSymbol = new AssignExpressionToSymbol(context, true, generator, scopeId);
 
     instructions.addAll(assignExpressionToSymbol.apply(lhsSymbol, ctx.assignmentExpression()));
 

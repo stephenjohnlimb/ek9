@@ -44,7 +44,8 @@ abstract class AbstractDfnGenerator {
     AssertValue.checkNotNull("Ctx cannot be null", ctx);
 
     if (symbol instanceof MethodSymbol method) {
-      final var debugInfo = new DebugInfoCreator(new IRContext(parsedModule, compilerFlags)).apply(method);
+      final var debugInfo =
+          new DebugInfoCreator(new IRContext(parsedModule, compilerFlags)).apply(method.getSourceToken());
       final var operation = new Operation(method, debugInfo);
       operationDfnGenerator.accept(operation, ctx);
       construct.add(operation);
@@ -58,7 +59,7 @@ abstract class AbstractDfnGenerator {
                                                 final String methodName) {
 
     final var method = newSyntheticInitMethodSymbol(scope, methodName);
-    final var debugInfo = new DebugInfoCreator(context).apply(method);
+    final var debugInfo = new DebugInfoCreator(context).apply(method.getSourceToken());
     return new Operation(method, debugInfo);
 
   }
