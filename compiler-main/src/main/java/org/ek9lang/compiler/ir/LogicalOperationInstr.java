@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.ir;
 
 import java.util.List;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -50,11 +51,10 @@ public final class LogicalOperationInstr extends IRInstr {
                                                    final String rightOperand,
                                                    final List<IRInstr> resultComputationInstructions,
                                                    final String logicalResult,
-                                                   final String scopeId,
-                                                   final DebugInfo debugInfo) {
+                                                   BasicDetails basicDetails) {
     return new LogicalOperationInstr(IROpcode.LOGICAL_AND_BLOCK, result, Operation.AND,
         leftEvaluationInstructions, leftOperand, condition, rightEvaluationInstructions, rightOperand,
-        resultComputationInstructions, logicalResult, scopeId, debugInfo);
+        resultComputationInstructions, logicalResult, basicDetails);
   }
 
   /**
@@ -68,11 +68,10 @@ public final class LogicalOperationInstr extends IRInstr {
                                                   final String rightOperand,
                                                   final List<IRInstr> resultComputationInstructions,
                                                   final String logicalResult,
-                                                  final String scopeId,
-                                                  final DebugInfo debugInfo) {
+                                                  BasicDetails basicDetails) {
     return new LogicalOperationInstr(IROpcode.LOGICAL_OR_BLOCK, result, Operation.OR,
         leftEvaluationInstructions, leftOperand, condition, rightEvaluationInstructions, rightOperand,
-        resultComputationInstructions, logicalResult, scopeId, debugInfo);
+        resultComputationInstructions, logicalResult, basicDetails);
   }
 
   private LogicalOperationInstr(final IROpcode opcode,
@@ -85,9 +84,8 @@ public final class LogicalOperationInstr extends IRInstr {
                                 final String rightOperand,
                                 final List<IRInstr> resultComputationInstructions,
                                 final String logicalResult,
-                                final String scopeId,
-                                final DebugInfo debugInfo) {
-    super(opcode, result, debugInfo);
+                                BasicDetails basicDetails) {
+    super(opcode, result, basicDetails.debugInfo());
 
     AssertValue.checkNotNull("Operation cannot be null", operation);
     AssertValue.checkNotNull("Left evaluation instructions cannot be null", leftEvaluationInstructions);
@@ -97,7 +95,7 @@ public final class LogicalOperationInstr extends IRInstr {
     AssertValue.checkNotNull("Right operand cannot be null", rightOperand);
     AssertValue.checkNotNull("Result computation instructions cannot be null", resultComputationInstructions);
     AssertValue.checkNotNull("Logical result cannot be null", logicalResult);
-    AssertValue.checkNotNull("Scope ID cannot be null", scopeId);
+    AssertValue.checkNotNull("Scope ID cannot be null", basicDetails.scopeId());
 
     this.operation = operation;
     this.leftEvaluationInstructions = List.copyOf(leftEvaluationInstructions);
@@ -107,7 +105,7 @@ public final class LogicalOperationInstr extends IRInstr {
     this.rightOperand = rightOperand;
     this.resultComputationInstructions = List.copyOf(resultComputationInstructions);
     this.logicalResult = logicalResult;
-    this.scopeId = scopeId;
+    this.scopeId = basicDetails.scopeId();
 
     // Store operands for base class functionality
     addOperand(leftOperand);

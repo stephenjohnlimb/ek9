@@ -94,8 +94,7 @@ public final class ShortCircuitOrGenerator implements Function<ExprProcessingDet
         rhsTemp,
         resultComputationInstructions,
         orResult,
-        scopeId,
-        debugInfo
+        basicDetails
     );
 
     // Main instructions list only contains the LOGICAL_OR_BLOCK

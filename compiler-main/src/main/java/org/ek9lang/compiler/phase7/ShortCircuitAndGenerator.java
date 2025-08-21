@@ -94,8 +94,7 @@ public final class ShortCircuitAndGenerator implements Function<ExprProcessingDe
         rhsTemp,
         resultComputationInstructions,
         andResult,
-        scopeId,
-        debugInfo
+        basicDetails
     );
 
     // Main instructions list only contains the LOGICAL_AND_BLOCK
