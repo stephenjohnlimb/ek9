@@ -9,7 +9,8 @@ import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.LogicalOperationInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
-import org.ek9lang.compiler.phase7.support.CallDetailsForTrue;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.phase7.support.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
@@ -34,7 +35,7 @@ public final class ShortCircuitAndGenerator implements Function<ExprProcessingDe
   private final IRContext context;
   private final DebugInfoCreator debugInfoCreator;
   private final RecordExprProcessing recordExprProcessing;
-  private final CallDetailsForTrue callDetailsForTrue = new CallDetailsForTrue();
+  private final CallDetailsForIsTrue callDetailsForTrue = new CallDetailsForIsTrue();
 
   public ShortCircuitAndGenerator(final IRContext context,
                                   final RecordExprProcessing recordExprProcessing) {
@@ -47,16 +48,18 @@ public final class ShortCircuitAndGenerator implements Function<ExprProcessingDe
   public List<IRInstr> apply(final ExprProcessingDetails details) {
     final var ctx = details.ctx();
     final var exprResult = details.exprResult();
-    final var scopeId = details.scopeId();
+    final var scopeId = details.basicDetails().scopeId();
 
     // Get debug information
     final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
 
+    final var basicDetails = new BasicDetails(scopeId, debugInfo);
+
     // Left operand evaluation instructions (for LOGICAL_AND_BLOCK)
     final var lhsTemp = context.generateTempName();
     final var leftEvaluationInstructions = new ArrayList<>(
-        recordExprProcessing.apply(new ExprProcessingDetails(ctx.left, lhsTemp, scopeId, debugInfo)));
+        recordExprProcessing.apply(new ExprProcessingDetails(ctx.left, lhsTemp, basicDetails)));
 
     // Convert left operand to primitive boolean condition
     final var lhsPrimitive = context.generateTempName();
@@ -66,7 +69,7 @@ public final class ShortCircuitAndGenerator implements Function<ExprProcessingDe
     // Right operand evaluation instructions (for non-short-circuit pathway)
     final var rhsTemp = context.generateTempName();
     final var rightEvaluationInstructions = new ArrayList<>(
-        recordExprProcessing.apply(new ExprProcessingDetails(ctx.right, rhsTemp, scopeId, debugInfo)));
+        recordExprProcessing.apply(new ExprProcessingDetails(ctx.right, rhsTemp, basicDetails)));
 
     // Note: Memory management already handled by recordExprProcessing
 
@@ -79,7 +82,7 @@ public final class ShortCircuitAndGenerator implements Function<ExprProcessingDe
 
     // Memory management for logical result
     resultComputationInstructions.add(MemoryInstr.retain(andResult, debugInfo));
-    resultComputationInstructions.add(ScopeInstr.register(andResult, scopeId, debugInfo));
+    resultComputationInstructions.add(ScopeInstr.register(andResult, basicDetails));
 
     // Create logical AND operation block with left evaluation instructions
     final var logicalOperation = LogicalOperationInstr.andOperation(

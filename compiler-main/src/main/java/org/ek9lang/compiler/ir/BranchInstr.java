@@ -26,13 +26,6 @@ public final class BranchInstr extends IRInstr {
   }
 
   /**
-   * Create return with value: RETURN value.
-   */
-  public static BranchInstr returnValue(final String value) {
-    return new BranchInstr(IROpcode.RETURN, null, null).addOperand(value);
-  }
-
-  /**
    * Create return with value and debug info: RETURN value.
    */
   public static BranchInstr returnValue(final String value, final DebugInfo debugInfo) {
@@ -40,32 +33,10 @@ public final class BranchInstr extends IRInstr {
   }
 
   /**
-   * Create assert instruction: ASSERT condition.
-   */
-  public static BranchInstr assertValue(final String condition) {
-    return new BranchInstr(IROpcode.ASSERT, null, null).addOperand(condition);
-  }
-
-  /**
    * Create assert instruction with debug info: ASSERT condition.
    */
   public static BranchInstr assertValue(final String condition, final DebugInfo debugInfo) {
     return new BranchInstr(IROpcode.ASSERT, null, debugInfo).addOperand(condition);
-  }
-
-  /**
-   * Create unconditional assertion failure: ASSERT_FAILURE.
-   * Used when failure is known at compile time - more efficient than creating Boolean objects.
-   */
-  public static BranchInstr assertFailure() {
-    return new BranchInstr(IROpcode.ASSERT_FAILURE, null, null);
-  }
-
-  /**
-   * Create unconditional assertion failure with debug info: ASSERT_FAILURE.
-   */
-  public static BranchInstr assertFailure(final DebugInfo debugInfo) {
-    return new BranchInstr(IROpcode.ASSERT_FAILURE, null, debugInfo);
   }
 
   private BranchInstr(final IROpcode opcode, final String result, final DebugInfo debugInfo) {

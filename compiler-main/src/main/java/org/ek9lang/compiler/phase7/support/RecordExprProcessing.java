@@ -30,8 +30,8 @@ public class RecordExprProcessing implements Function<ExprProcessingDetails, Lis
     final var instructions = new ArrayList<>(processor.apply(details));
 
     // Register temp for proper memory management and exception safety
-    instructions.add(MemoryInstr.retain(details.exprResult(), details.debugInfo()));
-    instructions.add(ScopeInstr.register(details.exprResult(), details.scopeId(), details.debugInfo()));
+    instructions.add(MemoryInstr.retain(details.exprResult(), details.basicDetails().debugInfo()));
+    instructions.add(ScopeInstr.register(details.exprResult(), details.basicDetails()));
     return instructions;
 
   }

@@ -4,8 +4,10 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.BasicBlockInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
+import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -34,12 +36,14 @@ final class BasicBlockInstrGenerator extends AbstractGenerator
   public BasicBlockInstr apply(final EK9Parser.InstructionBlockContext ctx) {
     AssertValue.checkNotNull("InstructionBlockContext cannot be null", ctx);
 
+    final var debugInfoCreator = new DebugInfoCreator(context);
     final var blockLabel = context.generateBlockLabel("block");
     final var scopeId = context.generateScopeId(IRConstants.GENERAL_SCOPE);
     final var block = new BasicBlockInstr(blockLabel);
+    final var debugInfo = debugInfoCreator.apply(new Ek9Token(ctx.start));
 
     // Enter scope for memory management
-    block.addInstruction(ScopeInstr.enter(scopeId));
+    block.addInstruction(ScopeInstr.enter(scopeId, debugInfo));
 
     // Process all block statements using resolved symbols
     for (final var blockStmtCtx : ctx.blockStatement()) {
@@ -48,7 +52,7 @@ final class BasicBlockInstrGenerator extends AbstractGenerator
     }
 
     // Exit scope (automatic RELEASE of all registered objects)
-    block.addInstruction(ScopeInstr.exit(scopeId));
+    block.addInstruction(ScopeInstr.exit(scopeId, debugInfo));
 
     return block;
   }

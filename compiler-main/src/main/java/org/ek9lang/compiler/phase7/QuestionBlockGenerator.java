@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase7;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
@@ -11,10 +10,13 @@ import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.ir.QuestionOperatorInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.phase7.support.CallDetailsForOfFalse;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
+import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * Generates IR instructions for question operator (?) using QUESTION_BLOCK pattern.
@@ -35,11 +37,11 @@ public final class QuestionBlockGenerator implements Function<ExprProcessingDeta
   private final IRContext context;
   private final DebugInfoCreator debugInfoCreator;
   private final RecordExprProcessing recordExprProcessing;
-  private final OperatorMap operatorMap = new OperatorMap();
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
+  private final CallDetailsForOfFalse callDetailsForOfFalse = new CallDetailsForOfFalse();
 
   public QuestionBlockGenerator(final IRContext context,
-                               final RecordExprProcessing recordExprProcessing) {
+                                final RecordExprProcessing recordExprProcessing) {
     this.context = context;
     this.debugInfoCreator = new DebugInfoCreator(context);
     this.recordExprProcessing = recordExprProcessing;
@@ -49,57 +51,116 @@ public final class QuestionBlockGenerator implements Function<ExprProcessingDeta
   public List<IRInstr> apply(final ExprProcessingDetails details) {
     final var ctx = details.ctx();
     final var exprResult = details.exprResult();
-    final var scopeId = details.scopeId();
+    final var scopeId = details.basicDetails().scopeId();
 
     // Get debug information
     final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
 
+    final var basicDetails = new BasicDetails(scopeId, debugInfo);
     // Generate operand evaluation instructions with explicit IS_NULL check
-    final var operandTemp = context.generateTempName();
+    final var targetObject = context.generateTempName();
     final var operandEvaluationInstructions = new ArrayList<>(
-        recordExprProcessing.apply(new ExprProcessingDetails(ctx.expression(0), operandTemp, scopeId, debugInfo)));
-    
+        recordExprProcessing.apply(new ExprProcessingDetails(ctx.expression(0), targetObject, basicDetails)));
+
     // Add explicit IS_NULL check for semantic clarity
     final var nullCheckCondition = context.generateTempName();
-    operandEvaluationInstructions.add(MemoryInstr.isNull(nullCheckCondition, operandTemp, debugInfo));
+    operandEvaluationInstructions.add(MemoryInstr.isNull(nullCheckCondition, targetObject, debugInfo));
 
+    final var typeName = typeNameOrException.apply(exprSymbol);
+
+    return createQuestionBlock(exprResult, operandEvaluationInstructions, nullCheckCondition, targetObject,
+        typeName, basicDetails);
+  }
+
+  /**
+   * Create QUESTION_BLOCK for a variable symbol (used by guarded assignment composition).
+   * This method enables composition by allowing other generators to reuse the core
+   * QUESTION_BLOCK logic for variable-based null-safety checking without requiring
+   * AST expression contexts.
+   */
+  public List<IRInstr> createQuestionBlockForVariable(final ISymbol variableSymbol,
+                                                      final String resultName,
+                                                      final BasicDetails basicDetails) {
+    // Load the variable for checking
+    final var targetObject = context.generateTempName();
+    final var operandEvaluationInstructions = new ArrayList<IRInstr>();
+    operandEvaluationInstructions.add(
+        MemoryInstr.load(targetObject, variableSymbol.getName(), basicDetails.debugInfo()));
+    operandEvaluationInstructions.add(MemoryInstr.retain(targetObject, basicDetails.debugInfo()));
+    operandEvaluationInstructions.add(ScopeInstr.register(targetObject, basicDetails));
+
+    // Add explicit IS_NULL check for semantic clarity
+    final var nullCheckCondition = context.generateTempName();
+    operandEvaluationInstructions.add(MemoryInstr.isNull(nullCheckCondition, targetObject, basicDetails.debugInfo()));
+
+    final var typeName = typeNameOrException.apply(variableSymbol);
+
+    return createQuestionBlock(resultName, operandEvaluationInstructions, nullCheckCondition, targetObject,
+        typeName, basicDetails);
+  }
+
+  /**
+   * Core method to create QUESTION_BLOCK with all common logic.
+   * Used by both expression-based and variable-based question operators.
+   */
+  private List<IRInstr> createQuestionBlock(final String resultName,
+                                            final List<IRInstr> operandEvaluationInstructions,
+                                            final String nullCheckCondition,
+                                            final String targetObject,
+                                            final String typeName,
+                                            final BasicDetails basicDetails) {
     // Generate null case evaluation instructions (Boolean(false))
     final var nullCaseResult = context.generateTempName();
-    final var nullCaseEvaluationInstructions = new ArrayList<IRInstr>();
-    final var falseCallDetails = new CallDetails("org.ek9.lang::Boolean", "org.ek9.lang::Boolean", 
-        "_ofFalse", List.of(), "org.ek9.lang::Boolean", List.of());
-    nullCaseEvaluationInstructions.add(CallInstr.call(nullCaseResult, debugInfo, falseCallDetails));
-    nullCaseEvaluationInstructions.add(MemoryInstr.retain(nullCaseResult, debugInfo));
-    nullCaseEvaluationInstructions.add(ScopeInstr.register(nullCaseResult, scopeId, debugInfo));
+    final var nullCaseEvaluationInstructions = generateNullCaseEvaluation(nullCaseResult, basicDetails);
 
     // Generate set case evaluation instructions (call _isSet() method)
     final var setCaseResult = context.generateTempName();
-    final var setCaseEvaluationInstructions = new ArrayList<IRInstr>();
-    
-    final var typeName = typeNameOrException.apply(exprSymbol);
-    final var methodName = operatorMap.getForward(ctx.op.getText()); // Should be "_isSet"
-    
-    final var isSetCallDetails = new CallDetails(operandTemp, typeName,
-        methodName, List.of(), "org.ek9.lang::Boolean", List.of());
-    setCaseEvaluationInstructions.add(CallInstr.operator(setCaseResult, debugInfo, isSetCallDetails));
-    setCaseEvaluationInstructions.add(MemoryInstr.retain(setCaseResult, debugInfo));
-    setCaseEvaluationInstructions.add(ScopeInstr.register(setCaseResult, scopeId, debugInfo));
+    final var setCaseEvaluationInstructions = generateSetCaseEvaluation(
+        setCaseResult, targetObject, typeName, basicDetails);
 
     // Create question operator block
     final var questionOperation = QuestionOperatorInstr.questionBlock(
-        exprResult,
+        resultName,
         operandEvaluationInstructions,
-        operandTemp,
+        targetObject,
         nullCheckCondition,
         nullCaseEvaluationInstructions,
         nullCaseResult,
         setCaseEvaluationInstructions,
         setCaseResult,
-        scopeId,
-        debugInfo
+        basicDetails
     );
 
     return List.of(questionOperation);
+  }
+
+  /**
+   * Generate null case evaluation instructions (Boolean(false)).
+   */
+  private List<IRInstr> generateNullCaseEvaluation(final String resultName,
+                                                   final BasicDetails basicDetails) {
+    final var instructions = new ArrayList<IRInstr>();
+    final var falseCallDetails = callDetailsForOfFalse.get();
+    instructions.add(CallInstr.callStatic(resultName, basicDetails.debugInfo(), falseCallDetails));
+    instructions.add(MemoryInstr.retain(resultName, basicDetails.debugInfo()));
+    instructions.add(ScopeInstr.register(resultName, basicDetails));
+    return instructions;
+  }
+
+  /**
+   * Generate set case evaluation instructions (call _isSet() method).
+   */
+  private List<IRInstr> generateSetCaseEvaluation(final String resultName,
+                                                  final String targetObject,
+                                                  final String typeName,
+                                                  final BasicDetails basicDetails) {
+    final var instructions = new ArrayList<IRInstr>();
+    final var isSetCallDetails = new CallDetails(targetObject, typeName,
+        "_isSet", List.of(), "org.ek9.lang::Boolean", List.of());
+    instructions.add(CallInstr.operator(resultName, basicDetails.debugInfo(), isSetCallDetails));
+    instructions.add(MemoryInstr.retain(resultName, basicDetails.debugInfo()));
+    instructions.add(ScopeInstr.register(resultName, basicDetails));
+    return instructions;
   }
 }

@@ -20,14 +20,14 @@ defines module booleanExpressions
     BasicBlock: _entry_1
     REFERENCE arg0, org.ek9.lang::Boolean  // ./orExpression.ek9:68:9
     REFERENCE arg1, org.ek9.lang::Boolean  // ./orExpression.ek9:69:9
-    SCOPE_ENTER _return_1
+    SCOPE_ENTER _return_1  // ./orExpression.ek9:70:7
     REFERENCE rtn, org.ek9.lang::Boolean  // ./orExpression.ek9:71:9
     _temp1 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>()  // ./orExpression.ek9:71:25
     RETAIN _temp1  // ./orExpression.ek9:71:25
     SCOPE_REGISTER _temp1, _return_1  // ./orExpression.ek9:71:25
     STORE rtn, _temp1  // ./orExpression.ek9:71:25
     RETAIN rtn  // ./orExpression.ek9:71:25
-    SCOPE_ENTER _scope_1
+    SCOPE_ENTER _scope_1  // ./orExpression.ek9:73:7
     _temp2 = LOGICAL_OR_BLOCK  // ./orExpression.ek9:73:17
     [
     left_evaluation:
@@ -60,8 +60,8 @@ defines module booleanExpressions
     RELEASE rtn  // ./orExpression.ek9:73:17
     STORE rtn, _temp2  // ./orExpression.ek9:73:17
     RETAIN rtn  // ./orExpression.ek9:73:17
-    SCOPE_EXIT _scope_1
-    SCOPE_EXIT _return_1
+    SCOPE_EXIT _scope_1  // ./orExpression.ek9:73:7
+    SCOPE_EXIT _return_1  // ./orExpression.ek9:66:5
     RETURN rtn  // ./orExpression.ek9:71:9`
     orBooleanExpression()
       ->

@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.ir;
 
 import java.util.List;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -40,10 +41,9 @@ public final class GuardedAssignmentBlockInstr extends IRInstr {
                                                                    final String conditionResult,
                                                                    final List<IRInstr> assignmentEvaluationInstructions,
                                                                    final String assignmentResult,
-                                                                   final String scopeId,
-                                                                   final DebugInfo debugInfo) {
+                                                                   final BasicDetails basicDetails) {
     return new GuardedAssignmentBlockInstr(result, conditionEvaluationInstructions, conditionResult,
-        assignmentEvaluationInstructions, assignmentResult, scopeId, debugInfo);
+        assignmentEvaluationInstructions, assignmentResult, basicDetails);
   }
 
   private GuardedAssignmentBlockInstr(final String result,
@@ -51,21 +51,20 @@ public final class GuardedAssignmentBlockInstr extends IRInstr {
                                       final String conditionResult,
                                       final List<IRInstr> assignmentEvaluationInstructions,
                                       final String assignmentResult,
-                                      final String scopeId,
-                                      final DebugInfo debugInfo) {
-    super(IROpcode.GUARDED_ASSIGNMENT_BLOCK, result, debugInfo);
+                                      final BasicDetails basicDetails) {
+    super(IROpcode.GUARDED_ASSIGNMENT_BLOCK, result, basicDetails.debugInfo());
 
     AssertValue.checkNotNull("Condition evaluation instructions cannot be null", conditionEvaluationInstructions);
     AssertValue.checkNotNull("Condition result cannot be null", conditionResult);
     AssertValue.checkNotNull("Assignment evaluation instructions cannot be null", assignmentEvaluationInstructions);
     AssertValue.checkNotNull("Assignment result cannot be null", assignmentResult);
-    AssertValue.checkNotNull("Scope ID cannot be null", scopeId);
+    AssertValue.checkNotNull("Scope ID cannot be null", basicDetails.scopeId());
 
     this.conditionEvaluationInstructions = conditionEvaluationInstructions;
     this.conditionResult = conditionResult;
     this.assignmentEvaluationInstructions = assignmentEvaluationInstructions;
     this.assignmentResult = assignmentResult;
-    this.scopeId = scopeId;
+    this.scopeId = basicDetails.scopeId();
   }
 
   /**

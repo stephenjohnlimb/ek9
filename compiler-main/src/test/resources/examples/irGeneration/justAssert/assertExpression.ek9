@@ -7,28 +7,28 @@ defines module justAssert
   defines function
 
     @IR: IR_GENERATION: FUNCTION: "justAssert::checkAssert": `
-        ConstructDfn: justAssert::checkAssert(org.ek9.lang::Boolean)->org.ek9.lang::Void
-        OperationDfn: justAssert::checkAssert.c_init()->org.ek9.lang::Void
-        BasicBlock: _entry_1
-        RETURN
-        OperationDfn: justAssert::checkAssert.i_init()->org.ek9.lang::Void
-        BasicBlock: _entry_1
-        RETURN
-        OperationDfn: justAssert::checkAssert.checkAssert()->justAssert::checkAssert  // ./assertExpression.ek9:32:5
-        BasicBlock: _entry_1
-        _temp_i_init = CALL (justAssert::checkAssert)this.i_init()  // ./assertExpression.ek9:32:5
-        RETURN this  // ./assertExpression.ek9:32:5
-        OperationDfn: justAssert::checkAssert._call(org.ek9.lang::Boolean)->org.ek9.lang::Void  // ./assertExpression.ek9:32:5
-        BasicBlock: _entry_1
-        REFERENCE arg0, org.ek9.lang::Boolean  // ./assertExpression.ek9:33:10
-        SCOPE_ENTER _scope_1
-        _temp1 = LOAD arg0  // ./assertExpression.ek9:34:7
-        RETAIN _temp1  // ./assertExpression.ek9:34:7
-        SCOPE_REGISTER _temp1, _scope_1  // ./assertExpression.ek9:34:7
-        _temp2 = CALL (org.ek9.lang::Boolean)_temp1._true()  // ./assertExpression.ek9:34:7
-        ASSERT _temp2  // ./assertExpression.ek9:34:7
-        SCOPE_EXIT _scope_1
-        RETURN`
+    ConstructDfn: justAssert::checkAssert(org.ek9.lang::Boolean)->org.ek9.lang::Void
+    OperationDfn: justAssert::checkAssert.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: justAssert::checkAssert.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: justAssert::checkAssert.checkAssert()->justAssert::checkAssert  // ./assertExpression.ek9:32:5
+    BasicBlock: _entry_1
+    _temp_i_init = CALL (justAssert::checkAssert)this.i_init()  // ./assertExpression.ek9:32:5
+    RETURN this  // ./assertExpression.ek9:32:5
+    OperationDfn: justAssert::checkAssert._call(org.ek9.lang::Boolean)->org.ek9.lang::Void  // ./assertExpression.ek9:32:5
+    BasicBlock: _entry_1
+    REFERENCE arg0, org.ek9.lang::Boolean  // ./assertExpression.ek9:33:10
+    SCOPE_ENTER _scope_1  // ./assertExpression.ek9:34:7
+    _temp1 = LOAD arg0  // ./assertExpression.ek9:34:7
+    RETAIN _temp1  // ./assertExpression.ek9:34:7
+    SCOPE_REGISTER _temp1, _scope_1  // ./assertExpression.ek9:34:7
+    _temp2 = CALL (org.ek9.lang::Boolean)_temp1._true()  // ./assertExpression.ek9:34:7
+    ASSERT _temp2  // ./assertExpression.ek9:34:7
+    SCOPE_EXIT _scope_1  // ./assertExpression.ek9:34:7
+    RETURN  // ./assertExpression.ek9:32:5`
     checkAssert()
       -> arg0 as Boolean
       assert arg0

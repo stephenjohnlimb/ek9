@@ -20,7 +20,7 @@ defines module assignments
     RETURN this  // ./basicAssignment.ek9:65:5
     OperationDfn: assignments::basicAssignment1._call()->org.ek9.lang::Void  // ./basicAssignment.ek9:65:5
     BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
+    SCOPE_ENTER _scope_1  // ./basicAssignment.ek9:66:7
     REFERENCE value, org.ek9.lang::Integer  // ./basicAssignment.ek9:66:7
     _temp1 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./basicAssignment.ek9:67:14
     RETAIN _temp1  // ./basicAssignment.ek9:67:14
@@ -42,7 +42,7 @@ defines module assignments
     null_check_condition: _temp4
     null_case_evaluation:
     [
-    _temp5 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./basicAssignment.ek9:68:19
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./basicAssignment.ek9:68:19
     RETAIN _temp5  // ./basicAssignment.ek9:68:19
     SCOPE_REGISTER _temp5, _scope_1  // ./basicAssignment.ek9:68:19
     ]
@@ -60,8 +60,8 @@ defines module assignments
     SCOPE_REGISTER _temp2, _scope_1  // ./basicAssignment.ek9:68:7
     _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./basicAssignment.ek9:68:7
     ASSERT _temp7  // ./basicAssignment.ek9:68:7
-    SCOPE_EXIT _scope_1
-    RETURN`
+    SCOPE_EXIT _scope_1  // ./basicAssignment.ek9:66:7
+    RETURN  // ./basicAssignment.ek9:65:5`
     basicAssignment1()
       value as Integer?
       value: 1
@@ -81,7 +81,7 @@ defines module assignments
     RETURN this  // ./basicAssignment.ek9:126:5
     OperationDfn: assignments::basicAssignment2._call()->org.ek9.lang::Void  // ./basicAssignment.ek9:126:5
     BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
+    SCOPE_ENTER _scope_1  // ./basicAssignment.ek9:127:7
     REFERENCE value, org.ek9.lang::Integer  // ./basicAssignment.ek9:127:7
     _temp1 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./basicAssignment.ek9:128:15
     RETAIN _temp1  // ./basicAssignment.ek9:128:15
@@ -103,7 +103,7 @@ defines module assignments
     null_check_condition: _temp4
     null_case_evaluation:
     [
-    _temp5 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./basicAssignment.ek9:129:19
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./basicAssignment.ek9:129:19
     RETAIN _temp5  // ./basicAssignment.ek9:129:19
     SCOPE_REGISTER _temp5, _scope_1  // ./basicAssignment.ek9:129:19
     ]
@@ -121,8 +121,8 @@ defines module assignments
     SCOPE_REGISTER _temp2, _scope_1  // ./basicAssignment.ek9:129:7
     _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./basicAssignment.ek9:129:7
     ASSERT _temp7  // ./basicAssignment.ek9:129:7
-    SCOPE_EXIT _scope_1
-    RETURN`
+    SCOPE_EXIT _scope_1  // ./basicAssignment.ek9:127:7
+    RETURN  // ./basicAssignment.ek9:126:5`
     basicAssignment2()
       value as Integer?
       value = 1
@@ -142,7 +142,7 @@ defines module assignments
     RETURN this  // ./basicAssignment.ek9:187:5
     OperationDfn: assignments::basicAssignment3._call()->org.ek9.lang::Void  // ./basicAssignment.ek9:187:5
     BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
+    SCOPE_ENTER _scope_1  // ./basicAssignment.ek9:188:7
     REFERENCE value, org.ek9.lang::Integer  // ./basicAssignment.ek9:188:7
     _temp1 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./basicAssignment.ek9:189:15
     RETAIN _temp1  // ./basicAssignment.ek9:189:15
@@ -164,7 +164,7 @@ defines module assignments
     null_check_condition: _temp4
     null_case_evaluation:
     [
-    _temp5 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./basicAssignment.ek9:190:19
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./basicAssignment.ek9:190:19
     RETAIN _temp5  // ./basicAssignment.ek9:190:19
     SCOPE_REGISTER _temp5, _scope_1  // ./basicAssignment.ek9:190:19
     ]
@@ -182,8 +182,8 @@ defines module assignments
     SCOPE_REGISTER _temp2, _scope_1  // ./basicAssignment.ek9:190:7
     _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./basicAssignment.ek9:190:7
     ASSERT _temp7  // ./basicAssignment.ek9:190:7
-    SCOPE_EXIT _scope_1
-    RETURN`
+    SCOPE_EXIT _scope_1  // ./basicAssignment.ek9:188:7
+    RETURN  // ./basicAssignment.ek9:187:5`
     basicAssignment3()
       value as Integer?
       value:= 1

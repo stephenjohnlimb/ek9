@@ -3,15 +3,13 @@ package org.ek9lang.compiler.phase7;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.DebugInfo;
 import org.ek9lang.compiler.ir.GuardedAssignmentBlockInstr;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
-import org.ek9lang.compiler.ir.QuestionOperatorInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -28,13 +26,15 @@ final class GuardedAssignmentBlockGenerator
 
   private final IRContext context;
   private final DebugInfoCreator debugInfoCreator;
+  private final QuestionBlockGenerator questionBlockGenerator;
   private final AssignExpressionToSymbol assignExpressionToSymbol;
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
   public GuardedAssignmentBlockGenerator(final IRContext context,
+                                         final QuestionBlockGenerator questionBlockGenerator,
                                          final AssignExpressionToSymbol assignExpressionToSymbol) {
     this.context = context;
     this.debugInfoCreator = new DebugInfoCreator(context);
+    this.questionBlockGenerator = questionBlockGenerator;
     this.assignExpressionToSymbol = assignExpressionToSymbol;
   }
 
@@ -48,10 +48,11 @@ final class GuardedAssignmentBlockGenerator
     final var exprSymbol = context.getParsedModule().getRecordedSymbol(assignmentExpression);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
 
+    final var basicDetails = new BasicDetails(scopeId, debugInfo);
     // Step 1: Generate condition evaluation (should assignment occur?)
     final var conditionResult = context.generateTempName();
     final var conditionEvaluationInstructions =
-        generateConditionEvaluation(lhsSymbol, conditionResult, scopeId, debugInfo);
+        generateConditionEvaluation(lhsSymbol, conditionResult, basicDetails);
 
     // Step 2: Generate assignment evaluation instructions
     final var assignmentResult = context.generateTempName();
@@ -65,80 +66,36 @@ final class GuardedAssignmentBlockGenerator
         conditionResult,
         assignmentEvaluationInstructions,
         assignmentResult,
-        scopeId,
-        debugInfo
+        basicDetails
     );
 
     return List.of(guardedAssignmentOperation);
   }
 
   /**
-   * Generate condition evaluation instructions.
+   * Generate condition evaluation using QuestionBlockGenerator composition.
    * Returns Boolean(true) if assignment should occur (LHS is null OR LHS._isSet() == false).
+   * Uses composition by delegating QUESTION_BLOCK creation to QuestionBlockGenerator's
+   * variable-based question evaluation method.
    */
   private List<IRInstr> generateConditionEvaluation(final ISymbol lhsSymbol,
                                                     final String conditionResult,
-                                                    final String scopeId,
-                                                    final DebugInfo debugInfo) {
+                                                    final BasicDetails basicDetails) {
     final var instructions = new ArrayList<IRInstr>();
-    final var lhsVariableName = lhsSymbol.getName();
 
-    // Load LHS for checking
-    final var lhsTemp = context.generateTempName();
-    instructions.add(MemoryInstr.load(lhsTemp, lhsVariableName, debugInfo));
-
-    // Create QUESTION_BLOCK to handle null-safety logic
-    // This will return true if lhs._isSet() (value is set), false if null/unset
+    // Step 1: Use QuestionBlockGenerator for consistent null-safety logic
     final var questionResult = context.generateTempName();
+    final var questionInstructions = questionBlockGenerator.createQuestionBlockForVariable(
+        lhsSymbol, questionResult, basicDetails);
+    instructions.addAll(questionInstructions);
 
-    // Operand evaluation with explicit IS_NULL check
-    final var operandEvaluationInstructions = new ArrayList<IRInstr>();
-
-    // Add explicit IS_NULL check for semantic clarity
-    final var nullCheckCondition = context.generateTempName();
-    operandEvaluationInstructions.add(MemoryInstr.isNull(nullCheckCondition, lhsTemp, debugInfo));
-
-    // Null case: return Boolean(false) (unset, should assign)
-    final var nullCaseResult = context.generateTempName();
-    final var nullCaseEvaluationInstructions = new ArrayList<IRInstr>();
-    final var falseCallDetails = new CallDetails("org.ek9.lang::Boolean", "org.ek9.lang::Boolean",
-        "_ofFalse", List.of(), "org.ek9.lang::Boolean", List.of());
-    nullCaseEvaluationInstructions.add(CallInstr.call(nullCaseResult, debugInfo, falseCallDetails));
-    nullCaseEvaluationInstructions.add(MemoryInstr.retain(nullCaseResult, debugInfo));
-    nullCaseEvaluationInstructions.add(ScopeInstr.register(nullCaseResult, scopeId, debugInfo));
-
-    // Set case: call _isSet() method
-    final var setCaseResult = context.generateTempName();
-    final var setCaseEvaluationInstructions = new ArrayList<IRInstr>();
-    final var typeName = typeNameOrException.apply(lhsSymbol);
-    final var isSetCallDetails = new CallDetails(lhsTemp, typeName,
-        "_isSet", List.of(), "org.ek9.lang::Boolean", List.of());
-    setCaseEvaluationInstructions.add(CallInstr.call(setCaseResult, debugInfo, isSetCallDetails));
-    setCaseEvaluationInstructions.add(MemoryInstr.retain(setCaseResult, debugInfo));
-    setCaseEvaluationInstructions.add(ScopeInstr.register(setCaseResult, scopeId, debugInfo));
-
-    // Create the QUESTION_BLOCK
-    final var questionBlock = QuestionOperatorInstr.questionBlock(
-        questionResult,
-        operandEvaluationInstructions,
-        lhsTemp,
-        nullCheckCondition,
-        nullCaseEvaluationInstructions,
-        nullCaseResult,
-        setCaseEvaluationInstructions,
-        setCaseResult,
-        scopeId,
-        debugInfo
-    );
-    instructions.add(questionBlock);
-
-    // Invert the question result: if _isSet() is true (set), we want false (don't assign)
-    // if _isSet() is false (unset), we want true (do assign)
+    // Step 2: Invert the question result for assignment condition  
+    // Question returns true if variable is set, but we want to assign when unset
     final var notCallDetails = new CallDetails(questionResult, "org.ek9.lang::Boolean",
         "_not", List.of(), "org.ek9.lang::Boolean", List.of());
-    instructions.add(CallInstr.call(conditionResult, debugInfo, notCallDetails));
-    instructions.add(MemoryInstr.retain(conditionResult, debugInfo));
-    instructions.add(ScopeInstr.register(conditionResult, scopeId, debugInfo));
+    instructions.add(CallInstr.call(conditionResult, basicDetails.debugInfo(), notCallDetails));
+    instructions.add(MemoryInstr.retain(conditionResult, basicDetails.debugInfo()));
+    instructions.add(ScopeInstr.register(conditionResult, basicDetails));
 
     return instructions;
   }

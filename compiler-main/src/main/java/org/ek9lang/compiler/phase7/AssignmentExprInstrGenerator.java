@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
@@ -62,7 +63,8 @@ final class AssignmentExprInstrGenerator implements
 
     final var debugInfo =
         debugInfoCreator.apply(context.getParsedModule().getRecordedSymbol(ctx.expression()).getSourceToken());
-    final var exprDetails = new ExprProcessingDetails(ctx.expression(), rhsExprResult, scopeId, debugInfo);
+    final var exprDetails = new ExprProcessingDetails(ctx.expression(),
+        rhsExprResult, new BasicDetails(scopeId, debugInfo));
 
     AssertValue.checkNotNull("RhsExprResult cannot be null", rhsExprResult);
 

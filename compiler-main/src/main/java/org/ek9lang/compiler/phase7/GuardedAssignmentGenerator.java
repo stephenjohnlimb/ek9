@@ -33,7 +33,7 @@ final class GuardedAssignmentGenerator
                                     final QuestionBlockGenerator questionBlockGenerator,
                                     final AssignExpressionToSymbol assignExpressionToSymbol) {
     this.guardedAssignmentBlockGenerator = new GuardedAssignmentBlockGenerator(
-        context, assignExpressionToSymbol);
+        context, questionBlockGenerator, assignExpressionToSymbol);
   }
 
   @Override

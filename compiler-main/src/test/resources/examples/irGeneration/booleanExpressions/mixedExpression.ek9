@@ -21,14 +21,14 @@ defines module booleanExpressions
     REFERENCE arg0, org.ek9.lang::Boolean  // ./mixedExpression.ek9:95:9
     REFERENCE arg1, org.ek9.lang::Boolean  // ./mixedExpression.ek9:96:9
     REFERENCE arg2, org.ek9.lang::Boolean  // ./mixedExpression.ek9:97:9
-    SCOPE_ENTER _return_1
+    SCOPE_ENTER _return_1  // ./mixedExpression.ek9:98:7
     REFERENCE rtn, org.ek9.lang::Boolean  // ./mixedExpression.ek9:99:9
     _temp1 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>()  // ./mixedExpression.ek9:99:25
     RETAIN _temp1  // ./mixedExpression.ek9:99:25
     SCOPE_REGISTER _temp1, _return_1  // ./mixedExpression.ek9:99:25
     STORE rtn, _temp1  // ./mixedExpression.ek9:99:25
     RETAIN rtn  // ./mixedExpression.ek9:99:25
-    SCOPE_ENTER _scope_1
+    SCOPE_ENTER _scope_1  // ./mixedExpression.ek9:101:7
     _temp2 = LOGICAL_AND_BLOCK  // ./mixedExpression.ek9:101:17
     [
     left_evaluation:
@@ -87,8 +87,8 @@ defines module booleanExpressions
     RELEASE rtn  // ./mixedExpression.ek9:101:17
     STORE rtn, _temp2  // ./mixedExpression.ek9:101:17
     RETAIN rtn  // ./mixedExpression.ek9:101:17
-    SCOPE_EXIT _scope_1
-    SCOPE_EXIT _return_1
+    SCOPE_EXIT _scope_1  // ./mixedExpression.ek9:101:7
+    SCOPE_EXIT _return_1  // ./mixedExpression.ek9:93:5
     RETURN rtn  // ./mixedExpression.ek9:99:9`
     mixedBooleanExpression()
       ->

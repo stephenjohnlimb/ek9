@@ -8,6 +8,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.ShouldRegisterVariableInScope;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
@@ -45,9 +46,10 @@ final class AssignExpressionToSymbol extends AbstractGenerator
     final var rhsExprDebugInfo = debugInfoCreator.apply(rhsExprSymbol.getSourceToken());
     final var rhsResult = context.generateTempName();
 
+    final var basicDetails = new BasicDetails(scopeId, rhsExprDebugInfo);
     final var instructions = new ArrayList<>(assignmentGenerator.apply(rhsResult));
     instructions.add(MemoryInstr.retain(rhsResult, rhsExprDebugInfo));
-    instructions.add(ScopeInstr.register(rhsResult, scopeId, rhsExprDebugInfo));
+    instructions.add(ScopeInstr.register(rhsResult, basicDetails));
 
     //Now before we can assign - we may need to release (depending on use).
     if (referenceAndRelease) {
@@ -59,7 +61,7 @@ final class AssignExpressionToSymbol extends AbstractGenerator
       instructions.add(MemoryInstr.retain(lhsVariableName, rhsExprDebugInfo));
     } else if (shouldRegisterVariableInScope.test(scopeId)) {
       instructions.add(MemoryInstr.retain(lhsVariableName, rhsExprDebugInfo));
-      instructions.add(ScopeInstr.register(lhsVariableName, scopeId, rhsExprDebugInfo));
+      instructions.add(ScopeInstr.register(lhsVariableName, basicDetails));
     }
 
 

@@ -20,9 +20,9 @@ defines module booleanExpressions
     BasicBlock: _entry_1
     REFERENCE arg0, org.ek9.lang::Boolean  // ./andExpression.ek9:63:9
     REFERENCE arg1, org.ek9.lang::Boolean  // ./andExpression.ek9:64:9
-    SCOPE_ENTER _return_1
+    SCOPE_ENTER _return_1  // ./andExpression.ek9:65:7
     REFERENCE rtn, org.ek9.lang::Boolean  // ./andExpression.ek9:66:9
-    SCOPE_ENTER _scope_1
+    SCOPE_ENTER _scope_1  // ./andExpression.ek9:68:7
     _temp1 = LOGICAL_AND_BLOCK  // ./andExpression.ek9:68:17
     [
     left_evaluation:
@@ -55,8 +55,8 @@ defines module booleanExpressions
     RELEASE rtn  // ./andExpression.ek9:68:17
     STORE rtn, _temp1  // ./andExpression.ek9:68:17
     RETAIN rtn  // ./andExpression.ek9:68:17
-    SCOPE_EXIT _scope_1
-    SCOPE_EXIT _return_1
+    SCOPE_EXIT _scope_1  // ./andExpression.ek9:68:7
+    SCOPE_EXIT _return_1  // ./andExpression.ek9:61:5
     RETURN rtn  // ./andExpression.ek9:66:9`
     andBooleanExpression()
       ->

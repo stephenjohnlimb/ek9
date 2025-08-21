@@ -9,7 +9,7 @@ import org.ek9lang.compiler.ir.CallDetails;
  * This returns a primitive boolean in the backend implementation.
  * For Java, it will be a 'boolean', for LLVM probably an i8 (1 or 0 value).
  */
-public final class CallDetailsForTrue implements Function<String, CallDetails> {
+public final class CallDetailsForIsTrue implements Function<String, CallDetails> {
 
   @Override
   public CallDetails apply(final String targetObject) {

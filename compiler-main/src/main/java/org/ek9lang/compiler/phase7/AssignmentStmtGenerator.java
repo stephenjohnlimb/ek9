@@ -91,19 +91,11 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     final var assignExpressionToSymbol = new AssignExpressionToSymbol(context, true, generator, scopeId);
 
     if (isGuardedAssignment(ctx.op)) {
-      // Generate conditional assignment: only assign if lhs IS_NULL or _isSet() is false
-      // Now uses GUARDED_ASSIGNMENT_BLOCK with QUESTION_BLOCK composition for declarative IR
-      // Create adapter function that matches ExprProcessingDetails -> List<IRInstr> signature
-      final java.util.function.Function<ExprProcessingDetails, List<IRInstr>>
-          expressionProcessor = details -> generator.apply(details.exprResult());
-      final var recordExprProcessing =
-          new RecordExprProcessing(expressionProcessor);
-      final var questionBlockGenerator =
-          new QuestionBlockGenerator(context, recordExprProcessing);
-      final var guardedGenerator =
-          new GuardedAssignmentGenerator(context, questionBlockGenerator, assignExpressionToSymbol);
+
       final var guardedDetails = new GuardedAssignmentGenerator.GuardedAssignmentDetails(
           lhsSymbol, ctx.assignmentExpression(), scopeId);
+
+      final var guardedGenerator = createGuardedGenerator(generator, assignExpressionToSymbol);
       instructions.addAll(guardedGenerator.apply(guardedDetails));
       return; // Early return since guarded assignment is complete
     }
@@ -113,4 +105,15 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
   }
 
+  private GuardedAssignmentGenerator createGuardedGenerator(final AssignmentExprInstrGenerator generator,
+                                                            final AssignExpressionToSymbol assignExpressionToSymbol) {
+    final java.util.function.Function<ExprProcessingDetails, List<IRInstr>>
+        expressionProcessor = details -> generator.apply(details.exprResult());
+    final var recordExprProcessing =
+        new RecordExprProcessing(expressionProcessor);
+    final var questionBlockGenerator =
+        new QuestionBlockGenerator(context, recordExprProcessing);
+    return new GuardedAssignmentGenerator(context, questionBlockGenerator, assignExpressionToSymbol);
+
+  }
 }

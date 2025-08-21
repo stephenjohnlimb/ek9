@@ -160,8 +160,8 @@ final class ExprInstrGenerator extends AbstractGenerator
   private List<IRInstr> processPrimary(final ExprProcessingDetails details) {
     final var ctx = details.ctx();
     final var exprResult = details.exprResult();
-    final var scopeId = details.scopeId();
-    final var debugInfo = details.debugInfo();
+    final var scopeId = details.basicDetails().scopeId();
+    final var debugInfo = details.basicDetails().debugInfo();
 
     final var instructions = new ArrayList<IRInstr>();
 
@@ -172,7 +172,7 @@ final class ExprInstrGenerator extends AbstractGenerator
       instructions.addAll(processIdentifierReference(ctx.primary().identifierReference(), exprResult, debugInfo));
     } else if (ctx.primary().expression() != null && !ctx.primary().expression().isEmpty()) {
       instructions.addAll(
-          process(new ExprProcessingDetails(ctx.primary().expression(), exprResult, scopeId, debugInfo)));
+          process(new ExprProcessingDetails(ctx.primary().expression(), exprResult, details.basicDetails())));
     } else if (ctx.primary().primaryReference() != null) {
       AssertValue.fail("PrimaryReference not yet Implemented");
     } else {
@@ -223,7 +223,7 @@ final class ExprInstrGenerator extends AbstractGenerator
 
   private List<IRInstr> processObjectAccessExpression(final ExprProcessingDetails details) {
     return new ArrayList<>(objectAccessCreator
-        .apply(details.ctx().objectAccessExpression(), details.exprResult(), details.scopeId()));
+        .apply(details.ctx().objectAccessExpression(), details.exprResult(), details.basicDetails().scopeId()));
 
   }
 

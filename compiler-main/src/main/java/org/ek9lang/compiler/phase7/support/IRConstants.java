@@ -44,6 +44,9 @@ public final class IRConstants {
   public static final String TRUE_METHOD = "_true";
   public static final String FALSE_METHOD = "_false";
 
+  public static final String OF_TRUE_METHOD = "_ofTrue";
+  public static final String OF_FALSE_METHOD = "_ofFalse";
+
   //primitive types
   public static final String VOID = "void";
   public static final String BOOLEAN = "boolean";

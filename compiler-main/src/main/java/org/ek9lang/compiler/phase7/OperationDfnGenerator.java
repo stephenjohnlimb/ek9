@@ -20,6 +20,7 @@ import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.IMayReturnSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
  * Deals with the generation of the IR for OperationDetails.
@@ -118,10 +119,12 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
     final var instructions = new ArrayList<IRInstr>();
     final var variableCreator = new VariableDeclInstrGenerator(context);
     final var variableOnlyCreator = new VariableOnlyDeclInstrGenerator(context);
+    final var debugCreator = new DebugInfoCreator(context);
     final var scopeId = context.generateScopeId(IRConstants.RETURN_SCOPE);
 
+    final var debugInfo = debugCreator.apply(new Ek9Token(ctx.start));
     // Enter scope for return parameter memory management
-    instructions.add(ScopeInstr.enter(scopeId));
+    instructions.add(ScopeInstr.enter(scopeId, debugInfo));
 
     // Process return variable declarations
     if (ctx.variableDeclaration() != null) {
@@ -145,10 +148,11 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
   private List<IRInstr> processInstructionBlock(final EK9Parser.InstructionBlockContext ctx, final IRContext context) {
     final var instructions = new ArrayList<IRInstr>();
     final var blockStatementCreator = new BlockStmtInstrGenerator(context);
+    final var debugCreator = new DebugInfoCreator(context);
     final var scopeId = context.generateScopeId(IRConstants.GENERAL_SCOPE);
-
+    final var debugInfo = debugCreator.apply(new Ek9Token(ctx.start));
     // Enter scope for memory management
-    instructions.add(ScopeInstr.enter(scopeId));
+    instructions.add(ScopeInstr.enter(scopeId, debugInfo));
 
     // Process all block statements using resolved symbols
     for (final var blockStmtCtx : ctx.blockStatement()) {
@@ -156,7 +160,7 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
     }
 
     // Exit scope (automatic RELEASE of all registered objects)
-    instructions.add(ScopeInstr.exit(scopeId));
+    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
 
     return instructions;
   }
@@ -171,13 +175,14 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
     final var instructions = new ArrayList<IRInstr>();
     final var debugInfoCreator = new DebugInfoCreator(context);
 
-    // Exit return scope if it exists (release all return variables)
-    if (returnScopeId != null) {
-      instructions.add(ScopeInstr.exit(returnScopeId));
-    }
-
     // Check if the operation has a return type
     final var operationSymbol = operation.getSymbol();
+    final var operationDebugInfo = debugInfoCreator.apply(operationSymbol.getSourceToken());
+    // Exit return scope if it exists (release all return variables)
+    if (returnScopeId != null) {
+      instructions.add(ScopeInstr.exit(returnScopeId, operationDebugInfo));
+    }
+
     if (operationSymbol instanceof IMayReturnSymbol mayReturnSymbol && mayReturnSymbol.isReturningSymbolPresent()) {
       final var returnSymbol = mayReturnSymbol.getReturningSymbol();
       final var returnType = returnSymbol.getType().orElse(null);
@@ -188,11 +193,11 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
         instructions.add(BranchInstr.returnValue(returnSymbol.getName(), debugInfo));
       } else {
         // Function returns void or has no explicit return type
-        instructions.add(BranchInstr.returnVoid());
+        instructions.add(BranchInstr.returnVoid(operationDebugInfo));
       }
     } else {
       // No return symbol - treat as void return
-      instructions.add(BranchInstr.returnVoid());
+      instructions.add(BranchInstr.returnVoid(operationDebugInfo));
     }
 
     return instructions;

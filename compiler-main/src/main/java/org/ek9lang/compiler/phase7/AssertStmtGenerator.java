@@ -7,7 +7,8 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.BranchInstr;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.phase7.support.CallDetailsForTrue;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.phase7.support.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
@@ -17,7 +18,7 @@ import org.ek9lang.core.AssertValue;
 final class AssertStmtGenerator extends AbstractGenerator
     implements BiFunction<EK9Parser.AssertStatementContext, String, List<IRInstr>> {
 
-  private final CallDetailsForTrue callDetailsForTrue = new CallDetailsForTrue();
+  private final CallDetailsForIsTrue callDetailsForTrue = new CallDetailsForIsTrue();
 
   AssertStmtGenerator(final IRContext context) {
     super(context);
@@ -38,7 +39,8 @@ final class AssertStmtGenerator extends AbstractGenerator
 
     final var rhsExprResult = context.generateTempName();
 
-    final var exprDetails = new ExprProcessingDetails(ctx.expression(), rhsExprResult, scopeId, assertStmtDebugInfo);
+    final var exprDetails = new ExprProcessingDetails(ctx.expression(), rhsExprResult,
+        new BasicDetails(scopeId, assertStmtDebugInfo));
 
     final var instructions = new ArrayList<>(processor.apply(exprDetails));
 

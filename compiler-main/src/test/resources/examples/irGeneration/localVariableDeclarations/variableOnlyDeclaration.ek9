@@ -17,7 +17,7 @@ defines module local.variableDeclarations
     RETURN this  // ./variableOnlyDeclaration.ek9:36:5
     OperationDfn: local.variableDeclarations::LocalVariableOnlyUse._call()->org.ek9.lang::Void  // ./variableOnlyDeclaration.ek9:36:5
     BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
+    SCOPE_ENTER _scope_1  // ./variableOnlyDeclaration.ek9:40:7
     REFERENCE localVar, org.ek9.lang::Boolean  // ./variableOnlyDeclaration.ek9:40:7
     _temp1 = LOAD_LITERAL true, org.ek9.lang::Boolean  // ./variableOnlyDeclaration.ek9:43:17
     RETAIN _temp1  // ./variableOnlyDeclaration.ek9:43:17
@@ -31,8 +31,8 @@ defines module local.variableDeclarations
     SCOPE_REGISTER _temp2, _scope_1  // ./variableOnlyDeclaration.ek9:47:7
     _temp3 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./variableOnlyDeclaration.ek9:47:7
     ASSERT _temp3  // ./variableOnlyDeclaration.ek9:47:7
-    SCOPE_EXIT _scope_1
-    RETURN`
+    SCOPE_EXIT _scope_1  // ./variableOnlyDeclaration.ek9:40:7
+    RETURN  // ./variableOnlyDeclaration.ek9:36:5`
     LocalVariableOnlyUse()
 
       //This is what we want to test the IR for

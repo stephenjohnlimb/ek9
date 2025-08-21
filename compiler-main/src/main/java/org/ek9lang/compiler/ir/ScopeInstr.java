@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.ir;
 
 import java.util.List;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
 
 /**
  * Specialized IR instruction for scope management (SCOPE_ENTER, SCOPE_EXIT, SCOPE_REGISTER).
@@ -11,26 +12,10 @@ import java.util.List;
 public final class ScopeInstr extends IRInstr {
 
   /**
-   * Create scope enter instruction: SCOPE_ENTER scope_id.
-   * Establishes a new memory management scope for exception safety.
-   */
-  public static ScopeInstr enter(final String scopeId) {
-    return new ScopeInstr(IROpcode.SCOPE_ENTER, null, null).addOperand(scopeId);
-  }
-
-  /**
    * Create scope enter instruction with debug info: SCOPE_ENTER scope_id.
    */
   public static ScopeInstr enter(final String scopeId, final DebugInfo debugInfo) {
     return new ScopeInstr(IROpcode.SCOPE_ENTER, null, debugInfo).addOperand(scopeId);
-  }
-
-  /**
-   * Create scope exit instruction: SCOPE_EXIT scope_id.
-   * Automatically RELEASE all objects registered in this scope.
-   */
-  public static ScopeInstr exit(final String scopeId) {
-    return new ScopeInstr(IROpcode.SCOPE_EXIT, null, null).addOperand(scopeId);
   }
 
   /**
@@ -41,18 +26,11 @@ public final class ScopeInstr extends IRInstr {
   }
 
   /**
-   * Create scope register instruction: SCOPE_REGISTER object, scope_id
-   * Register object for automatic cleanup when scope exits.
-   */
-  public static ScopeInstr register(final String object, final String scopeId) {
-    return new ScopeInstr(IROpcode.SCOPE_REGISTER, null, null).addOperands(object, scopeId);
-  }
-
-  /**
    * Create scope register instruction with debug info: SCOPE_REGISTER object, scope_id.
    */
-  public static ScopeInstr register(final String object, final String scopeId, final DebugInfo debugInfo) {
-    return new ScopeInstr(IROpcode.SCOPE_REGISTER, null, debugInfo).addOperands(object, scopeId);
+  public static ScopeInstr register(final String object, final BasicDetails basicDetails) {
+    return new ScopeInstr(IROpcode.SCOPE_REGISTER, null, basicDetails.debugInfo())
+        .addOperands(object, basicDetails.scopeId());
   }
 
   private ScopeInstr(final IROpcode opcode, final String result, final DebugInfo debugInfo) {
