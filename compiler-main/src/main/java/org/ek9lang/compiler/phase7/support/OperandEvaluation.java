@@ -24,8 +24,5 @@ public record OperandEvaluation(
     if (evaluationInstructions == null) {
       throw new IllegalArgumentException("Evaluation instructions cannot be null");
     }
-    if (operandName == null || operandName.isBlank()) {
-      throw new IllegalArgumentException("Operand name cannot be null or blank");
-    }
   }
 }

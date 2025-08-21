@@ -36,18 +36,16 @@ public final class GuardedAssignmentBlockInstr extends IRInstr {
   /**
    * Create guarded assignment block.
    */
-  public static GuardedAssignmentBlockInstr guardedAssignmentBlock(final String result,
-                                                                   final ConditionalEvaluation conditionalEvaluation,
+  public static GuardedAssignmentBlockInstr guardedAssignmentBlock(final ConditionalEvaluation conditionalEvaluation,
                                                                    final OperandEvaluation assignmentEvaluation,
                                                                    final BasicDetails basicDetails) {
-    return new GuardedAssignmentBlockInstr(result, conditionalEvaluation, assignmentEvaluation, basicDetails);
+    return new GuardedAssignmentBlockInstr(conditionalEvaluation, assignmentEvaluation, basicDetails);
   }
 
-  private GuardedAssignmentBlockInstr(final String result,
-                                      final ConditionalEvaluation conditionalEvaluation,
+  private GuardedAssignmentBlockInstr(final ConditionalEvaluation conditionalEvaluation,
                                       final OperandEvaluation assignmentEvaluation,
                                       final BasicDetails basicDetails) {
-    super(IROpcode.GUARDED_ASSIGNMENT_BLOCK, result, basicDetails.debugInfo());
+    super(IROpcode.GUARDED_ASSIGNMENT_BLOCK, null, basicDetails.debugInfo());
 
     AssertValue.checkNotNull("Conditional evaluation cannot be null", conditionalEvaluation);
     AssertValue.checkNotNull("Assignment evaluation cannot be null", assignmentEvaluation);

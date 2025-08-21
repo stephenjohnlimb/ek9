@@ -3,13 +3,13 @@ package org.ek9lang.compiler.phase7;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.GuardedAssignmentBlockInstr;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.phase7.support.CallDetailsOnBoolean;
 import org.ek9lang.compiler.phase7.support.ConditionalEvaluation;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRContext;
@@ -30,6 +30,7 @@ final class GuardedAssignmentBlockGenerator
   private final DebugInfoCreator debugInfoCreator;
   private final QuestionBlockGenerator questionBlockGenerator;
   private final AssignExpressionToSymbol assignExpressionToSymbol;
+  private final CallDetailsOnBoolean callDetailsOnBoolean = new CallDetailsOnBoolean();
 
   public GuardedAssignmentBlockGenerator(final IRContext context,
                                          final QuestionBlockGenerator questionBlockGenerator,
@@ -55,19 +56,19 @@ final class GuardedAssignmentBlockGenerator
     final var conditionResult = context.generateTempName();
     final var conditionEvaluationInstructions =
         generateConditionEvaluation(lhsSymbol, conditionResult, basicDetails);
+    conditionEvaluationInstructions.add(MemoryInstr.retain(conditionResult, basicDetails.debugInfo()));
+    conditionEvaluationInstructions.add(ScopeInstr.register(conditionResult, basicDetails));
 
     // Step 2: Generate assignment evaluation instructions
-    final var assignmentResult = context.generateTempName();
     final var assignmentEvaluationInstructions = new ArrayList<>(
         assignExpressionToSymbol.apply(lhsSymbol, assignmentExpression));
 
     // Step 3: Create record components for structured data
     final var conditionalEvaluation = new ConditionalEvaluation(conditionEvaluationInstructions, conditionResult);
-    final var assignmentEvaluation = new OperandEvaluation(assignmentEvaluationInstructions, assignmentResult);
+    final var assignmentEvaluation = new OperandEvaluation(assignmentEvaluationInstructions, null);
 
     // Create guarded assignment block with structured records
     final var guardedAssignmentOperation = GuardedAssignmentBlockInstr.guardedAssignmentBlock(
-        assignmentResult,
         conditionalEvaluation,
         assignmentEvaluation,
         basicDetails
@@ -85,21 +86,20 @@ final class GuardedAssignmentBlockGenerator
   private List<IRInstr> generateConditionEvaluation(final ISymbol lhsSymbol,
                                                     final String conditionResult,
                                                     final BasicDetails basicDetails) {
-    final var instructions = new ArrayList<IRInstr>();
 
     // Step 1: Use QuestionBlockGenerator for consistent null-safety logic
     final var questionResult = context.generateTempName();
     final var questionInstructions = questionBlockGenerator.createQuestionBlockForVariable(
         lhsSymbol, questionResult, basicDetails);
-    instructions.addAll(questionInstructions);
+
+    final var instructions = new ArrayList<>(questionInstructions);
+    instructions.add(MemoryInstr.retain(questionResult, basicDetails.debugInfo()));
+    instructions.add(ScopeInstr.register(questionResult, basicDetails));
 
     // Step 2: Invert the question result for assignment condition  
     // Question returns true if variable is set, but we want to assign when unset
-    final var notCallDetails = new CallDetails(questionResult, "org.ek9.lang::Boolean",
-        "_not", List.of(), "org.ek9.lang::Boolean", List.of());
+    final var notCallDetails = callDetailsOnBoolean.apply(questionResult, "_not");
     instructions.add(CallInstr.call(conditionResult, basicDetails.debugInfo(), notCallDetails));
-    instructions.add(MemoryInstr.retain(conditionResult, basicDetails.debugInfo()));
-    instructions.add(ScopeInstr.register(conditionResult, basicDetails));
 
     return instructions;
   }
