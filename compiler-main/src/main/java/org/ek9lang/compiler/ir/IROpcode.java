@@ -102,6 +102,14 @@ public enum IROpcode {
    */
   ASSERT,
 
+  /**
+   * Unconditional assertion failure.
+   * Format: ASSERT_FAILURE
+   * Always traps/throws - used when failure is known at compile time.
+   * More efficient than creating Boolean objects just to fail assertions.
+   */
+  ASSERT_FAILURE,
+
   // Exception handling operations
   /**
    * Throw exception.
@@ -200,5 +208,22 @@ public enum IROpcode {
    * Format: LOGICAL_OR_BLOCK result = left_operand, condition, right_evaluation, logical_result
    * Contains complete evaluation paths for both short-circuit and full evaluation.
    */
-  LOGICAL_OR_BLOCK
+  LOGICAL_OR_BLOCK,
+
+  /**
+   * Question operator block construct for null-safe _isSet() calls.
+   * Format: QUESTION_BLOCK result = operand_evaluation, null_case_evaluation, set_case_evaluation
+   * Contains complete evaluation paths for both null and non-null cases.
+   * Avoids explicit branching by pre-computing both execution paths.
+   */
+  QUESTION_BLOCK,
+
+  /**
+   * Guarded assignment block construct for conditional assignment (:=? operator).
+   * Format: GUARDED_ASSIGNMENT_BLOCK result = condition_evaluation, assignment_evaluation
+   * Contains complete evaluation paths for both condition checking and assignment.
+   * Assigns only if LHS is null OR LHS._isSet() == false.
+   * Uses QUESTION_BLOCK logic internally for consistent null-safety semantics.
+   */
+  GUARDED_ASSIGNMENT_BLOCK
 }

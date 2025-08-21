@@ -14,29 +14,52 @@ defines module assignments
     OperationDfn: assignments::basicAssignment1.i_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     RETURN
-    OperationDfn: assignments::basicAssignment1.basicAssignment1()->assignments::basicAssignment1  // ./basicAssignment.ek9:42:5
+    OperationDfn: assignments::basicAssignment1.basicAssignment1()->assignments::basicAssignment1  // ./basicAssignment.ek9:65:5
     BasicBlock: _entry_1
-    _temp_i_init = CALL (assignments::basicAssignment1)this.i_init()  // ./basicAssignment.ek9:42:5
-    RETURN this  // ./basicAssignment.ek9:42:5
-    OperationDfn: assignments::basicAssignment1._call()->org.ek9.lang::Void  // ./basicAssignment.ek9:42:5
+    _temp_i_init = CALL (assignments::basicAssignment1)this.i_init()  // ./basicAssignment.ek9:65:5
+    RETURN this  // ./basicAssignment.ek9:65:5
+    OperationDfn: assignments::basicAssignment1._call()->org.ek9.lang::Void  // ./basicAssignment.ek9:65:5
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1
-    REFERENCE value, org.ek9.lang::Integer  // ./basicAssignment.ek9:43:7
-    _temp1 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./basicAssignment.ek9:44:14
-    RETAIN _temp1  // ./basicAssignment.ek9:44:14
-    SCOPE_REGISTER _temp1, _scope_1  // ./basicAssignment.ek9:44:14
-    RELEASE value  // ./basicAssignment.ek9:44:14
-    STORE value, _temp1  // ./basicAssignment.ek9:44:14
-    RETAIN value  // ./basicAssignment.ek9:44:14
-    SCOPE_REGISTER value, _scope_1  // ./basicAssignment.ek9:44:14
-    _temp3 = LOAD value  // ./basicAssignment.ek9:45:19
-    RETAIN _temp3  // ./basicAssignment.ek9:45:19
-    SCOPE_REGISTER _temp3, _scope_1  // ./basicAssignment.ek9:45:19
-    _temp2 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./basicAssignment.ek9:45:19
-    RETAIN _temp2  // ./basicAssignment.ek9:45:7
-    SCOPE_REGISTER _temp2, _scope_1  // ./basicAssignment.ek9:45:7
-    _temp4 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./basicAssignment.ek9:45:7
-    ASSERT _temp4  // ./basicAssignment.ek9:45:7
+    REFERENCE value, org.ek9.lang::Integer  // ./basicAssignment.ek9:66:7
+    _temp1 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./basicAssignment.ek9:67:14
+    RETAIN _temp1  // ./basicAssignment.ek9:67:14
+    SCOPE_REGISTER _temp1, _scope_1  // ./basicAssignment.ek9:67:14
+    RELEASE value  // ./basicAssignment.ek9:67:14
+    STORE value, _temp1  // ./basicAssignment.ek9:67:14
+    RETAIN value  // ./basicAssignment.ek9:67:14
+    SCOPE_REGISTER value, _scope_1  // ./basicAssignment.ek9:67:14
+    _temp2 = QUESTION_BLOCK  // ./basicAssignment.ek9:68:19
+    [
+    operand_evaluation:
+    [
+    _temp3 = LOAD value  // ./basicAssignment.ek9:68:19
+    RETAIN _temp3  // ./basicAssignment.ek9:68:19
+    SCOPE_REGISTER _temp3, _scope_1  // ./basicAssignment.ek9:68:19
+    _temp4 = IS_NULL _temp3  // ./basicAssignment.ek9:68:19
+    ]
+    operand: _temp3
+    null_check_condition: _temp4
+    null_case_evaluation:
+    [
+    _temp5 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./basicAssignment.ek9:68:19
+    RETAIN _temp5  // ./basicAssignment.ek9:68:19
+    SCOPE_REGISTER _temp5, _scope_1  // ./basicAssignment.ek9:68:19
+    ]
+    null_result: _temp5
+    set_case_evaluation:
+    [
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./basicAssignment.ek9:68:19
+    RETAIN _temp6  // ./basicAssignment.ek9:68:19
+    SCOPE_REGISTER _temp6, _scope_1  // ./basicAssignment.ek9:68:19
+    ]
+    set_result: _temp6
+    scope_id: _scope_1
+    ]
+    RETAIN _temp2  // ./basicAssignment.ek9:68:7
+    SCOPE_REGISTER _temp2, _scope_1  // ./basicAssignment.ek9:68:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./basicAssignment.ek9:68:7
+    ASSERT _temp7  // ./basicAssignment.ek9:68:7
     SCOPE_EXIT _scope_1
     RETURN`
     basicAssignment1()
@@ -52,29 +75,52 @@ defines module assignments
     OperationDfn: assignments::basicAssignment2.i_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     RETURN
-    OperationDfn: assignments::basicAssignment2.basicAssignment2()->assignments::basicAssignment2  // ./basicAssignment.ek9:80:5
+    OperationDfn: assignments::basicAssignment2.basicAssignment2()->assignments::basicAssignment2  // ./basicAssignment.ek9:126:5
     BasicBlock: _entry_1
-    _temp_i_init = CALL (assignments::basicAssignment2)this.i_init()  // ./basicAssignment.ek9:80:5
-    RETURN this  // ./basicAssignment.ek9:80:5
-    OperationDfn: assignments::basicAssignment2._call()->org.ek9.lang::Void  // ./basicAssignment.ek9:80:5
+    _temp_i_init = CALL (assignments::basicAssignment2)this.i_init()  // ./basicAssignment.ek9:126:5
+    RETURN this  // ./basicAssignment.ek9:126:5
+    OperationDfn: assignments::basicAssignment2._call()->org.ek9.lang::Void  // ./basicAssignment.ek9:126:5
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1
-    REFERENCE value, org.ek9.lang::Integer  // ./basicAssignment.ek9:81:7
-    _temp1 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./basicAssignment.ek9:82:15
-    RETAIN _temp1  // ./basicAssignment.ek9:82:15
-    SCOPE_REGISTER _temp1, _scope_1  // ./basicAssignment.ek9:82:15
-    RELEASE value  // ./basicAssignment.ek9:82:15
-    STORE value, _temp1  // ./basicAssignment.ek9:82:15
-    RETAIN value  // ./basicAssignment.ek9:82:15
-    SCOPE_REGISTER value, _scope_1  // ./basicAssignment.ek9:82:15
-    _temp3 = LOAD value  // ./basicAssignment.ek9:83:19
-    RETAIN _temp3  // ./basicAssignment.ek9:83:19
-    SCOPE_REGISTER _temp3, _scope_1  // ./basicAssignment.ek9:83:19
-    _temp2 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./basicAssignment.ek9:83:19
-    RETAIN _temp2  // ./basicAssignment.ek9:83:7
-    SCOPE_REGISTER _temp2, _scope_1  // ./basicAssignment.ek9:83:7
-    _temp4 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./basicAssignment.ek9:83:7
-    ASSERT _temp4  // ./basicAssignment.ek9:83:7
+    REFERENCE value, org.ek9.lang::Integer  // ./basicAssignment.ek9:127:7
+    _temp1 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./basicAssignment.ek9:128:15
+    RETAIN _temp1  // ./basicAssignment.ek9:128:15
+    SCOPE_REGISTER _temp1, _scope_1  // ./basicAssignment.ek9:128:15
+    RELEASE value  // ./basicAssignment.ek9:128:15
+    STORE value, _temp1  // ./basicAssignment.ek9:128:15
+    RETAIN value  // ./basicAssignment.ek9:128:15
+    SCOPE_REGISTER value, _scope_1  // ./basicAssignment.ek9:128:15
+    _temp2 = QUESTION_BLOCK  // ./basicAssignment.ek9:129:19
+    [
+    operand_evaluation:
+    [
+    _temp3 = LOAD value  // ./basicAssignment.ek9:129:19
+    RETAIN _temp3  // ./basicAssignment.ek9:129:19
+    SCOPE_REGISTER _temp3, _scope_1  // ./basicAssignment.ek9:129:19
+    _temp4 = IS_NULL _temp3  // ./basicAssignment.ek9:129:19
+    ]
+    operand: _temp3
+    null_check_condition: _temp4
+    null_case_evaluation:
+    [
+    _temp5 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./basicAssignment.ek9:129:19
+    RETAIN _temp5  // ./basicAssignment.ek9:129:19
+    SCOPE_REGISTER _temp5, _scope_1  // ./basicAssignment.ek9:129:19
+    ]
+    null_result: _temp5
+    set_case_evaluation:
+    [
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./basicAssignment.ek9:129:19
+    RETAIN _temp6  // ./basicAssignment.ek9:129:19
+    SCOPE_REGISTER _temp6, _scope_1  // ./basicAssignment.ek9:129:19
+    ]
+    set_result: _temp6
+    scope_id: _scope_1
+    ]
+    RETAIN _temp2  // ./basicAssignment.ek9:129:7
+    SCOPE_REGISTER _temp2, _scope_1  // ./basicAssignment.ek9:129:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./basicAssignment.ek9:129:7
+    ASSERT _temp7  // ./basicAssignment.ek9:129:7
     SCOPE_EXIT _scope_1
     RETURN`
     basicAssignment2()
@@ -90,29 +136,52 @@ defines module assignments
     OperationDfn: assignments::basicAssignment3.i_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     RETURN
-    OperationDfn: assignments::basicAssignment3.basicAssignment3()->assignments::basicAssignment3  // ./basicAssignment.ek9:118:5
+    OperationDfn: assignments::basicAssignment3.basicAssignment3()->assignments::basicAssignment3  // ./basicAssignment.ek9:187:5
     BasicBlock: _entry_1
-    _temp_i_init = CALL (assignments::basicAssignment3)this.i_init()  // ./basicAssignment.ek9:118:5
-    RETURN this  // ./basicAssignment.ek9:118:5
-    OperationDfn: assignments::basicAssignment3._call()->org.ek9.lang::Void  // ./basicAssignment.ek9:118:5
+    _temp_i_init = CALL (assignments::basicAssignment3)this.i_init()  // ./basicAssignment.ek9:187:5
+    RETURN this  // ./basicAssignment.ek9:187:5
+    OperationDfn: assignments::basicAssignment3._call()->org.ek9.lang::Void  // ./basicAssignment.ek9:187:5
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1
-    REFERENCE value, org.ek9.lang::Integer  // ./basicAssignment.ek9:119:7
-    _temp1 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./basicAssignment.ek9:120:15
-    RETAIN _temp1  // ./basicAssignment.ek9:120:15
-    SCOPE_REGISTER _temp1, _scope_1  // ./basicAssignment.ek9:120:15
-    RELEASE value  // ./basicAssignment.ek9:120:15
-    STORE value, _temp1  // ./basicAssignment.ek9:120:15
-    RETAIN value  // ./basicAssignment.ek9:120:15
-    SCOPE_REGISTER value, _scope_1  // ./basicAssignment.ek9:120:15
-    _temp3 = LOAD value  // ./basicAssignment.ek9:121:19
-    RETAIN _temp3  // ./basicAssignment.ek9:121:19
-    SCOPE_REGISTER _temp3, _scope_1  // ./basicAssignment.ek9:121:19
-    _temp2 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./basicAssignment.ek9:121:19
-    RETAIN _temp2  // ./basicAssignment.ek9:121:7
-    SCOPE_REGISTER _temp2, _scope_1  // ./basicAssignment.ek9:121:7
-    _temp4 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./basicAssignment.ek9:121:7
-    ASSERT _temp4  // ./basicAssignment.ek9:121:7
+    REFERENCE value, org.ek9.lang::Integer  // ./basicAssignment.ek9:188:7
+    _temp1 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./basicAssignment.ek9:189:15
+    RETAIN _temp1  // ./basicAssignment.ek9:189:15
+    SCOPE_REGISTER _temp1, _scope_1  // ./basicAssignment.ek9:189:15
+    RELEASE value  // ./basicAssignment.ek9:189:15
+    STORE value, _temp1  // ./basicAssignment.ek9:189:15
+    RETAIN value  // ./basicAssignment.ek9:189:15
+    SCOPE_REGISTER value, _scope_1  // ./basicAssignment.ek9:189:15
+    _temp2 = QUESTION_BLOCK  // ./basicAssignment.ek9:190:19
+    [
+    operand_evaluation:
+    [
+    _temp3 = LOAD value  // ./basicAssignment.ek9:190:19
+    RETAIN _temp3  // ./basicAssignment.ek9:190:19
+    SCOPE_REGISTER _temp3, _scope_1  // ./basicAssignment.ek9:190:19
+    _temp4 = IS_NULL _temp3  // ./basicAssignment.ek9:190:19
+    ]
+    operand: _temp3
+    null_check_condition: _temp4
+    null_case_evaluation:
+    [
+    _temp5 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./basicAssignment.ek9:190:19
+    RETAIN _temp5  // ./basicAssignment.ek9:190:19
+    SCOPE_REGISTER _temp5, _scope_1  // ./basicAssignment.ek9:190:19
+    ]
+    null_result: _temp5
+    set_case_evaluation:
+    [
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./basicAssignment.ek9:190:19
+    RETAIN _temp6  // ./basicAssignment.ek9:190:19
+    SCOPE_REGISTER _temp6, _scope_1  // ./basicAssignment.ek9:190:19
+    ]
+    set_result: _temp6
+    scope_id: _scope_1
+    ]
+    RETAIN _temp2  // ./basicAssignment.ek9:190:7
+    SCOPE_REGISTER _temp2, _scope_1  // ./basicAssignment.ek9:190:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./basicAssignment.ek9:190:7
+    ASSERT _temp7  // ./basicAssignment.ek9:190:7
     SCOPE_EXIT _scope_1
     RETURN`
     basicAssignment3()

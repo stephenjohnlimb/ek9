@@ -53,6 +53,21 @@ public final class BranchInstr extends IRInstr {
     return new BranchInstr(IROpcode.ASSERT, null, debugInfo).addOperand(condition);
   }
 
+  /**
+   * Create unconditional assertion failure: ASSERT_FAILURE.
+   * Used when failure is known at compile time - more efficient than creating Boolean objects.
+   */
+  public static BranchInstr assertFailure() {
+    return new BranchInstr(IROpcode.ASSERT_FAILURE, null, null);
+  }
+
+  /**
+   * Create unconditional assertion failure with debug info: ASSERT_FAILURE.
+   */
+  public static BranchInstr assertFailure(final DebugInfo debugInfo) {
+    return new BranchInstr(IROpcode.ASSERT_FAILURE, null, debugInfo);
+  }
+
   private BranchInstr(final IROpcode opcode, final String result, final DebugInfo debugInfo) {
     super(opcode, result, debugInfo);
   }

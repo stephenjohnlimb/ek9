@@ -1,29 +1,12 @@
 #!ek9
-defines module assignments
+defines module operatorUse
 
 
   defines function
 
-    basicAssignment1()
-      value as Integer?
-      value: 1
-      assert value?
-
-    basicAssignment2()
-      value as Integer?
-      value = 1
-      assert value?
-
-    basicAssignment3()
-      value as Integer?
-      value:= 1
-      assert value?
-
-    guardedAssignment()
-      <-
-        rtn as Boolean: Boolean()
-
-      rtn :=? true
+    equality()
+      -> i1 as Integer
+      assert i1?
 
 <!-
     aSimpleFunction()

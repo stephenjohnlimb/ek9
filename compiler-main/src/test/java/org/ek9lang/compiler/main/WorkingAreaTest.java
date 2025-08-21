@@ -52,7 +52,7 @@ class WorkingAreaTest extends PhasesTest {
     try (final var printWriter = new PrintWriter(output)) {
       final var printer = new NodePrinter(printWriter);
       program
-          .getIRModules("assignments")
+          .getIRModules("operatorUse")
           .forEach(irModule -> irModule.getConstructs().forEach(printer::visit));
     } catch(Exception _) {
       fail("Failed to produce output.");

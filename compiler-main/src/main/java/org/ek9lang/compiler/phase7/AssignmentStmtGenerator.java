@@ -6,7 +6,9 @@ import java.util.function.BiFunction;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -80,6 +82,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
                                            final String scopeId, final List<IRInstr> instructions) {
 
     final var lhsSymbol = context.getParsedModule().getRecordedSymbol(ctx.identifier());
+
     final var generator = new AssignmentExprInstrGenerator(context, ctx.assignmentExpression(), scopeId);
 
     if (isMethodBasedAssignment(ctx.op)) {
@@ -89,7 +92,16 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     if (isGuardedAssignment(ctx.op)) {
       // Generate conditional assignment: only assign if lhs IS_NULL or _isSet() is false
-      final var guardedGenerator = new GuardedAssignmentGenerator(context, assignExpressionToSymbol);
+      // Now uses GUARDED_ASSIGNMENT_BLOCK with QUESTION_BLOCK composition for declarative IR
+      // Create adapter function that matches ExprProcessingDetails -> List<IRInstr> signature
+      final java.util.function.Function<ExprProcessingDetails, List<IRInstr>>
+          expressionProcessor = details -> generator.apply(details.exprResult());
+      final var recordExprProcessing =
+          new RecordExprProcessing(expressionProcessor);
+      final var questionBlockGenerator =
+          new QuestionBlockGenerator(context, recordExprProcessing);
+      final var guardedGenerator =
+          new GuardedAssignmentGenerator(context, questionBlockGenerator, assignExpressionToSymbol);
       final var guardedDetails = new GuardedAssignmentGenerator.GuardedAssignmentDetails(
           lhsSymbol, ctx.assignmentExpression(), scopeId);
       instructions.addAll(guardedGenerator.apply(guardedDetails));

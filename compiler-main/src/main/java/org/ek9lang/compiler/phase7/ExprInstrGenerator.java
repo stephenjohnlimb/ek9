@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.common.OperatorMap;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.DebugInfo;
@@ -16,8 +14,6 @@ import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.LiteralProcessingDetails;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
-import org.ek9lang.compiler.phase7.support.ShortCircuitAndGenerator;
-import org.ek9lang.compiler.phase7.support.ShortCircuitOrGenerator;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -74,22 +70,21 @@ import org.ek9lang.core.AssertValue;
 final class ExprInstrGenerator extends AbstractGenerator
     implements Function<ExprProcessingDetails, List<IRInstr>> {
 
-  private static final OperatorMap operatorMap = new OperatorMap();
-
   private final ObjectAccessInstrGenerator objectAccessCreator;
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
-  private final RecordExprProcessing recordExprProcessing;
   private final ShortCircuitAndGenerator shortCircuitAndGenerator;
   private final ShortCircuitOrGenerator shortCircuitOrGenerator;
+  private final QuestionBlockGenerator questionBlockGenerator;
 
   ExprInstrGenerator(final IRContext context) {
     super(context);
 
+    final RecordExprProcessing recordExprProcessing = new RecordExprProcessing(this::process);
+
     this.objectAccessCreator = new ObjectAccessInstrGenerator(context);
-    this.recordExprProcessing = new RecordExprProcessing(this::process);
     this.shortCircuitAndGenerator = new ShortCircuitAndGenerator(context, recordExprProcessing);
     this.shortCircuitOrGenerator = new ShortCircuitOrGenerator(context, recordExprProcessing);
+    this.questionBlockGenerator = new QuestionBlockGenerator(context, recordExprProcessing);
   }
 
   /**
@@ -132,9 +127,10 @@ final class ExprInstrGenerator extends AbstractGenerator
     //TODO you may find there is a more automated way to do this.
     //TODO The symbol and operator map may give a way to workout the Calldetails needed.
     final var ctx = details.ctx();
-    // Handle postfix question operator: expression?
+    //Now while you may think these can just call the 'method' that is defined for the operator
+    //There cases where 'pre-checks' and 'short circuits need to be applied.
     if (ctx.op.getType() == EK9Parser.QUESTION) {
-      instructions.addAll(processQuestionOperator(details));
+      instructions.addAll(questionBlockGenerator.apply(details));
     } else if (ctx.op.getType() == EK9Parser.AND) {
       instructions.addAll(processAndExpression(details));
     } else if (ctx.op.getType() == EK9Parser.OR) {
@@ -275,43 +271,6 @@ final class ExprInstrGenerator extends AbstractGenerator
     return instructions;
   }
 
-  /**
-   * Process question operator: expression?
-   * Generates _isSet() method call on the expression result.
-   */
-  private List<IRInstr> processQuestionOperator(final ExprProcessingDetails details) {
-    final var ctx = details.ctx();
-    final var exprResult = details.exprResult();
-    final var scopeId = details.scopeId();
-
-    AssertValue.checkFalse("Must have expression present", ctx.expression().isEmpty());
-
-    // Get debug information
-    final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
-    final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
-
-    // Evaluate the expression that the ? operator is applied to
-    final var tempExprResult = context.generateTempName();
-
-    final var instructions = new ArrayList<>(
-        recordExprProcessing.apply(new ExprProcessingDetails(ctx.expression(0), tempExprResult, scopeId, debugInfo)));
-
-    // Call _isSet() method on the expression result
-    final var typeName = typeNameOrException.apply(exprSymbol);
-    final var methodName = operatorMap.getForward(ctx.op.getText());
-
-    // Generate method call: exprResult = tempExprResult._isSet()
-    //TODO if there is only one expression then there are no arguments
-    //For operators there is only ever zero or one argument and we can get the types
-    //So I think this could be much more general.
-    //Then we can use the SymbolSearch to get the Method and its return type.
-    final var callDetails = new CallDetails(tempExprResult, typeName,
-        methodName, List.of(), "org.ek9.lang::Boolean", List.of());
-
-    instructions.add(CallInstr.operator(exprResult, debugInfo, callDetails));
-
-    return instructions;
-  }
 
   /**
    * Process AND expression using high-level short-circuit instruction.

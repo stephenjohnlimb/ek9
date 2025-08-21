@@ -32,6 +32,12 @@ class BooleanTest extends Common {
 
     final var viaString = new Boolean(String._of("true"));
     assertEquals(trueBoolean, viaString);
+
+    final var trueByFactory = Boolean._ofTrue();
+    assertEquals(trueBoolean, trueByFactory);
+
+    final var falseByFactory = Boolean._ofFalse();
+    assertEquals(falseBoolean, falseByFactory);
   }
 
   /**

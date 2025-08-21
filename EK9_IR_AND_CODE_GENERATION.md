@@ -85,14 +85,143 @@ This encoding strategy enables backends to correctly interpret literal values:
 - Cross-platform considerations
 - Performance optimization approaches
 
-## Optimization Passes
+## Optimization Strategies
 
-*This section will contain:*
-- IR optimization strategies
-- Dead code elimination
-- Constant folding and propagation
-- Loop optimization techniques
-- Inlining strategies
+### EK9's Hybrid Optimization Philosophy
+
+EK9 employs a **hybrid optimization strategy** that balances IR-level semantic clarity with backend-specific optimization capabilities. This approach leverages the strengths of both compile-time and runtime optimization while maintaining target portability.
+
+### Null Check Optimization: A Case Study
+
+**Problem**: EK9's null-safety features (question operator `?` and guarded assignment `:=?`) can generate multiple null checks on the same variable:
+
+```ek9
+someFunction()
+  value as Integer?
+  value :=? 42
+  
+  if value?        // First ? operator  
+    stdout.println(value)
+    
+  result := value? // Second ? operator
+  assert value?    // Third ? operator
+```
+
+**Current IR Generation** (explicit IS_NULL semantic clarity):
+```
+// Each operation generates explicit null checking
+_temp1 = QUESTION_BLOCK [
+  operand_evaluation: [
+    _temp2 = LOAD value
+    _temp3 = IS_NULL value  // Explicit null check
+  ]
+  // ... rest of question logic
+]
+
+// Repeated for each ? operator
+_temp4 = QUESTION_BLOCK [
+  operand_evaluation: [
+    _temp5 = LOAD value  
+    _temp6 = IS_NULL value  // Redundant null check
+  ]
+  // ... rest of question logic
+]
+```
+
+### Backend Optimization Capabilities Analysis
+
+#### LLVM Optimization Effectiveness ✅ **Excellent**
+LLVM's optimization passes handle redundant null check elimination exceptionally well:
+
+**LLVM Optimization Passes:**
+- **EarlyCSE**: Common Subexpression Elimination removes duplicate IS_NULL checks
+- **GVN**: Global Value Numbering identifies equivalent null check computations  
+- **LICM**: Loop-Invariant Code Motion hoists null checks out of loops
+- **DeadStoreElimination**: Removes redundant memory operations
+
+**LLVM IR Example:**
+```llvm
+; Before optimization
+%null1 = icmp eq ptr %value, null
+%null2 = icmp eq ptr %value, null  ; Redundant check
+%null3 = icmp eq ptr %value, null  ; Redundant check
+
+; After LLVM optimization passes  
+%null_check = icmp eq ptr %value, null  ; Single check
+; Reused across all three locations
+```
+
+#### JVM/HotSpot Optimization Effectiveness ✅ **Excellent**
+HotSpot's C1/C2 compilers excel at null check elimination:
+
+**HotSpot Optimizations:**
+- **Null Check Elimination**: Removes provably redundant null checks
+- **Range Check Elimination**: Similar pattern for array bounds
+- **Method Inlining**: Can see across method boundaries for interprocedural optimization
+- **Profile-Guided Optimization**: Uses runtime feedback to optimize frequent patterns
+
+**Bytecode Optimization Example:**
+```java
+// Before HotSpot optimization
+if (value == null) // First null check
+if (value == null) // Second null check (eliminated)
+if (value == null) // Third null check (eliminated)
+
+// After HotSpot optimization
+if (value == null) // Single null check, result reused
+```
+
+### Optimization Strategy Decision: Backend-First Approach
+
+**Recommended Strategy**: **Primary reliance on backend optimization with optional IR-level optimization for future enhancement.**
+
+**Phase 1: Backend Optimization (Current)**
+- Leverage mature LLVM/HotSpot optimization algorithms
+- Explicit `IS_NULL` instructions provide perfect semantic information
+- Maximum optimization context available to backends
+- Target-specific optimizations possible
+
+**Phase 2: IR-Level Optimization (Future Enhancement)**
+- **Phase 12: IR_OPTIMISATION** can add conservative redundancy elimination
+- Focus on **obvious, safe cases** within single basic blocks:
+  ```java
+  // Safe IR optimization candidates:
+  _temp1 = IS_NULL value     
+  _temp2 = CALL value._isSet()
+  // No assignments to 'value' between checks
+  _temp3 = IS_NULL value     // ← Safe to eliminate
+  _temp4 = CALL value._isSet() // ← Safe to eliminate
+  ```
+
+**Benefits of Explicit IS_NULL Approach:**
+1. **Semantic Clarity**: Backends understand null-checking intent precisely
+2. **Optimization Enablement**: Rich semantic information enables better backend optimization
+3. **Debug Transparency**: Null checking logic is visible in IR inspection
+4. **Correctness**: No ambiguity about null safety semantics
+
+### General IR Optimization Principles
+
+**Conservative IR-Level Optimizations (Future):**
+- Same variable, same basic block, no intervening assignments
+- Identical operands within small scope windows
+- Clear dataflow analysis showing no mutations between operations
+
+**Backend-Level Optimizations (Current):**
+- Cross-function optimizations
+- Complex control flow scenarios
+- Target-specific optimizations
+- Interprocedural analysis
+- Profile-guided optimization
+
+### Performance Measurement Strategy
+
+**Optimization Validation Approach:**
+1. **Baseline Measurement**: Profile current backend-optimized performance
+2. **Hotspot Identification**: Identify actual performance bottlenecks in real applications
+3. **Incremental Enhancement**: Add IR-level optimizations only where profiling shows benefit
+4. **Regression Testing**: Ensure optimizations don't break correctness
+
+**Key Insight**: Explicit semantic information (like IS_NULL) **enables** backend optimization rather than hindering it. Backends now have perfect information about null-checking intent, leading to superior optimization results.
 
 ## Target-Specific Considerations
 
@@ -625,6 +754,192 @@ The LOGICAL_AND_BLOCK/LOGICAL_OR_BLOCK pattern establishes a foundation for **co
 - **Common optimization patterns**: Backends can apply similar optimization strategies across all constructs
 - **Consistent memory management**: Same context-aware ownership rules apply to all blocks
 - **Predictable performance**: Similar CPU architecture optimization opportunities across all control flow
+
+## High-Level IR: QUESTION_BLOCK and GUARDED_ASSIGNMENT_BLOCK
+
+### Overview: Null-Safe Declarative Operations
+
+Following the success of medium-level LOGICAL_BLOCK constructs, EK9 introduces high-level **null-safety operations** that combine EK9's tri-state semantics with explicit backend optimization information.
+
+**Key Innovation**: Explicit `IS_NULL` semantic clarity with complete null/non-null path pre-computation.
+
+### QUESTION_BLOCK Architecture
+
+**Purpose**: Implements EK9's question operator (`?`) for null-safe `_isSet()` checks with explicit null-checking semantics.
+
+**Structure Pattern**:
+```
+_result = QUESTION_BLOCK [
+  operand_evaluation: [
+    _operand = LOAD variable
+    RETAIN _operand 
+    SCOPE_REGISTER _operand, scope
+    _null_check = IS_NULL _operand  // Explicit null check
+  ]
+  operand: _operand
+  null_check_condition: _null_check
+  null_case_evaluation: [
+    _null_result = CALL Boolean._ofFalse()  // Return false for null
+    RETAIN _null_result
+    SCOPE_REGISTER _null_result, scope
+  ]
+  null_result: _null_result
+  set_case_evaluation: [
+    _set_result = CALL _operand._isSet()    // Check if meaningful value
+    RETAIN _set_result
+    SCOPE_REGISTER _set_result, scope
+  ]
+  set_result: _set_result
+  scope_id: scope
+]
+```
+
+### GUARDED_ASSIGNMENT_BLOCK Architecture
+
+**Purpose**: Implements EK9's guarded assignment operator (`:=?`) using QUESTION_BLOCK composition for consistent null-safety semantics.
+
+**Semantic Logic**: Assign only if `(LHS == null) OR (!LHS._isSet())`
+
+**Structure Pattern**:
+```
+_result = GUARDED_ASSIGNMENT_BLOCK [
+  condition_evaluation: [
+    _lhs_temp = LOAD lhs_variable
+    _condition = QUESTION_BLOCK [...]  // Reuse question operator logic
+    _assign_condition = CALL _condition._not()  // Invert: assign when unset
+    RETAIN _assign_condition
+    SCOPE_REGISTER _assign_condition, scope
+  ]
+  condition_result: _assign_condition
+  assignment_evaluation: [
+    _value = LOAD_LITERAL assignment_value
+    RETAIN _value
+    SCOPE_REGISTER _value, scope
+    RELEASE lhs_variable              // Standard RELEASE-RETAIN pattern
+    STORE lhs_variable, _value
+    RETAIN lhs_variable
+    SCOPE_REGISTER lhs_variable, scope
+  ]
+  assignment_result: _result
+  scope_id: scope
+]
+```
+
+### Backend Optimization Benefits
+
+#### Explicit IS_NULL Semantic Advantages
+
+**LLVM Optimization**:
+```llvm
+; Direct null check mapping
+%null_check = icmp eq ptr %operand, null
+br i1 %null_check, label %null_case, label %set_case
+
+null_case:
+  ; Return Boolean(false) 
+  %false_result = call %Boolean* @Boolean_ofFalse()
+  br label %merge
+
+set_case:
+  ; Call _isSet() method
+  %set_result = call i1 @operand_isSet(ptr %operand)  
+  br label %merge
+
+merge:
+  %final_result = phi %Boolean* [%false_result, %null_case], [%set_result, %set_case]
+```
+
+**JVM Optimization**:
+```java
+// Clean bytecode generation
+aload_1          // load operand
+ifnull null_case // Direct IS_NULL mapping
+invokevirtual isSet  // _isSet() call
+goto merge
+
+null_case:
+invokestatic Boolean.ofFalse  // Boolean(false)
+
+merge:
+// Result on stack
+```
+
+#### Composition Benefits
+
+**Code Reuse**: GUARDED_ASSIGNMENT_BLOCK reuses QUESTION_BLOCK logic, ensuring:
+- **Consistent null-safety semantics** across operators
+- **Single source of truth** for null checking logic  
+- **Reduced maintenance burden** with shared implementation
+- **Optimization consistency** across both constructs
+
+### Performance Characteristics
+
+#### Redundant Null Check Optimization
+
+**Problem**: Multiple operations on same variable generate repeated null checks:
+```ek9
+value :=? 42    // First null check in guarded assignment
+if value?       // Second null check in question operator  
+assert value?   // Third null check in assertion
+```
+
+**Solution**: Backend optimization eliminates redundancy:
+
+**LLVM**: EarlyCSE, GVN, and LICM passes eliminate duplicate `IS_NULL` instructions
+**JVM**: HotSpot null check elimination removes redundant null testing
+
+**Key Insight**: Explicit `IS_NULL` **enables** backend optimization by providing perfect semantic information.
+
+### Implementation Classes
+
+#### Core IR Instructions
+- **`QuestionOperatorInstr`**: QUESTION_BLOCK instruction with explicit null check condition
+- **`GuardedAssignmentBlockInstr`**: GUARDED_ASSIGNMENT_BLOCK instruction with composition
+- **`IROpcode.QUESTION_BLOCK`**: Enum value for question operator blocks
+- **`IROpcode.GUARDED_ASSIGNMENT_BLOCK`**: Enum value for guarded assignment blocks
+
+#### Generator Classes  
+- **`QuestionBlockGenerator`**: Generates QUESTION_BLOCK IR with explicit IS_NULL
+- **`GuardedAssignmentBlockGenerator`**: Generates GUARDED_ASSIGNMENT_BLOCK using composition
+- **`GuardedAssignmentGenerator`**: Simplified wrapper using block generator delegation
+
+#### Integration and Composition
+- **Composition Pattern**: GuardedAssignmentBlockGenerator reuses QuestionBlockGenerator logic
+- **Semantic Consistency**: Both constructs use identical null-safety evaluation logic
+- **Memory Management**: Standard RETAIN/SCOPE_REGISTER patterns with proper cleanup
+
+### Testing and Real-World Usage
+
+**Example Test Case**: `guardedAssignment.ek9`
+```ek9
+guardedAssignment()
+  value as Integer?     // Nullable Integer declaration
+  value :=? 1          // Guarded assignment - assign only if null/unset
+  assert value?        // Assert value is now set
+```
+
+**Generated IR Highlights**:
+- **Explicit null checking**: `IS_NULL` instructions provide clear semantics
+- **Composition reuse**: Guarded assignment uses QUESTION_BLOCK internally  
+- **Backend optimization ready**: Clear control flow for optimization passes
+- **Memory safety**: Proper RETAIN/RELEASE/SCOPE_REGISTER patterns
+
+### Strategic Benefits
+
+**Developer Benefits**:
+- **Predictable null-safety**: Clear semantics for null handling
+- **Composable operations**: Question operator and guarded assignment work together cleanly
+- **Debug transparency**: IR inspection shows exact null-checking logic
+
+**Backend Benefits**:
+- **Optimization enablement**: Explicit semantics enable superior optimization
+- **Target flexibility**: High-level constructs allow target-specific lowering strategies
+- **Performance predictability**: Clear performance characteristics across targets
+
+**Compiler Benefits**:
+- **Code reuse**: Composition reduces implementation complexity from 76 to ~15 lines
+- **Consistency**: Single source of truth for null-safety logic
+- **Maintainability**: Shared implementation reduces bug surface area
 
 ## Implementation Patterns
 

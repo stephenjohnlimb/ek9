@@ -319,4 +319,12 @@ public class Boolean extends BuiltinType {
     return rtn;
   }
 
+  public static Boolean _ofFalse() {
+    return _of(false);
+  }
+
+  public static Boolean _ofTrue() {
+    return _of(true);
+  }
+
 }

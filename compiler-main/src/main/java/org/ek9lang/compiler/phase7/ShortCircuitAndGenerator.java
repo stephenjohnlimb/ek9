@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.phase7.support;
+package org.ek9lang.compiler.phase7;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +9,11 @@ import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.LogicalOperationInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
+import org.ek9lang.compiler.phase7.support.CallDetailsForTrue;
+import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
+import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
+import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 
 /**
  * Generates IR instructions for Boolean AND operations using LOGICAL_AND_BLOCK pattern.
