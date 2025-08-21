@@ -15,6 +15,7 @@ import org.ek9lang.compiler.phase7.support.CallDetailsForOfFalse;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.OperandEvaluation;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -119,16 +120,18 @@ public final class QuestionBlockGenerator implements Function<ExprProcessingDeta
     final var setCaseEvaluationInstructions = generateSetCaseEvaluation(
         setCaseResult, targetObject, typeName, basicDetails);
 
-    // Create question operator block
+    // Create record components for structured data
+    final var operandEvaluation = new OperandEvaluation(operandEvaluationInstructions, targetObject);
+    final var nullCaseEvaluation = new OperandEvaluation(nullCaseEvaluationInstructions, nullCaseResult);
+    final var setCaseEvaluation = new OperandEvaluation(setCaseEvaluationInstructions, setCaseResult);
+
+    // Create question operator block with structured records
     final var questionOperation = QuestionOperatorInstr.questionBlock(
         resultName,
-        operandEvaluationInstructions,
-        targetObject,
+        operandEvaluation,
         nullCheckCondition,
-        nullCaseEvaluationInstructions,
-        nullCaseResult,
-        setCaseEvaluationInstructions,
-        setCaseResult,
+        nullCaseEvaluation,
+        setCaseEvaluation,
         basicDetails
     );
 

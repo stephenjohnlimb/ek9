@@ -137,7 +137,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
             voidStr, // Return type
             java.util.List.of() // No arguments
         );
-        allInstructions.add(CallInstr.call(IRConstants.TEMP_C_INIT, null, callDetails));
+        allInstructions.add(CallInstr.callStatic(IRConstants.TEMP_C_INIT, null, callDetails));
       }
     }
 

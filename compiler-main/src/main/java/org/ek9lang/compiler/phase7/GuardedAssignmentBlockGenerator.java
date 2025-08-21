@@ -10,8 +10,10 @@ import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.phase7.support.ConditionalEvaluation;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.OperandEvaluation;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -59,13 +61,15 @@ final class GuardedAssignmentBlockGenerator
     final var assignmentEvaluationInstructions = new ArrayList<>(
         assignExpressionToSymbol.apply(lhsSymbol, assignmentExpression));
 
-    // Step 3: Create guarded assignment block
+    // Step 3: Create record components for structured data
+    final var conditionalEvaluation = new ConditionalEvaluation(conditionEvaluationInstructions, conditionResult);
+    final var assignmentEvaluation = new OperandEvaluation(assignmentEvaluationInstructions, assignmentResult);
+
+    // Create guarded assignment block with structured records
     final var guardedAssignmentOperation = GuardedAssignmentBlockInstr.guardedAssignmentBlock(
         assignmentResult,
-        conditionEvaluationInstructions,
-        conditionResult,
-        assignmentEvaluationInstructions,
-        assignmentResult,
+        conditionalEvaluation,
+        assignmentEvaluation,
         basicDetails
     );
 

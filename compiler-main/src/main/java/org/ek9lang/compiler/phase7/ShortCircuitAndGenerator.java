@@ -11,9 +11,11 @@ import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.CallDetailsForIsTrue;
+import org.ek9lang.compiler.phase7.support.ConditionalEvaluation;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.OperandEvaluation;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 
 /**
@@ -84,16 +86,19 @@ public final class ShortCircuitAndGenerator implements Function<ExprProcessingDe
     resultComputationInstructions.add(MemoryInstr.retain(andResult, debugInfo));
     resultComputationInstructions.add(ScopeInstr.register(andResult, basicDetails));
 
-    // Create logical AND operation block with left evaluation instructions
+    // Create record components for structured data
+    final var leftEvaluation = new OperandEvaluation(leftEvaluationInstructions, lhsTemp);
+    final var conditionalEvaluation = new ConditionalEvaluation(List.of(), lhsPrimitive);
+    final var rightEvaluation = new OperandEvaluation(rightEvaluationInstructions, rhsTemp);
+    final var resultEvaluation = new OperandEvaluation(resultComputationInstructions, andResult);
+
+    // Create logical AND operation block with structured records
     final var logicalOperation = LogicalOperationInstr.andOperation(
         exprResult,
-        leftEvaluationInstructions,
-        lhsTemp,
-        lhsPrimitive,
-        rightEvaluationInstructions,
-        rhsTemp,
-        resultComputationInstructions,
-        andResult,
+        leftEvaluation,
+        conditionalEvaluation,
+        rightEvaluation,
+        resultEvaluation,
         basicDetails
     );
 

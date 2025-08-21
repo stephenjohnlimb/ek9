@@ -2,6 +2,8 @@ package org.ek9lang.compiler.ir;
 
 import java.util.List;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.phase7.support.ConditionalEvaluation;
+import org.ek9lang.compiler.phase7.support.OperandEvaluation;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -27,43 +29,32 @@ import org.ek9lang.core.AssertValue;
  */
 public final class GuardedAssignmentBlockInstr extends IRInstr {
 
-  private final List<IRInstr> conditionEvaluationInstructions;
-  private final String conditionResult;
-  private final List<IRInstr> assignmentEvaluationInstructions;
-  private final String assignmentResult;
+  private final ConditionalEvaluation conditionalEvaluation;
+  private final OperandEvaluation assignmentEvaluation;
   private final String scopeId;
 
   /**
    * Create guarded assignment block.
    */
   public static GuardedAssignmentBlockInstr guardedAssignmentBlock(final String result,
-                                                                   final List<IRInstr> conditionEvaluationInstructions,
-                                                                   final String conditionResult,
-                                                                   final List<IRInstr> assignmentEvaluationInstructions,
-                                                                   final String assignmentResult,
+                                                                   final ConditionalEvaluation conditionalEvaluation,
+                                                                   final OperandEvaluation assignmentEvaluation,
                                                                    final BasicDetails basicDetails) {
-    return new GuardedAssignmentBlockInstr(result, conditionEvaluationInstructions, conditionResult,
-        assignmentEvaluationInstructions, assignmentResult, basicDetails);
+    return new GuardedAssignmentBlockInstr(result, conditionalEvaluation, assignmentEvaluation, basicDetails);
   }
 
   private GuardedAssignmentBlockInstr(final String result,
-                                      final List<IRInstr> conditionEvaluationInstructions,
-                                      final String conditionResult,
-                                      final List<IRInstr> assignmentEvaluationInstructions,
-                                      final String assignmentResult,
+                                      final ConditionalEvaluation conditionalEvaluation,
+                                      final OperandEvaluation assignmentEvaluation,
                                       final BasicDetails basicDetails) {
     super(IROpcode.GUARDED_ASSIGNMENT_BLOCK, result, basicDetails.debugInfo());
 
-    AssertValue.checkNotNull("Condition evaluation instructions cannot be null", conditionEvaluationInstructions);
-    AssertValue.checkNotNull("Condition result cannot be null", conditionResult);
-    AssertValue.checkNotNull("Assignment evaluation instructions cannot be null", assignmentEvaluationInstructions);
-    AssertValue.checkNotNull("Assignment result cannot be null", assignmentResult);
+    AssertValue.checkNotNull("Conditional evaluation cannot be null", conditionalEvaluation);
+    AssertValue.checkNotNull("Assignment evaluation cannot be null", assignmentEvaluation);
     AssertValue.checkNotNull("Scope ID cannot be null", basicDetails.scopeId());
 
-    this.conditionEvaluationInstructions = conditionEvaluationInstructions;
-    this.conditionResult = conditionResult;
-    this.assignmentEvaluationInstructions = assignmentEvaluationInstructions;
-    this.assignmentResult = assignmentResult;
+    this.conditionalEvaluation = conditionalEvaluation;
+    this.assignmentEvaluation = assignmentEvaluation;
     this.scopeId = basicDetails.scopeId();
   }
 
@@ -71,28 +62,28 @@ public final class GuardedAssignmentBlockInstr extends IRInstr {
    * Get instructions for evaluating the assignment condition (should assignment occur?).
    */
   public List<IRInstr> getConditionEvaluationInstructions() {
-    return conditionEvaluationInstructions;
+    return conditionalEvaluation.conditionInstructions();
   }
 
   /**
    * Get the condition result variable name (Boolean indicating if assignment should occur).
    */
   public String getConditionResult() {
-    return conditionResult;
+    return conditionalEvaluation.conditionResult();
   }
 
   /**
    * Get instructions for performing the assignment (when condition is true).
    */
   public List<IRInstr> getAssignmentEvaluationInstructions() {
-    return assignmentEvaluationInstructions;
+    return assignmentEvaluation.evaluationInstructions();
   }
 
   /**
    * Get the assignment result variable name.
    */
   public String getAssignmentResult() {
-    return assignmentResult;
+    return assignmentEvaluation.operandName();
   }
 
   /**
@@ -100,6 +91,20 @@ public final class GuardedAssignmentBlockInstr extends IRInstr {
    */
   public String getScopeId() {
     return scopeId;
+  }
+
+  /**
+   * Get the conditional evaluation record.
+   */
+  public ConditionalEvaluation getConditionalEvaluation() {
+    return conditionalEvaluation;
+  }
+
+  /**
+   * Get the assignment evaluation record.
+   */
+  public OperandEvaluation getAssignmentEvaluation() {
+    return assignmentEvaluation;
   }
 
   @Override
@@ -121,10 +126,10 @@ public final class GuardedAssignmentBlockInstr extends IRInstr {
 
     // Condition evaluation section
     sb.append("condition_evaluation:\n[\n");
-    if (conditionEvaluationInstructions.isEmpty()) {
+    if (conditionalEvaluation.conditionInstructions().isEmpty()) {
       sb.append("no instructions\n");
     } else {
-      for (IRInstr instr : conditionEvaluationInstructions) {
+      for (IRInstr instr : conditionalEvaluation.conditionInstructions()) {
         String instrStr = instr.toString();
         sb.append(instrStr);
         // Add newline if instruction doesn't already end with one
@@ -134,14 +139,14 @@ public final class GuardedAssignmentBlockInstr extends IRInstr {
       }
     }
     sb.append("]\n");
-    sb.append("condition_result: ").append(conditionResult).append("\n");
+    sb.append("condition_result: ").append(conditionalEvaluation.conditionResult()).append("\n");
 
     // Assignment evaluation section
     sb.append("assignment_evaluation:\n[\n");
-    if (assignmentEvaluationInstructions.isEmpty()) {
+    if (assignmentEvaluation.evaluationInstructions().isEmpty()) {
       sb.append("no instructions\n");
     } else {
-      for (IRInstr instr : assignmentEvaluationInstructions) {
+      for (IRInstr instr : assignmentEvaluation.evaluationInstructions()) {
         String instrStr = instr.toString();
         sb.append(instrStr);
         // Add newline if instruction doesn't already end with one
@@ -151,7 +156,7 @@ public final class GuardedAssignmentBlockInstr extends IRInstr {
       }
     }
     sb.append("]\n");
-    sb.append("assignment_result: ").append(assignmentResult).append("\n");
+    sb.append("assignment_result: ").append(assignmentEvaluation.operandName()).append("\n");
     sb.append("scope_id: ").append(scopeId).append("\n");
 
     sb.append("]");

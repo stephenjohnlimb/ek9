@@ -2,6 +2,9 @@ package org.ek9lang.compiler.ir;
 
 import java.util.List;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.phase7.support.ConditionalEvaluation;
+import org.ek9lang.compiler.phase7.support.LogicalOperationContext;
+import org.ek9lang.compiler.phase7.support.OperandEvaluation;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -30,88 +33,68 @@ public final class LogicalOperationInstr extends IRInstr {
     AND, OR
   }
 
-  private final Operation operation;
-  private final List<IRInstr> leftEvaluationInstructions;
-  private final String leftOperand;
-  private final String condition;
-  private final List<IRInstr> rightEvaluationInstructions;
-  private final String rightOperand;
-  private final List<IRInstr> resultComputationInstructions;
-  private final String logicalResult;
+  private final LogicalOperationContext operationContext;
+  private final OperandEvaluation leftEvaluation;
+  private final ConditionalEvaluation conditionalEvaluation;
+  private final OperandEvaluation rightEvaluation;
+  private final OperandEvaluation resultEvaluation;
   private final String scopeId;
 
   /**
    * Create logical AND operation.
    */
   public static LogicalOperationInstr andOperation(final String result,
-                                                   final List<IRInstr> leftEvaluationInstructions,
-                                                   final String leftOperand,
-                                                   final String condition,
-                                                   final List<IRInstr> rightEvaluationInstructions,
-                                                   final String rightOperand,
-                                                   final List<IRInstr> resultComputationInstructions,
-                                                   final String logicalResult,
-                                                   BasicDetails basicDetails) {
-    return new LogicalOperationInstr(IROpcode.LOGICAL_AND_BLOCK, result, Operation.AND,
-        leftEvaluationInstructions, leftOperand, condition, rightEvaluationInstructions, rightOperand,
-        resultComputationInstructions, logicalResult, basicDetails);
+                                                   final OperandEvaluation leftEvaluation,
+                                                   final ConditionalEvaluation conditionalEvaluation,
+                                                   final OperandEvaluation rightEvaluation,
+                                                   final OperandEvaluation resultEvaluation,
+                                                   final BasicDetails basicDetails) {
+    final var operationContext = new LogicalOperationContext(IROpcode.LOGICAL_AND_BLOCK, result, Operation.AND);
+    return new LogicalOperationInstr(operationContext,
+        leftEvaluation, conditionalEvaluation, rightEvaluation, resultEvaluation, basicDetails);
   }
 
   /**
    * Create logical OR operation.
    */
   public static LogicalOperationInstr orOperation(final String result,
-                                                  final List<IRInstr> leftEvaluationInstructions,
-                                                  final String leftOperand,
-                                                  final String condition,
-                                                  final List<IRInstr> rightEvaluationInstructions,
-                                                  final String rightOperand,
-                                                  final List<IRInstr> resultComputationInstructions,
-                                                  final String logicalResult,
-                                                  BasicDetails basicDetails) {
-    return new LogicalOperationInstr(IROpcode.LOGICAL_OR_BLOCK, result, Operation.OR,
-        leftEvaluationInstructions, leftOperand, condition, rightEvaluationInstructions, rightOperand,
-        resultComputationInstructions, logicalResult, basicDetails);
+                                                  final OperandEvaluation leftEvaluation,
+                                                  final ConditionalEvaluation conditionalEvaluation,
+                                                  final OperandEvaluation rightEvaluation,
+                                                  final OperandEvaluation resultEvaluation,
+                                                  final BasicDetails basicDetails) {
+    final var operationContext = new LogicalOperationContext(IROpcode.LOGICAL_OR_BLOCK, result, Operation.OR);
+    return new LogicalOperationInstr(operationContext,
+        leftEvaluation, conditionalEvaluation, rightEvaluation, resultEvaluation, basicDetails);
   }
 
-  private LogicalOperationInstr(final IROpcode opcode,
-                                final String result,
-                                final Operation operation,
-                                final List<IRInstr> leftEvaluationInstructions,
-                                final String leftOperand,
-                                final String condition,
-                                final List<IRInstr> rightEvaluationInstructions,
-                                final String rightOperand,
-                                final List<IRInstr> resultComputationInstructions,
-                                final String logicalResult,
-                                BasicDetails basicDetails) {
-    super(opcode, result, basicDetails.debugInfo());
+  private LogicalOperationInstr(final LogicalOperationContext operationContext,
+                                final OperandEvaluation leftEvaluation,
+                                final ConditionalEvaluation conditionalEvaluation,
+                                final OperandEvaluation rightEvaluation,
+                                final OperandEvaluation resultEvaluation,
+                                final BasicDetails basicDetails) {
+    super(operationContext.opcode(), operationContext.result(), basicDetails.debugInfo());
 
-    AssertValue.checkNotNull("Operation cannot be null", operation);
-    AssertValue.checkNotNull("Left evaluation instructions cannot be null", leftEvaluationInstructions);
-    AssertValue.checkNotNull("Left operand cannot be null", leftOperand);
-    AssertValue.checkNotNull("Condition cannot be null", condition);
-    AssertValue.checkNotNull("Right evaluation instructions cannot be null", rightEvaluationInstructions);
-    AssertValue.checkNotNull("Right operand cannot be null", rightOperand);
-    AssertValue.checkNotNull("Result computation instructions cannot be null", resultComputationInstructions);
-    AssertValue.checkNotNull("Logical result cannot be null", logicalResult);
+    AssertValue.checkNotNull("Operation context cannot be null", operationContext);
+    AssertValue.checkNotNull("Left evaluation cannot be null", leftEvaluation);
+    AssertValue.checkNotNull("Conditional evaluation cannot be null", conditionalEvaluation);
+    AssertValue.checkNotNull("Right evaluation cannot be null", rightEvaluation);
+    AssertValue.checkNotNull("Result evaluation cannot be null", resultEvaluation);
     AssertValue.checkNotNull("Scope ID cannot be null", basicDetails.scopeId());
 
-    this.operation = operation;
-    this.leftEvaluationInstructions = List.copyOf(leftEvaluationInstructions);
-    this.leftOperand = leftOperand;
-    this.condition = condition;
-    this.rightEvaluationInstructions = List.copyOf(rightEvaluationInstructions);
-    this.rightOperand = rightOperand;
-    this.resultComputationInstructions = List.copyOf(resultComputationInstructions);
-    this.logicalResult = logicalResult;
+    this.operationContext = operationContext;
+    this.leftEvaluation = leftEvaluation;
+    this.conditionalEvaluation = conditionalEvaluation;
+    this.rightEvaluation = rightEvaluation;
+    this.resultEvaluation = resultEvaluation;
     this.scopeId = basicDetails.scopeId();
 
     // Store operands for base class functionality
-    addOperand(leftOperand);
-    addOperand(condition);
-    addOperand(rightOperand);
-    addOperand(logicalResult);
+    addOperand(leftEvaluation.operandName());
+    addOperand(conditionalEvaluation.conditionResult());
+    addOperand(rightEvaluation.operandName());
+    addOperand(resultEvaluation.operandName());
     addOperand(scopeId);
   }
 
@@ -119,7 +102,7 @@ public final class LogicalOperationInstr extends IRInstr {
    * Get the operation type (AND or OR).
    */
   public Operation getOperation() {
-    return operation;
+    return operationContext.operation();
   }
 
   /**
@@ -127,21 +110,21 @@ public final class LogicalOperationInstr extends IRInstr {
    * These instructions evaluate the left EK9 Boolean operand.
    */
   public List<IRInstr> getLeftEvaluationInstructions() {
-    return leftEvaluationInstructions;
+    return leftEvaluation.evaluationInstructions();
   }
 
   /**
    * Get the left operand variable name.
    */
   public String getLeftOperand() {
-    return leftOperand;
+    return leftEvaluation.operandName();
   }
 
   /**
    * Get the primitive boolean condition variable name.
    */
   public String getCondition() {
-    return condition;
+    return conditionalEvaluation.conditionResult();
   }
 
   /**
@@ -149,14 +132,14 @@ public final class LogicalOperationInstr extends IRInstr {
    * These instructions evaluate the right EK9 Boolean operand.
    */
   public List<IRInstr> getRightEvaluationInstructions() {
-    return rightEvaluationInstructions;
+    return rightEvaluation.evaluationInstructions();
   }
 
   /**
    * Get the variable name that holds the right operand EK9 Boolean.
    */
   public String getRightOperand() {
-    return rightOperand;
+    return rightEvaluation.operandName();
   }
 
   /**
@@ -164,14 +147,14 @@ public final class LogicalOperationInstr extends IRInstr {
    * These instructions compute the logical AND/OR operation result.
    */
   public List<IRInstr> getResultComputationInstructions() {
-    return resultComputationInstructions;
+    return resultEvaluation.evaluationInstructions();
   }
 
   /**
    * Get the variable name that holds the logical operation result.
    */
   public String getLogicalResult() {
-    return logicalResult;
+    return resultEvaluation.operandName();
   }
 
   /**
@@ -179,6 +162,41 @@ public final class LogicalOperationInstr extends IRInstr {
    */
   public String getScopeId() {
     return scopeId;
+  }
+
+  /**
+   * Get the left operand evaluation record.
+   */
+  public OperandEvaluation getLeftEvaluation() {
+    return leftEvaluation;
+  }
+
+  /**
+   * Get the conditional evaluation record.
+   */
+  public ConditionalEvaluation getConditionalEvaluation() {
+    return conditionalEvaluation;
+  }
+
+  /**
+   * Get the right operand evaluation record.
+   */
+  public OperandEvaluation getRightEvaluation() {
+    return rightEvaluation;
+  }
+
+  /**
+   * Get the result evaluation record.
+   */
+  public OperandEvaluation getResultEvaluation() {
+    return resultEvaluation;
+  }
+
+  /**
+   * Get the logical operation context record.
+   */
+  public LogicalOperationContext getOperationContext() {
+    return operationContext;
   }
 
   @Override
@@ -199,10 +217,10 @@ public final class LogicalOperationInstr extends IRInstr {
 
     // Left operand evaluation section
     sb.append("left_evaluation:\n[\n");
-    if (leftEvaluationInstructions.isEmpty()) {
+    if (leftEvaluation.evaluationInstructions().isEmpty()) {
       sb.append("no instructions\n");
     } else {
-      for (IRInstr instr : leftEvaluationInstructions) {
+      for (IRInstr instr : leftEvaluation.evaluationInstructions()) {
         String instrStr = instr.toString();
         sb.append(instrStr);
         // Add newline if instruction doesn't already end with one
@@ -214,15 +232,15 @@ public final class LogicalOperationInstr extends IRInstr {
     sb.append("]\n");
 
     // Left operand section
-    sb.append("left_operand: ").append(leftOperand).append("\n");
-    sb.append("left_condition: ").append(condition).append("\n");
+    sb.append("left_operand: ").append(leftEvaluation.operandName()).append("\n");
+    sb.append("left_condition: ").append(conditionalEvaluation.conditionResult()).append("\n");
 
     // Right operand evaluation section
     sb.append("right_evaluation:\n[\n");
-    if (rightEvaluationInstructions.isEmpty()) {
+    if (rightEvaluation.evaluationInstructions().isEmpty()) {
       sb.append("no instructions\n");
     } else {
-      for (IRInstr instr : rightEvaluationInstructions) {
+      for (IRInstr instr : rightEvaluation.evaluationInstructions()) {
         String instrStr = instr.toString();
         sb.append(instrStr);
         // Add newline if instruction doesn't already end with one
@@ -232,14 +250,14 @@ public final class LogicalOperationInstr extends IRInstr {
       }
     }
     sb.append("]\n");
-    sb.append("right_operand: ").append(rightOperand).append("\n");
+    sb.append("right_operand: ").append(rightEvaluation.operandName()).append("\n");
 
     // Result computation section
     sb.append("result_computation:\n[\n");
-    if (resultComputationInstructions.isEmpty()) {
+    if (resultEvaluation.evaluationInstructions().isEmpty()) {
       sb.append("no instructions\n");
     } else {
-      for (IRInstr instr : resultComputationInstructions) {
+      for (IRInstr instr : resultEvaluation.evaluationInstructions()) {
         sb.append(instr.toString());
         // Add newline if instruction doesn't already end with one
         if (!instr.toString().endsWith("\n")) {
@@ -248,7 +266,7 @@ public final class LogicalOperationInstr extends IRInstr {
       }
     }
     sb.append("]\n");
-    sb.append("logical_result: ").append(logicalResult).append("\n");
+    sb.append("logical_result: ").append(resultEvaluation.operandName()).append("\n");
     sb.append("scope_id: ").append(scopeId).append("\n");
 
     sb.append("]");
