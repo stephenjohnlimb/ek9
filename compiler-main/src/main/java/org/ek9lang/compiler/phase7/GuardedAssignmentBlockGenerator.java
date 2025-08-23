@@ -6,14 +6,14 @@ import java.util.function.Function;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.GuardedAssignmentBlockInstr;
 import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.MemoryInstr;
-import org.ek9lang.compiler.ir.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.CallDetailsOnBoolean;
 import org.ek9lang.compiler.phase7.support.ConditionalEvaluation;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.OperandEvaluation;
+import org.ek9lang.compiler.phase7.support.VariableDetails;
+import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -31,6 +31,7 @@ final class GuardedAssignmentBlockGenerator
   private final QuestionBlockGenerator questionBlockGenerator;
   private final AssignExpressionToSymbol assignExpressionToSymbol;
   private final CallDetailsOnBoolean callDetailsOnBoolean = new CallDetailsOnBoolean();
+  private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
 
   public GuardedAssignmentBlockGenerator(final IRContext context,
                                          final QuestionBlockGenerator questionBlockGenerator,
@@ -54,10 +55,10 @@ final class GuardedAssignmentBlockGenerator
     final var basicDetails = new BasicDetails(scopeId, debugInfo);
     // Step 1: Generate condition evaluation (should assignment occur?)
     final var conditionResult = context.generateTempName();
-    final var conditionEvaluationInstructions =
-        generateConditionEvaluation(lhsSymbol, conditionResult, basicDetails);
-    conditionEvaluationInstructions.add(MemoryInstr.retain(conditionResult, basicDetails.debugInfo()));
-    conditionEvaluationInstructions.add(ScopeInstr.register(conditionResult, basicDetails));
+    final var variableDetails = new VariableDetails(conditionResult, basicDetails);
+
+    final var conditionEvaluationInstructions = variableMemoryManagement
+        .apply(() -> generateConditionEvaluation(lhsSymbol, conditionResult, basicDetails), variableDetails);
 
     // Step 2: Generate assignment evaluation instructions
     final var assignmentEvaluationInstructions = new ArrayList<>(
@@ -89,18 +90,16 @@ final class GuardedAssignmentBlockGenerator
 
     // Step 1: Use QuestionBlockGenerator for consistent null-safety logic
     final var questionResult = context.generateTempName();
+    final var variableDetails = new VariableDetails(questionResult, basicDetails);
     final var questionInstructions = questionBlockGenerator.createQuestionBlockForVariable(
         lhsSymbol, questionResult, basicDetails);
-
-    final var instructions = new ArrayList<>(questionInstructions);
-    instructions.add(MemoryInstr.retain(questionResult, basicDetails.debugInfo()));
-    instructions.add(ScopeInstr.register(questionResult, basicDetails));
+    variableMemoryManagement.apply(() -> questionInstructions, variableDetails);
 
     // Step 2: Invert the question result for assignment condition  
     // Question returns true if variable is set, but we want to assign when unset
     final var notCallDetails = callDetailsOnBoolean.apply(questionResult, "_not");
-    instructions.add(CallInstr.call(conditionResult, basicDetails.debugInfo(), notCallDetails));
+    questionInstructions.add(CallInstr.call(conditionResult, basicDetails.debugInfo(), notCallDetails));
 
-    return instructions;
+    return questionInstructions;
   }
 }

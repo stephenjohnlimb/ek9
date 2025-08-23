@@ -2,6 +2,7 @@ package org.ek9lang.compiler.ir;
 
 import java.util.List;
 import org.ek9lang.compiler.common.INodeVisitor;
+import org.ek9lang.compiler.phase7.support.VariableDetails;
 
 /**
  * Specialized IR instruction for method calls (CALL, CALL_VIRTUAL, CALL_STATIC, CALL_DISPATCHER).
@@ -42,6 +43,13 @@ public final class CallInstr extends IRInstr {
     return new CallInstr(IROpcode.CALL_STATIC, result, debugInfo, callDetails);
   }
 
+  public static CallInstr callStatic(final VariableDetails variableDetails,
+                                     final CallDetails callDetails) {
+    return new CallInstr(IROpcode.CALL_STATIC,
+        variableDetails.resultVariable(), variableDetails.basicDetails().debugInfo(), callDetails);
+  }
+
+
   /**
    * Create dispatcher method call with complete type information: CALL_DISPATCHER result = object.dispatcherMethod(args...)
    */
@@ -59,6 +67,12 @@ public final class CallInstr extends IRInstr {
                                    final DebugInfo debugInfo,
                                    final CallDetails callDetails) {
     return new CallInstr(IROpcode.CALL, result, debugInfo, callDetails);
+  }
+
+  public static CallInstr operator(final VariableDetails variableDetails,
+                                   final CallDetails callDetails) {
+    return new CallInstr(IROpcode.CALL,
+        variableDetails.resultVariable(), variableDetails.basicDetails().debugInfo(), callDetails);
   }
 
   /**

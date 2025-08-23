@@ -11,6 +11,7 @@ import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -37,12 +38,10 @@ final class ObjectAccessInstrGenerator {
    * Generate IR instructions for object access expression using resolved symbols.
    * This follows the pattern used in ObjectAccessCreator.
    */
-  public List<IRInstr> apply(final EK9Parser.ObjectAccessExpressionContext ctx, final String resultVar,
-                             final String scopeId) {
+  public List<IRInstr> apply(final EK9Parser.ObjectAccessExpressionContext ctx, final VariableDetails variableDetails) {
 
     AssertValue.checkNotNull("ObjectAccessExpressionContext cannot be null", ctx);
-    AssertValue.checkNotNull("resultVar cannot be null", resultVar);
-    AssertValue.checkNotNull("scopeId cannot be null", scopeId);
+    AssertValue.checkNotNull("variableDetails cannot be null", variableDetails);
 
     final var instructions = new ArrayList<IRInstr>();
 
@@ -72,13 +71,13 @@ final class ObjectAccessInstrGenerator {
           final var callDetails = new CallDetails(typeName, typeName, IRConstants.INIT_METHOD,
               parameterTypes, typeName, List.of());
 
-          instructions.add(CallInstr.constructor(resultVar, debugInfo, callDetails));
+          instructions.add(CallInstr.constructor(variableDetails.resultVariable(), debugInfo, callDetails));
 
         }
       }
     } else if (ctx.objectAccess() != null) {
       // This is a method call on an object - handle chained access
-      instructions.addAll(generateObjectAccess(ctx, resultVar, scopeId));
+      instructions.addAll(generateObjectAccess(ctx, variableDetails));
     }
 
     return instructions;
@@ -88,7 +87,7 @@ final class ObjectAccessInstrGenerator {
    * Generate IR instructions for chained object access (like stdout.println()).
    */
   private List<IRInstr> generateObjectAccess(final EK9Parser.ObjectAccessExpressionContext ctx,
-                                             final String resultVar, final String scopeId) {
+                                             final VariableDetails variableDetails) {
     final var instructions = new ArrayList<IRInstr>();
 
     // Get the target variable (like stdout)
@@ -136,7 +135,7 @@ final class ObjectAccessInstrGenerator {
             final var callDetails = new CallDetails(tempObj, targetTypeName, methodName,
                 parameterTypes, returnTypeName, Arrays.asList(arguments));
 
-            instructions.add(CallInstr.call(resultVar, debugInfo, callDetails));
+            instructions.add(CallInstr.call(variableDetails.resultVariable(), debugInfo, callDetails));
           }
         }
       }

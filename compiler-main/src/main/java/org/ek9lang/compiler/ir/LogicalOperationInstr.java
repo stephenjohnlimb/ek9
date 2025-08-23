@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.ir;
 
 import java.util.List;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ConditionalEvaluation;
 import org.ek9lang.compiler.phase7.support.LogicalOperationContext;
 import org.ek9lang.compiler.phase7.support.OperandEvaluation;
@@ -43,52 +42,34 @@ public final class LogicalOperationInstr extends IRInstr {
   /**
    * Create logical AND operation.
    */
-  public static LogicalOperationInstr andOperation(final String result,
-                                                   final OperandEvaluation leftEvaluation,
-                                                   final ConditionalEvaluation conditionalEvaluation,
-                                                   final OperandEvaluation rightEvaluation,
-                                                   final OperandEvaluation resultEvaluation,
-                                                   final BasicDetails basicDetails) {
-    final var operationContext = new LogicalOperationContext(IROpcode.LOGICAL_AND_BLOCK, result, Operation.AND);
-    return new LogicalOperationInstr(operationContext,
-        leftEvaluation, conditionalEvaluation, rightEvaluation, resultEvaluation, basicDetails);
+  public static IRInstr andOperation(final LogicalDetails logicalDetails) {
+    final var operationContext = new LogicalOperationContext(IROpcode.LOGICAL_AND_BLOCK,
+        logicalDetails.result(), Operation.AND);
+    return new LogicalOperationInstr(operationContext, logicalDetails);
   }
 
   /**
    * Create logical OR operation.
    */
-  public static LogicalOperationInstr orOperation(final String result,
-                                                  final OperandEvaluation leftEvaluation,
-                                                  final ConditionalEvaluation conditionalEvaluation,
-                                                  final OperandEvaluation rightEvaluation,
-                                                  final OperandEvaluation resultEvaluation,
-                                                  final BasicDetails basicDetails) {
-    final var operationContext = new LogicalOperationContext(IROpcode.LOGICAL_OR_BLOCK, result, Operation.OR);
-    return new LogicalOperationInstr(operationContext,
-        leftEvaluation, conditionalEvaluation, rightEvaluation, resultEvaluation, basicDetails);
+  public static IRInstr orOperation(final LogicalDetails logicalDetails) {
+    final var operationContext = new LogicalOperationContext(IROpcode.LOGICAL_OR_BLOCK,
+        logicalDetails.result(), Operation.OR);
+    return new LogicalOperationInstr(operationContext, logicalDetails);
   }
 
   private LogicalOperationInstr(final LogicalOperationContext operationContext,
-                                final OperandEvaluation leftEvaluation,
-                                final ConditionalEvaluation conditionalEvaluation,
-                                final OperandEvaluation rightEvaluation,
-                                final OperandEvaluation resultEvaluation,
-                                final BasicDetails basicDetails) {
-    super(operationContext.opcode(), operationContext.result(), basicDetails.debugInfo());
+                                final LogicalDetails logicalDetails) {
+    super(operationContext.opcode(), operationContext.result(), logicalDetails.basicDetails().debugInfo());
 
     AssertValue.checkNotNull("Operation context cannot be null", operationContext);
-    AssertValue.checkNotNull("Left evaluation cannot be null", leftEvaluation);
-    AssertValue.checkNotNull("Conditional evaluation cannot be null", conditionalEvaluation);
-    AssertValue.checkNotNull("Right evaluation cannot be null", rightEvaluation);
-    AssertValue.checkNotNull("Result evaluation cannot be null", resultEvaluation);
-    AssertValue.checkNotNull("Scope ID cannot be null", basicDetails.scopeId());
+    AssertValue.checkNotNull("logicalDetails evaluation cannot be null", logicalDetails);
 
     this.operationContext = operationContext;
-    this.leftEvaluation = leftEvaluation;
-    this.conditionalEvaluation = conditionalEvaluation;
-    this.rightEvaluation = rightEvaluation;
-    this.resultEvaluation = resultEvaluation;
-    this.scopeId = basicDetails.scopeId();
+    this.leftEvaluation = logicalDetails.leftEvaluation();
+    this.conditionalEvaluation = logicalDetails.conditionalEvaluation();
+    this.rightEvaluation = logicalDetails.rightEvaluation();
+    this.resultEvaluation = logicalDetails.resultEvaluation();
+    this.scopeId = logicalDetails.basicDetails().scopeId();
 
     // Store operands for base class functionality
     addOperand(leftEvaluation.operandName());

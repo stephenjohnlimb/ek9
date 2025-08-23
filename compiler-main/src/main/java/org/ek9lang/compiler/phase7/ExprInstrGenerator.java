@@ -159,9 +159,9 @@ final class ExprInstrGenerator extends AbstractGenerator
    */
   private List<IRInstr> processPrimary(final ExprProcessingDetails details) {
     final var ctx = details.ctx();
-    final var exprResult = details.exprResult();
-    final var scopeId = details.basicDetails().scopeId();
-    final var debugInfo = details.basicDetails().debugInfo();
+    final var exprResult = details.variableDetails().resultVariable();
+    final var scopeId = details.variableDetails().basicDetails().scopeId();
+    final var debugInfo = details.variableDetails().basicDetails().debugInfo();
 
     final var instructions = new ArrayList<IRInstr>();
 
@@ -172,7 +172,7 @@ final class ExprInstrGenerator extends AbstractGenerator
       instructions.addAll(processIdentifierReference(ctx.primary().identifierReference(), exprResult, debugInfo));
     } else if (ctx.primary().expression() != null && !ctx.primary().expression().isEmpty()) {
       instructions.addAll(
-          process(new ExprProcessingDetails(ctx.primary().expression(), exprResult, details.basicDetails())));
+          process(new ExprProcessingDetails(ctx.primary().expression(), details.variableDetails())));
     } else if (ctx.primary().primaryReference() != null) {
       AssertValue.fail("PrimaryReference not yet Implemented");
     } else {
@@ -184,7 +184,7 @@ final class ExprInstrGenerator extends AbstractGenerator
 
   private List<IRInstr> processCall(final ExprProcessingDetails details) {
     final var ctx = details.ctx();
-    final var exprResult = details.exprResult();
+    final var exprResult = details.variableDetails().resultVariable();
 
     final var instructions = new ArrayList<IRInstr>();
 
@@ -223,15 +223,13 @@ final class ExprInstrGenerator extends AbstractGenerator
 
   private List<IRInstr> processObjectAccessExpression(final ExprProcessingDetails details) {
     return new ArrayList<>(objectAccessCreator
-        .apply(details.ctx().objectAccessExpression(), details.exprResult(), details.basicDetails().scopeId()));
-
+        .apply(details.ctx().objectAccessExpression(), details.variableDetails()));
   }
 
   private List<IRInstr> processControlsOrStructures(final ExprProcessingDetails details) {
     final var instructions = new ArrayList<IRInstr>();
 
     AssertValue.fail("processControlsOrStructures: Unsupported expression pattern");
-
 
     return instructions;
   }

@@ -7,6 +7,5 @@ import org.ek9lang.antlr.EK9Parser;
  * Just gathers together the essential parts for processing.
  */
 public record ExprProcessingDetails(EK9Parser.ExpressionContext ctx,
-                                    String exprResult,
-                                    BasicDetails basicDetails) {
+                                    VariableDetails variableDetails) {
 }

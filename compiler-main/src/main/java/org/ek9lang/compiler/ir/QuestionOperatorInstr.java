@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.ir;
 
 import java.util.List;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.OperandEvaluation;
 import org.ek9lang.core.AssertValue;
 
@@ -33,35 +32,20 @@ public final class QuestionOperatorInstr extends IRInstr {
   /**
    * Create question operator block.
    */
-  public static QuestionOperatorInstr questionBlock(final String result,
-                                                   final OperandEvaluation operandEvaluation,
-                                                   final String nullCheckCondition,
-                                                   final OperandEvaluation nullCaseEvaluation,
-                                                   final OperandEvaluation setCaseEvaluation,
-                                                   final BasicDetails basicDetails) {
-    return new QuestionOperatorInstr(result, operandEvaluation, nullCheckCondition,
-        nullCaseEvaluation, setCaseEvaluation, basicDetails);
+  public static QuestionOperatorInstr questionBlock(final QuestionDetails questionDetails) {
+    return new QuestionOperatorInstr(questionDetails);
   }
 
-  private QuestionOperatorInstr(final String result,
-                               final OperandEvaluation operandEvaluation,
-                               final String nullCheckCondition,
-                               final OperandEvaluation nullCaseEvaluation,
-                               final OperandEvaluation setCaseEvaluation,
-                               final BasicDetails basicDetails) {
-    super(IROpcode.QUESTION_BLOCK, result, basicDetails.debugInfo());
+  private QuestionOperatorInstr(final QuestionDetails questionDetails) {
+    super(IROpcode.QUESTION_BLOCK, questionDetails.result(), questionDetails.basicDetails().debugInfo());
 
-    AssertValue.checkNotNull("Operand evaluation cannot be null", operandEvaluation);
-    AssertValue.checkNotNull("Null check condition cannot be null", nullCheckCondition);
-    AssertValue.checkNotNull("Null case evaluation cannot be null", nullCaseEvaluation);
-    AssertValue.checkNotNull("Set case evaluation cannot be null", setCaseEvaluation);
-    AssertValue.checkNotNull("Scope ID cannot be null", basicDetails.scopeId());
+    AssertValue.checkNotNull("questionDetails evaluation cannot be null", questionDetails);
 
-    this.operandEvaluation = operandEvaluation;
-    this.nullCheckCondition = nullCheckCondition;
-    this.nullCaseEvaluation = nullCaseEvaluation;
-    this.setCaseEvaluation = setCaseEvaluation;
-    this.scopeId = basicDetails.scopeId();
+    this.operandEvaluation = questionDetails.operandEvaluation();
+    this.nullCheckCondition = questionDetails.nullCheckCondition();
+    this.nullCaseEvaluation = questionDetails.nullCaseEvaluation();
+    this.setCaseEvaluation = questionDetails.setCaseEvaluation();
+    this.scopeId = questionDetails.basicDetails().scopeId();
   }
 
   /**

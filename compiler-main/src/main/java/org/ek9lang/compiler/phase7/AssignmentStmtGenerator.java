@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase7;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
@@ -107,12 +108,10 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
   private GuardedAssignmentGenerator createGuardedGenerator(final AssignmentExprInstrGenerator generator,
                                                             final AssignExpressionToSymbol assignExpressionToSymbol) {
-    final java.util.function.Function<ExprProcessingDetails, List<IRInstr>>
-        expressionProcessor = details -> generator.apply(details.exprResult());
-    final var recordExprProcessing =
-        new RecordExprProcessing(expressionProcessor);
-    final var questionBlockGenerator =
-        new QuestionBlockGenerator(context, recordExprProcessing);
+    final Function<ExprProcessingDetails, List<IRInstr>>
+        expressionProcessor = details -> generator.apply(details.variableDetails().resultVariable());
+    final var recordExprProcessing = new RecordExprProcessing(expressionProcessor);
+    final var questionBlockGenerator = new QuestionBlockGenerator(context, recordExprProcessing);
     return new GuardedAssignmentGenerator(context, questionBlockGenerator, assignExpressionToSymbol);
 
   }

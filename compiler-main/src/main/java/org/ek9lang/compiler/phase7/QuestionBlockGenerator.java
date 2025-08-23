@@ -8,15 +8,18 @@ import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
+import org.ek9lang.compiler.ir.QuestionDetails;
 import org.ek9lang.compiler.ir.QuestionOperatorInstr;
-import org.ek9lang.compiler.ir.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.CallDetailsForOfFalse;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRInstrToList;
 import org.ek9lang.compiler.phase7.support.OperandEvaluation;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
+import org.ek9lang.compiler.phase7.support.VariableDetails;
+import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -40,6 +43,8 @@ public final class QuestionBlockGenerator implements Function<ExprProcessingDeta
   private final RecordExprProcessing recordExprProcessing;
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final CallDetailsForOfFalse callDetailsForOfFalse = new CallDetailsForOfFalse();
+  private final IRInstrToList irInstrToList = new IRInstrToList();
+  private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
 
   public QuestionBlockGenerator(final IRContext context,
                                 final RecordExprProcessing recordExprProcessing) {
@@ -51,8 +56,8 @@ public final class QuestionBlockGenerator implements Function<ExprProcessingDeta
   @Override
   public List<IRInstr> apply(final ExprProcessingDetails details) {
     final var ctx = details.ctx();
-    final var exprResult = details.exprResult();
-    final var scopeId = details.basicDetails().scopeId();
+    final var exprResult = details.variableDetails().resultVariable();
+    final var scopeId = details.variableDetails().basicDetails().scopeId();
 
     // Get debug information
     final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
@@ -60,17 +65,18 @@ public final class QuestionBlockGenerator implements Function<ExprProcessingDeta
 
     final var basicDetails = new BasicDetails(scopeId, debugInfo);
     // Generate operand evaluation instructions with explicit IS_NULL check
-    final var targetObject = context.generateTempName();
+    final var targetVariable = context.generateTempName();
     final var operandEvaluationInstructions = new ArrayList<>(
-        recordExprProcessing.apply(new ExprProcessingDetails(ctx.expression(0), targetObject, basicDetails)));
+        recordExprProcessing.apply(new ExprProcessingDetails(ctx.expression(0),
+            new VariableDetails(targetVariable, basicDetails))));
 
     // Add explicit IS_NULL check for semantic clarity
     final var nullCheckCondition = context.generateTempName();
-    operandEvaluationInstructions.add(MemoryInstr.isNull(nullCheckCondition, targetObject, debugInfo));
+    operandEvaluationInstructions.add(MemoryInstr.isNull(nullCheckCondition, targetVariable, debugInfo));
 
     final var typeName = typeNameOrException.apply(exprSymbol);
 
-    return createQuestionBlock(exprResult, operandEvaluationInstructions, nullCheckCondition, targetObject,
+    return createQuestionBlock(exprResult, operandEvaluationInstructions, nullCheckCondition, targetVariable,
         typeName, basicDetails);
   }
 
@@ -84,20 +90,21 @@ public final class QuestionBlockGenerator implements Function<ExprProcessingDeta
                                                       final String resultName,
                                                       final BasicDetails basicDetails) {
     // Load the variable for checking
-    final var targetObject = context.generateTempName();
-    final var operandEvaluationInstructions = new ArrayList<IRInstr>();
-    operandEvaluationInstructions.add(
-        MemoryInstr.load(targetObject, variableSymbol.getName(), basicDetails.debugInfo()));
-    operandEvaluationInstructions.add(MemoryInstr.retain(targetObject, basicDetails.debugInfo()));
-    operandEvaluationInstructions.add(ScopeInstr.register(targetObject, basicDetails));
+    final var resultVariable = context.generateTempName();
+    final var variableDetails = new VariableDetails(resultVariable, basicDetails);
+
+    final var instructions = irInstrToList
+        .apply(() -> MemoryInstr.load(resultVariable, variableSymbol.getName(), basicDetails.debugInfo()));
+
+    variableMemoryManagement.apply(() -> instructions, variableDetails);
 
     // Add explicit IS_NULL check for semantic clarity
     final var nullCheckCondition = context.generateTempName();
-    operandEvaluationInstructions.add(MemoryInstr.isNull(nullCheckCondition, targetObject, basicDetails.debugInfo()));
+    instructions.add(MemoryInstr.isNull(nullCheckCondition, resultVariable, basicDetails.debugInfo()));
 
     final var typeName = typeNameOrException.apply(variableSymbol);
 
-    return createQuestionBlock(resultName, operandEvaluationInstructions, nullCheckCondition, targetObject,
+    return createQuestionBlock(resultName, instructions, nullCheckCondition, resultVariable,
         typeName, basicDetails);
   }
 
@@ -111,14 +118,18 @@ public final class QuestionBlockGenerator implements Function<ExprProcessingDeta
                                             final String targetObject,
                                             final String typeName,
                                             final BasicDetails basicDetails) {
+
     // Generate null case evaluation instructions (Boolean(false))
     final var nullCaseResult = context.generateTempName();
-    final var nullCaseEvaluationInstructions = generateNullCaseEvaluation(nullCaseResult, basicDetails);
+    final var nullCaseDetails = new VariableDetails(nullCaseResult, basicDetails);
+    final var nullCaseEvaluationInstructions = generateNullCaseEvaluation(nullCaseDetails);
+    variableMemoryManagement.apply(() -> nullCaseEvaluationInstructions, nullCaseDetails);
 
     // Generate set case evaluation instructions (call _isSet() method)
     final var setCaseResult = context.generateTempName();
-    final var setCaseEvaluationInstructions = generateSetCaseEvaluation(
-        setCaseResult, targetObject, typeName, basicDetails);
+    final var setCaseDetails = new VariableDetails(setCaseResult, basicDetails);
+    final var setCaseEvaluationInstructions = generateSetCaseEvaluation(targetObject, typeName, setCaseDetails);
+    variableMemoryManagement.apply(() -> setCaseEvaluationInstructions, setCaseDetails);
 
     // Create record components for structured data
     final var operandEvaluation = new OperandEvaluation(operandEvaluationInstructions, targetObject);
@@ -127,43 +138,38 @@ public final class QuestionBlockGenerator implements Function<ExprProcessingDeta
 
     // Create question operator block with structured records
     final var questionOperation = QuestionOperatorInstr.questionBlock(
-        resultName,
-        operandEvaluation,
-        nullCheckCondition,
-        nullCaseEvaluation,
-        setCaseEvaluation,
-        basicDetails
+        new QuestionDetails(
+            resultName,
+            operandEvaluation,
+            nullCheckCondition,
+            nullCaseEvaluation,
+            setCaseEvaluation,
+            basicDetails)
     );
 
-    return List.of(questionOperation);
+    final var rtn = new ArrayList<IRInstr>();
+    rtn.add(questionOperation);
+    return rtn;
   }
 
   /**
    * Generate null case evaluation instructions (Boolean(false)).
    */
-  private List<IRInstr> generateNullCaseEvaluation(final String resultName,
-                                                   final BasicDetails basicDetails) {
-    final var instructions = new ArrayList<IRInstr>();
-    final var falseCallDetails = callDetailsForOfFalse.get();
-    instructions.add(CallInstr.callStatic(resultName, basicDetails.debugInfo(), falseCallDetails));
-    instructions.add(MemoryInstr.retain(resultName, basicDetails.debugInfo()));
-    instructions.add(ScopeInstr.register(resultName, basicDetails));
-    return instructions;
+  private List<IRInstr> generateNullCaseEvaluation(final VariableDetails variableDetails) {
+
+    return irInstrToList
+        .apply(() -> CallInstr.callStatic(variableDetails, callDetailsForOfFalse.get()));
   }
 
   /**
    * Generate set case evaluation instructions (call _isSet() method).
    */
-  private List<IRInstr> generateSetCaseEvaluation(final String resultName,
-                                                  final String targetObject,
+  private List<IRInstr> generateSetCaseEvaluation(final String targetObject,
                                                   final String typeName,
-                                                  final BasicDetails basicDetails) {
-    final var instructions = new ArrayList<IRInstr>();
+                                                  final VariableDetails variableDetails) {
+
     final var isSetCallDetails = new CallDetails(targetObject, typeName,
         "_isSet", List.of(), "org.ek9.lang::Boolean", List.of());
-    instructions.add(CallInstr.operator(resultName, basicDetails.debugInfo(), isSetCallDetails));
-    instructions.add(MemoryInstr.retain(resultName, basicDetails.debugInfo()));
-    instructions.add(ScopeInstr.register(resultName, basicDetails));
-    return instructions;
+    return irInstrToList.apply(() -> CallInstr.operator(variableDetails, isSetCallDetails));
   }
 }

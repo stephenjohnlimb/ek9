@@ -26,14 +26,6 @@ public final class MemoryInstr extends IRInstr {
   }
 
   /**
-   * Create STORE instruction: STORE dest_location = source.
-   */
-  public static MemoryInstr store(final String destinationLocation,
-                                  final String source) {
-    return new MemoryInstr(IROpcode.STORE, null, null).addOperands(destinationLocation, source);
-  }
-
-  /**
    * Create STORE instruction with debug info: STORE dest_location = source.
    */
   public static MemoryInstr store(final String destinationLocation,
@@ -57,13 +49,6 @@ public final class MemoryInstr extends IRInstr {
   }
 
   /**
-   * Create RETAIN instruction: RETAIN object, i.e. increment the ARC (automatic reference counting).
-   */
-  public static MemoryInstr retain(final String object) {
-    return new MemoryInstr(IROpcode.RETAIN, null, null).addOperand(object);
-  }
-
-  /**
    * Create RETAIN instruction with debug info: RETAIN object, i.e. increment the ARC (automatic reference counting)
    */
   public static MemoryInstr retain(final String object, final DebugInfo debugInfo) {
@@ -82,13 +67,6 @@ public final class MemoryInstr extends IRInstr {
    */
   public static MemoryInstr release(final String object, final DebugInfo debugInfo) {
     return new MemoryInstr(IROpcode.RELEASE, null, debugInfo).addOperand(object);
-  }
-
-  /**
-   * Create IS_NULL instruction: IS_NULL result = operand.
-   */
-  public static MemoryInstr isNull(final String result, final String operand) {
-    return new MemoryInstr(IROpcode.IS_NULL, result, null).addOperand(operand);
   }
 
   /**

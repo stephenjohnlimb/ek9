@@ -12,6 +12,7 @@ import org.ek9lang.compiler.phase7.support.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
+import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
@@ -39,11 +40,10 @@ final class AssertStmtGenerator extends AbstractGenerator
 
     final var rhsExprResult = context.generateTempName();
 
-    final var exprDetails = new ExprProcessingDetails(ctx.expression(), rhsExprResult,
-        new BasicDetails(scopeId, assertStmtDebugInfo));
+    final var exprDetails = new ExprProcessingDetails(ctx.expression(),
+        new VariableDetails(rhsExprResult, new BasicDetails(scopeId, assertStmtDebugInfo)));
 
     final var instructions = new ArrayList<>(processor.apply(exprDetails));
-
 
     // Call the _true() method to get primitive boolean (true if set AND true)
     final var rhsResult = context.generateTempName();
