@@ -350,22 +350,47 @@ instructions.add(BranchInstr.assertValue(rhsResult, debugInfo));
 
 ### Memory Management and Scope Ownership Rules
 
-EK9's IR generation includes sophisticated memory ownership tracking through scope registration:
+EK9's IR generation includes sophisticated memory ownership tracking through scope registration based on **reference counting** for objects:
 
 **ShouldRegisterVariableInScope Logic:**
 - **Parameters** (`_param_*` scopes): **FALSE** - caller-managed memory, no SCOPE_REGISTER
 - **Return variables** (`_return_*` scopes): **FALSE** - ownership transferred to caller
 - **Local variables** (`_scope_*` scopes): **TRUE** - function-managed memory, needs SCOPE_REGISTER
 
+**CRITICAL UNDERSTANDING: Variable Declaration vs Object Reference**
+
+**Variable Declaration (REFERENCE):**
+```java
+// REFERENCE only declares that a variable CAN hold a reference - NO object exists yet
+REFERENCE localVar, org.ek9.lang::Boolean  // Variable declaration only
+// NO SCOPE_REGISTER at this point - localVar doesn't reference any object yet
+```
+
+**Object Creation and Reference Counting:**
+```java
+// Step 1: Create object and establish first reference
+_temp1 = LOAD_LITERAL true, org.ek9.lang::Boolean  // Create Boolean object
+RETAIN _temp1                                      // Reference count = 1
+SCOPE_REGISTER _temp1, _scope_1                   // Register _temp1 for cleanup
+
+// Step 2: Store object reference in localVar
+STORE localVar, _temp1                            // localVar now references same object  
+RETAIN localVar                                   // Reference count = 2
+SCOPE_REGISTER localVar, _scope_1                // Register localVar for cleanup
+```
+
+**Key Memory Management Principles:**
+1. **REFERENCE declares variables** - NO object, NO SCOPE_REGISTER needed
+2. **SCOPE_REGISTER happens when variable references an object** - after STORE operations
+3. **Same object can have multiple variable references** - each gets RETAIN/SCOPE_REGISTER
+4. **Reference counting tracks object lifetime** - SCOPE_EXIT auto-releases all registered variables
+5. **Primitive return values** (like `_true()` method) need NO memory management
+
 **Parameter Handling Pattern:**
 ```java
 // Parameters get REFERENCE declaration only - no scope registration
 instructions.add(MemoryInstr.reference(paramName, paramType, debugInfo));
 // NO SCOPE_REGISTER for parameters - caller owns the memory
-
-// Local variables get both REFERENCE and SCOPE_REGISTER
-instructions.add(MemoryInstr.reference(localName, localType, debugInfo));
-instructions.add(ScopeInstr.register(localName, scopeId, debugInfo));
 ```
 
 **Critical Memory Ownership Rule:** Function parameters are caller-owned and should NOT be registered in function scope for cleanup. This prevents the function from attempting to manage memory it doesn't own.
@@ -374,22 +399,38 @@ instructions.add(ScopeInstr.register(localName, scopeId, debugInfo));
 
 **AbstractVariableDeclGenerator** provides common processing for variable declarations:
 
-**Variable-Only Declarations** (parameters, uninitialized variables):
+**CORRECTED PATTERNS - Variable Declaration vs Object Reference:**
+
+**Variable-Only Declarations** (uninitialized variables):
 ```
-REFERENCE variableName, typeName
-SCOPE_REGISTER variableName, scopeId  // Only if shouldRegisterVariableInScope returns true
+REFERENCE variableName, typeName  // Variable declaration only - NO object yet
+// NO SCOPE_REGISTER - variable doesn't reference any object yet
 ```
 
 **Variable Declarations with Initialization** (local variables with values):
 ```
-REFERENCE variableName, typeName
-SCOPE_REGISTER variableName, scopeId
-_temp1 = [initialization expression IR]
-RETAIN _temp1
-SCOPE_REGISTER _temp1, scopeId
-STORE variableName, _temp1
-RETAIN variableName
+REFERENCE variableName, typeName              // Variable declaration only
+_temp1 = [initialization expression IR]      // Create/load object
+RETAIN _temp1                                 // Reference count = 1 for object
+SCOPE_REGISTER _temp1, scopeId               // Register _temp1 for cleanup
+STORE variableName, _temp1                   // variableName now references object
+RETAIN variableName                          // Reference count = 2 for same object
+SCOPE_REGISTER variableName, scopeId        // Register variableName for cleanup
 ```
+
+**Variable Assignment** (separate from declaration):
+```
+REFERENCE variableName, typeName              // Variable was declared previously
+_temp1 = LOAD_LITERAL value, typeName        // Create/load object  
+RETAIN _temp1                                 // Reference count = 1
+SCOPE_REGISTER _temp1, scopeId               // Register temp for cleanup
+RELEASE variableName                         // Release previous reference (if any)
+STORE variableName, _temp1                   // variableName now references object
+RETAIN variableName                          // Reference count = 2
+SCOPE_REGISTER variableName, scopeId        // Register variableName for cleanup
+```
+
+**Memory Management Rule:** SCOPE_REGISTER only happens when a variable actually references an object, not when the variable is declared.
 
 ### Scope Management Pattern
 

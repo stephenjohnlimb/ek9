@@ -3,7 +3,6 @@
   The expected IR that should be generated for the ek9 construct is defined in
   a directive. The unit tests, then compile the ek9 source and generate the IR.
   The unit test then checks the generated IR against the expected IR.
-  TODO this IR is not correct.
 -?>
 defines module simpleClasses
 
@@ -11,92 +10,92 @@ defines module simpleClasses
 
     @IR: IR_GENERATION: TYPE: "simpleClasses::Example": `
     ConstructDfn: simpleClasses::Example
-    Field: aField, org.ek9.lang::String  // ./singleClass.ek9:101:7
-    Field: bField, org.ek9.lang::String  // ./singleClass.ek9:102:7
-    Field: cField, org.ek9.lang::String  // ./singleClass.ek9:103:7
-    Field: dField, org.ek9.lang::String  // ./singleClass.ek9:104:7
+    Field: aField, org.ek9.lang::String  // ./singleClass.ek9:100:7
+    Field: bField, org.ek9.lang::String  // ./singleClass.ek9:101:7
+    Field: cField, org.ek9.lang::String  // ./singleClass.ek9:102:7
+    Field: dField, org.ek9.lang::String  // ./singleClass.ek9:103:7
     OperationDfn: simpleClasses::Example.c_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     RETURN
     OperationDfn: simpleClasses::Example.i_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
-    REFERENCE this.aField, org.ek9.lang::String  // ./singleClass.ek9:101:7
-    REFERENCE this.bField, org.ek9.lang::String  // ./singleClass.ek9:102:7
-    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>()  // ./singleClass.ek9:102:27
-    RETAIN _temp1  // ./singleClass.ek9:102:27
-    SCOPE_REGISTER _temp1, _i_init_1  // ./singleClass.ek9:102:27
-    STORE this.bField, _temp1  // ./singleClass.ek9:102:27
-    RETAIN this.bField  // ./singleClass.ek9:102:27
-    REFERENCE this.cField, org.ek9.lang::String  // ./singleClass.ek9:103:7
-    _temp2 = LOAD_LITERAL "Steve", org.ek9.lang::String  // ./singleClass.ek9:103:27
-    RETAIN _temp2  // ./singleClass.ek9:103:27
-    SCOPE_REGISTER _temp2, _i_init_1  // ./singleClass.ek9:103:27
-    STORE this.cField, _temp2  // ./singleClass.ek9:103:27
-    RETAIN this.cField  // ./singleClass.ek9:103:27
-    REFERENCE this.dField, org.ek9.lang::String  // ./singleClass.ek9:104:7
-    _temp3 = LOAD_LITERAL "Stephen", org.ek9.lang::String  // ./singleClass.ek9:104:17
-    RETAIN _temp3  // ./singleClass.ek9:104:17
-    SCOPE_REGISTER _temp3, _i_init_1  // ./singleClass.ek9:104:17
-    STORE this.dField, _temp3  // ./singleClass.ek9:104:17
-    RETAIN this.dField  // ./singleClass.ek9:104:17
+    REFERENCE this.aField, org.ek9.lang::String  // ./singleClass.ek9:100:7
+    REFERENCE this.bField, org.ek9.lang::String  // ./singleClass.ek9:101:7
+    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>()  // ./singleClass.ek9:101:27
+    RETAIN _temp1  // ./singleClass.ek9:101:27
+    SCOPE_REGISTER _temp1, _i_init_1  // ./singleClass.ek9:101:27
+    STORE this.bField, _temp1  // ./singleClass.ek9:101:27
+    RETAIN this.bField  // ./singleClass.ek9:101:27
+    REFERENCE this.cField, org.ek9.lang::String  // ./singleClass.ek9:102:7
+    _temp2 = LOAD_LITERAL "Steve", org.ek9.lang::String  // ./singleClass.ek9:102:27
+    RETAIN _temp2  // ./singleClass.ek9:102:27
+    SCOPE_REGISTER _temp2, _i_init_1  // ./singleClass.ek9:102:27
+    STORE this.cField, _temp2  // ./singleClass.ek9:102:27
+    RETAIN this.cField  // ./singleClass.ek9:102:27
+    REFERENCE this.dField, org.ek9.lang::String  // ./singleClass.ek9:103:7
+    _temp3 = LOAD_LITERAL "Stephen", org.ek9.lang::String  // ./singleClass.ek9:103:17
+    RETAIN _temp3  // ./singleClass.ek9:103:17
+    SCOPE_REGISTER _temp3, _i_init_1  // ./singleClass.ek9:103:17
+    STORE this.dField, _temp3  // ./singleClass.ek9:103:17
+    RETAIN this.dField  // ./singleClass.ek9:103:17
     RETURN
-    OperationDfn: simpleClasses::Example.Example()->simpleClasses::Example  // ./singleClass.ek9:106:7
+    OperationDfn: simpleClasses::Example.Example()->simpleClasses::Example  // ./singleClass.ek9:105:7
     BasicBlock: _entry_1
-    _temp_i_init = CALL (simpleClasses::Example)this.i_init()  // ./singleClass.ek9:106:7
-    SCOPE_ENTER _scope_1  // ./singleClass.ek9:107:9
-    _temp1 = LOAD_LITERAL "Now Initialised", org.ek9.lang::String  // ./singleClass.ek9:107:17
-    RETAIN _temp1  // ./singleClass.ek9:107:17
-    SCOPE_REGISTER _temp1, _scope_1  // ./singleClass.ek9:107:17
-    RELEASE this.aField  // ./singleClass.ek9:107:17
-    STORE this.aField, _temp1  // ./singleClass.ek9:107:17
-    RETAIN this.aField  // ./singleClass.ek9:107:17
-    REFERENCE local1, org.ek9.lang::Integer  // ./singleClass.ek9:109:9
-    _temp2 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./singleClass.ek9:109:19
-    RETAIN _temp2  // ./singleClass.ek9:109:19
-    SCOPE_REGISTER _temp2, _scope_1  // ./singleClass.ek9:109:19
-    STORE local1, _temp2  // ./singleClass.ek9:109:19
-    RETAIN local1  // ./singleClass.ek9:109:19
-    SCOPE_REGISTER local1, _scope_1  // ./singleClass.ek9:109:19
-    _temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./singleClass.ek9:110:17
-    RETAIN _temp3  // ./singleClass.ek9:110:17
-    SCOPE_REGISTER _temp3, _scope_1  // ./singleClass.ek9:110:17
-    RELEASE local1  // ./singleClass.ek9:110:17
-    STORE local1, _temp3  // ./singleClass.ek9:110:17
-    RETAIN local1  // ./singleClass.ek9:110:17
-    SCOPE_REGISTER local1, _scope_1  // ./singleClass.ek9:110:17
-    _temp4 = QUESTION_BLOCK  // ./singleClass.ek9:111:22
+    _temp_i_init = CALL (simpleClasses::Example)this.i_init()  // ./singleClass.ek9:105:7
+    SCOPE_ENTER _scope_1  // ./singleClass.ek9:106:9
+    _temp1 = LOAD_LITERAL "Now Initialised", org.ek9.lang::String  // ./singleClass.ek9:106:17
+    RETAIN _temp1  // ./singleClass.ek9:106:17
+    SCOPE_REGISTER _temp1, _scope_1  // ./singleClass.ek9:106:17
+    RELEASE this.aField  // ./singleClass.ek9:106:17
+    STORE this.aField, _temp1  // ./singleClass.ek9:106:17
+    RETAIN this.aField  // ./singleClass.ek9:106:17
+    REFERENCE local1, org.ek9.lang::Integer  // ./singleClass.ek9:108:9
+    _temp2 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./singleClass.ek9:108:19
+    RETAIN _temp2  // ./singleClass.ek9:108:19
+    SCOPE_REGISTER _temp2, _scope_1  // ./singleClass.ek9:108:19
+    STORE local1, _temp2  // ./singleClass.ek9:108:19
+    RETAIN local1  // ./singleClass.ek9:108:19
+    SCOPE_REGISTER local1, _scope_1  // ./singleClass.ek9:108:19
+    _temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./singleClass.ek9:109:17
+    RETAIN _temp3  // ./singleClass.ek9:109:17
+    SCOPE_REGISTER _temp3, _scope_1  // ./singleClass.ek9:109:17
+    RELEASE local1  // ./singleClass.ek9:109:17
+    STORE local1, _temp3  // ./singleClass.ek9:109:17
+    RETAIN local1  // ./singleClass.ek9:109:17
+    SCOPE_REGISTER local1, _scope_1  // ./singleClass.ek9:109:17
+    _temp4 = QUESTION_BLOCK  // ./singleClass.ek9:110:22
     [
     operand_evaluation:
     [
-    _temp5 = LOAD local1  // ./singleClass.ek9:111:22
-    RETAIN _temp5  // ./singleClass.ek9:111:22
-    SCOPE_REGISTER _temp5, _scope_1  // ./singleClass.ek9:111:22
-    _temp6 = IS_NULL _temp5  // ./singleClass.ek9:111:22
+    _temp5 = LOAD local1  // ./singleClass.ek9:110:22
+    RETAIN _temp5  // ./singleClass.ek9:110:22
+    SCOPE_REGISTER _temp5, _scope_1  // ./singleClass.ek9:110:22
+    _temp6 = IS_NULL _temp5  // ./singleClass.ek9:110:22
     ]
     operand: _temp5
     null_check_condition: _temp6
     null_case_evaluation:
     [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./singleClass.ek9:111:22
-    RETAIN _temp7  // ./singleClass.ek9:111:22
-    SCOPE_REGISTER _temp7, _scope_1  // ./singleClass.ek9:111:22
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./singleClass.ek9:110:22
+    RETAIN _temp7  // ./singleClass.ek9:110:22
+    SCOPE_REGISTER _temp7, _scope_1  // ./singleClass.ek9:110:22
     ]
     null_result: _temp7
     set_case_evaluation:
     [
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet()  // ./singleClass.ek9:111:22
-    RETAIN _temp8  // ./singleClass.ek9:111:22
-    SCOPE_REGISTER _temp8, _scope_1  // ./singleClass.ek9:111:22
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet()  // ./singleClass.ek9:110:22
+    RETAIN _temp8  // ./singleClass.ek9:110:22
+    SCOPE_REGISTER _temp8, _scope_1  // ./singleClass.ek9:110:22
     ]
     set_result: _temp8
     scope_id: _scope_1
     ]
-    RETAIN _temp4  // ./singleClass.ek9:111:9
-    SCOPE_REGISTER _temp4, _scope_1  // ./singleClass.ek9:111:9
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true()  // ./singleClass.ek9:111:9
-    ASSERT _temp9  // ./singleClass.ek9:111:9
-    SCOPE_EXIT _scope_1  // ./singleClass.ek9:107:9
-    RETURN  // ./singleClass.ek9:106:7`
+    RETAIN _temp4  // ./singleClass.ek9:110:9
+    SCOPE_REGISTER _temp4, _scope_1  // ./singleClass.ek9:110:9
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true()  // ./singleClass.ek9:110:9
+    ASSERT _temp9  // ./singleClass.ek9:110:9
+    SCOPE_EXIT _scope_1  // ./singleClass.ek9:106:9
+    RETURN  // ./singleClass.ek9:105:7`
     Example as open
       aField as String?
       bField as String := String()

@@ -2,6 +2,27 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Documentation-First Workflow
+
+**CRITICAL**: These MD documents are Claude's longer-term memory. Given Claude's limited context window compared to human memory, these documents must be actively used as the primary knowledge base.
+
+### Documentation Reading Requirements
+
+**Before any technical analysis or implementation:**
+
+1. **Always read relevant documentation COMPLETELY** when asked to "refresh," "review," or work on specific areas
+2. **Understand principles before applying them** - don't jump to conclusions without proper foundation
+3. **Use documentation systematically** - these documents contain hard-won knowledge and patterns
+4. **Reference line numbers and specific sections** when citing documented patterns
+
+**When Steve asks to "refresh yourself" or "review" documentation:**
+- Read the ENTIRE relevant document thoroughly
+- Take mental notes on key principles and patterns
+- Fully internalize concepts before proceeding with any analysis
+- Apply documented understanding systematically to technical work
+
+**Example**: For IR generation work, always reference `EK9_IR_AND_CODE_GENERATION.md` memory management rules (lines 350-450) and variable declaration patterns before evaluating any IR code.
+
 ## Project Overview
 
 EK9 is a new programming language implementation with a comprehensive compiler written in Java 23. The project consists of a multi-pass compiler that transforms EK9 source code (`.ek9` files) into various target formats, primarily Java bytecode.
