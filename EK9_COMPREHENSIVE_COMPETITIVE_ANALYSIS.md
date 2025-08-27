@@ -199,11 +199,33 @@ testValidUseDueToChecks1()
     value <- o.get()          // ✅ Safe access
 ```
 
+**Enhanced with AI-Native Guard Variables:**
+```ek9
+// Traditional null-checking (error-prone pattern)
+value := someExpression()
+if value != null
+  processed := value.process()    // What if process() returns null?
+  if processed != null            // Often forgotten by developers
+    use(processed)
+
+// EK9's Guard Variables (systematic safety)
+if result <- someExpression()     // <- declares and tests atomically  
+  if processed ?= result.process()  // ?= assigns only if successful
+    use(processed)                // Both variables compiler-guaranteed safe
+```
+
+**AI Code Generation Benefits:**
+- **Simple systematic rules**: `<-` for declaration, `?=` for conditional assignment
+- **Eliminates cognitive load**: No decision-making about when to null-check
+- **Prevents common AI errors**: Structure enforces correct null-safety patterns
+- **Pattern recognition optimized**: AIs excel at applying these consistent rules
+
 **Enterprise Value:**
-- **Eliminates entire bug categories**: NullPointerException, unwrap panics, ignored errors
-- **Reduced production incidents**: Impossible to deploy unsafe Optional/Result code
-- **Team safety**: Junior developers cannot write unsafe code
+- **Eliminates entire bug categories**: NullPointerException, unwrap panics, ignored errors, forgotten null checks
+- **Reduced production incidents**: Impossible to deploy unsafe Optional/Result code or incomplete null checking
+- **Team safety**: Junior developers and AI assistants cannot write unsafe code
 - **Maintenance confidence**: Legacy code guaranteed safe by compiler
+- **AI development acceleration**: Guard variables prevent most common AI code generation errors
 
 #### 2. **Language-Integrated Build System**
 **Market Impact**: Revolutionary  

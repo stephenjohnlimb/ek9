@@ -63,7 +63,7 @@ defines module simpleClasses
     STORE local1, _temp3  // ./singleClass.ek9:114:17
     RETAIN local1  // ./singleClass.ek9:114:17
     SCOPE_REGISTER local1, _scope_1  // ./singleClass.ek9:114:17
-    _temp4 = SWITCH_CHAIN_BLOCK  // ./singleClass.ek9:115:9
+    _temp4 = CONTROL_FLOW_CHAIN  // ./singleClass.ek9:115:9
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

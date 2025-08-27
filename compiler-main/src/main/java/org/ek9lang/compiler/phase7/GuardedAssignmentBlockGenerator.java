@@ -9,22 +9,22 @@ import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRContext;
 
 /**
- * Guarded assignment generator using unified SWITCH_CHAIN_BLOCK approach.
+ * Guarded assignment generator using unified CONTROL_FLOW_CHAIN approach.
  * <p>
  * This generator has been migrated to use the unified control flow:
- * 1. Delegates to SwitchChainBlockGenerator for actual IR generation
+ * 1. Delegates to ControlFlowChainGenerator for actual IR generation
  * 2. Maintains backward compatibility with existing call sites
- * 3. Uses SWITCH_CHAIN_BLOCK with GUARDED_ASSIGNMENT chain type
+ * 3. Uses CONTROL_FLOW_CHAIN with GUARDED_ASSIGNMENT chain type
  * </p>
  * <p>
- * Guarded assignment becomes a SWITCH_CHAIN_BLOCK with condition:
+ * Guarded assignment becomes a CONTROL_FLOW_CHAIN with condition:
  * if (!lhsSymbol?) then assign else do nothing
  * </p>
  */
 final class GuardedAssignmentBlockGenerator
     implements Function<GuardedAssignmentGenerator.GuardedAssignmentDetails, List<IRInstr>> {
 
-  private final SwitchChainBlockGenerator switchChainBlockGenerator;
+  private final ControlFlowChainGenerator controlFlowChainGenerator;
   private final DebugInfoCreator debugInfoCreator;
   private final AssignExpressionToSymbol assignExpressionToSymbol;
   private final IRContext context;
@@ -39,7 +39,7 @@ final class GuardedAssignmentBlockGenerator
     // Extract RecordExprProcessing from the QuestionBlockGenerator's SwitchChainBlockGenerator
     // For now, create a new instance - in future this could be optimized to share instances
     // Pass null for both RecordExprProcessing and rawExprProcessor as this generator doesn't use expression processing
-    this.switchChainBlockGenerator = new SwitchChainBlockGenerator(context, null, null);
+    this.controlFlowChainGenerator = new ControlFlowChainGenerator(context, null);
   }
 
   @Override
@@ -58,7 +58,7 @@ final class GuardedAssignmentBlockGenerator
         assignExpressionToSymbol.apply(lhsSymbol, assignmentExpression));
 
     // Delegate to unified SwitchChainBlockGenerator
-    return switchChainBlockGenerator.generateGuardedAssignment(
+    return controlFlowChainGenerator.generateGuardedAssignment(
         lhsSymbol,
         assignmentEvaluationInstructions,
         null, // No specific assignment result variable

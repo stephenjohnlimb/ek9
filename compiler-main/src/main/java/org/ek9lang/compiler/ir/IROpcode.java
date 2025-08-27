@@ -229,27 +229,27 @@ public enum IROpcode {
 
   /**
    * Unified control flow block construct for all EK9 conditional evaluation.
-   * Format: SWITCH_CHAIN_BLOCK result = evaluation_variable, condition_chain, default_evaluation
-   * 
+   * Format: CONTROL_FLOW_CHAIN result = evaluation_variable, condition_chain, default_evaluation
+   * <br>
    * Unifies all EK9 control flow constructs into a single, powerful IR opcode:
    * - Question operator (?): NULL_CHECK condition + _isSet() default
-   * - If/else statements: Sequential condition evaluation + else default  
+   * - If/else statements: Sequential condition evaluation + else default
    * - Switch statements: Case condition evaluation + default clause
    * - Guarded assignment (:=?): Composition with question operator logic
-   * 
+   * <br>
    * Contains complete evaluation paths for all conditions and their corresponding bodies.
    * Backends can optimize based on chain_type hints:
    * - QUESTION_OPERATOR: Optimize null checks and method calls
-   * - IF_ELSE/IF_ELSE_IF: Standard conditional branching  
+   * - IF_ELSE/IF_ELSE_IF: Standard conditional branching
    * - SWITCH/SWITCH_ENUM: Jump tables for dense enums, sequential for complex expressions
-   * 
+   * <br>
    * Key benefits:
    * - Single source of truth for all control flow logic
    * - Consistent memory management across all constructs
    * - Enhanced backend optimization opportunities
    * - Reduced IR complexity and maintenance burden
    */
-  SWITCH_CHAIN_BLOCK,
+  CONTROL_FLOW_CHAIN,
 
   // Stack allocation and memory optimization opcodes
   /**
@@ -299,7 +299,7 @@ public enum IROpcode {
 
   /**
    * Annotation marker: skip RELEASE operation for this object.
-   * Format: NO_RELEASE object  
+   * Format: NO_RELEASE object
    * Used during IR optimization to mark objects that don't need reference counting.
    * Does not generate code - just prevents RELEASE instruction emission.
    */

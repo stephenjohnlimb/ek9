@@ -22,7 +22,7 @@ defines module assignments
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./guardedAssignment.ek9:125:7
     REFERENCE value, org.ek9.lang::Integer  // ./guardedAssignment.ek9:125:7
-    SWITCH_CHAIN_BLOCK  // ./guardedAssignment.ek9:126:17
+    CONTROL_FLOW_CHAIN  // ./guardedAssignment.ek9:126:17
     [
     chain_type: "GUARDED_ASSIGNMENT"
     condition_chain:
@@ -32,7 +32,7 @@ defines module assignments
     case_type: "EXPRESSION"
     condition_evaluation:
     [
-    _temp2 = SWITCH_CHAIN_BLOCK  // ./guardedAssignment.ek9:126:17
+    _temp2 = CONTROL_FLOW_CHAIN  // ./guardedAssignment.ek9:126:17
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:
@@ -83,7 +83,7 @@ defines module assignments
     ]
     scope_id: _scope_1
     ]
-    _temp9 = SWITCH_CHAIN_BLOCK  // ./guardedAssignment.ek9:127:7
+    _temp9 = CONTROL_FLOW_CHAIN  // ./guardedAssignment.ek9:127:7
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

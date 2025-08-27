@@ -25,7 +25,7 @@ import org.ek9lang.core.AssertValue;
  * - SWITCH/SWITCH_ENUM: Jump tables, binary search, or sequential evaluation
  * </p>
  */
-public final class SwitchChainBlockInstr extends IRInstr {
+public final class ControlFlowChainInstr extends IRInstr {
 
   private final String chainType;
   private final String evaluationVariable;
@@ -43,14 +43,14 @@ public final class SwitchChainBlockInstr extends IRInstr {
   /**
    * Create a unified switch chain block instruction.
    */
-  public static SwitchChainBlockInstr switchChainBlock(final SwitchChainDetails details) {
-    return new SwitchChainBlockInstr(details);
+  public static ControlFlowChainInstr controlFlowChain(final ControlFlowChainDetails details) {
+    return new ControlFlowChainInstr(details);
   }
 
-  private SwitchChainBlockInstr(final SwitchChainDetails details) {
-    super(IROpcode.SWITCH_CHAIN_BLOCK, details.result(), details.basicDetails().debugInfo());
+  private ControlFlowChainInstr(final ControlFlowChainDetails details) {
+    super(IROpcode.CONTROL_FLOW_CHAIN, details.result(), details.basicDetails().debugInfo());
 
-    AssertValue.checkNotNull("SwitchChain details cannot be null", details);
+    AssertValue.checkNotNull("ControlFlowChain details cannot be null", details);
     AssertValue.checkNotNull("Chain type cannot be null", details.chainType());
     AssertValue.checkNotNull("Condition chain cannot be null", details.conditionChain());
 
@@ -219,133 +219,128 @@ public final class SwitchChainBlockInstr extends IRInstr {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-
-    // Result assignment
+    var builder = new StringBuilder();
+    
+    appendInstructionHeader(builder);
+    builder.append("\n[\n");
+    builder.append("chain_type: \"").append(chainType).append("\"\n");
+    
+    appendEvaluationVariableSection(builder);
+    appendReturnVariableSection(builder);
+    appendConditionChainSection(builder);
+    appendDefaultCaseSection(builder);
+    appendEnumOptimizationSection(builder);
+    
+    builder.append("scope_id: ").append(scopeId).append("\n");
+    builder.append("]");
+    
+    return builder.toString();
+  }
+  
+  private void appendInstructionHeader(StringBuilder builder) {
     if (getResult() != null) {
-      sb.append(getResult()).append(" = ");
+      builder.append(getResult()).append(" = ");
     }
-
-    sb.append(getOpcode().name());
-
-    // Add debug information as comment if available
+    builder.append(getOpcode().name());
     if (getDebugInfo().isPresent() && getDebugInfo().get().isValidLocation()) {
-      sb.append("  ").append(getDebugInfo().get());
+      builder.append("  ").append(getDebugInfo().get());
     }
-
-    sb.append("\n[\n");
-
-    // Chain type
-    sb.append("chain_type: \"").append(chainType).append("\"\n");
-
-    // Evaluation variable section (for switch statements)
+  }
+  
+  private void appendEvaluationVariableSection(StringBuilder builder) {
     if (hasEvaluationVariable()) {
-      sb.append("evaluation_variable: ").append(evaluationVariable).append("\n");
-      sb.append("evaluation_variable_type: \"").append(evaluationVariableType).append("\"\n");
+      builder.append("evaluation_variable: ").append(evaluationVariable).append("\n");
+      builder.append("evaluation_variable_type: \"").append(evaluationVariableType).append("\"\n");
       
       if (!evaluationVariableSetup.isEmpty()) {
-        sb.append("evaluation_variable_setup:\n[\n");
-        for (IRInstr instr : evaluationVariableSetup) {
-          sb.append(instr.toString()).append("\n");
-        }
-        sb.append("]\n");
+        appendInstructionList(builder, "evaluation_variable_setup", evaluationVariableSetup);
       }
     }
-
-    // Return variable section (for expression forms)
+  }
+  
+  private void appendReturnVariableSection(StringBuilder builder) {
     if (hasReturnVariable()) {
-      sb.append("return_variable: ").append(returnVariable).append("\n");
-      sb.append("return_variable_type: \"").append(returnVariableType).append("\"\n");
+      builder.append("return_variable: ").append(returnVariable).append("\n");
+      builder.append("return_variable_type: \"").append(returnVariableType).append("\"\n");
       
       if (!returnVariableSetup.isEmpty()) {
-        sb.append("return_variable_setup:\n[\n");
-        for (IRInstr instr : returnVariableSetup) {
-          sb.append(instr.toString()).append("\n");
-        }
-        sb.append("]\n");
+        appendInstructionList(builder, "return_variable_setup", returnVariableSetup);
       }
     }
-
-    // Condition chain
-    sb.append("condition_chain:\n[\n");
+  }
+  
+  private void appendConditionChainSection(StringBuilder builder) {
+    builder.append("condition_chain:\n[\n");
     for (int i = 0; i < conditionChain.size(); i++) {
-      ConditionCase conditionCase = conditionChain.get(i);
-      sb.append("[\n");
-      
-      if (conditionCase.caseScopeId() != null) {
-        sb.append("case_scope_id: ").append(conditionCase.caseScopeId()).append("\n");
-      }
-      
-      sb.append("case_type: \"").append(conditionCase.caseType()).append("\"\n");
-      
-      if (conditionCase.enumConstant() != null) {
-        sb.append("enum_constant: \"").append(conditionCase.enumConstant()).append("\"\n");
-        sb.append("enum_ordinal: ").append(conditionCase.enumOrdinal()).append("\n");
-      }
-      
-      // Condition evaluation
-      sb.append("condition_evaluation:\n[\n");
-      for (IRInstr instr : conditionCase.conditionEvaluation()) {
-        sb.append(instr.toString()).append("\n");
-      }
-      sb.append("]\n");
-      
-      if (conditionCase.conditionResult() != null) {
-        sb.append("condition_result: ").append(conditionCase.conditionResult()).append("\n");
-      }
-      
-      if (conditionCase.primitiveCondition() != null) {
-        sb.append("primitive_condition: ").append(conditionCase.primitiveCondition()).append("\n");
-      }
-      
-      // Body evaluation  
-      sb.append("body_evaluation:\n[\n");
-      for (IRInstr instr : conditionCase.bodyEvaluation()) {
-        sb.append(instr.toString()).append("\n");
-      }
-      sb.append("]\n");
-      
-      if (conditionCase.bodyResult() != null) {
-        sb.append("body_result: ").append(conditionCase.bodyResult()).append("\n");
-      }
-      
-      sb.append("]");
+      appendConditionCase(builder, conditionChain.get(i));
       if (i < conditionChain.size() - 1) {
-        sb.append(",");
+        builder.append(",");
       }
-      sb.append("\n");
+      builder.append("\n");
     }
-    sb.append("]\n");
-
-    // Default case
+    builder.append("]\n");
+  }
+  
+  private void appendConditionCase(StringBuilder builder, ConditionCase conditionCase) {
+    builder.append("[\n");
+    
+    if (conditionCase.caseScopeId() != null) {
+      builder.append("case_scope_id: ").append(conditionCase.caseScopeId()).append("\n");
+    }
+    
+    builder.append("case_type: \"").append(conditionCase.caseType()).append("\"\n");
+    
+    if (conditionCase.enumConstant() != null) {
+      builder.append("enum_constant: \"").append(conditionCase.enumConstant()).append("\"\n");
+      builder.append("enum_ordinal: ").append(conditionCase.enumOrdinal()).append("\n");
+    }
+    
+    appendInstructionList(builder, "condition_evaluation", conditionCase.conditionEvaluation());
+    
+    if (conditionCase.conditionResult() != null) {
+      builder.append("condition_result: ").append(conditionCase.conditionResult()).append("\n");
+    }
+    
+    if (conditionCase.primitiveCondition() != null) {
+      builder.append("primitive_condition: ").append(conditionCase.primitiveCondition()).append("\n");
+    }
+    
+    appendInstructionList(builder, "body_evaluation", conditionCase.bodyEvaluation());
+    
+    if (conditionCase.bodyResult() != null) {
+      builder.append("body_result: ").append(conditionCase.bodyResult()).append("\n");
+    }
+    
+    builder.append("]");
+  }
+  
+  private void appendDefaultCaseSection(StringBuilder builder) {
     if (hasDefaultCase()) {
-      sb.append("default_body_evaluation:\n[\n");
-      for (IRInstr instr : defaultBodyEvaluation) {
-        sb.append(instr.toString()).append("\n");
-      }
-      sb.append("]\n");
+      appendInstructionList(builder, "default_body_evaluation", defaultBodyEvaluation);
       
       if (defaultResult != null) {
-        sb.append("default_result: ").append(defaultResult).append("\n");
+        builder.append("default_result: ").append(defaultResult).append("\n");
       }
     }
-
-    // Enum optimization info
+  }
+  
+  private void appendEnumOptimizationSection(StringBuilder builder) {
     if (hasEnumOptimization()) {
-      sb.append("enum_optimization_info:\n[\n");
-      sb.append("enum_type: \"").append(enumOptimizationInfo.enumType()).append("\"\n");
-      sb.append("enum_values: ").append(enumOptimizationInfo.enumValues()).append("\n");
-      sb.append("enum_ordinals: ").append(enumOptimizationInfo.enumOrdinals()).append("\n");
-      sb.append("is_exhaustive: ").append(enumOptimizationInfo.isExhaustive()).append("\n");
-      sb.append("is_dense: ").append(enumOptimizationInfo.isDense()).append("\n");
-      sb.append("]\n");
+      builder.append("enum_optimization_info:\n[\n");
+      builder.append("enum_type: \"").append(enumOptimizationInfo.enumType()).append("\"\n");
+      builder.append("enum_values: ").append(enumOptimizationInfo.enumValues()).append("\n");
+      builder.append("enum_ordinals: ").append(enumOptimizationInfo.enumOrdinals()).append("\n");
+      builder.append("is_exhaustive: ").append(enumOptimizationInfo.isExhaustive()).append("\n");
+      builder.append("is_dense: ").append(enumOptimizationInfo.isDense()).append("\n");
+      builder.append("]\n");
     }
-
-    // Scope ID
-    sb.append("scope_id: ").append(scopeId).append("\n");
-
-    sb.append("]");
-
-    return sb.toString();
+  }
+  
+  private void appendInstructionList(StringBuilder builder, String label, List<IRInstr> instructions) {
+    builder.append(label).append(":\n[\n");
+    for (IRInstr instr : instructions) {
+      builder.append(instr.toString()).append("\n");
+    }
+    builder.append("]\n");
   }
 }

@@ -32,7 +32,7 @@ defines module singleProperty
     RELEASE this.aField  // ./simpleClass1.ek9:79:17
     STORE this.aField, _temp1  // ./simpleClass1.ek9:79:17
     RETAIN this.aField  // ./simpleClass1.ek9:79:17
-    _temp2 = SWITCH_CHAIN_BLOCK  // ./simpleClass1.ek9:80:9
+    _temp2 = CONTROL_FLOW_CHAIN  // ./simpleClass1.ek9:80:9
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

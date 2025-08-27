@@ -123,13 +123,41 @@ function processData()
   // Scope cleanup happens automatically
 ```
 
-**Tri-State Type Safety**:
+**Tri-State Type Safety with Guard Variables**:
 ```ek9
 // Prevents null pointer exceptions through tri-state semantics
 value as Integer?         // Can be: present+set, present+unset, absent
 if value?                 // Check if has meaningful value
   process(value)         // Safe to use
+
+// GUARD VARIABLES: AI-optimized null safety patterns
+if result <- someExpression()    // <- declares and tests in one step
+  if processed ?= result.process() // ?= assigns only if successful
+    use(processed)               // Both variables guaranteed safe
 ```
+
+**AI-Optimized Guard Variable Patterns**:
+EK9's guard variables provide systematic null-safety that's especially beneficial for AI code generation:
+
+```ek9
+// TRADITIONAL NULL CHECKING (Error-prone for AI):
+var result = someExpression()
+if result != null
+  var processed = result.process()  // AI often forgets: what if process() returns null?
+  if processed != null              // AI frequently omits this check
+    use(processed)
+
+// EK9 GUARD PATTERN (AI-friendly systematic approach):
+if result <- someExpression()       // Rule: Use <- for first declaration
+  if processed ?= result.process()  // Rule: Use ?= for conditional updates
+    use(processed)                  // Compiler guarantees both are safe
+```
+
+**Key AI Benefits:**
+- **Simple Rules**: `<-` for new variables, `?=` for conditional assignment
+- **Structural Safety**: Language prevents common null-checking mistakes
+- **Pattern Recognition**: AIs excel at applying these systematic rules
+- **Error Prevention**: Eliminates most null-pointer exceptions at compile time
 
 ## Proposed Additional AI Guard Rails
 
