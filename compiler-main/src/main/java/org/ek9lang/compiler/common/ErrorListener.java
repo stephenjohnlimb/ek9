@@ -412,6 +412,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     TYPE_REQUIRED_FOR_PROPERTIES(
         "type must be declared for this property - '<-' operator is not supported with complex call"),
     USE_OF_THIS_OR_SUPER_INAPPROPRIATE("can be used with :=:, :~:, +=, -=, /= and *=. But not direct assignment"),
+    USE_OF_EXPRESSION_INAPPROPRIATE("is meaningless. Direct assignment not logical"),
     INVALID_TEXT_INTERPOLATION("interpolated text is invalid - check balanced ${}"),
     DURATION_NOT_FULLY_SPECIFIED("duration is not fully specified expecting P[n]Y[n]M[n]W[n]DT[n]H[n]M[n]S"),
     SERVICE_URI_WITH_VARS_NOT_SUPPORTED("URI with place holder variable not supported in this context"),

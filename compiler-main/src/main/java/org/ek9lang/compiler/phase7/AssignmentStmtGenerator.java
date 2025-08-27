@@ -111,7 +111,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     final Function<ExprProcessingDetails, List<IRInstr>>
         expressionProcessor = details -> generator.apply(details.variableDetails().resultVariable());
     final var recordExprProcessing = new RecordExprProcessing(expressionProcessor);
-    final var questionBlockGenerator = new QuestionBlockGenerator(context, recordExprProcessing);
+    final var questionBlockGenerator = new QuestionBlockGenerator(context, recordExprProcessing, expressionProcessor);
     return new GuardedAssignmentGenerator(context, questionBlockGenerator, assignExpressionToSymbol);
 
   }

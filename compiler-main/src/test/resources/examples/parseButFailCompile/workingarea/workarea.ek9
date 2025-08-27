@@ -1,14 +1,20 @@
 #!ek9
-defines module operatorUse
+defines module introduction
 
+  defines record
+    ARecord
+      prop1 <- true
+      prop2 <- "Steve"
+
+  defines class
+
+    AClass
+      someMethod()
+        -> arg0 as String
+        <- rtn as String: arg0
 
   defines function
 
-    equality()
-      -> i1 as Integer
-      assert i1?
-
-<!-
     aSimpleFunction()
       -> arg0 as String
       <- rtn as String: String()
@@ -26,11 +32,24 @@ defines module operatorUse
   defines program
     HelloWorld()
 
+      result <- aSimpleFunction("Steve")
+      assert result?
+
+      aClass <- AClass()
+
+      //While it is not logical here, there are times when mutatable and retained objects are returned
+      //You may then wish ot mutate those.
+      aClass.someMethod("Steve") := "Stephen"
+
+      //But this is OK, because it has mutated a persistent property.
+      aRecord <- ARecord()
+      aRecord.prop1 := false
+
+
       //While Stdout is not defined here, it should be resolvable
       @Resolved: SYMBOL_DEFINITION: TYPE: "Stdout"
       stdout <- Stdout()
       toOutput <- "Hello, World"
       stdout.println(toOutput)
--!>
 
 //EOF

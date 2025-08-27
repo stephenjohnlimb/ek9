@@ -84,7 +84,7 @@ final class ExprInstrGenerator extends AbstractGenerator
     this.objectAccessCreator = new ObjectAccessInstrGenerator(context);
     this.shortCircuitAndGenerator = new ShortCircuitAndGenerator(context, recordExprProcessing);
     this.shortCircuitOrGenerator = new ShortCircuitOrGenerator(context, recordExprProcessing);
-    this.questionBlockGenerator = new QuestionBlockGenerator(context, recordExprProcessing);
+    this.questionBlockGenerator = new QuestionBlockGenerator(context, recordExprProcessing, this::process);
   }
 
   /**

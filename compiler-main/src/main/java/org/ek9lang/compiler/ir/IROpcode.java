@@ -225,5 +225,91 @@ public enum IROpcode {
    * Assigns only if LHS is null OR LHS._isSet() == false.
    * Uses QUESTION_BLOCK logic internally for consistent null-safety semantics.
    */
-  GUARDED_ASSIGNMENT_BLOCK
+  GUARDED_ASSIGNMENT_BLOCK,
+
+  /**
+   * Unified control flow block construct for all EK9 conditional evaluation.
+   * Format: SWITCH_CHAIN_BLOCK result = evaluation_variable, condition_chain, default_evaluation
+   * 
+   * Unifies all EK9 control flow constructs into a single, powerful IR opcode:
+   * - Question operator (?): NULL_CHECK condition + _isSet() default
+   * - If/else statements: Sequential condition evaluation + else default  
+   * - Switch statements: Case condition evaluation + default clause
+   * - Guarded assignment (:=?): Composition with question operator logic
+   * 
+   * Contains complete evaluation paths for all conditions and their corresponding bodies.
+   * Backends can optimize based on chain_type hints:
+   * - QUESTION_OPERATOR: Optimize null checks and method calls
+   * - IF_ELSE/IF_ELSE_IF: Standard conditional branching  
+   * - SWITCH/SWITCH_ENUM: Jump tables for dense enums, sequential for complex expressions
+   * 
+   * Key benefits:
+   * - Single source of truth for all control flow logic
+   * - Consistent memory management across all constructs
+   * - Enhanced backend optimization opportunities
+   * - Reduced IR complexity and maintenance burden
+   */
+  SWITCH_CHAIN_BLOCK,
+
+  // Stack allocation and memory optimization opcodes
+  /**
+   * Allocate object on stack instead of heap.
+   * Format: STACK_ALLOC result = type_info
+   * Used when escape analysis determines object never leaves function scope.
+   * Backend: LLVM uses alloca, JVM uses optimized local variables.
+   * Eliminates need for RETAIN/RELEASE/SCOPE_REGISTER for this object.
+   */
+  STACK_ALLOC,
+
+  /**
+   * Create literal value on stack instead of heap.
+   * Format: STACK_ALLOC_LITERAL result = literal_value, literal_type
+   * Optimization for non-escaping literals (strings, numbers, etc.).
+   * More efficient than heap allocation - automatic cleanup on function exit.
+   * Replaces LOAD_LITERAL during IR optimization phase.
+   */
+  STACK_ALLOC_LITERAL,
+
+  /**
+   * Release heap references held by stack objects before destruction.
+   * Format: STACK_CLEANUP_REFS stack_object
+   * Handles mixed heap/stack reference scenarios where stack objects
+   * hold references to heap-allocated objects. Ensures proper reference
+   * counting before stack object is automatically destroyed.
+   */
+  STACK_CLEANUP_REFS,
+
+  /**
+   * Transfer ownership without reference counting overhead.
+   * Format: TRANSFER_OWNERSHIP dest = source
+   * Optimization for clear ownership transfers - avoids retain/release pair.
+   * Used when analysis shows object ownership cleanly passes from source to dest
+   * with no intermediate sharing or aliasing.
+   */
+  TRANSFER_OWNERSHIP,
+
+  // Memory management optimization markers
+  /**
+   * Annotation marker: skip RETAIN operation for this object.
+   * Format: NO_RETAIN object
+   * Used during IR optimization to mark objects that don't need reference counting.
+   * Does not generate code - just prevents RETAIN instruction emission.
+   */
+  NO_RETAIN,
+
+  /**
+   * Annotation marker: skip RELEASE operation for this object.
+   * Format: NO_RELEASE object  
+   * Used during IR optimization to mark objects that don't need reference counting.
+   * Does not generate code - just prevents RELEASE instruction emission.
+   */
+  NO_RELEASE,
+
+  /**
+   * Annotation marker: skip SCOPE_REGISTER operation for this object.
+   * Format: NO_SCOPE_REGISTER object, scope
+   * Used during IR optimization for objects with automatic cleanup (e.g., stack allocated).
+   * Does not generate code - just prevents SCOPE_REGISTER instruction emission.
+   */
+  NO_SCOPE_REGISTER
 }

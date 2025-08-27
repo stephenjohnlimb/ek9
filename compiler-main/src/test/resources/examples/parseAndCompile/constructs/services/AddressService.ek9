@@ -628,7 +628,7 @@ defines module com.customer.services
         addresses += Address(AddressId(GUID()), "99 Mountain Rd.", String(), "Concord", "NH", "03301")     
                        
       override addresses() as pure
-        <- rtn as AddressAccess: addresses       
+        <- rtn as AddressAccess: addresses
 
   defines application
 

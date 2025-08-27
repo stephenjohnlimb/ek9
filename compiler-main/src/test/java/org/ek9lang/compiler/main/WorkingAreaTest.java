@@ -38,7 +38,7 @@ class WorkingAreaTest extends PhasesTest {
     ek9Workspace.getSources().stream().findFirst()
         .ifPresent(source -> fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture));
 
-    testToPhase(CompilationPhase.IR_GENERATION);
+    testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   @Override
@@ -52,7 +52,7 @@ class WorkingAreaTest extends PhasesTest {
     try (final var printWriter = new PrintWriter(output)) {
       final var printer = new NodePrinter(printWriter);
       program
-          .getIRModules("operatorUse")
+          .getIRModules("introduction")
           .forEach(irModule -> irModule.getConstructs().forEach(printer::visit));
     } catch(Exception _) {
       fail("Failed to produce output.");

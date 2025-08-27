@@ -9,7 +9,7 @@ class BadConstantMutationTest extends BadFullResolutionTest {
 
   public BadConstantMutationTest() {
     super("/examples/parseButFailCompile/phase3/badConstantUse",
-        List.of("bad.mutations"));
+        List.of("bad.mutations"), false, true);
   }
 
 }
