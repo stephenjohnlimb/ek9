@@ -9,7 +9,6 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
-import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -110,8 +109,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
                                                             final AssignExpressionToSymbol assignExpressionToSymbol) {
     final Function<ExprProcessingDetails, List<IRInstr>>
         expressionProcessor = details -> generator.apply(details.variableDetails().resultVariable());
-    final var recordExprProcessing = new RecordExprProcessing(expressionProcessor);
-    final var questionBlockGenerator = new QuestionBlockGenerator(context, recordExprProcessing, expressionProcessor);
+    final var questionBlockGenerator = new QuestionBlockGenerator(context, expressionProcessor);
     return new GuardedAssignmentGenerator(context, questionBlockGenerator, assignExpressionToSymbol);
 
   }
