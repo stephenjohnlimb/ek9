@@ -95,6 +95,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   private final ValidAggregateConstructorsOrError validAggregateConstructorsOrError;
   private final ProcessAsDispatcherIfNecessary processAsDispatcherIfNecessary = new ProcessAsDispatcherIfNecessary();
   private final ApplicationBodyOrError applicationBodyOrError;
+  private final ValidPreFlowAndControlOrError validPreFlowAndControlOrError;
 
   private String currentTextBlockLanguage;
 
@@ -137,7 +138,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
     validPreFlowAndReturnOrError = new ValidPreFlowAndReturnOrError(symbolsAndScopes, errorListener);
     validAggregateConstructorsOrError = new ValidAggregateConstructorsOrError(symbolsAndScopes, errorListener);
-
+    validPreFlowAndControlOrError = new ValidPreFlowAndControlOrError(errorListener);
   }
 
   // Now we hook into the ANTLR listener events - lots of them!
@@ -623,6 +624,13 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   }
 
   //Pipeline Part is not defined here, just reference the symbol being employed against the context in phase3.
+
+
+  @Override
+  public void enterPreFlowAndControl(final EK9Parser.PreFlowAndControlContext ctx) {
+    validPreFlowAndControlOrError.accept(ctx);
+    super.enterPreFlowAndControl(ctx);
+  }
 
   /**
    * Need to create a local scope for the if statement so that it is possible to detect

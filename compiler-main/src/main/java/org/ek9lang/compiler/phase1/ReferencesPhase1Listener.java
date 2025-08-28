@@ -47,7 +47,7 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
   private final EmitConstructAndReferenceConflictError typeAndReferenceConflict;
   private final EmitConstructAndReferenceConflictError variableAndReferenceConflict;
   private final EmitConstructAndReferenceConflictError forVariableAndReferenceConflict;
-
+  
   /**
    * Next phase after symbol definition, now check for explicit references.
    * Because the reference phase is singled threaded access to compilableProgram is given directly.
@@ -64,52 +64,53 @@ final class ReferencesPhase1Listener extends EK9BaseListener {
     this.symbolsAndScopes = new SymbolsAndScopes(parsedModule,
         new ScopeStack(parsedModule.getModuleScope()));
 
-    this.validUseOfReferenceOrError = new ValidUseOfReferenceOrError(parsedModule.getSource().getErrorListener());
+    final var errorListener = parsedModule.getSource().getErrorListener();
+    this.validUseOfReferenceOrError = new ValidUseOfReferenceOrError(errorListener);
     this.duplicateSymbolByReference = new EmitConstructAndReferenceConflictError("reference",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.REFERENCES_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.REFERENCES_CONFLICT);
     this.emitReferenceDoesNotResolveError
-        = new EmitReferenceDoesNotResolveError(parsedModule.getSource().getErrorListener());
+        = new EmitReferenceDoesNotResolveError(errorListener);
 
     //Errors for constructs
     this.constantAndReferenceConflict = new EmitConstructAndReferenceConflictError("constant",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.functionAndReferenceConflict = new EmitConstructAndReferenceConflictError("function",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.recordAndReferenceConflict = new EmitConstructAndReferenceConflictError("record",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.traitAndReferenceConflict = new EmitConstructAndReferenceConflictError("trait",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.classAndReferenceConflict = new EmitConstructAndReferenceConflictError("class",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.methodAndReferenceConflict = new EmitConstructAndReferenceConflictError("method",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.dynamicClassAndReferenceConflict = new EmitConstructAndReferenceConflictError("dynamic class",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.componentAndReferenceConflict = new EmitConstructAndReferenceConflictError("component",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.serviceAndReferenceConflict = new EmitConstructAndReferenceConflictError("service",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.serviceOperationAndReferenceConflict = new EmitConstructAndReferenceConflictError(
         "service operation",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.serviceMethodAndReferenceConflict = new EmitConstructAndReferenceConflictError("service method",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
 
     this.applicationAndReferenceConflict = new EmitConstructAndReferenceConflictError("application",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.textAndReferenceConflict = new EmitConstructAndReferenceConflictError("text",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.textBodyAndReferenceConflict = new EmitConstructAndReferenceConflictError("text body",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
 
     this.typeAndReferenceConflict = new EmitConstructAndReferenceConflictError("type",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.variableAndReferenceConflict = new EmitConstructAndReferenceConflictError("variable",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.forVariableAndReferenceConflict = new EmitConstructAndReferenceConflictError("for loop variable",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
     this.parameterisedDetailAndReferenceConflict = new EmitConstructAndReferenceConflictError("parameter",
-        parsedModule.getSource().getErrorListener(), ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
+        errorListener, ErrorListener.SemanticClassification.CONSTRUCT_REFERENCE_CONFLICT);
   }
 
   /**

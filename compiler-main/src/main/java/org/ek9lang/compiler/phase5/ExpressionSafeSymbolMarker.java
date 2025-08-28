@@ -5,23 +5,18 @@ import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
-import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
- * Once an expression has been assesed as being simple enough to process, this
+ * Once an expression has been assessed as being simple enough to process, this
  * consumer is called to mark the appropriate symbol(s) used in the expression as safe if the
  * appropriate methods are called.
  */
-class MarkAppropriateSymbolsSafe extends TypedSymbolAccess implements BiConsumer<EK9Parser.ExpressionContext, IScope> {
-
-  private final HasTypeOfGeneric resultTypeCheck;
-  private final HasTypeOfGeneric optionalTypeCheck;
-
-  private final HasTypeOfGeneric iteratorTypeCheck;
+class ExpressionSafeSymbolMarker extends AbstractSafeSymbolMarker
+    implements BiConsumer<EK9Parser.ExpressionContext, IScope> {
 
   private final Map<String, CommonValues> resultMethodNameLookup =
       Map.of("?", CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS,
@@ -40,13 +35,10 @@ class MarkAppropriateSymbolsSafe extends TypedSymbolAccess implements BiConsumer
   /**
    * Constructor to provided typed access.
    */
-  protected MarkAppropriateSymbolsSafe(final SymbolsAndScopes symbolsAndScopes, final ErrorListener errorListener) {
+  protected ExpressionSafeSymbolMarker(final SymbolsAndScopes symbolsAndScopes, final ErrorListener errorListener) {
     super(symbolsAndScopes, errorListener);
-    this.resultTypeCheck = new HasTypeOfGeneric(symbolsAndScopes.getEk9Types().ek9Result());
-    this.optionalTypeCheck = new HasTypeOfGeneric(symbolsAndScopes.getEk9Types().ek9Optional());
-    this.iteratorTypeCheck = new HasTypeOfGeneric(symbolsAndScopes.getEk9Types().ek9Iterator());
 
-    //For result it's a bit more complex.
+    //For Result it's a bit more complex.
     resultMethodLookup =
         Map.of(CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::markOkResultAccessSafe,
             CommonValues.RESULT_ERROR_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::markErrorResultAccessSafe);
@@ -136,17 +128,5 @@ class MarkAppropriateSymbolsSafe extends TypedSymbolAccess implements BiConsumer
       }
 
     }
-  }
-
-  private void assessIsSetCall(final ISymbol toBeAssessed, final IScope scopeMadeSafe) {
-    if (resultTypeCheck.test(toBeAssessed)) {
-      symbolsAndScopes.markOkResultAccessSafe(toBeAssessed, scopeMadeSafe);
-    } else if (optionalTypeCheck.test(toBeAssessed)) {
-      symbolsAndScopes.markGetOptionalAccessSafe(toBeAssessed, scopeMadeSafe);
-    } else if (iteratorTypeCheck.test(toBeAssessed)) {
-      symbolsAndScopes.markNextIteratorAccessSafe(toBeAssessed, scopeMadeSafe);
-    }
-
-    //Else nothing to assess just a normal variable
   }
 }

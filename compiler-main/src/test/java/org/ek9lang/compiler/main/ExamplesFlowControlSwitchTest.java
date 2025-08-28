@@ -14,5 +14,6 @@ class ExamplesFlowControlSwitchTest extends SuccessfulTest {
     super.assertFinalResults(compilationResult, numberOfErrors, program);
 
     new SymbolCountCheck("com.customer.just.switches", 10).test(program);
+    new SymbolCountCheck("com.customer.switchguards", 4).test(program);
   }
 }

@@ -15,5 +15,7 @@ class ExamplesFlowControlIfTest extends SuccessfulTest {
 
     new SymbolCountCheck("com.customer.just.ifs", 6).test(program);
     new SymbolCountCheck("com.ifelse", 2).test(program);
+    new SymbolCountCheck("com.ifguards", 4).test(program);
+
   }
 }

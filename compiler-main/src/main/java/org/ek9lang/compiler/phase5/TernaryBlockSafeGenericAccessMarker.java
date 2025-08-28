@@ -12,14 +12,14 @@ final class TernaryBlockSafeGenericAccessMarker implements Consumer<EK9Parser.Ex
   private final ExpressionSimpleForSafeAccess expressionSimpleForSafeAccess = new ExpressionSimpleForSafeAccess();
   private final SymbolsAndScopes symbolsAndScopes;
 
-  private final MarkAppropriateSymbolsSafe markAppropriateSymbolsSafe;
+  private final ExpressionSafeSymbolMarker expressionSafeSymbolMarker;
 
   /**
    * Constructor to provided typed access.
    */
   TernaryBlockSafeGenericAccessMarker(final SymbolsAndScopes symbolsAndScopes, final ErrorListener errorListener) {
     this.symbolsAndScopes = symbolsAndScopes;
-    this.markAppropriateSymbolsSafe = new MarkAppropriateSymbolsSafe(symbolsAndScopes, errorListener);
+    this.expressionSafeSymbolMarker = new ExpressionSafeSymbolMarker(symbolsAndScopes, errorListener);
   }
 
 
@@ -31,7 +31,7 @@ final class TernaryBlockSafeGenericAccessMarker implements Consumer<EK9Parser.Ex
     final var expressionCtx = ctx.control;
     if (expressionSimpleForSafeAccess.test(expressionCtx)) {
       final var wouldBeSafeScope = symbolsAndScopes.getRecordedScope(ctx.ternaryPart(0));
-      markAppropriateSymbolsSafe.accept(expressionCtx, wouldBeSafeScope);
+      expressionSafeSymbolMarker.accept(expressionCtx, wouldBeSafeScope);
     }
 
   }

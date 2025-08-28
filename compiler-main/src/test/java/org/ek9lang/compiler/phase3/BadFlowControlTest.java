@@ -9,7 +9,7 @@ class BadFlowControlTest extends BadFullResolutionTest {
 
   public BadFlowControlTest() {
     super("/examples/parseButFailCompile/phase3/badFlowControl",
-        List.of("bad.switchtypes1", "bad.switchtypes2", "bad.control.types"));
+        List.of("bad.switchtypes1", "bad.switchtypes2", "bad.switchtypes3", "bad.control.types"));
   }
 
 }

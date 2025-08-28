@@ -12,14 +12,14 @@ final class WhileLoopSafeGenericAccessMarker implements Consumer<EK9Parser.While
   private final ExpressionSimpleForSafeAccess expressionSimpleForSafeAccess = new ExpressionSimpleForSafeAccess();
   private final SymbolsAndScopes symbolsAndScopes;
 
-  private final MarkAppropriateSymbolsSafe markAppropriateSymbolsSafe;
+  private final ExpressionSafeSymbolMarker expressionSafeSymbolMarker;
 
   /**
    * Constructor to provided typed access.
    */
   WhileLoopSafeGenericAccessMarker(final SymbolsAndScopes symbolsAndScopes, final ErrorListener errorListener) {
     this.symbolsAndScopes = symbolsAndScopes;
-    this.markAppropriateSymbolsSafe = new MarkAppropriateSymbolsSafe(symbolsAndScopes, errorListener);
+    this.expressionSafeSymbolMarker = new ExpressionSafeSymbolMarker(symbolsAndScopes, errorListener);
   }
 
   /**
@@ -34,7 +34,7 @@ final class WhileLoopSafeGenericAccessMarker implements Consumer<EK9Parser.While
       if (expressionSimpleForSafeAccess.test(expressionCtx)) {
         //This is the context that would be safe if the 'while control' had the check in.
         final var wouldBeSafeScope = symbolsAndScopes.getRecordedScope(ctx.instructionBlock());
-        markAppropriateSymbolsSafe.accept(expressionCtx, wouldBeSafeScope);
+        expressionSafeSymbolMarker.accept(expressionCtx, wouldBeSafeScope);
       }
     }
 

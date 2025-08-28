@@ -1,0 +1,43 @@
+#!ek9
+defines module com.customer.switchguards
+
+  defines function
+
+    value()
+      <- rtn <- 1
+
+    normalSwitchStatement()
+      v <- value()
+      r <- 0
+      switch v
+        case > 1
+          r += 6
+        default
+          r += 10
+      assert r?
+
+    guardedSwitchStatement()
+
+      r <- 0
+      switch v <- value() with v
+        case > 1
+          r += 6
+        default
+          r += 10
+      assert r?
+
+    <?-
+      In this case with no control to switch over the
+      preflow declaration variable is used as the 'switch' variable.
+    -?>
+    inferredSwitchControlFromPreFlowVariable()
+      r <- 0
+      switch v <- value()
+        case > 1
+          r += v + 6
+        default
+          r += v + 10
+      assert r?
+
+
+//EOF

@@ -1,0 +1,26 @@
+#!ek9
+<?-
+  Now try switches with various new defects.
+-?>
+defines module bad.switchtypes3
+
+  defines record
+    ARecord
+      prop1 <- 0
+
+  defines function
+
+    unsupportedSwitchControlFromPreFlowVariable()
+      aRecord <- ARecord()
+
+      r <- 0
+      @Error: FULL_RESOLUTION: PRE_FLOW_SYMBOL_NOT_RESOLVED
+      switch aRecord.prop1 += 3
+        case > 1
+          r += 6
+        default
+          r += 10
+      assert r?
+
+//EOF
+

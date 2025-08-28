@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.phase3;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
@@ -25,6 +26,7 @@ final class IfStatementOrError extends TypedSymbolAccess implements Consumer<EK9
 
     ctx.ifControlBlock().stream()
         .map(controlBlock -> controlBlock.preFlowAndControl().control)
+        .filter(Objects::nonNull)
         .forEach(controlIsBooleanOrError);
 
   }

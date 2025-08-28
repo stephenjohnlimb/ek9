@@ -433,7 +433,6 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   }
 
 
-
   @Override
   public void enterForStatementExpression(final EK9Parser.ForStatementExpressionContext ctx) {
 

@@ -25,6 +25,7 @@ class WorkingAreaTest extends PhasesTest {
 
   /**
    * For this test I've like to enable debugging output in the IR and Code generation (once implemented).
+   *
    * @return true enable debug instrumentation.
    */
   @Override
@@ -54,7 +55,7 @@ class WorkingAreaTest extends PhasesTest {
       program
           .getIRModules("introduction")
           .forEach(irModule -> irModule.getConstructs().forEach(printer::visit));
-    } catch(Exception _) {
+    } catch (Exception _) {
       fail("Failed to produce output.");
     }
     System.out.println(output);

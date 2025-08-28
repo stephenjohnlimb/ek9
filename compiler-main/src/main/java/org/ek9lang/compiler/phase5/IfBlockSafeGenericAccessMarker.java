@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase5;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.LhsFromPreFlowOrError;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 
 /**
@@ -18,14 +19,18 @@ final class IfBlockSafeGenericAccessMarker implements Consumer<EK9Parser.IfContr
   private final ExpressionSimpleForSafeAccess expressionSimpleForSafeAccess = new ExpressionSimpleForSafeAccess();
   private final SymbolsAndScopes symbolsAndScopes;
 
-  private final MarkAppropriateSymbolsSafe markAppropriateSymbolsSafe;
+  private final ExpressionSafeSymbolMarker expressionSafeSymbolMarker;
+  private final SafeSymbolMarker safeSymbolMarker;
+  private final LhsFromPreFlowOrError lhsFromPreFlowOrError;
 
   /**
    * Constructor to provided typed access.
    */
   IfBlockSafeGenericAccessMarker(final SymbolsAndScopes symbolsAndScopes, final ErrorListener errorListener) {
     this.symbolsAndScopes = symbolsAndScopes;
-    this.markAppropriateSymbolsSafe = new MarkAppropriateSymbolsSafe(symbolsAndScopes, errorListener);
+    this.expressionSafeSymbolMarker = new ExpressionSafeSymbolMarker(symbolsAndScopes, errorListener);
+    this.safeSymbolMarker = new SafeSymbolMarker(symbolsAndScopes, errorListener);
+    this.lhsFromPreFlowOrError = new LhsFromPreFlowOrError(symbolsAndScopes, errorListener);
   }
 
   /**
@@ -41,10 +46,23 @@ final class IfBlockSafeGenericAccessMarker implements Consumer<EK9Parser.IfContr
   public void accept(final EK9Parser.IfControlBlockContext ctx) {
 
     final var expressionCtx = ctx.preFlowAndControl().control;
-    if (expressionSimpleForSafeAccess.test(expressionCtx)) {
-      //This is the context that would be safe if the 'if statement' had the check in.
-      final var wouldBeSafeScope = symbolsAndScopes.getRecordedScope(ctx.block());
-      markAppropriateSymbolsSafe.accept(expressionCtx, wouldBeSafeScope);
+    final var preFlowCtx = ctx.preFlowAndControl().preFlowStatement();
+
+    //This is the context that would be safe if the 'if statement' had the check in.
+    final var wouldBeSafeScope = symbolsAndScopes.getRecordedScope(ctx.block());
+
+    //Now check any preflow variable, if its type is Optional/Result then
+    //The preflow rules mean that we will check if this is non null and isSet.
+    //Hence, we can mark all access in the following block as safe.
+    if (preFlowCtx != null) {
+      final var preFlowVariable = lhsFromPreFlowOrError.apply(preFlowCtx);
+      safeSymbolMarker.accept(preFlowVariable, wouldBeSafeScope);
+    }
+
+    //Now if we allow no control expression in 'if statement' this will be null.
+    if (expressionCtx != null && expressionSimpleForSafeAccess.test(expressionCtx)) {
+
+      expressionSafeSymbolMarker.accept(expressionCtx, wouldBeSafeScope);
     }
 
   }

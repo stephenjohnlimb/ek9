@@ -468,6 +468,8 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     NOT_ALL_ENUMERATED_VALUES_PRESENT_IN_SWITCH("'cases' should cover all enumerated values in 'switch'"),
     DEFAULT_REQUIRED_IN_SWITCH_STATEMENT("'default' is required in this 'switch' statement"),
     DEFAULT_REQUIRED_IN_SWITCH_EXPRESSION("'default' is required in this 'switch' expression"),
+    PRE_FLOW_OR_CONTROL_REQUIRED("either a pre-flow/guard or a control (or both) are required"),
+    PRE_FLOW_SYMBOL_NOT_RESOLVED("without a control, failed to find subject of flow"),
     GUARD_USED_IN_EXPRESSION("a 'guard' cannot be used in an expression as it may leave 'lhs' uninitialised"),
     METHOD_MODIFIER_PROTECTED_IN_SERVICE(
         "non web service methods cannot be marked with the 'protected' access modifier"),

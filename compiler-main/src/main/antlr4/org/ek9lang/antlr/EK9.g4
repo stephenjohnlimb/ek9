@@ -476,7 +476,7 @@ caseExpression
     ;
 
 preFlowAndControl
-    : preFlowStatement? control=expression;
+    : preFlowStatement? (control=expression)?;
 
 preFlowStatement
     : (variableDeclaration | assignmentStatement | guardExpression) (WITH|THEN)?

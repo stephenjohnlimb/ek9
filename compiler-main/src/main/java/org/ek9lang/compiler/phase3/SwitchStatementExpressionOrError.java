@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.LhsFromPreFlowOrError;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
@@ -24,13 +25,14 @@ final class SwitchStatementExpressionOrError extends TypedSymbolAccess
     implements Consumer<EK9Parser.SwitchStatementExpressionContext> {
 
   private final SetTypeFromReturningParam setTypeFromReturningParam;
+  private final LhsFromPreFlowOrError lhsFromPreFlowOrError;
 
   SwitchStatementExpressionOrError(SymbolsAndScopes symbolsAndScopes,
                                    ErrorListener errorListener) {
 
     super(symbolsAndScopes, errorListener);
     this.setTypeFromReturningParam = new SetTypeFromReturningParam(symbolsAndScopes, errorListener);
-
+    this.lhsFromPreFlowOrError = new LhsFromPreFlowOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -50,14 +52,23 @@ final class SwitchStatementExpressionOrError extends TypedSymbolAccess
    */
   private void switchCasesOrError(final EK9Parser.SwitchStatementExpressionContext ctx) {
 
-    final var controlSymbol = getRecordedAndTypedSymbol(ctx.preFlowAndControl().control);
-    //This above will have emitted errors if not present or 'untyped'
+    if (ctx.preFlowAndControl().control == null) {
+      //If no control has been defined, then we take a look at the guard
+      final var effectiveControlSymbol = lhsFromPreFlowOrError.apply(ctx.preFlowAndControl().preFlowStatement());
+      validSwitchVariableOrError(ctx, effectiveControlSymbol);
+    } else {
+      final var controlSymbol = getRecordedAndTypedSymbol(ctx.preFlowAndControl().control);
+      validSwitchVariableOrError(ctx, controlSymbol);
+    }
+  }
+
+  private void validSwitchVariableOrError(final EK9Parser.SwitchStatementExpressionContext ctx,
+                                          final ISymbol controlSymbol) {
     if (controlSymbol != null && controlSymbol.getType().isPresent()) {
       operatorsPresentOrError(ctx, controlSymbol);
       enumerationUseValidOrError(ctx, controlSymbol);
       defaultStatementOrError(ctx, controlSymbol);
     }
-
   }
 
   private void operatorsPresentOrError(final EK9Parser.SwitchStatementExpressionContext ctx,

@@ -1,0 +1,30 @@
+#!ek9
+defines module com.ifguards
+
+  defines function
+
+    value()
+      <- rtn <- 1
+
+    normalIfStatement()
+      v <- value()
+      if v > 0
+        v += 6
+        assert v?
+
+    guardedIfStatement()
+
+      if v <- value() then v > 0
+        v += 6
+        assert v?
+    <?-
+      Will just use the 'isSet' nature of v so if true
+      The if block will be executed, if false then it won't.
+    -?>
+    justGuardedIfStatement()
+
+      if v <- value()
+        v += 6
+        assert v?
+
+//EOF
