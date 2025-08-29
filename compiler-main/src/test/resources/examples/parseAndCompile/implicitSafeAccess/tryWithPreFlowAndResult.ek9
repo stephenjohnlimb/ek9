@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  Now for the pre-flow parts with the try/catch/finally.
+-?>
+defines module preflow.withtry.result
+
+  defines function
+
+    <?-
+      Just a test fixture.
+    -?>
+    getExplicitResult()
+      <- rtn <- Result("Steve", Integer())
+
+    <?-
+      This is the specific example we are showing.
+      The declaration of o and its use in the guard means that the '?'
+      Has been applied implicitly. Hence we can then use '.get()' without
+      any further checks.
+    -?>
+    tryCatchFinallyWithDeclarationWithResultTest()
+
+      try o <- getExplicitResult()
+        value <- o.get()
+        assert value?
+      catch
+        -> ex as Exception
+        value <- o.ok()
+        assert value?
+      finally
+        value <- o.get()
+        assert value?
+
+//EOF

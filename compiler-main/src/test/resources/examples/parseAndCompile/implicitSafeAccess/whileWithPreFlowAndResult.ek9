@@ -1,0 +1,61 @@
+#!ek9
+<?-
+  Result safe access with while pre-flow.
+-?>
+defines module preflow.withwhile.result
+
+  defines function
+
+    <?-
+      Just a test fixture.
+    -?>
+    getExplicitResult()
+      <- rtn <- Result("Steve", Integer())
+
+    whileWithoutPreFlow()
+      o <- getExplicitResult()
+
+      triggerToEndLoop <- false
+      if o?
+        while not triggerToEndLoop
+          val <- o.get()
+          assert val?
+          triggerToEndLoop: true
+
+    whileWithPreFlow()
+      triggerToEndLoop <- false
+
+      while o <- getExplicitResult() then not triggerToEndLoop
+        val <- o.get()
+        assert val?
+        triggerToEndLoop: true
+
+    whileSafeCheckOnExpression()
+      o <- getExplicitResult()
+
+      while o?
+        val <- o.get()
+        assert val?
+        o:= Result() of (String, Integer)
+
+    doWithoutPreFlow()
+      o <- getExplicitResult()
+
+      triggerToEndLoop <- false
+      if o?
+        do
+          val <- o.get()
+          assert val?
+          triggerToEndLoop: true
+        while not triggerToEndLoop
+
+    doWithPreFlow()
+      triggerToEndLoop <- false
+
+      do o <- getExplicitResult()
+        val <- o.get()
+        assert val?
+        triggerToEndLoop: true
+      while not triggerToEndLoop
+
+//EOF

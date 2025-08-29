@@ -1,0 +1,52 @@
+#!ek9
+<?-
+  Result use with if statement in the preflow - declaration/assignment.
+  The trick here, is that the preflow is ALWAYS checked for being non-null and _isSet true.
+  This means that in effect - you get the declaration/assignment AND the ? operation all in one.
+  So this means that to go into the 'if' block not only is the Result 'o' assigned to it has already
+  been checked to see if it 'isSet'.
+  This means that the block following is now 'safe' for the 'o' 'get()' method to be called without any further
+  need to call '?' or 'isOk'.
+-?>
+defines module preflow.withif.result
+
+  defines function
+
+    <?-
+      Just a test fixture.
+    -?>
+    getExplicitResult()
+      <- rtn <- Result("Steve", Integer())
+
+    <?-
+      This is the specific example we are showing.
+      The declaration of o and its use in the guard means that the '?'
+      Has been applied implicitly. Hence we can then use 'ok()'/'.get()' without
+      any further checks.
+    -?>
+    ifWithDeclarationWithResultTest()
+
+      if o <- getExplicitResult()
+        value <- o.ok()
+        assert value?
+
+    <?-
+      This is the equivalent of the above.
+    -?>
+    isSetIfTest()
+      o1 <- getExplicitResult()
+
+      if o1?
+        val <- o1.get()
+        assert val?
+
+    <?-
+      This is also the equivalent.
+    -?>
+    declarationAndIsSetIfTest()
+
+      if o1 <- getExplicitResult() then o1?
+        val <- o1.get()
+        assert val?
+
+//EOF

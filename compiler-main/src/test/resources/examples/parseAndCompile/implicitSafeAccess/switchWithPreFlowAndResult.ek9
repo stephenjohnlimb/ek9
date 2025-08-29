@@ -1,0 +1,60 @@
+#!ek9
+<?-
+  As with the 'if' statement it is also possible to use the preflow part of the
+  switch with an Result and hence have the 'ok()'/'get()' access made safe in
+  a single expression.
+-?>
+defines module preflow.withswich.result
+
+  defines function
+
+    <?-
+      Just a test fixture.
+    -?>
+    getExplicitResult()
+      <- rtn <- Result("Steve", Integer())
+
+    <?-
+      Here an example is given where the Result is used within the cases.
+      You can use 'ok()' or 'get()' interchangeably.
+    -?>
+    switchWithDeclarationWithResultTest()
+
+      conditional <- 'A'
+      switch o <- getExplicitResult() then conditional
+        case 'A'
+          value <- o.get()
+          assert value?
+        default
+          value <- o.ok() + conditional
+          assert value?
+
+    <?-
+      Here an example is given where the optional is used as part of the switch.
+    -?>
+    switchWithDeclarationWithResultGetTest()
+
+      someResult <- "Got "
+      switch o <- getExplicitResult() then o.ok()
+        case "Steve"
+          someResult: "Just Steve"
+        default
+          someResult += o.get()
+      assert someResult?
+
+    <?-
+    Long winded way.
+    -?>
+    switchExplicitCheckWithResultGetTest()
+
+      o <- getExplicitResult()
+      if o?
+        someResult <- switch o.ok()
+          <- rtn as String: "Got :"
+          case "Steve"
+            rtn: "Just Steve"
+          default
+            rtn += o.get()
+        assert someResult?
+
+//EOF

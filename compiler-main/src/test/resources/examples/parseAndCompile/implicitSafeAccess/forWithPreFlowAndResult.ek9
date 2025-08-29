@@ -1,0 +1,40 @@
+#!ek9
+<?-
+  Examples of for loops and for 'range' with pre-flow with result type.
+-?>
+defines module preflow.withfor.result
+
+  defines function
+
+    <?-
+      Just a test fixture.
+    -?>
+    getExplicitResult()
+      <- rtn <- Result("Steve", Integer())
+
+    <?-
+      Another test fixture
+    -?>
+    getList()
+      <- rtn <- [1, 2, 3, 4]
+
+    forLoopWithoutPreFlow()
+      o <- getExplicitResult()
+      if o?
+        for item in getList()
+          val <- o.ok()
+          assert val?
+
+    forLoopWithPreFlow()
+
+      for o <- getExplicitResult() then item in getList()
+        val <- o.ok()
+        assert val?
+
+    forRangeWithPreFlow()
+
+      for o <- getExplicitResult() then item in 1 ... 10
+        val <- o.ok()
+        assert val?
+
+//EOF

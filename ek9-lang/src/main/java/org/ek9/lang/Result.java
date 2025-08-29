@@ -103,6 +103,13 @@ public class Result extends BuiltinType {
   }
 
   @Ek9Method("""
+      get() as pure
+        <- rtn as O?""")
+  public Any get() {
+    return ok();
+  }
+
+  @Ek9Method("""
       getOrDefault() as pure
         -> arg0 as O
         <- rtn as O?""")
