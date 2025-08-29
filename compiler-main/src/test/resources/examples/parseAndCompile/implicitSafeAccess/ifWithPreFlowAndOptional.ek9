@@ -24,7 +24,7 @@ defines module preflow.withif.optional
       Has been applied implicitly. Hence we can then use '.get()' without
       any further checks.
     -?>
-    testIfWithDeclarationWithOptional()
+    ifWithDeclarationWithOptionalTest()
 
       if o <- getExplicitOptional()
         value <- o.get()

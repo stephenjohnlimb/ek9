@@ -1,0 +1,60 @@
+#!ek9
+<?-
+  As with the 'if' statement it is also possible to use the preflow part of the
+  switch with an Optional and hence have the option 'get()' access made safe in
+  a single expression.
+-?>
+defines module preflow.withswich.optional
+
+  defines function
+
+    <?-
+      Just a test fixture.
+    -?>
+    getExplicitOptional()
+      <- rtn <- Optional("Steve")
+
+    <?-
+      Here an example is given where the optional is used within the cases.
+    -?>
+    switchWithDeclarationWithOptionalTest()
+
+      conditional <- 'A'
+      switch o <- getExplicitOptional() then conditional
+        case 'A'
+          value <- o.get()
+          assert value?
+        default
+          value <- o.get() + conditional
+          assert value?
+
+    <?-
+      Here an example is given where the optional is used as part of the switch.
+    -?>
+    switchWithDeclarationWithOptionalGetTest()
+
+      someResult <- "Got "
+      switch o <- getExplicitOptional() then o.get()
+        case "Steve"
+          someResult: "Just Steve"
+        default
+          someResult += o.get()
+      assert someResult?
+
+    <?-
+      Sort of inexperienced ek9 developer used to Java type flow.
+      But does use the switch expression feature.
+    -?>
+    switchExplicitCheckWithOptionalGetTest()
+
+      o <- getExplicitOptional()
+      if o?
+        someResult <- switch o.get()
+          <- rtn as String: "Got :"
+          case "Steve"
+            rtn: "Just Steve"
+          default
+            rtn += o.get()
+        assert someResult?
+
+//EOF
