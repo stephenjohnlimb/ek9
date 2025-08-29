@@ -57,6 +57,18 @@ if (userOpt.isPresent()) {
         result = name.toUpperCase();          // Still not safe if toUpperCase() could throw
     }
 }
+
+// Java try-with-resources - verbose and limited
+try (FileInputStream input = new FileInputStream("data.txt");
+     BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
+    // Verbose resource management
+    // No guard variable safety
+    // Limited to AutoCloseable resources only
+    return reader.lines().collect(Collectors.toList());
+} catch (IOException e) {
+    // Manual exception handling for each resource type
+    // No systematic safety patterns
+}
 ```
 
 **Enterprise Pain Points:**
@@ -345,11 +357,57 @@ defines program
     userService as UserService!  // Injected automatically
     
     newUser := userService.createUser(userData)
-    if newUser.isOk()
-      processUser(newUser.ok())
 ```
 
-**2. Revolutionary Unified Control Flow Safety (Small Improvements, Massive Impact):**
+**2. Revolutionary Exception Safety and Resource Management:**
+```ek9
+// EK9 try/catch - systematic safety patterns
+processUserData()
+  // Pattern 1: Guard variable with resource management
+  try user <- fetchUser(id)           // Guard variable ensures safety
+    profile := processUserProfile(user)   // user guaranteed valid
+    saveProfile(profile)
+  catch
+    -> ex as Exception
+    logError(ex)
+
+// Pattern 2: Multiple resource acquisition (superior to Java try-with-resources)  
+processFiles()
+  results <- try
+    ->                              // Clean resource acquisition syntax
+      input1 <- TextFile("users.csv").input()
+      input2 <- TextFile("profiles.csv").input()
+    <-                              // Return value from try block
+      rtn as List of User: processUserData(input1, input2)
+  catch
+    -> ex as FileException
+    handleFileError(ex)
+
+// Pattern 3: Conditional exception handling with guard variables
+safeUserProcessing()
+  try userData ?= validateUserInput(inputData)  // Only execute if userData valid
+    processValidUser(userData)         // userData guaranteed safe
+    notifySuccess()
+  catch 
+    -> ex as ValidationException
+    handleValidationError(ex)
+
+// SYSTEMATIC CONSISTENCY - Same guard patterns across ALL control flow
+if user <- getUser(id)               // Same guard syntax
+  processUser(user)
+  
+switch user <- getUser(id) then user.type    // Same guard syntax  
+  case "ADMIN"
+    processAdmin(user)
+    
+while connection <- getActiveConnection() then connection.isActive  // Same guard syntax
+  processData(connection)
+  
+try resource <- acquireResource()     // Same guard syntax - UNIFIED SYSTEM
+  processResource(resource)
+```
+
+**3. Revolutionary Unified Control Flow Safety (Small Improvements, Massive Impact):**
 
 EK9 demonstrates how seemingly minor language improvements create overwhelming competitive advantages when designed as a cohesive system:
 
@@ -534,6 +592,8 @@ defines application
 | **Performance** | 9/10 | C++ | 10/10 |
 | **Maintainability** | 10/10 | C# | 7/10 |
 | **Framework Integration** | 10/10 | Java | 7/10 |
+| **Exception Safety** | 10/10 | Rust | 8/10 |
+| **Resource Management** | 10/10 | Python | 7/10 |
 | **Build Simplicity** | 10/10 | Go | 8/10 |
 | **Security** | 10/10 | Rust | 8/10 |
 | **AI Collaboration** | 10/10 | None | 3/10 |

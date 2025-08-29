@@ -40,6 +40,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   private final SwitchBlockSafeGenericAccessMarker switchBlockSafeGenericAccessMarker;
   private final TernaryBlockSafeGenericAccessMarker ternaryBlockSafeGenericAccessMarker;
   private final WhileLoopSafeGenericAccessMarker whileLoopSafeGenericAccessMarker;
+  private final ForLoopSafeGenericAccessMarker forLoopSafeGenericAccessMarker;
   private final SymbolHasTypeOrError symbolHasTypeOrError;
 
   PreIRListener(final ParsedModule parsedModule) {
@@ -95,6 +96,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
         new TernaryBlockSafeGenericAccessMarker(symbolsAndScopes, errorListener);
     this.whileLoopSafeGenericAccessMarker =
         new WhileLoopSafeGenericAccessMarker(symbolsAndScopes, errorListener);
+    this.forLoopSafeGenericAccessMarker =
+        new ForLoopSafeGenericAccessMarker(symbolsAndScopes, errorListener);
     this.symbolHasTypeOrError =
         new SymbolHasTypeOrError(symbolsAndScopes, errorListener);
   }
@@ -440,7 +443,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   public void enterForStatementExpression(final EK9Parser.ForStatementExpressionContext ctx) {
 
     symbolHasTypeOrError.accept(ctx);
-
+    forLoopSafeGenericAccessMarker.accept(ctx);
     super.enterForStatementExpression(ctx);
   }
 

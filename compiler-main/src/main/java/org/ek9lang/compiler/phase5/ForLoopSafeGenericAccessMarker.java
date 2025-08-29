@@ -7,9 +7,10 @@ import org.ek9lang.compiler.common.LhsFromPreFlowOrError;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 
 /**
- * Does checks on the control part of a while loop to see if Optional/Result/Iterator are now safe via method access.
+ * Does checks on both for loops and for range in terms of pre-flow and expressions (for loop).
+ * Makes access safe as appropriate for specific types like Optional and Result.
  */
-final class WhileLoopSafeGenericAccessMarker implements Consumer<EK9Parser.WhileStatementExpressionContext> {
+final class ForLoopSafeGenericAccessMarker implements Consumer<EK9Parser.ForStatementExpressionContext> {
   private final ExpressionSimpleForSafeAccess expressionSimpleForSafeAccess = new ExpressionSimpleForSafeAccess();
   private final SymbolsAndScopes symbolsAndScopes;
 
@@ -20,7 +21,7 @@ final class WhileLoopSafeGenericAccessMarker implements Consumer<EK9Parser.While
   /**
    * Constructor to provided typed access.
    */
-  WhileLoopSafeGenericAccessMarker(final SymbolsAndScopes symbolsAndScopes, final ErrorListener errorListener) {
+  ForLoopSafeGenericAccessMarker(final SymbolsAndScopes symbolsAndScopes, final ErrorListener errorListener) {
     this.symbolsAndScopes = symbolsAndScopes;
     this.expressionSafeSymbolMarker = new ExpressionSafeSymbolMarker(symbolsAndScopes, errorListener);
     this.safeSymbolMarker = new SafeSymbolMarker(symbolsAndScopes, errorListener);
@@ -32,11 +33,12 @@ final class WhileLoopSafeGenericAccessMarker implements Consumer<EK9Parser.While
    * methods safe.
    */
   @Override
-  public void accept(final EK9Parser.WhileStatementExpressionContext ctx) {
+  public void accept(final EK9Parser.ForStatementExpressionContext ctx) {
 
-    //Now if there is a preflow part for while and do/while - we can make that variable safe within the loop.
-    final var preFlowCtx = ctx.preFlowStatement();
-    //That would effectively be 'made safe' in the whole switch scope.
+    //Now if there is a preflow part - we can make that variable safe within the loop.
+    final var preFlowCtx = ctx.forLoop() != null ? ctx.forLoop().preFlowStatement() : ctx.forRange().preFlowStatement();
+
+    //That would effectively be 'made safe' in the whole for scope.
     final var wouldBeSafeScope = symbolsAndScopes.getRecordedScope(ctx);
 
     if (preFlowCtx != null) {
@@ -46,13 +48,11 @@ final class WhileLoopSafeGenericAccessMarker implements Consumer<EK9Parser.While
     }
 
     //Only check this on a while, not do/while. Think about it the block can only be safe if check is done in while.
-    if (ctx.WHILE() != null) {
-      final var expressionCtx = ctx.control;
+    if (ctx.forLoop() != null) {
+      final var expressionCtx = ctx.forLoop().expression();
       if (expressionSimpleForSafeAccess.test(expressionCtx)) {
         expressionSafeSymbolMarker.accept(expressionCtx, wouldBeSafeScope);
       }
     }
-
   }
-
 }
