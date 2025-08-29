@@ -1,0 +1,72 @@
+#!ek9
+<?-
+  For while loops with preflow and Optional we can mark the optional safe for the whole while.
+  Remember that the 'pre-flow' is call 'pre-flow' for a reason. It is a one off call before the loop and condition.
+  So there must always be a condition for the while, do/while
+
+  The big difference is the any variables declared/checked in the 'pre-flow' are scoped to the 'while'.
+  This means that variables can have a finite life within a finite scope, this is a very good thing in several ways.
+  1. You can use the same name in different separate scopes.
+  2. The lifetime of a variable can be cleanly identified.
+  3. If the actual object the variable is 'pointing to' never leaves the finite small scope it can be memory managed.
+
+  This final point is important for optimisation and performance, for example a 'lump' of memory that is known to
+  only be used in a small finite scope 'could' be stack allocated, rather than heap allocated.
+-?>
+defines module preflow.withwhile.optional
+
+  defines function
+
+    <?-
+      Just a test fixture.
+    -?>
+    getExplicitOptional()
+      <- rtn <- Optional("Steve")
+
+    whileWithoutPreFlow()
+      o <- getExplicitOptional()
+
+      triggerToEndLoop <- false
+      if o?
+        while not triggerToEndLoop
+          val <- o.get()
+          assert val?
+          triggerToEndLoop: true
+
+    whileWithPreFlow()
+      triggerToEndLoop <- false
+
+      while o <- getExplicitOptional() then not triggerToEndLoop
+        val <- o.get()
+        assert val?
+        triggerToEndLoop: true
+
+    whileSafeCheckOnExpression()
+      o <- getExplicitOptional()
+
+      while o?
+        val <- o.get()
+        assert val?
+        o:= Optional() of String
+
+    doWithoutPreFlow()
+      o <- getExplicitOptional()
+
+      triggerToEndLoop <- false
+      if o?
+        do
+          val <- o.get()
+          assert val?
+          triggerToEndLoop: true
+        while not triggerToEndLoop
+
+    doWithPreFlow()
+      triggerToEndLoop <- false
+
+      do o <- getExplicitOptional()
+        val <- o.get()
+        assert val?
+        triggerToEndLoop: true
+      while not triggerToEndLoop
+
+//EOF
