@@ -3,29 +3,20 @@ package org.ek9lang.compiler.phase5;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.LhsFromPreFlowOrError;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 
 /**
  * Does checks on both for loops and for range in terms of pre-flow and expressions (for loop).
  * Makes access safe as appropriate for specific types like Optional and Result.
  */
-final class ForLoopSafeGenericAccessMarker implements Consumer<EK9Parser.ForStatementExpressionContext> {
-  private final ExpressionSimpleForSafeAccess expressionSimpleForSafeAccess = new ExpressionSimpleForSafeAccess();
-  private final SymbolsAndScopes symbolsAndScopes;
-
-  private final ExpressionSafeSymbolMarker expressionSafeSymbolMarker;
-  private final SafeSymbolMarker safeSymbolMarker;
-  private final LhsFromPreFlowOrError lhsFromPreFlowOrError;
+final class ForLoopSafeGenericAccessMarker extends AbstractSafeGenericAccessMarker
+    implements Consumer<EK9Parser.ForStatementExpressionContext> {
 
   /**
    * Constructor to provided typed access.
    */
   ForLoopSafeGenericAccessMarker(final SymbolsAndScopes symbolsAndScopes, final ErrorListener errorListener) {
-    this.symbolsAndScopes = symbolsAndScopes;
-    this.expressionSafeSymbolMarker = new ExpressionSafeSymbolMarker(symbolsAndScopes, errorListener);
-    this.safeSymbolMarker = new SafeSymbolMarker(symbolsAndScopes, errorListener);
-    this.lhsFromPreFlowOrError = new LhsFromPreFlowOrError(symbolsAndScopes, errorListener);
+    super(symbolsAndScopes, errorListener);
   }
 
   /**
@@ -42,17 +33,13 @@ final class ForLoopSafeGenericAccessMarker implements Consumer<EK9Parser.ForStat
     final var wouldBeSafeScope = symbolsAndScopes.getRecordedScope(ctx);
 
     if (preFlowCtx != null) {
-      //This is the context that would be safe if the switch pre-flow was used with a variable
-      final var preFlowVariable = lhsFromPreFlowOrError.apply(preFlowCtx);
-      safeSymbolMarker.accept(preFlowVariable, wouldBeSafeScope);
+      processPreFlow(preFlowCtx, wouldBeSafeScope);
     }
 
     //Only check this on a while, not do/while. Think about it the block can only be safe if check is done in while.
     if (ctx.forLoop() != null) {
       final var expressionCtx = ctx.forLoop().expression();
-      if (expressionSimpleForSafeAccess.test(expressionCtx)) {
-        expressionSafeSymbolMarker.accept(expressionCtx, wouldBeSafeScope);
-      }
+      processExpression(expressionCtx, wouldBeSafeScope);
     }
   }
 }

@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase5;
 import java.util.function.Consumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.common.LhsFromPreFlowOrError;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 
 /**
@@ -15,22 +14,15 @@ import org.ek9lang.compiler.common.SymbolsAndScopes;
  * It maybe that his simple check is enough for now, but before building a whole 'IR' and then analysing that
  * we should be able to 'fail early' before doing too much.
  */
-final class IfBlockSafeGenericAccessMarker implements Consumer<EK9Parser.IfControlBlockContext> {
-  private final ExpressionSimpleForSafeAccess expressionSimpleForSafeAccess = new ExpressionSimpleForSafeAccess();
-  private final SymbolsAndScopes symbolsAndScopes;
+final class IfBlockSafeGenericAccessMarker extends AbstractSafeGenericAccessMarker
+    implements Consumer<EK9Parser.IfControlBlockContext> {
 
-  private final ExpressionSafeSymbolMarker expressionSafeSymbolMarker;
-  private final SafeSymbolMarker safeSymbolMarker;
-  private final LhsFromPreFlowOrError lhsFromPreFlowOrError;
 
   /**
    * Constructor to provided typed access.
    */
   IfBlockSafeGenericAccessMarker(final SymbolsAndScopes symbolsAndScopes, final ErrorListener errorListener) {
-    this.symbolsAndScopes = symbolsAndScopes;
-    this.expressionSafeSymbolMarker = new ExpressionSafeSymbolMarker(symbolsAndScopes, errorListener);
-    this.safeSymbolMarker = new SafeSymbolMarker(symbolsAndScopes, errorListener);
-    this.lhsFromPreFlowOrError = new LhsFromPreFlowOrError(symbolsAndScopes, errorListener);
+    super(symbolsAndScopes, errorListener);
   }
 
   /**
@@ -55,16 +47,12 @@ final class IfBlockSafeGenericAccessMarker implements Consumer<EK9Parser.IfContr
     //The preflow rules mean that we will check if this is non null and isSet.
     //Hence, we can mark all access in the following block as safe.
     if (preFlowCtx != null) {
-      final var preFlowVariable = lhsFromPreFlowOrError.apply(preFlowCtx);
-      safeSymbolMarker.accept(preFlowVariable, wouldBeSafeScope);
+      processPreFlow(preFlowCtx, wouldBeSafeScope);
     }
 
-    //Now if we allow no control expression in 'if statement' this will be null.
-    if (expressionCtx != null && expressionSimpleForSafeAccess.test(expressionCtx)) {
-
-      expressionSafeSymbolMarker.accept(expressionCtx, wouldBeSafeScope);
+    if (expressionCtx != null) {
+      processExpression(expressionCtx, wouldBeSafeScope);
     }
-
   }
 
 }
