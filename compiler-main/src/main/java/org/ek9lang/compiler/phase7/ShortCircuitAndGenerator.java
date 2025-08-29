@@ -8,6 +8,7 @@ import org.ek9lang.compiler.ir.LogicalDetails;
 import org.ek9lang.compiler.ir.LogicalOperationInstr;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
+import org.ek9lang.compiler.support.EK9TypeNames;
 
 /**
  * Generates IR instructions for Boolean AND operations using LOGICAL_AND_BLOCK pattern.
@@ -32,9 +33,10 @@ public final class ShortCircuitAndGenerator extends AbstractShortCircuitGenerato
 
   @Override
   protected CallDetails getCallDetails(final String lhsVariable, final String rhsVariable) {
-    return new CallDetails(lhsVariable, "org.ek9.lang::Boolean",
-        "_and", List.of("org.ek9.lang::Boolean"),
-        "org.ek9.lang::Boolean", List.of(rhsVariable));
+    final var booleanType = EK9TypeNames.EK9_BOOLEAN;
+    return new CallDetails(lhsVariable, booleanType,
+        "_and", List.of(booleanType),
+        booleanType, List.of(rhsVariable));
   }
 
   @Override

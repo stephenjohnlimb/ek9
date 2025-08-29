@@ -1,9 +1,10 @@
 package org.ek9lang.compiler.symbols.scopes;
 
-import static org.ek9lang.compiler.support.AggregateManipulator.EK9_INTEGER;
-import static org.ek9lang.compiler.support.AggregateManipulator.EK9_STRING;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_INTEGER;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -14,7 +15,7 @@ import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.search.TypeSymbolSearch;
-import org.ek9lang.compiler.support.AggregateManipulator;
+import org.ek9lang.compiler.support.EK9TypeNames;
 import org.ek9lang.compiler.support.InternalNameFor;
 import org.ek9lang.compiler.support.ParameterizedSymbolCreator;
 import org.ek9lang.compiler.support.TypeCreator;
@@ -86,7 +87,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
     assertEquals(noModuleInteger.getName(), noModuleInteger.getFullyQualifiedName());
 
     //But this Integer is going to be in an actual module so can be fully qualified
-    var ek9LangSymbolTable = new SymbolTable(AggregateManipulator.EK9_LANG);
+    var ek9LangSymbolTable = new SymbolTable(EK9TypeNames.EK9_LANG);
     ISymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
 
     assertEquals("Integer", orgEk9LangInteger.getName());
@@ -104,10 +105,10 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   @Test
   void testSameSymbolsInModuleResolve() {
-    var ek9LangSymbolTable = new SymbolTable(AggregateManipulator.EK9_LANG);
+    var ek9LangSymbolTable = new SymbolTable(EK9TypeNames.EK9_LANG);
     ISymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
 
-    var anotherEk9LangSymbolTable = new SymbolTable(AggregateManipulator.EK9_LANG);
+    var anotherEk9LangSymbolTable = new SymbolTable(EK9TypeNames.EK9_LANG);
     ISymbol anotherOrgEk9LangInteger = typeCreator.apply("Integer", anotherEk9LangSymbolTable);
 
     assertTrue(anotherOrgEk9LangInteger.isExactSameType(orgEk9LangInteger));
@@ -117,7 +118,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
   @Test
   void testFullyQualifiedSearch() {
-    var ek9LangSymbolTable = new SymbolTable(AggregateManipulator.EK9_LANG);
+    var ek9LangSymbolTable = new SymbolTable(EK9TypeNames.EK9_LANG);
     ISymbol orgEk9LangInteger = typeCreator.apply("Integer", ek9LangSymbolTable);
     assertNotNull(orgEk9LangInteger);
     assertFalse(ek9LangSymbolTable.resolve(new TypeSymbolSearch("Integer")).isPresent());
@@ -317,7 +318,7 @@ final class ScopesTest extends AbstractSymbolTestBase {
 
     //This would be a concrete 'fun' with a concrete type of String to replace 'Tee'
     var pFun = creator.apply(fun, List.of(resolvedString.get()));
-    assertTrue(pFun instanceof FunctionSymbol);
+    assertInstanceOf(FunctionSymbol.class, pFun);
   }
 
   @Test

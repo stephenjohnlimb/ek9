@@ -33,7 +33,7 @@ final class VariableDeclInstrGenerator extends AbstractVariableDeclGenerator
     // Process the assignment expression (right-hand side)
     if (ctx.assignmentExpression() != null) {
 
-      final var lhsSymbol = context.getParsedModule().getRecordedSymbol(ctx);
+      final var lhsSymbol = getRecordedSymbolOrException(ctx);
 
       final var generator = new AssignmentExprInstrGenerator(context, ctx.assignmentExpression(), scopeId);
       final var assignExpressionToSymbol = new AssignExpressionToSymbol(context, false, generator, scopeId);

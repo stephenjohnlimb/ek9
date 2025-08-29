@@ -43,7 +43,7 @@ final class AssignExpressionToSymbol extends AbstractGenerator
     AssertValue.checkNotNull("Ctx cannot be null", ctx);
 
     final var lhsVariableName = variableNameForIR.apply(lhsSymbol);
-    final var rhsExprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
+    final var rhsExprSymbol = getRecordedSymbolOrException(ctx);
     final var rhsExprDebugInfo = debugInfoCreator.apply(rhsExprSymbol.getSourceToken());
 
     final var rhsResult = context.generateTempName();

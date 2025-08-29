@@ -10,7 +10,6 @@ import org.ek9lang.compiler.ir.LogicalDetails;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.support.ConditionalEvaluation;
-import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.OperandEvaluation;
@@ -22,18 +21,16 @@ import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
  * Both AND/OR are very similar in processing, the only real differences are:<br>
  * What operation to call and the op code to generate.
  */
-abstract class AbstractShortCircuitGenerator implements Function<ExprProcessingDetails, List<IRInstr>> {
+abstract class AbstractShortCircuitGenerator extends AbstractGenerator
+    implements Function<ExprProcessingDetails, List<IRInstr>> {
 
-  private final IRContext context;
-  private final DebugInfoCreator debugInfoCreator;
   private final RecordExprProcessing recordExprProcessing;
   private final CallDetailsForIsTrue callDetailsForTrue = new CallDetailsForIsTrue();
   private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
 
   AbstractShortCircuitGenerator(final IRContext context,
                                 final RecordExprProcessing recordExprProcessing) {
-    this.context = context;
-    this.debugInfoCreator = new DebugInfoCreator(context);
+    super(context);
     this.recordExprProcessing = recordExprProcessing;
   }
 
@@ -48,7 +45,7 @@ abstract class AbstractShortCircuitGenerator implements Function<ExprProcessingD
     final var scopeId = details.variableDetails().basicDetails().scopeId();
 
     // Get debug information
-    final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
+    final var exprSymbol = getRecordedSymbolOrException(ctx);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
 
     final var basicDetails = new BasicDetails(scopeId, debugInfo);

@@ -32,16 +32,15 @@ import org.ek9lang.core.CompilerException;
  *     ;
  * </pre>
  */
-final class StmtInstrGenerator implements BiFunction<EK9Parser.StatementContext, String, List<IRInstr>> {
+final class StmtInstrGenerator extends AbstractGenerator
+    implements BiFunction<EK9Parser.StatementContext, String, List<IRInstr>> {
 
-  private final IRContext context;
   private final ObjectAccessInstrGenerator objectAccessGenerator;
   private final AssertStmtGenerator assertStmtGenerator;
   private final AssignmentStmtGenerator assignmentStmtGenerator;
 
   StmtInstrGenerator(final IRContext context) {
-    AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
-    this.context = context;
+    super(context);
     this.objectAccessGenerator = new ObjectAccessInstrGenerator(context);
     this.assertStmtGenerator = new AssertStmtGenerator(context);
     this.assignmentStmtGenerator = new AssignmentStmtGenerator(context);

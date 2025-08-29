@@ -5,7 +5,6 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
-import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
@@ -34,25 +33,21 @@ import org.ek9lang.core.AssertValue;
  *     ;
  * </pre>
  */
-final class AssignmentExprInstrGenerator implements
-    Function<String, List<IRInstr>> {
+final class AssignmentExprInstrGenerator extends AbstractGenerator
+    implements Function<String, List<IRInstr>> {
 
-  private final IRContext context;
   private final ExprInstrGenerator exprInstrGenerator;
   private final EK9Parser.AssignmentExpressionContext ctx;
   private final String scopeId;
-  private final DebugInfoCreator debugInfoCreator;
 
   AssignmentExprInstrGenerator(final IRContext context,
                                final EK9Parser.AssignmentExpressionContext ctx,
                                final String scopeId) {
-    AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
+    super(context);
     AssertValue.checkNotNull("AssignmentExpressionContext cannot be null", ctx);
     AssertValue.checkNotNull("scopeId cannot be null", scopeId);
-    this.context = context;
-    this.scopeId = scopeId;
-    this.debugInfoCreator = new DebugInfoCreator(context);
 
+    this.scopeId = scopeId;
     this.exprInstrGenerator = new ExprInstrGenerator(context);
     this.ctx = ctx;
   }
@@ -63,7 +58,7 @@ final class AssignmentExprInstrGenerator implements
   public List<IRInstr> apply(final String rhsExprResult) {
 
     final var debugInfo =
-        debugInfoCreator.apply(context.getParsedModule().getRecordedSymbol(ctx.expression()).getSourceToken());
+        debugInfoCreator.apply(getRecordedSymbolOrException(ctx.expression()).getSourceToken());
     final var exprDetails = new ExprProcessingDetails(ctx.expression(),
         new VariableDetails(rhsExprResult, new BasicDetails(scopeId, debugInfo)));
 

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
-import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRContext;
 
 /**
@@ -21,19 +20,16 @@ import org.ek9lang.compiler.phase7.support.IRContext;
  * if (!lhsSymbol?) then assign else do nothing
  * </p>
  */
-final class GuardedAssignmentBlockGenerator
+final class GuardedAssignmentBlockGenerator extends AbstractGenerator
     implements Function<GuardedAssignmentGenerator.GuardedAssignmentDetails, List<IRInstr>> {
 
   private final ControlFlowChainGenerator controlFlowChainGenerator;
-  private final DebugInfoCreator debugInfoCreator;
   private final AssignExpressionToSymbol assignExpressionToSymbol;
-  private final IRContext context;
 
   public GuardedAssignmentBlockGenerator(final IRContext context,
                                          final QuestionBlockGenerator questionBlockGenerator,
                                          final AssignExpressionToSymbol assignExpressionToSymbol) {
-    this.context = context;
-    this.debugInfoCreator = new DebugInfoCreator(context);
+    super(context);
     this.assignExpressionToSymbol = assignExpressionToSymbol;
 
     // Extract RecordExprProcessing from the QuestionBlockGenerator's SwitchChainBlockGenerator
@@ -49,7 +45,7 @@ final class GuardedAssignmentBlockGenerator
     final var scopeId = details.scopeId();
 
     // Get debug information
-    final var exprSymbol = context.getParsedModule().getRecordedSymbol(assignmentExpression);
+    final var exprSymbol = getRecordedSymbolOrException(assignmentExpression);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
     final var basicDetails = new BasicDetails(scopeId, debugInfo);
 

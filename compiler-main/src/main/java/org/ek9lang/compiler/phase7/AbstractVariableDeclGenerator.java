@@ -7,7 +7,6 @@ import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.phase7.support.IRContext;
-import org.ek9lang.compiler.phase7.support.ShouldRegisterVariableInScope;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.core.AssertValue;
 
@@ -16,7 +15,6 @@ import org.ek9lang.core.AssertValue;
  */
 abstract class AbstractVariableDeclGenerator extends AbstractGenerator {
 
-  protected final ShouldRegisterVariableInScope shouldRegisterVariableInScope = new ShouldRegisterVariableInScope();
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
 
@@ -30,8 +28,7 @@ abstract class AbstractVariableDeclGenerator extends AbstractGenerator {
     AssertValue.checkNotNull("Ctx cannot be null", ctx);
     AssertValue.checkNotNull("ScopeId cannot be null", scopeId);
 
-    final var variableSymbol = context.getParsedModule().getRecordedSymbol(ctx);
-    AssertValue.checkNotNull("Variable symbol cannot be null", variableSymbol);
+    final var variableSymbol = getRecordedSymbolOrException(ctx);
 
     final var instructions = new ArrayList<IRInstr>();
 

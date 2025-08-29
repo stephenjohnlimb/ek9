@@ -6,7 +6,6 @@ import java.util.function.Function;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.LiteralInstr;
-import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.LiteralProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
@@ -15,14 +14,14 @@ import org.ek9lang.compiler.phase7.support.VariableNameForIR;
  * Deals with generating the correct IR Instructions for processing any form of literal.
  * This includes the memory management.
  */
-final class LiteralGenerator implements Function<LiteralProcessingDetails, List<IRInstr>> {
+final class LiteralGenerator extends AbstractGenerator
+    implements Function<LiteralProcessingDetails, List<IRInstr>> {
 
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
-  private final DebugInfoCreator debugInfoCreator;
 
   LiteralGenerator(final IRContext context) {
-    this.debugInfoCreator = new DebugInfoCreator(context);
+    super(context);
   }
 
   @Override

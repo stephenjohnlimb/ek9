@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase1;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.compiler.common.ErrorListener;
-import org.ek9lang.compiler.support.AggregateManipulator;
+import org.ek9lang.compiler.support.EK9TypeNames;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -23,7 +23,7 @@ final class ProgramReturnOrError implements BiConsumer<IToken, MethodSymbol> {
       final var returningSymbol = methodSymbol.getReturningSymbol();
       final var returningSymbolsType = returningSymbol.getType();
 
-      if (returningSymbolsType.isEmpty() || !AggregateManipulator.EK9_INTEGER.equals(
+      if (returningSymbolsType.isEmpty() || !EK9TypeNames.EK9_INTEGER.equals(
           returningSymbolsType.get().getFullyQualifiedName())) {
         errorListener.semanticError(returningSymbol.getSourceToken(), "",
             ErrorListener.SemanticClassification.PROGRAM_CAN_ONLY_RETURN_INTEGER);

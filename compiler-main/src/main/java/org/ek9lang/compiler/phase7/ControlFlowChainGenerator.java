@@ -18,12 +18,12 @@ import org.ek9lang.compiler.ir.ReturnVariableDetails;
 import org.ek9lang.compiler.ir.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.CallDetailsForOfFalse;
-import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.IRInstrToList;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
+import org.ek9lang.compiler.support.EK9TypeNames;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -42,10 +42,9 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * - Reduced code duplication and maintenance burden
  * </p>
  */
-public final class ControlFlowChainGenerator implements Function<ControlFlowChainDetails, List<IRInstr>> {
+public final class ControlFlowChainGenerator extends AbstractGenerator
+    implements Function<ControlFlowChainDetails, List<IRInstr>> {
 
-  private final IRContext context;
-  private final DebugInfoCreator debugInfoCreator;
   private final Function<ExprProcessingDetails, List<IRInstr>> rawExprProcessor;
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final CallDetailsForOfFalse callDetailsForOfFalse = new CallDetailsForOfFalse();
@@ -54,8 +53,7 @@ public final class ControlFlowChainGenerator implements Function<ControlFlowChai
 
   public ControlFlowChainGenerator(final IRContext context,
                                    final Function<ExprProcessingDetails, List<IRInstr>> rawExprProcessor) {
-    this.context = context;
-    this.debugInfoCreator = new DebugInfoCreator(context);
+    super(context);
     this.rawExprProcessor = rawExprProcessor;
   }
 
@@ -102,7 +100,7 @@ public final class ControlFlowChainGenerator implements Function<ControlFlowChai
     final var basicDetails = exprDetails.variableDetails().basicDetails();
 
     // Get debug information from expression symbol
-    final var exprSymbol = context.getParsedModule().getRecordedSymbol(ctx);
+    final var exprSymbol = getRecordedSymbolOrException(ctx);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
     final var operandBasicDetails = new BasicDetails(basicDetails.scopeId(), debugInfo);
 
@@ -228,7 +226,7 @@ public final class ControlFlowChainGenerator implements Function<ControlFlowChai
     final var primitiveCondition = context.generateTempName();
     conditionEvaluationInstructions.add(CallInstr.operator(
         new VariableDetails(primitiveCondition, basicDetails),
-        new CallDetails(invertedCondition, "org.ek9.lang::Boolean", "_true",
+        new CallDetails(invertedCondition, EK9TypeNames.EK9_BOOLEAN, "_true",
             List.of(), "boolean", List.of())
     ));
 
@@ -285,7 +283,7 @@ public final class ControlFlowChainGenerator implements Function<ControlFlowChai
 
     // Call _isSet() on loaded variable
     final var isSetCallDetails = new CallDetails(operandVariable, operandType,
-        "_isSet", List.of(), "org.ek9.lang::Boolean", List.of());
+        "_isSet", List.of(), EK9TypeNames.EK9_BOOLEAN, List.of());
     final var callInstructions = irInstrToList.apply(() -> CallInstr.operator(resultDetails, isSetCallDetails));
     instructions.addAll(callInstructions);
     variableMemoryManagement.apply(() -> callInstructions, resultDetails);
@@ -301,7 +299,7 @@ public final class ControlFlowChainGenerator implements Function<ControlFlowChai
                                                                    final String operandType,
                                                                    final VariableDetails resultDetails) {
     final var isSetCallDetails = new CallDetails(operandVariable, operandType,
-        "_isSet", List.of(), "org.ek9.lang::Boolean", List.of());
+        "_isSet", List.of(), EK9TypeNames.EK9_BOOLEAN, List.of());
 
     // Only manage memory for the _isSet() result, not the operand
     final var instructions = irInstrToList.apply(() -> CallInstr.operator(resultDetails, isSetCallDetails));
@@ -314,8 +312,9 @@ public final class ControlFlowChainGenerator implements Function<ControlFlowChai
    */
   private List<IRInstr> generateBooleanNotEvaluation(final String booleanVariable,
                                                      final VariableDetails variableDetails) {
-    final var notCallDetails = new CallDetails(booleanVariable, "org.ek9.lang::Boolean",
-        "_not", List.of(), "org.ek9.lang::Boolean", List.of());
+    final var booleanType = EK9TypeNames.EK9_BOOLEAN;
+    final var notCallDetails = new CallDetails(booleanVariable, booleanType,
+        "_not", List.of(), booleanType, List.of());
 
     final var instructions = irInstrToList.apply(() -> CallInstr.operator(variableDetails, notCallDetails));
     variableMemoryManagement.apply(() -> instructions, variableDetails);

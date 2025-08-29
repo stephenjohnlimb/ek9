@@ -24,7 +24,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * to ensure consistent null-safety behavior across the EK9 compiler.
  * </p>
  */
-final class GuardedAssignmentGenerator
+final class GuardedAssignmentGenerator extends AbstractGenerator
     implements Function<GuardedAssignmentGenerator.GuardedAssignmentDetails, List<IRInstr>> {
 
   private final GuardedAssignmentBlockGenerator guardedAssignmentBlockGenerator;
@@ -32,6 +32,7 @@ final class GuardedAssignmentGenerator
   public GuardedAssignmentGenerator(final IRContext context,
                                     final QuestionBlockGenerator questionBlockGenerator,
                                     final AssignExpressionToSymbol assignExpressionToSymbol) {
+    super(context);
     this.guardedAssignmentBlockGenerator = new GuardedAssignmentBlockGenerator(
         context, questionBlockGenerator, assignExpressionToSymbol);
   }

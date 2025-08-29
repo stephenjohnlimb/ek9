@@ -8,7 +8,6 @@ import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
-import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
@@ -23,15 +22,10 @@ import org.ek9lang.core.AssertValue;
  * Handles constructor calls and method calls using resolved symbols.
  * Generates new BasicBlock IR (IRInstructions).
  */
-final class ObjectAccessInstrGenerator {
-
-  private final IRContext context;
-  private final DebugInfoCreator debugInfoCreator;
+final class ObjectAccessInstrGenerator extends AbstractGenerator {
 
   ObjectAccessInstrGenerator(final IRContext context) {
-    AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
-    this.context = context;
-    this.debugInfoCreator = new DebugInfoCreator(context);
+    super(context);
   }
 
   /**
@@ -48,7 +42,7 @@ final class ObjectAccessInstrGenerator {
     // Check if this is a simple constructor call (like Stdout())
     if (ctx.objectAccessStart() != null && ctx.objectAccessStart().call() != null) {
       // Get the resolved symbol for the call
-      final var callSymbol = context.getParsedModule().getRecordedSymbol(ctx.objectAccessStart().call());
+      final var callSymbol = getRecordedSymbolOrException(ctx.objectAccessStart().call());
 
       if (callSymbol instanceof CallSymbol resolvedCallSymbol) {
         final var toBeCalled = resolvedCallSymbol.getResolvedSymbolToCall();
@@ -102,7 +96,7 @@ final class ObjectAccessInstrGenerator {
 
       if (accessType.operationCall() != null) {
         // Get the resolved symbol for the method call
-        final var methodSymbol = context.getParsedModule().getRecordedSymbol(accessType.operationCall());
+        final var methodSymbol = getRecordedSymbolOrException(accessType.operationCall());
 
         if (methodSymbol instanceof CallSymbol callSymbol && targetVar != null) {
           final var toBeCalled = (MethodSymbol) callSymbol.getResolvedSymbolToCall();

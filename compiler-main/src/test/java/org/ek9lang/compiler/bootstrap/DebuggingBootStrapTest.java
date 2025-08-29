@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.bootstrap;
 
-import static org.ek9lang.compiler.support.AggregateManipulator.EK9_LANG;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_LANG;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -53,7 +53,7 @@ class DebuggingBootStrapTest {
    */
   private void assertMinimalEk9(final CompilableProgram program) {
 
-    var scope = program.getParsedModules(EK9_LANG).get(0).getModuleScope();
+    var scope = program.getParsedModules(EK9_LANG).getFirst().getModuleScope();
     assertNotNull(scope);
 
     assertTrue(scope.resolve(new TypeSymbolSearch("String")).isPresent());

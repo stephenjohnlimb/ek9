@@ -1,7 +1,9 @@
 package org.ek9lang.compiler.phase7;
 
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -18,16 +20,13 @@ abstract class AbstractGenerator {
     this.debugInfoCreator = new DebugInfoCreator(context);
   }
 
-  protected String getEk9BooleanFullyQualifiedName() {
-    return context.getParsedModule().getEk9Types().ek9Boolean().getFullyQualifiedName();
-  }
-
-  protected String getEk9VoidFullyQualifiedName() {
-    return context.getParsedModule().getEk9Types().ek9Void().getFullyQualifiedName();
-  }
-
-  protected String getEk9AnyFullyQualifiedName() {
-    return context.getParsedModule().getEk9Types().ek9Any().getFullyQualifiedName();
+  protected ISymbol getRecordedSymbolOrException(ParseTree node) {
+    final var rtn = context.getParsedModule().getRecordedSymbol(node);
+    AssertValue.checkNotNull("Symbol should be resolved by phases 1-6",
+        rtn);
+    AssertValue.checkTrue("Symbol must have been given a type by phase 7",
+        rtn.getType().isPresent());
+    return rtn;
   }
 
 }

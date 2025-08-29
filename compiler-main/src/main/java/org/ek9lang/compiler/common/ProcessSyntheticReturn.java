@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.common;
 
-import static org.ek9lang.compiler.support.AggregateManipulator.EK9_VOID;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
 
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;

@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.phase7;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
@@ -66,6 +67,9 @@ import org.ek9lang.core.AssertValue;
  *     | &lt;assoc=right&gt; control=expression LEFT_ARROW ternaryPart ternary=(COLON|ELSE) ternaryPart
  *     ;
  * </pre>
+ * <p>
+ * In time I'll probably need to break this up a bit more.
+ * </p>
  */
 final class ExprInstrGenerator extends AbstractGenerator
     implements Function<ExprProcessingDetails, List<IRInstr>> {
@@ -75,6 +79,8 @@ final class ExprInstrGenerator extends AbstractGenerator
   private final ShortCircuitAndGenerator shortCircuitAndGenerator;
   private final ShortCircuitOrGenerator shortCircuitOrGenerator;
   private final QuestionBlockGenerator questionBlockGenerator;
+  private final UnaryOperationGenerator unaryOperationGenerator;
+  private final BinaryOperationGenerator binaryOperationGenerator;
 
   ExprInstrGenerator(final IRContext context) {
     super(context);
@@ -85,6 +91,8 @@ final class ExprInstrGenerator extends AbstractGenerator
     this.shortCircuitAndGenerator = new ShortCircuitAndGenerator(context, recordExprProcessing);
     this.shortCircuitOrGenerator = new ShortCircuitOrGenerator(context, recordExprProcessing);
     this.questionBlockGenerator = new QuestionBlockGenerator(context, this::process);
+    this.unaryOperationGenerator = new UnaryOperationGeneratorWithProcessor(context, this::process);
+    this.binaryOperationGenerator = new BinaryOperationGeneratorWithProcessor(context, this::process);
   }
 
   /**
@@ -124,8 +132,6 @@ final class ExprInstrGenerator extends AbstractGenerator
   private List<IRInstr> processOperation(final ExprProcessingDetails details) {
     final var instructions = new ArrayList<IRInstr>();
 
-    //TODO you may find there is a more automated way to do this.
-    //TODO The symbol and operator map may give a way to workout the Calldetails needed.
     final var ctx = details.ctx();
     //Now while you may think these can just call the 'method' that is defined for the operator
     //There cases where 'pre-checks' and 'short circuits need to be applied.
@@ -136,8 +142,21 @@ final class ExprInstrGenerator extends AbstractGenerator
     } else if (ctx.op.getType() == EK9Parser.OR) {
       instructions.addAll(processOrExpression(details));
     } else {
-      AssertValue.fail("Other Operations not yet implemented: " + ctx.op.getText());
+      instructions.addAll(processGeneralOpExpression(details));
     }
+    return instructions;
+  }
+
+  private Collection<? extends IRInstr> processGeneralOpExpression(final ExprProcessingDetails details) {
+    final var instructions = new ArrayList<IRInstr>();
+    if (details.ctx().expression().size() == 1) {
+      //Looks like a unary operation, so delegate.
+      instructions.addAll(unaryOperationGenerator.apply(details));
+    } else {
+      //Binary operation so delegate.
+      instructions.addAll(binaryOperationGenerator.apply(details));
+    }
+
     return instructions;
   }
 
@@ -189,7 +208,7 @@ final class ExprInstrGenerator extends AbstractGenerator
     final var instructions = new ArrayList<IRInstr>();
 
     // Get the resolved symbol for the call
-    final var callSymbol = context.getParsedModule().getRecordedSymbol(ctx.call());
+    final var callSymbol = getRecordedSymbolOrException(ctx.call());
 
     if (callSymbol instanceof CallSymbol resolvedCallSymbol) {
       final var toBeCalled = resolvedCallSymbol.getResolvedSymbolToCall();
@@ -242,9 +261,7 @@ final class ExprInstrGenerator extends AbstractGenerator
                                        final String rhsExprResult,
                                        final String scopeId) {
 
-    // Get the resolved symbol for this literal - phases 1-6 ensure all literals have resolved types
-    final var literalSymbol = context.getParsedModule().getRecordedSymbol(ctx);
-    AssertValue.checkNotNull("Literal symbol should be resolved by phases 1-6", literalSymbol);
+    final var literalSymbol = getRecordedSymbolOrException(ctx);
 
     final var literalGenerator = new LiteralGenerator(context);
     return new ArrayList<>(literalGenerator.apply(new LiteralProcessingDetails(literalSymbol, rhsExprResult, scopeId)));
@@ -257,9 +274,7 @@ final class ExprInstrGenerator extends AbstractGenerator
                                                    final String rhsExprResult, final DebugInfo debugInfo) {
     final var instructions = new ArrayList<IRInstr>();
 
-    // Get the resolved symbol for this identifier - phases 1-6 ensure all identifiers are resolved
-    final var identifierSymbol = context.getParsedModule().getRecordedSymbol(ctx);
-    AssertValue.checkNotNull("Identifier symbol should be resolved by phases 1-6", identifierSymbol);
+    final var identifierSymbol = getRecordedSymbolOrException(ctx);
 
     // Load the variable using its resolved name (could be decorated for generic contexts)
     final var variableName = variableNameForIR.apply(identifierSymbol);
@@ -289,5 +304,6 @@ final class ExprInstrGenerator extends AbstractGenerator
   private List<IRInstr> processOrExpression(final ExprProcessingDetails details) {
     return shortCircuitOrGenerator.apply(details);
   }
+
 
 }

@@ -81,7 +81,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
   private void processIdentifierAssignment(final EK9Parser.AssignmentStatementContext ctx,
                                            final String scopeId, final List<IRInstr> instructions) {
 
-    final var lhsSymbol = context.getParsedModule().getRecordedSymbol(ctx.identifier());
+    final var lhsSymbol = getRecordedSymbolOrException(ctx.identifier());
 
     final var generator = new AssignmentExprInstrGenerator(context, ctx.assignmentExpression(), scopeId);
 
@@ -107,6 +107,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
   private GuardedAssignmentGenerator createGuardedGenerator(final AssignmentExprInstrGenerator generator,
                                                             final AssignExpressionToSymbol assignExpressionToSymbol) {
+
     final Function<ExprProcessingDetails, List<IRInstr>>
         expressionProcessor = details -> generator.apply(details.variableDetails().resultVariable());
     final var questionBlockGenerator = new QuestionBlockGenerator(context, expressionProcessor);

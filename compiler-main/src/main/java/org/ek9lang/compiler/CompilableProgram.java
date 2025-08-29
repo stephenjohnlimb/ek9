@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.ek9lang.compiler.search.SymbolSearch;
-import org.ek9lang.compiler.support.AggregateManipulator;
+import org.ek9lang.compiler.support.EK9TypeNames;
 import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.INaming;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -310,13 +310,13 @@ public class CompilableProgram implements Serializable {
     final var name = search.getName();
 
     if (!INaming.isQualifiedName(name)) {
-      final var resolved = resolveFromBuiltInModule(AggregateManipulator.EK9_LANG, search);
+      final var resolved = resolveFromBuiltInModule(EK9TypeNames.EK9_LANG, search);
       if (resolved.isPresent()) {
         return resolved;
       }
-      return resolveFromBuiltInModule(AggregateManipulator.EK9_MATH, search);
+      return resolveFromBuiltInModule(EK9TypeNames.EK9_MATH, search);
     } else {
-      return Stream.of(AggregateManipulator.EK9_LANG, AggregateManipulator.EK9_MATH)
+      return Stream.of(EK9TypeNames.EK9_LANG, EK9TypeNames.EK9_MATH)
           .map(moduleName -> this.resolveFromModule(moduleName, search))
           .filter(Optional::isPresent).flatMap(Optional::stream).findFirst();
     }
