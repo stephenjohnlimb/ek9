@@ -320,7 +320,7 @@ sumOfSquares() as pure
   -> n Integer
   <- sum Integer: 0      
   for i in 1 ... n      // ✅ Loop variable OK
-    sum += i*i          // ✅ Return variable OK
+    sum: sum + i*i          // ✅ Return variable OK
     // localVar := 42   // ❌ Would be compiler error in pure context
 ```
 
