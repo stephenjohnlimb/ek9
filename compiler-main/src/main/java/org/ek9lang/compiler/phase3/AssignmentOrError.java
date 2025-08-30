@@ -58,7 +58,7 @@ final class AssignmentOrError extends TypedSymbolAccess implements BiConsumer<IT
     }
 
     //If it is a declaration then it is not a reassignment - but an initial assignment.
-    if (!isDeclaration && !isSetCoalescing && isPureReassignmentDisallowed(op, leftHandSideSymbol)) {
+    if (!isDeclaration && !isSetCoalescing && isPureReassignmentDisallowed(leftHandSideSymbol)) {
       errorListener.semanticError(op, "'" + leftHandSideSymbol.getFriendlyName() + "':",
           NO_PURE_REASSIGNMENT);
     }
@@ -68,14 +68,11 @@ final class AssignmentOrError extends TypedSymbolAccess implements BiConsumer<IT
 
   /**
    * Now for any returning variable, we do have to let it be assigned at declaration (if specified).
-   * But subsequent assignments can only be :=?. So in general you'd expect a pure function/method
-   * to leave it as uninitialised and then only use the :=? once to set it.
+   * We now also allow it to be reassigned if desired.
    */
-  private boolean isPureReassignmentDisallowed(final IToken op, final ISymbol leftHandSideSymbol) {
+  private boolean isPureReassignmentDisallowed(final ISymbol leftHandSideSymbol) {
 
-    if (leftHandSideSymbol.isReturningParameter() && leftHandSideSymbol.isInitialised()
-        && leftHandSideSymbol.getSourceToken().getLine() == op.getLine()) {
-      //Not disallowed irrespective of pure scope, as it is the first direct initialisation.
+    if (leftHandSideSymbol.isReturningParameter()) {
       return false;
     }
 

@@ -642,7 +642,6 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     TRAIT_ACCESS_NOT_SUPPORTED("trait method access not supported here"),
     NOT_IMMEDIATE_SUPER("not an immediate super of this context"),
     NOT_ACCESSIBLE("not accessible from this context"),
-    NO_REASSIGNMENT_FROM_CONTEXT_AS_PURE("not re-assignable from this 'pure' context"),
     TYPE_ADDRESS_NOT_SUITABLE("addressing access in this way is not suitable from this context"),
     METHOD_OVERRIDES("as it overrides method of same name/signature in hierarchy"),
     DOES_NOT_OVERRIDE("does not 'override' any method/operator"),

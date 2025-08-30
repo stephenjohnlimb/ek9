@@ -108,16 +108,9 @@ defines module bad.pure.scenarios1
 
       //So this allows for this sort of code (even in pure, but only with the return)
       if var == "Steve"
-        rtn :=? false
+        rtn: false
       else
-        rtn :=? true
-
-      //But this would now be pointless, i.e. trying to set it once assigned
-      rtn :=? Boolean()
-
-      //And you cannot do this
-      @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
-      rtn: true
+        rtn: true
 
     FailingFunctionOnAssignment() as pure
       <- expectFailure as String: "Should Fail"

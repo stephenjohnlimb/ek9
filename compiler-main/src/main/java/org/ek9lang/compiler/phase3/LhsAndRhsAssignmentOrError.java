@@ -120,8 +120,8 @@ final class LhsAndRhsAssignmentOrError extends TypedSymbolAccess implements Cons
       maybeMethod.ifPresent(method -> {
         //Not in constructor - then no mutation in pure
         //If in a constructor then mutation of this or a property on this (mutation)
-        if (!maybeMethod.get().methodSymbol().isConstructor()
-            || (!data.isAssigningToThis() && !isPropertyOfAggregate.test(maybeMethod.get().aggregateSymbol(),
+        if (!method.methodSymbol().isConstructor()
+            || (!data.isAssigningToThis() && !isPropertyOfAggregate.test(method.aggregateSymbol(),
             data.typeData().lhs()))) {
           errorListener.semanticError(data.typeData().location(), "",
               ErrorListener.SemanticClassification.NO_MUTATION_IN_PURE_CONTEXT);

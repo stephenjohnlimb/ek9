@@ -240,9 +240,16 @@ defines module bad.pure.scenarios2
       //Check unset assignment of return value
       rtn :=? true
 
+      //You can also do this with return variable
+      rtn: false
+
       //But this is not allowed in pure even for return variables.
       //The idea is leave it unset and then use :=? once to assign it.
-      //this can be done in switch or if/else or ternaries.
+      //Or fully reassign it if yu need to
+      //We cannot allow mutating operators to be called
+      //because they could allow other mutations, where as reassignment in pure
+      //for the return is finite in mutation and could be needed
+      //for example rtn: rtn + 1
       @Error: FULL_RESOLUTION: NO_MUTATION_IN_PURE_CONTEXT
       rtn :=: false
 
