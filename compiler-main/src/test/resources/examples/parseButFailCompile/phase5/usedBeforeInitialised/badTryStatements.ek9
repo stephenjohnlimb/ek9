@@ -157,7 +157,7 @@ defines module badtry.initialisations
 
     <?-
       Again an unconnected variable, this means that var may never be set
-      based on the result of 'unconnectedVar' bieng set or unset.
+      based on the result of 'unconnectedVar' being set or unset.
     -?>
     TryCatchStatement4()
       unconnectedVar <- 1

@@ -57,8 +57,6 @@ final class AssignmentStatementOrError extends SafeSymbolAccess
     if (safeGenericAccessPredicate.test(symbol)) {
       final var msg = "'" + symbol.getFriendlyName() + "':";
       errorListener.semanticError(ctx.op, msg, NO_REASSIGNMENT_WITHIN_SAFE_ACCESS);
-
-      System.out.println("Doing assignment " + ctx.getText() + " which could be an issue");
     }
 
     if (uninitialisedVariableToBeChecked.test(symbol)) {

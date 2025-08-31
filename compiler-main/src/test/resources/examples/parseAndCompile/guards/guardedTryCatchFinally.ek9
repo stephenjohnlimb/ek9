@@ -35,7 +35,6 @@ defines module some.ok.trycatchfinallyguards
       These are the demonstrations the prove the positive use and also the negative use.
       'Try' has two forms, as a statement but also as an expression, these are shown below.
     -!>
-
     demonstrateValidTryStatementAssignmentUse1()
 
       stdout <- Stdout()
