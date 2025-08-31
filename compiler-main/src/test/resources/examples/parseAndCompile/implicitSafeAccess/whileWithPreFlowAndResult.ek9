@@ -18,7 +18,7 @@ defines module preflow.withwhile.result
       triggerToEndLoop <- false
       if o?
         while not triggerToEndLoop
-          val <- o.get()
+          val <- o.ok()
           assert val?
           triggerToEndLoop: true
 
@@ -26,17 +26,9 @@ defines module preflow.withwhile.result
       triggerToEndLoop <- false
 
       while o <- getExplicitResult() then not triggerToEndLoop
-        val <- o.get()
+        val <- o.ok()
         assert val?
         triggerToEndLoop: true
-
-    whileSafeCheckOnExpression()
-      o <- getExplicitResult()
-
-      while o?
-        val <- o.get()
-        assert val?
-        o:= Result() of (String, Integer)
 
     doWithoutPreFlow()
       o <- getExplicitResult()
@@ -44,7 +36,7 @@ defines module preflow.withwhile.result
       triggerToEndLoop <- false
       if o?
         do
-          val <- o.get()
+          val <- o.ok()
           assert val?
           triggerToEndLoop: true
         while not triggerToEndLoop
@@ -53,7 +45,7 @@ defines module preflow.withwhile.result
       triggerToEndLoop <- false
 
       do o <- getExplicitResult()
-        val <- o.get()
+        val <- o.ok()
         assert val?
         triggerToEndLoop: true
       while not triggerToEndLoop

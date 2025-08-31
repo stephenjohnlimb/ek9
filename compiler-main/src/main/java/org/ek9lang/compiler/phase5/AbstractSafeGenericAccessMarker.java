@@ -31,7 +31,10 @@ abstract class AbstractSafeGenericAccessMarker {
                                 final IScope wouldBeSafeScope) {
     //This is the context that would be safe if the switch pre-flow was used with a variable
     final var preFlowVariable = lhsFromPreFlowOrError.apply(ctx);
-    safeSymbolMarker.accept(preFlowVariable, wouldBeSafeScope);
+    //If could be null if the ek9 developer had tried to use a non-identifier in the pre-flow.
+    if (preFlowVariable != null) {
+      safeSymbolMarker.accept(preFlowVariable, wouldBeSafeScope);
+    }
   }
 
   protected void processExpression(final EK9Parser.ExpressionContext ctx,

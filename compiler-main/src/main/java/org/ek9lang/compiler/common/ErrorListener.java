@@ -657,6 +657,8 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     USED_BEFORE_DEFINED("used before definition"),
     USED_BEFORE_INITIALISED("might be used before being initialised"),
     UNSAFE_METHOD_ACCESS("has not been checked before access"),
+    NO_REASSIGNMENT_WITHIN_SAFE_ACCESS(
+        "Reassignment/mutation within possible 'safe method access' scope is not allowed"),
     RETURN_NOT_ALWAYS_INITIALISED("return value is not always initialised"),
     NOT_INITIALISED_BEFORE_USE("is/may not be initialised before use"),
     NEVER_INITIALISED("never initialised"),

@@ -10,17 +10,13 @@ defines module com.customer.just.loops
 
       stdout.println("Characters while")
       itemIter <- moreItems.iterator()
+
       while itemIter.hasNext()
         item <- itemIter.next()
         stdout.println(item)
 
       //Now a while with a guard, so reuse the iter from above but reset
       while itemIter ?= moreItems.iterator() then itemIter.hasNext()
-        item <- itemIter.next()
-        stdout.println(item)
-
-      //Same again but with an assignment
-      while itemIter := moreItems.iterator() then itemIter.hasNext()
         item <- itemIter.next()
         stdout.println(item)
 

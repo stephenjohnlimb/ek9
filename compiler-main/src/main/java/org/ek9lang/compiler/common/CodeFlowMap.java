@@ -25,7 +25,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * <br/>
  * While the initial reason for this was assessment of variables being initialised or not within branching
  * structures. It will probably also be useful for the checking of Optional (is-set) and Result ('ok'/'error').
- * It may even be extendable to assess if conditionals are always true/false and for assessing cyclo metric complexity.
+ * It may even be extendable to assess if conditionals are always true/false and for assessing cyclometric complexity.
  */
 class CodeFlowMap implements CodeFlowAnalyzer {
   protected static final String SAFE_ACCESS = "SAFE_ACCESS";
@@ -161,11 +161,12 @@ class CodeFlowMap implements CodeFlowAnalyzer {
   /**
    * Gets or Creates a Symbol Access for the variable within the scope.
    */
+  @SuppressWarnings("checkstyle:LambdaParameterName")
   private Map<ISymbol, SymbolAccess> getOrCreateSymbolAccess(final ISymbol identifierSymbol,
                                                              final IScope inScope) {
 
-    final var access = accessMap.computeIfAbsent(inScope, k -> new HashMap<>());
-    access.computeIfAbsent(identifierSymbol, k -> new SymbolAccess(new HashSet<>()));
+    final var access = accessMap.computeIfAbsent(inScope, _ -> new HashMap<>());
+    access.computeIfAbsent(identifierSymbol, _ -> new SymbolAccess(new HashSet<>()));
 
     return access;
   }

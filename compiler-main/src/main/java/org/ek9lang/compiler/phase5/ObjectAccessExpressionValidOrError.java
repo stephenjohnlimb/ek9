@@ -2,14 +2,10 @@ package org.ek9lang.compiler.phase5;
 
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.UNSAFE_METHOD_ACCESS;
 
-import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
-import org.ek9lang.compiler.common.TypedSymbolAccess;
-import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -23,21 +19,9 @@ import org.ek9lang.compiler.symbols.ISymbol;
  * i.e. Result.ok(), Result.error(), Optional.get(). Other methods can just be called but those require a
  * safety check call of isOk()/'?', isError() or '?' (for Optional).
  */
-final class ObjectAccessExpressionValidOrError extends TypedSymbolAccess
+final class ObjectAccessExpressionValidOrError extends SafeSymbolAccess
     implements Consumer<EK9Parser.ObjectAccessExpressionContext> {
 
-  private final SafeGenericAccessMarker safeGenericAccessMarker;
-
-  //Used to map a specific method name to a squirrelled data element.
-  //If present then that method call has to be preceded by a check call so as not to trigger
-  //a possible exception. We emit compiler errors to try and prevent this occurring.
-  private final Map<String, CommonValues> methodNameLookup =
-      Map.of("ok", CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS,
-          "error", CommonValues.RESULT_ERROR_ACCESS_REQUIRES_SAFE_ACCESS,
-          "get", CommonValues.OPTIONAL_GET_ACCESS_REQUIRES_SAFE_ACCESS,
-          "next", CommonValues.ITERATOR_NEXT_ACCESS_REQUIRES_SAFE_ACCESS);
-
-  private final Map<CommonValues, Predicate<ISymbol>> methodLookup;
 
   /**
    * Constructor to provided typed access.
@@ -45,13 +29,6 @@ final class ObjectAccessExpressionValidOrError extends TypedSymbolAccess
   ObjectAccessExpressionValidOrError(final SymbolsAndScopes symbolsAndScopes,
                                      final ErrorListener errorListener) {
     super(symbolsAndScopes, errorListener);
-    this.safeGenericAccessMarker = new SafeGenericAccessMarker(symbolsAndScopes);
-
-    //Now create the map of methods to call for specific checks.
-    methodLookup = Map.of(CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::isOkResultAccessSafe,
-        CommonValues.RESULT_ERROR_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::isErrorResultAccessSafe,
-        CommonValues.OPTIONAL_GET_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::isGetOptionalAccessSafe,
-        CommonValues.ITERATOR_NEXT_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::isNextIteratorAccessSafe);
   }
 
   @Override
@@ -69,7 +46,7 @@ final class ObjectAccessExpressionValidOrError extends TypedSymbolAccess
    * Note that object access is recursive.
    * This allows for arbitrary long method chains.
    * In this context I'm interested in whether a method that might trigger an exception
-   * via Optional.get() or Result.ok() or Result.error() is called within a method chain.
+   * via Optional.get() or Result.ok(), or Result.error() is called within a method chain.
    * <pre>
    * objectAccess
    *     : objectAccessType objectAccess?
@@ -101,14 +78,10 @@ final class ObjectAccessExpressionValidOrError extends TypedSymbolAccess
       //At this point we know for sure that the method name is valid on the calledFromSymbol - because it has
       //been resolved. The question is, can it just be called without a check call before.
       final var methodName = resolvedToCall.getName();
-      final var squirrelledLookupValue = methodNameLookup.get(methodName);
-      if (squirrelledLookupValue != null && calledFromSymbol.getSquirrelledData(squirrelledLookupValue) != null) {
-        final var toCall = methodLookup.get(squirrelledLookupValue);
 
-        if (!toCall.test(calledFromSymbol)) {
-          final var msg = "'" + calledFromSymbol.getFriendlyName() + "':";
-          errorListener.semanticError(asCallSymbol.getSourceToken(), msg, UNSAFE_METHOD_ACCESS);
-        }
+      if (isAccessUnSafe(calledFromSymbol, methodName)) {
+        final var msg = "'" + calledFromSymbol.getFriendlyName() + "':";
+        errorListener.semanticError(asCallSymbol.getSourceToken(), msg, UNSAFE_METHOD_ACCESS);
       }
     }
   }

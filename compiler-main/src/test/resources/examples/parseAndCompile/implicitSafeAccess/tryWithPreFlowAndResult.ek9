@@ -15,20 +15,20 @@ defines module preflow.withtry.result
     <?-
       This is the specific example we are showing.
       The declaration of o and its use in the guard means that the '?'
-      Has been applied implicitly. Hence we can then use '.get()' without
+      Has been applied implicitly. Hence we can then use '.ok()' without
       any further checks.
     -?>
     tryCatchFinallyWithDeclarationWithResultTest()
 
       try o <- getExplicitResult()
-        value <- o.get()
+        value <- o.ok()
         assert value?
       catch
         -> ex as Exception
         value <- o.ok()
         assert value?
       finally
-        value <- o.get()
+        value <- o.ok()
         assert value?
 
 //EOF

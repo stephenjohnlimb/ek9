@@ -19,18 +19,18 @@ class ExpressionSafeSymbolMarker extends AbstractSafeSymbolMarker
     implements BiConsumer<EK9Parser.ExpressionContext, IScope> {
 
   private final Map<String, CommonValues> resultMethodNameLookup =
-      Map.of("?", CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS,
-          "isOk", CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS,
-          "isError", CommonValues.RESULT_ERROR_ACCESS_REQUIRES_SAFE_ACCESS);
+      Map.of("?", CommonValues.OK_ACCESS_REQUIRES_SAFE_ACCESS,
+          "isOk", CommonValues.OK_ACCESS_REQUIRES_SAFE_ACCESS,
+          "isError", CommonValues.ERROR_ACCESS_REQUIRES_SAFE_ACCESS);
 
   private final Map<CommonValues, BiConsumer<ISymbol, IScope>> resultMethodLookup;
 
   private final Map<String, CommonValues> optionalMethodNameLookup =
-      Map.of("?", CommonValues.OPTIONAL_GET_ACCESS_REQUIRES_SAFE_ACCESS);
+      Map.of("?", CommonValues.GET_ACCESS_REQUIRES_SAFE_ACCESS);
 
   private final Map<String, CommonValues> iteratorMethodNameLookup =
-      Map.of("?", CommonValues.ITERATOR_NEXT_ACCESS_REQUIRES_SAFE_ACCESS,
-          "hasNext", CommonValues.ITERATOR_NEXT_ACCESS_REQUIRES_SAFE_ACCESS);
+      Map.of("?", CommonValues.NEXT_ACCESS_REQUIRES_SAFE_ACCESS,
+          "hasNext", CommonValues.NEXT_ACCESS_REQUIRES_SAFE_ACCESS);
 
   /**
    * Constructor to provided typed access.
@@ -40,8 +40,8 @@ class ExpressionSafeSymbolMarker extends AbstractSafeSymbolMarker
 
     //For Result it's a bit more complex.
     resultMethodLookup =
-        Map.of(CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::markOkResultAccessSafe,
-            CommonValues.RESULT_ERROR_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::markErrorResultAccessSafe);
+        Map.of(CommonValues.OK_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::markOkResultAccessSafe,
+            CommonValues.ERROR_ACCESS_REQUIRES_SAFE_ACCESS, symbolsAndScopes::markErrorResultAccessSafe);
   }
 
   @Override

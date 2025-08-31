@@ -371,4 +371,19 @@ defines module error.on.optional.access
       @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
       value <- iter.next()
       assert value?
+
+    testCheckedButThenReAssigned()
+      o <- Optional("Steve")
+
+      if o?
+        val <- o.get()
+        //Now it is no longer safe! We do not allow mutation of 'o' in a safe block.
+        @Error: PRE_IR_CHECKS: NO_REASSIGNMENT_WITHIN_SAFE_ACCESS
+        o: Optional("Stephen")
+        val: o.get()
+        assert val?
+
+      //But you can reassign outside of the safe block.
+      o: Optional("Stephen")
+      assert o?
 //EOF

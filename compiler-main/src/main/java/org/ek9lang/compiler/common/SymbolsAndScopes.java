@@ -35,7 +35,7 @@ import org.ek9lang.core.AssertValue;
  * ParsedModule. Hence, it lives on - with all the sub scopes and symbols.
  * This information in the ParsedModule will be enriched further in additional and different passes.
  * <br/>
- * Now also uses a transient CodeFlowAnalyzer to assess whether variables in instruction blocks has been initialised.
+ * Now also uses a transient CodeFlowAnalyzer to assess whether variables in instruction blocks have been initialised.
  */
 public class SymbolsAndScopes {
   private final ParsedModule parsedModule;
@@ -120,10 +120,10 @@ public class SymbolsAndScopes {
   }
 
   public void recordDeclarationOfVariableUsingResult(final ISymbol identifierSymbol) {
-    if (identifierSymbol.getSquirrelledData(CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS) == null) {
+    if (identifierSymbol.getSquirrelledData(CommonValues.OK_ACCESS_REQUIRES_SAFE_ACCESS) == null) {
       //Given the logic required to detect whether an identifier needs a check - just record a flag.
-      identifierSymbol.putSquirrelledData(CommonValues.RESULT_OK_ACCESS_REQUIRES_SAFE_ACCESS, "TRUE");
-      identifierSymbol.putSquirrelledData(CommonValues.RESULT_ERROR_ACCESS_REQUIRES_SAFE_ACCESS, "TRUE");
+      identifierSymbol.putSquirrelledData(CommonValues.OK_ACCESS_REQUIRES_SAFE_ACCESS, "TRUE");
+      identifierSymbol.putSquirrelledData(CommonValues.ERROR_ACCESS_REQUIRES_SAFE_ACCESS, "TRUE");
       unSafeOkResultAccessAnalyzer.recordSymbol(identifierSymbol, this.getTopScope());
       unSafeErrorResultAccessAnalyzer.recordSymbol(identifierSymbol, this.getTopScope());
     }
@@ -131,16 +131,16 @@ public class SymbolsAndScopes {
 
   public void recordDeclarationOfVariableUsingOptional(final ISymbol identifierSymbol) {
     //Given the logic required to detect whether an identifier needs a check - just record a flag.
-    if (identifierSymbol.getSquirrelledData(CommonValues.OPTIONAL_GET_ACCESS_REQUIRES_SAFE_ACCESS) == null) {
-      identifierSymbol.putSquirrelledData(CommonValues.OPTIONAL_GET_ACCESS_REQUIRES_SAFE_ACCESS, "TRUE");
+    if (identifierSymbol.getSquirrelledData(CommonValues.GET_ACCESS_REQUIRES_SAFE_ACCESS) == null) {
+      identifierSymbol.putSquirrelledData(CommonValues.GET_ACCESS_REQUIRES_SAFE_ACCESS, "TRUE");
       unSafeGetOptionalAccessAnalyzer.recordSymbol(identifierSymbol, this.getTopScope());
     }
   }
 
   public void recordDeclarationOfVariableUsingIterator(final ISymbol identifierSymbol) {
     //Given the logic required to detect whether an identifier needs a check - just record a flag.
-    if (identifierSymbol.getSquirrelledData(CommonValues.ITERATOR_NEXT_ACCESS_REQUIRES_SAFE_ACCESS) == null) {
-      identifierSymbol.putSquirrelledData(CommonValues.ITERATOR_NEXT_ACCESS_REQUIRES_SAFE_ACCESS, "TRUE");
+    if (identifierSymbol.getSquirrelledData(CommonValues.NEXT_ACCESS_REQUIRES_SAFE_ACCESS) == null) {
+      identifierSymbol.putSquirrelledData(CommonValues.NEXT_ACCESS_REQUIRES_SAFE_ACCESS, "TRUE");
       unSafeNextIteratorAccessAnalyzer.recordSymbol(identifierSymbol, this.getTopScope());
     }
   }

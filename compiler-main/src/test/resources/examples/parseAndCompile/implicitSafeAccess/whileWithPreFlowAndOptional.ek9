@@ -41,14 +41,6 @@ defines module preflow.withwhile.optional
         assert val?
         triggerToEndLoop: true
 
-    whileSafeCheckOnExpression()
-      o <- getExplicitOptional()
-
-      while o?
-        val <- o.get()
-        assert val?
-        o:= Optional() of String
-
     doWithoutPreFlow()
       o <- getExplicitOptional()
 

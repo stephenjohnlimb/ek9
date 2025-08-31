@@ -55,7 +55,10 @@ final class SwitchStatementExpressionOrError extends TypedSymbolAccess
     if (ctx.preFlowAndControl().control == null) {
       //If no control has been defined, then we take a look at the guard
       final var effectiveControlSymbol = lhsFromPreFlowOrError.apply(ctx.preFlowAndControl().preFlowStatement());
-      validSwitchVariableOrError(ctx, effectiveControlSymbol);
+      //if it is null - then an error will have been emitted.
+      if (effectiveControlSymbol != null) {
+        validSwitchVariableOrError(ctx, effectiveControlSymbol);
+      }
     } else {
       final var controlSymbol = getRecordedAndTypedSymbol(ctx.preFlowAndControl().control);
       validSwitchVariableOrError(ctx, controlSymbol);

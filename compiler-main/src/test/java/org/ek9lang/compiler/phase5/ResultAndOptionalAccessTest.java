@@ -10,6 +10,6 @@ class ResultAndOptionalAccessTest extends BadPreIRChecksTest {
 
   public ResultAndOptionalAccessTest() {
     super("/examples/parseButFailCompile/phase5/badSpecialGenericsUse",
-        List.of("error.on.result.access", "error.on.optional.access"));
+        List.of("error.on.result.access", "error.on.optional.access"), false, true);
   }
 }
