@@ -38,7 +38,7 @@ defines module com.customer.just.loops
 
       //The above is a bit clumsy, so lets try this instead
       //This has the same effect, assuming the iterator came back as unset
-      do itemIter ?= moreItems.iterator() then
+      do itemIter ?= moreItems.iterator()
         if itemIter?
           item <- itemIter.next()
           stdout.println(item)

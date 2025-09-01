@@ -66,13 +66,11 @@ final class PreFlowStatementOrError extends TypedSymbolAccess
 
   }
 
-
   private void processReturnFromExpressionOrError(final TypeCompatibilityData typeData) {
 
     //If it is null then an error will have been emitted, likewise if it is un-typed there will have been and error.
     if (typeData.rhs() != null) {
       typeData.rhs().getType().ifPresent(returnType -> isSetPresentOrError.test(typeData.location(), returnType));
     }
-
   }
 }

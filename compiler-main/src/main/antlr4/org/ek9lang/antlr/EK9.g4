@@ -359,7 +359,7 @@ elseOnlyBlock
     : NL+ directive? ELSE block;
 
 whileStatementExpression
-    : WHILE preFlowStatement? control=expression NL+ INDENT (NL* returningParam)? NL* instructionBlock DEDENT
+    : WHILE (preFlowStatement (WITH|THEN))? control=expression NL+ INDENT (NL* returningParam)? NL* instructionBlock DEDENT
     | DO preFlowStatement? NL+ INDENT (NL* returningParam)? NL* instructionBlock DEDENT NL+ directive? WHILE control=expression
     ;
 
@@ -368,11 +368,11 @@ forStatementExpression
     ;
 
 forLoop
-    : FOR preFlowStatement? identifier IN expression
+    : FOR (preFlowStatement (WITH|THEN))? identifier IN expression
     ;
 
 forRange
-    : FOR preFlowStatement? identifier IN range (BY (literal | identifier))?
+    : FOR (preFlowStatement (WITH|THEN))? identifier IN range (BY (literal | identifier))?
     ;
 
 assignmentStatement
@@ -476,10 +476,13 @@ caseExpression
     ;
 
 preFlowAndControl
-    : preFlowStatement? (control=expression)?;
+    : preFlowStatement
+    | control=expression
+    | preFlowStatement (WITH|THEN) control=expression
+    ;
 
 preFlowStatement
-    : (variableDeclaration | assignmentStatement | guardExpression) (WITH|THEN)?
+    : (variableDeclaration | assignmentStatement | guardExpression)
     ;
 
 guardExpression

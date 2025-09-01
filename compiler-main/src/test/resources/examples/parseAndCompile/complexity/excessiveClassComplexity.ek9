@@ -93,7 +93,7 @@ defines module excessive.classdefinition.complexity
         //guard: 1
         //Lots of resources: 2
         //Nice thing about resources being used like this is that
-        try someVar :=? getBasicValue() then
+        try someVar :=? getBasicValue()
           ->
             var1 <- SomeResource(prop1)
             var2 <- SomeResource(prop2)
@@ -179,7 +179,7 @@ defines module excessive.classdefinition.complexity
         //guard: 1
         //Lots of resources: 2
         //Nice thing about resources being used like this is that
-        try someVar :=? getBasicValue() then
+        try someVar :=? getBasicValue()
           ->
             var1 <- SomeResource(prop1)
             var2 <- SomeResource(prop2)
@@ -249,7 +249,7 @@ defines module excessive.classdefinition.complexity
         //guard: 1
         //Lots of resources: 2
         //Nice thing about resources being used like this is that
-        try someVar :=? getBasicValue() then
+        try someVar :=? getBasicValue()
           ->
             var1 <- SomeResource(prop1)
             var2 <- SomeResource(prop2)
@@ -319,7 +319,7 @@ defines module excessive.classdefinition.complexity
         //guard: 1
         //Lots of resources: 2
         //Nice thing about resources being used like this is that
-        try someVar :=? getBasicValue() then
+        try someVar :=? getBasicValue()
           ->
             var1 <- SomeResource(prop1)
             var2 <- SomeResource(prop2)
@@ -389,7 +389,7 @@ defines module excessive.classdefinition.complexity
         //guard: 1
         //Lots of resources: 2
         //Nice thing about resources being used like this is that
-        try someVar :=? getBasicValue() then
+        try someVar :=? getBasicValue()
           ->
             var1 <- SomeResource(prop1)
             var2 <- SomeResource(prop2)
@@ -459,7 +459,7 @@ defines module excessive.classdefinition.complexity
         //guard: 1
         //Lots of resources: 2
         //Nice thing about resources being used like this is that
-        try someVar :=? getBasicValue() then
+        try someVar :=? getBasicValue()
           ->
             var1 <- SomeResource(prop1)
             var2 <- SomeResource(prop2)
@@ -529,7 +529,7 @@ defines module excessive.classdefinition.complexity
         //guard: 1
         //Lots of resources: 2
         //Nice thing about resources being used like this is that
-        try someVar :=? getBasicValue() then
+        try someVar :=? getBasicValue()
           ->
             var1 <- SomeResource(prop1)
             var2 <- SomeResource(prop2)
@@ -599,7 +599,7 @@ defines module excessive.classdefinition.complexity
         //guard: 1
         //Lots of resources: 2
         //Nice thing about resources being used like this is that
-        try someVar :=? getBasicValue() then
+        try someVar :=? getBasicValue()
           ->
             var1 <- SomeResource(prop1)
             var2 <- SomeResource(prop2)
@@ -669,7 +669,7 @@ defines module excessive.classdefinition.complexity
         //guard: 1
         //Lots of resources: 2
         //Nice thing about resources being used like this is that
-        try someVar :=? getBasicValue() then
+        try someVar :=? getBasicValue()
           ->
             var1 <- SomeResource(prop1)
             var2 <- SomeResource(prop2)
@@ -739,7 +739,7 @@ defines module excessive.classdefinition.complexity
         //guard: 1
         //Lots of resources: 2
         //Nice thing about resources being used like this is that
-        try someVar :=? getBasicValue() then
+        try someVar :=? getBasicValue()
           ->
             var1 <- SomeResource(prop1)
             var2 <- SomeResource(prop2)
@@ -809,7 +809,7 @@ defines module excessive.classdefinition.complexity
         //guard: 1
         //Lots of resources: 2
         //Nice thing about resources being used like this is that
-        try someVar :=? getBasicValue() then
+        try someVar :=? getBasicValue()
           ->
             var1 <- SomeResource(prop1)
             var2 <- SomeResource(prop2)
@@ -879,7 +879,7 @@ defines module excessive.classdefinition.complexity
         //guard: 1
         //Lots of resources: 2
         //Nice thing about resources being used like this is that
-        try someVar :=? getBasicValue() then
+        try someVar :=? getBasicValue()
           ->
             var1 <- SomeResource(prop1)
             var2 <- SomeResource(prop2)
@@ -949,7 +949,7 @@ defines module excessive.classdefinition.complexity
         //guard: 1
         //Lots of resources: 2
         //Nice thing about resources being used like this is that
-        try someVar :=? getBasicValue() then
+        try someVar :=? getBasicValue()
           ->
             var1 <- SomeResource(prop1)
             var2 <- SomeResource(prop2)

@@ -56,9 +56,22 @@ defines module error.on.optional.access
 
     testInferredOptional2()
       o <- getInferredOptional2()
-      assert ~o?
       //Or more readably
       assert o is empty
+
+    testGenericsDeclarationInPreflow()
+      //It's a bit pointless, because obviously the Optional is set.
+      //But having had a parsing bug, that separated the ("Steve") as an expression
+      //I want this for regression test.
+      if o <- Optional("Steve")
+        val <- o.get()
+        assert val?
+
+      //The nice thing about declaring 'in' the 'if' statement is that o is not available outside that scope
+      //So to prove that I'll declare 'another o'. I'll even use a different type.
+      o <- 'O'
+      assert o?
+
 
     testValidUseDueToChecks1()
 

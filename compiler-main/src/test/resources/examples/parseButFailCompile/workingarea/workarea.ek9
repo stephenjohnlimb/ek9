@@ -3,6 +3,13 @@ defines module introduction
 
   defines function
 
+    simpleGenericUse()
+
+      if o <- Optional("Steve")
+        val <- o.get()
+        assert val?
+
+    <!-
     unaryMinus()
       v1 <- 1
       v2 <- -v1
@@ -15,7 +22,6 @@ defines module introduction
       v3 <- v2 - v1
       assert v3?
 
-
     durationSubtractionWithPromotion()
       v1 <- 5000ms
       v2 <- PT1M
@@ -25,6 +31,7 @@ defines module introduction
       //But we are missing it in the IR generation.
       v3 <- v2 - v1
       assert v3?
+    -!>
 
 <!-
   defines program
