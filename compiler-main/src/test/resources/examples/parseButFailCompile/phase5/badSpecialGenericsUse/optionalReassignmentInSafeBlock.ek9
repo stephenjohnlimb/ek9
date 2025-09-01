@@ -1,0 +1,81 @@
+#!ek9
+<!-
+  Again demonstrates the use of the pre-flow statement, this time with just an 'if'.
+  But the point here is to show that once the pre-flow has been run and
+-!>
+defines module error.on.optional.reassignment
+
+  defines function
+
+    <?-
+      Now this will return an Optional that is 'empty'.
+      Similar to the Java code 'Optional.empty()'.
+    -?>
+    getExplicitOptional()
+      <- rtn <- Optional() of String
+
+    otherAccessCheck()
+      <- rtn <- Optional(String())
+
+      o1 <- Optional("Steve")
+      o2 <- Optional("Stephen")
+
+      if o1?
+        rtn :=: o1
+      else
+        rtn :=: o2
+
+    checkAccess1()
+      o <- Optional("Steve")
+
+      //While pointless we can reassign here
+      o: Optional("Stephen1")
+
+      //We can check if set - but this does not mark any scope safe access.
+      couldBeSet <- o?
+      assert couldBeSet?
+
+      if o?
+        //We should not be allowed to reassign in here, this this scope is marked safe access
+        //This would break that and make logic very complex if we were to deal with work around.
+        @Error: PRE_IR_CHECKS: NO_REASSIGNMENT_WITHIN_SAFE_ACCESS
+        o: Optional("Stephen2")
+        val <- o.get()
+        assert val?
+        item <- true
+        if item
+          //Not withstanding the error above, you could safely access o here
+          v1 <- o.get()
+          assert v1?
+          //So even in nested conditionals, you cannot re-assign.
+          @Error: PRE_IR_CHECKS: NO_REASSIGNMENT_WITHIN_SAFE_ACCESS
+          o: Optional("Stephen3")
+          v2 <- o.get()
+          assert v2?
+
+      //Here it is not valid to access
+      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
+      check <- o.get()
+      assert check?
+
+    checkAccess2()
+
+      if o <- getExplicitOptional()
+        //We should not be allowed to reassign in here, this this scope is marked safe access
+        //This would break that and make logic very complex if we were to deal with work around.
+        @Error: PRE_IR_CHECKS: NO_REASSIGNMENT_WITHIN_SAFE_ACCESS
+        o: Optional("Stephen2")
+        val <- o.get()
+        assert val?
+        item <- true
+        if item
+          //Not withstanding the error above, you could safely access 'o' here
+          v1 <- o.get()
+          assert v1?
+          //So even in nested conditionals, you cannot re-assign.
+          @Error: PRE_IR_CHECKS: NO_REASSIGNMENT_WITHIN_SAFE_ACCESS
+          o: Optional("Stephen3")
+          v2 <- o.get()
+          assert v2?
+
+//EOF
