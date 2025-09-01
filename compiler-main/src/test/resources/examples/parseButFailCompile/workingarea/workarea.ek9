@@ -3,41 +3,6 @@ defines module introduction
 
   defines function
 
-    otherAccessCheck()
-      <- rtn <- Optional(String())
-
-      o1 <- Optional("Steve")
-      o2 <- Optional("Stephen")
-
-      if o1?
-        rtn :=: o1
-      else
-        rtn :=: o2
-
-    checkAccess()
-      o <- Optional("Steve")
-
-      //While pointless we can reassign here
-      o: Optional("Stephen1")
-
-      //We can check if set - but this does not mark any scope safe access.
-      couldBeSet <- o?
-      assert couldBeSet?
-
-      if o?
-        //We should not be allowed to reassign in here, this this scope is marked safe access
-        //This would break that and make logic very complex if we were to deal with work arounds.
-        @Error: PRE_IR_CHECKS: NO_REASSIGNMENT_WITHIN_SAFE_ACCESS
-        o: Optional("Stephen2")
-        val <- o.get()
-        assert val?
-
-      //here it is not valid to access
-      @Error: PRE_IR_CHECKS: UNSAFE_METHOD_ACCESS
-      check <- o.get()
-      assert check?
-
-    <!-
     unaryMinus()
       v1 <- 1
       v2 <- -v1
@@ -60,7 +25,6 @@ defines module introduction
       //But we are missing it in the IR generation.
       v3 <- v2 - v1
       assert v3?
-    -!>
 
 <!-
   defines program
