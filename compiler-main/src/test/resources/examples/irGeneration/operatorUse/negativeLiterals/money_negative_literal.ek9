@@ -1,0 +1,81 @@
+#!ek9
+<?-
+  Test IR generation for Money negative literal
+  
+  Purpose: Verify grammar fix correctly generates compile-time constant
+  for negative money literals like -435.60#GBP, ensuring they become LOAD_LITERAL -435.60#GBP
+  rather than LOAD_LITERAL 435.60#GBP + CALL _negate() (unary operation).
+  
+  Expected IR: LOAD_LITERAL -435.60#GBP, org.ek9.lang::Money
+  This is a compile-time constant, not a runtime method call.
+-?>
+defines module money.negative.literal.test
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "money.negative.literal.test::testMoneyNegativeLiteral": `
+    ConstructDfn: money.negative.literal.test::testMoneyNegativeLiteral()->org.ek9.lang::Void
+    OperationDfn: money.negative.literal.test::testMoneyNegativeLiteral.c_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: money.negative.literal.test::testMoneyNegativeLiteral.i_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: money.negative.literal.test::testMoneyNegativeLiteral.testMoneyNegativeLiteral()->money.negative.literal.test::testMoneyNegativeLiteral  // ./money_negative_literal.ek9:76:5
+    BasicBlock: _entry_1
+    _temp_i_init = CALL (money.negative.literal.test::testMoneyNegativeLiteral)this.i_init()  // ./money_negative_literal.ek9:76:5
+    RETURN this  // ./money_negative_literal.ek9:76:5
+    OperationDfn: money.negative.literal.test::testMoneyNegativeLiteral._call()->org.ek9.lang::Void  // ./money_negative_literal.ek9:76:5
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./money_negative_literal.ek9:78:7
+    REFERENCE negMoneyLit, org.ek9.lang::Money  // ./money_negative_literal.ek9:78:7
+    _temp1 = LOAD_LITERAL -435.60#GBP, org.ek9.lang::Money  // ./money_negative_literal.ek9:78:22
+    RETAIN _temp1  // ./money_negative_literal.ek9:78:22
+    SCOPE_REGISTER _temp1, _scope_1  // ./money_negative_literal.ek9:78:22
+    STORE negMoneyLit, _temp1  // ./money_negative_literal.ek9:78:22
+    RETAIN negMoneyLit  // ./money_negative_literal.ek9:78:22
+    SCOPE_REGISTER negMoneyLit, _scope_1  // ./money_negative_literal.ek9:78:22
+    _temp2 = CONTROL_FLOW_CHAIN  // ./money_negative_literal.ek9:79:7
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_1
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp3 = LOAD negMoneyLit  // ./money_negative_literal.ek9:79:25
+    _temp4 = IS_NULL _temp3  // ./money_negative_literal.ek9:79:25
+    ]
+    primitive_condition: _temp4
+    body_evaluation:
+    [
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./money_negative_literal.ek9:79:25
+    RETAIN _temp5  // ./money_negative_literal.ek9:79:25
+    SCOPE_REGISTER _temp5, _scope_1  // ./money_negative_literal.ek9:79:25
+    ]
+    body_result: _temp5
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./money_negative_literal.ek9:79:25
+    RETAIN _temp6  // ./money_negative_literal.ek9:79:25
+    SCOPE_REGISTER _temp6, _scope_1  // ./money_negative_literal.ek9:79:25
+    ]
+    default_result: _temp6
+    scope_id: _scope_1
+    ]
+    RETAIN _temp2  // ./money_negative_literal.ek9:79:7
+    SCOPE_REGISTER _temp2, _scope_1  // ./money_negative_literal.ek9:79:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./money_negative_literal.ek9:79:7
+    ASSERT _temp7  // ./money_negative_literal.ek9:79:7
+    SCOPE_EXIT _scope_1  // ./money_negative_literal.ek9:78:7
+    RETURN  // ./money_negative_literal.ek9:76:5`
+    testMoneyNegativeLiteral()
+      // Negative literal should be LOAD_LITERAL -435.60#GBP (compile-time constant)
+      negMoneyLit <- -435.60#GBP
+      assert negMoneyLit?
+
+//EOF

@@ -1,0 +1,81 @@
+#!ek9
+<?-
+  Test IR generation for Float negative literal
+  
+  Purpose: Verify grammar fix correctly generates compile-time constant
+  for negative float literals like -3.14, ensuring they become LOAD_LITERAL -3.14
+  rather than LOAD_LITERAL 3.14 + CALL _negate() (unary operation).
+  
+  Expected IR: LOAD_LITERAL -3.14, org.ek9.lang::Float
+  This is a compile-time constant, not a runtime method call.
+-?>
+defines module float.negative.literal.test
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "float.negative.literal.test::testFloatNegativeLiteral": `
+    ConstructDfn: float.negative.literal.test::testFloatNegativeLiteral()->org.ek9.lang::Void
+    OperationDfn: float.negative.literal.test::testFloatNegativeLiteral.c_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: float.negative.literal.test::testFloatNegativeLiteral.i_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: float.negative.literal.test::testFloatNegativeLiteral.testFloatNegativeLiteral()->float.negative.literal.test::testFloatNegativeLiteral  // ./float_negative_literal.ek9:76:5
+    BasicBlock: _entry_1
+    _temp_i_init = CALL (float.negative.literal.test::testFloatNegativeLiteral)this.i_init()  // ./float_negative_literal.ek9:76:5
+    RETURN this  // ./float_negative_literal.ek9:76:5
+    OperationDfn: float.negative.literal.test::testFloatNegativeLiteral._call()->org.ek9.lang::Void  // ./float_negative_literal.ek9:76:5
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./float_negative_literal.ek9:78:7
+    REFERENCE negFloatLit, org.ek9.lang::Float  // ./float_negative_literal.ek9:78:7
+    _temp1 = LOAD_LITERAL -3.14, org.ek9.lang::Float  // ./float_negative_literal.ek9:78:22
+    RETAIN _temp1  // ./float_negative_literal.ek9:78:22
+    SCOPE_REGISTER _temp1, _scope_1  // ./float_negative_literal.ek9:78:22
+    STORE negFloatLit, _temp1  // ./float_negative_literal.ek9:78:22
+    RETAIN negFloatLit  // ./float_negative_literal.ek9:78:22
+    SCOPE_REGISTER negFloatLit, _scope_1  // ./float_negative_literal.ek9:78:22
+    _temp2 = CONTROL_FLOW_CHAIN  // ./float_negative_literal.ek9:79:7
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_1
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp3 = LOAD negFloatLit  // ./float_negative_literal.ek9:79:25
+    _temp4 = IS_NULL _temp3  // ./float_negative_literal.ek9:79:25
+    ]
+    primitive_condition: _temp4
+    body_evaluation:
+    [
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./float_negative_literal.ek9:79:25
+    RETAIN _temp5  // ./float_negative_literal.ek9:79:25
+    SCOPE_REGISTER _temp5, _scope_1  // ./float_negative_literal.ek9:79:25
+    ]
+    body_result: _temp5
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./float_negative_literal.ek9:79:25
+    RETAIN _temp6  // ./float_negative_literal.ek9:79:25
+    SCOPE_REGISTER _temp6, _scope_1  // ./float_negative_literal.ek9:79:25
+    ]
+    default_result: _temp6
+    scope_id: _scope_1
+    ]
+    RETAIN _temp2  // ./float_negative_literal.ek9:79:7
+    SCOPE_REGISTER _temp2, _scope_1  // ./float_negative_literal.ek9:79:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./float_negative_literal.ek9:79:7
+    ASSERT _temp7  // ./float_negative_literal.ek9:79:7
+    SCOPE_EXIT _scope_1  // ./float_negative_literal.ek9:78:7
+    RETURN  // ./float_negative_literal.ek9:76:5`
+    testFloatNegativeLiteral()
+      // Negative literal should be LOAD_LITERAL -3.14 (compile-time constant)
+      negFloatLit <- -3.14
+      assert negFloatLit?
+
+//EOF

@@ -15,7 +15,7 @@ class UnaryOperatorTest extends AbstractIRGenerationTest {
             new SymbolCountCheck(1, "decrement.test", 1),
             new SymbolCountCheck(1, "isSet.test", 1),
             new SymbolCountCheck(1, "empty.test", 1)
-        ), false, false, true);
+        ), false, false, false);
   }
 
 }

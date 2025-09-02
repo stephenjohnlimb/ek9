@@ -1,0 +1,81 @@
+#!ek9
+<?-
+  Test IR generation for Dimension negative literal
+  
+  Purpose: Verify grammar fix correctly generates compile-time constant
+  for negative dimension literals like -3.5em, ensuring they become LOAD_LITERAL -3.5em
+  rather than LOAD_LITERAL 3.5em + CALL _negate() (unary operation).
+  
+  Expected IR: LOAD_LITERAL -3.5em, org.ek9.lang::Dimension
+  This is a compile-time constant, not a runtime method call.
+-?>
+defines module dimension.negative.literal.test
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "dimension.negative.literal.test::testDimensionNegativeLiteral": `
+    ConstructDfn: dimension.negative.literal.test::testDimensionNegativeLiteral()->org.ek9.lang::Void
+    OperationDfn: dimension.negative.literal.test::testDimensionNegativeLiteral.c_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: dimension.negative.literal.test::testDimensionNegativeLiteral.i_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: dimension.negative.literal.test::testDimensionNegativeLiteral.testDimensionNegativeLiteral()->dimension.negative.literal.test::testDimensionNegativeLiteral  // ./dimension_negative_literal.ek9:76:5
+    BasicBlock: _entry_1
+    _temp_i_init = CALL (dimension.negative.literal.test::testDimensionNegativeLiteral)this.i_init()  // ./dimension_negative_literal.ek9:76:5
+    RETURN this  // ./dimension_negative_literal.ek9:76:5
+    OperationDfn: dimension.negative.literal.test::testDimensionNegativeLiteral._call()->org.ek9.lang::Void  // ./dimension_negative_literal.ek9:76:5
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./dimension_negative_literal.ek9:78:7
+    REFERENCE negDimLit, org.ek9.lang::Dimension  // ./dimension_negative_literal.ek9:78:7
+    _temp1 = LOAD_LITERAL -3.5em, org.ek9.lang::Dimension  // ./dimension_negative_literal.ek9:78:20
+    RETAIN _temp1  // ./dimension_negative_literal.ek9:78:20
+    SCOPE_REGISTER _temp1, _scope_1  // ./dimension_negative_literal.ek9:78:20
+    STORE negDimLit, _temp1  // ./dimension_negative_literal.ek9:78:20
+    RETAIN negDimLit  // ./dimension_negative_literal.ek9:78:20
+    SCOPE_REGISTER negDimLit, _scope_1  // ./dimension_negative_literal.ek9:78:20
+    _temp2 = CONTROL_FLOW_CHAIN  // ./dimension_negative_literal.ek9:79:7
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_1
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp3 = LOAD negDimLit  // ./dimension_negative_literal.ek9:79:23
+    _temp4 = IS_NULL _temp3  // ./dimension_negative_literal.ek9:79:23
+    ]
+    primitive_condition: _temp4
+    body_evaluation:
+    [
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./dimension_negative_literal.ek9:79:23
+    RETAIN _temp5  // ./dimension_negative_literal.ek9:79:23
+    SCOPE_REGISTER _temp5, _scope_1  // ./dimension_negative_literal.ek9:79:23
+    ]
+    body_result: _temp5
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./dimension_negative_literal.ek9:79:23
+    RETAIN _temp6  // ./dimension_negative_literal.ek9:79:23
+    SCOPE_REGISTER _temp6, _scope_1  // ./dimension_negative_literal.ek9:79:23
+    ]
+    default_result: _temp6
+    scope_id: _scope_1
+    ]
+    RETAIN _temp2  // ./dimension_negative_literal.ek9:79:7
+    SCOPE_REGISTER _temp2, _scope_1  // ./dimension_negative_literal.ek9:79:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./dimension_negative_literal.ek9:79:7
+    ASSERT _temp7  // ./dimension_negative_literal.ek9:79:7
+    SCOPE_EXIT _scope_1  // ./dimension_negative_literal.ek9:78:7
+    RETURN  // ./dimension_negative_literal.ek9:76:5`
+    testDimensionNegativeLiteral()
+      // Negative literal should be LOAD_LITERAL -3.5em (compile-time constant)
+      negDimLit <- -3.5em
+      assert negDimLit?
+
+//EOF

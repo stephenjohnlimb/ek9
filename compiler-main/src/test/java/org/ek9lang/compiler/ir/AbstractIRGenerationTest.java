@@ -25,6 +25,9 @@ abstract class AbstractIRGenerationTest extends PhasesTest {
     super(fromResourcesDirectory, verbose, muteReportedErrors);
     this.expectedSymbols = expectedSymbols;
     this.showIR = showIR;
+    if(showIR) {
+      System.err.println("Warning Show IR is enabled for " + fromResourcesDirectory);
+    }
   }
 
   /**

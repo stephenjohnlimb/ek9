@@ -398,7 +398,6 @@ throwStatement
 //The order here is important, order of precedence for processing
 expression
     : expression op=(INC | DEC | BANG)
-    | op=SUB expression
     | expression op=QUESTION
     | op=TOJSON expression
     | op=DOLLAR expression
@@ -413,6 +412,7 @@ expression
     | primary
     | call
     | objectAccessExpression
+    | op=SUB expression
     | list
     | dict
     | expression IS? neg=NOT? op=EMPTY

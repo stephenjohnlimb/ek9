@@ -1,0 +1,94 @@
+#!ek9
+<?-
+  Test IR generation for Money unary negation
+  
+  Purpose: Verify grammar fix correctly generates runtime method call
+  for unary negation on variables like -someMoney, ensuring they become
+  LOAD someMoney + CALL _negate() (runtime operation).
+  
+  Expected IR: LOAD someMoney + CALL (org.ek9.lang::Money)_temp._negate()
+  This is a runtime method call, not a compile-time constant.
+-?>
+defines module money.unary.negation.test
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "money.unary.negation.test::testMoneyUnaryNegation": `
+    ConstructDfn: money.unary.negation.test::testMoneyUnaryNegation()->org.ek9.lang::Void
+    OperationDfn: money.unary.negation.test::testMoneyUnaryNegation.c_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: money.unary.negation.test::testMoneyUnaryNegation.i_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: money.unary.negation.test::testMoneyUnaryNegation.testMoneyUnaryNegation()->money.unary.negation.test::testMoneyUnaryNegation  // ./money_unary_negation.ek9:86:5
+    BasicBlock: _entry_1
+    _temp_i_init = CALL (money.unary.negation.test::testMoneyUnaryNegation)this.i_init()  // ./money_unary_negation.ek9:86:5
+    RETURN this  // ./money_unary_negation.ek9:86:5
+    OperationDfn: money.unary.negation.test::testMoneyUnaryNegation._call()->org.ek9.lang::Void  // ./money_unary_negation.ek9:86:5
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./money_unary_negation.ek9:88:7
+    REFERENCE someMoney, org.ek9.lang::Money  // ./money_unary_negation.ek9:88:7
+    _temp1 = LOAD_LITERAL 435.60#GBP, org.ek9.lang::Money  // ./money_unary_negation.ek9:88:27
+    RETAIN _temp1  // ./money_unary_negation.ek9:88:27
+    SCOPE_REGISTER _temp1, _scope_1  // ./money_unary_negation.ek9:88:27
+    STORE someMoney, _temp1  // ./money_unary_negation.ek9:88:27
+    RETAIN someMoney  // ./money_unary_negation.ek9:88:27
+    SCOPE_REGISTER someMoney, _scope_1  // ./money_unary_negation.ek9:88:27
+    REFERENCE negMoneyVar, org.ek9.lang::Money  // ./money_unary_negation.ek9:91:7
+    _temp3 = LOAD someMoney  // ./money_unary_negation.ek9:91:22
+    RETAIN _temp3  // ./money_unary_negation.ek9:91:22
+    SCOPE_REGISTER _temp3, _scope_1  // ./money_unary_negation.ek9:91:22
+    _temp2 = CALL (org.ek9.lang::Money)_temp3._negate()  // ./money_unary_negation.ek9:88:7
+    RETAIN _temp2  // ./money_unary_negation.ek9:91:22
+    SCOPE_REGISTER _temp2, _scope_1  // ./money_unary_negation.ek9:91:22
+    STORE negMoneyVar, _temp2  // ./money_unary_negation.ek9:91:22
+    RETAIN negMoneyVar  // ./money_unary_negation.ek9:91:22
+    SCOPE_REGISTER negMoneyVar, _scope_1  // ./money_unary_negation.ek9:91:22
+    _temp4 = CONTROL_FLOW_CHAIN  // ./money_unary_negation.ek9:92:7
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_1
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp5 = LOAD negMoneyVar  // ./money_unary_negation.ek9:92:25
+    _temp6 = IS_NULL _temp5  // ./money_unary_negation.ek9:92:25
+    ]
+    primitive_condition: _temp6
+    body_evaluation:
+    [
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./money_unary_negation.ek9:92:25
+    RETAIN _temp7  // ./money_unary_negation.ek9:92:25
+    SCOPE_REGISTER _temp7, _scope_1  // ./money_unary_negation.ek9:92:25
+    ]
+    body_result: _temp7
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet()  // ./money_unary_negation.ek9:92:25
+    RETAIN _temp8  // ./money_unary_negation.ek9:92:25
+    SCOPE_REGISTER _temp8, _scope_1  // ./money_unary_negation.ek9:92:25
+    ]
+    default_result: _temp8
+    scope_id: _scope_1
+    ]
+    RETAIN _temp4  // ./money_unary_negation.ek9:92:7
+    SCOPE_REGISTER _temp4, _scope_1  // ./money_unary_negation.ek9:92:7
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true()  // ./money_unary_negation.ek9:92:7
+    ASSERT _temp9  // ./money_unary_negation.ek9:92:7
+    SCOPE_EXIT _scope_1  // ./money_unary_negation.ek9:88:7
+    RETURN  // ./money_unary_negation.ek9:86:5`
+    testMoneyUnaryNegation()
+      // Variable for unary negation
+      someMoney as Money: 435.60#GBP
+      
+      // Unary negation should be LOAD someMoney + CALL _negate() (runtime operation)
+      negMoneyVar <- -someMoney
+      assert negMoneyVar?
+
+//EOF

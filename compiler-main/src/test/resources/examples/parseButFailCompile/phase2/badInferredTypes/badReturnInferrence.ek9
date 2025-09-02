@@ -38,18 +38,18 @@ defines module bad.inferred.returns
       <- rtn <- {1: "Steve", 2: "Stephen", 3: "Steven"}
 
     <?-
+      There was a bug that had -1 as an expression.
+      But now the grammar is fixed -1 is actually now a 'simple' literal.
+    -?>
+    validNegativeLiteralUse()
+      <- aBitComplex <- List(-1)
+
+    <?-
       This however is a complex expression.
     -?>
     invalidExpressionUse1()
       @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
       <- aBitComplex <- List("Steve").get(0)
-
-    <?-
-      Strangely so is this because '-' and '1' are an expression.
-    -?>
-    invalidExpressionUse2()
-      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_MUST_BE_SIMPLE
-      <- aBitComplex <- List(-1)
 
     <?-
       Also this is considered too complex (at the moment).
