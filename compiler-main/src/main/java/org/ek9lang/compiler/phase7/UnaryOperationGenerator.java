@@ -16,6 +16,7 @@ import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -69,8 +70,8 @@ class UnaryOperationGenerator extends AbstractGenerator
     final var callDetails = new CallDetails(operandTemp, operandType, methodName,
         List.of(), returnType, List.of());
 
-    // Generate the operator call
-    final var debugInfo = debugInfoCreator.apply(operandSymbol.getSourceToken());
+    // Generate the operator call.
+    final var debugInfo = debugInfoCreator.apply(new Ek9Token(ctx.op));
     instructions.add(CallInstr.operator(resultVariable, debugInfo, callDetails));
 
     return instructions;

@@ -1,0 +1,82 @@
+#!ek9
+<?-
+  Test IR generation for logical not operator (~)
+  
+  Purpose: Analyze IR generation for Boolean ~ operation,
+  which should generate method call to Boolean._negate().
+  This is a non-mutating unary operation returning Boolean.
+  
+  Expected IR: Method call to Boolean._negate()
+-?>
+defines module anot.test
+
+  defines function
+  
+    @IR: IR_GENERATION: FUNCTION: "anot.test::testNot": `
+    ConstructDfn: anot.test::testNot()->org.ek9.lang::Void
+    OperationDfn: anot.test::testNot.c_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: anot.test::testNot.i_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: anot.test::testNot.testNot()->anot.test::testNot  // ./not_operator.ek9:78:5
+    BasicBlock: _entry_1
+    _temp_i_init = CALL (anot.test::testNot)this.i_init()  // ./not_operator.ek9:78:5
+    RETURN this  // ./not_operator.ek9:78:5
+    OperationDfn: anot.test::testNot._call()->org.ek9.lang::Void  // ./not_operator.ek9:78:5
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./not_operator.ek9:79:7
+    REFERENCE result, org.ek9.lang::Boolean  // ./not_operator.ek9:79:7
+    _temp2 = LOAD_LITERAL true, org.ek9.lang::Boolean  // ./not_operator.ek9:79:18
+    RETAIN _temp2  // ./not_operator.ek9:79:17
+    SCOPE_REGISTER _temp2, _scope_1  // ./not_operator.ek9:79:17
+    _temp1 = CALL (org.ek9.lang::Boolean)_temp2._negate()  // ./not_operator.ek9:79:17
+    RETAIN _temp1  // ./not_operator.ek9:79:17
+    SCOPE_REGISTER _temp1, _scope_1  // ./not_operator.ek9:79:17
+    STORE result, _temp1  // ./not_operator.ek9:79:17
+    RETAIN result  // ./not_operator.ek9:79:17
+    SCOPE_REGISTER result, _scope_1  // ./not_operator.ek9:79:17
+    _temp3 = CONTROL_FLOW_CHAIN  // ./not_operator.ek9:80:7
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_1
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp4 = LOAD result  // ./not_operator.ek9:80:20
+    _temp5 = IS_NULL _temp4  // ./not_operator.ek9:80:20
+    ]
+    primitive_condition: _temp5
+    body_evaluation:
+    [
+    _temp6 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./not_operator.ek9:80:20
+    RETAIN _temp6  // ./not_operator.ek9:80:20
+    SCOPE_REGISTER _temp6, _scope_1  // ./not_operator.ek9:80:20
+    ]
+    body_result: _temp6
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp4._isSet()  // ./not_operator.ek9:80:20
+    RETAIN _temp7  // ./not_operator.ek9:80:20
+    SCOPE_REGISTER _temp7, _scope_1  // ./not_operator.ek9:80:20
+    ]
+    default_result: _temp7
+    scope_id: _scope_1
+    ]
+    RETAIN _temp3  // ./not_operator.ek9:80:7
+    SCOPE_REGISTER _temp3, _scope_1  // ./not_operator.ek9:80:7
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp3._true()  // ./not_operator.ek9:80:7
+    ASSERT _temp8  // ./not_operator.ek9:80:7
+    SCOPE_EXIT _scope_1  // ./not_operator.ek9:79:7
+    RETURN  // ./not_operator.ek9:78:5`
+    testNot()
+      result <- ~true
+      assert result?
+
+//EOF

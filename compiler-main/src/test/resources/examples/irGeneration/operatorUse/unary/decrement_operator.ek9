@@ -37,7 +37,7 @@ defines module decrement.test
     _temp3 = LOAD x  // ./decrement_operator.ek9:122:18
     RETAIN _temp3  // ./decrement_operator.ek9:122:18
     SCOPE_REGISTER _temp3, _scope_1  // ./decrement_operator.ek9:122:18
-    _temp2 = CALL (org.ek9.lang::Integer)_temp3._dec()  // ./decrement_operator.ek9:121:7
+    _temp2 = CALL (org.ek9.lang::Integer)_temp3._dec()  // ./decrement_operator.ek9:122:18
     RETAIN _temp2  // ./decrement_operator.ek9:122:18
     SCOPE_REGISTER _temp2, _scope_1  // ./decrement_operator.ek9:122:18
     STORE result, _temp2  // ./decrement_operator.ek9:122:18

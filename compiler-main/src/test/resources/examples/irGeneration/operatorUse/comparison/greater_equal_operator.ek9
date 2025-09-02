@@ -33,7 +33,7 @@ defines module greater_equal.test
     _temp3 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./greater_equal_operator.ek9:81:17
     RETAIN _temp3  // ./greater_equal_operator.ek9:81:14
     SCOPE_REGISTER _temp3, _scope_1  // ./greater_equal_operator.ek9:81:14
-    _temp1 = CALL (org.ek9.lang::Integer)_temp2._gteq(_temp3)  // ./greater_equal_operator.ek9:81:12
+    _temp1 = CALL (org.ek9.lang::Integer)_temp2._gteq(_temp3)  // ./greater_equal_operator.ek9:81:14
     RETAIN _temp1  // ./greater_equal_operator.ek9:81:14
     SCOPE_REGISTER _temp1, _scope_1  // ./greater_equal_operator.ek9:81:14
     STORE z, _temp1  // ./greater_equal_operator.ek9:81:14

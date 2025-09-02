@@ -37,7 +37,7 @@ defines module empty.test
     _temp3 = LOAD x  // ./empty_operator.ek9:86:22
     RETAIN _temp3  // ./empty_operator.ek9:86:22
     SCOPE_REGISTER _temp3, _scope_1  // ./empty_operator.ek9:86:22
-    _temp2 = CALL (org.ek9.lang::Integer)_temp3._empty()  // ./empty_operator.ek9:85:7
+    _temp2 = CALL (org.ek9.lang::Integer)_temp3._empty()  // ./empty_operator.ek9:86:22
     RETAIN _temp2  // ./empty_operator.ek9:86:22
     SCOPE_REGISTER _temp2, _scope_1  // ./empty_operator.ek9:86:22
     STORE result, _temp2  // ./empty_operator.ek9:86:22

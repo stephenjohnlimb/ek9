@@ -16,6 +16,7 @@ import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -78,7 +79,7 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
         List.of(rightType), returnType, List.of(rightTemp));
 
     // Generate the operator call
-    final var debugInfo = debugInfoCreator.apply(leftSymbol.getSourceToken());
+    final var debugInfo = debugInfoCreator.apply(new Ek9Token(ctx.op));
     instructions.add(CallInstr.operator(resultVariable, debugInfo, callDetails));
 
     return instructions;

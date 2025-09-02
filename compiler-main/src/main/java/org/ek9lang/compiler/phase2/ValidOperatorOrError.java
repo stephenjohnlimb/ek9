@@ -55,12 +55,13 @@ final class ValidOperatorOrError extends RuleSupport
 
   }
 
+  @SuppressWarnings("checkstyle:LambdaParameterName")
   @Override
   public void accept(final MethodSymbol methodSymbol, final EK9Parser.OperatorDeclarationContext ctx) {
 
 
     if (!defaulted.test(methodSymbol)) {
-      operatorChecks.getOrDefault(ctx.operator().getText(), method -> {
+      operatorChecks.getOrDefault(ctx.operator().getText(), _ -> {
       }).accept(methodSymbol);
     }
 
@@ -140,7 +141,7 @@ final class ValidOperatorOrError extends RuleSupport
     rtn.putAll(oneArgumentWithReturnChecks);
     rtn.putAll(noArgumentNoReturn);
 
-    //Now for each of those operators tag on the is pure check.
+    //Now for each of those operators tag on the is non pure check.
     final Map<String, Consumer<MethodSymbol>> mutatorChecks = Map.of(
         ":~:", addNonPureCheck(this::oneArgumentNoReturnOrError),
         ":^:", addNonPureCheck(this::oneArgumentNoReturnOrError),

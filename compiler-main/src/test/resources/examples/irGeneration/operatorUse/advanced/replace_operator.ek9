@@ -1,0 +1,94 @@
+#!ek9
+<?-
+  Test IR generation for replace operator (:^:)
+  
+  Purpose: Analyze IR generation for Integer._replace(Integer) method resolution,
+  mutating assignment operator, and return value management.
+  
+  Expected IR: Method call to Integer._replace(Integer) returning Void (mutating)
+-?>
+defines module replace.test
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "replace.test::testReplace": `
+    ConstructDfn: replace.test::testReplace()->org.ek9.lang::Void
+    OperationDfn: replace.test::testReplace.c_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: replace.test::testReplace.i_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: replace.test::testReplace.testReplace()->replace.test::testReplace  // ./replace_operator.ek9:88:5
+    BasicBlock: _entry_1
+    _temp_i_init = CALL (replace.test::testReplace)this.i_init()  // ./replace_operator.ek9:88:5
+    RETURN this  // ./replace_operator.ek9:88:5
+    OperationDfn: replace.test::testReplace._call()->org.ek9.lang::Void  // ./replace_operator.ek9:88:5
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./replace_operator.ek9:89:7
+    REFERENCE x, org.ek9.lang::Integer  // ./replace_operator.ek9:89:7
+    _temp1 = LOAD_LITERAL 42, org.ek9.lang::Integer  // ./replace_operator.ek9:89:21
+    RETAIN _temp1  // ./replace_operator.ek9:89:21
+    SCOPE_REGISTER _temp1, _scope_1  // ./replace_operator.ek9:89:21
+    STORE x, _temp1  // ./replace_operator.ek9:89:21
+    RETAIN x  // ./replace_operator.ek9:89:21
+    SCOPE_REGISTER x, _scope_1  // ./replace_operator.ek9:89:21
+    REFERENCE y, org.ek9.lang::Integer  // ./replace_operator.ek9:90:7
+    _temp2 = LOAD_LITERAL 100, org.ek9.lang::Integer  // ./replace_operator.ek9:90:21
+    RETAIN _temp2  // ./replace_operator.ek9:90:21
+    SCOPE_REGISTER _temp2, _scope_1  // ./replace_operator.ek9:90:21
+    STORE y, _temp2  // ./replace_operator.ek9:90:21
+    RETAIN y  // ./replace_operator.ek9:90:21
+    SCOPE_REGISTER y, _scope_1  // ./replace_operator.ek9:90:21
+    _temp3 = LOAD x  // ./replace_operator.ek9:91:9
+    RETAIN _temp3  // ./replace_operator.ek9:91:9
+    SCOPE_REGISTER _temp3, _scope_1  // ./replace_operator.ek9:91:9
+    _temp4 = LOAD y  // ./replace_operator.ek9:90:7
+    RETAIN _temp4  // ./replace_operator.ek9:91:9
+    SCOPE_REGISTER _temp4, _scope_1  // ./replace_operator.ek9:91:9
+    CALL (org.ek9.lang::Integer)_temp3._replace(_temp4)  // ./replace_operator.ek9:91:9
+    _temp5 = CONTROL_FLOW_CHAIN  // ./replace_operator.ek9:92:7
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_1
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp6 = LOAD x  // ./replace_operator.ek9:92:15
+    _temp7 = IS_NULL _temp6  // ./replace_operator.ek9:92:15
+    ]
+    primitive_condition: _temp7
+    body_evaluation:
+    [
+    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./replace_operator.ek9:92:15
+    RETAIN _temp8  // ./replace_operator.ek9:92:15
+    SCOPE_REGISTER _temp8, _scope_1  // ./replace_operator.ek9:92:15
+    ]
+    body_result: _temp8
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp6._isSet()  // ./replace_operator.ek9:92:15
+    RETAIN _temp9  // ./replace_operator.ek9:92:15
+    SCOPE_REGISTER _temp9, _scope_1  // ./replace_operator.ek9:92:15
+    ]
+    default_result: _temp9
+    scope_id: _scope_1
+    ]
+    RETAIN _temp5  // ./replace_operator.ek9:92:7
+    SCOPE_REGISTER _temp5, _scope_1  // ./replace_operator.ek9:92:7
+    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true()  // ./replace_operator.ek9:92:7
+    ASSERT _temp10  // ./replace_operator.ek9:92:7
+    SCOPE_EXIT _scope_1  // ./replace_operator.ek9:89:7
+    RETURN  // ./replace_operator.ek9:88:5`
+    testReplace()
+      x as Integer: 42
+      y as Integer: 100
+      x :^: y
+      assert x?
+
+//EOF

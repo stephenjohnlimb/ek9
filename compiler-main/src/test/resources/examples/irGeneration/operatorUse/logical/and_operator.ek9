@@ -1,0 +1,121 @@
+#!ek9
+<?-
+  Test IR generation for logical and operator (and)
+  
+  Purpose: Analyze IR generation for Boolean and operation,
+  which should generate LOGICAL_AND_BLOCK with complex evaluation.
+  This is a non-mutating binary operation returning Boolean.
+  
+  Expected IR: LOGICAL_AND_BLOCK with short-circuit evaluation
+-?>
+defines module anand.test
+
+  defines function
+  
+    @IR: IR_GENERATION: FUNCTION: "anand.test::testAnd": `
+    ConstructDfn: anand.test::testAnd()->org.ek9.lang::Void
+    OperationDfn: anand.test::testAnd.c_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: anand.test::testAnd.i_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: anand.test::testAnd.testAnd()->anand.test::testAnd  // ./and_operator.ek9:115:5
+    BasicBlock: _entry_1
+    _temp_i_init = CALL (anand.test::testAnd)this.i_init()  // ./and_operator.ek9:115:5
+    RETURN this  // ./and_operator.ek9:115:5
+    OperationDfn: anand.test::testAnd._call()->org.ek9.lang::Void  // ./and_operator.ek9:115:5
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./and_operator.ek9:116:7
+    REFERENCE a, org.ek9.lang::Boolean  // ./and_operator.ek9:116:7
+    _temp1 = LOAD_LITERAL true, org.ek9.lang::Boolean  // ./and_operator.ek9:116:21
+    RETAIN _temp1  // ./and_operator.ek9:116:21
+    SCOPE_REGISTER _temp1, _scope_1  // ./and_operator.ek9:116:21
+    STORE a, _temp1  // ./and_operator.ek9:116:21
+    RETAIN a  // ./and_operator.ek9:116:21
+    SCOPE_REGISTER a, _scope_1  // ./and_operator.ek9:116:21
+    REFERENCE b, org.ek9.lang::Boolean  // ./and_operator.ek9:117:7
+    _temp2 = LOAD_LITERAL false, org.ek9.lang::Boolean  // ./and_operator.ek9:117:21
+    RETAIN _temp2  // ./and_operator.ek9:117:21
+    SCOPE_REGISTER _temp2, _scope_1  // ./and_operator.ek9:117:21
+    STORE b, _temp2  // ./and_operator.ek9:117:21
+    RETAIN b  // ./and_operator.ek9:117:21
+    SCOPE_REGISTER b, _scope_1  // ./and_operator.ek9:117:21
+    REFERENCE result, org.ek9.lang::Boolean  // ./and_operator.ek9:118:7
+    _temp3 = LOGICAL_AND_BLOCK  // ./and_operator.ek9:118:19
+    [
+    left_evaluation:
+    [
+    _temp4 = LOAD a  // ./and_operator.ek9:118:19
+    RETAIN _temp4  // ./and_operator.ek9:118:19
+    SCOPE_REGISTER _temp4, _scope_1  // ./and_operator.ek9:118:19
+    _temp5 = CALL (org.ek9.lang::Boolean)_temp4._true()  // ./and_operator.ek9:118:19
+    ]
+    left_operand: _temp4
+    left_condition: _temp5
+    right_evaluation:
+    [
+    _temp6 = LOAD b  // ./and_operator.ek9:118:19
+    RETAIN _temp6  // ./and_operator.ek9:118:19
+    SCOPE_REGISTER _temp6, _scope_1  // ./and_operator.ek9:118:19
+    ]
+    right_operand: _temp6
+    result_computation:
+    [
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp4._and(_temp6)  // ./and_operator.ek9:118:19
+    RETAIN _temp7  // ./and_operator.ek9:118:19
+    SCOPE_REGISTER _temp7, _scope_1  // ./and_operator.ek9:118:19
+    ]
+    logical_result: _temp7
+    scope_id: _scope_1
+    ]
+    RETAIN _temp3  // ./and_operator.ek9:118:19
+    SCOPE_REGISTER _temp3, _scope_1  // ./and_operator.ek9:118:19
+    STORE result, _temp3  // ./and_operator.ek9:118:19
+    RETAIN result  // ./and_operator.ek9:118:19
+    SCOPE_REGISTER result, _scope_1  // ./and_operator.ek9:118:19
+    _temp8 = CONTROL_FLOW_CHAIN  // ./and_operator.ek9:119:7
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_1
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp9 = LOAD result  // ./and_operator.ek9:119:20
+    _temp10 = IS_NULL _temp9  // ./and_operator.ek9:119:20
+    ]
+    primitive_condition: _temp10
+    body_evaluation:
+    [
+    _temp11 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./and_operator.ek9:119:20
+    RETAIN _temp11  // ./and_operator.ek9:119:20
+    SCOPE_REGISTER _temp11, _scope_1  // ./and_operator.ek9:119:20
+    ]
+    body_result: _temp11
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp12 = CALL (org.ek9.lang::Boolean)_temp9._isSet()  // ./and_operator.ek9:119:20
+    RETAIN _temp12  // ./and_operator.ek9:119:20
+    SCOPE_REGISTER _temp12, _scope_1  // ./and_operator.ek9:119:20
+    ]
+    default_result: _temp12
+    scope_id: _scope_1
+    ]
+    RETAIN _temp8  // ./and_operator.ek9:119:7
+    SCOPE_REGISTER _temp8, _scope_1  // ./and_operator.ek9:119:7
+    _temp13 = CALL (org.ek9.lang::Boolean)_temp8._true()  // ./and_operator.ek9:119:7
+    ASSERT _temp13  // ./and_operator.ek9:119:7
+    SCOPE_EXIT _scope_1  // ./and_operator.ek9:116:7
+    RETURN  // ./and_operator.ek9:115:5`
+    testAnd()
+      a as Boolean: true
+      b as Boolean: false  
+      result <- a and b
+      assert result?
+
+//EOF

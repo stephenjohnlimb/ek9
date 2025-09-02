@@ -39,7 +39,7 @@ defines module millisecond.unary.negation.test
     _temp3 = LOAD someMs  // ./millisecond_unary_negation.ek9:91:19
     RETAIN _temp3  // ./millisecond_unary_negation.ek9:91:19
     SCOPE_REGISTER _temp3, _scope_1  // ./millisecond_unary_negation.ek9:91:19
-    _temp2 = CALL (org.ek9.lang::Millisecond)_temp3._negate()  // ./millisecond_unary_negation.ek9:88:7
+    _temp2 = CALL (org.ek9.lang::Millisecond)_temp3._negate()  // ./millisecond_unary_negation.ek9:91:19
     RETAIN _temp2  // ./millisecond_unary_negation.ek9:91:19
     SCOPE_REGISTER _temp2, _scope_1  // ./millisecond_unary_negation.ek9:91:19
     STORE negMsVar, _temp2  // ./millisecond_unary_negation.ek9:91:19

@@ -663,6 +663,7 @@ operator
     | EMPTY
     | LENGTH
     | SHFTL
+
     | SHFTR
     ;
 

@@ -13,7 +13,12 @@ class AssignmentOperatorTest extends AbstractIRGenerationTest {
         List.of(
             new SymbolCountCheck(1, "pointer_assignment.test", 1),
             new SymbolCountCheck(1, "equals_assignment.test", 1),
-            new SymbolCountCheck(1, "colon_equals_assignment.test", 1)
+            new SymbolCountCheck(1, "colon_equals_assignment.test", 1),
+            new SymbolCountCheck(1, "add_assign.test", 1),
+            new SymbolCountCheck(1, "subtract_assign.test", 1),
+            new SymbolCountCheck(1, "multiply_assign.test", 1),
+            new SymbolCountCheck(1, "divide_assign.test", 1),
+            new SymbolCountCheck(1, "anaddass.test", 1)
         ), false, false, false);
   }
 
