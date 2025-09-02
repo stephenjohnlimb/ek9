@@ -40,7 +40,7 @@ public class OperatorMap extends BiMap {
     put("!", "_fac");
     put("?", "_isSet"); //Used on objects to check if they are valid
 
-    put(":=", "_assign");
+    //we never use this ":=", "_assign" within code, because while it is an operator it is sort of 'baked in'
     put("|", "_pipe");
     put("+=", "_addAss");
     put("-=", "_subAss");

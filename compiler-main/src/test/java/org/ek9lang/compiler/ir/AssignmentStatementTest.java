@@ -11,7 +11,7 @@ class AssignmentStatementTest extends AbstractIRGenerationTest {
   public AssignmentStatementTest() {
     super("/examples/irGeneration/assignmentStatements",
         List.of(new SymbolCountCheck(2, "assignments", 4)
-        ), false, false);
+        ), false, false, false);
   }
 
 }

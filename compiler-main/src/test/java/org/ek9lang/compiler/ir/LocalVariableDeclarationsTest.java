@@ -11,7 +11,7 @@ class LocalVariableDeclarationsTest extends AbstractIRGenerationTest {
   public LocalVariableDeclarationsTest() {
     super("/examples/irGeneration/localVariableDeclarations",
         List.of(new SymbolCountCheck(2,"local.variableDeclarations", 2)
-        ), false, false);
+        ), false, false, false);
   }
 
 }

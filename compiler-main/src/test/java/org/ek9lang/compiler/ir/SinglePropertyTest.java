@@ -11,7 +11,7 @@ class SinglePropertyTest extends AbstractIRGenerationTest {
   public SinglePropertyTest() {
     super("/examples/irGeneration/singleProperty",
         List.of(new SymbolCountCheck(1,"singleProperty", 1)
-        ), false, false);
+        ), false, false, false);
   }
 
 }

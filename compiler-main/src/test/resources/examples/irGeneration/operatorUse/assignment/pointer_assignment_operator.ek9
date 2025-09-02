@@ -1,0 +1,78 @@
+#!ek9
+<?-
+  Test IR generation for pointer assignment operator (:)
+  
+  Purpose: Analyze IR generation for basic pointer assignment,
+  which should generate STORE operation rather than method call.
+  
+  Expected IR: Direct STORE operation, no method call
+-?>
+defines module pointer_assignment.test
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "pointer_assignment.test::testPointerAssignment": `
+    ConstructDfn: pointer_assignment.test::testPointerAssignment()->org.ek9.lang::Void
+    OperationDfn: pointer_assignment.test::testPointerAssignment.c_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: pointer_assignment.test::testPointerAssignment.i_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: pointer_assignment.test::testPointerAssignment.testPointerAssignment()->pointer_assignment.test::testPointerAssignment  // ./pointer_assignment_operator.ek9:74:5
+    BasicBlock: _entry_1
+    _temp_i_init = CALL (pointer_assignment.test::testPointerAssignment)this.i_init()  // ./pointer_assignment_operator.ek9:74:5
+    RETURN this  // ./pointer_assignment_operator.ek9:74:5
+    OperationDfn: pointer_assignment.test::testPointerAssignment._call()->org.ek9.lang::Void  // ./pointer_assignment_operator.ek9:74:5
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./pointer_assignment_operator.ek9:75:7
+    REFERENCE x, org.ek9.lang::Integer  // ./pointer_assignment_operator.ek9:75:7
+    _temp1 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./pointer_assignment_operator.ek9:75:21
+    RETAIN _temp1  // ./pointer_assignment_operator.ek9:75:21
+    SCOPE_REGISTER _temp1, _scope_1  // ./pointer_assignment_operator.ek9:75:21
+    STORE x, _temp1  // ./pointer_assignment_operator.ek9:75:21
+    RETAIN x  // ./pointer_assignment_operator.ek9:75:21
+    SCOPE_REGISTER x, _scope_1  // ./pointer_assignment_operator.ek9:75:21
+    _temp2 = CONTROL_FLOW_CHAIN  // ./pointer_assignment_operator.ek9:76:7
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_1
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp3 = LOAD x  // ./pointer_assignment_operator.ek9:76:15
+    _temp4 = IS_NULL _temp3  // ./pointer_assignment_operator.ek9:76:15
+    ]
+    primitive_condition: _temp4
+    body_evaluation:
+    [
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./pointer_assignment_operator.ek9:76:15
+    RETAIN _temp5  // ./pointer_assignment_operator.ek9:76:15
+    SCOPE_REGISTER _temp5, _scope_1  // ./pointer_assignment_operator.ek9:76:15
+    ]
+    body_result: _temp5
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./pointer_assignment_operator.ek9:76:15
+    RETAIN _temp6  // ./pointer_assignment_operator.ek9:76:15
+    SCOPE_REGISTER _temp6, _scope_1  // ./pointer_assignment_operator.ek9:76:15
+    ]
+    default_result: _temp6
+    scope_id: _scope_1
+    ]
+    RETAIN _temp2  // ./pointer_assignment_operator.ek9:76:7
+    SCOPE_REGISTER _temp2, _scope_1  // ./pointer_assignment_operator.ek9:76:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./pointer_assignment_operator.ek9:76:7
+    ASSERT _temp7  // ./pointer_assignment_operator.ek9:76:7
+    SCOPE_EXIT _scope_1  // ./pointer_assignment_operator.ek9:75:7
+    RETURN  // ./pointer_assignment_operator.ek9:74:5`
+    testPointerAssignment()
+      x as Integer: 5
+      assert x?
+
+//EOF

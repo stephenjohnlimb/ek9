@@ -11,7 +11,7 @@ class SimpleClassesTest extends AbstractIRGenerationTest {
   public SimpleClassesTest() {
     super("/examples/irGeneration/simpleClasses",
         List.of(new SymbolCountCheck("simpleClasses", 1)
-        ), false, false);
+        ), false, false, false);
   }
 
 }

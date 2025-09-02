@@ -11,7 +11,7 @@ class BooleanExpressionsTest extends AbstractIRGenerationTest {
   public BooleanExpressionsTest() {
     super("/examples/irGeneration/booleanExpressions",
         List.of(new SymbolCountCheck(3,"booleanExpressions", 3)
-        ), false, false);
+        ), false, false, false);
   }
 
 }

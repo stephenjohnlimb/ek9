@@ -26,6 +26,10 @@ public class SymbolCountCheck implements Predicate<CompilableProgram> {
     this.expectedSymbolCount = expectedSymbolCount;
   }
 
+  public String getForModuleName() {
+    return forModuleName;
+  }
+
   @Override
   public boolean test(CompilableProgram compilableProgram) {
     var modules = compilableProgram.getParsedModules(forModuleName);

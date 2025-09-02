@@ -11,7 +11,7 @@ class JustAssertTest extends AbstractIRGenerationTest {
   public JustAssertTest() {
     super("/examples/irGeneration/justAssert",
         List.of(new SymbolCountCheck("justAssert", 1)
-        ), false, false);
+        ), false, false, false);
   }
 
 }
