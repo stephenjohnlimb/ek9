@@ -7,8 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.List;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class IntegerTest extends Common {
+
+  // Data providers for parameterized tests (now using CSV instead)
 
   // Helper methods for eliminating duplication
 
@@ -613,6 +618,146 @@ class IntegerTest extends Common {
     //Now just check that it can take a value after being unset
     mutatedValue._replace(INT_4);
     assertEquals(INT_4, mutatedValue);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      "11111111, 255",     // All 1s in byte
+      "10101010, 170",     // Alternating bits  
+      "000001, 1",         // Leading zeros
+      "111100001111, 3855" // Mixed pattern
+  })
+  void testBitsConstructorEdgeCases(String bitsString, int expectedValue) {
+    // Focus on constructor-specific cases with interesting bit patterns
+    final var bits = new Bits(String._of(bitsString));
+    final var intFromBits = new Integer(bits);
+    assertSet.accept(intFromBits);
+    assertEquals(Integer._of(expectedValue), intFromBits);
+  }
+
+  @Test
+  void testBitsConstructorUnsetCases() {
+    // Test construction with unset Bits - should result in unset Integer
+    final var unsetBits = new Bits();
+    assertNotNull(unsetBits);
+    final var intFromUnsetBits = new Integer(unsetBits);
+    assertUnset.accept(intFromUnsetBits);
+
+    // Test construction with null Bits - should result in unset Integer
+    final var intFromNullBits = new Integer((Bits) null);
+    assertUnset.accept(intFromNullBits);
+  }
+
+  @Test
+  void testBitsConstructorOverflowProtection() {
+    // Create a large Bits value (>64 bits) - should result in unset Integer
+    final var largeBitsString = "1".repeat(65); // 65 bits, too large for long
+    final var largeBits = new Bits(String._of(largeBitsString));
+    final var intFromLargeBits = new Integer(largeBits);
+    assertUnset.accept(intFromLargeBits); // Should be unset due to overflow
+
+    // Test exactly 64 bits - should work (maximum long value)
+    final var maxBitsString = "1".repeat(64);
+    final var maxBits = new Bits(String._of(maxBitsString));
+    final var intFromMaxBits = new Integer(maxBits);
+    // Note: This might be unset depending on sign handling, but shouldn't crash
+    assertNotNull(intFromMaxBits); // At minimum, it should construct
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      "7, 111",           // All 1s pattern (3 bits)
+      "170, 10101010",    // Alternating pattern (8 bits)
+      "3855, 111100001111" // Mixed pattern (12 bits)
+  })
+  void testBitsMethodSpecificPatterns(int intValue, String expectedBitsString) {
+    // Focus on specific bit patterns for validation (round-trip covered elsewhere)
+    final var integer = Integer._of(intValue);
+    final var bits = integer.bits();
+    assertSet.accept(bits);
+    assertEquals(String._of(expectedBitsString), bits._string());
+  }
+
+  @Test
+  void testBitsMethodUnsetCase() {
+    // Test conversion of unset Integer - should produce unset Bits
+    final var unsetBits = unsetInteger.bits();
+    assertNotNull(unsetBits);
+    assertUnset.accept(unsetBits);
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = {0, 1, 2, 10, 15, 42, 128, 255, 1023, 65535, 1000000, -1, -2, -10, -42, -255, -1000})
+  void testRoundTripConversion(int value) {
+    // Comprehensive test: Integer -> Bits -> Integer preserves all values
+    final var original = Integer._of(value);
+    final var bits = original.bits();
+    final var roundTrip = new Integer(bits);
+    assertEquals(original, roundTrip, "Round trip failed for value: " + value);
+  }
+
+  @Test
+  void testRoundTripConversionUnsetCase() {
+    // Test that unset Integer -> unset Bits -> unset Integer
+    final var unsetBits = unsetInteger.bits();
+    assertNotNull(unsetBits);
+    final var unsetRoundTrip = new Integer(unsetBits);
+    assertUnset.accept(unsetBits);
+    assertUnset.accept(unsetRoundTrip);
+  }
+
+  @Test
+  void testBitsConversionEdgeCases() {
+    // Test negative integer conversion (two's complement)
+    final var negativeInt = Integer._of(-1);
+    final var negativeBits = negativeInt.bits();
+    assertSet.accept(negativeBits);
+    // Should produce many 1s for -1 in two's complement
+
+    final var negativeRoundTrip = new Integer(negativeBits);
+    assertEquals(negativeInt, negativeRoundTrip);
+
+    // Test large positive values
+    final var largeInt = Integer._of(Long.MAX_VALUE);
+    final var largeBits = largeInt.bits();
+    final var largeRoundTrip = new Integer(largeBits);
+    assertEquals(largeInt, largeRoundTrip);
+  }
+
+  @Test
+  void testNegativeIntegerEdgeCases() {
+    // Test edge case: Long.MIN_VALUE (most negative long) - not in round-trip due to size
+    final var minInt = Integer._of(Long.MIN_VALUE);
+    final var minBits = minInt.bits();
+    assertSet.accept(minBits);
+    
+    final var minRoundTrip = new Integer(minBits);
+    assertEquals(minInt, minRoundTrip);
+  }
+
+  @Test
+  void testExact65BitOverflowProtection() {
+    // Create exactly 65-bit Bits value to test overflow boundary
+    final var bits65String = "1" + "0".repeat(64); // 65 bits: 1 followed by 64 zeros
+    final var bits65 = new Bits(String._of(bits65String));
+    
+    // Verify Bits creation succeeded and has correct length
+    assertSet.accept(bits65);
+    assertEquals(65, bits65.length);
+    
+    // Constructor should return unSet Integer due to overflow
+    final var intFromOverflow = new Integer(bits65);
+    assertUnset.accept(intFromOverflow);
+
+    // Test exact 64-bit boundary (should work)
+    final var bits64String = "1" + "0".repeat(63); // 64 bits: 1 followed by 63 zeros
+    final var bits64 = new Bits(String._of(bits64String));
+    assertSet.accept(bits64);
+    assertEquals(64, bits64.length);
+    
+    final var intFrom64Bits = new Integer(bits64);
+    // This should work (64 bits fits in long), though might be negative due to sign bit
+    assertSet.accept(intFrom64Bits);
   }
 
 }

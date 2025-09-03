@@ -1,0 +1,89 @@
+#!ek9
+<?-
+  Test IR generation for prefix operator (#<)
+  
+  Purpose: Analyze IR generation for Dimension._prefix() method resolution,
+  temporary variable management, and Float return handling.
+  
+  Expected IR: Method call to Dimension._prefix() returning Float?
+-?>
+defines module prefix.test
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "prefix.test::testPrefix": `
+    ConstructDfn: prefix.test::testPrefix()->org.ek9.lang::Void
+    OperationDfn: prefix.test::testPrefix.c_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: prefix.test::testPrefix.i_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: prefix.test::testPrefix.testPrefix()->prefix.test::testPrefix  // ./prefix_operator.ek9:84:5
+    BasicBlock: _entry_1
+    _temp_i_init = CALL (prefix.test::testPrefix)this.i_init()  // ./prefix_operator.ek9:84:5
+    RETURN this  // ./prefix_operator.ek9:84:5
+    OperationDfn: prefix.test::testPrefix._call()->org.ek9.lang::Void  // ./prefix_operator.ek9:84:5
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./prefix_operator.ek9:85:7
+    REFERENCE measurement, org.ek9.lang::Dimension  // ./prefix_operator.ek9:85:7
+    _temp1 = LOAD_LITERAL 123.5m, org.ek9.lang::Dimension  // ./prefix_operator.ek9:85:33
+    RETAIN _temp1  // ./prefix_operator.ek9:85:33
+    SCOPE_REGISTER _temp1, _scope_1  // ./prefix_operator.ek9:85:33
+    STORE measurement, _temp1  // ./prefix_operator.ek9:85:33
+    RETAIN measurement  // ./prefix_operator.ek9:85:33
+    SCOPE_REGISTER measurement, _scope_1  // ./prefix_operator.ek9:85:33
+    REFERENCE coefficient, org.ek9.lang::Float  // ./prefix_operator.ek9:86:7
+    _temp3 = LOAD measurement  // ./prefix_operator.ek9:86:22
+    RETAIN _temp3  // ./prefix_operator.ek9:86:22
+    SCOPE_REGISTER _temp3, _scope_1  // ./prefix_operator.ek9:86:22
+    _temp2 = CALL (org.ek9.lang::Dimension)_temp3._prefix()  // ./prefix_operator.ek9:86:22
+    RETAIN _temp2  // ./prefix_operator.ek9:86:22
+    SCOPE_REGISTER _temp2, _scope_1  // ./prefix_operator.ek9:86:22
+    STORE coefficient, _temp2  // ./prefix_operator.ek9:86:22
+    RETAIN coefficient  // ./prefix_operator.ek9:86:22
+    SCOPE_REGISTER coefficient, _scope_1  // ./prefix_operator.ek9:86:22
+    _temp4 = CONTROL_FLOW_CHAIN  // ./prefix_operator.ek9:87:7
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_1
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp5 = LOAD coefficient  // ./prefix_operator.ek9:87:25
+    _temp6 = IS_NULL _temp5  // ./prefix_operator.ek9:87:25
+    ]
+    primitive_condition: _temp6
+    body_evaluation:
+    [
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./prefix_operator.ek9:87:25
+    RETAIN _temp7  // ./prefix_operator.ek9:87:25
+    SCOPE_REGISTER _temp7, _scope_1  // ./prefix_operator.ek9:87:25
+    ]
+    body_result: _temp7
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet()  // ./prefix_operator.ek9:87:25
+    RETAIN _temp8  // ./prefix_operator.ek9:87:25
+    SCOPE_REGISTER _temp8, _scope_1  // ./prefix_operator.ek9:87:25
+    ]
+    default_result: _temp8
+    scope_id: _scope_1
+    ]
+    RETAIN _temp4  // ./prefix_operator.ek9:87:7
+    SCOPE_REGISTER _temp4, _scope_1  // ./prefix_operator.ek9:87:7
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true()  // ./prefix_operator.ek9:87:7
+    ASSERT _temp9  // ./prefix_operator.ek9:87:7
+    SCOPE_EXIT _scope_1  // ./prefix_operator.ek9:85:7
+    RETURN  // ./prefix_operator.ek9:84:5`
+    testPrefix()
+      measurement as Dimension: 123.5m
+      coefficient <- #< measurement
+      assert coefficient?
+
+//EOF

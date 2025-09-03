@@ -437,7 +437,7 @@ public class Bits extends BuiltinType {
       operator >> as pure
         -> arg as Integer
         <- rtn as Bits?""")
-  public Bits _shiftRight(Integer arg) {
+  public Bits _shftr(Integer arg) {
     // Right shift bits
     if (canProcess(arg) && arg.state >= 0) {
       if (arg.state >= this.length) {
@@ -467,7 +467,7 @@ public class Bits extends BuiltinType {
       operator << as pure
         -> arg as Integer
         <- rtn as Bits?""")
-  public Bits _shiftLeft(Integer arg) {
+  public Bits _shftl(Integer arg) {
     // Left shift bits
     if (canProcess(arg) && arg.state >= 0) {
       final var newLength = this.length + (int) arg.state;

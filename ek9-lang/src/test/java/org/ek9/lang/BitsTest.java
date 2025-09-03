@@ -267,19 +267,19 @@ class BitsTest extends Common {
   @Test
   void testShiftOperations() {
     // Left shift (adds zeros on right)
-    final var leftShift = bits010011._shiftLeft(Integer._of(2));
+    final var leftShift = bits010011._shftl(Integer._of(2));
     assertEquals("01001100", leftShift.toString());
 
     // Right shift (removes bits from right)
-    final var rightShift = bits010011._shiftRight(Integer._of(2));
+    final var rightShift = bits010011._shftr(Integer._of(2));
     assertEquals("0100", rightShift.toString());
 
     // Shift beyond length
-    final var shiftBeyond = bits010011._shiftRight(Integer._of(10));
+    final var shiftBeyond = bits010011._shftr(Integer._of(10));
     assertTrue.accept(shiftBeyond._empty());
 
     // Negative shift should return unset
-    final var negativeShift = bits010011._shiftLeft(Integer._of(-1));
+    final var negativeShift = bits010011._shftl(Integer._of(-1));
     assertUnset.accept(negativeShift);
   }
 
@@ -645,7 +645,7 @@ class BitsTest extends Common {
   @Test
   void testErrorConditions() {
     // Invalid operations should be handled gracefully
-    final var result = bits010011._shiftRight(Integer._of(-5));
+    final var result = bits010011._shftr(Integer._of(-5));
     assertNotNull(result);
     assertUnset.accept(result);
 

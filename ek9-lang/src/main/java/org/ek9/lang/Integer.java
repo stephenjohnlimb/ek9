@@ -2,6 +2,7 @@ package org.ek9.lang;
 
 import org.ek9tooling.Ek9Class;
 import org.ek9tooling.Ek9Constructor;
+import org.ek9tooling.Ek9Method;
 import org.ek9tooling.Ek9Operator;
 
 /**
@@ -48,6 +49,23 @@ public class Integer extends BuiltinType {
       if (possibleInteger != null) {
         assign(possibleInteger);
       }
+    }
+  }
+
+  @Ek9Constructor("""
+      Integer() as pure
+        -> arg0 as Bits""")
+  public Integer(Bits arg0) {
+    unSet();
+    if (isValid(arg0) && arg0.length <= 64) {
+      // Extract long value from Bits
+      long value = 0;
+      for (int i = 0; i < arg0.length; i++) {
+        if (arg0.state.get(i)) {
+          value |= (1L << i);
+        }
+      }
+      assign(value);
     }
   }
 
@@ -613,6 +631,29 @@ public class Integer extends BuiltinType {
       assign(state - 1);
     }
     return this;
+  }
+
+  @Ek9Method("""
+      bits() as pure
+        <- rtn as Bits?""")
+  public Bits bits() {
+    if (isSet) {
+      final var result = new Bits();
+      // Convert long to BitSet representation
+      if (state == 0) {
+        // Special case: 0 should result in a single bit (not empty)
+        result.state = new java.util.BitSet();
+        result.length = 1;
+        result.set();
+      } else {
+        result.state = java.util.BitSet.valueOf(new long[] {state});
+        // Calculate actual bit length (highest bit + 1)
+        result.length = 64 - Long.numberOfLeadingZeros(state);
+        result.set();
+      }
+      return result;
+    }
+    return new Bits(); // Return unset Bits if Integer is unset
   }
 
   //Start of utility methods
