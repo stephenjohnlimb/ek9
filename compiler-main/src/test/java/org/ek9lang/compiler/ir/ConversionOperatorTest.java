@@ -13,7 +13,8 @@ class ConversionOperatorTest extends AbstractIRGenerationTest {
         List.of(
             new SymbolCountCheck(1, "string.test", 1),
             new SymbolCountCheck(1, "hashcode.test", 1),
-            new SymbolCountCheck(1, "promote.test", 1)
+            new SymbolCountCheck(1, "promote.test", 1),
+            new SymbolCountCheck(1, "json.test", 1)
         ), false, false, false);
   }
 
