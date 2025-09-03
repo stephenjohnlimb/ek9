@@ -19,6 +19,7 @@
 7. [Symbol Table and Type System](#symbol-table-and-type-system)
 8. [Bootstrap Process](#bootstrap-process)
 9. [Intermediate Representation and Code Generation](#intermediate-representation-and-code-generation)
+   - [Multi-Backend Strategy and Industry Comparison](EK9_IR_AND_CODE_GENERATION.md#strategic-context-ek9s-multi-backend-optimization-innovation)
 10. [Language Server Protocol Integration](#language-server-protocol-integration)
 11. [Architecture Diagrams](#architecture-diagrams)
 12. [Implementation Status](#implementation-status)
