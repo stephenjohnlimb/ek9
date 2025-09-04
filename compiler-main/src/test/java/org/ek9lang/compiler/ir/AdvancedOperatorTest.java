@@ -13,7 +13,8 @@ class AdvancedOperatorTest extends AbstractIRGenerationTest {
         List.of(
             new SymbolCountCheck(1, "replace.test", 1),
             new SymbolCountCheck(1, "merge.test", 1),
-            new SymbolCountCheck(1, "fuzzy.test", 1)
+            new SymbolCountCheck(1, "fuzzy.test", 1),
+            new SymbolCountCheck(1, "copy.test", 1)
         ), false, false, false);
   }
 

@@ -14,7 +14,7 @@
 2. [Project Overview](#project-overview)
 3. [Architecture Overview](#architecture-overview)
 4. [Module Structure and Dependencies](#module-structure-and-dependencies)
-5. [20-Phase Compilation Pipeline](#20-phase-compilation-pipeline)
+5. [Multi-Phase Compilation Pipeline](#multi-phase-compilation-pipeline)
 6. [Core Compiler Classes](#core-compiler-classes)
 7. [Symbol Table and Type System](#symbol-table-and-type-system)
 8. [Bootstrap Process](#bootstrap-process)
@@ -34,12 +34,12 @@
 The EK9 compiler represents a sophisticated, modern compiler architecture implemented in Java 23.
 It successfully balances language expressiveness, type safety, compilation performance, and developer experience.
 Built as a multi-phase, multi-threaded system,
-the compiler transforms EK9 source code through a comprehensive 20-phase pipeline into Java bytecode,
-with C++ LLVM backend development underway for native binary generation.
+the compiler transforms EK9 source code through a comprehensive multi-phase pipeline into Java bytecode,
+with C++ LLVM backend development in early experimental stage for native binary generation.
 
 ### Key Architectural Achievements
 
-- **Multi-Phase Pipeline**: 20 distinct compilation phases enabling targeted compilation and LSP optimization
+- **Multi-Phase Pipeline**: Multi-phase compilation system enabling targeted compilation and LSP optimization
 - **Thread Safety**: Comprehensive thread-safe design supporting both batch compilation and interactive IDE usage
 - **Modular Design**: Clean separation between frontend, middle-end, and backend with clear module dependencies
 - **Language Server Integration**: Full IDE support while reusing 75% of the compiler infrastructure
@@ -51,7 +51,7 @@ with C++ LLVM backend development underway for native binary generation.
 - **Language**: Java 23 with virtual thread support
 - **Build System**: Maven multi-module (4 modules)
 - **Parser**: ANTLR4 with Python-like indentation syntax
-- **Target Platforms**: JVM (current), C++ LLVM (planned for native binaries)
+- **Target Platforms**: JVM (substantial implementation), C++ LLVM (early experimental stage)
 - **IDE Integration**: Eclipse LSP4J for Language Server Protocol
 - **Code Generation**: ASM library for Java bytecode generation
 - **Testing**: JUnit 5 with parallel execution (8 threads)
@@ -86,7 +86,11 @@ ek9/
 
 ### Build System Overview
 
-**Maven Multi-Module Architecture**:
+**Important Distinction**:
+- **EK9 Compiler Development**: Uses Maven (for developing the compiler itself)
+- **EK9 Language Users**: Don't need Maven - EK9 provides integrated dependency management
+
+**Maven Multi-Module Architecture** (for compiler development):
 - **Root**: `org.ek9lang:compiler:0.0.1-SNAPSHOT`
 - **Java Version**: 23 (with virtual thread support)
 - **Parallel Testing**: JUnit 5 with 8-thread parallel execution
@@ -114,7 +118,7 @@ The EK9 compiler follows a **pipeline-based architecture** with three main secti
 
 ### Key Architectural Patterns
 
-- **Pipeline Pattern**: 22-phase compilation pipeline
+- **Pipeline Pattern**: Multi-phase compilation pipeline
 - **Visitor Pattern**: IR and AST traversal using ANTLR4 visitors
 - **Strategy Pattern**: Configurable phase suppliers and target architectures
 - **Command Pattern**: Phase execution as composable BiFunction operations
@@ -201,11 +205,13 @@ mvn test -Dtest=Ek9IntrospectedBootStrapTest -pl compiler-main
 
 ---
 
-## 20-Phase Compilation Pipeline
+## Multi-Phase Compilation Pipeline
 
 ### Overview
 
-The EK9 compiler implements a sophisticated 20-phase compilation pipeline (streamlined from an earlier 22-phase design). Each phase has specific responsibilities and can be executed independently for development and debugging.
+The EK9 compiler implements a sophisticated multi-phase compilation pipeline. Each phase has specific responsibilities and can be executed independently for development and debugging.
+
+*Note: Phase structure may evolve during development*
 
 ### Phase Organization
 
@@ -349,7 +355,7 @@ The compilation pipeline uses three configurable suppliers:
 ### Ek9Compiler
 **File**: `org.ek9lang.compiler.Ek9Compiler`
 
-**Purpose**: Main compiler orchestrator coordinating all 22 compilation phases
+**Purpose**: Main compiler orchestrator coordinating all compilation phases
 
 **Key Methods**:
 - `compile(Workspace, CompilerFlags)`: Main compilation entry point
@@ -369,7 +375,7 @@ The compilation pipeline uses three configurable suppliers:
 ### CompilerPhase
 **File**: `org.ek9lang.compiler.CompilerPhase`
 
-**Purpose**: Abstract base class for all 22 compilation phases
+**Purpose**: Abstract base class for all compilation phases
 
 **Key Methods**:
 - `doApply(Workspace, CompilerFlags)`: Abstract method each phase implements
@@ -448,7 +454,7 @@ The compilation pipeline uses three configurable suppliers:
 - **Default Phase**: `APPLICATION_PACKAGING` for full compilation
 - **LSP Optimization**: Can stop at `IR_ANALYSIS` (phase 12) for Language Server efficiency
 - **Suggestion System**: 5 suggestions by default, 0 disables
-- **Target Architecture**: Defaults to JVM, with C++ LLVM backend for native compilation
+- **Target Architecture**: Defaults to JVM, with C++ LLVM backend in early experimental stage
 
 ---
 
@@ -893,8 +899,8 @@ Map<FileChangeType, Consumer<FileEvent>> changeHandlers =
 **Key Insight**: LSP reuses EK9 compiler's frontend and middle-end but stops at `IR_ANALYSIS`
 
 **Available Phases for LSP**:
-1. PARSING through 12. IR_ANALYSIS (65% of compilation pipeline)
-- Excludes expensive code generation phases (14-19)
+Frontend through IR_ANALYSIS phases for semantic analysis
+- Excludes expensive code generation phases
 - Provides complete semantic analysis for IDE features
 
 #### Real-time Error Processing
@@ -970,7 +976,7 @@ CompilableSource.parse() → ErrorListener → ErrorsToDiagnostics → LSP Clien
 └──────────────────┘  └─────────────────┘
 ```
 
-### 22-Phase Compilation Pipeline
+### Multi-Phase Compilation Pipeline
 
 ```
 FRONTEND (0-9)              MIDDLE-END (10-13)          BACKEND (14-19)
@@ -1192,7 +1198,7 @@ The EK9 compiler demonstrates exceptional architectural design with several key 
 
 1. **Modular Design**: Clean separation between modules with well-defined dependencies enables independent development and testing of compiler components.
 
-2. **Multi-Phase Pipeline**: The 22-phase compilation system provides fine-grained control over compilation stages, enabling targeted debugging, LSP optimization, and incremental development.
+2. **Multi-Phase Pipeline**: The multi-phase compilation system provides fine-grained control over compilation stages, enabling targeted debugging, LSP optimization, and incremental development.
 
 3. **Thread Safety**: Comprehensive thread-safe design through `SharedThreadContext` enables both high-performance parallel compilation and safe concurrent LSP operations.
 
@@ -1235,7 +1241,7 @@ The EK9 compiler demonstrates exceptional architectural design with several key 
 4. **Performance Profiling**: Add comprehensive timing and memory usage monitoring
 
 #### Medium-term Goals
-1. **LLVM Backend**: Implement native compilation capability
+1. **C++ LLVM Backend**: Develop native compilation capability (currently early experimental stage)
 2. **Optimization Passes**: Complete IR and code optimization phases
 3. **Plugin Architecture**: Enable extensible compilation with external plugins
 4. **Advanced IDE Features**: Add refactoring, debugging, and code generation support

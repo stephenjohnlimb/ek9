@@ -1,6 +1,6 @@
 # EK9 IR and Code Generation Guide
 
-This document provides comprehensive guidance for working with EK9's Intermediate Representation (IR) and code generation to various targets. This is the specialized reference for compiler backend development, optimization passes, and target-specific code generation.
+This document provides comprehensive guidance for working with EK9's Intermediate Representation (IR) and code generation to current and planned targets. This is the specialized reference for compiler backend development, optimization passes, and target-specific code generation.
 
 **Related Documentation:**
 - **`CLAUDE.md`** - Main project overview and daily development guidelines
@@ -10,16 +10,16 @@ This document provides comprehensive guidance for working with EK9's Intermediat
 
 ## IR Generation Overview
 
-EK9's IR generation transforms resolved symbols from compilation phases 1-6 into a target-agnostic intermediate representation that can be translated to multiple backends (JVM bytecode, LLVM IR, etc.).
+EK9's IR generation transforms resolved symbols from the compiler frontend phases into a target-agnostic intermediate representation that can be translated to multiple backends (JVM bytecode, LLVM IR, etc.).
 
 ### IR Design Principles
-- **Target-agnostic**: IR must work equally well for JVM, LLVM-Go, and LLVM-C++ targets
+- **Target-agnostic**: IR must work equally well for JVM and future LLVM C++ targets
 - **Symbol-driven**: Uses resolved symbols from `ParsedModule.getRecordedSymbol()` instead of AST text parsing
 - **Text-based representation**: Stores all values as strings for serialization and backend flexibility
 - **Fully qualified type names**: All types use complete qualified names to avoid ambiguity
 
 ### Symbol Table to IR Transformation
-The IR generation process in phase 7 transforms resolved symbols:
+The IR generation process in Phase 10 (IR_GENERATION) transforms resolved symbols:
 1. **Context Creation**: `IRGenerationContext` provides centralized state management
 2. **Symbol Resolution**: Use `parsedModule.getRecordedSymbol(ctx)` for all AST nodes
 3. **Type Information**: Extract fully qualified type names using `symbol.getType().getFullyQualifiedName()`
@@ -72,16 +72,16 @@ This encoding strategy enables backends to correctly interpret literal values:
 
 ## Code Generation Targets
 
-### Java Bytecode Generation
+### Java Bytecode Generation (Current Implementation)
 *This section will contain:*
 - Java bytecode generation patterns
 - EK9 to Java type mapping strategies
 - Optimization techniques for Java target
 - Integration with Java ecosystem
 
-### Future Target Support
+### LLVM C++ Target Support (Planned)
 *This section will contain:*
-- LLVM IR generation planning
+- LLVM IR generation planning (early experimental stage)
 - Native compilation strategies
 - Cross-platform considerations
 - Performance optimization approaches
@@ -110,7 +110,7 @@ Language → Target-Specific IR → Target-Specific Optimization
 
 **EK9's Three-Phase Strategy:**
 ```
-Phase 7: Rich Semantic IR → Phase 12: Global Optimization → Multiple Target Backends
+Phase 10: Rich Semantic IR → Future Phase 12: Global Optimization → Multiple Target Backends
                               ↓                              ↓
                     Cross-backend analysis            LLVM AND JVM AND Future
                     Shared optimization work          Each gets optimal IR input
@@ -120,9 +120,9 @@ Phase 7: Rich Semantic IR → Phase 12: Global Optimization → Multiple Target 
 
 | Capability | Rust | Go | Java | C# | CLANG | **EK9** |
 |------------|------|----|----|-----|-------|---------|
-| **Multi-Backend Support** | ❌ LLVM-only | ❌ gc-only | ❌ JVM-only | ❌ .NET-only | ❌ LLVM-only | **✅ LLVM+JVM+Future** |
+| **Multi-Backend Support** | ❌ LLVM-only | ❌ gc-only | ❌ JVM-only | ❌ .NET-only | ❌ LLVM-only | **🟡 JVM Complete + LLVM Planned** |
 | **Semantic IR Preservation** | 🟡 MIR adequate | ❌ Low-level SSA | ❌ JVM-specific | ❌ .NET-specific | ❌ Low-level LLVM | **✅ Rich cross-target** |
-| **Cross-Target Optimization** | ❌ LLVM-bound | ❌ Single target | ❌ JVM-bound | ❌ .NET-bound | ❌ LLVM-bound | **✅ Shared Phase 12** |
+| **Cross-Target Optimization** | ❌ LLVM-bound | ❌ Single target | ❌ JVM-bound | ❌ .NET-bound | ❌ LLVM-bound | **🟡 Planned Phase 12** |
 | **Backend Agnostic Design** | ❌ LLVM-influenced | 🟡 Some independence | ❌ JVM-constrained | ❌ .NET-constrained | ❌ LLVM-constrained | **✅ True independence** |
 | **Optimization Composability** | ❌ LLVM-only | ❌ Compile-time only | 🟡 Runtime-focused | 🟡 Runtime-focused | 🟡 Compile-time only | **✅ Compile+Runtime+Static** |
 
@@ -130,13 +130,13 @@ Phase 7: Rich Semantic IR → Phase 12: Global Optimization → Multiple Target 
 
 #### ✅ **Unique Competitive Advantages**
 
-1. **True Multi-Backend Native Design**
+1. **Multi-Backend Native Design (Planned)**
    - Industry: Choose target first, optimize for it
-   - EK9: Optimize for multiple targets simultaneously from day one
+   - EK9: Designed to optimize for multiple targets simultaneously (JVM complete, LLVM planned)
 
-2. **Cross-Target Optimization Investment**
+2. **Cross-Target Optimization Investment (Architecture)**
    - Industry: Optimization work is target-specific and non-transferable
-   - EK9: Phase 12 optimizations benefit ALL current and future backends
+   - EK9: Planned Phase 12 optimizations will benefit all backends once implemented
 
 3. **Semantic Richness at Scale**
    - Industry: Early lowering loses high-level optimization opportunities
@@ -167,7 +167,7 @@ Phase 7: Rich Semantic IR → Phase 12: Global Optimization → Multiple Target 
 - **Market Adoption**: Industry momentum favors proven single-backend approaches
 
 #### 🚀 **Strategic Opportunities**
-- **Performance**: Potential for superior optimization across ALL targets
+- **Performance**: Designed for superior optimization across current and future targets
 - **Development Efficiency**: Shared optimization reduces per-target work
 - **Future-Proofing**: New backends benefit from existing optimization work
 - **Competitive Differentiation**: Unique position in compiler landscape
@@ -179,9 +179,9 @@ This strategic context reinforces why EK9's IR generation philosophy is **fundam
 - **Verbose IR is a feature**, not inefficiency
 - **Semantic richness enables cross-backend optimization**
 - **Phase separation is strategic**, not just organizational
-- **Medium-level constructs serve multiple masters** (LLVM, JVM, future targets)
+- **Medium-level constructs serve multiple targets** (JVM implemented, LLVM planned, future targets)
 
-**Key Insight**: EK9's approach trades compilation complexity for runtime performance potential across multiple targets - a strategic bet that no other major language has made.
+**Key Insight**: EK9's approach trades compilation complexity for runtime performance potential across multiple targets - a strategic architectural bet designed for current JVM and future LLVM targets.
 
 ## Optimization Strategies
 
@@ -271,7 +271,7 @@ if (value == null) // Single null check, result reused
 
 ## 🚨 CRITICAL: DO NOT OPTIMIZE IR GENERATION PHASE
 
-**CARDINAL RULE: Phase 7 IR Generation is for CORRECTNESS and SEMANTIC RICHNESS, NOT efficiency**
+**CARDINAL RULE: Phase 10 IR Generation is for CORRECTNESS and SEMANTIC RICHNESS, NOT efficiency**
 
 ### ❌ NEVER Do These "Optimizations" in IR Generation:
 - ❌ **Reduce LOAD/RETAIN/SCOPE_REGISTER sequences** - This destroys semantic context
@@ -298,7 +298,7 @@ if (value == null) // Single null check, result reused
 
 ### IR Generation Strategy: Simplicity and Semantic Clarity
 
-**Current Approach (Phase 7: IR_GENERATION)**:
+**Current Approach (Phase 10: IR_GENERATION)**:
 - **Each operation loads variables independently** - even if the same variable is used multiple times
 - **Explicit memory management** - every LOAD gets its own RETAIN/SCOPE_REGISTER sequence
 - **Simple IR generation code** - each generator works independently without complex state tracking
@@ -355,7 +355,7 @@ With complete IR structure, optimization can perform:
 
 ### Why This Strategy Works
 **Each Phase Builds On The Previous:**
-- Phase 7 provides the **semantic foundation** for optimization
+- Phase 10 provides the **semantic foundation** for optimization
 - Phase 12 provides **global context** that individual IR generators can't see
 - Backends provide **target-specific expertise** that generic IR can't match
 
@@ -1285,7 +1285,7 @@ When reviewing IR generation examples, focus on **structural correctness** rathe
 
 ### IR Optimization Strategy Reminder
 
-- **Phase 7 (IR_GENERATION)**: Generate correct, semantically clear IR
+- **Phase 10 (IR_GENERATION)**: Generate correct, semantically clear IR
 - **Phase 12 (IR_OPTIMISATION)**: Eliminate redundancy with global context
 - **Backend Phases**: Target-specific optimization with full semantic information
 

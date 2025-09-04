@@ -33,8 +33,8 @@ EK9 is a new programming language implementation with a comprehensive compiler w
 For detailed understanding of the EK9 compiler architecture and implementation:
 
 - **`EK9_Compiler_Architecture_and_Design.md`** - Complete 85-page technical specification covering:
-  - 20-phase compilation pipeline (detailed analysis of each phase)
-  - Module structure and Maven dependencies
+  - Multi-phase compilation pipeline (detailed analysis of each phase)
+  - Module structure and Maven dependencies (compiler development)
   - Symbol table and type system architecture
   - Bootstrap process and built-in type loading
   - Intermediate representation and code generation
@@ -44,7 +44,7 @@ For detailed understanding of the EK9 compiler architecture and implementation:
 
 - **`architecture_diagrams.md`** - Visual architecture diagrams including:
   - Module dependency graphs
-  - 20-phase compilation pipeline flow
+  - Multi-phase compilation pipeline flow
   - Symbol system class hierarchies
   - LSP integration architecture
   - Bootstrap process flow
@@ -102,7 +102,7 @@ For specific EK9 development tasks, refer to these comprehensive guides:
   - Ambiguity detection logic with 0.001 tolerance threshold
   - Method resolution priority hierarchy (exact → superclass → trait → coercion → Any)
   - Real-world examples including workarea.ek9 ambiguity scenarios
-  - Integration with FULL_RESOLUTION compilation phase (Phase 7 of 22)
+  - Integration with FULL_RESOLUTION compilation phase
   - Polymorphic method patterns enabling gradual typing
   - **Use this guide when:** Understanding method call resolution, debugging ambiguous method errors, implementing method overloading, or working with 'Any' type parameters
 
@@ -229,7 +229,7 @@ For specific EK9 development tasks, refer to these comprehensive guides:
 
 ### Compiler Implementation Guides
 - **`EK9_COMPILER_PHASES.md`** - Detailed compiler phase implementation and pipeline
-  - 20-phase compilation pipeline specifics
+  - Multi-phase compilation pipeline specifics
   - Symbol table management across phases
   - Phase interdependencies and error handling
   - **Use this guide when:** Working on compiler phase implementation and pipeline optimization
@@ -249,16 +249,20 @@ For specific EK9 development tasks, refer to these comprehensive guides:
 
 ## Build System and Common Commands
 
-This is a Maven-based project with a multi-module structure. All commands should be run from the root directory.
+**Important Distinction**: 
+- **EK9 Compiler Development**: Uses Maven (for developing the compiler itself)
+- **EK9 Language Users**: Don't need Maven - EK9 provides integrated dependency management
 
-### Core Build Commands
+### Compiler Development Build Commands
+**Note: These are for developing the EK9 compiler itself**
 - `mvn clean install` - Build the entire project and install to local repository
 - `mvn clean compile` - Compile all modules
 - `mvn test` - Run all unit tests (uses parallel execution with 8 threads)
 - `mvn clean` - Clean all build artifacts
 
-### EK9 Compiler Commands
-After building, the EK9 compiler provides these commands:
+### EK9 User Commands
+**Note: EK9 users work with `.ek9` files and don't need Maven/Gradle**
+After building the compiler, EK9 provides these commands:
 - `java -jar compiler-main/target/ek9c-jar-with-dependencies.jar -c <file.ek9>` - Compile EK9 source
 - `java -jar compiler-main/target/ek9c-jar-with-dependencies.jar -ls` - Start Language Server mode
 - `java -jar compiler-main/target/ek9c-jar-with-dependencies.jar -t <file.ek9>` - Run tests
@@ -296,7 +300,7 @@ After building, the EK9 compiler provides these commands:
 ### compiler-main
 The core compiler implementation containing:
 - **CLI commands** (`org.ek9lang.cli`) - All command-line tools and entry points
-- **Compiler core** (`org.ek9lang.compiler`) - Multi-pass compiler engine with 20 phases
+- **Compiler core** (`org.ek9lang.compiler`) - Multi-pass compiler engine with multi-phase pipeline
 - **LSP server** (`org.ek9lang.lsp`) - Language Server Protocol implementation
 
 ### compiler-tooling
@@ -310,7 +314,7 @@ Core EK9 language runtime and built-in types.
 
 ## Compiler Architecture
 
-The EK9 compiler follows a **20-phase compilation pipeline**:
+The EK9 compiler follows a **multi-phase compilation pipeline** (currently 20 phases, subject to evolution):
 
 ### Frontend (Phases 0-9)
 0. **PARSING** - ANTLR4-based parsing
@@ -336,7 +340,8 @@ The EK9 compiler follows a **20-phase compilation pipeline**:
 17. **CODE_OPTIMISATION** - Target code optimizations
 18. **PLUGIN_LINKAGE** - Link external plugins
 19. **APPLICATION_PACKAGING** - Application packaging
-20. **PACKAGING_POST_PROCESSING** - Final packaging cleanup
+
+*Note: Phase structure may evolve during development*
 
 ### Key Classes
 - `Ek9Compiler` - Main compiler orchestrator
