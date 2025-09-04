@@ -8,6 +8,8 @@ import org.ek9lang.compiler.ir.BasicBlockInstr;
 import org.ek9lang.compiler.ir.BranchInstr;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
+import org.ek9lang.compiler.ir.CallMetaData;
+import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.Operation;
@@ -129,13 +131,21 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
       // Only make super call if it's not the implicit base class (like Object)
       // Check if this is an explicit inheritance (not implicit base class)
       if (notImplicitSuper.test(superSymbol)) {
+        // Try to find c_init method symbol in superclass for metadata
+        final var metaDataExtractor = new CallMetaDataExtractor(parsedModule.getEk9Types());
+        final var cInitMethodOpt = superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.C_INIT_METHOD));
+        final var metaData = cInitMethodOpt.isPresent() ? 
+            metaDataExtractor.apply(cInitMethodOpt.get()) : 
+            CallMetaData.defaultMetaData();
+            
         final var callDetails = new CallDetails(
             null, // No target object for static call
             superSymbol.getFullyQualifiedName(),
             IRConstants.C_INIT_METHOD,
             java.util.List.of(), // No parameters
             voidStr, // Return type
-            java.util.List.of() // No arguments
+            java.util.List.of(), // No arguments
+            metaData
         );
         allInstructions.add(CallInstr.callStatic(IRConstants.TEMP_C_INIT, null, callDetails));
       }
@@ -314,26 +324,42 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
       // Only make super call if it's not the implicit base class (like Object)
       if (notImplicitSuper.test(superSymbol)) {
+        // Try to find constructor symbol in superclass for metadata
+        final var metaDataExtractor = new CallMetaDataExtractor(parsedModule.getEk9Types());
+        final var constructorSymbolOpt = superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(superSymbol.getName()));
+        final var metaData = constructorSymbolOpt.isPresent() ? 
+            metaDataExtractor.apply(constructorSymbolOpt.get()) : 
+            CallMetaData.defaultMetaData();
+            
         final var callDetails = new CallDetails(
             IRConstants.SUPER, // Target super object
             superSymbol.getFullyQualifiedName(),
             superSymbol.getName(), // Constructor name matches class name
             java.util.List.of(), // No parameters for default constructor
             superSymbol.getFullyQualifiedName(), // Return type is the super class
-            java.util.List.of() // No arguments
+            java.util.List.of(), // No arguments
+            metaData
         );
         instructions.add(CallInstr.call(IRConstants.TEMP_SUPER_INIT, debugInfo, callDetails));
       }
     }
 
     // 2. Call own class's i_init method to initialize this class's fields
+    // Try to find i_init method symbol for metadata
+    final var metaDataExtractor = new CallMetaDataExtractor(parsedModule.getEk9Types());
+    final var iInitMethodOpt = aggregateSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.I_INIT_METHOD));
+    final var iInitMetaData = iInitMethodOpt.isPresent() ? 
+        metaDataExtractor.apply(iInitMethodOpt.get()) : 
+        CallMetaData.defaultMetaData();
+        
     final var iInitCallDetails = new CallDetails(
         IRConstants.THIS, // Target this object
         aggregateSymbol.getFullyQualifiedName(),
         IRConstants.I_INIT_METHOD,
         java.util.List.of(), // No parameters
         voidStr, // Return type
-        java.util.List.of() // No arguments
+        java.util.List.of(), // No arguments
+        iInitMetaData
     );
     instructions.add(CallInstr.call(IRConstants.TEMP_I_INIT, debugInfo, iInitCallDetails));
 

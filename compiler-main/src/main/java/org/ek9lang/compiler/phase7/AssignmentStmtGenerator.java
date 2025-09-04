@@ -7,6 +7,7 @@ import java.util.function.Function;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.ir.CallMetaData;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
@@ -159,7 +160,8 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     // Create CallDetails for assignment operation: leftVariable._addAss(rightValue)
     final var callDetails = new org.ek9lang.compiler.ir.CallDetails(
         leftTemp, leftType, methodName,
-        List.of(rightType), returnType, List.of(rightTemp));
+        List.of(rightType), returnType, List.of(rightTemp), 
+        CallMetaData.defaultMetaData());
 
     // Assignment operators return Void - generate call without result variable
     // The method mutates the left operand in-place

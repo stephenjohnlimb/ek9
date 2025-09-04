@@ -7,6 +7,8 @@ import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
+import org.ek9lang.compiler.ir.CallMetaData;
+import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
@@ -64,11 +66,19 @@ class UnaryOperationGenerator extends AbstractGenerator
     final var operandSymbol = getRecordedSymbolOrException(operandExpr);
     final var operandType = typeNameOrException.apply(operandSymbol);
     //We must use the operator used in the ek9 code.
-    final var returnType = resolveUnaryMethodReturnType(ctx.op.getText(), operandSymbol);
+    final var returnTypeAndMethodSymbol = resolveUnaryMethodReturnTypeAndSymbol(ctx.op.getText(), operandSymbol);
+    final var returnType = returnTypeAndMethodSymbol.returnType();
+    final var methodSymbol = returnTypeAndMethodSymbol.methodSymbol();
+
+    // Create metadata for the method call
+    final var metaDataExtractor = new CallMetaDataExtractor(context.getParsedModule().getEk9Types());
+    final var metaData = methodSymbol != null ? 
+        metaDataExtractor.apply(methodSymbol) : 
+        CallMetaData.defaultMetaData();
 
     // Create CallDetails for unary operation
     final var callDetails = new CallDetails(operandTemp, operandType, methodName,
-        List.of(), returnType, List.of());
+        List.of(), returnType, List.of(), metaData);
 
     // Generate the operator call.
     final var debugInfo = debugInfoCreator.apply(new Ek9Token(ctx.op));
@@ -78,11 +88,17 @@ class UnaryOperationGenerator extends AbstractGenerator
   }
 
   /**
+   * Record to hold both return type and method symbol for metadata extraction.
+   */
+  private record UnaryMethodResolution(String returnType, ISymbol methodSymbol) {}
+
+  /**
    * Resolve the return type of a unary method by looking up the actual method on the target type.
+   * Also returns the method symbol for metadata extraction.
    * Uses the same pattern as RequiredOperatorPresentOrError.
    */
-  private String resolveUnaryMethodReturnType(final String methodName,
-                                              final ISymbol operandSymbol) {
+  private UnaryMethodResolution resolveUnaryMethodReturnTypeAndSymbol(final String methodName,
+                                                                      final ISymbol operandSymbol) {
     // Create method search for unary operation (no parameters)
     final var search = new MethodSymbolSearch(methodName);
 
@@ -98,7 +114,8 @@ class UnaryOperationGenerator extends AbstractGenerator
         final var method = bestMatch.get();
         final var returningSymbol = method.getReturningSymbol();
         if (returningSymbol.getType().isPresent()) {
-          return typeNameOrException.apply(returningSymbol);
+          final var returnType = typeNameOrException.apply(returningSymbol);
+          return new UnaryMethodResolution(returnType, method);
         }
       }
     }

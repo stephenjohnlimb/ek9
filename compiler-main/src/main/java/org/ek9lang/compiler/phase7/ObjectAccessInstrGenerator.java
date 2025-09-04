@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.CallDetails;
+import org.ek9lang.compiler.ir.CallMetaData;
+import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
@@ -61,9 +63,13 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
               .map(param -> param.getType().map(ISymbol::getFullyQualifiedName).orElse("org.ek9.lang::Any"))
               .toList();
 
+          // Create metadata for constructor call
+          final var metaDataExtractor = new CallMetaDataExtractor(context.getParsedModule().getEk9Types());
+          final var constructorMetaData = metaDataExtractor.apply(methodSymbol);
+
           // Generate constructor call using actual resolved type name with complete type information
           final var callDetails = new CallDetails(typeName, typeName, IRConstants.INIT_METHOD,
-              parameterTypes, typeName, List.of());
+              parameterTypes, typeName, List.of(), constructorMetaData);
 
           instructions.add(CallInstr.constructor(variableDetails.resultVariable(), debugInfo, callDetails));
 
@@ -127,7 +133,8 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
 
             // Generate the method call with complete type information
             final var callDetails = new CallDetails(tempObj, targetTypeName, methodName,
-                parameterTypes, returnTypeName, Arrays.asList(arguments));
+                parameterTypes, returnTypeName, Arrays.asList(arguments), 
+                CallMetaData.defaultMetaData());
 
             instructions.add(CallInstr.call(variableDetails.resultVariable(), debugInfo, callDetails));
           }

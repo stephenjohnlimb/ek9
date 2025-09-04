@@ -10,6 +10,8 @@ import org.ek9lang.compiler.ir.BasicBlockInstr;
 import org.ek9lang.compiler.ir.BranchInstr;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
+import org.ek9lang.compiler.ir.CallMetaData;
+import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.Operation;
 import org.ek9lang.compiler.ir.ScopeInstr;
@@ -225,26 +227,42 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
 
       // Only make super call if it's not the implicit base class (like Object)  
       if (isNotImplicitSuperClass(superSymbol)) {
+        // Try to find constructor symbol in superclass for metadata
+        final var metaDataExtractor = new CallMetaDataExtractor(parsedModule.getEk9Types());
+        final var constructorSymbolOpt = superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(superSymbol.getName()));
+        final var metaData = constructorSymbolOpt.isPresent() ? 
+            metaDataExtractor.apply(constructorSymbolOpt.get()) : 
+            CallMetaData.defaultMetaData();
+            
         final var callDetails = new CallDetails(
             IRConstants.SUPER, // Target super object
             superSymbol.getFullyQualifiedName(),
             superSymbol.getName(), // Constructor name matches class name
             java.util.List.of(), // No parameters for default constructor
             superSymbol.getFullyQualifiedName(), // Return type is the super class
-            java.util.List.of() // No arguments
+            java.util.List.of(), // No arguments
+            metaData
         );
         instructions.add(CallInstr.call(IRConstants.TEMP_SUPER_INIT, debugInfo, callDetails));
       }
     }
 
     // 2. Call own class's i_init method to initialize this class's fields
+    // Try to find i_init method symbol for metadata
+    final var metaDataExtractor = new CallMetaDataExtractor(parsedModule.getEk9Types());
+    final var iInitMethodOpt = aggregateSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.I_INIT_METHOD));
+    final var iInitMetaData = iInitMethodOpt.isPresent() ? 
+        metaDataExtractor.apply(iInitMethodOpt.get()) : 
+        CallMetaData.defaultMetaData();
+        
     final var iInitCallDetails = new CallDetails(
         IRConstants.THIS, // Target this object
         aggregateSymbol.getFullyQualifiedName(),
         IRConstants.I_INIT_METHOD,
         java.util.List.of(), // No parameters
         "org.ek9.lang::Void", // Return type
-        java.util.List.of() // No arguments
+        java.util.List.of(), // No arguments
+        iInitMetaData
     );
     instructions.add(CallInstr.call(IRConstants.TEMP_I_INIT, debugInfo, iInitCallDetails));
 

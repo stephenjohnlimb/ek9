@@ -7,6 +7,8 @@ import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
+import org.ek9lang.compiler.ir.CallMetaData;
+import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
@@ -72,11 +74,19 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
     final var leftType = typeNameOrException.apply(leftSymbol);
     final var rightType = typeNameOrException.apply(rightSymbol);
     //Need to lookup the operator name in ek9 form, not the method we will maps to for the IR.
-    final var returnType = resolveBinaryMethodReturnType(leftSymbol, rightSymbol, ctx.op.getText());
+    final var returnTypeAndMethodSymbol = resolveBinaryMethodReturnTypeAndSymbol(leftSymbol, rightSymbol, ctx.op.getText());
+    final var returnType = returnTypeAndMethodSymbol.returnType();
+    final var methodSymbol = returnTypeAndMethodSymbol.methodSymbol();
+
+    // Create metadata for the method call
+    final var metaDataExtractor = new CallMetaDataExtractor(context.getParsedModule().getEk9Types());
+    final var metaData = methodSymbol != null ? 
+        metaDataExtractor.apply(methodSymbol) : 
+        CallMetaData.defaultMetaData();
 
     // Create CallDetails for binary operation
     final var callDetails = new CallDetails(leftTemp, leftType, methodName,
-        List.of(rightType), returnType, List.of(rightTemp));
+        List.of(rightType), returnType, List.of(rightTemp), metaData);
 
     // Generate the operator call
     final var debugInfo = debugInfoCreator.apply(new Ek9Token(ctx.op));
@@ -86,12 +96,18 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
   }
 
   /**
+   * Record to hold both return type and method symbol for metadata extraction.
+   */
+  private record BinaryMethodResolution(String returnType, ISymbol methodSymbol) {}
+
+  /**
    * Resolve the return type of a binary method by looking up the actual method on the left operand type.
+   * Also returns the method symbol for metadata extraction.
    * Uses the same pattern as RequiredOperatorPresentOrError.
    */
-  private String resolveBinaryMethodReturnType(final ISymbol leftSymbol,
-                                               final ISymbol rightSymbol,
-                                               final String methodName) {
+  private BinaryMethodResolution resolveBinaryMethodReturnTypeAndSymbol(final ISymbol leftSymbol,
+                                                                        final ISymbol rightSymbol,
+                                                                        final String methodName) {
 
     // Create method search for binary operation (one parameter)
     final var search = new MethodSymbolSearch(methodName);
@@ -110,7 +126,8 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
         final var method = bestMatch.get();
         final var returningSymbol = method.getReturningSymbol();
         if (returningSymbol.getType().isPresent()) {
-          return typeNameOrException.apply(returningSymbol);
+          final var returnType = typeNameOrException.apply(returningSymbol);
+          return new BinaryMethodResolution(returnType, method);
         }
       }
     }

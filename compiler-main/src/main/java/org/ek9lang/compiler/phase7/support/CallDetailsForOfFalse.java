@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase7.support;
 import java.util.List;
 import java.util.function.Supplier;
 import org.ek9lang.compiler.ir.CallDetails;
+import org.ek9lang.compiler.ir.CallMetaData;
 import org.ek9lang.compiler.support.EK9TypeNames;
 
 /**
@@ -13,6 +14,7 @@ public final class CallDetailsForOfFalse implements Supplier<CallDetails> {
   public CallDetails get() {
     final var booleanType = EK9TypeNames.EK9_BOOLEAN;
     return new CallDetails(booleanType, booleanType,
-        IRConstants.OF_FALSE_METHOD, List.of(), booleanType, List.of());
+        IRConstants.OF_FALSE_METHOD, List.of(), booleanType, List.of(),
+        CallMetaData.defaultMetaData());
   }
 }

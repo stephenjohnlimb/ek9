@@ -5,13 +5,15 @@ import javax.annotation.Nonnull;
 
 /**
  * Used with CallInstr, holds all the necessary details to make a call.
+ * Includes metadata for backend optimization.
  */
 public record CallDetails(String targetObject,
                           String targetTypeName,
                           String methodName,
                           List<String> parameterTypes,
                           String returnTypeName,
-                          List<String> arguments) {
+                          List<String> arguments,
+                          CallMetaData metaData) {
 
   @Override
   @Nonnull

@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase7;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.ir.CallDetails;
+import org.ek9lang.compiler.ir.CallMetaData;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.LogicalDetails;
 import org.ek9lang.compiler.ir.LogicalOperationInstr;
@@ -36,7 +37,7 @@ public final class ShortCircuitAndGenerator extends AbstractShortCircuitGenerato
     final var booleanType = EK9TypeNames.EK9_BOOLEAN;
     return new CallDetails(lhsVariable, booleanType,
         "_and", List.of(booleanType),
-        booleanType, List.of(rhsVariable));
+        booleanType, List.of(rhsVariable), CallMetaData.defaultMetaData());
   }
 
   @Override
