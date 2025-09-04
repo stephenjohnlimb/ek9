@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallDetails;
+import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.CallMetaData;
 import org.ek9lang.compiler.ir.CallMetaDataExtractor;
-import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.phase7.support.IRConstants;
@@ -25,6 +26,8 @@ import org.ek9lang.core.AssertValue;
  * Generates new BasicBlock IR (IRInstructions).
  */
 final class ObjectAccessInstrGenerator extends AbstractGenerator {
+
+  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
   ObjectAccessInstrGenerator(final IRContext context) {
     super(context);
@@ -60,7 +63,7 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
 
           // Extract parameter types from constructor parameters
           final var parameterTypes = methodSymbol.getCallParameters().stream()
-              .map(param -> param.getType().map(ISymbol::getFullyQualifiedName).orElse("org.ek9.lang::Any"))
+              .map(typeNameOrException)
               .toList();
 
           // Create metadata for constructor call
@@ -117,11 +120,9 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
             final var parentScope = toBeCalled.getParentScope();
             final var targetTypeName = (parentScope instanceof ISymbol symbol)
                 ? symbol.getFullyQualifiedName() : parentScope.toString();
-            final var returnTypeName = toBeCalled.getType()
-                .map(ISymbol::getFullyQualifiedName)
-                .orElse("org.ek9.lang::Void");
+            final var returnTypeName = typeNameOrException.apply(toBeCalled);
             final var parameterTypes = toBeCalled.getCallParameters().stream()
-                .map(param -> param.getType().map(ISymbol::getFullyQualifiedName).orElse("org.ek9.lang::Any"))
+                .map(typeNameOrException)
                 .toList();
 
             // Load the target object
@@ -133,7 +134,7 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
 
             // Generate the method call with complete type information
             final var callDetails = new CallDetails(tempObj, targetTypeName, methodName,
-                parameterTypes, returnTypeName, Arrays.asList(arguments), 
+                parameterTypes, returnTypeName, Arrays.asList(arguments),
                 CallMetaData.defaultMetaData());
 
             instructions.add(CallInstr.call(variableDetails.resultVariable(), debugInfo, callDetails));

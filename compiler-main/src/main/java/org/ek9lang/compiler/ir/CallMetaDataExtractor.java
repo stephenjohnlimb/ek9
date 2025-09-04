@@ -2,6 +2,7 @@ package org.ek9lang.compiler.ir;
 
 import java.util.HashSet;
 import java.util.function.Function;
+import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -14,6 +15,7 @@ import org.ek9lang.compiler.symbols.ISymbol;
 public class CallMetaDataExtractor implements Function<ISymbol, CallMetaData> {
 
   private final Ek9Types ek9Types;
+  private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
 
   public CallMetaDataExtractor(final Ek9Types ek9Types) {
     this.ek9Types = ek9Types;
@@ -34,13 +36,14 @@ public class CallMetaDataExtractor implements Function<ISymbol, CallMetaData> {
     // Detect side effects
     final var sideEffects = new HashSet<String>();
 
+    final var symbolType = symbolTypeOrException.apply(symbol);
     // Check for IO side effects via trait hierarchy
-    if (symbol.getType().isPresent() && symbol.getType().get().isAssignableTo(ek9Types.ek9IO())) {
+    if (symbolType.isAssignableTo(ek9Types.ek9IO())) {
       sideEffects.add("IO");
     }
 
     // Check for mutation potential (non-Void return type)
-    if (symbol.getType().isPresent() && !symbol.getType().get().isExactSameType(ek9Types.ek9Void())) {
+    if (!symbolType.isExactSameType(ek9Types.ek9Void())) {
       sideEffects.add("MUTATION");
     }
 

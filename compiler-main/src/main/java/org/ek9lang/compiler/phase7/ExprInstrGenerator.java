@@ -5,9 +5,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.CallMetaData;
 import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.DebugInfo;
 import org.ek9lang.compiler.ir.IRInstr;
@@ -19,7 +19,6 @@ import org.ek9lang.compiler.phase7.support.LiteralProcessingDetails;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.compiler.symbols.CallSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.Symbol;
 import org.ek9lang.core.AssertValue;
@@ -78,6 +77,7 @@ final class ExprInstrGenerator extends AbstractGenerator
 
   private final ObjectAccessInstrGenerator objectAccessCreator;
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
+  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final ShortCircuitAndGenerator shortCircuitAndGenerator;
   private final ShortCircuitOrGenerator shortCircuitOrGenerator;
   private final QuestionBlockGenerator questionBlockGenerator;
@@ -226,7 +226,7 @@ final class ExprInstrGenerator extends AbstractGenerator
 
         // Extract parameter types from constructor parameters
         final var parameterTypes = methodSymbol.getCallParameters().stream()
-            .map(param -> param.getType().map(ISymbol::getFullyQualifiedName).orElse("org.ek9.lang::Any"))
+            .map(typeNameOrException)
             .toList();
 
         // Create metadata for constructor call
@@ -310,6 +310,5 @@ final class ExprInstrGenerator extends AbstractGenerator
   private List<IRInstr> processOrExpression(final ExprProcessingDetails details) {
     return shortCircuitOrGenerator.apply(details);
   }
-
 
 }

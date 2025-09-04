@@ -36,6 +36,14 @@ public record CallDetails(String targetObject,
       sb.append("()");
     }
 
+    // Add metadata information
+    sb.append(" [pure=").append(metaData().isPure())
+        .append(", complexity=").append(metaData().complexityScore());
+    if (!metaData().sideEffects().isEmpty()) {
+      sb.append(", effects=").append(String.join(",", metaData().sideEffects()));
+    }
+    sb.append("]");
+
     return sb.toString();
   }
 }

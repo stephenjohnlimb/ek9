@@ -23,7 +23,7 @@ defines module dimension.negative.literal.test
     RETURN
     OperationDfn: dimension.negative.literal.test::testDimensionNegativeLiteral.testDimensionNegativeLiteral()->dimension.negative.literal.test::testDimensionNegativeLiteral  // ./dimension_negative_literal.ek9:76:5
     BasicBlock: _entry_1
-    _temp_i_init = CALL (dimension.negative.literal.test::testDimensionNegativeLiteral)this.i_init()  // ./dimension_negative_literal.ek9:76:5
+    _temp_i_init = CALL (dimension.negative.literal.test::testDimensionNegativeLiteral)this.i_init() [pure=false, complexity=0]  // ./dimension_negative_literal.ek9:76:5
     RETURN this  // ./dimension_negative_literal.ek9:76:5
     OperationDfn: dimension.negative.literal.test::testDimensionNegativeLiteral._call()->org.ek9.lang::Void  // ./dimension_negative_literal.ek9:76:5
     BasicBlock: _entry_1
@@ -51,7 +51,7 @@ defines module dimension.negative.literal.test
     primitive_condition: _temp4
     body_evaluation:
     [
-    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./dimension_negative_literal.ek9:79:23
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./dimension_negative_literal.ek9:79:23
     RETAIN _temp5  // ./dimension_negative_literal.ek9:79:23
     SCOPE_REGISTER _temp5, _scope_1  // ./dimension_negative_literal.ek9:79:23
     ]
@@ -60,7 +60,7 @@ defines module dimension.negative.literal.test
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./dimension_negative_literal.ek9:79:23
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=false, complexity=0]  // ./dimension_negative_literal.ek9:79:23
     RETAIN _temp6  // ./dimension_negative_literal.ek9:79:23
     SCOPE_REGISTER _temp6, _scope_1  // ./dimension_negative_literal.ek9:79:23
     ]
@@ -69,7 +69,7 @@ defines module dimension.negative.literal.test
     ]
     RETAIN _temp2  // ./dimension_negative_literal.ek9:79:7
     SCOPE_REGISTER _temp2, _scope_1  // ./dimension_negative_literal.ek9:79:7
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./dimension_negative_literal.ek9:79:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=false, complexity=0]  // ./dimension_negative_literal.ek9:79:7
     ASSERT _temp7  // ./dimension_negative_literal.ek9:79:7
     SCOPE_EXIT _scope_1  // ./dimension_negative_literal.ek9:78:7
     RETURN  // ./dimension_negative_literal.ek9:76:5`

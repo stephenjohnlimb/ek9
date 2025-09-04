@@ -74,14 +74,14 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
     final var leftType = typeNameOrException.apply(leftSymbol);
     final var rightType = typeNameOrException.apply(rightSymbol);
     //Need to lookup the operator name in ek9 form, not the method we will maps to for the IR.
-    final var returnTypeAndMethodSymbol = resolveBinaryMethodReturnTypeAndSymbol(leftSymbol, rightSymbol, ctx.op.getText());
+    final var returnTypeAndMethodSymbol =
+        resolveBinaryMethodReturnTypeAndSymbol(leftSymbol, rightSymbol, ctx.op.getText());
     final var returnType = returnTypeAndMethodSymbol.returnType();
     final var methodSymbol = returnTypeAndMethodSymbol.methodSymbol();
 
     // Create metadata for the method call
     final var metaDataExtractor = new CallMetaDataExtractor(context.getParsedModule().getEk9Types());
-    final var metaData = methodSymbol != null ? 
-        metaDataExtractor.apply(methodSymbol) : 
+    final var metaData = methodSymbol != null ? metaDataExtractor.apply(methodSymbol) :
         CallMetaData.defaultMetaData();
 
     // Create CallDetails for binary operation
@@ -98,7 +98,8 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
   /**
    * Record to hold both return type and method symbol for metadata extraction.
    */
-  private record BinaryMethodResolution(String returnType, ISymbol methodSymbol) {}
+  private record BinaryMethodResolution(String returnType, ISymbol methodSymbol) {
+  }
 
   /**
    * Resolve the return type of a binary method by looking up the actual method on the left operand type.

@@ -21,7 +21,7 @@ defines module string.test
     RETURN
     OperationDfn: string.test::testString.testString()->string.test::testString  // ./string_operator.ek9:84:5
     BasicBlock: _entry_1
-    _temp_i_init = CALL (string.test::testString)this.i_init()  // ./string_operator.ek9:84:5
+    _temp_i_init = CALL (string.test::testString)this.i_init() [pure=false, complexity=0]  // ./string_operator.ek9:84:5
     RETURN this  // ./string_operator.ek9:84:5
     OperationDfn: string.test::testString._call()->org.ek9.lang::Void  // ./string_operator.ek9:84:5
     BasicBlock: _entry_1
@@ -37,7 +37,7 @@ defines module string.test
     _temp3 = LOAD x  // ./string_operator.ek9:86:17
     RETAIN _temp3  // ./string_operator.ek9:86:17
     SCOPE_REGISTER _temp3, _scope_1  // ./string_operator.ek9:86:17
-    _temp2 = CALL (org.ek9.lang::Integer)_temp3._string()  // ./string_operator.ek9:86:17
+    _temp2 = CALL (org.ek9.lang::Integer)_temp3._string() [pure=true, complexity=2, effects=MUTATION]  // ./string_operator.ek9:86:17
     RETAIN _temp2  // ./string_operator.ek9:86:17
     SCOPE_REGISTER _temp2, _scope_1  // ./string_operator.ek9:86:17
     STORE result, _temp2  // ./string_operator.ek9:86:17
@@ -59,7 +59,7 @@ defines module string.test
     primitive_condition: _temp6
     body_evaluation:
     [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./string_operator.ek9:87:20
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./string_operator.ek9:87:20
     RETAIN _temp7  // ./string_operator.ek9:87:20
     SCOPE_REGISTER _temp7, _scope_1  // ./string_operator.ek9:87:20
     ]
@@ -68,7 +68,7 @@ defines module string.test
     ]
     default_body_evaluation:
     [
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet()  // ./string_operator.ek9:87:20
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=false, complexity=0]  // ./string_operator.ek9:87:20
     RETAIN _temp8  // ./string_operator.ek9:87:20
     SCOPE_REGISTER _temp8, _scope_1  // ./string_operator.ek9:87:20
     ]
@@ -77,7 +77,7 @@ defines module string.test
     ]
     RETAIN _temp4  // ./string_operator.ek9:87:7
     SCOPE_REGISTER _temp4, _scope_1  // ./string_operator.ek9:87:7
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true()  // ./string_operator.ek9:87:7
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=false, complexity=0]  // ./string_operator.ek9:87:7
     ASSERT _temp9  // ./string_operator.ek9:87:7
     SCOPE_EXIT _scope_1  // ./string_operator.ek9:85:7
     RETURN  // ./string_operator.ek9:84:5`

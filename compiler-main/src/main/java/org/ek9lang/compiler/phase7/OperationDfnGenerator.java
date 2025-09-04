@@ -6,6 +6,7 @@ import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.ParsedModule;
+import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.ir.BasicBlockInstr;
 import org.ek9lang.compiler.ir.BranchInstr;
 import org.ek9lang.compiler.ir.CallDetails;
@@ -42,6 +43,8 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
 
   private final ParsedModule parsedModule;
   private final CompilerFlags compilerFlags;
+
+  private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
 
   OperationDfnGenerator(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
     this.parsedModule = parsedModule;
@@ -187,9 +190,9 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
 
     if (operationSymbol instanceof IMayReturnSymbol mayReturnSymbol && mayReturnSymbol.isReturningSymbolPresent()) {
       final var returnSymbol = mayReturnSymbol.getReturningSymbol();
-      final var returnType = returnSymbol.getType().orElse(null);
+      final var returnType = symbolTypeOrException.apply(returnSymbol);
 
-      if (returnType != null && !context.getParsedModule().getEk9Types().ek9Void().isExactSameType(returnType)) {
+      if (!context.getParsedModule().getEk9Types().ek9Void().isExactSameType(returnType)) {
         // Function returns a value - return the return variable
         final var debugInfo = debugInfoCreator.apply(returnSymbol.getSourceToken());
         instructions.add(BranchInstr.returnValue(returnSymbol.getName(), debugInfo));
@@ -229,11 +232,11 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
       if (isNotImplicitSuperClass(superSymbol)) {
         // Try to find constructor symbol in superclass for metadata
         final var metaDataExtractor = new CallMetaDataExtractor(parsedModule.getEk9Types());
-        final var constructorSymbolOpt = superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(superSymbol.getName()));
-        final var metaData = constructorSymbolOpt.isPresent() ? 
-            metaDataExtractor.apply(constructorSymbolOpt.get()) : 
+        final var constructorSymbolOpt =
+            superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(superSymbol.getName()));
+        final var metaData = constructorSymbolOpt.isPresent() ? metaDataExtractor.apply(constructorSymbolOpt.get()) :
             CallMetaData.defaultMetaData();
-            
+
         final var callDetails = new CallDetails(
             IRConstants.SUPER, // Target super object
             superSymbol.getFullyQualifiedName(),
@@ -250,11 +253,11 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
     // 2. Call own class's i_init method to initialize this class's fields
     // Try to find i_init method symbol for metadata
     final var metaDataExtractor = new CallMetaDataExtractor(parsedModule.getEk9Types());
-    final var iInitMethodOpt = aggregateSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.I_INIT_METHOD));
-    final var iInitMetaData = iInitMethodOpt.isPresent() ? 
-        metaDataExtractor.apply(iInitMethodOpt.get()) : 
+    final var iInitMethodOpt =
+        aggregateSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.I_INIT_METHOD));
+    final var iInitMetaData = iInitMethodOpt.isPresent() ? metaDataExtractor.apply(iInitMethodOpt.get()) :
         CallMetaData.defaultMetaData();
-        
+
     final var iInitCallDetails = new CallDetails(
         IRConstants.THIS, // Target this object
         aggregateSymbol.getFullyQualifiedName(),

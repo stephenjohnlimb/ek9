@@ -16,7 +16,7 @@ defines module assignments
     RETURN
     OperationDfn: assignments::basicAssignment1.basicAssignment1()->assignments::basicAssignment1  // ./basicAssignment.ek9:70:5
     BasicBlock: _entry_1
-    _temp_i_init = CALL (assignments::basicAssignment1)this.i_init()  // ./basicAssignment.ek9:70:5
+    _temp_i_init = CALL (assignments::basicAssignment1)this.i_init() [pure=false, complexity=0]  // ./basicAssignment.ek9:70:5
     RETURN this  // ./basicAssignment.ek9:70:5
     OperationDfn: assignments::basicAssignment1._call()->org.ek9.lang::Void  // ./basicAssignment.ek9:70:5
     BasicBlock: _entry_1
@@ -45,7 +45,7 @@ defines module assignments
     primitive_condition: _temp4
     body_evaluation:
     [
-    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./basicAssignment.ek9:73:19
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./basicAssignment.ek9:73:19
     RETAIN _temp5  // ./basicAssignment.ek9:73:19
     SCOPE_REGISTER _temp5, _scope_1  // ./basicAssignment.ek9:73:19
     ]
@@ -54,7 +54,7 @@ defines module assignments
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./basicAssignment.ek9:73:19
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=false, complexity=0]  // ./basicAssignment.ek9:73:19
     RETAIN _temp6  // ./basicAssignment.ek9:73:19
     SCOPE_REGISTER _temp6, _scope_1  // ./basicAssignment.ek9:73:19
     ]
@@ -63,7 +63,7 @@ defines module assignments
     ]
     RETAIN _temp2  // ./basicAssignment.ek9:73:7
     SCOPE_REGISTER _temp2, _scope_1  // ./basicAssignment.ek9:73:7
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./basicAssignment.ek9:73:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=false, complexity=0]  // ./basicAssignment.ek9:73:7
     ASSERT _temp7  // ./basicAssignment.ek9:73:7
     SCOPE_EXIT _scope_1  // ./basicAssignment.ek9:71:7
     RETURN  // ./basicAssignment.ek9:70:5`
@@ -82,7 +82,7 @@ defines module assignments
     RETURN
     OperationDfn: assignments::basicAssignment2.basicAssignment2()->assignments::basicAssignment2  // ./basicAssignment.ek9:136:5
     BasicBlock: _entry_1
-    _temp_i_init = CALL (assignments::basicAssignment2)this.i_init()  // ./basicAssignment.ek9:136:5
+    _temp_i_init = CALL (assignments::basicAssignment2)this.i_init() [pure=false, complexity=0]  // ./basicAssignment.ek9:136:5
     RETURN this  // ./basicAssignment.ek9:136:5
     OperationDfn: assignments::basicAssignment2._call()->org.ek9.lang::Void  // ./basicAssignment.ek9:136:5
     BasicBlock: _entry_1
@@ -111,7 +111,7 @@ defines module assignments
     primitive_condition: _temp4
     body_evaluation:
     [
-    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./basicAssignment.ek9:139:19
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./basicAssignment.ek9:139:19
     RETAIN _temp5  // ./basicAssignment.ek9:139:19
     SCOPE_REGISTER _temp5, _scope_1  // ./basicAssignment.ek9:139:19
     ]
@@ -120,7 +120,7 @@ defines module assignments
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./basicAssignment.ek9:139:19
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=false, complexity=0]  // ./basicAssignment.ek9:139:19
     RETAIN _temp6  // ./basicAssignment.ek9:139:19
     SCOPE_REGISTER _temp6, _scope_1  // ./basicAssignment.ek9:139:19
     ]
@@ -129,7 +129,7 @@ defines module assignments
     ]
     RETAIN _temp2  // ./basicAssignment.ek9:139:7
     SCOPE_REGISTER _temp2, _scope_1  // ./basicAssignment.ek9:139:7
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./basicAssignment.ek9:139:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=false, complexity=0]  // ./basicAssignment.ek9:139:7
     ASSERT _temp7  // ./basicAssignment.ek9:139:7
     SCOPE_EXIT _scope_1  // ./basicAssignment.ek9:137:7
     RETURN  // ./basicAssignment.ek9:136:5`
@@ -148,7 +148,7 @@ defines module assignments
     RETURN
     OperationDfn: assignments::basicAssignment3.basicAssignment3()->assignments::basicAssignment3  // ./basicAssignment.ek9:202:5
     BasicBlock: _entry_1
-    _temp_i_init = CALL (assignments::basicAssignment3)this.i_init()  // ./basicAssignment.ek9:202:5
+    _temp_i_init = CALL (assignments::basicAssignment3)this.i_init() [pure=false, complexity=0]  // ./basicAssignment.ek9:202:5
     RETURN this  // ./basicAssignment.ek9:202:5
     OperationDfn: assignments::basicAssignment3._call()->org.ek9.lang::Void  // ./basicAssignment.ek9:202:5
     BasicBlock: _entry_1
@@ -177,7 +177,7 @@ defines module assignments
     primitive_condition: _temp4
     body_evaluation:
     [
-    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./basicAssignment.ek9:205:19
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./basicAssignment.ek9:205:19
     RETAIN _temp5  // ./basicAssignment.ek9:205:19
     SCOPE_REGISTER _temp5, _scope_1  // ./basicAssignment.ek9:205:19
     ]
@@ -186,7 +186,7 @@ defines module assignments
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // ./basicAssignment.ek9:205:19
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=false, complexity=0]  // ./basicAssignment.ek9:205:19
     RETAIN _temp6  // ./basicAssignment.ek9:205:19
     SCOPE_REGISTER _temp6, _scope_1  // ./basicAssignment.ek9:205:19
     ]
@@ -195,7 +195,7 @@ defines module assignments
     ]
     RETAIN _temp2  // ./basicAssignment.ek9:205:7
     SCOPE_REGISTER _temp2, _scope_1  // ./basicAssignment.ek9:205:7
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()  // ./basicAssignment.ek9:205:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=false, complexity=0]  // ./basicAssignment.ek9:205:7
     ASSERT _temp7  // ./basicAssignment.ek9:205:7
     SCOPE_EXIT _scope_1  // ./basicAssignment.ek9:203:7
     RETURN  // ./basicAssignment.ek9:202:5`

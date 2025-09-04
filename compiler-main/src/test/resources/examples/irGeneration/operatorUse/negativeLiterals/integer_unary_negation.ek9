@@ -23,7 +23,7 @@ defines module integer.unary.negation.test
     RETURN
     OperationDfn: integer.unary.negation.test::testIntegerUnaryNegation.testIntegerUnaryNegation()->integer.unary.negation.test::testIntegerUnaryNegation  // ./integer_unary_negation.ek9:86:5
     BasicBlock: _entry_1
-    _temp_i_init = CALL (integer.unary.negation.test::testIntegerUnaryNegation)this.i_init()  // ./integer_unary_negation.ek9:86:5
+    _temp_i_init = CALL (integer.unary.negation.test::testIntegerUnaryNegation)this.i_init() [pure=false, complexity=0]  // ./integer_unary_negation.ek9:86:5
     RETURN this  // ./integer_unary_negation.ek9:86:5
     OperationDfn: integer.unary.negation.test::testIntegerUnaryNegation._call()->org.ek9.lang::Void  // ./integer_unary_negation.ek9:86:5
     BasicBlock: _entry_1
@@ -39,7 +39,7 @@ defines module integer.unary.negation.test
     _temp3 = LOAD someInt  // ./integer_unary_negation.ek9:91:20
     RETAIN _temp3  // ./integer_unary_negation.ek9:91:20
     SCOPE_REGISTER _temp3, _scope_1  // ./integer_unary_negation.ek9:91:20
-    _temp2 = CALL (org.ek9.lang::Integer)_temp3._negate()  // ./integer_unary_negation.ek9:91:20
+    _temp2 = CALL (org.ek9.lang::Integer)_temp3._negate() [pure=true, complexity=2, effects=MUTATION]  // ./integer_unary_negation.ek9:91:20
     RETAIN _temp2  // ./integer_unary_negation.ek9:91:20
     SCOPE_REGISTER _temp2, _scope_1  // ./integer_unary_negation.ek9:91:20
     STORE negIntVar, _temp2  // ./integer_unary_negation.ek9:91:20
@@ -61,7 +61,7 @@ defines module integer.unary.negation.test
     primitive_condition: _temp6
     body_evaluation:
     [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./integer_unary_negation.ek9:92:23
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./integer_unary_negation.ek9:92:23
     RETAIN _temp7  // ./integer_unary_negation.ek9:92:23
     SCOPE_REGISTER _temp7, _scope_1  // ./integer_unary_negation.ek9:92:23
     ]
@@ -70,7 +70,7 @@ defines module integer.unary.negation.test
     ]
     default_body_evaluation:
     [
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet()  // ./integer_unary_negation.ek9:92:23
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=false, complexity=0]  // ./integer_unary_negation.ek9:92:23
     RETAIN _temp8  // ./integer_unary_negation.ek9:92:23
     SCOPE_REGISTER _temp8, _scope_1  // ./integer_unary_negation.ek9:92:23
     ]
@@ -79,7 +79,7 @@ defines module integer.unary.negation.test
     ]
     RETAIN _temp4  // ./integer_unary_negation.ek9:92:7
     SCOPE_REGISTER _temp4, _scope_1  // ./integer_unary_negation.ek9:92:7
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true()  // ./integer_unary_negation.ek9:92:7
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=false, complexity=0]  // ./integer_unary_negation.ek9:92:7
     ASSERT _temp9  // ./integer_unary_negation.ek9:92:7
     SCOPE_EXIT _scope_1  // ./integer_unary_negation.ek9:88:7
     RETURN  // ./integer_unary_negation.ek9:86:5`

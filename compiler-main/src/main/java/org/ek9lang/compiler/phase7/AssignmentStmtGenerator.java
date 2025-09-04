@@ -6,8 +6,9 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.ir.CallMetaData;
+import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
@@ -35,6 +36,8 @@ import org.ek9lang.core.CompilerException;
  */
 final class AssignmentStmtGenerator extends AbstractGenerator implements
     BiFunction<EK9Parser.AssignmentStatementContext, String, List<IRInstr>> {
+
+  private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
 
   AssignmentStmtGenerator(final IRContext context) {
     super(context);
@@ -152,7 +155,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     // Resolve actual return type of assignment method (may be Void for mutating operators)
     final var returnType = resolveBinaryMethodReturnType(lhsSymbol, rightSymbol, ctx.op.getText());
-    
+
     // Assignment operators MUST return Void - enforced by ValidOperatorOrError semantic rules
     AssertValue.checkTrue("Assignment operator " + ctx.op.getText() + " must return Void, got: " + returnType,
         "org.ek9.lang::Void".equals(returnType));
@@ -160,7 +163,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     // Create CallDetails for assignment operation: leftVariable._addAss(rightValue)
     final var callDetails = new org.ek9lang.compiler.ir.CallDetails(
         leftTemp, leftType, methodName,
-        List.of(rightType), returnType, List.of(rightTemp), 
+        List.of(rightType), returnType, List.of(rightTemp),
         CallMetaData.defaultMetaData());
 
     // Assignment operators return Void - generate call without result variable
@@ -182,7 +185,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     search.addTypeParameter(rightSymbol.getType());
 
     // Get left operand type symbol for method resolution
-    final var leftTypeSymbol = leftSymbol.getType().orElse(null);
+    final var leftTypeSymbol = symbolTypeOrException.apply(leftSymbol);
     if (leftTypeSymbol instanceof org.ek9lang.compiler.symbols.AggregateSymbol aggregate) {
 
       // Resolve method on the left operand type

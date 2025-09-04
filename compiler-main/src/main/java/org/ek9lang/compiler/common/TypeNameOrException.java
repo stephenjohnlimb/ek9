@@ -3,7 +3,6 @@ package org.ek9lang.compiler.common;
 import java.util.function.Function;
 import org.ek9lang.compiler.symbols.IMayReturnSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.core.CompilerException;
 
 /**
  * Extracts the fully qualified type name from the symbol.
@@ -11,6 +10,8 @@ import org.ek9lang.core.CompilerException;
  * So be carful which phase you use this with.
  */
 public final class TypeNameOrException implements Function<ISymbol, String> {
+
+  private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
 
   @Override
   public String apply(final ISymbol symbol) {
@@ -25,8 +26,6 @@ public final class TypeNameOrException implements Function<ISymbol, String> {
   }
 
   private String getFullyQualifiedTypeName(final ISymbol symbol) {
-    return symbol.getType()
-        .map(ISymbol::getFullyQualifiedName)
-        .orElseThrow(() -> new CompilerException("Type should be known"));
+    return symbolTypeOrException.apply(symbol).getFullyQualifiedName();
   }
 }

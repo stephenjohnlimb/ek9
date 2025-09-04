@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.OperatorMap;
+import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
@@ -36,6 +37,7 @@ class UnaryOperationGenerator extends AbstractGenerator
   private final OperatorMap operatorMap = new OperatorMap();
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
+  private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
 
   UnaryOperationGenerator(final IRContext context) {
     super(context);
@@ -72,8 +74,7 @@ class UnaryOperationGenerator extends AbstractGenerator
 
     // Create metadata for the method call
     final var metaDataExtractor = new CallMetaDataExtractor(context.getParsedModule().getEk9Types());
-    final var metaData = methodSymbol != null ? 
-        metaDataExtractor.apply(methodSymbol) : 
+    final var metaData = methodSymbol != null ? metaDataExtractor.apply(methodSymbol) :
         CallMetaData.defaultMetaData();
 
     // Create CallDetails for unary operation
@@ -103,7 +104,7 @@ class UnaryOperationGenerator extends AbstractGenerator
     final var search = new MethodSymbolSearch(methodName);
 
     // Get operand type symbol for method resolution
-    final var operandTypeSymbol = operandSymbol.getType().orElse(null);
+    final var operandTypeSymbol = symbolTypeOrException.apply(operandSymbol);
     if (operandTypeSymbol instanceof AggregateSymbol aggregate) {
 
       // Resolve method on the operand type

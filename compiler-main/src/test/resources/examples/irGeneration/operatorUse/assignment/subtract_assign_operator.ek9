@@ -22,7 +22,7 @@ BasicBlock: _entry_1
 RETURN
 OperationDfn: subtract_assign.test::testSubtractAssign.testSubtractAssign()->subtract_assign.test::testSubtractAssign  // ./subtract_assign_operator.ek9:82:5
 BasicBlock: _entry_1
-_temp_i_init = CALL (subtract_assign.test::testSubtractAssign)this.i_init()  // ./subtract_assign_operator.ek9:82:5
+_temp_i_init = CALL (subtract_assign.test::testSubtractAssign)this.i_init() [pure=false, complexity=0]  // ./subtract_assign_operator.ek9:82:5
 RETURN this  // ./subtract_assign_operator.ek9:82:5
 OperationDfn: subtract_assign.test::testSubtractAssign._call()->org.ek9.lang::Void  // ./subtract_assign_operator.ek9:82:5
 BasicBlock: _entry_1
@@ -40,7 +40,7 @@ SCOPE_REGISTER _temp2, _scope_1  // ./subtract_assign_operator.ek9:84:9
 _temp3 = LOAD_LITERAL 3, org.ek9.lang::Integer  // ./subtract_assign_operator.ek9:84:12
 RETAIN _temp3  // ./subtract_assign_operator.ek9:84:9
 SCOPE_REGISTER _temp3, _scope_1  // ./subtract_assign_operator.ek9:84:9
-CALL (org.ek9.lang::Integer)_temp2._subAss(_temp3)  // ./subtract_assign_operator.ek9:84:9
+CALL (org.ek9.lang::Integer)_temp2._subAss(_temp3) [pure=false, complexity=0]  // ./subtract_assign_operator.ek9:84:9
 _temp4 = CONTROL_FLOW_CHAIN  // ./subtract_assign_operator.ek9:85:7
 [
 chain_type: "QUESTION_OPERATOR"
@@ -57,7 +57,7 @@ _temp6 = IS_NULL _temp5  // ./subtract_assign_operator.ek9:85:15
 primitive_condition: _temp6
 body_evaluation:
 [
-_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse()  // ./subtract_assign_operator.ek9:85:15
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./subtract_assign_operator.ek9:85:15
 RETAIN _temp7  // ./subtract_assign_operator.ek9:85:15
 SCOPE_REGISTER _temp7, _scope_1  // ./subtract_assign_operator.ek9:85:15
 ]
@@ -66,7 +66,7 @@ body_result: _temp7
 ]
 default_body_evaluation:
 [
-_temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet()  // ./subtract_assign_operator.ek9:85:15
+_temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=false, complexity=0]  // ./subtract_assign_operator.ek9:85:15
 RETAIN _temp8  // ./subtract_assign_operator.ek9:85:15
 SCOPE_REGISTER _temp8, _scope_1  // ./subtract_assign_operator.ek9:85:15
 ]
@@ -75,7 +75,7 @@ scope_id: _scope_1
 ]
 RETAIN _temp4  // ./subtract_assign_operator.ek9:85:7
 SCOPE_REGISTER _temp4, _scope_1  // ./subtract_assign_operator.ek9:85:7
-_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true()  // ./subtract_assign_operator.ek9:85:7
+_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=false, complexity=0]  // ./subtract_assign_operator.ek9:85:7
 ASSERT _temp9  // ./subtract_assign_operator.ek9:85:7
 SCOPE_EXIT _scope_1  // ./subtract_assign_operator.ek9:83:7
 RETURN  // ./subtract_assign_operator.ek9:82:5`
