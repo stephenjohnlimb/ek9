@@ -10,8 +10,8 @@ import org.ek9tooling.Ek9Trait;
  */
 @SuppressWarnings("checkstyle:MethodName")
 @Ek9Trait("""
-    StringInput as open""")
-public interface StringInput extends Any {
+    StringInput with trait of IO as open""")
+public interface StringInput extends IO {
 
   @Ek9Method("""
       next() as pure

@@ -132,6 +132,14 @@ For specific EK9 development tasks, refer to these comprehensive guides:
   - Standard library refactoring techniques and best practices
   - **Use this when:** Refactoring complex classes or understanding EK9's architectural approach
 
+- **`EK9_PRAGMATIC_PURITY_ARCHITECTURE.md`** - Revolutionary purity model and backend optimization architecture
+  - Three-tier purity system (enforcement, pragmatic I/O, controlled mutation)
+  - PurityInfo IR enhancement with side effects classification
+  - Backend optimization framework for LLVM/JVM targets
+  - Next-generation computing vision (SIMD, GPU, quantum optimization)
+  - Strategic positioning as "Pure Performance Language" vs Haskell/Rust/Java
+  - **Use this when:** Understanding purity-based optimization, backend IR enhancement, or performance strategy
+
 ### Strategic Documentation  
 - **`EK9_COMPREHENSIVE_COMPETITIVE_ANALYSIS.md`** - Complete strategic market positioning and competitive advantage analysis
   - Tier-based competitive advantage analysis (Revolutionary DevOps Integration, AI Development Platform, Supply Chain Security, Safety, Performance)

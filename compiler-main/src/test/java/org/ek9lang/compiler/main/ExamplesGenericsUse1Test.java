@@ -36,7 +36,7 @@ class ExamplesGenericsUse1Test extends SuccessfulTest {
   @Override
   protected void assertPreConditions(CompilableProgram program) {
     //Now as we move from the BuiltinLangSupplier, I'll probably retire this test as I'll be adding more.
-    new SymbolCountCheck(EK9_LANG, 118).test(program);
+    new SymbolCountCheck(EK9_LANG, 119).test(program);
 
     //While we do have @ directives, this is a good test just to ensure that precondition of missing types is correct.
     var checker = new GenericsSymbolCheck(program, EK9_LANG, false);
@@ -96,7 +96,7 @@ class ExamplesGenericsUse1Test extends SuccessfulTest {
     functionChecker.accept(new SymbolSearchConfiguration("Supplier", mapFunction.apply(List.of("Integer"))));
 
     //As we move away from the builtin fixed supplier, to the introspection I may remove this check.
-    new SymbolCountCheck(EK9_LANG, 129).test(program);
+    new SymbolCountCheck(EK9_LANG, 130).test(program);
   }
 
   private void assertSimpleGenerics(final CompilableProgram program) {

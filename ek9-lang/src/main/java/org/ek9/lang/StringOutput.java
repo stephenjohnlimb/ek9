@@ -9,8 +9,8 @@ import org.ek9tooling.Ek9Trait;
  */
 @SuppressWarnings("checkstyle:MethodName")
 @Ek9Trait("""
-     StringOutput as open""")
-public interface StringOutput extends Any {
+     StringOutput with trait of IO as open""")
+public interface StringOutput extends IO {
 
   @Ek9Method("""
       println() as pure

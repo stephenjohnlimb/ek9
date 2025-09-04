@@ -14,8 +14,8 @@ import org.ek9tooling.Ek9Operator;
  */
 @SuppressWarnings("checkstyle:MethodName")
 @Ek9Class("""
-    FileSystemPath""")
-public class FileSystemPath extends BuiltinType {
+    FileSystemPath with trait of IO""")
+public class FileSystemPath extends BuiltinType implements IO {
 
   //This is the actual Path implementation.
   java.nio.file.Path state = null;

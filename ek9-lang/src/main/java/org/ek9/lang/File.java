@@ -9,8 +9,8 @@ import org.ek9tooling.Ek9Trait;
  */
 @SuppressWarnings({"checkstyle:AbbreviationAsWordInName", "checkstyle:MethodName"})
 @Ek9Trait("""
-    File as open""")
-public interface File extends Any {
+    File with trait of IO as open""")
+public interface File extends IO {
 
   @Ek9Method("""
       isWritable() as pure

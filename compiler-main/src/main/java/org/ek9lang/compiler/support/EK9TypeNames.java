@@ -45,6 +45,7 @@ public final class EK9TypeNames {
   public static final String EK9_VERSION = EK9_LANG + "::Version";
   public static final String EK9_PATH = EK9_LANG + "::Path";
   public static final String EK9_ANY = EK9_LANG + "::Any";
+  public static final String EK9_IO = EK9_LANG + "::IO";
   public static final String EK9_MATH = "org.ek9.math";
 
   private EK9TypeNames() {

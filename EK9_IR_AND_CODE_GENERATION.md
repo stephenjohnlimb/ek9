@@ -6,6 +6,7 @@ This document provides comprehensive guidance for working with EK9's Intermediat
 - **`CLAUDE.md`** - Main project overview and daily development guidelines
 - **`EK9_COMPILER_PHASES.md`** - Detailed compiler phase implementation and pipeline
 - **`EK9_Compiler_Architecture_and_Design.md`** - Complete architectural specification
+- **`EK9_PRAGMATIC_PURITY_ARCHITECTURE.md`** - Purity model and backend optimization architecture
 
 ## IR Generation Overview
 

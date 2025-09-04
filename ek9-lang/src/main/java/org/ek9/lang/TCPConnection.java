@@ -17,8 +17,8 @@ import org.ek9tooling.Ek9Trait;
  */
 @SuppressWarnings("checkstyle:MethodName")
 @Ek9Trait("""
-    TCPConnection as open""")
-public interface TCPConnection extends Any {
+    TCPConnection with trait of IO as open""")
+public interface TCPConnection extends IO {
 
   @Ek9Method("""
       output() as pure

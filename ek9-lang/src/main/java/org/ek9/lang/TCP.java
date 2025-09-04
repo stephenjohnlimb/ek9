@@ -81,8 +81,8 @@ import org.ek9tooling.Ek9Operator;
  * </pre>
  */
 @SuppressWarnings("checkstyle:MethodName")
-@Ek9Class("TCP")
-public class TCP extends BuiltinType {
+@Ek9Class("TCP with trait of IO")
+public class TCP extends BuiltinType implements IO {
 
   private NetworkProperties properties = new NetworkProperties();
   private ServerSocket serverSocket;

@@ -70,8 +70,8 @@ import org.ek9tooling.Ek9Operator;
  * </pre>
  */
 @SuppressWarnings("checkstyle:MethodName")
-@Ek9Class("UDP")
-public class UDP extends BuiltinType {
+@Ek9Class("UDP with trait of IO")
+public class UDP extends BuiltinType implements IO {
 
   private static final int DEFAULT_BUFFER_SIZE = 1024;
   private static final int DEFAULT_TIMEOUT_MS = 5000;

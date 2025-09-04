@@ -148,6 +148,7 @@ defines extern module org.ek9.lang
   defines trait
     HTTPRequest as open
     HTTPResponse as open
+    IO as open
 
   defines class
 

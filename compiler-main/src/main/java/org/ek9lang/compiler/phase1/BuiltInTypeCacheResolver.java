@@ -16,6 +16,7 @@ import static org.ek9lang.compiler.support.EK9TypeNames.EK9_FUNCTION;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_HTTP_REQUEST;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_HTTP_RESPONSE;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_INTEGER;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_IO;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_ITERATOR;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_JSON;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_LIST;
@@ -87,7 +88,8 @@ final class BuiltInTypeCacheResolver implements Function<IScope, Ek9Types> {
           resolveTemplateFunction(scope, EK9_ROUTINE),
           resolveTemplateFunction(scope, EK9_UNARY_OPERATOR),
           resolveTemplateFunction(scope, EK9_PREDICATE),
-          resolveTemplateFunction(scope, EK9_COMPARATOR));
+          resolveTemplateFunction(scope, EK9_COMPARATOR),
+          resolveType(scope, EK9_IO));
     }
 
     return null;

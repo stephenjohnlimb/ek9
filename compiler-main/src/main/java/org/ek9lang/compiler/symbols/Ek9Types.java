@@ -36,7 +36,8 @@ public record Ek9Types(AnyTypeSymbol ek9Any,
                        ISymbol ek9Routine,
                        ISymbol ek9UnaryOperator,
                        ISymbol ek9Predicate,
-                       ISymbol ek9Comparator) implements Serializable {
+                       ISymbol ek9Comparator,
+                       ISymbol ek9IO) implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 }
