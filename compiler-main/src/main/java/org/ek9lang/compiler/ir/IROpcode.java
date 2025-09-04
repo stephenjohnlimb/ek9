@@ -64,6 +64,14 @@ public enum IROpcode {
   CALL_STATIC,
 
   /**
+   * Get singleton instance of a function.
+   * Format: FUNCTION_INSTANCE result = FunctionType
+   * Returns the singleton instance of the specified function type.
+   * No memory management needed - singletons are never released.
+   */
+  FUNCTION_INSTANCE,
+
+  /**
    * Dispatcher method call (runtime type-based dispatch).
    * Format: CALL_DISPATCHER result = object.dispatcherMethod(args...)
    * Uses runtime type information and dispatch matrix

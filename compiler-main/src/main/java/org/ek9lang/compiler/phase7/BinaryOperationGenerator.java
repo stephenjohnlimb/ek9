@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.OperatorMap;
+import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
@@ -34,6 +35,7 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
     implements Function<ExprProcessingDetails, List<IRInstr>> {
 
   private final OperatorMap operatorMap = new OperatorMap();
+  private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
 
@@ -113,10 +115,10 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
     // Create method search for binary operation (one parameter)
     final var search = new MethodSymbolSearch(methodName);
 
-    search.addTypeParameter(rightSymbol.getType());
+    search.addTypeParameter(symbolTypeOrException.apply(rightSymbol));
 
     // Get left operand type symbol for method resolution
-    final var leftTypeSymbol = leftSymbol.getType().orElse(null);
+    final var leftTypeSymbol = symbolTypeOrException.apply(leftSymbol);
     if (leftTypeSymbol instanceof AggregateSymbol aggregate) {
 
       // Resolve method on the left operand type
@@ -125,11 +127,8 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
 
       if (bestMatch.isPresent()) {
         final var method = bestMatch.get();
-        final var returningSymbol = method.getReturningSymbol();
-        if (returningSymbol.getType().isPresent()) {
-          final var returnType = typeNameOrException.apply(returningSymbol);
-          return new BinaryMethodResolution(returnType, method);
-        }
+        final var returnType = typeNameOrException.apply(method);
+        return new BinaryMethodResolution(returnType, method);
       }
     }
     throw new CompilerException("Must be able to resolve method for binary operator");

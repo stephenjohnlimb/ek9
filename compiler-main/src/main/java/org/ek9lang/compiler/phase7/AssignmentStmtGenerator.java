@@ -7,6 +7,7 @@ import java.util.function.Function;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
+import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallMetaData;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
@@ -38,6 +39,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     BiFunction<EK9Parser.AssignmentStatementContext, String, List<IRInstr>> {
 
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
+  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
   AssignmentStmtGenerator(final IRContext context) {
     super(context);
@@ -149,7 +151,6 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     // Get operand types and resolve actual return type from method
     final var rightSymbol = getRecordedSymbolOrException(ctx.assignmentExpression());
-    final var typeNameOrException = new org.ek9lang.compiler.common.TypeNameOrException();
     final var leftType = typeNameOrException.apply(lhsSymbol);
     final var rightType = typeNameOrException.apply(rightSymbol);
 
@@ -182,7 +183,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     // Create method search for binary operation (one parameter)
     final var search = new org.ek9lang.compiler.search.MethodSymbolSearch(methodName);
-    search.addTypeParameter(rightSymbol.getType());
+    search.addTypeParameter(symbolTypeOrException.apply(rightSymbol));
 
     // Get left operand type symbol for method resolution
     final var leftTypeSymbol = symbolTypeOrException.apply(leftSymbol);
@@ -195,11 +196,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
       if (bestMatch.isPresent()) {
         final var method = bestMatch.get();
-        final var returningSymbol = method.getReturningSymbol();
-        if (returningSymbol.getType().isPresent()) {
-          final var typeNameOrException = new org.ek9lang.compiler.common.TypeNameOrException();
-          return typeNameOrException.apply(returningSymbol);
-        }
+        return typeNameOrException.apply(method);
       }
     }
     throw new CompilerException("Must be able to resolve method for assignment operator");

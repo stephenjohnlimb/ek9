@@ -5,6 +5,7 @@ import java.util.function.Function;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.symbols.Ek9Types;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -43,8 +44,21 @@ public class CallMetaDataExtractor implements Function<ISymbol, CallMetaData> {
     }
 
     // Check for mutation potential (non-Void return type)
-    if (!symbolType.isExactSameType(ek9Types.ek9Void())) {
-      sideEffects.add("RETURN_MUTATION");
+    // For functions, check the return type, not the function type
+    if (symbol instanceof FunctionSymbol function) {
+      final var returningSymbol = function.getReturningSymbol();
+      if (returningSymbol.getType().isPresent()) {
+        final var returnType = returningSymbol.getType().get();
+        if (!returnType.isExactSameType(ek9Types.ek9Void())) {
+          sideEffects.add("RETURN_MUTATION");
+        }
+      }
+      // If no explicit return type, defaults to Void (no RETURN_MUTATION)
+    } else {
+      // For non-function symbols, use the symbol's own type
+      if (!symbolType.isExactSameType(ek9Types.ek9Void())) {
+        sideEffects.add("RETURN_MUTATION");
+      }
     }
 
     return new CallMetaData(isPure, complexityScore, sideEffects);

@@ -38,12 +38,14 @@ final class StmtInstrGenerator extends AbstractGenerator
   private final ObjectAccessInstrGenerator objectAccessGenerator;
   private final AssertStmtGenerator assertStmtGenerator;
   private final AssignmentStmtGenerator assignmentStmtGenerator;
+  private final CallInstrGenerator callInstrGenerator;
 
   StmtInstrGenerator(final IRContext context) {
     super(context);
     this.objectAccessGenerator = new ObjectAccessInstrGenerator(context);
     this.assertStmtGenerator = new AssertStmtGenerator(context);
     this.assignmentStmtGenerator = new AssignmentStmtGenerator(context);
+    this.callInstrGenerator = new CallInstrGenerator(context);
   }
 
   /**
@@ -65,7 +67,7 @@ final class StmtInstrGenerator extends AbstractGenerator
     } else if (ctx.identifierReference() != null) {
       throw new CompilerException("Identifier inc/dec not implemented");
     } else if (ctx.call() != null) {
-      throw new CompilerException("Call not implemented");
+      processCall(ctx.call(), scopeId, instructions);
     } else if (ctx.throwStatement() != null) {
       throw new CompilerException("Throw not implemented");
     } else if (ctx.objectAccessExpression() != null) {
@@ -107,6 +109,15 @@ final class StmtInstrGenerator extends AbstractGenerator
                                           final String scopeId, final List<IRInstr> instructions) {
 
     instructions.addAll(assignmentStmtGenerator.apply(ctx, scopeId));
+
+  }
+
+  private void processCall(final EK9Parser.CallContext ctx,
+                          final String scopeId, final List<IRInstr> instructions) {
+
+    final var tempResult = context.generateTempName();
+    final var variableDetails = new VariableDetails(tempResult, new BasicDetails(scopeId, null));
+    instructions.addAll(callInstrGenerator.apply(ctx, variableDetails));
 
   }
 }

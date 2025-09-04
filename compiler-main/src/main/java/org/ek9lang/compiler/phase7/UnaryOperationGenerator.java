@@ -113,11 +113,8 @@ class UnaryOperationGenerator extends AbstractGenerator
 
       if (bestMatch.isPresent()) {
         final var method = bestMatch.get();
-        final var returningSymbol = method.getReturningSymbol();
-        if (returningSymbol.getType().isPresent()) {
-          final var returnType = typeNameOrException.apply(returningSymbol);
-          return new UnaryMethodResolution(returnType, method);
-        }
+        final var returnType = typeNameOrException.apply(method);
+        return new UnaryMethodResolution(returnType, method);
       }
     }
 

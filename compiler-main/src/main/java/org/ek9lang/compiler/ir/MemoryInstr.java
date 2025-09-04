@@ -76,6 +76,16 @@ public final class MemoryInstr extends IRInstr {
     return new MemoryInstr(IROpcode.IS_NULL, result, debugInfo).addOperand(operand);
   }
 
+  /**
+   * Create FUNCTION_INSTANCE instruction with debug info: FUNCTION_INSTANCE result = FunctionType.
+   * Gets the singleton instance of the specified function type.
+   */
+  public static MemoryInstr functionInstance(final String result,
+                                             final String functionType,
+                                             final DebugInfo debugInfo) {
+    return new MemoryInstr(IROpcode.FUNCTION_INSTANCE, result, debugInfo).addOperand(functionType);
+  }
+
   private MemoryInstr(final IROpcode opcode, final String result, final DebugInfo debugInfo) {
     super(opcode, result, debugInfo);
   }
