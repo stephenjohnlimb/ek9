@@ -16,7 +16,7 @@ defines module singleProperty
     OperationDfn: singleProperty::Example1.i_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     REFERENCE this.aField, org.ek9.lang::String  // ./simpleClass1.ek9:74:7
-    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=MUTATION]  // ./simpleClass1.ek9:74:27
+    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./simpleClass1.ek9:74:27
     RETAIN _temp1  // ./simpleClass1.ek9:74:27
     SCOPE_REGISTER _temp1, _i_init_1  // ./simpleClass1.ek9:74:27
     STORE this.aField, _temp1  // ./simpleClass1.ek9:74:27

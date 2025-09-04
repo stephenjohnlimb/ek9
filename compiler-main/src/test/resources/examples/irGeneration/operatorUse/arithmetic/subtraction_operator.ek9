@@ -33,7 +33,7 @@ defines module subtraction.test
     _temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./subtraction_operator.ek9:81:16
     RETAIN _temp3  // ./subtraction_operator.ek9:81:14
     SCOPE_REGISTER _temp3, _scope_1  // ./subtraction_operator.ek9:81:14
-    _temp1 = CALL (org.ek9.lang::Integer)_temp2._sub(_temp3) [pure=true, complexity=2, effects=MUTATION]  // ./subtraction_operator.ek9:81:14
+    _temp1 = CALL (org.ek9.lang::Integer)_temp2._sub(_temp3) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./subtraction_operator.ek9:81:14
     RETAIN _temp1  // ./subtraction_operator.ek9:81:14
     SCOPE_REGISTER _temp1, _scope_1  // ./subtraction_operator.ek9:81:14
     STORE z, _temp1  // ./subtraction_operator.ek9:81:14

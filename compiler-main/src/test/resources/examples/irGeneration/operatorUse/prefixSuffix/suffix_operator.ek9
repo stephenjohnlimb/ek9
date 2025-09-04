@@ -37,7 +37,7 @@ defines module suffix.test
     _temp3 = LOAD measurement  // ./suffix_operator.ek9:86:15
     RETAIN _temp3  // ./suffix_operator.ek9:86:15
     SCOPE_REGISTER _temp3, _scope_1  // ./suffix_operator.ek9:86:15
-    _temp2 = CALL (org.ek9.lang::Dimension)_temp3._suffix() [pure=true, complexity=2, effects=MUTATION]  // ./suffix_operator.ek9:86:15
+    _temp2 = CALL (org.ek9.lang::Dimension)_temp3._suffix() [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./suffix_operator.ek9:86:15
     RETAIN _temp2  // ./suffix_operator.ek9:86:15
     SCOPE_REGISTER _temp2, _scope_1  // ./suffix_operator.ek9:86:15
     STORE unit, _temp2  // ./suffix_operator.ek9:86:15

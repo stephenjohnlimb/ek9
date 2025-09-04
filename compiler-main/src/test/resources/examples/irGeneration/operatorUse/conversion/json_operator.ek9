@@ -37,7 +37,7 @@ defines module json.test
     _temp3 = LOAD x  // ./json_operator.ek9:86:17
     RETAIN _temp3  // ./json_operator.ek9:86:17
     SCOPE_REGISTER _temp3, _scope_1  // ./json_operator.ek9:86:17
-    _temp2 = CALL (org.ek9.lang::String)_temp3._json() [pure=true, complexity=2, effects=MUTATION]  // ./json_operator.ek9:86:17
+    _temp2 = CALL (org.ek9.lang::String)_temp3._json() [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./json_operator.ek9:86:17
     RETAIN _temp2  // ./json_operator.ek9:86:17
     SCOPE_REGISTER _temp2, _scope_1  // ./json_operator.ek9:86:17
     STORE result, _temp2  // ./json_operator.ek9:86:17

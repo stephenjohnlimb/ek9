@@ -39,7 +39,7 @@ defines module dimension.unary.negation.test
     _temp3 = LOAD someDim  // ./dimension_unary_negation.ek9:91:20
     RETAIN _temp3  // ./dimension_unary_negation.ek9:91:20
     SCOPE_REGISTER _temp3, _scope_1  // ./dimension_unary_negation.ek9:91:20
-    _temp2 = CALL (org.ek9.lang::Dimension)_temp3._negate() [pure=true, complexity=2, effects=MUTATION]  // ./dimension_unary_negation.ek9:91:20
+    _temp2 = CALL (org.ek9.lang::Dimension)_temp3._negate() [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./dimension_unary_negation.ek9:91:20
     RETAIN _temp2  // ./dimension_unary_negation.ek9:91:20
     SCOPE_REGISTER _temp2, _scope_1  // ./dimension_unary_negation.ek9:91:20
     STORE negDimVar, _temp2  // ./dimension_unary_negation.ek9:91:20

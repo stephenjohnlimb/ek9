@@ -31,7 +31,7 @@ defines module absolute.test
     _temp2 = LOAD_LITERAL -5, org.ek9.lang::Integer  // ./absolute_operator.ek9:79:21
     RETAIN _temp2  // ./absolute_operator.ek9:79:17
     SCOPE_REGISTER _temp2, _scope_1  // ./absolute_operator.ek9:79:17
-    _temp1 = CALL (org.ek9.lang::Integer)_temp2._abs() [pure=true, complexity=2, effects=MUTATION]  // ./absolute_operator.ek9:79:17
+    _temp1 = CALL (org.ek9.lang::Integer)_temp2._abs() [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./absolute_operator.ek9:79:17
     RETAIN _temp1  // ./absolute_operator.ek9:79:17
     SCOPE_REGISTER _temp1, _scope_1  // ./absolute_operator.ek9:79:17
     STORE result, _temp1  // ./absolute_operator.ek9:79:17

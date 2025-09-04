@@ -31,7 +31,7 @@ defines module factorial.test
     _temp2 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./factorial_operator.ek9:79:17
     RETAIN _temp2  // ./factorial_operator.ek9:79:18
     SCOPE_REGISTER _temp2, _scope_1  // ./factorial_operator.ek9:79:18
-    _temp1 = CALL (org.ek9.lang::Integer)_temp2._fac() [pure=true, complexity=2, effects=MUTATION]  // ./factorial_operator.ek9:79:18
+    _temp1 = CALL (org.ek9.lang::Integer)_temp2._fac() [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./factorial_operator.ek9:79:18
     RETAIN _temp1  // ./factorial_operator.ek9:79:18
     SCOPE_REGISTER _temp1, _scope_1  // ./factorial_operator.ek9:79:18
     STORE result, _temp1  // ./factorial_operator.ek9:79:18

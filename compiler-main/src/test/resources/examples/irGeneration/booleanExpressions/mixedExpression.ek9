@@ -23,7 +23,7 @@ defines module booleanExpressions
     REFERENCE arg2, org.ek9.lang::Boolean  // ./mixedExpression.ek9:97:9
     SCOPE_ENTER _return_1  // ./mixedExpression.ek9:98:7
     REFERENCE rtn, org.ek9.lang::Boolean  // ./mixedExpression.ek9:99:9
-    _temp1 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>() [pure=true, complexity=1, effects=MUTATION]  // ./mixedExpression.ek9:99:25
+    _temp1 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./mixedExpression.ek9:99:25
     RETAIN _temp1  // ./mixedExpression.ek9:99:25
     SCOPE_REGISTER _temp1, _return_1  // ./mixedExpression.ek9:99:25
     STORE rtn, _temp1  // ./mixedExpression.ek9:99:25

@@ -31,7 +31,7 @@ defines module anot.test
     _temp2 = LOAD_LITERAL true, org.ek9.lang::Boolean  // ./not_operator.ek9:79:18
     RETAIN _temp2  // ./not_operator.ek9:79:17
     SCOPE_REGISTER _temp2, _scope_1  // ./not_operator.ek9:79:17
-    _temp1 = CALL (org.ek9.lang::Boolean)_temp2._negate() [pure=true, complexity=2, effects=MUTATION]  // ./not_operator.ek9:79:17
+    _temp1 = CALL (org.ek9.lang::Boolean)_temp2._negate() [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./not_operator.ek9:79:17
     RETAIN _temp1  // ./not_operator.ek9:79:17
     SCOPE_REGISTER _temp1, _scope_1  // ./not_operator.ek9:79:17
     STORE result, _temp1  // ./not_operator.ek9:79:17

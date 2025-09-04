@@ -21,7 +21,7 @@ defines module simpleClasses
     BasicBlock: _entry_1
     REFERENCE this.aField, org.ek9.lang::String  // ./singleClass.ek9:105:7
     REFERENCE this.bField, org.ek9.lang::String  // ./singleClass.ek9:106:7
-    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=MUTATION]  // ./singleClass.ek9:106:27
+    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./singleClass.ek9:106:27
     RETAIN _temp1  // ./singleClass.ek9:106:27
     SCOPE_REGISTER _temp1, _i_init_1  // ./singleClass.ek9:106:27
     STORE this.bField, _temp1  // ./singleClass.ek9:106:27

@@ -44,7 +44,7 @@ public class CallMetaDataExtractor implements Function<ISymbol, CallMetaData> {
 
     // Check for mutation potential (non-Void return type)
     if (!symbolType.isExactSameType(ek9Types.ek9Void())) {
-      sideEffects.add("MUTATION");
+      sideEffects.add("RETURN_MUTATION");
     }
 
     return new CallMetaData(isPure, complexityScore, sideEffects);

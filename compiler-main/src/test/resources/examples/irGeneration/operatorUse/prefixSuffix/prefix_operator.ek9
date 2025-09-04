@@ -37,7 +37,7 @@ defines module prefix.test
     _temp3 = LOAD measurement  // ./prefix_operator.ek9:86:22
     RETAIN _temp3  // ./prefix_operator.ek9:86:22
     SCOPE_REGISTER _temp3, _scope_1  // ./prefix_operator.ek9:86:22
-    _temp2 = CALL (org.ek9.lang::Dimension)_temp3._prefix() [pure=true, complexity=2, effects=MUTATION]  // ./prefix_operator.ek9:86:22
+    _temp2 = CALL (org.ek9.lang::Dimension)_temp3._prefix() [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./prefix_operator.ek9:86:22
     RETAIN _temp2  // ./prefix_operator.ek9:86:22
     SCOPE_REGISTER _temp2, _scope_1  // ./prefix_operator.ek9:86:22
     STORE coefficient, _temp2  // ./prefix_operator.ek9:86:22

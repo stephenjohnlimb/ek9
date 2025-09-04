@@ -39,7 +39,7 @@ defines module float.unary.negation.test
     _temp3 = LOAD someFloat  // ./float_unary_negation.ek9:91:22
     RETAIN _temp3  // ./float_unary_negation.ek9:91:22
     SCOPE_REGISTER _temp3, _scope_1  // ./float_unary_negation.ek9:91:22
-    _temp2 = CALL (org.ek9.lang::Float)_temp3._negate() [pure=true, complexity=2, effects=MUTATION]  // ./float_unary_negation.ek9:91:22
+    _temp2 = CALL (org.ek9.lang::Float)_temp3._negate() [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./float_unary_negation.ek9:91:22
     RETAIN _temp2  // ./float_unary_negation.ek9:91:22
     SCOPE_REGISTER _temp2, _scope_1  // ./float_unary_negation.ek9:91:22
     STORE negFloatVar, _temp2  // ./float_unary_negation.ek9:91:22

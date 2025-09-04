@@ -22,7 +22,7 @@ defines module booleanExpressions
     REFERENCE arg1, org.ek9.lang::Boolean  // ./orExpression.ek9:69:9
     SCOPE_ENTER _return_1  // ./orExpression.ek9:70:7
     REFERENCE rtn, org.ek9.lang::Boolean  // ./orExpression.ek9:71:9
-    _temp1 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>() [pure=true, complexity=1, effects=MUTATION]  // ./orExpression.ek9:71:25
+    _temp1 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./orExpression.ek9:71:25
     RETAIN _temp1  // ./orExpression.ek9:71:25
     SCOPE_REGISTER _temp1, _return_1  // ./orExpression.ek9:71:25
     STORE rtn, _temp1  // ./orExpression.ek9:71:25

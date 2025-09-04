@@ -47,7 +47,7 @@ defines module shiftRight.test
     _temp5 = LOAD shiftAmount  // ./shift_right_operator.ek9:97:22
     RETAIN _temp5  // ./shift_right_operator.ek9:97:22
     SCOPE_REGISTER _temp5, _scope_1  // ./shift_right_operator.ek9:97:22
-    _temp3 = CALL (org.ek9.lang::Bits)_temp4._shftr(_temp5) [pure=true, complexity=2, effects=MUTATION]  // ./shift_right_operator.ek9:97:22
+    _temp3 = CALL (org.ek9.lang::Bits)_temp4._shftr(_temp5) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./shift_right_operator.ek9:97:22
     RETAIN _temp3  // ./shift_right_operator.ek9:97:22
     SCOPE_REGISTER _temp3, _scope_1  // ./shift_right_operator.ek9:97:22
     STORE result, _temp3  // ./shift_right_operator.ek9:97:22

@@ -39,7 +39,7 @@ defines module money.unary.negation.test
     _temp3 = LOAD someMoney  // ./money_unary_negation.ek9:91:22
     RETAIN _temp3  // ./money_unary_negation.ek9:91:22
     SCOPE_REGISTER _temp3, _scope_1  // ./money_unary_negation.ek9:91:22
-    _temp2 = CALL (org.ek9.lang::Money)_temp3._negate() [pure=true, complexity=2, effects=MUTATION]  // ./money_unary_negation.ek9:91:22
+    _temp2 = CALL (org.ek9.lang::Money)_temp3._negate() [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./money_unary_negation.ek9:91:22
     RETAIN _temp2  // ./money_unary_negation.ek9:91:22
     SCOPE_REGISTER _temp2, _scope_1  // ./money_unary_negation.ek9:91:22
     STORE negMoneyVar, _temp2  // ./money_unary_negation.ek9:91:22

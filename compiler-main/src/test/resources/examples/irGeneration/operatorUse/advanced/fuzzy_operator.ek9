@@ -47,7 +47,7 @@ defines module fuzzy.test
     _temp5 = LOAD y  // ./fuzzy_operator.ek9:97:21
     RETAIN _temp5  // ./fuzzy_operator.ek9:97:21
     SCOPE_REGISTER _temp5, _scope_1  // ./fuzzy_operator.ek9:97:21
-    _temp3 = CALL (org.ek9.lang::String)_temp4._fuzzy(_temp5) [pure=true, complexity=2, effects=MUTATION]  // ./fuzzy_operator.ek9:97:21
+    _temp3 = CALL (org.ek9.lang::String)_temp4._fuzzy(_temp5) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./fuzzy_operator.ek9:97:21
     RETAIN _temp3  // ./fuzzy_operator.ek9:97:21
     SCOPE_REGISTER _temp3, _scope_1  // ./fuzzy_operator.ek9:97:21
     STORE distance, _temp3  // ./fuzzy_operator.ek9:97:21

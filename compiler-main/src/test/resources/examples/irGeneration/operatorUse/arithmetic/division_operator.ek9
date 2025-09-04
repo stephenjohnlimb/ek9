@@ -33,7 +33,7 @@ defines module division.test
     _temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./division_operator.ek9:81:16
     RETAIN _temp3  // ./division_operator.ek9:81:14
     SCOPE_REGISTER _temp3, _scope_1  // ./division_operator.ek9:81:14
-    _temp1 = CALL (org.ek9.lang::Integer)_temp2._div(_temp3) [pure=true, complexity=2, effects=MUTATION]  // ./division_operator.ek9:81:14
+    _temp1 = CALL (org.ek9.lang::Integer)_temp2._div(_temp3) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./division_operator.ek9:81:14
     RETAIN _temp1  // ./division_operator.ek9:81:14
     SCOPE_REGISTER _temp1, _scope_1  // ./division_operator.ek9:81:14
     STORE z, _temp1  // ./division_operator.ek9:81:14

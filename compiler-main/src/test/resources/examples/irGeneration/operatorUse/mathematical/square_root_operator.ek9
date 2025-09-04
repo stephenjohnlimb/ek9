@@ -31,7 +31,7 @@ defines module square_root.test
     _temp2 = LOAD_LITERAL 16, org.ek9.lang::Integer  // ./square_root_operator.ek9:79:22
     RETAIN _temp2  // ./square_root_operator.ek9:79:17
     SCOPE_REGISTER _temp2, _scope_1  // ./square_root_operator.ek9:79:17
-    _temp1 = CALL (org.ek9.lang::Integer)_temp2._sqrt() [pure=true, complexity=2, effects=MUTATION]  // ./square_root_operator.ek9:79:17
+    _temp1 = CALL (org.ek9.lang::Integer)_temp2._sqrt() [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./square_root_operator.ek9:79:17
     RETAIN _temp1  // ./square_root_operator.ek9:79:17
     SCOPE_REGISTER _temp1, _scope_1  // ./square_root_operator.ek9:79:17
     STORE result, _temp1  // ./square_root_operator.ek9:79:17

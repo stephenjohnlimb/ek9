@@ -37,7 +37,7 @@ defines module hashcode.test
     _temp3 = LOAD x  // ./hashcode_operator.ek9:86:17
     RETAIN _temp3  // ./hashcode_operator.ek9:86:17
     SCOPE_REGISTER _temp3, _scope_1  // ./hashcode_operator.ek9:86:17
-    _temp2 = CALL (org.ek9.lang::Integer)_temp3._hashcode() [pure=true, complexity=2, effects=MUTATION]  // ./hashcode_operator.ek9:86:17
+    _temp2 = CALL (org.ek9.lang::Integer)_temp3._hashcode() [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./hashcode_operator.ek9:86:17
     RETAIN _temp2  // ./hashcode_operator.ek9:86:17
     SCOPE_REGISTER _temp2, _scope_1  // ./hashcode_operator.ek9:86:17
     STORE result, _temp2  // ./hashcode_operator.ek9:86:17

@@ -37,7 +37,7 @@ defines module string.test
     _temp3 = LOAD x  // ./string_operator.ek9:86:17
     RETAIN _temp3  // ./string_operator.ek9:86:17
     SCOPE_REGISTER _temp3, _scope_1  // ./string_operator.ek9:86:17
-    _temp2 = CALL (org.ek9.lang::Integer)_temp3._string() [pure=true, complexity=2, effects=MUTATION]  // ./string_operator.ek9:86:17
+    _temp2 = CALL (org.ek9.lang::Integer)_temp3._string() [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./string_operator.ek9:86:17
     RETAIN _temp2  // ./string_operator.ek9:86:17
     SCOPE_REGISTER _temp2, _scope_1  // ./string_operator.ek9:86:17
     STORE result, _temp2  // ./string_operator.ek9:86:17
