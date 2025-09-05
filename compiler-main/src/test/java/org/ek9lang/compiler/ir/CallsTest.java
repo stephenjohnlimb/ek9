@@ -11,7 +11,11 @@ class CallsTest extends AbstractIRGenerationTest {
   public CallsTest() {
     super("/examples/irGeneration/calls",
         List.of(
-            new SymbolCountCheck("functioncalls.test", 2)
+            new SymbolCountCheck("functioncalls.test", 2),
+            new SymbolCountCheck("constructorcalls.test", 1),
+            new SymbolCountCheck("constructorassignmentcalls.test", 1),
+            new SymbolCountCheck("constructorcallswithargs.test", 1),
+            new SymbolCountCheck("constructorassignmentwithargscalls.test", 1)
         ), false, false, false);
   }
 

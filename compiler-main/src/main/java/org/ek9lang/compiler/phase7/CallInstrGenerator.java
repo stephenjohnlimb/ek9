@@ -8,7 +8,6 @@ import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.phase7.support.IRContext;
@@ -17,6 +16,7 @@ import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
@@ -38,10 +38,12 @@ final class CallInstrGenerator extends AbstractGenerator
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
   private final ExprInstrGenerator exprGenerator;
+  private final org.ek9lang.compiler.phase7.support.ConstructorCallProcessor constructorCallProcessor;
 
   CallInstrGenerator(final IRContext context) {
     super(context);
     this.exprGenerator = new ExprInstrGenerator(context);
+    this.constructorCallProcessor = new org.ek9lang.compiler.phase7.support.ConstructorCallProcessor(context);
   }
 
   @Override
@@ -58,7 +60,7 @@ final class CallInstrGenerator extends AbstractGenerator
       throw new CompilerException("Primary reference method calls not yet implemented");
     } else if (ctx.parameterisedType() != null) {
       // Constructor call: Type()
-      throw new CompilerException("Constructor calls not yet implemented");
+      return generateConstructorCall(ctx, resultDetails);
     } else if (ctx.LPAREN() != null && ctx.parameterisedType() != null) {
       // Explicit constructor: (Type())
       throw new CompilerException("Explicit constructor calls not yet implemented");
@@ -91,7 +93,7 @@ final class CallInstrGenerator extends AbstractGenerator
 
       // Resolve return type and metadata (common to both patterns)
       final var returnType = resolveReturnType(resolvedSymbol);
-      final var metaData = extractMetaData(resolvedSymbol);
+      final var metaData = extractCallMetaData(resolvedSymbol);
 
       // Generate different IR based on what we're calling
       if (resolvedSymbol instanceof FunctionSymbol functionSymbol) {
@@ -145,7 +147,44 @@ final class CallInstrGenerator extends AbstractGenerator
   }
 
   /**
+   * Generate IR for constructor calls: Type() or Type(args...)
+   * Uses unified constructor call processor with memory management.
+   */
+  private List<IRInstr> generateConstructorCall(final EK9Parser.CallContext ctx,
+                                                final VariableDetails resultDetails) {
+
+    final var instructions = new ArrayList<IRInstr>();
+
+    // Get call symbol - all calls go through CallSymbol in Phase 3 resolution
+    final var symbol = getRecordedSymbolOrException(ctx);
+    if (symbol instanceof CallSymbol callSymbol) {
+      final var resolvedSymbol = callSymbol.getResolvedSymbolToCall();
+
+      if (resolvedSymbol instanceof MethodSymbol methodSymbol && methodSymbol.isConstructor()) {
+        // Use unified constructor call processor (with memory management for statement context)
+        constructorCallProcessor.processConstructorCall(
+            callSymbol,
+            ctx,
+            resultDetails.resultVariable(),
+            instructions,
+            resultDetails.basicDetails().scopeId(),
+            exprGenerator,  // Expression processor function
+            true                   // Use memory management for statement context
+        );
+      } else {
+        throw new CompilerException("Expected constructor symbol, but got: "
+            + resolvedSymbol.getClass().getSimpleName() + " - " + resolvedSymbol);
+      }
+    } else {
+      throw new CompilerException("Expected CallSymbol for constructor, but got: " + symbol.getClass().getSimpleName());
+    }
+
+    return instructions;
+  }
+
+  /**
    * Process parameter expressions and return argument details.
+   * This is still needed for function calls (not constructor calls).
    */
   private ArgumentDetails processParameters(final EK9Parser.ParamExpressionContext paramExpr,
                                             final List<IRInstr> instructions,
@@ -186,16 +225,7 @@ final class CallInstrGenerator extends AbstractGenerator
   }
 
   /**
-   * Extract metadata from function symbol.
-   */
-  private CallMetaData extractMetaData(final ISymbol functionSymbol) {
-
-    final var metaDataExtractor = new CallMetaDataExtractor(context.getParsedModule().getEk9Types());
-    return functionSymbol != null ? metaDataExtractor.apply(functionSymbol) : CallMetaData.defaultMetaData();
-  }
-
-  /**
-   * Record to hold argument processing results.
+   * Record to hold argument processing results (still needed for function calls).
    */
   private record ArgumentDetails(List<String> argumentVariables, List<String> parameterTypes) {
   }

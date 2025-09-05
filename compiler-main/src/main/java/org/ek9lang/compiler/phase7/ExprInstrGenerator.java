@@ -5,22 +5,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.common.TypeNameOrException;
-import org.ek9lang.compiler.ir.CallDetails;
-import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.DebugInfo;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
-import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.LiteralProcessingDetails;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
-import org.ek9lang.compiler.symbols.Symbol;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -77,12 +71,12 @@ final class ExprInstrGenerator extends AbstractGenerator
 
   private final ObjectAccessInstrGenerator objectAccessCreator;
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final ShortCircuitAndGenerator shortCircuitAndGenerator;
   private final ShortCircuitOrGenerator shortCircuitOrGenerator;
   private final QuestionBlockGenerator questionBlockGenerator;
   private final UnaryOperationGenerator unaryOperationGenerator;
   private final BinaryOperationGenerator binaryOperationGenerator;
+  private final org.ek9lang.compiler.phase7.support.ConstructorCallProcessor constructorCallProcessor;
 
   ExprInstrGenerator(final IRContext context) {
     super(context);
@@ -95,6 +89,7 @@ final class ExprInstrGenerator extends AbstractGenerator
     this.questionBlockGenerator = new QuestionBlockGenerator(context, this::process);
     this.unaryOperationGenerator = new UnaryOperationGeneratorWithProcessor(context, this::process);
     this.binaryOperationGenerator = new BinaryOperationGeneratorWithProcessor(context, this::process);
+    this.constructorCallProcessor = new org.ek9lang.compiler.phase7.support.ConstructorCallProcessor(context);
   }
 
   /**
@@ -206,7 +201,6 @@ final class ExprInstrGenerator extends AbstractGenerator
   private List<IRInstr> processCall(final ExprProcessingDetails details) {
     final var ctx = details.ctx();
     final var exprResult = details.variableDetails().resultVariable();
-
     final var instructions = new ArrayList<IRInstr>();
 
     // Get the resolved symbol for the call
@@ -216,29 +210,16 @@ final class ExprInstrGenerator extends AbstractGenerator
       final var toBeCalled = resolvedCallSymbol.getResolvedSymbolToCall();
 
       if (toBeCalled instanceof MethodSymbol methodSymbol && methodSymbol.isConstructor()) {
-        // This is a constructor call
-        final var parentScope = methodSymbol.getParentScope();
-        final var typeName =
-            (parentScope instanceof Symbol symbol) ? symbol.getFullyQualifiedName() : parentScope.toString();
-
-        // Extract debug info if debugging instrumentation is enabled
-        final var debugInfo = debugInfoCreator.apply(callSymbol.getSourceToken());
-
-        // Extract parameter types from constructor parameters
-        final var parameterTypes = methodSymbol.getCallParameters().stream()
-            .map(typeNameOrException)
-            .toList();
-
-        // Create metadata for constructor call
-        final var metaDataExtractor = new CallMetaDataExtractor(context.getParsedModule().getEk9Types());
-        final var constructorMetaData = metaDataExtractor.apply(methodSymbol);
-
-        // Generate constructor call using actual resolved type name with complete type information
-        final var callDetails = new CallDetails(typeName, typeName, IRConstants.INIT_METHOD,
-            parameterTypes, typeName, List.of(), constructorMetaData);
-
-        instructions.add(CallInstr.constructor(exprResult, debugInfo, callDetails));
-
+        // Use unified constructor call processor (no memory management for expression context)
+        constructorCallProcessor.processConstructorCall(
+            resolvedCallSymbol,
+            ctx.call(),
+            exprResult,
+            instructions,
+            details.variableDetails().basicDetails().scopeId(),
+            this::process,  // Expression processor function
+            false           // No memory management for expression context
+        );
       } else {
         AssertValue.fail("Expecting method to have been resolved");
       }
@@ -250,6 +231,7 @@ final class ExprInstrGenerator extends AbstractGenerator
     return new ArrayList<>(objectAccessCreator
         .apply(details.ctx().objectAccessExpression(), details.variableDetails()));
   }
+
 
   private List<IRInstr> processControlsOrStructures(final ExprProcessingDetails details) {
     final var instructions = new ArrayList<IRInstr>();

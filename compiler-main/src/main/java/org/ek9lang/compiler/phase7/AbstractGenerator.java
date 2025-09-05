@@ -1,6 +1,8 @@
 package org.ek9lang.compiler.phase7;
 
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.ek9lang.compiler.ir.CallMetaData;
+import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -27,6 +29,15 @@ abstract class AbstractGenerator {
     AssertValue.checkTrue("Symbol must have been given a type by phase 7",
         rtn.getType().isPresent());
     return rtn;
+  }
+
+  /**
+   * Extract call metadata from a symbol using the common pattern.
+   * This consolidates the frequent pattern of creating CallMetaDataExtractor and applying it.
+   */
+  protected CallMetaData extractCallMetaData(final ISymbol symbol) {
+    final var metaDataExtractor = new CallMetaDataExtractor(context.getParsedModule().getEk9Types());
+    return symbol != null ? metaDataExtractor.apply(symbol) : CallMetaData.defaultMetaData();
   }
 
 }

@@ -9,11 +9,13 @@ EK9's IR implements a sophisticated reference counting system that ensures memor
 ## Core Architecture Principles
 
 ### 1. Unified REFERENCE Memory Model
-All variables use `REFERENCE` instructions instead of `ALLOCA`. This pushes memory allocation complexity to backend implementations while maintaining consistent semantics across JVM and C++ targets.
+All variables use `REFERENCE` instructions instead of `ALLOCA`. This declares intent to work with a variable of a particular type, pushing memory allocation complexity to backend implementations while maintaining consistent semantics across JVM and C++ targets.
 
 ```
-REFERENCE variableName, TypeName  // Declare variable reference
+REFERENCE variableName, TypeName  // Declare intent to work with a variable of specified type
 ```
+
+**Important**: `REFERENCE` is a declaration of intent, not an allocation. The variable is not tracked for memory management until it receives a value and is explicitly registered via `SCOPE_REGISTER`.
 
 ### 2. Object vs Variable Tracking
 The system tracks **both objects and variables** to handle different memory management scenarios:
@@ -32,7 +34,7 @@ Objects start with refcount=0 when created. Only IR instructions modify referenc
 
 ### Core Instructions
 ```
-REFERENCE var, Type     # Declare variable reference (no allocation)
+REFERENCE var, Type     # Declare intent to work with a variable of specified type (no allocation)
 RETAIN var             # Increment refcount of object var points to
 RELEASE var            # Decrement refcount of object var points to (tolerant of uninitialized)
 SCOPE_ENTER scope_id   # Enter scope for memory management

@@ -1,0 +1,75 @@
+#!ek9
+<?-
+  Again using a constructor but this time via an assignment statement.
+-?>
+defines module constructorassignmentcalls.test
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "constructorassignmentcalls.test::checkStringConstructionWithAssignment": `
+    ConstructDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment()->org.ek9.lang::Void
+    OperationDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment.checkStringConstructionWithAssignment()->constructorassignmentcalls.test::checkStringConstructionWithAssignment  // ./constructorCallInAssignment.ek9:70:5
+    BasicBlock: _entry_1
+    _temp_i_init = CALL (constructorassignmentcalls.test::checkStringConstructionWithAssignment)this.i_init() [pure=false, complexity=0]  // ./constructorCallInAssignment.ek9:70:5
+    RETURN this  // ./constructorCallInAssignment.ek9:70:5
+    OperationDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment._call()->org.ek9.lang::Void  // ./constructorCallInAssignment.ek9:70:5
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./constructorCallInAssignment.ek9:71:7
+    REFERENCE aString, org.ek9.lang::String  // ./constructorCallInAssignment.ek9:71:7
+    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./constructorCallInAssignment.ek9:72:16
+    RETAIN _temp1  // ./constructorCallInAssignment.ek9:72:16
+    SCOPE_REGISTER _temp1, _scope_1  // ./constructorCallInAssignment.ek9:72:16
+    RELEASE aString  // ./constructorCallInAssignment.ek9:72:16
+    STORE aString, _temp1  // ./constructorCallInAssignment.ek9:72:16
+    RETAIN aString  // ./constructorCallInAssignment.ek9:72:16
+    SCOPE_REGISTER aString, _scope_1  // ./constructorCallInAssignment.ek9:72:16
+    _temp2 = CONTROL_FLOW_CHAIN  // ./constructorCallInAssignment.ek9:73:7
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_1
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp3 = LOAD aString  // ./constructorCallInAssignment.ek9:73:21
+    _temp4 = IS_NULL _temp3  // ./constructorCallInAssignment.ek9:73:21
+    ]
+    primitive_condition: _temp4
+    body_evaluation:
+    [
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./constructorCallInAssignment.ek9:73:21
+    RETAIN _temp5  // ./constructorCallInAssignment.ek9:73:21
+    SCOPE_REGISTER _temp5, _scope_1  // ./constructorCallInAssignment.ek9:73:21
+    ]
+    body_result: _temp5
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=false, complexity=0]  // ./constructorCallInAssignment.ek9:73:21
+    RETAIN _temp6  // ./constructorCallInAssignment.ek9:73:21
+    SCOPE_REGISTER _temp6, _scope_1  // ./constructorCallInAssignment.ek9:73:21
+    ]
+    default_result: _temp6
+    scope_id: _scope_1
+    ]
+    RETAIN _temp2  // ./constructorCallInAssignment.ek9:73:7
+    SCOPE_REGISTER _temp2, _scope_1  // ./constructorCallInAssignment.ek9:73:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=false, complexity=0]  // ./constructorCallInAssignment.ek9:73:7
+    ASSERT _temp7  // ./constructorCallInAssignment.ek9:73:7
+    SCOPE_EXIT _scope_1  // ./constructorCallInAssignment.ek9:71:7
+    RETURN  // ./constructorCallInAssignment.ek9:70:5`
+    checkStringConstructionWithAssignment()
+      aString as String?
+      aString: String()
+      assert aString?
+
+//EOF
