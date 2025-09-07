@@ -28,6 +28,9 @@ public class IRInstr implements INode {
 
   // Optional debug information for source mapping and debugging
   private final DebugInfo debugInfo;
+  
+  // Optional escape analysis metadata for optimization (set by IR_OPTIMISATION phase)
+  private EscapeMetaData escapeMetaData;
 
   /**
    * Create instruction with no result (e.g., STORE, BRANCH).
@@ -89,6 +92,28 @@ public class IRInstr implements INode {
    */
   public Optional<DebugInfo> getDebugInfo() {
     return Optional.ofNullable(debugInfo);
+  }
+
+  /**
+   * Get escape analysis metadata for this instruction.
+   */
+  public Optional<EscapeMetaData> getEscapeMetaData() {
+    return Optional.ofNullable(escapeMetaData);
+  }
+
+  /**
+   * Set escape analysis metadata for this instruction.
+   * Should only be called during IR_OPTIMISATION phase.
+   */
+  public void setEscapeMetaData(final EscapeMetaData escapeMetaData) {
+    this.escapeMetaData = escapeMetaData;
+  }
+
+  /**
+   * Check if this instruction has escape analysis metadata.
+   */
+  public boolean hasEscapeMetaData() {
+    return escapeMetaData != null;
   }
 
   /**
@@ -155,6 +180,11 @@ public class IRInstr implements INode {
     if (!operands.isEmpty()) {
       sb.append(" ");
       sb.append(String.join(", ", operands));
+    }
+
+    // Add escape metadata if available
+    if (escapeMetaData != null) {
+      sb.append(" ").append(escapeMetaData);
     }
 
     // Add debug information as comment if available
