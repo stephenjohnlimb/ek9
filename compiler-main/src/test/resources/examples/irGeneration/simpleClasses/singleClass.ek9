@@ -79,7 +79,7 @@ defines module simpleClasses
     primitive_condition: _temp6
     body_evaluation:
     [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./singleClass.ek9:115:22
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./singleClass.ek9:115:22
     RETAIN _temp7  // ./singleClass.ek9:115:22
     SCOPE_REGISTER _temp7, _scope_1  // ./singleClass.ek9:115:22
     ]
@@ -88,7 +88,7 @@ defines module simpleClasses
     ]
     default_body_evaluation:
     [
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=false, complexity=0]  // ./singleClass.ek9:115:22
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=true, complexity=0]  // ./singleClass.ek9:115:22
     RETAIN _temp8  // ./singleClass.ek9:115:22
     SCOPE_REGISTER _temp8, _scope_1  // ./singleClass.ek9:115:22
     ]
@@ -97,7 +97,7 @@ defines module simpleClasses
     ]
     RETAIN _temp4  // ./singleClass.ek9:115:9
     SCOPE_REGISTER _temp4, _scope_1  // ./singleClass.ek9:115:9
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=false, complexity=0]  // ./singleClass.ek9:115:9
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./singleClass.ek9:115:9
     ASSERT _temp9  // ./singleClass.ek9:115:9
     SCOPE_EXIT _scope_1  // ./singleClass.ek9:111:9
     RETURN  // ./singleClass.ek9:110:7`

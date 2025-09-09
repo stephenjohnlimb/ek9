@@ -453,7 +453,7 @@ public class AggregateManipulator {
     final var method = new MethodSymbol(methodName, aggregateSymbol);
 
     if (returnType.isPresent()) {
-      method.setReturningSymbol(new VariableSymbol("rtn", returnType));
+      method.setReturningSymbol(new VariableSymbol("_rtn", returnType));
     } else {
       method.setType(resolveVoid(aggregateSymbol));
     }
@@ -483,7 +483,30 @@ public class AggregateManipulator {
     operator.setOperator(true);
     operator.define(paramT);
     //returns the same type as itself
-    operator.setReturningSymbol(new VariableSymbol("rtn", aggregateSymbol));
+    operator.setReturningSymbol(new VariableSymbol("_rtn", aggregateSymbol));
+
+    return operator;
+  }
+
+  /**
+   * Create an operator of the name supplied.
+   * The accepts a single argument of the same type as the aggregateSymbol
+   * But it returns Void -i.e. has no return value.
+   */
+  public MethodSymbol createMutatorOperatorReturnVoid(final IAggregateSymbol aggregateSymbol,
+                                            final String operatorType) {
+
+    final var paramT = new VariableSymbol(PARAM, aggregateSymbol);
+    final var operator = new MethodSymbol(operatorType, aggregateSymbol);
+
+    operator.setParsedModule(aggregateSymbol.getParsedModule());
+    operator.setAccessModifier(PUBLIC);
+    operator.setMarkedPure(false);
+    operator.setOperator(true);
+    operator.define(paramT);
+    //returns Void - in ek9 syntax the return would just not be present.
+    //But in code we actually add in a synthetic return.
+    operator.setReturningSymbol(new VariableSymbol("_rtn", resolveVoid(aggregateSymbol)));
 
     return operator;
   }
@@ -503,7 +526,7 @@ public class AggregateManipulator {
     operator.setMarkedPure(false);
     operator.setOperator(true);
     //returns the same type as itself
-    operator.setReturningSymbol(new VariableSymbol("rtn", aggregateSymbol));
+    operator.setReturningSymbol(new VariableSymbol("_rtn", aggregateSymbol));
 
     return operator;
   }

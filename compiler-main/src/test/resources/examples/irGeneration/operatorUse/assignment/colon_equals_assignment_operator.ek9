@@ -50,7 +50,7 @@ defines module colon_equals_assignment.test
     primitive_condition: _temp4
     body_evaluation:
     [
-    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./colon_equals_assignment_operator.ek9:78:15
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./colon_equals_assignment_operator.ek9:78:15
     RETAIN _temp5  // ./colon_equals_assignment_operator.ek9:78:15
     SCOPE_REGISTER _temp5, _scope_1  // ./colon_equals_assignment_operator.ek9:78:15
     ]
@@ -59,7 +59,7 @@ defines module colon_equals_assignment.test
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=false, complexity=0]  // ./colon_equals_assignment_operator.ek9:78:15
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=true, complexity=0]  // ./colon_equals_assignment_operator.ek9:78:15
     RETAIN _temp6  // ./colon_equals_assignment_operator.ek9:78:15
     SCOPE_REGISTER _temp6, _scope_1  // ./colon_equals_assignment_operator.ek9:78:15
     ]
@@ -68,7 +68,7 @@ defines module colon_equals_assignment.test
     ]
     RETAIN _temp2  // ./colon_equals_assignment_operator.ek9:78:7
     SCOPE_REGISTER _temp2, _scope_1  // ./colon_equals_assignment_operator.ek9:78:7
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=false, complexity=0]  // ./colon_equals_assignment_operator.ek9:78:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./colon_equals_assignment_operator.ek9:78:7
     ASSERT _temp7  // ./colon_equals_assignment_operator.ek9:78:7
     SCOPE_EXIT _scope_1  // ./colon_equals_assignment_operator.ek9:76:7
     RETURN  // ./colon_equals_assignment_operator.ek9:75:5`

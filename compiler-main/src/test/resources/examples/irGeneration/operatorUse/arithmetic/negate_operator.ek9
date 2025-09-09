@@ -49,7 +49,7 @@ defines module negate.test
     primitive_condition: _temp4
     body_evaluation:
     [
-    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./negate_operator.ek9:76:15
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./negate_operator.ek9:76:15
     RETAIN _temp5  // ./negate_operator.ek9:76:15
     SCOPE_REGISTER _temp5, _scope_1  // ./negate_operator.ek9:76:15
     ]
@@ -58,7 +58,7 @@ defines module negate.test
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=false, complexity=0]  // ./negate_operator.ek9:76:15
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=true, complexity=0]  // ./negate_operator.ek9:76:15
     RETAIN _temp6  // ./negate_operator.ek9:76:15
     SCOPE_REGISTER _temp6, _scope_1  // ./negate_operator.ek9:76:15
     ]
@@ -67,7 +67,7 @@ defines module negate.test
     ]
     RETAIN _temp2  // ./negate_operator.ek9:76:7
     SCOPE_REGISTER _temp2, _scope_1  // ./negate_operator.ek9:76:7
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=false, complexity=0]  // ./negate_operator.ek9:76:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./negate_operator.ek9:76:7
     ASSERT _temp7  // ./negate_operator.ek9:76:7
     SCOPE_EXIT _scope_1  // ./negate_operator.ek9:75:7
     RETURN  // ./negate_operator.ek9:74:5`

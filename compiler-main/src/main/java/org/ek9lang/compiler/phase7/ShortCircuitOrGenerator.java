@@ -1,11 +1,8 @@
 package org.ek9lang.compiler.phase7;
 
 import java.util.List;
-import java.util.function.Function;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.LogicalDetails;
 import org.ek9lang.compiler.ir.LogicalOperationInstr;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
@@ -29,7 +26,7 @@ public final class ShortCircuitOrGenerator extends AbstractShortCircuitGenerator
 
   public ShortCircuitOrGenerator(final IRContext context,
                                  final RecordExprProcessing recordExprProcessing) {
-    super(context, recordExprProcessing);
+    super(context, recordExprProcessing, LogicalOperationInstr::orOperation);
   }
 
   @Override
@@ -37,12 +34,7 @@ public final class ShortCircuitOrGenerator extends AbstractShortCircuitGenerator
     final var booleanType = EK9TypeNames.EK9_BOOLEAN;
     return new CallDetails(lhsVariable, booleanType,
         "_or", List.of(booleanType),
-        booleanType, List.of(rhsVariable), CallMetaData.defaultMetaData());
-  }
-
-  @Override
-  protected Function<LogicalDetails, IRInstr> getLogicalOperationInstr() {
-    return LogicalOperationInstr::orOperation;
+        booleanType, List.of(rhsVariable), new CallMetaData(true, 0));
   }
 
 }

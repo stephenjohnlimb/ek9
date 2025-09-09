@@ -48,7 +48,7 @@ defines module constructorassignmentwithargscalls.test
     primitive_condition: _temp5
     body_evaluation:
     [
-    _temp6 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./constructorCallInAssignmentWithArguments.ek9:76:21
+    _temp6 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./constructorCallInAssignmentWithArguments.ek9:76:21
     RETAIN _temp6  // ./constructorCallInAssignmentWithArguments.ek9:76:21
     SCOPE_REGISTER _temp6, _scope_1  // ./constructorCallInAssignmentWithArguments.ek9:76:21
     ]
@@ -57,7 +57,7 @@ defines module constructorassignmentwithargscalls.test
     ]
     default_body_evaluation:
     [
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp4._isSet() [pure=false, complexity=0]  // ./constructorCallInAssignmentWithArguments.ek9:76:21
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp4._isSet() [pure=true, complexity=0]  // ./constructorCallInAssignmentWithArguments.ek9:76:21
     RETAIN _temp7  // ./constructorCallInAssignmentWithArguments.ek9:76:21
     SCOPE_REGISTER _temp7, _scope_1  // ./constructorCallInAssignmentWithArguments.ek9:76:21
     ]
@@ -66,7 +66,7 @@ defines module constructorassignmentwithargscalls.test
     ]
     RETAIN _temp3  // ./constructorCallInAssignmentWithArguments.ek9:76:7
     SCOPE_REGISTER _temp3, _scope_1  // ./constructorCallInAssignmentWithArguments.ek9:76:7
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=false, complexity=0]  // ./constructorCallInAssignmentWithArguments.ek9:76:7
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=true, complexity=0]  // ./constructorCallInAssignmentWithArguments.ek9:76:7
     ASSERT _temp8  // ./constructorCallInAssignmentWithArguments.ek9:76:7
     SCOPE_EXIT _scope_1  // ./constructorCallInAssignmentWithArguments.ek9:74:7
     RETURN  // ./constructorCallInAssignmentWithArguments.ek9:73:5`

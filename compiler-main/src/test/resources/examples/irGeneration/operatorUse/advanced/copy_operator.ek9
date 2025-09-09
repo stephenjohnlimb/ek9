@@ -46,7 +46,7 @@ defines module copy.test
     _temp4 = LOAD original  // ./copy_operator.ek9:125:7
     RETAIN _temp4  // ./copy_operator.ek9:127:12
     SCOPE_REGISTER _temp4, _scope_1  // ./copy_operator.ek9:127:12
-    CALL (org.ek9.lang::String)_temp3._copy(_temp4) [pure=false, complexity=0]  // ./copy_operator.ek9:127:12
+    CALL (org.ek9.lang::String)_temp3._copy(_temp4) [pure=false, complexity=0, effects=THIS_MUTATION]  // ./copy_operator.ek9:127:12
     _temp5 = CONTROL_FLOW_CHAIN  // ./copy_operator.ek9:128:7
     [
     chain_type: "QUESTION_OPERATOR"
@@ -63,7 +63,7 @@ defines module copy.test
     primitive_condition: _temp7
     body_evaluation:
     [
-    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./copy_operator.ek9:128:22
+    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./copy_operator.ek9:128:22
     RETAIN _temp8  // ./copy_operator.ek9:128:22
     SCOPE_REGISTER _temp8, _scope_1  // ./copy_operator.ek9:128:22
     ]
@@ -72,7 +72,7 @@ defines module copy.test
     ]
     default_body_evaluation:
     [
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp6._isSet() [pure=false, complexity=0]  // ./copy_operator.ek9:128:22
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp6._isSet() [pure=true, complexity=0]  // ./copy_operator.ek9:128:22
     RETAIN _temp9  // ./copy_operator.ek9:128:22
     SCOPE_REGISTER _temp9, _scope_1  // ./copy_operator.ek9:128:22
     ]
@@ -81,7 +81,7 @@ defines module copy.test
     ]
     RETAIN _temp5  // ./copy_operator.ek9:128:7
     SCOPE_REGISTER _temp5, _scope_1  // ./copy_operator.ek9:128:7
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=false, complexity=0]  // ./copy_operator.ek9:128:7
+    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]  // ./copy_operator.ek9:128:7
     ASSERT _temp10  // ./copy_operator.ek9:128:7
     _temp11 = CONTROL_FLOW_CHAIN  // ./copy_operator.ek9:129:7
     [
@@ -99,7 +99,7 @@ defines module copy.test
     primitive_condition: _temp13
     body_evaluation:
     [
-    _temp14 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./copy_operator.ek9:129:18
+    _temp14 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./copy_operator.ek9:129:18
     RETAIN _temp14  // ./copy_operator.ek9:129:18
     SCOPE_REGISTER _temp14, _scope_1  // ./copy_operator.ek9:129:18
     ]
@@ -108,7 +108,7 @@ defines module copy.test
     ]
     default_body_evaluation:
     [
-    _temp15 = CALL (org.ek9.lang::Boolean)_temp12._isSet() [pure=false, complexity=0]  // ./copy_operator.ek9:129:18
+    _temp15 = CALL (org.ek9.lang::Boolean)_temp12._isSet() [pure=true, complexity=0]  // ./copy_operator.ek9:129:18
     RETAIN _temp15  // ./copy_operator.ek9:129:18
     SCOPE_REGISTER _temp15, _scope_1  // ./copy_operator.ek9:129:18
     ]
@@ -117,7 +117,7 @@ defines module copy.test
     ]
     RETAIN _temp11  // ./copy_operator.ek9:129:7
     SCOPE_REGISTER _temp11, _scope_1  // ./copy_operator.ek9:129:7
-    _temp16 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=false, complexity=0]  // ./copy_operator.ek9:129:7
+    _temp16 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]  // ./copy_operator.ek9:129:7
     ASSERT _temp16  // ./copy_operator.ek9:129:7
     SCOPE_EXIT _scope_1  // ./copy_operator.ek9:125:7
     RETURN  // ./copy_operator.ek9:124:5`

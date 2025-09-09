@@ -46,7 +46,7 @@ defines module merge.test
     _temp4 = LOAD y  // ./merge_operator.ek9:90:7
     RETAIN _temp4  // ./merge_operator.ek9:91:9
     SCOPE_REGISTER _temp4, _scope_1  // ./merge_operator.ek9:91:9
-    CALL (org.ek9.lang::Integer)_temp3._merge(_temp4) [pure=false, complexity=0]  // ./merge_operator.ek9:91:9
+    CALL (org.ek9.lang::Integer)_temp3._merge(_temp4) [pure=false, complexity=0, effects=THIS_MUTATION]  // ./merge_operator.ek9:91:9
     _temp5 = CONTROL_FLOW_CHAIN  // ./merge_operator.ek9:92:7
     [
     chain_type: "QUESTION_OPERATOR"
@@ -63,7 +63,7 @@ defines module merge.test
     primitive_condition: _temp7
     body_evaluation:
     [
-    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./merge_operator.ek9:92:15
+    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./merge_operator.ek9:92:15
     RETAIN _temp8  // ./merge_operator.ek9:92:15
     SCOPE_REGISTER _temp8, _scope_1  // ./merge_operator.ek9:92:15
     ]
@@ -72,7 +72,7 @@ defines module merge.test
     ]
     default_body_evaluation:
     [
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp6._isSet() [pure=false, complexity=0]  // ./merge_operator.ek9:92:15
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp6._isSet() [pure=true, complexity=0]  // ./merge_operator.ek9:92:15
     RETAIN _temp9  // ./merge_operator.ek9:92:15
     SCOPE_REGISTER _temp9, _scope_1  // ./merge_operator.ek9:92:15
     ]
@@ -81,7 +81,7 @@ defines module merge.test
     ]
     RETAIN _temp5  // ./merge_operator.ek9:92:7
     SCOPE_REGISTER _temp5, _scope_1  // ./merge_operator.ek9:92:7
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=false, complexity=0]  // ./merge_operator.ek9:92:7
+    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]  // ./merge_operator.ek9:92:7
     ASSERT _temp10  // ./merge_operator.ek9:92:7
     SCOPE_EXIT _scope_1  // ./merge_operator.ek9:89:7
     RETURN  // ./merge_operator.ek9:88:5`

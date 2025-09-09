@@ -4,43 +4,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.OperatorMap;
-import org.ek9lang.compiler.common.SymbolTypeOrException;
-import org.ek9lang.compiler.common.TypeNameOrException;
-import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.phase7.support.CallContext;
+import org.ek9lang.compiler.phase7.support.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
-import org.ek9lang.compiler.search.MethodSymbolSearch;
-import org.ek9lang.compiler.search.MethodSymbolSearchResult;
-import org.ek9lang.compiler.symbols.AggregateSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
-import org.ek9lang.core.CompilerException;
 
 /**
  * Generates IR instructions for binary operations (e.g., addition, subtraction, comparison, etc.).
  * <p>
- * Handles:
- * - Left and right operand evaluation with proper memory management
- * - Method resolution for correct return type determination
- * - CallInstr.operator generation for binary method calls
+ * Handles:<br>
+ * - Left and right operand evaluation with proper memory management<br>
+ * - Cost-based method resolution with automatic promotion<br>
+ * - CallInstr.operator generation for binary method calls<br>
  * </p>
  */
 abstract class BinaryOperationGenerator extends AbstractGenerator
     implements Function<ExprProcessingDetails, List<IRInstr>> {
 
   private final OperatorMap operatorMap = new OperatorMap();
-  private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
+  private final CallDetailsBuilder callDetailsBuilder;
 
   BinaryOperationGenerator(final IRContext context) {
     super(context);
+    this.callDetailsBuilder = new CallDetailsBuilder(context);
   }
 
   @Override
@@ -69,71 +61,32 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
     final var rightEvaluation = processOperandExpression(rightExpr, rightDetails);
     instructions.addAll(variableMemoryManagement.apply(() -> rightEvaluation, rightDetails));
 
-    // Get operand types and resolve return type
+    // Get operand symbols for method resolution
     final var leftSymbol = getRecordedSymbolOrException(leftExpr);
     final var rightSymbol = getRecordedSymbolOrException(rightExpr);
 
-    final var leftType = typeNameOrException.apply(leftSymbol);
-    final var rightType = typeNameOrException.apply(rightSymbol);
-    //Need to lookup the operator name in ek9 form, not the method we will maps to for the IR.
-    final var returnTypeAndMethodSymbol =
-        resolveBinaryMethodReturnTypeAndSymbol(leftSymbol, rightSymbol, ctx.op.getText());
-    final var returnType = returnTypeAndMethodSymbol.returnType();
-    final var methodSymbol = returnTypeAndMethodSymbol.methodSymbol();
+    // Create call context for cost-based resolution
+    final var callContext = CallContext.forBinaryOperation(
+        leftSymbol,                                  // Target type (left operand type)
+        rightSymbol,                                 // Argument type (right operand type)
+        methodName,                                  // Method name (from operator map)
+        leftTemp,                                    // Target variable (left operand variable)
+        rightTemp,                                   // Argument variable (right operand variable)
+        basicDetails.scopeId()                       // Scope ID
+    );
 
-    // Create metadata for the method call
-    final var metaDataExtractor = new CallMetaDataExtractor(context.getParsedModule().getEk9Types());
-    final var metaData = methodSymbol != null ? metaDataExtractor.apply(methodSymbol) :
-        CallMetaData.defaultMetaData();
+    // Use CallDetailsBuilder for cost-based method resolution and promotion
+    final var callDetailsResult = callDetailsBuilder.apply(callContext);
 
-    // Create CallDetails for binary operation
-    final var callDetails = new CallDetails(leftTemp, leftType, methodName,
-        List.of(rightType), returnType, List.of(rightTemp), metaData);
+    // Add any promotion instructions that were generated
+    instructions.addAll(callDetailsResult.allInstructions());
 
-    // Generate the operator call
+    // Generate the operator call with resolved CallDetails
     final var debugInfo = debugInfoCreator.apply(new Ek9Token(ctx.op));
-    instructions.add(CallInstr.operator(resultVariable, debugInfo, callDetails));
+    instructions.add(CallInstr.operator(resultVariable, debugInfo, callDetailsResult.callDetails()));
 
     return instructions;
   }
-
-  /**
-   * Record to hold both return type and method symbol for metadata extraction.
-   */
-  private record BinaryMethodResolution(String returnType, ISymbol methodSymbol) {
-  }
-
-  /**
-   * Resolve the return type of a binary method by looking up the actual method on the left operand type.
-   * Also returns the method symbol for metadata extraction.
-   * Uses the same pattern as RequiredOperatorPresentOrError.
-   */
-  private BinaryMethodResolution resolveBinaryMethodReturnTypeAndSymbol(final ISymbol leftSymbol,
-                                                                        final ISymbol rightSymbol,
-                                                                        final String methodName) {
-
-    // Create method search for binary operation (one parameter)
-    final var search = new MethodSymbolSearch(methodName);
-
-    search.addTypeParameter(symbolTypeOrException.apply(rightSymbol));
-
-    // Get left operand type symbol for method resolution
-    final var leftTypeSymbol = symbolTypeOrException.apply(leftSymbol);
-    if (leftTypeSymbol instanceof AggregateSymbol aggregate) {
-
-      // Resolve method on the left operand type
-      final var results = aggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
-      final var bestMatch = results.getSingleBestMatchSymbol();
-
-      if (bestMatch.isPresent()) {
-        final var method = bestMatch.get();
-        final var returnType = typeNameOrException.apply(method);
-        return new BinaryMethodResolution(returnType, method);
-      }
-    }
-    throw new CompilerException("Must be able to resolve method for binary operator");
-  }
-
 
   /**
    * Process operand expression - this should be overridden by subclasses to provide actual expression processing.

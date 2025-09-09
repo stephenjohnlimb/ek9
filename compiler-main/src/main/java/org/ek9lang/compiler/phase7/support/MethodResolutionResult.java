@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.phase7.support;
 
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
@@ -10,8 +9,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 public record MethodResolutionResult(
     MethodSymbol methodSymbol,
     double matchPercentage,
-    boolean requiresPromotion
-) {
+    boolean requiresPromotion) {
 
   /**
    * Check if this is a perfect match (no coercion needed).
@@ -27,10 +25,4 @@ public record MethodResolutionResult(
     return matchPercentage < 0.0;
   }
 
-  /**
-   * Get the method's return type name.
-   */
-  public String getReturnTypeName() {
-    return methodSymbol.getType().map(ISymbol::getFullyQualifiedName).orElse("Void");
-  }
 }

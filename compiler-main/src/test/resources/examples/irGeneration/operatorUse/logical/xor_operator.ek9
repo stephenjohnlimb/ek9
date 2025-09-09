@@ -48,7 +48,7 @@ defines module anxor.test
     _temp5 = LOAD b  // ./xor_operator.ek9:98:19
     RETAIN _temp5  // ./xor_operator.ek9:98:19
     SCOPE_REGISTER _temp5, _scope_1  // ./xor_operator.ek9:98:19
-    _temp3 = CALL (org.ek9.lang::Boolean)_temp4._xor(_temp5) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./xor_operator.ek9:98:19
+    _temp3 = CALL (org.ek9.lang::Boolean)_temp4._xor(_temp5) [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./xor_operator.ek9:98:19
     RETAIN _temp3  // ./xor_operator.ek9:98:19
     SCOPE_REGISTER _temp3, _scope_1  // ./xor_operator.ek9:98:19
     STORE result, _temp3  // ./xor_operator.ek9:98:19
@@ -70,7 +70,7 @@ defines module anxor.test
     primitive_condition: _temp8
     body_evaluation:
     [
-    _temp9 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./xor_operator.ek9:99:20
+    _temp9 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./xor_operator.ek9:99:20
     RETAIN _temp9  // ./xor_operator.ek9:99:20
     SCOPE_REGISTER _temp9, _scope_1  // ./xor_operator.ek9:99:20
     ]
@@ -79,7 +79,7 @@ defines module anxor.test
     ]
     default_body_evaluation:
     [
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp7._isSet() [pure=false, complexity=0]  // ./xor_operator.ek9:99:20
+    _temp10 = CALL (org.ek9.lang::Boolean)_temp7._isSet() [pure=true, complexity=0]  // ./xor_operator.ek9:99:20
     RETAIN _temp10  // ./xor_operator.ek9:99:20
     SCOPE_REGISTER _temp10, _scope_1  // ./xor_operator.ek9:99:20
     ]
@@ -88,7 +88,7 @@ defines module anxor.test
     ]
     RETAIN _temp6  // ./xor_operator.ek9:99:7
     SCOPE_REGISTER _temp6, _scope_1  // ./xor_operator.ek9:99:7
-    _temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=false, complexity=0]  // ./xor_operator.ek9:99:7
+    _temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]  // ./xor_operator.ek9:99:7
     ASSERT _temp11  // ./xor_operator.ek9:99:7
     SCOPE_EXIT _scope_1  // ./xor_operator.ek9:96:7
     RETURN  // ./xor_operator.ek9:95:5`

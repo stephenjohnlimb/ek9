@@ -3,15 +3,19 @@ package org.ek9lang.compiler.phase7.support;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import org.ek9lang.compiler.common.OperatorMap;
+import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.CallMetaData;
 import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.SymbolMatcher;
 import org.ek9lang.compiler.support.TypeCoercions;
+import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -22,8 +26,11 @@ import org.ek9lang.core.CompilerException;
 public final class ParameterPromotionProcessor
     implements BiFunction<CallContext, MethodResolutionResult, PromotionResult> {
 
+  private static final String PROMOTE_OPERATOR = "#^";
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
+  private final OperatorMap operatorMap = new OperatorMap();
   private final IRContext irContext;
+  private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
 
   public ParameterPromotionProcessor(final IRContext irContext) {
     this.irContext = irContext;
@@ -37,10 +44,26 @@ public final class ParameterPromotionProcessor
       return new PromotionResult(context.argumentVariables(), List.of());
     }
 
+    return processParameterPromotion(context, methodResolution.methodSymbol());
+  }
+
+  /**
+   * Apply parameter promotion for any scoped symbol (method or function).
+   * This allows reuse of the same promotion logic for both methods and functions.
+   */
+  public PromotionResult apply(final CallContext context, final IScopedSymbol scopedSymbol) {
+    return processParameterPromotion(context, scopedSymbol);
+  }
+
+  /**
+   * Core parameter promotion logic that works with any IScopedSymbol.
+   * This is reusable for both methods and functions.
+   */
+  private PromotionResult processParameterPromotion(final CallContext context, final IScopedSymbol scopedSymbol) {
     final var promotedArguments = new ArrayList<String>();
     final var promotionInstructions = new ArrayList<IRInstr>();
 
-    final var methodParameters = methodResolution.methodSymbol().getSymbolsForThisScope();
+    final var methodParameters = scopedSymbol.getSymbolsForThisScope();
 
     // Check each parameter for promotion requirement
     for (int i = 0; i < context.argumentTypes().size(); i++) {
@@ -57,7 +80,7 @@ public final class ParameterPromotionProcessor
       } else {
         // Check if promotion is possible
         if (TypeCoercions.isCoercible(argumentType, parameterType)) {
-          final var promotedVar = generatePromoteCall(argumentType, argumentVariable, i);
+          final var promotedVar = generatePromoteCall(argumentType, argumentVariable, context, i);
           promotedArguments.add(promotedVar.variable());
           promotionInstructions.addAll(promotedVar.instructions());
 
@@ -83,12 +106,14 @@ public final class ParameterPromotionProcessor
    * Generate IR instructions to call the #^ promotion operator.
    */
   private PromotedVariable generatePromoteCall(final ISymbol argumentType, final String argumentVariable,
+                                               final CallContext callContext,
                                                final int paramIndex) {
 
     final var promotedVar = irContext.generateTempName();
     final var argumentTypeName = typeNameOrException.apply(argumentType);
     final var promotedTypeName = typeNameOrException.apply(getPromotedType(argumentType));
 
+    final var operatorDetails = operatorMap.getOperatorDetails(PROMOTE_OPERATOR);
     // Create CallDetails for promotion: argumentVariable._promote() -> promotedVar
     final var promoteCallDetails = new CallDetails(
         argumentVariable,
@@ -97,15 +122,28 @@ public final class ParameterPromotionProcessor
         List.of(),   // No parameters for promote
         promotedTypeName,
         List.of(),   // No arguments for promote
-        CallMetaData.defaultMetaData()
+        new CallMetaData(operatorDetails.markedPure(), 0, operatorMap.getSideEffects(PROMOTE_OPERATOR))
     );
 
-    // Generate the promotion call instruction
+    // Generate the promotion call instruction with proper memory management
     final var debugInfoCreator = new DebugInfoCreator(irContext);
-    final var debugInfo = debugInfoCreator.apply(new Ek9Token("promote_param_" + paramIndex, 0, "IR_GEN"));
+    // Use call site context for debug info, not method definition
+    final var debugInfo = callContext.parseContext() != null
+        ? debugInfoCreator.apply(new org.ek9lang.compiler.tokenizer.Ek9Token(callContext.parseContext().start))
+        : null; // Should not happen for function calls, but provide fallback
     final var promoteInstr = CallInstr.operator(promotedVar, debugInfo, promoteCallDetails);
 
-    return PromotedVariable.of(promotedVar, List.of(promoteInstr));
+    // Use VariableMemoryManagement to properly handle RETAIN and SCOPE_REGISTER with correct scope
+    final var basicDetails = new BasicDetails(callContext.scopeId(), debugInfo); // Use actual scope ID
+    final var promotedVariableDetails = new VariableDetails(promotedVar, basicDetails);
+
+    final var promotionInstructions = variableMemoryManagement.apply(
+        () -> new ArrayList<>(List.of(promoteInstr)),
+        // Mutable list for the instruction that generates the promoted value
+        promotedVariableDetails       // The variable details for memory management
+    );
+
+    return PromotedVariable.of(promotedVar, promotionInstructions);
   }
 
   /**
@@ -113,9 +151,26 @@ public final class ParameterPromotionProcessor
    * This looks up the return type of the #^ method on the argument type.
    */
   private ISymbol getPromotedType(final ISymbol argumentType) {
-    // For now, we'll need to implement actual promotion type lookup
-    // This is a simplified version - real implementation should look up #^ method return type
-    throw new CompilerException("Promotion type lookup not yet fully implemented for: "
+    // Look up the _promote method (#^ operator) on the argument type
+    final var search = new MethodSymbolSearch(PROMOTE_OPERATOR);
+
+    // Get the type symbol for method resolution
+    final var typeSymbol = new SymbolTypeOrException().apply(argumentType);
+
+    if (typeSymbol instanceof org.ek9lang.compiler.symbols.AggregateSymbol aggregate) {
+      // Resolve the _promote method on the type
+      final var results = aggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
+
+      final var promoteMethod = results.getSingleBestMatchSymbol();
+      if (promoteMethod.isPresent()) {
+        // Return the return type of the _promote method
+        return promoteMethod.get().getType().orElseThrow(
+            () -> new CompilerException("_promote method has no return type on: "
+                + argumentType.getFullyQualifiedName()));
+      }
+    }
+
+    throw new CompilerException("Cannot find _promote method on type: "
         + argumentType.getFullyQualifiedName());
   }
 }

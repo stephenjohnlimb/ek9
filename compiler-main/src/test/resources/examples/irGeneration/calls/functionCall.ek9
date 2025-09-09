@@ -31,7 +31,7 @@ defines module functioncalls.test
     RETAIN _temp2
     SCOPE_REGISTER _temp2, _scope_1
     _temp3 = FUNCTION_INSTANCE functioncalls.test::aFunction  // ./functionCall.ek9:38:7
-    _temp1 = CALL (functioncalls.test::aFunction)_temp3._call(_temp2) [pure=true, complexity=2]  // ./functionCall.ek9:38:7
+    CALL (functioncalls.test::aFunction)_temp3._call(_temp2) [pure=true, complexity=2]  // ./functionCall.ek9:38:7
     SCOPE_EXIT _scope_1  // ./functionCall.ek9:38:7
     RETURN  // ./functionCall.ek9:37:5`
     callingFunction()

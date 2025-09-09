@@ -29,7 +29,6 @@ abstract class AbstractVariableDeclGenerator extends AbstractGenerator {
     AssertValue.checkNotNull("ScopeId cannot be null", scopeId);
 
     final var variableSymbol = getRecordedSymbolOrException(ctx);
-
     final var instructions = new ArrayList<IRInstr>();
 
     final var variableName = variableNameForIR.apply(variableSymbol);

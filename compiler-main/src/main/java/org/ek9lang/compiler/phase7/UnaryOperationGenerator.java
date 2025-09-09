@@ -3,44 +3,39 @@ package org.ek9lang.compiler.phase7;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
-import org.ek9lang.compiler.common.TypeNameOrException;
-import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.phase7.support.CallContext;
+import org.ek9lang.compiler.phase7.support.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
-import org.ek9lang.compiler.search.MethodSymbolSearch;
-import org.ek9lang.compiler.search.MethodSymbolSearchResult;
-import org.ek9lang.compiler.symbols.AggregateSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
-import org.ek9lang.core.CompilerException;
 
 /**
  * Generates IR instructions for unary operations (e.g., unary minus, increment, decrement, etc.).
  * <p>
- * Handles:
- * - Operand evaluation with proper memory management
- * - Method resolution for correct return type determination
- * - CallInstr.operator generation for unary method calls
+ * Handles:<br>
+ * - Operand evaluation with proper memory management<br>
+ * - Cost-based method resolution with automatic promotion<br>
+ * - CallInstr.operator generation for unary method calls<br>
  * </p>
  */
-class UnaryOperationGenerator extends AbstractGenerator
+abstract class UnaryOperationGenerator extends AbstractGenerator
     implements Function<ExprProcessingDetails, List<IRInstr>> {
 
   private final OperatorMap operatorMap = new OperatorMap();
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
-  private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
+  private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
+  private final CallDetailsBuilder callDetailsBuilder;
 
   UnaryOperationGenerator(final IRContext context) {
     super(context);
+    this.callDetailsBuilder = new CallDetailsBuilder(context);
   }
 
   @Override
@@ -64,70 +59,34 @@ class UnaryOperationGenerator extends AbstractGenerator
     final var operandEvaluation = processOperandExpression(operandExpr, operandDetails);
     final var instructions = new ArrayList<>(variableMemoryManagement.apply(() -> operandEvaluation, operandDetails));
 
-    // Get operand type and resolve return type
+    // Get operand symbol for method resolution
     final var operandSymbol = getRecordedSymbolOrException(operandExpr);
-    final var operandType = typeNameOrException.apply(operandSymbol);
-    //We must use the operator used in the ek9 code.
-    final var returnTypeAndMethodSymbol = resolveUnaryMethodReturnTypeAndSymbol(ctx.op.getText(), operandSymbol);
-    final var returnType = returnTypeAndMethodSymbol.returnType();
-    final var methodSymbol = returnTypeAndMethodSymbol.methodSymbol();
 
-    // Create metadata for the method call
-    final var metaDataExtractor = new CallMetaDataExtractor(context.getParsedModule().getEk9Types());
-    final var metaData = methodSymbol != null ? metaDataExtractor.apply(methodSymbol) :
-        CallMetaData.defaultMetaData();
+    // Create call context for cost-based resolution (unary operation has no arguments)
+    final var callContext =
+        CallContext.forUnaryOperation(symbolTypeOrException.apply(operandSymbol),  // Target type (operand type)
+            methodName,                                   // Method name (from operator map)
+            operandTemp,                                  // Target variable (operand variable)
+            basicDetails.scopeId()                       // Scope ID
+        );
 
-    // Create CallDetails for unary operation
-    final var callDetails = new CallDetails(operandTemp, operandType, methodName,
-        List.of(), returnType, List.of(), metaData);
+    // Use CallDetailsBuilder for cost-based method resolution and promotion
+    final var callDetailsResult = callDetailsBuilder.apply(callContext);
 
-    // Generate the operator call.
+    // Add any promotion instructions that were generated
+    instructions.addAll(callDetailsResult.allInstructions());
+
+    // Generate the operator call with resolved CallDetails
     final var debugInfo = debugInfoCreator.apply(new Ek9Token(ctx.op));
-    instructions.add(CallInstr.operator(resultVariable, debugInfo, callDetails));
+    instructions.add(CallInstr.operator(resultVariable, debugInfo, callDetailsResult.callDetails()));
 
     return instructions;
-  }
-
-  /**
-   * Record to hold both return type and method symbol for metadata extraction.
-   */
-  private record UnaryMethodResolution(String returnType, ISymbol methodSymbol) {}
-
-  /**
-   * Resolve the return type of a unary method by looking up the actual method on the target type.
-   * Also returns the method symbol for metadata extraction.
-   * Uses the same pattern as RequiredOperatorPresentOrError.
-   */
-  private UnaryMethodResolution resolveUnaryMethodReturnTypeAndSymbol(final String methodName,
-                                                                      final ISymbol operandSymbol) {
-    // Create method search for unary operation (no parameters)
-    final var search = new MethodSymbolSearch(methodName);
-
-    // Get operand type symbol for method resolution
-    final var operandTypeSymbol = symbolTypeOrException.apply(operandSymbol);
-    if (operandTypeSymbol instanceof AggregateSymbol aggregate) {
-
-      // Resolve method on the operand type
-      final var results = aggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
-      final var bestMatch = results.getSingleBestMatchSymbol();
-
-      if (bestMatch.isPresent()) {
-        final var method = bestMatch.get();
-        final var returnType = typeNameOrException.apply(method);
-        return new UnaryMethodResolution(returnType, method);
-      }
-    }
-
-    throw new CompilerException("Must be able to resolve method for unary operator");
   }
 
   /**
    * Process operand expression - this should be overridden by subclasses to provide actual expression processing.
    * Default implementation returns empty list.
    */
-  protected List<IRInstr> processOperandExpression(final org.ek9lang.antlr.EK9Parser.ExpressionContext operandExpr,
-                                                   final VariableDetails operandDetails) {
-    // Default implementation - should be overridden by wrapper classes
-    return new ArrayList<>();
-  }
+  protected abstract List<IRInstr> processOperandExpression(final EK9Parser.ExpressionContext operandExpr,
+                                                            final VariableDetails operandDetails);
 }

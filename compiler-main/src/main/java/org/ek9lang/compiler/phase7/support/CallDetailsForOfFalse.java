@@ -15,6 +15,6 @@ public final class CallDetailsForOfFalse implements Supplier<CallDetails> {
     final var booleanType = EK9TypeNames.EK9_BOOLEAN;
     return new CallDetails(booleanType, booleanType,
         IRConstants.OF_FALSE_METHOD, List.of(), booleanType, List.of(),
-        CallMetaData.defaultMetaData());
+        new CallMetaData(true, 0));
   }
 }

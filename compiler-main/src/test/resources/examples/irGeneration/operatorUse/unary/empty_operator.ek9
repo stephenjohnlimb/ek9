@@ -37,7 +37,7 @@ defines module empty.test
     _temp3 = LOAD x  // ./empty_operator.ek9:86:22
     RETAIN _temp3  // ./empty_operator.ek9:86:22
     SCOPE_REGISTER _temp3, _scope_1  // ./empty_operator.ek9:86:22
-    _temp2 = CALL (org.ek9.lang::Integer)_temp3._empty() [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./empty_operator.ek9:86:22
+    _temp2 = CALL (org.ek9.lang::Integer)_temp3._empty() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./empty_operator.ek9:86:22
     RETAIN _temp2  // ./empty_operator.ek9:86:22
     SCOPE_REGISTER _temp2, _scope_1  // ./empty_operator.ek9:86:22
     STORE result, _temp2  // ./empty_operator.ek9:86:22
@@ -59,7 +59,7 @@ defines module empty.test
     primitive_condition: _temp6
     body_evaluation:
     [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./empty_operator.ek9:87:20
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./empty_operator.ek9:87:20
     RETAIN _temp7  // ./empty_operator.ek9:87:20
     SCOPE_REGISTER _temp7, _scope_1  // ./empty_operator.ek9:87:20
     ]
@@ -68,7 +68,7 @@ defines module empty.test
     ]
     default_body_evaluation:
     [
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=false, complexity=0]  // ./empty_operator.ek9:87:20
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=true, complexity=0]  // ./empty_operator.ek9:87:20
     RETAIN _temp8  // ./empty_operator.ek9:87:20
     SCOPE_REGISTER _temp8, _scope_1  // ./empty_operator.ek9:87:20
     ]
@@ -77,7 +77,7 @@ defines module empty.test
     ]
     RETAIN _temp4  // ./empty_operator.ek9:87:7
     SCOPE_REGISTER _temp4, _scope_1  // ./empty_operator.ek9:87:7
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=false, complexity=0]  // ./empty_operator.ek9:87:7
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./empty_operator.ek9:87:7
     ASSERT _temp9  // ./empty_operator.ek9:87:7
     SCOPE_EXIT _scope_1  // ./empty_operator.ek9:85:7
     RETURN  // ./empty_operator.ek9:84:5`

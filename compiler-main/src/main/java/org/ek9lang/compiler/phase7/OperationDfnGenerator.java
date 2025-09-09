@@ -61,6 +61,9 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
     // Add constructor initialization logic if this is a constructor
     if (operation.getSymbol() instanceof MethodSymbol method && method.isConstructor()) {
       //TODO Need to check if the set of instructions already has a call to super()!
+      //This may mean holding and checking the instruction block is separate instructions.
+      //Then looking to see if a super(...) was actually called, if not then do this below.
+
       //If so we just need that by itself and not generate this.
       allInstructions.addAll(generateConstructorInitialization(method, context));
     }
@@ -156,6 +159,7 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
     final var debugCreator = new DebugInfoCreator(context);
     final var scopeId = context.generateScopeId(IRConstants.GENERAL_SCOPE);
     final var debugInfo = debugCreator.apply(new Ek9Token(ctx.start));
+
     // Enter scope for memory management
     instructions.add(ScopeInstr.enter(scopeId, debugInfo));
 

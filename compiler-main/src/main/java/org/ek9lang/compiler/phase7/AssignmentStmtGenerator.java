@@ -7,11 +7,12 @@ import java.util.function.Function;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
-import org.ek9lang.compiler.common.TypeNameOrException;
-import org.ek9lang.compiler.ir.CallMetaData;
+import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.phase7.support.CallContext;
+import org.ek9lang.compiler.phase7.support.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
@@ -39,11 +40,11 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     BiFunction<EK9Parser.AssignmentStatementContext, String, List<IRInstr>> {
 
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
+  private final CallDetailsBuilder callDetailsBuilder;
 
   AssignmentStmtGenerator(final IRContext context) {
     super(context);
-
+    this.callDetailsBuilder = new CallDetailsBuilder(context);
   }
 
   @Override
@@ -149,58 +150,36 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     final var rightEvaluation = processAssignmentExpression(ctx.assignmentExpression(), rightDetails);
     instructions.addAll(variableMemoryManagement.apply(() -> rightEvaluation, rightDetails));
 
-    // Get operand types and resolve actual return type from method
+    // Get operand symbols for method resolution
     final var rightSymbol = getRecordedSymbolOrException(ctx.assignmentExpression());
-    final var leftType = typeNameOrException.apply(lhsSymbol);
-    final var rightType = typeNameOrException.apply(rightSymbol);
 
-    // Resolve actual return type of assignment method (may be Void for mutating operators)
-    final var returnType = resolveBinaryMethodReturnType(lhsSymbol, rightSymbol, ctx.op.getText());
+    // Create call context for cost-based resolution
+    final var callContext = CallContext.forBinaryOperation(
+        symbolTypeOrException.apply(lhsSymbol),     // Target type (left operand type)
+        symbolTypeOrException.apply(rightSymbol),   // Argument type (right operand type)
+        methodName,                                  // Method name (from operator map)
+        leftTemp,                                   // Target variable (left operand variable)
+        rightTemp,                                  // Argument variable (right operand variable)
+        basicDetails.scopeId()                     // Scope ID
+    );
+
+    // Use CallDetailsBuilder for cost-based method resolution and promotion
+    final var callDetailsResult = callDetailsBuilder.apply(callContext);
+
+    // Add any promotion instructions that were generated
+    instructions.addAll(callDetailsResult.allInstructions());
 
     // Assignment operators MUST return Void - enforced by ValidOperatorOrError semantic rules
+    final var returnType = callDetailsResult.callDetails().returnTypeName();
     AssertValue.checkTrue("Assignment operator " + ctx.op.getText() + " must return Void, got: " + returnType,
         "org.ek9.lang::Void".equals(returnType));
-
-    // Create CallDetails for assignment operation: leftVariable._addAss(rightValue)
-    final var callDetails = new org.ek9lang.compiler.ir.CallDetails(
-        leftTemp, leftType, methodName,
-        List.of(rightType), returnType, List.of(rightTemp),
-        CallMetaData.defaultMetaData());
 
     // Assignment operators return Void - generate call without result variable
     // The method mutates the left operand in-place
     final var operatorDebugInfo = debugInfoCreator.apply(new Ek9Token(ctx.op));
-    instructions.add(org.ek9lang.compiler.ir.CallInstr.operator(null, operatorDebugInfo, callDetails));
+    instructions.add(CallInstr.operator(null, operatorDebugInfo, callDetailsResult.callDetails()));
   }
 
-  /**
-   * Resolve the return type of a binary method by looking up the actual method on the left operand type.
-   * Uses the same pattern as BinaryOperationGenerator.
-   */
-  private String resolveBinaryMethodReturnType(final ISymbol leftSymbol,
-                                               final ISymbol rightSymbol,
-                                               final String methodName) {
-
-    // Create method search for binary operation (one parameter)
-    final var search = new org.ek9lang.compiler.search.MethodSymbolSearch(methodName);
-    search.addTypeParameter(symbolTypeOrException.apply(rightSymbol));
-
-    // Get left operand type symbol for method resolution
-    final var leftTypeSymbol = symbolTypeOrException.apply(leftSymbol);
-    if (leftTypeSymbol instanceof org.ek9lang.compiler.symbols.AggregateSymbol aggregate) {
-
-      // Resolve method on the left operand type
-      final var results = aggregate.resolveMatchingMethods(search,
-          new org.ek9lang.compiler.search.MethodSymbolSearchResult());
-      final var bestMatch = results.getSingleBestMatchSymbol();
-
-      if (bestMatch.isPresent()) {
-        final var method = bestMatch.get();
-        return typeNameOrException.apply(method);
-      }
-    }
-    throw new CompilerException("Must be able to resolve method for assignment operator");
-  }
 
   private List<IRInstr> processAssignmentExpression(final EK9Parser.AssignmentExpressionContext assignExprCtx,
                                                     final VariableDetails variableDetails) {

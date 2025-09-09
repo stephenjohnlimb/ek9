@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.common.TypeNameOrException;
-import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.CallMetaData;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.phase7.support.CallContext;
+import org.ek9lang.compiler.phase7.support.CallDetailsBuilder;
+import org.ek9lang.compiler.phase7.support.ConstructorCallProcessor;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
@@ -24,12 +27,12 @@ import org.ek9lang.core.CompilerException;
 /**
  * Generates IR instructions for function/method calls.
  * <p>
- * Handles:
- * - Function calls: functionName(args...)
- * - Method calls: object.methodName(args...)
- * - Parameter evaluation with proper memory management
- * - Return type resolution and metadata extraction
- * - CallInstr.call generation for function invocations
+ * Handles:<br>
+ * - Function calls: functionName(args...)<br>
+ * - Method calls: object.methodName(args...)<br>
+ * - Parameter evaluation with proper memory management<br>
+ * - Return type resolution and metadata extraction<br>
+ * - CallInstr.call generation for function invocations<br>
  * </p>
  */
 final class CallInstrGenerator extends AbstractGenerator
@@ -37,11 +40,14 @@ final class CallInstrGenerator extends AbstractGenerator
 
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
+  private final CallDetailsBuilder callDetailsBuilder;
   private final ExprInstrGenerator exprGenerator;
-  private final org.ek9lang.compiler.phase7.support.ConstructorCallProcessor constructorCallProcessor;
+  private final ConstructorCallProcessor constructorCallProcessor;
+  private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
 
   CallInstrGenerator(final IRContext context) {
     super(context);
+    this.callDetailsBuilder = new CallDetailsBuilder(context);
     this.exprGenerator = new ExprInstrGenerator(context);
     this.constructorCallProcessor = new org.ek9lang.compiler.phase7.support.ConstructorCallProcessor(context);
   }
@@ -91,14 +97,10 @@ final class CallInstrGenerator extends AbstractGenerator
       final var paramExpr = ctx.paramExpression();
       final var argumentDetails = processParameters(paramExpr, instructions, resultDetails.basicDetails().scopeId());
 
-      // Resolve return type and metadata (common to both patterns)
-      final var returnType = resolveReturnType(resolvedSymbol);
-      final var metaData = extractCallMetaData(resolvedSymbol);
-
       // Generate different IR based on what we're calling
       if (resolvedSymbol instanceof FunctionSymbol functionSymbol) {
         // Pattern 1: Named function call - need FUNCTION_INSTANCE
-        return generateNamedFunctionCall(instructions, functionSymbol, argumentDetails, returnType, metaData,
+        return generateNamedFunctionCall(instructions, functionSymbol, argumentDetails,
             resultDetails, ctx);
       } else {
         // For now, treat everything else as named functions until we implement function variables
@@ -118,8 +120,6 @@ final class CallInstrGenerator extends AbstractGenerator
   private List<IRInstr> generateNamedFunctionCall(final List<IRInstr> instructions,
                                                   final FunctionSymbol functionSymbol,
                                                   final ArgumentDetails argumentDetails,
-                                                  final String returnType,
-                                                  final CallMetaData metaData,
                                                   final VariableDetails resultDetails,
                                                   final EK9Parser.CallContext ctx) {
 
@@ -130,19 +130,41 @@ final class CallInstrGenerator extends AbstractGenerator
     final var functionInstanceVar = context.generateTempName();
     instructions.add(MemoryInstr.functionInstance(functionInstanceVar, fullyQualifiedFunctionName, debugInfo));
 
-    // Step 2: Call _call on the function singleton instance
-    // No RETAIN needed - singletons are never released
-    final var callDetails = new CallDetails(
-        functionInstanceVar, // Target: the singleton instance variable
-        fullyQualifiedFunctionName, // Target type: the function type  
+    // Step 2: Create CallContext for cost-based resolution and promotion
+    final var callContext = CallContext.forFunctionCall(
+        functionSymbol, // Target type (the function symbol)
+        argumentDetails.argumentSymbols(), // Argument types as ISymbol
         "_call", // Method: always "_call" for functions
-        argumentDetails.parameterTypes(),
-        returnType,
-        argumentDetails.argumentVariables(),
-        metaData
+        functionInstanceVar, // Target variable
+        argumentDetails.argumentVariables(), // Argument variables
+        resultDetails.basicDetails().scopeId(), // Scope ID
+        ctx // Parse context for symbol resolution
     );
 
-    instructions.add(CallInstr.call(resultDetails.resultVariable(), debugInfo, callDetails));
+    // Step 3: Use CallDetailsBuilder to get call details with any promotions
+    final var callDetailsResult = callDetailsBuilder.apply(callContext);
+
+    // Step 4: Add any promotion instructions
+    instructions.addAll(callDetailsResult.allInstructions());
+
+    // Step 5: Fix the target type name to be the function name, not the return type
+    final var correctedCallDetails = new org.ek9lang.compiler.ir.CallDetails(
+        callDetailsResult.callDetails().targetObject(),
+        fullyQualifiedFunctionName, // Use function name as target type, not return type
+        callDetailsResult.callDetails().methodName(),
+        callDetailsResult.callDetails().parameterTypes(),
+        callDetailsResult.callDetails().returnTypeName(),
+        callDetailsResult.callDetails().arguments(), // Use promoted arguments
+        callDetailsResult.callDetails().metaData()
+    );
+
+    // Step 6: Add the actual call instruction with corrected target type
+    // For Void-returning functions, don't create a result variable
+    if ("org.ek9.lang::Void".equals(correctedCallDetails.returnTypeName())) {
+      instructions.add(CallInstr.call(null, debugInfo, correctedCallDetails));
+    } else {
+      instructions.add(CallInstr.call(resultDetails.resultVariable(), debugInfo, correctedCallDetails));
+    }
     return instructions;
   }
 
@@ -192,41 +214,38 @@ final class CallInstrGenerator extends AbstractGenerator
 
     final var argumentVariables = new ArrayList<String>();
     final var parameterTypes = new ArrayList<String>();
+    final var argumentSymbols = new ArrayList<ISymbol>();
 
     if (paramExpr != null && paramExpr.expressionParam() != null) {
       // Process each parameter expression
       for (var exprParam : paramExpr.expressionParam()) {
         final var exprCtx = exprParam.expression();
         final var argTemp = context.generateTempName();
-        final var argDetails = new VariableDetails(argTemp,
-            new org.ek9lang.compiler.phase7.support.BasicDetails(scopeId, null));
+        final var argDetails = new VariableDetails(argTemp, new BasicDetails(scopeId, null));
 
         // Generate instructions to evaluate the argument expression
         final var exprDetails = new org.ek9lang.compiler.phase7.support.ExprProcessingDetails(exprCtx, argDetails);
         final var argEvaluation = exprGenerator.apply(exprDetails);
         instructions.addAll(variableMemoryManagement.apply(() -> argEvaluation, argDetails));
 
-        // Collect argument variable and type
+        // Collect argument variable, type, and symbol
         argumentVariables.add(argTemp);
         final var argSymbol = getRecordedSymbolOrException(exprCtx);
-        final var argType = typeNameOrException.apply(argSymbol);
+
+        final var resolvedTypeSymbol = symbolTypeOrException.apply(argSymbol);
+        argumentSymbols.add(resolvedTypeSymbol);
+        final var argType = typeNameOrException.apply(resolvedTypeSymbol);
         parameterTypes.add(argType);
       }
     }
 
-    return new ArgumentDetails(argumentVariables, parameterTypes);
-  }
-
-  /**
-   * Resolve the return type of a function call.
-   */
-  private String resolveReturnType(final ISymbol functionSymbol) {
-    return typeNameOrException.apply(functionSymbol);
+    return new ArgumentDetails(argumentVariables, parameterTypes, argumentSymbols);
   }
 
   /**
    * Record to hold argument processing results (still needed for function calls).
    */
-  private record ArgumentDetails(List<String> argumentVariables, List<String> parameterTypes) {
+  private record ArgumentDetails(List<String> argumentVariables, List<String> parameterTypes,
+                                 List<ISymbol> argumentSymbols) {
   }
 }

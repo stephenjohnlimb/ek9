@@ -154,14 +154,14 @@ public class OperatorFactory {
         aggregateManipulator.createOperator(aggregate, "/", true),
 
         //Mutator type operators
-        aggregateManipulator.createOperator(aggregate, ":~:", false),
-        aggregateManipulator.createOperator(aggregate, ":^:", false),
-        aggregateManipulator.createOperator(aggregate, ":=:", false),
-        aggregateManipulator.createOperator(aggregate, "|", false),
-        aggregateManipulator.createOperator(aggregate, "+=", false),
-        aggregateManipulator.createOperator(aggregate, "-=", false),
-        aggregateManipulator.createOperator(aggregate, "*=", false),
-        aggregateManipulator.createOperator(aggregate, "/=", false),
+        aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, ":~:"),
+        aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, ":^:"),
+        aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, ":=:"),
+        aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, "|"),
+        aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, "+="),
+        aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, "-="),
+        aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, "*="),
+        aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, "/="),
         aggregateManipulator.createMutatorOperator(aggregate, "++"),
         aggregateManipulator.createMutatorOperator(aggregate, "--"),
 

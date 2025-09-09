@@ -189,6 +189,14 @@ public class MethodSymbolSearchResult {
   }
 
   /**
+   * Get the percentage match of the best matching method.
+   * Returns 0.0 if no results are present.
+   */
+  public double getBestMatchPercentage() {
+    return results.isEmpty() ? 0.0 : results.getFirst().getPercentageMatch();
+  }
+
+  /**
    * Get the parameters that are considered ambiguous and the line they are on.
    */
   public String getAmbiguousMethodParameters() {

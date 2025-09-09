@@ -39,7 +39,7 @@ defines module dimension.unary.negation.test
     _temp3 = LOAD someDim  // ./dimension_unary_negation.ek9:91:20
     RETAIN _temp3  // ./dimension_unary_negation.ek9:91:20
     SCOPE_REGISTER _temp3, _scope_1  // ./dimension_unary_negation.ek9:91:20
-    _temp2 = CALL (org.ek9.lang::Dimension)_temp3._negate() [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./dimension_unary_negation.ek9:91:20
+    _temp2 = CALL (org.ek9.lang::Dimension)_temp3._negate() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./dimension_unary_negation.ek9:91:20
     RETAIN _temp2  // ./dimension_unary_negation.ek9:91:20
     SCOPE_REGISTER _temp2, _scope_1  // ./dimension_unary_negation.ek9:91:20
     STORE negDimVar, _temp2  // ./dimension_unary_negation.ek9:91:20
@@ -61,7 +61,7 @@ defines module dimension.unary.negation.test
     primitive_condition: _temp6
     body_evaluation:
     [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./dimension_unary_negation.ek9:92:23
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./dimension_unary_negation.ek9:92:23
     RETAIN _temp7  // ./dimension_unary_negation.ek9:92:23
     SCOPE_REGISTER _temp7, _scope_1  // ./dimension_unary_negation.ek9:92:23
     ]
@@ -70,7 +70,7 @@ defines module dimension.unary.negation.test
     ]
     default_body_evaluation:
     [
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=false, complexity=0]  // ./dimension_unary_negation.ek9:92:23
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=true, complexity=0]  // ./dimension_unary_negation.ek9:92:23
     RETAIN _temp8  // ./dimension_unary_negation.ek9:92:23
     SCOPE_REGISTER _temp8, _scope_1  // ./dimension_unary_negation.ek9:92:23
     ]
@@ -79,7 +79,7 @@ defines module dimension.unary.negation.test
     ]
     RETAIN _temp4  // ./dimension_unary_negation.ek9:92:7
     SCOPE_REGISTER _temp4, _scope_1  // ./dimension_unary_negation.ek9:92:7
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=false, complexity=0]  // ./dimension_unary_negation.ek9:92:7
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./dimension_unary_negation.ek9:92:7
     ASSERT _temp9  // ./dimension_unary_negation.ek9:92:7
     SCOPE_EXIT _scope_1  // ./dimension_unary_negation.ek9:88:7
     RETURN  // ./dimension_unary_negation.ek9:86:5`

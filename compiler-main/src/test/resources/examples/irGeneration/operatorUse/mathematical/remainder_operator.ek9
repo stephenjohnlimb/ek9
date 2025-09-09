@@ -34,7 +34,7 @@ defines module remainder.test
     _temp3 = LOAD_LITERAL 3, org.ek9.lang::Integer  // ./remainder_operator.ek9:82:23
     RETAIN _temp3  // ./remainder_operator.ek9:82:19
     SCOPE_REGISTER _temp3, _scope_1  // ./remainder_operator.ek9:82:19
-    _temp1 = CALL (org.ek9.lang::Integer)_temp2._rem(_temp3) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./remainder_operator.ek9:82:19
+    _temp1 = CALL (org.ek9.lang::Integer)_temp2._rem(_temp3) [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./remainder_operator.ek9:82:19
     RETAIN _temp1  // ./remainder_operator.ek9:82:19
     SCOPE_REGISTER _temp1, _scope_1  // ./remainder_operator.ek9:82:19
     STORE result, _temp1  // ./remainder_operator.ek9:82:19
@@ -56,7 +56,7 @@ defines module remainder.test
     primitive_condition: _temp6
     body_evaluation:
     [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./remainder_operator.ek9:83:20
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./remainder_operator.ek9:83:20
     RETAIN _temp7  // ./remainder_operator.ek9:83:20
     SCOPE_REGISTER _temp7, _scope_1  // ./remainder_operator.ek9:83:20
     ]
@@ -65,7 +65,7 @@ defines module remainder.test
     ]
     default_body_evaluation:
     [
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=false, complexity=0]  // ./remainder_operator.ek9:83:20
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=true, complexity=0]  // ./remainder_operator.ek9:83:20
     RETAIN _temp8  // ./remainder_operator.ek9:83:20
     SCOPE_REGISTER _temp8, _scope_1  // ./remainder_operator.ek9:83:20
     ]
@@ -74,7 +74,7 @@ defines module remainder.test
     ]
     RETAIN _temp4  // ./remainder_operator.ek9:83:7
     SCOPE_REGISTER _temp4, _scope_1  // ./remainder_operator.ek9:83:7
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=false, complexity=0]  // ./remainder_operator.ek9:83:7
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./remainder_operator.ek9:83:7
     ASSERT _temp9  // ./remainder_operator.ek9:83:7
     SCOPE_EXIT _scope_1  // ./remainder_operator.ek9:82:7
     RETURN  // ./remainder_operator.ek9:81:5`

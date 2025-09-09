@@ -46,7 +46,7 @@ defines module constructorcalls.test
     primitive_condition: _temp4
     body_evaluation:
     [
-    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./constructorCall.ek9:73:21
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./constructorCall.ek9:73:21
     RETAIN _temp5  // ./constructorCall.ek9:73:21
     SCOPE_REGISTER _temp5, _scope_1  // ./constructorCall.ek9:73:21
     ]
@@ -55,7 +55,7 @@ defines module constructorcalls.test
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=false, complexity=0]  // ./constructorCall.ek9:73:21
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=true, complexity=0]  // ./constructorCall.ek9:73:21
     RETAIN _temp6  // ./constructorCall.ek9:73:21
     SCOPE_REGISTER _temp6, _scope_1  // ./constructorCall.ek9:73:21
     ]
@@ -64,7 +64,7 @@ defines module constructorcalls.test
     ]
     RETAIN _temp2  // ./constructorCall.ek9:73:7
     SCOPE_REGISTER _temp2, _scope_1  // ./constructorCall.ek9:73:7
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=false, complexity=0]  // ./constructorCall.ek9:73:7
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./constructorCall.ek9:73:7
     ASSERT _temp7  // ./constructorCall.ek9:73:7
     SCOPE_EXIT _scope_1  // ./constructorCall.ek9:72:7
     RETURN  // ./constructorCall.ek9:71:5`

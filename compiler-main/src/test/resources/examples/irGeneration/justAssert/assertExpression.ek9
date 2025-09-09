@@ -25,7 +25,7 @@ defines module justAssert
     _temp1 = LOAD arg0  // ./assertExpression.ek9:34:7
     RETAIN _temp1  // ./assertExpression.ek9:34:7
     SCOPE_REGISTER _temp1, _scope_1  // ./assertExpression.ek9:34:7
-    _temp2 = CALL (org.ek9.lang::Boolean)_temp1._true() [pure=false, complexity=0]  // ./assertExpression.ek9:34:7
+    _temp2 = CALL (org.ek9.lang::Boolean)_temp1._true() [pure=true, complexity=0]  // ./assertExpression.ek9:34:7
     ASSERT _temp2  // ./assertExpression.ek9:34:7
     SCOPE_EXIT _scope_1  // ./assertExpression.ek9:34:7
     RETURN  // ./assertExpression.ek9:32:5`

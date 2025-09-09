@@ -21,17 +21,17 @@ final class AssignExpressionToSymbol extends AbstractGenerator
   private final ShouldRegisterVariableInScope shouldRegisterVariableInScope = new ShouldRegisterVariableInScope();
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
   private final Function<String, List<IRInstr>> assignmentGenerator;
-  private final boolean referenceAndRelease;
+  private final boolean release;
   private final String scopeId;
   private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
 
   AssignExpressionToSymbol(final IRContext context,
-                           final boolean referenceAndRelease,
+                           final boolean release,
                            final Function<String, List<IRInstr>> assignmentGenerator,
                            final String scopeId) {
     super(context);
     this.assignmentGenerator = assignmentGenerator;
-    this.referenceAndRelease = referenceAndRelease;
+    this.release = release;
     this.scopeId = scopeId;
   }
 
@@ -54,7 +54,7 @@ final class AssignExpressionToSymbol extends AbstractGenerator
         .apply(() -> assignmentGenerator.apply(rhsResult), rhsVariableDetails);
 
     //Now before we can assign - we may need to release (depending on use).
-    if (referenceAndRelease) {
+    if (release) {
       instructions.add(MemoryInstr.release(lhsVariableName, rhsExprDebugInfo));
     }
 

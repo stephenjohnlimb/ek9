@@ -8,7 +8,9 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.DebugInfo;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
+import org.ek9lang.compiler.phase7.support.ConstructorCallProcessor;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
+import org.ek9lang.compiler.phase7.support.FunctionCallProcessor;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.LiteralProcessingDetails;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
@@ -16,6 +18,7 @@ import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 
 /**
  * Creates IR instructions for expressions.
@@ -76,7 +79,8 @@ final class ExprInstrGenerator extends AbstractGenerator
   private final QuestionBlockGenerator questionBlockGenerator;
   private final UnaryOperationGenerator unaryOperationGenerator;
   private final BinaryOperationGenerator binaryOperationGenerator;
-  private final org.ek9lang.compiler.phase7.support.ConstructorCallProcessor constructorCallProcessor;
+  private final ConstructorCallProcessor constructorCallProcessor;
+  private final FunctionCallProcessor functionCallProcessor;
 
   ExprInstrGenerator(final IRContext context) {
     super(context);
@@ -89,7 +93,8 @@ final class ExprInstrGenerator extends AbstractGenerator
     this.questionBlockGenerator = new QuestionBlockGenerator(context, this::process);
     this.unaryOperationGenerator = new UnaryOperationGeneratorWithProcessor(context, this::process);
     this.binaryOperationGenerator = new BinaryOperationGeneratorWithProcessor(context, this::process);
-    this.constructorCallProcessor = new org.ek9lang.compiler.phase7.support.ConstructorCallProcessor(context);
+    this.constructorCallProcessor = new ConstructorCallProcessor(context);
+    this.functionCallProcessor = new FunctionCallProcessor(context);
   }
 
   /**
@@ -200,31 +205,39 @@ final class ExprInstrGenerator extends AbstractGenerator
 
   private List<IRInstr> processCall(final ExprProcessingDetails details) {
     final var ctx = details.ctx();
-    final var exprResult = details.variableDetails().resultVariable();
-    final var instructions = new ArrayList<IRInstr>();
-
+    final var callContext = ctx.call();
+    
     // Get the resolved symbol for the call
-    final var callSymbol = getRecordedSymbolOrException(ctx.call());
-
+    final var callSymbol = getRecordedSymbolOrException(callContext);
+    
     if (callSymbol instanceof CallSymbol resolvedCallSymbol) {
       final var toBeCalled = resolvedCallSymbol.getResolvedSymbolToCall();
-
+      
       if (toBeCalled instanceof MethodSymbol methodSymbol && methodSymbol.isConstructor()) {
-        // Use unified constructor call processor (no memory management for expression context)
+        // Constructor calls: Use constructor call processor (no memory management for expression context)
+        final var instructions = new ArrayList<IRInstr>();
         constructorCallProcessor.processConstructorCall(
             resolvedCallSymbol,
-            ctx.call(),
-            exprResult,
+            callContext,
+            details.variableDetails().resultVariable(),
             instructions,
             details.variableDetails().basicDetails().scopeId(),
             this::process,  // Expression processor function
             false           // No memory management for expression context
         );
+        return instructions;
+      } else if (toBeCalled instanceof org.ek9lang.compiler.symbols.FunctionSymbol) {
+        // Function calls: Use unified function call processor with promotion support
+        final var callProcessingDetails = org.ek9lang.compiler.phase7.support.CallProcessingDetails
+            .forExpression(callContext, details.variableDetails());
+        return functionCallProcessor.apply(callProcessingDetails, this::process);
       } else {
-        AssertValue.fail("Expecting method to have been resolved");
+        throw new CompilerException("Unsupported call type: "
+            + toBeCalled.getClass().getSimpleName() + " - " + toBeCalled);
       }
+    } else {
+      throw new org.ek9lang.core.CompilerException("Expected CallSymbol, but got: " + callSymbol.getClass().getSimpleName());
     }
-    return instructions;
   }
 
   private List<IRInstr> processObjectAccessExpression(final ExprProcessingDetails details) {

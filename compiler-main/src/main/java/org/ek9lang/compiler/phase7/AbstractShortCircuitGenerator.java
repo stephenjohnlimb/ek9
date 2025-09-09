@@ -27,16 +27,17 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
   private final RecordExprProcessing recordExprProcessing;
   private final CallDetailsForIsTrue callDetailsForTrue = new CallDetailsForIsTrue();
   private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
+  private final Function<LogicalDetails, IRInstr> logicalOperation;
 
   AbstractShortCircuitGenerator(final IRContext context,
-                                final RecordExprProcessing recordExprProcessing) {
+                                final RecordExprProcessing recordExprProcessing,
+                                final Function<LogicalDetails, IRInstr> logicalOperation) {
     super(context);
     this.recordExprProcessing = recordExprProcessing;
+    this.logicalOperation = logicalOperation;
   }
 
   protected abstract CallDetails getCallDetails(final String lhsVariable, final String rhsVariable);
-
-  protected abstract Function<LogicalDetails, IRInstr> getLogicalOperationInstr();
 
   @Override
   public List<IRInstr> apply(final ExprProcessingDetails details) {
@@ -47,7 +48,6 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
     // Get debug information
     final var exprSymbol = getRecordedSymbolOrException(ctx);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
-
     final var basicDetails = new BasicDetails(scopeId, debugInfo);
 
     final var lhsTemp = context.generateTempName();
@@ -55,7 +55,7 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
     final var leftEvaluationInstructions = new ArrayList<>(
         recordExprProcessing.apply(new ExprProcessingDetails(ctx.left, lhsVariableDetails)));
 
-    // Convert left operand to primitive boolean condition
+    // Convert left operand to primitive boolean condition, so no need for memory management with primitives.
     final var lhsPrimitive = context.generateTempName();
     final var lhsCallDetails = callDetailsForTrue.apply(lhsTemp);
     leftEvaluationInstructions.add(CallInstr.call(lhsPrimitive, debugInfo, lhsCallDetails));
@@ -80,17 +80,18 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
     final var rightEvaluation = new OperandEvaluation(rightEvaluationInstructions, rhsTemp);
     final var resultEvaluation = new OperandEvaluation(resultComputationInstructions, result);
 
-    final var logicalOperation = getLogicalOperationInstr()
-        .apply(new LogicalDetails(
+    final var operation = logicalOperation.apply(
+        new LogicalDetails(
             exprResult,
             leftEvaluation,
             conditionalEvaluation,
             rightEvaluation,
             resultEvaluation,
-            basicDetails));
+            basicDetails)
+    );
 
     final var instructions = new ArrayList<IRInstr>();
-    instructions.add(logicalOperation);
+    instructions.add(operation);
 
     return instructions;
   }

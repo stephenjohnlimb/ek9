@@ -19,6 +19,7 @@ import org.ek9lang.compiler.phase7.support.FieldsFromCapture;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
+import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
@@ -99,11 +100,10 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
       if (notImplicitSuper.test(superSymbol)) {
         // Try to find c_init method symbol in super function for metadata
         final var metaDataExtractor = new CallMetaDataExtractor(parsedModule.getEk9Types());
-        final var cInitMethodOpt = superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.C_INIT_METHOD));
-        final var metaData = cInitMethodOpt.isPresent() ? 
-            metaDataExtractor.apply(cInitMethodOpt.get()) : 
+        final var cInitMethodOpt = superSymbol.resolve(new SymbolSearch(IRConstants.C_INIT_METHOD));
+        final var metaData = cInitMethodOpt.isPresent() ? metaDataExtractor.apply(cInitMethodOpt.get()) :
             CallMetaData.defaultMetaData();
-            
+
         final var callDetails = new CallDetails(
             null, // No target object for static call
             superSymbol.getFullyQualifiedName(),
@@ -262,11 +262,11 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
       if (notImplicitSuper.test(superSymbol)) {
         // Try to find constructor symbol in super function for metadata
         final var metaDataExtractor = new CallMetaDataExtractor(parsedModule.getEk9Types());
-        final var constructorSymbolOpt = superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(superSymbol.getName()));
-        final var metaData = constructorSymbolOpt.isPresent() ? 
-            metaDataExtractor.apply(constructorSymbolOpt.get()) : 
+        final var constructorSymbolOpt =
+            superSymbol.resolve(new SymbolSearch(superSymbol.getName()));
+        final var metaData = constructorSymbolOpt.isPresent() ? metaDataExtractor.apply(constructorSymbolOpt.get()) :
             CallMetaData.defaultMetaData();
-            
+
         final var callDetails = new CallDetails(
             IRConstants.SUPER, // Target super object
             superSymbol.getFullyQualifiedName(),
@@ -283,11 +283,11 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     // 2. Call own class's i_init method to initialize this class's fields
     // Try to find i_init method symbol for metadata
     final var metaDataExtractor = new CallMetaDataExtractor(parsedModule.getEk9Types());
-    final var iInitMethodOpt = aggregateSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.I_INIT_METHOD));
-    final var iInitMetaData = iInitMethodOpt.isPresent() ? 
-        metaDataExtractor.apply(iInitMethodOpt.get()) : 
+    final var iInitMethodOpt =
+        aggregateSymbol.resolve(new SymbolSearch(IRConstants.I_INIT_METHOD));
+    final var iInitMetaData = iInitMethodOpt.isPresent() ? metaDataExtractor.apply(iInitMethodOpt.get()) :
         CallMetaData.defaultMetaData();
-        
+
     final var iInitCallDetails = new CallDetails(
         IRConstants.THIS, // Target this object
         aggregateSymbol.getFullyQualifiedName(),

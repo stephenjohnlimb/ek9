@@ -2,21 +2,33 @@ package org.ek9lang.compiler.ir;
 
 import java.util.HashSet;
 import java.util.function.Function;
+import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 
 /**
  * Extracts call metadata from symbols for use in IR generation.
  * Provides purity information, complexity scoring, and side effect classification
  * that backends can use for optimization decisions.
+ * <p>
+ * Side effect types include:<br>
+ * - IO: Operations involving I/O<br>
+ * - RETURN_MUTATION: Operations that return non-Void values<br>
+ * - THIS_MUTATION: Operations that mutate the object itself (assignment/mutator operators)<br>
+ * - NO_MUTATION: Implied when no mutation side effects are present<br>
+ * </p>
  */
 public class CallMetaDataExtractor implements Function<ISymbol, CallMetaData> {
 
   private final Ek9Types ek9Types;
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
+  private final OperatorMap operatorMap = new OperatorMap();
+
+  // Remove hardcoded list - now using OperatorMap centralized logic
 
   public CallMetaDataExtractor(final Ek9Types ek9Types) {
     this.ek9Types = ek9Types;
@@ -59,6 +71,13 @@ public class CallMetaDataExtractor implements Function<ISymbol, CallMetaData> {
       if (!symbolType.isExactSameType(ek9Types.ek9Void())) {
         sideEffects.add("RETURN_MUTATION");
       }
+    }
+
+    // For operators, get side effects from centralized OperatorMap
+    if (symbol instanceof MethodSymbol method && method.isOperator()) {
+      final var methodName = method.getName();
+      final var operatorSideEffects = operatorMap.getSideEffectsByMethod(methodName);
+      sideEffects.addAll(operatorSideEffects);
     }
 
     return new CallMetaData(isPure, complexityScore, sideEffects);

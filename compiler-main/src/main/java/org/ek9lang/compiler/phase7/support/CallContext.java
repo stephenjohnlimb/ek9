@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.phase7.support;
 
 import java.util.List;
+import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -14,7 +15,8 @@ public record CallContext(
     String methodName,
     List<ISymbol> argumentTypes,
     List<String> argumentVariables,
-    String scopeId
+    String scopeId,
+    EK9Parser.CallContext parseContext  // Optional - null for operators without direct call context
 ) {
 
   /**
@@ -23,23 +25,27 @@ public record CallContext(
   public static CallContext forBinaryOperation(ISymbol leftType, ISymbol rightType,
                                                String methodName, String leftVariable, String rightVariable,
                                                String scopeId) {
-    return new CallContext(leftType, leftVariable, methodName, List.of(rightType), List.of(rightVariable), scopeId);
+    return new CallContext(leftType, leftVariable, methodName, List.of(rightType), List.of(rightVariable), scopeId,
+        null);
   }
+
 
   /**
    * Create context for unary operation: target.method()
    */
   public static CallContext forUnaryOperation(ISymbol targetType, String methodName,
-                                             String targetVariable, String scopeId) {
-    return new CallContext(targetType, targetVariable, methodName, List.of(), List.of(), scopeId);
+                                              String targetVariable, String scopeId) {
+    return new CallContext(targetType, targetVariable, methodName, List.of(), List.of(), scopeId, null);
   }
 
+
   /**
-   * Create context for method call: target.method(args...)
+   * Create context for function call: function(args...)
    */
-  public static CallContext forMethodCall(ISymbol targetType, String targetVariable, String methodName,
-                                         List<ISymbol> argumentTypes, List<String> argumentVariables,
-                                         String scopeId) {
-    return new CallContext(targetType, targetVariable, methodName, argumentTypes, argumentVariables, scopeId);
+  public static CallContext forFunctionCall(ISymbol targetType, List<ISymbol> argumentTypes, String methodName,
+                                            String targetVariable, List<String> argumentVariables,
+                                            String scopeId, EK9Parser.CallContext parseContext) {
+    return new CallContext(targetType, targetVariable, methodName, argumentTypes, argumentVariables, scopeId,
+        parseContext);
   }
 }

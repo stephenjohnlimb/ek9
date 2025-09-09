@@ -45,21 +45,6 @@ class OperatorMapTest {
   }
 
   @Test
-  void testReturnTypes() {
-    assertTrue(underTest.isReturnTypeNameAcceptable("<", "Boolean"));
-    assertFalse(underTest.isReturnTypeNameAcceptable("<", "Integer"));
-
-    assertTrue(underTest.isReturnTypeNameAcceptable("<=>", "Integer"));
-    assertTrue(underTest.isReturnTypeNameAcceptable("$", "String"));
-    assertTrue(underTest.isReturnTypeNameAcceptable("$$", "JSON"));
-
-    //If the operator is present and is supported in 'MyType' then it will be acceptable.
-    assertTrue(underTest.isReturnTypeNameAcceptable("++", "MyType"));
-
-
-  }
-
-  @Test
   void testInvalidMapping() {
     assertThrows(CompilerException.class, () -> underTest.getForward("NO-SUCH"));
     assertThrows(CompilerException.class, () -> underTest.getBackward("NO-SUCH"));

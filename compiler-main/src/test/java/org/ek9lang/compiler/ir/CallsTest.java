@@ -15,7 +15,8 @@ class CallsTest extends AbstractIRGenerationTest {
             new SymbolCountCheck("constructorcalls.test", 1),
             new SymbolCountCheck("constructorassignmentcalls.test", 1),
             new SymbolCountCheck("constructorcallswithargs.test", 1),
-            new SymbolCountCheck("constructorassignmentwithargscalls.test", 1)
+            new SymbolCountCheck("constructorassignmentwithargscalls.test", 1),
+            new SymbolCountCheck("functionparameterpromotion.test", 2)
         ), false, false, false);
   }
 

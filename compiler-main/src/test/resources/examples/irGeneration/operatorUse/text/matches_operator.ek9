@@ -47,7 +47,7 @@ defines module matches.test
     _temp5 = LOAD pattern  // ./matches_operator.ek9:97:22
     RETAIN _temp5  // ./matches_operator.ek9:97:22
     SCOPE_REGISTER _temp5, _scope_1  // ./matches_operator.ek9:97:22
-    _temp3 = CALL (org.ek9.lang::String)_temp4._matches(_temp5) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./matches_operator.ek9:97:22
+    _temp3 = CALL (org.ek9.lang::String)_temp4._matches(_temp5) [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./matches_operator.ek9:97:22
     RETAIN _temp3  // ./matches_operator.ek9:97:22
     SCOPE_REGISTER _temp3, _scope_1  // ./matches_operator.ek9:97:22
     STORE result, _temp3  // ./matches_operator.ek9:97:22
@@ -69,7 +69,7 @@ defines module matches.test
     primitive_condition: _temp8
     body_evaluation:
     [
-    _temp9 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./matches_operator.ek9:98:20
+    _temp9 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./matches_operator.ek9:98:20
     RETAIN _temp9  // ./matches_operator.ek9:98:20
     SCOPE_REGISTER _temp9, _scope_1  // ./matches_operator.ek9:98:20
     ]
@@ -78,7 +78,7 @@ defines module matches.test
     ]
     default_body_evaluation:
     [
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp7._isSet() [pure=false, complexity=0]  // ./matches_operator.ek9:98:20
+    _temp10 = CALL (org.ek9.lang::Boolean)_temp7._isSet() [pure=true, complexity=0]  // ./matches_operator.ek9:98:20
     RETAIN _temp10  // ./matches_operator.ek9:98:20
     SCOPE_REGISTER _temp10, _scope_1  // ./matches_operator.ek9:98:20
     ]
@@ -87,7 +87,7 @@ defines module matches.test
     ]
     RETAIN _temp6  // ./matches_operator.ek9:98:7
     SCOPE_REGISTER _temp6, _scope_1  // ./matches_operator.ek9:98:7
-    _temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=false, complexity=0]  // ./matches_operator.ek9:98:7
+    _temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]  // ./matches_operator.ek9:98:7
     ASSERT _temp11  // ./matches_operator.ek9:98:7
     SCOPE_EXIT _scope_1  // ./matches_operator.ek9:95:7
     RETURN  // ./matches_operator.ek9:94:5`

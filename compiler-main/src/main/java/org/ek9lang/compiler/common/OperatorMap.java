@@ -1,155 +1,309 @@
 package org.ek9lang.compiler.common;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.ek9lang.core.CompilerException;
 
 /**
- * Mapping of EK9 to java operators.
+ * Enhanced mapping of EK9 operators to their metadata and method names.
+ * Provides bidirectional mapping with comprehensive operator details including
+ * purity, argument requirements, return value information, and side effect classification.
+ * <p>
+ * Side effect types:<br>
+ * - RETURN_MUTATION: Operations that return non-Void values<br>
+ * - THIS_MUTATION: Operations that mutate the object itself (assignment/mutator operators)<br>
+ * - POSSIBLE_MUTATION: Non-pure operations that may have indirect effects or mutations<br>
+ * - NO_MUTATION: Implied when no mutation side effects are present (empty set)<br>
+ * </p>
  */
-public class OperatorMap extends BiMap {
+public class OperatorMap {
+
+  // Forward mapping: EK9 operator -> OperatorDetails
+  private final Map<String, OperatorDetails> forwardMap = new HashMap<>();
+
+  // Backward mapping: Method name -> OperatorDetails  
+  private final Map<String, OperatorDetails> backwardMap = new HashMap<>();
+
   public OperatorMap() {
-    put("<", "_lt");
-    put("<=", "_lteq");
-    put(">", "_gt");
-    put(">=", "_gteq");
-    put("==", "_eq");
-    put("<>", "_neq");
+    // Comparison operators - pure, require argument, return Boolean
+    addOperator("<", "_lt", true, true, true);
+    addOperator("<=", "_lteq", true, true, true);
+    addOperator(">", "_gt", true, true, true);
+    addOperator(">=", "_gteq", true, true, true);
+    addOperator("==", "_eq", true, true, true);
+    addOperator("<>", "_neq", true, true, true);
 
-    put("<<", "_shftl");
-    put(">>", "_shftr");
+    // Bit shift operators - pure, require argument, return same type
+    addOperator("<<", "_shftl", true, true, true);
+    addOperator(">>", "_shftr", true, true, true);
 
-    //Compare -1 0 +1
-    put("<=>", "_cmp");
-    //clone or copy all the details
-    put(":=:", "_copy");
-    //replace something in something i.e item in a List
-    put(":^:", "_replace");
+    // Special comparison and copy operators
+    addOperator("<=>", "_cmp", true, true, true); // Compare -1 0 +1 - pure, returns Integer
+    addOperator(":=:", "_copy", false, true, false); // Mutating copy - not pure, returns Void
+    addOperator(":^:", "_replace", false, true, false); // Mutating replace - not pure, returns Void
 
-    //Fuzzy comparison
-    put("<~>", "_fuzzy");
-    //A merge which is sort of fuzzy! i.e you have to decide how to do it.
-    put(":~:", "_merge");
+    // Fuzzy operations
+    addOperator("<~>", "_fuzzy", true, true, true); // Fuzzy comparison - pure, returns comparison result
+    addOperator(":~:", "_merge", false, true, false); // Mutating merge - not pure, returns Void
 
-    put("++", "_inc");
-    put("--", "_dec");
+    // Increment/decrement operators - mutating, no argument, return same type (not void)
+    addOperator("++", "_inc", false, false, true);
+    addOperator("--", "_dec", false, false, true);
 
-    put("+", "_add");
-    put("-", "_sub");
-    put("*", "_mul");
-    put("/", "_div");
-    put("~", "_negate"); //can be used for boolean not and unary minus on objects compiler allows '-' with no args.
-    put("!", "_fac");
-    put("?", "_isSet"); //Used on objects to check if they are valid
+    // Arithmetic operators - pure, require argument, return same/compatible type
+    addOperator("+", "_add", true, true, true);
+    addOperator("-", "_sub", true, true, true);
+    addOperator("*", "_mul", true, true, true);
+    addOperator("/", "_div", true, true, true);
+    addOperator("~", "_negate", true, false, true); // Unary negate - pure, no argument, returns same type
+    addOperator("!", "_fac", true, false, true); // Factorial - pure, no argument, returns result
+    addOperator("?", "_isSet", true, false, true); // State check - pure, no argument, returns Boolean
 
-    //we never use this ":=", "_assign" within code, because while it is an operator it is sort of 'baked in'
-    put("|", "_pipe");
-    put("+=", "_addAss");
-    put("-=", "_subAss");
-    put("*=", "_mulAss");
-    put("/=", "_divAss");
+    // Pipeline operator - mutating operation, requires argument, returns void
+    addOperator("|", "_pipe", false, true, false);
 
-    put("and", "_and");
-    put("or", "_or");
-    put("xor", "_xor");
+    // Assignment operators - mutating, require argument, return void
+    addOperator("+=", "_addAss", false, true, false);
+    addOperator("-=", "_subAss", false, true, false);
+    addOperator("*=", "_mulAss", false, true, false);
+    addOperator("/=", "_divAss", false, true, false);
 
-    put("#^", "_promote");
-    put("$", "_string");
-    put("$$", "_json");
-    put("#?", "_hashcode");
+    // Logical operators - pure, require argument, return Boolean
+    addOperator("and", "_and", true, true, true);
+    addOperator("or", "_or", true, true, true);
+    addOperator("xor", "_xor", true, true, true);
 
-    //Suitable for object types that can have prefix and suffix
-    //EG for Money prefix is amount suffix is currency
-    //But developers could add their own i.e telephone number might have a prefix (country dial code) for example.
-    put("#<", "_prefix");
-    put("#>", "_suffix");
+    // Conversion and introspection operators
+    addOperator("#^", "_promote", true, false, true); // Type promotion - pure, no argument, returns promoted type
+    addOperator("$", "_string", true, false, true); // String conversion - pure, no argument, returns String
+    addOperator("$$", "_json", true, false, true); // JSON conversion - pure, no argument, returns String  
+    addOperator("#?", "_hashcode", true, false, true); // Hash code - pure, no argument, returns Integer
 
-    put("^", "_pow");
-    put("mod", "_mod");
-    put("rem", "_rem");
+    // Prefix/suffix operators - pure, no argument, return extracted value
+    addOperator("#<", "_prefix", true, false, true);
+    addOperator("#>", "_suffix", true, false, true);
 
-    put("close", "close");
-    put("empty", "_empty");
-    put("length", "_len");
+    // Mathematical operators
+    addOperator("^", "_pow", true, true, true); // Power - pure, requires argument, returns result
+    addOperator("mod", "_mod", true, true,
+        true); // Modulo - pure, requires argument, returns Integer per ValidOperatorOrError
+    addOperator("rem", "_rem", true, true,
+        true); // Remainder - pure, requires argument, returns Integer per ValidOperatorOrError
 
-    //So that reasonable method names can be used when they are also keywords for filtering we
-    //add those in as operators - this also means that if you do create a collection in ek9 terms you call these methods
-    put("sort", "_sort");
-    put("filter", "_filter");
-    put("collect", "_collect");
-    put("map", "_map");
-    put("group", "_group");
-    put("split", "_split");
-    put("head", "_head");
-    put("tail", "_tail");
+    // Resource and state operators  
+    addOperator("close", "close", true, false,
+        false); // Resource cleanup per ValidOperatorOrError - pure with no return
+    addOperator("empty", "_empty", true, false, true); // State check - pure, no argument, returns Boolean
+    addOperator("length", "_len", true, false, true); // Length query - pure, no argument, returns Integer
 
-    put("sqrt", "_sqrt");
-    put("abs", "_abs");
-    put("contains", "_contains");
-    put("matches", "_matches");
+    // Collection operations - pure, no argument (for basic operations), return result
+    addOperator("sort", "_sort", true, false, true);
+    addOperator("filter", "_filter", true, false, true);
+    addOperator("collect", "_collect", true, false, true);
+    addOperator("map", "_map", true, false, true);
+    addOperator("group", "_group", true, false, true);
+    addOperator("split", "_split", true, false, true);
+    addOperator("head", "_head", true, false, true);
+    addOperator("tail", "_tail", true, false, true);
+
+    // Mathematical functions - pure, no argument, return result
+    addOperator("sqrt", "_sqrt", true, false, true);
+    addOperator("abs", "_abs", true, false, true);
+
+    // Query operations - pure, require argument, return Boolean
+    addOperator("contains", "_contains", true, true, true);
+    addOperator("matches", "_matches", true, true, true);
+  }
+
+  /**
+   * Add an operator with its details to both forward and backward mappings.
+   */
+  private void addOperator(String operator, String methodName, boolean markedPure,
+                           boolean requiresArgument, boolean hasReturn) {
+    final var details = new OperatorDetails(operator, methodName, markedPure, requiresArgument, hasReturn);
+    forwardMap.put(operator, details);
+    backwardMap.put(methodName, details);
+  }
+
+  // Enhanced OperatorDetails-based methods
+
+  /**
+   * Get operator details by EK9 operator symbol.
+   */
+  public OperatorDetails getOperatorDetails(String ek9Operator) {
+    final var details = forwardMap.get(ek9Operator);
+    if (details == null) {
+      throw new CompilerException("Operator " + ek9Operator + " does not exist");
+    }
+    return details;
+  }
+
+  /**
+   * Get operator details by method name.
+   */
+  public OperatorDetails getOperatorDetailsByMethod(String methodName) {
+    final var details = backwardMap.get(methodName);
+    if (details == null) {
+      throw new CompilerException("Method " + methodName + " does not map to an operator");
+    }
+    return details;
+  }
+
+  /**
+   * Check if an EK9 operator exists.
+   */
+  public boolean hasOperator(String ek9Operator) {
+    return forwardMap.containsKey(ek9Operator);
+  }
+
+  /**
+   * Check if a method name maps to an operator.
+   */
+  public boolean hasMethod(String methodName) {
+    return backwardMap.containsKey(methodName);
+  }
+
+  // Backward compatibility methods (delegate to OperatorDetails)
+
+  /**
+   * Get method name for EK9 operator (backward compatibility).
+   */
+  public String getForward(String ek9Operator) {
+    return getOperatorDetails(ek9Operator).mappedName();
+  }
+
+  /**
+   * Get EK9 operator for method name (backward compatibility).
+   */
+  public String getBackward(String methodName) {
+    return getOperatorDetailsByMethod(methodName).operator();
+  }
+
+  /**
+   * Check if EK9 operator exists (backward compatibility).
+   */
+  public boolean checkForward(String ek9Operator) {
+    return hasOperator(ek9Operator);
+  }
+
+  /**
+   * Check if method name maps to operator (backward compatibility).
+   */
+  public boolean checkBackward(String methodName) {
+    return hasMethod(methodName);
   }
 
   /**
    * For operators that require a single parameter.
+   * Updated to use OperatorDetails metadata.
    */
   public boolean expectsParameter(String ek9Operator) {
-    return switch (ek9Operator) {
-      case "<", "<=", ">", ">=", "==", "<>", "<=>", ":=:", ":^:", "<~>", ":~:", "+", "-", "*", "/", "|", "+=", "-=",
-           "*=", "/=", "and", "or", "xor", "^", "mod", "rem", "contains", "matches" -> true;
-      default -> false;
-    };
+    final var details = forwardMap.get(ek9Operator);
+    return details != null && details.requiresArgument();
   }
 
   /**
    * Used on a class/record not expecting any parameters at all.
+   * Updated to use OperatorDetails metadata.
    */
   public boolean expectsZeroParameters(String ek9Operator) {
-    return switch (ek9Operator) {
-      case "++", "--", "~", "!", "?", "$", "$$", "#^", "#?", "#<", "#>", "empty", "length", "sqrt", "abs" -> true;
-      default -> false;
-    };
+    final var details = forwardMap.get(ek9Operator);
+    return details != null && !details.requiresArgument();
   }
 
   /**
-   * For a specific operator is the return type acceptable.
-   * Only checks finite types we need like String, Boolean and Integer.
+   * Check if an operator is marked as pure.
    */
-  public boolean isReturnTypeNameAcceptable(String ek9Operator, String returnTypeName) {
-    return switch (ek9Operator) {
-      case "?", "<", "<=", ">", ">=", "<>", "empty", "contains", "matches" -> "Boolean".equals(returnTypeName);
-      case "$" -> "String".equals(returnTypeName);
-      case "$$" -> "JSON".equals(returnTypeName);
-      case "#?", "<=>", "<~>", "length", "mod", "rem" -> "Integer".equals(returnTypeName);
-      default -> true;
-    };
-  }
-
-  @Override
-  public String getForward(String v1) {
-    String rtn = super.getForward(v1);
-    if (rtn == null) {
-      throw new CompilerException("Operator " + v1 + " does not exist");
-    }
-    return rtn;
-  }
-
-  @Override
-  public String getBackward(String v2) {
-    String rtn = super.getBackward(v2);
-    if (rtn == null) {
-      throw new CompilerException("Operator " + v2 + " does not exist");
-    }
-    return rtn;
-  }
-
-  public boolean checkForward(String v1) {
-    return super.getForward(v1) != null;
+  public boolean isPureOperator(String ek9Operator) {
+    final var details = forwardMap.get(ek9Operator);
+    return details != null && details.markedPure();
   }
 
   /**
-   * Check if a _ type method maps back into EK9 operators.
-   * We might have methods we want in our java code that are just hidden.
+   * Check if an operator has a return value (not Void).
    */
-  public boolean checkBackward(String v2) {
-    return super.getBackward(v2) != null;
+  public boolean hasReturn(String ek9Operator) {
+    final var details = forwardMap.get(ek9Operator);
+    return details != null && details.hasReturn();
+  }
 
+  /**
+   * Get the side effects for an EK9 operator.
+   * Centralizes all side effect determination logic based on operator characteristics.
+   */
+  public Set<String> getSideEffects(String ek9Operator) {
+    final var details = forwardMap.get(ek9Operator);
+    if (details == null) {
+      return new HashSet<>(); // Unknown operator, no known side effects
+    }
+
+    final var sideEffects = new HashSet<String>();
+
+    // RETURN_MUTATION: operators that return non-Void values
+    if (details.hasReturn()) {
+      sideEffects.add("RETURN_MUTATION");
+    }
+
+    // THIS_MUTATION: operators that mutate the object itself
+    if (isThisMutatingOperator(ek9Operator)) {
+      sideEffects.add("THIS_MUTATION");
+    }
+
+    // POSSIBLE_MUTATION: non-pure operators that don't return values and aren't THIS_MUTATION
+    // These may have indirect effects or mutations we can't precisely classify
+    if (!details.markedPure() && !details.hasReturn() && !isThisMutatingOperator(ek9Operator)) {
+      sideEffects.add("POSSIBLE_MUTATION");
+    }
+
+    return sideEffects;
+  }
+
+  /**
+   * Get the side effects for a method name (backward lookup).
+   * Convenience method for when you have the method name instead of the EK9 operator.
+   */
+  public Set<String> getSideEffectsByMethod(String methodName) {
+    final var details = backwardMap.get(methodName);
+    if (details == null) {
+      return new HashSet<>(); // Unknown method, no known side effects
+    }
+    return getSideEffects(details.operator());
+  }
+
+  /**
+   * Check if an operator mutates the object itself (THIS_MUTATION).
+   * This includes assignment operators, increment/decrement, and mutator operations.
+   */
+  private boolean isThisMutatingOperator(String ek9Operator) {
+    // Assignment operators: +=, -=, *=, /= (but NOT comparison operators like >=, <=, ==, <>)
+    return (ek9Operator.endsWith("=")
+        && !ek9Operator.equals(">=")
+        && !ek9Operator.equals("<=")
+        && !ek9Operator.equals("==")
+        && !ek9Operator.equals("<>"))
+        || ek9Operator.equals(":=:")
+        || ek9Operator.equals(":^:")
+        || ek9Operator.equals(":~:")
+        || ek9Operator.equals("++")
+        || ek9Operator.equals("--")
+        || ek9Operator.equals("|");
+  }
+
+  // Methods for test compatibility
+
+  /**
+   * Get all EK9 operator symbols (for testing).
+   */
+  public Iterable<String> getForwardKeys() {
+    return forwardMap.keySet();
+  }
+
+  /**
+   * Get all method names (for testing).
+   */
+  public Iterable<String> getBackwardKeys() {
+    return backwardMap.keySet();
   }
 }

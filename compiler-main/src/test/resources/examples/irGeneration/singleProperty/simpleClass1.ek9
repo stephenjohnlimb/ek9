@@ -48,7 +48,7 @@ defines module singleProperty
     primitive_condition: _temp4
     body_evaluation:
     [
-    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=false, complexity=0]  // ./simpleClass1.ek9:80:22
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./simpleClass1.ek9:80:22
     RETAIN _temp5  // ./simpleClass1.ek9:80:22
     SCOPE_REGISTER _temp5, _scope_1  // ./simpleClass1.ek9:80:22
     ]
@@ -57,7 +57,7 @@ defines module singleProperty
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=false, complexity=0]  // ./simpleClass1.ek9:80:22
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=true, complexity=0]  // ./simpleClass1.ek9:80:22
     RETAIN _temp6  // ./simpleClass1.ek9:80:22
     SCOPE_REGISTER _temp6, _scope_1  // ./simpleClass1.ek9:80:22
     ]
@@ -66,7 +66,7 @@ defines module singleProperty
     ]
     RETAIN _temp2  // ./simpleClass1.ek9:80:9
     SCOPE_REGISTER _temp2, _scope_1  // ./simpleClass1.ek9:80:9
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=false, complexity=0]  // ./simpleClass1.ek9:80:9
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./simpleClass1.ek9:80:9
     ASSERT _temp7  // ./simpleClass1.ek9:80:9
     SCOPE_EXIT _scope_1  // ./simpleClass1.ek9:79:9
     RETURN  // ./simpleClass1.ek9:76:7`

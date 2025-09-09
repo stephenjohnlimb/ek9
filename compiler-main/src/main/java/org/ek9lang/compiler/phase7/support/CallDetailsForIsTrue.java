@@ -17,6 +17,6 @@ public final class CallDetailsForIsTrue implements Function<String, CallDetails>
   public CallDetails apply(final String targetObject) {
     return new CallDetails(targetObject, EK9TypeNames.EK9_BOOLEAN,
         IRConstants.TRUE_METHOD, List.of(), IRConstants.BOOLEAN, List.of(), 
-        CallMetaData.defaultMetaData());
+        new CallMetaData(true, 0));
   }
 }

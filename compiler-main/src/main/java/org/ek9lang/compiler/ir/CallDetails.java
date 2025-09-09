@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.ir;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 /**
@@ -40,7 +41,11 @@ public record CallDetails(String targetObject,
     sb.append(" [pure=").append(metaData().isPure())
         .append(", complexity=").append(metaData().complexityScore());
     if (!metaData().sideEffects().isEmpty()) {
-      sb.append(", effects=").append(String.join(",", metaData().sideEffects()));
+      // Sort side effects for deterministic test output
+      final var sortedEffects = metaData().sideEffects().stream()
+          .sorted()
+          .collect(Collectors.joining(","));
+      sb.append(", effects=").append(sortedEffects);
     }
     sb.append("]");
 

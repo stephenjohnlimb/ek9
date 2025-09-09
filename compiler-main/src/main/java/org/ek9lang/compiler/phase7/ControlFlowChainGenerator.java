@@ -3,11 +3,11 @@ package org.ek9lang.compiler.phase7;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.ConditionCase;
 import org.ek9lang.compiler.ir.ControlFlowChainDetails;
 import org.ek9lang.compiler.ir.ControlFlowChainInstr;
@@ -19,6 +19,7 @@ import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.ir.ReturnVariableDetails;
 import org.ek9lang.compiler.ir.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.phase7.support.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.support.CallDetailsForOfFalse;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRContext;
@@ -31,17 +32,17 @@ import org.ek9lang.compiler.symbols.ISymbol;
 /**
  * Unified generator for all EK9 control flow constructs using CONTROL_FLOW_CHAIN.
  * <p>
- * This generator replaces multiple specialized generators:
- * - QuestionBlockGenerator → generateQuestionOperator()
- * - GuardedAssignmentBlockGenerator → generateGuardedAssignment()
- * - Future: If/else and switch statement generators
+ * This generator replaces multiple specialized generators:<br>
+ * - QuestionBlockGenerator → generateQuestionOperator()<br>
+ * - GuardedAssignmentBlockGenerator → generateGuardedAssignment()<br>
+ * - Future: If/else and switch statement generators<br>
  * </p>
  * <p>
- * Key architectural benefits:
- * - Single source of truth for all control flow logic
- * - Consistent memory management patterns across all constructs
- * - Unified optimization metadata for backend code generation
- * - Reduced code duplication and maintenance burden
+ * Key architectural benefits:<br>
+ * - Single source of truth for all control flow logic<br>
+ * - Consistent memory management patterns across all constructs<br>
+ * - Unified optimization metadata for backend code generation<br>
+ * - Reduced code duplication and maintenance burden<br>
  * </p>
  */
 public final class ControlFlowChainGenerator extends AbstractGenerator
@@ -52,6 +53,8 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
   private final CallDetailsForOfFalse callDetailsForOfFalse = new CallDetailsForOfFalse();
   private final IRInstrToList irInstrToList = new IRInstrToList();
   private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
+  private final CallDetailsForIsTrue callDetailsForIsTrue = new CallDetailsForIsTrue();
+  private final OperatorMap operatorMap = new OperatorMap();
 
   public ControlFlowChainGenerator(final IRContext context,
                                    final Function<ExprProcessingDetails, List<IRInstr>> rawExprProcessor) {
@@ -226,21 +229,10 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
 
     // Get primitive condition for backend optimization
     final var primitiveCondition = context.generateTempName();
-    
-    // Create metadata for _true operator call on Boolean
-    final var metaDataExtractor = new CallMetaDataExtractor(context.getParsedModule().getEk9Types());
-    final var booleanType = context.getParsedModule().getEk9Types().ek9Boolean();
-    final var trueMethodOpt = (booleanType instanceof org.ek9lang.compiler.symbols.IScope scope) ?
-        scope.resolve(new org.ek9lang.compiler.search.SymbolSearch("_true")) :
-        java.util.Optional.<org.ek9lang.compiler.symbols.ISymbol>empty();
-    final var trueMetaData = trueMethodOpt.isPresent() ? 
-        metaDataExtractor.apply(trueMethodOpt.get()) : 
-        CallMetaData.defaultMetaData();
-    
+
     conditionEvaluationInstructions.add(CallInstr.operator(
         new VariableDetails(primitiveCondition, basicDetails),
-        new CallDetails(invertedCondition, EK9TypeNames.EK9_BOOLEAN, "_true",
-            List.of(), "boolean", List.of(), trueMetaData)
+        callDetailsForIsTrue.apply(invertedCondition)
     ));
 
     final var assignmentCase = ConditionCase.createExpression(
@@ -296,10 +288,10 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
 
     // Call _isSet() on loaded variable
     // For now use default metadata since type resolution from string is complex
-    final var isSetMetaData = CallMetaData.defaultMetaData();
-        
+    final var isSetMetaData = new CallMetaData(true, 0);
+    final var methodName = operatorMap.getForward("?");
     final var isSetCallDetails = new CallDetails(operandVariable, operandType,
-        "_isSet", List.of(), EK9TypeNames.EK9_BOOLEAN, List.of(), isSetMetaData);
+        methodName, List.of(), EK9TypeNames.EK9_BOOLEAN, List.of(), isSetMetaData);
     final var callInstructions = irInstrToList.apply(() -> CallInstr.operator(resultDetails, isSetCallDetails));
     instructions.addAll(callInstructions);
     variableMemoryManagement.apply(() -> callInstructions, resultDetails);
@@ -315,10 +307,11 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
                                                                    final String operandType,
                                                                    final VariableDetails resultDetails) {
     // For now use default metadata since type resolution from string is complex
-    final var isSetMetaData = CallMetaData.defaultMetaData();
-        
+    final var isSetMetaData = new CallMetaData(true, 0);
+
+    final var methodName = operatorMap.getForward("?");
     final var isSetCallDetails = new CallDetails(operandVariable, operandType,
-        "_isSet", List.of(), EK9TypeNames.EK9_BOOLEAN, List.of(), isSetMetaData);
+        methodName, List.of(), EK9TypeNames.EK9_BOOLEAN, List.of(), isSetMetaData);
 
     // Only manage memory for the _isSet() result, not the operand
     final var instructions = irInstrToList.apply(() -> CallInstr.operator(resultDetails, isSetCallDetails));
@@ -332,19 +325,12 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
   private List<IRInstr> generateBooleanNotEvaluation(final String booleanVariable,
                                                      final VariableDetails variableDetails) {
     final var booleanType = EK9TypeNames.EK9_BOOLEAN;
-    
+
     // Create metadata for _not operator call on Boolean
-    final var metaDataExtractor = new CallMetaDataExtractor(context.getParsedModule().getEk9Types());
-    final var booleanTypeSymbol = context.getParsedModule().getEk9Types().ek9Boolean();
-    final var notMethodOpt = (booleanTypeSymbol instanceof org.ek9lang.compiler.symbols.IScope scope) ?
-        scope.resolve(new org.ek9lang.compiler.search.SymbolSearch("_not")) :
-        java.util.Optional.<org.ek9lang.compiler.symbols.ISymbol>empty();
-    final var notMetaData = notMethodOpt.isPresent() ? 
-        metaDataExtractor.apply(notMethodOpt.get()) : 
-        CallMetaData.defaultMetaData();
-        
+    final var notMetaData = new CallMetaData(true, 0);
+    final var methodName = operatorMap.getForward("~");
     final var notCallDetails = new CallDetails(booleanVariable, booleanType,
-        "_not", List.of(), booleanType, List.of(), notMetaData);
+        methodName, List.of(), booleanType, List.of(), notMetaData);
 
     final var instructions = irInstrToList.apply(() -> CallInstr.operator(variableDetails, notCallDetails));
     variableMemoryManagement.apply(() -> instructions, variableDetails);
