@@ -12,7 +12,7 @@ import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.phase7.support.IRConstants;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -29,8 +29,8 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
 
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
-  ObjectAccessInstrGenerator(final IRContext context) {
-    super(context);
+  ObjectAccessInstrGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
   }
 
   /**
@@ -67,7 +67,7 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
               .toList();
 
           // Create metadata for constructor call
-          final var metaDataExtractor = new CallMetaDataExtractor(context.getParsedModule().getEk9Types());
+          final var metaDataExtractor = new CallMetaDataExtractor(stackContext.getParsedModule().getEk9Types());
           final var constructorMetaData = metaDataExtractor.apply(methodSymbol);
 
           // Generate constructor call using actual resolved type name with complete type information
@@ -126,7 +126,7 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
                 .toList();
 
             // Load the target object
-            final var tempObj = context.generateTempName();
+            final var tempObj = stackContext.generateTempName();
             instructions.add(MemoryInstr.load(tempObj, targetVar, debugInfo));
 
             // Extract arguments from the method call

@@ -7,7 +7,6 @@ import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.IRModule;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.phase7.support.IRContext;
-import org.ek9lang.compiler.phase7.support.IRFrameType;
 import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
@@ -43,13 +42,7 @@ final class IRDfnGenerator {
   private final CompilerFlags compilerFlags;
   private ParsedModule parsedModule;
   private final IRModule irModule;
-  private final IRGenerationContext stackContext;
-  private final ProgramDfnGenerator programCreator;
-  private final FunctionDfnGenerator functionCreator;
-  private final ClassDfnGenerator classCreator;
-  private final RecordDfnGenerator recordCreator;
-  private final TraitDfnGenerator traitCreator;
-  private final ComponentDfnGenerator componentCreator;
+  private final IRContext baseIRContext;
 
 
   IRDfnGenerator(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
@@ -67,28 +60,9 @@ final class IRDfnGenerator {
     compilableProgramAccess.accept(compilableProgram ->
         this.parsedModule = compilableProgram.getParsedModuleForCompilableSource(source));
 
-    // Create IRContext once and pass to all generators - eliminates break-apart-recreate pattern
-    var irContext = new org.ek9lang.compiler.phase7.support.IRContext(parsedModule, compilerFlags);
-    
-    // Create stack-based context for eliminating parameter threading
-    this.stackContext = new IRGenerationContext(irContext);
-    
-    // Initialize all creators with shared IRContext
-    programCreator = new ProgramDfnGenerator(irContext);
-    functionCreator = new FunctionDfnGenerator(irContext, stackContext);
-    classCreator = new ClassDfnGenerator(irContext);
-    recordCreator = new RecordDfnGenerator(irContext);
-    traitCreator = new TraitDfnGenerator(irContext);
-    componentCreator = new ComponentDfnGenerator(irContext);
+    // Create base IRContext once - will be used to create per-construct stack contexts
+    this.baseIRContext = new org.ek9lang.compiler.phase7.support.IRContext(parsedModule, compilerFlags);
 
-  }
-
-  /**
-   * Provide access to stack context for generators that need it.
-   * This enables gradual migration from parameter threading to stack-based context.
-   */
-  public IRGenerationContext getStackContext() {
-    return stackContext;
   }
 
   /**
@@ -99,21 +73,13 @@ final class IRDfnGenerator {
    */
   void create(final EK9Parser.CompilationUnitContext compilationUnitContext) {
 
-    // Use stack-based context for module-level scope
-    var debugInfo = stackContext.createDebugInfo(compilationUnitContext);
-    stackContext.enterScope("module", debugInfo, IRFrameType.MODULE);
-
-    try {
-      //Not that each module block can be processed in parallel
-      //Access to the irModule (add Construct) is synchronized.
-      compilationUnitContext
-          .moduleDeclaration()
-          .moduleBlock()
-          .parallelStream()
-          .forEach(this::createIRForModuleBlock);
-    } finally {
-      stackContext.exitScope();
-    }
+    //Note that each module block can be processed in parallel
+    //Access to the irModule (add Construct) is synchronized.
+    compilationUnitContext
+        .moduleDeclaration()
+        .moduleBlock()
+        .parallelStream()
+        .forEach(this::createIRForModuleBlock);
   }
 
   /**
@@ -186,44 +152,62 @@ final class IRDfnGenerator {
    * @param ctx the parse tree context that defines the method details.
    */
   public void processProgramDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
+    // Create isolated stack context for this program
+    var isolatedIRContext = new IRContext(baseIRContext);  // Creates fresh counters
+    var stackContext = new IRGenerationContext(isolatedIRContext);
+    var programCreator = new ProgramDfnGenerator(stackContext);
+    
     irModule.add(programCreator.apply(ctx));
   }
 
-  // Declaration processing methods with stack-based context
+  // Declaration processing methods with per-construct stack context
   private void processFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
-    // Use stack context for function-level scope
-    var debugInfo = stackContext.createDebugInfo(ctx);
-    stackContext.enterScope("function", debugInfo, IRFrameType.FUNCTION);
+    // Create isolated stack context for this function
+    var isolatedIRContext = new IRContext(baseIRContext);  // Creates fresh counters
+    var stackContext = new IRGenerationContext(isolatedIRContext);
+    var functionCreator = new FunctionDfnGenerator(stackContext);
     
-    try {
-      // Create the IR construct for this function and add to module
-      final var construct = functionCreator.apply(ctx);
-      irModule.add(construct);
-    } finally {
-      stackContext.exitScope();
-    }
+    // Create the IR construct for this function and add to module
+    final var construct = functionCreator.apply(ctx);
+    irModule.add(construct);
   }
 
   private void processRecordDeclaration(final EK9Parser.RecordDeclarationContext ctx) {
-    // Create the IR construct for this record and add to module
+    // Create isolated stack context for this record
+    var isolatedIRContext = new IRContext(baseIRContext);  // Creates fresh counters
+    var stackContext = new IRGenerationContext(isolatedIRContext);
+    var recordCreator = new RecordDfnGenerator(stackContext);
+    
     final var construct = recordCreator.apply(ctx);
     irModule.add(construct);
   }
 
   private void processClassDeclaration(final EK9Parser.ClassDeclarationContext ctx) {
-    // Create the IR construct for this class and add to module
+    // Create isolated stack context for this class
+    var isolatedIRContext = new IRContext(baseIRContext);  // Creates fresh counters
+    var stackContext = new IRGenerationContext(isolatedIRContext);
+    var classCreator = new ClassDfnGenerator(stackContext);
+    
     final var construct = classCreator.apply(ctx);
     irModule.add(construct);
   }
 
   private void processTraitDeclaration(final EK9Parser.TraitDeclarationContext ctx) {
-    // Create the IR construct for this trait and add to module
+    // Create isolated stack context for this trait
+    var isolatedIRContext = new IRContext(baseIRContext);  // Creates fresh counters
+    var stackContext = new IRGenerationContext(isolatedIRContext);
+    var traitCreator = new TraitDfnGenerator(stackContext);
+    
     final var construct = traitCreator.apply(ctx);
     irModule.add(construct);
   }
 
   private void processComponentDeclaration(final EK9Parser.ComponentDeclarationContext ctx) {
-    // Create the IR construct for this component and add to module
+    // Create isolated stack context for this component
+    var isolatedIRContext = new IRContext(baseIRContext);  // Creates fresh counters
+    var stackContext = new IRGenerationContext(isolatedIRContext);
+    var componentCreator = new ComponentDfnGenerator(stackContext);
+    
     final var construct = componentCreator.apply(ctx);
     irModule.add(construct);
   }

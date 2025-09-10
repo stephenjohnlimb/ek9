@@ -5,7 +5,6 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.Operation;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
-import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
@@ -20,16 +19,16 @@ import org.ek9lang.core.CompilerException;
 final class ProgramDfnGenerator extends AbstractDfnGenerator
     implements Function<EK9Parser.MethodDeclarationContext, IRConstruct> {
 
-  ProgramDfnGenerator(final IRContext irContext) {
-    super(new IRContext(irContext));
-    // Create a temporary stack context for OperationDfnGenerator
-    var tempStackContext = new IRGenerationContext(irContext);
-    super.operationDfnGenerator = new OperationDfnGenerator(tempStackContext);
+  /**
+   * Constructor using stack context - the single source of state.
+   */
+  ProgramDfnGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
   }
 
   @Override
   public IRConstruct apply(final EK9Parser.MethodDeclarationContext ctx) {
-    final var symbol = irContext.getParsedModule().getRecordedSymbol(ctx);
+    final var symbol = getParsedModule().getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
     if (symbol instanceof AggregateSymbol aggregateSymbol && symbol.getGenus() == SymbolGenus.PROGRAM) {

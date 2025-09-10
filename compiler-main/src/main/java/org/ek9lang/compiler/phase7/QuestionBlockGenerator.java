@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 
 /**
  * Generates IR instructions for question operator (?) using unified SWITCH_CHAIN_BLOCK.
@@ -25,10 +25,10 @@ public final class QuestionBlockGenerator extends AbstractGenerator
 
   private final ControlFlowChainGenerator controlFlowChainGenerator;
 
-  public QuestionBlockGenerator(final IRContext context,
+  public QuestionBlockGenerator(final IRGenerationContext stackContext,
                                 final Function<ExprProcessingDetails, List<IRInstr>> rawExprProcessor) {
-    super(context);
-    this.controlFlowChainGenerator = new ControlFlowChainGenerator(context, rawExprProcessor);
+    super(stackContext);
+    this.controlFlowChainGenerator = new ControlFlowChainGenerator(stackContext, rawExprProcessor);
   }
 
   @Override

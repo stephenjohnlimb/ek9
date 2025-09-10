@@ -7,7 +7,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ShouldRegisterVariableInScope;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
@@ -25,11 +25,11 @@ final class AssignExpressionToSymbol extends AbstractGenerator
   private final String scopeId;
   private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
 
-  AssignExpressionToSymbol(final IRContext context,
+  AssignExpressionToSymbol(final IRGenerationContext stackContext,
                            final boolean release,
                            final Function<String, List<IRInstr>> assignmentGenerator,
                            final String scopeId) {
-    super(context);
+    super(stackContext);
     this.assignmentGenerator = assignmentGenerator;
     this.release = release;
     this.scopeId = scopeId;
@@ -46,7 +46,7 @@ final class AssignExpressionToSymbol extends AbstractGenerator
     final var rhsExprSymbol = getRecordedSymbolOrException(ctx);
     final var rhsExprDebugInfo = debugInfoCreator.apply(rhsExprSymbol.getSourceToken());
 
-    final var rhsResult = context.generateTempName();
+    final var rhsResult = stackContext.generateTempName();
     final var basicDetails = new BasicDetails(scopeId, rhsExprDebugInfo);
     final var rhsVariableDetails = new VariableDetails(rhsResult, basicDetails);
 

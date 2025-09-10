@@ -11,7 +11,7 @@ import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.phase7.support.CallContext;
 import org.ek9lang.compiler.phase7.support.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
@@ -33,9 +33,9 @@ abstract class UnaryOperationGenerator extends AbstractGenerator
   private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
   private final CallDetailsBuilder callDetailsBuilder;
 
-  UnaryOperationGenerator(final IRContext context) {
-    super(context);
-    this.callDetailsBuilder = new CallDetailsBuilder(context);
+  UnaryOperationGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
+    this.callDetailsBuilder = new CallDetailsBuilder(stackContext.getCurrentIRContext());
   }
 
   @Override
@@ -51,7 +51,7 @@ abstract class UnaryOperationGenerator extends AbstractGenerator
     final var operandExpr = ctx.expression().getFirst();
 
     // Get operand variable - process the expression first with memory management
-    final var operandTemp = context.generateTempName();
+    final var operandTemp = stackContext.generateTempName();
     final var operandDetails = new VariableDetails(operandTemp, basicDetails);
 
     // Use recursive expression processing to handle the operand (e.g., for -(-x))

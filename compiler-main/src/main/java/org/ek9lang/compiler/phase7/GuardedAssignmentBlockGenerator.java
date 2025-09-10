@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 
 /**
  * Guarded assignment generator using unified CONTROL_FLOW_CHAIN approach.
@@ -26,16 +26,16 @@ final class GuardedAssignmentBlockGenerator extends AbstractGenerator
   private final ControlFlowChainGenerator controlFlowChainGenerator;
   private final AssignExpressionToSymbol assignExpressionToSymbol;
 
-  public GuardedAssignmentBlockGenerator(final IRContext context,
+  public GuardedAssignmentBlockGenerator(final IRGenerationContext stackContext,
                                          final QuestionBlockGenerator questionBlockGenerator,
                                          final AssignExpressionToSymbol assignExpressionToSymbol) {
-    super(context);
+    super(stackContext);
     this.assignExpressionToSymbol = assignExpressionToSymbol;
 
     // Extract RecordExprProcessing from the QuestionBlockGenerator's SwitchChainBlockGenerator
     // For now, create a new instance - in future this could be optimized to share instances
     // Pass null for both RecordExprProcessing and rawExprProcessor as this generator doesn't use expression processing
-    this.controlFlowChainGenerator = new ControlFlowChainGenerator(context, null);
+    this.controlFlowChainGenerator = new ControlFlowChainGenerator(stackContext, null);
   }
 
   @Override

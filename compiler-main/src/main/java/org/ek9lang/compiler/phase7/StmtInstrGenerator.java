@@ -6,7 +6,7 @@ import java.util.function.BiFunction;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
@@ -40,12 +40,12 @@ final class StmtInstrGenerator extends AbstractGenerator
   private final AssignmentStmtGenerator assignmentStmtGenerator;
   private final CallInstrGenerator callInstrGenerator;
 
-  StmtInstrGenerator(final IRContext context) {
-    super(context);
-    this.objectAccessGenerator = new ObjectAccessInstrGenerator(context);
-    this.assertStmtGenerator = new AssertStmtGenerator(context);
-    this.assignmentStmtGenerator = new AssignmentStmtGenerator(context);
-    this.callInstrGenerator = new CallInstrGenerator(context);
+  StmtInstrGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
+    this.objectAccessGenerator = new ObjectAccessInstrGenerator(stackContext);
+    this.assertStmtGenerator = new AssertStmtGenerator(stackContext);
+    this.assignmentStmtGenerator = new AssignmentStmtGenerator(stackContext);
+    this.callInstrGenerator = new CallInstrGenerator(stackContext);
   }
 
   /**
@@ -92,7 +92,7 @@ final class StmtInstrGenerator extends AbstractGenerator
   private void processObjectAccessExpression(final EK9Parser.ObjectAccessExpressionContext ctx,
                                              final String scopeId, final List<IRInstr> instructions) {
 
-    final var tempResult = context.generateTempName();
+    final var tempResult = stackContext.generateTempName();
     final var variableDetails = new VariableDetails(tempResult, new BasicDetails(scopeId, null));
     instructions.addAll(objectAccessGenerator.apply(ctx, variableDetails));
 
@@ -115,7 +115,7 @@ final class StmtInstrGenerator extends AbstractGenerator
   private void processCall(final EK9Parser.CallContext ctx,
                           final String scopeId, final List<IRInstr> instructions) {
 
-    final var tempResult = context.generateTempName();
+    final var tempResult = stackContext.generateTempName();
     final var variableDetails = new VariableDetails(tempResult, new BasicDetails(scopeId, null));
     instructions.addAll(callInstrGenerator.apply(ctx, variableDetails));
 

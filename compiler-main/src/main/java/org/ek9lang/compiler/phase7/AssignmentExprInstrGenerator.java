@@ -6,7 +6,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.core.AssertValue;
 
@@ -40,15 +40,15 @@ final class AssignmentExprInstrGenerator extends AbstractGenerator
   private final EK9Parser.AssignmentExpressionContext ctx;
   private final String scopeId;
 
-  AssignmentExprInstrGenerator(final IRContext context,
+  AssignmentExprInstrGenerator(final IRGenerationContext stackContext,
                                final EK9Parser.AssignmentExpressionContext ctx,
                                final String scopeId) {
-    super(context);
+    super(stackContext);
     AssertValue.checkNotNull("AssignmentExpressionContext cannot be null", ctx);
     AssertValue.checkNotNull("scopeId cannot be null", scopeId);
 
     this.scopeId = scopeId;
-    this.exprInstrGenerator = new ExprInstrGenerator(context);
+    this.exprInstrGenerator = new ExprInstrGenerator(stackContext);
     this.ctx = ctx;
   }
 

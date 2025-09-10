@@ -13,7 +13,7 @@ import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.CallContext;
 import org.ek9lang.compiler.phase7.support.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.support.ConstructorCallProcessor;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.symbols.CallSymbol;
@@ -45,11 +45,11 @@ final class CallInstrGenerator extends AbstractGenerator
   private final ConstructorCallProcessor constructorCallProcessor;
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
 
-  CallInstrGenerator(final IRContext context) {
-    super(context);
-    this.callDetailsBuilder = new CallDetailsBuilder(context);
-    this.exprGenerator = new ExprInstrGenerator(context);
-    this.constructorCallProcessor = new org.ek9lang.compiler.phase7.support.ConstructorCallProcessor(context);
+  CallInstrGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
+    this.callDetailsBuilder = new CallDetailsBuilder(stackContext.getCurrentIRContext());
+    this.exprGenerator = new ExprInstrGenerator(stackContext);
+    this.constructorCallProcessor = new org.ek9lang.compiler.phase7.support.ConstructorCallProcessor(stackContext);
   }
 
   @Override
@@ -127,7 +127,7 @@ final class CallInstrGenerator extends AbstractGenerator
     final var debugInfo = debugInfoCreator.apply(new Ek9Token(ctx.identifierReference().start));
 
     // Step 1: Get the singleton instance of the function
-    final var functionInstanceVar = context.generateTempName();
+    final var functionInstanceVar = stackContext.generateTempName();
     instructions.add(MemoryInstr.functionInstance(functionInstanceVar, fullyQualifiedFunctionName, debugInfo));
 
     // Step 2: Create CallContext for cost-based resolution and promotion
@@ -220,7 +220,7 @@ final class CallInstrGenerator extends AbstractGenerator
       // Process each parameter expression
       for (var exprParam : paramExpr.expressionParam()) {
         final var exprCtx = exprParam.expression();
-        final var argTemp = context.generateTempName();
+        final var argTemp = stackContext.generateTempName();
         final var argDetails = new VariableDetails(argTemp, new BasicDetails(scopeId, null));
 
         // Generate instructions to evaluate the argument expression

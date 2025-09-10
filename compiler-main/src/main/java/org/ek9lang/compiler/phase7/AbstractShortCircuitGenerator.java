@@ -11,7 +11,7 @@ import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.support.ConditionalEvaluation;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.OperandEvaluation;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
@@ -29,10 +29,10 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
   private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
   private final Function<LogicalDetails, IRInstr> logicalOperation;
 
-  AbstractShortCircuitGenerator(final IRContext context,
+  AbstractShortCircuitGenerator(final IRGenerationContext stackContext,
                                 final RecordExprProcessing recordExprProcessing,
                                 final Function<LogicalDetails, IRInstr> logicalOperation) {
-    super(context);
+    super(stackContext);
     this.recordExprProcessing = recordExprProcessing;
     this.logicalOperation = logicalOperation;
   }
@@ -50,23 +50,23 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
     final var basicDetails = new BasicDetails(scopeId, debugInfo);
 
-    final var lhsTemp = context.generateTempName();
+    final var lhsTemp = stackContext.generateTempName();
     final var lhsVariableDetails = new VariableDetails(lhsTemp, basicDetails);
     final var leftEvaluationInstructions = new ArrayList<>(
         recordExprProcessing.apply(new ExprProcessingDetails(ctx.left, lhsVariableDetails)));
 
     // Convert left operand to primitive boolean condition, so no need for memory management with primitives.
-    final var lhsPrimitive = context.generateTempName();
+    final var lhsPrimitive = stackContext.generateTempName();
     final var lhsCallDetails = callDetailsForTrue.apply(lhsTemp);
     leftEvaluationInstructions.add(CallInstr.call(lhsPrimitive, debugInfo, lhsCallDetails));
 
     // Right operand evaluation instructions (for non-short-circuit pathway)
-    final var rhsTemp = context.generateTempName();
+    final var rhsTemp = stackContext.generateTempName();
     final var rhsVariableDetails = new VariableDetails(rhsTemp, basicDetails);
     final var rightEvaluationInstructions = new ArrayList<>(
         recordExprProcessing.apply(new ExprProcessingDetails(ctx.right, rhsVariableDetails)));
 
-    final var result = context.generateTempName();
+    final var result = stackContext.generateTempName();
     final var resultComputationInstructions = new ArrayList<IRInstr>();
     final var callDetails = getCallDetails(lhsTemp, rhsTemp);
     resultComputationInstructions.add(CallInstr.operator(result, debugInfo, callDetails));

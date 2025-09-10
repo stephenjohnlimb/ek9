@@ -4,7 +4,7 @@ import java.util.List;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallMetaData;
 import org.ek9lang.compiler.ir.LogicalOperationInstr;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.compiler.support.EK9TypeNames;
 
@@ -24,9 +24,9 @@ import org.ek9lang.compiler.support.EK9TypeNames;
  */
 public final class ShortCircuitAndGenerator extends AbstractShortCircuitGenerator {
 
-  public ShortCircuitAndGenerator(final IRContext context,
+  public ShortCircuitAndGenerator(final IRGenerationContext stackContext,
                                   final RecordExprProcessing recordExprProcessing) {
-    super(context, recordExprProcessing, LogicalOperationInstr::andOperation);
+    super(stackContext, recordExprProcessing, LogicalOperationInstr::andOperation);
   }
 
   @Override

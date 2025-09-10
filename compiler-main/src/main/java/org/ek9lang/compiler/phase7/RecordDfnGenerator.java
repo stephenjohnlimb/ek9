@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase7;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRConstruct;
-import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
@@ -16,16 +15,16 @@ import org.ek9lang.core.CompilerException;
 final class RecordDfnGenerator extends AbstractDfnGenerator
     implements Function<EK9Parser.RecordDeclarationContext, IRConstruct> {
 
-  RecordDfnGenerator(final IRContext irContext) {
-    super(new IRContext(irContext));
-    // Create a temporary stack context for OperationDfnGenerator
-    var tempStackContext = new IRGenerationContext(irContext);
-    super.operationDfnGenerator = new OperationDfnGenerator(tempStackContext);
+  /**
+   * Constructor using stack context - the single source of state.
+   */
+  RecordDfnGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
   }
 
   @Override
   public IRConstruct apply(final EK9Parser.RecordDeclarationContext ctx) {
-    final var symbol = irContext.getParsedModule().getRecordedSymbol(ctx);
+    final var symbol = getParsedModule().getRecordedSymbol(ctx);
 
     if (symbol instanceof AggregateSymbol aggregateSymbol && symbol.getGenus() == SymbolGenus.RECORD) {
       final var construct = new IRConstruct(symbol);
@@ -45,13 +44,13 @@ final class RecordDfnGenerator extends AbstractDfnGenerator
                                                  final EK9Parser.AggregatePartsContext ctx) {
     // Create Operation nodes for each method in the record
     for (final var methodCtx : ctx.methodDeclaration()) {
-      final var symbol = irContext.getParsedModule().getRecordedSymbol(methodCtx);
+      final var symbol = getParsedModule().getRecordedSymbol(methodCtx);
       processAsMethodOrOperator(construct, symbol, methodCtx.operationDetails());
     }
 
     // Create Operation nodes for each operator in the record
     for (final var operatorCtx : ctx.operatorDeclaration()) {
-      final var symbol = irContext.getParsedModule().getRecordedSymbol(operatorCtx);
+      final var symbol = getParsedModule().getRecordedSymbol(operatorCtx);
       processAsMethodOrOperator(construct, symbol, operatorCtx.operationDetails());
     }
 

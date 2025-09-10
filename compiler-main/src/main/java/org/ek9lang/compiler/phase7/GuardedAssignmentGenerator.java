@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -29,12 +29,12 @@ final class GuardedAssignmentGenerator extends AbstractGenerator
 
   private final GuardedAssignmentBlockGenerator guardedAssignmentBlockGenerator;
 
-  public GuardedAssignmentGenerator(final IRContext context,
+  public GuardedAssignmentGenerator(final IRGenerationContext stackContext,
                                     final QuestionBlockGenerator questionBlockGenerator,
                                     final AssignExpressionToSymbol assignExpressionToSymbol) {
-    super(context);
+    super(stackContext);
     this.guardedAssignmentBlockGenerator = new GuardedAssignmentBlockGenerator(
-        context, questionBlockGenerator, assignExpressionToSymbol);
+        stackContext, questionBlockGenerator, assignExpressionToSymbol);
   }
 
   @Override

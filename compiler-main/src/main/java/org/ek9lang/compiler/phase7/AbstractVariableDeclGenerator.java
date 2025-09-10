@@ -6,7 +6,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.MemoryInstr;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.core.AssertValue;
 
@@ -18,8 +18,8 @@ abstract class AbstractVariableDeclGenerator extends AbstractGenerator {
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
 
-  AbstractVariableDeclGenerator(final IRContext context) {
-    super(context);
+  AbstractVariableDeclGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
   }
 
   public List<IRInstr> getDeclInstrs(final ParseTree ctx,

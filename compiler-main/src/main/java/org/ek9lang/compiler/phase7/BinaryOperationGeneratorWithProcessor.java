@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 
 /**
@@ -15,9 +15,9 @@ final class BinaryOperationGeneratorWithProcessor extends BinaryOperationGenerat
 
   private final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor;
 
-  BinaryOperationGeneratorWithProcessor(final IRContext context,
+  BinaryOperationGeneratorWithProcessor(final IRGenerationContext stackContext,
                                         final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor) {
-    super(context);
+    super(stackContext);
     this.expressionProcessor = expressionProcessor;
   }
 

@@ -23,15 +23,11 @@ import org.ek9lang.core.CompilerException;
  */
 public final class ConstructorCallProcessor {
 
-  private final IRContext context;
-  private final DebugInfoCreator debugInfoCreator;
-  private final CallMetaDataExtractor metaDataExtractor;
+  private final IRGenerationContext stackContext;
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
-  public ConstructorCallProcessor(final IRContext context) {
-    this.context = context;
-    this.debugInfoCreator = new DebugInfoCreator(context);
-    this.metaDataExtractor = new CallMetaDataExtractor(context.getParsedModule().getEk9Types());
+  public ConstructorCallProcessor(final IRGenerationContext stackContext) {
+    this.stackContext = stackContext;
   }
 
   /**
@@ -68,7 +64,7 @@ public final class ConstructorCallProcessor {
         : parentScope.toString();
 
     // 2. Debug Info Creation (identical in both generators)
-    final var debugInfo = debugInfoCreator.apply(callSymbol.getSourceToken());
+    final var debugInfo = stackContext.createDebugInfo(callSymbol.getSourceToken());
 
     // 3. Parameter Types Extraction (identical in both generators)
     final var parameterTypes = methodSymbol.getCallParameters().stream()
@@ -112,7 +108,7 @@ public final class ConstructorCallProcessor {
       // Process each parameter expression
       for (var exprParam : callContext.paramExpression().expressionParam()) {
         final var exprCtx = exprParam.expression();
-        final var argTemp = context.generateTempName();
+        final var argTemp = stackContext.generateTempName();
         final var argDetails = new VariableDetails(argTemp, new BasicDetails(scopeId, null));
 
         // Generate instructions to evaluate the argument expression
@@ -140,6 +136,7 @@ public final class ConstructorCallProcessor {
    * Extract call metadata for the given symbol.
    */
   private CallMetaData extractCallMetaData(final ISymbol symbol) {
+    final var metaDataExtractor = new CallMetaDataExtractor(stackContext.getParsedModule().getEk9Types());
     return symbol != null ? metaDataExtractor.apply(symbol) : CallMetaData.defaultMetaData();
   }
 }

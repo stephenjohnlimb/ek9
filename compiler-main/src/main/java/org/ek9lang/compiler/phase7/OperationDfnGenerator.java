@@ -134,7 +134,7 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
     var instructionBuilder = new IRInstructionBuilder(stackContext);
 
     // Use current stack-based IRContext for proper counter isolation
-    final var variableCreator = new VariableDeclInstrGenerator(stackContext.getCurrentIRContext());
+    final var variableCreator = new VariableDeclInstrGenerator(stackContext);
     final var variableOnlyCreator = new VariableOnlyDeclInstrGenerator(instructionBuilder);
     final var scopeId = stackContext.generateScopeId(IRConstants.RETURN_SCOPE);
 
@@ -164,7 +164,7 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
   private List<IRInstr> processInstructionBlock(final EK9Parser.InstructionBlockContext ctx) {
     final var instructions = new ArrayList<IRInstr>();
     // Use current stack-based IRContext for proper counter isolation
-    final var blockStatementCreator = new BlockStmtInstrGenerator(stackContext.getCurrentIRContext());
+    final var blockStatementCreator = new BlockStmtInstrGenerator(stackContext);
     final var scopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     final var debugInfo = stackContext.createDebugInfo(ctx.start);
 

@@ -22,7 +22,7 @@ import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.support.CallDetailsForOfFalse;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.IRInstrToList;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
@@ -56,9 +56,9 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
   private final CallDetailsForIsTrue callDetailsForIsTrue = new CallDetailsForIsTrue();
   private final OperatorMap operatorMap = new OperatorMap();
 
-  public ControlFlowChainGenerator(final IRContext context,
+  public ControlFlowChainGenerator(final IRGenerationContext stackContext,
                                    final Function<ExprProcessingDetails, List<IRInstr>> rawExprProcessor) {
-    super(context);
+    super(stackContext);
     this.rawExprProcessor = rawExprProcessor;
   }
 
@@ -110,7 +110,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var operandBasicDetails = new BasicDetails(basicDetails.scopeId(), debugInfo);
 
     // Generate operand evaluation WITHOUT memory management (question operator is self-contained)
-    final var operandVariable = context.generateTempName();
+    final var operandVariable = stackContext.generateTempName();
     final var operandVariableDetails = new VariableDetails(operandVariable, operandBasicDetails);
 
     // Use raw processor to avoid automatic RETAIN/SCOPE_REGISTER on operand
@@ -118,10 +118,10 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         rawExprProcessor.apply(new ExprProcessingDetails(ctx.expression(0), operandVariableDetails)));
 
     // Add explicit IS_NULL check directly on operand (no memory management needed)
-    final var nullCheckCondition = context.generateTempName();
+    final var nullCheckCondition = stackContext.generateTempName();
     operandEvaluationInstructions.add(MemoryInstr.isNull(nullCheckCondition, operandVariable, debugInfo));
 
-    final var nullCaseResult = context.generateTempName();
+    final var nullCaseResult = stackContext.generateTempName();
     final var nullCaseDetails = new VariableDetails(nullCaseResult, operandBasicDetails);
     final var nullCaseEvaluation = generateBooleanFalseEvaluation(nullCaseDetails);
 
@@ -136,7 +136,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
 
     // Create default case: else return operand._isSet()
     // Only the _isSet() result needs memory management, not the operand
-    final var setCaseResult = context.generateTempName();
+    final var setCaseResult = stackContext.generateTempName();
     final var setCaseDetails = new VariableDetails(setCaseResult, operandBasicDetails);
     final var setCaseEvaluation = generateIsSetEvaluationNoOperandManagement(operandVariable,
         typeNameOrException.apply(exprSymbol), setCaseDetails);
@@ -164,11 +164,11 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var operandEvaluationInstructions = new ArrayList<IRInstr>();
 
     // Add explicit IS_NULL check directly on the variable
-    final var nullCheckCondition = context.generateTempName();
+    final var nullCheckCondition = stackContext.generateTempName();
     operandEvaluationInstructions.add(
         MemoryInstr.isNull(nullCheckCondition, variableSymbol.getName(), basicDetails.debugInfo()));
 
-    final var nullCaseResult = context.generateTempName();
+    final var nullCaseResult = stackContext.generateTempName();
     final var nullCaseDetails = new VariableDetails(nullCaseResult, basicDetails);
     final var nullCaseEvaluation = generateBooleanFalseEvaluation(nullCaseDetails);
 
@@ -183,10 +183,10 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
 
     // Create default case: else return variable._isSet()
     // Need to load variable for _isSet() method call (but not for null check)
-    final var operandVariable = context.generateTempName();
+    final var operandVariable = stackContext.generateTempName();
     final var operandDetails = new VariableDetails(operandVariable, basicDetails);
 
-    final var setCaseResult = context.generateTempName();
+    final var setCaseResult = stackContext.generateTempName();
     final var setCaseDetails = new VariableDetails(setCaseResult, basicDetails);
     final var setCaseEvaluation = generateIsSetEvaluationForVariable(variableSymbol.getName(),
         operandVariable, operandDetails, typeNameOrException.apply(variableSymbol), setCaseDetails);
@@ -213,12 +213,12 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
                                                  final BasicDetails basicDetails) {
 
     // Generate question operator for condition: lhsSymbol?
-    final var conditionResult = context.generateTempName();
+    final var conditionResult = stackContext.generateTempName();
     final var questionOperatorInstructions = generateQuestionOperatorForVariable(
         lhsSymbol, conditionResult, basicDetails);
 
     // Invert the condition: assign when NOT set (when question operator returns false)
-    final var invertedCondition = context.generateTempName();
+    final var invertedCondition = stackContext.generateTempName();
     final var invertedConditionDetails = new VariableDetails(invertedCondition, basicDetails);
     final var inversionInstructions = generateBooleanNotEvaluation(conditionResult, invertedConditionDetails);
 
@@ -228,7 +228,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     conditionEvaluationInstructions.addAll(inversionInstructions);
 
     // Get primitive condition for backend optimization
-    final var primitiveCondition = context.generateTempName();
+    final var primitiveCondition = stackContext.generateTempName();
 
     conditionEvaluationInstructions.add(CallInstr.operator(
         new VariableDetails(primitiveCondition, basicDetails),

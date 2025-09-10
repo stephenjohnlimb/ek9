@@ -7,15 +7,12 @@ import org.ek9lang.compiler.ir.BranchInstr;
 import org.ek9lang.compiler.ir.CallDetails;
 import org.ek9lang.compiler.ir.CallInstr;
 import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.Operation;
-import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.FieldCreator;
 import org.ek9lang.compiler.phase7.support.FieldsFromCapture;
 import org.ek9lang.compiler.phase7.support.IRConstants;
-import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.phase7.support.IRFrameType;
 import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
@@ -24,7 +21,6 @@ import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.symbols.VariableSymbol;
-import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -37,13 +33,12 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     implements Function<EK9Parser.FunctionDeclarationContext, IRConstruct> {
 
   private final NotImplicitSuper notImplicitSuper = new NotImplicitSuper();
-  private final IRGenerationContext stackContext;
 
-  FunctionDfnGenerator(final IRContext irContext, final IRGenerationContext stackContext) {
-    super(new IRContext(irContext));
-    AssertValue.checkNotNull("Stack context cannot be null", stackContext);
-    super.operationDfnGenerator = new OperationDfnGenerator(stackContext);
-    this.stackContext = stackContext;
+  /**
+   * Constructor using only stack context - the single source of state.
+   */
+  FunctionDfnGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
   }
 
   @Override
@@ -51,8 +46,8 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     // Use stack context for function-level coordination
     var debugInfo = stackContext.createDebugInfo(ctx);
     stackContext.enterScope("function-generation", debugInfo, IRFrameType.FUNCTION);
-    
-    final var symbol = irContext.getParsedModule().getRecordedSymbol(ctx);
+
+    final var symbol = getParsedModule().getRecordedSymbol(ctx);
 
     if (symbol instanceof FunctionSymbol functionSymbol && symbol.getGenus() == SymbolGenus.FUNCTION) {
       final var construct = new IRConstruct(symbol);
@@ -74,7 +69,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
 
   private void createFieldDeclarations(final IRConstruct construct, final FunctionSymbol functionSymbol) {
 
-    final var debugInfoCreator = new DebugInfoCreator(irContext);
+    final var debugInfoCreator = createDebugInfoCreator();
     final var fieldCreator = new FieldCreator(construct, debugInfoCreator);
     final var fieldsFromCapture = new FieldsFromCapture(fieldCreator);
 
@@ -91,9 +86,8 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
 
   private void createInitOperation(final IRConstruct construct, final FunctionSymbol functionSymbol) {
     // Create a synthetic method symbol for c_init is when the class/construct definition is actually loaded.
-    final var context = newPerConstructContext();
-    final var cInitOperation = newSyntheticInitOperation(context, functionSymbol, IRConstants.C_INIT_METHOD);
-    
+    final var cInitOperation = newSyntheticInitOperation(functionSymbol, IRConstants.C_INIT_METHOD);
+
     // Use stack context for method-level coordination with fresh IRContext
     var debugInfo = stackContext.createDebugInfo(functionSymbol.getSourceToken());
     stackContext.enterMethodScope("c_init", debugInfo, IRFrameType.METHOD);
@@ -110,7 +104,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
       // Check if this is an explicit inheritance (not implicit base class)
       if (notImplicitSuper.test(superSymbol)) {
         // Try to find c_init method symbol in super function for metadata
-        final var metaDataExtractor = new CallMetaDataExtractor(irContext.getParsedModule().getEk9Types());
+        final var metaDataExtractor = createCallMetaDataExtractor();
         final var cInitMethodOpt = superSymbol.resolve(new SymbolSearch(IRConstants.C_INIT_METHOD));
         final var metaData = cInitMethodOpt.isPresent() ? metaDataExtractor.apply(cInitMethodOpt.get()) :
             CallMetaData.defaultMetaData();
@@ -141,9 +135,8 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
 
   private void createInstanceInitOperation(final IRConstruct construct,
                                            final FunctionSymbol functionSymbol) {
-    final var context = newPerConstructContext();
-    final var iInitOperation = newSyntheticInitOperation(context, functionSymbol, IRConstants.I_INIT_METHOD);
-    
+    final var iInitOperation = newSyntheticInitOperation(functionSymbol, IRConstants.I_INIT_METHOD);
+
     // Use stack context for method-level coordination with fresh IRContext
     var debugInfo = stackContext.createDebugInfo(functionSymbol.getSourceToken());
     stackContext.enterMethodScope("i_init", debugInfo, IRFrameType.METHOD);
@@ -173,7 +166,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     final var constructorMethod = createSyntheticFunctionConstructorMethod(functionSymbol);
     var debugInfo = stackContext.createDebugInfo(constructorMethod.getSourceToken());
     stackContext.enterMethodScope("constructor", debugInfo, IRFrameType.METHOD);
-    
+
     processSyntheticConstructor(construct, constructorMethod);
     stackContext.exitScope();
 
@@ -284,7 +277,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
       // Only make super call if it's not the implicit base class (like Object)
       if (notImplicitSuper.test(superSymbol)) {
         // Try to find constructor symbol in super function for metadata
-        final var metaDataExtractor = new CallMetaDataExtractor(irContext.getParsedModule().getEk9Types());
+        final var metaDataExtractor = createCallMetaDataExtractor();
         final var constructorSymbolOpt =
             superSymbol.resolve(new SymbolSearch(superSymbol.getName()));
         final var metaData = constructorSymbolOpt.isPresent() ? metaDataExtractor.apply(constructorSymbolOpt.get()) :
@@ -305,7 +298,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
 
     // 2. Call own class's i_init method to initialize this class's fields
     // Try to find i_init method symbol for metadata
-    final var metaDataExtractor = new CallMetaDataExtractor(irContext.getParsedModule().getEk9Types());
+    final var metaDataExtractor = createCallMetaDataExtractor();
     final var iInitMethodOpt =
         aggregateSymbol.resolve(new SymbolSearch(IRConstants.I_INIT_METHOD));
     final var iInitMetaData = iInitMethodOpt.isPresent() ? metaDataExtractor.apply(iInitMethodOpt.get()) :

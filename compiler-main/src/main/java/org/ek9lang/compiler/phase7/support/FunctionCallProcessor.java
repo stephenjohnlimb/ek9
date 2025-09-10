@@ -27,26 +27,22 @@ import org.ek9lang.core.CompilerException;
  */
 public final class FunctionCallProcessor implements Function<CallProcessingDetails, List<IRInstr>> {
 
-  private final IRContext context;
-  private final CallDetailsBuilder callDetailsBuilder;
+  private final IRGenerationContext stackContext;
   private final VariableMemoryManagement variableMemoryManagement;
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
-  private final DebugInfoCreator debugInfoCreator;
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
 
-  public FunctionCallProcessor(final IRContext context) {
-    AssertValue.checkNotNull("IRContext cannot be null", context);
-    this.context = context;
-    this.callDetailsBuilder = new CallDetailsBuilder(context);
+  public FunctionCallProcessor(final IRGenerationContext stackContext) {
+    AssertValue.checkNotNull("IRGenerationContext cannot be null", stackContext);
+    this.stackContext = stackContext;
     this.variableMemoryManagement = new VariableMemoryManagement();
-    this.debugInfoCreator = new DebugInfoCreator(context);
   }
 
   /**
    * Get recorded symbol or throw exception if not found.
    */
   private ISymbol getRecordedSymbolOrException(org.antlr.v4.runtime.tree.ParseTree node) {
-    final var rtn = context.getParsedModule().getRecordedSymbol(node);
+    final var rtn = stackContext.getParsedModule().getRecordedSymbol(node);
     AssertValue.checkNotNull("Symbol should be resolved by phases 1-6", rtn);
     AssertValue.checkTrue("Symbol must have been given a type by phase 7", rtn.getType().isPresent());
     return rtn;
@@ -116,16 +112,17 @@ public final class FunctionCallProcessor implements Function<CallProcessingDetai
     final var methodCallContext = createCallContext(functionSymbol, argumentDetails, details);
 
     // Step 3: Use CallDetailsBuilder for unified method resolution with promotion
+    final var callDetailsBuilder = new CallDetailsBuilder(stackContext.getCurrentIRContext());
     final var callDetailsResult = callDetailsBuilder.apply(methodCallContext);
 
     // Step 4: Add any promotion instructions 
     instructions.addAll(callDetailsResult.allInstructions());
 
     // Step 5: Generate function instance and call instructions
-    final var debugInfo = debugInfoCreator.apply(new Ek9Token(callContext.start));
+    final var debugInfo = stackContext.createDebugInfo(new Ek9Token(callContext.start));
 
     // Get the singleton instance of the function
-    final var functionInstanceVar = context.generateTempName();
+    final var functionInstanceVar = stackContext.generateTempName();
     final var fullyQualifiedFunctionName = functionSymbol.getFullyQualifiedName();
     instructions.add(MemoryInstr.functionInstance(functionInstanceVar, fullyQualifiedFunctionName, debugInfo));
 
@@ -166,7 +163,7 @@ public final class FunctionCallProcessor implements Function<CallProcessingDetai
       // Process each parameter expression
       for (var exprParam : paramExpr.expressionParam()) {
         final var exprCtx = exprParam.expression();
-        final var argTemp = context.generateTempName();
+        final var argTemp = stackContext.generateTempName();
         final var argDetails = new VariableDetails(argTemp,
             new BasicDetails(scopeId, null));
 
@@ -201,7 +198,7 @@ public final class FunctionCallProcessor implements Function<CallProcessingDetai
     // The method name is always "_call" for function calls
     return new CallContext(
         functionSymbol,                    // Target type (the function itself)
-        context.generateTempName(),        // Target variable (will be function instance)
+        stackContext.generateTempName(),        // Target variable (will be function instance)
         "_call",                          // Method name (always "_call" for functions)
         argumentDetails.argumentSymbols(), // Argument types for promotion analysis
         argumentDetails.argumentVariables(), // Argument variables

@@ -14,7 +14,7 @@ import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.CallContext;
 import org.ek9lang.compiler.phase7.support.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
@@ -42,9 +42,9 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
   private final CallDetailsBuilder callDetailsBuilder;
 
-  AssignmentStmtGenerator(final IRContext context) {
-    super(context);
-    this.callDetailsBuilder = new CallDetailsBuilder(context);
+  AssignmentStmtGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
+    this.callDetailsBuilder = new CallDetailsBuilder(stackContext.getCurrentIRContext());
   }
 
   @Override
@@ -85,13 +85,13 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     final var lhsSymbol = getRecordedSymbolOrException(ctx.identifier());
 
-    final var generator = new AssignmentExprInstrGenerator(context, ctx.assignmentExpression(), scopeId);
+    final var generator = new AssignmentExprInstrGenerator(stackContext, ctx.assignmentExpression(), scopeId);
 
     if (isMethodBasedAssignment(ctx.op)) {
       processMethodBasedAssignment(ctx, lhsSymbol, scopeId, instructions);
       return; // Early return since method-based assignment is complete
     }
-    final var assignExpressionToSymbol = new AssignExpressionToSymbol(context, true, generator, scopeId);
+    final var assignExpressionToSymbol = new AssignExpressionToSymbol(stackContext, true, generator, scopeId);
 
     if (isGuardedAssignment(ctx.op)) {
 
@@ -113,8 +113,8 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     final Function<ExprProcessingDetails, List<IRInstr>>
         expressionProcessor = details -> generator.apply(details.variableDetails().resultVariable());
-    final var questionBlockGenerator = new QuestionBlockGenerator(context, expressionProcessor);
-    return new GuardedAssignmentGenerator(context, questionBlockGenerator, assignExpressionToSymbol);
+    final var questionBlockGenerator = new QuestionBlockGenerator(stackContext, expressionProcessor);
+    return new GuardedAssignmentGenerator(stackContext, questionBlockGenerator, assignExpressionToSymbol);
 
   }
 
@@ -133,7 +133,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     final var methodName = operatorMap.getForward(ctx.op.getText());
 
     // Process left operand with proper memory management
-    final var leftTemp = context.generateTempName();
+    final var leftTemp = stackContext.generateTempName();
     final var leftDetails = new VariableDetails(leftTemp, basicDetails);
     final var leftLoadInstr = MemoryInstr.load(leftTemp, lhsSymbol.getName(), debugInfo);
     final var variableMemoryManagement = new org.ek9lang.compiler.phase7.support.VariableMemoryManagement();
@@ -145,7 +145,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     instructions.addAll(leftInstructions);
 
     // Process right operand with proper memory management
-    final var rightTemp = context.generateTempName();
+    final var rightTemp = stackContext.generateTempName();
     final var rightDetails = new VariableDetails(rightTemp, basicDetails);
     final var rightEvaluation = processAssignmentExpression(ctx.assignmentExpression(), rightDetails);
     instructions.addAll(variableMemoryManagement.apply(() -> rightEvaluation, rightDetails));
@@ -186,7 +186,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     // Use existing assignment expression generator to handle the right-hand side
     final var generator =
-        new AssignmentExprInstrGenerator(context, assignExprCtx, variableDetails.basicDetails().scopeId());
+        new AssignmentExprInstrGenerator(stackContext, assignExprCtx, variableDetails.basicDetails().scopeId());
     return generator.apply(variableDetails.resultVariable());
   }
 }

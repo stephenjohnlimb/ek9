@@ -9,7 +9,7 @@ import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.phase7.support.CallContext;
 import org.ek9lang.compiler.phase7.support.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
@@ -30,9 +30,9 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
   private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
   private final CallDetailsBuilder callDetailsBuilder;
 
-  BinaryOperationGenerator(final IRContext context) {
-    super(context);
-    this.callDetailsBuilder = new CallDetailsBuilder(context);
+  BinaryOperationGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
+    this.callDetailsBuilder = new CallDetailsBuilder(stackContext.getCurrentIRContext());
   }
 
   @Override
@@ -50,13 +50,13 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
     final var rightExpr = ctx.right != null ? ctx.right : ctx.expression().get(1);
 
     // Process left operand with memory management
-    final var leftTemp = context.generateTempName();
+    final var leftTemp = stackContext.generateTempName();
     final var leftDetails = new VariableDetails(leftTemp, basicDetails);
     final var leftEvaluation = processOperandExpression(leftExpr, leftDetails);
     final var instructions = new ArrayList<>(variableMemoryManagement.apply(() -> leftEvaluation, leftDetails));
 
     // Process right operand with memory management
-    final var rightTemp = context.generateTempName();
+    final var rightTemp = stackContext.generateTempName();
     final var rightDetails = new VariableDetails(rightTemp, basicDetails);
     final var rightEvaluation = processOperandExpression(rightExpr, rightDetails);
     instructions.addAll(variableMemoryManagement.apply(() -> rightEvaluation, rightDetails));

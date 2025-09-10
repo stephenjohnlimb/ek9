@@ -11,7 +11,7 @@ import org.ek9lang.compiler.ir.MemoryInstr;
 import org.ek9lang.compiler.phase7.support.ConstructorCallProcessor;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.FunctionCallProcessor;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.LiteralProcessingDetails;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
@@ -82,19 +82,19 @@ final class ExprInstrGenerator extends AbstractGenerator
   private final ConstructorCallProcessor constructorCallProcessor;
   private final FunctionCallProcessor functionCallProcessor;
 
-  ExprInstrGenerator(final IRContext context) {
-    super(context);
+  ExprInstrGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
 
     final RecordExprProcessing recordExprProcessing = new RecordExprProcessing(this::process);
 
-    this.objectAccessCreator = new ObjectAccessInstrGenerator(context);
-    this.shortCircuitAndGenerator = new ShortCircuitAndGenerator(context, recordExprProcessing);
-    this.shortCircuitOrGenerator = new ShortCircuitOrGenerator(context, recordExprProcessing);
-    this.questionBlockGenerator = new QuestionBlockGenerator(context, this::process);
-    this.unaryOperationGenerator = new UnaryOperationGeneratorWithProcessor(context, this::process);
-    this.binaryOperationGenerator = new BinaryOperationGeneratorWithProcessor(context, this::process);
-    this.constructorCallProcessor = new ConstructorCallProcessor(context);
-    this.functionCallProcessor = new FunctionCallProcessor(context);
+    this.objectAccessCreator = new ObjectAccessInstrGenerator(stackContext);
+    this.shortCircuitAndGenerator = new ShortCircuitAndGenerator(stackContext, recordExprProcessing);
+    this.shortCircuitOrGenerator = new ShortCircuitOrGenerator(stackContext, recordExprProcessing);
+    this.questionBlockGenerator = new QuestionBlockGenerator(stackContext, this::process);
+    this.unaryOperationGenerator = new UnaryOperationGeneratorWithProcessor(stackContext, this::process);
+    this.binaryOperationGenerator = new BinaryOperationGeneratorWithProcessor(stackContext, this::process);
+    this.constructorCallProcessor = new ConstructorCallProcessor(stackContext);
+    this.functionCallProcessor = new FunctionCallProcessor(stackContext);
   }
 
   /**

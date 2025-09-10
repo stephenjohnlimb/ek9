@@ -5,7 +5,7 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 
 /**
@@ -16,9 +16,9 @@ final class UnaryOperationGeneratorWithProcessor extends UnaryOperationGenerator
 
   private final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor;
 
-  UnaryOperationGeneratorWithProcessor(final IRContext context,
+  UnaryOperationGeneratorWithProcessor(final IRGenerationContext stackContext,
                                        final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor) {
-    super(context);
+    super(stackContext);
     this.expressionProcessor = expressionProcessor;
   }
 

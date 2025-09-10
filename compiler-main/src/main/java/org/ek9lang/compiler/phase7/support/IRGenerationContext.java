@@ -170,13 +170,11 @@ public class IRGenerationContext {
   public IRContext getCurrentIRContext() {
     // Traverse up the stack to find the first frame with IRContext (method-level)
     var methodContext = irGenerationStack.traverseBackToContextData(IRContext.class);
-    if (methodContext.isPresent()) {
-      return methodContext.get();
-    }
+    return methodContext.orElse(irContext);
     
-    // If no method-level context found, create a fresh one for counter isolation
-    // This ensures each method gets fresh temp1, temp2, etc. counters
-    return new IRContext(irContext);
+    // If no method-level context found, this indicates a problem with scope management
+    // For now, return the base context to avoid creating fresh contexts on every call
+    // This should not happen if enterMethodScope() is called correctly
   }
 
   /**

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -28,11 +28,11 @@ final class BlockStmtInstrGenerator extends AbstractGenerator {
   private final VariableOnlyDeclInstrGenerator variableOnlyDeclarationCreator;
   private final StmtInstrGenerator statementInstructionCreator;
 
-  BlockStmtInstrGenerator(final IRContext context) {
-    super(context);
-    this.variableDeclarationCreator = new VariableDeclInstrGenerator(context);
+  BlockStmtInstrGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
+    this.variableDeclarationCreator = new VariableDeclInstrGenerator(stackContext);
     this.variableOnlyDeclarationCreator = new VariableOnlyDeclInstrGenerator(instructionBuilder);
-    this.statementInstructionCreator = new StmtInstrGenerator(context);
+    this.statementInstructionCreator = new StmtInstrGenerator(stackContext);
   }
 
   /**

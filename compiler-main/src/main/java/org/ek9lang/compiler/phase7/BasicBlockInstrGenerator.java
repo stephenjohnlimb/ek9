@@ -6,7 +6,7 @@ import org.ek9lang.compiler.ir.BasicBlockInstr;
 import org.ek9lang.compiler.ir.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRConstants;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
@@ -27,18 +27,18 @@ final class BasicBlockInstrGenerator extends AbstractGenerator
 
   private final BlockStmtInstrGenerator blockStatementCreator;
 
-  BasicBlockInstrGenerator(final IRContext context) {
-    super(context);
-    this.blockStatementCreator = new BlockStmtInstrGenerator(context);
+  BasicBlockInstrGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
+    this.blockStatementCreator = new BlockStmtInstrGenerator(stackContext);
   }
 
   @Override
   public BasicBlockInstr apply(final EK9Parser.InstructionBlockContext ctx) {
     AssertValue.checkNotNull("InstructionBlockContext cannot be null", ctx);
 
-    final var debugInfoCreator = new DebugInfoCreator(context);
-    final var blockLabel = context.generateBlockLabel("block");
-    final var scopeId = context.generateScopeId(IRConstants.GENERAL_SCOPE);
+    final var debugInfoCreator = new DebugInfoCreator(stackContext.getCurrentIRContext());
+    final var blockLabel = stackContext.generateBlockLabel("block");
+    final var scopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     final var block = new BasicBlockInstr(blockLabel);
     final var debugInfo = debugInfoCreator.apply(new Ek9Token(ctx.start));
 

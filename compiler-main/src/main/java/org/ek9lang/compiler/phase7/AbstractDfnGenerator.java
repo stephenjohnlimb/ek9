@@ -1,11 +1,14 @@
 package org.ek9lang.compiler.phase7;
 
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.ParsedModule;
+import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.Operation;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -20,13 +23,38 @@ import org.ek9lang.core.CompilerException;
  */
 abstract class AbstractDfnGenerator {
 
-  protected OperationDfnGenerator operationDfnGenerator;
-  protected final IRContext irContext;
+  protected final OperationDfnGenerator operationDfnGenerator;
+  protected final IRGenerationContext stackContext;
   protected final String voidStr;
 
-  AbstractDfnGenerator(final IRContext irContext) {
-    this.irContext = irContext;
-    this.voidStr = irContext.getParsedModule().getEk9Types().ek9Void().getFullyQualifiedName();
+  /**
+   * Primary constructor using stack context - the single source of truth.
+   */
+  AbstractDfnGenerator(final IRGenerationContext stackContext) {
+    this.stackContext = stackContext;
+    this.operationDfnGenerator = new OperationDfnGenerator(stackContext);
+    this.voidStr = stackContext.getParsedModule().getEk9Types().ek9Void().getFullyQualifiedName();
+  }
+
+  /**
+   * Get the parsed module from stack context - the single source of truth.
+   */
+  protected ParsedModule getParsedModule() {
+    return stackContext.getParsedModule();
+  }
+
+  /**
+   * Create CallMetaDataExtractor using stack context - the single source of truth.
+   */
+  protected CallMetaDataExtractor createCallMetaDataExtractor() {
+    return new CallMetaDataExtractor(getParsedModule().getEk9Types());
+  }
+
+  /**
+   * Create DebugInfoCreator using stack context - the single source of truth.
+   */
+  protected DebugInfoCreator createDebugInfoCreator() {
+    return new DebugInfoCreator(stackContext.getCurrentIRContext());
   }
 
   protected void processAsMethodOrOperator(final IRConstruct construct,
@@ -38,10 +66,16 @@ abstract class AbstractDfnGenerator {
     AssertValue.checkNotNull("Ctx cannot be null", ctx);
 
     if (symbol instanceof MethodSymbol method) {
-      final var debugInfo =
-          new DebugInfoCreator(irContext).apply(method.getSourceToken());
+      final var debugInfo = createDebugInfoCreator().apply(method.getSourceToken());
       final var operation = new Operation(method, debugInfo);
+      
+      // Use stack context for method-level coordination with fresh IRContext
+      var methodDebugInfo = stackContext.createDebugInfo(method.getSourceToken());
+      stackContext.enterMethodScope(method.getName(), methodDebugInfo, org.ek9lang.compiler.phase7.support.IRFrameType.METHOD);
+      
       operationDfnGenerator.accept(operation, ctx);
+      
+      stackContext.exitScope();
       construct.add(operation);
     } else {
       throw new CompilerException("Expecting a Method Symbol");
@@ -54,15 +88,14 @@ abstract class AbstractDfnGenerator {
    * while sharing the core parsedModule and compilerFlags.
    */
   protected IRContext newPerConstructContext() {
-    return new IRContext(irContext);
+    return new IRContext(stackContext.getCurrentIRContext());
   }
 
-  protected Operation newSyntheticInitOperation(final IRContext context,
-                                                final IScope scope,
+  protected Operation newSyntheticInitOperation(final IScope scope,
                                                 final String methodName) {
 
     final var method = newSyntheticInitMethodSymbol(scope, methodName);
-    final var debugInfo = new DebugInfoCreator(context).apply(method.getSourceToken());
+    final var debugInfo = createDebugInfoCreator().apply(method.getSourceToken());
     return new Operation(method, debugInfo);
 
   }
@@ -70,7 +103,7 @@ abstract class AbstractDfnGenerator {
   private MethodSymbol newSyntheticInitMethodSymbol(final IScope scope,
                                                     final String methodName) {
     final var methodSymbol = new MethodSymbol(methodName, scope);
-    final ISymbol returnType = irContext.getParsedModule().getEk9Types().ek9Void();
+    final ISymbol returnType = stackContext.getParsedModule().getEk9Types().ek9Void();
     methodSymbol.setType(returnType);
     methodSymbol.setReturningSymbol(new VariableSymbol(IRConstants.RETURN_VARIABLE, returnType));
     methodSymbol.setMarkedPure(true); // Initialization methods are pure

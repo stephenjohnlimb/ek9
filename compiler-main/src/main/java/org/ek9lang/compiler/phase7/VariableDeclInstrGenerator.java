@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -14,9 +14,9 @@ import org.ek9lang.core.AssertValue;
 final class VariableDeclInstrGenerator extends AbstractVariableDeclGenerator
     implements BiFunction<EK9Parser.VariableDeclarationContext, String, List<IRInstr>> {
 
-  VariableDeclInstrGenerator(final IRContext context) {
-    super(context);
-    AssertValue.checkNotNull("IRGenerationContext cannot be null", context);
+  VariableDeclInstrGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
+    AssertValue.checkNotNull("IRGenerationContext cannot be null", stackContext);
   }
 
   /**
@@ -35,10 +35,10 @@ final class VariableDeclInstrGenerator extends AbstractVariableDeclGenerator
 
       final var lhsSymbol = getRecordedSymbolOrException(ctx);
 
-      final var generator = new AssignmentExprInstrGenerator(context, ctx.assignmentExpression(), scopeId);
+      final var generator = new AssignmentExprInstrGenerator(stackContext, ctx.assignmentExpression(), scopeId);
       //Now because we are declaring and initialising a new variable - we do not need to 'release' any memory
       //it could be pointing to - because it is a new variable and so could not be pointing to anything.
-      final var assignExpressionToSymbol = new AssignExpressionToSymbol(context, false, generator, scopeId);
+      final var assignExpressionToSymbol = new AssignExpressionToSymbol(stackContext, false, generator, scopeId);
       instructions.addAll(assignExpressionToSymbol.apply(lhsSymbol, ctx.assignmentExpression()));
     }
 

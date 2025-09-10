@@ -122,7 +122,7 @@ public class IRInstructionBuilder {
    * Create a call instruction using current context.
    */
   public CallInstr createCall(CallContext callContext) {
-    var callDetailsBuilder = new CallDetailsBuilder(context.getIRContext());
+    var callDetailsBuilder = new CallDetailsBuilder(context.getCurrentIRContext());
     var callDetailsResult = callDetailsBuilder.apply(callContext);
     var debugInfo = context.currentDebugInfo().orElse(null);
     var instruction = CallInstr.call(null, debugInfo, callDetailsResult.callDetails());
