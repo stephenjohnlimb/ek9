@@ -2,9 +2,8 @@ package org.ek9lang.compiler.phase7;
 
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.CompilerFlags;
-import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.ir.IRConstruct;
+import org.ek9lang.compiler.phase7.support.IRContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.core.CompilerException;
@@ -16,16 +15,14 @@ import org.ek9lang.core.CompilerException;
 final class ComponentDfnGenerator extends AbstractDfnGenerator
     implements Function<EK9Parser.ComponentDeclarationContext, IRConstruct> {
 
-  private final ParsedModule parsedModule;
 
-  ComponentDfnGenerator(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
-    super(parsedModule, compilerFlags);
-    this.parsedModule = parsedModule;
+  ComponentDfnGenerator(final IRContext irContext) {
+    super(new IRContext(irContext));
   }
 
   @Override
   public IRConstruct apply(final EK9Parser.ComponentDeclarationContext ctx) {
-    final var symbol = parsedModule.getRecordedSymbol(ctx);
+    final var symbol = irContext.getParsedModule().getRecordedSymbol(ctx);
 
     if (symbol instanceof AggregateSymbol aggregateSymbol && symbol.getGenus() == SymbolGenus.COMPONENT) {
       final var construct = new IRConstruct(symbol);
@@ -45,13 +42,13 @@ final class ComponentDfnGenerator extends AbstractDfnGenerator
                                                  final EK9Parser.AggregatePartsContext ctx) {
     // Create Operation nodes for each method in the component
     for (final var methodCtx : ctx.methodDeclaration()) {
-      final var symbol = parsedModule.getRecordedSymbol(methodCtx);
+      final var symbol = irContext.getParsedModule().getRecordedSymbol(methodCtx);
       processAsMethodOrOperator(construct, symbol, methodCtx.operationDetails());
     }
 
     // Create Operation nodes for each operator in the component
     for (final var operatorCtx : ctx.operatorDeclaration()) {
-      final var symbol = parsedModule.getRecordedSymbol(operatorCtx);
+      final var symbol = irContext.getParsedModule().getRecordedSymbol(operatorCtx);
       processAsMethodOrOperator(construct, symbol, operatorCtx.operationDetails());
     }
 

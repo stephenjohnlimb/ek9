@@ -2,8 +2,6 @@ package org.ek9lang.compiler.phase7;
 
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.CompilerFlags;
-import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.Operation;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
@@ -18,24 +16,19 @@ import org.ek9lang.core.CompilerException;
  * TODO still needs the code for the actual 'main' entry point that deals with accepting
  * TODO and converting commandline arguments into correctly typed arguments to call _main.
  */
-final class ProgramDfnGenerator implements Function<EK9Parser.MethodDeclarationContext, IRConstruct> {
+final class ProgramDfnGenerator extends AbstractDfnGenerator
+    implements Function<EK9Parser.MethodDeclarationContext, IRConstruct> {
 
-  private final ParsedModule parsedModule;
-  private final CompilerFlags compilerFlags;
   private final OperationDfnGenerator operationDfnGenerator;
 
-  ProgramDfnGenerator(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
-    AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);
-    AssertValue.checkNotNull("CompilerFlags cannot be null", compilerFlags);
-
-    this.parsedModule = parsedModule;
-    this.compilerFlags = compilerFlags;
-    this.operationDfnGenerator = new OperationDfnGenerator(parsedModule, compilerFlags);
+  ProgramDfnGenerator(final IRContext irContext) {
+    super(new IRContext(irContext));
+    this.operationDfnGenerator = new OperationDfnGenerator(irContext.getParsedModule(), irContext.getCompilerFlags());
   }
 
   @Override
   public IRConstruct apply(final EK9Parser.MethodDeclarationContext ctx) {
-    final var symbol = parsedModule.getRecordedSymbol(ctx);
+    final var symbol = irContext.getParsedModule().getRecordedSymbol(ctx);
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
 
     if (symbol instanceof AggregateSymbol aggregateSymbol && symbol.getGenus() == SymbolGenus.PROGRAM) {
@@ -59,7 +52,7 @@ final class ProgramDfnGenerator implements Function<EK9Parser.MethodDeclarationC
     AssertValue.checkTrue("Expecting only one method on program",
         aggregateSymbol.getAllMethods().size() == 1);
 
-    final var context = new IRContext(parsedModule, compilerFlags);
+    final var context = newPerConstructContext();
     final var optionalMethod = aggregateSymbol.getAllMethods().stream().findFirst();
     optionalMethod.ifPresent(method -> {
       final var debugInfo = new DebugInfoCreator(context).apply(method.getSourceToken());

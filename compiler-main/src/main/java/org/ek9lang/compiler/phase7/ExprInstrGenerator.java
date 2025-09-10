@@ -264,7 +264,7 @@ final class ExprInstrGenerator extends AbstractGenerator
 
     final var literalSymbol = getRecordedSymbolOrException(ctx);
 
-    final var literalGenerator = new LiteralGenerator(context);
+    final var literalGenerator = new LiteralGenerator(instructionBuilder);
     return new ArrayList<>(literalGenerator.apply(new LiteralProcessingDetails(literalSymbol, rhsExprResult, scopeId)));
   }
 

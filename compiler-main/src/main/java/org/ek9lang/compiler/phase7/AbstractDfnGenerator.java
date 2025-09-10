@@ -1,8 +1,6 @@
 package org.ek9lang.compiler.phase7;
 
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.CompilerFlags;
-import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.Operation;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
@@ -22,17 +20,14 @@ import org.ek9lang.core.CompilerException;
  */
 abstract class AbstractDfnGenerator {
 
-  protected final ParsedModule parsedModule;
-  protected final CompilerFlags compilerFlags;
+  private final OperationDfnGenerator operationDfnGenerator;
+  protected final IRContext irContext;
   protected final String voidStr;
 
-  private final OperationDfnGenerator operationDfnGenerator;
-
-  AbstractDfnGenerator(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
-    this.parsedModule = parsedModule;
-    this.compilerFlags = compilerFlags;
-    this.operationDfnGenerator = new OperationDfnGenerator(parsedModule, compilerFlags);
-    this.voidStr = parsedModule.getEk9Types().ek9Void().getFullyQualifiedName();
+  AbstractDfnGenerator(final IRContext irContext) {
+    this.irContext = irContext;
+    this.operationDfnGenerator = new OperationDfnGenerator(irContext.getParsedModule(), irContext.getCompilerFlags());
+    this.voidStr = irContext.getParsedModule().getEk9Types().ek9Void().getFullyQualifiedName();
   }
 
   protected void processAsMethodOrOperator(final IRConstruct construct,
@@ -45,13 +40,22 @@ abstract class AbstractDfnGenerator {
 
     if (symbol instanceof MethodSymbol method) {
       final var debugInfo =
-          new DebugInfoCreator(new IRContext(parsedModule, compilerFlags)).apply(method.getSourceToken());
+          new DebugInfoCreator(irContext).apply(method.getSourceToken());
       final var operation = new Operation(method, debugInfo);
       operationDfnGenerator.accept(operation, ctx);
       construct.add(operation);
     } else {
       throw new CompilerException("Expecting a Method Symbol");
     }
+  }
+
+  /**
+   * Create a new IRContext for per-construct isolation.
+   * This ensures each construct gets fresh block labeling (_entry_1, _temp_1, etc.)
+   * while sharing the core parsedModule and compilerFlags.
+   */
+  protected IRContext newPerConstructContext() {
+    return new IRContext(irContext);
   }
 
   protected Operation newSyntheticInitOperation(final IRContext context,
@@ -67,7 +71,7 @@ abstract class AbstractDfnGenerator {
   private MethodSymbol newSyntheticInitMethodSymbol(final IScope scope,
                                                     final String methodName) {
     final var methodSymbol = new MethodSymbol(methodName, scope);
-    final ISymbol returnType = parsedModule.getEk9Types().ek9Void();
+    final ISymbol returnType = irContext.getParsedModule().getEk9Types().ek9Void();
     methodSymbol.setType(returnType);
     methodSymbol.setReturningSymbol(new VariableSymbol(IRConstants.RETURN_VARIABLE, returnType));
     methodSymbol.setMarkedPure(true); // Initialization methods are pure

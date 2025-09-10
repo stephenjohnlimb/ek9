@@ -31,7 +31,7 @@ final class BlockStmtInstrGenerator extends AbstractGenerator {
   BlockStmtInstrGenerator(final IRContext context) {
     super(context);
     this.variableDeclarationCreator = new VariableDeclInstrGenerator(context);
-    this.variableOnlyDeclarationCreator = new VariableOnlyDeclInstrGenerator(context);
+    this.variableOnlyDeclarationCreator = new VariableOnlyDeclInstrGenerator(instructionBuilder);
     this.statementInstructionCreator = new StmtInstrGenerator(context);
   }
 

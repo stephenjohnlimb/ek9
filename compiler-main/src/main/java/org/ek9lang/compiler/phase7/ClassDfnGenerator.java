@@ -2,8 +2,6 @@ package org.ek9lang.compiler.phase7;
 
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.CompilerFlags;
-import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.ir.BasicBlockInstr;
 import org.ek9lang.compiler.ir.BranchInstr;
 import org.ek9lang.compiler.ir.CallDetails;
@@ -51,13 +49,13 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
   private final NotImplicitSuper notImplicitSuper = new NotImplicitSuper();
 
-  ClassDfnGenerator(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
-    super(parsedModule, compilerFlags);
+  ClassDfnGenerator(final IRContext irContext) {
+    super(new IRContext(irContext));
   }
 
   @Override
   public IRConstruct apply(final EK9Parser.ClassDeclarationContext ctx) {
-    final var symbol = parsedModule.getRecordedSymbol(ctx);
+    final var symbol = irContext.getParsedModule().getRecordedSymbol(ctx);
 
     if (symbol instanceof AggregateSymbol aggregateSymbol && symbol.getGenus() == SymbolGenus.CLASS) {
       final var construct = new IRConstruct(symbol);
@@ -85,7 +83,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
    */
   private void createFieldDeclarations(final IRConstruct construct, final AggregateSymbol aggregateSymbol) {
 
-    final var debugInfoCreator = new DebugInfoCreator(new IRContext(parsedModule, compilerFlags));
+    final var debugInfoCreator = new DebugInfoCreator(irContext);
     final var fieldCreator = new FieldCreator(construct, debugInfoCreator);
     final var fieldsFromCapture = new FieldsFromCapture(fieldCreator);
 
@@ -116,7 +114,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
    */
   private void createInitOperation(final IRConstruct construct, final AggregateSymbol aggregateSymbol) {
     // Create a synthetic method symbol for c_init is when the class/construct definition is actually loaded.
-    final var context = new IRContext(parsedModule, compilerFlags);
+    final var context = newPerConstructContext();
     final var cInitOperation = newSyntheticInitOperation(context, aggregateSymbol, IRConstants.C_INIT_METHOD);
 
     // Generate c_init body
@@ -132,12 +130,13 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
       // Check if this is an explicit inheritance (not implicit base class)
       if (notImplicitSuper.test(superSymbol)) {
         // Try to find c_init method symbol in superclass for metadata
-        final var metaDataExtractor = new CallMetaDataExtractor(parsedModule.getEk9Types());
-        final var cInitMethodOpt = superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.C_INIT_METHOD));
-        final var metaData = cInitMethodOpt.isPresent() ? 
-            metaDataExtractor.apply(cInitMethodOpt.get()) : 
+        final var metaDataExtractor = new CallMetaDataExtractor(irContext.getParsedModule().getEk9Types());
+        final var cInitMethodOpt =
+            superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.C_INIT_METHOD));
+        final var metaData = cInitMethodOpt.isPresent()
+            ? metaDataExtractor.apply(cInitMethodOpt.get()) :
             CallMetaData.defaultMetaData();
-            
+
         final var callDetails = new CallDetails(
             null, // No target object for static call
             superSymbol.getFullyQualifiedName(),
@@ -171,7 +170,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
   private void createInstanceInitOperation(final IRConstruct construct,
                                            final IScope aggregateSymbol,
                                            final EK9Parser.AggregatePartsContext ctx) {
-    final var context = new IRContext(parsedModule, compilerFlags);
+    final var context = newPerConstructContext();
     final var iInitOperation = newSyntheticInitOperation(context, aggregateSymbol, IRConstants.I_INIT_METHOD);
 
     // Generate i_init body
@@ -208,7 +207,11 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
         final var variableDeclInstrGenerator = new VariableDeclInstrGenerator(context);
         instructions.addAll(variableDeclInstrGenerator.apply(propertyCtx.variableDeclaration(), scopeId));
       } else if (propertyCtx.variableOnlyDeclaration() != null) {
-        final var variableOnlyDeclInstrGenerator = new VariableOnlyDeclInstrGenerator(context);
+        // Create IRInstructionBuilder for stack-based variable generation
+        // Pass IRContext directly to preserve state
+        var generationContext = new org.ek9lang.compiler.phase7.support.IRGenerationContext(context);
+        var instructionBuilder = new org.ek9lang.compiler.phase7.support.IRInstructionBuilder(generationContext);
+        final var variableOnlyDeclInstrGenerator = new VariableOnlyDeclInstrGenerator(instructionBuilder);
         instructions.addAll(variableOnlyDeclInstrGenerator.apply(propertyCtx.variableOnlyDeclaration(), scopeId));
       }
     }
@@ -285,7 +288,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
     // Search through methodDeclaration contexts
     for (final var methodCtx : ctx.methodDeclaration()) {
-      final var contextSymbol = parsedModule.getRecordedSymbol(methodCtx);
+      final var contextSymbol = irContext.getParsedModule().getRecordedSymbol(methodCtx);
       if (contextSymbol == method) {
         return methodCtx.operationDetails();
       }
@@ -293,7 +296,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
     // Search through operatorDeclaration contexts  
     for (final var operatorCtx : ctx.operatorDeclaration()) {
-      final var contextSymbol = parsedModule.getRecordedSymbol(operatorCtx);
+      final var contextSymbol = irContext.getParsedModule().getRecordedSymbol(operatorCtx);
       if (contextSymbol == method) {
         return operatorCtx.operationDetails();
       }
@@ -310,7 +313,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
    * 3. Return this
    */
   private void processSyntheticConstructor(final IRConstruct construct, final MethodSymbol constructorSymbol) {
-    final var context = new IRContext(parsedModule, compilerFlags);
+    final var context = newPerConstructContext();
     final var debugInfo = new DebugInfoCreator(context).apply(constructorSymbol.getSourceToken());
     final var operation = new Operation(constructorSymbol, debugInfo);
 
@@ -325,12 +328,13 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
       // Only make super call if it's not the implicit base class (like Object)
       if (notImplicitSuper.test(superSymbol)) {
         // Try to find constructor symbol in superclass for metadata
-        final var metaDataExtractor = new CallMetaDataExtractor(parsedModule.getEk9Types());
-        final var constructorSymbolOpt = superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(superSymbol.getName()));
-        final var metaData = constructorSymbolOpt.isPresent() ? 
-            metaDataExtractor.apply(constructorSymbolOpt.get()) : 
+        final var metaDataExtractor = new CallMetaDataExtractor(irContext.getParsedModule().getEk9Types());
+        final var constructorSymbolOpt =
+            superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(superSymbol.getName()));
+        final var metaData = constructorSymbolOpt.isPresent() ?
+            metaDataExtractor.apply(constructorSymbolOpt.get()) :
             CallMetaData.defaultMetaData();
-            
+
         final var callDetails = new CallDetails(
             IRConstants.SUPER, // Target super object
             superSymbol.getFullyQualifiedName(),
@@ -346,12 +350,13 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
     // 2. Call own class's i_init method to initialize this class's fields
     // Try to find i_init method symbol for metadata
-    final var metaDataExtractor = new CallMetaDataExtractor(parsedModule.getEk9Types());
-    final var iInitMethodOpt = aggregateSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.I_INIT_METHOD));
-    final var iInitMetaData = iInitMethodOpt.isPresent() ? 
-        metaDataExtractor.apply(iInitMethodOpt.get()) : 
+    final var metaDataExtractor = new CallMetaDataExtractor(irContext.getParsedModule().getEk9Types());
+    final var iInitMethodOpt =
+        aggregateSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.I_INIT_METHOD));
+    final var iInitMetaData = iInitMethodOpt.isPresent() ?
+        metaDataExtractor.apply(iInitMethodOpt.get()) :
         CallMetaData.defaultMetaData();
-        
+
     final var iInitCallDetails = new CallDetails(
         IRConstants.THIS, // Target this object
         aggregateSymbol.getFullyQualifiedName(),
@@ -379,7 +384,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
    */
   private void processSyntheticOperator(final IRConstruct construct, final MethodSymbol operatorSymbol) {
     // Create placeholder synthetic operator operation
-    final var context = new IRContext(parsedModule, compilerFlags);
+    final var context = newPerConstructContext();
     final var debugInfo = new DebugInfoCreator(context).apply(operatorSymbol.getSourceToken());
     final var operation = new Operation(operatorSymbol, debugInfo);
 
@@ -402,7 +407,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
    */
   private void processSyntheticRegularMethod(final IRConstruct construct, final MethodSymbol methodSymbol) {
     // Create placeholder synthetic regular method operation
-    final var context = new IRContext(parsedModule, compilerFlags);
+    final var context = newPerConstructContext();
     final var debugInfo = new DebugInfoCreator(context).apply(methodSymbol.getSourceToken());
     final var operation = new Operation(methodSymbol, debugInfo);
 

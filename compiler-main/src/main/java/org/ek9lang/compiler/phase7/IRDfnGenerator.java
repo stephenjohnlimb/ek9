@@ -64,14 +64,16 @@ final class IRDfnGenerator {
     compilableProgramAccess.accept(compilableProgram ->
         this.parsedModule = compilableProgram.getParsedModuleForCompilableSource(source));
 
-    // Initialize all creators following the established pattern
-    // Pass CompilerFlags to enable debug instrumentation when isDebuggingInstrumentation() is true
-    programCreator = new ProgramDfnGenerator(parsedModule, compilerFlags);
-    functionCreator = new FunctionDfnGenerator(parsedModule, compilerFlags);
-    classCreator = new ClassDfnGenerator(parsedModule, compilerFlags);
-    recordCreator = new RecordDfnGenerator(parsedModule, compilerFlags);
-    traitCreator = new TraitDfnGenerator(parsedModule, compilerFlags);
-    componentCreator = new ComponentDfnGenerator(parsedModule, compilerFlags);
+    // Create IRContext once and pass to all generators - eliminates break-apart-recreate pattern
+    var irContext = new org.ek9lang.compiler.phase7.support.IRContext(parsedModule, compilerFlags);
+    
+    // Initialize all creators with shared IRContext
+    programCreator = new ProgramDfnGenerator(irContext);
+    functionCreator = new FunctionDfnGenerator(irContext);
+    classCreator = new ClassDfnGenerator(irContext);
+    recordCreator = new RecordDfnGenerator(irContext);
+    traitCreator = new TraitDfnGenerator(irContext);
+    componentCreator = new ComponentDfnGenerator(irContext);
 
   }
 

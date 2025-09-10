@@ -32,6 +32,10 @@ public final class IRContext {
   // Per-prefix counters for logical numbering: _temp1, _param1, _return1, _scope1, etc.
   private final ConcurrentHashMap<String, AtomicInteger> prefixCounters = new ConcurrentHashMap<>();
 
+  public IRContext(final IRContext fromContext) {
+    this(fromContext.parsedModule, fromContext.compilerFlags);
+  }
+
   /**
    * Create new IR generation context for an executable scope.
    *

@@ -102,7 +102,12 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
    */
   private List<IRInstr> processArgumentParam(final EK9Parser.ArgumentParamContext ctx, final IRContext context) {
     final var instructions = new ArrayList<IRInstr>();
-    final var variableCreator = new VariableOnlyDeclInstrGenerator(context);
+    
+    // Create IRInstructionBuilder for stack-based variable generation
+    // Pass IRContext directly to preserve state
+    var generationContext = new org.ek9lang.compiler.phase7.support.IRGenerationContext(context);
+    var instructionBuilder = new org.ek9lang.compiler.phase7.support.IRInstructionBuilder(generationContext);
+    final var variableCreator = new VariableOnlyDeclInstrGenerator(instructionBuilder);
     final var scopeId = context.generateScopeId(IRConstants.PARAM_SCOPE);
 
     for (final var varOnlyCtx : ctx.variableOnlyDeclaration()) {
@@ -125,8 +130,14 @@ final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.Ope
   private ReturnParamResult processReturningParamWithScope(final EK9Parser.ReturningParamContext ctx,
                                                            final IRContext context) {
     final var instructions = new ArrayList<IRInstr>();
+    
+    // Create IRInstructionBuilder for stack-based variable generation
+    // Pass IRContext directly to preserve state
+    var generationContext = new org.ek9lang.compiler.phase7.support.IRGenerationContext(context);
+    var instructionBuilder = new org.ek9lang.compiler.phase7.support.IRInstructionBuilder(generationContext);
+    
     final var variableCreator = new VariableDeclInstrGenerator(context);
-    final var variableOnlyCreator = new VariableOnlyDeclInstrGenerator(context);
+    final var variableOnlyCreator = new VariableOnlyDeclInstrGenerator(instructionBuilder);
     final var debugCreator = new DebugInfoCreator(context);
     final var scopeId = context.generateScopeId(IRConstants.RETURN_SCOPE);
 
