@@ -20,13 +20,12 @@ import org.ek9lang.core.CompilerException;
  */
 abstract class AbstractDfnGenerator {
 
-  private final OperationDfnGenerator operationDfnGenerator;
+  protected OperationDfnGenerator operationDfnGenerator;
   protected final IRContext irContext;
   protected final String voidStr;
 
   AbstractDfnGenerator(final IRContext irContext) {
     this.irContext = irContext;
-    this.operationDfnGenerator = new OperationDfnGenerator(irContext.getParsedModule(), irContext.getCompilerFlags());
     this.voidStr = irContext.getParsedModule().getEk9Types().ek9Void().getFullyQualifiedName();
   }
 

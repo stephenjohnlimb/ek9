@@ -6,6 +6,7 @@ import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.Operation;
 import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.core.AssertValue;
@@ -19,11 +20,11 @@ import org.ek9lang.core.CompilerException;
 final class ProgramDfnGenerator extends AbstractDfnGenerator
     implements Function<EK9Parser.MethodDeclarationContext, IRConstruct> {
 
-  private final OperationDfnGenerator operationDfnGenerator;
-
   ProgramDfnGenerator(final IRContext irContext) {
     super(new IRContext(irContext));
-    this.operationDfnGenerator = new OperationDfnGenerator(irContext.getParsedModule(), irContext.getCompilerFlags());
+    // Create a temporary stack context for OperationDfnGenerator
+    var tempStackContext = new IRGenerationContext(irContext);
+    super.operationDfnGenerator = new OperationDfnGenerator(tempStackContext);
   }
 
   @Override

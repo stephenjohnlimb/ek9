@@ -16,12 +16,15 @@ import org.ek9lang.compiler.phase7.support.FieldCreator;
 import org.ek9lang.compiler.phase7.support.FieldsFromCapture;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRFrameType;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.symbols.VariableSymbol;
+import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -33,16 +36,22 @@ import org.ek9lang.core.CompilerException;
 final class FunctionDfnGenerator extends AbstractDfnGenerator
     implements Function<EK9Parser.FunctionDeclarationContext, IRConstruct> {
 
-  private final OperationDfnGenerator operationDfnGenerator;
   private final NotImplicitSuper notImplicitSuper = new NotImplicitSuper();
+  private final IRGenerationContext stackContext;
 
-  FunctionDfnGenerator(final IRContext irContext) {
+  FunctionDfnGenerator(final IRContext irContext, final IRGenerationContext stackContext) {
     super(new IRContext(irContext));
-    this.operationDfnGenerator = new OperationDfnGenerator(irContext.getParsedModule(), irContext.getCompilerFlags());
+    AssertValue.checkNotNull("Stack context cannot be null", stackContext);
+    super.operationDfnGenerator = new OperationDfnGenerator(stackContext);
+    this.stackContext = stackContext;
   }
 
   @Override
   public IRConstruct apply(final EK9Parser.FunctionDeclarationContext ctx) {
+    // Use stack context for function-level coordination
+    var debugInfo = stackContext.createDebugInfo(ctx);
+    stackContext.enterScope("function-generation", debugInfo, IRFrameType.FUNCTION);
+    
     final var symbol = irContext.getParsedModule().getRecordedSymbol(ctx);
 
     if (symbol instanceof FunctionSymbol functionSymbol && symbol.getGenus() == SymbolGenus.FUNCTION) {
@@ -57,6 +66,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
       // Create Operation for the function itself
       createOperation(construct, functionSymbol, ctx);
 
+      stackContext.exitScope();
       return construct;
     }
     throw new CompilerException("Cannot create Function - expect FunctionSymbol of FUNCTION Genus");
@@ -83,9 +93,12 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     // Create a synthetic method symbol for c_init is when the class/construct definition is actually loaded.
     final var context = newPerConstructContext();
     final var cInitOperation = newSyntheticInitOperation(context, functionSymbol, IRConstants.C_INIT_METHOD);
+    
+    // Use stack context for method-level coordination with fresh IRContext
+    var debugInfo = stackContext.createDebugInfo(functionSymbol.getSourceToken());
+    stackContext.enterMethodScope("c_init", debugInfo, IRFrameType.METHOD);
 
     // Generate c_init body
-
     final var allInstructions = new java.util.ArrayList<IRInstr>();
 
     // Call super class c_init if this class explicitly extends another class
@@ -117,18 +130,23 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
 
     allInstructions.add(BranchInstr.returnVoid());
 
-    // Create BasicBlock with all instructions
-    final var basicBlock = new BasicBlockInstr(context.generateBlockLabel(IRConstants.ENTRY_LABEL));
+    // Create BasicBlock with all instructions - use stack context for consistent labeling
+    final var basicBlock = new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL));
     basicBlock.addInstructions(allInstructions);
     cInitOperation.setBody(basicBlock);
 
     construct.add(cInitOperation);
+    stackContext.exitScope();
   }
 
   private void createInstanceInitOperation(final IRConstruct construct,
                                            final FunctionSymbol functionSymbol) {
     final var context = newPerConstructContext();
     final var iInitOperation = newSyntheticInitOperation(context, functionSymbol, IRConstants.I_INIT_METHOD);
+    
+    // Use stack context for method-level coordination with fresh IRContext
+    var debugInfo = stackContext.createDebugInfo(functionSymbol.getSourceToken());
+    stackContext.enterMethodScope("i_init", debugInfo, IRFrameType.METHOD);
 
     // Generate i_init body
     final var allInstructions = new java.util.ArrayList<IRInstr>();
@@ -139,22 +157,25 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     // functions.
 
     allInstructions.add(BranchInstr.returnVoid());
-    // Create BasicBlock with all instructions
-    final var basicBlock = new BasicBlockInstr(context.generateBlockLabel(IRConstants.ENTRY_LABEL));
+    // Create BasicBlock with all instructions - use stack context for consistent labeling
+    final var basicBlock = new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL));
     basicBlock.addInstructions(allInstructions);
     iInitOperation.setBody(basicBlock);
 
     construct.add(iInitOperation);
+    stackContext.exitScope();
   }
 
   private void createOperation(final IRConstruct construct, final FunctionSymbol functionSymbol,
                                final EK9Parser.FunctionDeclarationContext ctx) {
 
-    final var context = newPerConstructContext();
-    final var debugCreator = new DebugInfoCreator(context);
-
+    // Constructor method coordination
     final var constructorMethod = createSyntheticFunctionConstructorMethod(functionSymbol);
+    var debugInfo = stackContext.createDebugInfo(constructorMethod.getSourceToken());
+    stackContext.enterMethodScope("constructor", debugInfo, IRFrameType.METHOD);
+    
     processSyntheticConstructor(construct, constructorMethod);
+    stackContext.exitScope();
 
     //TODO IMPORTANT - need the actual capture ctx to get the naming.
     //Now for the synthetic constructor there is not context, in effect we need to call i_init
@@ -164,9 +185,13 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
 
     // Create synthetic _call method following AggregateManipulator patterns
     final var callMethod = createSyntheticCallMethod(functionSymbol);
-    final var callDebugInfo = debugCreator.apply(callMethod.getSourceToken());
+    final var callDebugInfo = stackContext.createDebugInfo(callMethod.getSourceToken());
     // Create Operation for the synthetic _call method (not the function itself)
     final var callOperation = new Operation(callMethod, callDebugInfo);
+
+    // _call method coordination 
+    var debugInfo2 = stackContext.createDebugInfo(callMethod.getSourceToken());
+    stackContext.enterMethodScope("_call", debugInfo2, IRFrameType.METHOD);
 
     // Process executable content using OperationDfnGenerator if operationDetails is present
     if (ctx.operationDetails() != null) {
@@ -174,6 +199,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     }
 
     construct.add(callOperation);
+    stackContext.exitScope();
   }
 
 
@@ -244,8 +270,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
    * 3. Return this
    */
   private void processSyntheticConstructor(final IRConstruct construct, final MethodSymbol constructorSymbol) {
-    final var context = newPerConstructContext();
-    final var debugInfo = new DebugInfoCreator(context).apply(constructorSymbol.getSourceToken());
+    final var debugInfo = stackContext.createDebugInfo(constructorSymbol.getSourceToken());
     final var operation = new Operation(constructorSymbol, debugInfo);
 
     final var instructions = new java.util.ArrayList<IRInstr>();
@@ -300,7 +325,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     // 3. Return this
     instructions.add(BranchInstr.returnValue(IRConstants.THIS, debugInfo));
 
-    final var basicBlock = new BasicBlockInstr(context.generateBlockLabel(IRConstants.ENTRY_LABEL));
+    final var basicBlock = new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL));
     basicBlock.addInstructions(instructions);
     operation.setBody(basicBlock);
 

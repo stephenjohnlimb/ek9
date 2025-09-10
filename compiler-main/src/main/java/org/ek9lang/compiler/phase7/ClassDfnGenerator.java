@@ -16,6 +16,7 @@ import org.ek9lang.compiler.phase7.support.FieldCreator;
 import org.ek9lang.compiler.phase7.support.FieldsFromCapture;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IScope;
@@ -51,6 +52,9 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
   ClassDfnGenerator(final IRContext irContext) {
     super(new IRContext(irContext));
+    // Create a temporary stack context for OperationDfnGenerator
+    var tempStackContext = new IRGenerationContext(irContext);
+    super.operationDfnGenerator = new OperationDfnGenerator(tempStackContext);
   }
 
   @Override
@@ -331,8 +335,8 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
         final var metaDataExtractor = new CallMetaDataExtractor(irContext.getParsedModule().getEk9Types());
         final var constructorSymbolOpt =
             superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(superSymbol.getName()));
-        final var metaData = constructorSymbolOpt.isPresent() ?
-            metaDataExtractor.apply(constructorSymbolOpt.get()) :
+        final var metaData = constructorSymbolOpt.isPresent()
+            ? metaDataExtractor.apply(constructorSymbolOpt.get()) :
             CallMetaData.defaultMetaData();
 
         final var callDetails = new CallDetails(
@@ -353,8 +357,8 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
     final var metaDataExtractor = new CallMetaDataExtractor(irContext.getParsedModule().getEk9Types());
     final var iInitMethodOpt =
         aggregateSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.I_INIT_METHOD));
-    final var iInitMetaData = iInitMethodOpt.isPresent() ?
-        metaDataExtractor.apply(iInitMethodOpt.get()) :
+    final var iInitMetaData = iInitMethodOpt.isPresent()
+        ? metaDataExtractor.apply(iInitMethodOpt.get()) :
         CallMetaData.defaultMetaData();
 
     final var iInitCallDetails = new CallDetails(

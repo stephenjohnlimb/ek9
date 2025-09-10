@@ -4,6 +4,7 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.phase7.support.IRContext;
+import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.core.CompilerException;
@@ -18,6 +19,9 @@ final class ComponentDfnGenerator extends AbstractDfnGenerator
 
   ComponentDfnGenerator(final IRContext irContext) {
     super(new IRContext(irContext));
+    // Create a temporary stack context for OperationDfnGenerator
+    var tempStackContext = new IRGenerationContext(irContext);
+    super.operationDfnGenerator = new OperationDfnGenerator(tempStackContext);
   }
 
   @Override

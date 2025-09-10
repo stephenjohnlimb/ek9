@@ -53,6 +53,17 @@ public class IRGenerationContext {
   }
 
   /**
+   * Enter a method/function scope with fresh IRContext for counter isolation.
+   * Creates new IRContext via copy constructor to ensure fresh temp var and label counters.
+   */
+  public void enterMethodScope(String scopeId, DebugInfo debugInfo, IRFrameType frameType) {
+    // Create fresh IRContext for method-level counter isolation
+    var methodIRContext = new IRContext(irContext);
+    var frame = IRStackFrame.withContext(scopeId, debugInfo, frameType, methodIRContext);
+    irGenerationStack.push(frame);
+  }
+
+  /**
    * Enter a new IR scope with left-hand side indication.
    */
   public void enterScope(String scopeId, DebugInfo debugInfo, IRFrameType frameType, boolean hasLeftHandSide) {
@@ -131,31 +142,69 @@ public class IRGenerationContext {
   }
 
   /**
+   * Create debug info from an ANTLR token.
+   */
+  public DebugInfo createDebugInfo(org.antlr.v4.runtime.Token token) {
+    return debugInfoCreator.apply(new Ek9Token(token));
+  }
+
+  /**
+   * Create debug info from an EK9 IToken.
+   */
+  public DebugInfo createDebugInfo(org.ek9lang.compiler.tokenizer.IToken token) {
+    if (token instanceof Ek9Token ek9Token) {
+      return debugInfoCreator.apply(ek9Token);
+    } else {
+      // If it's not an Ek9Token, we need to create one from the IToken's properties
+      // This handles cases where we have other IToken implementations
+      return debugInfoCreator.apply(new Ek9Token(token.getType(), token.getText(), 
+          token.getLine(), token.getSourceName(), 
+          token.getCharPositionInLine(), token.getTokenIndex()));
+    }
+  }
+
+  /**
+   * Get current IRContext from stack frame (traverses up to find method-level IRContext).
+   * Always creates a fresh IRContext for proper counter isolation if none exists.
+   */
+  public IRContext getCurrentIRContext() {
+    // Traverse up the stack to find the first frame with IRContext (method-level)
+    var methodContext = irGenerationStack.traverseBackToContextData(IRContext.class);
+    if (methodContext.isPresent()) {
+      return methodContext.get();
+    }
+    
+    // If no method-level context found, create a fresh one for counter isolation
+    // This ensures each method gets fresh temp1, temp2, etc. counters
+    return new IRContext(irContext);
+  }
+
+  /**
    * Generate a unique temporary variable name.
    */
   public String generateTempName() {
-    return irContext.generateTempName();
+    return getCurrentIRContext().generateTempName();
   }
 
   /**
    * Generate a unique scope identifier.
    */
   public String generateScopeId(String prefix) {
-    return irContext.generateScopeId(prefix);
+    return getCurrentIRContext().generateScopeId(prefix);
   }
 
   /**
    * Generate a unique block label.
    */
   public String generateBlockLabel(String prefix) {
-    return irContext.generateBlockLabel(prefix);
+    return getCurrentIRContext().generateBlockLabel(prefix);
   }
 
   /**
    * Generate a unique label name.
    */
   public String generateLabelName(String prefix) {
-    return irContext.generateLabelName(prefix);
+    return getCurrentIRContext().generateLabelName(prefix);
   }
 
   /**

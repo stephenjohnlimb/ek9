@@ -8,15 +8,15 @@ import org.ek9lang.core.AssertValue;
 
 /**
  * Stack-based scope, debug, and context management for IR generation.
- * 
+ *
  * <p>This stack provides the transient context management that eliminates
  * parameter threading throughout the IR generation process. Modeled after
  * the successful ScopeStack pattern used in phases 1-6.</p>
- * 
+ *
  * <p>Each frame on the stack represents a scope context (method, function,
  * block, expression) with its associated scope ID, debug information, and
  * other contextual information needed for IR generation.</p>
- * 
+ *
  * <p>The stack automatically handles nested scope management and provides
  * navigation capabilities to find containing scopes of specific types.</p>
  */
@@ -131,9 +131,9 @@ public class IRGenerationStack {
    */
   public Optional<IRStackFrame> traverseBackToAggregate() {
     for (IRStackFrame frame : actualStack) {
-      if (frame.frameType() == IRFrameType.CLASS || 
-          frame.frameType() == IRFrameType.RECORD ||
-          frame.frameType() == IRFrameType.TRAIT) {
+      if (frame.frameType() == IRFrameType.CLASS
+          || frame.frameType() == IRFrameType.RECORD
+          || frame.frameType() == IRFrameType.TRAIT) {
         return Optional.of(frame);
       }
     }
@@ -145,6 +145,20 @@ public class IRGenerationStack {
    */
   public int depth() {
     return actualStack.size();
+  }
+
+  /**
+   * Navigate back up the stack to find the first frame with context data of the specified type.
+   * Used to find IRContext or other contextual information stored in stack frames.
+   */
+  public <T> Optional<T> traverseBackToContextData(final Class<T> contextType) {
+    for (IRStackFrame frame : actualStack) {
+      T contextData = frame.getContextData(contextType);
+      if (contextData != null) {
+        return Optional.of(contextData);
+      }
+    }
+    return Optional.empty();
   }
 
   /**
