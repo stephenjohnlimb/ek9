@@ -26,10 +26,4 @@ public record PromotedVariable(
     return new PromotedVariable(variable, List.of());
   }
 
-  /**
-   * Check if this variable required promotion.
-   */
-  public boolean wasPromoted() {
-    return !instructions.isEmpty();
-  }
 }

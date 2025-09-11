@@ -5,10 +5,12 @@ import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.ir.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.Operation;
-import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
+import org.ek9lang.compiler.phase7.generation.IRContext;
+import org.ek9lang.compiler.phase7.generation.IRFrameType;
+import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.generator.OperationDfnGenerator;
+import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRConstants;
-import org.ek9lang.compiler.phase7.support.IRContext;
-import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -68,13 +70,13 @@ abstract class AbstractDfnGenerator {
     if (symbol instanceof MethodSymbol method) {
       final var debugInfo = createDebugInfoCreator().apply(method.getSourceToken());
       final var operation = new Operation(method, debugInfo);
-      
+
       // Use stack context for method-level coordination with fresh IRContext
       var methodDebugInfo = stackContext.createDebugInfo(method.getSourceToken());
-      stackContext.enterMethodScope(method.getName(), methodDebugInfo, org.ek9lang.compiler.phase7.support.IRFrameType.METHOD);
-      
+      stackContext.enterMethodScope(method.getName(), methodDebugInfo, IRFrameType.METHOD);
+
       operationDfnGenerator.accept(operation, ctx);
-      
+
       stackContext.exitScope();
       construct.add(operation);
     } else {

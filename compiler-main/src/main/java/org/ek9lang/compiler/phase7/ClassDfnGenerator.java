@@ -10,12 +10,15 @@ import org.ek9lang.compiler.ir.CallMetaData;
 import org.ek9lang.compiler.ir.IRConstruct;
 import org.ek9lang.compiler.ir.IRInstr;
 import org.ek9lang.compiler.ir.Operation;
-import org.ek9lang.compiler.phase7.support.DebugInfoCreator;
+import org.ek9lang.compiler.phase7.generation.IRFrameType;
+import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
+import org.ek9lang.compiler.phase7.generator.VariableDeclInstrGenerator;
+import org.ek9lang.compiler.phase7.generator.VariableOnlyDeclInstrGenerator;
+import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.FieldCreator;
 import org.ek9lang.compiler.phase7.support.FieldsFromCapture;
 import org.ek9lang.compiler.phase7.support.IRConstants;
-import org.ek9lang.compiler.phase7.support.IRContext;
-import org.ek9lang.compiler.phase7.support.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -120,7 +123,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
     // Use stack context for method-level coordination with fresh IRContext
     var debugInfo = stackContext.createDebugInfo(aggregateSymbol.getSourceToken());
-    stackContext.enterMethodScope("c_init", debugInfo, org.ek9lang.compiler.phase7.support.IRFrameType.METHOD);
+    stackContext.enterMethodScope("c_init", debugInfo, IRFrameType.METHOD);
 
     // Generate c_init body
 
@@ -180,7 +183,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
     // Use stack context for method-level coordination with fresh IRContext
     var debugInfo = stackContext.createDebugInfo(aggregateSymbol.getSourceToken());
-    stackContext.enterMethodScope("i_init", debugInfo, org.ek9lang.compiler.phase7.support.IRFrameType.METHOD);
+    stackContext.enterMethodScope("i_init", debugInfo, IRFrameType.METHOD);
 
     // Generate i_init body
     final var allInstructions = new java.util.ArrayList<IRInstr>();
@@ -188,7 +191,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
     //Now it is possible that there are captured variables, TODO
 
     if (ctx != null) {
-      allInstructions.addAll(processPropertiesForInstanceInit(ctx, stackContext.getCurrentIRContext()));
+      allInstructions.addAll(processPropertiesForInstanceInit(ctx));
     }
 
     allInstructions.add(BranchInstr.returnVoid());
@@ -206,10 +209,10 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
    * Generates REFERENCE declarations and immediate initializations.
    */
   private java.util.List<IRInstr> processPropertiesForInstanceInit(
-      final EK9Parser.AggregatePartsContext ctx, final IRContext context) {
+      final EK9Parser.AggregatePartsContext ctx) {
 
     final var instructions = new java.util.ArrayList<IRInstr>();
-    final var scopeId = context.generateScopeId(IRConstants.I_INIT_METHOD);
+    final var scopeId = stackContext.generateScopeId(IRConstants.I_INIT_METHOD);
 
     // Process each property in the aggregate
     for (final var propertyCtx : ctx.aggregateProperty()) {
@@ -217,10 +220,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
         final var variableDeclInstrGenerator = new VariableDeclInstrGenerator(stackContext);
         instructions.addAll(variableDeclInstrGenerator.apply(propertyCtx.variableDeclaration(), scopeId));
       } else if (propertyCtx.variableOnlyDeclaration() != null) {
-        // Create IRInstructionBuilder for stack-based variable generation
-        // Pass IRContext directly to preserve state
-        var generationContext = new org.ek9lang.compiler.phase7.support.IRGenerationContext(context);
-        var instructionBuilder = new org.ek9lang.compiler.phase7.support.IRInstructionBuilder(generationContext);
+        var instructionBuilder = new IRInstructionBuilder(stackContext);
         final var variableOnlyDeclInstrGenerator = new VariableOnlyDeclInstrGenerator(instructionBuilder);
         instructions.addAll(variableOnlyDeclInstrGenerator.apply(propertyCtx.variableOnlyDeclaration(), scopeId));
       }
@@ -323,8 +323,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
    * 3. Return this
    */
   private void processSyntheticConstructor(final IRConstruct construct, final MethodSymbol constructorSymbol) {
-    final var context = newPerConstructContext();
-    final var debugInfo = new DebugInfoCreator(context).apply(constructorSymbol.getSourceToken());
+    final var debugInfo = stackContext.createDebugInfo(constructorSymbol.getSourceToken());
     final var operation = new Operation(constructorSymbol, debugInfo);
 
     final var instructions = new java.util.ArrayList<IRInstr>();
@@ -381,7 +380,8 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
     // 3. Return this
     instructions.add(BranchInstr.returnValue(IRConstants.THIS, debugInfo));
 
-    final var basicBlock = new BasicBlockInstr(context.generateBlockLabel(IRConstants.ENTRY_LABEL));
+    final var label = stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL);
+    final var basicBlock = new BasicBlockInstr(label);
     basicBlock.addInstructions(instructions);
     operation.setBody(basicBlock);
 
@@ -404,7 +404,8 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
     instructions.add(BranchInstr.returnVoid()); // Placeholder
 
-    final var basicBlock = new BasicBlockInstr(context.generateBlockLabel(IRConstants.ENTRY_LABEL));
+    final var label = stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL);
+    final var basicBlock = new BasicBlockInstr(label);
     basicBlock.addInstructions(instructions);
     operation.setBody(basicBlock);
 
@@ -426,7 +427,8 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
 
     instructions.add(BranchInstr.returnVoid()); // Placeholder
 
-    final var basicBlock = new BasicBlockInstr(context.generateBlockLabel(IRConstants.ENTRY_LABEL));
+    final var label = stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL);
+    final var basicBlock = new BasicBlockInstr(label);
     basicBlock.addInstructions(instructions);
     operation.setBody(basicBlock);
 

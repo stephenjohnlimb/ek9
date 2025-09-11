@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase7;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.IRConstruct;
-import org.ek9lang.compiler.phase7.support.IRGenerationContext;
+import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.core.CompilerException;

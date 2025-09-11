@@ -558,6 +558,91 @@ extern "C" void ek9_property_init_derived(Extension1* obj) {
 }
 ```
 
+## Critical Implementation Pattern: Sequencing Memory Management After Assignment
+
+### The Sequencing Problem
+
+A critical architectural insight: **Memory management instructions must come AFTER value assignment**. You cannot RETAIN a variable until it has received a value.
+
+#### Why Low-Level Builders Can't Handle Memory Management
+
+```java
+// INCORRECT - IRInstructionBuilder level
+public List<IRInstr> createLiteral(String tempName, String value, String type) {
+    // This creates: _temp2 = LOAD_LITERAL "Hello", org.ek9.lang::String
+    // But we CANNOT add RETAIN here because:
+    // 1. The temp hasn't been assigned yet (assignment happens via the = in IR)
+    // 2. We don't know the scope context at this low level
+    // 3. The RETAIN must come AFTER the assignment completes
+}
+```
+
+#### Correct Pattern: Orchestrator-Level Memory Management
+
+Memory management must be handled at the **expression/statement orchestration level** where:
+1. We know when a temp has been fully assigned its value
+2. We have access to the current scope context
+3. We can control the precise instruction sequencing
+
+```java
+// CORRECT - ExpressionInstrGenerator level
+public List<IRInstr> generateExpression(ExpressionContext ctx) {
+    var instructions = new ArrayList<IRInstr>();
+    
+    // Step 1: Generate expression that creates AND assigns temp
+    String tempVar = context.generateTempName();
+    instructions.add(LoadLiteralInstr.create(tempVar, value, type));
+    // tempVar NOW has a value
+    
+    // Step 2: Add memory management AFTER assignment
+    if (isTempVariable(tempVar)) {  // Always true for _temp*
+        instructions.add(RetainInstr.create(tempVar));
+        instructions.add(ScopeRegisterInstr.create(tempVar, getCurrentScope()));
+    }
+    
+    return instructions;
+}
+```
+
+### Architectural Principle
+
+**Temp Variable Creation Point = Memory Management Decision Point**
+
+The orchestrator that creates a temp variable is responsible for:
+1. Generating the temp variable name (`_temp1`, `_temp2`, etc.)
+2. Creating the instruction that assigns a value to it
+3. **Immediately following** with RETAIN and SCOPE_REGISTER instructions
+4. Using the stack-based IRGenerationContext for scope information
+
+### Example IR Sequence
+
+```
+// Step 1: Create and assign value to temp
+_temp2 = LOAD_LITERAL "Hello", org.ek9.lang::String
+
+// Step 2: Memory management AFTER assignment
+RETAIN _temp2                    // Can only retain after temp2 has a value
+SCOPE_REGISTER _temp2, _scope_1  // Register for cleanup
+
+// Step 3: Use temp in further operations
+_temp1 = CALL String.<init>(_temp2)
+RETAIN _temp1                    // Again, after assignment
+SCOPE_REGISTER _temp1, _scope_1
+```
+
+### Implementation Classes Responsibility
+
+- **IRInstructionBuilder**: Creates individual instructions, no memory management logic
+- **ExpressionInstrGenerator**: Orchestrates expression evaluation WITH memory management
+- **StatementInstrGenerator**: Orchestrates statements WITH memory management  
+- **IRGenerationContext**: Provides scope context via stack, no direct memory management
+
+This separation ensures:
+- Low-level builders remain simple and focused
+- Memory management happens at the correct sequencing point
+- Scope context is available where needed via stack-based architecture
+- No memory management instructions are missed or incorrectly sequenced
+
 ## Conclusion
 
 The EK9 IR memory management system provides a robust foundation for memory-safe code generation with perfect alignment to C++ ARC implementation. The dual-tracking approach (objects + variables), combined with precise reference counting and scope-based cleanup, ensures memory safety across JVM and C++ backends while maintaining semantic consistency and performance.
@@ -569,5 +654,6 @@ The EK9 IR memory management system provides a robust foundation for memory-safe
 - **Conditional Assignment**: Optimized `:=?` operator with null + unset checking
 - **RAII Integration**: Scope management leverages C++ automatic cleanup patterns
 - **Cross-Platform**: Same IR semantics work for both GC (JVM) and manual (C++) memory management
+- **Correct Sequencing**: Memory management orchestrated at expression/statement level after value assignment
 
 The system enables backend implementations to focus on target-specific optimizations while relying on the IR's mathematical correctness for memory safety guarantees, with C++ providing the ideal native runtime for high-performance EK9 applications.
