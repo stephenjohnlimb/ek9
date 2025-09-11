@@ -86,45 +86,6 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     createInstanceInitOperation(construct, functionSymbol);
   }
 
-  private void createInitOperation(final IRConstruct construct,
-                                   final FunctionSymbol functionSymbol,
-                                   ISymbol superType) {
-    // Create a synthetic method symbol for c_init is when the class/construct definition is actually loaded.
-    final var cInitOperation = newSyntheticInitOperation(functionSymbol, IRConstants.C_INIT_METHOD);
-
-    stackContext.enterMethodScope("c_init", cInitOperation.getDebugInfo(), IRFrameType.METHOD);
-
-    // Generate c_init body
-    final var allInstructions = new java.util.ArrayList<IRInstr>();
-
-    // Call super class c_init if this class explicitly extends another class
-    if (superType != null && notImplicitSuper.test(superType)) {
-
-      final var metaData = CallMetaDataDetails.defaultMetaData();
-      final var callDetails = new CallDetails(
-          null, // No target object for static call
-          superType.getFullyQualifiedName(),
-          IRConstants.C_INIT_METHOD,
-          java.util.List.of(), // No parameters
-          voidStr, // Return type
-          java.util.List.of(), // No arguments
-          metaData
-      );
-      allInstructions.add(CallInstr.callStatic(IRConstants.TEMP_C_INIT, null, callDetails));
-    }
-
-
-    allInstructions.add(BranchInstr.returnVoid());
-
-    // Create BasicBlock with all instructions - use stack context for consistent labeling
-    final var basicBlock = new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL));
-    basicBlock.addInstructions(allInstructions);
-    cInitOperation.setBody(basicBlock);
-
-    construct.add(cInitOperation);
-    stackContext.exitScope();
-  }
-
   private void createInstanceInitOperation(final IRConstruct construct,
                                            final FunctionSymbol functionSymbol) {
     final var iInitOperation = newSyntheticInitOperation(functionSymbol, IRConstants.I_INIT_METHOD);

@@ -2,15 +2,22 @@ package org.ek9lang.compiler.phase7;
 
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
+import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
+import org.ek9lang.compiler.ir.instructions.BranchInstr;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
+import org.ek9lang.compiler.ir.instructions.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
-import org.ek9lang.compiler.ir.instructions.IRConstruct;
+import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.generation.IRContext;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.generator.OperationDfnGenerator;
-import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -25,6 +32,7 @@ import org.ek9lang.core.CompilerException;
  */
 abstract class AbstractDfnGenerator {
 
+  protected final NotImplicitSuper notImplicitSuper = new NotImplicitSuper();
   protected final OperationDfnGenerator operationDfnGenerator;
   protected final IRGenerationContext stackContext;
   protected final String voidStr;
@@ -111,5 +119,55 @@ abstract class AbstractDfnGenerator {
     methodSymbol.setMarkedPure(true); // Initialization methods are pure
 
     return methodSymbol;
+  }
+
+  /**
+   * Create c_init operation for class/static initialization.
+   * This runs once per class loading.
+   */
+  protected void createInitOperation(final IRConstruct construct,
+                                     final IScope aggregateSymbol, ISymbol superType) {
+    // Create a synthetic method symbol for c_init is when the class/construct definition is actually loaded.
+    final var cInitOperation = newSyntheticInitOperation(aggregateSymbol, IRConstants.C_INIT_METHOD);
+
+    // Use stack context for method-level coordination with fresh IRContext
+
+    stackContext.enterMethodScope("c_init", cInitOperation.getDebugInfo(), IRFrameType.METHOD);
+
+    // Generate c_init body
+
+    final var allInstructions = new java.util.ArrayList<IRInstr>();
+
+    // Call super class c_init if this class explicitly extends another class
+
+    if (superType != null && notImplicitSuper.test(superType)) {
+
+      final var metaData = CallMetaDataDetails.defaultMetaData();
+
+      final var callDetails = new CallDetails(
+          null, // No target object for static call
+          superType.getFullyQualifiedName(),
+          IRConstants.C_INIT_METHOD,
+          java.util.List.of(), // No parameters
+          voidStr, // Return type
+          java.util.List.of(), // No arguments
+          metaData
+      );
+      allInstructions.add(CallInstr.callStatic(IRConstants.TEMP_C_INIT, null, callDetails));
+    }
+
+
+    // TODO: Add static field initialization when static fields are supported
+
+    // Return void
+    allInstructions.add(BranchInstr.returnVoid());
+
+    // Create BasicBlock with all instructions - use stack context for consistent labeling
+    final var basicBlock = new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL));
+    basicBlock.addInstructions(allInstructions);
+    cInitOperation.setBody(basicBlock);
+
+    construct.add(cInitOperation);
+    stackContext.exitScope();
   }
 }

@@ -22,6 +22,7 @@ import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
 import org.ek9lang.compiler.phase7.support.OperationDetailContextOrError;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
@@ -32,8 +33,6 @@ import org.ek9lang.core.CompilerException;
  * Common code of Aggregate Construct types.
  */
 abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
-
-  private final NotImplicitSuper notImplicitSuper = new NotImplicitSuper();
 
   private final OperationDetailContextOrError operationDetailContextOrError;
 
@@ -101,55 +100,7 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
 
   }
 
-  /**
-   * Create c_init operation for class/static initialization.
-   * This runs once per class loading.
-   */
-  protected void createInitOperation(final IRConstruct construct,
-                                     final AggregateSymbol aggregateSymbol, ISymbol superType) {
-    // Create a synthetic method symbol for c_init is when the class/construct definition is actually loaded.
-    final var cInitOperation = newSyntheticInitOperation(aggregateSymbol, IRConstants.C_INIT_METHOD);
 
-    // Use stack context for method-level coordination with fresh IRContext
-    var debugInfo = stackContext.createDebugInfo(aggregateSymbol.getSourceToken());
-    stackContext.enterMethodScope("c_init", debugInfo, IRFrameType.METHOD);
-
-    // Generate c_init body
-
-    final var allInstructions = new java.util.ArrayList<IRInstr>();
-
-    // Call super class c_init if this class explicitly extends another class
-
-    if (superType != null && notImplicitSuper.test(superType)) {
-
-      final var metaData = CallMetaDataDetails.defaultMetaData();
-
-      final var callDetails = new CallDetails(
-          null, // No target object for static call
-          superType.getFullyQualifiedName(),
-          IRConstants.C_INIT_METHOD,
-          java.util.List.of(), // No parameters
-          voidStr, // Return type
-          java.util.List.of(), // No arguments
-          metaData
-      );
-      allInstructions.add(CallInstr.callStatic(IRConstants.TEMP_C_INIT, null, callDetails));
-    }
-
-
-    // TODO: Add static field initialization when static fields are supported
-
-    // Return void
-    allInstructions.add(BranchInstr.returnVoid());
-
-    // Create BasicBlock with all instructions - use stack context for consistent labeling
-    final var basicBlock = new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL));
-    basicBlock.addInstructions(allInstructions);
-    cInitOperation.setBody(basicBlock);
-
-    construct.add(cInitOperation);
-    stackContext.exitScope();
-  }
 
   /**
    * Create i_init operation for instance initialization.
