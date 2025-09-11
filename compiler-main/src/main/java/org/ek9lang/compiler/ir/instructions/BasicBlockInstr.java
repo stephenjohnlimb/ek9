@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.compiler.ir.IROpcode;
+import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -31,9 +32,10 @@ public final class BasicBlockInstr implements INode {
   /**
    * Add instruction to this basic block.
    */
-  public void addInstruction(final IRInstr instruction) {
+  public BasicBlockInstr addInstruction(final IRInstr instruction) {
     AssertValue.checkNotNull("Instruction cannot be null", instruction);
     instructions.add(instruction);
+    return this;
   }
 
   /**
@@ -46,13 +48,18 @@ public final class BasicBlockInstr implements INode {
     return this;
   }
 
+  public BasicBlockInstr addInstructions(final IRInstructionBuilder builder) {
+    return addInstructions(builder.extractInstructions());
+  }
+
   /**
    * Add multiple instructions from a list.
    */
-  public void addInstructions(final List<IRInstr> instructions) {
+  public BasicBlockInstr addInstructions(final List<IRInstr> instructions) {
     for (IRInstr instruction : instructions) {
       addInstruction(instruction);
     }
+    return this;
   }
 
   /**

@@ -3,13 +3,14 @@ package org.ek9lang.compiler.phase7.generation;
 import java.util.List;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.ek9lang.compiler.ir.instructions.BranchInstr;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
-import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.LabelInstr;
 import org.ek9lang.compiler.ir.instructions.LiteralInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
@@ -102,9 +103,9 @@ public class IRInstructionBuilder {
 
 
   /**
-   * Create a memory retain an register for memory management current context.
+   * Create a memory retain and register for memory management current context.
    */
-  public void memoryRetainAndRegister(String variableName) {
+  public void manageVariable(String variableName) {
     final var debugInfo = context.currentDebugInfo().orElse(null);
     final var scopeId = context.currentScopeId();
     var retain = MemoryInstr.retain(variableName, context.currentDebugInfo().orElse(null));
@@ -128,6 +129,14 @@ public class IRInstructionBuilder {
    */
   public IRContext getIRContext() {
     return context.getCurrentIRContext();
+  }
+
+  public void returnVoid() {
+    addInstruction(BranchInstr.returnVoid());
+  }
+
+  public void returnValue(String variableName, DebugInfo debugInfo) {
+    addInstruction(BranchInstr.returnValue(variableName, debugInfo));
   }
 
   /**

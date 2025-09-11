@@ -34,8 +34,9 @@ public final class OperationInstr implements INode {
     return basicBlockBody;
   }
 
-  public void setBody(final BasicBlockInstr basicBlockBody) {
+  public OperationInstr setBody(final BasicBlockInstr basicBlockBody) {
     this.basicBlockBody = basicBlockBody;
+    return this;
   }
 
   public ISymbol getSymbol() {

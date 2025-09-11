@@ -2,13 +2,7 @@ package org.ek9lang.compiler.phase7;
 
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.data.CallDetails;
-import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
-import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
-import org.ek9lang.compiler.ir.instructions.BranchInstr;
-import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
-import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
@@ -16,8 +10,8 @@ import org.ek9lang.compiler.phase7.support.FieldCreator;
 import org.ek9lang.compiler.phase7.support.FieldsFromCapture;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
-import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
@@ -60,7 +54,8 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
       createInitializationOperations(construct, functionSymbol, ctx);
 
       // Create OperationInstr for the function itself
-      createOperation(construct, functionSymbol, ctx);
+      createConstructorOperation(construct, functionSymbol, ctx);
+      createCallOperation(construct, functionSymbol, ctx);
 
       stackContext.exitScope();
       return construct;
@@ -83,45 +78,24 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     // Create c_init operation for function/static initialization
     final ISymbol superType = functionSymbol.getSuperFunction().orElse(null);
     createInitOperation(construct, functionSymbol, superType);
-    createInstanceInitOperation(construct, functionSymbol);
+    createInstanceInitOperation(construct, functionSymbol, null);
   }
 
-  private void createInstanceInitOperation(final IRConstruct construct,
-                                           final FunctionSymbol functionSymbol) {
-    final var iInitOperation = newSyntheticInitOperation(functionSymbol, IRConstants.I_INIT_METHOD);
-
-    // Use stack context for method-level coordination with fresh IRContext
-    var debugInfo = stackContext.createDebugInfo(functionSymbol.getSourceToken());
-    stackContext.enterMethodScope("i_init", debugInfo, IRFrameType.METHOD);
-
-    // Generate i_init body
-    final var allInstructions = new java.util.ArrayList<IRInstr>();
-
-    //TODO Now it is possible that there are captured variables.
-    //The fields will have been declared, but now they need to be initialised.
-    //TODO this we really need the dynamic function ctx. Leave this for now and restructure the code to
-    // functions.
-
-    allInstructions.add(BranchInstr.returnVoid());
-    // Create BasicBlock with all instructions - use stack context for consistent labeling
-    final var basicBlock = new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL));
-    basicBlock.addInstructions(allInstructions);
-    iInitOperation.setBody(basicBlock);
-
-    construct.add(iInitOperation);
-    stackContext.exitScope();
-  }
-
-  private void createOperation(final IRConstruct construct, final FunctionSymbol functionSymbol,
-                               final EK9Parser.FunctionDeclarationContext ctx) {
+  private void createConstructorOperation(final IRConstruct construct, final FunctionSymbol functionSymbol,
+                                          final EK9Parser.FunctionDeclarationContext ctx) {
 
     // Constructor method coordination
     final var constructorMethod = createSyntheticFunctionConstructorMethod(functionSymbol);
     var debugInfo = stackContext.createDebugInfo(constructorMethod.getSourceToken());
     stackContext.enterMethodScope("constructor", debugInfo, IRFrameType.METHOD);
 
-    processSyntheticConstructor(construct, constructorMethod);
+    final IScopedSymbol superType = functionSymbol.getSuperFunction().orElse(null);
+    processSyntheticConstructor(construct, constructorMethod, superType);
     stackContext.exitScope();
+  }
+
+  private void createCallOperation(final IRConstruct construct, final FunctionSymbol functionSymbol,
+                                   final EK9Parser.FunctionDeclarationContext ctx) {
 
     //TODO IMPORTANT - need the actual capture ctx to get the naming.
     //Now for the synthetic constructor there is not context, in effect we need to call i_init
@@ -209,72 +183,4 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     return callMethod;
   }
 
-  /**
-   * Process a synthetic constructor for the function, now mapped to an aggregate form in the IR.
-   * 1. Call super constructor (if not implicit base class)
-   * 2. Call own class's i_init method
-   * 3. Return this
-   */
-  private void processSyntheticConstructor(final IRConstruct construct, final MethodSymbol constructorSymbol) {
-    final var debugInfo = stackContext.createDebugInfo(constructorSymbol.getSourceToken());
-    final var operation = new OperationInstr(constructorSymbol, debugInfo);
-
-    final var instructions = new java.util.ArrayList<IRInstr>();
-    final var aggregateSymbol = (FunctionSymbol) constructorSymbol.getParentScope();
-
-    // 1. Call super constructor if this class explicitly extends another class
-    final var superFunctionOpt = aggregateSymbol.getSuperFunction();
-    if (superFunctionOpt.isPresent()) {
-      final var superSymbol = superFunctionOpt.get();
-
-      // Only make super call if it's not the implicit base class (like Object)
-      if (notImplicitSuper.test(superSymbol)) {
-        // Try to find constructor symbol in super function for metadata
-        final var metaDataExtractor = createCallMetaDataExtractor();
-        final var constructorSymbolOpt =
-            superSymbol.resolve(new SymbolSearch(superSymbol.getName()));
-        final var metaData = constructorSymbolOpt.isPresent() ? metaDataExtractor.apply(constructorSymbolOpt.get()) :
-            CallMetaDataDetails.defaultMetaData();
-
-        final var callDetails = new CallDetails(
-            IRConstants.SUPER, // Target super object
-            superSymbol.getFullyQualifiedName(),
-            superSymbol.getName(), // Constructor name matches class name
-            java.util.List.of(), // No parameters for default constructor
-            superSymbol.getFullyQualifiedName(), // Return type is the super class
-            java.util.List.of(), // No arguments
-            metaData
-        );
-        instructions.add(CallInstr.call(IRConstants.TEMP_SUPER_INIT, debugInfo, callDetails));
-      }
-    }
-
-    // 2. Call own class's i_init method to initialize this class's fields
-    // Try to find i_init method symbol for metadata
-    final var metaDataExtractor = createCallMetaDataExtractor();
-    final var iInitMethodOpt =
-        aggregateSymbol.resolve(new SymbolSearch(IRConstants.I_INIT_METHOD));
-    final var iInitMetaData = iInitMethodOpt.isPresent() ? metaDataExtractor.apply(iInitMethodOpt.get()) :
-        CallMetaDataDetails.defaultMetaData();
-
-    final var iInitCallDetails = new CallDetails(
-        IRConstants.THIS, // Target this object
-        aggregateSymbol.getFullyQualifiedName(),
-        IRConstants.I_INIT_METHOD,
-        java.util.List.of(), // No parameters
-        voidStr, // Return type
-        java.util.List.of(), // No arguments
-        iInitMetaData
-    );
-    instructions.add(CallInstr.call(IRConstants.TEMP_I_INIT, debugInfo, iInitCallDetails));
-
-    // 3. Return this
-    instructions.add(BranchInstr.returnValue(IRConstants.THIS, debugInfo));
-
-    final var basicBlock = new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL));
-    basicBlock.addInstructions(instructions);
-    operation.setBody(basicBlock);
-
-    construct.add(operation);
-  }
 }

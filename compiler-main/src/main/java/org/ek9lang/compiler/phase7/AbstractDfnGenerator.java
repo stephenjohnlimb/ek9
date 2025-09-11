@@ -1,11 +1,11 @@
 package org.ek9lang.compiler.phase7;
 
+import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
 import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
-import org.ek9lang.compiler.ir.instructions.BranchInstr;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
@@ -15,10 +15,15 @@ import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.generation.IRContext;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
 import org.ek9lang.compiler.phase7.generator.OperationDfnGenerator;
+import org.ek9lang.compiler.phase7.generator.VariableDeclInstrGenerator;
+import org.ek9lang.compiler.phase7.generator.VariableOnlyDeclInstrGenerator;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
+import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
@@ -132,14 +137,12 @@ abstract class AbstractDfnGenerator {
 
     // Use stack context for method-level coordination with fresh IRContext
 
-    stackContext.enterMethodScope("c_init", cInitOperation.getDebugInfo(), IRFrameType.METHOD);
+    stackContext.enterMethodScope(IRConstants.C_INIT_METHOD, cInitOperation.getDebugInfo(), IRFrameType.METHOD);
 
-    // Generate c_init body
-
-    final var allInstructions = new java.util.ArrayList<IRInstr>();
+    // Generate c_init body using stack-based instruction builder
+    var instructionBuilder = new IRInstructionBuilder(stackContext);
 
     // Call super class c_init if this class explicitly extends another class
-
     if (superType != null && notImplicitSuper.test(superType)) {
 
       final var metaData = CallMetaDataDetails.defaultMetaData();
@@ -153,21 +156,137 @@ abstract class AbstractDfnGenerator {
           java.util.List.of(), // No arguments
           metaData
       );
-      allInstructions.add(CallInstr.callStatic(IRConstants.TEMP_C_INIT, null, callDetails));
+      instructionBuilder.addInstruction(CallInstr.callStatic(IRConstants.TEMP_C_INIT, null, callDetails));
     }
-
 
     // TODO: Add static field initialization when static fields are supported
 
     // Return void
-    allInstructions.add(BranchInstr.returnVoid());
+    instructionBuilder.returnVoid();
 
     // Create BasicBlock with all instructions - use stack context for consistent labeling
     final var basicBlock = new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL));
-    basicBlock.addInstructions(allInstructions);
-    cInitOperation.setBody(basicBlock);
+    cInitOperation.setBody(basicBlock.addInstructions(instructionBuilder));
 
     construct.add(cInitOperation);
     stackContext.exitScope();
   }
+
+  /**
+   * Create i_init operation for instance initialization.
+   * This handles property REFERENCE declarations and immediate initializations.
+   */
+  protected void createInstanceInitOperation(final IRConstruct construct,
+                                             final IScope symbol,
+                                             final EK9Parser.AggregatePartsContext ctx) {
+    final var iInitOperation = newSyntheticInitOperation(symbol, IRConstants.I_INIT_METHOD);
+
+    // Use stack context for method-level coordination with fresh IRContext
+    stackContext.enterMethodScope(IRConstants.I_INIT_METHOD, iInitOperation.getDebugInfo(), IRFrameType.METHOD);
+
+    // Generate i_init body using stack-based instruction builder
+    var instructionBuilder = new IRInstructionBuilder(stackContext);
+
+    //Now it is possible that there are captured variables, TODO
+
+    if (ctx != null) {
+      instructionBuilder.addInstructions(processPropertiesForInstanceInit(ctx));
+    }
+
+    instructionBuilder.returnVoid();
+    // Create BasicBlock with all instructions - use stack context for consistent labeling
+    iInitOperation.setBody(new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL))
+        .addInstructions(instructionBuilder));
+
+    construct.add(iInitOperation);
+    stackContext.exitScope();
+  }
+
+  /**
+   * Process all properties for instance initialization.
+   * Generates REFERENCE declarations and immediate initializations.
+   */
+  protected List<IRInstr> processPropertiesForInstanceInit(
+      final EK9Parser.AggregatePartsContext ctx) {
+
+    final var instructions = new java.util.ArrayList<IRInstr>();
+    final var scopeId = stackContext.generateScopeId(IRConstants.I_INIT_METHOD);
+
+    // Process each property in the aggregate
+    for (final var propertyCtx : ctx.aggregateProperty()) {
+      if (propertyCtx.variableDeclaration() != null) {
+        final var variableDeclInstrGenerator = new VariableDeclInstrGenerator(stackContext);
+        instructions.addAll(variableDeclInstrGenerator.apply(propertyCtx.variableDeclaration(), scopeId));
+      } else if (propertyCtx.variableOnlyDeclaration() != null) {
+        var instructionBuilder = new IRInstructionBuilder(stackContext);
+        final var variableOnlyDeclInstrGenerator = new VariableOnlyDeclInstrGenerator(instructionBuilder);
+        instructions.addAll(variableOnlyDeclInstrGenerator.apply(propertyCtx.variableOnlyDeclaration(), scopeId));
+      }
+    }
+
+    return instructions;
+  }
+
+  /**
+   * Process a synthetic constructor (default constructor created by earlier phases).
+   * Implements proper constructor inheritance chain:
+   * 1. Call super constructor (if not implicit base class)
+   * 2. Call own class's i_init method
+   * 3. Return this
+   */
+  protected void processSyntheticConstructor(final IRConstruct construct,
+                                             final MethodSymbol constructorSymbol,
+                                             final IScopedSymbol superType) {
+    final var debugInfo = stackContext.createDebugInfo(constructorSymbol.getSourceToken());
+    final var operation = new OperationInstr(constructorSymbol, debugInfo);
+
+    // Generate constructor body using stack-based instruction builder
+    var instructionBuilder = new IRInstructionBuilder(stackContext);
+    final var scopedSymbol = (IScopedSymbol) constructorSymbol.getParentScope();
+
+    // 1. Call super constructor if this class explicitly extends another class
+    if (superType != null && notImplicitSuper.test(superType)) {
+      // Try to find constructor symbol in superclass for metadata
+      final var metaDataExtractor = createCallMetaDataExtractor();
+      final var constructorSymbolOpt =
+          superType.resolve(new SymbolSearch(superType.getName()));
+      final var metaData = constructorSymbolOpt.isPresent()
+          ? metaDataExtractor.apply(constructorSymbolOpt.get()) :
+          CallMetaDataDetails.defaultMetaData();
+
+      final var callDetails = new CallDetails(
+          IRConstants.SUPER, // Target super object
+          superType.getFullyQualifiedName(),
+          superType.getName(), // Constructor name matches class name
+          java.util.List.of(), // No parameters for default constructor
+          superType.getFullyQualifiedName(), // Return type is the super class
+          java.util.List.of(), // No arguments
+          metaData
+      );
+      instructionBuilder.addInstruction(CallInstr.call(IRConstants.TEMP_SUPER_INIT, debugInfo, callDetails));
+    }
+
+    final var iInitMetaData = CallMetaDataDetails.defaultMetaData();
+
+    final var iInitCallDetails = new CallDetails(
+        IRConstants.THIS, // Target this object
+        scopedSymbol.getFullyQualifiedName(),
+        IRConstants.I_INIT_METHOD,
+        java.util.List.of(), // No parameters
+        voidStr, // Return type
+        java.util.List.of(), // No arguments
+        iInitMetaData
+    );
+    instructionBuilder.addInstruction(CallInstr.call(IRConstants.TEMP_I_INIT, debugInfo, iInitCallDetails));
+
+    // 3. Return this
+    instructionBuilder.returnValue(IRConstants.THIS, debugInfo);
+
+    //Now package up the instructions in a block and add to the operation.
+    operation.setBody(new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL))
+        .addInstructions(instructionBuilder));
+
+    construct.add(operation);
+  }
+
 }

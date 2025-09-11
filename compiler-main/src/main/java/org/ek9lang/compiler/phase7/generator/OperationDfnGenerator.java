@@ -89,9 +89,8 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
     allInstructions.addAll(generateReturnStatement(operation, returnScopeId));
 
     // Create BasicBlock with all instructions
-    final var basicBlock = new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL));
-    basicBlock.addInstructions(allInstructions);
-    operation.setBody(basicBlock);
+    operation.setBody(new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL))
+        .addInstructions(allInstructions));
 
     // No exitScope() needed since we didn't enter a scope
   }

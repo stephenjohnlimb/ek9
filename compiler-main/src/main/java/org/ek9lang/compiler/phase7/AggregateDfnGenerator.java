@@ -1,28 +1,17 @@
 package org.ek9lang.compiler.phase7;
 
-import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.data.CallDetails;
-import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
 import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
-import org.ek9lang.compiler.ir.instructions.BranchInstr;
-import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
-import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.OperationInstr;
-import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
-import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
-import org.ek9lang.compiler.phase7.generator.VariableDeclInstrGenerator;
-import org.ek9lang.compiler.phase7.generator.VariableOnlyDeclInstrGenerator;
 import org.ek9lang.compiler.phase7.support.FieldCreator;
 import org.ek9lang.compiler.phase7.support.FieldsFromCapture;
 import org.ek9lang.compiler.phase7.support.IRConstants;
-import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
 import org.ek9lang.compiler.phase7.support.OperationDetailContextOrError;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
-import org.ek9lang.compiler.symbols.IScope;
+import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
@@ -100,66 +89,6 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
 
   }
 
-
-
-  /**
-   * Create i_init operation for instance initialization.
-   * This handles property REFERENCE declarations and immediate initializations.
-   */
-  protected void createInstanceInitOperation(final IRConstruct construct,
-                                             final AggregateSymbol aggregateSymbol,
-                                             final EK9Parser.AggregatePartsContext ctx) {
-    final var iInitOperation = newSyntheticInitOperation(aggregateSymbol, IRConstants.I_INIT_METHOD);
-
-    // Use stack context for method-level coordination with fresh IRContext
-    var debugInfo = stackContext.createDebugInfo(aggregateSymbol.getSourceToken());
-    stackContext.enterMethodScope("i_init", debugInfo, IRFrameType.METHOD);
-
-    // Generate i_init body
-    final var allInstructions = new java.util.ArrayList<IRInstr>();
-
-    //Now it is possible that there are captured variables, TODO
-
-    if (ctx != null) {
-      allInstructions.addAll(processPropertiesForInstanceInit(ctx));
-    }
-
-    allInstructions.add(BranchInstr.returnVoid());
-    // Create BasicBlock with all instructions - use stack context for consistent labeling
-    final var basicBlock = new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL));
-    basicBlock.addInstructions(allInstructions);
-    iInitOperation.setBody(basicBlock);
-
-    construct.add(iInitOperation);
-    stackContext.exitScope();
-  }
-
-  /**
-   * Process all properties for instance initialization.
-   * Generates REFERENCE declarations and immediate initializations.
-   */
-  protected List<IRInstr> processPropertiesForInstanceInit(
-      final EK9Parser.AggregatePartsContext ctx) {
-
-    final var instructions = new java.util.ArrayList<IRInstr>();
-    final var scopeId = stackContext.generateScopeId(IRConstants.I_INIT_METHOD);
-
-    // Process each property in the aggregate
-    for (final var propertyCtx : ctx.aggregateProperty()) {
-      if (propertyCtx.variableDeclaration() != null) {
-        final var variableDeclInstrGenerator = new VariableDeclInstrGenerator(stackContext);
-        instructions.addAll(variableDeclInstrGenerator.apply(propertyCtx.variableDeclaration(), scopeId));
-      } else if (propertyCtx.variableOnlyDeclaration() != null) {
-        var instructionBuilder = new IRInstructionBuilder(stackContext);
-        final var variableOnlyDeclInstrGenerator = new VariableOnlyDeclInstrGenerator(instructionBuilder);
-        instructions.addAll(variableOnlyDeclInstrGenerator.apply(propertyCtx.variableOnlyDeclaration(), scopeId));
-      }
-    }
-
-    return instructions;
-  }
-
-
   protected void createOperationsForAggregateParts(final IRConstruct construct,
                                                    final AggregateSymbol aggregateSymbol,
                                                    final EK9Parser.AggregatePartsContext ctx) {
@@ -190,7 +119,9 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
   private void processSyntheticMethod(final IRConstruct construct, final MethodSymbol method) {
     if (method.isConstructor()) {
       // Synthetic default constructor
-      processSyntheticConstructor(construct, method);
+      final var aggregateSymbol = (AggregateSymbol) method.getParentScope();
+      final IScopedSymbol superType = aggregateSymbol.getSuperAggregate().orElse(null);
+      processSyntheticConstructor(construct, method, superType);
     } else if (method.isOperator()) {
       // Synthetic operators from default operator
       processSyntheticOperator(construct, method);
@@ -212,99 +143,24 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
 
   }
 
-  /**
-   * Process a synthetic constructor (default constructor created by earlier phases).
-   * Implements proper constructor inheritance chain:
-   * 1. Call super constructor (if not implicit base class)
-   * 2. Call own class's i_init method
-   * 3. Return this
-   */
-  private void processSyntheticConstructor(final IRConstruct construct, final MethodSymbol constructorSymbol) {
-    final var debugInfo = stackContext.createDebugInfo(constructorSymbol.getSourceToken());
-    final var operation = new OperationInstr(constructorSymbol, debugInfo);
-
-    final var instructions = new java.util.ArrayList<IRInstr>();
-    final var aggregateSymbol = (AggregateSymbol) constructorSymbol.getParentScope();
-
-    // 1. Call super constructor if this class explicitly extends another class
-    final var superAggregateOpt = aggregateSymbol.getSuperAggregate();
-    if (superAggregateOpt.isPresent()) {
-      final var superSymbol = superAggregateOpt.get();
-
-      // Only make super call if it's not the implicit base class (like Object)
-      if (notImplicitSuper.test(superSymbol)) {
-        // Try to find constructor symbol in superclass for metadata
-        final var metaDataExtractor = createCallMetaDataExtractor();
-        final var constructorSymbolOpt =
-            superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(superSymbol.getName()));
-        final var metaData = constructorSymbolOpt.isPresent()
-            ? metaDataExtractor.apply(constructorSymbolOpt.get()) :
-            CallMetaDataDetails.defaultMetaData();
-
-        final var callDetails = new CallDetails(
-            IRConstants.SUPER, // Target super object
-            superSymbol.getFullyQualifiedName(),
-            superSymbol.getName(), // Constructor name matches class name
-            java.util.List.of(), // No parameters for default constructor
-            superSymbol.getFullyQualifiedName(), // Return type is the super class
-            java.util.List.of(), // No arguments
-            metaData
-        );
-        instructions.add(CallInstr.call(IRConstants.TEMP_SUPER_INIT, debugInfo, callDetails));
-      }
-    }
-
-    // 2. Call own class's i_init method to initialize this class's fields
-    // Try to find i_init method symbol for metadata
-    final var metaDataExtractor = createCallMetaDataExtractor();
-    final var iInitMethodOpt =
-        aggregateSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.I_INIT_METHOD));
-    final var iInitMetaData = iInitMethodOpt.isPresent()
-        ? metaDataExtractor.apply(iInitMethodOpt.get()) :
-        CallMetaDataDetails.defaultMetaData();
-
-    final var iInitCallDetails = new CallDetails(
-        IRConstants.THIS, // Target this object
-        aggregateSymbol.getFullyQualifiedName(),
-        IRConstants.I_INIT_METHOD,
-        java.util.List.of(), // No parameters
-        voidStr, // Return type
-        java.util.List.of(), // No arguments
-        iInitMetaData
-    );
-    instructions.add(CallInstr.call(IRConstants.TEMP_I_INIT, debugInfo, iInitCallDetails));
-
-    // 3. Return this
-    instructions.add(BranchInstr.returnValue(IRConstants.THIS, debugInfo));
-
-    final var label = stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL);
-    final var basicBlock = new BasicBlockInstr(label);
-    basicBlock.addInstructions(instructions);
-    operation.setBody(basicBlock);
-
-    construct.add(operation);
-  }
 
   /**
    * Process a synthetic operator (generated from 'default operator' declarations).
    * For now, creates placeholder - full implementation will be added later.
    */
   private void processSyntheticOperator(final IRConstruct construct, final MethodSymbol operatorSymbol) {
-    // Create placeholder synthetic operator operation
-    final var context = newPerConstructContext();
-    final var debugInfo = new DebugInfoCreator(context).apply(operatorSymbol.getSourceToken());
+    final var debugInfo = stackContext.createDebugInfo(operatorSymbol.getSourceToken());
     final var operation = new OperationInstr(operatorSymbol, debugInfo);
+
+    // Generate placeholder body using stack-based instruction builder  
+    var instructionBuilder = new IRInstructionBuilder(stackContext);
 
     // TODO: Implement based on operator type and base operators
     // This will be complex and handled in later implementation phases
-    final var instructions = new java.util.ArrayList<IRInstr>();
+    instructionBuilder.returnVoid(); // Placeholder
 
-    instructions.add(BranchInstr.returnVoid()); // Placeholder
-
-    final var label = stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL);
-    final var basicBlock = new BasicBlockInstr(label);
-    basicBlock.addInstructions(instructions);
-    operation.setBody(basicBlock);
+    operation.setBody(new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL))
+        .addInstructions(instructionBuilder));
 
     construct.add(operation);
   }
@@ -314,20 +170,17 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
    * For now, creates placeholder - full implementation will be added later.
    */
   private void processSyntheticRegularMethod(final IRConstruct construct, final MethodSymbol methodSymbol) {
-    // Create placeholder synthetic regular method operation
-    final var context = newPerConstructContext();
-    final var debugInfo = new DebugInfoCreator(context).apply(methodSymbol.getSourceToken());
+    final var debugInfo = stackContext.createDebugInfo(methodSymbol.getSourceToken());
     final var operation = new OperationInstr(methodSymbol, debugInfo);
 
+    // Generate placeholder body using stack-based instruction builder
+    var instructionBuilder = new IRInstructionBuilder(stackContext);
+
     // TODO: Implement based on method semantics (e.g., _isSet, _hash)
-    final var instructions = new java.util.ArrayList<IRInstr>();
+    instructionBuilder.returnVoid(); // Placeholder
 
-    instructions.add(BranchInstr.returnVoid()); // Placeholder
-
-    final var label = stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL);
-    final var basicBlock = new BasicBlockInstr(label);
-    basicBlock.addInstructions(instructions);
-    operation.setBody(basicBlock);
+    operation.setBody(new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL))
+        .addInstructions(instructionBuilder));
 
     construct.add(operation);
   }
