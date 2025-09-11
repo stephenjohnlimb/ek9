@@ -2,22 +2,23 @@ package org.ek9lang.compiler.phase7;
 
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
-import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
 import org.ek9lang.compiler.ir.instructions.BranchInstr;
-import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.instructions.OperationInstr;
+import org.ek9lang.compiler.phase7.generation.IRFrameType;
+import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.FieldCreator;
 import org.ek9lang.compiler.phase7.support.FieldsFromCapture;
 import org.ek9lang.compiler.phase7.support.IRConstants;
-import org.ek9lang.compiler.phase7.generation.IRFrameType;
-import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
 import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.symbols.VariableSymbol;
@@ -80,47 +81,38 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
                                               final EK9Parser.FunctionDeclarationContext ctx) {
 
     // Create c_init operation for function/static initialization
-    createInitOperation(construct, functionSymbol);
+    final ISymbol superType = functionSymbol.getSuperFunction().orElse(null);
+    createInitOperation(construct, functionSymbol, superType);
     createInstanceInitOperation(construct, functionSymbol);
   }
 
-  private void createInitOperation(final IRConstruct construct, final FunctionSymbol functionSymbol) {
+  private void createInitOperation(final IRConstruct construct,
+                                   final FunctionSymbol functionSymbol,
+                                   ISymbol superType) {
     // Create a synthetic method symbol for c_init is when the class/construct definition is actually loaded.
     final var cInitOperation = newSyntheticInitOperation(functionSymbol, IRConstants.C_INIT_METHOD);
 
-    // Use stack context for method-level coordination with fresh IRContext
-    var debugInfo = stackContext.createDebugInfo(functionSymbol.getSourceToken());
-    stackContext.enterMethodScope("c_init", debugInfo, IRFrameType.METHOD);
+    stackContext.enterMethodScope("c_init", cInitOperation.getDebugInfo(), IRFrameType.METHOD);
 
     // Generate c_init body
     final var allInstructions = new java.util.ArrayList<IRInstr>();
 
     // Call super class c_init if this class explicitly extends another class
-    final var superFunctionOpt = functionSymbol.getSuperFunction();
-    if (superFunctionOpt.isPresent()) {
-      final var superSymbol = superFunctionOpt.get();
+    if (superType != null && notImplicitSuper.test(superType)) {
 
-      // Only make super call if it's not the implicit base class (like Object)
-      // Check if this is an explicit inheritance (not implicit base class)
-      if (notImplicitSuper.test(superSymbol)) {
-        // Try to find c_init method symbol in super function for metadata
-        final var metaDataExtractor = createCallMetaDataExtractor();
-        final var cInitMethodOpt = superSymbol.resolve(new SymbolSearch(IRConstants.C_INIT_METHOD));
-        final var metaData = cInitMethodOpt.isPresent() ? metaDataExtractor.apply(cInitMethodOpt.get()) :
-            CallMetaDataDetails.defaultMetaData();
-
-        final var callDetails = new CallDetails(
-            null, // No target object for static call
-            superSymbol.getFullyQualifiedName(),
-            IRConstants.C_INIT_METHOD,
-            java.util.List.of(), // No parameters
-            voidStr, // Return type
-            java.util.List.of(), // No arguments
-            metaData
-        );
-        allInstructions.add(CallInstr.callStatic(IRConstants.TEMP_C_INIT, null, callDetails));
-      }
+      final var metaData = CallMetaDataDetails.defaultMetaData();
+      final var callDetails = new CallDetails(
+          null, // No target object for static call
+          superType.getFullyQualifiedName(),
+          IRConstants.C_INIT_METHOD,
+          java.util.List.of(), // No parameters
+          voidStr, // Return type
+          java.util.List.of(), // No arguments
+          metaData
+      );
+      allInstructions.add(CallInstr.callStatic(IRConstants.TEMP_C_INIT, null, callDetails));
     }
+
 
     allInstructions.add(BranchInstr.returnVoid());
 

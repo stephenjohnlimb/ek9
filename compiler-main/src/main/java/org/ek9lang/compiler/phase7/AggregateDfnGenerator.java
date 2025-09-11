@@ -22,6 +22,7 @@ import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
 import org.ek9lang.compiler.phase7.support.OperationDetailContextOrError;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.core.AssertValue;
@@ -92,7 +93,8 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
                                                 final EK9Parser.AggregatePartsContext ctx) {
 
     // Create c_init operation for class/static initialization
-    createInitOperation(construct, aggregateSymbol);
+    final ISymbol superType = aggregateSymbol.getSuperAggregate().orElse(null);
+    createInitOperation(construct, aggregateSymbol, superType);
 
     //Now the i_init operation for the instance when created.
     createInstanceInitOperation(construct, aggregateSymbol, ctx);
@@ -103,7 +105,8 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
    * Create c_init operation for class/static initialization.
    * This runs once per class loading.
    */
-  protected void createInitOperation(final IRConstruct construct, final AggregateSymbol aggregateSymbol) {
+  protected void createInitOperation(final IRConstruct construct,
+                                     final AggregateSymbol aggregateSymbol, ISymbol superType) {
     // Create a synthetic method symbol for c_init is when the class/construct definition is actually loaded.
     final var cInitOperation = newSyntheticInitOperation(aggregateSymbol, IRConstants.C_INIT_METHOD);
 
@@ -116,33 +119,23 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
     final var allInstructions = new java.util.ArrayList<IRInstr>();
 
     // Call super class c_init if this class explicitly extends another class
-    final var superAggregateOpt = aggregateSymbol.getSuperAggregate();
-    if (superAggregateOpt.isPresent()) {
-      final var superSymbol = superAggregateOpt.get();
 
-      // Only make super call if it's not the implicit base class (like Object)
-      // Check if this is an explicit inheritance (not implicit base class)
-      if (notImplicitSuper.test(superSymbol)) {
-        // Try to find c_init method symbol in superclass for metadata
-        final var metaDataExtractor = createCallMetaDataExtractor();
-        final var cInitMethodOpt =
-            superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.C_INIT_METHOD));
-        final var metaData = cInitMethodOpt.isPresent()
-            ? metaDataExtractor.apply(cInitMethodOpt.get()) :
-            CallMetaDataDetails.defaultMetaData();
+    if (superType != null && notImplicitSuper.test(superType)) {
 
-        final var callDetails = new CallDetails(
-            null, // No target object for static call
-            superSymbol.getFullyQualifiedName(),
-            IRConstants.C_INIT_METHOD,
-            java.util.List.of(), // No parameters
-            voidStr, // Return type
-            java.util.List.of(), // No arguments
-            metaData
-        );
-        allInstructions.add(CallInstr.callStatic(IRConstants.TEMP_C_INIT, null, callDetails));
-      }
+      final var metaData = CallMetaDataDetails.defaultMetaData();
+
+      final var callDetails = new CallDetails(
+          null, // No target object for static call
+          superType.getFullyQualifiedName(),
+          IRConstants.C_INIT_METHOD,
+          java.util.List.of(), // No parameters
+          voidStr, // Return type
+          java.util.List.of(), // No arguments
+          metaData
+      );
+      allInstructions.add(CallInstr.callStatic(IRConstants.TEMP_C_INIT, null, callDetails));
     }
+
 
     // TODO: Add static field initialization when static fields are supported
 

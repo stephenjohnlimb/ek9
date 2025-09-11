@@ -15,7 +15,6 @@ import org.ek9lang.core.CompilerException;
 final class TraitDfnGenerator extends AggregateDfnGenerator
     implements Function<EK9Parser.TraitDeclarationContext, IRConstruct> {
 
-
   /**
    * Constructor using stack context - the single source of state.
    */
