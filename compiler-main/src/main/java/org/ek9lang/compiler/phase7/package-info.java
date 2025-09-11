@@ -17,7 +17,7 @@
  * <p>
  * You will notice the there is some use of abbreviations in the class naming, this is because
  * words like Statement (Stmt), Definition (Dfn), Instruction (Instr) and Declaration (Decl) are quite long
- * and in combination would become excessive. Plus these abbreviations used are fairly stlandard.
+ * and in combination would become excessive. Plus these abbreviations used are fairly standard.
  * </p>
  * <p>
  * {@link org.ek9lang.compiler.phase7.IRGenerator} is the main entry point for this phase.
