@@ -1,6 +1,7 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.instructions;
 
 import org.ek9lang.compiler.common.INodeVisitor;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
 

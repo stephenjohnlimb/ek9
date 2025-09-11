@@ -4,7 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.common.INodeVisitor;
-import org.ek9lang.compiler.ir.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 

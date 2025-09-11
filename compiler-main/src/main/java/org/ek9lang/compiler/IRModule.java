@@ -4,7 +4,7 @@ import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.core.AssertValue;
 
 /**

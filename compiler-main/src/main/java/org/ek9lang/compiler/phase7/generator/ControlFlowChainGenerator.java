@@ -5,19 +5,19 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.TypeNameOrException;
-import org.ek9lang.compiler.ir.CallDetails;
-import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.ConditionCase;
-import org.ek9lang.compiler.ir.ControlFlowChainDetails;
-import org.ek9lang.compiler.ir.ControlFlowChainInstr;
-import org.ek9lang.compiler.ir.DefaultCaseDetails;
-import org.ek9lang.compiler.ir.EvaluationVariableDetails;
-import org.ek9lang.compiler.ir.GuardVariableDetails;
-import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.MemoryInstr;
-import org.ek9lang.compiler.ir.ReturnVariableDetails;
-import org.ek9lang.compiler.ir.ScopeInstr;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
+import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
+import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
+import org.ek9lang.compiler.ir.instructions.ControlFlowChainInstr;
+import org.ek9lang.compiler.ir.data.DefaultCaseDetails;
+import org.ek9lang.compiler.ir.data.EvaluationVariableDetails;
+import org.ek9lang.compiler.ir.data.GuardVariableDetails;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.instructions.MemoryInstr;
+import org.ek9lang.compiler.ir.data.ReturnVariableDetails;
+import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForOfFalse;
@@ -125,7 +125,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var nullCaseDetails = new VariableDetails(nullCaseResult, operandBasicDetails);
     final var nullCaseEvaluation = generateBooleanFalseEvaluation(nullCaseDetails);
 
-    final var nullCheckCase = ConditionCase.createNullCheck(
+    final var nullCheckCase = ConditionCaseDetails.createNullCheck(
         basicDetails.scopeId(), // case scope same as main scope for Question operator
         operandEvaluationInstructions,
         null, // No EK9 Boolean condition result for null check
@@ -172,7 +172,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var nullCaseDetails = new VariableDetails(nullCaseResult, basicDetails);
     final var nullCaseEvaluation = generateBooleanFalseEvaluation(nullCaseDetails);
 
-    final var nullCheckCase = ConditionCase.createNullCheck(
+    final var nullCheckCase = ConditionCaseDetails.createNullCheck(
         basicDetails.scopeId(),
         operandEvaluationInstructions,
         null, // No EK9 Boolean condition result
@@ -235,7 +235,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         callDetailsForIsTrue.apply(invertedCondition)
     ));
 
-    final var assignmentCase = ConditionCase.createExpression(
+    final var assignmentCase = ConditionCaseDetails.createExpression(
         basicDetails.scopeId(),
         conditionEvaluationInstructions,
         invertedCondition, // EK9 Boolean result  
@@ -288,7 +288,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
 
     // Call _isSet() on loaded variable
     // For now use default metadata since type resolution from string is complex
-    final var isSetMetaData = new CallMetaData(true, 0);
+    final var isSetMetaData = new CallMetaDataDetails(true, 0);
     final var methodName = operatorMap.getForward("?");
     final var isSetCallDetails = new CallDetails(operandVariable, operandType,
         methodName, List.of(), EK9TypeNames.EK9_BOOLEAN, List.of(), isSetMetaData);
@@ -307,7 +307,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
                                                                    final String operandType,
                                                                    final VariableDetails resultDetails) {
     // For now use default metadata since type resolution from string is complex
-    final var isSetMetaData = new CallMetaData(true, 0);
+    final var isSetMetaData = new CallMetaDataDetails(true, 0);
 
     final var methodName = operatorMap.getForward("?");
     final var isSetCallDetails = new CallDetails(operandVariable, operandType,
@@ -327,7 +327,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var booleanType = EK9TypeNames.EK9_BOOLEAN;
 
     // Create metadata for _not operator call on Boolean
-    final var notMetaData = new CallMetaData(true, 0);
+    final var notMetaData = new CallMetaDataDetails(true, 0);
     final var methodName = operatorMap.getForward("~");
     final var notCallDetails = new CallDetails(booleanVariable, booleanType,
         methodName, List.of(), booleanType, List.of(), notMetaData);

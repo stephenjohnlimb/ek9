@@ -1,6 +1,7 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.instructions;
 
 import org.ek9lang.compiler.common.INodeVisitor;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
 
@@ -15,13 +16,13 @@ import org.ek9lang.core.AssertValue;
  * function signature would be applied (to the 'call' operation).
  * </p>
  */
-public final class Operation implements INode {
+public final class OperationInstr implements INode {
 
   private final DebugInfo debugInfo;
   private BasicBlockInstr basicBlockBody;
   private final ISymbol symbol;
 
-  public Operation(final ISymbol symbol, final DebugInfo debugInfo) {
+  public OperationInstr(final ISymbol symbol, final DebugInfo debugInfo) {
 
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
     this.symbol = symbol;
@@ -48,7 +49,7 @@ public final class Operation implements INode {
   @SuppressWarnings("checkstyle:OperatorWrap")
   @Override
   public String toString() {
-    return "Operation{"
+    return "OperationInstr{"
         + "symbol=" + symbol
         + ", body=" + basicBlockBody
         + '}';

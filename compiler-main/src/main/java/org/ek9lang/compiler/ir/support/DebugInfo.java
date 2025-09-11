@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.support;
 
 import java.util.Objects;
 import javax.annotation.Nonnull;

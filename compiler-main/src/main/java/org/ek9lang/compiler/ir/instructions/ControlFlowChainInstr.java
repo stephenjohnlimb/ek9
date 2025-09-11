@@ -1,6 +1,10 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.instructions;
 
 import java.util.List;
+import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
+import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
+import org.ek9lang.compiler.ir.data.EnumOptimizationDetails;
+import org.ek9lang.compiler.ir.IROpcode;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -34,10 +38,10 @@ public final class ControlFlowChainInstr extends IRInstr {
   private final String returnVariable;
   private final String returnVariableType;
   private final List<IRInstr> returnVariableSetup;
-  private final List<ConditionCase> conditionChain;
+  private final List<ConditionCaseDetails> conditionChain;
   private final List<IRInstr> defaultBodyEvaluation;
   private final String defaultResult;
-  private final EnumOptimizationInfo enumOptimizationInfo;
+  private final EnumOptimizationDetails enumOptimizationInfo;
   private final String scopeId;
 
   /**
@@ -136,7 +140,7 @@ public final class ControlFlowChainInstr extends IRInstr {
   /**
    * Get the sequential condition chain.
    */
-  public List<ConditionCase> getConditionChain() {
+  public List<ConditionCaseDetails> getConditionChain() {
     return conditionChain;
   }
 
@@ -157,7 +161,7 @@ public final class ControlFlowChainInstr extends IRInstr {
   /**
    * Get enum optimization information.
    */
-  public EnumOptimizationInfo getEnumOptimizationInfo() {
+  public EnumOptimizationDetails getEnumOptimizationInfo() {
     return enumOptimizationInfo;
   }
 
@@ -281,7 +285,7 @@ public final class ControlFlowChainInstr extends IRInstr {
     builder.append("]\n");
   }
   
-  private void appendConditionCase(StringBuilder builder, ConditionCase conditionCase) {
+  private void appendConditionCase(StringBuilder builder, ConditionCaseDetails conditionCase) {
     builder.append("[\n");
     
     if (conditionCase.caseScopeId() != null) {

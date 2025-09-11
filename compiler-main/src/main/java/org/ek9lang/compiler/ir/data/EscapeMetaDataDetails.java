@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.data;
 
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -8,29 +8,29 @@ import javax.annotation.Nonnull;
  * Indicates whether values can escape their current scope and enables
  * backend optimizations like stack allocation instead of reference counting.
  */
-public record EscapeMetaData(EscapeLevel escapeLevel,
-                             LifetimeScope lifetimeScope,
-                             Set<String> optimizationHints) {
+public record EscapeMetaDataDetails(EscapeLevel escapeLevel,
+                                    LifetimeScope lifetimeScope,
+                                    Set<String> optimizationHints) {
 
   /**
    * Creates metadata for values that don't escape their scope.
    */
-  public static EscapeMetaData noEscape(LifetimeScope lifetimeScope) {
-    return new EscapeMetaData(EscapeLevel.NONE, lifetimeScope, Set.of("STACK_CANDIDATE"));
+  public static EscapeMetaDataDetails noEscape(LifetimeScope lifetimeScope) {
+    return new EscapeMetaDataDetails(EscapeLevel.NONE, lifetimeScope, Set.of("STACK_CANDIDATE"));
   }
 
   /**
    * Creates metadata for values that escape to parameters.
    */
-  public static EscapeMetaData escapeParameter(LifetimeScope lifetimeScope) {
-    return new EscapeMetaData(EscapeLevel.PARAMETER, lifetimeScope, Set.of());
+  public static EscapeMetaDataDetails escapeParameter(LifetimeScope lifetimeScope) {
+    return new EscapeMetaDataDetails(EscapeLevel.PARAMETER, lifetimeScope, Set.of());
   }
 
   /**
    * Creates metadata for values that escape globally.
    */
-  public static EscapeMetaData escapeGlobal(LifetimeScope lifetimeScope) {
-    return new EscapeMetaData(EscapeLevel.GLOBAL, lifetimeScope, Set.of());
+  public static EscapeMetaDataDetails escapeGlobal(LifetimeScope lifetimeScope) {
+    return new EscapeMetaDataDetails(EscapeLevel.GLOBAL, lifetimeScope, Set.of());
   }
 
   /**

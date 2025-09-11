@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase7;
 
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
@@ -43,19 +43,19 @@ final class TraitDfnGenerator extends AbstractDfnGenerator
   private void createOperationsForAggregateParts(final IRConstruct construct,
                                                  final AggregateSymbol aggregateSymbol,
                                                  final EK9Parser.AggregatePartsContext ctx) {
-    // Create Operation nodes for each method in the trait
+    // Create OperationInstr nodes for each method in the trait
     for (final var methodCtx : ctx.methodDeclaration()) {
       final var symbol = getParsedModule().getRecordedSymbol(methodCtx);
       processAsMethodOrOperator(construct, symbol, methodCtx.operationDetails());
     }
 
-    // Create Operation nodes for each operator in the trait
+    // Create OperationInstr nodes for each operator in the trait
     for (final var operatorCtx : ctx.operatorDeclaration()) {
       final var symbol = getParsedModule().getRecordedSymbol(operatorCtx);
       processAsMethodOrOperator(construct, symbol, operatorCtx.operationDetails());
     }
 
     // Note: Trait properties are handled differently - they're typically abstract declarations
-    // Only concrete default implementations create Operation nodes
+    // Only concrete default implementations create OperationInstr nodes
   }
 }

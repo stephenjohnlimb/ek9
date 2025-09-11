@@ -6,9 +6,10 @@ import java.util.function.BiFunction;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.common.TypeNameOrException;
-import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.MemoryInstr;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
@@ -147,7 +148,7 @@ final class CallInstrGenerator extends AbstractGenerator
     instructions.addAll(callDetailsResult.allInstructions());
 
     // Step 5: Fix the target type name to be the function name, not the return type
-    final var correctedCallDetails = new org.ek9lang.compiler.ir.CallDetails(
+    final var correctedCallDetails = new CallDetails(
         callDetailsResult.callDetails().targetObject(),
         fullyQualifiedFunctionName, // Use function name as target type, not return type
         callDetailsResult.callDetails().methodName(),

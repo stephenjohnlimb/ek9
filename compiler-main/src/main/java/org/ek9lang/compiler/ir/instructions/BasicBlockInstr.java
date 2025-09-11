@@ -1,8 +1,9 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.instructions;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.compiler.common.INodeVisitor;
+import org.ek9lang.compiler.ir.IROpcode;
 import org.ek9lang.core.AssertValue;
 
 /**

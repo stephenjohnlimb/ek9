@@ -6,9 +6,10 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.common.TypeNameOrException;
-import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.MemoryInstr;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.calls.CallProcessingDetails;
@@ -138,7 +139,7 @@ public final class FunctionCallProcessor implements Function<CallProcessingDetai
     final var callDetails = callDetailsResult.callDetails();
 
     // Override target information for function calls (use function instance)
-    final var functionCallDetails = new org.ek9lang.compiler.ir.CallDetails(
+    final var functionCallDetails = new CallDetails(
         functionInstanceVar,           // Target: the singleton instance variable
         fullyQualifiedFunctionName,    // Target type: the function type
         "_call",                       // Method: always "_call" for functions

@@ -2,7 +2,7 @@ package org.ek9lang.compiler.backend;
 
 import java.io.File;
 import org.ek9lang.compiler.CompilerFlags;
-import org.ek9lang.compiler.ir.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.IRConstruct;
 
 /**
  * A given construct from a specific source should be output to the targetFile.

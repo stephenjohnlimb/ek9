@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase7;
 
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
@@ -43,19 +43,19 @@ final class ComponentDfnGenerator extends AbstractDfnGenerator
   private void createOperationsForAggregateParts(final IRConstruct construct,
                                                  final AggregateSymbol aggregateSymbol,
                                                  final EK9Parser.AggregatePartsContext ctx) {
-    // Create Operation nodes for each method in the component
+    // Create OperationInstr nodes for each method in the component
     for (final var methodCtx : ctx.methodDeclaration()) {
       final var symbol = getParsedModule().getRecordedSymbol(methodCtx);
       processAsMethodOrOperator(construct, symbol, methodCtx.operationDetails());
     }
 
-    // Create Operation nodes for each operator in the component
+    // Create OperationInstr nodes for each operator in the component
     for (final var operatorCtx : ctx.operatorDeclaration()) {
       final var symbol = getParsedModule().getRecordedSymbol(operatorCtx);
       processAsMethodOrOperator(construct, symbol, operatorCtx.operationDetails());
     }
 
     // Note: Component properties are like static fields - handled differently than operations
-    // They would be processed for initialization expressions but don't create Operation nodes
+    // They would be processed for initialization expressions but don't create OperationInstr nodes
   }
 }

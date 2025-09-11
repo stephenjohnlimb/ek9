@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase7.generation;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
-import org.ek9lang.compiler.ir.DebugInfo;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.core.AssertValue;
 
 /**

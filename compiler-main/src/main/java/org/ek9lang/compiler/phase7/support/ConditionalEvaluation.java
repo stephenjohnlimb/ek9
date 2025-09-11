@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.phase7.support;
 
 import java.util.List;
-import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 
 /**
  * Record to group conditional evaluation instructions with the resulting condition name.

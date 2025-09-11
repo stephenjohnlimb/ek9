@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 
 /**
  * Converts the single IRInstr supplied by the supplier into a List with one element in.

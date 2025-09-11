@@ -3,6 +3,7 @@ package org.ek9lang.compiler.ir;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.ek9lang.compiler.common.INodeVisitor;
+import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.symbols.AnyTypeSymbol;
 import org.ek9lang.compiler.symbols.SymbolTable;
 import org.junit.jupiter.api.Test;

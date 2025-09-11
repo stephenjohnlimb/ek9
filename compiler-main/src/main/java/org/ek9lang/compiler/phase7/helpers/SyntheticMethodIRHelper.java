@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase7.helpers;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
-import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
 import org.ek9lang.compiler.support.CommonValues;

@@ -1,10 +1,10 @@
 package org.ek9lang.compiler.common;
 
-import org.ek9lang.compiler.ir.BasicBlockInstr;
-import org.ek9lang.compiler.ir.Field;
-import org.ek9lang.compiler.ir.IRConstruct;
-import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.Operation;
+import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
+import org.ek9lang.compiler.ir.instructions.Field;
+import org.ek9lang.compiler.ir.instructions.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.instructions.OperationInstr;
 
 /**
  * Used for double dispatch when visiting nodes.
@@ -24,7 +24,7 @@ public interface INodeVisitor {
   default void visit(final Field field) {
   }
 
-  default void visit(final Operation operation) {
+  default void visit(final OperationInstr operation) {
   }
 
   // New IR instruction visitor methods

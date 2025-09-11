@@ -1,7 +1,8 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.data;
 
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 
 /**
  * Record containing guard variable management information for CONTROL_FLOW_CHAIN constructs.

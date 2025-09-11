@@ -2,8 +2,8 @@ package org.ek9lang.compiler.phase7;
 
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.IRConstruct;
-import org.ek9lang.compiler.ir.Operation;
+import org.ek9lang.compiler.ir.instructions.OperationInstr;
+import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
@@ -36,7 +36,7 @@ final class ProgramDfnGenerator extends AbstractDfnGenerator
       final var construct = new IRConstruct(symbol);
       //Now for 'programs' we have used just a 'method' in the grammar, mangled it to an aggregate.
       //then created an artificial method on that aggregate - so there is no 'parse tree' for this.
-      //We must now manually make the Operation and then we can jump back to the parse tree (ctx) and
+      //We must now manually make the OperationInstr and then we can jump back to the parse tree (ctx) and
       //process that.
       createOperation(construct, aggregateSymbol, ctx);
       return construct;
@@ -56,7 +56,7 @@ final class ProgramDfnGenerator extends AbstractDfnGenerator
     final var optionalMethod = aggregateSymbol.getAllMethods().stream().findFirst();
     optionalMethod.ifPresent(method -> {
       final var debugInfo = new DebugInfoCreator(context).apply(method.getSourceToken());
-      final var operation = new Operation(method, debugInfo);
+      final var operation = new OperationInstr(method, debugInfo);
       operationDfnGenerator.accept(operation, ctx.operationDetails());
       construct.add(operation);
     });

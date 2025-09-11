@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.phase7.support;
 
-import org.ek9lang.compiler.ir.DebugInfo;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 
 /**
  * Just hold basic scope and debug information.

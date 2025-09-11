@@ -3,7 +3,7 @@ package org.ek9lang.compiler.backend.jvm;
 import java.io.File;
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.CompilerFlags;
-import org.ek9lang.compiler.ir.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.TargetArchitecture;
 

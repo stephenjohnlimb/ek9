@@ -1,6 +1,8 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.instructions;
 
 import java.util.List;
+import org.ek9lang.compiler.ir.IROpcode;
+import org.ek9lang.compiler.ir.data.QuestionDetails;
 import org.ek9lang.compiler.phase7.support.OperandEvaluation;
 import org.ek9lang.core.AssertValue;
 

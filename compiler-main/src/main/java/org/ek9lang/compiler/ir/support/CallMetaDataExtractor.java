@@ -1,9 +1,10 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.support;
 
 import java.util.HashSet;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
 import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
@@ -22,7 +23,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  * - NO_MUTATION: Implied when no mutation side effects are present<br>
  * </p>
  */
-public class CallMetaDataExtractor implements Function<ISymbol, CallMetaData> {
+public class CallMetaDataExtractor implements Function<ISymbol, CallMetaDataDetails> {
 
   private final Ek9Types ek9Types;
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
@@ -35,9 +36,9 @@ public class CallMetaDataExtractor implements Function<ISymbol, CallMetaData> {
   }
 
   @Override
-  public CallMetaData apply(final ISymbol symbol) {
+  public CallMetaDataDetails apply(final ISymbol symbol) {
     if (symbol == null) {
-      return CallMetaData.defaultMetaData();
+      return CallMetaDataDetails.defaultMetaData();
     }
 
     final var isPure = symbol.isMarkedPure();
@@ -80,7 +81,7 @@ public class CallMetaDataExtractor implements Function<ISymbol, CallMetaData> {
       sideEffects.addAll(operatorSideEffects);
     }
 
-    return new CallMetaData(isPure, complexityScore, sideEffects);
+    return new CallMetaDataDetails(isPure, complexityScore, sideEffects);
   }
 
   /**

@@ -179,7 +179,7 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
   }
 
   default void setSuperAggregate(final IAggregateSymbol superAggregateSymbol) {
-    //No Operation
+    //No OperationInstr
   }
 
   boolean isInAggregateHierarchy(final IAggregateSymbol theAggregateToCheck);

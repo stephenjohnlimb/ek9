@@ -1,22 +1,22 @@
 package org.ek9lang.compiler.phase7.generation;
 
-import org.ek9lang.compiler.ir.DebugInfo;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 
 /**
  * Represents a single frame on the IR generation stack.
- * 
+ *
  * <p>Each frame captures the essential context information needed
  * for IR generation at a specific scope level (method, function,
  * block, expression, etc.).</p>
- * 
+ *
  * <p>This eliminates the need for parameter threading by providing
  * all contextual information through the stack frame.</p>
- * 
- * @param scopeId The unique identifier for this scope
- * @param debugInfo Debug information for this scope (may be null if debug disabled)
- * @param frameType The type of frame (method, function, block, etc.)
+ *
+ * @param scopeId         The unique identifier for this scope
+ * @param debugInfo       Debug information for this scope (could be null if debug disabled)
+ * @param frameType       The type of frame (method, function, block, etc.)
  * @param hasLeftHandSide Whether this scope has a left-hand side for result variables
- * @param contextData Additional context data specific to this frame type
+ * @param contextData     Additional context data specific to this frame type
  */
 public record IRStackFrame(
     String scopeId,
@@ -36,7 +36,7 @@ public record IRStackFrame(
   /**
    * Create a frame with left-hand side indication.
    */
-  public static IRStackFrame withLeftHandSide(String scopeId, DebugInfo debugInfo, 
+  public static IRStackFrame withLeftHandSide(String scopeId, DebugInfo debugInfo,
                                               IRFrameType frameType, boolean hasLeftHandSide) {
     return new IRStackFrame(scopeId, debugInfo, frameType, hasLeftHandSide, null);
   }
@@ -44,7 +44,7 @@ public record IRStackFrame(
   /**
    * Create a frame with additional context data.
    */
-  public static IRStackFrame withContext(String scopeId, DebugInfo debugInfo, 
+  public static IRStackFrame withContext(String scopeId, DebugInfo debugInfo,
                                          IRFrameType frameType, Object contextData) {
     return new IRStackFrame(scopeId, debugInfo, frameType, false, contextData);
   }

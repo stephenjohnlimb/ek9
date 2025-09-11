@@ -1,6 +1,8 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.instructions;
 
 import java.util.List;
+import org.ek9lang.compiler.ir.support.DebugInfo;
+import org.ek9lang.compiler.ir.IROpcode;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 
 /**
@@ -31,6 +33,10 @@ public final class ScopeInstr extends IRInstr {
   public static ScopeInstr register(final String object, final BasicDetails basicDetails) {
     return new ScopeInstr(IROpcode.SCOPE_REGISTER, null, basicDetails.debugInfo())
         .addOperands(object, basicDetails.scopeId());
+  }
+
+  public static ScopeInstr register(final String object, final String scopeId, final DebugInfo debugInfo) {
+    return new ScopeInstr(IROpcode.SCOPE_REGISTER, null, debugInfo).addOperands(object, scopeId);
   }
 
   private ScopeInstr(final IROpcode opcode, final String result, final DebugInfo debugInfo) {

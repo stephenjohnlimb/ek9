@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.data;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
  * while preserving the sequential evaluation semantics of EK9 switch statements.
  * </p>
  */
-public record EnumOptimizationInfo(
+public record EnumOptimizationDetails(
     /*
      * Fully qualified type name of the enum being switched on.
      * Example: "com.example.project::Color"
@@ -56,12 +56,12 @@ public record EnumOptimizationInfo(
    * Create enum optimization info for a dense, exhaustive switch.
    * Optimal case for jump table generation.
    */
-  public static EnumOptimizationInfo createDenseExhaustive(
+  public static EnumOptimizationDetails createDenseExhaustive(
       String enumType,
       List<String> enumValues,
       List<Integer> enumOrdinals) {
 
-    return new EnumOptimizationInfo(
+    return new EnumOptimizationDetails(
         enumType,
         enumValues,
         enumOrdinals,
@@ -74,12 +74,12 @@ public record EnumOptimizationInfo(
    * Create enum optimization info for a sparse switch with default case.
    * Better suited for sequential evaluation or binary search.
    */
-  public static EnumOptimizationInfo createSparseWithDefault(
+  public static EnumOptimizationDetails createSparseWithDefault(
       String enumType,
       List<String> enumValues,
       List<Integer> enumOrdinals) {
 
-    return new EnumOptimizationInfo(
+    return new EnumOptimizationDetails(
         enumType,
         enumValues,
         enumOrdinals,
@@ -92,12 +92,12 @@ public record EnumOptimizationInfo(
    * Create enum optimization info for a dense switch with default case.
    * Could benefit from jump table with bounds check for default.
    */
-  public static EnumOptimizationInfo createDenseWithDefault(
+  public static EnumOptimizationDetails createDenseWithDefault(
       String enumType,
       List<String> enumValues,
       List<Integer> enumOrdinals) {
 
-    return new EnumOptimizationInfo(
+    return new EnumOptimizationDetails(
         enumType,
         enumValues,
         enumOrdinals,

@@ -2,14 +2,14 @@ package org.ek9lang.compiler.phase7;
 
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.BasicBlockInstr;
-import org.ek9lang.compiler.ir.BranchInstr;
-import org.ek9lang.compiler.ir.CallDetails;
-import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.IRConstruct;
-import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.Operation;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
+import org.ek9lang.compiler.ir.instructions.OperationInstr;
+import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
+import org.ek9lang.compiler.ir.instructions.BranchInstr;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
+import org.ek9lang.compiler.ir.instructions.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.support.FieldCreator;
 import org.ek9lang.compiler.phase7.support.FieldsFromCapture;
 import org.ek9lang.compiler.phase7.support.IRConstants;
@@ -58,7 +58,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
       // Create three-phase initialization operations
       createInitializationOperations(construct, functionSymbol, ctx);
 
-      // Create Operation for the function itself
+      // Create OperationInstr for the function itself
       createOperation(construct, functionSymbol, ctx);
 
       stackContext.exitScope();
@@ -107,7 +107,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
         final var metaDataExtractor = createCallMetaDataExtractor();
         final var cInitMethodOpt = superSymbol.resolve(new SymbolSearch(IRConstants.C_INIT_METHOD));
         final var metaData = cInitMethodOpt.isPresent() ? metaDataExtractor.apply(cInitMethodOpt.get()) :
-            CallMetaData.defaultMetaData();
+            CallMetaDataDetails.defaultMetaData();
 
         final var callDetails = new CallDetails(
             null, // No target object for static call
@@ -179,8 +179,8 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     // Create synthetic _call method following AggregateManipulator patterns
     final var callMethod = createSyntheticCallMethod(functionSymbol);
     final var callDebugInfo = stackContext.createDebugInfo(callMethod.getSourceToken());
-    // Create Operation for the synthetic _call method (not the function itself)
-    final var callOperation = new Operation(callMethod, callDebugInfo);
+    // Create OperationInstr for the synthetic _call method (not the function itself)
+    final var callOperation = new OperationInstr(callMethod, callDebugInfo);
 
     // _call method coordination 
     var debugInfo2 = stackContext.createDebugInfo(callMethod.getSourceToken());
@@ -264,7 +264,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
    */
   private void processSyntheticConstructor(final IRConstruct construct, final MethodSymbol constructorSymbol) {
     final var debugInfo = stackContext.createDebugInfo(constructorSymbol.getSourceToken());
-    final var operation = new Operation(constructorSymbol, debugInfo);
+    final var operation = new OperationInstr(constructorSymbol, debugInfo);
 
     final var instructions = new java.util.ArrayList<IRInstr>();
     final var aggregateSymbol = (FunctionSymbol) constructorSymbol.getParentScope();
@@ -281,7 +281,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
         final var constructorSymbolOpt =
             superSymbol.resolve(new SymbolSearch(superSymbol.getName()));
         final var metaData = constructorSymbolOpt.isPresent() ? metaDataExtractor.apply(constructorSymbolOpt.get()) :
-            CallMetaData.defaultMetaData();
+            CallMetaDataDetails.defaultMetaData();
 
         final var callDetails = new CallDetails(
             IRConstants.SUPER, // Target super object
@@ -302,7 +302,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     final var iInitMethodOpt =
         aggregateSymbol.resolve(new SymbolSearch(IRConstants.I_INIT_METHOD));
     final var iInitMetaData = iInitMethodOpt.isPresent() ? metaDataExtractor.apply(iInitMethodOpt.get()) :
-        CallMetaData.defaultMetaData();
+        CallMetaDataDetails.defaultMetaData();
 
     final var iInitCallDetails = new CallDetails(
         IRConstants.THIS, // Target this object

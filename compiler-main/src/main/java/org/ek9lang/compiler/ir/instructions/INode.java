@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.instructions;
 
 import org.ek9lang.compiler.common.INodeVisitor;
 

@@ -3,9 +3,9 @@ package org.ek9lang.compiler.phase7.support;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.MemoryInstr;
-import org.ek9lang.compiler.ir.ScopeInstr;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.instructions.MemoryInstr;
+import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 
 /**
  * Calls a supplier of main processing instructions and then adds in the memory management.

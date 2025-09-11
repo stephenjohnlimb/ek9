@@ -190,7 +190,7 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
         return expressionFromOperatorDataOrError(ctx, new CheckOperatorData(symbol, opToken, search));
       }
     } else {
-      throw new CompilerException("Operation must have at least one expression.");
+      throw new CompilerException("OperationInstr must have at least one expression.");
     }
 
     return null;

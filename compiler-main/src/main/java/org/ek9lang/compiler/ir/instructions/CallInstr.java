@@ -1,7 +1,10 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.instructions;
 
 import java.util.List;
 import org.ek9lang.compiler.common.INodeVisitor;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.support.DebugInfo;
+import org.ek9lang.compiler.ir.IROpcode;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 
 /**

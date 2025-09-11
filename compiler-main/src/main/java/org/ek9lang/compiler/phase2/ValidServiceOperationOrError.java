@@ -31,7 +31,7 @@ final class ValidServiceOperationOrError extends RuleSupport
   private final HttpAccessOrError httpAccessOrError;
 
   /**
-   * Create a new Check Service Operation function.
+   * Create a new Check Service OperationInstr function.
    */
   ValidServiceOperationOrError(final SymbolsAndScopes symbolsAndScopes,
                                final ErrorListener errorListener) {

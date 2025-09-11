@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase7.support;
 
 import java.util.List;
 import java.util.function.Function;
-import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 
 /**
  * Triggers the expression processing with the given details.

@@ -1,6 +1,7 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.data;
 
 import java.util.List;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 
 /**
  * Record representing a single condition case within a CONTROL_FLOW_CHAIN.
@@ -16,7 +17,7 @@ import java.util.List;
  * and corresponding body execution if the condition matches.
  * </p>
  */
-public record ConditionCase(
+public record ConditionCaseDetails(
     /*
      * Optional scope ID for case-level variable management.
      * Used when case bodies contain local variable declarations.
@@ -97,7 +98,7 @@ public record ConditionCase(
   /**
    * Create a condition case for the Question operator null check.
    */
-  public static ConditionCase createNullCheck(
+  public static ConditionCaseDetails createNullCheck(
       String caseScopeId,
       List<IRInstr> conditionEvaluation,
       String conditionResult,
@@ -105,7 +106,7 @@ public record ConditionCase(
       List<IRInstr> bodyEvaluation,
       String bodyResult) {
 
-    return new ConditionCase(
+    return new ConditionCaseDetails(
         caseScopeId,
         "NULL_CHECK",
         List.of(), // No guard updates
@@ -123,7 +124,7 @@ public record ConditionCase(
   /**
    * Create a condition case for general boolean expressions (if statements).
    */
-  public static ConditionCase createExpression(
+  public static ConditionCaseDetails createExpression(
       String caseScopeId,
       List<IRInstr> conditionEvaluation,
       String conditionResult,
@@ -131,7 +132,7 @@ public record ConditionCase(
       List<IRInstr> bodyEvaluation,
       String bodyResult) {
 
-    return new ConditionCase(
+    return new ConditionCaseDetails(
         caseScopeId,
         "EXPRESSION",
         List.of(), // No guard updates
@@ -149,7 +150,7 @@ public record ConditionCase(
   /**
    * Create a condition case for enum constant comparison (switch enum cases).
    */
-  public static ConditionCase createEnumCase(
+  public static ConditionCaseDetails createEnumCase(
       String caseScopeId,
       String enumConstant,
       int enumOrdinal,
@@ -159,7 +160,7 @@ public record ConditionCase(
       List<IRInstr> bodyEvaluation,
       String bodyResult) {
 
-    return new ConditionCase(
+    return new ConditionCaseDetails(
         caseScopeId,
         "ENUM_CONSTANT",
         List.of(), // No guard updates
@@ -177,7 +178,7 @@ public record ConditionCase(
   /**
    * Create a condition case for literal value comparison (switch literal cases).
    */
-  public static ConditionCase createLiteral(
+  public static ConditionCaseDetails createLiteral(
       String caseScopeId,
       List<IRInstr> conditionEvaluation,
       String conditionResult,
@@ -185,7 +186,7 @@ public record ConditionCase(
       List<IRInstr> bodyEvaluation,
       String bodyResult) {
 
-    return new ConditionCase(
+    return new ConditionCaseDetails(
         caseScopeId,
         "LITERAL",
         List.of(), // No guard updates
@@ -203,7 +204,7 @@ public record ConditionCase(
   /**
    * Create a condition case for guard conditions (if/switch with guards).
    */
-  public static ConditionCase createGuardCondition(
+  public static ConditionCaseDetails createGuardCondition(
       String caseScopeId,
       List<IRInstr> guardUpdates,
       String bodyScopeId,
@@ -213,7 +214,7 @@ public record ConditionCase(
       List<IRInstr> bodyEvaluation,
       String bodyResult) {
 
-    return new ConditionCase(
+    return new ConditionCaseDetails(
         caseScopeId,
         "GUARD_CONDITION",
         guardUpdates,

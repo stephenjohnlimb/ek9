@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.phase7.support;
 
 import org.ek9lang.compiler.ir.IROpcode;
-import org.ek9lang.compiler.ir.LogicalOperationInstr;
+import org.ek9lang.compiler.ir.instructions.LogicalOperationInstr;
 
 /**
  * Record to group logical operation context information.
@@ -10,7 +10,7 @@ import org.ek9lang.compiler.ir.LogicalOperationInstr;
  * result of a logical operation (AND/OR):
  * - IROpcode: The specific IR operation code (LOGICAL_AND_BLOCK/LOGICAL_OR_BLOCK)
  * - Result: The variable name that will hold the operation result
- * - Operation: The logical operation type (AND/OR enum)
+ * - OperationInstr: The logical operation type (AND/OR enum)
  * </p>
  * <p>
  * Provides a foundation for consistent operation context handling across
@@ -30,7 +30,7 @@ public record LogicalOperationContext(
       throw new IllegalArgumentException("Result cannot be null or blank");
     }
     if (operation == null) {
-      throw new IllegalArgumentException("Operation cannot be null");
+      throw new IllegalArgumentException("OperationInstr cannot be null");
     }
   }
 }

@@ -1,4 +1,7 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.instructions;
+
+import org.ek9lang.compiler.ir.support.DebugInfo;
+import org.ek9lang.compiler.ir.IROpcode;
 
 /**
  * Specialized IR instruction for control flow labels (LABEL).

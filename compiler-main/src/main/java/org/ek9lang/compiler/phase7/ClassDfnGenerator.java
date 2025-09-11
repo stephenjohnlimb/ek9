@@ -2,14 +2,14 @@ package org.ek9lang.compiler.phase7;
 
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.BasicBlockInstr;
-import org.ek9lang.compiler.ir.BranchInstr;
-import org.ek9lang.compiler.ir.CallDetails;
-import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.IRConstruct;
-import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.Operation;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
+import org.ek9lang.compiler.ir.instructions.OperationInstr;
+import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
+import org.ek9lang.compiler.ir.instructions.BranchInstr;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
+import org.ek9lang.compiler.ir.instructions.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
@@ -143,7 +143,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
             superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.C_INIT_METHOD));
         final var metaData = cInitMethodOpt.isPresent()
             ? metaDataExtractor.apply(cInitMethodOpt.get()) :
-            CallMetaData.defaultMetaData();
+            CallMetaDataDetails.defaultMetaData();
 
         final var callDetails = new CallDetails(
             null, // No target object for static call
@@ -324,7 +324,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
    */
   private void processSyntheticConstructor(final IRConstruct construct, final MethodSymbol constructorSymbol) {
     final var debugInfo = stackContext.createDebugInfo(constructorSymbol.getSourceToken());
-    final var operation = new Operation(constructorSymbol, debugInfo);
+    final var operation = new OperationInstr(constructorSymbol, debugInfo);
 
     final var instructions = new java.util.ArrayList<IRInstr>();
     final var aggregateSymbol = (AggregateSymbol) constructorSymbol.getParentScope();
@@ -342,7 +342,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
             superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(superSymbol.getName()));
         final var metaData = constructorSymbolOpt.isPresent()
             ? metaDataExtractor.apply(constructorSymbolOpt.get()) :
-            CallMetaData.defaultMetaData();
+            CallMetaDataDetails.defaultMetaData();
 
         final var callDetails = new CallDetails(
             IRConstants.SUPER, // Target super object
@@ -364,7 +364,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
         aggregateSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.I_INIT_METHOD));
     final var iInitMetaData = iInitMethodOpt.isPresent()
         ? metaDataExtractor.apply(iInitMethodOpt.get()) :
-        CallMetaData.defaultMetaData();
+        CallMetaDataDetails.defaultMetaData();
 
     final var iInitCallDetails = new CallDetails(
         IRConstants.THIS, // Target this object
@@ -396,7 +396,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
     // Create placeholder synthetic operator operation
     final var context = newPerConstructContext();
     final var debugInfo = new DebugInfoCreator(context).apply(operatorSymbol.getSourceToken());
-    final var operation = new Operation(operatorSymbol, debugInfo);
+    final var operation = new OperationInstr(operatorSymbol, debugInfo);
 
     // TODO: Implement based on operator type and base operators
     // This will be complex and handled in later implementation phases
@@ -420,7 +420,7 @@ final class ClassDfnGenerator extends AbstractDfnGenerator
     // Create placeholder synthetic regular method operation
     final var context = newPerConstructContext();
     final var debugInfo = new DebugInfoCreator(context).apply(methodSymbol.getSourceToken());
-    final var operation = new Operation(methodSymbol, debugInfo);
+    final var operation = new OperationInstr(methodSymbol, debugInfo);
 
     // TODO: Implement based on method semantics (e.g., _isSet, _hash)
     final var instructions = new java.util.ArrayList<IRInstr>();

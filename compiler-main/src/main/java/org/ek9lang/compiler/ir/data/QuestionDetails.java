@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.data;
 
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.OperandEvaluation;

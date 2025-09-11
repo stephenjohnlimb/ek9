@@ -5,10 +5,10 @@ import java.util.Set;
 import java.util.function.Function;
 import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.TypeNameOrException;
-import org.ek9lang.compiler.ir.CallDetails;
-import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.CallMetaDataExtractor;
-import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
+import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.MethodResolutionResult;
 import org.ek9lang.compiler.phase7.support.PromotionResult;
@@ -136,7 +136,7 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
 
     // Try to get operator details from OperatorMap by method name (backward lookup)
     String returnType;
-    CallMetaData metaData;
+    CallMetaDataDetails metaData;
 
     if (operatorMap.hasMethod(context.methodName())) {
       final var operatorDetails = operatorMap.getOperatorDetailsByMethod(context.methodName());
@@ -151,7 +151,7 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
       // Get side effects from centralized OperatorMap logic
       final var sideEffects = operatorMap.getSideEffectsByMethod(context.methodName());
 
-      metaData = new CallMetaData(
+      metaData = new CallMetaDataDetails(
           operatorDetails.markedPure(),
           operatorDetails.markedPure() ? 1 : 0, // Simple complexity: 1 for pure, 0 for impure
           Set.copyOf(sideEffects)

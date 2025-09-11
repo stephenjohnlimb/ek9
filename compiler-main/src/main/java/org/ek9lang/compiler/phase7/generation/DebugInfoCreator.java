@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.phase7.generation;
 
 import java.util.function.Function;
-import org.ek9lang.compiler.ir.DebugInfo;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 

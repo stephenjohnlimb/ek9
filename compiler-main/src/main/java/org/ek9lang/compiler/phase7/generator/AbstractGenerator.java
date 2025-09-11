@@ -1,8 +1,8 @@
 package org.ek9lang.compiler.phase7.generator;
 
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.CallMetaDataExtractor;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
+import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
 import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
@@ -45,9 +45,9 @@ abstract class AbstractGenerator {
    * Extract call metadata from a symbol using the common pattern.
    * This consolidates the frequent pattern of creating CallMetaDataExtractor and applying it.
    */
-  protected CallMetaData extractCallMetaData(final ISymbol symbol) {
+  protected CallMetaDataDetails extractCallMetaData(final ISymbol symbol) {
     final var metaDataExtractor = new CallMetaDataExtractor(stackContext.getParsedModule().getEk9Types());
-    return symbol != null ? metaDataExtractor.apply(symbol) : CallMetaData.defaultMetaData();
+    return symbol != null ? metaDataExtractor.apply(symbol) : CallMetaDataDetails.defaultMetaData();
   }
 
 }

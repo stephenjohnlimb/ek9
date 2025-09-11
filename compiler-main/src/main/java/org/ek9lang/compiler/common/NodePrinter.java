@@ -1,11 +1,11 @@
 package org.ek9lang.compiler.common;
 
 import java.io.PrintWriter;
-import org.ek9lang.compiler.ir.BasicBlockInstr;
-import org.ek9lang.compiler.ir.Field;
-import org.ek9lang.compiler.ir.IRConstruct;
-import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.Operation;
+import org.ek9lang.compiler.ir.instructions.OperationInstr;
+import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
+import org.ek9lang.compiler.ir.instructions.Field;
+import org.ek9lang.compiler.ir.instructions.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 
 /**
  * Just to enable viewing and printing of nodes.
@@ -41,7 +41,7 @@ public class NodePrinter implements INodeVisitor {
   }
 
   @Override
-  public void visit(final Operation operation) {
+  public void visit(final OperationInstr operation) {
 
     final var symbol = operation.getSymbol();
     final var debugLocation = operation.getDebugInfo() != null ? operation.getDebugInfo() : "";

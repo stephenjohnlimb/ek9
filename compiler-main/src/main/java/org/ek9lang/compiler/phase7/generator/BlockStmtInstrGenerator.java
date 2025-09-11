@@ -3,7 +3,7 @@ package org.ek9lang.compiler.phase7.generator;
 import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;

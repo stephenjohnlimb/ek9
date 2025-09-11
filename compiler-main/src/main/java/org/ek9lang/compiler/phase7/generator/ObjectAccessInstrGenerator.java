@@ -5,12 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.TypeNameOrException;
-import org.ek9lang.compiler.ir.CallDetails;
-import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.CallMetaDataExtractor;
-import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.MemoryInstr;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
+import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
@@ -135,7 +135,7 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
             // Generate the method call with complete type information
             final var callDetails = new CallDetails(tempObj, targetTypeName, methodName,
                 parameterTypes, returnTypeName, Arrays.asList(arguments),
-                CallMetaData.defaultMetaData());
+                CallMetaDataDetails.defaultMetaData());
 
             instructions.add(CallInstr.call(variableDetails.resultVariable(), debugInfo, callDetails));
           }

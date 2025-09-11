@@ -5,15 +5,15 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
-import org.ek9lang.compiler.ir.BasicBlockInstr;
-import org.ek9lang.compiler.ir.BranchInstr;
-import org.ek9lang.compiler.ir.CallDetails;
-import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.CallMetaDataExtractor;
-import org.ek9lang.compiler.ir.IRInstr;
-import org.ek9lang.compiler.ir.Operation;
-import org.ek9lang.compiler.ir.ScopeInstr;
+import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
+import org.ek9lang.compiler.ir.instructions.BranchInstr;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
+import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.instructions.OperationInstr;
+import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
@@ -37,7 +37,7 @@ import org.ek9lang.core.AssertValue;
  * This processing does NOT deal with that.
  * </p>
  */
-public final class OperationDfnGenerator implements BiConsumer<Operation, EK9Parser.OperationDetailsContext> {
+public final class OperationDfnGenerator implements BiConsumer<OperationInstr, EK9Parser.OperationDetailsContext> {
 
   private final IRGenerationContext stackContext;
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
@@ -48,7 +48,7 @@ public final class OperationDfnGenerator implements BiConsumer<Operation, EK9Par
   }
 
   @Override
-  public void accept(final Operation operation, final EK9Parser.OperationDetailsContext ctx) {
+  public void accept(final OperationInstr operation, final EK9Parser.OperationDetailsContext ctx) {
 
     // Use stack context for block-level coordination (inherits method's IRContext)
     // Don't create a new scope here - let the instruction block create its own scope
@@ -185,7 +185,7 @@ public final class OperationDfnGenerator implements BiConsumer<Operation, EK9Par
    * If the operation returns a value, return the return variable.
    * If the operation returns void, return void.
    */
-  private List<IRInstr> generateReturnStatement(final Operation operation, final String returnScopeId) {
+  private List<IRInstr> generateReturnStatement(final OperationInstr operation, final String returnScopeId) {
     final var instructions = new ArrayList<IRInstr>();
 
     // Check if the operation has a return type
@@ -241,7 +241,7 @@ public final class OperationDfnGenerator implements BiConsumer<Operation, EK9Par
         final var constructorSymbolOpt =
             superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(superSymbol.getName()));
         final var metaData = constructorSymbolOpt.isPresent() ? metaDataExtractor.apply(constructorSymbolOpt.get()) :
-            CallMetaData.defaultMetaData();
+            CallMetaDataDetails.defaultMetaData();
 
         final var callDetails = new CallDetails(
             IRConstants.SUPER, // Target super object
@@ -262,7 +262,7 @@ public final class OperationDfnGenerator implements BiConsumer<Operation, EK9Par
     final var iInitMethodOpt =
         aggregateSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.I_INIT_METHOD));
     final var iInitMetaData = iInitMethodOpt.isPresent() ? metaDataExtractor.apply(iInitMethodOpt.get()) :
-        CallMetaData.defaultMetaData();
+        CallMetaDataDetails.defaultMetaData();
 
     final var iInitCallDetails = new CallDetails(
         IRConstants.THIS, // Target this object

@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.data;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +14,7 @@ public record CallDetails(String targetObject,
                           List<String> parameterTypes,
                           String returnTypeName,
                           List<String> arguments,
-                          CallMetaData metaData) {
+                          CallMetaDataDetails metaData) {
 
   @Override
   @Nonnull

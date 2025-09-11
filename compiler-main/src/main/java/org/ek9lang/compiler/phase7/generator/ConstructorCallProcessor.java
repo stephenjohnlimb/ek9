@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.TypeNameOrException;
-import org.ek9lang.compiler.ir.CallDetails;
-import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.CallMetaDataExtractor;
-import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
+import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
@@ -141,8 +141,8 @@ public final class ConstructorCallProcessor {
   /**
    * Extract call metadata for the given symbol.
    */
-  private CallMetaData extractCallMetaData(final ISymbol symbol) {
+  private CallMetaDataDetails extractCallMetaData(final ISymbol symbol) {
     final var metaDataExtractor = new CallMetaDataExtractor(stackContext.getParsedModule().getEk9Types());
-    return symbol != null ? metaDataExtractor.apply(symbol) : CallMetaData.defaultMetaData();
+    return symbol != null ? metaDataExtractor.apply(symbol) : CallMetaDataDetails.defaultMetaData();
   }
 }

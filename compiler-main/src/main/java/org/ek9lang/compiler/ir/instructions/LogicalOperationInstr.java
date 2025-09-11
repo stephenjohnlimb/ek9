@@ -1,6 +1,8 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.instructions;
 
 import java.util.List;
+import org.ek9lang.compiler.ir.IROpcode;
+import org.ek9lang.compiler.ir.data.LogicalDetails;
 import org.ek9lang.compiler.phase7.support.ConditionalEvaluation;
 import org.ek9lang.compiler.phase7.support.LogicalOperationContext;
 import org.ek9lang.compiler.phase7.support.OperandEvaluation;
@@ -61,7 +63,7 @@ public final class LogicalOperationInstr extends IRInstr {
                                 final LogicalDetails logicalDetails) {
     super(operationContext.opcode(), operationContext.result(), logicalDetails.basicDetails().debugInfo());
 
-    AssertValue.checkNotNull("Operation context cannot be null", operationContext);
+    AssertValue.checkNotNull("OperationInstr context cannot be null", operationContext);
     AssertValue.checkNotNull("logicalDetails evaluation cannot be null", logicalDetails);
 
     this.operationContext = operationContext;

@@ -1,9 +1,12 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.instructions;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.common.INodeVisitor;
+import org.ek9lang.compiler.ir.data.EscapeMetaDataDetails;
+import org.ek9lang.compiler.ir.support.DebugInfo;
+import org.ek9lang.compiler.ir.IROpcode;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -30,7 +33,7 @@ public class IRInstr implements INode {
   private final DebugInfo debugInfo;
   
   // Optional escape analysis metadata for optimization (set by IR_OPTIMISATION phase)
-  private EscapeMetaData escapeMetaData;
+  private EscapeMetaDataDetails escapeMetaData;
 
   /**
    * Create instruction with no result (e.g., STORE, BRANCH).
@@ -97,7 +100,7 @@ public class IRInstr implements INode {
   /**
    * Get escape analysis metadata for this instruction.
    */
-  public Optional<EscapeMetaData> getEscapeMetaData() {
+  public Optional<EscapeMetaDataDetails> getEscapeMetaData() {
     return Optional.ofNullable(escapeMetaData);
   }
 
@@ -105,7 +108,7 @@ public class IRInstr implements INode {
    * Set escape analysis metadata for this instruction.
    * Should only be called during IR_OPTIMISATION phase.
    */
-  public void setEscapeMetaData(final EscapeMetaData escapeMetaData) {
+  public void setEscapeMetaData(final EscapeMetaDataDetails escapeMetaData) {
     this.escapeMetaData = escapeMetaData;
   }
 

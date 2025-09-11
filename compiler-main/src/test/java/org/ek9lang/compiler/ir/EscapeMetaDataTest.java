@@ -5,57 +5,59 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
+import org.ek9lang.compiler.ir.data.EscapeMetaDataDetails;
+import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests for EscapeMetaData record and IR instruction integration.
+ * Tests for EscapeMetaDataDetails record and IR instruction integration.
  */
 class EscapeMetaDataTest {
 
   @Test
   void testEscapeMetaDataCreation() {
     // Test basic creation
-    final var metadata = new EscapeMetaData(
-        EscapeMetaData.EscapeLevel.NONE,
-        EscapeMetaData.LifetimeScope.LOCAL_SCOPE,
+    final var metadata = new EscapeMetaDataDetails(
+        EscapeMetaDataDetails.EscapeLevel.NONE,
+        EscapeMetaDataDetails.LifetimeScope.LOCAL_SCOPE,
         Set.of("STACK_CANDIDATE")
     );
     
-    assertEquals(EscapeMetaData.EscapeLevel.NONE, metadata.escapeLevel());
-    assertEquals(EscapeMetaData.LifetimeScope.LOCAL_SCOPE, metadata.lifetimeScope());
+    assertEquals(EscapeMetaDataDetails.EscapeLevel.NONE, metadata.escapeLevel());
+    assertEquals(EscapeMetaDataDetails.LifetimeScope.LOCAL_SCOPE, metadata.lifetimeScope());
     assertTrue(metadata.optimizationHints().contains("STACK_CANDIDATE"));
   }
 
   @Test
   void testEscapeMetaDataFactoryMethods() {
     // Test noEscape factory method
-    final var noEscape = EscapeMetaData.noEscape(EscapeMetaData.LifetimeScope.FUNCTION);
-    assertEquals(EscapeMetaData.EscapeLevel.NONE, noEscape.escapeLevel());
-    assertEquals(EscapeMetaData.LifetimeScope.FUNCTION, noEscape.lifetimeScope());
+    final var noEscape = EscapeMetaDataDetails.noEscape(EscapeMetaDataDetails.LifetimeScope.FUNCTION);
+    assertEquals(EscapeMetaDataDetails.EscapeLevel.NONE, noEscape.escapeLevel());
+    assertEquals(EscapeMetaDataDetails.LifetimeScope.FUNCTION, noEscape.lifetimeScope());
     assertTrue(noEscape.optimizationHints().contains("STACK_CANDIDATE"));
 
     // Test escapeParameter factory method
-    final var escapeParam = EscapeMetaData.escapeParameter(EscapeMetaData.LifetimeScope.FUNCTION);
-    assertEquals(EscapeMetaData.EscapeLevel.PARAMETER, escapeParam.escapeLevel());
+    final var escapeParam = EscapeMetaDataDetails.escapeParameter(EscapeMetaDataDetails.LifetimeScope.FUNCTION);
+    assertEquals(EscapeMetaDataDetails.EscapeLevel.PARAMETER, escapeParam.escapeLevel());
     assertTrue(escapeParam.optimizationHints().isEmpty());
 
     // Test escapeGlobal factory method
-    final var escapeGlobal = EscapeMetaData.escapeGlobal(EscapeMetaData.LifetimeScope.STATIC);
-    assertEquals(EscapeMetaData.EscapeLevel.GLOBAL, escapeGlobal.escapeLevel());
-    assertEquals(EscapeMetaData.LifetimeScope.STATIC, escapeGlobal.lifetimeScope());
+    final var escapeGlobal = EscapeMetaDataDetails.escapeGlobal(EscapeMetaDataDetails.LifetimeScope.STATIC);
+    assertEquals(EscapeMetaDataDetails.EscapeLevel.GLOBAL, escapeGlobal.escapeLevel());
+    assertEquals(EscapeMetaDataDetails.LifetimeScope.STATIC, escapeGlobal.lifetimeScope());
   }
 
   @Test
   void testEscapeMetaDataStringification() {
     // Test basic stringification
-    final var metadata = EscapeMetaData.noEscape(EscapeMetaData.LifetimeScope.LOCAL_SCOPE);
+    final var metadata = EscapeMetaDataDetails.noEscape(EscapeMetaDataDetails.LifetimeScope.LOCAL_SCOPE);
     final var expected = "[escape=NONE, lifetime=LOCAL_SCOPE, hints=STACK_CANDIDATE]";
     assertEquals(expected, metadata.toString());
 
     // Test with unknown lifetime
-    final var unknownLifetime = new EscapeMetaData(
-        EscapeMetaData.EscapeLevel.GLOBAL,
-        EscapeMetaData.LifetimeScope.UNKNOWN,
+    final var unknownLifetime = new EscapeMetaDataDetails(
+        EscapeMetaDataDetails.EscapeLevel.GLOBAL,
+        EscapeMetaDataDetails.LifetimeScope.UNKNOWN,
         Set.of()
     );
     assertEquals("[escape=GLOBAL]", unknownLifetime.toString());
@@ -71,7 +73,7 @@ class EscapeMetaDataTest {
     assertTrue(instr.getEscapeMetaData().isEmpty());
 
     // Add metadata
-    final var metadata = EscapeMetaData.noEscape(EscapeMetaData.LifetimeScope.LOCAL_SCOPE);
+    final var metadata = EscapeMetaDataDetails.noEscape(EscapeMetaDataDetails.LifetimeScope.LOCAL_SCOPE);
     instr.setEscapeMetaData(metadata);
     
     // Verify metadata is present
@@ -90,7 +92,7 @@ class EscapeMetaDataTest {
     assertEquals("_temp1 = LOAD variable", withoutMetadata);
     
     // With metadata
-    final var metadata = EscapeMetaData.noEscape(EscapeMetaData.LifetimeScope.LOCAL_SCOPE);
+    final var metadata = EscapeMetaDataDetails.noEscape(EscapeMetaDataDetails.LifetimeScope.LOCAL_SCOPE);
     instr.setEscapeMetaData(metadata);
     
     final var withMetadata = instr.toString();

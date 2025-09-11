@@ -6,10 +6,10 @@ import java.util.function.BiFunction;
 import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.common.TypeNameOrException;
-import org.ek9lang.compiler.ir.CallDetails;
-import org.ek9lang.compiler.ir.CallInstr;
-import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.IRInstr;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
@@ -130,7 +130,7 @@ public final class ParameterPromotionProcessor
         List.of(),   // No parameters for promote
         promotedTypeName,
         List.of(),   // No arguments for promote
-        new CallMetaData(operatorDetails.markedPure(), 0, operatorMap.getSideEffects(PROMOTE_OPERATOR))
+        new CallMetaDataDetails(operatorDetails.markedPure(), 0, operatorMap.getSideEffects(PROMOTE_OPERATOR))
     );
 
     // Generate the promotion call instruction with proper memory management

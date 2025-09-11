@@ -1,4 +1,4 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.instructions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public final class IRConstruct implements INode {
 
   private final ISymbol symbol;
   private final List<Field> fields = new ArrayList<>();
-  private final List<Operation> operations = new ArrayList<>();
+  private final List<OperationInstr> operations = new ArrayList<>();
 
   private final SymbolSignatureExtractor symbolSignatureExtractor = new SymbolSignatureExtractor();
 
@@ -78,8 +78,8 @@ public final class IRConstruct implements INode {
     fields.add(field);
   }
 
-  public void add(final Operation operation) {
-    AssertValue.checkNotNull("Operation cannot be null", operation);
+  public void add(final OperationInstr operation) {
+    AssertValue.checkNotNull("OperationInstr cannot be null", operation);
     operations.add(operation);
   }
 
@@ -91,7 +91,7 @@ public final class IRConstruct implements INode {
     return List.copyOf(fields);
   }
 
-  public List<Operation> getOperations() {
+  public List<OperationInstr> getOperations() {
     return List.copyOf(operations);
   }
 

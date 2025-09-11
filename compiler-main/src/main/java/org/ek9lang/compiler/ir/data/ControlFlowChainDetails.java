@@ -1,7 +1,8 @@
-package org.ek9lang.compiler.ir;
+package org.ek9lang.compiler.ir.data;
 
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 
 /**
@@ -56,7 +57,7 @@ public record ControlFlowChainDetails(
      * Sequential list of condition cases to evaluate.
      * Each case contains condition evaluation and body execution instructions.
      */
-    List<ConditionCase> conditionChain,
+    List<ConditionCaseDetails> conditionChain,
 
     /*
      * Default case management details.
@@ -69,7 +70,7 @@ public record ControlFlowChainDetails(
      * Enum-specific optimization information.
      * null for non-enum switches.
      */
-    EnumOptimizationInfo enumOptimizationInfo,
+    EnumOptimizationDetails enumOptimizationInfo,
 
     /*
      * Basic details including scope ID and debug information.
@@ -82,7 +83,7 @@ public record ControlFlowChainDetails(
    */
   public static ControlFlowChainDetails createQuestionOperator(
       String result,
-      List<ConditionCase> conditionChain,
+      List<ConditionCaseDetails> conditionChain,
       List<IRInstr> defaultBodyEvaluation,
       String defaultResult,
       BasicDetails basicDetails) {
@@ -105,7 +106,7 @@ public record ControlFlowChainDetails(
    */
   public static ControlFlowChainDetails createIfElse(
       String result,
-      List<ConditionCase> conditionChain,
+      List<ConditionCaseDetails> conditionChain,
       List<IRInstr> defaultBodyEvaluation,
       String defaultResult,
       BasicDetails basicDetails) {
@@ -134,10 +135,10 @@ public record ControlFlowChainDetails(
       String returnVariable,
       String returnVariableType,
       List<IRInstr> returnVariableSetup,
-      List<ConditionCase> conditionChain,
+      List<ConditionCaseDetails> conditionChain,
       List<IRInstr> defaultBodyEvaluation,
       String defaultResult,
-      EnumOptimizationInfo enumOptimizationInfo,
+      EnumOptimizationDetails enumOptimizationInfo,
       BasicDetails basicDetails) {
     
     return new ControlFlowChainDetails(
@@ -164,7 +165,7 @@ public record ControlFlowChainDetails(
       String returnVariable,
       String returnVariableType,
       List<IRInstr> returnVariableSetup,
-      List<ConditionCase> conditionChain,
+      List<ConditionCaseDetails> conditionChain,
       List<IRInstr> defaultBodyEvaluation,
       String defaultResult,
       BasicDetails basicDetails) {
@@ -268,7 +269,7 @@ public record ControlFlowChainDetails(
       List<IRInstr> guardScopeSetup,
       String guardScopeId,
       String conditionScopeId,
-      List<ConditionCase> conditionChain,
+      List<ConditionCaseDetails> conditionChain,
       List<IRInstr> defaultBodyEvaluation,
       String defaultResult,
       BasicDetails basicDetails) {
@@ -301,7 +302,7 @@ public record ControlFlowChainDetails(
       String returnVariable,
       String returnVariableType,
       List<IRInstr> returnVariableSetup,
-      List<ConditionCase> conditionChain,
+      List<ConditionCaseDetails> conditionChain,
       List<IRInstr> defaultBodyEvaluation,
       String defaultResult,
       BasicDetails basicDetails) {

@@ -1,9 +1,9 @@
 package org.ek9lang.compiler.phase7.generator;
 
 import java.util.List;
-import org.ek9lang.compiler.ir.CallDetails;
-import org.ek9lang.compiler.ir.CallMetaData;
-import org.ek9lang.compiler.ir.LogicalOperationInstr;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
+import org.ek9lang.compiler.ir.instructions.LogicalOperationInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.compiler.support.EK9TypeNames;
@@ -34,7 +34,7 @@ public final class ShortCircuitOrGenerator extends AbstractShortCircuitGenerator
     final var booleanType = EK9TypeNames.EK9_BOOLEAN;
     return new CallDetails(lhsVariable, booleanType,
         "_or", List.of(booleanType),
-        booleanType, List.of(rhsVariable), new CallMetaData(true, 0));
+        booleanType, List.of(rhsVariable), new CallMetaDataDetails(true, 0));
   }
 
 }
