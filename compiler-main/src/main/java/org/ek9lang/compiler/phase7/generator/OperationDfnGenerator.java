@@ -174,7 +174,7 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
 
     // Process all block statements - they can now use stackContext.currentScopeId()
     for (final var blockStmtCtx : ctx.blockStatement()) {
-      instructions.addAll(blockStatementCreator.apply(blockStmtCtx, scopeId));
+      instructions.addAll(blockStatementCreator.apply(blockStmtCtx));
     }
 
     // Exit scope (automatic RELEASE of all registered objects)

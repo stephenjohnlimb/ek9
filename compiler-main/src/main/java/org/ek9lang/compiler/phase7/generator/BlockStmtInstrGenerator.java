@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase7.generator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
@@ -22,7 +23,8 @@ import org.ek9lang.core.CompilerException;
  *     ;
  * </pre>
  */
-final class BlockStmtInstrGenerator extends AbstractGenerator {
+final class BlockStmtInstrGenerator extends AbstractGenerator
+    implements Function<EK9Parser.BlockStatementContext, List<IRInstr>> {
 
   private final VariableDeclInstrGenerator variableDeclarationCreator;
   private final VariableOnlyDeclInstrGenerator variableOnlyDeclarationCreator;
@@ -36,11 +38,15 @@ final class BlockStmtInstrGenerator extends AbstractGenerator {
   }
 
   /**
-   * Generate IR instructions for a block statement.
+   * Generate IR instructions for a block statement using stack-based scope management.
+   * STACK-BASED: Gets scope ID from stack context instead of parameter threading.
    */
-  public List<IRInstr> apply(final EK9Parser.BlockStatementContext ctx, final String scopeId) {
+  @Override
+  public List<IRInstr> apply(final EK9Parser.BlockStatementContext ctx) {
     AssertValue.checkNotNull("BlockStatementContext cannot be null", ctx);
-    AssertValue.checkNotNull("scopeId cannot be null", scopeId);
+
+    // STACK-BASED: Get scope ID from current stack frame instead of parameter
+    final var scopeId = stackContext.currentScopeId();
 
     final var instructions = new ArrayList<IRInstr>();
 
@@ -49,6 +55,7 @@ final class BlockStmtInstrGenerator extends AbstractGenerator {
     } else if (ctx.variableOnlyDeclaration() != null) {
       instructions.addAll(variableOnlyDeclarationCreator.apply(ctx.variableOnlyDeclaration(), scopeId));
     } else if (ctx.statement() != null) {
+      // STACK-BASED: StmtInstrGenerator already uses stack context directly
       instructions.addAll(statementInstructionCreator.apply(ctx.statement()));
     } else {
       throw new CompilerException("Not expecting any other type of block statement");

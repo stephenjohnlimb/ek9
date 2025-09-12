@@ -4,10 +4,9 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
-import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
-import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
-import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -36,23 +35,28 @@ final class BasicBlockInstrGenerator extends AbstractGenerator
   public BasicBlockInstr apply(final EK9Parser.InstructionBlockContext ctx) {
     AssertValue.checkNotNull("InstructionBlockContext cannot be null", ctx);
 
-    final var debugInfoCreator = new DebugInfoCreator(stackContext.getCurrentIRContext());
     final var blockLabel = stackContext.generateBlockLabel("block");
     final var scopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     final var block = new BasicBlockInstr(blockLabel);
-    final var debugInfo = debugInfoCreator.apply(new Ek9Token(ctx.start));
+    final var debugInfo = stackContext.createDebugInfo(ctx.start);
+
+    // STACK-BASED: Push scope onto stack context for child generators to access
+    stackContext.enterScope(scopeId, debugInfo, IRFrameType.BLOCK);
 
     // Enter scope for memory management
     block.addInstruction(ScopeInstr.enter(scopeId, debugInfo));
 
-    // Process all block statements using resolved symbols
+    // Process all block statements - they can now use stackContext.currentScopeId()
     for (final var blockStmtCtx : ctx.blockStatement()) {
-      final var instructions = blockStatementCreator.apply(blockStmtCtx, scopeId);
+      final var instructions = blockStatementCreator.apply(blockStmtCtx);
       block.addInstructions(instructions);
     }
 
     // Exit scope (automatic RELEASE of all registered objects)
     block.addInstruction(ScopeInstr.exit(scopeId, debugInfo));
+
+    // STACK-BASED: Pop scope from stack context
+    stackContext.exitScope();
 
     return block;
   }
