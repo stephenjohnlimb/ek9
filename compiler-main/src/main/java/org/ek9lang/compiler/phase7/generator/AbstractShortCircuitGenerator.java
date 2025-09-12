@@ -43,7 +43,8 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
   public List<IRInstr> apply(final ExprProcessingDetails details) {
     final var ctx = details.ctx();
     final var exprResult = details.variableDetails().resultVariable();
-    final var scopeId = details.variableDetails().basicDetails().scopeId();
+    // STACK-BASED: Get scope ID from current stack frame instead of details chain
+    final var scopeId = stackContext.currentScopeId();
 
     // Get debug information
     final var exprSymbol = getRecordedSymbolOrException(ctx);

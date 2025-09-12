@@ -142,7 +142,8 @@ public final class ParameterPromotionProcessor
     final var promoteInstr = CallInstr.operator(promotedVar, debugInfo, promoteCallDetails);
 
     // Use VariableMemoryManagement to properly handle RETAIN and SCOPE_REGISTER with correct scope
-    final var basicDetails = new BasicDetails(callContext.scopeId(), debugInfo); // Use actual scope ID
+    // STACK-BASED: Get scope ID from current stack frame instead of CallContext parameter
+    final var basicDetails = new BasicDetails(stackContext.currentScopeId(), debugInfo);
     final var promotedVariableDetails = new VariableDetails(promotedVar, basicDetails);
 
     final var promotionInstructions = variableMemoryManagement.apply(

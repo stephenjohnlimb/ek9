@@ -65,7 +65,7 @@ abstract class UnaryOperationGenerator extends AbstractGenerator
         CallContext.forUnaryOperation(symbolTypeOrException.apply(operandSymbol),  // Target type (operand type)
             methodName,                                   // Method name (from operator map)
             operandTemp,                                  // Target variable (operand variable)
-            basicDetails.scopeId()                       // Scope ID
+            stackContext.currentScopeId()                // STACK-BASED: Get scope ID from current stack frame
         );
 
     // Use IRInstructionBuilder's CallDetailsBuilder for cost-based method resolution and promotion

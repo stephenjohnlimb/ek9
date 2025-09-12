@@ -107,7 +107,8 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     // Get debug information from expression symbol
     final var exprSymbol = getRecordedSymbolOrException(ctx);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
-    final var operandBasicDetails = new BasicDetails(basicDetails.scopeId(), debugInfo);
+    // STACK-BASED: Get scope ID from current stack frame instead of parameter  
+    final var operandBasicDetails = new BasicDetails(stackContext.currentScopeId(), debugInfo);
 
     // Generate operand evaluation WITHOUT memory management (question operator is self-contained)
     final var operandVariable = stackContext.generateTempName();
@@ -126,7 +127,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var nullCaseEvaluation = generateBooleanFalseEvaluation(nullCaseDetails);
 
     final var nullCheckCase = ConditionCaseDetails.createNullCheck(
-        basicDetails.scopeId(), // case scope same as main scope for Question operator
+        stackContext.currentScopeId(), // STACK-BASED: Get scope ID from current stack frame
         operandEvaluationInstructions,
         null, // No EK9 Boolean condition result for null check
         nullCheckCondition, // primitive boolean condition
@@ -173,7 +174,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var nullCaseEvaluation = generateBooleanFalseEvaluation(nullCaseDetails);
 
     final var nullCheckCase = ConditionCaseDetails.createNullCheck(
-        basicDetails.scopeId(),
+        stackContext.currentScopeId(), // STACK-BASED: Get scope ID from current stack frame
         operandEvaluationInstructions,
         null, // No EK9 Boolean condition result
         nullCheckCondition,
@@ -236,7 +237,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     ));
 
     final var assignmentCase = ConditionCaseDetails.createExpression(
-        basicDetails.scopeId(),
+        stackContext.currentScopeId(), // STACK-BASED: Get scope ID from current stack frame
         conditionEvaluationInstructions,
         invertedCondition, // EK9 Boolean result  
         primitiveCondition, // primitive boolean for backends

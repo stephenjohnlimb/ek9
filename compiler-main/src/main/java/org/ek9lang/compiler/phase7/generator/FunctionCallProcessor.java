@@ -211,7 +211,7 @@ public final class FunctionCallProcessor implements Function<CallProcessingDetai
         "_call",                          // Method name (always "_call" for functions)
         argumentDetails.argumentSymbols(), // Argument types for promotion analysis
         argumentDetails.argumentVariables(), // Argument variables
-        details.scopeId(),
+        stackContext.currentScopeId(),      // STACK-BASED: Get scope ID from current stack frame
         details.callContext()             // Pass the original parse context
     );
   }

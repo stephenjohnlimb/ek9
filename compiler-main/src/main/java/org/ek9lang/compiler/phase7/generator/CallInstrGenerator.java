@@ -137,7 +137,7 @@ final class CallInstrGenerator extends AbstractGenerator
         "_call", // Method: always "_call" for functions
         functionInstanceVar, // Target variable
         argumentDetails.argumentVariables(), // Argument variables
-        resultDetails.basicDetails().scopeId(), // Scope ID
+        stackContext.currentScopeId(),          // STACK-BASED: Get scope ID from current stack frame
         ctx // Parse context for symbol resolution
     );
 
@@ -256,7 +256,7 @@ final class CallInstrGenerator extends AbstractGenerator
               methodSymbol.getName(),
               argumentDetails.argumentSymbols(),
               argumentDetails.argumentVariables(),
-              resultDetails.basicDetails().scopeId(),
+              stackContext.currentScopeId(),          // STACK-BASED: Get scope ID from current stack frame
               ctx
           );
           

@@ -70,7 +70,7 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
         methodName,                                  // Method name (from operator map)
         leftTemp,                                    // Target variable (left operand variable)
         rightTemp,                                   // Argument variable (right operand variable)
-        basicDetails.scopeId()                       // Scope ID
+        stackContext.currentScopeId()                // STACK-BASED: Get scope ID from current stack frame
     );
 
     // Use CallDetailsBuilder for cost-based method resolution and promotion

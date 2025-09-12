@@ -109,9 +109,10 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
   }
 
   /**
-   * Result record for return parameter processing including scope tracking.
+   * Result record for return parameter processing.
+   * STACK-BASED: Scope tracking is now handled via stack context.
    */
-  private record ReturnParamResult(List<IRInstr> instructions, String scopeId) {
+  private record ReturnParamResult(List<IRInstr> instructions) {
   }
 
   /**
@@ -137,7 +138,7 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
     }
 
     // Return variables are now managed in method scope - no separate return scope to track
-    return new ReturnParamResult(instructions, null);
+    return new ReturnParamResult(instructions);
   }
 
   /**
