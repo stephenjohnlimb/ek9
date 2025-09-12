@@ -5,9 +5,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.calls.CallProcessingDetails;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
@@ -96,7 +96,7 @@ final class ExprInstrGenerator extends AbstractGenerator
     this.binaryOperationGenerator = new BinaryOperationGeneratorWithProcessor(stackContext, this::process);
     this.constructorCallProcessor = new ConstructorCallProcessor(stackContext);
     this.functionCallProcessor = new FunctionCallProcessor(stackContext);
-    this.primaryReferenceGenerator = new PrimaryReferenceGenerator();
+    this.primaryReferenceGenerator = new PrimaryReferenceGenerator(stackContext);
   }
 
   /**
@@ -197,7 +197,7 @@ final class ExprInstrGenerator extends AbstractGenerator
       instructions.addAll(
           process(new ExprProcessingDetails(ctx.primary().expression(), details.variableDetails())));
     } else if (ctx.primary().primaryReference() != null) {
-      instructions.addAll(processPrimaryReference(ctx.primary().primaryReference(), exprResult, debugInfo));
+      instructions.addAll(processPrimaryReference(ctx.primary().primaryReference(), exprResult));
     } else {
       AssertValue.fail("Unexpected path.");
     }
@@ -290,10 +290,13 @@ final class ExprInstrGenerator extends AbstractGenerator
 
   /**
    * Process primary references (THIS and SUPER keywords).
+   * <p>
+   * MIGRATED TO STACK: PrimaryReferenceGenerator now creates debug info from stack context
+   * instead of parameter threading. Method signature cleaned up to remove unused debugInfo parameter.
    */
   private List<IRInstr> processPrimaryReference(final EK9Parser.PrimaryReferenceContext ctx,
-                                                final String rhsExprResult, final DebugInfo debugInfo) {
-    final var processingDetails = new PrimaryReferenceProcessingDetails(ctx, rhsExprResult, debugInfo);
+                                                final String rhsExprResult) {
+    final var processingDetails = new PrimaryReferenceProcessingDetails(ctx, rhsExprResult);
     return primaryReferenceGenerator.apply(processingDetails);
   }
 
