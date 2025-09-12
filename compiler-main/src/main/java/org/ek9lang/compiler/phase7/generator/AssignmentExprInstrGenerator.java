@@ -38,27 +38,26 @@ final class AssignmentExprInstrGenerator extends AbstractGenerator
 
   private final ExprInstrGenerator exprInstrGenerator;
   private final EK9Parser.AssignmentExpressionContext ctx;
-  private final String scopeId;
 
   AssignmentExprInstrGenerator(final IRGenerationContext stackContext,
-                               final EK9Parser.AssignmentExpressionContext ctx,
-                               final String scopeId) {
+                               final EK9Parser.AssignmentExpressionContext ctx) {
     super(stackContext);
     AssertValue.checkNotNull("AssignmentExpressionContext cannot be null", ctx);
-    AssertValue.checkNotNull("scopeId cannot be null", scopeId);
 
-    this.scopeId = scopeId;
     this.exprInstrGenerator = new ExprInstrGenerator(stackContext);
     this.ctx = ctx;
   }
 
   /**
-   * Generate IR instructions for assignment expression.
+   * Generate IR instructions for assignment expression using stack-based scope management.
+   * STACK-BASED: Gets scope ID from stack context instead of constructor parameter.
    */
   public List<IRInstr> apply(final String rhsExprResult) {
 
     final var debugInfo =
         debugInfoCreator.apply(getRecordedSymbolOrException(ctx.expression()).getSourceToken());
+    // STACK-BASED: Get scope ID from current stack frame
+    final var scopeId = stackContext.currentScopeId();
     final var exprDetails = new ExprProcessingDetails(ctx.expression(),
         new VariableDetails(rhsExprResult, new BasicDetails(scopeId, debugInfo)));
 

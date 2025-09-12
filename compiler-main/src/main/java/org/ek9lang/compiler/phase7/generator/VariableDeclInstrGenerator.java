@@ -39,7 +39,7 @@ public final class VariableDeclInstrGenerator extends AbstractVariableDeclGenera
 
       final var lhsSymbol = getRecordedSymbolOrException(ctx);
 
-      final var generator = new AssignmentExprInstrGenerator(stackContext, ctx.assignmentExpression(), scopeId);
+      final var generator = new AssignmentExprInstrGenerator(stackContext, ctx.assignmentExpression());
       //Now because we are declaring and initialising a new variable - we do not need to 'release' any memory
       //it could be pointing to - because it is a new variable and so could not be pointing to anything.
       final var assignExpressionToSymbol = new AssignExpressionToSymbol(stackContext, false, generator, scopeId);

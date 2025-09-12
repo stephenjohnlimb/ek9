@@ -210,7 +210,6 @@ abstract class AbstractDfnGenerator {
       final EK9Parser.AggregatePartsContext ctx) {
 
     final var instructions = new java.util.ArrayList<IRInstr>();
-    final var scopeId = stackContext.generateScopeId(IRConstants.I_INIT_METHOD);
 
     // Process each property in the aggregate
     for (final var propertyCtx : ctx.aggregateProperty()) {
@@ -218,9 +217,9 @@ abstract class AbstractDfnGenerator {
         final var variableDeclInstrGenerator = new VariableDeclInstrGenerator(stackContext);
         instructions.addAll(variableDeclInstrGenerator.apply(propertyCtx.variableDeclaration()));
       } else if (propertyCtx.variableOnlyDeclaration() != null) {
-        var instructionBuilder = new IRInstructionBuilder(stackContext);
-        final var variableOnlyDeclInstrGenerator = new VariableOnlyDeclInstrGenerator(instructionBuilder);
-        instructions.addAll(variableOnlyDeclInstrGenerator.apply(propertyCtx.variableOnlyDeclaration(), scopeId));
+        // STACK-BASED: VariableOnlyDeclInstrGenerator now uses stack context directly
+        final var variableOnlyDeclInstrGenerator = new VariableOnlyDeclInstrGenerator(stackContext);
+        instructions.addAll(variableOnlyDeclInstrGenerator.apply(propertyCtx.variableOnlyDeclaration()));
       }
     }
 

@@ -94,17 +94,15 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
   /**
    * Process argument parameters (incoming parameters like -> arg0 as String).
    * These are variable-only declarations that get allocated for the caller to populate.
+   * Parameters are declared in the current method scope, not a separate parameter scope.
    */
   private List<IRInstr> processArgumentParam(final EK9Parser.ArgumentParamContext ctx) {
     final var instructions = new ArrayList<IRInstr>();
 
-    // Use stack context infrastructure
-    var instructionBuilder = new IRInstructionBuilder(stackContext);
-    final var variableCreator = new VariableOnlyDeclInstrGenerator(instructionBuilder);
-    final var scopeId = stackContext.generateScopeId(IRConstants.PARAM_SCOPE);
+    final var variableCreator = new VariableOnlyDeclInstrGenerator(stackContext);
 
     for (final var varOnlyCtx : ctx.variableOnlyDeclaration()) {
-      instructions.addAll(variableCreator.apply(varOnlyCtx, scopeId));
+      instructions.addAll(variableCreator.apply(varOnlyCtx));
     }
 
     return instructions;
@@ -123,12 +121,9 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
   private ReturnParamResult processReturningParamWithScope(final EK9Parser.ReturningParamContext ctx) {
     final var instructions = new ArrayList<IRInstr>();
 
-    // Use stack context infrastructure
-    var instructionBuilder = new IRInstructionBuilder(stackContext);
-
-    // Use current stack-based IRContext for proper counter isolation
+    // STACK-BASED: Use stack context directly for both generators
     final var variableCreator = new VariableDeclInstrGenerator(stackContext);
-    final var variableOnlyCreator = new VariableOnlyDeclInstrGenerator(instructionBuilder);
+    final var variableOnlyCreator = new VariableOnlyDeclInstrGenerator(stackContext);
     // Return variables are declared in the current method scope - no separate return scope needed
 
     // Process return variable declarations
@@ -137,9 +132,8 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
       instructions.addAll(variableCreator.apply(ctx.variableDeclaration()));
     } else if (ctx.variableOnlyDeclaration() != null) {
       // Return variable without initialization: <- rtn as String
-      // Note: VariableOnlyDeclInstrGenerator still uses old signature, will be migrated later
-      final var currentScopeId = stackContext.currentScopeId();
-      instructions.addAll(variableOnlyCreator.apply(ctx.variableOnlyDeclaration(), currentScopeId));
+      // STACK-BASED: VariableOnlyDeclInstrGenerator now uses stack context directly
+      instructions.addAll(variableOnlyCreator.apply(ctx.variableOnlyDeclaration()));
     }
 
     // Return variables are now managed in method scope - no separate return scope to track
@@ -221,7 +215,6 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
    */
   private List<IRInstr> generateConstructorInitialization(final MethodSymbol constructorSymbol) {
 
-    //TODO what if the ek9 developer has already included a call to the super?
     final var instructions = new ArrayList<IRInstr>();
     final var debugInfo = stackContext.createDebugInfo(constructorSymbol.getSourceToken());
     final var aggregateSymbol = (AggregateSymbol) constructorSymbol.getParentScope();
@@ -280,7 +273,6 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
    * This logic should match ClassDfnGenerator.isNotImplicitSuperClass()
    */
   private boolean isNotImplicitSuperClass(final IAggregateSymbol superSymbol) {
-    //TODO refactor to reusable function.
     return !stackContext.getParsedModule().getEk9Types().ek9Any().isExactSameType(superSymbol);
   }
 }

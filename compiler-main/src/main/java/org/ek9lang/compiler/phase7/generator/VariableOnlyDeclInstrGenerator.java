@@ -1,14 +1,13 @@
 package org.ek9lang.compiler.phase7.generator;
 
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
-import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
-import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
+import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.core.AssertValue;
 
@@ -16,49 +15,44 @@ import org.ek9lang.core.AssertValue;
  * Creates IR instructions for variable only declarations.
  * Uses REFERENCE instructions for all variables - backend handles storage allocation.
  * <p>
- * MIGRATED: Now uses IRInstructionBuilder with original IRContext access via stack infrastructure.
+ * STACK-BASED: Now uses IRGenerationContext for scope management instead of parameter threading.
  * </p>
  */
-public final class VariableOnlyDeclInstrGenerator
-    implements BiFunction<EK9Parser.VariableOnlyDeclarationContext, String, List<IRInstr>> {
+public final class VariableOnlyDeclInstrGenerator extends AbstractGenerator
+    implements Function<EK9Parser.VariableOnlyDeclarationContext, List<IRInstr>> {
 
-  private final IRInstructionBuilder instructionBuilder;
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
-  private final DebugInfoCreator debugInfoCreator;
 
-  public VariableOnlyDeclInstrGenerator(final IRInstructionBuilder instructionBuilder) {
-    this.instructionBuilder = instructionBuilder;
-    // Access original IRContext via stack infrastructure - no parameter threading!
-    this.debugInfoCreator = new DebugInfoCreator(instructionBuilder.getIRContext());
+  public VariableOnlyDeclInstrGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
+    AssertValue.checkNotNull("IRGenerationContext cannot be null", stackContext);
   }
 
   /**
    * Generate IR instructions for variable only declaration.
    * Example: someVar as String?
    * Generates: REFERENCE only (no assignment)
+   * STACK-BASED: Gets scope ID from stack context instead of parameter threading.
    */
-  public List<IRInstr> apply(final EK9Parser.VariableOnlyDeclarationContext ctx,
-                             final String scopeId) {
+  @Override
+  public List<IRInstr> apply(final EK9Parser.VariableOnlyDeclarationContext ctx) {
     AssertValue.checkNotNull("VariableOnlyDeclarationContext cannot be null", ctx);
-    AssertValue.checkNotNull("scopeId cannot be null", scopeId);
 
-    return getDeclInstrs(ctx, scopeId);
+    return getDeclInstrs(ctx);
   }
 
-  private List<IRInstr> getDeclInstrs(final ParseTree ctx, final String scopeId) {
+  private List<IRInstr> getDeclInstrs(final ParseTree ctx) {
     AssertValue.checkNotNull("Ctx cannot be null", ctx);
-    AssertValue.checkNotNull("ScopeId cannot be null", scopeId);
 
-    // Get symbol using original IRContext from stack infrastructure  
-    final var variableSymbol = instructionBuilder.getIRContext().getParsedModule().getRecordedSymbol(ctx);
-    AssertValue.checkNotNull("Symbol should be resolved by phases 1-6", variableSymbol);
+    // Get symbol from the parsed module
+    final var variableSymbol = getRecordedSymbolOrException(ctx);
 
     final var variableName = variableNameForIR.apply(variableSymbol);
     final var variableTypeName = typeNameOrException.apply(variableSymbol);
 
-    // Extract debug info using original IRContext from stack infrastructure
-    final var debugInfo = debugInfoCreator.apply(variableSymbol.getSourceToken());
+    // STACK-BASED: Create debug info using stack context
+    final var debugInfo = stackContext.createDebugInfo(variableSymbol.getSourceToken());
 
     // Create memory reference instruction with proper debug info
     return List.of(MemoryInstr.reference(variableName, variableTypeName, debugInfo));

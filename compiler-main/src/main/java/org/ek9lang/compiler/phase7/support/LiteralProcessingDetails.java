@@ -4,8 +4,8 @@ import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
  * A simple record that can be used when processing literals.
+ * STACK-BASED: Scope information is now managed via stack context.
  */
 public record LiteralProcessingDetails(ISymbol literalSymbol,
-                                       String literalResult,
-                                       String scopeId) {
+                                       String literalResult) {
 }

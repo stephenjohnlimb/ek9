@@ -33,7 +33,7 @@ final class BlockStmtInstrGenerator extends AbstractGenerator
   BlockStmtInstrGenerator(final IRGenerationContext stackContext) {
     super(stackContext);
     this.variableDeclarationCreator = new VariableDeclInstrGenerator(stackContext);
-    this.variableOnlyDeclarationCreator = new VariableOnlyDeclInstrGenerator(instructionBuilder);
+    this.variableOnlyDeclarationCreator = new VariableOnlyDeclInstrGenerator(stackContext);
     this.statementInstructionCreator = new StmtInstrGenerator(stackContext);
   }
 
@@ -45,18 +45,16 @@ final class BlockStmtInstrGenerator extends AbstractGenerator
   public List<IRInstr> apply(final EK9Parser.BlockStatementContext ctx) {
     AssertValue.checkNotNull("BlockStatementContext cannot be null", ctx);
 
-    // STACK-BASED: Get scope ID from current stack frame instead of parameter
-    final var scopeId = stackContext.currentScopeId();
-
     final var instructions = new ArrayList<IRInstr>();
 
     if (ctx.variableDeclaration() != null) {
-      // STACK-BASED: VariableDeclInstrGenerator now uses stack context directly
+      // STACK-BASED: VariableDeclInstrGenerator uses stack context directly
       instructions.addAll(variableDeclarationCreator.apply(ctx.variableDeclaration()));
     } else if (ctx.variableOnlyDeclaration() != null) {
-      instructions.addAll(variableOnlyDeclarationCreator.apply(ctx.variableOnlyDeclaration(), scopeId));
+      // STACK-BASED: VariableOnlyDeclInstrGenerator now uses stack context directly
+      instructions.addAll(variableOnlyDeclarationCreator.apply(ctx.variableOnlyDeclaration()));
     } else if (ctx.statement() != null) {
-      // STACK-BASED: StmtInstrGenerator already uses stack context directly
+      // STACK-BASED: StmtInstrGenerator uses stack context directly
       instructions.addAll(statementInstructionCreator.apply(ctx.statement()));
     } else {
       throw new CompilerException("Not expecting any other type of block statement");

@@ -83,7 +83,8 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     final var lhsSymbol = getRecordedSymbolOrException(ctx.identifier());
 
-    final var generator = new AssignmentExprInstrGenerator(stackContext, ctx.assignmentExpression(), scopeId);
+    // STACK-BASED: AssignmentExprInstrGenerator now uses stack context directly 
+    final var generator = new AssignmentExprInstrGenerator(stackContext, ctx.assignmentExpression());
 
     if (isMethodBasedAssignment(ctx.op)) {
       processMethodBasedAssignment(ctx, lhsSymbol, instructions);
@@ -185,8 +186,8 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
                                                     final VariableDetails variableDetails) {
 
     // Use existing assignment expression generator to handle the right-hand side
-    final var generator =
-        new AssignmentExprInstrGenerator(stackContext, assignExprCtx, variableDetails.basicDetails().scopeId());
+    // STACK-BASED: AssignmentExprInstrGenerator now uses stack context directly
+    final var generator = new AssignmentExprInstrGenerator(stackContext, assignExprCtx);
     return generator.apply(variableDetails.resultVariable());
   }
 }
