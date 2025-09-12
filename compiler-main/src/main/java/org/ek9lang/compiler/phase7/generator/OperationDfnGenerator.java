@@ -15,6 +15,7 @@ import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
 import org.ek9lang.compiler.support.CommonValues;
@@ -154,6 +155,9 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
   /**
    * Process instruction block (function body).
    * Processes block statements directly without creating an intermediate BasicBlock.
+   * 
+   * PROPER STACK-BASED APPROACH: Push scope onto stack context so child generators
+   * can access it via stackContext.currentScopeId().
    */
   private List<IRInstr> processInstructionBlock(final EK9Parser.InstructionBlockContext ctx) {
     final var instructions = new ArrayList<IRInstr>();
@@ -162,16 +166,22 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
     final var scopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     final var debugInfo = stackContext.createDebugInfo(ctx.start);
 
-    // Enter scope for memory management
+    // STACK-BASED: Push scope onto stack context for child generators to access
+    stackContext.enterScope(scopeId, debugInfo, IRFrameType.BLOCK);
+
+    // Enter scope for memory management (IR instruction)
     instructions.add(ScopeInstr.enter(scopeId, debugInfo));
 
-    // Process all block statements using resolved symbols
+    // Process all block statements - they can now use stackContext.currentScopeId()
     for (final var blockStmtCtx : ctx.blockStatement()) {
       instructions.addAll(blockStatementCreator.apply(blockStmtCtx, scopeId));
     }
 
     // Exit scope (automatic RELEASE of all registered objects)
     instructions.add(ScopeInstr.exit(scopeId, debugInfo));
+
+    // STACK-BASED: Pop scope from stack context
+    stackContext.exitScope();
 
     return instructions;
   }

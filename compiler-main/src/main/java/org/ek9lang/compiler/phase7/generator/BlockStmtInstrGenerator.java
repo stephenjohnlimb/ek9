@@ -49,7 +49,7 @@ final class BlockStmtInstrGenerator extends AbstractGenerator {
     } else if (ctx.variableOnlyDeclaration() != null) {
       instructions.addAll(variableOnlyDeclarationCreator.apply(ctx.variableOnlyDeclaration(), scopeId));
     } else if (ctx.statement() != null) {
-      instructions.addAll(statementInstructionCreator.apply(ctx.statement(), scopeId));
+      instructions.addAll(statementInstructionCreator.apply(ctx.statement()));
     } else {
       throw new CompilerException("Not expecting any other type of block statement");
     }

@@ -2,7 +2,7 @@ package org.ek9lang.compiler.phase7.generator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
@@ -31,9 +31,13 @@ import org.ek9lang.core.CompilerException;
  *     | streamStatement
  *     ;
  * </pre>
+ * <p>
+ * MIGRATING TO STACK: Now uses stack context for scope management instead of parameter threading.
+ * Still maintains Function interface for incremental migration approach.
+ * </p>
  */
 final class StmtInstrGenerator extends AbstractGenerator
-    implements BiFunction<EK9Parser.StatementContext, String, List<IRInstr>> {
+    implements Function<EK9Parser.StatementContext, List<IRInstr>> {
 
   private final ObjectAccessInstrGenerator objectAccessGenerator;
   private final AssertStmtGenerator assertStmtGenerator;
@@ -49,29 +53,29 @@ final class StmtInstrGenerator extends AbstractGenerator
   }
 
   /**
-   * Generate IR instructions for a statement.
+   * Generate IR instructions for a statement using proper stack-based scope management.
+   * STACK-BASED: Gets scope ID from stack context instead of parameter threading.
    */
-  public List<IRInstr> apply(final EK9Parser.StatementContext ctx, final String scopeId) {
-
+  @Override
+  public List<IRInstr> apply(final EK9Parser.StatementContext ctx) {
     AssertValue.checkNotNull("StatementContext cannot be null", ctx);
-    AssertValue.checkNotNull("scopeId cannot be null", scopeId);
 
     final var instructions = new ArrayList<IRInstr>();
 
     if (ctx.ifStatement() != null) {
       throw new CompilerException("If not implemented");
     } else if (ctx.assertStatement() != null) {
-      processAssertStatement(ctx.assertStatement(), scopeId, instructions);
+      processAssertStatement(ctx.assertStatement(), instructions);
     } else if (ctx.assignmentStatement() != null) {
-      processAssignmentStatement(ctx.assignmentStatement(), scopeId, instructions);
+      processAssignmentStatement(ctx.assignmentStatement(), instructions);
     } else if (ctx.identifierReference() != null) {
       throw new CompilerException("Identifier inc/dec not implemented");
     } else if (ctx.call() != null) {
-      processCall(ctx.call(), scopeId, instructions);
+      processCall(ctx.call(), instructions);
     } else if (ctx.throwStatement() != null) {
       throw new CompilerException("Throw not implemented");
     } else if (ctx.objectAccessExpression() != null) {
-      processObjectAccessExpression(ctx.objectAccessExpression(), scopeId, instructions);
+      processObjectAccessExpression(ctx.objectAccessExpression(), instructions);
     } else if (ctx.switchStatementExpression() != null) {
       throw new CompilerException("Switch not implemented");
     } else if (ctx.tryStatementExpression() != null) {
@@ -90,34 +94,36 @@ final class StmtInstrGenerator extends AbstractGenerator
   }
 
   private void processObjectAccessExpression(final EK9Parser.ObjectAccessExpressionContext ctx,
-                                             final String scopeId, final List<IRInstr> instructions) {
-
+                                             final List<IRInstr> instructions) {
+    // STACK-BASED: Get scope ID and debug info from stack context
+    final var scopeId = stackContext.currentScopeId();
+    final var debugInfo = stackContext.createDebugInfo(ctx);
     final var tempResult = stackContext.generateTempName();
-    final var variableDetails = new VariableDetails(tempResult, new BasicDetails(scopeId, null));
+    final var variableDetails = new VariableDetails(tempResult, new BasicDetails(scopeId, debugInfo));
     instructions.addAll(objectAccessGenerator.apply(ctx, variableDetails));
-
   }
 
   private void processAssertStatement(final EK9Parser.AssertStatementContext ctx,
-                                      final String scopeId, final List<IRInstr> instructions) {
-
+                                      final List<IRInstr> instructions) {
+    // STACK-BASED: Get scope ID from stack context
+    final var scopeId = stackContext.currentScopeId();
     instructions.addAll(assertStmtGenerator.apply(ctx, scopeId));
-
   }
 
   private void processAssignmentStatement(final EK9Parser.AssignmentStatementContext ctx,
-                                          final String scopeId, final List<IRInstr> instructions) {
-
+                                          final List<IRInstr> instructions) {
+    // STACK-BASED: Get scope ID from stack context
+    final var scopeId = stackContext.currentScopeId();
     instructions.addAll(assignmentStmtGenerator.apply(ctx, scopeId));
-
   }
 
   private void processCall(final EK9Parser.CallContext ctx,
-                           final String scopeId, final List<IRInstr> instructions) {
-
+                           final List<IRInstr> instructions) {
+    // STACK-BASED: Get scope ID and debug info from stack context
+    final var scopeId = stackContext.currentScopeId();
+    final var debugInfo = stackContext.createDebugInfo(ctx);
     final var tempResult = stackContext.generateTempName();
-    final var variableDetails = new VariableDetails(tempResult, new BasicDetails(scopeId, null));
+    final var variableDetails = new VariableDetails(tempResult, new BasicDetails(scopeId, debugInfo));
     instructions.addAll(callInstrGenerator.apply(ctx, variableDetails));
-
   }
 }
