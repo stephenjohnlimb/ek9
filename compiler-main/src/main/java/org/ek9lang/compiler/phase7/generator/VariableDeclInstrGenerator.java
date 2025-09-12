@@ -28,9 +28,6 @@ public final class VariableDeclInstrGenerator extends AbstractVariableDeclGenera
   @Override
   public List<IRInstr> apply(final EK9Parser.VariableDeclarationContext ctx) {
     AssertValue.checkNotNull("VariableDeclarationContext cannot be null", ctx);
-    
-    // STACK-BASED: Get scope ID from current stack frame instead of parameter
-    final var scopeId = stackContext.currentScopeId();
 
     final var instructions = getDeclInstrs(ctx);
 
@@ -42,7 +39,8 @@ public final class VariableDeclInstrGenerator extends AbstractVariableDeclGenera
       final var generator = new AssignmentExprInstrGenerator(stackContext, ctx.assignmentExpression());
       //Now because we are declaring and initialising a new variable - we do not need to 'release' any memory
       //it could be pointing to - because it is a new variable and so could not be pointing to anything.
-      final var assignExpressionToSymbol = new AssignExpressionToSymbol(stackContext, false, generator, scopeId);
+      // STACK-BASED: AssignExpressionToSymbol now uses stack context directly
+      final var assignExpressionToSymbol = new AssignExpressionToSymbol(stackContext, false, generator);
       instructions.addAll(assignExpressionToSymbol.apply(lhsSymbol, ctx.assignmentExpression()));
     }
 

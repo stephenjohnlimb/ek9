@@ -90,7 +90,8 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
       processMethodBasedAssignment(ctx, lhsSymbol, instructions);
       return; // Early return since method-based assignment is complete
     }
-    final var assignExpressionToSymbol = new AssignExpressionToSymbol(stackContext, true, generator, scopeId);
+    // STACK-BASED: AssignExpressionToSymbol now uses stack context directly
+    final var assignExpressionToSymbol = new AssignExpressionToSymbol(stackContext, true, generator);
 
     if (isGuardedAssignment(ctx.op)) {
 

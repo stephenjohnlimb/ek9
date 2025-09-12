@@ -22,17 +22,14 @@ final class AssignExpressionToSymbol extends AbstractGenerator
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
   private final Function<String, List<IRInstr>> assignmentGenerator;
   private final boolean release;
-  private final String scopeId;
   private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
 
   AssignExpressionToSymbol(final IRGenerationContext stackContext,
                            final boolean release,
-                           final Function<String, List<IRInstr>> assignmentGenerator,
-                           final String scopeId) {
+                           final Function<String, List<IRInstr>> assignmentGenerator) {
     super(stackContext);
     this.assignmentGenerator = assignmentGenerator;
     this.release = release;
-    this.scopeId = scopeId;
   }
 
   @Override
@@ -47,6 +44,8 @@ final class AssignExpressionToSymbol extends AbstractGenerator
     final var rhsExprDebugInfo = debugInfoCreator.apply(rhsExprSymbol.getSourceToken());
 
     final var rhsResult = stackContext.generateTempName();
+    // STACK-BASED: Get scope ID from current stack frame instead of constructor parameter
+    final var scopeId = stackContext.currentScopeId();
     final var basicDetails = new BasicDetails(scopeId, rhsExprDebugInfo);
     final var rhsVariableDetails = new VariableDetails(rhsResult, basicDetails);
 
