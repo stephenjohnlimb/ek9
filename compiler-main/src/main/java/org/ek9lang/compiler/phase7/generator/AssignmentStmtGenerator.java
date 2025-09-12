@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase7.generator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
@@ -10,11 +9,11 @@ import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
-import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
@@ -37,7 +36,7 @@ import org.ek9lang.core.CompilerException;
  * </pre>
  */
 final class AssignmentStmtGenerator extends AbstractGenerator implements
-    BiFunction<EK9Parser.AssignmentStatementContext, String, List<IRInstr>> {
+    Function<EK9Parser.AssignmentStatementContext, List<IRInstr>> {
 
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
 
@@ -46,16 +45,15 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
   }
 
   @Override
-  public List<IRInstr> apply(final EK9Parser.AssignmentStatementContext ctx, final String scopeId) {
+  public List<IRInstr> apply(final EK9Parser.AssignmentStatementContext ctx) {
 
     AssertValue.checkNotNull("Ctx cannot be null", ctx);
-    AssertValue.checkNotNull("ScopeId cannot be null", scopeId);
 
     final var instructions = new ArrayList<IRInstr>();
     if (ctx.primaryReference() != null) {
       throw new CompilerException("PrimaryReference assignment not implemented");
     } else if (ctx.identifier() != null) {
-      processIdentifierAssignment(ctx, scopeId, instructions);
+      processIdentifierAssignment(ctx, instructions);
     } else if (ctx.objectAccessExpression() != null) {
       throw new CompilerException("ObjectAccessExpression assignment not implemented");
     }
@@ -79,14 +77,17 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
   }
 
   private void processIdentifierAssignment(final EK9Parser.AssignmentStatementContext ctx,
-                                           final String scopeId, final List<IRInstr> instructions) {
+                                           final List<IRInstr> instructions) {
+
+    // STACK-BASED: Get scope ID from current stack frame instead of parameter
+    final var scopeId = stackContext.currentScopeId();
 
     final var lhsSymbol = getRecordedSymbolOrException(ctx.identifier());
 
     final var generator = new AssignmentExprInstrGenerator(stackContext, ctx.assignmentExpression(), scopeId);
 
     if (isMethodBasedAssignment(ctx.op)) {
-      processMethodBasedAssignment(ctx, lhsSymbol, scopeId, instructions);
+      processMethodBasedAssignment(ctx, lhsSymbol, instructions);
       return; // Early return since method-based assignment is complete
     }
     final var assignExpressionToSymbol = new AssignExpressionToSymbol(stackContext, true, generator, scopeId);
@@ -118,8 +119,10 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
   private void processMethodBasedAssignment(final EK9Parser.AssignmentStatementContext ctx,
                                             final ISymbol lhsSymbol,
-                                            final String scopeId,
                                             final List<IRInstr> instructions) {
+
+    // STACK-BASED: Get scope ID from current stack frame instead of parameter
+    final var scopeId = stackContext.currentScopeId();
 
     // Get assignment operator token for correct debug line numbers
     final var assignmentToken = new org.ek9lang.compiler.tokenizer.Ek9Token(ctx.op);
