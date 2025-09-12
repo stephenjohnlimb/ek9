@@ -16,7 +16,6 @@ import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -125,8 +124,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     final var scopeId = stackContext.currentScopeId();
 
     // Get assignment operator token for correct debug line numbers
-    final var assignmentToken = new org.ek9lang.compiler.tokenizer.Ek9Token(ctx.op);
-    final var debugInfo = debugInfoCreator.apply(assignmentToken);
+    final var debugInfo = stackContext.createDebugInfo(ctx.op);
     final var basicDetails = new BasicDetails(scopeId, debugInfo);
 
     // Get method name from operator map (e.g., "+=" -> "_addAss")
@@ -178,7 +176,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     // Assignment operators return Void - generate call without result variable
     // The method mutates the left operand in-place
-    final var operatorDebugInfo = debugInfoCreator.apply(new Ek9Token(ctx.op));
+    final var operatorDebugInfo = stackContext.createDebugInfo(ctx.op);
     instructions.add(CallInstr.operator(null, operatorDebugInfo, callDetailsResult.callDetails()));
   }
 
