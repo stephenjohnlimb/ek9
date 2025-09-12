@@ -9,7 +9,6 @@ import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.FieldCreator;
 import org.ek9lang.compiler.phase7.support.FieldsFromCapture;
 import org.ek9lang.compiler.phase7.support.IRConstants;
-import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -26,8 +25,6 @@ import org.ek9lang.core.CompilerException;
  */
 final class FunctionDfnGenerator extends AbstractDfnGenerator
     implements Function<EK9Parser.FunctionDeclarationContext, IRConstruct> {
-
-  private final NotImplicitSuper notImplicitSuper = new NotImplicitSuper();
 
   /**
    * Constructor using only stack context - the single source of state.

@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase3;
 
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR;
+import static org.ek9lang.compiler.support.CommonValues.HAS_EXPLICIT_CONSTRUCTION;
 
 import java.util.List;
 import java.util.function.Function;
@@ -76,7 +77,7 @@ final class ThisOrSuperCallOrError extends TypedSymbolAccess
         final var maybeOperationsDetails = ctx.getParent().getParent().getParent().getParent();
 
         if (maybeOperationsDetails instanceof EK9Parser.OperationDetailsContext details) {
-          final var firstBlockStatementContext = details.instructionBlock().blockStatement().get(0);
+          final var firstBlockStatementContext = details.instructionBlock().blockStatement().getFirst();
 
           if (firstBlockStatementContext != callBlockStatement) {
             emitThisSuperMustBeFirstStatementError(ctx);
@@ -86,6 +87,7 @@ final class ThisOrSuperCallOrError extends TypedSymbolAccess
           emitThisSuperMustBeFirstStatementError(ctx);
         }
       }
+      methodAndAggregateData.methodSymbol().putSquirrelledData(HAS_EXPLICIT_CONSTRUCTION, "TRUE");
     }
   }
 
