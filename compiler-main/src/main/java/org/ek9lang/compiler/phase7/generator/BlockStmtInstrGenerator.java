@@ -51,7 +51,8 @@ final class BlockStmtInstrGenerator extends AbstractGenerator
     final var instructions = new ArrayList<IRInstr>();
 
     if (ctx.variableDeclaration() != null) {
-      instructions.addAll(variableDeclarationCreator.apply(ctx.variableDeclaration(), scopeId));
+      // STACK-BASED: VariableDeclInstrGenerator now uses stack context directly
+      instructions.addAll(variableDeclarationCreator.apply(ctx.variableDeclaration()));
     } else if (ctx.variableOnlyDeclaration() != null) {
       instructions.addAll(variableOnlyDeclarationCreator.apply(ctx.variableOnlyDeclaration(), scopeId));
     } else if (ctx.statement() != null) {

@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.phase7.generator;
 
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
@@ -12,7 +12,7 @@ import org.ek9lang.core.AssertValue;
  * Uses REFERENCE instructions for all variables - backend handles storage allocation.
  */
 public final class VariableDeclInstrGenerator extends AbstractVariableDeclGenerator
-    implements BiFunction<EK9Parser.VariableDeclarationContext, String, List<IRInstr>> {
+    implements Function<EK9Parser.VariableDeclarationContext, List<IRInstr>> {
 
   public VariableDeclInstrGenerator(final IRGenerationContext stackContext) {
     super(stackContext);
@@ -20,15 +20,19 @@ public final class VariableDeclInstrGenerator extends AbstractVariableDeclGenera
   }
 
   /**
-   * Generate IR instructions for variable declaration with assignment.
+   * Generate IR instructions for variable declaration with assignment using stack-based scope management.
    * Example: stdout &lt;- Stdout()
    * Generates: REFERENCE + assignment processing
+   * STACK-BASED: Gets scope ID from stack context instead of parameter threading.
    */
-  public List<IRInstr> apply(final EK9Parser.VariableDeclarationContext ctx, final String scopeId) {
+  @Override
+  public List<IRInstr> apply(final EK9Parser.VariableDeclarationContext ctx) {
     AssertValue.checkNotNull("VariableDeclarationContext cannot be null", ctx);
-    AssertValue.checkNotNull("scopeId cannot be null", scopeId);
+    
+    // STACK-BASED: Get scope ID from current stack frame instead of parameter
+    final var scopeId = stackContext.currentScopeId();
 
-    final var instructions = getDeclInstrs(ctx, scopeId);
+    final var instructions = getDeclInstrs(ctx);
 
     // Process the assignment expression (right-hand side)
     if (ctx.assignmentExpression() != null) {

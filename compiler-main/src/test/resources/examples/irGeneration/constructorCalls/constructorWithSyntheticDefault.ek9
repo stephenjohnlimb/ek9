@@ -18,7 +18,7 @@ defines module constructorCalls
     REFERENCE this.field, org.ek9.lang::String  // ./constructorWithSyntheticDefault.ek9:30:7
     _temp1 = LOAD_LITERAL "Auto Init", org.ek9.lang::String  // ./constructorWithSyntheticDefault.ek9:30:26
     RETAIN _temp1  // ./constructorWithSyntheticDefault.ek9:30:26
-    SCOPE_REGISTER _temp1, _i_init_1  // ./constructorWithSyntheticDefault.ek9:30:26
+    SCOPE_REGISTER _temp1, i_init  // ./constructorWithSyntheticDefault.ek9:30:26
     STORE this.field, _temp1  // ./constructorWithSyntheticDefault.ek9:30:26
     RETAIN this.field  // ./constructorWithSyntheticDefault.ek9:30:26
     RETURN

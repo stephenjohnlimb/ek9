@@ -25,7 +25,7 @@ defines module constructorCalls
     REFERENCE this.childField, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:39:7
     _temp1 = LOAD_LITERAL "Child Field", org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:39:31
     RETAIN _temp1  // ./constructorWithExplicitSuper.ek9:39:31
-    SCOPE_REGISTER _temp1, _i_init_1  // ./constructorWithExplicitSuper.ek9:39:31
+    SCOPE_REGISTER _temp1, i_init  // ./constructorWithExplicitSuper.ek9:39:31
     STORE this.childField, _temp1  // ./constructorWithExplicitSuper.ek9:39:31
     RETAIN this.childField  // ./constructorWithExplicitSuper.ek9:39:31
     RETURN

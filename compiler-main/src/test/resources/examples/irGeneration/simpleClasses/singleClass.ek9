@@ -23,19 +23,19 @@ defines module simpleClasses
     REFERENCE this.bField, org.ek9.lang::String  // ./singleClass.ek9:106:7
     _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./singleClass.ek9:106:27
     RETAIN _temp1  // ./singleClass.ek9:106:27
-    SCOPE_REGISTER _temp1, _i_init_1  // ./singleClass.ek9:106:27
+    SCOPE_REGISTER _temp1, i_init  // ./singleClass.ek9:106:27
     STORE this.bField, _temp1  // ./singleClass.ek9:106:27
     RETAIN this.bField  // ./singleClass.ek9:106:27
     REFERENCE this.cField, org.ek9.lang::String  // ./singleClass.ek9:107:7
     _temp2 = LOAD_LITERAL "Steve", org.ek9.lang::String  // ./singleClass.ek9:107:27
     RETAIN _temp2  // ./singleClass.ek9:107:27
-    SCOPE_REGISTER _temp2, _i_init_1  // ./singleClass.ek9:107:27
+    SCOPE_REGISTER _temp2, i_init  // ./singleClass.ek9:107:27
     STORE this.cField, _temp2  // ./singleClass.ek9:107:27
     RETAIN this.cField  // ./singleClass.ek9:107:27
     REFERENCE this.dField, org.ek9.lang::String  // ./singleClass.ek9:108:7
     _temp3 = LOAD_LITERAL "Stephen", org.ek9.lang::String  // ./singleClass.ek9:108:17
     RETAIN _temp3  // ./singleClass.ek9:108:17
-    SCOPE_REGISTER _temp3, _i_init_1  // ./singleClass.ek9:108:17
+    SCOPE_REGISTER _temp3, i_init  // ./singleClass.ek9:108:17
     STORE this.dField, _temp3  // ./singleClass.ek9:108:17
     RETAIN this.dField  // ./singleClass.ek9:108:17
     RETURN

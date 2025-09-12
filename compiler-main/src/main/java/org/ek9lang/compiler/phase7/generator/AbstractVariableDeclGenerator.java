@@ -22,18 +22,16 @@ abstract class AbstractVariableDeclGenerator extends AbstractGenerator {
     super(stackContext);
   }
 
-  public List<IRInstr> getDeclInstrs(final ParseTree ctx,
-                                     final String scopeId) {
+  public List<IRInstr> getDeclInstrs(final ParseTree ctx) {
 
     AssertValue.checkNotNull("Ctx cannot be null", ctx);
-    AssertValue.checkNotNull("ScopeId cannot be null", scopeId);
 
     final var variableSymbol = getRecordedSymbolOrException(ctx);
     final var instructions = new ArrayList<IRInstr>();
 
     final var variableName = variableNameForIR.apply(variableSymbol);
     final var variableTypeName = typeNameOrException.apply(variableSymbol);
-    final var variableDebugInfo = debugInfoCreator.apply(variableSymbol.getSourceToken());
+    final var variableDebugInfo = stackContext.createDebugInfo(variableSymbol.getSourceToken());
 
     instructions.add(MemoryInstr.reference(variableName, variableTypeName, variableDebugInfo));
 

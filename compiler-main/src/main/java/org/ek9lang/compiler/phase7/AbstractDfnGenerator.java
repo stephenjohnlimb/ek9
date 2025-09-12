@@ -216,7 +216,7 @@ abstract class AbstractDfnGenerator {
     for (final var propertyCtx : ctx.aggregateProperty()) {
       if (propertyCtx.variableDeclaration() != null) {
         final var variableDeclInstrGenerator = new VariableDeclInstrGenerator(stackContext);
-        instructions.addAll(variableDeclInstrGenerator.apply(propertyCtx.variableDeclaration(), scopeId));
+        instructions.addAll(variableDeclInstrGenerator.apply(propertyCtx.variableDeclaration()));
       } else if (propertyCtx.variableOnlyDeclaration() != null) {
         var instructionBuilder = new IRInstructionBuilder(stackContext);
         final var variableOnlyDeclInstrGenerator = new VariableOnlyDeclInstrGenerator(instructionBuilder);

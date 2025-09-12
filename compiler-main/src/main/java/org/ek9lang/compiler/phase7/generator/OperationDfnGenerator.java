@@ -5,19 +5,19 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
 import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
 import org.ek9lang.compiler.ir.instructions.BranchInstr;
-import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
-import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
-import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
-import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
+import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -54,7 +54,6 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
 
     // Create instruction builder - uses current method scope from stack
     var instructionBuilder = new IRInstructionBuilder(stackContext);
-    String returnScopeId = null;
 
     // Add constructor initialization if needed
     if (operation.getSymbol() instanceof MethodSymbol method && method.isConstructor()) {
@@ -77,7 +76,6 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
     if (ctx.returningParam() != null) {
       final var returnResult = processReturningParamWithScope(ctx.returningParam());
       instructionBuilder.addInstructions(returnResult.instructions());
-      returnScopeId = returnResult.scopeId();
     }
 
     // 3. Process instruction block last (function body)
@@ -86,7 +84,7 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
     }
 
     // 4. Add return statement based on function signature
-    instructionBuilder.addInstructions(generateReturnStatement(operation, returnScopeId));
+    instructionBuilder.addInstructions(generateReturnStatement(operation));
 
     // Set body using fluent pattern
     operation.setBody(new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL))
@@ -131,33 +129,30 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
     // Use current stack-based IRContext for proper counter isolation
     final var variableCreator = new VariableDeclInstrGenerator(stackContext);
     final var variableOnlyCreator = new VariableOnlyDeclInstrGenerator(instructionBuilder);
-    final var scopeId = stackContext.generateScopeId(IRConstants.RETURN_SCOPE);
-
-    final var debugInfo = stackContext.createDebugInfo(ctx.start);
-    // Enter scope for return parameter memory management
-    instructions.add(ScopeInstr.enter(scopeId, debugInfo));
+    // Return variables are declared in the current method scope - no separate return scope needed
 
     // Process return variable declarations
     if (ctx.variableDeclaration() != null) {
       // Return variable with initialization: <- rtn as String: String()
-      instructions.addAll(variableCreator.apply(ctx.variableDeclaration(), scopeId));
+      instructions.addAll(variableCreator.apply(ctx.variableDeclaration()));
     } else if (ctx.variableOnlyDeclaration() != null) {
       // Return variable without initialization: <- rtn as String
-      instructions.addAll(variableOnlyCreator.apply(ctx.variableOnlyDeclaration(), scopeId));
+      // Note: VariableOnlyDeclInstrGenerator still uses old signature, will be migrated later
+      final var currentScopeId = stackContext.currentScopeId();
+      instructions.addAll(variableOnlyCreator.apply(ctx.variableOnlyDeclaration(), currentScopeId));
     }
 
-    // Note: SCOPE_EXIT for return scope happens at function end in generateReturnStatement
-    // Return variables live for the entire function duration
-
-    return new ReturnParamResult(instructions, scopeId);
+    // Return variables are now managed in method scope - no separate return scope to track
+    return new ReturnParamResult(instructions, null);
   }
 
   /**
    * Process instruction block (function body).
    * Processes block statements directly without creating an intermediate BasicBlock.
-   * 
+   * <p>
    * PROPER STACK-BASED APPROACH: Push scope onto stack context so child generators
    * can access it via stackContext.currentScopeId().
+   * </p>
    */
   private List<IRInstr> processInstructionBlock(final EK9Parser.InstructionBlockContext ctx) {
     final var instructions = new ArrayList<IRInstr>();
@@ -191,16 +186,12 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
    * If the operation returns a value, return the return variable.
    * If the operation returns void, return void.
    */
-  private List<IRInstr> generateReturnStatement(final OperationInstr operation, final String returnScopeId) {
+  private List<IRInstr> generateReturnStatement(final OperationInstr operation) {
     final var instructions = new ArrayList<IRInstr>();
 
     // Check if the operation has a return type
     final var operationSymbol = operation.getSymbol();
     final var operationDebugInfo = stackContext.createDebugInfo(operationSymbol.getSourceToken());
-    // Exit return scope if it exists (release all return variables)
-    if (returnScopeId != null) {
-      instructions.add(ScopeInstr.exit(returnScopeId, operationDebugInfo));
-    }
 
     if (operationSymbol instanceof IMayReturnSymbol mayReturnSymbol && mayReturnSymbol.isReturningSymbolPresent()) {
       final var returnSymbol = mayReturnSymbol.getReturningSymbol();

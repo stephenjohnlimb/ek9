@@ -28,7 +28,6 @@ public final class IRConstants {
 
   //scopes
   public static final String PARAM_SCOPE = "param";
-  public static final String RETURN_SCOPE = "return";
   public static final String GENERAL_SCOPE = "scope";
   public static final String IF_SCOPE = "if";
   public static final String ELSE_SCOPE = "else";

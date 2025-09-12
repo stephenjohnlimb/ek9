@@ -833,10 +833,12 @@ EK9's IR generation includes sophisticated memory ownership tracking through sco
 3. **`_temp = CALL obj._isSet()`** → NEEDS retention (returns Boolean object)
 4. **`_temp = CALL obj._method()`** → NEEDS retention (returns EK9 object)
 
-**ShouldRegisterVariableInScope Logic:**
-- **Parameters** (`_param_*` scopes): **FALSE** - caller-managed memory, no SCOPE_REGISTER
-- **Return variables** (`_return_*` scopes): **FALSE** - ownership transferred to caller
-- **Local variables** (`_scope_*` scopes): **TRUE** - function-managed memory, needs SCOPE_REGISTER
+**ShouldRegisterVariableInScope Logic (Two-Tier Architecture):**
+- **Operation Scope Variables** (`_call` scope): Variable registration based on lifetime
+  - **Parameters**: **FALSE** - caller-managed memory, no SCOPE_REGISTER 
+  - **Return variables**: **TRUE** - operation-managed until RETURN
+  - **Parameter temporaries**: **TRUE** - operation-owned temporaries need cleanup
+- **Block Scope Variables** (`_scope_*` scopes): **TRUE** - block-managed memory, needs SCOPE_REGISTER
 
 **CRITICAL UNDERSTANDING: Variable Declaration vs Object Reference**
 
@@ -867,14 +869,15 @@ SCOPE_REGISTER localVar, _scope_1                // Register localVar for cleanu
 4. **Reference counting tracks object lifetime** - SCOPE_EXIT auto-releases all registered variables
 5. **Primitive return values** (like `_true()` method) need NO memory management
 
-**Parameter Handling Pattern:**
+**Parameter Handling Pattern (Two-Tier Architecture):**
 ```java
-// Parameters get REFERENCE declaration only - no scope registration
+// Parameters get REFERENCE declaration only - no scope registration in _call scope
 instructions.add(MemoryInstr.reference(paramName, paramType, debugInfo));
 // NO SCOPE_REGISTER for parameters - caller owns the memory
+// Parameter temporaries created within operation CAN be registered to _call scope
 ```
 
-**Critical Memory Ownership Rule:** Function parameters are caller-owned and should NOT be registered in function scope for cleanup. This prevents the function from attempting to manage memory it doesn't own.
+**Critical Memory Ownership Rule:** Function parameters are caller-owned and should NOT be registered in operation scope for cleanup. However, return variables and temporaries created from parameters within the operation ARE operation-owned and should be registered to `_call` scope.
 
 ### Variable Declaration Processing Pattern
 
@@ -959,22 +962,142 @@ RETAIN value
 SCOPE_REGISTER value, _scope_1
 ```
 
-### Scope Management Pattern
+### EK9 Two-Tier Scope Architecture
 
-EK9 uses hierarchical scope management for memory cleanup:
+EK9 uses a sophisticated **two-tier scope architecture** that combines implicit operation-level scopes with explicit block-level scopes for optimal semantic clarity and backend compatibility.
 
-**Function Scope Structure:**
-1. **Parameter Scope** (`_param_*`): No automatic cleanup - caller-managed
-2. **Return Scope** (`_return_*`): No automatic cleanup - transferred to caller
-3. **Function Body Scope** (`_scope_*`): Automatic cleanup with SCOPE_EXIT
+#### **Tier 1: Implicit Operation Scopes (`_call`)**
 
-**Scope Lifecycle:**
+**Key Architectural Decision**: Operation scopes are **structurally implicit** within `OperationDfn` boundaries, not procedurally explicit via SCOPE_ENTER/EXIT instructions.
+
+**Rationale for Implicit Design:**
+- **Language Semantics**: Method/function boundaries are structural in EK9 (like most languages), not procedural constructs
+- **Backend Alignment**: Both JVM and LLVM expect implicit function scope (method frames vs function definitions)
+- **IR Clarity**: Eliminates redundant SCOPE_ENTER/_call/SCOPE_EXIT/_call pairs at every operation
+- **Proven Architecture**: Current tests demonstrate correct memory management with this approach
+
+**Implicit Operation Scope Example:**
 ```
-SCOPE_ENTER _scope_1
-// ... function body instructions
-// ... SCOPE_REGISTER for local variables only
-SCOPE_EXIT _scope_1  // Automatic RELEASE of all registered variables
+OperationDfn: module::function._call(arg1, arg2) -> ReturnType
+BasicBlock: _entry_1
+REFERENCE arg1, Type                    // Parameters exist in implicit _call scope
+REFERENCE arg2, Type                    // Parameters exist in implicit _call scope  
+REFERENCE rtn, ReturnType               // Return variable exists in implicit _call scope
+_temp1 = CALL Type.<init>()
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _call            // Variable registered to implicit operation scope
+STORE rtn, _temp1
+RETAIN rtn
+// ... operation body instructions
+RETURN rtn                              // Implicit _call scope cleanup occurs here
 ```
+
+**Memory Management in Implicit Scopes:**
+- **Scope Entry**: Implicit at OperationDfn/BasicBlock start
+- **Variable Registration**: `SCOPE_REGISTER variable, _call` references implicit scope
+- **Scope Cleanup**: Implicit at RETURN instruction (not explicit SCOPE_EXIT)
+- **Backend Handling**: JVM method frame cleanup, LLVM function return cleanup
+
+#### **Tier 2: Explicit Block Scopes (`_scope_N`)**
+
+**Block scopes within operations are explicitly managed** because they represent procedural constructs that require explicit lifetime management.
+
+**Explicit Block Scope Example:**
+```
+SCOPE_ENTER _scope_1                    // Explicit entry for instruction block
+_temp2 = LOGICAL_AND_BLOCK              // Block-level computation
+[
+  // ... logical operation instructions
+  SCOPE_REGISTER _temp3, _scope_1       // Local temps registered to block scope
+]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1         // Block result registered to block scope  
+SCOPE_EXIT _scope_1                     // Explicit cleanup of block scope
+```
+
+**Block Scope Lifecycle:**
+- **Scope Entry**: Explicit SCOPE_ENTER instruction
+- **Variable Registration**: All temporary variables within block registered
+- **Scope Cleanup**: Explicit SCOPE_EXIT instruction with automatic RELEASE of all registered variables
+
+#### **Architecture Benefits**
+
+**1. Semantic Accuracy:**
+- Operation scopes reflect natural language boundaries (implicit method scope)
+- Block scopes reflect procedural constructs requiring explicit management
+
+**2. Backend Compatibility:**
+- **JVM**: Implicit operation scopes map to method frame lifecycle
+- **LLVM**: Implicit operation scopes map to function definition boundaries
+- **Both**: Explicit block scopes map to local variable lifetime management
+
+**3. IR Clarity:**
+- Clean separation between method-level vs block-level scope concerns
+- Reduced IR verbosity (no redundant operation scope instructions)
+- SCOPE_REGISTER clearly indicates which scope owns each variable
+
+**4. Memory Management Correctness:**
+- Implicit operation scope cleanup at RETURN ensures proper method exit
+- Explicit block scope cleanup prevents memory leaks within method body
+- Two-tier model prevents scope registration confusion
+
+#### **Implementation Guidelines**
+
+**For Operation Scope Variables:**
+```
+SCOPE_REGISTER returnVariable, _call    // Return variables owned by operation
+SCOPE_REGISTER parameterTemps, _call    // Parameter temporaries owned by operation
+```
+
+**For Block Scope Variables:**  
+```
+SCOPE_REGISTER localTemps, _scope_1     // Local computations owned by block
+SCOPE_REGISTER blockResults, _scope_1   // Block results owned by block
+```
+
+**Scope Cleanup Expectations:**
+- `_call` scope: Cleanup occurs implicitly at operation end (RETURN)
+- `_scope_N` scope: Cleanup occurs explicitly at SCOPE_EXIT instruction
+
+#### **Backend Implementation Guidance**
+
+**JVM Backend (Java Bytecode):**
+- **Implicit Operation Scopes**: No special handling required
+  - Method frame automatically provides operation scope boundaries
+  - SCOPE_REGISTER to `_call` scope tracks variables for method exit cleanup
+  - RETURN instruction triggers automatic local variable cleanup
+- **Explicit Block Scopes**: Map to local variable scope management
+  - SCOPE_ENTER → Local variable table entry point
+  - SCOPE_EXIT → Local variable table exit point + cleanup logic
+
+**LLVM Backend (Planned C++ Target):**
+- **Implicit Operation Scopes**: Function boundary management
+  - Function definition provides operation scope boundaries
+  - SCOPE_REGISTER to `_call` scope tracks variables for function exit cleanup  
+  - RETURN instruction triggers ARC release of registered variables
+- **Explicit Block Scopes**: Map to LLVM local scope blocks
+  - SCOPE_ENTER → LLVM block entry with variable lifetime tracking
+  - SCOPE_EXIT → ARC release of block-registered variables
+
+**Cross-Backend Consistency:**
+Both backends handle implicit operation scopes naturally through their function/method constructs, while explicit block scopes require scope management logic. This architectural alignment validates the two-tier design choice.
+
+#### **Stack-Based Migration Success**
+
+The current two-tier architecture resulted from the successful **stack-based scope migration** that eliminated parameter threading throughout IR generation:
+
+**Before Migration Issues:**
+- Artificial `_return_1` scopes causing registration mismatches  
+- Complex parameter threading of scope IDs
+- Scope entry/exit inconsistencies
+
+**After Migration Benefits:**
+- Clean operation scope (`_call`) without artificial subdivisions
+- Stack-based scope management via `IRGenerationContext`
+- Consistent scope registration and memory management
+- All Boolean expression tests pass with correct IR generation
+
+**Migration Validation**: The corrected IR in Boolean expression tests demonstrates that the two-tier architecture produces semantically correct, backend-ready IR with proper memory management patterns.
 
 ## Medium-Level IR: LOGICAL_AND_BLOCK and LOGICAL_OR_BLOCK
 
@@ -1712,7 +1835,7 @@ When reviewing IR generation examples, focus on **structural correctness** rathe
    - Every LOAD gets RETAIN/SCOPE_REGISTER sequence
    - RELEASE operations are safe on uninitialized variables
    - Parameters get REFERENCE only (caller-managed)
-   - Return variables use separate return scopes
+   - Return variables registered to operation scope (_call)
 
 3. **Medium-Level IR Structures**:
    - LOGICAL_AND_BLOCK/LOGICAL_OR_BLOCK with complete path pre-computation
