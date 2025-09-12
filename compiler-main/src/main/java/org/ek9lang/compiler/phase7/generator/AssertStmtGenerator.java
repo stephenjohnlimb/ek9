@@ -2,22 +2,21 @@ package org.ek9lang.compiler.phase7.generator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.BranchInstr;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForIsTrue;
-import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
-import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
 final class AssertStmtGenerator extends AbstractGenerator
-    implements BiFunction<EK9Parser.AssertStatementContext, String, List<IRInstr>> {
+    implements Function<EK9Parser.AssertStatementContext, List<IRInstr>> {
 
   private final CallDetailsForIsTrue callDetailsForTrue = new CallDetailsForIsTrue();
 
@@ -26,17 +25,19 @@ final class AssertStmtGenerator extends AbstractGenerator
   }
 
   @Override
-  public List<IRInstr> apply(final EK9Parser.AssertStatementContext ctx, final String scopeId) {
+  public List<IRInstr> apply(final EK9Parser.AssertStatementContext ctx) {
 
     AssertValue.checkNotNull("Ctx cannot be null", ctx);
-    AssertValue.checkNotNull("ScopeId cannot be null", scopeId);
+
+    // STACK-BASED: Get scope ID from current stack frame instead of parameter
+    final var scopeId = stackContext.currentScopeId();
 
     //This deals with generating the instructions for the expression
     final var expressionGenerator = new ExprInstrGenerator(stackContext);
     //This deals with calling the above, but then retaining/recording the appropriate symbol for memory management
     final var processor = new RecordExprProcessing(expressionGenerator);
 
-    final var assertStmtDebugInfo = debugInfoCreator.apply(new Ek9Token(ctx.ASSERT().getSymbol()));
+    final var assertStmtDebugInfo = stackContext.createDebugInfo(ctx.ASSERT().getSymbol());
 
     final var rhsExprResult = stackContext.generateTempName();
 

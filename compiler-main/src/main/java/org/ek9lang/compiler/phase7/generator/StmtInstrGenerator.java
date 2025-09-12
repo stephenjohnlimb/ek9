@@ -105,9 +105,8 @@ final class StmtInstrGenerator extends AbstractGenerator
 
   private void processAssertStatement(final EK9Parser.AssertStatementContext ctx,
                                       final List<IRInstr> instructions) {
-    // STACK-BASED: Get scope ID from stack context
-    final var scopeId = stackContext.currentScopeId();
-    instructions.addAll(assertStmtGenerator.apply(ctx, scopeId));
+    // STACK-BASED: AssertStmtGenerator now uses stack context directly
+    instructions.addAll(assertStmtGenerator.apply(ctx));
   }
 
   private void processAssignmentStatement(final EK9Parser.AssignmentStatementContext ctx,
