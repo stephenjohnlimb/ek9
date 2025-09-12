@@ -95,7 +95,7 @@ final class CallInstrGenerator extends AbstractGenerator
 
       // Process parameters first (common to both patterns)
       final var paramExpr = ctx.paramExpression();
-      final var argumentDetails = processParameters(paramExpr, instructions, resultDetails.basicDetails().scopeId());
+      final var argumentDetails = processParameters(paramExpr, instructions);
 
       // Generate different IR based on what we're calling
       if (resolvedSymbol instanceof FunctionSymbol functionSymbol) {
@@ -189,7 +189,6 @@ final class CallInstrGenerator extends AbstractGenerator
             ctx,
             resultDetails.resultVariable(),
             instructions,
-            resultDetails.basicDetails().scopeId(),
             exprGenerator,  // Expression processor function
             true                   // Use memory management for statement context
         );
@@ -224,7 +223,6 @@ final class CallInstrGenerator extends AbstractGenerator
               ctx,
               resultDetails.resultVariable(),
               instructions,
-              resultDetails.basicDetails().scopeId(),
               exprGenerator,
               true  // Use memory management for statement context
           );
@@ -233,7 +231,7 @@ final class CallInstrGenerator extends AbstractGenerator
           
           // Process parameters first (similar to function calls)
           final var paramExpr = ctx.paramExpression();
-          final var argumentDetails = processParameters(paramExpr, instructions, resultDetails.basicDetails().scopeId());
+          final var argumentDetails = processParameters(paramExpr, instructions);
           
           // Determine the target variable based on primary reference type
           final String targetVariable;
@@ -286,8 +284,7 @@ final class CallInstrGenerator extends AbstractGenerator
    * This is still needed for function calls (not constructor calls).
    */
   private ArgumentDetails processParameters(final EK9Parser.ParamExpressionContext paramExpr,
-                                            final List<IRInstr> instructions,
-                                            final String scopeId) {
+                                            final List<IRInstr> instructions) {
 
     final var argumentVariables = new ArrayList<String>();
     final var parameterTypes = new ArrayList<String>();
@@ -298,7 +295,8 @@ final class CallInstrGenerator extends AbstractGenerator
       for (var exprParam : paramExpr.expressionParam()) {
         final var exprCtx = exprParam.expression();
         final var argTemp = stackContext.generateTempName();
-        final var argDetails = new VariableDetails(argTemp, new BasicDetails(scopeId, null));
+        // STACK-BASED: Get scope ID from current stack frame instead of parameter
+        final var argDetails = new VariableDetails(argTemp, new BasicDetails(stackContext.currentScopeId(), null));
 
         // Generate instructions to evaluate the argument expression
         final var exprDetails = new org.ek9lang.compiler.phase7.support.ExprProcessingDetails(exprCtx, argDetails);

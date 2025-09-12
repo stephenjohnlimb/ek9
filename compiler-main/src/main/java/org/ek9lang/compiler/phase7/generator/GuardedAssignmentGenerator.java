@@ -45,11 +45,11 @@ final class GuardedAssignmentGenerator extends AbstractGenerator
 
   /**
    * Data class to hold parameters for guarded assignment generation.
+   * STACK-BASED: Scope information is now managed via stack context.
    */
   public record GuardedAssignmentDetails(
       ISymbol lhsSymbol,
-      EK9Parser.AssignmentExpressionContext assignmentExpression,
-      String scopeId
+      EK9Parser.AssignmentExpressionContext assignmentExpression
   ) {
   }
 }

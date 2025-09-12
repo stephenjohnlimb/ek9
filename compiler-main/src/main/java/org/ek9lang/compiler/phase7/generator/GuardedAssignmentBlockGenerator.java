@@ -42,7 +42,9 @@ final class GuardedAssignmentBlockGenerator extends AbstractGenerator
   public List<IRInstr> apply(final GuardedAssignmentGenerator.GuardedAssignmentDetails details) {
     final var lhsSymbol = details.lhsSymbol();
     final var assignmentExpression = details.assignmentExpression();
-    final var scopeId = details.scopeId();
+
+    // STACK-BASED: Get scope ID from current stack frame instead of parameter
+    final var scopeId = stackContext.currentScopeId();
 
     // Get debug information
     final var exprSymbol = getRecordedSymbolOrException(assignmentExpression);

@@ -183,14 +183,13 @@ final class ExprInstrGenerator extends AbstractGenerator
   private List<IRInstr> processPrimary(final ExprProcessingDetails details) {
     final var ctx = details.ctx();
     final var exprResult = details.variableDetails().resultVariable();
-    final var scopeId = details.variableDetails().basicDetails().scopeId();
     final var debugInfo = details.variableDetails().basicDetails().debugInfo();
 
     final var instructions = new ArrayList<IRInstr>();
 
     if (ctx.primary().literal() != null) {
       // Handle literals: string, numeric, boolean, etc.
-      instructions.addAll(processLiteral(ctx.primary().literal(), exprResult, scopeId));
+      instructions.addAll(processLiteral(ctx.primary().literal(), exprResult));
     } else if (ctx.primary().identifierReference() != null) {
       instructions.addAll(processIdentifierReference(ctx.primary().identifierReference(), exprResult, debugInfo));
     } else if (ctx.primary().expression() != null && !ctx.primary().expression().isEmpty()) {
@@ -223,7 +222,6 @@ final class ExprInstrGenerator extends AbstractGenerator
             callContext,
             details.variableDetails().resultVariable(),
             instructions,
-            details.variableDetails().basicDetails().scopeId(),
             this::process,  // Expression processor function
             false           // No memory management for expression context
         );
@@ -262,8 +260,7 @@ final class ExprInstrGenerator extends AbstractGenerator
    * This ensures we get correct type information, including decorated names for generic types.
    */
   private List<IRInstr> processLiteral(final EK9Parser.LiteralContext ctx,
-                                       final String rhsExprResult,
-                                       final String scopeId) {
+                                       final String rhsExprResult) {
 
     final var literalSymbol = getRecordedSymbolOrException(ctx);
 

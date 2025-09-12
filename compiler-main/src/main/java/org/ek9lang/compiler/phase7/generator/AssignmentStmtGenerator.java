@@ -78,9 +78,6 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
   private void processIdentifierAssignment(final EK9Parser.AssignmentStatementContext ctx,
                                            final List<IRInstr> instructions) {
 
-    // STACK-BASED: Get scope ID from current stack frame instead of parameter
-    final var scopeId = stackContext.currentScopeId();
-
     final var lhsSymbol = getRecordedSymbolOrException(ctx.identifier());
 
     // STACK-BASED: AssignmentExprInstrGenerator now uses stack context directly 
@@ -96,7 +93,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     if (isGuardedAssignment(ctx.op)) {
 
       final var guardedDetails = new GuardedAssignmentGenerator.GuardedAssignmentDetails(
-          lhsSymbol, ctx.assignmentExpression(), scopeId);
+          lhsSymbol, ctx.assignmentExpression());
 
       final var guardedGenerator = createGuardedGenerator(generator, assignExpressionToSymbol);
       instructions.addAll(guardedGenerator.apply(guardedDetails));

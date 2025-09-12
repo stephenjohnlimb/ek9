@@ -115,7 +115,7 @@ public final class FunctionCallProcessor implements Function<CallProcessingDetai
 
     // Step 1: Process parameters and collect argument details
     final var argumentDetails = processParameters(callContext.paramExpression(), instructions,
-        details.scopeId(), exprProcessor);
+        exprProcessor);
 
     // Step 2: Create CallContext for unified method resolution  
     final var methodCallContext = createCallContext(functionSymbol, argumentDetails, details);
@@ -161,7 +161,6 @@ public final class FunctionCallProcessor implements Function<CallProcessingDetai
    */
   private ArgumentDetails processParameters(final EK9Parser.ParamExpressionContext paramExpr,
                                             final List<IRInstr> instructions,
-                                            final String scopeId,
                                             final Function<ExprProcessingDetails, List<IRInstr>> exprProcessor) {
 
     final var argumentVariables = new ArrayList<String>();
@@ -173,8 +172,9 @@ public final class FunctionCallProcessor implements Function<CallProcessingDetai
       for (var exprParam : paramExpr.expressionParam()) {
         final var exprCtx = exprParam.expression();
         final var argTemp = stackContext.generateTempName();
+        // STACK-BASED: Get scope ID from current stack frame instead of parameter
         final var argDetails = new VariableDetails(argTemp,
-            new BasicDetails(scopeId, null));
+            new BasicDetails(stackContext.currentScopeId(), null));
 
         // Generate instructions to evaluate the argument expression
         final var exprDetails = new ExprProcessingDetails(exprCtx, argDetails);

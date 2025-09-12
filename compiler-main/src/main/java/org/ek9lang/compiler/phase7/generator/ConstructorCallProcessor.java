@@ -8,8 +8,8 @@ import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
-import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
@@ -44,7 +44,6 @@ public final class ConstructorCallProcessor {
    * @param callContext         The ANTLR call context
    * @param resultVariable      The variable to store the constructor result
    * @param instructions        The list to add generated instructions to
-   * @param scopeId             The scope ID for parameter processing
    * @param expressionProcessor Function to process argument expressions
    * @param useMemoryManagement Whether to apply memory management to arguments
    */
@@ -52,7 +51,6 @@ public final class ConstructorCallProcessor {
                                      final EK9Parser.CallContext callContext,
                                      final String resultVariable,
                                      final List<IRInstr> instructions,
-                                     final String scopeId,
                                      final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor,
                                      final boolean useMemoryManagement) {
 
@@ -79,7 +77,7 @@ public final class ConstructorCallProcessor {
 
     // 4. Argument Processing (unified logic)
     final var argumentVariables = processCallArguments(
-        callContext, instructions, scopeId, expressionProcessor, useMemoryManagement);
+        callContext, instructions, expressionProcessor, useMemoryManagement);
 
     // 5. Metadata Extraction (identical in both generators)
     final var metaData = extractCallMetaData(methodSymbol);
@@ -104,7 +102,6 @@ public final class ConstructorCallProcessor {
    */
   private List<String> processCallArguments(final EK9Parser.CallContext callContext,
                                             final List<IRInstr> instructions,
-                                            final String scopeId,
                                             final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor,
                                             final boolean useMemoryManagement) {
 
@@ -115,7 +112,8 @@ public final class ConstructorCallProcessor {
       for (var exprParam : callContext.paramExpression().expressionParam()) {
         final var exprCtx = exprParam.expression();
         final var argTemp = stackContext.generateTempName();
-        final var argDetails = new VariableDetails(argTemp, new BasicDetails(scopeId, null));
+        // STACK-BASED: Get scope ID from current stack frame instead of parameter
+        final var argDetails = new VariableDetails(argTemp, new BasicDetails(stackContext.currentScopeId(), null));
 
         // Generate instructions to evaluate the argument expression
         final var exprDetails = new ExprProcessingDetails(exprCtx, argDetails);
