@@ -17,6 +17,7 @@ import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
+import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.IMayReturnSymbol;
@@ -50,49 +51,45 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
   @Override
   public void accept(final OperationInstr operation, final EK9Parser.OperationDetailsContext ctx) {
 
-    // Use stack context for block-level coordination (inherits method's IRContext)
-    // Don't create a new scope here - let the instruction block create its own scope
-
-    final var allInstructions = new ArrayList<IRInstr>();
+    // Create instruction builder - uses current method scope from stack
+    var instructionBuilder = new IRInstructionBuilder(stackContext);
     String returnScopeId = null;
 
-    // Add constructor initialization logic if this is a constructor
+    // Add constructor initialization if needed
     if (operation.getSymbol() instanceof MethodSymbol method && method.isConstructor()) {
-      //TODO Need to check if the set of instructions already has a call to super()!
-      //This may mean holding and checking the instruction block is separate instructions.
-      //Then looking to see if a super(...) was actually called, if not then do this below.
-
-      //If so we just need that by itself and not generate this.
-      allInstructions.addAll(generateConstructorInitialization(method));
+      // Check if developer provided explicit this() or super() call
+      final var hasExplicitConstruction = method.getSquirrelledData(CommonValues.HAS_EXPLICIT_CONSTRUCTION);
+      if (!"TRUE".equals(hasExplicitConstruction)) {
+        // Only generate synthetic super/i_init if no explicit call
+        instructionBuilder.addInstructions(generateConstructorInitialization(method));
+      }
     }
 
     // Process in correct order: parameters -> returns -> body
 
     // 1. Process incoming parameters first (-> arg0 as String)
     if (ctx.argumentParam() != null) {
-      allInstructions.addAll(processArgumentParam(ctx.argumentParam()));
+      instructionBuilder.addInstructions(processArgumentParam(ctx.argumentParam()));
     }
 
     // 2. Process return parameters second (<- rtn as String: String())  
     if (ctx.returningParam() != null) {
       final var returnResult = processReturningParamWithScope(ctx.returningParam());
-      allInstructions.addAll(returnResult.instructions());
+      instructionBuilder.addInstructions(returnResult.instructions());
       returnScopeId = returnResult.scopeId();
     }
 
     // 3. Process instruction block last (function body)
     if (ctx.instructionBlock() != null) {
-      allInstructions.addAll(processInstructionBlock(ctx.instructionBlock()));
+      instructionBuilder.addInstructions(processInstructionBlock(ctx.instructionBlock()));
     }
 
     // 4. Add return statement based on function signature
-    allInstructions.addAll(generateReturnStatement(operation, returnScopeId));
+    instructionBuilder.addInstructions(generateReturnStatement(operation, returnScopeId));
 
-    // Create BasicBlock with all instructions
+    // Set body using fluent pattern
     operation.setBody(new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL))
-        .addInstructions(allInstructions));
-
-    // No exitScope() needed since we didn't enter a scope
+        .addInstructions(instructionBuilder));
   }
 
   /**

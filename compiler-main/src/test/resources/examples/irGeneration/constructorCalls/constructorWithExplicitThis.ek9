@@ -1,0 +1,53 @@
+#!ek9
+<?-
+  Test that constructors with explicit this() calls don't generate synthetic super initialization.
+  The constructor delegation should handle the super call chain.
+-?>
+defines module constructorCalls
+
+  defines class
+
+    @IR: IR_GENERATION: TYPE: "constructorCalls::Example": `
+    ConstructDfn: constructorCalls::Example
+    Field: field, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:43:7
+    OperationDfn: constructorCalls::Example.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: constructorCalls::Example.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    REFERENCE this.field, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:43:7
+    RETURN
+    OperationDfn: constructorCalls::Example.Example(org.ek9.lang::String)->constructorCalls::Example  // ./constructorWithExplicitThis.ek9:45:7
+    BasicBlock: _entry_1
+    _temp_i_init = CALL (constructorCalls::Example)this.i_init() [pure=false, complexity=0]  // ./constructorWithExplicitThis.ek9:45:7
+    REFERENCE input, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:46:12
+    SCOPE_ENTER _scope_1  // ./constructorWithExplicitThis.ek9:47:9
+    _temp1 = LOAD input  // ./constructorWithExplicitThis.ek9:46:12
+    RETAIN _temp1  // ./constructorWithExplicitThis.ek9:46:12
+    SCOPE_REGISTER _temp1, _scope_1  // ./constructorWithExplicitThis.ek9:46:12
+    RELEASE this.field  // ./constructorWithExplicitThis.ek9:46:12
+    STORE this.field, _temp1  // ./constructorWithExplicitThis.ek9:46:12
+    RETAIN this.field  // ./constructorWithExplicitThis.ek9:46:12
+    SCOPE_EXIT _scope_1  // ./constructorWithExplicitThis.ek9:47:9
+    RETURN  // ./constructorWithExplicitThis.ek9:45:7
+    OperationDfn: constructorCalls::Example.Example()->constructorCalls::Example  // ./constructorWithExplicitThis.ek9:49:7
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./constructorWithExplicitThis.ek9:50:9
+    _temp2 = LOAD_LITERAL "Default", org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:50:14
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    _temp1 = CALL (constructorCalls::Example)constructorCalls::Example.<init>(_temp2) [pure=false, complexity=1, effects=RETURN_MUTATION]  // ./constructorWithExplicitThis.ek9:50:9
+    SCOPE_EXIT _scope_1  // ./constructorWithExplicitThis.ek9:50:9
+    RETURN  // ./constructorWithExplicitThis.ek9:49:7`
+    Example as open
+      field as String?
+
+      Example()
+        -> input as String
+        field: input
+
+      Example()
+        this("Default")
+        //Delegate to parameterized constructor
+
+//EOF

@@ -1,0 +1,49 @@
+#!ek9
+<?-
+  Test that explicit super() calls can resolve to synthetic base constructors.
+  Base has no explicit constructor (gets synthetic), child has explicit super() call.
+-?>
+defines module constructorCalls
+
+  defines class
+
+    BaseWithSyntheticConstructor as open
+      baseField as String := "Base Auto Init"
+      // No explicit constructor - gets synthetic one with i_init only
+
+    @IR: IR_GENERATION: TYPE: "constructorCalls::ChildCallingSyntheticSuper": `
+    ConstructDfn: constructorCalls::ChildCallingSyntheticSuper
+    Field: childField, org.ek9.lang::String  // ./explicitSuperToSynthetic.ek9:43:7
+    OperationDfn: constructorCalls::ChildCallingSyntheticSuper.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    _temp_c_init = CALL_STATIC (constructorCalls::BaseWithSyntheticConstructor).c_init() [pure=false, complexity=0]
+    RETURN
+    OperationDfn: constructorCalls::ChildCallingSyntheticSuper.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    REFERENCE this.childField, org.ek9.lang::String  // ./explicitSuperToSynthetic.ek9:43:7
+    _temp1 = LOAD_LITERAL "Child Field", org.ek9.lang::String  // ./explicitSuperToSynthetic.ek9:43:31
+    RETAIN _temp1  // ./explicitSuperToSynthetic.ek9:43:31
+    SCOPE_REGISTER _temp1, _i_init_1  // ./explicitSuperToSynthetic.ek9:43:31
+    STORE this.childField, _temp1  // ./explicitSuperToSynthetic.ek9:43:31
+    RETAIN this.childField  // ./explicitSuperToSynthetic.ek9:43:31
+    RETURN
+    OperationDfn: constructorCalls::ChildCallingSyntheticSuper.ChildCallingSyntheticSuper()->constructorCalls::ChildCallingSyntheticSuper  // ./explicitSuperToSynthetic.ek9:45:7
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./explicitSuperToSynthetic.ek9:46:9
+    _temp1 = CALL (constructorCalls::BaseWithSyntheticConstructor)constructorCalls::BaseWithSyntheticConstructor.<init>() [pure=false, complexity=0, effects=RETURN_MUTATION]  // ./explicitSuperToSynthetic.ek9:46:9
+    _temp2 = LOAD_LITERAL "Explicitly set in constructor", org.ek9.lang::String  // ./explicitSuperToSynthetic.ek9:47:21
+    RETAIN _temp2  // ./explicitSuperToSynthetic.ek9:47:21
+    SCOPE_REGISTER _temp2, _scope_1  // ./explicitSuperToSynthetic.ek9:47:21
+    RELEASE this.childField  // ./explicitSuperToSynthetic.ek9:47:21
+    STORE this.childField, _temp2  // ./explicitSuperToSynthetic.ek9:47:21
+    RETAIN this.childField  // ./explicitSuperToSynthetic.ek9:47:21
+    SCOPE_EXIT _scope_1  // ./explicitSuperToSynthetic.ek9:46:9
+    RETURN  // ./explicitSuperToSynthetic.ek9:45:7`
+    ChildCallingSyntheticSuper extends BaseWithSyntheticConstructor
+      childField as String := "Child Field"
+
+      ChildCallingSyntheticSuper()
+        super()  // Should resolve to BaseWithSyntheticConstructor's synthetic constructor
+        childField: "Explicitly set in constructor"
+
+//EOF

@@ -1527,6 +1527,169 @@ guardedAssignment()
 - **Ownership Tracking**: Distinguish between caller-owned (parameters) and function-owned (locals) memory
 - **Reference Counting**: Apply RETAIN/RELEASE based on ownership and scope registration
 
+## Constructor Calls and Memory Management Architecture
+
+### Constructor Call IR Generation and VTable Integration
+
+EK9's constructor call IR generation is designed to work optimally across both JVM and LLVM native backends, with each backend interpreting the IR according to its memory management model.
+
+#### Constructor Call IR Patterns
+
+**EK9 Constructor Calls Generate This IR:**
+```
+// super() constructor call
+_temp1 = CALL (constructorCalls::Base)constructorCalls::Base.<init>() [pure=false, complexity=1, effects=RETURN_MUTATION]
+
+// this.i_init() instance initialization  
+_temp_i_init = CALL (constructorCalls::Child)this.i_init() [pure=false, complexity=0]
+```
+
+**Key Design Principle**: Constructor calls return the same object reference they're called on, enabling object identity preservation across inheritance hierarchies.
+
+### Backend-Specific Memory Management
+
+#### JVM Backend: Object-Oriented Native Approach
+
+**Constructor Translation:**
+```java
+// EK9 IR: _temp1 = CALL (constructorCalls::Base)constructorCalls::Base.<init>()
+// JVM Bytecode:
+ALOAD_0                    // Load 'this'
+INVOKESPECIAL Base.<init>()V   // Call super constructor (VOID return)
+// IR return value ignored - JVM modifies 'this' in-place
+```
+
+**Memory Management:**
+- **Constructor returns**: Ignored (JVM handles object identity)
+- **RETAIN/RELEASE instructions**: Ignored (GC handles automatically)  
+- **SCOPE_ENTER/SCOPE_EXIT**: Ignored (JVM stack/locals handle scope)
+
+#### LLVM Native Backend: VTable and ARC Integration
+
+**Object Structure:**
+```c
+typedef struct Child {
+    ek9_RefCount* ref_count;        // ← SINGLE ARC counter for entire object
+    Child_VTable* vtable;           // ← Method dispatch table
+    uint8_t is_set;                 // ← EK9 tri-state semantics
+    Base_fields base_data;          // ← Parent portion (no separate ARC)
+    Child_fields child_data;        // ← Child-specific data
+} Child;
+```
+
+**Constructor Translation:**
+```c
+// EK9 IR: _temp1 = CALL (constructorCalls::Base)constructorCalls::Base.<init>()
+Base* _temp1 = Base_constructor_init(this);  
+// Note: _temp1 === this (same object reference)
+// Note: NO ek9_retain(_temp1) - same object, no ARC needed
+
+// EK9 IR: _temp_i_init = CALL (constructorCalls::Child)this.i_init()
+Child* _temp_i_init = Child_i_init(this);
+// Note: _temp_i_init === this (same object reference)  
+// Note: NO ek9_retain(_temp_i_init) - same object, no ARC needed
+```
+
+### Critical ARC Memory Management Rules
+
+#### ✅ DO NOT ARC `this` and `super` References
+```c
+// Constructor calls return the same object reference
+Child* obj = malloc(sizeof(Child));           // One allocation
+Base* base_view = super_constructor(obj);     // base_view === obj  
+Child* child_view = this_i_init(obj);         // child_view === obj
+
+// All references point to THE SAME OBJECT - no ARC needed
+assert(obj == base_view && base_view == child_view);
+```
+
+#### ✅ DO ARC Individual Fields and Parameters
+```c
+// Field assignment during construction:
+ek9_release(this->field->ref_count);    // Release old field value
+this->field = new_value;                // Assign new value
+ek9_retain(this->field->ref_count);     // Retain new field value
+
+// Parameter handling:
+ek9_retain(parameter->ref_count);       // When parameter enters scope
+ek9_release(parameter->ref_count);      // When parameter leaves scope
+```
+
+### Constructor Delegation Support
+
+**EK9 Constructor Delegation Example:**
+```ek9
+Example()
+  -> input as String  
+  field: input
+
+Example()  
+  this("Default")   // Delegate to parameterized constructor
+```
+
+**Generated IR (Simplified):**
+```
+// Constructor 1: Example(String)
+_temp_i_init = CALL (Example)this.i_init()
+STORE this.field, input
+
+// Constructor 2: Example() - Delegation
+_temp2 = LOAD_LITERAL "Default"
+_temp1 = CALL (Example)Example.<init>(_temp2)  // Delegate call
+```
+
+**LLVM Native Implementation:**
+```c
+// Delegating constructor
+Example* Example_constructor_default(Example* this) {
+    String* param = String_from_literal("Default");
+    ek9_retain(param->ref_count);               // ← ARC parameter
+    
+    Example* result = Example_constructor_with_string(this, param);
+    // Note: result === this (same object), NO ek9_retain(result)
+    
+    ek9_release(param->ref_count);              // ← Parameter cleanup
+    return this;
+}
+```
+
+### VTable Initialization During Construction
+
+**Construction Sequence:**
+1. **Object Allocation**: Single `malloc()` for entire object hierarchy
+2. **Parent Constructor**: Sets up base vtable and parent fields  
+3. **Child Constructor**: Upgrades to full child vtable with overrides
+4. **Field Initialization**: Individual fields get proper ARC management
+
+**VTable Progression:**
+```c
+// Step 1: super.<init>() sets base vtable
+this->vtable = &Base_vtable_instance;     // Parent methods only
+
+// Step 2: this.i_init() upgrades to child vtable  
+this->vtable = &Child_vtable_instance;    // Child + overridden parent methods
+```
+
+**Single ARC Counter Throughout:**
+```c
+// One reference counter manages entire object lifecycle
+this->ref_count->count = 1;  // Set once, never changes during construction
+
+// When count reaches 0:
+this->vtable->destructor(this);  // Cleans up entire object hierarchy
+free(this);                      // Single deallocation
+```
+
+### Multi-Target Architecture Benefits
+
+1. **JVM Backend**: Uses natural object-oriented constructor semantics and GC
+2. **LLVM Backend**: Explicit control over vtable initialization and ARC lifecycle  
+3. **Constructor Delegation**: Works seamlessly in both backends with object identity preservation
+4. **Optimization Ready**: Rich IR enables backend-specific optimization (LLVM passes, HotSpot JIT)
+5. **Debug Support**: Object identity maintained throughout construction in both targets
+
+This architecture demonstrates EK9's multi-backend design philosophy: generate semantically rich IR that each backend can interpret according to its strengths and constraints.
+
 ### Testing and Validation Approaches
 - **@IR Directive Pattern**: Embed expected IR in EK9 source files for test-driven IR development
 - **AbstractIRGenerationTest**: Standard test infrastructure for IR generation validation

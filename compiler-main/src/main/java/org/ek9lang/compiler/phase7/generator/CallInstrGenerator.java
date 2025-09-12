@@ -62,8 +62,8 @@ final class CallInstrGenerator extends AbstractGenerator
       // Function call: functionName(args...)
       return generateFunctionCall(ctx, resultDetails);
     } else if (ctx.primaryReference() != null && ctx.paramExpression() != null) {
-      // Method call on primary reference: object.method(args...)
-      throw new CompilerException("Primary reference method calls not yet implemented");
+      // Method call on primary reference: this.method(args...) or super.method(args...)
+      return generatePrimaryReferenceCall(ctx, resultDetails);
     } else if (ctx.parameterisedType() != null) {
       // Constructor call: Type()
       return generateConstructorCall(ctx, resultDetails);
@@ -201,6 +201,83 @@ final class CallInstrGenerator extends AbstractGenerator
       throw new CompilerException("Expected CallSymbol for constructor, but got: " + symbol.getClass().getSimpleName());
     }
 
+    return instructions;
+  }
+
+  /**
+   * Generate IR for method calls on primary references: this.method(args...) or super.method(args...)
+   */
+  private List<IRInstr> generatePrimaryReferenceCall(final EK9Parser.CallContext ctx,
+                                                     final VariableDetails resultDetails) {
+    final var instructions = new ArrayList<IRInstr>();
+    
+    // Get call symbol - all calls go through CallSymbol in Phase 3 resolution
+    final var symbol = getRecordedSymbolOrException(ctx);
+    if (symbol instanceof CallSymbol callSymbol) {
+      final var resolvedSymbol = callSymbol.getResolvedSymbolToCall();
+      
+      if (resolvedSymbol instanceof MethodSymbol methodSymbol) {
+        if (methodSymbol.isConstructor()) {
+          // Constructor calls like super() use the constructor call processor
+          constructorCallProcessor.processConstructorCall(
+              callSymbol,
+              ctx,
+              resultDetails.resultVariable(),
+              instructions,
+              resultDetails.basicDetails().scopeId(),
+              exprGenerator,
+              true  // Use memory management for statement context
+          );
+        } else {
+          // Regular method calls like this.someMethod()
+          
+          // Process parameters first (similar to function calls)
+          final var paramExpr = ctx.paramExpression();
+          final var argumentDetails = processParameters(paramExpr, instructions, resultDetails.basicDetails().scopeId());
+          
+          // Determine the target variable based on primary reference type
+          final String targetVariable;
+          if (ctx.primaryReference().THIS() != null) {
+            targetVariable = "this";
+          } else if (ctx.primaryReference().SUPER() != null) {
+            targetVariable = "super";
+          } else {
+            throw new CompilerException("Unknown primary reference type: " + ctx.primaryReference().getText());
+          }
+          
+          // Get the target type from the method symbol's parent
+          final var targetTypeScope = methodSymbol.getParentScope();
+          if (!(targetTypeScope instanceof ISymbol targetType)) {
+            throw new CompilerException("Method parent scope must be a symbol (AggregateSymbol), but got: " + targetTypeScope.getClass().getSimpleName());
+          }
+          
+          // Create call context with all required parameters
+          final var callContext = new CallContext(
+              targetType,
+              targetVariable, 
+              methodSymbol.getName(),
+              argumentDetails.argumentSymbols(),
+              argumentDetails.argumentVariables(),
+              resultDetails.basicDetails().scopeId(),
+              ctx
+          );
+          
+          final var callDetailsResult = callDetailsBuilder.apply(callContext);
+          final var debugInfo = debugInfoCreator.apply(new Ek9Token(ctx.primaryReference().start));
+          
+          // Add any promotion instructions that were generated
+          instructions.addAll(callDetailsResult.allInstructions());
+          
+          // Create the method call instruction
+          instructions.add(CallInstr.call(resultDetails.resultVariable(), debugInfo, callDetailsResult.callDetails()));
+        }
+      } else {
+        throw new CompilerException("Primary reference calls must resolve to methods, but got: " + resolvedSymbol.getClass().getSimpleName());
+      }
+    } else {
+      throw new CompilerException("Expected CallSymbol for primary reference call, but got: " + symbol.getClass().getSimpleName());
+    }
+    
     return instructions;
   }
 

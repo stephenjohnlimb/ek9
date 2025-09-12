@@ -143,7 +143,6 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
 
   }
 
-
   /**
    * Process a synthetic operator (generated from 'default operator' declarations).
    * For now, creates placeholder - full implementation will be added later.

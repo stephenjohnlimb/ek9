@@ -12,6 +12,7 @@ import org.ek9lang.compiler.phase7.calls.CallProcessingDetails;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.LiteralProcessingDetails;
+import org.ek9lang.compiler.phase7.support.PrimaryReferenceProcessingDetails;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.compiler.symbols.CallSymbol;
@@ -80,6 +81,7 @@ final class ExprInstrGenerator extends AbstractGenerator
   private final BinaryOperationGenerator binaryOperationGenerator;
   private final ConstructorCallProcessor constructorCallProcessor;
   private final FunctionCallProcessor functionCallProcessor;
+  private final PrimaryReferenceGenerator primaryReferenceGenerator;
 
   ExprInstrGenerator(final IRGenerationContext stackContext) {
     super(stackContext);
@@ -94,6 +96,7 @@ final class ExprInstrGenerator extends AbstractGenerator
     this.binaryOperationGenerator = new BinaryOperationGeneratorWithProcessor(stackContext, this::process);
     this.constructorCallProcessor = new ConstructorCallProcessor(stackContext);
     this.functionCallProcessor = new FunctionCallProcessor(stackContext);
+    this.primaryReferenceGenerator = new PrimaryReferenceGenerator();
   }
 
   /**
@@ -194,7 +197,7 @@ final class ExprInstrGenerator extends AbstractGenerator
       instructions.addAll(
           process(new ExprProcessingDetails(ctx.primary().expression(), details.variableDetails())));
     } else if (ctx.primary().primaryReference() != null) {
-      AssertValue.fail("PrimaryReference not yet Implemented");
+      instructions.addAll(processPrimaryReference(ctx.primary().primaryReference(), exprResult, debugInfo));
     } else {
       AssertValue.fail("Unexpected path.");
     }
@@ -285,6 +288,14 @@ final class ExprInstrGenerator extends AbstractGenerator
     return instructions;
   }
 
+  /**
+   * Process primary references (THIS and SUPER keywords).
+   */
+  private List<IRInstr> processPrimaryReference(final EK9Parser.PrimaryReferenceContext ctx,
+                                                final String rhsExprResult, final DebugInfo debugInfo) {
+    final var processingDetails = new PrimaryReferenceProcessingDetails(ctx, rhsExprResult, debugInfo);
+    return primaryReferenceGenerator.apply(processingDetails);
+  }
 
   /**
    * Process AND expression using high-level short-circuit instruction.
