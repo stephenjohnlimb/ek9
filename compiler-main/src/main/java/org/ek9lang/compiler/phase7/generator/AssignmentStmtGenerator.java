@@ -13,6 +13,7 @@ import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.GuardedAssignmentDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -95,10 +96,10 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     if (isGuardedAssignment(ctx.op)) {
 
-      final var guardedDetails = new GuardedAssignmentGenerator.GuardedAssignmentDetails(
+      final var guardedDetails = new GuardedAssignmentDetails(
           lhsSymbol, ctx.assignmentExpression());
 
-      final var guardedGenerator = createGuardedGenerator(generator, assignExpressionToSymbol);
+      final var guardedGenerator = new GuardedAssignmentBlockGenerator(stackContext, assignExpressionToSymbol);
       instructions.addAll(guardedGenerator.apply(guardedDetails));
       return; // Early return since guarded assignment is complete
     }
@@ -108,12 +109,6 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
   }
 
-  private GuardedAssignmentGenerator createGuardedGenerator(final AssignmentExprInstrGenerator generator,
-                                                            final AssignExpressionToSymbol assignExpressionToSymbol) {
-
-    return new GuardedAssignmentGenerator(stackContext, assignExpressionToSymbol);
-
-  }
 
   private void processMethodBasedAssignment(final EK9Parser.AssignmentStatementContext ctx,
                                             final ISymbol lhsSymbol,

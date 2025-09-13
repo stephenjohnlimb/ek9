@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.GuardedAssignmentDetails;
 
 /**
  * Guarded assignment generator using unified CONTROL_FLOW_CHAIN approach.
@@ -20,7 +21,7 @@ import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
  * </p>
  */
 final class GuardedAssignmentBlockGenerator extends AbstractGenerator
-    implements Function<GuardedAssignmentGenerator.GuardedAssignmentDetails, List<IRInstr>> {
+    implements Function<GuardedAssignmentDetails, List<IRInstr>> {
 
   private final ControlFlowChainGenerator controlFlowChainGenerator;
   private final AssignExpressionToSymbol assignExpressionToSymbol;
@@ -37,7 +38,7 @@ final class GuardedAssignmentBlockGenerator extends AbstractGenerator
   }
 
   @Override
-  public List<IRInstr> apply(final GuardedAssignmentGenerator.GuardedAssignmentDetails details) {
+  public List<IRInstr> apply(final GuardedAssignmentDetails details) {
     final var lhsSymbol = details.lhsSymbol();
     final var assignmentExpression = details.assignmentExpression();
 
