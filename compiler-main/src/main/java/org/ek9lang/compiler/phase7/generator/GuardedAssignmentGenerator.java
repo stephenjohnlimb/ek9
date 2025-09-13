@@ -30,11 +30,10 @@ final class GuardedAssignmentGenerator extends AbstractGenerator
   private final GuardedAssignmentBlockGenerator guardedAssignmentBlockGenerator;
 
   public GuardedAssignmentGenerator(final IRGenerationContext stackContext,
-                                    final QuestionBlockGenerator questionBlockGenerator,
                                     final AssignExpressionToSymbol assignExpressionToSymbol) {
     super(stackContext);
     this.guardedAssignmentBlockGenerator = new GuardedAssignmentBlockGenerator(
-        stackContext, questionBlockGenerator, assignExpressionToSymbol);
+        stackContext, assignExpressionToSymbol);
   }
 
   @Override
