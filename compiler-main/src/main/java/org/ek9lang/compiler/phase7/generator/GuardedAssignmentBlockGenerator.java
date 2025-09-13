@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 
 /**
  * Guarded assignment generator using unified CONTROL_FLOW_CHAIN approach.
@@ -45,7 +44,6 @@ final class GuardedAssignmentBlockGenerator extends AbstractGenerator
     // Get debug information
     final var exprSymbol = getRecordedSymbolOrException(assignmentExpression);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
-    final var basicDetails = new BasicDetails(debugInfo);
 
     // Generate assignment evaluation instructions
     final var assignmentEvaluationInstructions = new ArrayList<>(
@@ -56,7 +54,7 @@ final class GuardedAssignmentBlockGenerator extends AbstractGenerator
         lhsSymbol,
         assignmentEvaluationInstructions,
         null, // No specific assignment result variable
-        basicDetails
+        debugInfo
     );
   }
 

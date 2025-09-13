@@ -5,7 +5,6 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.core.AssertValue;
@@ -57,7 +56,7 @@ final class AssignmentExprInstrGenerator extends AbstractGenerator
     final var debugInfo =
         debugInfoCreator.apply(getRecordedSymbolOrException(ctx.expression()).getSourceToken());
     final var exprDetails = new ExprProcessingDetails(ctx.expression(),
-        new VariableDetails(rhsExprResult, new BasicDetails(debugInfo)));
+        new VariableDetails(rhsExprResult, debugInfo));
 
     AssertValue.checkNotNull("RhsExprResult cannot be null", rhsExprResult);
 

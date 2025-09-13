@@ -13,7 +13,6 @@ import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -122,14 +121,13 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     // Get assignment operator token for correct debug line numbers
     final var debugInfo = stackContext.createDebugInfo(ctx.op);
-    final var basicDetails = new BasicDetails(debugInfo);
 
     // Get method name from operator map (e.g., "+=" -> "_addAss")
     final var methodName = operatorMap.getForward(ctx.op.getText());
 
     // Process left operand with proper memory management
     final var leftTemp = stackContext.generateTempName();
-    final var leftDetails = new VariableDetails(leftTemp, basicDetails);
+    final var leftDetails = new VariableDetails(leftTemp, debugInfo);
     final var leftLoadInstr = MemoryInstr.load(leftTemp, lhsSymbol.getName(), debugInfo);
     final var leftInstructions = variableMemoryManagement.apply(() -> {
       final var list = new ArrayList<IRInstr>();
@@ -140,7 +138,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     // Process right operand with proper memory management
     final var rightTemp = stackContext.generateTempName();
-    final var rightDetails = new VariableDetails(rightTemp, basicDetails);
+    final var rightDetails = new VariableDetails(rightTemp, debugInfo);
     final var rightEvaluation = processAssignmentExpression(ctx.assignmentExpression(), rightDetails);
     instructions.addAll(variableMemoryManagement.apply(() -> rightEvaluation, rightDetails));
 

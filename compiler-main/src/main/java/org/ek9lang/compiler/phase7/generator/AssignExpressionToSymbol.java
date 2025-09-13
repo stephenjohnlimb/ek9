@@ -7,7 +7,6 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ShouldRegisterVariableInScope;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
@@ -47,8 +46,7 @@ final class AssignExpressionToSymbol extends AbstractGenerator
     final var rhsResult = stackContext.generateTempName();
     // STACK-BASED: Get scope ID from current stack frame instead of constructor parameter
     final var scopeId = stackContext.currentScopeId();
-    final var basicDetails = new BasicDetails(rhsExprDebugInfo);
-    final var rhsVariableDetails = new VariableDetails(rhsResult, basicDetails);
+    final var rhsVariableDetails = new VariableDetails(rhsResult, rhsExprDebugInfo);
 
     final var instructions = variableMemoryManagement
         .apply(() -> assignmentGenerator.apply(rhsResult), rhsVariableDetails);
@@ -62,7 +60,7 @@ final class AssignExpressionToSymbol extends AbstractGenerator
     if (lhsSymbol.isPropertyField() || lhsSymbol.isReturningParameter()) {
       instructions.add(MemoryInstr.retain(lhsVariableName, rhsExprDebugInfo));
     } else if (shouldRegisterVariableInScope.test(scopeId)) {
-      final var lhsVariableDetails = new VariableDetails(lhsVariableName, basicDetails);
+      final var lhsVariableDetails = new VariableDetails(lhsVariableName, rhsExprDebugInfo);
       variableMemoryManagement.apply(() -> instructions, lhsVariableDetails);
     }
 

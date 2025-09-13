@@ -9,7 +9,6 @@ import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
@@ -39,7 +38,7 @@ final class AssertStmtGenerator extends AbstractGenerator
     final var rhsExprResult = stackContext.generateTempName();
 
     final var exprDetails = new ExprProcessingDetails(ctx.expression(),
-        new VariableDetails(rhsExprResult, new BasicDetails(assertStmtDebugInfo)));
+        new VariableDetails(rhsExprResult, assertStmtDebugInfo));
 
     final var instructions = new ArrayList<>(processor.apply(exprDetails));
 

@@ -183,7 +183,7 @@ final class ExprInstrGenerator extends AbstractGenerator
   private List<IRInstr> processPrimary(final ExprProcessingDetails details) {
     final var ctx = details.ctx();
     final var exprResult = details.variableDetails().resultVariable();
-    final var debugInfo = details.variableDetails().basicDetails().debugInfo();
+    final var debugInfo = details.variableDetails().debugInfo();
 
     final var instructions = new ArrayList<IRInstr>();
 

@@ -11,7 +11,6 @@ import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
@@ -113,7 +112,7 @@ public final class ConstructorCallProcessor {
         final var exprCtx = exprParam.expression();
         final var argTemp = stackContext.generateTempName();
         // STACK-BASED: Get scope ID from current stack frame instead of parameter
-        final var argDetails = new VariableDetails(argTemp, new BasicDetails(null));
+        final var argDetails = new VariableDetails(argTemp, null);
 
         // Generate instructions to evaluate the argument expression
         final var exprDetails = new ExprProcessingDetails(exprCtx, argDetails);

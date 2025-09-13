@@ -21,7 +21,7 @@ import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForOfFalse;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRInstrToList;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
@@ -109,11 +109,10 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
     // STACK-BASED: Get scope ID from current stack frame 
     final var scopeId = stackContext.currentScopeId();
-    final var operandBasicDetails = new BasicDetails(debugInfo);
 
     // Generate operand evaluation WITHOUT memory management (question operator is self-contained)
     final var operandVariable = stackContext.generateTempName();
-    final var operandVariableDetails = new VariableDetails(operandVariable, operandBasicDetails);
+    final var operandVariableDetails = new VariableDetails(operandVariable, debugInfo);
 
     // Use raw processor to avoid automatic RETAIN/SCOPE_REGISTER on operand
     final var operandEvaluationInstructions = new ArrayList<>(
@@ -124,7 +123,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     operandEvaluationInstructions.add(MemoryInstr.isNull(nullCheckCondition, operandVariable, debugInfo));
 
     final var nullCaseResult = stackContext.generateTempName();
-    final var nullCaseDetails = new VariableDetails(nullCaseResult, operandBasicDetails);
+    final var nullCaseDetails = new VariableDetails(nullCaseResult, debugInfo);
     final var nullCaseEvaluation = generateBooleanFalseEvaluation(nullCaseDetails);
 
     final var nullCheckCase = ConditionCaseDetails.createNullCheck(
@@ -139,7 +138,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     // Create default case: else return operand._isSet()
     // Only the _isSet() result needs memory management, not the operand
     final var setCaseResult = stackContext.generateTempName();
-    final var setCaseDetails = new VariableDetails(setCaseResult, operandBasicDetails);
+    final var setCaseDetails = new VariableDetails(setCaseResult, debugInfo);
     final var setCaseEvaluation = generateIsSetEvaluationNoOperandManagement(operandVariable,
         typeNameOrException.apply(exprSymbol), setCaseDetails);
 
@@ -162,7 +161,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
    */
   public List<IRInstr> generateQuestionOperatorForVariable(final ISymbol variableSymbol,
                                                            final String resultVariable,
-                                                           final BasicDetails basicDetails) {
+                                                           final DebugInfo debugInfo) {
     // STACK-BASED: Get scope ID from current stack frame
     final var scopeId = stackContext.currentScopeId();
 
@@ -172,10 +171,10 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     // Add explicit IS_NULL check directly on the variable
     final var nullCheckCondition = stackContext.generateTempName();
     operandEvaluationInstructions.add(
-        MemoryInstr.isNull(nullCheckCondition, variableSymbol.getName(), basicDetails.debugInfo()));
+        MemoryInstr.isNull(nullCheckCondition, variableSymbol.getName(), debugInfo));
 
     final var nullCaseResult = stackContext.generateTempName();
-    final var nullCaseDetails = new VariableDetails(nullCaseResult, basicDetails);
+    final var nullCaseDetails = new VariableDetails(nullCaseResult, debugInfo);
     final var nullCaseEvaluation = generateBooleanFalseEvaluation(nullCaseDetails);
 
     final var nullCheckCase = ConditionCaseDetails.createNullCheck(
@@ -190,10 +189,10 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     // Create default case: else return variable._isSet()
     // Need to load variable for _isSet() method call (but not for null check)
     final var operandVariable = stackContext.generateTempName();
-    final var operandDetails = new VariableDetails(operandVariable, basicDetails);
+    final var operandDetails = new VariableDetails(operandVariable, debugInfo);
 
     final var setCaseResult = stackContext.generateTempName();
-    final var setCaseDetails = new VariableDetails(setCaseResult, basicDetails);
+    final var setCaseDetails = new VariableDetails(setCaseResult, debugInfo);
     final var setCaseEvaluation = generateIsSetEvaluationForVariable(variableSymbol.getName(),
         operandVariable, operandDetails, typeNameOrException.apply(variableSymbol), setCaseDetails);
 
@@ -203,7 +202,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         List.of(nullCheckCase),
         setCaseEvaluation,
         setCaseResult,
-        basicDetails.debugInfo(),
+        debugInfo,
         scopeId
     );
 
@@ -217,7 +216,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
   public List<IRInstr> generateGuardedAssignment(final ISymbol lhsSymbol,
                                                  final List<IRInstr> assignmentEvaluation,
                                                  final String assignmentResult,
-                                                 final BasicDetails basicDetails) {
+                                                 final DebugInfo debugInfo) {
 
     // STACK-BASED: Get scope ID from current stack frame
     final var scopeId = stackContext.currentScopeId();
@@ -225,11 +224,11 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     // Generate question operator for condition: lhsSymbol?
     final var conditionResult = stackContext.generateTempName();
     final var questionOperatorInstructions = generateQuestionOperatorForVariable(
-        lhsSymbol, conditionResult, basicDetails);
+        lhsSymbol, conditionResult, debugInfo);
 
     // Invert the condition: assign when NOT set (when question operator returns false)
     final var invertedCondition = stackContext.generateTempName();
-    final var invertedConditionDetails = new VariableDetails(invertedCondition, basicDetails);
+    final var invertedConditionDetails = new VariableDetails(invertedCondition, debugInfo);
     final var inversionInstructions = generateBooleanNotEvaluation(conditionResult, invertedConditionDetails);
 
     // Create the condition evaluation that includes question operator + inversion
@@ -241,7 +240,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var primitiveCondition = stackContext.generateTempName();
 
     conditionEvaluationInstructions.add(CallInstr.operator(
-        new VariableDetails(primitiveCondition, basicDetails),
+        new VariableDetails(primitiveCondition, debugInfo),
         callDetailsForIsTrue.apply(invertedCondition)
     ));
 
@@ -264,7 +263,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         List.of(assignmentCase),
         DefaultCaseDetails.none(), // No default case
         null, // No enum optimization
-        basicDetails.debugInfo(),
+        debugInfo,
         scopeId
     );
 
@@ -293,7 +292,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
 
     // Load variable for _isSet() method call
     final var loadInstructions = irInstrToList
-        .apply(() -> MemoryInstr.load(operandVariable, variableName, operandDetails.basicDetails().debugInfo()));
+        .apply(() -> MemoryInstr.load(operandVariable, variableName, operandDetails.debugInfo()));
     final var instructions = new ArrayList<>(loadInstructions);
     variableMemoryManagement.apply(() -> loadInstructions, operandDetails);
 

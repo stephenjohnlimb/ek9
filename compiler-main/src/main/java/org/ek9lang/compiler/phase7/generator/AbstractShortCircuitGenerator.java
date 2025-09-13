@@ -9,7 +9,6 @@ import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ConditionalEvaluation;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.OperandEvaluation;
@@ -50,10 +49,9 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
     // Get debug information
     final var exprSymbol = getRecordedSymbolOrException(ctx);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
-    final var basicDetails = new BasicDetails(debugInfo);
 
     final var lhsTemp = stackContext.generateTempName();
-    final var lhsVariableDetails = new VariableDetails(lhsTemp, basicDetails);
+    final var lhsVariableDetails = new VariableDetails(lhsTemp, debugInfo);
     final var leftEvaluationInstructions = new ArrayList<>(
         recordExprProcessing.apply(new ExprProcessingDetails(ctx.left, lhsVariableDetails)));
 
@@ -64,7 +62,7 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
 
     // Right operand evaluation instructions (for non-short-circuit pathway)
     final var rhsTemp = stackContext.generateTempName();
-    final var rhsVariableDetails = new VariableDetails(rhsTemp, basicDetails);
+    final var rhsVariableDetails = new VariableDetails(rhsTemp, debugInfo);
     final var rightEvaluationInstructions = new ArrayList<>(
         recordExprProcessing.apply(new ExprProcessingDetails(ctx.right, rhsVariableDetails)));
 
@@ -73,7 +71,7 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
     final var callDetails = getCallDetails(lhsTemp, rhsTemp);
     resultComputationInstructions.add(CallInstr.operator(result, debugInfo, callDetails));
 
-    final var variableDetails = new VariableDetails(result, basicDetails);
+    final var variableDetails = new VariableDetails(result, debugInfo);
     variableMemoryManagement.apply(() -> resultComputationInstructions, variableDetails);
 
     // Create record components for structured data

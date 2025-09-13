@@ -14,7 +14,6 @@ import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.calls.CallProcessingDetails;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
@@ -173,8 +172,7 @@ public final class FunctionCallProcessor implements Function<CallProcessingDetai
         final var exprCtx = exprParam.expression();
         final var argTemp = stackContext.generateTempName();
         // STACK-BASED: Get scope ID from current stack frame instead of parameter
-        final var argDetails = new VariableDetails(argTemp,
-            new BasicDetails(null));
+        final var argDetails = new VariableDetails(argTemp, null);
 
         // Generate instructions to evaluate the argument expression
         final var exprDetails = new ExprProcessingDetails(exprCtx, argDetails);

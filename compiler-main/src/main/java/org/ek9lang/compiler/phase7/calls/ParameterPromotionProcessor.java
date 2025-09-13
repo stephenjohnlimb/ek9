@@ -12,7 +12,6 @@ import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.MethodResolutionResult;
 import org.ek9lang.compiler.phase7.support.PromotedVariable;
 import org.ek9lang.compiler.phase7.support.PromotionResult;
@@ -144,8 +143,7 @@ public final class ParameterPromotionProcessor
 
     // Use VariableMemoryManagement to properly handle RETAIN and SCOPE_REGISTER with correct scope
     // STACK-BASED: Get scope ID from current stack frame instead of CallContext parameter
-    final var basicDetails = new BasicDetails(debugInfo);
-    final var promotedVariableDetails = new VariableDetails(promotedVar, basicDetails);
+    final var promotedVariableDetails = new VariableDetails(promotedVar, debugInfo);
 
     final var promotionInstructions = variableMemoryManagement.apply(
         () -> new ArrayList<>(List.of(promoteInstr)),

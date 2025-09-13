@@ -27,9 +27,9 @@ public final class VariableMemoryManagement
   public List<IRInstr> apply(final Supplier<List<IRInstr>> mainProcessing, final VariableDetails target) {
 
     final var instructions = mainProcessing.get();
-    instructions.add(MemoryInstr.retain(target.resultVariable(), target.basicDetails().debugInfo()));
+    instructions.add(MemoryInstr.retain(target.resultVariable(), target.debugInfo()));
     instructions.add(
-        ScopeInstr.register(target.resultVariable(), stackContext.currentScopeId(), target.basicDetails().debugInfo()));
+        ScopeInstr.register(target.resultVariable(), stackContext.currentScopeId(), target.debugInfo()));
 
     return instructions;
   }

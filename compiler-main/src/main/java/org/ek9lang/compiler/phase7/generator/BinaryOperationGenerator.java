@@ -39,7 +39,7 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
 
     final var ctx = details.ctx();
     final var resultVariable = details.variableDetails().resultVariable();
-    final var basicDetails = details.variableDetails().basicDetails();
+    final var debugInfo = details.variableDetails().debugInfo();
 
     // Get method name from operator map
     final var methodName = operatorMap.getForward(details.ctx().op.getText());
@@ -50,13 +50,13 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
 
     // Process left operand with memory management
     final var leftTemp = stackContext.generateTempName();
-    final var leftDetails = new VariableDetails(leftTemp, basicDetails);
+    final var leftDetails = new VariableDetails(leftTemp, debugInfo);
     final var leftEvaluation = processOperandExpression(leftExpr, leftDetails);
     final var instructions = new ArrayList<>(variableMemoryManagement.apply(() -> leftEvaluation, leftDetails));
 
     // Process right operand with memory management
     final var rightTemp = stackContext.generateTempName();
-    final var rightDetails = new VariableDetails(rightTemp, basicDetails);
+    final var rightDetails = new VariableDetails(rightTemp, debugInfo);
     final var rightEvaluation = processOperandExpression(rightExpr, rightDetails);
     instructions.addAll(variableMemoryManagement.apply(() -> rightEvaluation, rightDetails));
 
@@ -82,8 +82,8 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
     instructions.addAll(callDetailsResult.allInstructions());
 
     // Generate the operator call with resolved CallDetails
-    final var debugInfo = debugInfoCreator.apply(new Ek9Token(ctx.op));
-    instructions.add(CallInstr.operator(resultVariable, debugInfo, callDetailsResult.callDetails()));
+    final var opDebugInfo = debugInfoCreator.apply(new Ek9Token(ctx.op));
+    instructions.add(CallInstr.operator(resultVariable, opDebugInfo, callDetailsResult.callDetails()));
 
     return instructions;
   }

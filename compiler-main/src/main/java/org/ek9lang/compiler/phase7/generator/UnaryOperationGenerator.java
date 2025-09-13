@@ -41,7 +41,7 @@ abstract class UnaryOperationGenerator extends AbstractGenerator
   public List<IRInstr> apply(final ExprProcessingDetails details) {
     final var ctx = details.ctx();
     final var resultVariable = details.variableDetails().resultVariable();
-    final var basicDetails = details.variableDetails().basicDetails();
+    final var debugInfo = details.variableDetails().debugInfo();
 
     // Get method name from operator map, but for tilde need to map to unary -.
     final var lookupOp = ctx.op.getText().equals("-") ? "~" : ctx.op.getText();
@@ -51,7 +51,7 @@ abstract class UnaryOperationGenerator extends AbstractGenerator
 
     // Get operand variable - process the expression first with memory management
     final var operandTemp = stackContext.generateTempName();
-    final var operandDetails = new VariableDetails(operandTemp, basicDetails);
+    final var operandDetails = new VariableDetails(operandTemp, debugInfo);
 
     // Use recursive expression processing to handle the operand (e.g., for -(-x))
     // This will be injected from ExprInstrGenerator constructor
@@ -77,8 +77,8 @@ abstract class UnaryOperationGenerator extends AbstractGenerator
     instructions.addAll(callDetailsResult.allInstructions());
 
     // Generate the operator call with resolved CallDetails
-    final var debugInfo = debugInfoCreator.apply(new Ek9Token(ctx.op));
-    instructions.add(CallInstr.operator(resultVariable, debugInfo, callDetailsResult.callDetails()));
+    final var opDebugInfo = debugInfoCreator.apply(new Ek9Token(ctx.op));
+    instructions.add(CallInstr.operator(resultVariable, opDebugInfo, callDetailsResult.callDetails()));
 
     return instructions;
   }

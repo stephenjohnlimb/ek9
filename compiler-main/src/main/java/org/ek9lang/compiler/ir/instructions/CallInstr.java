@@ -49,7 +49,7 @@ public final class CallInstr extends IRInstr {
   public static CallInstr callStatic(final VariableDetails variableDetails,
                                      final CallDetails callDetails) {
     return new CallInstr(IROpcode.CALL_STATIC,
-        variableDetails.resultVariable(), variableDetails.basicDetails().debugInfo(), callDetails);
+        variableDetails.resultVariable(), variableDetails.debugInfo(), callDetails);
   }
 
 
@@ -75,7 +75,7 @@ public final class CallInstr extends IRInstr {
   public static CallInstr operator(final VariableDetails variableDetails,
                                    final CallDetails callDetails) {
     return new CallInstr(IROpcode.CALL,
-        variableDetails.resultVariable(), variableDetails.basicDetails().debugInfo(), callDetails);
+        variableDetails.resultVariable(), variableDetails.debugInfo(), callDetails);
   }
 
   /**
