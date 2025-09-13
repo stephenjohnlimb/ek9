@@ -45,7 +45,7 @@ defines module integer.unary.negation.test
     STORE negIntVar, _temp2  // ./integer_unary_negation.ek9:91:20
     RETAIN negIntVar  // ./integer_unary_negation.ek9:91:20
     SCOPE_REGISTER negIntVar, _scope_1  // ./integer_unary_negation.ek9:91:20
-    _temp4 = CONTROL_FLOW_CHAIN  // ./integer_unary_negation.ek9:92:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./integer_unary_negation.ek9:92:23
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

@@ -83,7 +83,7 @@ defines module assignments
     ]
     scope_id: _scope_1
     ]
-    _temp9 = CONTROL_FLOW_CHAIN  // ./guardedAssignment.ek9:127:7
+    _temp9 = CONTROL_FLOW_CHAIN  // ./guardedAssignment.ek9:127:19
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

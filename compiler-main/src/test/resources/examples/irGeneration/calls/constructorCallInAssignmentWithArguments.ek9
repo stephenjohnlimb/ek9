@@ -32,7 +32,7 @@ defines module constructorassignmentwithargscalls.test
     STORE aString, _temp1  // ./constructorCallInAssignmentWithArguments.ek9:75:16
     RETAIN aString  // ./constructorCallInAssignmentWithArguments.ek9:75:16
     SCOPE_REGISTER aString, _scope_1  // ./constructorCallInAssignmentWithArguments.ek9:75:16
-    _temp3 = CONTROL_FLOW_CHAIN  // ./constructorCallInAssignmentWithArguments.ek9:76:7
+    _temp3 = CONTROL_FLOW_CHAIN  // ./constructorCallInAssignmentWithArguments.ek9:76:21
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

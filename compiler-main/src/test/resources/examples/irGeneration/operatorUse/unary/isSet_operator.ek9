@@ -71,7 +71,7 @@ defines module isSet.test
     STORE result, _temp2  // ./isSet_operator.ek9:114:18
     RETAIN result  // ./isSet_operator.ek9:114:18
     SCOPE_REGISTER result, _scope_1  // ./isSet_operator.ek9:114:18
-    _temp7 = CONTROL_FLOW_CHAIN  // ./isSet_operator.ek9:115:7
+    _temp7 = CONTROL_FLOW_CHAIN  // ./isSet_operator.ek9:115:20
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

@@ -39,7 +39,7 @@ defines module subtraction.test
     STORE z, _temp1  // ./subtraction_operator.ek9:81:14
     RETAIN z  // ./subtraction_operator.ek9:81:14
     SCOPE_REGISTER z, _scope_1  // ./subtraction_operator.ek9:81:14
-    _temp4 = CONTROL_FLOW_CHAIN  // ./subtraction_operator.ek9:82:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./subtraction_operator.ek9:82:15
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

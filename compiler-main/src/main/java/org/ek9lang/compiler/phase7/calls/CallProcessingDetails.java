@@ -29,12 +29,6 @@ public record CallProcessingDetails(
     return new CallProcessingDetails(callContext, variableDetails, false);
   }
 
-  /**
-   * Get the scope ID for this call processing.
-   */
-  public String scopeId() {
-    return variableDetails.basicDetails().scopeId();
-  }
 
   /**
    * Get the result variable for this call.

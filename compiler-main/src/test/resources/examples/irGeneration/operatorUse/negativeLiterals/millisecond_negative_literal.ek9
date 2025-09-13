@@ -35,7 +35,7 @@ defines module millisecond.negative.literal.test
     STORE negMsLit, _temp1  // ./millisecond_negative_literal.ek9:78:19
     RETAIN negMsLit  // ./millisecond_negative_literal.ek9:78:19
     SCOPE_REGISTER negMsLit, _scope_1  // ./millisecond_negative_literal.ek9:78:19
-    _temp2 = CONTROL_FLOW_CHAIN  // ./millisecond_negative_literal.ek9:79:7
+    _temp2 = CONTROL_FLOW_CHAIN  // ./millisecond_negative_literal.ek9:79:22
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

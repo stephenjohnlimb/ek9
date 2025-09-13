@@ -39,7 +39,7 @@ defines module equals.test
     STORE z, _temp1  // ./equals_operator.ek9:81:14
     RETAIN z  // ./equals_operator.ek9:81:14
     SCOPE_REGISTER z, _scope_1  // ./equals_operator.ek9:81:14
-    _temp4 = CONTROL_FLOW_CHAIN  // ./equals_operator.ek9:82:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./equals_operator.ek9:82:15
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

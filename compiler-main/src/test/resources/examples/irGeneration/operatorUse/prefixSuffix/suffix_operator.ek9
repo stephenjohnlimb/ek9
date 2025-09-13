@@ -43,7 +43,7 @@ defines module suffix.test
     STORE unit, _temp2  // ./suffix_operator.ek9:86:15
     RETAIN unit  // ./suffix_operator.ek9:86:15
     SCOPE_REGISTER unit, _scope_1  // ./suffix_operator.ek9:86:15
-    _temp4 = CONTROL_FLOW_CHAIN  // ./suffix_operator.ek9:87:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./suffix_operator.ek9:87:18
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

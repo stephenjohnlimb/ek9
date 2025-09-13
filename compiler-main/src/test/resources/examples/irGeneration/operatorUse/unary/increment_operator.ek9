@@ -43,7 +43,7 @@ defines module increment.test
     STORE result, _temp2  // ./increment_operator.ek9:122:18
     RETAIN result  // ./increment_operator.ek9:122:18
     SCOPE_REGISTER result, _scope_1  // ./increment_operator.ek9:122:18
-    _temp4 = CONTROL_FLOW_CHAIN  // ./increment_operator.ek9:123:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./increment_operator.ek9:123:20
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:
@@ -79,7 +79,7 @@ defines module increment.test
     SCOPE_REGISTER _temp4, _scope_1  // ./increment_operator.ek9:123:7
     _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./increment_operator.ek9:123:7
     ASSERT _temp9  // ./increment_operator.ek9:123:7
-    _temp10 = CONTROL_FLOW_CHAIN  // ./increment_operator.ek9:124:7
+    _temp10 = CONTROL_FLOW_CHAIN  // ./increment_operator.ek9:124:15
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

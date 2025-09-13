@@ -113,7 +113,7 @@ public final class ConstructorCallProcessor {
         final var exprCtx = exprParam.expression();
         final var argTemp = stackContext.generateTempName();
         // STACK-BASED: Get scope ID from current stack frame instead of parameter
-        final var argDetails = new VariableDetails(argTemp, new BasicDetails(stackContext.currentScopeId(), null));
+        final var argDetails = new VariableDetails(argTemp, new BasicDetails(null));
 
         // Generate instructions to evaluate the argument expression
         final var exprDetails = new ExprProcessingDetails(exprCtx, argDetails);
@@ -121,7 +121,7 @@ public final class ConstructorCallProcessor {
 
         if (useMemoryManagement) {
           // Apply memory management (CallInstrGenerator pattern)
-          final var variableMemoryManagement = new VariableMemoryManagement();
+          final var variableMemoryManagement = new VariableMemoryManagement(stackContext);
           instructions.addAll(variableMemoryManagement.apply(() -> argEvaluation, argDetails));
         } else {
           // Direct instruction addition (ExprInstrGenerator pattern)

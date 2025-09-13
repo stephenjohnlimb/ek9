@@ -8,10 +8,8 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.ParsedModule;
-import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
-import org.ek9lang.compiler.phase7.support.VariableDetails;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
@@ -65,31 +63,6 @@ public class IRGenerationContext {
     // Create fresh IRContext for method-level counter isolation
     var methodIRContext = new IRContext(irContext);
     var frame = IRStackFrame.withContext(scopeId, debugInfo, frameType, methodIRContext);
-    irGenerationStack.push(frame);
-  }
-
-  /**
-   * Enter a new IR scope with left-hand side indication.
-   */
-  public void enterScope(String scopeId, DebugInfo debugInfo, IRFrameType frameType, boolean hasLeftHandSide) {
-    var frame = IRStackFrame.withLeftHandSide(scopeId, debugInfo, frameType, hasLeftHandSide);
-    irGenerationStack.push(frame);
-  }
-
-  /**
-   * Enter a new IR scope with context data.
-   */
-  public void enterScope(String scopeId, DebugInfo debugInfo, IRFrameType frameType, Object contextData) {
-    var frame = IRStackFrame.withContext(scopeId, debugInfo, frameType, contextData);
-    irGenerationStack.push(frame);
-  }
-
-  /**
-   * Enter a new IR scope with full parameters.
-   */
-  public void enterScope(String scopeId, DebugInfo debugInfo, IRFrameType frameType,
-                         boolean hasLeftHandSide, Object contextData) {
-    var frame = IRStackFrame.full(scopeId, debugInfo, frameType, hasLeftHandSide, contextData);
     irGenerationStack.push(frame);
   }
 
@@ -208,34 +181,6 @@ public class IRGenerationContext {
    */
   public String generateLabelName(String prefix) {
     return getCurrentIRContext().generateLabelName(prefix);
-  }
-
-  /**
-   * Create BasicDetails using current stack context.
-   */
-  public BasicDetails createBasicDetails() {
-    return new BasicDetails(currentScopeId(), currentDebugInfo().orElse(null));
-  }
-
-  /**
-   * Create BasicDetails with custom scope ID but current debug info.
-   */
-  public BasicDetails createBasicDetails(String scopeId) {
-    return new BasicDetails(scopeId, currentDebugInfo().orElse(null));
-  }
-
-  /**
-   * Create VariableDetails using current stack context.
-   */
-  public VariableDetails createVariableDetails(String variableName) {
-    return new VariableDetails(variableName, createBasicDetails());
-  }
-
-  /**
-   * Create VariableDetails with custom scope ID.
-   */
-  public VariableDetails createVariableDetails(String variableName, String scopeId) {
-    return new VariableDetails(variableName, createBasicDetails(scopeId));
   }
 
   /**

@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.data.LogicalDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
-import org.ek9lang.compiler.ir.data.LogicalDetails;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForIsTrue;
+import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ConditionalEvaluation;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
-import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.OperandEvaluation;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
@@ -26,7 +26,7 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
 
   private final RecordExprProcessing recordExprProcessing;
   private final CallDetailsForIsTrue callDetailsForTrue = new CallDetailsForIsTrue();
-  private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
+  private final VariableMemoryManagement variableMemoryManagement;
   private final Function<LogicalDetails, IRInstr> logicalOperation;
 
   AbstractShortCircuitGenerator(final IRGenerationContext stackContext,
@@ -35,6 +35,7 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
     super(stackContext);
     this.recordExprProcessing = recordExprProcessing;
     this.logicalOperation = logicalOperation;
+    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
   }
 
   protected abstract CallDetails getCallDetails(final String lhsVariable, final String rhsVariable);
@@ -49,7 +50,7 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
     // Get debug information
     final var exprSymbol = getRecordedSymbolOrException(ctx);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
-    final var basicDetails = new BasicDetails(scopeId, debugInfo);
+    final var basicDetails = new BasicDetails(debugInfo);
 
     final var lhsTemp = stackContext.generateTempName();
     final var lhsVariableDetails = new VariableDetails(lhsTemp, basicDetails);
@@ -88,7 +89,8 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
             conditionalEvaluation,
             rightEvaluation,
             resultEvaluation,
-            basicDetails)
+            debugInfo,
+            scopeId)
     );
 
     final var instructions = new ArrayList<IRInstr>();

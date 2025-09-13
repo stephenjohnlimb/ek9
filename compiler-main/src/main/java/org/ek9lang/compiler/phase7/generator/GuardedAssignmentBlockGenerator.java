@@ -27,7 +27,6 @@ final class GuardedAssignmentBlockGenerator extends AbstractGenerator
   private final AssignExpressionToSymbol assignExpressionToSymbol;
 
   public GuardedAssignmentBlockGenerator(final IRGenerationContext stackContext,
-                                         final QuestionBlockGenerator questionBlockGenerator,
                                          final AssignExpressionToSymbol assignExpressionToSymbol) {
     super(stackContext);
     this.assignExpressionToSymbol = assignExpressionToSymbol;
@@ -43,13 +42,10 @@ final class GuardedAssignmentBlockGenerator extends AbstractGenerator
     final var lhsSymbol = details.lhsSymbol();
     final var assignmentExpression = details.assignmentExpression();
 
-    // STACK-BASED: Get scope ID from current stack frame instead of parameter
-    final var scopeId = stackContext.currentScopeId();
-
     // Get debug information
     final var exprSymbol = getRecordedSymbolOrException(assignmentExpression);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
-    final var basicDetails = new BasicDetails(scopeId, debugInfo);
+    final var basicDetails = new BasicDetails(debugInfo);
 
     // Generate assignment evaluation instructions
     final var assignmentEvaluationInstructions = new ArrayList<>(

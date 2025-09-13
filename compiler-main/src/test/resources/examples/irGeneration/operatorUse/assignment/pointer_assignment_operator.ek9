@@ -33,7 +33,7 @@ defines module pointer_assignment.test
     STORE x, _temp1  // ./pointer_assignment_operator.ek9:75:21
     RETAIN x  // ./pointer_assignment_operator.ek9:75:21
     SCOPE_REGISTER x, _scope_1  // ./pointer_assignment_operator.ek9:75:21
-    _temp2 = CONTROL_FLOW_CHAIN  // ./pointer_assignment_operator.ek9:76:7
+    _temp2 = CONTROL_FLOW_CHAIN  // ./pointer_assignment_operator.ek9:76:15
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

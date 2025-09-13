@@ -95,11 +95,9 @@ final class StmtInstrGenerator extends AbstractGenerator
 
   private void processObjectAccessExpression(final EK9Parser.ObjectAccessExpressionContext ctx,
                                              final List<IRInstr> instructions) {
-    // STACK-BASED: Get scope ID and debug info from stack context
-    final var scopeId = stackContext.currentScopeId();
     final var debugInfo = stackContext.createDebugInfo(ctx);
     final var tempResult = stackContext.generateTempName();
-    final var variableDetails = new VariableDetails(tempResult, new BasicDetails(scopeId, debugInfo));
+    final var variableDetails = new VariableDetails(tempResult, new BasicDetails(debugInfo));
     instructions.addAll(objectAccessGenerator.apply(ctx, variableDetails));
   }
 
@@ -117,11 +115,9 @@ final class StmtInstrGenerator extends AbstractGenerator
 
   private void processCall(final EK9Parser.CallContext ctx,
                            final List<IRInstr> instructions) {
-    // STACK-BASED: Get scope ID and debug info from stack context
-    final var scopeId = stackContext.currentScopeId();
     final var debugInfo = stackContext.createDebugInfo(ctx);
     final var tempResult = stackContext.generateTempName();
-    final var variableDetails = new VariableDetails(tempResult, new BasicDetails(scopeId, debugInfo));
+    final var variableDetails = new VariableDetails(tempResult, new BasicDetails(debugInfo));
     instructions.addAll(callInstrGenerator.apply(ctx, variableDetails));
   }
 }

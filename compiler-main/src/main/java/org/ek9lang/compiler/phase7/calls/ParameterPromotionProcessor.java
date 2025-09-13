@@ -7,12 +7,12 @@ import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
-import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.MethodResolutionResult;
 import org.ek9lang.compiler.phase7.support.PromotedVariable;
 import org.ek9lang.compiler.phase7.support.PromotionResult;
@@ -38,10 +38,11 @@ public final class ParameterPromotionProcessor
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final OperatorMap operatorMap = new OperatorMap();
   private final IRGenerationContext stackContext;
-  private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
+  private final VariableMemoryManagement variableMemoryManagement;
 
   public ParameterPromotionProcessor(final IRGenerationContext stackContext) {
     this.stackContext = stackContext;
+    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
   }
 
   @Override
@@ -143,7 +144,7 @@ public final class ParameterPromotionProcessor
 
     // Use VariableMemoryManagement to properly handle RETAIN and SCOPE_REGISTER with correct scope
     // STACK-BASED: Get scope ID from current stack frame instead of CallContext parameter
-    final var basicDetails = new BasicDetails(stackContext.currentScopeId(), debugInfo);
+    final var basicDetails = new BasicDetails(debugInfo);
     final var promotedVariableDetails = new VariableDetails(promotedVar, basicDetails);
 
     final var promotionInstructions = variableMemoryManagement.apply(

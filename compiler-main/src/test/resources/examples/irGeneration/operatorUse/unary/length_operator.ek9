@@ -43,7 +43,7 @@ defines module length.test
     STORE size, _temp2  // ./length_operator.ek9:86:15
     RETAIN size  // ./length_operator.ek9:86:15
     SCOPE_REGISTER size, _scope_1  // ./length_operator.ek9:86:15
-    _temp4 = CONTROL_FLOW_CHAIN  // ./length_operator.ek9:87:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./length_operator.ek9:87:18
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

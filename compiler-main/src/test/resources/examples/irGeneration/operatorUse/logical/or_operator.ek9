@@ -74,7 +74,7 @@ defines module anor.test
     STORE result, _temp3  // ./or_operator.ek9:118:19
     RETAIN result  // ./or_operator.ek9:118:19
     SCOPE_REGISTER result, _scope_1  // ./or_operator.ek9:118:19
-    _temp8 = CONTROL_FLOW_CHAIN  // ./or_operator.ek9:119:7
+    _temp8 = CONTROL_FLOW_CHAIN  // ./or_operator.ek9:119:20
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

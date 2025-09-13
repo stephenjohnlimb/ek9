@@ -44,7 +44,7 @@ public final class FunctionCallProcessor implements Function<CallProcessingDetai
   public FunctionCallProcessor(final IRGenerationContext stackContext) {
     AssertValue.checkNotNull("IRGenerationContext cannot be null", stackContext);
     this.stackContext = stackContext;
-    this.variableMemoryManagement = new VariableMemoryManagement();
+    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
   }
 
   /**
@@ -174,7 +174,7 @@ public final class FunctionCallProcessor implements Function<CallProcessingDetai
         final var argTemp = stackContext.generateTempName();
         // STACK-BASED: Get scope ID from current stack frame instead of parameter
         final var argDetails = new VariableDetails(argTemp,
-            new BasicDetails(stackContext.currentScopeId(), null));
+            new BasicDetails(null));
 
         // Generate instructions to evaluate the argument expression
         final var exprDetails = new ExprProcessingDetails(exprCtx, argDetails);

@@ -37,7 +37,7 @@ defines module square_root.test
     STORE result, _temp1  // ./square_root_operator.ek9:79:17
     RETAIN result  // ./square_root_operator.ek9:79:17
     SCOPE_REGISTER result, _scope_1  // ./square_root_operator.ek9:79:17
-    _temp3 = CONTROL_FLOW_CHAIN  // ./square_root_operator.ek9:80:7
+    _temp3 = CONTROL_FLOW_CHAIN  // ./square_root_operator.ek9:80:20
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

@@ -35,7 +35,7 @@ defines module float.negative.literal.test
     STORE negFloatLit, _temp1  // ./float_negative_literal.ek9:78:22
     RETAIN negFloatLit  // ./float_negative_literal.ek9:78:22
     SCOPE_REGISTER negFloatLit, _scope_1  // ./float_negative_literal.ek9:78:22
-    _temp2 = CONTROL_FLOW_CHAIN  // ./float_negative_literal.ek9:79:7
+    _temp2 = CONTROL_FLOW_CHAIN  // ./float_negative_literal.ek9:79:25
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

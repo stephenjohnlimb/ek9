@@ -45,7 +45,7 @@ defines module float.unary.negation.test
     STORE negFloatVar, _temp2  // ./float_unary_negation.ek9:91:22
     RETAIN negFloatVar  // ./float_unary_negation.ek9:91:22
     SCOPE_REGISTER negFloatVar, _scope_1  // ./float_unary_negation.ek9:91:22
-    _temp4 = CONTROL_FLOW_CHAIN  // ./float_unary_negation.ek9:92:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./float_unary_negation.ek9:92:25
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

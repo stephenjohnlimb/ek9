@@ -7,22 +7,22 @@ import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
-import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
-import org.ek9lang.compiler.ir.instructions.ControlFlowChainInstr;
 import org.ek9lang.compiler.ir.data.DefaultCaseDetails;
 import org.ek9lang.compiler.ir.data.EvaluationVariableDetails;
 import org.ek9lang.compiler.ir.data.GuardVariableDetails;
+import org.ek9lang.compiler.ir.data.ReturnVariableDetails;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
+import org.ek9lang.compiler.ir.instructions.ControlFlowChainInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
-import org.ek9lang.compiler.ir.data.ReturnVariableDetails;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForOfFalse;
-import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRInstrToList;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
@@ -52,7 +52,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final CallDetailsForOfFalse callDetailsForOfFalse = new CallDetailsForOfFalse();
   private final IRInstrToList irInstrToList = new IRInstrToList();
-  private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
+  private final VariableMemoryManagement variableMemoryManagement;
   private final CallDetailsForIsTrue callDetailsForIsTrue = new CallDetailsForIsTrue();
   private final OperatorMap operatorMap = new OperatorMap();
 
@@ -60,6 +60,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
                                    final Function<ExprProcessingDetails, List<IRInstr>> rawExprProcessor) {
     super(stackContext);
     this.rawExprProcessor = rawExprProcessor;
+    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
   }
 
   @Override
@@ -68,13 +69,13 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
 
     // Add guard scope management if needed
     if (details.hasGuardScope()) {
-      instructions.add(ScopeInstr.enter(details.guardScopeId(), details.basicDetails().debugInfo()));
+      instructions.add(ScopeInstr.enter(details.guardScopeId(), details.debugInfo()));
       instructions.addAll(details.guardScopeSetup());
     }
 
     // Add shared condition scope management if needed  
     if (details.hasSharedConditionScope()) {
-      instructions.add(ScopeInstr.enter(details.conditionScopeId(), details.basicDetails().debugInfo()));
+      instructions.add(ScopeInstr.enter(details.conditionScopeId(), details.debugInfo()));
     }
 
     // Add the main CONTROL_FLOW_CHAIN instruction
@@ -83,12 +84,12 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
 
     // Close shared condition scope if opened
     if (details.hasSharedConditionScope()) {
-      instructions.add(ScopeInstr.exit(details.conditionScopeId(), details.basicDetails().debugInfo()));
+      instructions.add(ScopeInstr.exit(details.conditionScopeId(), details.debugInfo()));
     }
 
     // Close guard scope if opened
     if (details.hasGuardScope()) {
-      instructions.add(ScopeInstr.exit(details.guardScopeId(), details.basicDetails().debugInfo()));
+      instructions.add(ScopeInstr.exit(details.guardScopeId(), details.debugInfo()));
     }
 
     return instructions;
@@ -102,13 +103,13 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
   public List<IRInstr> generateQuestionOperator(final ExprProcessingDetails exprDetails) {
     final var ctx = exprDetails.ctx();
     final var resultVariable = exprDetails.variableDetails().resultVariable();
-    final var basicDetails = exprDetails.variableDetails().basicDetails();
 
     // Get debug information from expression symbol
     final var exprSymbol = getRecordedSymbolOrException(ctx);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
-    // STACK-BASED: Get scope ID from current stack frame instead of parameter  
-    final var operandBasicDetails = new BasicDetails(stackContext.currentScopeId(), debugInfo);
+    // STACK-BASED: Get scope ID from current stack frame 
+    final var scopeId = stackContext.currentScopeId();
+    final var operandBasicDetails = new BasicDetails(debugInfo);
 
     // Generate operand evaluation WITHOUT memory management (question operator is self-contained)
     final var operandVariable = stackContext.generateTempName();
@@ -148,7 +149,8 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         List.of(nullCheckCase),
         setCaseEvaluation,
         setCaseResult,
-        basicDetails
+        debugInfo,
+        scopeId
     );
 
     return apply(controlFlowChainDetails);
@@ -161,6 +163,9 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
   public List<IRInstr> generateQuestionOperatorForVariable(final ISymbol variableSymbol,
                                                            final String resultVariable,
                                                            final BasicDetails basicDetails) {
+    // STACK-BASED: Get scope ID from current stack frame
+    final var scopeId = stackContext.currentScopeId();
+
     // Direct null check on variable - no LOAD/RETAIN/SCOPE_REGISTER needed for null checking
     final var operandEvaluationInstructions = new ArrayList<IRInstr>();
 
@@ -198,7 +203,8 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         List.of(nullCheckCase),
         setCaseEvaluation,
         setCaseResult,
-        basicDetails
+        basicDetails.debugInfo(),
+        scopeId
     );
 
     return apply(controlFlowChainDetails);
@@ -212,6 +218,9 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
                                                  final List<IRInstr> assignmentEvaluation,
                                                  final String assignmentResult,
                                                  final BasicDetails basicDetails) {
+
+    // STACK-BASED: Get scope ID from current stack frame
+    final var scopeId = stackContext.currentScopeId();
 
     // Generate question operator for condition: lhsSymbol?
     final var conditionResult = stackContext.generateTempName();
@@ -255,7 +264,8 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         List.of(assignmentCase),
         DefaultCaseDetails.none(), // No default case
         null, // No enum optimization
-        basicDetails
+        basicDetails.debugInfo(),
+        scopeId
     );
 
     return apply(controlFlowChainDetails);

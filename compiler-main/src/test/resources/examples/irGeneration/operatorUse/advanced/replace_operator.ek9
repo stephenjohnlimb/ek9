@@ -47,7 +47,7 @@ defines module replace.test
     RETAIN _temp4  // ./replace_operator.ek9:91:9
     SCOPE_REGISTER _temp4, _scope_1  // ./replace_operator.ek9:91:9
     CALL (org.ek9.lang::Integer)_temp3._replace(_temp4) [pure=false, complexity=0, effects=THIS_MUTATION]  // ./replace_operator.ek9:91:9
-    _temp5 = CONTROL_FLOW_CHAIN  // ./replace_operator.ek9:92:7
+    _temp5 = CONTROL_FLOW_CHAIN  // ./replace_operator.ek9:92:15
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

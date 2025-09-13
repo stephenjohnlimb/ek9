@@ -54,7 +54,7 @@ defines module anxor.test
     STORE result, _temp3  // ./xor_operator.ek9:98:19
     RETAIN result  // ./xor_operator.ek9:98:19
     SCOPE_REGISTER result, _scope_1  // ./xor_operator.ek9:98:19
-    _temp6 = CONTROL_FLOW_CHAIN  // ./xor_operator.ek9:99:7
+    _temp6 = CONTROL_FLOW_CHAIN  // ./xor_operator.ek9:99:20
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

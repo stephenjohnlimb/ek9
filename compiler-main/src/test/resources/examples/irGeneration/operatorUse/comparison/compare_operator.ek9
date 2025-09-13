@@ -40,7 +40,7 @@ defines module compare.test
     STORE z, _temp1  // ./compare_operator.ek9:82:14
     RETAIN z  // ./compare_operator.ek9:82:14
     SCOPE_REGISTER z, _scope_1  // ./compare_operator.ek9:82:14
-    _temp4 = CONTROL_FLOW_CHAIN  // ./compare_operator.ek9:83:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./compare_operator.ek9:83:15
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

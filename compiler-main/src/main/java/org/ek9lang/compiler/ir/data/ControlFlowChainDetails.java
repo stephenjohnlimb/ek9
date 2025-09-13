@@ -3,7 +3,7 @@ package org.ek9lang.compiler.ir.data;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 
 /**
  * Record containing all information needed to create a CONTROL_FLOW_CHAIN instruction.
@@ -73,20 +73,29 @@ public record ControlFlowChainDetails(
     EnumOptimizationDetails enumOptimizationInfo,
 
     /*
-     * Basic details including scope ID and debug information.
+     * Debug information for this control flow construct.
+     * STACK-BASED: debugInfo extracted directly at Details creation time.
      */
-    BasicDetails basicDetails
+    DebugInfo debugInfo,
+
+    /*
+     * Scope ID extracted from stack context at Details creation time.
+     * STACK-BASED: All scope information comes from IRGenerationContext.currentScopeId().
+     */
+    String scopeId
 ) {
 
   /**
    * Create details for a Question operator (?).
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
    */
   public static ControlFlowChainDetails createQuestionOperator(
       String result,
       List<ConditionCaseDetails> conditionChain,
       List<IRInstr> defaultBodyEvaluation,
       String defaultResult,
-      BasicDetails basicDetails) {
+      DebugInfo debugInfo,
+      String scopeId) {
     
     return new ControlFlowChainDetails(
         result,
@@ -97,19 +106,22 @@ public record ControlFlowChainDetails(
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
         null, // No enum optimization
-        basicDetails
+        debugInfo,
+        scopeId
     );
   }
 
   /**
    * Create details for an if/else statement.
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
    */
   public static ControlFlowChainDetails createIfElse(
       String result,
       List<ConditionCaseDetails> conditionChain,
       List<IRInstr> defaultBodyEvaluation,
       String defaultResult,
-      BasicDetails basicDetails) {
+      DebugInfo debugInfo,
+      String scopeId) {
     
     return new ControlFlowChainDetails(
         result,
@@ -120,12 +132,14 @@ public record ControlFlowChainDetails(
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
         null, // No enum optimization
-        basicDetails
+        debugInfo,
+        scopeId
     );
   }
 
   /**
    * Create details for a switch statement with enum optimization.
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
    */
   public static ControlFlowChainDetails createSwitchEnum(
       String result,
@@ -139,7 +153,8 @@ public record ControlFlowChainDetails(
       List<IRInstr> defaultBodyEvaluation,
       String defaultResult,
       EnumOptimizationDetails enumOptimizationInfo,
-      BasicDetails basicDetails) {
+      DebugInfo debugInfo,
+      String scopeId) {
     
     return new ControlFlowChainDetails(
         result,
@@ -150,12 +165,14 @@ public record ControlFlowChainDetails(
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
         enumOptimizationInfo,
-        basicDetails
+        debugInfo,
+        scopeId
     );
   }
 
   /**
    * Create details for a general switch statement.
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
    */
   public static ControlFlowChainDetails createSwitch(
       String result,
@@ -168,7 +185,8 @@ public record ControlFlowChainDetails(
       List<ConditionCaseDetails> conditionChain,
       List<IRInstr> defaultBodyEvaluation,
       String defaultResult,
-      BasicDetails basicDetails) {
+      DebugInfo debugInfo,
+      String scopeId) {
     
     return new ControlFlowChainDetails(
         result,
@@ -179,7 +197,8 @@ public record ControlFlowChainDetails(
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
         null, // No enum optimization for general switch
-        basicDetails
+        debugInfo,
+        scopeId
     );
   }
 
@@ -191,10 +210,11 @@ public record ControlFlowChainDetails(
   }
 
   /**
-   * Get the scope ID from basic details.
+   * Get the scope ID extracted from stack context at Details creation time.
+   * STACK-BASED: scopeId comes from IRGenerationContext.currentScopeId() where this object is created.
    */
   public String getScopeId() {
-    return basicDetails.scopeId();
+    return scopeId;
   }
 
   /**
@@ -262,6 +282,7 @@ public record ControlFlowChainDetails(
 
   /**
    * Create details for if/else with guard variables.
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
    */
   public static ControlFlowChainDetails createIfElseWithGuards(
       String result,
@@ -272,7 +293,8 @@ public record ControlFlowChainDetails(
       List<ConditionCaseDetails> conditionChain,
       List<IRInstr> defaultBodyEvaluation,
       String defaultResult,
-      BasicDetails basicDetails) {
+      DebugInfo debugInfo,
+      String scopeId) {
     
     return new ControlFlowChainDetails(
         result,
@@ -283,12 +305,14 @@ public record ControlFlowChainDetails(
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
         null, // No enum optimization
-        basicDetails
+        debugInfo,
+        scopeId
     );
   }
 
   /**
    * Create details for switch with guard variables.
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
    */
   public static ControlFlowChainDetails createSwitchWithGuards(
       String result,
@@ -305,7 +329,8 @@ public record ControlFlowChainDetails(
       List<ConditionCaseDetails> conditionChain,
       List<IRInstr> defaultBodyEvaluation,
       String defaultResult,
-      BasicDetails basicDetails) {
+      DebugInfo debugInfo,
+      String scopeId) {
     
     return new ControlFlowChainDetails(
         result,
@@ -316,7 +341,8 @@ public record ControlFlowChainDetails(
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
         null, // No enum optimization for guard switches
-        basicDetails
+        debugInfo,
+        scopeId
     );
   }
 

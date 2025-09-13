@@ -33,7 +33,7 @@ defines module negate.test
     STORE z, _temp1  // ./negate_operator.ek9:75:12
     RETAIN z  // ./negate_operator.ek9:75:12
     SCOPE_REGISTER z, _scope_1  // ./negate_operator.ek9:75:12
-    _temp2 = CONTROL_FLOW_CHAIN  // ./negate_operator.ek9:76:7
+    _temp2 = CONTROL_FLOW_CHAIN  // ./negate_operator.ek9:76:15
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

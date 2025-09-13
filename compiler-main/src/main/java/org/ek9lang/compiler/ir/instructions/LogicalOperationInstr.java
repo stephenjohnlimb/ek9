@@ -61,7 +61,7 @@ public final class LogicalOperationInstr extends IRInstr {
 
   private LogicalOperationInstr(final LogicalOperationContext operationContext,
                                 final LogicalDetails logicalDetails) {
-    super(operationContext.opcode(), operationContext.result(), logicalDetails.basicDetails().debugInfo());
+    super(operationContext.opcode(), operationContext.result(), logicalDetails.debugInfo());
 
     AssertValue.checkNotNull("OperationInstr context cannot be null", operationContext);
     AssertValue.checkNotNull("logicalDetails evaluation cannot be null", logicalDetails);
@@ -71,7 +71,7 @@ public final class LogicalOperationInstr extends IRInstr {
     this.conditionalEvaluation = logicalDetails.conditionalEvaluation();
     this.rightEvaluation = logicalDetails.rightEvaluation();
     this.resultEvaluation = logicalDetails.resultEvaluation();
-    this.scopeId = logicalDetails.basicDetails().scopeId();
+    this.scopeId = logicalDetails.scopeId();
 
     // Store operands for base class functionality
     addOperand(leftEvaluation.operandName());

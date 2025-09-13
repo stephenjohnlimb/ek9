@@ -43,7 +43,7 @@ defines module prefix.test
     STORE coefficient, _temp2  // ./prefix_operator.ek9:86:22
     RETAIN coefficient  // ./prefix_operator.ek9:86:22
     SCOPE_REGISTER coefficient, _scope_1  // ./prefix_operator.ek9:86:22
-    _temp4 = CONTROL_FLOW_CHAIN  // ./prefix_operator.ek9:87:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./prefix_operator.ek9:87:25
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

@@ -3,6 +3,8 @@ package org.ek9lang.compiler.phase7.support;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.core.AssertValue;
 
 /**
  * Triggers the expression processing with the given details.
@@ -11,15 +13,20 @@ import org.ek9lang.compiler.ir.instructions.IRInstr;
  * decrement (and possible deletion).
  * <p>
  * So typically this is only used with local variables and internal temporary variables.
+ * STACK-BASED: Uses IRGenerationContext to get current scope ID from stack.
  * </p>
  */
 public class RecordExprProcessing implements Function<ExprProcessingDetails, List<IRInstr>> {
 
   private final Function<ExprProcessingDetails, List<IRInstr>> processor;
-  private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
+  private final VariableMemoryManagement variableMemoryManagement;
 
-  public RecordExprProcessing(final Function<ExprProcessingDetails, List<IRInstr>> processor) {
+  public RecordExprProcessing(final Function<ExprProcessingDetails, List<IRInstr>> processor,
+                              final IRGenerationContext stackContext) {
+    AssertValue.checkNotNull("Processor cannot be null", processor);
+    AssertValue.checkNotNull("IRGenerationContext cannot be null", stackContext);
     this.processor = processor;
+    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
   }
 
   @Override

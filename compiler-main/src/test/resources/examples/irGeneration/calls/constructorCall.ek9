@@ -30,7 +30,7 @@ defines module constructorcalls.test
     STORE aString, _temp1  // ./constructorCall.ek9:72:18
     RETAIN aString  // ./constructorCall.ek9:72:18
     SCOPE_REGISTER aString, _scope_1  // ./constructorCall.ek9:72:18
-    _temp2 = CONTROL_FLOW_CHAIN  // ./constructorCall.ek9:73:7
+    _temp2 = CONTROL_FLOW_CHAIN  // ./constructorCall.ek9:73:21
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

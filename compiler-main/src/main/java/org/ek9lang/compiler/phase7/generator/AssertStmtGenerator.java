@@ -29,20 +29,17 @@ final class AssertStmtGenerator extends AbstractGenerator
 
     AssertValue.checkNotNull("Ctx cannot be null", ctx);
 
-    // STACK-BASED: Get scope ID from current stack frame instead of parameter
-    final var scopeId = stackContext.currentScopeId();
-
     //This deals with generating the instructions for the expression
     final var expressionGenerator = new ExprInstrGenerator(stackContext);
     //This deals with calling the above, but then retaining/recording the appropriate symbol for memory management
-    final var processor = new RecordExprProcessing(expressionGenerator);
+    final var processor = new RecordExprProcessing(expressionGenerator, stackContext);
 
     final var assertStmtDebugInfo = stackContext.createDebugInfo(ctx.ASSERT().getSymbol());
 
     final var rhsExprResult = stackContext.generateTempName();
 
     final var exprDetails = new ExprProcessingDetails(ctx.expression(),
-        new VariableDetails(rhsExprResult, new BasicDetails(scopeId, assertStmtDebugInfo)));
+        new VariableDetails(rhsExprResult, new BasicDetails(assertStmtDebugInfo)));
 
     final var instructions = new ArrayList<>(processor.apply(exprDetails));
 

@@ -37,7 +37,7 @@ defines module factorial.test
     STORE result, _temp1  // ./factorial_operator.ek9:79:18
     RETAIN result  // ./factorial_operator.ek9:79:18
     SCOPE_REGISTER result, _scope_1  // ./factorial_operator.ek9:79:18
-    _temp3 = CONTROL_FLOW_CHAIN  // ./factorial_operator.ek9:80:7
+    _temp3 = CONTROL_FLOW_CHAIN  // ./factorial_operator.ek9:80:20
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

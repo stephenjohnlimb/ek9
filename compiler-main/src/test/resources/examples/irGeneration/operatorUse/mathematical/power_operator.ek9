@@ -40,7 +40,7 @@ defines module power.test
     STORE result, _temp1  // ./power_operator.ek9:82:19
     RETAIN result  // ./power_operator.ek9:82:19
     SCOPE_REGISTER result, _scope_1  // ./power_operator.ek9:82:19
-    _temp4 = CONTROL_FLOW_CHAIN  // ./power_operator.ek9:83:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./power_operator.ek9:83:20
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

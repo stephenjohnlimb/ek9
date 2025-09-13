@@ -47,7 +47,7 @@ defines module copy.test
     RETAIN _temp4  // ./copy_operator.ek9:127:12
     SCOPE_REGISTER _temp4, _scope_1  // ./copy_operator.ek9:127:12
     CALL (org.ek9.lang::String)_temp3._copy(_temp4) [pure=false, complexity=0, effects=THIS_MUTATION]  // ./copy_operator.ek9:127:12
-    _temp5 = CONTROL_FLOW_CHAIN  // ./copy_operator.ek9:128:7
+    _temp5 = CONTROL_FLOW_CHAIN  // ./copy_operator.ek9:128:22
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:
@@ -83,7 +83,7 @@ defines module copy.test
     SCOPE_REGISTER _temp5, _scope_1  // ./copy_operator.ek9:128:7
     _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]  // ./copy_operator.ek9:128:7
     ASSERT _temp10  // ./copy_operator.ek9:128:7
-    _temp11 = CONTROL_FLOW_CHAIN  // ./copy_operator.ek9:129:7
+    _temp11 = CONTROL_FLOW_CHAIN  // ./copy_operator.ek9:129:18
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

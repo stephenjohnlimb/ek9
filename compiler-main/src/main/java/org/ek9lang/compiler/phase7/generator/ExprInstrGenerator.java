@@ -86,7 +86,7 @@ final class ExprInstrGenerator extends AbstractGenerator
   ExprInstrGenerator(final IRGenerationContext stackContext) {
     super(stackContext);
 
-    final RecordExprProcessing recordExprProcessing = new RecordExprProcessing(this::process);
+    final RecordExprProcessing recordExprProcessing = new RecordExprProcessing(this::process, stackContext);
 
     this.objectAccessCreator = new ObjectAccessInstrGenerator(stackContext);
     this.shortCircuitAndGenerator = new ShortCircuitAndGenerator(stackContext, recordExprProcessing);
@@ -290,6 +290,7 @@ final class ExprInstrGenerator extends AbstractGenerator
    * <p>
    * MIGRATED TO STACK: PrimaryReferenceGenerator now creates debug info from stack context
    * instead of parameter threading. Method signature cleaned up to remove unused debugInfo parameter.
+   * </p>
    */
   private List<IRInstr> processPrimaryReference(final EK9Parser.PrimaryReferenceContext ctx,
                                                 final String rhsExprResult) {

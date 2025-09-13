@@ -29,7 +29,7 @@ defines module constructorassignmentcalls.test
     STORE aString, _temp1  // ./constructorCallInAssignment.ek9:72:16
     RETAIN aString  // ./constructorCallInAssignment.ek9:72:16
     SCOPE_REGISTER aString, _scope_1  // ./constructorCallInAssignment.ek9:72:16
-    _temp2 = CONTROL_FLOW_CHAIN  // ./constructorCallInAssignment.ek9:73:7
+    _temp2 = CONTROL_FLOW_CHAIN  // ./constructorCallInAssignment.ek9:73:21
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

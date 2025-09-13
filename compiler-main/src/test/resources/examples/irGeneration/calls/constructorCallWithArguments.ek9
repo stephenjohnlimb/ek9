@@ -31,7 +31,7 @@ defines module constructorcallswithargs.test
     STORE aString, _temp1  // ./constructorCallWithArguments.ek9:73:18
     RETAIN aString  // ./constructorCallWithArguments.ek9:73:18
     SCOPE_REGISTER aString, _scope_1  // ./constructorCallWithArguments.ek9:73:18
-    _temp3 = CONTROL_FLOW_CHAIN  // ./constructorCallWithArguments.ek9:74:7
+    _temp3 = CONTROL_FLOW_CHAIN  // ./constructorCallWithArguments.ek9:74:21
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

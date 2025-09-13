@@ -6,8 +6,8 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.BasicDetails;
 import org.ek9lang.compiler.phase7.support.ShouldRegisterVariableInScope;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
@@ -22,7 +22,7 @@ final class AssignExpressionToSymbol extends AbstractGenerator
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
   private final Function<String, List<IRInstr>> assignmentGenerator;
   private final boolean release;
-  private final VariableMemoryManagement variableMemoryManagement = new VariableMemoryManagement();
+  private final VariableMemoryManagement variableMemoryManagement;
 
   AssignExpressionToSymbol(final IRGenerationContext stackContext,
                            final boolean release,
@@ -30,6 +30,7 @@ final class AssignExpressionToSymbol extends AbstractGenerator
     super(stackContext);
     this.assignmentGenerator = assignmentGenerator;
     this.release = release;
+    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
   }
 
   @Override
@@ -46,7 +47,7 @@ final class AssignExpressionToSymbol extends AbstractGenerator
     final var rhsResult = stackContext.generateTempName();
     // STACK-BASED: Get scope ID from current stack frame instead of constructor parameter
     final var scopeId = stackContext.currentScopeId();
-    final var basicDetails = new BasicDetails(scopeId, rhsExprDebugInfo);
+    final var basicDetails = new BasicDetails(rhsExprDebugInfo);
     final var rhsVariableDetails = new VariableDetails(rhsResult, basicDetails);
 
     final var instructions = variableMemoryManagement

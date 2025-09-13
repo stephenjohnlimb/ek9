@@ -39,7 +39,7 @@ defines module not_equals.test
     STORE z, _temp1  // ./not_equals_operator.ek9:81:14
     RETAIN z  // ./not_equals_operator.ek9:81:14
     SCOPE_REGISTER z, _scope_1  // ./not_equals_operator.ek9:81:14
-    _temp4 = CONTROL_FLOW_CHAIN  // ./not_equals_operator.ek9:82:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./not_equals_operator.ek9:82:15
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

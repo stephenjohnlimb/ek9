@@ -1,10 +1,10 @@
 package org.ek9lang.compiler.ir.instructions;
 
 import java.util.List;
+import org.ek9lang.compiler.ir.IROpcode;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
 import org.ek9lang.compiler.ir.data.EnumOptimizationDetails;
-import org.ek9lang.compiler.ir.IROpcode;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -18,7 +18,7 @@ import org.ek9lang.core.AssertValue;
  * <p>
  * Key architectural benefits:
  * - Single source of truth for all control flow logic
- * - Consistent memory management across all constructs  
+ * - Consistent memory management across all constructs
  * - Enhanced backend optimization opportunities
  * - Reduced IR complexity and maintenance burden
  * </p>
@@ -51,8 +51,16 @@ public final class ControlFlowChainInstr extends IRInstr {
     return new ControlFlowChainInstr(details);
   }
 
+  /**
+   * Create a unified switch chain block instruction with explicit scope ID.
+   * STACK-BASED: Use this method when BasicDetails no longer contains scopeId.
+   */
+  public static ControlFlowChainInstr controlFlowChain(final ControlFlowChainDetails details, final String scopeId) {
+    return new ControlFlowChainInstr(details, scopeId);
+  }
+
   private ControlFlowChainInstr(final ControlFlowChainDetails details) {
-    super(IROpcode.CONTROL_FLOW_CHAIN, details.result(), details.basicDetails().debugInfo());
+    super(IROpcode.CONTROL_FLOW_CHAIN, details.result(), details.debugInfo());
 
     AssertValue.checkNotNull("ControlFlowChain details cannot be null", details);
     AssertValue.checkNotNull("Chain type cannot be null", details.chainType());
@@ -61,18 +69,18 @@ public final class ControlFlowChainInstr extends IRInstr {
     this.chainType = details.chainType();
     this.evaluationVariable = details.evaluationVariable();
     this.evaluationVariableType = details.evaluationVariableType();
-    this.evaluationVariableSetup = details.evaluationVariableSetup() != null 
+    this.evaluationVariableSetup = details.evaluationVariableSetup() != null
         ? details.evaluationVariableSetup() : List.of();
     this.returnVariable = details.returnVariable();
     this.returnVariableType = details.returnVariableType();
-    this.returnVariableSetup = details.returnVariableSetup() != null 
+    this.returnVariableSetup = details.returnVariableSetup() != null
         ? details.returnVariableSetup() : List.of();
     this.conditionChain = details.conditionChain();
-    this.defaultBodyEvaluation = details.defaultBodyEvaluation() != null 
+    this.defaultBodyEvaluation = details.defaultBodyEvaluation() != null
         ? details.defaultBodyEvaluation() : List.of();
     this.defaultResult = details.defaultResult();
     this.enumOptimizationInfo = details.enumOptimizationInfo();
-    this.scopeId = details.basicDetails().scopeId();
+    this.scopeId = details.scopeId();
 
     // Add operands for base class functionality
     addOperand(chainType);
@@ -81,7 +89,42 @@ public final class ControlFlowChainInstr extends IRInstr {
       addOperand(evaluationVariable);
     }
     if (returnVariable != null) {
-      addOperand(returnVariable);  
+      addOperand(returnVariable);
+    }
+  }
+
+  private ControlFlowChainInstr(final ControlFlowChainDetails details, final String scopeId) {
+    super(IROpcode.CONTROL_FLOW_CHAIN, details.result(), details.debugInfo());
+
+    AssertValue.checkNotNull("ControlFlowChain details cannot be null", details);
+    AssertValue.checkNotNull("Chain type cannot be null", details.chainType());
+    AssertValue.checkNotNull("Condition chain cannot be null", details.conditionChain());
+    AssertValue.checkNotNull("Scope ID cannot be null", scopeId);
+
+    this.chainType = details.chainType();
+    this.evaluationVariable = details.evaluationVariable();
+    this.evaluationVariableType = details.evaluationVariableType();
+    this.evaluationVariableSetup = details.evaluationVariableSetup() != null
+        ? details.evaluationVariableSetup() : List.of();
+    this.returnVariable = details.returnVariable();
+    this.returnVariableType = details.returnVariableType();
+    this.returnVariableSetup = details.returnVariableSetup() != null
+        ? details.returnVariableSetup() : List.of();
+    this.conditionChain = details.conditionChain();
+    this.defaultBodyEvaluation = details.defaultBodyEvaluation() != null
+        ? details.defaultBodyEvaluation() : List.of();
+    this.defaultResult = details.defaultResult();
+    this.enumOptimizationInfo = details.enumOptimizationInfo();
+    this.scopeId = scopeId;
+
+    // Add operands for base class functionality
+    addOperand(chainType);
+    addOperand(scopeId);
+    if (evaluationVariable != null) {
+      addOperand(evaluationVariable);
+    }
+    if (returnVariable != null) {
+      addOperand(returnVariable);
     }
     if (defaultResult != null) {
       addOperand(defaultResult);
@@ -224,23 +267,23 @@ public final class ControlFlowChainInstr extends IRInstr {
   @Override
   public String toString() {
     var builder = new StringBuilder();
-    
+
     appendInstructionHeader(builder);
     builder.append("\n[\n");
     builder.append("chain_type: \"").append(chainType).append("\"\n");
-    
+
     appendEvaluationVariableSection(builder);
     appendReturnVariableSection(builder);
     appendConditionChainSection(builder);
     appendDefaultCaseSection(builder);
     appendEnumOptimizationSection(builder);
-    
+
     builder.append("scope_id: ").append(scopeId).append("\n");
     builder.append("]");
-    
+
     return builder.toString();
   }
-  
+
   private void appendInstructionHeader(StringBuilder builder) {
     if (getResult() != null) {
       builder.append(getResult()).append(" = ");
@@ -250,29 +293,29 @@ public final class ControlFlowChainInstr extends IRInstr {
       builder.append("  ").append(getDebugInfo().get());
     }
   }
-  
+
   private void appendEvaluationVariableSection(StringBuilder builder) {
     if (hasEvaluationVariable()) {
       builder.append("evaluation_variable: ").append(evaluationVariable).append("\n");
       builder.append("evaluation_variable_type: \"").append(evaluationVariableType).append("\"\n");
-      
+
       if (!evaluationVariableSetup.isEmpty()) {
         appendInstructionList(builder, "evaluation_variable_setup", evaluationVariableSetup);
       }
     }
   }
-  
+
   private void appendReturnVariableSection(StringBuilder builder) {
     if (hasReturnVariable()) {
       builder.append("return_variable: ").append(returnVariable).append("\n");
       builder.append("return_variable_type: \"").append(returnVariableType).append("\"\n");
-      
+
       if (!returnVariableSetup.isEmpty()) {
         appendInstructionList(builder, "return_variable_setup", returnVariableSetup);
       }
     }
   }
-  
+
   private void appendConditionChainSection(StringBuilder builder) {
     builder.append("condition_chain:\n[\n");
     for (int i = 0; i < conditionChain.size(); i++) {
@@ -284,50 +327,50 @@ public final class ControlFlowChainInstr extends IRInstr {
     }
     builder.append("]\n");
   }
-  
+
   private void appendConditionCase(StringBuilder builder, ConditionCaseDetails conditionCase) {
     builder.append("[\n");
-    
+
     if (conditionCase.caseScopeId() != null) {
       builder.append("case_scope_id: ").append(conditionCase.caseScopeId()).append("\n");
     }
-    
+
     builder.append("case_type: \"").append(conditionCase.caseType()).append("\"\n");
-    
+
     if (conditionCase.enumConstant() != null) {
       builder.append("enum_constant: \"").append(conditionCase.enumConstant()).append("\"\n");
       builder.append("enum_ordinal: ").append(conditionCase.enumOrdinal()).append("\n");
     }
-    
+
     appendInstructionList(builder, "condition_evaluation", conditionCase.conditionEvaluation());
-    
+
     if (conditionCase.conditionResult() != null) {
       builder.append("condition_result: ").append(conditionCase.conditionResult()).append("\n");
     }
-    
+
     if (conditionCase.primitiveCondition() != null) {
       builder.append("primitive_condition: ").append(conditionCase.primitiveCondition()).append("\n");
     }
-    
+
     appendInstructionList(builder, "body_evaluation", conditionCase.bodyEvaluation());
-    
+
     if (conditionCase.bodyResult() != null) {
       builder.append("body_result: ").append(conditionCase.bodyResult()).append("\n");
     }
-    
+
     builder.append("]");
   }
-  
+
   private void appendDefaultCaseSection(StringBuilder builder) {
     if (hasDefaultCase()) {
       appendInstructionList(builder, "default_body_evaluation", defaultBodyEvaluation);
-      
+
       if (defaultResult != null) {
         builder.append("default_result: ").append(defaultResult).append("\n");
       }
     }
   }
-  
+
   private void appendEnumOptimizationSection(StringBuilder builder) {
     if (hasEnumOptimization()) {
       builder.append("enum_optimization_info:\n[\n");
@@ -339,7 +382,7 @@ public final class ControlFlowChainInstr extends IRInstr {
       builder.append("]\n");
     }
   }
-  
+
   private void appendInstructionList(StringBuilder builder, String label, List<IRInstr> instructions) {
     builder.append(label).append(":\n[\n");
     for (IRInstr instr : instructions) {

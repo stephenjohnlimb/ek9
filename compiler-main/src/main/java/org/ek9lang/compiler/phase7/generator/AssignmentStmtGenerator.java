@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
@@ -13,8 +14,8 @@ import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.BasicDetails;
-import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
+import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
@@ -38,9 +39,12 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     Function<EK9Parser.AssignmentStatementContext, List<IRInstr>> {
 
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
+  private final VariableMemoryManagement variableMemoryManagement;
+  private final OperatorMap operatorMap = new OperatorMap();
 
   AssignmentStmtGenerator(final IRGenerationContext stackContext) {
     super(stackContext);
+    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
   }
 
   @Override
@@ -108,10 +112,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
   private GuardedAssignmentGenerator createGuardedGenerator(final AssignmentExprInstrGenerator generator,
                                                             final AssignExpressionToSymbol assignExpressionToSymbol) {
 
-    final Function<ExprProcessingDetails, List<IRInstr>>
-        expressionProcessor = details -> generator.apply(details.variableDetails().resultVariable());
-    final var questionBlockGenerator = new QuestionBlockGenerator(stackContext, expressionProcessor);
-    return new GuardedAssignmentGenerator(stackContext, questionBlockGenerator, assignExpressionToSymbol);
+    return new GuardedAssignmentGenerator(stackContext, assignExpressionToSymbol);
 
   }
 
@@ -119,22 +120,17 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
                                             final ISymbol lhsSymbol,
                                             final List<IRInstr> instructions) {
 
-    // STACK-BASED: Get scope ID from current stack frame instead of parameter
-    final var scopeId = stackContext.currentScopeId();
-
     // Get assignment operator token for correct debug line numbers
     final var debugInfo = stackContext.createDebugInfo(ctx.op);
-    final var basicDetails = new BasicDetails(scopeId, debugInfo);
+    final var basicDetails = new BasicDetails(debugInfo);
 
     // Get method name from operator map (e.g., "+=" -> "_addAss")
-    final var operatorMap = new org.ek9lang.compiler.common.OperatorMap();
     final var methodName = operatorMap.getForward(ctx.op.getText());
 
     // Process left operand with proper memory management
     final var leftTemp = stackContext.generateTempName();
     final var leftDetails = new VariableDetails(leftTemp, basicDetails);
     final var leftLoadInstr = MemoryInstr.load(leftTemp, lhsSymbol.getName(), debugInfo);
-    final var variableMemoryManagement = new org.ek9lang.compiler.phase7.support.VariableMemoryManagement();
     final var leftInstructions = variableMemoryManagement.apply(() -> {
       final var list = new ArrayList<IRInstr>();
       list.add(leftLoadInstr);

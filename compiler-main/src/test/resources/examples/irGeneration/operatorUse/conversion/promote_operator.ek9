@@ -43,7 +43,7 @@ defines module promote.test
     STORE result, _temp2  // ./promote_operator.ek9:86:17
     RETAIN result  // ./promote_operator.ek9:86:17
     SCOPE_REGISTER result, _scope_1  // ./promote_operator.ek9:86:17
-    _temp4 = CONTROL_FLOW_CHAIN  // ./promote_operator.ek9:87:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./promote_operator.ek9:87:20
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

@@ -45,7 +45,7 @@ defines module millisecond.unary.negation.test
     STORE negMsVar, _temp2  // ./millisecond_unary_negation.ek9:91:19
     RETAIN negMsVar  // ./millisecond_unary_negation.ek9:91:19
     SCOPE_REGISTER negMsVar, _scope_1  // ./millisecond_unary_negation.ek9:91:19
-    _temp4 = CONTROL_FLOW_CHAIN  // ./millisecond_unary_negation.ek9:92:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./millisecond_unary_negation.ek9:92:22
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

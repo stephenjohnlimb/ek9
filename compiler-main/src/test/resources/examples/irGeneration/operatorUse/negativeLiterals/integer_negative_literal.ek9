@@ -35,7 +35,7 @@ defines module integer.negative.literal.test
     STORE negIntLit, _temp1  // ./integer_negative_literal.ek9:78:20
     RETAIN negIntLit  // ./integer_negative_literal.ek9:78:20
     SCOPE_REGISTER negIntLit, _scope_1  // ./integer_negative_literal.ek9:78:20
-    _temp2 = CONTROL_FLOW_CHAIN  // ./integer_negative_literal.ek9:79:7
+    _temp2 = CONTROL_FLOW_CHAIN  // ./integer_negative_literal.ek9:79:23
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

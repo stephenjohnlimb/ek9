@@ -45,7 +45,7 @@ defines module dimension.unary.negation.test
     STORE negDimVar, _temp2  // ./dimension_unary_negation.ek9:91:20
     RETAIN negDimVar  // ./dimension_unary_negation.ek9:91:20
     SCOPE_REGISTER negDimVar, _scope_1  // ./dimension_unary_negation.ek9:91:20
-    _temp4 = CONTROL_FLOW_CHAIN  // ./dimension_unary_negation.ek9:92:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./dimension_unary_negation.ek9:92:23
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

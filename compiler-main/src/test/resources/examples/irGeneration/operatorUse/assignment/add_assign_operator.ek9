@@ -41,7 +41,7 @@ _temp3 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./add_assign_operator.ek9:84:
 RETAIN _temp3  // ./add_assign_operator.ek9:84:9
 SCOPE_REGISTER _temp3, _scope_1  // ./add_assign_operator.ek9:84:9
 CALL (org.ek9.lang::Integer)_temp2._addAss(_temp3) [pure=false, complexity=0, effects=THIS_MUTATION]  // ./add_assign_operator.ek9:84:9
-_temp4 = CONTROL_FLOW_CHAIN  // ./add_assign_operator.ek9:85:7
+_temp4 = CONTROL_FLOW_CHAIN  // ./add_assign_operator.ek9:85:15
 [
 chain_type: "QUESTION_OPERATOR"
 condition_chain:

@@ -35,7 +35,7 @@ defines module dimension.negative.literal.test
     STORE negDimLit, _temp1  // ./dimension_negative_literal.ek9:78:20
     RETAIN negDimLit  // ./dimension_negative_literal.ek9:78:20
     SCOPE_REGISTER negDimLit, _scope_1  // ./dimension_negative_literal.ek9:78:20
-    _temp2 = CONTROL_FLOW_CHAIN  // ./dimension_negative_literal.ek9:79:7
+    _temp2 = CONTROL_FLOW_CHAIN  // ./dimension_negative_literal.ek9:79:23
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

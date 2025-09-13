@@ -34,7 +34,7 @@ defines module colon_equals_assignment.test
     STORE x, _temp1  // ./colon_equals_assignment_operator.ek9:77:12
     RETAIN x  // ./colon_equals_assignment_operator.ek9:77:12
     SCOPE_REGISTER x, _scope_1  // ./colon_equals_assignment_operator.ek9:77:12
-    _temp2 = CONTROL_FLOW_CHAIN  // ./colon_equals_assignment_operator.ek9:78:7
+    _temp2 = CONTROL_FLOW_CHAIN  // ./colon_equals_assignment_operator.ek9:78:15
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

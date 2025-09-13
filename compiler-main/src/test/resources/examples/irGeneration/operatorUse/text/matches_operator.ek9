@@ -53,7 +53,7 @@ defines module matches.test
     STORE result, _temp3  // ./matches_operator.ek9:97:22
     RETAIN result  // ./matches_operator.ek9:97:22
     SCOPE_REGISTER result, _scope_1  // ./matches_operator.ek9:97:22
-    _temp6 = CONTROL_FLOW_CHAIN  // ./matches_operator.ek9:98:7
+    _temp6 = CONTROL_FLOW_CHAIN  // ./matches_operator.ek9:98:20
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

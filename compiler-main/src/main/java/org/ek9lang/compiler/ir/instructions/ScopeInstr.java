@@ -1,9 +1,8 @@
 package org.ek9lang.compiler.ir.instructions;
 
 import java.util.List;
-import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.ir.IROpcode;
-import org.ek9lang.compiler.phase7.support.BasicDetails;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 
 /**
  * Specialized IR instruction for scope management (SCOPE_ENTER, SCOPE_EXIT, SCOPE_REGISTER).
@@ -25,14 +24,6 @@ public final class ScopeInstr extends IRInstr {
    */
   public static ScopeInstr exit(final String scopeId, final DebugInfo debugInfo) {
     return new ScopeInstr(IROpcode.SCOPE_EXIT, null, debugInfo).addOperand(scopeId);
-  }
-
-  /**
-   * Create scope register instruction with debug info: SCOPE_REGISTER object, scope_id.
-   */
-  public static ScopeInstr register(final String object, final BasicDetails basicDetails) {
-    return new ScopeInstr(IROpcode.SCOPE_REGISTER, null, basicDetails.debugInfo())
-        .addOperands(object, basicDetails.scopeId());
   }
 
   public static ScopeInstr register(final String object, final String scopeId, final DebugInfo debugInfo) {

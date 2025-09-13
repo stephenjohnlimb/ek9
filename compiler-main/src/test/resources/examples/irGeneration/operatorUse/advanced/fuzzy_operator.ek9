@@ -53,7 +53,7 @@ defines module fuzzy.test
     STORE distance, _temp3  // ./fuzzy_operator.ek9:97:21
     RETAIN distance  // ./fuzzy_operator.ek9:97:21
     SCOPE_REGISTER distance, _scope_1  // ./fuzzy_operator.ek9:97:21
-    _temp6 = CONTROL_FLOW_CHAIN  // ./fuzzy_operator.ek9:98:7
+    _temp6 = CONTROL_FLOW_CHAIN  // ./fuzzy_operator.ek9:98:22
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:

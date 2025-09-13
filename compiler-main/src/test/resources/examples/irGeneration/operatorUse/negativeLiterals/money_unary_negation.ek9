@@ -45,7 +45,7 @@ defines module money.unary.negation.test
     STORE negMoneyVar, _temp2  // ./money_unary_negation.ek9:91:22
     RETAIN negMoneyVar  // ./money_unary_negation.ek9:91:22
     SCOPE_REGISTER negMoneyVar, _scope_1  // ./money_unary_negation.ek9:91:22
-    _temp4 = CONTROL_FLOW_CHAIN  // ./money_unary_negation.ek9:92:7
+    _temp4 = CONTROL_FLOW_CHAIN  // ./money_unary_negation.ek9:92:25
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:
