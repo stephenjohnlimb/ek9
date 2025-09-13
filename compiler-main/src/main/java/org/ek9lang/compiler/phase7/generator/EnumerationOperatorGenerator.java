@@ -1,18 +1,18 @@
-package org.ek9lang.compiler.phase7.helpers;
+package org.ek9lang.compiler.phase7.generator;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
-import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
+import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 
 /**
- * Handles IR generation for enumeration operators (16+ operators).
+ * Generates IR for enumeration operators (16+ operators).
  *
  * <p>EK9 enumerations automatically receive extensive operator support including
  * ordinal-based comparisons, string-enum hybrid operations, and utility operators.
@@ -25,16 +25,16 @@ import org.ek9lang.compiler.symbols.SymbolGenus;
  * <li>5+ Utility operators: ? $ #^ $$ #? #&lt; #&gt; (various functions)</li>
  * </ul>
  */
-public class EnumerationIRHelper extends AbstractIRHelper {
+final class EnumerationOperatorGenerator extends AbstractGenerator {
 
   // Map-based dispatch for enumeration operators
   private final Map<String, BiFunction<MethodSymbol, AggregateSymbol, List<IRInstr>>> enumerationOperators;
 
   /**
-   * Create the enumeration IR helper.
+   * Create the enumeration operator generator using stack context.
    */
-  public EnumerationIRHelper(IRInstructionBuilder instructionBuilder) {
-    super(instructionBuilder);
+  EnumerationOperatorGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
     this.enumerationOperators = initializeEnumerationOperators();
   }
 

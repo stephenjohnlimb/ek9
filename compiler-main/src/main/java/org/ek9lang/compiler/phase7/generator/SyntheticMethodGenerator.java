@@ -1,11 +1,11 @@
-package org.ek9lang.compiler.phase7.helpers;
+package org.ek9lang.compiler.phase7.generator;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
-import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
+import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -13,9 +13,9 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.core.CompilerException;
 
 /**
- * Handles IR generation for synthetic methods (default operators).
+ * Generates IR for synthetic methods (default operators).
  *
- * <p>This helper generates IR for all 11 default operators that EK9 supports
+ * <p>This generator creates IR for all 11 default operators that EK9 supports
  * using a map-based dispatch pattern. It leverages existing markers from
  * earlier phases (isSynthetic() and DEFAULTED squirrel data) to identify
  * which operators need synthesis.</p>
@@ -23,16 +23,16 @@ import org.ek9lang.core.CompilerException;
  * <p>Uses the stack-based IRGenerationContext to eliminate parameter threading
  * and provide consistent scope/debug/memory management.</p>
  */
-public class SyntheticMethodIRHelper extends AbstractIRHelper {
+final class SyntheticMethodGenerator extends AbstractGenerator {
 
   // Map-based dispatch for all 11 default operators
   private final Map<String, BiFunction<MethodSymbol, IAggregateSymbol, List<IRInstr>>> defaultOperators;
 
   /**
-   * Create the synthetic method IR helper.
+   * Create the synthetic method generator using stack context.
    */
-  public SyntheticMethodIRHelper(IRInstructionBuilder instructionBuilder) {
-    super(instructionBuilder);
+  SyntheticMethodGenerator(final IRGenerationContext stackContext) {
+    super(stackContext);
     this.defaultOperators = initializeDefaultOperators();
   }
 
@@ -58,18 +58,19 @@ public class SyntheticMethodIRHelper extends AbstractIRHelper {
   private void generateSyntheticMethodIR(MethodSymbol method, IAggregateSymbol aggregate) {
 
     //Add in debug information using method token.
-    getContext().enterScope(method.getScopeName(), null, IRFrameType.SYNTHETIC_METHOD);
+    var debugInfo = stackContext.createDebugInfo(method.getSourceToken());
+    stackContext.enterScope(method.getScopeName(), debugInfo, IRFrameType.SYNTHETIC_METHOD);
 
     try {
       var generator = defaultOperators.get(method.getName());
       if (generator != null) {
         var instructions = generator.apply(method, aggregate);
-        getContext().addInstructions(instructions);
+        instructionBuilder.addInstructions(instructions);
       } else {
         throw new CompilerException("Unexpected default operator");
       }
     } finally {
-      getContext().exitScope();
+      stackContext.exitScope();
     }
   }
 
