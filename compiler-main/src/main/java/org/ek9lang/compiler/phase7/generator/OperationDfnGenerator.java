@@ -18,6 +18,7 @@ import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
 import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
@@ -230,7 +231,7 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
         // Try to find constructor symbol in superclass for metadata
         final var metaDataExtractor = new CallMetaDataExtractor(stackContext.getParsedModule().getEk9Types());
         final var constructorSymbolOpt =
-            superSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(superSymbol.getName()));
+            superSymbol.resolve(new SymbolSearch(superSymbol.getName()));
         final var metaData = constructorSymbolOpt.isPresent() ? metaDataExtractor.apply(constructorSymbolOpt.get()) :
             CallMetaDataDetails.defaultMetaData();
 
@@ -251,7 +252,7 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
     // Try to find i_init method symbol for metadata
     final var metaDataExtractor = new CallMetaDataExtractor(stackContext.getParsedModule().getEk9Types());
     final var iInitMethodOpt =
-        aggregateSymbol.resolve(new org.ek9lang.compiler.search.SymbolSearch(IRConstants.I_INIT_METHOD));
+        aggregateSymbol.resolve(new SymbolSearch(IRConstants.I_INIT_METHOD));
     final var iInitMetaData = iInitMethodOpt.isPresent() ? metaDataExtractor.apply(iInitMethodOpt.get()) :
         CallMetaDataDetails.defaultMetaData();
 

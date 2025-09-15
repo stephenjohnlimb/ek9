@@ -618,7 +618,7 @@ final var returnType = mayReturnSymbol.getReturningSymbol().getType()
 **Instruction Generators**:
 - `ExpressionInstrGenerator` - Expression instruction sequences
 - `ObjectAccessInstrGenerator` - Object access and method call sequences
-- `BasicBlockInstrGenerator` - Basic block instruction sequences
+- `BlockStmtInstrGenerator` - Block statement instruction sequences
 - `StatementInstrGenerator` - Statement instruction sequences
 - `AssignmentExpressionInstrGenerator` - Assignment expression sequences
 - `BlockStatementInstrGenerator` - Block statement sequences
@@ -675,7 +675,7 @@ final class ServiceDfnGenerator extends AbstractDfnGenerator
 **Three-Layer Architecture**:
 1. **Construct Validation** - Each specific generator validates symbol types and creates IRConstruct
 2. **Operation Processing** - Shared `OperationDfnGenerator` handles all executable content 
-3. **Instruction Generation** - `BasicBlockInstrGenerator` and sub-generators create IR sequences
+3. **Instruction Generation** - `BlockStmtInstrGenerator` and sub-generators create IR sequences
 
 **BiConsumer Pattern**:
 - `OperationDfnGenerator` implements `BiConsumer<Operation, EK9Parser.OperationDetailsContext>`
@@ -700,7 +700,7 @@ This refactoring strengthens the core architectural distinction:
 
 - **Definitions Layer**: `*DfnGenerator` classes create structural IRConstruct definitions
 - **Operation Bridge**: `OperationDfnGenerator` bridges structural definitions to executable processing
-- **Instructions Layer**: `BasicBlockInstrGenerator` and instruction generators handle executable IR
+- **Instructions Layer**: `BlockStmtInstrGenerator` and instruction generators handle executable IR
 
 The clean separation enables:
 - **Independent development** - Definition and instruction generators can be developed in parallel
