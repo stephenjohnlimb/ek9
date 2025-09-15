@@ -34,14 +34,14 @@ defines module functionparameterpromotion.test
     OperationDfn: functionparameterpromotion.test::testPromotion._call()->org.ek9.lang::Void  // ./functionParameterPromotion.ek9:48:5
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./functionParameterPromotion.ek9:49:7
-    _temp2 = LOAD_LITERAL 42, org.ek9.lang::Integer  // ./functionParameterPromotion.ek9:49:20
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_1
-    _temp3 = FUNCTION_INSTANCE functionparameterpromotion.test::acceptsFloat  // ./functionParameterPromotion.ek9:49:7
-    _temp4 = CALL (org.ek9.lang::Integer)_temp2._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]  // ./functionParameterPromotion.ek9:49:7
-    RETAIN _temp4  // ./functionParameterPromotion.ek9:49:7
-    SCOPE_REGISTER _temp4, _scope_1  // ./functionParameterPromotion.ek9:49:7
-    CALL (functionparameterpromotion.test::acceptsFloat)_temp3._call(_temp4) [pure=true, complexity=2]  // ./functionParameterPromotion.ek9:49:7
+    _temp1 = LOAD_LITERAL 42, org.ek9.lang::Integer  // ./functionParameterPromotion.ek9:49:20
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    _temp2 = FUNCTION_INSTANCE functionparameterpromotion.test::acceptsFloat  // ./functionParameterPromotion.ek9:49:7
+    _temp3 = CALL (org.ek9.lang::Integer)_temp1._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]  // ./functionParameterPromotion.ek9:49:7
+    RETAIN _temp3  // ./functionParameterPromotion.ek9:49:7
+    SCOPE_REGISTER _temp3, _scope_1  // ./functionParameterPromotion.ek9:49:7
+    CALL (functionparameterpromotion.test::acceptsFloat)_temp2._call(_temp3) [pure=true, complexity=2]  // ./functionParameterPromotion.ek9:49:7
     SCOPE_EXIT _scope_1  // ./functionParameterPromotion.ek9:49:7
     RETURN  // ./functionParameterPromotion.ek9:48:5`
     

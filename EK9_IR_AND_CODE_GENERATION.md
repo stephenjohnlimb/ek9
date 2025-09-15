@@ -1264,9 +1264,45 @@ _temp2 = LOGICAL_AND_BLOCK  // ./workarea.ek9:35:17
 
 **Example Applications**:
 - **Return parameters**: Should NOT be scope-registered (outlive current scope)
-- **Local variables**: Should be scope-registered for cleanup  
+- **Local variables**: Should be scope-registered for cleanup
 - **Parameters**: Context-dependent scope registration
 - **Intermediate results**: Appropriate scope management based on role
+
+#### 5. Context-Aware Variable Creation
+**Key Principle**: The calling context determines variable handling - whether a result is expected and how it should be managed.
+
+**Statement vs Expression Context Distinction**:
+- **Statement context** (`someFunction();`): No result variable expected, caller passes `null` resultVariable
+- **Expression context** (`result = someFunction();`): Result variable provided by caller
+
+**Context-Aware Implementation**:
+```java
+// CallInstrGenerator handles context appropriately:
+if (resultDetails.resultVariable() == null) {
+    // Statement context: create temp only if needed
+    if (isVoidFunction) {
+        targetVar = null;  // No temp needed for void calls
+    } else {
+        targetVar = stackContext.generateTempName();  // Create temp for non-void
+        // Apply memory management for local statement context
+    }
+} else {
+    // Expression context: use caller-provided target
+    targetVar = resultDetails.resultVariable();
+}
+```
+
+**Memory Management Responsibility Separation**:
+- **CallInstrGenerator**: Knows when temp variables are needed based on context
+- **VariableMemoryManagement**: Handles memory lifecycle for local variables
+- **Constructor calls**: Handle own object lifecycle, no additional memory management needed
+- **Field assignments**: Object lifecycle manages memory, not temporary variables
+
+**Benefits of Context-Aware Design**:
+- **Eliminates unnecessary temp variables**: Void function calls don't create unused temps
+- **Proper memory management**: Only variables needing lifecycle management get RETAIN/SCOPE_REGISTER
+- **Clear separation of concerns**: Each component knows its responsibility context
+- **More efficient IR**: Reduces instruction overhead for common statement patterns
 
 ### Backend Mapping Strategies
 

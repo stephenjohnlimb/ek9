@@ -159,10 +159,8 @@ final class CallInstrGenerator extends AbstractGenerator
     );
 
     // Step 6: Add the actual call instruction with corrected target type
-    // For Void-returning functions, don't create a result variable
-    var targetVar = "org.ek9.lang::Void".equals(correctedCallDetails.returnTypeName())
-        ? null : resultDetails.resultVariable();
-    instructions.add(CallInstr.call(targetVar, debugInfo, correctedCallDetails));
+    // Use whatever target variable the calling mechanism decided on
+    instructions.add(CallInstr.call(resultDetails.resultVariable(), debugInfo, correctedCallDetails));
     return instructions;
   }
 
@@ -181,11 +179,19 @@ final class CallInstrGenerator extends AbstractGenerator
       final var resolvedSymbol = callSymbol.getResolvedSymbolToCall();
 
       if (resolvedSymbol instanceof MethodSymbol methodSymbol && methodSymbol.isConstructor()) {
+        // Constructor calls always return a value, so create temp variable if needed
+        String constructorResultVar = resultDetails.resultVariable();
+        if (constructorResultVar == null) {
+          // Statement context: create temp variable for constructor result
+          constructorResultVar = stackContext.generateTempName();
+          // Note: No memory management needed - constructor calls handle object lifecycle
+        }
+
         // Use unified constructor call processor (with memory management for statement context)
         constructorCallProcessor.processConstructorCall(
             callSymbol,
             ctx,
-            resultDetails.resultVariable(),
+            constructorResultVar,
             instructions,
             exprGenerator,  // Expression processor function
             true                   // Use memory management for statement context
@@ -215,11 +221,19 @@ final class CallInstrGenerator extends AbstractGenerator
 
       if (resolvedSymbol instanceof MethodSymbol methodSymbol) {
         if (methodSymbol.isConstructor()) {
+          // Constructor calls always return a value, so create temp variable if needed
+          String constructorResultVar = resultDetails.resultVariable();
+          if (constructorResultVar == null) {
+            // Statement context: create temp variable for constructor result
+            constructorResultVar = stackContext.generateTempName();
+            // Note: No memory management needed - constructor calls handle object lifecycle
+          }
+
           // Constructor calls like super() use the constructor call processor
           constructorCallProcessor.processConstructorCall(
               callSymbol,
               ctx,
-              resultDetails.resultVariable(),
+              constructorResultVar,
               instructions,
               exprGenerator,
               true  // Use memory management for statement context

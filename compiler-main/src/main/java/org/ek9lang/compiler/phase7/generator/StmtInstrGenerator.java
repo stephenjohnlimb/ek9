@@ -115,8 +115,7 @@ final class StmtInstrGenerator extends AbstractGenerator
   private void processCall(final EK9Parser.CallContext ctx,
                            final List<IRInstr> instructions) {
     final var debugInfo = stackContext.createDebugInfo(ctx);
-    final var tempResult = stackContext.generateTempName();
-    final var variableDetails = new VariableDetails(tempResult, debugInfo);
+    final var variableDetails = new VariableDetails(null, debugInfo);
     instructions.addAll(callInstrGenerator.apply(ctx, variableDetails));
   }
 }
