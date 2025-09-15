@@ -160,11 +160,9 @@ final class CallInstrGenerator extends AbstractGenerator
 
     // Step 6: Add the actual call instruction with corrected target type
     // For Void-returning functions, don't create a result variable
-    if ("org.ek9.lang::Void".equals(correctedCallDetails.returnTypeName())) {
-      instructions.add(CallInstr.call(null, debugInfo, correctedCallDetails));
-    } else {
-      instructions.add(CallInstr.call(resultDetails.resultVariable(), debugInfo, correctedCallDetails));
-    }
+    var targetVar = "org.ek9.lang::Void".equals(correctedCallDetails.returnTypeName())
+        ? null : resultDetails.resultVariable();
+    instructions.add(CallInstr.call(targetVar, debugInfo, correctedCallDetails));
     return instructions;
   }
 
@@ -263,7 +261,7 @@ final class CallInstrGenerator extends AbstractGenerator
           );
 
           final var callDetailsResult = callDetailsBuilder.apply(callContext);
-          final var debugInfo = debugInfoCreator.apply(new Ek9Token(ctx.primaryReference().start));
+          final var debugInfo = instructionBuilder.createDebugInfo(new Ek9Token(ctx.primaryReference().start));
 
           // Add any promotion instructions that were generated
           instructions.addAll(callDetailsResult.allInstructions());

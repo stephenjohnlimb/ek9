@@ -3,10 +3,6 @@ package org.ek9lang.compiler.phase7;
 import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
-import org.ek9lang.compiler.ir.data.CallDetails;
-import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
-import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
-import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.OperationInstr;
@@ -21,7 +17,6 @@ import org.ek9lang.compiler.phase7.generator.VariableDeclInstrGenerator;
 import org.ek9lang.compiler.phase7.generator.VariableOnlyDeclInstrGenerator;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
-import org.ek9lang.compiler.search.SymbolSearch;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -144,19 +139,7 @@ abstract class AbstractDfnGenerator {
 
     // Call super class c_init if this class explicitly extends another class
     if (superType != null && notImplicitSuper.test(superType)) {
-
-      final var metaData = CallMetaDataDetails.defaultMetaData();
-
-      final var callDetails = new CallDetails(
-          null, // No target object for static call
-          superType.getFullyQualifiedName(),
-          IRConstants.C_INIT_METHOD,
-          java.util.List.of(), // No parameters
-          voidStr, // Return type
-          java.util.List.of(), // No arguments
-          metaData
-      );
-      instructionBuilder.addInstruction(CallInstr.callStatic(IRConstants.TEMP_C_INIT, null, callDetails));
+      instructionBuilder.callSuperStaticMethod(superType, IRConstants.C_INIT_METHOD);
     }
 
     // TODO: Add static field initialization when static fields are supported
@@ -165,8 +148,7 @@ abstract class AbstractDfnGenerator {
     instructionBuilder.returnVoid();
 
     // Create BasicBlock with all instructions - use stack context for consistent labeling
-    final var basicBlock = new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL));
-    cInitOperation.setBody(basicBlock.addInstructions(instructionBuilder));
+    cInitOperation.setBody(instructionBuilder.createBasicBlock(IRConstants.ENTRY_LABEL));
 
     construct.add(cInitOperation);
     stackContext.exitScope();
@@ -195,8 +177,7 @@ abstract class AbstractDfnGenerator {
 
     instructionBuilder.returnVoid();
     // Create BasicBlock with all instructions - use stack context for consistent labeling
-    iInitOperation.setBody(new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL))
-        .addInstructions(instructionBuilder));
+    iInitOperation.setBody(instructionBuilder.createBasicBlock(IRConstants.ENTRY_LABEL));
 
     construct.add(iInitOperation);
     stackContext.exitScope();
@@ -245,45 +226,18 @@ abstract class AbstractDfnGenerator {
 
     // 1. Call super constructor if this class explicitly extends another class
     if (superType != null && notImplicitSuper.test(superType)) {
-      // Try to find constructor symbol in superclass for metadata
-      final var metaDataExtractor = createCallMetaDataExtractor();
-      final var constructorSymbolOpt =
-          superType.resolve(new SymbolSearch(superType.getName()));
-      final var metaData = constructorSymbolOpt.isPresent()
-          ? metaDataExtractor.apply(constructorSymbolOpt.get()) :
-          CallMetaDataDetails.defaultMetaData();
-
-      final var callDetails = new CallDetails(
-          IRConstants.SUPER, // Target super object
-          superType.getFullyQualifiedName(),
-          superType.getName(), // Constructor name matches class name
-          java.util.List.of(), // No parameters for default constructor
-          superType.getFullyQualifiedName(), // Return type is the super class
-          java.util.List.of(), // No arguments
-          metaData
-      );
-      instructionBuilder.addInstruction(CallInstr.call(IRConstants.TEMP_SUPER_INIT, debugInfo, callDetails));
+      instructionBuilder.callSuperMethod(superType, superType.getName());
     }
 
-    final var iInitMetaData = CallMetaDataDetails.defaultMetaData();
-
-    final var iInitCallDetails = new CallDetails(
-        IRConstants.THIS, // Target this object
-        scopedSymbol.getFullyQualifiedName(),
-        IRConstants.I_INIT_METHOD,
-        java.util.List.of(), // No parameters
-        voidStr, // Return type
-        java.util.List.of(), // No arguments
-        iInitMetaData
-    );
-    instructionBuilder.addInstruction(CallInstr.call(IRConstants.TEMP_I_INIT, debugInfo, iInitCallDetails));
+    // 2. Call own class's i_init method
+    instructionBuilder.callThisMethod(scopedSymbol.getFullyQualifiedName(), IRConstants.I_INIT_METHOD,
+        IRConstants.TEMP_I_INIT, debugInfo);
 
     // 3. Return this
     instructionBuilder.returnValue(IRConstants.THIS, debugInfo);
 
     //Now package up the instructions in a block and add to the operation.
-    operation.setBody(new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL))
-        .addInstructions(instructionBuilder));
+    operation.setBody(instructionBuilder.createBasicBlock(IRConstants.ENTRY_LABEL));
 
     construct.add(operation);
   }

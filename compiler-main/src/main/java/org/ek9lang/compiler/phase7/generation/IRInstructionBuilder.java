@@ -3,6 +3,9 @@ package org.ek9lang.compiler.phase7.generation;
 import java.util.List;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
+import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
 import org.ek9lang.compiler.ir.instructions.BranchInstr;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
@@ -13,6 +16,8 @@ import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
+import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
 
@@ -101,6 +106,120 @@ public class IRInstructionBuilder {
     return instruction;
   }
 
+  /**
+   * Create a call instruction with target variable using current context.
+   * Handles void vs non-void returns automatically.
+   */
+  public void callWithTarget(String targetVariable, CallDetails callDetails) {
+    var debugInfo = context.currentDebugInfo().orElse(null);
+    var instruction = CallInstr.call(targetVariable, debugInfo, callDetails);
+    context.addInstruction(instruction);
+  }
+
+  /**
+   * Create a static call instruction using current context.
+   */
+  public void callStatic(String targetVariable, CallDetails callDetails) {
+    var debugInfo = context.currentDebugInfo().orElse(null);
+    var instruction = CallInstr.callStatic(targetVariable, debugInfo, callDetails);
+    context.addInstruction(instruction);
+  }
+
+  /**
+   * Create a function call with automatic void/non-void handling.
+   * Adds promotion instructions and creates the call instruction.
+   */
+  public CallInstr createFunctionCall(String targetVariable, CallDetailsBuilder.CallDetailsResult callDetailsResult) {
+    // Add any promotion instructions first
+    addInstructions(callDetailsResult.allInstructions());
+
+    // Create the call with proper void handling
+    var debugInfo = context.currentDebugInfo().orElse(null);
+    var targetVar = "org.ek9.lang::Void".equals(callDetailsResult.callDetails().returnTypeName())
+        ? null : targetVariable;
+
+    var instruction = CallInstr.call(targetVar, debugInfo, callDetailsResult.callDetails());
+    context.addInstruction(instruction);
+    return instruction;
+  }
+
+  /**
+   * Create a method call to super class constructor or method.
+   */
+  public void callSuperMethod(ISymbol superType, String methodName) {
+    var metaData = CallMetaDataDetails.defaultMetaData();
+
+    var callDetails = new CallDetails(
+        IRConstants.SUPER,
+        superType.getFullyQualifiedName(),
+        methodName,
+        List.of(),
+        superType.getFullyQualifiedName(),
+        List.of(),
+        metaData
+    );
+
+    callWithTarget(IRConstants.TEMP_SUPER_INIT, callDetails);
+  }
+
+  /**
+   * Create a static call to super class initialization method.
+   */
+  public void callSuperStaticMethod(ISymbol superType, String methodName) {
+    var metaData = CallMetaDataDetails.defaultMetaData();
+    var voidStr = context.getCurrentIRContext().getParsedModule().getEk9Types().ek9Void().getFullyQualifiedName();
+
+    var callDetails = new CallDetails(
+        null,
+        superType.getFullyQualifiedName(),
+        methodName,
+        List.of(),
+        voidStr,
+        List.of(),
+        metaData
+    );
+
+    callStatic(IRConstants.TEMP_C_INIT, callDetails);
+  }
+
+  /**
+   * Create a method call on 'this' object.
+   */
+  public void callThisMethod(String targetTypeName, String methodName, String targetVariable) {
+    callThisMethod(targetTypeName, methodName, targetVariable, null);
+  }
+
+  /**
+   * Create a method call on 'this' object with specific debug info.
+   */
+  public void callThisMethod(String targetTypeName, String methodName, String targetVariable, DebugInfo debugInfo) {
+    var metaData = CallMetaDataDetails.defaultMetaData();
+    var voidStr = context.getCurrentIRContext().getParsedModule().getEk9Types().ek9Void().getFullyQualifiedName();
+
+    var callDetails = new CallDetails(
+        IRConstants.THIS,
+        targetTypeName,
+        methodName,
+        List.of(),
+        voidStr,
+        List.of(),
+        metaData
+    );
+
+    var finalDebugInfo = debugInfo != null ? debugInfo : context.currentDebugInfo().orElse(null);
+    var instruction = CallInstr.call(targetVariable, finalDebugInfo, callDetails);
+    context.addInstruction(instruction);
+  }
+
+  /**
+   * Create a BasicBlock with given label and current instructions.
+   */
+  public BasicBlockInstr createBasicBlock(String labelPrefix) {
+    var blockLabel = context.generateBlockLabel(labelPrefix);
+    var instructions = extractInstructions();
+    return new BasicBlockInstr(blockLabel).addInstructions(instructions);
+  }
+
 
   /**
    * Create a memory retain and register for memory management current context.
@@ -136,6 +255,14 @@ public class IRInstructionBuilder {
   }
 
   public void returnValue(String variableName, DebugInfo debugInfo) {
+    addInstruction(BranchInstr.returnValue(variableName, debugInfo));
+  }
+
+  /**
+   * Return a value using current context debug info.
+   */
+  public void returnValue(String variableName) {
+    var debugInfo = context.currentDebugInfo().orElse(null);
     addInstruction(BranchInstr.returnValue(variableName, debugInfo));
   }
 

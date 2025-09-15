@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.phase7;
 
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
@@ -158,8 +157,7 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
     // This will be complex and handled in later implementation phases
     instructionBuilder.returnVoid(); // Placeholder
 
-    operation.setBody(new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL))
-        .addInstructions(instructionBuilder));
+    operation.setBody(instructionBuilder.createBasicBlock(IRConstants.ENTRY_LABEL));
 
     construct.add(operation);
   }
@@ -178,8 +176,7 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
     // TODO: Implement based on method semantics (e.g., _isSet, _hash)
     instructionBuilder.returnVoid(); // Placeholder
 
-    operation.setBody(new BasicBlockInstr(stackContext.generateBlockLabel(IRConstants.ENTRY_LABEL))
-        .addInstructions(instructionBuilder));
+    operation.setBody(instructionBuilder.createBasicBlock(IRConstants.ENTRY_LABEL));
 
     construct.add(operation);
   }

@@ -24,10 +24,6 @@ import org.ek9lang.core.CompilerException;
  * For generic type use with parameterisation this will still be an aggregate (but with the appropriate
  * configuration).
  * </p>
- * //TODO pull most of the methods down into AbstractDfnGenerator and rename them.
- * //TODO most of the init and properties stuff applies to records, components, dynamic classes
- * //TODO and even Functions as these become classes in implementation. Dynamic functions with
- * //TODO capture variables are just properties on the class again in implementation.
  */
 final class ClassDfnGenerator extends AggregateDfnGenerator
     implements Function<EK9Parser.ClassDeclarationContext, IRConstruct> {
