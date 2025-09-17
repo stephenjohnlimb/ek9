@@ -2,8 +2,8 @@ package org.ek9lang.compiler.phase7;
 
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
@@ -13,8 +13,6 @@ import org.ek9lang.core.CompilerException;
 
 /**
  * Creates the appropriate IR Construct for an Aggregate of type 'program'.
- * TODO still needs the code for the actual 'main' entry point that deals with accepting
- * TODO and converting commandline arguments into correctly typed arguments to call _main.
  */
 final class ProgramDfnGenerator extends AbstractDfnGenerator
     implements Function<EK9Parser.MethodDeclarationContext, IRConstruct> {
@@ -46,8 +44,6 @@ final class ProgramDfnGenerator extends AbstractDfnGenerator
 
   private void createOperation(final IRConstruct construct, final AggregateSymbol aggregateSymbol,
                                final EK9Parser.MethodDeclarationContext ctx) {
-
-    System.out.println("Program: would create static main entry point deal with args and call to _main");
 
     AssertValue.checkTrue("Expecting only one method on program",
         aggregateSymbol.getAllMethods().size() == 1);

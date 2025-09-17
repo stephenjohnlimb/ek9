@@ -1,38 +1,11 @@
 #!ek9
 defines module introduction
 
-  defines function
-
-
-    unaryMinus()
-      v1 <- 1
-      v2 <- -v1
-      assert v2?
-
-    subtraction()
-      v1 <- 1
-      v2 <- 2
-
-      v3 <- v2 - v1
-      assert v3?
-
-    durationSubtractionWithPromotion()
-      v1 <- 5000ms
-      v2 <- PT1M
-
-      //Currently missing the fact we need the promotion of ms to Duration
-      //We have it in the front-end of the compiler.
-      //But we are missing it in the IR generation.
-      v3 <- v2 - v1
-      assert v3?
-
-<!-
   defines program
     HelloWorld()
 
       stdout <- Stdout()
       toOutput <- "Hello, World"
       stdout.println(toOutput)
--!>
 
 //EOF
