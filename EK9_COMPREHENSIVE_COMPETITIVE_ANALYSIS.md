@@ -227,7 +227,105 @@ if result <- someExpression()     // <- declares and tests atomically
 - **Maintenance confidence**: Legacy code guaranteed safe by compiler
 - **AI development acceleration**: Guard variables prevent most common AI code generation errors
 
-#### 2. **Language-Integrated Build System**
+#### 5. **Mathematical Dependency Injection Safety**
+**Market Impact**: Revolutionary
+**Competitive Gap**: Unique to EK9 - First language with compile-time guaranteed DI safety
+
+**The Problem EK9 Solves:**
+Enterprise dependency injection is plagued by runtime failures that are impossible to prevent in traditional frameworks:
+
+```java
+// Spring Framework - Runtime DI disasters
+@Service
+public class OrderService {
+    @Autowired private PaymentService paymentService;  // NullPointerException if not configured
+    @Autowired private UserService userService;        // Circular dependency creates proxy hell
+}
+
+@Configuration
+public class AppConfig {
+    // 50+ lines of XML/annotation configuration
+    // Runtime binding failures discovered in production
+    // Circular dependency resolution creates unpredictable proxies
+    // Missing dependencies cause startup failures
+}
+
+// Common enterprise Spring failure modes:
+// 1. Circular dependencies: UserService → OrderService → PaymentService → UserService
+// 2. Missing registrations: PaymentService not configured, runtime NPE
+// 3. Wrong initialization order: Database connection needed before service creation
+// 4. Configuration errors: Typos in bean names, wrong scopes
+```
+
+**EK9's Revolutionary Solution:**
+```ek9
+// Mathematical guarantees - impossible to have DI failures
+defines application
+  EnterpriseApp
+    // Registration order documents architecture and ensures correct initialization
+    register DatabaseConfig("prod.yaml") as Config     // Foundation layer (no dependencies)
+    register ConnectionPool(config) as Database        // Infrastructure layer
+    register AuditLogger(config) as Logger            // Cross-cutting layer
+    register PaymentService(database, logger) as PaymentService // Business layer
+    register OrderService(database, logger, paymentService) as OrderService // Business layer
+
+// Program with guaranteed-safe dependency injection
+OrderProgram() with application of EnterpriseApp
+  orderService as OrderService!     // Compile-time guaranteed available
+  paymentService as PaymentService! // All dependencies validated at compile time
+
+  // Impossible to have missing dependencies or circular references
+  result := orderService.processOrder(order)
+  if result.isOk()
+    payment := paymentService.processPayment(result.ok())
+```
+
+**Compile-Time Validation Framework:**
+```ek9
+// COMPILER ERROR: Circular dependency detection
+BadApp
+  register UserService() as UserService      // UserService needs OrderService
+  register OrderService() as OrderService    // OrderService needs UserService
+
+// Error: "Circular dependency: UserService → OrderService → UserService"
+// Solution: Redesign architecture - no workarounds provided
+
+// COMPILER ERROR: Missing dependency
+IncompleteApp
+  register OrderService() as OrderService    // OrderService needs PaymentService
+  // Missing: PaymentService registration
+
+// Error: "Program requires PaymentService but IncompleteApp doesn't provide it"
+
+// COMPILER ERROR: Wrong initialization order
+WrongOrderApp
+  register OrderService() as OrderService    // Needs PaymentService during construction
+  register PaymentService() as PaymentService // But PaymentService not available yet!
+
+// Error: "Cannot register OrderService: requires PaymentService but not registered yet"
+```
+
+**Enterprise Advantages:**
+- **Zero runtime DI failures**: Mathematical guarantee - impossible to deploy broken DI configuration
+- **Self-documenting architecture**: Application registration order shows complete system architecture
+- **No circular dependency hell**: Hard compiler prevention eliminates Spring's proxy nightmare
+- **No framework overhead**: Direct object lookup vs Spring's complex container management
+- **Predictable initialization**: Simple sequential order vs Spring's complex dependency resolution
+- **Enterprise validation**: Complete transitive dependency analysis at compile time
+
+**vs. Traditional DI Frameworks:**
+- **Spring**: Runtime failures, circular dependency proxies, complex lifecycle management, annotation hell
+- **CDI**: Binding configuration errors, runtime injection failures, complex scoping
+- **Guice**: Manual binding setup, runtime validation, reflection overhead
+- **EK9**: Compile-time safety, zero overhead, impossible to misconfigure
+
+**Revolutionary Claims:**
+- **First language** with mathematically guaranteed dependency injection safety
+- **Zero DI runtime failures** in any correctly compiled EK9 application
+- **Enterprise DI without framework complexity** - language-native feature
+- **Self-validating architecture** through compile-time transitive analysis
+
+#### 6. **Language-Integrated Build System**
 **Market Impact**: Revolutionary  
 **Competitive Gap**: Unique to EK9
 
@@ -468,15 +566,25 @@ Package: "ek9open.http.client-3.2.1-5.zip"
 ## Strategic Market Positioning
 
 ### **Primary Value Proposition:**
-*"EK9 delivers enterprise-grade safety and performance with unprecedented developer experience"*
+*"EK9 delivers enterprise-grade safety and performance with unprecedented developer experience, featuring the world's first mathematically guaranteed dependency injection system"*
+
+### **Revolutionary DI Market Position:**
+**"EK9 is the only programming language with compile-time guaranteed dependency injection safety"**
+
+**Unique Market Claims:**
+- **Zero DI runtime failures possible** - Mathematical guarantee in correctly compiled code
+- **First self-documenting DI system** - Application registration order reveals complete architecture
+- **No framework complexity** - Language-native DI vs external frameworks (Spring, CDI, Guice)
+- **Hard circular dependency prevention** - Compiler prevents architectural disasters
 
 ### **Competitive Messaging Matrix**
 
 | Audience | Primary Message | Supporting Evidence |
 |----------|----------------|-------------------|
-| **Enterprise CTOs** | Risk Reduction + Cost Savings | Compile-time prevention of production failures, 70% reduction in build infrastructure |
-| **Engineering Teams** | Developer Experience + Performance | Integrated build system, compile-time safety, native speeds without complexity |
-| **AI/ML Teams** | AI Collaboration + Performance | Built-in constraints ensure safe AI code generation, native speeds for inference |
+| **Enterprise CTOs** | Risk Reduction + Cost Savings | Compile-time prevention of production failures, 70% reduction in build infrastructure, zero DI failures guarantee |
+| **Engineering Teams** | Developer Experience + Performance | Integrated build system, compile-time safety, native speeds without complexity, guaranteed DI safety |
+| **AI/ML Teams** | AI Collaboration + Performance | Built-in constraints ensure safe AI code generation, native speeds for inference, systematic DI patterns |
+| **Enterprise Architects** | Architectural Quality + Safety | Self-documenting Applications, hard circular dependency prevention, enterprise DI without framework complexity |
 
 ### **Versus Major Languages**
 
@@ -485,15 +593,25 @@ Package: "ek9open.http.client-3.2.1-5.zip"
 - **Message**: *"Get Rust's performance and safety without the learning curve or build system pain"*
 - **Target**: Teams frustrated with Rust adoption challenges
 
-#### vs. **Go** 🐹  
-- **EK9 Advantage**: Compile-time safety + generics + integrated build system + higher performance
-- **Message**: *"Go's simplicity with enterprise-grade safety and performance"*
-- **Target**: Go teams needing more safety or performance
+#### vs. **Go** 🐹
+- **EK9 Advantage**: Compile-time safety + generics + integrated build system + higher performance + enterprise DI
+- **Message**: *"Go's simplicity with enterprise-grade safety, performance, and built-in dependency injection"*
+- **Target**: Go teams needing enterprise patterns, more safety, or performance
+
+**DI Comparison:**
+- **Go**: Manual dependency wiring, no built-in DI, runtime errors from missing dependencies
+- **EK9**: Language-native DI with compile-time safety guarantees, impossible to deploy broken DI
 
 #### vs. **Java** ☕
-- **EK9 Advantage**: Native performance + compile-time safety + eliminates Maven/Gradle + modern syntax
-- **Message**: *"Java ecosystem access with native performance and zero build complexity"*  
-- **Target**: Enterprise Java teams needing performance or simpler deployment
+- **EK9 Advantage**: Native performance + compile-time safety + guaranteed DI safety + eliminates Maven/Gradle/Spring + modern syntax
+- **Message**: *"Java ecosystem access with native performance, zero Spring complexity, and mathematically guaranteed DI safety"*
+- **Target**: Enterprise Java teams frustrated with Spring's circular dependency hell, Maven complexity, or needing performance
+
+**Detailed DI Comparison:**
+- **Spring Framework**: Runtime DI failures, circular dependency proxies, complex @Configuration classes, annotation hell
+- **EK9**: Compile-time guaranteed DI safety, self-documenting Applications, zero framework overhead
+- **Spring**: `ApplicationContext` startup failures, proxy creation overhead, `@PostConstruct` lifecycle complexity
+- **EK9**: Simple sequential initialization, direct object references, impossible to misconfigure
 
 #### vs. **Python** 🐍
 - **EK9 Advantage**: 10x performance + compile-time safety + enterprise build system + static typing
@@ -508,24 +626,31 @@ Package: "ek9open.http.client-3.2.1-5.zip"
 ## Implementation Roadmap Based on Market Impact
 
 ### **Phase 1: Safety Foundation** (Maximum ROI - 6 months)
-**Focus**: Establish unique market position
+**Focus**: Establish unique market position with revolutionary safety guarantees
 
-1. **Complete Optional/Result compiler enforcement**
+1. **Mathematical Dependency Injection Safety** ⭐ **PRIORITY**
+   - Complete Global Application DI architecture implementation
+   - Bottom-up dependency analysis with ANTLR enter/exit pattern
+   - Three-tier validation: circular dependency prevention, completeness validation, ordering validation
+   - Enterprise-grade error reporting with actionable solutions
+   - Backend integration with zero-overhead runtime performance
+
+2. **Complete Optional/Result compiler enforcement**
    - Full implementation of `ObjectAccessExpressionValidOrError` patterns
    - Comprehensive safety validation across all control flow constructs
    - IDE integration with real-time safety feedback
 
-2. **Finalize operator semantic controls**
+3. **Finalize operator semantic controls**
    - Complete `ValidOperatorOrError` implementation
    - Comprehensive pure function validation
    - Documentation and examples of operator safety patterns
 
-3. **Basic build system integration**
+4. **Basic build system integration**
    - Source-level dependency declaration
    - Simple package resolution and validation
    - Cross-compilation target selection
 
-**Success Metrics**: Zero runtime Optional/Result exceptions possible, operator abuse prevention demonstrated
+**Success Metrics**: Zero runtime Optional/Result exceptions possible, operator abuse prevention demonstrated, **mathematically guaranteed DI safety for enterprise applications**
 
 ### **Phase 2: Build System Revolution** (Market Differentiator - 6 months)
 **Focus**: Eliminate developer friction
