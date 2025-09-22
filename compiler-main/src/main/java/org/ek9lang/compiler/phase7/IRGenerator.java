@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.phase7;
 
+import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
@@ -8,9 +9,11 @@ import org.ek9lang.compiler.CompilerFlags;
 import org.ek9lang.compiler.CompilerPhase;
 import org.ek9lang.compiler.IRModule;
 import org.ek9lang.compiler.Workspace;
+import org.ek9lang.compiler.common.AllProgramsSupplier;
 import org.ek9lang.compiler.common.CompilableSourceHasErrors;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.core.SharedThreadContext;
 
 /**
@@ -27,6 +30,7 @@ import org.ek9lang.core.SharedThreadContext;
 public final class IRGenerator extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.IR_GENERATION;
   private final CompilableSourceHasErrors sourceHasErrors = new CompilableSourceHasErrors();
+  private final AllProgramsSupplier allProgramsSupplier = new AllProgramsSupplier();
 
   public IRGenerator(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
                      final Consumer<CompilationEvent> listener,
@@ -50,9 +54,11 @@ public final class IRGenerator extends CompilerPhase {
 
   private void defineIRMultiThreaded(final Workspace workspace, final CompilerFlags compilerFlags) {
 
+    final var allPrograms = allProgramsSupplier.apply(compilableProgramAccess);
+
     workspace.getSources()
         .parallelStream()
-        .forEach(source -> defineIR(source, compilerFlags));
+        .forEach(source -> defineIR(source, allPrograms, compilerFlags));
 
   }
 
@@ -61,9 +67,11 @@ public final class IRGenerator extends CompilerPhase {
    * Here, we are creating the Intermediate Representation of code.
    * Clearly we do not create that for built-in EK9 code (as that will be provided).
    */
-  private void defineIR(final CompilableSource source, final CompilerFlags compilerFlags) {
+  private void defineIR(final CompilableSource source,
+                        final List<AggregateSymbol> allPrograms,
+                        final CompilerFlags compilerFlags) {
 
-    final var irModule = new IRModule(source);
+    final var irModule = new IRModule(source, allPrograms);
     irModule.acceptCompilationUnitContext(source.getCompilationUnitContext());
     if (irModule.isExtern()) {
       //Nothing to do with IR generation of built-in or extern ek9 code. As that will be provided as a library

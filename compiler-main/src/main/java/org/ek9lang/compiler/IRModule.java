@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
+import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -18,16 +19,26 @@ public final class IRModule implements Module {
   @Serial
   private static final long serialVersionUID = 1L;
   private final CompilableSource source;
+  private final List<AggregateSymbol> allPrograms;
   private final List<IRConstruct> constructs = new ArrayList<>();
 
   private String moduleName;
   private boolean extern;
 
-  public IRModule(final CompilableSource source) {
+  public IRModule(final CompilableSource source,
+                  final List<AggregateSymbol> allPrograms) {
 
     AssertValue.checkNotNull("CompilableSource cannot be null", source);
-    this.source = source;
+    AssertValue.checkNotNull("AllPrograms cannot be null", allPrograms);
+    //But they can be empty.
 
+    this.source = source;
+    this.allPrograms = allPrograms;
+
+  }
+
+  public List<AggregateSymbol> getAllPrograms() {
+    return allPrograms;
   }
 
   @Override

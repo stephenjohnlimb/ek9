@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -19,6 +20,7 @@ import java.util.regex.Pattern;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.CompilerFlags;
+import org.ek9lang.compiler.IRModule;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.core.SharedThreadContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +37,7 @@ import org.junit.jupiter.api.parallel.ResourceLock;
 class IRGenerationContextTest {
 
   private ParsedModule mockParsedModule;
+  private IRModule mockIRModule;
   private CompilerFlags mockCompilerFlags;
   private IRContext underTest;
 
@@ -42,8 +45,9 @@ class IRGenerationContextTest {
   void setUp() {
     // Create a simple mock ParsedModule without external dependencies
     mockParsedModule = createMockParsedModule();
+    mockIRModule = new IRModule(mockParsedModule.getSource(), List.of());
     mockCompilerFlags = new CompilerFlags();
-    underTest = new IRContext(mockParsedModule, mockCompilerFlags);
+    underTest = new IRContext(mockParsedModule, mockIRModule, mockCompilerFlags);
   }
 
   /**
@@ -74,7 +78,7 @@ class IRGenerationContextTest {
 
   @Test
   void testConstructorWithValidParsedModule() {
-    var context = new IRContext(mockParsedModule, mockCompilerFlags);
+    var context = new IRContext(mockParsedModule, mockIRModule, mockCompilerFlags);
     assertNotNull(context);
     assertEquals(mockParsedModule, context.getParsedModule());
   }
@@ -82,15 +86,22 @@ class IRGenerationContextTest {
   @Test
   void testConstructorWithNullParsedModuleThrowsException() {
     var exception = assertThrows(IllegalArgumentException.class,
-        () -> new IRContext(null, mockCompilerFlags));
+        () -> new IRContext(null, mockIRModule, mockCompilerFlags));
     assertTrue(exception.getMessage().contains("ParsedModule cannot be null"));
   }
 
   @Test
   void testConstructorWithNullCompilerFlagsThrowsException() {
     var exception = assertThrows(IllegalArgumentException.class,
-        () -> new IRContext(mockParsedModule, null));
+        () -> new IRContext(mockParsedModule, mockIRModule, null));
     assertTrue(exception.getMessage().contains("CompilerFlags cannot be null"));
+  }
+
+  @Test
+  void testConstructorWithNullIRModuleThrowsException() {
+    var exception = assertThrows(IllegalArgumentException.class,
+        () -> new IRContext(mockParsedModule, null, mockCompilerFlags));
+    assertTrue(exception.getMessage().contains("IRModule cannot be null"));
   }
 
   @Test

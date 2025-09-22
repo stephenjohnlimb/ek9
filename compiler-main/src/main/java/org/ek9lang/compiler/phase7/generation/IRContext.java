@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase7.generation;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.ek9lang.compiler.CompilerFlags;
+import org.ek9lang.compiler.IRModule;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.core.AssertValue;
 
@@ -28,12 +29,13 @@ public final class IRContext {
 
   private final ParsedModule parsedModule;
   private final CompilerFlags compilerFlags;
+  private final IRModule irModule;
 
   // Per-prefix counters for logical numbering: _temp1, _param1, _return1, _scope1, etc.
   private final ConcurrentHashMap<String, AtomicInteger> prefixCounters = new ConcurrentHashMap<>();
 
   public IRContext(final IRContext fromContext) {
-    this(fromContext.parsedModule, fromContext.compilerFlags);
+    this(fromContext.parsedModule, fromContext.irModule, fromContext.compilerFlags);
   }
 
   /**
@@ -42,11 +44,19 @@ public final class IRContext {
    * @param parsedModule  The parsed module containing resolved symbols
    * @param compilerFlags The compiler flags for controlling debug instrumentation
    */
-  public IRContext(final ParsedModule parsedModule, final CompilerFlags compilerFlags) {
+  public IRContext(final ParsedModule parsedModule,
+                   final IRModule irModule,
+                   final CompilerFlags compilerFlags) {
     AssertValue.checkNotNull("ParsedModule cannot be null", parsedModule);
+    AssertValue.checkNotNull("IRModule cannot be null", irModule);
     AssertValue.checkNotNull("CompilerFlags cannot be null", compilerFlags);
     this.parsedModule = parsedModule;
+    this.irModule = irModule;
     this.compilerFlags = compilerFlags;
+  }
+
+  public IRModule getIrModule() {
+    return irModule;
   }
 
   /**

@@ -39,7 +39,6 @@ import org.ek9lang.core.SharedThreadContext;
  */
 final class IRDfnGenerator {
 
-  private final CompilerFlags compilerFlags;
   private ParsedModule parsedModule;
   private final IRModule irModule;
   private final IRContext baseIRContext;
@@ -55,14 +54,13 @@ final class IRDfnGenerator {
     AssertValue.checkNotNull("irModule cannot be null", irModule);
     AssertValue.checkNotNull("compilerFlags cannot be null", compilerFlags);
 
-    this.compilerFlags = compilerFlags;
     this.irModule = irModule;
 
     compilableProgramAccess.accept(compilableProgram ->
         this.parsedModule = compilableProgram.getParsedModuleForCompilableSource(source));
 
     // Create base IRContext once - will be used to create per-construct stack contexts
-    this.baseIRContext = new IRContext(parsedModule, compilerFlags);
+    this.baseIRContext = new IRContext(parsedModule, irModule, compilerFlags);
 
   }
 
