@@ -1,0 +1,78 @@
+#!ek9
+defines module introduction2
+
+  defines constant
+    //While it is a constant internally we model as a VARIABLE
+    @Resolved: SYMBOL_DEFINITION: VARIABLE: "worldMessage"
+    worldMessage <- "Hello, Earth"
+
+  defines program
+
+    @IR: IR_GENERATION: TYPE: "introduction2::HelloEarth": `
+    ConstructDfn: introduction2::HelloEarth
+    PROGRAM_ENTRY_POINT_BLOCK
+    [
+    programs_count: 4
+    available_programs:
+    [
+    introduction1::HelloMessage
+    [
+    0:message:org.ek9.lang::String
+    ]
+    introduction1::HelloWorld
+    introduction2::HelloEarth
+    introduction2::HelloMars
+    ]
+    ]
+    OperationDfn: introduction2::HelloEarth._main()->org.ek9.lang::Void  // ./HelloWorldsIR.ek9:41:5
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./HelloWorldsIR.ek9:42:7
+    REFERENCE stdout, org.ek9.lang::Stdout  // ./HelloWorldsIR.ek9:42:7
+    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./HelloWorldsIR.ek9:42:17
+    RETAIN _temp1  // ./HelloWorldsIR.ek9:42:17
+    SCOPE_REGISTER _temp1, _scope_1  // ./HelloWorldsIR.ek9:42:17
+    STORE stdout, _temp1  // ./HelloWorldsIR.ek9:42:17
+    RETAIN stdout  // ./HelloWorldsIR.ek9:42:17
+    SCOPE_REGISTER stdout, _scope_1  // ./HelloWorldsIR.ek9:42:17
+    _temp3 = LOAD stdout  // ./HelloWorldsIR.ek9:43:14
+    _temp2 = CALL (org.ek9.lang::Stdout)_temp3.println(worldMessage) [pure=false, complexity=0]  // ./HelloWorldsIR.ek9:43:14
+    SCOPE_EXIT _scope_1  // ./HelloWorldsIR.ek9:42:7
+    RETURN  // ./HelloWorldsIR.ek9:41:5`
+    HelloEarth()
+      stdout <- Stdout()
+      stdout.println(worldMessage)
+
+    @IR: IR_GENERATION: TYPE: "introduction2::HelloMars": `
+    ConstructDfn: introduction2::HelloMars
+    PROGRAM_ENTRY_POINT_BLOCK
+    [
+    programs_count: 4
+    available_programs:
+    [
+    introduction1::HelloMessage
+    [
+    0:message:org.ek9.lang::String
+    ]
+    introduction1::HelloWorld
+    introduction2::HelloEarth
+    introduction2::HelloMars
+    ]
+    ]
+    OperationDfn: introduction2::HelloMars._main()->org.ek9.lang::Void  // ./HelloWorldsIR.ek9:75:5
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./HelloWorldsIR.ek9:76:7
+    REFERENCE stdout, org.ek9.lang::Stdout  // ./HelloWorldsIR.ek9:76:7
+    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./HelloWorldsIR.ek9:76:17
+    RETAIN _temp1  // ./HelloWorldsIR.ek9:76:17
+    SCOPE_REGISTER _temp1, _scope_1  // ./HelloWorldsIR.ek9:76:17
+    STORE stdout, _temp1  // ./HelloWorldsIR.ek9:76:17
+    RETAIN stdout  // ./HelloWorldsIR.ek9:76:17
+    SCOPE_REGISTER stdout, _scope_1  // ./HelloWorldsIR.ek9:76:17
+    _temp3 = LOAD stdout  // ./HelloWorldsIR.ek9:77:14
+    _temp2 = CALL (org.ek9.lang::Stdout)_temp3.println("Hello, Mars") [pure=false, complexity=0]  // ./HelloWorldsIR.ek9:77:14
+    SCOPE_EXIT _scope_1  // ./HelloWorldsIR.ek9:76:7
+    RETURN  // ./HelloWorldsIR.ek9:75:5`
+    HelloMars()
+      stdout <- Stdout()
+      stdout.println("Hello, Mars")
+//EOF

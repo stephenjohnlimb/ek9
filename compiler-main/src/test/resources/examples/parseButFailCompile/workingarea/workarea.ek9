@@ -2,10 +2,11 @@
 defines module introduction
 
   defines program
-    HelloWorld()
+
+    HelloMessage()
+      -> message as String
 
       stdout <- Stdout()
-      toOutput <- "Hello, World"
-      stdout.println(toOutput)
+      stdout.println(message)
 
 //EOF

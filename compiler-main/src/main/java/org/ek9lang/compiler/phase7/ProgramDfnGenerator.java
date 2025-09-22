@@ -1,12 +1,16 @@
 package org.ek9lang.compiler.phase7;
 
+import java.util.Comparator;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.ir.instructions.OperationInstr;
+import org.ek9lang.compiler.ir.instructions.ProgramEntryPointInstr;
 import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.ProgramMetadataExtractor;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.Symbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
@@ -16,6 +20,8 @@ import org.ek9lang.core.CompilerException;
  */
 final class ProgramDfnGenerator extends AbstractDfnGenerator
     implements Function<EK9Parser.MethodDeclarationContext, IRConstruct> {
+
+  private final ProgramMetadataExtractor programMetadataExtractor = new ProgramMetadataExtractor();
 
   /**
    * Constructor using stack context - the single source of state.
@@ -32,6 +38,10 @@ final class ProgramDfnGenerator extends AbstractDfnGenerator
     if (symbol instanceof AggregateSymbol aggregateSymbol && symbol.getGenus() == SymbolGenus.PROGRAM) {
 
       final var construct = new IRConstruct(symbol);
+
+      // Create the PROGRAM_ENTRY_POINT_BLOCK with all discovered programs
+      createProgramEntryPointBlock(construct);
+
       //Now for 'programs' we have used just a 'method' in the grammar, mangled it to an aggregate.
       //then created an artificial method on that aggregate - so there is no 'parse tree' for this.
       //We must now manually make the OperationInstr and then we can jump back to the parse tree (ctx) and
@@ -40,6 +50,29 @@ final class ProgramDfnGenerator extends AbstractDfnGenerator
       return construct;
     }
     throw new CompilerException("Cannot create Program - expect AggregateSymbol of 'PROGRAM' Genus");
+  }
+
+  /**
+   * Create the PROGRAM_ENTRY_POINT_BLOCK containing all discovered programs.
+   * Uses the cached AllProgramsSupplier data from IRModule.
+   * Adds the same block to each program construct for backend convenience.
+   */
+  private void createProgramEntryPointBlock(final IRConstruct construct) {
+    final var irModule = stackContext.getCurrentIRContext().getIrModule();
+
+    // Get all programs discovered during compilation (cached in IRModule)
+    final var allPrograms = irModule.getAllPrograms();
+
+    //Ensure they always come out in sorted order so @IR is deterministic.
+    final var programDefinitions = allPrograms
+        .stream()
+        .sorted(Comparator.comparing(Symbol::getFullyQualifiedName))
+        .map(programMetadataExtractor)
+        .toList();
+
+    // Create the IR instruction and add to this program construct
+    final var programEntryPoint = new ProgramEntryPointInstr(programDefinitions, null);
+    construct.setProgramEntryPoint(programEntryPoint);
   }
 
   private void createOperation(final IRConstruct construct, final AggregateSymbol aggregateSymbol,

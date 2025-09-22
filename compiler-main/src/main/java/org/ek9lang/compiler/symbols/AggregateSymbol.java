@@ -81,6 +81,11 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   private String pipeSourceType;
 
   /**
+   * If this Aggregate is a program that is MAY have an application linked to it.
+   */
+  private AggregateSymbol possibleApplication;
+
+  /**
    * A simple straight forward aggregate type, like a class or record.
    */
   public AggregateSymbol(final String name, final IScope enclosingScope) {
@@ -138,8 +143,17 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     newCopy.injectable = injectable;
     newCopy.pipeSinkType = pipeSinkType;
     newCopy.pipeSourceType = pipeSourceType;
+    newCopy.possibleApplication = possibleApplication;
 
     return newCopy;
+  }
+
+  public Optional<AggregateSymbol> getApplication() {
+    return Optional.ofNullable(possibleApplication);
+  }
+
+  public void setApplication(final AggregateSymbol application) {
+    this.possibleApplication = application;
   }
 
   @Override

@@ -2,6 +2,7 @@ package org.ek9lang.compiler.ir.instructions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.compiler.common.SymbolSignatureExtractor;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -27,6 +28,7 @@ public final class IRConstruct implements INode {
   private final ISymbol symbol;
   private final List<Field> fields = new ArrayList<>();
   private final List<OperationInstr> operations = new ArrayList<>();
+  private ProgramEntryPointInstr programEntryPoint;
 
   private final SymbolSignatureExtractor symbolSignatureExtractor = new SymbolSignatureExtractor();
 
@@ -93,6 +95,14 @@ public final class IRConstruct implements INode {
 
   public List<OperationInstr> getOperations() {
     return List.copyOf(operations);
+  }
+
+  public void setProgramEntryPoint(final ProgramEntryPointInstr programEntryPoint) {
+    this.programEntryPoint = programEntryPoint;
+  }
+
+  public Optional<ProgramEntryPointInstr> getProgramEntryPoint() {
+    return Optional.ofNullable(programEntryPoint);
   }
 
   @Override

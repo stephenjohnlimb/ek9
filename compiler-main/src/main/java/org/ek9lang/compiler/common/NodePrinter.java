@@ -1,11 +1,12 @@
 package org.ek9lang.compiler.common;
 
 import java.io.PrintWriter;
-import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
 import org.ek9lang.compiler.ir.instructions.Field;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.instructions.OperationInstr;
+import org.ek9lang.compiler.ir.instructions.ProgramEntryPointInstr;
 
 /**
  * Just to enable viewing and printing of nodes.
@@ -26,10 +27,13 @@ public class NodePrinter implements INodeVisitor {
   public void visit(final IRConstruct construct) {
 
     printWriter.printf("%nConstructDfn: %s%n", construct.getSignatureQualifiedName());
-    
-    // Print field declarations first
+
+    // Print program entry point first (if present)
+    construct.getProgramEntryPoint().ifPresent(programEntryPoint -> programEntryPoint.accept(this));
+
+    // Print field declarations
     construct.getFields().forEach(field -> field.accept(this));
-    
+
     // Then print operations
     construct.getOperations().forEach(operation -> operation.accept(this));
   }
@@ -71,5 +75,12 @@ public class NodePrinter implements INodeVisitor {
   @Override
   public void visit(final IRInstr irInstruction) {
     printWriter.printf("%s%n", irInstruction);
+  }
+
+  /**
+   * Visit ProgramEntryPointInstr to display the program entry point block.
+   */
+  public void visit(final ProgramEntryPointInstr programEntryPoint) {
+    printWriter.printf("%s%n", programEntryPoint);
   }
 }

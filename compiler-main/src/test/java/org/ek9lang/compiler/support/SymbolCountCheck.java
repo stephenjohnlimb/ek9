@@ -34,6 +34,9 @@ public class SymbolCountCheck implements Predicate<CompilableProgram> {
   public boolean test(CompilableProgram compilableProgram) {
     var modules = compilableProgram.getParsedModules(forModuleName);
     assertNotNull(modules);
+    if(expectModuleCount != modules.size()) {
+      modules.forEach(System.err::println);
+    }
     assertEquals(expectModuleCount, modules.size(), "Incorrect number of modules for package.");
 
     var numSymbols = modules.stream().map(module -> module.getModuleScope().getSymbolsForThisScope())

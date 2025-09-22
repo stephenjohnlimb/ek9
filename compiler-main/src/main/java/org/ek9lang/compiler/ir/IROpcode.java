@@ -296,6 +296,15 @@ public enum IROpcode {
    */
   TRANSFER_OWNERSHIP,
 
+  // Program metadata for backend generation
+  /**
+   * Program entry point block containing all discovered programs and their metadata.
+   * Format: PROGRAM_ENTRY_POINT_BLOCK available_programs_data
+   * Contains complete program registry with parameter signatures and application associations.
+   * Processed once per compilation by backends to generate main() entry point and program selection logic.
+   */
+  PROGRAM_ENTRY_POINT,
+
   // Memory management optimization markers
   /**
    * Annotation marker: skip RETAIN operation for this object.

@@ -54,6 +54,7 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
   private final ResolveByTraitVariables resolveByTraitVariables;
   private final NoTraitByVariablesOrError noTraitByVariablesOrErrorOrError;
   private final EnumeratedTypeOrError enumeratedTypeOrError;
+  private final ProgramOrError programOrError;
 
   /**
    * Create a new instance to define or resolve inferred types.
@@ -95,6 +96,8 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
         new NoTraitByVariablesOrError(symbolsAndScopes, errorListener);
     this.enumeratedTypeOrError =
         new EnumeratedTypeOrError(symbolsAndScopes, symbolFactory, errorListener);
+    this.programOrError =
+        new ProgramOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -316,6 +319,14 @@ final class ResolveDefineInferredTypeListener extends ExpressionsListener {
     }
 
     super.exitTypeDeclaration(ctx);
+  }
+
+  @Override
+  public void enterProgramBlock(final EK9Parser.ProgramBlockContext ctx) {
+    //Programs are just defined as a single method declaration - but can have applications
+    ctx.methodDeclaration().forEach(programOrError);
+
+    super.enterProgramBlock(ctx);
   }
 
   @Override
