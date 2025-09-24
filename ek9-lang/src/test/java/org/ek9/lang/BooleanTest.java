@@ -76,9 +76,8 @@ class BooleanTest extends Common {
     assertSet.accept(asFalse);
     assertFalse(asFalse.state);
 
-    final var alsoAsFalse = Boolean._of("someOtherValue");
-    assertSet.accept(alsoAsFalse);
-    assertFalse(alsoAsFalse.state);
+    final var nowUnset = Boolean._of("someOtherValue");
+    assertUnset.accept(nowUnset);
   }
 
   @Test

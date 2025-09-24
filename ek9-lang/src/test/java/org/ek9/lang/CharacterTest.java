@@ -355,7 +355,7 @@ class CharacterTest extends Common {
     final var jsonStr = """
         {
           "prop1": "A",
-          "prop2": "World"
+          "prop2": "W"
         }""";
     final var jsonResult = new JSON().parse(String._of(jsonStr));
     
@@ -364,7 +364,7 @@ class CharacterTest extends Common {
     mutatedCharacter._pipe(jsonResult.ok());
 
     assertSet.accept(mutatedCharacter);
-    // Should be 'W' from "World" (as that would be processed last in traversal)
+    // Should be 'W' from "W" (as that would be processed last in traversal)
     assertEquals('W', mutatedCharacter.state);
   }
 

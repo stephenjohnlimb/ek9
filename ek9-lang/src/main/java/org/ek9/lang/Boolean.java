@@ -310,7 +310,11 @@ public class Boolean extends BuiltinType {
   }
 
   public static Boolean _of(java.lang.String arg) {
-    return _of(java.lang.Boolean.parseBoolean(arg));
+    if (arg != null
+        && (arg.equalsIgnoreCase("true") || arg.equalsIgnoreCase("false"))) {
+      return _of(java.lang.Boolean.parseBoolean(arg));
+    }
+    return new Boolean();
   }
 
   public static Boolean _of(boolean arg) {

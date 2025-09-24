@@ -70,7 +70,7 @@ public class RegEx extends BuiltinType implements Any {
         <- rtn as Boolean?""")
   public Boolean _eq(final RegEx arg) {
     if (canProcess(arg)) {
-      return Boolean._of(state.pattern().equals(arg.state.pattern()) 
+      return Boolean._of(state.pattern().equals(arg.state.pattern())
           && state.flags() == arg.state.flags());
     }
     return new Boolean();
@@ -346,7 +346,11 @@ public class RegEx extends BuiltinType implements Any {
    * Factory method to create set RegEx from String.
    */
   public static RegEx _of(final java.lang.String pattern) {
-    return new RegEx(String._of(pattern));
+    if (pattern != null && pattern.startsWith("/") && pattern.endsWith("/") && pattern.length() > 2) {
+      return new RegEx(String._of(pattern.substring(1, pattern.length() - 1)));
+    }
+    //unset
+    return new RegEx();
   }
 
   @Override

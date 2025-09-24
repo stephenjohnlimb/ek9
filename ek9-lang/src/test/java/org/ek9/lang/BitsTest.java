@@ -81,7 +81,7 @@ class BitsTest extends Common {
   @Test
   void testStringParsing() {
     // Valid binary strings
-    final var empty = Bits._of("");
+    final var empty = Bits._of("0b");
     assertSet.accept(empty);
     assertTrue.accept(empty._empty());
 
@@ -97,9 +97,6 @@ class BitsTest extends Common {
     final var invalid1 = Bits._of("abc");
     assertUnset.accept(invalid1);
 
-    final var invalid2 = Bits._of("0b");
-    assertUnset.accept(invalid2);
-
     final var invalid3 = Bits._of("012");
     assertUnset.accept(invalid3);
 
@@ -113,7 +110,7 @@ class BitsTest extends Common {
     assertTrue.accept(bits010011._isSet());
 
     // Test _empty operator
-    assertTrue.accept(Bits._of("")._empty());
+    assertTrue.accept(Bits._of("0b")._empty());
     assertFalse.accept(bits010011._empty());
     assertUnset.accept(unsetBits._empty());
 
@@ -170,7 +167,7 @@ class BitsTest extends Common {
     assertEquals("0100110", withFalse.toString());
 
     // Edge case: empty + boolean
-    final var emptyBits = Bits._of("");
+    final var emptyBits = Bits._of("0b");
     final var emptyPlusTrue = emptyBits._add(Boolean._of(true));
     assertEquals("1", emptyPlusTrue.toString());
   }
@@ -427,7 +424,7 @@ class BitsTest extends Common {
   @Test
   void testEdgeCases() {
     // Empty bits
-    final var empty = Bits._of("");
+    final var empty = Bits._of("0b");
     assertSet.accept(empty);
     assertTrue.accept(empty._empty());
     assertEquals(0L, empty._len().state);
@@ -474,7 +471,7 @@ class BitsTest extends Common {
     assertEquals("101", triple.toString());
 
     // Empty bits concatenation
-    final var empty = Bits._of("");
+    final var empty = Bits._of("0b");
     assertEquals("1", empty._add(bits1).toString());
     assertEquals("0", empty._add(bits0).toString());
     assertEquals("1", bits1._add(empty).toString());
@@ -494,7 +491,7 @@ class BitsTest extends Common {
     final var bits1 = Bits._of("1");
     final var bits0 = Bits._of("0");
     final var bitsPattern = Bits._of("1010");
-    final var empty = Bits._of("");
+    final var empty = Bits._of("0b");
 
     // Single bit + boolean
     assertEquals("11", bits1._add(Boolean._of(true)).toString());
@@ -536,7 +533,7 @@ class BitsTest extends Common {
     assertEquals("1101", mutable2.toString());
 
     // Test += with empty bits
-    final var mutable3 = Bits._of("");
+    final var mutable3 = Bits._of("0b");
     mutable3._addAss(Bits._of("1"));
     assertEquals("1", mutable3.toString());
 
@@ -635,7 +632,7 @@ class BitsTest extends Common {
     assertEquals("010", mixed.toString()); // 101 XOR 111 = 010
 
     // Zero-length operations
-    final var empty = Bits._of("");
+    final var empty = Bits._of("0b");
     assertEquals("", empty._sub(empty).toString());
     assertEquals("101", empty._add(Bits._of("101")).toString());
     assertEquals("101", Bits._of("101")._add(empty).toString());

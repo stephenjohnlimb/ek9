@@ -345,8 +345,9 @@ class RegExTest extends Common {
 
   @Test
   void testFactoryMethods() {
-    // Test _of factory method
-    final var regexFromFactory = RegEx._of("\\w+");
+    // Test _of factory method - note this need prefix and suffix '/'
+    //as it is the main entry in from ek9 source.
+    final var regexFromFactory = RegEx._of("/\\w+/");
     assertSet.accept(regexFromFactory);
     assertEquals("\\w+", regexFromFactory._string().state);
 

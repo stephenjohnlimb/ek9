@@ -636,11 +636,6 @@ public class Bits extends BuiltinType {
       bitStr = str.substring(2);
     }
 
-    // Handle empty string after removing prefix - this is invalid
-    if (bitStr.isEmpty()) {
-      return null;
-    }
-
     // Validate all characters are 0 or 1
     for (char c : bitStr.toCharArray()) {
       if (c != '0' && c != '1') {
@@ -703,7 +698,7 @@ public class Bits extends BuiltinType {
 
   public static Bits _of(java.lang.String bitString) {
     final var bits = new Bits();
-    if (bitString != null) {
+    if (bitString != null && !bitString.isEmpty()) {
       final var parsed = parseBitString(bitString);
       if (parsed != null) {
         bits.assign(parsed.state, parsed.length);

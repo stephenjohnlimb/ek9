@@ -267,8 +267,7 @@ public class Character extends BuiltinType {
       operator |
         -> arg as JSON""")
   public void _pipe(JSON arg) {
-
-    jsonTraversal.accept(arg, str -> _pipe(new Character(str)));
+    jsonTraversal.accept(arg, str -> _pipe(new Character(str._prefix())));
   }
 
   @Ek9Operator("""
@@ -351,7 +350,7 @@ public class Character extends BuiltinType {
 
   public static Character _of(java.lang.String value) {
     Character rtn = new Character();
-    if (value != null && !value.isEmpty()) {
+    if (value != null && value.length() == 1) {
       rtn.assign(value.charAt(0));
     }
     return rtn;

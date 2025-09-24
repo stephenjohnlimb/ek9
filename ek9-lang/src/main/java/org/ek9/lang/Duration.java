@@ -469,6 +469,11 @@ public class Duration extends BuiltinType {
     //But note you can still use '-' with parts of the duration
     // For example "-PT-6H+3M"  -- parses as "+6 hours and -3 minutes"!!
 
+    //these are not valid.
+    if (value.isEmpty() || value.equals("P") || value.equals("PT") || value.equals("-P") || value.equals("-PT")) {
+      return;
+    }
+
     final var negative = value.startsWith("-");
 
     java.lang.String[] split = value.split("T");
