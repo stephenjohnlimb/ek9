@@ -19,14 +19,12 @@ import org.ek9lang.core.SharedThreadContext;
  */
 public class Packaging extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.APPLICATION_PACKAGING;
-  private final FileHandling fileHandling;
 
   public Packaging(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
                    final FileHandling fileHandling, final Consumer<CompilationEvent> listener,
                    final CompilerReporter reporter) {
 
     super(thisPhase, compilableProgramAccess, listener, reporter);
-    this.fileHandling = fileHandling;
   }
 
   @Override

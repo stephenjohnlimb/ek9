@@ -1,8 +1,8 @@
 package org.ek9lang.compiler.ir.instructions;
 
 import java.util.List;
-import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.ir.IROpcode;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 
 /**
  * Specialized IR instruction for control flow operations (BRANCH, BRANCH_TRUE, BRANCH_FALSE, ASSERT, RETURN).

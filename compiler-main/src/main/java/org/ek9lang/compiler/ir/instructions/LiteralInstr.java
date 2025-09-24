@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.ir.instructions;
 
-import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.ir.IROpcode;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.core.AssertValue;
 
 /**

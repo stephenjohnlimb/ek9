@@ -10,12 +10,13 @@ import java.util.function.Function;
  */
 public class ExceptionIgnore<T> implements Function<Processor<T>, T> {
 
+  @SuppressWarnings("checkstyle:CatchParameterName")
   @Override
   public T apply(final Processor<T> processor) {
 
     try {
       return processor.process();
-    } catch (Exception e) {
+    } catch (Exception _) {
       //Ignore the exception.
     }
     return null;

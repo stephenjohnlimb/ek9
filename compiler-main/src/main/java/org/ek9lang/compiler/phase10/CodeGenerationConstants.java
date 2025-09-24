@@ -18,14 +18,12 @@ import org.ek9lang.core.SharedThreadContext;
  */
 public class CodeGenerationConstants extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.CODE_GENERATION_CONSTANTS;
-  private final FileHandling fileHandling;
 
   public CodeGenerationConstants(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
                                  final FileHandling fileHandling, final Consumer<CompilationEvent> listener,
                                  final CompilerReporter reporter) {
 
     super(thisPhase, compilableProgramAccess, listener, reporter);
-    this.fileHandling = fileHandling;
   }
 
   @Override

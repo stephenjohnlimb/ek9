@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
-import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 
 /**

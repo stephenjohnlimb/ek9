@@ -7,12 +7,13 @@ import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
-import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.MethodResolutionResult;
 import org.ek9lang.compiler.phase7.support.PromotionResult;
 import org.ek9lang.compiler.symbols.CallSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.core.AssertValue;
@@ -112,16 +113,12 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
 
     // Both methods and functions can have parameter promotion - they both extend ScopedSymbol
     // Create a MethodResolutionResult for the ParameterPromotionProcessor
-    if (resolvedMethod instanceof MethodSymbol methodSymbol) {
-      final var methodResolution = new MethodResolutionResult(methodSymbol, 100.0, false);
-      return parameterProcessor.apply(context, methodResolution);
-    } else if (resolvedMethod instanceof org.ek9lang.compiler.symbols.FunctionSymbol functionSymbol) {
-      // Use the updated ParameterPromotionProcessor that can handle IScopedSymbol
-      return parameterProcessor.apply(context, functionSymbol);
-    } else {
-      // Only methods and functions can have parameter promotion
-      return new PromotionResult(context.argumentVariables(), List.of());
-    }
+    return switch (resolvedMethod) {
+      case MethodSymbol methodSymbol -> parameterProcessor.apply(context, new MethodResolutionResult(
+          methodSymbol, 100.0, false));
+      case FunctionSymbol functionSymbol -> parameterProcessor.apply(context, functionSymbol);
+      default -> new PromotionResult(context.argumentVariables(), List.of());
+    };
   }
 
   /**
@@ -177,16 +174,6 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
   /**
    * Result of building CallDetails including any promotion instructions needed.
    */
-  public record CallDetailsResult(
-      CallDetails callDetails,
-      List<IRInstr> allInstructions
-  ) {
-
-    /**
-     * Check if any parameter promotions were required.
-     */
-    public boolean hasPromotions() {
-      return !allInstructions.isEmpty();
-    }
+  public record CallDetailsResult(CallDetails callDetails, List<IRInstr> allInstructions) {
   }
 }

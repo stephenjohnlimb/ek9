@@ -403,7 +403,7 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
     if (!sourceBaseDirectory.equals(".")) {
       //means it is from the root - so we can remove this part from the file filename
       final var relative = this.filename.replace(sourceBaseDirectory, "");
-      if(relative.startsWith(File.separator)) {
+      if (relative.startsWith(File.separator)) {
         return "." + relative;
       }
     }

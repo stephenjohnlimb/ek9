@@ -1,7 +1,7 @@
 package org.ek9lang.compiler.ir.instructions;
 
-import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.ir.IROpcode;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 
 /**
  * Specialized IR instruction for control flow labels (LABEL).
@@ -48,17 +48,17 @@ public final class LabelInstr extends IRInstr {
   public String toString() {
     final var labelName = getLabelName();
     StringBuilder sb = new StringBuilder();
-    
+
     sb.append("LABEL");
     if (labelName != null) {
       sb.append(" ").append(labelName);
     }
-    
+
     // Add debug information as comment if available
     if (getDebugInfo().isPresent() && getDebugInfo().get().isValidLocation()) {
       sb.append("  ").append(getDebugInfo().get());
     }
-    
+
     return sb.toString();
   }
 }

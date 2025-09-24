@@ -12,8 +12,9 @@ import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 /**
  * Deals with generating the correct IR Instructions for processing any form of literal.
  * Memory management is handled by the higher-level expression processor.
- * 
+ * <p>
  * MIGRATED: Now uses IRInstructionBuilder with original IRContext access via stack infrastructure.
+ * </p>
  */
 final class LiteralGenerator implements Function<LiteralProcessingDetails, List<IRInstr>> {
 

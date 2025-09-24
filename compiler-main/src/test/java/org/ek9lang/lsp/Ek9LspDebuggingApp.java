@@ -77,19 +77,17 @@ public class Ek9LspDebuggingApp {
     InputStream stderr = process.getErrorStream();
 
     System.out.println("Started EK9 LSP Server, listening to stderr");
-    Thread errStreamReader = new Thread(new Runnable() {
-      public void run() {
-        try {
-          String line = null;
-          BufferedReader inErr = new BufferedReader(new InputStreamReader(stderr));
-          while ((line = inErr.readLine()) != null) {
-            System.err.println("From Process: " + line);
-          }
-        } catch (Exception e) {
-          e.printStackTrace();
+    Thread errStreamReader = new Thread(() -> {
+      try {
+        String line = null;
+        BufferedReader inErr = new BufferedReader(new InputStreamReader(stderr));
+        while ((line = inErr.readLine()) != null) {
+          System.err.println("From Process: " + line);
         }
-        System.out.println("Exit reading error stream");
+      } catch (Exception e) {
+        e.printStackTrace();
       }
+      System.out.println("Exit reading error stream");
     });
     errStreamReader.start();
 
@@ -113,7 +111,7 @@ public class Ek9LspDebuggingApp {
       remoteProxy.configurationDone(new ConfigurationDoneArguments());
       Capabilities capabilities = initResult.get(10, TimeUnit.SECONDS);
       assert capabilities != null;
-    } catch (TimeoutException tex) {
+    } catch (TimeoutException _) {
       System.err.println("***TIMEOUT***: on getting remote LSP capabilities");
     }
 

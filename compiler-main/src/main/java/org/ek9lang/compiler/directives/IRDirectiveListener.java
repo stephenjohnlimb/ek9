@@ -47,7 +47,8 @@ public class IRDirectiveListener extends ResolvedDirectiveListener {
         .flatMap(List::stream)
         .filter(toCheck -> toCheck.isForSymbol(symbol))
         .findFirst()
-        .orElseThrow(() -> new CompilerException("Unable to locate IRConstruct: " + resolutionDirective.getSymbolName()));
+        .orElseThrow(
+            () -> new CompilerException("Unable to locate IRConstruct: " + resolutionDirective.getSymbolName()));
 
     final var output = new ByteArrayOutputStream();
     try (final var printWriter = new PrintWriter(output)) {

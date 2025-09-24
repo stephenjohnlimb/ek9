@@ -18,14 +18,12 @@ import org.ek9lang.core.SharedThreadContext;
  */
 public class CodeOptimisation extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.CODE_OPTIMISATION;
-  private final FileHandling fileHandling;
 
   public CodeOptimisation(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
                           final FileHandling fileHandling, final Consumer<CompilationEvent> listener,
                           final CompilerReporter reporter) {
 
     super(thisPhase, compilableProgramAccess, listener, reporter);
-    this.fileHandling = fileHandling;
   }
 
   @Override

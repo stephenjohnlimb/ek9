@@ -2,9 +2,9 @@ package org.ek9lang.compiler.ir.instructions;
 
 import java.util.List;
 import org.ek9lang.compiler.common.INodeVisitor;
+import org.ek9lang.compiler.ir.IROpcode;
 import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.support.DebugInfo;
-import org.ek9lang.compiler.ir.IROpcode;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 
 /**
@@ -54,7 +54,8 @@ public final class CallInstr extends IRInstr {
 
 
   /**
-   * Create dispatcher method call with complete type information: CALL_DISPATCHER result = object.dispatcherMethod(args...)
+   * Create dispatcher method call with complete type information:
+   * CALL_DISPATCHER result = object.dispatcherMethod(args...)
    */
   public static CallInstr callDispatcher(final String result,
                                          final DebugInfo debugInfo,

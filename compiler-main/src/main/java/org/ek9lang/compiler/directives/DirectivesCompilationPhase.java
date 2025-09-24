@@ -12,12 +12,13 @@ import org.ek9lang.compiler.CompilationPhase;
  */
 public class DirectivesCompilationPhase implements Function<EK9Parser.DirectiveContext, CompilationPhase> {
 
+  @SuppressWarnings("checkstyle:CatchParameterName")
   @Override
   public CompilationPhase apply(final EK9Parser.DirectiveContext ctx) {
 
     try {
       return CompilationPhase.valueOf(ctx.directivePart(0).getText());
-    } catch (IllegalArgumentException ex) {
+    } catch (IllegalArgumentException _) {
       throw new IllegalArgumentException("Expecting one of: " + applicableCompilationPhases());
     }
 

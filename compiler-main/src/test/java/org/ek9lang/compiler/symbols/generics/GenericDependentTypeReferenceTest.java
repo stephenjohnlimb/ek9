@@ -115,26 +115,20 @@ class GenericDependentTypeReferenceTest extends AbstractSymbolTestBase {
     Assertions.assertTrue(yetAnotherGenericOfXandY.isConceptualTypeParameter());
     Assertions.assertEquals(1, yetAnotherGenericOfXandY.getSymbolsForThisScope().size());
 
-    //Should/Could have references to:
-    //'AnotherGeneric of (Date, Y)'
-    //'AnotherGeneric of (X, Boolean)'
-    //'AnotherGeneric of (String, AnotherGeneric of (X, Y))'
-    //assertEquals(3, YetAnotherGenericOfXandY.getGenericSymbolReferences().size());
-
     //Now lets make the concrete version using: AnotherGeneric of (Float, String)
-    var anotherGenericOfFloatandString = createAnotherGenericOfFloatAndString(anotherGenericOfRandS);
-    assertNotNull(anotherGenericOfFloatandString);
-    Assertions.assertFalse(anotherGenericOfFloatandString.isGenericInNature());
+    var anotherGenericOfFloatAndString = createAnotherGenericOfFloatAndString(anotherGenericOfRandS);
+    assertNotNull(anotherGenericOfFloatAndString);
+    Assertions.assertFalse(anotherGenericOfFloatAndString.isGenericInNature());
     //We'd also expect 3 methods with the right types in there
-    Assertions.assertEquals(3, anotherGenericOfFloatandString.getSymbolsForThisScope().size());
+    Assertions.assertEquals(3, anotherGenericOfFloatAndString.getSymbolsForThisScope().size());
 
     //Finally need to make 'yetAnotherGenericOfDimensionAndTime as YetAnotherGeneric of (Dimension, Time)'
-    var yetAnotherGenericOfDimensionandTime = createYetAnotherGenericOfDimensionandTime(yetAnotherGenericOfXandY);
-    assertNotNull(yetAnotherGenericOfDimensionandTime);
-    assertNotNull(yetAnotherGenericOfDimensionandTime);
-    Assertions.assertFalse(yetAnotherGenericOfDimensionandTime.isGenericInNature());
+    var yetAnotherGenericOfDimensionAndTime = createYetAnotherGenericOfDimensionandTime(yetAnotherGenericOfXandY);
+    assertNotNull(yetAnotherGenericOfDimensionAndTime);
+    assertNotNull(yetAnotherGenericOfDimensionAndTime);
+    Assertions.assertFalse(yetAnotherGenericOfDimensionAndTime.isGenericInNature());
     //We'd also expect 1 method with the right types in there
-    Assertions.assertEquals(1, yetAnotherGenericOfDimensionandTime.getSymbolsForThisScope().size());
+    Assertions.assertEquals(1, yetAnotherGenericOfDimensionAndTime.getSymbolsForThisScope().size());
 
     //Conceptual types
     assertResolution("SomeGeneric", SymbolCategory.TEMPLATE_TYPE);

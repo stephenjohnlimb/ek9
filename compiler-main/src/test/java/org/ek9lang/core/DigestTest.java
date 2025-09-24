@@ -18,17 +18,17 @@ import org.junit.jupiter.api.parallel.ResourceLock;
 @Execution(SAME_THREAD)
 @ResourceLock(value = "file_access", mode = READ_WRITE)
 final class DigestTest {
-  private static final String testFileName = "assertTest.txt";
-  private static final String sha256FileName = "assertTest.sha256";
+  private static final String TEST_FILE_NAME = "assertTest.txt";
+  private static final String SHA_256_FILE_NAME = "assertTest.sha256";
 
   @BeforeEach
   void removeFile() {
-    File newFile = new File(System.getProperty("java.io.tmpdir"), testFileName);
+    File newFile = new File(System.getProperty("java.io.tmpdir"), TEST_FILE_NAME);
     //Remove it if already there
     if (newFile.exists()) {
       newFile.delete();
     }
-    File sha256File = new File(System.getProperty("java.io.tmpdir"), sha256FileName);
+    File sha256File = new File(System.getProperty("java.io.tmpdir"), SHA_256_FILE_NAME);
     if (sha256File.exists()) {
       sha256File.delete();
     }
@@ -83,10 +83,10 @@ final class DigestTest {
   @Test
   @SuppressWarnings({"java:S5785", "AssertBetweenInconvertibleTypes"})
   void testDigestEmptyFile() throws IOException {
-    File newFile = new File(System.getProperty("java.io.tmpdir"), testFileName);
+    File newFile = new File(System.getProperty("java.io.tmpdir"), TEST_FILE_NAME);
     newFile.createNewFile();
 
-    File sha256File = new File(System.getProperty("java.io.tmpdir"), sha256FileName);
+    File sha256File = new File(System.getProperty("java.io.tmpdir"), SHA_256_FILE_NAME);
 
     Digest.CheckSum ckSum1 = Digest.digest(newFile);
     ckSum1.saveToFile(sha256File);

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.common.INodeVisitor;
+import org.ek9lang.compiler.ir.IROpcode;
 import org.ek9lang.compiler.ir.data.EscapeMetaDataDetails;
 import org.ek9lang.compiler.ir.support.DebugInfo;
-import org.ek9lang.compiler.ir.IROpcode;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -31,7 +31,7 @@ public class IRInstr implements INode {
 
   // Optional debug information for source mapping and debugging
   private final DebugInfo debugInfo;
-  
+
   // Optional escape analysis metadata for optimization (set by IR_OPTIMISATION phase)
   private EscapeMetaDataDetails escapeMetaData;
 

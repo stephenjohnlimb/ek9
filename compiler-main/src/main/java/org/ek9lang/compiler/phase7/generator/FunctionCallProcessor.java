@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase7.generator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
@@ -33,7 +34,8 @@ import org.ek9lang.core.CompilerException;
  * across all function call contexts.
  * </p>
  */
-public final class FunctionCallProcessor implements Function<CallProcessingDetails, List<IRInstr>> {
+public final class FunctionCallProcessor
+    implements BiFunction<CallProcessingDetails, Function<ExprProcessingDetails, List<IRInstr>>, List<IRInstr>> {
 
   private final IRGenerationContext stackContext;
   private final VariableMemoryManagement variableMemoryManagement;
@@ -60,22 +62,10 @@ public final class FunctionCallProcessor implements Function<CallProcessingDetai
    * Apply function call processing with an expression processor function.
    * This avoids circular dependencies by accepting the expression processor as a parameter.
    */
+  @Override
   public List<IRInstr> apply(final CallProcessingDetails details,
                              final Function<ExprProcessingDetails, List<IRInstr>> exprProcessor) {
-    return processWithExpressionProcessor(details, exprProcessor);
-  }
 
-  @Override
-  public List<IRInstr> apply(final CallProcessingDetails details) {
-    throw new CompilerException(
-        "FunctionCallProcessor requires expression processor - use apply(details, exprProcessor) instead");
-  }
-
-  /**
-   * Process function call with expression processor to avoid circular dependencies.
-   */
-  private List<IRInstr> processWithExpressionProcessor(final CallProcessingDetails details,
-                                                       final Function<ExprProcessingDetails, List<IRInstr>> exprProcessor) {
     AssertValue.checkNotNull("CallProcessingDetails cannot be null", details);
     AssertValue.checkNotNull("Expression processor cannot be null", exprProcessor);
 
@@ -232,15 +222,12 @@ public final class FunctionCallProcessor implements Function<CallProcessingDetai
                                               final CallProcessingDetails details) {
 
     if (details.isStatementContext()) {
-      // Statement context: Apply full memory management
-      final var memoryManagedInstructions = new ArrayList<IRInstr>();
+
       final var variableDetails = details.variableDetails();
 
       // Use VariableMemoryManagement for proper RETAIN/SCOPE_REGISTER patterns
-      final var managedInstructions = variableMemoryManagement.apply(() -> instructions, variableDetails);
-      memoryManagedInstructions.addAll(managedInstructions);
 
-      return memoryManagedInstructions;
+      return variableMemoryManagement.apply(() -> instructions, variableDetails);
     } else {
       // Expression context: Minimal memory management - instructions as-is
       return instructions;
