@@ -604,6 +604,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     MUTABLE_NOT_ALLOWED("mutable items not allowed"),
     INCOMPATIBLE_PARAMETER_GENUS("incompatible genus in parameter(s)"),
     INCOMPATIBLE_GENUS("incompatible genus"),
+    INCOMPATIBLE_GENUS_CONSTRUCTOR("incompatible genus with local constructor use"),
     INCOMPATIBLE_CATEGORY("incompatible category"),
     TRAIT_BY_DELEGATE_FOR_CLASS_ONLY("delegation by a trait is only applicable for classes"),
     ONLY_CONSTRUCTORS_ALLOWED("only constructor methods can be defined in this scope"),

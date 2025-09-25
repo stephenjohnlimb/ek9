@@ -10,6 +10,7 @@ import org.ek9lang.compiler.search.MethodSearchInScope;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.search.PossibleMatchingMethods;
 import org.ek9lang.compiler.support.MostSpecificScope;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.PossibleGenericSymbol;
@@ -24,6 +25,7 @@ final class ResolveMethodOrError extends TypedSymbolAccess
   private final PossibleMatchingMethods possibleMatchingMethods = new PossibleMatchingMethods();
   private final MostSpecificScope mostSpecificScope;
   private final AccessToSymbolOrError accessToSymbolOrError;
+  private final ConstructorCallOrError constructorCallOrError;
 
   /**
    * Create function with provided errorListener etc.
@@ -34,7 +36,7 @@ final class ResolveMethodOrError extends TypedSymbolAccess
     super(symbolsAndScopes, errorListener);
     this.mostSpecificScope = new MostSpecificScope(symbolsAndScopes);
     this.accessToSymbolOrError = new AccessToSymbolOrError(symbolsAndScopes, errorListener);
-
+    this.constructorCallOrError = new ConstructorCallOrError(symbolsAndScopes, errorListener);
   }
 
   @Override
@@ -58,7 +60,10 @@ final class ResolveMethodOrError extends TypedSymbolAccess
       accessToSymbolOrError.accept(
           new SymbolAccessData(errorLocation, accessFromScope, searchOnAggregate.scopeToSearch(),
               searchOnAggregate.search().getName(), resolved));
-
+      //Now need to check if this method is a constructor on a specific sort of aggregate.
+      if (searchOnAggregate.scopeToSearch() instanceof IAggregateSymbol asAggregate) {
+        constructorCallOrError.accept(new AggregateMethodData(errorLocation, asAggregate, resolved));
+      }
       return resolved;
 
     }

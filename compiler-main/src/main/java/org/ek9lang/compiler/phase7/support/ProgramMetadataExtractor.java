@@ -47,13 +47,17 @@ public final class ProgramMetadataExtractor implements Function<AggregateSymbol,
    */
   private List<ParameterDetails> extractParameterSignature(final AggregateSymbol programSymbol) {
     // REUSE existing pattern: getAllMethods().stream().findFirst()
-    AssertValue.checkTrue("Expecting only one method on program",
-        programSymbol.getAllMethods().size() == 1);
+    AssertValue.checkTrue("Expecting two methods on program",
+        programSymbol.getAllMethods().size() == 2);
 
-    final var method = programSymbol.getAllMethods().stream().findFirst().orElseThrow();
+    final var mainMethod = programSymbol
+        .getAllMethods()
+        .stream()
+        .filter(method -> !method.isConstructor())
+        .findFirst().orElseThrow();
 
     // REUSE existing pattern: getCallParameters().stream().map(typeNameOrException)
-    final var parameters = method.getCallParameters();
+    final var parameters = mainMethod.getCallParameters();
 
     return IntStream.range(0, parameters.size())
         .mapToObj(i -> {
@@ -65,6 +69,5 @@ public final class ProgramMetadataExtractor implements Function<AggregateSymbol,
         })
         .toList();
   }
-
 
 }

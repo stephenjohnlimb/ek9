@@ -70,11 +70,12 @@ defines module bad.applicationcalls.examples1
 
     AnotherProgram
 
-      //EK9 developers do not create 'applications' like this, it is done as above.
-      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      //EK9 developers do not normally create 'applications' like this, it is done as above.
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS_CONSTRUCTOR
       app <- ServiceApplication()
 
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       assert app?
 
     YetAnotherProgram
@@ -82,11 +83,13 @@ defines module bad.applicationcalls.examples1
       //EK9 developers, the program is the entry point for the OS to start the application.
       //There should be virtually no code in the 'program' if you want to 'test' it.
       //Push all the code into Services and components and test those.
-      //The write Test programs in the 'dev' part of the project and EK9 will run all those
+      //Then write Test programs in the 'dev' part of the project and EK9 will run all those
       //A little like junit does.
-      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+
+      //Programs now have constructors and can be created, but they are PROGRAM genus
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS_CONSTRUCTOR
       otherProg <- AnotherProgram()
 
-      @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
       assert otherProg?
 //EOF

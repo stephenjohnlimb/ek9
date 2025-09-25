@@ -367,6 +367,12 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   @Override
   public void exitApplicationDeclaration(final EK9Parser.ApplicationDeclarationContext ctx) {
 
+    final var application = symbolsAndScopes.getRecordedSymbol(ctx);
+    //Just in case there is an error in ek9 code - the application might not exist in this phase.
+    if (application instanceof IAggregateSymbol asAggregate) {
+      syntheticConstructorCreator.accept(asAggregate);
+    }
+
     symbolsAndScopes.exitScope();
     super.exitApplicationDeclaration(ctx);
 
@@ -452,6 +458,13 @@ final class ResolveDefineExplicitTypeListener extends EK9BaseListener {
   @Override
   public void exitMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
 
+    if (ctx.getParent() instanceof EK9Parser.ProgramBlockContext) {
+      final var program = symbolsAndScopes.getRecordedSymbol(ctx);
+      //Just in case there is an error in ek9 code - the program might not exist in this phase.
+      if (program instanceof IAggregateSymbol asAggregate) {
+        syntheticConstructorCreator.accept(asAggregate);
+      }
+    }
     if (ctx.identifierReference() != null) {
       applicationForProgramOrError.apply(ctx.identifierReference());
     }
