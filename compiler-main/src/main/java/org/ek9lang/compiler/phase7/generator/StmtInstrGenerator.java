@@ -45,7 +45,8 @@ final class StmtInstrGenerator extends AbstractGenerator
 
   StmtInstrGenerator(final IRGenerationContext stackContext) {
     super(stackContext);
-    this.objectAccessGenerator = new ObjectAccessInstrGenerator(stackContext);
+    final ExprInstrGenerator exprInstrGenerator = new ExprInstrGenerator(stackContext);
+    this.objectAccessGenerator = new ObjectAccessInstrGenerator(stackContext, exprInstrGenerator);
     this.assertStmtGenerator = new AssertStmtGenerator(stackContext);
     this.assignmentStmtGenerator = new AssignmentStmtGenerator(stackContext);
     this.callInstrGenerator = new CallInstrGenerator(stackContext);

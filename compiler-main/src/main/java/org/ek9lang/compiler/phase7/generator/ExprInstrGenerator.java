@@ -88,7 +88,7 @@ final class ExprInstrGenerator extends AbstractGenerator
 
     final RecordExprProcessing recordExprProcessing = new RecordExprProcessing(this::process, stackContext);
 
-    this.objectAccessCreator = new ObjectAccessInstrGenerator(stackContext);
+    this.objectAccessCreator = new ObjectAccessInstrGenerator(stackContext, this::process);
     this.shortCircuitAndGenerator = new ShortCircuitAndGenerator(stackContext, recordExprProcessing);
     this.shortCircuitOrGenerator = new ShortCircuitOrGenerator(stackContext, recordExprProcessing);
     this.questionBlockGenerator = new QuestionBlockGenerator(stackContext, this::process);

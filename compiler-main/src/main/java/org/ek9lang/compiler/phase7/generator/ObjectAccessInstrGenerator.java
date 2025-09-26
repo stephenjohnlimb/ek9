@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase7.generator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
@@ -12,12 +13,15 @@ import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
+import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.Symbol;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -28,9 +32,14 @@ import org.ek9lang.core.AssertValue;
 final class ObjectAccessInstrGenerator extends AbstractGenerator {
 
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
+  private final VariableMemoryManagement variableMemoryManagement;
+  private final Function<ExprProcessingDetails, List<IRInstr>> exprProcessor;
 
-  ObjectAccessInstrGenerator(final IRGenerationContext stackContext) {
+  ObjectAccessInstrGenerator(final IRGenerationContext stackContext,
+                             final Function<ExprProcessingDetails, List<IRInstr>> exprProcessor) {
     super(stackContext);
+    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
+    this.exprProcessor = exprProcessor;
   }
 
   /**
@@ -113,8 +122,9 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
           if (toBeCalled != null) {
             final var methodName = toBeCalled.getName();
 
+            final var objectDebugInfo = debugInfoCreator.apply(new Ek9Token(ctx.objectAccessStart().start));
             // Extract debug info if debugging instrumentation is enabled
-            final var debugInfo = debugInfoCreator.apply(methodSymbol.getSourceToken());
+            final var methodDebugInfo = debugInfoCreator.apply(methodSymbol.getSourceToken());
 
             // Extract type information from resolved MethodSymbol
             final var parentScope = toBeCalled.getParentScope();
@@ -127,17 +137,19 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
 
             // Load the target object
             final var tempObj = stackContext.generateTempName();
-            instructions.add(MemoryInstr.load(tempObj, targetVar, debugInfo));
+            instructions.add(MemoryInstr.load(tempObj, targetVar, objectDebugInfo));
+            final var argDetails = new VariableDetails(tempObj, objectDebugInfo);
+            variableMemoryManagement.apply(() -> instructions, argDetails);
 
             // Extract arguments from the method call
-            final var arguments = extractMethodArguments(accessType.operationCall());
+            final var arguments = extractMethodArguments(accessType.operationCall(), instructions);
 
             // Generate the method call with complete type information
             final var callDetails = new CallDetails(tempObj, targetTypeName, methodName,
                 parameterTypes, returnTypeName, Arrays.asList(arguments),
                 CallMetaDataDetails.defaultMetaData());
 
-            instructions.add(CallInstr.call(variableDetails.resultVariable(), debugInfo, callDetails));
+            instructions.add(CallInstr.call(variableDetails.resultVariable(), methodDebugInfo, callDetails));
           }
         }
       }
@@ -147,15 +159,33 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
   }
 
   /**
-   * Extract method arguments from operation call context.
+   * Extract method arguments from operation call context using proper expression processing.
+   * This generates LOAD_LITERAL instructions for literals and proper memory management.
    */
-  private String[] extractMethodArguments(final EK9Parser.OperationCallContext ctx) {
+  private String[] extractMethodArguments(final EK9Parser.OperationCallContext ctx,
+                                          final List<IRInstr> instructions) {
     final var args = new ArrayList<String>();
 
     if (ctx.paramExpression() != null && !ctx.paramExpression().expressionParam().isEmpty()) {
-      // Extract arguments from the parameter expression
-      ctx.paramExpression().expressionParam().forEach(paramCtx ->
-          args.add(paramCtx.expression().getText()));
+      // Process each argument expression using ExprInstrGenerator (like CallInstrGenerator.processParameters)
+      for (var exprParam : ctx.paramExpression().expressionParam()) {
+        final var exprCtx = exprParam.expression();
+        final var argTemp = stackContext.generateTempName();
+        final var argDebugInfo = debugInfoCreator.apply(new Ek9Token(exprCtx.start));
+        final var argDetails = new VariableDetails(argTemp, argDebugInfo);
+
+        // Generate instructions to evaluate the argument expression
+        final var exprDetails = new ExprProcessingDetails(exprCtx, argDetails);
+        final var argEvaluation = exprProcessor != null ? exprProcessor.apply(exprDetails) : new ArrayList<IRInstr>();
+
+        // Add variable memory management (RETAIN, SCOPE_REGISTER)
+        final var argInstructions = variableMemoryManagement.apply(
+            () -> argEvaluation, argDetails);
+        instructions.addAll(argInstructions);
+
+        // Collect the temp variable name (not the literal value)
+        args.add(argTemp);
+      }
     }
 
     return args.toArray(new String[0]);
