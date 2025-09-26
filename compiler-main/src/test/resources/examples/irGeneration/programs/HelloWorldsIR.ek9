@@ -50,7 +50,7 @@ defines module introduction2
     _temp4 = LOAD worldMessage  // ./HelloWorldsIR.ek9:58:22
     RETAIN _temp4  // ./HelloWorldsIR.ek9:58:22
     SCOPE_REGISTER _temp4, _scope_1  // ./HelloWorldsIR.ek9:58:22
-    _temp2 = CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=false, complexity=0]  // ./HelloWorldsIR.ek9:58:14
+    CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=false, complexity=0]  // ./HelloWorldsIR.ek9:58:14
     SCOPE_EXIT _scope_1  // ./HelloWorldsIR.ek9:57:7
     RETURN  // ./HelloWorldsIR.ek9:56:5`
     HelloEarth()
@@ -99,7 +99,7 @@ defines module introduction2
     _temp4 = LOAD_LITERAL "Hello, Mars", org.ek9.lang::String  // ./HelloWorldsIR.ek9:107:22
     RETAIN _temp4  // ./HelloWorldsIR.ek9:107:22
     SCOPE_REGISTER _temp4, _scope_1  // ./HelloWorldsIR.ek9:107:22
-    _temp2 = CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=false, complexity=0]  // ./HelloWorldsIR.ek9:107:14
+    CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=false, complexity=0]  // ./HelloWorldsIR.ek9:107:14
     SCOPE_EXIT _scope_1  // ./HelloWorldsIR.ek9:106:7
     RETURN  // ./HelloWorldsIR.ek9:105:5`
     HelloMars()

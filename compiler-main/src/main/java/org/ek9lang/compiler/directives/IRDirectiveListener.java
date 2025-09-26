@@ -78,8 +78,8 @@ public class IRDirectiveListener extends ResolvedDirectiveListener {
       final var generated = generatedLines[i].trim();
       if (!expected.equals(generated)) {
         System.err.printf("Line %d differs%n", i);
-        System.err.println(expected);
-        System.err.println(generated);
+        System.err.println("[" + expected + "]");
+        System.err.println("[" + generated + "]");
         return false;
       }
     }

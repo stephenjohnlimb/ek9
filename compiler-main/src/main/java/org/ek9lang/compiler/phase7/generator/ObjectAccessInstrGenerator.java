@@ -149,7 +149,14 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
                 parameterTypes, returnTypeName, Arrays.asList(arguments),
                 CallMetaDataDetails.defaultMetaData());
 
-            instructions.add(CallInstr.call(variableDetails.resultVariable(), methodDebugInfo, callDetails));
+            // Only assign result variable for non-void returning methods
+            if ("org.ek9.lang::Void".equals(returnTypeName)) {
+              // Void-returning method - don't assign to any variable
+              instructions.add(CallInstr.call(null, methodDebugInfo, callDetails));
+            } else {
+              // Non-void returning method - assign to result variable
+              instructions.add(CallInstr.call(variableDetails.resultVariable(), methodDebugInfo, callDetails));
+            }
           }
         }
       }

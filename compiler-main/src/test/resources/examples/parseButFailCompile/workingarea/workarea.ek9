@@ -39,7 +39,7 @@ defines module introduction
     _temp4 = LOAD_LITERAL "Hello, World", org.ek9.lang::String  // ./workarea.ek9:47:22
     RETAIN _temp4  // ./workarea.ek9:47:22
     SCOPE_REGISTER _temp4, _scope_1  // ./workarea.ek9:47:22
-    _temp2 = CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=false, complexity=0]  // ./workarea.ek9:47:14
+    CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=false, complexity=0]  // ./workarea.ek9:47:14
     SCOPE_EXIT _scope_1  // ./workarea.ek9:46:7
     RETURN  // ./workarea.ek9:45:5`
     HelloWorld()
