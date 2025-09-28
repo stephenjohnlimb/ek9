@@ -473,7 +473,7 @@ class LocaleTest extends Common {
     // Test date formatting - UK formats
     final var ukDateFull = enGB.format(testDate);
     assertSet.accept(ukDateFull);
-    assertEquals("Saturday 3 October 2020", ukDateFull._string().state);
+    assertEquals("Saturday, 3 October 2020", ukDateFull._string().state);
 
     final var ukDateShort = enGB.shortFormat(testDate);
     assertSet.accept(ukDateShort);
@@ -491,9 +491,9 @@ class LocaleTest extends Common {
 
     final var ukDateFull2 = enGB.fullFormat(testDate);
     assertSet.accept(ukDateFull2);
-    assertEquals("Saturday 3 October 2020", ukDateFull2._string().state);
+    assertEquals("Saturday, 3 October 2020", ukDateFull2._string().state);
 
-    assertEquals("Saturday 3 October 2020, 12:00:00 Z", enGB.fullFormat(testDateTime)._string().state);
+    assertEquals("Saturday, 3 October 2020, 12:00:00 Z", enGB.fullFormat(testDateTime)._string().state);
     assertEquals("12:00:01", enGB.fullFormat(testTime)._string().state);
 
     // Test date formatting - German formats
@@ -530,7 +530,7 @@ class LocaleTest extends Common {
     // Test datetime formatting - UK formats
     final var ukDateTimeFull = enGB.format(testDateTime);
     assertSet.accept(ukDateTimeFull);
-    assertEquals("Saturday 3 October 2020, 12:00:00 Z", ukDateTimeFull._string().state);
+    assertEquals("Saturday, 3 October 2020, 12:00:00 Z", ukDateTimeFull._string().state);
 
     final var ukDateTimeShort = enGB.shortFormat(testDateTime);
     assertSet.accept(ukDateTimeShort);
