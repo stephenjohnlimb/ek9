@@ -21,7 +21,7 @@ defines module shiftLeft.test
     RETURN
     OperationDfn: shiftLeft.test::testShiftLeft.testShiftLeft()->shiftLeft.test::testShiftLeft  // ./shift_left_operator.ek9:94:5
     BasicBlock: _entry_1
-    _temp_i_init = CALL (shiftLeft.test::testShiftLeft)this.i_init() [pure=false, complexity=0]  // ./shift_left_operator.ek9:94:5
+    CALL (shiftLeft.test::testShiftLeft)this.i_init() [pure=false, complexity=0]  // ./shift_left_operator.ek9:94:5
     RETURN this  // ./shift_left_operator.ek9:94:5
     OperationDfn: shiftLeft.test::testShiftLeft._call()->org.ek9.lang::Void  // ./shift_left_operator.ek9:94:5
     BasicBlock: _entry_1

@@ -21,7 +21,7 @@ defines module merge.test
     RETURN
     OperationDfn: merge.test::testMerge.testMerge()->merge.test::testMerge  // ./merge_operator.ek9:88:5
     BasicBlock: _entry_1
-    _temp_i_init = CALL (merge.test::testMerge)this.i_init() [pure=false, complexity=0]  // ./merge_operator.ek9:88:5
+    CALL (merge.test::testMerge)this.i_init() [pure=false, complexity=0]  // ./merge_operator.ek9:88:5
     RETURN this  // ./merge_operator.ek9:88:5
     OperationDfn: merge.test::testMerge._call()->org.ek9.lang::Void  // ./merge_operator.ek9:88:5
     BasicBlock: _entry_1

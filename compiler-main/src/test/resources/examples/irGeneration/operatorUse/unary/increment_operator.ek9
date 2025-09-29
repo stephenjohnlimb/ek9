@@ -21,7 +21,7 @@ defines module increment.test
     RETURN
     OperationDfn: increment.test::testIncrement.testIncrement()->increment.test::testIncrement  // ./increment_operator.ek9:120:5
     BasicBlock: _entry_1
-    _temp_i_init = CALL (increment.test::testIncrement)this.i_init() [pure=false, complexity=0]  // ./increment_operator.ek9:120:5
+    CALL (increment.test::testIncrement)this.i_init() [pure=false, complexity=0]  // ./increment_operator.ek9:120:5
     RETURN this  // ./increment_operator.ek9:120:5
     OperationDfn: increment.test::testIncrement._call()->org.ek9.lang::Void  // ./increment_operator.ek9:120:5
     BasicBlock: _entry_1

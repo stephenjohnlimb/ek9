@@ -265,7 +265,8 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
         java.util.List.of(), // No arguments
         iInitMetaData
     );
-    instructions.add(CallInstr.call(IRConstants.TEMP_I_INIT, debugInfo, iInitCallDetails));
+    // i_init returns void, so don't assign to a temp variable
+    instructions.add(CallInstr.call(null, debugInfo, iInitCallDetails));
 
     return instructions;
   }

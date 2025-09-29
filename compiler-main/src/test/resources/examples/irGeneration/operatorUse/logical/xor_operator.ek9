@@ -22,7 +22,7 @@ defines module anxor.test
     RETURN
     OperationDfn: anxor.test::testXor.testXor()->anxor.test::testXor  // ./xor_operator.ek9:95:5
     BasicBlock: _entry_1
-    _temp_i_init = CALL (anxor.test::testXor)this.i_init() [pure=false, complexity=0]  // ./xor_operator.ek9:95:5
+    CALL (anxor.test::testXor)this.i_init() [pure=false, complexity=0]  // ./xor_operator.ek9:95:5
     RETURN this  // ./xor_operator.ek9:95:5
     OperationDfn: anxor.test::testXor._call()->org.ek9.lang::Void  // ./xor_operator.ek9:95:5
     BasicBlock: _entry_1

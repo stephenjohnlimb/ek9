@@ -229,9 +229,10 @@ abstract class AbstractDfnGenerator {
       instructionBuilder.callSuperMethod(superType, superType.getName());
     }
 
-    // 2. Call own class's i_init method
+    // 2. Call own class's i_init method (i_init returns void, so don't assign to temp variable)
     instructionBuilder.callThisMethod(scopedSymbol.getFullyQualifiedName(), IRConstants.I_INIT_METHOD,
-        IRConstants.TEMP_I_INIT, debugInfo);
+        null, debugInfo);
+
 
     // 3. Return this
     instructionBuilder.returnValue(IRConstants.THIS, debugInfo);

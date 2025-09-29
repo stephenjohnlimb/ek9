@@ -18,7 +18,7 @@ defines module constructorcalls.test
     RETURN
     OperationDfn: constructorcalls.test::checkStringConstruction.checkStringConstruction()->constructorcalls.test::checkStringConstruction  // ./constructorCall.ek9:71:5
     BasicBlock: _entry_1
-    _temp_i_init = CALL (constructorcalls.test::checkStringConstruction)this.i_init() [pure=false, complexity=0]  // ./constructorCall.ek9:71:5
+    CALL (constructorcalls.test::checkStringConstruction)this.i_init() [pure=false, complexity=0]  // ./constructorCall.ek9:71:5
     RETURN this  // ./constructorCall.ek9:71:5
     OperationDfn: constructorcalls.test::checkStringConstruction._call()->org.ek9.lang::Void  // ./constructorCall.ek9:71:5
     BasicBlock: _entry_1
