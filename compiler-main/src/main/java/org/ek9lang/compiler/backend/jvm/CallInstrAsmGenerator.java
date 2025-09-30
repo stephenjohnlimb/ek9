@@ -36,13 +36,14 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
     final var targetTypeName = callInstr.getTargetTypeName();
     final var parameterTypes = callInstr.getParameterTypes();
     final var returnTypeName = callInstr.getReturnTypeName();
+    final var isTraitCall = callInstr.isTraitCall();
 
     // Generate different bytecode based on call type
     switch (callInstr.getOpcode()) {
       case CALL -> generateInstanceCall(targetObject, methodName, arguments, targetTypeName,
-          parameterTypes, returnTypeName);
+          parameterTypes, returnTypeName, isTraitCall);
       case CALL_VIRTUAL -> generateVirtualCall(targetObject, methodName, arguments, targetTypeName,
-          parameterTypes, returnTypeName);
+          parameterTypes, returnTypeName, isTraitCall);
       case CALL_STATIC -> generateStaticCall(methodName, arguments, targetTypeName,
           parameterTypes, returnTypeName);
       case CALL_DISPATCHER -> generateDispatcherCall(targetObject, methodName, arguments, targetTypeName,
@@ -66,7 +67,8 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
                                     final java.util.List<String> arguments,
                                     final String targetTypeName,
                                     final java.util.List<String> parameterTypes,
-                                    final String returnTypeName) {
+                                    final String returnTypeName,
+                                    final boolean isTraitCall) {
 
     final var jvmMethodName = convertEk9MethodToJvm(methodName);
     final var jvmOwnerName = convertToJvmName(targetTypeName);
@@ -110,13 +112,14 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
 
       final var methodDescriptor = generateMethodDescriptor(parameterTypes, returnTypeName);
 
-      // Generate INVOKEVIRTUAL instruction
+      // Generate INVOKEVIRTUAL or INVOKEINTERFACE instruction based on trait flag
+      final var opcode = isTraitCall ? Opcodes.INVOKEINTERFACE : Opcodes.INVOKEVIRTUAL;
       getCurrentMethodVisitor().visitMethodInsn(
-          Opcodes.INVOKEVIRTUAL,
+          opcode,
           jvmOwnerName,
           jvmMethodName,
           methodDescriptor,
-          false
+          isTraitCall  // true for traits (interfaces), false for classes
       );
     }
   }
@@ -129,10 +132,11 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
                                    final java.util.List<String> arguments,
                                    final String targetTypeName,
                                    final java.util.List<String> parameterTypes,
-                                   final String returnTypeName) {
+                                   final String returnTypeName,
+                                   final boolean isTraitCall) {
     // For now, same as instance call - could be enhanced for interface calls
     generateInstanceCall(targetObject, methodName, arguments, targetTypeName,
-        parameterTypes, returnTypeName);
+        parameterTypes, returnTypeName, isTraitCall);
   }
 
   /**
@@ -173,8 +177,9 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
                                       final java.util.List<String> parameterTypes,
                                       final String returnTypeName) {
     // Dispatcher calls are similar to instance calls but may have special handling
+    // Dispatcher targets are never traits (they're dispatchers), so always false
     generateInstanceCall(targetObject, methodName, arguments, targetTypeName,
-        parameterTypes, returnTypeName);
+        parameterTypes, returnTypeName, false);
   }
 
   /**

@@ -12,10 +12,14 @@ import org.ek9lang.compiler.CompilerPhase;
 import org.ek9lang.compiler.IRModule;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
+import org.ek9lang.compiler.backend.MainEntryTargetTuple;
+import org.ek9lang.compiler.backend.MainEntryVisitorLocator;
 import org.ek9lang.compiler.backend.OutputFileLocator;
 import org.ek9lang.compiler.backend.OutputVisitorLocator;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
+import org.ek9lang.compiler.ir.instructions.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.ProgramEntryPointInstr;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.SharedThreadContext;
 
@@ -29,6 +33,7 @@ public class CodeGenerationAggregates extends CompilerPhase {
   private OutputFileLocator outputFileLocator;
   private CompilerFlags compilerFlags;
   private final FileHandling fileHandling;
+  private final MainEntryVisitorLocator mainEntryVisitorLocator = new MainEntryVisitorLocator();
 
   public CodeGenerationAggregates(final SharedThreadContext<CompilableProgram> compilableProgramAccess,
                                   final FileHandling fileHandling, final Consumer<CompilationEvent> listener,
@@ -60,12 +65,16 @@ public class CodeGenerationAggregates extends CompilerPhase {
   }
 
   private void generateOutputMultiThreaded(final Workspace workspace) {
-    compilableProgramAccess.accept(program ->
-        workspace
-            .getSources()
-            .parallelStream()
-            .forEach(compilableSource -> generateForSource(workspace, compilableSource, program)));
+    compilableProgramAccess.accept(program -> {
+      // First generate all construct outputs
+      workspace
+          .getSources()
+          .parallelStream()
+          .forEach(compilableSource -> generateForSource(workspace, compilableSource, program));
 
+      // Then generate Main.class if there are any programs defined.
+      generateMainClassIfNeeded(workspace, program);
+    });
   }
 
   private void generateForSource(final Workspace workspace,
@@ -98,6 +107,46 @@ public class CodeGenerationAggregates extends CompilerPhase {
     final var outputVisitor =
         new OutputVisitorLocator().apply(constructTargetTuple);
     outputVisitor.visit();
-
   }
+
+  /**
+   * Generate main entry point once if programs are present.
+   * Uses target-agnostic locator pattern to support both JVM and LLVM backends.
+   */
+  private void generateMainClassIfNeeded(final Workspace workspace, final CompilableProgram program) {
+
+    // Find first construct with ProgramEntryPointInstr
+    final var programEntryPoint = workspace.getSources().stream()
+        .filter(CompilableSource::isNotExtern)
+        .map(program::getIRModuleForCompilableSource)
+        .map(IRModule::getConstructs)
+        .flatMap(List::stream)
+        .map(IRConstruct::getProgramEntryPoint)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .findFirst();
+
+    // Generate main entry point if program entry point found
+    programEntryPoint.ifPresent(entryPoint -> generateMainEntry(workspace, entryPoint));
+  }
+
+  /**
+   * Generate main entry point using target-agnostic locator pattern.
+   * Delegates to appropriate backend visitor (JVM or LLVM).
+   */
+  private void generateMainEntry(final Workspace workspace, final ProgramEntryPointInstr entryPoint) {
+    // Get output directory structure - let visitors determine their own file names
+    final var projectDirectory = workspace.getSourceFileBaseDirectory();
+    final var projectDotEK9Directory = fileHandling.getDotEk9Directory(projectDirectory);
+    final var outputDirectory = fileHandling.getMainGeneratedOutputDirectory(projectDotEK9Directory,
+        compilerFlags.getTargetArchitecture());
+
+    // Create tuple with context needed by visitors to determine their own target files
+    final var mainEntryTargetTuple = new MainEntryTargetTuple(entryPoint, compilerFlags, fileHandling, outputDirectory);
+    final var mainEntryVisitor = mainEntryVisitorLocator.apply(mainEntryTargetTuple);
+
+    // Generate main entry point using target-specific visitor
+    mainEntryVisitor.visit();
+  }
+
 }

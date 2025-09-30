@@ -34,7 +34,7 @@ public final class ShortCircuitOrGenerator extends AbstractShortCircuitGenerator
     final var booleanType = EK9TypeNames.EK9_BOOLEAN;
     return new CallDetails(lhsVariable, booleanType,
         "_or", List.of(booleanType),
-        booleanType, List.of(rhsVariable), new CallMetaDataDetails(true, 0));
+        booleanType, List.of(rhsVariable), new CallMetaDataDetails(true, 0), false);
   }
 
 }

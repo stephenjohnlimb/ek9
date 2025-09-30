@@ -12,6 +12,7 @@ import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
+import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
@@ -34,12 +35,14 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final VariableMemoryManagement variableMemoryManagement;
   private final Function<ExprProcessingDetails, List<IRInstr>> exprProcessor;
+  private final CallDetailsBuilder callDetailsBuilder;
 
   ObjectAccessInstrGenerator(final IRGenerationContext stackContext,
                              final Function<ExprProcessingDetails, List<IRInstr>> exprProcessor) {
     super(stackContext);
     this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
     this.exprProcessor = exprProcessor;
+    this.callDetailsBuilder = new CallDetailsBuilder(stackContext);
   }
 
   /**
@@ -81,7 +84,7 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
 
           // Generate constructor call using actual resolved type name with complete type information
           final var callDetails = new CallDetails(typeName, typeName, IRConstants.INIT_METHOD,
-              parameterTypes, typeName, List.of(), constructorMetaData);
+              parameterTypes, typeName, List.of(), constructorMetaData, false);
 
           instructions.add(CallInstr.constructor(variableDetails.resultVariable(), debugInfo, callDetails));
 
@@ -126,15 +129,6 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
             // Extract debug info if debugging instrumentation is enabled
             final var methodDebugInfo = debugInfoCreator.apply(methodSymbol.getSourceToken());
 
-            // Extract type information from resolved MethodSymbol
-            final var parentScope = toBeCalled.getParentScope();
-            final var targetTypeName = (parentScope instanceof ISymbol symbol)
-                ? symbol.getFullyQualifiedName() : parentScope.toString();
-            final var returnTypeName = typeNameOrException.apply(toBeCalled);
-            final var parameterTypes = toBeCalled.getCallParameters().stream()
-                .map(typeNameOrException)
-                .toList();
-
             // Load the target object
             final var tempObj = stackContext.generateTempName();
             instructions.add(MemoryInstr.load(tempObj, targetVar, objectDebugInfo));
@@ -144,10 +138,34 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
             // Extract arguments from the method call
             final var arguments = extractMethodArguments(accessType.operationCall(), instructions);
 
-            // Generate the method call with complete type information
+            // Get target type from method's parent scope (this is the type the method was resolved on)
+            final var parentScope = toBeCalled.getParentScope();
+            final var targetType = (parentScope instanceof ISymbol symbol) ? symbol : null;
+
+            if (targetType == null) {
+              throw new org.ek9lang.core.CompilerException(
+                  "Method parent scope must be a symbol, but got: " + parentScope.getClass().getSimpleName());
+            }
+
+            // Extract type information for CallDetails
+            final var targetTypeName = targetType.getFullyQualifiedName();
+            final var returnTypeName = typeNameOrException.apply(toBeCalled);
+            final var parameterTypes = toBeCalled.getCallParameters().stream()
+                .map(typeNameOrException)
+                .toList();
+
+            // Check if this is a trait call (requires invokeinterface in JVM bytecode)
+            final var isTraitCall = targetType.getGenus() == org.ek9lang.compiler.symbols.SymbolGenus.CLASS_TRAIT;
+
+            // Extract metadata from the resolved method
+            final var metaDataExtractor = new org.ek9lang.compiler.ir.support.CallMetaDataExtractor(
+                stackContext.getParsedModule().getEk9Types());
+            final var metaData = metaDataExtractor.apply(toBeCalled);
+
+            // Generate the method call with complete type information including trait flag
             final var callDetails = new CallDetails(tempObj, targetTypeName, methodName,
-                parameterTypes, returnTypeName, Arrays.asList(arguments),
-                CallMetaDataDetails.defaultMetaData());
+                parameterTypes, returnTypeName, java.util.Arrays.asList(arguments),
+                metaData, isTraitCall);
 
             // Only assign result variable for non-void returning methods
             if ("org.ek9.lang::Void".equals(returnTypeName)) {

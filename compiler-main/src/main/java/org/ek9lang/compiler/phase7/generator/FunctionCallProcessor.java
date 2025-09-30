@@ -135,7 +135,8 @@ public final class FunctionCallProcessor
         callDetails.parameterTypes(),   // Parameter types from resolution
         callDetails.returnTypeName(),   // Return type from resolution
         callDetails.arguments(), // Arguments (possibly promoted)
-        callDetails.metaData()          // Metadata from resolution
+        callDetails.metaData(),          // Metadata from resolution
+        false
     );
 
     instructions.add(CallInstr.call(details.resultVariable(), debugInfo, functionCallDetails));

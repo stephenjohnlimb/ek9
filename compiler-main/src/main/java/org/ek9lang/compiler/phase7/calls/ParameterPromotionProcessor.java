@@ -130,7 +130,8 @@ public final class ParameterPromotionProcessor
         List.of(),   // No parameters for promote
         promotedTypeName,
         List.of(),   // No arguments for promote
-        new CallMetaDataDetails(operatorDetails.markedPure(), 0, operatorMap.getSideEffects(PROMOTE_OPERATOR))
+        new CallMetaDataDetails(operatorDetails.markedPure(), 0, operatorMap.getSideEffects(PROMOTE_OPERATOR)),
+        false
     );
 
     // Generate the promotion call instruction with proper memory management

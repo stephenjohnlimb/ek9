@@ -156,7 +156,8 @@ public class IRInstructionBuilder {
         List.of(),
         superType.getFullyQualifiedName(),
         List.of(),
-        metaData
+        metaData,
+        false
     );
 
     callWithTarget(IRConstants.TEMP_SUPER_INIT, callDetails);
@@ -176,7 +177,8 @@ public class IRInstructionBuilder {
         List.of(),
         voidStr,
         List.of(),
-        metaData
+        metaData,
+        false
     );
 
     callStatic(IRConstants.TEMP_C_INIT, callDetails);
@@ -203,7 +205,8 @@ public class IRInstructionBuilder {
         List.of(),
         voidStr,
         List.of(),
-        metaData
+        metaData,
+        false
     );
 
     var finalDebugInfo = debugInfo != null ? debugInfo : context.currentDebugInfo().orElse(null);

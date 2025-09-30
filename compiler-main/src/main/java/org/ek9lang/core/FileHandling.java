@@ -79,7 +79,7 @@ public final class FileHandling {
   }
 
   /**
-   * Create a full dependency vector out of module name and verssion.
+   * Create a full dependency vector out of module name and version.
    */
   public String makeDependencyVector(final String moduleName, final String version) {
 

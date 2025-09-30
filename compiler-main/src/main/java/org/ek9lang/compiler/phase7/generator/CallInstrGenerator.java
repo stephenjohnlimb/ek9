@@ -155,7 +155,8 @@ final class CallInstrGenerator extends AbstractGenerator
         callDetailsResult.callDetails().parameterTypes(),
         callDetailsResult.callDetails().returnTypeName(),
         callDetailsResult.callDetails().arguments(), // Use promoted arguments
-        callDetailsResult.callDetails().metaData()
+        callDetailsResult.callDetails().metaData(),
+        false
     );
 
     // Step 6: Add the actual call instruction with corrected target type

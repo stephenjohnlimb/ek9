@@ -180,6 +180,15 @@ public abstract class AbstractAsmGenerator {
   }
 
   /**
+   * Check if a variable has already been allocated a local variable slot.
+   * Returns true for method parameters (pre-registered) and already-declared local variables.
+   * This is used to distinguish parameters from new local variable declarations.
+   */
+  protected boolean isVariableAllocated(final String variableName) {
+    return methodContext.variableMap.containsKey(variableName);
+  }
+
+  /**
    * Track that a temp variable was created from loading another variable.
    */
   protected void trackTempVariableFromLoad(final String tempVar, final String sourceVar) {

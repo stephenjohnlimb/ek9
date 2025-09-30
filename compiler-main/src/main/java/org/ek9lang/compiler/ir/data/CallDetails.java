@@ -14,7 +14,8 @@ public record CallDetails(String targetObject,
                           List<String> parameterTypes,
                           String returnTypeName,
                           List<String> arguments,
-                          CallMetaDataDetails metaData) {
+                          CallMetaDataDetails metaData,
+                          boolean isTraitCall) {
 
   @Override
   @Nonnull
@@ -46,6 +47,9 @@ public record CallDetails(String targetObject,
           .sorted()
           .collect(Collectors.joining(","));
       sb.append(", effects=").append(sortedEffects);
+    }
+    if (isTraitCall()) {
+      sb.append(", trait=true");
     }
     sb.append("]");
 

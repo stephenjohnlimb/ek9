@@ -301,7 +301,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var isSetMetaData = new CallMetaDataDetails(true, 0);
     final var methodName = operatorMap.getForward("?");
     final var isSetCallDetails = new CallDetails(operandVariable, operandType,
-        methodName, List.of(), EK9TypeNames.EK9_BOOLEAN, List.of(), isSetMetaData);
+        methodName, List.of(), EK9TypeNames.EK9_BOOLEAN, List.of(), isSetMetaData, false);
     final var callInstructions = irInstrToList.apply(() -> CallInstr.operator(resultDetails, isSetCallDetails));
     instructions.addAll(callInstructions);
     variableMemoryManagement.apply(() -> callInstructions, resultDetails);
@@ -321,7 +321,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
 
     final var methodName = operatorMap.getForward("?");
     final var isSetCallDetails = new CallDetails(operandVariable, operandType,
-        methodName, List.of(), EK9TypeNames.EK9_BOOLEAN, List.of(), isSetMetaData);
+        methodName, List.of(), EK9TypeNames.EK9_BOOLEAN, List.of(), isSetMetaData, false);
 
     // Only manage memory for the _isSet() result, not the operand
     final var instructions = irInstrToList.apply(() -> CallInstr.operator(resultDetails, isSetCallDetails));
@@ -340,7 +340,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var notMetaData = new CallMetaDataDetails(true, 0);
     final var methodName = operatorMap.getForward("~");
     final var notCallDetails = new CallDetails(booleanVariable, booleanType,
-        methodName, List.of(), booleanType, List.of(), notMetaData);
+        methodName, List.of(), booleanType, List.of(), notMetaData, false);
 
     final var instructions = irInstrToList.apply(() -> CallInstr.operator(variableDetails, notCallDetails));
     variableMemoryManagement.apply(() -> instructions, variableDetails);

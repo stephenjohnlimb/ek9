@@ -92,6 +92,9 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
     // Check if parameter promotion is needed
     final var promotionResult = checkParameterPromotion(context, resolvedMethod);
 
+    // Check if this is a trait call (requires invokeinterface in JVM bytecode)
+    final var isTraitCall = context.targetType().getGenus() == org.ek9lang.compiler.symbols.SymbolGenus.CLASS_TRAIT;
+
     final var callDetails = new CallDetails(
         context.targetVariable(),
         targetTypeName,
@@ -99,7 +102,8 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
         parameterTypes,
         returnType,
         promotionResult.promotedArguments(),  // Use promoted arguments if any
-        metaData
+        metaData,
+        isTraitCall
     );
 
     return new CallDetailsResult(callDetails, promotionResult.promotionInstructions());
@@ -157,6 +161,9 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
       throw new CompilerException("Unknown Operator" + context.methodName());
     }
 
+    // Check if this is a trait call (synthetic operators rarely on traits, but check anyway)
+    final var isTraitCall = context.targetType().getGenus() == org.ek9lang.compiler.symbols.SymbolGenus.CLASS_TRAIT;
+
     final var callDetails = new CallDetails(
         context.targetVariable(),
         targetTypeName,
@@ -164,7 +171,8 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
         parameterTypes,
         returnType,
         context.argumentVariables(),
-        metaData
+        metaData,
+        isTraitCall
     );
 
     return new CallDetailsResult(callDetails, List.of());

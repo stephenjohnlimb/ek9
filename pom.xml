@@ -28,7 +28,7 @@
     <asm.version>9.8</asm.version>
 
     <checkstyle-plugin.version>3.3.1</checkstyle-plugin.version>
-    <compiler-plugin.version>3.12.1</compiler-plugin.version>
+    <compiler-plugin.version>3.13.0</compiler-plugin.version>
     <assembly-plugin.version>3.6.0</assembly-plugin.version>
     <versions-maven-plugin.version>2.16.1</versions-maven-plugin.version>
     <javadoc-plugin.version>3.6.3</javadoc-plugin.version>

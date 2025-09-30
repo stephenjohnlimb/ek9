@@ -146,4 +146,11 @@ public final class CallInstr extends IRInstr {
   public String getReturnTypeName() {
     return callDetails.returnTypeName();
   }
+
+  /**
+   * Check if this is a trait call (requires invokeinterface in JVM bytecode).
+   */
+  public boolean isTraitCall() {
+    return callDetails.isTraitCall();
+  }
 }

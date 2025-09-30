@@ -94,6 +94,9 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator {
    * Generate REFERENCE instruction: declare variable reference.
    * Format: REFERENCE variable_name, type_info
    * This is essentially a variable declaration in EK9 IR.
+   *
+   * IMPORTANT: Method parameters are pre-registered in the variable map and already have values.
+   * Only initialize new local variables to null, NOT parameters.
    */
   private void generateReference(final MemoryInstr memoryInstr) {
     final var operands = memoryInstr.getOperands();
@@ -102,8 +105,15 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator {
     }
 
     final var variableName = operands.getFirst();
-    getCurrentMethodVisitor().visitInsn(Opcodes.ACONST_NULL);
-    generateStoreVariable(variableName);
+
+    // Check if this variable is already in the variable map (= it's a method parameter)
+    // If it's a parameter, it already has a value and should NOT be overwritten with null
+    if (!isVariableAllocated(variableName)) {
+      // This is a new local variable declaration - initialize to null
+      getCurrentMethodVisitor().visitInsn(Opcodes.ACONST_NULL);
+      generateStoreVariable(variableName);
+    }
+    // If variable is already allocated (parameter), do nothing - it already has a value
   }
 
   /**

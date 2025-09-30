@@ -3,47 +3,14 @@ defines module introduction
 
   defines program
 
-    @IR: IR_GENERATION: TYPE: "introduction::HelloWorld": `
-    ConstructDfn: introduction::HelloWorld
-    PROGRAM_ENTRY_POINT_BLOCK
-    [
-    programs_count: 1
-    available_programs:
-    [
-    introduction::HelloWorld
-    ]
-    ]
-    OperationDfn: introduction::HelloWorld.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: introduction::HelloWorld.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: introduction::HelloWorld.HelloWorld()->introduction::HelloWorld  // ./workarea.ek9:45:5
-    BasicBlock: _entry_1
-    CALL (introduction::HelloWorld)this.i_init() [pure=false, complexity=0]  // ./workarea.ek9:45:5
-    RETURN this  // ./workarea.ek9:45:5
-    OperationDfn: introduction::HelloWorld._main()->org.ek9.lang::Void  // ./workarea.ek9:45:5
-    BasicBlock: _entry_2
-    SCOPE_ENTER _scope_1  // ./workarea.ek9:46:7
-    REFERENCE stdout, org.ek9.lang::Stdout  // ./workarea.ek9:46:7
-    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./workarea.ek9:46:17
-    RETAIN _temp1  // ./workarea.ek9:46:17
-    SCOPE_REGISTER _temp1, _scope_1  // ./workarea.ek9:46:17
-    STORE stdout, _temp1  // ./workarea.ek9:46:17
-    RETAIN stdout  // ./workarea.ek9:46:17
-    SCOPE_REGISTER stdout, _scope_1  // ./workarea.ek9:46:17
-    _temp3 = LOAD stdout  // ./workarea.ek9:47:7
-    RETAIN _temp3  // ./workarea.ek9:47:7
-    SCOPE_REGISTER _temp3, _scope_1  // ./workarea.ek9:47:7
-    _temp4 = LOAD_LITERAL "Hello, World", org.ek9.lang::String  // ./workarea.ek9:47:22
-    RETAIN _temp4  // ./workarea.ek9:47:22
-    SCOPE_REGISTER _temp4, _scope_1  // ./workarea.ek9:47:22
-    CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=false, complexity=0]  // ./workarea.ek9:47:14
-    SCOPE_EXIT _scope_1  // ./workarea.ek9:46:7
-    RETURN  // ./workarea.ek9:45:5`
-    HelloWorld()
+    HelloString()
+      -> message as String
       stdout <- Stdout()
-      stdout.println("Hello, World")
+      stdout.println(message)
+
+    HelloInteger()
+      -> number as Integer
+      stdout <- Stdout()
+      stdout.println(number)
 
 //EOF

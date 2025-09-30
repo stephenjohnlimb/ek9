@@ -52,7 +52,7 @@ defines module introduction1
     _temp5 = LOAD toOutput  // ./HelloWorldIR.ek9:62:22
     RETAIN _temp5  // ./HelloWorldIR.ek9:62:22
     SCOPE_REGISTER _temp5, _scope_1  // ./HelloWorldIR.ek9:62:22
-    CALL (org.ek9.lang::Stdout)_temp4.println(_temp5) [pure=false, complexity=0]  // ./HelloWorldIR.ek9:62:14
+    CALL (org.ek9.lang::Stdout)_temp4.println(_temp5) [pure=true, complexity=1]  // ./HelloWorldIR.ek9:62:14
     SCOPE_EXIT _scope_1  // ./HelloWorldIR.ek9:60:7
     RETURN  // ./HelloWorldIR.ek9:58:5`
     HelloWorld()
@@ -104,7 +104,7 @@ defines module introduction1
     _temp4 = LOAD message  // ./HelloWorldIR.ek9:114:22
     RETAIN _temp4  // ./HelloWorldIR.ek9:114:22
     SCOPE_REGISTER _temp4, _scope_1  // ./HelloWorldIR.ek9:114:22
-    CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=false, complexity=0]  // ./HelloWorldIR.ek9:114:14
+    CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=true, complexity=1]  // ./HelloWorldIR.ek9:114:14
     SCOPE_EXIT _scope_1  // ./HelloWorldIR.ek9:113:7
     RETURN  // ./HelloWorldIR.ek9:110:5`
     HelloMessage()

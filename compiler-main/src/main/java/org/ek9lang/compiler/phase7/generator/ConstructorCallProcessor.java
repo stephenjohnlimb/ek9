@@ -89,7 +89,8 @@ public final class ConstructorCallProcessor {
         parameterTypes,    // parameterTypes
         typeName,          // returnType
         argumentVariables, // argumentVariables
-        metaData          // metaData
+        metaData,          // metaData
+        false
     );
 
     instructions.add(CallInstr.constructor(resultVariable, debugInfo, callDetails));

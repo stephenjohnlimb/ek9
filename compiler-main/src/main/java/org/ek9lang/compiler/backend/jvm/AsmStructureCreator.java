@@ -42,8 +42,8 @@ public final class AsmStructureCreator implements Opcodes {
   private void processProgram() {
     final IRConstruct construct = constructTargetTuple.construct();
 
-    // Skip PROGRAM_ENTRY_POINT_BLOCK processing - ek9.Main will be generated separately
-    // Focus only on generating the actual program class from IR operations
+    // Extract PROGRAM_ENTRY_POINT_BLOCK to get parameter information
+    storeProgramEntryPoint(construct);
 
     // Initialize the actual program class (not ek9.Main)
     initializeProgramClass(construct);
@@ -53,6 +53,14 @@ public final class AsmStructureCreator implements Opcodes {
 
     // Finalize the program class
     classWriter.visitEnd();
+  }
+
+  /**
+   * Store the PROGRAM_ENTRY_POINT_BLOCK instruction to access program parameter metadata.
+   */
+  private void storeProgramEntryPoint(final IRConstruct construct) {
+    // ProgramEntryPointInstr is stored directly on IRConstruct, not nested in operations
+    construct.getProgramEntryPoint().ifPresent(entryPoint -> programEntryPoint = entryPoint);
   }
 
   /**
@@ -162,19 +170,85 @@ public final class AsmStructureCreator implements Opcodes {
 
   /**
    * Generate _main instance method from IR operation.
+   * Uses the actual parameter signature from the OperationInstr.
+   * Pre-registers method parameters in variable map to prevent null overwriting.
    */
   private void generateMainMethodFromIR(final org.ek9lang.compiler.ir.instructions.OperationInstr operation) {
-    final var mv = classWriter.visitMethod(ACC_PUBLIC, "_main", "()V", null, null);
+    // Build method descriptor from operation signature
+    final var methodDescriptor = buildMethodDescriptor(operation);
+
+    final var mv = classWriter.visitMethod(ACC_PUBLIC, "_main", methodDescriptor, null, null);
     mv.visitCode();
 
     final var basicBlock = operation.getBody();
     if (basicBlock != null) {
-      processBasicBlockWithTypedInstructions(mv, basicBlock);
+      // Pre-register method parameters before processing instructions
+      final var parameterNames = getParameterNamesForMethod();
+      processBasicBlockWithTypedInstructions(mv, basicBlock, parameterNames);
     }
 
     // Don't add extra RETURN - IR instructions already include RETURN via BranchInstr
     mv.visitMaxs(0, 0);
     mv.visitEnd();
+  }
+
+  /**
+   * Get parameter names for the current method from PROGRAM_ENTRY_POINT_BLOCK.
+   * Returns list of parameter names in order (e.g., ["message"] for HelloString).
+   */
+  private java.util.List<String> getParameterNamesForMethod() {
+    if (programEntryPoint != null) {
+      final var programClassName = getProgramClassName();
+
+      // Find matching program in entry point
+      for (var programDetails : programEntryPoint.getAvailablePrograms()) {
+        if (programDetails.qualifiedName().equals(programClassName)) {
+          // Extract parameter names from parameter signature
+          return programDetails.parameterSignature().stream()
+              .map(org.ek9lang.compiler.ir.data.ParameterDetails::name)
+              .collect(java.util.stream.Collectors.toList());
+        }
+      }
+    }
+
+    return java.util.Collections.emptyList();
+  }
+
+  /**
+   * Build JVM method descriptor from program's parameter signature in PROGRAM_ENTRY_POINT_BLOCK.
+   * Example: (org.ek9.lang::String) -> "(Lorg/ek9/lang/String;)V"
+   */
+  private String buildMethodDescriptor(final org.ek9lang.compiler.ir.instructions.OperationInstr operation) {
+    // For _main method, get parameter signature from PROGRAM_ENTRY_POINT_BLOCK
+    if (programEntryPoint != null) {
+      final var programClassName = getProgramClassName();
+
+      // Find matching program in entry point
+      for (var programDetails : programEntryPoint.getAvailablePrograms()) {
+        if (programDetails.qualifiedName().equals(programClassName)) {
+          // Build descriptor from parameter signature
+          final var descriptor = new StringBuilder("(");
+          final var typeConverter = new EK9TypeToJVMDescriptor();
+
+          for (var param : programDetails.parameterSignature()) {
+            descriptor.append(typeConverter.apply(param.type()));
+          }
+
+          descriptor.append(")V"); // _main returns void
+          return descriptor.toString();
+        }
+      }
+    }
+
+    // Fallback for methods without parameters
+    return "()V";
+  }
+
+  /**
+   * Get the fully qualified program class name being generated.
+   */
+  private String getProgramClassName() {
+    return constructTargetTuple.construct().getFullyQualifiedName();
   }
 
   /**
@@ -185,6 +259,35 @@ public final class AsmStructureCreator implements Opcodes {
                                                      final org.ek9lang.compiler.ir.instructions.BasicBlockInstr basicBlock) {
     // Create temporary visitor to process instructions with access to current MethodVisitor
     final var instructionVisitor = new InstructionVisitor(mv);
+
+    // Process each typed IR instruction using visitor pattern
+    for (var instruction : basicBlock.getInstructions()) {
+      // Use visitor pattern to dispatch to appropriate specialized generator
+      if (instruction instanceof org.ek9lang.compiler.ir.instructions.CallInstr callInstr) {
+        instructionVisitor.processCallInstruction(callInstr);
+      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.LiteralInstr literalInstr) {
+        instructionVisitor.processLiteralInstruction(literalInstr);
+      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.MemoryInstr memoryInstr) {
+        instructionVisitor.processMemoryInstruction(memoryInstr);
+      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.ScopeInstr scopeInstr) {
+        instructionVisitor.processScopeInstruction(scopeInstr);
+      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.BranchInstr branchInstr) {
+        instructionVisitor.processBranchInstruction(branchInstr);
+      } else {
+        System.err.println("WARNING: Unhandled typed IR instruction: " + instruction.getClass().getSimpleName());
+      }
+    }
+  }
+
+  /**
+   * Overloaded version with parameter names for _main method context.
+   * Pre-registers parameters in variable map to prevent null overwriting.
+   */
+  private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
+                                                     final org.ek9lang.compiler.ir.instructions.BasicBlockInstr basicBlock,
+                                                     final java.util.List<String> parameterNames) {
+    // Create temporary visitor with pre-registered parameters
+    final var instructionVisitor = new InstructionVisitor(mv, parameterNames);
 
     // Process each typed IR instruction using visitor pattern
     for (var instruction : basicBlock.getInstructions()) {
@@ -250,6 +353,19 @@ public final class AsmStructureCreator implements Opcodes {
     }
 
     InstructionVisitor(final MethodVisitor mv, final boolean isConstructor) {
+      this(mv, isConstructor, java.util.Collections.emptyList());
+    }
+
+    /**
+     * Constructor with parameter names for pre-registration in variable map.
+     * Parameters are allocated to local variable slots 1, 2, 3, ... (slot 0 is 'this').
+     */
+    InstructionVisitor(final MethodVisitor mv, final java.util.List<String> parameterNames) {
+      this(mv, false, parameterNames);
+    }
+
+    private InstructionVisitor(final MethodVisitor mv, final boolean isConstructor,
+                               final java.util.List<String> parameterNames) {
       this.methodVisitor = mv;
       this.isConstructor = isConstructor;
 
@@ -264,6 +380,15 @@ public final class AsmStructureCreator implements Opcodes {
 
       // Create shared method context for this method's variable slot allocation
       final AbstractAsmGenerator.MethodContext sharedContext = new AbstractAsmGenerator.MethodContext();
+
+      // Pre-register method parameters in variable map (prevents null overwriting)
+      // Instance method parameters start at slot 1 (slot 0 is 'this')
+      int parameterSlot = 1;
+      for (String paramName : parameterNames) {
+        sharedContext.variableMap.put(paramName, parameterSlot++);
+      }
+      // Update nextVariableSlot to account for pre-registered parameters
+      sharedContext.nextVariableSlot = parameterSlot;
 
       // Set shared context for all generators to ensure coordinated variable slot allocation
       this.callInstrGenerator.setSharedMethodContext(sharedContext);

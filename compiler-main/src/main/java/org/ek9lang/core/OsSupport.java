@@ -81,7 +81,7 @@ public final class OsSupport implements Serializable {
     return rtn;
   }
 
-  public String makeSubDirectoryIfNotExists(final File directory, final String subDirectory) {
+  public synchronized String makeSubDirectoryIfNotExists(final File directory, final String subDirectory) {
     final var newDirectory = new File(directory, subDirectory);
     makeDirectoryIfNotExists(newDirectory);
     return newDirectory.getAbsolutePath();
@@ -90,7 +90,7 @@ public final class OsSupport implements Serializable {
   /**
    * Create directory if it does not exist or exception if failed.
    */
-  public void makeDirectoryIfNotExists(final File directory) {
+  public synchronized void makeDirectoryIfNotExists(final File directory) {
 
     AssertValue.checkNotNull("Directory cannot be null", directory);
     final var exists = directory.exists();

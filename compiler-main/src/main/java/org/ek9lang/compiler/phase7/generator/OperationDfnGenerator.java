@@ -242,7 +242,8 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
             java.util.List.of(), // No parameters for default constructor
             superSymbol.getFullyQualifiedName(), // Return type is the super class
             java.util.List.of(), // No arguments
-            metaData
+            metaData,
+            false
         );
         instructions.add(CallInstr.call(IRConstants.TEMP_SUPER_INIT, debugInfo, callDetails));
       }
@@ -263,7 +264,8 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
         java.util.List.of(), // No parameters
         "org.ek9.lang::Void", // Return type
         java.util.List.of(), // No arguments
-        iInitMetaData
+        iInitMetaData,
+        false
     );
     // i_init returns void, so don't assign to a temp variable
     instructions.add(CallInstr.call(null, debugInfo, iInitCallDetails));
