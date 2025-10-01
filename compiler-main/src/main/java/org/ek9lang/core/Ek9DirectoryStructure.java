@@ -15,6 +15,7 @@ public final class Ek9DirectoryStructure {
   public static final String LIB = "lib";
   public static final String DEV = "dev";
   public static final String GENERATED = "generated";
+  public static final String RUNTIME = "runtime";
 
   public static final String PUBLIC_PEM = "public.pem";
   public static final String PRIVATE_PEM = "private.pem";
@@ -191,6 +192,20 @@ public final class Ek9DirectoryStructure {
     return FileSystems
         .getDefault()
         .getPath(fromEk9BaseDirectory, GENERATED, DEV, targetArchitecture.getDescription())
+        .toFile();
+  }
+
+  /**
+   * Get the runtime directory for cached runtime JARs.
+   * Pattern: {@code <projectDir>/.ek9/runtime/}
+   */
+  public File getRuntimeDirectory(final String fromEk9BaseDirectory) {
+
+    assertFromEk9BaseDirectoryValid(fromEk9BaseDirectory);
+
+    return FileSystems
+        .getDefault()
+        .getPath(fromEk9BaseDirectory, RUNTIME)
         .toFile();
   }
 

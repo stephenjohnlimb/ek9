@@ -32,6 +32,19 @@ public final class Packager {
    */
   public boolean createJar(final String fileName, final List<ZipSet> sets) {
 
+    return createJar(fileName, sets, null);
+  }
+
+  /**
+   * Create a compressed archive to file with zip sets and optional Main-Class manifest.
+   *
+   * @param fileName The name of the JAR file to create
+   * @param sets     The list of ZipSets to include
+   * @param mainClass The fully-qualified main class name for manifest (null for no Main-Class)
+   * @return true if JAR creation successful
+   */
+  public boolean createJar(final String fileName, final List<ZipSet> sets, final String mainClass) {
+
     //Let exception break everything here - these are precondition.
     AssertValue.checkNotEmpty("Filename empty", fileName);
     AssertValue.checkNotNull("Zip Set cannot be null", sets);
@@ -41,6 +54,12 @@ public final class Packager {
     final Processor<Boolean> processor = () -> {
       try (final var zip = FileSystems.newFileSystem(getZipUri(fileName), getZipEnv())) {
         sets.forEach(set -> addZipSet(zip, set));
+
+        // Add manifest if mainClass is specified
+        if (mainClass != null && !mainClass.isEmpty()) {
+          addManifest(zip, mainClass);
+        }
+
         return true;
       }
     };
@@ -189,5 +208,37 @@ public final class Packager {
       Files.createDirectories(path.getParent());
     }
 
+  }
+
+  /**
+   * Add META-INF/MANIFEST.MF with Main-Class entry to the JAR.
+   *
+   * @param zip The JAR filesystem
+   * @param mainClass The fully-qualified main class name (e.g., "ek9.Main")
+   */
+  private void addManifest(final FileSystem zip, final String mainClass) throws IOException {
+
+    final var manifestContent = createManifestContent(mainClass);
+    final var manifestPath = zip.getPath("META-INF", "MANIFEST.MF");
+
+    ensureParentPathExists(manifestPath);
+
+    try (final var out = Files.newOutputStream(manifestPath)) {
+      out.write(manifestContent.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+  }
+
+  /**
+   * Create manifest file content with Main-Class entry.
+   * Format follows JAR specification requirements.
+   *
+   * @param mainClass The fully-qualified main class name
+   * @return Manifest content as string
+   */
+  private String createManifestContent(final String mainClass) {
+
+    return "Manifest-Version: 1.0\n"
+        + "Main-Class: " + mainClass + "\n"
+        + "Created-By: EK9 Compiler\n";
   }
 }

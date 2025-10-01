@@ -159,7 +159,7 @@ abstract class Ec extends E {
       zipSets.add(getCoreComponents());
       final var targetFileName = compilationContext.sourceFileCache().getTargetExecutableArtefact().getAbsolutePath();
 
-      return getFileHandling().createJar(targetFileName, zipSets);
+      return getFileHandling().createJar(targetFileName, zipSets, "ek9.Main");
     }
 
     return false;
@@ -167,10 +167,48 @@ abstract class Ec extends E {
 
   /**
    * This will be the stock set of runtime code that we need to bundle.
+   * Extracts EK9 runtime classes (org.ek9.lang, ek9 packages) into a versioned JAR
+   * and returns the contents as a ZipSet for merging into the fat JAR.
    */
   private ZipSet getCoreComponents() {
 
+    final var version = compilationContext.commandLine().getLanguageMetaData().version();
+    final var projectDir = compilationContext.commandLine().getSourceFileDirectory();
+
+    final var extractor = new org.ek9lang.core.RuntimeClassExtractor();
+    final var runtimeJarOpt = extractor.extractRuntimeJar(getFileHandling(), projectDir, version);
+
+    if (runtimeJarOpt.isPresent()) {
+      log("Using runtime: " + runtimeJarOpt.get().getName());
+      return extractJarContentsAsZipSet(runtimeJarOpt.get());
+    }
+
+    log("Warning: Could not extract runtime JAR");
     return new ZipSet();
+  }
+
+  /**
+   * Extract the contents of a JAR file and return as ZipSet entries.
+   * This allows merging the runtime JAR into the final fat JAR.
+   */
+  private ZipSet extractJarContentsAsZipSet(final File jarFile) {
+
+    final var entries = new java.util.ArrayList<org.ek9lang.core.ZipBinaryContent>();
+
+    try (final var jarStream = new java.util.jar.JarInputStream(new java.io.FileInputStream(jarFile))) {
+      java.util.jar.JarEntry entry;
+      while ((entry = jarStream.getNextJarEntry()) != null) {
+        if (!entry.isDirectory()) {
+          final var bytes = jarStream.readAllBytes();
+          entries.add(new org.ek9lang.core.ZipBinaryContent(entry.getName(), bytes));
+        }
+        jarStream.closeEntry();
+      }
+    } catch (java.io.IOException e) {
+      log("Warning: Could not read runtime JAR: " + e.getMessage());
+    }
+
+    return new ZipSet(entries);
   }
 
   private void addClassesFrom(final File classesDir, final List<ZipSet> zipSetList) {

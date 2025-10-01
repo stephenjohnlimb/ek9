@@ -219,6 +219,19 @@ public final class FileHandling {
     return packager.createJar(fileName, sets);
   }
 
+  /**
+   * Create a Java jar file with a list of zip sets and optional Main-Class manifest.
+   *
+   * @param fileName The name of the JAR file to create
+   * @param sets     The list of ZipSets to include
+   * @param mainClass The fully-qualified main class name for manifest (null for no Main-Class)
+   * @return true if JAR creation successful
+   */
+  public boolean createJar(final String fileName, final List<ZipSet> sets, final String mainClass) {
+
+    return packager.createJar(fileName, sets, mainClass);
+  }
+
   public boolean unZipFileTo(final File zipFile, final String unpackedDir) {
 
     return unZipFileTo(zipFile, new File(unpackedDir));
@@ -253,6 +266,22 @@ public final class FileHandling {
   public File getTargetPropertiesArtefact(final String ek9FullPathToFileName) {
 
     return directoryStructure.getTargetPropertiesArtefact(ek9FullPathToFileName);
+  }
+
+  /**
+   * Get versioned runtime JAR file path.
+   * Pattern: {@code <projectDir>/.ek9/runtime/ek9-runtime-<version>.jar}
+   */
+  public File getRuntimeJarFile(final String projectDir, final String version) {
+
+    AssertValue.checkNotEmpty("Project directory cannot be empty", projectDir);
+    AssertValue.checkNotEmpty("Version cannot be empty", version);
+
+    final var ek9BaseDir = getDotEk9Directory(projectDir);
+    final var runtimeDir = directoryStructure.getRuntimeDirectory(ek9BaseDir);
+    final var jarFileName = "ek9-runtime-" + version + ".jar";
+
+    return new File(runtimeDir, jarFileName);
   }
 
   public void validateHomeEk9Directory(final TargetArchitecture targetArchitecture) {

@@ -2,7 +2,9 @@ package org.ek9lang.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ_WRITE;
@@ -142,6 +144,31 @@ final class FileHandlingTest {
   }
 
   @Test
+  void testGetRuntimeJarFile() {
+    // Setup test project directory
+    String testHomeDirectory = underTest.getUsersHomeDirectory();
+    File projectDir = FileSystems.getDefault()
+        .getPath(testHomeDirectory, "src", "testRuntimeProject")
+        .toFile();
+    underTest.makeDirectoryIfNotExists(projectDir);
+
+    // Test getRuntimeJarFile() path construction
+    String version = "0.0.1-0";
+    File runtimeJar = underTest.getRuntimeJarFile(projectDir.getPath(), version);
+
+    // Verify path structure: <projectDir>/.ek9/runtime/ek9-runtime-<version>.jar
+    assertNotNull(runtimeJar);
+    assertEquals("ek9-runtime-0.0.1-0.jar", runtimeJar.getName());
+    assertTrue(runtimeJar.getPath().contains(".ek9"));
+    assertTrue(runtimeJar.getPath().contains("runtime"));
+
+    // Test with different version
+    File runtimeJar2 = underTest.getRuntimeJarFile(projectDir.getPath(), "1.0.0");
+    assertEquals("ek9-runtime-1.0.0.jar", runtimeJar2.getName());
+    assertNotEquals(runtimeJar.getPath(), runtimeJar2.getPath());
+  }
+
+  @Test
   void testZippingAndPackaging() throws IOException {
     underTest.validateHomeEk9Directory(targetArchitecture);
 
@@ -212,5 +239,91 @@ final class FileHandlingTest {
     File unPackedText =
         FileSystems.getDefault().getPath(underTest.getTempDirectory(), "text").toFile();
     assertTrue(unPackedText.exists());
+  }
+
+  @Test
+  void testJarWithMainClassManifest() throws Exception {
+    underTest.validateHomeEk9Directory(targetArchitecture);
+
+    String testHomeDirectory = underTest.getUsersHomeDirectory();
+    File aProjectDirectory =
+        FileSystems.getDefault().getPath(testHomeDirectory, "src", "manifestTest").toFile();
+    underTest.makeDirectoryIfNotExists(aProjectDirectory);
+
+    // Create test JAR with Main-Class manifest
+    String projectDotEK9Directory = underTest.getDotEk9Directory(aProjectDirectory);
+    underTest.validateEk9Directory(projectDotEK9Directory, targetArchitecture);
+
+    String jarFileName = projectDotEK9Directory + "test-with-manifest.jar";
+    byte[] testClassBytes = "fake class bytes".getBytes(StandardCharsets.UTF_8);
+    List<ZipBinaryContent> entries = new ArrayList<>();
+    entries.add(new ZipBinaryContent("ek9/Main.class", testClassBytes));
+
+    ZipSet binarySet = new ZipSet(entries);
+    boolean created = underTest.createJar(jarFileName, List.of(binarySet), "ek9.Main");
+    assertTrue(created);
+
+    // Verify JAR was created
+    File jarFile = new File(jarFileName);
+    assertTrue(jarFile.exists());
+
+    // Verify manifest exists and has Main-Class entry
+    try (var jarStream = new java.util.jar.JarInputStream(new java.io.FileInputStream(jarFile))) {
+      var manifest = jarStream.getManifest();
+      assertNotNull(manifest, "Manifest should exist");
+
+      var mainAttributes = manifest.getMainAttributes();
+      String mainClass = mainAttributes.getValue("Main-Class");
+      assertNotNull(mainClass, "Main-Class attribute should exist");
+      assertEquals("ek9.Main", mainClass);
+
+      String manifestVersion = mainAttributes.getValue("Manifest-Version");
+      assertEquals("1.0", manifestVersion);
+    }
+
+    // Clean up
+    assertTrue(jarFile.delete());
+  }
+
+  @Test
+  void testJarWithoutMainClassManifest() throws Exception {
+    underTest.validateHomeEk9Directory(targetArchitecture);
+
+    String testHomeDirectory = underTest.getUsersHomeDirectory();
+    File aProjectDirectory =
+        FileSystems.getDefault().getPath(testHomeDirectory, "src", "noManifestTest").toFile();
+    underTest.makeDirectoryIfNotExists(aProjectDirectory);
+
+    // Create test JAR WITHOUT Main-Class manifest (using original method)
+    String projectDotEK9Directory = underTest.getDotEk9Directory(aProjectDirectory);
+    underTest.validateEk9Directory(projectDotEK9Directory, targetArchitecture);
+
+    String jarFileName = projectDotEK9Directory + "test-without-manifest.jar";
+    byte[] testClassBytes = "fake class bytes".getBytes(StandardCharsets.UTF_8);
+    List<ZipBinaryContent> entries = new ArrayList<>();
+    entries.add(new ZipBinaryContent("org/ek9/lang/String.class", testClassBytes));
+
+    ZipSet binarySet = new ZipSet(entries);
+    boolean created = underTest.createJar(jarFileName, List.of(binarySet)); // No mainClass parameter
+    assertTrue(created);
+
+    // Verify JAR was created
+    File jarFile = new File(jarFileName);
+    assertTrue(jarFile.exists());
+
+    // Verify manifest either doesn't exist or doesn't have Main-Class
+    try (var jarStream = new java.util.jar.JarInputStream(new java.io.FileInputStream(jarFile))) {
+      var manifest = jarStream.getManifest();
+      if (manifest != null) {
+        var mainAttributes = manifest.getMainAttributes();
+        String mainClass = mainAttributes.getValue("Main-Class");
+        // Should not have Main-Class entry
+        assertNull(mainClass, "Should not have Main-Class when not specified");
+      }
+      // It's also valid for manifest to not exist at all
+    }
+
+    // Clean up
+    assertTrue(jarFile.delete());
   }
 }
