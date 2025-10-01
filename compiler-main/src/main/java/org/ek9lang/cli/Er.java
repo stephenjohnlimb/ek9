@@ -27,39 +27,41 @@ class Er extends E {
         && super.preConditionCheck();
   }
 
-  @Override
-  protected boolean doRun() {
-
+  private boolean ensureTargetExecutableCurrent() {
     if (!compilationContext.sourceFileCache().isTargetExecutableArtefactCurrent()) {
       log("Stale target - Compile");
 
-      final var compileResult = new Eic(compilationContext).run();
+      return new Eic(compilationContext).run();
+    }
+    return true;
+  }
 
-      if (compileResult) {
-        log("Execute");
+  @Override
+  protected boolean doRun() {
 
-        //OK we can issue run command.
-        final var theRunCommand = new StringBuilder("java");
-        if (compilationContext.commandLine().options().isRunDebugMode()) {
-          theRunCommand.append(" -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:")
-              .append(compilationContext.commandLine().debugPort);
-        }
+    if (ensureTargetExecutableCurrent()) {
+      log("Execute");
 
-        final var target = compilationContext.sourceFileCache().getTargetExecutableArtefact().getAbsolutePath();
-
-        compilationContext.commandLine().getEk9AppDefines()
-            .forEach(define -> theRunCommand.append(" ").append("-D").append(define));
-
-        theRunCommand.append(" -classpath");
-        theRunCommand.append(" ").append(target);
-        theRunCommand.append(" ").append(compilationContext.commandLine().getModuleName())
-            .append(".").append("_")
-            .append(compilationContext.commandLine().ek9ProgramToRun);
-
-        compilationContext.commandLine().getEk9ProgramParameters()
-            .forEach(param -> theRunCommand.append(" ").append(param));
-        Logger.log(theRunCommand.toString());
+      //OK we can issue run command.
+      final var theRunCommand = new StringBuilder("java");
+      if (compilationContext.commandLine().options().isRunDebugMode()) {
+        theRunCommand.append(" -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:")
+            .append(compilationContext.commandLine().debugPort);
       }
+
+      final var target = compilationContext.sourceFileCache().getTargetExecutableArtefact().getAbsolutePath();
+
+      compilationContext.commandLine().getEk9AppDefines()
+          .forEach(define -> theRunCommand.append(" ").append("-D").append(define));
+
+      theRunCommand.append(" -jar");
+      theRunCommand.append(" ").append(target);
+      theRunCommand.append(" -r ").append(compilationContext.commandLine().getModuleName())
+          .append("::").append(compilationContext.commandLine().ek9ProgramToRun);
+
+      compilationContext.commandLine().getEk9ProgramParameters()
+          .forEach(param -> theRunCommand.append(" ").append(param));
+      Logger.log(theRunCommand.toString());
       return true;
     }
 
