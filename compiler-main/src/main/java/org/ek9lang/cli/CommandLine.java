@@ -19,6 +19,7 @@ import org.ek9lang.core.ExitException;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.Logger;
 import org.ek9lang.core.OsSupport;
+import org.ek9lang.core.ParentDirectoryForFile;
 import org.ek9lang.core.TargetArchitecture;
 
 /**
@@ -30,6 +31,7 @@ final class CommandLine {
   //Clone environment variables in, but also allow use to programmatically alter them.
   private static final Map<String, String> DEFAULTS = new HashMap<>(System.getenv());
   private static final CommandLineHelp commandLineHelp = new CommandLineHelp();
+  private final ParentDirectoryForFile parentDirectoryForFile = new ParentDirectoryForFile();
   private final CommandLineOptions options = new CommandLineOptions();
   private final LanguageMetaData languageMetaData;
   private final OsSupport osSupport;
@@ -715,8 +717,7 @@ final class CommandLine {
   }
 
   public String getSourceFileDirectory() {
-
-    return mainSourceFile.getParent();
+    return parentDirectoryForFile.apply(mainSourceFile);
   }
 
 }

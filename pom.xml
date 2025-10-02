@@ -45,6 +45,7 @@
     <module>java-introspection</module>
     <module>ek9-lang</module>
     <module>compiler-main</module>
+    <module>ek9-wrapper</module>
   </modules>
 
   <dependencyManagement>

@@ -8,6 +8,7 @@ import java.nio.file.FileSystems;
  * Typically, lib, keys, artefacts and other places where EK9 expects items to be located.
  */
 public final class Ek9DirectoryStructure {
+
   public static final String DOT_JAR = ".jar";
   public static final String DOT_EK9 = ".ek9";
   public static final String DOT_PROPERTIES = ".properties";
@@ -20,6 +21,7 @@ public final class Ek9DirectoryStructure {
   public static final String PUBLIC_PEM = "public.pem";
   public static final String PRIVATE_PEM = "private.pem";
 
+  private final ParentDirectoryForFile parentDirectoryForFile = new ParentDirectoryForFile();
   private final FileHandling fileHandling;
 
   public Ek9DirectoryStructure(final FileHandling fileHandling) {
@@ -38,7 +40,7 @@ public final class Ek9DirectoryStructure {
     assertTargetArchitectureSupported(targetArchitecture);
 
     final var sourceFile = new File(ek9FullPathToFileName);
-    final var ek9FileNameDirectory = sourceFile.getParent();
+    final var ek9FileNameDirectory = parentDirectoryForFile.apply(sourceFile);
     final var ek9JustFileName = sourceFile.getName();
     final var projectEk9Directory = fileHandling.getDotEk9Directory(ek9FileNameDirectory);
 
@@ -53,7 +55,7 @@ public final class Ek9DirectoryStructure {
     assertEk9FullPathToFileNameValid(ek9FullPathToFileName);
 
     final var sourceFile = new File(ek9FullPathToFileName);
-    final var ek9FileNameDirectory = sourceFile.getParent();
+    final var ek9FileNameDirectory = parentDirectoryForFile.apply(sourceFile);
     final var fileName = sourceFile.getName().replace(DOT_EK9, DOT_PROPERTIES);
     final var projectEk9Directory = fileHandling.getDotEk9Directory(ek9FileNameDirectory);
 
@@ -127,7 +129,7 @@ public final class Ek9DirectoryStructure {
     assertTargetArchitectureSupported(targetArchitecture);
 
     final var sourceFile = new File(ek9FullPathToFileName);
-    final var ek9FileNameDirectory = sourceFile.getParent();
+    final var ek9FileNameDirectory = parentDirectoryForFile.apply(sourceFile);
     final var dotEk9Dir = fileHandling.getDotEk9Directory(ek9FileNameDirectory);
 
     fileHandling.deleteContentsAndBelow(new File(dotEk9Dir, GENERATED), false);

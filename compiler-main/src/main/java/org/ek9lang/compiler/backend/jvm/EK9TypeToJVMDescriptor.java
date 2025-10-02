@@ -40,7 +40,8 @@ public final class EK9TypeToJVMDescriptor implements UnaryOperator<String> {
       default -> {
         // Handle generic types and custom types
         if (ek9Type.contains("::")) {
-          yield "L" + ek9Type.replace("::", "/") + ";";
+          // Convert org.ek9.lang::ClassName to org/ek9/lang/ClassName
+          yield "L" + ek9Type.replace(".", "/").replace("::", "/") + ";";
         }
         yield "Ljava/lang/Object;"; // Fallback
       }

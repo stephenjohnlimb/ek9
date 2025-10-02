@@ -18,4 +18,9 @@ defines module introduction
       stdout <- Stdout()
       stdout.println(number)
 
+    HelloStrings()
+      -> args as List of String
+      stdout <- Stdout()
+      stdout.println(args)
+
 //EOF

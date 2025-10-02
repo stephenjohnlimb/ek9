@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.ek9lang</groupId>
+    <artifactId>compiler</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>ek9-wrapper</artifactId>
+  <packaging>pom</packaging>
+
+  <name>ek9-wrapper</name>
+  <description>Native C wrapper executable for EK9 compiler</description>
+
+  <build>
+    <plugins>
+      <!-- Use maven-exec-plugin to invoke CMake -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <!-- Generate CMake build files -->
+          <execution>
+            <id>cmake-generate</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>cmake</executable>
+              <workingDirectory>${project.basedir}</workingDirectory>
+              <arguments>
+                <argument>-B</argument>
+                <argument>${project.build.directory}/cmake-build</argument>
+                <argument>-DCMAKE_BUILD_TYPE=Release</argument>
+              </arguments>
+            </configuration>
+          </execution>
+
+          <!-- Build with CMake -->
+          <execution>
+            <id>cmake-build</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>cmake</executable>
+              <workingDirectory>${project.basedir}</workingDirectory>
+              <arguments>
+                <argument>--build</argument>
+                <argument>${project.build.directory}/cmake-build</argument>
+                <argument>--config</argument>
+                <argument>Release</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Copy the compiled executable to target/bin/ -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>copy-executable</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <mkdir dir="${project.build.directory}/bin"/>
+                <copy todir="${project.build.directory}/bin">
+                  <fileset dir="${project.build.directory}/cmake-build">
+                    <include name="ek9"/>
+                    <include name="ek9.exe"/>
+                  </fileset>
+                </copy>
+                <chmod file="${project.build.directory}/bin/ek9" perm="755" osfamily="unix"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

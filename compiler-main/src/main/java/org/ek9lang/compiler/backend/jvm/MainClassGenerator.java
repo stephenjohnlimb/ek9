@@ -91,6 +91,15 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
   }
 
   /**
+   * Extract simple type name from qualified type name for error messages.
+   * EK9: "org.ek9.lang::Integer" → "Integer"
+   */
+  private String getSimpleTypeName(final String qualifiedName) {
+    final int index = qualifiedName.lastIndexOf("::");
+    return index >= 0 ? qualifiedName.substring(index + 2) : qualifiedName;
+  }
+
+  /**
    * Generate logic for single program execution (with optional -r flag support).
    */
   private void generateSingleProgramLogic(final MethodVisitor mv, final ProgramDetails program) {
@@ -266,6 +275,14 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
       final int argsOffset) {
     final var parameterSignature = program.parameterSignature();
 
+    // Special handling for List of String parameter (guaranteed to be the only parameter)
+    if (parameterSignature.size() == 1
+        && "org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1".equals(
+            parameterSignature.getFirst().type())) {
+      generateListOfStringProgramCall(mv, program, argsOffset);
+      return;
+    }
+
     // Validate argument count matches parameter count
     // if (args.length - argsOffset != parameterSignature.size()) { show error and return }
     org.objectweb.asm.Label argumentCountValid = new org.objectweb.asm.Label();
@@ -326,7 +343,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     final int instanceLocalVar = 1 + parameterSignature.size();
     mv.visitVarInsn(ASTORE, instanceLocalVar);
 
-    // Convert each command-line argument to EK9 type and store in local variables
+    // Convert each command-line argument to EK9 type and validate conversion succeeded
     for (int i = 0; i < parameterSignature.size(); i++) {
       final var param = parameterSignature.get(i);
       final int paramLocalVar = 1 + i; // Start at local var 1 (0 is args array)
@@ -336,11 +353,51 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
       mv.visitLdcInsn(argsOffset + i); // Index
       mv.visitInsn(AALOAD); // args[index] - Java String
 
+      // Store original string argument for error message
+      mv.visitInsn(DUP); // Duplicate string for potential error message
+      final int stringArgLocalVar = instanceLocalVar + 1 + i;
+      mv.visitVarInsn(ASTORE, stringArgLocalVar);
+
       // Convert to EK9 type using factory method
       generateTypeConversion(mv, param.type());
 
       // Store converted EK9 object in local variable
       mv.visitVarInsn(ASTORE, paramLocalVar);
+
+      // Validate conversion succeeded: if (!convertedValue._isSet()._true()) { error }
+      org.objectweb.asm.Label conversionSuccessful = new org.objectweb.asm.Label();
+
+      mv.visitVarInsn(ALOAD, paramLocalVar); // Load converted EK9 object
+      mv.visitTypeInsn(CHECKCAST, "org/ek9/lang/BuiltinType"); // Cast to BuiltinType
+      mv.visitMethodInsn(INVOKEVIRTUAL, "org/ek9/lang/BuiltinType", "_isSet", "()Lorg/ek9/lang/Boolean;", false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, "org/ek9/lang/Boolean", "_true", "()Z", false);
+      mv.visitJumpInsn(IFNE, conversionSuccessful); // If true, conversion succeeded
+
+      // Conversion failed - show error message
+      mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+      mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
+      mv.visitInsn(DUP);
+      mv.visitLdcInsn("Error: Invalid argument for parameter ");
+      mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
+      mv.visitLdcInsn(i + 1); // Parameter number (1-based)
+      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", false);
+      mv.visitLdcInsn(" (");
+      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+      mv.visitLdcInsn(param.name());
+      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+      mv.visitLdcInsn("): cannot convert '");
+      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+      mv.visitVarInsn(ALOAD, stringArgLocalVar); // Load original string
+      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+      mv.visitLdcInsn("' to ");
+      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+      mv.visitLdcInsn(getSimpleTypeName(param.type()));
+      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+      mv.visitInsn(RETURN);
+
+      mv.visitLabel(conversionSuccessful);
     }
 
     // Load instance and call _main with converted parameters
@@ -357,13 +414,105 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
   }
 
   /**
+   * Generate bytecode for program with List of String parameter.
+   * Collects all remaining command-line args into java.util.List and converts to EK9 List of String.
+   */
+  private void generateListOfStringProgramCall(final MethodVisitor mv, final ProgramDetails program,
+      final int argsOffset) {
+    final var javaClassName = convertToJavaClassName(program.qualifiedName());
+    final var internalClassName = javaClassName.replace(".", "/");
+
+    // Create program instance
+    mv.visitTypeInsn(NEW, internalClassName);
+    mv.visitInsn(DUP);
+    mv.visitMethodInsn(INVOKESPECIAL, internalClassName, "<init>", "()V", false);
+    final int instanceLocalVar = 1;
+    mv.visitVarInsn(ASTORE, instanceLocalVar);
+
+    // Create java.util.ArrayList to collect all arguments
+    mv.visitTypeInsn(NEW, "java/util/ArrayList");
+    mv.visitInsn(DUP);
+    mv.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "<init>", "()V", false);
+    final int listLocalVar = 2;
+    mv.visitVarInsn(ASTORE, listLocalVar);
+
+    // Calculate loop bounds: from argsOffset to args.length - 1
+    final int loopIndexVar = 3;
+    final int argsLengthVar = 4;
+
+    // Store args.length in local variable
+    mv.visitVarInsn(ALOAD, 0); // Load args[]
+    mv.visitInsn(ARRAYLENGTH);
+    mv.visitVarInsn(ISTORE, argsLengthVar);
+
+    // Initialize loop counter: i = argsOffset
+    mv.visitLdcInsn(argsOffset);
+    mv.visitVarInsn(ISTORE, loopIndexVar);
+
+    // Loop: while (i < args.length)
+    org.objectweb.asm.Label loopStart = new org.objectweb.asm.Label();
+    org.objectweb.asm.Label loopEnd = new org.objectweb.asm.Label();
+
+    mv.visitLabel(loopStart);
+    // Check condition: i < args.length
+    mv.visitVarInsn(ILOAD, loopIndexVar);
+    mv.visitVarInsn(ILOAD, argsLengthVar);
+    mv.visitJumpInsn(IF_ICMPGE, loopEnd); // Jump to end if i >= args.length
+
+    // Convert args[i] to EK9 String and add to ArrayList
+    mv.visitVarInsn(ALOAD, 0); // Load args[]
+    mv.visitVarInsn(ILOAD, loopIndexVar); // Load i
+    mv.visitInsn(AALOAD); // args[i] - Java String
+
+    // Convert to EK9 String: String._of(javaString)
+    mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/String", "_of",
+        "(Ljava/lang/String;)Lorg/ek9/lang/String;", false);
+
+    // Add to ArrayList: list.add(ek9String)
+    mv.visitVarInsn(ALOAD, listLocalVar); // Load ArrayList
+    mv.visitInsn(SWAP); // Swap so list is on top, ek9String is second
+    mv.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add",
+        "(Ljava/lang/Object;)Z", true);
+    mv.visitInsn(POP); // Discard boolean return value
+
+    // Increment loop counter: i++
+    mv.visitIincInsn(loopIndexVar, 1);
+    mv.visitJumpInsn(GOTO, loopStart);
+
+    mv.visitLabel(loopEnd);
+
+    // Convert java.util.List to EK9 List of String using factory method
+    // _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of(java.util.List)
+    mv.visitVarInsn(ALOAD, listLocalVar);
+    mv.visitMethodInsn(INVOKESTATIC,
+        "org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1",
+        "_of",
+        "(Ljava/util/List;)Lorg/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1;",
+        false);
+    final int ek9ListLocalVar = 5;
+    mv.visitVarInsn(ASTORE, ek9ListLocalVar);
+
+    // Call program._main(ek9ListOfString)
+    mv.visitVarInsn(ALOAD, instanceLocalVar); // Load program instance
+    mv.visitVarInsn(ALOAD, ek9ListLocalVar); // Load EK9 List of String
+
+    // Build method descriptor using typeConverter: (Lorg/ek9/lang/_List_...;)V
+    final String listDescriptor = typeConverter.apply(
+        "org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1");
+    final String methodDescriptor = "(" + listDescriptor + ")V";
+    mv.visitMethodInsn(INVOKEVIRTUAL, internalClassName, "_main", methodDescriptor, false);
+  }
+
+  /**
    * Generate bytecode to convert a Java String to an EK9 type using factory method.
    * Stack: [javaString] -> [ek9Object]
    * Supports all types defined in ProgramArgumentPredicate.
+   * Note: Caller must validate conversion succeeded by checking _isSet() on returned object.
    */
   private void generateTypeConversion(final MethodVisitor mv, final String ek9Type) {
     // Call appropriate EK9 factory method: Type._of(javaString)
     // All these types support _of(String) factory method for command-line conversion
+    // The _of method returns an unset object if conversion fails
     switch (ek9Type) {
       // Basic types
       case "org.ek9.lang::String" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/String", "_of",
@@ -406,28 +555,14 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
           "(Ljava/lang/String;)Lorg/ek9/lang/RegEx;", false);
 
       default -> {
-        // Check if this is List of String (generic type)
-        if (ek9Type.startsWith("_List_") && ek9Type.contains("String")) {
-          // List of String - needs special handling for multiple arguments
-          // For now, this is unsupported in simple command-line parsing
-          mv.visitInsn(POP); // Remove javaString from stack
-          mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
-          mv.visitLdcInsn(
-              "Error: List of String parameters not yet supported in command-line execution");
-          mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V",
-              false);
-          mv.visitInsn(RETURN);
-        } else {
-          // Unsupported type - show error and exit
-          mv.visitInsn(POP); // Remove javaString from stack
-          mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
-          mv.visitLdcInsn("Error: Unsupported parameter type: " + ek9Type);
-          mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V",
-              false);
-          mv.visitInsn(RETURN);
-        }
+        // Unsupported type - show error and exit
+        mv.visitInsn(POP); // Remove javaString from stack
+        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+        mv.visitLdcInsn("Error: Unsupported parameter type: " + ek9Type);
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V",
+            false);
+        mv.visitInsn(RETURN);
       }
     }
-    // TODO: Add validation that conversion succeeded (_isSet() check) in future enhancement
   }
 }
