@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase7.generator;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -262,7 +264,7 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
         aggregateSymbol.getFullyQualifiedName(),
         IRConstants.I_INIT_METHOD,
         java.util.List.of(), // No parameters
-        "org.ek9.lang::Void", // Return type
+        EK9_VOID, // Return type
         java.util.List.of(), // No arguments
         iInitMetaData,
         false

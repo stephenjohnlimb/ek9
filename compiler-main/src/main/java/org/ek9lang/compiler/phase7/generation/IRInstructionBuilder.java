@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase7.generation;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
+
 import java.util.List;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -135,7 +137,7 @@ public class IRInstructionBuilder {
 
     // Create the call with proper void handling
     var debugInfo = context.currentDebugInfo().orElse(null);
-    var targetVar = "org.ek9.lang::Void".equals(callDetailsResult.callDetails().returnTypeName())
+    var targetVar = EK9_VOID.equals(callDetailsResult.callDetails().returnTypeName())
         ? null : targetVariable;
 
     var instruction = CallInstr.call(targetVar, debugInfo, callDetailsResult.callDetails());

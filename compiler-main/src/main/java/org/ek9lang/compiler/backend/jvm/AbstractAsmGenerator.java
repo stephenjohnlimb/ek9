@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.backend.jvm;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
+
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.core.AssertValue;
@@ -124,7 +126,7 @@ public abstract class AbstractAsmGenerator {
    */
   protected String convertToJvmDescriptor(final String ek9TypeName) {
     // Handle void type specially
-    if ("org.ek9.lang::Void".equals(ek9TypeName)) {
+    if (EK9_VOID.equals(ek9TypeName)) {
       return "V";
     }
 

@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.backend.jvm;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
+
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.core.AssertValue;
@@ -85,7 +87,7 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
       }
 
       // Generate constructor descriptor (constructors return void)
-      final var constructorDescriptor = generateMethodDescriptor(parameterTypes, "org.ek9.lang::Void");
+      final var constructorDescriptor = generateMethodDescriptor(parameterTypes, EK9_VOID);
 
       // Generate INVOKESPECIAL <init>
       getCurrentMethodVisitor().visitMethodInsn(

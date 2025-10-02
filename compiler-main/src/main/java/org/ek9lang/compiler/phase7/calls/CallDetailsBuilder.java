@@ -3,6 +3,8 @@ package org.ek9lang.compiler.phase7.calls;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
+
 import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
@@ -146,7 +148,7 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
       if (operatorDetails.hasReturn()) {
         returnType = targetTypeName; // Return same type as target for most operators
       } else {
-        returnType = "org.ek9.lang::Void"; // No return = Void
+        returnType = EK9_VOID; // No return = Void
       }
 
       // Get side effects from centralized OperatorMap logic

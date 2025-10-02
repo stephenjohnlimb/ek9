@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase7.generator;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -160,7 +162,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     // Assignment operators MUST return Void - enforced by ValidOperatorOrError semantic rules
     final var returnType = callDetailsResult.callDetails().returnTypeName();
     AssertValue.checkTrue("Assignment operator " + ctx.op.getText() + " must return Void, got: " + returnType,
-        "org.ek9.lang::Void".equals(returnType));
+        EK9_VOID.equals(returnType));
 
     // Assignment operators return Void - generate call without result variable
     // The method mutates the left operand in-place

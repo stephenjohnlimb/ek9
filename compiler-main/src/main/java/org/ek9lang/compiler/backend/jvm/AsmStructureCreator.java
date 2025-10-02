@@ -206,7 +206,7 @@ public final class AsmStructureCreator implements Opcodes {
           // Extract parameter names from parameter signature
           return programDetails.parameterSignature().stream()
               .map(org.ek9lang.compiler.ir.data.ParameterDetails::name)
-              .collect(java.util.stream.Collectors.toList());
+              .toList();
         }
       }
     }
@@ -256,7 +256,7 @@ public final class AsmStructureCreator implements Opcodes {
    * Uses specialized ASM generators for each instruction type.
    */
   private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
-                                                     final org.ek9lang.compiler.ir.instructions.BasicBlockInstr basicBlock) {
+                                                      final org.ek9lang.compiler.ir.instructions.BasicBlockInstr basicBlock) {
     // Create temporary visitor to process instructions with access to current MethodVisitor
     final var instructionVisitor = new InstructionVisitor(mv);
 
@@ -284,8 +284,8 @@ public final class AsmStructureCreator implements Opcodes {
    * Pre-registers parameters in variable map to prevent null overwriting.
    */
   private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
-                                                     final org.ek9lang.compiler.ir.instructions.BasicBlockInstr basicBlock,
-                                                     final java.util.List<String> parameterNames) {
+                                                      final org.ek9lang.compiler.ir.instructions.BasicBlockInstr basicBlock,
+                                                      final java.util.List<String> parameterNames) {
     // Create temporary visitor with pre-registered parameters
     final var instructionVisitor = new InstructionVisitor(mv, parameterNames);
 
@@ -312,8 +312,8 @@ public final class AsmStructureCreator implements Opcodes {
    * Overloaded version for constructor context.
    */
   private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
-                                                     final org.ek9lang.compiler.ir.instructions.BasicBlockInstr basicBlock,
-                                                     final boolean isConstructor) {
+                                                      final org.ek9lang.compiler.ir.instructions.BasicBlockInstr basicBlock,
+                                                      final boolean isConstructor) {
     // Create temporary visitor to process instructions with access to current MethodVisitor and constructor flag
     final var instructionVisitor = new InstructionVisitor(mv, isConstructor);
 
@@ -345,7 +345,6 @@ public final class AsmStructureCreator implements Opcodes {
     private final CallInstrAsmGenerator callInstrGenerator;
     private final LiteralInstrAsmGenerator literalInstrGenerator;
     private final MemoryInstrAsmGenerator memoryInstrGenerator;
-    private final ScopeInstrAsmGenerator scopeInstrGenerator;
     private final boolean isConstructor;
 
     InstructionVisitor(final MethodVisitor mv) {
@@ -376,7 +375,6 @@ public final class AsmStructureCreator implements Opcodes {
       this.callInstrGenerator = new CallInstrAsmGenerator(constructTargetTuple, outputVisitor, classWriter);
       this.literalInstrGenerator = new LiteralInstrAsmGenerator(constructTargetTuple, outputVisitor, classWriter);
       this.memoryInstrGenerator = new MemoryInstrAsmGenerator(constructTargetTuple, outputVisitor, classWriter);
-      this.scopeInstrGenerator = new ScopeInstrAsmGenerator(constructTargetTuple, outputVisitor, classWriter);
 
       // Create shared method context for this method's variable slot allocation
       final AbstractAsmGenerator.MethodContext sharedContext = new AbstractAsmGenerator.MethodContext();
@@ -394,13 +392,11 @@ public final class AsmStructureCreator implements Opcodes {
       this.callInstrGenerator.setSharedMethodContext(sharedContext);
       this.literalInstrGenerator.setSharedMethodContext(sharedContext);
       this.memoryInstrGenerator.setSharedMethodContext(sharedContext);
-      this.scopeInstrGenerator.setSharedMethodContext(sharedContext);
 
       // Set the current method visitor for all generators
       this.callInstrGenerator.setCurrentMethodVisitor(mv);
       this.literalInstrGenerator.setCurrentMethodVisitor(mv);
       this.memoryInstrGenerator.setCurrentMethodVisitor(mv);
-      this.scopeInstrGenerator.setCurrentMethodVisitor(mv);
     }
 
     void processCallInstruction(final org.ek9lang.compiler.ir.instructions.CallInstr callInstr) {
@@ -419,8 +415,7 @@ public final class AsmStructureCreator implements Opcodes {
     }
 
     void processScopeInstruction(final org.ek9lang.compiler.ir.instructions.ScopeInstr scopeInstr) {
-      // Delegate to existing specialized ScopeInstrAsmGenerator
-      scopeInstrGenerator.generateScopeOperation(scopeInstr);
+      //No-op
     }
 
     void processBranchInstruction(final org.ek9lang.compiler.ir.instructions.BranchInstr branchInstr) {
@@ -460,483 +455,6 @@ public final class AsmStructureCreator implements Opcodes {
   private String getSimpleClassName(final String fullyQualifiedName) {
     final var lastIndex = fullyQualifiedName.lastIndexOf("::");
     return lastIndex >= 0 ? fullyQualifiedName.substring(lastIndex + 2) : fullyQualifiedName;
-  }
-
-  private void generateRegistryField() {
-    classWriter.visitField(
-        ACC_PRIVATE | ACC_STATIC | ACC_FINAL,
-        "REGISTRY",
-        "Ljava/util/Map;",
-        "Ljava/util/Map<Ljava/lang/String;Lek9/ProgramMetadata;>;",
-        null
-    ).visitEnd();
-  }
-
-  private void generateStaticInitializer() {
-    MethodVisitor mv = classWriter.visitMethod(
-        ACC_STATIC,
-        "<clinit>",
-        "()V",
-        null,
-        null
-    );
-    mv.visitCode();
-
-    // REGISTRY = createRegistry()
-    mv.visitMethodInsn(INVOKESTATIC, "ek9/Main", "createRegistry", "()Ljava/util/Map;", false);
-    mv.visitFieldInsn(PUTSTATIC, "ek9/Main", "REGISTRY", "Ljava/util/Map;");
-
-    mv.visitInsn(RETURN);
-    mv.visitMaxs(0, 0);
-    mv.visitEnd();
-  }
-
-  private void generateMainMethod() {
-    MethodVisitor mv = classWriter.visitMethod(
-        ACC_PUBLIC | ACC_STATIC,
-        "main",
-        "([Ljava/lang/String;)V",
-        null,
-        null
-    );
-    mv.visitCode();
-
-    // Load REGISTRY
-    mv.visitFieldInsn(GETSTATIC, "ek9/Main", "REGISTRY", "Ljava/util/Map;");
-
-    // Load args
-    mv.visitVarInsn(ALOAD, 0);
-
-    // Create System.err::println lambda
-    mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
-    mv.visitInsn(DUP);
-    mv.visitInvokeDynamicInsn(
-        "accept",
-        "(Ljava/io/PrintStream;)Ljava/util/function/Consumer;",
-        new org.objectweb.asm.Handle(
-            H_INVOKESTATIC,
-            "java/lang/invoke/LambdaMetafactory",
-            "metafactory",
-            "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
-            false
-        ),
-        new Object[]{
-            org.objectweb.asm.Type.getType("(Ljava/lang/Object;)V"),
-            new org.objectweb.asm.Handle(H_INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false),
-            org.objectweb.asm.Type.getType("(Ljava/lang/String;)V")
-        }
-    );
-
-    // Create System::exit lambda
-    mv.visitInvokeDynamicInsn(
-        "accept",
-        "()Ljava/util/function/IntConsumer;",
-        new org.objectweb.asm.Handle(
-            H_INVOKESTATIC,
-            "java/lang/invoke/LambdaMetafactory",
-            "metafactory",
-            "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
-            false
-        ),
-        new Object[]{
-            org.objectweb.asm.Type.getType("(I)V"),
-            new org.objectweb.asm.Handle(H_INVOKESTATIC, "java/lang/System", "exit", "(I)V", false),
-            org.objectweb.asm.Type.getType("(I)V")
-        }
-    );
-
-    // Push "ek9.Main" string
-    mv.visitLdcInsn("ek9.Main");
-
-    // Call ProgramLauncher.launch
-    mv.visitMethodInsn(
-        INVOKESTATIC,
-        "ek9/ProgramLauncher",
-        "launch",
-        "(Ljava/util/Map;[Ljava/lang/String;Ljava/util/function/Consumer;Ljava/util/function/IntConsumer;Ljava/lang/String;)V",
-        false
-    );
-
-    mv.visitInsn(RETURN);
-    mv.visitMaxs(0, 0);
-    mv.visitEnd();
-  }
-
-  private void generateCreateRegistryMethodFromIR() {
-    if (programEntryPoint == null) {
-      throw new CompilerException("Cannot generate registry without ProgramEntryPointInstr");
-    }
-
-    MethodVisitor mv = classWriter.visitMethod(
-        ACC_PRIVATE | ACC_STATIC,
-        "createRegistry",
-        "()Ljava/util/Map;",
-        "()Ljava/util/Map<Ljava/lang/String;Lek9/ProgramMetadata;>;",
-        null
-    );
-    mv.visitCode();
-
-    // new HashMap()
-    mv.visitTypeInsn(NEW, "java/util/HashMap");
-    mv.visitInsn(DUP);
-    mv.visitMethodInsn(INVOKESPECIAL, "java/util/HashMap", "<init>", "()V", false);
-    mv.visitVarInsn(ASTORE, 0);
-
-    // Process each program from ProgramEntryPointInstr
-    for (var programDetails : programEntryPoint.getAvailablePrograms()) {
-      // registry.put(qualifiedName, new ProgramMetadata(...))
-      mv.visitVarInsn(ALOAD, 0);
-      mv.visitLdcInsn(programDetails.qualifiedName());
-
-      // new ProgramMetadata(...)
-      mv.visitTypeInsn(NEW, "ek9/ProgramMetadata");
-      mv.visitInsn(DUP);
-      mv.visitLdcInsn(programDetails.qualifiedName());
-
-      // Create parameter types array
-      var paramTypes = programDetails.parameterSignature();
-      mv.visitLdcInsn(paramTypes.size());
-      mv.visitTypeInsn(ANEWARRAY, "java/lang/String");
-
-      for (int i = 0; i < paramTypes.size(); i++) {
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn(i);
-        mv.visitLdcInsn(paramTypes.get(i).type());
-        mv.visitInsn(AASTORE);
-      }
-
-      // Generate method name from qualified name
-      String methodName = generateMethodNameFromQualifiedName(programDetails.qualifiedName());
-      mv.visitLdcInsn(methodName);
-
-      mv.visitMethodInsn(
-          INVOKESPECIAL,
-          "ek9/ProgramMetadata",
-          "<init>",
-          "(Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;)V",
-          false
-      );
-
-      mv.visitMethodInsn(
-          INVOKEINTERFACE,
-          "java/util/Map",
-          "put",
-          "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
-          true
-      );
-      mv.visitInsn(POP);
-
-      // Remember this mapping for method generation
-      programMethodNames.put(programDetails.qualifiedName(), methodName);
-    }
-
-    // return registry
-    mv.visitVarInsn(ALOAD, 0);
-    mv.visitInsn(ARETURN);
-    mv.visitMaxs(0, 0);
-    mv.visitEnd();
-  }
-
-  private String generateMethodNameFromQualifiedName(String qualifiedName) {
-    // Convert "introduction1::HelloWorld" to "execute_introduction1_HelloWorld"
-    // This ensures uniqueness across modules
-    String safeName = qualifiedName.replace("::", "_");
-    return "execute_" + safeName;
-  }
-
-  private void generateProgramMethods(IRConstruct construct) {
-    if (classWriter == null) {
-      return; // No Main class to add methods to
-    }
-
-    // Find the _main method operation in this construct
-    for (var operation : construct.getOperations()) {
-      String operationName = operation.getSymbol().getName();
-
-      if ("_main".equals(operationName)) {
-        // This is the main program logic - generate execution method
-        String qualifiedName = construct.getFullyQualifiedName();
-        String methodName = generateMethodNameFromQualifiedName(qualifiedName);
-        generateProgramExecutionMethod(methodName, operation, construct);
-      }
-    }
-  }
-
-  private void generateProgramExecutionMethod(String methodName,
-                                            org.ek9lang.compiler.ir.instructions.OperationInstr operation,
-                                            IRConstruct construct) {
-    // Get method signature from the operation
-    var symbol = operation.getSymbol();
-    String methodDescriptor = generateMethodDescriptor(symbol);
-
-    MethodVisitor mv = classWriter.visitMethod(
-        ACC_PUBLIC | ACC_STATIC,
-        methodName,
-        methodDescriptor,
-        null,
-        null
-    );
-    mv.visitCode();
-
-    // Process the operation's basic block to generate bytecode
-    var basicBlock = operation.getBody();
-    if (basicBlock != null) {
-      processBasicBlock(mv, basicBlock);
-    }
-
-    mv.visitMaxs(0, 0);
-    mv.visitEnd();
-  }
-
-  private String generateMethodDescriptor(org.ek9lang.compiler.symbols.ISymbol symbol) {
-    // For now, simple implementation - will need to process actual parameter types
-    if (symbol instanceof org.ek9lang.compiler.symbols.MethodSymbol methodSymbol) {
-      var callParameters = methodSymbol.getCallParameters();
-      if (!callParameters.isEmpty()) {
-        // Has parameters - need to build descriptor based on parameter types
-        StringBuilder desc = new StringBuilder("(");
-        for (var param : callParameters) {
-          desc.append("Lorg/ek9/lang/String;"); // Simplified - should map actual types
-        }
-        desc.append(")V");
-        return desc.toString();
-      }
-    }
-    return "()V"; // No parameters, void return
-  }
-
-  private void processBasicBlock(MethodVisitor mv,
-                               org.ek9lang.compiler.ir.instructions.BasicBlockInstr basicBlock) {
-    // Local variable counter
-    int localVarIndex = 0;
-    Map<String, Integer> variableMap = new HashMap<>();
-
-    // Process each IR instruction in the basic block
-    for (var instruction : basicBlock.getInstructions()) {
-      localVarIndex = processIRInstruction(mv, instruction, variableMap, localVarIndex);
-    }
-
-    // If no explicit return was generated, add one
-    if (basicBlock.getLastInstruction() == null ||
-        !basicBlock.getLastInstruction().getOpcode().toString().equals("RETURN")) {
-      mv.visitInsn(RETURN);
-    }
-  }
-
-  private int processIRInstruction(MethodVisitor mv,
-                                 org.ek9lang.compiler.ir.instructions.IRInstr instruction,
-                                 Map<String, Integer> variableMap,
-                                 int localVarIndex) {
-    String opcode = instruction.getOpcode().toString();
-
-    switch (opcode) {
-      case "CALL":
-        return processCallInstruction(mv, instruction, variableMap, localVarIndex);
-      case "LOAD_LITERAL":
-        return processLoadLiteralInstruction(mv, instruction, variableMap, localVarIndex);
-      case "STORE":
-        return processStoreInstruction(mv, instruction, variableMap, localVarIndex);
-      case "LOAD":
-        return processLoadInstruction(mv, instruction, variableMap, localVarIndex);
-      case "REFERENCE":
-        return processReferenceInstruction(mv, instruction, variableMap, localVarIndex);
-      case "RETURN":
-        mv.visitInsn(RETURN);
-        return localVarIndex;
-      case "SCOPE_ENTER":
-      case "SCOPE_EXIT":
-      case "RETAIN":
-      case "SCOPE_REGISTER":
-        // JVM handles scope and memory management automatically - ignore these
-        return localVarIndex;
-      default:
-        System.err.println("WARNING: Unhandled IR instruction: " + opcode);
-        return localVarIndex;
-    }
-  }
-
-  private int processCallInstruction(MethodVisitor mv,
-                                   org.ek9lang.compiler.ir.instructions.IRInstr instruction,
-                                   Map<String, Integer> variableMap,
-                                   int localVarIndex) {
-    // Parse the CALL instruction - this is simplified, real implementation needs full parsing
-    String instrStr = instruction.toString();
-
-    if (instrStr.contains("org.ek9.lang::Stdout.<init>()")) {
-      // Constructor call: new Stdout()
-      mv.visitTypeInsn(NEW, "org/ek9/lang/Stdout");
-      mv.visitInsn(DUP);
-      mv.visitMethodInsn(INVOKESPECIAL, "org/ek9/lang/Stdout", "<init>", "()V", false);
-
-      // Store result if there's a target variable
-      String resultVar = extractResultVariable(instrStr);
-      if (resultVar != null) {
-        variableMap.put(resultVar, localVarIndex);
-        mv.visitVarInsn(ASTORE, localVarIndex);
-        localVarIndex++;
-      }
-    } else if (instrStr.contains("println(")) {
-      // Method call: stdout.println(toOutput)
-      String objectVar = extractObjectVariable(instrStr);
-      String paramVar = extractParameterVariable(instrStr);
-
-      if (objectVar != null && variableMap.containsKey(objectVar)) {
-        mv.visitVarInsn(ALOAD, variableMap.get(objectVar));
-      }
-      if (paramVar != null && variableMap.containsKey(paramVar)) {
-        mv.visitVarInsn(ALOAD, variableMap.get(paramVar));
-      }
-
-      mv.visitMethodInsn(INVOKEVIRTUAL, "org/ek9/lang/Stdout", "println",
-                        "(Lorg/ek9/lang/String;)Lorg/ek9/lang/Void;", false);
-      mv.visitInsn(POP); // Discard return value
-    }
-
-    return localVarIndex;
-  }
-
-  private int processLoadLiteralInstruction(MethodVisitor mv,
-                                          org.ek9lang.compiler.ir.instructions.IRInstr instruction,
-                                          Map<String, Integer> variableMap,
-                                          int localVarIndex) {
-    String instrStr = instruction.toString();
-
-    // Extract literal value and type - simplified parsing
-    if (instrStr.contains("LOAD_LITERAL") && instrStr.contains("org.ek9.lang::String")) {
-      String literal = extractStringLiteral(instrStr);
-      String resultVar = extractResultVariable(instrStr);
-
-      // Create EK9 String object with literal value
-      mv.visitTypeInsn(NEW, "org/ek9/lang/String");
-      mv.visitInsn(DUP);
-      mv.visitLdcInsn(literal);
-      mv.visitMethodInsn(INVOKESPECIAL, "org/ek9/lang/String", "<init>", "(Ljava/lang/String;)V", false);
-
-      if (resultVar != null) {
-        variableMap.put(resultVar, localVarIndex);
-        mv.visitVarInsn(ASTORE, localVarIndex);
-        localVarIndex++;
-      }
-    }
-
-    return localVarIndex;
-  }
-
-  private int processStoreInstruction(MethodVisitor mv,
-                                    org.ek9lang.compiler.ir.instructions.IRInstr instruction,
-                                    Map<String, Integer> variableMap,
-                                    int localVarIndex) {
-    String instrStr = instruction.toString();
-    String targetVar = extractTargetVariable(instrStr);
-    String sourceVar = extractSourceVariable(instrStr);
-
-    if (targetVar != null && sourceVar != null && variableMap.containsKey(sourceVar)) {
-      // Copy from source to target variable
-      mv.visitVarInsn(ALOAD, variableMap.get(sourceVar));
-
-      if (!variableMap.containsKey(targetVar)) {
-        variableMap.put(targetVar, localVarIndex++);
-      }
-      mv.visitVarInsn(ASTORE, variableMap.get(targetVar));
-    }
-
-    return localVarIndex;
-  }
-
-  private int processLoadInstruction(MethodVisitor mv,
-                                   org.ek9lang.compiler.ir.instructions.IRInstr instruction,
-                                   Map<String, Integer> variableMap,
-                                   int localVarIndex) {
-    String instrStr = instruction.toString();
-    String sourceVar = extractSourceVariable(instrStr);
-    String resultVar = extractResultVariable(instrStr);
-
-    if (sourceVar != null && resultVar != null && variableMap.containsKey(sourceVar)) {
-      mv.visitVarInsn(ALOAD, variableMap.get(sourceVar));
-
-      if (!variableMap.containsKey(resultVar)) {
-        variableMap.put(resultVar, localVarIndex++);
-      }
-      mv.visitVarInsn(ASTORE, variableMap.get(resultVar));
-    }
-
-    return localVarIndex;
-  }
-
-  private int processReferenceInstruction(MethodVisitor mv,
-                                        org.ek9lang.compiler.ir.instructions.IRInstr instruction,
-                                        Map<String, Integer> variableMap,
-                                        int localVarIndex) {
-    // REFERENCE just declares a variable - reserve space in variable map
-    String instrStr = instruction.toString();
-    String varName = extractVariableName(instrStr);
-
-    if (varName != null && !variableMap.containsKey(varName)) {
-      variableMap.put(varName, localVarIndex++);
-    }
-
-    return localVarIndex;
-  }
-
-  // Simplified instruction parsing methods - these would need to be more robust
-  private String extractResultVariable(String instrStr) {
-    if (instrStr.contains(" = ")) {
-      return instrStr.substring(0, instrStr.indexOf(" = ")).trim();
-    }
-    return null;
-  }
-
-  private String extractStringLiteral(String instrStr) {
-    if (instrStr.contains("\"") && instrStr.lastIndexOf("\"") > instrStr.indexOf("\"")) {
-      return instrStr.substring(instrStr.indexOf("\"") + 1, instrStr.lastIndexOf("\""));
-    }
-    return "";
-  }
-
-  private String extractObjectVariable(String instrStr) {
-    // Extract object from "obj.method()" pattern
-    if (instrStr.contains(".") && instrStr.contains("(")) {
-      String beforeDot = instrStr.substring(0, instrStr.indexOf("."));
-      if (beforeDot.contains(" ")) {
-        return beforeDot.substring(beforeDot.lastIndexOf(" ") + 1).trim();
-      }
-    }
-    return null;
-  }
-
-  private String extractParameterVariable(String instrStr) {
-    // Extract parameter from "method(param)" pattern
-    if (instrStr.contains("(") && instrStr.contains(")")) {
-      String params = instrStr.substring(instrStr.indexOf("(") + 1, instrStr.lastIndexOf(")"));
-      return params.trim();
-    }
-    return null;
-  }
-
-  private String extractTargetVariable(String instrStr) {
-    // For "STORE target, source"
-    if (instrStr.startsWith("STORE ") && instrStr.contains(", ")) {
-      return instrStr.substring(6, instrStr.indexOf(", ")).trim();
-    }
-    return null;
-  }
-
-  private String extractSourceVariable(String instrStr) {
-    // For "STORE target, source" or "LOAD source"
-    if (instrStr.contains(", ")) {
-      return instrStr.substring(instrStr.indexOf(", ") + 2).trim();
-    } else if (instrStr.startsWith("LOAD ")) {
-      return instrStr.substring(5).trim();
-    }
-    return null;
-  }
-
-  private String extractVariableName(String instrStr) {
-    // For "REFERENCE varName, type"
-    if (instrStr.startsWith("REFERENCE ") && instrStr.contains(", ")) {
-      return instrStr.substring(10, instrStr.indexOf(", ")).trim();
-    }
-    return null;
   }
 
   byte[] getByteCode() {

@@ -26,7 +26,6 @@ public final class OutputVisitor implements INodeVisitor {
   private final CallInstrAsmGenerator callInstrGenerator;
   private final LiteralInstrAsmGenerator literalInstrGenerator;
   private final MemoryInstrAsmGenerator memoryInstrGenerator;
-  private final ScopeInstrAsmGenerator scopeInstrGenerator;
 
   public OutputVisitor(final ConstructTargetTuple constructTargetTuple) {
     AssertValue.checkNotNull("File cannot be null", constructTargetTuple.targetFile());
@@ -38,7 +37,6 @@ public final class OutputVisitor implements INodeVisitor {
     this.callInstrGenerator = new CallInstrAsmGenerator(constructTargetTuple, this, classWriter);
     this.literalInstrGenerator = new LiteralInstrAsmGenerator(constructTargetTuple, this, classWriter);
     this.memoryInstrGenerator = new MemoryInstrAsmGenerator(constructTargetTuple, this, classWriter);
-    this.scopeInstrGenerator = new ScopeInstrAsmGenerator(constructTargetTuple, this, classWriter);
   }
 
   @Override
@@ -93,6 +91,6 @@ public final class OutputVisitor implements INodeVisitor {
    * Typed visit method for ScopeInstr - delegates to specialized generator.
    */
   public void visit(final ScopeInstr scopeInstr) {
-    scopeInstrGenerator.generateScopeOperation(scopeInstr);
+    //No-OP
   }
 }

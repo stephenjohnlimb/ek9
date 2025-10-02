@@ -1,13 +1,13 @@
 package org.ek9lang.compiler.phase7.generator;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
-import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
@@ -168,7 +168,7 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
                 metaData, isTraitCall);
 
             // Only assign result variable for non-void returning methods
-            if ("org.ek9.lang::Void".equals(returnTypeName)) {
+            if (EK9_VOID.equals(returnTypeName)) {
               // Void-returning method - don't assign to any variable
               instructions.add(CallInstr.call(null, methodDebugInfo, callDetails));
             } else {

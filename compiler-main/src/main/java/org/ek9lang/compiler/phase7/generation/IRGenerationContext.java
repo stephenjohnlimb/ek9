@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase7.generation;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -224,7 +226,7 @@ public class IRGenerationContext {
    * Check if we need a result variable for the current context.
    */
   public boolean needsResultVariable(String returnType) {
-    return !"org.ek9.lang::Void".equals(returnType) && hasLeftHandSide();
+    return !EK9_VOID.equals(returnType) && hasLeftHandSide();
   }
 
   /**
