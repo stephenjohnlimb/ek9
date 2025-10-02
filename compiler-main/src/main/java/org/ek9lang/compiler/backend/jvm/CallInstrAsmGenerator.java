@@ -1,6 +1,10 @@
 package org.ek9lang.compiler.backend.jvm;
 
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
+import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_CLINIT;
+import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_C_INIT;
+import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_INIT;
+import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_I_INIT;
 
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
@@ -76,7 +80,7 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
     final var jvmOwnerName = convertToJvmName(targetTypeName);
 
     // Special handling for constructor calls
-    if ("<init>".equals(jvmMethodName)) {
+    if (METHOD_INIT.equals(jvmMethodName)) {
       // Constructor call: NEW + DUP + INVOKESPECIAL
       getCurrentMethodVisitor().visitTypeInsn(Opcodes.NEW, jvmOwnerName);
       getCurrentMethodVisitor().visitInsn(Opcodes.DUP);
@@ -93,7 +97,7 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
       getCurrentMethodVisitor().visitMethodInsn(
           Opcodes.INVOKESPECIAL,
           jvmOwnerName,
-          "<init>",
+          METHOD_INIT,
           constructorDescriptor,
           false
       );
@@ -190,10 +194,10 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
    */
   private String convertEk9MethodToJvm(final String ek9MethodName) {
     return switch (ek9MethodName) {
-      case "c_init" -> "<clinit>";  // Static initializer
-      case "i_init" -> "i_init";    // Instance field initializer (stays same)
-      case "<init>" -> "<init>";    // Constructor (already JVM format)
-      default -> ek9MethodName;     // Regular methods keep their names
+      case METHOD_C_INIT -> METHOD_CLINIT; // Static initializer
+      case METHOD_I_INIT -> METHOD_I_INIT; // Instance field initializer (stays same)
+      case METHOD_INIT -> METHOD_INIT;     // Constructor (already JVM format)
+      default -> ek9MethodName;            // Regular methods keep their names
     };
   }
 }

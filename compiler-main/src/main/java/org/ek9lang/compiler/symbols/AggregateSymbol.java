@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.symbols;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_ANY;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -458,7 +460,7 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
       }
 
       //We push the cost of being able to assign to Any down.
-      if (theSuperAggregate.getFullyQualifiedName().equals("org.ek9.lang::Any")) {
+      if (theSuperAggregate.getFullyQualifiedName().equals(EK9_ANY)) {
         return SymbolMatcher.HIGH_COST;
       }
       //If we can assign via its super, then we're done.

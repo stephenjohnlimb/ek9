@@ -1,5 +1,20 @@
 package org.ek9lang.compiler.backend.jvm;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BOOLEAN;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_CHARACTER;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_FLOAT;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_INTEGER;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_BOOLEAN_TO_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_CHAR_TO_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_FLOAT_TO_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_INT_TO_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_BOOLEAN;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_CHARACTER;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_FLOAT;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_INTEGER;
+import static org.ek9lang.compiler.support.JVMTypeNames.PARAM_STRING;
+
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.instructions.LiteralInstr;
 import org.ek9lang.core.AssertValue;
@@ -49,11 +64,11 @@ public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator {
    */
   private void generateLiteralByType(final String literalValue, final String literalType) {
     switch (literalType) {
-      case "org.ek9.lang::String" -> generateStringLiteral(literalValue);
-      case "org.ek9.lang::Integer" -> generateIntegerLiteral(literalValue);
-      case "org.ek9.lang::Boolean" -> generateBooleanLiteral(literalValue);
-      case "org.ek9.lang::Float" -> generateFloatLiteral(literalValue);
-      case "org.ek9.lang::Character" -> generateCharacterLiteral(literalValue);
+      case EK9_STRING -> generateStringLiteral(literalValue);
+      case EK9_INTEGER -> generateIntegerLiteral(literalValue);
+      case EK9_BOOLEAN -> generateBooleanLiteral(literalValue);
+      case EK9_FLOAT -> generateFloatLiteral(literalValue);
+      case EK9_CHARACTER -> generateCharacterLiteral(literalValue);
       default -> generateObjectLiteral(literalValue, literalType);
     }
   }
@@ -67,15 +82,15 @@ public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator {
     getCurrentMethodVisitor().visitLdcInsn(value);
 
     // Use proper IR type conversion for EK9 String
-    final var jvmStringType = convertToJvmName("org.ek9.lang::String");
-    final var stringDescriptor = convertToJvmDescriptor("org.ek9.lang::String");
+    final var jvmStringType = convertToJvmName(EK9_STRING);
+    final var stringDescriptor = convertToJvmDescriptor(EK9_STRING);
 
     // Create new EK9 String object from Java string using _of method
     getCurrentMethodVisitor().visitMethodInsn(
         Opcodes.INVOKESTATIC,
         jvmStringType,
         "_of",
-        "(Ljava/lang/String;)" + stringDescriptor,
+        PARAM_STRING + stringDescriptor,
         false
     );
   }
@@ -108,15 +123,15 @@ public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator {
       }
 
       // Create EK9 Integer object from primitive int using actual IR type
-      final var jvmIntegerType = convertToJvmName("org.ek9.lang::Integer");
-      final var integerDescriptor = convertToJvmDescriptor("org.ek9.lang::Integer");
+      final var jvmIntegerType = convertToJvmName(EK9_INTEGER);
+      final var integerDescriptor = convertToJvmDescriptor(EK9_INTEGER);
 
       // Convert int to String first, then use _of method
       getCurrentMethodVisitor().visitMethodInsn(
           Opcodes.INVOKESTATIC,
-          "java/lang/Integer",
+          JAVA_LANG_INTEGER,
           "toString",
-          "(I)Ljava/lang/String;",
+          DESC_INT_TO_STRING,
           false
       );
 
@@ -124,7 +139,7 @@ public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator {
           Opcodes.INVOKESTATIC,
           jvmIntegerType,
           "_of",
-          "(Ljava/lang/String;)" + integerDescriptor,
+          PARAM_STRING + integerDescriptor,
           false
       );
 
@@ -147,15 +162,15 @@ public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator {
     }
 
     // Create EK9 Boolean object from primitive boolean using actual IR type
-    final var jvmBooleanType = convertToJvmName("org.ek9.lang::Boolean");
-    final var booleanDescriptor = convertToJvmDescriptor("org.ek9.lang::Boolean");
+    final var jvmBooleanType = convertToJvmName(EK9_BOOLEAN);
+    final var booleanDescriptor = convertToJvmDescriptor(EK9_BOOLEAN);
 
     // Convert boolean to String first, then use _of method
     getCurrentMethodVisitor().visitMethodInsn(
         Opcodes.INVOKESTATIC,
-        "java/lang/Boolean",
+        JAVA_LANG_BOOLEAN,
         "toString",
-        "(Z)Ljava/lang/String;",
+        DESC_BOOLEAN_TO_STRING,
         false
     );
 
@@ -163,7 +178,7 @@ public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator {
         Opcodes.INVOKESTATIC,
         jvmBooleanType,
         "_of",
-        "(Ljava/lang/String;)" + booleanDescriptor,
+        PARAM_STRING + booleanDescriptor,
         false
     );
   }
@@ -187,15 +202,15 @@ public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator {
       }
 
       // Create EK9 Float object from primitive float using actual IR type
-      final var jvmFloatType = convertToJvmName("org.ek9.lang::Float");
-      final var floatDescriptor = convertToJvmDescriptor("org.ek9.lang::Float");
+      final var jvmFloatType = convertToJvmName(EK9_FLOAT);
+      final var floatDescriptor = convertToJvmDescriptor(EK9_FLOAT);
 
       // Convert float to String first, then use _of method
       getCurrentMethodVisitor().visitMethodInsn(
           Opcodes.INVOKESTATIC,
-          "java/lang/Float",
+          JAVA_LANG_FLOAT,
           "toString",
-          "(F)Ljava/lang/String;",
+          DESC_FLOAT_TO_STRING,
           false
       );
 
@@ -203,7 +218,7 @@ public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator {
           Opcodes.INVOKESTATIC,
           jvmFloatType,
           "_of",
-          "(Ljava/lang/String;)" + floatDescriptor,
+          PARAM_STRING + floatDescriptor,
           false
       );
 
@@ -221,15 +236,15 @@ public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator {
       getCurrentMethodVisitor().visitIntInsn(Opcodes.BIPUSH, charValue);
 
       // Create EK9 Character object from primitive char using actual IR type
-      final var jvmCharacterType = convertToJvmName("org.ek9.lang::Character");
-      final var characterDescriptor = convertToJvmDescriptor("org.ek9.lang::Character");
+      final var jvmCharacterType = convertToJvmName(EK9_CHARACTER);
+      final var characterDescriptor = convertToJvmDescriptor(EK9_CHARACTER);
 
       // Convert char to String first, then use _of method
       getCurrentMethodVisitor().visitMethodInsn(
           Opcodes.INVOKESTATIC,
-          "java/lang/Character",
+          JAVA_LANG_CHARACTER,
           "toString",
-          "(C)Ljava/lang/String;",
+          DESC_CHAR_TO_STRING,
           false
       );
 
@@ -237,7 +252,7 @@ public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator {
           Opcodes.INVOKESTATIC,
           jvmCharacterType,
           "_of",
-          "(Ljava/lang/String;)" + characterDescriptor,
+          PARAM_STRING + characterDescriptor,
           false
       );
     } else {
@@ -260,7 +275,7 @@ public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator {
         Opcodes.INVOKESTATIC,
         jvmTypeName,
         "_of",
-        "(Ljava/lang/String;)" + typeDescriptor,
+        PARAM_STRING + typeDescriptor,
         false
     );
   }

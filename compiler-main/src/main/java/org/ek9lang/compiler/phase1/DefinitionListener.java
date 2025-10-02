@@ -1,5 +1,6 @@
 package org.ek9lang.compiler.phase1;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_ANY;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BITS;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BOOLEAN;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_CHARACTER;
@@ -172,7 +173,7 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     if ("org.ek9.lang".equals(moduleName)) {
       final var anyType = getParsedModule()
           .getModuleScope()
-          .resolve(new SymbolSearch("org.ek9.lang::Any").setSearchType(SymbolCategory.ANY));
+          .resolve(new SymbolSearch(EK9_ANY).setSearchType(SymbolCategory.ANY));
       anyType.ifPresent(any -> {
         if (any instanceof AggregateSymbol asAggregate) {
           symbolFactory.addMethodsToAny(asAggregate);

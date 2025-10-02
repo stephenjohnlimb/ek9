@@ -8,13 +8,25 @@ public final class EK9TypeNames {
   //Special type parameterised list with String, so we can accept on the commandline.
   public static final String EK9_LIST_OF_STRING
       = EK9_LANG + "::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1";
-  public static final String EK9_COMPARATOR = EK9_LANG + "::Comparator";
+  // Pure function types
+  public static final String EK9_SUPPLIER = EK9_LANG + "::Supplier";
+  public static final String EK9_CONSUMER = EK9_LANG + "::Consumer";
   public static final String EK9_PREDICATE = EK9_LANG + "::Predicate";
   public static final String EK9_UNARY_OPERATOR = EK9_LANG + "::UnaryOperator";
-  public static final String EK9_ROUTINE = EK9_LANG + "::Routine";
+  public static final String EK9_BI_CONSUMER = EK9_LANG + "::BiConsumer";
+  public static final String EK9_BI_PREDICATE = EK9_LANG + "::BiPredicate";
+  public static final String EK9_BI_FUNCTION = EK9_LANG + "::BiFunction";
+  public static final String EK9_COMPARATOR = EK9_LANG + "::Comparator";
   public static final String EK9_FUNCTION = EK9_LANG + "::Function";
-  public static final String EK9_CONSUMER = EK9_LANG + "::Consumer";
-  public static final String EK9_SUPPLIER = EK9_LANG + "::Supplier";
+
+  // Impure function types
+  public static final String EK9_PRODUCER = EK9_LANG + "::Producer";
+  public static final String EK9_ACCEPTOR = EK9_LANG + "::Acceptor";
+  public static final String EK9_ASSESSOR = EK9_LANG + "::Assessor";
+  public static final String EK9_ROUTINE = EK9_LANG + "::Routine";
+  public static final String EK9_BI_ACCEPTOR = EK9_LANG + "::BiAcceptor";
+  public static final String EK9_BI_ASSESSOR = EK9_LANG + "::BiAssessor";
+  public static final String EK9_BI_ROUTINE = EK9_LANG + "::BiRoutine";
   public static final String EK9_RESULT = EK9_LANG + "::Result";
   public static final String EK9_DICTIONARY_ENTRY = EK9_LANG + "::DictEntry";
   public static final String EK9_DICTIONARY = EK9_LANG + "::Dict";

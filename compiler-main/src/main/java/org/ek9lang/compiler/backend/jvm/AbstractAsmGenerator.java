@@ -1,6 +1,14 @@
 package org.ek9lang.compiler.backend.jvm;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BOOLEAN;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_INTEGER;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_STRING;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_BOOLEAN_TO_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_INT_TO_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_BOOLEAN;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_INTEGER;
+import static org.ek9lang.compiler.support.JVMTypeNames.PARAM_STRING;
 
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.support.DebugInfo;
@@ -175,7 +183,8 @@ public abstract class AbstractAsmGenerator {
    * Uses opaque identifier mapping - treats variable names as unique identifiers
    * and assigns sequential slots per method (1, 2, 3, 4, etc.) regardless of the actual name.
    * <p>
-   * Example: _temp1 -> slot 1, _temp10 -> slot 2, _temp3 -> slot 3 (in order encountered)
+   * Example: _temp1 -&gt; slot 1, _temp10 -&gt; slot 2, _temp3 -&gt; slot 3 (in order encountered)
+   * </p>
    */
   protected int getVariableIndex(final String variableName) {
     return methodContext.variableMap.computeIfAbsent(variableName, name -> methodContext.nextVariableSlot++);
@@ -230,22 +239,22 @@ public abstract class AbstractAsmGenerator {
    */
   private void generateLiteralStackOperation(final String literalValue, final String literalType) {
     switch (literalType) {
-      case "org.ek9.lang::String" -> {
+      case EK9_STRING -> {
         // Generate String literal directly onto stack
         getCurrentMethodVisitor().visitLdcInsn(literalValue);
 
         // Convert to EK9 String
-        final var jvmStringType = convertToJvmName("org.ek9.lang::String");
-        final var stringDescriptor = convertToJvmDescriptor("org.ek9.lang::String");
+        final var jvmStringType = convertToJvmName(EK9_STRING);
+        final var stringDescriptor = convertToJvmDescriptor(EK9_STRING);
         getCurrentMethodVisitor().visitMethodInsn(
             Opcodes.INVOKESTATIC,
             jvmStringType,
             "_of",
-            "(Ljava/lang/String;)" + stringDescriptor,
+            PARAM_STRING + stringDescriptor,
             false
         );
       }
-      case "org.ek9.lang::Integer" -> {
+      case EK9_INTEGER -> {
         try {
           final int intValue = Integer.parseInt(literalValue);
           // Load int constant
@@ -270,25 +279,25 @@ public abstract class AbstractAsmGenerator {
           // Convert int to String then to EK9 Integer
           getCurrentMethodVisitor().visitMethodInsn(
               Opcodes.INVOKESTATIC,
-              "java/lang/Integer",
+              JAVA_LANG_INTEGER,
               "toString",
-              "(I)Ljava/lang/String;",
+              DESC_INT_TO_STRING,
               false
           );
-          final var jvmIntegerType = convertToJvmName("org.ek9.lang::Integer");
-          final var integerDescriptor = convertToJvmDescriptor("org.ek9.lang::Integer");
+          final var jvmIntegerType = convertToJvmName(EK9_INTEGER);
+          final var integerDescriptor = convertToJvmDescriptor(EK9_INTEGER);
           getCurrentMethodVisitor().visitMethodInsn(
               Opcodes.INVOKESTATIC,
               jvmIntegerType,
               "_of",
-              "(Ljava/lang/String;)" + integerDescriptor,
+              PARAM_STRING + integerDescriptor,
               false
           );
         } catch (NumberFormatException e) {
           throw new IllegalArgumentException("Invalid integer literal: " + literalValue, e);
         }
       }
-      case "org.ek9.lang::Boolean" -> {
+      case EK9_BOOLEAN -> {
         // Load boolean value as int (0 or 1)
         if ("true".equals(literalValue)) {
           getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_1);
@@ -300,18 +309,18 @@ public abstract class AbstractAsmGenerator {
         // Convert boolean to String then to EK9 Boolean
         getCurrentMethodVisitor().visitMethodInsn(
             Opcodes.INVOKESTATIC,
-            "java/lang/Boolean",
+            JAVA_LANG_BOOLEAN,
             "toString",
-            "(Z)Ljava/lang/String;",
+            DESC_BOOLEAN_TO_STRING,
             false
         );
-        final var jvmBooleanType = convertToJvmName("org.ek9.lang::Boolean");
-        final var booleanDescriptor = convertToJvmDescriptor("org.ek9.lang::Boolean");
+        final var jvmBooleanType = convertToJvmName(EK9_BOOLEAN);
+        final var booleanDescriptor = convertToJvmDescriptor(EK9_BOOLEAN);
         getCurrentMethodVisitor().visitMethodInsn(
             Opcodes.INVOKESTATIC,
             jvmBooleanType,
             "_of",
-            "(Ljava/lang/String;)" + booleanDescriptor,
+            PARAM_STRING + booleanDescriptor,
             false
         );
       }
@@ -324,7 +333,7 @@ public abstract class AbstractAsmGenerator {
             Opcodes.INVOKESTATIC,
             jvmTypeName,
             "_of",
-            "(Ljava/lang/String;)" + typeDescriptor,
+            PARAM_STRING + typeDescriptor,
             false
         );
       }
@@ -346,13 +355,6 @@ public abstract class AbstractAsmGenerator {
     descriptor.append(convertToJvmDescriptor(returnType));
 
     return descriptor.toString();
-  }
-
-  /**
-   * Check if method name is a JVM special method.
-   */
-  protected boolean isSpecialMethod(final String methodName) {
-    return "<init>".equals(methodName) || "<clinit>".equals(methodName);
   }
 
   /**

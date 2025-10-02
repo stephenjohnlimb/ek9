@@ -1,7 +1,13 @@
 package org.ek9lang.compiler.backend.jvm;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_VOID_TO_VOID;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_OBJECT;
+import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_CLINIT;
+import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_C_INIT;
+import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_INIT;
+import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_I_INIT;
+import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_MAIN;
+
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
@@ -20,10 +26,6 @@ public final class AsmStructureCreator implements Opcodes {
   private final ConstructTargetTuple constructTargetTuple;
   private final INodeVisitor visitor;
   private ClassWriter classWriter;
-  private final Map<String, String> programMethodNames = new HashMap<>();
-
-  // Track if we've already processed the program entry point
-  private boolean programEntryPointProcessed = false;
   private ProgramEntryPointInstr programEntryPoint = null;
 
   AsmStructureCreator(final ConstructTargetTuple constructTargetTuple, final INodeVisitor visitor) {
@@ -74,7 +76,7 @@ public final class AsmStructureCreator implements Opcodes {
     final var programClassName = construct.getFullyQualifiedName();
     final var jvmClassName = programClassName.replace(".", "/").replace("::", "/");
 
-    classWriter.visit(V21, ACC_PUBLIC, jvmClassName, null, "java/lang/Object", null);
+    classWriter.visit(V21, ACC_PUBLIC, jvmClassName, null, JAVA_LANG_OBJECT, null);
 
     // Add source file information for debugging
     final var simpleClassName = programClassName.substring(programClassName.lastIndexOf("::") + 2);
@@ -83,11 +85,7 @@ public final class AsmStructureCreator implements Opcodes {
 
   /**
    * Generate program methods from IR operations instead of string parsing.
-   * Maps EK9 operations to JVM methods:
-   * - c_init -> <clinit> (static initializer)
-   * - i_init -> i_init (instance method)
-   * - constructor -> <init> (constructor)
-   * - _main -> _main (instance method)
+   * Maps EK9 operations to JVM methods.
    */
   private void generateProgramMethodsFromIR(final IRConstruct construct) {
     // Process each operation defined in the IR construct
@@ -96,16 +94,16 @@ public final class AsmStructureCreator implements Opcodes {
 
       // Map EK9 operations to JVM methods
       switch (operationName) {
-        case "c_init" -> generateStaticInitializerFromIR(operation);
-        case "i_init" -> generateInstanceInitFromIR(operation);
-        case "_main" -> generateMainMethodFromIR(operation);
+        case METHOD_C_INIT -> generateStaticInitializerFromIR(operation);
+        case METHOD_I_INIT -> generateInstanceInitFromIR(operation);
+        case METHOD_MAIN -> generateMainMethodFromIR(operation);
         default -> {
           // Check if it's a constructor (method name matches class name)
           final var className = getSimpleClassName(construct.getFullyQualifiedName());
           if (operationName.equals(className)) {
             generateConstructorFromIR(operation);
           } else {
-            System.err.println("WARNING: Unhandled operation: " + operationName);
+            throw new CompilerException("WARNING: Unhandled operation: " + operationName);
           }
         }
       }
@@ -113,10 +111,10 @@ public final class AsmStructureCreator implements Opcodes {
   }
 
   /**
-   * Generate <clinit> static initializer from c_init IR operation.
+   * Generate &lt;clinit&gt; static initializer from c_init IR operation.
    */
   private void generateStaticInitializerFromIR(final org.ek9lang.compiler.ir.instructions.OperationInstr operation) {
-    final var mv = classWriter.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+    final var mv = classWriter.visitMethod(ACC_STATIC, METHOD_CLINIT, DESC_VOID_TO_VOID, null, null);
     mv.visitCode();
 
     // Process the operation's basic block using actual IR instructions
@@ -134,7 +132,7 @@ public final class AsmStructureCreator implements Opcodes {
    * Generate i_init instance method from IR operation.
    */
   private void generateInstanceInitFromIR(final org.ek9lang.compiler.ir.instructions.OperationInstr operation) {
-    final var mv = classWriter.visitMethod(ACC_PRIVATE, "i_init", "()V", null, null);
+    final var mv = classWriter.visitMethod(ACC_PRIVATE, METHOD_I_INIT, DESC_VOID_TO_VOID, null, null);
     mv.visitCode();
 
     final var basicBlock = operation.getBody();
@@ -148,15 +146,15 @@ public final class AsmStructureCreator implements Opcodes {
   }
 
   /**
-   * Generate <init> constructor from IR operation.
+   * Generate &lt;init&gt; constructor from IR operation.
    */
   private void generateConstructorFromIR(final org.ek9lang.compiler.ir.instructions.OperationInstr operation) {
-    final var mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+    final var mv = classWriter.visitMethod(ACC_PUBLIC, METHOD_INIT, DESC_VOID_TO_VOID, null, null);
     mv.visitCode();
 
     // Call super constructor first
     mv.visitVarInsn(ALOAD, 0);
-    mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_OBJECT, METHOD_INIT, DESC_VOID_TO_VOID, false);
 
     final var basicBlock = operation.getBody();
     if (basicBlock != null) {
@@ -177,7 +175,7 @@ public final class AsmStructureCreator implements Opcodes {
     // Build method descriptor from operation signature
     final var methodDescriptor = buildMethodDescriptor(operation);
 
-    final var mv = classWriter.visitMethod(ACC_PUBLIC, "_main", methodDescriptor, null, null);
+    final var mv = classWriter.visitMethod(ACC_PUBLIC, METHOD_MAIN, methodDescriptor, null, null);
     mv.visitCode();
 
     final var basicBlock = operation.getBody();
@@ -241,7 +239,7 @@ public final class AsmStructureCreator implements Opcodes {
     }
 
     // Fallback for methods without parameters
-    return "()V";
+    return DESC_VOID_TO_VOID;
   }
 
   /**
@@ -263,18 +261,20 @@ public final class AsmStructureCreator implements Opcodes {
     // Process each typed IR instruction using visitor pattern
     for (var instruction : basicBlock.getInstructions()) {
       // Use visitor pattern to dispatch to appropriate specialized generator
-      if (instruction instanceof org.ek9lang.compiler.ir.instructions.CallInstr callInstr) {
-        instructionVisitor.processCallInstruction(callInstr);
-      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.LiteralInstr literalInstr) {
-        instructionVisitor.processLiteralInstruction(literalInstr);
-      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.MemoryInstr memoryInstr) {
-        instructionVisitor.processMemoryInstruction(memoryInstr);
-      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.ScopeInstr scopeInstr) {
-        instructionVisitor.processScopeInstruction(scopeInstr);
-      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.BranchInstr branchInstr) {
-        instructionVisitor.processBranchInstruction(branchInstr);
-      } else {
-        System.err.println("WARNING: Unhandled typed IR instruction: " + instruction.getClass().getSimpleName());
+      switch (instruction) {
+        case org.ek9lang.compiler.ir.instructions.CallInstr callInstr ->
+            instructionVisitor.processCallInstruction(callInstr);
+        case org.ek9lang.compiler.ir.instructions.LiteralInstr literalInstr ->
+            instructionVisitor.processLiteralInstruction(literalInstr);
+        case org.ek9lang.compiler.ir.instructions.MemoryInstr memoryInstr ->
+            instructionVisitor.processMemoryInstruction(memoryInstr);
+        case org.ek9lang.compiler.ir.instructions.ScopeInstr scopeInstr ->
+            instructionVisitor.processScopeInstruction(scopeInstr);
+        case org.ek9lang.compiler.ir.instructions.BranchInstr branchInstr ->
+            instructionVisitor.processBranchInstruction(branchInstr);
+
+        default -> throw new CompilerException(
+            "WARNING: Unhandled typed IR instruction: " + instruction.getClass().getSimpleName());
       }
     }
   }
@@ -292,18 +292,20 @@ public final class AsmStructureCreator implements Opcodes {
     // Process each typed IR instruction using visitor pattern
     for (var instruction : basicBlock.getInstructions()) {
       // Use visitor pattern to dispatch to appropriate specialized generator
-      if (instruction instanceof org.ek9lang.compiler.ir.instructions.CallInstr callInstr) {
-        instructionVisitor.processCallInstruction(callInstr);
-      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.LiteralInstr literalInstr) {
-        instructionVisitor.processLiteralInstruction(literalInstr);
-      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.MemoryInstr memoryInstr) {
-        instructionVisitor.processMemoryInstruction(memoryInstr);
-      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.ScopeInstr scopeInstr) {
-        instructionVisitor.processScopeInstruction(scopeInstr);
-      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.BranchInstr branchInstr) {
-        instructionVisitor.processBranchInstruction(branchInstr);
-      } else {
-        System.err.println("WARNING: Unhandled typed IR instruction: " + instruction.getClass().getSimpleName());
+      switch (instruction) {
+        case org.ek9lang.compiler.ir.instructions.CallInstr callInstr ->
+            instructionVisitor.processCallInstruction(callInstr);
+        case org.ek9lang.compiler.ir.instructions.LiteralInstr literalInstr ->
+            instructionVisitor.processLiteralInstruction(literalInstr);
+        case org.ek9lang.compiler.ir.instructions.MemoryInstr memoryInstr ->
+            instructionVisitor.processMemoryInstruction(memoryInstr);
+        case org.ek9lang.compiler.ir.instructions.ScopeInstr scopeInstr ->
+            instructionVisitor.processScopeInstruction(scopeInstr);
+        case org.ek9lang.compiler.ir.instructions.BranchInstr branchInstr ->
+            instructionVisitor.processBranchInstruction(branchInstr);
+        default -> throw new CompilerException(
+            "WARNING: Unhandled typed IR instruction: " + instruction.getClass().getSimpleName());
+
       }
     }
   }
@@ -320,18 +322,20 @@ public final class AsmStructureCreator implements Opcodes {
     // Process each typed IR instruction using visitor pattern
     for (var instruction : basicBlock.getInstructions()) {
       // Use visitor pattern to dispatch to appropriate specialized generator
-      if (instruction instanceof org.ek9lang.compiler.ir.instructions.CallInstr callInstr) {
-        instructionVisitor.processCallInstruction(callInstr);
-      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.LiteralInstr literalInstr) {
-        instructionVisitor.processLiteralInstruction(literalInstr);
-      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.MemoryInstr memoryInstr) {
-        instructionVisitor.processMemoryInstruction(memoryInstr);
-      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.ScopeInstr scopeInstr) {
-        instructionVisitor.processScopeInstruction(scopeInstr);
-      } else if (instruction instanceof org.ek9lang.compiler.ir.instructions.BranchInstr branchInstr) {
-        instructionVisitor.processBranchInstruction(branchInstr);
-      } else {
-        System.err.println("WARNING: Unhandled typed IR instruction: " + instruction.getClass().getSimpleName());
+      switch (instruction) {
+        case org.ek9lang.compiler.ir.instructions.CallInstr callInstr ->
+            instructionVisitor.processCallInstruction(callInstr);
+        case org.ek9lang.compiler.ir.instructions.LiteralInstr literalInstr ->
+            instructionVisitor.processLiteralInstruction(literalInstr);
+        case org.ek9lang.compiler.ir.instructions.MemoryInstr memoryInstr ->
+            instructionVisitor.processMemoryInstruction(memoryInstr);
+        case org.ek9lang.compiler.ir.instructions.ScopeInstr scopeInstr ->
+            instructionVisitor.processScopeInstruction(scopeInstr);
+        case org.ek9lang.compiler.ir.instructions.BranchInstr branchInstr ->
+            instructionVisitor.processBranchInstruction(branchInstr);
+        default -> throw new CompilerException(
+            "WARNING: Unhandled typed IR instruction: " + instruction.getClass().getSimpleName());
+
       }
     }
   }
@@ -444,7 +448,7 @@ public final class AsmStructureCreator implements Opcodes {
         }
       } else {
         // Other branch instructions would need more sophisticated handling
-        System.err.println("WARNING: Unhandled branch type: " + branchInstr.getOpcode());
+        throw new CompilerException("WARNING: Unhandled branch type: " + branchInstr.getOpcode());
       }
     }
   }

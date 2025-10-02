@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase7.support;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_ANY;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_LANG;
 import static org.ek9lang.compiler.symbols.SymbolGenus.CLASS_TRAIT;
 
 import java.util.function.Predicate;
@@ -19,7 +21,7 @@ public class NotImplicitSuper implements Predicate<ISymbol> {
       return true;
     }
     final var fqn = symbol.getFullyQualifiedName();
-    return !fqn.startsWith("org.ek9.lang::_") && !fqn.equals("org.ek9.lang::Any");
+    return !fqn.startsWith(EK9_LANG + "::_") && !fqn.equals(EK9_ANY);
 
   }
 }

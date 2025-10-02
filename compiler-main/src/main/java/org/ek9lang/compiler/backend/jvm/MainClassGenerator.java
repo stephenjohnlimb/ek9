@@ -1,5 +1,44 @@
 package org.ek9lang.compiler.backend.jvm;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BITS;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BOOLEAN;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_CHARACTER;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_COLOUR;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_DATE;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_DATETIME;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_DIMENSION;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_DURATION;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_FLOAT;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_INTEGER;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_LIST_OF_STRING;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_MILLISECOND;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_MONEY;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_REGEX;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_RESOLUTION;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_STRING;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_TIME;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_INT_TO_STRING_BUILDER;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_OBJECT_TO_BOOLEAN;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_PRINT_STREAM;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_ARRAY_TO_VOID;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_STRING_BUILDER;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_VOID;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_VOID_TO_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_VOID_TO_VOID;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_IO_PRINT_STREAM;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_EXCEPTION;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_OBJECT;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_STRING_BUILDER;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_SYSTEM;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_UTIL_ARRAY_LIST;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_UTIL_LIST;
+import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_INIT;
+import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_MAIN;
+import static org.ek9lang.compiler.support.JVMTypeNames.PARAM_OBJECT;
+import static org.ek9lang.compiler.support.JVMTypeNames.PARAM_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.PARAM_UTIL_LIST;
+
 import java.util.function.Function;
 import org.ek9lang.compiler.ir.data.ProgramDetails;
 import org.ek9lang.compiler.ir.instructions.ProgramEntryPointInstr;
@@ -24,7 +63,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
   @Override
   public byte[] apply(final ProgramEntryPointInstr programEntryPointInstr) {
     // Create class definition: public class ek9.Main
-    classWriter.visit(V25, ACC_PUBLIC, "ek9/Main", null, "java/lang/Object", null);
+    classWriter.visit(V25, ACC_PUBLIC, "ek9/Main", null, JAVA_LANG_OBJECT, null);
 
     // Generate main method: public static void main(String[] args)
     generateMainMethod(programEntryPointInstr);
@@ -38,7 +77,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
    */
   private void generateMainMethod(final ProgramEntryPointInstr programEntryPointInstr) {
     final MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC | ACC_STATIC, "main",
-        "([Ljava/lang/String;)V", null, new String[] {"java/lang/Exception"});
+        DESC_STRING_ARRAY_TO_VOID, null, new String[] {JAVA_LANG_EXCEPTION});
     mv.visitCode();
 
     // Simplified approach: Generate inline parsing logic instead of using ProgramLauncher for now
@@ -48,9 +87,9 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     final var programs = programEntryPointInstr.getAvailablePrograms();
     if (programs.isEmpty()) {
       // No programs available
-      mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+      mv.visitFieldInsn(GETSTATIC, JAVA_LANG_SYSTEM, "err", DESC_PRINT_STREAM);
       mv.visitLdcInsn("No EK9 programs available");
-      mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
       mv.visitInsn(RETURN);
     } else if (programs.size() == 1) {
       // Single program - check for -r flag or execute directly
@@ -124,7 +163,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     mv.visitInsn(ICONST_0);    // Index 0
     mv.visitInsn(AALOAD);      // args[0]
     mv.visitLdcInsn("-r");
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING, "equals", DESC_OBJECT_TO_BOOLEAN, false);
     mv.visitJumpInsn(IFEQ, directExecution); // if not equals, go to direct execution
 
     // We have -r flag, check if we have program name
@@ -138,7 +177,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     mv.visitInsn(ICONST_1);    // Index 1
     mv.visitInsn(AALOAD);      // args[1]
     mv.visitLdcInsn(program.qualifiedName());
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING, "equals", DESC_OBJECT_TO_BOOLEAN, false);
     mv.visitJumpInsn(IFEQ, programNotFound); // if not equals, show error
 
     // Execute the program (with arguments from args[2..])
@@ -147,38 +186,38 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
 
     // Label: showUsage
     mv.visitLabel(showUsage);
-    mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+    mv.visitFieldInsn(GETSTATIC, JAVA_LANG_SYSTEM, "err", DESC_PRINT_STREAM);
     mv.visitLdcInsn("Usage: java ek9.Main -r <program-name> [arguments...]");
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
-    mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
+    mv.visitFieldInsn(GETSTATIC, JAVA_LANG_SYSTEM, "err", DESC_PRINT_STREAM);
     mv.visitLdcInsn("Available programs:");
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
-    mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
+    mv.visitFieldInsn(GETSTATIC, JAVA_LANG_SYSTEM, "err", DESC_PRINT_STREAM);
     mv.visitLdcInsn("  " + program.qualifiedName());
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
     mv.visitInsn(RETURN);
 
     // Label: programNotFound
     mv.visitLabel(programNotFound);
     // Load the actual program name that was provided (args[1])
-    mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
-    mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
+    mv.visitFieldInsn(GETSTATIC, JAVA_LANG_SYSTEM, "err", DESC_PRINT_STREAM);
+    mv.visitTypeInsn(NEW, JAVA_LANG_STRING_BUILDER);
     mv.visitInsn(DUP);
     mv.visitLdcInsn("Program '");
-    mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_STRING_BUILDER, METHOD_INIT, DESC_STRING_TO_VOID, false);
     mv.visitVarInsn(ALOAD, 0); // Load args
     mv.visitInsn(ICONST_1);    // Index 1
     mv.visitInsn(AALOAD);      // args[1] - the actual program name provided
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-        "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append",
+        DESC_STRING_TO_STRING_BUILDER, false);
     mv.visitLdcInsn("' not found. Available programs:");
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-        "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
-    mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append",
+        DESC_STRING_TO_STRING_BUILDER, false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "toString", DESC_VOID_TO_STRING, false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
+    mv.visitFieldInsn(GETSTATIC, JAVA_LANG_SYSTEM, "err", DESC_PRINT_STREAM);
     mv.visitLdcInsn("  " + program.qualifiedName());
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
     mv.visitInsn(RETURN);
 
     // Label: directExecution
@@ -204,12 +243,11 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     mv.visitInsn(ICONST_0);    // Index 0
     mv.visitInsn(AALOAD);      // args[0]
     mv.visitLdcInsn("-r");
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING, "equals", DESC_OBJECT_TO_BOOLEAN, false);
     mv.visitJumpInsn(IFEQ, showUsage);
 
     // Check program name against each available program
-    for (int i = 0; i < programs.size(); i++) {
-      final var program = programs.get(i);
+    for (final ProgramDetails program : programs) {
       org.objectweb.asm.Label nextProgram = new org.objectweb.asm.Label();
 
       // if (args[1].equals(programName))
@@ -217,7 +255,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
       mv.visitInsn(ICONST_1);    // Index 1
       mv.visitInsn(AALOAD);      // args[1]
       mv.visitLdcInsn(program.qualifiedName());
-      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING, "equals", DESC_OBJECT_TO_BOOLEAN, false);
       mv.visitJumpInsn(IFEQ, nextProgram);
 
       // Execute this program
@@ -228,42 +266,42 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     }
 
     // Program not found - show the actual program name that was provided
-    mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
-    mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
+    mv.visitFieldInsn(GETSTATIC, JAVA_LANG_SYSTEM, "err", DESC_PRINT_STREAM);
+    mv.visitTypeInsn(NEW, JAVA_LANG_STRING_BUILDER);
     mv.visitInsn(DUP);
     mv.visitLdcInsn("Program '");
-    mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_STRING_BUILDER, METHOD_INIT, DESC_STRING_TO_VOID, false);
     mv.visitVarInsn(ALOAD, 0); // Load args
     mv.visitInsn(ICONST_1);    // Index 1
     mv.visitInsn(AALOAD);      // args[1] - the actual program name provided
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-        "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append",
+        DESC_STRING_TO_STRING_BUILDER, false);
     mv.visitLdcInsn("' not found. Available programs:");
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-        "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append",
+        DESC_STRING_TO_STRING_BUILDER, false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "toString", DESC_VOID_TO_STRING, false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
 
     for (ProgramDetails program : programs) {
-      mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+      mv.visitFieldInsn(GETSTATIC, JAVA_LANG_SYSTEM, "err", DESC_PRINT_STREAM);
       mv.visitLdcInsn("  " + program.qualifiedName());
-      mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
     }
     mv.visitInsn(RETURN);
 
     // Label: showUsage
     mv.visitLabel(showUsage);
-    mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+    mv.visitFieldInsn(GETSTATIC, JAVA_LANG_SYSTEM, "err", DESC_PRINT_STREAM);
     mv.visitLdcInsn("Usage: java ek9.Main -r <program-name> [arguments...]");
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
-    mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
+    mv.visitFieldInsn(GETSTATIC, JAVA_LANG_SYSTEM, "err", DESC_PRINT_STREAM);
     mv.visitLdcInsn("Available programs:");
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
 
     for (ProgramDetails program : programs) {
-      mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+      mv.visitFieldInsn(GETSTATIC, JAVA_LANG_SYSTEM, "err", DESC_PRINT_STREAM);
       mv.visitLdcInsn("  " + program.qualifiedName());
-      mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
     }
   }
 
@@ -272,13 +310,13 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
    * Converts command-line String arguments to EK9 types and calls _main.
    */
   private void generateDirectProgramCall(final MethodVisitor mv, final ProgramDetails program,
-      final int argsOffset) {
+                                         final int argsOffset) {
     final var parameterSignature = program.parameterSignature();
 
     // Special handling for List of String parameter (guaranteed to be the only parameter)
     if (parameterSignature.size() == 1
-        && "org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1".equals(
-            parameterSignature.getFirst().type())) {
+        && EK9_LIST_OF_STRING.equals(
+        parameterSignature.getFirst().type())) {
       generateListOfStringProgramCall(mv, program, argsOffset);
       return;
     }
@@ -295,36 +333,36 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     mv.visitJumpInsn(IF_ICMPEQ, argumentCountValid);
 
     // Argument count mismatch - show error
-    mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
-    mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
+    mv.visitFieldInsn(GETSTATIC, JAVA_LANG_SYSTEM, "err", DESC_PRINT_STREAM);
+    mv.visitTypeInsn(NEW, JAVA_LANG_STRING_BUILDER);
     mv.visitInsn(DUP);
     mv.visitLdcInsn("Error: Program '");
-    mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V",
+    mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_STRING_BUILDER, METHOD_INIT, DESC_STRING_TO_VOID,
         false);
     mv.visitLdcInsn(program.qualifiedName());
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-        "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append",
+        DESC_STRING_TO_STRING_BUILDER, false);
     mv.visitLdcInsn("' requires ");
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-        "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append",
+        DESC_STRING_TO_STRING_BUILDER, false);
     mv.visitLdcInsn(parameterSignature.size());
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-        "(I)Ljava/lang/StringBuilder;", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append",
+        DESC_INT_TO_STRING_BUILDER, false);
     mv.visitLdcInsn(" argument(s), but ");
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-        "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append",
+        DESC_STRING_TO_STRING_BUILDER, false);
     mv.visitVarInsn(ALOAD, 0);
     mv.visitInsn(ARRAYLENGTH);
     mv.visitLdcInsn(argsOffset);
     mv.visitInsn(ISUB);
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-        "(I)Ljava/lang/StringBuilder;", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append",
+        DESC_INT_TO_STRING_BUILDER, false);
     mv.visitLdcInsn(" provided");
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
-        "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;",
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append",
+        DESC_STRING_TO_STRING_BUILDER, false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "toString", DESC_VOID_TO_STRING,
         false);
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
     mv.visitInsn(RETURN);
 
     // Label: argumentCountValid
@@ -337,7 +375,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     // new ProgramClass()
     mv.visitTypeInsn(NEW, internalClassName);
     mv.visitInsn(DUP);
-    mv.visitMethodInsn(INVOKESPECIAL, internalClassName, "<init>", "()V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, internalClassName, METHOD_INIT, DESC_VOID_TO_VOID, false);
 
     // Store instance in local variable (after converting parameters)
     final int instanceLocalVar = 1 + parameterSignature.size();
@@ -374,27 +412,27 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
       mv.visitJumpInsn(IFNE, conversionSuccessful); // If true, conversion succeeded
 
       // Conversion failed - show error message
-      mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
-      mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
+      mv.visitFieldInsn(GETSTATIC, JAVA_LANG_SYSTEM, "err", DESC_PRINT_STREAM);
+      mv.visitTypeInsn(NEW, JAVA_LANG_STRING_BUILDER);
       mv.visitInsn(DUP);
       mv.visitLdcInsn("Error: Invalid argument for parameter ");
-      mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
+      mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_STRING_BUILDER, METHOD_INIT, DESC_STRING_TO_VOID, false);
       mv.visitLdcInsn(i + 1); // Parameter number (1-based)
-      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append", DESC_INT_TO_STRING_BUILDER, false);
       mv.visitLdcInsn(" (");
-      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append", DESC_STRING_TO_STRING_BUILDER, false);
       mv.visitLdcInsn(param.name());
-      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append", DESC_STRING_TO_STRING_BUILDER, false);
       mv.visitLdcInsn("): cannot convert '");
-      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append", DESC_STRING_TO_STRING_BUILDER, false);
       mv.visitVarInsn(ALOAD, stringArgLocalVar); // Load original string
-      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append", DESC_STRING_TO_STRING_BUILDER, false);
       mv.visitLdcInsn("' to ");
-      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append", DESC_STRING_TO_STRING_BUILDER, false);
       mv.visitLdcInsn(getSimpleTypeName(param.type()));
-      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
-      mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append", DESC_STRING_TO_STRING_BUILDER, false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "toString", DESC_VOID_TO_STRING, false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
       mv.visitInsn(RETURN);
 
       mv.visitLabel(conversionSuccessful);
@@ -410,7 +448,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
 
     // Build _main method descriptor and call
     final var mainMethodDescriptor = buildMainMethodDescriptor(parameterSignature);
-    mv.visitMethodInsn(INVOKEVIRTUAL, internalClassName, "_main", mainMethodDescriptor, false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, internalClassName, METHOD_MAIN, mainMethodDescriptor, false);
   }
 
   /**
@@ -418,21 +456,21 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
    * Collects all remaining command-line args into java.util.List and converts to EK9 List of String.
    */
   private void generateListOfStringProgramCall(final MethodVisitor mv, final ProgramDetails program,
-      final int argsOffset) {
+                                               final int argsOffset) {
     final var javaClassName = convertToJavaClassName(program.qualifiedName());
     final var internalClassName = javaClassName.replace(".", "/");
 
     // Create program instance
     mv.visitTypeInsn(NEW, internalClassName);
     mv.visitInsn(DUP);
-    mv.visitMethodInsn(INVOKESPECIAL, internalClassName, "<init>", "()V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, internalClassName, METHOD_INIT, DESC_VOID_TO_VOID, false);
     final int instanceLocalVar = 1;
     mv.visitVarInsn(ASTORE, instanceLocalVar);
 
     // Create java.util.ArrayList to collect all arguments
-    mv.visitTypeInsn(NEW, "java/util/ArrayList");
+    mv.visitTypeInsn(NEW, JAVA_UTIL_ARRAY_LIST);
     mv.visitInsn(DUP);
-    mv.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "<init>", "()V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, JAVA_UTIL_ARRAY_LIST, METHOD_INIT, DESC_VOID_TO_VOID, false);
     final int listLocalVar = 2;
     mv.visitVarInsn(ASTORE, listLocalVar);
 
@@ -466,13 +504,13 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
 
     // Convert to EK9 String: String._of(javaString)
     mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/String", "_of",
-        "(Ljava/lang/String;)Lorg/ek9/lang/String;", false);
+        PARAM_STRING + "Lorg/ek9/lang/String;", false);
 
     // Add to ArrayList: list.add(ek9String)
     mv.visitVarInsn(ALOAD, listLocalVar); // Load ArrayList
     mv.visitInsn(SWAP); // Swap so list is on top, ek9String is second
-    mv.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add",
-        "(Ljava/lang/Object;)Z", true);
+    mv.visitMethodInsn(INVOKEINTERFACE, JAVA_UTIL_LIST, "add",
+        PARAM_OBJECT + "Z", true);
     mv.visitInsn(POP); // Discard boolean return value
 
     // Increment loop counter: i++
@@ -487,7 +525,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     mv.visitMethodInsn(INVOKESTATIC,
         "org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1",
         "_of",
-        "(Ljava/util/List;)Lorg/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1;",
+        PARAM_UTIL_LIST + "Lorg/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1;",
         false);
     final int ek9ListLocalVar = 5;
     mv.visitVarInsn(ASTORE, ek9ListLocalVar);
@@ -498,9 +536,9 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
 
     // Build method descriptor using typeConverter: (Lorg/ek9/lang/_List_...;)V
     final String listDescriptor = typeConverter.apply(
-        "org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1");
+        EK9_LIST_OF_STRING);
     final String methodDescriptor = "(" + listDescriptor + ")V";
-    mv.visitMethodInsn(INVOKEVIRTUAL, internalClassName, "_main", methodDescriptor, false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, internalClassName, METHOD_MAIN, methodDescriptor, false);
   }
 
   /**
@@ -515,51 +553,51 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     // The _of method returns an unset object if conversion fails
     switch (ek9Type) {
       // Basic types
-      case "org.ek9.lang::String" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/String", "_of",
-          "(Ljava/lang/String;)Lorg/ek9/lang/String;", false);
-      case "org.ek9.lang::Integer" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Integer", "_of",
-          "(Ljava/lang/String;)Lorg/ek9/lang/Integer;", false);
-      case "org.ek9.lang::Float" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Float", "_of",
-          "(Ljava/lang/String;)Lorg/ek9/lang/Float;", false);
-      case "org.ek9.lang::Boolean" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Boolean", "_of",
-          "(Ljava/lang/String;)Lorg/ek9/lang/Boolean;", false);
-      case "org.ek9.lang::Character" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Character",
-          "_of", "(Ljava/lang/String;)Lorg/ek9/lang/Character;", false);
-      case "org.ek9.lang::Bits" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Bits", "_of",
-          "(Ljava/lang/String;)Lorg/ek9/lang/Bits;", false);
+      case EK9_STRING -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/String", "_of",
+          PARAM_STRING + "Lorg/ek9/lang/String;", false);
+      case EK9_INTEGER -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Integer", "_of",
+          PARAM_STRING + "Lorg/ek9/lang/Integer;", false);
+      case EK9_FLOAT -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Float", "_of",
+          PARAM_STRING + "Lorg/ek9/lang/Float;", false);
+      case EK9_BOOLEAN -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Boolean", "_of",
+          PARAM_STRING + "Lorg/ek9/lang/Boolean;", false);
+      case EK9_CHARACTER -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Character",
+          "_of", PARAM_STRING + "Lorg/ek9/lang/Character;", false);
+      case EK9_BITS -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Bits", "_of",
+          PARAM_STRING + "Lorg/ek9/lang/Bits;", false);
 
       // Date/Time types
-      case "org.ek9.lang::Date" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Date", "_of",
-          "(Ljava/lang/String;)Lorg/ek9/lang/Date;", false);
-      case "org.ek9.lang::DateTime" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/DateTime",
-          "_of", "(Ljava/lang/String;)Lorg/ek9/lang/DateTime;", false);
-      case "org.ek9.lang::Time" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Time", "_of",
-          "(Ljava/lang/String;)Lorg/ek9/lang/Time;", false);
-      case "org.ek9.lang::Duration" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Duration",
-          "_of", "(Ljava/lang/String;)Lorg/ek9/lang/Duration;", false);
-      case "org.ek9.lang::Millisecond" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Millisecond",
-          "_of", "(Ljava/lang/String;)Lorg/ek9/lang/Millisecond;", false);
+      case EK9_DATE -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Date", "_of",
+          PARAM_STRING + "Lorg/ek9/lang/Date;", false);
+      case EK9_DATETIME -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/DateTime",
+          "_of", PARAM_STRING + "Lorg/ek9/lang/DateTime;", false);
+      case EK9_TIME -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Time", "_of",
+          PARAM_STRING + "Lorg/ek9/lang/Time;", false);
+      case EK9_DURATION -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Duration",
+          "_of", PARAM_STRING + "Lorg/ek9/lang/Duration;", false);
+      case EK9_MILLISECOND -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Millisecond",
+          "_of", PARAM_STRING + "Lorg/ek9/lang/Millisecond;", false);
 
       // Physical/Visual types
-      case "org.ek9.lang::Dimension" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Dimension",
-          "_of", "(Ljava/lang/String;)Lorg/ek9/lang/Dimension;", false);
-      case "org.ek9.lang::Resolution" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Resolution",
-          "_of", "(Ljava/lang/String;)Lorg/ek9/lang/Resolution;", false);
-      case "org.ek9.lang::Colour" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Colour", "_of",
-          "(Ljava/lang/String;)Lorg/ek9/lang/Colour;", false);
+      case EK9_DIMENSION -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Dimension",
+          "_of", PARAM_STRING + "Lorg/ek9/lang/Dimension;", false);
+      case EK9_RESOLUTION -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Resolution",
+          "_of", PARAM_STRING + "Lorg/ek9/lang/Resolution;", false);
+      case EK9_COLOUR -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Colour", "_of",
+          PARAM_STRING + "Lorg/ek9/lang/Colour;", false);
 
       // Financial/Pattern types
-      case "org.ek9.lang::Money" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Money", "_of",
-          "(Ljava/lang/String;)Lorg/ek9/lang/Money;", false);
-      case "org.ek9.lang::RegEx" -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/RegEx", "_of",
-          "(Ljava/lang/String;)Lorg/ek9/lang/RegEx;", false);
+      case EK9_MONEY -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Money", "_of",
+          PARAM_STRING + "Lorg/ek9/lang/Money;", false);
+      case EK9_REGEX -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/RegEx", "_of",
+          PARAM_STRING + "Lorg/ek9/lang/RegEx;", false);
 
       default -> {
         // Unsupported type - show error and exit
         mv.visitInsn(POP); // Remove javaString from stack
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
+        mv.visitFieldInsn(GETSTATIC, JAVA_LANG_SYSTEM, "err", DESC_PRINT_STREAM);
         mv.visitLdcInsn("Error: Unsupported parameter type: " + ek9Type);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V",
+        mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID,
             false);
         mv.visitInsn(RETURN);
       }

@@ -1,5 +1,22 @@
 package org.ek9lang.compiler.phase2;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_ACCEPTOR;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_ASSESSOR;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BI_ACCEPTOR;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BI_ASSESSOR;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BI_CONSUMER;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BI_FUNCTION;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BI_PREDICATE;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BI_ROUTINE;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_COMPARATOR;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_CONSUMER;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_FUNCTION;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_PREDICATE;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_PRODUCER;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_ROUTINE;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_SUPPLIER;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_UNARY_OPERATOR;
+
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.common.ErrorListener;
@@ -81,7 +98,7 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
     //Check if candidate could be a supplier
     if (function.getCallParameters().isEmpty() && isUsableReturnTypePresent(function)) {
       function.getReturningSymbol().getType().ifPresent(
-          t -> processParameterisedType(function, "org.ek9.lang::Supplier", List.of(t))
+          t -> processParameterisedType(function, EK9_SUPPLIER, List.of(t))
       );
 
       return;
@@ -92,13 +109,13 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
 
     //Now look to see if this could be a Consumer
     if (function.getCallParameters().size() == 1 && !isUsableReturnTypePresent(function)) {
-      processParameterisedType(function, "org.ek9.lang::Consumer", types);
+      processParameterisedType(function, EK9_CONSUMER, types);
       return;
     }
 
     //Or a BiConsumer
     if (function.getCallParameters().size() == 2 && !isUsableReturnTypePresent(function)) {
-      processParameterisedType(function, "org.ek9.lang::BiConsumer", types);
+      processParameterisedType(function, EK9_BI_CONSUMER, types);
     }
 
   }
@@ -108,7 +125,7 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
     //Check if candidate could be a producer
     if (function.getCallParameters().isEmpty() && isUsableReturnTypePresent(function)) {
       function.getReturningSymbol().getType().ifPresent(
-          t -> processParameterisedType(function, "org.ek9.lang::Producer", List.of(t))
+          t -> processParameterisedType(function, EK9_PRODUCER, List.of(t))
       );
 
       return;
@@ -119,13 +136,13 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
 
     //Now look to see if this could be aa Accessor
     if (function.getCallParameters().size() == 1 && !isUsableReturnTypePresent(function)) {
-      processParameterisedType(function, "org.ek9.lang::Acceptor", types);
+      processParameterisedType(function, EK9_ACCEPTOR, types);
       return;
     }
 
     //Or a BiAccessor
     if (function.getCallParameters().size() == 2 && !isUsableReturnTypePresent(function)) {
-      processParameterisedType(function, "org.ek9.lang::BiAcceptor", types);
+      processParameterisedType(function, EK9_BI_ACCEPTOR, types);
     }
 
   }
@@ -145,14 +162,14 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
 
       if (isReturnTypeBoolean(function)) {
         //Then it is a predicate
-        processParameterisedType(function, "org.ek9.lang::Predicate", types);
+        processParameterisedType(function, EK9_PREDICATE, types);
       } else if (paramAndReturnTypeSame) {
         //Then it is Unary
-        processParameterisedType(function, "org.ek9.lang::UnaryOperator", types);
+        processParameterisedType(function, EK9_UNARY_OPERATOR, types);
       } else {
         //It is a Function
         final var functionTypes = List.of(types.getFirst(), returnType);
-        processParameterisedType(function, "org.ek9.lang::Function", functionTypes);
+        processParameterisedType(function, EK9_FUNCTION, functionTypes);
       }
 
     } else if (types.size() == 2) {
@@ -161,14 +178,14 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
       if (isReturnTypeInteger(function) && paramTypesSame) {
         //Then it is a comparator - if the type of both arguments are the same
         final var comparatorType = List.of(types.getFirst());
-        processParameterisedType(function, "org.ek9.lang::Comparator", comparatorType);
+        processParameterisedType(function, EK9_COMPARATOR, comparatorType);
       } else if (isReturnTypeBoolean(function)) {
         //Then it is a bi-predicate
-        processParameterisedType(function, "org.ek9.lang::BiPredicate", types);
+        processParameterisedType(function, EK9_BI_PREDICATE, types);
       } else {
         //It is a bi function.
         final var functionTypes = List.of(types.get(0), types.get(1), returnType);
-        processParameterisedType(function, "org.ek9.lang::BiFunction", functionTypes);
+        processParameterisedType(function, EK9_BI_FUNCTION, functionTypes);
       }
     }
   }
@@ -187,22 +204,22 @@ final class SynthesizeSuperFunction implements Consumer<FunctionSymbol> {
 
       if (isReturnTypeBoolean(function)) {
         //Then it is an assessor
-        processParameterisedType(function, "org.ek9.lang::Assessor", types);
+        processParameterisedType(function, EK9_ASSESSOR, types);
       } else {
         //It is a Routine
         final var functionTypes = List.of(types.getFirst(), returnType);
-        processParameterisedType(function, "org.ek9.lang::Routine", functionTypes);
+        processParameterisedType(function, EK9_ROUTINE, functionTypes);
       } //There is no non-pure Unary operation.
 
     } else if (types.size() == 2) {
 
       if (isReturnTypeBoolean(function)) {
         //Then it is a bi-assessor
-        processParameterisedType(function, "org.ek9.lang::BiAssessor", types);
+        processParameterisedType(function, EK9_BI_ASSESSOR, types);
       } else {
         //It is a bi routine.
         final var functionTypes = List.of(types.get(0), types.get(1), returnType);
-        processParameterisedType(function, "org.ek9.lang::BiRoutine", functionTypes);
+        processParameterisedType(function, EK9_BI_ROUTINE, functionTypes);
       }
       //There is no non-pure comparator.
     }

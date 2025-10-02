@@ -1,5 +1,10 @@
 package org.ek9lang.compiler.backend.jvm;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BOOLEAN;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_BOOLEAN_TO_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_BOOLEAN;
+import static org.ek9lang.compiler.support.JVMTypeNames.PARAM_STRING;
+
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.core.AssertValue;
@@ -94,9 +99,10 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator {
    * Generate REFERENCE instruction: declare variable reference.
    * Format: REFERENCE variable_name, type_info
    * This is essentially a variable declaration in EK9 IR.
-   *
+   * <p>
    * IMPORTANT: Method parameters are pre-registered in the variable map and already have values.
    * Only initialize new local variables to null, NOT parameters.
+   * </p>
    */
   private void generateReference(final MemoryInstr memoryInstr) {
     final var operands = memoryInstr.getOperands();
@@ -171,15 +177,15 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator {
 
     // Convert to EK9 Boolean and store result
     // Use proper IR type conversion for EK9 Boolean
-    final var jvmBooleanType = convertToJvmName("org.ek9.lang::Boolean");
-    final var booleanDescriptor = convertToJvmDescriptor("org.ek9.lang::Boolean");
+    final var jvmBooleanType = convertToJvmName(EK9_BOOLEAN);
+    final var booleanDescriptor = convertToJvmDescriptor(EK9_BOOLEAN);
 
     // Convert boolean to String first, then use _of method
     getCurrentMethodVisitor().visitMethodInsn(
         Opcodes.INVOKESTATIC,
-        "java/lang/Boolean",
+        JAVA_LANG_BOOLEAN,
         "toString",
-        "(Z)Ljava/lang/String;",
+        DESC_BOOLEAN_TO_STRING,
         false
     );
 
@@ -187,7 +193,7 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator {
         Opcodes.INVOKESTATIC,
         jvmBooleanType,
         "_of",
-        "(Ljava/lang/String;)" + booleanDescriptor,
+        PARAM_STRING + booleanDescriptor,
         false
     );
 

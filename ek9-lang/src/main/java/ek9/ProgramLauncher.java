@@ -1,5 +1,22 @@
 package ek9;
 
+import static ek9.lang.EK9Types.EK9_BITS;
+import static ek9.lang.EK9Types.EK9_BOOLEAN;
+import static ek9.lang.EK9Types.EK9_CHARACTER;
+import static ek9.lang.EK9Types.EK9_COLOUR;
+import static ek9.lang.EK9Types.EK9_DATE;
+import static ek9.lang.EK9Types.EK9_DATETIME;
+import static ek9.lang.EK9Types.EK9_DIMENSION;
+import static ek9.lang.EK9Types.EK9_DURATION;
+import static ek9.lang.EK9Types.EK9_FLOAT;
+import static ek9.lang.EK9Types.EK9_INTEGER;
+import static ek9.lang.EK9Types.EK9_LIST_OF_STRING;
+import static ek9.lang.EK9Types.EK9_MILLISECOND;
+import static ek9.lang.EK9Types.EK9_MONEY;
+import static ek9.lang.EK9Types.EK9_REGEX;
+import static ek9.lang.EK9Types.EK9_RESOLUTION;
+import static ek9.lang.EK9Types.EK9_TIME;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -149,52 +166,52 @@ public final class ProgramLauncher {
         .append(": '").append(userValue).append("'. ");
 
     switch (expectedType) {
-      case "org.ek9.lang::Integer":
+      case EK9_INTEGER:
         message.append("Expected a whole number like '42' or '-10'.");
         break;
-      case "org.ek9.lang::Boolean":
+      case EK9_BOOLEAN:
         message.append("Expected 'true' or 'false'.");
         break;
-      case "org.ek9.lang::Float":
+      case EK9_FLOAT:
         message.append("Expected a decimal number like '3.14' or '2.0'.");
         break;
-      case "org.ek9.lang::Character":
+      case EK9_CHARACTER:
         message.append("Expected any non-empty string like 'a', 'Z', or '123'.");
         break;
-      case "org.ek9.lang::Bits":
+      case EK9_BITS:
         message.append("Expected binary format like '0b01010101' or '0b1100'.");
         break;
-      case "org.ek9.lang::Date":
+      case EK9_DATE:
         message.append("Expected date format like '2020-10-03' or '2023-12-31'.");
         break;
-      case "org.ek9.lang::DateTime":
+      case EK9_DATETIME:
         message.append("Expected datetime format like '2020-10-03T12:00:00Z' or '2020-10-04T12:15:00-05:00'.");
         break;
-      case "org.ek9.lang::Time":
+      case EK9_TIME:
         message.append("Expected time format like '12:00:01' or '09:15:30'.");
         break;
-      case "org.ek9.lang::Duration":
+      case EK9_DURATION:
         message.append("Expected duration format like 'P1Y1M4D', 'PT2H30M', or 'P1DT2H30M'.");
         break;
-      case "org.ek9.lang::Millisecond":
+      case EK9_MILLISECOND:
         message.append("Expected millisecond format like '100ms' or '250ms'.");
         break;
-      case "org.ek9.lang::Dimension":
+      case EK9_DIMENSION:
         message.append("Expected dimension format like '1cm', '10px', or '4.5em'.");
         break;
-      case "org.ek9.lang::Resolution":
+      case EK9_RESOLUTION:
         message.append("Expected resolution format like '1920x1080' or '800x600'.");
         break;
-      case "org.ek9.lang::Colour":
+      case EK9_COLOUR:
         message.append("Expected color format like '#FF186276', '#000000', or '#FFFFFF'.");
         break;
-      case "org.ek9.lang::Money":
+      case EK9_MONEY:
         message.append("Expected money format like '10#GBP', '30.89#USD', or '6798.9288#CLF'.");
         break;
-      case "org.ek9.lang::RegEx":
+      case EK9_REGEX:
         message.append("Expected regex pattern like '/[a-zA-Z0-9]{6}/', '/[S|s]te(?:ven?|phen)/', or '/.*\\/.*/'.");
         break;
-      case "org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1":
+      case EK9_LIST_OF_STRING:
         message.append("Expected multiple string arguments for List<String>.");
         break;
       default:
