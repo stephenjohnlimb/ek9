@@ -117,6 +117,11 @@ abstract class Ec extends E {
      */
     final var compilationResult = compilationContext.compiler().compile(workspace, compilerFlags);
 
+    // Mark compilation failure in shared context
+    if (!compilationResult) {
+      compilationContext.compilationResult().markCompilationFailed();
+    }
+
     if (compilationResult) {
       final var generatedOutputDirectory = getMainGeneratedOutputDirectory();
       AssertValue.checkNotNull("Main generated out file null", generatedOutputDirectory);

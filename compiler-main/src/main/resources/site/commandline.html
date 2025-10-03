@@ -90,6 +90,8 @@
     <p>
       From a command prompt; just type <b>ek9 someSource.ek9</b> for source to be compiled and executed.
       If all you have is a single source file and want to execute it - that's it!<br/>
+      But, if your ek9 source file has the 'execute' bit set on Linux, Unix and MacOs and the 'ek9' command is on your
+      PATH, you can just type ./someSource.ek9 and the 'shebang of #!ek9 will trigger the use of the ek9 command.
     </p>
     <p>
       Actually the EK9 compiler can do quite a bit more than just compile source code. Read
@@ -98,8 +100,8 @@
     <h3>Is it a build system then?</h3>
     <p>
       Not quite; is probably the right answer. If you are doing a pure EK9 development then it will get you
-      quite a long way. It is designed to be used by other build systems to fit into a larger build pipeline.
-      For simple small/medium development it will probably suffice.
+      a very long way. It is designed to be used by other build systems, CI/CD pipelines and to fit into a larger
+      build pipeline. For simple small/medium development it will probably suffice.
     </p>
     <h3>Can it be used with other build systems</h3>
     <p>
@@ -351,7 +353,7 @@
       refined further by merging <b>git feature branches</b>. EK9 supports this by enabling the version number
       to be manipulated in a controlled manner.
     </p>
-    <h4>Finally the 'run' options</h4>
+    <h4>The 'run' options</h4>
     <p>
       These are really the options you care about, running your software. By default, if no options are given then
       <b>-r</b> (run) is assumed. But importantly if the source code has not been compiled yet; the EK9 compiler
@@ -364,7 +366,8 @@
       store them in the <b>/dev</b> directory just by the main source file you reference. EK9 will find all the
       code in the <b>/dev</b> directory and compile that as well as your main source. It will then find all
       <i>programs</i> that start with 'test' (just in the /dev and subdirectories) and run them all.
-      For Java guys this is a bit like junit. The programs cannot have any command line parameters.
+      For Java guys this is a bit like junit. The test programs cannot have any command line parameters, because they
+      are automated.
     </p>
     <p>
       <b>-d port</b> Run in debug mode (requires debugging information to have been compiled in). The use of
@@ -372,6 +375,175 @@
     </p>
     <p>
       <b>-r</b> Run in normal mode (assumed if no other option provided).
+    </p>
+    <h3 id="exit_codes">Exit Codes</h3>
+    <p>
+      The <b>ek9</b> command uses specific <i>exit codes</i> to enable integration with <u>shell scripts</u>,
+      <b>build systems</b>, and <b>CI/CD pipelines</b>. Understanding these exit codes is essential for
+      automation and error handling in production environments.
+    </p>
+    <h4>How Exit Codes Work</h4>
+    <p>
+      The <b>ek9</b> command is a wrapper that invokes the EK9 compiler (a Java program). The wrapper
+      translates the compiler's internal exit codes to standard Unix conventions where <b>exit code 0</b>
+      means success:
+    </p>
+    <ul>
+      <li>
+        If the compiler returns <b>internal code 0</b>: The compiler has printed a command to run your program.
+        The wrapper executes that command and returns <u>whatever exit code your EK9 program returns</u>.
+      </li>
+      <li>
+        If the compiler returns <b>internal code 1</b>: The operation completed successfully with nothing to run
+        (e.g., <b>-C</b> compile only, <b>-V</b> version, <b>-Gk</b> generate keys). The wrapper maps this to
+        <b>exit code 0</b> (Unix success).
+      </li>
+      <li>
+        If the compiler returns <b>internal codes 2-10</b>: The compiler encountered an error. The wrapper
+        returns the same exit code to indicate the specific failure.
+      </li>
+    </ul>
+    <h4>Exit Codes You Will See</h4>
+    <p>
+      When you run the <b>ek9</b> command, you will see these exit codes following standard Unix conventions:
+    </p>
+    <p>
+      <b>0</b> - Success. Either a successful operation completed (compilation, versioning, packaging, etc.),
+      or your EK9 program executed and returned 0.
+    </p>
+    <p>
+      <b>1</b> - Cannot execute. The system was unable to run the EK9 compiler or your compiled program.
+      Check that EK9 is properly installed and you have the necessary permissions. Error details are
+      printed to stderr.
+    </p>
+    <p>
+      <b>2</b> - Invalid parameters. The command line parameters provided were not valid or could not be parsed.
+    </p>
+    <p>
+      <b>3</b> - File processing error. The specified file was not found, could not be read, or had missing content.
+    </p>
+    <p>
+      <b>4</b> - Invalid combination of parameters. The parameters provided were individually valid but incompatible
+      when used together.
+    </p>
+    <p>
+      <b>5</b> - No programs found. The EK9 file does not contain any <i>programs</i> that can be executed.
+    </p>
+    <p>
+      <b>6</b> - Program not specified. The EK9 file contains more than one <i>program</i>, and you must specify
+      which one to run using the <b>-r</b> flag.
+    </p>
+    <p>
+      <b>7</b> - Language Server failed to start. The EK9 compiler could not start in <i>Language Server Protocol</i>
+      mode when using the <b>-ls</b> flag.
+    </p>
+    <p>
+      <b>8</b> - Compilation failed with errors. The EK9 source code contains syntax errors, type errors, or other
+      compilation issues. Error messages will be printed to stderr.
+    </p>
+    <p>
+      <b>9</b> - Wrong number of program arguments. The <i>program</i> requires a specific number of arguments, but a
+      different number was provided at runtime. This is detected during the generated code's argument validation.
+    </p>
+    <p>
+      <b>10</b> - Cannot convert argument to required type. A <i>program</i> argument could not be converted to the type
+      required by the program's parameter (e.g., passing <b>"notInteger"</b> when an <b>Integer</b> is required).
+      This is detected during the generated code's argument conversion.
+    </p>
+    <h4>Exit Codes from Your EK9 Programs</h4>
+    <p>
+      When you use <b>ek9 -r yourProgram.ek9</b> or <b>./yourProgram.ek9</b>, if compilation succeeds
+      (compiler returns exit code 0), the wrapper executes your program and returns <u>your program's exit code</u>.
+    </p>
+    <p>
+      Your EK9 <i>programs</i> can set their own exit codes using the <b>Exception</b> <i>class</i>, which
+      supports holding an exit code. If an <b>Exception</b> propagates back to the main <i>program</i> without
+      being caught, the application will exit with that exception's exit code. See the
+      <a href="exceptions.html">Exceptions</a> section for details.
+    </p>
+    <p>
+      This means your EK9 programs can return <u>any exit code</u> (0 for success, non-zero for errors),
+      and that exit code will be propagated through the wrapper to the shell. This is essential for
+      writing <u>CLI applications</u> that work correctly in shell scripts and automation.
+    </p>
+    <h4>Shell Script Usage</h4>
+    <p>
+      In <u>shell scripts</u> and <b>CI/CD pipelines</b>, you can use standard Unix exit code patterns:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">$</span>
+          <span class="k">ek9 -C myprogram.ek9</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">if [ $? -eq 0 ]; then</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">&nbsp;&nbsp;echo "Compilation successful"</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">elif [ $? -eq 8 ]; then</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">&nbsp;&nbsp;echo "Compilation failed"</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">fi</span>
+          <span class="m">&crarr;</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      Or use the simpler standard pattern:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">$</span>
+          <span class="k">if ek9 -C myprogram.ek9; then</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">&nbsp;&nbsp;echo "Success"</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">else</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">&nbsp;&nbsp;echo "Failed with exit code $?"</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">fi</span>
+          <span class="m">&crarr;</span>
+        </li>
+      </ul>
+    </div>
+    <h4>CI/CD Integration</h4>
+    <p>
+      Build systems and <b>CI/CD pipelines</b> (such as
+      <a href="https://github.com/features/actions" target="_blank" title="GitHub Actions">GitHub Actions</a>,
+      <a href="https://aws.amazon.com/codepipeline/" target="_blank" title="AWS code pipeline">AWS CodePipeline</a>, or
+      <a href="https://azure.microsoft.com/en-gb/services/devops/pipelines/" target="_blank" title="Azure code pipeline">Azure Pipelines</a>)
+      will automatically detect non-zero exit codes and mark builds as failed. Exit codes <b>8</b>, <b>9</b>, and <b>10</b>
+      are particularly important for detecting compilation and runtime errors in automated builds.
     </p>
     <h3>Summary</h3>
     <p>

@@ -1,5 +1,13 @@
 package org.ek9lang.cli;
 
+import static org.ek9lang.compiler.common.Ek9ExitCodes.BAD_COMMANDLINE_EXIT_CODE;
+import static org.ek9lang.compiler.common.Ek9ExitCodes.BAD_COMMAND_COMBINATION_EXIT_CODE;
+import static org.ek9lang.compiler.common.Ek9ExitCodes.FILE_ISSUE_EXIT_CODE;
+import static org.ek9lang.compiler.common.Ek9ExitCodes.NO_PROGRAMS_EXIT_CODE;
+import static org.ek9lang.compiler.common.Ek9ExitCodes.PROGRAM_NOT_SPECIFIED_EXIT_CODE;
+import static org.ek9lang.compiler.common.Ek9ExitCodes.RUN_COMMAND_EXIT_CODE;
+import static org.ek9lang.compiler.common.Ek9ExitCodes.SUCCESS_EXIT_CODE;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,7 +110,7 @@ final class CommandLine {
 
     if (argv == null || argv.length == 0) {
       showHelp();
-      return Ek9.BAD_COMMANDLINE_EXIT_CODE;
+      return BAD_COMMANDLINE_EXIT_CODE;
     }
     final var fullCommandLine = String.join(" ", argv);
 
@@ -120,7 +128,7 @@ final class CommandLine {
     try {
       if (commandLine == null || commandLine.isEmpty()) {
         showHelp();
-        return Ek9.BAD_COMMANDLINE_EXIT_CODE;
+        return BAD_COMMANDLINE_EXIT_CODE;
       }
 
       processDefaultArchitecture();
@@ -129,10 +137,10 @@ final class CommandLine {
 
       if (targetArchitecture.equals(TargetArchitecture.NOT_SUPPORTED)) {
         Logger.error("Target Architecture [" + commandLine + "] not supported");
-        return Ek9.BAD_COMMANDLINE_EXIT_CODE;
+        return BAD_COMMANDLINE_EXIT_CODE;
       }
 
-      if (returnCode == Ek9.RUN_COMMAND_EXIT_CODE) {
+      if (returnCode == RUN_COMMAND_EXIT_CODE) {
         return assessCommandLine(commandLine);
       }
 
@@ -230,7 +238,7 @@ final class CommandLine {
         CompilationPhase.valueOf(compilationPhaseOptionProvided);
         activeParameters.add(compileCommand);
         activeParameters.add(compilationPhaseOptionProvided);
-        return Ek9.RUN_COMMAND_EXIT_CODE;
+        return RUN_COMMAND_EXIT_CODE;
       } catch (Exception _) {
         var optionsToChooseFrom = Arrays
             .stream(CompilationPhase.values())
@@ -240,7 +248,7 @@ final class CommandLine {
       }
     }
 
-    return Ek9.BAD_COMMANDLINE_EXIT_CODE;
+    return BAD_COMMANDLINE_EXIT_CODE;
   }
 
   private boolean isVersioningOption(final String[] strArray, final int index) {
@@ -261,7 +269,7 @@ final class CommandLine {
         if (Eve.Version.isInvalidVersionAddressPart(versionParam)) {
           Logger.error(
               "Increment Version: expecting major|minor|patch|build");
-          return Ek9.BAD_COMMANDLINE_EXIT_CODE;
+          return BAD_COMMANDLINE_EXIT_CODE;
         }
       } else if (versioningOption.equals("-SV")) {
         //If not valid a runtime exception will occur.
@@ -273,10 +281,10 @@ final class CommandLine {
       activeParameters.add(versionParam);
     } else {
       Logger.error("Missing versioning parameter");
-      return Ek9.BAD_COMMANDLINE_EXIT_CODE;
+      return BAD_COMMANDLINE_EXIT_CODE;
     }
 
-    return Ek9.RUN_COMMAND_EXIT_CODE;
+    return RUN_COMMAND_EXIT_CODE;
   }
 
   private boolean isDebugOption(final String[] strArray, final int index) {
@@ -290,7 +298,7 @@ final class CommandLine {
 
     if (options.isParameterUnacceptable(strArray[index])) {
       Logger.error("Incompatible command line options");
-      return Ek9.BAD_COMMANDLINE_EXIT_CODE;
+      return BAD_COMMANDLINE_EXIT_CODE;
     }
     activeParameters.add(strArray[index]);
     //So next is port to debug on
@@ -298,12 +306,12 @@ final class CommandLine {
 
     if (!Pattern.compile("^(\\d+)$").matcher(port).find()) {
       Logger.error("Debug Mode: expecting integer port number");
-      return Ek9.BAD_COMMANDLINE_EXIT_CODE;
+      return BAD_COMMANDLINE_EXIT_CODE;
     }
     activeParameters.add(port);
     this.debugPort = Integer.parseInt(port);
 
-    return Ek9.RUN_COMMAND_EXIT_CODE;
+    return RUN_COMMAND_EXIT_CODE;
   }
 
   private boolean isInvalidEk9Parameter(final boolean processingEk9Parameters, final String parameter) {
@@ -326,9 +334,9 @@ final class CommandLine {
     boolean processingEk9Parameters = true;
     List<String> activeParameters = options.getEk9AppParameters();
     int index = 0;
-    int returnCode = Ek9.RUN_COMMAND_EXIT_CODE;
+    int returnCode = RUN_COMMAND_EXIT_CODE;
 
-    while (returnCode == Ek9.RUN_COMMAND_EXIT_CODE && index < strArray.length) {
+    while (returnCode == RUN_COMMAND_EXIT_CODE && index < strArray.length) {
 
       if (processIfIndexIsEk9FileName(strArray, index)) {
         processingEk9Parameters = false;
@@ -343,7 +351,7 @@ final class CommandLine {
         index++;
       } else if (isInvalidEk9Parameter(processingEk9Parameters, strArray[index])) {
         Logger.error("Incompatible command line options");
-        returnCode = Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
+        returnCode = BAD_COMMAND_COMBINATION_EXIT_CODE;
       } else if (isVersioningOption(strArray, index)) {
         returnCode = processVersioningOption(strArray, index, activeParameters);
         index++;
@@ -379,11 +387,11 @@ final class CommandLine {
     if (ek9ProgramToRun != null) {
       if (options.isJustBuildTypeOption()) {
         Logger.error("A Build request for " + errorSuffix);
-        rtn = Optional.of(Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE);
+        rtn = Optional.of(BAD_COMMAND_COMBINATION_EXIT_CODE);
       }
       if (options.isReleaseVectorOption()) {
         Logger.error("A modification to version number for " + errorSuffix);
-        rtn = Optional.of(Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE);
+        rtn = Optional.of(BAD_COMMAND_COMBINATION_EXIT_CODE);
       }
     }
 
@@ -404,13 +412,13 @@ final class CommandLine {
 
     if (options.isDeveloperManagementOption() && foundEk9File) {
       Logger.error("EK9 filename not required for this option.");
-      return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
+      return BAD_COMMAND_COMBINATION_EXIT_CODE;
     }
 
     if (!options.isDeveloperManagementOption() && !options.isRunEk9AsLanguageServer()) {
       if (!foundEk9File) {
         Logger.error("no EK9 file name in command line [" + commandLine + "]");
-        return Ek9.FILE_ISSUE_EXIT_CODE;
+        return FILE_ISSUE_EXIT_CODE;
       }
 
       processEk9FileProperties(false);
@@ -426,7 +434,7 @@ final class CommandLine {
     }
 
     //i.e. a command does need to run.
-    return Ek9.RUN_COMMAND_EXIT_CODE;
+    return RUN_COMMAND_EXIT_CODE;
   }
 
   private int showHelp() {
@@ -435,7 +443,7 @@ final class CommandLine {
     Logger.error(CommandLine.getCommandLineHelp());
     //i.e. no further commands need to run
 
-    return Ek9.SUCCESS_EXIT_CODE;
+    return SUCCESS_EXIT_CODE;
   }
 
   private int showVersionOfEk9() {
@@ -443,7 +451,7 @@ final class CommandLine {
     Logger.error("EK9 Version " + getLanguageMetaData().version());
     //i.e. no further commands need to run
 
-    return Ek9.SUCCESS_EXIT_CODE;
+    return SUCCESS_EXIT_CODE;
   }
 
   private int assessRunOptions() {
@@ -452,7 +460,7 @@ final class CommandLine {
     if (programs.isEmpty()) {
       //There's nothing that can be run
       Logger.error(mainSourceFile.getName() + " does not contain any programs.");
-      return Ek9.NO_PROGRAMS_EXIT_CODE;
+      return NO_PROGRAMS_EXIT_CODE;
     }
     if (ek9ProgramToRun == null) {
       if (programs.size() == 1) {
@@ -463,7 +471,7 @@ final class CommandLine {
         programs.stream().map(programName -> " '" + programName + "'").forEach(builder::append);
         builder.append(" from source file ").append(mainSourceFile.getName());
         Logger.error(builder.toString());
-        return Ek9.PROGRAM_NOT_SPECIFIED_EXIT_CODE;
+        return PROGRAM_NOT_SPECIFIED_EXIT_CODE;
       }
     }
     //Check program name is actually in the list of programs
@@ -476,11 +484,11 @@ final class CommandLine {
 
       Logger.error(builder.toString());
 
-      return Ek9.BAD_COMMAND_COMBINATION_EXIT_CODE;
+      return BAD_COMMAND_COMBINATION_EXIT_CODE;
     }
 
     //i.e. a command does need to run.
-    return Ek9.RUN_COMMAND_EXIT_CODE;
+    return RUN_COMMAND_EXIT_CODE;
   }
 
   /**
@@ -617,7 +625,7 @@ final class CommandLine {
     if (visitor == null) {
       visitor = new Ek9SourceVisitor();
       if (!new JustParser(true).readSourceFile(mainSourceFile, visitor)) {
-        throw new ExitException(Ek9.FILE_ISSUE_EXIT_CODE,
+        throw new ExitException(FILE_ISSUE_EXIT_CODE,
             "Unable to Parse source file [" + mainSourceFile.getAbsolutePath() + "]");
       }
     }

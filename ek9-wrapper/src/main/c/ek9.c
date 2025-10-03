@@ -384,7 +384,8 @@ int main(int argc, char *argv[])
     }
     else
     {
-        fprintf(stderr, "Error: Child process terminated abnormally\n");
+        fprintf(stderr, "Error: Unable to execute EK9 compiler. The compiler process terminated unexpectedly.\n");
+        fprintf(stderr, "This may indicate a corrupted installation. Try reinstalling EK9.\n");
         return 1;
     }
 
@@ -399,7 +400,8 @@ int main(int argc, char *argv[])
         exitCode = system(outputBuffer);
         if(exitCode == -1)
         {
-            fprintf(stderr, "Error: Failed to execute generated command\n");
+            fprintf(stderr, "Error: Unable to run compiled program. The system could not execute the generated command.\n");
+            fprintf(stderr, "Check that you have necessary permissions and the program is properly compiled.\n");
             return 1;
         }
         // system() returns exit code in specific format
@@ -409,6 +411,15 @@ int main(int argc, char *argv[])
     {
         // If exit code wasn't 0, print the compiler output (errors, etc.)
         printf("%s", outputBuffer);
+    }
+
+    // Map compiler exit code 1 (success, nothing to run) to 0 (Unix success)
+    // The compiler uses exit code 1 for successful operations that don't require
+    // running a program (e.g., -C compile only, -V version, -Gk generate keys)
+    // Following Unix conventions, we return 0 for all successful operations
+    if(exitCode == 1)
+    {
+        exitCode = 0;
     }
 
     return exitCode;

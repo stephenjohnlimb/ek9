@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.backend.jvm;
 
+import static org.ek9lang.compiler.common.Ek9ExitCodes.PROGRAM_ARGUMENT_COUNT_MISMATCH_EXIT_CODE;
+import static org.ek9lang.compiler.common.Ek9ExitCodes.PROGRAM_ARGUMENT_TYPE_MISMATCH_EXIT_CODE;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BITS;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BOOLEAN;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_CHARACTER;
@@ -363,7 +365,8 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "toString", DESC_VOID_TO_STRING,
         false);
     mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
-    mv.visitInsn(RETURN);
+    mv.visitLdcInsn(PROGRAM_ARGUMENT_COUNT_MISMATCH_EXIT_CODE);
+    mv.visitMethodInsn(INVOKESTATIC, JAVA_LANG_SYSTEM, "exit", "(I)V", false);
 
     // Label: argumentCountValid
     mv.visitLabel(argumentCountValid);
@@ -433,7 +436,8 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
       mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "append", DESC_STRING_TO_STRING_BUILDER, false);
       mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_LANG_STRING_BUILDER, "toString", DESC_VOID_TO_STRING, false);
       mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_IO_PRINT_STREAM, "println", DESC_STRING_TO_VOID, false);
-      mv.visitInsn(RETURN);
+      mv.visitLdcInsn(PROGRAM_ARGUMENT_TYPE_MISMATCH_EXIT_CODE);
+      mv.visitMethodInsn(INVOKESTATIC, JAVA_LANG_SYSTEM, "exit", "(I)V", false);
 
       mv.visitLabel(conversionSuccessful);
     }

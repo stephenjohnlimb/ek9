@@ -1,5 +1,11 @@
 package org.ek9lang.cli;
 
+import static org.ek9lang.compiler.common.Ek9ExitCodes.BAD_COMMANDLINE_EXIT_CODE;
+import static org.ek9lang.compiler.common.Ek9ExitCodes.COMPILATION_FAILED_EXIT_CODE;
+import static org.ek9lang.compiler.common.Ek9ExitCodes.LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE;
+import static org.ek9lang.compiler.common.Ek9ExitCodes.RUN_COMMAND_EXIT_CODE;
+import static org.ek9lang.compiler.common.Ek9ExitCodes.SUCCESS_EXIT_CODE;
+
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import org.ek9lang.compiler.Ek9BuiltinIntrospectionSupplier;
@@ -24,6 +30,7 @@ import org.ek9lang.lsp.Server;
  * or ek9 ./some/path/to/file.ek9 -d 2 -f someother.txt
  * etc
  * ./some/path/to/file.ek9 -r UDPServer1 -d 2 -f someother.txt
+ * Exit codes are defined in {@link org.ek9lang.compiler.common.Ek9ExitCodes}.
  * Note exit code 0 means there is a command run printed to stdout.
  * Exit code 1 means there is no further command to run but what you asked to do worked.
  * Exit code 2 means there was something wrong with the command line parameters.
@@ -34,19 +41,11 @@ import org.ek9lang.lsp.Server;
  * Exit code 6 means the ek9 file does have more than one program, and you did not specify
  * which to run.
  * Exit code 7 means the ek9 compiler when running as LSP failed.
+ * Exit code 8 means the ek9 compilation failed with errors.
+ * Exit code 9 means wrong number of arguments provided to program.
+ * Exit code 10 means cannot convert argument to required type.
  */
 final class Ek9 {
-  /**
-   * The range of exit codes that EK9 will use.
-   */
-  public static final int RUN_COMMAND_EXIT_CODE = 0;
-  public static final int SUCCESS_EXIT_CODE = 1;
-  public static final int BAD_COMMANDLINE_EXIT_CODE = 2;
-  public static final int FILE_ISSUE_EXIT_CODE = 3;
-  public static final int BAD_COMMAND_COMBINATION_EXIT_CODE = 4;
-  public static final int NO_PROGRAMS_EXIT_CODE = 5;
-  public static final int PROGRAM_NOT_SPECIFIED_EXIT_CODE = 6;
-  public static final int LANGUAGE_SERVER_NOT_STARTED_EXIT_CODE = 7;
   private static final LanguageMetaData languageMetaData = new LanguageMetaData("0.0.1-0");
 
   /**
@@ -66,7 +65,8 @@ final class Ek9 {
             compilationReporter::logPhaseCompilation, new CompilerReporter(commandLine.options().isVerbose(), false));
         final var compiler = new Ek9Compiler(allPhases, muteReportedErrors);
 
-        return new CompilationContext(commandLine, compiler, sourceFileCache, muteReportedErrors);
+        return new CompilationContext(commandLine, compiler, sourceFileCache, muteReportedErrors,
+            new CompilationResult());
       };
 
   private final CompilationContext compilationContext;
@@ -90,7 +90,7 @@ final class Ek9 {
 
     try {
       final var result = commandLine.process(argv);
-      if (result >= Ek9.SUCCESS_EXIT_CODE) {
+      if (result >= SUCCESS_EXIT_CODE) {
         System.exit(result);
       }
       System.exit(new Ek9(compilationContextCreation.apply(commandLine)).run());
@@ -171,8 +171,14 @@ final class Ek9 {
 
     //If the command line was to call for compilation this execution will trigger it.
     if (execution == null || !execution.run()) {
-      reporter.report("Command not executed");
-      rtn = BAD_COMMANDLINE_EXIT_CODE;
+      // Check if compilation failed anywhere in the execution chain
+      if (compilationContext.compilationResult().hasCompilationFailed()) {
+        reporter.report("Compilation failed");
+        rtn = COMPILATION_FAILED_EXIT_CODE;
+      } else {
+        reporter.report("Command not executed");
+        rtn = BAD_COMMANDLINE_EXIT_CODE;
+      }
     }
 
     return rtn;

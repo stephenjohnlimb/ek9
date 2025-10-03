@@ -63,20 +63,48 @@ No subdirectories needed - just two files.
 
 ## Exit Code Convention
 
-The EK9 compiler uses a specific exit code convention to enable the wrapper to execute compiled programs:
+### Compiler Internal Exit Codes
 
-| Exit Code | Meaning | Wrapper Action |
-|-----------|---------|----------------|
-| **0** | `RUN_COMMAND_EXIT_CODE` - Execute command from stdout | Wrapper executes the command that compiler printed |
-| **1** | `SUCCESS_EXIT_CODE` - Operation successful, nothing to run | Wrapper exits with code 1 |
-| **2** | Invalid parameters | Wrapper exits with code 2 |
-| **3** | File processing error | Wrapper exits with code 3 |
-| **4** | Invalid combination of parameters | Wrapper exits with code 4 |
-| **5** | No programs found to be executed | Wrapper exits with code 5 |
-| **6** | Please specify which program to execute | Wrapper exits with code 6 |
-| **7** | Compilation errors | Wrapper exits with code 7 |
+The EK9 compiler (Java component) uses an internal exit code protocol to communicate with the wrapper:
 
-**Key Design Decision:** Exit code 0 means "run this command" rather than traditional Unix "success". This enables the wrapper to seamlessly execute compiled programs without the user seeing Java command-line details.
+| Compiler Exit Code | Meaning | Internal Protocol |
+|-------------------|---------|-------------------|
+| **0** | `RUN_COMMAND_EXIT_CODE` - Success + command to run | Prints command to stdout for wrapper to execute |
+| **1** | `SUCCESS_EXIT_CODE` - Success, nothing to run | Operation completed successfully (compile-only, versioning, help, etc.) |
+| **2-10** | Error codes | Various error conditions (invalid parameters, compilation errors, etc.) |
+
+### Wrapper Exit Codes (User-Facing)
+
+The wrapper translates the compiler's internal protocol to standard Unix exit code conventions:
+
+| Wrapper Exit Code | Meaning | How Determined |
+|------------------|---------|----------------|
+| **0** | Success | Compiler returned 1 (mapped to 0), OR executed program returned 0 |
+| **1** | Cannot execute | Wrapper could not run compiler (process terminated abnormally) OR could not execute generated command (system() failed) |
+| **2** | Invalid parameters | Compiler returned 2 |
+| **3** | File processing error | Compiler returned 3 |
+| **4** | Invalid combination of parameters | Compiler returned 4 |
+| **5** | No programs found to be executed | Compiler returned 5 |
+| **6** | Please specify which program to execute | Compiler returned 6 |
+| **7** | Language Server failed to start | Compiler returned 7 |
+| **8** | Compilation failed with errors | Compiler returned 8 |
+| **9** | Wrong number of program arguments | Compiler returned 9 |
+| **10** | Cannot convert argument to required type | Compiler returned 10 |
+| **Any** | Program exit code | When compiler returns 0, wrapper executes program and returns its exit code |
+
+### Exit Code Mapping Logic
+
+The wrapper implements the following mapping to provide standard Unix exit code behavior:
+
+1. **Compiler exit 0**: Compiler prints command to stdout → wrapper executes it → wrapper returns the **executed program's exit code**
+2. **Compiler exit 1**: Successful operation, nothing to run → wrapper returns **0** (Unix success)
+3. **Compiler exit 2-10**: Error conditions → wrapper returns **same exit code** (Unix failure)
+
+**Key Design Decision:** The wrapper maps compiler exit code 1 to 0, following Unix conventions where 0 = success. This ensures:
+- `ek9 -C file.ek9` returns 0 on successful compilation
+- `ek9 -V` returns 0 for version display
+- CI/CD pipelines correctly detect success/failure
+- Shell scripts work with standard `if ek9 ...; then` patterns
 
 ## Execution Flow
 

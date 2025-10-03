@@ -1,5 +1,9 @@
 package org.ek9lang.cli;
 
+import static org.ek9lang.compiler.common.Ek9ExitCodes.BAD_COMMANDLINE_EXIT_CODE;
+import static org.ek9lang.compiler.common.Ek9ExitCodes.FILE_ISSUE_EXIT_CODE;
+import static org.ek9lang.compiler.common.Ek9ExitCodes.RUN_COMMAND_EXIT_CODE;
+import static org.ek9lang.compiler.common.Ek9ExitCodes.SUCCESS_EXIT_CODE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -62,12 +66,12 @@ final class EK9Test {
 
   @Test
   void testCommandLineHelpText() {
-    assertResult(Ek9.SUCCESS_EXIT_CODE, new String[] {"-h"});
+    assertResult(SUCCESS_EXIT_CODE, new String[] {"-h"});
   }
 
   @Test
   void testCommandLineVersionText() {
-    assertResult(Ek9.SUCCESS_EXIT_CODE, new String[] {"-V"});
+    assertResult(SUCCESS_EXIT_CODE, new String[] {"-V"});
   }
 
   @Test
@@ -80,10 +84,10 @@ final class EK9Test {
     assertNotNull(sourceFile);
 
     //This will actually trigger a full compile first.
-    assertCompilationArtefactsPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
+    assertCompilationArtefactsPresent(assertResult(SUCCESS_EXIT_CODE, command));
 
     //Now if we do it again there will be nothing to compile
-    CommandLine commandLine = assertResult(Ek9.SUCCESS_EXIT_CODE, command);
+    CommandLine commandLine = assertResult(SUCCESS_EXIT_CODE, command);
     assertCompilationArtefactsPresent(commandLine);
 
     //If we remove the target it will trigger a full re-compile and packaging
@@ -91,14 +95,14 @@ final class EK9Test {
         fileHandling.getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(),
             commandLine.targetArchitecture);
     assertTrue(targetArtefact.delete());
-    assertCompilationArtefactsPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
+    assertCompilationArtefactsPresent(assertResult(SUCCESS_EXIT_CODE, command));
 
     long lastModified = targetArtefact.lastModified();
     //Now simulate updating the source to ensure target gets rebuilt.
     assertTrue(sourceFile.setLastModified(lastModified + 1));
 
     //Trigger incremental rebuild
-    assertCompilationArtefactsPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
+    assertCompilationArtefactsPresent(assertResult(SUCCESS_EXIT_CODE, command));
     targetArtefact =
         fileHandling.getTargetExecutableArtefact(commandLine.getFullPathToSourceFileName(),
             commandLine.targetArchitecture);
@@ -121,7 +125,7 @@ final class EK9Test {
     assertNotNull(sourceFile);
 
     //This will actually trigger a full compile first, but no artefact should be created in a check.
-    assertCompilationArtefactsNotPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
+    assertCompilationArtefactsNotPresent(assertResult(SUCCESS_EXIT_CODE, command));
   }
 
   @Test
@@ -130,12 +134,12 @@ final class EK9Test {
 
     File home = new File(osSupport.getUsersHomeDirectory());
     assertTrue(home.exists());
-    var commandLineDetails = assertResult(Ek9.SUCCESS_EXIT_CODE, command);
+    var commandLineDetails = assertResult(SUCCESS_EXIT_CODE, command);
     assertNotNull(commandLineDetails);
     assertKeysPresent();
 
     //Now trigger it again to ensure it does not cause any errors
-    commandLineDetails = assertResult(Ek9.SUCCESS_EXIT_CODE, command);
+    commandLineDetails = assertResult(SUCCESS_EXIT_CODE, command);
     assertNotNull(commandLineDetails);
     assertKeysPresent();
   }
@@ -143,7 +147,7 @@ final class EK9Test {
   @Test
   void testUpdateUpgrade() {
     String[] command = new String[] {"-Up"};
-    var commandLineDetails = assertResult(Ek9.SUCCESS_EXIT_CODE, command);
+    var commandLineDetails = assertResult(SUCCESS_EXIT_CODE, command);
     assertNotNull(commandLineDetails);
   }
 
@@ -156,7 +160,7 @@ final class EK9Test {
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/basics/", sourceName);
     assertNotNull(sourceFile);
 
-    assertCompilationArtefactsPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
+    assertCompilationArtefactsPresent(assertResult(SUCCESS_EXIT_CODE, command));
   }
 
   @Test
@@ -167,7 +171,7 @@ final class EK9Test {
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/basics/", sourceName);
     assertNotNull(sourceFile);
 
-    assertCompilationArtefactsPresent(assertResult(Ek9.RUN_COMMAND_EXIT_CODE, command));
+    assertCompilationArtefactsPresent(assertResult(RUN_COMMAND_EXIT_CODE, command));
   }
 
   @Test
@@ -178,7 +182,7 @@ final class EK9Test {
     File sourceFile = sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/basics/", sourceName);
     assertNotNull(sourceFile);
 
-    assertCompilationArtefactsPresent(assertResult(Ek9.RUN_COMMAND_EXIT_CODE, command));
+    assertCompilationArtefactsPresent(assertResult(RUN_COMMAND_EXIT_CODE, command));
   }
 
   @Test
@@ -190,7 +194,7 @@ final class EK9Test {
     assertNotNull(sourceFile);
 
     //This will actually trigger a full compile and then run.
-    assertCompilationArtefactsPresent(assertResult(Ek9.SUCCESS_EXIT_CODE, command));
+    assertCompilationArtefactsPresent(assertResult(SUCCESS_EXIT_CODE, command));
   }
 
   @Test
@@ -202,7 +206,7 @@ final class EK9Test {
     assertNotNull(sourceFile);
 
     //This will actually trigger a full compile and then run.
-    assertCompilationArtefactsPresent(assertResult(Ek9.RUN_COMMAND_EXIT_CODE, command));
+    assertCompilationArtefactsPresent(assertResult(RUN_COMMAND_EXIT_CODE, command));
   }
 
   @Test
@@ -214,7 +218,7 @@ final class EK9Test {
     assertNotNull(sourceFile);
 
     //Should fail because this source does not define a package.
-    assertResult(Ek9.BAD_COMMANDLINE_EXIT_CODE, command);
+    assertResult(BAD_COMMANDLINE_EXIT_CODE, command);
   }
 
   @Test
@@ -227,7 +231,7 @@ final class EK9Test {
     assertNotNull(sourceFile);
 
     //Should pass because it does have a valid package.
-    assertResult(Ek9.SUCCESS_EXIT_CODE, command);
+    assertResult(SUCCESS_EXIT_CODE, command);
   }
 
   @Test
@@ -243,9 +247,9 @@ final class EK9Test {
             version as Version: 1.2.0-0
             description as String = "Simulation intermediate package"
             license <- "MIT"
-
+        
             tags <- [ "tools" ]
-
+        
             deps <- {
               "ekopen.network.support.utils": "1.6.1-9"
               }
@@ -259,7 +263,7 @@ final class EK9Test {
     File newSourceFile = new File(cwd, sourceName);
     fileHandling.saveToOutput(newSourceFile, ek9InitialSource);
     String[] command = new String[] {"-P " + sourceName};
-    assertResult(Ek9.SUCCESS_EXIT_CODE, command);
+    assertResult(SUCCESS_EXIT_CODE, command);
     //OK so now simulate changing the dependency
 
     var updatedEk9InitialSource = """
@@ -272,9 +276,9 @@ final class EK9Test {
             version as Version: 1.2.0-0
             description as String = "Simulation intermediate package"
             license <- "MIT"
-
+        
             tags <- [ "tools" ]
-
+        
             deps <- {
               "ekopen.network.support.utils": "2.4.1-9"
               }
@@ -283,7 +287,7 @@ final class EK9Test {
     fileHandling.saveToOutput(newSourceFile, updatedEk9InitialSource);
     installPackage("SupportUtils2.ek9");
     //Now check that too runs and is successful.
-    assertResult(Ek9.SUCCESS_EXIT_CODE, command);
+    assertResult(SUCCESS_EXIT_CODE, command);
   }
 
   @Test
@@ -296,7 +300,7 @@ final class EK9Test {
     assertNotNull(sourceFile);
 
     //Should fail because this source does not define a package.
-    assertResult(Ek9.RUN_COMMAND_EXIT_CODE, command);
+    assertResult(RUN_COMMAND_EXIT_CODE, command);
 
   }
 
@@ -339,7 +343,7 @@ final class EK9Test {
     File sourceFile =
         sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/basics/", sourceName);
     assertNotNull(sourceFile);
-    CommandLine commandLine = assertResult(Ek9.BAD_COMMANDLINE_EXIT_CODE, incrementBuildNo);
+    CommandLine commandLine = assertResult(BAD_COMMANDLINE_EXIT_CODE, incrementBuildNo);
     assertNotNull(commandLine);
   }
 
@@ -373,7 +377,7 @@ final class EK9Test {
 
   @Test
   void testDeploymentOfPackage() {
-    deployPackage(Ek9.SUCCESS_EXIT_CODE, "PackageNoDeps.ek9");
+    deployPackage(SUCCESS_EXIT_CODE, "PackageNoDeps.ek9");
   }
 
   @Test
@@ -390,7 +394,7 @@ final class EK9Test {
         new CommandLine(languageMetaData, fileHandling, osSupport);
 
     int result = commandLine.process(command);
-    assertEquals(Ek9.FILE_ISSUE_EXIT_CODE, result);
+    assertEquals(FILE_ISSUE_EXIT_CODE, result);
   }
 
   /**
@@ -419,7 +423,7 @@ final class EK9Test {
     installPackage("ToolsMisc.ek9");
 
     //Now for the one with dependencies
-    deployPackage(Ek9.SUCCESS_EXIT_CODE, "SinglePackage.ek9");
+    deployPackage(SUCCESS_EXIT_CODE, "SinglePackage.ek9");
   }
 
   @Test
@@ -429,7 +433,7 @@ final class EK9Test {
     installPackage("InterPackage1.ek9");
     installPackage("InterPackage2.ek9");
 
-    installPackage(Ek9.BAD_COMMANDLINE_EXIT_CODE, "SemanticBreach.ek9");
+    installPackage(BAD_COMMANDLINE_EXIT_CODE, "SemanticBreach.ek9");
   }
 
   @Test
@@ -467,7 +471,7 @@ final class EK9Test {
     installPackage("ToolsMisc.ek9");
 
     //Now for the one with dependencies - but we've not got one present.
-    deployPackage(Ek9.BAD_COMMANDLINE_EXIT_CODE, "SinglePackage.ek9");
+    deployPackage(BAD_COMMANDLINE_EXIT_CODE, "SinglePackage.ek9");
   }
 
   @Test
@@ -484,7 +488,7 @@ final class EK9Test {
 
     //Only now we've simulated how a developer might try and build circular refs can we test our next check.
 
-    installPackage(Ek9.BAD_COMMANDLINE_EXIT_CODE, "Circular1.ek9");
+    installPackage(BAD_COMMANDLINE_EXIT_CODE, "Circular1.ek9");
   }
 
   @Test
@@ -493,15 +497,15 @@ final class EK9Test {
     fileHandling.validateHomeEk9Directory(TargetArchitecture.JVM);
 
     //Now these should install OK
-    installPackage(Ek9.SUCCESS_EXIT_CODE, "CircularVersions3.ek9");
-    installPackage(Ek9.SUCCESS_EXIT_CODE, "CircularVersions2.ek9");
+    installPackage(SUCCESS_EXIT_CODE, "CircularVersions3.ek9");
+    installPackage(SUCCESS_EXIT_CODE, "CircularVersions2.ek9");
 
     //But now we rework 'net.circular.verone' but introduce a circular dependency
     //So in EK9 in a single build there can only be one version of a package named module
     //It is not possible to have multiple versions of the same named package
     //The can all exist in the repository or in the lib, but it cannot depend on previous versions
     //of itself.
-    installPackage(Ek9.BAD_COMMANDLINE_EXIT_CODE, "CircularVersions1.ek9");
+    installPackage(BAD_COMMANDLINE_EXIT_CODE, "CircularVersions1.ek9");
   }
 
   @Test
@@ -520,11 +524,11 @@ final class EK9Test {
     File sourceFile =
         sourceFileSupport.copyFileToTestCWD("/examples/parseAndCompile/constructs/packages/", sourceName);
     assertNotNull(sourceFile);
-    assertResult(Ek9.BAD_COMMANDLINE_EXIT_CODE, command);
+    assertResult(BAD_COMMANDLINE_EXIT_CODE, command);
   }
 
   private void installPackage(String sourceName) {
-    installPackage(Ek9.SUCCESS_EXIT_CODE, sourceName);
+    installPackage(SUCCESS_EXIT_CODE, sourceName);
 
     File libDir = fileHandling.getUsersHomeEk9LibDirectory();
     assertNotNull(libDir);
@@ -575,7 +579,7 @@ final class EK9Test {
     //So this should just package up and deploy the artefact.
     CommandLine commandLine = assertResult(expectedExitCode, deployCommand);
 
-    if (expectedExitCode == Ek9.SUCCESS_EXIT_CODE) {
+    if (expectedExitCode == SUCCESS_EXIT_CODE) {
       String zipFileName = fileHandling.makePackagedModuleZipFileName(commandLine.getModuleName(),
           commandLine.getVersion());
       File sha256EncFile =
@@ -598,7 +602,7 @@ final class EK9Test {
     assertNotNull(sourceFile);
 
     //So this should just increment the build number from '0' which is what is in PackageNoDeps.ek9 to '1'
-    CommandLine commandLine = assertResult(Ek9.SUCCESS_EXIT_CODE, incrementBuildNo);
+    CommandLine commandLine = assertResult(SUCCESS_EXIT_CODE, incrementBuildNo);
 
     //Now get the line number
     Integer versionLineNumber = commandLine.processEk9FileProperties(true);
@@ -612,16 +616,16 @@ final class EK9Test {
     FileCache sourceFileCache = new FileCache(commandLine);
     Compiler compiler = new StubCompiler();
     CompilationContext compilationContext =
-        new CompilationContext(commandLine, compiler, sourceFileCache, true);
+        new CompilationContext(commandLine, compiler, sourceFileCache, true, new CompilationResult());
 
     int result = commandLine.process(argv);
 
     var theCommandLine = String.join(" ", argv);
-    assertTrue(result <= Ek9.SUCCESS_EXIT_CODE, "Processing " + theCommandLine);
+    assertTrue(result <= SUCCESS_EXIT_CODE, "Processing " + theCommandLine);
 
     //Now should something be run and executed.
     try {
-      if (result == Ek9.RUN_COMMAND_EXIT_CODE) {
+      if (result == RUN_COMMAND_EXIT_CODE) {
         assertEquals(expectation, new Ek9(compilationContext).run());
       }
     } catch (InterruptedException exception) {

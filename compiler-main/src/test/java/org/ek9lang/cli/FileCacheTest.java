@@ -1,5 +1,6 @@
 package org.ek9lang.cli;
 
+import static org.ek9lang.compiler.common.Ek9ExitCodes.SUCCESS_EXIT_CODE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -144,7 +145,7 @@ class FileCacheTest {
     CommandLine commandLine =
         new CommandLine(languageMetaData, fileHandling, osSupport);
     int result = commandLine.process(command);
-    assertTrue(result <= Ek9.SUCCESS_EXIT_CODE);
+    assertTrue(result <= SUCCESS_EXIT_CODE);
 
     FileCache underTest = new FileCache(commandLine);
     var compilableSources = underTest.getAllCompilableProjectFiles();
