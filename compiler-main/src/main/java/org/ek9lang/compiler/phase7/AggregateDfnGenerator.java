@@ -38,7 +38,8 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
     AssertValue.checkTrue("Only configured for " + expectedGenus,
         expectedGenus == aggregateSymbol.getGenus());
 
-    final var construct = new IRConstruct(aggregateSymbol);
+    final var sourceFileName = getParsedModule().getSource().getRelativeFileName();
+    final var construct = new IRConstruct(aggregateSymbol, sourceFileName);
 
     // Create field declarations from symbol table
     createFieldDeclarations(construct, aggregateSymbol);

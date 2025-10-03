@@ -1,14 +1,17 @@
 package org.ek9lang.compiler.backend.jvm;
 
-import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BOOLEAN;
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_BOOLEAN_TO_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_EK9_BOOLEAN;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_BOOLEAN;
 import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_BOOLEAN;
 import static org.ek9lang.compiler.support.JVMTypeNames.PARAM_STRING;
 
+import java.util.Collections;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.core.AssertValue;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 
 /**
@@ -163,8 +166,8 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator {
 
     // Compare with null and produce boolean result
     // This generates: object == null ? 1 : 0
-    final var nullLabel = new org.objectweb.asm.Label();
-    final var endLabel = new org.objectweb.asm.Label();
+    final var nullLabel = new Label();
+    final var endLabel = new Label();
 
     getCurrentMethodVisitor().visitJumpInsn(Opcodes.IFNULL, nullLabel);
     getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_0); // false
@@ -176,10 +179,6 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator {
     getCurrentMethodVisitor().visitLabel(endLabel);
 
     // Convert to EK9 Boolean and store result
-    // Use proper IR type conversion for EK9 Boolean
-    final var jvmBooleanType = convertToJvmName(EK9_BOOLEAN);
-    final var booleanDescriptor = convertToJvmDescriptor(EK9_BOOLEAN);
-
     // Convert boolean to String first, then use _of method
     getCurrentMethodVisitor().visitMethodInsn(
         Opcodes.INVOKESTATIC,
@@ -191,9 +190,9 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator {
 
     getCurrentMethodVisitor().visitMethodInsn(
         Opcodes.INVOKESTATIC,
-        jvmBooleanType,
+        EK9_LANG_BOOLEAN,
         "_of",
-        PARAM_STRING + booleanDescriptor,
+        PARAM_STRING + DESC_EK9_BOOLEAN,
         false
     );
 
@@ -216,11 +215,13 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator {
     final var jvmTypeName = convertToJvmName(functionType);
 
     // Call static getInstance() method on the function type
+    // Use helper to generate descriptor: () -> functionType
+    final var descriptor = generateMethodDescriptor(Collections.emptyList(), functionType);
     getCurrentMethodVisitor().visitMethodInsn(
         Opcodes.INVOKESTATIC,
         jvmTypeName,
         "getInstance",
-        "()L" + jvmTypeName + ";",
+        descriptor,
         false
     );
 

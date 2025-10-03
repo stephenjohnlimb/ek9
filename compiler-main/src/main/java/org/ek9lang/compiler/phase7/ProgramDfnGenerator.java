@@ -41,7 +41,8 @@ final class ProgramDfnGenerator extends AbstractDfnGenerator
 
     if (symbol instanceof AggregateSymbol aggregateSymbol && symbol.getGenus() == SymbolGenus.PROGRAM) {
 
-      final var construct = new IRConstruct(symbol);
+      final var sourceFileName = getParsedModule().getSource().getRelativeFileName();
+      final var construct = new IRConstruct(symbol, sourceFileName);
 
       // Create the PROGRAM_ENTRY_POINT_BLOCK with all discovered programs
       createProgramEntryPointBlock(construct);

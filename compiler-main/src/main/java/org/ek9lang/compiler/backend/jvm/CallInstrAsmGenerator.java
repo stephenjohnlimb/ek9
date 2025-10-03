@@ -6,6 +6,7 @@ import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_C_INIT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_INIT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_I_INIT;
 
+import java.util.List;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.core.AssertValue;
@@ -70,9 +71,9 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
    */
   private void generateInstanceCall(final String targetObject,
                                     final String methodName,
-                                    final java.util.List<String> arguments,
+                                    final List<String> arguments,
                                     final String targetTypeName,
-                                    final java.util.List<String> parameterTypes,
+                                    final List<String> parameterTypes,
                                     final String returnTypeName,
                                     final boolean isTraitCall) {
 
@@ -135,9 +136,9 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
    */
   private void generateVirtualCall(final String targetObject,
                                    final String methodName,
-                                   final java.util.List<String> arguments,
+                                   final List<String> arguments,
                                    final String targetTypeName,
-                                   final java.util.List<String> parameterTypes,
+                                   final List<String> parameterTypes,
                                    final String returnTypeName,
                                    final boolean isTraitCall) {
     // For now, same as instance call - could be enhanced for interface calls
@@ -149,9 +150,9 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
    * Generate static method call (INVOKESTATIC).
    */
   private void generateStaticCall(final String methodName,
-                                  final java.util.List<String> arguments,
+                                  final List<String> arguments,
                                   final String targetTypeName,
-                                  final java.util.List<String> parameterTypes,
+                                  final List<String> parameterTypes,
                                   final String returnTypeName) {
 
     // Load arguments onto stack (no target object for static calls)
@@ -178,9 +179,9 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
    */
   private void generateDispatcherCall(final String targetObject,
                                       final String methodName,
-                                      final java.util.List<String> arguments,
+                                      final List<String> arguments,
                                       final String targetTypeName,
-                                      final java.util.List<String> parameterTypes,
+                                      final List<String> parameterTypes,
                                       final String returnTypeName) {
     // Dispatcher calls are similar to instance calls but may have special handling
     // Dispatcher targets are never traits (they're dispatchers), so always false

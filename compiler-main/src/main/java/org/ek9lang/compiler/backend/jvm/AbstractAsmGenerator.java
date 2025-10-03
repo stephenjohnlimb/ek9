@@ -1,15 +1,34 @@
 package org.ek9lang.compiler.backend.jvm;
 
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BOOLEAN;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_CHARACTER;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_FLOAT;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_INTEGER;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_STRING;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_BOOLEAN_TO_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_CHAR_TO_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_EK9_BOOLEAN;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_EK9_CHARACTER;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_EK9_FLOAT;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_EK9_INTEGER;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_EK9_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_FLOAT_TO_STRING;
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_INT_TO_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_BOOLEAN;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_CHARACTER;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_FLOAT;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_INTEGER;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_STRING;
 import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_BOOLEAN;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_CHARACTER;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_FLOAT;
 import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_INTEGER;
 import static org.ek9lang.compiler.support.JVMTypeNames.PARAM_STRING;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.core.AssertValue;
@@ -44,8 +63,8 @@ public abstract class AbstractAsmGenerator {
    * Shared context for a method that must be coordinated across all generators.
    */
   public static class MethodContext {
-    final java.util.Map<String, Integer> variableMap = new java.util.HashMap<>();
-    final java.util.Map<String, TempVariableSource> tempSourceMap = new java.util.HashMap<>();
+    final Map<String, Integer> variableMap = new HashMap<>();
+    final Map<String, TempVariableSource> tempSourceMap = new HashMap<>();
     int nextVariableSlot = 1; // Reserve slot 0 for 'this'
   }
 
@@ -239,111 +258,198 @@ public abstract class AbstractAsmGenerator {
    */
   private void generateLiteralStackOperation(final String literalValue, final String literalType) {
     switch (literalType) {
-      case EK9_STRING -> {
-        // Generate String literal directly onto stack
-        getCurrentMethodVisitor().visitLdcInsn(literalValue);
-
-        // Convert to EK9 String
-        final var jvmStringType = convertToJvmName(EK9_STRING);
-        final var stringDescriptor = convertToJvmDescriptor(EK9_STRING);
-        getCurrentMethodVisitor().visitMethodInsn(
-            Opcodes.INVOKESTATIC,
-            jvmStringType,
-            "_of",
-            PARAM_STRING + stringDescriptor,
-            false
-        );
-      }
-      case EK9_INTEGER -> {
-        try {
-          final int intValue = Integer.parseInt(literalValue);
-          // Load int constant
-          switch (intValue) {
-            case -1 -> getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_M1);
-            case 0 -> getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_0);
-            case 1 -> getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_1);
-            case 2 -> getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_2);
-            case 3 -> getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_3);
-            case 4 -> getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_4);
-            case 5 -> getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_5);
-            default -> {
-              if (intValue >= Byte.MIN_VALUE && intValue <= Byte.MAX_VALUE) {
-                getCurrentMethodVisitor().visitIntInsn(Opcodes.BIPUSH, intValue);
-              } else if (intValue >= Short.MIN_VALUE && intValue <= Short.MAX_VALUE) {
-                getCurrentMethodVisitor().visitIntInsn(Opcodes.SIPUSH, intValue);
-              } else {
-                getCurrentMethodVisitor().visitLdcInsn(intValue);
-              }
-            }
-          }
-          // Convert int to String then to EK9 Integer
-          getCurrentMethodVisitor().visitMethodInsn(
-              Opcodes.INVOKESTATIC,
-              JAVA_LANG_INTEGER,
-              "toString",
-              DESC_INT_TO_STRING,
-              false
-          );
-          final var jvmIntegerType = convertToJvmName(EK9_INTEGER);
-          final var integerDescriptor = convertToJvmDescriptor(EK9_INTEGER);
-          getCurrentMethodVisitor().visitMethodInsn(
-              Opcodes.INVOKESTATIC,
-              jvmIntegerType,
-              "_of",
-              PARAM_STRING + integerDescriptor,
-              false
-          );
-        } catch (NumberFormatException e) {
-          throw new IllegalArgumentException("Invalid integer literal: " + literalValue, e);
-        }
-      }
-      case EK9_BOOLEAN -> {
-        // Load boolean value as int (0 or 1)
-        if ("true".equals(literalValue)) {
-          getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_1);
-        } else if ("false".equals(literalValue)) {
-          getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_0);
-        } else {
-          throw new IllegalArgumentException("Invalid boolean literal: " + literalValue);
-        }
-        // Convert boolean to String then to EK9 Boolean
-        getCurrentMethodVisitor().visitMethodInsn(
-            Opcodes.INVOKESTATIC,
-            JAVA_LANG_BOOLEAN,
-            "toString",
-            DESC_BOOLEAN_TO_STRING,
-            false
-        );
-        final var jvmBooleanType = convertToJvmName(EK9_BOOLEAN);
-        final var booleanDescriptor = convertToJvmDescriptor(EK9_BOOLEAN);
-        getCurrentMethodVisitor().visitMethodInsn(
-            Opcodes.INVOKESTATIC,
-            jvmBooleanType,
-            "_of",
-            PARAM_STRING + booleanDescriptor,
-            false
-        );
-      }
-      default -> {
-        // For other types, treat as string and let the target type constructor handle parsing
-        getCurrentMethodVisitor().visitLdcInsn(literalValue);
-        final var jvmTypeName = convertToJvmName(literalType);
-        final var typeDescriptor = convertToJvmDescriptor(literalType);
-        getCurrentMethodVisitor().visitMethodInsn(
-            Opcodes.INVOKESTATIC,
-            jvmTypeName,
-            "_of",
-            PARAM_STRING + typeDescriptor,
-            false
-        );
-      }
+      case EK9_STRING -> generateStringLiteral(literalValue);
+      case EK9_INTEGER -> generateIntegerLiteral(literalValue);
+      case EK9_BOOLEAN -> generateBooleanLiteral(literalValue);
+      case EK9_FLOAT -> generateFloatLiteral(literalValue);
+      case EK9_CHARACTER -> generateCharacterLiteral(literalValue);
+      default -> generateObjectLiteral(literalValue, literalType);
     }
+  }
+
+  /**
+   * Generate EK9 String literal from string value.
+   */
+  protected void generateStringLiteral(final String literalValue) {
+    // Generate String literal directly onto stack
+    getCurrentMethodVisitor().visitLdcInsn(literalValue);
+
+    // Convert to EK9 String
+    getCurrentMethodVisitor().visitMethodInsn(
+        Opcodes.INVOKESTATIC,
+        EK9_LANG_STRING,
+        "_of",
+        PARAM_STRING + DESC_EK9_STRING,
+        false
+    );
+  }
+
+  /**
+   * Generate EK9 Integer literal from string value.
+   */
+  protected void generateIntegerLiteral(final String literalValue) {
+    try {
+      final int intValue = Integer.parseInt(literalValue);
+      // Load int constant using size-optimized JVM instructions:
+      // ICONST_* = 1 byte (fastest, for common values -1 to 5)
+      // BIPUSH = 2 bytes (for byte range -128 to 127)
+      // SIPUSH = 3 bytes (for short range -32768 to 32767)
+      // LDC = 2 bytes + constant pool entry (for larger values)
+      switch (intValue) {
+        case -1 -> getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_M1);
+        case 0 -> getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_0);
+        case 1 -> getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_1);
+        case 2 -> getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_2);
+        case 3 -> getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_3);
+        case 4 -> getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_4);
+        case 5 -> getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_5);
+        default -> {
+          if (intValue >= Byte.MIN_VALUE && intValue <= Byte.MAX_VALUE) {
+            getCurrentMethodVisitor().visitIntInsn(Opcodes.BIPUSH, intValue);
+          } else if (intValue >= Short.MIN_VALUE && intValue <= Short.MAX_VALUE) {
+            getCurrentMethodVisitor().visitIntInsn(Opcodes.SIPUSH, intValue);
+          } else {
+            getCurrentMethodVisitor().visitLdcInsn(intValue);
+          }
+        }
+      }
+      // Convert int to String then to EK9 Integer
+      getCurrentMethodVisitor().visitMethodInsn(
+          Opcodes.INVOKESTATIC,
+          JAVA_LANG_INTEGER,
+          "toString",
+          DESC_INT_TO_STRING,
+          false
+      );
+      getCurrentMethodVisitor().visitMethodInsn(
+          Opcodes.INVOKESTATIC,
+          EK9_LANG_INTEGER,
+          "_of",
+          PARAM_STRING + DESC_EK9_INTEGER,
+          false
+      );
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Invalid integer literal: " + literalValue, e);
+    }
+  }
+
+  /**
+   * Generate EK9 Boolean literal from string value.
+   */
+  protected void generateBooleanLiteral(final String literalValue) {
+    // Load boolean value as int (0 or 1)
+    if ("true".equals(literalValue)) {
+      getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_1);
+    } else if ("false".equals(literalValue)) {
+      getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_0);
+    } else {
+      throw new IllegalArgumentException("Invalid boolean literal: " + literalValue);
+    }
+    // Convert boolean to String then to EK9 Boolean
+    getCurrentMethodVisitor().visitMethodInsn(
+        Opcodes.INVOKESTATIC,
+        JAVA_LANG_BOOLEAN,
+        "toString",
+        DESC_BOOLEAN_TO_STRING,
+        false
+    );
+    getCurrentMethodVisitor().visitMethodInsn(
+        Opcodes.INVOKESTATIC,
+        EK9_LANG_BOOLEAN,
+        "_of",
+        PARAM_STRING + DESC_EK9_BOOLEAN,
+        false
+    );
+  }
+
+  /**
+   * Generate EK9 Float literal from string value.
+   */
+  protected void generateFloatLiteral(final String literalValue) {
+    try {
+      final float floatValue = Float.parseFloat(literalValue);
+
+      // Use FCONST_0 (1 byte) for zero, which is common in initializers
+      // Use LDC (2 bytes) for all other values - optimization for 1.0f/2.0f not worth the complexity
+      if (floatValue == 0.0f) {
+        getCurrentMethodVisitor().visitInsn(Opcodes.FCONST_0);
+      } else {
+        getCurrentMethodVisitor().visitLdcInsn(floatValue);
+      }
+
+      // Convert float to String first, then use _of method to create EK9 Float
+      getCurrentMethodVisitor().visitMethodInsn(
+          Opcodes.INVOKESTATIC,
+          JAVA_LANG_FLOAT,
+          "toString",
+          DESC_FLOAT_TO_STRING,
+          false
+      );
+
+      getCurrentMethodVisitor().visitMethodInsn(
+          Opcodes.INVOKESTATIC,
+          EK9_LANG_FLOAT,
+          "_of",
+          PARAM_STRING + DESC_EK9_FLOAT,
+          false
+      );
+
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Invalid float literal: " + literalValue, e);
+    }
+  }
+
+  /**
+   * Generate EK9 Character literal from string value.
+   */
+  protected void generateCharacterLiteral(final String literalValue) {
+    if (literalValue.length() == 1) {
+      final char charValue = literalValue.charAt(0);
+      getCurrentMethodVisitor().visitIntInsn(Opcodes.BIPUSH, charValue);
+
+      // Convert char to String first, then use _of method to create EK9 Character
+      getCurrentMethodVisitor().visitMethodInsn(
+          Opcodes.INVOKESTATIC,
+          JAVA_LANG_CHARACTER,
+          "toString",
+          DESC_CHAR_TO_STRING,
+          false
+      );
+
+      getCurrentMethodVisitor().visitMethodInsn(
+          Opcodes.INVOKESTATIC,
+          EK9_LANG_CHARACTER,
+          "_of",
+          PARAM_STRING + DESC_EK9_CHARACTER,
+          false
+      );
+    } else {
+      throw new IllegalArgumentException("Invalid character literal: " + literalValue);
+    }
+  }
+
+  /**
+   * Generate EK9 type literal from string value for generic/object types.
+   * This handles complex literals that don't fit standard primitive categories.
+   */
+  protected void generateObjectLiteral(final String literalValue, final String literalType) {
+    // For other types, treat as string and let the target type constructor handle parsing
+    getCurrentMethodVisitor().visitLdcInsn(literalValue);
+    final var jvmTypeName = convertToJvmName(literalType);
+    final var typeDescriptor = convertToJvmDescriptor(literalType);
+    getCurrentMethodVisitor().visitMethodInsn(
+        Opcodes.INVOKESTATIC,
+        jvmTypeName,
+        "_of",
+        PARAM_STRING + typeDescriptor,
+        false
+    );
   }
 
   /**
    * Generate method descriptor from EK9 parameter and return types.
    */
-  protected String generateMethodDescriptor(final java.util.List<String> parameterTypes,
+  protected String generateMethodDescriptor(final List<String> parameterTypes,
                                             final String returnType) {
     final var descriptor = new StringBuilder("(");
 

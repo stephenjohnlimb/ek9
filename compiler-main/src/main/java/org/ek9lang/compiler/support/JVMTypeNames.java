@@ -18,9 +18,46 @@ public final class JVMTypeNames {
   public static final String JAVA_UTIL_ARRAY_LIST = "java/util/ArrayList";
   public static final String JAVA_UTIL_LIST = "java/util/List";
 
+  // EK9 built-in type internal names (slash-separated)
+  public static final String EK9_LANG_STRING = "org/ek9/lang/String";
+  public static final String EK9_LANG_INTEGER = "org/ek9/lang/Integer";
+  public static final String EK9_LANG_FLOAT = "org/ek9/lang/Float";
+  public static final String EK9_LANG_BOOLEAN = "org/ek9/lang/Boolean";
+  public static final String EK9_LANG_CHARACTER = "org/ek9/lang/Character";
+  public static final String EK9_LANG_BITS = "org/ek9/lang/Bits";
+  public static final String EK9_LANG_DATE = "org/ek9/lang/Date";
+  public static final String EK9_LANG_DATETIME = "org/ek9/lang/DateTime";
+  public static final String EK9_LANG_TIME = "org/ek9/lang/Time";
+  public static final String EK9_LANG_DURATION = "org/ek9/lang/Duration";
+  public static final String EK9_LANG_MILLISECOND = "org/ek9/lang/Millisecond";
+  public static final String EK9_LANG_DIMENSION = "org/ek9/lang/Dimension";
+  public static final String EK9_LANG_RESOLUTION = "org/ek9/lang/Resolution";
+  public static final String EK9_LANG_COLOUR = "org/ek9/lang/Colour";
+  public static final String EK9_LANG_MONEY = "org/ek9/lang/Money";
+  public static final String EK9_LANG_REGEX = "org/ek9/lang/RegEx";
+  public static final String EK9_LANG_BUILTIN_TYPE = "org/ek9/lang/BuiltinType";
+
   // JVM type descriptors (L-wrapped)
   public static final String DESC_OBJECT = "Ljava/lang/Object;";
   public static final String DESC_PRINT_STREAM = "Ljava/io/PrintStream;";
+
+  // EK9 built-in type descriptors (L-wrapped)
+  public static final String DESC_EK9_STRING = "Lorg/ek9/lang/String;";
+  public static final String DESC_EK9_INTEGER = "Lorg/ek9/lang/Integer;";
+  public static final String DESC_EK9_FLOAT = "Lorg/ek9/lang/Float;";
+  public static final String DESC_EK9_BOOLEAN = "Lorg/ek9/lang/Boolean;";
+  public static final String DESC_EK9_CHARACTER = "Lorg/ek9/lang/Character;";
+  public static final String DESC_EK9_BITS = "Lorg/ek9/lang/Bits;";
+  public static final String DESC_EK9_DATE = "Lorg/ek9/lang/Date;";
+  public static final String DESC_EK9_DATETIME = "Lorg/ek9/lang/DateTime;";
+  public static final String DESC_EK9_TIME = "Lorg/ek9/lang/Time;";
+  public static final String DESC_EK9_DURATION = "Lorg/ek9/lang/Duration;";
+  public static final String DESC_EK9_MILLISECOND = "Lorg/ek9/lang/Millisecond;";
+  public static final String DESC_EK9_DIMENSION = "Lorg/ek9/lang/Dimension;";
+  public static final String DESC_EK9_RESOLUTION = "Lorg/ek9/lang/Resolution;";
+  public static final String DESC_EK9_COLOUR = "Lorg/ek9/lang/Colour;";
+  public static final String DESC_EK9_MONEY = "Lorg/ek9/lang/Money;";
+  public static final String DESC_EK9_REGEX = "Lorg/ek9/lang/RegEx;";
 
   // Common method descriptors
   public static final String DESC_STRING_TO_VOID = "(Ljava/lang/String;)V";
@@ -34,6 +71,26 @@ public final class JVMTypeNames {
   public static final String DESC_BOOLEAN_TO_STRING = "(Z)Ljava/lang/String;";
   public static final String DESC_FLOAT_TO_STRING = "(F)Ljava/lang/String;";
   public static final String DESC_CHAR_TO_STRING = "(C)Ljava/lang/String;";
+
+  // EK9 common method descriptors
+  public static final String DESC_STRING_TO_EK9_STRING = "(Ljava/lang/String;)Lorg/ek9/lang/String;";
+  public static final String DESC_STRING_TO_EK9_INTEGER = "(Ljava/lang/String;)Lorg/ek9/lang/Integer;";
+  public static final String DESC_STRING_TO_EK9_FLOAT = "(Ljava/lang/String;)Lorg/ek9/lang/Float;";
+  public static final String DESC_STRING_TO_EK9_BOOLEAN = "(Ljava/lang/String;)Lorg/ek9/lang/Boolean;";
+  public static final String DESC_STRING_TO_EK9_CHARACTER = "(Ljava/lang/String;)Lorg/ek9/lang/Character;";
+  public static final String DESC_STRING_TO_EK9_BITS = "(Ljava/lang/String;)Lorg/ek9/lang/Bits;";
+  public static final String DESC_STRING_TO_EK9_DATE = "(Ljava/lang/String;)Lorg/ek9/lang/Date;";
+  public static final String DESC_STRING_TO_EK9_DATETIME = "(Ljava/lang/String;)Lorg/ek9/lang/DateTime;";
+  public static final String DESC_STRING_TO_EK9_TIME = "(Ljava/lang/String;)Lorg/ek9/lang/Time;";
+  public static final String DESC_STRING_TO_EK9_DURATION = "(Ljava/lang/String;)Lorg/ek9/lang/Duration;";
+  public static final String DESC_STRING_TO_EK9_MILLISECOND = "(Ljava/lang/String;)Lorg/ek9/lang/Millisecond;";
+  public static final String DESC_STRING_TO_EK9_DIMENSION = "(Ljava/lang/String;)Lorg/ek9/lang/Dimension;";
+  public static final String DESC_STRING_TO_EK9_RESOLUTION = "(Ljava/lang/String;)Lorg/ek9/lang/Resolution;";
+  public static final String DESC_STRING_TO_EK9_COLOUR = "(Ljava/lang/String;)Lorg/ek9/lang/Colour;";
+  public static final String DESC_STRING_TO_EK9_MONEY = "(Ljava/lang/String;)Lorg/ek9/lang/Money;";
+  public static final String DESC_STRING_TO_EK9_REGEX = "(Ljava/lang/String;)Lorg/ek9/lang/RegEx;";
+  public static final String DESC_VOID_TO_EK9_BOOLEAN = "()Lorg/ek9/lang/Boolean;";
+  public static final String DESC_VOID_TO_BOOLEAN_PRIMITIVE = "()Z";
 
   // Descriptor parameter fragments for dynamic construction
   public static final String PARAM_STRING = "(Ljava/lang/String;)";

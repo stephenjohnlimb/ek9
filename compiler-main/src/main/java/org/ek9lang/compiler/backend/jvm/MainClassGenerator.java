@@ -23,10 +23,45 @@ import static org.ek9lang.compiler.support.JVMTypeNames.DESC_INT_TO_STRING_BUILD
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_OBJECT_TO_BOOLEAN;
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_PRINT_STREAM;
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_ARRAY_TO_VOID;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_BITS;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_BOOLEAN;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_CHARACTER;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_COLOUR;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_DATE;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_DATETIME;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_DIMENSION;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_DURATION;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_FLOAT;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_INTEGER;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_MILLISECOND;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_MONEY;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_REGEX;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_RESOLUTION;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_EK9_TIME;
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_STRING_BUILDER;
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_STRING_TO_VOID;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_VOID_TO_BOOLEAN_PRIMITIVE;
+import static org.ek9lang.compiler.support.JVMTypeNames.DESC_VOID_TO_EK9_BOOLEAN;
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_VOID_TO_STRING;
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_VOID_TO_VOID;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_BITS;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_BOOLEAN;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_BUILTIN_TYPE;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_CHARACTER;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_COLOUR;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_DATE;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_DATETIME;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_DIMENSION;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_DURATION;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_FLOAT;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_INTEGER;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_MILLISECOND;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_MONEY;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_REGEX;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_RESOLUTION;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_STRING;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_TIME;
 import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_IO_PRINT_STREAM;
 import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_EXCEPTION;
 import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_OBJECT;
@@ -38,13 +73,15 @@ import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_UTIL_LIST;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_INIT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_MAIN;
 import static org.ek9lang.compiler.support.JVMTypeNames.PARAM_OBJECT;
-import static org.ek9lang.compiler.support.JVMTypeNames.PARAM_STRING;
 import static org.ek9lang.compiler.support.JVMTypeNames.PARAM_UTIL_LIST;
 
+import java.util.List;
 import java.util.function.Function;
+import org.ek9lang.compiler.ir.data.ParameterDetails;
 import org.ek9lang.compiler.ir.data.ProgramDetails;
 import org.ek9lang.compiler.ir.instructions.ProgramEntryPointInstr;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -109,8 +146,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
   /**
    * Build method descriptor for _main method call.
    */
-  private String buildMainMethodDescriptor(
-      final java.util.List<org.ek9lang.compiler.ir.data.ParameterDetails> parameterSignature) {
+  private String buildMainMethodDescriptor(final List<ParameterDetails> parameterSignature) {
     final var descriptor = new StringBuilder("(");
 
     for (var param : parameterSignature) {
@@ -151,9 +187,9 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     //   else { show "program not found" }
     // } else { execute directly }
 
-    org.objectweb.asm.Label directExecution = new org.objectweb.asm.Label();
-    org.objectweb.asm.Label showUsage = new org.objectweb.asm.Label();
-    org.objectweb.asm.Label programNotFound = new org.objectweb.asm.Label();
+    Label directExecution = new Label();
+    Label showUsage = new Label();
+    Label programNotFound = new Label();
 
     // Check if args.length >= 1
     mv.visitVarInsn(ALOAD, 0); // Load args
@@ -230,9 +266,9 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
   /**
    * Generate logic for multiple program execution (requires -r flag).
    */
-  private void generateMultipleProgramLogic(final MethodVisitor mv, final java.util.List<ProgramDetails> programs) {
+  private void generateMultipleProgramLogic(final MethodVisitor mv, final List<ProgramDetails> programs) {
     // Check args.length >= 2 && "-r".equals(args[0])
-    org.objectweb.asm.Label showUsage = new org.objectweb.asm.Label();
+    Label showUsage = new Label();
 
     // Check args.length >= 2
     mv.visitVarInsn(ALOAD, 0); // Load args
@@ -250,7 +286,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
 
     // Check program name against each available program
     for (final ProgramDetails program : programs) {
-      org.objectweb.asm.Label nextProgram = new org.objectweb.asm.Label();
+      Label nextProgram = new Label();
 
       // if (args[1].equals(programName))
       mv.visitVarInsn(ALOAD, 0); // Load args
@@ -325,7 +361,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
 
     // Validate argument count matches parameter count
     // if (args.length - argsOffset != parameterSignature.size()) { show error and return }
-    org.objectweb.asm.Label argumentCountValid = new org.objectweb.asm.Label();
+    Label argumentCountValid = new Label();
 
     mv.visitVarInsn(ALOAD, 0); // Load args
     mv.visitInsn(ARRAYLENGTH);
@@ -406,12 +442,12 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
       mv.visitVarInsn(ASTORE, paramLocalVar);
 
       // Validate conversion succeeded: if (!convertedValue._isSet()._true()) { error }
-      org.objectweb.asm.Label conversionSuccessful = new org.objectweb.asm.Label();
+      Label conversionSuccessful = new Label();
 
       mv.visitVarInsn(ALOAD, paramLocalVar); // Load converted EK9 object
-      mv.visitTypeInsn(CHECKCAST, "org/ek9/lang/BuiltinType"); // Cast to BuiltinType
-      mv.visitMethodInsn(INVOKEVIRTUAL, "org/ek9/lang/BuiltinType", "_isSet", "()Lorg/ek9/lang/Boolean;", false);
-      mv.visitMethodInsn(INVOKEVIRTUAL, "org/ek9/lang/Boolean", "_true", "()Z", false);
+      mv.visitTypeInsn(CHECKCAST, EK9_LANG_BUILTIN_TYPE); // Cast to BuiltinType
+      mv.visitMethodInsn(INVOKEVIRTUAL, EK9_LANG_BUILTIN_TYPE, "_isSet", DESC_VOID_TO_EK9_BOOLEAN, false);
+      mv.visitMethodInsn(INVOKEVIRTUAL, EK9_LANG_BOOLEAN, "_true", DESC_VOID_TO_BOOLEAN_PRIMITIVE, false);
       mv.visitJumpInsn(IFNE, conversionSuccessful); // If true, conversion succeeded
 
       // Conversion failed - show error message
@@ -457,7 +493,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
 
   /**
    * Generate bytecode for program with List of String parameter.
-   * Collects all remaining command-line args into java.util.List and converts to EK9 List of String.
+   * Collects all remaining command-line args into List and converts to EK9 List of String.
    */
   private void generateListOfStringProgramCall(final MethodVisitor mv, final ProgramDetails program,
                                                final int argsOffset) {
@@ -471,7 +507,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     final int instanceLocalVar = 1;
     mv.visitVarInsn(ASTORE, instanceLocalVar);
 
-    // Create java.util.ArrayList to collect all arguments
+    // Create ArrayList to collect all arguments
     mv.visitTypeInsn(NEW, JAVA_UTIL_ARRAY_LIST);
     mv.visitInsn(DUP);
     mv.visitMethodInsn(INVOKESPECIAL, JAVA_UTIL_ARRAY_LIST, METHOD_INIT, DESC_VOID_TO_VOID, false);
@@ -492,8 +528,8 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     mv.visitVarInsn(ISTORE, loopIndexVar);
 
     // Loop: while (i < args.length)
-    org.objectweb.asm.Label loopStart = new org.objectweb.asm.Label();
-    org.objectweb.asm.Label loopEnd = new org.objectweb.asm.Label();
+    Label loopStart = new Label();
+    Label loopEnd = new Label();
 
     mv.visitLabel(loopStart);
     // Check condition: i < args.length
@@ -507,8 +543,8 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     mv.visitInsn(AALOAD); // args[i] - Java String
 
     // Convert to EK9 String: String._of(javaString)
-    mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/String", "_of",
-        PARAM_STRING + "Lorg/ek9/lang/String;", false);
+    mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_STRING, "_of",
+        DESC_STRING_TO_EK9_STRING, false);
 
     // Add to ArrayList: list.add(ek9String)
     mv.visitVarInsn(ALOAD, listLocalVar); // Load ArrayList
@@ -523,8 +559,8 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
 
     mv.visitLabel(loopEnd);
 
-    // Convert java.util.List to EK9 List of String using factory method
-    // _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of(java.util.List)
+    // Convert List to EK9 List of String using factory method
+    // _List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._of(List)
     mv.visitVarInsn(ALOAD, listLocalVar);
     mv.visitMethodInsn(INVOKESTATIC,
         "org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1",
@@ -557,44 +593,44 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     // The _of method returns an unset object if conversion fails
     switch (ek9Type) {
       // Basic types
-      case EK9_STRING -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/String", "_of",
-          PARAM_STRING + "Lorg/ek9/lang/String;", false);
-      case EK9_INTEGER -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Integer", "_of",
-          PARAM_STRING + "Lorg/ek9/lang/Integer;", false);
-      case EK9_FLOAT -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Float", "_of",
-          PARAM_STRING + "Lorg/ek9/lang/Float;", false);
-      case EK9_BOOLEAN -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Boolean", "_of",
-          PARAM_STRING + "Lorg/ek9/lang/Boolean;", false);
-      case EK9_CHARACTER -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Character",
-          "_of", PARAM_STRING + "Lorg/ek9/lang/Character;", false);
-      case EK9_BITS -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Bits", "_of",
-          PARAM_STRING + "Lorg/ek9/lang/Bits;", false);
+      case EK9_STRING -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_STRING, "_of",
+          DESC_STRING_TO_EK9_STRING, false);
+      case EK9_INTEGER -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_INTEGER, "_of",
+          DESC_STRING_TO_EK9_INTEGER, false);
+      case EK9_FLOAT -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_FLOAT, "_of",
+          DESC_STRING_TO_EK9_FLOAT, false);
+      case EK9_BOOLEAN -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_BOOLEAN, "_of",
+          DESC_STRING_TO_EK9_BOOLEAN, false);
+      case EK9_CHARACTER -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_CHARACTER,
+          "_of", DESC_STRING_TO_EK9_CHARACTER, false);
+      case EK9_BITS -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_BITS, "_of",
+          DESC_STRING_TO_EK9_BITS, false);
 
       // Date/Time types
-      case EK9_DATE -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Date", "_of",
-          PARAM_STRING + "Lorg/ek9/lang/Date;", false);
-      case EK9_DATETIME -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/DateTime",
-          "_of", PARAM_STRING + "Lorg/ek9/lang/DateTime;", false);
-      case EK9_TIME -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Time", "_of",
-          PARAM_STRING + "Lorg/ek9/lang/Time;", false);
-      case EK9_DURATION -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Duration",
-          "_of", PARAM_STRING + "Lorg/ek9/lang/Duration;", false);
-      case EK9_MILLISECOND -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Millisecond",
-          "_of", PARAM_STRING + "Lorg/ek9/lang/Millisecond;", false);
+      case EK9_DATE -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_DATE, "_of",
+          DESC_STRING_TO_EK9_DATE, false);
+      case EK9_DATETIME -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_DATETIME,
+          "_of", DESC_STRING_TO_EK9_DATETIME, false);
+      case EK9_TIME -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_TIME, "_of",
+          DESC_STRING_TO_EK9_TIME, false);
+      case EK9_DURATION -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_DURATION,
+          "_of", DESC_STRING_TO_EK9_DURATION, false);
+      case EK9_MILLISECOND -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_MILLISECOND,
+          "_of", DESC_STRING_TO_EK9_MILLISECOND, false);
 
       // Physical/Visual types
-      case EK9_DIMENSION -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Dimension",
-          "_of", PARAM_STRING + "Lorg/ek9/lang/Dimension;", false);
-      case EK9_RESOLUTION -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Resolution",
-          "_of", PARAM_STRING + "Lorg/ek9/lang/Resolution;", false);
-      case EK9_COLOUR -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Colour", "_of",
-          PARAM_STRING + "Lorg/ek9/lang/Colour;", false);
+      case EK9_DIMENSION -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_DIMENSION,
+          "_of", DESC_STRING_TO_EK9_DIMENSION, false);
+      case EK9_RESOLUTION -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_RESOLUTION,
+          "_of", DESC_STRING_TO_EK9_RESOLUTION, false);
+      case EK9_COLOUR -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_COLOUR, "_of",
+          DESC_STRING_TO_EK9_COLOUR, false);
 
       // Financial/Pattern types
-      case EK9_MONEY -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/Money", "_of",
-          PARAM_STRING + "Lorg/ek9/lang/Money;", false);
-      case EK9_REGEX -> mv.visitMethodInsn(INVOKESTATIC, "org/ek9/lang/RegEx", "_of",
-          PARAM_STRING + "Lorg/ek9/lang/RegEx;", false);
+      case EK9_MONEY -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_MONEY, "_of",
+          DESC_STRING_TO_EK9_MONEY, false);
+      case EK9_REGEX -> mv.visitMethodInsn(INVOKESTATIC, EK9_LANG_REGEX, "_of",
+          DESC_STRING_TO_EK9_REGEX, false);
 
       default -> {
         // Unsupported type - show error and exit

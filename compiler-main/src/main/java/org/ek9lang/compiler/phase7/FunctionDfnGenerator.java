@@ -42,7 +42,8 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     final var symbol = getParsedModule().getRecordedSymbol(ctx);
 
     if (symbol instanceof FunctionSymbol functionSymbol && symbol.getGenus() == SymbolGenus.FUNCTION) {
-      final var construct = new IRConstruct(symbol);
+      final var sourceFileName = getParsedModule().getSource().getRelativeFileName();
+      final var construct = new IRConstruct(symbol, sourceFileName);
 
       // Create field declarations from symbol table
       createFieldDeclarations(construct, functionSymbol);

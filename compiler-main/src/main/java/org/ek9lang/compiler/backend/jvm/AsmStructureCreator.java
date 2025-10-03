@@ -8,10 +8,20 @@ import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_INIT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_I_INIT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_MAIN;
 
+import java.util.Collections;
+import java.util.List;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.common.INodeVisitor;
+import org.ek9lang.compiler.ir.data.ParameterDetails;
+import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
+import org.ek9lang.compiler.ir.instructions.BranchInstr;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.LiteralInstr;
+import org.ek9lang.compiler.ir.instructions.MemoryInstr;
+import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.ir.instructions.ProgramEntryPointInstr;
+import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.core.CompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -25,6 +35,7 @@ public final class AsmStructureCreator implements Opcodes {
 
   private final ConstructTargetTuple constructTargetTuple;
   private final INodeVisitor visitor;
+  private final FullyQualifiedJvmName jvmNameConverter = new FullyQualifiedJvmName();
   private ClassWriter classWriter;
   private ProgramEntryPointInstr programEntryPoint = null;
 
@@ -74,13 +85,12 @@ public final class AsmStructureCreator implements Opcodes {
 
     // Get the actual program class name from the IR construct
     final var programClassName = construct.getFullyQualifiedName();
-    final var jvmClassName = programClassName.replace(".", "/").replace("::", "/");
+    final var jvmClassName = jvmNameConverter.apply(programClassName);
 
     classWriter.visit(V21, ACC_PUBLIC, jvmClassName, null, JAVA_LANG_OBJECT, null);
 
-    // Add source file information for debugging
-    final var simpleClassName = programClassName.substring(programClassName.lastIndexOf("::") + 2);
-    classWriter.visitSource(simpleClassName + ".java", null);
+    // Add source file information for debugging - uses actual .ek9 source filename from IR
+    classWriter.visitSource(construct.getSourceFileName(), null);
   }
 
   /**
@@ -113,7 +123,7 @@ public final class AsmStructureCreator implements Opcodes {
   /**
    * Generate &lt;clinit&gt; static initializer from c_init IR operation.
    */
-  private void generateStaticInitializerFromIR(final org.ek9lang.compiler.ir.instructions.OperationInstr operation) {
+  private void generateStaticInitializerFromIR(final OperationInstr operation) {
     final var mv = classWriter.visitMethod(ACC_STATIC, METHOD_CLINIT, DESC_VOID_TO_VOID, null, null);
     mv.visitCode();
 
@@ -131,7 +141,7 @@ public final class AsmStructureCreator implements Opcodes {
   /**
    * Generate i_init instance method from IR operation.
    */
-  private void generateInstanceInitFromIR(final org.ek9lang.compiler.ir.instructions.OperationInstr operation) {
+  private void generateInstanceInitFromIR(final OperationInstr operation) {
     final var mv = classWriter.visitMethod(ACC_PRIVATE, METHOD_I_INIT, DESC_VOID_TO_VOID, null, null);
     mv.visitCode();
 
@@ -148,7 +158,7 @@ public final class AsmStructureCreator implements Opcodes {
   /**
    * Generate &lt;init&gt; constructor from IR operation.
    */
-  private void generateConstructorFromIR(final org.ek9lang.compiler.ir.instructions.OperationInstr operation) {
+  private void generateConstructorFromIR(final OperationInstr operation) {
     final var mv = classWriter.visitMethod(ACC_PUBLIC, METHOD_INIT, DESC_VOID_TO_VOID, null, null);
     mv.visitCode();
 
@@ -171,7 +181,7 @@ public final class AsmStructureCreator implements Opcodes {
    * Uses the actual parameter signature from the OperationInstr.
    * Pre-registers method parameters in variable map to prevent null overwriting.
    */
-  private void generateMainMethodFromIR(final org.ek9lang.compiler.ir.instructions.OperationInstr operation) {
+  private void generateMainMethodFromIR(final OperationInstr operation) {
     // Build method descriptor from operation signature
     final var methodDescriptor = buildMethodDescriptor(operation);
 
@@ -194,7 +204,7 @@ public final class AsmStructureCreator implements Opcodes {
    * Get parameter names for the current method from PROGRAM_ENTRY_POINT_BLOCK.
    * Returns list of parameter names in order (e.g., ["message"] for HelloString).
    */
-  private java.util.List<String> getParameterNamesForMethod() {
+  private List<String> getParameterNamesForMethod() {
     if (programEntryPoint != null) {
       final var programClassName = getProgramClassName();
 
@@ -203,20 +213,20 @@ public final class AsmStructureCreator implements Opcodes {
         if (programDetails.qualifiedName().equals(programClassName)) {
           // Extract parameter names from parameter signature
           return programDetails.parameterSignature().stream()
-              .map(org.ek9lang.compiler.ir.data.ParameterDetails::name)
+              .map(ParameterDetails::name)
               .toList();
         }
       }
     }
 
-    return java.util.Collections.emptyList();
+    return Collections.emptyList();
   }
 
   /**
    * Build JVM method descriptor from program's parameter signature in PROGRAM_ENTRY_POINT_BLOCK.
    * Example: (org.ek9.lang::String) -> "(Lorg/ek9/lang/String;)V"
    */
-  private String buildMethodDescriptor(final org.ek9lang.compiler.ir.instructions.OperationInstr operation) {
+  private String buildMethodDescriptor(final OperationInstr operation) {
     // For _main method, get parameter signature from PROGRAM_ENTRY_POINT_BLOCK
     if (programEntryPoint != null) {
       final var programClassName = getProgramClassName();
@@ -254,29 +264,8 @@ public final class AsmStructureCreator implements Opcodes {
    * Uses specialized ASM generators for each instruction type.
    */
   private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
-                                                      final org.ek9lang.compiler.ir.instructions.BasicBlockInstr basicBlock) {
-    // Create temporary visitor to process instructions with access to current MethodVisitor
-    final var instructionVisitor = new InstructionVisitor(mv);
-
-    // Process each typed IR instruction using visitor pattern
-    for (var instruction : basicBlock.getInstructions()) {
-      // Use visitor pattern to dispatch to appropriate specialized generator
-      switch (instruction) {
-        case org.ek9lang.compiler.ir.instructions.CallInstr callInstr ->
-            instructionVisitor.processCallInstruction(callInstr);
-        case org.ek9lang.compiler.ir.instructions.LiteralInstr literalInstr ->
-            instructionVisitor.processLiteralInstruction(literalInstr);
-        case org.ek9lang.compiler.ir.instructions.MemoryInstr memoryInstr ->
-            instructionVisitor.processMemoryInstruction(memoryInstr);
-        case org.ek9lang.compiler.ir.instructions.ScopeInstr scopeInstr ->
-            instructionVisitor.processScopeInstruction(scopeInstr);
-        case org.ek9lang.compiler.ir.instructions.BranchInstr branchInstr ->
-            instructionVisitor.processBranchInstruction(branchInstr);
-
-        default -> throw new CompilerException(
-            "WARNING: Unhandled typed IR instruction: " + instruction.getClass().getSimpleName());
-      }
-    }
+                                                      final BasicBlockInstr basicBlock) {
+    processInstructions(new InstructionVisitor(mv), basicBlock);
   }
 
   /**
@@ -284,58 +273,37 @@ public final class AsmStructureCreator implements Opcodes {
    * Pre-registers parameters in variable map to prevent null overwriting.
    */
   private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
-                                                      final org.ek9lang.compiler.ir.instructions.BasicBlockInstr basicBlock,
-                                                      final java.util.List<String> parameterNames) {
-    // Create temporary visitor with pre-registered parameters
-    final var instructionVisitor = new InstructionVisitor(mv, parameterNames);
-
-    // Process each typed IR instruction using visitor pattern
-    for (var instruction : basicBlock.getInstructions()) {
-      // Use visitor pattern to dispatch to appropriate specialized generator
-      switch (instruction) {
-        case org.ek9lang.compiler.ir.instructions.CallInstr callInstr ->
-            instructionVisitor.processCallInstruction(callInstr);
-        case org.ek9lang.compiler.ir.instructions.LiteralInstr literalInstr ->
-            instructionVisitor.processLiteralInstruction(literalInstr);
-        case org.ek9lang.compiler.ir.instructions.MemoryInstr memoryInstr ->
-            instructionVisitor.processMemoryInstruction(memoryInstr);
-        case org.ek9lang.compiler.ir.instructions.ScopeInstr scopeInstr ->
-            instructionVisitor.processScopeInstruction(scopeInstr);
-        case org.ek9lang.compiler.ir.instructions.BranchInstr branchInstr ->
-            instructionVisitor.processBranchInstruction(branchInstr);
-        default -> throw new CompilerException(
-            "WARNING: Unhandled typed IR instruction: " + instruction.getClass().getSimpleName());
-
-      }
-    }
+                                                      final BasicBlockInstr basicBlock,
+                                                      final List<String> parameterNames) {
+    processInstructions(new InstructionVisitor(mv, parameterNames), basicBlock);
   }
 
   /**
    * Overloaded version for constructor context.
    */
   private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
-                                                      final org.ek9lang.compiler.ir.instructions.BasicBlockInstr basicBlock,
+                                                      final BasicBlockInstr basicBlock,
                                                       final boolean isConstructor) {
-    // Create temporary visitor to process instructions with access to current MethodVisitor and constructor flag
-    final var instructionVisitor = new InstructionVisitor(mv, isConstructor);
+    processInstructions(new InstructionVisitor(mv, isConstructor), basicBlock);
+  }
 
+  /**
+   * Common instruction processing logic used by all overloads.
+   * Dispatches each IR instruction to the appropriate specialized generator.
+   */
+  private void processInstructions(final InstructionVisitor instructionVisitor,
+                                   final BasicBlockInstr basicBlock) {
     // Process each typed IR instruction using visitor pattern
     for (var instruction : basicBlock.getInstructions()) {
       // Use visitor pattern to dispatch to appropriate specialized generator
       switch (instruction) {
-        case org.ek9lang.compiler.ir.instructions.CallInstr callInstr ->
-            instructionVisitor.processCallInstruction(callInstr);
-        case org.ek9lang.compiler.ir.instructions.LiteralInstr literalInstr ->
-            instructionVisitor.processLiteralInstruction(literalInstr);
-        case org.ek9lang.compiler.ir.instructions.MemoryInstr memoryInstr ->
-            instructionVisitor.processMemoryInstruction(memoryInstr);
-        case org.ek9lang.compiler.ir.instructions.ScopeInstr scopeInstr ->
-            instructionVisitor.processScopeInstruction(scopeInstr);
-        case org.ek9lang.compiler.ir.instructions.BranchInstr branchInstr ->
-            instructionVisitor.processBranchInstruction(branchInstr);
+        case CallInstr callInstr -> instructionVisitor.processCallInstruction(callInstr);
+        case LiteralInstr literalInstr -> instructionVisitor.processLiteralInstruction(literalInstr);
+        case MemoryInstr memoryInstr -> instructionVisitor.processMemoryInstruction(memoryInstr);
+        case ScopeInstr scopeInstr -> instructionVisitor.processScopeInstruction(scopeInstr);
+        case BranchInstr branchInstr -> instructionVisitor.processBranchInstruction(branchInstr);
         default -> throw new CompilerException(
             "WARNING: Unhandled typed IR instruction: " + instruction.getClass().getSimpleName());
-
       }
     }
   }
@@ -356,19 +324,19 @@ public final class AsmStructureCreator implements Opcodes {
     }
 
     InstructionVisitor(final MethodVisitor mv, final boolean isConstructor) {
-      this(mv, isConstructor, java.util.Collections.emptyList());
+      this(mv, isConstructor, Collections.emptyList());
     }
 
     /**
      * Constructor with parameter names for pre-registration in variable map.
      * Parameters are allocated to local variable slots 1, 2, 3, ... (slot 0 is 'this').
      */
-    InstructionVisitor(final MethodVisitor mv, final java.util.List<String> parameterNames) {
+    InstructionVisitor(final MethodVisitor mv, final List<String> parameterNames) {
       this(mv, false, parameterNames);
     }
 
     private InstructionVisitor(final MethodVisitor mv, final boolean isConstructor,
-                               final java.util.List<String> parameterNames) {
+                               final List<String> parameterNames) {
       this.methodVisitor = mv;
       this.isConstructor = isConstructor;
 
@@ -403,26 +371,26 @@ public final class AsmStructureCreator implements Opcodes {
       this.memoryInstrGenerator.setCurrentMethodVisitor(mv);
     }
 
-    void processCallInstruction(final org.ek9lang.compiler.ir.instructions.CallInstr callInstr) {
+    void processCallInstruction(final CallInstr callInstr) {
       // Delegate to existing specialized CallInstrAsmGenerator
       callInstrGenerator.generateCall(callInstr);
     }
 
-    void processLiteralInstruction(final org.ek9lang.compiler.ir.instructions.LiteralInstr literalInstr) {
+    void processLiteralInstruction(final LiteralInstr literalInstr) {
       // Delegate to existing specialized LiteralInstrAsmGenerator
       literalInstrGenerator.generateLiteral(literalInstr);
     }
 
-    void processMemoryInstruction(final org.ek9lang.compiler.ir.instructions.MemoryInstr memoryInstr) {
+    void processMemoryInstruction(final MemoryInstr memoryInstr) {
       // Delegate to existing specialized MemoryInstrAsmGenerator
       memoryInstrGenerator.generateMemoryOperation(memoryInstr);
     }
 
-    void processScopeInstruction(final org.ek9lang.compiler.ir.instructions.ScopeInstr scopeInstr) {
+    void processScopeInstruction(final ScopeInstr scopeInstr) {
       //No-op
     }
 
-    void processBranchInstruction(final org.ek9lang.compiler.ir.instructions.BranchInstr branchInstr) {
+    void processBranchInstruction(final BranchInstr branchInstr) {
       // BranchInstr represents RETURN in this case - generate RETURN instruction
       if (branchInstr.getOpcode().toString().equals("RETURN")) {
         // JVM constructors ALWAYS return void, regardless of EK9 IR semantics

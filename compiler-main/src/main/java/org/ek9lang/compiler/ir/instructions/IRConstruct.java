@@ -26,16 +26,19 @@ import org.ek9lang.core.AssertValue;
 public final class IRConstruct implements INode {
 
   private final ISymbol symbol;
+  private final String sourceFileName;
   private final List<Field> fields = new ArrayList<>();
   private final List<OperationInstr> operations = new ArrayList<>();
   private ProgramEntryPointInstr programEntryPoint;
 
   private final SymbolSignatureExtractor symbolSignatureExtractor = new SymbolSignatureExtractor();
 
-  public IRConstruct(final ISymbol symbol) {
+  public IRConstruct(final ISymbol symbol, final String sourceFileName) {
 
     AssertValue.checkNotNull("Symbol cannot be null", symbol);
+    AssertValue.checkNotNull("Source file name cannot be null", sourceFileName);
     this.symbol = symbol;
+    this.sourceFileName = sourceFileName;
 
   }
 
@@ -46,6 +49,17 @@ public final class IRConstruct implements INode {
 
   public String getFullyQualifiedName() {
     return symbol.getFullyQualifiedName();
+  }
+
+  /**
+   * Returns the source file name where this construct was defined.
+   * This is used for JVM debug information (SourceFile attribute) to enable
+   * debuggers to map bytecode back to the original .ek9 source file.
+   *
+   * @return Source file name, typically a relative path like "introduction/HelloWorld.ek9"
+   */
+  public String getSourceFileName() {
+    return sourceFileName;
   }
 
   /**
