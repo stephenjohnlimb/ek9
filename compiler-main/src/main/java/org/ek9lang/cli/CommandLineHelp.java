@@ -43,6 +43,12 @@ public record CommandLineHelp(String helpText) {
         \t-T target architecture - defaults to 'jvm' if not specified.
         \tfilename.ek9 - the main file to work with
         \t-r Program to run (if EK9 file as more than one)
+
+        Environment Variables:
+        \tEK9_HOME - Directory containing EK9 compiler JAR (for version switching)
+        \tEK9_TARGET - Alternative to -T flag for target architecture
+        \tEK9_COMPILER_MEMORY - JVM memory for compiler (default: -Xmx512m)
+        \tEK9_APPLICATION_MEMORY - JVM memory for running compiled applications (default: -Xmx512m)
         """);
   }
 }

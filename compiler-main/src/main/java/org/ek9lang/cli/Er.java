@@ -44,6 +44,12 @@ class Er extends E {
 
       //OK we can issue run command.
       final var theRunCommand = new StringBuilder("java");
+
+      // Add memory setting from environment or use default
+      final var memoryFlag = System.getenv("EK9_APPLICATION_MEMORY");
+      theRunCommand.append(" ").append(memoryFlag != null && !memoryFlag.isEmpty()
+          ? memoryFlag : "-Xmx512m");
+
       if (compilationContext.commandLine().options().isRunDebugMode()) {
         theRunCommand.append(" -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:")
             .append(compilationContext.commandLine().debugPort);

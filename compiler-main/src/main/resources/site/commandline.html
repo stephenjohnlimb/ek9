@@ -188,6 +188,26 @@
       optional will override the environment variable <b>EK9_TARGET</b> if used. This environment variable
       has been introduced so that it is not necessary to provide the command line parameter all the time.
     </p>
+    <h4>Memory Configuration</h4>
+    <p>
+      EK9 provides two environment variables to control JVM memory allocation:
+    </p>
+    <p>
+      <b>EK9_COMPILER_MEMORY</b> - Sets the maximum heap size for the EK9 compiler itself.
+      Defaults to <b>-Xmx512m</b> if not set. Useful for large projects or when running multiple
+      compilations in parallel.
+    </p>
+    <p>
+      Example: <b>export EK9_COMPILER_MEMORY="-Xmx1024m"</b>
+    </p>
+    <p>
+      <b>EK9_APPLICATION_MEMORY</b> - Sets the maximum heap size for compiled EK9 applications
+      when running them. Defaults to <b>-Xmx512m</b> if not set. Adjust this based on your
+      application's memory requirements.
+    </p>
+    <p>
+      Example: <b>export EK9_APPLICATION_MEMORY="-Xmx2048m"</b>
+    </p>
     <h4>Language Server</h4>
     <p>
       The compiler can be used just as a 'language server', in this mode it does not produce

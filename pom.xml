@@ -46,6 +46,7 @@
     <module>ek9-lang</module>
     <module>compiler-main</module>
     <module>ek9-wrapper</module>
+    <module>integration-tests</module>
   </modules>
 
   <dependencyManagement>

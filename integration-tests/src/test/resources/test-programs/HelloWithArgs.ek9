@@ -1,0 +1,16 @@
+#!ek9
+defines module introduction
+
+  defines program
+
+    HelloString()
+      -> message as String
+      stdout <- Stdout()
+      stdout.println(message)
+
+    HelloInteger()
+      -> number as Integer
+      stdout <- Stdout()
+      stdout.println(number)
+
+//EOF

@@ -31,10 +31,14 @@
  * 1. Zero-config: JAR located relative to this executable (simple installation)
  * 2. EK9_HOME: JAR located in $EK9_HOME/lib/ (version switching)
  *
+ * Environment Variables:
+ * - EK9_HOME: Directory containing EK9 compiler JAR (optional)
+ * - EK9_COMPILER_MEMORY: JVM memory flags for compiler (default: -Xmx512m)
+ *
  * The wrapper:
  * - Finds the compiler JAR (using EK9_HOME or relative path)
  * - Checks Java version (requires Java 25+)
- * - Invokes: java -jar <jar> <user-args>
+ * - Invokes: java <EK9_COMPILER_MEMORY> -jar <jar> <user-args>
  * - Handles exit codes:
  *   - 0: Execute command from stdout (run compiled program)
  *   - 1-7: Pass through (compiler success/errors)
@@ -146,9 +150,16 @@ Also returns array of booleans indicating which strings were dynamically allocat
 */
 char** buildJavaArgv(int argc, char *argv[], char *jarPath, int *newArgc, char **allocatedFlags)
 {
-    // argv: [java, -jar, jarPath, user_arg1, user_arg2, ..., NULL]
-    // Count: 1 (java) + 1 (-jar) + 1 (jarPath) + (argc-1) user args + 1 (NULL)
-    *newArgc = argc + 3;
+    // Get memory setting from environment or use default
+    const char *memoryFlag = getenv("EK9_COMPILER_MEMORY");
+    if(memoryFlag == NULL || memoryFlag[0] == '\0')
+    {
+        memoryFlag = "-Xmx512m";
+    }
+
+    // argv: [java, memoryFlag, -jar, jarPath, user_arg1, user_arg2, ..., NULL]
+    // Count: 1 (java) + 1 (memory) + 1 (-jar) + 1 (jarPath) + (argc-1) user args + 1 (NULL)
+    *newArgc = argc + 4;
     char **javaArgv = malloc((*newArgc + 1) * sizeof(char*));
 
     if(javaArgv == NULL)
@@ -164,13 +175,14 @@ char** buildJavaArgv(int argc, char *argv[], char *jarPath, int *newArgc, char *
     memset(*allocatedFlags, 0, *newArgc);
 
     javaArgv[0] = "java";
-    javaArgv[1] = "-jar";
-    javaArgv[2] = jarPath;
+    javaArgv[1] = (char*)memoryFlag;  // Memory flag from env or default
+    javaArgv[2] = "-jar";
+    javaArgv[3] = jarPath;
 
     // Process user arguments (argv[1..argc-1])
     for(int i = 1; i < argc; i++)
     {
-        int targetIndex = i + 2;
+        int targetIndex = i + 3;  // Offset increased by 1 due to memory flag
 
         if(containsSpaces(argv[i]))
         {
