@@ -376,6 +376,90 @@
     <p>
       <b>-r</b> Run in normal mode (assumed if no other option provided).
     </p>
+    <h3 id="standard_io">Using Standard Input and Output</h3>
+    <p>
+      EK9 programs can read from <b>standard input</b> (stdin) and write to <b>standard output</b> (stdout),
+      making them work seamlessly with Unix-style pipes and shell redirection. This is essential for creating
+      <u>CLI tools</u>, <u>filters</u>, and <u>pipeline-based applications</u>.
+    </p>
+    <h4>Simple Example</h4>
+    <p>
+      Here's a minimal EK9 program that reads from stdin and writes to stdout:
+    </p>
+    <pre>#!ek9
+defines module introduction
+
+  defines program
+
+    PassThrough()
+      stdin &lt;- Stdin()
+      stdout &lt;- Stdout()
+
+      inputLine &lt;- stdin.next()
+      stdout.println(inputLine)
+//EOF</pre>
+    <h4>Running with Pipes</h4>
+    <p>
+      Once compiled, you can use standard Unix piping to pass data to your EK9 program:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">$</span>
+          <span class="k">echo "Hello World" | ek9 PassThrough.ek9</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">Hello World</span>
+        </li>
+      </ul>
+    </div>
+    <p>
+      On Unix, Linux, and macOS systems with the shebang (<b>#!ek9</b>) and execute permissions set,
+      you can run it directly:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">$</span>
+          <span class="k">chmod u+x PassThrough.ek9</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">$</span>
+          <span class="k">echo "Hello World" | ./PassThrough.ek9</span>
+          <span class="m">&crarr;</span>
+        </li>
+        <li>
+          <span class="m">Hello World</span>
+        </li>
+      </ul>
+    </div>
+    <h4>Chaining with Unix Tools</h4>
+    <p>
+      EK9 programs integrate naturally with Unix command-line tools, allowing you to build
+      processing pipelines:
+    </p>
+    <div class="highlight ek9-code">
+      <ul class="code-lines">
+        <li>
+          <span class="m">$</span>
+          <span class="k">cat data.txt | ek9 filter.ek9 | sort | uniq</span>
+          <span class="m">&crarr;</span>
+        </li>
+      </ul>
+    </div>
+    <h4>Learn More</h4>
+    <p>
+      For comprehensive documentation on <b>Stdin</b>, <b>Stdout</b>, and <b>Stderr</b> usage,
+      including advanced patterns with stream pipelines and iterator-style access, see:
+    </p>
+    <ul>
+      <li><a href="standardTypes.html#stdin">Stdin documentation</a> - Reading from standard input</li>
+      <li><a href="standardTypes.html#stdout">Stdout documentation</a> - Writing to standard output</li>
+      <li><a href="standardTypes.html#stderr">Stderr documentation</a> - Error output channel</li>
+      <li><a href="standardTypes.html#worked_example">Complete CLI application example</a> - 400-line practical example</li>
+    </ul>
     <h3 id="exit_codes">Exit Codes</h3>
     <p>
       The <b>ek9</b> command uses specific <i>exit codes</i> to enable integration with <u>shell scripts</u>,

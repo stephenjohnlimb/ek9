@@ -8,19 +8,10 @@ defines module introduction
 
   defines program
 
-    HelloString()
-      -> message as String
+    PassThrough()
+      stdin <- Stdin()
       stdout <- Stdout()
-      stdout.println(message)
 
-    HelloInteger()
-      -> number as Integer
-      stdout <- Stdout()
-      stdout.println(number)
-
-    HelloStrings()
-      -> args as List of String
-      stdout <- Stdout()
-      stdout.println(args)
-
+      inputLine <- stdin.next()
+      stdout.println(inputLine)
 //EOF

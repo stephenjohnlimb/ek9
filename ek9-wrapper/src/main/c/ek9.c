@@ -222,6 +222,111 @@ void cleanupJavaArgv(char **javaArgv, char *allocatedFlags, int argc)
 }
 
 /*
+Parse command string into argv array for execvp.
+Handles single-quoted strings (preserves quotes for execvp to parse).
+Returns newly allocated array that must be freed by caller.
+Returns argument count in *argc.
+*/
+char** parseCommand(const char *command, int *argc)
+{
+    if(command == NULL || argc == NULL)
+        return NULL;
+
+    // Allocate argv array (estimate max args)
+    int maxArgs = 64;
+    char **argv = malloc(maxArgs * sizeof(char*));
+    if(argv == NULL)
+        return NULL;
+
+    *argc = 0;
+    const char *p = command;
+
+    // Skip leading whitespace
+    while(*p && *p == ' ')
+        p++;
+
+    while(*p)
+    {
+        // Reallocate if needed
+        if(*argc >= maxArgs - 1)
+        {
+            maxArgs *= 2;
+            char **newArgv = realloc(argv, maxArgs * sizeof(char*));
+            if(newArgv == NULL)
+            {
+                // Cleanup on failure
+                for(int i = 0; i < *argc; i++)
+                    free(argv[i]);
+                free(argv);
+                return NULL;
+            }
+            argv = newArgv;
+        }
+
+        const char *start = p;
+        const char *end;
+
+        // Handle quoted strings
+        if(*p == '\'')
+        {
+            // Find closing quote (include quotes in argument)
+            start = p;
+            p++;
+            while(*p && *p != '\'')
+                p++;
+            if(*p == '\'')
+                p++;
+            end = p;
+        }
+        else
+        {
+            // Regular argument - read until space
+            while(*p && *p != ' ')
+                p++;
+            end = p;
+        }
+
+        // Copy argument
+        size_t len = end - start;
+        argv[*argc] = malloc(len + 1);
+        if(argv[*argc] == NULL)
+        {
+            // Cleanup on failure
+            for(int i = 0; i < *argc; i++)
+                free(argv[i]);
+            free(argv);
+            return NULL;
+        }
+        strncpy(argv[*argc], start, len);
+        argv[*argc][len] = '\0';
+        (*argc)++;
+
+        // Skip trailing whitespace
+        while(*p && *p == ' ')
+            p++;
+    }
+
+    argv[*argc] = NULL;  // NULL terminator for execvp
+    return argv;
+}
+
+/*
+Free parsed command argv array.
+*/
+void cleanupCommandArgv(char **argv, int argc)
+{
+    if(argv == NULL)
+        return;
+
+    for(int i = 0; i < argc; i++)
+    {
+        if(argv[i])
+            free(argv[i]);
+    }
+    free(argv);
+}
+
+/*
 Find the compiler JAR using either EK9_HOME or relative to executable.
 Returns 0 on success, 1 on failure.
 Populates jarPath with the discovered location.
@@ -396,16 +501,53 @@ int main(int argc, char *argv[])
         if(outputBuffer[bytesRead - 1] == '\n')
             outputBuffer[bytesRead - 1] = '\0';
 
-        // Execute the command using system() - it will handle the quotes correctly
-        exitCode = system(outputBuffer);
-        if(exitCode == -1)
+        // Parse command into argv for direct execution (preserves stdin/stdout)
+        int commandArgc;
+        char **commandArgv = parseCommand(outputBuffer, &commandArgc);
+
+        if(commandArgv == NULL)
         {
-            fprintf(stderr, "Error: Unable to run compiled program. The system could not execute the generated command.\n");
-            fprintf(stderr, "Check that you have necessary permissions and the program is properly compiled.\n");
+            fprintf(stderr, "Error: Failed to parse execution command\n");
             return 1;
         }
-        // system() returns exit code in specific format
-        exitCode = WEXITSTATUS(exitCode);
+
+        // Fork and execute command directly (inherits stdin/stdout/stderr from parent)
+        pid_t execPid = fork();
+
+        if(execPid < 0)
+        {
+            fprintf(stderr, "Error: Failed to fork process for program execution\n");
+            cleanupCommandArgv(commandArgv, commandArgc);
+            return 1;
+        }
+
+        if(execPid == 0)
+        {
+            // Child process: execute compiled program directly
+            // stdin/stdout/stderr are inherited from parent (ek9 wrapper)
+            execvp(commandArgv[0], commandArgv);
+
+            // If execvp returns, it failed
+            fprintf(stderr, "Error: Failed to execute compiled program: %s\n", commandArgv[0]);
+            exit(1);
+        }
+
+        // Parent process: wait for child and get exit code
+        int execStatus;
+        waitpid(execPid, &execStatus, 0);
+
+        // Clean up parsed command
+        cleanupCommandArgv(commandArgv, commandArgc);
+
+        if(WIFEXITED(execStatus))
+        {
+            exitCode = WEXITSTATUS(execStatus);
+        }
+        else
+        {
+            fprintf(stderr, "Error: Unable to run compiled program. The program terminated unexpectedly.\n");
+            return 1;
+        }
     }
     else if(bytesRead > 0)
     {
