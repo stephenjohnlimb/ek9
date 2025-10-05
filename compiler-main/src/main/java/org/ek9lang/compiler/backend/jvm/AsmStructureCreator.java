@@ -14,14 +14,9 @@ import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.compiler.ir.data.ParameterDetails;
 import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
-import org.ek9lang.compiler.ir.instructions.BranchInstr;
-import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
-import org.ek9lang.compiler.ir.instructions.LiteralInstr;
-import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.ir.instructions.ProgramEntryPointInstr;
-import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.core.CompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -260,166 +255,65 @@ public final class AsmStructureCreator implements Opcodes {
   }
 
   /**
-   * Process a basic block using typed IR instructions via visitor pattern.
-   * Uses specialized ASM generators for each instruction type.
+   * Process a basic block using visitor pattern.
+   * Default: no parameters, not a constructor.
    */
   private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
                                                       final BasicBlockInstr basicBlock) {
-    processInstructions(new InstructionVisitor(mv), basicBlock);
+    processBasicBlockWithTypedInstructions(mv, basicBlock, Collections.emptyList(), false);
   }
 
   /**
-   * Overloaded version with parameter names for _main method context.
+   * Process a basic block with parameter names for _main method context.
    * Pre-registers parameters in variable map to prevent null overwriting.
    */
   private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
                                                       final BasicBlockInstr basicBlock,
                                                       final List<String> parameterNames) {
-    processInstructions(new InstructionVisitor(mv, parameterNames), basicBlock);
+    processBasicBlockWithTypedInstructions(mv, basicBlock, parameterNames, false);
   }
 
   /**
-   * Overloaded version for constructor context.
+   * Process a basic block for constructor context.
    */
   private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
                                                       final BasicBlockInstr basicBlock,
                                                       final boolean isConstructor) {
-    processInstructions(new InstructionVisitor(mv, isConstructor), basicBlock);
+    processBasicBlockWithTypedInstructions(mv, basicBlock, Collections.emptyList(), isConstructor);
   }
 
   /**
-   * Common instruction processing logic used by all overloads.
-   * Dispatches each IR instruction to the appropriate specialized generator.
+   * Process a basic block using visitor pattern delegation.
+   * Sets up method context, then delegates to OutputVisitor for each instruction.
    */
-  private void processInstructions(final InstructionVisitor instructionVisitor,
-                                   final BasicBlockInstr basicBlock) {
-    // Process each typed IR instruction using visitor pattern
+  private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
+                                                      final BasicBlockInstr basicBlock,
+                                                      final List<String> parameterNames,
+                                                      final boolean isConstructor) {
+    // Cast visitor to OutputVisitor to access generator setup methods
+    final OutputVisitor outputVisitor = (OutputVisitor) visitor;
+
+    // Create fresh MethodContext for this method
+    final var methodContext = new AbstractAsmGenerator.MethodContext();
+
+    // Pre-register method parameters (prevents null overwriting)
+    // Instance method parameters start at slot 1 (slot 0 is 'this')
+    int parameterSlot = 1;
+    for (String paramName : parameterNames) {
+      methodContext.variableMap.put(paramName, parameterSlot++);
+    }
+    // Update nextVariableSlot to account for pre-registered parameters
+    methodContext.nextVariableSlot = parameterSlot;
+
+    // Share method context and method visitor with all generators
+    outputVisitor.setMethodContext(methodContext, mv, isConstructor);
+
+    // Process each IR instruction using visitor pattern
     for (var instruction : basicBlock.getInstructions()) {
-      // Use visitor pattern to dispatch to appropriate specialized generator
-      switch (instruction) {
-        case CallInstr callInstr -> instructionVisitor.processCallInstruction(callInstr);
-        case LiteralInstr literalInstr -> instructionVisitor.processLiteralInstruction(literalInstr);
-        case MemoryInstr memoryInstr -> instructionVisitor.processMemoryInstruction(memoryInstr);
-        case ScopeInstr scopeInstr -> instructionVisitor.processScopeInstruction(scopeInstr);
-        case BranchInstr branchInstr -> instructionVisitor.processBranchInstruction(branchInstr);
-        default -> throw new CompilerException(
-            "WARNING: Unhandled typed IR instruction: " + instruction.getClass().getSimpleName());
-      }
+      instruction.accept(visitor);
     }
   }
 
-  /**
-   * Inner class to handle IR instruction processing with access to current MethodVisitor.
-   * Uses existing specialized ASM generators instead of duplicating functionality.
-   */
-  private class InstructionVisitor {
-    private final MethodVisitor methodVisitor;
-    private final CallInstrAsmGenerator callInstrGenerator;
-    private final LiteralInstrAsmGenerator literalInstrGenerator;
-    private final MemoryInstrAsmGenerator memoryInstrGenerator;
-    private final boolean isConstructor;
-
-    InstructionVisitor(final MethodVisitor mv) {
-      this(mv, false);
-    }
-
-    InstructionVisitor(final MethodVisitor mv, final boolean isConstructor) {
-      this(mv, isConstructor, Collections.emptyList());
-    }
-
-    /**
-     * Constructor with parameter names for pre-registration in variable map.
-     * Parameters are allocated to local variable slots 1, 2, 3, ... (slot 0 is 'this').
-     */
-    InstructionVisitor(final MethodVisitor mv, final List<String> parameterNames) {
-      this(mv, false, parameterNames);
-    }
-
-    private InstructionVisitor(final MethodVisitor mv, final boolean isConstructor,
-                               final List<String> parameterNames) {
-      this.methodVisitor = mv;
-      this.isConstructor = isConstructor;
-
-      // Cast visitor to OutputVisitor since that's what created this AsmStructureCreator
-      final OutputVisitor outputVisitor = (OutputVisitor) visitor;
-
-      // Create instances of existing specialized generators with proper OutputVisitor
-      this.callInstrGenerator = new CallInstrAsmGenerator(constructTargetTuple, outputVisitor, classWriter);
-      this.literalInstrGenerator = new LiteralInstrAsmGenerator(constructTargetTuple, outputVisitor, classWriter);
-      this.memoryInstrGenerator = new MemoryInstrAsmGenerator(constructTargetTuple, outputVisitor, classWriter);
-
-      // Create shared method context for this method's variable slot allocation
-      final AbstractAsmGenerator.MethodContext sharedContext = new AbstractAsmGenerator.MethodContext();
-
-      // Pre-register method parameters in variable map (prevents null overwriting)
-      // Instance method parameters start at slot 1 (slot 0 is 'this')
-      int parameterSlot = 1;
-      for (String paramName : parameterNames) {
-        sharedContext.variableMap.put(paramName, parameterSlot++);
-      }
-      // Update nextVariableSlot to account for pre-registered parameters
-      sharedContext.nextVariableSlot = parameterSlot;
-
-      // Set shared context for all generators to ensure coordinated variable slot allocation
-      this.callInstrGenerator.setSharedMethodContext(sharedContext);
-      this.literalInstrGenerator.setSharedMethodContext(sharedContext);
-      this.memoryInstrGenerator.setSharedMethodContext(sharedContext);
-
-      // Set the current method visitor for all generators
-      this.callInstrGenerator.setCurrentMethodVisitor(mv);
-      this.literalInstrGenerator.setCurrentMethodVisitor(mv);
-      this.memoryInstrGenerator.setCurrentMethodVisitor(mv);
-    }
-
-    void processCallInstruction(final CallInstr callInstr) {
-      // Delegate to existing specialized CallInstrAsmGenerator
-      callInstrGenerator.generateCall(callInstr);
-    }
-
-    void processLiteralInstruction(final LiteralInstr literalInstr) {
-      // Delegate to existing specialized LiteralInstrAsmGenerator
-      literalInstrGenerator.generateLiteral(literalInstr);
-    }
-
-    void processMemoryInstruction(final MemoryInstr memoryInstr) {
-      // Delegate to existing specialized MemoryInstrAsmGenerator
-      memoryInstrGenerator.generateMemoryOperation(memoryInstr);
-    }
-
-    void processScopeInstruction(final ScopeInstr scopeInstr) {
-      //No-op
-    }
-
-    void processBranchInstruction(final BranchInstr branchInstr) {
-      // BranchInstr represents RETURN in this case - generate RETURN instruction
-      if (branchInstr.getOpcode().toString().equals("RETURN")) {
-        // JVM constructors ALWAYS return void, regardless of EK9 IR semantics
-        if (isConstructor) {
-          methodVisitor.visitInsn(RETURN); // Constructor always returns void in JVM
-        } else {
-          // Regular methods: check if we need to return a value based on IR
-          final var returnType = branchInstr.getReturnValue();
-          if (returnType != null && !returnType.isEmpty()) {
-            // Load return value onto stack
-            if (!"this".equals(returnType)) {
-              // Load from variable
-              final var varIndex = Math.abs(returnType.hashCode() % 10) + 1;
-              methodVisitor.visitVarInsn(ALOAD, varIndex);
-            } else {
-              // Load 'this'
-              methodVisitor.visitVarInsn(ALOAD, 0);
-            }
-            methodVisitor.visitInsn(ARETURN); // Return object reference
-          } else {
-            methodVisitor.visitInsn(RETURN); // Return void
-          }
-        }
-      } else {
-        // Other branch instructions would need more sophisticated handling
-        throw new CompilerException("WARNING: Unhandled branch type: " + branchInstr.getOpcode());
-      }
-    }
-  }
 
   /**
    * Extract simple class name from fully qualified name.

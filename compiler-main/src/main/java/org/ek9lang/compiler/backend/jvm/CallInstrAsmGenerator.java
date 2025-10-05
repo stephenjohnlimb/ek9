@@ -7,6 +7,7 @@ import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_INIT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_I_INIT;
 
 import java.util.List;
+import java.util.function.Consumer;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.core.AssertValue;
@@ -18,7 +19,8 @@ import org.objectweb.asm.Opcodes;
  * Handles all EK9 method calls, operators, and constructor invocations
  * using the actual CallInstr typed methods (no string parsing).
  */
-public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
+public final class CallInstrAsmGenerator extends AbstractAsmGenerator
+    implements Consumer<CallInstr> {
 
   public CallInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
                                final OutputVisitor outputVisitor,
@@ -30,7 +32,8 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator {
    * Generate JVM bytecode for a method call instruction.
    * Uses CallInstr typed methods to extract call details.
    */
-  public void generateCall(final CallInstr callInstr) {
+  @Override
+  public void accept(final CallInstr callInstr) {
     AssertValue.checkNotNull("CallInstr cannot be null", callInstr);
 
     // Generate debug info if available

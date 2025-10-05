@@ -6,6 +6,7 @@ import static org.ek9lang.compiler.support.EK9TypeNames.EK9_FLOAT;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_INTEGER;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_STRING;
 
+import java.util.function.Consumer;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.instructions.LiteralInstr;
 import org.ek9lang.core.AssertValue;
@@ -16,7 +17,8 @@ import org.objectweb.asm.ClassWriter;
  * Handles loading of literal/constant values into JVM bytecode
  * using the actual LiteralInstr typed methods (no string parsing).
  */
-public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator {
+public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator
+    implements Consumer<LiteralInstr> {
 
   public LiteralInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
                                   final OutputVisitor outputVisitor,
@@ -28,7 +30,8 @@ public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator {
    * Generate JVM bytecode for a literal loading instruction.
    * Uses LiteralInstr typed methods to extract literal value and type.
    */
-  public void generateLiteral(final LiteralInstr literalInstr) {
+  @Override
+  public void accept(final LiteralInstr literalInstr) {
     AssertValue.checkNotNull("LiteralInstr cannot be null", literalInstr);
 
     // Generate debug info if available

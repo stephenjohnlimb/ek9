@@ -7,6 +7,7 @@ import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_BOOLEAN;
 import static org.ek9lang.compiler.support.JVMTypeNames.PARAM_STRING;
 
 import java.util.Collections;
+import java.util.function.Consumer;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.core.AssertValue;
@@ -19,7 +20,8 @@ import org.objectweb.asm.Opcodes;
  * Handles LOAD, STORE, REFERENCE, RETAIN, RELEASE operations
  * using the actual MemoryInstr methods (no string parsing).
  */
-public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator {
+public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator
+    implements Consumer<MemoryInstr> {
 
   public MemoryInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
                                  final OutputVisitor outputVisitor,
@@ -31,7 +33,8 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator {
    * Generate JVM bytecode for a memory operation instruction.
    * Uses MemoryInstr opcode to determine the specific operation.
    */
-  public void generateMemoryOperation(final MemoryInstr memoryInstr) {
+  @Override
+  public void accept(final MemoryInstr memoryInstr) {
     AssertValue.checkNotNull("MemoryInstr cannot be null", memoryInstr);
 
     // Generate debug info if available
@@ -131,10 +134,7 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator {
    * For JVM, this is typically a no-op since GC handles memory management.
    */
   private void generateRetain(final MemoryInstr memoryInstr) {
-    final var operands = memoryInstr.getOperands();
-    if (operands.isEmpty()) {
-      throw new IllegalArgumentException("RETAIN instruction requires object operand");
-    }
+    //No-op
   }
 
   /**
@@ -143,10 +143,7 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator {
    * For JVM, this is typically a no-op since GC handles memory management.
    */
   private void generateRelease(final MemoryInstr memoryInstr) {
-    final var operands = memoryInstr.getOperands();
-    if (operands.isEmpty()) {
-      throw new IllegalArgumentException("RELEASE instruction requires object operand");
-    }
+    //No-op
   }
 
   /**

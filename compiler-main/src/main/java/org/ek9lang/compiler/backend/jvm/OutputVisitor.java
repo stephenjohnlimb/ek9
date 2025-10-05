@@ -4,8 +4,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.common.INodeVisitor;
+import org.ek9lang.compiler.ir.instructions.BranchInstr;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.instructions.LabelInstr;
 import org.ek9lang.compiler.ir.instructions.LiteralInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
@@ -26,6 +29,8 @@ public final class OutputVisitor implements INodeVisitor {
   private final CallInstrAsmGenerator callInstrGenerator;
   private final LiteralInstrAsmGenerator literalInstrGenerator;
   private final MemoryInstrAsmGenerator memoryInstrGenerator;
+  private final BranchInstrAsmGenerator branchInstrGenerator;
+  private final LabelInstrAsmGenerator labelInstrGenerator;
 
   public OutputVisitor(final ConstructTargetTuple constructTargetTuple) {
     AssertValue.checkNotNull("File cannot be null", constructTargetTuple.targetFile());
@@ -37,6 +42,37 @@ public final class OutputVisitor implements INodeVisitor {
     this.callInstrGenerator = new CallInstrAsmGenerator(constructTargetTuple, this, classWriter);
     this.literalInstrGenerator = new LiteralInstrAsmGenerator(constructTargetTuple, this, classWriter);
     this.memoryInstrGenerator = new MemoryInstrAsmGenerator(constructTargetTuple, this, classWriter);
+    this.branchInstrGenerator = new BranchInstrAsmGenerator(constructTargetTuple, this, classWriter);
+    this.labelInstrGenerator = new LabelInstrAsmGenerator(constructTargetTuple, this, classWriter);
+  }
+
+  /**
+   * Set method context for all generators before processing a method's instructions.
+   * Must be called before processing each method to ensure proper variable/label management.
+   *
+   * @param methodContext Shared context for variable and label maps
+   * @param mv            Method visitor for this specific method
+   * @param isConstructor Whether we're processing a constructor
+   */
+  public void setMethodContext(final AbstractAsmGenerator.MethodContext methodContext,
+                               final org.objectweb.asm.MethodVisitor mv,
+                               final boolean isConstructor) {
+    // Share context with all generators
+    callInstrGenerator.setSharedMethodContext(methodContext);
+    literalInstrGenerator.setSharedMethodContext(methodContext);
+    memoryInstrGenerator.setSharedMethodContext(methodContext);
+    branchInstrGenerator.setSharedMethodContext(methodContext);
+    labelInstrGenerator.setSharedMethodContext(methodContext);
+
+    // Set method visitor for all generators
+    callInstrGenerator.setCurrentMethodVisitor(mv);
+    literalInstrGenerator.setCurrentMethodVisitor(mv);
+    memoryInstrGenerator.setCurrentMethodVisitor(mv);
+    branchInstrGenerator.setCurrentMethodVisitor(mv);
+    labelInstrGenerator.setCurrentMethodVisitor(mv);
+
+    // Set constructor mode for branch generator
+    branchInstrGenerator.setConstructorMode(isConstructor);
   }
 
   @Override
@@ -67,24 +103,41 @@ public final class OutputVisitor implements INodeVisitor {
   }
 
   /**
+   * Dispatch IRInstr to typed visit methods.
+   * This is called by IRInstr.accept(visitor) polymorphically.
+   */
+  @Override
+  public void visit(final IRInstr irInstr) {
+    switch (irInstr) {
+      case CallInstr i -> visit(i);
+      case LiteralInstr i -> visit(i);
+      case MemoryInstr i -> visit(i);
+      case BranchInstr i -> visit(i);
+      case LabelInstr i -> visit(i);
+      case ScopeInstr i -> visit(i);
+      default -> throw new CompilerException("Operation [" + irInstr + " not implemented yet");
+    }
+  }
+
+  /**
    * Typed visit method for CallInstr - delegates to specialized generator.
    */
   public void visit(final CallInstr callInstr) {
-    callInstrGenerator.generateCall(callInstr);
+    callInstrGenerator.accept(callInstr);
   }
 
   /**
    * Typed visit method for LiteralInstr - delegates to specialized generator.
    */
   public void visit(final LiteralInstr literalInstr) {
-    literalInstrGenerator.generateLiteral(literalInstr);
+    literalInstrGenerator.accept(literalInstr);
   }
 
   /**
    * Typed visit method for MemoryInstr - delegates to specialized generator.
    */
   public void visit(final MemoryInstr memoryInstr) {
-    memoryInstrGenerator.generateMemoryOperation(memoryInstr);
+    memoryInstrGenerator.accept(memoryInstr);
   }
 
   /**
@@ -92,5 +145,19 @@ public final class OutputVisitor implements INodeVisitor {
    */
   public void visit(final ScopeInstr scopeInstr) {
     //No-OP
+  }
+
+  /**
+   * Typed visit method for BranchInstr - delegates to specialized generator.
+   */
+  public void visit(final BranchInstr branchInstr) {
+    branchInstrGenerator.accept(branchInstr);
+  }
+
+  /**
+   * Typed visit method for LabelInstr - delegates to specialized generator.
+   */
+  public void visit(final LabelInstr labelInstr) {
+    labelInstrGenerator.accept(labelInstr);
   }
 }

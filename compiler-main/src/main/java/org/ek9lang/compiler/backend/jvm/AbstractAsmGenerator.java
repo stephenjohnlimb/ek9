@@ -65,6 +65,7 @@ public abstract class AbstractAsmGenerator {
   public static class MethodContext {
     final Map<String, Integer> variableMap = new HashMap<>();
     final Map<String, TempVariableSource> tempSourceMap = new HashMap<>();
+    final Map<String, org.objectweb.asm.Label> labelMap = new HashMap<>();
     int nextVariableSlot = 1; // Reserve slot 0 for 'this'
   }
 
@@ -216,6 +217,15 @@ public abstract class AbstractAsmGenerator {
    */
   protected boolean isVariableAllocated(final String variableName) {
     return methodContext.variableMap.containsKey(variableName);
+  }
+
+  /**
+   * Get or create JVM Label for IR label name.
+   * Reuses the same Label object for both label definition (LABEL instruction)
+   * and branch targets (BRANCH, BRANCH_TRUE, BRANCH_FALSE instructions).
+   */
+  protected org.objectweb.asm.Label getOrCreateLabel(final String labelName) {
+    return methodContext.labelMap.computeIfAbsent(labelName, name -> new org.objectweb.asm.Label());
   }
 
   /**

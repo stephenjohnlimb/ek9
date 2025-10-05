@@ -2,6 +2,7 @@ package org.ek9lang.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,7 +71,11 @@ class Ek9IntegrationTest {
     ProcessResult result = executor.executeWrapper("HelloWorld.ek9");
 
     assertEquals(0, result.exitCode(), "Wrapper maps run exit code 1 to 0 (Unix success)");
-    assertTrue(result.stdoutContains("Hello, World"), "Output should contain greeting");
+    if(!result.stdoutContains("Hello, World")) {
+      System.err.println(result);
+      fail("Test Failed");
+    }
+
   }
 
 
@@ -88,8 +93,10 @@ class Ek9IntegrationTest {
         "This is a single argument with spaces");
 
     assertEquals(0, result.exitCode(), "Run should execute");
-    assertTrue(result.stdoutContains("This is a single argument with spaces"),
-        "Output should contain full argument with spaces");
+    if(!result.stdoutContains("This is a single argument with spaces")) {
+      System.err.println(result);
+      fail("Test Failed");
+    }
   }
 
 
@@ -132,8 +139,10 @@ class Ek9IntegrationTest {
     ProcessResult result = executor.executeWrapperWithStdin(stdinInput, "StdinTest.ek9", "-r", "PassThrough");
 
     assertEquals(0, result.exitCode(), "Program should execute successfully");
-    assertTrue(result.stdoutContains("Hello from stdin"),
-        "Program should read and output stdin content");
+    if(!result.stdoutContains("Hello from stdin")) {
+      System.err.println(result);
+      fail("Test Failed");
+    }
   }
 
   /**
