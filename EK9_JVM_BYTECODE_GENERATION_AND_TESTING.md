@@ -6,15 +6,17 @@ This document provides comprehensive guidance for EK9's JVM bytecode generation 
 - **`CLAUDE.md`** - Main project overview and development guidelines
 - **`EK9_IR_AND_CODE_GENERATION.md`** - IR generation philosophy and patterns
 - **`EK9_Compiler_Architecture_and_Design.md`** - Complete architectural specification
+- **`EK9_OPERATOR_COMPLEXITY_AND_TESTING.md`** - Complete operator analysis and testing strategy matrix
 
 ## Table of Contents
 1. [Current State Assessment](#current-state-assessment)
-2. [JVM Backend Architecture](#jvm-backend-architecture)
-3. [Bytecode Testing Strategy](#bytecode-testing-strategy)
-4. [Multi-Backend Testing Architecture](#multi-backend-testing-architecture)
-5. [Industry Bytecode Testing Practices](#industry-bytecode-testing-practices)
-6. [Optimization Strategy](#optimization-strategy)
-7. [Implementation Roadmap](#implementation-roadmap)
+2. [Strategic Test Prioritization](#strategic-test-prioritization)
+3. [JVM Backend Architecture](#jvm-backend-architecture)
+4. [Bytecode Testing Strategy](#bytecode-testing-strategy)
+5. [Multi-Backend Testing Architecture](#multi-backend-testing-architecture)
+6. [Industry Bytecode Testing Practices](#industry-bytecode-testing-practices)
+7. [Optimization Strategy](#optimization-strategy)
+8. [Implementation Roadmap](#implementation-roadmap)
 
 ---
 
@@ -53,6 +55,297 @@ This document provides comprehensive guidance for EK9's JVM bytecode generation 
 - ❌ Incomplete instruction coverage (still need arithmetic, comparison operations)
 
 **Architecture**: Clean, extensible, follows frontend patterns consistently
+
+---
+
+## Strategic Test Prioritization
+
+### The Testing Landscape Analysis
+
+**Current State (January 2025)**:
+- **506 total .ek9 test files** in `compiler-main/src/test/resources/examples/`
+- **81 files with @IR directives** - Excellent IR generation coverage
+- **0 files with @BYTE_CODE directives** - Critical gap in bytecode validation
+- **Integration tests** - End-to-end execution tests but no structural validation
+- **88 distinct operators** in EK9 (from `OperatorMap.java`)
+
+**The Critical Gap**: IR generation is thoroughly tested, but bytecode lowering has **zero structural validation**. We generate .class files but never verify the actual JVM instructions produced.
+
+### Why Not Test All 506 Files with @BYTE_CODE?
+
+**Question**: Should we add `@BYTE_CODE` directives to all .ek9 files like we have for `@IR`?
+
+**Answer**: **No** - Strategic subset approach is more effective.
+
+#### Cost-Benefit Analysis
+
+**Costs of comprehensive @BYTE_CODE coverage**:
+- ❌ **High maintenance burden**: 506 @BYTE_CODE directives to maintain
+- ❌ **Redundant testing**: Simple operators (e.g., `+`, `-`, `<`, `>`) have straightforward IR → bytecode lowering
+- ❌ **Optimization churn**: Every bytecode optimization requires updating 506+ directives
+- ❌ **Test execution time**: Javap normalization adds overhead per test
+- ❌ **Low incremental value**: Integration tests already catch behavioral issues for simple operators
+
+**Benefits of strategic subset approach**:
+- ✅ **Focused on complexity**: Test only operators with complex bytecode patterns
+- ✅ **Reasonable maintenance**: ~25-35 targeted tests vs 506+ comprehensive tests
+- ✅ **High signal-to-noise**: Each test validates genuinely complex lowering logic
+- ✅ **Catch critical bugs**: Complex operators (guards, coalescing, null-safety) most likely to have lowering bugs
+- ✅ **Complement integration tests**: Structural validation where behavioral tests insufficient
+
+### Hybrid Three-Tier Testing Strategy
+
+EK9 uses a **test pyramid** approach balancing coverage, granularity, and maintenance:
+
+```
+        /\
+       /  \  Integration Tests (5-10 files)
+      /    \  - End-to-end execution
+     /      \ - Behavioral correctness
+    /        \ - Real-world scenarios
+   /          \
+  /  @BYTE_CODE \
+ / Tests (25-35) \  - Structural validation
+/                 \ - Complex operators only
+-------------------\ - Bytecode-level regression detection
+\                  /
+ \   @IR Tests    /
+  \ (81+ files)  /   - IR generation correctness
+   \            /    - Backend-agnostic
+    \          /     - All language constructs
+     \________/
+```
+
+**Tier 1: @IR Directives** (✅ **Excellent coverage - 81 files**)
+- **Purpose**: Validate IR generation correctness
+- **Coverage**: All language constructs and operators
+- **Status**: Production-ready, comprehensive
+- **Test focus**: Method resolution, IR instruction sequences, memory management patterns
+
+**Tier 2: @BYTE_CODE Directives** (⚠️ **Critical gap - IMPLEMENT 25-35 files**)
+- **Purpose**: Validate bytecode lowering for **complex operators only**
+- **Coverage**: Subset focusing on sophisticated bytecode patterns
+- **Priority operators**:
+  - ✅ `?` (isSet operator) - IS_NULL check + BRANCH + `_isSet()` call (~6-8 instructions)
+  - ✅ `:=?` (guarded assignment) - null/isSet check + conditional STORE (~8-10 instructions)
+  - ✅ `<?`, `<=?`, `>?`, `>=?` (coalescing comparisons) - Multiple null checks + comparison + selection (~15-20 instructions)
+  - ✅ `??` (null coalescing) - Null check + operand evaluation + selection logic (~8-12 instructions)
+  - ✅ `?:` (elvis coalescing) - Null AND isSet checks + selection logic (~10-15 instructions)
+  - ✅ Guard expressions (`if v ?= value() then...`) - Complex control flow integration (~8-12 instructions)
+- **Why these need @BYTE_CODE**: Complex branching, label management, multiple null/isSet checks, high likelihood of lowering bugs
+
+**Tier 3: Integration Tests** (✅ **Working - Expand to 5-10 files**)
+- **Purpose**: End-to-end semantic validation
+- **Coverage**: Real-world operator combinations and usage patterns
+- **Test focus**: Behavioral correctness, multi-operator interactions, edge cases with actual execution
+- **Examples**:
+  - `GuardedControlFlow.ek9` - Guards in if/while/for/switch
+  - `CoalescingOperators.ek9` - Practical coalescing scenarios
+  - `NullSafetyPatterns.ek9` - Combined null-safe operations
+
+### Operator Complexity Categorization
+
+For detailed analysis, see **`EK9_OPERATOR_COMPLEXITY_AND_TESTING.md`**.
+
+**Simple Operators (Integration tests sufficient, no @BYTE_CODE needed)**:
+- **Arithmetic**: `+`, `-`, `*`, `/` → Direct method calls (`_add`, `_sub`, `_mul`, `_div`)
+- **Comparison**: `<`, `>`, `<=`, `>=`, `==`, `<>` → Direct method calls (`_lt`, `_gt`, `_eq`, etc.)
+- **Bitwise**: `and`, `or`, `xor`, `<<`, `>>` → Direct method calls
+- **Mathematical**: `^`, `mod`, `rem`, `sqrt`, `abs` → Direct method calls
+
+**Why simple operators don't need @BYTE_CODE**:
+1. **Straightforward lowering**: `CALL _add` → `INVOKEVIRTUAL Integer._add`
+2. **Low bug probability**: Minimal branching, no null checks, no label management
+3. **Integration tests catch issues**: Behavioral testing sufficient for semantic correctness
+4. **@IR tests validate method resolution**: Already verify correct operator method selected
+
+**Complex Operators (Require @BYTE_CODE validation)**:
+- **Null-safety operators**: `?`, `:=?`, `??`, `?:`
+- **Coalescing comparisons**: `<?`, `<=?`, `>?`, `>=?`
+- **Guard expressions**: Control flow integration (`if v ?= value() then...`)
+
+**Why complex operators need @BYTE_CODE**:
+1. **Complex branching logic**: Multiple BRANCH/LABEL instructions, easy to generate incorrect targets
+2. **Null/isSet semantics**: EK9's tri-state model requires specific JVM patterns (IFNULL, INVOKEVIRTUAL isSet)
+3. **Label management**: Complex label generation/caching, easy to create duplicate labels or wrong references
+4. **High bug probability**: Non-trivial IR → bytecode lowering with many edge cases
+5. **Integration tests insufficient**: Behavioral tests can't validate bytecode structure (only final result)
+
+### Guard Expression Complexity
+
+**Grammar Context** (from `EK9.g4`):
+```antlr4
+preFlowAndControl
+    : preFlowStatement
+    | control=expression
+    | preFlowStatement (WITH|THEN) control=expression
+
+preFlowStatement
+    : (variableDeclaration | assignmentStatement | guardExpression)
+
+guardExpression
+    : identifier op=GUARD expression  // GUARD is '?='
+
+ifControlBlock
+    : (IF | WHEN) preFlowAndControl block
+```
+
+**EK9 Usage Examples**:
+```ek9
+// Simple guard: null/isSet check only
+if v ?= value()
+  v += 6  // v is guaranteed set here
+
+// Guard with condition: null/isSet check + condition evaluation
+when selectedTemp ?= currentTemperature("US") with selectedTemp > 50
+  stdout.println("Warm in the US")
+
+// Guard in while loop
+while item ?= iterator.next() then item.isValid()
+  process(item)
+
+// Guard in for loop
+for entry ?= dict.get(key) with entry.score > threshold
+  results.add(entry)
+```
+
+**Bytecode Complexity for Guards**:
+```
+// if v ?= value() then v > 0
+ALOAD 0                    // Load 'this'
+INVOKEVIRTUAL value()      // Call value()
+ASTORE 1                   // Store to v (temporary)
+ALOAD 1                    // Load v
+IFNULL guard_failed        // Jump if null
+ALOAD 1                    // Load v again
+INVOKEVIRTUAL _isSet()     // Check if set
+INVOKEVIRTUAL _state()     // Boolean → boolean
+IFEQ guard_failed          // Jump if unset
+ALOAD 1                    // Load v (third time)
+ICONST_0                   // Load literal 0
+INVOKESTATIC Integer._of() // Box to Integer
+INVOKEVIRTUAL _gt()        // v > 0
+INVOKEVIRTUAL _state()     // Boolean → boolean
+IFEQ guard_failed          // Jump if false
+// ... if block ...
+guard_failed:
+// ... else or end ...
+```
+
+**Why guards need @BYTE_CODE validation**:
+- **8-12 instructions** per guard expression
+- **Multiple branch targets**: guard_failed, guard_passed, end labels
+- **Scope management**: Guard variable must be accessible in block
+- **Three-way logic**: null check + isSet check + condition evaluation
+- **Integration across control flow**: if/while/for/switch/try all use same guard pattern
+
+### Strategic Test Distribution
+
+**Recommended @BYTE_CODE test allocation (25-35 files total)**:
+
+**Priority 1: Complex Operators (15-20 files)**
+```
+bytecodeGeneration/complexOperators/
+├── isSet_operator.ek9                    // ? operator
+├── isSet_operator_unset.ek9              // ? with unset operand
+├── guarded_assignment.ek9                // :=? operator
+├── guarded_assignment_null.ek9           // :=? with null
+├── guarded_assignment_already_set.ek9    // :=? when LHS already set
+├── null_coalescing.ek9                   // ?? operator
+├── null_coalescing_both_null.ek9         // ?? with null operands
+├── elvis_coalescing.ek9                  // ?: operator
+├── elvis_unset_left.ek9                  // ?: with unset left operand
+├── coalescing_lt.ek9                     // <? operator
+├── coalescing_lt_unset_left.ek9          // <? with unset left
+├── coalescing_lte.ek9                    // <=? operator
+├── coalescing_gt.ek9                     // >? operator
+├── coalescing_gte.ek9                    // >=? operator
+└── ... (variations with edge cases)
+```
+
+**Priority 2: Guard Expressions (10-15 files)**
+```
+bytecodeGeneration/guardExpressions/
+├── if_with_guard_simple.ek9              // if v ?= value()
+├── if_with_guard_and_condition.ek9       // if v ?= value() then v > 0
+├── if_with_guard_else.ek9                // if/else with guard
+├── while_with_guard.ek9                  // while v ?= next() then...
+├── for_with_guard.ek9                    // for v ?= iterator()...
+├── switch_with_guard.ek9                 // switch v ?= getValue()...
+├── nested_guards.ek9                     // Multiple guard levels
+├── guard_in_expression.ek9               // Guard within complex expression
+└── ... (control flow combinations)
+```
+
+**Priority 3: Integration Test Expansion (5-10 files - expand existing)**
+```
+integration-tests/src/test/resources/
+├── GuardedControlFlow.ek9                // Real-world guard patterns
+├── CoalescingOperators.ek9               // Practical coalescing
+├── NullSafetyChains.ek9                  // Multiple null-safe ops
+├── ComplexGuardCombinations.ek9          // Guards + coalescing
+└── ... (real-world scenarios)
+```
+
+### Benefits of Strategic Subset Approach
+
+**1. Focused Value Delivery**
+- Target 20% of operators (complex ones) that represent 80% of bytecode complexity
+- High return on testing investment
+- Catch bugs where they're most likely to occur
+
+**2. Reasonable Maintenance Burden**
+- 25-35 @BYTE_CODE tests vs 506 comprehensive tests
+- Optimization updates affect smaller set of directives
+- Git history documents meaningful optimization improvements
+
+**3. Complement Existing Testing**
+- @IR tests: All operators, IR-level correctness
+- @BYTE_CODE tests: Complex operators, bytecode-level correctness
+- Integration tests: All operators, behavioral correctness
+
+**4. Clear Test Purpose**
+- Each @BYTE_CODE test validates genuinely complex lowering
+- No redundant testing of trivial operator mappings
+- Test failures indicate real structural issues
+
+**5. Extensible Framework**
+- Easy to add @BYTE_CODE test when implementing new complex operator
+- Framework supports adding tests as needed
+- Not locked into testing everything
+
+### When to Add @BYTE_CODE Tests
+
+**Add @BYTE_CODE test when operator has:**
+1. ✅ **Multiple branch instructions** (>3 BRANCH/LABEL pairs)
+2. ✅ **Null or isSet checks** (IFNULL, INVOKEVIRTUAL isSet patterns)
+3. ✅ **Complex label management** (multiple interrelated labels)
+4. ✅ **Tri-state logic** (null, unset, set handling)
+5. ✅ **Control flow integration** (guards in if/while/for/switch)
+
+**Skip @BYTE_CODE test when operator has:**
+1. ❌ **Direct method mapping** (single INVOKEVIRTUAL call)
+2. ❌ **No branching** (straight-line bytecode)
+3. ❌ **Simple stack operations** (load, call, store)
+4. ❌ **Integration test sufficient** (behavioral testing catches issues)
+
+### Migration Path for New Features
+
+**When implementing new EK9 language feature:**
+
+1. **Always write @IR test** - Validate IR generation
+2. **Assess bytecode complexity**:
+   - Simple lowering (direct method call)? → Integration test only
+   - Complex lowering (branching, null checks)? → Add @BYTE_CODE test
+3. **Add integration test** - Validate end-to-end behavior
+4. **Document in `EK9_OPERATOR_COMPLEXITY_AND_TESTING.md`** - Update operator matrix
+
+**This ensures:**
+- ✅ All features have IR validation (@IR tests)
+- ✅ Complex features have bytecode validation (@BYTE_CODE tests)
+- ✅ All features have behavioral validation (integration tests)
+- ✅ No over-testing of simple features
+- ✅ Documentation stays current
 
 ---
 
@@ -1163,18 +1456,20 @@ git diff HEAD~5 bytecodeGeneration/assignmentStatements/basicAssignment.ek9
 
 **Testing**: ✅ All integration tests passing, no regressions
 
-### Phase 2: Bytecode Testing Infrastructure (Next)
+### Phase 2: Bytecode Testing Infrastructure (Next - Strategic Subset)
 
-**Goal**: Implement @BYTE_CODE testing framework parallel to @IR
+**Goal**: Implement @BYTE_CODE testing framework for complex operators only (25-35 tests)
+
+**Strategic Approach**: Following the **Strategic Test Prioritization** analysis (see above), Phase 2 focuses on **complex operators requiring bytecode validation**, not comprehensive coverage of all 506 .ek9 files.
 
 **Tasks**:
-1. ✅ Create `BytecodeNormalizer` utility
+1. ⬜ Create `BytecodeNormalizer` utility
    - Execute javap programmatically
    - Normalize output (remove constant pool indices, debug tables)
    - Return clean, diff-friendly text format
    - Location: `compiler-main/src/main/java/org/ek9lang/compiler/support/BytecodeNormalizer.java`
 
-2. ✅ Create `AbstractBytecodeGenerationTest` base class
+2. ⬜ Create `AbstractBytecodeGenerationTest` base class
    - Mirror `AbstractIRGenerationTest` pattern exactly
    - `showBytecode()` method (parallel to `showIR()`)
    - Constructor params: `(fromResourcesDirectory, expectedSymbols, verbose, muteErrors, showBytecode)`
@@ -1182,30 +1477,57 @@ git diff HEAD~5 bytecodeGeneration/assignmentStatements/basicAssignment.ek9
    - Test to phase: `CompilationPhase.CODE_GENERATION_AGGREGATES`
    - Location: `compiler-main/src/test/java/org/ek9lang/compiler/bytecode/AbstractBytecodeGenerationTest.java`
 
-3. ✅ Create resource directory structure
+3. ⬜ Create resource directory structure (FOCUSED on complex operators)
    - `compiler-main/src/test/resources/examples/bytecodeGeneration/`
-   - Mirror `irGeneration/` directory structure exactly
-   - Subdirectories: `assignmentStatements/`, `calls/`, `operatorUse/`, etc.
+   - **NOT mirroring all irGeneration/ directories** - strategic subset only
+   - Subdirectories:
+     - `complexOperators/` - Priority 1 (15-20 files): `?`, `:=?`, `<?`, `??`, `?:`, etc.
+     - `guardExpressions/` - Priority 2 (10-15 files): Guards in if/while/for/switch
+     - `controlFlow/` - Selected complex control flow patterns
+   - **Intentionally omit**: Simple arithmetic, comparison, basic assignment (covered by integration tests)
 
-4. ✅ Implement 5-10 foundational @BYTE_CODE tests
-   - `AssignmentStatementTest.java` → `bytecodeGeneration/assignmentStatements/`
-   - `CallsTest.java` → `bytecodeGeneration/calls/`
-   - Each test class extends `AbstractBytecodeGenerationTest`
-   - Each .ek9 file has @BYTE_CODE directive with expected output
+4. ⬜ Implement Priority 1: Complex Operators (15-20 @BYTE_CODE tests)
+   - `ComplexOperatorsTest.java` → `bytecodeGeneration/complexOperators/`
+   - Test files (see Strategic Test Distribution above):
+     - `isSet_operator.ek9`, `isSet_operator_unset.ek9`
+     - `guarded_assignment.ek9`, `guarded_assignment_null.ek9`, `guarded_assignment_already_set.ek9`
+     - `null_coalescing.ek9`, `null_coalescing_both_null.ek9`
+     - `elvis_coalescing.ek9`, `elvis_unset_left.ek9`
+     - `coalescing_lt.ek9`, `coalescing_lt_unset_left.ek9`
+     - `coalescing_lte.ek9`, `coalescing_gt.ek9`, `coalescing_gte.ek9`
+   - Each file has @BYTE_CODE directive validating complex branching/null-checking patterns
    - Location: `compiler-main/src/test/java/org/ek9lang/compiler/bytecode/`
 
-5. ✅ Create `BytecodeDiffer` utility
+5. ⬜ Implement Priority 2: Guard Expressions (10-15 @BYTE_CODE tests)
+   - `GuardExpressionsTest.java` → `bytecodeGeneration/guardExpressions/`
+   - Test files (see Strategic Test Distribution above):
+     - `if_with_guard_simple.ek9`, `if_with_guard_and_condition.ek9`, `if_with_guard_else.ek9`
+     - `while_with_guard.ek9`, `for_with_guard.ek9`, `switch_with_guard.ek9`
+     - `nested_guards.ek9`, `guard_in_expression.ek9`
+   - Each file validates guard null/isSet check + condition evaluation patterns
+   - Critical for control flow correctness
+
+6. ⬜ Create `BytecodeDiffer` utility
    - Show side-by-side expected vs actual
    - Highlight differences clearly
    - Integrate with test failure output
 
 **Deliverables**:
 - Complete @BYTE_CODE testing framework
-- 5-10 passing bytecode tests proving naive lowering correctness
+- **25-35 strategic tests** (not 506) focusing on complex operators
+- Complex operator tests: 15-20 files
+- Guard expression tests: 10-15 files
 - Debugging tools (`showBytecode()`) for development
-- Parallel structure to proven @IR testing pattern
+- Documentation explaining strategic subset approach
 
 **Testing**: All @BYTE_CODE tests pass with current naive lowering
+
+**Why This Approach**:
+- ✅ Targets operators with highest bytecode complexity
+- ✅ Reasonable maintenance burden (35 vs 506 tests)
+- ✅ Complements integration tests (which handle simple operators)
+- ✅ Each test validates genuinely complex lowering logic
+- ✅ Extensible: Add @BYTE_CODE test when implementing new complex operator
 
 ### Phase 3: Medium-Level IR Lowering (After Phase 2)
 
