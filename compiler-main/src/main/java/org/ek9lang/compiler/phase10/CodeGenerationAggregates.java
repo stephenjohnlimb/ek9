@@ -97,6 +97,9 @@ public class CodeGenerationAggregates extends CompilerPhase {
         .map(construct -> new ConstructTargetTuple(construct, relativeFileName, compilerFlags,
             locator.apply(construct, projectDotEK9Directory)))
         .forEach(this::produceConstructOutput);
+
+    //Emit compilation event so directive listeners can validate bytecode
+    listener.accept(new CompilationEvent(thisPhase, getParsedModuleForSource(compilableSource), compilableSource));
   }
 
   /**

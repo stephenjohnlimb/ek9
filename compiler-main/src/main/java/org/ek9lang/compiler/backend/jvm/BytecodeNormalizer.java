@@ -25,13 +25,29 @@ public final class BytecodeNormalizer {
   }
 
   /**
-   * Normalize bytecode from .class file bytes.
+   * Normalize bytecode from .class file bytes with default settings.
+   * Includes debug information (LineNumberTable and SourceDebugExtension).
    *
    * @param classBytes Compiled .class file bytes
    * @return Normalized bytecode text suitable for test comparison
    * @throws RuntimeException if normalization fails
    */
   public static String normalize(final byte[] classBytes) {
+    return normalize(classBytes, true, true);
+  }
+
+  /**
+   * Normalize bytecode from .class file bytes with configuration options.
+   *
+   * @param classBytes Compiled .class file bytes
+   * @param includeLineNumberTable Include LineNumberTable debug information
+   * @param includeSourceDebugExtension Include SourceDebugExtension (SMAP) information
+   * @return Normalized bytecode text suitable for test comparison
+   * @throws RuntimeException if normalization fails
+   */
+  public static String normalize(final byte[] classBytes,
+                                  final boolean includeLineNumberTable,
+                                  final boolean includeSourceDebugExtension) {
     if (classBytes == null || classBytes.length == 0) {
       throw new IllegalArgumentException("Class bytes cannot be null or empty");
     }
@@ -42,7 +58,7 @@ public final class BytecodeNormalizer {
       try {
         Files.write(tempFile, classBytes);
         final String javapOutput = executeJavap(tempFile);
-        return normalizeJavapOutput(javapOutput);
+        return normalizeJavapOutput(javapOutput, includeLineNumberTable, includeSourceDebugExtension);
       } finally {
         Files.deleteIfExists(tempFile);
       }
@@ -59,7 +75,7 @@ public final class BytecodeNormalizer {
    * @throws Exception if javap execution fails
    */
   private static String executeJavap(final Path classFile) throws Exception {
-    final ProcessBuilder pb = new ProcessBuilder("javap", "-c", "-p", classFile.toString());
+    final ProcessBuilder pb = new ProcessBuilder("javap", "-c", "-p", "-l", "-v", classFile.toString());
     final Process process = pb.start();
 
     // Capture stdout
@@ -89,41 +105,88 @@ public final class BytecodeNormalizer {
    * Normalization rules:
    * </p>
    * <ul>
-   *   <li>Remove "Compiled from" header</li>
+   *   <li>Remove "Compiled from" header and Classfile metadata</li>
+   *   <li>Remove constant pool section</li>
+   *   <li>Remove class metadata (version, flags, etc.)</li>
    *   <li>Normalize constant pool references (#7 → #CP)</li>
-   *   <li>Remove line number tables</li>
+   *   <li>KEEP constant pool comments for readability (method signatures, strings, etc.)</li>
    *   <li>Remove LocalVariableTable sections</li>
    *   <li>Remove StackMapTable sections</li>
-   *   <li>Remove LineNumberTable sections</li>
+   *   <li>Remove method descriptors and flags</li>
+   *   <li>Optionally preserve LineNumberTable sections</li>
+   *   <li>Optionally preserve SourceDebugExtension attribute (for SMAP)</li>
    *   <li>Normalize whitespace (collapse multiple blank lines)</li>
    * </ul>
    *
    * @param javapOutput Raw javap output
+   * @param includeLineNumberTable Include LineNumberTable debug information
+   * @param includeSourceDebugExtension Include SourceDebugExtension (SMAP) information
    * @return Normalized bytecode text
    */
-  private static String normalizeJavapOutput(final String javapOutput) {
+  private static String normalizeJavapOutput(final String javapOutput,
+                                              final boolean includeLineNumberTable,
+                                              final boolean includeSourceDebugExtension) {
     return javapOutput
+        // Remove Classfile header line (path, date, size, SHA-256)
+        .replaceAll("Classfile .*\\n", "")
+        .replaceAll(" {2}Last modified .*\\n", "")
+        .replaceAll(" {2}SHA-256 checksum .*\\n", "")
+
         // Remove "Compiled from" header
         .replaceAll("Compiled from \".*\"\\n", "")
 
-        // Normalize constant pool references: #7 → #CP
-        .replaceAll("#\\d+", "#CP")
+        // Remove class metadata (minor/major version, flags, this_class, super_class, etc.)
+        .replaceAll(" {2}minor version: .*\\n", "")
+        .replaceAll(" {2}major version: .*\\n", "")
+        .replaceAll(" {2}flags: .*\\n", "")
+        .replaceAll(" {2}this_class: .*\\n", "")
+        .replaceAll(" {2}super_class: .*\\n", "")
+        .replaceAll(" {2}interfaces: .*\\n", "")
 
-        // Remove line number tables (format: "line 42: 0")
-        .replaceAll("\\s+line \\d+:\\s*\\d+\\n", "")
+        // Remove entire Constant pool section
+        .replaceAll("(?s)Constant pool:.*?(?=\\n\\{|\\npublic |\\nprotected |\\nprivate |\\npackage )", "")
+
+        // Remove method/field descriptors and flags
+        .replaceAll(" {4}descriptor: .*\\n", "")
+        .replaceAll(" {4}flags: .*\\n", "")
+
+        // Remove stack/locals metadata from Code section
+        .replaceAll(" {6}stack=\\d+, locals=\\d+, args_size=\\d+\\n", "")
+
+        // Normalize constant pool references: #7 → #CP (but NOT SMAP file IDs like #1:58)
+        // SMAP file IDs are always followed by colon, constant pool refs are not
+        .replaceAll("#(\\d+)(?!:)", "#CP")
 
         // Remove LocalVariableTable sections
-        // Pattern: "LocalVariableTable:" followed by content until double newline or closing brace
         .replaceAll("(?s)LocalVariableTable:.*?(?=\\n\\n|\\n +}|\\n})", "")
 
         // Remove StackMapTable sections
         .replaceAll("(?s)StackMapTable:.*?(?=\\n\\n|\\n +}|\\n})", "")
 
-        // Remove LineNumberTable sections
-        .replaceAll("(?s)LineNumberTable:.*?(?=\\n\\n|\\n +}|\\n})", "")
+        // Optionally remove LineNumberTable sections
+        .replaceAll(includeLineNumberTable ? "(?!LineNumberTable:)" : "(?s)LineNumberTable:.*?(?=\\n\\n|\\n +}|\\n})", "")
+
+        // Remove SourceFile attribute (appears after closing brace)
+        .replaceAll("\\nSourceFile: \".*\"", "")
+
+        // Optionally remove SourceDebugExtension
+        .replaceAll(includeSourceDebugExtension ? "(?!SourceDebugExtension:)" : "(?s)SourceDebugExtension:.*?(?=\\n\\n|\\n}|$)", "")
 
         // Normalize whitespace: multiple blank lines → single blank line
         .replaceAll("\\n\\s*\\n\\s*\\n+", "\n\n")
+
+        // Ensure space between class declaration and opening brace (replace newline with space)
+        .replaceAll("(class [\\w.]+)\\n+\\{", "$1 {")
+
+        // Normalize indentation: Code at 4 spaces, LineNumberTable at 6 spaces
+        .replaceAll("\\n {6}Code:", "\n    Code:")
+        .replaceAll("\\n {4}LineNumberTable:", "\n      LineNumberTable:")
+
+        // Remove extra blank line after field declarations
+        .replaceAll("(;)\\n {2}\\n {2}(public|private|protected)", "$1\n\n  $2")
+
+        // Remove blank lines before closing braces
+        .replaceAll("\\n\\s+\\n}", "\n}")
 
         // Trim trailing/leading whitespace
         .trim();

@@ -164,12 +164,14 @@ public abstract class AbstractAsmGenerator {
 
   /**
    * Generate debug line number from EK9 debug info if available.
+   * Creates a JVM Label to mark the bytecode position and associates it with the source line number.
    */
   protected void generateDebugInfo(final DebugInfo debugInfo) {
     if (debugInfo != null && debugInfo.isValidLocation()) {
-      // For now, skip debug line number generation as it requires proper label handling
-      // TODO: Implement proper label management for debug line numbers
-      // getCurrentMethodVisitor().visitLineNumber(debugInfo.lineNumber(), null);
+      // Create label for this source line position
+      final var lineLabel = new org.objectweb.asm.Label();
+      getCurrentMethodVisitor().visitLabel(lineLabel);
+      getCurrentMethodVisitor().visitLineNumber(debugInfo.lineNumber(), lineLabel);
     }
   }
 
@@ -206,8 +208,9 @@ public abstract class AbstractAsmGenerator {
    * Example: _temp1 -&gt; slot 1, _temp10 -&gt; slot 2, _temp3 -&gt; slot 3 (in order encountered)
    * </p>
    */
+  @SuppressWarnings("checkstyle:LambdaParameterName")
   protected int getVariableIndex(final String variableName) {
-    return methodContext.variableMap.computeIfAbsent(variableName, name -> methodContext.nextVariableSlot++);
+    return methodContext.variableMap.computeIfAbsent(variableName, _ -> methodContext.nextVariableSlot++);
   }
 
   /**
@@ -224,8 +227,9 @@ public abstract class AbstractAsmGenerator {
    * Reuses the same Label object for both label definition (LABEL instruction)
    * and branch targets (BRANCH, BRANCH_TRUE, BRANCH_FALSE instructions).
    */
+  @SuppressWarnings("checkstyle:LambdaParameterName")
   protected org.objectweb.asm.Label getOrCreateLabel(final String labelName) {
-    return methodContext.labelMap.computeIfAbsent(labelName, name -> new org.objectweb.asm.Label());
+    return methodContext.labelMap.computeIfAbsent(labelName, _ -> new org.objectweb.asm.Label());
   }
 
   /**

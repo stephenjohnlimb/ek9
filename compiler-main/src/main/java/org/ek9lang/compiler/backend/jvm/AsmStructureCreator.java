@@ -86,6 +86,15 @@ public final class AsmStructureCreator implements Opcodes {
 
     // Add source file information for debugging - uses actual .ek9 source filename from IR
     classWriter.visitSource(construct.getSourceFileName(), null);
+
+    // Generate and add JSR-45 SMAP for .ek9 source debugging
+    final var smapGenerator = new SmapGenerator(getSimpleClassName(programClassName) + ".class");
+    smapGenerator.collectFromIRConstruct(construct);
+    final var smap = smapGenerator.generate();
+    if (smap != null) {
+      // Add SourceDebugExtension attribute with SMAP
+      classWriter.visitSource(construct.getSourceFileName(), smap);
+    }
   }
 
   /**

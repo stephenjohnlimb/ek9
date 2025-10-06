@@ -4,6 +4,7 @@ import java.util.Arrays;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.directives.ByteCodeDirective;
 import org.ek9lang.compiler.directives.ComplexityDirective;
 import org.ek9lang.compiler.directives.Directive;
 import org.ek9lang.compiler.directives.DirectiveSpecExtractor;
@@ -46,6 +47,7 @@ class DirectiveFactory extends CommonFactory {
         case NotResolved -> newResolutionDirective(ctx, false);
         case Genus -> newGenusDirective(ctx);
         case IR -> newIRDirective(ctx);
+        case BYTECODE -> newByteCodeDirective(ctx);
         case Symbols, Compiler, Instrument ->
             throw new IllegalArgumentException("Unsupported '@" + nameOfDirective + "':");
       };
@@ -100,6 +102,14 @@ class DirectiveFactory extends CommonFactory {
     final var spec = directiveSpecExtractor.apply(ctx);
 
     return new IRDirective(spec);
+  }
+
+  private Directive newByteCodeDirective(final EK9Parser.DirectiveContext ctx) {
+
+    checkContextNotNull.accept(ctx);
+    final var spec = directiveSpecExtractor.apply(ctx);
+
+    return new ByteCodeDirective(spec);
   }
 
   private Directive newResolutionDirective(final EK9Parser.DirectiveContext ctx, final boolean resolve) {

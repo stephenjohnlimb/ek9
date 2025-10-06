@@ -3,9 +3,11 @@ package org.ek9lang.compiler.directives;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.function.BiPredicate;
 import org.ek9lang.compiler.IRModule;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.NodePrinter;
+import org.ek9lang.compiler.support.LineByLineComparator;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.CompilerException;
 
@@ -14,6 +16,8 @@ import org.ek9lang.core.CompilerException;
  * resolution through the symbol and checks the IR that was generated.
  */
 public class IRDirectiveListener extends ResolvedDirectiveListener {
+
+  private final BiPredicate<String, String> lineComparator = new LineByLineComparator();
 
   @Override
   public void accept(final CompilationEvent compilationEvent) {
@@ -56,34 +60,11 @@ public class IRDirectiveListener extends ResolvedDirectiveListener {
       printer.visit(construct);
     }
 
-    if (!compareStringsLineByLine(resolutionDirective.getAdditionalName(), output.toString())) {
+    if (!lineComparator.test(resolutionDirective.getAdditionalName(), output.toString())) {
       System.err.println(output);
       throw new CompilerException("Expected IR and Generated IR line difference");
     }
 
-  }
-
-  private boolean compareStringsLineByLine(final String expectedIR, final String generatedIR) {
-    String[] expectedLines = expectedIR.split("\\r?\\n");
-    String[] generatedLines = generatedIR.split("\\r?\\n");
-
-    if (expectedLines.length != generatedLines.length) {
-      System.err.printf("Number of lines in expected versus generated differ %d != %d %n",
-          expectedLines.length, generatedLines.length);
-      //But carry on so that we can see where they start to diverge.
-
-    }
-    for (int i = 0; i < expectedLines.length; i++) {
-      final var expected = expectedLines[i].trim();
-      final var generated = generatedLines[i].trim();
-      if (!expected.equals(generated)) {
-        System.err.printf("Line %d differs%n", i);
-        System.err.println("[" + expected + "]");
-        System.err.println("[" + generated + "]");
-        return false;
-      }
-    }
-    return true;
   }
 
 }

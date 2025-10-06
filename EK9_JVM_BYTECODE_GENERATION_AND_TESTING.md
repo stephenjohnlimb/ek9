@@ -757,6 +757,176 @@ defines module assignments
 - Version-controlled with source code
 - **Separate files** - no mixing @BYTE_CODE and @LLVM in same file
 
+### Critical: One Directory Per Test Pattern
+
+**IMPORTANT**: Unlike IR generation tests where multiple .ek9 files can share a directory, bytecode tests **MUST** follow a strict **one-directory-per-test** pattern to enable safe parallel execution.
+
+#### Why This Pattern is Required
+
+**Parallel Execution Constraints**:
+- Each bytecode test spawns a **javap subprocess** (expensive I/O operation)
+- `testPhaseDevelopment()` calls `cleanEk9DirectoryStructureFor()` on the `.ek9/` output directory
+- Multiple tests sharing the same `.ek9/` directory → **race conditions** when running in parallel
+- Concurrent .class file writes/reads in same directory → **file corruption**
+- 25-35 bytecode tests × javap = **significant speedup** with parallelism, but only if isolated
+
+**Directory Isolation Benefits**:
+- ✅ Each test has dedicated `.ek9/` output directory
+- ✅ Safe parallel execution without contention
+- ✅ Clean directory state per test run
+- ✅ No cross-test interference
+- ✅ Predictable test behavior
+
+#### Directory Structure (CORRECT)
+
+**Each test has its own directory with ONE .ek9 file**:
+
+```
+bytecodeGeneration/
+  helloWorld/
+    helloWorld.ek9              → HelloWorldTest
+  basicAssignment/
+    basicAssignment.ek9         → BasicAssignmentTest
+  guardedAssignment/
+    guardedAssignment.ek9       → GuardedAssignmentTest
+  questionOperator/
+    questionOperator.ek9        → QuestionOperatorTest
+  nullCoalescing/
+    nullCoalescing.ek9          → NullCoalescingTest
+```
+
+**Test class pattern**:
+
+```java
+class BasicAssignmentTest extends AbstractBytecodeGenerationTest {
+  public BasicAssignmentTest() {
+    // Each test points to its OWN directory with ONE .ek9 file
+    super("/examples/bytecodeGeneration/basicAssignment",
+        List.of(new SymbolCountCheck("module.name", 1)),
+        false, false, false);
+  }
+}
+```
+
+#### Anti-Pattern (WRONG - DO NOT DO THIS)
+
+**Multiple files in one directory causes race conditions**:
+
+```
+bytecodeGeneration/
+  assignmentStatements/
+    basicAssignment.ek9         ← Multiple files = directory contention
+    guardedAssignment.ek9       ← Would cause race conditions
+    multipleAssignments.ek9     ← When run in parallel
+```
+
+**Why this fails**:
+- ❌ `BasicAssignmentTest` and `GuardedAssignmentTest` both point to `/examples/bytecodeGeneration/assignmentStatements`
+- ❌ Both call `cleanEk9DirectoryStructureFor()` on same `.ek9/` directory
+- ❌ When running in parallel (JUnit 5 default), tests interfere with each other:
+  - Test A cleans directory
+  - Test B writes .class file
+  - Test A tries to read .class file → **file not found**
+  - Test B cleans directory
+  - Test A's .class file deleted → **test failure**
+
+#### Comparison: IR Tests vs Bytecode Tests
+
+**IR Tests** (multiple files per directory allowed):
+```
+irGeneration/
+  assignmentStatements/
+    basicAssignment.ek9
+    guardedAssignment.ek9
+    multipleAssignments.ek9
+  → All tested by ONE AssignmentStatementTest class
+  → NO javap subprocess
+  → NO .ek9/ directory cleaning
+  → Safe to share directory
+```
+
+**Bytecode Tests** (one file per directory required):
+```
+bytecodeGeneration/
+  basicAssignment/
+    basicAssignment.ek9    → BasicAssignmentTest
+  guardedAssignment/
+    guardedAssignment.ek9  → GuardedAssignmentTest
+  → Each test has own directory
+  → Each spawns javap subprocess
+  → Each cleans own .ek9/ directory
+  → Required for parallel execution
+```
+
+#### Test Infrastructure Support
+
+**AbstractBytecodeGenerationTest** enforces this pattern:
+
+```java
+@Test
+void testPhaseDevelopment() {
+  // Clean out any existing targets for THIS specific test
+  ek9Workspace.getSources().stream().findFirst()
+      .ifPresent(source -> fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture));
+
+  testToPhase(CompilationPhase.CODE_GENERATION_AGGREGATES);
+}
+
+protected void showBytecode(final CompilableProgram program) {
+  // Proper try-with-resources for Files.walk()
+  try (var paths = Files.walk(outputDir.toPath())) {
+    paths.filter(path -> path.toString().endsWith(".class"))
+        .forEach(classPath -> {
+          try {
+            final byte[] classBytes = Files.readAllBytes(classPath);
+            final String normalized = BytecodeNormalizer.normalize(classBytes);
+            System.out.println(normalized);
+          } catch (Exception e) {
+            System.err.println("Failed to read/normalize: " + classPath);
+          }
+        });
+  }
+}
+```
+
+**Key implementation details**:
+- Uses `Files.walk()` with **try-with-resources** to prevent resource leaks
+- Spawns `javap` subprocess per test (expensive I/O)
+- Cleans `.ek9/` directory before each test run
+- Requires dedicated directory for safe parallel execution
+
+#### Performance Impact
+
+**Bytecode test characteristics**:
+- Each test spawns javap subprocess: **~50-100ms overhead**
+- 25-35 bytecode tests × 100ms = **2.5-3.5 seconds sequential**
+- With parallelism (8 threads): **~500ms total** (85% speedup)
+- **BUT**: Only works if tests don't share directories
+
+**Parallelism requirements**:
+- JUnit 5 runs tests in parallel by default (configurable thread pool)
+- Directory isolation is **mandatory** for parallel execution
+- Without isolation: race conditions → test failures → false negatives
+
+#### Summary
+
+| Aspect | IR Tests | Bytecode Tests |
+|--------|----------|---------------|
+| Files per directory | Multiple allowed | **ONE required** |
+| Parallel execution | Safe (no I/O) | **Requires isolation** |
+| Directory cleaning | None | **Per-test cleanup** |
+| Subprocess spawning | None | **javap per test** |
+| Test performance | Fast (~10ms) | Slower (~100ms with javap) |
+| Parallelism benefit | Low | **High (85% speedup)** |
+
+**When creating new bytecode tests, ALWAYS:**
+1. ✅ Create dedicated directory: `bytecodeGeneration/yourFeature/`
+2. ✅ One .ek9 file per directory: `yourFeature.ek9`
+3. ✅ One test class per directory: `YourFeatureTest.java`
+4. ✅ Test points to dedicated directory: `super("/examples/bytecodeGeneration/yourFeature", ...)`
+
+**This pattern is non-negotiable for bytecode tests** - violating it will cause intermittent test failures when running the full test suite in parallel.
+
 ### Bytecode Normalization (JVM)
 
 **Challenge**: Raw javap output is fragile (constant pool indices change)

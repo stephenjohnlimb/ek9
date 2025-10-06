@@ -18,5 +18,6 @@ public enum DirectiveType {
   Symbols,
   Compiler,
   Instrument,
-  IR
+  IR,
+  BYTECODE
 }

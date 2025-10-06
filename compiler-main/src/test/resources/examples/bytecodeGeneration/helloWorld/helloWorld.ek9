@@ -1,0 +1,92 @@
+#!ek9
+defines module bytecode.test
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::HelloWorld": `public class bytecode.test.HelloWorld {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.HelloWorld();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+      LineNumberTable:
+        line 88: 4
+        line 88: 8
+
+  public void _main();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aload_1
+        13: astore_3
+        14: ldc           #CP                 // String \"Hello, World\"
+        16: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        19: astore        4
+        21: aload_3
+        22: aload         4
+        24: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        27: return
+      LineNumberTable:
+        line 89: 0
+        line 89: 2
+        line 89: 10
+        line 89: 10
+        line 89: 12
+        line 90: 12
+        line 90: 14
+        line 90: 14
+        line 90: 21
+        line 90: 21
+        line 88: 27
+}
+SourceDebugExtension:
+  SMAP
+  HelloWorld.class
+  EK9
+  *S EK9
+  *F
+  + 1 ./helloWorld.ek9
+  ./helloWorld.ek9
+  *L
+  88#1:88
+  88#1:88
+  89#1:89
+  89#1:89
+  89#1:89
+  89#1:89
+  89#1:89
+  89#1:89
+  89#1:89
+  89#1:89
+  90#1:90
+  90#1:90
+  90#1:90
+  90#1:90
+  90#1:90
+  90#1:90
+  90#1:90
+  89#1:89
+  88#1:88
+  *E`
+
+    HelloWorld()
+      stdout <- Stdout()
+      stdout.println("Hello, World")
+
+//EOF

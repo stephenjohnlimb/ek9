@@ -1,0 +1,20 @@
+#!ek9
+defines module bytecode.debug.stdin
+
+  defines program
+
+    StdinDebugTest()
+      stdin <- Stdin()
+      stdout <- Stdout()
+
+      stdout.println("Ready for debugging. Enter text and press return:")
+
+      inputLine <- stdin.next()
+
+      stdout.print("You entered: ")
+      stdout.println(inputLine)
+
+      result <- inputLine + " - processed"
+      stdout.println(result)
+
+//EOF

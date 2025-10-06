@@ -11,7 +11,7 @@ defines module introduction
     PassThrough()
       stdin <- Stdin()
       stdout <- Stdout()
-
+      stdout.println("Enter Text:")
       inputLine <- stdin.next()
       stdout.println(inputLine)
 //EOF

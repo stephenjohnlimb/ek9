@@ -52,15 +52,16 @@ class BytecodeNormalizerTest {
       throw new RuntimeException("No test Java files found in " + resourcesDir);
     }
 
-    // Compile with output to temp directory
-    final String[] args = new String[javaFiles.length + 2];
-    args[0] = "-d";
-    args[1] = compiledClassesDir.toString();
+    // Compile with output to temp directory (with debug info enabled)
+    final String[] args = new String[javaFiles.length + 3];
+    args[0] = "-g";  // Enable debug information generation
+    args[1] = "-d";
+    args[2] = compiledClassesDir.toString();
     for (int i = 0; i < javaFiles.length; i++) {
-      args[i + 2] = javaFiles[i].getAbsolutePath();
+      args[i + 3] = javaFiles[i].getAbsolutePath();
     }
 
-    final int result = compiler.run(null, null, null, args);
+    final int result = compiler.run(System.in, System.out, System.err, args);
     if (result != 0) {
       throw new RuntimeException("Compilation failed with exit code " + result);
     }
@@ -79,13 +80,17 @@ class BytecodeNormalizerTest {
                  0: aload_0
                  1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
                  4: return
-        
+              LineNumberTable:
+                line 8: 0
+
           public int add(int, int);
             Code:
                  0: iload_1
                  1: iload_2
                  2: iadd
                  3: ireturn
+              LineNumberTable:
+                line 18: 0
         }""";
 
     assertNormalizedBytecode("TestClass1.class", expected);
@@ -104,7 +109,9 @@ class BytecodeNormalizerTest {
                  0: aload_0
                  1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
                  4: return
-        
+              LineNumberTable:
+                line 8: 0
+
           public java.lang.String checkNull(java.lang.String);
             Code:
                  0: aload_1
@@ -113,6 +120,10 @@ class BytecodeNormalizerTest {
                  6: areturn
                  7: aload_1
                  8: areturn
+              LineNumberTable:
+                line 17: 0
+                line 18: 4
+                line 20: 7
         }""";
 
     assertNormalizedBytecode("TestClass2.class", expected);
@@ -127,7 +138,7 @@ class BytecodeNormalizerTest {
     final String expected = """
         public class TestClass3 {
           private int field;
-        
+
           public TestClass3(int);
             Code:
                  0: aload_0
@@ -136,12 +147,18 @@ class BytecodeNormalizerTest {
                  5: iload_1
                  6: putfield      #CP                  // Field field:I
                  9: return
-        
+              LineNumberTable:
+                line 18: 0
+                line 19: 4
+                line 20: 9
+
           public int getField();
             Code:
                  0: aload_0
                  1: getfield      #CP                  // Field field:I
                  4: ireturn
+              LineNumberTable:
+                line 28: 0
         }""";
 
     assertNormalizedBytecode("TestClass3.class", expected);
