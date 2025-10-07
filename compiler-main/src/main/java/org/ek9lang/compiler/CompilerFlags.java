@@ -47,6 +47,7 @@ public class CompilerFlags {
    */
   private CompilationPhase compileToPhase;
   private TargetArchitecture targetArchitecture = TargetArchitecture.JVM;
+  private OptimizationLevel optimizationLevel = OptimizationLevel.O2;
 
   public CompilerFlags() {
 
@@ -174,5 +175,13 @@ public class CompilerFlags {
 
   public TargetArchitecture getTargetArchitecture() {
     return targetArchitecture;
+  }
+
+  public void setOptimizationLevel(final OptimizationLevel optimizationLevel) {
+    this.optimizationLevel = optimizationLevel;
+  }
+
+  public OptimizationLevel getOptimizationLevel() {
+    return optimizationLevel;
   }
 }

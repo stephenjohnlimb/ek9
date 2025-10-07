@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.CompilerFlags;
+import org.ek9lang.compiler.OptimizationLevel;
 import org.ek9lang.compiler.Workspace;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.TargetArchitecture;
@@ -24,6 +25,7 @@ abstract class Ec extends E {
     super(compilationContext);
     compilerFlags.setVerbose(compilationContext.commandLine().options().isVerbose());
     compilerFlags.setTargetArchitecture(compilationContext.commandLine().getTargetArchitecture());
+    compilerFlags.setOptimizationLevel(compilationContext.commandLine().getOptimizationLevel());
 
   }
 
@@ -83,6 +85,16 @@ abstract class Ec extends E {
           ? CompilationPhase.valueOf(compilationContext.commandLine().options().getOptionParameter("-Cdp")) :
           CompilationPhase.valueOf(compilationContext.commandLine().options().getOptionParameter("-Cp"));
       setPhaseToCompileTo(requiredPhase);
+    }
+
+    // Apply smart defaults for optimization level if not explicitly specified
+    if (!compilationContext.commandLine().options().isOptimizationLevelSpecified()) {
+      if (compilerFlags.isDevBuild() || compilerFlags.isDebuggingInstrumentation()) {
+        compilerFlags.setOptimizationLevel(OptimizationLevel.O0);
+      } else if (compilationContext.commandLine().options().isPackaging()) {
+        compilerFlags.setOptimizationLevel(OptimizationLevel.O3);
+      }
+      // Otherwise keep default O2
     }
 
     if (compilerFlags.isDebuggingInstrumentation()) {

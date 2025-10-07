@@ -41,6 +41,9 @@ public record CommandLineHelp(String helpText) {
         \t-d port Run in debug mode (requires debugging information - on a port)
         \t-e <name>=<value> set environment variable i.e. user=Steve or user='Steve Limb' for spaces
         \t-T target architecture - defaults to 'jvm' if not specified.
+        \t-O0 No optimization (fast compile, maximum debuggability)
+        \t-O2 Minimal optimization (balanced - default for normal builds)
+        \t-O3 Full optimization (maximum performance - default for packaging)
         \tfilename.ek9 - the main file to work with
         \t-r Program to run (if EK9 file as more than one)
 

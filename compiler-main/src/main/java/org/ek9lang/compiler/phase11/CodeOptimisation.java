@@ -15,6 +15,10 @@ import org.ek9lang.core.SharedThreadContext;
  * SINGLE THREADED
  * Optimise the generated code.
  * See compilationContext.commandLine().targetArchitecture to determine what to prepare to optimise.
+ * The optimization level can be accessed via compilerFlags.getOptimizationLevel() which returns:
+ * - OptimizationLevel.O0 - No optimization (fast compile, maximum debuggability)
+ * - OptimizationLevel.O2 - Minimal optimization (balanced - default)
+ * - OptimizationLevel.O3 - Full optimization (maximum performance)
  */
 public class CodeOptimisation extends CompilerPhase {
   private static final CompilationPhase thisPhase = CompilationPhase.CODE_OPTIMISATION;
@@ -29,6 +33,10 @@ public class CodeOptimisation extends CompilerPhase {
   @Override
   public boolean doApply(final Workspace workspace, final CompilerFlags compilerFlags) {
 
+    // TODO: Implement target-specific code optimization based on compilerFlags.getOptimizationLevel()
+    // O0: Skip all optimizations, preserve debug information
+    // O2: Apply basic peephole optimizations
+    // O3: Apply aggressive optimizations (may use LLVM optimization passes for native targets)
     return true;
   }
 }

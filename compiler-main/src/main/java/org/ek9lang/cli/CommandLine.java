@@ -20,6 +20,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.ek9lang.compiler.CompilationPhase;
+import org.ek9lang.compiler.OptimizationLevel;
 import org.ek9lang.compiler.common.Ek9SourceVisitor;
 import org.ek9lang.compiler.common.JustParser;
 import org.ek9lang.compiler.common.PackageDetails;
@@ -47,6 +48,7 @@ final class CommandLine {
   private final List<String> ek9AppDefines = new ArrayList<>();
   String ek9ProgramToRun = null;
   TargetArchitecture targetArchitecture = TargetArchitecture.JVM;
+  OptimizationLevel optimizationLevel = OptimizationLevel.O2;
   int debugPort = 8000;
   private File mainSourceFile;
   private String moduleName = null;
@@ -209,6 +211,17 @@ final class CommandLine {
     return rtn;
   }
 
+  private boolean processIfOptimizationLevel(final String[] strArray, final int index) {
+
+    final var rtn = strArray[index].equals("-O0") || strArray[index].equals("-O2")
+        || strArray[index].equals("-O3");
+
+    if (rtn) {
+      optimizationLevel = OptimizationLevel.from(strArray[index]);
+    }
+    return rtn;
+  }
+
   private boolean processIfProgramToRun(final String[] strArray, final int index) {
 
     final var rtn = strArray[index].equals("-r") && index < strArray.length - 1;
@@ -343,6 +356,8 @@ final class CommandLine {
         activeParameters = options.getEk9ProgramParameters();
       } else if (processIfSimpleOption(strArray, index)) {
         index++;
+      } else if (processIfOptimizationLevel(strArray, index)) {
+        activeParameters.add(strArray[index]);
       } else if (isDebugOption(strArray, index)) {
         returnCode = processDebugOption(strArray, index, activeParameters);
         index++;
@@ -700,6 +715,11 @@ final class CommandLine {
   public TargetArchitecture getTargetArchitecture() {
 
     return targetArchitecture;
+  }
+
+  public OptimizationLevel getOptimizationLevel() {
+
+    return optimizationLevel;
   }
 
   public String getProgramToRun() {

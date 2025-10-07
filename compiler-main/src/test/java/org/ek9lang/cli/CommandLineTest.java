@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.ek9lang.compiler.OptimizationLevel;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.Logger;
 import org.ek9lang.core.OsSupport;
@@ -87,6 +88,18 @@ final class CommandLineTest {
 
   private final Consumer<CommandLine> assertCheckCompile =
       commandLineDetails -> assertTrue(commandLineDetails.options().isCheckCompileOnly());
+
+  private final Consumer<CommandLine> assertOptimizationO0 =
+      commandLineDetails -> assertEquals(OptimizationLevel.O0,
+          commandLineDetails.getOptimizationLevel());
+
+  private final Consumer<CommandLine> assertOptimizationO2 =
+      commandLineDetails -> assertEquals(OptimizationLevel.O2,
+          commandLineDetails.getOptimizationLevel());
+
+  private final Consumer<CommandLine> assertOptimizationO3 =
+      commandLineDetails -> assertEquals(OptimizationLevel.O3,
+          commandLineDetails.getOptimizationLevel());
 
   @BeforeAll
   static void disableLogger() {
@@ -534,6 +547,61 @@ final class CommandLineTest {
   @Test
   void testInvalidReleaseVectorCommandLineDebug() {
     assertEquals(2, processStringCommandLine.apply("-PV -d 9000 HelloWorld.ek9"));
+  }
+
+  @Test
+  @SuppressWarnings("java:S2699")
+  void testCommandLineOptimizationO0() {
+    var process = makeProcess.apply("-C -O0");
+    assertFullCompilation
+        .andThen(assertOptimizationO0)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
+  }
+
+  @Test
+  @SuppressWarnings("java:S2699")
+  void testCommandLineOptimizationO2() {
+    var process = makeProcess.apply("-C -O2");
+    assertFullCompilation
+        .andThen(assertOptimizationO2)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
+  }
+
+  @Test
+  @SuppressWarnings("java:S2699")
+  void testCommandLineOptimizationO3() {
+    var process = makeProcess.apply("-C -O3");
+    assertFullCompilation
+        .andThen(assertOptimizationO3)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
+  }
+
+  @Test
+  @SuppressWarnings("java:S2699")
+  void testCommandLineDefaultOptimizationO2() {
+    var process = makeProcess.apply("-C");
+    assertFullCompilation
+        .andThen(assertOptimizationO2)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
+  }
+
+  @Test
+  @SuppressWarnings("java:S2699")
+  void testIncrementalCompileOptimizationO3() {
+    var process = makeProcess.apply("-c -O3");
+    assertIncrementalCompilation
+        .andThen(assertOptimizationO3)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
+  }
+
+  @Test
+  @SuppressWarnings("java:S2699")
+  void testDebugCompileOptimizationO0() {
+    var process = makeProcess.apply("-cg -O0");
+    assertIncrementalCompilation
+        .andThen(assertDebug)
+        .andThen(assertOptimizationO0)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
   }
 
   @Test

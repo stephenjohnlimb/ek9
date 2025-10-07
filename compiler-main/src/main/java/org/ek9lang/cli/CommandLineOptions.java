@@ -31,7 +31,7 @@ public class CommandLineOptions {
 
     return Set.of("-c", "-ch", "-cg", "-cd", "-cdh", "-Cp", "-Cdp", "-C", "-Ch", "-Cg", "-Cd",
         "-Cdh", "-Cl", "-Dp", "-t", "-d", "-P", "-I", "-Gk", "-D", "-IV", "-SV", "-SF", "-PV",
-        "-Up").contains(param);
+        "-Up", "-O0", "-O2", "-O3").contains(param);
   }
 
   public boolean isParameterUnacceptable(final String param) {
@@ -252,6 +252,11 @@ public class CommandLineOptions {
     }
 
     return rtn;
+  }
+
+  public boolean isOptimizationLevelSpecified() {
+
+    return isOptionPresentInAppParameters(Set.of("-O0", "-O2", "-O3"));
   }
 
 }
