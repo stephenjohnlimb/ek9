@@ -27,14 +27,14 @@ defines module contains.test
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./contains_operator.ek9:95:7
     REFERENCE text, org.ek9.lang::String  // ./contains_operator.ek9:95:7
-    _temp1 = LOAD_LITERAL "hello world", org.ek9.lang::String  // ./contains_operator.ek9:95:23
+    _temp1 = LOAD_LITERAL hello world, org.ek9.lang::String  // ./contains_operator.ek9:95:23
     RETAIN _temp1  // ./contains_operator.ek9:95:23
     SCOPE_REGISTER _temp1, _scope_1  // ./contains_operator.ek9:95:23
     STORE text, _temp1  // ./contains_operator.ek9:95:23
     RETAIN text  // ./contains_operator.ek9:95:23
     SCOPE_REGISTER text, _scope_1  // ./contains_operator.ek9:95:23
     REFERENCE substring, org.ek9.lang::String  // ./contains_operator.ek9:96:7
-    _temp2 = LOAD_LITERAL "world", org.ek9.lang::String  // ./contains_operator.ek9:96:28
+    _temp2 = LOAD_LITERAL world, org.ek9.lang::String  // ./contains_operator.ek9:96:28
     RETAIN _temp2  // ./contains_operator.ek9:96:28
     SCOPE_REGISTER _temp2, _scope_1  // ./contains_operator.ek9:96:28
     STORE substring, _temp2  // ./contains_operator.ek9:96:28

@@ -27,7 +27,7 @@ defines module length.test
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./length_operator.ek9:85:7
     REFERENCE text, org.ek9.lang::String  // ./length_operator.ek9:85:7
-    _temp1 = LOAD_LITERAL "Hello World", org.ek9.lang::String  // ./length_operator.ek9:85:23
+    _temp1 = LOAD_LITERAL Hello World, org.ek9.lang::String  // ./length_operator.ek9:85:23
     RETAIN _temp1  // ./length_operator.ek9:85:23
     SCOPE_REGISTER _temp1, _scope_1  // ./length_operator.ek9:85:23
     STORE text, _temp1  // ./length_operator.ek9:85:23

@@ -27,7 +27,7 @@ defines module json.test
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./json_operator.ek9:85:7
     REFERENCE x, org.ek9.lang::String  // ./json_operator.ek9:85:7
-    _temp1 = LOAD_LITERAL "hello", org.ek9.lang::String  // ./json_operator.ek9:85:20
+    _temp1 = LOAD_LITERAL hello, org.ek9.lang::String  // ./json_operator.ek9:85:20
     RETAIN _temp1  // ./json_operator.ek9:85:20
     SCOPE_REGISTER _temp1, _scope_1  // ./json_operator.ek9:85:20
     STORE x, _temp1  // ./json_operator.ek9:85:20

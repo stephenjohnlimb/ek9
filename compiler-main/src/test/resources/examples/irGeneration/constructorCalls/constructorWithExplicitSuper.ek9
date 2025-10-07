@@ -23,7 +23,7 @@ defines module constructorCalls
     OperationDfn: constructorCalls::Child.i_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     REFERENCE this.childField, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:39:7
-    _temp1 = LOAD_LITERAL "Child Field", org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:39:31
+    _temp1 = LOAD_LITERAL Child Field, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:39:31
     RETAIN _temp1  // ./constructorWithExplicitSuper.ek9:39:31
     SCOPE_REGISTER _temp1, i_init  // ./constructorWithExplicitSuper.ek9:39:31
     STORE this.childField, _temp1  // ./constructorWithExplicitSuper.ek9:39:31

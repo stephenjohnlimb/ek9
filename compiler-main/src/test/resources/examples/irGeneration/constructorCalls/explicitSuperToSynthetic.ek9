@@ -21,7 +21,7 @@ defines module constructorCalls
     OperationDfn: constructorCalls::ChildCallingSyntheticSuper.i_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     REFERENCE this.childField, org.ek9.lang::String  // ./explicitSuperToSynthetic.ek9:43:7
-    _temp1 = LOAD_LITERAL "Child Field", org.ek9.lang::String  // ./explicitSuperToSynthetic.ek9:43:31
+    _temp1 = LOAD_LITERAL Child Field, org.ek9.lang::String  // ./explicitSuperToSynthetic.ek9:43:31
     RETAIN _temp1  // ./explicitSuperToSynthetic.ek9:43:31
     SCOPE_REGISTER _temp1, i_init  // ./explicitSuperToSynthetic.ek9:43:31
     STORE this.childField, _temp1  // ./explicitSuperToSynthetic.ek9:43:31
@@ -31,7 +31,7 @@ defines module constructorCalls
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./explicitSuperToSynthetic.ek9:46:9
     _temp1 = CALL (constructorCalls::BaseWithSyntheticConstructor)constructorCalls::BaseWithSyntheticConstructor.<init>() [pure=false, complexity=0, effects=RETURN_MUTATION]  // ./explicitSuperToSynthetic.ek9:46:9
-    _temp2 = LOAD_LITERAL "Explicitly set in constructor", org.ek9.lang::String  // ./explicitSuperToSynthetic.ek9:47:21
+    _temp2 = LOAD_LITERAL Explicitly set in constructor, org.ek9.lang::String  // ./explicitSuperToSynthetic.ek9:47:21
     RETAIN _temp2  // ./explicitSuperToSynthetic.ek9:47:21
     SCOPE_REGISTER _temp2, _scope_1  // ./explicitSuperToSynthetic.ek9:47:21
     RELEASE this.childField  // ./explicitSuperToSynthetic.ek9:47:21

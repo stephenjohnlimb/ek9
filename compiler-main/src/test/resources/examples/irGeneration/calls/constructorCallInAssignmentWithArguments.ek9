@@ -24,7 +24,7 @@ defines module constructorassignmentwithargscalls.test
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./constructorCallInAssignmentWithArguments.ek9:74:7
     REFERENCE aString, org.ek9.lang::String  // ./constructorCallInAssignmentWithArguments.ek9:74:7
-    _temp2 = LOAD_LITERAL "World", org.ek9.lang::String  // ./constructorCallInAssignmentWithArguments.ek9:75:23
+    _temp2 = LOAD_LITERAL World, org.ek9.lang::String  // ./constructorCallInAssignmentWithArguments.ek9:75:23
     _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>(_temp2) [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./constructorCallInAssignmentWithArguments.ek9:75:16
     RETAIN _temp1  // ./constructorCallInAssignmentWithArguments.ek9:75:16
     SCOPE_REGISTER _temp1, _scope_1  // ./constructorCallInAssignmentWithArguments.ek9:75:16

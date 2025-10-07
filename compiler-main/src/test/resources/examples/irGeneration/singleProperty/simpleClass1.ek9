@@ -26,7 +26,7 @@ defines module singleProperty
     BasicBlock: _entry_1
     CALL (singleProperty::Example1)this.i_init() [pure=false, complexity=0]  // ./simpleClass1.ek9:76:7
     SCOPE_ENTER _scope_1  // ./simpleClass1.ek9:79:9
-    _temp1 = LOAD_LITERAL "Steve", org.ek9.lang::String  // ./simpleClass1.ek9:79:17
+    _temp1 = LOAD_LITERAL Steve, org.ek9.lang::String  // ./simpleClass1.ek9:79:17
     RETAIN _temp1  // ./simpleClass1.ek9:79:17
     SCOPE_REGISTER _temp1, _scope_1  // ./simpleClass1.ek9:79:17
     RELEASE this.aField  // ./simpleClass1.ek9:79:17

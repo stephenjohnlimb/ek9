@@ -40,7 +40,7 @@ defines module introduction1
     RETAIN stdout  // ./HelloWorldIR.ek9:60:17
     SCOPE_REGISTER stdout, _scope_1  // ./HelloWorldIR.ek9:60:17
     REFERENCE toOutput, org.ek9.lang::String  // ./HelloWorldIR.ek9:61:7
-    _temp2 = LOAD_LITERAL "Hello, World", org.ek9.lang::String  // ./HelloWorldIR.ek9:61:19
+    _temp2 = LOAD_LITERAL Hello, World, org.ek9.lang::String  // ./HelloWorldIR.ek9:61:19
     RETAIN _temp2  // ./HelloWorldIR.ek9:61:19
     SCOPE_REGISTER _temp2, _scope_1  // ./HelloWorldIR.ek9:61:19
     STORE toOutput, _temp2  // ./HelloWorldIR.ek9:61:19

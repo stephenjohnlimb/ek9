@@ -35,7 +35,7 @@ defines module bytecode.test
         11: astore_1
         12: aload_1
         13: astore_3
-        14: ldc           #CP                 // String \"Hello, World\"
+        14: ldc           #CP                 // String Hello, World
         16: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
         19: astore        4
         21: aload_3

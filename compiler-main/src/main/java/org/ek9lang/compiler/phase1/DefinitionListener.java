@@ -1522,6 +1522,13 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
       literalText += ctx.getChild(1).getText();
     }
 
+    // Strip quotes from simple string literals (but not interpolated strings with backticks)
+    if (EK9_STRING.equals(typeName)
+        && literalText.startsWith("\"") && literalText.endsWith("\"")
+        && literalText.length() >= 2) {
+      literalText = literalText.substring(1, literalText.length() - 1);
+    }
+
     //Now this type should be resolved as it is passed in and is a built-in type.
     final var scope = symbolsAndScopes.getTopScope();
     final var resolvedType = scope.resolve(new TypeSymbolSearch(typeName));

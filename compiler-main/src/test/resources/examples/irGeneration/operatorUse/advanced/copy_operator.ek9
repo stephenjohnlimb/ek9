@@ -27,7 +27,7 @@ defines module copy.test
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./copy_operator.ek9:125:7
     REFERENCE original, org.ek9.lang::String  // ./copy_operator.ek9:125:7
-    _temp1 = LOAD_LITERAL "Hello World", org.ek9.lang::String  // ./copy_operator.ek9:125:27
+    _temp1 = LOAD_LITERAL Hello World, org.ek9.lang::String  // ./copy_operator.ek9:125:27
     RETAIN _temp1  // ./copy_operator.ek9:125:27
     SCOPE_REGISTER _temp1, _scope_1  // ./copy_operator.ek9:125:27
     STORE original, _temp1  // ./copy_operator.ek9:125:27

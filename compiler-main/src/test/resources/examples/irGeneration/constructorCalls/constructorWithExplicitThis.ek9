@@ -33,7 +33,7 @@ defines module constructorCalls
     OperationDfn: constructorCalls::Example.Example()->constructorCalls::Example  // ./constructorWithExplicitThis.ek9:49:7
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./constructorWithExplicitThis.ek9:50:9
-    _temp2 = LOAD_LITERAL "Default", org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:50:14
+    _temp2 = LOAD_LITERAL Default, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:50:14
     RETAIN _temp2
     SCOPE_REGISTER _temp2, _scope_1
     _temp1 = CALL (constructorCalls::Example)constructorCalls::Example.<init>(_temp2) [pure=false, complexity=1, effects=RETURN_MUTATION]  // ./constructorWithExplicitThis.ek9:50:9

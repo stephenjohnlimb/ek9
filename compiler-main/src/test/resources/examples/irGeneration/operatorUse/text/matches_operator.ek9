@@ -27,7 +27,7 @@ defines module matches.test
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./matches_operator.ek9:95:7
     REFERENCE text, org.ek9.lang::String  // ./matches_operator.ek9:95:7
-    _temp1 = LOAD_LITERAL "hello123", org.ek9.lang::String  // ./matches_operator.ek9:95:23
+    _temp1 = LOAD_LITERAL hello123, org.ek9.lang::String  // ./matches_operator.ek9:95:23
     RETAIN _temp1  // ./matches_operator.ek9:95:23
     SCOPE_REGISTER _temp1, _scope_1  // ./matches_operator.ek9:95:23
     STORE text, _temp1  // ./matches_operator.ek9:95:23

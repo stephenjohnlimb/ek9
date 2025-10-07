@@ -96,7 +96,7 @@ defines module introduction2
     _temp3 = LOAD stdout  // ./HelloWorldsIR.ek9:107:7
     RETAIN _temp3  // ./HelloWorldsIR.ek9:107:7
     SCOPE_REGISTER _temp3, _scope_1  // ./HelloWorldsIR.ek9:107:7
-    _temp4 = LOAD_LITERAL "Hello, Mars", org.ek9.lang::String  // ./HelloWorldsIR.ek9:107:22
+    _temp4 = LOAD_LITERAL Hello, Mars, org.ek9.lang::String  // ./HelloWorldsIR.ek9:107:22
     RETAIN _temp4  // ./HelloWorldsIR.ek9:107:22
     SCOPE_REGISTER _temp4, _scope_1  // ./HelloWorldsIR.ek9:107:22
     CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=true, complexity=1]  // ./HelloWorldsIR.ek9:107:14

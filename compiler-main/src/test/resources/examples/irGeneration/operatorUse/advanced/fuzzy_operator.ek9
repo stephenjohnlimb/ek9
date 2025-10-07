@@ -27,14 +27,14 @@ defines module fuzzy.test
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./fuzzy_operator.ek9:95:7
     REFERENCE x, org.ek9.lang::String  // ./fuzzy_operator.ek9:95:7
-    _temp1 = LOAD_LITERAL "hello", org.ek9.lang::String  // ./fuzzy_operator.ek9:95:20
+    _temp1 = LOAD_LITERAL hello, org.ek9.lang::String  // ./fuzzy_operator.ek9:95:20
     RETAIN _temp1  // ./fuzzy_operator.ek9:95:20
     SCOPE_REGISTER _temp1, _scope_1  // ./fuzzy_operator.ek9:95:20
     STORE x, _temp1  // ./fuzzy_operator.ek9:95:20
     RETAIN x  // ./fuzzy_operator.ek9:95:20
     SCOPE_REGISTER x, _scope_1  // ./fuzzy_operator.ek9:95:20
     REFERENCE y, org.ek9.lang::String  // ./fuzzy_operator.ek9:96:7
-    _temp2 = LOAD_LITERAL "hallo", org.ek9.lang::String  // ./fuzzy_operator.ek9:96:20
+    _temp2 = LOAD_LITERAL hallo, org.ek9.lang::String  // ./fuzzy_operator.ek9:96:20
     RETAIN _temp2  // ./fuzzy_operator.ek9:96:20
     SCOPE_REGISTER _temp2, _scope_1  // ./fuzzy_operator.ek9:96:20
     STORE y, _temp2  // ./fuzzy_operator.ek9:96:20
