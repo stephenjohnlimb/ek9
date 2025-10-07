@@ -61,8 +61,8 @@ SourceDebugExtension:
   EK9
   *S EK9
   *F
-  + 1 ./helloWorld.ek9
-  ./helloWorld.ek9
+  + 1 helloWorld.ek9
+  helloWorld.ek9
   *L
   88#1:88
   88#1:88

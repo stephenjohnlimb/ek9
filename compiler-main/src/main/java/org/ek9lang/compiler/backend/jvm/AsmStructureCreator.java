@@ -84,8 +84,10 @@ public final class AsmStructureCreator implements Opcodes {
 
     classWriter.visit(V21, ACC_PUBLIC, jvmClassName, null, JAVA_LANG_OBJECT, null);
 
-    // Add source file information for debugging - uses actual .ek9 source filename from IR
-    classWriter.visitSource(construct.getSourceFileName(), null);
+    // Add source file information for debugging - uses normalized .ek9 source filename
+    // Normalization strips "./" prefix for jdb compatibility
+    final var normalizedSourceFileName = construct.getNormalizedSourceFileName();
+    classWriter.visitSource(normalizedSourceFileName, null);
 
     // Generate and add JSR-45 SMAP for .ek9 source debugging
     final var smapGenerator = new SmapGenerator(getSimpleClassName(programClassName) + ".class");
@@ -93,7 +95,7 @@ public final class AsmStructureCreator implements Opcodes {
     final var smap = smapGenerator.generate();
     if (smap != null) {
       // Add SourceDebugExtension attribute with SMAP
-      classWriter.visitSource(construct.getSourceFileName(), smap);
+      classWriter.visitSource(normalizedSourceFileName, smap);
     }
   }
 
@@ -195,8 +197,8 @@ public final class AsmStructureCreator implements Opcodes {
     final var basicBlock = operation.getBody();
     if (basicBlock != null) {
       // Pre-register method parameters before processing instructions
-      final var parameterNames = getParameterNamesForMethod();
-      processBasicBlockWithTypedInstructions(mv, basicBlock, parameterNames);
+      final var parameterDetails = getParameterDetailsForMethod();
+      processBasicBlockWithParameters(mv, basicBlock, parameterDetails);
     }
 
     // Don't add extra RETURN - IR instructions already include RETURN via BranchInstr
@@ -205,20 +207,17 @@ public final class AsmStructureCreator implements Opcodes {
   }
 
   /**
-   * Get parameter names for the current method from PROGRAM_ENTRY_POINT_BLOCK.
-   * Returns list of parameter names in order (e.g., ["message"] for HelloString).
+   * Get parameter details for the current method from PROGRAM_ENTRY_POINT_BLOCK.
+   * Returns list of parameter details (name + type) in order.
    */
-  private List<String> getParameterNamesForMethod() {
+  private List<ParameterDetails> getParameterDetailsForMethod() {
     if (programEntryPoint != null) {
       final var programClassName = getProgramClassName();
 
       // Find matching program in entry point
       for (var programDetails : programEntryPoint.getAvailablePrograms()) {
         if (programDetails.qualifiedName().equals(programClassName)) {
-          // Extract parameter names from parameter signature
-          return programDetails.parameterSignature().stream()
-              .map(ParameterDetails::name)
-              .toList();
+          return programDetails.parameterSignature();
         }
       }
     }
@@ -273,13 +272,51 @@ public final class AsmStructureCreator implements Opcodes {
   }
 
   /**
-   * Process a basic block with parameter names for _main method context.
-   * Pre-registers parameters in variable map to prevent null overwriting.
+   * Process a basic block with parameter details for _main method context.
+   * Pre-registers parameters in variable map and LocalVariableTable metadata.
    */
-  private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
-                                                      final BasicBlockInstr basicBlock,
-                                                      final List<String> parameterNames) {
-    processBasicBlockWithTypedInstructions(mv, basicBlock, parameterNames, false);
+  private void processBasicBlockWithParameters(final MethodVisitor mv,
+                                               final BasicBlockInstr basicBlock,
+                                               final List<ParameterDetails> parameterDetails) {
+    // Cast visitor to OutputVisitor to access generator setup methods
+    final OutputVisitor outputVisitor = (OutputVisitor) visitor;
+
+    // Create fresh MethodContext for this method
+    final var methodContext = new AbstractAsmGenerator.MethodContext();
+
+    // Pre-register method parameters (prevents null overwriting)
+    // Also register for LocalVariableTable (enables jdb to show parameter names/values)
+    // Instance method parameters start at slot 1 (slot 0 is 'this')
+    int parameterSlot = 1;
+    for (ParameterDetails param : parameterDetails) {
+      final var paramName = param.name();
+      methodContext.variableMap.put(paramName, parameterSlot);
+
+      // Create LocalVariableInfo for parameter (scopeId=null, will use method-wide scope)
+      final var paramTypeDescriptor = jvmNameConverter.apply(param.type());
+      final var varInfo = new AbstractAsmGenerator.LocalVariableInfo(
+          paramName,
+          "L" + paramTypeDescriptor + ";",
+          null  // scopeId is null for parameters - will use method-wide _call scope
+      );
+      varInfo.slot = parameterSlot;  // Set slot immediately
+      methodContext.localVariableMetadata.put(paramName, varInfo);
+
+      parameterSlot++;
+    }
+    // Update nextVariableSlot to account for pre-registered parameters
+    methodContext.nextVariableSlot = parameterSlot;
+
+    // Share method context and method visitor with all generators
+    outputVisitor.setMethodContext(methodContext, mv, false);  // false = not a constructor
+
+    // Process each IR instruction using visitor pattern
+    for (var instruction : basicBlock.getInstructions()) {
+      instruction.accept(visitor);
+    }
+
+    // Generate LocalVariableTable after processing all instructions
+    outputVisitor.generateLocalVariableTable();
   }
 
   /**
@@ -321,6 +358,9 @@ public final class AsmStructureCreator implements Opcodes {
     for (var instruction : basicBlock.getInstructions()) {
       instruction.accept(visitor);
     }
+
+    // Generate LocalVariableTable after processing all instructions
+    outputVisitor.generateLocalVariableTable();
   }
 
 

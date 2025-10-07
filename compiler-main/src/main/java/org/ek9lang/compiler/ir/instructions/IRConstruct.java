@@ -63,6 +63,25 @@ public final class IRConstruct implements INode {
   }
 
   /**
+   * Returns the normalized source file name for JVM debug information.
+   * Strips the "./" prefix if present, as jdb and other debuggers interpret
+   * "./" literally and fail to find source files like "./workarea.ek9".
+   * <p>
+   * This normalized form is required for:
+   * - JVM SourceFile attribute in .class files
+   * - JSR-45 SMAP (Source Map) generation
+   * - Debugger source file resolution (jdb, IDE debuggers)
+   * </p>
+   *
+   * @return Normalized source file name without "./" prefix (e.g., "workarea.ek9" instead of "./workarea.ek9")
+   */
+  public String getNormalizedSourceFileName() {
+    return sourceFileName.startsWith("./")
+        ? sourceFileName.substring(2)
+        : sourceFileName;
+  }
+
+  /**
    * Returns signature-qualified name including parameter types and return type.
    * For functions and methods, this includes the complete signature to enable
    * method overloading resolution and target code generation.

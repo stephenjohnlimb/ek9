@@ -151,10 +151,16 @@ public final class SmapGenerator {
 
   /**
    * Get or create file ID for a source file.
+   * Note: sourceFile should already be normalized by IRConstruct.getNormalizedSourceFileName()
+   * but we handle it here defensively in case raw paths are passed.
    */
   @SuppressWarnings("checkstyle:LambdaParameterName")
   private int getOrCreateFileId(final String sourceFile) {
-    return fileIdMap.computeIfAbsent(sourceFile, _ -> nextFileId++);
+    // Defensive normalization: strip ./ prefix for jdb compatibility
+    final String normalizedPath = sourceFile.startsWith("./")
+        ? sourceFile.substring(2)
+        : sourceFile;
+    return fileIdMap.computeIfAbsent(normalizedPath, _ -> nextFileId++);
   }
 
   /**

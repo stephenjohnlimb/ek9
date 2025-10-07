@@ -33,6 +33,7 @@ import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.core.AssertValue;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -65,20 +66,52 @@ public abstract class AbstractAsmGenerator {
   public static class MethodContext {
     final Map<String, Integer> variableMap = new HashMap<>();
     final Map<String, TempVariableSource> tempSourceMap = new HashMap<>();
-    final Map<String, org.objectweb.asm.Label> labelMap = new HashMap<>();
+    final Map<String, Label> labelMap = new HashMap<>();
+    final Map<String, LocalVariableInfo> localVariableMetadata = new HashMap<>();
+    final Map<String, ScopeInfo> scopeMap = new HashMap<>();
     int nextVariableSlot = 1; // Reserve slot 0 for 'this'
+  }
+
+  /**
+   * Metadata for a local variable needed for LocalVariableTable generation.
+   */
+  static class LocalVariableInfo {
+    final String name;
+    final String typeDescriptor;
+    final String scopeId;
+    int slot;  // JVM local variable slot (filled later)
+
+    public LocalVariableInfo(final String name, final String typeDescriptor, final String scopeId) {
+      this.name = name;
+      this.typeDescriptor = typeDescriptor;
+      this.scopeId = scopeId;
+      this.slot = -1;  // Will be set when variable is allocated
+    }
+  }
+
+  /**
+   * Scope boundary information for tracking variable lifetimes.
+   */
+  static class ScopeInfo {
+    final String scopeId;
+    Label startLabel;
+    Label endLabel;
+
+    public ScopeInfo(final String scopeId) {
+      this.scopeId = scopeId;
+    }
   }
 
   /**
    * Represents the source of a temp variable for stack-oriented code generation.
    */
-  public static class TempVariableSource {
+  static class TempVariableSource {
     public enum Type {LOAD_FROM_VARIABLE, LITERAL_VALUE, CONSTRUCTOR_CALL, METHOD_CALL}
 
-    public final Type type;
-    public final String sourceVariable; // For LOAD_FROM_VARIABLE
-    public final String literalValue;   // For LITERAL_VALUE
-    public final String literalType;    // For LITERAL_VALUE
+    final Type type;
+    final String sourceVariable; // For LOAD_FROM_VARIABLE
+    final String literalValue;   // For LITERAL_VALUE
+    final String literalType;    // For LITERAL_VALUE
 
     // For LOAD_FROM_VARIABLE
     public TempVariableSource(final String sourceVariable) {
@@ -95,6 +128,14 @@ public abstract class AbstractAsmGenerator {
       this.literalValue = literalValue;
       this.literalType = literalType;
     }
+  }
+
+  /**
+   * Validated LocalVariableTable entry ready for JVM emission.
+   * All validation completed - labels and slot are guaranteed non-null.
+   */
+  private record LocalVariableEntry(String name, String descriptor,
+                                     Label start, Label end, int slot) {
   }
 
   protected AbstractAsmGenerator(final ConstructTargetTuple constructTargetTuple,
@@ -118,6 +159,14 @@ public abstract class AbstractAsmGenerator {
    */
   protected void setSharedMethodContext(final MethodContext context) {
     this.methodContext = context;
+  }
+
+  /**
+   * Get the shared method context.
+   * Provides access to variable maps, label maps, and local variable metadata.
+   */
+  protected MethodContext getMethodContext() {
+    return methodContext;
   }
 
   /**
@@ -169,10 +218,106 @@ public abstract class AbstractAsmGenerator {
   protected void generateDebugInfo(final DebugInfo debugInfo) {
     if (debugInfo != null && debugInfo.isValidLocation()) {
       // Create label for this source line position
-      final var lineLabel = new org.objectweb.asm.Label();
+      final var lineLabel = new Label();
       getCurrentMethodVisitor().visitLabel(lineLabel);
       getCurrentMethodVisitor().visitLineNumber(debugInfo.lineNumber(), lineLabel);
     }
+  }
+
+  /**
+   * Find the operation-level scope (method-wide scope) for parameter variables.
+   * This is the first scope created via enterMethodScope() before any block scopes.
+   *
+   * @return Optional containing the method-wide scope, or empty if no valid scope exists
+   */
+  private java.util.Optional<ScopeInfo> findMethodWideScope() {
+    return methodContext.scopeMap.values().stream()
+        .filter(scope -> scope.startLabel != null && scope.endLabel != null)
+        .findFirst();
+  }
+
+  /**
+   * Build a validated LocalVariableTable entry for a variable.
+   * Performs all validation: scope resolution, label extraction, slot allocation.
+   *
+   * @param varInfo     Variable metadata to build entry for
+   * @param methodScope Method-wide scope for parameters (may be null)
+   * @return Optional containing validated entry, or empty if validation fails
+   */
+  private java.util.Optional<LocalVariableEntry> buildLocalVariableEntry(
+      final LocalVariableInfo varInfo, final ScopeInfo methodScope) {
+
+    // Resolve scope labels (parameters vs local variables)
+    final Label startLabel;
+    final Label endLabel;
+
+    if (varInfo.scopeId == null) {
+      // Method parameter without SCOPE_REGISTER - use method-wide scope
+      if (methodScope == null) {
+        return java.util.Optional.empty();
+      }
+      startLabel = methodScope.startLabel;
+      endLabel = methodScope.endLabel;
+    } else {
+      // Local variable with explicit scope - use its specific scope
+      final var scopeInfo = methodContext.scopeMap.get(varInfo.scopeId);
+      if (scopeInfo == null || scopeInfo.startLabel == null || scopeInfo.endLabel == null) {
+        return java.util.Optional.empty();
+      }
+      startLabel = scopeInfo.startLabel;
+      endLabel = scopeInfo.endLabel;
+    }
+
+    // Resolve JVM slot (update varInfo if needed)
+    final int slot;
+    if (varInfo.slot != -1) {
+      slot = varInfo.slot;
+    } else {
+      final var slotNumber = methodContext.variableMap.get(varInfo.name);
+      if (slotNumber == null) {
+        return java.util.Optional.empty();
+      }
+      varInfo.slot = slotNumber;  // Cache for future use
+      slot = slotNumber;
+    }
+
+    // All validation passed - return validated entry
+    return java.util.Optional.of(
+        new LocalVariableEntry(varInfo.name, varInfo.typeDescriptor, startLabel, endLabel, slot)
+    );
+  }
+
+  /**
+   * Generate LocalVariableTable entries for all variables tracked during method processing.
+   * Must be called after method body processing but before visitMaxs().
+   * <p>
+   * LocalVariableTable enables jdb debugger to show variable names and values via 'locals' command.
+   * Each entry maps: variable name + type descriptor + scope (start/end labels) + JVM slot.
+   * </p>
+   * <p>
+   * Handles two cases:
+   * 1. Method parameters: Have REFERENCE but no SCOPE_REGISTER (caller-owned memory)
+   * 2. Local variables: Have REFERENCE + SCOPE_REGISTER (callee-owned memory)
+   * </p>
+   */
+  protected void generateLocalVariableTable() {
+    final var mv = getCurrentMethodVisitor();
+    final var methodScope = findMethodWideScope().orElse(null);
+
+    // Generate LocalVariableTable entry for each valid variable
+    // Uses functional decomposition: validation in helper, emission here
+    methodContext.localVariableMetadata.values().forEach(varInfo ->
+        buildLocalVariableEntry(varInfo, methodScope).ifPresent(entry ->
+            mv.visitLocalVariable(
+                entry.name(),
+                entry.descriptor(),
+                null,  // signature - null for non-generic types
+                entry.start(),
+                entry.end(),
+                entry.slot()
+            )
+        )
+    );
   }
 
   /**
@@ -228,8 +373,8 @@ public abstract class AbstractAsmGenerator {
    * and branch targets (BRANCH, BRANCH_TRUE, BRANCH_FALSE instructions).
    */
   @SuppressWarnings("checkstyle:LambdaParameterName")
-  protected org.objectweb.asm.Label getOrCreateLabel(final String labelName) {
-    return methodContext.labelMap.computeIfAbsent(labelName, _ -> new org.objectweb.asm.Label());
+  protected Label getOrCreateLabel(final String labelName) {
+    return methodContext.labelMap.computeIfAbsent(labelName, _ -> new Label());
   }
 
   /**

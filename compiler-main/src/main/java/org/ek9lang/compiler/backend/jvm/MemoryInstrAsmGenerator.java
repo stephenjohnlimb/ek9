@@ -109,6 +109,10 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator
    * IMPORTANT: Method parameters are pre-registered in the variable map and already have values.
    * Only initialize new local variables to null, NOT parameters.
    * </p>
+   * <p>
+   * For LocalVariableTable: Capture variable metadata at declaration time.
+   * Scope association happens later via SCOPE_REGISTER instruction.
+   * </p>
    */
   private void generateReference(final MemoryInstr memoryInstr) {
     final var operands = memoryInstr.getOperands();
@@ -117,6 +121,15 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator
     }
 
     final var variableName = operands.getFirst();
+    final var ek9TypeName = operands.get(1);
+
+    // Collect variable metadata for LocalVariableTable generation
+    // Convert EK9 type name to JVM descriptor (e.g., "org.ek9.lang::String" -> "Lorg/ek9/lang/String;")
+    final var typeDescriptor = convertToJvmDescriptor(ek9TypeName);
+
+    // Create LocalVariableInfo - scope will be set later by SCOPE_REGISTER
+    final var varInfo = new AbstractAsmGenerator.LocalVariableInfo(variableName, typeDescriptor, null);
+    getMethodContext().localVariableMetadata.put(variableName, varInfo);
 
     // Check if this variable is already in the variable map (= it's a method parameter)
     // If it's a parameter, it already has a value and should NOT be overwritten with null

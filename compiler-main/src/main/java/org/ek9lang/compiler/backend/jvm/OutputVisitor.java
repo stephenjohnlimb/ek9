@@ -31,6 +31,7 @@ public final class OutputVisitor implements INodeVisitor {
   private final MemoryInstrAsmGenerator memoryInstrGenerator;
   private final BranchInstrAsmGenerator branchInstrGenerator;
   private final LabelInstrAsmGenerator labelInstrGenerator;
+  private final ScopeInstrAsmGenerator scopeInstrGenerator;
 
   public OutputVisitor(final ConstructTargetTuple constructTargetTuple) {
     AssertValue.checkNotNull("File cannot be null", constructTargetTuple.targetFile());
@@ -44,6 +45,7 @@ public final class OutputVisitor implements INodeVisitor {
     this.memoryInstrGenerator = new MemoryInstrAsmGenerator(constructTargetTuple, this, classWriter);
     this.branchInstrGenerator = new BranchInstrAsmGenerator(constructTargetTuple, this, classWriter);
     this.labelInstrGenerator = new LabelInstrAsmGenerator(constructTargetTuple, this, classWriter);
+    this.scopeInstrGenerator = new ScopeInstrAsmGenerator(constructTargetTuple, this, classWriter);
   }
 
   /**
@@ -63,6 +65,7 @@ public final class OutputVisitor implements INodeVisitor {
     memoryInstrGenerator.setSharedMethodContext(methodContext);
     branchInstrGenerator.setSharedMethodContext(methodContext);
     labelInstrGenerator.setSharedMethodContext(methodContext);
+    scopeInstrGenerator.setSharedMethodContext(methodContext);
 
     // Set method visitor for all generators
     callInstrGenerator.setCurrentMethodVisitor(mv);
@@ -70,6 +73,7 @@ public final class OutputVisitor implements INodeVisitor {
     memoryInstrGenerator.setCurrentMethodVisitor(mv);
     branchInstrGenerator.setCurrentMethodVisitor(mv);
     labelInstrGenerator.setCurrentMethodVisitor(mv);
+    scopeInstrGenerator.setCurrentMethodVisitor(mv);
 
     // Set constructor mode for branch generator
     branchInstrGenerator.setConstructorMode(isConstructor);
@@ -144,7 +148,7 @@ public final class OutputVisitor implements INodeVisitor {
    * Typed visit method for ScopeInstr - delegates to specialized generator.
    */
   public void visit(final ScopeInstr scopeInstr) {
-    //No-OP
+    scopeInstrGenerator.accept(scopeInstr);
   }
 
   /**
@@ -159,5 +163,16 @@ public final class OutputVisitor implements INodeVisitor {
    */
   public void visit(final LabelInstr labelInstr) {
     labelInstrGenerator.accept(labelInstr);
+  }
+
+  /**
+   * Generate LocalVariableTable for the current method.
+   * Must be called after processing all instructions but before visitMaxs().
+   * Delegates to any generator (they all share the same AbstractAsmGenerator base).
+   */
+  public void generateLocalVariableTable() {
+    // Use any generator since they all share the same MethodContext
+    // and have access to the same generateLocalVariableTable() method
+    callInstrGenerator.generateLocalVariableTable();
   }
 }
