@@ -197,7 +197,7 @@ The 20.0 cost penalty for 'Any' matches prevents false ambiguities while maintai
 ## Integration with Compilation Pipeline
 
 ### Phase 7: FULL_RESOLUTION
-Method resolution occurs during the `FULL_RESOLUTION` phase of EK9's 22-phase compilation pipeline:
+Method resolution occurs during the `FULL_RESOLUTION` phase of EK9's 20-phase compilation pipeline:
 
 1. **Symbol Collection** - Gather all candidate methods
 2. **Cost Calculation** - Calculate percentage match for each candidate

@@ -281,6 +281,11 @@ public static Integer _of(final String value) {
 
 ### Complete Class Example
 
+**NOTE**: The following `ExampleType` class is a **DOCUMENTATION EXAMPLE ONLY** and does not exist in the actual EK9 codebase. For real-world reference implementations, see:
+- **Integer.java** - `/Users/stevelimb/IdeaProjects/ek9/ek9-lang/src/main/java/org/ek9/lang/Integer.java`
+- **String.java** - `/Users/stevelimb/IdeaProjects/ek9/ek9-lang/src/main/java/org/ek9/lang/String.java`
+- **Boolean.java** - `/Users/stevelimb/IdeaProjects/ek9/ek9-lang/src/main/java/org/ek9/lang/Boolean.java`
+
 ```java
 
 package org.ek9.lang;
@@ -294,6 +299,7 @@ import org.ek9tooling.Ek9Class;
 import org.ek9tooling.Ek9Method;
 
 /**
+ * DOCUMENTATION EXAMPLE ONLY - This class does not exist in the codebase.
  * Example class demonstrating EK9 coding standards.
  */
 @Ek9Class("""
@@ -364,6 +370,8 @@ public class ExampleType extends BuiltinType {
 
 ### Test Class Example
 
+**NOTE**: This test class is a **DOCUMENTATION EXAMPLE ONLY**. For real-world test implementations, see the tests in `/Users/stevelimb/IdeaProjects/ek9/ek9-lang/src/test/java/org/ek9/lang/`.
+
 ```java
 
 package org.ek9.lang;
@@ -374,6 +382,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 
 /**
+ * DOCUMENTATION EXAMPLE ONLY - This test class does not exist in the codebase.
  * Test class demonstrating EK9 testing standards.
  */
 class ExampleTypeTest extends Common {

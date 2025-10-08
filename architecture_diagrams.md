@@ -32,30 +32,30 @@
                             └─────────────────┘
 ```
 
-## 2. EK9 Compiler 22-Phase Pipeline
+## 2. EK9 Compiler 20-Phase Pipeline
 
 ```
-FRONTEND (Phases 0-9)          MIDDLE-END (Phases 10-14)      BACKEND (Phases 15-21)
+FRONTEND (Phases 0-9)          MIDDLE-END (Phases 10-12)      BACKEND (Phases 13-19)
 ┌─────────────────────────┐   ┌─────────────────────────┐   ┌─────────────────────────┐
-│  0: PARSING             │   │ 10: SIMPLE_IR_GENERATION│   │ 15: CODE_GEN_PREP       │
-│     ANTLR4 Parser       │   │     IRDefinitionVisitor │   │     File Creation       │
-│  1: SYMBOL_DEFINITION   │   │ 11: PROGRAM_IR_CONFIG   │   │ 16: CODE_GEN_AGGREGATES │
-│     Basic Symbols       │   │     IR Integration      │   │     ASM Bytecode        │
-│  2: DUPLICATION_CHECK   │   │ 12: TEMPLATE_IR_GEN     │   │ 17: CODE_GEN_CONSTANTS  │
-│     Duplicate Detection │   │     Generic Instantiate │   │     Constant Values     │
-│  3: REFERENCE_CHECKS    │   │ 13: IR_ANALYSIS         │   │ 18: CODE_OPTIMISATION   │
-│     Reference Resolution│   │     Whole Program       │   │     Target Optimizations│
-│  4: EXPLICIT_TYPE_DEF   │   │ 14: IR_OPTIMISATION     │   │ 19: PLUGIN_LINKAGE      │
-│     Generic Types       │   │     IR Optimizations    │   │     External Libraries  │
-│  5: TYPE_HIERARCHY      │   └─────────────────────────┘   │ 20: APPLICATION_PACK    │
+│  0: PARSING             │   │ 10: IR_GENERATION       │   │ 13: CODE_GEN_PREP       │
+│     ANTLR4 Parser       │   │     IR Creation         │   │     File Creation       │
+│  1: SYMBOL_DEFINITION   │   │ 11: IR_ANALYSIS         │   │ 14: CODE_GEN_AGGREGATES │
+│     Basic Symbols       │   │     Whole Program       │   │     ASM Bytecode        │
+│  2: DUPLICATION_CHECK   │   │ 12: IR_OPTIMISATION     │   │ 15: CODE_GEN_CONSTANTS  │
+│     Duplicate Detection │   │     IR Optimizations    │   │     Constant Values     │
+│  3: REFERENCE_CHECKS    │   └─────────────────────────┘   │ 16: CODE_OPTIMISATION   │
+│     Reference Resolution│                                 │     Target Optimizations│
+│  4: EXPLICIT_TYPE_DEF   │   ┌─── LSP STOPS HERE ─────┐    │ 17: PLUGIN_LINKAGE      │
+│     Generic Types       │   │   (IR_ANALYSIS)        │    │     External Libraries  │
+│  5: TYPE_HIERARCHY      │   └────────────────────────┘    │ 18: APPLICATION_PACK    │
 │     Inheritance Check   │                                 │     JAR Creation        │
-│  6: FULL_RESOLUTION     │   ┌─── LSP STOPS HERE ─────┐    │ 21: PACKAGING_POST      │
-│     Inferred Types      │   │   (IR_ANALYSIS)        │    │     Final Processing    │
-│  7: POST_RESOLUTION     │   └────────────────────────┘    └─────────────────────────┘
+│  6: FULL_RESOLUTION     │                                 │ 19: PACKAGING_POST      │
+│     Inferred Types      │                                 │     Final Processing    │
+│  7: POST_RESOLUTION     │                                 └─────────────────────────┘
 │     Symbol Validation   │
 │  8: PRE_IR_CHECKS       │   ┌─ Multi-threaded ──┐ ┌─ Single-threaded ──┐ ┌─ Configurable ─┐
-│     Flow Analysis       │   │ 0,1,4,6,8,10,15,  │ │ 2,3,5,7,9,11,12,   │ │ Threading based │
-│  9: PLUGIN_RESOLUTION   │   │ 16,17             │ │ 13,14,18,19,20,21  │ │ on CompilerFlags│
+│     Flow Analysis       │   │ 0,1,4,6,8,10,13,  │ │ 2,3,5,7,9,11,12,   │ │ Threading based │
+│  9: PLUGIN_RESOLUTION   │   │ 14,15             │ │ 16,17,18,19        │ │ on CompilerFlags│
 │     Plugin Points       │   └───────────────────┘ └────────────────────┘ └─────────────────┘
 └─────────────────────────┘
 ```

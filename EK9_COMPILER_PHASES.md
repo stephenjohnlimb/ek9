@@ -23,18 +23,19 @@ The EK9 compiler follows a **20-phase compilation pipeline** organized into thre
 - **Phase 8: PRE_IR_CHECKS** - Code flow analysis
 - **Phase 9: PLUGIN_RESOLUTION** - Plugin resolution
 
-### Middle-end Phases (10-13)
+### Middle-end Phases (10-12)
 - **Phase 10: IR_GENERATION** - Intermediate representation generation
 - **Phase 11: IR_ANALYSIS** - IR analysis and validation
 - **Phase 12: IR_OPTIMISATION** - IR-level optimizations
 
-### Backend Phases (14-19)
-- **Phase 14: CODE_GENERATION_PREPARATION** - Code generation preparation
-- **Phase 15: CODE_GENERATION_AGGREGATES** - Generate code for aggregates
-- **Phase 16: CODE_GENERATION_CONSTANTS** - Generate code for constants
-- **Phase 17: CODE_OPTIMISATION** - Target code optimizations
-- **Phase 18: PLUGIN_LINKAGE** - Link external plugins
-- **Phase 19: APPLICATION_PACKAGING** - Application packaging
+### Backend Phases (13-19)
+- **Phase 13: CODE_GENERATION_PREPARATION** - Code generation preparation
+- **Phase 14: CODE_GENERATION_AGGREGATES** - Generate code for aggregates
+- **Phase 15: CODE_GENERATION_CONSTANTS** - Generate code for constants
+- **Phase 16: CODE_OPTIMISATION** - Target code optimizations
+- **Phase 17: PLUGIN_LINKAGE** - Link external plugins
+- **Phase 18: APPLICATION_PACKAGING** - Application packaging
+- **Phase 19: PACKAGING_POST_PROCESSING** - Completing post processing
 
 ## Phase Implementation Patterns
 
@@ -92,7 +93,27 @@ The EK9 compiler follows a **20-phase compilation pipeline** organized into thre
 
 ### IR Generation Phase (10)
 
-**Phase 10: IR_GENERATION** is the critical phase that transforms resolved symbols from frontend phases into target-agnostic intermediate representation.
+**Phase 10: IR_GENERATION** is the **CURRENT DEVELOPMENT PRIORITY** that transforms resolved symbols from frontend phases into target-agnostic intermediate representation.
+
+**Status**: 🔨 Active development - extending IR generation to cover ALL EK9 language features
+
+**Priority**: Completeness and correctness for all control flow, operators, and language constructs
+
+**Rationale**: IR is the common foundation for both JVM and LLVM backends. Complete IR generation is required before either backend can achieve feature completeness.
+
+**Goal**: Every EK9 construct must have correct IR representation:
+- All control flow statements (if/else, while, for, switch, etc.)
+- All EK9 operators and expressions
+- Function/method calls and closures
+- Generic type instantiation
+- Exception handling
+- Pattern matching and guards
+- All other EK9 language features
+
+**Development Approach**: Dual-backend parallel development
+- **`main` branch**: JVM bytecode generation (depends on complete IR)
+- **`ek9llvm` branch**: LLVM IR generation (depends on complete IR)
+- Two Claude Code instances working in parallel, both requiring complete IR foundation
 
 #### Function-to-Class Transformation
 
@@ -177,6 +198,39 @@ SCOPE_EXIT _scope_1  // Automatic RELEASE of all registered variables
 - `_return_*`: Return scope (ownership transfer)
 - `_scope_*`: General scope (automatic cleanup)
 
+### IR Optimisation Phase (12)
+
+**Phase 12: IR_OPTIMISATION** is **DEFERRED** until after both JVM and LLVM backends achieve feature completeness.
+
+**Status**: ⏸️ Stub implementation only (returns true without performing optimization)
+
+**Current Implementation**: The `IROptimisation` phase exists in the pipeline but performs no actual optimization passes.
+
+**Rationale for Deferral**:
+1. **Foundation First**: Incomplete IR generation blocks both backends
+2. **Correctness Over Performance**: Working features are more valuable than optimized incomplete features
+3. **Parallel Development**: Both backend Claudes can work simultaneously once IR is complete
+4. **Testing Confidence**: Correct behavior must be validated before optimization complicates testing
+
+**Timeline**: After both backends achieve feature completeness, optimization work merges:
+- Stack allocation optimization (opcodes already defined)
+- Escape analysis (data structures in place)
+- Memory optimization passes (infrastructure ready)
+- Dead code elimination
+- Constant folding and propagation
+
+**Infrastructure Ready**:
+- ✅ IR opcodes defined for stack allocation (STACK_ALLOC, STACK_ALLOC_LITERAL, etc.)
+- ✅ Escape analysis data structures exist
+- ✅ Optimization architecture designed
+- 📋 Optimization passes not yet implemented
+
+**When Optimization Becomes Priority**:
+- All EK9 language constructs have correct IR generation
+- Both JVM and LLVM backends can compile complete EK9 programs
+- Cross-backend validation confirms identical behavior
+- Performance benchmarking framework is in place
+
 ### Code Generation Phases (14-19)
 *This section will contain:*
 - Target-specific code generation strategies
@@ -250,4 +304,4 @@ SCOPE_EXIT _scope_1  // Automatic RELEASE of all registered variables
 
 ---
 
-**Note**: This is a placeholder file created to organize future compiler phase implementation knowledge. Content will be added as Steve and I work on detailed compiler phase development, focusing on the 22-phase pipeline implementation, symbol table management, and phase interdependencies that make up the core of the EK9 compilation process.
+**Note**: This is a placeholder file created to organize future compiler phase implementation knowledge. Content will be added as Steve and I work on detailed compiler phase development, focusing on the 20-phase pipeline implementation, symbol table management, and phase interdependencies that make up the core of the EK9 compilation process.

@@ -109,7 +109,7 @@ Based on analysis of `compiler-main/src/main/java/org/ek9lang/compiler/Ek9Builti
 ### Network Functions (1 construct)
 67. **TCPHandler** - TCP connection handler
 
-### Traits (7 constructs)
+### Traits (8 constructs)
 68. **Clock** - Time/clock interface
 69. **StringInput** - String input interface
 70. **StringOutput** - String output interface
@@ -118,12 +118,13 @@ Based on analysis of `compiler-main/src/main/java/org/ek9lang/compiler/Ek9Builti
 73. **HTTPRequest** - HTTP request interface
 74. **HTTPResponse** - HTTP response interface
 75. **TCPConnection** - TCP connection interface
+76. **IO** - IO side effects marker interface
 
 ### Records (2 constructs)
-76. **NetworkProperties** - Network configuration data
-77. **UDPPacket** - UDP packet data structure
+77. **NetworkProperties** - Network configuration data
+78. **UDPPacket** - UDP packet data structure
 
-**Total Interface Constructs: 76** (excluding Any and PipedOutput)
+**Total Interface Constructs: 77** (excluding Any and PipedOutput)
 
 ## Implementation Catalog
 
@@ -141,8 +142,8 @@ Based on analysis of `ek9-lang/src/main/java/org/ek9/lang/` with EK9 annotations
 - BiRoutine, Comparator, Consumer, Function, MutexKey, Predicate, Producer, Routine
 - SignalHandler, Supplier, TCPHandler, UnaryOperator
 
-### @Ek9Trait Implementations (7 constructs)
-- Clock, File, HTTPRequest, HTTPResponse, StringInput, StringOutput, TCPConnection
+### @Ek9Trait Implementations (8 constructs)
+- Clock, File, HTTPRequest, HTTPResponse, IO, StringInput, StringOutput, TCPConnection
 
 ### @Ek9Record Implementations (2 constructs)
 - NetworkProperties, UDPPacket

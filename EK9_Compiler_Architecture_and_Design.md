@@ -31,11 +31,11 @@
 
 ## Executive Summary
 
-The EK9 compiler represents a sophisticated, modern compiler architecture implemented in Java 23.
+The EK9 compiler represents a sophisticated, modern compiler architecture implemented in Java 25.
 It successfully balances language expressiveness, type safety, compilation performance, and developer experience.
 Built as a multi-phase, multi-threaded system,
 the compiler transforms EK9 source code through a comprehensive multi-phase pipeline into Java bytecode,
-with C++ LLVM backend development in early experimental stage for native binary generation.
+with LLVM native backend featuring production-ready C runtime (14,068 lines, 35 types) and LLVM IR generator in active development.
 
 ### Key Architectural Achievements
 
@@ -48,10 +48,10 @@ with C++ LLVM backend development in early experimental stage for native binary 
 
 ### Technical Specifications
 
-- **Language**: Java 23 with virtual thread support
+- **Language**: Java 25 with virtual thread support
 - **Build System**: Maven multi-module (4 modules)
 - **Parser**: ANTLR4 with Python-like indentation syntax
-- **Target Platforms**: JVM (substantial implementation), C++ LLVM (early experimental stage)
+- **Target Platforms**: JVM (substantial implementation), LLVM native (production C runtime ready, IR generator in development)
 - **IDE Integration**: Eclipse LSP4J for Language Server Protocol
 - **Code Generation**: ASM library for Java bytecode generation
 - **Testing**: JUnit 5 with parallel execution (8 threads)
@@ -454,7 +454,7 @@ The compilation pipeline uses three configurable suppliers:
 - **Default Phase**: `APPLICATION_PACKAGING` for full compilation
 - **LSP Optimization**: Can stop at `IR_ANALYSIS` (phase 12) for Language Server efficiency
 - **Suggestion System**: 5 suggestions by default, 0 disables
-- **Target Architecture**: Defaults to JVM, with C++ LLVM backend in early experimental stage
+- **Target Architecture**: JVM (primary), LLVM native backend (production C runtime with IR generator in development)
 
 ---
 
@@ -692,7 +692,7 @@ public record Ek9Types(AnyTypeSymbol ek9Any,
 
 #### Critical Two-Phase Field/Struct Generation
 
-EK9's IR architecture implements a **critical two-phase process** that enables backend-agnostic design while supporting both managed (JVM) and unmanaged (C++ LLVM) memory models:
+EK9's IR architecture implements a **critical two-phase process** that enables backend-agnostic design while supporting both managed (JVM) and unmanaged (LLVM native with ARC) memory models:
 
 **Phase 1: Structural Definition from Symbol Table**
 - **Source**: `AggregateSymbol.getProperties()` from symbol table
@@ -742,7 +742,7 @@ For detailed two-phase field/struct generation implementation, see **[EK9_IR_GEN
 - **Unified REFERENCE Model**: All variables use REFERENCE instructions (no ALLOCA)
 - **Dual Tracking**: Both objects and variables registered in appropriate scopes
 - **Reference Counting**: Precise RETAIN/RELEASE for memory management
-- **Cross-Platform Consistency**: Same semantics on JVM and C++ LLVM backends
+- **Cross-Platform Consistency**: Same semantics on JVM and LLVM native backends
 - **Universal Memory Safety**: No memory leaks, use-after-free, or double-free errors
 
 **Architecture References**:
@@ -753,8 +753,8 @@ For detailed two-phase field/struct generation implementation, see **[EK9_IR_GEN
 
 #### Multi-Target Support
 **Architecture**:
-- **JVM Target**: Primary implementation using ASM
-- **LLVM Target**: Planned implementation (placeholder exists)
+- **JVM Target**: Primary implementation using ASM (this repository `main` branch)
+- **LLVM Target**: IR generator in development (`../ek9llvm/llvm-native` branch), production C runtime ready
 - **Architecture Selection**: Based on `CompilerFlags.getTargetArchitecture()`
 
 #### OutputVisitorLocator
@@ -776,7 +776,7 @@ public INodeVisitor apply(final ConstructTargetTuple constructTargetTuple) {
 - Writes final bytecode to `.ek9` directory structure
 
 **AsmStructureCreator**:
-- **Java 23 Compatibility**: Uses `V23` bytecode version
+- **Java 25 Compatibility**: Uses `V25` bytecode version
 - **Two-Phase Generation**: Implements critical symbol table → field generation pattern
   - **Phase 1**: Generates class fields from `AggregateSymbol.getProperties()`
   - **Phase 2**: Generates field operations from IR instructions
@@ -1053,7 +1053,7 @@ AggregateSymbol   FunctionSymbol
    - **RETAIN/RELEASE Pattern**: Memory-safe assignment and cross-scope ownership transfer
    - **Per-Prefix Counter System**: Logical scope numbering (_param_1, _return_1, _scope_1)
    - **Operator Support**: Complete `?` operator and assert statement processing
-   - **Cross-Platform Safety**: JVM and C++ LLVM compatible memory semantics with ARC
+   - **Cross-Platform Safety**: JVM and LLVM native compatible memory semantics with ARC
 6. **File Management** (Phase 15): Output file preparation and directory structure
 7. **JVM Code Generation** (Phase 16): Basic bytecode generation for programs
 
@@ -1066,7 +1066,7 @@ AggregateSymbol   FunctionSymbol
 - No optimization passes
 
 **Architecture Limitations**:
-- LLVM backend not implemented (placeholder exists)
+- LLVM backend: Production C runtime ready (14K lines, 35 types), IR generator in active development
 - No plugin system
 - No packaging to executable formats
 - Limited error handling in code generation
@@ -1147,18 +1147,41 @@ All placeholder phases return `true` but contain architectural planning for futu
 ### Long-term Architecture Goals
 
 #### C++ Native Runtime Development
-1. **C++ Standard Library Port**: Convert existing Java `org.ek9.lang` types to C++ with ARC
-2. **LLVM IR Backend**: Generate LLVM IR that calls into C++ runtime functions
-3. **ARC Memory Management**: Intrusive reference counting with atomic operations
-4. **Property System**: Implement EK9 property lifecycle distinct from local variables
-5. **Inheritance Support**: C++ class hierarchy with virtual method dispatch
-6. **Static Linking**: Self-contained native binaries with embedded runtime
+**UPDATED STATUS (2025-10-08)**: LLVM native backend has significantly progressed beyond early experimental stage.
 
-**Development Phases**:
-- **Phase 1**: Port core types (String, Integer, Boolean) with ARC implementation
-- **Phase 2**: Collections and generics using C++ templates  
-- **Phase 3**: I/O and system integration with native performance
-- **Phase 4**: Cross-platform deployment and optimization
+**Production-Ready Components** (located in `../ek9llvm/llvm-native` branch):
+1. ✅ **C Runtime Library**: 14,068 lines of production C code implementing 35 built-in types
+2. ✅ **ARC Memory Management**: Swift-inspired ARC with double-release protection and debug support
+3. ✅ **Name Mangling System**: 100% Java/C hash consistency verified (50/50 test validation)
+4. ✅ **Cycle Detection Infrastructure**: Complete gc_color/gc_next infrastructure for future cycle collector
+5. ✅ **VTable Dispatch**: Polymorphic method resolution with type hash system
+6. ✅ **Tri-state Semantics**: Proper implementation of EK9's unset/set object model
+
+**C Runtime Type Coverage** (35 types implemented):
+- **Core Types**: String, Integer, Boolean, Float, Character, Bits, Void, Any
+- **Collections**: List, Iterator, Optional, Result, DictEntry
+- **System Types**: Stdin, Stdout, Stderr, SystemClock, EnvVars, Signals, OS, FileSystem
+- **Network Types**: TCP, TCPConnection, HTTPRequest
+- **Other**: JSON, Exception, GUID, HMAC, Millisecond, Dimension, Aspect, MutexLock
+
+**Critical Path Component**:
+- 🔨 **LLVM IR Generator**: Java component bridging EK9 IR → LLVM IR → C runtime (in development)
+  - **Location**: Should exist in `llvm-native/src/main/java/org/ek9lang/llvm/`
+  - **Function**: Translate EK9 IR instructions to LLVM IR that calls mangled C runtime functions
+  - **Status**: Active development, required to connect complete IR generation with production C runtime
+
+**Architecture Advantages Over JVM**:
+1. **Deterministic Memory Management**: ARC provides predictable deallocation (no GC pauses)
+2. **Real-time Performance**: Suitable for real-time and embedded systems
+3. **No Runtime Dependency**: Self-contained native binaries (no JVM required)
+4. **Performance Competitive with Rust/C++**: Native compilation with minimal overhead
+
+**Development Strategy**:
+- **Dual-Backend Approach**: Two Claude Code instances working in parallel
+- **`main` branch**: JVM bytecode generation (this repository)
+- **`ek9llvm` branch**: LLVM IR generation and C runtime integration
+- **Common Foundation**: Both backends depend on complete IR generation (Phase 10)
+- **Convergence**: After both backends achieve feature completeness
 
 #### Additional Target Support
 1. **WebAssembly**: Browser deployment via LLVM toolchain
@@ -1217,8 +1240,8 @@ The EK9 compiler demonstrates exceptional architectural design with several key 
 - **Stream Processing**: Built-in pipeline operators for functional programming paradigms
 
 #### Compiler Technology
-- **Dual-Target Strategy**: Clean abstraction supporting JVM (development/deployment) and C++ LLVM (native performance)
-- **Memory Management Excellence**: RETAIN/RELEASE IR instructions map perfectly to both GC (JVM) and ARC (C++) models
+- **Dual-Target Strategy**: Clean abstraction supporting JVM (enterprise deployment) and LLVM native (high-performance applications)
+- **Memory Management Excellence**: RETAIN/RELEASE IR instructions map perfectly to both GC (JVM) and ARC (LLVM native) models
 - **Property-Aware IR**: Distinct handling of object properties vs local variables with proper lifecycle management
 - **Performance Optimization**: Virtual thread support, parallel processing, and intelligent caching
 - **Error Quality**: Rich error context with suggestion systems and precise source location tracking
@@ -1241,7 +1264,7 @@ The EK9 compiler demonstrates exceptional architectural design with several key 
 4. **Performance Profiling**: Add comprehensive timing and memory usage monitoring
 
 #### Medium-term Goals
-1. **C++ LLVM Backend**: Develop native compilation capability (currently early experimental stage)
+1. **LLVM Native Backend**: Complete LLVM IR generator to bridge complete IR with production C runtime (active development)
 2. **Optimization Passes**: Complete IR and code optimization phases
 3. **Plugin Architecture**: Enable extensible compilation with external plugins
 4. **Advanced IDE Features**: Add refactoring, debugging, and code generation support

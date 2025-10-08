@@ -82,17 +82,17 @@ A specific application of the functional decomposition philosophy for handling c
 
 ```java
 // Encapsulation class
-final class DebugInfoCreator implements Function<ISymbol, DebugInfo> {
-  private final IRGenerationContext context;
-  
-  public DebugInfoCreator(final IRGenerationContext context) {
+public final class DebugInfoCreator implements Function<IToken, DebugInfo> {
+  private final IRContext context;
+
+  public DebugInfoCreator(final IRContext context) {
     this.context = context;
   }
-  
+
   @Override
-  public DebugInfo apply(final ISymbol symbol) {
+  public DebugInfo apply(final IToken token) {
     return context.getCompilerFlags().isDebuggingInstrumentation()
-        ? DebugInfo.from(context.getParsedModule().getSource(), symbol) : null;
+        ? DebugInfo.from(context.getParsedModule().getSource(), token) : null;
   }
 }
 
@@ -159,7 +159,7 @@ public final class ObjectAccessInstructionCreator {
 
 ### **Primary Usage: EK9 Compiler**
 This pattern is **extensively used** throughout the main EK9 compiler architecture:
-- 22-phase compilation pipeline uses consistent decomposition
+- 20-phase compilation pipeline uses consistent decomposition
 - Complex compiler operations broken into focused components (IR generation, symbol resolution, etc.)
 - Encapsulation pattern for cross-cutting concerns (DebugInfoCreator for debug information generation)
 - Each phase leverages similar functional patterns for maintainable, testable code

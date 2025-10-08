@@ -25,7 +25,80 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-EK9 is a new programming language implementation with a comprehensive compiler written in Java 23. The project consists of a multi-pass compiler that transforms EK9 source code (`.ek9` files) into various target formats, primarily Java bytecode.
+EK9 is a new programming language implementation with a comprehensive compiler written in Java 25. The project consists of a multi-pass compiler that transforms EK9 source code (`.ek9` files) into various target formats, primarily Java bytecode.
+
+## Development Strategy
+
+### Dual-Backend Architecture
+
+EK9 is being developed with **two parallel code generation backends** to maximize market reach and performance capabilities:
+
+1. **JVM Backend** (Primary) - Java bytecode generation for enterprise compatibility
+2. **LLVM Native Backend** - Native compilation for performance-critical and embedded systems
+
+### Branch and Development Organization
+
+**Branch Strategy**:
+- **`main` branch**: JVM bytecode generation development (this repository)
+- **`ek9llvm` branch**: LLVM native backend development (`../ek9llvm/llvm-native/`)
+
+**Parallel Development Approach**:
+- Two Claude Code instances work in parallel on separate branches
+- Each Claude focuses on their respective backend while sharing the common IR foundation
+- Convergence after both backends achieve feature completeness
+
+### Current Development Priorities
+
+**Priority 1: Complete IR Generation (Phase 10)**
+- **Goal**: Comprehensive, correct IR generation for ALL EK9 language constructs
+- **Rationale**: IR is the common foundation for both JVM and LLVM backends
+- **Focus Areas**:
+  - All control flow statements (if/else, while, for, switch, etc.)
+  - All EK9 operators and expressions
+  - Function/method calls and closures
+  - Generic type instantiation
+  - Exception handling
+  - Pattern matching and guards
+
+**Priority 2: Correct Code Generation**
+- **JVM Backend**: Java bytecode generation for all IR constructs
+- **LLVM Backend**: LLVM IR generation bridging to C runtime
+- **Principle**: Correctness before optimization
+
+**Deferred: IR Optimization (Phase 12)**
+- Current status: Stub implementation
+- Rationale: Optimization is valuable but secondary to complete, correct functionality
+- Timeline: After both backends achieve feature completeness
+
+### LLVM Native Backend Status
+
+**Production-Ready Components** (as of 2025-10-08):
+- ✅ **C Runtime**: 14,068 lines of production C code implementing 35 built-in types
+- ✅ **Memory Management**: Swift-inspired ARC (Automatic Reference Counting)
+- ✅ **Name Mangling**: 100% Java/C hash consistency (50/50 validated)
+- ✅ **Cycle Detection**: Complete infrastructure (gc_color, gc_next fields)
+- ✅ **VTable Dispatch**: Polymorphic method resolution
+
+**Critical Path Component**:
+- 🔨 **LLVM IR Generator**: Bridge from EK9 IR → LLVM IR → C runtime (in development)
+
+**Strategic Importance**:
+The LLVM native backend enables EK9 to compete with Rust/C++ on performance while maintaining the safety and simplicity advantages. This dual-backend approach is critical for the "so much better than anything else" positioning required for adoption.
+
+### Why Correctness Precedes Optimization
+
+1. **Foundation First**: Incomplete IR generation blocks both backends
+2. **Testing Confidence**: Correct behavior enables comprehensive testing
+3. **User Trust**: Working features are more valuable than optimized incomplete features
+4. **Parallel Progress**: Both backends can advance simultaneously once IR is complete
+
+### Convergence Strategy
+
+Once both backends achieve feature completeness:
+1. Merge optimization work from both branches
+2. Unified performance benchmarking
+3. Cross-backend validation (same EK9 code → same behavior)
+4. Preparation for production release
 
 ## Architecture Documentation
 
@@ -140,84 +213,34 @@ For specific EK9 development tasks, refer to these comprehensive guides:
   - Strategic positioning as "Pure Performance Language" vs Haskell/Rust/Java
   - **Use this when:** Understanding purity-based optimization, backend IR enhancement, or performance strategy
 
-### Strategic Documentation  
-- **`EK9_COMPREHENSIVE_COMPETITIVE_ANALYSIS.md`** - Complete strategic market positioning and competitive advantage analysis
-  - Tier-based competitive advantage analysis (Revolutionary DevOps Integration, AI Development Platform, Supply Chain Security, Safety, Performance)
-  - Unique market positioning triangle (Safety + Performance + Simplicity)
-  - Comprehensive competitive messaging vs all major languages (Rust, Go, Java, Python, C++)
-  - Implementation roadmap based on market impact and ROI analysis
-  - Success metrics and competitive risk assessment
-  - **Use this when:** Understanding EK9's complete strategic position, preparing competitive analysis, or planning market entry strategy
+### Strategic Documentation (Reference Only)
 
-- **`EK9_ENTERPRISE_DEVOPS_INTEGRATION.md`** - Revolutionary DevOps platform capabilities and enterprise integration
-  - Zero-configuration development platform eliminating Maven/Gradle/npm complexity
-  - Language Server Protocol integration and universal IDE support
-  - Incremental compilation architecture with phase-based CI/CD optimization
-  - Multi-target artifact generation (JVM/native) and containerization benefits
-  - Enterprise ROI analysis showing 70-80% reduction in build configuration overhead
-  - **Use this when:** Understanding EK9's DevOps advantages, enterprise productivity benefits, or CI/CD integration strategies
+**NOTE**: The following strategic and marketing documents are maintained separately and should be referenced only when needed for business planning, competitive analysis, or enterprise adoption strategies. For day-to-day EK9 compiler development, focus on the technical implementation guides above.
 
-- **`EK9_SUPPLY_CHAIN_SECURITY.md`** - Comprehensive supply chain security architecture and risk elimination
-  - Language-integrated dependency management preventing 90-95% of supply chain attacks
-  - Authorized repository system with cryptographic signing and vulnerability prevention
-  - Compile-time security validation vs reactive scanning approaches
-  - Enterprise compliance and SBOM generation capabilities
-  - Cost-benefit analysis showing 460% ROI through eliminated security tooling
-  - **Use this when:** Understanding EK9's security advantages, enterprise risk mitigation, or supply chain compliance requirements
+**Strategic Market Analysis**:
+- **`EK9_COMPREHENSIVE_COMPETITIVE_ANALYSIS.md`** - Market positioning and competitive advantage framework
+- **`EK9_ENTERPRISE_LANGUAGE_COMPARISON.md`** - Comparison with major programming languages
+- **`EK9_CORPORATE_SPONSORSHIP_STRATEGY.md`** - Corporate partnership and commercialization strategy
 
-- **`EK9_AI_DEVELOPMENT_PLATFORM.md`** - Complete AI collaboration framework and enterprise AI development
-  - AI-native language design with systematic complexity patterns learnable by AI models
-  - Built-in guard rails preventing AI-generated technical debt and unsafe code patterns
-  - Model Context Protocol (MCP) integration for seamless AI development workflows
-  - Enterprise AI governance framework with quality assurance and review automation
-  - Productivity analysis showing 85-95% AI code generation accuracy and 222% ROI
-  - **Use this when:** Understanding EK9's AI collaboration advantages, enterprise AI development strategy, or AI-assisted development workflows
+**Enterprise Capabilities**:
+- **`EK9_ENTERPRISE_DEVOPS_INTEGRATION.md`** - DevOps platform capabilities
+- **`EK9_SUPPLY_CHAIN_SECURITY.md`** - Security architecture and compliance
+- **`EK9_REVOLUTIONARY_ENTERPRISE_CAPABILITIES.md`** - Built-in enterprise features
+- **`EK9_INTEGRATED_BUILD_SYSTEM.md`** - Dependency management system
+- **`EK9_ENTERPRISE_ADOPTION_ROADMAP.md`** - Implementation strategies
 
-- **`EK9_ENTERPRISE_ADOPTION_ROADMAP.md`** - Strategic phase-based implementation guide for enterprise adoption
-  - Risk-mitigated 4-phase adoption strategy with measurable success criteria
-  - Enterprise value proposition and competitive positioning analysis
-  - Training programs, change management, and skills transition strategies
-  - ROI projections and cost-benefit analysis by adoption phase
-  - Migration strategy from existing enterprise development stacks
-  - **Use this when:** Planning enterprise EK9 adoption, developing implementation strategies, or preparing business cases for EK9 migration
+**AI Collaboration** (Relevant for AI-assisted development):
+- **`EK9_AI_DEVELOPMENT_PLATFORM.md`** - AI collaboration framework and guardrails
+- **`EK9_AI_FRIENDLY_LANGUAGE_STRATEGY.md`** - AI-specific design patterns
 
-- **`EK9_AI_FRIENDLY_LANGUAGE_STRATEGY.md`** - AI-specific strategic framework and positioning
-  - Current and proposed AI guard rails for code quality
-  - Implementation strategy for code duplication detection and quality constraints
-  - AI collaboration advantages and development workflow integration
-  - **Use this when:** Understanding EK9's AI-collaboration advantages and guard rail implementation
+**When to reference these documents**:
+- Preparing business cases or sponsor presentations
+- Enterprise adoption planning
+- Competitive analysis and positioning
+- Academic collaboration proposals
+- Understanding EK9's strategic vision
 
-- **`EK9_INTEGRATED_BUILD_SYSTEM.md`** - Revolutionary dependency management system analysis
-  - Language-integrated build system eliminating Maven/Gradle complexity
-  - Cross-platform artifact system with Java/C++ implementation support
-  - Enterprise security model with authorized repositories and vulnerability scanning
-  - Competitive analysis showing 70-80% reduction in build configuration complexity
-  - **Use this guide when:** Understanding EK9's unique build system advantages, enterprise adoption strategy, or comparing with traditional build tools
-
-- **`EK9_REVOLUTIONARY_ENTERPRISE_CAPABILITIES.md`** - Comprehensive analysis of EK9's built-in enterprise features that eliminate framework complexity
-  - Aspect-Oriented Programming as first-class language feature with compile-time weaving
-  - Operator-based REST API design that makes HTTP verbs intuitive language constructs
-  - Compile-time safe internationalization system preventing runtime translation failures
-  - Environment-as-Code application system for complete deployment environment management
-  - Analysis showing 75% reduction in non-business-logic code complexity
-  - **Use this guide when:** Understanding EK9's revolutionary approach to enterprise development, comparing with traditional framework-based approaches, or architecting enterprise applications
-
-- **`EK9_ENTERPRISE_LANGUAGE_COMPARISON.md`** - Comprehensive comparison of EK9 vs all major programming languages for enterprise development
-  - Detailed analysis of Java, C#, Rust, Go, C++, Kotlin, Haskell, OCaml, Zig, and C for enterprise use cases
-  - Enterprise requirements matrix covering productivity, safety, performance, maintainability, and scalability
-  - EK9 scores 9.8/10 overall vs competitors (C# and Kotlin at 7.5/10, Java at 7.0/10)
-  - Market analysis showing EK9's unique position eliminating framework complexity
-  - Strategic market entry plan and competitive positioning for $650+ billion enterprise software market
-  - **Use this guide when:** Evaluating EK9 against other languages for enterprise projects, preparing competitive analysis, or understanding EK9's market positioning
-
-- **`EK9_CORPORATE_SPONSORSHIP_STRATEGY.md`** - Comprehensive corporate sponsorship strategy for mainstream EK9 adoption
-  - Analysis of potential corporate sponsors with Anthropic as optimal choice (9.8/10 strategic fit)
-  - Detailed business cases showing $525M-1.3B annual revenue opportunity across sponsors
-  - Lessons from Ceylon's failure and requirements for successful language corporate backing
-  - Implementation strategy with 3-phase approach over 36 months
-  - Risk mitigation strategies and success metrics for corporate partnerships
-  - Alternative sponsorship models including industry consortium and strategic partnership networks
-  - **Use this guide when:** Planning corporate partnerships for EK9, preparing sponsor presentations, or developing language commercialization strategies
+**For compiler development work**, prioritize the technical implementation guides and architectural documentation sections above.
 
 ### Historical Context and Lessons
 - **`EK9_SESSION_NOTES.md`** - Session-specific implementation notes and lessons learned
@@ -328,18 +351,19 @@ The EK9 compiler follows a **multi-phase compilation pipeline** (currently 20 ph
 8. **PRE_IR_CHECKS** - Code flow analysis
 9. **PLUGIN_RESOLUTION** - Plugin resolution
 
-### Middle-end (Phases 10-13)
+### Middle-end (Phases 10-12)
 10. **IR_GENERATION** - Intermediate representation generation
 11. **IR_ANALYSIS** - IR analysis and validation
 12. **IR_OPTIMISATION** - IR-level optimizations
 
-### Backend (Phases 14-19)
-14. **CODE_GENERATION_PREPARATION** - Code generation preparation
-15. **CODE_GENERATION_AGGREGATES** - Generate code for aggregates
-16. **CODE_GENERATION_CONSTANTS** - Generate code for constants
-17. **CODE_OPTIMISATION** - Target code optimizations
-18. **PLUGIN_LINKAGE** - Link external plugins
-19. **APPLICATION_PACKAGING** - Application packaging
+### Backend (Phases 13-19)
+13. **CODE_GENERATION_PREPARATION** - Code generation preparation
+14. **CODE_GENERATION_AGGREGATES** - Generate code for aggregates
+15. **CODE_GENERATION_CONSTANTS** - Generate code for constants
+16. **CODE_OPTIMISATION** - Target code optimizations
+17. **PLUGIN_LINKAGE** - Link external plugins
+18. **APPLICATION_PACKAGING** - Application packaging
+19. **PACKAGING_POST_PROCESSING** - Completing post processing
 
 *Note: Phase structure may evolve during development*
 
@@ -433,7 +457,7 @@ The `_isSet()` method defines "meaningful, normal, usable value":
 This tri-state model enables EK9 to handle optional data, partial initialization, and complex data states while maintaining type safety and avoiding null pointer exceptions.
 
 ### Code Style
-- Java 23 with virtual threads support
+- Java 25 with virtual threads support
 - Follow existing naming conventions (CamelCase for classes, camelCase for methods)
 - All new code must include comprehensive unit tests
 - Use parallel processing where possible for performance
