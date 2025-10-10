@@ -14,14 +14,14 @@ import org.objectweb.asm.Opcodes;
  * Handles RETURN, BRANCH, BRANCH_TRUE, BRANCH_FALSE, ASSERT operations
  * using the actual BranchInstr methods (no string parsing).
  */
-public final class BranchInstrAsmGenerator extends AbstractAsmGenerator
+final class BranchInstrAsmGenerator extends AbstractAsmGenerator
     implements Consumer<BranchInstr> {
 
   private boolean isConstructor = false;
 
-  public BranchInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
-                                 final OutputVisitor outputVisitor,
-                                 final ClassWriter classWriter) {
+  BranchInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
+                          final OutputVisitor outputVisitor,
+                          final ClassWriter classWriter) {
     super(constructTargetTuple, outputVisitor, classWriter);
   }
 

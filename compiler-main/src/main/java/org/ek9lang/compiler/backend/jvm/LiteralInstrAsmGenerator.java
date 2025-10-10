@@ -17,12 +17,12 @@ import org.objectweb.asm.ClassWriter;
  * Handles loading of literal/constant values into JVM bytecode
  * using the actual LiteralInstr typed methods (no string parsing).
  */
-public final class LiteralInstrAsmGenerator extends AbstractAsmGenerator
+final class LiteralInstrAsmGenerator extends AbstractAsmGenerator
     implements Consumer<LiteralInstr> {
 
-  public LiteralInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
-                                  final OutputVisitor outputVisitor,
-                                  final ClassWriter classWriter) {
+  LiteralInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
+                           final OutputVisitor outputVisitor,
+                           final ClassWriter classWriter) {
     super(constructTargetTuple, outputVisitor, classWriter);
   }
 

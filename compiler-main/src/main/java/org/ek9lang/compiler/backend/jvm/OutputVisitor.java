@@ -11,10 +11,12 @@ import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.LabelInstr;
 import org.ek9lang.compiler.ir.instructions.LiteralInstr;
+import org.ek9lang.compiler.ir.instructions.LogicalOperationInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
+import org.objectweb.asm.MethodVisitor;
 
 /**
  * Enhanced visitor that uses specialized ASM generators to produce JVM bytecode for IR constructs.
@@ -33,18 +35,15 @@ public final class OutputVisitor implements INodeVisitor {
   private final BranchInstrAsmGenerator branchInstrGenerator;
   private final LabelInstrAsmGenerator labelInstrGenerator;
   private final ScopeInstrAsmGenerator scopeInstrGenerator;
-  private ControlFlowChainAsmGenerator controlFlowChainGenerator;
-
-  // Track current method context for lazy generator initialization
-  private AbstractAsmGenerator.MethodContext currentMethodContext;
-  private org.objectweb.asm.MethodVisitor currentMethodVisitor;
+  private final ControlFlowChainAsmGenerator controlFlowChainGenerator;
+  private final LogicalOperationAsmGenerator logicalOperationGenerator;
 
   public OutputVisitor(final ConstructTargetTuple constructTargetTuple) {
     AssertValue.checkNotNull("File cannot be null", constructTargetTuple.targetFile());
     this.constructTargetTuple = constructTargetTuple;
     asmStructureCreator = new AsmStructureCreator(constructTargetTuple, this);
 
-    // Initialize specialized generators with shared ClassWriter from AsmStructureCreator
+    // Initialize all specialized generators eagerly with shared ClassWriter
     final var classWriter = asmStructureCreator.getClassWriter();
     this.callInstrGenerator = new CallInstrAsmGenerator(constructTargetTuple, this, classWriter);
     this.literalInstrGenerator = new LiteralInstrAsmGenerator(constructTargetTuple, this, classWriter);
@@ -52,6 +51,8 @@ public final class OutputVisitor implements INodeVisitor {
     this.branchInstrGenerator = new BranchInstrAsmGenerator(constructTargetTuple, this, classWriter);
     this.labelInstrGenerator = new LabelInstrAsmGenerator(constructTargetTuple, this, classWriter);
     this.scopeInstrGenerator = new ScopeInstrAsmGenerator(constructTargetTuple, this, classWriter);
+    this.controlFlowChainGenerator = new ControlFlowChainAsmGenerator(constructTargetTuple, this, classWriter);
+    this.logicalOperationGenerator = new LogicalOperationAsmGenerator(constructTargetTuple, this, classWriter);
   }
 
   /**
@@ -63,12 +64,8 @@ public final class OutputVisitor implements INodeVisitor {
    * @param isConstructor Whether we're processing a constructor
    */
   public void setMethodContext(final AbstractAsmGenerator.MethodContext methodContext,
-                               final org.objectweb.asm.MethodVisitor mv,
+                               final MethodVisitor mv,
                                final boolean isConstructor) {
-    // Store current context for lazy generator initialization
-    this.currentMethodContext = methodContext;
-    this.currentMethodVisitor = mv;
-
     // Share context with all generators
     callInstrGenerator.setSharedMethodContext(methodContext);
     literalInstrGenerator.setSharedMethodContext(methodContext);
@@ -76,6 +73,8 @@ public final class OutputVisitor implements INodeVisitor {
     branchInstrGenerator.setSharedMethodContext(methodContext);
     labelInstrGenerator.setSharedMethodContext(methodContext);
     scopeInstrGenerator.setSharedMethodContext(methodContext);
+    controlFlowChainGenerator.setSharedMethodContext(methodContext);
+    logicalOperationGenerator.setSharedMethodContext(methodContext);
 
     // Set method visitor for all generators
     callInstrGenerator.setCurrentMethodVisitor(mv);
@@ -84,15 +83,11 @@ public final class OutputVisitor implements INodeVisitor {
     branchInstrGenerator.setCurrentMethodVisitor(mv);
     labelInstrGenerator.setCurrentMethodVisitor(mv);
     scopeInstrGenerator.setCurrentMethodVisitor(mv);
+    controlFlowChainGenerator.setCurrentMethodVisitor(mv);
+    logicalOperationGenerator.setCurrentMethodVisitor(mv);
 
     // Set constructor mode for branch generator
     branchInstrGenerator.setConstructorMode(isConstructor);
-
-    // Share context with control flow generator if instantiated
-    if (controlFlowChainGenerator != null) {
-      controlFlowChainGenerator.setSharedMethodContext(methodContext);
-      controlFlowChainGenerator.setCurrentMethodVisitor(mv);
-    }
   }
 
   @Override
@@ -136,6 +131,7 @@ public final class OutputVisitor implements INodeVisitor {
       case LabelInstr i -> visit(i);
       case ScopeInstr i -> visit(i);
       case ControlFlowChainInstr i -> visit(i);
+      case LogicalOperationInstr i -> visit(i);
       default -> throw new CompilerException("Operation [" + irInstr + " not implemented yet");
     }
   }
@@ -187,24 +183,15 @@ public final class OutputVisitor implements INodeVisitor {
    * Handles all EK9 control flow constructs: question operator, if/else, switch, loops, try/catch.
    */
   public void visit(final ControlFlowChainInstr instr) {
-    // Lazy initialization pattern - only create generator when needed
-    // Unlike other generators that are constructed eagerly, this one is lazily initialized
-    // to avoid overhead if no control flow constructs are used
-    if (controlFlowChainGenerator == null) {
-      controlFlowChainGenerator = new ControlFlowChainAsmGenerator(
-          constructTargetTuple, this, asmStructureCreator.getClassWriter());
-
-      // Set current method context immediately after creation
-      // This ensures the generator has access to variable/label maps and method visitor
-      if (currentMethodContext != null && currentMethodVisitor != null) {
-        controlFlowChainGenerator.setSharedMethodContext(currentMethodContext);
-        controlFlowChainGenerator.setCurrentMethodVisitor(currentMethodVisitor);
-      }
-    }
-
-    // Generator must delegate to its internal generators, which need the method context
-    // Note: Internal generators get context when generate() is called
     controlFlowChainGenerator.generate(instr);
+  }
+
+  /**
+   * Typed visit method for LogicalOperationInstr - delegates to specialized generator.
+   * Handles logical AND/OR operations with short-circuit evaluation.
+   */
+  public void visit(final LogicalOperationInstr instr) {
+    logicalOperationGenerator.generate(instr);
   }
 
   /**

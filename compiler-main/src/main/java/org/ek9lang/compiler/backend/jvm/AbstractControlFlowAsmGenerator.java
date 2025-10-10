@@ -25,7 +25,7 @@ import org.objectweb.asm.Opcodes;
  * stack frame balancing at control flow merge points.
  * </p>
  */
-public abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
+abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
 
   protected AbstractControlFlowAsmGenerator(final ConstructTargetTuple constructTargetTuple,
                                             final OutputVisitor outputVisitor,
@@ -102,6 +102,32 @@ public abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerat
     final var conditionIndex = getVariableIndex(primitiveCondition);
     getCurrentMethodVisitor().visitVarInsn(Opcodes.ILOAD, conditionIndex);  // stack: [int]
     getCurrentMethodVisitor().visitJumpInsn(Opcodes.IFEQ, falseLabel);  // stack: [] (consumed by IFEQ)
+    // Post-condition: stack is empty
+  }
+
+  /**
+   * Load primitive condition (int) and branch if true (non-zero).
+   * <p>
+   * Stack Frame Invariant:
+   * Pre-condition: stack is empty
+   * Post-condition: stack is empty (IFNE consumes the int)
+   * </p>
+   * <p>
+   * Control Flow: If condition is non-zero (true), jumps to trueLabel.
+   * Otherwise, execution continues to next instruction.
+   * </p>
+   * <p>
+   * Used by logical OR operator for short-circuit optimization:
+   * If left operand is true, skip right evaluation and return left.
+   * </p>
+   *
+   * @param primitiveCondition Variable name holding primitive int (0 or 1)
+   * @param trueLabel Label to jump to if condition is true (non-zero)
+   */
+  protected void branchIfTrue(final String primitiveCondition, final Label trueLabel) {
+    final var conditionIndex = getVariableIndex(primitiveCondition);
+    getCurrentMethodVisitor().visitVarInsn(Opcodes.ILOAD, conditionIndex);  // stack: [int]
+    getCurrentMethodVisitor().visitJumpInsn(Opcodes.IFNE, trueLabel);  // stack: [] (consumed by IFNE)
     // Post-condition: stack is empty
   }
 

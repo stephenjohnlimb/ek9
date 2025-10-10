@@ -116,7 +116,7 @@ class IntegerTest extends Common {
   }
 
   @Test
-  void testComparison() {
+  void testFuzzyComparison() {
     final var int00 = Integer._of(0);
 
     assertEquals(INT_0, INT_0._fuzzy(int00));
@@ -125,6 +125,23 @@ class IntegerTest extends Common {
     // Test unset behavior for fuzzy comparison
     assertUnset.accept(unsetInteger._fuzzy(INT_0));
     assertUnset.accept(INT_0._fuzzy(unsetInteger));
+  }
+
+  @Test
+  void testComparison() {
+    final var int00 = Integer._of(0);
+
+    assertEquals(INT_0, INT_0._cmp(int00));
+    assertEquals(INT_MINUS_1, INT_0._cmp(INT_1));
+    assertEquals(INT_1, INT_1._cmp(INT_0));
+
+    assertUnset.accept(unsetInteger._cmp(INT_0));
+    assertUnset.accept(INT_0._cmp(unsetInteger));
+
+    Any asAny = int00;
+    assertUnset.accept(unsetInteger._cmp(asAny));
+    assertUnset.accept(asAny._cmp(unsetInteger));
+
   }
 
   @Test

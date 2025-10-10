@@ -1,0 +1,415 @@
+#!ek9
+<?-
+  Just checks the and operator.
+-?>
+defines module bytecode.test
+
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::AndOperator": `public class bytecode.test.AndOperator {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.AndOperator();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+      LineNumberTable:
+        line 388: 4
+        line 388: 8
+
+  public void _main();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aconst_null
+        13: astore_3
+        14: iconst_1
+        15: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+        18: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+        21: astore        4
+        23: aload         4
+        25: astore_3
+        26: aconst_null
+        27: astore        5
+        29: iconst_0
+        30: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+        33: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+        36: astore        6
+        38: aload         6
+        40: astore        5
+        42: aconst_null
+        43: astore        7
+        45: new           #CP                 // class org/ek9/lang/Boolean
+        48: dup
+        49: invokespecial #CP                 // Method org/ek9/lang/Boolean."<init>":()V
+        52: astore        8
+        54: aload         8
+        56: astore        7
+        58: aload_1
+        59: astore        9
+        61: aload_3
+        62: astore        10
+        64: aload         9
+        66: aload         10
+        68: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+        73: aload_1
+        74: astore        11
+        76: aload         5
+        78: astore        12
+        80: aload         11
+        82: aload         12
+        84: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+        89: aconst_null
+        90: astore        13
+        92: aload_3
+        93: astore        14
+        95: aload         14
+        97: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       100: istore        15
+       102: iload         15
+       104: ifeq          127
+       107: aload         5
+       109: astore        16
+       111: aload         14
+       113: aload         16
+       115: invokevirtual #CP                 // Method org/ek9/lang/Boolean._and:(Lorg/ek9/lang/Boolean;)Lorg/ek9/lang/Boolean;
+       118: astore        17
+       120: aload         17
+       122: astore        18
+       124: goto          131
+       127: aload         14
+       129: astore        18
+       131: aload         18
+       133: astore        13
+       135: aload_1
+       136: astore        19
+       138: aload         13
+       140: astore        20
+       142: aload         19
+       144: aload         20
+       146: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       151: aconst_null
+       152: astore        21
+       154: aload_3
+       155: astore        22
+       157: aload         22
+       159: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       162: istore        23
+       164: iload         23
+       166: ifeq          188
+       169: aload_3
+       170: astore        24
+       172: aload         22
+       174: aload         24
+       176: invokevirtual #CP                 // Method org/ek9/lang/Boolean._and:(Lorg/ek9/lang/Boolean;)Lorg/ek9/lang/Boolean;
+       179: astore        25
+       181: aload         25
+       183: astore        26
+       185: goto          192
+       188: aload         22
+       190: astore        26
+       192: aload         26
+       194: astore        21
+       196: aload_1
+       197: astore        27
+       199: aload         21
+       201: astore        28
+       203: aload         27
+       205: aload         28
+       207: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       212: aconst_null
+       213: astore        29
+       215: aload         5
+       217: astore        30
+       219: aload         30
+       221: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       224: istore        31
+       226: iload         31
+       228: ifeq          250
+       231: aload_3
+       232: astore        32
+       234: aload         30
+       236: aload         32
+       238: invokevirtual #CP                 // Method org/ek9/lang/Boolean._and:(Lorg/ek9/lang/Boolean;)Lorg/ek9/lang/Boolean;
+       241: astore        33
+       243: aload         33
+       245: astore        34
+       247: goto          254
+       250: aload         30
+       252: astore        34
+       254: aload         34
+       256: astore        29
+       258: aload_1
+       259: astore        35
+       261: aload         29
+       263: astore        36
+       265: aload         35
+       267: aload         36
+       269: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       274: aconst_null
+       275: astore        37
+       277: aload         7
+       279: astore        38
+       281: aload         38
+       283: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       286: istore        39
+       288: iload         39
+       290: ifeq          312
+       293: aload_3
+       294: astore        40
+       296: aload         38
+       298: aload         40
+       300: invokevirtual #CP                 // Method org/ek9/lang/Boolean._and:(Lorg/ek9/lang/Boolean;)Lorg/ek9/lang/Boolean;
+       303: astore        41
+       305: aload         41
+       307: astore        42
+       309: goto          316
+       312: aload         38
+       314: astore        42
+       316: aload         42
+       318: astore        37
+       320: aload_1
+       321: astore        43
+       323: aload         37
+       325: astore        44
+       327: aload         44
+       329: ifnull        336
+       332: iconst_0
+       333: goto          337
+       336: iconst_1
+       337: istore        45
+       339: iload         45
+       341: ifeq          356
+       344: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
+       347: astore        46
+       349: aload         46
+       351: astore        47
+       353: goto          367
+       356: aload         44
+       358: invokevirtual #CP                 // Method org/ek9/lang/Boolean._isSet:()Lorg/ek9/lang/Boolean;
+       361: astore        48
+       363: aload         48
+       365: astore        47
+       367: aload         43
+       369: aload         47
+       371: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       376: aconst_null
+       377: astore        49
+       379: aload_3
+       380: astore        50
+       382: aload         50
+       384: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       387: istore        51
+       389: iload         51
+       391: ifeq          414
+       394: aload         7
+       396: astore        52
+       398: aload         50
+       400: aload         52
+       402: invokevirtual #CP                 // Method org/ek9/lang/Boolean._and:(Lorg/ek9/lang/Boolean;)Lorg/ek9/lang/Boolean;
+       405: astore        53
+       407: aload         53
+       409: astore        54
+       411: goto          418
+       414: aload         50
+       416: astore        54
+       418: aload         54
+       420: astore        49
+       422: aload_1
+       423: astore        55
+       425: aload         49
+       427: astore        56
+       429: aload         56
+       431: ifnull        438
+       434: iconst_0
+       435: goto          439
+       438: iconst_1
+       439: istore        57
+       441: iload         57
+       443: ifeq          458
+       446: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
+       449: astore        58
+       451: aload         58
+       453: astore        59
+       455: goto          469
+       458: aload         56
+       460: invokevirtual #CP                 // Method org/ek9/lang/Boolean._isSet:()Lorg/ek9/lang/Boolean;
+       463: astore        60
+       465: aload         60
+       467: astore        59
+       469: aload         55
+       471: aload         59
+       473: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       478: return
+}
+SourceDebugExtension:
+  SMAP
+  AndOperator.class
+  EK9
+  *S EK9
+  *F
+  + 1 andOperator.ek9
+  andOperator.ek9
+  *L
+  388#1:388
+  388#1:388
+  389#1:389
+  389#1:389
+  389#1:389
+  389#1:389
+  389#1:389
+  389#1:389
+  389#1:389
+  389#1:389
+  390#1:390
+  390#1:390
+  390#1:390
+  390#1:390
+  390#1:390
+  390#1:390
+  390#1:390
+  391#1:391
+  391#1:391
+  391#1:391
+  391#1:391
+  391#1:391
+  391#1:391
+  391#1:391
+  392#1:392
+  392#1:392
+  392#1:392
+  392#1:392
+  392#1:392
+  392#1:392
+  392#1:392
+  395#1:395
+  395#1:395
+  395#1:395
+  395#1:395
+  395#1:395
+  395#1:395
+  395#1:395
+  396#1:396
+  396#1:396
+  396#1:396
+  396#1:396
+  396#1:396
+  396#1:396
+  396#1:396
+  399#1:399
+  399#1:399
+  399#1:399
+  399#1:399
+  399#1:399
+  399#1:399
+  399#1:399
+  400#1:400
+  400#1:400
+  400#1:400
+  400#1:400
+  400#1:400
+  400#1:400
+  400#1:400
+  402#1:402
+  402#1:402
+  402#1:402
+  402#1:402
+  402#1:402
+  402#1:402
+  402#1:402
+  403#1:403
+  403#1:403
+  403#1:403
+  403#1:403
+  403#1:403
+  403#1:403
+  403#1:403
+  405#1:405
+  405#1:405
+  405#1:405
+  405#1:405
+  405#1:405
+  405#1:405
+  405#1:405
+  406#1:406
+  406#1:406
+  406#1:406
+  406#1:406
+  406#1:406
+  406#1:406
+  406#1:406
+  409#1:409
+  409#1:409
+  409#1:409
+  409#1:409
+  409#1:409
+  409#1:409
+  409#1:409
+  410#1:410
+  410#1:410
+  410#1:410
+  410#1:410
+  410#1:410
+  410#1:410
+  410#1:410
+  412#1:412
+  412#1:412
+  412#1:412
+  412#1:412
+  412#1:412
+  412#1:412
+  412#1:412
+  413#1:413
+  413#1:413
+  413#1:413
+  413#1:413
+  413#1:413
+  413#1:413
+  413#1:413
+  389#1:389
+  388#1:388
+  *E`
+    AndOperator()
+      stdout <- Stdout()
+      asTrue <- true
+      asFalse <- false
+      asUnset <- Boolean()
+
+      //Here are the test values we will use.
+      stdout.println(asTrue)
+      stdout.println(asFalse)
+
+      //Now we need to be sure that shortcutting and full flows are triggered.
+      andResult1 <- asTrue and asFalse
+      stdout.println(andResult1)
+
+      andResult2 <- asTrue and asTrue
+      stdout.println(andResult2)
+
+      andResult3 <- asFalse and asTrue
+      stdout.println(andResult3)
+
+      //Also need to check that unset will also work.
+      unset1 <- asUnset and asTrue
+      stdout.println(unset1?)
+
+      unset2 <- asTrue and asUnset
+      stdout.println(unset2?)
+
+//EOF

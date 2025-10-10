@@ -32,7 +32,7 @@ import org.ek9lang.compiler.ir.support.DebugInfo;
  *
  * @see <a href="https://jakarta.ee/specifications/debugging/2.0/">JSR-45 Specification</a>
  */
-public final class SmapGenerator {
+final class SmapGenerator {
 
   private static final String SMAP_HEADER = "SMAP";
   private static final String STRATUM_SECTION = "*S";

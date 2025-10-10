@@ -18,12 +18,12 @@ import org.objectweb.asm.Label;
  * - Proper variable visibility in nested blocks (if/else/switch/for/try)
  * </p>
  */
-public final class ScopeInstrAsmGenerator extends AbstractAsmGenerator
+final class ScopeInstrAsmGenerator extends AbstractAsmGenerator
     implements Consumer<ScopeInstr> {
 
-  public ScopeInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
-                                final OutputVisitor outputVisitor,
-                                final ClassWriter classWriter) {
+  ScopeInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
+                         final OutputVisitor outputVisitor,
+                         final ClassWriter classWriter) {
     super(constructTargetTuple, outputVisitor, classWriter);
   }
 

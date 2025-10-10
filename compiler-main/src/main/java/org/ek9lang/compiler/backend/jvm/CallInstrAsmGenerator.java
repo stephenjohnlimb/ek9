@@ -19,12 +19,12 @@ import org.objectweb.asm.Opcodes;
  * Handles all EK9 method calls, operators, and constructor invocations
  * using the actual CallInstr typed methods (no string parsing).
  */
-public final class CallInstrAsmGenerator extends AbstractAsmGenerator
+final class CallInstrAsmGenerator extends AbstractAsmGenerator
     implements Consumer<CallInstr> {
 
-  public CallInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
-                               final OutputVisitor outputVisitor,
-                               final ClassWriter classWriter) {
+  CallInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
+                        final OutputVisitor outputVisitor,
+                        final ClassWriter classWriter) {
     super(constructTargetTuple, outputVisitor, classWriter);
   }
 
@@ -64,9 +64,42 @@ public final class CallInstrAsmGenerator extends AbstractAsmGenerator
     // Store result if instruction has one and track temp variable source
     if (callInstr.hasResult()) {
       final var resultVar = callInstr.getResult();
-      // TODO: Track call results as temp variable sources for constructor/method calls
-      generateStoreVariable(resultVar);
+
+      // Handle special methods that return Java primitive boolean
+      // Methods like _true(), _false(), _set() return primitive boolean
+      // At JVM bytecode level, boolean and int are the same (both 32-bit)
+      // Just use ISTORE directly - no conversion needed
+      if (isJavaPrimitiveBooleanMethod(methodName)) {
+        // Stack: [boolean] from method call
+        // Store as int using ISTORE (boolean and int are same at bytecode level)
+        final var resultIndex = getVariableIndex(resultVar);
+        getCurrentMethodVisitor().visitVarInsn(Opcodes.ISTORE, resultIndex);
+        // Stack: [] - value stored in local variable slot
+      } else {
+        // Regular object return - use standard storage
+        // TODO: Track call results as temp variable sources for constructor/method calls
+        generateStoreVariable(resultVar);
+      }
     }
+  }
+
+  /**
+   * Check if method returns Java primitive boolean (not EK9 Boolean object).
+   * These special utility methods require boolean→int conversion for JVM verification.
+   * <p>
+   * Java primitive boolean and int are distinct types in JVM verification.
+   * Methods returning primitive boolean must be converted to int (0/1) before
+   * storage/branching to maintain type consistency.
+   * </p>
+   *
+   * @param methodName The method name to check
+   * @return true if method returns Java primitive boolean
+   */
+  private boolean isJavaPrimitiveBooleanMethod(final String methodName) {
+    return switch (methodName) {
+      case "_true", "_false", "_set" -> true;
+      default -> false;
+    };
   }
 
   /**

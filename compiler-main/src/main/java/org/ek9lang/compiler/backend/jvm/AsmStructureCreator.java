@@ -26,11 +26,12 @@ import org.objectweb.asm.Opcodes;
  * Designed to capture the ASM specifics for byte code generation.
  * Generates the actual program class from IR operations (not ek9.Main).
  */
-public final class AsmStructureCreator implements Opcodes {
+final class AsmStructureCreator implements Opcodes {
 
   private final ConstructTargetTuple constructTargetTuple;
   private final INodeVisitor visitor;
   private final FullyQualifiedJvmName jvmNameConverter = new FullyQualifiedJvmName();
+  private final JvmDescriptorConverter descriptorConverter = new JvmDescriptorConverter(jvmNameConverter);
   private ClassWriter classWriter;
   private ProgramEntryPointInstr programEntryPoint = null;
 
@@ -239,10 +240,9 @@ public final class AsmStructureCreator implements Opcodes {
         if (programDetails.qualifiedName().equals(programClassName)) {
           // Build descriptor from parameter signature
           final var descriptor = new StringBuilder("(");
-          final var typeConverter = new EK9TypeToJVMDescriptor();
 
           for (var param : programDetails.parameterSignature()) {
-            descriptor.append(typeConverter.apply(param.type()));
+            descriptor.append(descriptorConverter.apply(param.type()));
           }
 
           descriptor.append(")V"); // _main returns void

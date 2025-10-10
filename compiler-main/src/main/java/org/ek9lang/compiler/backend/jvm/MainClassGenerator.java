@@ -89,10 +89,11 @@ import org.objectweb.asm.Opcodes;
  * Generates the unified ek9.Main class that provides a standard Java entry point
  * for executing EK9 programs with automatic discovery and reflection-based invocation.
  */
-public final class MainClassGenerator implements Function<ProgramEntryPointInstr, byte[]>, Opcodes {
+final class MainClassGenerator implements Function<ProgramEntryPointInstr, byte[]>, Opcodes {
 
   private final ClassWriter classWriter;
-  private final EK9TypeToJVMDescriptor typeConverter = new EK9TypeToJVMDescriptor();
+  private final FullyQualifiedJvmName jvmNameConverter = new FullyQualifiedJvmName();
+  private final JvmDescriptorConverter descriptorConverter = new JvmDescriptorConverter(jvmNameConverter);
 
   public MainClassGenerator() {
 
@@ -151,7 +152,7 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
 
     for (var param : parameterSignature) {
       // Convert EK9 type to JVM descriptor
-      descriptor.append(typeConverter.apply(param.type()));
+      descriptor.append(descriptorConverter.apply(param.type()));
     }
 
     descriptor.append(")V"); // _main returns void
@@ -574,8 +575,8 @@ public final class MainClassGenerator implements Function<ProgramEntryPointInstr
     mv.visitVarInsn(ALOAD, instanceLocalVar); // Load program instance
     mv.visitVarInsn(ALOAD, ek9ListLocalVar); // Load EK9 List of String
 
-    // Build method descriptor using typeConverter: (Lorg/ek9/lang/_List_...;)V
-    final String listDescriptor = typeConverter.apply(
+    // Build method descriptor using descriptorConverter: (Lorg/ek9/lang/_List_...;)V
+    final String listDescriptor = descriptorConverter.apply(
         EK9_LIST_OF_STRING);
     final String methodDescriptor = "(" + listDescriptor + ")V";
     mv.visitMethodInsn(INVOKEVIRTUAL, internalClassName, METHOD_MAIN, methodDescriptor, false);

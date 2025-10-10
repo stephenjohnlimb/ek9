@@ -27,7 +27,7 @@ import org.objectweb.asm.ClassWriter;
  *   <li>Extensibility: Easy to add new control flow types</li>
  * </ul>
  */
-public final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
+final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
 
   private final OutputVisitor outputVisitor;
 
@@ -41,9 +41,9 @@ public final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   // private ForLoopAsmGenerator forLoopGenerator;
   // private TryCatchAsmGenerator tryCatchGenerator;
 
-  public ControlFlowChainAsmGenerator(final ConstructTargetTuple constructTargetTuple,
-                                      final OutputVisitor outputVisitor,
-                                      final ClassWriter classWriter) {
+  ControlFlowChainAsmGenerator(final ConstructTargetTuple constructTargetTuple,
+                               final OutputVisitor outputVisitor,
+                               final ClassWriter classWriter) {
     super(constructTargetTuple, outputVisitor, classWriter);
     this.outputVisitor = outputVisitor;
   }

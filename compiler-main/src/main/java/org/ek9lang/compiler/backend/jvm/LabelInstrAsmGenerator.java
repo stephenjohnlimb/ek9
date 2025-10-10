@@ -13,12 +13,12 @@ import org.objectweb.asm.Label;
  * Handles LABEL operations - marks instruction positions as branch targets
  * for control flow operations like BRANCH_TRUE, BRANCH_FALSE, and BRANCH.
  */
-public final class LabelInstrAsmGenerator extends AbstractAsmGenerator
+final class LabelInstrAsmGenerator extends AbstractAsmGenerator
     implements Consumer<LabelInstr> {
 
-  public LabelInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
-                                final OutputVisitor outputVisitor,
-                                final ClassWriter classWriter) {
+  LabelInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
+                         final OutputVisitor outputVisitor,
+                         final ClassWriter classWriter) {
     super(constructTargetTuple, outputVisitor, classWriter);
   }
 

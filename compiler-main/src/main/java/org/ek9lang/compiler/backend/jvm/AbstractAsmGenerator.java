@@ -5,7 +5,6 @@ import static org.ek9lang.compiler.support.EK9TypeNames.EK9_CHARACTER;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_FLOAT;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_INTEGER;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_STRING;
-import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_BOOLEAN_TO_STRING;
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_CHAR_TO_STRING;
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_EK9_BOOLEAN;
@@ -45,7 +44,7 @@ import org.objectweb.asm.Opcodes;
  * - Debug information handling
  * - Common JVM instruction patterns
  */
-public abstract class AbstractAsmGenerator {
+abstract class AbstractAsmGenerator {
 
   protected final ConstructTargetTuple constructTargetTuple;
   protected final OutputVisitor outputVisitor;
@@ -53,6 +52,7 @@ public abstract class AbstractAsmGenerator {
 
   // Reuse existing JVM backend utilities for name conversion
   private final FullyQualifiedJvmName jvmNameConverter = new FullyQualifiedJvmName();
+  private final JvmDescriptorConverter descriptorConverter = new JvmDescriptorConverter(jvmNameConverter);
 
   // Current method visitor being written to
   private MethodVisitor currentMethodVisitor;
@@ -199,16 +199,11 @@ public abstract class AbstractAsmGenerator {
 
   /**
    * Convert EK9 type name to JVM descriptor format.
-   * Uses FullyQualifiedJvmName utility for consistent conversion.
+   * Delegates to JvmDescriptorConverter for consistent conversion logic.
+   * Handles Java primitive types (boolean, byte, char, short, int, long, float, double).
    */
   protected String convertToJvmDescriptor(final String ek9TypeName) {
-    // Handle void type specially
-    if (EK9_VOID.equals(ek9TypeName)) {
-      return "V";
-    }
-
-    // Use existing utility for all other types
-    return "L" + convertToJvmName(ek9TypeName) + ";";
+    return descriptorConverter.apply(ek9TypeName);
   }
 
   /**
@@ -630,5 +625,54 @@ public abstract class AbstractAsmGenerator {
     // For now, disable stack optimization until we can properly track usage patterns
     // TODO: Implement proper single-use analysis for temp variables
     return false;
+  }
+
+  /**
+   * Convert Java primitive boolean on stack to int (0 or 1) via Boolean wrapper.
+   * <p>
+   * Java primitive boolean and int are distinct types in JVM verification.
+   * Methods like Boolean._true(), _false(), _set() return primitive boolean,
+   * but conditional branch instructions require proper type conversion for verification.
+   * </p>
+   * <p>
+   * Solution: Use Boolean.valueOf() boxing to convert boolean→Boolean object,
+   * then call intValue() from Boolean's Number superclass to get int.
+   * This satisfies JVM verifier's type system requirements.
+   * </p>
+   * <p>
+   * Stack transformation:
+   * Pre-condition: [boolean] (primitive boolean type)
+   * Post-condition: [int] (primitive int type, value 0 or 1)
+   * </p>
+   * <p>
+   * Bytecode pattern:
+   * </p>
+   * <pre>
+   * // Stack: [boolean]
+   * INVOKESTATIC Boolean.valueOf(Z)LBoolean;  // Box to Boolean object
+   * INVOKEVIRTUAL Boolean.intValue()I          // Unbox to int via Number.intValue()
+   * // Stack: [int]
+   * </pre>
+   */
+  protected void convertBooleanToInt() {
+    // Stack: [boolean] - box to Boolean object
+    getCurrentMethodVisitor().visitMethodInsn(
+        Opcodes.INVOKESTATIC,
+        "java/lang/Boolean",
+        "valueOf",
+        "(Z)Ljava/lang/Boolean;",
+        false
+    );
+    // Stack: [Boolean object]
+
+    // Unbox to int (Boolean extends Number, which has intValue())
+    getCurrentMethodVisitor().visitMethodInsn(
+        Opcodes.INVOKEVIRTUAL,
+        "java/lang/Boolean",
+        "intValue",
+        "()I",
+        false
+    );
+    // Stack: [int] - now safe to use with IFEQ/IFNE
   }
 }

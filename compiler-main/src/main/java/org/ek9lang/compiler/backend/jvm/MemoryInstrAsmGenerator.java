@@ -14,12 +14,12 @@ import org.objectweb.asm.Opcodes;
  * Handles LOAD, STORE, REFERENCE, RETAIN, RELEASE operations
  * using the actual MemoryInstr methods (no string parsing).
  */
-public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator
+final class MemoryInstrAsmGenerator extends AbstractAsmGenerator
     implements Consumer<MemoryInstr> {
 
-  public MemoryInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
-                                 final OutputVisitor outputVisitor,
-                                 final ClassWriter classWriter) {
+  MemoryInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
+                          final OutputVisitor outputVisitor,
+                          final ClassWriter classWriter) {
     super(constructTargetTuple, outputVisitor, classWriter);
   }
 

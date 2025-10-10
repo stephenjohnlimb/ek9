@@ -20,11 +20,11 @@ import org.objectweb.asm.ClassWriter;
  * Result is stored in local variable (overall_result).
  * </p>
  */
-public final class QuestionOperatorAsmGenerator extends AbstractControlFlowAsmGenerator {
+final class QuestionOperatorAsmGenerator extends AbstractControlFlowAsmGenerator {
 
-  public QuestionOperatorAsmGenerator(final ConstructTargetTuple constructTargetTuple,
-                                      final OutputVisitor outputVisitor,
-                                      final ClassWriter classWriter) {
+  QuestionOperatorAsmGenerator(final ConstructTargetTuple constructTargetTuple,
+                               final OutputVisitor outputVisitor,
+                               final ClassWriter classWriter) {
     super(constructTargetTuple, outputVisitor, classWriter);
   }
 

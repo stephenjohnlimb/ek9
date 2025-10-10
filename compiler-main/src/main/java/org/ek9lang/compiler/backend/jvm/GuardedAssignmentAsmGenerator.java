@@ -24,11 +24,11 @@ import org.objectweb.asm.ClassWriter;
  * - If condition true: skip assignment
  * </p>
  */
-public final class GuardedAssignmentAsmGenerator extends AbstractControlFlowAsmGenerator {
+final class GuardedAssignmentAsmGenerator extends AbstractControlFlowAsmGenerator {
 
-  public GuardedAssignmentAsmGenerator(final ConstructTargetTuple constructTargetTuple,
-                                       final OutputVisitor outputVisitor,
-                                       final ClassWriter classWriter) {
+  GuardedAssignmentAsmGenerator(final ConstructTargetTuple constructTargetTuple,
+                                final OutputVisitor outputVisitor,
+                                final ClassWriter classWriter) {
     super(constructTargetTuple, outputVisitor, classWriter);
   }
 
