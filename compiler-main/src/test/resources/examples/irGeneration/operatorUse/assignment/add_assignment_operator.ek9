@@ -66,7 +66,7 @@ body_result: _temp7
 ]
 default_body_evaluation:
 [
-_temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=true, complexity=0]  // ./add_assignment_operator.ek9:85:19
+_temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./add_assignment_operator.ek9:85:19
 RETAIN _temp8  // ./add_assignment_operator.ek9:85:19
 SCOPE_REGISTER _temp8, _scope_1  // ./add_assignment_operator.ek9:85:19
 ]

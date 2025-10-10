@@ -3,10 +3,7 @@ package org.ek9lang.compiler.phase7.generator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.TypeNameOrException;
-import org.ek9lang.compiler.ir.data.CallDetails;
-import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
 import org.ek9lang.compiler.ir.data.DefaultCaseDetails;
@@ -19,14 +16,17 @@ import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
+import org.ek9lang.compiler.phase7.calls.BooleanNotCallDetailsCreator;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForOfFalse;
+import org.ek9lang.compiler.phase7.calls.IsSetCallDetailsCreator;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.BooleanFalseEvaluationCreator;
+import org.ek9lang.compiler.phase7.support.BooleanNotEvaluationCreator;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
-import org.ek9lang.compiler.phase7.support.IRInstrToList;
+import org.ek9lang.compiler.phase7.support.IsSetEvaluationCreator;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
-import org.ek9lang.compiler.support.EK9TypeNames;
 import org.ek9lang.compiler.symbols.ISymbol;
 
 /**
@@ -50,17 +50,30 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
 
   private final Function<ExprProcessingDetails, List<IRInstr>> rawExprProcessor;
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
-  private final CallDetailsForOfFalse callDetailsForOfFalse = new CallDetailsForOfFalse();
-  private final IRInstrToList irInstrToList = new IRInstrToList();
-  private final VariableMemoryManagement variableMemoryManagement;
   private final CallDetailsForIsTrue callDetailsForIsTrue = new CallDetailsForIsTrue();
-  private final OperatorMap operatorMap = new OperatorMap();
+
+  // Helper classes for evaluation patterns
+  private final BooleanFalseEvaluationCreator booleanFalseEvaluationCreator;
+  private final IsSetEvaluationCreator isSetEvaluationCreator;
+  private final BooleanNotEvaluationCreator booleanNotEvaluationCreator;
 
   public ControlFlowChainGenerator(final IRGenerationContext stackContext,
                                    final Function<ExprProcessingDetails, List<IRInstr>> rawExprProcessor) {
     super(stackContext);
     this.rawExprProcessor = rawExprProcessor;
-    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
+
+    final var variableMemoryManagement = new VariableMemoryManagement(stackContext);
+    final var callDetailsForOfFalse = new CallDetailsForOfFalse();
+    final var isSetCallDetailsCreator = new IsSetCallDetailsCreator();
+    final var booleanNotCallDetailsCreator = new BooleanNotCallDetailsCreator();
+
+    // Initialize helper classes with their dependencies
+    this.booleanFalseEvaluationCreator = new BooleanFalseEvaluationCreator(
+        callDetailsForOfFalse, variableMemoryManagement);
+    this.isSetEvaluationCreator = new IsSetEvaluationCreator(
+        isSetCallDetailsCreator, variableMemoryManagement);
+    this.booleanNotEvaluationCreator = new BooleanNotEvaluationCreator(
+        booleanNotCallDetailsCreator, variableMemoryManagement);
   }
 
   @Override
@@ -139,8 +152,10 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     // Only the _isSet() result needs memory management, not the operand
     final var setCaseResult = stackContext.generateTempName();
     final var setCaseDetails = new VariableDetails(setCaseResult, debugInfo);
+    // IMPORTANT: Use operand's type (from ctx.expression(0)), not result type (exprSymbol is Boolean)
+    final var operandType = typeNameOrException.apply(getRecordedSymbolOrException(ctx.expression(0)));
     final var setCaseEvaluation = generateIsSetEvaluationNoOperandManagement(operandVariable,
-        typeNameOrException.apply(exprSymbol), setCaseDetails);
+        operandType, setCaseDetails);
 
     // Create the unified switch chain details
     final var controlFlowChainDetails = ControlFlowChainDetails.createQuestionOperator(
@@ -274,15 +289,12 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
    * Generate evaluation instructions for Boolean(false).
    */
   private List<IRInstr> generateBooleanFalseEvaluation(final VariableDetails variableDetails) {
-    final var instructions = irInstrToList
-        .apply(() -> CallInstr.callStatic(variableDetails, callDetailsForOfFalse.get()));
-
-    variableMemoryManagement.apply(() -> instructions, variableDetails);
-    return instructions;
+    return booleanFalseEvaluationCreator.apply(variableDetails);
   }
 
   /**
    * Generate evaluation instructions for variable._isSet() - loads variable first.
+   * Note: LOAD does NOT get memory management - only the _isSet() result does.
    */
   private List<IRInstr> generateIsSetEvaluationForVariable(final String variableName,
                                                            final String operandVariable,
@@ -290,21 +302,12 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
                                                            final String operandType,
                                                            final VariableDetails resultDetails) {
 
-    // Load variable for _isSet() method call
-    final var loadInstructions = irInstrToList
-        .apply(() -> MemoryInstr.load(operandVariable, variableName, operandDetails.debugInfo()));
-    final var instructions = new ArrayList<>(loadInstructions);
-    variableMemoryManagement.apply(() -> loadInstructions, operandDetails);
+    // Load variable for _isSet() method call (no memory management on the LOAD)
+    final var instructions = new ArrayList<IRInstr>();
+    instructions.add(MemoryInstr.load(operandVariable, variableName, operandDetails.debugInfo()));
 
-    // Call _isSet() on loaded variable
-    // For now use default metadata since type resolution from string is complex
-    final var isSetMetaData = new CallMetaDataDetails(true, 0);
-    final var methodName = operatorMap.getForward("?");
-    final var isSetCallDetails = new CallDetails(operandVariable, operandType,
-        methodName, List.of(), EK9TypeNames.EK9_BOOLEAN, List.of(), isSetMetaData, false);
-    final var callInstructions = irInstrToList.apply(() -> CallInstr.operator(resultDetails, isSetCallDetails));
-    instructions.addAll(callInstructions);
-    variableMemoryManagement.apply(() -> callInstructions, resultDetails);
+    // Call _isSet() with memory management on the result
+    instructions.addAll(isSetEvaluationCreator.apply(operandVariable, operandType, resultDetails));
 
     return instructions;
   }
@@ -316,34 +319,14 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
   private List<IRInstr> generateIsSetEvaluationNoOperandManagement(final String operandVariable,
                                                                    final String operandType,
                                                                    final VariableDetails resultDetails) {
-    // For now use default metadata since type resolution from string is complex
-    final var isSetMetaData = new CallMetaDataDetails(true, 0);
-
-    final var methodName = operatorMap.getForward("?");
-    final var isSetCallDetails = new CallDetails(operandVariable, operandType,
-        methodName, List.of(), EK9TypeNames.EK9_BOOLEAN, List.of(), isSetMetaData, false);
-
-    // Only manage memory for the _isSet() result, not the operand
-    final var instructions = irInstrToList.apply(() -> CallInstr.operator(resultDetails, isSetCallDetails));
-    variableMemoryManagement.apply(() -> instructions, resultDetails);
-    return instructions;
+    return isSetEvaluationCreator.apply(operandVariable, operandType, resultDetails);
   }
 
   /**
    * Generate evaluation instructions for boolean._not().
    */
   private List<IRInstr> generateBooleanNotEvaluation(final String booleanVariable,
-                                                     final VariableDetails variableDetails) {
-    final var booleanType = EK9TypeNames.EK9_BOOLEAN;
-
-    // Create metadata for _not operator call on Boolean
-    final var notMetaData = new CallMetaDataDetails(true, 0);
-    final var methodName = operatorMap.getForward("~");
-    final var notCallDetails = new CallDetails(booleanVariable, booleanType,
-        methodName, List.of(), booleanType, List.of(), notMetaData, false);
-
-    final var instructions = irInstrToList.apply(() -> CallInstr.operator(variableDetails, notCallDetails));
-    variableMemoryManagement.apply(() -> instructions, variableDetails);
-    return instructions;
+                                                     final VariableDetails resultDetails) {
+    return booleanNotEvaluationCreator.apply(booleanVariable, resultDetails);
   }
 }

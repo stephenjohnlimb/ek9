@@ -70,7 +70,7 @@ defines module float.unary.negation.test
     ]
     default_body_evaluation:
     [
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=true, complexity=0]  // ./float_unary_negation.ek9:92:25
+    _temp8 = CALL (org.ek9.lang::Float)_temp5._isSet() [pure=true, complexity=0]  // ./float_unary_negation.ek9:92:25
     RETAIN _temp8  // ./float_unary_negation.ek9:92:25
     SCOPE_REGISTER _temp8, _scope_1  // ./float_unary_negation.ek9:92:25
     ]

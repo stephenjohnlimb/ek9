@@ -68,7 +68,7 @@ defines module string.test
     ]
     default_body_evaluation:
     [
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=true, complexity=0]  // ./string_operator.ek9:87:20
+    _temp8 = CALL (org.ek9.lang::String)_temp5._isSet() [pure=true, complexity=0]  // ./string_operator.ek9:87:20
     RETAIN _temp8  // ./string_operator.ek9:87:20
     SCOPE_REGISTER _temp8, _scope_1  // ./string_operator.ek9:87:20
     ]

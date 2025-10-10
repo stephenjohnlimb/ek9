@@ -58,7 +58,7 @@ defines module negate.test
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=true, complexity=0]  // ./negate_operator.ek9:76:15
+    _temp6 = CALL (org.ek9.lang::Integer)_temp3._isSet() [pure=true, complexity=0]  // ./negate_operator.ek9:76:15
     RETAIN _temp6  // ./negate_operator.ek9:76:15
     SCOPE_REGISTER _temp6, _scope_1  // ./negate_operator.ek9:76:15
     ]

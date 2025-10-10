@@ -54,7 +54,7 @@ defines module constructorassignmentcalls.test
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=true, complexity=0]  // ./constructorCallInAssignment.ek9:73:21
+    _temp6 = CALL (org.ek9.lang::String)_temp3._isSet() [pure=true, complexity=0]  // ./constructorCallInAssignment.ek9:73:21
     RETAIN _temp6  // ./constructorCallInAssignment.ek9:73:21
     SCOPE_REGISTER _temp6, _scope_1  // ./constructorCallInAssignment.ek9:73:21
     ]

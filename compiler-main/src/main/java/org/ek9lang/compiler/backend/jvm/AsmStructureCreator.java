@@ -75,8 +75,8 @@ public final class AsmStructureCreator implements Opcodes {
    * Initialize the actual program class (e.g., introduction/HelloWorld) from the IR construct.
    */
   private void initializeProgramClass(final IRConstruct construct) {
-    // Disable automatic frame computation to avoid stack verification issues during development
-    classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    // Enable COMPUTE_FRAMES to automatically generate stack map frames required for JVM verification
+    classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 
     // Get the actual program class name from the IR construct
     final var programClassName = construct.getFullyQualifiedName();
@@ -136,7 +136,7 @@ public final class AsmStructureCreator implements Opcodes {
     // Process the operation's basic block using actual IR instructions
     final var basicBlock = operation.getBody();
     if (basicBlock != null) {
-      processBasicBlockWithTypedInstructions(mv, basicBlock);
+      processBasicBlock(mv, basicBlock);
     }
 
     // Don't add extra RETURN - IR instructions already include RETURN via BranchInstr
@@ -153,7 +153,7 @@ public final class AsmStructureCreator implements Opcodes {
 
     final var basicBlock = operation.getBody();
     if (basicBlock != null) {
-      processBasicBlockWithTypedInstructions(mv, basicBlock);
+      processBasicBlock(mv, basicBlock);
     }
 
     // Don't add extra RETURN - IR instructions already include RETURN via BranchInstr
@@ -174,7 +174,7 @@ public final class AsmStructureCreator implements Opcodes {
 
     final var basicBlock = operation.getBody();
     if (basicBlock != null) {
-      processBasicBlockWithTypedInstructions(mv, basicBlock, true); // true = isConstructor
+      processConstructorBasicBlock(mv, basicBlock); // true = isConstructor
     }
 
     // Don't add extra RETURN - IR instructions already include RETURN via BranchInstr
@@ -263,15 +263,6 @@ public final class AsmStructureCreator implements Opcodes {
   }
 
   /**
-   * Process a basic block using visitor pattern.
-   * Default: no parameters, not a constructor.
-   */
-  private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
-                                                      final BasicBlockInstr basicBlock) {
-    processBasicBlockWithTypedInstructions(mv, basicBlock, Collections.emptyList(), false);
-  }
-
-  /**
    * Process a basic block with parameter details for _main method context.
    * Pre-registers parameters in variable map and LocalVariableTable metadata.
    */
@@ -322,20 +313,28 @@ public final class AsmStructureCreator implements Opcodes {
   /**
    * Process a basic block for constructor context.
    */
-  private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
-                                                      final BasicBlockInstr basicBlock,
-                                                      final boolean isConstructor) {
-    processBasicBlockWithTypedInstructions(mv, basicBlock, Collections.emptyList(), isConstructor);
+  private void processConstructorBasicBlock(final MethodVisitor mv,
+                                            final BasicBlockInstr basicBlock) {
+    processBasicBlock(mv, basicBlock, Collections.emptyList(), true);
+  }
+
+  /**
+   * Process a basic block using visitor pattern.
+   * Default: no parameters, not a constructor.
+   */
+  private void processBasicBlock(final MethodVisitor mv,
+                                 final BasicBlockInstr basicBlock) {
+    processBasicBlock(mv, basicBlock, Collections.emptyList(), false);
   }
 
   /**
    * Process a basic block using visitor pattern delegation.
    * Sets up method context, then delegates to OutputVisitor for each instruction.
    */
-  private void processBasicBlockWithTypedInstructions(final MethodVisitor mv,
-                                                      final BasicBlockInstr basicBlock,
-                                                      final List<String> parameterNames,
-                                                      final boolean isConstructor) {
+  private void processBasicBlock(final MethodVisitor mv,
+                                 final BasicBlockInstr basicBlock,
+                                 final List<String> parameterNames,
+                                 final boolean isConstructor) {
     // Cast visitor to OutputVisitor to access generator setup methods
     final OutputVisitor outputVisitor = (OutputVisitor) visitor;
 

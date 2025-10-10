@@ -6,6 +6,7 @@ import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.compiler.ir.instructions.BranchInstr;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
+import org.ek9lang.compiler.ir.instructions.ControlFlowChainInstr;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.LabelInstr;
@@ -32,6 +33,11 @@ public final class OutputVisitor implements INodeVisitor {
   private final BranchInstrAsmGenerator branchInstrGenerator;
   private final LabelInstrAsmGenerator labelInstrGenerator;
   private final ScopeInstrAsmGenerator scopeInstrGenerator;
+  private ControlFlowChainAsmGenerator controlFlowChainGenerator;
+
+  // Track current method context for lazy generator initialization
+  private AbstractAsmGenerator.MethodContext currentMethodContext;
+  private org.objectweb.asm.MethodVisitor currentMethodVisitor;
 
   public OutputVisitor(final ConstructTargetTuple constructTargetTuple) {
     AssertValue.checkNotNull("File cannot be null", constructTargetTuple.targetFile());
@@ -59,6 +65,10 @@ public final class OutputVisitor implements INodeVisitor {
   public void setMethodContext(final AbstractAsmGenerator.MethodContext methodContext,
                                final org.objectweb.asm.MethodVisitor mv,
                                final boolean isConstructor) {
+    // Store current context for lazy generator initialization
+    this.currentMethodContext = methodContext;
+    this.currentMethodVisitor = mv;
+
     // Share context with all generators
     callInstrGenerator.setSharedMethodContext(methodContext);
     literalInstrGenerator.setSharedMethodContext(methodContext);
@@ -77,6 +87,12 @@ public final class OutputVisitor implements INodeVisitor {
 
     // Set constructor mode for branch generator
     branchInstrGenerator.setConstructorMode(isConstructor);
+
+    // Share context with control flow generator if instantiated
+    if (controlFlowChainGenerator != null) {
+      controlFlowChainGenerator.setSharedMethodContext(methodContext);
+      controlFlowChainGenerator.setCurrentMethodVisitor(mv);
+    }
   }
 
   @Override
@@ -119,6 +135,7 @@ public final class OutputVisitor implements INodeVisitor {
       case BranchInstr i -> visit(i);
       case LabelInstr i -> visit(i);
       case ScopeInstr i -> visit(i);
+      case ControlFlowChainInstr i -> visit(i);
       default -> throw new CompilerException("Operation [" + irInstr + " not implemented yet");
     }
   }
@@ -163,6 +180,31 @@ public final class OutputVisitor implements INodeVisitor {
    */
   public void visit(final LabelInstr labelInstr) {
     labelInstrGenerator.accept(labelInstr);
+  }
+
+  /**
+   * Typed visit method for ControlFlowChainInstr - delegates to specialized generator.
+   * Handles all EK9 control flow constructs: question operator, if/else, switch, loops, try/catch.
+   */
+  public void visit(final ControlFlowChainInstr instr) {
+    // Lazy initialization pattern - only create generator when needed
+    // Unlike other generators that are constructed eagerly, this one is lazily initialized
+    // to avoid overhead if no control flow constructs are used
+    if (controlFlowChainGenerator == null) {
+      controlFlowChainGenerator = new ControlFlowChainAsmGenerator(
+          constructTargetTuple, this, asmStructureCreator.getClassWriter());
+
+      // Set current method context immediately after creation
+      // This ensures the generator has access to variable/label maps and method visitor
+      if (currentMethodContext != null && currentMethodVisitor != null) {
+        controlFlowChainGenerator.setSharedMethodContext(currentMethodContext);
+        controlFlowChainGenerator.setCurrentMethodVisitor(currentMethodVisitor);
+      }
+    }
+
+    // Generator must delegate to its internal generators, which need the method context
+    // Note: Internal generators get context when generate() is called
+    controlFlowChainGenerator.generate(instr);
   }
 
   /**

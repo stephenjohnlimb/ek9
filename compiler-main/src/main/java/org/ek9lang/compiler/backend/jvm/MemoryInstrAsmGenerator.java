@@ -1,11 +1,5 @@
 package org.ek9lang.compiler.backend.jvm;
 
-import static org.ek9lang.compiler.support.JVMTypeNames.DESC_BOOLEAN_TO_STRING;
-import static org.ek9lang.compiler.support.JVMTypeNames.DESC_EK9_BOOLEAN;
-import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_BOOLEAN;
-import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_BOOLEAN;
-import static org.ek9lang.compiler.support.JVMTypeNames.PARAM_STRING;
-
 import java.util.Collections;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
@@ -162,6 +156,16 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator
   /**
    * Generate IS_NULL instruction: check if object is null.
    * Format: IS_NULL result = operand
+   * <p>
+   * Produces a primitive int (0 or 1) for use in control flow branching.
+   * This is critical for CONTROL_FLOW_CHAIN instructions that expect
+   * primitive_condition to be a Java primitive boolean (int).
+   * </p>
+   * <p>
+   * Stack behavior:
+   * Pre-condition: stack is empty
+   * Post-condition: stack is empty (result stored in variable as primitive int)
+   * </p>
    */
   private void generateIsNull(final MemoryInstr memoryInstr) {
     final var operands = memoryInstr.getOperands();
@@ -172,43 +176,28 @@ public final class MemoryInstrAsmGenerator extends AbstractAsmGenerator
     final var operand = operands.getFirst();
 
     // Load operand onto stack
-    generateLoadVariable(operand);
+    generateLoadVariable(operand);  // stack: [obj]
 
-    // Compare with null and produce boolean result
-    // This generates: object == null ? 1 : 0
+    // Compare with null and produce primitive boolean (int: 0 or 1)
     final var nullLabel = new Label();
     final var endLabel = new Label();
 
-    getCurrentMethodVisitor().visitJumpInsn(Opcodes.IFNULL, nullLabel);
-    getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_0); // false
+    getCurrentMethodVisitor().visitJumpInsn(Opcodes.IFNULL, nullLabel);  // stack: []
+    getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_0); // not null = false, stack: [int=0]
     getCurrentMethodVisitor().visitJumpInsn(Opcodes.GOTO, endLabel);
 
     getCurrentMethodVisitor().visitLabel(nullLabel);
-    getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_1); // true
+    getCurrentMethodVisitor().visitInsn(Opcodes.ICONST_1); // is null = true, stack: [int=1]
 
     getCurrentMethodVisitor().visitLabel(endLabel);
+    // Stack: [int] from both paths (0 or 1)
 
-    // Convert to EK9 Boolean and store result
-    // Convert boolean to String first, then use _of method
-    getCurrentMethodVisitor().visitMethodInsn(
-        Opcodes.INVOKESTATIC,
-        JAVA_LANG_BOOLEAN,
-        "toString",
-        DESC_BOOLEAN_TO_STRING,
-        false
-    );
-
-    getCurrentMethodVisitor().visitMethodInsn(
-        Opcodes.INVOKESTATIC,
-        EK9_LANG_BOOLEAN,
-        "_of",
-        PARAM_STRING + DESC_EK9_BOOLEAN,
-        false
-    );
-
+    // Store primitive int directly using ISTORE (not ASTORE!)
     if (memoryInstr.hasResult()) {
-      generateStoreVariable(memoryInstr.getResult());
+      final var resultIndex = getVariableIndex(memoryInstr.getResult());
+      getCurrentMethodVisitor().visitVarInsn(Opcodes.ISTORE, resultIndex);  // stack: []
     }
+    // Post-condition: stack is empty, result is primitive int in variable slot
   }
 
   /**

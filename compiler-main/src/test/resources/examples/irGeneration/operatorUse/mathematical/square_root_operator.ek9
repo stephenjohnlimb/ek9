@@ -62,7 +62,7 @@ defines module square_root.test
     ]
     default_body_evaluation:
     [
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp4._isSet() [pure=true, complexity=0]  // ./square_root_operator.ek9:80:20
+    _temp7 = CALL (org.ek9.lang::Float)_temp4._isSet() [pure=true, complexity=0]  // ./square_root_operator.ek9:80:20
     RETAIN _temp7  // ./square_root_operator.ek9:80:20
     SCOPE_REGISTER _temp7, _scope_1  // ./square_root_operator.ek9:80:20
     ]

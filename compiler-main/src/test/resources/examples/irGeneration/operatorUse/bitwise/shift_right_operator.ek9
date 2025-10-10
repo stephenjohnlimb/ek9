@@ -78,7 +78,7 @@ defines module shiftRight.test
     ]
     default_body_evaluation:
     [
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp7._isSet() [pure=true, complexity=0]  // ./shift_right_operator.ek9:98:20
+    _temp10 = CALL (org.ek9.lang::Bits)_temp7._isSet() [pure=true, complexity=0]  // ./shift_right_operator.ek9:98:20
     RETAIN _temp10  // ./shift_right_operator.ek9:98:20
     SCOPE_REGISTER _temp10, _scope_1  // ./shift_right_operator.ek9:98:20
     ]

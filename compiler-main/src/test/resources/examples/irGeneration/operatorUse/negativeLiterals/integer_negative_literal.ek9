@@ -60,7 +60,7 @@ defines module integer.negative.literal.test
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=true, complexity=0]  // ./integer_negative_literal.ek9:79:23
+    _temp6 = CALL (org.ek9.lang::Integer)_temp3._isSet() [pure=true, complexity=0]  // ./integer_negative_literal.ek9:79:23
     RETAIN _temp6  // ./integer_negative_literal.ek9:79:23
     SCOPE_REGISTER _temp6, _scope_1  // ./integer_negative_literal.ek9:79:23
     ]

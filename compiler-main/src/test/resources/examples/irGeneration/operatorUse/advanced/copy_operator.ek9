@@ -72,7 +72,7 @@ defines module copy.test
     ]
     default_body_evaluation:
     [
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp6._isSet() [pure=true, complexity=0]  // ./copy_operator.ek9:128:22
+    _temp9 = CALL (org.ek9.lang::String)_temp6._isSet() [pure=true, complexity=0]  // ./copy_operator.ek9:128:22
     RETAIN _temp9  // ./copy_operator.ek9:128:22
     SCOPE_REGISTER _temp9, _scope_1  // ./copy_operator.ek9:128:22
     ]
@@ -108,7 +108,7 @@ defines module copy.test
     ]
     default_body_evaluation:
     [
-    _temp15 = CALL (org.ek9.lang::Boolean)_temp12._isSet() [pure=true, complexity=0]  // ./copy_operator.ek9:129:18
+    _temp15 = CALL (org.ek9.lang::String)_temp12._isSet() [pure=true, complexity=0]  // ./copy_operator.ek9:129:18
     RETAIN _temp15  // ./copy_operator.ek9:129:18
     SCOPE_REGISTER _temp15, _scope_1  // ./copy_operator.ek9:129:18
     ]

@@ -59,7 +59,7 @@ defines module equals_assignment.test
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=true, complexity=0]  // ./equals_assignment_operator.ek9:78:15
+    _temp6 = CALL (org.ek9.lang::Integer)_temp3._isSet() [pure=true, complexity=0]  // ./equals_assignment_operator.ek9:78:15
     RETAIN _temp6  // ./equals_assignment_operator.ek9:78:15
     SCOPE_REGISTER _temp6, _scope_1  // ./equals_assignment_operator.ek9:78:15
     ]

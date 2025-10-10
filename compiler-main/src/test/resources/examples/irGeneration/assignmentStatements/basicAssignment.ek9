@@ -54,7 +54,7 @@ defines module assignments
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=true, complexity=0]  // ./basicAssignment.ek9:73:19
+    _temp6 = CALL (org.ek9.lang::Integer)_temp3._isSet() [pure=true, complexity=0]  // ./basicAssignment.ek9:73:19
     RETAIN _temp6  // ./basicAssignment.ek9:73:19
     SCOPE_REGISTER _temp6, _scope_1  // ./basicAssignment.ek9:73:19
     ]
@@ -120,7 +120,7 @@ defines module assignments
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=true, complexity=0]  // ./basicAssignment.ek9:139:19
+    _temp6 = CALL (org.ek9.lang::Integer)_temp3._isSet() [pure=true, complexity=0]  // ./basicAssignment.ek9:139:19
     RETAIN _temp6  // ./basicAssignment.ek9:139:19
     SCOPE_REGISTER _temp6, _scope_1  // ./basicAssignment.ek9:139:19
     ]
@@ -186,7 +186,7 @@ defines module assignments
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=true, complexity=0]  // ./basicAssignment.ek9:205:19
+    _temp6 = CALL (org.ek9.lang::Integer)_temp3._isSet() [pure=true, complexity=0]  // ./basicAssignment.ek9:205:19
     RETAIN _temp6  // ./basicAssignment.ek9:205:19
     SCOPE_REGISTER _temp6, _scope_1  // ./basicAssignment.ek9:205:19
     ]

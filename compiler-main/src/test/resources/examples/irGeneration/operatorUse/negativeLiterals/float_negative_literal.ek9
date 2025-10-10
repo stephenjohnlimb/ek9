@@ -60,7 +60,7 @@ defines module float.negative.literal.test
     ]
     default_body_evaluation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet() [pure=true, complexity=0]  // ./float_negative_literal.ek9:79:25
+    _temp6 = CALL (org.ek9.lang::Float)_temp3._isSet() [pure=true, complexity=0]  // ./float_negative_literal.ek9:79:25
     RETAIN _temp6  // ./float_negative_literal.ek9:79:25
     SCOPE_REGISTER _temp6, _scope_1  // ./float_negative_literal.ek9:79:25
     ]

@@ -64,7 +64,7 @@ defines module subtraction.test
     ]
     default_body_evaluation:
     [
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=true, complexity=0]  // ./subtraction_operator.ek9:82:15
+    _temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./subtraction_operator.ek9:82:15
     RETAIN _temp8  // ./subtraction_operator.ek9:82:15
     SCOPE_REGISTER _temp8, _scope_1  // ./subtraction_operator.ek9:82:15
     ]

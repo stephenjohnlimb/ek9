@@ -88,7 +88,7 @@ defines module simpleClasses
     ]
     default_body_evaluation:
     [
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=true, complexity=0]  // ./singleClass.ek9:115:22
+    _temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./singleClass.ek9:115:22
     RETAIN _temp8  // ./singleClass.ek9:115:22
     SCOPE_REGISTER _temp8, _scope_1  // ./singleClass.ek9:115:22
     ]
