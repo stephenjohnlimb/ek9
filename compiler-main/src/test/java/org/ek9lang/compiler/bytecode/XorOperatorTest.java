@@ -4,14 +4,14 @@ import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
 /**
- * Test the byte code generation of the 'and' Operator.
+ * Test the byte code generation of the 'xor' Operator.
  */
-class AndOperatorTest extends AbstractBytecodeGenerationTest {
+class XorOperatorTest extends AbstractBytecodeGenerationTest {
 
-  public AndOperatorTest() {
+  public XorOperatorTest() {
     //Each bytecode test gets its own directory for parallel execution safety
     //Module name: bytecode.test, expected symbol count: 1 (the program)
-    super("/examples/bytecodeGeneration/andOperator",
+    super("/examples/bytecodeGeneration/xorOperator",
         List.of(new SymbolCountCheck("bytecode.test", 1)),
         false, false, false);
   }
