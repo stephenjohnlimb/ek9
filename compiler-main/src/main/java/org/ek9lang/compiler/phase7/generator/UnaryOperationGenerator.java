@@ -44,7 +44,9 @@ abstract class UnaryOperationGenerator extends AbstractGenerator
     final var debugInfo = details.variableDetails().debugInfo();
 
     // Get method name from operator map, but for tilde need to map to unary -.
-    final var lookupOp = ctx.op.getText().equals("-") ? "~" : ctx.op.getText();
+    //Also we need to convert the 'not' textual key word to a ~ for not as well.
+    final var opText = ctx.op.getText();
+    final var lookupOp = opText.equals("-") || opText.equals("not") ? "~" : opText;
     final var methodName = operatorMap.getForward(lookupOp);
 
     final var operandExpr = ctx.expression().getFirst();
