@@ -6,9 +6,9 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 /**
  * Focussed on testing IR with programs.
  */
-class ProgramsTest extends AbstractIRGenerationTest {
+class ProgramsIRTest extends AbstractIRGenerationTest {
 
-  public ProgramsTest() {
+  public ProgramsIRTest() {
     super("/examples/irGeneration/programs",
         List.of(new SymbolCountCheck("introduction1", 2),
             new SymbolCountCheck("introduction2", 3)

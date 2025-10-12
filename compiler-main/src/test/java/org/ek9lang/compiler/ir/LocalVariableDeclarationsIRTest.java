@@ -6,9 +6,9 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 /**
  * Focussed in testing IR generation for simple classes.
  */
-class LocalVariableDeclarationsTest extends AbstractIRGenerationTest {
+class LocalVariableDeclarationsIRTest extends AbstractIRGenerationTest {
 
-  public LocalVariableDeclarationsTest() {
+  public LocalVariableDeclarationsIRTest() {
     super("/examples/irGeneration/localVariableDeclarations",
         List.of(new SymbolCountCheck(2,"local.variableDeclarations", 2)
         ), false, false, false);

@@ -1,0 +1,276 @@
+#!ek9
+<?-
+  Just checks the not operator (~ syntax).
+-?>
+defines module bytecode.test
+
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::NotOperator": `public class bytecode.test.NotOperator {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.NotOperator();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+      LineNumberTable:
+        line 254: 4
+        line 254: 8
+
+  public void _main();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aconst_null
+        13: astore_3
+        14: iconst_1
+        15: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+        18: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+        21: astore        4
+        23: aload         4
+        25: astore_3
+        26: aconst_null
+        27: astore        5
+        29: iconst_0
+        30: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+        33: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+        36: astore        6
+        38: aload         6
+        40: astore        5
+        42: aconst_null
+        43: astore        7
+        45: new           #CP                 // class org/ek9/lang/Boolean
+        48: dup
+        49: invokespecial #CP                 // Method org/ek9/lang/Boolean."<init>":()V
+        52: astore        8
+        54: aload         8
+        56: astore        7
+        58: aload_1
+        59: astore        9
+        61: aload_3
+        62: astore        10
+        64: aload         9
+        66: aload         10
+        68: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+        73: aload_1
+        74: astore        11
+        76: aload         5
+        78: astore        12
+        80: aload         11
+        82: aload         12
+        84: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+        89: aconst_null
+        90: astore        13
+        92: aload_3
+        93: astore        14
+        95: aload         14
+        97: invokevirtual #CP                 // Method org/ek9/lang/Boolean._negate:()Lorg/ek9/lang/Boolean;
+       100: astore        15
+       102: aload         15
+       104: astore        13
+       106: aload_1
+       107: astore        16
+       109: aload         13
+       111: astore        17
+       113: aload         16
+       115: aload         17
+       117: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       122: aconst_null
+       123: astore        18
+       125: aload         5
+       127: astore        19
+       129: aload         19
+       131: invokevirtual #CP                 // Method org/ek9/lang/Boolean._negate:()Lorg/ek9/lang/Boolean;
+       134: astore        20
+       136: aload         20
+       138: astore        18
+       140: aload_1
+       141: astore        21
+       143: aload         18
+       145: astore        22
+       147: aload         21
+       149: aload         22
+       151: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       156: aconst_null
+       157: astore        23
+       159: aload         7
+       161: astore        24
+       163: aload         24
+       165: invokevirtual #CP                 // Method org/ek9/lang/Boolean._negate:()Lorg/ek9/lang/Boolean;
+       168: astore        25
+       170: aload         25
+       172: astore        23
+       174: aload_1
+       175: astore        26
+       177: aload         23
+       179: astore        27
+       181: aload         27
+       183: ifnull        190
+       186: iconst_0
+       187: goto          191
+       190: iconst_1
+       191: istore        28
+       193: iload         28
+       195: ifeq          210
+       198: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
+       201: astore        29
+       203: aload         29
+       205: astore        30
+       207: goto          221
+       210: aload         27
+       212: invokevirtual #CP                 // Method org/ek9/lang/Boolean._isSet:()Lorg/ek9/lang/Boolean;
+       215: astore        31
+       217: aload         31
+       219: astore        30
+       221: aload         26
+       223: aload         30
+       225: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       230: return
+}
+SourceDebugExtension:
+  SMAP
+  NotOperator.class
+  EK9
+  *S EK9
+  *F
+  + 1 notOperator.ek9
+  notOperator.ek9
+  *L
+  254#1:254
+  254#1:254
+  255#1:255
+  255#1:255
+  255#1:255
+  255#1:255
+  255#1:255
+  255#1:255
+  255#1:255
+  255#1:255
+  256#1:256
+  256#1:256
+  256#1:256
+  256#1:256
+  256#1:256
+  256#1:256
+  256#1:256
+  257#1:257
+  257#1:257
+  257#1:257
+  257#1:257
+  257#1:257
+  257#1:257
+  257#1:257
+  258#1:258
+  258#1:258
+  258#1:258
+  258#1:258
+  258#1:258
+  258#1:258
+  258#1:258
+  261#1:261
+  261#1:261
+  261#1:261
+  261#1:261
+  261#1:261
+  261#1:261
+  261#1:261
+  262#1:262
+  262#1:262
+  262#1:262
+  262#1:262
+  262#1:262
+  262#1:262
+  262#1:262
+  265#1:265
+  265#1:265
+  265#1:265
+  265#1:265
+  265#1:265
+  265#1:265
+  265#1:265
+  265#1:265
+  265#1:265
+  265#1:265
+  266#1:266
+  266#1:266
+  266#1:266
+  266#1:266
+  266#1:266
+  266#1:266
+  266#1:266
+  269#1:269
+  269#1:269
+  269#1:269
+  269#1:269
+  269#1:269
+  269#1:269
+  269#1:269
+  269#1:269
+  269#1:269
+  269#1:269
+  270#1:270
+  270#1:270
+  270#1:270
+  270#1:270
+  270#1:270
+  270#1:270
+  270#1:270
+  273#1:273
+  273#1:273
+  273#1:273
+  273#1:273
+  273#1:273
+  273#1:273
+  273#1:273
+  273#1:273
+  273#1:273
+  273#1:273
+  274#1:274
+  274#1:274
+  274#1:274
+  274#1:274
+  274#1:274
+  274#1:274
+  274#1:274
+  255#1:255
+  254#1:254
+  *E`
+    NotOperator()
+      stdout <- Stdout()
+      asTrue <- true
+      asFalse <- false
+      asUnset <- Boolean()
+
+      //Here are the test values we will use.
+      stdout.println(asTrue)
+      stdout.println(asFalse)
+
+      //Now we need to test NOT operation with not syntax.
+      notResult1 <-  not asTrue
+      stdout.println(notResult1)
+
+      //But also with the tilde syntax.
+      notResult2 <- ~asFalse
+      stdout.println(notResult2)
+
+      //Also need to check that unset will propagate.
+      notUnset <- ~asUnset
+      stdout.println(notUnset?)
+
+//EOF

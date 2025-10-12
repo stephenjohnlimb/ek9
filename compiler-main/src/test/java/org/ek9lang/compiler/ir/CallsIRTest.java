@@ -6,9 +6,9 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 /**
  * Focused on testing IR generation of 'calls' methods, functions, etc.
  */
-class CallsTest extends AbstractIRGenerationTest {
+class CallsIRTest extends AbstractIRGenerationTest {
 
-  public CallsTest() {
+  public CallsIRTest() {
     super("/examples/irGeneration/calls",
         List.of(
             new SymbolCountCheck("functioncalls.test", 2),

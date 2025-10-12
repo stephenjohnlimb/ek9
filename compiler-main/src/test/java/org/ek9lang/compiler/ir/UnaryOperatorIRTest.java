@@ -6,9 +6,9 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 /**
  * Focussed in testing IR generation for unary operator expressions.
  */
-class UnaryOperatorTest extends AbstractIRGenerationTest {
+class UnaryOperatorIRTest extends AbstractIRGenerationTest {
 
-  public UnaryOperatorTest() {
+  public UnaryOperatorIRTest() {
     super("/examples/irGeneration/operatorUse/unary",
         List.of(
             new SymbolCountCheck(1, "increment.test", 1),

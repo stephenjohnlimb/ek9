@@ -7,9 +7,9 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * Focused on testing IR generation for text/string operator expressions.
  * Tests contains and matches operators which work with String content and patterns.
  */
-class TextOperatorTest extends AbstractIRGenerationTest {
+class TextOperatorIRTest extends AbstractIRGenerationTest {
 
-  public TextOperatorTest() {
+  public TextOperatorIRTest() {
     super("/examples/irGeneration/operatorUse/text",
         List.of(
             new SymbolCountCheck(1, "contains.test", 1),

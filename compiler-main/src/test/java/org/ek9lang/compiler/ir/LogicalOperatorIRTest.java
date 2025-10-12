@@ -6,9 +6,9 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 /**
  * Focussed in testing IR generation for logical operator expressions.
  */
-class LogicalOperatorTest extends AbstractIRGenerationTest {
+class LogicalOperatorIRTest extends AbstractIRGenerationTest {
 
-  public LogicalOperatorTest() {
+  public LogicalOperatorIRTest() {
     super("/examples/irGeneration/operatorUse/logical",
         List.of(
             new SymbolCountCheck(1, "anand.test", 1),

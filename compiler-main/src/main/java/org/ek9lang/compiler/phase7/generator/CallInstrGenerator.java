@@ -264,6 +264,9 @@ final class CallInstrGenerator extends AbstractGenerator
                     .getSimpleName());
           }
 
+          // Get the return type from the method symbol
+          final var returnType = methodSymbol.getReturningSymbol().getType().orElse(null);
+
           // Create call context with all required parameters
           final var callContext = new CallContext(
               targetType,
@@ -272,6 +275,7 @@ final class CallInstrGenerator extends AbstractGenerator
               argumentDetails.argumentSymbols(),
               argumentDetails.argumentVariables(),
               stackContext.currentScopeId(),          // STACK-BASED: Get scope ID from current stack frame
+              returnType,                              // Return type from method signature
               ctx
           );
 

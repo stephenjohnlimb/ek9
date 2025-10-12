@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
  * Just tests the INodeVisitor NO-OP functionality.
  * Creates a Construct IR Node and uses the visitor to visit that.
  */
-class NoOpNodeVisitorTest {
+class NoOpNodeVisitorIRTest {
   //Because the interface has all default implementations it is possible to do this.
   final INodeVisitor underTest = new INodeVisitor() {
   };

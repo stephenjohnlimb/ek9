@@ -1,10 +1,10 @@
 package org.ek9lang.compiler.phase7.calls;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
+
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
-import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
-
 import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
@@ -61,7 +61,7 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
   private CallDetailsResult resolveFromParsedSymbol(final CallContext context) {
     if (context.parseContext() == null) {
       // Fallback for operators without direct parse context (e.g., assignment operators)
-      return resolveUsingSyntheticOperators(context);
+      return resolveAsOperator(context);
     }
 
     // Get the resolved CallSymbol from the parse context (resolved in Phase 3)
@@ -131,36 +131,44 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
    * OperatorMap-based fallback for operators without parse context.
    * Uses enhanced OperatorMap to get correct metadata instead of hardcoded logic.
    */
-  private CallDetailsResult resolveUsingSyntheticOperators(final CallContext context) {
+  private CallDetailsResult resolveAsOperator(final CallContext context) {
     final var targetTypeName = typeNameOrException.apply(context.targetType());
     final var parameterTypes = context.argumentTypes().stream()
         .map(typeNameOrException)
         .toList();
 
-    // Try to get operator details from OperatorMap by method name (backward lookup)
+    // Use the return type from CallContext if available (from resolved method)
     String returnType;
     CallMetaDataDetails metaData;
 
+    if (context.returnType() != null) {
+      // Use the provided return type from the resolved method
+      returnType = typeNameOrException.apply(context.returnType());
+    } else if (operatorMap.hasMethod(context.methodName())) {
+      // Fallback for truly synthetic operators without resolved methods
+      final var operatorDetails = operatorMap.getOperatorDetailsByMethod(context.methodName());
+      if (operatorDetails.hasReturn()) {
+        returnType = targetTypeName; // Fallback assumption
+      } else {
+        returnType = EK9_VOID;
+      }
+    } else {
+      throw new CompilerException("Unknown operator: " + context.methodName());
+    }
+
+    // Get metadata from OperatorMap if available
     if (operatorMap.hasMethod(context.methodName())) {
       final var operatorDetails = operatorMap.getOperatorDetailsByMethod(context.methodName());
-
-      // Determine return type based on OperatorDetails
-      if (operatorDetails.hasReturn()) {
-        returnType = targetTypeName; // Return same type as target for most operators
-      } else {
-        returnType = EK9_VOID; // No return = Void
-      }
-
-      // Get side effects from centralized OperatorMap logic
       final var sideEffects = operatorMap.getSideEffectsByMethod(context.methodName());
 
       metaData = new CallMetaDataDetails(
           operatorDetails.markedPure(),
-          operatorDetails.markedPure() ? 1 : 0, // Simple complexity: 1 for pure, 0 for impure
+          operatorDetails.markedPure() ? 1 : 0,
           Set.copyOf(sideEffects)
       );
     } else {
-      throw new CompilerException("Unknown Operator" + context.methodName());
+      // Default metadata for unknown operators
+      metaData = new CallMetaDataDetails(false, 0, Set.of());
     }
 
     // Check if this is a trait call (synthetic operators rarely on traits, but check anyway)

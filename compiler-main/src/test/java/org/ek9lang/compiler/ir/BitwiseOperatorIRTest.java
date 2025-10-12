@@ -7,9 +7,9 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * Focused on testing IR generation for bitwise operator expressions.
  * Tests shift left (<<) and shift right (>>) operators with Bits type.
  */
-class BitwiseOperatorTest extends AbstractIRGenerationTest {
+class BitwiseOperatorIRTest extends AbstractIRGenerationTest {
 
-  public BitwiseOperatorTest() {
+  public BitwiseOperatorIRTest() {
     super("/examples/irGeneration/operatorUse/bitwise",
         List.of(
             new SymbolCountCheck(1, "shiftLeft.test", 1),

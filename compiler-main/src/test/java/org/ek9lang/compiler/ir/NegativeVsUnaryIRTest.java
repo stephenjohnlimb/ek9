@@ -16,9 +16,9 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * for systematic regression protection and educational documentation.
  * </p>
  */
-class NegativeVsUnaryTest extends AbstractIRGenerationTest {
+class NegativeVsUnaryIRTest extends AbstractIRGenerationTest {
 
-  public NegativeVsUnaryTest() {
+  public NegativeVsUnaryIRTest() {
     super("/examples/irGeneration/operatorUse/negativeLiterals",
         List.of(
             new SymbolCountCheck(1, "integer.negative.literal.test", 1),

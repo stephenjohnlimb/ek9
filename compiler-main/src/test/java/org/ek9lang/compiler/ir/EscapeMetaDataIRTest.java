@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for EscapeMetaDataDetails record and IR instruction integration.
  */
-class EscapeMetaDataTest {
+class EscapeMetaDataIRTest {
 
   @Test
   void testEscapeMetaDataCreation() {

@@ -6,9 +6,9 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 /**
  * Focused on testing IR generation for conversion operator expressions.
  */
-class ConversionOperatorTest extends AbstractIRGenerationTest {
+class ConversionOperatorIRTest extends AbstractIRGenerationTest {
 
-  public ConversionOperatorTest() {
+  public ConversionOperatorIRTest() {
     super("/examples/irGeneration/operatorUse/conversion",
         List.of(
             new SymbolCountCheck(1, "string.test", 1),

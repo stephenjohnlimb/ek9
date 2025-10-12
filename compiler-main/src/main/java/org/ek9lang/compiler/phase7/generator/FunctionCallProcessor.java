@@ -194,6 +194,9 @@ public final class FunctionCallProcessor
 
     // Function calls use the function symbol as the "target type"
     // The method name is always "_call" for function calls
+    // Return type is the function's return type
+    final var returnType = functionSymbol.getReturningSymbol().getType().orElse(null);
+
     return new CallContext(
         functionSymbol,                    // Target type (the function itself)
         stackContext.generateTempName(),        // Target variable (will be function instance)
@@ -201,6 +204,7 @@ public final class FunctionCallProcessor
         argumentDetails.argumentSymbols(), // Argument types for promotion analysis
         argumentDetails.argumentVariables(), // Argument variables
         stackContext.currentScopeId(),      // STACK-BASED: Get scope ID from current stack frame
+        returnType,                        // Return type from function signature
         details.callContext()             // Pass the original parse context
     );
   }

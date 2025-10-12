@@ -6,9 +6,9 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 /**
  * Focused on testing IR generation for advanced operator expressions.
  */
-class AdvancedOperatorTest extends AbstractIRGenerationTest {
+class AdvancedOperatorIRTest extends AbstractIRGenerationTest {
 
-  public AdvancedOperatorTest() {
+  public AdvancedOperatorIRTest() {
     super("/examples/irGeneration/operatorUse/advanced",
         List.of(
             new SymbolCountCheck(1, "replace.test", 1),

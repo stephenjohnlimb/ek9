@@ -6,9 +6,9 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 /**
  * Focussed in testing IR generation for mathematical operator expressions.
  */
-class MathematicalOperatorTest extends AbstractIRGenerationTest {
+class MathematicalOperatorIRTest extends AbstractIRGenerationTest {
 
-  public MathematicalOperatorTest() {
+  public MathematicalOperatorIRTest() {
     super("/examples/irGeneration/operatorUse/mathematical",
         List.of(
             new SymbolCountCheck(1, "power.test", 1),

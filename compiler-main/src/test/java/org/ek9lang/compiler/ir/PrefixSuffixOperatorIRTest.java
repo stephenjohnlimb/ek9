@@ -7,9 +7,9 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * Focused on testing IR generation for prefix/suffix operator expressions.
  * Tests prefix (#<) and suffix (#>) operators with Dimension type.
  */
-class PrefixSuffixOperatorTest extends AbstractIRGenerationTest {
+class PrefixSuffixOperatorIRTest extends AbstractIRGenerationTest {
 
-  public PrefixSuffixOperatorTest() {
+  public PrefixSuffixOperatorIRTest() {
     super("/examples/irGeneration/operatorUse/prefixSuffix",
         List.of(
             new SymbolCountCheck(1, "prefix.test", 1),

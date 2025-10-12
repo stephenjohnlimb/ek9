@@ -6,9 +6,9 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 /**
  * Focussed in testing IR generation for comparison expressions.
  */
-class ComparisonOperatorTest extends AbstractIRGenerationTest {
+class ComparisonOperatorIRTest extends AbstractIRGenerationTest {
 
-  public ComparisonOperatorTest() {
+  public ComparisonOperatorIRTest() {
     super("/examples/irGeneration/operatorUse/comparison",
         List.of(
             new SymbolCountCheck(1, "less_than.test", 1),

@@ -142,10 +142,14 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     // Get operand symbols for method resolution
     final var rightSymbol = getRecordedSymbolOrException(ctx.assignmentExpression());
 
+    // Assignment operators ALWAYS return Void (enforced by ValidOperatorOrError in Phase 7)
+    final var voidType = stackContext.getParsedModule().getEk9Types().ek9Void();
+
     // Create call context for cost-based resolution
     final var callContext = CallContext.forBinaryOperation(
         symbolTypeOrException.apply(lhsSymbol),     // Target type (left operand type)
         symbolTypeOrException.apply(rightSymbol),   // Argument type (right operand type)
+        voidType,                                    // Return type (assignment operators always return Void)
         methodName,                                  // Method name (from operator map)
         leftTemp,                                   // Target variable (left operand variable)
         rightTemp,                                  // Argument variable (right operand variable)

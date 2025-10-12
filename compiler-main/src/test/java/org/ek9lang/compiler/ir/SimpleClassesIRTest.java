@@ -6,11 +6,11 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 /**
  * Focussed in testing IR generation for simple classes.
  */
-class JustAssertTest extends AbstractIRGenerationTest {
+class SimpleClassesIRTest extends AbstractIRGenerationTest {
 
-  public JustAssertTest() {
-    super("/examples/irGeneration/justAssert",
-        List.of(new SymbolCountCheck("justAssert", 1)
+  public SimpleClassesIRTest() {
+    super("/examples/irGeneration/simpleClasses",
+        List.of(new SymbolCountCheck("simpleClasses", 1)
         ), false, false, false);
   }
 

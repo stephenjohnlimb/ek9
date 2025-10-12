@@ -6,9 +6,9 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 /**
  * Focussed in testing IR generation for assignment expressions.
  */
-class AssignmentOperatorTest extends AbstractIRGenerationTest {
+class AssignmentOperatorIRTest extends AbstractIRGenerationTest {
 
-  public AssignmentOperatorTest() {
+  public AssignmentOperatorIRTest() {
     super("/examples/irGeneration/operatorUse/assignment",
         List.of(
             new SymbolCountCheck(1, "pointer_assignment.test", 1),

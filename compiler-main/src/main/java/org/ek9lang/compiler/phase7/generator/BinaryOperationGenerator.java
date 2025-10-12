@@ -12,6 +12,7 @@ import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
@@ -64,10 +65,27 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
     final var leftSymbol = getRecordedSymbolOrException(leftExpr);
     final var rightSymbol = getRecordedSymbolOrException(rightExpr);
 
+    // Get the resolved method's return type from the binary operation's CallSymbol
+    final var exprSymbol = getRecordedSymbolOrException(ctx);
+    final ISymbol returnType;
+    if (exprSymbol instanceof org.ek9lang.compiler.symbols.CallSymbol cs) {
+      final var resolvedMethod = cs.getResolvedSymbolToCall();
+      if (resolvedMethod instanceof org.ek9lang.compiler.symbols.MethodSymbol ms) {
+        returnType = ms.getReturningSymbol().getType().orElse(leftSymbol);
+      } else if (resolvedMethod instanceof org.ek9lang.compiler.symbols.FunctionSymbol fs) {
+        returnType = fs.getReturningSymbol().getType().orElse(leftSymbol);
+      } else {
+        returnType = leftSymbol;  // Fallback for other symbol types
+      }
+    } else {
+      returnType = exprSymbol.getType().orElseThrow();
+    }
+
     // Create call context for cost-based resolution
     final var callContext = CallContext.forBinaryOperation(
         leftSymbol,                                  // Target type (left operand type)
         rightSymbol,                                 // Argument type (right operand type)
+        returnType,                                  // Return type (from resolved method)
         methodName,                                  // Method name (from operator map)
         leftTemp,                                    // Target variable (left operand variable)
         rightTemp,                                   // Argument variable (right operand variable)

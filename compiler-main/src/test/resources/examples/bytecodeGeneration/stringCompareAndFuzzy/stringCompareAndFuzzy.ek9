@@ -1,0 +1,167 @@
+#!ek9
+defines module bytecode.test
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::StringCompareAndFuzzy": `public class bytecode.test.StringCompareAndFuzzy {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.StringCompareAndFuzzy();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aconst_null
+        13: astore_3
+        14: ldc           #CP                 // String abc
+        16: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        19: astore        4
+        21: aload         4
+        23: astore_3
+        24: aconst_null
+        25: astore        5
+        27: ldc           #CP                 // String xyz
+        29: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        32: astore        6
+        34: aload         6
+        36: astore        5
+        38: aconst_null
+        39: astore        7
+        41: ldc           #CP                 // String abc
+        43: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        46: astore        8
+        48: aload         8
+        50: astore        7
+        52: aconst_null
+        53: astore        9
+        55: ldc           #CP                 // String hello
+        57: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        60: astore        10
+        62: aload         10
+        64: astore        9
+        66: aconst_null
+        67: astore        11
+        69: ldc           #CP                 // String hallo
+        71: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        74: astore        12
+        76: aload         12
+        78: astore        11
+        80: aconst_null
+        81: astore        13
+        83: aload_3
+        84: astore        14
+        86: aload         5
+        88: astore        15
+        90: aload         14
+        92: aload         15
+        94: invokevirtual #CP                 // Method org/ek9/lang/String._cmp:(Lorg/ek9/lang/String;)Lorg/ek9/lang/Integer;
+        97: astore        16
+        99: aload         16
+       101: astore        13
+       103: aconst_null
+       104: astore        17
+       106: aload         5
+       108: astore        18
+       110: aload_3
+       111: astore        19
+       113: aload         18
+       115: aload         19
+       117: invokevirtual #CP                 // Method org/ek9/lang/String._cmp:(Lorg/ek9/lang/String;)Lorg/ek9/lang/Integer;
+       120: astore        20
+       122: aload         20
+       124: astore        17
+       126: aconst_null
+       127: astore        21
+       129: aload_3
+       130: astore        22
+       132: aload         7
+       134: astore        23
+       136: aload         22
+       138: aload         23
+       140: invokevirtual #CP                 // Method org/ek9/lang/String._cmp:(Lorg/ek9/lang/String;)Lorg/ek9/lang/Integer;
+       143: astore        24
+       145: aload         24
+       147: astore        21
+       149: aload_1
+       150: astore        25
+       152: aload         13
+       154: astore        26
+       156: aload         25
+       158: aload         26
+       160: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       165: aload_1
+       166: astore        27
+       168: aload         17
+       170: astore        28
+       172: aload         27
+       174: aload         28
+       176: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       181: aload_1
+       182: astore        29
+       184: aload         21
+       186: astore        30
+       188: aload         29
+       190: aload         30
+       192: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       197: aconst_null
+       198: astore        31
+       200: aload         9
+       202: astore        32
+       204: aload         11
+       206: astore        33
+       208: aload         32
+       210: aload         33
+       212: invokevirtual #CP                 // Method org/ek9/lang/String._fuzzy:(Lorg/ek9/lang/String;)Lorg/ek9/lang/Integer;
+       215: astore        34
+       217: aload         34
+       219: astore        31
+       221: aload_1
+       222: astore        35
+       224: aload         31
+       226: astore        36
+       228: aload         35
+       230: aload         36
+       232: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       237: return
+}`
+
+    StringCompareAndFuzzy()
+      stdout <- Stdout()
+      str1 <- "abc"
+      str2 <- "xyz"
+      str3 <- "abc"
+      str4 <- "hello"
+      str5 <- "hallo"
+
+      // Test compare operator (<=>)
+      cmp1 <- str1 <=> str2    // -1 (abc < xyz)
+      cmp2 <- str2 <=> str1    // 1 (xyz > abc)
+      cmp3 <- str1 <=> str3    // 0 (abc == abc)
+      stdout.println(cmp1)
+      stdout.println(cmp2)
+      stdout.println(cmp3)
+
+      // Test fuzzy operator (<~>)
+      fuzzy1 <- str4 <~> str5  // 1 (hello vs hallo)
+      stdout.println(fuzzy1)
+
+//EOF

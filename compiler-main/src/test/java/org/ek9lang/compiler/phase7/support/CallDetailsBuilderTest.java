@@ -37,8 +37,9 @@ class CallDetailsBuilderTest {
     // Test binary operation context creation
     final var leftType = new AggregateSymbol("LeftType", symbolTable);
     final var rightType = new AggregateSymbol("RightType", symbolTable);
+    final var returnType = new AggregateSymbol("ReturnType", symbolTable);
 
-    final var context = CallContext.forBinaryOperation(leftType, rightType, "_add", "_left", "_right", "scope1");
+    final var context = CallContext.forBinaryOperation(leftType, rightType, returnType, "_add", "_left", "_right", "scope1");
 
     assertEquals(leftType, context.targetType());
     assertEquals("_left", context.targetVariable());
@@ -46,6 +47,7 @@ class CallDetailsBuilderTest {
     assertEquals(List.of(rightType), context.argumentTypes());
     assertEquals(List.of("_right"), context.argumentVariables());
     assertEquals("scope1", context.scopeId());
+    assertEquals(returnType, context.returnType());
   }
 
   @Test
