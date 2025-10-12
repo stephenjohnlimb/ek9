@@ -116,7 +116,7 @@ defines module bytecode.test
        179: astore        27
        181: aload         26
        183: aload         27
-       185: invokevirtual #CP                 // Method org/ek9/lang/Integer._pow:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+       185: invokevirtual #CP                 // Method org/ek9/lang/Integer._pow:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Float;
        188: astore        28
        190: aload         28
        192: astore        25
@@ -150,7 +150,7 @@ defines module bytecode.test
        252: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
        255: astore        37
        257: aload         37
-       259: invokevirtual #CP                 // Method org/ek9/lang/Integer._sqrt:()Lorg/ek9/lang/Integer;
+       259: invokevirtual #CP                 // Method org/ek9/lang/Integer._sqrt:()Lorg/ek9/lang/Float;
        262: astore        38
        264: aload         38
        266: astore        36

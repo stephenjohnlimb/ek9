@@ -35,8 +35,8 @@ public record CallContext(
    * Create context for unary operation: target.method()
    */
   public static CallContext forUnaryOperation(ISymbol targetType, String methodName,
-                                              String targetVariable, String scopeId) {
-    return new CallContext(targetType, targetVariable, methodName, List.of(), List.of(), scopeId, null, null);
+                                              String targetVariable, ISymbol returnType, String scopeId) {
+    return new CallContext(targetType, targetVariable, methodName, List.of(), List.of(), scopeId, returnType, null);
   }
 
 

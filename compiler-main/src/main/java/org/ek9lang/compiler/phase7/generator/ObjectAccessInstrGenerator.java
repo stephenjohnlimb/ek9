@@ -12,7 +12,8 @@ import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
-import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
+import org.ek9lang.compiler.phase7.calls.CallContext;
+import org.ek9lang.compiler.phase7.calls.ParameterPromotionProcessor;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
@@ -35,14 +36,14 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final VariableMemoryManagement variableMemoryManagement;
   private final Function<ExprProcessingDetails, List<IRInstr>> exprProcessor;
-  private final CallDetailsBuilder callDetailsBuilder;
+  private final ParameterPromotionProcessor parameterPromotionProcessor;
 
   ObjectAccessInstrGenerator(final IRGenerationContext stackContext,
                              final Function<ExprProcessingDetails, List<IRInstr>> exprProcessor) {
     super(stackContext);
     this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
     this.exprProcessor = exprProcessor;
-    this.callDetailsBuilder = new CallDetailsBuilder(stackContext);
+    this.parameterPromotionProcessor = new ParameterPromotionProcessor(stackContext);
   }
 
   /**
@@ -135,8 +136,8 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
             final var argDetails = new VariableDetails(tempObj, objectDebugInfo);
             variableMemoryManagement.apply(() -> instructions, argDetails);
 
-            // Extract arguments from the method call
-            final var arguments = extractMethodArguments(accessType.operationCall(), instructions);
+            // Extract arguments from the method call (returns ArgumentDetails with both variables and symbols)
+            final var argumentDetails = extractMethodArguments(accessType.operationCall(), instructions);
 
             // Get target type from method's parent scope (this is the type the method was resolved on)
             final var parentScope = toBeCalled.getParentScope();
@@ -146,6 +147,24 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
               throw new org.ek9lang.core.CompilerException(
                   "Method parent scope must be a symbol, but got: " + parentScope.getClass().getSimpleName());
             }
+
+            // Create CallContext for parameter promotion checking
+            final var callContext = new CallContext(
+                targetType,
+                tempObj,
+                methodName,
+                argumentDetails.argumentSymbols(),
+                argumentDetails.argumentVariables(),
+                stackContext.currentScopeId(),
+                null,  // returnType not needed for promotion
+                null   // parseContext not needed for promotion
+            );
+
+            // Check for parameter promotion using the resolved method symbol
+            final var promotionResult = parameterPromotionProcessor.apply(callContext, toBeCalled);
+
+            // Add any promotion instructions that were generated
+            instructions.addAll(promotionResult.promotionInstructions());
 
             // Extract type information for CallDetails
             final var targetTypeName = targetType.getFullyQualifiedName();
@@ -158,13 +177,14 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
             final var isTraitCall = targetType.getGenus() == org.ek9lang.compiler.symbols.SymbolGenus.CLASS_TRAIT;
 
             // Extract metadata from the resolved method
-            final var metaDataExtractor = new org.ek9lang.compiler.ir.support.CallMetaDataExtractor(
+            final var metaDataExtractor = new CallMetaDataExtractor(
                 stackContext.getParsedModule().getEk9Types());
             final var metaData = metaDataExtractor.apply(toBeCalled);
 
             // Generate the method call with complete type information including trait flag
+            // Use promoted arguments from promotion result
             final var callDetails = new CallDetails(tempObj, targetTypeName, methodName,
-                parameterTypes, returnTypeName, java.util.Arrays.asList(arguments),
+                parameterTypes, returnTypeName, promotionResult.promotedArguments(),
                 metaData, isTraitCall);
 
             // Only assign result variable for non-void returning methods
@@ -186,10 +206,12 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
   /**
    * Extract method arguments from operation call context using proper expression processing.
    * This generates LOAD_LITERAL instructions for literals and proper memory management.
+   * Returns ArgumentDetails with both variable names and type symbols for promotion checking.
    */
-  private String[] extractMethodArguments(final EK9Parser.OperationCallContext ctx,
-                                          final List<IRInstr> instructions) {
-    final var args = new ArrayList<String>();
+  private ArgumentDetails extractMethodArguments(final EK9Parser.OperationCallContext ctx,
+                                                 final List<IRInstr> instructions) {
+    final var argumentVariables = new ArrayList<String>();
+    final var argumentSymbols = new ArrayList<ISymbol>();
 
     if (ctx.paramExpression() != null && !ctx.paramExpression().expressionParam().isEmpty()) {
       // Process each argument expression using ExprInstrGenerator (like CallInstrGenerator.processParameters)
@@ -208,12 +230,24 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
             () -> argEvaluation, argDetails);
         instructions.addAll(argInstructions);
 
-        // Collect the temp variable name (not the literal value)
-        args.add(argTemp);
+        // Collect the temp variable name and symbol
+        argumentVariables.add(argTemp);
+
+        // Get the argument's type symbol for promotion checking
+        final var argSymbol = getRecordedSymbolOrException(exprCtx);
+        final var symbolTypeOrException = new org.ek9lang.compiler.common.SymbolTypeOrException();
+        final var resolvedTypeSymbol = symbolTypeOrException.apply(argSymbol);
+        argumentSymbols.add(resolvedTypeSymbol);
       }
     }
 
-    return args.toArray(new String[0]);
+    return new ArgumentDetails(argumentVariables, argumentSymbols);
+  }
+
+  /**
+   * Record to hold argument processing results for promotion checking.
+   */
+  private record ArgumentDetails(List<String> argumentVariables, List<ISymbol> argumentSymbols) {
   }
 
 }

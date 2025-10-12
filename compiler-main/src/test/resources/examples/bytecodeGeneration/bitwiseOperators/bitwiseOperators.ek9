@@ -1,0 +1,119 @@
+#!ek9
+defines module bytecode.test
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::BitwiseOperators": `public class bytecode.test.BitwiseOperators {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.BitwiseOperators();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aconst_null
+        13: astore_3
+        14: ldc           #CP                 // String 0b01010101
+        16: invokestatic  #CP                 // Method org/ek9/lang/Bits._of:(Ljava/lang/String;)Lorg/ek9/lang/Bits;
+        19: astore        4
+        21: aload         4
+        23: astore_3
+        24: aconst_null
+        25: astore        5
+        27: ldc           #CP                 // String 0b11110000
+        29: invokestatic  #CP                 // Method org/ek9/lang/Bits._of:(Ljava/lang/String;)Lorg/ek9/lang/Bits;
+        32: astore        6
+        34: aload         6
+        36: astore        5
+        38: aconst_null
+        39: astore        7
+        41: iconst_2
+        42: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        45: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        48: astore        8
+        50: aload         8
+        52: astore        7
+        54: aconst_null
+        55: astore        9
+        57: iconst_3
+        58: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        61: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        64: astore        10
+        66: aload         10
+        68: astore        9
+        70: aconst_null
+        71: astore        11
+        73: aload_3
+        74: astore        12
+        76: aload         7
+        78: astore        13
+        80: aload         12
+        82: aload         13
+        84: invokevirtual #CP                 // Method org/ek9/lang/Bits._shftl:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Bits;
+        87: astore        14
+        89: aload         14
+        91: astore        11
+        93: aload_1
+        94: astore        15
+        96: aload         11
+        98: astore        16
+       100: aload         15
+       102: aload         16
+       104: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       109: aconst_null
+       110: astore        17
+       112: aload         5
+       114: astore        18
+       116: aload         9
+       118: astore        19
+       120: aload         18
+       122: aload         19
+       124: invokevirtual #CP                 // Method org/ek9/lang/Bits._shftr:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Bits;
+       127: astore        20
+       129: aload         20
+       131: astore        17
+       133: aload_1
+       134: astore        21
+       136: aload         17
+       138: astore        22
+       140: aload         21
+       142: aload         22
+       144: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       149: return
+}`
+
+    BitwiseOperators()
+      stdout <- Stdout()
+      bits1 <- 0b01010101
+      bits2 <- 0b11110000
+      shift2 <- 2
+      shift3 <- 3
+
+      // Test shift left (<<)
+      shiftLeft1 <- bits1 << shift2    // 0b010101010 (shifted left by 2)
+      stdout.println(shiftLeft1)
+
+      // Test shift right (>>)
+      shiftRight1 <- bits2 >> shift3   // 0b00011110 (shifted right by 3)
+      stdout.println(shiftRight1)
+
+//EOF

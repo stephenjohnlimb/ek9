@@ -4,17 +4,17 @@ import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
 /**
- * Test bytecode generation for Integer comparison operators.
- * Tests: ==, <>, <, <=, >, >=
+ * Test bytecode generation for type conversion operators.
+ * Tests: #? (hashcode), $ (string), #^ (promote), $$ (JSON)
  */
-class ComparisonOperatorsTest extends AbstractBytecodeGenerationTest {
+class ConversionOperatorsTest extends AbstractBytecodeGenerationTest {
 
-  public ComparisonOperatorsTest() {
+  public ConversionOperatorsTest() {
     //Each bytecode test gets its own directory for parallel execution safety
     //Module name: bytecode.test, expected symbol count: 1 (the program)
-    super("/examples/bytecodeGeneration/comparisonOperators",
+    super("/examples/bytecodeGeneration/conversionOperators",
         List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, false);  // showBytecode = true initially
+        false, false, false);  // showBytecode disabled after directive verified
   }
 
   /**

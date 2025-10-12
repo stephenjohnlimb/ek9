@@ -325,7 +325,7 @@ public class Integer extends BuiltinType {
   @Ek9Operator("""
       operator ^ as pure
         -> arg as Integer
-        <- rtn as Integer?""")
+        <- rtn as Float?""")
   public Float _pow(Integer arg) {
     if (canProcess(arg)) {
       return Float._of(Math.pow(this.state, arg.state));

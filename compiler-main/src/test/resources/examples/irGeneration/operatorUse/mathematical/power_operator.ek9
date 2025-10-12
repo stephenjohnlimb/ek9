@@ -27,7 +27,7 @@ defines module power.test
     OperationDfn: power.test::testPower._call()->org.ek9.lang::Void  // ./power_operator.ek9:81:5
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./power_operator.ek9:82:7
-    REFERENCE result, org.ek9.lang::Integer  // ./power_operator.ek9:82:7
+    REFERENCE result, org.ek9.lang::Float  // ./power_operator.ek9:82:7
     _temp2 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./power_operator.ek9:82:17
     RETAIN _temp2  // ./power_operator.ek9:82:19
     SCOPE_REGISTER _temp2, _scope_1  // ./power_operator.ek9:82:19
@@ -65,7 +65,7 @@ defines module power.test
     ]
     default_body_evaluation:
     [
-    _temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./power_operator.ek9:83:20
+    _temp8 = CALL (org.ek9.lang::Float)_temp5._isSet() [pure=true, complexity=0]  // ./power_operator.ek9:83:20
     RETAIN _temp8  // ./power_operator.ek9:83:20
     SCOPE_REGISTER _temp8, _scope_1  // ./power_operator.ek9:83:20
     ]

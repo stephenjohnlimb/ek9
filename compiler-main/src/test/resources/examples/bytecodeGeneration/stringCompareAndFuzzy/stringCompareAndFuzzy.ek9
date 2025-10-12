@@ -153,15 +153,15 @@ defines module bytecode.test
       str5 <- "hallo"
 
       // Test compare operator (<=>)
-      cmp1 <- str1 <=> str2    // -1 (abc < xyz)
-      cmp2 <- str2 <=> str1    // 1 (xyz > abc)
-      cmp3 <- str1 <=> str3    // 0 (abc == abc)
+      cmp1 <- str1 <=> str2    // negative (abc < xyz)
+      cmp2 <- str2 <=> str1    // positive (xyz > abc)
+      cmp3 <- str1 <=> str3    // zero (abc == abc)
       stdout.println(cmp1)
       stdout.println(cmp2)
       stdout.println(cmp3)
 
       // Test fuzzy operator (<~>)
-      fuzzy1 <- str4 <~> str5  // 1 (hello vs hallo)
+      fuzzy1 <- str4 <~> str5  // 2 (hello vs hallo)
       stdout.println(fuzzy1)
 
 //EOF

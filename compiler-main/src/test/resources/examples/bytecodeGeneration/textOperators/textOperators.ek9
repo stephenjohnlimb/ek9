@@ -1,0 +1,117 @@
+#!ek9
+defines module bytecode.test
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::TextOperators": `public class bytecode.test.TextOperators {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.TextOperators();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aconst_null
+        13: astore_3
+        14: ldc           #CP                 // String hello world
+        16: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        19: astore        4
+        21: aload         4
+        23: astore_3
+        24: aconst_null
+        25: astore        5
+        27: ldc           #CP                 // String hello123
+        29: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        32: astore        6
+        34: aload         6
+        36: astore        5
+        38: aconst_null
+        39: astore        7
+        41: ldc           #CP                 // String world
+        43: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        46: astore        8
+        48: aload         8
+        50: astore        7
+        52: aconst_null
+        53: astore        9
+        55: ldc           #CP                 // String /[a-z]+[0-9]+/
+        57: invokestatic  #CP                 // Method org/ek9/lang/RegEx._of:(Ljava/lang/String;)Lorg/ek9/lang/RegEx;
+        60: astore        10
+        62: aload         10
+        64: astore        9
+        66: aconst_null
+        67: astore        11
+        69: aload_3
+        70: astore        12
+        72: aload         7
+        74: astore        13
+        76: aload         12
+        78: aload         13
+        80: invokevirtual #CP                 // Method org/ek9/lang/String._contains:(Lorg/ek9/lang/String;)Lorg/ek9/lang/Boolean;
+        83: astore        14
+        85: aload         14
+        87: astore        11
+        89: aload_1
+        90: astore        15
+        92: aload         11
+        94: astore        16
+        96: aload         15
+        98: aload         16
+       100: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       105: aconst_null
+       106: astore        17
+       108: aload         5
+       110: astore        18
+       112: aload         9
+       114: astore        19
+       116: aload         18
+       118: aload         19
+       120: invokevirtual #CP                 // Method org/ek9/lang/String._matches:(Lorg/ek9/lang/RegEx;)Lorg/ek9/lang/Boolean;
+       123: astore        20
+       125: aload         20
+       127: astore        17
+       129: aload_1
+       130: astore        21
+       132: aload         17
+       134: astore        22
+       136: aload         21
+       138: aload         22
+       140: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       145: return
+}`
+
+    TextOperators()
+      stdout <- Stdout()
+      text1 <- "hello world"
+      text2 <- "hello123"
+      substring <- "world"
+      pattern <- /[a-z]+[0-9]+/
+
+      // Test contains operator
+      contains1 <- text1 contains substring    // true
+      stdout.println(contains1)
+
+      // Test matches operator
+      matches1 <- text2 matches pattern        // true
+      stdout.println(matches1)
+
+//EOF

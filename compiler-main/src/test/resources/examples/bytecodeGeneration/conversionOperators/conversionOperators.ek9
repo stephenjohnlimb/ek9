@@ -1,0 +1,139 @@
+#!ek9
+defines module bytecode.test
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::ConversionOperators": `public class bytecode.test.ConversionOperators {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.ConversionOperators();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aconst_null
+        13: astore_3
+        14: bipush        42
+        16: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        19: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        22: astore        4
+        24: aload         4
+        26: astore_3
+        27: aconst_null
+        28: astore        5
+        30: ldc           #CP                 // String hello
+        32: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        35: astore        6
+        37: aload         6
+        39: astore        5
+        41: aconst_null
+        42: astore        7
+        44: aload_3
+        45: astore        8
+        47: aload         8
+        49: invokevirtual #CP                 // Method org/ek9/lang/Integer._hashcode:()Lorg/ek9/lang/Integer;
+        52: astore        9
+        54: aload         9
+        56: astore        7
+        58: aload_1
+        59: astore        10
+        61: aload         7
+        63: astore        11
+        65: aload         10
+        67: aload         11
+        69: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+        74: aconst_null
+        75: astore        12
+        77: aload_3
+        78: astore        13
+        80: aload         13
+        82: invokevirtual #CP                 // Method org/ek9/lang/Integer._string:()Lorg/ek9/lang/String;
+        85: astore        14
+        87: aload         14
+        89: astore        12
+        91: aload_1
+        92: astore        15
+        94: aload         12
+        96: astore        16
+        98: aload         15
+       100: aload         16
+       102: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       105: aconst_null
+       106: astore        17
+       108: aload_3
+       109: astore        18
+       111: aload         18
+       113: invokevirtual #CP                 // Method org/ek9/lang/Integer._promote:()Lorg/ek9/lang/Float;
+       116: astore        19
+       118: aload         19
+       120: astore        17
+       122: aload_1
+       123: astore        20
+       125: aload         17
+       127: astore        21
+       129: aload         20
+       131: aload         21
+       133: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       138: aconst_null
+       139: astore        22
+       141: aload         5
+       143: astore        23
+       145: aload         23
+       147: invokevirtual #CP                 // Method org/ek9/lang/String._json:()Lorg/ek9/lang/JSON;
+       150: astore        24
+       152: aload         24
+       154: astore        22
+       156: aload_1
+       157: astore        25
+       159: aload         22
+       161: astore        26
+       163: aload         26
+       165: invokevirtual #CP                 // Method org/ek9/lang/JSON._promote:()Lorg/ek9/lang/String;
+       168: astore        27
+       170: aload         25
+       172: aload         27
+       174: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       177: return
+}`
+
+    ConversionOperators()
+      stdout <- Stdout()
+      intVal <- 42
+      strVal <- "hello"
+
+      // Test hashcode operator (#?)
+      hash1 <- #?intVal
+      stdout.println(hash1)
+
+      // Test string operator ($)
+      str1 <- $intVal
+      stdout.println(str1)
+
+      // Test promote operator (#^)
+      promoted1 <- #^intVal
+      stdout.println(promoted1)
+
+      // Test JSON operator ($$)
+      json1 <- $$strVal
+      stdout.println(json1)
+
+//EOF

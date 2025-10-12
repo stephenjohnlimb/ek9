@@ -14,6 +14,7 @@ import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
@@ -63,11 +64,29 @@ abstract class UnaryOperationGenerator extends AbstractGenerator
     // Get operand symbol for method resolution
     final var operandSymbol = getRecordedSymbolOrException(operandExpr);
 
+    // Get the resolved method's return type from the unary operation's CallSymbol
+    final var exprSymbol = getRecordedSymbolOrException(ctx);
+    final ISymbol returnType;
+    if (exprSymbol instanceof org.ek9lang.compiler.symbols.CallSymbol cs) {
+      final var resolvedMethod = cs.getResolvedSymbolToCall();
+      switch (resolvedMethod) {
+        case org.ek9lang.compiler.symbols.MethodSymbol ms ->
+          returnType = ms.getReturningSymbol().getType().orElse(operandSymbol);
+        case org.ek9lang.compiler.symbols.FunctionSymbol fs ->
+          returnType = fs.getReturningSymbol().getType().orElse(operandSymbol);
+        default ->
+          returnType = operandSymbol;  // Fallback for other symbol types
+      }
+    } else {
+      returnType = exprSymbol.getType().orElseThrow();
+    }
+
     // Create call context for cost-based resolution (unary operation has no arguments)
     final var callContext =
         CallContext.forUnaryOperation(symbolTypeOrException.apply(operandSymbol),  // Target type (operand type)
             methodName,                                   // Method name (from operator map)
             operandTemp,                                  // Target variable (operand variable)
+            returnType,                                   // Return type (from resolved method)
             stackContext.currentScopeId()                // STACK-BASED: Get scope ID from current stack frame
         );
 

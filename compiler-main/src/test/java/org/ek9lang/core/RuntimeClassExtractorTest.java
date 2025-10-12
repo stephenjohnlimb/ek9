@@ -187,7 +187,7 @@ final class RuntimeClassExtractorTest {
   }
 
   @Test
-  void testNoAnonymousClassesIncluded() throws Exception {
+  void testInnerClassesIncluded() throws Exception {
     var result = underTest.extractRuntimeJar(
         fileHandling,
         testProjectDir.getPath(),
@@ -195,17 +195,17 @@ final class RuntimeClassExtractorTest {
 
     assertTrue(result.isPresent());
 
-    // Verify JAR contains nested classes (static inner classes with $)
-    // These are legitimate EK9 runtime classes
+    // Verify JAR contains inner classes (including anonymous classes with $)
+    // These are required for dependency libraries like Jackson to function
     try (JarFile jar = new JarFile(result.get())) {
-      long nestedClassCount = jar.stream()
+      long innerClassCount = jar.stream()
           .filter(e -> e.getName().endsWith(".class"))
           .filter(e -> e.getName().contains("$"))
           .count();
 
-      // Should have at least EnvVars$, SystemExitManager$, SocketConnection$, TCP$ classes
-      assertTrue(nestedClassCount >= 5,
-          "Should contain nested classes (expected >= 5, found " + nestedClassCount + ")");
+      // Should have many inner classes from EK9 runtime and dependency libraries
+      assertTrue(innerClassCount >= 5,
+          "Should contain inner classes (expected >= 5, found " + innerClassCount + ")");
     }
   }
 }
