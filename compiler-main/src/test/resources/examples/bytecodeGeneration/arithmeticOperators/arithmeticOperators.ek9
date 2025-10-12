@@ -1,0 +1,169 @@
+#!ek9
+defines module bytecode.test
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::ArithmeticOperators": `public class bytecode.test.ArithmeticOperators {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.ArithmeticOperators();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aconst_null
+        13: astore_3
+        14: bipush        10
+        16: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        19: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        22: astore        4
+        24: aload         4
+        26: astore_3
+        27: aconst_null
+        28: astore        5
+        30: iconst_3
+        31: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        34: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        37: astore        6
+        39: aload         6
+        41: astore        5
+        43: aconst_null
+        44: astore        7
+        46: aload_3
+        47: astore        8
+        49: aload         5
+        51: astore        9
+        53: aload         8
+        55: aload         9
+        57: invokevirtual #CP                 // Method org/ek9/lang/Integer._add:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+        60: astore        10
+        62: aload         10
+        64: astore        7
+        66: aload_1
+        67: astore        11
+        69: aload         7
+        71: astore        12
+        73: aload         11
+        75: aload         12
+        77: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+        82: aconst_null
+        83: astore        13
+        85: aload_3
+        86: astore        14
+        88: aload         5
+        90: astore        15
+        92: aload         14
+        94: aload         15
+        96: invokevirtual #CP                 // Method org/ek9/lang/Integer._sub:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+        99: astore        16
+       101: aload         16
+       103: astore        13
+       105: aload_1
+       106: astore        17
+       108: aload         13
+       110: astore        18
+       112: aload         17
+       114: aload         18
+       116: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       121: aconst_null
+       122: astore        19
+       124: aload_3
+       125: astore        20
+       127: aload         5
+       129: astore        21
+       131: aload         20
+       133: aload         21
+       135: invokevirtual #CP                 // Method org/ek9/lang/Integer._mul:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+       138: astore        22
+       140: aload         22
+       142: astore        19
+       144: aload_1
+       145: astore        23
+       147: aload         19
+       149: astore        24
+       151: aload         23
+       153: aload         24
+       155: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       160: aconst_null
+       161: astore        25
+       163: aload_3
+       164: astore        26
+       166: aload         5
+       168: astore        27
+       170: aload         26
+       172: aload         27
+       174: invokevirtual #CP                 // Method org/ek9/lang/Integer._div:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+       177: astore        28
+       179: aload         28
+       181: astore        25
+       183: aload_1
+       184: astore        29
+       186: aload         25
+       188: astore        30
+       190: aload         29
+       192: aload         30
+       194: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       199: aconst_null
+       200: astore        31
+       202: aload_3
+       203: astore        32
+       205: aload         32
+       207: invokevirtual #CP                 // Method org/ek9/lang/Integer._negate:()Lorg/ek9/lang/Integer;
+       210: astore        33
+       212: aload         33
+       214: astore        31
+       216: aload_1
+       217: astore        34
+       219: aload         31
+       221: astore        35
+       223: aload         34
+       225: aload         35
+       227: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       232: return
+}`
+
+    ArithmeticOperators()
+      stdout <- Stdout()
+      a <- 10
+      b <- 3
+
+      // Test addition (+)
+      add1 <- a + b    // 13
+      stdout.println(add1)
+
+      // Test subtraction (-)
+      sub1 <- a - b    // 7
+      stdout.println(sub1)
+
+      // Test multiplication (*)
+      mul1 <- a * b    // 30
+      stdout.println(mul1)
+
+      // Test division (/)
+      div1 <- a / b    // 3 (integer division)
+      stdout.println(div1)
+
+      // Test negation (unary -)
+      neg1 <- -a       // -10
+      stdout.println(neg1)
+
+//EOF
