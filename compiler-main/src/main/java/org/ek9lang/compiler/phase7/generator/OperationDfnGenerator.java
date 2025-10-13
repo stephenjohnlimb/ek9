@@ -45,10 +45,10 @@ import org.ek9lang.core.AssertValue;
 public final class OperationDfnGenerator implements BiConsumer<OperationInstr, EK9Parser.OperationDetailsContext> {
 
   private final IRGenerationContext stackContext;
-  private final IRConstructGenerators generators;
+  private final GeneratorSet generators;
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
 
-  public OperationDfnGenerator(final IRGenerationContext stackContext, final IRConstructGenerators generators) {
+  public OperationDfnGenerator(final IRGenerationContext stackContext, final GeneratorSet generators) {
     AssertValue.checkNotNull("Stack context cannot be null", stackContext);
     AssertValue.checkNotNull("Generators cannot be null", generators);
     this.stackContext = stackContext;
@@ -107,8 +107,8 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
     final var instructions = new ArrayList<IRInstr>();
 
     for (final var varOnlyCtx : ctx.variableOnlyDeclaration()) {
-      // REFACTORED: Reuse generator from shared tree
-      instructions.addAll(generators.variableOnlyDeclGenerator().apply(varOnlyCtx));
+      // REFACTORED: Access generator directly from struct
+      instructions.addAll(generators.variableOnlyDeclGenerator.apply(varOnlyCtx));
     }
 
     return instructions;
@@ -132,12 +132,12 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
     // Process return variable declarations
     if (ctx.variableDeclaration() != null) {
       // Return variable with initialization: <- rtn as String: String()
-      // REFACTORED: Reuse generator from shared tree
-      instructions.addAll(generators.variableDeclGenerator().apply(ctx.variableDeclaration()));
+      // REFACTORED: Access generator directly from struct
+      instructions.addAll(generators.variableDeclGenerator.apply(ctx.variableDeclaration()));
     } else if (ctx.variableOnlyDeclaration() != null) {
       // Return variable without initialization: <- rtn as String
-      // REFACTORED: Reuse generator from shared tree
-      instructions.addAll(generators.variableOnlyDeclGenerator().apply(ctx.variableOnlyDeclaration()));
+      // REFACTORED: Access generator directly from struct
+      instructions.addAll(generators.variableOnlyDeclGenerator.apply(ctx.variableOnlyDeclaration()));
     }
 
     // Return variables are now managed in method scope - no separate return scope to track
@@ -165,9 +165,9 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
     instructions.add(ScopeInstr.enter(scopeId, debugInfo));
 
     // Process all block statements - they can now use stackContext.currentScopeId()
-    // REFACTORED: Reuse generator from shared tree
+    // REFACTORED: Access generator directly from struct
     for (final var blockStmtCtx : ctx.blockStatement()) {
-      instructions.addAll(generators.blockStmtGenerator().apply(blockStmtCtx));
+      instructions.addAll(generators.blockStmtGenerator.apply(blockStmtCtx));
     }
 
     // Exit scope (automatic RELEASE of all registered objects)

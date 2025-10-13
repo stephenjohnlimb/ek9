@@ -14,7 +14,7 @@ import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.core.AssertValue;
 
-final class AssertStmtGenerator extends AbstractGenerator
+public final class AssertStmtGenerator extends AbstractGenerator
     implements Function<EK9Parser.AssertStatementContext, List<IRInstr>> {
 
   private final CallDetailsForIsTrue callDetailsForTrue = new CallDetailsForIsTrue();

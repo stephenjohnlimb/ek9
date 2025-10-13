@@ -23,25 +23,17 @@ import org.ek9lang.core.CompilerException;
  *     ;
  * </pre>
  */
-final class BlockStmtInstrGenerator extends AbstractGenerator
+public final class BlockStmtInstrGenerator extends AbstractGenerator
     implements Function<EK9Parser.BlockStatementContext, List<IRInstr>> {
 
-  private final VariableDeclInstrGenerator variableDeclarationCreator;
-  private final VariableOnlyDeclInstrGenerator variableOnlyDeclarationCreator;
-  private final StmtInstrGenerator statementInstructionCreator;
+  private final GeneratorSet generators;
 
   /**
-   * Constructor accepting injected generators (Phase 2 refactoring).
-   * Eliminates internal generator creation for better object reuse.
+   * Constructor accepting GeneratorSet for unified access to all generators.
    */
-  BlockStmtInstrGenerator(final IRGenerationContext stackContext,
-                          final VariableDeclInstrGenerator variableDeclarationCreator,
-                          final VariableOnlyDeclInstrGenerator variableOnlyDeclarationCreator,
-                          final StmtInstrGenerator statementInstructionCreator) {
+  BlockStmtInstrGenerator(final IRGenerationContext stackContext, final GeneratorSet generators) {
     super(stackContext);
-    this.variableDeclarationCreator = variableDeclarationCreator;
-    this.variableOnlyDeclarationCreator = variableOnlyDeclarationCreator;
-    this.statementInstructionCreator = statementInstructionCreator;
+    this.generators = generators;
   }
 
   /**
@@ -56,13 +48,13 @@ final class BlockStmtInstrGenerator extends AbstractGenerator
 
     if (ctx.variableDeclaration() != null) {
       // STACK-BASED: VariableDeclInstrGenerator uses stack context directly
-      instructions.addAll(variableDeclarationCreator.apply(ctx.variableDeclaration()));
+      instructions.addAll(generators.variableDeclGenerator.apply(ctx.variableDeclaration()));
     } else if (ctx.variableOnlyDeclaration() != null) {
       // STACK-BASED: VariableOnlyDeclInstrGenerator now uses stack context directly
-      instructions.addAll(variableOnlyDeclarationCreator.apply(ctx.variableOnlyDeclaration()));
+      instructions.addAll(generators.variableOnlyDeclGenerator.apply(ctx.variableOnlyDeclaration()));
     } else if (ctx.statement() != null) {
       // STACK-BASED: StmtInstrGenerator uses stack context directly
-      instructions.addAll(statementInstructionCreator.apply(ctx.statement()));
+      instructions.addAll(generators.stmtGenerator.apply(ctx.statement()));
     } else {
       throw new CompilerException("Not expecting any other type of block statement");
     }

@@ -14,21 +14,16 @@ import org.ek9lang.core.AssertValue;
 public final class VariableDeclInstrGenerator extends AbstractVariableDeclGenerator
     implements Function<EK9Parser.VariableDeclarationContext, List<IRInstr>> {
 
-  private final ExprInstrGenerator exprInstrGenerator;
-  private final org.ek9lang.compiler.phase7.support.VariableMemoryManagement variableMemoryManagement;
+  private final GeneratorSet generators;
 
   /**
-   * Constructor accepting injected dependencies.
-   * Eliminates internal generator creation for better object reuse.
+   * Constructor accepting GeneratorSet for unified access to all generators.
    */
-  public VariableDeclInstrGenerator(final IRGenerationContext stackContext,
-                                    final org.ek9lang.compiler.phase7.support.VariableMemoryManagement variableMemoryManagement,
-                                    final ExprInstrGenerator exprInstrGenerator) {
+  public VariableDeclInstrGenerator(final IRGenerationContext stackContext, final GeneratorSet generators) {
     super(stackContext);
     AssertValue.checkNotNull("IRGenerationContext cannot be null", stackContext);
-    AssertValue.checkNotNull("VariableMemoryManagement cannot be null", variableMemoryManagement);
-    this.exprInstrGenerator = exprInstrGenerator;
-    this.variableMemoryManagement = variableMemoryManagement;
+    AssertValue.checkNotNull("GeneratorSet cannot be null", generators);
+    this.generators = generators;
   }
 
   /**
@@ -48,11 +43,11 @@ public final class VariableDeclInstrGenerator extends AbstractVariableDeclGenera
 
       final var lhsSymbol = getRecordedSymbolOrException(ctx);
 
-      // Use injected ExprInstrGenerator for better object reuse
-      final var generator = new AssignmentExprInstrGenerator(stackContext, exprInstrGenerator, ctx.assignmentExpression());
+      // Use ExprInstrGenerator from generators struct
+      final var generator = new AssignmentExprInstrGenerator(stackContext, generators.exprGenerator, ctx.assignmentExpression());
       //Now because we are declaring and initialising a new variable - we do not need to 'release' any memory
       //it could be pointing to - because it is a new variable and so could not be pointing to anything.
-      final var assignExpressionToSymbol = new AssignExpressionToSymbol(stackContext, variableMemoryManagement, false, generator);
+      final var assignExpressionToSymbol = new AssignExpressionToSymbol(stackContext, generators.variableMemoryManagement, false, generator);
       instructions.addAll(assignExpressionToSymbol.apply(lhsSymbol, ctx.assignmentExpression()));
     }
 

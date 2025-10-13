@@ -9,11 +9,9 @@ import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.calls.CallContext;
-import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
-import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
@@ -30,23 +28,16 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * Now accepts optional expressionProcessor for recursive expression handling.
  * </p>
  */
-final class UnaryOperationGenerator extends AbstractGenerator
+public final class UnaryOperationGenerator extends AbstractGenerator
     implements Function<ExprProcessingDetails, List<IRInstr>> {
 
   private final OperatorMap operatorMap = new OperatorMap();
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
-  private final VariableMemoryManagement variableMemoryManagement;
-  private final CallDetailsBuilder callDetailsBuilder;
-  private final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor;
+  private final GeneratorSet generators;
 
-  UnaryOperationGenerator(final IRGenerationContext stackContext,
-                          final VariableMemoryManagement variableMemoryManagement,
-                          final CallDetailsBuilder callDetailsBuilder,
-                          final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor) {
+  UnaryOperationGenerator(final IRGenerationContext stackContext, final GeneratorSet generators) {
     super(stackContext);
-    this.variableMemoryManagement = variableMemoryManagement;
-    this.callDetailsBuilder = callDetailsBuilder;
-    this.expressionProcessor = expressionProcessor;
+    this.generators = generators;
   }
 
   @Override
@@ -68,9 +59,10 @@ final class UnaryOperationGenerator extends AbstractGenerator
     final var operandDetails = new VariableDetails(operandTemp, debugInfo);
 
     // Use recursive expression processing to handle the operand (e.g., for -(-x))
-    // This will be injected from ExprInstrGenerator constructor
+    // Access from generators struct
     final var operandEvaluation = processOperandExpression(operandExpr, operandDetails);
-    final var instructions = new ArrayList<>(variableMemoryManagement.apply(() -> operandEvaluation, operandDetails));
+    final var instructions =
+        new ArrayList<>(generators.variableMemoryManagement.apply(() -> operandEvaluation, operandDetails));
 
     // Get operand symbol for method resolution
     final var operandSymbol = getRecordedSymbolOrException(operandExpr);
@@ -82,11 +74,10 @@ final class UnaryOperationGenerator extends AbstractGenerator
       final var resolvedMethod = cs.getResolvedSymbolToCall();
       switch (resolvedMethod) {
         case org.ek9lang.compiler.symbols.MethodSymbol ms ->
-          returnType = ms.getReturningSymbol().getType().orElse(operandSymbol);
+            returnType = ms.getReturningSymbol().getType().orElse(operandSymbol);
         case org.ek9lang.compiler.symbols.FunctionSymbol fs ->
-          returnType = fs.getReturningSymbol().getType().orElse(operandSymbol);
-        default ->
-          returnType = operandSymbol;  // Fallback for other symbol types
+            returnType = fs.getReturningSymbol().getType().orElse(operandSymbol);
+        default -> returnType = operandSymbol;  // Fallback for other symbol types
       }
     } else {
       returnType = exprSymbol.getType().orElseThrow();
@@ -101,8 +92,8 @@ final class UnaryOperationGenerator extends AbstractGenerator
             stackContext.currentScopeId()                // STACK-BASED: Get scope ID from current stack frame
         );
 
-    // Use injected CallDetailsBuilder for cost-based method resolution and promotion
-    final var callDetailsResult = callDetailsBuilder.apply(callContext);
+    // Use CallDetailsBuilder from generators struct for cost-based method resolution and promotion
+    final var callDetailsResult = generators.callDetailsBuilder.apply(callContext);
 
     // Add any promotion instructions that were generated
     instructions.addAll(callDetailsResult.allInstructions());
@@ -115,11 +106,11 @@ final class UnaryOperationGenerator extends AbstractGenerator
   }
 
   /**
-   * Process operand expression using injected recursive expression processor.
+   * Process operand expression using exprGenerator from generators struct.
    * This allows handling complex nested expressions like -(-x) or -(a + b).
    */
-  protected List<IRInstr> processOperandExpression(final EK9Parser.ExpressionContext operandExpr,
-                                                   final VariableDetails operandDetails) {
-    return expressionProcessor.apply(new ExprProcessingDetails(operandExpr, operandDetails));
+  List<IRInstr> processOperandExpression(final EK9Parser.ExpressionContext operandExpr,
+                                         final VariableDetails operandDetails) {
+    return generators.exprGenerator.apply(new ExprProcessingDetails(operandExpr, operandDetails));
   }
 }

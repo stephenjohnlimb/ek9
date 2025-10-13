@@ -11,11 +11,9 @@ import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.phase7.calls.CallContext;
-import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
-import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -35,30 +33,19 @@ import org.ek9lang.core.CompilerException;
  * - CallInstr.call generation for function invocations<br>
  * </p>
  */
-final class CallInstrGenerator extends AbstractGenerator
+public final class CallInstrGenerator extends AbstractGenerator
     implements BiFunction<EK9Parser.CallContext, VariableDetails, List<IRInstr>> {
 
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
-  private final VariableMemoryManagement variableMemoryManagement;
-  private final CallDetailsBuilder callDetailsBuilder;
-  private final ExprInstrGenerator exprGenerator;
-  private final ConstructorCallProcessor constructorCallProcessor;
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
+  private final GeneratorSet generators;
 
   /**
-   * Constructor accepting injected generators and helpers.
-   * Eliminates internal generator creation for better object reuse.
+   * Constructor accepting GeneratorSet for unified access to all generators.
    */
-  CallInstrGenerator(final IRGenerationContext stackContext,
-                     final VariableMemoryManagement variableMemoryManagement,
-                     final CallDetailsBuilder callDetailsBuilder,
-                     final ExprInstrGenerator exprGenerator,
-                     final ConstructorCallProcessor constructorCallProcessor) {
+  CallInstrGenerator(final IRGenerationContext stackContext, final GeneratorSet generators) {
     super(stackContext);
-    this.variableMemoryManagement = variableMemoryManagement;
-    this.callDetailsBuilder = callDetailsBuilder;
-    this.exprGenerator = exprGenerator;
-    this.constructorCallProcessor = constructorCallProcessor;
+    this.generators = generators;
   }
 
   @Override
@@ -151,7 +138,7 @@ final class CallInstrGenerator extends AbstractGenerator
     );
 
     // Step 3: Use CallDetailsBuilder to get call details with any promotions
-    final var callDetailsResult = callDetailsBuilder.apply(callContext);
+    final var callDetailsResult = generators.callDetailsBuilder.apply(callContext);
 
     // Step 4: Add any promotion instructions
     instructions.addAll(callDetailsResult.allInstructions());
@@ -198,12 +185,12 @@ final class CallInstrGenerator extends AbstractGenerator
         }
 
         // Use unified constructor call processor (with memory management for statement context)
-        constructorCallProcessor.processConstructorCall(
+        generators.constructorCallProcessor.processConstructorCall(
             callSymbol,
             ctx,
             constructorResultVar,
             instructions,
-            exprGenerator,  // Expression processor function
+            generators.exprGenerator,  // Expression processor function
             true                   // Use memory management for statement context
         );
       } else {
@@ -240,12 +227,12 @@ final class CallInstrGenerator extends AbstractGenerator
           }
 
           // Constructor calls like super() use the constructor call processor
-          constructorCallProcessor.processConstructorCall(
+          generators.constructorCallProcessor.processConstructorCall(
               callSymbol,
               ctx,
               constructorResultVar,
               instructions,
-              exprGenerator,
+              generators.exprGenerator,
               true  // Use memory management for statement context
           );
         } else {
@@ -288,7 +275,7 @@ final class CallInstrGenerator extends AbstractGenerator
               ctx
           );
 
-          final var callDetailsResult = callDetailsBuilder.apply(callContext);
+          final var callDetailsResult = generators.callDetailsBuilder.apply(callContext);
           final var debugInfo = instructionBuilder.createDebugInfo(new Ek9Token(ctx.primaryReference().start));
 
           // Add any promotion instructions that were generated
@@ -330,8 +317,8 @@ final class CallInstrGenerator extends AbstractGenerator
 
         // Generate instructions to evaluate the argument expression
         final var exprDetails = new ExprProcessingDetails(exprCtx, argDetails);
-        final var argEvaluation = exprGenerator.apply(exprDetails);
-        instructions.addAll(variableMemoryManagement.apply(() -> argEvaluation, argDetails));
+        final var argEvaluation = generators.exprGenerator.apply(exprDetails);
+        instructions.addAll(generators.variableMemoryManagement.apply(() -> argEvaluation, argDetails));
 
         // Collect argument variable, type, and symbol
         argumentVariables.add(argTemp);

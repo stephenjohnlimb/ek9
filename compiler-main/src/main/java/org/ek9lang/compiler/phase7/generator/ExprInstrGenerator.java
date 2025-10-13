@@ -68,45 +68,19 @@ import org.ek9lang.core.CompilerException;
  * In time I'll probably need to break this up a bit more.
  * </p>
  */
-final class ExprInstrGenerator extends AbstractGenerator
+public final class ExprInstrGenerator extends AbstractGenerator
     implements Function<ExprProcessingDetails, List<IRInstr>> {
 
-  private final ObjectAccessInstrGenerator objectAccessCreator;
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
-  private final ShortCircuitAndGenerator shortCircuitAndGenerator;
-  private final ShortCircuitOrGenerator shortCircuitOrGenerator;
-  private final QuestionBlockGenerator questionBlockGenerator;
-  private final UnaryOperationGenerator unaryOperationGenerator;
-  private final BinaryOperationGenerator binaryOperationGenerator;
-  private final ConstructorCallProcessor constructorCallProcessor;
-  private final FunctionCallProcessor functionCallProcessor;
-  private final PrimaryReferenceGenerator primaryReferenceGenerator;
+  private final GeneratorSet generators;
 
   /**
-   * Constructor accepting injected generators (Phase 2 refactoring complete).
-   * Eliminates internal generator creation for maximum object reuse.
-   * All 9 sub-generators are now injected as dependencies.
+   * Constructor accepting GeneratorSet for unified access to all generators.
+   * Phase 3 Complete: Simplified from 10 parameters to 2.
    */
-  ExprInstrGenerator(final IRGenerationContext stackContext,
-                     final ObjectAccessInstrGenerator objectAccessCreator,
-                     final ShortCircuitAndGenerator shortCircuitAndGenerator,
-                     final ShortCircuitOrGenerator shortCircuitOrGenerator,
-                     final QuestionBlockGenerator questionBlockGenerator,
-                     final UnaryOperationGenerator unaryOperationGenerator,
-                     final BinaryOperationGenerator binaryOperationGenerator,
-                     final ConstructorCallProcessor constructorCallProcessor,
-                     final FunctionCallProcessor functionCallProcessor,
-                     final PrimaryReferenceGenerator primaryReferenceGenerator) {
+  ExprInstrGenerator(final IRGenerationContext stackContext, final GeneratorSet generators) {
     super(stackContext);
-    this.objectAccessCreator = objectAccessCreator;
-    this.shortCircuitAndGenerator = shortCircuitAndGenerator;
-    this.shortCircuitOrGenerator = shortCircuitOrGenerator;
-    this.questionBlockGenerator = questionBlockGenerator;
-    this.unaryOperationGenerator = unaryOperationGenerator;
-    this.binaryOperationGenerator = binaryOperationGenerator;
-    this.constructorCallProcessor = constructorCallProcessor;
-    this.functionCallProcessor = functionCallProcessor;
-    this.primaryReferenceGenerator = primaryReferenceGenerator;
+    this.generators = generators;
   }
 
   /**
@@ -150,7 +124,7 @@ final class ExprInstrGenerator extends AbstractGenerator
     //Now while you may think these can just call the 'method' that is defined for the operator
     //There cases where 'pre-checks' and 'short circuits need to be applied.
     if (ctx.op.getType() == EK9Parser.QUESTION) {
-      instructions.addAll(questionBlockGenerator.apply(details));
+      instructions.addAll(generators.questionBlockGenerator.apply(details));
     } else if (ctx.op.getType() == EK9Parser.AND) {
       instructions.addAll(processAndExpression(details));
     } else if (ctx.op.getType() == EK9Parser.OR) {
@@ -165,10 +139,10 @@ final class ExprInstrGenerator extends AbstractGenerator
     final var instructions = new ArrayList<IRInstr>();
     if (details.ctx().expression().size() == 1) {
       //Looks like a unary operation, so delegate.
-      instructions.addAll(unaryOperationGenerator.apply(details));
+      instructions.addAll(generators.unaryOperationGenerator.apply(details));
     } else {
       //Binary operation so delegate.
-      instructions.addAll(binaryOperationGenerator.apply(details));
+      instructions.addAll(generators.binaryOperationGenerator.apply(details));
     }
 
     return instructions;
@@ -227,7 +201,7 @@ final class ExprInstrGenerator extends AbstractGenerator
       if (toBeCalled instanceof MethodSymbol methodSymbol && methodSymbol.isConstructor()) {
         // Constructor calls: Use constructor call processor (no memory management for expression context)
         final var instructions = new ArrayList<IRInstr>();
-        constructorCallProcessor.processConstructorCall(
+        generators.constructorCallProcessor.processConstructorCall(
             resolvedCallSymbol,
             callContext,
             details.variableDetails().resultVariable(),
@@ -240,7 +214,7 @@ final class ExprInstrGenerator extends AbstractGenerator
         // Function calls: Use unified function call processor with promotion support
         final var callProcessingDetails = CallProcessingDetails
             .forExpression(callContext, details.variableDetails());
-        return functionCallProcessor.apply(callProcessingDetails, this::process);
+        return generators.functionCallProcessor.apply(callProcessingDetails, this::process);
       } else {
         throw new CompilerException("Unsupported call type: "
             + toBeCalled.getClass().getSimpleName() + " - " + toBeCalled);
@@ -252,7 +226,7 @@ final class ExprInstrGenerator extends AbstractGenerator
   }
 
   private List<IRInstr> processObjectAccessExpression(final ExprProcessingDetails details) {
-    return new ArrayList<>(objectAccessCreator
+    return new ArrayList<>(generators.objectAccessGenerator
         .apply(details.ctx().objectAccessExpression(), details.variableDetails()));
   }
 
@@ -305,7 +279,7 @@ final class ExprInstrGenerator extends AbstractGenerator
   private List<IRInstr> processPrimaryReference(final EK9Parser.PrimaryReferenceContext ctx,
                                                 final String rhsExprResult) {
     final var processingDetails = new PrimaryReferenceProcessingDetails(ctx, rhsExprResult);
-    return primaryReferenceGenerator.apply(processingDetails);
+    return generators.primaryReferenceGenerator.apply(processingDetails);
   }
 
   /**
@@ -315,7 +289,7 @@ final class ExprInstrGenerator extends AbstractGenerator
    * Uses ShortCircuitInstr for backend-appropriate lowering.
    */
   private List<IRInstr> processAndExpression(final ExprProcessingDetails details) {
-    return shortCircuitAndGenerator.apply(details);
+    return generators.shortCircuitAndGenerator.apply(details);
   }
 
   /**
@@ -325,7 +299,7 @@ final class ExprInstrGenerator extends AbstractGenerator
    * Uses ShortCircuitInstr for backend-appropriate lowering.
    */
   private List<IRInstr> processOrExpression(final ExprProcessingDetails details) {
-    return shortCircuitOrGenerator.apply(details);
+    return generators.shortCircuitOrGenerator.apply(details);
   }
 
 }

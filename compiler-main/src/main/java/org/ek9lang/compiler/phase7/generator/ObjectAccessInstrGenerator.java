@@ -4,7 +4,6 @@ import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.common.TypeNameOrException;
@@ -14,12 +13,10 @@ import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
 import org.ek9lang.compiler.phase7.calls.CallContext;
-import org.ek9lang.compiler.phase7.calls.ParameterPromotionProcessor;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
-import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -33,21 +30,14 @@ import org.ek9lang.core.CompilerException;
  * Handles constructor calls and method calls using resolved symbols.
  * Generates new BasicBlock IR (IRInstructions).
  */
-final class ObjectAccessInstrGenerator extends AbstractGenerator {
+public final class ObjectAccessInstrGenerator extends AbstractGenerator {
 
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
-  private final VariableMemoryManagement variableMemoryManagement;
-  private final Function<ExprProcessingDetails, List<IRInstr>> exprProcessor;
-  private final ParameterPromotionProcessor parameterPromotionProcessor;
+  private final GeneratorSet generators;
 
-  ObjectAccessInstrGenerator(final IRGenerationContext stackContext,
-                             final VariableMemoryManagement variableMemoryManagement,
-                             final ParameterPromotionProcessor parameterPromotionProcessor,
-                             final Function<ExprProcessingDetails, List<IRInstr>> exprProcessor) {
+  ObjectAccessInstrGenerator(final IRGenerationContext stackContext, final GeneratorSet generators) {
     super(stackContext);
-    this.variableMemoryManagement = variableMemoryManagement;
-    this.parameterPromotionProcessor = parameterPromotionProcessor;
-    this.exprProcessor = exprProcessor;
+    this.generators = generators;
   }
 
   /**
@@ -138,7 +128,7 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
             final var tempObj = stackContext.generateTempName();
             instructions.add(MemoryInstr.load(tempObj, targetVar, objectDebugInfo));
             final var argDetails = new VariableDetails(tempObj, objectDebugInfo);
-            variableMemoryManagement.apply(() -> instructions, argDetails);
+            generators.variableMemoryManagement.apply(() -> instructions, argDetails);
 
             // Extract arguments from the method call (returns ArgumentDetails with both variables and symbols)
             final var argumentDetails = extractMethodArguments(accessType.operationCall(), instructions);
@@ -165,7 +155,7 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
             );
 
             // Check for parameter promotion using the resolved method symbol
-            final var promotionResult = parameterPromotionProcessor.apply(callContext, toBeCalled);
+            final var promotionResult = generators.parameterPromotionProcessor.apply(callContext, toBeCalled);
 
             // Add any promotion instructions that were generated
             instructions.addAll(promotionResult.promotionInstructions());
@@ -227,10 +217,10 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
 
         // Generate instructions to evaluate the argument expression
         final var exprDetails = new ExprProcessingDetails(exprCtx, argDetails);
-        final var argEvaluation = exprProcessor != null ? exprProcessor.apply(exprDetails) : new ArrayList<IRInstr>();
+        final var argEvaluation = generators.exprGenerator.apply(exprDetails);
 
         // Add variable memory management (RETAIN, SCOPE_REGISTER)
-        final var argInstructions = variableMemoryManagement.apply(
+        final var argInstructions = generators.variableMemoryManagement.apply(
             () -> argEvaluation, argDetails);
         instructions.addAll(argInstructions);
 

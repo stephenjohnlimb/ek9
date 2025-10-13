@@ -12,6 +12,7 @@ import org.ek9lang.compiler.phase7.generation.IRContext;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
+import org.ek9lang.compiler.phase7.generator.GeneratorSet;
 import org.ek9lang.compiler.phase7.generator.IRConstructGenerators;
 import org.ek9lang.compiler.phase7.generator.OperationDfnGenerator;
 import org.ek9lang.compiler.phase7.support.IRConstants;
@@ -36,15 +37,15 @@ abstract class AbstractDfnGenerator {
   protected final IRGenerationContext stackContext;
   protected final String voidStr;
   // Generator tree created ONCE per construct, reused for all processing
-  protected final IRConstructGenerators generators;
+  protected final GeneratorSet generators;
 
   /**
    * Primary constructor using stack context - the single source of truth.
-   * Creates the complete generator tree once for efficient reuse.
+   * Creates the complete generator tree once for efficient reuse via static factory.
    */
   AbstractDfnGenerator(final IRGenerationContext stackContext) {
     this.stackContext = stackContext;
-    this.generators = new IRConstructGenerators(stackContext);
+    this.generators = IRConstructGenerators.create(stackContext);
     this.operationDfnGenerator = new OperationDfnGenerator(stackContext, generators);
     this.voidStr = stackContext.getParsedModule().getEk9Types().ek9Void().getFullyQualifiedName();
   }
@@ -199,11 +200,11 @@ abstract class AbstractDfnGenerator {
     // Process each property in the aggregate
     for (final var propertyCtx : ctx.aggregateProperty()) {
       if (propertyCtx.variableDeclaration() != null) {
-        // REFACTORED: Reuse generator from shared tree
-        instructions.addAll(generators.variableDeclGenerator().apply(propertyCtx.variableDeclaration()));
+        // REFACTORED: Access generator directly from struct
+        instructions.addAll(generators.variableDeclGenerator.apply(propertyCtx.variableDeclaration()));
       } else if (propertyCtx.variableOnlyDeclaration() != null) {
-        // REFACTORED: Reuse generator from shared tree
-        instructions.addAll(generators.variableOnlyDeclGenerator().apply(propertyCtx.variableOnlyDeclaration()));
+        // REFACTORED: Access generator directly from struct
+        instructions.addAll(generators.variableOnlyDeclGenerator.apply(propertyCtx.variableOnlyDeclaration()));
       }
     }
 

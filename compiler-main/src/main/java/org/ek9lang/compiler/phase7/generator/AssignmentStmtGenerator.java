@@ -13,11 +13,9 @@ import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.phase7.calls.CallContext;
-import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.GuardedAssignmentDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
-import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
@@ -37,30 +35,19 @@ import org.ek9lang.core.CompilerException;
  *     ;
  * </pre>
  */
-final class AssignmentStmtGenerator extends AbstractGenerator implements
+public final class AssignmentStmtGenerator extends AbstractGenerator implements
     Function<EK9Parser.AssignmentStatementContext, List<IRInstr>> {
 
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
-  private final VariableMemoryManagement variableMemoryManagement;
-  private final CallDetailsBuilder callDetailsBuilder;
-  private final ControlFlowChainGenerator controlFlowChainGenerator;
   private final OperatorMap operatorMap = new OperatorMap();
-  private final ExprInstrGenerator exprInstrGenerator;
+  private final GeneratorSet generators;
 
   /**
-   * Constructor accepting injected dependencies.
-   * Eliminates internal generator creation for better object reuse.
+   * Constructor accepting GeneratorSet for unified access to all generators.
    */
-  AssignmentStmtGenerator(final IRGenerationContext stackContext,
-                          final VariableMemoryManagement variableMemoryManagement,
-                          final CallDetailsBuilder callDetailsBuilder,
-                          final ControlFlowChainGenerator controlFlowChainGenerator,
-                          final ExprInstrGenerator exprInstrGenerator) {
+  AssignmentStmtGenerator(final IRGenerationContext stackContext, final GeneratorSet generators) {
     super(stackContext);
-    this.variableMemoryManagement = variableMemoryManagement;
-    this.callDetailsBuilder = callDetailsBuilder;
-    this.controlFlowChainGenerator = controlFlowChainGenerator;
-    this.exprInstrGenerator = exprInstrGenerator;
+    this.generators = generators;
   }
 
   @Override
@@ -101,21 +88,25 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     final var lhsSymbol = getRecordedSymbolOrException(ctx.identifier());
 
     // Use injected ExprInstrGenerator for better object reuse
-    final var generator = new AssignmentExprInstrGenerator(stackContext, exprInstrGenerator, ctx.assignmentExpression());
+    final var generator =
+        new AssignmentExprInstrGenerator(stackContext, generators.exprGenerator, ctx.assignmentExpression());
 
     if (isMethodBasedAssignment(ctx.op)) {
       processMethodBasedAssignment(ctx, lhsSymbol, instructions);
       return; // Early return since method-based assignment is complete
     }
-    // Use injected VariableMemoryManagement for better object reuse
-    final var assignExpressionToSymbol = new AssignExpressionToSymbol(stackContext, variableMemoryManagement, true, generator);
+    // Use VariableMemoryManagement from generators struct
+    final var assignExpressionToSymbol =
+        new AssignExpressionToSymbol(stackContext, generators.variableMemoryManagement, true, generator);
 
     if (isGuardedAssignment(ctx.op)) {
 
       final var guardedDetails = new GuardedAssignmentDetails(
           lhsSymbol, ctx.assignmentExpression());
 
-      final var guardedGenerator = new GuardedAssignmentBlockGenerator(stackContext, controlFlowChainGenerator, assignExpressionToSymbol);
+      final var guardedGenerator =
+          new GuardedAssignmentBlockGenerator(stackContext, generators.controlFlowChainGenerator,
+              assignExpressionToSymbol);
       instructions.addAll(guardedGenerator.apply(guardedDetails));
       return; // Early return since guarded assignment is complete
     }
@@ -140,7 +131,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     final var leftTemp = stackContext.generateTempName();
     final var leftDetails = new VariableDetails(leftTemp, debugInfo);
     final var leftLoadInstr = MemoryInstr.load(leftTemp, lhsSymbol.getName(), debugInfo);
-    final var leftInstructions = variableMemoryManagement.apply(() -> {
+    final var leftInstructions = generators.variableMemoryManagement.apply(() -> {
       final var list = new ArrayList<IRInstr>();
       list.add(leftLoadInstr);
       return list;
@@ -151,7 +142,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     final var rightTemp = stackContext.generateTempName();
     final var rightDetails = new VariableDetails(rightTemp, debugInfo);
     final var rightEvaluation = processAssignmentExpression(ctx.assignmentExpression(), rightDetails);
-    instructions.addAll(variableMemoryManagement.apply(() -> rightEvaluation, rightDetails));
+    instructions.addAll(generators.variableMemoryManagement.apply(() -> rightEvaluation, rightDetails));
 
     // Get operand symbols for method resolution
     final var rightSymbol = getRecordedSymbolOrException(ctx.assignmentExpression());
@@ -171,7 +162,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
     );
 
     // Use injected CallDetailsBuilder for cost-based method resolution and promotion
-    final var callDetailsResult = callDetailsBuilder.apply(callContext);
+    final var callDetailsResult = generators.callDetailsBuilder.apply(callContext);
 
     // Add any promotion instructions that were generated
     instructions.addAll(callDetailsResult.allInstructions());
@@ -192,7 +183,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
                                                     final VariableDetails variableDetails) {
 
     // Use injected ExprInstrGenerator for better object reuse
-    final var generator = new AssignmentExprInstrGenerator(stackContext, exprInstrGenerator, assignExprCtx);
+    final var generator = new AssignmentExprInstrGenerator(stackContext, generators.exprGenerator, assignExprCtx);
     return generator.apply(variableDetails.resultVariable());
   }
 }

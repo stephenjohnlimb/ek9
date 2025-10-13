@@ -7,11 +7,9 @@ import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.phase7.calls.CallContext;
-import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
-import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -31,22 +29,15 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * Now accepts optional expressionProcessor for recursive expression handling.
  * </p>
  */
-final class BinaryOperationGenerator extends AbstractGenerator
+public final class BinaryOperationGenerator extends AbstractGenerator
     implements Function<ExprProcessingDetails, List<IRInstr>> {
 
   private final OperatorMap operatorMap = new OperatorMap();
-  private final VariableMemoryManagement variableMemoryManagement;
-  private final CallDetailsBuilder callDetailsBuilder;
-  private final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor;
+  private final GeneratorSet generators;
 
-  BinaryOperationGenerator(final IRGenerationContext stackContext,
-                           final VariableMemoryManagement variableMemoryManagement,
-                           final CallDetailsBuilder callDetailsBuilder,
-                           final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor) {
+  BinaryOperationGenerator(final IRGenerationContext stackContext, final GeneratorSet generators) {
     super(stackContext);
-    this.variableMemoryManagement = variableMemoryManagement;
-    this.callDetailsBuilder = callDetailsBuilder;
-    this.expressionProcessor = expressionProcessor;
+    this.generators = generators;
   }
 
   @Override
@@ -67,13 +58,14 @@ final class BinaryOperationGenerator extends AbstractGenerator
     final var leftTemp = stackContext.generateTempName();
     final var leftDetails = new VariableDetails(leftTemp, debugInfo);
     final var leftEvaluation = processOperandExpression(leftExpr, leftDetails);
-    final var instructions = new ArrayList<>(variableMemoryManagement.apply(() -> leftEvaluation, leftDetails));
+    final var instructions =
+        new ArrayList<>(generators.variableMemoryManagement.apply(() -> leftEvaluation, leftDetails));
 
     // Process right operand with memory management
     final var rightTemp = stackContext.generateTempName();
     final var rightDetails = new VariableDetails(rightTemp, debugInfo);
     final var rightEvaluation = processOperandExpression(rightExpr, rightDetails);
-    instructions.addAll(variableMemoryManagement.apply(() -> rightEvaluation, rightDetails));
+    instructions.addAll(generators.variableMemoryManagement.apply(() -> rightEvaluation, rightDetails));
 
     // Get operand symbols for method resolution
     final var leftSymbol = getRecordedSymbolOrException(leftExpr);
@@ -85,10 +77,8 @@ final class BinaryOperationGenerator extends AbstractGenerator
     if (exprSymbol instanceof CallSymbol cs) {
       final var resolvedMethod = cs.getResolvedSymbolToCall();
       switch (resolvedMethod) {
-        case MethodSymbol ms ->
-            returnType = ms.getReturningSymbol().getType().orElse(leftSymbol);
-        case FunctionSymbol fs ->
-            returnType = fs.getReturningSymbol().getType().orElse(leftSymbol);
+        case MethodSymbol ms -> returnType = ms.getReturningSymbol().getType().orElse(leftSymbol);
+        case FunctionSymbol fs -> returnType = fs.getReturningSymbol().getType().orElse(leftSymbol);
         default -> returnType = leftSymbol;  // Fallback for other symbol types
       }
     } else {
@@ -106,8 +96,8 @@ final class BinaryOperationGenerator extends AbstractGenerator
         stackContext.currentScopeId()                // STACK-BASED: Get scope ID from current stack frame
     );
 
-    // Use injected CallDetailsBuilder for cost-based method resolution and promotion
-    final var callDetailsResult = callDetailsBuilder.apply(callContext);
+    // Use CallDetailsBuilder from generators struct for cost-based method resolution and promotion
+    final var callDetailsResult = generators.callDetailsBuilder.apply(callContext);
 
     // Add any promotion instructions that were generated
     instructions.addAll(callDetailsResult.allInstructions());
@@ -120,12 +110,12 @@ final class BinaryOperationGenerator extends AbstractGenerator
   }
 
   /**
-   * Process operand expression using injected recursive expression processor.
+   * Process operand expression using exprGenerator from generators struct.
    * This allows handling complex nested expressions like (a + b) - (c * d).
    */
-  protected List<IRInstr> processOperandExpression(
+  List<IRInstr> processOperandExpression(
       final org.ek9lang.antlr.EK9Parser.ExpressionContext operandExpr,
       final VariableDetails operandDetails) {
-    return expressionProcessor.apply(new ExprProcessingDetails(operandExpr, operandDetails));
+    return generators.exprGenerator.apply(new ExprProcessingDetails(operandExpr, operandDetails));
   }
 }

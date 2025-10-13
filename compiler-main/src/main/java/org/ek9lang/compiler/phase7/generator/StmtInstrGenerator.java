@@ -35,28 +35,17 @@ import org.ek9lang.core.CompilerException;
  * Still maintains Function interface for incremental migration approach.
  * </p>
  */
-final class StmtInstrGenerator extends AbstractGenerator
+public final class StmtInstrGenerator extends AbstractGenerator
     implements Function<EK9Parser.StatementContext, List<IRInstr>> {
 
-  private final ObjectAccessInstrGenerator objectAccessGenerator;
-  private final AssertStmtGenerator assertStmtGenerator;
-  private final AssignmentStmtGenerator assignmentStmtGenerator;
-  private final CallInstrGenerator callInstrGenerator;
+  private final GeneratorSet generators;
 
   /**
-   * Constructor accepting injected generators (Phase 2 refactoring).
-   * Eliminates internal generator creation for better object reuse.
+   * Constructor accepting GeneratorSet for unified access to all generators.
    */
-  StmtInstrGenerator(final IRGenerationContext stackContext,
-                     final ObjectAccessInstrGenerator objectAccessGenerator,
-                     final AssertStmtGenerator assertStmtGenerator,
-                     final AssignmentStmtGenerator assignmentStmtGenerator,
-                     final CallInstrGenerator callInstrGenerator) {
+  StmtInstrGenerator(final IRGenerationContext stackContext, final GeneratorSet generators) {
     super(stackContext);
-    this.objectAccessGenerator = objectAccessGenerator;
-    this.assertStmtGenerator = assertStmtGenerator;
-    this.assignmentStmtGenerator = assignmentStmtGenerator;
-    this.callInstrGenerator = callInstrGenerator;
+    this.generators = generators;
   }
 
   /**
@@ -105,25 +94,25 @@ final class StmtInstrGenerator extends AbstractGenerator
     final var debugInfo = stackContext.createDebugInfo(ctx);
     final var tempResult = stackContext.generateTempName();
     final var variableDetails = new VariableDetails(tempResult, debugInfo);
-    instructions.addAll(objectAccessGenerator.apply(ctx, variableDetails));
+    instructions.addAll(generators.objectAccessGenerator.apply(ctx, variableDetails));
   }
 
   private void processAssertStatement(final EK9Parser.AssertStatementContext ctx,
                                       final List<IRInstr> instructions) {
     // STACK-BASED: AssertStmtGenerator now uses stack context directly
-    instructions.addAll(assertStmtGenerator.apply(ctx));
+    instructions.addAll(generators.assertStmtGenerator.apply(ctx));
   }
 
   private void processAssignmentStatement(final EK9Parser.AssignmentStatementContext ctx,
                                           final List<IRInstr> instructions) {
     // STACK-BASED: AssignmentStmtGenerator now uses stack context directly
-    instructions.addAll(assignmentStmtGenerator.apply(ctx));
+    instructions.addAll(generators.assignmentStmtGenerator.apply(ctx));
   }
 
   private void processCall(final EK9Parser.CallContext ctx,
                            final List<IRInstr> instructions) {
     final var debugInfo = stackContext.createDebugInfo(ctx);
     final var variableDetails = new VariableDetails(null, debugInfo);
-    instructions.addAll(callInstrGenerator.apply(ctx, variableDetails));
+    instructions.addAll(generators.callGenerator.apply(ctx, variableDetails));
   }
 }

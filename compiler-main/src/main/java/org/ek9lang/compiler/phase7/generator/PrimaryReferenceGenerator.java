@@ -26,7 +26,7 @@ import org.ek9lang.core.AssertValue;
  * Still maintains Function interface for incremental migration approach.
  * </p>
  */
-final class PrimaryReferenceGenerator extends AbstractGenerator 
+public final class PrimaryReferenceGenerator extends AbstractGenerator
     implements Function<PrimaryReferenceProcessingDetails, List<IRInstr>> {
 
   /**
