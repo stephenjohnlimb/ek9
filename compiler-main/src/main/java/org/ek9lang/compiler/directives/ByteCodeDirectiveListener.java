@@ -20,7 +20,7 @@ import org.ek9lang.core.TargetArchitecture;
  */
 public class ByteCodeDirectiveListener extends ResolvedDirectiveListener {
 
-  private final BiPredicate<String, String> lineComparator = new LineByLineComparator();
+  private final BiPredicate<String, String> lineComparator = new LineByLineComparator(System.err);
   private final FileHandling fileHandling = new FileHandling(new OsSupport());
 
   @Override

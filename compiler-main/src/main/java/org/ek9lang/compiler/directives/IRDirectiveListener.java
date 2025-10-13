@@ -17,7 +17,7 @@ import org.ek9lang.core.CompilerException;
  */
 public class IRDirectiveListener extends ResolvedDirectiveListener {
 
-  private final BiPredicate<String, String> lineComparator = new LineByLineComparator();
+  private final BiPredicate<String, String> lineComparator = new LineByLineComparator(System.err);
 
   @Override
   public void accept(final CompilationEvent compilationEvent) {

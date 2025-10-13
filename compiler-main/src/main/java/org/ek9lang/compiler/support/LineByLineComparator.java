@@ -1,13 +1,22 @@
 package org.ek9lang.compiler.support;
 
+import java.io.PrintStream;
 import java.util.function.BiPredicate;
+import org.ek9lang.core.AssertValue;
 
 /**
- * Compares two multi-line strings line-by-lione for equality.
+ * Compares two multi-line strings line-by-line for equality.
  * Useful for validating generated output (IR, bytecode) against expected output in directives.
  * Reports detailed differences including line numbers and content when strings don't match.
  */
 public final class LineByLineComparator implements BiPredicate<String, String> {
+
+  private final PrintStream output;
+
+  public LineByLineComparator(final PrintStream output) {
+    AssertValue.checkNotNull("output consumer cannot be null", output);
+    this.output = output;
+  }
 
   /**
    * Compare two multi-line strings line-by-line.
@@ -22,12 +31,12 @@ public final class LineByLineComparator implements BiPredicate<String, String> {
   public boolean test(final String expected, final String actual) {
 
     if (expected == null && actual == null) {
-      System.err.println("Meaningless comparison");
+      output.println("Meaningless comparison");
       return false;
     }
 
     if (expected == null || actual == null) {
-      System.err.println("Cannot be equal expected or actual is null");
+      output.println("Cannot be equal expected or actual is null");
       return false;
     }
 
@@ -35,7 +44,7 @@ public final class LineByLineComparator implements BiPredicate<String, String> {
     final String[] actualLines = actual.split("\\r?\\n");
 
     if (expectedLines.length != actualLines.length) {
-      System.err.printf("Number of lines differ: expected %d, actual %d%n",
+      output.printf("Number of lines differ: expected %d, actual %d%n",
           expectedLines.length, actualLines.length);
       // Continue comparing to show where they diverge
     }
@@ -45,9 +54,9 @@ public final class LineByLineComparator implements BiPredicate<String, String> {
       final var expectedLine = expectedLines[i].trim();
       final var actualLine = actualLines[i].trim();
       if (!expectedLine.equals(actualLine)) {
-        System.err.printf("Line %d differs%n", i);
-        System.err.println("Expected: [" + expectedLine + "]");
-        System.err.println("Actual:   [" + actualLine + "]");
+        output.printf("Line %d differs%n", i);
+        output.println("Expected: [" + expectedLine + "]");
+        output.println("Actual:   [" + actualLine + "]");
         return false;
       }
     }
