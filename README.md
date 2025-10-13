@@ -20,28 +20,22 @@ This is much appreciated as IntelliJ IDEA is without doubt one of the best devel
 of EK9 much easier.
 
 ### Java and binaries
-The base version of Java for this project is now Java 23. I'm now using the lightweight threading mechanism from
+The base version of Java for this project is now Java 25. I'm now using the lightweight threading mechanism from
 Java 21 onwards to make the compiler as multithreaded as possible (I mean how hard can it be!).
 
-I've also taken a look at [Graalvm](https://www.graalvm.org) to see if I can create a native application from the
-Java compiler. My main reason for doing this - is general interest. But a native application should also start and
-run faster. See the [instructions](https://www.graalvm.org/java/quickstart/) and
-[how to install native-image](https://www.graalvm.org/22.3/reference-manual/native-image/#install-native-image).
-
-But, I'm in the process of designing the 'IR' in EK9 and specifically will enable targets for both Java bytecode and
-llvm IR output.
-
-For this project, once you've built the 'fat jar' (`mvn clean install`), you can use the following command:
-`native-image --no-fallback  -jar ek9c-jar-with-dependencies.jar` to create a native binary.
-
-You can then just run that application `./ek9` or send it to someone; and they can run it (must be same OS);
-but they don't need Java installed (i.e. it is a full standalone binary).
-
-Now this is early days and there's some gotchas with reflection and proxies
-(mainly in the lsp libraries being used). But I'm currently focussing on the command-line compiler.
-So for now the language-server still has to be run with java as a jar. But I'll get there.
+I'm in the process of designing the 'IR' in EK9 and specifically will enable targets for both Java bytecode and
+llvm IR output. While doing the IR I am also checking the IR will meet the needs of the backend generation by implementing
+parts of the Java byte code generation. This approach has helped me work the IR back into a condition where it is a little
+easier for code generation. I'll be attempting the same with native llvm backend in early 2026.
 
 ### Main Entry Point
+
+There is now a small 'C' wrapper application that is included in this repo and built as part of the maven build.
+The main point of this is to create a simple small native executable that can then call the Java ek9 compiler.
+This is so that EK9 developers not used to Java do not have to mess around with complex class-paths etc.
+
+It also means that in the fullness of time, the Java implementation could be replaced without any change to the
+'CLI interface'.
 
 The Java source `org.ek9lang.cli.Ek9.java` is the main entry point in and
 `org.ek9lang.compiler.Ek9Compiler.java` is where the actual compiler is.
