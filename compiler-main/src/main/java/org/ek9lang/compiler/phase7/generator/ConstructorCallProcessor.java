@@ -29,10 +29,13 @@ import org.ek9lang.core.CompilerException;
 public final class ConstructorCallProcessor {
 
   private final IRGenerationContext stackContext;
+  private final VariableMemoryManagement variableMemoryManagement;
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
-  public ConstructorCallProcessor(final IRGenerationContext stackContext) {
+  public ConstructorCallProcessor(final IRGenerationContext stackContext,
+                                  final VariableMemoryManagement variableMemoryManagement) {
     this.stackContext = stackContext;
+    this.variableMemoryManagement = variableMemoryManagement;
   }
 
   /**
@@ -121,7 +124,6 @@ public final class ConstructorCallProcessor {
 
         if (useMemoryManagement) {
           // Apply memory management (CallInstrGenerator pattern)
-          final var variableMemoryManagement = new VariableMemoryManagement(stackContext);
           instructions.addAll(variableMemoryManagement.apply(() -> argEvaluation, argDetails));
         } else {
           // Direct instruction addition (ExprInstrGenerator pattern)

@@ -58,16 +58,16 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
   private final BooleanNotEvaluationCreator booleanNotEvaluationCreator;
 
   public ControlFlowChainGenerator(final IRGenerationContext stackContext,
+                                   final VariableMemoryManagement variableMemoryManagement,
                                    final Function<ExprProcessingDetails, List<IRInstr>> rawExprProcessor) {
     super(stackContext);
     this.rawExprProcessor = rawExprProcessor;
 
-    final var variableMemoryManagement = new VariableMemoryManagement(stackContext);
     final var callDetailsForOfFalse = new CallDetailsForOfFalse();
     final var isSetCallDetailsCreator = new IsSetCallDetailsCreator();
     final var booleanNotCallDetailsCreator = new BooleanNotCallDetailsCreator();
 
-    // Initialize helper classes with their dependencies
+    // Initialize helper classes with injected VariableMemoryManagement
     this.booleanFalseEvaluationCreator = new BooleanFalseEvaluationCreator(
         callDetailsForOfFalse, variableMemoryManagement);
     this.isSetEvaluationCreator = new IsSetEvaluationCreator(

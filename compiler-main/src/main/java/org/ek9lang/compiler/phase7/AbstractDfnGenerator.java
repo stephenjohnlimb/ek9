@@ -12,9 +12,8 @@ import org.ek9lang.compiler.phase7.generation.IRContext;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
+import org.ek9lang.compiler.phase7.generator.IRConstructGenerators;
 import org.ek9lang.compiler.phase7.generator.OperationDfnGenerator;
-import org.ek9lang.compiler.phase7.generator.VariableDeclInstrGenerator;
-import org.ek9lang.compiler.phase7.generator.VariableOnlyDeclInstrGenerator;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.NotImplicitSuper;
 import org.ek9lang.compiler.symbols.IScope;
@@ -36,13 +35,17 @@ abstract class AbstractDfnGenerator {
   protected final OperationDfnGenerator operationDfnGenerator;
   protected final IRGenerationContext stackContext;
   protected final String voidStr;
+  // Generator tree created ONCE per construct, reused for all processing
+  protected final IRConstructGenerators generators;
 
   /**
    * Primary constructor using stack context - the single source of truth.
+   * Creates the complete generator tree once for efficient reuse.
    */
   AbstractDfnGenerator(final IRGenerationContext stackContext) {
     this.stackContext = stackContext;
-    this.operationDfnGenerator = new OperationDfnGenerator(stackContext);
+    this.generators = new IRConstructGenerators(stackContext);
+    this.operationDfnGenerator = new OperationDfnGenerator(stackContext, generators);
     this.voidStr = stackContext.getParsedModule().getEk9Types().ek9Void().getFullyQualifiedName();
   }
 
@@ -186,6 +189,7 @@ abstract class AbstractDfnGenerator {
   /**
    * Process all properties for instance initialization.
    * Generates REFERENCE declarations and immediate initializations.
+   * REFACTORED: Now reuses generators from shared generator tree instead of creating new instances.
    */
   protected List<IRInstr> processPropertiesForInstanceInit(
       final EK9Parser.AggregatePartsContext ctx) {
@@ -195,12 +199,11 @@ abstract class AbstractDfnGenerator {
     // Process each property in the aggregate
     for (final var propertyCtx : ctx.aggregateProperty()) {
       if (propertyCtx.variableDeclaration() != null) {
-        final var variableDeclInstrGenerator = new VariableDeclInstrGenerator(stackContext);
-        instructions.addAll(variableDeclInstrGenerator.apply(propertyCtx.variableDeclaration()));
+        // REFACTORED: Reuse generator from shared tree
+        instructions.addAll(generators.variableDeclGenerator().apply(propertyCtx.variableDeclaration()));
       } else if (propertyCtx.variableOnlyDeclaration() != null) {
-        // STACK-BASED: VariableOnlyDeclInstrGenerator now uses stack context directly
-        final var variableOnlyDeclInstrGenerator = new VariableOnlyDeclInstrGenerator(stackContext);
-        instructions.addAll(variableOnlyDeclInstrGenerator.apply(propertyCtx.variableOnlyDeclaration()));
+        // REFACTORED: Reuse generator from shared tree
+        instructions.addAll(generators.variableOnlyDeclGenerator().apply(propertyCtx.variableOnlyDeclaration()));
       }
     }
 

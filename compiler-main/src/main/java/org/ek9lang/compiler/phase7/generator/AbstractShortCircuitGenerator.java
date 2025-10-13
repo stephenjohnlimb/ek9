@@ -29,12 +29,13 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
   private final Function<LogicalDetails, IRInstr> logicalOperation;
 
   AbstractShortCircuitGenerator(final IRGenerationContext stackContext,
+                                final VariableMemoryManagement variableMemoryManagement,
                                 final RecordExprProcessing recordExprProcessing,
                                 final Function<LogicalDetails, IRInstr> logicalOperation) {
     super(stackContext);
+    this.variableMemoryManagement = variableMemoryManagement;
     this.recordExprProcessing = recordExprProcessing;
     this.logicalOperation = logicalOperation;
-    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
   }
 
   protected abstract CallDetails getCallDetails(final String lhsVariable, final String rhsVariable);

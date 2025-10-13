@@ -13,7 +13,6 @@ import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.LiteralProcessingDetails;
 import org.ek9lang.compiler.phase7.support.PrimaryReferenceProcessingDetails;
-import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -83,20 +82,31 @@ final class ExprInstrGenerator extends AbstractGenerator
   private final FunctionCallProcessor functionCallProcessor;
   private final PrimaryReferenceGenerator primaryReferenceGenerator;
 
-  ExprInstrGenerator(final IRGenerationContext stackContext) {
+  /**
+   * Constructor accepting injected generators (Phase 2 refactoring complete).
+   * Eliminates internal generator creation for maximum object reuse.
+   * All 9 sub-generators are now injected as dependencies.
+   */
+  ExprInstrGenerator(final IRGenerationContext stackContext,
+                     final ObjectAccessInstrGenerator objectAccessCreator,
+                     final ShortCircuitAndGenerator shortCircuitAndGenerator,
+                     final ShortCircuitOrGenerator shortCircuitOrGenerator,
+                     final QuestionBlockGenerator questionBlockGenerator,
+                     final UnaryOperationGenerator unaryOperationGenerator,
+                     final BinaryOperationGenerator binaryOperationGenerator,
+                     final ConstructorCallProcessor constructorCallProcessor,
+                     final FunctionCallProcessor functionCallProcessor,
+                     final PrimaryReferenceGenerator primaryReferenceGenerator) {
     super(stackContext);
-
-    final RecordExprProcessing recordExprProcessing = new RecordExprProcessing(this::process, stackContext);
-
-    this.objectAccessCreator = new ObjectAccessInstrGenerator(stackContext, this::process);
-    this.shortCircuitAndGenerator = new ShortCircuitAndGenerator(stackContext, recordExprProcessing);
-    this.shortCircuitOrGenerator = new ShortCircuitOrGenerator(stackContext, recordExprProcessing);
-    this.questionBlockGenerator = new QuestionBlockGenerator(stackContext, this::process);
-    this.unaryOperationGenerator = new UnaryOperationGeneratorWithProcessor(stackContext, this::process);
-    this.binaryOperationGenerator = new BinaryOperationGeneratorWithProcessor(stackContext, this::process);
-    this.constructorCallProcessor = new ConstructorCallProcessor(stackContext);
-    this.functionCallProcessor = new FunctionCallProcessor(stackContext);
-    this.primaryReferenceGenerator = new PrimaryReferenceGenerator(stackContext);
+    this.objectAccessCreator = objectAccessCreator;
+    this.shortCircuitAndGenerator = shortCircuitAndGenerator;
+    this.shortCircuitOrGenerator = shortCircuitOrGenerator;
+    this.questionBlockGenerator = questionBlockGenerator;
+    this.unaryOperationGenerator = unaryOperationGenerator;
+    this.binaryOperationGenerator = binaryOperationGenerator;
+    this.constructorCallProcessor = constructorCallProcessor;
+    this.functionCallProcessor = functionCallProcessor;
+    this.primaryReferenceGenerator = primaryReferenceGenerator;
   }
 
   /**
@@ -236,7 +246,7 @@ final class ExprInstrGenerator extends AbstractGenerator
             + toBeCalled.getClass().getSimpleName() + " - " + toBeCalled);
       }
     } else {
-      throw new org.ek9lang.core.CompilerException(
+      throw new CompilerException(
           "Expected CallSymbol, but got: " + callSymbol.getClass().getSimpleName());
     }
   }

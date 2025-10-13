@@ -25,8 +25,9 @@ import org.ek9lang.compiler.support.EK9TypeNames;
 public final class ShortCircuitAndGenerator extends AbstractShortCircuitGenerator {
 
   public ShortCircuitAndGenerator(final IRGenerationContext stackContext,
+                                  final org.ek9lang.compiler.phase7.support.VariableMemoryManagement variableMemoryManagement,
                                   final RecordExprProcessing recordExprProcessing) {
-    super(stackContext, recordExprProcessing, LogicalOperationInstr::andOperation);
+    super(stackContext, variableMemoryManagement, recordExprProcessing, LogicalOperationInstr::andOperation);
   }
 
   @Override

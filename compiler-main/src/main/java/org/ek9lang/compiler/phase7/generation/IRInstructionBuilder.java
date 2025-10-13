@@ -16,7 +16,6 @@ import org.ek9lang.compiler.ir.instructions.LiteralInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
-import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -94,18 +93,6 @@ public class IRInstructionBuilder {
     var debugInfo = context.currentDebugInfo().orElse(null);
     var instruction = LiteralInstr.literal(variableName, literalValue, literalType, debugInfo);
     context.addInstruction(instruction);
-  }
-
-  /**
-   * Create a call instruction using current context.
-   */
-  public CallInstr createCall(CallContext callContext) {
-    var callDetailsBuilder = new CallDetailsBuilder(context);
-    var callDetailsResult = callDetailsBuilder.apply(callContext);
-    var debugInfo = context.currentDebugInfo().orElse(null);
-    var instruction = CallInstr.call(null, debugInfo, callDetailsResult.callDetails());
-    context.addInstruction(instruction);
-    return instruction;
   }
 
   /**

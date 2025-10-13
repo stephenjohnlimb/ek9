@@ -39,9 +39,10 @@ public final class ParameterPromotionProcessor
   private final IRGenerationContext stackContext;
   private final VariableMemoryManagement variableMemoryManagement;
 
-  public ParameterPromotionProcessor(final IRGenerationContext stackContext) {
+  public ParameterPromotionProcessor(final IRGenerationContext stackContext,
+                                     final VariableMemoryManagement variableMemoryManagement) {
     this.stackContext = stackContext;
-    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
+    this.variableMemoryManagement = variableMemoryManagement;
   }
 
   @Override

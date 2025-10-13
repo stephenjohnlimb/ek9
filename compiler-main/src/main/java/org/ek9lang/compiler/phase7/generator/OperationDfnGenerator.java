@@ -45,11 +45,14 @@ import org.ek9lang.core.AssertValue;
 public final class OperationDfnGenerator implements BiConsumer<OperationInstr, EK9Parser.OperationDetailsContext> {
 
   private final IRGenerationContext stackContext;
+  private final IRConstructGenerators generators;
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
 
-  public OperationDfnGenerator(final IRGenerationContext stackContext) {
+  public OperationDfnGenerator(final IRGenerationContext stackContext, final IRConstructGenerators generators) {
     AssertValue.checkNotNull("Stack context cannot be null", stackContext);
+    AssertValue.checkNotNull("Generators cannot be null", generators);
     this.stackContext = stackContext;
+    this.generators = generators;
   }
 
   @Override
@@ -98,14 +101,14 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
    * Process argument parameters (incoming parameters like -> arg0 as String).
    * These are variable-only declarations that get allocated for the caller to populate.
    * Parameters are declared in the current method scope, not a separate parameter scope.
+   * REFACTORED: Now reuses generator from shared tree instead of creating new instance.
    */
   private List<IRInstr> processArgumentParam(final EK9Parser.ArgumentParamContext ctx) {
     final var instructions = new ArrayList<IRInstr>();
 
-    final var variableCreator = new VariableOnlyDeclInstrGenerator(stackContext);
-
     for (final var varOnlyCtx : ctx.variableOnlyDeclaration()) {
-      instructions.addAll(variableCreator.apply(varOnlyCtx));
+      // REFACTORED: Reuse generator from shared tree
+      instructions.addAll(generators.variableOnlyDeclGenerator().apply(varOnlyCtx));
     }
 
     return instructions;
@@ -121,23 +124,20 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
   /**
    * Process returning parameters with scope tracking (<- rtn as String: String()).
    * These can be variable declarations (with initialization) or variable-only declarations.
+   * REFACTORED: Now reuses generators from shared tree instead of creating new instances.
    */
   private ReturnParamResult processReturningParamWithScope(final EK9Parser.ReturningParamContext ctx) {
     final var instructions = new ArrayList<IRInstr>();
 
-    // STACK-BASED: Use stack context directly for both generators
-    final var variableCreator = new VariableDeclInstrGenerator(stackContext);
-    final var variableOnlyCreator = new VariableOnlyDeclInstrGenerator(stackContext);
-    // Return variables are declared in the current method scope - no separate return scope needed
-
     // Process return variable declarations
     if (ctx.variableDeclaration() != null) {
       // Return variable with initialization: <- rtn as String: String()
-      instructions.addAll(variableCreator.apply(ctx.variableDeclaration()));
+      // REFACTORED: Reuse generator from shared tree
+      instructions.addAll(generators.variableDeclGenerator().apply(ctx.variableDeclaration()));
     } else if (ctx.variableOnlyDeclaration() != null) {
       // Return variable without initialization: <- rtn as String
-      // STACK-BASED: VariableOnlyDeclInstrGenerator now uses stack context directly
-      instructions.addAll(variableOnlyCreator.apply(ctx.variableOnlyDeclaration()));
+      // REFACTORED: Reuse generator from shared tree
+      instructions.addAll(generators.variableOnlyDeclGenerator().apply(ctx.variableOnlyDeclaration()));
     }
 
     // Return variables are now managed in method scope - no separate return scope to track
@@ -151,11 +151,10 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
    * PROPER STACK-BASED APPROACH: Push scope onto stack context so child generators
    * can access it via stackContext.currentScopeId().
    * </p>
+   * REFACTORED: Now reuses generator from shared tree instead of creating new instance.
    */
   private List<IRInstr> processInstructionBlock(final EK9Parser.InstructionBlockContext ctx) {
     final var instructions = new ArrayList<IRInstr>();
-    // Use current stack-based IRContext for proper counter isolation
-    final var blockStatementCreator = new BlockStmtInstrGenerator(stackContext);
     final var scopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     final var debugInfo = stackContext.createDebugInfo(ctx.start);
 
@@ -166,8 +165,9 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
     instructions.add(ScopeInstr.enter(scopeId, debugInfo));
 
     // Process all block statements - they can now use stackContext.currentScopeId()
+    // REFACTORED: Reuse generator from shared tree
     for (final var blockStmtCtx : ctx.blockStatement()) {
-      instructions.addAll(blockStatementCreator.apply(blockStmtCtx));
+      instructions.addAll(generators.blockStmtGenerator().apply(blockStmtCtx));
     }
 
     // Exit scope (automatic RELEASE of all registered objects)

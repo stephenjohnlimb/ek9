@@ -12,7 +12,10 @@ import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
+import org.ek9lang.compiler.symbols.CallSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
@@ -23,16 +26,27 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * - Cost-based method resolution with automatic promotion<br>
  * - CallInstr.operator generation for binary method calls<br>
  * </p>
+ * <p>
+ * PHASE 7 REFACTORING: Consolidated WithProcessor variant into single class.
+ * Now accepts optional expressionProcessor for recursive expression handling.
+ * </p>
  */
-abstract class BinaryOperationGenerator extends AbstractGenerator
+final class BinaryOperationGenerator extends AbstractGenerator
     implements Function<ExprProcessingDetails, List<IRInstr>> {
 
   private final OperatorMap operatorMap = new OperatorMap();
   private final VariableMemoryManagement variableMemoryManagement;
+  private final CallDetailsBuilder callDetailsBuilder;
+  private final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor;
 
-  BinaryOperationGenerator(final IRGenerationContext stackContext) {
+  BinaryOperationGenerator(final IRGenerationContext stackContext,
+                           final VariableMemoryManagement variableMemoryManagement,
+                           final CallDetailsBuilder callDetailsBuilder,
+                           final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor) {
     super(stackContext);
-    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
+    this.variableMemoryManagement = variableMemoryManagement;
+    this.callDetailsBuilder = callDetailsBuilder;
+    this.expressionProcessor = expressionProcessor;
   }
 
   @Override
@@ -68,14 +82,14 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
     // Get the resolved method's return type from the binary operation's CallSymbol
     final var exprSymbol = getRecordedSymbolOrException(ctx);
     final ISymbol returnType;
-    if (exprSymbol instanceof org.ek9lang.compiler.symbols.CallSymbol cs) {
+    if (exprSymbol instanceof CallSymbol cs) {
       final var resolvedMethod = cs.getResolvedSymbolToCall();
-      if (resolvedMethod instanceof org.ek9lang.compiler.symbols.MethodSymbol ms) {
-        returnType = ms.getReturningSymbol().getType().orElse(leftSymbol);
-      } else if (resolvedMethod instanceof org.ek9lang.compiler.symbols.FunctionSymbol fs) {
-        returnType = fs.getReturningSymbol().getType().orElse(leftSymbol);
-      } else {
-        returnType = leftSymbol;  // Fallback for other symbol types
+      switch (resolvedMethod) {
+        case MethodSymbol ms ->
+            returnType = ms.getReturningSymbol().getType().orElse(leftSymbol);
+        case FunctionSymbol fs ->
+            returnType = fs.getReturningSymbol().getType().orElse(leftSymbol);
+        default -> returnType = leftSymbol;  // Fallback for other symbol types
       }
     } else {
       returnType = exprSymbol.getType().orElseThrow();
@@ -92,8 +106,7 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
         stackContext.currentScopeId()                // STACK-BASED: Get scope ID from current stack frame
     );
 
-    // Use CallDetailsBuilder for cost-based method resolution and promotion
-    final var callDetailsBuilder = new CallDetailsBuilder(stackContext);
+    // Use injected CallDetailsBuilder for cost-based method resolution and promotion
     final var callDetailsResult = callDetailsBuilder.apply(callContext);
 
     // Add any promotion instructions that were generated
@@ -107,10 +120,12 @@ abstract class BinaryOperationGenerator extends AbstractGenerator
   }
 
   /**
-   * Process operand expression - this should be overridden by subclasses to provide actual expression processing.
-   * Default implementation returns empty list.
+   * Process operand expression using injected recursive expression processor.
+   * This allows handling complex nested expressions like (a + b) - (c * d).
    */
-  protected abstract List<IRInstr> processOperandExpression(
+  protected List<IRInstr> processOperandExpression(
       final org.ek9lang.antlr.EK9Parser.ExpressionContext operandExpr,
-      final VariableDetails operandDetails);
+      final VariableDetails operandDetails) {
+    return expressionProcessor.apply(new ExprProcessingDetails(operandExpr, operandDetails));
+  }
 }

@@ -24,12 +24,13 @@ final class AssignExpressionToSymbol extends AbstractGenerator
   private final VariableMemoryManagement variableMemoryManagement;
 
   AssignExpressionToSymbol(final IRGenerationContext stackContext,
+                           final VariableMemoryManagement variableMemoryManagement,
                            final boolean release,
                            final Function<String, List<IRInstr>> assignmentGenerator) {
     super(stackContext);
     this.assignmentGenerator = assignmentGenerator;
     this.release = release;
-    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
+    this.variableMemoryManagement = variableMemoryManagement;
   }
 
   @Override

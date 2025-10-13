@@ -10,7 +10,7 @@ import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
  * Generates IR instructions for question operator (?) using unified SWITCH_CHAIN_BLOCK.
  * <p>
  * This generator has been migrated to use the unified control flow approach:<br>
- * 1. Delegates to ControlFlowChainGenerator for actual IR generation<br>
+ * 1. Delegates to injected ControlFlowChainGenerator for actual IR generation<br>
  * 2. Maintains backward compatibility with existing call sites<br>
  * 3. Uses CONTROL_FLOW_CHAIN with QUESTION_OPERATOR chain type<br>
  * </p>
@@ -19,6 +19,9 @@ import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
  * - Case 1: if (operand == null) return Boolean(false)<br>
  * - Default: else return operand._isSet()<br>
  * </p>
+ * <p>
+ * PHASE 7 REFACTORING COMPLETE: Now accepts injected ControlFlowChainGenerator for maximum object reuse.
+ * </p>
  */
 public final class QuestionBlockGenerator extends AbstractGenerator
     implements Function<ExprProcessingDetails, List<IRInstr>> {
@@ -26,9 +29,9 @@ public final class QuestionBlockGenerator extends AbstractGenerator
   private final ControlFlowChainGenerator controlFlowChainGenerator;
 
   public QuestionBlockGenerator(final IRGenerationContext stackContext,
-                                final Function<ExprProcessingDetails, List<IRInstr>> rawExprProcessor) {
+                                final ControlFlowChainGenerator controlFlowChainGenerator) {
     super(stackContext);
-    this.controlFlowChainGenerator = new ControlFlowChainGenerator(stackContext, rawExprProcessor);
+    this.controlFlowChainGenerator = controlFlowChainGenerator;
   }
 
   @Override

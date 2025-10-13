@@ -13,6 +13,7 @@ import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.symbols.CallSymbol;
@@ -44,12 +45,20 @@ final class CallInstrGenerator extends AbstractGenerator
   private final ConstructorCallProcessor constructorCallProcessor;
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
 
-  CallInstrGenerator(final IRGenerationContext stackContext) {
+  /**
+   * Constructor accepting injected generators and helpers.
+   * Eliminates internal generator creation for better object reuse.
+   */
+  CallInstrGenerator(final IRGenerationContext stackContext,
+                     final VariableMemoryManagement variableMemoryManagement,
+                     final CallDetailsBuilder callDetailsBuilder,
+                     final ExprInstrGenerator exprGenerator,
+                     final ConstructorCallProcessor constructorCallProcessor) {
     super(stackContext);
-    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
-    this.callDetailsBuilder = new CallDetailsBuilder(stackContext);
-    this.exprGenerator = new ExprInstrGenerator(stackContext);
-    this.constructorCallProcessor = new ConstructorCallProcessor(stackContext);
+    this.variableMemoryManagement = variableMemoryManagement;
+    this.callDetailsBuilder = callDetailsBuilder;
+    this.exprGenerator = exprGenerator;
+    this.constructorCallProcessor = constructorCallProcessor;
   }
 
   @Override
@@ -320,7 +329,7 @@ final class CallInstrGenerator extends AbstractGenerator
         final var argDetails = new VariableDetails(argTemp, null);
 
         // Generate instructions to evaluate the argument expression
-        final var exprDetails = new org.ek9lang.compiler.phase7.support.ExprProcessingDetails(exprCtx, argDetails);
+        final var exprDetails = new ExprProcessingDetails(exprCtx, argDetails);
         final var argEvaluation = exprGenerator.apply(exprDetails);
         instructions.addAll(variableMemoryManagement.apply(() -> argEvaluation, argDetails));
 

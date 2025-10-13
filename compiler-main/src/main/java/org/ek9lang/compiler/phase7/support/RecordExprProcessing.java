@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase7.support;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
-import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -22,11 +21,11 @@ public class RecordExprProcessing implements Function<ExprProcessingDetails, Lis
   private final VariableMemoryManagement variableMemoryManagement;
 
   public RecordExprProcessing(final Function<ExprProcessingDetails, List<IRInstr>> processor,
-                              final IRGenerationContext stackContext) {
+                              final VariableMemoryManagement variableMemoryManagement) {
     AssertValue.checkNotNull("Processor cannot be null", processor);
-    AssertValue.checkNotNull("IRGenerationContext cannot be null", stackContext);
+    AssertValue.checkNotNull("VariableMemoryManagement cannot be null", variableMemoryManagement);
     this.processor = processor;
-    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
+    this.variableMemoryManagement = variableMemoryManagement;
   }
 
   @Override

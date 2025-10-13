@@ -18,20 +18,23 @@ final class AssertStmtGenerator extends AbstractGenerator
     implements Function<EK9Parser.AssertStatementContext, List<IRInstr>> {
 
   private final CallDetailsForIsTrue callDetailsForTrue = new CallDetailsForIsTrue();
+  private final RecordExprProcessing recordExprProcessing;
 
-  AssertStmtGenerator(final IRGenerationContext stackContext) {
+  /**
+   * Constructor accepting injected ExprInstrGenerator and RecordExprProcessing.
+   * Eliminates internal generator creation for better object reuse.
+   */
+  AssertStmtGenerator(final IRGenerationContext stackContext,
+                      final ExprInstrGenerator expressionGenerator,
+                      final RecordExprProcessing recordExprProcessing) {
     super(stackContext);
+    this.recordExprProcessing = recordExprProcessing;
   }
 
   @Override
   public List<IRInstr> apply(final EK9Parser.AssertStatementContext ctx) {
 
     AssertValue.checkNotNull("Ctx cannot be null", ctx);
-
-    //This deals with generating the instructions for the expression
-    final var expressionGenerator = new ExprInstrGenerator(stackContext);
-    //This deals with calling the above, but then retaining/recording the appropriate symbol for memory management
-    final var processor = new RecordExprProcessing(expressionGenerator, stackContext);
 
     final var assertStmtDebugInfo = stackContext.createDebugInfo(ctx.ASSERT().getSymbol());
 
@@ -40,7 +43,7 @@ final class AssertStmtGenerator extends AbstractGenerator
     final var exprDetails = new ExprProcessingDetails(ctx.expression(),
         new VariableDetails(rhsExprResult, assertStmtDebugInfo));
 
-    final var instructions = new ArrayList<>(processor.apply(exprDetails));
+    final var instructions = new ArrayList<>(recordExprProcessing.apply(exprDetails));
 
     // Call the _true() method to get primitive boolean (true if set AND true)
     final var rhsResult = stackContext.generateTempName();

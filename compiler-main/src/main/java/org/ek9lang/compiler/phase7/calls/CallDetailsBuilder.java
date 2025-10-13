@@ -40,10 +40,12 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
   private final ParameterPromotionProcessor parameterProcessor;
   private final OperatorMap operatorMap = new OperatorMap();
 
-  public CallDetailsBuilder(final IRGenerationContext stackContext) {
+  public CallDetailsBuilder(final IRGenerationContext stackContext,
+                            final ParameterPromotionProcessor parameterProcessor) {
     AssertValue.checkNotNull("IRGenerationContext cannot be null", stackContext);
+    AssertValue.checkNotNull("ParameterPromotionProcessor cannot be null", parameterProcessor);
     this.stackContext = stackContext;
-    this.parameterProcessor = new ParameterPromotionProcessor(stackContext);
+    this.parameterProcessor = parameterProcessor;
   }
 
   @Override

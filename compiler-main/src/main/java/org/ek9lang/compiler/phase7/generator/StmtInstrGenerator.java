@@ -43,13 +43,20 @@ final class StmtInstrGenerator extends AbstractGenerator
   private final AssignmentStmtGenerator assignmentStmtGenerator;
   private final CallInstrGenerator callInstrGenerator;
 
-  StmtInstrGenerator(final IRGenerationContext stackContext) {
+  /**
+   * Constructor accepting injected generators (Phase 2 refactoring).
+   * Eliminates internal generator creation for better object reuse.
+   */
+  StmtInstrGenerator(final IRGenerationContext stackContext,
+                     final ObjectAccessInstrGenerator objectAccessGenerator,
+                     final AssertStmtGenerator assertStmtGenerator,
+                     final AssignmentStmtGenerator assignmentStmtGenerator,
+                     final CallInstrGenerator callInstrGenerator) {
     super(stackContext);
-    final ExprInstrGenerator exprInstrGenerator = new ExprInstrGenerator(stackContext);
-    this.objectAccessGenerator = new ObjectAccessInstrGenerator(stackContext, exprInstrGenerator);
-    this.assertStmtGenerator = new AssertStmtGenerator(stackContext);
-    this.assignmentStmtGenerator = new AssignmentStmtGenerator(stackContext);
-    this.callInstrGenerator = new CallInstrGenerator(stackContext);
+    this.objectAccessGenerator = objectAccessGenerator;
+    this.assertStmtGenerator = assertStmtGenerator;
+    this.assignmentStmtGenerator = assignmentStmtGenerator;
+    this.callInstrGenerator = callInstrGenerator;
   }
 
   /**

@@ -38,12 +38,17 @@ final class AssignmentExprInstrGenerator extends AbstractGenerator
   private final ExprInstrGenerator exprInstrGenerator;
   private final EK9Parser.AssignmentExpressionContext ctx;
 
+  /**
+   * Constructor accepting injected ExprInstrGenerator.
+   * Eliminates internal generator creation for better object reuse.
+   */
   AssignmentExprInstrGenerator(final IRGenerationContext stackContext,
+                               final ExprInstrGenerator exprInstrGenerator,
                                final EK9Parser.AssignmentExpressionContext ctx) {
     super(stackContext);
     AssertValue.checkNotNull("AssignmentExpressionContext cannot be null", ctx);
 
-    this.exprInstrGenerator = new ExprInstrGenerator(stackContext);
+    this.exprInstrGenerator = exprInstrGenerator;
     this.ctx = ctx;
   }
 

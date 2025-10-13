@@ -39,13 +39,19 @@ public final class FunctionCallProcessor
 
   private final IRGenerationContext stackContext;
   private final VariableMemoryManagement variableMemoryManagement;
+  private final CallDetailsBuilder callDetailsBuilder;
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
 
-  public FunctionCallProcessor(final IRGenerationContext stackContext) {
+  public FunctionCallProcessor(final IRGenerationContext stackContext,
+                               final VariableMemoryManagement variableMemoryManagement,
+                               final CallDetailsBuilder callDetailsBuilder) {
     AssertValue.checkNotNull("IRGenerationContext cannot be null", stackContext);
+    AssertValue.checkNotNull("VariableMemoryManagement cannot be null", variableMemoryManagement);
+    AssertValue.checkNotNull("CallDetailsBuilder cannot be null", callDetailsBuilder);
     this.stackContext = stackContext;
-    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
+    this.variableMemoryManagement = variableMemoryManagement;
+    this.callDetailsBuilder = callDetailsBuilder;
   }
 
   /**
@@ -106,11 +112,10 @@ public final class FunctionCallProcessor
     final var argumentDetails = processParameters(callContext.paramExpression(), instructions,
         exprProcessor);
 
-    // Step 2: Create CallContext for unified method resolution  
+    // Step 2: Create CallContext for unified method resolution
     final var methodCallContext = createCallContext(functionSymbol, argumentDetails, details);
 
     // Step 3: Use CallDetailsBuilder for unified method resolution with promotion
-    final var callDetailsBuilder = new CallDetailsBuilder(stackContext);
     final var callDetailsResult = callDetailsBuilder.apply(methodCallContext);
 
     // Step 4: Add any promotion instructions 

@@ -30,11 +30,18 @@ final class BlockStmtInstrGenerator extends AbstractGenerator
   private final VariableOnlyDeclInstrGenerator variableOnlyDeclarationCreator;
   private final StmtInstrGenerator statementInstructionCreator;
 
-  BlockStmtInstrGenerator(final IRGenerationContext stackContext) {
+  /**
+   * Constructor accepting injected generators (Phase 2 refactoring).
+   * Eliminates internal generator creation for better object reuse.
+   */
+  BlockStmtInstrGenerator(final IRGenerationContext stackContext,
+                          final VariableDeclInstrGenerator variableDeclarationCreator,
+                          final VariableOnlyDeclInstrGenerator variableOnlyDeclarationCreator,
+                          final StmtInstrGenerator statementInstructionCreator) {
     super(stackContext);
-    this.variableDeclarationCreator = new VariableDeclInstrGenerator(stackContext);
-    this.variableOnlyDeclarationCreator = new VariableOnlyDeclInstrGenerator(stackContext);
-    this.statementInstructionCreator = new StmtInstrGenerator(stackContext);
+    this.variableDeclarationCreator = variableDeclarationCreator;
+    this.variableOnlyDeclarationCreator = variableOnlyDeclarationCreator;
+    this.statementInstructionCreator = statementInstructionCreator;
   }
 
   /**

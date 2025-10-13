@@ -25,17 +25,28 @@ import org.ek9lang.compiler.tokenizer.Ek9Token;
  * - Cost-based method resolution with automatic promotion<br>
  * - CallInstr.operator generation for unary method calls<br>
  * </p>
+ * <p>
+ * PHASE 7 REFACTORING: Consolidated WithProcessor variant into single class.
+ * Now accepts optional expressionProcessor for recursive expression handling.
+ * </p>
  */
-abstract class UnaryOperationGenerator extends AbstractGenerator
+final class UnaryOperationGenerator extends AbstractGenerator
     implements Function<ExprProcessingDetails, List<IRInstr>> {
 
   private final OperatorMap operatorMap = new OperatorMap();
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
   private final VariableMemoryManagement variableMemoryManagement;
+  private final CallDetailsBuilder callDetailsBuilder;
+  private final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor;
 
-  UnaryOperationGenerator(final IRGenerationContext stackContext) {
+  UnaryOperationGenerator(final IRGenerationContext stackContext,
+                          final VariableMemoryManagement variableMemoryManagement,
+                          final CallDetailsBuilder callDetailsBuilder,
+                          final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor) {
     super(stackContext);
-    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
+    this.variableMemoryManagement = variableMemoryManagement;
+    this.callDetailsBuilder = callDetailsBuilder;
+    this.expressionProcessor = expressionProcessor;
   }
 
   @Override
@@ -90,8 +101,7 @@ abstract class UnaryOperationGenerator extends AbstractGenerator
             stackContext.currentScopeId()                // STACK-BASED: Get scope ID from current stack frame
         );
 
-    // Use IRInstructionBuilder's CallDetailsBuilder for cost-based method resolution and promotion
-    final var callDetailsBuilder = new CallDetailsBuilder(stackContext);
+    // Use injected CallDetailsBuilder for cost-based method resolution and promotion
     final var callDetailsResult = callDetailsBuilder.apply(callContext);
 
     // Add any promotion instructions that were generated
@@ -105,9 +115,11 @@ abstract class UnaryOperationGenerator extends AbstractGenerator
   }
 
   /**
-   * Process operand expression - this should be overridden by subclasses to provide actual expression processing.
-   * Default implementation returns empty list.
+   * Process operand expression using injected recursive expression processor.
+   * This allows handling complex nested expressions like -(-x) or -(a + b).
    */
-  protected abstract List<IRInstr> processOperandExpression(final EK9Parser.ExpressionContext operandExpr,
-                                                            final VariableDetails operandDetails);
+  protected List<IRInstr> processOperandExpression(final EK9Parser.ExpressionContext operandExpr,
+                                                   final VariableDetails operandDetails) {
+    return expressionProcessor.apply(new ExprProcessingDetails(operandExpr, operandDetails));
+  }
 }

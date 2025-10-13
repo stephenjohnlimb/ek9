@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
@@ -25,6 +26,7 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.Symbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 
 /**
  * Creates IR instructions for object access expressions.
@@ -39,11 +41,13 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
   private final ParameterPromotionProcessor parameterPromotionProcessor;
 
   ObjectAccessInstrGenerator(final IRGenerationContext stackContext,
+                             final VariableMemoryManagement variableMemoryManagement,
+                             final ParameterPromotionProcessor parameterPromotionProcessor,
                              final Function<ExprProcessingDetails, List<IRInstr>> exprProcessor) {
     super(stackContext);
-    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
+    this.variableMemoryManagement = variableMemoryManagement;
+    this.parameterPromotionProcessor = parameterPromotionProcessor;
     this.exprProcessor = exprProcessor;
-    this.parameterPromotionProcessor = new ParameterPromotionProcessor(stackContext);
   }
 
   /**
@@ -144,7 +148,7 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
             final var targetType = (parentScope instanceof ISymbol symbol) ? symbol : null;
 
             if (targetType == null) {
-              throw new org.ek9lang.core.CompilerException(
+              throw new CompilerException(
                   "Method parent scope must be a symbol, but got: " + parentScope.getClass().getSimpleName());
             }
 
@@ -235,7 +239,7 @@ final class ObjectAccessInstrGenerator extends AbstractGenerator {
 
         // Get the argument's type symbol for promotion checking
         final var argSymbol = getRecordedSymbolOrException(exprCtx);
-        final var symbolTypeOrException = new org.ek9lang.compiler.common.SymbolTypeOrException();
+        final var symbolTypeOrException = new SymbolTypeOrException();
         final var resolvedTypeSymbol = symbolTypeOrException.apply(argSymbol);
         argumentSymbols.add(resolvedTypeSymbol);
       }

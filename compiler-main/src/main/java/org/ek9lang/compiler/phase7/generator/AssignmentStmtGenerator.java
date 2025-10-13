@@ -42,11 +42,25 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
   private final VariableMemoryManagement variableMemoryManagement;
+  private final CallDetailsBuilder callDetailsBuilder;
+  private final ControlFlowChainGenerator controlFlowChainGenerator;
   private final OperatorMap operatorMap = new OperatorMap();
+  private final ExprInstrGenerator exprInstrGenerator;
 
-  AssignmentStmtGenerator(final IRGenerationContext stackContext) {
+  /**
+   * Constructor accepting injected dependencies.
+   * Eliminates internal generator creation for better object reuse.
+   */
+  AssignmentStmtGenerator(final IRGenerationContext stackContext,
+                          final VariableMemoryManagement variableMemoryManagement,
+                          final CallDetailsBuilder callDetailsBuilder,
+                          final ControlFlowChainGenerator controlFlowChainGenerator,
+                          final ExprInstrGenerator exprInstrGenerator) {
     super(stackContext);
-    this.variableMemoryManagement = new VariableMemoryManagement(stackContext);
+    this.variableMemoryManagement = variableMemoryManagement;
+    this.callDetailsBuilder = callDetailsBuilder;
+    this.controlFlowChainGenerator = controlFlowChainGenerator;
+    this.exprInstrGenerator = exprInstrGenerator;
   }
 
   @Override
@@ -86,22 +100,22 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     final var lhsSymbol = getRecordedSymbolOrException(ctx.identifier());
 
-    // STACK-BASED: AssignmentExprInstrGenerator now uses stack context directly 
-    final var generator = new AssignmentExprInstrGenerator(stackContext, ctx.assignmentExpression());
+    // Use injected ExprInstrGenerator for better object reuse
+    final var generator = new AssignmentExprInstrGenerator(stackContext, exprInstrGenerator, ctx.assignmentExpression());
 
     if (isMethodBasedAssignment(ctx.op)) {
       processMethodBasedAssignment(ctx, lhsSymbol, instructions);
       return; // Early return since method-based assignment is complete
     }
-    // STACK-BASED: AssignExpressionToSymbol now uses stack context directly
-    final var assignExpressionToSymbol = new AssignExpressionToSymbol(stackContext, true, generator);
+    // Use injected VariableMemoryManagement for better object reuse
+    final var assignExpressionToSymbol = new AssignExpressionToSymbol(stackContext, variableMemoryManagement, true, generator);
 
     if (isGuardedAssignment(ctx.op)) {
 
       final var guardedDetails = new GuardedAssignmentDetails(
           lhsSymbol, ctx.assignmentExpression());
 
-      final var guardedGenerator = new GuardedAssignmentBlockGenerator(stackContext, assignExpressionToSymbol);
+      final var guardedGenerator = new GuardedAssignmentBlockGenerator(stackContext, controlFlowChainGenerator, assignExpressionToSymbol);
       instructions.addAll(guardedGenerator.apply(guardedDetails));
       return; // Early return since guarded assignment is complete
     }
@@ -156,8 +170,7 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
         stackContext.currentScopeId()              // STACK-BASED: Get scope ID from current stack frame
     );
 
-    // Use CallDetailsBuilder for cost-based method resolution and promotion
-    final var callDetailsBuilder = new CallDetailsBuilder(stackContext);
+    // Use injected CallDetailsBuilder for cost-based method resolution and promotion
     final var callDetailsResult = callDetailsBuilder.apply(callContext);
 
     // Add any promotion instructions that were generated
@@ -178,9 +191,8 @@ final class AssignmentStmtGenerator extends AbstractGenerator implements
   private List<IRInstr> processAssignmentExpression(final EK9Parser.AssignmentExpressionContext assignExprCtx,
                                                     final VariableDetails variableDetails) {
 
-    // Use existing assignment expression generator to handle the right-hand side
-    // STACK-BASED: AssignmentExprInstrGenerator now uses stack context directly
-    final var generator = new AssignmentExprInstrGenerator(stackContext, assignExprCtx);
+    // Use injected ExprInstrGenerator for better object reuse
+    final var generator = new AssignmentExprInstrGenerator(stackContext, exprInstrGenerator, assignExprCtx);
     return generator.apply(variableDetails.resultVariable());
   }
 }
