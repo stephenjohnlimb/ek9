@@ -1,0 +1,92 @@
+#!ek9
+<?-
+  Bytecode test for simple if statement without else clause.
+  Tests conditional branching and body execution.
+-?>
+defines module bytecode.test
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::SimpleIfStatement": `public class bytecode.test.SimpleIfStatement {
+      static {};
+        Code:
+             0: return
+
+      private void i_init();
+        Code:
+             0: return
+
+      public bytecode.test.SimpleIfStatement();
+        Code:
+             0: aload_0
+             1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+             4: aload_0
+             5: invokevirtual #CP                 // Method i_init:()V
+             8: return
+
+      public void _main();
+        Code:
+             0: aconst_null
+             1: astore_1
+             2: new           #CP                 // class org/ek9/lang/Stdout
+             5: dup
+             6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+             9: astore_2
+            10: aload_2
+            11: astore_1
+            12: aconst_null
+            13: astore_3
+            14: bipush        15
+            16: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+            19: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+            22: astore        4
+            24: aload         4
+            26: astore_3
+            27: aload_3
+            28: astore        5
+            30: bipush        10
+            32: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+            35: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+            38: astore        6
+            40: aload         5
+            42: aload         6
+            44: invokevirtual #CP                 // Method org/ek9/lang/Integer._gt:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+            47: astore        7
+            49: aload         7
+            51: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+            54: istore        8
+            56: iload         8
+            58: ifeq          81
+            61: aload_1
+            62: astore        9
+            64: ldc           #CP                 // String High
+            66: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+            69: astore        10
+            71: aload         9
+            73: aload         10
+            75: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+            78: goto          81
+            81: aload_1
+            82: astore        11
+            84: ldc           #CP                 // String Done
+            86: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+            89: astore        12
+            91: aload         11
+            93: aload         12
+            95: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+            98: return
+    }`
+
+    SimpleIfStatement()
+      stdout <- Stdout()
+
+      // Test with value that makes condition true
+      value <- 15
+
+      if value > 10
+        stdout.println("High")
+
+      // Always print to verify program continues
+      stdout.println("Done")
+
+//EOF

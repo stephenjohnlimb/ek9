@@ -29,13 +29,11 @@ import org.objectweb.asm.ClassWriter;
  */
 final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
 
-  private final OutputVisitor outputVisitor;
-
   // Lazily instantiated specialized generators
   private QuestionOperatorAsmGenerator questionOperatorGenerator;
   private GuardedAssignmentAsmGenerator guardedAssignmentGenerator;
+  private IfElseAsmGenerator ifElseGenerator;
   // Future generators:
-  // private IfElseAsmGenerator ifElseGenerator;
   // private SwitchAsmGenerator switchGenerator;
   // private WhileLoopAsmGenerator whileLoopGenerator;
   // private ForLoopAsmGenerator forLoopGenerator;
@@ -45,7 +43,6 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
                                final OutputVisitor outputVisitor,
                                final ClassWriter classWriter) {
     super(constructTargetTuple, outputVisitor, classWriter);
-    this.outputVisitor = outputVisitor;
   }
 
   /**
@@ -61,15 +58,15 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     switch (chainType) {
       case "QUESTION_OPERATOR" -> generateQuestionOperator(instr);
       case "GUARDED_ASSIGNMENT" -> generateGuardedAssignment(instr);
+      case "IF_ELSE" -> generateIfElse(instr);
       // Future cases will be added here as generators are implemented:
-      // case "IF_ELSE", "IF_ELSE_IF" -> generateIfElse(instr);
       // case "SWITCH", "SWITCH_ENUM" -> generateSwitch(instr);
       // case "WHILE" -> generateWhileLoop(instr);
       // case "FOR" -> generateForLoop(instr);
       // case "TRY_CATCH" -> generateTryCatch(instr);
       default -> throw new CompilerException(
           "Unsupported control flow chain type: " + chainType
-              + ". Expected one of: QUESTION_OPERATOR, GUARDED_ASSIGNMENT");
+              + ". Expected one of: QUESTION_OPERATOR, GUARDED_ASSIGNMENT, IF_ELSE");
     }
   }
 
@@ -108,6 +105,23 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   }
 
   /**
+   * Generate bytecode for if/else statements.
+   * Lazily instantiates IfElseAsmGenerator on first use.
+   *
+   * @param instr CONTROL_FLOW_CHAIN instruction with IF_ELSE type
+   */
+  private void generateIfElse(final ControlFlowChainInstr instr) {
+    if (ifElseGenerator == null) {
+      ifElseGenerator = new IfElseAsmGenerator(
+          constructTargetTuple, outputVisitor, classWriter);
+    }
+    // Always update context in case method changed
+    ifElseGenerator.setSharedMethodContext(getMethodContext());
+    ifElseGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
+    ifElseGenerator.generate(instr);
+  }
+
+  /**
    * Update method context for all generators.
    * Called when OutputVisitor.setMethodContext() is invoked.
    * Propagates context to already-instantiated generators.
@@ -124,6 +138,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     }
     if (guardedAssignmentGenerator != null) {
       guardedAssignmentGenerator.setSharedMethodContext(context);
+    }
+    if (ifElseGenerator != null) {
+      ifElseGenerator.setSharedMethodContext(context);
     }
     // Future generators will be added here
   }
@@ -145,6 +162,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     }
     if (guardedAssignmentGenerator != null) {
       guardedAssignmentGenerator.setCurrentMethodVisitor(mv);
+    }
+    if (ifElseGenerator != null) {
+      ifElseGenerator.setCurrentMethodVisitor(mv);
     }
     // Future generators will be added here
   }
