@@ -1,0 +1,8 @@
+#!ek9
+defines module @@@INVALID%%%TOKENS$$$
+
+  this is not valid ek9 syntax at all!!!
+
+  &&& ||| ~~~ *** complete garbage ###
+
+//EOF
