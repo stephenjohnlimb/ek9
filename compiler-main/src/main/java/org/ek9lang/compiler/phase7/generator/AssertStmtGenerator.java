@@ -5,19 +5,18 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.BranchInstr;
-import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
-import org.ek9lang.compiler.phase7.calls.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
-import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.core.AssertValue;
 
+/**
+ * gIR Generation for the assert statement.
+ */
 public final class AssertStmtGenerator extends AbstractGenerator
     implements Function<EK9Parser.AssertStatementContext, List<IRInstr>> {
 
-  private final CallDetailsForIsTrue callDetailsForTrue = new CallDetailsForIsTrue();
   private final RecordExprProcessing recordExprProcessing;
 
   /**
@@ -25,7 +24,6 @@ public final class AssertStmtGenerator extends AbstractGenerator
    * Eliminates internal generator creation for better object reuse.
    */
   AssertStmtGenerator(final IRGenerationContext stackContext,
-                      final ExprInstrGenerator expressionGenerator,
                       final RecordExprProcessing recordExprProcessing) {
     super(stackContext);
     this.recordExprProcessing = recordExprProcessing;
@@ -38,20 +36,18 @@ public final class AssertStmtGenerator extends AbstractGenerator
 
     final var assertStmtDebugInfo = stackContext.createDebugInfo(ctx.ASSERT().getSymbol());
 
-    final var rhsExprResult = stackContext.generateTempName();
+    // Use helper to create temp variable
+    final var exprDetails = createTempVariable(assertStmtDebugInfo);
 
-    final var exprDetails = new ExprProcessingDetails(ctx.expression(),
-        new VariableDetails(rhsExprResult, assertStmtDebugInfo));
+    final var instructions = new ArrayList<>(recordExprProcessing.apply(
+        new ExprProcessingDetails(ctx.expression(), exprDetails)));
 
-    final var instructions = new ArrayList<>(recordExprProcessing.apply(exprDetails));
-
-    // Call the _true() method to get primitive boolean (true if set AND true)
-    final var rhsResult = stackContext.generateTempName();
-    final var callDetails = callDetailsForTrue.apply(rhsExprResult);
-    instructions.add(CallInstr.call(rhsResult, assertStmtDebugInfo, callDetails));
+    // Use helper to convert to primitive boolean
+    final var conversion = convertToPrimitiveBoolean(exprDetails.resultVariable(), assertStmtDebugInfo);
+    final var primitiveResult = conversion.addToInstructions(instructions);
 
     // Assert on the primitive boolean result - back-end will then implement that.
-    instructions.add(BranchInstr.assertValue(rhsResult, assertStmtDebugInfo));
+    instructions.add(BranchInstr.assertValue(primitiveResult, assertStmtDebugInfo));
 
     return instructions;
   }

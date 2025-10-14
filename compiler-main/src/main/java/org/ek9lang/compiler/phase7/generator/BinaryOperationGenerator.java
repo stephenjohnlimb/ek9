@@ -55,15 +55,13 @@ public final class BinaryOperationGenerator extends AbstractGenerator
     final var rightExpr = ctx.right != null ? ctx.right : ctx.expression().get(1);
 
     // Process left operand with memory management
-    final var leftTemp = stackContext.generateTempName();
-    final var leftDetails = new VariableDetails(leftTemp, debugInfo);
+    final var leftDetails = createTempVariable(debugInfo);
     final var leftEvaluation = processOperandExpression(leftExpr, leftDetails);
     final var instructions =
         new ArrayList<>(generators.variableMemoryManagement.apply(() -> leftEvaluation, leftDetails));
 
     // Process right operand with memory management
-    final var rightTemp = stackContext.generateTempName();
-    final var rightDetails = new VariableDetails(rightTemp, debugInfo);
+    final var rightDetails = createTempVariable(debugInfo);
     final var rightEvaluation = processOperandExpression(rightExpr, rightDetails);
     instructions.addAll(generators.variableMemoryManagement.apply(() -> rightEvaluation, rightDetails));
 
@@ -91,8 +89,8 @@ public final class BinaryOperationGenerator extends AbstractGenerator
         rightSymbol,                                 // Argument type (right operand type)
         returnType,                                  // Return type (from resolved method)
         methodName,                                  // Method name (from operator map)
-        leftTemp,                                    // Target variable (left operand variable)
-        rightTemp,                                   // Argument variable (right operand variable)
+        leftDetails.resultVariable(),                // Target variable (left operand variable)
+        rightDetails.resultVariable(),               // Argument variable (right operand variable)
         stackContext.currentScopeId()                // STACK-BASED: Get scope ID from current stack frame
     );
 
