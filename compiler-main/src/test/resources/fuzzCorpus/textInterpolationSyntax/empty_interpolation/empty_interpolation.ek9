@@ -1,0 +1,12 @@
+#!ek9
+defines module textfuzz.syntax.test002
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing expression within ${})
+  // @TestDescription: Empty interpolation expression
+
+  defines function
+    testEmptyInterpolation()
+      result <- `Hello ${}`
+
+//EOF

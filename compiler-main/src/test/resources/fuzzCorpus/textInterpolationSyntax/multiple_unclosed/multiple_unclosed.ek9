@@ -1,0 +1,14 @@
+#!ek9
+defines module textfuzz.syntax.test008
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (multiple unclosed interpolations)
+  // @TestDescription: Multiple unclosed interpolation expressions
+
+  defines function
+    testMultipleUnclosed()
+      a <- 1
+      b <- 2
+      result <- `First ${a second ${b`
+
+//EOF

@@ -1,0 +1,13 @@
+#!ek9
+defines module textfuzz.syntax.test004
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (nested interpolation start)
+  // @TestDescription: Double opening ${${
+
+  defines function
+    testDoubleOpening()
+      value <- 42
+      result <- `Value is $${${value}}`
+
+//EOF

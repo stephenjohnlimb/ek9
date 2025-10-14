@@ -1,0 +1,12 @@
+#!ek9
+defines module textfuzz.syntax.test001
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (mismatched input, expecting '}')
+  // @TestDescription: Unclosed interpolation expression - missing closing brace
+
+  defines function
+    testUnclosedInterpolation()
+      result <- `Hello ${world`
+
+//EOF

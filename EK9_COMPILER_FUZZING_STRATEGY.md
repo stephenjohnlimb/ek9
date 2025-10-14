@@ -1444,13 +1444,83 @@ Phase 1-7 (Correctness/Robustness)
 
 ---
 
+## Implementation Status (Phase 1A: Infrastructure)
+
+**Decision Made**: Embedded fuzzing tests within compiler repository (`compiler-main/src/test/resources/fuzzCorpus/`)
+
+### Completed (2025-10-14)
+
+**✅ Malformed Syntax Fuzzing** - PARSING Phase Tests:
+- Test infrastructure: `MalformedSyntaxFuzzTest.java` extends `FuzzTestBase.java`
+- Corpus: 11 tests in `fuzzCorpus/malformedSyntax/`
+- Target: Grammar-level syntax errors (misspelled keywords, swapped token order, etc.)
+- Status: **Working** - All 11 tests correctly rejected by parser
+- Lesson learned: Grammar fix (`sheBang` before `moduleDeclaration`) was required for proper error detection
+
+**✅ Text Interpolation Syntax Fuzzing** - PARSING Phase Tests:
+- Test infrastructure: `TextInterpolationSyntaxFuzzTest.java`
+- Corpus: 10 tests in `fuzzCorpus/textInterpolationSyntax/`
+- Target: Malformed `${}` interpolation syntax
+  - Unclosed interpolation `${var`
+  - Empty expressions `${}`
+  - Nested backticks, double braces
+  - Missing dollar sign `{value}`
+  - Unclosed strings, malformed escapes
+- Status: **Ready for testing**
+- Next: Run tests to verify error handling
+
+### Planned - Phase 1B: Expand Test Coverage
+
+**Text Interpolation Resolution Fuzzing** - FULL_RESOLUTION Phase Tests:
+- Corpus location: `fuzzCorpus/textInterpolationResolution/` (to be created)
+- Target: Semantically invalid but syntactically valid interpolation
+  - Undeclared variables: `${undeclaredVar}`
+  - Missing `$` operator: `${objWithoutDollarOperator}`
+  - Invalid operators: `${anyVal + 1}`
+  - Type mismatches: `${num + text}`
+  - Non-existent methods/properties
+- Expected errors: `NOT_RESOLVED`, `TYPE_MUST_BE_CONVERTABLE_TO_STRING`, `OPERATOR_NOT_DEFINED`
+- Status: **Documented, awaiting Phase 1B implementation**
+
+### Key Architectural Decisions
+
+1. **Embedded vs Separate Repository**: Chose embedded approach for Phase 1A
+   - Simpler initial setup
+   - Easier to test grammar fixes immediately
+   - Can migrate to separate repo if corpus grows large (Phase 2+)
+
+2. **Two-Phase Interpolation Testing**:
+   - Phase 1A: PARSING errors (syntax-level fuzzing)
+   - Phase 1B: FULL_RESOLUTION errors (semantic-level fuzzing)
+   - Rationale: Different error types require different test structures
+
+3. **Precision Testing Philosophy**:
+   - Each fuzz test targets **one specific error** at **one specific phase**
+   - Test files document expected error codes in comments
+   - Prevents false positives (test passing for wrong reason)
+
+### Next Actions for Continuous Session
+
+**Immediate** (before context loss):
+1. Run `TextInterpolationSyntaxFuzzTest` to validate implementation
+2. Document any failures or required fixes
+3. Update this section with results
+
+**Phase 1B** (next session):
+1. Create `textInterpolationResolution/` corpus
+2. Implement `TextInterpolationResolutionFuzzTest.java`
+3. Generate 20-30 semantic error tests for interpolation
+4. Expand to other language features (control flow, generic types, etc.)
+
+---
+
 ## Next Steps
 
 **Immediate**:
-1. Decide: Separate repository or subdirectory?
-2. Set up fuzzing infrastructure scaffolding
-3. Implement first grammar-based fuzzer
-4. Run initial fuzzing campaign (10,000 tests)
+1. ~~Decide: Separate repository or subdirectory?~~ ✅ **DONE**: Embedded for Phase 1A
+2. ~~Set up fuzzing infrastructure scaffolding~~ ✅ **DONE**: `FuzzTestBase.java` created
+3. ~~Implement first grammar-based fuzzer~~ ✅ **DONE**: Malformed syntax + Text interpolation syntax
+4. Run initial fuzzing campaign (10-20 tests per category)
 5. Review first batch of bugs
 
 **Within 1 month**:

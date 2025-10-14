@@ -39,7 +39,7 @@ class WorkingAreaTest extends PhasesTest {
     ek9Workspace.getSources().stream().findFirst()
         .ifPresent(source -> fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture));
 
-    testToPhase(CompilationPhase.PARSING);
+    testToPhase(CompilationPhase.IR_GENERATION);
   }
 
   @Override
@@ -53,7 +53,7 @@ class WorkingAreaTest extends PhasesTest {
     try (final var printWriter = new PrintWriter(output)) {
       final var printer = new NodePrinter(printWriter);
       program
-          .getIRModules("introduction")
+          .getIRModules("textfuzz.syntax.test003")
           .forEach(irModule -> irModule.getConstructs().forEach(printer::visit));
     } catch (Exception _) {
       fail("Failed to produce output.");

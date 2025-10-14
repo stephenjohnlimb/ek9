@@ -1,0 +1,13 @@
+#!ek9
+defines module textfuzz.syntax.test009
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (dollar without opening brace)
+  // @TestDescription: Dollar sign without opening brace
+
+  defines function
+    testOnlyDollar()
+      value <- 42
+      result <- `Value is $value`
+
+//EOF

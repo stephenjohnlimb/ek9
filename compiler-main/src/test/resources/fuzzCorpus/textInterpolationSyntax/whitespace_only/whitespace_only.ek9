@@ -1,0 +1,12 @@
+#!ek9
+defines module textfuzz.syntax.test010
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (whitespace-only expression)
+  // @TestDescription: Interpolation with only whitespace
+
+  defines function
+    testWhitespaceOnly()
+      result <- `Hello ${   }`
+
+//EOF

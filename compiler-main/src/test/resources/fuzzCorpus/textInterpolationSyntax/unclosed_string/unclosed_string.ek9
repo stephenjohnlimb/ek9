@@ -1,0 +1,13 @@
+#!ek9
+defines module textfuzz.syntax.test006
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (unclosed interpolated string)
+  // @TestDescription: Interpolated string without closing backtick
+
+  defines function
+    testUnclosedString()
+      value <- 42
+      result <- `Hello ${value}
+
+//EOF
