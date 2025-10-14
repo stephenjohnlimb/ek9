@@ -101,7 +101,7 @@ public final class IRConstructGenerators {
     // Step 8: Create statement generators
     generators.assignmentStmtGenerator = new AssignmentStmtGenerator(stackContext, generators);
     generators.assertStmtGenerator =
-        new AssertStmtGenerator(stackContext, generators.exprGenerator, generators.recordExprProcessing);
+        new AssertStmtGenerator(stackContext, generators.recordExprProcessing);
     generators.callGenerator = new CallInstrGenerator(stackContext, generators);
 
     // Step 9: Create control flow generators

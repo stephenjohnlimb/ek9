@@ -55,8 +55,7 @@ public final class UnaryOperationGenerator extends AbstractGenerator
     final var operandExpr = ctx.expression().getFirst();
 
     // Get operand variable - process the expression first with memory management
-    final var operandTemp = stackContext.generateTempName();
-    final var operandDetails = new VariableDetails(operandTemp, debugInfo);
+    final var operandDetails = createTempVariable(debugInfo);
 
     // Use recursive expression processing to handle the operand (e.g., for -(-x))
     // Access from generators struct
@@ -87,7 +86,7 @@ public final class UnaryOperationGenerator extends AbstractGenerator
     final var callContext =
         CallContext.forUnaryOperation(symbolTypeOrException.apply(operandSymbol),  // Target type (operand type)
             methodName,                                   // Method name (from operator map)
-            operandTemp,                                  // Target variable (operand variable)
+            operandDetails.resultVariable(),              // Target variable (operand variable)
             returnType,                                   // Return type (from resolved method)
             stackContext.currentScopeId()                // STACK-BASED: Get scope ID from current stack frame
         );
