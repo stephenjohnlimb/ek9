@@ -39,7 +39,7 @@ class WorkingAreaTest extends PhasesTest {
     ek9Workspace.getSources().stream().findFirst()
         .ifPresent(source -> fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture));
 
-    testToPhase(CompilationPhase.CODE_GENERATION_AGGREGATES);
+    testToPhase(CompilationPhase.PARSING);
   }
 
   @Override

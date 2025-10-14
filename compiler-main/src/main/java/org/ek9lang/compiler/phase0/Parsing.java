@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase0;
 
+import static org.ek9lang.compiler.CompilationPhase.READING;
+
 import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -49,11 +51,11 @@ public final class Parsing
 
   private CompilationPhaseResult prepare(Workspace workspace, CompilerFlags compilerFlags) {
 
-    reporter.log(thisPhase);
+    reporter.log(READING);
     final var result = underTakeParsingOperation(workspace, CompilableSource::prepareToParse);
     final var compilationPhase = compilerFlags.getCompileToPhase();
-    final var phaseMatch = compilationPhase == thisPhase;
-    return new CompilationPhaseResult(thisPhase, result,  phaseMatch);
+    final var phaseMatch = compilationPhase == READING;
+    return new CompilationPhaseResult(READING, result, phaseMatch);
   }
 
   private CompilationPhaseResult parseSources(Workspace workspace, CompilerFlags compilerFlags) {
@@ -71,6 +73,7 @@ public final class Parsing
         .apply(workspace.getSources())
         .parallelStream()
         .map(operator).toList();
+
     affectedSources.forEach(source -> listener.accept(new CompilationEvent(thisPhase, null, source)));
 
     return !sourceHasErrors.test(affectedSources);

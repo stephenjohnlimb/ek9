@@ -941,6 +941,484 @@ Execution:
 
 ---
 
+## Scalability and Stress Testing: Large-Scale Compilation Limits
+
+### Strategic Rationale
+
+**EK9's architectural principle**: All compilation happens **in-memory** (no temporary files, no disk spilling)
+
+**Benefits**:
+- **Speed**: No I/O bottleneck from disk operations
+- **Simplicity**: No temporary file cleanup or management
+- **Thread-safety**: No file locking or coordination issues
+- **Determinism**: Reproducible builds without filesystem state
+
+**Trade-off**: Memory becomes the hard limit
+
+**Philosophical design**: Limits are **intentional architectural constraints** that encourage good software design:
+- Discourage monolithic applications (unmaintainable)
+- Discourage excessive dependencies (architectural smell)
+- Force modularity (services, packages, clear boundaries)
+- Encourage thoughtful design (do you really need 10,000 files in one app?)
+
+### What We're Testing
+
+**Goal**: Understand and document EK9's scalability limits for large-scale compilation
+
+**Three dimensions**:
+
+**1. Source file count**: How many `.ek9` files can one application contain?
+- Small: 10-50 files
+- Medium: 50-200 files
+- Large: 200-1,000 files
+- Very large: 1,000-5,000 files
+- Extreme: 5,000-10,000+ files (indicates architectural problem)
+
+**2. Dependency depth**: How many imported packages/modules?
+- Minimal: 5-20 dependencies
+- Moderate: 20-50 dependencies
+- Heavy: 50-100 dependencies
+- Excessive: 100-200 dependencies (architectural smell)
+- Unreasonable: 200+ dependencies (definitely wrong approach)
+
+**3. Combined complexity**: Realistic worst-case scenarios
+- Large application + many dependencies
+- Deep dependency trees (A imports B imports C imports D...)
+- Circular dependency detection at scale
+- Complex generic instantiation across many modules
+
+### Memory Configuration
+
+**EK9 environment variables** for tuning memory limits:
+
+```bash
+# Example environment variables (exact names TBD based on implementation)
+export EK9_MAX_HEAP=16g              # Maximum heap size
+export EK9_BOOTSTRAP_CACHE=4g        # Cache for built-in types
+export EK9_SYMBOL_TABLE_SIZE=2g      # Symbol table allocation
+export EK9_PARSE_TREE_CACHE=1g       # Parse tree cache size
+
+# Compile large application
+ek9c -c large_application.ek9
+```
+
+**Goal**: Document memory requirements for various scales:
+
+| Application Size | Source Files | Dependencies | Min RAM | Compile Time | Status |
+|------------------|--------------|--------------|---------|--------------|--------|
+| **Small**        | 10-50        | 5-20         | 2-4 GB  | <30 sec      | ✅ Optimal |
+| **Medium**       | 50-200       | 20-50        | 4-8 GB  | 30-60 sec    | ✅ Good |
+| **Large**        | 200-1,000    | 50-100       | 8-16 GB | 1-3 min      | ⚠️ Acceptable |
+| **Very Large**   | 1,000-5,000  | 100-200      | 16-32 GB | 3-8 min     | ⚠️ Consider refactoring |
+| **Extreme**      | 5,000-10,000+ | 200+        | 32-64 GB | 8-15 min    | ❌ Architectural problem |
+
+### Test Structure
+
+**Separate test category**: `stress-tests/` (distinct from Phases 1-7)
+
+```
+stress-tests/
+├── README.md                        # Documentation and philosophy
+├── generate-stress-tests.sh         # Auto-generate large test cases
+│
+├── single-large-app/                # Source file count limits
+│   ├── test_100_files.ek9
+│   ├── test_500_files.ek9
+│   ├── test_1000_files.ek9
+│   ├── test_2500_files.ek9
+│   ├── test_5000_files.ek9
+│   └── test_10000_files.ek9         # Expected to fail or warn
+│
+├── dependency-depth/                # Dependency limit testing
+│   ├── test_10_deps.ek9
+│   ├── test_50_deps.ek9
+│   ├── test_100_deps.ek9
+│   ├── test_200_deps.ek9
+│   └── test_500_deps.ek9            # Expected to fail
+│
+├── combined-stress/                 # Realistic worst-case
+│   ├── large_app_many_deps.ek9     # 1000 files + 100 deps
+│   ├── deep_generics_large.ek9     # Complex generics at scale
+│   └── dispatcher_explosion.ek9     # Many dispatchers + large app
+│
+└── reports/                         # Generated scalability reports
+    ├── memory_usage.txt
+    ├── compilation_time.txt
+    └── scalability_limits.md
+```
+
+### Test Generation
+
+**Auto-generate large test cases** (not manually written):
+
+```bash
+# Generate test with N source files
+./generate-stress-tests.sh --files 1000 --output test_1000_files.ek9
+
+# Generate test with N dependencies
+./generate-stress-tests.sh --deps 100 --output test_100_deps.ek9
+
+# Generate combined stress test
+./generate-stress-tests.sh --files 1000 --deps 100 --output combined.ek9
+```
+
+**Generated test characteristics**:
+- Valid EK9 syntax (should compile successfully if within limits)
+- Meaningful structure (not just random gibberish)
+- Interconnected (files reference each other realistically)
+- Representative of real-world patterns (not artificial stress)
+
+### Measurement Metrics
+
+**For each stress test, measure**:
+
+**Success metrics**:
+- ✅ Compilation completes successfully
+- ✅ Peak memory usage stays within configured limits
+- ✅ Compilation time reasonable (<10 minutes)
+- ✅ Generated code works correctly
+
+**Failure modes**:
+- ❌ **OutOfMemoryError**: Memory limit exceeded
+- ❌ **Timeout**: Compilation takes >10 minutes
+- ❌ **Thrashing**: System swaps to disk (memory insufficient)
+- ⚠️ **Warning**: Compilation succeeds but approaches limits
+
+**Example output**:
+
+```
+EK9 Scalability Test Report - test_1000_files.ek9
+==================================================
+
+Configuration:
+  Source files: 1,000
+  Dependencies: 50
+  Total symbols: ~25,000
+  Total lines: ~150,000
+
+Results:
+  Status: SUCCESS
+  Peak memory: 12.4 GB
+  Compilation time: 2m 34s
+  Phases completed: All (0-19)
+
+Recommendation:
+  Minimum RAM: 16 GB
+  Optimal RAM: 24 GB
+  Status: Acceptable (consider modularizing if growing further)
+```
+
+```
+EK9 Scalability Test Report - test_10000_files.ek9
+===================================================
+
+Configuration:
+  Source files: 10,000
+  Dependencies: 200
+  Total symbols: ~250,000
+  Total lines: ~1,500,000
+
+Results:
+  Status: FAILURE - OutOfMemoryError
+  Peak memory: 64 GB (exceeded limit)
+  Compilation time: N/A (crashed after 8m 45s)
+  Phase failed: FULL_RESOLUTION (phase 6)
+
+Recommendation:
+  ❌ Application is too large for single compilation
+  Refactor into:
+    - Multiple services (microservices architecture)
+    - Separate modules (compile independently)
+    - Remove unnecessary dependencies
+  This size indicates architectural problems, not just resource limits.
+```
+
+### User-Facing Documentation
+
+**Clear expectations and guidance**:
+
+```markdown
+# EK9 Compilation Scalability Guide
+
+## Design Philosophy
+
+EK9 performs all compilation in-memory for speed, simplicity, and reliability.
+This creates natural resource limits that encourage good architecture:
+
+✅ **Encouraged**:
+- Modular design (packages, services)
+- Focused applications (single responsibility)
+- Minimal dependencies (only what you need)
+- Clear architectural boundaries
+
+❌ **Discouraged**:
+- Monolithic mega-applications (unmaintainable)
+- Excessive dependencies (1000+ imports)
+- Giant single files (10,000+ lines)
+- Poorly organized code (everything in one namespace)
+
+## Practical Limits
+
+| Application Size | Source Files | Dependencies | Min RAM | Compile Time | Guidance |
+|------------------|--------------|--------------|---------|--------------|----------|
+| Small            | 10-50        | 5-20         | 2 GB    | <30 sec      | ✅ Optimal |
+| Medium           | 50-200       | 20-50        | 4 GB    | 30-60 sec    | ✅ Good |
+| Large            | 200-1,000    | 50-100       | 8 GB    | 1-3 min      | ⚠️ Acceptable |
+| Very Large       | 1,000-5,000  | 100-200      | 16 GB   | 3-8 min      | ⚠️ Refactor? |
+| Extreme*         | 5,000-10,000+ | 200+        | 32 GB   | 8-15 min     | ❌ Problem |
+
+*Extreme sizes indicate architectural issues - consider refactoring.
+
+## Memory Configuration
+
+Adjust compiler memory limits via environment variables:
+
+```bash
+# For large applications (1000+ files)
+export EK9_MAX_HEAP=16g
+ek9c -c large_application.ek9
+
+# For very large applications (5000+ files) - not recommended
+export EK9_MAX_HEAP=32g
+ek9c -c very_large_application.ek9
+```
+
+## What to Do If You Hit Limits
+
+### 1. Break into Services
+Monolithic applications should be split into microservices:
+- Each service is a separate EK9 application
+- Services communicate via APIs (HTTP, gRPC, message queues)
+- Each service compiles independently (parallel builds)
+- Easier to maintain, test, and deploy
+
+### 2. Reduce Dependencies
+Review your dependencies critically:
+- Do you really need all of them?
+- Can you use lighter alternatives?
+- Are you importing entire libraries when you only need one function?
+- Trim unnecessary dependencies aggressively
+
+### 3. Use Lazy Loading
+Import only what's needed when it's needed:
+- Don't import entire modules if you only use small parts
+- Use conditional imports where appropriate
+- Organize code into focused packages
+
+### 4. Increase Available RAM
+Modern servers have 32-128 GB RAM available:
+- Cloud instances: Upgrade to larger instance type
+- Development machines: Add more RAM
+- CI/CD: Use runners with more memory
+- But: This treats symptom, not cause - still refactor
+
+## Technical Details
+
+### Why In-Memory Compilation?
+
+**Speed**: No disk I/O bottleneck
+- Parsing: Direct AST construction
+- Symbol resolution: In-memory hash tables
+- Type checking: Fast pointer-based traversal
+- No serialization/deserialization overhead
+
+**Reliability**: No filesystem state
+- No temp file cleanup issues
+- No filesystem permission problems
+- Deterministic builds (no file timing issues)
+- Thread-safe (no file locking)
+
+**Simplicity**: Clean architecture
+- No disk space management
+- No temp directory cleanup
+- No cross-platform file path issues
+- Easier to reason about
+
+### Memory Usage Breakdown
+
+For a typical large application (1000 files, 50 deps):
+- Parse trees: ~2-3 GB (AST nodes for all source)
+- Symbol tables: ~4-5 GB (all symbols, types, methods)
+- Type checking: ~2-3 GB (type inference, resolution)
+- IR generation: ~1-2 GB (intermediate representation)
+- Bootstrap cache: ~500 MB (built-in types)
+- **Total**: ~12 GB peak memory usage
+
+### Compilation Phases and Memory
+
+Different phases have different memory characteristics:
+- **Phases 0-2** (Parsing, Symbol Definition): Growing memory (building structures)
+- **Phases 3-6** (Type Checking, Resolution): Peak memory (full symbol tables)
+- **Phases 10-12** (IR Generation): High but bounded (IR is compact)
+- **Phases 13-19** (Code Generation): Lower (streaming bytecode generation)
+
+Memory pressure is highest during **phases 3-6** (type resolution).
+```
+
+### Integration with Testing Strategy
+
+**This is NOT Phase 1-7 testing** - different goals and execution model:
+
+**Phases 1-7**: Correctness, robustness, error quality (frequent, fast)
+**Stress Testing**: Scalability, resource limits, performance boundaries (infrequent, slow)
+
+### When to Run Stress Tests
+
+**Not on every commit** (too expensive in time and resources):
+- ❌ Not in pre-commit hooks
+- ❌ Not on pull requests (unless specifically testing scalability)
+- ❌ Not in nightly builds (too slow)
+
+**Run strategically**:
+- ✅ **Weekly**: Verify no regressions in memory usage
+- ✅ **Before major releases**: Comprehensive scalability validation
+- ✅ **When memory code changes**: Symbol table, parse tree, caching logic
+- ✅ **When adding large language features**: Generics, traits, dispatchers
+- ✅ **On demand**: When investigating performance issues
+
+### Separate CI Job
+
+```yaml
+# .github/workflows/stress-tests.yml
+name: Scalability Stress Tests
+
+on:
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly, Sunday 2 AM UTC
+  workflow_dispatch:      # Manual triggering
+  push:
+    paths:
+      - '**/SymbolTable*.java'      # Memory-critical code
+      - '**/ParseTreeContext*.java'
+      - '**/GenericType*.java'
+
+jobs:
+  stress-test:
+    runs-on: ubuntu-latest-64gb  # Need beefy machine
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 23
+        uses: actions/setup-java@v3
+        with:
+          java-version: '23'
+          distribution: 'temurin'
+
+      - name: Build compiler
+        run: mvn clean install -DskipTests
+
+      - name: Generate stress tests
+        run: |
+          cd stress-tests
+          ./generate-stress-tests.sh --all
+
+      - name: Run 100 file test
+        run: |
+          ek9c -c stress-tests/single-large-app/test_100_files.ek9
+          # Should succeed, baseline
+
+      - name: Run 1000 file test
+        run: |
+          export EK9_MAX_HEAP=16g
+          ek9c -c stress-tests/single-large-app/test_1000_files.ek9
+          # Should succeed with 16GB
+
+      - name: Run 5000 file test
+        run: |
+          export EK9_MAX_HEAP=32g
+          ek9c -c stress-tests/single-large-app/test_5000_files.ek9
+          # May succeed or fail - document the limit
+
+      - name: Run 10000 file test (expected to fail)
+        continue-on-error: true
+        run: |
+          export EK9_MAX_HEAP=64g
+          ek9c -c stress-tests/single-large-app/test_10000_files.ek9
+          # Expected to fail - document the hard limit
+
+      - name: Generate scalability report
+        run: |
+          cd stress-tests
+          ./generate-report.sh > reports/scalability_report.md
+
+      - name: Upload report
+        uses: actions/upload-artifact@v3
+        with:
+          name: scalability-report
+          path: stress-tests/reports/
+
+      - name: Comment on commit (if failures)
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: 'Scalability stress tests failed. Check artifacts for details.'
+            })
+```
+
+### Expected Outcomes
+
+**Success scenarios**:
+- Small-medium applications (10-200 files): Always succeed with minimal RAM
+- Large applications (200-1000 files): Succeed with adequate RAM (8-16 GB)
+- Very large applications (1000-5000 files): Succeed with high RAM (16-32 GB) but warn
+- Extreme applications (5000-10000+ files): Fail with clear guidance to refactor
+
+**Failure analysis**:
+- **OutOfMemoryError before 1000 files**: Compiler bug (memory leak, inefficient data structures)
+- **OutOfMemoryError at 1000-5000 files**: Expected (document limits, suggest refactoring)
+- **OutOfMemoryError at 10000+ files**: Intentional limit (force architectural improvement)
+
+### Relationship to Other Testing Phases
+
+```
+Stress Testing (Scalability)
+├─ Goal: Understand and document resource limits
+├─ Frequency: Weekly or on-demand
+├─ Duration: 1-2 hours (slow tests)
+├─ Tool: Generated large applications
+└─ Value: Clear user guidance on limits
+
+Phase 1-7 (Correctness/Robustness)
+├─ Goal: Compiler works correctly, no crashes
+├─ Frequency: Every commit
+├─ Duration: 10-25 minutes (fast tests)
+├─ Tool: JUnit + fuzzing + black-box testing
+└─ Value: Functional correctness
+```
+
+**Both are essential but serve different purposes**:
+- Phases 1-7 validate correctness on typical programs
+- Stress testing validates scalability on extreme programs
+
+### Success Metrics
+
+**Documentation quality**:
+- [ ] Clear guidance on memory requirements for different scales
+- [ ] Specific recommendations for hitting limits (refactor, not just "add RAM")
+- [ ] Environment variable documentation complete
+- [ ] Examples of good vs bad architecture
+
+**Technical validation**:
+- [ ] Can compile 1000 files with 16 GB RAM
+- [ ] Can compile 5000 files with 32 GB RAM (with warnings)
+- [ ] Fails gracefully at 10,000+ files with clear error message
+- [ ] No memory leaks detected (memory usage is bounded)
+
+**User experience**:
+- [ ] Users understand limits before hitting them
+- [ ] Error messages provide actionable guidance
+- [ ] Philosophy (encourage good architecture) is clear
+- [ ] Community understands this is feature, not bug
+
+---
+
 ## Conclusion
 
 **Fuzzing is essential** for EK9's launch quality. The multi-phase architecture with `-Cp [phase]` makes fuzzing practical **right now**, before IR/codegen are complete.
@@ -950,16 +1428,19 @@ Execution:
 - Invest **4-6 months** of focused fuzzing development
 - Achieve **>95% coverage** of compiler front-end
 - Find and fix **hundreds of bugs** before launch
+- Add **scalability stress testing** to understand resource limits
 
 **Outcome**:
 - **Rock-solid compiler** that handles edge cases gracefully
 - **Confidence** to launch publicly
 - **Infrastructure** for continuous quality as language evolves
+- **Clear guidance** to users on compilation limits and best practices
 
 **Timeline alignment**:
 - Steve continues compiler development (IR, JVM backend, LLVM backend)
 - AI (Claude Code) builds fuzzing infrastructure in parallel
-- Both converge in **6-12 months** for launch-ready quality
+- Scalability testing establishes boundaries and user guidance
+- All converge in **6-12 months** for launch-ready quality
 
 ---
 

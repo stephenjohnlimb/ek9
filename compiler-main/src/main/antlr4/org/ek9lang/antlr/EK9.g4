@@ -13,7 +13,7 @@ options
 //Also note that Identifier (not identifier) is the lex token, identifier includes additional key words.
 
 compilationUnit
-    : sheBang? moduleDeclaration NL* EOF
+    : sheBang moduleDeclaration NL* EOF
     ;
 
 sheBang

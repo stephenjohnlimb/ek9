@@ -158,6 +158,77 @@
     </plugins>
   </build>
 
+  <profiles>
+    <!-- Default profile: Skip fuzzing for fast development builds -->
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <!-- Exclude all fuzzing tests from default build -->
+                <exclude>**/fuzz/**/*Test.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Fuzzing profile: Run only fuzzing tests with maximum parallelization -->
+    <profile>
+      <id>fuzz</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <!-- Run ONLY fuzzing tests -->
+                <include>**/fuzz/**/*Test.java</include>
+              </includes>
+
+              <!-- Parallel execution configuration -->
+              <parallel>methods</parallel>
+              <threadCount>8</threadCount>
+              <forkCount>2</forkCount>
+
+              <!-- Memory configuration for parallel execution -->
+              <argLine>-Xmx2g</argLine>
+
+              <!-- Timeout: 30 seconds per test (catch infinite loops) -->
+              <forkedProcessTimeoutInSeconds>30</forkedProcessTimeoutInSeconds>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Combined profile: Run all tests including fuzzing -->
+    <profile>
+      <id>all</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/*Test.java</include>
+              </includes>
+              <parallel>methods</parallel>
+              <threadCount>8</threadCount>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
   <dependencyManagement>
     <dependencies>
 
