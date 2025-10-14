@@ -59,7 +59,7 @@ public final class StmtInstrGenerator extends AbstractGenerator
     final var instructions = new ArrayList<IRInstr>();
 
     if (ctx.ifStatement() != null) {
-      throw new CompilerException("If not implemented");
+      processIfStatement(ctx.ifStatement(), instructions);
     } else if (ctx.assertStatement() != null) {
       processAssertStatement(ctx.assertStatement(), instructions);
     } else if (ctx.assignmentStatement() != null) {
@@ -114,5 +114,11 @@ public final class StmtInstrGenerator extends AbstractGenerator
     final var debugInfo = stackContext.createDebugInfo(ctx);
     final var variableDetails = new VariableDetails(null, debugInfo);
     instructions.addAll(generators.callGenerator.apply(ctx, variableDetails));
+  }
+
+  private void processIfStatement(final EK9Parser.IfStatementContext ctx,
+                                  final List<IRInstr> instructions) {
+    // STACK-BASED: IfStatementGenerator now uses stack context directly
+    instructions.addAll(generators.ifStatementGenerator.apply(ctx));
   }
 }

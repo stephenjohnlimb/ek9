@@ -1,0 +1,79 @@
+#!ek9
+<?-
+  Test IR generation for simple if statement without else clause.
+-?>
+defines module controlFlow
+  defines function
+
+
+
+
+
+
+    @IR: IR_GENERATION: FUNCTION: "controlFlow::simpleIf": `
+    ConstructDfn: controlFlow::simpleIf(org.ek9.lang::Integer)->org.ek9.lang::String
+    OperationDfn: controlFlow::simpleIf.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow::simpleIf.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow::simpleIf.simpleIf()->controlFlow::simpleIf  // ./simpleIf.ek9:71:5
+    BasicBlock: _entry_1
+    CALL (controlFlow::simpleIf)this.i_init() [pure=false, complexity=0]  // ./simpleIf.ek9:71:5
+    RETURN this  // ./simpleIf.ek9:71:5
+    OperationDfn: controlFlow::simpleIf._call(org.ek9.lang::Integer)->org.ek9.lang::String  // ./simpleIf.ek9:71:5
+    BasicBlock: _entry_1
+    REFERENCE value, org.ek9.lang::Integer  // ./simpleIf.ek9:72:10
+    REFERENCE result, org.ek9.lang::String  // ./simpleIf.ek9:74:9
+    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./simpleIf.ek9:74:19
+    RETAIN _temp1  // ./simpleIf.ek9:74:19
+    SCOPE_REGISTER _temp1, _call  // ./simpleIf.ek9:74:19
+    STORE result, _temp1  // ./simpleIf.ek9:74:19
+    RETAIN result  // ./simpleIf.ek9:74:19
+    SCOPE_ENTER _scope_1  // ./simpleIf.ek9:76:7
+    CONTROL_FLOW_CHAIN  // ./simpleIf.ek9:76:7
+    [
+    chain_type: "IF_ELSE"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_1
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    _temp3 = LOAD value  // ./simpleIf.ek9:76:7
+    RETAIN _temp3  // ./simpleIf.ek9:76:7
+    SCOPE_REGISTER _temp3, _scope_1  // ./simpleIf.ek9:76:7
+    _temp4 = LOAD_LITERAL 10, org.ek9.lang::Integer  // ./simpleIf.ek9:76:18
+    RETAIN _temp4  // ./simpleIf.ek9:76:7
+    SCOPE_REGISTER _temp4, _scope_1  // ./simpleIf.ek9:76:7
+    _temp2 = CALL (org.ek9.lang::Integer)_temp3._gt(_temp4) [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./simpleIf.ek9:76:16
+    _temp5 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./simpleIf.ek9:76:7
+    ]
+    condition_result: _temp2
+    primitive_condition: _temp5
+    body_evaluation:
+    [
+    _temp6 = LOAD_LITERAL High, org.ek9.lang::String  // ./simpleIf.ek9:77:17
+    RETAIN _temp6  // ./simpleIf.ek9:77:17
+    SCOPE_REGISTER _temp6, _scope_1  // ./simpleIf.ek9:77:17
+    RELEASE result  // ./simpleIf.ek9:77:17
+    STORE result, _temp6  // ./simpleIf.ek9:77:17
+    RETAIN result  // ./simpleIf.ek9:77:17
+    ]
+    ]
+    ]
+    scope_id: _scope_1
+    ]
+    SCOPE_EXIT _scope_1  // ./simpleIf.ek9:76:7
+    RETURN result  // ./simpleIf.ek9:74:9`
+    simpleIf()
+      -> value as Integer
+      <-
+        result <- String()
+
+      if value > 10
+        result: "High"
+
+//EOF

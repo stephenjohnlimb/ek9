@@ -54,11 +54,12 @@ public final class IRConstructGenerators {
 
     // Step 1: Create shared lightweight helpers (no dependencies on other generators)
     generators.variableMemoryManagement = new VariableMemoryManagement(stackContext);
+    generators.debugInfoCreator = new DebugInfoCreator(stackContext.getCurrentIRContext());
+
     generators.parameterPromotionProcessor =
         new ParameterPromotionProcessor(stackContext, generators.variableMemoryManagement);
     generators.callDetailsBuilder =
         new CallDetailsBuilder(stackContext, generators.parameterPromotionProcessor);
-    generators.debugInfoCreator = new DebugInfoCreator(stackContext.getCurrentIRContext());
 
     // Step 2: Create RecordExprProcessing helper (depends on exprGenerator via forward reference)
     // NOTE: exprGenerator isn't created yet, but struct pattern allows forward reference
@@ -103,7 +104,10 @@ public final class IRConstructGenerators {
         new AssertStmtGenerator(stackContext, generators.exprGenerator, generators.recordExprProcessing);
     generators.callGenerator = new CallInstrGenerator(stackContext, generators);
 
-    // Step 9: Create top-level statement and block generators
+    // Step 9: Create control flow generators
+    generators.ifStatementGenerator = new IfStatementGenerator(stackContext, generators);
+
+    // Step 10: Create top-level statement and block generators
     generators.stmtGenerator = new StmtInstrGenerator(stackContext, generators);
     generators.blockStmtGenerator = new BlockStmtInstrGenerator(stackContext, generators);
 
