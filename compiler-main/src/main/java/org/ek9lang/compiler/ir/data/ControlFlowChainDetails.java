@@ -125,7 +125,7 @@ public record ControlFlowChainDetails(
     
     return new ControlFlowChainDetails(
         result,
-        conditionChain.size() > 1 ? "IF_ELSE_IF" : "IF_ELSE",
+        "IF_ELSE_IF",
         GuardVariableDetails.none(), // No guard variables for legacy if/else
         EvaluationVariableDetails.none(), // No evaluation variable for if/else
         ReturnVariableDetails.none(), // No return variable for legacy if/else
@@ -228,7 +228,7 @@ public record ControlFlowChainDetails(
    * Check if this is an if/else construct.
    */
   public boolean isIfElse() {
-    return "IF_ELSE".equals(chainType) || "IF_ELSE_IF".equals(chainType);
+    return "IF_ELSE_IF".equals(chainType);
   }
 
   /**

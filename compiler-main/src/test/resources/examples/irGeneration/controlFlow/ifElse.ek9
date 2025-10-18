@@ -1,23 +1,24 @@
 #!ek9
 <?-
-  Test IR generation for simple if statement without else clause.
+  Test IR generation for if/else statement.
 -?>
 defines module controlFlow
+
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "controlFlow::simpleIf": `
-    ConstructDfn: controlFlow::simpleIf(org.ek9.lang::Integer)->org.ek9.lang::String
-    OperationDfn: controlFlow::simpleIf.c_init()->org.ek9.lang::Void
+    @IR: IR_GENERATION: FUNCTION: "controlFlow::ifElse": `
+    ConstructDfn: controlFlow::ifElse(org.ek9.lang::Integer)->org.ek9.lang::String
+    OperationDfn: controlFlow::ifElse.c_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     RETURN
-    OperationDfn: controlFlow::simpleIf.i_init()->org.ek9.lang::Void
+    OperationDfn: controlFlow::ifElse.i_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     RETURN
-    OperationDfn: controlFlow::simpleIf.simpleIf()->controlFlow::simpleIf
+    OperationDfn: controlFlow::ifElse.ifElse()->controlFlow::ifElse
     BasicBlock: _entry_1
-    CALL (controlFlow::simpleIf)this.i_init() [pure=false, complexity=0]
+    CALL (controlFlow::ifElse)this.i_init() [pure=false, complexity=0]
     RETURN this
-    OperationDfn: controlFlow::simpleIf._call(org.ek9.lang::Integer)->org.ek9.lang::String
+    OperationDfn: controlFlow::ifElse._call(org.ek9.lang::Integer)->org.ek9.lang::String
     BasicBlock: _entry_1
     REFERENCE value, org.ek9.lang::Integer
     REFERENCE result, org.ek9.lang::String
@@ -62,17 +63,30 @@ defines module controlFlow
     ]
     ]
     ]
+    default_body_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp7 = LOAD_LITERAL Low, org.ek9.lang::String
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_4
+    RELEASE result
+    STORE result, _temp7
+    RETAIN result
+    SCOPE_EXIT _scope_4
+    ]
     scope_id: _scope_2
     ]
     SCOPE_EXIT _scope_2
     SCOPE_EXIT _scope_1
     RETURN result`
-    simpleIf()
+    ifElse()
       -> value as Integer
       <-
         result <- String()
 
       if value > 10
         result: "High"
+      else
+        result: "Low"
 
 //EOF

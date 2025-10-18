@@ -1,0 +1,25 @@
+#!ek9
+<?-
+  Bytecode test for if/else statement.
+  Tests conditional branching with else clause.
+-?>
+defines module bytecode.test
+
+  defines program
+
+    //TODO: Add bytecode annotation after implementation stabilizes
+
+    IfElseStatement()
+      -> value as Integer
+
+      stdout <- Stdout()
+
+      if value > 10
+        stdout.println("High")
+      else
+        stdout.println("Low")
+
+      // Always print to verify program continues
+      stdout.println("Done")
+
+//EOF

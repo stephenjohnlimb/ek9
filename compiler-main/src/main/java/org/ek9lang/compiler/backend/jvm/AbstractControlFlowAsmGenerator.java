@@ -218,6 +218,31 @@ abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
                                       final Label nextCaseLabel,
                                       final Label endLabel,
                                       final String resultVar) {
+    processConditionCaseWithoutLabelPlacement(conditionCase, nextCaseLabel, endLabel, resultVar);
+
+    // 6. Place next case label (reached via branch from step 2 with empty stack)
+    placeLabel(nextCaseLabel);
+    // Stack: empty (from incoming branch)
+  }
+
+  /**
+   * Process a condition case WITHOUT placing the nextCaseLabel.
+   * Use this when the caller needs to control label placement (e.g., if/else-if chains).
+   * <p>
+   * Stack Frame Invariant:
+   * Pre-condition: stack is empty
+   * Post-condition: stack is empty after GOTO
+   * </p>
+   *
+   * @param conditionCase IR details for this case
+   * @param nextCaseLabel Label to jump if condition is false
+   * @param endLabel Label to jump after body execution
+   * @param resultVar Overall result variable (null if no result)
+   */
+  protected void processConditionCaseWithoutLabelPlacement(final ConditionCaseDetails conditionCase,
+                                                            final Label nextCaseLabel,
+                                                            final Label endLabel,
+                                                            final String resultVar) {
     // 1. Evaluate condition (leaves stack empty)
     processConditionEvaluation(conditionCase.conditionEvaluation());
     // Stack: empty
@@ -239,9 +264,6 @@ abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
     // 5. Jump to end
     jumpTo(endLabel);
     // Stack: empty at endLabel
-
-    // 6. Place next case label (reached via branch from step 2 with empty stack)
-    placeLabel(nextCaseLabel);
-    // Stack: empty (from incoming branch)
+    // NOTE: nextCaseLabel is NOT placed by this method - caller must place it
   }
 }

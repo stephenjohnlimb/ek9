@@ -11,7 +11,12 @@ class ControlFlowIRTest extends AbstractIRGenerationTest {
 
   public ControlFlowIRTest() {
     super("/examples/irGeneration/controlFlow",
-        List.of(new SymbolCountCheck(1, "controlFlow", 1)), false, false, false);
+        List.of(new SymbolCountCheck(3, "controlFlow", 3)),
+        false, false, false);
   }
 
+  @Override
+  protected boolean addDebugInstrumentation() {
+    return false;
+  }
 }

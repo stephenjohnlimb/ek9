@@ -1,0 +1,29 @@
+#!ek9
+<?-
+  Bytecode test for if/else-if/else chain.
+  Tests multi-condition branching.
+-?>
+defines module bytecode.test
+
+  defines program
+
+    //TODO: Add bytecode annotation after implementation stabilizes
+
+    IfElseIfChain()
+      -> value as Integer
+
+      stdout <- Stdout()
+
+      if value > 20
+        stdout.println("Very High")
+      else if value > 10
+        stdout.println("High")
+      else if value > 0
+        stdout.println("Positive")
+      else
+        stdout.println("Non-positive")
+
+      // Always print to verify program continues
+      stdout.println("Done")
+
+//EOF

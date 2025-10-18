@@ -58,7 +58,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     switch (chainType) {
       case "QUESTION_OPERATOR" -> generateQuestionOperator(instr);
       case "GUARDED_ASSIGNMENT" -> generateGuardedAssignment(instr);
-      case "IF_ELSE" -> generateIfElse(instr);
+      case "IF_ELSE_IF" -> generateIfElse(instr);
       // Future cases will be added here as generators are implemented:
       // case "SWITCH", "SWITCH_ENUM" -> generateSwitch(instr);
       // case "WHILE" -> generateWhileLoop(instr);
@@ -66,7 +66,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
       // case "TRY_CATCH" -> generateTryCatch(instr);
       default -> throw new CompilerException(
           "Unsupported control flow chain type: " + chainType
-              + ". Expected one of: QUESTION_OPERATOR, GUARDED_ASSIGNMENT, IF_ELSE");
+              + ". Expected one of: QUESTION_OPERATOR, GUARDED_ASSIGNMENT, IF_ELSE_IF");
     }
   }
 

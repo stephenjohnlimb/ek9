@@ -1159,6 +1159,88 @@ The current two-tier architecture resulted from the successful **stack-based sco
 
 **Migration Validation**: The corrected IR in Boolean expression tests demonstrates that the two-tier architecture produces semantically correct, backend-ready IR with proper memory management patterns.
 
+#### **Control Flow Scope Hierarchies**
+
+**Discovery Context**: During if/else statement implementation, debug tracing revealed a three-tier scope structure that initially appeared unexpected but is architecturally correct.
+
+**The Three-Tier Scope Structure for Control Flow:**
+
+```
+Function/Method Body:
+  SCOPE_ENTER _scope_1              ← OperationDfnGenerator (function body scope)
+    SCOPE_ENTER _scope_2            ← IfStatementGenerator (control flow chain scope)
+      CONTROL_FLOW_CHAIN
+        scope_id: _scope_2          ← Chain scope for condition temporaries
+        condition_chain:
+        [
+          case_scope_id: _scope_3   ← First branch body scope
+          condition_evaluation:     ← Evaluated in _scope_2 (chain scope)
+          [
+            _temp3 = LOAD value
+            RETAIN _temp3
+            SCOPE_REGISTER _temp3, _scope_2  ← Condition temps in chain scope
+          ]
+          body_evaluation:          ← Branch body in _scope_3
+          [
+            SCOPE_ENTER _scope_3
+            _temp6 = LOAD_LITERAL "High"
+            RETAIN _temp6
+            SCOPE_REGISTER _temp6, _scope_3  ← Branch locals in branch scope
+            SCOPE_EXIT _scope_3
+          ]
+        ],
+        [
+          case_scope_id: _scope_4   ← Second branch body scope (else-if or else)
+          body_evaluation:
+          [
+            SCOPE_ENTER _scope_4
+            _temp7 = LOAD_LITERAL "Low"
+            RETAIN _temp7
+            SCOPE_REGISTER _temp7, _scope_4
+            SCOPE_EXIT _scope_4
+          ]
+        ]
+      SCOPE_EXIT _scope_2
+  SCOPE_EXIT _scope_1
+```
+
+**Scope Hierarchy Explanation:**
+
+**Tier 1: Function Body Scope (`_scope_1`)**
+- **Origin**: `OperationDfnGenerator.processInstructionBlock()` (lines 156-166)
+- **Purpose**: Standard function/method body scope created for ALL operations
+- **Lifecycle**: Enters at function start, exits at function RETURN
+- **Memory Management**: Holds function-level variables and temporaries
+- **Universality**: Every function/method gets this scope automatically
+
+**Tier 2: Control Flow Chain Scope (`_scope_2`)**
+- **Origin**: `IfStatementGenerator.apply()` creates chain scope for entire if/else-if/else structure
+- **Purpose**: Scope for condition evaluation temporaries shared across all branches
+- **Lifecycle**: Enters before CONTROL_FLOW_CHAIN, exits after all branches complete
+- **Memory Management**: Condition temporaries registered here for cleanup after branching
+- **Benefits**: Condition evaluation cleanup happens once, not per-branch
+
+**Tier 3: Branch Body Scopes (`_scope_3`, `_scope_4`, `_scope_5`, etc.)**
+- **Origin**: `processIfControlBlockWithBranchScope()` and `processElseBlockWithBranchScope()`
+- **Purpose**: Isolated scopes for each branch body (if, else-if, else)
+- **Lifecycle**: Enters at branch start, exits at branch end
+- **Memory Management**: Branch-local variables registered here
+- **Benefits**: Each branch has isolated lifetime for local variables
+
+**Semantic Correctness Rationale:**
+
+1. **Condition Temporaries in Chain Scope**: Condition evaluation happens BEFORE branch selection, so temporaries must live in parent scope (_scope_2), not branch scopes
+2. **Unique Branch Scopes**: Each branch body gets its own scope to prevent variable lifetime conflicts between mutually exclusive branches
+3. **Automatic Function Scope**: _scope_1 is standard for all operations, providing consistent function-level scope management
+
+**Key Implementation Locations:**
+- **Function Scope Creation**: `OperationDfnGenerator.java:156-166`
+- **Chain Scope Creation**: `IfStatementGenerator.java:50-56`
+- **Branch Scope Creation**: `IfStatementGenerator.java:134-148` (if/else-if) and `169-179` (else)
+
+**Debug Verification:**
+Debug logging added in Phase 7 implementation confirmed this three-tier structure is correct and semantically necessary for proper memory management and scope isolation in control flow constructs.
+
 ## Medium-Level IR: LOGICAL_AND_BLOCK and LOGICAL_OR_BLOCK
 
 ### Overview: Declarative Control Flow IR

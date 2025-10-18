@@ -7,8 +7,11 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.instructions.ScopeInstr;
+import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
+import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -35,48 +38,67 @@ public final class IfStatementGenerator extends AbstractGenerator
   public List<IRInstr> apply(final EK9Parser.IfStatementContext ctx) {
     AssertValue.checkNotNull("IfStatementContext cannot be null", ctx);
 
+    final var instructions = new ArrayList<IRInstr>();
     final var debugInfo = stackContext.createDebugInfo(ctx);
-    final var scopeId = stackContext.currentScopeId();
 
-    // Process all if/else if conditions into ConditionCaseDetails
+    // Enter NEW scope for entire if/else chain
+    // This scope will contain guard variables (future) and condition temporaries
+    final var chainScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(chainScopeId, debugInfo, IRFrameType.BLOCK);
+
+    instructions.add(ScopeInstr.enter(chainScopeId, debugInfo));
+
+    // TODO Phase 2: Process guard variable if exists (first block only)
+    // For now, keep throwing exception in processIfControlBlockWithBranchScope
+
+    // Process all if/else if conditions with UNIQUE branch scopes
     final var conditionChain = new ArrayList<ConditionCaseDetails>();
-
     for (var ifControlBlock : ctx.ifControlBlock()) {
-      conditionChain.add(processIfControlBlock(ifControlBlock));
+      conditionChain.add(processIfControlBlockWithBranchScope(ifControlBlock));
     }
 
-    // Process else block if present
+    // Process else block with its OWN scope
     List<IRInstr> defaultBodyEvaluation = List.of();
-    String defaultResult = null;
     if (ctx.elseOnlyBlock() != null) {
-      defaultBodyEvaluation = processElseOnlyBlock(ctx.elseOnlyBlock());
+      defaultBodyEvaluation = processElseBlockWithBranchScope(ctx.elseOnlyBlock());
     }
 
-    // Create CONTROL_FLOW_CHAIN details
+    // Create CONTROL_FLOW_CHAIN details (chainScopeId is the outer scope)
     final var details = ControlFlowChainDetails.createIfElse(
         null, // No result for statement form
         conditionChain,
         defaultBodyEvaluation,
-        defaultResult, // No default result for statement form
+        null, // No default result for statement form
         debugInfo,
-        scopeId
+        chainScopeId
     );
 
     // Use ControlFlowChainGenerator to generate IR
-    return generators.controlFlowChainGenerator.apply(details);
+    instructions.addAll(generators.controlFlowChainGenerator.apply(details));
+
+    // Exit chain scope
+    instructions.add(ScopeInstr.exit(chainScopeId, debugInfo));
+    stackContext.exitScope();
+
+    return instructions;
   }
 
-  private ConditionCaseDetails processIfControlBlock(final EK9Parser.IfControlBlockContext ctx) {
+  /**
+   * Process an if control block with its own branch scope.
+   * Condition evaluation happens in the current (chain) scope.
+   * Body evaluation happens in a new nested scope.
+   */
+  private ConditionCaseDetails processIfControlBlockWithBranchScope(final EK9Parser.IfControlBlockContext ctx) {
     final var debugInfo = stackContext.createDebugInfo(ctx);
-    final var scopeId = stackContext.currentScopeId();
 
     // Check for preFlowAndControl (guard variables)
     if (ctx.preFlowAndControl() != null && ctx.preFlowAndControl().preFlowStatement() != null) {
-      // TODO: Handle guard variables - future enhancement
+      // TODO Phase 2: Handle guard variables - future enhancement
       throw new CompilerException("Guard variables in if not yet implemented");
     }
 
-    // Process condition expression to get EK9 Boolean
+    // Process condition expression in CURRENT scope (chain scope)
+    // Condition temporaries live in chain scope, accessible for memory management
     final var conditionDetails = createTempVariable(debugInfo);
     final var conditionEvaluation = new ArrayList<>(
         generators.exprGenerator.apply(
@@ -88,12 +110,22 @@ public final class IfStatementGenerator extends AbstractGenerator
     final var conversion = convertToPrimitiveBoolean(conditionDetails.resultVariable(), debugInfo);
     final var primitiveCondition = conversion.addToInstructions(conditionEvaluation);
 
-    // Process body block - access through instructionBlock
-    final var bodyEvaluation = processBlockStatements(ctx.block());
+    // Enter NEW scope for this branch body
+    final var branchScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(branchScopeId, debugInfo, IRFrameType.BLOCK);
 
-    // Create condition case with both EK9 Boolean and primitive boolean
+    // Wrap body evaluation with SCOPE_ENTER/EXIT
+    final var bodyEvaluation = new ArrayList<IRInstr>();
+    bodyEvaluation.add(ScopeInstr.enter(branchScopeId, debugInfo));
+    bodyEvaluation.addAll(processBlockStatements(ctx.block()));
+    bodyEvaluation.add(ScopeInstr.exit(branchScopeId, debugInfo));
+
+    // Exit branch scope
+    stackContext.exitScope();
+
+    // Create condition case with branch scope id
     return ConditionCaseDetails.createExpression(
-        scopeId,
+        branchScopeId,  // Use branch scope id, not chain scope id
         conditionEvaluation,
         conditionDetails.resultVariable(),    // EK9 Boolean result for memory management
         primitiveCondition, // primitive boolean for backend branching
@@ -102,8 +134,27 @@ public final class IfStatementGenerator extends AbstractGenerator
     );
   }
 
-  private List<IRInstr> processElseOnlyBlock(final EK9Parser.ElseOnlyBlockContext ctx) {
-    return processBlockStatements(ctx.block());
+  /**
+   * Process an else block with its own branch scope.
+   * Else body evaluation happens in a new nested scope.
+   */
+  private List<IRInstr> processElseBlockWithBranchScope(final EK9Parser.ElseOnlyBlockContext ctx) {
+    final var debugInfo = stackContext.createDebugInfo(ctx);
+
+    // Enter NEW scope for else body
+    final var elseScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(elseScopeId, debugInfo, IRFrameType.BLOCK);
+
+    // Wrap body evaluation with SCOPE_ENTER/EXIT
+    final var bodyEvaluation = new ArrayList<IRInstr>();
+    bodyEvaluation.add(ScopeInstr.enter(elseScopeId, debugInfo));
+    bodyEvaluation.addAll(processBlockStatements(ctx.block()));
+    bodyEvaluation.add(ScopeInstr.exit(elseScopeId, debugInfo));
+
+    // Exit else scope
+    stackContext.exitScope();
+
+    return bodyEvaluation;
   }
 
   /**

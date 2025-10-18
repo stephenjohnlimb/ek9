@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.backend.jvm;
 
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
+import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.instructions.ControlFlowChainInstr;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -54,40 +55,34 @@ final class IfElseAsmGenerator extends AbstractControlFlowAsmGenerator {
     // Create end label where all paths converge
     final var endLabel = createControlFlowLabel("if_end", instr.getScopeId());
 
-    // Track if we've executed any true branch (for optimization later)
-    var isFirstCondition = true;
-    Label nextConditionLabel = null;
+    Label nextConditionLabel;
+    var conditionChain = instr.getConditionChain();
 
     // Process each condition case (if, else if, else if, ...)
-    for (var conditionCase : instr.getConditionChain()) {
-      // Place label for previous false branch to jump to
-      if (!isFirstCondition && nextConditionLabel != null) {
-        placeLabel(nextConditionLabel);
-        // Stack: empty (from previous branch)
-      }
-
-      // Create label for next condition or else block
+    for (ConditionCaseDetails conditionCase : conditionChain) {
+      // Create label for next condition or else block using branch scope ID
+      // Each branch has unique scope ID from IR, ensuring unique labels
       nextConditionLabel = createControlFlowLabel(
-          "if_next_" + conditionCase.caseScopeId(),
+          "if_next",
           conditionCase.caseScopeId());
 
-      // Process this condition case
+      // Process this condition case WITHOUT placing the label
       // This will:
       // 1. Evaluate condition evaluation instructions
       // 2. Load primitive condition and branch to nextConditionLabel if false
-      // 3. Execute body evaluation if true
+      // 3. Execute body evaluation if true (including SCOPE_ENTER/EXIT)
       // 4. Jump to endLabel after body
-      processConditionCase(conditionCase, nextConditionLabel, endLabel, null);
-      // Stack: empty (body jumps to end, or we branched to next)
+      processConditionCaseWithoutLabelPlacement(conditionCase, nextConditionLabel, endLabel, null);
+      // Stack: empty at endLabel (from jump)
 
-      isFirstCondition = false;
-    }
-
-    // Handle the final false case
-    if (nextConditionLabel != null) {
+      // Place the nextConditionLabel for the next iteration (or else block)
+      // This is where execution continues if the condition was false
       placeLabel(nextConditionLabel);
-      // Stack: empty
+      // Stack: empty (from branch)
     }
+
+    // At this point, we're at the label where all conditions were false
+    // The default case (else block) will execute here
 
     // Process else block if present (default case)
     if (instr.hasDefaultCase()) {

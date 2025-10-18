@@ -51,14 +51,6 @@ public final class ControlFlowChainInstr extends IRInstr {
     return new ControlFlowChainInstr(details);
   }
 
-  /**
-   * Create a unified switch chain block instruction with explicit scope ID.
-   * STACK-BASED: Use this method when BasicDetails no longer contains scopeId.
-   */
-  public static ControlFlowChainInstr controlFlowChain(final ControlFlowChainDetails details, final String scopeId) {
-    return new ControlFlowChainInstr(details, scopeId);
-  }
-
   private ControlFlowChainInstr(final ControlFlowChainDetails details) {
     super(IROpcode.CONTROL_FLOW_CHAIN, details.result(), details.debugInfo());
 
@@ -254,7 +246,7 @@ public final class ControlFlowChainInstr extends IRInstr {
    * Check if this is an if/else construct.
    */
   public boolean isIfElse() {
-    return "IF_ELSE".equals(chainType) || "IF_ELSE_IF".equals(chainType);
+    return "IF_ELSE_IF".equals(chainType);
   }
 
   /**

@@ -86,7 +86,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
       instructions.addAll(details.guardScopeSetup());
     }
 
-    // Add shared condition scope management if needed  
+    // Add shared condition scope management if needed
     if (details.hasSharedConditionScope()) {
       instructions.add(ScopeInstr.enter(details.conditionScopeId(), details.debugInfo()));
     }
