@@ -647,6 +647,124 @@ final var returnType = mayReturnSymbol.getReturningSymbol().getType()
 **Support**:
 - `INode` - Base interface for visitor pattern
 - `IROpcode` - Instruction operation codes
+
+---
+
+## Backend IR Consumption Pattern
+
+### Zero-Parsing Architecture
+
+Backends consume IR via typed method calls on Java objects - **no string parsing required**.
+
+**JVM Backend Example** (`CallInstrAsmGenerator.java`):
+```java
+// Specialized ASM generator for CallInstr processing
+final class CallInstrAsmGenerator extends AbstractAsmGenerator
+    implements Consumer<CallInstr> {
+
+  @Override
+  public void accept(final CallInstr callInstr) {
+    // Extract call details using typed methods (NOT string parsing)
+    final var targetObject = callInstr.getTargetObject();
+    final var methodName = callInstr.getMethodName();
+    final var arguments = callInstr.getArguments();
+    final var targetTypeName = callInstr.getTargetTypeName();
+    final var parameterTypes = callInstr.getParameterTypes();
+    final var returnTypeName = callInstr.getReturnTypeName();
+    final var isTraitCall = callInstr.isTraitCall();
+
+    // Generate different bytecode based on call type
+    switch (callInstr.getOpcode()) {
+      case CALL -> generateInstanceCall(targetObject, methodName, arguments, ...);
+      case CALL_VIRTUAL -> generateVirtualCall(targetObject, methodName, ...);
+      case CALL_STATIC -> generateStaticCall(methodName, arguments, ...);
+      default -> throw new IllegalArgumentException("Unsupported call opcode");
+    }
+
+    // Store result if instruction has one
+    if (callInstr.hasResult()) {
+      final var resultVar = callInstr.getResult();
+      generateStoreVariable(resultVar);
+    }
+  }
+}
+```
+
+**LLVM Backend Pattern** (planned):
+```java
+// LLVM IR generator for CallInstr (future implementation)
+final class CallInstrLLVMGenerator implements Consumer<CallInstr> {
+
+  @Override
+  public void accept(final CallInstr callInstr) {
+    // Same typed access pattern as JVM backend
+    final var targetObject = callInstr.getTargetObject();
+    final var methodName = callInstr.getMethodName();
+    final var arguments = callInstr.getArguments();
+
+    // Generate LLVM IR from typed data
+    llvmBuilder.createCall(targetObject, methodName, arguments);
+
+    // Same result handling pattern
+    if (callInstr.hasResult()) {
+      llvmBuilder.storeResult(callInstr.getResult());
+    }
+  }
+}
+```
+
+### Key Advantages of Typed Object Consumption
+
+1. ✅ **Type Safety**: Method signature changes caught at compile time
+2. ✅ **Zero Overhead**: No parsing, no string manipulation, direct memory access
+3. ✅ **IDE Support**: Autocomplete, refactoring tools work perfectly
+4. ✅ **Consistent API**: Both JVM and LLVM backends use identical access patterns
+5. ✅ **Debugging**: Inspect typed objects in debugger, set breakpoints on method calls
+6. ✅ **Maintainability**: Refactor IR classes, compiler finds all backend usages
+
+### Comparison with Text-Based IR Approaches
+
+**LLVM IR** (text-based):
+```llvm
+; LLVM backends must parse text files
+%1 = call i32 @foo(i32 %x, i32 %y)
+```
+Backend must:
+1. Parse "call i32 @foo(i32 %x, i32 %y)"
+2. Extract function name, parameter types, return type
+3. Validate syntax, handle parsing errors
+4. **Result**: Parsing overhead, runtime errors
+
+**EK9 IR** (typed objects):
+```java
+// Backends access typed methods directly
+String functionName = callInstr.getMethodName();  // "foo"
+List<String> paramTypes = callInstr.getParameterTypes();  // ["Integer", "Integer"]
+String returnType = callInstr.getReturnTypeName();  // "Integer"
+```
+Backend gets:
+1. Direct typed access to all data
+2. Compile-time type checking
+3. No parsing, no validation needed
+4. **Result**: Zero overhead, compile-time safety
+
+### String Representation: Testing Only
+
+The `toString()` method exists solely for `@IR` directive testing:
+
+```java
+// IR generation produces typed objects
+CallInstr callInstr = CallInstr.call(result, debugInfo, callDetails);
+
+// toString() used ONLY for @IR directive validation in .ek9 test files
+String testOutput = callInstr.toString();
+// → "CALL _temp1 = object.method(arg1, arg2) [pure=true, complexity=1]"
+
+// Backends NEVER call toString() - they use typed methods
+String methodName = callInstr.getMethodName();  // Production code path
+```
+
+This design ensures backends have maximum performance while maintaining excellent testability through human-readable IR representation.
 - `DebugInfo` - Source location and debug metadata
 
 ## Refactoring Benefits and Architecture Improvements

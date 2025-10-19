@@ -6,7 +6,92 @@ defines module loops
 
   defines function
 
-
+    @IR: IR_GENERATION: FUNCTION: "loops::simpleWhileLoop": `
+    ConstructDfn: loops::simpleWhileLoop()->org.ek9.lang::Void
+    OperationDfn: loops::simpleWhileLoop.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops::simpleWhileLoop.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops::simpleWhileLoop.simpleWhileLoop()->loops::simpleWhileLoop
+    BasicBlock: _entry_1
+    CALL (loops::simpleWhileLoop)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: loops::simpleWhileLoop._call()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE stdout, org.ek9.lang::Stdout
+    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE stdout, _temp1
+    RETAIN stdout
+    SCOPE_REGISTER stdout, _scope_1
+    REFERENCE counter, org.ek9.lang::Integer
+    _temp2 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    STORE counter, _temp2
+    RETAIN counter
+    SCOPE_REGISTER counter, _scope_1
+    SCOPE_ENTER _scope_2
+    SCOPE_ENTER _scope_3
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "WHILE_LOOP"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_4
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp4 = LOAD counter
+    RETAIN _temp4
+    SCOPE_REGISTER _temp4, _scope_4
+    _temp5 = LOAD_LITERAL 10, org.ek9.lang::Integer
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, _scope_4
+    _temp3 = CALL (org.ek9.lang::Integer)_temp4._lt(_temp5) [pure=true, complexity=1, effects=RETURN_MUTATION]
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_4
+    ]
+    condition_result: _temp3
+    primitive_condition: _temp6
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_5
+    _temp8 = LOAD counter
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, _scope_5
+    _temp9 = LOAD_LITERAL 1, org.ek9.lang::Integer
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_5
+    _temp7 = CALL (org.ek9.lang::Integer)_temp8._add(_temp9) [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_5
+    RELEASE counter
+    STORE counter, _temp7
+    RETAIN counter
+    SCOPE_EXIT _scope_5
+    ]
+    ]
+    ]
+    scope_id: _scope_3
+    ]
+    SCOPE_EXIT _scope_3
+    SCOPE_EXIT _scope_2
+    _temp11 = LOAD stdout
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_1
+    _temp12 = LOAD counter
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_1
+    CALL (org.ek9.lang::StringOutput)_temp11.println(_temp12) [pure=true, complexity=1, trait=true]
+    SCOPE_EXIT _scope_1
+    RETURN`
     simpleWhileLoop()
       stdout <- Stdout()
       counter <- 0

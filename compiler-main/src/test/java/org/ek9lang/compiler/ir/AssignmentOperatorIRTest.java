@@ -19,7 +19,7 @@ class AssignmentOperatorIRTest extends AbstractIRGenerationTest {
             new SymbolCountCheck(1, "multiply_assign.test", 1),
             new SymbolCountCheck(1, "divide_assign.test", 1),
             new SymbolCountCheck(1, "anaddass.test", 1)
-        ), false, false, false);
+        ), false, false, false); // showIR=true to see generated IR
   }
 
 }

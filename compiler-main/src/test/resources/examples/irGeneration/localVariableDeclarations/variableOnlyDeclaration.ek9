@@ -11,28 +11,27 @@ defines module local.variableDeclarations
     OperationDfn: local.variableDeclarations::LocalVariableOnlyUse.i_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     RETURN
-    OperationDfn: local.variableDeclarations::LocalVariableOnlyUse.LocalVariableOnlyUse()->local.variableDeclarations::LocalVariableOnlyUse  // ./variableOnlyDeclaration.ek9:36:5
+    OperationDfn: local.variableDeclarations::LocalVariableOnlyUse.LocalVariableOnlyUse()->local.variableDeclarations::LocalVariableOnlyUse  // ./variableOnlyDeclaration.ek9:35:5
     BasicBlock: _entry_1
-    CALL (local.variableDeclarations::LocalVariableOnlyUse)this.i_init() [pure=false, complexity=0]  // ./variableOnlyDeclaration.ek9:36:5
-    RETURN this  // ./variableOnlyDeclaration.ek9:36:5
-    OperationDfn: local.variableDeclarations::LocalVariableOnlyUse._call()->org.ek9.lang::Void  // ./variableOnlyDeclaration.ek9:36:5
+    CALL (local.variableDeclarations::LocalVariableOnlyUse)this.i_init() [pure=false, complexity=0]  // ./variableOnlyDeclaration.ek9:35:5
+    RETURN this  // ./variableOnlyDeclaration.ek9:35:5
+    OperationDfn: local.variableDeclarations::LocalVariableOnlyUse._call()->org.ek9.lang::Void  // ./variableOnlyDeclaration.ek9:35:5
     BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./variableOnlyDeclaration.ek9:40:7
-    REFERENCE localVar, org.ek9.lang::Boolean  // ./variableOnlyDeclaration.ek9:40:7
-    _temp1 = LOAD_LITERAL true, org.ek9.lang::Boolean  // ./variableOnlyDeclaration.ek9:43:17
-    RETAIN _temp1  // ./variableOnlyDeclaration.ek9:43:17
-    SCOPE_REGISTER _temp1, _scope_1  // ./variableOnlyDeclaration.ek9:43:17
-    RELEASE localVar  // ./variableOnlyDeclaration.ek9:43:17
-    STORE localVar, _temp1  // ./variableOnlyDeclaration.ek9:43:17
-    RETAIN localVar  // ./variableOnlyDeclaration.ek9:43:17
-    SCOPE_REGISTER localVar, _scope_1  // ./variableOnlyDeclaration.ek9:43:17
-    _temp2 = LOAD localVar  // ./variableOnlyDeclaration.ek9:47:7
-    RETAIN _temp2  // ./variableOnlyDeclaration.ek9:47:7
-    SCOPE_REGISTER _temp2, _scope_1  // ./variableOnlyDeclaration.ek9:47:7
-    _temp3 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./variableOnlyDeclaration.ek9:47:7
-    ASSERT _temp3  // ./variableOnlyDeclaration.ek9:47:7
-    SCOPE_EXIT _scope_1  // ./variableOnlyDeclaration.ek9:40:7
-    RETURN  // ./variableOnlyDeclaration.ek9:36:5`
+    SCOPE_ENTER _scope_1  // ./variableOnlyDeclaration.ek9:39:7
+    REFERENCE localVar, org.ek9.lang::Boolean  // ./variableOnlyDeclaration.ek9:39:7
+    _temp1 = LOAD_LITERAL true, org.ek9.lang::Boolean  // ./variableOnlyDeclaration.ek9:42:17
+    RETAIN _temp1  // ./variableOnlyDeclaration.ek9:42:17
+    SCOPE_REGISTER _temp1, _scope_1  // ./variableOnlyDeclaration.ek9:42:17
+    RELEASE localVar  // ./variableOnlyDeclaration.ek9:42:17
+    STORE localVar, _temp1  // ./variableOnlyDeclaration.ek9:42:17
+    RETAIN localVar  // ./variableOnlyDeclaration.ek9:42:17
+    _temp2 = LOAD localVar  // ./variableOnlyDeclaration.ek9:46:7
+    RETAIN _temp2  // ./variableOnlyDeclaration.ek9:46:7
+    SCOPE_REGISTER _temp2, _scope_1  // ./variableOnlyDeclaration.ek9:46:7
+    _temp3 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./variableOnlyDeclaration.ek9:46:7
+    ASSERT _temp3  // ./variableOnlyDeclaration.ek9:46:7
+    SCOPE_EXIT _scope_1  // ./variableOnlyDeclaration.ek9:39:7
+    RETURN  // ./variableOnlyDeclaration.ek9:35:5`
     LocalVariableOnlyUse()
 
       //This is what we want to test the IR for

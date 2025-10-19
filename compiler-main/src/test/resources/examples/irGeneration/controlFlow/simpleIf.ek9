@@ -26,6 +26,7 @@ defines module controlFlow
     SCOPE_REGISTER _temp1, _call
     STORE result, _temp1
     RETAIN result
+    SCOPE_REGISTER result, _call
     SCOPE_ENTER _scope_1
     SCOPE_ENTER _scope_2
     CONTROL_FLOW_CHAIN

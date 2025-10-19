@@ -73,10 +73,106 @@ This document provides comprehensive guidance for working with EK9's Intermediat
 EK9's IR generation transforms resolved symbols from the compiler frontend phases into a target-agnostic intermediate representation that can be translated to multiple backends (JVM bytecode, LLVM IR, etc.).
 
 ### IR Design Principles
-- **Target-agnostic**: IR must work equally well for JVM and future LLVM C++ targets
+- **Target-agnostic**: IR must work equally well for JVM and LLVM targets
 - **Symbol-driven**: Uses resolved symbols from `ParsedModule.getRecordedSymbol()` instead of AST text parsing
-- **Text-based representation**: Stores all values as strings for serialization and backend flexibility
+- **Structured typed objects**: IR consists of typed Java objects (CallInstr, MemoryInstr, etc.) consumed directly by backends via method calls - **zero parsing overhead**
+- **Dual representation**:
+  - **Production**: Backends access IR via typed methods (`callInstr.getMethodName()`)
+  - **Testing**: String representation (`toString()`) used only for `@IR` directive validation
 - **Fully qualified type names**: All types use complete qualified names to avoid ambiguity
+
+## IR Architecture: Typed Objects with Dual Representation
+
+### Core Design Philosophy
+
+EK9's IR is built on **typed Java objects** consumed directly by backends via method calls, with string representation used solely for testing.
+
+**Architecture Diagram**:
+```
+Phase 7 (IR Generation)
+    ↓
+Typed Java Objects
+    ├─ CallInstr (method calls, operators)
+    ├─ MemoryInstr (LOAD, STORE, RETAIN, RELEASE)
+    ├─ ControlFlowInstr (BRANCH, RETURN, LABEL)
+    └─ ScopeInstr (SCOPE_ENTER, SCOPE_EXIT)
+    ↓
+    ├──→ JVM Backend: callInstr.getMethodName() → ASM bytecode
+    ├──→ LLVM Backend: callInstr.getMethodName() → LLVM IR (future)
+    └──→ toString(): "CALL ..." for @IR testing only
+```
+
+### Why Typed Objects vs Text-Based IR
+
+**Comparison with Industry Approaches**:
+
+| IR Type | Representation | Backend Consumption | Parsing Cost | Example |
+|---|---|---|---|---|
+| **LLVM IR** | Text `.ll` files | Parse text → data structures | **High** | Parse "call i32 @foo()" |
+| **JVM Bytecode** | Binary `.class` | Parse binary → internal form | **Medium** | Class file parsing |
+| **SPIR-V** | Binary | Parse binary → instructions | **Medium** | Vulkan shader parsing |
+| **EK9 IR** | **Typed Java objects** | **Direct method calls** | **ZERO** ✅ | `callInstr.getMethodName()` |
+
+### Implementation Example
+
+**Phase 7: IR Generation**
+```java
+// Generate typed IR object
+var callDetails = new CallDetails(
+    targetObject, methodName, arguments,
+    targetTypeName, parameterTypes, returnTypeName
+);
+var callInstr = CallInstr.call(result, debugInfo, callDetails);
+instructions.add(callInstr);
+```
+
+**Phase 14: JVM Backend**
+```java
+// Consume via typed methods - no parsing
+public void accept(CallInstr callInstr) {
+    String targetObject = callInstr.getTargetObject();  // Direct access
+    String methodName = callInstr.getMethodName();      // Type-safe
+    List<String> args = callInstr.getArguments();       // Structured data
+
+    // Generate bytecode immediately
+    generateJVMCall(targetObject, methodName, args);
+}
+```
+
+**Testing: String Representation**
+```java
+// toString() generates human-readable output
+callInstr.toString()
+  → "CALL _temp1 = object.method(arg1, arg2) [pure=true, complexity=1]"
+
+// Used in @IR directives in .ek9 test files
+@IR: IR_GENERATION: OPERATION: "example::function": `
+CALL _temp1 = object.method(arg1, arg2) [pure=true, complexity=1]
+`
+```
+
+### Advantages of Typed Object Architecture
+
+1. ✅ **Zero Parsing Overhead**: Backends access data directly, no text processing
+2. ✅ **Type Safety**: Compiler catches API misuse at compile time
+3. ✅ **IDE Support**: Autocomplete, refactoring, navigation all work
+4. ✅ **Maintainability**: Refactor IR structure, compiler finds all usages
+5. ✅ **Debugging**: Inspect typed objects in debugger, not raw strings
+6. ✅ **Testing**: String representation provides human-readable validation
+7. ✅ **Performance**: Direct method calls vs string parsing + validation
+
+### String Representation Use Cases
+
+**Only Used For**:
+- ✅ `@IR` directive testing in `.ek9` files
+- ✅ Debug logging and error messages
+- ✅ IR visualization tools
+- ✅ Documentation and examples
+
+**Never Used For**:
+- ❌ Backend code generation (uses typed methods)
+- ❌ IR optimization passes (operates on objects)
+- ❌ IR validation (works with typed data)
 
 ## Strategic Development Approach
 
@@ -374,12 +470,41 @@ The IR generation process in Phase 10 (IR_GENERATION) transforms resolved symbol
 
 ## IR Literal Value Representation
 
-### Design Decision: Text-Based IR with Careful Encoding
+### Design Decision: Typed IR Objects with String Literal Storage
 
-**Chosen Approach**: Pure text-based IR using Java Strings for all literal storage.
+**Chosen Approach**: Structured IR using typed Java objects (CallInstr, MemoryInstr, LiteralInstr, etc.) with literal values stored as Strings internally.
+
+**How It Works**:
+- **IR Structure**: Typed Java objects (e.g., `LiteralInstr`) with methods like `getValue()`, `getType()`
+- **Literal Storage**: String representation inside objects (e.g., `"2"`, `"Hello"`, `"true"`)
+- **Backend Access**: Typed method calls - `literalInstr.getValue()` returns `"2"` as String
+- **No Parsing**: Backends call typed methods, not parse text
 
 **Alternative Considered**: ISymbol-based IR storing rich symbol objects.
 - **Rejected because**: Couples IR to compiler symbol table, not serializable, complex for code generation backends.
+
+### Dual Representation Pattern
+
+**1. Internal (Production)**:
+```java
+// Phase 7: IR Generation creates typed objects
+var literalInstr = LiteralInstr.load(result, "2", "org.ek9.lang::Integer", debugInfo);
+
+// Phase 14: JVM Backend consumes via typed methods
+String value = literalInstr.getValue();  // Direct access: "2", no parsing
+String type = literalInstr.getType();    // Direct access: "org.ek9.lang::Integer"
+```
+
+**2. String Representation (Testing Only)**:
+```java
+// toString() for @IR directive testing
+literalInstr.toString() → "LOAD_LITERAL 2, org.ek9.lang::Integer"
+```
+
+This dual representation provides:
+- ✅ **Zero parsing overhead** for backends (typed object access)
+- ✅ **Human-readable output** for testing (`@IR` directives)
+- ✅ **Type safety** (compile-time errors vs runtime parsing errors)
 
 ### Literal Value Encoding Rules
 
@@ -872,26 +997,92 @@ instructions.add(BranchInstr.assertValue(rhsResult, debugInfo));
 
 EK9's IR generation includes sophisticated memory ownership tracking through scope registration based on **reference counting** for objects:
 
+## 📖 Comprehensive ARC Documentation
+
+**For complete, detailed ARC memory management documentation, see:**
+**[EK9_ARC_MEMORY_MANAGEMENT.md](EK9_ARC_MEMORY_MANAGEMENT.md)**
+
+This document provides comprehensive coverage of:
+- ARC principles and ownership model
+- Declaration vs reassignment patterns
+- Complete memory traces and examples
+- Comparison with Swift's approach
+- Backend implementation details
+
+**Key takeaway:** Variables are registered to scopes at **declaration ONLY**, not at reassignment.
+
 ## 🚨 CRITICAL: IR Memory Management Quick Reference
 
-**ALWAYS RETAIN + SCOPE_REGISTER:**
+### Object Fields vs Local Variables
+
+**🚨 MOST CRITICAL DISTINCTION:**
+
+**LOCAL VARIABLES** (owned by scope):
+- ✅ RETAIN + SCOPE_REGISTER to declaring scope
+- Released when scope exits
+
+**OBJECT FIELDS** (owned by object):
+- ✅ RETAIN only (NO SCOPE_REGISTER)
+- Released when object is destroyed
+- **Fields initialized in i_init() must NOT be SCOPE_REGISTER'd to i_init scope**
+
+**See [EK9_ARC_MEMORY_MANAGEMENT.md](EK9_ARC_MEMORY_MANAGEMENT.md#-critical-object-fields-vs-local-variables) for complete documentation.**
+
+### General Memory Management Rules
+
+**ALWAYS RETAIN + SCOPE_REGISTER (for local variables/temporaries):**
 - ✅ Object literals: `LOAD_LITERAL "text", org.ek9.lang::String`
 - ✅ Object method calls: `CALL obj._method()` → returns EK9 object
-- ✅ Static object calls: `CALL_STATIC Type._staticMethod()` → returns EK9 object  
+- ✅ Static object calls: `CALL_STATIC Type._staticMethod()` → returns EK9 object
 - ✅ Variable references: After `STORE var, _temp`
 - ✅ CONTROL_FLOW_CHAIN results (return EK9 objects)
 
 **NEVER RETAIN/SCOPE_REGISTER:**
-- ❌ Primitive method returns: `obj._true()` → returns primitive `boolean` 
+- ❌ Primitive method returns: `obj._true()` → returns primitive `boolean`
 - ❌ IS_NULL results → returns primitive `boolean`
 - ❌ Primitive arithmetic/comparison → returns primitive values
 - ❌ REFERENCE declarations → just declares variable, no object yet
+- ❌ Object fields → RETAIN only, NO SCOPE_REGISTER (owned by object)
 
 **Common IR Analysis Mistakes:**
 1. **`_temp = CALL obj._true()`** → NO retention needed (primitive boolean)
-2. **`_temp = IS_NULL obj`** → NO retention needed (primitive boolean) 
+2. **`_temp = IS_NULL obj`** → NO retention needed (primitive boolean)
 3. **`_temp = CALL obj._isSet()`** → NEEDS retention (returns Boolean object)
 4. **`_temp = CALL obj._method()`** → NEEDS retention (returns EK9 object)
+5. **`SCOPE_REGISTER this.field, i_init`** → WRONG! Fields must NOT be scope-registered
+
+### Field Initialization Pattern (in i_init())
+
+**EK9 Source:**
+```ek9
+class Example
+  aField as String := "Steve"
+```
+
+**Generated IR:**
+```
+OperationDfn: Example.i_init()->Void
+BasicBlock: _entry_1
+REFERENCE this.aField, org.ek9.lang::String
+_temp1 = LOAD_LITERAL "Steve", org.ek9.lang::String
+RETAIN _temp1                              ← Temporary retained
+SCOPE_REGISTER _temp1, i_init              ← Temporary registered to i_init
+STORE this.aField, _temp1
+RETAIN this.aField                         ← Field retained
+// NO SCOPE_REGISTER for this.aField      ← Field NOT registered (owned by object)
+RETURN
+```
+
+**Memory Management Flow:**
+1. **Temporary creation**: `_temp1` created, retained, registered to `i_init`
+2. **Field assignment**: `this.aField` stores reference, retains object (refcount=2)
+3. **i_init exit**: `_temp1` released (refcount=1), field remains alive
+4. **Object destruction**: Field released by object destructor
+
+**Why This Matters:**
+- Fields must outlive `i_init()` method
+- Object uses fields after `i_init()` exits
+- SCOPE_REGISTER to `i_init` would cause premature release → use-after-free
 
 **ShouldRegisterVariableInScope Logic (Two-Tier Architecture):**
 - **Operation Scope Variables** (`_call` scope): Variable registration based on lifetime
@@ -962,19 +1153,23 @@ RETAIN variableName                          // Reference count = 2 for same obj
 SCOPE_REGISTER variableName, scopeId        // Register variableName for cleanup
 ```
 
-**Variable Assignment** (separate from declaration):
+**Variable Reassignment** (separate from declaration):
 ```
-REFERENCE variableName, typeName              // Variable was declared previously
-_temp1 = LOAD_LITERAL value, typeName        // Create/load object  
+// Variable was declared previously and registered to its declaring scope
+_temp1 = LOAD_LITERAL value, typeName        // Create/load object
 RETAIN _temp1                                 // Reference count = 1
 SCOPE_REGISTER _temp1, scopeId               // Register temp for cleanup
-RELEASE variableName                         // Release previous reference (if any)
-STORE variableName, _temp1                   // variableName now references object
-RETAIN variableName                          // Reference count = 2
-SCOPE_REGISTER variableName, scopeId        // Register variableName for cleanup
+RELEASE variableName                         // Release old value
+STORE variableName, _temp1                   // variableName now references new object
+RETAIN variableName                          // Reference count = 2 for new object
+// NO SCOPE_REGISTER                         // Variable already registered at declaration!
 ```
 
-**Memory Management Rule:** SCOPE_REGISTER only happens when a variable actually references an object, not when the variable is declared.
+**Memory Management Rules:**
+1. **SCOPE_REGISTER happens at variable declaration** - When variable first references an object
+2. **Reassignments do NOT SCOPE_REGISTER** - Variable already registered to declaring scope
+3. **Declaring scope owns the variable** - Releases whatever it points to at scope exit
+4. **Scope exit releases CURRENT value** - Not the value at registration time
 
 ### CRITICAL: Understanding "Duplicate" Memory Operations
 
@@ -1687,7 +1882,7 @@ _result = GUARDED_ASSIGNMENT_BLOCK [
     RELEASE lhs_variable              // Standard RELEASE-RETAIN pattern
     STORE lhs_variable, _value
     RETAIN lhs_variable
-    SCOPE_REGISTER lhs_variable, scope
+    // NO SCOPE_REGISTER               // lhs_variable already registered at declaration
   ]
   assignment_result: _result
   scope_id: scope

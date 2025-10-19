@@ -6,61 +6,62 @@ defines module booleanExpressions
 
     @IR: IR_GENERATION: FUNCTION: "booleanExpressions::orBooleanExpression": `
     ConstructDfn: booleanExpressions::orBooleanExpression(org.ek9.lang::Boolean,org.ek9.lang::Boolean)->org.ek9.lang::Boolean
-    OperationDfn: booleanExpressions::orBooleanExpression.c_init()->org.ek9.lang::Void  
+    OperationDfn: booleanExpressions::orBooleanExpression.c_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     RETURN
-    OperationDfn: booleanExpressions::orBooleanExpression.i_init()->org.ek9.lang::Void  
+    OperationDfn: booleanExpressions::orBooleanExpression.i_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     RETURN
-    OperationDfn: booleanExpressions::orBooleanExpression.orBooleanExpression()->booleanExpressions::orBooleanExpression  // ./orExpression.ek9:64:5
+    OperationDfn: booleanExpressions::orBooleanExpression.orBooleanExpression()->booleanExpressions::orBooleanExpression  // ./orExpression.ek9:65:5
     BasicBlock: _entry_1
-    CALL (booleanExpressions::orBooleanExpression)this.i_init() [pure=false, complexity=0]  // ./orExpression.ek9:64:5
-    RETURN this  // ./orExpression.ek9:64:5
-    OperationDfn: booleanExpressions::orBooleanExpression._call(org.ek9.lang::Boolean,org.ek9.lang::Boolean)->org.ek9.lang::Boolean  // ./orExpression.ek9:64:5
+    CALL (booleanExpressions::orBooleanExpression)this.i_init() [pure=false, complexity=0]  // ./orExpression.ek9:65:5
+    RETURN this  // ./orExpression.ek9:65:5
+    OperationDfn: booleanExpressions::orBooleanExpression._call(org.ek9.lang::Boolean,org.ek9.lang::Boolean)->org.ek9.lang::Boolean  // ./orExpression.ek9:65:5
     BasicBlock: _entry_1
-    REFERENCE arg0, org.ek9.lang::Boolean  // ./orExpression.ek9:66:9
-    REFERENCE arg1, org.ek9.lang::Boolean  // ./orExpression.ek9:67:9
-    REFERENCE rtn, org.ek9.lang::Boolean  // ./orExpression.ek9:69:9
-    _temp1 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./orExpression.ek9:69:25
-    RETAIN _temp1  // ./orExpression.ek9:69:25
-    SCOPE_REGISTER _temp1, _call  // ./orExpression.ek9:69:25
-    STORE rtn, _temp1  // ./orExpression.ek9:69:25
-    RETAIN rtn  // ./orExpression.ek9:69:25
-    SCOPE_ENTER _scope_1  // ./orExpression.ek9:71:7
-    _temp2 = LOGICAL_OR_BLOCK  // ./orExpression.ek9:71:17
+    REFERENCE arg0, org.ek9.lang::Boolean  // ./orExpression.ek9:67:9
+    REFERENCE arg1, org.ek9.lang::Boolean  // ./orExpression.ek9:68:9
+    REFERENCE rtn, org.ek9.lang::Boolean  // ./orExpression.ek9:70:9
+    _temp1 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./orExpression.ek9:70:25
+    RETAIN _temp1  // ./orExpression.ek9:70:25
+    SCOPE_REGISTER _temp1, _call  // ./orExpression.ek9:70:25
+    STORE rtn, _temp1  // ./orExpression.ek9:70:25
+    RETAIN rtn  // ./orExpression.ek9:70:25
+    SCOPE_REGISTER rtn, _call  // ./orExpression.ek9:70:25
+    SCOPE_ENTER _scope_1  // ./orExpression.ek9:72:7
+    _temp2 = LOGICAL_OR_BLOCK  // ./orExpression.ek9:72:17
     [
     left_evaluation:
     [
-    _temp3 = LOAD arg0  // ./orExpression.ek9:71:17
-    RETAIN _temp3  // ./orExpression.ek9:71:17
-    SCOPE_REGISTER _temp3, _scope_1  // ./orExpression.ek9:71:17
-    _temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=true, complexity=0]  // ./orExpression.ek9:71:17
+    _temp3 = LOAD arg0  // ./orExpression.ek9:72:17
+    RETAIN _temp3  // ./orExpression.ek9:72:17
+    SCOPE_REGISTER _temp3, _scope_1  // ./orExpression.ek9:72:17
+    _temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=true, complexity=0]  // ./orExpression.ek9:72:17
     ]
     left_operand: _temp3
     left_condition: _temp4
     right_evaluation:
     [
-    _temp5 = LOAD arg1  // ./orExpression.ek9:71:17
-    RETAIN _temp5  // ./orExpression.ek9:71:17
-    SCOPE_REGISTER _temp5, _scope_1  // ./orExpression.ek9:71:17
+    _temp5 = LOAD arg1  // ./orExpression.ek9:72:17
+    RETAIN _temp5  // ./orExpression.ek9:72:17
+    SCOPE_REGISTER _temp5, _scope_1  // ./orExpression.ek9:72:17
     ]
     right_operand: _temp5
     result_computation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._or(_temp5) [pure=true, complexity=0]  // ./orExpression.ek9:71:17
-    RETAIN _temp6  // ./orExpression.ek9:71:17
-    SCOPE_REGISTER _temp6, _scope_1  // ./orExpression.ek9:71:17
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._or(_temp5) [pure=true, complexity=0]  // ./orExpression.ek9:72:17
+    RETAIN _temp6  // ./orExpression.ek9:72:17
+    SCOPE_REGISTER _temp6, _scope_1  // ./orExpression.ek9:72:17
     ]
     logical_result: _temp6
     scope_id: _scope_1
     ]
-    RETAIN _temp2  // ./orExpression.ek9:71:17
-    SCOPE_REGISTER _temp2, _scope_1  // ./orExpression.ek9:71:17
-    RELEASE rtn  // ./orExpression.ek9:71:17
-    STORE rtn, _temp2  // ./orExpression.ek9:71:17
-    RETAIN rtn  // ./orExpression.ek9:71:17
-    SCOPE_EXIT _scope_1  // ./orExpression.ek9:71:7
-    RETURN rtn  // ./orExpression.ek9:69:9`
+    RETAIN _temp2  // ./orExpression.ek9:72:17
+    SCOPE_REGISTER _temp2, _scope_1  // ./orExpression.ek9:72:17
+    RELEASE rtn  // ./orExpression.ek9:72:17
+    STORE rtn, _temp2  // ./orExpression.ek9:72:17
+    RETAIN rtn  // ./orExpression.ek9:72:17
+    SCOPE_EXIT _scope_1  // ./orExpression.ek9:72:7
+    RETURN rtn  // ./orExpression.ek9:70:9`
     orBooleanExpression()
       ->
         arg0 as Boolean

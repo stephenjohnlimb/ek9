@@ -19,16 +19,17 @@ import org.ek9lang.core.CompilerException;
  * Generates IR for while loops using CONTROL_FLOW_CHAIN.
  * Currently handles simple while loops (no guards, statement form only).
  * <p>
- * Scope structure (matches if/else pattern exactly):
+ * Scope structure:
  * </p>
  * <pre>
  *   Outer Scope (_scope_1): Loop wrapper for future guards
- *   Condition Scope (_scope_2): Condition temps accumulate here (across iterations)
- *   Iteration Scope (_scope_3): Body execution, enters/exits each iteration
+ *   Whole Loop Scope (_scope_2): Loop control structure
+ *   Condition Iteration Scope (_scope_3): Condition temps, enters/exits each iteration
+ *   Body Iteration Scope (_scope_4): Body execution, enters/exits each iteration
  * </pre>
  * <p>
- * The two-scope pattern before CONTROL_FLOW_CHAIN is mandatory architectural infrastructure
- * that enables future guard and expression form support without refactoring.
+ * The outer scope pattern enables future guard and expression form support.
+ * Both condition and body use iteration scopes for tight memory management.
  * </p>
  */
 public final class WhileStatementGenerator extends AbstractGenerator
@@ -82,62 +83,75 @@ public final class WhileStatementGenerator extends AbstractGenerator
     stackContext.enterScope(outerScopeId, debugInfo, IRFrameType.BLOCK);
     instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
 
-    // SCOPE 2: Enter condition scope (condition temps register here)
-    // This matches if/else pattern exactly - shared condition scope
-    final var conditionScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
-    stackContext.enterScope(conditionScopeId, debugInfo, IRFrameType.BLOCK);
-    instructions.add(ScopeInstr.enter(conditionScopeId, debugInfo));
+    // SCOPE 2: Enter whole loop scope (loop control structure)
+    final var wholeLoopScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(wholeLoopScopeId, debugInfo, IRFrameType.BLOCK);
+    instructions.add(ScopeInstr.enter(wholeLoopScopeId, debugInfo));
 
-    // Process condition expression (temps registered to condition scope)
-    // Unlike if/else where this executes once, backend will loop back here
+    // SCOPE 3: Enter condition iteration scope (for tight temp management)
+    // This scope enters/exits each iteration to release condition temps
+    final var conditionIterationScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(conditionIterationScopeId, debugInfo, IRFrameType.BLOCK);
+
+    // Process condition expression with scope management
     final var conditionResult = createTempVariable(debugInfo);
-    final var conditionEvaluation = new ArrayList<>(
-        generators.exprGenerator.apply(
-            new ExprProcessingDetails(ctx.control, conditionResult)
-        )
-    );
+    final var conditionEvaluation = new ArrayList<IRInstr>();
+
+    // Enter condition iteration scope
+    conditionEvaluation.add(ScopeInstr.enter(conditionIterationScopeId, debugInfo));
+
+    // Generate condition expression (temps register to conditionIterationScopeId)
+    conditionEvaluation.addAll(generators.exprGenerator.apply(
+        new ExprProcessingDetails(ctx.control, conditionResult)
+    ));
 
     // Add primitive boolean conversion for backend branching
     final var conversion = convertToPrimitiveBoolean(
         conditionResult.resultVariable(), debugInfo);
     final var primitiveCondition = conversion.addToInstructions(conditionEvaluation);
 
-    // Enter iteration scope for body
-    // This scope enters/exits each iteration
-    final var iterationScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
-    stackContext.enterScope(iterationScopeId, debugInfo, IRFrameType.BLOCK);
+    // Exit condition iteration scope
+    conditionEvaluation.add(ScopeInstr.exit(conditionIterationScopeId, debugInfo));
+
+    // Exit condition iteration scope from context
+    stackContext.exitScope();
+
+    // SCOPE 4: Enter body iteration scope
+    // This scope enters/exits each iteration for body execution
+    final var bodyIterationScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(bodyIterationScopeId, debugInfo, IRFrameType.BLOCK);
 
     // Process body with scope management
     final var bodyEvaluation = new ArrayList<IRInstr>();
-    bodyEvaluation.add(ScopeInstr.enter(iterationScopeId, debugInfo));
+    bodyEvaluation.add(ScopeInstr.enter(bodyIterationScopeId, debugInfo));
     bodyEvaluation.addAll(processBlockStatements(ctx.instructionBlock()));
-    bodyEvaluation.add(ScopeInstr.exit(iterationScopeId, debugInfo));
+    bodyEvaluation.add(ScopeInstr.exit(bodyIterationScopeId, debugInfo));
 
-    // Exit iteration scope from context
+    // Exit body iteration scope from context
     stackContext.exitScope();
 
     // Create ConditionCaseDetails (single case for while loop)
     final var conditionCase = ConditionCaseDetails.createExpression(
-        iterationScopeId,                     // case_scope_id (iteration scope)
-        conditionEvaluation,                  // condition instructions
+        conditionIterationScopeId,            // case_scope_id (condition iteration scope)
+        conditionEvaluation,                  // condition with SCOPE_ENTER/EXIT
         conditionResult.resultVariable(),     // EK9 Boolean result
         primitiveCondition,                   // primitive boolean for branching
         bodyEvaluation,                       // body with SCOPE_ENTER/EXIT
         null                                  // no result (statement form)
     );
 
-    // Create CONTROL_FLOW_CHAIN with condition scope ID
+    // Create CONTROL_FLOW_CHAIN with whole loop scope ID
     // Backend will interpret WHILE_LOOP to generate loop-back logic
     final var whileDetails = ControlFlowChainDetails.createWhileLoop(
         List.of(conditionCase),
         debugInfo,
-        conditionScopeId    // Condition scope ID (NOT outer scope)
+        wholeLoopScopeId    // Whole loop scope ID
     );
 
     instructions.addAll(generators.controlFlowChainGenerator.apply(whileDetails));
 
-    // Exit condition scope
-    instructions.add(ScopeInstr.exit(conditionScopeId, debugInfo));
+    // Exit whole loop scope
+    instructions.add(ScopeInstr.exit(wholeLoopScopeId, debugInfo));
     stackContext.exitScope();
 
     // Exit outer scope

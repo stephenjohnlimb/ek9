@@ -11,7 +11,7 @@ class ConstructorCallsIRTest extends AbstractIRGenerationTest {
   public ConstructorCallsIRTest() {
     super("/examples/irGeneration/constructorCalls",
         List.of(new SymbolCountCheck(4, "constructorCalls", 6)
-        ), false, false, false);
+        ), false, false, false); // showIR=false
   }
 
 }

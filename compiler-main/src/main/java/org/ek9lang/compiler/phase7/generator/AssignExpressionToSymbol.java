@@ -7,7 +7,6 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
-import org.ek9lang.compiler.phase7.support.ShouldRegisterVariableInScope;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 import org.ek9lang.compiler.phase7.support.VariableNameForIR;
@@ -17,7 +16,6 @@ import org.ek9lang.core.AssertValue;
 final class AssignExpressionToSymbol extends AbstractGenerator
     implements BiFunction<ISymbol, EK9Parser.AssignmentExpressionContext, List<IRInstr>> {
 
-  private final ShouldRegisterVariableInScope shouldRegisterVariableInScope = new ShouldRegisterVariableInScope();
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
   private final Function<String, List<IRInstr>> assignmentGenerator;
   private final boolean release;
@@ -45,8 +43,6 @@ final class AssignExpressionToSymbol extends AbstractGenerator
     final var rhsExprDebugInfo = debugInfoCreator.apply(rhsExprSymbol.getSourceToken());
 
     final var rhsResult = stackContext.generateTempName();
-    // STACK-BASED: Get scope ID from current stack frame instead of constructor parameter
-    final var scopeId = stackContext.currentScopeId();
     final var rhsVariableDetails = new VariableDetails(rhsResult, rhsExprDebugInfo);
 
     final var instructions = variableMemoryManagement
@@ -58,11 +54,25 @@ final class AssignExpressionToSymbol extends AbstractGenerator
     }
 
     instructions.add(MemoryInstr.store(lhsVariableName, rhsResult, rhsExprDebugInfo));
-    if (lhsSymbol.isPropertyField() || lhsSymbol.isReturningParameter()) {
+
+    // ARC FIX: Use 'release' parameter to distinguish declaration from reassignment.
+    // Declaration (release=false): RETAIN + SCOPE_REGISTER (variable ownership established)
+    // Reassignment (release=true): RETAIN only (variable already registered to declaring scope)
+    // CRITICAL: Fields are owned by the object, not the scope, so they get RETAIN but NO SCOPE_REGISTER.
+    // See EK9_ARC_MEMORY_MANAGEMENT.md for comprehensive ARC documentation.
+    if (!release) {
+      if (lhsSymbol.isPropertyField()) {
+        // Field declaration: RETAIN only (field lifetime managed by object, not scope)
+        // Fields are released when the object is destroyed, not when i_init exits
+        instructions.add(MemoryInstr.retain(lhsVariableName, rhsExprDebugInfo));
+      } else {
+        // Local variable declaration: RETAIN + SCOPE_REGISTER (scope owns the variable)
+        final var lhsVariableDetails = new VariableDetails(lhsVariableName, rhsExprDebugInfo);
+        variableMemoryManagement.apply(() -> instructions, lhsVariableDetails);
+      }
+    } else {
+      // Reassignment: Just RETAIN, variable already registered to declaring scope
       instructions.add(MemoryInstr.retain(lhsVariableName, rhsExprDebugInfo));
-    } else if (shouldRegisterVariableInScope.test(scopeId)) {
-      final var lhsVariableDetails = new VariableDetails(lhsVariableName, rhsExprDebugInfo);
-      variableMemoryManagement.apply(() -> instructions, lhsVariableDetails);
     }
 
     return instructions;
