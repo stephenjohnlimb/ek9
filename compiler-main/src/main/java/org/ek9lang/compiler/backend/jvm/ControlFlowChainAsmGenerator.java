@@ -34,6 +34,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   private GuardedAssignmentAsmGenerator guardedAssignmentGenerator;
   private IfElseAsmGenerator ifElseGenerator;
   private WhileLoopAsmGenerator whileLoopGenerator;
+  private DoWhileLoopAsmGenerator doWhileLoopGenerator;
   // Future generators:
   // private SwitchAsmGenerator switchGenerator;
   // private ForLoopAsmGenerator forLoopGenerator;
@@ -60,13 +61,14 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
       case "GUARDED_ASSIGNMENT" -> generateGuardedAssignment(instr);
       case "IF_ELSE_IF" -> generateIfElse(instr);
       case "WHILE_LOOP" -> generateWhileLoop(instr);
+      case "DO_WHILE_LOOP" -> generateDoWhileLoop(instr);
       // Future cases will be added here as generators are implemented:
       // case "SWITCH", "SWITCH_ENUM" -> generateSwitch(instr);
       // case "FOR" -> generateForLoop(instr);
       // case "TRY_CATCH" -> generateTryCatch(instr);
       default -> throw new CompilerException(
           "Unsupported control flow chain type: " + chainType
-              + ". Expected one of: QUESTION_OPERATOR, GUARDED_ASSIGNMENT, IF_ELSE_IF, WHILE_LOOP");
+              + ". Expected one of: QUESTION_OPERATOR, GUARDED_ASSIGNMENT, IF_ELSE_IF, WHILE_LOOP, DO_WHILE_LOOP");
     }
   }
 
@@ -139,6 +141,23 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   }
 
   /**
+   * Generate bytecode for do-while loops.
+   * Lazily instantiates DoWhileLoopAsmGenerator on first use.
+   *
+   * @param instr CONTROL_FLOW_CHAIN instruction with DO_WHILE_LOOP type
+   */
+  private void generateDoWhileLoop(final ControlFlowChainInstr instr) {
+    if (doWhileLoopGenerator == null) {
+      doWhileLoopGenerator = new DoWhileLoopAsmGenerator(
+          constructTargetTuple, outputVisitor, classWriter);
+    }
+    // Always update context in case method changed
+    doWhileLoopGenerator.setSharedMethodContext(getMethodContext());
+    doWhileLoopGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
+    doWhileLoopGenerator.generate(instr);
+  }
+
+  /**
    * Update method context for all generators.
    * Called when OutputVisitor.setMethodContext() is invoked.
    * Propagates context to already-instantiated generators.
@@ -161,6 +180,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     }
     if (whileLoopGenerator != null) {
       whileLoopGenerator.setSharedMethodContext(context);
+    }
+    if (doWhileLoopGenerator != null) {
+      doWhileLoopGenerator.setSharedMethodContext(context);
     }
     // Future generators will be added here
   }
@@ -188,6 +210,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     }
     if (whileLoopGenerator != null) {
       whileLoopGenerator.setCurrentMethodVisitor(mv);
+    }
+    if (doWhileLoopGenerator != null) {
+      doWhileLoopGenerator.setCurrentMethodVisitor(mv);
     }
     // Future generators will be added here
   }

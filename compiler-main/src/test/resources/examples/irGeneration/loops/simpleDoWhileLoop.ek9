@@ -1,0 +1,106 @@
+#!ek9
+<?-
+  Test IR generation for simple do-while loop.
+  Body executes at least once, then condition checked.
+-?>
+defines module loops
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "loops::simpleDoWhileLoop": `
+    ConstructDfn: loops::simpleDoWhileLoop()->org.ek9.lang::Void
+    OperationDfn: loops::simpleDoWhileLoop.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops::simpleDoWhileLoop.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops::simpleDoWhileLoop.simpleDoWhileLoop()->loops::simpleDoWhileLoop
+    BasicBlock: _entry_1
+    CALL (loops::simpleDoWhileLoop)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: loops::simpleDoWhileLoop._call()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE stdout, org.ek9.lang::Stdout
+    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE stdout, _temp1
+    RETAIN stdout
+    SCOPE_REGISTER stdout, _scope_1
+    REFERENCE counter, org.ek9.lang::Integer
+    _temp2 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    STORE counter, _temp2
+    RETAIN counter
+    SCOPE_REGISTER counter, _scope_1
+    SCOPE_ENTER _scope_2
+    SCOPE_ENTER _scope_3
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "DO_WHILE_LOOP"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_4
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_5
+    _temp7 = LOAD counter
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_5
+    _temp8 = LOAD_LITERAL 5, org.ek9.lang::Integer
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, _scope_5
+    _temp6 = CALL (org.ek9.lang::Integer)_temp7._lt(_temp8) [pure=true, complexity=1, effects=RETURN_MUTATION]
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_5
+    ]
+    condition_result: _temp6
+    primitive_condition: _temp9
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp4 = LOAD counter
+    RETAIN _temp4
+    SCOPE_REGISTER _temp4, _scope_4
+    _temp5 = LOAD_LITERAL 1, org.ek9.lang::Integer
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, _scope_4
+    _temp3 = CALL (org.ek9.lang::Integer)_temp4._add(_temp5) [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_4
+    RELEASE counter
+    STORE counter, _temp3
+    RETAIN counter
+    SCOPE_EXIT _scope_4
+    ]
+    ]
+    ]
+    scope_id: _scope_3
+    ]
+    SCOPE_EXIT _scope_3
+    SCOPE_EXIT _scope_2
+    _temp11 = LOAD stdout
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_1
+    _temp12 = LOAD counter
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_1
+    CALL (org.ek9.lang::StringOutput)_temp11.println(_temp12) [pure=true, complexity=1, trait=true]
+    SCOPE_EXIT _scope_1
+    RETURN`
+    simpleDoWhileLoop()
+      stdout <- Stdout()
+      counter <- 0
+
+      do
+        counter: counter + 1
+      while counter < 5
+
+      stdout.println(counter)
+
+//EOF

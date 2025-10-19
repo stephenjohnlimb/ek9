@@ -16,8 +16,8 @@ import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
 /**
- * Generates IR for while loops using CONTROL_FLOW_CHAIN.
- * Currently handles simple while loops (no guards, statement form only).
+ * Generates IR for while and do-while loops using CONTROL_FLOW_CHAIN.
+ * Currently handles simple while and do-while loops (no guards, statement form only).
  * <p>
  * Scope structure:
  * </p>
@@ -50,7 +50,7 @@ public final class WhileStatementGenerator extends AbstractGenerator
 
     // Detect which form: while ... or do ... while
     if (ctx.DO() != null) {
-      throw new CompilerException("Do-while loops not yet implemented");
+      return generateDoWhileLoop(ctx);
     }
 
     // Check for expression form (returningParam)
@@ -149,6 +149,103 @@ public final class WhileStatementGenerator extends AbstractGenerator
     );
 
     instructions.addAll(generators.controlFlowChainGenerator.apply(whileDetails));
+
+    // Exit whole loop scope
+    instructions.add(ScopeInstr.exit(wholeLoopScopeId, debugInfo));
+    stackContext.exitScope();
+
+    // Exit outer scope
+    instructions.add(ScopeInstr.exit(outerScopeId, debugInfo));
+    stackContext.exitScope();
+
+    return instructions;
+  }
+
+  /**
+   * Generate IR for do-while loop: do { body } while condition
+   * Key difference: Body executes FIRST (at least once), then condition is evaluated.
+   */
+  private List<IRInstr> generateDoWhileLoop(
+      final EK9Parser.WhileStatementExpressionContext ctx) {
+
+    final var instructions = new ArrayList<IRInstr>();
+    final var debugInfo = stackContext.createDebugInfo(ctx);
+
+    // Check for guard (preFlowStatement)
+    if (ctx.preFlowStatement() != null) {
+      throw new CompilerException("Do-while loop guards not yet implemented");
+    }
+
+    // SCOPE 1: Enter loop outer scope (for future guards)
+    final var outerScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(outerScopeId, debugInfo, IRFrameType.BLOCK);
+    instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
+
+    // SCOPE 2: Enter whole loop scope (loop control structure)
+    final var wholeLoopScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(wholeLoopScopeId, debugInfo, IRFrameType.BLOCK);
+    instructions.add(ScopeInstr.enter(wholeLoopScopeId, debugInfo));
+
+    // SCOPE 3: Body iteration scope (executes FIRST in do-while)
+    final var bodyIterationScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(bodyIterationScopeId, debugInfo, IRFrameType.BLOCK);
+
+    // Process body FIRST (key do-while characteristic)
+    final var bodyEvaluation = new ArrayList<IRInstr>();
+    bodyEvaluation.add(ScopeInstr.enter(bodyIterationScopeId, debugInfo));
+    bodyEvaluation.addAll(processBlockStatements(ctx.instructionBlock()));
+    bodyEvaluation.add(ScopeInstr.exit(bodyIterationScopeId, debugInfo));
+
+    // Exit body scope from context
+    stackContext.exitScope();
+
+    // SCOPE 4: Condition evaluation scope (evaluated AFTER body)
+    final var conditionIterationScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(conditionIterationScopeId, debugInfo, IRFrameType.BLOCK);
+
+    // Process condition expression (evaluated AFTER body)
+    final var conditionResult = createTempVariable(debugInfo);
+    final var conditionEvaluation = new ArrayList<IRInstr>();
+
+    // Enter condition iteration scope
+    conditionEvaluation.add(ScopeInstr.enter(conditionIterationScopeId, debugInfo));
+
+    // Generate condition expression
+    conditionEvaluation.addAll(generators.exprGenerator.apply(
+        new ExprProcessingDetails(ctx.control, conditionResult)
+    ));
+
+    // Convert to primitive boolean for backend branching
+    final var conversion = convertToPrimitiveBoolean(
+        conditionResult.resultVariable(), debugInfo);
+    final var primitiveCondition = conversion.addToInstructions(conditionEvaluation);
+
+    // Exit condition iteration scope
+    conditionEvaluation.add(ScopeInstr.exit(conditionIterationScopeId, debugInfo));
+
+    // Exit condition scope from context
+    stackContext.exitScope();
+
+    // Create ConditionCaseDetails for do-while
+    // Body comes first, then condition
+    final var conditionCase = ConditionCaseDetails.createExpression(
+        bodyIterationScopeId,                 // case_scope_id (body scope for do-while)
+        conditionEvaluation,                  // condition evaluated AFTER body
+        conditionResult.resultVariable(),     // EK9 Boolean result
+        primitiveCondition,                   // primitive boolean for branching
+        bodyEvaluation,                       // body executes FIRST
+        null                                  // no result (statement form)
+    );
+
+    // Create CONTROL_FLOW_CHAIN with DO_WHILE_LOOP type
+    // Backend will interpret DO_WHILE_LOOP to generate correct loop structure
+    final var doWhileDetails = ControlFlowChainDetails.createDoWhileLoop(
+        List.of(conditionCase),
+        debugInfo,
+        wholeLoopScopeId
+    );
+
+    instructions.addAll(generators.controlFlowChainGenerator.apply(doWhileDetails));
 
     // Exit whole loop scope
     instructions.add(ScopeInstr.exit(wholeLoopScopeId, debugInfo));

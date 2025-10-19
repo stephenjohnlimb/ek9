@@ -2191,6 +2191,147 @@ This architecture demonstrates EK9's multi-backend design philosophy: generate s
 - **AbstractIRGenerationTest**: Standard test infrastructure for IR generation validation
 - **Debug Instrumentation**: Enable debug output with `-Dek9.instructionInstrumentation=true` for verification
 
+## IR + Bytecode Test Development Workflow
+
+### Recommended Development Order (Proven Pattern)
+
+When implementing new language features or control flow constructs, follow this validated workflow:
+
+#### 1. IR Test First
+
+**Location**: `/examples/irGeneration/<category>/`
+
+**Steps**:
+1. Create `.ek9` file with EK9 source code for the feature
+2. Add `@IR` directive with `PLACEHOLDER` content:
+   ```ek9
+   @IR: IR_GENERATION: FUNCTION: "module::functionName": `
+   [PLACEHOLDER - will be filled after capturing actual IR]
+   `
+   ```
+3. Create corresponding JUnit test extending `AbstractIRGenerationTest`
+4. Run test with `showIR=true` in constructor to capture actual IR output
+5. Copy the generated IR output and update the `@IR` directive
+6. Set `showIR=false` in test constructor
+7. Verify test passes with bytecode validation enabled
+
+**Example Test Class**:
+```java
+class LoopIRTest extends AbstractIRGenerationTest {
+  public LoopIRTest() {
+    super("/examples/irGeneration/loops",
+        List.of(new SymbolCountCheck(2, "loops", 2)),
+        false,  // showParseTree
+        false,  // showSymbols
+        false); // showIR - set to true initially, false after capturing
+  }
+}
+```
+
+#### 2. Bytecode Test Second
+
+**Location**: `/examples/bytecodeGeneration/<testName>/`
+
+**Steps**:
+1. Create `.ek9` file in dedicated subdirectory
+2. Create corresponding `<TestName>Test.java` extending `AbstractBytecodeGenerationTest`
+3. Add `@BYTECODE` directive with `PLACEHOLDER`:
+   ```ek9
+   @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "module::TypeName": `
+   [PLACEHOLDER - will be filled after capturing actual bytecode]
+   `
+   ```
+4. Run test with `showBytecode=true` to capture actual bytecode
+5. **CRITICAL**: Copy bytecode starting on SAME LINE as closing backtick (see formatting rules below)
+6. Set `showBytecode=false` in test constructor
+7. Verify test passes
+
+**Example Test Class**:
+```java
+class SimpleDoWhileLoopTest extends AbstractBytecodeGenerationTest {
+  public SimpleDoWhileLoopTest() {
+    super("/examples/bytecodeGeneration/simpleDoWhileLoop",
+        List.of(new SymbolCountCheck("bytecode.test", 1)),
+        false,  // showParseTree
+        false,  // showSymbols
+        false); // showBytecode - set to true initially, false after capturing
+  }
+}
+```
+
+#### 3. Runtime Verification (if applicable)
+
+**Execution**:
+```bash
+./<testName>.ek9
+```
+
+**Purpose**: Verify actual runtime output matches expected behavior (e.g., loop outputs correct final value)
+
+### @BYTECODE Directive Format Requirements
+
+**CRITICAL FORMATTING RULE**: The bytecode content must start on the SAME line as the closing backtick.
+
+**✅ CORRECT Format**:
+```ek9
+@BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::SimpleDoWhileLoop": `public class bytecode.test.SimpleDoWhileLoop {
+  static {};
+    Code:
+         0: return
+  ...
+}
+`
+```
+
+**❌ WRONG Format** (will fail with "Number of lines differ"):
+```ek9
+@BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::SimpleDoWhileLoop": `
+public class bytecode.test.SimpleDoWhileLoop {
+  ...
+```
+
+**Why This Matters**:
+- `LineByLineComparator` splits content by `\n` and compares line counts
+- Starting on a new line adds an empty line that doesn't exist in actual bytecode output
+- Exact line count matching is required for test to pass
+
+**Best Practice**: Copy the exact format from existing working tests like `simpleWhileLoop.ek9`
+
+### Common Pitfalls and Solutions
+
+#### Symptom: "Number of lines differ: expected X, actual Y"
+
+**Common Causes**:
+1. **Bytecode starts on new line** ← Most common issue
+   - Fix: Put `public class...` on same line as closing backtick
+2. **Extra indentation in bytecode content**
+   - Fix: Remove leading spaces (bytecode should have no extra indentation)
+3. **Missing/extra trailing newlines**
+   - Fix: Use `od -c` to inspect exact bytes, or copy from working test
+
+#### Symptom: "Line N differs - Expected: [] Actual: [public class...]"
+
+**Cause**: Empty line at start of expected bytecode due to newline after backtick
+
+**Fix**: Move bytecode content to same line as backtick
+
+### Debugging Directive Format Issues
+
+When encountering line mismatch errors:
+
+```bash
+# Inspect exact bytes around directive
+sed -n '10,15p' testFile.ek9 | od -c
+
+# Count lines in directive
+awk '/`public class/,/^}$/' testFile.ek9 | wc -l
+
+# Compare with working test
+diff <(sed -n '11,83p' simpleWhileLoop.ek9) <(sed -n '11,83p' simpleDoWhileLoop.ek9)
+```
+
+**Quick Fix**: When in doubt, copy the entire `@BYTECODE` directive structure from a working test and replace only the bytecode content.
+
 ## IR Review and Validation Guidelines
 
 ### What Constitutes Correct IR
