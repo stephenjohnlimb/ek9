@@ -33,9 +33,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   private QuestionOperatorAsmGenerator questionOperatorGenerator;
   private GuardedAssignmentAsmGenerator guardedAssignmentGenerator;
   private IfElseAsmGenerator ifElseGenerator;
+  private WhileLoopAsmGenerator whileLoopGenerator;
   // Future generators:
   // private SwitchAsmGenerator switchGenerator;
-  // private WhileLoopAsmGenerator whileLoopGenerator;
   // private ForLoopAsmGenerator forLoopGenerator;
   // private TryCatchAsmGenerator tryCatchGenerator;
 
@@ -59,14 +59,14 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
       case "QUESTION_OPERATOR" -> generateQuestionOperator(instr);
       case "GUARDED_ASSIGNMENT" -> generateGuardedAssignment(instr);
       case "IF_ELSE_IF" -> generateIfElse(instr);
+      case "WHILE_LOOP" -> generateWhileLoop(instr);
       // Future cases will be added here as generators are implemented:
       // case "SWITCH", "SWITCH_ENUM" -> generateSwitch(instr);
-      // case "WHILE" -> generateWhileLoop(instr);
       // case "FOR" -> generateForLoop(instr);
       // case "TRY_CATCH" -> generateTryCatch(instr);
       default -> throw new CompilerException(
           "Unsupported control flow chain type: " + chainType
-              + ". Expected one of: QUESTION_OPERATOR, GUARDED_ASSIGNMENT, IF_ELSE_IF");
+              + ". Expected one of: QUESTION_OPERATOR, GUARDED_ASSIGNMENT, IF_ELSE_IF, WHILE_LOOP");
     }
   }
 
@@ -122,6 +122,23 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   }
 
   /**
+   * Generate bytecode for while loops.
+   * Lazily instantiates WhileLoopAsmGenerator on first use.
+   *
+   * @param instr CONTROL_FLOW_CHAIN instruction with WHILE_LOOP type
+   */
+  private void generateWhileLoop(final ControlFlowChainInstr instr) {
+    if (whileLoopGenerator == null) {
+      whileLoopGenerator = new WhileLoopAsmGenerator(
+          constructTargetTuple, outputVisitor, classWriter);
+    }
+    // Always update context in case method changed
+    whileLoopGenerator.setSharedMethodContext(getMethodContext());
+    whileLoopGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
+    whileLoopGenerator.generate(instr);
+  }
+
+  /**
    * Update method context for all generators.
    * Called when OutputVisitor.setMethodContext() is invoked.
    * Propagates context to already-instantiated generators.
@@ -141,6 +158,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     }
     if (ifElseGenerator != null) {
       ifElseGenerator.setSharedMethodContext(context);
+    }
+    if (whileLoopGenerator != null) {
+      whileLoopGenerator.setSharedMethodContext(context);
     }
     // Future generators will be added here
   }
@@ -165,6 +185,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     }
     if (ifElseGenerator != null) {
       ifElseGenerator.setCurrentMethodVisitor(mv);
+    }
+    if (whileLoopGenerator != null) {
+      whileLoopGenerator.setCurrentMethodVisitor(mv);
     }
     // Future generators will be added here
   }

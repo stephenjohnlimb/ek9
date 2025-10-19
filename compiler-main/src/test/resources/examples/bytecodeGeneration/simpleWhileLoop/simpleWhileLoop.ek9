@@ -1,0 +1,94 @@
+#!ek9
+<?-
+  Bytecode test for simple while loop.
+  Tests loop construction, condition evaluation, and iteration.
+  Prints counter value to verify correct execution (should print 10).
+-?>
+defines module bytecode.test
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::SimpleWhileLoop": `public class bytecode.test.SimpleWhileLoop {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.SimpleWhileLoop();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aconst_null
+        13: astore_3
+        14: iconst_0
+        15: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        18: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        21: astore        4
+        23: aload         4
+        25: astore_3
+        26: aload_3
+        27: astore        5
+        29: bipush        10
+        31: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        34: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        37: astore        6
+        39: aload         5
+        41: aload         6
+        43: invokevirtual #CP                 // Method org/ek9/lang/Integer._lt:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+        46: astore        7
+        48: aload         7
+        50: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        53: istore        8
+        55: iload         8
+        57: ifeq          87
+        60: aload_3
+        61: astore        9
+        63: iconst_1
+        64: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        67: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        70: astore        10
+        72: aload         9
+        74: aload         10
+        76: invokevirtual #CP                 // Method org/ek9/lang/Integer._add:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+        79: astore        11
+        81: aload         11
+        83: astore_3
+        84: goto          26
+        87: aload_1
+        88: astore        12
+        90: aload_3
+        91: astore        13
+        93: aload         12
+        95: aload         13
+        97: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       102: return
+}`
+
+    SimpleWhileLoop()
+      stdout <- Stdout()
+      counter <- 0
+
+      while counter < 10
+        counter: counter + 1
+
+      // Print final value - should be 10
+      stdout.println(counter)
+
+//EOF
