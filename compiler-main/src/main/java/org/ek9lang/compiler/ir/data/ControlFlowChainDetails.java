@@ -122,7 +122,7 @@ public record ControlFlowChainDetails(
       String defaultResult,
       DebugInfo debugInfo,
       String scopeId) {
-    
+
     return new ControlFlowChainDetails(
         result,
         "IF_ELSE_IF",
@@ -134,6 +134,34 @@ public record ControlFlowChainDetails(
         null, // No enum optimization
         debugInfo,
         scopeId
+    );
+  }
+
+  /**
+   * Create details for a while loop (statement form).
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   *
+   * @param conditionChain Single ConditionCaseDetails with loop condition and body
+   * @param debugInfo Debug information
+   * @param scopeId Condition scope ID (_scope_2) where temps are registered
+   * @return ControlFlowChainDetails configured for while loop
+   */
+  public static ControlFlowChainDetails createWhileLoop(
+      List<ConditionCaseDetails> conditionChain,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    return new ControlFlowChainDetails(
+        null,                           // No result for statement form
+        "WHILE_LOOP",                   // Chain type for backend
+        GuardVariableDetails.none(),    // No guards yet
+        EvaluationVariableDetails.none(), // No evaluation variable
+        ReturnVariableDetails.none(),   // No return variable (statement form)
+        conditionChain,                 // Single case with condition + body
+        DefaultCaseDetails.none(),      // No default case
+        null,                           // No enum optimization
+        debugInfo,
+        scopeId                         // Condition scope ID
     );
   }
 

@@ -106,6 +106,7 @@ public final class IRConstructGenerators {
 
     // Step 9: Create control flow generators
     generators.ifStatementGenerator = new IfStatementGenerator(stackContext, generators);
+    generators.whileStatementGenerator = new WhileStatementGenerator(stackContext, generators);
 
     // Step 10: Create top-level statement and block generators
     generators.stmtGenerator = new StmtInstrGenerator(stackContext, generators);
