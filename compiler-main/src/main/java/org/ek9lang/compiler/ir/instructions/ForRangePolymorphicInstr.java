@@ -13,6 +13,7 @@ import org.ek9lang.core.AssertValue;
  * </p>
  * <p>
  * <b>Key Design Principles:</b>
+ * </p>
  * <ul>
  *   <li><b>Polymorphic on Range Type:</b> Works with ANY type implementing {@code <=>}, {@code ++},
  *       {@code --}, {@code +=} operators (Integer, Float, Date, Duration, custom types)</li>
@@ -20,19 +21,19 @@ import org.ek9lang.core.AssertValue;
  *   <li><b>Single Body Storage:</b> User loop body stored ONCE in IR (backends emit it multiple times)</li>
  *   <li><b>Operator Dispatch:</b> Metadata specifies which operators to use per direction</li>
  * </ul>
- * </p>
  * <p>
  * <b>IR Structure:</b>
+ * </p>
  * <pre>
  * FOR_RANGE_POLYMORPHIC:
  *   initialization_instructions:
  *     - Evaluate start, end, by expressions
  *     - Assert all values are set (fail-fast)
- *     - direction = start._cmp(end)  // <=> operator on range type
+ *     - direction = start._cmp(end)  // &lt;=&gt; operator on range type
  *     - current = start
  *
  *   dispatch_metadata:
- *     direction_variable: "_temp12"      // Result of start <=> end (Integer)
+ *     direction_variable: "_temp12"      // Result of start &lt;=&gt; end (Integer)
  *     current_variable: "_temp13"        // Mutable loop counter (range type)
  *     loop_variable: "i"                 // User's loop variable
  *     range_type: "org.ek9.lang::Integer"
@@ -44,21 +45,21 @@ import org.ek9lang.core.AssertValue;
  *   body_instructions: [user code stored ONCE]
  *   scope_metadata: { scopes for codegen }
  * </pre>
- * </p>
  * <p>
  * <b>Backend Code Generation:</b>
  * Backends read this IR and generate:
+ * </p>
  * <pre>
  * [initialization instructions]
  * int direction = direction_variable.intValue();
- * if (direction < 0) {
+ * if (direction &lt; 0) {
  *   // Ascending loop
  *   while (current._cmp(end)._lteq(0)._true()) {
  *     i = current;
  *     [body instructions - emitted from IR]
  *     current = current._inc();
  *   }
- * } else if (direction > 0) {
+ * } else if (direction &gt; 0) {
  *   // Descending loop
  *   while (current._cmp(end)._gteq(0)._true()) {
  *     i = current;
@@ -71,7 +72,6 @@ import org.ek9lang.core.AssertValue;
  *   [body instructions - emitted from IR]
  * }
  * </pre>
- * </p>
  * <p>
  * <b>Why Not CONTROL_FLOW_CHAIN?</b>
  * CONTROL_FLOW_CHAIN is designed for branching (if/else/switch) where each case executes at most once.
@@ -232,15 +232,15 @@ public final class ForRangePolymorphicInstr extends IRInstr {
    * The direction variable contains the result of {@code start <=> end} (Integer).
    * </p>
    *
-   * @param directionVariable Variable holding direction result (Integer from {@code <=>})
+   * @param directionVariable Variable holding direction result (Integer from {@code &lt;=&gt;})
    * @param currentVariable   Mutable loop counter variable (range type)
    * @param loopVariable      User's loop variable name (e.g., "i")
    * @param endVariable       Loop end value variable (range type)
    * @param rangeType         Fully qualified type name (e.g., "org.ek9.lang::Integer")
    * @param byVariable        Optional BY step variable (null if no BY clause)
    * @param byType            Optional BY step type (null if no BY clause)
-   * @param ascending         Dispatch case for ascending direction (direction < 0)
-   * @param descending        Dispatch case for descending direction (direction > 0)
+   * @param ascending         Dispatch case for ascending direction (direction &lt; 0)
+   * @param descending        Dispatch case for descending direction (direction &gt; 0)
    * @param equalSingleIteration Whether equal case (direction == 0) does single iteration
    */
   public record DispatchMetadata(
@@ -270,8 +270,8 @@ public final class ForRangePolymorphicInstr extends IRInstr {
    * Describes which polymorphic operators to use for a specific loop direction.
    * <p>
    * For a loop with no BY clause:
-   * - Ascending: condition="_lteq" (<=), increment="_inc" (++)
-   * - Descending: condition="_gteq" (>=), increment="_dec" (--)
+   * - Ascending: condition="_lteq" (&lt;=), increment="_inc" (++)
+   * - Descending: condition="_gteq" (&gt;=), increment="_dec" (--)
    * </p>
    * <p>
    * For a loop with BY clause:
