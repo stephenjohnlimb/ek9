@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  Test IR generation for float for-range loop.
+  Verifies type polymorphism: Float instead of Integer.
+-?>
+defines module loops
+
+  defines function
+
+
+    floatForRangeLoop()
+      stdout <- Stdout()
+      sum <- 0.0
+
+      for x in 1.0 ... 10.0
+        sum: sum + x
+
+      stdout.println(sum)
+//EOF

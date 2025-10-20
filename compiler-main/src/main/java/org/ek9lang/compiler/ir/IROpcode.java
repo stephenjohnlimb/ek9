@@ -259,6 +259,26 @@ public enum IROpcode {
    */
   CONTROL_FLOW_CHAIN,
 
+  /**
+   * Polymorphic for-range loop with runtime direction detection.
+   * Format: FOR_RANGE_POLYMORPHIC initialization, dispatch_metadata, body, scope_metadata
+   * <br>
+   * Specialized IR for EK9 for-range loops: {@code for i in start ... end [by step]}
+   * <br>
+   * Key design:
+   * - Runtime direction detection via {@code start <=> end} (polymorphic on range type)
+   * - Operator dispatch: Uses {@code _inc}, {@code _dec}, or {@code _addAss} based on direction
+   * - Single body storage: User code stored ONCE in IR (backends emit multiple times)
+   * - Works with ANY type implementing {@code <=>}, {@code ++}, {@code --}, {@code +=}
+   * <br>
+   * Not suitable for CONTROL_FLOW_CHAIN because:
+   * - Loops iterate repeatedly (not single-shot branching)
+   * - Need polymorphic operator selection based on runtime state
+   * - Body must be shared across three loop configurations (ascending/descending/equal)
+   * - Using CONTROL_FLOW_CHAIN would duplicate body 3x in IR
+   */
+  FOR_RANGE_POLYMORPHIC,
+
   // Stack allocation and memory optimization opcodes
   /**
    * Allocate object on stack instead of heap.

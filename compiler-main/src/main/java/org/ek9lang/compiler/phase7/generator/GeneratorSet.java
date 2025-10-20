@@ -131,7 +131,7 @@ public final class GeneratorSet {
    */
   public CallInstrGenerator callGenerator;
 
-  // ========== Control Flow Generators (2 fields - more to come) ==========
+  // ========== Control Flow Generators (3 fields - more to come) ==========
   // Created ONCE, reused for all control flow statements in construct
 
   /**
@@ -143,6 +143,11 @@ public final class GeneratorSet {
    * Generates IR for while/do-while loops using CONTROL_FLOW_CHAIN.
    */
   public WhileStatementGenerator whileStatementGenerator;
+
+  /**
+   * Generates IR for for-range loops using CONTROL_FLOW_CHAIN.
+   */
+  public ForStatementGenerator forStatementGenerator;
 
   // ========== Block Generators (3 fields) ==========
   // Created ONCE, reused for all blocks in construct

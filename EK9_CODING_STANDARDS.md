@@ -277,6 +277,132 @@ public static Integer _of(final String value) {
 }
 ```
 
+### Dispatcher Pattern for Specialized Generators
+
+When implementing dispatchers (e.g., `ControlFlowChainAsmGenerator`), follow this proven pattern for lazy instantiation and context management:
+
+#### Pattern Structure
+
+1. **Private generator fields** (lazily initialized)
+2. **Single dispatch method** with switch on type
+3. **Private generator methods** that lazy-instantiate
+4. **Context propagation overrides** for shared state
+
+#### Template Example
+
+```java
+// ✅ CORRECT - Complete dispatcher pattern
+class FooDispatcher extends AbstractAsmGenerator {
+  // 1. Lazy fields (null until first use)
+  private BarGenerator barGenerator;
+  private BazGenerator bazGenerator;
+
+  // 2. Main dispatch method
+  public void generate(final FooInstr instr) {
+    switch (instr.getType()) {
+      case "BAR" -> generateBar(instr);
+      case "BAZ" -> generateBaz(instr);
+      default -> throw new CompilerException("Unsupported: " + instr.getType());
+    }
+  }
+
+  // 3. Lazy instantiation with context propagation
+  private void generateBar(final FooInstr instr) {
+    if (barGenerator == null) {
+      barGenerator = new BarGenerator(constructTargetTuple, outputVisitor, classWriter);
+    }
+    // CRITICAL: Always update context before generation
+    barGenerator.setSharedMethodContext(getMethodContext());
+    barGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
+    barGenerator.generate(instr);
+  }
+
+  private void generateBaz(final FooInstr instr) {
+    if (bazGenerator == null) {
+      bazGenerator = new BazGenerator(constructTargetTuple, outputVisitor, classWriter);
+    }
+    bazGenerator.setSharedMethodContext(getMethodContext());
+    bazGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
+    bazGenerator.generate(instr);
+  }
+
+  // 4. Context propagation to ALL generators (including null ones handled by generate methods)
+  @Override
+  public void setSharedMethodContext(final MethodContext context) {
+    super.setSharedMethodContext(context);
+    // Only propagate to already-instantiated generators
+    if (barGenerator != null) {
+      barGenerator.setSharedMethodContext(context);
+    }
+    if (bazGenerator != null) {
+      bazGenerator.setSharedMethodContext(context);
+    }
+  }
+
+  @Override
+  public void setCurrentMethodVisitor(final org.objectweb.asm.MethodVisitor mv) {
+    super.setCurrentMethodVisitor(mv);
+    if (barGenerator != null) {
+      barGenerator.setCurrentMethodVisitor(mv);
+    }
+    if (bazGenerator != null) {
+      bazGenerator.setCurrentMethodVisitor(mv);
+    }
+  }
+}
+```
+
+#### Why This Pattern?
+
+- **Lazy Initialization**: Only creates generators when actually needed (performance)
+- **Stateless Reuse**: Each generator can be reused across multiple instructions
+- **Context-Aware**: Ensures all generators have current method state
+- **Extensible**: Adding new types requires minimal changes
+
+#### Checklist for Adding New Control Flow Types
+
+When adding support for a new type "NEW_TYPE":
+
+- [ ] Add private field: `private NewTypeGenerator newTypeGenerator;`
+- [ ] Add case in dispatch: `case "NEW_TYPE" -> generateNewType(instr);`
+- [ ] Add private method with lazy instantiation and context propagation
+- [ ] Update `setSharedMethodContext()` to propagate to new generator
+- [ ] Update `setCurrentMethodVisitor()` to propagate to new generator
+
+#### Common Mistakes to Avoid
+
+**❌ WRONG - Missing context propagation**:
+```java
+private void generateBar(final FooInstr instr) {
+  if (barGenerator == null) {
+    barGenerator = new BarGenerator(constructTargetTuple, outputVisitor, classWriter);
+  }
+  // Missing context updates!
+  barGenerator.generate(instr);  // May use stale context!
+}
+```
+
+**❌ WRONG - Eager instantiation**:
+```java
+// All generators created even if never used
+public FooDispatcher(...) {
+  this.barGenerator = new BarGenerator(...);
+  this.bazGenerator = new BazGenerator(...);
+}
+```
+
+**✅ CORRECT - Lazy + context propagation**:
+```java
+private void generateBar(final FooInstr instr) {
+  if (barGenerator == null) {
+    barGenerator = new BarGenerator(constructTargetTuple, outputVisitor, classWriter);
+  }
+  barGenerator.setSharedMethodContext(getMethodContext());  // Always update
+  barGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());  // Always update
+  barGenerator.generate(instr);
+}
+```
+
 ## Code Examples
 
 ### Complete Class Example

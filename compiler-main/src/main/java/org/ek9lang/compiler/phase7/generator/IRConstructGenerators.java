@@ -47,7 +47,7 @@ public final class IRConstructGenerators {
    * </p>
    *
    * @param stackContext The IR generation context for this construct (thread-isolated)
-   * @return Populated GeneratorSet with 23 fields (5 helpers + 18 generators) ready to use
+   * @return Populated GeneratorSet with 24 fields (5 helpers + 19 generators) ready to use
    */
   public static GeneratorSet create(final IRGenerationContext stackContext) {
     final var generators = new GeneratorSet();
@@ -107,6 +107,7 @@ public final class IRConstructGenerators {
     // Step 9: Create control flow generators
     generators.ifStatementGenerator = new IfStatementGenerator(stackContext, generators);
     generators.whileStatementGenerator = new WhileStatementGenerator(stackContext, generators);
+    generators.forStatementGenerator = new ForStatementGenerator(stackContext, generators);
 
     // Step 10: Create top-level statement and block generators
     generators.stmtGenerator = new StmtInstrGenerator(stackContext, generators);

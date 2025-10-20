@@ -1,0 +1,20 @@
+#!ek9
+<?-
+  Test IR generation for Duration for-range loop.
+  Verifies type polymorphism: Duration instead of Integer.
+-?>
+defines module loops
+
+  defines function
+
+
+    durationForRangeLoop()
+      stdout <- Stdout()
+
+      start <- PT0S
+      end <- PT100S
+      step <- PT10S
+
+      for d in start ... end by step
+        stdout.println(d)
+//EOF

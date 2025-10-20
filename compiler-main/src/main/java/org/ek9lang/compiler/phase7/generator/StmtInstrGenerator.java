@@ -79,7 +79,7 @@ public final class StmtInstrGenerator extends AbstractGenerator
     } else if (ctx.whileStatementExpression() != null) {
       instructions.addAll(generators.whileStatementGenerator.apply(ctx.whileStatementExpression()));
     } else if (ctx.forStatementExpression() != null) {
-      throw new CompilerException("For not implemented");
+      instructions.addAll(generators.forStatementGenerator.apply(ctx.forStatementExpression()));
     } else if (ctx.streamStatement() != null) {
       throw new CompilerException("Stream not implemented");
     } else {

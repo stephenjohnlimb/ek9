@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  Test IR generation for simple for-range loop.
+  Phase 1: Integer literals only, no BY clause, statement form.
+-?>
+defines module loops
+
+  defines function
+
+
+    simpleForRangeLoop()
+      stdout <- Stdout()
+      sum <- 0
+
+      for i in 1 ... 10
+        sum: sum + i
+
+      stdout.println(sum)
+//EOF
