@@ -376,13 +376,13 @@ public final class ForRangePolymorphicInstr extends IRInstr {
   }
 
   /**
-   * Dispatch case for ascending loops (direction < 0).
+   * Dispatch case for ascending loops (direction &lt; 0).
    * Contains explicit IR for all loop operations.
    *
    * <p>Example: for i in 1 ... 10</p>
    * <ul>
-   *   <li>direction_check: IR for direction < 0</li>
-   *   <li>loop_condition: IR for current <= end</li>
+   *   <li>direction_check: IR for direction &lt; 0</li>
+   *   <li>loop_condition: IR for current &lt;= end</li>
    *   <li>loop_increment: IR for current++</li>
    * </ul>
    */
