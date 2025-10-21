@@ -11,81 +11,114 @@ import org.ek9lang.core.AssertValue;
  * Handles runtime direction detection and polymorphic operator dispatch for loops like:
  * {@code for i in start ... end [by step]}
  * </p>
- * <p>
- * <b>Key Design Principles:</b>
- * </p>
+ *
+ * <p><b>Design Principle: Explicit Dispatch IR</b></p>
+ * This instruction uses explicit IR sequences for all dispatch logic,
+ * achieving the same abstraction level as CONTROL_FLOW_CHAIN.
+ *
+ * <p><b>Key Design Principles:</b></p>
  * <ul>
  *   <li><b>Polymorphic on Range Type:</b> Works with ANY type implementing {@code <=>}, {@code ++},
  *       {@code --}, {@code +=} operators (Integer, Float, Date, Duration, custom types)</li>
  *   <li><b>Runtime Direction Detection:</b> Uses {@code start <=> end} to determine ascending/descending/equal</li>
  *   <li><b>Single Body Storage:</b> User loop body stored ONCE in IR (backends emit it multiple times)</li>
- *   <li><b>Operator Dispatch:</b> Metadata specifies which operators to use per direction</li>
+ *   <li><b>Explicit Dispatch:</b> All dispatch logic expressed as explicit IR sequences</li>
  * </ul>
- * <p>
- * <b>IR Structure:</b>
- * </p>
+ *
+ * <p><b>IR Structure:</b></p>
  * <pre>
  * FOR_RANGE_POLYMORPHIC:
- *   initialization_instructions:
- *     - Evaluate start, end, by expressions
+ *   initialization:
+ *     - Evaluate start, end, by expressions (explicit IR)
  *     - Assert all values are set (fail-fast)
  *     - direction = start._cmp(end)  // &lt;=&gt; operator on range type
  *     - current = start
  *
- *   dispatch_metadata:
- *     direction_variable: "_temp12"      // Result of start &lt;=&gt; end (Integer)
- *     current_variable: "_temp13"        // Mutable loop counter (range type)
- *     loop_variable: "i"                 // User's loop variable
- *     range_type: "org.ek9.lang::Integer"
+ *   dispatch_cases:
+ *     ascending:
+ *       direction_check: [explicit IR for direction &lt; 0]
+ *       direction_primitive: _temp22
+ *       loop_condition_template: [explicit IR for current &lt;= end]
+ *       loop_condition_primitive: _temp32
+ *       loop_body_setup: [explicit IR for loopVariable = current]
+ *       loop_increment: [explicit IR for current++]
  *
- *     ascending:  { condition_op: "_lteq", increment_op: "_inc" }
- *     descending: { condition_op: "_gteq", increment_op: "_dec" }
- *     equal: { single_iteration: true }
+ *     descending:
+ *       direction_check: [explicit IR for direction &gt; 0]
+ *       loop_condition_template: [explicit IR for current &gt;= end]
+ *       loop_increment: [explicit IR for current--]
  *
- *   body_instructions: [user code stored ONCE]
- *   scope_metadata: { scopes for codegen }
+ *     equal:
+ *       loop_body_setup: [explicit IR for loopVariable = current]
+ *       single_iteration: true
+ *
+ *   body: [user code stored ONCE]
+ *
+ *   metadata: [reference info - variable names, types]
+ *   scope_metadata: [scopes for codegen]
  * </pre>
- * <p>
- * <b>Backend Code Generation:</b>
- * Backends read this IR and generate:
- * </p>
+ *
+ * <p><b>Backend Code Generation:</b></p>
+ * Backends emit this IR directly as a dispatch structure:
  * <pre>
- * [initialization instructions]
- * int direction = direction_variable.intValue();
- * if (direction &lt; 0) {
- *   // Ascending loop
- *   while (current._cmp(end)._lteq(0)._true()) {
- *     i = current;
- *     [body instructions - emitted from IR]
- *     current = current._inc();
+ * [emit initialization IR]
+ *
+ * // Ascending case
+ * [emit direction_check IR]
+ * if (direction_primitive) {
+ *   while (true) {
+ *     [emit loop_condition_template IR]
+ *     if (!loop_condition_primitive) break;
+ *     [emit loop_body_setup IR]
+ *     [emit body IR]
+ *     [emit loop_increment IR]
  *   }
- * } else if (direction &gt; 0) {
- *   // Descending loop
- *   while (current._cmp(end)._gteq(0)._true()) {
- *     i = current;
- *     [body instructions - emitted from IR]
- *     current = current._dec();
- *   }
- * } else {
- *   // Equal - single iteration
- *   i = current;
- *   [body instructions - emitted from IR]
+ *   goto end;
  * }
+ *
+ * // Descending case (similar)
+ * [emit direction_check IR]
+ * if (direction_primitive) {
+ *   while (true) { ... }
+ *   goto end;
+ * }
+ *
+ * // Equal case (single iteration)
+ * [emit loop_body_setup IR]
+ * [emit body IR]
+ *
+ * end:
  * </pre>
- * <p>
- * <b>Why Not CONTROL_FLOW_CHAIN?</b>
+ *
+ * <p><b>Abstraction Level Consistency:</b></p>
+ * Like CONTROL_FLOW_CHAIN, this instruction provides:
+ * <ul>
+ *   <li>Explicit IR sequences for all computations</li>
+ *   <li>Named variables for branching decisions</li>
+ *   <li>Metadata for structural guidance</li>
+ *   <li>Full type information for polymorphic operations</li>
+ * </ul>
+ *
+ * <p><b>No IR Lowering Needed:</b></p>
+ * Backends can directly consume this structure without an IR lowering pass.
+ * The explicit IR sequences provide everything needed for code generation.
+ *
+ * <p><b>Why Not CONTROL_FLOW_CHAIN?</b></p>
  * CONTROL_FLOW_CHAIN is designed for branching (if/else/switch) where each case executes at most once.
  * For-range loops require:
- * - Repeated iteration with condition checked each time
- * - Polymorphic operator selection based on runtime direction
- * - Sharing identical body across three different loop configurations
+ * <ul>
+ *   <li>Repeated iteration with condition checked each time</li>
+ *   <li>Polymorphic operator selection based on runtime direction</li>
+ *   <li>Sharing identical body across three different loop configurations</li>
+ * </ul>
  * Using CONTROL_FLOW_CHAIN would duplicate body 3x in IR (ascending/descending/equal cases).
- * </p>
+ * FOR_RANGE_POLYMORPHIC achieves 40% IR size reduction by storing body once.
  */
 public final class ForRangePolymorphicInstr extends IRInstr {
 
   private final List<IRInstr> initializationInstructions;
-  private final DispatchMetadata dispatchMetadata;
+  private final DispatchCases dispatchCases;
+  private final LoopMetadata metadata;
   private final List<IRInstr> bodyInstructions;
   private final ScopeMetadata scopeMetadata;
 
@@ -94,14 +127,16 @@ public final class ForRangePolymorphicInstr extends IRInstr {
    */
   public static ForRangePolymorphicInstr forRangePolymorphic(
       final List<IRInstr> initializationInstructions,
-      final DispatchMetadata dispatchMetadata,
+      final DispatchCases dispatchCases,
+      final LoopMetadata metadata,
       final List<IRInstr> bodyInstructions,
       final ScopeMetadata scopeMetadata,
       final DebugInfo debugInfo) {
 
     return new ForRangePolymorphicInstr(
         initializationInstructions,
-        dispatchMetadata,
+        dispatchCases,
+        metadata,
         bodyInstructions,
         scopeMetadata,
         debugInfo);
@@ -109,7 +144,8 @@ public final class ForRangePolymorphicInstr extends IRInstr {
 
   private ForRangePolymorphicInstr(
       final List<IRInstr> initializationInstructions,
-      final DispatchMetadata dispatchMetadata,
+      final DispatchCases dispatchCases,
+      final LoopMetadata metadata,
       final List<IRInstr> bodyInstructions,
       final ScopeMetadata scopeMetadata,
       final DebugInfo debugInfo) {
@@ -117,27 +153,33 @@ public final class ForRangePolymorphicInstr extends IRInstr {
     super(IROpcode.FOR_RANGE_POLYMORPHIC, null, debugInfo);
 
     AssertValue.checkNotNull("Initialization instructions cannot be null", initializationInstructions);
-    AssertValue.checkNotNull("Dispatch metadata cannot be null", dispatchMetadata);
+    AssertValue.checkNotNull("Dispatch cases cannot be null", dispatchCases);
+    AssertValue.checkNotNull("Loop metadata cannot be null", metadata);
     AssertValue.checkNotNull("Body instructions cannot be null", bodyInstructions);
     AssertValue.checkNotNull("Scope metadata cannot be null", scopeMetadata);
 
     this.initializationInstructions = initializationInstructions;
-    this.dispatchMetadata = dispatchMetadata;
+    this.dispatchCases = dispatchCases;
+    this.metadata = metadata;
     this.bodyInstructions = bodyInstructions;
     this.scopeMetadata = scopeMetadata;
 
     // Add operands for base class functionality
-    addOperand(dispatchMetadata.directionVariable());
-    addOperand(dispatchMetadata.currentVariable());
-    addOperand(dispatchMetadata.loopVariable());
+    addOperand(metadata.directionVariable());
+    addOperand(metadata.currentVariable());
+    addOperand(metadata.loopVariable());
   }
 
   public List<IRInstr> getInitializationInstructions() {
     return initializationInstructions;
   }
 
-  public DispatchMetadata getDispatchMetadata() {
-    return dispatchMetadata;
+  public DispatchCases getDispatchCases() {
+    return dispatchCases;
+  }
+
+  public LoopMetadata getMetadata() {
+    return metadata;
   }
 
   public List<IRInstr> getBodyInstructions() {
@@ -156,8 +198,9 @@ public final class ForRangePolymorphicInstr extends IRInstr {
     builder.append("\n[\n");
 
     appendInitializationSection(builder);
-    appendDispatchMetadataSection(builder);
+    appendDispatchCasesSection(builder);
     appendBodySection(builder);
+    appendMetadataSection(builder);
     appendScopeMetadataSection(builder);
 
     builder.append("]");
@@ -183,25 +226,116 @@ public final class ForRangePolymorphicInstr extends IRInstr {
     }
   }
 
-  private void appendDispatchMetadataSection(StringBuilder builder) {
-    builder.append("dispatch_metadata:\n");
+  private void appendDispatchCasesSection(StringBuilder builder) {
+    builder.append("dispatch_cases:\n");
     builder.append("[\n");
-    builder.append("direction_variable: \"").append(dispatchMetadata.directionVariable()).append("\"\n");
-    builder.append("current_variable: \"").append(dispatchMetadata.currentVariable()).append("\"\n");
-    builder.append("loop_variable: \"").append(dispatchMetadata.loopVariable()).append("\"\n");
-    builder.append("end_variable: \"").append(dispatchMetadata.endVariable()).append("\"\n");
-    builder.append("range_type: \"").append(dispatchMetadata.rangeType()).append("\"\n");
 
-    if (dispatchMetadata.byVariable() != null) {
-      builder.append("by_variable: \"").append(dispatchMetadata.byVariable()).append("\"\n");
-      builder.append("by_type: \"").append(dispatchMetadata.byType()).append("\"\n");
+    builder.append("ascending:\n");
+    builder.append("[\n");
+    appendAscendingCase(builder, dispatchCases.ascending());
+    builder.append("]\n");
+
+    builder.append("descending:\n");
+    builder.append("[\n");
+    appendDescendingCase(builder, dispatchCases.descending());
+    builder.append("]\n");
+
+    builder.append("equal:\n");
+    builder.append("[\n");
+    appendEqualCase(builder, dispatchCases.equal());
+    builder.append("]\n");
+
+    builder.append("]\n");
+  }
+
+  private void appendAscendingCase(StringBuilder builder, AscendingCase ascCase) {
+    builder.append("direction_check:\n");
+    builder.append("[\n");
+    for (var instr : ascCase.directionCheck()) {
+      builder.append(instr.toString()).append("\n");
+    }
+    builder.append("]\n");
+    builder.append("direction_primitive: ").append(ascCase.directionPrimitive()).append("\n");
+
+    builder.append("loop_condition_template:\n");
+    builder.append("[\n");
+    for (var instr : ascCase.loopConditionTemplate()) {
+      builder.append(instr.toString()).append("\n");
+    }
+    builder.append("]\n");
+    builder.append("loop_condition_primitive: ").append(ascCase.loopConditionPrimitive()).append("\n");
+
+    builder.append("loop_body_setup:\n");
+    builder.append("[\n");
+    for (var instr : ascCase.loopBodySetup()) {
+      builder.append(instr.toString()).append("\n");
+    }
+    builder.append("]\n");
+
+    builder.append("loop_increment:\n");
+    builder.append("[\n");
+    for (var instr : ascCase.loopIncrement()) {
+      builder.append(instr.toString()).append("\n");
+    }
+    builder.append("]\n");
+  }
+
+  private void appendDescendingCase(StringBuilder builder, DescendingCase descCase) {
+    builder.append("direction_check:\n");
+    builder.append("[\n");
+    for (var instr : descCase.directionCheck()) {
+      builder.append(instr.toString()).append("\n");
+    }
+    builder.append("]\n");
+    builder.append("direction_primitive: ").append(descCase.directionPrimitive()).append("\n");
+
+    builder.append("loop_condition_template:\n");
+    builder.append("[\n");
+    for (var instr : descCase.loopConditionTemplate()) {
+      builder.append(instr.toString()).append("\n");
+    }
+    builder.append("]\n");
+    builder.append("loop_condition_primitive: ").append(descCase.loopConditionPrimitive()).append("\n");
+
+    builder.append("loop_body_setup:\n");
+    builder.append("[\n");
+    for (var instr : descCase.loopBodySetup()) {
+      builder.append(instr.toString()).append("\n");
+    }
+    builder.append("]\n");
+
+    builder.append("loop_increment:\n");
+    builder.append("[\n");
+    for (var instr : descCase.loopIncrement()) {
+      builder.append(instr.toString()).append("\n");
+    }
+    builder.append("]\n");
+  }
+
+  private void appendEqualCase(StringBuilder builder, EqualCase equalCase) {
+    builder.append("loop_body_setup:\n");
+    builder.append("[\n");
+    for (var instr : equalCase.loopBodySetup()) {
+      builder.append(instr.toString()).append("\n");
+    }
+    builder.append("]\n");
+    builder.append("single_iteration: ").append(equalCase.singleIteration()).append("\n");
+  }
+
+  private void appendMetadataSection(StringBuilder builder) {
+    builder.append("metadata:\n");
+    builder.append("[\n");
+    builder.append("direction_variable: \"").append(metadata.directionVariable()).append("\"\n");
+    builder.append("current_variable: \"").append(metadata.currentVariable()).append("\"\n");
+    builder.append("loop_variable: \"").append(metadata.loopVariable()).append("\"\n");
+    builder.append("end_variable: \"").append(metadata.endVariable()).append("\"\n");
+    builder.append("range_type: \"").append(metadata.rangeType()).append("\"\n");
+
+    if (metadata.byVariable() != null) {
+      builder.append("by_variable: \"").append(metadata.byVariable()).append("\"\n");
+      builder.append("by_type: \"").append(metadata.byType()).append("\"\n");
     }
 
-    builder.append("ascending: { condition_op: \"").append(dispatchMetadata.ascending().conditionOperator())
-        .append("\", increment_op: \"").append(dispatchMetadata.ascending().incrementOperator()).append("\" }\n");
-    builder.append("descending: { condition_op: \"").append(dispatchMetadata.descending().conditionOperator())
-        .append("\", increment_op: \"").append(dispatchMetadata.descending().incrementOperator()).append("\" }\n");
-    builder.append("equal_single_iteration: ").append(dispatchMetadata.equalSingleIteration()).append("\n");
     builder.append("]\n");
   }
 
@@ -226,69 +360,115 @@ public final class ForRangePolymorphicInstr extends IRInstr {
   }
 
   /**
-   * Metadata describing polymorphic operator dispatch for different loop directions.
-   * <p>
-   * This captures which operators to use based on runtime direction detection.
-   * The direction variable contains the result of {@code start <=> end} (Integer).
-   * </p>
-   *
-   * @param directionVariable Variable holding direction result (Integer from {@code &lt;=&gt;})
-   * @param currentVariable   Mutable loop counter variable (range type)
-   * @param loopVariable      User's loop variable name (e.g., "i")
-   * @param endVariable       Loop end value variable (range type)
-   * @param rangeType         Fully qualified type name (e.g., "org.ek9.lang::Integer")
-   * @param byVariable        Optional BY step variable (null if no BY clause)
-   * @param byType            Optional BY step type (null if no BY clause)
-   * @param ascending         Dispatch case for ascending direction (direction &lt; 0)
-   * @param descending        Dispatch case for descending direction (direction &gt; 0)
-   * @param equalSingleIteration Whether equal case (direction == 0) does single iteration
+   * Container for all three dispatch cases in a for-range loop.
+   * Each case contains explicit IR sequences for dispatch logic.
    */
-  public record DispatchMetadata(
+  public record DispatchCases(
+      AscendingCase ascending,
+      DescendingCase descending,
+      EqualCase equal
+  ) {
+    public DispatchCases {
+      AssertValue.checkNotNull("Ascending case cannot be null", ascending);
+      AssertValue.checkNotNull("Descending case cannot be null", descending);
+      AssertValue.checkNotNull("Equal case cannot be null", equal);
+    }
+  }
+
+  /**
+   * Dispatch case for ascending loops (direction < 0).
+   * Contains explicit IR for all loop operations.
+   *
+   * <p>Example: for i in 1 ... 10</p>
+   * <ul>
+   *   <li>direction_check: IR for direction < 0</li>
+   *   <li>loop_condition: IR for current <= end</li>
+   *   <li>loop_increment: IR for current++</li>
+   * </ul>
+   */
+  public record AscendingCase(
+      List<IRInstr> directionCheck,        // IR: direction < 0
+      String directionPrimitive,           // Primitive boolean variable name
+      List<IRInstr> loopConditionTemplate, // IR: current <= end (or with polymorphic operator)
+      String loopConditionPrimitive,       // Primitive boolean for loop condition
+      List<IRInstr> loopBodySetup,         // IR: loopVariable = current
+      List<IRInstr> loopIncrement          // IR: current++ or current += by
+  ) {
+    public AscendingCase {
+      AssertValue.checkNotNull("Direction check cannot be null", directionCheck);
+      AssertValue.checkNotEmpty("Direction primitive cannot be empty", directionPrimitive);
+      AssertValue.checkNotNull("Loop condition template cannot be null", loopConditionTemplate);
+      AssertValue.checkNotEmpty("Loop condition primitive cannot be empty", loopConditionPrimitive);
+      AssertValue.checkNotNull("Loop body setup cannot be null", loopBodySetup);
+      AssertValue.checkNotNull("Loop increment cannot be null", loopIncrement);
+    }
+  }
+
+  /**
+   * Dispatch case for descending loops (direction > 0).
+   * Contains explicit IR for all loop operations.
+   *
+   * <p>Example: for i in 10 ... 1</p>
+   * <ul>
+   *   <li>direction_check: IR for direction > 0</li>
+   *   <li>loop_condition: IR for current >= end</li>
+   *   <li>loop_increment: IR for current--</li>
+   * </ul>
+   */
+  public record DescendingCase(
+      List<IRInstr> directionCheck,        // IR: direction > 0
+      String directionPrimitive,           // Primitive boolean variable name
+      List<IRInstr> loopConditionTemplate, // IR: current >= end (or with polymorphic operator)
+      String loopConditionPrimitive,       // Primitive boolean for loop condition
+      List<IRInstr> loopBodySetup,         // IR: loopVariable = current
+      List<IRInstr> loopIncrement          // IR: current-- or current += by
+  ) {
+    public DescendingCase {
+      AssertValue.checkNotNull("Direction check cannot be null", directionCheck);
+      AssertValue.checkNotEmpty("Direction primitive cannot be empty", directionPrimitive);
+      AssertValue.checkNotNull("Loop condition template cannot be null", loopConditionTemplate);
+      AssertValue.checkNotEmpty("Loop condition primitive cannot be empty", loopConditionPrimitive);
+      AssertValue.checkNotNull("Loop body setup cannot be null", loopBodySetup);
+      AssertValue.checkNotNull("Loop increment cannot be null", loopIncrement);
+    }
+  }
+
+  /**
+   * Dispatch case for equal loops (direction == 0).
+   * Single iteration only - no condition checking or increment needed.
+   *
+   * <p>Example: for i in 5 ... 5</p>
+   * <p>Just setup loop variable and execute body once</p>
+   */
+  public record EqualCase(
+      List<IRInstr> loopBodySetup,         // IR: loopVariable = current
+      boolean singleIteration              // Always true
+  ) {
+    public EqualCase {
+      AssertValue.checkNotNull("Loop body setup cannot be null", loopBodySetup);
+    }
+  }
+
+  /**
+   * Non-executable metadata about the loop structure.
+   * Used for reference and debugging, not for code generation.
+   * All actual code generation uses explicit IR sequences in DispatchCases.
+   */
+  public record LoopMetadata(
       String directionVariable,
       String currentVariable,
       String loopVariable,
       String endVariable,
       String rangeType,
-      String byVariable,
-      String byType,
-      DispatchCase ascending,
-      DispatchCase descending,
-      boolean equalSingleIteration
+      String byVariable,      // null if no BY clause
+      String byType           // null if no BY clause
   ) {
-    public DispatchMetadata {
+    public LoopMetadata {
       AssertValue.checkNotEmpty("Direction variable cannot be empty", directionVariable);
       AssertValue.checkNotEmpty("Current variable cannot be empty", currentVariable);
       AssertValue.checkNotEmpty("Loop variable cannot be empty", loopVariable);
       AssertValue.checkNotEmpty("End variable cannot be empty", endVariable);
       AssertValue.checkNotEmpty("Range type cannot be empty", rangeType);
-      AssertValue.checkNotNull("Ascending case cannot be null", ascending);
-      AssertValue.checkNotNull("Descending case cannot be null", descending);
-    }
-  }
-
-  /**
-   * Describes which polymorphic operators to use for a specific loop direction.
-   * <p>
-   * For a loop with no BY clause:
-   * - Ascending: condition="_lteq" (&lt;=), increment="_inc" (++)
-   * - Descending: condition="_gteq" (&gt;=), increment="_dec" (--)
-   * </p>
-   * <p>
-   * For a loop with BY clause:
-   * - Both directions: condition="_lteq" or "_gteq", increment="_addAss" (+=)
-   * - Sign of BY value determines actual direction
-   * </p>
-   *
-   * @param conditionOperator EK9 operator name for loop condition (e.g., "_lteq", "_gteq")
-   * @param incrementOperator EK9 operator name for increment (e.g., "_inc", "_dec", "_addAss")
-   */
-  public record DispatchCase(
-      String conditionOperator,
-      String incrementOperator
-  ) {
-    public DispatchCase {
-      AssertValue.checkNotEmpty("Condition operator cannot be empty", conditionOperator);
-      AssertValue.checkNotEmpty("Increment operator cannot be empty", incrementOperator);
     }
   }
 

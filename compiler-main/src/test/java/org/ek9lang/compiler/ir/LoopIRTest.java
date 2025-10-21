@@ -10,7 +10,7 @@ class LoopIRTest extends AbstractIRGenerationTest {
   public LoopIRTest() {
     super("/examples/irGeneration/loops",
         List.of(new SymbolCountCheck(5, "loops", 5)),  // 5 modules (files), 5 functions total
-        false, false, true);
+        false, false, false);
   }
 
   @Override

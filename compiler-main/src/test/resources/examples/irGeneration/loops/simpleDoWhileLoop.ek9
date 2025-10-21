@@ -56,6 +56,8 @@ defines module loops
     RETAIN _temp8
     SCOPE_REGISTER _temp8, _scope_5
     _temp6 = CALL (org.ek9.lang::Integer)_temp7._lt(_temp8) [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp6
+    SCOPE_REGISTER _temp6, _scope_5
     _temp9 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
     SCOPE_EXIT _scope_5
     ]

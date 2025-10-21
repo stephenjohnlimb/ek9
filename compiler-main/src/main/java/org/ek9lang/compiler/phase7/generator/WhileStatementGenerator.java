@@ -100,9 +100,11 @@ public final class WhileStatementGenerator extends AbstractGenerator
     // Enter condition iteration scope
     conditionEvaluation.add(ScopeInstr.enter(conditionIterationScopeId, debugInfo));
 
-    // Generate condition expression (temps register to conditionIterationScopeId)
-    conditionEvaluation.addAll(generators.exprGenerator.apply(
-        new ExprProcessingDetails(ctx.control, conditionResult)
+    // Generate condition expression with memory management
+    // Scope is on stack, so helper uses correct currentScopeId()
+    conditionEvaluation.addAll(generators.variableMemoryManagement.apply(
+        () -> generators.exprGenerator.apply(new ExprProcessingDetails(ctx.control, conditionResult)),
+        conditionResult
     ));
 
     // Add primitive boolean conversion for backend branching
@@ -210,9 +212,11 @@ public final class WhileStatementGenerator extends AbstractGenerator
     // Enter condition iteration scope
     conditionEvaluation.add(ScopeInstr.enter(conditionIterationScopeId, debugInfo));
 
-    // Generate condition expression
-    conditionEvaluation.addAll(generators.exprGenerator.apply(
-        new ExprProcessingDetails(ctx.control, conditionResult)
+    // Generate condition expression with memory management
+    // Scope is on stack, so helper uses correct currentScopeId()
+    conditionEvaluation.addAll(generators.variableMemoryManagement.apply(
+        () -> generators.exprGenerator.apply(new ExprProcessingDetails(ctx.control, conditionResult)),
+        conditionResult
     ));
 
     // Convert to primitive boolean for backend branching

@@ -132,23 +132,31 @@ public final class ForStatementGenerator extends AbstractGenerator
     // Exit body scope from context
     stackContext.exitScope();
 
-    // Phase 3: Create dispatch metadata
-    final var dispatchMetadata = createDispatchMetadata(
+    // Phase 3: Create dispatch cases with explicit IR
+    final var dispatchCases = generateDispatchCases(
+        initializationData,
+        loopVariableName,
+        debugInfo
+    );
+
+    // Phase 4: Create loop metadata
+    final var loopMetadata = generateLoopMetadata(
         initializationData,
         loopVariableName
     );
 
-    // Phase 4: Create scope metadata
+    // Phase 5: Create scope metadata
     final var scopeMetadata = new ForRangePolymorphicInstr.ScopeMetadata(
         outerScopeId,
         loopScopeId,
         bodyScopeId
     );
 
-    // Phase 5: Create the polymorphic loop instruction
+    // Phase 6: Create the polymorphic loop instruction
     instructions.add(ForRangePolymorphicInstr.forRangePolymorphic(
         initializationData.instructions,
-        dispatchMetadata,
+        dispatchCases,
+        loopMetadata,
         bodyInstructions,
         scopeMetadata,
         debugInfo
@@ -184,8 +192,12 @@ public final class ForStatementGenerator extends AbstractGenerator
     // Evaluate start expression (first expression in range)
     final var startTemp = stackContext.generateTempName();
     final var startResult = createTempVariable(debugInfo);
-    instructions.addAll(generators.exprGenerator.apply(
-        new ExprProcessingDetails(forRangeCtx.range().expression(0), startResult)
+    // Add memory management for exprGenerator result (loop scope is on stack)
+    instructions.addAll(generators.variableMemoryManagement.apply(
+        () -> generators.exprGenerator.apply(
+            new ExprProcessingDetails(forRangeCtx.range().expression(0), startResult)
+        ),
+        startResult
     ));
     final var loadStartInstructions = new ArrayList<IRInstr>();
     loadStartInstructions.add(MemoryInstr.load(startTemp, startResult.resultVariable(), debugInfo));
@@ -197,8 +209,12 @@ public final class ForStatementGenerator extends AbstractGenerator
     // Evaluate end expression (second expression in range)
     final var endTemp = stackContext.generateTempName();
     final var endResult = createTempVariable(debugInfo);
-    instructions.addAll(generators.exprGenerator.apply(
-        new ExprProcessingDetails(forRangeCtx.range().expression(1), endResult)
+    // Add memory management for exprGenerator result (loop scope is on stack)
+    instructions.addAll(generators.variableMemoryManagement.apply(
+        () -> generators.exprGenerator.apply(
+            new ExprProcessingDetails(forRangeCtx.range().expression(1), endResult)
+        ),
+        endResult
     ));
     final var loadEndInstructions = new ArrayList<IRInstr>();
     loadEndInstructions.add(MemoryInstr.load(endTemp, endResult.resultVariable(), debugInfo));
@@ -239,7 +255,13 @@ public final class ForStatementGenerator extends AbstractGenerator
         final var byRefInstructions = new ArrayList<IRInstr>();
         byRefInstructions.add(MemoryInstr.reference(identCtx.getText(), byType.getFullyQualifiedName(), debugInfo));
         final var loadTemp = stackContext.generateTempName();
-        byRefInstructions.add(MemoryInstr.load(loadTemp, identCtx.getText(), debugInfo));
+        // Load from identifier with memory management
+        final var loadInstructions = new ArrayList<IRInstr>();
+        loadInstructions.add(MemoryInstr.load(loadTemp, identCtx.getText(), debugInfo));
+        byRefInstructions.addAll(generators.variableMemoryManagement.apply(
+            () -> loadInstructions,
+            new VariableDetails(loadTemp, debugInfo)
+        ));
         byRefInstructions.add(MemoryInstr.store(byTemp, loadTemp, debugInfo));
         instructions.addAll(generators.variableMemoryManagement.apply(
             () -> byRefInstructions,
@@ -321,8 +343,16 @@ public final class ForStatementGenerator extends AbstractGenerator
         stackContext.currentScopeId()
     );
     final var isSetCallResult = generators.callDetailsBuilder.apply(isSetCallContext);
-    instructions.addAll(isSetCallResult.allInstructions());
-    instructions.add(CallInstr.operator(isSetTemp, debugInfo, isSetCallResult.callDetails()));
+
+    // Add _isSet() call with memory management (Boolean object result)
+    // Loop scope is on stack, so helper uses correct currentScopeId()
+    final var isSetInstructions = new ArrayList<IRInstr>();
+    isSetInstructions.addAll(isSetCallResult.allInstructions());
+    isSetInstructions.add(CallInstr.operator(isSetTemp, debugInfo, isSetCallResult.callDetails()));
+    instructions.addAll(generators.variableMemoryManagement.apply(
+        () -> isSetInstructions,
+        new VariableDetails(isSetTemp, debugInfo)
+    ));
 
     // Convert to primitive boolean and assert
     final var conversion = convertToPrimitiveBoolean(isSetTemp, debugInfo);
@@ -385,47 +415,498 @@ public final class ForStatementGenerator extends AbstractGenerator
   }
 
   /**
-   * Create dispatch metadata describing polymorphic operator selection.
+   * Generate dispatch cases with explicit IR for all three directions.
    */
-  private ForRangePolymorphicInstr.DispatchMetadata createDispatchMetadata(
+  private ForRangePolymorphicInstr.DispatchCases generateDispatchCases(
+      final InitializationData initData,
+      final String loopVariableName,
+      final DebugInfo debugInfo) {
+
+    final var ascendingCase = generateAscendingCase(initData, loopVariableName, debugInfo);
+    final var descendingCase = generateDescendingCase(initData, loopVariableName, debugInfo);
+    final var equalCase = generateEqualCase(loopVariableName, initData.currentTemp, debugInfo);
+
+    return new ForRangePolymorphicInstr.DispatchCases(
+        ascendingCase,
+        descendingCase,
+        equalCase
+    );
+  }
+
+  /**
+   * Generate ascending dispatch case (direction < 0).
+   */
+  private ForRangePolymorphicInstr.AscendingCase generateAscendingCase(
+      final InitializationData initData,
+      final String loopVariableName,
+      final DebugInfo debugInfo) {
+
+    // Direction check: direction < 0
+    final var directionCheck = generateDirectionLessThanZero(initData.directionTemp, debugInfo);
+    final var directionPrimitive = extractPrimitiveVariable(directionCheck);
+
+    // Loop condition: current <= end (using <=> for comparison)
+    final var loopConditionTemplate = generateLoopCondition(
+        initData.currentTemp,
+        initData.endTemp,
+        initData.rangeType,
+        operatorMap.getForward("<="),
+        debugInfo
+    );
+    final var loopConditionPrimitive = extractPrimitiveVariable(loopConditionTemplate);
+
+    // Body setup: loopVariable = current
+    final var loopBodySetup = generateBodySetup(loopVariableName, initData.currentTemp, debugInfo);
+
+    // Loop increment: current++ or current += by
+    final List<IRInstr> loopIncrement;
+    if (initData.byTemp != null) {
+      loopIncrement = generateIncrementBy(
+          initData.currentTemp,
+          initData.byTemp,
+          initData.rangeType,
+          initData.byType,
+          debugInfo
+      );
+    } else {
+      loopIncrement = generateIncrement(
+          initData.currentTemp,
+          initData.rangeType,
+          operatorMap.getForward("++"),
+          debugInfo
+      );
+    }
+
+    return new ForRangePolymorphicInstr.AscendingCase(
+        directionCheck,
+        directionPrimitive,
+        loopConditionTemplate,
+        loopConditionPrimitive,
+        loopBodySetup,
+        loopIncrement
+    );
+  }
+
+  /**
+   * Generate descending dispatch case (direction > 0).
+   */
+  private ForRangePolymorphicInstr.DescendingCase generateDescendingCase(
+      final InitializationData initData,
+      final String loopVariableName,
+      final DebugInfo debugInfo) {
+
+    // Direction check: direction > 0
+    final var directionCheck = generateDirectionGreaterThanZero(initData.directionTemp, debugInfo);
+    final var directionPrimitive = extractPrimitiveVariable(directionCheck);
+
+    // Loop condition: current >= end (using <=> for comparison)
+    final var loopConditionTemplate = generateLoopCondition(
+        initData.currentTemp,
+        initData.endTemp,
+        initData.rangeType,
+        operatorMap.getForward(">="),
+        debugInfo
+    );
+    final var loopConditionPrimitive = extractPrimitiveVariable(loopConditionTemplate);
+
+    // Body setup: loopVariable = current
+    final var loopBodySetup = generateBodySetup(loopVariableName, initData.currentTemp, debugInfo);
+
+    // Loop increment: current-- or current += by
+    final List<IRInstr> loopIncrement;
+    if (initData.byTemp != null) {
+      loopIncrement = generateIncrementBy(
+          initData.currentTemp,
+          initData.byTemp,
+          initData.rangeType,
+          initData.byType,
+          debugInfo
+      );
+    } else {
+      loopIncrement = generateIncrement(
+          initData.currentTemp,
+          initData.rangeType,
+          operatorMap.getForward("--"),
+          debugInfo
+      );
+    }
+
+    return new ForRangePolymorphicInstr.DescendingCase(
+        directionCheck,
+        directionPrimitive,
+        loopConditionTemplate,
+        loopConditionPrimitive,
+        loopBodySetup,
+        loopIncrement
+    );
+  }
+
+  /**
+   * Generate equal dispatch case (direction == 0, single iteration).
+   */
+  private ForRangePolymorphicInstr.EqualCase generateEqualCase(
+      final String loopVariableName,
+      final String currentTemp,
+      final DebugInfo debugInfo) {
+
+    // Body setup: loopVariable = current
+    final var loopBodySetup = generateBodySetup(loopVariableName, currentTemp, debugInfo);
+
+    return new ForRangePolymorphicInstr.EqualCase(
+        loopBodySetup,
+        true  // Single iteration flag
+    );
+  }
+
+  /**
+   * Generate direction check: direction < 0.
+   * Returns IR sequence ending with primitive boolean result.
+   * Wraps all temps in SCOPE_ENTER/EXIT for proper memory management.
+   */
+  private List<IRInstr> generateDirectionLessThanZero(
+      final String directionTemp,
+      final DebugInfo debugInfo) {
+
+    final var instructions = new ArrayList<IRInstr>();
+    final var zeroTemp = stackContext.generateTempName();
+    final var resultTemp = stackContext.generateTempName();
+
+    // Create scope for direction check temps and push onto stack
+    final var scopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(scopeId, debugInfo, IRFrameType.BLOCK);
+    instructions.add(ScopeInstr.enter(scopeId, debugInfo));
+
+    // Load literal 0 with memory management (using helper)
+    final var zeroType = stackContext.getParsedModule().getEk9Types().ek9Integer();
+    final var zeroLiteralInstructions = new ArrayList<IRInstr>();
+    zeroLiteralInstructions.add(LiteralInstr.literal(
+        zeroTemp,
+        "0",
+        zeroType.getFullyQualifiedName(),
+        debugInfo
+    ));
+    instructions.addAll(generators.variableMemoryManagement.apply(
+        () -> zeroLiteralInstructions,
+        new VariableDetails(zeroTemp, debugInfo)
+    ));
+
+    // Call direction < 0 (returns Boolean object) with memory management (using helper)
+    final var ltCallContext = CallContext.forBinaryOperation(
+        stackContext.getParsedModule().getEk9Types().ek9Integer(),
+        stackContext.getParsedModule().getEk9Types().ek9Integer(),
+        stackContext.getParsedModule().getEk9Types().ek9Boolean(),
+        operatorMap.getForward("<"),
+        directionTemp,
+        zeroTemp,
+        stackContext.currentScopeId()
+    );
+    final var ltCallResult = generators.callDetailsBuilder.apply(ltCallContext);
+    final var ltCallInstructions = new ArrayList<IRInstr>();
+    ltCallInstructions.addAll(ltCallResult.allInstructions());
+    ltCallInstructions.add(CallInstr.operator(resultTemp, debugInfo, ltCallResult.callDetails()));
+    instructions.addAll(generators.variableMemoryManagement.apply(
+        () -> ltCallInstructions,
+        new VariableDetails(resultTemp, debugInfo)
+    ));
+
+    // Convert to primitive boolean (no memory management - primitive)
+    final var conversion = convertToPrimitiveBoolean(resultTemp, debugInfo);
+    conversion.addToInstructions(instructions);
+
+    // Exit scope and pop from stack
+    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
+    stackContext.exitScope();
+
+    return instructions;
+  }
+
+  /**
+   * Generate direction check: direction > 0.
+   * Returns IR sequence ending with primitive boolean result.
+   * Wraps all temps in SCOPE_ENTER/EXIT for proper memory management.
+   */
+  private List<IRInstr> generateDirectionGreaterThanZero(
+      final String directionTemp,
+      final DebugInfo debugInfo) {
+
+    final var instructions = new ArrayList<IRInstr>();
+    final var zeroTemp = stackContext.generateTempName();
+    final var resultTemp = stackContext.generateTempName();
+
+    // Create scope for direction check temps and push onto stack
+    final var scopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(scopeId, debugInfo, IRFrameType.BLOCK);
+    instructions.add(ScopeInstr.enter(scopeId, debugInfo));
+
+    // Load literal 0 with memory management (using helper)
+    final var zeroType = stackContext.getParsedModule().getEk9Types().ek9Integer();
+    final var zeroLiteralInstructions = new ArrayList<IRInstr>();
+    zeroLiteralInstructions.add(LiteralInstr.literal(
+        zeroTemp,
+        "0",
+        zeroType.getFullyQualifiedName(),
+        debugInfo
+    ));
+    instructions.addAll(generators.variableMemoryManagement.apply(
+        () -> zeroLiteralInstructions,
+        new VariableDetails(zeroTemp, debugInfo)
+    ));
+
+    // Call direction > 0 (returns Boolean object) with memory management (using helper)
+    final var gtCallContext = CallContext.forBinaryOperation(
+        stackContext.getParsedModule().getEk9Types().ek9Integer(),
+        stackContext.getParsedModule().getEk9Types().ek9Integer(),
+        stackContext.getParsedModule().getEk9Types().ek9Boolean(),
+        operatorMap.getForward(">"),
+        directionTemp,
+        zeroTemp,
+        stackContext.currentScopeId()
+    );
+    final var gtCallResult = generators.callDetailsBuilder.apply(gtCallContext);
+    final var gtCallInstructions = new ArrayList<IRInstr>();
+    gtCallInstructions.addAll(gtCallResult.allInstructions());
+    gtCallInstructions.add(CallInstr.operator(resultTemp, debugInfo, gtCallResult.callDetails()));
+    instructions.addAll(generators.variableMemoryManagement.apply(
+        () -> gtCallInstructions,
+        new VariableDetails(resultTemp, debugInfo)
+    ));
+
+    // Convert to primitive boolean (no memory management - primitive)
+    final var conversion = convertToPrimitiveBoolean(resultTemp, debugInfo);
+    conversion.addToInstructions(instructions);
+
+    // Exit scope and pop from stack
+    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
+    stackContext.exitScope();
+
+    return instructions;
+  }
+
+  /**
+   * Generate loop condition: current (<=|>=) end.
+   * Returns IR sequence ending with primitive boolean result.
+   * Wraps all temps in SCOPE_ENTER/EXIT for proper memory management.
+   */
+  private List<IRInstr> generateLoopCondition(
+      final String currentTemp,
+      final String endTemp,
+      final ISymbol rangeType,
+      final String comparisonOperator,
+      final DebugInfo debugInfo) {
+
+    final var instructions = new ArrayList<IRInstr>();
+    final var cmpResultTemp = stackContext.generateTempName();
+    final var zeroTemp = stackContext.generateTempName();
+    final var conditionTemp = stackContext.generateTempName();
+
+    // Create scope for loop condition temps and push onto stack
+    final var scopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(scopeId, debugInfo, IRFrameType.BLOCK);
+    instructions.add(ScopeInstr.enter(scopeId, debugInfo));
+
+    // Call current <=> end (returns Integer object) with memory management (using helper)
+    final var cmpCallContext = CallContext.forBinaryOperation(
+        rangeType,
+        rangeType,
+        stackContext.getParsedModule().getEk9Types().ek9Integer(),
+        operatorMap.getForward("<=>"),
+        currentTemp,
+        endTemp,
+        stackContext.currentScopeId()
+    );
+    final var cmpCallResult = generators.callDetailsBuilder.apply(cmpCallContext);
+    final var cmpCallInstructions = new ArrayList<IRInstr>();
+    cmpCallInstructions.addAll(cmpCallResult.allInstructions());
+    cmpCallInstructions.add(CallInstr.operator(cmpResultTemp, debugInfo, cmpCallResult.callDetails()));
+    instructions.addAll(generators.variableMemoryManagement.apply(
+        () -> cmpCallInstructions,
+        new VariableDetails(cmpResultTemp, debugInfo)
+    ));
+
+    // Load literal 0 with memory management (using helper)
+    final var zeroLiteralInstructions = new ArrayList<IRInstr>();
+    zeroLiteralInstructions.add(LiteralInstr.literal(
+        zeroTemp,
+        "0",
+        stackContext.getParsedModule().getEk9Types().ek9Integer().getFullyQualifiedName(),
+        debugInfo
+    ));
+    instructions.addAll(generators.variableMemoryManagement.apply(
+        () -> zeroLiteralInstructions,
+        new VariableDetails(zeroTemp, debugInfo)
+    ));
+
+    // Call cmpResult (<=|>=) 0 (returns Boolean object) with memory management (using helper)
+    final var condCallContext = CallContext.forBinaryOperation(
+        stackContext.getParsedModule().getEk9Types().ek9Integer(),
+        stackContext.getParsedModule().getEk9Types().ek9Integer(),
+        stackContext.getParsedModule().getEk9Types().ek9Boolean(),
+        comparisonOperator,
+        cmpResultTemp,
+        zeroTemp,
+        stackContext.currentScopeId()
+    );
+    final var condCallResult = generators.callDetailsBuilder.apply(condCallContext);
+    final var condCallInstructions = new ArrayList<IRInstr>();
+    condCallInstructions.addAll(condCallResult.allInstructions());
+    condCallInstructions.add(CallInstr.operator(conditionTemp, debugInfo, condCallResult.callDetails()));
+    instructions.addAll(generators.variableMemoryManagement.apply(
+        () -> condCallInstructions,
+        new VariableDetails(conditionTemp, debugInfo)
+    ));
+
+    // Convert to primitive boolean (no memory management - primitive)
+    final var conversion = convertToPrimitiveBoolean(conditionTemp, debugInfo);
+    conversion.addToInstructions(instructions);
+
+    // Exit scope and pop from stack
+    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
+    stackContext.exitScope();
+
+    return instructions;
+  }
+
+  /**
+   * Generate body setup: loopVariable = current.
+   */
+  private List<IRInstr> generateBodySetup(
+      final String loopVariableName,
+      final String currentTemp,
+      final DebugInfo debugInfo) {
+
+    final var instructions = new ArrayList<IRInstr>();
+    instructions.add(MemoryInstr.store(loopVariableName, currentTemp, debugInfo));
+    return instructions;
+  }
+
+  /**
+   * Generate increment: current++ or current--.
+   * Wraps all temps in SCOPE_ENTER/EXIT for proper memory management.
+   */
+  private List<IRInstr> generateIncrement(
+      final String currentTemp,
+      final ISymbol rangeType,
+      final String incrementOperator,
+      final DebugInfo debugInfo) {
+
+    final var instructions = new ArrayList<IRInstr>();
+    final var newValueTemp = stackContext.generateTempName();
+
+    // Create scope for increment temps and push onto stack
+    final var scopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(scopeId, debugInfo, IRFrameType.BLOCK);
+    instructions.add(ScopeInstr.enter(scopeId, debugInfo));
+
+    // Call current++ or current-- (returns rangeType object) with memory management (using helper)
+    final var incCallContext = CallContext.forUnaryOperation(
+        rangeType,
+        incrementOperator,
+        currentTemp,
+        rangeType,
+        stackContext.currentScopeId()
+    );
+    final var incCallResult = generators.callDetailsBuilder.apply(incCallContext);
+    final var incCallInstructions = new ArrayList<IRInstr>();
+    incCallInstructions.addAll(incCallResult.allInstructions());
+    incCallInstructions.add(CallInstr.operator(newValueTemp, debugInfo, incCallResult.callDetails()));
+    instructions.addAll(generators.variableMemoryManagement.apply(
+        () -> incCallInstructions,
+        new VariableDetails(newValueTemp, debugInfo)
+    ));
+
+    // Update current variable (STORE only, current is already owned by loop_scope)
+    instructions.add(MemoryInstr.store(currentTemp, newValueTemp, debugInfo));
+
+    // Exit scope and pop from stack
+    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
+    stackContext.exitScope();
+
+    return instructions;
+  }
+
+  /**
+   * Generate increment by: current += by.
+   * Wraps all temps in SCOPE_ENTER/EXIT for proper memory management.
+   */
+  private List<IRInstr> generateIncrementBy(
+      final String currentTemp,
+      final String byTemp,
+      final ISymbol rangeType,
+      final ISymbol byType,
+      final DebugInfo debugInfo) {
+
+    final var instructions = new ArrayList<IRInstr>();
+    final var newValueTemp = stackContext.generateTempName();
+
+    // Create scope for increment temps and push onto stack
+    final var scopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(scopeId, debugInfo, IRFrameType.BLOCK);
+    instructions.add(ScopeInstr.enter(scopeId, debugInfo));
+
+    // Call current += by (returns rangeType object) with memory management (using helper)
+    final var addCallContext = CallContext.forBinaryOperation(
+        rangeType,
+        byType,
+        rangeType,
+        operatorMap.getForward("+="),
+        currentTemp,
+        byTemp,
+        stackContext.currentScopeId()
+    );
+    final var addCallResult = generators.callDetailsBuilder.apply(addCallContext);
+    final var addCallInstructions = new ArrayList<IRInstr>();
+    addCallInstructions.addAll(addCallResult.allInstructions());
+    addCallInstructions.add(CallInstr.operator(newValueTemp, debugInfo, addCallResult.callDetails()));
+    instructions.addAll(generators.variableMemoryManagement.apply(
+        () -> addCallInstructions,
+        new VariableDetails(newValueTemp, debugInfo)
+    ));
+
+    // Update current variable (STORE only, current is already owned by loop_scope)
+    instructions.add(MemoryInstr.store(currentTemp, newValueTemp, debugInfo));
+
+    // Exit scope and pop from stack
+    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
+    stackContext.exitScope();
+
+    return instructions;
+  }
+
+  /**
+   * Extract the primitive variable name from an IR sequence.
+   * After adding SCOPE_ENTER/EXIT, the sequence is:
+   * SCOPE_ENTER, ..., CALL (_true() returning primitive boolean), SCOPE_EXIT
+   * We need to find the CallInstr before the SCOPE_EXIT.
+   */
+  private String extractPrimitiveVariable(final List<IRInstr> instructions) {
+    if (instructions.size() < 2) {
+      throw new CompilerException("Cannot extract primitive variable from instruction list with < 2 instructions");
+    }
+
+    // Find the CallInstr before the SCOPE_EXIT (should be second-to-last)
+    final var secondToLastInstr = instructions.get(instructions.size() - 2);
+    if (secondToLastInstr instanceof CallInstr callInstr) {
+      return callInstr.getResult();
+    }
+
+    throw new CompilerException("Expected CallInstr as second-to-last instruction for primitive extraction");
+  }
+
+  /**
+   * Generate loop metadata containing variable names and types.
+   */
+  private ForRangePolymorphicInstr.LoopMetadata generateLoopMetadata(
       final InitializationData initData,
       final String loopVariableName) {
 
-    // Determine operators based on BY clause presence
-    final String ascendingIncrement;
-    final String descendingIncrement;
-
-    if (initData.byTemp != null) {
-      // With BY: always use += (sign of BY determines direction)
-      ascendingIncrement = operatorMap.getForward("+=");  // "_addAss"
-      descendingIncrement = operatorMap.getForward("+="); // "_addAss"
-    } else {
-      // Without BY: use ++ for ascending, -- for descending
-      ascendingIncrement = operatorMap.getForward("++");  // "_inc"
-      descendingIncrement = operatorMap.getForward("--"); // "_dec"
-    }
-
-    final var ascending = new ForRangePolymorphicInstr.DispatchCase(
-        operatorMap.getForward("<="),  // "_lteq"
-        ascendingIncrement
-    );
-
-    final var descending = new ForRangePolymorphicInstr.DispatchCase(
-        operatorMap.getForward(">="),  // "_gteq"
-        descendingIncrement
-    );
-
-    return new ForRangePolymorphicInstr.DispatchMetadata(
+    return new ForRangePolymorphicInstr.LoopMetadata(
         initData.directionTemp,
         initData.currentTemp,
         loopVariableName,
         initData.endTemp,
         initData.rangeType.getFullyQualifiedName(),
         initData.byTemp,
-        initData.byType != null ? initData.byType.getFullyQualifiedName() : null,
-        ascending,
-        descending,
-        true  // Equal case does single iteration
+        initData.byType != null ? initData.byType.getFullyQualifiedName() : null
     );
   }
 
