@@ -30,7 +30,7 @@ class ForRangeUnsetByTest extends AbstractBytecodeGenerationTest {
   public ForRangeUnsetByTest() {
     super("/examples/bytecodeGeneration/forRangeAssertions/forRangeUnsetBy",
         List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, true);
+        false, false, false);
   }
 
 }
