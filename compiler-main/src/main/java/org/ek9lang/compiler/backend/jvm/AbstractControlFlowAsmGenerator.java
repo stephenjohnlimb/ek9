@@ -24,6 +24,40 @@ import org.objectweb.asm.Opcodes;
  * stored in local variables, never left on the stack. This ensures correct
  * stack frame balancing at control flow merge points.
  * </p>
+ * <h2>Label Naming Convention (MANDATORY)</h2>
+ * <p>
+ * ALL control flow generators MUST use {@code scopeId} from IR instructions for label uniqueness.
+ * <b>NEVER</b> use result variables, loop variable names, or any other identifiers for labels.
+ * </p>
+ * <pre>
+ * // CORRECT - uses scopeId from IR instruction
+ * final var label = createControlFlowLabel("while_start", instr.getScopeId());
+ * final var label = createControlFlowLabel("for_asc", scopeMetadata.loopScopeId());
+ * final var label = createControlFlowLabel("if_next", conditionCase.caseScopeId());
+ *
+ * // WRONG - uses result variable (fragile, inconsistent)
+ * final var label = createControlFlowLabel("prefix", instr.getResult());
+ *
+ * // WRONG - uses variable name (collides in nested loops)
+ * final var label = createControlFlowLabel("for_asc", loopVariableName);
+ * </pre>
+ * <p><b>Rationale:</b></p>
+ * <ul>
+ *   <li><b>Guaranteed Uniqueness:</b> Scope IDs are globally unique per method by IR generator contract</li>
+ *   <li><b>Semantic Clarity:</b> Scope IDs represent lexical structure, not operational details</li>
+ *   <li><b>Consistency:</b> All loop and conditional generators use this pattern</li>
+ *   <li><b>Robustness:</b> Immune to IR optimizations that might reuse temp variables</li>
+ *   <li><b>Nested Safety:</b> Each nested scope gets unique ID, preventing label collisions</li>
+ * </ul>
+ * <p><b>For Nested Constructs:</b></p>
+ * <ul>
+ *   <li>Nested loops with same variable name (e.g., "for i" inside "for i"): Each has unique loopScopeId</li>
+ *   <li>Nested conditions: Each branch has unique caseScopeId</li>
+ *   <li>No collisions possible, even with identical variable names</li>
+ * </ul>
+ * <p>
+ * See {@code LABEL_NAMING_CONVENTION.md} for complete documentation and examples.
+ * </p>
  */
 abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
 
@@ -35,10 +69,35 @@ abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
 
   /**
    * Generate unique label for control flow construct.
-   * Pattern: prefix_uniqueId
+   * Pattern: prefix_scopeId
+   * <p>
+   * <b>CRITICAL:</b> Always use {@code scopeId} as the uniqueId parameter.
+   * </p>
+   * <pre>
+   * // CORRECT - main control flow structure
+   * createControlFlowLabel("while_start", instr.getScopeId());
+   * createControlFlowLabel("for_asc", scopeMetadata.loopScopeId());
    *
-   * @param prefix Label prefix identifying the construct type (e.g., "qop", "if", "switch")
-   * @param uniqueId Unique identifier from IR (e.g., result variable name, scope ID)
+   * // CORRECT - condition cases
+   * createControlFlowLabel("if_next", conditionCase.caseScopeId());
+   *
+   * // WRONG - uses result variable (fragile)
+   * createControlFlowLabel("prefix", instr.getResult());
+   *
+   * // WRONG - uses variable name (collides in nested loops)
+   * createControlFlowLabel("for_asc", loopVariableName);
+   * </pre>
+   * <p><b>Why scopeId?</b></p>
+   * <ul>
+   *   <li>Globally unique per method (guaranteed by IR generator)</li>
+   *   <li>Semantically appropriate (represents lexical scope)</li>
+   *   <li>Consistent across all control flow generators</li>
+   *   <li>Robust to IR refactoring (e.g., temp variable reuse)</li>
+   *   <li>Safe for nested constructs with same variable names</li>
+   * </ul>
+   *
+   * @param prefix Label prefix identifying the construct type (e.g., "while_start", "if_end", "for_asc")
+   * @param uniqueId MUST be scopeId from IR instruction (never use result variable or variable name)
    * @return JVM Label for bytecode generation
    */
   protected Label createControlFlowLabel(final String prefix, final String uniqueId) {

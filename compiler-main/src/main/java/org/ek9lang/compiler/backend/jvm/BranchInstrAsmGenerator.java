@@ -154,7 +154,7 @@ final class BranchInstrAsmGenerator extends AbstractAsmGenerator
    * Evaluates condition and throws AssertionError if false.
    */
   private void generateAssert(final BranchInstr branchInstr) {
-    final var condition = branchInstr.getCondition();
+    final var condition = branchInstr.getAssertCondition();
     if (condition == null || condition.isEmpty()) {
       throw new CompilerException("ASSERT instruction requires condition variable");
     }

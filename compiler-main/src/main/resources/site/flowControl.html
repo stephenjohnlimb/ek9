@@ -105,6 +105,51 @@
     <p>
       The examples shown below start with simple version of each flow-control syntax and then show the additional features in EK9.
     </p>
+
+    <h4>EK9 Guard System Quick Reference</h4>
+    <p>
+      EK9 provides a revolutionary unified guard system that works identically across <b>all</b> control flow constructs.
+      Understanding the three assignment operators is key to leveraging this system effectively.
+    </p>
+    <table>
+      <tr>
+        <th>Operator</th>
+        <th>Name</th>
+        <th>Semantics</th>
+        <th>Guard Example</th>
+        <th>Result</th>
+      </tr>
+      <tr>
+        <td><b>&lt;-</b></td>
+        <td>Declaration</td>
+        <td>Create NEW variable</td>
+        <td><code>if name &lt;- getName()</code></td>
+        <td>Creates <code>name</code>, checks isSet, executes body if SET</td>
+      </tr>
+      <tr>
+        <td><b>:=</b></td>
+        <td>Assignment</td>
+        <td>Update EXISTING variable</td>
+        <td><code>if existing := fetchData()</code></td>
+        <td>Updates <code>existing</code>, checks isSet, executes body if SET</td>
+      </tr>
+      <tr>
+        <td><b>:=?</b></td>
+        <td>Guarded Assignment</td>
+        <td>Assign only if UNSET</td>
+        <td><code>if cache :=? compute()</code></td>
+        <td>Assigns only if <code>cache</code> unset, executes body if assignment happened</td>
+      </tr>
+    </table>
+    <p>
+      <b>Key Insight:</b> The same guard syntax works in <b>if</b>, <b>switch</b>, <b>for</b>, <b>while</b>, <b>do-while</b>, and <b>try</b> statements.
+      Learn the pattern once, apply it everywhere. This eliminates 90-95% of null pointer exceptions through compile-time enforcement.
+    </p>
+    <p>
+      <b>See also:</b> <code>EK9_GUARDS_AND_TRI_STATE_UNIFIED_SYSTEM.md</code> for complete guide,
+      <code>CLAUDE.md</code> for implementation details, and examples throughout this document.
+    </p>
+
     <p>
       The traditional flow control mechanisms available are broadly categorised as follows:
     </p>

@@ -456,6 +456,97 @@ The `_isSet()` method defines "meaningful, normal, usable value":
 
 This tri-state model enables EK9 to handle optional data, partial initialization, and complex data states while maintaining type safety and avoiding null pointer exceptions.
 
+### EK9 Assignment Operators and Guard System
+
+**CRITICAL**: EK9's three assignment operators enable a revolutionary unified guard system that works identically across ALL control flow constructs.
+
+#### Assignment Operator Semantics
+
+EK9 provides three distinct assignment operators with precise semantics:
+
+| Operator | Name | Syntax | Semantics | Use Case |
+|----------|------|--------|-----------|----------|
+| `<-` | Declaration | `var <- value` | Create NEW variable + first assignment | First-time assignment |
+| `:=` | Assignment | `var := value` | Assign to EXISTING variable | Reassignment |
+| `:=?` | Guarded Assignment | `var :=? value` | Only assign if variable is UNSET | Conditional initialization |
+
+**Declaration (`<-`):**
+```ek9
+name <- "Steve"           // Declare new variable
+count <- 42               // Type inferred as Integer
+items <- List()           // Type inferred as List
+```
+
+**Assignment (`:=`):**
+```ek9
+name <- "Steve"           // Declaration
+name := "John"            // Assignment - updates existing
+count := count + 1        // Increment
+```
+
+**Guarded Assignment (`:=?`):**
+```ek9
+result <- String()        // Create unset variable
+result :=? "First"        // Assigns "First" (was unset)
+result :=? "Second"       // Does NOT assign (already set)
+assert result == "First"  // Still has first value
+```
+
+#### Guard Variables in Control Flow
+
+Guards combine assignment with null/isSet checking, eliminating boilerplate across ALL control flow constructs. The same syntax works identically in IF, SWITCH, FOR, WHILE, DO-WHILE, and TRY statements.
+
+**IF with declaration guard** - only execute body if value is SET:
+```ek9
+if name <- getName()
+  stdout.println(name)  // name guaranteed SET here
+```
+
+**SWITCH with guard** - eliminate null checks entirely:
+```ek9
+switch record <- database.getRecord(id)
+  case .type == "USER"
+    processUser(record)  // record guaranteed safe
+  case .type == "ORDER"
+    processOrder(record)
+  default
+    logUnknown(record)
+```
+
+**FOR with guard** - loop only over SET values:
+```ek9
+for item <- iterator.next()
+  process(item)  // item guaranteed SET each iteration
+```
+
+**WHILE with guard** - continue while getting values:
+```ek9
+while conn <- getActiveConnection()
+  transferData(conn)  // conn guaranteed active
+```
+
+**TRY with guard** - resource management with safety:
+```ek9
+try resource <- acquireResource()
+  processResource(resource)  // resource guaranteed valid
+catch
+  -> ex as Exception
+  handleError(ex)
+```
+
+**The Power:** Same syntax, same safety guarantees, across ALL control flow. Learn once, apply everywhere.
+
+**Revolutionary Impact:**
+- **90-95% elimination** of null pointer exceptions through compile-time enforcement
+- **Universal pattern** - one syntax works across if/switch/for/while/try constructs
+- **Perfect AI collaboration** - systematic patterns vs framework chaos
+- **Cannot bypass** - compiler enforces safety, no escape hatches
+
+**See also:**
+- **`EK9_GUARDS_AND_TRI_STATE_UNIFIED_SYSTEM.md`** - Complete authoritative guide
+- **`flowControl.html`** - Comprehensive guard examples with all constructs
+- **`EK9_ACADEMIC_LANGUAGE_INNOVATIONS.md`** - Revolutionary competitive positioning
+
 ### Code Style
 - Java 25 with virtual threads support
 - Follow existing naming conventions (CamelCase for classes, camelCase for methods)

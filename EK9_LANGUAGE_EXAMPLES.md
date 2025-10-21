@@ -9,11 +9,175 @@ This document contains idiomatic EK9 source code examples, language feature demo
 
 ## Basic Language Features
 
+### Assignment Operators
+
+EK9 provides three distinct assignment operators, each with precise semantics:
+
+#### Declaration (`<-`)
+
+Creates a new variable with initial value:
+
+```ek9
+// Basic declarations
+name <- "Steve"                    // String type inferred
+age <- 42                          // Integer type inferred
+isActive <- true                   // Boolean type inferred
+
+// Collection declarations
+items <- List()                    // Empty list
+scores <- Dict()                   // Empty dictionary
+uniqueIds <- Set()                 // Empty set
+
+// Type explicitly specified (optional)
+count as Integer <- 0
+message as String <- "Hello"
+```
+
+#### Assignment (`:=`)
+
+Updates an existing variable:
+
+```ek9
+// Simple reassignment
+counter <- 0
+counter := counter + 1             // Increment
+counter := counter * 2             // Multiply
+
+// String reassignment
+greeting <- "Hello"
+greeting := greeting + " World"    // Concatenation
+
+// Collection updates
+names <- List()
+names := names + "Alice"           // Add element
+```
+
+#### Guarded Assignment (`:=?`)
+
+Only assigns if variable is currently UNSET:
+
+```ek9
+// Default value pattern
+config <- String()                 // Create unset
+config :=? "default.cfg"           // Sets to "default.cfg"
+config :=? "other.cfg"             // No-op (already set)
+
+// Lazy initialization
+cache <- String()
+getValue()
+  cache :=? computeExpensive()     // Only compute first time
+  <- cache
+
+// Multiple defaults (first-wins)
+setting <- String()
+setting :=? getFromEnv()           // Try environment first
+setting :=? getFromConfig()        // Then config file
+setting :=? "hardcoded-default"    // Finally fallback
+```
+
+**When to use each:**
+- `<-` for first declaration
+- `:=` for updates
+- `:=?` for conditional initialization
+
+### Guard Patterns in Control Flow
+
+EK9's revolutionary guard system works identically across ALL control flow constructs.
+
+#### IF Statement Guards
+
+```ek9
+// Declaration guard - only execute if value is SET
+if name <- getName()
+  stdout.println(name)             // name guaranteed SET
+
+// Assignment guard - update existing variable
+result <- String()
+if result := fetchData()
+  process(result)                  // result guaranteed SET
+
+// Conditional guard - additional check after guard
+if value <- getValue() then value > 100
+  processHighValue(value)          // value is SET AND > 100
+
+// Guarded assignment guard
+cache <- String()
+if cache :=? loadFromDisk()
+  useCache(cache)                  // Executed only if assignment happened
+```
+
+#### SWITCH Statement Guards
+
+```ek9
+// Guard on switch expression
+switch record <- database.getRecord(id)
+  case .type == "USER"
+    processUser(record)            // record guaranteed safe
+  case .type == "ORDER"
+    processOrder(record)
+  default
+    logUnknown(record)
+
+// Chain of responsibility pattern
+switch
+  case result := tryMethod1() -> handleResult(result)
+  case result := tryMethod2() -> handleResult(result)
+  case result := tryMethod3() -> handleResult(result)
+  default -> handleError()
+```
+
+#### FOR Loop Guards
+
+```ek9
+// Loop with declaration guard
+for item <- iterator.next()
+  process(item)                    // item guaranteed SET each iteration
+
+// Traditional range with guard in body
+for i in 1 ... 10
+  if value <- lookup(i)
+    process(value)
+```
+
+#### WHILE Loop Guards
+
+```ek9
+// While with declaration guard
+while conn <- getActiveConnection()
+  transferData(conn)               // conn guaranteed active
+
+// Continue while values available
+while item <- fetchNext()
+  processItem(item)
+  saveResult(item)
+```
+
+#### TRY-CATCH Guards
+
+```ek9
+// Try with resource guard
+try resource <- acquireResource()
+  processResource(resource)        // resource guaranteed valid
+catch
+  -> ex as Exception
+  handleError(ex)
+finally
+  // resource automatically cleaned up
+```
+
+**The Power:** Same syntax across IF/SWITCH/FOR/WHILE/TRY - learn once, apply everywhere.
+
+**See also:**
+- **`EK9_GUARDS_AND_TRI_STATE_UNIFIED_SYSTEM.md`** - Complete guide to guard system
+- **`CLAUDE.md`** - Tri-state semantics and operator reference
+- **`flowControl.html`** - Comprehensive examples
+
+### Hello World and Program Structure
+
 *This section will contain:*
-- Hello World and basic program structure
-- Variable declarations and type inference
-- Basic operators and expressions
-- Control flow examples (if, while, for, switch)
+- Basic program structure
+- Module definitions
+- Entry points
 
 ## EK9 Type System Examples
 

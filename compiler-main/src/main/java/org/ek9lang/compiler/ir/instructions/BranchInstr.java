@@ -91,4 +91,15 @@ public final class BranchInstr extends IRInstr {
     }
     return null;
   }
+
+  /**
+   * Get condition for ASSERT instructions.
+   */
+  public java.lang.String getAssertCondition() {
+    List<java.lang.String> operands = getOperands();
+    if (getOpcode() == IROpcode.ASSERT) {
+      return operands.isEmpty() ? null : operands.getFirst();
+    }
+    return null;
+  }
 }

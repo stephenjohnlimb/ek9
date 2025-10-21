@@ -7,6 +7,7 @@ import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.compiler.ir.instructions.BranchInstr;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.ControlFlowChainInstr;
+import org.ek9lang.compiler.ir.instructions.ForRangePolymorphicInstr;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.LabelInstr;
@@ -37,6 +38,7 @@ public final class OutputVisitor implements INodeVisitor {
   private final ScopeInstrAsmGenerator scopeInstrGenerator;
   private final ControlFlowChainAsmGenerator controlFlowChainGenerator;
   private final LogicalOperationAsmGenerator logicalOperationGenerator;
+  private final ForRangePolymorphicAsmGenerator forRangePolymorphicGenerator;
 
   public OutputVisitor(final ConstructTargetTuple constructTargetTuple) {
     AssertValue.checkNotNull("File cannot be null", constructTargetTuple.targetFile());
@@ -53,6 +55,7 @@ public final class OutputVisitor implements INodeVisitor {
     this.scopeInstrGenerator = new ScopeInstrAsmGenerator(constructTargetTuple, this, classWriter);
     this.controlFlowChainGenerator = new ControlFlowChainAsmGenerator(constructTargetTuple, this, classWriter);
     this.logicalOperationGenerator = new LogicalOperationAsmGenerator(constructTargetTuple, this, classWriter);
+    this.forRangePolymorphicGenerator = new ForRangePolymorphicAsmGenerator(constructTargetTuple, this, classWriter);
   }
 
   /**
@@ -75,6 +78,7 @@ public final class OutputVisitor implements INodeVisitor {
     scopeInstrGenerator.setSharedMethodContext(methodContext);
     controlFlowChainGenerator.setSharedMethodContext(methodContext);
     logicalOperationGenerator.setSharedMethodContext(methodContext);
+    forRangePolymorphicGenerator.setSharedMethodContext(methodContext);
 
     // Set method visitor for all generators
     callInstrGenerator.setCurrentMethodVisitor(mv);
@@ -85,6 +89,7 @@ public final class OutputVisitor implements INodeVisitor {
     scopeInstrGenerator.setCurrentMethodVisitor(mv);
     controlFlowChainGenerator.setCurrentMethodVisitor(mv);
     logicalOperationGenerator.setCurrentMethodVisitor(mv);
+    forRangePolymorphicGenerator.setCurrentMethodVisitor(mv);
 
     // Set constructor mode for branch generator
     branchInstrGenerator.setConstructorMode(isConstructor);
@@ -132,6 +137,7 @@ public final class OutputVisitor implements INodeVisitor {
       case ScopeInstr i -> visit(i);
       case ControlFlowChainInstr i -> visit(i);
       case LogicalOperationInstr i -> visit(i);
+      case ForRangePolymorphicInstr i -> visit(i);
       default -> throw new CompilerException("Operation [" + irInstr + " not implemented yet");
     }
   }
@@ -192,6 +198,14 @@ public final class OutputVisitor implements INodeVisitor {
    */
   public void visit(final LogicalOperationInstr instr) {
     logicalOperationGenerator.generate(instr);
+  }
+
+  /**
+   * Typed visit method for ForRangePolymorphicInstr - delegates to specialized generator.
+   * Handles polymorphic FOR_RANGE loops with runtime direction detection.
+   */
+  public void visit(final ForRangePolymorphicInstr instr) {
+    forRangePolymorphicGenerator.generate(instr);
   }
 
   /**
