@@ -13,6 +13,6 @@ class IsSetOperatorTest extends AbstractBytecodeGenerationTest {
     //Module name: bytecode.test, expected symbol count: 1 (the program)
     super("/examples/bytecodeGeneration/isSetOperator",
         List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, true);
+        false, false, false);
   }
 }

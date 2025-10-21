@@ -1,0 +1,22 @@
+#!ek9
+<?-
+  Runtime assertion test for FOR_RANGE with unset end value.
+  Tests that ASSERT bytecode throws AssertionError when end._isSet() is false.
+  Should fail at runtime with AssertionError before loop body executes.
+-?>
+defines module bytecode.test
+
+  defines program
+
+    ForRangeUnsetEnd()
+      stdout <- Stdout()
+      unsetEnd <- Integer()  // Unset value - will fail end._isSet() assertion
+
+      // Should throw AssertionError at ASSERT instruction for end._isSet()
+      for i in 1 ... unsetEnd
+        stdout.println(i)
+
+      // Should never reach here - AssertionError thrown during initialization
+      stdout.println("ERROR: Should have thrown AssertionError")
+
+//EOF

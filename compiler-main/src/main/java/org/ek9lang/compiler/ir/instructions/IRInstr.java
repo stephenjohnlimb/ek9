@@ -181,8 +181,14 @@ public class IRInstr implements INode {
     sb.append(opcode);
 
     if (!operands.isEmpty()) {
-      sb.append(" ");
-      sb.append(String.join(", ", operands));
+      // Filter out empty operands (e.g., empty message in ASSERT)
+      final var nonEmptyOperands = operands.stream()
+          .filter(op -> !op.isEmpty())
+          .toList();
+      if (!nonEmptyOperands.isEmpty()) {
+        sb.append(" ");
+        sb.append(String.join(", ", nonEmptyOperands));
+      }
     }
 
     // Add escape metadata if available

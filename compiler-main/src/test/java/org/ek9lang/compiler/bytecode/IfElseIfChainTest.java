@@ -10,6 +10,6 @@ class IfElseIfChainTest extends AbstractBytecodeGenerationTest {
   public IfElseIfChainTest() {
     super("/examples/bytecodeGeneration/ifElseIfChain",
         List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, true);
+        false, false, false);
   }
 }

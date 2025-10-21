@@ -65,7 +65,7 @@ defines module bytecode.test
         69: ifne          82
         72: new           #CP                 // class java/lang/AssertionError
         75: dup
-        76: ldc           #CP                 // String Assertion failed
+        76: ldc           #CP                 // String For-range \'start\' value must be set
         78: invokespecial #CP                 // Method java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
         81: athrow
         82: aload         8
@@ -78,7 +78,7 @@ defines module bytecode.test
         98: ifne          111
        101: new           #CP                 // class java/lang/AssertionError
        104: dup
-       105: ldc           #CP                 // String Assertion failed
+       105: ldc           #CP                 // String For-range \'end\' value must be set
        107: invokespecial #CP                 // Method java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
        110: athrow
        111: aload         6

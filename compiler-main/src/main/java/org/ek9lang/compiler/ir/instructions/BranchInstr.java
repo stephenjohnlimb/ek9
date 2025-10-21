@@ -35,10 +35,21 @@ public final class BranchInstr extends IRInstr {
   }
 
   /**
+   * Create assert instruction with message and debug info: ASSERT condition, message.
+   * Message is stored as second operand and available at runtime regardless of debug mode.
+   */
+  public static BranchInstr assertValue(final String condition, final String message, final DebugInfo debugInfo) {
+    return new BranchInstr(IROpcode.ASSERT, null, debugInfo)
+        .addOperand(condition)
+        .addOperand(message != null ? message : "");
+  }
+
+  /**
    * Create assert instruction with debug info: ASSERT condition.
+   * Backward compatible - no message.
    */
   public static BranchInstr assertValue(final String condition, final DebugInfo debugInfo) {
-    return new BranchInstr(IROpcode.ASSERT, null, debugInfo).addOperand(condition);
+    return assertValue(condition, "", debugInfo);
   }
 
   private BranchInstr(final IROpcode opcode, final String result, final DebugInfo debugInfo) {
@@ -99,6 +110,19 @@ public final class BranchInstr extends IRInstr {
     List<java.lang.String> operands = getOperands();
     if (getOpcode() == IROpcode.ASSERT) {
       return operands.isEmpty() ? null : operands.getFirst();
+    }
+    return null;
+  }
+
+  /**
+   * Get assertion message (second operand).
+   * Returns null if no message was provided.
+   */
+  public java.lang.String getAssertMessage() {
+    List<java.lang.String> operands = getOperands();
+    if (getOpcode() == IROpcode.ASSERT && operands.size() > 1) {
+      java.lang.String msg = operands.get(1);
+      return msg.isEmpty() ? null : msg;
     }
     return null;
   }

@@ -58,12 +58,12 @@ defines module loops
     RETAIN _temp7
     SCOPE_REGISTER _temp7, _scope_3
     _temp8 = CALL (org.ek9.lang::Boolean)_temp7._true() [pure=true, complexity=0]
-    ASSERT _temp8
+    ASSERT _temp8, For-range 'start' value must be set
     _temp9 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=1, effects=RETURN_MUTATION]
     RETAIN _temp9
     SCOPE_REGISTER _temp9, _scope_3
     _temp10 = CALL (org.ek9.lang::Boolean)_temp9._true() [pure=true, complexity=0]
-    ASSERT _temp10
+    ASSERT _temp10, For-range 'end' value must be set
     _temp11 = CALL (org.ek9.lang::Integer)_temp3._cmp(_temp5) [pure=true, complexity=1, effects=RETURN_MUTATION]
     RETAIN _temp11
     SCOPE_REGISTER _temp11, _scope_3

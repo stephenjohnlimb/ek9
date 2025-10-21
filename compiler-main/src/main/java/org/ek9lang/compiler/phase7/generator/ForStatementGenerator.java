@@ -187,9 +187,13 @@ public final class ForStatementGenerator extends AbstractGenerator
         () -> new CompilerException("Range expression must have a type")
     );
 
+    // Create expression-specific debug info for accurate source location tracking
+    final var startDebugInfo = stackContext.createDebugInfo(forRangeCtx.range().expression(0));
+    final var endDebugInfo = stackContext.createDebugInfo(forRangeCtx.range().expression(1));
+
     // Evaluate start expression (first expression in range)
     final var startTemp = stackContext.generateTempName();
-    final var startResult = createTempVariable(debugInfo);
+    final var startResult = createTempVariable(startDebugInfo);
     // Add memory management for exprGenerator result (loop scope is on stack)
     final var instructions = new ArrayList<>(generators.variableMemoryManagement.apply(
         () -> generators.exprGenerator.apply(
@@ -198,15 +202,15 @@ public final class ForStatementGenerator extends AbstractGenerator
         startResult
     ));
     final var loadStartInstructions = new ArrayList<IRInstr>();
-    loadStartInstructions.add(MemoryInstr.load(startTemp, startResult.resultVariable(), debugInfo));
+    loadStartInstructions.add(MemoryInstr.load(startTemp, startResult.resultVariable(), startDebugInfo));
     instructions.addAll(generators.variableMemoryManagement.apply(
         () -> loadStartInstructions,
-        new VariableDetails(startTemp, debugInfo)
+        new VariableDetails(startTemp, startDebugInfo)
     ));
 
     // Evaluate end expression (second expression in range)
     final var endTemp = stackContext.generateTempName();
-    final var endResult = createTempVariable(debugInfo);
+    final var endResult = createTempVariable(endDebugInfo);
     // Add memory management for exprGenerator result (loop scope is on stack)
     instructions.addAll(generators.variableMemoryManagement.apply(
         () -> generators.exprGenerator.apply(
@@ -215,15 +219,16 @@ public final class ForStatementGenerator extends AbstractGenerator
         endResult
     ));
     final var loadEndInstructions = new ArrayList<IRInstr>();
-    loadEndInstructions.add(MemoryInstr.load(endTemp, endResult.resultVariable(), debugInfo));
+    loadEndInstructions.add(MemoryInstr.load(endTemp, endResult.resultVariable(), endDebugInfo));
     instructions.addAll(generators.variableMemoryManagement.apply(
         () -> loadEndInstructions,
-        new VariableDetails(endTemp, debugInfo)
+        new VariableDetails(endTemp, endDebugInfo)
     ));
 
     // Evaluate BY expression if present
     String byTemp = null;
     ISymbol byType = null;
+    DebugInfo byDebugInfo = null;
     if (forRangeCtx.BY() != null) {
       byTemp = stackContext.generateTempName();
 
@@ -233,16 +238,17 @@ public final class ForStatementGenerator extends AbstractGenerator
         final var bySymbol = getRecordedSymbolOrException(literalCtx);
         byType = bySymbol.getType().orElseThrow();
 
+        byDebugInfo = stackContext.createDebugInfo(literalCtx);
         final var byLiteralInstructions = new ArrayList<IRInstr>();
         byLiteralInstructions.add(LiteralInstr.literal(
             byTemp,
             literalCtx.getText(),
             byType.getFullyQualifiedName(),
-            debugInfo
+            byDebugInfo
         ));
         instructions.addAll(generators.variableMemoryManagement.apply(
             () -> byLiteralInstructions,
-            new VariableDetails(byTemp, debugInfo)
+            new VariableDetails(byTemp, byDebugInfo)
         ));
       } else {
         // BY with identifier
@@ -250,33 +256,37 @@ public final class ForStatementGenerator extends AbstractGenerator
         final var bySymbol = getRecordedSymbolOrException(identCtx);
         byType = bySymbol.getType().orElseThrow();
 
+        byDebugInfo = stackContext.createDebugInfo(identCtx);
         final var byRefInstructions = new ArrayList<IRInstr>();
-        byRefInstructions.add(MemoryInstr.reference(identCtx.getText(), byType.getFullyQualifiedName(), debugInfo));
+        byRefInstructions.add(MemoryInstr.reference(identCtx.getText(), byType.getFullyQualifiedName(), byDebugInfo));
         final var loadTemp = stackContext.generateTempName();
         // Load from identifier with memory management
         final var loadInstructions = new ArrayList<IRInstr>();
-        loadInstructions.add(MemoryInstr.load(loadTemp, identCtx.getText(), debugInfo));
+        loadInstructions.add(MemoryInstr.load(loadTemp, identCtx.getText(), byDebugInfo));
         byRefInstructions.addAll(generators.variableMemoryManagement.apply(
             () -> loadInstructions,
-            new VariableDetails(loadTemp, debugInfo)
+            new VariableDetails(loadTemp, byDebugInfo)
         ));
-        byRefInstructions.add(MemoryInstr.store(byTemp, loadTemp, debugInfo));
+        byRefInstructions.add(MemoryInstr.store(byTemp, loadTemp, byDebugInfo));
         instructions.addAll(generators.variableMemoryManagement.apply(
             () -> byRefInstructions,
-            new VariableDetails(byTemp, debugInfo)
+            new VariableDetails(byTemp, byDebugInfo)
         ));
       }
     }
 
     // Assert start is set
-    instructions.addAll(generateIsSetAssertion(startTemp, rangeType, debugInfo));
+    instructions.addAll(generateIsSetAssertion(startTemp, rangeType, startDebugInfo,
+        "For-range 'start' value must be set"));
 
     // Assert end is set
-    instructions.addAll(generateIsSetAssertion(endTemp, rangeType, debugInfo));
+    instructions.addAll(generateIsSetAssertion(endTemp, rangeType, endDebugInfo,
+        "For-range 'end' value must be set"));
 
     // Assert by is set (if present)
     if (byTemp != null) {
-      instructions.addAll(generateIsSetAssertion(byTemp, byType, debugInfo));
+      instructions.addAll(generateIsSetAssertion(byTemp, byType, byDebugInfo,
+          "For-range 'by' value must be set"));
     }
 
     // Calculate direction: direction = start <=> end
@@ -328,7 +338,8 @@ public final class ForStatementGenerator extends AbstractGenerator
   private List<IRInstr> generateIsSetAssertion(
       final String valueTemp,
       final ISymbol valueType,
-      final DebugInfo debugInfo) {
+      final DebugInfo debugInfo,
+      final String assertMessage) {
 
     final var isSetTemp = stackContext.generateTempName();
 
@@ -357,6 +368,7 @@ public final class ForStatementGenerator extends AbstractGenerator
     instructions.addAll(generators.primitiveBooleanExtractor.apply(extractionParams));
     instructions.add(org.ek9lang.compiler.ir.instructions.BranchInstr.assertValue(
         primitiveCondition,
+        assertMessage,
         debugInfo
     ));
 

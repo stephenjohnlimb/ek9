@@ -189,18 +189,35 @@ final class BranchInstrAsmGenerator extends AbstractAsmGenerator
   }
 
   /**
-   * Generate assertion message with source location from debug info.
+   * Generate assertion message combining explicit message with source location.
+   * Message parameter is independent of debug info and works in both debug modes.
    */
   private String generateAssertMessage(final BranchInstr branchInstr) {
+    final var assertMessage = branchInstr.getAssertMessage();
+
+    // Combine message with location if debug info available
     if (branchInstr.getDebugInfo().isPresent()) {
       final var debugInfo = branchInstr.getDebugInfo().get();
       if (debugInfo.isValidLocation()) {
+        // Both message and location available
+        if (assertMessage != null && !assertMessage.isEmpty()) {
+          return String.format("%s at %s:%d:%d",
+              assertMessage,
+              debugInfo.sourceFile(),
+              debugInfo.lineNumber(),
+              debugInfo.columnNumber());
+        }
+        // Location only (backward compatibility)
         return String.format("Assertion failed at %s:%d:%d",
             debugInfo.sourceFile(),
             debugInfo.lineNumber(),
             debugInfo.columnNumber());
       }
     }
-    return "Assertion failed";
+
+    // No debug info - use message alone (or generic fallback)
+    return assertMessage != null && !assertMessage.isEmpty()
+        ? assertMessage
+        : "Assertion failed";
   }
 }
