@@ -3,6 +3,7 @@ package org.ek9lang.compiler.phase0;
 import static org.ek9lang.core.AssertValue.fail;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -69,6 +70,7 @@ final class TestAllExamples {
     //noinspection unused
     final var duration = (after - before);
 
+    assertTrue(duration > 0, "Expect time to process to be positive");
     //Uncomment if you need to see how long it takes to process all the examples.
     //System.out.println("Time taken for testValidEK9ExampleSource " + duration + " ms");
   }

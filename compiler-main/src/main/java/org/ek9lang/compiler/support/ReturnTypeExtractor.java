@@ -26,21 +26,23 @@ public class ReturnTypeExtractor implements Function<ISymbol, Optional<ISymbol>>
       return Optional.empty();
     }
 
-    if (symbol instanceof MethodSymbol method) {
-      if (method.isReturningSymbolPresent()) {
+    switch (symbol) {
+      case MethodSymbol method when method.isReturningSymbolPresent() -> {
         return method.getReturningSymbol().getType();
       }
-    } else if (symbol instanceof FunctionSymbol function) {
-      if (formOfDeclaration) {
-        return function.getType();
-      } else if (function.isReturningSymbolPresent()) {
-        return function.getReturningSymbol().getType();
+      case FunctionSymbol function -> {
+        if (formOfDeclaration) {
+          return function.getType();
+        } else if (function.isReturningSymbolPresent()) {
+          return function.getReturningSymbol().getType();
+        }
       }
-    } else {
-      if (symbol.getType().isPresent()
-          && symbol.getType().get() instanceof FunctionSymbol delegateFunction
-          && delegateFunction.isReturningSymbolPresent()) {
-        return delegateFunction.getReturningSymbol().getType();
+      default -> {
+        if (symbol.getType().isPresent()
+            && symbol.getType().get() instanceof FunctionSymbol delegateFunction
+            && delegateFunction.isReturningSymbolPresent()) {
+          return delegateFunction.getReturningSymbol().getType();
+        }
       }
     }
 

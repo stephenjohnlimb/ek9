@@ -373,11 +373,9 @@ class UDPPacketTest extends Common {
     final var cmpBC = packetB._cmp(packetC);
     final var cmpAC = packetA._cmp(packetC);
 
-    if (cmpAB._isSet().state && cmpBC._isSet().state && cmpAC._isSet().state) {
-      // If A < B and B < C, then A < C (transitivity)
-      if (cmpAB.state < 0 && cmpBC.state < 0) {
-        assertTrue(cmpAC.state < 0);
-      }
+    if (cmpAB._isSet().state && cmpBC._isSet().state && cmpAC._isSet().state && cmpAB.state < 0 && cmpBC.state < 0) {
+      assertTrue(cmpAC.state < 0);
     }
+
   }
 }

@@ -10,6 +10,7 @@ import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.BooleanExtractionParams;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.core.AssertValue;
@@ -108,9 +109,10 @@ public final class WhileStatementGenerator extends AbstractGenerator
     ));
 
     // Add primitive boolean conversion for backend branching
-    final var conversion = convertToPrimitiveBoolean(
-        conditionResult.resultVariable(), debugInfo);
-    final var primitiveCondition = conversion.addToInstructions(conditionEvaluation);
+    final var primitiveCondition = stackContext.generateTempName();
+    final var extractionParams = new BooleanExtractionParams(
+        conditionResult.resultVariable(), primitiveCondition, debugInfo);
+    conditionEvaluation.addAll(generators.primitiveBooleanExtractor.apply(extractionParams));
 
     // Exit condition iteration scope
     conditionEvaluation.add(ScopeInstr.exit(conditionIterationScopeId, debugInfo));
@@ -220,9 +222,10 @@ public final class WhileStatementGenerator extends AbstractGenerator
     ));
 
     // Convert to primitive boolean for backend branching
-    final var conversion = convertToPrimitiveBoolean(
-        conditionResult.resultVariable(), debugInfo);
-    final var primitiveCondition = conversion.addToInstructions(conditionEvaluation);
+    final var primitiveCondition = stackContext.generateTempName();
+    final var extractionParams = new BooleanExtractionParams(
+        conditionResult.resultVariable(), primitiveCondition, debugInfo);
+    conditionEvaluation.addAll(generators.primitiveBooleanExtractor.apply(extractionParams));
 
     // Exit condition iteration scope
     conditionEvaluation.add(ScopeInstr.exit(conditionIterationScopeId, debugInfo));

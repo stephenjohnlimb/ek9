@@ -10,6 +10,7 @@ import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.BooleanExtractionParams;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.core.AssertValue;
@@ -107,8 +108,10 @@ public final class IfStatementGenerator extends AbstractGenerator
     );
 
     // Add primitive boolean conversion for backend optimization
-    final var conversion = convertToPrimitiveBoolean(conditionDetails.resultVariable(), debugInfo);
-    final var primitiveCondition = conversion.addToInstructions(conditionEvaluation);
+    final var primitiveCondition = stackContext.generateTempName();
+    final var extractionParams = new BooleanExtractionParams(
+        conditionDetails.resultVariable(), primitiveCondition, debugInfo);
+    conditionEvaluation.addAll(generators.primitiveBooleanExtractor.apply(extractionParams));
 
     // Enter NEW scope for this branch body
     final var branchScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);

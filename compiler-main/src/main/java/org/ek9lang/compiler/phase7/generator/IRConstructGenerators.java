@@ -4,7 +4,16 @@ import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.calls.ParameterPromotionProcessor;
 import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.BinaryOperatorInvoker;
+import org.ek9lang.compiler.phase7.support.ChainedComparisonEvaluator;
+import org.ek9lang.compiler.phase7.support.ComparisonEvaluator;
+import org.ek9lang.compiler.phase7.support.DirectionCheckBuilder;
+import org.ek9lang.compiler.phase7.support.IncrementEvaluator;
+import org.ek9lang.compiler.phase7.support.ManagedLiteralLoader;
+import org.ek9lang.compiler.phase7.support.PrimitiveBooleanExtractor;
 import org.ek9lang.compiler.phase7.support.RecordExprProcessing;
+import org.ek9lang.compiler.phase7.support.ScopedInstructionExecutor;
+import org.ek9lang.compiler.phase7.support.UnaryOperatorInvoker;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
 
 /**
@@ -45,9 +54,15 @@ public final class IRConstructGenerators {
    * and resolves circular dependencies naturally. All generators now use uniform 2-parameter
    * constructors: (IRGenerationContext, GeneratorSet).
    * </p>
+   * <p>
+   * <b>IR REFACTORING COMPLETE:</b> Added 10 new IR generation helpers (Phase 1-3):
+   * - 5 universal helpers (scoped execution, operator invocation, literal loading, boolean extraction)
+   * - 3 composite helpers (comparison evaluation, chained comparison, increment)
+   * - 1 domain-specific helper (direction check for polymorphic for-range)
+   * </p>
    *
    * @param stackContext The IR generation context for this construct (thread-isolated)
-   * @return Populated GeneratorSet with 24 fields (5 helpers + 19 generators) ready to use
+   * @return Populated GeneratorSet with 34 fields (15 helpers + 19 generators) ready to use
    */
   public static GeneratorSet create(final IRGenerationContext stackContext) {
     final var generators = new GeneratorSet();
@@ -60,6 +75,29 @@ public final class IRConstructGenerators {
         new ParameterPromotionProcessor(stackContext, generators.variableMemoryManagement);
     generators.callDetailsBuilder =
         new CallDetailsBuilder(stackContext, generators.parameterPromotionProcessor);
+
+    // Step 1a: Create universal IR generation helpers (Phase 1 refactoring)
+    generators.scopedInstructionExecutor = new ScopedInstructionExecutor(stackContext);
+    generators.unaryOperatorInvoker =
+        new UnaryOperatorInvoker(generators.callDetailsBuilder, generators.variableMemoryManagement);
+    generators.binaryOperatorInvoker =
+        new BinaryOperatorInvoker(generators.callDetailsBuilder, generators.variableMemoryManagement);
+    generators.managedLiteralLoader =
+        new ManagedLiteralLoader(generators.variableMemoryManagement);
+    generators.primitiveBooleanExtractor = new PrimitiveBooleanExtractor();
+
+    // Step 1b: Create composite IR generation helpers (Phase 2 refactoring)
+    generators.comparisonEvaluator =
+        new ComparisonEvaluator(generators.binaryOperatorInvoker, generators.primitiveBooleanExtractor);
+    generators.chainedComparisonEvaluator =
+        new ChainedComparisonEvaluator(generators.comparisonEvaluator);
+    generators.incrementEvaluator =
+        new IncrementEvaluator(generators.unaryOperatorInvoker);
+
+    // Step 1c: Create domain-specific IR generation helpers (Phase 3 refactoring)
+    generators.directionCheckBuilder =
+        new DirectionCheckBuilder(generators.scopedInstructionExecutor,
+            generators.managedLiteralLoader, generators.comparisonEvaluator);
 
     // Step 2: Create RecordExprProcessing helper (depends on exprGenerator via forward reference)
     // NOTE: exprGenerator isn't created yet, but struct pattern allows forward reference
@@ -101,7 +139,7 @@ public final class IRConstructGenerators {
     // Step 8: Create statement generators
     generators.assignmentStmtGenerator = new AssignmentStmtGenerator(stackContext, generators);
     generators.assertStmtGenerator =
-        new AssertStmtGenerator(stackContext, generators.recordExprProcessing);
+        new AssertStmtGenerator(stackContext, generators, generators.recordExprProcessing);
     generators.callGenerator = new CallInstrGenerator(stackContext, generators);
 
     // Step 9: Create control flow generators

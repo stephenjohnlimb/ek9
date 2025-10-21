@@ -32,7 +32,7 @@ import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
  */
 public final class GeneratorSet {
 
-  // ========== Shared Lightweight Helpers (5 fields) ==========
+  // ========== Shared Lightweight Helpers (15 fields) ==========
   // Created ONCE per construct, reused by all generators
 
   /**
@@ -59,6 +59,57 @@ public final class GeneratorSet {
    * Processes record expression construction (field extraction for short-circuit operators).
    */
   public RecordExprProcessing recordExprProcessing;
+
+  // ========== Universal IR Generation Helpers (Phase 1) ==========
+
+  /**
+   * Executes instructions within a scoped block (SCOPE_ENTER/EXIT).
+   */
+  public org.ek9lang.compiler.phase7.support.ScopedInstructionExecutor scopedInstructionExecutor;
+
+  /**
+   * Invokes unary operators with memory management.
+   */
+  public org.ek9lang.compiler.phase7.support.UnaryOperatorInvoker unaryOperatorInvoker;
+
+  /**
+   * Invokes binary operators with memory management.
+   */
+  public org.ek9lang.compiler.phase7.support.BinaryOperatorInvoker binaryOperatorInvoker;
+
+  /**
+   * Loads literal values with memory management.
+   */
+  public org.ek9lang.compiler.phase7.support.ManagedLiteralLoader managedLiteralLoader;
+
+  /**
+   * Extracts primitive boolean from EK9 Boolean objects.
+   */
+  public org.ek9lang.compiler.phase7.support.PrimitiveBooleanExtractor primitiveBooleanExtractor;
+
+  // ========== Composite IR Generation Helpers (Phase 2) ==========
+
+  /**
+   * Evaluates comparison operations and extracts primitive boolean.
+   */
+  public org.ek9lang.compiler.phase7.support.ComparisonEvaluator comparisonEvaluator;
+
+  /**
+   * Evaluates chained comparisons for polymorphic for-range loops.
+   */
+  public org.ek9lang.compiler.phase7.support.ChainedComparisonEvaluator chainedComparisonEvaluator;
+
+  /**
+   * Evaluates increment/decrement operations and updates loop counter.
+   */
+  public org.ek9lang.compiler.phase7.support.IncrementEvaluator incrementEvaluator;
+
+  // ========== Domain-Specific IR Generation Helpers (Phase 3) ==========
+
+  /**
+   * Builds direction check IR for polymorphic for-range loops.
+   */
+  public org.ek9lang.compiler.phase7.support.DirectionCheckBuilder directionCheckBuilder;
 
   // ========== Expression Generators (9 fields) ==========
   // Created ONCE, reused for all expressions in construct

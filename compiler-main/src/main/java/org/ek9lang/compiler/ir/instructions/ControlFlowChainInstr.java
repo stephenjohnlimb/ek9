@@ -85,91 +85,11 @@ public final class ControlFlowChainInstr extends IRInstr {
     }
   }
 
-  private ControlFlowChainInstr(final ControlFlowChainDetails details, final String scopeId) {
-    super(IROpcode.CONTROL_FLOW_CHAIN, details.result(), details.debugInfo());
-
-    AssertValue.checkNotNull("ControlFlowChain details cannot be null", details);
-    AssertValue.checkNotNull("Chain type cannot be null", details.chainType());
-    AssertValue.checkNotNull("Condition chain cannot be null", details.conditionChain());
-    AssertValue.checkNotNull("Scope ID cannot be null", scopeId);
-
-    this.chainType = details.chainType();
-    this.evaluationVariable = details.evaluationVariable();
-    this.evaluationVariableType = details.evaluationVariableType();
-    this.evaluationVariableSetup = details.evaluationVariableSetup() != null
-        ? details.evaluationVariableSetup() : List.of();
-    this.returnVariable = details.returnVariable();
-    this.returnVariableType = details.returnVariableType();
-    this.returnVariableSetup = details.returnVariableSetup() != null
-        ? details.returnVariableSetup() : List.of();
-    this.conditionChain = details.conditionChain();
-    this.defaultBodyEvaluation = details.defaultBodyEvaluation() != null
-        ? details.defaultBodyEvaluation() : List.of();
-    this.defaultResult = details.defaultResult();
-    this.enumOptimizationInfo = details.enumOptimizationInfo();
-    this.scopeId = scopeId;
-
-    // Add operands for base class functionality
-    addOperand(chainType);
-    addOperand(scopeId);
-    if (evaluationVariable != null) {
-      addOperand(evaluationVariable);
-    }
-    if (returnVariable != null) {
-      addOperand(returnVariable);
-    }
-    if (defaultResult != null) {
-      addOperand(defaultResult);
-    }
-  }
-
   /**
    * Get the type of control flow construct.
    */
   public String getChainType() {
     return chainType;
-  }
-
-  /**
-   * Get the variable being evaluated (for switch statements).
-   */
-  public String getEvaluationVariable() {
-    return evaluationVariable;
-  }
-
-  /**
-   * Get the type of the evaluation variable.
-   */
-  public String getEvaluationVariableType() {
-    return evaluationVariableType;
-  }
-
-  /**
-   * Get instructions to setup the evaluation variable.
-   */
-  public List<IRInstr> getEvaluationVariableSetup() {
-    return evaluationVariableSetup;
-  }
-
-  /**
-   * Get the explicit return variable.
-   */
-  public String getReturnVariable() {
-    return returnVariable;
-  }
-
-  /**
-   * Get the type of the return variable.
-   */
-  public String getReturnVariableType() {
-    return returnVariableType;
-  }
-
-  /**
-   * Get instructions to setup the return variable.
-   */
-  public List<IRInstr> getReturnVariableSetup() {
-    return returnVariableSetup;
   }
 
   /**
@@ -191,13 +111,6 @@ public final class ControlFlowChainInstr extends IRInstr {
    */
   public String getDefaultResult() {
     return defaultResult;
-  }
-
-  /**
-   * Get enum optimization information.
-   */
-  public EnumOptimizationDetails getEnumOptimizationInfo() {
-    return enumOptimizationInfo;
   }
 
   /**
@@ -233,20 +146,6 @@ public final class ControlFlowChainInstr extends IRInstr {
    */
   public boolean hasEnumOptimization() {
     return enumOptimizationInfo != null;
-  }
-
-  /**
-   * Check if this is a Question operator.
-   */
-  public boolean isQuestionOperator() {
-    return "QUESTION_OPERATOR".equals(chainType);
-  }
-
-  /**
-   * Check if this is an if/else construct.
-   */
-  public boolean isIfElse() {
-    return "IF_ELSE_IF".equals(chainType);
   }
 
   /**

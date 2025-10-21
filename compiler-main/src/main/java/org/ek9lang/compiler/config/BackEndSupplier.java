@@ -47,6 +47,6 @@ public class BackEndSupplier extends PhaseSupplier {
         new CodeOptimisation(compilableProgramAccess, fileHandling, listener, reporter),
         new PluginLinkage(compilableProgramAccess, fileHandling, listener, reporter),
         new Packaging(compilableProgramAccess, fileHandling, listener, reporter),
-        new PackagingPostProcessing(compilableProgramAccess, fileHandling, listener, reporter));
+        new PackagingPostProcessing(compilableProgramAccess, listener, reporter));
   }
 }

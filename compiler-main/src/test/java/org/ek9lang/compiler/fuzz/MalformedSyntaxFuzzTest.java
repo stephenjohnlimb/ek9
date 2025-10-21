@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.fuzz;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.ek9lang.compiler.CompilationPhase;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +22,7 @@ class MalformedSyntaxFuzzTest extends FuzzTestBase {
   void testMalformedSyntaxRobustness() {
     // Verify we actually have test files loaded
     final int fileCount = ek9Workspace.getSources().size();
+    assertTrue(fileCount > 0, "Expecting at least one file to test");
     System.out.println("MalformedSyntaxFuzzTest: Found " + fileCount + " .ek9 files to test");
     runTests();
   }
