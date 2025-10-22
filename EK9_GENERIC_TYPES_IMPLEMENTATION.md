@@ -3,7 +3,8 @@
 This document provides comprehensive guidance for implementing parameterized generic types in the EK9 language system. It covers the complete process from decorated name generation through testing and validation.
 
 **Related Documentation:**
-- **`CLAUDE.md`** - Main project overview and daily development guidelines  
+- **`CLAUDE.md`** - Main project overview and daily development guidelines
+- **`EK9_TYPE_SUBSTITUTION_ARCHITECTURE.md`** - Complete TypeSubstitution architecture and "C header/library" pattern
 - **`EK9_DEVELOPMENT_CONTEXT.md`** - General EK9 built-in type development patterns
 - **`EK9_SESSION_NOTES.md`** - Historical implementation sessions and lessons learned
 

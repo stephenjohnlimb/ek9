@@ -149,6 +149,16 @@ For specific EK9 development tasks, refer to these comprehensive guides:
   - Critical lessons learned from complex implementations
   - **Use this guide when:** Implementing `Iterator<String>`, `Dict<K,V>`, `Optional<T>`, `List<String>`, etc.
 
+- **`EK9_TYPE_SUBSTITUTION_ARCHITECTURE.md`** - TypeSubstitution system architecture and design
+  - Complete explanation of how TypeSubstitution works for ALL parameterized types
+  - "C header/library" pattern: separation of type system from code generation
+  - Why Java-defined (extern) and user-defined types are treated identically during compilation
+  - Phase-by-phase flow showing when TypeSubstitution populates methods
+  - Parse tree traversal order guarantees for constructor resolution
+  - SUBSTITUTED squirrelled data flag purpose and usage
+  - Debugging TypeSubstitution issues and common failure modes
+  - **Use this guide when:** Understanding how parameterized types work internally, debugging type resolution issues, or working on compiler phases 3-14
+
 ### EK9 Built-in Type Development  
 - **`EK9_DEVELOPMENT_CONTEXT.md`** - Built-in type development patterns and conventions
   - EK9 type system architecture and inheritance patterns
