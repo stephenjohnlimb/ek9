@@ -7,6 +7,8 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.support.CommonValues;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.tokenizer.IToken;
@@ -41,6 +43,9 @@ final class ForLoopOrError extends TypedSymbolAccess implements Consumer<EK9Pars
           && expr.getType().isPresent()
           && expr.getType().get() instanceof IAggregateSymbol fromType) {
         updateLoopVariable(loopVar, expr.getSourceToken(), fromType);
+
+        // Squirrel iteration pattern for Phase 10 (IR generation)
+        squirrelIterationPattern(ctx, fromType);
       }
     }
 
@@ -66,6 +71,43 @@ final class ForLoopOrError extends TypedSymbolAccess implements Consumer<EK9Pars
 
     final var msg = "iteration over '" + fromType + "' type is not possible:";
     errorListener.semanticError(errorLocation, msg, MISSING_ITERATE_METHOD);
+
+  }
+
+  /**
+   * Determine which iteration pattern is used and squirrel it on ForSymbol.
+   * This avoids re-doing method resolution work in Phase 10 (IR_GENERATION).
+   * <p>
+   * Pattern A (ITERATOR_METHOD): collection has iterator() method
+   * Pattern B (DIRECT_ITERATION): collection has hasNext()/next() directly
+   * </p>
+   */
+  private void squirrelIterationPattern(final EK9Parser.ForLoopContext ctx,
+                                        final IAggregateSymbol collectionType) {
+
+    // Get the ForSymbol for the entire for-statement
+    final var forStatementCtx = (EK9Parser.ForStatementExpressionContext) ctx.getParent();
+    final var forSymbol = symbolsAndScopes.getRecordedSymbol(forStatementCtx);
+
+    if (forSymbol == null) {
+      return; // Defensive - should not happen
+    }
+
+    // Check Pattern A: iterator() method returning Iterator<T>
+    final var iteratorMethod = collectionType.resolve(new MethodSymbolSearch("iterator"));
+    if (iteratorMethod.isPresent()) {
+      // Pattern A: Need to call iterator() first
+      forSymbol.putSquirrelledData(
+          CommonValues.FOR_ITERATION_PATTERN,
+          CommonValues.ITERATOR_METHOD.toString()
+      );
+    } else {
+      // Pattern B: Collection IS the iterator (has hasNext/next directly)
+      forSymbol.putSquirrelledData(
+          CommonValues.FOR_ITERATION_PATTERN,
+          CommonValues.DIRECT_ITERATION.toString()
+      );
+    }
 
   }
 

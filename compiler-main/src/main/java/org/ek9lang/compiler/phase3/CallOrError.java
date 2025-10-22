@@ -5,10 +5,12 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.support.AccessGenericInGeneric;
 import org.ek9lang.compiler.support.ParameterizationComplete;
 import org.ek9lang.compiler.support.SymbolFactory;
 import org.ek9lang.compiler.symbols.CallSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ScopedSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
@@ -152,7 +154,32 @@ final class CallOrError extends TypedSymbolAccess implements Consumer<EK9Parser.
 
     if (symbol != null) {
       callSymbol.setFormOfDeclarationCall(true);
-      callSymbol.setResolvedSymbolToCall(symbol);
+
+      // Match the pattern from ResolveIdentifierReferenceCallOrError.checkGenericConstructionOrInvocation
+      // (lines 177-182) to resolve the specific constructor MethodSymbol instead of just the aggregate.
+      // Only do this when paramExpression is present (i.e., we have actual constructor call with '()')
+      // Note: paramExpression is nested inside parameterisedType, not directly under call context
+      if (symbol instanceof IAggregateSymbol asParameterisedAggregate
+          && ctx.parameterisedType().paramExpression() != null) {
+        // Extract call parameters (arguments passed to the constructor)
+        final var callParams = symbolsFromParamExpression.apply(ctx.parameterisedType().paramExpression());
+
+        // Resolve the specific constructor matching the call parameters
+        final var resolvedConstructor = asParameterisedAggregate.resolveInThisScopeOnly(
+            new MethodSymbolSearch(asParameterisedAggregate.getName()).setTypeParameters(callParams));
+
+        if (resolvedConstructor.isPresent()) {
+          // Set the specific constructor MethodSymbol (consistent with identifierReference path)
+          callSymbol.setResolvedSymbolToCall((ScopedSymbol) resolvedConstructor.get());
+        } else {
+          // Fallback to aggregate if constructor not found (error will be caught in later phases)
+          callSymbol.setResolvedSymbolToCall(symbol);
+        }
+      } else {
+        // For generic functions (not aggregates), or type references without '()', use the symbol as-is
+        callSymbol.setResolvedSymbolToCall(symbol);
+      }
+
       pureProcessingInPureContextOrError.accept(callSymbol.getSourceToken(), callSymbol);
     }
 

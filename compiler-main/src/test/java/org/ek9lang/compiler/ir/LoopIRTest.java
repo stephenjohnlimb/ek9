@@ -9,8 +9,8 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class LoopIRTest extends AbstractIRGenerationTest {
   public LoopIRTest() {
     super("/examples/irGeneration/loops",
-        List.of(new SymbolCountCheck(5, "loops", 5)),  // 5 modules (files), 5 functions total
-        false, false, false);
+        List.of(new SymbolCountCheck(6, "loops", 6)),  // 6 modules (files), 6 functions total
+        false, false, false);  // verbose=false, muteErrors=false, showIR=false
   }
 
   @Override

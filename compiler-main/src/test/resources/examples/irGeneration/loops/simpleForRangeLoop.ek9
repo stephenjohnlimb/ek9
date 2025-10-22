@@ -38,6 +38,8 @@ defines module loops
     SCOPE_REGISTER sum, _scope_1
     SCOPE_ENTER _scope_2
     SCOPE_ENTER _scope_3
+    REFERENCE i, org.ek9.lang::Integer
+    SCOPE_REGISTER i, _scope_3
     FOR_RANGE_POLYMORPHIC
     [
     initialization:
@@ -106,7 +108,9 @@ defines module loops
     loop_condition_primitive: _temp22
     loop_body_setup:
     [
+    RELEASE i
     STORE i, _temp12
+    RETAIN i
     ]
     loop_increment:
     [
@@ -151,7 +155,9 @@ defines module loops
     loop_condition_primitive: _temp30
     loop_body_setup:
     [
+    RELEASE i
     STORE i, _temp12
+    RETAIN i
     ]
     loop_increment:
     [
@@ -167,7 +173,9 @@ defines module loops
     [
     loop_body_setup:
     [
+    RELEASE i
     STORE i, _temp12
+    RETAIN i
     ]
     single_iteration: true
     ]
