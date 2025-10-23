@@ -86,7 +86,7 @@ public final class IfStatementGenerator extends AbstractGenerator
 
   /**
    * Process an if control block with its own branch scope.
-   * Condition evaluation happens in the current (chain) scope.
+   * Condition evaluation happens in a TIGHT condition scope (freed immediately).
    * Body evaluation happens in a new nested scope.
    */
   private ConditionCaseDetails processIfControlBlockWithBranchScope(final EK9Parser.IfControlBlockContext ctx) {
@@ -98,20 +98,36 @@ public final class IfStatementGenerator extends AbstractGenerator
       throw new CompilerException("Guard variables in if not yet implemented");
     }
 
-    // Process condition expression in CURRENT scope (chain scope)
-    // Condition temporaries live in chain scope, accessible for memory management
+    // Create TIGHT scope just for condition evaluation
+    // This scope exits immediately after producing primitive boolean, freeing temps
+    final var conditionScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(conditionScopeId, debugInfo, IRFrameType.BLOCK);
+
+    final var conditionEvaluation = new ArrayList<IRInstr>();
+
+    // Enter condition scope
+    conditionEvaluation.add(ScopeInstr.enter(conditionScopeId, debugInfo));
+
+    // Process condition expression in TIGHT condition scope with memory management
     final var conditionDetails = createTempVariable(debugInfo);
-    final var conditionEvaluation = new ArrayList<>(
-        generators.exprGenerator.apply(
-            new ExprProcessingDetails(ctx.preFlowAndControl().expression(), conditionDetails)
+    conditionEvaluation.addAll(
+        generators.variableMemoryManagement.apply(
+            () -> generators.exprGenerator.apply(
+                new ExprProcessingDetails(ctx.preFlowAndControl().expression(), conditionDetails)
+            ),
+            conditionDetails
         )
     );
 
-    // Add primitive boolean conversion for backend optimization
+    // Add primitive boolean conversion (still in condition scope)
     final var primitiveCondition = stackContext.generateTempName();
     final var extractionParams = new BooleanExtractionParams(
         conditionDetails.resultVariable(), primitiveCondition, debugInfo);
     conditionEvaluation.addAll(generators.primitiveBooleanExtractor.apply(extractionParams));
+
+    // Exit condition scope immediately - frees all condition temps NOW
+    conditionEvaluation.add(ScopeInstr.exit(conditionScopeId, debugInfo));
+    stackContext.exitScope();
 
     // Enter NEW scope for this branch body
     final var branchScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);

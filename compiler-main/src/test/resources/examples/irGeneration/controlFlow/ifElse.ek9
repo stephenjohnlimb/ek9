@@ -36,44 +36,48 @@ defines module controlFlow
     condition_chain:
     [
     [
-    case_scope_id: _scope_3
+    case_scope_id: _scope_4
     case_type: "EXPRESSION"
     condition_evaluation:
     [
+    SCOPE_ENTER _scope_3
     _temp3 = LOAD value
     RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_2
+    SCOPE_REGISTER _temp3, _scope_3
     _temp4 = LOAD_LITERAL 10, org.ek9.lang::Integer
     RETAIN _temp4
-    SCOPE_REGISTER _temp4, _scope_2
+    SCOPE_REGISTER _temp4, _scope_3
     _temp2 = CALL (org.ek9.lang::Integer)_temp3._gt(_temp4) [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_3
     _temp5 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_3
     ]
     condition_result: _temp2
     primitive_condition: _temp5
     body_evaluation:
     [
-    SCOPE_ENTER _scope_3
+    SCOPE_ENTER _scope_4
     _temp6 = LOAD_LITERAL High, org.ek9.lang::String
     RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_3
+    SCOPE_REGISTER _temp6, _scope_4
     RELEASE result
     STORE result, _temp6
     RETAIN result
-    SCOPE_EXIT _scope_3
+    SCOPE_EXIT _scope_4
     ]
     ]
     ]
     default_body_evaluation:
     [
-    SCOPE_ENTER _scope_4
+    SCOPE_ENTER _scope_5
     _temp7 = LOAD_LITERAL Low, org.ek9.lang::String
     RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_4
+    SCOPE_REGISTER _temp7, _scope_5
     RELEASE result
     STORE result, _temp7
     RETAIN result
-    SCOPE_EXIT _scope_4
+    SCOPE_EXIT _scope_5
     ]
     scope_id: _scope_2
     ]

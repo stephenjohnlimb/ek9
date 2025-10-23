@@ -643,6 +643,201 @@ This separation ensures:
 - Scope context is available where needed via stack-based architecture
 - No memory management instructions are missed or incorrectly sequenced
 
+## Common Bug Patterns and Prevention
+
+### Bug Pattern: Missing Memory Management Wrapper in Expression Evaluation
+
+#### Problem Description
+
+A critical and non-obvious bug pattern occurs when expression generators are called directly without wrapping in `variableMemoryManagement.apply()`. This results in operator call results missing RETAIN and SCOPE_REGISTER instructions.
+
+#### Symptoms
+
+**In generated @IR output**, you'll see operator calls that create temp variables but lack memory management:
+
+```ir
+_temp3 = LOAD value
+_temp4 = LOAD_LITERAL 10
+_temp2 = CALL (org.ek9.lang::Integer)_temp3._gt(_temp4) [...]
+// ❌ MISSING: RETAIN _temp2
+// ❌ MISSING: SCOPE_REGISTER _temp2, _scope_X
+_temp5 = CALL (org.ek9.lang::Boolean)_temp2._true() [...]
+```
+
+This violates the fundamental principle: **every EK9 object temp must have exactly one RETAIN and one SCOPE_REGISTER**.
+
+#### Root Cause
+
+The bug occurs when code that creates a temp variable calls `exprGenerator.apply()` directly instead of wrapping it with memory management:
+
+**INCORRECT Pattern**:
+```java
+// Bug: Direct call without wrapper
+final var conditionDetails = createTempVariable(debugInfo);
+conditionEvaluation.addAll(
+    generators.exprGenerator.apply(
+        new ExprProcessingDetails(ctx.preFlowAndControl().expression(), conditionDetails)
+    )
+);
+// Result: Missing RETAIN/SCOPE_REGISTER for operator call results!
+```
+
+**CORRECT Pattern**:
+```java
+// Fix: Wrap with memory management
+final var conditionDetails = createTempVariable(debugInfo);
+conditionEvaluation.addAll(
+    generators.variableMemoryManagement.apply(
+        () -> generators.exprGenerator.apply(
+            new ExprProcessingDetails(ctx.preFlowAndControl().expression(), conditionDetails)
+        ),
+        conditionDetails
+    )
+);
+// Result: Proper RETAIN/SCOPE_REGISTER added after operator call
+```
+
+#### Where This Bug Occurs
+
+**High-Risk Locations**:
+1. **Control flow condition evaluation** - if/while/switch conditions that evaluate expressions
+2. **Complex expression contexts** - anywhere a temp is created for expression results
+3. **New generator implementations** - easy to forget during initial development
+
+**Why It's Non-Obvious**:
+- Assignment expressions work correctly (AssignExpressionToSymbol wraps properly)
+- Some generators already wrap correctly (WhileStatementGenerator)
+- But others might miss the wrapper (initial IfStatementGenerator implementation)
+- The responsibility pattern is correct, but the wrapping step is forgotten
+
+#### Detection Method
+
+**During Development**:
+1. Run IR generation tests and capture @IR output
+2. Search for operator calls: `CALL.*\._gt\|_lt\|_eq\|_add\|_sub`
+3. Verify each operator call result has RETAIN + SCOPE_REGISTER
+4. Look for pattern: `_tempX = CALL` followed immediately by another instruction (not RETAIN)
+
+**Automated Validation** (recommended):
+```java
+// Add to IR validation tests
+void validateMemoryManagement(List<IRInstr> instructions) {
+    for (int i = 0; i < instructions.size(); i++) {
+        var instr = instructions.get(i);
+        if (instr instanceof CallInstr call && call.getResult().startsWith("_temp")) {
+            // Next two instructions should be RETAIN and SCOPE_REGISTER
+            assertRetainFollows(instructions, i + 1, call.getResult());
+            assertScopeRegisterFollows(instructions, i + 2, call.getResult());
+        }
+    }
+}
+```
+
+#### Fix Pattern
+
+**Step-by-step fix procedure**:
+
+1. **Identify the location** where the temp variable is created
+2. **Find the expression generator call** that produces the result
+3. **Wrap the generator call** with `variableMemoryManagement.apply()`
+4. **Verify the fix** by checking @IR output for RETAIN/SCOPE_REGISTER
+
+**Real-World Example** (IfStatementGenerator fix):
+
+**Before** (lines 111-120, missing wrapper):
+```java
+// Process condition expression
+final var conditionDetails = createTempVariable(debugInfo);
+conditionEvaluation.addAll(
+    generators.exprGenerator.apply(
+        new ExprProcessingDetails(ctx.preFlowAndControl().expression(), conditionDetails)
+    )
+);
+```
+
+**After** (lines 111-120, with wrapper):
+```java
+// Process condition expression in TIGHT condition scope with memory management
+final var conditionDetails = createTempVariable(debugInfo);
+conditionEvaluation.addAll(
+    generators.variableMemoryManagement.apply(
+        () -> generators.exprGenerator.apply(
+            new ExprProcessingDetails(ctx.preFlowAndControl().expression(), conditionDetails)
+        ),
+        conditionDetails
+    )
+);
+```
+
+**Generated IR - Before Fix** (incorrect):
+```ir
+_temp3 = LOAD value
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_3
+_temp4 = LOAD_LITERAL 10
+RETAIN _temp4
+SCOPE_REGISTER _temp4, _scope_3
+_temp2 = CALL (org.ek9.lang::Integer)_temp3._gt(_temp4) [...]
+// ❌ BUG: Missing RETAIN _temp2
+// ❌ BUG: Missing SCOPE_REGISTER _temp2, _scope_3
+_temp5 = CALL (org.ek9.lang::Boolean)_temp2._true() [...]
+```
+
+**Generated IR - After Fix** (correct):
+```ir
+_temp3 = LOAD value
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_3
+_temp4 = LOAD_LITERAL 10
+RETAIN _temp4
+SCOPE_REGISTER _temp4, _scope_3
+_temp2 = CALL (org.ek9.lang::Integer)_temp3._gt(_temp4) [...]
+RETAIN _temp2                    // ✓ Added by wrapper
+SCOPE_REGISTER _temp2, _scope_3  // ✓ Added by wrapper
+_temp5 = CALL (org.ek9.lang::Boolean)_temp2._true() [...]
+```
+
+#### Prevention Guidelines
+
+**Code Review Checklist**:
+- [ ] Every `createTempVariable()` call is followed by `variableMemoryManagement.apply()`
+- [ ] Every expression generator invocation is wrapped when creating a temp
+- [ ] @IR tests verify RETAIN/SCOPE_REGISTER for all operator call results
+- [ ] No direct `exprGenerator.apply()` calls without memory management wrapper
+
+**Development Pattern**:
+```java
+// Standard pattern - follow this consistently
+final var tempDetails = createTempVariable(debugInfo);
+final var instructions = generators.variableMemoryManagement.apply(
+    () -> generators.exprGenerator.apply(
+        new ExprProcessingDetails(expr, tempDetails)
+    ),
+    tempDetails
+);
+```
+
+#### Reference Implementations
+
+**Correct Examples**:
+- `WhileStatementGenerator.java` - Condition evaluation properly wrapped
+- `AssignExpressionToSymbol.java` - RHS expression properly wrapped
+- `IfStatementGenerator.java:111-120` - Fixed to wrap condition evaluation
+
+**Historical Bug Locations**:
+- `IfStatementGenerator.java:111-120` - Initially missing wrapper (fixed 2025-10-23)
+- Lesson: Easy to forget wrapper in control flow condition contexts
+
+#### Key Takeaway
+
+**The responsibility pattern works correctly when applied consistently:**
+- ✅ Whoever creates the temp variable wraps the generation with memory management
+- ✅ Operation generators (BinaryOperationGenerator, UnaryOperationGenerator) do NOT add memory management
+- ✅ Expression orchestrators (IfStatementGenerator, WhileStatementGenerator) DO wrap expression generation
+- ❌ **Bug occurs when the wrapping step is forgotten**, not when the responsibility is misplaced
+
+This pattern ensures clean separation of concerns and prevents duplicate or missing memory management instructions.
+
 ## Conclusion
 
 The EK9 IR memory management system provides a robust foundation for memory-safe code generation with perfect alignment to C++ ARC implementation. The dual-tracking approach (objects + variables), combined with precise reference counting and scope-based cleanup, ensures memory safety across JVM and C++ backends while maintaining semantic consistency and performance.
