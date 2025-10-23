@@ -127,6 +127,7 @@ public final class IRConstructGenerators {
         new ShortCircuitOrGenerator(stackContext, generators.variableMemoryManagement, generators.recordExprProcessing);
     generators.questionBlockGenerator =
         new QuestionBlockGenerator(stackContext, generators.controlFlowChainGenerator);
+    generators.listLiteralGenerator = new ListLiteralGenerator(stackContext, generators);
     generators.unaryOperationGenerator = new UnaryOperationGenerator(stackContext, generators);
     generators.binaryOperationGenerator = new BinaryOperationGenerator(stackContext, generators);
 
@@ -145,6 +146,8 @@ public final class IRConstructGenerators {
     // Step 9: Create control flow generators
     generators.ifStatementGenerator = new IfStatementGenerator(stackContext, generators);
     generators.whileStatementGenerator = new WhileStatementGenerator(stackContext, generators);
+    generators.forRangeGenerator = new ForRangeGenerator(stackContext, generators);
+    generators.forInGenerator = new ForInGenerator(stackContext, generators);
     generators.forStatementGenerator = new ForStatementGenerator(stackContext, generators);
 
     // Step 10: Create top-level statement and block generators

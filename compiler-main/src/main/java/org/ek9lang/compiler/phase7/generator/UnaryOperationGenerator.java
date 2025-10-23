@@ -12,7 +12,10 @@ import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
+import org.ek9lang.compiler.symbols.CallSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
@@ -69,13 +72,11 @@ public final class UnaryOperationGenerator extends AbstractGenerator
     // Get the resolved method's return type from the unary operation's CallSymbol
     final var exprSymbol = getRecordedSymbolOrException(ctx);
     final ISymbol returnType;
-    if (exprSymbol instanceof org.ek9lang.compiler.symbols.CallSymbol cs) {
+    if (exprSymbol instanceof CallSymbol cs) {
       final var resolvedMethod = cs.getResolvedSymbolToCall();
       switch (resolvedMethod) {
-        case org.ek9lang.compiler.symbols.MethodSymbol ms ->
-            returnType = ms.getReturningSymbol().getType().orElse(operandSymbol);
-        case org.ek9lang.compiler.symbols.FunctionSymbol fs ->
-            returnType = fs.getReturningSymbol().getType().orElse(operandSymbol);
+        case MethodSymbol ms -> returnType = ms.getReturningSymbol().getType().orElse(operandSymbol);
+        case FunctionSymbol fs -> returnType = fs.getReturningSymbol().getType().orElse(operandSymbol);
         default -> returnType = operandSymbol;  // Fallback for other symbol types
       }
     } else {

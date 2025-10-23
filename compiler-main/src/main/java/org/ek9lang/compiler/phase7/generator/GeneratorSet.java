@@ -155,6 +155,11 @@ public final class GeneratorSet {
   public QuestionBlockGenerator questionBlockGenerator;
 
   /**
+   * Generates IR for list literal expressions.
+   */
+  public ListLiteralGenerator listLiteralGenerator;
+
+  /**
    * Generates control flow chains (ternary, guards, etc.).
    */
   public ControlFlowChainGenerator controlFlowChainGenerator;
@@ -182,7 +187,7 @@ public final class GeneratorSet {
    */
   public CallInstrGenerator callGenerator;
 
-  // ========== Control Flow Generators (3 fields - more to come) ==========
+  // ========== Control Flow Generators (5 fields - more to come) ==========
   // Created ONCE, reused for all control flow statements in construct
 
   /**
@@ -196,7 +201,17 @@ public final class GeneratorSet {
   public WhileStatementGenerator whileStatementGenerator;
 
   /**
-   * Generates IR for for-range loops using CONTROL_FLOW_CHAIN.
+   * Generates IR for for-range loops (for i in 1..10) using FOR_RANGE_POLYMORPHIC.
+   */
+  public ForRangeGenerator forRangeGenerator;
+
+  /**
+   * Generates IR for for-in loops (for item in collection) using iterator protocol.
+   */
+  public ForInGenerator forInGenerator;
+
+  /**
+   * Coordinates for-statement IR generation by delegating to ForRangeGenerator or ForInGenerator.
    */
   public ForStatementGenerator forStatementGenerator;
 
