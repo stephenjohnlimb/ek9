@@ -23,8 +23,11 @@ This document provides comprehensive guidance for working with EK9's Intermediat
 
 - ⏸️ **Phase 12 (IR_OPTIMISATION)**: DEFERRED - Stub implementation only
   - **Current**: Returns true without performing optimization
+  - **IR Structure**: ✅ Optimization-ready (requires only 3 helper methods in BasicBlockInstr)
+  - **Architecture**: Single IR with transformation passes (no separate "optimized IR" needed)
   - **Rationale**: Optimization is valuable but secondary to complete, correct functionality
   - **Timeline**: After both JVM and LLVM backends achieve feature completeness
+  - **See**: `EK9_IR_OPTIMIZATION_STRATEGY.md` - IR Structure Readiness Assessment
 
 ### Backend Status
 
