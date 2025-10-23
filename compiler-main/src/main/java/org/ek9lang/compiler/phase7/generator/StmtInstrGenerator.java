@@ -73,7 +73,7 @@ public final class StmtInstrGenerator extends AbstractGenerator
     } else if (ctx.objectAccessExpression() != null) {
       processObjectAccessExpression(ctx.objectAccessExpression(), instructions);
     } else if (ctx.switchStatementExpression() != null) {
-      throw new CompilerException("Switch not implemented");
+      instructions.addAll(generators.switchStatementGenerator.apply(ctx.switchStatementExpression()));
     } else if (ctx.tryStatementExpression() != null) {
       throw new CompilerException("Try not implemented");
     } else if (ctx.whileStatementExpression() != null) {

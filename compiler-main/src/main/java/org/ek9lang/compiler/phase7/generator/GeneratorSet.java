@@ -187,13 +187,18 @@ public final class GeneratorSet {
    */
   public CallInstrGenerator callGenerator;
 
-  // ========== Control Flow Generators (5 fields - more to come) ==========
+  // ========== Control Flow Generators (6 fields - more to come) ==========
   // Created ONCE, reused for all control flow statements in construct
 
   /**
    * Generates IR for if/else statements using CONTROL_FLOW_CHAIN.
    */
   public IfStatementGenerator ifStatementGenerator;
+
+  /**
+   * Generates IR for switch statements (statement form) using CONTROL_FLOW_CHAIN.
+   */
+  public SwitchStatementGenerator switchStatementGenerator;
 
   /**
    * Generates IR for while/do-while loops using CONTROL_FLOW_CHAIN.

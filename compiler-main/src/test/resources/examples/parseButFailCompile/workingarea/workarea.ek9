@@ -1,18 +1,24 @@
 #!ek9
-defines module test
+<?-
+  Test IR generation for simple switch with literal integer comparisons.
+  Statement form only - no return value from switch.
+-?>
+defines module controlFlow
 
   defines function
 
-    testParameterizedConstructor()
-      <- rtn as List of String: List() of String
 
-      list1 <- List() of String
+    simpleSwitchLiteral()
+      -> value as Integer
+      <-
+        result <- String()
 
-      list2 <- List("initial")
+      switch value
+        case 1
+          result := "One"
+        case 2
+          result := "Two"
+        default
+          result := "Other"
 
-      // Test for-in loop with parameterized type
-      for item in list2
-        assert item?
-
-      assert list1? and list2?
 //EOF
