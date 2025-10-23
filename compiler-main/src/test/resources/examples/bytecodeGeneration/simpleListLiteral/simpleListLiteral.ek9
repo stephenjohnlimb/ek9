@@ -1,0 +1,102 @@
+#!ek9
+<?-
+  Bytecode test for list literal syntax [...]
+  Tests creation of List using literal syntax ["one", "two", "three"]
+  Should iterate and print each item.
+-?>
+defines module bytecode.test
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::SimpleListLiteral": `public class bytecode.test.SimpleListLiteral {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.SimpleListLiteral();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aconst_null
+        13: astore_3
+        14: new           #CP                 // class org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+        17: dup
+        18: invokespecial #CP                 // Method org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1."<init>":()V
+        21: astore        4
+        23: ldc           #CP                 // String one
+        25: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        28: astore        5
+        30: aload         4
+        32: aload         5
+        34: invokevirtual #CP                 // Method org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._addAss:(Lorg/ek9/lang/String;)V
+        37: ldc           #CP                 // String two
+        39: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        42: astore        6
+        44: aload         4
+        46: aload         6
+        48: invokevirtual #CP                 // Method org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._addAss:(Lorg/ek9/lang/String;)V
+        51: ldc           #CP                 // String three
+        53: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        56: astore        7
+        58: aload         4
+        60: aload         7
+        62: invokevirtual #CP                 // Method org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._addAss:(Lorg/ek9/lang/String;)V
+        65: aload         4
+        67: astore_3
+        68: aload_3
+        69: astore        8
+        71: aload         8
+        73: invokevirtual #CP                 // Method org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.iterator:()Lorg/ek9/lang/_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2;
+        76: astore        9
+        78: aconst_null
+        79: astore        10
+        81: aload         9
+        83: invokevirtual #CP                 // Method org/ek9/lang/_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2.hasNext:()Lorg/ek9/lang/Boolean;
+        86: astore        11
+        88: aload         11
+        90: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        93: istore        12
+        95: iload         12
+        97: ifeq          128
+       100: aload         9
+       102: invokevirtual #CP                 // Method org/ek9/lang/_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2.next:()Lorg/ek9/lang/String;
+       105: astore        13
+       107: aload         13
+       109: astore        10
+       111: aload_1
+       112: astore        14
+       114: aload         10
+       116: astore        15
+       118: aload         14
+       120: aload         15
+       122: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       125: goto          81
+       128: return
+}`
+
+    SimpleListLiteral()
+      stdout <- Stdout()
+      items <- ["one", "two", "three"]
+
+      for item in items
+        stdout.println(item)
+
+//EOF
