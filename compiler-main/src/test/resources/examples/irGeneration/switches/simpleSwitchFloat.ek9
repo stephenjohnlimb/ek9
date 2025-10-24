@@ -1,0 +1,239 @@
+#!ek9
+<?-
+  Test IR generation for switch on Float with comparison operators.
+  Statement form only - demonstrates logical cascade with all operators.
+-?>
+defines module controlFlow.float
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "controlFlow.float::simpleSwitchFloat": `
+    ConstructDfn: controlFlow.float::simpleSwitchFloat(org.ek9.lang::Float)->org.ek9.lang::String
+    OperationDfn: controlFlow.float::simpleSwitchFloat.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow.float::simpleSwitchFloat.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow.float::simpleSwitchFloat.simpleSwitchFloat()->controlFlow.float::simpleSwitchFloat
+    BasicBlock: _entry_1
+    CALL (controlFlow.float::simpleSwitchFloat)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: controlFlow.float::simpleSwitchFloat._call(org.ek9.lang::Float)->org.ek9.lang::String
+    BasicBlock: _entry_1
+    REFERENCE value, org.ek9.lang::Float
+    REFERENCE result, org.ek9.lang::String
+    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _call
+    STORE result, _temp1
+    RETAIN result
+    SCOPE_REGISTER result, _call
+    SCOPE_ENTER _scope_1
+    SCOPE_ENTER _scope_2
+    _temp2 = LOAD value
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_2
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "SWITCH"
+    evaluation_variable: _temp2
+    evaluation_variable_type: "org.ek9.lang::Float"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_4
+    case_type: "LITERAL"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_3
+    _temp3 = LOAD _temp2
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_3
+    _temp4 = LOAD_LITERAL -10.0, org.ek9.lang::Float
+    RETAIN _temp4
+    SCOPE_REGISTER _temp4, _scope_3
+    _temp5 = CALL (org.ek9.lang::Float)_temp3._lt(_temp4) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, _scope_3
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_3
+    ]
+    condition_result: _temp5
+    primitive_condition: _temp6
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp7 = LOAD_LITERAL Very negative, org.ek9.lang::String
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_4
+    RELEASE result
+    STORE result, _temp7
+    RETAIN result
+    SCOPE_EXIT _scope_4
+    ]
+    ],
+    [
+    case_scope_id: _scope_6
+    case_type: "LITERAL"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_5
+    _temp8 = LOAD _temp2
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, _scope_5
+    _temp9 = LOAD_LITERAL 0.0, org.ek9.lang::Float
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_5
+    _temp10 = CALL (org.ek9.lang::Float)_temp8._lteq(_temp9) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_5
+    _temp11 = CALL (org.ek9.lang::Boolean)_temp10._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_5
+    ]
+    condition_result: _temp10
+    primitive_condition: _temp11
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_6
+    _temp12 = LOAD_LITERAL Zero or negative, org.ek9.lang::String
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_6
+    RELEASE result
+    STORE result, _temp12
+    RETAIN result
+    SCOPE_EXIT _scope_6
+    ]
+    ],
+    [
+    case_scope_id: _scope_8
+    case_type: "LITERAL"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_7
+    _temp13 = LOAD _temp2
+    RETAIN _temp13
+    SCOPE_REGISTER _temp13, _scope_7
+    _temp14 = LOAD_LITERAL 10.0, org.ek9.lang::Float
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, _scope_7
+    _temp15 = CALL (org.ek9.lang::Float)_temp13._lt(_temp14) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, _scope_7
+    _temp16 = CALL (org.ek9.lang::Boolean)_temp15._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_7
+    ]
+    condition_result: _temp15
+    primitive_condition: _temp16
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_8
+    _temp17 = LOAD_LITERAL Low, org.ek9.lang::String
+    RETAIN _temp17
+    SCOPE_REGISTER _temp17, _scope_8
+    RELEASE result
+    STORE result, _temp17
+    RETAIN result
+    SCOPE_EXIT _scope_8
+    ]
+    ],
+    [
+    case_scope_id: _scope_10
+    case_type: "LITERAL"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_9
+    _temp18 = LOAD _temp2
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, _scope_9
+    _temp19 = LOAD_LITERAL 100.0, org.ek9.lang::Float
+    RETAIN _temp19
+    SCOPE_REGISTER _temp19, _scope_9
+    _temp20 = CALL (org.ek9.lang::Float)_temp18._gteq(_temp19) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp20
+    SCOPE_REGISTER _temp20, _scope_9
+    _temp21 = CALL (org.ek9.lang::Boolean)_temp20._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_9
+    ]
+    condition_result: _temp20
+    primitive_condition: _temp21
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_10
+    _temp22 = LOAD_LITERAL Very high, org.ek9.lang::String
+    RETAIN _temp22
+    SCOPE_REGISTER _temp22, _scope_10
+    RELEASE result
+    STORE result, _temp22
+    RETAIN result
+    SCOPE_EXIT _scope_10
+    ]
+    ],
+    [
+    case_scope_id: _scope_12
+    case_type: "LITERAL"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_11
+    _temp23 = LOAD _temp2
+    RETAIN _temp23
+    SCOPE_REGISTER _temp23, _scope_11
+    _temp24 = LOAD_LITERAL 50.0, org.ek9.lang::Float
+    RETAIN _temp24
+    SCOPE_REGISTER _temp24, _scope_11
+    _temp25 = CALL (org.ek9.lang::Float)_temp23._gt(_temp24) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp25
+    SCOPE_REGISTER _temp25, _scope_11
+    _temp26 = CALL (org.ek9.lang::Boolean)_temp25._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_11
+    ]
+    condition_result: _temp25
+    primitive_condition: _temp26
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_12
+    _temp27 = LOAD_LITERAL High, org.ek9.lang::String
+    RETAIN _temp27
+    SCOPE_REGISTER _temp27, _scope_12
+    RELEASE result
+    STORE result, _temp27
+    RETAIN result
+    SCOPE_EXIT _scope_12
+    ]
+    ]
+    ]
+    default_body_evaluation:
+    [
+    SCOPE_ENTER _scope_13
+    _temp28 = LOAD_LITERAL Medium, org.ek9.lang::String
+    RETAIN _temp28
+    SCOPE_REGISTER _temp28, _scope_13
+    RELEASE result
+    STORE result, _temp28
+    RETAIN result
+    SCOPE_EXIT _scope_13
+    ]
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2
+    SCOPE_EXIT _scope_1
+    RETURN result`
+    simpleSwitchFloat()
+      -> value as Float
+      <- result <- String()
+
+      switch value
+        case < -10.0
+          result := "Very negative"
+        case <= 0.0
+          result := "Zero or negative"
+        case < 10.0
+          result := "Low"
+        case >= 100.0
+          result := "Very high"
+        case > 50.0
+          result := "High"
+        default
+          result := "Medium"
+
+//EOF

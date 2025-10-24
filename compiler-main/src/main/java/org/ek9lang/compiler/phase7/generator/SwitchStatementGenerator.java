@@ -175,11 +175,6 @@ public final class SwitchStatementGenerator extends AbstractGenerator
 
     final var caseExpr = ctx.caseExpression(0);
 
-    // Validate - no expression operators for now
-    if (caseExpr.op != null) {
-      throw new CompilerException("Expression cases (case < 12) not yet implemented");
-    }
-
     // Create TIGHT condition scope for case comparison
     final var conditionScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     stackContext.enterScope(conditionScopeId, debugInfo, IRFrameType.BLOCK);
@@ -211,8 +206,13 @@ public final class SwitchStatementGenerator extends AbstractGenerator
     final var comparisonResult = stackContext.generateTempName();
 
     // Get symbols for call context
-    final var evalVarTypeSymbol = evalVariable.typeSymbol();
+    // CRITICAL: Pass the TYPES, not the symbols themselves!
+    // ParameterPromotionProcessor needs actual types (Character, String, etc) not variables (ConstantSymbol, VariableSymbol)
+    // TypeCoercions.isCoercible() requires IAggregateSymbol types, not variable symbols
+    final var evalVarType = evalVariable.typeSymbol();
     final var caseValueSymbol = getCaseExpressionSymbol(caseExpr);
+    final var caseValueType = caseValueSymbol.getType().orElseThrow(
+        () -> new CompilerException("Case value symbol has no type: " + caseValueSymbol.getFriendlyName()));
 
     // Get return type - Boolean (use cached type from Ek9Types)
     final var returnType = stackContext.getParsedModule().getEk9Types().ek9Boolean();
@@ -221,18 +221,22 @@ public final class SwitchStatementGenerator extends AbstractGenerator
     final var operator = getComparisonOperator(caseExpr);
     final var methodName = operatorMap.getForward(operator);
 
-    // Create call context for comparison operator
-    final var callContext = CallContext.forBinaryOperation(
-        evalVarTypeSymbol,          // Target type (evaluation variable type)
-        caseValueSymbol,            // Argument type (case value)
+    // Create call context for comparison operator WITH parseContext
+    // Phase 3 has already resolved the method and created a CallSymbol on caseExpr context
+    // Pass TYPES (Character, String, Integer) not symbols (ConstantSymbol, VariableSymbol)
+    final var callContext = CallContext.forBinaryOperationWithContext(
+        evalVarType,                // Target type (String, Integer, etc)
+        caseValueType,              // Argument type (Character, String, Integer, etc)
         returnType,                 // Return type (Boolean)
         methodName,                 // Method name (_eq, _lt, _gt, _neq, etc.)
         evalVarLoaded,              // Target variable
         caseValue,                  // Argument variable
-        conditionScopeId            // Current scope ID
+        conditionScopeId,           // Current scope ID
+        caseExpr                    // Parse context with resolved CallSymbol from Phase 3
     );
 
-    // Use CallDetailsBuilder for cost-based method resolution
+    // Use CallDetailsBuilder - it will use the resolved CallSymbol from Phase 3
+    // which includes promotion information if Character needs to be promoted to String
     final var callDetailsResult = generators.callDetailsBuilder.apply(callContext);
 
     // Add any promotion instructions

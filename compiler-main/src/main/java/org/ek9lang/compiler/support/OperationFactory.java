@@ -184,4 +184,23 @@ class OperationFactory extends CommonFactory {
     return callSymbol;
   }
 
+  /**
+   * New CallSymbol for switch case expression operator.
+   * Every case expression represents an implicit operator call on the switch variable.
+   * If no explicit operator is provided, we infer equality (==).
+   */
+  public CallSymbol newCaseExpressionCall(final EK9Parser.CaseExpressionContext ctx, final IScope scope) {
+
+    // Determine operator: explicit or inferred equality
+    final var callName = ctx.op != null ? ctx.op.getText() : "==";
+    final var callSymbol = new CallSymbol(callName, scope);
+    final var startToken = new Ek9Token(ctx.start);
+
+    configureSymbol(callSymbol, startToken);
+    callSymbol.setOperator(true);  // Always an operator call
+    callSymbol.setInitialisedBy(startToken);
+
+    return callSymbol;
+  }
+
 }

@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -10,7 +9,6 @@ import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
 import org.ek9lang.compiler.common.NodePrinter;
 import org.ek9lang.compiler.common.PhasesTest;
-import org.ek9lang.compiler.search.TypeSymbolSearch;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -46,14 +44,12 @@ class WorkingAreaTest extends PhasesTest {
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
     assertTrue(compilationResult);
-    var resolvedProgram = program.resolveFromModule("introduction", new TypeSymbolSearch("HelloWorld"));
-    assertNotNull(resolvedProgram);
 
     final var output = new ByteArrayOutputStream();
     try (final var printWriter = new PrintWriter(output)) {
       final var printer = new NodePrinter(printWriter);
       program
-          .getIRModules("introduction")
+          .getIRModules("controlFlow")
           .forEach(irModule -> irModule.getConstructs().forEach(printer::visit));
     } catch (Exception _) {
       fail("Failed to produce output.");

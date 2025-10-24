@@ -11,8 +11,13 @@ class SwitchIRTest extends AbstractIRGenerationTest {
 
   public SwitchIRTest() {
     super("/examples/irGeneration/switches",
-        List.of(new SymbolCountCheck(1, "controlFlow", 1)),  // 1 module, 1 function
-        false, false, true);  // verbose=false, muteErrors=false, showIR=false
+        List.of(
+            new SymbolCountCheck(1, "controlFlow", 1),  // simpleSwitchLiteral
+            new SymbolCountCheck(1, "controlFlow.string", 1),  // simpleSwitchString
+            new SymbolCountCheck(1, "controlFlow.float", 1),  // simpleSwitchFloat
+            new SymbolCountCheck(1, "controlFlow.character", 1),  // simpleSwitchCharacterPromotion
+            new SymbolCountCheck(1, "controlFlow.equality", 1)),  // simpleSwitchExplicitEquality
+        false, false, false);  // verbose=false, muteErrors=false, showIR=true
   }
 
   @Override

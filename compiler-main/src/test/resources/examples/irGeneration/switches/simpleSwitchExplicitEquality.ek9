@@ -1,0 +1,22 @@
+#!ek9
+<?-
+  Test IR generation for switch with explicit equality operator.
+  Tests both implicit (case 10) and explicit (case == 20) equality.
+-?>
+defines module controlFlow.equality
+
+  defines function
+
+    simpleSwitchExplicitEquality()
+      -> value as Integer
+      <- result <- String()
+
+      switch value
+        case 10
+          result := "Ten (implicit)"
+        case == 20
+          result := "Twenty (explicit)"
+        default
+          result := "Other"
+
+//EOF

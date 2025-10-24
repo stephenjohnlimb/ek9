@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.phase7.calls;
 
 import java.util.List;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.symbols.ISymbol;
 
@@ -16,8 +17,8 @@ public record CallContext(
     List<ISymbol> argumentTypes,
     List<String> argumentVariables,
     String scopeId,
-    ISymbol returnType,                 // Optional - return type from resolved method
-    EK9Parser.CallContext parseContext  // Optional - null for operators without direct call context
+    ISymbol returnType,                      // Optional - return type from resolved method
+    ParserRuleContext parseContext
 ) {
 
   /**
@@ -28,6 +29,17 @@ public record CallContext(
                                                String scopeId) {
     return new CallContext(leftType, leftVariable, methodName, List.of(rightType), List.of(rightVariable), scopeId,
         returnType, null);
+  }
+
+  /**
+   * Create context for binary operation with parseContext: left.method(right)
+   * Used when Phase 3 has already resolved the method (e.g., switch case comparisons)
+   */
+  public static CallContext forBinaryOperationWithContext(ISymbol leftType, ISymbol rightType, ISymbol returnType,
+                                                          String methodName, String leftVariable, String rightVariable,
+                                                          String scopeId, ParserRuleContext parseContext) {
+    return new CallContext(leftType, leftVariable, methodName, List.of(rightType), List.of(rightVariable), scopeId,
+        returnType, parseContext);
   }
 
 

@@ -139,15 +139,15 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
         .map(typeNameOrException)
         .toList();
 
-    // Use the return type from CallContext if available (from resolved method)
+    // Use the return type from CallContext if available
     String returnType;
     CallMetaDataDetails metaData;
 
     if (context.returnType() != null) {
-      // Use the provided return type from the resolved method
+      // Use the provided return type
       returnType = typeNameOrException.apply(context.returnType());
     } else if (operatorMap.hasMethod(context.methodName())) {
-      // Fallback for truly synthetic operators without resolved methods
+      // Fallback for synthetic operators without resolved methods
       final var operatorDetails = operatorMap.getOperatorDetailsByMethod(context.methodName());
       if (operatorDetails.hasReturn()) {
         returnType = targetTypeName; // Fallback assumption
@@ -158,7 +158,7 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
       throw new CompilerException("Unknown operator: " + context.methodName());
     }
 
-    // Get metadata from OperatorMap if available
+    // Get metadata from OperatorMap
     if (operatorMap.hasMethod(context.methodName())) {
       final var operatorDetails = operatorMap.getOperatorDetailsByMethod(context.methodName());
       final var sideEffects = operatorMap.getSideEffectsByMethod(context.methodName());
@@ -173,7 +173,10 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
       metaData = new CallMetaDataDetails(false, 0, Set.of());
     }
 
-    // Check if this is a trait call (synthetic operators rarely on traits, but check anyway)
+    // For operators without Phase 3 resolution, no promotion checking is possible
+    final PromotionResult promotionResult = new PromotionResult(context.argumentVariables(), List.of());
+
+    // Check if this is a trait call
     final var isTraitCall = context.targetType().getGenus() == org.ek9lang.compiler.symbols.SymbolGenus.CLASS_TRAIT;
 
     final var callDetails = new CallDetails(
@@ -182,12 +185,12 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
         context.methodName(),
         parameterTypes,
         returnType,
-        context.argumentVariables(),
+        promotionResult.promotedArguments(),  // No promoted arguments for fallback operators
         metaData,
         isTraitCall
     );
 
-    return new CallDetailsResult(callDetails, List.of());
+    return new CallDetailsResult(callDetails, promotionResult.promotionInstructions());
   }
 
 

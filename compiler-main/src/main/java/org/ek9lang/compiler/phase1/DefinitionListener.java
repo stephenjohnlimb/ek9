@@ -1075,6 +1075,17 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
   }
 
+  @Override
+  public void enterCaseExpression(final EK9Parser.CaseExpressionContext ctx) {
+
+    // Every case expression represents an implicit operator call on the switch variable
+    // Create the CallSymbol structure now, will be resolved in Phase 3
+    symbolsAndScopes.recordSymbol(
+        symbolFactory.newCaseExpressionCall(ctx, symbolsAndScopes.getTopScope()), ctx);
+    super.enterCaseExpression(ctx);
+
+  }
+
   //Not sure these List, Dict and DictEntry calls are needed.
   //If not remove them later.
   @Override

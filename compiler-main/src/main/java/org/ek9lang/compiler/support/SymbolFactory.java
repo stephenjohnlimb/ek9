@@ -429,6 +429,14 @@ public class SymbolFactory extends CommonFactory {
   }
 
   /**
+   * Create a new CallSymbol for switch case expression operator.
+   */
+  public CallSymbol newCaseExpressionCall(final EK9Parser.CaseExpressionContext ctx, final IScope scope) {
+
+    return operationFactory.newCaseExpressionCall(ctx, scope);
+  }
+
+  /**
    * Create a new symbol that represents an EK9 'switch' block.
    */
   public SwitchSymbol newSwitch(final EK9Parser.SwitchStatementExpressionContext ctx, final IScope scope) {

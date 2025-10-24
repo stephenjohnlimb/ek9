@@ -48,10 +48,11 @@ public final class ParameterPromotionProcessor
   @Override
   public PromotionResult apply(final CallContext context, final MethodResolutionResult methodResolution) {
 
-    // If perfect match, no promotion needed
-    if (methodResolution.isPerfectMatch()) {
-      return new PromotionResult(context.argumentVariables(), List.of());
-    }
+    // IMPORTANT: Don't skip promotion check just because method was resolved with 100% match!
+    // Phase 3 resolves methods accounting for POSSIBLE promotions (e.g., Character→String).
+    // But Phase 7 IR generation must INSERT the actual _promote() calls.
+    // Example: "string_var == 'D'" resolves to String._eq(String) with 100% match,
+    // but we still need to generate: _temp_promoted = 'D'._promote(); string_var._eq(_temp_promoted)
 
     return processParameterPromotion(context, methodResolution.methodSymbol());
   }
@@ -89,7 +90,7 @@ public final class ParameterPromotionProcessor
       } else {
         // Check if promotion is possible
         if (TypeCoercions.isCoercible(argumentType, parameterType)) {
-          final var promotedVar = generatePromoteCall(argumentType, argumentVariable, context, i);
+          final var promotedVar = generatePromoteCall(argumentType, argumentVariable, context);
           promotedArguments.add(promotedVar.variable());
           promotionInstructions.addAll(promotedVar.instructions());
 
@@ -115,8 +116,7 @@ public final class ParameterPromotionProcessor
    * Generate IR instructions to call the #^ promotion operator.
    */
   private PromotedVariable generatePromoteCall(final ISymbol argumentType, final String argumentVariable,
-                                               final CallContext callContext,
-                                               final int paramIndex) {
+                                               final CallContext callContext) {
 
     final var promotedVar = stackContext.generateTempName();
     final var argumentTypeName = typeNameOrException.apply(argumentType);

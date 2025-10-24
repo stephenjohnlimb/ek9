@@ -53,7 +53,6 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   private final WhileReturnOrError whileReturnOrError;
   private final ForReturnOrError forReturnOrError;
   private final TryStatementExpressionOrError tryStatementExpressionOrError;
-  private final CaseExpressionOrError caseExpressionOrError;
   private final ThrowStatementOrError throwStatementOrError;
   private final AssertStatementOrError assertStatementOrError;
 
@@ -131,8 +130,6 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
         new SwitchStatementExpressionOrError(symbolsAndScopes, errorListener);
     this.switchReturnOrError =
         new SwitchReturnOrError(errorListener);
-    this.caseExpressionOrError =
-        new CaseExpressionOrError(symbolsAndScopes, errorListener);
     this.tryStatementExpressionOrError =
         new TryStatementExpressionOrError(symbolsAndScopes, errorListener);
     this.throwStatementOrError =
@@ -303,12 +300,6 @@ abstract class ExpressionsListener extends ScopeStackConsistencyListener {
   public void exitThrowStatement(final EK9Parser.ThrowStatementContext ctx) {
     throwStatementOrError.accept(ctx);
     super.exitThrowStatement(ctx);
-  }
-
-  @Override
-  public void exitCaseExpression(final EK9Parser.CaseExpressionContext ctx) {
-    caseExpressionOrError.accept(ctx);
-    super.exitCaseExpression(ctx);
   }
 
   @Override

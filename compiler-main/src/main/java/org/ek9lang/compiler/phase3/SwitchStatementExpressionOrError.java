@@ -11,11 +11,13 @@ import org.ek9lang.compiler.common.LhsFromPreFlowOrError;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
 import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
+import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.ToCommaSeparated;
+import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
-import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.core.CompilerException;
 
 /**
  * Deals with checking if the switch can be used as an expression and whether
@@ -171,23 +173,71 @@ final class SwitchStatementExpressionOrError extends TypedSymbolAccess
 
   private void operatorExistsOrError(final EK9Parser.CaseExpressionContext ctx, final ISymbol controlSymbol) {
 
-    //Assume an equality check - unless an operator has been employed.
-    final var caseVariable = getRecordedAndTypedSymbol(ctx);
+    // Get the CallSymbol that was created in Phase 1
+    final var symbol = symbolsAndScopes.getRecordedSymbol(ctx);
 
-    //If it is null or untyped then we'd get errors by the call above.
+    if (!(symbol instanceof CallSymbol callSymbol)) {
+      // This should not happen if Phase 1 worked correctly
+      throw new CompilerException("Expected CallSymbol for case expression, but got: "
+          + (symbol != null ? symbol.getClass().getSimpleName() : "null"));
+    }
+
+    // Get the case value symbol from the child context (not from caseExpression itself)
+    final var caseVariable = getValueSymbolFromChildContext(ctx);
+
+    // If it is null or untyped then we'd get errors by the call above.
     if (caseVariable != null && caseVariable.getType().isPresent()) {
-      final var operator = ctx.op != null ? new Ek9Token(ctx.op.getText()) : new Ek9Token("==");
 
       controlSymbol.getType().ifPresent(controlType -> {
         if (controlType instanceof IAggregateSymbol aggregate) {
-          final var search = new MethodSymbolSearch(operator.getText()).addTypeParameter(caseVariable.getType());
-          if (aggregate.resolve(search).isEmpty()) {
+          // Ensure parameterized types are fully resolved before method search
+          if (aggregate.isParameterisedType() && aggregate instanceof org.ek9lang.compiler.symbols.PossibleGenericSymbol possibleGeneric) {
+            symbolsAndScopes.resolveOrDefine(possibleGeneric, errorListener);
+          }
+
+          // Create MethodSymbolSearch with operator name and case value type for fuzzy matching with promotion
+          // Use the operator name as-is (e.g., "==", "contains", "<"), NOT the method name
+          final var search = new MethodSymbolSearch(callSymbol.getName()).addTypeParameter(caseVariable.getType());
+
+          // Use resolveMatchingMethods for cost-based fuzzy matching (handles promotion)
+          // IMPORTANT: Use the return value, not the passed-in object
+          final var result = aggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
+          final var bestMatch = result.getSingleBestMatchSymbol();
+
+          if (bestMatch.isPresent()) {
+            // Set the resolved method on the existing CallSymbol (handles promotion if needed)
+            final var resolvedMethod = bestMatch.get();
+            callSymbol.setResolvedSymbolToCall(resolvedMethod);
+          } else {
             emitMethodNotResolvedError(ctx, controlSymbol, search);
           }
         }
       });
     }
 
+  }
+
+  /**
+   * Gets the value symbol from the appropriate child context of a caseExpression.
+   * A caseExpression can have: call, objectAccessExpression, expression (with op), or primary.
+   * The value symbol is recorded on these child contexts, NOT on the caseExpression itself.
+   */
+  private ISymbol getValueSymbolFromChildContext(final EK9Parser.CaseExpressionContext ctx) {
+    // Grammar: caseExpression : call | objectAccessExpression | op=(operators) expression | primary
+
+    if (ctx.call() != null) {
+      return getRecordedAndTypedSymbol(ctx.call());
+    } else if (ctx.objectAccessExpression() != null) {
+      return getRecordedAndTypedSymbol(ctx.objectAccessExpression());
+    } else if (ctx.expression() != null) {
+      // Case with explicit operator: case <= 10
+      return getRecordedAndTypedSymbol(ctx.expression());
+    } else if (ctx.primary() != null) {
+      // Case with literal: case 10 or case 'D'
+      return getRecordedAndTypedSymbol(ctx.primary());
+    }
+
+    return null;
   }
 
   private void emitDuplicateCaseError(final Token errorLocation, final ISymbol caseObjectStart,

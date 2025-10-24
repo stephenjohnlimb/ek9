@@ -3,14 +3,13 @@
   Test IR generation for switch with Character-to-String promotion.
   Character literals in cases should trigger _promote() calls.
 -?>
-defines module controlFlow
+defines module controlFlow.character
 
   defines function
 
     simpleSwitchCharacterPromotion()
       -> text as String
-      <-
-        result <- String()
+      <- result <- String()
 
       switch text
         case 'D'
