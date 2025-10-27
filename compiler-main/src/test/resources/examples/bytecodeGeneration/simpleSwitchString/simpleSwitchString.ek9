@@ -1,0 +1,120 @@
+#!ek9
+<?-
+  Bytecode test for switch on String with contains/matches operators.
+  Statement form only - no return value from switch.
+-?>
+defines module bytecode.test.string
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.string::SimpleSwitchString":`public class bytecode.test.string.SimpleSwitchString {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.string.SimpleSwitchString();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main(org.ek9.lang.String);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aload_1
+        13: astore        4
+        15: aload         4
+        17: astore        5
+        19: ldc           #CP                 // String hello
+        21: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        24: astore        6
+        26: aload         5
+        28: aload         6
+        30: invokevirtual #CP                 // Method org/ek9/lang/String._contains:(Lorg/ek9/lang/String;)Lorg/ek9/lang/Boolean;
+        33: astore        7
+        35: aload         7
+        37: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        40: istore        8
+        42: iload         8
+        44: ifeq          67
+        47: aload_2
+        48: astore        9
+        50: ldc           #CP                 // String Contains hello
+        52: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        55: astore        10
+        57: aload         9
+        59: aload         10
+        61: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        64: goto          136
+        67: aload         4
+        69: astore        11
+        71: ldc           #CP                 // String /[0-9]+/
+        73: invokestatic  #CP                 // Method org/ek9/lang/RegEx._of:(Ljava/lang/String;)Lorg/ek9/lang/RegEx;
+        76: astore        12
+        78: aload         11
+        80: aload         12
+        82: invokevirtual #CP                 // Method org/ek9/lang/String._matches:(Lorg/ek9/lang/RegEx;)Lorg/ek9/lang/Boolean;
+        85: astore        13
+        87: aload         13
+        89: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        92: istore        14
+        94: iload         14
+        96: ifeq          119
+        99: aload_2
+       100: astore        15
+       102: ldc           #CP                 // String Is numeric
+       104: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       107: astore        16
+       109: aload         15
+       111: aload         16
+       113: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       116: goto          136
+       119: aload_2
+       120: astore        17
+       122: ldc           #CP                 // String Other
+       124: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       127: astore        18
+       129: aload         17
+       131: aload         18
+       133: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       136: aload_2
+       137: astore        19
+       139: ldc           #CP                 // String Done
+       141: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       144: astore        20
+       146: aload         19
+       148: aload         20
+       150: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       153: return
+}`
+
+    SimpleSwitchString()
+      -> text as String
+
+      stdout <- Stdout()
+
+      switch text
+        case contains "hello"
+          stdout.println("Contains hello")
+        case matches /[0-9]+/
+          stdout.println("Is numeric")
+        default
+          stdout.println("Other")
+
+      // Always print to verify program continues
+      stdout.println("Done")
+
+//EOF

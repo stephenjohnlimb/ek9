@@ -1,0 +1,122 @@
+#!ek9
+<?-
+  Bytecode test for switch with explicit equality operator.
+  Tests both implicit (case 10) and explicit (case == 20) equality.
+-?>
+defines module bytecode.test.equality
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.equality::SimpleSwitchExplicitEquality":`public class bytecode.test.equality.SimpleSwitchExplicitEquality {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.equality.SimpleSwitchExplicitEquality();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main(org.ek9.lang.Integer);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aload_1
+        13: astore        4
+        15: aload         4
+        17: astore        5
+        19: bipush        10
+        21: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        24: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        27: astore        6
+        29: aload         5
+        31: aload         6
+        33: invokevirtual #CP                 // Method org/ek9/lang/Integer._eq:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+        36: astore        7
+        38: aload         7
+        40: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        43: istore        8
+        45: iload         8
+        47: ifeq          70
+        50: aload_2
+        51: astore        9
+        53: ldc           #CP                 // String Ten (implicit)
+        55: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        58: astore        10
+        60: aload         9
+        62: aload         10
+        64: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        67: goto          142
+        70: aload         4
+        72: astore        11
+        74: bipush        20
+        76: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        79: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        82: astore        12
+        84: aload         11
+        86: aload         12
+        88: invokevirtual #CP                 // Method org/ek9/lang/Integer._eq:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+        91: astore        13
+        93: aload         13
+        95: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        98: istore        14
+       100: iload         14
+       102: ifeq          125
+       105: aload_2
+       106: astore        15
+       108: ldc           #CP                 // String Twenty (explicit)
+       110: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       113: astore        16
+       115: aload         15
+       117: aload         16
+       119: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       122: goto          142
+       125: aload_2
+       126: astore        17
+       128: ldc           #CP                 // String Other
+       130: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       133: astore        18
+       135: aload         17
+       137: aload         18
+       139: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       142: aload_2
+       143: astore        19
+       145: ldc           #CP                 // String Done
+       147: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       150: astore        20
+       152: aload         19
+       154: aload         20
+       156: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       159: return
+}`
+
+    SimpleSwitchExplicitEquality()
+      -> value as Integer
+
+      stdout <- Stdout()
+
+      switch value
+        case 10
+          stdout.println("Ten (implicit)")
+        case == 20
+          stdout.println("Twenty (explicit)")
+        default
+          stdout.println("Other")
+
+      // Always print to verify program continues
+      stdout.println("Done")
+
+//EOF

@@ -91,7 +91,6 @@ defines module bytecode.test
        125: goto          81
        128: return
 }`
-
     SimpleListLiteral()
       stdout <- Stdout()
       items <- ["one", "two", "three"]

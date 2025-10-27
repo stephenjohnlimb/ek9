@@ -50,7 +50,7 @@ defines module controlFlow.character
     _temp3 = LOAD _temp2
     RETAIN _temp3
     SCOPE_REGISTER _temp3, _scope_3
-    _temp4 = LOAD_LITERAL 'D', org.ek9.lang::Character
+    _temp4 = LOAD_LITERAL D, org.ek9.lang::Character
     RETAIN _temp4
     SCOPE_REGISTER _temp4, _scope_3
     _temp6 = CALL (org.ek9.lang::Character)_temp4._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
@@ -85,7 +85,7 @@ defines module controlFlow.character
     _temp9 = LOAD _temp2
     RETAIN _temp9
     SCOPE_REGISTER _temp9, _scope_5
-    _temp10 = LOAD_LITERAL 'A', org.ek9.lang::Character
+    _temp10 = LOAD_LITERAL A, org.ek9.lang::Character
     RETAIN _temp10
     SCOPE_REGISTER _temp10, _scope_5
     _temp12 = CALL (org.ek9.lang::Character)_temp10._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]

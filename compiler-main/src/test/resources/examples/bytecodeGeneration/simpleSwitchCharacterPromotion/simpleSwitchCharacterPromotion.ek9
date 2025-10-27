@@ -1,0 +1,128 @@
+#!ek9
+<?-
+  Bytecode test for switch with Character-to-String promotion.
+  Character literals in cases should trigger _promote() calls.
+-?>
+defines module bytecode.test.character
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.character::SimpleSwitchCharacterPromotion":`public class bytecode.test.character.SimpleSwitchCharacterPromotion {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.character.SimpleSwitchCharacterPromotion();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main(org.ek9.lang.String);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aload_1
+        13: astore        4
+        15: aload         4
+        17: astore        5
+        19: bipush        68
+        21: invokestatic  #CP                 // Method java/lang/Character.toString:(C)Ljava/lang/String;
+        24: invokestatic  #CP                 // Method org/ek9/lang/Character._of:(Ljava/lang/String;)Lorg/ek9/lang/Character;
+        27: astore        6
+        29: aload         6
+        31: invokevirtual #CP                 // Method org/ek9/lang/Character._promote:()Lorg/ek9/lang/String;
+        34: astore        7
+        36: aload         5
+        38: aload         7
+        40: invokevirtual #CP                 // Method org/ek9/lang/String._eq:(Lorg/ek9/lang/String;)Lorg/ek9/lang/Boolean;
+        43: astore        8
+        45: aload         8
+        47: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        50: istore        9
+        52: iload         9
+        54: ifeq          77
+        57: aload_2
+        58: astore        10
+        60: ldc           #CP                 // String Got D
+        62: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        65: astore        11
+        67: aload         10
+        69: aload         11
+        71: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        74: goto          156
+        77: aload         4
+        79: astore        12
+        81: bipush        65
+        83: invokestatic  #CP                 // Method java/lang/Character.toString:(C)Ljava/lang/String;
+        86: invokestatic  #CP                 // Method org/ek9/lang/Character._of:(Ljava/lang/String;)Lorg/ek9/lang/Character;
+        89: astore        13
+        91: aload         13
+        93: invokevirtual #CP                 // Method org/ek9/lang/Character._promote:()Lorg/ek9/lang/String;
+        96: astore        14
+        98: aload         12
+       100: aload         14
+       102: invokevirtual #CP                 // Method org/ek9/lang/String._eq:(Lorg/ek9/lang/String;)Lorg/ek9/lang/Boolean;
+       105: astore        15
+       107: aload         15
+       109: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       112: istore        16
+       114: iload         16
+       116: ifeq          139
+       119: aload_2
+       120: astore        17
+       122: ldc           #CP                 // String Got A
+       124: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       127: astore        18
+       129: aload         17
+       131: aload         18
+       133: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       136: goto          156
+       139: aload_2
+       140: astore        19
+       142: ldc           #CP                 // String Other
+       144: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       147: astore        20
+       149: aload         19
+       151: aload         20
+       153: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       156: aload_2
+       157: astore        21
+       159: ldc           #CP                 // String Done
+       161: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       164: astore        22
+       166: aload         21
+       168: aload         22
+       170: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       173: return
+}`
+
+    SimpleSwitchCharacterPromotion()
+      -> text as String
+
+      stdout <- Stdout()
+
+      switch text
+        case 'D'
+          stdout.println("Got D")
+        case 'A'
+          stdout.println("Got A")
+        default
+          stdout.println("Other")
+
+      // Always print to verify program continues
+      stdout.println("Done")
+
+//EOF

@@ -35,8 +35,8 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   private IfElseAsmGenerator ifElseGenerator;
   private WhileLoopAsmGenerator whileLoopGenerator;
   private DoWhileLoopAsmGenerator doWhileLoopGenerator;
+  private SwitchAsmGenerator switchGenerator;
   // Future generators:
-  // private SwitchAsmGenerator switchGenerator;
   // private ForLoopAsmGenerator forLoopGenerator;
   // private TryCatchAsmGenerator tryCatchGenerator;
 
@@ -62,13 +62,13 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
       case "IF_ELSE_IF" -> generateIfElse(instr);
       case "WHILE_LOOP" -> generateWhileLoop(instr);
       case "DO_WHILE_LOOP" -> generateDoWhileLoop(instr);
+      case "SWITCH", "SWITCH_ENUM" -> generateSwitch(instr);
       // Future cases will be added here as generators are implemented:
-      // case "SWITCH", "SWITCH_ENUM" -> generateSwitch(instr);
       // case "FOR" -> generateForLoop(instr);
       // case "TRY_CATCH" -> generateTryCatch(instr);
       default -> throw new CompilerException(
           "Unsupported control flow chain type: " + chainType
-              + ". Expected one of: QUESTION_OPERATOR, GUARDED_ASSIGNMENT, IF_ELSE_IF, WHILE_LOOP, DO_WHILE_LOOP");
+              + ". Expected one of: QUESTION_OPERATOR, GUARDED_ASSIGNMENT, IF_ELSE_IF, WHILE_LOOP, DO_WHILE_LOOP, SWITCH, SWITCH_ENUM");
     }
   }
 
@@ -158,6 +158,23 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   }
 
   /**
+   * Generate bytecode for switch statements.
+   * Lazily instantiates SwitchAsmGenerator on first use.
+   *
+   * @param instr CONTROL_FLOW_CHAIN instruction with SWITCH or SWITCH_ENUM type
+   */
+  private void generateSwitch(final ControlFlowChainInstr instr) {
+    if (switchGenerator == null) {
+      switchGenerator = new SwitchAsmGenerator(
+          constructTargetTuple, outputVisitor, classWriter);
+    }
+    // Always update context in case method changed
+    switchGenerator.setSharedMethodContext(getMethodContext());
+    switchGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
+    switchGenerator.generate(instr);
+  }
+
+  /**
    * Update method context for all generators.
    * Called when OutputVisitor.setMethodContext() is invoked.
    * Propagates context to already-instantiated generators.
@@ -183,6 +200,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     }
     if (doWhileLoopGenerator != null) {
       doWhileLoopGenerator.setSharedMethodContext(context);
+    }
+    if (switchGenerator != null) {
+      switchGenerator.setSharedMethodContext(context);
     }
     // Future generators will be added here
   }
@@ -213,6 +233,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     }
     if (doWhileLoopGenerator != null) {
       doWhileLoopGenerator.setCurrentMethodVisitor(mv);
+    }
+    if (switchGenerator != null) {
+      switchGenerator.setCurrentMethodVisitor(mv);
     }
     // Future generators will be added here
   }

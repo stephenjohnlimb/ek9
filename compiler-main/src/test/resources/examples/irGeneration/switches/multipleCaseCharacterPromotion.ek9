@@ -56,7 +56,7 @@ defines module controlFlow.multichar
     _temp3 = LOAD _temp2
     RETAIN _temp3
     SCOPE_REGISTER _temp3, _scope_3
-    _temp4 = LOAD_LITERAL 'D', org.ek9.lang::Character
+    _temp4 = LOAD_LITERAL D, org.ek9.lang::Character
     RETAIN _temp4
     SCOPE_REGISTER _temp4, _scope_3
     _temp6 = CALL (org.ek9.lang::Character)_temp4._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
@@ -78,7 +78,7 @@ defines module controlFlow.multichar
     _temp8 = LOAD _temp2
     RETAIN _temp8
     SCOPE_REGISTER _temp8, _scope_3
-    _temp9 = LOAD_LITERAL 'A', org.ek9.lang::Character
+    _temp9 = LOAD_LITERAL A, org.ek9.lang::Character
     RETAIN _temp9
     SCOPE_REGISTER _temp9, _scope_3
     _temp11 = CALL (org.ek9.lang::Character)_temp9._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
@@ -96,7 +96,7 @@ defines module controlFlow.multichar
     _temp13 = LOAD _temp2
     RETAIN _temp13
     SCOPE_REGISTER _temp13, _scope_3
-    _temp14 = LOAD_LITERAL 'Z', org.ek9.lang::Character
+    _temp14 = LOAD_LITERAL Z, org.ek9.lang::Character
     RETAIN _temp14
     SCOPE_REGISTER _temp14, _scope_3
     _temp16 = CALL (org.ek9.lang::Character)_temp14._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
@@ -158,7 +158,7 @@ defines module controlFlow.multichar
     _temp22 = LOAD _temp2
     RETAIN _temp22
     SCOPE_REGISTER _temp22, _scope_5
-    _temp23 = LOAD_LITERAL 'X', org.ek9.lang::Character
+    _temp23 = LOAD_LITERAL X, org.ek9.lang::Character
     RETAIN _temp23
     SCOPE_REGISTER _temp23, _scope_5
     _temp25 = CALL (org.ek9.lang::Character)_temp23._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
@@ -176,7 +176,7 @@ defines module controlFlow.multichar
     _temp27 = LOAD _temp2
     RETAIN _temp27
     SCOPE_REGISTER _temp27, _scope_5
-    _temp28 = LOAD_LITERAL 'Y', org.ek9.lang::Character
+    _temp28 = LOAD_LITERAL Y, org.ek9.lang::Character
     RETAIN _temp28
     SCOPE_REGISTER _temp28, _scope_5
     _temp30 = CALL (org.ek9.lang::Character)_temp28._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]

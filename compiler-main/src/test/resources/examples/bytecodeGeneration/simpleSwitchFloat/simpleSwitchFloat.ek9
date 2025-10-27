@@ -1,0 +1,200 @@
+#!ek9
+<?-
+  Bytecode test for switch on Float with comparison operators.
+  Statement form only - demonstrates logical cascade with all operators.
+-?>
+defines module bytecode.test.float
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.float::SimpleSwitchFloat":`public class bytecode.test.float.SimpleSwitchFloat {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.float.SimpleSwitchFloat();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main(org.ek9.lang.Float);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aload_1
+        13: astore        4
+        15: aload         4
+        17: astore        5
+        19: ldc           #CP                 // float -10.0f
+        21: invokestatic  #CP                 // Method java/lang/Float.toString:(F)Ljava/lang/String;
+        24: invokestatic  #CP                 // Method org/ek9/lang/Float._of:(Ljava/lang/String;)Lorg/ek9/lang/Float;
+        27: astore        6
+        29: aload         5
+        31: aload         6
+        33: invokevirtual #CP                 // Method org/ek9/lang/Float._lt:(Lorg/ek9/lang/Float;)Lorg/ek9/lang/Boolean;
+        36: astore        7
+        38: aload         7
+        40: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        43: istore        8
+        45: iload         8
+        47: ifeq          70
+        50: aload_2
+        51: astore        9
+        53: ldc           #CP                 // String Very negative
+        55: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        58: astore        10
+        60: aload         9
+        62: aload         10
+        64: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        67: goto          306
+        70: aload         4
+        72: astore        11
+        74: fconst_0
+        75: invokestatic  #CP                 // Method java/lang/Float.toString:(F)Ljava/lang/String;
+        78: invokestatic  #CP                 // Method org/ek9/lang/Float._of:(Ljava/lang/String;)Lorg/ek9/lang/Float;
+        81: astore        12
+        83: aload         11
+        85: aload         12
+        87: invokevirtual #CP                 // Method org/ek9/lang/Float._lteq:(Lorg/ek9/lang/Float;)Lorg/ek9/lang/Boolean;
+        90: astore        13
+        92: aload         13
+        94: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        97: istore        14
+        99: iload         14
+       101: ifeq          124
+       104: aload_2
+       105: astore        15
+       107: ldc           #CP                 // String Zero or negative
+       109: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       112: astore        16
+       114: aload         15
+       116: aload         16
+       118: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       121: goto          306
+       124: aload         4
+       126: astore        17
+       128: ldc           #CP                 // float 10.0f
+       130: invokestatic  #CP                 // Method java/lang/Float.toString:(F)Ljava/lang/String;
+       133: invokestatic  #CP                 // Method org/ek9/lang/Float._of:(Ljava/lang/String;)Lorg/ek9/lang/Float;
+       136: astore        18
+       138: aload         17
+       140: aload         18
+       142: invokevirtual #CP                 // Method org/ek9/lang/Float._lt:(Lorg/ek9/lang/Float;)Lorg/ek9/lang/Boolean;
+       145: astore        19
+       147: aload         19
+       149: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       152: istore        20
+       154: iload         20
+       156: ifeq          179
+       159: aload_2
+       160: astore        21
+       162: ldc           #CP                 // String Low
+       164: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       167: astore        22
+       169: aload         21
+       171: aload         22
+       173: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       176: goto          306
+       179: aload         4
+       181: astore        23
+       183: ldc           #CP                 // float 100.0f
+       185: invokestatic  #CP                 // Method java/lang/Float.toString:(F)Ljava/lang/String;
+       188: invokestatic  #CP                 // Method org/ek9/lang/Float._of:(Ljava/lang/String;)Lorg/ek9/lang/Float;
+       191: astore        24
+       193: aload         23
+       195: aload         24
+       197: invokevirtual #CP                 // Method org/ek9/lang/Float._gteq:(Lorg/ek9/lang/Float;)Lorg/ek9/lang/Boolean;
+       200: astore        25
+       202: aload         25
+       204: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       207: istore        26
+       209: iload         26
+       211: ifeq          234
+       214: aload_2
+       215: astore        27
+       217: ldc           #CP                 // String Very high
+       219: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       222: astore        28
+       224: aload         27
+       226: aload         28
+       228: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       231: goto          306
+       234: aload         4
+       236: astore        29
+       238: ldc           #CP                 // float 50.0f
+       240: invokestatic  #CP                 // Method java/lang/Float.toString:(F)Ljava/lang/String;
+       243: invokestatic  #CP                 // Method org/ek9/lang/Float._of:(Ljava/lang/String;)Lorg/ek9/lang/Float;
+       246: astore        30
+       248: aload         29
+       250: aload         30
+       252: invokevirtual #CP                 // Method org/ek9/lang/Float._gt:(Lorg/ek9/lang/Float;)Lorg/ek9/lang/Boolean;
+       255: astore        31
+       257: aload         31
+       259: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       262: istore        32
+       264: iload         32
+       266: ifeq          289
+       269: aload_2
+       270: astore        33
+       272: ldc           #CP                 // String High
+       274: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       277: astore        34
+       279: aload         33
+       281: aload         34
+       283: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       286: goto          306
+       289: aload_2
+       290: astore        35
+       292: ldc           #CP                 // String Medium
+       294: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       297: astore        36
+       299: aload         35
+       301: aload         36
+       303: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       306: aload_2
+       307: astore        37
+       309: ldc           #CP                 // String Done
+       311: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       314: astore        38
+       316: aload         37
+       318: aload         38
+       320: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       323: return
+}`
+
+    SimpleSwitchFloat()
+      -> value as Float
+
+      stdout <- Stdout()
+
+      switch value
+        case < -10.0
+          stdout.println("Very negative")
+        case <= 0.0
+          stdout.println("Zero or negative")
+        case < 10.0
+          stdout.println("Low")
+        case >= 100.0
+          stdout.println("Very high")
+        case > 50.0
+          stdout.println("High")
+        default
+          stdout.println("Medium")
+
+      // Always print to verify program continues
+      stdout.println("Done")
+
+//EOF

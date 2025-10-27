@@ -89,7 +89,11 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
 
     // Build CallDetails with actual method information
     final var targetTypeName = typeNameOrException.apply(context.targetType());
-    final var parameterTypes = context.argumentTypes().stream()
+
+    // Get parameter types from resolved method signature (handles promotion correctly)
+    // For methods/functions with promotion, this gives us the EXPECTED types (e.g., String)
+    // rather than the ORIGINAL argument types (e.g., Character)
+    final var parameterTypes = resolvedMethod.getSymbolsForThisScope().stream()
         .map(typeNameOrException)
         .toList();
 
