@@ -10,10 +10,6 @@ import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
-import org.ek9lang.compiler.symbols.CallSymbol;
-import org.ek9lang.compiler.symbols.FunctionSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
@@ -54,17 +50,15 @@ public final class BinaryOperationGenerator extends AbstractGenerator
     final var rightExpr = ctx.right != null ? ctx.right : ctx.expression().get(1);
 
     // Process left operand with memory management
-    // Get debug info for left operand specifically (for accurate position tracking)
-    final var leftDebugInfo = stackContext.createDebugInfo(leftExpr);
-    final var leftDetails = createTempVariable(leftDebugInfo);
+    // Create temp variable with debug info from left operand context (for accurate position tracking)
+    final var leftDetails = createTempVariableFromContext(leftExpr);
     final var leftEvaluation = processOperandExpression(leftExpr, leftDetails);
     final var instructions =
         new ArrayList<>(generators.variableMemoryManagement.apply(() -> leftEvaluation, leftDetails));
 
     // Process right operand with memory management
-    // Get debug info for right operand specifically (for accurate position tracking)
-    final var rightDebugInfo = stackContext.createDebugInfo(rightExpr);
-    final var rightDetails = createTempVariable(rightDebugInfo);
+    // Create temp variable with debug info from right operand context (for accurate position tracking)
+    final var rightDetails = createTempVariableFromContext(rightExpr);
     final var rightEvaluation = processOperandExpression(rightExpr, rightDetails);
     instructions.addAll(generators.variableMemoryManagement.apply(() -> rightEvaluation, rightDetails));
 
@@ -72,19 +66,8 @@ public final class BinaryOperationGenerator extends AbstractGenerator
     final var leftSymbol = getRecordedSymbolOrException(leftExpr);
     final var rightSymbol = getRecordedSymbolOrException(rightExpr);
 
-    // Get the resolved method's return type from the binary operation's CallSymbol
-    final var exprSymbol = getRecordedSymbolOrException(ctx);
-    final ISymbol returnType;
-    if (exprSymbol instanceof CallSymbol cs) {
-      final var resolvedMethod = cs.getResolvedSymbolToCall();
-      switch (resolvedMethod) {
-        case MethodSymbol ms -> returnType = ms.getReturningSymbol().getType().orElse(leftSymbol);
-        case FunctionSymbol fs -> returnType = fs.getReturningSymbol().getType().orElse(leftSymbol);
-        default -> returnType = leftSymbol;  // Fallback for other symbol types
-      }
-    } else {
-      returnType = exprSymbol.getType().orElseThrow();
-    }
+    // Extract return type from the binary operation's CallSymbol using helper method
+    final var returnType = extractReturnType(ctx, leftSymbol);
 
     // Create call context for cost-based resolution with parse context
     // Pass parse context so CallDetailsBuilder can access the resolved CallSymbol from Phase 3

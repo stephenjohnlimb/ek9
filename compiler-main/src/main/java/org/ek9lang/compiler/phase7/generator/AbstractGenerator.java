@@ -52,4 +52,43 @@ abstract class AbstractGenerator {
     return new VariableDetails(stackContext.generateTempName(), debugInfo);
   }
 
+  /**
+   * Create a temporary variable with debug info extracted from parse tree context.
+   * This consolidates the pattern of: createDebugInfo(ctx) → createTempVariable(debugInfo).
+   * Used for accurate position tracking of operands in binary/unary operations.
+   *
+   * @param ctx The parse tree context to extract position from
+   * @return VariableDetails containing the temp variable name and context-specific debug info
+   */
+  protected VariableDetails createTempVariableFromContext(final ParseTree ctx) {
+    final var debugInfo = stackContext.createDebugInfo(ctx);
+    return createTempVariable(debugInfo);
+  }
+
+  /**
+   * Extract return type from a CallSymbol's resolved method.
+   * Handles the pattern: CallSymbol → MethodSymbol/FunctionSymbol → returning type.
+   * Falls back to expression type if not a CallSymbol.
+   *
+   * @param ctx The parse tree context containing the expression symbol
+   * @param fallbackSymbol Symbol to use if resolved method has no return type
+   * @return The return type of the operation
+   */
+  protected ISymbol extractReturnType(final ParseTree ctx, final ISymbol fallbackSymbol) {
+    final var exprSymbol = getRecordedSymbolOrException(ctx);
+
+    if (exprSymbol instanceof org.ek9lang.compiler.symbols.CallSymbol cs) {
+      final var resolvedMethod = cs.getResolvedSymbolToCall();
+      return switch (resolvedMethod) {
+        case org.ek9lang.compiler.symbols.MethodSymbol ms ->
+            ms.getReturningSymbol().getType().orElse(fallbackSymbol);
+        case org.ek9lang.compiler.symbols.FunctionSymbol fs ->
+            fs.getReturningSymbol().getType().orElse(fallbackSymbol);
+        default -> fallbackSymbol;  // Fallback for other symbol types
+      };
+    }
+
+    return exprSymbol.getType().orElseThrow();
+  }
+
 }

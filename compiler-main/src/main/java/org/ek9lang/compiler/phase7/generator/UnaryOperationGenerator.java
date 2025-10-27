@@ -12,10 +12,6 @@ import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
-import org.ek9lang.compiler.symbols.CallSymbol;
-import org.ek9lang.compiler.symbols.FunctionSymbol;
-import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 
 /**
@@ -57,7 +53,8 @@ public final class UnaryOperationGenerator extends AbstractGenerator
 
     final var operandExpr = ctx.expression().getFirst();
 
-    // Get operand variable - process the expression first with memory management
+    // Get operand variable - use expression debug info (not operand) for unary operations
+    // For unary operations, the LOAD should point to the expression position (where operator is)
     final var operandDetails = createTempVariable(debugInfo);
 
     // Use recursive expression processing to handle the operand (e.g., for -(-x))
@@ -69,19 +66,8 @@ public final class UnaryOperationGenerator extends AbstractGenerator
     // Get operand symbol for method resolution
     final var operandSymbol = getRecordedSymbolOrException(operandExpr);
 
-    // Get the resolved method's return type from the unary operation's CallSymbol
-    final var exprSymbol = getRecordedSymbolOrException(ctx);
-    final ISymbol returnType;
-    if (exprSymbol instanceof CallSymbol cs) {
-      final var resolvedMethod = cs.getResolvedSymbolToCall();
-      switch (resolvedMethod) {
-        case MethodSymbol ms -> returnType = ms.getReturningSymbol().getType().orElse(operandSymbol);
-        case FunctionSymbol fs -> returnType = fs.getReturningSymbol().getType().orElse(operandSymbol);
-        default -> returnType = operandSymbol;  // Fallback for other symbol types
-      }
-    } else {
-      returnType = exprSymbol.getType().orElseThrow();
-    }
+    // Extract return type from the unary operation's CallSymbol using helper method
+    final var returnType = extractReturnType(ctx, operandSymbol);
 
     // Create call context for cost-based resolution (unary operation has no arguments)
     final var callContext =
