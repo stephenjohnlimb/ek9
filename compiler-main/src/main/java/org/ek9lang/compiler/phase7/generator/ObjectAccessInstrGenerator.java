@@ -14,6 +14,7 @@ import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
 import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.ArgumentDetails;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
@@ -235,13 +236,7 @@ public final class ObjectAccessInstrGenerator extends AbstractGenerator {
       }
     }
 
-    return new ArgumentDetails(argumentVariables, argumentSymbols);
-  }
-
-  /**
-   * Record to hold argument processing results for promotion checking.
-   */
-  private record ArgumentDetails(List<String> argumentVariables, List<ISymbol> argumentSymbols) {
+    return new ArgumentDetails(argumentVariables, List.of(), argumentSymbols);
   }
 
 }

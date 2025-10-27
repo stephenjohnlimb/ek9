@@ -15,6 +15,7 @@ import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.calls.CallDetailsBuilder;
 import org.ek9lang.compiler.phase7.calls.CallProcessingDetails;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.ArgumentDetails;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.phase7.support.VariableMemoryManagement;
@@ -93,15 +94,14 @@ public final class FunctionCallProcessor
     }
 
     // Process function call using unified approach
-    return processFunctionCall(callSymbol, functionSymbol, details, instructions, exprProcessor);
+    return processFunctionCall(functionSymbol, details, instructions, exprProcessor);
   }
 
   /**
    * Process function call using unified CallDetailsBuilder approach.
    * This replaces the manual CallDetails construction with promotion-aware resolution.
    */
-  private List<IRInstr> processFunctionCall(final CallSymbol callSymbol,
-                                            final FunctionSymbol functionSymbol,
+  private List<IRInstr> processFunctionCall(final FunctionSymbol functionSymbol,
                                             final CallProcessingDetails details,
                                             final List<IRInstr> instructions,
                                             final Function<ExprProcessingDetails, List<IRInstr>> exprProcessor) {
@@ -212,16 +212,6 @@ public final class FunctionCallProcessor
         returnType,                        // Return type from function signature
         details.callContext()             // Pass the original parse context
     );
-  }
-
-  /**
-   * Record to hold argument processing results.
-   */
-  private record ArgumentDetails(
-      List<String> argumentVariables,
-      List<String> parameterTypes,
-      List<ISymbol> argumentSymbols
-  ) {
   }
 
   /**

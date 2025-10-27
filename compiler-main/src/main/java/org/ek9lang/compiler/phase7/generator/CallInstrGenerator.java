@@ -12,6 +12,7 @@ import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.ArgumentDetails;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.symbols.CallSymbol;
@@ -332,12 +333,5 @@ public final class CallInstrGenerator extends AbstractGenerator
     }
 
     return new ArgumentDetails(argumentVariables, parameterTypes, argumentSymbols);
-  }
-
-  /**
-   * Record to hold argument processing results (still needed for function calls).
-   */
-  private record ArgumentDetails(List<String> argumentVariables, List<String> parameterTypes,
-                                 List<ISymbol> argumentSymbols) {
   }
 }
