@@ -29,64 +29,64 @@ defines module booleanExpressions
     RETAIN rtn  // ./mixedExpression.ek9:98:25
     SCOPE_REGISTER rtn, _call  // ./mixedExpression.ek9:98:25
     SCOPE_ENTER _scope_1  // ./mixedExpression.ek9:100:7
-    _temp2 = LOGICAL_AND_BLOCK  // ./mixedExpression.ek9:100:17
+    _temp2 = LOGICAL_AND_BLOCK  // ./mixedExpression.ek9:100:12
     [
     left_evaluation:
     [
-    _temp3 = LOAD arg0  // ./mixedExpression.ek9:100:17
-    RETAIN _temp3  // ./mixedExpression.ek9:100:17
-    SCOPE_REGISTER _temp3, _scope_1  // ./mixedExpression.ek9:100:17
-    _temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=true, complexity=0]  // ./mixedExpression.ek9:100:17
+    _temp3 = LOAD arg0  // ./mixedExpression.ek9:100:12
+    RETAIN _temp3  // ./mixedExpression.ek9:100:12
+    SCOPE_REGISTER _temp3, _scope_1  // ./mixedExpression.ek9:100:12
+    _temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=true, complexity=0]  // ./mixedExpression.ek9:100:12
     ]
     left_operand: _temp3
     left_condition: _temp4
     right_evaluation:
     [
-    _temp5 = LOGICAL_OR_BLOCK  // ./mixedExpression.ek9:100:27
+    _temp5 = LOGICAL_OR_BLOCK  // ./mixedExpression.ek9:100:22
     [
     left_evaluation:
     [
-    _temp6 = LOAD arg1  // ./mixedExpression.ek9:100:27
-    RETAIN _temp6  // ./mixedExpression.ek9:100:27
-    SCOPE_REGISTER _temp6, _scope_1  // ./mixedExpression.ek9:100:27
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]  // ./mixedExpression.ek9:100:27
+    _temp6 = LOAD arg1  // ./mixedExpression.ek9:100:22
+    RETAIN _temp6  // ./mixedExpression.ek9:100:22
+    SCOPE_REGISTER _temp6, _scope_1  // ./mixedExpression.ek9:100:22
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]  // ./mixedExpression.ek9:100:22
     ]
     left_operand: _temp6
     left_condition: _temp7
     right_evaluation:
     [
-    _temp8 = LOAD arg2  // ./mixedExpression.ek9:100:27
-    RETAIN _temp8  // ./mixedExpression.ek9:100:27
-    SCOPE_REGISTER _temp8, _scope_1  // ./mixedExpression.ek9:100:27
+    _temp8 = LOAD arg2  // ./mixedExpression.ek9:100:30
+    RETAIN _temp8  // ./mixedExpression.ek9:100:30
+    SCOPE_REGISTER _temp8, _scope_1  // ./mixedExpression.ek9:100:30
     ]
     right_operand: _temp8
     result_computation:
     [
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp6._or(_temp8) [pure=true, complexity=0]  // ./mixedExpression.ek9:100:27
-    RETAIN _temp9  // ./mixedExpression.ek9:100:27
-    SCOPE_REGISTER _temp9, _scope_1  // ./mixedExpression.ek9:100:27
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp6._or(_temp8) [pure=true, complexity=0]  // ./mixedExpression.ek9:100:22
+    RETAIN _temp9  // ./mixedExpression.ek9:100:22
+    SCOPE_REGISTER _temp9, _scope_1  // ./mixedExpression.ek9:100:22
     ]
     logical_result: _temp9
     scope_id: _scope_1
     ]
-    RETAIN _temp5  // ./mixedExpression.ek9:100:17
-    SCOPE_REGISTER _temp5, _scope_1  // ./mixedExpression.ek9:100:17
+    RETAIN _temp5  // ./mixedExpression.ek9:100:21
+    SCOPE_REGISTER _temp5, _scope_1  // ./mixedExpression.ek9:100:21
     ]
     right_operand: _temp5
     result_computation:
     [
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp3._and(_temp5) [pure=true, complexity=0]  // ./mixedExpression.ek9:100:17
-    RETAIN _temp10  // ./mixedExpression.ek9:100:17
-    SCOPE_REGISTER _temp10, _scope_1  // ./mixedExpression.ek9:100:17
+    _temp10 = CALL (org.ek9.lang::Boolean)_temp3._and(_temp5) [pure=true, complexity=0]  // ./mixedExpression.ek9:100:12
+    RETAIN _temp10  // ./mixedExpression.ek9:100:12
+    SCOPE_REGISTER _temp10, _scope_1  // ./mixedExpression.ek9:100:12
     ]
     logical_result: _temp10
     scope_id: _scope_1
     ]
-    RETAIN _temp2  // ./mixedExpression.ek9:100:17
-    SCOPE_REGISTER _temp2, _scope_1  // ./mixedExpression.ek9:100:17
-    RELEASE rtn  // ./mixedExpression.ek9:100:17
-    STORE rtn, _temp2  // ./mixedExpression.ek9:100:17
-    RETAIN rtn  // ./mixedExpression.ek9:100:17
+    RETAIN _temp2  // ./mixedExpression.ek9:100:12
+    SCOPE_REGISTER _temp2, _scope_1  // ./mixedExpression.ek9:100:12
+    RELEASE rtn  // ./mixedExpression.ek9:100:12
+    STORE rtn, _temp2  // ./mixedExpression.ek9:100:12
+    RETAIN rtn  // ./mixedExpression.ek9:100:12
     SCOPE_EXIT _scope_1  // ./mixedExpression.ek9:100:7
     RETURN rtn  // ./mixedExpression.ek9:98:9`
     mixedBooleanExpression()

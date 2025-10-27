@@ -7,6 +7,127 @@ defines module controlFlow.character
 
   defines function
 
+    @IR: IR_GENERATION: FUNCTION: "controlFlow.character::simpleSwitchCharacterPromotion": `
+    ConstructDfn: controlFlow.character::simpleSwitchCharacterPromotion(org.ek9.lang::String)->org.ek9.lang::String
+    OperationDfn: controlFlow.character::simpleSwitchCharacterPromotion.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow.character::simpleSwitchCharacterPromotion.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow.character::simpleSwitchCharacterPromotion.simpleSwitchCharacterPromotion()->controlFlow.character::simpleSwitchCharacterPromotion
+    BasicBlock: _entry_1
+    CALL (controlFlow.character::simpleSwitchCharacterPromotion)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: controlFlow.character::simpleSwitchCharacterPromotion._call(org.ek9.lang::String)->org.ek9.lang::String
+    BasicBlock: _entry_1
+    REFERENCE text, org.ek9.lang::String
+    REFERENCE result, org.ek9.lang::String
+    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _call
+    STORE result, _temp1
+    RETAIN result
+    SCOPE_REGISTER result, _call
+    SCOPE_ENTER _scope_1
+    SCOPE_ENTER _scope_2
+    _temp2 = LOAD text
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_2
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "SWITCH"
+    evaluation_variable: _temp2
+    evaluation_variable_type: "org.ek9.lang::String"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_4
+    case_type: "LITERAL"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_3
+    _temp3 = LOAD _temp2
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_3
+    _temp4 = LOAD_LITERAL 'D', org.ek9.lang::Character
+    RETAIN _temp4
+    SCOPE_REGISTER _temp4, _scope_3
+    _temp6 = CALL (org.ek9.lang::Character)_temp4._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
+    RETAIN _temp6
+    SCOPE_REGISTER _temp6, _scope_3
+    _temp5 = CALL (org.ek9.lang::String)_temp3._eq(_temp6) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, _scope_3
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_3
+    ]
+    condition_result: _temp5
+    primitive_condition: _temp7
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp8 = LOAD_LITERAL Got D, org.ek9.lang::String
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, _scope_4
+    RELEASE result
+    STORE result, _temp8
+    RETAIN result
+    SCOPE_EXIT _scope_4
+    ]
+    ],
+    [
+    case_scope_id: _scope_6
+    case_type: "LITERAL"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_5
+    _temp9 = LOAD _temp2
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_5
+    _temp10 = LOAD_LITERAL 'A', org.ek9.lang::Character
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_5
+    _temp12 = CALL (org.ek9.lang::Character)_temp10._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_5
+    _temp11 = CALL (org.ek9.lang::String)_temp9._eq(_temp12) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_5
+    _temp13 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_5
+    ]
+    condition_result: _temp11
+    primitive_condition: _temp13
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_6
+    _temp14 = LOAD_LITERAL Got A, org.ek9.lang::String
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, _scope_6
+    RELEASE result
+    STORE result, _temp14
+    RETAIN result
+    SCOPE_EXIT _scope_6
+    ]
+    ]
+    ]
+    default_body_evaluation:
+    [
+    SCOPE_ENTER _scope_7
+    _temp15 = LOAD_LITERAL Other, org.ek9.lang::String
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, _scope_7
+    RELEASE result
+    STORE result, _temp15
+    RETAIN result
+    SCOPE_EXIT _scope_7
+    ]
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2
+    SCOPE_EXIT _scope_1
+    RETURN result`
     simpleSwitchCharacterPromotion()
       -> text as String
       <- result <- String()

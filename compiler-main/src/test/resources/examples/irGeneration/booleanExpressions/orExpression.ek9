@@ -28,38 +28,38 @@ defines module booleanExpressions
     RETAIN rtn  // ./orExpression.ek9:70:25
     SCOPE_REGISTER rtn, _call  // ./orExpression.ek9:70:25
     SCOPE_ENTER _scope_1  // ./orExpression.ek9:72:7
-    _temp2 = LOGICAL_OR_BLOCK  // ./orExpression.ek9:72:17
+    _temp2 = LOGICAL_OR_BLOCK  // ./orExpression.ek9:72:12
     [
     left_evaluation:
     [
-    _temp3 = LOAD arg0  // ./orExpression.ek9:72:17
-    RETAIN _temp3  // ./orExpression.ek9:72:17
-    SCOPE_REGISTER _temp3, _scope_1  // ./orExpression.ek9:72:17
-    _temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=true, complexity=0]  // ./orExpression.ek9:72:17
+    _temp3 = LOAD arg0  // ./orExpression.ek9:72:12
+    RETAIN _temp3  // ./orExpression.ek9:72:12
+    SCOPE_REGISTER _temp3, _scope_1  // ./orExpression.ek9:72:12
+    _temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=true, complexity=0]  // ./orExpression.ek9:72:12
     ]
     left_operand: _temp3
     left_condition: _temp4
     right_evaluation:
     [
-    _temp5 = LOAD arg1  // ./orExpression.ek9:72:17
-    RETAIN _temp5  // ./orExpression.ek9:72:17
-    SCOPE_REGISTER _temp5, _scope_1  // ./orExpression.ek9:72:17
+    _temp5 = LOAD arg1  // ./orExpression.ek9:72:20
+    RETAIN _temp5  // ./orExpression.ek9:72:20
+    SCOPE_REGISTER _temp5, _scope_1  // ./orExpression.ek9:72:20
     ]
     right_operand: _temp5
     result_computation:
     [
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._or(_temp5) [pure=true, complexity=0]  // ./orExpression.ek9:72:17
-    RETAIN _temp6  // ./orExpression.ek9:72:17
-    SCOPE_REGISTER _temp6, _scope_1  // ./orExpression.ek9:72:17
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._or(_temp5) [pure=true, complexity=0]  // ./orExpression.ek9:72:12
+    RETAIN _temp6  // ./orExpression.ek9:72:12
+    SCOPE_REGISTER _temp6, _scope_1  // ./orExpression.ek9:72:12
     ]
     logical_result: _temp6
     scope_id: _scope_1
     ]
-    RETAIN _temp2  // ./orExpression.ek9:72:17
-    SCOPE_REGISTER _temp2, _scope_1  // ./orExpression.ek9:72:17
-    RELEASE rtn  // ./orExpression.ek9:72:17
-    STORE rtn, _temp2  // ./orExpression.ek9:72:17
-    RETAIN rtn  // ./orExpression.ek9:72:17
+    RETAIN _temp2  // ./orExpression.ek9:72:12
+    SCOPE_REGISTER _temp2, _scope_1  // ./orExpression.ek9:72:12
+    RELEASE rtn  // ./orExpression.ek9:72:12
+    STORE rtn, _temp2  // ./orExpression.ek9:72:12
+    RETAIN rtn  // ./orExpression.ek9:72:12
     SCOPE_EXIT _scope_1  // ./orExpression.ek9:72:7
     RETURN rtn  // ./orExpression.ek9:70:9`
     orBooleanExpression()

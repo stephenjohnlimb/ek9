@@ -34,15 +34,15 @@ defines module empty.test
     RETAIN x  // ./empty_operator.ek9:85:21
     SCOPE_REGISTER x, _scope_1  // ./empty_operator.ek9:85:21
     REFERENCE result, org.ek9.lang::Boolean  // ./empty_operator.ek9:86:7
-    _temp3 = LOAD x  // ./empty_operator.ek9:86:22
-    RETAIN _temp3  // ./empty_operator.ek9:86:22
-    SCOPE_REGISTER _temp3, _scope_1  // ./empty_operator.ek9:86:22
+    _temp3 = LOAD x  // ./empty_operator.ek9:86:17
+    RETAIN _temp3  // ./empty_operator.ek9:86:17
+    SCOPE_REGISTER _temp3, _scope_1  // ./empty_operator.ek9:86:17
     _temp2 = CALL (org.ek9.lang::Integer)_temp3._empty() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./empty_operator.ek9:86:22
-    RETAIN _temp2  // ./empty_operator.ek9:86:22
-    SCOPE_REGISTER _temp2, _scope_1  // ./empty_operator.ek9:86:22
-    STORE result, _temp2  // ./empty_operator.ek9:86:22
-    RETAIN result  // ./empty_operator.ek9:86:22
-    SCOPE_REGISTER result, _scope_1  // ./empty_operator.ek9:86:22
+    RETAIN _temp2  // ./empty_operator.ek9:86:17
+    SCOPE_REGISTER _temp2, _scope_1  // ./empty_operator.ek9:86:17
+    STORE result, _temp2  // ./empty_operator.ek9:86:17
+    RETAIN result  // ./empty_operator.ek9:86:17
+    SCOPE_REGISTER result, _scope_1  // ./empty_operator.ek9:86:17
     _temp4 = CONTROL_FLOW_CHAIN  // ./empty_operator.ek9:87:20
     [
     chain_type: "QUESTION_OPERATOR"

@@ -34,15 +34,15 @@ defines module increment.test
     RETAIN x  // ./increment_operator.ek9:121:21
     SCOPE_REGISTER x, _scope_1  // ./increment_operator.ek9:121:21
     REFERENCE result, org.ek9.lang::Integer  // ./increment_operator.ek9:122:7
-    _temp3 = LOAD x  // ./increment_operator.ek9:122:18
-    RETAIN _temp3  // ./increment_operator.ek9:122:18
-    SCOPE_REGISTER _temp3, _scope_1  // ./increment_operator.ek9:122:18
+    _temp3 = LOAD x  // ./increment_operator.ek9:122:17
+    RETAIN _temp3  // ./increment_operator.ek9:122:17
+    SCOPE_REGISTER _temp3, _scope_1  // ./increment_operator.ek9:122:17
     _temp2 = CALL (org.ek9.lang::Integer)_temp3._inc() [pure=false, complexity=0, effects=RETURN_MUTATION,THIS_MUTATION]  // ./increment_operator.ek9:122:18
-    RETAIN _temp2  // ./increment_operator.ek9:122:18
-    SCOPE_REGISTER _temp2, _scope_1  // ./increment_operator.ek9:122:18
-    STORE result, _temp2  // ./increment_operator.ek9:122:18
-    RETAIN result  // ./increment_operator.ek9:122:18
-    SCOPE_REGISTER result, _scope_1  // ./increment_operator.ek9:122:18
+    RETAIN _temp2  // ./increment_operator.ek9:122:17
+    SCOPE_REGISTER _temp2, _scope_1  // ./increment_operator.ek9:122:17
+    STORE result, _temp2  // ./increment_operator.ek9:122:17
+    RETAIN result  // ./increment_operator.ek9:122:17
+    SCOPE_REGISTER result, _scope_1  // ./increment_operator.ek9:122:17
     _temp4 = CONTROL_FLOW_CHAIN  // ./increment_operator.ek9:123:20
     [
     chain_type: "QUESTION_OPERATOR"

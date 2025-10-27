@@ -41,18 +41,18 @@ defines module shiftLeft.test
     RETAIN shiftAmount  // ./shift_left_operator.ek9:96:31
     SCOPE_REGISTER shiftAmount, _scope_1  // ./shift_left_operator.ek9:96:31
     REFERENCE result, org.ek9.lang::Bits  // ./shift_left_operator.ek9:97:7
-    _temp4 = LOAD bits  // ./shift_left_operator.ek9:97:22
-    RETAIN _temp4  // ./shift_left_operator.ek9:97:22
-    SCOPE_REGISTER _temp4, _scope_1  // ./shift_left_operator.ek9:97:22
-    _temp5 = LOAD shiftAmount  // ./shift_left_operator.ek9:97:22
-    RETAIN _temp5  // ./shift_left_operator.ek9:97:22
-    SCOPE_REGISTER _temp5, _scope_1  // ./shift_left_operator.ek9:97:22
-    _temp3 = CALL (org.ek9.lang::Bits)_temp4._shftl(_temp5) [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./shift_left_operator.ek9:97:22
-    RETAIN _temp3  // ./shift_left_operator.ek9:97:22
-    SCOPE_REGISTER _temp3, _scope_1  // ./shift_left_operator.ek9:97:22
-    STORE result, _temp3  // ./shift_left_operator.ek9:97:22
-    RETAIN result  // ./shift_left_operator.ek9:97:22
-    SCOPE_REGISTER result, _scope_1  // ./shift_left_operator.ek9:97:22
+    _temp4 = LOAD bits  // ./shift_left_operator.ek9:97:17
+    RETAIN _temp4  // ./shift_left_operator.ek9:97:17
+    SCOPE_REGISTER _temp4, _scope_1  // ./shift_left_operator.ek9:97:17
+    _temp5 = LOAD shiftAmount  // ./shift_left_operator.ek9:97:25
+    RETAIN _temp5  // ./shift_left_operator.ek9:97:25
+    SCOPE_REGISTER _temp5, _scope_1  // ./shift_left_operator.ek9:97:25
+    _temp3 = CALL (org.ek9.lang::Bits)_temp4._shftl(_temp5) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./shift_left_operator.ek9:97:22
+    RETAIN _temp3  // ./shift_left_operator.ek9:97:17
+    SCOPE_REGISTER _temp3, _scope_1  // ./shift_left_operator.ek9:97:17
+    STORE result, _temp3  // ./shift_left_operator.ek9:97:17
+    RETAIN result  // ./shift_left_operator.ek9:97:17
+    SCOPE_REGISTER result, _scope_1  // ./shift_left_operator.ek9:97:17
     _temp6 = CONTROL_FLOW_CHAIN  // ./shift_left_operator.ek9:98:20
     [
     chain_type: "QUESTION_OPERATOR"

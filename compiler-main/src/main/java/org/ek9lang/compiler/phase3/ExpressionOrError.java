@@ -12,6 +12,7 @@ import org.ek9lang.compiler.common.TypedSymbolAccess;
 import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.support.CommonTypeSuperOrTraitOrError;
 import org.ek9lang.compiler.support.SymbolFactory;
+import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.SymbolGenus;
@@ -66,7 +67,9 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
 
     final var symbol = processExpressionOrError(ctx);
     if (symbol != null) {
+      // Always record the symbol - this updates any Phase 1 CallSymbols with resolved type info
       symbolsAndScopes.recordSymbol(symbol, ctx);
+
       final var errorLocation = new Ek9Token(ctx.start);
       if (symbol.getType().isEmpty()) {
         emitTypeNotResolvedError(errorLocation, symbol);
@@ -158,6 +161,12 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
       return;
     }
 
+    // Allow CallSymbols (which extend MethodSymbol, so have category METHOD)
+    // CallSymbols represent operator/method calls and are used throughout expressions
+    if (symbol instanceof CallSymbol) {
+      return;
+    }
+
     emitTypeNotAppropriateError(new Ek9Token(ctx.start), symbol);
 
   }
@@ -181,13 +190,21 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
       return isSetOrError(ctx);
     } else if (!ctx.expression().isEmpty()) {
 
+      // Get the CallSymbol created in Phase 1 for this operator
+      final var callSymbol = symbolsAndScopes.getRecordedSymbol(ctx);
+      if (!(callSymbol instanceof CallSymbol)) {
+        throw new CompilerException("Expected CallSymbol for operator expression, but got: "
+            + (callSymbol != null ? callSymbol.getClass().getSimpleName() : "null"));
+      }
+
       //Could be one expression (unary) or have two expressions.
       //This case only looks for operators on some form of aggregate.
       final var opToken = new Ek9Token(ctx.op);
       final var search = methodSymbolSearchForExpression.apply(ctx);
       final var symbol = symbolFromContextOrError.apply(ctx.expression(0));
       if (symbol != null && symbol.getType().isPresent()) {
-        return expressionFromOperatorDataOrError(ctx, new CheckOperatorData(symbol, opToken, search));
+        return resolveOperatorCallSymbol(ctx, (CallSymbol) callSymbol,
+            new CheckOperatorData(symbol, opToken, search));
       }
     } else {
       throw new CompilerException("OperationInstr must have at least one expression.");
@@ -345,6 +362,26 @@ final class ExpressionOrError extends TypedSymbolAccess implements Consumer<EK9P
       var expr =
           symbolFactory.newExpressionSymbol(data.operatorUseToken(), data.symbol().getName(), locatedReturningType);
       return negationIfRequiredOrError(ctx, expr);
+    }
+
+    return null;
+  }
+
+  /**
+   * Resolve operator method and set resolvedSymbolToCall on CallSymbol.
+   * This follows the same pattern as switch case operator resolution.
+   */
+  private ISymbol resolveOperatorCallSymbol(final EK9Parser.ExpressionContext ctx,
+                                            final CallSymbol callSymbol,
+                                            final CheckOperatorData data) {
+
+    // Resolve operator method and set resolvedSymbolToCall on CallSymbol
+    final var locatedReturningType = requiredOperatorPresentOrError.apply(data, callSymbol);
+
+    if (locatedReturningType.isPresent()) {
+      // Set return type on CallSymbol (unwrap Optional since setType expects ISymbol)
+      callSymbol.setType(locatedReturningType.get());
+      return negationIfRequiredOrError(ctx, callSymbol);
     }
 
     return null;

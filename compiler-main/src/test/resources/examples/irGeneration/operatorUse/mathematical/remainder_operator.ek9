@@ -29,17 +29,17 @@ defines module remainder.test
     SCOPE_ENTER _scope_1  // ./remainder_operator.ek9:82:7
     REFERENCE result, org.ek9.lang::Integer  // ./remainder_operator.ek9:82:7
     _temp2 = LOAD_LITERAL 7, org.ek9.lang::Integer  // ./remainder_operator.ek9:82:17
-    RETAIN _temp2  // ./remainder_operator.ek9:82:19
-    SCOPE_REGISTER _temp2, _scope_1  // ./remainder_operator.ek9:82:19
+    RETAIN _temp2  // ./remainder_operator.ek9:82:17
+    SCOPE_REGISTER _temp2, _scope_1  // ./remainder_operator.ek9:82:17
     _temp3 = LOAD_LITERAL 3, org.ek9.lang::Integer  // ./remainder_operator.ek9:82:23
-    RETAIN _temp3  // ./remainder_operator.ek9:82:19
-    SCOPE_REGISTER _temp3, _scope_1  // ./remainder_operator.ek9:82:19
-    _temp1 = CALL (org.ek9.lang::Integer)_temp2._rem(_temp3) [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./remainder_operator.ek9:82:19
-    RETAIN _temp1  // ./remainder_operator.ek9:82:19
-    SCOPE_REGISTER _temp1, _scope_1  // ./remainder_operator.ek9:82:19
-    STORE result, _temp1  // ./remainder_operator.ek9:82:19
-    RETAIN result  // ./remainder_operator.ek9:82:19
-    SCOPE_REGISTER result, _scope_1  // ./remainder_operator.ek9:82:19
+    RETAIN _temp3  // ./remainder_operator.ek9:82:23
+    SCOPE_REGISTER _temp3, _scope_1  // ./remainder_operator.ek9:82:23
+    _temp1 = CALL (org.ek9.lang::Integer)_temp2._rem(_temp3) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./remainder_operator.ek9:82:19
+    RETAIN _temp1  // ./remainder_operator.ek9:82:17
+    SCOPE_REGISTER _temp1, _scope_1  // ./remainder_operator.ek9:82:17
+    STORE result, _temp1  // ./remainder_operator.ek9:82:17
+    RETAIN result  // ./remainder_operator.ek9:82:17
+    SCOPE_REGISTER result, _scope_1  // ./remainder_operator.ek9:82:17
     _temp4 = CONTROL_FLOW_CHAIN  // ./remainder_operator.ek9:83:20
     [
     chain_type: "QUESTION_OPERATOR"

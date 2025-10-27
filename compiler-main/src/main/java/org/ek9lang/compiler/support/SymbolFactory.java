@@ -437,6 +437,16 @@ public class SymbolFactory extends CommonFactory {
   }
 
   /**
+   * Create a new CallSymbol for an operator in an expression.
+   * This enables uniform handling of all operators (binary, unary) like method calls.
+   */
+  public CallSymbol newOperatorCall(final String operator, final EK9Parser.ExpressionContext ctx,
+                                    final IScope scope) {
+
+    return operationFactory.newOperatorCall(operator, ctx, scope);
+  }
+
+  /**
    * Create a new symbol that represents an EK9 'switch' block.
    */
   public SwitchSymbol newSwitch(final EK9Parser.SwitchStatementExpressionContext ctx, final IScope scope) {

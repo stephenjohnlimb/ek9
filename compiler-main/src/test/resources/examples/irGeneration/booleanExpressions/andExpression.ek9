@@ -6,10 +6,10 @@ defines module booleanExpressions
 
     @IR: IR_GENERATION: FUNCTION: "booleanExpressions::andBooleanExpression": `
     ConstructDfn: booleanExpressions::andBooleanExpression(org.ek9.lang::Boolean,org.ek9.lang::Boolean)->org.ek9.lang::Boolean
-    OperationDfn: booleanExpressions::andBooleanExpression.c_init()->org.ek9.lang::Void  
+    OperationDfn: booleanExpressions::andBooleanExpression.c_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     RETURN
-    OperationDfn: booleanExpressions::andBooleanExpression.i_init()->org.ek9.lang::Void  
+    OperationDfn: booleanExpressions::andBooleanExpression.i_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     RETURN
     OperationDfn: booleanExpressions::andBooleanExpression.andBooleanExpression()->booleanExpressions::andBooleanExpression  // ./andExpression.ek9:59:5
@@ -22,38 +22,38 @@ defines module booleanExpressions
     REFERENCE arg1, org.ek9.lang::Boolean  // ./andExpression.ek9:62:9
     REFERENCE rtn, org.ek9.lang::Boolean  // ./andExpression.ek9:64:9
     SCOPE_ENTER _scope_1  // ./andExpression.ek9:66:7
-    _temp1 = LOGICAL_AND_BLOCK  // ./andExpression.ek9:66:17
+    _temp1 = LOGICAL_AND_BLOCK  // ./andExpression.ek9:66:12
     [
     left_evaluation:
     [
-    _temp2 = LOAD arg0  // ./andExpression.ek9:66:17
-    RETAIN _temp2  // ./andExpression.ek9:66:17
-    SCOPE_REGISTER _temp2, _scope_1  // ./andExpression.ek9:66:17
-    _temp3 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./andExpression.ek9:66:17
+    _temp2 = LOAD arg0  // ./andExpression.ek9:66:12
+    RETAIN _temp2  // ./andExpression.ek9:66:12
+    SCOPE_REGISTER _temp2, _scope_1  // ./andExpression.ek9:66:12
+    _temp3 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./andExpression.ek9:66:12
     ]
     left_operand: _temp2
     left_condition: _temp3
     right_evaluation:
     [
-    _temp4 = LOAD arg1  // ./andExpression.ek9:66:17
-    RETAIN _temp4  // ./andExpression.ek9:66:17
-    SCOPE_REGISTER _temp4, _scope_1  // ./andExpression.ek9:66:17
+    _temp4 = LOAD arg1  // ./andExpression.ek9:66:21
+    RETAIN _temp4  // ./andExpression.ek9:66:21
+    SCOPE_REGISTER _temp4, _scope_1  // ./andExpression.ek9:66:21
     ]
     right_operand: _temp4
     result_computation:
     [
-    _temp5 = CALL (org.ek9.lang::Boolean)_temp2._and(_temp4) [pure=true, complexity=0]  // ./andExpression.ek9:66:17
-    RETAIN _temp5  // ./andExpression.ek9:66:17
-    SCOPE_REGISTER _temp5, _scope_1  // ./andExpression.ek9:66:17
+    _temp5 = CALL (org.ek9.lang::Boolean)_temp2._and(_temp4) [pure=true, complexity=0]  // ./andExpression.ek9:66:12
+    RETAIN _temp5  // ./andExpression.ek9:66:12
+    SCOPE_REGISTER _temp5, _scope_1  // ./andExpression.ek9:66:12
     ]
     logical_result: _temp5
     scope_id: _scope_1
     ]
-    RETAIN _temp1  // ./andExpression.ek9:66:17
-    SCOPE_REGISTER _temp1, _scope_1  // ./andExpression.ek9:66:17
-    RELEASE rtn  // ./andExpression.ek9:66:17
-    STORE rtn, _temp1  // ./andExpression.ek9:66:17
-    RETAIN rtn  // ./andExpression.ek9:66:17
+    RETAIN _temp1  // ./andExpression.ek9:66:12
+    SCOPE_REGISTER _temp1, _scope_1  // ./andExpression.ek9:66:12
+    RELEASE rtn  // ./andExpression.ek9:66:12
+    STORE rtn, _temp1  // ./andExpression.ek9:66:12
+    RETAIN rtn  // ./andExpression.ek9:66:12
     SCOPE_EXIT _scope_1  // ./andExpression.ek9:66:7
     RETURN rtn  // ./andExpression.ek9:64:9`
     andBooleanExpression()

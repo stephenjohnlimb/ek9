@@ -7,6 +7,121 @@ defines module controlFlow.equality
 
   defines function
 
+    @IR: IR_GENERATION: FUNCTION: "controlFlow.equality::simpleSwitchExplicitEquality": `
+    ConstructDfn: controlFlow.equality::simpleSwitchExplicitEquality(org.ek9.lang::Integer)->org.ek9.lang::String
+    OperationDfn: controlFlow.equality::simpleSwitchExplicitEquality.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow.equality::simpleSwitchExplicitEquality.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow.equality::simpleSwitchExplicitEquality.simpleSwitchExplicitEquality()->controlFlow.equality::simpleSwitchExplicitEquality
+    BasicBlock: _entry_1
+    CALL (controlFlow.equality::simpleSwitchExplicitEquality)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: controlFlow.equality::simpleSwitchExplicitEquality._call(org.ek9.lang::Integer)->org.ek9.lang::String
+    BasicBlock: _entry_1
+    REFERENCE value, org.ek9.lang::Integer
+    REFERENCE result, org.ek9.lang::String
+    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _call
+    STORE result, _temp1
+    RETAIN result
+    SCOPE_REGISTER result, _call
+    SCOPE_ENTER _scope_1
+    SCOPE_ENTER _scope_2
+    _temp2 = LOAD value
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_2
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "SWITCH"
+    evaluation_variable: _temp2
+    evaluation_variable_type: "org.ek9.lang::Integer"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_4
+    case_type: "LITERAL"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_3
+    _temp3 = LOAD _temp2
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_3
+    _temp4 = LOAD_LITERAL 10, org.ek9.lang::Integer
+    RETAIN _temp4
+    SCOPE_REGISTER _temp4, _scope_3
+    _temp5 = CALL (org.ek9.lang::Integer)_temp3._eq(_temp4) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, _scope_3
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_3
+    ]
+    condition_result: _temp5
+    primitive_condition: _temp6
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp7 = LOAD_LITERAL Ten (implicit), org.ek9.lang::String
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_4
+    RELEASE result
+    STORE result, _temp7
+    RETAIN result
+    SCOPE_EXIT _scope_4
+    ]
+    ],
+    [
+    case_scope_id: _scope_6
+    case_type: "LITERAL"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_5
+    _temp8 = LOAD _temp2
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, _scope_5
+    _temp9 = LOAD_LITERAL 20, org.ek9.lang::Integer
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_5
+    _temp10 = CALL (org.ek9.lang::Integer)_temp8._eq(_temp9) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_5
+    _temp11 = CALL (org.ek9.lang::Boolean)_temp10._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_5
+    ]
+    condition_result: _temp10
+    primitive_condition: _temp11
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_6
+    _temp12 = LOAD_LITERAL Twenty (explicit), org.ek9.lang::String
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_6
+    RELEASE result
+    STORE result, _temp12
+    RETAIN result
+    SCOPE_EXIT _scope_6
+    ]
+    ]
+    ]
+    default_body_evaluation:
+    [
+    SCOPE_ENTER _scope_7
+    _temp13 = LOAD_LITERAL Other, org.ek9.lang::String
+    RETAIN _temp13
+    SCOPE_REGISTER _temp13, _scope_7
+    RELEASE result
+    STORE result, _temp13
+    RETAIN result
+    SCOPE_EXIT _scope_7
+    ]
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2
+    SCOPE_EXIT _scope_1
+    RETURN result`
     simpleSwitchExplicitEquality()
       -> value as Integer
       <- result <- String()

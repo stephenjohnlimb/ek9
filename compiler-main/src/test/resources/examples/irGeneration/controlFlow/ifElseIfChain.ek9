@@ -47,7 +47,7 @@ defines module controlFlow
     _temp4 = LOAD_LITERAL 20, org.ek9.lang::Integer
     RETAIN _temp4
     SCOPE_REGISTER _temp4, _scope_3
-    _temp2 = CALL (org.ek9.lang::Integer)_temp3._gt(_temp4) [pure=true, complexity=1, effects=RETURN_MUTATION]
+    _temp2 = CALL (org.ek9.lang::Integer)_temp3._gt(_temp4) [pure=true, complexity=2, effects=RETURN_MUTATION]
     RETAIN _temp2
     SCOPE_REGISTER _temp2, _scope_3
     _temp5 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]
@@ -79,7 +79,7 @@ defines module controlFlow
     _temp9 = LOAD_LITERAL 10, org.ek9.lang::Integer
     RETAIN _temp9
     SCOPE_REGISTER _temp9, _scope_5
-    _temp7 = CALL (org.ek9.lang::Integer)_temp8._gt(_temp9) [pure=true, complexity=1, effects=RETURN_MUTATION]
+    _temp7 = CALL (org.ek9.lang::Integer)_temp8._gt(_temp9) [pure=true, complexity=2, effects=RETURN_MUTATION]
     RETAIN _temp7
     SCOPE_REGISTER _temp7, _scope_5
     _temp10 = CALL (org.ek9.lang::Boolean)_temp7._true() [pure=true, complexity=0]
@@ -111,7 +111,7 @@ defines module controlFlow
     _temp14 = LOAD_LITERAL 0, org.ek9.lang::Integer
     RETAIN _temp14
     SCOPE_REGISTER _temp14, _scope_7
-    _temp12 = CALL (org.ek9.lang::Integer)_temp13._gt(_temp14) [pure=true, complexity=1, effects=RETURN_MUTATION]
+    _temp12 = CALL (org.ek9.lang::Integer)_temp13._gt(_temp14) [pure=true, complexity=2, effects=RETURN_MUTATION]
     RETAIN _temp12
     SCOPE_REGISTER _temp12, _scope_7
     _temp15 = CALL (org.ek9.lang::Boolean)_temp12._true() [pure=true, complexity=0]

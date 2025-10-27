@@ -29,17 +29,17 @@ defines module compare.test
     SCOPE_ENTER _scope_1  // ./compare_operator.ek9:82:7
     REFERENCE z, org.ek9.lang::Integer  // ./compare_operator.ek9:82:7
     _temp2 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./compare_operator.ek9:82:12
-    RETAIN _temp2  // ./compare_operator.ek9:82:14
-    SCOPE_REGISTER _temp2, _scope_1  // ./compare_operator.ek9:82:14
+    RETAIN _temp2  // ./compare_operator.ek9:82:12
+    SCOPE_REGISTER _temp2, _scope_1  // ./compare_operator.ek9:82:12
     _temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./compare_operator.ek9:82:18
-    RETAIN _temp3  // ./compare_operator.ek9:82:14
-    SCOPE_REGISTER _temp3, _scope_1  // ./compare_operator.ek9:82:14
-    _temp1 = CALL (org.ek9.lang::Integer)_temp2._cmp(_temp3) [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./compare_operator.ek9:82:14
-    RETAIN _temp1  // ./compare_operator.ek9:82:14
-    SCOPE_REGISTER _temp1, _scope_1  // ./compare_operator.ek9:82:14
-    STORE z, _temp1  // ./compare_operator.ek9:82:14
-    RETAIN z  // ./compare_operator.ek9:82:14
-    SCOPE_REGISTER z, _scope_1  // ./compare_operator.ek9:82:14
+    RETAIN _temp3  // ./compare_operator.ek9:82:18
+    SCOPE_REGISTER _temp3, _scope_1  // ./compare_operator.ek9:82:18
+    _temp1 = CALL (org.ek9.lang::Integer)_temp2._cmp(_temp3) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./compare_operator.ek9:82:14
+    RETAIN _temp1  // ./compare_operator.ek9:82:12
+    SCOPE_REGISTER _temp1, _scope_1  // ./compare_operator.ek9:82:12
+    STORE z, _temp1  // ./compare_operator.ek9:82:12
+    RETAIN z  // ./compare_operator.ek9:82:12
+    SCOPE_REGISTER z, _scope_1  // ./compare_operator.ek9:82:12
     _temp4 = CONTROL_FLOW_CHAIN  // ./compare_operator.ek9:83:15
     [
     chain_type: "QUESTION_OPERATOR"

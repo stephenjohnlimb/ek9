@@ -203,4 +203,21 @@ class OperationFactory extends CommonFactory {
     return callSymbol;
   }
 
+  /**
+   * Create a CallSymbol for an operator in an expression.
+   * Same pattern as newCaseExpressionCall but for general binary/unary operators.
+   */
+  public CallSymbol newOperatorCall(final String operator, final EK9Parser.ExpressionContext ctx,
+                                    final IScope scope) {
+
+    final var callSymbol = new CallSymbol(operator, scope);
+    final var startToken = new Ek9Token(ctx.start);
+
+    configureSymbol(callSymbol, startToken);
+    callSymbol.setOperator(true);  // Mark as operator call
+    callSymbol.setInitialisedBy(startToken);
+
+    return callSymbol;
+  }
+
 }

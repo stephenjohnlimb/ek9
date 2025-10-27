@@ -201,6 +201,11 @@ public final class GeneratorSet {
   public SwitchStatementGenerator switchStatementGenerator;
 
   /**
+   * Generates short-circuit OR chains for multiple switch case expressions.
+   */
+  public SwitchCaseOrChainGenerator switchCaseOrChainGenerator;
+
+  /**
    * Generates IR for while/do-while loops using CONTROL_FLOW_CHAIN.
    */
   public WhileStatementGenerator whileStatementGenerator;

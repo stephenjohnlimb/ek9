@@ -12,6 +12,7 @@ import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.search.MethodSymbolSearchResult;
 import org.ek9lang.compiler.support.LocationExtractorFromSymbol;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -36,6 +37,15 @@ final class RequiredOperatorPresentOrError extends TypedSymbolAccess
 
   @Override
   public Optional<ISymbol> apply(final CheckOperatorData checkOperatorData) {
+    return apply(checkOperatorData, null);
+  }
+
+  /**
+   * Overloaded version that accepts a CallSymbol and sets the resolved method on it.
+   * This is used for operator expressions where we need to store the resolved method
+   * for later IR generation (particularly for parameter promotion).
+   */
+  public Optional<ISymbol> apply(final CheckOperatorData checkOperatorData, final CallSymbol callSymbol) {
 
     final var symbol = checkOperatorData.symbol();
     //Now if generic in nature - must now ensure all methods and types are expanded (if not already done)
@@ -71,6 +81,12 @@ final class RequiredOperatorPresentOrError extends TypedSymbolAccess
         noteOperatorAccessedIfConceptualType(aggregate, operator);
         //Now it depends on where this operator is called and if it is pure or not.
         checkPureAccess(checkOperatorData.operatorUseToken(), operator);
+
+        // Store resolved operator method on CallSymbol if provided
+        if (callSymbol != null) {
+          callSymbol.setResolvedSymbolToCall(operator);
+        }
+
         return operator.getReturningSymbol().getType();
 
       } else {

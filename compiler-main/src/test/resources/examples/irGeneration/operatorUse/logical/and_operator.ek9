@@ -42,38 +42,38 @@ defines module anand.test
     RETAIN b  // ./and_operator.ek9:117:21
     SCOPE_REGISTER b, _scope_1  // ./and_operator.ek9:117:21
     REFERENCE result, org.ek9.lang::Boolean  // ./and_operator.ek9:118:7
-    _temp3 = LOGICAL_AND_BLOCK  // ./and_operator.ek9:118:19
+    _temp3 = LOGICAL_AND_BLOCK  // ./and_operator.ek9:118:17
     [
     left_evaluation:
     [
-    _temp4 = LOAD a  // ./and_operator.ek9:118:19
-    RETAIN _temp4  // ./and_operator.ek9:118:19
-    SCOPE_REGISTER _temp4, _scope_1  // ./and_operator.ek9:118:19
-    _temp5 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./and_operator.ek9:118:19
+    _temp4 = LOAD a  // ./and_operator.ek9:118:17
+    RETAIN _temp4  // ./and_operator.ek9:118:17
+    SCOPE_REGISTER _temp4, _scope_1  // ./and_operator.ek9:118:17
+    _temp5 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./and_operator.ek9:118:17
     ]
     left_operand: _temp4
     left_condition: _temp5
     right_evaluation:
     [
-    _temp6 = LOAD b  // ./and_operator.ek9:118:19
-    RETAIN _temp6  // ./and_operator.ek9:118:19
-    SCOPE_REGISTER _temp6, _scope_1  // ./and_operator.ek9:118:19
+    _temp6 = LOAD b  // ./and_operator.ek9:118:23
+    RETAIN _temp6  // ./and_operator.ek9:118:23
+    SCOPE_REGISTER _temp6, _scope_1  // ./and_operator.ek9:118:23
     ]
     right_operand: _temp6
     result_computation:
     [
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp4._and(_temp6) [pure=true, complexity=0]  // ./and_operator.ek9:118:19
-    RETAIN _temp7  // ./and_operator.ek9:118:19
-    SCOPE_REGISTER _temp7, _scope_1  // ./and_operator.ek9:118:19
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp4._and(_temp6) [pure=true, complexity=0]  // ./and_operator.ek9:118:17
+    RETAIN _temp7  // ./and_operator.ek9:118:17
+    SCOPE_REGISTER _temp7, _scope_1  // ./and_operator.ek9:118:17
     ]
     logical_result: _temp7
     scope_id: _scope_1
     ]
-    RETAIN _temp3  // ./and_operator.ek9:118:19
-    SCOPE_REGISTER _temp3, _scope_1  // ./and_operator.ek9:118:19
-    STORE result, _temp3  // ./and_operator.ek9:118:19
-    RETAIN result  // ./and_operator.ek9:118:19
-    SCOPE_REGISTER result, _scope_1  // ./and_operator.ek9:118:19
+    RETAIN _temp3  // ./and_operator.ek9:118:17
+    SCOPE_REGISTER _temp3, _scope_1  // ./and_operator.ek9:118:17
+    STORE result, _temp3  // ./and_operator.ek9:118:17
+    RETAIN result  // ./and_operator.ek9:118:17
+    SCOPE_REGISTER result, _scope_1  // ./and_operator.ek9:118:17
     _temp8 = CONTROL_FLOW_CHAIN  // ./and_operator.ek9:119:20
     [
     chain_type: "QUESTION_OPERATOR"

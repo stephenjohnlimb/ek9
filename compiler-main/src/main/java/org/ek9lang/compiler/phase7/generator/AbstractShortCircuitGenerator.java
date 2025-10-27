@@ -51,19 +51,23 @@ abstract class AbstractShortCircuitGenerator extends AbstractGenerator
     final var exprSymbol = getRecordedSymbolOrException(ctx);
     final var debugInfo = debugInfoCreator.apply(exprSymbol.getSourceToken());
 
+    // Get debug info for left operand specifically (for accurate position tracking)
+    final var lhsDebugInfo = stackContext.createDebugInfo(ctx.left);
     final var lhsTemp = stackContext.generateTempName();
-    final var lhsVariableDetails = new VariableDetails(lhsTemp, debugInfo);
+    final var lhsVariableDetails = new VariableDetails(lhsTemp, lhsDebugInfo);
     final var leftEvaluationInstructions = new ArrayList<>(
         recordExprProcessing.apply(new ExprProcessingDetails(ctx.left, lhsVariableDetails)));
 
     // Convert left operand to primitive boolean condition, so no need for memory management with primitives.
     final var lhsPrimitive = stackContext.generateTempName();
     final var lhsCallDetails = callDetailsForTrue.apply(lhsTemp);
-    leftEvaluationInstructions.add(CallInstr.call(lhsPrimitive, debugInfo, lhsCallDetails));
+    leftEvaluationInstructions.add(CallInstr.call(lhsPrimitive, lhsDebugInfo, lhsCallDetails));
 
+    // Get debug info for right operand specifically (for accurate position tracking)
+    final var rhsDebugInfo = stackContext.createDebugInfo(ctx.right);
     // Right operand evaluation instructions (for non-short-circuit pathway)
     final var rhsTemp = stackContext.generateTempName();
-    final var rhsVariableDetails = new VariableDetails(rhsTemp, debugInfo);
+    final var rhsVariableDetails = new VariableDetails(rhsTemp, rhsDebugInfo);
     final var rightEvaluationInstructions = new ArrayList<>(
         recordExprProcessing.apply(new ExprProcessingDetails(ctx.right, rhsVariableDetails)));
 

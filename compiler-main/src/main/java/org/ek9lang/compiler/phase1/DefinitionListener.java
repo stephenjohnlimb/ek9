@@ -1086,6 +1086,35 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
 
   }
 
+  @Override
+  public void enterExpression(final EK9Parser.ExpressionContext ctx) {
+
+    // Binary and unary operators are method calls - create CallSymbols for them
+    // This matches the pattern used for case expressions and enables uniform promotion support
+    // Only create CallSymbol when ctx has an operator (ctx.op, ctx.coalescing, ctx.coalescing_equality)
+    // Non-operators (primary, call, objectAccess, etc.) are handled in Phase 3
+    String operator = null;
+
+    if (ctx.op != null) {
+      operator = ctx.op.getText();  // Binary/unary operators: +, -, *, ==, <, etc.
+    } else if (ctx.coalescing != null) {
+      operator = ctx.coalescing.getText();  // Null-safe operators: ??, ?:
+    } else if (ctx.coalescing_equality != null) {
+      operator = ctx.coalescing_equality.getText();  // Null-safe comparison: ?<, ?<=, ?>, ?>=
+    }
+
+    // Create CallSymbol for all operators (including "and"/"or")
+    // Type-specific resolution happens in Phase 3 based on operand types
+    if (operator != null) {
+      symbolsAndScopes.recordSymbol(
+          symbolFactory.newOperatorCall(operator, ctx, symbolsAndScopes.getTopScope()), ctx);
+    }
+    // If no operator: primary, call, objectAccess, list, dict - no symbol created here
+
+    super.enterExpression(ctx);
+
+  }
+
   //Not sure these List, Dict and DictEntry calls are needed.
   //If not remove them later.
   @Override

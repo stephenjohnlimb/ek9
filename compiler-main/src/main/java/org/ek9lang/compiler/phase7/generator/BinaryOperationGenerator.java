@@ -45,7 +45,6 @@ public final class BinaryOperationGenerator extends AbstractGenerator
 
     final var ctx = details.ctx();
     final var resultVariable = details.variableDetails().resultVariable();
-    final var debugInfo = details.variableDetails().debugInfo();
 
     // Get method name from operator map
     final var methodName = operatorMap.getForward(details.ctx().op.getText());
@@ -55,13 +54,17 @@ public final class BinaryOperationGenerator extends AbstractGenerator
     final var rightExpr = ctx.right != null ? ctx.right : ctx.expression().get(1);
 
     // Process left operand with memory management
-    final var leftDetails = createTempVariable(debugInfo);
+    // Get debug info for left operand specifically (for accurate position tracking)
+    final var leftDebugInfo = stackContext.createDebugInfo(leftExpr);
+    final var leftDetails = createTempVariable(leftDebugInfo);
     final var leftEvaluation = processOperandExpression(leftExpr, leftDetails);
     final var instructions =
         new ArrayList<>(generators.variableMemoryManagement.apply(() -> leftEvaluation, leftDetails));
 
     // Process right operand with memory management
-    final var rightDetails = createTempVariable(debugInfo);
+    // Get debug info for right operand specifically (for accurate position tracking)
+    final var rightDebugInfo = stackContext.createDebugInfo(rightExpr);
+    final var rightDetails = createTempVariable(rightDebugInfo);
     final var rightEvaluation = processOperandExpression(rightExpr, rightDetails);
     instructions.addAll(generators.variableMemoryManagement.apply(() -> rightEvaluation, rightDetails));
 
@@ -83,15 +86,18 @@ public final class BinaryOperationGenerator extends AbstractGenerator
       returnType = exprSymbol.getType().orElseThrow();
     }
 
-    // Create call context for cost-based resolution
-    final var callContext = CallContext.forBinaryOperation(
-        leftSymbol,                                  // Target type (left operand type)
-        rightSymbol,                                 // Argument type (right operand type)
+    // Create call context for cost-based resolution with parse context
+    // Pass parse context so CallDetailsBuilder can access the resolved CallSymbol from Phase 3
+    // IMPORTANT: Must pass TYPES, not variable symbols, for promotion to work correctly
+    final var callContext = CallContext.forBinaryOperationWithContext(
+        leftSymbol.getType().orElseThrow(),          // Target type (not variable symbol)
+        rightSymbol.getType().orElseThrow(),         // Argument type (not variable symbol)
         returnType,                                  // Return type (from resolved method)
         methodName,                                  // Method name (from operator map)
         leftDetails.resultVariable(),                // Target variable (left operand variable)
         rightDetails.resultVariable(),               // Argument variable (right operand variable)
-        stackContext.currentScopeId()                // STACK-BASED: Get scope ID from current stack frame
+        stackContext.currentScopeId(),               // STACK-BASED: Get scope ID from current stack frame
+        ctx                                          // Parse context to access CallSymbol with resolved method
     );
 
     // Use CallDetailsBuilder from generators struct for cost-based method resolution and promotion

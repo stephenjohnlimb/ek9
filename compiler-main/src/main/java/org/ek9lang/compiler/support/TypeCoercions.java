@@ -43,7 +43,7 @@ public class TypeCoercions {
     AssertValue.checkNotNull("Coercion to cannot be null", to);
 
     if (from instanceof IAggregateSymbol fromAggregate) {
-      //that is the promotion symbol
+      //that is the promotion symbol - use EK9 operator name "#^"
       final var promoteMethod = fromAggregate.resolve(new MethodSymbolSearch("#^"));
 
       //Now because we have promoted/coerced once, we avoid using 'isAssignable' because that will

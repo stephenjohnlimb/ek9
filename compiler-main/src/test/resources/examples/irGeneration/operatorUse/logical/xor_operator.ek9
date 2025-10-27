@@ -42,18 +42,18 @@ defines module anxor.test
     RETAIN b  // ./xor_operator.ek9:97:21
     SCOPE_REGISTER b, _scope_1  // ./xor_operator.ek9:97:21
     REFERENCE result, org.ek9.lang::Boolean  // ./xor_operator.ek9:98:7
-    _temp4 = LOAD a  // ./xor_operator.ek9:98:19
-    RETAIN _temp4  // ./xor_operator.ek9:98:19
-    SCOPE_REGISTER _temp4, _scope_1  // ./xor_operator.ek9:98:19
-    _temp5 = LOAD b  // ./xor_operator.ek9:98:19
-    RETAIN _temp5  // ./xor_operator.ek9:98:19
-    SCOPE_REGISTER _temp5, _scope_1  // ./xor_operator.ek9:98:19
-    _temp3 = CALL (org.ek9.lang::Boolean)_temp4._xor(_temp5) [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./xor_operator.ek9:98:19
-    RETAIN _temp3  // ./xor_operator.ek9:98:19
-    SCOPE_REGISTER _temp3, _scope_1  // ./xor_operator.ek9:98:19
-    STORE result, _temp3  // ./xor_operator.ek9:98:19
-    RETAIN result  // ./xor_operator.ek9:98:19
-    SCOPE_REGISTER result, _scope_1  // ./xor_operator.ek9:98:19
+    _temp4 = LOAD a  // ./xor_operator.ek9:98:17
+    RETAIN _temp4  // ./xor_operator.ek9:98:17
+    SCOPE_REGISTER _temp4, _scope_1  // ./xor_operator.ek9:98:17
+    _temp5 = LOAD b  // ./xor_operator.ek9:98:23
+    RETAIN _temp5  // ./xor_operator.ek9:98:23
+    SCOPE_REGISTER _temp5, _scope_1  // ./xor_operator.ek9:98:23
+    _temp3 = CALL (org.ek9.lang::Boolean)_temp4._xor(_temp5) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./xor_operator.ek9:98:19
+    RETAIN _temp3  // ./xor_operator.ek9:98:17
+    SCOPE_REGISTER _temp3, _scope_1  // ./xor_operator.ek9:98:17
+    STORE result, _temp3  // ./xor_operator.ek9:98:17
+    RETAIN result  // ./xor_operator.ek9:98:17
+    SCOPE_REGISTER result, _scope_1  // ./xor_operator.ek9:98:17
     _temp6 = CONTROL_FLOW_CHAIN  // ./xor_operator.ek9:99:20
     [
     chain_type: "QUESTION_OPERATOR"

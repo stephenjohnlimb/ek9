@@ -189,7 +189,7 @@ defines module loops
     _temp15 = LOAD i
     RETAIN _temp15
     SCOPE_REGISTER _temp15, _scope_4
-    _temp13 = CALL (org.ek9.lang::Integer)_temp14._add(_temp15) [pure=true, complexity=1, effects=RETURN_MUTATION]
+    _temp13 = CALL (org.ek9.lang::Integer)_temp14._add(_temp15) [pure=true, complexity=2, effects=RETURN_MUTATION]
     RETAIN _temp13
     SCOPE_REGISTER _temp13, _scope_4
     RELEASE sum
