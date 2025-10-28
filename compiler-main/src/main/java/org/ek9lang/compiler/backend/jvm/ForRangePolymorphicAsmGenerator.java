@@ -316,30 +316,4 @@ final class ForRangePolymorphicAsmGenerator extends AbstractControlFlowAsmGenera
       context.exitDispatchCase();
     }
   }
-
-  /**
-   * Process list of IR instructions via recursive delegation to OutputVisitor.
-   * <p>
-   * Each instruction knows how to generate its own bytecode via accept(visitor).
-   * This enables:
-   * </p>
-   * <ul>
-   *   <li>CALL instructions → CallInstrAsmGenerator</li>
-   *   <li>LOAD/STORE/RETAIN/RELEASE → MemoryInstrAsmGenerator</li>
-   *   <li>LOAD_LITERAL → LiteralInstrAsmGenerator</li>
-   *   <li>ASSERT → BranchInstrAsmGenerator</li>
-   *   <li>SCOPE_ENTER/EXIT → ScopeInstrAsmGenerator</li>
-   * </ul>
-   * <p>
-   * All instructions maintain stack-empty invariant.
-   * </p>
-   *
-   * @param instructions List of IR instructions to process
-   */
-  private void processInstructions(final List<IRInstr> instructions) {
-    for (var instr : instructions) {
-      instr.accept(outputVisitor);  // Recursive delegation - polymorphic dispatch to correct generator
-    }
-    // Post-condition: stack is empty (guaranteed by all IR instruction generators)
-  }
 }

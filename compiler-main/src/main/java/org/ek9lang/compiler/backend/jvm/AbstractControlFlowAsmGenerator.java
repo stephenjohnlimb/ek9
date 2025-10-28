@@ -130,8 +130,41 @@ abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
   }
 
   /**
+   * Process list of IR instructions via recursive delegation to OutputVisitor.
+   * <p>
+   * Each instruction knows how to generate its own bytecode via accept(visitor).
+   * This enables polymorphic dispatch to the correct generator:
+   * </p>
+   * <ul>
+   *   <li>CALL instructions → CallInstrAsmGenerator</li>
+   *   <li>LOAD/STORE/RETAIN/RELEASE → MemoryInstrAsmGenerator</li>
+   *   <li>LOAD_LITERAL → LiteralInstrAsmGenerator</li>
+   *   <li>ASSERT → BranchInstrAsmGenerator</li>
+   *   <li>SCOPE_ENTER/EXIT → ScopeInstrAsmGenerator</li>
+   *   <li>CONTROL_FLOW_CHAIN → ControlFlowChainAsmGenerator</li>
+   * </ul>
+   * <p>
+   * All instructions maintain stack-empty invariant.
+   * </p>
+   * <p>
+   * Stack Frame Invariant:
+   * Pre-condition: stack is empty
+   * Post-condition: stack is empty (all results in local variables)
+   * </p>
+   *
+   * @param instructions List of IR instructions to process
+   */
+  protected void processInstructions(final java.util.List<IRInstr> instructions) {
+    for (var instr : instructions) {
+      instr.accept(outputVisitor);  // Recursive delegation - polymorphic dispatch to correct generator
+      // Each instruction maintains stack-empty invariant
+    }
+    // Post-condition: stack is empty (guaranteed by all IR instruction generators)
+  }
+
+  /**
    * Process condition evaluation instructions via recursive visiting.
-   * All instructions leave stack empty (results stored in variables).
+   * Semantic wrapper around {@link #processInstructions(java.util.List)} for clarity.
    * <p>
    * Stack Frame Invariant:
    * Pre-condition: stack is empty
@@ -141,16 +174,12 @@ abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
    * @param conditionEvaluation List of IR instructions to evaluate condition
    */
   protected void processConditionEvaluation(final java.util.List<IRInstr> conditionEvaluation) {
-    for (var instr : conditionEvaluation) {
-      instr.accept(outputVisitor);  // Recursive delegation to OutputVisitor
-      // Each instruction maintains stack-empty invariant
-    }
-    // Post-condition: stack is empty, condition result in local variable
+    processInstructions(conditionEvaluation);
   }
 
   /**
    * Process body evaluation instructions via recursive visiting.
-   * All instructions leave stack empty (results stored in variables).
+   * Semantic wrapper around {@link #processInstructions(java.util.List)} for clarity.
    * <p>
    * Stack Frame Invariant:
    * Pre-condition: stack is empty
@@ -160,11 +189,7 @@ abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
    * @param bodyEvaluation List of IR instructions for case/branch body
    */
   protected void processBodyEvaluation(final java.util.List<IRInstr> bodyEvaluation) {
-    for (var instr : bodyEvaluation) {
-      instr.accept(outputVisitor);  // Recursive delegation to OutputVisitor
-      // Each instruction maintains stack-empty invariant
-    }
-    // Post-condition: stack is empty, body result in local variable
+    processInstructions(bodyEvaluation);
   }
 
   /**
