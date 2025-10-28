@@ -1,21 +1,125 @@
 #!ek9
 <?-
-  Workarea for testing during development.
+  Comprehensive NESTED control flow test combining ALL control flow constructs:
+  - while loop (outer container)
+    - if/else (nested in while)
+      - for-range (nested in if branch)
+        - if (nested in for - 3 levels deep)
+      - switch (nested in else branch)
+        - do-while (nested in switch case)
+        - for-range (nested in different switch case)
+  - switch (outer level for final categorization)
+  - Complex boolean expressions (and/or) at multiple depths
+
+  Purpose: Validate IR generation maintains unique _temp variables and scopes
+  when control flow is deeply nested (up to 3 levels).
+
+  Tests:
+  - Unique _temp variables across all nesting levels
+  - Unique _scope_N IDs that don't collide
+  - Proper scope entry/exit when nested
+  - Boolean expression evaluation at different depths
+  - Loop variable isolation at multiple levels
 -?>
-defines module workarea
+defines module controlFlow
 
-  defines function
+  defines program
 
-    multipleCaseCharacterPromotion()
-      -> text as String
-      <- result <- String()
+    ComprehensiveNestedControlFlow()
+      ->
+        threshold as Integer
+        iterations as Integer
 
-      switch text
-        case 'D', 'A', 'Z'
-          result := "Found vowel or D"
-        case 'X', 'Y'
-          result := "Found X or Y"
-        default
-          result := "Other letter"
+      stdout <- Stdout()
+
+      // Input validation with if/else and boolean OR
+      validThreshold <- threshold
+      if threshold < 1 or threshold > 100
+        stdout.println("Threshold out of range, using 10")
+        validThreshold := 10
+      else
+        stdout.println("Threshold: " + $threshold)
+
+      validIterations <- iterations
+      if iterations < 1 or iterations > 20
+        stdout.println("Iterations out of range, using 5")
+        validIterations := 5
+      else
+        stdout.println("Iterations: " + $iterations)
+
+      counter <- 0
+      grandTotal <- 0
+
+      // OUTER LEVEL: while loop
+      while counter < validIterations
+        stdout.println("=== Iteration " + $counter + " ===")
+        iterationResult <- 0
+
+        // NESTED LEVEL 1: if/else inside while
+        if counter mod 2 == 0
+          stdout.println("Even iteration - using for-range")
+
+          // NESTED LEVEL 2: for-range inside if branch
+          for i in 1 ... validThreshold
+            iterationResult := iterationResult + i
+
+            // NESTED LEVEL 3: if inside for loop
+            if i > validThreshold / 2
+              iterationResult := iterationResult + 1
+
+        else
+          stdout.println("Odd iteration - using switch")
+
+          // NESTED LEVEL 2: switch inside else branch
+          switch counter
+            case 1
+              stdout.println("Case 1: do-while loop")
+              // NESTED LEVEL 3: do-while inside switch case
+              temp <- 1
+              do
+                iterationResult := iterationResult + temp
+                temp := temp + 1
+              while temp < 4
+
+            case 3, 5
+              stdout.println("Case 3 or 5: for-range loop")
+              // NESTED LEVEL 3: for-range inside switch case
+              for j in 1 ... 5
+                iterationResult := iterationResult + j
+
+            default
+              stdout.println("Default case: simple computation")
+              iterationResult := counter * 10
+
+        stdout.println("Iteration result: " + $iterationResult)
+        grandTotal := grandTotal + iterationResult
+        counter := counter + 1
+
+      // OUTER LEVEL: Final switch for categorization
+      stdout.println("=== Final Results ===")
+      stdout.println("Grand total: " + $grandTotal)
+
+      // Categorize the result
+      category <- "Unknown"
+      if grandTotal < 100
+        category := "Small"
+      else if grandTotal < 500
+        category := "Medium"
+      else if grandTotal < 2000
+        category := "Large"
+      else
+        category := "Very Large"
+
+      stdout.println("Category: " + category)
+
+      // Complex boolean expression with AND
+      if grandTotal > 200 and counter == validIterations
+        stdout.println("Status: SUCCESS - High total with all iterations")
+      else if grandTotal > 50 or counter > 0
+        stdout.println("Status: PARTIAL - Some computation completed")
+      else
+        stdout.println("Status: MINIMAL - Low computation")
+
+      stdout.println("Program complete")
 
 //EOF

@@ -22,10 +22,9 @@ import org.objectweb.asm.ClassWriter;
  */
 final class QuestionOperatorAsmGenerator extends AbstractControlFlowAsmGenerator {
 
-  QuestionOperatorAsmGenerator(final ConstructTargetTuple constructTargetTuple,
-                               final OutputVisitor outputVisitor,
-                               final ClassWriter classWriter) {
-    super(constructTargetTuple, outputVisitor, classWriter);
+  QuestionOperatorAsmGenerator(final ConstructTargetTuple constructTargetTuple, final OutputVisitor outputVisitor,
+                               final ClassWriter classWriter, final BytecodeGenerationContext context) {
+    super(constructTargetTuple, outputVisitor, classWriter, context);
   }
 
   /**

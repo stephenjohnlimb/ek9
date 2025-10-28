@@ -61,18 +61,36 @@ import org.objectweb.asm.Opcodes;
  */
 abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
 
+  /**
+   * Context stack for nested control flow.
+   * Allows nested generators to query enclosing control flow context.
+   */
+  protected final BytecodeGenerationContext context;
+
   protected AbstractControlFlowAsmGenerator(final ConstructTargetTuple constructTargetTuple,
                                             final OutputVisitor outputVisitor,
-                                            final ClassWriter classWriter) {
+                                            final ClassWriter classWriter,
+                                            final BytecodeGenerationContext context) {
     super(constructTargetTuple, outputVisitor, classWriter);
+    this.context = context;
   }
 
   /**
    * Generate unique label for control flow construct.
-   * Pattern: prefix_scopeId
+   * Pattern: prefix_[dispatchCase_]scopeId
    * <p>
    * <b>CRITICAL:</b> Always use {@code scopeId} as the uniqueId parameter.
    * </p>
+   * <p>
+   * <b>FOR_RANGE Dispatch:</b> When inside FOR_RANGE dispatch case, labels include
+   * dispatch case suffix to ensure uniqueness when same body IR is processed three times:
+   * </p>
+   * <pre>
+   * // Outside FOR_RANGE: if_next_scope_5
+   * // Equal case:       if_next_equal_scope_5
+   * // Ascending case:   if_next_ascending_scope_5
+   * // Descending case:  if_next_descending_scope_5
+   * </pre>
    * <pre>
    * // CORRECT - main control flow structure
    * createControlFlowLabel("while_start", instr.getScopeId());
@@ -96,12 +114,19 @@ abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
    *   <li>Safe for nested constructs with same variable names</li>
    * </ul>
    *
-   * @param prefix Label prefix identifying the construct type (e.g., "while_start", "if_end", "for_asc")
+   * @param prefix   Label prefix identifying the construct type (e.g., "while_start", "if_end", "for_asc")
    * @param uniqueId MUST be scopeId from IR instruction (never use result variable or variable name)
    * @return JVM Label for bytecode generation
    */
   protected Label createControlFlowLabel(final String prefix, final String uniqueId) {
-    return getOrCreateLabel(prefix + "_" + uniqueId);
+    final StringBuilder labelName = new StringBuilder(prefix).append("_");
+
+    // Include dispatch case if inside FOR_RANGE dispatch (makes labels unique per case)
+    context.getCurrentDispatchCase()
+        .ifPresent(dispatchCase -> labelName.append(dispatchCase.toString().toLowerCase()).append("_"));
+
+    labelName.append(uniqueId);
+    return getOrCreateLabel(labelName.toString());
   }
 
   /**
@@ -155,7 +180,7 @@ abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
    * </p>
    *
    * @param primitiveCondition Variable name holding primitive int (0 or 1)
-   * @param falseLabel Label to jump to if condition is false (0)
+   * @param falseLabel         Label to jump to if condition is false (0)
    */
   protected void branchIfFalse(final String primitiveCondition, final Label falseLabel) {
     final var conditionIndex = getVariableIndex(primitiveCondition);
@@ -181,7 +206,7 @@ abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
    * </p>
    *
    * @param primitiveCondition Variable name holding primitive int (0 or 1)
-   * @param trueLabel Label to jump to if condition is true (non-zero)
+   * @param trueLabel          Label to jump to if condition is true (non-zero)
    */
   protected void branchIfTrue(final String primitiveCondition, final Label trueLabel) {
     final var conditionIndex = getVariableIndex(primitiveCondition);
@@ -202,7 +227,7 @@ abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
    * </p>
    *
    * @param sourceVar Variable holding the result to copy
-   * @param destVar Variable to store the result into
+   * @param destVar   Variable to store the result into
    */
   protected void copyResultVariable(final String sourceVar, final String destVar) {
     final var sourceIndex = getVariableIndex(sourceVar);
@@ -270,8 +295,8 @@ abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
    *
    * @param conditionCase IR details for this case
    * @param nextCaseLabel Label to jump if condition is false
-   * @param endLabel Label to jump after body execution
-   * @param resultVar Overall result variable (null if no result)
+   * @param endLabel      Label to jump after body execution
+   * @param resultVar     Overall result variable (null if no result)
    */
   protected void processConditionCase(final ConditionCaseDetails conditionCase,
                                       final Label nextCaseLabel,
@@ -295,13 +320,13 @@ abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
    *
    * @param conditionCase IR details for this case
    * @param nextCaseLabel Label to jump if condition is false
-   * @param endLabel Label to jump after body execution
-   * @param resultVar Overall result variable (null if no result)
+   * @param endLabel      Label to jump after body execution
+   * @param resultVar     Overall result variable (null if no result)
    */
   protected void processConditionCaseWithoutLabelPlacement(final ConditionCaseDetails conditionCase,
-                                                            final Label nextCaseLabel,
-                                                            final Label endLabel,
-                                                            final String resultVar) {
+                                                           final Label nextCaseLabel,
+                                                           final Label endLabel,
+                                                           final String resultVar) {
     // 1. Evaluate condition (leaves stack empty)
     processConditionEvaluation(conditionCase.conditionEvaluation());
     // Stack: empty

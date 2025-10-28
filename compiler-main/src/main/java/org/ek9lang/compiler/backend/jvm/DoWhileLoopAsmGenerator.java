@@ -34,10 +34,9 @@ import org.objectweb.asm.ClassWriter;
  */
 final class DoWhileLoopAsmGenerator extends AbstractControlFlowAsmGenerator {
 
-  DoWhileLoopAsmGenerator(final ConstructTargetTuple constructTargetTuple,
-                          final OutputVisitor outputVisitor,
-                          final ClassWriter classWriter) {
-    super(constructTargetTuple, outputVisitor, classWriter);
+  DoWhileLoopAsmGenerator(final ConstructTargetTuple constructTargetTuple, final OutputVisitor outputVisitor,
+                          final ClassWriter classWriter, final BytecodeGenerationContext context) {
+    super(constructTargetTuple, outputVisitor, classWriter, context);
   }
 
   /**

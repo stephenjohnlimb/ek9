@@ -57,10 +57,9 @@ import org.objectweb.asm.Label;
  */
 final class SwitchAsmGenerator extends AbstractControlFlowAsmGenerator {
 
-  SwitchAsmGenerator(final ConstructTargetTuple constructTargetTuple,
-                     final OutputVisitor outputVisitor,
-                     final ClassWriter classWriter) {
-    super(constructTargetTuple, outputVisitor, classWriter);
+  SwitchAsmGenerator(final ConstructTargetTuple constructTargetTuple, final OutputVisitor outputVisitor,
+                     final ClassWriter classWriter, final BytecodeGenerationContext context) {
+    super(constructTargetTuple, outputVisitor, classWriter, context);
   }
 
   /**

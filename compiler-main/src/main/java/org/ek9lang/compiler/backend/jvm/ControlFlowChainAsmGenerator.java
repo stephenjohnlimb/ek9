@@ -40,10 +40,14 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   // private ForLoopAsmGenerator forLoopGenerator;
   // private TryCatchAsmGenerator tryCatchGenerator;
 
+  private final BytecodeGenerationContext context;
+
   ControlFlowChainAsmGenerator(final ConstructTargetTuple constructTargetTuple,
                                final OutputVisitor outputVisitor,
-                               final ClassWriter classWriter) {
+                               final ClassWriter classWriter,
+                               final BytecodeGenerationContext context) {
     super(constructTargetTuple, outputVisitor, classWriter);
+    this.context = context;
   }
 
   /**
@@ -81,7 +85,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   private void generateQuestionOperator(final ControlFlowChainInstr instr) {
     if (questionOperatorGenerator == null) {
       questionOperatorGenerator = new QuestionOperatorAsmGenerator(
-          constructTargetTuple, outputVisitor, classWriter);
+          constructTargetTuple, outputVisitor, classWriter, context);
     }
     // Always update context in case method changed
     questionOperatorGenerator.setSharedMethodContext(getMethodContext());
@@ -98,7 +102,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   private void generateGuardedAssignment(final ControlFlowChainInstr instr) {
     if (guardedAssignmentGenerator == null) {
       guardedAssignmentGenerator = new GuardedAssignmentAsmGenerator(
-          constructTargetTuple, outputVisitor, classWriter);
+          constructTargetTuple, outputVisitor, classWriter, context);
     }
     // Always update context in case method changed
     guardedAssignmentGenerator.setSharedMethodContext(getMethodContext());
@@ -115,7 +119,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   private void generateIfElse(final ControlFlowChainInstr instr) {
     if (ifElseGenerator == null) {
       ifElseGenerator = new IfElseAsmGenerator(
-          constructTargetTuple, outputVisitor, classWriter);
+          constructTargetTuple, outputVisitor, classWriter, context);
     }
     // Always update context in case method changed
     ifElseGenerator.setSharedMethodContext(getMethodContext());
@@ -132,7 +136,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   private void generateWhileLoop(final ControlFlowChainInstr instr) {
     if (whileLoopGenerator == null) {
       whileLoopGenerator = new WhileLoopAsmGenerator(
-          constructTargetTuple, outputVisitor, classWriter);
+          constructTargetTuple, outputVisitor, classWriter, context);
     }
     // Always update context in case method changed
     whileLoopGenerator.setSharedMethodContext(getMethodContext());
@@ -149,7 +153,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   private void generateDoWhileLoop(final ControlFlowChainInstr instr) {
     if (doWhileLoopGenerator == null) {
       doWhileLoopGenerator = new DoWhileLoopAsmGenerator(
-          constructTargetTuple, outputVisitor, classWriter);
+          constructTargetTuple, outputVisitor, classWriter, context);
     }
     // Always update context in case method changed
     doWhileLoopGenerator.setSharedMethodContext(getMethodContext());
@@ -166,7 +170,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   private void generateSwitch(final ControlFlowChainInstr instr) {
     if (switchGenerator == null) {
       switchGenerator = new SwitchAsmGenerator(
-          constructTargetTuple, outputVisitor, classWriter);
+          constructTargetTuple, outputVisitor, classWriter, context);
     }
     // Always update context in case method changed
     switchGenerator.setSharedMethodContext(getMethodContext());

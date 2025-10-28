@@ -26,10 +26,9 @@ import org.objectweb.asm.ClassWriter;
  */
 final class GuardedAssignmentAsmGenerator extends AbstractControlFlowAsmGenerator {
 
-  GuardedAssignmentAsmGenerator(final ConstructTargetTuple constructTargetTuple,
-                                final OutputVisitor outputVisitor,
-                                final ClassWriter classWriter) {
-    super(constructTargetTuple, outputVisitor, classWriter);
+  GuardedAssignmentAsmGenerator(final ConstructTargetTuple constructTargetTuple, final OutputVisitor outputVisitor,
+                                final ClassWriter classWriter, final BytecodeGenerationContext context) {
+    super(constructTargetTuple, outputVisitor, classWriter, context);
   }
 
   /**

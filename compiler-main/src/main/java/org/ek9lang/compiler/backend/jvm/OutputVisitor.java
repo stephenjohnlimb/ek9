@@ -45,6 +45,9 @@ public final class OutputVisitor implements INodeVisitor {
     this.constructTargetTuple = constructTargetTuple;
     asmStructureCreator = new AsmStructureCreator(constructTargetTuple, this);
 
+    // Create context stack for control flow
+    final var context = new BytecodeGenerationContext();
+
     // Initialize all specialized generators eagerly with shared ClassWriter
     final var classWriter = asmStructureCreator.getClassWriter();
     this.callInstrGenerator = new CallInstrAsmGenerator(constructTargetTuple, this, classWriter);
@@ -53,9 +56,10 @@ public final class OutputVisitor implements INodeVisitor {
     this.branchInstrGenerator = new BranchInstrAsmGenerator(constructTargetTuple, this, classWriter);
     this.labelInstrGenerator = new LabelInstrAsmGenerator(constructTargetTuple, this, classWriter);
     this.scopeInstrGenerator = new ScopeInstrAsmGenerator(constructTargetTuple, this, classWriter);
-    this.controlFlowChainGenerator = new ControlFlowChainAsmGenerator(constructTargetTuple, this, classWriter);
-    this.logicalOperationGenerator = new LogicalOperationAsmGenerator(constructTargetTuple, this, classWriter);
-    this.forRangePolymorphicGenerator = new ForRangePolymorphicAsmGenerator(constructTargetTuple, this, classWriter);
+    this.controlFlowChainGenerator = new ControlFlowChainAsmGenerator(constructTargetTuple, this, classWriter, context);
+    this.logicalOperationGenerator = new LogicalOperationAsmGenerator(constructTargetTuple, this, classWriter, context);
+    this.forRangePolymorphicGenerator =
+        new ForRangePolymorphicAsmGenerator(constructTargetTuple, this, classWriter, context);
   }
 
   /**

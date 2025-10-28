@@ -43,10 +43,9 @@ import org.objectweb.asm.ClassWriter;
  */
 final class LogicalOperationAsmGenerator extends AbstractControlFlowAsmGenerator {
 
-  LogicalOperationAsmGenerator(final ConstructTargetTuple constructTargetTuple,
-                               final OutputVisitor outputVisitor,
-                               final ClassWriter classWriter) {
-    super(constructTargetTuple, outputVisitor, classWriter);
+  LogicalOperationAsmGenerator(final ConstructTargetTuple constructTargetTuple, final OutputVisitor outputVisitor,
+                               final ClassWriter classWriter, final BytecodeGenerationContext context) {
+    super(constructTargetTuple, outputVisitor, classWriter, context);
   }
 
   /**

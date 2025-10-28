@@ -74,8 +74,9 @@ final class ForRangePolymorphicAsmGenerator extends AbstractControlFlowAsmGenera
 
   ForRangePolymorphicAsmGenerator(final ConstructTargetTuple constructTargetTuple,
                                   final OutputVisitor outputVisitor,
-                                  final ClassWriter classWriter) {
-    super(constructTargetTuple, outputVisitor, classWriter);
+                                  final ClassWriter classWriter,
+                                  final BytecodeGenerationContext context) {
+    super(constructTargetTuple, outputVisitor, classWriter, context);
   }
 
   /**
@@ -135,13 +136,16 @@ final class ForRangePolymorphicAsmGenerator extends AbstractControlFlowAsmGenera
     placeLabel(ascLabel);
     // Stack: empty (from dispatch branch)
     final Label loopStartAsc = createControlFlowLabel("for_asc_loop", loopScopeId);
-    generateLoopCase(loopStartAsc,
+    generateLoopCase(new LoopCaseData(
+        loopStartAsc,
         instr.getDispatchCases().ascending().loopConditionTemplate(),
         instr.getDispatchCases().ascending().loopConditionPrimitive(),
         instr.getDispatchCases().ascending().loopBodySetup(),
         instr.getBodyInstructions(),
         instr.getDispatchCases().ascending().loopIncrement(),
-        endLabel);
+        endLabel,
+        loopScopeId,
+        BytecodeGenerationContext.DispatchCase.ASCENDING));
     // Stack: empty at end label
     jumpTo(endLabel);
     // Stack: irrelevant (control transferred)
@@ -150,13 +154,16 @@ final class ForRangePolymorphicAsmGenerator extends AbstractControlFlowAsmGenera
     placeLabel(descLabel);
     // Stack: empty (from dispatch branch)
     final Label loopStartDesc = createControlFlowLabel("for_desc_loop", loopScopeId);
-    generateLoopCase(loopStartDesc,
+    generateLoopCase(new LoopCaseData(
+        loopStartDesc,
         instr.getDispatchCases().descending().loopConditionTemplate(),
         instr.getDispatchCases().descending().loopConditionPrimitive(),
         instr.getDispatchCases().descending().loopBodySetup(),
         instr.getBodyInstructions(),
         instr.getDispatchCases().descending().loopIncrement(),
-        endLabel);
+        endLabel,
+        loopScopeId,
+        BytecodeGenerationContext.DispatchCase.DESCENDING));
     // Stack: empty at end label
 
     // 8. End label - all paths converge here
@@ -186,13 +193,12 @@ final class ForRangePolymorphicAsmGenerator extends AbstractControlFlowAsmGenera
   private void generateDispatch(final ForRangePolymorphicInstr.DispatchCases cases,
                                  final Label ascLabel,
                                  final Label descLabel) {
-    // Check ascending: if (direction &lt; 0) goto ascLabel
+
     processInstructions(cases.ascending().directionCheck());
     // Stack: empty (direction check result in primitive boolean variable)
     branchIfTrue(cases.ascending().directionPrimitive(), ascLabel);
     // Stack: empty (both paths - branch taken or continue)
 
-    // Check descending: if (direction &gt; 0) goto descLabel
     processInstructions(cases.descending().directionCheck());
     // Stack: empty
     branchIfTrue(cases.descending().directionPrimitive(), descLabel);
@@ -221,48 +227,57 @@ final class ForRangePolymorphicAsmGenerator extends AbstractControlFlowAsmGenera
    * Stack: empty at loop_start, empty after condition, empty after body, empty after increment
    * </p>
    *
-   * @param loopStart          Label for loop start
-   * @param conditionTemplate  IR instructions to evaluate loop condition (re-executed each iteration)
-   * @param conditionPrimitive Variable holding primitive boolean condition result
-   * @param bodySetup          IR instructions for body setup (loopVariable = current)
-   * @param body               IR instructions for loop body (user code, shared across all cases)
-   * @param increment          IR instructions for increment (current++ or current--)
-   * @param endLabel           Label to jump to when loop exits
+   * @param data All data needed for loop generation (label, IR instructions, scope ID, dispatch case)
    */
-  private void generateLoopCase(final Label loopStart,
-                                 final List<IRInstr> conditionTemplate,
-                                 final String conditionPrimitive,
-                                 final List<IRInstr> bodySetup,
-                                 final List<IRInstr> body,
-                                 final List<IRInstr> increment,
-                                 final Label endLabel) {
+  private void generateLoopCase(final LoopCaseData data) {
     // Place loop start label
-    placeLabel(loopStart);
+    placeLabel(data.loopStart());
     // Stack: empty
 
-    // Condition check (template re-executed each iteration: current &lt;=&gt; end, etc.)
-    processInstructions(conditionTemplate);
-    // Stack: empty (condition result in local variable)
+    // Set dispatch case BEFORE creating labels (ensures dispatch prefix is applied)
+    context.enterDispatchCase(data.dispatchCase());
 
-    // Branch to end if condition is false
-    branchIfFalse(conditionPrimitive, endLabel);
-    // Stack: empty (both paths - continue or branch)
+    // Create increment label - where nested control flow continues to next iteration
+    // CRITICAL: Must be created AFTER enterDispatchCase() to get dispatch-specific prefix
+    final Label incrementLabel = createControlFlowLabel("for_increment", data.loopScopeId());
 
-    // Body setup: loopVariable = current (STORE instruction)
-    processInstructions(bodySetup);
-    // Stack: empty
+    // PUSH loop context BEFORE processing body
+    context.enterLoop(data.loopScopeId(), incrementLabel, data.endLabel());
+    try {
+      // Condition check (template re-executed each iteration: current &lt;=&gt; end, etc.)
+      processInstructions(data.conditionTemplate());
+      // Stack: empty (condition result in local variable)
 
-    // Body execution (shared across all dispatch cases)
-    processInstructions(body);
-    // Stack: empty
+      // Branch to end if condition is false
+      branchIfFalse(data.conditionPrimitive(), data.endLabel());
+      // Stack: empty (both paths - continue or branch)
 
-    // Increment: current = current._inc() or current._dec()
-    processInstructions(increment);
-    // Stack: empty
+      // Body setup: loopVariable = current (STORE instruction)
+      processInstructions(data.bodySetup());
+      // Stack: empty
 
-    // Jump back to loop start for next iteration
-    jumpTo(loopStart);
-    // Stack: irrelevant (control transferred)
+      // Body execution (shared across all dispatch cases)
+      // Nested generators can query context for loop continue/exit labels
+      // Nested control flow gets dispatch-specific label prefixes (e.g., "ascending_")
+      processInstructions(data.body());
+      // Stack: empty
+
+      // Place increment label (where nested control flow jumps)
+      placeLabel(incrementLabel);
+
+      // Increment: current = current._inc() or current._dec()
+      processInstructions(data.increment());
+      // Stack: empty
+
+      // Jump back to loop start for next iteration
+      jumpTo(data.loopStart());
+      // Stack: irrelevant (control transferred)
+    } finally {
+      // POP loop context AFTER processing body (ensures cleanup even on exceptions)
+      context.exitLoop();
+      // Clear dispatch case AFTER processing body (ensures cleanup)
+      context.exitDispatchCase();
+    }
   }
 
   /**
@@ -284,15 +299,22 @@ final class ForRangePolymorphicAsmGenerator extends AbstractControlFlowAsmGenera
    */
   private void generateEqualCase(final ForRangePolymorphicInstr.EqualCase equalCase,
                                   final List<IRInstr> body) {
-    // Body setup: loopVariable = current
-    processInstructions(equalCase.loopBodySetup());
-    // Stack: empty
+    // Set dispatch case BEFORE processing body (makes labels unique)
+    context.enterDispatchCase(BytecodeGenerationContext.DispatchCase.EQUAL);
+    try {
+      // Body setup: loopVariable = current
+      processInstructions(equalCase.loopBodySetup());
+      // Stack: empty
 
-    // Body execution once
-    processInstructions(body);
-    // Stack: empty
+      // Body execution once (nested control flow gets "equal_" label prefix)
+      processInstructions(body);
+      // Stack: empty
 
-    // Fall through to end (no loop, single iteration only)
+      // Fall through to end (no loop, single iteration only)
+    } finally {
+      // Clear dispatch case AFTER processing body (ensures cleanup)
+      context.exitDispatchCase();
+    }
   }
 
   /**
