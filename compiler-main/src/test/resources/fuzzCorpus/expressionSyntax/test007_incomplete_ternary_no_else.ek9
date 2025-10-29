@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.expressions.test007
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (incomplete ternary - missing else part)
+  // @TestDescription: Ternary operator missing colon and else value
+
+  defines function
+    testIncompleteTernaryNoElse()
+      condition <- true
+      result <- condition ? "yes"
+
+//EOF

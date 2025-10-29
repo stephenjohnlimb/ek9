@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.expressions.test017
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (consecutive commas in list)
+  // @TestDescription: List literal with double comma
+
+  defines function
+    testDoubleCommaInList()
+      list <- [1,, 2, 3]
+
+//EOF

@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.expressions.test013
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (trailing operator at end of statement)
+  // @TestDescription: Statement ending with binary operator
+
+  defines function
+    testTrailingOperator()
+      a <- 10
+      b <- 20
+      result <- a + b *
+
+//EOF

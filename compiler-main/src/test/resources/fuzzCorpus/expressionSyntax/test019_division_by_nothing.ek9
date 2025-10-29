@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.expressions.test019
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (division operator with no right operand)
+  // @TestDescription: Division followed by end of statement
+
+  defines function
+    testDivisionByNothing()
+      a <- 100
+      result <- a /
+
+//EOF

@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.expressions.test006
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (mismatched brackets - square and round)
+  // @TestDescription: Opening square bracket closed with round parenthesis
+
+  defines function
+    testMismatchedBrackets()
+      list <- [1, 2, 3)
+
+//EOF

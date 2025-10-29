@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.expressions.test005
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (extra closing parenthesis)
+  // @TestDescription: More closing than opening parentheses
+
+  defines function
+    testExtraClosingParenthesis()
+      a <- 10
+      b <- 20
+      result <- (a + b))
+
+//EOF

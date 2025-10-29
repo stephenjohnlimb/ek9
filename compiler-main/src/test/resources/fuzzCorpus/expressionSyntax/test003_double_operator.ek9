@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.expressions.test003
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (consecutive binary operators)
+  // @TestDescription: Two operators in sequence without operand
+
+  defines function
+    testDoubleOperator()
+      a <- 10
+      b <- 20
+      result <- a + * b
+
+//EOF

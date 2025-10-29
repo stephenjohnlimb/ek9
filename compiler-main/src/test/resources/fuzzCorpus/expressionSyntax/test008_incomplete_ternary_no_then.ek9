@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.expressions.test008
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (incomplete ternary - missing then part)
+  // @TestDescription: Ternary operator missing then value
+
+  defines function
+    testIncompleteTernaryNoThen()
+      condition <- true
+      result <- condition ? : "no"
+
+//EOF

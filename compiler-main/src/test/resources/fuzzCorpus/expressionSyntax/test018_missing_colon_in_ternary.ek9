@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.expressions.test018
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing colon in ternary expression)
+  // @TestDescription: Ternary with ? and values but no colon
+
+  defines function
+    testMissingColonInTernary()
+      condition <- true
+      result <- condition ? "yes" "no"
+
+//EOF

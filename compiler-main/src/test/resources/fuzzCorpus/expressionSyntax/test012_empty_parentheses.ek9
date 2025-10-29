@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.expressions.test012
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (empty parentheses in expression)
+  // @TestDescription: Parentheses with no content inside
+
+  defines function
+    testEmptyParentheses()
+      a <- 10
+      result <- a + ()
+
+//EOF

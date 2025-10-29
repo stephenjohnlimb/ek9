@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.expressions.test004
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (unclosed parenthesis)
+  // @TestDescription: Opening parenthesis without closing
+
+  defines function
+    testUnclosedParenthesis()
+      a <- 10
+      b <- 20
+      result <- (a + b
+
+//EOF

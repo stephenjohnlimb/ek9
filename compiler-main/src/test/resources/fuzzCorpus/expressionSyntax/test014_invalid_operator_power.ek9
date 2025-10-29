@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.expressions.test014
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (invalid operator ** for power)
+  // @TestDescription: Python-style ** power operator not valid in EK9
+
+  defines function
+    testInvalidOperatorPower()
+      a <- 2
+      result <- a ** 3
+
+//EOF

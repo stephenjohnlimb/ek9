@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.expressions.test002
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing right operand in binary expression)
+  // @TestDescription: Binary operator with missing right operand
+
+  defines function
+    testMissingRightOperand()
+      a <- 10
+      result <- a +
+
+//EOF

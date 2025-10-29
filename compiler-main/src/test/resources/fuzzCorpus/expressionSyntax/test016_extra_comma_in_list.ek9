@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.expressions.test016
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (trailing comma before closing bracket)
+  // @TestDescription: List literal with trailing comma
+
+  defines function
+    testExtraCommaInList()
+      list <- [1, 2, 3,]
+
+//EOF

@@ -1,0 +1,15 @@
+#!ek9
+defines module fuzztest.expressions.test011
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (deeply nested unclosed parenthesis)
+  // @TestDescription: Multiple levels of nesting with missing closing paren
+
+  defines function
+    testDeeplyNestedUnclosed()
+      a <- 10
+      b <- 20
+      c <- 30
+      result <- (a + (b * (c - 5)
+
+//EOF

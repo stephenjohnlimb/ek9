@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.expressions.test015
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (unclosed square bracket in list)
+  // @TestDescription: List literal with missing closing bracket
+
+  defines function
+    testUnclosedSquareBracket()
+      list <- [1, 2, 3, 4, 5
+
+//EOF

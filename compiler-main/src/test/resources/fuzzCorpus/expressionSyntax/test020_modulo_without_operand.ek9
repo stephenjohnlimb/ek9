@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.expressions.test020
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (modulo operator with no left operand)
+  // @TestDescription: Modulo operator starting expression
+
+  defines function
+    testModuloWithoutOperand()
+      a <- 10
+      result <- % a
+
+//EOF
