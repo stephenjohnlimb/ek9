@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.guards.test014
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (guard expression incomplete, missing function call)
+  // @TestDescription: if with guard but incomplete expression
+
+  defines function
+    testGuardIncompleteExpression()
+      if x <-
+        result <- "matched"
+
+//EOF

@@ -1,0 +1,18 @@
+#!ek9
+defines module fuzztest.statements.test005
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (multiple else blocks for single if)
+  // @TestDescription: if with two else blocks
+
+  defines function
+    testDoubleElse()
+      condition <- true
+      if condition
+        result <- "1"
+      else
+        result <- "2"
+      else
+        result <- "3"
+
+//EOF

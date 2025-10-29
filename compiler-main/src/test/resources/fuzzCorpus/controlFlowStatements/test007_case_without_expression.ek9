@@ -1,0 +1,15 @@
+#!ek9
+defines module fuzztest.statements.test007
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (case without expression)
+  // @TestDescription: case keyword without value to match
+
+  defines function
+    testCaseWithoutExpression()
+      value <- "test"
+      switch value
+        case
+          result <- "empty"
+
+//EOF

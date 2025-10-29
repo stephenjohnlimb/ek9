@@ -1,0 +1,24 @@
+#!ek9
+defines module fuzztest.statements.test019
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (catch without -> for exception parameter)
+  // @TestDescription: catch block without parameter arrow
+
+  defines function
+    testCatchMissingArrow()
+      try
+        risky()
+      catch
+        ex as Exception
+          handle()
+
+  defines function
+    risky()
+      <- rtn as String: "done"
+
+  defines function
+    handle()
+      <- rtn as String: "handled"
+
+//EOF

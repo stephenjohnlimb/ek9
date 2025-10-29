@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.statements.test011
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing INDENT after while)
+  // @TestDescription: while loop without required indentation for block
+
+  defines function
+    testWhileMissingIndent()
+      condition <- true
+      while condition
+      result <- "bad"
+
+//EOF

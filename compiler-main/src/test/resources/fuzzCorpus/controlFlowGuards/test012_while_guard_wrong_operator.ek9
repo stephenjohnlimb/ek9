@@ -1,0 +1,22 @@
+#!ek9
+defines module fuzztest.guards.test012
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (using := instead of <- in while guard)
+  // @TestDescription: while loop with assignment operator instead of guard
+
+  defines function
+    testWhileWrongOperator()
+      item <- String()
+      while item := getNext()
+        process()
+
+  defines function
+    getNext()
+      <- rtn as String?: String()
+
+  defines function
+    process()
+      <- rtn as String: "done"
+
+//EOF

@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.statements.test002
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (if without block body)
+  // @TestDescription: if statement with condition but no block
+
+  defines function
+    testIfMissingBlock()
+      condition <- true
+      if condition
+
+//EOF

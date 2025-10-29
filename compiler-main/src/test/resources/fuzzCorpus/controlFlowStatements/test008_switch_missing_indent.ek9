@@ -1,0 +1,15 @@
+#!ek9
+defines module fuzztest.statements.test008
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing INDENT after switch)
+  // @TestDescription: switch without required indentation for cases
+
+  defines function
+    testSwitchMissingIndent()
+      value <- "test"
+      switch value
+      case "test"
+        result <- "bad"
+
+//EOF

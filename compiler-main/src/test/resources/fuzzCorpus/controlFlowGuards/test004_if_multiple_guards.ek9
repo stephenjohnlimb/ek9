@@ -1,0 +1,21 @@
+#!ek9
+defines module fuzztest.guards.test004
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (multiple guards not allowed in if statement)
+  // @TestDescription: if with multiple guard declarations
+
+  defines function
+    testMultipleGuards()
+      if x <- getValue() and y <- getOther()
+        result <- "matched"
+
+  defines function
+    getValue()
+      <- rtn as String: "test"
+
+  defines function
+    getOther()
+      <- rtn as String: "other"
+
+//EOF

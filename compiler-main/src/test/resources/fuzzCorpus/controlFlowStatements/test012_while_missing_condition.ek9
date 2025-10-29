@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.statements.test012
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (while without condition expression)
+  // @TestDescription: while keyword with no condition
+
+  defines function
+    testWhileMissingCondition()
+      while
+        process()
+
+  defines function
+    process()
+      <- rtn as String: "done"
+
+//EOF

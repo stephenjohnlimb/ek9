@@ -1,0 +1,30 @@
+#!ek9
+defines module fuzztest.statements.test018
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (finally before catch - wrong order)
+  // @TestDescription: try with finally block before catch block
+
+  defines function
+    testFinallyBeforeCatch()
+      try
+        risky()
+      finally
+        cleanup()
+      catch
+        -> ex as Exception
+          handle()
+
+  defines function
+    risky()
+      <- rtn as String: "done"
+
+  defines function
+    cleanup()
+      <- rtn as String: "cleaned"
+
+  defines function
+    handle()
+      <- rtn as String: "handled"
+
+//EOF

@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.statements.test004
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (else without preceding if)
+  // @TestDescription: orphan else block without if statement
+
+  defines function
+    testElseWithoutIf()
+      else
+        result <- "orphan"
+
+//EOF

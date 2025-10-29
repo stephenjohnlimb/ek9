@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.statements.test001
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing INDENT after if condition)
+  // @TestDescription: if statement without required indentation for block
+
+  defines function
+    testIfMissingIndent()
+      condition <- true
+      if condition
+      result <- "bad"
+
+//EOF

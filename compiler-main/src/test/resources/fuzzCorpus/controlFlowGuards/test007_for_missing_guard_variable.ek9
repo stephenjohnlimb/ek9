@@ -1,0 +1,21 @@
+#!ek9
+defines module fuzztest.guards.test007
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing variable name in for guard)
+  // @TestDescription: for loop with guard operator but no variable
+
+  defines function
+    testForMissingGuardVar()
+      for <- getIterator()
+        process()
+
+  defines function
+    getIterator()
+      <- rtn as Iterator of String?: Iterator()
+
+  defines function
+    process()
+      <- rtn as String: "done"
+
+//EOF

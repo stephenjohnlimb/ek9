@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.statements.test017
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing INDENT after try)
+  // @TestDescription: try block without required indentation
+
+  defines function
+    testTryMissingIndent()
+      try
+      risky()
+
+  defines function
+    risky()
+      <- rtn as String: "done"
+
+//EOF

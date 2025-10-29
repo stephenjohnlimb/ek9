@@ -1,0 +1,24 @@
+#!ek9
+defines module fuzztest.guards.test018
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing exception type in catch block)
+  // @TestDescription: try/catch with variable but missing 'as Exception' type
+
+  defines function
+    testCatchMissingType()
+      try
+        risky()
+      catch
+        -> ex
+          handle()
+
+  defines function
+    risky()
+      <- rtn as String: "done"
+
+  defines function
+    handle()
+      <- rtn as String: "handled"
+
+//EOF

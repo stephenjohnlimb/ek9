@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.statements.test010
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (case without block body)
+  // @TestDescription: case with value but no indented block
+
+  defines function
+    testCaseMissingBlock()
+      value <- "test"
+      switch value
+        case "test"
+
+//EOF

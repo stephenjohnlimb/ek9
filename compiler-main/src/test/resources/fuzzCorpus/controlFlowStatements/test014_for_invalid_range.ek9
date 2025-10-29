@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.statements.test014
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (malformed range expression)
+  // @TestDescription: for loop with incomplete range (..)
+
+  defines function
+    testForInvalidRange()
+      for i in ..
+        process()
+
+  defines function
+    process()
+      <- rtn as String: "done"
+
+//EOF

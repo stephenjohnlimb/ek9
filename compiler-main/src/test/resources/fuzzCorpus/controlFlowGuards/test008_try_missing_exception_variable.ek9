@@ -1,0 +1,24 @@
+#!ek9
+defines module fuzztest.guards.test008
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing variable name in catch block)
+  // @TestDescription: try/catch with arrow but no exception variable
+
+  defines function
+    testTryMissingExceptionVar()
+      try
+        risky()
+      catch
+        -> as Exception
+          handle()
+
+  defines function
+    risky()
+      <- rtn as String: "done"
+
+  defines function
+    handle()
+      <- rtn as String: "handled"
+
+//EOF

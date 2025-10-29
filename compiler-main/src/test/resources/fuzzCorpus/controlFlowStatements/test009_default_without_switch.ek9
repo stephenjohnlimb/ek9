@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.statements.test009
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (default without switch)
+  // @TestDescription: orphan default block without switch statement
+
+  defines function
+    testDefaultWithoutSwitch()
+      default
+        result <- "orphan"
+
+//EOF

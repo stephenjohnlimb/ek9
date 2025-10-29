@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.guards.test013
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (using -> instead of <- in for guard)
+  // @TestDescription: for loop with parameter arrow instead of guard
+
+  defines function
+    testForWrongOperator()
+      for item -> iterator.next()
+        process()
+
+  defines function
+    process()
+      <- rtn as String: "done"
+
+//EOF

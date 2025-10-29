@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.guards.test017
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (incomplete guard expression in for)
+  // @TestDescription: for loop with guard but missing expression
+
+  defines function
+    testForGuardIncomplete()
+      for item <-
+        process()
+
+  defines function
+    process()
+      <- rtn as String: "done"
+
+//EOF

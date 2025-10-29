@@ -1,0 +1,15 @@
+#!ek9
+defines module fuzztest.statements.test006
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (switch without case keyword)
+  // @TestDescription: switch with direct value instead of case keyword
+
+  defines function
+    testSwitchMissingCase()
+      value <- "test"
+      switch value
+        "test"
+          result <- "matched"
+
+//EOF

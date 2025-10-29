@@ -1,0 +1,20 @@
+#!ek9
+defines module fuzztest.guards.test005
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing variable name in switch guard)
+  // @TestDescription: switch statement with guard operator but no variable
+
+  defines function
+    testSwitchMissingGuardVar()
+      switch <- getValue()
+        case "test"
+          result <- "matched"
+        default
+          result <- "none"
+
+  defines function
+    getValue()
+      <- rtn as String?: "test"
+
+//EOF

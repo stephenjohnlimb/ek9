@@ -1,0 +1,19 @@
+#!ek9
+defines module fuzztest.guards.test001
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (mismatched input '<-', expecting identifier)
+  // @TestDescription: if statement with guard operator but missing variable name
+
+  defines function
+    testMissingGuardVariable()
+      value <- getValue()
+
+      if <- getValue()
+        result <- "matched"
+
+  defines function
+    getValue()
+      <- rtn as String: "test"
+
+//EOF

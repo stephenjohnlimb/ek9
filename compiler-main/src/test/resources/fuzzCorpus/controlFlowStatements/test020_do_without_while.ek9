@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.statements.test020
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (do-while missing while keyword)
+  // @TestDescription: do block without terminating while condition
+
+  defines function
+    testDoWithoutWhile()
+      do
+        process()
+
+  defines function
+    process()
+      <- rtn as String: "done"
+
+//EOF

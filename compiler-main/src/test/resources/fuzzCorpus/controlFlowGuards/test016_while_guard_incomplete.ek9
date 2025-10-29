@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.guards.test016
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (incomplete guard expression in while)
+  // @TestDescription: while with guard but missing expression after operator
+
+  defines function
+    testWhileGuardIncomplete()
+      while item <-
+        process()
+
+  defines function
+    process()
+      <- rtn as String: "done"
+
+//EOF

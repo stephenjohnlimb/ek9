@@ -1,0 +1,20 @@
+#!ek9
+defines module fuzztest.guards.test011
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (using = instead of <- in switch guard)
+  // @TestDescription: switch with equals instead of guard operator
+
+  defines function
+    testSwitchWrongOperator()
+      switch value = getValue()
+        case "test"
+          result <- "matched"
+        default
+          result <- "none"
+
+  defines function
+    getValue()
+      <- rtn as String?: "test"
+
+//EOF

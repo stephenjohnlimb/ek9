@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.guards.test019
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (using <- <- double arrow in guard)
+  // @TestDescription: if with double guard arrow operator
+
+  defines function
+    testDoubleArrowGuard()
+      if x <- <- getValue()
+        result <- "matched"
+
+  defines function
+    getValue()
+      <- rtn as String: "test"
+
+//EOF

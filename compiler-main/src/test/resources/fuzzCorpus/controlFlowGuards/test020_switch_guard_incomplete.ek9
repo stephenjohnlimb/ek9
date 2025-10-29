@@ -1,0 +1,16 @@
+#!ek9
+defines module fuzztest.guards.test020
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (incomplete guard expression in switch)
+  // @TestDescription: switch with guard but missing expression after operator
+
+  defines function
+    testSwitchGuardIncomplete()
+      switch value <-
+        case "test"
+          result <- "matched"
+        default
+          result <- "none"
+
+//EOF

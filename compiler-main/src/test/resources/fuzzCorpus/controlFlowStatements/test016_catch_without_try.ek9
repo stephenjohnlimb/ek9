@@ -1,0 +1,18 @@
+#!ek9
+defines module fuzztest.statements.test016
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (catch without preceding try)
+  // @TestDescription: orphan catch block without try statement
+
+  defines function
+    testCatchWithoutTry()
+      catch
+        -> ex as Exception
+          handle()
+
+  defines function
+    handle()
+      <- rtn as String: "handled"
+
+//EOF

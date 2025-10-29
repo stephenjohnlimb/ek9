@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.statements.test015
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing INDENT after for)
+  // @TestDescription: for loop without required indentation for block
+
+  defines function
+    testForMissingIndent()
+      for i in 1..10
+      result <- "bad"
+
+//EOF

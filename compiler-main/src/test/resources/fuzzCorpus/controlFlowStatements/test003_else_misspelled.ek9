@@ -1,0 +1,16 @@
+#!ek9
+defines module fuzztest.statements.test003
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (misspelled 'else' keyword)
+  // @TestDescription: if/else with typo in else keyword
+
+  defines function
+    testElseMisspelled()
+      condition <- true
+      if condition
+        result <- "yes"
+      els
+        result <- "no"
+
+//EOF

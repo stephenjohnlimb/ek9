@@ -1,0 +1,21 @@
+#!ek9
+defines module fuzztest.guards.test006
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing variable name in while guard)
+  // @TestDescription: while loop with guard operator but no variable
+
+  defines function
+    testWhileMissingGuardVar()
+      while <- getNext()
+        process()
+
+  defines function
+    getNext()
+      <- rtn as String?: String()
+
+  defines function
+    process()
+      <- rtn as String: "done"
+
+//EOF

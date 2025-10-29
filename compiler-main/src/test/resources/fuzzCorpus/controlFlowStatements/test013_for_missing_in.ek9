@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.statements.test013
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (for without IN keyword)
+  // @TestDescription: for loop missing required 'in' keyword
+
+  defines function
+    testForMissingIn()
+      for i 1..10
+        process()
+
+  defines function
+    process()
+      <- rtn as String: "done"
+
+//EOF
