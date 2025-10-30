@@ -1,0 +1,20 @@
+#!ek9
+defines module fuzztest.declarations.test015
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (class cannot extend multiple classes)
+  // @TestDescription: Class with multiple extends clauses
+
+  defines class
+    Base1
+      name as String
+
+  defines class
+    Base2
+      age as Integer
+
+  defines class
+    Derived extends Base1 extends Base2
+      location as String
+
+//EOF

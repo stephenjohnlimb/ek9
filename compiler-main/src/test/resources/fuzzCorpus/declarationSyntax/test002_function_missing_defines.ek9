@@ -1,0 +1,11 @@
+#!ek9
+defines module fuzztest.declarations.test002
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing 'defines' keyword before function)
+  // @TestDescription: Function declaration without 'defines' keyword
+
+  function testFunction()
+    result <- 42
+
+//EOF

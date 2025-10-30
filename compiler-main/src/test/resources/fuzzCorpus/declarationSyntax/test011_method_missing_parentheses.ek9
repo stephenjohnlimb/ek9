@@ -1,0 +1,15 @@
+#!ek9
+defines module fuzztest.declarations.test011
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (method declaration missing parentheses)
+  // @TestDescription: Method without parameter parentheses
+
+  defines class
+    Calculator
+      add as pure
+        -> a as Integer
+        -> b as Integer
+        <- rtn as Integer: a + b
+
+//EOF

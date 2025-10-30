@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.declarations.test020
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing 'defines' keyword before component)
+  // @TestDescription: Component declaration without 'defines' keyword
+
+  component Logger
+    log()
+      -> message as String
+      stdout.println(message)
+
+//EOF

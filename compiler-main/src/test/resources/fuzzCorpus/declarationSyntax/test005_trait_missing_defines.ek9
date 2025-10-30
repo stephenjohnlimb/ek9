@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.declarations.test005
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing 'defines' keyword before trait)
+  // @TestDescription: Trait declaration without 'defines' keyword
+
+  trait Nameable
+    name() as pure
+      <- rtn as String?
+
+//EOF

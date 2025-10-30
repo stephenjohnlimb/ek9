@@ -1,0 +1,16 @@
+#!ek9
+defines module fuzztest.declarations.test007
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (invalid operator symbol ***)
+  // @TestDescription: Operator with non-existent symbol
+
+  defines class
+    Number
+      value as Integer
+
+      operator *** as pure
+        -> arg as Number
+        <- rtn as Number: Number(value * arg.value * arg.value)
+
+//EOF

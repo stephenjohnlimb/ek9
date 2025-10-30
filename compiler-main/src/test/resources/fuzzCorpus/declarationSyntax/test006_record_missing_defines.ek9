@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.declarations.test006
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing 'defines' keyword before record)
+  // @TestDescription: Record declaration without 'defines' keyword
+
+  record Person
+    name as String
+    age as Integer
+
+//EOF

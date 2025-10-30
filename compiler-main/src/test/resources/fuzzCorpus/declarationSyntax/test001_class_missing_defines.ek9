@@ -1,0 +1,11 @@
+#!ek9
+defines module fuzztest.declarations.test001
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing 'defines' keyword before class)
+  // @TestDescription: Class declaration without 'defines' keyword
+
+  class MalformedClass
+    name as String
+
+//EOF

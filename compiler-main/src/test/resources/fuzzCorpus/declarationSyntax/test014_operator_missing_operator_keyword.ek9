@@ -1,0 +1,16 @@
+#!ek9
+defines module fuzztest.declarations.test014
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing 'operator' keyword)
+  // @TestDescription: Operator declaration without 'operator' keyword
+
+  defines class
+    Number
+      value as Integer
+
+      + as pure
+        -> arg as Number
+        <- rtn as Number: Number(value + arg.value)
+
+//EOF

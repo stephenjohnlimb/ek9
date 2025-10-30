@@ -1,0 +1,11 @@
+#!ek9
+defines module fuzztest.declarations.test013
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (function with both parameter and return arrows on same line)
+  // @TestDescription: Function with malformed arrow placement
+
+  defines function
+    getValue() -> input as String <- rtn as String: input
+
+//EOF
