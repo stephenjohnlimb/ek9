@@ -1,0 +1,23 @@
+#!ek9
+defines module fuzztest.symboldef.test002
+
+  // @ExpectPhase: SYMBOL_DEFINITION
+  // @ExpectError: ABSTRACT_BUT_BODY_PROVIDED
+  // @TestDescription: Class method marked abstract but has implementation
+
+  defines class
+
+    BaseProcessor abstract
+
+      // Valid: abstract method without body
+      processAbstract() as abstract
+        -> data as String
+        <- result as Boolean?
+
+      // Invalid: abstract method WITH body
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      processWithBody() as abstract
+        -> data as String
+        <- result as Boolean: data?
+
+//EOF

@@ -292,6 +292,49 @@ def generate_dispatcher_incomplete(num_types=3, num_missing=1):
 
 **Volume**: 10,000+ dispatcher variations
 
+#### Critical: Error Directive Meta-Validation
+
+**All semantic fuzzing tests MUST include @Error directives** to ensure test quality:
+
+```ek9
+#!ek9
+defines module test.dispatcher.incomplete
+
+  defines class TypeA
+  defines class TypeB
+
+  defines class Handler
+    handle() as dispatcher -> x as Any -> y as Any
+
+    handle() -> x as TypeA -> y as TypeA
+    // Missing TypeA × TypeB - EXPECT error at FULL_RESOLUTION
+    @Error: FULL_RESOLUTION: INCOMPLETE_DISPATCHER
+```
+
+**Why this matters**:
+- Semantic tests target **specific phases** (SYMBOL_DEFINITION, TYPE_RESOLUTION, FULL_RESOLUTION)
+- Without directives: Test passes if file fails **anywhere** (false confidence)
+- With directives: Test passes only if file fails at **expected phase** with **expected error** (true validation)
+- **Meta-validation**: Directives validate the TEST CREATOR's ability to create appropriate fuzz tests
+
+**Without directives** - False confidence scenario:
+1. Test creator writes "incomplete dispatcher" test
+2. File has syntax typo → fails at PARSING
+3. Test passes ✅ (no crash)
+4. **Hidden problem**: Dispatcher completeness logic never ran
+5. **Result**: False confidence in fuzzing coverage
+
+**With directives** - Validated coverage:
+1. Test creator writes test with `@Error: FULL_RESOLUTION: INCOMPLETE_DISPATCHER`
+2. File has syntax typo → fails at PARSING
+3. Directive mismatch: Expected FULL_RESOLUTION, got PARSING
+4. **Test FAILS** ✗ - Alerts that test is broken
+5. Fix typo → test genuinely validates dispatcher logic
+
+**See `EK9_COMPILER_FUZZING_IMPLEMENTATION.md` Section 2.2** for complete explanation of error directive meta-validation and FuzzTestBase.errorOnDirectiveErrors() behavior.
+
+**Exception**: PARSING phase tests (Strategy 1) don't require directives since they target unpredictable syntax errors.
+
 #### 2B: Generic Type Explosion Fuzzing
 
 **Test cases**:

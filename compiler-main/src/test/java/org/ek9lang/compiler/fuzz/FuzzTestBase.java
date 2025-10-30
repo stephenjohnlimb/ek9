@@ -71,8 +71,9 @@ public abstract class FuzzTestBase extends PhasesTest {
 
   @Override
   protected boolean errorOnDirectiveErrors() {
-    // Don't fail on directive errors for fuzzing
-    return false;
+    // For PARSING-only tests: Don't validate @Error directives (they don't have them)
+    // For semantic tests (SYMBOL_DEFINITION+): DO validate @Error directives match actual errors
+    return targetPhase.compareTo(CompilationPhase.PARSING) > 0;
   }
 
   @Override

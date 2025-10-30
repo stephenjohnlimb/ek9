@@ -39,16 +39,25 @@ compiler-main/
 │   │   │
 │   │   └── resources/
 │   │       └── fuzzCorpus/              # NEW - Git-committed test files
-│   │           ├── grammar/             # 100,000 files (~30 MB)
-│   │           ├── dispatcher/          # 10,000 files (~5 MB)
-│   │           ├── generics/            # 50,000 files (~20 MB)
-│   │           └── traits/              # 25,000 files (~10 MB)
+│   │           ├── controlFlowGuards/   # PARSING - Guard syntax errors
+│   │           ├── abstractBodyConflicts/ # SYMBOL_DEFINITION - Abstract validation
+│   │           ├── duplicateVariables/  # SYMBOL_DEFINITION - Duplicate detection
+│   │           ├── typeResolution/      # TYPE_RESOLUTION - Type checking
+│   │           ├── dispatcher/          # FULL_RESOLUTION - Dispatcher completeness
+│   │           └── generics/            # FULL_RESOLUTION - Generic resolution
 │
 └── docs/
     └── fuzzing/                         # NEW - Documentation
         ├── CORPUS_GENERATION.md         # How to generate test files
         └── FINDINGS_LOG.md              # Bug discoveries log
 ```
+
+**Organization Principle**: **Flat structure organized by ERROR TYPE, not compilation phase**
+- Directory name = What you're testing (e.g., `duplicateVariables`)
+- Compilation phase = Specified in JUnit test class constructor
+- Rationale: Easy to add tests when bugs found ("duplicate variable issue" → `duplicateVariables/`)
+- No mental overhead about phase classification
+- All tests for a feature category in ONE place
 
 **Total corpus size**: ~65 MB (185,000 files)
 
@@ -166,6 +175,282 @@ public abstract class FuzzTestBase extends PhasesTest {
 }
 ```
 
+### 2.2 Error Directive Meta-Validation
+
+#### The Problem: False Confidence in Fuzzing
+
+**Critical insight**: @Error directives in fuzzing tests serve as **meta-validation of the test itself**, not just compiler validation.
+
+Without @Error directives, fuzzing tests create false confidence:
+
+```java
+// DANGEROUS: Test without @Error directive
+class BadSemanticFuzzTest extends FuzzTestBase {
+  @ParameterizedTest
+  @MethodSource("testFiles")
+  void testSemantic(String fileName) {
+    executeTest();  // Passes if no crash - but WHY did it pass?
+  }
+}
+```
+
+**The false confidence scenario**:
+1. Test file `incomplete_dispatcher_001.ek9` should fail at FULL_RESOLUTION
+2. Test runs and completes without crashing
+3. Test passes ✅ - Developer assumes fuzzing coverage is good
+4. **HIDDEN PROBLEM**: File actually failed at PARSING due to syntax error
+5. **RESULT**: No dispatcher completeness validation occurred, but test passed
+
+**Without directives, you cannot distinguish**:
+- ❌ Test passed because compiler correctly accepted valid code
+- ❌ Test passed because compiler correctly rejected invalid code
+- ❌ Test passed because compiler crashed early for wrong reasons
+- ❌ Test passed because test infrastructure is broken
+
+#### The Solution: @Error Directives Validate the Test Creator
+
+@Error directives ensure the **test creator's understanding is correct**:
+
+```java
+// CORRECT: Test with explicit error expectations
+class GoodSemanticFuzzTest extends FuzzTestBase {
+  @ParameterizedTest
+  @MethodSource("testFiles")
+  void testSemantic(String fileName) {
+    executeTest();  // Will verify @Error directives match actual errors
+  }
+}
+```
+
+**With corresponding test file**:
+```ek9
+#!ek9
+defines module test.dispatcher.incomplete
+
+  // @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+  defines class Handler
+    @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+    process() as abstract
+      <- result as Boolean: true  // Abstract with body - should fail
+```
+
+**What @Error directives validate**:
+1. ✅ Test creator correctly identified this as invalid code
+2. ✅ Test creator correctly predicted which error will occur
+3. ✅ Test creator correctly predicted which phase will detect it
+4. ✅ Fuzzing coverage claim is accurate (this tests SYMBOL_DEFINITION, not PARSING)
+
+#### Phase-Specific Directive Requirements
+
+**PARSING Phase Tests** - No @Error directives needed:
+
+```java
+public class MalformedSyntaxFuzzTest extends FuzzTestBase {
+  public MalformedSyntaxFuzzTest() {
+    super("parsing/malformedSyntax", CompilationPhase.PARSING);
+  }
+
+  @Override
+  protected boolean errorOnDirectiveErrors() {
+    // PARSING tests don't require @Error directives
+    // Exact error codes are unpredictable for syntax errors
+    return false;
+  }
+}
+```
+
+**Rationale**: Parser tests target raw syntax errors where exact error codes are unpredictable and less important than "does it crash?"
+
+**Important**: Directory names represent ERROR CATEGORIES, not phases. The `CompilationPhase` parameter in the constructor specifies which phase to test to.
+
+**Semantic Phase Tests** - @Error directives REQUIRED:
+
+```java
+public class AbstractBodyConflictsFuzzTest extends FuzzTestBase {
+  public AbstractBodyConflictsFuzzTest() {
+    super("abstractBodyConflicts", CompilationPhase.SYMBOL_DEFINITION);
+  }
+
+  @Override
+  protected boolean errorOnDirectiveErrors() {
+    // Semantic tests REQUIRE @Error directives
+    // Validates test exercises intended code path
+    return true;
+  }
+}
+```
+
+**Phases requiring directives**:
+- ✅ SYMBOL_DEFINITION (phase 1)
+- ✅ DUPLICATION_CHECK (phase 2)
+- ✅ REFERENCE_CHECKS (phase 3)
+- ✅ TYPE_RESOLUTION (phases 4-5)
+- ✅ FULL_RESOLUTION (phase 6)
+
+**Rationale**: Semantic phase tests target specific validation logic with predictable error codes. Without directives, you cannot verify the test exercises the intended code path.
+
+#### FuzzTestBase Implementation Pattern
+
+The automated directive validation in `FuzzTestBase`:
+
+```java
+public abstract class FuzzTestBase extends PhasesTest {
+
+  private final CompilationPhase targetPhase;
+
+  protected FuzzTestBase(String corpusDirectory, CompilationPhase targetPhase) {
+    super("/fuzzCorpus/" + corpusDirectory, false, true);
+    this.targetPhase = targetPhase;
+  }
+
+  /**
+   * Override this to control @Error directive validation.
+   * <p>
+   * For PARSING-only tests: Don't validate @Error directives (they don't have them)
+   * For semantic tests (SYMBOL_DEFINITION+): DO validate @Error directives match actual errors
+   * </p>
+   * @return true if @Error directives are required and should cause test failure if wrong
+   *         false if @Error directives are optional (for PARSING phase tests)
+   */
+  @Override
+  protected boolean errorOnDirectiveErrors() {
+    // Automatically enable directive checking for semantic phases
+    return targetPhase.compareTo(CompilationPhase.PARSING) > 0;
+  }
+}
+```
+
+**How it works**:
+- `PhasesTest.checkCompilationPhase()` validates @Error directives after each compilation
+- If `errorOnDirectiveErrors()` returns `true` and directives don't match: **test FAILS**
+- If `errorOnDirectiveErrors()` returns `false`: directives ignored (PARSING tests)
+- Automatic: Based on target phase, no manual override needed
+
+#### Real-World Example: The Abstract Method Scenario
+
+**Scenario**: Testing ABSTRACT_BUT_BODY_PROVIDED validation
+
+**Test file without directive** (DANGEROUS):
+```ek9
+#!ek9
+defines module test.abstract
+
+  defines claass BadProcessor  // TYPO: "claass" instead of "class"
+    process() as abstract
+      <- result as Boolean: true  // Abstract with body
+```
+
+**What happens**:
+1. Test runs through SYMBOL_DEFINITION phase target
+2. Compilation fails at PARSING (typo in "claass")
+3. Test passes because no crash occurred
+4. **FALSE CONFIDENCE**: Developer thinks abstract validation is tested
+5. **REALITY**: Parser rejected file before abstract check ran
+
+**Test file with directive** (CORRECT):
+```ek9
+#!ek9
+defines module test.abstract
+
+  defines class BadProcessor
+    @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+    process() as abstract
+      <- result as Boolean: true  // Abstract with body
+```
+
+**What happens**:
+1. Test runs through SYMBOL_DEFINITION phase target
+2. Compilation reaches SYMBOL_DEFINITION and detects abstract with body
+3. Error matches directive: `ABSTRACT_BUT_BODY_PROVIDED` at `SYMBOL_DEFINITION`
+4. Test passes with **TRUE CONFIDENCE**: Abstract validation was actually tested
+5. **VALIDATED COVERAGE**: This test genuinely exercises the intended code path
+
+**If syntax error exists**:
+```ek9
+#!ek9
+defines module test.abstract
+
+  defines claass BadProcessor  // TYPO
+    @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+    process() as abstract
+      <- result as Boolean: true
+```
+
+1. Compilation fails at PARSING with syntax error
+2. No SYMBOL_DEFINITION error occurs
+3. @Error directive mismatch: Expected `SYMBOL_DEFINITION` but got `PARSING`
+4. **Test FAILS** - Alerts developer that test is broken
+5. Developer fixes typo, test now genuinely validates abstract logic
+
+#### Meta-Validation Guarantees
+
+**With @Error directives**, fuzzing provides:
+
+1. **Coverage Accuracy**: Claims about "testing abstract validation" are verifiable
+2. **Test Quality**: Broken tests fail immediately rather than creating false confidence
+3. **Regression Protection**: Tests continue to exercise intended paths even as compiler evolves
+4. **Bug Attribution**: Failures clearly indicate which compiler phase has issues
+
+**Without @Error directives**, fuzzing risks:
+
+1. ❌ Coverage Illusion: 10,000 abstract tests might all fail at parsing
+2. ❌ Silent Breakage**: Test corpus degradation over time goes unnoticed
+3. ❌ Misleading Results: "All tests pass" doesn't mean semantic validation works
+4. ❌ Wasted Effort: Maintaining tests that don't exercise intended code paths
+
+#### Guidelines for Test Creators
+
+**When creating semantic phase fuzzing tests**:
+
+1. **Always include @Error directives** for invalid code
+2. **Specify exact error code** expected (e.g., `ABSTRACT_BUT_BODY_PROVIDED`)
+3. **Specify exact phase** where error should occur (e.g., `SYMBOL_DEFINITION`)
+4. **Validate syntax first** - Ensure file reaches target phase before claiming coverage
+5. **Test both paths**: Valid code (should compile) and invalid code (should error)
+
+**Example template for semantic fuzzing**:
+
+```ek9
+#!ek9
+// @ExpectPhase: SYMBOL_DEFINITION
+// @ExpectError: ABSTRACT_BUT_BODY_PROVIDED
+// @TestDescription: Function marked abstract but implementation provided
+
+defines module test.semantic.scenario
+
+  defines class BadExample
+    @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+    process() as abstract
+      <- result as Boolean: true  // Abstract with body
+```
+
+**Valid code template** (no directive):
+```ek9
+#!ek9
+// @ExpectPhase: SYMBOL_DEFINITION
+// @ExpectSuccess: true
+// @TestDescription: Valid abstract function declaration
+
+defines module test.semantic.valid_scenario
+
+  defines class GoodExample
+    process() as abstract
+      <- result as Boolean?  // Abstract without body - valid
+```
+
+#### Conclusion
+
+@Error directives transform fuzzing from "did it crash?" to "did it test what we intended?" This meta-validation ensures:
+
+- ✅ Test corpus genuinely exercises claimed compiler phases
+- ✅ Coverage metrics accurately reflect tested functionality
+- ✅ Broken tests fail immediately rather than silently degrading
+- ✅ Fuzzing investment provides real confidence, not false security
+
+**Remember**: Fuzzing without meta-validation is like unit tests without assertions - it runs, but doesn't verify anything meaningful.
+
+---
+
 ### Concrete Test Implementation
 
 ```java
@@ -181,13 +466,14 @@ import java.util.stream.Stream;
 
 /**
  * Fuzzing tests for dispatcher completeness checking.
- *
+ * <p>
  * Tests verify:
  * - Complete dispatchers compile successfully
  * - Incomplete dispatchers fail with clear error messages
  * - No crashes on any dispatcher variation
  * - Dispatcher works with 2-10+ types
  * - Dispatcher works with trait parameters
+ * </p>
  */
 class DispatcherFuzzTest extends FuzzTestBase {
 
