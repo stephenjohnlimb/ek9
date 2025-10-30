@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.ir.data;
 
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 
 /**
@@ -11,6 +12,7 @@ import org.ek9lang.compiler.ir.instructions.IRInstr;
  * - If statement: Boolean condition evaluation
  * - Switch case: Equality or expression evaluation
  * - Guard conditions: Combined assignment + condition evaluation
+ * - Exception handlers: Type-based exception matching (try/catch)
  * </p>
  * <p>
  * Contains complete evaluation instructions for guard updates, condition checks,
@@ -31,6 +33,7 @@ public record ConditionCaseDetails(
      * - "GUARD_CONDITION": Guard variable assignment + condition (if/switch with guards)
      * - "LITERAL": Direct value comparison (switch literals)
      * - "ENUM_CONSTANT": Enum constant comparison (switch enums)
+     * - "EXCEPTION_HANDLER": Exception type matching (try/catch blocks)
      */
     String caseType,
 
@@ -92,7 +95,21 @@ public record ConditionCaseDetails(
      * For expression forms: the computed result value
      * For statement forms: null or void indicator
      */
-    String bodyResult
+    String bodyResult,
+
+    /*
+     * For exception handler cases: the fully qualified exception type.
+     * Example: "org.ek9.lang::Exception" or "org.ek9.lang::IOException"
+     * Null for non-exception cases.
+     */
+    String exceptionType,
+
+    /*
+     * For exception handler cases: the exception variable name.
+     * Example: "ex" or "ioEx"
+     * Null for non-exception cases.
+     */
+    String exceptionVariable
 ) {
 
   /**
@@ -117,7 +134,9 @@ public record ConditionCaseDetails(
         conditionResult,
         primitiveCondition,
         bodyEvaluation,
-        bodyResult
+        bodyResult,
+        null, // No exception type
+        null  // No exception variable
     );
   }
 
@@ -138,40 +157,14 @@ public record ConditionCaseDetails(
         List.of(), // No guard updates
         null, // No body scope ID
         null, // No enum constant
-        -1,   // No enum ordinal  
+        -1,   // No enum ordinal
         conditionEvaluation,
         conditionResult,
         primitiveCondition,
         bodyEvaluation,
-        bodyResult
-    );
-  }
-
-  /**
-   * Create a condition case for enum constant comparison (switch enum cases).
-   */
-  public static ConditionCaseDetails createEnumCase(
-      String caseScopeId,
-      String enumConstant,
-      int enumOrdinal,
-      List<IRInstr> conditionEvaluation,
-      String conditionResult,
-      String primitiveCondition,
-      List<IRInstr> bodyEvaluation,
-      String bodyResult) {
-
-    return new ConditionCaseDetails(
-        caseScopeId,
-        "ENUM_CONSTANT",
-        List.of(), // No guard updates
-        null, // No body scope ID
-        enumConstant,
-        enumOrdinal,
-        conditionEvaluation,
-        conditionResult,
-        primitiveCondition,
-        bodyEvaluation,
-        bodyResult
+        bodyResult,
+        null, // No exception type
+        null  // No exception variable
     );
   }
 
@@ -197,35 +190,38 @@ public record ConditionCaseDetails(
         conditionResult,
         primitiveCondition,
         bodyEvaluation,
-        bodyResult
+        bodyResult,
+        null, // No exception type
+        null  // No exception variable
     );
   }
 
   /**
-   * Create a condition case for guard conditions (if/switch with guards).
+   * Create a condition case for exception handlers (try/catch blocks).
+   * Exception handlers match by type rather than Boolean condition evaluation.
    */
-  public static ConditionCaseDetails createGuardCondition(
-      String caseScopeId,
-      List<IRInstr> guardUpdates,
-      String bodyScopeId,
-      List<IRInstr> conditionEvaluation,
-      String conditionResult,
-      String primitiveCondition,
-      List<IRInstr> bodyEvaluation,
-      String bodyResult) {
+  public static ConditionCaseDetails createExceptionHandler(
+      String catchScopeId,
+      String exceptionType,
+      String exceptionVariable,
+      String catchBodyScopeId,
+      List<IRInstr> catchBodyEvaluation,
+      String catchBodyResult) {
 
     return new ConditionCaseDetails(
-        caseScopeId,
-        "GUARD_CONDITION",
-        guardUpdates,
-        bodyScopeId,
+        catchScopeId,
+        "EXCEPTION_HANDLER",
+        List.of(), // No guard updates
+        catchBodyScopeId,
         null, // No enum constant
         -1,   // No enum ordinal
-        conditionEvaluation,
-        conditionResult,
-        primitiveCondition,
-        bodyEvaluation,
-        bodyResult
+        List.of(), // No condition evaluation (type matching is implicit)
+        null, // No condition result (type match, not Boolean)
+        null, // No primitive condition
+        catchBodyEvaluation,
+        catchBodyResult,
+        exceptionType,
+        exceptionVariable
     );
   }
 
@@ -233,6 +229,7 @@ public record ConditionCaseDetails(
    * IR-optimized toString following EK9's bracket-only, no-indentation format.
    */
   @Override
+  @Nonnull
   public String toString() {
     var builder = new StringBuilder("[");
 
@@ -290,6 +287,14 @@ public record ConditionCaseDetails(
 
     if (bodyResult != null) {
       builder.append("body_result: ").append(bodyResult);
+    }
+
+    if (exceptionType != null) {
+      builder.append("exception_type: \"").append(exceptionType).append("\"");
+    }
+
+    if (exceptionVariable != null) {
+      builder.append("exception_variable: ").append(exceptionVariable);
     }
 
     return builder.append("]").toString();

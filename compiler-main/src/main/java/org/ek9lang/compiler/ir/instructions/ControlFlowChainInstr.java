@@ -5,6 +5,7 @@ import org.ek9lang.compiler.ir.IROpcode;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
 import org.ek9lang.compiler.ir.data.EnumOptimizationDetails;
+import org.ek9lang.compiler.ir.data.TryBlockDetails;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -42,6 +43,8 @@ public final class ControlFlowChainInstr extends IRInstr {
   private final List<IRInstr> defaultBodyEvaluation;
   private final String defaultResult;
   private final EnumOptimizationDetails enumOptimizationInfo;
+  private final TryBlockDetails tryBlockDetails;
+  private final List<IRInstr> finallyBlockEvaluation;
   private final String scopeId;
 
   /**
@@ -72,6 +75,9 @@ public final class ControlFlowChainInstr extends IRInstr {
         ? details.defaultBodyEvaluation() : List.of();
     this.defaultResult = details.defaultResult();
     this.enumOptimizationInfo = details.enumOptimizationInfo();
+    this.tryBlockDetails = details.tryBlockDetails();
+    this.finallyBlockEvaluation = details.finallyBlockEvaluation() != null
+        ? details.finallyBlockEvaluation() : List.of();
     this.scopeId = details.scopeId();
 
     // Add operands for base class functionality
@@ -165,7 +171,9 @@ public final class ControlFlowChainInstr extends IRInstr {
 
     appendEvaluationVariableSection(builder);
     appendReturnVariableSection(builder);
+    appendTryBlockSection(builder);
     appendConditionChainSection(builder);
+    appendFinallyBlockSection(builder);
     appendDefaultCaseSection(builder);
     appendEnumOptimizationSection(builder);
 
@@ -207,6 +215,26 @@ public final class ControlFlowChainInstr extends IRInstr {
     }
   }
 
+  private void appendTryBlockSection(StringBuilder builder) {
+    if (tryBlockDetails != null) {
+      builder.append("try_block_details:\n[\n");
+
+      if (tryBlockDetails.tryScopeId() != null) {
+        builder.append("try_scope_id: ").append(tryBlockDetails.tryScopeId()).append("\n");
+      }
+
+      if (!tryBlockDetails.tryBodyEvaluation().isEmpty()) {
+        appendInstructionList(builder, "try_body_evaluation", tryBlockDetails.tryBodyEvaluation());
+      }
+
+      if (tryBlockDetails.tryBodyResult() != null) {
+        builder.append("try_body_result: ").append(tryBlockDetails.tryBodyResult()).append("\n");
+      }
+
+      builder.append("]\n");
+    }
+  }
+
   private void appendConditionChainSection(StringBuilder builder) {
     builder.append("condition_chain:\n[\n");
     for (int i = 0; i < conditionChain.size(); i++) {
@@ -217,6 +245,12 @@ public final class ControlFlowChainInstr extends IRInstr {
       builder.append("\n");
     }
     builder.append("]\n");
+  }
+
+  private void appendFinallyBlockSection(StringBuilder builder) {
+    if (!finallyBlockEvaluation.isEmpty()) {
+      appendInstructionList(builder, "finally_block_evaluation", finallyBlockEvaluation);
+    }
   }
 
   private void appendConditionCase(StringBuilder builder, ConditionCaseDetails conditionCase) {
@@ -247,6 +281,14 @@ public final class ControlFlowChainInstr extends IRInstr {
 
     if (conditionCase.bodyResult() != null) {
       builder.append("body_result: ").append(conditionCase.bodyResult()).append("\n");
+    }
+
+    if (conditionCase.exceptionType() != null) {
+      builder.append("exception_type: \"").append(conditionCase.exceptionType()).append("\"\n");
+    }
+
+    if (conditionCase.exceptionVariable() != null) {
+      builder.append("exception_variable: ").append(conditionCase.exceptionVariable()).append("\n");
     }
 
     builder.append("]");

@@ -16,6 +16,7 @@ import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
@@ -71,25 +72,61 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
       }
     }
 
-    // Process in correct order: parameters -> returns -> body
+    // REFACTOR: Create function body scope BEFORE processing parameters/returns/body
+    // This ensures all function-local state (parameters, return variables, temporaries)
+    // lives inside a proper scope, fixing the "_call" phantom scope bug.
+    // See EK9_ARC_OWNERSHIP_TRANSFER_PATTERN.md for architectural rationale.
+    final var hasInstructionBlock = ctx.instructionBlock() != null;
+    final var hasReturnParameters = ctx.returningParam() != null;
+    final var needsFunctionBodyScope = hasInstructionBlock || hasReturnParameters;
+
+    String bodyScopeId = null;
+    DebugInfo bodyScopeDebugInfo = null;
+
+    if (needsFunctionBodyScope) {
+      // Create function body scope
+      bodyScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+      // Use instruction block start if available, otherwise use operation start
+      // Note: Both SCOPE_ENTER and SCOPE_EXIT use the same DebugInfo for symmetry
+      bodyScopeDebugInfo = hasInstructionBlock
+          ? stackContext.createDebugInfo(ctx.instructionBlock().start)
+          : stackContext.createDebugInfo(ctx.start);
+
+      // Enter scope on stack for child generators to access
+      stackContext.enterScope(bodyScopeId, bodyScopeDebugInfo, IRFrameType.BLOCK);
+
+      // Add SCOPE_ENTER instruction
+      instructionBuilder.addInstruction(ScopeInstr.enter(bodyScopeId, bodyScopeDebugInfo));
+    }
+
+    // Process in correct order: parameters -> returns -> body (all inside function body scope)
 
     // 1. Process incoming parameters first (-> arg0 as String)
     if (ctx.argumentParam() != null) {
       instructionBuilder.addInstructions(processArgumentParam(ctx.argumentParam()));
     }
 
-    // 2. Process return parameters second (<- rtn as String: String())  
+    // 2. Process return parameters second (<- rtn as String: String())
     if (ctx.returningParam() != null) {
       final var returnResult = processReturningParamWithScope(ctx.returningParam());
       instructionBuilder.addInstructions(returnResult.instructions());
     }
 
-    // 3. Process instruction block last (function body)
-    if (ctx.instructionBlock() != null) {
-      instructionBuilder.addInstructions(processInstructionBlock(ctx.instructionBlock()));
+    // 3. Process instruction block statements (no new scope - already inside function body scope)
+    if (hasInstructionBlock) {
+      instructionBuilder.addInstructions(processInstructionBlockStatements(ctx.instructionBlock()));
     }
 
-    // 4. Add return statement based on function signature
+    // 4. Exit function body scope BEFORE return (scope cleanup must happen before function exit)
+    if (needsFunctionBodyScope) {
+      // Add SCOPE_EXIT instruction (uses same DebugInfo as SCOPE_ENTER for symmetry)
+      instructionBuilder.addInstruction(ScopeInstr.exit(bodyScopeId, bodyScopeDebugInfo));
+
+      // Pop scope from stack
+      stackContext.exitScope();
+    }
+
+    // 5. Add return statement based on function signature (happens after scope cleanup)
     instructionBuilder.addInstructions(generateReturnStatement(operation));
 
     // Set body using fluent pattern
@@ -145,36 +182,18 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
   }
 
   /**
-   * Process instruction block (function body).
-   * Processes block statements directly without creating an intermediate BasicBlock.
-   * <p>
-   * PROPER STACK-BASED APPROACH: Push scope onto stack context so child generators
-   * can access it via stackContext.currentScopeId().
-   * </p>
-   * REFACTORED: Now reuses generator from shared tree instead of creating new instance.
+   * Process instruction block statements WITHOUT creating a new scope.
+   * Used when the function body scope has already been created (e.g., for functions with return parameters).
+   * This ensures all function-local state lives in a single scope, avoiding the "_call" phantom scope bug.
+   * REFACTORED: Access generator directly from shared tree instead of creating new instance.
    */
-  private List<IRInstr> processInstructionBlock(final EK9Parser.InstructionBlockContext ctx) {
+  private List<IRInstr> processInstructionBlockStatements(final EK9Parser.InstructionBlockContext ctx) {
     final var instructions = new ArrayList<IRInstr>();
-    final var scopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
-    final var debugInfo = stackContext.createDebugInfo(ctx.start);
 
-    // STACK-BASED: Push scope onto stack context for child generators to access
-    stackContext.enterScope(scopeId, debugInfo, IRFrameType.BLOCK);
-
-    // Enter scope for memory management (IR instruction)
-    instructions.add(ScopeInstr.enter(scopeId, debugInfo));
-
-    // Process all block statements - they can now use stackContext.currentScopeId()
-    // REFACTORED: Access generator directly from struct
+    // Process all block statements - scope already entered by caller
     for (final var blockStmtCtx : ctx.blockStatement()) {
       instructions.addAll(generators.blockStmtGenerator.apply(blockStmtCtx));
     }
-
-    // Exit scope (automatic RELEASE of all registered objects)
-    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
-
-    // STACK-BASED: Pop scope from stack context
-    stackContext.exitScope();
 
     return instructions;
   }

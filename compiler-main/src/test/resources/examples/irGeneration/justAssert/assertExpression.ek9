@@ -20,8 +20,8 @@ defines module justAssert
     RETURN this  // ./assertExpression.ek9:32:5
     OperationDfn: justAssert::checkAssert._call(org.ek9.lang::Boolean)->org.ek9.lang::Void  // ./assertExpression.ek9:32:5
     BasicBlock: _entry_1
-    REFERENCE arg0, org.ek9.lang::Boolean  // ./assertExpression.ek9:33:10
     SCOPE_ENTER _scope_1  // ./assertExpression.ek9:34:7
+    REFERENCE arg0, org.ek9.lang::Boolean  // ./assertExpression.ek9:33:10
     _temp1 = LOAD arg0  // ./assertExpression.ek9:34:7
     RETAIN _temp1  // ./assertExpression.ek9:34:7
     SCOPE_REGISTER _temp1, _scope_1  // ./assertExpression.ek9:34:7

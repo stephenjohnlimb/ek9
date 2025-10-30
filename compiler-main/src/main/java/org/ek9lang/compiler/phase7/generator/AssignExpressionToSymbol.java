@@ -59,11 +59,17 @@ final class AssignExpressionToSymbol extends AbstractGenerator
     // Declaration (release=false): RETAIN + SCOPE_REGISTER (variable ownership established)
     // Reassignment (release=true): RETAIN only (variable already registered to declaring scope)
     // CRITICAL: Fields are owned by the object, not the scope, so they get RETAIN but NO SCOPE_REGISTER.
-    // See EK9_ARC_MEMORY_MANAGEMENT.md for comprehensive ARC documentation.
+    // CRITICAL: Return variables use ownership transfer pattern (RETAIN only, no SCOPE_REGISTER).
+    // See EK9_ARC_MEMORY_MANAGEMENT.md and EK9_ARC_OWNERSHIP_TRANSFER_PATTERN.md for comprehensive ARC documentation.
     if (!release) {
       if (lhsSymbol.isPropertyField()) {
         // Field declaration: RETAIN only (field lifetime managed by object, not scope)
         // Fields are released when the object is destroyed, not when i_init exits
+        instructions.add(MemoryInstr.retain(lhsVariableName, rhsExprDebugInfo));
+      } else if (lhsSymbol.isReturningParameter()) {
+        // Return variable: RETAIN only (ownership transfer to caller)
+        // Caller receives value and will SCOPE_REGISTER it (ownership transfer pattern)
+        // See EK9_ARC_OWNERSHIP_TRANSFER_PATTERN.md for details
         instructions.add(MemoryInstr.retain(lhsVariableName, rhsExprDebugInfo));
       } else {
         // Local variable declaration: RETAIN + SCOPE_REGISTER (scope owns the variable)

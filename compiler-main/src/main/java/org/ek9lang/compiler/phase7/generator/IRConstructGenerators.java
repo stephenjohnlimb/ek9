@@ -149,6 +149,7 @@ public final class IRConstructGenerators {
         generators.variableMemoryManagement, generators);
     generators.switchStatementGenerator = new SwitchStatementGenerator(stackContext, generators);
     generators.whileStatementGenerator = new WhileStatementGenerator(stackContext, generators);
+    generators.tryCatchStatementGenerator = new TryCatchStatementGenerator(stackContext, generators);
     generators.forRangeGenerator = new ForRangeGenerator(stackContext, generators);
     generators.forInGenerator = new ForInGenerator(stackContext, generators);
     generators.forStatementGenerator = new ForStatementGenerator(stackContext, generators);

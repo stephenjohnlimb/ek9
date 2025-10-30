@@ -278,6 +278,8 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         List.of(assignmentCase),
         DefaultCaseDetails.none(), // No default case
         null, // No enum optimization
+        null, // No try block
+        List.of(), // No finally block
         debugInfo,
         scopeId
     );

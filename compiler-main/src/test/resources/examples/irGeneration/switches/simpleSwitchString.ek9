@@ -21,15 +21,14 @@ defines module controlFlow.string
     RETURN this
     OperationDfn: controlFlow.string::simpleSwitchString._call(org.ek9.lang::String)->org.ek9.lang::String
     BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
     REFERENCE text, org.ek9.lang::String
     REFERENCE result, org.ek9.lang::String
     _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
     RETAIN _temp1
-    SCOPE_REGISTER _temp1, _call
+    SCOPE_REGISTER _temp1, _scope_1
     STORE result, _temp1
     RETAIN result
-    SCOPE_REGISTER result, _call
-    SCOPE_ENTER _scope_1
     SCOPE_ENTER _scope_2
     _temp2 = LOAD text
     RETAIN _temp2

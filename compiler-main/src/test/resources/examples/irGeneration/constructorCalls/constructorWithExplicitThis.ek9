@@ -20,8 +20,8 @@ defines module constructorCalls
     OperationDfn: constructorCalls::Example.Example(org.ek9.lang::String)->constructorCalls::Example  // ./constructorWithExplicitThis.ek9:45:7
     BasicBlock: _entry_1
     CALL (constructorCalls::Example)this.i_init() [pure=false, complexity=0]  // ./constructorWithExplicitThis.ek9:45:7
-    REFERENCE input, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:46:12
     SCOPE_ENTER _scope_1  // ./constructorWithExplicitThis.ek9:47:9
+    REFERENCE input, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:46:12
     _temp1 = LOAD input  // ./constructorWithExplicitThis.ek9:46:12
     RETAIN _temp1  // ./constructorWithExplicitThis.ek9:46:12
     SCOPE_REGISTER _temp1, _scope_1  // ./constructorWithExplicitThis.ek9:46:12

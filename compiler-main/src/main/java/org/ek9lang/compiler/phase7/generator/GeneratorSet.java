@@ -211,6 +211,11 @@ public final class GeneratorSet {
   public WhileStatementGenerator whileStatementGenerator;
 
   /**
+   * Generates IR for try/catch/finally exception handling using CONTROL_FLOW_CHAIN.
+   */
+  public TryCatchStatementGenerator tryCatchStatementGenerator;
+
+  /**
    * Generates IR for for-range loops (for i in 1..10) using FOR_RANGE_POLYMORPHIC.
    */
   public ForRangeGenerator forRangeGenerator;

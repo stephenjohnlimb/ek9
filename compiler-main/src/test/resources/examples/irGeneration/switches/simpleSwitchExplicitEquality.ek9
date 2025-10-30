@@ -21,15 +21,14 @@ defines module controlFlow.equality
     RETURN this
     OperationDfn: controlFlow.equality::simpleSwitchExplicitEquality._call(org.ek9.lang::Integer)->org.ek9.lang::String
     BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
     REFERENCE value, org.ek9.lang::Integer
     REFERENCE result, org.ek9.lang::String
     _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
     RETAIN _temp1
-    SCOPE_REGISTER _temp1, _call
+    SCOPE_REGISTER _temp1, _scope_1
     STORE result, _temp1
     RETAIN result
-    SCOPE_REGISTER result, _call
-    SCOPE_ENTER _scope_1
     SCOPE_ENTER _scope_2
     _temp2 = LOAD value
     RETAIN _temp2
