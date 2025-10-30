@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.advanced.test014
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (throw statement with no expression)
+  // @TestDescription: Naked throw with no exception
+
+  defines function
+    testThrowMissingExpression()
+      value <- 42
+      if value > 50
+        throw
+
+//EOF

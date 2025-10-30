@@ -1,0 +1,11 @@
+#!ek9
+defines module fuzztest.advanced.test015
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (constrain declaration with no constraint body)
+  // @TestDescription: Type alias with constrain but no constraint expression
+
+  defines type
+    PositiveInteger as Integer constrain as
+
+//EOF
