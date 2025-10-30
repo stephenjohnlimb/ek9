@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.advanced.test002
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (range missing start value)
+  // @TestDescription: Range with only end value
+
+  defines function
+    testRangeIncompleteStart()
+      for i in ...10
+        stdout.println(`${i}`)
+
+//EOF

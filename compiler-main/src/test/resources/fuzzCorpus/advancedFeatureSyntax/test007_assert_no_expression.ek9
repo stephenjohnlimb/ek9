@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.advanced.test007
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (assert with no expression)
+  // @TestDescription: Naked assert statement
+
+  defines function
+    testAssertNoExpression()
+      value <- 42
+      assert
+
+//EOF

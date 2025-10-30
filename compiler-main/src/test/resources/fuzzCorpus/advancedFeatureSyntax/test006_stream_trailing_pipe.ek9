@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.advanced.test006
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (stream with trailing pipe and no termination)
+  // @TestDescription: Stream ending with pipe operator
+
+  defines function
+    testStreamTrailingPipe()
+      result <- cat [1, 2, 3] |
+      assert length result == 3
+
+//EOF

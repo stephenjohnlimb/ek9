@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.advanced.test004
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (dict pair missing value after colon)
+  // @TestDescription: Dict with key: but no value
+
+  defines function
+    testDictIncompletePair()
+      data <- {1:, 2: "two"}
+      assert length data == 1
+
+//EOF

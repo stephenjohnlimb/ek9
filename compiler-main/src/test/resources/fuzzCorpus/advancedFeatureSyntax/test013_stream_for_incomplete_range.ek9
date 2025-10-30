@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.advanced.test013
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (stream for with incomplete range)
+  // @TestDescription: for range stream with missing range end
+
+  defines function
+    testStreamForIncompleteRange()
+      result <- for i in 1... | collect as List of Integer
+      assert result?
+
+//EOF

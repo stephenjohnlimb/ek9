@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.advanced.test008
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (parameterized type missing closing paren)
+  // @TestDescription: Dict of (String, Integer without closing paren
+
+  defines function
+    testParameterizedMissingRParen()
+      data <- Dict of (String, Integer
+      assert data?
+
+//EOF

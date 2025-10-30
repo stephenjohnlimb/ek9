@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.advanced.test003
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (dict literal missing colon separator)
+  // @TestDescription: Dict with key-value pairs missing colon
+
+  defines function
+    testDictMissingColon()
+      data <- {1 "one", 2 "two", 3 "three"}
+      assert length data == 3
+
+//EOF

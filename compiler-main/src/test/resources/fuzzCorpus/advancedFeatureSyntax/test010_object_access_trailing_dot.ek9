@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.advanced.test010
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (object access with trailing dot)
+  // @TestDescription: object. with no method/field after dot
+
+  defines class
+    Person
+      name as String
+
+  defines function
+    testObjectAccessTrailingDot()
+      p <- Person("Steve")
+      value <- p.
+
+//EOF

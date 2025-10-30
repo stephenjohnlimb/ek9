@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.advanced.test001
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (range missing ellipsis operator)
+  // @TestDescription: Range with space instead of ...
+
+  defines function
+    testRangeMissingEllipsis()
+      for i in 1 10
+        stdout.println(`${i}`)
+
+//EOF

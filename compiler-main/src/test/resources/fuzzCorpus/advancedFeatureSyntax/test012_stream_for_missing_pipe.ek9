@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.advanced.test012
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (stream for range missing pipe before collect)
+  // @TestDescription: for range stream without pipe operator
+
+  defines function
+    testStreamForMissingPipe()
+      result <- for i in 1...10 collect as List of Integer
+      assert result?
+
+//EOF

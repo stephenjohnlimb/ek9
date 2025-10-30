@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.advanced.test011
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (stream for range missing termination)
+  // @TestDescription: for range stream with no collect/termination
+
+  defines function
+    testStreamForMissingCollect()
+      result <- for i in 1...10 |
+      assert result?
+
+//EOF

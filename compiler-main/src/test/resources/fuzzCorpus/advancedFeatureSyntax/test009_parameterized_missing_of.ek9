@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.advanced.test009
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (parameterized type missing OF keyword)
+  // @TestDescription: List String instead of List of String
+
+  defines function
+    testParameterizedMissingOf()
+      items <- List String
+      assert items?
+
+//EOF

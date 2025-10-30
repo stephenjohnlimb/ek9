@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.advanced.test005
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (stream missing pipe operator)
+  // @TestDescription: Stream with cat and collect but no pipe
+
+  defines function
+    testStreamMissingPipe()
+      result <- cat [1, 2, 3] collect as List of Integer
+      assert length result == 3
+
+//EOF
