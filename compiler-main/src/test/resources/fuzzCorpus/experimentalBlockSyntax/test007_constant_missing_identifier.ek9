@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.experiment.test007
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (constant missing identifier)
+  // @TestDescription: Constant declaration without identifier
+
+  defines constant
+
+    <- 42
+    <- "value"
+
+//EOF

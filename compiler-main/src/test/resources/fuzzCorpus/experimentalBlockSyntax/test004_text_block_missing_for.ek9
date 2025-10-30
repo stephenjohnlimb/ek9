@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.experiment.test004
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (text block missing FOR keyword)
+  // @TestDescription: Text block without FOR before string literal
+
+  defines text "template.html"
+
+    template1()
+      "Hello World"
+
+//EOF

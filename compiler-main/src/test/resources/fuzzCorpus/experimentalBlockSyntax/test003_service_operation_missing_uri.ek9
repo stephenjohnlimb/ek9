@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.experiment.test003
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (service operation missing URI)
+  // @TestDescription: Service operation with HTTP verb but no URI
+
+  defines service
+    MyService /api
+
+      getUser() as GET
+        <- rtn as String: "user"
+
+//EOF

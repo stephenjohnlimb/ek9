@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.experiment.test001
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (service declaration missing identifier)
+  // @TestDescription: Service with FOR but no name
+
+  defines service
+    FOR /api/users
+
+      getUser() as GET for /api/users/{id}
+        <- rtn as String: "user"
+
+//EOF

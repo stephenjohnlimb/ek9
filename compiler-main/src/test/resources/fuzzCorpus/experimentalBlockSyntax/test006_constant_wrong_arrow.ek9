@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.experiment.test006
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (constant using := instead of <-)
+  // @TestDescription: Constant block with wrong assignment operator
+
+  defines constant
+
+    MY_CONSTANT := 42
+    PI := 3.14159
+
+//EOF

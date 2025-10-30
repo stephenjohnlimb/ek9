@@ -1,0 +1,13 @@
+#!ek9
+defines module fuzztest.experiment.test010
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (constant missing initializer value)
+  // @TestDescription: Constant with arrow but no value
+
+  defines constant
+
+    MY_CONSTANT <-
+    PI <-
+
+//EOF
