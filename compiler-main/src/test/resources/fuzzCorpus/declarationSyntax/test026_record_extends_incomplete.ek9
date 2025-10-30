@@ -1,0 +1,16 @@
+#!ek9
+defines module fuzztest.declarations.test026
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (extends keyword without type reference)
+  // @TestDescription: Record with 'extends' but no type to extend
+
+  defines record
+    BaseRecord
+      name as String
+
+  defines record
+    DerivedRecord extends
+      age as Integer
+
+//EOF

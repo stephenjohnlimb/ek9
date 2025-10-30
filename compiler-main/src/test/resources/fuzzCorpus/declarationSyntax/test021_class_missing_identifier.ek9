@@ -1,0 +1,11 @@
+#!ek9
+defines module fuzztest.declarations.test021
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (class declaration missing identifier/name)
+  // @TestDescription: Class with 'defines class' but no name
+
+  defines class
+    name as String
+
+//EOF

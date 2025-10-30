@@ -1,0 +1,8 @@
+#!ek9
+defines fuzztest.declarations.test031
+
+  defines function
+    test()
+      <- rtn as String: "test"
+
+//EOF

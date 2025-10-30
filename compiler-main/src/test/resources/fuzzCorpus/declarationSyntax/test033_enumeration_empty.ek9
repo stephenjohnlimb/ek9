@@ -1,0 +1,11 @@
+#!ek9
+defines module fuzztest.declarations.test033
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (enumeration with no values)
+  // @TestDescription: Type with enumeration block but no enumeration values
+
+  defines type
+    Color
+
+//EOF

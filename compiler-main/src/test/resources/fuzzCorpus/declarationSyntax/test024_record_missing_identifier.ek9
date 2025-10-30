@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.declarations.test024
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (record declaration missing identifier/name)
+  // @TestDescription: Record with 'defines record' but no name
+
+  defines record
+    name as String
+    age as Integer
+
+//EOF

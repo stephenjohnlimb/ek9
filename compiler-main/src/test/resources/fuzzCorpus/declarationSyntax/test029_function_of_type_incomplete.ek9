@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.declarations.test029
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (of type clause without type parameter)
+  // @TestDescription: Generic function with 'of type' but no type parameter
+
+  defines function
+    process of type ()
+      <- rtn as Boolean: true
+
+//EOF

@@ -1,0 +1,16 @@
+#!ek9
+defines module fuzztest.declarations.test025
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (extends keyword without type reference)
+  // @TestDescription: Class with 'extends' but no type to extend
+
+  defines class
+    BaseClass
+      name as String
+
+  defines class
+    DerivedClass extends
+      age as Integer
+
+//EOF

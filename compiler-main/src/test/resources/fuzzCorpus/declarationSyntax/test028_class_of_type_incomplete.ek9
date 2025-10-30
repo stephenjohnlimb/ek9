@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.declarations.test028
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (of type clause without type parameter)
+  // @TestDescription: Generic class with 'of type' but no type parameter
+
+  defines class
+    Container of type
+      value as String
+
+//EOF

@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.declarations.test027
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (with trait clause without trait reference)
+  // @TestDescription: Class with 'with trait' but no trait specified
+
+  defines class
+    MyClass with trait
+      name as String
+
+//EOF

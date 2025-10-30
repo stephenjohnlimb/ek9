@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.declarations.test022
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (function declaration missing identifier/name)
+  // @TestDescription: Function with 'defines function' but no name
+
+  defines function
+    ()
+      <- rtn as String: "test"
+
+//EOF

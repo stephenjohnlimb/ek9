@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.declarations.test023
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (trait declaration missing identifier/name)
+  // @TestDescription: Trait with 'defines trait' but no name
+
+  defines trait
+    getName() as pure
+      <- rtn as String?
+
+//EOF

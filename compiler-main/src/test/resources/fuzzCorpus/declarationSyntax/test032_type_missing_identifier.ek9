@@ -1,0 +1,11 @@
+#!ek9
+defines module fuzztest.declarations.test032
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (type alias missing identifier/name)
+  // @TestDescription: Type declaration in type block without name
+
+  defines type
+    as Integer
+
+//EOF
