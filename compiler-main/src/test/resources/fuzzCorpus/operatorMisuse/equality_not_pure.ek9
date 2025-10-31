@@ -1,0 +1,16 @@
+#!ek9
+defines module fuzztest.operators.test002
+
+  defines class
+
+    Person
+      name as String?
+      age as Integer?
+
+      // Should fail - == operator not marked pure
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_MUST_BE_PURE
+      operator ==
+        -> other as Person
+        <- result as Boolean: name == other.name and age == other.age
+
+//EOF

@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.operators.test016
+
+  defines class
+
+    Buffer
+      data as String?
+
+      // Should fail - length operator must return Integer, not Boolean
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
+      operator length as pure
+        <- size as Boolean: data?
+
+//EOF

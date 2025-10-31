@@ -1,0 +1,15 @@
+#!ek9
+defines module fuzztest.operators.test011
+
+  defines class
+
+    Number
+      value <- 0
+
+      // Should fail - > operator must return Boolean, not Integer
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
+      operator > as pure
+        -> other as Number
+        <- result as Integer: value - other.value
+
+//EOF

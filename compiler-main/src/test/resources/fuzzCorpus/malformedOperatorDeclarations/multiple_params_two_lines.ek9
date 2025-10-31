@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.parsing.malformed.operators.test008
+
+  // @TestDescription: Two separate parameter declaration lines in operator - should fail parsing
+  // Same as test006 but with 2 parameters instead of 3
+
+  defines class
+
+    Number
+      value <- 0
+
+      operator + as pure
+        -> a as Number
+        -> b as Number
+        <- result as Number: Number()
+
+//EOF

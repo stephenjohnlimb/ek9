@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.operators.test019
+
+  defines class
+
+    Value
+      amount <- 0
+
+      //Need a pure default constructor for the addition return
+      default Value() as pure
+
+      // Should fail - - operator requires 1 parameter, given 0
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+      operator + as pure
+        <- result as Value: Value()
+
+//EOF

@@ -1,0 +1,21 @@
+#!ek9
+defines module fuzztest.parsing.malformed.operators.test007
+
+  // @TestDescription: Operator return body with control flow - incorrect indentation - should fail parsing
+  // The if/else block is indented at level 5 instead of level 4
+
+  defines class
+
+    Version
+      major <- 1
+      minor <- 0
+
+      operator <=>
+        -> other as Version
+        <- result as Integer
+          if major == other.major
+            result: minor <=> other.minor
+          else
+            result: major <=> other.major
+
+//EOF

@@ -1,0 +1,19 @@
+#!ek9
+defines module fuzztest.parsing.malformed.operators.test002
+
+  // @TestDescription: Operator return body with incorrect indentation - should fail parsing
+  // The return body statements (data:, rtn:) are indented at level 5 instead of level 4
+  // Correct syntax requires return body to align with the <- return declaration
+
+  defines class
+
+    Value
+      data as Integer?
+
+      operator := as pure
+        -> other as Value
+        <- rtn as Value
+          data: other.data
+          rtn: this
+
+//EOF

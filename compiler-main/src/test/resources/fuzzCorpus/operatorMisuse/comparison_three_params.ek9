@@ -1,0 +1,19 @@
+#!ek9
+defines module fuzztest.operators.test026
+
+  defines class
+
+    Range
+      min <- 0
+      max <- 100
+
+      // Should fail - < operator requires exactly 1 parameter, not 3
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator < as pure
+        ->
+          a as Range
+          b as Range
+          c as Range
+        <- result as Boolean: true
+
+//EOF

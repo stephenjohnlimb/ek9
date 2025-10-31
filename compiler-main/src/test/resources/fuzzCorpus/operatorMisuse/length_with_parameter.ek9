@@ -1,0 +1,15 @@
+#!ek9
+defines module fuzztest.operators.test022
+
+  defines class
+
+    Array
+      items as List of String: List()
+
+      // Should fail - #^ operator takes no parameters
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator length as pure
+        -> includeEmpty as Boolean
+        <- size as Integer: items.length()
+
+//EOF

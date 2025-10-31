@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.operators.test029
+
+  defines class
+
+    Collection
+      data as List of String: List()
+
+      // Should fail - 'empty' is reserved operator name
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      empty
+        <- result as Boolean: data.empty()
+
+//EOF

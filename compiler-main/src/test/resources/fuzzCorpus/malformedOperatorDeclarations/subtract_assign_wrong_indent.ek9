@@ -1,0 +1,18 @@
+#!ek9
+defines module fuzztest.parsing.malformed.operators.test004
+
+  // @TestDescription: Subtract-assign operator return body with incorrect indentation - should fail parsing
+  // The return body statements are indented at level 5 instead of level 4
+
+  defines class
+
+    Balance
+      amount <- 100
+
+      operator -= as pure
+        -> deduction as Integer
+        <- rtn as Balance
+          amount: amount - deduction
+          rtn: this
+
+//EOF

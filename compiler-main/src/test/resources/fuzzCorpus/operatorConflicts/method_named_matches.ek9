@@ -1,0 +1,19 @@
+#!ek9
+defines module fuzztest.operators.test030
+
+  // @ExpectPhase: SYMBOL_DEFINITION
+  // @ExpectError: OPERATOR_NAME_USED_AS_METHOD
+  // @TestDescription: Cannot use operator name 'matches' as method name
+
+  defines class
+
+    Pattern
+      regex as String?
+
+      // Should fail - 'matches' is reserved operator name
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      matches
+        -> text as String
+        <- result as Boolean: true
+
+//EOF

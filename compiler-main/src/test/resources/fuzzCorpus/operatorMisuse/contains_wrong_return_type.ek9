@@ -1,0 +1,15 @@
+#!ek9
+defines module fuzztest.operators.test015
+
+  defines class
+
+    Collection
+      items as List of Integer: List()
+
+      // Should fail - contains operator must return Boolean, not Integer
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
+      operator contains as pure
+        -> item as Integer
+        <- result as Integer: items.length()
+
+//EOF

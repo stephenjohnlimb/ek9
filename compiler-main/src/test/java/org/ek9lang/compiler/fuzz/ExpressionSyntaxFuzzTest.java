@@ -28,9 +28,6 @@ class ExpressionSyntaxFuzzTest extends FuzzTestBase {
 
   @Test
   void testExpressionSyntaxRobustness() {
-    final int fileCount = ek9Workspace.getSources().size();
-    assertTrue(fileCount > 0, "Expecting files to be tested");
-    System.out.println("ExpressionSyntaxFuzzTest: Found " + fileCount + " .ek9 files to test");
-    runTests();
+    assertTrue(runTests() != 0);
   }
 }

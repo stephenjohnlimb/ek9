@@ -1,0 +1,15 @@
+#!ek9
+defines module fuzztest.operators.test005
+
+  defines class
+
+    StringSet
+      items as List of String: List()
+
+      // Should fail - contains operator not marked pure
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_MUST_BE_PURE
+      operator contains
+        -> item as String
+        <- result as Boolean: items contains item
+
+//EOF

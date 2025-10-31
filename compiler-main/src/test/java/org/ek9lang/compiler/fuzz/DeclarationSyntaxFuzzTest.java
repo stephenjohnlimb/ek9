@@ -29,9 +29,6 @@ class DeclarationSyntaxFuzzTest extends FuzzTestBase {
 
   @Test
   void testDeclarationSyntaxRobustness() {
-    final int fileCount = ek9Workspace.getSources().size();
-    assertTrue(fileCount > 0, "Expecting files to be tested");
-    System.out.println("DeclarationSyntaxFuzzTest: Found " + fileCount + " .ek9 files to test");
-    runTests();
+    assertTrue(runTests() != 0);
   }
 }

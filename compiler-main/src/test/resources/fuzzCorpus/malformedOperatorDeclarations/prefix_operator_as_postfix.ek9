@@ -1,0 +1,16 @@
+#!ek9
+defines module fuzztest.parsing.malformed.operators.test001
+
+  // @TestDescription: Prefix operator (#?) used with postfix syntax - should fail parsing
+  // The #? (hashcode) operator is a PREFIX operator but is used here as POSTFIX (data#?)
+  // Correct syntax would be: #?data
+
+  defines class
+
+    DataHolder
+      data as String?
+
+      operator #?
+        <- hash as Integer: data#?
+
+//EOF
