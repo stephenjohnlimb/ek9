@@ -18,29 +18,38 @@ import org.ek9lang.core.CompilerException;
  * </p>
  * <p>
  * Two forms:
- * 1. throw Exception("message") - constructor call expression
- * 2. throw exceptionVariable - variable reference
+ * 1. throw Exception("message") - constructor call expression (TODO: not yet implemented)
+ * 2. throw exceptionVariable - variable reference (implemented)
  * </p>
  * <p>
  * Key behaviors:
- * - For call: Uses callGenerator to create exception object with ARC
- * - For identifier: Loads variable and applies RETAIN + SCOPE_REGISTER
- * - Generates THROW instruction with exception variable
- * - THROW is a terminating instruction (no code follows in same basic block)
- * - SCOPE_EXIT after throw is unreachable (backend handles stack unwinding)
+ * - For identifier: Applies RETAIN (ownership transfer) then THROW
+ * - THROW is a terminating instruction (transfers control to exception mechanism)
+ * - SCOPE_EXIT after throw is unreachable in normal flow (backend executes during unwinding)
  * </p>
  * <p>
- * ARC Semantics:
- * - Exception object created/loaded with standard RETAIN + SCOPE_REGISTER
- * - THROW transfers ownership to exception mechanism
- * - Backend maintains refcount during stack unwinding
- * - CATCH receives ownership without additional RETAIN (clean transfer)
+ * ARC Ownership Transfer Semantics:
+ * Following the Producer/Consumer pattern from EK9_ARC_OWNERSHIP_TRANSFER_PATTERN.md:
+ * <pre>
+ * Declaration (normal variable management):
+ *   RETAIN + SCOPE_REGISTER    // Variable managed in declaration scope
+ *
+ * Throw (Producer - transfers ownership):
+ *   RETAIN (no SCOPE_REGISTER) // Increment for transfer
+ *   THROW                      // Transfer control
+ *
+ * Stack Unwinding (backend responsibility):
+ *   SCOPE_EXIT                 // Backend releases declaration scope reference
+ *
+ * Catch (Consumer - receives ownership):
+ *   REFERENCE (no RETAIN)      // Receive exception
+ *   SCOPE_REGISTER             // Take ownership for catch scope
+ * </pre>
+ * Result: Exception has refcount = 1 in catch handler, gets released on catch scope exit.
  * </p>
  */
 public final class ThrowStatementGenerator extends AbstractGenerator
     implements Function<EK9Parser.ThrowStatementContext, List<IRInstr>> {
-
-  private final GeneratorSet generators;
 
   /**
    * Constructor accepting injected GeneratorSet for access to sub-generators.
@@ -49,14 +58,12 @@ public final class ThrowStatementGenerator extends AbstractGenerator
                           final GeneratorSet generators) {
     super(stackContext);
     AssertValue.checkNotNull("GeneratorSet cannot be null", generators);
-    this.generators = generators;
   }
 
   @Override
   public List<IRInstr> apply(final EK9Parser.ThrowStatementContext ctx) {
     AssertValue.checkNotNull("ThrowStatementContext cannot be null", ctx);
 
-    final var instructions = new ArrayList<IRInstr>();
     final var debugInfo = stackContext.createDebugInfo(ctx.THROW().getSymbol());
 
     // Determine which form: call or identifierReference
@@ -66,20 +73,26 @@ public final class ThrowStatementGenerator extends AbstractGenerator
       throw new CompilerException("throw with constructor call not yet implemented - use variable form");
     } else if (ctx.identifierReference() != null) {
       // Form 2: throw exceptionVariable - variable reference
-      instructions.addAll(processThrowWithIdentifier(ctx.identifierReference(), debugInfo));
-    } else {
-      throw new CompilerException("throw statement must have call or identifierReference");
+      return new ArrayList<>(processThrowWithIdentifier(ctx.identifierReference(), debugInfo));
     }
+    throw new CompilerException("throw statement must have call or identifierReference");
 
-    return instructions;
+
   }
 
   /**
    * Process throw with identifier reference (variable form).
-   * Throws existing exception variable directly.
-   * The variable already has proper ARC management from its declaration.
+   * Implements ARC ownership transfer pattern for exception throwing.
+   * <p>
+   * Pattern: Producer (throw) must RETAIN without SCOPE_REGISTER.
+   * This ensures correct refcount during stack unwinding:
+   * - Declaration scope has RETAIN + SCOPE_REGISTER (will release during unwinding)
+   * - THROW adds additional RETAIN (for ownership transfer)
+   * - Stack unwinding releases declaration scope's reference
+   * - Catch receives exception with refcount = 1 (no additional RETAIN needed)
+   * </p>
    *
-   * @param identCtx The identifier reference context (variable name)
+   * @param identCtx  The identifier reference context (variable name)
    * @param debugInfo Debug information for throw statement
    * @return List of IR instructions
    */
@@ -89,12 +102,18 @@ public final class ThrowStatementGenerator extends AbstractGenerator
 
     final var instructions = new ArrayList<IRInstr>();
 
-    // Get the variable name directly from the identifier context
-    // The variable already exists and has been RETAINED/SCOPE_REGISTERED at declaration
+    // Get the variable name from identifier context
     final var exceptionVarName = identCtx.getText();
 
-    // Throw the exception - transfers ownership to exception mechanism
-    // No need to load/retain again - variable is already managed
+    // ARC OWNERSHIP TRANSFER PATTERN:
+    // Add RETAIN (but NOT SCOPE_REGISTER) to increment refcount for transfer.
+    // This balances the release that will occur during stack unwinding.
+    // The exception object was already RETAINED + SCOPE_REGISTERED at declaration.
+    // During unwinding, backend executes SCOPE_EXIT which releases that reference.
+    // This additional RETAIN ensures the exception survives unwinding with refcount = 1.
+    instructions.add(org.ek9lang.compiler.ir.instructions.MemoryInstr.retain(exceptionVarName, debugInfo));
+
+    // Transfer ownership to exception mechanism
     instructions.add(ThrowInstr.throwException(exceptionVarName, debugInfo));
 
     return instructions;
