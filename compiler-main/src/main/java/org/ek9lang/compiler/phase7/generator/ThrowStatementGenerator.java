@@ -30,6 +30,7 @@ import org.ek9lang.core.CompilerException;
  * <p>
  * ARC Ownership Transfer Semantics:
  * Following the Producer/Consumer pattern from EK9_ARC_OWNERSHIP_TRANSFER_PATTERN.md:
+ * </p>
  * <pre>
  * Declaration (normal variable management):
  *   RETAIN + SCOPE_REGISTER    // Variable managed in declaration scope
@@ -45,6 +46,7 @@ import org.ek9lang.core.CompilerException;
  *   REFERENCE (no RETAIN)      // Receive exception
  *   SCOPE_REGISTER             // Take ownership for catch scope
  * </pre>
+ * <p>
  * Result: Exception has refcount = 1 in catch handler, gets released on catch scope exit.
  * </p>
  */
