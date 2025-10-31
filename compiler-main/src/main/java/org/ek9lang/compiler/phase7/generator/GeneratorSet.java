@@ -183,6 +183,11 @@ public final class GeneratorSet {
   public AssertStmtGenerator assertStmtGenerator;
 
   /**
+   * Generates IR for throw statements.
+   */
+  public ThrowStatementGenerator throwStatementGenerator;
+
+  /**
    * Generates IR for call statements (function/method calls).
    */
   public CallInstrGenerator callGenerator;

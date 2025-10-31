@@ -1,0 +1,24 @@
+#!ek9
+<?-
+  Test IR generation for throw statement inside try/catch.
+  Tests exception throwing and catching in CONTROL_FLOW_CHAIN.
+  Tests that exception object ownership transfers correctly:
+  - THROW transfers ownership to exception mechanism
+  - CATCH receives ownership without additional RETAIN
+-?>
+defines module exceptionHandling
+
+  defines function
+
+    throwInTryCatch()
+      stdout <- Stdout()
+      ex <- Exception("Thrown exception")
+
+      try
+        stdout.println("Before throw")
+        throw ex
+      catch
+        -> caught as Exception
+        stdout.println("Caught exception")
+
+//EOF
