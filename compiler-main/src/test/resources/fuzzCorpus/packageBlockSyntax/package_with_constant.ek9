@@ -1,0 +1,11 @@
+#!ek9
+defines module fuzztest.pkg.missing.indent
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing INDENT after defines package)
+  // @TestDescription: Package variable without INDENT - common Python-like syntax error
+
+  defines package
+  myVar <- "value"
+
+//EOF

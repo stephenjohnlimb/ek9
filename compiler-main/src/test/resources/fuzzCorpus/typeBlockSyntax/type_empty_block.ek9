@@ -1,0 +1,10 @@
+#!ek9
+defines module fuzztest.typ.empty
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (type block requires at least one type declaration)
+  // @TestDescription: Empty type block - grammar requires (typeDeclaration)+ with + meaning one or more
+
+  defines type
+
+//EOF

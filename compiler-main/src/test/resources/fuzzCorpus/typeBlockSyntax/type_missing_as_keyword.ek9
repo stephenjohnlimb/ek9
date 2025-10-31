@@ -1,0 +1,11 @@
+#!ek9
+defines module fuzztest.typ.invalid.token
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (invalid token after type identifier)
+  // @TestDescription: Type declaration with invalid token - testing parser error recovery
+
+  defines type
+    MyType <-
+
+//EOF

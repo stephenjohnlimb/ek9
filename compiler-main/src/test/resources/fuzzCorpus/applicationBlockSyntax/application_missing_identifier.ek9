@@ -1,0 +1,11 @@
+#!ek9
+defines module fuzztest.application.no.name
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (application requires identifier)
+  // @TestDescription: Application without identifier - grammar requires Identifier
+
+  defines application
+    stdout <- "Hello"
+
+//EOF

@@ -1,0 +1,10 @@
+#!ek9
+defines module fuzztest.pkg.empty
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (package block requires at least one variable)
+  // @TestDescription: Empty package block - grammar requires (variableDeclaration)+ with + meaning one or more
+
+  defines package
+
+//EOF

@@ -1,0 +1,10 @@
+#!ek9
+defines module fuzztest.prog.empty
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (program block requires at least one method)
+  // @TestDescription: Empty program block - grammar requires (methodDeclaration)+ with + meaning one or more
+
+  defines program
+
+//EOF

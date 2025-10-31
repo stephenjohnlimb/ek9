@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.prog.no.indent
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing INDENT after defines program)
+  // @TestDescription: Program block without INDENT - common Python-like syntax error
+
+  defines program
+  main()
+    stdout <- "Hello"
+
+//EOF

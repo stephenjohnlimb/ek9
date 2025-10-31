@@ -1,0 +1,11 @@
+#!ek9
+defines module fuzztest.application.missing.newline
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing newline after defines application)
+  // @TestDescription: Application name on same line - grammar requires NL+ after APPLICATION keyword
+
+  defines application MyApp
+    myVar <- "Hello"
+
+//EOF
