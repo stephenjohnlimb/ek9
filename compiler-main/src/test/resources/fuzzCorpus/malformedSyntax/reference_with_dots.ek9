@@ -1,0 +1,15 @@
+#!ek9
+defines module fuzztest.references.nonexistent.module
+
+  // @ExpectPhase: REFERENCE_CHECKS
+  // @ExpectError: REFERENCE_NOT_FOUND
+  // @TestDescription: Reference a module that doesn't exist
+
+  references
+    com.does.not.exist::Symbol
+
+  defines function
+    testFunc()
+      <- result as String: "test"
+
+//EOF

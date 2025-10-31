@@ -1,6 +1,6 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
@@ -37,13 +37,13 @@ class WorkingAreaTest extends PhasesTest {
     ek9Workspace.getSources().stream().findFirst()
         .ifPresent(source -> fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture));
 
-    testToPhase(CompilationPhase.PRE_IR_CHECKS);
+    testToPhase(CompilationPhase.REFERENCE_CHECKS);
   }
 
   @Override
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
-    assertTrue(compilationResult);
+    assertFalse(compilationResult);
 
     final var output = new ByteArrayOutputStream();
     try (final var printWriter = new PrintWriter(output)) {

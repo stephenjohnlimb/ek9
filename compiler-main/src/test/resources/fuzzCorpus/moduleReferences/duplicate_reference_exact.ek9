@@ -1,0 +1,18 @@
+#!ek9
+defines module fuzztest.references.duplicate
+
+  // @ExpectPhase: REFERENCE_CHECKS
+  // @ExpectError: REFERENCES_CONFLICT (same symbol referenced twice)
+  // @TestDescription: Reference the exact same module::symbol twice - should produce conflicting references error
+
+  references
+    fuzztest.references.duplicate::testFunc
+    @Error: REFERENCE_CHECKS: REFERENCES_CONFLICT
+    fuzztest.references.duplicate::testFunc
+
+  defines function
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
+    testFunc()
+      <- result as String: "test"
+
+//EOF
