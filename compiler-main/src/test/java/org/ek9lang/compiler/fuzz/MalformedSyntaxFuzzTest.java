@@ -20,10 +20,6 @@ class MalformedSyntaxFuzzTest extends FuzzTestBase {
 
   @Test
   void testMalformedSyntaxRobustness() {
-    // Verify we actually have test files loaded
-    final int fileCount = ek9Workspace.getSources().size();
-    assertTrue(fileCount > 0, "Expecting at least one file to test");
-    System.out.println("MalformedSyntaxFuzzTest: Found " + fileCount + " .ek9 files to test");
-    runTests();
+    assertTrue(runTests() != 0);
   }
 }

@@ -1,0 +1,15 @@
+#!ek9
+defines module fuzztest.operators.test012
+
+  defines class
+
+    Item
+      name as String?
+
+      // Should fail - == operator must return Boolean, not String
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_BOOLEAN
+      operator == as pure
+        -> other as Item
+        <- result as String: name
+
+//EOF

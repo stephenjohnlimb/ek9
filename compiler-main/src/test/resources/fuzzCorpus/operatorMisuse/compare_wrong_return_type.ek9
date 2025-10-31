@@ -1,0 +1,15 @@
+#!ek9
+defines module fuzztest.operators.test013
+
+  defines class
+
+    Priority
+      level <- 0
+
+      // Should fail - <=> operator must return Integer, not Boolean
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
+      operator <=> as pure
+        -> other as Priority
+        <- result as Boolean: level > other.level
+
+//EOF

@@ -1,0 +1,18 @@
+#!ek9
+defines module fuzztest.operators.test027
+
+  // @ExpectPhase: SYMBOL_DEFINITION
+  // @ExpectError: OPERATOR_NAME_USED_AS_METHOD
+  // @TestDescription: Cannot use operator name 'length' as method name
+
+  defines class
+
+    Sequence
+      items as List of String: List()
+
+      // Should fail - 'length' is reserved operator name
+      @Error: SYMBOL_DEFINITION: OPERATOR_NAME_USED_AS_METHOD
+      length
+        <- count as Integer: items.length()
+
+//EOF

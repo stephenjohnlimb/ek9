@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.operators.test014
+
+  defines class
+
+    Key
+      id as String?
+
+      // Should fail - #? operator must return Integer, not String
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: MUST_RETURN_INTEGER
+      operator #? as pure
+        <- hash as String: id
+
+//EOF

@@ -27,9 +27,6 @@ class AbstractBodyConflictsFuzzTest extends FuzzTestBase {
 
   @Test
   void testAbstractBodyConflictDetection() {
-    final int fileCount = ek9Workspace.getSources().size();
-    assertTrue(fileCount > 0, "Expecting files to be tested");
-    System.out.println("AbstractBodyConflictsFuzzTest: Found " + fileCount + " .ek9 files to test");
-    runTests();
+    assertTrue(runTests() != 0);
   }
 }

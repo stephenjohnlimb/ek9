@@ -1,0 +1,15 @@
+#!ek9
+defines module fuzztest.operators.test021
+
+  defines class
+
+    Holder
+      value as String?
+
+      // Should fail - ? operator takes no parameters
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator ? as pure
+        -> check as Boolean
+        <- result as Boolean: value?
+
+//EOF

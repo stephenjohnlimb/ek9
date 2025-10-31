@@ -1,0 +1,18 @@
+#!ek9
+defines module fuzztest.parsing.malformed.operators.test005
+
+  // @TestDescription: Multiply-assign operator return body with incorrect indentation - should fail parsing
+  // The return body statements are indented at level 5 instead of level 4
+
+  defines class
+
+    Factor
+      value <- 1
+
+      operator *= as pure
+        -> multiplier as Integer
+        <- rtn as Factor
+          value: value * multiplier
+          rtn: this
+
+//EOF

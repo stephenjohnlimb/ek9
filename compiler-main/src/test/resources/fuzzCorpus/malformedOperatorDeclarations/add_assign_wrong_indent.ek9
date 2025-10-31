@@ -1,0 +1,18 @@
+#!ek9
+defines module fuzztest.parsing.malformed.operators.test003
+
+  // @TestDescription: Add-assign operator return body with incorrect indentation - should fail parsing
+  // The return body statements are indented at level 5 instead of level 4
+
+  defines class
+
+    Counter
+      value <- 0
+
+      operator += as pure
+        -> amount as Integer
+        <- rtn as Counter
+          value: value + amount
+          rtn: this
+
+//EOF

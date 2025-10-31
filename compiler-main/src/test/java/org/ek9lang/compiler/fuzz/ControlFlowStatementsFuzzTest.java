@@ -26,9 +26,6 @@ class ControlFlowStatementsFuzzTest extends FuzzTestBase {
 
   @Test
   void testControlFlowStatementSyntaxRobustness() {
-    final int fileCount = ek9Workspace.getSources().size();
-    assertTrue(fileCount > 0, "Expecting files to be tested");
-    System.out.println("ControlFlowStatementsFuzzTest: Found " + fileCount + " .ek9 files to test");
-    runTests();
+    assertTrue(runTests() != 0);
   }
 }

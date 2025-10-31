@@ -10,7 +10,7 @@ class ExceptionHandlingIRTest extends AbstractIRGenerationTest {
   public ExceptionHandlingIRTest() {
     super("/examples/irGeneration/exceptionHandling",
         List.of(new SymbolCountCheck(4, "exceptionHandling", 4)),  // 4 modules (files), 4 functions
-        false, false, true);  // verbose=false, muteErrors=false, showIR=true (for analysis)
+        false, false, false);  // verbose=false, muteErrors=false, showIR=true (for analysis)
   }
 
   @Override

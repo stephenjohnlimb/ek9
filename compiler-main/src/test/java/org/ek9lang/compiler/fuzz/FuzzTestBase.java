@@ -39,8 +39,16 @@ public abstract class FuzzTestBase extends PhasesTest {
     this.targetPhase = targetPhase;
   }
 
-  protected void runTests() {
+  protected FuzzTestBase(final String corpusDirectory, final CompilationPhase targetPhase, final boolean muteReportedErrors) {
+    super("/fuzzCorpus/" + corpusDirectory, false, muteReportedErrors);
+    this.targetPhase = targetPhase;
+  }
+
+  protected int runTests() {
+    final int fileCount = ek9Workspace.getSources().size();
+    assertTrue(fileCount > 0, "Expecting files to be tested");
     testToPhase(targetPhase);
+    return fileCount;
   }
 
   private void checkCompilationErrors(final CompilableSource source) {

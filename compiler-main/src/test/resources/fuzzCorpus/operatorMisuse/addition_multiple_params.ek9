@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.operators.test018
+
+  defines class
+
+    Number
+      value <- 0
+
+      // Should fail - + operator requires exactly 1 parameter, not 2
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_MANY_ARGUMENTS
+      operator + as pure
+        ->
+          a as Number
+          b as Number
+        <- result as Number: Number()
+
+//EOF

@@ -1,0 +1,20 @@
+#!ek9
+defines module fuzztest.parsing.malformed.operators.test006
+
+  // @TestDescription: Multiple separate parameter declaration lines in operator - should fail parsing
+  // Operators cannot have multiple -> lines (like functions can)
+  // Correct syntax: single -> with indented parameter block
+
+  defines class
+
+    Range
+      min <- 0
+      max <- 100
+
+      operator < as pure
+        -> a as Range
+        -> b as Range
+        -> c as Range
+        <- result as Boolean: true
+
+//EOF

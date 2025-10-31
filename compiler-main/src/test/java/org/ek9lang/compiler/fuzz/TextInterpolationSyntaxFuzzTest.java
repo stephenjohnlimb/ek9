@@ -21,9 +21,6 @@ class TextInterpolationSyntaxFuzzTest extends FuzzTestBase {
 
   @Test
   void testTextInterpolationSyntaxRobustness() {
-    final int fileCount = ek9Workspace.getSources().size();
-    assertTrue(fileCount > 0, "Expecting files to be tested");
-    System.out.println("TextInterpolationSyntaxFuzzTest: Found " + fileCount + " .ek9 files to test");
-    runTests();
+    assertTrue(runTests() != 0);
   }
 }

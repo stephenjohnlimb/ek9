@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.operators.test020
+
+  defines class
+
+    Factor
+      value <- 1
+
+      // Should fail - * operator requires 1 parameter, given 0
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TOO_FEW_ARGUMENTS
+      operator * as pure
+        <- result as Factor: Factor()
+
+//EOF

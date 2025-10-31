@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.operators.test006
+
+  defines class
+
+    Container
+      items as List of String: List()
+
+      // Should fail - length operator not marked pure
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_MUST_BE_PURE
+      operator length
+        <- size as Integer: items.length()
+
+//EOF

@@ -1,0 +1,15 @@
+#!ek9
+defines module fuzztest.operators.test001
+
+  defines class
+
+    Counter
+      value <- 0
+
+      // Should fail - comparison operator not marked pure
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_MUST_BE_PURE
+      operator >
+        -> other as Counter
+        <- result as Boolean: value > other.value
+
+//EOF
