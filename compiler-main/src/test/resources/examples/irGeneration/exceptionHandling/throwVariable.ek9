@@ -1,0 +1,15 @@
+#!ek9
+<?-
+  Test IR generation for throw statement with variable reference.
+  Throw variable form: throw exceptionVariable
+  Tests that exception variable is loaded and thrown with proper ARC.
+-?>
+defines module exceptionHandling
+
+  defines function
+
+    throwVariable()
+      ex <- Exception("Variable exception")
+      throw ex
+
+//EOF

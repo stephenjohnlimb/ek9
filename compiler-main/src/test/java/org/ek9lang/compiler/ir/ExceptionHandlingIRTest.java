@@ -9,7 +9,7 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
 class ExceptionHandlingIRTest extends AbstractIRGenerationTest {
   public ExceptionHandlingIRTest() {
     super("/examples/irGeneration/exceptionHandling",
-        List.of(new SymbolCountCheck(4, "exceptionHandling", 4)),  // 4 modules (files), 4 functions
+        List.of(new SymbolCountCheck(7, "exceptionHandling", 7)),  // 4 modules (files), 4 functions
         false, false, false);  // verbose=false, muteErrors=false, showIR=true (for analysis)
   }
 

@@ -1,0 +1,15 @@
+#!ek9
+<?-
+  Test IR generation for simple throw statement.
+  Throw variable form: throw exceptionVariable
+  Tests that exception variable is thrown with proper ownership transfer.
+-?>
+defines module exceptionHandling
+
+  defines function
+
+    simpleThrow()
+      ex <- Exception("Test exception")
+      throw ex
+
+//EOF

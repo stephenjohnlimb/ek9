@@ -69,7 +69,7 @@ public final class StmtInstrGenerator extends AbstractGenerator
     } else if (ctx.call() != null) {
       processCall(ctx.call(), instructions);
     } else if (ctx.throwStatement() != null) {
-      throw new CompilerException("Throw not implemented");
+      processThrowStatement(ctx.throwStatement(), instructions);
     } else if (ctx.objectAccessExpression() != null) {
       processObjectAccessExpression(ctx.objectAccessExpression(), instructions);
     } else if (ctx.switchStatementExpression() != null) {
@@ -101,6 +101,12 @@ public final class StmtInstrGenerator extends AbstractGenerator
                                       final List<IRInstr> instructions) {
     // STACK-BASED: AssertStmtGenerator now uses stack context directly
     instructions.addAll(generators.assertStmtGenerator.apply(ctx));
+  }
+
+  private void processThrowStatement(final EK9Parser.ThrowStatementContext ctx,
+                                     final List<IRInstr> instructions) {
+    // STACK-BASED: ThrowStatementGenerator now uses stack context directly
+    instructions.addAll(generators.throwStatementGenerator.apply(ctx));
   }
 
   private void processAssignmentStatement(final EK9Parser.AssignmentStatementContext ctx,
