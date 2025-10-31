@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.selfreference.record
+
+  // @ExpectPhase: TYPE_HIERARCHY_CHECKS
+  // @ExpectError: CIRCULAR_HIERARCHY_DETECTED
+  // @TestDescription: Self-referential record - record extends itself directly
+
+  defines record
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    SelfRecord is SelfRecord as open
+      field <- "self"
+
+//EOF

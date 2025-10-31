@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.circular.records
+
+  // @ExpectPhase: TYPE_HIERARCHY_CHECKS
+  // @ExpectError: CIRCULAR_HIERARCHY_DETECTED
+  // @TestDescription: Direct circular hierarchy - RecordA extends RecordB, RecordB extends RecordA
+
+  defines record
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    RecordA is RecordB as open
+      fieldA <- "A"
+
+    RecordB is RecordA as open
+      fieldB <- "B"
+
+//EOF

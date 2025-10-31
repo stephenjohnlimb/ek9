@@ -1,0 +1,16 @@
+#!ek9
+defines module fuzztest.references.nonexistent.symbol
+
+  // @ExpectPhase: REFERENCE_CHECKS
+  // @ExpectError: REFERENCE_DOES_NOT_RESOLVED (reference does not resolve)
+  // @TestDescription: Reference a non-existent symbol (org.ek9lang.base does not export String for referencing)
+
+  references
+    @Error: REFERENCE_CHECKS: REFERENCE_DOES_NOT_RESOLVED
+    org.ek9lang.base::NonExistentType
+
+  defines function
+    testFunc()
+      <- result as String: "test"
+
+//EOF

@@ -1,0 +1,17 @@
+#!ek9
+defines module fuzztest.circular.components
+
+  // @ExpectPhase: TYPE_HIERARCHY_CHECKS
+  // @ExpectError: CIRCULAR_HIERARCHY_DETECTED
+  // @TestDescription: Direct circular hierarchy - ComponentA extends ComponentB, ComponentB extends ComponentA
+
+  defines component
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    ComponentA extends ComponentB as open
+      fieldA <- "A"
+
+    ComponentB extends ComponentA as open
+      fieldB <- "B"
+
+//EOF
