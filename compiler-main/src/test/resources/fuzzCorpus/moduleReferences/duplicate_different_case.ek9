@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.references.casing.sensitive
+
+  references
+    @Error: REFERENCE_CHECKS: REFERENCE_DOES_NOT_RESOLVED
+    fuzztest.references.casing.sensitive::TestFunc
+    @Error: REFERENCE_CHECKS: REFERENCE_DOES_NOT_RESOLVED
+    fuzztest.references.casing.sensitive::testFunc
+
+  defines function
+    actualFunc()
+      <- result as String: "test"
+
+//EOF

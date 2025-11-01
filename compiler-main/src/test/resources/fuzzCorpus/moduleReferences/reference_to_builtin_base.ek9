@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.references.builtin
+
+  references
+    @Error: REFERENCE_CHECKS: REFERENCE_DOES_NOT_RESOLVED
+    org.ek9lang.base::String
+
+  defines function
+    testFunc()
+      <- result as String: "test"
+
+//EOF

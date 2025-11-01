@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.references.unqualified
+
+  references
+    @Error: REFERENCE_CHECKS: INVALID_SYMBOL_BY_REFERENCE
+    UnknownType
+
+  defines function
+    testFunc()
+      <- result as String: "test"
+
+//EOF

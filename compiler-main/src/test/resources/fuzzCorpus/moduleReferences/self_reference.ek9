@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.references.self
+
+  references
+    fuzztest.references.self::selfFunc
+
+  defines function
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
+    selfFunc()
+      <- result as String: "self"
+
+//EOF

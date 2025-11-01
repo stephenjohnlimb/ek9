@@ -1,0 +1,12 @@
+#!ek9
+defines module fuzztest.references.missing.module
+
+  references
+    @Error: REFERENCE_CHECKS: REFERENCE_DOES_NOT_RESOLVED
+    com.nonexistent.module::SomeType
+
+  defines function
+    testFunc()
+      <- result as String: "test"
+
+//EOF
