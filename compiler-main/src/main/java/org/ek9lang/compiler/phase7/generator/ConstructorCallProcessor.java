@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
@@ -26,15 +25,13 @@ import org.ek9lang.core.CompilerException;
  * Eliminates duplication between ExprInstrGenerator and CallInstrGenerator
  * by providing a single, reusable component for constructor call processing.
  */
-public final class ConstructorCallProcessor {
+public final class ConstructorCallProcessor extends AbstractGenerator {
 
-  private final IRGenerationContext stackContext;
   private final VariableMemoryManagement variableMemoryManagement;
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
   public ConstructorCallProcessor(final IRGenerationContext stackContext,
                                   final VariableMemoryManagement variableMemoryManagement) {
-    this.stackContext = stackContext;
+    super(stackContext);
     this.variableMemoryManagement = variableMemoryManagement;
   }
 

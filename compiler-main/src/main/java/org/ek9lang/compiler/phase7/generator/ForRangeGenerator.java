@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.OperatorMap;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.ForRangePolymorphicInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
@@ -63,7 +62,6 @@ public final class ForRangeGenerator extends AbstractGenerator
     implements Function<EK9Parser.ForStatementExpressionContext, List<IRInstr>> {
 
   private final OperatorMap operatorMap = new OperatorMap();
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final GeneratorSet generators;
 
   ForRangeGenerator(final IRGenerationContext stackContext,

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
@@ -46,7 +45,6 @@ import org.ek9lang.core.CompilerException;
 public final class TryCatchStatementGenerator extends AbstractGenerator
     implements Function<EK9Parser.TryStatementExpressionContext, List<IRInstr>> {
 
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final GeneratorSet generators;
 
   public TryCatchStatementGenerator(final IRGenerationContext stackContext,

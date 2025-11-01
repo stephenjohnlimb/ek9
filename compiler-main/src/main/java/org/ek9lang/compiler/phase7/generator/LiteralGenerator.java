@@ -2,7 +2,6 @@ package org.ek9lang.compiler.phase7.generator;
 
 import java.util.List;
 import java.util.function.Function;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.LiteralInstr;
 import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
@@ -16,14 +15,12 @@ import org.ek9lang.compiler.phase7.support.VariableNameForIR;
  * MIGRATED: Now uses IRInstructionBuilder with original IRContext access via stack infrastructure.
  * </p>
  */
-final class LiteralGenerator implements Function<LiteralProcessingDetails, List<IRInstr>> {
+final class LiteralGenerator extends AbstractGenerator implements Function<LiteralProcessingDetails, List<IRInstr>> {
 
-  private final IRInstructionBuilder instructionBuilder;
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
 
   LiteralGenerator(final IRInstructionBuilder instructionBuilder) {
-    this.instructionBuilder = instructionBuilder;
+    super(instructionBuilder.getContext());
   }
 
   @Override

@@ -6,7 +6,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
@@ -35,34 +34,22 @@ import org.ek9lang.core.CompilerException;
  * across all function call contexts.
  * </p>
  */
-public final class FunctionCallProcessor
+public final class FunctionCallProcessor extends AbstractGenerator
     implements BiFunction<CallProcessingDetails, Function<ExprProcessingDetails, List<IRInstr>>, List<IRInstr>> {
 
-  private final IRGenerationContext stackContext;
   private final VariableMemoryManagement variableMemoryManagement;
   private final CallDetailsBuilder callDetailsBuilder;
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
 
   public FunctionCallProcessor(final IRGenerationContext stackContext,
                                final VariableMemoryManagement variableMemoryManagement,
                                final CallDetailsBuilder callDetailsBuilder) {
-    AssertValue.checkNotNull("IRGenerationContext cannot be null", stackContext);
+    super(stackContext);
     AssertValue.checkNotNull("VariableMemoryManagement cannot be null", variableMemoryManagement);
     AssertValue.checkNotNull("CallDetailsBuilder cannot be null", callDetailsBuilder);
-    this.stackContext = stackContext;
+
     this.variableMemoryManagement = variableMemoryManagement;
     this.callDetailsBuilder = callDetailsBuilder;
-  }
-
-  /**
-   * Get recorded symbol or throw exception if not found.
-   */
-  private ISymbol getRecordedSymbolOrException(org.antlr.v4.runtime.tree.ParseTree node) {
-    final var rtn = stackContext.getParsedModule().getRecordedSymbol(node);
-    AssertValue.checkNotNull("Symbol should be resolved by phases 1-6", rtn);
-    AssertValue.checkTrue("Symbol must have been given a type by phase 7", rtn.getType().isPresent());
-    return rtn;
   }
 
   /**

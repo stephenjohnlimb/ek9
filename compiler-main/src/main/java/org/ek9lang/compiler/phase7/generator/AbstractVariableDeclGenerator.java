@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase7.generator;
 import java.util.ArrayList;
 import java.util.List;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
@@ -15,7 +14,6 @@ import org.ek9lang.core.AssertValue;
  */
 abstract class AbstractVariableDeclGenerator extends AbstractGenerator {
 
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
 
   AbstractVariableDeclGenerator(final IRGenerationContext stackContext) {

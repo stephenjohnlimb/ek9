@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.BiFunction;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
@@ -37,7 +36,6 @@ import org.ek9lang.core.CompilerException;
 public final class CallInstrGenerator extends AbstractGenerator
     implements BiFunction<EK9Parser.CallContext, VariableDetails, List<IRInstr>> {
 
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
   private final GeneratorSet generators;
 

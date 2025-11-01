@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
@@ -42,7 +41,6 @@ public final class ForInGenerator extends AbstractGenerator
     implements Function<EK9Parser.ForStatementExpressionContext, List<IRInstr>> {
 
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final GeneratorSet generators;
 
   ForInGenerator(final IRGenerationContext stackContext,

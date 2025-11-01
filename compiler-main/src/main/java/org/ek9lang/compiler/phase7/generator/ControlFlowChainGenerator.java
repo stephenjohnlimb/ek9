@@ -3,7 +3,6 @@ package org.ek9lang.compiler.phase7.generator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
 import org.ek9lang.compiler.ir.data.DefaultCaseDetails;
@@ -49,7 +48,6 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     implements Function<ControlFlowChainDetails, List<IRInstr>> {
 
   private final Function<ExprProcessingDetails, List<IRInstr>> rawExprProcessor;
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final CallDetailsForIsTrue callDetailsForIsTrue = new CallDetailsForIsTrue();
 
   // Helper classes for evaluation patterns

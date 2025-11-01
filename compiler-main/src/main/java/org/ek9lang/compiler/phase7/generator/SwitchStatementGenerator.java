@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
@@ -41,7 +40,6 @@ public final class SwitchStatementGenerator extends AbstractGenerator
     implements Function<EK9Parser.SwitchStatementExpressionContext, List<IRInstr>> {
 
   private final GeneratorSet generators;
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
   public SwitchStatementGenerator(final IRGenerationContext stackContext,
                                   final GeneratorSet generators) {

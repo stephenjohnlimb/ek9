@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.phase7.generator;
 
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
@@ -130,6 +131,7 @@ abstract class AbstractGenerator {
   protected final IRGenerationContext stackContext;
   protected final DebugInfoCreator debugInfoCreator;
   protected final IRInstructionBuilder instructionBuilder;
+  protected final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
   /**
    * Constructor accepting only IRGenerationContext - the single source of state.

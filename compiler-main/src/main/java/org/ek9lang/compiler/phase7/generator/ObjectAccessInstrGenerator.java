@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
@@ -33,7 +32,6 @@ import org.ek9lang.core.CompilerException;
  */
 public final class ObjectAccessInstrGenerator extends AbstractGenerator {
 
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final GeneratorSet generators;
 
   ObjectAccessInstrGenerator(final IRGenerationContext stackContext, final GeneratorSet generators) {

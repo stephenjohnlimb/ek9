@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
-import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
 import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
@@ -44,17 +43,14 @@ import org.ek9lang.core.AssertValue;
  * This processing does NOT deal with that.
  * </p>
  */
-public final class OperationDfnGenerator implements BiConsumer<OperationInstr, EK9Parser.OperationDetailsContext> {
+public final class OperationDfnGenerator extends AbstractGenerator implements BiConsumer<OperationInstr, EK9Parser.OperationDetailsContext> {
 
-  private final IRGenerationContext stackContext;
   private final GeneratorSet generators;
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
-  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
   public OperationDfnGenerator(final IRGenerationContext stackContext, final GeneratorSet generators) {
-    AssertValue.checkNotNull("Stack context cannot be null", stackContext);
+    super(stackContext);
     AssertValue.checkNotNull("Generators cannot be null", generators);
-    this.stackContext = stackContext;
     this.generators = generators;
   }
 
