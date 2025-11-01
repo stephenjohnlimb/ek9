@@ -127,6 +127,13 @@ public final class ControlFlowChainInstr extends IRInstr {
   }
 
   /**
+   * Get the try block details (for TRY_CATCH_FINALLY).
+   */
+  public TryBlockDetails getTryBlockDetails() {
+    return tryBlockDetails;
+  }
+
+  /**
    * Check if this construct has an evaluation variable.
    */
   public boolean hasEvaluationVariable() {

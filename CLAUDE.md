@@ -23,6 +23,110 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Example**: For IR generation work, always reference `EK9_IR_AND_CODE_GENERATION.md` memory management rules (lines 350-450) and variable declaration patterns before evaluating any IR code.
 
+### Mandatory Process for EK9 Directive and Test File Work
+
+**CRITICAL WORKFLOW**: When creating or modifying ANY EK9 test file with directives (@IR, @BYTECODE, @Resolved, @Error, @Complexity), you MUST follow this exact process. This is NON-NEGOTIABLE for compiler work where hundreds of test files must follow identical patterns.
+
+**🛑 STOP - DO NOT IMPLEMENT IMMEDIATELY 🛑**
+
+**Step 1: Check Documentation First**
+```bash
+# Search for the directive name in documentation
+grep -r "@IR:\|@BYTECODE:\|@Resolved:\|@Error:" *.md
+# Read the relevant section completely
+# EK9_IR_TDD_METHODOLOGY.md - @IR directive format and examples
+# EK9_IR_AND_CODE_GENERATION.md - @BYTECODE directive format (lines 2274-2336)
+```
+
+**Step 2: Find Working Examples** (MANDATORY - not optional)
+```bash
+# Find 2-3 existing test files with the same directive type
+grep -r "@BYTECODE: CODE_GENERATION_AGGREGATES" compiler-main/src/test/resources/examples/bytecodeGeneration/
+grep -r "@IR: IR_GENERATION: FUNCTION" compiler-main/src/test/resources/examples/irGeneration/
+# Read complete examples - understand the EXACT format
+```
+
+**Step 3: Copy Structure from Working Example**
+- Open a working example file
+- Copy the ENTIRE directive structure including backticks
+- Note placement (BEFORE the construct it describes)
+- Note formatting (content starts on SAME line as opening backtick)
+
+**Step 4: Modify Content Only - NEVER Change Format**
+- Replace type name: `"module::OldName"` → `"module::NewName"`
+- Replace directive content within backticks
+- Keep ALL formatting identical (backticks, placement, spacing)
+- Use `#CP` for constant pool references in @BYTECODE (not actual numbers)
+
+**Step 5: Validate Against Pattern**
+- Compare your new file side-by-side with the example
+- Verify backtick placement matches exactly
+- Verify indentation matches exactly
+- Verify directive is BEFORE the construct (not after, not in comments)
+
+**Why This Process is Mandatory:**
+
+Steve has created **hundreds of test files** following identical patterns. The goal is **"boring consistency"** - easy to reproduce, easy to spot errors. Random format variations:
+- ❌ Break test infrastructure
+- ❌ Require debugging time (30+ min per file)
+- ❌ Scale terribly (hundreds more files needed)
+
+Following the pattern:
+- ✅ Works immediately (5 min per file)
+- ✅ Scales perfectly
+- ✅ Self-documenting through consistency
+
+**Common Anti-Patterns to AVOID:**
+
+❌ **Never use comment syntax for directives:**
+```ek9
+//@BYTECODE              ← WRONG - this is a comment, not a directive
+//public void _main();  ← WRONG - directives are NOT comments
+```
+
+✅ **Always use actual directive syntax:**
+```ek9
+@BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "module::Name": `content here
+with multiple lines
+within backticks`
+```
+
+❌ **Never place directives after the code:**
+```ek9
+MyFunction()
+  stdout.println("test")
+
+@IR: IR_GENERATION: ...  ← WRONG - too late, directive must be BEFORE
+```
+
+✅ **Always place directives before the construct:**
+```ek9
+@IR: IR_GENERATION: FUNCTION: "module::MyFunction": `...`
+MyFunction()
+  stdout.println("test")
+```
+
+❌ **Never start content on new line after backtick:**
+```ek9
+@BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "module::Name": `
+public class module.Name {  ← WRONG - must start on same line as backtick
+```
+
+✅ **Always start content on same line as opening backtick:**
+```ek9
+@BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "module::Name": `public class module.Name {
+  static {};
+  ...
+}`
+```
+
+**Documentation References:**
+- **EK9_IR_TDD_METHODOLOGY.md** - Complete @IR directive guide with examples
+- **EK9_IR_AND_CODE_GENERATION.md** (lines 2274-2336) - @BYTECODE format requirements
+- **Existing test files** - 30+ bytecode tests, 100+ IR tests following identical patterns
+
+**When in doubt**: Copy from a working example. Never invent new formats.
+
 ## Project Overview
 
 EK9 is a new programming language implementation with a comprehensive compiler written in Java 25. The project consists of a multi-pass compiler that transforms EK9 source code (`.ek9` files) into various target formats, primarily Java bytecode.

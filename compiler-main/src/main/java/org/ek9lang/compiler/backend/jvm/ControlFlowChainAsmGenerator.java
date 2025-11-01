@@ -36,9 +36,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   private WhileLoopAsmGenerator whileLoopGenerator;
   private DoWhileLoopAsmGenerator doWhileLoopGenerator;
   private SwitchAsmGenerator switchGenerator;
+  private TryCatchAsmGenerator tryCatchGenerator;
   // Future generators:
   // private ForLoopAsmGenerator forLoopGenerator;
-  // private TryCatchAsmGenerator tryCatchGenerator;
 
   private final BytecodeGenerationContext context;
 
@@ -67,12 +67,11 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
       case "WHILE_LOOP" -> generateWhileLoop(instr);
       case "DO_WHILE_LOOP" -> generateDoWhileLoop(instr);
       case "SWITCH", "SWITCH_ENUM" -> generateSwitch(instr);
+      case "TRY_CATCH_FINALLY" -> generateTryCatch(instr);
       // Future cases will be added here as generators are implemented:
       // case "FOR" -> generateForLoop(instr);
-      // case "TRY_CATCH" -> generateTryCatch(instr);
       default -> throw new CompilerException(
-          "Unsupported control flow chain type: " + chainType
-              + ". Expected one of: QUESTION_OPERATOR, GUARDED_ASSIGNMENT, IF_ELSE_IF, WHILE_LOOP, DO_WHILE_LOOP, SWITCH, SWITCH_ENUM");
+          "Unsupported control flow chain type: " + chainType);
     }
   }
 
@@ -179,6 +178,23 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   }
 
   /**
+   * Generate bytecode for try/catch/finally statements.
+   * Lazily instantiates TryCatchAsmGenerator on first use.
+   *
+   * @param instr CONTROL_FLOW_CHAIN instruction with TRY_CATCH_FINALLY type
+   */
+  private void generateTryCatch(final ControlFlowChainInstr instr) {
+    if (tryCatchGenerator == null) {
+      tryCatchGenerator = new TryCatchAsmGenerator(
+          constructTargetTuple, outputVisitor, classWriter, context);
+    }
+    // Always update context in case method changed
+    tryCatchGenerator.setSharedMethodContext(getMethodContext());
+    tryCatchGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
+    tryCatchGenerator.generate(instr);
+  }
+
+  /**
    * Update method context for all generators.
    * Called when OutputVisitor.setMethodContext() is invoked.
    * Propagates context to already-instantiated generators.
@@ -207,6 +223,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     }
     if (switchGenerator != null) {
       switchGenerator.setSharedMethodContext(context);
+    }
+    if (tryCatchGenerator != null) {
+      tryCatchGenerator.setSharedMethodContext(context);
     }
     // Future generators will be added here
   }
@@ -240,6 +259,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     }
     if (switchGenerator != null) {
       switchGenerator.setCurrentMethodVisitor(mv);
+    }
+    if (tryCatchGenerator != null) {
+      tryCatchGenerator.setCurrentMethodVisitor(mv);
     }
     // Future generators will be added here
   }
