@@ -1,0 +1,11 @@
+#!ek9
+defines module com.router.if.else.switch.case.while.for.do
+
+  // Test: Control flow keywords in module name
+  // Verifies: IF, ELSE, SWITCH, CASE, WHILE, FOR, DO allowed
+
+  defines function
+    testFunction() as pure
+      <- result as String: "control flow keywords work"
+
+//EOF

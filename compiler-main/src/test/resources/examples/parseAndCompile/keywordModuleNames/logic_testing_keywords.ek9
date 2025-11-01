@@ -1,0 +1,11 @@
+#!ek9
+defines module com.test.and.or.not.assert.given.when.then
+
+  // Test: Logic and testing keywords in module name
+  // Verifies: AND, OR, NOT, ASSERT, GIVEN, WHEN, THEN allowed
+
+  defines function
+    testFunction() as pure
+      <- result as String: "logic and testing keywords work"
+
+//EOF

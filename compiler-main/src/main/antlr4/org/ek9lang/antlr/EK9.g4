@@ -673,9 +673,102 @@ identifierReference
     ;
 
 dottedName
-    : identifier (DOT identifier)*
+    : moduleSegment (DOT moduleSegment)*
     ;
- 
+
+moduleSegment
+    : Identifier
+    // Stream operations and constructs (safe keywords already allowed as identifiers)
+    | DISPATCHER
+    | SORT
+    | CAT
+    | FILTER
+    | SELECT
+    | COLLECT
+    | FLATTEN
+    | CALL
+    | ASYNC
+    | MAP
+    | GROUP
+    | JOIN
+    | SPLIT
+    | SKIPPING
+    | HEAD
+    | TAIL
+    | CLOSE
+    | CONTAINS
+    | MATCHES
+    | EMPTY
+    | LENGTH
+    | REGISTER
+    | CONSTRAIN
+    | ALLOW
+    | MODULE
+    | REFERENCES
+    | CONSTANT
+    | TYPE
+    | RECORD
+    | FUNCTION
+    | CLASS
+    | SERVICE
+    | APPLICATION
+    | PROGRAM
+    | COMPONENT
+    | TRAIT
+    | TEXT
+    | HANDLE
+    | ISOLATED
+    | RANGE
+    | IS
+    | BY
+    | WITH
+    | ONLY
+    | OPEN
+    | PURE
+    | HTTP_QUERY
+    | HTTP_PATH
+    | HTTP_HEADER
+    | HTTP_REQUEST
+    | HTTP_CONTENT
+    | HTTP_CONTEXT
+    // Additional keywords ONLY allowed in module names (not general identifiers)
+    | PRIVATE
+    | PROTECTED
+    | PUBLIC
+    | AS
+    | OF
+    | EXTENDS
+    | SUPER
+    | THIS
+    | ABSTRACT
+    | OVERRIDE
+    | OPERATOR
+    | TRY
+    | CATCH
+    | FINALLY
+    | THROW
+    | IF
+    | ELSE
+    | SWITCH
+    | CASE
+    | PACKAGE
+    | EXTERN
+    | AND
+    | OR
+    | NOT
+    | ASSERT
+    | GIVEN
+    | WHEN
+    | THEN
+    | WHILE
+    | FOR
+    | DO
+    | DEFAULT
+    | CONST
+    | FINAL
+    | ASPECT
+    ;
+
 identifier
     : Identifier
     | DISPATCHER

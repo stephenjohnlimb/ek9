@@ -1,0 +1,11 @@
+#!ek9
+defines module com.security.private.public.protected
+
+  // Test: Access/Visibility keywords in module name
+  // Verifies: PRIVATE, PUBLIC, PROTECTED allowed as module segments
+
+  defines function
+    testFunction() as pure
+      <- result as String: "access keywords work"
+
+//EOF

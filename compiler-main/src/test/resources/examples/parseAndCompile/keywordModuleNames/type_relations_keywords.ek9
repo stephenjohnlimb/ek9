@@ -1,0 +1,11 @@
+#!ek9
+defines module com.converters.as.of.extends
+
+  // Test: Type relation keywords in module name
+  // Verifies: AS, OF, EXTENDS allowed
+
+  defines function
+    testFunction() as pure
+      <- result as String: "type relation keywords work"
+
+//EOF

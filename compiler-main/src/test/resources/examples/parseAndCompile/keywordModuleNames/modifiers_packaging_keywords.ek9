@@ -1,0 +1,11 @@
+#!ek9
+defines module org.tools.package.extern.default.const.final.aspect
+
+  // Test: Modifiers and packaging keywords in module name
+  // Verifies: PACKAGE, EXTERN, DEFAULT, CONST, FINAL, ASPECT allowed
+
+  defines function
+    testFunction() as pure
+      <- result as String: "modifiers and packaging keywords work"
+
+//EOF

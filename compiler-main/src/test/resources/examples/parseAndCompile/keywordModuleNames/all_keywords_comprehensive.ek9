@@ -1,0 +1,11 @@
+#!ek9
+defines module test.private.protected.public.as.of.extends.super.this.abstract.override.operator.try.catch.finally.throw.if.else.switch.case.package.extern.and.or.not.assert.given.when.then.while.for.do.default.const.final.aspect
+
+  // Test: ALL 30 new keywords in one module name
+  // Comprehensive stress test of keyword allowance in module names
+
+  defines function
+    testFunction() as pure
+      <- result as String: "all keywords work together"
+
+//EOF

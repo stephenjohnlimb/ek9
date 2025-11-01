@@ -1,0 +1,11 @@
+#!ek9
+defines module org.framework.super.this.abstract.override.operator
+
+  // Test: OOP keywords in module name
+  // Verifies: SUPER, THIS, ABSTRACT, OVERRIDE, OPERATOR allowed
+
+  defines function
+    testFunction() as pure
+      <- result as String: "OOP keywords work"
+
+//EOF

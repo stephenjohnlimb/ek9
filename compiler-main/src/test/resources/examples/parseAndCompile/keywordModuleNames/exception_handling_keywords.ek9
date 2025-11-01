@@ -1,0 +1,11 @@
+#!ek9
+defines module com.error.try.catch.finally.throw
+
+  // Test: Exception handling keywords in module name
+  // Verifies: TRY, CATCH, FINALLY, THROW allowed
+
+  defines function
+    testFunction() as pure
+      <- result as String: "exception keywords work"
+
+//EOF
