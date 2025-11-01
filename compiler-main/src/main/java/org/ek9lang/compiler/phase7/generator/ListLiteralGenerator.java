@@ -14,7 +14,6 @@ import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
-import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -137,9 +136,9 @@ public final class ListLiteralGenerator extends AbstractGenerator
     final var expressions = listContext.expression();
     for (final EK9Parser.ExpressionContext exprCtx : expressions) {
       // Generate temporary variable for element evaluation
-      final var elementTemp = stackContext.generateTempName();
-      final var elementDebugInfo = stackContext.createDebugInfo(exprCtx.getStart());
-      final var elementDetails = new VariableDetails(elementTemp, elementDebugInfo);
+      final var elementDetails = createTempVariableFromContext(exprCtx);
+      final var elementTemp = elementDetails.resultVariable();
+      final var elementDebugInfo = elementDetails.debugInfo();
 
       // Recursively evaluate element expression (handles literals, calls, etc.)
       // Use exprGenerator from generators struct for recursive processing
