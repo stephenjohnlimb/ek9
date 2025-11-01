@@ -1,0 +1,55 @@
+#!ek9
+<?-
+  Tests METHOD ambiguity using traits (for comparison with operator behavior).
+  Same pattern as operator_trait_ambiguity.ek9 but with methods instead.
+-?>
+defines module fuzztest.methodambiguity.method.traits
+
+  defines trait
+    T1
+      getValue() as abstract
+        <- rtn as Integer?
+
+    T2
+      getValue() as abstract
+        <- rtn as Integer?
+
+  defines class
+    C with trait T1, T2
+      default C() as pure
+
+      override getValue()
+        <- rtn as Integer: 100
+
+      override operator ? as pure
+        <- rtn <- true
+
+    TestClass
+      default TestClass() as pure
+
+      //Method with T1 parameter
+      checkMethod()
+        -> arg as T1
+        <- result as Integer: 10
+
+      //Method with T2 parameter
+      checkMethod()
+        -> arg as T2
+        <- result as Integer: 20
+
+      override operator ? as pure
+        <- rtn <- true
+
+  defines function
+    testMethodTraitAmbiguity()
+      test <- TestClass()
+      c <- C()
+
+      //Does this create ambiguity with METHODS?
+      //- First method: C→T1 (0.10 trait match)
+      //- Second method: C→T2 (0.10 trait match)
+      //- Equal costs within 0.001 tolerance → Should be AMBIGUOUS
+      @Error: FULL_RESOLUTION: METHOD_AMBIGUOUS
+      result <- test.checkMethod(c)
+
+//EOF

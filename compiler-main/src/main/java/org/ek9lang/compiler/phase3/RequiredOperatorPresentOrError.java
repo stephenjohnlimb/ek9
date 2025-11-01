@@ -90,8 +90,13 @@ final class RequiredOperatorPresentOrError extends TypedSymbolAccess
         return operator.getReturningSymbol().getType();
 
       } else {
-        aggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
-        emitOperatorNotDefined(aggregate, checkOperatorData);
+        // Check for ambiguity before reporting operator not defined
+        if (results.isAmbiguous()) {
+          emitOperatorAmbiguous(aggregate, checkOperatorData, results);
+        } else {
+          aggregate.resolveMatchingMethods(search, new MethodSymbolSearchResult());
+          emitOperatorNotDefined(aggregate, checkOperatorData);
+        }
       }
     }
 
@@ -126,6 +131,17 @@ final class RequiredOperatorPresentOrError extends TypedSymbolAccess
         + checkOperatorData.symbol().getFriendlyName() + "', type first established " + location + ":";
     errorListener.semanticError(checkOperatorData.operatorUseToken(), msg,
         ErrorListener.SemanticClassification.OPERATOR_NOT_DEFINED);
+  }
+
+  private void emitOperatorAmbiguous(final IAggregateSymbol aggregate,
+                                     final CheckOperatorData checkOperatorData,
+                                     final MethodSymbolSearchResult results) {
+    var location = locationExtractorFromSymbol.apply(aggregate);
+    var msg = "operator '" + checkOperatorData.search() + "' on '"
+        + checkOperatorData.symbol().getFriendlyName() + "', type first established "
+        + location + ", resolved: " + results.getAmbiguousMethodParameters() + ":";
+    errorListener.semanticError(checkOperatorData.operatorUseToken(), msg,
+        ErrorListener.SemanticClassification.METHOD_AMBIGUOUS);
   }
 
   private void checkPureAccess(final IToken operatorUseToken, final MethodSymbol operator) {

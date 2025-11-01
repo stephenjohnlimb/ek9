@@ -1,0 +1,56 @@
+#!ek9
+<?-
+  Tests operator overloading ambiguity using traits.
+  When a class implements multiple traits and operator overloads exist for each trait,
+  calling the operator with that class instance creates equal-cost ambiguity.
+-?>
+defines module fuzztest.methodambiguity.operator.traits
+
+  defines trait
+    T1
+      getValue() as abstract
+        <- rtn as Integer?
+
+    T2
+      getValue() as abstract
+        <- rtn as Integer?
+
+  defines class
+    C with trait T1, T2
+      default C() as pure
+
+      override getValue()
+        <- rtn as Integer: 100
+
+      override operator ? as pure
+        <- rtn <- true
+
+    TestClass
+      default TestClass() as pure
+
+      //Operator + with T1 parameter
+      operator + as pure
+        -> arg as T1
+        <- result as Integer: 10
+
+      //Operator + with T2 parameter
+      operator + as pure
+        -> arg as T2
+        <- result as Integer: 20
+
+      override operator ? as pure
+        <- rtn <- true
+
+  defines function
+    testOperatorTraitAmbiguity()
+      test <- TestClass()
+      c <- C()
+
+      //This should be AMBIGUOUS:
+      //- First operator +: C→T1 (0.10 trait match)
+      //- Second operator +: C→T2 (0.10 trait match)
+      //- Equal costs within 0.001 tolerance → AMBIGUOUS
+      @Error: FULL_RESOLUTION: METHOD_AMBIGUOUS
+      result <- test + c
+
+//EOF
