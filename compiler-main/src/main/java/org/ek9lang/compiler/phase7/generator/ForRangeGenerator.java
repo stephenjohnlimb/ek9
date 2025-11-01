@@ -90,9 +90,7 @@ public final class ForRangeGenerator extends AbstractGenerator
     final var debugInfo = stackContext.createDebugInfo(ctx);
     final var forRangeCtx = ctx.forRange();
 
-    if (forRangeCtx.preFlowStatement() != null) {
-      throw new CompilerException("For loop guards not yet implemented");
-    }
+    validateNoPreFlowStatement(forRangeCtx.preFlowStatement(), "For-range loop");
 
     // Get loop variable name
     final var loopVariableName = forRangeCtx.identifier(0).getText();

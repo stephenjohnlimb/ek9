@@ -14,7 +14,6 @@ import org.ek9lang.compiler.phase7.support.BooleanExtractionParams;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.core.AssertValue;
-import org.ek9lang.core.CompilerException;
 
 /**
  * Generates IR for while and do-while loops using CONTROL_FLOW_CHAIN.
@@ -55,9 +54,7 @@ public final class WhileStatementGenerator extends AbstractGenerator
     }
 
     // Check for expression form (returningParam)
-    if (ctx.returningParam() != null) {
-      throw new CompilerException("While loop expression form not yet implemented");
-    }
+    validateStatementFormOnly(ctx.returningParam(), "While loop");
 
     // Simple while loop (statement form)
     return generateSimpleWhileLoop(ctx);
@@ -74,9 +71,7 @@ public final class WhileStatementGenerator extends AbstractGenerator
     final var debugInfo = stackContext.createDebugInfo(ctx);
 
     // Check for guard (preFlowStatement)
-    if (ctx.preFlowStatement() != null) {
-      throw new CompilerException("While loop guards not yet implemented");
-    }
+    validateNoPreFlowStatement(ctx.preFlowStatement(), "While loop");
 
     // SCOPE 1: Enter loop outer scope (for future guards)
     // This matches if/else pattern exactly - outer wrapper for guards
@@ -128,7 +123,7 @@ public final class WhileStatementGenerator extends AbstractGenerator
     // Process body with scope management
     final var bodyEvaluation = new ArrayList<IRInstr>();
     bodyEvaluation.add(ScopeInstr.enter(bodyIterationScopeId, debugInfo));
-    bodyEvaluation.addAll(processBlockStatements(ctx.instructionBlock()));
+    bodyEvaluation.addAll(processBlockStatements(ctx.instructionBlock(), generators.blockStmtGenerator));
     bodyEvaluation.add(ScopeInstr.exit(bodyIterationScopeId, debugInfo));
 
     // Exit body iteration scope from context
@@ -176,9 +171,7 @@ public final class WhileStatementGenerator extends AbstractGenerator
     final var debugInfo = stackContext.createDebugInfo(ctx);
 
     // Check for guard (preFlowStatement)
-    if (ctx.preFlowStatement() != null) {
-      throw new CompilerException("Do-while loop guards not yet implemented");
-    }
+    validateNoPreFlowStatement(ctx.preFlowStatement(), "Do-while loop");
 
     // SCOPE 1: Enter loop outer scope (for future guards)
     final var outerScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
@@ -197,7 +190,7 @@ public final class WhileStatementGenerator extends AbstractGenerator
     // Process body FIRST (key do-while characteristic)
     final var bodyEvaluation = new ArrayList<IRInstr>();
     bodyEvaluation.add(ScopeInstr.enter(bodyIterationScopeId, debugInfo));
-    bodyEvaluation.addAll(processBlockStatements(ctx.instructionBlock()));
+    bodyEvaluation.addAll(processBlockStatements(ctx.instructionBlock(), generators.blockStmtGenerator));
     bodyEvaluation.add(ScopeInstr.exit(bodyIterationScopeId, debugInfo));
 
     // Exit body scope from context
@@ -265,16 +258,4 @@ public final class WhileStatementGenerator extends AbstractGenerator
     return instructions;
   }
 
-  /**
-   * Process all block statements in an instruction block.
-   * Consolidates the common pattern of iterating through block statements.
-   */
-  private List<IRInstr> processBlockStatements(
-      final EK9Parser.InstructionBlockContext ctx) {
-    final var instructions = new ArrayList<IRInstr>();
-    for (var blockStatement : ctx.blockStatement()) {
-      instructions.addAll(generators.blockStmtGenerator.apply(blockStatement));
-    }
-    return instructions;
-  }
 }

@@ -14,7 +14,6 @@ import org.ek9lang.compiler.phase7.support.BooleanExtractionParams;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.core.AssertValue;
-import org.ek9lang.core.CompilerException;
 
 /**
  * Generates IR for if/else statements using CONTROL_FLOW_CHAIN.
@@ -93,9 +92,8 @@ public final class IfStatementGenerator extends AbstractGenerator
     final var debugInfo = stackContext.createDebugInfo(ctx);
 
     // Check for preFlowAndControl (guard variables)
-    if (ctx.preFlowAndControl() != null && ctx.preFlowAndControl().preFlowStatement() != null) {
-      // TODO Phase 2: Handle guard variables - future enhancement
-      throw new CompilerException("Guard variables in if not yet implemented");
+    if (ctx.preFlowAndControl() != null) {
+      validateNoPreFlowStatement(ctx.preFlowAndControl().preFlowStatement(), "If statement");
     }
 
     // Create TIGHT scope just for condition evaluation
@@ -136,7 +134,7 @@ public final class IfStatementGenerator extends AbstractGenerator
     // Wrap body evaluation with SCOPE_ENTER/EXIT
     final var bodyEvaluation = new ArrayList<IRInstr>();
     bodyEvaluation.add(ScopeInstr.enter(branchScopeId, debugInfo));
-    bodyEvaluation.addAll(processBlockStatements(ctx.block()));
+    bodyEvaluation.addAll(processBlockStatements(ctx.block().instructionBlock(), generators.blockStmtGenerator));
     bodyEvaluation.add(ScopeInstr.exit(branchScopeId, debugInfo));
 
     // Exit branch scope
@@ -167,7 +165,7 @@ public final class IfStatementGenerator extends AbstractGenerator
     // Wrap body evaluation with SCOPE_ENTER/EXIT
     final var bodyEvaluation = new ArrayList<IRInstr>();
     bodyEvaluation.add(ScopeInstr.enter(elseScopeId, debugInfo));
-    bodyEvaluation.addAll(processBlockStatements(ctx.block()));
+    bodyEvaluation.addAll(processBlockStatements(ctx.block().instructionBlock(), generators.blockStmtGenerator));
     bodyEvaluation.add(ScopeInstr.exit(elseScopeId, debugInfo));
 
     // Exit else scope
@@ -176,15 +174,4 @@ public final class IfStatementGenerator extends AbstractGenerator
     return bodyEvaluation;
   }
 
-  /**
-   * Process all block statements in a block context.
-   * Consolidates the common pattern of iterating through block statements.
-   */
-  private List<IRInstr> processBlockStatements(final EK9Parser.BlockContext blockCtx) {
-    final var instructions = new ArrayList<IRInstr>();
-    for (var blockStatement : blockCtx.instructionBlock().blockStatement()) {
-      instructions.addAll(generators.blockStmtGenerator.apply(blockStatement));
-    }
-    return instructions;
-  }
 }

@@ -1,7 +1,12 @@
 package org.ek9lang.compiler.phase7.generator;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.TypeNameOrException;
+import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
@@ -254,6 +259,56 @@ abstract class AbstractGenerator {
     }
 
     return exprSymbol.getType().orElseThrow();
+  }
+
+  /**
+   * Process all block statements in an instruction block.
+   * Consolidates the common pattern of iterating over block statements and delegating to a generator.
+   *
+   * @param ctx              The instruction block context
+   * @param blockStmtGenerator The generator function for individual block statements
+   * @return List of IR instructions from all block statements
+   */
+  protected List<IRInstr> processBlockStatements(
+      final EK9Parser.InstructionBlockContext ctx,
+      final Function<EK9Parser.BlockStatementContext, List<IRInstr>> blockStmtGenerator) {
+    final var instructions = new ArrayList<IRInstr>();
+    for (final var blockStmtCtx : ctx.blockStatement()) {
+      instructions.addAll(blockStmtGenerator.apply(blockStmtCtx));
+    }
+    return instructions;
+  }
+
+  /**
+   * Validate that guards (preFlowStatement) are not present.
+   * Throws CompilerException if guards are used, as they're not yet implemented.
+   *
+   * @param preFlowCtx    The preFlowStatement context to check (can be null)
+   * @param constructName The name of the control flow construct for error message
+   * @throws org.ek9lang.core.CompilerException if guards are present
+   */
+  protected void validateNoPreFlowStatement(
+      final EK9Parser.PreFlowStatementContext preFlowCtx,
+      final String constructName) {
+    if (preFlowCtx != null) {
+      throw new org.ek9lang.core.CompilerException(constructName + " guards not yet implemented");
+    }
+  }
+
+  /**
+   * Validate that expression form (returningParam) is not used.
+   * Throws CompilerException if returningParam is present, as expression forms are not yet implemented.
+   *
+   * @param returningParamCtx The returningParam context to check (can be null)
+   * @param constructName     The name of the control flow construct for error message
+   * @throws org.ek9lang.core.CompilerException if expression form is used
+   */
+  protected void validateStatementFormOnly(
+      final EK9Parser.ReturningParamContext returningParamCtx,
+      final String constructName) {
+    if (returningParamCtx != null) {
+      throw new org.ek9lang.core.CompilerException(constructName + " expression form not yet implemented");
+    }
   }
 
 }

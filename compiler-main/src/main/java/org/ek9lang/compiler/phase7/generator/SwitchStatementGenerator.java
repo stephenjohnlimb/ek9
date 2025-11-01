@@ -15,7 +15,6 @@ import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
-import org.ek9lang.core.CompilerException;
 
 /**
  * Generates IR for switch statements (statement form only) using CONTROL_FLOW_CHAIN.
@@ -56,7 +55,7 @@ public final class SwitchStatementGenerator extends AbstractGenerator
     final var debugInfo = stackContext.createDebugInfo(ctx);
 
     // Validate - throw exceptions for unsupported features
-    validateStatementFormOnly(ctx);
+    validateSwitchStatementFormOnly(ctx);
     validateNoGuards(ctx.preFlowAndControl());
 
     // 1. Enter chain scope for entire switch
@@ -238,19 +237,15 @@ public final class SwitchStatementGenerator extends AbstractGenerator
   /**
    * Validate that this is statement form only (no return value).
    */
-  private void validateStatementFormOnly(final EK9Parser.SwitchStatementExpressionContext ctx) {
-    if (ctx.returningParam() != null) {
-      throw new CompilerException("Switch expression form not yet implemented");
-    }
+  private void validateSwitchStatementFormOnly(final EK9Parser.SwitchStatementExpressionContext ctx) {
+    validateStatementFormOnly(ctx.returningParam(), "Switch");
   }
 
   /**
    * Validate that there are no guard variables.
    */
   private void validateNoGuards(final EK9Parser.PreFlowAndControlContext ctx) {
-    if (ctx.preFlowStatement() != null) {
-      throw new CompilerException("Switch with guard variables not yet implemented");
-    }
+    validateNoPreFlowStatement(ctx.preFlowStatement(), "Switch");
   }
 
   /**

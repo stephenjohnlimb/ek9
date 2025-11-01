@@ -112,7 +112,7 @@ public final class OperationDfnGenerator extends AbstractGenerator implements Bi
 
     // 3. Process instruction block statements (no new scope - already inside function body scope)
     if (hasInstructionBlock) {
-      instructionBuilder.addInstructions(processInstructionBlockStatements(ctx.instructionBlock()));
+      instructionBuilder.addInstructions(processBlockStatements(ctx.instructionBlock(), generators.blockStmtGenerator));
     }
 
     // 4. Exit function body scope BEFORE return (scope cleanup must happen before function exit)
@@ -177,23 +177,6 @@ public final class OperationDfnGenerator extends AbstractGenerator implements Bi
 
     // Return variables are now managed in method scope - no separate return scope to track
     return new ReturnParamResult(instructions);
-  }
-
-  /**
-   * Process instruction block statements WITHOUT creating a new scope.
-   * Used when the function body scope has already been created (e.g., for functions with return parameters).
-   * This ensures all function-local state lives in a single scope, avoiding the "_call" phantom scope bug.
-   * REFACTORED: Access generator directly from shared tree instead of creating new instance.
-   */
-  private List<IRInstr> processInstructionBlockStatements(final EK9Parser.InstructionBlockContext ctx) {
-    final var instructions = new ArrayList<IRInstr>();
-
-    // Process all block statements - scope already entered by caller
-    for (final var blockStmtCtx : ctx.blockStatement()) {
-      instructions.addAll(generators.blockStmtGenerator.apply(blockStmtCtx));
-    }
-
-    return instructions;
   }
 
   /**

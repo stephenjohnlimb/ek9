@@ -59,14 +59,10 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
     AssertValue.checkNotNull("TryStatementExpressionContext cannot be null", ctx);
 
     // Check for expression form (returningParam)
-    if (ctx.returningParam() != null) {
-      throw new CompilerException("Try expression form not yet implemented");
-    }
+    validateStatementFormOnly(ctx.returningParam(), "Try");
 
     // Check for guards (preFlowStatement)
-    if (ctx.preFlowStatement() != null) {
-      throw new CompilerException("Try with guards not yet implemented");
-    }
+    validateNoPreFlowStatement(ctx.preFlowStatement(), "Try statement");
 
     // Check for resource management (declareArgumentParam)
     if (ctx.declareArgumentParam() != null) {

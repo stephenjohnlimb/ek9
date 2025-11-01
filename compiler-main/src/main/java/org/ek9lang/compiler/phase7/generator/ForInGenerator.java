@@ -57,9 +57,7 @@ public final class ForInGenerator extends AbstractGenerator
     final var debugInfo = stackContext.createDebugInfo(ctx);
 
     // Check guards (not implemented yet)
-    if (forLoopCtx.preFlowStatement() != null) {
-      throw new CompilerException("For-in loop guards not yet implemented");
-    }
+    validateNoPreFlowStatement(forLoopCtx.preFlowStatement(), "For-in loop");
 
     // Get squirreled pattern
     final var forSymbol = getRecordedSymbolOrException(ctx);
@@ -272,9 +270,7 @@ public final class ForInGenerator extends AbstractGenerator
         generateLoopVariableBinding(forLoopCtx, iteratorVar, iteratorType, debugInfo));
 
     // User body statements
-    for (var stmt : bodyCtx.blockStatement()) {
-      bodyEvaluation.addAll(generators.blockStmtGenerator.apply(stmt));
-    }
+    bodyEvaluation.addAll(processBlockStatements(bodyCtx, generators.blockStmtGenerator));
 
     bodyEvaluation.add(ScopeInstr.exit(bodyScopeId, debugInfo));
     stackContext.exitScope();
