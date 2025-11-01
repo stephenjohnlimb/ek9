@@ -5,17 +5,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.common.TypeNameOrException;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
 import org.ek9lang.compiler.ir.data.GuardVariableDetails;
 import org.ek9lang.compiler.ir.data.ReturnVariableDetails;
 import org.ek9lang.compiler.ir.data.TryBlockDetails;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -40,10 +46,11 @@ import org.ek9lang.core.CompilerException;
 public final class TryCatchStatementGenerator extends AbstractGenerator
     implements Function<EK9Parser.TryStatementExpressionContext, List<IRInstr>> {
 
+  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final GeneratorSet generators;
 
   public TryCatchStatementGenerator(final IRGenerationContext stackContext,
-                                   final GeneratorSet generators) {
+                                    final GeneratorSet generators) {
     super(stackContext);
     AssertValue.checkNotNull("GeneratorSet cannot be null", generators);
     this.generators = generators;
@@ -65,7 +72,7 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
 
     // Check for resource management (declareArgumentParam)
     if (ctx.declareArgumentParam() != null) {
-      throw new CompilerException("Try with resources not yet implemented");
+      return generateTryWithResources(ctx);
     }
 
     // Simple try/catch/finally (statement form)
@@ -124,6 +131,223 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
     stackContext.exitScope();
 
     return instructions;
+  }
+
+  /**
+   * Generate IR for try-with-resources statement.
+   * <p>
+   * Scope structure:
+   * </p>
+   * <pre>
+   *   Outer Scope (_scope_1): Try/catch wrapper
+   *   Resource Scope (_scope_2): Resource initialization and management
+   *   Control Flow Scope (_scope_3): Try/catch control structure
+   *   Try Scope (_scope_4): Try block execution
+   *   Catch Scope (_scope_5): Catch handler execution (if present)
+   *   Finally Scope (_scope_6): Finally block execution (synthetic or explicit)
+   * </pre>
+   * <p>
+   * Resources are initialized in _scope_2 with RETAIN + SCOPE_REGISTER.
+   * Resources are closed automatically in EVALUATION (finally) in REVERSE order.
+   * close() executes BEFORE user's finally code (matches Java semantics).
+   * </p>
+   */
+  private List<IRInstr> generateTryWithResources(
+      final EK9Parser.TryStatementExpressionContext ctx) {
+
+    final var instructions = new ArrayList<IRInstr>();
+    final var debugInfo = stackContext.createDebugInfo(ctx);
+
+    // SCOPE 1: Enter outer scope
+    final var outerScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(outerScopeId, debugInfo, IRFrameType.BLOCK);
+    instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
+
+    // SCOPE 2: Enter resource scope for resource initialization
+    final var resourceScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(resourceScopeId, debugInfo, IRFrameType.BLOCK);
+    instructions.add(ScopeInstr.enter(resourceScopeId, debugInfo));
+
+    // Initialize resources with ARC (RETAIN + SCOPE_REGISTER)
+    final var resourceVariables = processResourceDeclarations(ctx, resourceScopeId);
+    instructions.addAll(resourceVariables.instructions());
+
+    // SCOPE 3: Enter control flow scope (try/catch control structure)
+    final var controlFlowScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(controlFlowScopeId, debugInfo, IRFrameType.BLOCK);
+    instructions.add(ScopeInstr.enter(controlFlowScopeId, debugInfo));
+
+    // Process try block
+    final var tryBlockDetails = processTryBlock(ctx);
+
+    // Process catch handler (if present)
+    final var catchHandler = processCatchHandler(ctx);
+
+    // Process finally block with auto-generated resource cleanup
+    final var finallyEvaluation = processFinallyBlockWithResourceCleanup(
+        ctx, resourceVariables.resources());
+
+    // Create CONTROL_FLOW_CHAIN
+    final var tryCatchDetails = ControlFlowChainDetails.createTryCatchFinally(
+        null,                           // No result (statement form)
+        GuardVariableDetails.none(),    // No guards
+        ReturnVariableDetails.none(),   // No return variable (statement form)
+        tryBlockDetails,                // Try block details
+        catchHandler.map(List::of).orElse(List.of()), // Single catch handler or empty
+        finallyEvaluation,              // Finally block with resource cleanup
+        debugInfo,
+        controlFlowScopeId
+    );
+
+    instructions.addAll(generators.controlFlowChainGenerator.apply(tryCatchDetails));
+
+    // Exit control flow scope
+    instructions.add(ScopeInstr.exit(controlFlowScopeId, debugInfo));
+    stackContext.exitScope();
+
+    // Exit resource scope (triggers RELEASE for all registered resources)
+    instructions.add(ScopeInstr.exit(resourceScopeId, debugInfo));
+    stackContext.exitScope();
+
+    // Exit outer scope
+    instructions.add(ScopeInstr.exit(outerScopeId, debugInfo));
+    stackContext.exitScope();
+
+    return instructions;
+  }
+
+  /**
+   * Process resource declarations from declareArgumentParam.
+   * Each resource is initialized with ARC pattern: RETAIN + SCOPE_REGISTER.
+   * Resources are tracked for later automatic cleanup in reverse order.
+   */
+  private ResourceVariables processResourceDeclarations(
+      final EK9Parser.TryStatementExpressionContext ctx,
+      final String resourceScopeId) {
+
+    final var instructions = new ArrayList<IRInstr>();
+    final var resources = new ArrayList<ResourceVariable>();
+
+    // Get variable declarations from declareArgumentParam
+    final var declareParam = ctx.declareArgumentParam();
+    AssertValue.checkNotNull("declareArgumentParam cannot be null", declareParam);
+
+    final var variableDeclarations = declareParam.variableDeclaration();
+    AssertValue.checkTrue("Must have at least one resource", !variableDeclarations.isEmpty());
+
+    // Process each resource declaration
+    for (var varDecl : variableDeclarations) {
+      final var resourceDebugInfo = stackContext.createDebugInfo(varDecl);
+
+      // Get the symbol for the resource variable
+      final var resourceSymbol = getRecordedSymbolOrException(varDecl);
+      final var resourceName = resourceSymbol.getName();
+      final var resourceType = typeNameOrException.apply(resourceSymbol);
+
+      // REFERENCE resource, Type
+      instructions.add(MemoryInstr.reference(resourceName, resourceType, resourceDebugInfo));
+
+      // Get the assignment expression (initialization)
+      final var assignmentExpr = varDecl.assignmentExpression();
+      if (assignmentExpr == null) {
+        throw new CompilerException("Resource must be initialized: " + resourceName);
+      }
+
+      // Generate temp for initialization result
+      final var tempResult = stackContext.generateTempName();
+
+      // Generate IR for resource initialization expression (using ExprProcessingDetails)
+      // assignmentExpression contains an expression() subnode
+      final var exprDetails = new org.ek9lang.compiler.phase7.support.ExprProcessingDetails(
+          assignmentExpr.expression(),
+          new org.ek9lang.compiler.phase7.support.VariableDetails(tempResult, resourceDebugInfo)
+      );
+      final var initInstructions = generators.exprGenerator.apply(exprDetails);
+      instructions.addAll(initInstructions);
+
+      // RETAIN tempResult (producer pattern - creates ownership)
+      instructions.add(MemoryInstr.retain(tempResult, resourceDebugInfo));
+
+      // SCOPE_REGISTER tempResult, resourceScopeId (consumer pattern - registers for cleanup)
+      instructions.add(ScopeInstr.register(tempResult, resourceScopeId, resourceDebugInfo));
+
+      // STORE resource, tempResult
+      instructions.add(MemoryInstr.store(resourceName, tempResult, resourceDebugInfo));
+
+      // Track resource for automatic close() generation
+      resources.add(new ResourceVariable(resourceSymbol, resourceDebugInfo));
+    }
+
+    return new ResourceVariables(instructions, resources);
+  }
+
+  /**
+   * Process finally block with automatic resource cleanup.
+   * <p>
+   * Creates synthetic finally block if user didn't provide one (when resources present).
+   * close() calls execute BEFORE user's finally code (matches Java semantics).
+   * Resources closed in REVERSE order: last declared, first closed.
+   * </p>
+   */
+  private List<IRInstr> processFinallyBlockWithResourceCleanup(
+      final EK9Parser.TryStatementExpressionContext ctx,
+      final List<ResourceVariable> resources) {
+
+    // If no finally AND no resources, return empty (no EVALUATION block)
+    if (ctx.finallyStatementExpression() == null && resources.isEmpty()) {
+      return List.of();
+    }
+
+    final var finallyCtx = ctx.finallyStatementExpression();
+    final var debugInfo = finallyCtx != null
+        ? stackContext.createDebugInfo(finallyCtx)
+        : stackContext.createDebugInfo(ctx);  // Use try debug info for synthetic finally
+
+    // Create finally scope (explicit OR synthetic)
+    final var finallyScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(finallyScopeId, debugInfo, IRFrameType.BLOCK);
+
+    final var finallyEvaluation = new ArrayList<IRInstr>();
+    finallyEvaluation.add(ScopeInstr.enter(finallyScopeId, debugInfo));
+
+    // AUTO-GENERATED: close() calls FIRST, REVERSE order (last declared, first closed)
+    for (int i = resources.size() - 1; i >= 0; i--) {
+      final var resource = resources.get(i);
+      final var resourceSymbol = resource.symbol();
+      final var resourceDebugInfo = resource.debugInfo();
+
+      // Generate call to resource.close() operator
+      // close() is an operator, so method name is "_close"
+      final var resourceName = resourceSymbol.getName();
+      final var resourceTypeName = typeNameOrException.apply(resourceSymbol);
+
+      // Create CallDetails for close() operator
+      final var closeCallDetails = new CallDetails(
+          resourceName,                                    // target object
+          resourceTypeName,                                // target type
+          "_close",                                        // method name (operator close)
+          List.of(),                                       // no parameter types
+          IRConstants.VOID,                                // returns void
+          List.of(),                                       // no arguments
+          new CallMetaDataDetails(true, 0),                // pure=true, complexity=0
+          false                                            // not trait call
+      );
+
+      // CALL resource._close() - null result (void return)
+      finallyEvaluation.add(CallInstr.call(null, resourceDebugInfo, closeCallDetails));
+    }
+
+    // User's finally code SECOND (after close() calls, if user provided finally)
+    if (finallyCtx != null) {
+      finallyEvaluation.addAll(processBlockStatements(finallyCtx.block()));
+    }
+
+    finallyEvaluation.add(ScopeInstr.exit(finallyScopeId, debugInfo));
+
+    // Exit finally scope from context
+    stackContext.exitScope();
+
+    return finallyEvaluation;
   }
 
   /**
@@ -288,5 +512,23 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
       }
     }
     return instructions;
+  }
+
+  /**
+   * Holds resource variables and their initialization instructions.
+   */
+  private record ResourceVariables(
+      List<IRInstr> instructions,
+      List<ResourceVariable> resources
+  ) {
+  }
+
+  /**
+   * Tracks a single resource variable for automatic cleanup.
+   */
+  private record ResourceVariable(
+      ISymbol symbol,
+      DebugInfo debugInfo
+  ) {
   }
 }
