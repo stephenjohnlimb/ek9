@@ -1,0 +1,18 @@
+#!ek9
+defines module fuzztest.dispatcher.purity.variant4
+
+  // Variation 4: Dispatcher With Zero Parameters
+  // Question: Can a dispatcher method have zero parameters?
+  // Result: CONFIRMED - dispatchers require 1 or 2 parameters
+
+  defines class
+    ZeroParamDispatcher
+      @Error: FULL_RESOLUTION: INVALID_NUMBER_OF_PARAMETERS
+      process() as dispatcher
+        assert true
+
+      process()
+        -> arg as Integer
+        assert arg?
+
+//EOF

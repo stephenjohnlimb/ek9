@@ -1,0 +1,20 @@
+#!ek9
+defines module fuzztest.dispatcher.purity.variant1
+
+  // Variation 1: Purity Boundary - Protected Non-Pure Method
+  // Base: DISPATCHER_PURE_MISMATCH from badDispatcherExamples.ek9 line 149-156
+  // Question: Does purity requirement apply to protected methods?
+  // Result: CONFIRMED - purity applies regardless of access modifier (protected, public, etc.)
+
+  defines class
+    PurityProtected as open
+      process() as pure dispatcher
+        -> arg as Any
+        assert arg?
+
+      @Error: FULL_RESOLUTION: DISPATCHER_PURE_MISMATCH
+      protected process()
+        -> arg as Integer
+        assert arg?
+
+//EOF

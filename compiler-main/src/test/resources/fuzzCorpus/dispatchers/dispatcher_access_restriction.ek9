@@ -1,0 +1,21 @@
+#!ek9
+defines module fuzztest.dispatcher.purity.variant5
+
+  // Variation 5: Access Modifier Restriction in Derived Class
+  // Question: Can derived class have private method matching public dispatcher in base?
+  // Result: CONFIRMED - access modifier restriction violates Liskov Substitution Principle
+
+  defines class
+    BaseDispatcher as open
+      process() as dispatcher
+        -> arg as Any
+        assert arg?
+
+  defines class
+    DerivedWithPrivate extends BaseDispatcher
+      @Error: FULL_RESOLUTION: METHOD_ACCESS_MODIFIERS_DIFFER
+      private process()
+        -> arg as Integer
+        assert arg?
+
+//EOF

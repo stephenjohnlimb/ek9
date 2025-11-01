@@ -1,0 +1,26 @@
+#!ek9
+defines module fuzztest.dispatcher.purity.variant2
+
+  // Variation 2: Private Method 2 Levels Up Inheritance
+  // Base: DISPATCHER_PRIVATE_IN_SUPER from badDispatcherExamples.ek9 line 164
+  // Question: Does DISPATCHER_PRIVATE_IN_SUPER error occur 2 levels up?
+  // Result: CONFIRMED - private methods in grandparent trigger error (entire chain checked)
+
+  defines class
+    GrandParent as open
+      @Error: FULL_RESOLUTION: DISPATCHER_PRIVATE_IN_SUPER
+      private process()
+        -> arg as Integer
+        assert arg?
+
+  defines class
+    Parent extends GrandParent as open
+      // No process method here
+
+  defines class
+    Child extends Parent
+      process() as dispatcher
+        -> arg as Any
+        assert arg?
+
+//EOF

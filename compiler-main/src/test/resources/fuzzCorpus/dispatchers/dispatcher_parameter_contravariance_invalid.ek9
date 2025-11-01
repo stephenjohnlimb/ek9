@@ -1,0 +1,21 @@
+#!ek9
+defines module fuzztest.dispatcher.parameters
+
+  // @ExpectPhase: FULL_RESOLUTION
+  // @ExpectError: INVALID_NUMBER_OF_PARAMETERS
+  // @TestDescription: Dispatcher methods must have matching parameter counts
+
+  defines class
+    ParameterMismatch
+      process() as dispatcher
+        -> arg as Any
+        assert arg?
+
+      @Error: FULL_RESOLUTION: INVALID_NUMBER_OF_PARAMETERS
+      process()
+        ->
+          arg1 as Integer
+          arg2 as Integer
+        assert arg1? and arg2?
+
+//EOF

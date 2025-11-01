@@ -1,0 +1,20 @@
+#!ek9
+defines module fuzztest.dispatcher.privateinsuper
+
+  // @ExpectPhase: FULL_RESOLUTION
+  // @ExpectError: DISPATCHER_PRIVATE_IN_SUPER
+  // @TestDescription: Private method in superclass creates dispatcher conflict
+
+  defines class
+    BaseClass as open
+      @Error: FULL_RESOLUTION: DISPATCHER_PRIVATE_IN_SUPER
+      private process()
+        -> arg as Integer
+        assert arg?
+
+    DerivedClass extends BaseClass
+      process() as dispatcher
+        -> arg as Any
+        assert arg?
+
+//EOF

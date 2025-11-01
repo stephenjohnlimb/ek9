@@ -1,0 +1,21 @@
+#!ek9
+defines module fuzztest.dispatcher.multiplemarked
+
+  // @ExpectPhase: FULL_RESOLUTION
+  // @ExpectError: DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED
+  // @TestDescription: Only one method can be marked as dispatcher entry point
+
+  defines class
+    MultipleDispatchers
+      @Error: FULL_RESOLUTION: DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED
+      process() as dispatcher
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_PARAMETER_GENUS
+        -> arg as Any
+        assert arg?
+
+      @Error: FULL_RESOLUTION: DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED
+      process() as dispatcher
+        -> arg as Integer
+        assert arg?
+
+//EOF
