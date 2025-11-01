@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
+import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
@@ -41,6 +42,7 @@ public final class ForInGenerator extends AbstractGenerator
     implements Function<EK9Parser.ForStatementExpressionContext, List<IRInstr>> {
 
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
+  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final GeneratorSet generators;
 
   ForInGenerator(final IRGenerationContext stackContext,
@@ -101,9 +103,9 @@ public final class ForInGenerator extends AbstractGenerator
 
     // Declare loop variable in loop scope for proper lifetime management
     final var loopVarSymbol = getRecordedSymbolOrException(forLoopCtx);
-    final var loopVarType = symbolTypeOrException.apply(loopVarSymbol);
     final var loopVarName = loopVarSymbol.getName();
-    instructions.add(MemoryInstr.reference(loopVarName, loopVarType.getFullyQualifiedName(), debugInfo));
+    final var loopVarTypeName = typeNameOrException.apply(loopVarSymbol);
+    instructions.add(MemoryInstr.reference(loopVarName, loopVarTypeName, debugInfo));
 
     // Register loop variable to loop scope once (establishes ownership)
     // Variable doesn't have value yet, but SCOPE_EXIT will release it at loop end

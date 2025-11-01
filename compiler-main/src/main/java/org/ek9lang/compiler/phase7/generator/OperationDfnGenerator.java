@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
+import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
 import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
@@ -48,6 +49,7 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
   private final IRGenerationContext stackContext;
   private final GeneratorSet generators;
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
+  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
   public OperationDfnGenerator(final IRGenerationContext stackContext, final GeneratorSet generators) {
     AssertValue.checkNotNull("Stack context cannot be null", stackContext);
@@ -247,7 +249,7 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
     if (superAggregateOpt.isPresent()) {
       final var superSymbol = superAggregateOpt.get();
 
-      // Only make super call if it's not the implicit base class (like Object)  
+      // Only make super call if it's not the implicit base class (like Object)
       if (isNotImplicitSuperClass(superSymbol)) {
         // Try to find constructor symbol in superclass for metadata
         final var metaDataExtractor = new CallMetaDataExtractor(stackContext.getParsedModule().getEk9Types());
@@ -256,12 +258,13 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
         final var metaData = constructorSymbolOpt.isPresent() ? metaDataExtractor.apply(constructorSymbolOpt.get()) :
             CallMetaDataDetails.defaultMetaData();
 
+        final var superTypeName = typeNameOrException.apply(superSymbol);
         final var callDetails = new CallDetails(
             IRConstants.SUPER, // Target super object
-            superSymbol.getFullyQualifiedName(),
+            superTypeName,
             superSymbol.getName(), // Constructor name matches class name
             java.util.List.of(), // No parameters for default constructor
-            superSymbol.getFullyQualifiedName(), // Return type is the super class
+            superTypeName, // Return type is the super class
             java.util.List.of(), // No arguments
             metaData,
             false
@@ -278,9 +281,10 @@ public final class OperationDfnGenerator implements BiConsumer<OperationInstr, E
     final var iInitMetaData = iInitMethodOpt.isPresent() ? metaDataExtractor.apply(iInitMethodOpt.get()) :
         CallMetaDataDetails.defaultMetaData();
 
+    final var aggregateTypeName = typeNameOrException.apply(aggregateSymbol);
     final var iInitCallDetails = new CallDetails(
         IRConstants.THIS, // Target this object
-        aggregateSymbol.getFullyQualifiedName(),
+        aggregateTypeName,
         IRConstants.I_INIT_METHOD,
         java.util.List.of(), // No parameters
         EK9_VOID, // Return type

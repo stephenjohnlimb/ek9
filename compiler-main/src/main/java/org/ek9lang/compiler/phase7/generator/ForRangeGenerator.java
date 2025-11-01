@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.OperatorMap;
+import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.ForRangePolymorphicInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
@@ -62,6 +63,7 @@ public final class ForRangeGenerator extends AbstractGenerator
     implements Function<EK9Parser.ForStatementExpressionContext, List<IRInstr>> {
 
   private final OperatorMap operatorMap = new OperatorMap();
+  private final TypeNameOrException typeNameOrException = new TypeNameOrException();
   private final GeneratorSet generators;
 
   ForRangeGenerator(final IRGenerationContext stackContext,
@@ -115,8 +117,8 @@ public final class ForRangeGenerator extends AbstractGenerator
 
     // Declare loop variable in loop scope for proper lifetime management
     // Loop variable type matches range type (Integer, Float, Duration, etc.)
-    instructions.add(
-        MemoryInstr.reference(loopVariableName, initializationData.rangeType.getFullyQualifiedName(), debugInfo));
+    final var rangeTypeName = typeNameOrException.apply(initializationData.rangeType);
+    instructions.add(MemoryInstr.reference(loopVariableName, rangeTypeName, debugInfo));
 
     // Register loop variable to loop scope once (establishes ownership)
     // Variable doesn't have value yet, but SCOPE_EXIT will release it at loop end
@@ -238,13 +240,14 @@ public final class ForRangeGenerator extends AbstractGenerator
         final var literalCtx = forRangeCtx.literal();
         final var bySymbol = getRecordedSymbolOrException(literalCtx);
         byType = bySymbol.getType().orElseThrow();
+        final var byTypeName = typeNameOrException.apply(byType);
 
         byDebugInfo = stackContext.createDebugInfo(literalCtx);
         final var byLiteralInstructions = new ArrayList<IRInstr>();
         byLiteralInstructions.add(LiteralInstr.literal(
             byTemp,
             literalCtx.getText(),
-            byType.getFullyQualifiedName(),
+            byTypeName,
             byDebugInfo
         ));
         instructions.addAll(generators.variableMemoryManagement.apply(
@@ -256,10 +259,11 @@ public final class ForRangeGenerator extends AbstractGenerator
         final var identCtx = forRangeCtx.identifier(1);
         final var bySymbol = getRecordedSymbolOrException(identCtx);
         byType = bySymbol.getType().orElseThrow();
+        final var byTypeName = typeNameOrException.apply(byType);
 
         byDebugInfo = stackContext.createDebugInfo(identCtx);
         final var byRefInstructions = new ArrayList<IRInstr>();
-        byRefInstructions.add(MemoryInstr.reference(identCtx.getText(), byType.getFullyQualifiedName(), byDebugInfo));
+        byRefInstructions.add(MemoryInstr.reference(identCtx.getText(), byTypeName, byDebugInfo));
         final var loadTemp = stackContext.generateTempName();
         // Load from identifier with memory management
         final var loadInstructions = new ArrayList<IRInstr>();
@@ -823,14 +827,17 @@ public final class ForRangeGenerator extends AbstractGenerator
       final InitializationData initData,
       final String loopVariableName) {
 
+    final var rangeTypeName = typeNameOrException.apply(initData.rangeType);
+    final var byTypeName = initData.byType != null ? typeNameOrException.apply(initData.byType) : null;
+
     return new ForRangePolymorphicInstr.LoopMetadata(
         initData.directionTemp,
         initData.currentTemp,
         loopVariableName,
         initData.endTemp,
-        initData.rangeType.getFullyQualifiedName(),
+        rangeTypeName,
         initData.byTemp,
-        initData.byType != null ? initData.byType.getFullyQualifiedName() : null
+        byTypeName
     );
   }
 
