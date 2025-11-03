@@ -1,0 +1,77 @@
+#!ek9
+<?-
+  METHOD_AMBIGUOUS: Method resolution ambiguity with superclass + trait equal cost.
+
+  Demonstrates ambiguity when:
+  - Superclass matching cost (2 levels = 0.05 + 0.05 = 0.10)
+  - Trait matching cost (1 trait = 0.10)
+  Both paths have equal cost (0.10), creating ambiguity.
+
+  This tests a NEW scenario not covered by existing tests:
+  - twoBadExample.ek9: inheritance hierarchy only (superclass ambiguity)
+  - threeBadExample.ek9: coercion ambiguity only
+  - method_trait_ambiguity.ek9: trait ambiguity only
+  - This test: COMBINATION of superclass + trait with equal costs
+-?>
+defines module fuzztest.ambiguity.superclass.trait.equal
+
+  defines trait
+    T
+      getValue() as abstract
+        <- rtn as Integer?
+
+  defines class
+    // Superclass hierarchy: A <- B <- C
+    A as open
+      default A as pure
+
+      override operator ? as pure
+        <- rtn <- true
+
+    B extends A as open
+      default B as pure
+
+      override operator ? as pure
+        <- rtn <- true
+
+    // C is 2 levels below A (via B)
+    // C also implements trait T
+    C extends B with trait of T
+      default C as pure
+
+      override getValue()
+        <- rtn <- 42
+
+      override operator ? as pure
+        <- rtn <- true
+
+  defines class
+    TestClass
+      // Method 1: Accepts A (superclass 2 levels up from C)
+      checkMethod()
+        -> arg as A
+        <- rtn <- 10
+
+      // Method 2: Accepts T (trait implemented by C)
+      checkMethod()
+        -> arg as T
+        <- rtn <- 20
+
+      default TestClass as pure
+
+      override operator ? as pure
+        <- rtn <- true
+
+  defines program
+    TestAmbiguity()
+      c <- C()
+      test <- TestClass()
+
+      // This call is AMBIGUOUS:
+      // Method 1: C→B→A (0.05 + 0.05) = 0.10 total cost
+      // Method 2: C→T (0.10) = 0.10 total cost
+      // Equal costs within 0.001 tolerance → METHOD_AMBIGUOUS
+      @Error: FULL_RESOLUTION: METHOD_AMBIGUOUS
+      test.checkMethod(c)
+
+//EOF
