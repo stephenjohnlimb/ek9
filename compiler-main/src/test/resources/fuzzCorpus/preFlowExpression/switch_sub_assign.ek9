@@ -1,0 +1,28 @@
+#!ek9
+<?-
+  PRE_FLOW_SYMBOL_NOT_RESOLVED: SWITCH with -= operator.
+  objectAccessExpression assignment without explicit control.
+-?>
+defines module fuzztest.preflow.switch.subassign
+
+  defines record
+    Counter
+      value <- 10
+
+  defines function
+    switchWithSubAssign()
+      counter <- Counter()
+      result <- 0
+
+      //SWITCH with objectAccessExpression -= (no explicit control)
+      //Error: Cannot determine flow subject
+      @Error: FULL_RESOLUTION: PRE_FLOW_SYMBOL_NOT_RESOLVED
+      switch counter.value -= 3
+        case > 5
+          result := 10
+        default
+          result := 20
+
+      assert result?
+
+//EOF

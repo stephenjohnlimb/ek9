@@ -1,0 +1,26 @@
+#!ek9
+<?-
+  Parse error test: FOR with assignment but no 'then' keyword.
+  Grammar requires 'then' between preFlowStatement and loop variable.
+  Should cause parse error.
+-?>
+defines module fuzztest.parse.for.nothen
+
+  defines record
+    TestRecord
+      counter <- 0
+
+  defines function
+    forAssignmentWithoutThen()
+      rec <- TestRecord()
+      items <- [1, 2, 3, 4, 5]
+      sum <- 0
+
+      //FOR with assignment but missing required 'then' keyword
+      //Grammar: FOR preFlowStatement (WITH|THEN) identifier IN expression
+      for rec.counter += 1 item in items
+        sum += item
+
+      assert sum?
+
+//EOF
