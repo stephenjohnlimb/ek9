@@ -1,0 +1,38 @@
+#!ek9
+<?-
+  FUNCTION_MUST_RETURN_VALUE: Stream call with function that has no return.
+  Functions used in stream call operations must return values.
+-?>
+defines module fuzztest.function.stream.call.noreturn
+
+  defines class
+    StringCollector
+      joined <- String()
+
+      operator |
+        -> arg0 as String
+        if arg0?
+          if joined?
+            joined += " " + arg0
+          else
+            joined: String(arg0)
+
+      override operator ? as pure
+        <- rtn as Boolean: joined?
+
+  defines function
+    noReturnValue()
+      value <- 42
+      assert value?
+      // No return statement - function returns Void
+
+    testStreamCall()
+      collector <- StringCollector()
+
+      // Error: call requires function to return a value
+      @Error: FULL_RESOLUTION: FUNCTION_MUST_RETURN_VALUE
+      cat [noReturnValue] | call > collector
+
+      assert collector?
+
+//EOF
