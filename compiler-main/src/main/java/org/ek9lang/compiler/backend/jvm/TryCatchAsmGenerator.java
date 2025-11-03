@@ -9,7 +9,7 @@ import org.objectweb.asm.Label;
  * Specialized generator for EK9 try/catch/finally statements.
  * Handles CONTROL_FLOW_CHAIN with chain_type: "TRY_CATCH_FINALLY".
  * <p>
- * JVM Bytecode Pattern:
+ * JVM Bytecode Pattern for try/catch:
  * </p>
  * <pre>
  * try_start:
@@ -20,17 +20,29 @@ import org.objectweb.asm.Label;
  *   [catch block 1 instructions]
  *   goto after_handlers
  * catch_end_1:
- * catch_start_2:
- *   [catch block 2 instructions]
- *   goto after_handlers
- * catch_end_2:
  * after_handlers:
- *   [finally block if present]
+ *   [continue execution]
+ * </pre>
+ * <p>
+ * JVM Bytecode Pattern for try/finally (finally block DUPLICATED):
+ * </p>
+ * <pre>
+ * try_start:
+ *   [try block instructions]
+ * try_end:
+ *   [finally block - normal path]
+ *   goto after_finally
+ * finally_exception:
+ *   astore temp_exception
+ *   [finally block - exception path]
+ *   aload temp_exception
+ *   athrow
+ * after_finally:
+ *   [continue execution]
  *
  * Exception Table:
- *   from    to      target        type
- *   try_start try_end catch_start_1 ExceptionType1
- *   try_start try_end catch_start_2 ExceptionType2
+ *   from    to      target          type
+ *   try_start try_end finally_exception null (catch-all)
  * </pre>
  * <p>
  * Stack Frame Invariant: Stack is empty before try, after each handler,
@@ -50,12 +62,13 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
    * Control Flow:
    * </p>
    * <ol>
-   *   <li>Create labels for exception handlers</li>
+   *   <li>Create labels for exception handlers and finally blocks</li>
    *   <li>Register exception handlers with JVM (visitTryCatchBlock)</li>
    *   <li>Execute try block</li>
-   *   <li>Jump to after handlers (normal path)</li>
+   *   <li>Execute finally block (normal path) if present</li>
+   *   <li>Jump to after handlers</li>
    *   <li>Execute each catch handler</li>
-   *   <li>Execute finally block (if present)</li>
+   *   <li>Execute finally block (exception path) if present</li>
    * </ol>
    * <p>
    * Stack Frame Invariant:
@@ -68,7 +81,8 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
   public void generate(final ControlFlowChainInstr instr) {
     final var tryDetails = instr.getTryBlockDetails();
     final var catchHandlers = instr.getConditionChain();  // Each "case" is a catch handler
-    final var finallyBody = instr.getDefaultBodyEvaluation();  // Finally block
+    final var finallyBody = instr.getFinallyBlockEvaluation();  // Finally block
+    final var hasFinallyBlock = !finallyBody.isEmpty();
 
     // Validation: must have at least try block
     if (tryDetails == null) {
@@ -76,8 +90,8 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
           "TRY_CATCH_FINALLY must have tryBlockDetails");
     }
 
-    // Validation: must have at least one catch handler for now (finally-only not yet implemented)
-    if (catchHandlers.isEmpty() && finallyBody.isEmpty()) {
+    // Validation: must have at least one catch handler or finally block
+    if (catchHandlers.isEmpty() && !hasFinallyBlock) {
       throw new org.ek9lang.core.CompilerException(
           "TRY_CATCH_FINALLY must have at least one catch handler or finally block");
     }
@@ -86,6 +100,8 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
     final var tryStartLabel = new Label();
     final var tryEndLabel = new Label();
     final var afterHandlersLabel = new Label();
+    final var finallyExceptionLabel = hasFinallyBlock ? new Label() : null;
+    final var catchEndLabel = !catchHandlers.isEmpty() ? new Label() : null;
 
     // Create handler labels (must match visitTryCatchBlock calls)
     final var handlerLabels = new java.util.ArrayList<Label>();
@@ -106,6 +122,14 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
       getCurrentMethodVisitor().visitTryCatchBlock(tryStartLabel, tryEndLabel, handlerLabels.get(i), jvmExceptionType);
     }
 
+    // Register finally exception handler (catch-all) if finally block exists
+    if (hasFinallyBlock) {
+      // For try/finally: catch-all covers try block
+      // For try/catch/finally: catch-all covers try block AND catch handlers
+      final var finallyEndRange = catchEndLabel != null ? catchEndLabel : tryEndLabel;
+      getCurrentMethodVisitor().visitTryCatchBlock(tryStartLabel, finallyEndRange, finallyExceptionLabel, null);
+    }
+
     // 3. Execute try block
     placeLabel(tryStartLabel);
     // Stack: empty
@@ -116,7 +140,14 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
 
     placeLabel(tryEndLabel);
 
-    // 4. Normal path: jump to after handlers
+    // 4. Normal path: execute finally block (if present) then continue
+    if (hasFinallyBlock) {
+      // Execute finally block - normal path (first copy)
+      processBodyEvaluation(finallyBody);
+      // Stack: empty
+    }
+
+    // Jump to after handlers
     jumpTo(afterHandlersLabel);
     // Stack: empty
 
@@ -148,15 +179,36 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
       jumpTo(afterHandlersLabel);
     }
 
-    // 6. Place after handlers label
-    placeLabel(afterHandlersLabel);
-    // Stack: empty
+    // Mark end of catch handlers (for finally exception range)
+    if (catchEndLabel != null) {
+      placeLabel(catchEndLabel);
+    }
 
-    // 7. Execute finally block if present
-    if (!finallyBody.isEmpty()) {
+    // 6. Finally exception handler (second copy of finally block)
+    if (hasFinallyBlock) {
+      // Place finally exception label
+      placeLabel(finallyExceptionLabel);
+      // Stack: exception object (automatically pushed by JVM)
+
+      // Store exception in temporary variable (bytecode-level temp, not in IR)
+      final var tempExceptionIndex = getVariableIndex("_temp_finally_exception");
+      getCurrentMethodVisitor().visitVarInsn(org.objectweb.asm.Opcodes.ASTORE, tempExceptionIndex);
+      // Stack: empty
+
+      // Execute finally block - exception path (second copy)
       processBodyEvaluation(finallyBody);
       // Stack: empty
+
+      // Reload exception and rethrow
+      getCurrentMethodVisitor().visitVarInsn(org.objectweb.asm.Opcodes.ALOAD, tempExceptionIndex);
+      // Stack: exception object
+      getCurrentMethodVisitor().visitInsn(org.objectweb.asm.Opcodes.ATHROW);
+      // Stack: empty (athrow never returns)
     }
+
+    // 7. Place after handlers label
+    placeLabel(afterHandlersLabel);
+    // Stack: empty
 
     // Stack: empty (invariant maintained)
   }

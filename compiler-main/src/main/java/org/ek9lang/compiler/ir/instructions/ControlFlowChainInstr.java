@@ -134,6 +134,13 @@ public final class ControlFlowChainInstr extends IRInstr {
   }
 
   /**
+   * Get the finally block evaluation instructions (for TRY_CATCH_FINALLY).
+   */
+  public List<IRInstr> getFinallyBlockEvaluation() {
+    return finallyBlockEvaluation;
+  }
+
+  /**
    * Check if this construct has an evaluation variable.
    */
   public boolean hasEvaluationVariable() {
