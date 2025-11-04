@@ -173,6 +173,8 @@
               <excludes>
                 <!-- Exclude all fuzzing tests from default build -->
                 <exclude>**/fuzz/**/*Test.java</exclude>
+                <!-- Exclude generated E2E test classes from bytecodeGeneration -->
+                <exclude>**/bytecodeGeneration/**/*Test*.class</exclude>
               </excludes>
             </configuration>
           </plugin>
@@ -223,6 +225,54 @@
               <parallel>methods</parallel>
               <threadCount>8</threadCount>
             </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- E2E profile: Run bytecode generation end-to-end tests -->
+    <profile>
+      <id>e2e</id>
+      <build>
+        <plugins>
+          <!-- Exclude generated test classes from JUnit execution -->
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <!-- Exclude fuzz tests (not relevant for E2E runs) -->
+                <exclude>**/fuzz/**/*Test.java</exclude>
+                <!-- Exclude generated E2E test classes from bytecodeGeneration -->
+                <exclude>**/bytecodeGeneration/**/*Test*.class</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+
+          <!-- Run shell-based E2E tests -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>bytecode-e2e-tests</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <executable>bash</executable>
+                  <workingDirectory>${project.basedir}/src/test/resources/examples/bytecodeGeneration</workingDirectory>
+                  <arguments>
+                    <argument>test_runner.sh</argument>
+                  </arguments>
+                  <!-- Pass through concurrency control -->
+                  <environmentVariables>
+                    <EK9_TEST_JOBS>${e2e.jobs}</EK9_TEST_JOBS>
+                  </environmentVariables>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

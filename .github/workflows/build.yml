@@ -67,6 +67,8 @@ jobs:
         run: mvn --batch-mode --update-snapshots install
       - name: Run Fuzzing Tests
         run: mvn --batch-mode surefire:test -Pfuzz -pl compiler-main
+      - name: Run E2E Bytecode Tests
+        run: mvn --batch-mode exec:exec@bytecode-e2e-tests -Pe2e -pl compiler-main
       - name: Generate API Documentation
         run: mvn --batch-mode javadoc:javadoc
       - name: AWS Credentials
