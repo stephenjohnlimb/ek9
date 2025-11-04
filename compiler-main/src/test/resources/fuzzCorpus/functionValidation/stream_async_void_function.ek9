@@ -1,0 +1,39 @@
+#!ek9
+<?-
+  FUNCTION_MUST_RETURN_VALUE: Stream async with single void function.
+  Functions used in stream async operations must return values.
+  Variation of stream_async_no_return with different function name.
+-?>
+defines module fuzztest.function.stream.async.void
+
+  defines class
+    StringCollector
+      joined <- String()
+
+      operator |
+        -> arg0 as String
+        if arg0?
+          if joined?
+            joined += " " + arg0
+          else
+            joined: String(arg0)
+
+      override operator ? as pure
+        <- rtn as Boolean: joined?
+
+  defines function
+    voidFunc()
+      temp <- 888
+      assert temp?
+      // No return statement - function returns Void
+
+    testStreamAsyncVoid()
+      collector <- StringCollector()
+
+      // Error: async requires function to return a value
+      @Error: FULL_RESOLUTION: FUNCTION_MUST_RETURN_VALUE
+      cat [voidFunc] | async > collector
+
+      assert collector?
+
+//EOF

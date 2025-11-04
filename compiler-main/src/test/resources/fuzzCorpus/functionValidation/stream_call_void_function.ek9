@@ -1,0 +1,39 @@
+#!ek9
+<?-
+  FUNCTION_MUST_RETURN_VALUE: Stream call with single void function.
+  Functions used in stream call operations must return values.
+  Variation of stream_call_no_return with different function name.
+-?>
+defines module fuzztest.function.stream.call.void
+
+  defines class
+    StringCollector
+      joined <- String()
+
+      operator |
+        -> arg0 as String
+        if arg0?
+          if joined?
+            joined += " " + arg0
+          else
+            joined: String(arg0)
+
+      override operator ? as pure
+        <- rtn as Boolean: joined?
+
+  defines function
+    voidFunc()
+      temp <- 777
+      assert temp?
+      // No return statement - function returns Void
+
+    testStreamCallVoid()
+      collector <- StringCollector()
+
+      // Error: call requires function to return a value
+      @Error: FULL_RESOLUTION: FUNCTION_MUST_RETURN_VALUE
+      cat [voidFunc] | call > collector
+
+      assert collector?
+
+//EOF
