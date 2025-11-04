@@ -110,9 +110,9 @@ for result_file in "$RESULTS_DIR"/*.result; do
     result=$(cat "$result_file")
 
     if [ "$result" = "PASS" ]; then
-        ((PASS++))
+        PASS=$((PASS + 1))
     else
-        ((FAIL++))
+        FAIL=$((FAIL + 1))
         FAILED_TESTS+=("$test_name")
     fi
 done
