@@ -1,6 +1,8 @@
 package org.ek9lang.compiler.backend.jvm;
 
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_ANY;
+import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_OBJECT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_CLINIT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_C_INIT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_INIT;
@@ -48,21 +50,31 @@ final class CallInstrAsmGenerator extends AbstractAsmGenerator
     final var returnTypeName = callInstr.getReturnTypeName();
     final var isTraitCall = callInstr.isTraitCall();
 
+    // CRITICAL: Detect super/this constructor calls BEFORE routing to normal call handlers
+    // Super/this calls must use ALOAD_0 + INVOKESPECIAL (not NEW + DUP + INVOKESPECIAL)
+    if (isSuperOrThisCall(callInstr)) {
+      generateSuperConstructorCall(targetTypeName, arguments, parameterTypes);
+      // Result is stored in accept() after switch, no special handling needed
+      return;
+    }
+
     // Generate different bytecode based on call type
+    // Track whether bytecode was actually generated (false if call was skipped like <clinit>)
+    boolean bytecodeGenerated = true;
     switch (callInstr.getOpcode()) {
       case CALL -> generateInstanceCall(targetObject, methodName, arguments, targetTypeName,
           parameterTypes, returnTypeName, isTraitCall);
       case CALL_VIRTUAL -> generateVirtualCall(targetObject, methodName, arguments, targetTypeName,
           parameterTypes, returnTypeName, isTraitCall);
-      case CALL_STATIC -> generateStaticCall(methodName, arguments, targetTypeName,
+      case CALL_STATIC -> bytecodeGenerated = generateStaticCall(methodName, arguments, targetTypeName,
           parameterTypes, returnTypeName);
       case CALL_DISPATCHER -> generateDispatcherCall(targetObject, methodName, arguments, targetTypeName,
           parameterTypes, returnTypeName);
       default -> throw new IllegalArgumentException("Unsupported call opcode: " + callInstr.getOpcode());
     }
 
-    // Store result if instruction has one and track temp variable source
-    if (callInstr.hasResult()) {
+    // Store result if instruction has one AND bytecode was actually generated
+    if (callInstr.hasResult() && bytecodeGenerated) {
       final var resultVar = callInstr.getResult();
 
       // Handle special methods that return Java primitive boolean
@@ -100,6 +112,36 @@ final class CallInstrAsmGenerator extends AbstractAsmGenerator
       case "_true", "_false", "_set" -> true;
       default -> false;
     };
+  }
+
+  /**
+   * Detect if this is a super or this constructor call (not regular object construction).
+   * <p>
+   * Super/this constructor calls in constructor bodies have special characteristics:
+   * - Target is "super" (for super calls) or "this" (for this calls)
+   * - Method name is "&lt;init&gt;"
+   * </p>
+   * <p>
+   * These calls should NOT use NEW + DUP, but instead ALOAD_0 + INVOKESPECIAL.
+   * </p>
+   * <p>
+   * This detection works for both synthetic and explicit constructors. The target and method
+   * name alone are sufficient to distinguish super/this calls from regular object construction:
+   * - Regular construction: new MyClass() → target = type name (not "super"/"this")
+   * - Super constructor: super(args) → target = "super", method = "&lt;init&gt;"
+   * - This constructor: this(args) → target = "this", method = "&lt;init&gt;"
+   * - Super method call: super.someMethod() → target = "super", method ≠ "&lt;init&gt;"
+   * </p>
+   *
+   * @param callInstr The call instruction to check
+   * @return true if this is a super/this constructor call
+   */
+  private boolean isSuperOrThisCall(final CallInstr callInstr) {
+    final var target = callInstr.getTargetObject();
+    final var methodName = callInstr.getMethodName();
+
+    return METHOD_INIT.equals(methodName)
+        && ("super".equals(target) || "this".equals(target));
   }
 
   /**
@@ -184,19 +226,34 @@ final class CallInstrAsmGenerator extends AbstractAsmGenerator
 
   /**
    * Generate static method call (INVOKESTATIC).
+   *
+   * @return true if bytecode was generated, false if call was skipped
    */
-  private void generateStaticCall(final String methodName,
-                                  final List<String> arguments,
-                                  final String targetTypeName,
-                                  final List<String> parameterTypes,
-                                  final String returnTypeName) {
+  private boolean generateStaticCall(final String methodName,
+                                     final List<String> arguments,
+                                     final String targetTypeName,
+                                     final List<String> parameterTypes,
+                                     final String returnTypeName) {
+
+    final var jvmMethodName = convertEk9MethodToJvm(methodName);
+
+    // CRITICAL JVM CONSTRAINT: Skip super class c_init calls in static initializers
+    // The IR correctly generates CALL_STATIC to parent's c_init for static initialization chaining,
+    // but JVM automatically chains <clinit> methods during class loading. Explicit invokestatic <clinit>
+    // is illegal and causes ClassFormatError. The JVM class loader handles this automatically:
+    // - Parent's <clinit> runs when parent class is loaded (before child)
+    // - Child's <clinit> runs when child class is loaded
+    // No explicit call needed or allowed.
+    if (METHOD_CLINIT.equals(jvmMethodName)) {
+      // Skip generating invokestatic <clinit> - JVM handles static initializer chaining automatically
+      return false;  // Bytecode not generated
+    }
 
     // Load arguments onto stack (no target object for static calls)
     for (final var argument : arguments) {
       generateStackOperation(argument);
     }
 
-    final var jvmMethodName = convertEk9MethodToJvm(methodName);
     final var jvmOwnerName = convertToJvmName(targetTypeName);
     final var methodDescriptor = generateMethodDescriptor(parameterTypes, returnTypeName);
 
@@ -208,6 +265,7 @@ final class CallInstrAsmGenerator extends AbstractAsmGenerator
         methodDescriptor,
         false
     );
+    return true;  // Bytecode was generated
   }
 
   /**
@@ -223,6 +281,53 @@ final class CallInstrAsmGenerator extends AbstractAsmGenerator
     // Dispatcher targets are never traits (they're dispatchers), so always false
     generateInstanceCall(targetObject, methodName, arguments, targetTypeName,
         parameterTypes, returnTypeName, false);
+  }
+
+  /**
+   * Generate super or this constructor call (INVOKESPECIAL without NEW).
+   * <p>
+   * Super/this constructor calls are different from object construction:
+   * - No NEW instruction (object already exists - it's 'this')
+   * - ALOAD_0 to load 'this' onto stack
+   * - Load constructor arguments
+   * - INVOKESPECIAL SuperClass.&lt;init&gt; or ThisClass.&lt;init&gt;
+   * </p>
+   * <p>
+   * Special handling for Any: translates to Object.&lt;init&gt; since Any is an interface.
+   * </p>
+   *
+   * @param targetTypeName The EK9 type name (may be "Any")
+   * @param arguments      Constructor arguments
+   * @param parameterTypes Constructor parameter types
+   */
+  private void generateSuperConstructorCall(final String targetTypeName,
+                                            final List<String> arguments,
+                                            final List<String> parameterTypes) {
+
+    // Translate Any to Object (Any is an interface, can't have constructors)
+    final var jvmOwnerName = EK9_LANG_ANY.equals(convertToJvmName(targetTypeName))
+        ? JAVA_LANG_OBJECT
+        : convertToJvmName(targetTypeName);
+
+    // Load 'this' onto stack
+    getCurrentMethodVisitor().visitVarInsn(Opcodes.ALOAD, 0);
+
+    // Load arguments onto stack
+    for (final var argument : arguments) {
+      generateLoadVariable(argument);
+    }
+
+    // Generate constructor descriptor (constructors return void)
+    final var constructorDescriptor = generateMethodDescriptor(parameterTypes, EK9_VOID);
+
+    // Generate INVOKESPECIAL <init> on the superclass
+    getCurrentMethodVisitor().visitMethodInsn(
+        Opcodes.INVOKESPECIAL,
+        jvmOwnerName,
+        METHOD_INIT,
+        constructorDescriptor,
+        false
+    );
   }
 
   /**

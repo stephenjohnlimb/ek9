@@ -19,6 +19,7 @@ public final class JVMTypeNames {
   public static final String JAVA_UTIL_LIST = "java/util/List";
 
   // EK9 built-in type internal names (slash-separated)
+  public static final String EK9_LANG_ANY = "org/ek9/lang/Any";
   public static final String EK9_LANG_STRING = "org/ek9/lang/String";
   public static final String EK9_LANG_INTEGER = "org/ek9/lang/Integer";
   public static final String EK9_LANG_FLOAT = "org/ek9/lang/Float";

@@ -43,7 +43,8 @@ import org.ek9lang.core.AssertValue;
  * This processing does NOT deal with that.
  * </p>
  */
-public final class OperationDfnGenerator extends AbstractGenerator implements BiConsumer<OperationInstr, EK9Parser.OperationDetailsContext> {
+public final class OperationDfnGenerator extends AbstractGenerator
+    implements BiConsumer<OperationInstr, EK9Parser.OperationDetailsContext> {
 
   private final GeneratorSet generators;
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
@@ -62,12 +63,16 @@ public final class OperationDfnGenerator extends AbstractGenerator implements Bi
 
     // Add constructor initialization if needed
     if (operation.getSymbol() instanceof MethodSymbol method && method.isConstructor()) {
-      // Check if developer provided explicit this() or super() call
-      final var hasExplicitConstruction = method.getSquirrelledData(CommonValues.HAS_EXPLICIT_CONSTRUCTION);
-      if (!"TRUE".equals(hasExplicitConstruction)) {
-        // Only generate synthetic super/i_init if no explicit call
+      // Check what kind of explicit construction call the developer provided
+      final var hasExplicitSuper = "TRUE".equals(method.getSquirrelledData(CommonValues.EXPLICIT_SUPER_CALL));
+      final var hasExplicitThis = "TRUE".equals(method.getSquirrelledData(CommonValues.EXPLICIT_THIS_CALL));
+
+      if (!hasExplicitSuper && !hasExplicitThis) {
+        // No explicit call: inject both super() and i_init()
         instructionBuilder.addInstructions(generateConstructorInitialization(method));
       }
+      // If explicit this(): inject nothing (delegate to another constructor)
+      // If explicit super(): will inject i_init() after processing body (see below)
     }
 
     // REFACTOR: Create function body scope BEFORE processing parameters/returns/body
@@ -113,6 +118,15 @@ public final class OperationDfnGenerator extends AbstractGenerator implements Bi
     // 3. Process instruction block statements (no new scope - already inside function body scope)
     if (hasInstructionBlock) {
       instructionBuilder.addInstructions(processBlockStatements(ctx.instructionBlock(), generators.blockStmtGenerator));
+    }
+
+    // 3a. For explicit super() calls: inject i_init() after the super() call
+    if (operation.getSymbol() instanceof MethodSymbol method && method.isConstructor()) {
+      final var hasExplicitSuper = "TRUE".equals(method.getSquirrelledData(CommonValues.EXPLICIT_SUPER_CALL));
+      if (hasExplicitSuper) {
+        // Inject i_init() call after the explicit super() call
+        injectIInitAfterSuperCall(instructionBuilder, method);
+      }
     }
 
     // 4. Exit function body scope BEFORE return (scope cleanup must happen before function exit)
@@ -275,6 +289,67 @@ public final class OperationDfnGenerator extends AbstractGenerator implements Bi
     instructions.add(CallInstr.call(null, debugInfo, iInitCallDetails));
 
     return instructions;
+  }
+
+  /**
+   * Inject i_init() call after the explicit super() call in constructor body.
+   * This ensures proper initialization order: super() → i_init() → constructor body.
+   *
+   * @param instructionBuilder The instruction builder containing all constructor instructions
+   * @param constructorSymbol  The constructor method symbol
+   */
+  private void injectIInitAfterSuperCall(final IRInstructionBuilder instructionBuilder,
+                                         final MethodSymbol constructorSymbol) {
+    // Generate the i_init() call instruction
+    final var aggregateSymbol = (AggregateSymbol) constructorSymbol.getParentScope();
+    final var debugInfo = stackContext.createDebugInfo(constructorSymbol.getSourceToken());
+
+    final var metaDataExtractor = new CallMetaDataExtractor(stackContext.getParsedModule().getEk9Types());
+    final var iInitMethodOpt =
+        aggregateSymbol.resolve(new SymbolSearch(IRConstants.I_INIT_METHOD));
+    final var iInitMetaData = iInitMethodOpt.isPresent() ? metaDataExtractor.apply(iInitMethodOpt.get()) :
+        CallMetaDataDetails.defaultMetaData();
+
+    final var aggregateTypeName = typeNameOrException.apply(aggregateSymbol);
+    final var iInitCallDetails = new CallDetails(
+        IRConstants.THIS, // Target this object
+        aggregateTypeName,
+        IRConstants.I_INIT_METHOD,
+        java.util.List.of(), // No parameters
+        EK9_VOID, // Return type
+        java.util.List.of(), // No arguments
+        iInitMetaData,
+        false
+    );
+
+    final var iInitCall = CallInstr.call(null, debugInfo, iInitCallDetails);
+
+    // Extract current instructions, find the super() call, and inject i_init() after it
+    final var instructions = instructionBuilder.extractInstructions();
+    final var modifiedInstructions = new ArrayList<IRInstr>();
+    boolean initInjected = false;
+
+    for (final var instr : instructions) {
+      // Add the current instruction
+      modifiedInstructions.add(instr);
+
+      // Check if this is a super constructor call
+      if (!initInjected && instr instanceof CallInstr callInstr && "super".equals(callInstr.getTargetObject())
+          && IRConstants.INIT_METHOD.equals(callInstr.getMethodName())) {
+        // Inject i_init() right after super() call
+        modifiedInstructions.add(iInitCall);
+        initInjected = true;
+      }
+
+    }
+
+    // If super() wasn't found (shouldn't happen), prepend i_init as fallback
+    if (!initInjected) {
+      modifiedInstructions.addFirst(iInitCall);
+    }
+
+    // Add all modified instructions back to the builder
+    instructionBuilder.addInstructions(modifiedInstructions);
   }
 
   /**

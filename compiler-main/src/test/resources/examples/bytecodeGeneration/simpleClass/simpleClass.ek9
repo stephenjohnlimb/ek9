@@ -1,0 +1,49 @@
+#!ek9
+<?-
+  Bytecode test for simple class definition.
+  Tests basic class bytecode generation with fields, constructor, and methods.
+
+  This test validates:
+  - Class declaration with field
+  - Parameterized constructor with field initialization
+  - Getter method (pure, returns field value)
+  - Mutating method (modifies field)
+  - Program instantiation and method calls
+-?>
+defines module bytecode.test
+
+  defines class
+
+    SimpleClass
+      value <- Integer()
+
+      SimpleClass()
+        ->
+          initialValue as Integer
+
+        this.value :=: initialValue
+
+      getValue() as pure
+        <- rtn as Integer: value
+
+      increment()
+        value := value + 1
+
+  defines program
+
+    TestSimpleClass()
+      stdout <- Stdout()
+
+      stdout.println("Test 1: Constructor and getter")
+      obj <- SimpleClass(42)
+      result1 <- obj.getValue()
+      stdout.println(result1)
+
+      stdout.println("Test 2: Mutating method")
+      obj.increment()
+      result2 <- obj.getValue()
+      stdout.println(result2)
+
+      stdout.println("All tests passed")
+
+//EOF

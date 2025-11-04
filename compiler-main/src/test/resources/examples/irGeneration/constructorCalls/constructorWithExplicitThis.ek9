@@ -36,7 +36,7 @@ defines module constructorCalls
     _temp2 = LOAD_LITERAL Default, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:50:14
     RETAIN _temp2
     SCOPE_REGISTER _temp2, _scope_1
-    _temp1 = CALL (constructorCalls::Example)constructorCalls::Example.<init>(_temp2) [pure=false, complexity=1, effects=RETURN_MUTATION]  // ./constructorWithExplicitThis.ek9:50:9
+    _temp1 = CALL (constructorCalls::Example)this.<init>(_temp2) [pure=false, complexity=1, effects=RETURN_MUTATION]  // ./constructorWithExplicitThis.ek9:50:9
     SCOPE_EXIT _scope_1  // ./constructorWithExplicitThis.ek9:50:9
     RETURN  // ./constructorWithExplicitThis.ek9:49:7`
     Example as open

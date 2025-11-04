@@ -61,7 +61,7 @@ public final class AssignmentStmtGenerator extends AbstractGenerator implements
     } else if (ctx.identifier() != null) {
       processIdentifierAssignment(ctx, instructions);
     } else if (ctx.objectAccessExpression() != null) {
-      throw new CompilerException("ObjectAccessExpression assignment not implemented");
+      processObjectAccessAssignment(ctx, instructions);
     }
 
     return instructions;
@@ -86,6 +86,41 @@ public final class AssignmentStmtGenerator extends AbstractGenerator implements
                                            final List<IRInstr> instructions) {
 
     final var lhsSymbol = getRecordedSymbolOrException(ctx.identifier());
+
+    // Use injected ExprInstrGenerator for better object reuse
+    final var generator =
+        new AssignmentExprInstrGenerator(stackContext, generators.exprGenerator, ctx.assignmentExpression());
+
+    if (isMethodBasedAssignment(ctx.op)) {
+      processMethodBasedAssignment(ctx, lhsSymbol, instructions);
+      return; // Early return since method-based assignment is complete
+    }
+    // Use VariableMemoryManagement from generators struct
+    final var assignExpressionToSymbol =
+        new AssignExpressionToSymbol(stackContext, generators.variableMemoryManagement, true, generator);
+
+    if (isGuardedAssignment(ctx.op)) {
+
+      final var guardedDetails = new GuardedAssignmentDetails(
+          lhsSymbol, ctx.assignmentExpression());
+
+      final var guardedGenerator =
+          new GuardedAssignmentBlockGenerator(stackContext, generators.controlFlowChainGenerator,
+              assignExpressionToSymbol);
+      instructions.addAll(guardedGenerator.apply(guardedDetails));
+      return; // Early return since guarded assignment is complete
+    }
+
+    //So it is a simple assignment.
+    instructions.addAll(assignExpressionToSymbol.apply(lhsSymbol, ctx.assignmentExpression()));
+
+  }
+
+  private void processObjectAccessAssignment(final EK9Parser.AssignmentStatementContext ctx,
+                                             final List<IRInstr> instructions) {
+
+    // Extract field symbol from objectAccessExpression (e.g., this.code → VariableSymbol for 'code')
+    final var lhsSymbol = getRecordedSymbolOrException(ctx.objectAccessExpression());
 
     // Use injected ExprInstrGenerator for better object reuse
     final var generator =

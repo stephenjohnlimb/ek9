@@ -89,11 +89,28 @@ public class CodeGenerationAggregates extends CompilerPhase {
     final var projectDotEK9Directory = fileHandling.getDotEk9Directory(projectDirectory);
     final var locator = outputFileLocator.get();
 
-    Optional.of(compilableSource).stream()
+    // CRITICAL: Generate constructs in dependency order to support ASM's COMPUTE_FRAMES mode
+    // 1. First generate all non-program constructs (classes, records, etc.)
+    //    These must exist on disk before programs reference them in exception handlers
+    // 2. Then generate program constructs
+    //    Programs can reference classes in catch handlers - ASM needs class files available
+    final var constructs = Optional.of(compilableSource).stream()
         .filter(CompilableSource::isNotExtern)
         .map(program::getIRModuleForCompilableSource)
         .map(IRModule::getConstructs)
-        .flatMap(List::parallelStream)
+        .flatMap(List::stream)
+        .toList();
+
+    // Phase 1: Generate all non-program constructs (classes, records, etc.)
+    constructs.parallelStream()
+        .filter(construct -> !construct.isProgram())
+        .map(construct -> new ConstructTargetTuple(construct, relativeFileName, compilerFlags,
+            locator.apply(construct, projectDotEK9Directory)))
+        .forEach(this::produceConstructOutput);
+
+    // Phase 2: Generate program constructs (after classes are written to disk)
+    constructs.parallelStream()
+        .filter(IRConstruct::isProgram)
         .map(construct -> new ConstructTargetTuple(construct, relativeFileName, compilerFlags,
             locator.apply(construct, projectDotEK9Directory)))
         .forEach(this::produceConstructOutput);

@@ -10,8 +10,8 @@ class ConstructorCallsIRTest extends AbstractIRGenerationTest {
 
   public ConstructorCallsIRTest() {
     super("/examples/irGeneration/constructorCalls",
-        List.of(new SymbolCountCheck(4, "constructorCalls", 6)
-        ), false, false, false); // showIR=false
+        List.of(new SymbolCountCheck(5, "constructorCalls", 8)
+        ), false, false, false); // showIR=false - updated for syntheticConstructorExtendsRealClass.ek9
   }
 
 }

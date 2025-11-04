@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.backend.jvm;
 
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_VOID_TO_VOID;
+import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_ANY;
 import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_OBJECT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_CLINIT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_C_INIT;
@@ -14,9 +15,14 @@ import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.compiler.ir.data.ParameterDetails;
 import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
+import org.ek9lang.compiler.ir.instructions.CallInstr;
+import org.ek9lang.compiler.ir.instructions.Field;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.ir.instructions.ProgramEntryPointInstr;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.core.CompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -45,7 +51,8 @@ final class AsmStructureCreator implements Opcodes {
       processProgram();
       return;
     }
-    throw new CompilerException("Constructs other than program not yet supported");
+    // Handle general classes (not programs)
+    processGeneralClass();
   }
 
   private void processProgram() {
@@ -65,6 +72,26 @@ final class AsmStructureCreator implements Opcodes {
   }
 
   /**
+   * Process general class (not a program) bytecode generation.
+   * Handles classes, records, traits, and other aggregate types.
+   */
+  private void processGeneralClass() {
+    final IRConstruct construct = constructTargetTuple.construct();
+
+    // Initialize the class with proper superclass
+    initializeGeneralClass(construct);
+
+    // Generate field declarations
+    generateFieldDeclarations(construct);
+
+    // Generate methods from IR operations
+    generateClassMethodsFromIR(construct);
+
+    // Finalize the class
+    classWriter.visitEnd();
+  }
+
+  /**
    * Store the PROGRAM_ENTRY_POINT_BLOCK instruction to access program parameter metadata.
    */
   private void storeProgramEntryPoint(final IRConstruct construct) {
@@ -76,8 +103,9 @@ final class AsmStructureCreator implements Opcodes {
    * Initialize the actual program class (e.g., introduction/HelloWorld) from the IR construct.
    */
   private void initializeProgramClass(final IRConstruct construct) {
-    // Enable COMPUTE_FRAMES to automatically generate stack map frames required for JVM verification
-    classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+    // Use custom Ek9ClassWriter to avoid ClassLoader dependency during frame computation
+    // This allows us to generate multiple classes in same compilation without classpath issues
+    classWriter = new Ek9ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 
     // Get the actual program class name from the IR construct
     final var programClassName = construct.getFullyQualifiedName();
@@ -97,6 +125,105 @@ final class AsmStructureCreator implements Opcodes {
     if (smap != null) {
       // Add SourceDebugExtension attribute with SMAP
       classWriter.visitSource(normalizedSourceFileName, smap);
+    }
+  }
+
+  /**
+   * Initialize a general class (not a program) with proper superclass handling.
+   * Extracts superclass from symbol hierarchy and generates class declaration.
+   * <p>
+   * CRITICAL: 'Any' is an interface in Java but a base class in EK9.
+   * When superclass is Any: class extends Object implements Any
+   * When superclass is not Any: class extends SuperClass (no interfaces)
+   * </p>
+   */
+  private void initializeGeneralClass(final IRConstruct construct) {
+    // Use custom Ek9ClassWriter to avoid ClassLoader dependency during frame computation
+    // This allows us to generate multiple classes in same compilation without classpath issues
+    classWriter = new Ek9ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+
+    // Get the class name from the IR construct
+    final var className = construct.getFullyQualifiedName();
+    final var jvmClassName = jvmNameConverter.apply(className);
+
+    // Extract superclass from symbol (defaults to Object if no explicit superclass)
+    final var symbol = construct.getSymbol();
+    final var ek9SuperClassName = (symbol instanceof IAggregateSymbol aggregateSymbol)
+        ? aggregateSymbol.getSuperAggregate()
+        .map(ISymbol::getFullyQualifiedName)
+        .map(jvmNameConverter)
+        .orElse(JAVA_LANG_OBJECT)
+        : JAVA_LANG_OBJECT;
+
+    // SPECIAL CASE: Any is an interface in Java, not a class
+    // If EK9 superclass is Any, generate: class X extends Object implements Any
+    // Otherwise: class X extends SuperClass
+    final String jvmSuperClassName;
+    final String[] interfaces;
+
+    if (EK9_LANG_ANY.equals(ek9SuperClassName)) {
+      jvmSuperClassName = JAVA_LANG_OBJECT;
+      interfaces = new String[] {EK9_LANG_ANY};
+    } else {
+      jvmSuperClassName = ek9SuperClassName;
+      interfaces = null;  // No interfaces
+    }
+
+    classWriter.visit(V21, ACC_PUBLIC, jvmClassName, null, jvmSuperClassName, interfaces);
+
+    // Add source file information for debugging
+    final var normalizedSourceFileName = construct.getNormalizedSourceFileName();
+    classWriter.visitSource(normalizedSourceFileName, null);
+
+    // Generate and add JSR-45 SMAP for .ek9 source debugging
+    final var smapGenerator = new SmapGenerator(getSimpleClassName(className) + ".class");
+    smapGenerator.collectFromIRConstruct(construct);
+    final var smap = smapGenerator.generate();
+    if (smap != null) {
+      classWriter.visitSource(normalizedSourceFileName, smap);
+    }
+  }
+
+  /**
+   * Generate field declarations from IR field information.
+   * Generates private fields with proper JVM type descriptors.
+   */
+  private void generateFieldDeclarations(final IRConstruct construct) {
+    for (Field field : construct.getFields()) {
+      final var fieldName = field.getSymbol().getName();
+      final var fieldType = field.getSymbol().getType()
+          .orElseThrow(() -> new CompilerException("Field must have a type: " + fieldName));
+      final var fieldDescriptor = "L" + jvmNameConverter.apply(fieldType.getFullyQualifiedName()) + ";";
+
+      // Generate field declaration: private fieldType fieldName;
+      classWriter.visitField(ACC_PRIVATE, fieldName, fieldDescriptor, null, null).visitEnd();
+    }
+  }
+
+  /**
+   * Generate class methods from IR operations.
+   * Handles c_init, i_init, constructors, and general methods/operators.
+   */
+  private void generateClassMethodsFromIR(final IRConstruct construct) {
+    // Process each operation defined in the IR construct
+    for (var operation : construct.getOperations()) {
+      final var operationName = operation.getSymbol().getName();
+
+      // Map EK9 operations to JVM methods
+      switch (operationName) {
+        case METHOD_C_INIT -> generateStaticInitializerFromIR(operation);
+        case METHOD_I_INIT -> generateInstanceInitFromIR(operation);
+        default -> {
+          // Check if it's a constructor (method name matches class name)
+          final var className = getSimpleClassName(construct.getFullyQualifiedName());
+          if (operationName.equals(className)) {
+            generateGeneralConstructorFromIR(operation, construct);
+          } else {
+            // General method or operator
+            generateGeneralMethodFromIR(operation);
+          }
+        }
+      }
     }
   }
 
@@ -175,12 +302,139 @@ final class AsmStructureCreator implements Opcodes {
 
     final var basicBlock = operation.getBody();
     if (basicBlock != null) {
-      processConstructorBasicBlock(mv, basicBlock); // true = isConstructor
+      // Programs typically don't have constructor parameters, but extract them anyway for consistency
+      final var parameterNames = extractParameterNames(operation);
+      processConstructorBasicBlock(mv, basicBlock, parameterNames);
     }
 
     // Don't add extra RETURN - IR instructions already include RETURN via BranchInstr
     mv.visitMaxs(0, 0);
     mv.visitEnd();
+  }
+
+  /**
+   * Generate constructor for general class with parameter support.
+   * The IR already contains super constructor calls - they will be processed by OutputVisitor.
+   */
+  private void generateGeneralConstructorFromIR(final OperationInstr operation, final IRConstruct construct) {
+    // Build constructor descriptor from operation signature (e.g., "(Lorg/ek9/lang/String;Lorg/ek9/lang/Integer;)V")
+    final var constructorDescriptor = buildConstructorDescriptor(operation);
+
+    final var mv = classWriter.visitMethod(ACC_PUBLIC, METHOD_INIT, constructorDescriptor, null, null);
+    mv.visitCode();
+
+    // CRITICAL: Classes extending Any (interface in Java) need explicit Object super() call
+    // The IR generator skips super() calls for Any (as it's conceptually the base class)
+    // but bytecode must call Object.<init>() since Any is an interface
+    // This is a JVM-specific implementation detail - IR correctly reflects EK9 semantics
+    //
+    // EXCEPTION: If the constructor delegates with this(), skip the Object super() call.
+    // The delegated constructor will handle all initialization including super() calls.
+    if (extendsAny(construct) && !hasThisDelegation(operation)) {
+      // Inject Object super constructor call at start
+      mv.visitVarInsn(ALOAD, 0);
+      mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_OBJECT, METHOD_INIT, DESC_VOID_TO_VOID, false);
+    }
+
+    // IR already contains super constructor call for non-Any superclasses - OutputVisitor will handle it
+    // Process the constructor body which includes:
+    // 1. Super constructor call (from IR, if superclass is not Any)
+    // 2. Field assignments
+    // 3. Any other initialization logic
+    final var basicBlock = operation.getBody();
+    if (basicBlock != null) {
+      // Extract parameter names from operation symbol
+      final var parameterNames = extractParameterNames(operation);
+      processConstructorBasicBlock(mv, basicBlock, parameterNames);
+    }
+
+    // Don't add extra RETURN - IR instructions already include RETURN via BranchInstr
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+  }
+
+  /**
+   * Generate general method (not c_init, i_init, or constructor).
+   * Handles methods with parameters and return types.
+   */
+  private void generateGeneralMethodFromIR(final OperationInstr operation) {
+    final var methodName = operation.getSymbol().getName();
+    final var methodDescriptor = buildGeneralMethodDescriptor(operation);
+
+    // Use ACC_PUBLIC for all methods (can refine access modifiers later)
+    final var mv = classWriter.visitMethod(ACC_PUBLIC, methodName, methodDescriptor, null, null);
+    mv.visitCode();
+
+    final var basicBlock = operation.getBody();
+    if (basicBlock != null) {
+      processBasicBlock(mv, basicBlock);
+    }
+
+    // Don't add extra RETURN - IR instructions already include RETURN via BranchInstr
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+  }
+
+  /**
+   * Build JVM constructor descriptor from operation signature.
+   * Example: (String, Integer) -> "(Lorg/ek9/lang/String;Lorg/ek9/lang/Integer;)V"
+   */
+  private String buildConstructorDescriptor(final OperationInstr operation) {
+    // Extract parameters from operation symbol (MethodSymbol for constructors)
+    final var symbol = operation.getSymbol();
+
+    // Get parameters - constructors are represented as MethodSymbol
+    final List<ISymbol> parameters;
+    if (symbol instanceof MethodSymbol methodSymbol) {
+      parameters = methodSymbol.getCallParameters();
+    } else {
+      parameters = Collections.emptyList();
+    }
+
+    if (parameters.isEmpty()) {
+      return DESC_VOID_TO_VOID;  // No-arg constructor
+    }
+
+    final var descriptor = new StringBuilder("(");
+    for (var param : parameters) {
+      final var paramType = param.getType()
+          .orElseThrow(() -> new CompilerException("Parameter must have type: " + param.getName()));
+      descriptor.append(descriptorConverter.apply(paramType.getFullyQualifiedName()));
+    }
+    descriptor.append(")V");  // Constructors return void
+
+    return descriptor.toString();
+  }
+
+  /**
+   * Build JVM method descriptor from operation signature.
+   * Example: code()->Integer becomes "()Lorg/ek9/lang/Integer;"
+   */
+  private String buildGeneralMethodDescriptor(final OperationInstr operation) {
+    final var returnType = operation.getSymbol().getType()
+        .orElseThrow(() -> new CompilerException("Method must have return type: " + operation.getSymbol().getName()));
+
+    // Get parameters from the symbol's call parameters
+    final var symbol = operation.getSymbol();
+    final List<ISymbol> parameters;
+    if (symbol instanceof MethodSymbol methodSymbol) {
+      parameters = methodSymbol.getCallParameters();
+    } else {
+      parameters = Collections.emptyList();
+    }
+
+    final var descriptor = new StringBuilder("(");
+    for (var param : parameters) {
+      final var paramType = param.getType()
+          .orElseThrow(() -> new CompilerException("Parameter must have type: " + param.getName()));
+      descriptor.append(descriptorConverter.apply(paramType.getFullyQualifiedName()));
+    }
+    descriptor.append(")");
+
+    // Add return type descriptor
+    descriptor.append(descriptorConverter.apply(returnType.getFullyQualifiedName()));
+
+    return descriptor.toString();
   }
 
   /**
@@ -263,6 +517,23 @@ final class AsmStructureCreator implements Opcodes {
   }
 
   /**
+   * Populate field metadata map from IR construct fields.
+   * Called once per method during MethodContext initialization.
+   * Maps "this.fieldName" to JVM field descriptor for putfield/getfield instructions.
+   */
+  private void populateFieldMetadata(final IRConstruct construct,
+                                     final AbstractAsmGenerator.MethodContext methodContext) {
+    for (Field field : construct.getFields()) {
+      final var fieldName = field.getSymbol().getName();
+      final var fieldType = field.getSymbol().getType()
+          .orElseThrow(() -> new CompilerException("Field must have type: " + fieldName));
+      final var fieldDescriptor = "L" + jvmNameConverter.apply(fieldType.getFullyQualifiedName()) + ";";
+
+      methodContext.fieldDescriptorMap.put("this." + fieldName, fieldDescriptor);
+    }
+  }
+
+  /**
    * Process a basic block with parameter details for _main method context.
    * Pre-registers parameters in variable map and LocalVariableTable metadata.
    */
@@ -274,6 +545,9 @@ final class AsmStructureCreator implements Opcodes {
 
     // Create fresh MethodContext for this method
     final var methodContext = new AbstractAsmGenerator.MethodContext();
+
+    // Populate field metadata for field access
+    populateFieldMetadata(constructTargetTuple.construct(), methodContext);
 
     // Pre-register method parameters (prevents null overwriting)
     // Also register for LocalVariableTable (enables jdb to show parameter names/values)
@@ -314,8 +588,9 @@ final class AsmStructureCreator implements Opcodes {
    * Process a basic block for constructor context.
    */
   private void processConstructorBasicBlock(final MethodVisitor mv,
-                                            final BasicBlockInstr basicBlock) {
-    processBasicBlock(mv, basicBlock, Collections.emptyList(), true);
+                                            final BasicBlockInstr basicBlock,
+                                            final List<String> parameterNames) {
+    processBasicBlock(mv, basicBlock, parameterNames, true);
   }
 
   /**
@@ -340,6 +615,9 @@ final class AsmStructureCreator implements Opcodes {
 
     // Create fresh MethodContext for this method
     final var methodContext = new AbstractAsmGenerator.MethodContext();
+
+    // Populate field metadata for field access
+    populateFieldMetadata(constructTargetTuple.construct(), methodContext);
 
     // Pre-register method parameters (prevents null overwriting)
     // Instance method parameters start at slot 1 (slot 0 is 'this')
@@ -369,6 +647,73 @@ final class AsmStructureCreator implements Opcodes {
   private String getSimpleClassName(final String fullyQualifiedName) {
     final var lastIndex = fullyQualifiedName.lastIndexOf("::");
     return lastIndex >= 0 ? fullyQualifiedName.substring(lastIndex + 2) : fullyQualifiedName;
+  }
+
+  /**
+   * Extract parameter names from operation symbol for method/constructor.
+   * Method parameters must be pre-registered in the variable map to prevent
+   * the IR from allocating temporary variables in their slots.
+   *
+   * @param operation The operation (method/constructor) to extract parameters from
+   * @return List of parameter names in declaration order
+   */
+  private List<String> extractParameterNames(final OperationInstr operation) {
+    final var symbol = operation.getSymbol();
+    if (symbol instanceof MethodSymbol methodSymbol) {
+      return methodSymbol.getCallParameters().stream()
+          .map(ISymbol::getName)
+          .toList();
+    }
+    return Collections.emptyList();
+  }
+
+  /**
+   * Check if construct extends Any (EK9's universal base type).
+   * <p>
+   * Any is an interface in Java (to enable compatibility with all types including primitives),
+   * but conceptually it's EK9's base class. Classes extending Any actually extend Object
+   * and implement Any interface.
+   * </p>
+   * <p>
+   * This is a JVM-specific quirk - the IR correctly treats Any as the base type,
+   * but bytecode generation must inject Object.&lt;init&gt;() calls.
+   * </p>
+   *
+   * @param construct The IR construct to check
+   * @return true if construct directly extends Any
+   */
+  private boolean extendsAny(final IRConstruct construct) {
+    final var symbol = construct.getSymbol();
+    if (symbol instanceof IAggregateSymbol aggregateSymbol) {
+      return aggregateSymbol.getSuperAggregate()
+          .map(superSymbol -> "org.ek9.lang::Any".equals(superSymbol.getFullyQualifiedName()))
+          .orElse(false);
+    }
+    return false;
+  }
+
+  /**
+   * Check if constructor delegates to another constructor via this().
+   * Detects this() calls by looking for CALL instructions with target="this" and method="&lt;init&gt;".
+   *
+   * @param operation The constructor operation IR
+   * @return true if constructor contains this() delegation
+   */
+  private boolean hasThisDelegation(final OperationInstr operation) {
+    final var basicBlock = operation.getBody();
+    if (basicBlock == null) {
+      return false;
+    }
+
+    // Check all instructions in the constructor
+    for (final var instr : basicBlock.getInstructions()) {
+      if (instr instanceof CallInstr callInstr && "this".equals(callInstr.getTargetObject())
+          && METHOD_INIT.equals(callInstr.getMethodName())) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   byte[] getByteCode() {

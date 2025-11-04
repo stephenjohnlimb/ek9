@@ -1,0 +1,127 @@
+#!ek9
+<?-
+  Comprehensive bytecode test for constructor initialization patterns.
+
+  This test validates:
+  1. Explicit super() calls with parameters
+  2. Constructor delegation with this()
+  3. Field initialization order (i_init before constructor body)
+  4. Explicit super() to synthetic base constructor
+  5. Correct bytecode generation: ALOAD_0 + INVOKESPECIAL for super()
+  6. Correct initialization order: super() -> i_init() -> constructor body
+-?>
+defines module bytecode.test
+
+  defines class
+
+    //Test 1: Base class with parameterized constructor
+    BaseWithParam as open
+      baseValue <- String()
+
+      BaseWithParam()
+        ->
+          value as String
+
+        this.baseValue :=: value
+
+      getBaseValue() as pure
+        <- rtn as String: baseValue
+
+
+    //Test 2: Child with explicit super() - field init order matters
+    ChildWithExplicitSuper extends BaseWithParam
+      childValue as String := "i_init Value"  //Initialized by i_init()
+      overriddenValue <- String()
+
+      ChildWithExplicitSuper()
+        ->
+          param as String
+
+        super(param)  //Explicit super() call
+        //At this point, i_init() should have run (childValue = "i_init Value")
+        //Now override childValue in constructor body
+        overriddenValue :=: childValue  //Save i_init value
+        childValue :=: "Constructor Override"
+
+      getChildValue() as pure
+        <- rtn as String: childValue
+
+      getOverriddenValue() as pure
+        <- rtn as String: overriddenValue
+
+
+    //Test 3: Base with synthetic constructor only
+    BaseWithSyntheticConstructor as open
+      syntheticField as String := "Synthetic Init"
+
+
+    //Test 4: Child calling synthetic super()
+    ChildCallingSynthetic extends BaseWithSyntheticConstructor
+      childField as String := "Child Synthetic Init"
+      bodyField <- String()
+
+      ChildCallingSynthetic()
+        super()  //Calls synthetic constructor
+        bodyField :=: "Set in body"
+
+      getChildField() as pure
+        <- rtn as String: childField
+
+      getBodyField() as pure
+        <- rtn as String: bodyField
+
+
+    //Test 5: Constructor delegation with this()
+    DelegatingConstructor
+      value <- String()
+      delegated <- Boolean()
+
+      DelegatingConstructor()
+        ->
+          param as String
+
+        this.value :=: param
+        this.delegated :=: Boolean(false)
+
+      DelegatingConstructor()
+        this("Default")  //Delegate to parameterized constructor
+        delegated :=: Boolean(true)  //Override after delegation
+
+      getValue() as pure
+        <- rtn as String: value
+
+      wasDelegated() as pure
+        <- rtn as Boolean: delegated
+
+
+  defines program
+
+    TestConstructorCalls()
+      stdout <- Stdout()
+
+      stdout.println("Test 1: Explicit super() with parameter")
+      child1 <- ChildWithExplicitSuper("Parent Value")
+      stdout.println("Base value: " + child1.getBaseValue())
+      stdout.println("Child value: " + child1.getChildValue())
+      stdout.println("Overridden value (from i_init): " + child1.getOverriddenValue())
+
+      stdout.println("")
+      stdout.println("Test 2: Explicit super() to synthetic")
+      child2 <- ChildCallingSynthetic()
+      stdout.println("Child field (i_init): " + child2.getChildField())
+      stdout.println("Body field: " + child2.getBodyField())
+
+      stdout.println("")
+      stdout.println("Test 3: Constructor delegation with this()")
+      delegated1 <- DelegatingConstructor("Custom")
+      stdout.println("Custom constructor - Value: " + delegated1.getValue())
+      stdout.println("Custom constructor - Delegated: " + $delegated1.wasDelegated())
+
+      delegated2 <- DelegatingConstructor()
+      stdout.println("Default constructor - Value: " + delegated2.getValue())
+      stdout.println("Default constructor - Delegated: " + $delegated2.wasDelegated())
+
+      stdout.println("")
+      stdout.println("All constructor tests passed")
+
+//EOF

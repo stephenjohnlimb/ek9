@@ -6,7 +6,6 @@ import org.ek9lang.compiler.ParsedModule;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.OperationInstr;
-import org.ek9lang.compiler.ir.support.CallMetaDataExtractor;
 import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.generation.IRContext;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
@@ -55,13 +54,6 @@ abstract class AbstractDfnGenerator {
    */
   protected ParsedModule getParsedModule() {
     return stackContext.getParsedModule();
-  }
-
-  /**
-   * Create CallMetaDataExtractor using stack context - the single source of truth.
-   */
-  protected CallMetaDataExtractor createCallMetaDataExtractor() {
-    return new CallMetaDataExtractor(getParsedModule().getEk9Types());
   }
 
   /**
@@ -230,7 +222,7 @@ abstract class AbstractDfnGenerator {
 
     // 1. Call super constructor if this class explicitly extends another class
     if (superType != null && notImplicitSuper.test(superType)) {
-      instructionBuilder.callSuperMethod(superType, superType.getName());
+      instructionBuilder.callSuperMethod(superType, IRConstants.INIT_METHOD);
     }
 
     // 2. Call own class's i_init method (i_init returns void, so don't assign to temp variable)

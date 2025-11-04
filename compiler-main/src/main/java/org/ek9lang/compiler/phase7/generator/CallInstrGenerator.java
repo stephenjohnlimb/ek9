@@ -18,6 +18,7 @@ import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.Symbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
@@ -183,11 +184,18 @@ public final class CallInstrGenerator extends AbstractGenerator
           // Note: No memory management needed - constructor calls handle object lifecycle
         }
 
+        // For regular constructor calls (Type()), target is the type name
+        final var parentScope = methodSymbol.getParentScope();
+        final var targetObject = (parentScope instanceof Symbol scopeSymbol)
+            ? scopeSymbol.getFullyQualifiedName()
+            : parentScope.toString();
+
         // Use unified constructor call processor (with memory management for statement context)
         generators.constructorCallProcessor.processConstructorCall(
             callSymbol,
             ctx,
             constructorResultVar,
+            targetObject,          // Type name for new object creation
             instructions,
             generators.exprGenerator,  // Expression processor function
             true                   // Use memory management for statement context
@@ -225,11 +233,22 @@ public final class CallInstrGenerator extends AbstractGenerator
             // Note: No memory management needed - constructor calls handle object lifecycle
           }
 
+          // Determine the target object based on primary reference type
+          final String targetObject;
+          if (ctx.primaryReference().THIS() != null) {
+            targetObject = "this";
+          } else if (ctx.primaryReference().SUPER() != null) {
+            targetObject = "super";
+          } else {
+            throw new CompilerException("Unknown primary reference type: " + ctx.primaryReference().getText());
+          }
+
           // Constructor calls like super() use the constructor call processor
           generators.constructorCallProcessor.processConstructorCall(
               callSymbol,
               ctx,
               constructorResultVar,
+              targetObject,  // Pass the target object (super/this)
               instructions,
               generators.exprGenerator,
               true  // Use memory management for statement context

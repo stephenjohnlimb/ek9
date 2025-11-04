@@ -42,6 +42,7 @@ public final class ConstructorCallProcessor extends AbstractGenerator {
    * @param callSymbol          The resolved call symbol
    * @param callContext         The ANTLR call context
    * @param resultVariable      The variable to store the constructor result
+   * @param targetObject        The target object ("super", "this", or type name for new objects)
    * @param instructions        The list to add generated instructions to
    * @param expressionProcessor Function to process argument expressions
    * @param useMemoryManagement Whether to apply memory management to arguments
@@ -49,6 +50,7 @@ public final class ConstructorCallProcessor extends AbstractGenerator {
   public void processConstructorCall(final CallSymbol callSymbol,
                                      final EK9Parser.CallContext callContext,
                                      final String resultVariable,
+                                     final String targetObject,
                                      final List<IRInstr> instructions,
                                      final Function<ExprProcessingDetails, List<IRInstr>> expressionProcessor,
                                      final boolean useMemoryManagement) {
@@ -83,7 +85,7 @@ public final class ConstructorCallProcessor extends AbstractGenerator {
 
     // 6. CallDetails Creation & Instruction Generation (identical in both generators)
     final var callDetails = new CallDetails(
-        typeName,          // targetType
+        targetObject,      // targetObject (super/this for super()/this() calls, typeName for new)
         typeName,          // targetTypeName
         IRConstants.INIT_METHOD, // methodName
         parameterTypes,    // parameterTypes

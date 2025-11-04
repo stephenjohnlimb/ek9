@@ -69,6 +69,7 @@ abstract class AbstractAsmGenerator {
     final Map<String, Label> labelMap = new HashMap<>();
     final Map<String, LocalVariableInfo> localVariableMetadata = new HashMap<>();
     final Map<String, ScopeInfo> scopeMap = new HashMap<>();
+    final Map<String, String> fieldDescriptorMap = new HashMap<>();  // Maps "this.fieldName" -> JVM descriptor
     int nextVariableSlot = 1; // Reserve slot 0 for 'this'
   }
 
@@ -135,7 +136,7 @@ abstract class AbstractAsmGenerator {
    * All validation completed - labels and slot are guaranteed non-null.
    */
   private record LocalVariableEntry(String name, String descriptor,
-                                     Label start, Label end, int slot) {
+                                    Label start, Label end, int slot) {
   }
 
   protected AbstractAsmGenerator(final ConstructTargetTuple constructTargetTuple,
@@ -317,15 +318,34 @@ abstract class AbstractAsmGenerator {
 
   /**
    * Generate common JVM instructions for loading a variable.
+   * Handles both local variables (ALOAD) and field access (GETFIELD).
    */
   protected void generateLoadVariable(final String variableName) {
-    // For now, generate simple ALOAD for object references
-    // This will be enhanced based on variable type and storage location
-    getCurrentMethodVisitor().visitVarInsn(Opcodes.ALOAD, getVariableIndex(variableName));
+    if (isFieldAccess(variableName)) {
+      // Field access: ALOAD_0 (this) + GETFIELD
+      final var fieldName = extractFieldName(variableName);
+      final var fieldDescriptor = getFieldDescriptor(variableName);
+      final var ownerClass = getOwnerClassName();
+
+      // Load 'this' reference (always in slot 0 for instance methods)
+      getCurrentMethodVisitor().visitVarInsn(Opcodes.ALOAD, 0);
+
+      // Generate GETFIELD instruction
+      getCurrentMethodVisitor().visitFieldInsn(
+          Opcodes.GETFIELD,
+          ownerClass,
+          fieldName,
+          fieldDescriptor
+      );
+    } else {
+      // Local variable access: ALOAD from slot
+      getCurrentMethodVisitor().visitVarInsn(Opcodes.ALOAD, getVariableIndex(variableName));
+    }
   }
 
   /**
    * Generate common JVM instructions for storing to a variable.
+   * Handles both local variables (ASTORE) and field access (PUTFIELD).
    * In stack-oriented approach, temp variables that will be consumed immediately
    * should not be stored to local variables at all.
    */
@@ -336,8 +356,114 @@ abstract class AbstractAsmGenerator {
       return;
     }
 
-    // For regular variables, generate simple ASTORE for object references
-    getCurrentMethodVisitor().visitVarInsn(Opcodes.ASTORE, getVariableIndex(variableName));
+    if (isFieldAccess(variableName)) {
+      // Field access: ALOAD_0 (this) + SWAP + PUTFIELD
+      // Stack before: [value]
+      // Stack after ALOAD_0: [value, this]
+      // Stack after SWAP: [this, value]
+      // PUTFIELD consumes both
+
+      final var fieldName = extractFieldName(variableName);
+      final var fieldDescriptor = getFieldDescriptor(variableName);
+      final var ownerClass = getOwnerClassName();
+
+      // Load 'this' reference
+      getCurrentMethodVisitor().visitVarInsn(Opcodes.ALOAD, 0);
+
+      // Swap 'this' and value so stack is [this, value]
+      getCurrentMethodVisitor().visitInsn(Opcodes.SWAP);
+
+      // Generate PUTFIELD instruction
+      getCurrentMethodVisitor().visitFieldInsn(
+          Opcodes.PUTFIELD,
+          ownerClass,
+          fieldName,
+          fieldDescriptor
+      );
+    } else {
+      // Local variable access: ASTORE to slot
+      getCurrentMethodVisitor().visitVarInsn(Opcodes.ASTORE, getVariableIndex(variableName));
+    }
+  }
+
+  /**
+   * Check if variable name represents field access.
+   * <p>
+   * Field access can be:
+   * 1. Explicit: "this.fieldName" - Direct field reference with prefix
+   * 2. Implicit: "fieldName" - Bare field name (IR generates these)
+   * </p>
+   * <p>
+   * We check both formats because IR may generate bare field names,
+   * but the field metadata map stores them with "this." prefix.
+   * </p>
+   *
+   * @param variableName Variable name to check
+   * @return true if this is a field access pattern
+   */
+  protected boolean isFieldAccess(final String variableName) {
+    if (variableName == null) {
+      return false;
+    }
+
+    // Check explicit "this.fieldName" format
+    if (variableName.startsWith("this.")) {
+      return true;
+    }
+
+    // Check implicit "fieldName" format - does "this.fieldName" exist in metadata?
+    final var withPrefix = "this." + variableName;
+    return methodContext.fieldDescriptorMap.containsKey(withPrefix);
+  }
+
+  /**
+   * Extract field name from variable name (with or without "this." prefix).
+   * <p>
+   * Handles both:
+   * - "this.fieldName" → "fieldName"
+   * - "fieldName" → "fieldName"
+   * </p>
+   *
+   * @param variableName Variable name (may have "this." prefix)
+   * @return Field name without prefix
+   */
+  protected String extractFieldName(final String variableName) {
+    if (variableName != null && variableName.startsWith("this.")) {
+      return variableName.substring(5); // Remove "this." prefix (5 chars)
+    }
+    return variableName;
+  }
+
+  /**
+   * Get field type descriptor for putfield/getfield instructions.
+   * <p>
+   * Handles both explicit ("this.fieldName") and implicit ("fieldName") references.
+   * Metadata map stores all fields with "this." prefix, so we normalize the lookup key.
+   * </p>
+   *
+   * @param variableName Variable name (with or without "this." prefix)
+   * @return JVM type descriptor (e.g., "Lorg/ek9/lang/Integer;")
+   */
+  protected String getFieldDescriptor(final String variableName) {
+    // Normalize to "this.fieldName" format for metadata lookup
+    final var lookupKey = variableName.startsWith("this.") ? variableName : "this." + variableName;
+    final var descriptor = methodContext.fieldDescriptorMap.get(lookupKey);
+    if (descriptor == null) {
+      throw new IllegalStateException("No field descriptor found for: "
+          + variableName + " (lookup key: " + lookupKey + ")");
+    }
+    return descriptor;
+  }
+
+  /**
+   * Get owner class name for field access.
+   * This is the JVM class name where the field is defined.
+   *
+   * @return JVM class name (e.g., "bytecode/test/SimpleClass")
+   */
+  protected String getOwnerClassName() {
+    final var ek9ClassName = constructTargetTuple.construct().getFullyQualifiedName();
+    return jvmNameConverter.apply(ek9ClassName);
   }
 
   /**
@@ -625,54 +751,5 @@ abstract class AbstractAsmGenerator {
     // For now, disable stack optimization until we can properly track usage patterns
     // TODO: Implement proper single-use analysis for temp variables
     return false;
-  }
-
-  /**
-   * Convert Java primitive boolean on stack to int (0 or 1) via Boolean wrapper.
-   * <p>
-   * Java primitive boolean and int are distinct types in JVM verification.
-   * Methods like Boolean._true(), _false(), _set() return primitive boolean,
-   * but conditional branch instructions require proper type conversion for verification.
-   * </p>
-   * <p>
-   * Solution: Use Boolean.valueOf() boxing to convert boolean→Boolean object,
-   * then call intValue() from Boolean's Number superclass to get int.
-   * This satisfies JVM verifier's type system requirements.
-   * </p>
-   * <p>
-   * Stack transformation:
-   * Pre-condition: [boolean] (primitive boolean type)
-   * Post-condition: [int] (primitive int type, value 0 or 1)
-   * </p>
-   * <p>
-   * Bytecode pattern:
-   * </p>
-   * <pre>
-   * // Stack: [boolean]
-   * INVOKESTATIC Boolean.valueOf(Z)LBoolean;  // Box to Boolean object
-   * INVOKEVIRTUAL Boolean.intValue()I          // Unbox to int via Number.intValue()
-   * // Stack: [int]
-   * </pre>
-   */
-  protected void convertBooleanToInt() {
-    // Stack: [boolean] - box to Boolean object
-    getCurrentMethodVisitor().visitMethodInsn(
-        Opcodes.INVOKESTATIC,
-        "java/lang/Boolean",
-        "valueOf",
-        "(Z)Ljava/lang/Boolean;",
-        false
-    );
-    // Stack: [Boolean object]
-
-    // Unbox to int (Boolean extends Number, which has intValue())
-    getCurrentMethodVisitor().visitMethodInsn(
-        Opcodes.INVOKEVIRTUAL,
-        "java/lang/Boolean",
-        "intValue",
-        "()I",
-        false
-    );
-    // Stack: [int] - now safe to use with IFEQ/IFNE
   }
 }

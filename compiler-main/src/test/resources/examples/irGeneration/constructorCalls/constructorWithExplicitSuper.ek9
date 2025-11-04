@@ -15,26 +15,27 @@ defines module constructorCalls
 
     @IR: IR_GENERATION: TYPE: "constructorCalls::Child": `
     ConstructDfn: constructorCalls::Child
-    Field: childField, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:39:7
+    Field: childField, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:40:7
     OperationDfn: constructorCalls::Child.c_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     _temp_c_init = CALL_STATIC (constructorCalls::Base).c_init() [pure=false, complexity=0]
     RETURN
     OperationDfn: constructorCalls::Child.i_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
-    REFERENCE this.childField, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:39:7
-    _temp1 = LOAD_LITERAL Child Field, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:39:31
-    RETAIN _temp1  // ./constructorWithExplicitSuper.ek9:39:31
-    SCOPE_REGISTER _temp1, i_init  // ./constructorWithExplicitSuper.ek9:39:31
-    STORE this.childField, _temp1  // ./constructorWithExplicitSuper.ek9:39:31
-    RETAIN this.childField  // ./constructorWithExplicitSuper.ek9:39:31
+    REFERENCE this.childField, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:40:7
+    _temp1 = LOAD_LITERAL Child Field, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:40:31
+    RETAIN _temp1  // ./constructorWithExplicitSuper.ek9:40:31
+    SCOPE_REGISTER _temp1, i_init  // ./constructorWithExplicitSuper.ek9:40:31
+    STORE this.childField, _temp1  // ./constructorWithExplicitSuper.ek9:40:31
+    RETAIN this.childField  // ./constructorWithExplicitSuper.ek9:40:31
     RETURN
-    OperationDfn: constructorCalls::Child.Child()->constructorCalls::Child  // ./constructorWithExplicitSuper.ek9:41:7
+    OperationDfn: constructorCalls::Child.Child()->constructorCalls::Child  // ./constructorWithExplicitSuper.ek9:42:7
     BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./constructorWithExplicitSuper.ek9:42:9
-    _temp1 = CALL (constructorCalls::Base)constructorCalls::Base.<init>() [pure=false, complexity=1, effects=RETURN_MUTATION]  // ./constructorWithExplicitSuper.ek9:42:9
-    SCOPE_EXIT _scope_1  // ./constructorWithExplicitSuper.ek9:42:9
-    RETURN  // ./constructorWithExplicitSuper.ek9:41:7`
+    SCOPE_ENTER _scope_1  // ./constructorWithExplicitSuper.ek9:43:9
+    _temp1 = CALL (constructorCalls::Base)super.<init>() [pure=false, complexity=1, effects=RETURN_MUTATION]  // ./constructorWithExplicitSuper.ek9:43:9
+    CALL (constructorCalls::Child)this.i_init() [pure=false, complexity=0]  // ./constructorWithExplicitSuper.ek9:42:7
+    SCOPE_EXIT _scope_1  // ./constructorWithExplicitSuper.ek9:43:9
+    RETURN  // ./constructorWithExplicitSuper.ek9:42:7`
     Child extends Base
       childField as String := "Child Field"
 

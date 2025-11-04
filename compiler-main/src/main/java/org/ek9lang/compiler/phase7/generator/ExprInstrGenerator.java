@@ -17,6 +17,7 @@ import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.compiler.symbols.CallSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.Symbol;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -202,10 +203,18 @@ public final class ExprInstrGenerator extends AbstractGenerator
       if (toBeCalled instanceof MethodSymbol methodSymbol && methodSymbol.isConstructor()) {
         // Constructor calls: Use constructor call processor (no memory management for expression context)
         final var instructions = new ArrayList<IRInstr>();
+
+        // For regular constructor calls (new Type()), target is the type name
+        final var parentScope = methodSymbol.getParentScope();
+        final var targetObject = (parentScope instanceof Symbol symbol)
+            ? symbol.getFullyQualifiedName()
+            : parentScope.toString();
+
         generators.constructorCallProcessor.processConstructorCall(
             resolvedCallSymbol,
             callContext,
             details.variableDetails().resultVariable(),
+            targetObject,   // Type name for new object creation
             instructions,
             this::process,  // Expression processor function
             false           // No memory management for expression context

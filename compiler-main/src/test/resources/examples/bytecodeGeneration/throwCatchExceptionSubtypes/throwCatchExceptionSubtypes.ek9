@@ -1,0 +1,86 @@
+#!ek9
+<?-
+  Bytecode test for exception subtype matching.
+  Tests polymorphic exception catching and type safety.
+
+  Tests:
+  1. Exact type match: throw CustomExceptionA, catch CustomExceptionA
+  2. Polymorphic match: throw CustomExceptionA, catch Exception (base type)
+  3. Type mismatch: throw CustomExceptionA, catch CustomExceptionB (should NOT match)
+-?>
+defines module bytecode.test
+
+  defines class
+
+    <?-
+      Custom exception type A - for testing type-specific catching
+    -?>
+    CustomExceptionA extends Exception
+      code <- Integer()
+
+      CustomExceptionA()
+        ->
+          reason as String
+          code as Integer
+
+        super(reason)
+        this.code :=: code
+
+      code() as pure
+        <- rtn as Integer: code
+
+    <?-
+      Custom exception type B - sibling of A, for testing type mismatch
+    -?>
+    CustomExceptionB extends Exception
+      level <- Integer()
+
+      CustomExceptionB()
+        ->
+          reason as String
+          level as Integer
+
+        super(reason)
+        this.level :=: level
+
+      level() as pure
+        <- rtn as Integer: level
+
+  defines program
+
+    ThrowCatchSubtypes()
+      stdout <- Stdout()
+
+      stdout.println("Test 1: Exact type match")
+      try
+        ex1 <- CustomExceptionA("Error A", 100)
+        throw ex1
+      catch
+        -> ex as CustomExceptionA
+        stdout.println("Caught CustomExceptionA by exact type")
+
+      stdout.println("Test 2: Polymorphic match")
+      try
+        ex2 <- CustomExceptionA("Error A", 200)
+        throw ex2
+      catch
+        -> ex as Exception
+        stdout.println("Caught CustomExceptionA via base Exception")
+
+      stdout.println("Test 3: Type mismatch (sibling types)")
+      try
+        // Inner try: throw A, try to catch B (should NOT match)
+        try
+          ex3 <- CustomExceptionA("Error A", 300)
+          throw ex3
+        catch
+          -> ex as CustomExceptionB
+          stdout.println("ERROR: Should NOT catch CustomExceptionB")
+      catch
+        -> ex as Exception
+        // Outer catch proves exception propagated from inner try
+        stdout.println("Correctly propagated - CustomExceptionB did not match")
+
+      stdout.println("All tests passed")
+
+//EOF

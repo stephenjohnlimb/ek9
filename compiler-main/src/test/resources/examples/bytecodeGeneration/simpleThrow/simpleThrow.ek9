@@ -1,0 +1,22 @@
+#!ek9
+<?-
+  Bytecode test for simple throw statement.
+  Tests basic throw bytecode generation with Exception.
+
+  This test validates:
+  - THROW instruction generates ATHROW bytecode
+  - Exception object creation and throwing
+  - Basic exception handling structure
+-?>
+defines module bytecode.test
+
+  defines program
+
+    TestSimpleThrow()
+      stdout <- Stdout()
+
+      stdout.println("Before throw")
+      ex <- Exception("Test exception")
+      throw ex
+
+//EOF

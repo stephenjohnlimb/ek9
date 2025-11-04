@@ -2,6 +2,8 @@ package org.ek9lang.compiler.phase3;
 
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR;
 import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR;
+import static org.ek9lang.compiler.support.CommonValues.EXPLICIT_SUPER_CALL;
+import static org.ek9lang.compiler.support.CommonValues.EXPLICIT_THIS_CALL;
 import static org.ek9lang.compiler.support.CommonValues.HAS_EXPLICIT_CONSTRUCTION;
 
 import java.util.List;
@@ -87,7 +89,16 @@ final class ThisOrSuperCallOrError extends TypedSymbolAccess
           emitThisSuperMustBeFirstStatementError(ctx);
         }
       }
+
+      // Keep the legacy flag for backward compatibility
       methodAndAggregateData.methodSymbol().putSquirrelledData(HAS_EXPLICIT_CONSTRUCTION, "TRUE");
+
+      // Store specific flags to distinguish super() vs this() calls
+      if (ctx.primaryReference().SUPER() != null) {
+        methodAndAggregateData.methodSymbol().putSquirrelledData(EXPLICIT_SUPER_CALL, "TRUE");
+      } else if (ctx.primaryReference().THIS() != null) {
+        methodAndAggregateData.methodSymbol().putSquirrelledData(EXPLICIT_THIS_CALL, "TRUE");
+      }
     }
   }
 
