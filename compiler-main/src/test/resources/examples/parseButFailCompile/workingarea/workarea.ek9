@@ -1,16 +1,15 @@
 #!ek9
-defines module fuzztest.references.duplicate
-
-  // @ExpectPhase: REFERENCE_CHECKS
-  // @ExpectError: DUPLICATE_REFERENCE
-  // @TestDescription: Reference the exact same module::symbol twice
-
-  references
-    fuzztest.references.duplicate::testFunc
-    fuzztest.references.duplicate::testFunc
+defines module super.with.function
 
   defines function
-    testFunc()
-      <- result as String: "test"
+
+    //Function without parent trying to use super
+    OrphanFunction()
+      -> arg as String
+      <- result as Boolean?
+
+      //Cannot call super when there's no parent function
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
+      result: super(arg)
 
 //EOF

@@ -1,0 +1,29 @@
+#!ek9
+defines module filter.returns.integer
+
+  defines class
+    Collector
+      items <- ""
+
+      operator |
+        -> value as Integer
+        if value?
+          items += $value
+
+  defines function
+
+    //Filter function must return Boolean, not Integer
+    InvalidFilterFunction()
+      -> value as Integer
+      <- result as Integer: value * 2
+
+  defines program
+
+    TestInvalidFilter()
+      collector <- Collector()
+
+      //Filter requires Boolean return, but function returns Integer
+      @Error: FULL_RESOLUTION: MUST_RETURN_BOOLEAN
+      cat [1, 2, 3] | filter with InvalidFilterFunction > collector
+
+//EOF

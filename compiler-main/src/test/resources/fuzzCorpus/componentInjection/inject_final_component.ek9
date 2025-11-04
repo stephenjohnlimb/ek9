@@ -1,0 +1,24 @@
+#!ek9
+defines module inject.sealed.component
+
+  defines component
+
+    BaseComponent as abstract
+      execute() as abstract
+        <- result as Boolean?
+
+    //Sealed/concrete component cannot be injected (not abstract)
+    SealedComponent extends BaseComponent
+      override execute()
+        <- result <- true
+
+  defines function
+
+    TestSealedComponentInjection()
+      //Cannot inject sealed (non-abstract) component
+      @Error: FULL_RESOLUTION: COMPONENT_INJECTION_OF_NON_ABSTRACT
+      component as SealedComponent!
+
+      assert component?
+
+//EOF

@@ -1,0 +1,23 @@
+#!ek9
+defines module void.method.assignment
+
+  defines class
+
+    Processor
+      //Method that returns nothing (Void)
+      process()
+        -> data as String
+        assert data?
+
+  defines program
+
+    TestVoidMethodAssignment()
+      proc <- Processor()
+
+      //Cannot assign Void result to a variable
+      @Error: FULL_RESOLUTION: RETURN_TYPE_VOID_MEANINGLESS
+      result <- proc.process("data")
+
+      assert result?
+
+//EOF

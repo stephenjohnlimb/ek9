@@ -1,0 +1,20 @@
+#!ek9
+defines module generic.function.trait.abstract
+
+  defines function
+
+    //Generic abstract function that could be used in trait-like composition
+    GenericTransformer() of type T as abstract
+      -> data as T
+      <- transformed as T?
+
+  defines program
+
+    TestInvalidGenericInTraitContext()
+      //Attempt to create dynamic function from abstract generic without implementation
+      @Error: FULL_RESOLUTION: GENERIC_FUNCTION_IMPLEMENTATION_REQUIRED
+      transformer <- () is GenericTransformer of Integer as function
+
+      assert transformer?
+
+//EOF

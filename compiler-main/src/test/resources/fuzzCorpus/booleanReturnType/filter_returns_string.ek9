@@ -1,0 +1,29 @@
+#!ek9
+defines module filter.returns.string
+
+  defines class
+    StringCollector
+      result <- ""
+
+      operator |
+        -> text as String
+        if text?
+          result += text
+
+  defines function
+
+    //Filter function must return Boolean, not String
+    StringReturningFilter()
+      -> value as String
+      <- result as String: value
+
+  defines program
+
+    TestStringFilter()
+      collector <- StringCollector()
+
+      //Filter requires Boolean, function returns String
+      @Error: FULL_RESOLUTION: MUST_RETURN_BOOLEAN
+      cat ["a", "b", "c"] | filter with StringReturningFilter > collector
+
+//EOF

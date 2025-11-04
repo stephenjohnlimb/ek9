@@ -37,7 +37,7 @@ class WorkingAreaTest extends PhasesTest {
     ek9Workspace.getSources().stream().findFirst()
         .ifPresent(source -> fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture));
 
-    testToPhase(CompilationPhase.REFERENCE_CHECKS);
+    testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   @Override

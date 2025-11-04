@@ -36,6 +36,7 @@ defines module bad.callthisandsuper.classmethod.access1
       C1()
         //Is it possible to call a super here? Even though there isn't one
         //Yes, because all classes inherit from implicit super of 'Any'
+        @Error: FULL_RESOLUTION: SUPER_FOR_ANY_NOT_REQUIRED
         super()
 
       C1()
@@ -48,7 +49,7 @@ defines module bad.callthisandsuper.classmethod.access1
         val <- this()
 
       someMethod2()
-        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
+        @Error: FULL_RESOLUTION: SUPER_FOR_ANY_NOT_REQUIRED
         val <- super()
 
     C2 extends C1

@@ -1,0 +1,28 @@
+#!ek9
+defines module inject.regular.class
+
+  defines component
+
+    AbstractRepository as abstract
+      save() as abstract
+        -> data as String
+        <- success as Boolean?
+
+  defines class
+
+    //Regular class (not component)
+    DataProcessor
+      process()
+        -> input as String
+        <- output as String: input
+
+  defines function
+
+    TestClassInjection()
+      //Cannot inject regular class - must be a component
+      @Error: FULL_RESOLUTION: COMPONENT_INJECTION_NOT_POSSIBLE
+      processor as DataProcessor!
+
+      assert processor?
+
+//EOF

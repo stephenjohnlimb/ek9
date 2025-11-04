@@ -1,0 +1,27 @@
+#!ek9
+defines module dispatcher.pure.calling.nonpure
+
+  defines class
+
+    //Pure dispatcher must dispatch to pure methods only
+    PurityViolation
+      counter <- 0
+
+      //Pure dispatcher entry point
+      process() as pure dispatcher
+        -> arg as Any
+        assert arg?
+
+      //This method is pure - OK
+      process() as pure
+        -> arg as Integer
+        assert arg?
+
+      //This method is NOT pure - violates dispatcher purity
+      @Error: FULL_RESOLUTION: DISPATCHER_PURE_MISMATCH
+      process()
+        -> arg as String
+        //Side effect - mutating state, not pure
+        counter :=? counter + 1
+
+//EOF

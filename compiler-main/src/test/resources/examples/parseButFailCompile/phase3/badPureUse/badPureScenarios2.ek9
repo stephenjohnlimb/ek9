@@ -86,7 +86,7 @@ defines module bad.pure.scenarios2
 
         //This makes no sense because there is no explicit super, but will have 'Any' as its super
         //and that does not have copy '':=:'.
-        @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+        @Error: FULL_RESOLUTION: SUPER_FOR_ANY_NOT_REQUIRED
         super :=: arg0
 
         @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
@@ -108,7 +108,7 @@ defines module bad.pure.scenarios2
       checkMethod3()
         <- rtn <- true
         //While C0 does not look like it has a super, there i an implicit super of 'Any'
-        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
+        @Error: FULL_RESOLUTION: SUPER_FOR_ANY_NOT_REQUIRED
         super()
 
       operator :=:

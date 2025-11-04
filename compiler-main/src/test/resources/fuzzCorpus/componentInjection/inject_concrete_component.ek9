@@ -1,0 +1,27 @@
+#!ek9
+defines module inject.concrete.component
+
+  defines component
+
+    //Abstract base component - can be injected
+    BaseService as abstract
+      processData() as abstract
+        -> data as String
+        <- result as Boolean?
+
+    //Concrete implementation - cannot be injected
+    ConcreteService extends BaseService
+      override processData()
+        -> data as String
+        <- result <- true
+
+  defines function
+
+    TestConcreteInjection()
+      //Cannot inject concrete (non-abstract) component
+      @Error: FULL_RESOLUTION: COMPONENT_INJECTION_OF_NON_ABSTRACT
+      service as ConcreteService!
+
+      assert service?
+
+//EOF

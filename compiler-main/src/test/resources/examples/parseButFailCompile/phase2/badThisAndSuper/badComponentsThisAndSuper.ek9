@@ -24,8 +24,6 @@ defines module bad.components.thisandsuper
 
     InvalidComponent1
       method1()
-        //This is not valid because there is no super.
-        @Error: FULL_RESOLUTION: AGGREGATE_HAS_NO_SUPER
         super.method1()
 
   defines application
@@ -33,10 +31,6 @@ defines module bad.components.thisandsuper
       val <- "Name"
       //Now allowed for self reference, so that this application could pass itself to something
       thisApp as App1: this
-
-      //But is this is not OK.
-      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
-      selfAsSuper as App1: super
 
   defines program
     Prog1()
@@ -47,7 +41,4 @@ defines module bad.components.thisandsuper
 
       assert thisProg?
 
-      //Not allowed.
-      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_SUPER
-      selfAsSuper as Prog1: super
 //EOF

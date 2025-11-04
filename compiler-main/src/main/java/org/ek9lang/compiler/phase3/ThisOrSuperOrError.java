@@ -56,7 +56,8 @@ final class ThisOrSuperOrError extends TypedSymbolAccess implements Consumer<EK9
       appropriateScope = symbolsAndScopes.getTopScope().findNearestNonBlockScopeInEnclosingScopes();
     }
 
-    if (appropriateScope.isPresent() && appropriateScope.get() instanceof ISymbol basicType) {
+    if (appropriateScope.isPresent()) {
+      ISymbol basicType = appropriateScope.get();
       if ("this".equals(ctx.getText())) {
         createAndRecordThisOrSuper(ctx, thisUsageOrError(ctx, basicType));
       } else {
@@ -94,7 +95,15 @@ final class ThisOrSuperOrError extends TypedSymbolAccess implements Consumer<EK9
 
     //This is the only happy route to use 'super'.
     if (basicType instanceof IAggregateSymbol asAggregate && asAggregate.getSuperAggregate().isPresent()) {
-      return asAggregate.getSuperAggregate().get();
+      final var superAggregate = asAggregate.getSuperAggregate().get();
+
+      //Check if super is Any (implicit base class) - this is not required
+      if (superAggregate.isExactSameType(symbolsAndScopes.getEk9Types().ek9Any())) {
+        emitSuperForAnyNotRequired(ctx, basicType);
+        return null;
+      }
+
+      return superAggregate;
     }
 
     //So the rest of this block is just about trying to emit the most appropriate error message.
@@ -154,6 +163,15 @@ final class ThisOrSuperOrError extends TypedSymbolAccess implements Consumer<EK9
 
     final var msg = getSymbolErrorWithName(basicType) + ":";
     errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.INAPPROPRIATE_USE_OF_SUPER);
+
+  }
+
+  private void emitSuperForAnyNotRequired(final ParserRuleContext ctx, final ISymbol basicType) {
+
+    final var msg = getSymbolErrorWithName(basicType)
+        + " implicitly extends 'Any':";
+    errorListener.semanticError(ctx.start, msg,
+        ErrorListener.SemanticClassification.SUPER_FOR_ANY_NOT_REQUIRED);
 
   }
 

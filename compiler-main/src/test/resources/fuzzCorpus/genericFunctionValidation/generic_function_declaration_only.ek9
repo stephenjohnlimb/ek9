@@ -1,0 +1,21 @@
+#!ek9
+defines module generic.function.declaration.only
+
+  defines function
+
+    //Define an abstract generic function with type parameter T
+    AbstractProcessor() of type T as abstract
+      -> input as T
+      <- result as T?
+
+  defines program
+
+    TestInvalidGenericFunctionUsage()
+      //Try to use abstract generic function without providing implementation
+      //This should fail because the function needs an implementation body
+      @Error: FULL_RESOLUTION: GENERIC_FUNCTION_IMPLEMENTATION_REQUIRED
+      processor <- () is AbstractProcessor of String as function
+
+      assert processor?
+
+//EOF

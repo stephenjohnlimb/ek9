@@ -592,6 +592,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     MISSING_ITERATE_METHOD("it does not have compatible iterator() - hasNext()/next() methods"),
     ITERATE_METHOD_MUST_RETURN_ITERATOR("iterate method must return an Iterator"),
     AGGREGATE_HAS_NO_SUPER("but has no 'super'"),
+    SUPER_FOR_ANY_NOT_REQUIRED("'super' forxx 'Any' base class is not required"),
     THIS_AND_SUPER_MUST_BE_FIRST_IN_CONSTRUCTOR("'this()' and 'super()' must be the first statement in a constructor"),
     THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR(
         "'this()' and 'super()' can only be used in constructors, did you mean 'this.' or 'super.'"),

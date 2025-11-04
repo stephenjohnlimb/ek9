@@ -47,8 +47,8 @@ defines module bad.classes.thisandsuper
 
     InvalidClass1
       method1()
-        //This is not valid because there is no super.
-        @Error: FULL_RESOLUTION: AGGREGATE_HAS_NO_SUPER
+        //This is not valid because there is no explicit super (only implicit Any).
+        @Error: FULL_RESOLUTION: SUPER_FOR_ANY_NOT_REQUIRED
         super.method1()
 
   defines program

@@ -1,0 +1,21 @@
+#!ek9
+defines module generic.function.pure.abstract
+
+  defines function
+
+    //Generic abstract function marked as pure
+    PureGenericProcessor() of type T as pure abstract
+      -> input as T
+      <- output as T?
+
+  defines program
+
+    TestInvalidPureGenericFunction()
+      //Try to use pure abstract generic function without implementation
+      //Even though we mark it as pure, it's still abstract and needs implementation
+      @Error: FULL_RESOLUTION: GENERIC_FUNCTION_IMPLEMENTATION_REQUIRED
+      processor <- () is PureGenericProcessor of Float as pure function
+
+      assert processor?
+
+//EOF

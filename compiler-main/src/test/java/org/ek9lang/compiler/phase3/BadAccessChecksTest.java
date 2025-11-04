@@ -17,7 +17,7 @@ class BadAccessChecksTest extends BadFullResolutionTest {
             "bad.functiondelegates.examples",
             "bad.higherfunctionandmethodcalls.examples",
             "bad.recordfield.access",
-            "bad.delegate.name.clashes"));
+            "bad.delegate.name.clashes"),false, true);
   }
 
 }

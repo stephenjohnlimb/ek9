@@ -1,0 +1,23 @@
+#!ek9
+defines module dispatcher.private.in.super
+
+  defines class
+
+    //Base class with private method
+    BaseProcessor as open
+
+      //Private method cannot be used in dispatcher chain
+      @Error: FULL_RESOLUTION: DISPATCHER_PRIVATE_IN_SUPER
+      private processData()
+        -> data as String
+        assert data?
+
+    //Derived class with dispatcher
+    DerivedProcessor extends BaseProcessor
+
+      //Dispatcher will try to find processData methods
+      processData() as dispatcher
+        -> arg as Any
+        assert arg?
+
+//EOF

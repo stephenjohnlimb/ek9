@@ -1,0 +1,20 @@
+#!ek9
+defines module void.function.assignment
+
+  defines function
+
+    //Function that returns nothing (Void)
+    VoidFunction()
+      -> text as String
+      assert text?
+
+  defines program
+
+    TestVoidAssignment()
+      //Cannot assign Void result to a variable
+      @Error: FULL_RESOLUTION: RETURN_TYPE_VOID_MEANINGLESS
+      result <- VoidFunction("test")
+
+      assert result?
+
+//EOF
