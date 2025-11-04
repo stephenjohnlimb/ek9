@@ -1,0 +1,17 @@
+Threshold: 10
+Iterations: 3
+=== Iteration 0 ===
+Even iteration - using for-range
+Iteration result: 60
+=== Iteration 1 ===
+Odd iteration - using switch
+Case 1: do-while loop
+Iteration result: 6
+=== Iteration 2 ===
+Even iteration - using for-range
+Iteration result: 60
+=== Final Results ===
+Grand total: 126
+Category: Medium
+Status: PARTIAL - Some computation completed
+Program complete

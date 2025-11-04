@@ -1,0 +1,10 @@
+Threshold: 10
+Iterations: 1
+=== Iteration 0 ===
+Even iteration - using for-range
+Iteration result: 60
+=== Final Results ===
+Grand total: 60
+Category: Small
+Status: PARTIAL - Some computation completed
+Program complete

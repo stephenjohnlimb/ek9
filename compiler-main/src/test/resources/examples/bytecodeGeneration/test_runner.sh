@@ -32,8 +32,9 @@ echo "✓ Found ek9 binary: $EK9_BINARY"
 echo "✓ Found compiler JAR: $COMPILER_JAR"
 echo ""
 
-# Determine concurrency (default: number of CPU cores)
-JOBS=${EK9_TEST_JOBS:-$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)}
+# Determine concurrency (default: number of CPU cores * 3 for I/O-bound tests)
+CPU_CORES=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
+JOBS=${EK9_TEST_JOBS:-$((CPU_CORES * 3))}
 echo "Running with concurrency: $JOBS jobs"
 echo ""
 

@@ -1,0 +1,24 @@
+Threshold: 15
+Iterations: 5
+=== Iteration 0 ===
+Even iteration - using for-range
+Iteration result: 128
+=== Iteration 1 ===
+Odd iteration - using switch
+Case 1: do-while loop
+Iteration result: 6
+=== Iteration 2 ===
+Even iteration - using for-range
+Iteration result: 128
+=== Iteration 3 ===
+Odd iteration - using switch
+Case 3 or 5: for-range loop
+Iteration result: 15
+=== Iteration 4 ===
+Even iteration - using for-range
+Iteration result: 128
+=== Final Results ===
+Grand total: 405
+Category: Medium
+Status: SUCCESS - High total with all iterations
+Program complete
