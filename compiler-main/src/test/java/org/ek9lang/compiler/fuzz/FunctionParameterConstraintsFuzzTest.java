@@ -9,16 +9,21 @@ import org.junit.jupiter.api.Test;
  * Fuzzing tests for function parameter constraint errors in FULL_RESOLUTION phase.
  * Tests FUNCTION_MUST_HAVE_NO_PARAMETERS constraint.
  *
- * <p>Test corpus: fuzzCorpus/functionParameterConstraints (2 test files)
- * Validates that stream operations (tail, skip) require zero-parameter functions.
+ * <p>Test corpus: fuzzCorpus/functionParameterConstraints (3 test files)
+ * Validates that stream operations (head, tail, skip) require zero-parameter functions.
  *
  * <p>Test scenarios:
- * 1. stream_tail_with_parameters.ek9 - Function with parameter used in stream tail
- * - Pattern: Function with Integer parameter used in tail operation
- * - Error: tail operation requires zero-parameter function
+ * 1. stream_head_with_parameters.ek9 - Function with parameter used in stream head
+ * - Pattern: Function with Integer parameter used in head operation
+ * - Error: head operation requires zero-parameter function
  * - Tests FUNCTION_MUST_HAVE_NO_PARAMETERS (existing coverage: 1 test)
  * <br/>
- * 2. stream_skip_with_parameters.ek9 - Function with parameter used in stream skip
+ * 2. stream_tail_with_parameters.ek9 - Function with parameter used in stream tail
+ * - Pattern: Function with Integer parameter used in tail operation
+ * - Error: tail operation requires zero-parameter function
+ * - Tests FUNCTION_MUST_HAVE_NO_PARAMETERS
+ * <br/>
+ * 3. stream_skip_with_parameters.ek9 - Function with parameter used in stream skip
  * - Pattern: Function with Integer parameter used in skip operation
  * - Error: skip operation requires zero-parameter function
  * - Tests FUNCTION_MUST_HAVE_NO_PARAMETERS
