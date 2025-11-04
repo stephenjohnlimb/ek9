@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  FUNCTION_MUST_HAVE_NO_PARAMETERS: Function with parameters used in stream head.
+  Tests that head operation requires zero-parameter functions.
+-?>
+defines module fuzztest.functionparam.head
+
+  defines function
+    AcceptsParameter()
+      -> num as Integer
+      <- rtn as Integer: num
+
+    invalidStreamHeadWithParameterFunction()
+      collection <- List() of String
+      @Error: FULL_RESOLUTION: FUNCTION_MUST_HAVE_NO_PARAMETERS
+      cat ["first", "second", "third"] | head AcceptsParameter > collection
+      assert collection?
+
+//EOF

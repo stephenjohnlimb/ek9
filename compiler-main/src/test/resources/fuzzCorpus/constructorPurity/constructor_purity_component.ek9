@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  MIX_OF_PURE_AND_NOT_PURE_CONSTRUCTORS: Component with mixed constructor purity.
+  Tests that components also enforce consistent constructor purity.
+-?>
+defines module fuzztest.typeconstraint.constructor.purity.component
+
+  defines component
+    MixedPurityComponent
+      state <- 0
+
+      @Error: FULL_RESOLUTION: MIX_OF_PURE_AND_NOT_PURE_CONSTRUCTORS
+      default MixedPurityComponent()
+
+      MixedPurityComponent() as pure
+        -> initialState as Integer
+        state :=? initialState
+
+//EOF

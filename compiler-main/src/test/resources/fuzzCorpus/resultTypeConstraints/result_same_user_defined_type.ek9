@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  RESULT_MUST_HAVE_DIFFERENT_TYPES: Result with same user-defined type for both parameters.
+  Tests that Result<CustomType, CustomType> is not allowed even with user-defined types.
+-?>
+defines module fuzztest.typeconstraint.result.usertype
+
+  defines record
+    ErrorInfo
+      message <- ""
+      code <- 0
+
+  defines function
+    invalidResultUserType() as abstract
+      @Error: SYMBOL_DEFINITION: RESULT_MUST_HAVE_DIFFERENT_TYPES
+      <- rtn as Result of (ErrorInfo, ErrorInfo)?
+
+//EOF

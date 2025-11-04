@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
  * Fuzzing tests for Result type constraint errors in SYMBOL_DEFINITION phase.
  * Tests RESULT_MUST_HAVE_DIFFERENT_TYPES constraint.
  *
- * <p>Test corpus: fuzzCorpus/resultTypeConstraints (2 test files)
- * Validates that Result<T1, T2> requires T1 != T2.
+ * <p>Test corpus: fuzzCorpus/resultTypeConstraints (4 test files)
+ * Validates that Result<T1, T2> requires T1 != T2 across various type combinations.
  *
  * <p>Test scenarios:
  * 1. result_nested_generic_same_type.ek9 - Result with nested generics of same type
@@ -21,6 +21,16 @@ import org.junit.jupiter.api.Test;
  * 2. result_same_type_integer.ek9 - Result with Integer for both types
  * - Pattern: Result of (Integer, Integer)
  * - Error: Same primitive type for OK and Error
+ * - Tests RESULT_MUST_HAVE_DIFFERENT_TYPES
+ * <br/>
+ * 3. result_same_type_float.ek9 - Result with Float for both types
+ * - Pattern: Result of (Float, Float)
+ * - Error: Same primitive type (Float) for both parameters
+ * - Tests RESULT_MUST_HAVE_DIFFERENT_TYPES
+ * <br/>
+ * 4. result_same_user_defined_type.ek9 - Result with same user-defined type
+ * - Pattern: Result of (ErrorInfo, ErrorInfo)
+ * - Error: Same user-defined record type for both parameters
  * - Tests RESULT_MUST_HAVE_DIFFERENT_TYPES
  * </p>
  * <p>Type Constraint Semantics:
@@ -35,7 +45,8 @@ import org.junit.jupiter.api.Test;
  * parameterization with identical types.
  * </p>
  * <p>Gap addressed: Critical type constraint errors had minimal coverage:
- * - RESULT_MUST_HAVE_DIFFERENT_TYPES: 2 existing tests → 4 total tests
+ * - RESULT_MUST_HAVE_DIFFERENT_TYPES: 2 existing tests → 6 total tests
+ * Covers primitive types (Integer, Float), nested generics, and user-defined types.
  * This ensures EK9's type system correctly enforces this critical constraint.
  * </p>
  */
