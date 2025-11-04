@@ -1,0 +1,5 @@
+Test 1: Constructor and getter
+42
+Test 2: Mutating method
+43
+All tests passed

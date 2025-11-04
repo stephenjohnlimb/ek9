@@ -1,0 +1,4 @@
+Before throw
+Exception in thread "main" Exception: Test exception
+	at bytecode.test.TestSimpleThrow._main(simpleThrow.ek9)
+	at ek9.Main.main(Unknown Source)

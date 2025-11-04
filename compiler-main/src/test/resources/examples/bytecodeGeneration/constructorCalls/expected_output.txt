@@ -1,0 +1,16 @@
+Test 1: Explicit super() with parameter
+Base value: Parent Value
+Child value: Constructor Override
+Overridden value (from i_init): i_init Value
+
+Test 2: Explicit super() to synthetic
+Child field (i_init): Child Synthetic Init
+Body field: Set in body
+
+Test 3: Constructor delegation with this()
+Custom constructor - Value: Custom
+Custom constructor - Delegated: false
+Default constructor - Value: Default
+Default constructor - Delegated: true
+
+All constructor tests passed

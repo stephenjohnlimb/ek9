@@ -1,0 +1,7 @@
+Test 1: Exact type match
+Caught CustomExceptionA by exact type
+Test 2: Polymorphic match
+Caught CustomExceptionA via base Exception
+Test 3: Type mismatch (sibling types)
+Correctly propagated - CustomExceptionB did not match
+All tests passed
