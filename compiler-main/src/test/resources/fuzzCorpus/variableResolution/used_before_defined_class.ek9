@@ -1,0 +1,43 @@
+#!ek9
+<?-
+  Tests USED_BEFORE_DEFINED error in class method context.
+  Variable referenced before declaration in method body.
+-?>
+defines module fuzztest.variableresolution.usedbefore.class
+
+  defines class
+    TestClass
+      default TestClass() as pure
+
+      methodWithForwardReference()
+        //Try to use method-local variable before declaration
+        @Error: FULL_RESOLUTION: USED_BEFORE_DEFINED
+        result <- localVar * 2
+
+        //Define the variable after use
+        localVar <- 5
+
+        assert result?
+
+      methodWithComplexForwardRef()
+        //Forward reference in nested expression
+        x <- 10
+        @Error: FULL_RESOLUTION: USED_BEFORE_DEFINED
+        y <- x + (undeclaredZ / 2)
+
+        //Declare after use
+        undeclaredZ <- 20
+
+        assert y?
+
+      override operator ? as pure
+        <- rtn <- true
+
+  defines function
+    testClassMethodForwardReference()
+      obj <- TestClass()
+      obj.methodWithForwardReference()
+      obj.methodWithComplexForwardRef()
+      assert obj?
+
+//EOF

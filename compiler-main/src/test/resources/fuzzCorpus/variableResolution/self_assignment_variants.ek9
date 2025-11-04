@@ -1,0 +1,46 @@
+#!ek9
+<?-
+  Tests SELF_ASSIGNMENT error with different assignment operators.
+  Self-assignment (x := x, x :=: x, etc.) is usually a logic error.
+-?>
+defines module fuzztest.variableresolution.selfassignment
+
+  defines function
+    testSelfAssignmentWithColonEquals()
+      x <- 10
+
+      //Self assignment with := operator
+      @Error: FULL_RESOLUTION: SELF_ASSIGNMENT
+      x := x
+
+      assert x?
+
+    testSelfAssignmentWithCopyOperator()
+      value <- "Hello"
+
+      //Self assignment with :=: (copy) operator
+      @Error: FULL_RESOLUTION: SELF_ASSIGNMENT
+      value :=: value
+
+      assert value?
+
+    testSelfAssignmentWithGuardedOperator()
+      count <- 5
+
+      //Self assignment with :=? (guarded) operator
+      @Error: FULL_RESOLUTION: SELF_ASSIGNMENT
+      count :=? count
+
+      assert count?
+
+    testSelfAssignmentInNestedScope()
+      outer <- 100
+
+      if outer > 50
+        //Self assignment within nested scope
+        @Error: FULL_RESOLUTION: SELF_ASSIGNMENT
+        outer := outer
+
+      assert outer?
+
+//EOF

@@ -1,0 +1,35 @@
+#!ek9
+<?-
+  MUST_RETURN_BOOLEAN: Stream filter with function returning Integer instead of Boolean.
+  Filter/select operations require predicate functions that return Boolean.
+-?>
+defines module fuzztest.returntype.stream.filter.integer
+
+  defines class
+    IntCollector
+      value <- 0
+
+      operator |
+        -> arg0 as Integer
+        if arg0?
+          value += arg0
+
+      override operator ? as pure
+        <- rtn as Boolean: value?
+
+  defines function
+    returnsInteger()
+      -> value as Integer
+      <- rtn as Integer: value * 2
+      // Should return Boolean for filter, but returns Integer
+
+    testStreamFilter()
+      collector <- IntCollector()
+
+      // Error: filter requires Boolean predicate function
+      @Error: FULL_RESOLUTION: MUST_RETURN_BOOLEAN
+      cat [1, 2, 3, 4] | filter with returnsInteger > collector
+
+      assert collector?
+
+//EOF

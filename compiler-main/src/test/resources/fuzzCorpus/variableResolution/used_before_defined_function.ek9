@@ -1,0 +1,41 @@
+#!ek9
+<?-
+  Tests USED_BEFORE_DEFINED error in function context.
+  Variable is referenced before its declaration in the same scope.
+-?>
+defines module fuzztest.variableresolution.usedbefore.function
+
+  defines function
+    testUsedBeforeDefinedInFunction()
+      //Try to use a variable before it's declared
+      //This violates EK9's sequential initialization requirement
+      @Error: FULL_RESOLUTION: USED_BEFORE_DEFINED
+      result <- undefinedVar + 10
+
+      //Now define the variable - too late!
+      undefinedVar <- 5
+
+      assert result?
+
+    testUsedBeforeDefinedInExpression()
+      //Try to use variable in complex expression before declaration
+      @Error: FULL_RESOLUTION: USED_BEFORE_DEFINED
+      calculated <- (notYetDefined * 2) + 5
+
+      //Define after use
+      notYetDefined <- 10
+
+      assert calculated?
+
+    testForwardReferenceInAssignment()
+      //Forward reference on right side of assignment
+      x <- 1
+      @Error: FULL_RESOLUTION: USED_BEFORE_DEFINED
+      y <- x + futureVariable
+
+      //Define the future variable
+      futureVariable <- 20
+
+      assert y?
+
+//EOF

@@ -1,0 +1,59 @@
+#!ek9
+<?-
+  Tests NOT_REFERENCED error across different scopes.
+  Variables declared but never used are likely logic errors or dead code.
+-?>
+defines module fuzztest.variableresolution.notreferenced
+
+  defines function
+    testUnreferencedInFunction()
+      x <- 10
+      y <- 20
+
+      //Variable z is declared but never used
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      z <- 30
+
+      result <- x + y
+      assert result?
+
+    testUnreferencedInNestedScope()
+      outer <- 100
+
+      if outer > 50
+        inner <- 200
+        //Variable unused declared in nested scope
+        @Error: FULL_RESOLUTION: NOT_REFERENCED
+        unused <- 300
+        result <- inner * 2
+        assert result?
+
+      assert outer?
+
+    testMultipleUnreferencedVariables()
+      used1 <- 10
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused1 <- 20
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused2 <- 30
+      used2 <- 40
+
+      result <- used1 + used2
+      assert result?
+
+  defines class
+    TestClass
+      default TestClass() as pure
+
+      methodWithUnreferencedLocal()
+        x <- 100
+        //Unreferenced local variable in method
+        @Error: FULL_RESOLUTION: NOT_REFERENCED
+        unreferenced <- 200
+
+        assert x?
+
+      override operator ? as pure
+        <- rtn <- true
+
+//EOF

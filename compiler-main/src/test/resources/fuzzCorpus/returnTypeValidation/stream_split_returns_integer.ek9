@@ -1,0 +1,35 @@
+#!ek9
+<?-
+  MUST_RETURN_BOOLEAN: Stream split with function returning Integer instead of Boolean.
+  Split operation requires predicate function that returns Boolean for partitioning.
+-?>
+defines module fuzztest.returntype.stream.split.integer
+
+  defines class
+    ListCollector
+      collected <- List() of Integer
+
+      operator |
+        -> arg0 as List of Integer
+        if arg0?
+          collected :=: arg0
+
+      override operator ? as pure
+        <- rtn as Boolean: collected?
+
+  defines function
+    returnsInteger()
+      -> value as Integer
+      <- rtn as Integer: value mod 2
+      // Should return Boolean for split, but returns Integer
+
+    testStreamSplit()
+      collector <- ListCollector()
+
+      // Error: split requires Boolean predicate function
+      @Error: FULL_RESOLUTION: MUST_RETURN_BOOLEAN
+      cat [1, 2, 3, 4] | split by returnsInteger > collector
+
+      assert collector?
+
+//EOF

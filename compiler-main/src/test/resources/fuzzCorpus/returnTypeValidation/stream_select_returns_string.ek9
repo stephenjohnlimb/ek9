@@ -1,0 +1,35 @@
+#!ek9
+<?-
+  MUST_RETURN_BOOLEAN: Stream select with function returning String instead of Boolean.
+  Select is an alias for filter - both require Boolean predicate functions.
+-?>
+defines module fuzztest.returntype.stream.select.string
+
+  defines class
+    IntCollector
+      value <- 0
+
+      operator |
+        -> arg0 as Integer
+        if arg0?
+          value += arg0
+
+      override operator ? as pure
+        <- rtn as Boolean: value?
+
+  defines function
+    returnsString()
+      -> value as Integer
+      <- rtn as String: $value
+      // Should return Boolean for select, but returns String
+
+    testStreamSelect()
+      collector <- IntCollector()
+
+      // Error: select requires Boolean predicate function
+      @Error: FULL_RESOLUTION: MUST_RETURN_BOOLEAN
+      cat [1, 2, 3, 4] | select with returnsString > collector
+
+      assert collector?
+
+//EOF
