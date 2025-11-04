@@ -37,8 +37,8 @@ JOBS=${EK9_TEST_JOBS:-$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || ec
 echo "Running with concurrency: $JOBS jobs"
 echo ""
 
-# Find all test scripts
-TEST_SCRIPTS=$(find . -mindepth 2 -maxdepth 2 -name "test.sh" -type f | sort)
+# Find all test scripts (at depth 2 and 3 to include assertion tests)
+TEST_SCRIPTS=$(find . -mindepth 2 -maxdepth 3 -name "test.sh" -type f | sort)
 TOTAL_TESTS=$(echo "$TEST_SCRIPTS" | wc -l | tr -d ' ')
 
 echo "Found $TOTAL_TESTS tests"
