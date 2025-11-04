@@ -1,0 +1,35 @@
+#!ek9
+defines module trait.by.multiple.identifiers
+
+  defines trait
+    Readable
+      read()
+        <- data as String?
+
+    Writable
+      write()
+        -> data as String
+        <- success as Boolean?
+
+    Finishable
+      finish()
+        <- success as Boolean?
+
+    @Error: FULL_RESOLUTION: TRAIT_BY_IDENTIFIER_NOT_SUPPORTED
+    ResourceTrait with trait of Readable by reader, Writable by writer, Finishable
+
+  defines class
+    FileHandle
+      path <- ""
+
+      read()
+        <- data <- "content"
+
+      write()
+        -> data as String
+        <- success <- true
+
+      finish()
+        <- success <- true
+
+//EOF

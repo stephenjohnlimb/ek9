@@ -1,0 +1,24 @@
+#!ek9
+defines module trait.by.single.identifier
+
+  defines trait
+    Serializable
+      toJson()
+        <- result as String?
+
+    Comparable
+      compare()
+        -> other as Comparable
+        <- result as Integer?
+
+    @Error: FULL_RESOLUTION: TRAIT_BY_IDENTIFIER_NOT_SUPPORTED
+    CombinedTrait with trait of Serializable by serializer
+
+  defines class
+    Helper
+      value <- 0
+
+      toJson()
+        <- result <- "value"
+
+//EOF

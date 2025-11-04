@@ -1,0 +1,39 @@
+#!ek9
+defines module catch.multiple.generic
+
+  defines class
+    AuthException is Exception
+      default AuthException()
+
+      AuthException()
+        -> message as String
+        super(message)
+
+    ConfigException is Exception
+      default ConfigException()
+
+      ConfigException()
+        -> message as String
+        super(message)
+
+  defines function
+    initialize()
+      <- initialized <- false
+      if not initialized
+        throw AuthException("Auth failed")
+
+    invalidCatchMixedExceptions()
+      status <- false
+      try
+        status: initialize()
+      catch
+        @Error: FULL_RESOLUTION: SINGLE_EXCEPTION_ONLY
+        ->
+          authEx as AuthException
+          configEx as ConfigException
+          genericEx as Exception
+        status: false
+
+      assert status?
+
+//EOF

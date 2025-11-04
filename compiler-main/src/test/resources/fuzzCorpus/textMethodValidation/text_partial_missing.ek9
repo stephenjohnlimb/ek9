@@ -1,0 +1,49 @@
+#!ek9
+defines module text.partial.missing
+
+  defines record
+    Status
+      code <- 0
+      message <- ""
+
+      Status() as pure
+        ->
+          code Integer
+          message String
+        this.code :=? code
+        this.message :=? message
+
+  defines text for "en_US"
+    @Error: FULL_RESOLUTION: TEXT_METHOD_MISSING
+    StatusText
+      success()
+        `Operation successful`
+
+      warning()
+        -> status as Status
+        `Warning: ${status.message}`
+
+  defines text for "en_GB"
+    @Error: FULL_RESOLUTION: TEXT_METHOD_MISSING
+    StatusText
+      success()
+        `Operation succeeded`
+
+      error()
+        -> status as Status
+        `Error: ${status.message}`
+
+  defines text for "en_AU"
+    StatusText
+      success()
+        `Operation completed successfully`
+
+      warning()
+        -> status as Status
+        `Warning: ${status.message}`
+
+      error()
+        -> status as Status
+        `Error: ${status.message}`
+
+//EOF

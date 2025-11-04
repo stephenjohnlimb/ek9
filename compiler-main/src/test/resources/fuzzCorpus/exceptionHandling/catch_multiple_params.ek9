@@ -1,0 +1,38 @@
+#!ek9
+defines module catch.multiple.params
+
+  defines class
+    NetworkException is Exception
+      default NetworkException()
+
+      NetworkException()
+        -> message as String
+        super(message)
+
+    DatabaseException is Exception
+      default DatabaseException()
+
+      DatabaseException()
+        -> message as String
+        super(message)
+
+  defines function
+    riskyOperation()
+      <- result <- 0
+      if result == 0
+        throw NetworkException("Connection failed")
+
+    invalidCatchMultipleExceptions()
+      result <- 0
+      try
+        result: riskyOperation()
+      catch
+        @Error: FULL_RESOLUTION: SINGLE_EXCEPTION_ONLY
+        ->
+          netEx as NetworkException
+          dbEx as DatabaseException
+        result: -1
+
+      assert result?
+
+//EOF

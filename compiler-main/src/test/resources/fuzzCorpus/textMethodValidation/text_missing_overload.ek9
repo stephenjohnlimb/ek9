@@ -1,0 +1,35 @@
+#!ek9
+defines module text.missing.overload
+
+  defines record
+    Product
+      code <- ""
+      name <- ""
+
+      Product() as pure
+        ->
+          code String
+          name String
+        this.code :=? code
+        this.name :=? name
+
+  defines text for "en"
+    @Error: FULL_RESOLUTION: TEXT_METHOD_MISSING
+    ProductText
+      //Has only String overload
+      describe()
+        -> productCode as String
+        `Product code: ${productCode}`
+
+  defines text for "fr"
+    ProductText
+      describe()
+        -> productCode as String
+        `Code produit: ${productCode}`
+
+      //French version has additional overload with Product record
+      describe()
+        -> product as Product
+        `Produit: ${product.code} - ${product.name}`
+
+//EOF

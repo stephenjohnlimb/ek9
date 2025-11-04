@@ -1,0 +1,30 @@
+#!ek9
+defines module text.missing.method.single
+
+  defines record
+    User
+      name <- ""
+
+      User() as pure
+        -> name as String
+        this.name :=? name
+
+  defines text for "en"
+    @Error: FULL_RESOLUTION: TEXT_METHOD_MISSING
+    WelcomeText
+      greeting()
+        -> user as User
+        `Hello ${user.name}`
+
+  defines text for "es"
+    WelcomeText
+      greeting()
+        -> user as User
+        `Hola ${user.name}`
+
+      //Additional method only in Spanish version
+      farewell()
+        -> user as User
+        `Adiós ${user.name}`
+
+//EOF

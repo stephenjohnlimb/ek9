@@ -762,6 +762,7 @@ moduleSegment
     | THEN
     | WHILE
     | FOR
+    | IN
     | DO
     | DEFAULT
     | CONST

@@ -1,0 +1,37 @@
+#!ek9
+defines module text.missing.multiple.locales
+
+  defines text for "en"
+    @Error: FULL_RESOLUTION: TEXT_METHOD_MISSING
+    ErrorText
+      networkError()
+        `Network connection failed`
+
+      authError()
+        `Authentication required`
+
+  defines text for "de"
+    ErrorText
+      networkError()
+        `Netzwerkverbindung fehlgeschlagen`
+
+      authError()
+        `Authentifizierung erforderlich`
+
+      //German has additional method
+      timeoutError()
+        `Zeitüberschreitung`
+
+  defines text for "ja"
+    ErrorText
+      networkError()
+        `ネットワーク接続が失敗しました`
+
+      authError()
+        `認証が必要です`
+
+      //Japanese also has timeout method
+      timeoutError()
+        `タイムアウト`
+
+//EOF

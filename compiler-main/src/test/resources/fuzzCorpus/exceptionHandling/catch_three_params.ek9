@@ -1,0 +1,46 @@
+#!ek9
+defines module catch.three.params
+
+  defines class
+    IOError is Exception
+      default IOError()
+
+      IOError()
+        -> message as String
+        super(message)
+
+    ParseError is Exception
+      default ParseError()
+
+      ParseError()
+        -> message as String
+        super(message)
+
+    ValidationError is Exception
+      default ValidationError()
+
+      ValidationError()
+        -> message as String
+        super(message)
+
+  defines function
+    processData()
+      <- result <- ""
+      if result == ""
+        throw IOError("Read failed")
+
+    invalidCatchThreeExceptions()
+      output <- ""
+      try
+        output: processData()
+      catch
+        @Error: FULL_RESOLUTION: SINGLE_EXCEPTION_ONLY
+        ->
+          ioEx as IOError
+          parseEx as ParseError
+          validEx as ValidationError
+        output: "Failed"
+
+      assert output?
+
+//EOF
