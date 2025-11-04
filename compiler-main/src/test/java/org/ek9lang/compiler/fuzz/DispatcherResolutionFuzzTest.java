@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 class DispatcherResolutionFuzzTest extends FuzzTestBase {
 
   public DispatcherResolutionFuzzTest() {
-    super("dispatchers", CompilationPhase.FULL_RESOLUTION, true);
+    super("dispatchers", CompilationPhase.FULL_RESOLUTION);
   }
 
   @Test

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class OperatorMisuseFuzzTest extends FuzzTestBase {
 
   public OperatorMisuseFuzzTest() {
-    super("operatorMisuse", CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION, true);
+    super("operatorMisuse", CompilationPhase.EXPLICIT_TYPE_SYMBOL_DEFINITION);
   }
 
   @Test

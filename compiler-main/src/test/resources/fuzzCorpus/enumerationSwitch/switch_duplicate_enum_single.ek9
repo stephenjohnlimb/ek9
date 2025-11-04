@@ -1,0 +1,36 @@
+#!ek9
+<?-
+  DUPLICATE_ENUMERATED_VALUES_PRESENT_IN_SWITCH: Duplicate single enum value in switch.
+  Tests that enum values cannot appear in multiple case statements.
+-?>
+defines module fuzztest.enumswitch.duplicate.single
+
+  defines type
+    Direction
+      NORTH,
+      SOUTH,
+      EAST,
+      WEST
+
+  defines program
+    testDuplicateEnumSingle()
+      dir <- Direction.NORTH
+      result as String?
+
+      @Error: FULL_RESOLUTION: DEFAULT_REQUIRED_IN_SWITCH_STATEMENT
+      switch dir
+        case Direction.NORTH
+          result: "Going North"
+        case Direction.SOUTH
+          result: "Going South"
+        case Direction.EAST
+          result: "Going East"
+        case Direction.WEST
+          result: "Going West"
+        @Error: FULL_RESOLUTION: DUPLICATE_ENUMERATED_VALUES_PRESENT_IN_SWITCH
+        case Direction.NORTH
+          result: "North again"
+
+      assert result?
+
+//EOF

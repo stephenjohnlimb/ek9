@@ -1,0 +1,13 @@
+#!ek9
+<?-
+  RESULT_MUST_HAVE_DIFFERENT_TYPES: Result with nested generics of same underlying type.
+  Tests that Result<List of String, List of String> is considered same type.
+-?>
+defines module fuzztest.typeconstraint.result.nested
+
+  defines function
+    invalidResultNested() as abstract
+      @Error: SYMBOL_DEFINITION: RESULT_MUST_HAVE_DIFFERENT_TYPES
+      <- rtn as Result of (List of String, List of String)?
+
+//EOF

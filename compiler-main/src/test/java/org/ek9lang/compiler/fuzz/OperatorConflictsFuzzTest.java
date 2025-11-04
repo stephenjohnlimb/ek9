@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class OperatorConflictsFuzzTest extends FuzzTestBase {
 
   public OperatorConflictsFuzzTest() {
-    super("operatorConflicts", CompilationPhase.SYMBOL_DEFINITION, true);
+    super("operatorConflicts", CompilationPhase.SYMBOL_DEFINITION);
   }
 
   @Test

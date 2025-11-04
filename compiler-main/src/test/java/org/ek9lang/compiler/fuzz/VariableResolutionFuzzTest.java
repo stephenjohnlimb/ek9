@@ -62,7 +62,7 @@ import org.junit.jupiter.api.Test;
 class VariableResolutionFuzzTest extends FuzzTestBase {
 
   public VariableResolutionFuzzTest() {
-    super("variableResolution", CompilationPhase.FULL_RESOLUTION, false);
+    super("variableResolution", CompilationPhase.FULL_RESOLUTION);
   }
 
   @Test

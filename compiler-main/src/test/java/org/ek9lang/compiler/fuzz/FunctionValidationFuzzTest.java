@@ -100,7 +100,7 @@ import org.junit.jupiter.api.Test;
 class FunctionValidationFuzzTest extends FuzzTestBase {
 
   public FunctionValidationFuzzTest() {
-    super("functionValidation", CompilationPhase.FULL_RESOLUTION, false);
+    super("functionValidation", CompilationPhase.FULL_RESOLUTION);
   }
 
   @Test

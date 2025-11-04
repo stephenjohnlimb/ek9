@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 class ModuleReferenceFuzzTest extends FuzzTestBase {
 
   public ModuleReferenceFuzzTest() {
-    super("moduleReferences", CompilationPhase.REFERENCE_CHECKS, true);
+    super("moduleReferences", CompilationPhase.REFERENCE_CHECKS);
   }
 
   @Test

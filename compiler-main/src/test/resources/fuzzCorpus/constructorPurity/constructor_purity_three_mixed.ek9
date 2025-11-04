@@ -1,0 +1,28 @@
+#!ek9
+<?-
+  MIX_OF_PURE_AND_NOT_PURE_CONSTRUCTORS: Three constructors with 2 pure, 1 non-pure.
+  Tests validation across multiple constructors.
+-?>
+defines module fuzztest.typeconstraint.constructor.purity.three
+
+  defines class
+    MixedPurityClass
+      value <- 0
+
+      @Error: FULL_RESOLUTION: MIX_OF_PURE_AND_NOT_PURE_CONSTRUCTORS
+      default MixedPurityClass()
+
+      MixedPurityClass() as pure
+        -> val as Integer
+        value :=? val
+
+      MixedPurityClass() as pure
+        ->
+          val1 as Integer
+          val2 as Integer
+        value :=? val1 + val2
+
+      override operator ? as pure
+        <- rtn as Boolean: value?
+
+//EOF

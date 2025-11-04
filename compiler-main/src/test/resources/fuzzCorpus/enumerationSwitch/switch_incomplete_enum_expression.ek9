@@ -1,0 +1,29 @@
+#!ek9
+<?-
+  NOT_ALL_ENUMERATED_VALUES_PRESENT_IN_SWITCH: Incomplete enum coverage in switch expression.
+  Tests that switch expressions over enums must cover all values or use default.
+-?>
+defines module fuzztest.enumswitch.incomplete.expr
+
+  defines type
+    Status
+      PENDING,
+      ACTIVE,
+      COMPLETED,
+      CANCELLED
+
+  defines program
+    testIncompleteEnumExpression()
+      status <- Status.PENDING
+
+      @Error: FULL_RESOLUTION: NOT_ALL_ENUMERATED_VALUES_PRESENT_IN_SWITCH
+      result <- switch status
+        <- rtn as String: "Unknown"
+        case Status.PENDING
+          rtn: "Pending"
+        case Status.ACTIVE
+          rtn: "Active"
+
+      assert result?
+
+//EOF

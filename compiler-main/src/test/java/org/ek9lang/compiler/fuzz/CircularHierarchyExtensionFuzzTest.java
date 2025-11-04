@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 class CircularHierarchyExtensionFuzzTest extends FuzzTestBase {
 
   public CircularHierarchyExtensionFuzzTest() {
-    super("circularHierarchyExtensions", CompilationPhase.TYPE_HIERARCHY_CHECKS, false);
+    super("circularHierarchyExtensions", CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 
   @Test

@@ -85,7 +85,7 @@ import org.junit.jupiter.api.Test;
 class PreFlowExpressionFuzzTest extends FuzzTestBase {
 
   public PreFlowExpressionFuzzTest() {
-    super("preFlowExpression", CompilationPhase.FULL_RESOLUTION, false);
+    super("preFlowExpression", CompilationPhase.FULL_RESOLUTION);
   }
 
   @Test

@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  MIX_OF_PURE_AND_NOT_PURE_CONSTRUCTORS: Record with mixed constructor purity.
+  Tests that records also enforce consistent constructor purity.
+-?>
+defines module fuzztest.typeconstraint.constructor.purity.record
+
+  defines record
+    MixedPurityRecord
+      name <- ""
+
+      @Error: FULL_RESOLUTION: MIX_OF_PURE_AND_NOT_PURE_CONSTRUCTORS
+      default MixedPurityRecord()
+
+      MixedPurityRecord() as pure
+        -> n as String
+        name :=? n
+
+//EOF

@@ -120,7 +120,7 @@ import org.junit.jupiter.api.Test;
 class ReturnTypeValidationFuzzTest extends FuzzTestBase {
 
   public ReturnTypeValidationFuzzTest() {
-    super("returnTypeValidation", CompilationPhase.FULL_RESOLUTION, false);
+    super("returnTypeValidation", CompilationPhase.FULL_RESOLUTION);
   }
 
   @Test

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 class ProgramBlockSyntaxFuzzTest extends FuzzTestBase {
 
   public ProgramBlockSyntaxFuzzTest() {
-    super("programBlockSyntax", CompilationPhase.PARSING, true);
+    super("programBlockSyntax", CompilationPhase.PARSING);
   }
 
   @Test

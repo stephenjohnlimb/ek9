@@ -1,0 +1,31 @@
+#!ek9
+<?-
+  NOT_ALL_ENUMERATED_VALUES_PRESENT_IN_SWITCH: Incomplete enum coverage in switch statement.
+  Tests that switch statements over enums must cover all values or use default.
+-?>
+defines module fuzztest.enumswitch.incomplete.stmt
+
+  defines type
+    Priority
+      LOW,
+      MEDIUM,
+      HIGH,
+      URGENT
+
+  defines program
+    testIncompleteEnumStatement()
+      priority <- Priority.HIGH
+      result as String?
+
+      @Error: FULL_RESOLUTION: NOT_ALL_ENUMERATED_VALUES_PRESENT_IN_SWITCH
+      switch priority
+        case Priority.LOW
+          result: "Low priority"
+        case Priority.MEDIUM
+          result: "Medium priority"
+        default
+          result: "Other"
+
+      assert result?
+
+//EOF

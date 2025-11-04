@@ -1,0 +1,13 @@
+#!ek9
+<?-
+  RESULT_MUST_HAVE_DIFFERENT_TYPES: Result with Integer for both OK and Error types.
+  Tests that Result<Integer, Integer> is not allowed.
+-?>
+defines module fuzztest.typeconstraint.result.integer
+
+  defines function
+    invalidResultInteger() as abstract
+      @Error: SYMBOL_DEFINITION: RESULT_MUST_HAVE_DIFFERENT_TYPES
+      <- rtn as Result of (Integer, Integer)?
+
+//EOF

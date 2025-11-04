@@ -68,7 +68,7 @@ import org.junit.jupiter.api.Test;
 class MethodAmbiguityFuzzTest extends FuzzTestBase {
 
   public MethodAmbiguityFuzzTest() {
-    super("methodAmbiguity", CompilationPhase.FULL_RESOLUTION, false);
+    super("methodAmbiguity", CompilationPhase.FULL_RESOLUTION);
   }
 
   @Test

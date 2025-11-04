@@ -1,0 +1,32 @@
+#!ek9
+<?-
+  DUPLICATE_ENUMERATED_VALUES_PRESENT_IN_SWITCH: Duplicate enum in combined case.
+  Tests that enum values in combined cases cannot be duplicated in later cases.
+-?>
+defines module fuzztest.enumswitch.duplicate.combined
+
+  defines type
+    Color
+      RED,
+      GREEN,
+      BLUE,
+      YELLOW
+
+  defines program
+    testDuplicateEnumCombined()
+      color <- Color.RED
+      result as String?
+
+      @Error: FULL_RESOLUTION: DEFAULT_REQUIRED_IN_SWITCH_STATEMENT
+      switch color
+        case Color.RED, Color.GREEN
+          result: "Warm colors"
+        case Color.BLUE, Color.YELLOW
+          result: "Cool colors"
+        @Error: FULL_RESOLUTION: DUPLICATE_ENUMERATED_VALUES_PRESENT_IN_SWITCH
+        case Color.GREEN
+          result: "Green again"
+
+      assert result?
+
+//EOF
