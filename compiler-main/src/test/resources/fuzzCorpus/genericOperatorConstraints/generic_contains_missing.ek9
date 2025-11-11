@@ -1,0 +1,51 @@
+#!ek9
+<?-
+  Tests unconstrained generic using '~' (contains) operator.
+  Parameterized with type that lacks contains operator.
+
+  Expected: OPERATOR_NOT_DEFINED when type lacks '~'
+-?>
+defines module fuzztest.generic.unconstrained.contains.missing
+
+  defines class
+
+    <?-
+      Unconstrained generic requiring contains operator.
+    -?>
+    ContainerChecker of type T
+      default ContainerChecker() as pure
+
+      default ContainerChecker() as pure
+        -> arg0 as T
+
+      checkContains()
+        ->
+          container as T
+          item as T
+        <- rtn as Boolean: container contains item
+
+    <?-
+      Type with NO contains operator.
+    -?>
+    NoContains
+      value <- String()
+
+      default NoContains() as pure
+
+      NoContains() as pure
+        -> arg0 as String
+        value :=? String(arg0)
+
+      <?- Has equality but NO contains -?>
+      default operator <=>
+      default operator ?
+
+  defines function
+
+    TestContainsMissing()
+      <?- Should fail - NoContains lacks '~' operator -?>
+      @Error: POST_RESOLUTION_CHECKS: OPERATOR_NOT_DEFINED
+      checker <- ContainerChecker() of NoContains
+      assert checker?
+
+//EOF

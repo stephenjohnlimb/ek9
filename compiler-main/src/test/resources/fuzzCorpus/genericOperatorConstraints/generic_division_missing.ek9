@@ -1,0 +1,59 @@
+#!ek9
+<?-
+  Tests unconstrained generic using '/' (division) operator.
+  Parameterized with type that lacks division operator.
+
+  Expected: OPERATOR_NOT_DEFINED when type lacks '/'
+-?>
+defines module fuzztest.generic.unconstrained.division.missing
+
+  defines class
+
+    <?-
+      Unconstrained generic requiring division operator.
+    -?>
+    Divider of type T
+      default Divider() as pure
+
+      default Divider() as pure
+        -> arg0 as T
+
+      divide() as pure
+        ->
+          numerator as T
+          denominator as T
+        <- rtn as T: numerator / denominator
+
+    <?-
+      Type with NO division operator.
+      Has other arithmetic operators but not '/'.
+    -?>
+    NoDivision
+      value <- Integer()
+
+      default NoDivision() as pure
+
+      NoDivision() as pure
+        -> arg0 as Integer
+        value :=? Integer(arg0)
+
+      <?- Has + and * but NO division -?>
+      operator + as pure
+        -> arg0 as NoDivision
+        <- rtn as NoDivision: NoDivision(value + arg0.value)
+
+      operator * as pure
+        -> arg0 as NoDivision
+        <- rtn as NoDivision: NoDivision(value * arg0.value)
+
+      default operator ?
+
+  defines function
+
+    TestDivisionMissing()
+      <?- Should fail - NoDivision lacks '/' operator -?>
+      @Error: POST_RESOLUTION_CHECKS: OPERATOR_NOT_DEFINED
+      divider <- Divider() of NoDivision
+      assert divider?
+
+//EOF

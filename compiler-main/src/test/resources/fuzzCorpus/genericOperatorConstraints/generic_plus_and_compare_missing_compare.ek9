@@ -1,0 +1,56 @@
+#!ek9
+<?-
+  Tests generic requiring BOTH '+' and '<=>' operators.
+  Parameterized with type that has '+' but lacks '<=>' (comparator).
+
+  Expected: OPERATOR_NOT_DEFINED for missing '<=>' operator
+-?>
+defines module fuzztest.generic.multiple.ops.missing.compare
+
+  defines class
+
+    <?-
+      Generic requiring both addition and comparison operators.
+    -?>
+    AddAndCompare of type T
+      default AddAndCompare() as pure
+
+      default AddAndCompare() as pure
+        -> arg0 as T
+
+      addAndCompare() as pure
+        ->
+          arg0 as T
+          arg1 as T
+        <-
+          rtn as Integer: (arg0 + arg1) <=> arg0
+
+    <?-
+      Type with '+' but NO '<=>' operator.
+    -?>
+    HasPlusOnly
+      value <- Integer()
+
+      default HasPlusOnly() as pure
+
+      HasPlusOnly() as pure
+        -> arg0 as Integer
+        value :=? Integer(arg0)
+
+      <?- Has addition operator -?>
+      operator + as pure
+        -> arg0 as HasPlusOnly
+        <- rtn as HasPlusOnly: HasPlusOnly(value + arg0.value)
+
+      <?- Has isSet but NO comparator -?>
+      default operator ?
+
+  defines function
+
+    TestMultipleOperatorsMissingComparator()
+      <?- Should fail - HasPlusOnly has '+' but lacks '<=>' -?>
+      @Error: POST_RESOLUTION_CHECKS: OPERATOR_NOT_DEFINED
+      comp <- AddAndCompare() of HasPlusOnly
+      assert comp?
+
+//EOF

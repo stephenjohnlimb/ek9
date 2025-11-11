@@ -1,0 +1,68 @@
+#!ek9
+<?-
+  Tests unconstrained generic using '>' operator.
+  Parameterized with type that lacks greater-than operator.
+
+  Expected: OPERATOR_NOT_DEFINED when type lacks '>'
+-?>
+defines module fuzztest.generic.unconstrained.greater.missing
+
+  defines record
+
+    <?-
+      Record with NO '>' operator.
+      Has other comparison operators but not '>'.
+    -?>
+    R1
+      value <- Integer()
+
+      R1()
+        -> arg0 as Integer
+        value :=? Integer(arg0)
+
+      <?- Has '==' and '<=>' but NO '>' -?>
+      default operator ==
+      default operator <=>
+      default operator ?
+
+    <?-
+      Record WITH '>' operator for contrast.
+    -?>
+    R2
+      value <- Integer()
+
+      R2()
+        -> arg0 as Integer
+        value :=? Integer(arg0)
+
+      operator > as pure
+        -> arg0 as R2
+        <- rtn as Boolean: value > arg0.value
+
+      default operator ?
+
+  defines function
+
+    <?-
+      Generic function requiring '>' operator.
+    -?>
+    FindMaximum of type T
+      ->
+        arg0 as T
+        arg1 as T
+      <-
+        rtn as T: arg0 > arg1 <- arg0 else arg1
+
+    TestGreaterThanMissing()
+      <?- Should fail - R1 lacks '>' operator -?>
+      @Error: POST_RESOLUTION_CHECKS: OPERATOR_NOT_DEFINED
+      maxFunc <- FindMaximum() of R1
+      assert maxFunc?
+
+    TestGreaterThanPresent()
+      <?- Should work - R2 has '>' operator -?>
+      maxFunc <- FindMaximum() of R2
+      result <- maxFunc(R2(10), R2(5))
+      assert result?
+
+//EOF

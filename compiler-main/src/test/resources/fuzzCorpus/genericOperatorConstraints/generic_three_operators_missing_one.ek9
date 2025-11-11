@@ -1,0 +1,63 @@
+#!ek9
+<?-
+  Tests generic requiring THREE operators: '+', '*', '/'.
+  Parameterized with type that has '+' and '/' but lacks '*' (multiplication).
+
+  Expected: OPERATOR_NOT_DEFINED for missing '*' operator
+-?>
+defines module fuzztest.generic.multiple.ops.three.missing.one
+
+  defines class
+
+    <?-
+      Generic requiring three arithmetic operators.
+    -?>
+    ArithmeticProcessor of type T
+      default ArithmeticProcessor() as pure
+
+      default ArithmeticProcessor() as pure
+        -> arg0 as T
+
+      process() as pure
+        ->
+          arg0 as T
+          arg1 as T
+          arg2 as T
+        <-
+          rtn as T: ((arg0 + arg1) * arg2) / arg2
+
+    <?-
+      Type with '+' and '/' but NO '*'.
+    -?>
+    HasTwoOfThree
+      value <- Integer()
+
+      default HasTwoOfThree() as pure
+
+      HasTwoOfThree() as pure
+        -> arg0 as Integer
+        value :=? Integer(arg0)
+
+      <?- Has addition -?>
+      operator + as pure
+        -> arg0 as HasTwoOfThree
+        <- rtn as HasTwoOfThree: HasTwoOfThree(value + arg0.value)
+
+      <?- Has division -?>
+      operator / as pure
+        -> arg0 as HasTwoOfThree
+        <- rtn as HasTwoOfThree: HasTwoOfThree(value / arg0.value)
+
+      <?- NO multiplication operator -?>
+
+      default operator ?
+
+  defines function
+
+    TestThreeOperatorsMissingOne()
+      <?- Should fail - HasTwoOfThree has '+' and '/' but lacks '*' -?>
+      @Error: POST_RESOLUTION_CHECKS: OPERATOR_NOT_DEFINED
+      processor <- ArithmeticProcessor() of HasTwoOfThree
+      assert processor?
+
+//EOF

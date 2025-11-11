@@ -1,0 +1,81 @@
+#!ek9
+<?-
+  Tests generic requiring operator AND equality check.
+  Uses '+' operator and '==' operator together.
+  Parameterized with type that has '+' but lacks '==' override (uses Any's default).
+
+  Note: This tests interaction between custom operators and Any's inherited operators.
+  Expected: Should compile (Any provides '==') but tests that both are available.
+-?>
+defines module fuzztest.generic.operators.and.equality
+
+  defines class
+
+    <?-
+      Generic using both arithmetic and equality operators.
+    -?>
+    SumAndCheck of type T
+      default SumAndCheck() as pure
+
+      default SumAndCheck() as pure
+        -> arg0 as T
+
+      sumAndCheckEqual() as pure
+        ->
+          arg0 as T
+          arg1 as T
+        <-
+          rtn as Boolean: (arg0 + arg1) == arg0
+
+    <?-
+      Type with '+' but NO explicit '==' (uses Any's default).
+    -?>
+    HasPlusNoEqualityOverride
+      value <- Integer()
+
+      default HasPlusNoEqualityOverride() as pure
+
+      HasPlusNoEqualityOverride() as pure
+        -> arg0 as Integer
+        value :=? Integer(arg0)
+
+      <?- Has addition -?>
+      operator + as pure
+        -> arg0 as HasPlusNoEqualityOverride
+        <- rtn as HasPlusNoEqualityOverride: HasPlusNoEqualityOverride(value + arg0.value)
+
+      <?- NO explicit '==' operator, uses Any's default -?>
+
+      default operator ?
+
+    <?-
+      Type with NO '+' operator.
+    -?>
+    NoPlusOperator
+      value <- String()
+
+      default NoPlusOperator() as pure
+
+      NoPlusOperator() as pure
+        -> arg0 as String
+        value :=? String(arg0)
+
+      <?- Has explicit '==' but NO '+' -?>
+      default operator <=>
+      default operator ?
+
+  defines function
+
+    TestWithPlusButNoExplicitEquality()
+      <?- Should fail - HasPlusNoEqualityOverride has '+' but no explicit '==' -?>
+      @Error: POST_RESOLUTION_CHECKS: OPERATOR_NOT_DEFINED
+      checker <- SumAndCheck() of HasPlusNoEqualityOverride
+      assert checker?
+
+    TestWithEqualityButNoPlus()
+      <?- Should FAIL - NoPlusOperator has '==' but lacks '+' -?>
+      @Error: POST_RESOLUTION_CHECKS: OPERATOR_NOT_DEFINED
+      checker <- SumAndCheck() of NoPlusOperator
+      assert checker?
+
+//EOF

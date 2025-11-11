@@ -1,0 +1,52 @@
+#!ek9
+<?-
+  Tests unconstrained generic using '*' operator.
+  Parameterized with type that lacks multiplication operator.
+
+  Expected: OPERATOR_NOT_DEFINED when type used for parameterization lacks '*'
+-?>
+defines module fuzztest.generic.unconstrained.multiply.missing
+
+  defines class
+
+    <?-
+      Unconstrained generic requiring multiplication.
+    -?>
+    Calculator of type T
+      default Calculator() as pure
+
+      default Calculator() as pure
+        -> arg0 as T
+
+      multiply() as pure
+        ->
+          arg0 as T
+          arg1 as T
+        <- rtn as T: arg0 * arg1
+
+    <?-
+      Type with NO multiplication operator.
+      Has other operators but not '*'.
+    -?>
+    NoMultiply
+      value <- String()
+
+      default NoMultiply() as pure
+
+      NoMultiply() as pure
+        -> arg0 as String
+        value :=? String(arg0)
+
+      <?- Has comparator and isSet, but NO multiplication -?>
+      default operator <=>
+      default operator ?
+
+  defines function
+
+    TestMultiplyMissing()
+      <?- Should fail - NoMultiply lacks '*' operator -?>
+      @Error: POST_RESOLUTION_CHECKS: OPERATOR_NOT_DEFINED
+      calc <- Calculator() of NoMultiply
+      assert calc?
+
+//EOF
