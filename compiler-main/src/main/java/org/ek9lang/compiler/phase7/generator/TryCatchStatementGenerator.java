@@ -1,10 +1,13 @@
 package org.ek9lang.compiler.phase7.generator;
 
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_VOID;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
+import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.ir.data.CallDetails;
 import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
@@ -46,6 +49,7 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
     implements Function<EK9Parser.TryStatementExpressionContext, List<IRInstr>> {
 
   private final GeneratorSet generators;
+  private final OperatorMap operatorMap = new OperatorMap();
 
   public TryCatchStatementGenerator(final IRGenerationContext stackContext,
                                     final GeneratorSet generators) {
@@ -259,14 +263,14 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
       final var initInstructions = generators.exprGenerator.apply(exprDetails);
       instructions.addAll(initInstructions);
 
-      // RETAIN tempResult (producer pattern - creates ownership)
-      instructions.add(MemoryInstr.retain(tempResult, resourceDebugInfo));
-
-      // SCOPE_REGISTER tempResult, resourceScopeId (consumer pattern - registers for cleanup)
-      instructions.add(ScopeInstr.register(tempResult, resourceScopeId, resourceDebugInfo));
-
-      // STORE resource, tempResult
+      // STORE resource, tempResult (create actual variable first)
       instructions.add(MemoryInstr.store(resourceName, tempResult, resourceDebugInfo));
+
+      // SCOPE_REGISTER resource, resourceScopeId (register ACTUAL variable to outermost scope)
+      instructions.add(ScopeInstr.register(resourceName, resourceScopeId, resourceDebugInfo));
+
+      // RETAIN resource (ARC manage actual variable)
+      instructions.add(MemoryInstr.retain(resourceName, resourceDebugInfo));
 
       // Track resource for automatic close() generation
       resources.add(new ResourceVariable(resourceSymbol, resourceDebugInfo));
@@ -311,23 +315,24 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
       final var resourceDebugInfo = resource.debugInfo();
 
       // Generate call to resource.close() operator
-      // close() is an operator, so method name is "_close"
+      // Use OperatorMap to get correct method name for "close" operator
       final var resourceName = resourceSymbol.getName();
       final var resourceTypeName = typeNameOrException.apply(resourceSymbol);
+      final var closeMethodName = operatorMap.getForward("close");
 
       // Create CallDetails for close() operator
       final var closeCallDetails = new CallDetails(
           resourceName,                                    // target object
           resourceTypeName,                                // target type
-          "_close",                                        // method name (operator close)
+          closeMethodName,                                 // method name from OperatorMap
           List.of(),                                       // no parameter types
-          IRConstants.VOID,                                // returns void
+          EK9_VOID,                                        // returns org.ek9.lang::Void
           List.of(),                                       // no arguments
           new CallMetaDataDetails(true, 0),                // pure=true, complexity=0
           false                                            // not trait call
       );
 
-      // CALL resource._close() - null result (void return)
+      // CALL resource.close() - null result (void return)
       finallyEvaluation.add(CallInstr.call(null, resourceDebugInfo, closeCallDetails));
     }
 

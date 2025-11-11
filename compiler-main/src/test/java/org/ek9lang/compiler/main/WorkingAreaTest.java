@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.main;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
@@ -37,19 +38,19 @@ class WorkingAreaTest extends PhasesTest {
     ek9Workspace.getSources().stream().findFirst()
         .ifPresent(source -> fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture));
 
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.IR_GENERATION);
   }
 
   @Override
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
-    assertFalse(compilationResult);
+    assertTrue(compilationResult);
 
     final var output = new ByteArrayOutputStream();
     try (final var printWriter = new PrintWriter(output)) {
       final var printer = new NodePrinter(printWriter);
       program
-          .getIRModules("controlFlow")
+          .getIRModules("exceptionHandling")
           .forEach(irModule -> irModule.getConstructs().forEach(printer::visit));
     } catch (Exception _) {
       fail("Failed to produce output.");

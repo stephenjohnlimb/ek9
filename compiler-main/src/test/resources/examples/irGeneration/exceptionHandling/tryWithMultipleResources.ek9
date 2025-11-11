@@ -48,15 +48,15 @@ defines module exceptionHandling
     REFERENCE resource1, exceptionHandling::SimpleResource1  // ./tryWithMultipleResources.ek9:123:11
     _temp3 = LOAD_LITERAL first, org.ek9.lang::String  // ./tryWithMultipleResources.ek9:123:40
     _temp2 = CALL (exceptionHandling::SimpleResource1)exceptionHandling::SimpleResource1.<init>(_temp3) [pure=false, complexity=2, effects=RETURN_MUTATION]  // ./tryWithMultipleResources.ek9:123:24
-    RETAIN _temp2  // ./tryWithMultipleResources.ek9:123:11
-    SCOPE_REGISTER _temp2, _scope_3  // ./tryWithMultipleResources.ek9:123:11
     STORE resource1, _temp2  // ./tryWithMultipleResources.ek9:123:11
+    SCOPE_REGISTER resource1, _scope_3  // ./tryWithMultipleResources.ek9:123:11
+    RETAIN resource1  // ./tryWithMultipleResources.ek9:123:11
     REFERENCE resource2, exceptionHandling::SimpleResource1  // ./tryWithMultipleResources.ek9:124:11
     _temp5 = LOAD_LITERAL second, org.ek9.lang::String  // ./tryWithMultipleResources.ek9:124:40
     _temp4 = CALL (exceptionHandling::SimpleResource1)exceptionHandling::SimpleResource1.<init>(_temp5) [pure=false, complexity=2, effects=RETURN_MUTATION]  // ./tryWithMultipleResources.ek9:124:24
-    RETAIN _temp4  // ./tryWithMultipleResources.ek9:124:11
-    SCOPE_REGISTER _temp4, _scope_3  // ./tryWithMultipleResources.ek9:124:11
     STORE resource2, _temp4  // ./tryWithMultipleResources.ek9:124:11
+    SCOPE_REGISTER resource2, _scope_3  // ./tryWithMultipleResources.ek9:124:11
+    RETAIN resource2  // ./tryWithMultipleResources.ek9:124:11
     SCOPE_ENTER _scope_4  // ./tryWithMultipleResources.ek9:121:7
     CONTROL_FLOW_CHAIN  // ./tryWithMultipleResources.ek9:121:7
     [
@@ -104,8 +104,8 @@ defines module exceptionHandling
     finally_block_evaluation:
     [
     SCOPE_ENTER _scope_7  // ./tryWithMultipleResources.ek9:121:7
-    CALL (exceptionHandling::SimpleResource1)resource2._close() [pure=true, complexity=0]  // ./tryWithMultipleResources.ek9:124:11
-    CALL (exceptionHandling::SimpleResource1)resource1._close() [pure=true, complexity=0]  // ./tryWithMultipleResources.ek9:123:11
+    CALL (exceptionHandling::SimpleResource1)resource2.close() [pure=true, complexity=0]  // ./tryWithMultipleResources.ek9:124:11
+    CALL (exceptionHandling::SimpleResource1)resource1.close() [pure=true, complexity=0]  // ./tryWithMultipleResources.ek9:123:11
     SCOPE_EXIT _scope_7  // ./tryWithMultipleResources.ek9:121:7
     ]
     scope_id: _scope_4

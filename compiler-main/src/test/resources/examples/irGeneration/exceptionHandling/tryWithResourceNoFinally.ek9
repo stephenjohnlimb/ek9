@@ -48,9 +48,9 @@ defines module exceptionHandling
     REFERENCE resource, exceptionHandling::SimpleResource2  // ./tryWithResourceNoFinally.ek9:115:12
     _temp3 = LOAD_LITERAL test, org.ek9.lang::String  // ./tryWithResourceNoFinally.ek9:115:40
     _temp2 = CALL (exceptionHandling::SimpleResource2)exceptionHandling::SimpleResource2.<init>(_temp3) [pure=false, complexity=2, effects=RETURN_MUTATION]  // ./tryWithResourceNoFinally.ek9:115:24
-    RETAIN _temp2  // ./tryWithResourceNoFinally.ek9:115:12
-    SCOPE_REGISTER _temp2, _scope_3  // ./tryWithResourceNoFinally.ek9:115:12
     STORE resource, _temp2  // ./tryWithResourceNoFinally.ek9:115:12
+    SCOPE_REGISTER resource, _scope_3  // ./tryWithResourceNoFinally.ek9:115:12
+    RETAIN resource  // ./tryWithResourceNoFinally.ek9:115:12
     SCOPE_ENTER _scope_4  // ./tryWithResourceNoFinally.ek9:114:7
     CONTROL_FLOW_CHAIN  // ./tryWithResourceNoFinally.ek9:114:7
     [
@@ -98,7 +98,7 @@ defines module exceptionHandling
     finally_block_evaluation:
     [
     SCOPE_ENTER _scope_7  // ./tryWithResourceNoFinally.ek9:114:7
-    CALL (exceptionHandling::SimpleResource2)resource._close() [pure=true, complexity=0]  // ./tryWithResourceNoFinally.ek9:115:12
+    CALL (exceptionHandling::SimpleResource2)resource.close() [pure=true, complexity=0]  // ./tryWithResourceNoFinally.ek9:115:12
     SCOPE_EXIT _scope_7  // ./tryWithResourceNoFinally.ek9:114:7
     ]
     scope_id: _scope_4
