@@ -1,0 +1,76 @@
+#!ek9
+<?-
+  Tests generic FUNCTION requiring multiple operators: '>' and '+'.
+  Parameterized with type that has '>' but lacks '+'.
+
+  Expected: OPERATOR_NOT_DEFINED for missing '+' operator
+-?>
+defines module fuzztest.generic.function.multiple.operators
+
+  defines record
+
+    <?-
+      Record with '>' but NO '+' operator.
+    -?>
+    R1
+      value <- Integer()
+
+      R1()
+        -> arg0 as Integer
+        value :=? Integer(arg0)
+
+      <?- Has greater-than operator -?>
+      operator > as pure
+        -> arg0 as R1
+        <- rtn as Boolean: value > arg0.value
+
+      <?- NO addition operator -?>
+
+      default operator ?
+
+    <?-
+      Record with BOTH '>' and '+' for contrast.
+    -?>
+    R2
+      value <- Integer()
+
+      R2() as pure
+        -> arg0 as Integer
+        value :=? Integer(arg0)
+
+      operator > as pure
+        -> arg0 as R2
+        <- rtn as Boolean: value > arg0.value
+
+      operator + as pure
+        -> arg0 as R2
+        <- rtn as R2: R2(value + arg0.value)
+
+      default operator ?
+
+  defines function
+
+    <?-
+      Generic function requiring both '>' and '+' operators.
+    -?>
+    MaxPlusOne of type T
+      ->
+        arg0 as T
+        arg1 as T
+        incrementBy as T
+      <-
+        rtn as T: (arg0 > arg1 <- arg0 else arg1) + incrementBy
+
+    TestFunctionMultipleOperatorsMissingPlus()
+      <?- Should fail - R1 has '>' but lacks '+' -?>
+      @Error: POST_RESOLUTION_CHECKS: OPERATOR_NOT_DEFINED
+      func <- MaxPlusOne() of R1
+      assert func?
+
+    TestFunctionMultipleOperatorsAllPresent()
+      <?- Should work - R2 has both '>' and '+' -?>
+      func <- MaxPlusOne() of R2
+      result <- func(R2(10), R2(5), R2(1))
+      assert result?
+
+//EOF
