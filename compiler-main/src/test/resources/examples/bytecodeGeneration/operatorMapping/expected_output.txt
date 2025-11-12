@@ -1,0 +1,10 @@
+isSet: true
+str: OperatorTestClass
+hash: 42
+cmp: 0
+eq: true
+neq: false
+sum: OperatorTestClass
+less: false
+Closing
+Operator mapping test complete

@@ -24,19 +24,24 @@ import org.objectweb.asm.Label;
  *   [continue execution]
  * </pre>
  * <p>
- * JVM Bytecode Pattern for try/finally (finally block DUPLICATED):
+ * JVM Bytecode Pattern for try/finally (unified finally block):
  * </p>
  * <pre>
  * try_start:
  *   [try block instructions]
  * try_end:
- *   [finally block - normal path]
- *   goto after_finally
+ *   goto finally_block            ; Normal path
+ * catch_start:
+ *   [catch block instructions]
+ *   goto finally_block            ; Catch path
  * finally_exception:
- *   astore temp_exception
- *   [finally block - exception path]
- *   aload temp_exception
- *   athrow
+ *   astore temp_exception         ; Store exception
+ *   goto finally_block            ; Exception path
+ * finally_block:
+ *   [finally block - executes once for all paths]
+ *   aload temp_exception (if set)
+ *   ifnull after_finally
+ *   athrow                        ; Rethrow if exception present
  * after_finally:
  *   [continue execution]
  *
@@ -101,6 +106,7 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
     final var tryEndLabel = new Label();
     final var afterHandlersLabel = new Label();
     final var finallyExceptionLabel = hasFinallyBlock ? new Label() : null;
+    final var finallyBlockLabel = hasFinallyBlock ? new Label() : null;
     final var catchEndLabel = !catchHandlers.isEmpty() ? new Label() : null;
 
     // Create handler labels (must match visitTryCatchBlock calls)
@@ -130,7 +136,17 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
       getCurrentMethodVisitor().visitTryCatchBlock(tryStartLabel, finallyEndRange, finallyExceptionLabel, null);
     }
 
-    // 3. Execute try block
+    // 3. Initialize temp exception variable to null (if finally block exists)
+    final Integer tempExceptionIndex;
+    if (hasFinallyBlock) {
+      tempExceptionIndex = getVariableIndex("_temp_finally_exception");
+      getCurrentMethodVisitor().visitInsn(org.objectweb.asm.Opcodes.ACONST_NULL);
+      getCurrentMethodVisitor().visitVarInsn(org.objectweb.asm.Opcodes.ASTORE, tempExceptionIndex);
+    } else {
+      tempExceptionIndex = null;
+    }
+
+    // 4. Execute try block
     placeLabel(tryStartLabel);
     // Stack: empty
 
@@ -140,15 +156,14 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
 
     placeLabel(tryEndLabel);
 
-    // 4. Normal path: execute finally block (if present) then continue
+    // 4. Normal path: jump to finally block (if present) or after handlers
     if (hasFinallyBlock) {
-      // Execute finally block - normal path (first copy)
-      processBodyEvaluation(finallyBody);
-      // Stack: empty
+      // Jump to unified finally block
+      jumpTo(finallyBlockLabel);
+    } else {
+      // No finally block - jump directly to after handlers
+      jumpTo(afterHandlersLabel);
     }
-
-    // Jump to after handlers
-    jumpTo(afterHandlersLabel);
     // Stack: empty
 
     // 5. Execute each catch handler
@@ -175,8 +190,12 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
       processBodyEvaluation(catchHandler.bodyEvaluation());
       // Stack: empty
 
-      // Jump to after handlers
-      jumpTo(afterHandlersLabel);
+      // Jump to finally block (if present) or after handlers
+      if (hasFinallyBlock) {
+        jumpTo(finallyBlockLabel);
+      } else {
+        jumpTo(afterHandlersLabel);
+      }
     }
 
     // Mark end of catch handlers (for finally exception range)
@@ -184,29 +203,44 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
       placeLabel(catchEndLabel);
     }
 
-    // 6. Finally exception handler (second copy of finally block)
+    // 6. Finally exception handler - store exception and jump to unified finally block
     if (hasFinallyBlock) {
       // Place finally exception label
       placeLabel(finallyExceptionLabel);
       // Stack: exception object (automatically pushed by JVM)
 
-      // Store exception in temporary variable (bytecode-level temp, not in IR)
-      final var tempExceptionIndex = getVariableIndex("_temp_finally_exception");
+      // Store exception in temporary variable
       getCurrentMethodVisitor().visitVarInsn(org.objectweb.asm.Opcodes.ASTORE, tempExceptionIndex);
       // Stack: empty
 
-      // Execute finally block - exception path (second copy)
+      // Jump to unified finally block
+      jumpTo(finallyBlockLabel);
+      // Stack: empty
+
+      // 7. Unified finally block - executes exactly once for all paths
+      placeLabel(finallyBlockLabel);
+      // Stack: empty
+
+      // Execute finally block (only once!)
       processBodyEvaluation(finallyBody);
       // Stack: empty
 
-      // Reload exception and rethrow
+      // Check if exception needs to be rethrown
+      getCurrentMethodVisitor().visitVarInsn(org.objectweb.asm.Opcodes.ALOAD, tempExceptionIndex);
+      // Stack: exception object (or null if no exception)
+
+      // If exception is null, continue to after_handlers
+      getCurrentMethodVisitor().visitJumpInsn(org.objectweb.asm.Opcodes.IFNULL, afterHandlersLabel);
+      // Stack: empty (exception popped by IFNULL)
+
+      // Exception is not null - reload and rethrow
       getCurrentMethodVisitor().visitVarInsn(org.objectweb.asm.Opcodes.ALOAD, tempExceptionIndex);
       // Stack: exception object
       getCurrentMethodVisitor().visitInsn(org.objectweb.asm.Opcodes.ATHROW);
       // Stack: empty (athrow never returns)
     }
 
-    // 7. Place after handlers label
+    // 8. Place after handlers label
     placeLabel(afterHandlersLabel);
     // Stack: empty
 

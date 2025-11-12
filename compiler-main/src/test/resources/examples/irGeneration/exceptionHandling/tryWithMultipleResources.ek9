@@ -104,8 +104,8 @@ defines module exceptionHandling
     finally_block_evaluation:
     [
     SCOPE_ENTER _scope_7  // ./tryWithMultipleResources.ek9:121:7
-    CALL (exceptionHandling::SimpleResource1)resource2.close() [pure=true, complexity=0]  // ./tryWithMultipleResources.ek9:124:11
-    CALL (exceptionHandling::SimpleResource1)resource1.close() [pure=true, complexity=0]  // ./tryWithMultipleResources.ek9:123:11
+    CALL (exceptionHandling::SimpleResource1)resource2._close() [pure=true, complexity=0]  // ./tryWithMultipleResources.ek9:124:11
+    CALL (exceptionHandling::SimpleResource1)resource1._close() [pure=true, complexity=0]  // ./tryWithMultipleResources.ek9:123:11
     SCOPE_EXIT _scope_7  // ./tryWithMultipleResources.ek9:121:7
     ]
     scope_id: _scope_4

@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.common.INodeVisitor;
+import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.ir.data.ParameterDetails;
 import org.ek9lang.compiler.ir.instructions.BasicBlockInstr;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
@@ -38,6 +39,7 @@ final class AsmStructureCreator implements Opcodes {
   private final INodeVisitor visitor;
   private final FullyQualifiedJvmName jvmNameConverter = new FullyQualifiedJvmName();
   private final JvmDescriptorConverter descriptorConverter = new JvmDescriptorConverter(jvmNameConverter);
+  private final OperatorMap operatorMap = new OperatorMap();
   private ClassWriter classWriter;
   private ProgramEntryPointInstr programEntryPoint = null;
 
@@ -356,9 +358,20 @@ final class AsmStructureCreator implements Opcodes {
   /**
    * Generate general method (not c_init, i_init, or constructor).
    * Handles methods with parameters and return types.
+   * Maps EK9 operators to JVM method names using OperatorMap.
    */
   private void generateGeneralMethodFromIR(final OperationInstr operation) {
-    final var methodName = operation.getSymbol().getName();
+    final var symbol = operation.getSymbol();
+    final var symbolName = symbol.getName();
+
+    // Map EK9 operators to JVM method names
+    final String methodName;
+    if (symbol instanceof MethodSymbol methodSymbol && methodSymbol.isOperator()) {
+      methodName = operatorMap.getForward(symbolName);
+    } else {
+      methodName = symbolName;
+    }
+
     final var methodDescriptor = buildGeneralMethodDescriptor(operation);
 
     // Use ACC_PUBLIC for all methods (can refine access modifiers later)

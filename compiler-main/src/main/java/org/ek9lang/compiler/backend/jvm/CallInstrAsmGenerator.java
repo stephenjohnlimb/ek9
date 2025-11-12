@@ -11,6 +11,7 @@ import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_I_INIT;
 import java.util.List;
 import java.util.function.Consumer;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
+import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.core.AssertValue;
 import org.objectweb.asm.ClassWriter;
@@ -23,6 +24,8 @@ import org.objectweb.asm.Opcodes;
  */
 final class CallInstrAsmGenerator extends AbstractAsmGenerator
     implements Consumer<CallInstr> {
+
+  private final OperatorMap operatorMap = new OperatorMap();
 
   CallInstrAsmGenerator(final ConstructTargetTuple constructTargetTuple,
                         final OutputVisitor outputVisitor,
@@ -339,7 +342,9 @@ final class CallInstrAsmGenerator extends AbstractAsmGenerator
       case METHOD_C_INIT -> METHOD_CLINIT; // Static initializer
       case METHOD_I_INIT -> METHOD_I_INIT; // Instance field initializer (stays same)
       case METHOD_INIT -> METHOD_INIT;     // Constructor (already JVM format)
-      default -> ek9MethodName;            // Regular methods keep their names
+      default -> operatorMap.hasOperator(ek9MethodName)
+          ? operatorMap.getForward(ek9MethodName)
+          : ek9MethodName;  // Regular methods keep their names
     };
   }
 }

@@ -98,7 +98,7 @@ defines module exceptionHandling
     finally_block_evaluation:
     [
     SCOPE_ENTER _scope_7  // ./tryWithSingleResource.ek9:114:7
-    CALL (exceptionHandling::SimpleResource3)resource.close() [pure=true, complexity=0]  // ./tryWithSingleResource.ek9:115:12
+    CALL (exceptionHandling::SimpleResource3)resource._close() [pure=true, complexity=0]  // ./tryWithSingleResource.ek9:115:12
     SCOPE_EXIT _scope_7  // ./tryWithSingleResource.ek9:114:7
     ]
     scope_id: _scope_4

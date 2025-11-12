@@ -476,6 +476,10 @@ abstract class AbstractAsmGenerator {
    */
   @SuppressWarnings("checkstyle:LambdaParameterName")
   protected int getVariableIndex(final String variableName) {
+    // Special case: 'this' is always in slot 0 for instance methods
+    if ("this".equals(variableName)) {
+      return 0;
+    }
     return methodContext.variableMap.computeIfAbsent(variableName, _ -> methodContext.nextVariableSlot++);
   }
 

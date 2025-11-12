@@ -92,8 +92,8 @@ public class OperatorMap {
     addOperator("rem", "_rem", true, true,
         true); // Remainder - pure, requires argument, returns Integer per ValidOperatorOrError
 
-    // Resource and state operators  
-    addOperator("close", "close", true, false,
+    // Resource and state operators
+    addOperator("close", "_close", true, false,
         false); // Resource cleanup per ValidOperatorOrError - pure with no return
     addOperator("empty", "_empty", true, false, true); // State check - pure, no argument, returns Boolean
     addOperator("length", "_len", true, false, true); // Length query - pure, no argument, returns Integer
@@ -211,22 +211,6 @@ public class OperatorMap {
   public boolean expectsZeroParameters(String ek9Operator) {
     final var details = forwardMap.get(ek9Operator);
     return details != null && !details.requiresArgument();
-  }
-
-  /**
-   * Check if an operator is marked as pure.
-   */
-  public boolean isPureOperator(String ek9Operator) {
-    final var details = forwardMap.get(ek9Operator);
-    return details != null && details.markedPure();
-  }
-
-  /**
-   * Check if an operator has a return value (not Void).
-   */
-  public boolean hasReturn(String ek9Operator) {
-    final var details = forwardMap.get(ek9Operator);
-    return details != null && details.hasReturn();
   }
 
   /**

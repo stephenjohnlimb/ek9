@@ -1,0 +1,260 @@
+#!ek9
+<?-
+  Bytecode test for EK9 operator to JVM method name mapping.
+  Validates that operators use OperatorMap.java mappings.
+
+  Expected Mappings (from OperatorMap.java):
+  - operator ?      → _isSet
+  - operator close  → _close
+  - operator $      → _string
+  - operator #?     → _hashcode
+  - operator <=>    → _cmp
+  - operator ==     → _eq
+  - operator <>     → _neq
+  - operator +      → _add
+  - operator <      → _lt
+-?>
+defines module bytecode.test.operators
+
+  defines class
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.operators::OperatorTestClass": `public class bytecode.test.operators.OperatorTestClass implements org.ek9.lang.Any
+
+{
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public org.ek9.lang.Boolean _isSet();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: iconst_1
+         3: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+         6: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aload_1
+        13: areturn
+
+  public void _close();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aload_1
+        13: astore_3
+        14: ldc           #CP                 // String Closing
+        16: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        19: astore        4
+        21: aload_3
+        22: aload         4
+        24: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        27: return
+
+  public org.ek9.lang.String _string();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: ldc           #CP                 // String OperatorTestClass
+         4: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+         7: astore_2
+         8: aload_2
+         9: astore_1
+        10: aload_1
+        11: areturn
+
+  public org.ek9.lang.Integer _hashcode();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: bipush        42
+         4: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+         7: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        10: astore_2
+        11: aload_2
+        12: astore_1
+        13: aload_1
+        14: areturn
+
+  public org.ek9.lang.Integer _cmp(bytecode.test.operators.OperatorTestClass);
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: aconst_null
+         3: astore_2
+         4: iconst_0
+         5: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+         8: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        11: astore_3
+        12: aload_3
+        13: astore_2
+        14: aload_2
+        15: areturn
+
+  public org.ek9.lang.Boolean _eq(bytecode.test.operators.OperatorTestClass);
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: aconst_null
+         3: astore_2
+         4: iconst_1
+         5: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+         8: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+        11: astore_3
+        12: aload_3
+        13: astore_2
+        14: aload_2
+        15: areturn
+
+  public org.ek9.lang.Boolean _neq(bytecode.test.operators.OperatorTestClass);
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: aconst_null
+         3: astore_2
+         4: iconst_0
+         5: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+         8: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+        11: astore_3
+        12: aload_3
+        13: astore_2
+        14: aload_2
+        15: areturn
+
+  public bytecode.test.operators.OperatorTestClass _add(bytecode.test.operators.OperatorTestClass);
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: aconst_null
+         3: astore_2
+         4: aload_0
+         5: astore_3
+         6: aload_3
+         7: astore_2
+         8: aload_2
+         9: areturn
+
+  public org.ek9.lang.Boolean _lt(bytecode.test.operators.OperatorTestClass);
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: aconst_null
+         3: astore_2
+         4: iconst_0
+         5: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+         8: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+        11: astore_3
+        12: aload_3
+        13: astore_2
+        14: aload_2
+        15: areturn
+
+  public bytecode.test.operators.OperatorTestClass();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+}`
+    OperatorTestClass
+
+      <?-
+        Priority 1: Most Critical Operators
+        These are used everywhere and must work correctly
+      -?>
+
+      //Tri-state check - used everywhere
+      override operator ? as pure
+        <- rtn <- true
+
+      //Resource cleanup - try-with-resources
+      operator close as pure
+        stdout <- Stdout()
+        stdout.println("Closing")
+
+      //String conversion - toString equivalent
+      operator $ as pure
+        <- rtn <- "OperatorTestClass"
+
+      //Hash code
+      operator #? as pure
+        <- rtn <- 42
+
+      //Comparison - Comparable equivalent
+      operator <=> as pure
+        -> other as OperatorTestClass
+        <- rtn <- 0
+
+      //Equality operators
+      operator == as pure
+        -> other as OperatorTestClass
+        <- rtn <- true
+
+      operator <> as pure
+        -> other as OperatorTestClass
+        <- rtn <- false
+
+      <?-
+        Priority 2: Additional Common Operators
+      -?>
+
+      //Arithmetic
+      operator + as pure
+        -> other as OperatorTestClass
+        <- rtn as OperatorTestClass: this
+
+      //Relational
+      operator < as pure
+        -> other as OperatorTestClass
+        <- rtn <- false
+
+  defines program
+
+    TestOperatorMapping()
+      obj1 <- OperatorTestClass()
+      obj2 <- OperatorTestClass()
+
+      stdout <- Stdout()
+
+      //Invoke each operator to force bytecode generation
+      isSet <- obj1?
+      stdout.println("isSet: " + $isSet)
+
+      str <- $obj1
+      stdout.println("str: " + str)
+
+      hash <- #?obj1
+      stdout.println("hash: " + $hash)
+
+      cmp <- obj1 <=> obj2
+      stdout.println("cmp: " + $cmp)
+
+      eq <- obj1 == obj2
+      stdout.println("eq: " + $eq)
+
+      neq <- obj1 <> obj2
+      stdout.println("neq: " + $neq)
+
+      sum <- obj1 + obj2
+      stdout.println("sum: " + $sum)
+
+      less <- obj1 < obj2
+      stdout.println("less: " + $less)
+
+      obj1.close()
+
+      stdout.println("Operator mapping test complete")
+
+//EOF

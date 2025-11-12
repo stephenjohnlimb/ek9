@@ -1,0 +1,172 @@
+#!ek9
+<?-
+  Bytecode test for try-with-resources with multiple resources.
+  Tests resource initialization order and reverse close order.
+
+  Tests:
+  - Multiple resource initialization in declaration order
+  - Automatic close() calls in REVERSE order (resource2 then resource1)
+  - Exception table covering both resources
+  - LocalVariableTable with both resource scopes
+-?>
+defines module bytecode.test.multi
+
+  defines class
+
+    TestResource
+
+      TestResource()
+        -> resourceName as String
+        assert resourceName?
+
+      operator close as pure
+        stdout <- Stdout()
+        stdout.println("Closing resource")
+
+      override operator ? as pure
+        <- rtn <- true
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.multi::TryWithMultipleResources":`public class bytecode.test.multi.TryWithMultipleResources {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.multi.TryWithMultipleResources();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/String
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/String."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aconst_null
+        13: astore_3
+        14: ldc           #CP                 // String first
+        16: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        19: astore        4
+        21: new           #CP                 // class bytecode/test/multi/TestResource
+        24: dup
+        25: aload         4
+        27: invokespecial #CP                 // Method bytecode/test/multi/TestResource."<init>":(Lorg/ek9/lang/String;)V
+        30: astore        5
+        32: aload         5
+        34: astore_3
+        35: aconst_null
+        36: astore        6
+        38: ldc           #CP                 // String second
+        40: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        43: astore        7
+        45: new           #CP                 // class bytecode/test/multi/TestResource
+        48: dup
+        49: aload         7
+        51: invokespecial #CP                 // Method bytecode/test/multi/TestResource."<init>":(Lorg/ek9/lang/String;)V
+        54: astore        8
+        56: aload         8
+        58: astore        6
+        60: aconst_null
+        61: astore        9
+        63: ldc           #CP                 // String OK
+        65: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        68: astore        10
+        70: aload         10
+        72: astore_1
+        73: aconst_null
+        74: astore        11
+        76: new           #CP                 // class org/ek9/lang/Stdout
+        79: dup
+        80: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+        83: astore        12
+        85: aload         12
+        87: astore        11
+        89: aload         11
+        91: astore        13
+        93: ldc           #CP                 // String Try:
+        95: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        98: astore        14
+       100: aload_1
+       101: astore        15
+       103: aload         14
+       105: aload         15
+       107: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
+       110: astore        16
+       112: aload         13
+       114: aload         16
+       116: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       119: goto          142
+       122: astore        17
+       124: ldc           #CP                 // String ERROR
+       126: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       129: astore        18
+       131: aload         18
+       133: astore_1
+       134: goto          142
+       137: astore        9
+       139: goto          142
+       142: aload         6
+       144: invokevirtual #CP                 // Method bytecode/test/multi/TestResource._close:()V
+       147: aload_3
+       148: invokevirtual #CP                 // Method bytecode/test/multi/TestResource._close:()V
+       151: aload         9
+       153: ifnull        159
+       156: aload         9
+       158: athrow
+       159: new           #CP                 // class org/ek9/lang/Stdout
+       162: dup
+       163: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+       166: astore        19
+       168: aload         19
+       170: astore        11
+       172: aload         11
+       174: astore        20
+       176: ldc           #CP                 // String Result:
+       178: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       181: astore        21
+       183: aload_1
+       184: astore        22
+       186: aload         21
+       188: aload         22
+       190: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
+       193: astore        23
+       195: aload         20
+       197: aload         23
+       199: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       202: return
+      Exception table:
+         from    to  target type
+           63   119   122   Class org/ek9/lang/Exception
+           63   137   137   any
+}`
+    TryWithMultipleResources()
+      result <- String()
+
+      try
+        ->
+          resource1 <- TestResource("first")
+          resource2 <- TestResource("second")
+        result: "OK"
+        stdout <- Stdout()
+        stdout.println("Try: " + result)
+      catch
+        -> ex as Exception
+        result: "ERROR"
+
+      stdout <- Stdout()
+      stdout.println("Result: " + result)
+
+//EOF
