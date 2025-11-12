@@ -1,0 +1,37 @@
+#!ek9
+<?-
+  Tests stream operations with empty sources.
+  Edge cases: empty lists, empty strings, empty results from operations.
+  Tests that empty sources don't cause crashes and type flow works correctly.
+-?>
+defines module fuzztest.stream.empty.sources
+
+  defines function
+
+    <?- Helper functions -?>
+    MapToDate()
+      -> s as String
+      <- rtn as Date: 2025-01-01
+
+    ReturnsInt()
+      -> n as Integer
+      <- rtn as Integer: n
+
+    CharToDate()
+      -> c as Character
+      <- rtn as Date: 2025-01-01
+
+    EmptyListWithFilter()
+      <?- Empty list with FILTER - filter function returns non-Boolean -?>
+      collection <- List() of Integer
+      @Error: FULL_RESOLUTION: MUST_RETURN_BOOLEAN
+      result <- cat collection | filter with ReturnsInt | collect as List of Integer
+      assert result?
+
+    EmptyStringIteration()
+      empty <- ""
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      result <- cat empty | map with CharToDate | collect as Integer
+      assert result?
+
+//EOF

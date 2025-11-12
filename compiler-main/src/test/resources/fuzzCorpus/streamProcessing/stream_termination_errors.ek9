@@ -1,0 +1,41 @@
+#!ek9
+<?-
+  Tests stream termination errors.
+  Statement termination (> >>) and expression termination (collect as).
+  Tests aggregate type requirements and pipe operator availability.
+-?>
+defines module fuzztest.stream.termination
+
+  defines class
+
+    <?- Type without pipe operator -?>
+    NoPipeOperator
+      value <- Integer()
+
+      NoPipeOperator() as pure
+        -> arg0 as Integer
+        value :=? Integer(arg0)
+
+      default operator ?
+
+  defines function
+
+    RedirectToNonAggregate()
+      <?- Redirecting to type without pipe operator -?>
+      target <- NoPipeOperator(0)
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      cat [1, 2, 3] > target
+
+    DoubleRedirectWithoutClear()
+
+      target <- NoPipeOperator(0)
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      cat [1, 2, 3] >> target
+
+    CollectAsNonPipeableType()
+      <?- COLLECT AS type without pipe operator -?>
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      result <- cat [1, 2, 3] | collect as Duration
+      assert result?
+
+//EOF

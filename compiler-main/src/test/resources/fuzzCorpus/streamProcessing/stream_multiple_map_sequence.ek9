@@ -1,0 +1,44 @@
+#!ek9
+<?-
+  Tests multiple MAP operations in sequence.
+  Type transformations: T1 → T2 → T3 → T4
+  Gap identified: sequential transformations not extensively tested.
+-?>
+defines module fuzztest.stream.multiple.map
+
+  defines function
+
+    <?- Helper transformation functions -?>
+    IntToString()
+      -> n as Integer
+      <- rtn as String: $n
+
+    StringToLength()
+      -> s as String
+      <- rtn as Integer: s.length()
+
+    VoidTransform()
+      -> n as Integer
+      assert n?
+
+    NeedsDate()
+      -> d as Date
+      <- rtn as String: $d
+
+    IntToDate()
+      -> n as Integer
+      <- rtn as Date: 2025-01-01
+
+    MultipleMapWithVoidReturn()
+      <?- Second MAP has void return -?>
+      @Error: FULL_RESOLUTION: RETURNING_MISSING
+      result <- cat [1, 2] | map with IntToString | map with VoidTransform | collect as List of String
+      assert result?
+
+    MultipleMapTypeBreak()
+      <?- Third MAP expects wrong input type -?>
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      result <- cat [1, 2] | map with IntToString | map with StringToLength | map with NeedsDate | collect as List of String
+      assert result?
+
+//EOF

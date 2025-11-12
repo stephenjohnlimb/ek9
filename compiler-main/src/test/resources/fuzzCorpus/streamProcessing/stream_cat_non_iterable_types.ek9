@@ -1,0 +1,36 @@
+#!ek9
+<?-
+  Tests CAT with non-iterable types (missing iterator method).
+  Various built-in types that lack iterator() method.
+  Expected: MISSING_ITERATE_METHOD at FULL_RESOLUTION
+-?>
+defines module fuzztest.stream.cat.noniterable
+
+  defines function
+
+    CatWithFloat()
+      <?- Float has no iterator() method -?>
+      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
+      cat 3.14 > stdout
+
+    CatWithInteger()
+      <?- Integer has no iterator() method -?>
+      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
+      cat 42 > stdout
+
+    CatWithBoolean()
+      <?- Boolean has no iterator() method -?>
+      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
+      cat true > stdout
+
+    CatWithDuration()
+      <?- Duration has no iterator() method -?>
+      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
+      cat P1D > stdout
+
+    CatWithDate()
+      <?- Date has no iterator() method -?>
+      @Error: FULL_RESOLUTION: MISSING_ITERATE_METHOD
+      cat 2025-01-01 > stdout
+
+//EOF

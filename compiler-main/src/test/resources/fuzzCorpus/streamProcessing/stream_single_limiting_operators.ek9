@@ -1,0 +1,43 @@
+#!ek9
+<?-
+  Tests stream pipelines with ONLY limiting operators (HEAD/TAIL/SKIP).
+  No other operators, direct from source to termination.
+  Gap identified: these scenarios not explicitly tested.
+-?>
+defines module fuzztest.stream.single.limiting
+
+  defines function
+
+    <?- Helper functions -?>
+    NeedParam()
+      -> n as Integer
+      <- rtn as Integer: n
+
+    ReturnsBool()
+      <- rtn as Boolean: true
+
+    HeadWithFunction()
+      <?- HEAD with function that has wrong signature -?>
+      @Error: FULL_RESOLUTION: FUNCTION_MUST_HAVE_NO_PARAMETERS
+      result <- cat [1, 2, 3] | head with NeedParam | collect as List of Integer
+      assert result?
+
+    TailReturnsBoolean()
+      <?- TAIL with function returning Boolean instead of Integer -?>
+      @Error: FULL_RESOLUTION: MUST_RETURN_INTEGER
+      result <- cat [1, 2, 3] | tail with ReturnsBool | collect as List of Integer
+      assert result?
+
+    SkipWithNegativeLiteral()
+      <?- SKIP with zero literal (must be > 0) -?>
+      @Error: FULL_RESOLUTION: MUST_BE_INTEGER_GREATER_THAN_ZERO
+      result <- cat [1, 2, 3] | skip 0 | collect as List of Integer
+      assert result?
+
+    HeadWithStringLiteral()
+      <?- HEAD with non-integer literal -?>
+      @Error: FULL_RESOLUTION: MUST_BE_INTEGER_GREATER_THAN_ZERO
+      result <- cat [1, 2, 3] | head "5" | collect as List of Integer
+      assert result?
+
+//EOF

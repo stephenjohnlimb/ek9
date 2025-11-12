@@ -1,0 +1,62 @@
+#!ek9
+<?-
+  Tests type promotion through stream pipelines.
+  Type transformations with promotion operators and chains.
+  Gap identified: promotion chains not tested in streams.
+-?>
+defines module fuzztest.stream.type.promotion
+
+  defines class
+
+    <?- Type without promotion operator -?>
+    NoPromote
+      value <- Integer()
+
+      NoPromote() as pure
+        -> arg0 as Integer
+        value :=? Integer(arg0)
+
+      default operator ?
+
+  defines function
+
+    <?- Helper functions -?>
+    ToNoPromote()
+      -> n as Integer
+      <- rtn as NoPromote: NoPromote(n)
+
+    PromoteIt()
+      -> np as NoPromote
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      <- rtn as String: #^ np
+
+    CheckPromotion()
+      -> n as NoPromote
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      <- rtn as Boolean: (#^ n)?
+
+    ComparePromoted()
+      ->
+        o1 as NoPromote
+        o2 as NoPromote
+      <-
+        @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+        rtn as Integer: (#^ o1) <=> (#^ o2)
+
+    MapToUnpromotableType()
+      <?- MAP produces type without required promotion -?>
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      result <- cat [1, 2] | map with ToNoPromote | map with PromoteIt | collect as List of Integer
+      assert result?
+
+    FilterWithPromotionFunction()
+      <?- FILTER using function that attempts promotion -?>
+      result <- cat [NoPromote(1)] | filter with CheckPromotion | collect as List of NoPromote
+      assert result?
+
+    SortByPromotedValue()
+      <?- SORT attempting to use promoted comparison -?>
+      result <- cat [NoPromote(1)] | sort with ComparePromoted | collect as List of NoPromote
+      assert result?
+
+//EOF

@@ -1,0 +1,45 @@
+#!ek9
+<?-
+  Tests CALL and ASYNC operator errors.
+  CALL/ASYNC require () → T functions (no parameters, must return value).
+  Tests function type requirements and execution semantics.
+-?>
+defines module fuzztest.stream.call.async
+
+  defines function
+
+    <?- Valid function for reference -?>
+    ValidCallable()
+      <- rtn as Integer: 42
+
+    <?- Helper functions for testing -?>
+    NeedsParam()
+      -> n as Integer
+      <- rtn as Integer: n * 2
+
+    VoidFunc()
+      temp <- 1
+      assert temp?
+
+    ReturnsDate()
+      <- rtn as Date: 2025-01-01
+
+    CallOnNonFunction()
+      <?- CALL on non-function type (Integer) -?>
+      @Error: FULL_RESOLUTION: TYPE_MUST_BE_FUNCTION
+      result <- cat [1, 2, 3] | call | collect as List of Integer
+      assert result?
+
+    CallWithParameterizedFunction()
+      <?- CALL on function that requires parameters -?>
+      @Error: FULL_RESOLUTION: REQUIRE_NO_ARGUMENTS
+      result <- cat [NeedsParam] | call | collect as List of Integer
+      assert result?
+
+    CallWithVoidFunction()
+      <?- CALL on function returning void -?>
+      @Error: FULL_RESOLUTION: FUNCTION_MUST_RETURN_VALUE
+      result <- cat [VoidFunc] | call | collect as List of String
+      assert result?
+
+//EOF

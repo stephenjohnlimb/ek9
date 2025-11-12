@@ -1,0 +1,35 @@
+#!ek9
+<?-
+  Tests COLLECT AS with generic/parameterized types.
+  Tests type compatibility when collecting to generic collections.
+  Gap identified: generic type collection not explicitly tested.
+-?>
+defines module fuzztest.stream.generic.collection
+
+  defines function
+
+    <?- Helper function for type transformation -?>
+    IntToString()
+      -> n as Integer
+      <- rtn as String: $n
+
+    CollectToGenericWithTypeMismatch()
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      result <- cat [1, 2, 3] | collect as List of Date
+      assert result?
+
+    CollectAfterMapToWrongGenericType()
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      result <- cat [1, 2] | map with IntToString | collect as List of Date
+      assert result?
+
+    CollectToPipeableGenericType()
+      result <- cat [1, 2] | collect as Result of (Integer, String)
+      assert result?
+
+    CollectToNonPipeableGenericType()
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      result <- cat ["Steve", "Limb"] | collect as Result of (Integer, String)
+      assert result?
+
+//EOF

@@ -1,0 +1,49 @@
+#!ek9
+<?-
+  Tests TEE operator for stream branching.
+  TEE splits stream to side-effect collection while continuing main pipeline.
+  Gap identified: TEE with transformations and multiple branches not tested.
+-?>
+defines module fuzztest.stream.teeing.operations
+
+  defines class
+
+    <?- Type without pipe operator -?>
+    NoPipe
+      value <- Integer()
+
+      default operator ?
+
+  defines function
+
+    <?- Helper functions -?>
+    VoidTransform()
+      -> n as Integer
+      assert n?
+
+    ToInt()
+      -> n as Integer
+      <- rtn as Integer: n
+
+    TeeWithVoidTransform()
+      <?- TEE transformation returns void -?>
+      sideCollection <- List() of Integer
+      @Error: FULL_RESOLUTION: RETURNING_MISSING
+      result <- cat [1, 2] | tee with VoidTransform then in sideCollection | collect as List of Integer
+      assert result?
+
+    TeeWithIncompatibleCollection()
+      <?- TEE transformation produces type incompatible with collection -?>
+      sideCollection <- List() of String
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      result <- cat [1, 2] | tee with ToInt then in sideCollection | collect as List of Integer
+      assert result?
+
+    TeeToNonPipeableCollection()
+      <?- TEE target collection has no pipe operator -?>
+      sideTarget <- NoPipe()
+      @Error: FULL_RESOLUTION: UNABLE_TO_FIND_PIPE_FOR_TYPE
+      result <- cat [1, 2] | tee in sideTarget | collect as List of Integer
+      assert result?
+
+//EOF

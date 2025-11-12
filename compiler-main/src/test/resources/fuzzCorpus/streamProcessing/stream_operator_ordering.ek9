@@ -1,0 +1,57 @@
+#!ek9
+<?-
+  Tests operator ordering effects and requirements.
+  UNIQ → SORT vs SORT → UNIQ, operator prerequisites.
+  Gap identified: operator ordering combinations not tested.
+-?>
+defines module fuzztest.stream.operator.ordering
+
+  defines class
+
+    <?- Type missing both hashcode and comparator -?>
+    NoHashNoCompare
+      value <- Integer()
+
+      NoHashNoCompare() as pure
+        -> arg0 as Integer
+        value :=? Integer(arg0)
+
+      default operator ?
+
+    <?- Type with hashcode but no comparator -?>
+    HasHashNoCompare
+      value <- Integer()
+
+      HasHashNoCompare() as pure
+        -> arg0 as Integer
+        value :=? Integer(arg0)
+
+      operator #? as pure
+        <- rtn as Integer: value
+
+      default operator ?
+
+  defines function
+
+    <?- Helper functions -?>
+    IsPositive()
+      -> n as Integer
+      <- rtn as Boolean: n > 0
+
+    ToDate()
+      -> n as Integer
+      <- rtn as Date: 2025-01-01
+
+    UniqThenSortMissingComparator()
+      <?- UNIQ works (has hashcode), then SORT fails (no comparator) -?>
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      result <- cat [HasHashNoCompare(1), HasHashNoCompare(2)] | uniq | sort | collect as List of HasHashNoCompare
+      assert result?
+
+    SortThenUniqMissingBoth()
+      <?- SORT fails first (no comparator) -?>
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      result <- cat [NoHashNoCompare(1)] | sort | uniq | collect as List of NoHashNoCompare
+      assert result?
+
+//EOF
