@@ -1,0 +1,4 @@
+Try: OK
+Closing resource
+Closing resource
+Result: OK
