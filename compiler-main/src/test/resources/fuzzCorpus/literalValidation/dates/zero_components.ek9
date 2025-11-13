@@ -1,0 +1,20 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Date - Zero Components
+  Tests if EK9 catches all-zero date components at compile time.
+
+  Expected: Should fail (0000-00-00 is invalid)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.date.zeros
+
+  defines program
+
+    TestZeroComponents()
+      invalidDate <- 0000-00-00
+
+      stdout <- Stdout()
+      if invalidDate?
+        stdout.println("Date is set")
+
+//EOF

@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Duration - Overflow Years Value
+  Tests if EK9 catches extreme year value in duration at compile time.
+
+  Expected: Should fail (year value causes overflow in underlying representation)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.duration.overflow
+  defines program
+    Test()
+      d <- P999999999999Y
+      stdout <- Stdout()
+      if d?
+        stdout.println("Set")
+//EOF

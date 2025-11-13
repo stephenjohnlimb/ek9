@@ -1,0 +1,25 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Date - Invalid Month 13
+  Tests if EK9 catches month value > 12 at compile time.
+
+  Expected: Should fail (month must be 1-12)
+  Actual: Compiles successfully, becomes unset at runtime
+
+  This test documents missing literal validation in EK9 Phase 1.
+-?>
+defines module fuzz.literal.date.invalid.month
+
+  defines program
+
+    TestInvalidDateMonth()
+      // Date with month 13 (invalid - only 1-12 allowed)
+      invalidDate <- 2024-13-01
+
+      stdout <- Stdout()
+      if invalidDate?
+        stdout.println("Date is set: " + $invalidDate)
+      else
+        stdout.println("Date is unset (validation happened at runtime)")
+
+//EOF

@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Millisecond - Zero Value Edge Case
+  Tests if EK9 accepts zero millisecond value (0ms) at compile time.
+
+  Expected: Should succeed (0ms is a valid millisecond value)
+  Actual: Compiles successfully, value behavior depends on runtime validation
+-?>
+defines module fuzz.literal.millisecond.zero
+  defines program
+    Test()
+      ms <- 0ms
+      stdout <- Stdout()
+      if ms?
+        stdout.println("Set")
+//EOF

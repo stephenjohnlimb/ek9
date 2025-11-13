@@ -1,0 +1,20 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Time - Hour 25
+  Tests if EK9 catches hour > 23 at compile time.
+
+  Expected: Should fail (hour must be 0-23)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.time.hour25
+
+  defines program
+
+    TestHour25()
+      invalidTime <- 25:00
+
+      stdout <- Stdout()
+      if invalidTime?
+        stdout.println("Time is set")
+
+//EOF

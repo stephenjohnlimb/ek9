@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Money - Invalid Currency Code XXX
+  Tests if EK9 catches invalid/placeholder currency code (XXX) at compile time.
+
+  Expected: Should fail (XXX is not a valid ISO 4217 currency code)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.money.xxx
+  defines program
+    Test()
+      m <- 10.50#XXX
+      stdout <- Stdout()
+      if m?
+        stdout.println("Set")
+//EOF

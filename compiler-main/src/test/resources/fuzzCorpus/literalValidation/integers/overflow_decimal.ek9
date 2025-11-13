@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Integer - Decimal Overflow
+  Tests if EK9 catches integer overflow in decimal literal at compile time.
+
+  Expected: Should fail (value exceeds maximum integer representation)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.integer.decimal.overflow
+  defines program
+    Test()
+      i <- 99999999999999999999999999
+      stdout <- Stdout()
+      if i?
+        stdout.println("Set")
+//EOF

@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Duration - Empty Time Part
+  Tests if EK9 catches duration with empty time part (PT with no time components) at compile time.
+
+  Expected: Should fail (PT must be followed by time components like PT1H or PT30M)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.duration.emptytime
+  defines program
+    Test()
+      d <- PT
+      stdout <- Stdout()
+      if d?
+        stdout.println("Set")
+//EOF

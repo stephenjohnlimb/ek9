@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Float - Overflow Max Value
+  Tests if EK9 catches float overflow (value exceeds Double.MAX_VALUE) at compile time.
+
+  Expected: Should fail (e309 exponent exceeds maximum representable float)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.float.overflow
+  defines program
+    Test()
+      f <- 1.7976931348623157e309
+      stdout <- Stdout()
+      if f?
+        stdout.println("Set")
+//EOF

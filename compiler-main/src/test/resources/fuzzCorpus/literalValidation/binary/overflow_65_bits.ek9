@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Binary - 65-bit Overflow
+  Tests if EK9 catches binary literal with 65 bits (exceeds 64-bit maximum) at compile time.
+
+  Expected: Should fail (binary literals should be limited to 64 bits)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.binary.overflow65
+  defines program
+    Test()
+      b <- 0b11111111111111111111111111111111111111111111111111111111111111111
+      stdout <- Stdout()
+      if b?
+        stdout.println("Set")
+//EOF

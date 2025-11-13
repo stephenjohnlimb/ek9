@@ -1,0 +1,22 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Date - February 30
+  Tests if EK9 catches invalid day for February at compile time.
+
+  Expected: Should fail (February has max 29 days in leap years, 28 otherwise)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.date.feb30
+
+  defines program
+
+    TestFeb30()
+      invalidDate <- 2024-02-30
+
+      stdout <- Stdout()
+      if invalidDate?
+        stdout.println("Date is set")
+      else
+        stdout.println("Date is unset")
+
+//EOF

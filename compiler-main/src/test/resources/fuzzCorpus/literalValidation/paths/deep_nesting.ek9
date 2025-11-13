@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Path - Deep Nesting
+  Tests if EK9 accepts deeply nested path (10 levels) at compile time.
+
+  Expected: Should succeed (nesting depth is syntax, not a validation issue)
+  Actual: Compiles successfully, path resolution happens at runtime
+-?>
+defines module fuzz.literal.path.deepnesting
+  defines program
+    Test()
+      p <- $?.level1.level2.level3.level4.level5.level6.level7.level8.level9.level10
+      stdout <- Stdout()
+      if p?
+        stdout.println("Set")
+//EOF

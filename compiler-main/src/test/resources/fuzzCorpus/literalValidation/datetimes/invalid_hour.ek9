@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: DateTime - Invalid Hour 25
+  Tests if EK9 catches invalid hour (25) in DateTime literal at compile time.
+
+  Expected: Should fail (hour must be 0-23)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.datetime.badhour
+  defines program
+    Test()
+      dt <- 2024-01-15T25:00:00Z
+      stdout <- Stdout()
+      if dt?
+        stdout.println("Set")
+//EOF

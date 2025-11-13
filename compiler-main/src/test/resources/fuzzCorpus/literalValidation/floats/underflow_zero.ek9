@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Float - Underflow to Zero
+  Tests if EK9 catches float underflow (value rounds to zero) at compile time.
+
+  Expected: Should fail or warn (e-400 exponent underflows to zero)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.float.underflow
+  defines program
+    Test()
+      f <- 1e-400
+      stdout <- Stdout()
+      if f?
+        stdout.println("Set")
+//EOF

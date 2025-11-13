@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Binary - Overflow Pattern
+  Tests if EK9 catches binary literal with alternating pattern exceeding 64 bits at compile time.
+
+  Expected: Should fail (65 bits exceeds maximum representation)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.binary.overflowpattern
+  defines program
+    Test()
+      b <- 0b10101010101010101010101010101010101010101010101010101010101010101
+      stdout <- Stdout()
+      if b?
+        stdout.println("Set")
+//EOF

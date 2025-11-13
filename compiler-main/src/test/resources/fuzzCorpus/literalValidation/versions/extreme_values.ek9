@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Version - Extreme Component Values
+  Tests if EK9 catches version with extreme values in all components at compile time.
+
+  Expected: Should fail or warn (values may cause overflow in version representation)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.version.extreme
+  defines program
+    Test()
+      v <- 999999.999999.999999-999999
+      stdout <- Stdout()
+      if v?
+        stdout.println("Set")
+//EOF

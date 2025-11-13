@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: DateTime - Invalid Date Part
+  Tests if EK9 catches invalid date component (Feb 30) in DateTime literal at compile time.
+
+  Expected: Should fail (February has max 29 days)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.datetime.baddate
+  defines program
+    Test()
+      dt <- 2024-02-30T12:00:00Z
+      stdout <- Stdout()
+      if dt?
+        stdout.println("Set")
+//EOF

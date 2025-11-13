@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Float - Extreme Exponent
+  Tests if EK9 catches float with extreme exponent (e9999) at compile time.
+
+  Expected: Should fail (exponent far exceeds representable range)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.float.extreme
+  defines program
+    Test()
+      f <- 9e9999
+      stdout <- Stdout()
+      if f?
+        stdout.println("Set")
+//EOF

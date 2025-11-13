@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Integer - Hexadecimal Overflow
+  Tests if EK9 catches integer overflow in hexadecimal literal at compile time.
+
+  Expected: Should fail (0xFFFFFFFFFFFFFFFFFFFF exceeds maximum integer representation)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.integer.hex.overflow
+  defines program
+    Test()
+      i <- 0xFFFFFFFFFFFFFFFFFFFF
+      stdout <- Stdout()
+      if i?
+        stdout.println("Set")
+//EOF

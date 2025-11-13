@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Path - Large Array Index
+  Tests if EK9 accepts path with large array index ($?[99999]) at compile time.
+
+  Expected: Should succeed (index validation happens at runtime, not compile time)
+  Actual: Compiles successfully, index bounds checked at runtime
+-?>
+defines module fuzz.literal.path.largeindex
+  defines program
+    Test()
+      p <- $?[99999]
+      stdout <- Stdout()
+      if p?
+        stdout.println("Set")
+//EOF

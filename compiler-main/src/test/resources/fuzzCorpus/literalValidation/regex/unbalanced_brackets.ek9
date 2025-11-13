@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: RegEx - Unbalanced Brackets
+  Tests if EK9 catches regex with unbalanced character class brackets at compile time.
+
+  Expected: Should fail (regex pattern /[/ has unclosed character class)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.regex.unbalanced
+  defines program
+    Test()
+      r <- /[/
+      stdout <- Stdout()
+      if r?
+        stdout.println("Set")
+//EOF

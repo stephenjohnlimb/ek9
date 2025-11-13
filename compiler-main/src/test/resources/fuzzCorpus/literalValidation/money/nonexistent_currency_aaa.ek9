@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: Money - Nonexistent Currency Code AAA
+  Tests if EK9 catches nonexistent currency code (AAA) at compile time.
+
+  Expected: Should fail (AAA is not a valid ISO 4217 currency code)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.money.aaa
+  defines program
+    Test()
+      m <- 10.50#AAA
+      stdout <- Stdout()
+      if m?
+        stdout.println("Set")
+//EOF

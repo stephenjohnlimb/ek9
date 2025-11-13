@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Literal Validation Fuzz Test: DateTime - Invalid Timezone Offset
+  Tests if EK9 catches invalid timezone offset (+99:99) at compile time.
+
+  Expected: Should fail (timezone offset must be valid, e.g., -12:00 to +14:00)
+  Actual: Compiles successfully, becomes unset at runtime
+-?>
+defines module fuzz.literal.datetime.badtz
+  defines program
+    Test()
+      dt <- 2024-01-15T12:00:00+99:99
+      stdout <- Stdout()
+      if dt?
+        stdout.println("Set")
+//EOF
