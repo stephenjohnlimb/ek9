@@ -1653,6 +1653,95 @@ defines module introduction
       These operators support the idea that you may wish to compare values and account for the fact that one or both
       might not be set. If both do have meaning then the normal comparison operator logic is applied.
     </p>
+    <h6>Comparison Coalescing Semantics</h6>
+    <p>
+      The comparison coalescing operators follow a <b>priority cascade</b> to determine the result:
+    </p>
+    <ol>
+      <li>If <b>left operand</b> is null or unset → return <b>right operand</b></li>
+      <li>Else if <b>right operand</b> is null or unset → return <b>left operand</b></li>
+      <li>Else both are valid → perform comparison and return appropriate value</li>
+      <li>Default → return <b>right operand</b></li>
+    </ol>
+    <p>
+      This ensures that:
+    </p>
+    <ul>
+      <li><b>Valid values are always preferred</b> over null/unset values</li>
+      <li><b>When both are invalid</b>, the right operand is returned (consistent fallback)</li>
+      <li><b>When both are valid</b>, normal comparison logic applies</li>
+    </ul>
+    <h6>Truth Table for <code>&lt;?</code> (Lesser Value)</h6>
+    <table>
+      <thead>
+        <tr>
+          <th>x state</th>
+          <th>y state</th>
+          <th>Rule Applied</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>null</td>
+          <td>null</td>
+          <td>x invalid</td>
+          <td><b>y</b></td>
+        </tr>
+        <tr>
+          <td>null</td>
+          <td>unset</td>
+          <td>x invalid</td>
+          <td><b>y</b></td>
+        </tr>
+        <tr>
+          <td>null</td>
+          <td>set</td>
+          <td>x invalid</td>
+          <td><b>y</b> (use valid value)</td>
+        </tr>
+        <tr>
+          <td>unset</td>
+          <td>null</td>
+          <td>x invalid</td>
+          <td><b>y</b></td>
+        </tr>
+        <tr>
+          <td>unset</td>
+          <td>unset</td>
+          <td>x invalid</td>
+          <td><b>y</b></td>
+        </tr>
+        <tr>
+          <td>unset</td>
+          <td>set</td>
+          <td>x invalid</td>
+          <td><b>y</b> (use valid value)</td>
+        </tr>
+        <tr>
+          <td>set</td>
+          <td>null</td>
+          <td>y invalid</td>
+          <td><b>x</b> (use valid value)</td>
+        </tr>
+        <tr>
+          <td>set</td>
+          <td>unset</td>
+          <td>y invalid</td>
+          <td><b>x</b> (use valid value)</td>
+        </tr>
+        <tr>
+          <td>set</td>
+          <td>set</td>
+          <td>compare</td>
+          <td><b>x</b> if x&lt;y, else <b>y</b></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      The operators <code>&gt;?</code>, <code>&lt;=?</code>, and <code>&gt;=?</code> follow the same validity checking logic.
+      Only the final comparison step differs when both operands are valid.
+    </p>
     <p id="contrast_if_else_ternary">
       These new operators may seem like <u>just yet another thing to learn</u>, but you could just write the following:
     </p>

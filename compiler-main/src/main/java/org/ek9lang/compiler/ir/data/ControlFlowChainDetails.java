@@ -186,6 +186,36 @@ public record ControlFlowChainDetails(
   }
 
   /**
+   * Create details for comparison coalescing operators (&lt;?, &gt;?, &lt;=?, &gt;=?).
+   * Returns LHS if both operands valid and comparison true, else gracefully handles null/unset.
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   */
+  public static ControlFlowChainDetails createComparisonCoalescing(
+      String result,
+      List<ConditionCaseDetails> conditionChain,
+      List<IRInstr> defaultBodyEvaluation,
+      String defaultResult,
+      DebugInfo debugInfo,
+      String scopeId,
+      String chainType) {
+
+    return new ControlFlowChainDetails(
+        result,
+        chainType, // e.g., "LESS_THAN_COALESCING_OPERATOR"
+        GuardVariableDetails.none(), // No guard variables for comparison coalescing
+        EvaluationVariableDetails.none(), // No evaluation variable for comparison coalescing
+        ReturnVariableDetails.none(), // No return variable for comparison coalescing
+        conditionChain,
+        DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
+        null, // No enum optimization
+        null, // No try block
+        List.of(), // No finally block
+        debugInfo,
+        scopeId
+    );
+  }
+
+  /**
    * Create details for an if/else statement.
    * STACK-BASED: scopeId parameter extracted from stack context in generator.
    */

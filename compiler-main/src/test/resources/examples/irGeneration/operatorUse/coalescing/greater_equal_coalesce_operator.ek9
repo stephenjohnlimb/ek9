@@ -1,0 +1,163 @@
+#!ek9
+<?-
+  Test IR generation for greater-equal coalescing operator (>=?)
+
+  Purpose: Verify IR generation for greater-equal coalescing operator that gracefully
+  handles null/unset operands while returning the greater/equal value when both are valid.
+
+  Expected IR: CONTROL_FLOW_CHAIN with 6 cases:
+  - Case 1: NULL_CHECK on LHS → if null, return RHS
+  - Case 2: IS_SET check on LHS → if not set, return RHS
+  - Case 3: NULL_CHECK on RHS → if null, return LHS
+  - Case 4: IS_SET check on RHS → if not set, return LHS
+  - Case 5: COMPARISON (LHS >= RHS) → if true, return LHS
+  - Default: return RHS
+-?>
+defines module greaterEqualCoalesce.test
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "greaterEqualCoalesce.test::testGreaterEqualCoalesce": `
+    ConstructDfn: greaterEqualCoalesce.test::testGreaterEqualCoalesce()->org.ek9.lang::Void
+    OperationDfn: greaterEqualCoalesce.test::testGreaterEqualCoalesce.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: greaterEqualCoalesce.test::testGreaterEqualCoalesce.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: greaterEqualCoalesce.test::testGreaterEqualCoalesce.testGreaterEqualCoalesce()->greaterEqualCoalesce.test::testGreaterEqualCoalesce
+    BasicBlock: _entry_1
+    CALL (greaterEqualCoalesce.test::testGreaterEqualCoalesce)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: greaterEqualCoalesce.test::testGreaterEqualCoalesce._call()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE x, org.ek9.lang::Integer
+    _temp1 = LOAD_LITERAL 10, org.ek9.lang::Integer
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE x, _temp1
+    RETAIN x
+    SCOPE_REGISTER x, _scope_1
+    REFERENCE y, org.ek9.lang::Integer
+    _temp2 = LOAD_LITERAL 10, org.ek9.lang::Integer
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    STORE y, _temp2
+    RETAIN y
+    SCOPE_REGISTER y, _scope_1
+    REFERENCE result, org.ek9.lang::Integer
+    _temp3 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "GREATER_EQUAL_COALESCING_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_1
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp4 = LOAD x
+    _temp5 = IS_NULL _temp4
+    ]
+    primitive_condition: _temp5
+    body_evaluation:
+    [
+    _temp6 = LOAD y
+    ]
+    body_result: _temp6
+    ],
+    [
+    case_scope_id: _scope_1
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    _temp7 = CALL (org.ek9.lang::Integer)_temp4._isSet() [pure=true, complexity=0]
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_1
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp7._false() [pure=true, complexity=0]
+    ]
+    condition_result: _temp7
+    primitive_condition: _temp8
+    body_evaluation:
+    [
+    _temp6 = LOAD y
+    ]
+    body_result: _temp6
+    ],
+    [
+    case_scope_id: _scope_1
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp6 = LOAD y
+    _temp9 = IS_NULL _temp6
+    ]
+    primitive_condition: _temp9
+    body_evaluation:
+    [
+    ]
+    body_result: _temp4
+    ],
+    [
+    case_scope_id: _scope_1
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    _temp10 = CALL (org.ek9.lang::Integer)_temp6._isSet() [pure=true, complexity=0]
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_1
+    _temp11 = CALL (org.ek9.lang::Boolean)_temp10._false() [pure=true, complexity=0]
+    ]
+    condition_result: _temp10
+    primitive_condition: _temp11
+    body_evaluation:
+    [
+    ]
+    body_result: _temp4
+    ],
+    [
+    case_scope_id: _scope_1
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    _temp12 = CALL (org.ek9.lang::Integer)_temp4._gteq(org.ek9.lang::Integer) [pure=true, complexity=2]
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_1
+    _temp13 = CALL (org.ek9.lang::Boolean)_temp12._true() [pure=true, complexity=0]
+    ]
+    condition_result: _temp12
+    primitive_condition: _temp13
+    body_evaluation:
+    [
+    ]
+    body_result: _temp4
+    ]
+    ]
+    scope_id: _scope_1
+    ]
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_1
+    STORE result, _temp3
+    RETAIN result
+    SCOPE_REGISTER result, _scope_1
+    _temp15 = LOAD result
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, _scope_1
+    _temp16 = LOAD_LITERAL 10, org.ek9.lang::Integer
+    RETAIN _temp16
+    SCOPE_REGISTER _temp16, _scope_1
+    _temp14 = CALL (org.ek9.lang::Integer)_temp15._eq(_temp16) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, _scope_1
+    _temp17 = CALL (org.ek9.lang::Boolean)_temp14._true() [pure=true, complexity=0]
+    ASSERT _temp17
+    SCOPE_EXIT _scope_1
+    RETURN`
+    testGreaterEqualCoalesce()
+      x <- 10
+      y <- 10
+      result <- x >=? y  // Returns 10 (equal values, LHS returned)
+      assert result == 10
+
+//EOF

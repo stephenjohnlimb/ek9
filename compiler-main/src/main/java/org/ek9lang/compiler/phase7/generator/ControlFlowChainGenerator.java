@@ -15,6 +15,8 @@ import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
+import org.ek9lang.compiler.ir.data.CallDetails;
+import org.ek9lang.compiler.ir.data.CallMetaDataDetails;
 import org.ek9lang.compiler.phase7.calls.BooleanNotCallDetailsCreator;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForIsFalse;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForIsTrue;
@@ -426,6 +428,184 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         lhsTemp,
         debugInfo,
         scopeId
+    );
+
+    return apply(controlFlowChainDetails);
+  }
+
+  /**
+   * Generate CONTROL_FLOW_CHAIN for Comparison Coalescing operators (&lt;?, &gt;?, &lt;=?, &gt;=?).
+   * Returns LHS if both operands valid and comparison true, else gracefully handles null/unset.
+   * <p>
+   * IR Structure: 6 cases + default<br>
+   * Case 1: NULL_CHECK on LHS → if null, return RHS<br>
+   * Case 2: IS_SET check on LHS → if not set, return RHS<br>
+   * Case 3: NULL_CHECK on RHS → if null, return LHS<br>
+   * Case 4: IS_SET check on RHS → if not set, return LHS<br>
+   * Case 5: COMPARISON (LHS comp RHS) → if true, return LHS<br>
+   * Default: return RHS<br>
+   * </p>
+   *
+   * @param comparisonOperator The comparison operator method name (e.g., "_lt", "_gt", "_lteq", "_gteq")
+   * @param chainType The chain type for IR (e.g., "LESS_THAN_COALESCING_OPERATOR")
+   */
+  public List<IRInstr> generateComparisonCoalescing(final ExprProcessingDetails lhsDetails,
+                                                     final ExprProcessingDetails rhsDetails,
+                                                     final String comparisonOperator,
+                                                     final String chainType) {
+    final var resultVariable = lhsDetails.variableDetails().resultVariable();
+    final var debugInfo = lhsDetails.variableDetails().debugInfo();
+    final var scopeId = stackContext.currentScopeId();
+
+    // Generate LHS evaluation - result stored in temp
+    final var lhsTemp = stackContext.generateTempName();
+    final var lhsTempDetails = new VariableDetails(lhsTemp, debugInfo);
+    final var lhsProcessingDetails = new ExprProcessingDetails(lhsDetails.ctx().left, lhsTempDetails);
+    final var lhsEvaluationInstructions = new ArrayList<>(rawExprProcessor.apply(lhsProcessingDetails));
+
+    // Add IS_NULL check on LHS
+    final var lhsNullCheckCondition = stackContext.generateTempName();
+    lhsEvaluationInstructions.add(MemoryInstr.isNull(lhsNullCheckCondition, lhsTemp, debugInfo));
+
+    // Generate RHS evaluation instructions (shared by multiple cases)
+    final var rhsTemp = stackContext.generateTempName();
+    final var rhsTempDetails = new VariableDetails(rhsTemp, debugInfo);
+    final var rhsProcessingDetails = new ExprProcessingDetails(rhsDetails.ctx().right, rhsTempDetails);
+    final var rhsEvaluationInstructions = rawExprProcessor.apply(rhsProcessingDetails);
+
+    // Case 1: NULL_CHECK on LHS → if null, return RHS
+    final var lhsNullCheckCase = ConditionCaseDetails.createNullCheck(
+        scopeId,
+        lhsEvaluationInstructions,
+        null, // No EK9 Boolean condition result for null check
+        lhsNullCheckCondition, // primitive boolean condition
+        rhsEvaluationInstructions,
+        rhsTemp
+    );
+
+    // Case 2: IS_SET check on LHS → if NOT set, return RHS
+    final var lhsIsSetCheckInstructions = new ArrayList<IRInstr>();
+    final var lhsIsSetResultTemp = stackContext.generateTempName();
+    final var lhsIsSetResultDetails = new VariableDetails(lhsIsSetResultTemp, debugInfo);
+
+    // Get LHS type for _isSet() call
+    final var lhsType = typeNameOrException.apply(getRecordedSymbolOrException(lhsDetails.ctx().left));
+
+    // Call _isSet() on LHS using helper (includes memory management)
+    lhsIsSetCheckInstructions.addAll(isSetEvaluationCreator.apply(lhsTemp, lhsType, lhsIsSetResultDetails));
+
+    // Extract inverted primitive: if NOT set (use ._false() instead of ._negate()._true())
+    final var lhsInvertedPrimitiveTemp = stackContext.generateTempName();
+    final var callDetailsForIsFalse = new CallDetailsForIsFalse();
+    lhsIsSetCheckInstructions.add(CallInstr.operator(
+        new VariableDetails(lhsInvertedPrimitiveTemp, debugInfo),
+        callDetailsForIsFalse.apply(lhsIsSetResultTemp)
+    ));
+
+    final var lhsIsSetCheckCase = ConditionCaseDetails.createExpression(
+        scopeId,
+        lhsIsSetCheckInstructions,
+        lhsIsSetResultTemp, // EK9 Boolean result
+        lhsInvertedPrimitiveTemp, // Inverted primitive condition
+        rhsEvaluationInstructions,
+        rhsTemp
+    );
+
+    // Now evaluate RHS for cases 3 and 4
+    final var rhsEvalInstructions = new ArrayList<>(rhsEvaluationInstructions);
+
+    // Add IS_NULL check on RHS
+    final var rhsNullCheckCondition = stackContext.generateTempName();
+    rhsEvalInstructions.add(MemoryInstr.isNull(rhsNullCheckCondition, rhsTemp, debugInfo));
+
+    // Case 3: NULL_CHECK on RHS → if null, return LHS
+    final var rhsNullCheckCase = ConditionCaseDetails.createNullCheck(
+        scopeId,
+        rhsEvalInstructions,
+        null, // No EK9 Boolean condition result for null check
+        rhsNullCheckCondition, // primitive boolean condition
+        List.of(), // LHS already evaluated, no body needed
+        lhsTemp
+    );
+
+    // Case 4: IS_SET check on RHS → if NOT set, return LHS
+    final var rhsIsSetCheckInstructions = new ArrayList<IRInstr>();
+    final var rhsIsSetResultTemp = stackContext.generateTempName();
+    final var rhsIsSetResultDetails = new VariableDetails(rhsIsSetResultTemp, debugInfo);
+
+    // Get RHS type for _isSet() call
+    final var rhsType = typeNameOrException.apply(getRecordedSymbolOrException(rhsDetails.ctx().right));
+
+    // Call _isSet() on RHS using helper (includes memory management)
+    rhsIsSetCheckInstructions.addAll(isSetEvaluationCreator.apply(rhsTemp, rhsType, rhsIsSetResultDetails));
+
+    // Extract inverted primitive: if NOT set (use ._false() instead of ._negate()._true())
+    final var rhsInvertedPrimitiveTemp = stackContext.generateTempName();
+    rhsIsSetCheckInstructions.add(CallInstr.operator(
+        new VariableDetails(rhsInvertedPrimitiveTemp, debugInfo),
+        callDetailsForIsFalse.apply(rhsIsSetResultTemp)
+    ));
+
+    final var rhsIsSetCheckCase = ConditionCaseDetails.createExpression(
+        scopeId,
+        rhsIsSetCheckInstructions,
+        rhsIsSetResultTemp, // EK9 Boolean result
+        rhsInvertedPrimitiveTemp, // Inverted primitive condition
+        List.of(), // LHS already evaluated, no body needed
+        lhsTemp
+    );
+
+    // Case 5: COMPARISON (LHS comp RHS) → if true, return LHS
+    final var comparisonInstructions = new ArrayList<IRInstr>();
+    final var comparisonResultTemp = stackContext.generateTempName();
+    final var comparisonResultDetails = new VariableDetails(comparisonResultTemp, debugInfo);
+
+    // Create comparison call (e.g., lhs._lt(rhs))
+    final var comparisonCallDetails = new CallDetails(
+        lhsTemp,
+        lhsType,
+        comparisonOperator,
+        List.of(rhsTemp),
+        "org.ek9.lang::Boolean",
+        List.of(rhsType),
+        new CallMetaDataDetails(true, 2),
+        false
+    );
+
+    comparisonInstructions.add(CallInstr.operator(comparisonResultDetails, comparisonCallDetails));
+    comparisonInstructions.add(MemoryInstr.retain(comparisonResultTemp, debugInfo));
+    comparisonInstructions.add(ScopeInstr.register(comparisonResultTemp, scopeId, debugInfo));
+
+    // Extract primitive boolean from comparison result
+    final var comparisonPrimitiveTemp = stackContext.generateTempName();
+    final var callDetailsForIsTrue = new CallDetailsForIsTrue();
+    comparisonInstructions.add(CallInstr.operator(
+        new VariableDetails(comparisonPrimitiveTemp, debugInfo),
+        callDetailsForIsTrue.apply(comparisonResultTemp)
+    ));
+
+    final var comparisonCase = ConditionCaseDetails.createExpression(
+        scopeId,
+        comparisonInstructions,
+        comparisonResultTemp, // EK9 Boolean result
+        comparisonPrimitiveTemp, // Primitive condition
+        List.of(), // LHS already evaluated, no body needed
+        lhsTemp
+    );
+
+    // Default case: return RHS
+    final var defaultBodyEvaluation = List.<IRInstr>of(); // RHS already evaluated
+    final var defaultResult = rhsTemp;
+
+    // Create the comparison coalescing chain details
+    final var controlFlowChainDetails = ControlFlowChainDetails.createComparisonCoalescing(
+        resultVariable,
+        List.of(lhsNullCheckCase, lhsIsSetCheckCase, rhsNullCheckCase, rhsIsSetCheckCase, comparisonCase),
+        defaultBodyEvaluation,
+        defaultResult,
+        debugInfo,
+        scopeId,
+        chainType
     );
 
     return apply(controlFlowChainDetails);

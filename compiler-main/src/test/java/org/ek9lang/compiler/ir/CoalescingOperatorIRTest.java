@@ -13,7 +13,11 @@ class CoalescingOperatorIRTest extends AbstractIRGenerationTest {
     super("/examples/irGeneration/operatorUse/coalescing",
         List.of(
             new SymbolCountCheck(1, "nullCoalesce.test", 1),
-            new SymbolCountCheck(1, "elvisCoalesce.test", 1)
+            new SymbolCountCheck(1, "elvisCoalesce.test", 1),
+            new SymbolCountCheck(1, "lessThanCoalesce.test", 1),
+            new SymbolCountCheck(1, "greaterThanCoalesce.test", 1),
+            new SymbolCountCheck(1, "lessEqualCoalesce.test", 1),
+            new SymbolCountCheck(1, "greaterEqualCoalesce.test", 1)
         ), false, false, false);
   }
 

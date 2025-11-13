@@ -166,9 +166,21 @@ public final class ExprInstrGenerator extends AbstractGenerator
   }
 
   private List<IRInstr> processCoalescingEquality(final ExprProcessingDetails details) {
-    final var instructions = new ArrayList<IRInstr>();
-    AssertValue.fail("ProcessCoalescingEquality not yet implemented");
-    return instructions;
+    final var ctx = details.ctx();
+    final var coalescingType = ctx.coalescing_equality.getType();
+
+    // Map parser tokens to operator method names and chain types
+    return switch (coalescingType) {
+      case EK9Parser.COALESCE_LT -> generators.controlFlowChainGenerator.generateComparisonCoalescing(
+          details, details, "_lt", "LESS_THAN_COALESCING_OPERATOR");
+      case EK9Parser.COALESCE_LE -> generators.controlFlowChainGenerator.generateComparisonCoalescing(
+          details, details, "_lteq", "LESS_EQUAL_COALESCING_OPERATOR");
+      case EK9Parser.COALESCE_GT -> generators.controlFlowChainGenerator.generateComparisonCoalescing(
+          details, details, "_gt", "GREATER_THAN_COALESCING_OPERATOR");
+      case EK9Parser.COALESCE_GE -> generators.controlFlowChainGenerator.generateComparisonCoalescing(
+          details, details, "_gteq", "GREATER_EQUAL_COALESCING_OPERATOR");
+      default -> throw new CompilerException("Unsupported coalescing equality operator: " + coalescingType);
+    };
   }
 
   /**
