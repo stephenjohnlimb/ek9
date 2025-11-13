@@ -151,9 +151,18 @@ public final class ExprInstrGenerator extends AbstractGenerator
   }
 
   private List<IRInstr> processCoalescing(final ExprProcessingDetails details) {
-    final var instructions = new ArrayList<IRInstr>();
-    AssertValue.fail("ProcessCoalescing not yet implemented");
-    return instructions;
+    final var ctx = details.ctx();
+    final var coalescingType = ctx.coalescing.getType();
+
+    if (coalescingType == EK9Parser.CHECK) {
+      // Null coalescing operator (??)
+      return generators.controlFlowChainGenerator.generateNullCoalescing(details, details);
+    } else if (coalescingType == EK9Parser.ELVIS) {
+      // Elvis coalescing operator (:?)
+      return generators.controlFlowChainGenerator.generateElvisCoalescing(details, details);
+    } else {
+      throw new CompilerException("Unsupported coalescing operator: " + coalescingType);
+    }
   }
 
   private List<IRInstr> processCoalescingEquality(final ExprProcessingDetails details) {

@@ -129,6 +129,63 @@ public record ControlFlowChainDetails(
   }
 
   /**
+   * Create details for a Null Coalescing operator (??).
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   */
+  public static ControlFlowChainDetails createNullCoalescing(
+      String result,
+      List<ConditionCaseDetails> conditionChain,
+      List<IRInstr> defaultBodyEvaluation,
+      String defaultResult,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    return new ControlFlowChainDetails(
+        result,
+        "NULL_COALESCING_OPERATOR",
+        GuardVariableDetails.none(), // No guard variables for null coalescing
+        EvaluationVariableDetails.none(), // No evaluation variable for null coalescing
+        ReturnVariableDetails.none(), // No return variable for null coalescing
+        conditionChain,
+        DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
+        null, // No enum optimization
+        null, // No try block
+        List.of(), // No finally block
+        debugInfo,
+        scopeId
+    );
+  }
+
+  /**
+   * Create details for an Elvis Coalescing operator (:?).
+   * Returns LHS if both memory allocated AND set, otherwise evaluates and returns RHS.
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   */
+  public static ControlFlowChainDetails createElvisCoalescing(
+      String result,
+      List<ConditionCaseDetails> conditionChain,
+      List<IRInstr> defaultBodyEvaluation,
+      String defaultResult,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    return new ControlFlowChainDetails(
+        result,
+        "ELVIS_COALESCING_OPERATOR",
+        GuardVariableDetails.none(), // No guard variables for elvis coalescing
+        EvaluationVariableDetails.none(), // No evaluation variable for elvis coalescing
+        ReturnVariableDetails.none(), // No return variable for elvis coalescing
+        conditionChain,
+        DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
+        null, // No enum optimization
+        null, // No try block
+        List.of(), // No finally block
+        debugInfo,
+        scopeId
+    );
+  }
+
+  /**
    * Create details for an if/else statement.
    * STACK-BASED: scopeId parameter extracted from stack context in generator.
    */

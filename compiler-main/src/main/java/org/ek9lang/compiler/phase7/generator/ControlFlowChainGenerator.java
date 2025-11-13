@@ -16,6 +16,7 @@ import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.calls.BooleanNotCallDetailsCreator;
+import org.ek9lang.compiler.phase7.calls.CallDetailsForIsFalse;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForIsTrue;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForOfFalse;
 import org.ek9lang.compiler.phase7.calls.IsSetCallDetailsCreator;
@@ -278,6 +279,151 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         null, // No enum optimization
         null, // No try block
         List.of(), // No finally block
+        debugInfo,
+        scopeId
+    );
+
+    return apply(controlFlowChainDetails);
+  }
+
+  /**
+   * Generate CONTROL_FLOW_CHAIN for Null Coalescing operator (??).
+   * Returns LHS if memory allocated (even if unset), else evaluates and returns RHS.
+   * <p>
+   * IR Structure: 1 case + default<br>
+   * Case 1: NULL_CHECK - if LHS is null → evaluate and return RHS<br>
+   * Default: LHS not null → return LHS (even if unset)<br>
+   * </p>
+   */
+  public List<IRInstr> generateNullCoalescing(final ExprProcessingDetails lhsDetails,
+                                              final ExprProcessingDetails rhsDetails) {
+    final var resultVariable = lhsDetails.variableDetails().resultVariable();
+    final var debugInfo = lhsDetails.variableDetails().debugInfo();
+    final var scopeId = stackContext.currentScopeId();
+
+    // Generate LHS evaluation - result stored in temp
+    final var lhsTemp = stackContext.generateTempName();
+    final var lhsTempDetails = new VariableDetails(lhsTemp, debugInfo);
+    final var lhsProcessingDetails = new ExprProcessingDetails(lhsDetails.ctx().left, lhsTempDetails);
+    final var lhsEvaluationInstructions = new ArrayList<>(rawExprProcessor.apply(lhsProcessingDetails));
+
+    // Add IS_NULL check on LHS
+    final var nullCheckCondition = stackContext.generateTempName();
+    lhsEvaluationInstructions.add(MemoryInstr.isNull(nullCheckCondition, lhsTemp, debugInfo));
+
+    // Create null check case: if LHS is null → evaluate RHS
+    final var rhsTemp = stackContext.generateTempName();
+    final var rhsTempDetails = new VariableDetails(rhsTemp, debugInfo);
+    final var rhsProcessingDetails = new ExprProcessingDetails(rhsDetails.ctx().right, rhsTempDetails);
+    final var rhsEvaluationInstructions = rawExprProcessor.apply(rhsProcessingDetails);
+
+    final var nullCheckCase = ConditionCaseDetails.createNullCheck(
+        scopeId,
+        lhsEvaluationInstructions,
+        null, // No EK9 Boolean condition result for null check
+        nullCheckCondition, // primitive boolean condition
+        rhsEvaluationInstructions,
+        rhsTemp
+    );
+
+    // Create default case: LHS not null → return LHS (no additional evaluation needed)
+    final var defaultBodyEvaluation = List.<IRInstr>of(); // LHS already evaluated
+
+    // Create the null coalescing chain details
+    final var controlFlowChainDetails = ControlFlowChainDetails.createNullCoalescing(
+        resultVariable,
+        List.of(nullCheckCase),
+        defaultBodyEvaluation,
+        lhsTemp,
+        debugInfo,
+        scopeId
+    );
+
+    return apply(controlFlowChainDetails);
+  }
+
+  /**
+   * Generate CONTROL_FLOW_CHAIN for Elvis Coalescing operator (:?).
+   * Returns LHS if memory allocated AND set, else evaluates and returns RHS.
+   * <p>
+   * IR Structure: 2 cases + default<br>
+   * Case 1: NULL_CHECK - if LHS is null → evaluate and return RHS<br>
+   * Case 2: IS_SET check - if LHS is not set → evaluate and return RHS<br>
+   * Default: LHS is set → return LHS<br>
+   * </p>
+   * <p>
+   * Safety: NULL_CHECK always precedes _isSet() call to prevent accessing unallocated memory.
+   * </p>
+   */
+  public List<IRInstr> generateElvisCoalescing(final ExprProcessingDetails lhsDetails,
+                                               final ExprProcessingDetails rhsDetails) {
+    final var resultVariable = lhsDetails.variableDetails().resultVariable();
+    final var debugInfo = lhsDetails.variableDetails().debugInfo();
+    final var scopeId = stackContext.currentScopeId();
+
+    // Generate LHS evaluation - result stored in temp
+    final var lhsTemp = stackContext.generateTempName();
+    final var lhsTempDetails = new VariableDetails(lhsTemp, debugInfo);
+    final var lhsProcessingDetails = new ExprProcessingDetails(lhsDetails.ctx().left, lhsTempDetails);
+    final var lhsEvaluationInstructions = new ArrayList<>(rawExprProcessor.apply(lhsProcessingDetails));
+
+    // Add IS_NULL check on LHS
+    final var nullCheckCondition = stackContext.generateTempName();
+    lhsEvaluationInstructions.add(MemoryInstr.isNull(nullCheckCondition, lhsTemp, debugInfo));
+
+    // Create RHS evaluation instructions (shared by both cases)
+    final var rhsTemp = stackContext.generateTempName();
+    final var rhsTempDetails = new VariableDetails(rhsTemp, debugInfo);
+    final var rhsProcessingDetails = new ExprProcessingDetails(rhsDetails.ctx().right, rhsTempDetails);
+    final var rhsEvaluationInstructions = rawExprProcessor.apply(rhsProcessingDetails);
+
+    // Case 1: NULL_CHECK - if LHS is null → evaluate RHS
+    final var nullCheckCase = ConditionCaseDetails.createNullCheck(
+        scopeId,
+        lhsEvaluationInstructions,
+        null, // No EK9 Boolean condition result for null check
+        nullCheckCondition, // primitive boolean condition
+        rhsEvaluationInstructions,
+        rhsTemp
+    );
+
+    // Case 2: IS_SET check - if LHS is NOT set → evaluate RHS
+    // Safe to call _isSet() here because null check passed
+    final var isSetResultTemp = stackContext.generateTempName();
+    final var isSetResultDetails = new VariableDetails(isSetResultTemp, debugInfo);
+
+    // Get LHS type for _isSet() call
+    final var lhsType = typeNameOrException.apply(getRecordedSymbolOrException(lhsDetails.ctx().left));
+
+    // Call _isSet() on LHS using helper (includes memory management)
+    final var isSetCheckInstructions = new ArrayList<>(isSetEvaluationCreator.apply(lhsTemp, lhsType, isSetResultDetails));
+
+    // Extract inverted primitive: if NOT set (use ._false() instead of ._negate()._true())
+    final var invertedPrimitiveTemp = stackContext.generateTempName();
+    final var callDetailsForIsFalse = new CallDetailsForIsFalse();
+    isSetCheckInstructions.add(CallInstr.operator(
+        new VariableDetails(invertedPrimitiveTemp, debugInfo),
+        callDetailsForIsFalse.apply(isSetResultTemp)
+    ));
+
+    final var isSetCheckCase = ConditionCaseDetails.createExpression(
+        scopeId,
+        isSetCheckInstructions,
+        isSetResultTemp, // EK9 Boolean result
+        invertedPrimitiveTemp, // Inverted primitive condition
+        rhsEvaluationInstructions,
+        rhsTemp
+    );
+
+    // Default case: LHS is set → return LHS
+    final var defaultBodyEvaluation = List.<IRInstr>of(); // LHS already evaluated
+
+    // Create the elvis coalescing chain details
+    final var controlFlowChainDetails = ControlFlowChainDetails.createElvisCoalescing(
+        resultVariable,
+        List.of(nullCheckCase, isSetCheckCase),
+        defaultBodyEvaluation,
+        lhsTemp,
         debugInfo,
         scopeId
     );

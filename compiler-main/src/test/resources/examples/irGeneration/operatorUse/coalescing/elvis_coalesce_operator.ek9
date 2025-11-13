@@ -1,0 +1,114 @@
+#!ek9
+<?-
+  Test IR generation for Elvis coalescing operator (?:)
+
+  Purpose: Verify IR generation for Elvis coalescing operator that returns
+  LHS if memory allocated AND set, otherwise evaluates and returns RHS.
+
+  Expected IR: CONTROL_FLOW_CHAIN with NULL_CHECK + IS_SET cases + default
+  - NULL_CHECK case: if LHS is null → evaluate and return RHS
+  - IS_SET check: if LHS is not set → evaluate and return RHS
+  - Default case: LHS is set → return LHS
+
+  Safety: NULL_CHECK always precedes _isSet() call
+-?>
+defines module elvisCoalesce.test
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "elvisCoalesce.test::testElvisCoalesce": `
+    ConstructDfn: elvisCoalesce.test::testElvisCoalesce()->org.ek9.lang::Void
+    OperationDfn: elvisCoalesce.test::testElvisCoalesce.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: elvisCoalesce.test::testElvisCoalesce.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: elvisCoalesce.test::testElvisCoalesce.testElvisCoalesce()->elvisCoalesce.test::testElvisCoalesce
+    BasicBlock: _entry_1
+    CALL (elvisCoalesce.test::testElvisCoalesce)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: elvisCoalesce.test::testElvisCoalesce._call()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE x, org.ek9.lang::Integer
+    _temp1 = LOAD_LITERAL 5, org.ek9.lang::Integer
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE x, _temp1
+    RETAIN x
+    SCOPE_REGISTER x, _scope_1
+    REFERENCE y, org.ek9.lang::Integer
+    _temp2 = LOAD_LITERAL 10, org.ek9.lang::Integer
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    STORE y, _temp2
+    RETAIN y
+    SCOPE_REGISTER y, _scope_1
+    REFERENCE result, org.ek9.lang::Integer
+    _temp3 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "ELVIS_COALESCING_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_1
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp4 = LOAD x
+    _temp5 = IS_NULL _temp4
+    ]
+    primitive_condition: _temp5
+    body_evaluation:
+    [
+    _temp6 = LOAD y
+    ]
+    body_result: _temp6
+    ],
+    [
+    case_scope_id: _scope_1
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    _temp7 = CALL (org.ek9.lang::Integer)_temp4._isSet() [pure=true, complexity=0]
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_1
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp7._false() [pure=true, complexity=0]
+    ]
+    condition_result: _temp7
+    primitive_condition: _temp8
+    body_evaluation:
+    [
+    _temp6 = LOAD y
+    ]
+    body_result: _temp6
+    ]
+    ]
+    scope_id: _scope_1
+    ]
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_1
+    STORE result, _temp3
+    RETAIN result
+    SCOPE_REGISTER result, _scope_1
+    _temp10 = LOAD result
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_1
+    _temp11 = LOAD_LITERAL 5, org.ek9.lang::Integer
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_1
+    _temp9 = CALL (org.ek9.lang::Integer)_temp10._eq(_temp11) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_1
+    _temp12 = CALL (org.ek9.lang::Boolean)_temp9._true() [pure=true, complexity=0]
+    ASSERT _temp12
+    SCOPE_EXIT _scope_1
+    RETURN`
+    testElvisCoalesce()
+      x <- 5
+      y <- 10
+      result <- x ?: y  // Returns 5 (LHS is set)
+      assert result == 5
+
+//EOF
