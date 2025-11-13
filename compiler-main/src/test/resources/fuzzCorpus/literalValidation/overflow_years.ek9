@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.duration.overflow
   defines program
-    Test()
+    TestOverflowYears()
       d <- P999999999999Y
       stdout <- Stdout()
       if d?

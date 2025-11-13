@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.binary.overflow65
   defines program
-    Test()
+    TestOverflow65Bits()
       b <- 0b11111111111111111111111111111111111111111111111111111111111111111
       stdout <- Stdout()
       if b?

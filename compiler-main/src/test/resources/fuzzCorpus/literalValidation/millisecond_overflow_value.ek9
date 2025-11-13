@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.millisecond.overflow
   defines program
-    Test()
+    TestMillisecondOverflowValue()
       ms <- 999999999999ms
       stdout <- Stdout()
       if ms?

@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.integer.decimal.overflow
   defines program
-    Test()
+    TestOverflowDecimal()
       i <- 99999999999999999999999999
       stdout <- Stdout()
       if i?

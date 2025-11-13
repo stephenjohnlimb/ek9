@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.binary.overflowpattern
   defines program
-    Test()
+    TestOverflowPattern()
       b <- 0b10101010101010101010101010101010101010101010101010101010101010101
       stdout <- Stdout()
       if b?

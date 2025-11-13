@@ -25,7 +25,7 @@ class ConstructorCallsTest extends AbstractBytecodeGenerationTest {
     //          ChildCallingSynthetic, DelegatingConstructor
     super("/examples/bytecodeGeneration/constructorCalls",
         List.of(new SymbolCountCheck("bytecode.test", 6)),
-        false, false, true);  // showBytecode=true - extracting bytecode
+        false, false, false);  // showBytecode=true - extracting bytecode
   }
 
   @Override

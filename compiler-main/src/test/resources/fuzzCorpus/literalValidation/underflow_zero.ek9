@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.float.underflow
   defines program
-    Test()
+    TestUnderflowZero()
       f <- 1e-400
       stdout <- Stdout()
       if f?

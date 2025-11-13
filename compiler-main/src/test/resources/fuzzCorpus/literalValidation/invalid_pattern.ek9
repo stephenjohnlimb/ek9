@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.regex.invalid
   defines program
-    Test()
+    TestInvalidPattern()
       r <- /(?/
       stdout <- Stdout()
       if r?

@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.float.extreme
   defines program
-    Test()
+    TestExtremeExponent()
       f <- 9e9999
       stdout <- Stdout()
       if f?

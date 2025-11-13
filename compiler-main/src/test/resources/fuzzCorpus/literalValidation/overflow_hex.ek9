@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.integer.hex.overflow
   defines program
-    Test()
+    TestOverflowHex()
       i <- 0xFFFFFFFFFFFFFFFFFFFF
       stdout <- Stdout()
       if i?

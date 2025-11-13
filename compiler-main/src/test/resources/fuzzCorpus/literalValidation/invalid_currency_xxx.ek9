@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.money.xxx
   defines program
-    Test()
+    TestInvalidCurrencyXxx()
       m <- 10.50#XXX
       stdout <- Stdout()
       if m?

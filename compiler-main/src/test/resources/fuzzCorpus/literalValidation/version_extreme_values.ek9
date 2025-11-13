@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.version.extreme
   defines program
-    Test()
+    TestVersionExtremeValues()
       v <- 999999.999999.999999-999999
       stdout <- Stdout()
       if v?

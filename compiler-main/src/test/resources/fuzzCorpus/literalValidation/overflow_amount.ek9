@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.money.overflow
   defines program
-    Test()
+    TestOverflowAmount()
       m <- 99999999999999.99#USD
       stdout <- Stdout()
       if m?

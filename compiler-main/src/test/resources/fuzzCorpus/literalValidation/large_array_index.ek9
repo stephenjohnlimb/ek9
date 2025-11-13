@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.path.largeindex
   defines program
-    Test()
+    TestLargeArrayIndex()
       p <- $?[99999]
       stdout <- Stdout()
       if p?

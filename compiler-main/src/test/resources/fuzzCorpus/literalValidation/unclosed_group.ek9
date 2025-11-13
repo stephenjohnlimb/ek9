@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.regex.unclosed
   defines program
-    Test()
+    TestUnclosedGroup()
       r <- /(?P<unclosed/
       stdout <- Stdout()
       if r?

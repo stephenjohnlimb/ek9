@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.millisecond.zero
   defines program
-    Test()
+    TestMillisecondEdgeCaseZero()
       ms <- 0ms
       stdout <- Stdout()
       if ms?

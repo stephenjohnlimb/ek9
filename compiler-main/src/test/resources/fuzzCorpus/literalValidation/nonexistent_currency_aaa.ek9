@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.money.aaa
   defines program
-    Test()
+    TestNonexistentCurrencyAaa()
       m <- 10.50#AAA
       stdout <- Stdout()
       if m?

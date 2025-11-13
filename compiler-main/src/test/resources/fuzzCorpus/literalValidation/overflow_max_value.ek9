@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.float.overflow
   defines program
-    Test()
+    TestOverflowMaxValue()
       f <- 1.7976931348623157e309
       stdout <- Stdout()
       if f?

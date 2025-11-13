@@ -8,7 +8,7 @@
 -?>
 defines module fuzz.literal.regex.unbalanced
   defines program
-    Test()
+    TestUnbalancedBrackets()
       r <- /[/
       stdout <- Stdout()
       if r?
