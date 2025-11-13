@@ -1,0 +1,4 @@
+=== Case 2: Normal resource usage ===
+Processing normally
+Closing resource: test
+After: Normal completion

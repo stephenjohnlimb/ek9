@@ -1,0 +1,4 @@
+=== Case 2: Try/catch normal path ===
+Try: Executing normally
+Try: Value = 42
+After: Normal completion

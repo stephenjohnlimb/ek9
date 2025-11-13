@@ -1,0 +1,5 @@
+=== Case 4: Try/catch/finally exception caught ===
+Try: Throwing exception
+Catch: Caught test exception
+Finally: Executes after catch
+After: All blocks executed

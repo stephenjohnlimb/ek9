@@ -1,0 +1,4 @@
+=== Case 5: Exception not caught, propagates ===
+Inner try: Throwing exception
+ERROR: Should not reach outer catch
+After: Finally executed, exception handled

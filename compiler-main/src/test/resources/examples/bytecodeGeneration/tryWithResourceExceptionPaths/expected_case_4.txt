@@ -1,0 +1,6 @@
+=== Case 4: Multiple resources with exception ===
+Using both resources
+Caught test exception
+Closing resource: second
+Closing resource: first
+After: Both resources closed in reverse order

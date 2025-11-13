@@ -1,0 +1,5 @@
+=== Case 1: Exception during resource usage ===
+Using resource
+Caught test exception
+Closing resource: test
+After: Resource should be closed

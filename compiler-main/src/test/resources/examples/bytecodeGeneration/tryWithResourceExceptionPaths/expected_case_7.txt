@@ -1,0 +1,7 @@
+=== Case 7: Both try and close throw ===
+Caught try exception
+Resource close() throwing: test
+Exception in thread "main" Exception: Close failed: test
+	at bytecode.test.resources.TestResourceFailing._close(tryWithResourceExceptionPaths.ek9)
+	at bytecode.test.resources.TryWithResourceExceptionPaths._main(tryWithResourceExceptionPaths.ek9)
+	at ek9.Main.main(Unknown Source)

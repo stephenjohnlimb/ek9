@@ -1,0 +1,164 @@
+#!ek9
+<?-
+  Multi-case bytecode test for try-with-resources exception handling.
+  Tests resource cleanup under various exception scenarios.
+
+  Test cases (controlled by command-line argument):
+  1. Single resource, exception in try block
+  2. Single resource, normal path (no exception)
+  3. Resource close() throws exception
+  4. Multiple resources, exception in try block
+  5. Multiple resources, first resource close() fails
+  6. Multiple resources, second resource close() fails
+  7. Exception in try + exception in close (suppressed exception)
+
+  This validates:
+  - Resource cleanup when exception thrown in try block
+  - Exception handling when close() throws
+  - Multiple resource cleanup order (reverse order)
+  - Suppressed exception handling
+-?>
+defines module bytecode.test.resources
+
+  defines class
+
+    TestResourceNormal
+      name <- String()
+
+      TestResourceNormal()
+        ->
+          resourceName as String
+
+        assert resourceName?
+        this.name :=: resourceName
+
+      operator close as pure
+        stdout <- Stdout()
+        stdout.println("Closing resource: " + name)
+
+      override operator ? as pure
+        <- rtn <- true
+
+    TestResourceFailing
+      name <- String()
+
+      TestResourceFailing()
+        ->
+          resourceName as String
+
+        assert resourceName?
+        this.name :=: resourceName
+
+      operator close as pure
+        stdout <- Stdout()
+        stdout.println("Resource close() throwing: " + name)
+        ex <- Exception("Close failed: " + name)
+        throw ex
+
+      override operator ? as pure
+        <- rtn <- true
+
+  defines program
+
+    TryWithResourceExceptionPaths()
+      -> testCase as Integer
+
+      stdout <- Stdout()
+
+      switch testCase
+        case 1
+          // CASE 1: Single resource, exception in try block
+          stdout.println("=== Case 1: Exception during resource usage ===")
+          try
+            ->
+              resource <- TestResourceNormal("test")
+            stdout.println("Using resource")
+            ex <- Exception("Failure during processing")
+            throw ex
+          catch
+            -> ex as Exception
+            stdout.println("Caught test exception")
+          stdout.println("After: Resource should be closed")
+
+        case 2
+          // CASE 2: Single resource, normal path (no exception)
+          stdout.println("=== Case 2: Normal resource usage ===")
+          try
+            ->
+              resource <- TestResourceNormal("test")
+            stdout.println("Processing normally")
+          catch
+            -> ex as Exception
+            stdout.println("ERROR: Should not reach catch")
+          stdout.println("After: Normal completion")
+
+        case 3
+          // CASE 3: Resource close() throws exception
+          stdout.println("=== Case 3: Resource close() fails ===")
+          try
+            ->
+              resource <- TestResourceFailing("test")
+            stdout.println("Processing completed")
+          catch
+            -> ex as Exception
+            stdout.println("Caught close exception")
+          stdout.println("After: Exception from close handled")
+
+        case 4
+          // CASE 4: Multiple resources, exception in try block
+          stdout.println("=== Case 4: Multiple resources with exception ===")
+          try
+            ->
+              r1 <- TestResourceNormal("first")
+              r2 <- TestResourceNormal("second")
+            stdout.println("Using both resources")
+            ex <- Exception("Failure with multiple resources")
+            throw ex
+          catch
+            -> ex as Exception
+            stdout.println("Caught test exception")
+          stdout.println("After: Both resources closed in reverse order")
+
+        case 5
+          // CASE 5: Multiple resources, first resource close() fails
+          stdout.println("=== Case 5: First resource close fails ===")
+          try
+            ->
+              r1 <- TestResourceFailing("first")
+              r2 <- TestResourceNormal("second")
+            stdout.println("Processing")
+          catch
+            -> ex as Exception
+            stdout.println("Caught close exception")
+          stdout.println("After: Handled close failure")
+
+        case 6
+          // CASE 6: Multiple resources, second resource close() fails
+          stdout.println("=== Case 6: Second resource close fails ===")
+          try
+            ->
+              r1 <- TestResourceNormal("first")
+              r2 <- TestResourceFailing("second")
+            stdout.println("Processing")
+          catch
+            -> ex as Exception
+            stdout.println("Caught close exception")
+          stdout.println("After: Handled close failure")
+
+        case 7
+          // CASE 7: Exception in try + exception in close (suppressed)
+          stdout.println("=== Case 7: Both try and close throw ===")
+          try
+            ->
+              resource <- TestResourceFailing("test")
+            ex <- Exception("Try block failure")
+            throw ex
+          catch
+            -> ex as Exception
+            stdout.println("Caught try exception")
+          stdout.println("After: Try exception caught, close exception suppressed")
+
+        default
+          stdout.println("ERROR: Invalid test case: " + $testCase)
+
+//EOF

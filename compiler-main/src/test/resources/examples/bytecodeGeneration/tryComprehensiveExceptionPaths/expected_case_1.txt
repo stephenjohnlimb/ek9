@@ -1,0 +1,4 @@
+=== Case 1: Exception thrown and caught ===
+Try: About to throw exception
+Catch: Caught test exception
+After: Execution continues after catch

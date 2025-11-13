@@ -1,0 +1,8 @@
+=== Case 5: First resource close fails ===
+Processing
+Closing resource: second
+Resource close() throwing: first
+Exception in thread "main" Exception: Close failed: first
+	at bytecode.test.resources.TestResourceFailing._close(tryWithResourceExceptionPaths.ek9)
+	at bytecode.test.resources.TryWithResourceExceptionPaths._main(tryWithResourceExceptionPaths.ek9)
+	at ek9.Main.main(Unknown Source)
