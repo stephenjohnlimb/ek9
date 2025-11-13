@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
 class GenericOperatorConstraintsFuzzTest extends FuzzTestBase {
 
   public GenericOperatorConstraintsFuzzTest() {
-    super("genericOperatorConstraints", CompilationPhase.POST_RESOLUTION_CHECKS, false);
+    super("genericOperatorConstraints", CompilationPhase.POST_RESOLUTION_CHECKS);
   }
 
   @Test

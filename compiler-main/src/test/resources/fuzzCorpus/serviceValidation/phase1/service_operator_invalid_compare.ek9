@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Test #7: service_operator_invalid_compare.ek9
+  Tests SERVICE_OPERATOR_NOT_SUPPORTED error.
+  Comparison operator not supported in services.
+-?>
+defines module fuzztest.service.operator.comparison
+
+  defines service
+    CompareService :/compare
+
+      <?- Invalid comparison operator -?>
+      @Error: SYMBOL_DEFINITION: SERVICE_OPERATOR_NOT_SUPPORTED
+      operator <=> :/
+        -> request as HTTPRequest :=: REQUEST
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+//EOF

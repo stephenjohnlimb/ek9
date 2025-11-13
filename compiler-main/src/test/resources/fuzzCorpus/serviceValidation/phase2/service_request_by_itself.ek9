@@ -1,0 +1,20 @@
+#!ek9
+<?-
+  Test #19: service_request_by_itself.ek9
+  Tests SERVICE_REQUEST_BY_ITSELF error.
+  HTTPRequest parameter as REQUEST cannot have other parameters.
+-?>
+defines module fuzztest.service.request.alone
+
+  defines service
+    RequestNotAloneService :/handle
+
+      <?- REQUEST with another parameter - REQUEST must be alone -?>
+      process() as POST :/
+        ->
+          @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_REQUEST_BY_ITSELF
+          request as HTTPRequest :=: REQUEST
+          extra as String :=: QUERY "extra"
+        <- rtn as HTTPResponse: () with trait of HTTPResponse
+
+//EOF

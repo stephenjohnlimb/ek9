@@ -1,0 +1,24 @@
+#!ek9
+<?-
+  Accidental discovery during service fuzz testing (2025-11-12).
+  Tests module name containing reserved word "uri".
+  Parse error: "mismatched input 'uri' expecting {module, constant, ...}"
+
+  This reveals that "uri" is a reserved word in EK9 and cannot be used
+  as part of module segment names.
+-?>
+defines module fuzztest.service.uri.multiple
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (reserved word 'uri' in module name)
+  // @TestDescription: Module name with reserved word 'uri'
+
+  defines service
+    ApiService for /api
+
+      index() :/
+        <- response as HTTPResponse: () with trait of HTTPResponse
+          override content()
+            <- rtn as String: "OK"
+
+//EOF

@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  Test #13: service_param_type_dict.ek9
+  Tests SERVICE_INCOMPATIBLE_PARAM_TYPE error.
+  Generic Dict type not supported in service parameters.
+  Only Integer, String, Date, Time, DateTime, Milliseconds, Duration, HTTPRequest allowed.
+-?>
+defines module fuzztest.service.param.dict
+
+  defines service
+    DictParamService :/config
+
+      update() as PUT :/settings
+        <?- Dict type not supported in HTTP parameters -?>
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_INCOMPATIBLE_PARAM_TYPE
+        -> settings as Dict of (String, String) :=: QUERY "settings"
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+//EOF

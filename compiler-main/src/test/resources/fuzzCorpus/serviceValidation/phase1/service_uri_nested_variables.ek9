@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  Test #2: service_uri_nested_variables.ek9
+  Tests SERVICE_URI_WITH_VARS_NOT_SUPPORTED error.
+  Service-level URI with nested variable structure - more complex pattern.
+-?>
+defines module fuzztest.service.path.nested
+
+  defines service
+    <?- Service URI with nested variable structure -?>
+    @Error: SYMBOL_DEFINITION: SERVICE_URI_WITH_VARS_NOT_SUPPORTED
+    ResourceService :/resources/{resourceType}/items/{itemId}
+
+      get() :/
+        <- response as HTTPResponse: () with trait of HTTPResponse
+          override content()
+            <- rtn as String: "OK"
+
+//EOF

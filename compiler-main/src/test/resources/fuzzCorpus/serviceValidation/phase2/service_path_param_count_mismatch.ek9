@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  Test #14: service_path_param_count_mismatch.ek9
+  Tests SERVICE_HTTP_PATH_PARAM_COUNT_INVALID error.
+  PATH parameter count must match {variable} count in URI.
+-?>
+defines module fuzztest.service.path.count
+
+  defines service
+    PathService :/items
+
+      <?- PATH parameter "id" but URI has no {id} placeholder -?>
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PATH_PARAM_COUNT_INVALID
+      getItem() as GET :/item
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PATH_PARAM_INVALID
+        -> id as String :=: PATH "id"
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+//EOF

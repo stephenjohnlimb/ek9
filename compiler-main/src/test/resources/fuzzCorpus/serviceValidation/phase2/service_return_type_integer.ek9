@@ -1,0 +1,17 @@
+#!ek9
+<?-
+  Test #11: service_return_type_integer.ek9
+  Tests SERVICE_INCOMPATIBLE_RETURN_TYPE error.
+  Service operations must return HTTPResponse.
+-?>
+defines module fuzztest.service.return.integer
+
+  defines service
+    IntegerReturnService :/numbers
+
+      <?- Returning Integer instead of HTTPResponse -?>
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_INCOMPATIBLE_RETURN_TYPE
+      getCount() as GET :/count
+        <- count as Integer: 42
+
+//EOF

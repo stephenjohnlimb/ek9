@@ -60,7 +60,7 @@ import org.junit.jupiter.api.Test;
 class StreamProcessingFuzzTest extends FuzzTestBase {
 
   public StreamProcessingFuzzTest() {
-    super("streamProcessing", CompilationPhase.FULL_RESOLUTION, true);
+    super("streamProcessing", CompilationPhase.FULL_RESOLUTION);
   }
 
   @Test

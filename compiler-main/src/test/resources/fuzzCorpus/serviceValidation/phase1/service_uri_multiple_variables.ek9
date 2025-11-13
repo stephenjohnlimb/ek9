@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  Test #1: service_uri_multiple_variables.ek9
+  Tests SERVICE_URI_WITH_VARS_NOT_SUPPORTED error.
+  Service-level URI cannot have path variables - only operations can.
+-?>
+defines module fuzztest.service.path.multiple
+
+  defines service
+    <?- Service URI with multiple path variables -?>
+    @Error: SYMBOL_DEFINITION: SERVICE_URI_WITH_VARS_NOT_SUPPORTED
+    ApiService :/api/{version}/{tenant}
+
+      index() :/
+        <- response as HTTPResponse: () with trait of HTTPResponse
+          override content()
+            <- rtn as String: "OK"
+
+//EOF

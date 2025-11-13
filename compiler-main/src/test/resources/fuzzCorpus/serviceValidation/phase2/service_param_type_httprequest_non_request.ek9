@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Test #21: service_param_type_httprequest_non_request.ek9
+  Tests SERVICE_INCOMPATIBLE_PARAM_TYPE_NON_REQUEST error.
+  HTTPRequest type can only be used with REQUEST access verb.
+-?>
+defines module fuzztest.service.httprequest.wrongaccess
+
+  defines service
+    HttpRequestWrongAccessService :/handle
+
+      <?- HTTPRequest type with CONTENT access - must use REQUEST -?>
+      process() as POST :/
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_INCOMPATIBLE_PARAM_TYPE_NON_REQUEST
+        -> request as HTTPRequest :=: CONTENT
+        <- rtn as HTTPResponse: () with trait of HTTPResponse
+
+//EOF

@@ -1,0 +1,24 @@
+#!ek9
+<?-
+  Test #15: service_path_duplicated.ek9
+  Tests SERVICE_HTTP_PATH_DUPLICATED error.
+  Two methods cannot have identical path structures.
+-?>
+defines module fuzztest.service.path.duplicate
+
+  defines service
+    DuplicatePathService :/api
+
+      <?- First GET :/{id} method -?>
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PATH_DUPLICATED
+      getResource() as GET :/{id}
+        -> id as String
+        <- rtn as HTTPResponse: () with trait of HTTPResponse
+
+      <?- Duplicate path structure with same verb :/{id} -?>
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PATH_DUPLICATED
+      getAnotherResource() as GET :/{id}
+        -> id as String
+        <- rtn as HTTPResponse: () with trait of HTTPResponse
+
+//EOF

@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Test #5: service_operator_invalid_bitwise.ek9
+  Tests SERVICE_OPERATOR_NOT_SUPPORTED error.
+  Bitwise operators not supported in services.
+-?>
+defines module fuzztest.service.operator.bitwise
+
+  defines service
+    BitwiseService :/bitwise
+
+      <?- Invalid XOR operator -?>
+      @Error: SYMBOL_DEFINITION: SERVICE_OPERATOR_NOT_SUPPORTED
+      operator xor :/
+        -> request as HTTPRequest :=: REQUEST
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+//EOF

@@ -1,0 +1,23 @@
+#!ek9
+<?-
+  Test #4: service_http_access_in_regular_method.ek9
+  Tests SERVICE_HTTP_ACCESS_NOT_SUPPORTED error.
+  HTTP access verbs only allowed in service operations, not regular methods.
+-?>
+defines module fuzztest.service.access.method
+
+  defines service
+    DataService :/data
+
+      <?- Private helper method with HTTP access -?>
+      private processRequest()
+        @Error: SYMBOL_DEFINITION: SERVICE_HTTP_ACCESS_NOT_SUPPORTED
+        -> payload as String :=: CONTENT
+        <- result as String: payload
+
+      <?- Public service operation (valid) -?>
+      create() as POST :/
+        -> content as String :=: CONTENT
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+//EOF

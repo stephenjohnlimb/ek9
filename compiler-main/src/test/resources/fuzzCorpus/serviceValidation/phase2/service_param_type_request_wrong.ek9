@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Test #20: service_param_type_request_wrong.ek9
+  Tests SERVICE_INCOMPATIBLE_PARAM_TYPE_REQUEST error.
+  REQUEST access verb requires HTTPRequest type, not other types.
+-?>
+defines module fuzztest.service.request.wrongtype
+
+  defines service
+    WrongRequestTypeService :/process
+
+      <?- REQUEST with String type - must be HTTPRequest -?>
+      process() as POST :/
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_INCOMPATIBLE_PARAM_TYPE_REQUEST
+        -> data as String :=: REQUEST
+        <- rtn as HTTPResponse: () with trait of HTTPResponse
+
+//EOF

@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Test #6: service_operator_invalid_or.ek9
+  Tests SERVICE_OPERATOR_NOT_SUPPORTED error.
+  Logical OR operator not supported in services.
+-?>
+defines module fuzztest.service.operator.logical
+
+  defines service
+    LogicalService :/logical
+
+      <?- Invalid logical OR operator -?>
+      @Error: SYMBOL_DEFINITION: SERVICE_OPERATOR_NOT_SUPPORTED
+      operator or :/
+        -> request as HTTPRequest :=: REQUEST
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+//EOF

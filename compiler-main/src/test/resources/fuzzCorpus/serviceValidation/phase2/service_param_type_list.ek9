@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Test #10: service_param_type_list.ek9
+  Tests SERVICE_INCOMPATIBLE_PARAM_TYPE error.
+  Generic collection types not supported in service parameters.
+-?>
+defines module fuzztest.service.param.list
+
+  defines service
+    ListParamService :/lists
+
+      create() as POST :/
+        <?- List type not supported in HTTP parameters -?>
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_INCOMPATIBLE_PARAM_TYPE
+        -> items as List of String :=: QUERY "items"
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+//EOF

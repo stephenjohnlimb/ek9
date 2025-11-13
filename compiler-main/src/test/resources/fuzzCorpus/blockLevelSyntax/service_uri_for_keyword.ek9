@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Accidental discovery during service fuzz testing (2025-11-13).
+  Tests incorrect "for" keyword in service URI definition.
+  Correct syntax: "ServiceName :/path"
+  Incorrect syntax: "ServiceName for /path"
+  Parse error: "for" is not valid in service URI declaration.
+-?>
+defines module fuzztest.service.syntax.test
+
+  defines service
+    ApiService for /api
+      index() :/
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+//EOF

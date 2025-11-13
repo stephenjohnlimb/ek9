@@ -1,0 +1,20 @@
+#!ek9
+<?-
+  Test #12: service_missing_return_method.ek9
+  Tests SERVICE_MISSING_RETURN error.
+  Service methods must have return value and must be HTTPResponse.
+-?>
+defines module fuzztest.service.return.missing.method
+
+  defines service
+    MissingReturnMethodService :/resources
+
+      <?- GET method without return -?>
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_MISSING_RETURN
+      getResource() as GET :/{id}
+        -> id as String
+
+        stdout <- Stdout()
+        stdout.println(id)
+
+//EOF

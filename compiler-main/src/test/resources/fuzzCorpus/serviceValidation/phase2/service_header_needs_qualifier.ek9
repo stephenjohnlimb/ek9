@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Test #15: service_header_missing_name.ek9
+  Tests SERVICE_HTTP_HEADER_MISSING error (Phase 2).
+  HEADER access requires valid header name.
+-?>
+defines module fuzztest.service.header.missing
+
+  defines service
+    HeaderService :/headers
+
+      check() as GET :/check
+        <?- HEADER without header name triggers PARAM_NEEDS_QUALIFIER -?>
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PARAM_NEEDS_QUALIFIER
+        -> userAgent as String :=: HEADER
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+//EOF

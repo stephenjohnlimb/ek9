@@ -1,0 +1,20 @@
+#!ek9
+<?-
+  Test #3: service_http_access_in_constructor.ek9
+  Tests SERVICE_HTTP_ACCESS_NOT_SUPPORTED error.
+  HTTP access verbs not allowed in service constructors.
+-?>
+defines module fuzztest.service.access.constructor
+
+  defines service
+    UserService :/users
+
+      <?- Constructor with HTTP access parameter -?>
+      UserService()
+        @Error: SYMBOL_DEFINITION: SERVICE_HTTP_ACCESS_NOT_SUPPORTED
+        -> config as String :=: QUERY "config"
+
+        stdout <- Stdout()
+        stdout.println("Initialized")
+
+//EOF

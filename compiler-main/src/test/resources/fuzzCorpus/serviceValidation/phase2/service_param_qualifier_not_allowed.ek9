@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Test #9: service_param_qualifier_not_allowed.ek9
+  Tests SERVICE_HTTP_PARAM_QUALIFIER_NOT_ALLOWED error.
+  REQUEST parameter cannot have additional name qualifier.
+-?>
+defines module fuzztest.service.param.qualifier
+
+  defines service
+    QualifierService :/qualifier
+
+      create() as POST :/
+        <?- REQUEST with name qualifier (not allowed) -?>
+        @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_HTTP_PARAM_QUALIFIER_NOT_ALLOWED
+        -> request as HTTPRequest :=: REQUEST "not-required"
+        <- response as HTTPResponse: () with trait of HTTPResponse
+
+//EOF
