@@ -1,0 +1,113 @@
+#!ek9
+<?-
+  Bytecode test for try-with-resource + finally statement (no catch).
+  Tests both implicit resource cleanup AND explicit finally execution.
+  Resource close() is called first, then explicit finally block.
+-?>
+defines module bytecode.test
+
+  defines class
+
+    TestResource
+
+      TestResource()
+        -> resourceName as String
+        assert resourceName?
+
+      operator close as pure
+        stdout <- Stdout()
+        stdout.println("Closing resource")
+
+      override operator ? as pure
+        <- rtn <- true
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::TryWithResourceFinally":`public class bytecode.test.TryWithResourceFinally {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.TryWithResourceFinally();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: ldc           #CP                 // String test
+         4: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+         7: astore_2
+         8: new           #CP                 // class bytecode/test/TestResource
+        11: dup
+        12: aload_2
+        13: invokespecial #CP                 // Method bytecode/test/TestResource."<init>":(Lorg/ek9/lang/String;)V
+        16: astore_3
+        17: aload_3
+        18: astore_1
+        19: aconst_null
+        20: astore        4
+        22: aconst_null
+        23: astore        5
+        25: new           #CP                 // class org/ek9/lang/Stdout
+        28: dup
+        29: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+        32: astore        6
+        34: aload         6
+        36: astore        5
+        38: aload         5
+        40: astore        7
+        42: ldc           #CP                 // String Using resource
+        44: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        47: astore        8
+        49: aload         7
+        51: aload         8
+        53: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        56: goto          64
+        59: astore        4
+        61: goto          64
+        64: aload_1
+        65: invokevirtual #CP                 // Method bytecode/test/TestResource._close:()V
+        68: new           #CP                 // class org/ek9/lang/Stdout
+        71: dup
+        72: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+        75: astore        9
+        77: aload         9
+        79: astore        5
+        81: aload         5
+        83: astore        10
+        85: ldc           #CP                 // String Finally executing
+        87: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        90: astore        11
+        92: aload         10
+        94: aload         11
+        96: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        99: aload         4
+       101: ifnull        107
+       104: aload         4
+       106: athrow
+       107: return
+      Exception table:
+         from    to  target type
+            22    56    59   any
+}`
+    TryWithResourceFinally()
+
+      try
+        -> resource <- TestResource("test")
+        stdout <- Stdout()
+        stdout.println("Using resource")
+      finally
+        stdout <- Stdout()
+        stdout.println("Finally executing")
+
+//EOF

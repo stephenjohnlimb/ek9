@@ -1,0 +1,88 @@
+#!ek9
+<?-
+  Bytecode test for try/catch statement (no finally).
+  Tests simplest exception handling - just try and catch.
+  No finally block, no finally duplication.
+-?>
+defines module bytecode.test
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::TryCatch":`public class bytecode.test.TryCatch {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.TryCatch();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aload_1
+        13: astore_3
+        14: ldc           #CP                 // String Try block executing
+        16: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        19: astore        4
+        21: aload_3
+        22: aload         4
+        24: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        27: aconst_null
+        28: astore        5
+        30: bipush        42
+        32: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        35: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        38: astore        6
+        40: aload         6
+        42: astore        5
+        44: aload_1
+        45: astore        7
+        47: aload         5
+        49: astore        8
+        51: aload         7
+        53: aload         8
+        55: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+        60: goto          85
+        63: astore        9
+        65: aload_1
+        66: astore        10
+        68: ldc           #CP                 // String Catch block executing
+        70: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        73: astore        11
+        75: aload         10
+        77: aload         11
+        79: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        82: goto          85
+        85: return
+      Exception table:
+         from    to  target type
+            12    60    63   Class org/ek9/lang/Exception
+}`
+    TryCatch()
+      stdout <- Stdout()
+
+      try
+        stdout.println("Try block executing")
+        value <- 42
+        stdout.println(value)
+      catch
+        -> ex as Exception
+        stdout.println("Catch block executing")
+
+//EOF

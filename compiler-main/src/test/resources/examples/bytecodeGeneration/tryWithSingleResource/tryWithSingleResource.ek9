@@ -96,47 +96,49 @@ defines module bytecode.test
         87: aload         10
         89: aload         13
         91: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
-        94: goto          117
+        94: goto          118
         97: astore        14
         99: ldc           #CP                 // String ERROR
        101: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
        104: astore        15
        106: aload         15
        108: astore_1
-       109: goto          117
-       112: astore        6
-       114: goto          117
-       117: aload_3
-       118: invokevirtual #CP                 // Method bytecode/test/TestResource._close:()V
-       121: aload         6
-       123: ifnull        129
-       126: aload         6
-       128: athrow
-       129: new           #CP                 // class org/ek9/lang/Stdout
-       132: dup
-       133: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
-       136: astore        16
-       138: aload         16
-       140: astore        8
-       142: aload         8
-       144: astore        17
-       146: ldc           #CP                 // String Result:
-       148: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-       151: astore        18
-       153: aload_1
-       154: astore        19
-       156: aload         18
-       158: aload         19
-       160: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
-       163: astore        20
-       165: aload         17
-       167: aload         20
-       169: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
-       172: return
+       109: goto          118
+       112: athrow
+       113: astore        6
+       115: goto          118
+       118: aload_3
+       119: invokevirtual #CP                 // Method bytecode/test/TestResource._close:()V
+       122: aload         6
+       124: ifnull        130
+       127: aload         6
+       129: athrow
+       130: new           #CP                 // class org/ek9/lang/Stdout
+       133: dup
+       134: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+       137: astore        16
+       139: aload         16
+       141: astore        8
+       143: aload         8
+       145: astore        17
+       147: ldc           #CP                 // String Result:
+       149: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       152: astore        18
+       154: aload_1
+       155: astore        19
+       157: aload         18
+       159: aload         19
+       161: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
+       164: astore        20
+       166: aload         17
+       168: aload         20
+       170: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       173: return
       Exception table:
          from    to  target type
-           38    94    97   Class org/ek9/lang/Exception
-           38   112   112   any
+            38    94    97   Class org/ek9/lang/Exception
+           118   130   112   Class org/ek9/lang/Exception
+            38   112   113   any
 }`
     TryWithSingleResource()
       result <- String()

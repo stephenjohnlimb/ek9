@@ -94,14 +94,20 @@ defines module bytecode.test.resources
 
         case 3
           // CASE 3: Resource close() throws exception
+          // Demonstrates: close() exceptions propagate past inner catch to outer catch
           stdout.println("=== Case 3: Resource close() fails ===")
           try
-            ->
-              resource <- TestResourceFailing("test")
-            stdout.println("Processing completed")
+            try
+              ->
+                resource <- TestResourceFailing("test")
+              stdout.println("Processing completed")
+            catch
+              -> ex as Exception
+              stdout.println("ERROR: Inner catch should not catch close() exception")
+            // close() happens here in implicit finally - exception propagates upward
           catch
             -> ex as Exception
-            stdout.println("Caught close exception")
+            stdout.println("Outer catch: Caught close exception")
           stdout.println("After: Exception from close handled")
 
         case 4
@@ -121,42 +127,61 @@ defines module bytecode.test.resources
 
         case 5
           // CASE 5: Multiple resources, first resource close() fails
+          // Demonstrates: close() exception from first resource propagates to outer catch
           stdout.println("=== Case 5: First resource close fails ===")
           try
-            ->
-              r1 <- TestResourceFailing("first")
-              r2 <- TestResourceNormal("second")
-            stdout.println("Processing")
+            try
+              ->
+                r1 <- TestResourceFailing("first")
+                r2 <- TestResourceNormal("second")
+              stdout.println("Processing")
+            catch
+              -> ex as Exception
+              stdout.println("ERROR: Inner catch should not catch close() exception")
+            // close() happens in reverse order: r2 closes OK, r1 throws
           catch
             -> ex as Exception
-            stdout.println("Caught close exception")
+            stdout.println("Outer catch: Caught close exception")
           stdout.println("After: Handled close failure")
 
         case 6
           // CASE 6: Multiple resources, second resource close() fails
+          // Demonstrates: close() exception from second resource propagates to outer catch
           stdout.println("=== Case 6: Second resource close fails ===")
           try
-            ->
-              r1 <- TestResourceNormal("first")
-              r2 <- TestResourceFailing("second")
-            stdout.println("Processing")
+            try
+              ->
+                r1 <- TestResourceNormal("first")
+                r2 <- TestResourceFailing("second")
+              stdout.println("Processing")
+            catch
+              -> ex as Exception
+              stdout.println("ERROR: Inner catch should not catch close() exception")
+            // close() happens in reverse order: r2 throws, r1 closes OK
           catch
             -> ex as Exception
-            stdout.println("Caught close exception")
+            stdout.println("Outer catch: Caught close exception")
           stdout.println("After: Handled close failure")
 
         case 7
-          // CASE 7: Exception in try + exception in close (suppressed)
+          // CASE 7: Exception in try + exception in close
+          // Demonstrates: Inner catch gets try exception, outer catch gets close() exception
+          // (EK9 doesn't suppress - both exceptions are catchable separately)
           stdout.println("=== Case 7: Both try and close throw ===")
           try
-            ->
-              resource <- TestResourceFailing("test")
-            ex <- Exception("Try block failure")
-            throw ex
+            try
+              ->
+                resource <- TestResourceFailing("test")
+              ex <- Exception("Try block failure")
+              throw ex
+            catch
+              -> ex as Exception
+              stdout.println("Inner catch: Caught try exception")
+            // close() happens here in implicit finally - throws exception
           catch
             -> ex as Exception
-            stdout.println("Caught try exception")
-          stdout.println("After: Try exception caught, close exception suppressed")
+            stdout.println("Outer catch: Caught close exception")
+          stdout.println("After: Both exceptions handled separately")
 
         default
           stdout.println("ERROR: Invalid test case: " + $testCase)

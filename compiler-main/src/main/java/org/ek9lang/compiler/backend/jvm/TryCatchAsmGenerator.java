@@ -115,28 +115,17 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
       handlerLabels.add(new Label());
     }
 
-    // 2. Register exception handlers with JVM
-    // Each catch handler needs try_start, try_end, handler_start, exception_type
-    for (int i = 0; i < catchHandlers.size(); i++) {
-      final var catchHandler = catchHandlers.get(i);
-
-      // Extract exception type from IR and convert to JVM internal format
-      // IR: "org.ek9.lang::Exception" -> JVM: "org/ek9/lang/Exception"
-      final var ek9ExceptionType = catchHandler.exceptionType();
-      final var jvmExceptionType = convertToJvmName(ek9ExceptionType);
-
-      getCurrentMethodVisitor().visitTryCatchBlock(tryStartLabel, tryEndLabel, handlerLabels.get(i), jvmExceptionType);
-    }
-
-    // Register finally exception handler (catch-all) if finally block exists
+    // Create duplicate handler labels for exceptions FROM finally block
+    // These handlers are identical but skip the jump back to finally (preventing infinite loop)
+    final var finallySourceHandlerLabels = new java.util.ArrayList<Label>();
     if (hasFinallyBlock) {
-      // For try/finally: catch-all covers try block
-      // For try/catch/finally: catch-all covers try block AND catch handlers
-      final var finallyEndRange = catchEndLabel != null ? catchEndLabel : tryEndLabel;
-      getCurrentMethodVisitor().visitTryCatchBlock(tryStartLabel, finallyEndRange, finallyExceptionLabel, null);
+      for (int i = 0; i < catchHandlers.size(); i++) {
+        finallySourceHandlerLabels.add(new Label());
+      }
     }
 
-    // 3. Initialize temp exception variable to null (if finally block exists)
+    // 2. Initialize temp exception variable to null (if finally block exists)
+    // NOTE: Exception handler registration moved to after block generation (see step 8)
     final Integer tempExceptionIndex;
     if (hasFinallyBlock) {
       tempExceptionIndex = getVariableIndex("_temp_finally_exception");
@@ -198,9 +187,32 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
       }
     }
 
-    // Mark end of catch handlers (for finally exception range)
+    // Mark end of REGULAR catch handlers (for finally exception range)
+    // CRITICAL: This must be placed BEFORE duplicate handlers to prevent infinite loop
+    // The catch-all handler range should cover: try block + regular catches
+    // It should NOT cover duplicate handlers (which rethrow close() exceptions)
     if (catchEndLabel != null) {
       placeLabel(catchEndLabel);
+    }
+
+    // 5b. Generate DUPLICATE catch handlers for exceptions thrown FROM finally block
+    // EK9 Semantics: close() happens in finally block (explicit or implicit)
+    // Exceptions from finally ALWAYS propagate upward - NOT caught by current try/catch
+    // These handlers simply RETHROW to let close() exceptions propagate past current scope
+    // They are placed AFTER catchEndLabel so catch-all handler won't catch their rethrows
+    if (hasFinallyBlock && !catchHandlers.isEmpty()) {
+      for (int i = 0; i < catchHandlers.size(); i++) {
+        final var handlerLabel = finallySourceHandlerLabels.get(i);
+
+        // Place duplicate handler label
+        placeLabel(handlerLabel);
+
+        // Stack: exception object (automatically pushed by JVM)
+        // Rethrow immediately - let close() exception propagate upward
+        // This matches EK9 semantics: "finally exceptions are outside catch scope"
+        getCurrentMethodVisitor().visitInsn(org.objectweb.asm.Opcodes.ATHROW);
+        // Stack: empty (athrow never returns)
+      }
     }
 
     // 6. Finally exception handler - store exception and jump to unified finally block
@@ -240,7 +252,49 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
       // Stack: empty (athrow never returns)
     }
 
-    // 8. Place after handlers label
+    // 8. Register exception handlers with JVM
+    // CRITICAL: Handlers registered AFTER all blocks generated to ensure correct order for nested try blocks.
+    // For nested try blocks, INNER handlers are registered before OUTER handlers.
+    // JVM searches exception table top-to-bottom, first match wins.
+
+    // 8a. Register specific exception handlers FIRST
+    // These must come before catch-all to ensure catches execute before finally
+    for (int i = 0; i < catchHandlers.size(); i++) {
+      final var catchHandler = catchHandlers.get(i);
+
+      // Extract exception type from IR and convert to JVM internal format
+      // IR: "org.ek9.lang::Exception" -> JVM: "org/ek9/lang/Exception"
+      final var ek9ExceptionType = catchHandler.exceptionType();
+      final var jvmExceptionType = convertToJvmName(ek9ExceptionType);
+
+      // Cover try block
+      getCurrentMethodVisitor().visitTryCatchBlock(tryStartLabel, tryEndLabel, handlerLabels.get(i), jvmExceptionType);
+    }
+
+    // 8b. Register handlers for exceptions thrown FROM finally block (e.g., resource close() calls)
+    // This is critical for try-with-resources: close() exceptions must be catchable
+    // Use DUPLICATE handlers that jump directly to afterHandlersLabel (not back to finally)
+    if (hasFinallyBlock && !catchHandlers.isEmpty()) {
+      for (int i = 0; i < catchHandlers.size(); i++) {
+        final var catchHandler = catchHandlers.get(i);
+        final var ek9ExceptionType = catchHandler.exceptionType();
+        final var jvmExceptionType = convertToJvmName(ek9ExceptionType);
+
+        // Cover finally block execution range using DUPLICATE handler labels
+        // This prevents infinite loop: close() → duplicate handler → afterHandlersLabel (no finally re-entry)
+        getCurrentMethodVisitor().visitTryCatchBlock(finallyBlockLabel, afterHandlersLabel, finallySourceHandlerLabels.get(i), jvmExceptionType);
+      }
+    }
+
+    // 8c. Register finally exception handler (catch-all) AFTER specific handlers
+    if (hasFinallyBlock) {
+      // For try/finally: catch-all covers try block
+      // For try/catch/finally: catch-all covers try block AND catch handlers
+      final var finallyEndRange = catchEndLabel != null ? catchEndLabel : tryEndLabel;
+      getCurrentMethodVisitor().visitTryCatchBlock(tryStartLabel, finallyEndRange, finallyExceptionLabel, null);
+    }
+
+    // 9. Place after handlers label
     placeLabel(afterHandlersLabel);
     // Stack: empty
 

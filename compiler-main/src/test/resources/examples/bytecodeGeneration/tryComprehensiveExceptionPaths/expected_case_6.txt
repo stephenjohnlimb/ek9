@@ -1,0 +1,5 @@
+=== Case 6: Exception thrown from finally ===
+Inner try: Normal completion
+Finally: About to throw exception
+Outer catch: Caught exception from finally
+After: Exception from finally was caught

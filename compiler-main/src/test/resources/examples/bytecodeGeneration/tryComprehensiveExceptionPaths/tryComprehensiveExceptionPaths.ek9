@@ -9,11 +9,13 @@
   3. Try/finally with exception propagating through finally
   4. Try/catch/finally with exception caught (finally executes after catch)
   5. Try/catch/finally with exception NOT caught (finally executes before propagation)
+  6. Exception thrown FROM finally block (tests explicit finally exception handling)
 
   This validates:
   - Exception handlers execute when exceptions actually thrown
   - Finally blocks execute in all scenarios (normal, caught, uncaught)
   - Exception propagation through finally blocks
+  - Exception thrown FROM finally blocks are catchable (explicit finally)
   - Catch block execution order and control flow
 -?>
 defines module bytecode.test.exceptions
@@ -97,6 +99,21 @@ defines module bytecode.test.exceptions
             -> outerEx as Exception
             stdout.println("ERROR: Should not reach outer catch")
           stdout.println("After: Finally executed, exception handled")
+
+        case 6
+          // CASE 6: Exception thrown FROM finally block (not through it)
+          stdout.println("=== Case 6: Exception thrown from finally ===")
+          try
+            try
+              stdout.println("Inner try: Normal completion")
+            finally
+              stdout.println("Finally: About to throw exception")
+              ex <- Exception("Thrown from finally block")
+              throw ex
+          catch
+            -> ex as Exception
+            stdout.println("Outer catch: Caught exception from finally")
+          stdout.println("After: Exception from finally was caught")
 
         default
           stdout.println("ERROR: Invalid test case: " + $testCase)

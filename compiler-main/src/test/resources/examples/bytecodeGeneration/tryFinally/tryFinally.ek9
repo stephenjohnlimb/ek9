@@ -1,14 +1,14 @@
 #!ek9
 <?-
-  Bytecode test for complete try/catch/finally statement.
-  All three parts present: try block, catch handler, finally block.
-  Tests exception handling with finally duplication.
+  Bytecode test for try/finally statement (no catch).
+  Tests finally-only execution without catch handler.
+  Finally block executes on normal path.
 -?>
 defines module bytecode.test
 
   defines program
 
-    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::TryCatchFinally":`public class bytecode.test.TryCatchFinally {
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::TryFinally":`public class bytecode.test.TryFinally {
   static {};
     Code:
          0: return
@@ -17,7 +17,7 @@ defines module bytecode.test
     Code:
          0: return
 
-  public bytecode.test.TryCatchFinally();
+  public bytecode.test.TryFinally();
     Code:
          0: aload_0
          1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
@@ -60,49 +60,33 @@ defines module bytecode.test
         55: aload         8
         57: aload         9
         59: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
-        64: goto          94
-        67: astore        10
-        69: aload_1
-        70: astore        11
-        72: ldc           #CP                 // String Catch block executing
-        74: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-        77: astore        12
-        79: aload         11
-        81: aload         12
-        83: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
-        86: goto          94
-        89: athrow
-        90: astore_3
-        91: goto          94
-        94: aload_1
-        95: astore        13
-        97: ldc           #CP                 // String Finally block executing
-        99: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-       102: astore        14
-       104: aload         13
-       106: aload         14
-       108: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
-       111: aload_3
-       112: ifnull        117
-       115: aload_3
-       116: athrow
-       117: return
+        64: goto          71
+        67: astore_3
+        68: goto          71
+        71: aload_1
+        72: astore        10
+        74: ldc           #CP                 // String Finally block executing
+        76: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        79: astore        11
+        81: aload         10
+        83: aload         11
+        85: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        88: aload_3
+        89: ifnull        94
+        92: aload_3
+        93: athrow
+        94: return
       Exception table:
          from    to  target type
-            14    64    67   Class org/ek9/lang/Exception
-            94   117    89   Class org/ek9/lang/Exception
-            14    89    90   any
+            14    64    67   any
 }`
-    TryCatchFinally()
+    TryFinally()
       stdout <- Stdout()
 
       try
         stdout.println("Try block executing")
         value <- 42
         stdout.println(value)
-      catch
-        -> ex as Exception
-        stdout.println("Catch block executing")
       finally
         stdout.println("Finally block executing")
 

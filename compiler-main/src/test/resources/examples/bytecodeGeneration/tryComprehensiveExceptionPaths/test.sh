@@ -64,4 +64,11 @@ if ! diff -u expected_case_5.txt actual_case_5.txt; then
     exit 1
 fi
 
-echo "PASS: tryComprehensiveExceptionPaths (5 cases)"
+# Test case 6: Exception thrown FROM finally block
+$EK9_BINARY tryComprehensiveExceptionPaths.ek9 6 > actual_case_6.txt 2>&1
+if ! diff -u expected_case_6.txt actual_case_6.txt; then
+    echo "FAIL: Case 6 (exception from finally) mismatch"
+    exit 1
+fi
+
+echo "PASS: tryComprehensiveExceptionPaths (6 cases)"

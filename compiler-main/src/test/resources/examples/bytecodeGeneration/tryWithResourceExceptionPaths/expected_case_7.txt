@@ -1,7 +1,5 @@
 === Case 7: Both try and close throw ===
-Caught try exception
+Inner catch: Caught try exception
 Resource close() throwing: test
-Exception in thread "main" Exception: Close failed: test
-	at bytecode.test.resources.TestResourceFailing._close(tryWithResourceExceptionPaths.ek9)
-	at bytecode.test.resources.TryWithResourceExceptionPaths._main(tryWithResourceExceptionPaths.ek9)
-	at ek9.Main.main(Unknown Source)
+Outer catch: Caught close exception
+After: Both exceptions handled separately

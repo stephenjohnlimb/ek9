@@ -1,7 +1,5 @@
 === Case 6: Second resource close fails ===
 Processing
 Resource close() throwing: second
-Exception in thread "main" Exception: Close failed: second
-	at bytecode.test.resources.TestResourceFailing._close(tryWithResourceExceptionPaths.ek9)
-	at bytecode.test.resources.TryWithResourceExceptionPaths._main(tryWithResourceExceptionPaths.ek9)
-	at ek9.Main.main(Unknown Source)
+Outer catch: Caught close exception
+After: Handled close failure

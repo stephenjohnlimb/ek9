@@ -1,0 +1,2 @@
+Using resource
+Closing resource

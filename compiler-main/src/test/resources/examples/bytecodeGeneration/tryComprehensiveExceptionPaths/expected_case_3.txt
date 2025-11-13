@@ -1,4 +1,5 @@
 === Case 3: Try/finally with propagation ===
 Inner try: About to throw
+Finally: Executes before propagation
 Outer catch: Caught propagated exception
 After: Exception was propagated then caught
