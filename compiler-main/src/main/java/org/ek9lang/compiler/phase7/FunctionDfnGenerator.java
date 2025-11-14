@@ -41,7 +41,8 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
 
     final var symbol = getParsedModule().getRecordedSymbol(ctx);
 
-    if (symbol instanceof FunctionSymbol functionSymbol && symbol.getGenus() == SymbolGenus.FUNCTION) {
+    if (symbol instanceof FunctionSymbol functionSymbol
+        && (symbol.getGenus() == SymbolGenus.FUNCTION || symbol.getGenus() == SymbolGenus.FUNCTION_TRAIT)) {
       final var sourceFileName = getParsedModule().getSource().getRelativeFileName();
       final var construct = new IRConstruct(symbol, sourceFileName);
 
@@ -49,10 +50,10 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
       createFieldDeclarations(construct, functionSymbol);
 
       // Create three-phase initialization operations
-      createInitializationOperations(construct, functionSymbol, ctx);
+      createInitializationOperations(construct, functionSymbol);
 
       // Create OperationInstr for the function itself
-      createConstructorOperation(construct, functionSymbol, ctx);
+      createConstructorOperation(construct, functionSymbol);
       createCallOperation(construct, functionSymbol, ctx);
 
       stackContext.exitScope();
@@ -70,8 +71,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     fieldsFromCapture.accept(functionSymbol);
   }
 
-  private void createInitializationOperations(final IRConstruct construct, final FunctionSymbol functionSymbol,
-                                              final EK9Parser.FunctionDeclarationContext ctx) {
+  private void createInitializationOperations(final IRConstruct construct, final FunctionSymbol functionSymbol) {
 
     // Create c_init operation for function/static initialization
     final ISymbol superType = functionSymbol.getSuperFunction().orElse(null);
@@ -79,8 +79,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     createInstanceInitOperation(construct, functionSymbol, null);
   }
 
-  private void createConstructorOperation(final IRConstruct construct, final FunctionSymbol functionSymbol,
-                                          final EK9Parser.FunctionDeclarationContext ctx) {
+  private void createConstructorOperation(final IRConstruct construct, final FunctionSymbol functionSymbol) {
 
     // Constructor method coordination
     final var constructorMethod = createSyntheticFunctionConstructorMethod(functionSymbol);
@@ -107,17 +106,21 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     // Create OperationInstr for the synthetic _call method (not the function itself)
     final var callOperation = new OperationInstr(callMethod, callDebugInfo);
 
-    // _call method coordination 
-    var debugInfo2 = stackContext.createDebugInfo(callMethod.getSourceToken());
-    stackContext.enterMethodScope("_call", debugInfo2, IRFrameType.METHOD);
+    // For abstract functions, only create the method signature without body
+    if (!functionSymbol.isMarkedAbstract()) {
+      // _call method coordination
+      var debugInfo2 = stackContext.createDebugInfo(callMethod.getSourceToken());
+      stackContext.enterMethodScope("_call", debugInfo2, IRFrameType.METHOD);
 
-    // Process executable content using OperationDfnGenerator if operationDetails is present
-    if (ctx.operationDetails() != null) {
-      operationDfnGenerator.accept(callOperation, ctx.operationDetails());
+      // Process executable content using OperationDfnGenerator if operationDetails is present
+      if (ctx.operationDetails() != null) {
+        operationDfnGenerator.accept(callOperation, ctx.operationDetails());
+      }
+
+      stackContext.exitScope();
     }
 
     construct.add(callOperation);
-    stackContext.exitScope();
   }
 
 
@@ -153,6 +156,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
     callMethod.setParsedModule(functionSymbol.getParsedModule());
     callMethod.setAccessModifier(IRConstants.PUBLIC);
     callMethod.setMarkedPure(functionSymbol.isMarkedPure());
+    callMethod.setMarkedAbstract(functionSymbol.isMarkedAbstract());
     callMethod.setSynthetic(true);
 
     // Use function's source token for debugging - debugger will go to function definition

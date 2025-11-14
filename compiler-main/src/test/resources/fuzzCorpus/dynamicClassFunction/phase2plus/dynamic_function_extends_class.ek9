@@ -1,0 +1,35 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Dynamic Function Extending Class
+  Tests: INCOMPATIBLE_GENUS
+
+  Description: Dynamic functions can only extend functions (abstract or open).
+  Attempting to extend a class/trait with a dynamic function is an
+  INCOMPATIBLE_GENUS error.
+
+  Expected: EXPLICIT_TYPE_SYMBOL_DEFINITION error for function extending class
+  Current: Should reject dynamic function extending class
+-?>
+defines module fuzz.dynamic.function.extends.class
+
+  defines function
+
+    someFunc() as abstract
+      <- result as String?
+
+  defines class
+
+    SomeClass
+      method()
+        <- result as String: "class method"
+
+  defines program
+
+    TestFunctionExtendsClass()
+
+      //INVALID - dynamic FUNCTION cannot extend a CLASS (incompatible genus)
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+      fn <- () is SomeClass as function
+        result: "invalid"
+
+//EOF

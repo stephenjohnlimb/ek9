@@ -1,0 +1,36 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Capture Name Shadowing
+  Tests: DUPLICATE_VARIABLE_IN_CAPTURE (shadowing variant)
+
+  Description: When capturing multiple variables with the same target name,
+  even if they reference different source variables, the duplicate internal
+  name creates a DUPLICATE_VARIABLE_IN_CAPTURE error.
+
+  Expected: SYMBOL_DEFINITION error for duplicate capture field names
+  Current: Should reject captures that create duplicate internal fields
+-?>
+defines module fuzz.dynamic.capture.shadowing
+
+  defines trait
+    Processor
+      process()
+        -> input as String
+        <- output as String?
+
+  defines program
+
+    TestCaptureShadowing()
+      value1 <- "first"
+      value2 <- "second"
+
+      //INVALID - both captures use the name 'data', creating duplicate field
+      @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE_IN_CAPTURE
+      processor <- (data: value1, data: value2) with trait of Processor as class
+        override process()
+          -> input as String
+          <- output as String: data + input
+
+      assert processor?
+
+//EOF

@@ -1,0 +1,48 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Complex Expression Capture Without Name
+  Tests: CAPTURED_VARIABLE_MUST_BE_NAMED
+
+  Description: Complex expressions (method calls, property access, ternary operators)
+  must be captured with named parameters. Tests various expression complexities.
+
+  Expected: SYMBOL_DEFINITION error for complex expressions without names
+  Current: Should reject all complex expression captures without naming
+-?>
+defines module fuzz.dynamic.capture.complex.expression
+
+  defines class
+
+    Config
+      maxValue <- 100
+      getThreshold()
+        <- rtn as Integer: 50
+
+  defines function
+
+    discriminator() as abstract
+      -> s as String
+      <- rtn as Boolean?
+
+  defines program
+
+    TestComplexExpressionCapture()
+      config <- Config()
+
+      //INVALID - property access without name
+      @Error: SYMBOL_DEFINITION: CAPTURED_VARIABLE_MUST_BE_NAMED
+      fn1 <- (config.maxValue) is discriminator as function
+        rtn: length s < max
+
+      //INVALID - method call on object without name
+      @Error: SYMBOL_DEFINITION: CAPTURED_VARIABLE_MUST_BE_NAMED
+      fn2 <- (config.getThreshold()) is discriminator as function
+        rtn: length s > threshold
+
+      //INVALID - ternary expression without name
+      flag <- true
+      @Error: SYMBOL_DEFINITION: CAPTURED_VARIABLE_MUST_BE_NAMED
+      fn3 <- (flag <- 100 : 50) is discriminator as function
+        rtn: length s > value
+
+//EOF

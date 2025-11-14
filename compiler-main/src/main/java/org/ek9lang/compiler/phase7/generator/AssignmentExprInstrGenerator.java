@@ -58,15 +58,11 @@ final class AssignmentExprInstrGenerator extends AbstractGenerator
    */
   public List<IRInstr> apply(final String rhsExprResult) {
 
-    final var debugInfo =
-        debugInfoCreator.apply(getRecordedSymbolOrException(ctx.expression()).getSourceToken());
-    final var exprDetails = new ExprProcessingDetails(ctx.expression(),
-        new VariableDetails(rhsExprResult, debugInfo));
 
     AssertValue.checkNotNull("RhsExprResult cannot be null", rhsExprResult);
 
     if (ctx.expression() != null) {
-      return exprInstrGenerator.apply(exprDetails);
+      return processExpression(rhsExprResult);
     } else if (ctx.guardExpression() != null) {
       AssertValue.fail("guardExpression not implemented");
     } else if (ctx.dynamicClassDeclaration() != null) {
@@ -86,5 +82,13 @@ final class AssignmentExprInstrGenerator extends AbstractGenerator
     }
 
     return List.of();
+  }
+
+  private List<IRInstr> processExpression(final String rhsExprResult) {
+    final var debugInfo =
+        debugInfoCreator.apply(getRecordedSymbolOrException(ctx.expression()).getSourceToken());
+    final var exprDetails = new ExprProcessingDetails(ctx.expression(),
+        new VariableDetails(rhsExprResult, debugInfo));
+    return exprInstrGenerator.apply(exprDetails);
   }
 }

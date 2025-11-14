@@ -1,0 +1,35 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Duplicate Variable Names in Capture
+  Tests: DUPLICATE_VARIABLE_IN_CAPTURE
+
+  Description: Captured variable names must be unique within a single capture list.
+  Duplicate names create ambiguity and field name conflicts in the dynamic class.
+
+  Expected: SYMBOL_DEFINITION error for duplicate capture names
+  Current: Should detect and reject duplicate names in capture list
+-?>
+defines module fuzz.dynamic.capture.duplicate.names
+
+  defines trait
+    Validator
+      validate()
+        -> value as String
+        <- result as Boolean?
+
+  defines program
+
+    TestDuplicateCaptureNames()
+      min <- 10
+      max <- 100
+
+      //INVALID - duplicate name 'threshold' in capture
+      @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE_IN_CAPTURE
+      validator <- (threshold: min, threshold: max) with trait of Validator as class
+        override validate()
+          -> value as String
+          <- result as Boolean: length value > threshold
+
+      assert validator?
+
+//EOF

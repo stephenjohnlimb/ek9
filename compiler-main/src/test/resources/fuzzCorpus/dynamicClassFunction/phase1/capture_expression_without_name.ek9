@@ -1,0 +1,43 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Capturing Expression Without Name
+  Tests: CAPTURED_VARIABLE_MUST_BE_NAMED
+
+  Description: When capturing an expression (not a simple identifier), the capture
+  MUST use named parameter syntax. This test verifies that function calls, literals,
+  and complex expressions require explicit names.
+
+  Expected: SYMBOL_DEFINITION error for unnamed expression captures
+  Current: Should reject expressions without named parameter syntax
+-?>
+defines module fuzz.dynamic.capture.expression.unnamed
+
+  defines function
+
+    getValue() as pure
+      <- rtn as Integer: 42
+
+    discriminator() as abstract
+      -> s as String
+      <- rtn as Boolean?
+
+  defines program
+
+    TestCaptureExpressionWithoutName()
+
+      //INVALID - function call without name
+      @Error: SYMBOL_DEFINITION: CAPTURED_VARIABLE_MUST_BE_NAMED
+      fn1 <- (getValue()) is discriminator as function
+        rtn: length s > min
+
+      //INVALID - literal without name
+      @Error: SYMBOL_DEFINITION: CAPTURED_VARIABLE_MUST_BE_NAMED
+      fn2 <- (100) is discriminator as function
+        rtn: length s < max
+
+      //INVALID - arithmetic expression without name
+      @Error: SYMBOL_DEFINITION: CAPTURED_VARIABLE_MUST_BE_NAMED
+      fn3 <- (10 + 20) is discriminator as function
+        rtn: length s > threshold
+
+//EOF

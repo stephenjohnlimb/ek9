@@ -1,0 +1,36 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Mixed Named and Unnamed Parameters
+  Tests: EITHER_ALL_PARAMETERS_NAMED_OR_NONE
+
+  Description: EK9 enforces consistency - either ALL capture parameters must be
+  named, or NONE can be named. Mixing named and unnamed parameters is prohibited
+  to maintain code clarity and prevent confusion.
+
+  Expected: SYMBOL_DEFINITION error for mixed named/unnamed captures
+  Current: Should reject captures with inconsistent naming
+-?>
+defines module fuzz.dynamic.capture.mixed.naming
+
+  defines trait
+    Comparator
+      compare()
+        -> value as String
+        <- result as Boolean?
+
+  defines program
+
+    TestMixedNaming()
+      min <- 10
+      max <- 100
+
+      //INVALID - mixing named (min:) and unnamed (max) parameters
+      @Error: SYMBOL_DEFINITION: EITHER_ALL_PARAMETERS_NAMED_OR_NONE
+      comparator <- (min: 10, max) with trait of Comparator as class
+        override compare()
+          -> value as String
+          <- result as Boolean: length value > min and length value < max
+
+      assert comparator?
+
+//EOF

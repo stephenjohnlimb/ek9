@@ -1,0 +1,38 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Dynamic Class with Abstract Methods
+  Tests: DYNAMIC_CLASS_CANNOT_BE_ABSTRACT (via abstract methods)
+
+  Description: Dynamic classes cannot contain abstract methods. All methods
+  in a dynamic class must have implementations. This test verifies that
+  declaring abstract methods within a dynamic class is rejected.
+
+  Expected: SYMBOL_DEFINITION error for abstract method in dynamic class
+  Current: Should reject dynamic classes containing abstract methods
+-?>
+defines module fuzz.dynamic.abstract.methods
+
+  defines trait
+    Worker
+      work()
+        -> input as String
+        <- output as String?
+
+  defines program
+
+    TestDynamicAbstractMethods()
+
+      worker <- () with trait of Worker as class
+        override work()
+          -> input as String
+          <- output as String: "working"
+
+        //INVALID - cannot declare abstract method in dynamic class
+        @Error: SYMBOL_DEFINITION: CANNOT_BE_ABSTRACT
+        helperMethod() as abstract
+          -> input as String
+          <- output as String?
+
+      assert worker?
+
+//EOF

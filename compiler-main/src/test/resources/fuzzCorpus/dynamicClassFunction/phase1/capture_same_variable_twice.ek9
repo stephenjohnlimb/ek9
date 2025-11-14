@@ -1,0 +1,30 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Capturing Same Variable Multiple Times
+  Tests: DUPLICATE_VARIABLE_IN_CAPTURE
+
+  Description: Capturing the same identifier multiple times (even with different
+  target names) creates duplicate field declarations and is prohibited.
+
+  Expected: SYMBOL_DEFINITION error for duplicate variable capture
+  Current: Should reject capturing same variable twice
+-?>
+defines module fuzz.dynamic.capture.same.variable.twice
+
+  defines function
+
+    discriminator() as abstract
+      -> s as String
+      <- rtn as Boolean?
+
+  defines program
+
+    TestCaptureSameVariableTwice()
+      min <- 10
+
+      //INVALID - capturing same identifier twice (unnamed)
+      @Error: SYMBOL_DEFINITION: DUPLICATE_VARIABLE_IN_CAPTURE
+      fn1 <- (min, min) is discriminator as function
+        rtn: length s > min
+
+//EOF

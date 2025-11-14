@@ -1,0 +1,38 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Named Dynamic in Nested Generic Context
+  Tests: GENERIC_WITH_NAMED_DYNAMIC_CLASS
+
+  Description: Named dynamic classes prohibited even in nested generic contexts
+  (generic class containing generic function). Tests that the prohibition applies
+  at any level of generic nesting.
+
+  Expected: SYMBOL_DEFINITION error for named dynamic in nested generic
+  Current: Should detect named dynamic at any nesting level within generics
+-?>
+defines module fuzz.dynamic.nested.generic.named
+
+  defines trait
+    Worker
+      work()
+        -> arg0 as String
+        <- rtn as String?
+
+  defines function
+
+    processor of type T
+      -> item as T
+      @Error: SYMBOL_DEFINITION: NOT_INITIALISED_IN_ANY_WAY
+      <- result as T
+
+      //INVALID - named dynamic class in generic function
+      @Error: SYMBOL_DEFINITION: GENERIC_WITH_NAMED_DYNAMIC_CLASS
+      worker := NamedWorker() with trait of Worker as class
+        override work()
+          -> arg0 as String
+          <- rtn as String: "nested: " + arg0
+
+      assert worker?
+      result: item
+
+//EOF

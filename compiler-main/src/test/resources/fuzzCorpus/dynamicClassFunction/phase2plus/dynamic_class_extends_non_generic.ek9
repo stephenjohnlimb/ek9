@@ -1,0 +1,37 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Dynamic Class Extending Non-Generic Type
+  Tests: INCOMPATIBLE_CATEGORY
+
+  Description: When using 'extends' syntax with a generic type, the type must be
+  parameterized. Using a generic type name without parameters is an
+  INCOMPATIBLE_CATEGORY error.
+
+  Expected: EXPLICIT_TYPE_SYMBOL_DEFINITION error for non-parameterized generic
+  Current: Should reject extending generic type without parameters
+-?>
+defines module fuzz.dynamic.extends.non.generic
+
+  defines class
+
+    GenericContainer of type T
+      getValue()
+        -> item as T
+        <- result as T: item
+
+  defines program
+
+    TestExtendsNonParameterized()
+
+      value <- "test"
+
+      //INVALID - GenericContainer is a CLASS, not a TRAIT (incompatible genus)
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+      container <- (value) with trait of GenericContainer as class
+        override getValue()
+          -> item as String
+          <- result as String: item
+
+      assert container?
+
+//EOF

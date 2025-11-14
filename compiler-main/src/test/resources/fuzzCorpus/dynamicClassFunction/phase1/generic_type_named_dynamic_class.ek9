@@ -1,0 +1,37 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Named Dynamic Class in Generic Type
+  Tests: GENERIC_WITH_NAMED_DYNAMIC_CLASS
+
+  Description: Named dynamic classes cannot be used within generic type definitions.
+  EK9 prohibits naming dynamic classes in generic contexts to avoid naming conflicts
+  and complexity with generic type instantiation.
+
+  Expected: SYMBOL_DEFINITION error for named dynamic class in generic type
+  Current: Should correctly detect and reject named dynamic in generic context
+-?>
+defines module fuzz.dynamic.generic.type.named
+
+  defines trait
+    T1
+      method1()
+        -> arg0 as String
+        <- rtn as String: arg0
+
+  defines class
+
+
+    GenericContainer of type T
+      process()
+        -> item as T
+
+        //This is INVALID - named dynamic class inside generic type
+        @Error: SYMBOL_DEFINITION: GENERIC_WITH_NAMED_DYNAMIC_CLASS
+        dynamic as T1 := NamedDynamic() with trait of T1 as class
+          override method1()
+            -> arg0 as String
+            <- rtn as String: "processed: " + arg0
+
+        assert dynamic?
+
+//EOF

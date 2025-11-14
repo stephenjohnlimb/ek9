@@ -1,0 +1,41 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Dynamic Class with Multiple Traits Incomplete
+  Tests: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS
+
+  Description: When using multiple traits with abstract methods, ALL abstract
+  methods from ALL traits must be implemented. Partial implementation across
+  multiple traits should be rejected.
+
+  Expected: FULL_RESOLUTION error for incomplete multi-trait implementation
+  Current: Should detect missing methods from any trait
+-?>
+defines module fuzz.dynamic.multiple.traits.incomplete
+
+  defines trait
+    T1
+      method1() as abstract
+        -> input as String
+        <- output as String?
+
+    T2
+      method2() as abstract
+        -> value as Integer
+        <- result as Integer?
+
+  defines program
+
+    TestMultipleTraitsIncomplete()
+
+      //INVALID - implements T1.method1() but missing T2.method2()
+      @Error: FULL_RESOLUTION: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS
+      worker <- () with trait of T1, T2 as class
+        override method1()
+          -> input as String
+          <- output as String: "done"
+
+        //method2() from T2 not implemented - ERROR
+
+      assert worker?
+
+//EOF

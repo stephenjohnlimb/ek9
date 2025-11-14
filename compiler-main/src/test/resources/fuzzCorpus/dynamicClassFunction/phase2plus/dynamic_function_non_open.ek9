@@ -1,0 +1,32 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Dynamic Function Extending Non-Open Function
+  Tests: NOT_OPEN_TO_EXTENSION
+
+  Description: Dynamic functions can only extend functions marked 'open' or 'abstract'.
+  Regular (final) functions cannot be extended. This test verifies the compiler
+  rejects extending non-open functions.
+
+  Expected: EXPLICIT_TYPE_SYMBOL_DEFINITION error for extending final function
+  Current: Should reject dynamic function extending non-open function
+-?>
+defines module fuzz.dynamic.function.non.open
+
+  defines function
+
+    //Not marked 'open' or 'abstract' - implicitly final
+    finalFunction()
+      <- result as String: "final"
+
+  defines program
+
+    TestNonOpenFunction()
+
+      //INVALID - cannot extend function not marked 'open' or 'abstract'
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
+      fn <- () is finalFunction as function
+        result: "extended"
+
+      assert fn?
+
+//EOF

@@ -1,0 +1,40 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Dynamic Class Missing Trait Method Implementation
+  Tests: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS
+
+  Description: When a dynamic class uses a trait with abstract methods, it MUST
+  provide implementations for all abstract methods. Missing implementations should
+  be detected and rejected.
+
+  Expected: FULL_RESOLUTION error for missing trait method implementation
+  Current: Should detect missing implementations in dynamic classes
+-?>
+defines module fuzz.dynamic.missing.trait.methods
+
+  defines trait
+    Processor
+      process() as abstract
+        -> input as String
+        <- output as String?
+
+      validate() as abstract
+        -> input as String
+        <- valid as Boolean?
+
+  defines program
+
+    TestMissingTraitMethods()
+
+      //INVALID - missing implementation of validate() method
+      @Error: FULL_RESOLUTION: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS
+      processor <- () with trait of Processor as class
+        override process()
+          -> input as String
+          <- output as String: "processed: " + input
+
+        //validate() method not implemented - ERROR
+
+      assert processor?
+
+//EOF

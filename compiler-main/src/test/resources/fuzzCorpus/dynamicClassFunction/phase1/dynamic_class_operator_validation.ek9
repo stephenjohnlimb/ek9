@@ -1,0 +1,42 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Dynamic Class Invalid Operator Signatures
+  Tests: Various operator validation errors
+
+  Description: Dynamic classes must follow all standard operator signature rules.
+  This test verifies that invalid operator signatures are detected in dynamic
+  classes just like regular classes.
+
+  Expected: Multiple operator signature errors
+  Current: Should validate operator signatures in dynamic classes
+-?>
+defines module fuzz.dynamic.operator.validation
+
+  defines trait
+    Base
+      work()
+        <- result as String?
+
+  defines program
+
+    TestDynamicOperatorValidation()
+
+      worker <- () with trait of Base as class
+        override work()
+          <- result as String: "working"
+
+        //INVALID - comparison operator must return Integer
+        @Error: FULL_RESOLUTION: OPERATOR_MUST_RETURN_INTEGER
+        operator <=>
+          -> arg as Base
+          <- result as Boolean: true
+
+        //INVALID - equality operator must return Boolean
+        @Error: FULL_RESOLUTION: OPERATOR_MUST_RETURN_BOOLEAN
+        operator ==
+          -> arg as Base
+          <- result as Integer: 0
+
+      assert worker?
+
+//EOF

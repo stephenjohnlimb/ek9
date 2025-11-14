@@ -1,0 +1,39 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Dynamic Class Missing Abstract Operators
+  Tests: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS (operators variant)
+
+  Description: When a trait defines abstract operators, the dynamic class must
+  implement them. Missing operator implementations should be detected.
+
+  Expected: FULL_RESOLUTION error for missing operator implementations
+  Current: Should detect missing operator implementations from traits
+-?>
+defines module fuzz.dynamic.missing.operators
+
+  defines trait
+    Comparable
+      operator <=> as pure
+        -> arg as Comparable
+        <- result as Integer?
+
+      operator == as pure
+        -> arg as Comparable
+        <- result as Boolean?
+
+  defines program
+
+    TestMissingOperators()
+
+      //INVALID - implements <=> but missing ==
+      @Error: FULL_RESOLUTION: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS
+      comparator <- () with trait of Comparable as class
+        override operator <=> as pure
+          -> arg as Comparable
+          <- result as Integer: 0
+
+        //operator == not implemented - ERROR
+
+      assert comparator?
+
+//EOF

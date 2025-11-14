@@ -1,0 +1,38 @@
+#!ek9
+<?-
+  Dynamic Class/Function Fuzz Test: Named Dynamic Class in Generic Function
+  Tests: GENERIC_WITH_NAMED_DYNAMIC_CLASS
+
+  Description: Named dynamic classes cannot be used within generic function definitions.
+  This test verifies that the compiler rejects named dynamic classes inside
+  parameterized generic functions.
+
+  Expected: SYMBOL_DEFINITION error for named dynamic class in generic function
+  Current: Should correctly detect and reject named dynamic in generic function context
+-?>
+defines module fuzz.dynamic.generic.function.named
+
+  defines trait
+    Processor
+      process()
+        -> arg0 as String
+        <- rtn as String?
+
+  defines function
+
+    GenericProcess of type T
+      -> item as T
+      @Error: SYMBOL_DEFINITION: NOT_INITIALISED_IN_ANY_WAY
+      <- result as T
+
+      //This is INVALID - named dynamic class inside generic function
+      @Error: SYMBOL_DEFINITION: GENERIC_WITH_NAMED_DYNAMIC_CLASS
+      processor as Processor := NamedProcessor() with trait of Processor as class
+        override process()
+          -> arg0 as String
+          <- rtn as String: "processed: " + arg0
+
+      assert processor?
+      result: item
+
+//EOF
