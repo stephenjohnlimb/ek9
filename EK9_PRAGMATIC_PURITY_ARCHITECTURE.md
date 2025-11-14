@@ -409,6 +409,307 @@ EK9 positions itself uniquely in the programming language ecosystem:
 - **Future-proofing**: Seamless optimization for emerging processor architectures
 - **Ecosystem growth**: Third-party library adoption of pure function patterns
 
+---
+
+## Pragmatic Code Quality: Beyond Purity
+
+**See also**: **`EK9_COMPILE_TIME_QUALITY_ENFORCEMENT.md`** - Complete quality enforcement architecture
+
+### Extending the Pragmatic Philosophy
+
+EK9's "pragmatic" philosophy extends beyond purity to encompass **comprehensive code quality enforcement**. While purity addresses correctness through side-effect control, quality metrics address **maintainability through structural constraints**.
+
+**The Quality Pyramid**:
+
+```
+                    ┌─────────────────────┐
+                    │  Duplicate Code     │ ← Codebase-level
+                    │  Detection          │   (DRY principle)
+                    └─────────────────────┘
+                           ▲
+                           │
+                    ┌─────────────────────┐
+                    │  Cohesion/Coupling  │ ← Architecture-level
+                    │  Metrics            │   (SOLID principles)
+                    └─────────────────────┘
+                           ▲
+                           │
+                    ┌─────────────────────┐
+                    │  Complexity         │ ← Function-level
+                    │  Limits             │   (cognitive load)
+                    └─────────────────────┘
+                           ▲
+                           │
+                    ┌─────────────────────┐
+                    │  Purity & Safety    │ ← Expression-level
+                    │  Pure by default    │   (correctness)
+                    └─────────────────────┘
+```
+
+**Together**: Purity ensures correctness, quality metrics ensure maintainability.
+
+### The "Either Good Code or Errors, Never Warnings" Principle
+
+**EK9's Radical Stance**: No warnings, only errors.
+
+**Rationale**:
+```
+Traditional Approach:
+├── Compiles ✅
+├── Compiles with warnings ⚠️  ← Gray area (technical debt zone)
+└── Doesn't compile ❌
+
+EK9 Approach:
+├── Compiles ✅ (passed ALL quality checks)
+└── Doesn't compile ❌ (failed at least one check)
+
+No gray area. No accumulating debt.
+```
+
+**Why This is Pragmatic**:
+- **Warnings accumulate**: "We'll fix it later" (never happens)
+- **Warnings are bypassable**: Can disable, suppress, or ignore
+- **Warnings create noise**: Real issues lost in sea of warnings
+- **Errors enforce discipline**: Cannot ignore, cannot bypass
+
+**Result**: If EK9 code compiles, it's guaranteed to be maintainable.
+
+### Four Quality Enforcement Mechanisms
+
+**1. Complexity Limits** (✅ Implemented - Phase 8)
+
+**Threshold**: Functions ≤ 50, Classes ≤ 500
+
+**Integration with Purity**:
+```ek9
+// Purity prevents hidden complexity through side effects
+calculateResult() as pure
+  -> data as List of Integer
+  <- result as Integer
+
+  // Compiler tracks complexity:
+  // - Control flow: if/loops/switch
+  // - Boolean operators (short-circuit)
+  // - Stream operations
+
+  // If complexity > 50: EXCESSIVE_COMPLEXITY error
+```
+
+**Why This Matters**:
+- Pure functions already reduce cognitive load (no side effects to track)
+- Complexity limits enforce this at language level
+- Together: **guaranteed comprehensible code**
+
+**2. Cohesion Metrics** (🔄 Planned 2026 - Phase 8)
+
+**Threshold**: LCOM4 ≤ 0.5
+
+**Integration with Purity**:
+```ek9
+// Purity eliminates hidden coupling through side effects
+// Cohesion metrics measure explicit coupling through fields
+
+class DataProcessor
+  data as List of Integer
+  processor as Processor
+
+  // High cohesion: all methods use both fields
+  process() as pure
+    <- result as ProcessedData
+    result := processor.process(data)  // Uses both fields ✅
+
+  validate() as pure
+    <- valid as Boolean
+    valid := processor.isValid(data)   // Uses both fields ✅
+
+  // LCOM4: 0.0 (perfect cohesion) ✅
+```
+
+**Why This Matters**:
+- Purity guarantees no hidden state mutation
+- Cohesion ensures explicit state is well-organized
+- Together: **clean, focused modules**
+
+**3. Coupling Metrics** (🔄 Planned 2026 - Phase 8)
+
+**Threshold**: Efferent Coupling ≤ 7
+
+**Integration with Purity**:
+```ek9
+// Purity eliminates coupling through global state
+// Coupling metrics measure dependency injection
+
+class OrderService
+  paymentHandler as PaymentHandler
+  fulfillmentHandler as FulfillmentHandler
+  notificationHandler as NotificationHandler
+  // Ce = 3 ✅
+
+  processOrder() as pure  // Pure interface
+    -> order as Order
+    <- result as Result of (Order, Error)
+
+    // All dependencies explicit (no globals)
+    // Purity + low coupling = testable, maintainable
+```
+
+**Why This Matters**:
+- Purity forces explicit dependencies (no global state)
+- Coupling limits enforce architectural boundaries
+- Together: **layered, decoupled design**
+
+**4. Duplicate Code Detection** (🔄 Planned 2026 - Phase 11)
+
+**Threshold**: IR-based similarity < 70%
+
+**Integration with Purity**:
+```ek9
+// Pure functions enable safe refactoring
+// Duplicate detection identifies refactoring opportunities
+
+// Detected duplication:
+processUserData() as pure
+  // ... 20 lines of logic
+
+processAdminData() as pure
+  // ... 20 lines of 85% similar logic
+
+// Compiler: DUPLICATE_CODE (85% similar)
+
+// Safe refactoring (purity guaranteed no side effects):
+processData<T>(entity as T) as pure
+  -> processor as Processor<T>
+  // ... extracted logic
+```
+
+**Why This Matters**:
+- Purity enables safe, automated refactoring
+- Duplicate detection identifies where to refactor
+- Together: **DRY code with confidence**
+
+### Integration: Purity + Quality Metrics
+
+**Purity Eliminates Hidden Coupling**:
+```ek9
+// Without purity:
+class Service
+  globalCache as Cache  // Hidden coupling to global state
+
+  process()
+    // Mutates global cache - hidden side effect
+    globalCache.put(key, value)
+
+// With purity:
+class Service
+  cache as Cache  // Explicit field, visible in cohesion/coupling metrics
+
+  process() as pure
+    -> key as String, value as String
+    <- updatedCache as Cache
+    updatedCache := cache.with(key, value)  // Explicit dependency
+```
+
+**Quality Metrics Measure Explicit Coupling**:
+- Cohesion: How well fields and methods are grouped
+- Coupling: How many explicit dependencies
+- Purity ensures all coupling is explicit → metrics are accurate
+
+**Result**: Perfect synergy between correctness (purity) and maintainability (quality).
+
+### Competitive Positioning
+
+**No Other Language Has Both**:
+
+| Language | Purity Enforcement | Quality Enforcement |
+|----------|-------------------|---------------------|
+| **Haskell** | ✅ Monads | ❌ No compile-time limits |
+| **Rust** | ⚠️ Ownership (not purity) | ❌ No compile-time limits |
+| **Java** | ❌ No purity | ❌ Linters (optional) |
+| **C#** | ❌ No purity | ❌ Analyzers (warnings) |
+| **EK9** | ✅ **Compile-time** | ✅ **Compile-time** |
+
+**EK9's Unique Value**: **Correctness + Maintainability, both guaranteed by compiler**
+
+### Pragmatic Philosophy Realized
+
+**Goal**: Enable developers to write **correct, maintainable, high-performance code** without heroic effort.
+
+**Means**:
+1. **Purity** → Correctness (no unexpected side effects)
+2. **Quality Metrics** → Maintainability (comprehensible structure)
+3. **Backend Optimization** → Performance (automatic, based on purity info)
+
+**Result**: Developer writes simple, pure, well-structured code → Compiler ensures quality → Backend optimizes for performance.
+
+**This is pragmatism** - language design that makes the right thing easy and the wrong thing impossible.
+
+### External Tool Replacement Strategy
+
+**Traditional Development Stack**:
+```
+Code Quality = Discipline + External Tools
+
+Developer writes code
+  ↓
+Checkstyle (style checking, optional)
+  ↓
+SonarQube (quality/complexity, optional)
+  ↓
+Snyk (security scanning, optional)
+  ↓
+Code review (subjective, slow)
+  ↓
+Maybe enforce via CI/CD (can be bypassed)
+
+Result: Fragmented, optional, bypassable
+```
+
+**EK9 Integrated Approach**:
+```
+Code Quality = Compiler Enforcement
+
+Developer writes code
+  ↓
+EK9 Compiler analyzes:
+  - Purity violations
+  - Complexity limits
+  - Cohesion metrics
+  - Coupling metrics
+  - Duplicate code
+  - Security patterns
+  ↓
+Either: Compiles (guaranteed quality)
+Or:     Errors (cannot proceed)
+
+Result: Integrated, mandatory, guaranteed
+```
+
+**Eliminated Tools**:
+- ❌ Checkstyle → Built-in style enforcement
+- ❌ SonarQube → Built-in quality metrics
+- ❌ Snyk → Built-in security patterns
+- ❌ PMD → Built-in complexity/duplication detection
+
+**Result**: **One tool (compiler) replaces 5+ external tools**
+
+### Vision: Complete Quality Enforcement by 2027
+
+**Timeline**:
+```
+2024-2025: Complexity Limits ✅ Complete
+2026 Q1-Q2: Cohesion Metrics
+2026 Q1-Q2: Coupling Metrics
+2026 Q2-Q3: Duplicate Detection
+2027+: Security Patterns
+2027+: Style Enforcement
+
+Complete by 2027: All quality enforcement integrated
+```
+
+**Market Impact**: **"EK9: The only language where the compiler guarantees code quality"**
+
+---
+
 ## Conclusion
 
 EK9's pragmatic purity architecture represents a fundamental breakthrough in programming language design. By combining **compile-time purity enforcement**, **pragmatic I/O handling**, and **complete backend optimization information**, EK9 enables unprecedented performance opportunities while maintaining developer productivity.
