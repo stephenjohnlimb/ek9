@@ -1,0 +1,116 @@
+#!ek9
+<?-
+  PRE_IR_CHECKS Fuzz Test: Stream Pipeline Complexity
+
+  Tests that stream operations contribute to overall function complexity
+  when combined with other control flow, triggering EXCESSIVE_COMPLEXITY error.
+
+  Complexity Threshold: Functions/methods/operators max = 50
+  This function: 56 complexity (6 over threshold)
+
+  Complexity calculation:
+  - Function exit: +1
+  - Return value uninitialized: +1
+  - Conditional assignment (:=?): +1
+  - cat (stream source): +1
+  - 10 pipe operators (|): +10
+  - collect termination: +1
+  - 20 if statements: +20
+  - 20 comparison operators (in if statements): +20
+  - 1 comparison operator (in assert): +1
+  Total: 1 + 1 + 1 + 1 + 10 + 1 + 20 + 20 + 1 = 56
+
+  This tests that stream pipeline operators count toward complexity
+  and combine with other control flow patterns to enforce limits.
+
+  Pattern: Combines stream processing with conditional logic to create
+  realistic complexity scenario where both contribute to overall count.
+
+  Expected: 1 EXCESSIVE_COMPLEXITY error
+-?>
+defines module stream.pipeline.complexity.test
+
+  defines function
+
+    <?-
+      Helper filter function - checks if value is in valid range.
+    -?>
+    InRange()
+      -> value as Integer
+      <- rtn as Boolean: value > 0 and value < 100
+
+    <?-
+      Function with stream pipeline plus conditional logic.
+
+      The complexity comes from:
+      - Stream operations (cat, pipes, collect)
+      - Conditional logic (if statements with comparisons)
+
+      This demonstrates that stream operations count toward overall
+      function complexity and combine with other patterns.
+    -?>
+    @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+    ExcessiveStreamPipeline()
+      -> threshold as Integer
+      <- rtn as List of Integer?
+
+      //Stream pipeline adds 13 complexity (cat + 10 pipes + collect)
+      rtn :=? cat [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        | select by InRange
+        | select by InRange
+        | select by InRange
+        | select by InRange
+        | select by InRange
+        | select by InRange
+        | select by InRange
+        | select by InRange
+        | select by InRange
+        | select by InRange
+        | collect as List of Integer
+
+      //Additional complexity from conditional logic: 20 ifs + 20 comparisons = 40
+      temp <- 0
+      if threshold > 1
+        temp := 1
+      if threshold > 2
+        temp := 2
+      if threshold > 3
+        temp := 3
+      if threshold > 4
+        temp := 4
+      if threshold > 5
+        temp := 5
+      if threshold > 6
+        temp := 6
+      if threshold > 7
+        temp := 7
+      if threshold > 8
+        temp := 8
+      if threshold > 9
+        temp := 9
+      if threshold > 10
+        temp := 10
+      if threshold > 11
+        temp := 11
+      if threshold > 12
+        temp := 12
+      if threshold > 13
+        temp := 13
+      if threshold > 14
+        temp := 14
+      if threshold > 15
+        temp := 15
+      if threshold > 16
+        temp := 16
+      if threshold > 17
+        temp := 17
+      if threshold > 18
+        temp := 18
+      if threshold > 19
+        temp := 19
+      if threshold > 20
+        temp := 20
+
+      assert temp >= 0
+
+//EOF

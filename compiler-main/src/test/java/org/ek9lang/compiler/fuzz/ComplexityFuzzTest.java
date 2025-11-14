@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
  * Fuzzing tests for cyclomatic complexity errors in PRE_IR_CHECKS phase.
  * Tests EXCESSIVE_COMPLEXITY error detection.
  *
- * <p>Test corpus: fuzzCorpus/complexity (4 test files)
+ * <p>Test corpus: fuzzCorpus/complexity (5 test files)
  * Validates that complexity analysis correctly detects functions/operators/dynamic functions/classes
  * exceeding cyclomatic complexity thresholds.
  *
@@ -74,6 +74,12 @@ import org.junit.jupiter.api.Test;
  * - Dynamic function: 71 complexity, wrapper function: 73 complexity
  * - Validates complexity flow upward (dynamic → containing function)
  * - Expected: 2 EXCESSIVE_COMPLEXITY errors (dynamic function + wrapper)
+ * <br/>
+ * 5. stream_pipeline_complexity.ek9 - Stream pipeline with excessive complexity
+ * - Pattern: Stream pipeline combined with conditional logic (if statements)
+ * - Total: 56 complexity (6 over threshold)
+ * - Validates that stream operations (cat, pipes, collect) count toward overall complexity
+ * - Expected: 1 EXCESSIVE_COMPLEXITY error
  * </p>
  * <p>Complexity Semantics:
  * - EXCESSIVE_COMPLEXITY: Functions/methods/operators exceeding 50 complexity threshold
@@ -105,7 +111,7 @@ import org.junit.jupiter.api.Test;
  * - Bits and/or operators: Do NOT add complexity (bitwise operations, no branching)
  * This type-aware complexity counting is implemented via FormOfBooleanLogic.java in PreIRListener.
  * <br/>
- * Total: 5 EXCESSIVE_COMPLEXITY errors across 4 test files
+ * Total: 6 EXCESSIVE_COMPLEXITY errors across 5 test files
  * </p>
  */
 class ComplexityFuzzTest extends FuzzTestBase {
