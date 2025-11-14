@@ -2,6 +2,7 @@ package org.ek9lang.compiler;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -88,7 +89,7 @@ public class Workspace {
 
   public Collection<CompilableSource> getSources() {
 
-    return sources.values();
+    return new ArrayList<>(sources.values());
   }
 
   public String getSourceFileBaseDirectory() {
