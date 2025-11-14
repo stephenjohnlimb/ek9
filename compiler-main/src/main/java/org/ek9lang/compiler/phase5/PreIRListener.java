@@ -16,6 +16,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
   private final ComplexityCounter complexityCounter = new ComplexityCounter();
   private final FormOfComparator formOfComparator = new FormOfComparator();
+  private final FormOfBooleanLogic formOfBooleanLogic;
   private final VariableOnlyOrError variableOnlyOrError;
   private final AssignmentStatementOrError assignmentStatementOrError;
   private final ProcessGuardExpression processGuardExpression;
@@ -48,6 +49,9 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
     super(parsedModule);
     final var errorListener = parsedModule.getSource().getErrorListener();
+
+    this.formOfBooleanLogic =
+        new FormOfBooleanLogic(symbolsAndScopes, parsedModule.getEk9Types());
 
     this.variableOnlyOrError =
         new VariableOnlyOrError(symbolsAndScopes, errorListener);
@@ -733,6 +737,10 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void exitExpression(final EK9Parser.ExpressionContext ctx) {
     if (formOfComparator.test(ctx)) {
+      complexityCounter.incrementComplexity();
+    }
+    //Boolean and/or creates branching (short-circuit), so adds complexity
+    if (formOfBooleanLogic.test(ctx)) {
       complexityCounter.incrementComplexity();
     }
     super.exitExpression(ctx);

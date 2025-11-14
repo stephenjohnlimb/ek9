@@ -1,0 +1,144 @@
+#!ek9
+<?-
+  PRE_IR_CHECKS Fuzz Test: Comparison Operator Explosion
+
+  Tests that many comparison operators trigger EXCESSIVE_COMPLEXITY error.
+
+  Comparison operators each add +1 complexity:
+  <, <=, >, >=, ==, <>, !=, <=>, <~>, matches, contains, ?
+
+  Complexity Threshold: Functions/methods/operators max = 50
+  This function: 101 complexity (51 over threshold)
+
+  Complexity calculation:
+  - Function exit: +1
+  - 48 if statements: +48
+  - 48 comparison operators: +48 (one per if condition)
+  - 4 is-set checks (?): +4
+  - 2 Boolean and operators: +2 (assert chain)
+  Total: 1 + 48 + 48 + 4 + 2 = 103
+
+  Expected: 1 EXCESSIVE_COMPLEXITY error (103 > 50 threshold)
+-?>
+defines module comparison.operator.explosion.test
+
+  @Complexity: PRE_IR_CHECKS: FUNCTION: "ComparisonExplosion": 103
+  defines function
+
+    @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+    ComparisonExplosion()
+      ->
+        a as Integer
+        b as Integer
+        c as Integer
+
+      result <- "start"
+
+      //48 if statements, each with comparison operator
+      if a < b
+        result := "1"
+      if a <= b
+        result := "2"
+      if a > b
+        result := "3"
+      if a >= b
+        result := "4"
+      if a == b
+        result := "5"
+      if a <> b
+        result := "6"
+
+      if a < c
+        result := "7"
+      if a <= c
+        result := "8"
+      if a > c
+        result := "9"
+      if a >= c
+        result := "10"
+      if a == c
+        result := "11"
+      if a <> c
+        result := "12"
+
+      if b < c
+        result := "13"
+      if b <= c
+        result := "14"
+      if b > c
+        result := "15"
+      if b >= c
+        result := "16"
+      if b == c
+        result := "17"
+      if b <> c
+        result := "18"
+
+      if a < b
+        result := "19"
+      if a <= b
+        result := "20"
+      if a > b
+        result := "21"
+      if a >= b
+        result := "22"
+      if a == b
+        result := "23"
+      if a <> b
+        result := "24"
+
+      if a < c
+        result := "25"
+      if a <= c
+        result := "26"
+      if a > c
+        result := "27"
+      if a >= c
+        result := "28"
+      if a == c
+        result := "29"
+      if a <> c
+        result := "30"
+
+      if b < c
+        result := "31"
+      if b <= c
+        result := "32"
+      if b > c
+        result := "33"
+      if b >= c
+        result := "34"
+      if b == c
+        result := "35"
+      if b <> c
+        result := "36"
+
+      if a < b
+        result := "37"
+      if a <= b
+        result := "38"
+      if a > b
+        result := "39"
+      if a >= b
+        result := "40"
+      if a == b
+        result := "41"
+      if a <> b
+        result := "42"
+
+      if a < c
+        result := "43"
+      if a <= c
+        result := "44"
+      if a > c
+        result := "45"
+      if a >= c
+        result := "46"
+      if a == c
+        result := "47"
+      if a <> c
+        result := "48"
+
+      assert result? and a? and b?
+
+//EOF

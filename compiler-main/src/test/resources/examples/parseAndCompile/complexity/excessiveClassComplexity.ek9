@@ -39,7 +39,7 @@ defines module excessive.classdefinition.complexity
       default operator ?
 
   //We can put this check here - as it looks up the function my name.
-  @Complexity: PRE_IR_CHECKS: TYPE: "ComplexClassVeryRepetitiveToGetComplexity": 549
+  @Complexity: PRE_IR_CHECKS: TYPE: "ComplexClassVeryRepetitiveToGetComplexity": 762
   defines class
 
     <?-
@@ -47,6 +47,9 @@ defines module excessive.classdefinition.complexity
       We always have the class definition so that's 1.
 
       This class has multiple copies of complex method, to trigger the complexity error.
+
+      With Boolean and/or operators now counted, each assert with 'and' chains
+      adds additional complexity: 5 ? checks + 4 'and' operators = 9 total.
     -?>
     @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
     ComplexClassVeryRepetitiveToGetComplexity
@@ -72,7 +75,7 @@ defines module excessive.classdefinition.complexity
           arg4 as Integer
           arg5 as Integer
 
-        //There are 5 'is-set' checks, that's 5
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert arg1? and arg2? and arg3? and arg4? and arg5?
 
         //Conditional assignments, add 5
@@ -82,10 +85,10 @@ defines module excessive.classdefinition.complexity
         prop4 :=? arg4
         prop5 :=? arg5
 
-        //More 'is-set' checks. Add 5.
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert prop1? and prop2? and prop3? and prop4? and prop5?
 
-        //So now we're up to 24.
+        //So now we're up to: 1 + 2 + 9 + 5 + 9 = 26
 
         someVar <- Integer()
         //Now lets use a try with resources
@@ -114,7 +117,7 @@ defines module excessive.classdefinition.complexity
             //equality: 1
             if i < loopVar
               //Just add more pointless complexity
-              //More 'is-set' checks. Add 5.
+              //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
               assert prop1? and prop2? and prop3? and prop4? and prop5?
 
             conditional <- Boolean()
@@ -128,7 +131,8 @@ defines module excessive.classdefinition.complexity
             do whileVar :=? getBasicValue()
 
               //Conditional assignment: 1
-              //more is-set * 6: 6
+              //6 'is-set' checks (?) + 5 Boolean 'and' operators = 11
+              //Total for this line: 1 + 6 + 5 = 12
               conditional :=? prop1? and prop2? and prop3? and prop4? and prop5? and whileVar?
             while not conditional
         //'catch': 1
@@ -139,17 +143,19 @@ defines module excessive.classdefinition.complexity
         //'finally': 1
         finally
           //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
-          //'is-set * 5': 5
+          //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
           assert var1? and var2? and var3? and var4? and var5?
 
-      //End of method
+      //End of constructor - complexity: 74 (exceeds threshold of 50)
 
-      //Now just duplicate (trim slightly so no more complexity errors on method - but make class complex fail)
+      //Now just duplicate (trimmed - removed do-while loop from constructor)
+      //Each Copy method: 58 complexity (exceeds threshold of 50)
 
       <?-
       Then method definition so that's 1.
       Five incoming arguments, that's 2.
       -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
       Copy1OfComplexMethod() as pure
         ->
           arg1 as Integer
@@ -158,7 +164,7 @@ defines module excessive.classdefinition.complexity
           arg4 as Integer
           arg5 as Integer
 
-        //There are 5 'is-set' checks, that's 5
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert arg1? and arg2? and arg3? and arg4? and arg5?
 
         //Conditional assignments, add 5
@@ -168,10 +174,10 @@ defines module excessive.classdefinition.complexity
         prop4 :=? arg4
         prop5 :=? arg5
 
-        //More 'is-set' checks. Add 5.
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert prop1? and prop2? and prop3? and prop4? and prop5?
 
-        //So now we're up to 18.
+        //So now we're up to: 1 + 2 + 9 + 5 + 9 = 26
 
         someVar <- Integer()
         //Now lets use a try with resources
@@ -200,7 +206,7 @@ defines module excessive.classdefinition.complexity
             //equality: 1
             if i < loopVar
               //Just add more pointless complexity
-              //More 'is-set' checks. Add 5.
+              //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
               assert prop1? and prop2? and prop3? and prop4? and prop5?
 
         //'catch': 1
@@ -211,7 +217,7 @@ defines module excessive.classdefinition.complexity
         //'finally': 1
         finally
           //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
-          //'is-set * 5': 5
+          //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
           assert var1? and var2? and var3? and var4? and var5?
 
       //Another copy of the complex method.
@@ -220,6 +226,7 @@ defines module excessive.classdefinition.complexity
       Then method definition so that's 1.
       Five incoming arguments, that's 2.
       -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
       Copy2OfComplexMethod() as pure
         ->
           arg1 as Integer
@@ -228,7 +235,7 @@ defines module excessive.classdefinition.complexity
           arg4 as Integer
           arg5 as Integer
 
-        //There are 5 'is-set' checks, that's 5
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert arg1? and arg2? and arg3? and arg4? and arg5?
 
         //Conditional assignments, add 5
@@ -238,10 +245,10 @@ defines module excessive.classdefinition.complexity
         prop4 :=? arg4
         prop5 :=? arg5
 
-        //More 'is-set' checks. Add 5.
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert prop1? and prop2? and prop3? and prop4? and prop5?
 
-        //So now we're up to 18.
+        //So now we're up to: 1 + 2 + 9 + 5 + 9 = 26
 
         someVar <- Integer()
         //Now lets use a try with resources
@@ -270,7 +277,7 @@ defines module excessive.classdefinition.complexity
             //equality: 1
             if i < loopVar
               //Just add more pointless complexity
-              //More 'is-set' checks. Add 5.
+              //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
               assert prop1? and prop2? and prop3? and prop4? and prop5?
 
         //'catch': 1
@@ -281,7 +288,7 @@ defines module excessive.classdefinition.complexity
         //'finally': 1
         finally
           //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
-          //'is-set * 5': 5
+          //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
           assert var1? and var2? and var3? and var4? and var5?
 
       //Another copy of the complex method.
@@ -290,6 +297,7 @@ defines module excessive.classdefinition.complexity
       Then method definition so that's 1.
       Five incoming arguments, that's 2.
       -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
       Copy3OfComplexMethod() as pure
         ->
           arg1 as Integer
@@ -298,7 +306,7 @@ defines module excessive.classdefinition.complexity
           arg4 as Integer
           arg5 as Integer
 
-        //There are 5 'is-set' checks, that's 5
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert arg1? and arg2? and arg3? and arg4? and arg5?
 
         //Conditional assignments, add 5
@@ -308,10 +316,10 @@ defines module excessive.classdefinition.complexity
         prop4 :=? arg4
         prop5 :=? arg5
 
-        //More 'is-set' checks. Add 5.
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert prop1? and prop2? and prop3? and prop4? and prop5?
 
-        //So now we're up to 18.
+        //So now we're up to: 1 + 2 + 9 + 5 + 9 = 26
 
         someVar <- Integer()
         //Now lets use a try with resources
@@ -340,7 +348,7 @@ defines module excessive.classdefinition.complexity
             //equality: 1
             if i < loopVar
               //Just add more pointless complexity
-              //More 'is-set' checks. Add 5.
+              //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
               assert prop1? and prop2? and prop3? and prop4? and prop5?
 
         //'catch': 1
@@ -351,7 +359,7 @@ defines module excessive.classdefinition.complexity
         //'finally': 1
         finally
           //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
-          //'is-set * 5': 5
+          //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
           assert var1? and var2? and var3? and var4? and var5?
 
       //Another copy of the complex method.
@@ -360,6 +368,7 @@ defines module excessive.classdefinition.complexity
       Then method definition so that's 1.
       Five incoming arguments, that's 2.
       -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
       Copy4OfComplexMethod() as pure
         ->
           arg1 as Integer
@@ -368,7 +377,7 @@ defines module excessive.classdefinition.complexity
           arg4 as Integer
           arg5 as Integer
 
-        //There are 5 'is-set' checks, that's 5
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert arg1? and arg2? and arg3? and arg4? and arg5?
 
         //Conditional assignments, add 5
@@ -378,10 +387,10 @@ defines module excessive.classdefinition.complexity
         prop4 :=? arg4
         prop5 :=? arg5
 
-        //More 'is-set' checks. Add 5.
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert prop1? and prop2? and prop3? and prop4? and prop5?
 
-        //So now we're up to 18.
+        //So now we're up to: 1 + 2 + 9 + 5 + 9 = 26
 
         someVar <- Integer()
         //Now lets use a try with resources
@@ -410,7 +419,7 @@ defines module excessive.classdefinition.complexity
             //equality: 1
             if i < loopVar
               //Just add more pointless complexity
-              //More 'is-set' checks. Add 5.
+              //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
               assert prop1? and prop2? and prop3? and prop4? and prop5?
 
         //'catch': 1
@@ -421,7 +430,7 @@ defines module excessive.classdefinition.complexity
         //'finally': 1
         finally
           //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
-          //'is-set * 5': 5
+          //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
           assert var1? and var2? and var3? and var4? and var5?
 
       //Another copy of the complex method.
@@ -430,6 +439,7 @@ defines module excessive.classdefinition.complexity
       Then method definition so that's 1.
       Five incoming arguments, that's 2.
       -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
       Copy5OfComplexMethod() as pure
         ->
           arg1 as Integer
@@ -438,7 +448,7 @@ defines module excessive.classdefinition.complexity
           arg4 as Integer
           arg5 as Integer
 
-        //There are 5 'is-set' checks, that's 5
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert arg1? and arg2? and arg3? and arg4? and arg5?
 
         //Conditional assignments, add 5
@@ -448,10 +458,10 @@ defines module excessive.classdefinition.complexity
         prop4 :=? arg4
         prop5 :=? arg5
 
-        //More 'is-set' checks. Add 5.
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert prop1? and prop2? and prop3? and prop4? and prop5?
 
-        //So now we're up to 18.
+        //So now we're up to: 1 + 2 + 9 + 5 + 9 = 26
 
         someVar <- Integer()
         //Now lets use a try with resources
@@ -480,7 +490,7 @@ defines module excessive.classdefinition.complexity
             //equality: 1
             if i < loopVar
               //Just add more pointless complexity
-              //More 'is-set' checks. Add 5.
+              //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
               assert prop1? and prop2? and prop3? and prop4? and prop5?
 
         //'catch': 1
@@ -491,7 +501,7 @@ defines module excessive.classdefinition.complexity
         //'finally': 1
         finally
           //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
-          //'is-set * 5': 5
+          //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
           assert var1? and var2? and var3? and var4? and var5?
 
       //Another copy of the complex method.
@@ -500,6 +510,7 @@ defines module excessive.classdefinition.complexity
       Then method definition so that's 1.
       Five incoming arguments, that's 2.
       -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
       Copy6OfComplexMethod() as pure
         ->
           arg1 as Integer
@@ -508,7 +519,7 @@ defines module excessive.classdefinition.complexity
           arg4 as Integer
           arg5 as Integer
 
-        //There are 5 'is-set' checks, that's 5
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert arg1? and arg2? and arg3? and arg4? and arg5?
 
         //Conditional assignments, add 5
@@ -518,10 +529,10 @@ defines module excessive.classdefinition.complexity
         prop4 :=? arg4
         prop5 :=? arg5
 
-        //More 'is-set' checks. Add 5.
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert prop1? and prop2? and prop3? and prop4? and prop5?
 
-        //So now we're up to 18.
+        //So now we're up to: 1 + 2 + 9 + 5 + 9 = 26
 
         someVar <- Integer()
         //Now lets use a try with resources
@@ -550,7 +561,7 @@ defines module excessive.classdefinition.complexity
             //equality: 1
             if i < loopVar
               //Just add more pointless complexity
-              //More 'is-set' checks. Add 5.
+              //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
               assert prop1? and prop2? and prop3? and prop4? and prop5?
 
         //'catch': 1
@@ -561,7 +572,7 @@ defines module excessive.classdefinition.complexity
         //'finally': 1
         finally
           //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
-          //'is-set * 5': 5
+          //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
           assert var1? and var2? and var3? and var4? and var5?
 
       //Another copy of the complex method.
@@ -570,6 +581,7 @@ defines module excessive.classdefinition.complexity
       Then method definition so that's 1.
       Five incoming arguments, that's 2.
       -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
       Copy7OfComplexMethod() as pure
         ->
           arg1 as Integer
@@ -578,7 +590,7 @@ defines module excessive.classdefinition.complexity
           arg4 as Integer
           arg5 as Integer
 
-        //There are 5 'is-set' checks, that's 5
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert arg1? and arg2? and arg3? and arg4? and arg5?
 
         //Conditional assignments, add 5
@@ -588,10 +600,10 @@ defines module excessive.classdefinition.complexity
         prop4 :=? arg4
         prop5 :=? arg5
 
-        //More 'is-set' checks. Add 5.
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert prop1? and prop2? and prop3? and prop4? and prop5?
 
-        //So now we're up to 18.
+        //So now we're up to: 1 + 2 + 9 + 5 + 9 = 26
 
         someVar <- Integer()
         //Now lets use a try with resources
@@ -620,7 +632,7 @@ defines module excessive.classdefinition.complexity
             //equality: 1
             if i < loopVar
               //Just add more pointless complexity
-              //More 'is-set' checks. Add 5.
+              //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
               assert prop1? and prop2? and prop3? and prop4? and prop5?
 
         //'catch': 1
@@ -631,7 +643,7 @@ defines module excessive.classdefinition.complexity
         //'finally': 1
         finally
           //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
-          //'is-set * 5': 5
+          //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
           assert var1? and var2? and var3? and var4? and var5?
 
       //Another copy of the complex method.
@@ -640,6 +652,7 @@ defines module excessive.classdefinition.complexity
       Then method definition so that's 1.
       Five incoming arguments, that's 2.
       -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
       Copy8OfComplexMethod() as pure
         ->
           arg1 as Integer
@@ -648,7 +661,7 @@ defines module excessive.classdefinition.complexity
           arg4 as Integer
           arg5 as Integer
 
-        //There are 5 'is-set' checks, that's 5
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert arg1? and arg2? and arg3? and arg4? and arg5?
 
         //Conditional assignments, add 5
@@ -658,10 +671,10 @@ defines module excessive.classdefinition.complexity
         prop4 :=? arg4
         prop5 :=? arg5
 
-        //More 'is-set' checks. Add 5.
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert prop1? and prop2? and prop3? and prop4? and prop5?
 
-        //So now we're up to 18.
+        //So now we're up to: 1 + 2 + 9 + 5 + 9 = 26
 
         someVar <- Integer()
         //Now lets use a try with resources
@@ -690,7 +703,7 @@ defines module excessive.classdefinition.complexity
             //equality: 1
             if i < loopVar
               //Just add more pointless complexity
-              //More 'is-set' checks. Add 5.
+              //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
               assert prop1? and prop2? and prop3? and prop4? and prop5?
 
         //'catch': 1
@@ -701,7 +714,7 @@ defines module excessive.classdefinition.complexity
         //'finally': 1
         finally
           //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
-          //'is-set * 5': 5
+          //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
           assert var1? and var2? and var3? and var4? and var5?
 
       //Another copy of the complex method.
@@ -710,6 +723,7 @@ defines module excessive.classdefinition.complexity
       Then method definition so that's 1.
       Five incoming arguments, that's 2.
       -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
       Copy9OfComplexMethod() as pure
         ->
           arg1 as Integer
@@ -718,7 +732,7 @@ defines module excessive.classdefinition.complexity
           arg4 as Integer
           arg5 as Integer
 
-        //There are 5 'is-set' checks, that's 5
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert arg1? and arg2? and arg3? and arg4? and arg5?
 
         //Conditional assignments, add 5
@@ -728,10 +742,10 @@ defines module excessive.classdefinition.complexity
         prop4 :=? arg4
         prop5 :=? arg5
 
-        //More 'is-set' checks. Add 5.
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert prop1? and prop2? and prop3? and prop4? and prop5?
 
-        //So now we're up to 18.
+        //So now we're up to: 1 + 2 + 9 + 5 + 9 = 26
 
         someVar <- Integer()
         //Now lets use a try with resources
@@ -760,7 +774,7 @@ defines module excessive.classdefinition.complexity
             //equality: 1
             if i < loopVar
               //Just add more pointless complexity
-              //More 'is-set' checks. Add 5.
+              //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
               assert prop1? and prop2? and prop3? and prop4? and prop5?
 
         //'catch': 1
@@ -771,7 +785,7 @@ defines module excessive.classdefinition.complexity
         //'finally': 1
         finally
           //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
-          //'is-set * 5': 5
+          //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
           assert var1? and var2? and var3? and var4? and var5?
 
       //Another copy of the complex method.
@@ -780,6 +794,7 @@ defines module excessive.classdefinition.complexity
       Then method definition so that's 1.
       Five incoming arguments, that's 2.
       -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
       Copy10OfComplexMethod() as pure
         ->
           arg1 as Integer
@@ -788,7 +803,7 @@ defines module excessive.classdefinition.complexity
           arg4 as Integer
           arg5 as Integer
 
-        //There are 5 'is-set' checks, that's 5
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert arg1? and arg2? and arg3? and arg4? and arg5?
 
         //Conditional assignments, add 5
@@ -798,10 +813,10 @@ defines module excessive.classdefinition.complexity
         prop4 :=? arg4
         prop5 :=? arg5
 
-        //More 'is-set' checks. Add 5.
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert prop1? and prop2? and prop3? and prop4? and prop5?
 
-        //So now we're up to 18.
+        //So now we're up to: 1 + 2 + 9 + 5 + 9 = 26
 
         someVar <- Integer()
         //Now lets use a try with resources
@@ -830,7 +845,7 @@ defines module excessive.classdefinition.complexity
             //equality: 1
             if i < loopVar
               //Just add more pointless complexity
-              //More 'is-set' checks. Add 5.
+              //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
               assert prop1? and prop2? and prop3? and prop4? and prop5?
 
         //'catch': 1
@@ -841,7 +856,7 @@ defines module excessive.classdefinition.complexity
         //'finally': 1
         finally
           //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
-          //'is-set * 5': 5
+          //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
           assert var1? and var2? and var3? and var4? and var5?
 
       //Another copy of the complex method.
@@ -850,6 +865,7 @@ defines module excessive.classdefinition.complexity
       Then method definition so that's 1.
       Five incoming arguments, that's 2.
       -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
       Copy11OfComplexMethod() as pure
         ->
           arg1 as Integer
@@ -858,7 +874,7 @@ defines module excessive.classdefinition.complexity
           arg4 as Integer
           arg5 as Integer
 
-        //There are 5 'is-set' checks, that's 5
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert arg1? and arg2? and arg3? and arg4? and arg5?
 
         //Conditional assignments, add 5
@@ -868,10 +884,10 @@ defines module excessive.classdefinition.complexity
         prop4 :=? arg4
         prop5 :=? arg5
 
-        //More 'is-set' checks. Add 5.
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert prop1? and prop2? and prop3? and prop4? and prop5?
 
-        //So now we're up to 18.
+        //So now we're up to: 1 + 2 + 9 + 5 + 9 = 26
 
         someVar <- Integer()
         //Now lets use a try with resources
@@ -900,7 +916,7 @@ defines module excessive.classdefinition.complexity
             //equality: 1
             if i < loopVar
               //Just add more pointless complexity
-              //More 'is-set' checks. Add 5.
+              //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
               assert prop1? and prop2? and prop3? and prop4? and prop5?
 
         //'catch': 1
@@ -911,7 +927,7 @@ defines module excessive.classdefinition.complexity
         //'finally': 1
         finally
           //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
-          //'is-set * 5': 5
+          //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
           assert var1? and var2? and var3? and var4? and var5?
 
       //Another copy of the complex method.
@@ -920,6 +936,7 @@ defines module excessive.classdefinition.complexity
       Then method definition so that's 1.
       Five incoming arguments, that's 2.
       -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
       Copy12OfComplexMethod() as pure
         ->
           arg1 as Integer
@@ -928,7 +945,7 @@ defines module excessive.classdefinition.complexity
           arg4 as Integer
           arg5 as Integer
 
-        //There are 5 'is-set' checks, that's 5
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert arg1? and arg2? and arg3? and arg4? and arg5?
 
         //Conditional assignments, add 5
@@ -938,10 +955,10 @@ defines module excessive.classdefinition.complexity
         prop4 :=? arg4
         prop5 :=? arg5
 
-        //More 'is-set' checks. Add 5.
+        //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
         assert prop1? and prop2? and prop3? and prop4? and prop5?
 
-        //So now we're up to 18.
+        //So now we're up to: 1 + 2 + 9 + 5 + 9 = 26
 
         someVar <- Integer()
         //Now lets use a try with resources
@@ -970,7 +987,7 @@ defines module excessive.classdefinition.complexity
             //equality: 1
             if i < loopVar
               //Just add more pointless complexity
-              //More 'is-set' checks. Add 5.
+              //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
               assert prop1? and prop2? and prop3? and prop4? and prop5?
 
         //'catch': 1
@@ -981,7 +998,7 @@ defines module excessive.classdefinition.complexity
         //'finally': 1
         finally
           //Note as these are 'incoming' parameters they are accessible in the whole try catch finally
-          //'is-set * 5': 5
+          //5 'is-set' checks (?) + 4 Boolean 'and' operators = 9
           assert var1? and var2? and var3? and var4? and var5?
 
 //EOF

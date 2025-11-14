@@ -17,7 +17,7 @@
 defines module excessive.code.block.complexity
 
   //We can put this check here - as it looks up the function my name.
-  @Complexity: PRE_IR_CHECKS: FUNCTION: "veryComplex": 54
+  @Complexity: PRE_IR_CHECKS: FUNCTION: "veryComplex": 69
   defines function
 
     @Complexity: PRE_IR_CHECKS: FUNCTION: "evenValue": 2
@@ -92,8 +92,8 @@ defines module excessive.code.block.complexity
 
             //So now let's throw in the definition of a dynamic class - complexity of this is included in this enclosing function!
 
-            //As we are defining a new class - add 1 - but adds up to 12 in total
-            @Complexity: PRE_IR_CHECKS: TYPE: "ATuple": 12
+            //As we are defining a new class - add 1 - but adds up to 16 in total
+            @Complexity: PRE_IR_CHECKS: TYPE: "ATuple": 16
             someDynamicObject <- ATuple(first: arg1, second: arg2, third: arg3, fourth: arg4, fifth: arg5) as class
               message as String: "Some built in prefix"
 

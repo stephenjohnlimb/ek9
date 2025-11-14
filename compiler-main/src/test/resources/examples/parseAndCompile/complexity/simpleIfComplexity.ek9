@@ -37,8 +37,8 @@ defines module simple.ifcomplexity
         var++
         assert var == 3
 
-    //Counts exit, if (plus the else if) and also the 'is-set'.
-    @Complexity: PRE_IR_CHECKS: FUNCTION: "testMultipleIfComplexityWithConditional": 7
+    //Counts exit, if (plus the else if) and also the 'is-set' plus the 'or'.
+    @Complexity: PRE_IR_CHECKS: FUNCTION: "testMultipleIfComplexityWithConditional": 8
     testMultipleIfComplexityWithConditional()
       -> var as Integer
 

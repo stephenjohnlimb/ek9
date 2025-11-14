@@ -1,0 +1,94 @@
+#!ek9
+<?-
+  PRE_IR_CHECKS Fuzz Test: Boundary Complexity - Fail Over Threshold
+
+  Tests that a function with EXACTLY 51 complexity fails (1 over threshold).
+
+  Complexity Threshold: Functions/methods/operators max = 50
+  This function: Exactly 51 complexity (should FAIL)
+
+  Complexity calculation breakdown:
+  - Function exit: +1
+  - 5 incoming arguments: +2 (5+ args)
+  - Uninitialized return value: +1
+  - 8 uninitialized variables: +8
+  - 13 is-set checks (?): +13
+  - 8 conditional assignments (:=?): +8
+  - 8 if statements: +8
+  - 10 comparison operators (>): +10
+  - 8 Boolean and operators: +8 (assert chains with and)
+  Total: 1 + 2 + 1 + 8 + 13 + 8 + 8 + 10 + 8 = 59
+
+  Expected: 1 EXCESSIVE_COMPLEXITY error (function exceeds threshold by 9)
+-?>
+defines module boundary.complexity.fail.test
+
+  @Complexity: PRE_IR_CHECKS: FUNCTION: "BoundaryComplexityOverThreshold": 59
+  defines function
+
+    @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+    BoundaryComplexityOverThreshold()
+      ->
+        arg1 as Integer
+        arg2 as Integer
+        arg3 as Integer
+        arg4 as Integer
+        arg5 as Integer
+      <-
+        rtn as Integer?
+
+      v1 as Integer?
+      v2 as Integer?
+      v3 as Integer?
+      v4 as Integer?
+      v5 as Integer?
+      v6 as Integer?
+      v7 as Integer?
+      v8 as Integer?
+
+      //Initialize all variables first to avoid USED_BEFORE_INITIALISED errors
+      v1: 1
+      v2: 2
+      v3: 3
+      v4: 4
+      v5: 5
+      v6: 6
+      v7: 7
+      v8: 8
+
+      //Now use conditional assignments and if statements for complexity
+      if arg1 > 0
+        v1 :=? 10
+
+      if arg2 > 0
+        v2 :=? 20
+
+      if arg3 > 0
+        v3 :=? 30
+
+      if arg4 > 0
+        v4 :=? 40
+
+      if arg5 > 0
+        v5 :=? 50
+
+      if v1?
+        v6 :=? 60
+
+      if v2?
+        v7 :=? 70
+
+      if v3?
+        v8 :=? 80
+
+      rtn :=? arg1
+
+      //is-set checks in assertions
+      assert arg1? and arg2? and arg3?
+      assert arg4? and arg5? and v1?
+      assert v2? and v3? and v4?
+      assert v5? and v6? and v7?
+      assert v8?
+      assert rtn?
+
+//EOF
