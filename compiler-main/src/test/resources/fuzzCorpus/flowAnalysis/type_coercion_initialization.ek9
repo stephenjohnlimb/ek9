@@ -1,0 +1,76 @@
+#!ek9
+<?-
+  PRE_IR_CHECKS Fuzz Test: Type Coercion with Uninitialized Variables
+
+  Tests whether automatic type coercion affects initialization tracking.
+
+  When mixing types in expressions (e.g., Integer + Float), EK9 performs
+  automatic type coercion/promotion. Flow analysis must still detect
+  uninitialized variables even when type coercion is involved.
+
+  This ensures that the type system doesn't bypass flow analysis - variables
+  must be initialized regardless of whether they participate in type coercion.
+
+  Expected: 3 PRE_IR_CHECKS: USED_BEFORE_INITIALISED errors
+-?>
+defines module type.coercion.init.test
+
+  defines function
+
+    <?-
+      Test 1: Uninitialized Float in Integer + Float expression
+
+      Tests integer/float coercion with uninitialized float.
+      Even though Integer can be promoted to Float for the addition,
+      the uninitialized floatValue must still be caught.
+
+      Expected error: floatValue used before initialization
+    -?>
+    IntegerFloatCoercion()
+      intValue as Integer: 10
+      floatValue as Float?
+
+      //This should be caught - floatValue uninitialized despite coercion
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      result <- intValue + floatValue
+
+      assert result?
+
+    <?-
+      Test 2: Uninitialized in subtraction with coercion
+
+      Tests subtraction with type coercion. Verifies that coercion
+      doesn't mask initialization checking in subtraction operations.
+
+      Expected error: floatValue used before initialization
+    -?>
+    SubtractionCoercion()
+      intValue as Integer: 20
+      floatValue as Float?
+
+      //This should be caught - floatValue uninitialized
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      result <- intValue - floatValue
+
+      assert result?
+
+    <?-
+      Test 3: Uninitialized in mixed-type multiplication
+
+      Tests multiplication with type coercion. Confirms that
+      multiplication operations check initialization regardless of
+      type promotion.
+
+      Expected error: floatValue used before initialization
+    -?>
+    MultiplicationCoercion()
+      intValue as Integer: 5
+      floatValue as Float?
+
+      //This should be caught - floatValue uninitialized
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      result <- intValue * floatValue
+
+      assert result?
+
+//EOF

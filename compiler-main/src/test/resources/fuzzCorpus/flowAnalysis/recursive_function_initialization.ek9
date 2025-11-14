@@ -1,0 +1,85 @@
+#!ek9
+<?-
+  PRE_IR_CHECKS Fuzz Test: Recursive Function Initialization
+
+  Tests whether return values are initialized in all paths of recursive functions,
+  including base cases and recursive cases.
+
+  Recursive functions must ensure return values are initialized in:
+  - Base case(s) - fundamental recursion termination conditions
+  - Recursive case(s) - recursive call paths
+  - Edge/error cases - boundary conditions
+
+  This tests flow analysis understanding of recursive call semantics and ensures
+  return initialization tracking works correctly across recursive boundaries.
+
+  Expected: 3 PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED errors
+-?>
+defines module recursive.function.init.test
+
+  defines function
+
+    <?-
+      Test 1: Recursive function missing base case initialization
+
+      Tests that flow analysis detects when the base case (n == 0) exists
+      but doesn't initialize the return value. The recursive case and
+      alternative path both initialize correctly, but this gap is caught.
+
+      Expected error: result not initialized when n == 0
+    -?>
+    RecursiveMissingBaseCase()
+      -> n as Integer
+      @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+      <- result as String?
+
+      if n == 0
+        //Missing initialization - base case doesn't set result
+        temp <- "base"
+        assert temp?
+      else if n > 0
+        result: RecursiveMissingBaseCase(n - 1) + "#"
+      else
+        result: "negative"
+
+    <?-
+      Test 2: Recursive function with missing negative path
+
+      Tests that flow analysis tracks all possible input ranges. This function
+      handles the base case (n == 0) and positive recursion (n > 0) correctly,
+      but doesn't handle negative numbers.
+
+      Expected error: result not initialized when n < 0
+    -?>
+    RecursiveMissingNegativePath()
+      -> n as Integer
+      @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+      <- result as Integer?
+
+      if n == 0
+        result: 1
+      else if n > 0
+        result: n * RecursiveMissingNegativePath(n - 1)
+      //Missing else case for n < 0
+
+    <?-
+      Test 3: Recursive function with bounded recursion
+
+      Tests that flow analysis detects gaps in condition ranges. This function
+      handles the base case and recursion for n < 10, but doesn't handle the
+      case where n >= 10.
+
+      Expected error: result not initialized when n >= 10
+    -?>
+    SimpleRecursiveCount()
+      -> n as Integer
+      @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+      <- result as String?
+
+      if n == 0
+        result: "zero"
+      else if n > 0 and n < 10
+        result: SimpleRecursiveCount(n - 1) + "-"
+      //Missing else case for n >= 10
+
+//EOF

@@ -1,0 +1,88 @@
+#!ek9
+<?-
+  PRE_IR_CHECKS Fuzz Test: Expression Context Initialization
+
+  Tests whether uninitialized variables are caught when used in EXPRESSION context
+  (arithmetic, comparison, logical operations) vs STATEMENT context.
+
+  Validates that flow analysis correctly tracks variables used in:
+  - Arithmetic expressions (+, -, *, /)
+  - Comparison expressions (>, <, ==, !=)
+  - Logical expressions (and, or, not)
+  - Method arguments (function calls)
+  - Ternary expressions (condition? true : false)
+
+  Expected: 5 PRE_IR_CHECKS: USED_BEFORE_INITIALISED errors
+-?>
+defines module expression.context.init.test
+
+  defines function
+
+    <?-
+      Test 1: Uninitialized in arithmetic expression
+      Tests: value + initialized
+    -?>
+    ArithmeticExpression()
+      value as Integer?
+      initialized as Integer: 10
+
+      //This should be caught - uninitialized in addition
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      result <- value + initialized
+
+      assert result?
+
+    <?-
+      Test 2: Uninitialized in comparison expression
+      Tests: value > initialized
+    -?>
+    ComparisonExpression()
+      value as Integer?
+      initialized as Integer: 10
+
+      //This should be caught - uninitialized in comparison
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      isGreater <- value > initialized
+
+      assert isGreater?
+
+    <?-
+      Test 3: Uninitialized in logical expression
+      Tests: flag and otherFlag
+    -?>
+    LogicalExpression()
+      flag as Boolean?
+      otherFlag as Boolean: true
+
+      //This should be caught - uninitialized in logical AND
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      result <- flag and otherFlag
+
+      assert result?
+
+    <?-
+      Test 4: Uninitialized as method argument
+      Tests: stdout.println(value)
+    -?>
+    MethodArgumentExpression()
+      value as String?
+      stdout <- Stdout()
+
+      //This should be caught - uninitialized passed to method
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      stdout.println(value)
+
+    <?-
+      Test 5: Uninitialized in ternary expression
+      Tests: condition? <- trueValue : falseValue
+    -?>
+    TernaryExpression()
+      condition as Boolean?
+
+      //This should be caught - uninitialized in ternary condition
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      result <- condition? <- "yes" : "no"
+
+      assert result?
+
+//EOF

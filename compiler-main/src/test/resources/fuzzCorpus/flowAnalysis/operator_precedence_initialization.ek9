@@ -1,0 +1,81 @@
+#!ek9
+<?-
+  PRE_IR_CHECKS Fuzz Test: Operator Precedence with Initialization
+
+  Tests whether operator precedence affects initialization checking.
+
+  Complex expressions with multiple operators must check ALL operands for
+  initialization, regardless of evaluation order determined by precedence.
+  Flow analysis must respect operator precedence while still validating
+  that all operands are initialized.
+
+  This ensures that evaluation order doesn't bypass initialization checking -
+  even if an uninitialized variable is evaluated "first" due to precedence,
+  it must still be caught.
+
+  Expected: 3 PRE_IR_CHECKS: USED_BEFORE_INITIALISED errors
+-?>
+defines module operator.precedence.init.test
+
+  defines function
+
+    <?-
+      Test 1: Multiplication has higher precedence than addition
+
+      Expression: a + b * 2
+      Evaluation order: b * 2 evaluated first (higher precedence), then a + result
+      Despite multiplication happening first, the uninitialized 'b' must be caught.
+
+      Expected error: b used before initialization
+    -?>
+    MultiplicationBeforeAddition()
+      a as Integer: 10
+      b as Integer?
+
+      //This should be caught - b uninitialized even though * has higher precedence
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      result <- a + b * 2
+
+      assert result?
+
+    <?-
+      Test 2: Multiplication and division same precedence, left-to-right
+
+      Expression: a * b / c
+      Evaluation order: (a * b) first (left-to-right), then result / c
+      Both b and c must be checked despite evaluation order.
+
+      Expected error: c used before initialization
+    -?>
+    MultiplicationDivisionOrder()
+      a as Integer: 12
+      b as Integer: 3
+      c as Integer?
+
+      //This should be caught - c uninitialized
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      result <- a * b / c
+
+      assert result?
+
+    <?-
+      Test 3: Parentheses override precedence
+
+      Expression: (a + b) * c
+      Evaluation order: (a + b) evaluated first (parentheses), then result * c
+      All operands must still be checked despite parentheses changing order.
+
+      Expected error: b used before initialization
+    -?>
+    ParenthesesPrecedence()
+      a as Integer: 5
+      b as Integer?
+      c as Integer: 3
+
+      //This should be caught - b uninitialized despite parentheses
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      result <- (a + b) * c
+
+      assert result?
+
+//EOF

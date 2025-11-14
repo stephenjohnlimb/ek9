@@ -1,0 +1,84 @@
+#!ek9
+<?-
+  PRE_IR_CHECKS Fuzz Test: Text Interpolation with Uninitialized Variables
+
+  Tests whether uninitialized variables are caught when used in string interpolation.
+
+  Validates that flow analysis correctly tracks variables used in:
+  - Simple single-variable interpolation
+  - Multi-variable interpolation expressions
+  - Numeric value interpolation
+  - Complex interpolation with multiple variables
+
+  String interpolation creates embedded expressions that must be tracked
+  for initialization just like other expression contexts.
+
+  Expected: 4 PRE_IR_CHECKS: USED_BEFORE_INITIALISED errors
+
+  NOTE: This represents a ZERO-coverage gap in existing tests - no prior tests
+  existed for text interpolation with uninitialized variables.
+-?>
+defines module text.interpolation.init.test
+
+  defines function
+
+    <?-
+      Test 1: Simple string interpolation with uninitialized variable
+      Tests: `Hello ${name}!`
+    -?>
+    SimpleInterpolation()
+      name as String?
+
+      //This should be caught - name uninitialized in interpolation
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      message <- `Hello ${name}!`
+
+      stdout <- Stdout()
+      stdout.println(message)
+
+    <?-
+      Test 2: Multi-variable interpolation with one uninitialized
+      Tests: `${firstName} ${lastName}` where lastName is uninitialized
+    -?>
+    MultiVariableInterpolation()
+      firstName as String: "John"
+      lastName as String?
+
+      //This should be caught - lastName uninitialized
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      fullName <- `${firstName} ${lastName}`
+
+      stdout <- Stdout()
+      stdout.println(fullName)
+
+    <?-
+      Test 3: Numeric interpolation with uninitialized
+      Tests: `Count: ${count} of ${total}` where count is uninitialized
+    -?>
+    NumericInterpolation()
+      count as Integer?
+      total as Integer: 100
+
+      //This should be caught - count uninitialized in interpolation
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      message <- `Count: ${count} of ${total}`
+
+      stdout <- Stdout()
+      stdout.println(message)
+
+    <?-
+      Test 4: Complex interpolation expression
+      Tests: `User ${username} has ID ${userId}` where username is uninitialized
+    -?>
+    ComplexInterpolation()
+      username as String?
+      userId as Integer: 42
+
+      //This should be caught - username uninitialized in complex expression
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      report <- `User ${username} has ID ${userId}`
+
+      stdout <- Stdout()
+      stdout.println(report)
+
+//EOF

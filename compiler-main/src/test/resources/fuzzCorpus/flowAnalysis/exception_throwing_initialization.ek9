@@ -1,0 +1,65 @@
+#!ek9
+<?-
+  PRE_IR_CHECKS Fuzz Test Prototype: Exception Throwing with Uninitialized Variables
+
+  Tests whether throwing exceptions with uninitialized values is caught.
+
+  Exception paths are special control flow that must still respect
+  initialization rules. Uninitialized variables cannot be used when
+  constructing or throwing exceptions.
+
+  Expected: 3 PRE_IR_CHECKS: USED_BEFORE_INITIALISED errors
+-?>
+defines module exception.throwing.init.test
+
+  defines function
+
+    <?-
+      Test 1: Throw exception with uninitialized message
+      Exception message is uninitialized
+    -?>
+    ThrowUninitializedMessage()
+      message as String?
+      badCondition as Boolean: true
+
+      if badCondition
+        //This should be caught - message uninitialized in exception
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        throw Exception(message)
+
+      message: "all good"
+      assert message?
+
+    <?-
+      Test 2: Throw exception with uninitialized value in expression
+      Uses uninitialized value in error message expression
+    -?>
+    ThrowExpressionUninitialized()
+      errorCode as Integer?
+      hasError as Boolean: true
+
+      if hasError
+        //This should be caught - errorCode uninitialized in string interpolation
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        throw Exception(`Error code: ${errorCode}`)
+
+      errorCode: 0
+      assert errorCode?
+
+    <?-
+      Test 3: Conditional throw with uninitialized
+      Throws in one path with uninitialized, initializes in other path
+    -?>
+    ConditionalThrowUninitialized()
+      details as String?
+      critical as Boolean: false
+
+      if critical
+        //This should be caught - details uninitialized
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        throw Exception(details)
+      else
+        details: "non-critical"
+        assert details?
+
+//EOF
