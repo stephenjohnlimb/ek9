@@ -1,0 +1,95 @@
+#!ek9
+<?-
+  PRE_IR_CHECKS Fuzz Test: Excessive Dynamic Function Complexity
+
+  Tests that a dynamic function with excessive complexity triggers EXCESSIVE_COMPLEXITY error.
+
+  Complexity Threshold: Functions/methods/operators max = 50
+
+  Dynamic functions have base complexity of 2 (vs 1 for regular functions),
+  and complexity flows upward to the containing function.
+
+  Dynamic function: 71 complexity (21 over threshold)
+  Wrapper function: 73 complexity (23 over threshold, includes dynamic function complexity)
+
+  Expected: 2 EXCESSIVE_COMPLEXITY errors (dynamic function + wrapper)
+-?>
+defines module excessive.dynamic.function.complexity.test
+
+  defines function
+
+    <?- Abstract function signature for dynamic function to extend -?>
+    Processor as abstract
+      -> input as Integer
+      <- result as Integer?
+
+    <?- Wrapper function that creates dynamic function with excessive complexity -?>
+    @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+    TestDynamicComplexity()
+      multiplier <- 2
+      offset <- 10
+
+      <?-
+        Dynamic function with excessive complexity.
+        Captures multiplier and offset, then does many complex operations.
+      -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+      complexProcessor <- (multiplier, offset) extends Processor as function
+
+        //Many uninitialized variables
+        v1 as Integer?
+        v2 as Integer?
+        v3 as Integer?
+        v4 as Integer?
+        v5 as Integer?
+        v6 as Integer?
+        v7 as Integer?
+        v8 as Integer?
+        v9 as Integer?
+        v10 as Integer?
+
+        //Conditional assignments
+        v1 :=? input
+        v2 :=? multiplier
+        v3 :=? offset
+        v4 :=? v1
+        v5 :=? v2
+        v6 :=? v3
+        v7 :=? v4
+        v8 :=? v5
+        v9 :=? v6
+        v10 :=? v7
+
+        //Many is-set checks with Boolean operators
+        assert v1? and v2? and v3? and v4? and v5?
+        assert v6? and v7? and v8? and v9? and v10?
+
+        //Many comparisons and conditionals
+        if v1 < 0
+          result :=? 0
+        else if v1 > 100
+          result :=? 100
+        else if v2 < 0
+          result :=? 0
+        else if v2 > 10
+          result :=? 10
+        else if v3 < 0
+          result :=? 0
+        else if v3 > 20
+          result :=? 20
+        else if v4 < v5
+          result :=? v4
+        else if v4 > v6
+          result :=? v6
+        else if v7 < v8
+          result :=? v7
+        else if v9 > v10
+          result :=? v10
+        else
+          result :=? input * multiplier + offset
+
+      //Use the dynamic function to avoid dead code warnings
+      testResult <- complexProcessor(42)
+      assert testResult?
+
+//EOF
