@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
  * Fuzzing tests for cyclomatic complexity errors in PRE_IR_CHECKS phase.
  * Tests EXCESSIVE_COMPLEXITY error detection.
  *
- * <p>Test corpus: fuzzCorpus/complexity (2 test files)
- * Validates that complexity analysis correctly detects functions/classes exceeding
+ * <p>Test corpus: fuzzCorpus/complexity (3 test files)
+ * Validates that complexity analysis correctly detects functions/operators/classes exceeding
  * cyclomatic complexity thresholds.
  *
  * <p>Complexity Thresholds (from AcceptableConstructComplexityOrError.java):
@@ -59,8 +59,14 @@ import org.junit.jupiter.api.Test;
  * 2. comparison_operator_explosion.ek9 - Many comparison operators
  * - Pattern: 48 if statements, each with a comparison operator
  * - Each if statement (+1) and each comparison operator (+1)
- * - Total: 101 complexity from repeated if/comparison patterns
+ * - Total: 103 complexity from repeated if/comparison patterns
  * - Validates detection of high complexity from operator-heavy code
+ * - Expected: 1 EXCESSIVE_COMPLEXITY error
+ * <br/>
+ * 3. excessive_operator_complexity.ek9 - Operator with excessive complexity
+ * - Pattern: Comparison operator (<=>)with many is-set checks, conditionals, and comparisons
+ * - Total: 71 complexity (21 over threshold)
+ * - Validates EXCESSIVE_COMPLEXITY detection on operators (not just functions)
  * - Expected: 1 EXCESSIVE_COMPLEXITY error
  * </p>
  * <p>Complexity Semantics:
@@ -84,14 +90,15 @@ import org.junit.jupiter.api.Test;
  * scenarios (function at 54, class at 549, argument count limit). These fuzz tests
  * add boundary condition validation and pattern-based complexity testing:
  * - Boundary condition: exactly 51 complexity (1 over threshold) triggers error
- * - Comparison operator explosion (101 complexity from repeated if/comparison patterns)
+ * - Comparison operator explosion (103 complexity from repeated if/comparison patterns)
+ * - Operator complexity: <=> operator at 71 complexity (validates operators, not just functions)
  * <br/>
  * Boolean Logic Complexity: The compiler correctly distinguishes between:
  * - Boolean and/or operators: Add complexity (short-circuit evaluation creates branching)
  * - Bits and/or operators: Do NOT add complexity (bitwise operations, no branching)
  * This type-aware complexity counting is implemented via FormOfBooleanLogic.java in PreIRListener.
  * <br/>
- * Total: 2 EXCESSIVE_COMPLEXITY errors across 2 test files
+ * Total: 3 EXCESSIVE_COMPLEXITY errors across 3 test files
  * </p>
  */
 class ComplexityFuzzTest extends FuzzTestBase {

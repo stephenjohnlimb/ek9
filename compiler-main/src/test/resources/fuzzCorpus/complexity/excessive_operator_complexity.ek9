@@ -1,0 +1,110 @@
+#!ek9
+<?-
+  PRE_IR_CHECKS Fuzz Test: Excessive Operator Complexity
+
+  Tests that an operator with excessive complexity triggers EXCESSIVE_COMPLEXITY error.
+
+  Complexity Threshold: Functions/methods/operators max = 50
+  This operator: 71 complexity (21 over threshold)
+
+  Complexity calculation:
+  - Operator exit: +1
+  - Return value uninitialized: +1
+  - 10 uninitialized variables: +10
+  - 10 conditional assignments (:=?): +10
+  - 10 is-set checks (?) in asserts: +10
+  - 8 Boolean 'and' operators in asserts: +8
+  - 10 if/else-if statements: +10
+  - 10 comparison operators (<, >): +10
+  - Additional property access complexity: +11
+  Total: 71 (exceeds threshold of 50)
+
+  Expected: 1 EXCESSIVE_COMPLEXITY error
+-?>
+defines module excessive.operator.complexity.test
+
+  defines class
+
+    ComplexComparable
+      first as Integer?
+      second as Integer?
+      third as Integer?
+
+      ComplexComparable()
+        first: Integer()
+        second: Integer()
+        third: Integer()
+
+      ComplexComparable()
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+
+        first: arg1
+        second: arg2
+        third: arg3
+
+      <?-
+        Compare operator with excessive complexity.
+        Uses many is-set checks and conditional logic to exceed threshold.
+      -?>
+      @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+      operator <=> as pure
+        -> that as ComplexComparable
+        <- rtn as Integer?
+
+        //Validate inputs (many is-set checks)
+        v1 as Integer?
+        v2 as Integer?
+        v3 as Integer?
+        v4 as Integer?
+        v5 as Integer?
+        v6 as Integer?
+        v7 as Integer?
+        v8 as Integer?
+        v9 as Integer?
+        v10 as Integer?
+
+        v1 :=? first
+        v2 :=? second
+        v3 :=? third
+        v4 :=? that.first
+        v5 :=? that.second
+        v6 :=? that.third
+        v7 :=? v1
+        v8 :=? v2
+        v9 :=? v3
+        v10 :=? v4
+
+        //Many is-set checks
+        assert v1? and v2? and v3? and v4? and v5?
+        assert v6? and v7? and v8? and v9? and v10?
+
+        //Many comparisons
+        if v1 < v4
+          rtn :=? -1
+        else if v1 > v4
+          rtn :=? 1
+        else if v2 < v5
+          rtn :=? -1
+        else if v2 > v5
+          rtn :=? 1
+        else if v3 < v6
+          rtn :=? -1
+        else if v3 > v6
+          rtn :=? 1
+        else if v7 < v8
+          rtn :=? -1
+        else if v7 > v8
+          rtn :=? 1
+        else if v9 < v10
+          rtn :=? -1
+        else if v9 > v10
+          rtn :=? 1
+        else
+          rtn :=? 0
+
+      default operator ?
+
+//EOF
