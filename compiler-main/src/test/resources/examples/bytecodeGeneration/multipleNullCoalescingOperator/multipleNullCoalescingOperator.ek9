@@ -1,0 +1,31 @@
+#!ek9
+defines module bytecode.test
+
+  defines program
+
+    MultipleNullCoalescingOperator()
+      stdout <- Stdout()
+
+      // Test multiple sequential null coalescing operators
+      // Each operation should get unique labels
+      a <- 10
+      b <- 20
+      result1 <- a ?? b
+      stdout.println("Result1: " + $result1)
+
+      c <- 30
+      d <- 40
+      result2 <- c ?? d
+      stdout.println("Result2: " + $result2)
+
+      e <- 50
+      f <- 60
+      result3 <- e ?? f
+      stdout.println("Result3: " + $result3)
+
+      // Verify results (all LHS since all allocated)
+      assert result1 == 10
+      assert result2 == 30
+      assert result3 == 50
+
+//EOF

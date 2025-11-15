@@ -1,0 +1,35 @@
+#!ek9
+defines module bytecode.test
+
+  defines program
+
+    MixedCoalescingOperators()
+      stdout <- Stdout()
+
+      // Test mixing null coalescing (??) and Elvis (:?) operators
+      // Verify different operator types maintain unique labels
+      a <- 10
+      b <- 20
+      result1 <- a ?? b  // Null coalescing
+      stdout.println("Result1: " + $result1)
+
+      unsetValue <- Integer()
+      d <- 42
+      result2 <- unsetValue ?: d  // Elvis (unset -> RHS)
+      stdout.println("Result2: " + $result2)
+
+      e <- 50
+      f <- 60
+      result3 <- e ?? f  // Null coalescing
+      stdout.println("Result3: " + $result3)
+
+      result4 <- f ?: 999  // Elvis (set -> LHS)
+      stdout.println("Result4: " + $result4)
+
+      // Verify results
+      assert result1 == 10
+      assert result2 == 42
+      assert result3 == 50
+      assert result4 == 60
+
+//EOF
