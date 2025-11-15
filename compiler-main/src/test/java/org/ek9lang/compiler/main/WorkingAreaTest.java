@@ -1,6 +1,5 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -19,7 +18,7 @@ import org.junit.jupiter.api.Test;
 class WorkingAreaTest extends PhasesTest {
 
   public WorkingAreaTest() {
-    super("/examples/parseButFailCompile/workingarea", false, false);
+    super("/examples/parseButFailCompile/workingarea", true, false);
   }
 
   /**
@@ -38,7 +37,7 @@ class WorkingAreaTest extends PhasesTest {
     ek9Workspace.getSources().stream().findFirst()
         .ifPresent(source -> fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture));
 
-    testToPhase(CompilationPhase.IR_GENERATION);
+    testToPhase(CompilationPhase.CODE_GENERATION_CONSTANTS);
   }
 
   @Override
@@ -50,7 +49,7 @@ class WorkingAreaTest extends PhasesTest {
     try (final var printWriter = new PrintWriter(output)) {
       final var printer = new NodePrinter(printWriter);
       program
-          .getIRModules("exceptionHandling")
+          .getIRModules("bytecode.test")
           .forEach(irModule -> irModule.getConstructs().forEach(printer::visit));
     } catch (Exception _) {
       fail("Failed to produce output.");

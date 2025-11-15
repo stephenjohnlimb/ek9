@@ -43,13 +43,14 @@ defines module nullCoalesce.test
     RETAIN y
     SCOPE_REGISTER y, _scope_1
     REFERENCE result, org.ek9.lang::Integer
+    SCOPE_ENTER _scope_2
     _temp3 = CONTROL_FLOW_CHAIN
     [
     chain_type: "NULL_COALESCING_OPERATOR"
     condition_chain:
     [
     [
-    case_scope_id: _scope_1
+    case_scope_id: _scope_3
     case_type: "NULL_CHECK"
     condition_evaluation:
     [
@@ -64,8 +65,9 @@ defines module nullCoalesce.test
     body_result: _temp6
     ]
     ]
-    scope_id: _scope_1
+    scope_id: _scope_2
     ]
+    SCOPE_EXIT _scope_2
     RETAIN _temp3
     SCOPE_REGISTER _temp3, _scope_1
     STORE result, _temp3

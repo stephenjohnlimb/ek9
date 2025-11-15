@@ -17,11 +17,21 @@ import org.objectweb.asm.ClassWriter;
  *   <li>Useful for default value initialization</li>
  * </ul>
  * <p>
- * TODO: Implement after question operator is working and tested.
- * Implementation will follow similar pattern to QuestionOperatorAsmGenerator:
- * - Evaluate condition (variable? returns false if null/unset)
- * - If condition false: execute assignment
- * - If condition true: skip assignment
+ * Current Status: NOT YET IMPLEMENTED (throws CompilerException).
+ * </p>
+ * <p>
+ * Implementation Plan (after IR generator is finalized):
+ * </p>
+ * <ul>
+ *   <li>Evaluate condition (variable? returns false if null/unset)</li>
+ *   <li>If condition false: execute assignment</li>
+ *   <li>If condition true: skip assignment</li>
+ *   <li>Follow pattern similar to QuestionOperatorAsmGenerator</li>
+ * </ul>
+ * <p>
+ * Blocked By: IR generation for GUARDED_ASSIGNMENT must be finalized and tested first.
+ * The IR generator (ControlFlowChainGenerator.generateGuardedAssignment) exists but
+ * bytecode generation is deferred pending complete testing of question operator foundation.
  * </p>
  */
 final class GuardedAssignmentAsmGenerator extends AbstractControlFlowAsmGenerator {

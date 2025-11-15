@@ -14,9 +14,18 @@ import org.objectweb.asm.ClassWriter;
  * </p>
  * <ul>
  *   <li>QUESTION_OPERATOR - EK9 question operator (?) for null/set checking</li>
+ *   <li>NULL_COALESCING_OPERATOR - EK9 null coalescing (??) for null-safe defaults</li>
+ *   <li>ELVIS_COALESCING_OPERATOR - EK9 elvis coalescing (:?) for null/unset-safe defaults</li>
  *   <li>GUARDED_ASSIGNMENT - EK9 guarded assignment (:=?) for conditional initialization</li>
- *   <li>TODO: IF_ELSE, SWITCH, WHILE, FOR, TRY_CATCH</li>
+ *   <li>IF_ELSE_IF - If/else and if/else-if/else statements</li>
+ *   <li>WHILE_LOOP - While loop statements</li>
+ *   <li>DO_WHILE_LOOP - Do-while loop statements</li>
+ *   <li>SWITCH, SWITCH_ENUM - Switch statements (general and enum-optimized)</li>
+ *   <li>TRY_CATCH_FINALLY - Try/catch/finally exception handling</li>
  * </ul>
+ * <p>
+ * NOTE: FOR_RANGE loops use FOR_RANGE_POLYMORPHIC instruction, not CONTROL_FLOW_CHAIN.
+ * </p>
  * <p>
  * Architecture Benefits:
  * </p>
@@ -31,6 +40,8 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
 
   // Lazily instantiated specialized generators
   private QuestionOperatorAsmGenerator questionOperatorGenerator;
+  private NullCoalescingOperatorAsmGenerator nullCoalescingOperatorGenerator;
+  private ElvisCoalescingOperatorAsmGenerator elvisCoalescingOperatorGenerator;
   private GuardedAssignmentAsmGenerator guardedAssignmentGenerator;
   private IfElseAsmGenerator ifElseGenerator;
   private WhileLoopAsmGenerator whileLoopGenerator;
@@ -62,6 +73,8 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
 
     switch (chainType) {
       case "QUESTION_OPERATOR" -> generateQuestionOperator(instr);
+      case "NULL_COALESCING_OPERATOR" -> generateNullCoalescingOperator(instr);
+      case "ELVIS_COALESCING_OPERATOR" -> generateElvisCoalescingOperator(instr);
       case "GUARDED_ASSIGNMENT" -> generateGuardedAssignment(instr);
       case "IF_ELSE_IF" -> generateIfElse(instr);
       case "WHILE_LOOP" -> generateWhileLoop(instr);
@@ -90,6 +103,40 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     questionOperatorGenerator.setSharedMethodContext(getMethodContext());
     questionOperatorGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
     questionOperatorGenerator.generate(instr);
+  }
+
+  /**
+   * Generate bytecode for null coalescing operator (??).
+   * Lazily instantiates NullCoalescingOperatorAsmGenerator on first use.
+   *
+   * @param instr CONTROL_FLOW_CHAIN instruction with NULL_COALESCING_OPERATOR type
+   */
+  private void generateNullCoalescingOperator(final ControlFlowChainInstr instr) {
+    if (nullCoalescingOperatorGenerator == null) {
+      nullCoalescingOperatorGenerator = new NullCoalescingOperatorAsmGenerator(
+          constructTargetTuple, outputVisitor, classWriter, context);
+    }
+    // Always update context in case method changed
+    nullCoalescingOperatorGenerator.setSharedMethodContext(getMethodContext());
+    nullCoalescingOperatorGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
+    nullCoalescingOperatorGenerator.generate(instr);
+  }
+
+  /**
+   * Generate bytecode for Elvis coalescing operator (:?).
+   * Lazily instantiates ElvisCoalescingOperatorAsmGenerator on first use.
+   *
+   * @param instr CONTROL_FLOW_CHAIN instruction with ELVIS_COALESCING_OPERATOR type
+   */
+  private void generateElvisCoalescingOperator(final ControlFlowChainInstr instr) {
+    if (elvisCoalescingOperatorGenerator == null) {
+      elvisCoalescingOperatorGenerator = new ElvisCoalescingOperatorAsmGenerator(
+          constructTargetTuple, outputVisitor, classWriter, context);
+    }
+    // Always update context in case method changed
+    elvisCoalescingOperatorGenerator.setSharedMethodContext(getMethodContext());
+    elvisCoalescingOperatorGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
+    elvisCoalescingOperatorGenerator.generate(instr);
   }
 
   /**
@@ -209,6 +256,12 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     if (questionOperatorGenerator != null) {
       questionOperatorGenerator.setSharedMethodContext(context);
     }
+    if (nullCoalescingOperatorGenerator != null) {
+      nullCoalescingOperatorGenerator.setSharedMethodContext(context);
+    }
+    if (elvisCoalescingOperatorGenerator != null) {
+      elvisCoalescingOperatorGenerator.setSharedMethodContext(context);
+    }
     if (guardedAssignmentGenerator != null) {
       guardedAssignmentGenerator.setSharedMethodContext(context);
     }
@@ -244,6 +297,12 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     // Propagate to already-instantiated generators
     if (questionOperatorGenerator != null) {
       questionOperatorGenerator.setCurrentMethodVisitor(mv);
+    }
+    if (nullCoalescingOperatorGenerator != null) {
+      nullCoalescingOperatorGenerator.setCurrentMethodVisitor(mv);
+    }
+    if (elvisCoalescingOperatorGenerator != null) {
+      elvisCoalescingOperatorGenerator.setCurrentMethodVisitor(mv);
     }
     if (guardedAssignmentGenerator != null) {
       guardedAssignmentGenerator.setCurrentMethodVisitor(mv);
