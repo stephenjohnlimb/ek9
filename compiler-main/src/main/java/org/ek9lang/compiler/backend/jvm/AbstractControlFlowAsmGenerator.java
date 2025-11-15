@@ -10,14 +10,23 @@ import org.objectweb.asm.Opcodes;
 /**
  * Abstract base class for control flow bytecode generators.
  * Provides common patterns for:
- * - Label creation with consistent naming
+ * - Label creation with consistent naming (using scopeId for uniqueness)
  * - Condition evaluation processing
  * - Result variable copying
  * - Stack frame validation helpers
+ * - Branch instruction helpers (branchIfTrue, branchIfFalse)
  * <p>
- * All control flow generators (question operator, if/else, switch, loops, try/catch)
- * extend this class to reuse common logic and ensure consistent stack frame handling.
+ * All control flow generators extend this class to reuse common logic and ensure
+ * consistent stack frame handling:
  * </p>
+ * <ul>
+ *   <li>Operators: QuestionOperatorAsmGenerator, NullCoalescingOperatorAsmGenerator,
+ *       ElvisCoalescingOperatorAsmGenerator, GuardedAssignmentAsmGenerator</li>
+ *   <li>Statements: IfElseAsmGenerator, SwitchAsmGenerator</li>
+ *   <li>Loops: WhileLoopAsmGenerator, DoWhileLoopAsmGenerator, ForRangePolymorphicAsmGenerator</li>
+ *   <li>Exception Handling: TryCatchAsmGenerator</li>
+ *   <li>Logical Operations: LogicalOperationAsmGenerator (AND/OR short-circuit)</li>
+ * </ul>
  * <p>
  * Stack Frame Invariant: All helper methods maintain the invariant that the JVM
  * operand stack is empty before and after their execution. Results are always
