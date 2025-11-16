@@ -1,17 +1,36 @@
 #!ek9
 defines module bytecode.test
 
+  defines function
+
+    getTemperature()
+      -> country as String
+      <- temp as Integer: Integer()
+
+      if country == "US"
+        temp: 75
+      else if country == "GB"
+        temp: 20
+
+    testIfElseIfWithGuards()
+      <-
+        result <- String()
+
+      // First if: guard usTemp, condition > 70
+      if usTemp <- getTemperature("US") with usTemp > 70
+        result: "Warm in US: " + $usTemp
+      // Second else-if: NEW guard gbTemp, condition > 15
+      else if gbTemp <- getTemperature("GB") with gbTemp > 15
+        result: "Mild in GB: " + $gbTemp
+      // Final else: no guard
+      else
+        result: "Temperature unavailable or too cold"
+
   defines program
 
-    SimpleNullCoalesce()
-
+    TestIfElseIf()
       stdout <- Stdout()
-
-      // Test 1: Dict.get() returns null
-      dict <- Dict() of (String, Integer)
-      x <- dict.get("missing")  // Returns null
-      y <- 10
-      result <- x ?? y
-      stdout.println(result)  // Should print 10
+      result <- testIfElseIfWithGuards()
+      stdout.println(result)
 
 //EOF

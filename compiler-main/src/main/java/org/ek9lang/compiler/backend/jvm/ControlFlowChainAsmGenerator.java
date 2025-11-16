@@ -22,6 +22,7 @@ import org.objectweb.asm.ClassWriter;
  *   <li>GREATER_EQUAL_COALESCING_OPERATOR</li>
  *   <li>GUARDED_ASSIGNMENT - EK9 guarded assignment (:=?) for conditional initialization</li>
  *   <li>IF_ELSE_IF - If/else and if/else-if/else statements</li>
+ *   <li>IF_ELSE_WITH_GUARDS - If/else with guard variables (if x &lt;- expr with condition)</li>
  *   <li>WHILE_LOOP - While loop statements</li>
  *   <li>DO_WHILE_LOOP - Do-while loop statements</li>
  *   <li>SWITCH, SWITCH_ENUM - Switch statements (general and enum-optimized)</li>
@@ -84,7 +85,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
           "LESS_EQUAL_COALESCING_OPERATOR", "GREATER_EQUAL_COALESCING_OPERATOR" ->
           generateComparisonCoalescingOperator(instr);
       case "GUARDED_ASSIGNMENT" -> generateGuardedAssignment(instr);
-      case "IF_ELSE_IF" -> generateIfElse(instr);
+      case "IF_ELSE_IF", "IF_ELSE_WITH_GUARDS" -> generateIfElse(instr);
       case "WHILE_LOOP" -> generateWhileLoop(instr);
       case "DO_WHILE_LOOP" -> generateDoWhileLoop(instr);
       case "SWITCH", "SWITCH_ENUM" -> generateSwitch(instr);

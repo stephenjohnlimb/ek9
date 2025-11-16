@@ -244,6 +244,35 @@ public record ControlFlowChainDetails(
   }
 
   /**
+   * Create details for an if/else statement with guard variables.
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   */
+  public static ControlFlowChainDetails createIfElseWithGuards(
+      String result,
+      GuardVariableDetails guardDetails,
+      List<ConditionCaseDetails> conditionChain,
+      List<IRInstr> defaultBodyEvaluation,
+      String defaultResult,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    return new ControlFlowChainDetails(
+        result,
+        guardDetails.hasGuardVariables() ? "IF_ELSE_WITH_GUARDS" : "IF_ELSE_IF",
+        guardDetails,
+        EvaluationVariableDetails.none(), // No evaluation variable for if/else
+        ReturnVariableDetails.none(), // No return variable for statement form
+        conditionChain,
+        DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
+        null, // No enum optimization
+        null, // No try block
+        List.of(), // No finally block
+        debugInfo,
+        scopeId
+    );
+  }
+
+  /**
    * Create details for a while loop (statement form).
    * STACK-BASED: scopeId parameter extracted from stack context in generator.
    *

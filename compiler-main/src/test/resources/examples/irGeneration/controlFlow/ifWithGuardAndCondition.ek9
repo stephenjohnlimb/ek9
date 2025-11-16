@@ -1,0 +1,131 @@
+#!ek9
+<?-
+  Test IR generation for if statement with guard variable AND explicit condition.
+  Guard: if value <- getOptionalValue() with value > 10
+  - Declares and initializes guard variable
+  - Checks value? (isSet) AND value > 10
+  - Guard variable accessible in if body
+-?>
+defines module controlFlow
+
+  defines function
+
+    fetchOptionalValue()
+      <- rtn as Integer?
+      rtn: 42
+
+    @IR: IR_GENERATION: FUNCTION: "controlFlow::ifWithGuardAndCondition": `
+    ConstructDfn: controlFlow::ifWithGuardAndCondition()->org.ek9.lang::String
+    OperationDfn: controlFlow::ifWithGuardAndCondition.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow::ifWithGuardAndCondition.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow::ifWithGuardAndCondition.ifWithGuardAndCondition()->controlFlow::ifWithGuardAndCondition
+    BasicBlock: _entry_1
+    CALL (controlFlow::ifWithGuardAndCondition)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: controlFlow::ifWithGuardAndCondition._call()->org.ek9.lang::String
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE result, org.ek9.lang::String
+    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE result, _temp1
+    RETAIN result
+    SCOPE_ENTER _scope_2
+    SCOPE_ENTER _scope_2
+    REFERENCE value, org.ek9.lang::Integer
+    _temp4 = FUNCTION_INSTANCE controlFlow::fetchOptionalValue
+    _temp2 = CALL (controlFlow::fetchOptionalValue)_temp4._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_2
+    STORE value, _temp2
+    RETAIN value
+    SCOPE_REGISTER value, _scope_2
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "IF_ELSE_WITH_GUARDS"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_4
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_3
+    _temp6 = LOAD value
+    _temp7 = CALL (org.ek9.lang::Integer)_temp6.?() [pure=false, complexity=0]
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_3
+    _temp9 = LOAD value
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_3
+    _temp10 = LOAD_LITERAL 10, org.ek9.lang::Integer
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_3
+    _temp8 = CALL (org.ek9.lang::Integer)_temp9._gt(_temp10) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, _scope_3
+    _temp11 = LOAD _temp7
+    _temp12 = LOAD _temp8
+    _temp5 = CALL (org.ek9.lang::Boolean)_temp11.and(_temp12) [pure=false, complexity=0]
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, _scope_3
+    _temp13 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_3
+    ]
+    condition_result: _temp5
+    primitive_condition: _temp13
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp15 = LOAD_LITERAL Value is high: , org.ek9.lang::String
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, _scope_4
+    _temp17 = LOAD value
+    RETAIN _temp17
+    SCOPE_REGISTER _temp17, _scope_4
+    _temp16 = CALL (org.ek9.lang::Integer)_temp17._string() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp16
+    SCOPE_REGISTER _temp16, _scope_4
+    _temp14 = CALL (org.ek9.lang::String)_temp15._add(_temp16) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, _scope_4
+    RELEASE result
+    STORE result, _temp14
+    RETAIN result
+    SCOPE_EXIT _scope_4
+    ]
+    ]
+    ]
+    default_body_evaluation:
+    [
+    SCOPE_ENTER _scope_5
+    _temp18 = LOAD_LITERAL Value is low or unset, org.ek9.lang::String
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, _scope_5
+    RELEASE result
+    STORE result, _temp18
+    RETAIN result
+    SCOPE_EXIT _scope_5
+    ]
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2
+    SCOPE_EXIT _scope_2
+    SCOPE_EXIT _scope_1
+    RETURN result`
+    ifWithGuardAndCondition()
+      <-
+        result <- String()
+
+      // Guard WITH condition: value must be SET AND > 10
+      if value <- fetchOptionalValue() with value > 10
+        result: "Value is high: " + $value
+      else
+        result: "Value is low or unset"
+
+//EOF
