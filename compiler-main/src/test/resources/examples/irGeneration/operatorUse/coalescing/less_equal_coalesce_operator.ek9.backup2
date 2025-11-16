@@ -65,8 +65,6 @@ defines module lessEqualCoalesce.test
     body_evaluation:
     [
     _temp6 = LOAD y
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_2
     ]
     body_result: _temp6
     ],
@@ -85,8 +83,6 @@ defines module lessEqualCoalesce.test
     body_evaluation:
     [
     _temp6 = LOAD y
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_2
     ]
     body_result: _temp6
     ],
@@ -96,8 +92,6 @@ defines module lessEqualCoalesce.test
     condition_evaluation:
     [
     _temp6 = LOAD y
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_2
     _temp9 = IS_NULL _temp6
     ]
     primitive_condition: _temp9
@@ -128,7 +122,7 @@ defines module lessEqualCoalesce.test
     case_type: "EXPRESSION"
     condition_evaluation:
     [
-    _temp12 = CALL (org.ek9.lang::Integer)_temp4._lteq(_temp6) [pure=true, complexity=2]
+    _temp12 = CALL (org.ek9.lang::Integer)_temp4._lteq(org.ek9.lang::Integer) [pure=true, complexity=2]
     RETAIN _temp12
     SCOPE_REGISTER _temp12, _scope_2
     _temp13 = CALL (org.ek9.lang::Boolean)_temp12._true() [pure=true, complexity=0]

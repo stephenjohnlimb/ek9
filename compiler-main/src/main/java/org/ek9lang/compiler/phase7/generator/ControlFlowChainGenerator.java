@@ -61,6 +61,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     implements Function<ControlFlowChainDetails, List<IRInstr>> {
 
   private final Function<ExprProcessingDetails, List<IRInstr>> rawExprProcessor;
+  private final VariableMemoryManagement variableMemoryManagement;
   private final CallDetailsForIsTrue callDetailsForIsTrue = new CallDetailsForIsTrue();
 
   // Helper classes for evaluation patterns
@@ -73,6 +74,7 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
                                    final Function<ExprProcessingDetails, List<IRInstr>> rawExprProcessor) {
     super(stackContext);
     this.rawExprProcessor = rawExprProcessor;
+    this.variableMemoryManagement = variableMemoryManagement;
 
     final var callDetailsForOfFalse = new CallDetailsForOfFalse();
     final var isSetCallDetailsCreator = new IsSetCallDetailsCreator();
@@ -333,7 +335,11 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var rhsTemp = stackContext.generateTempName();
     final var rhsTempDetails = new VariableDetails(rhsTemp, debugInfo);
     final var rhsProcessingDetails = new ExprProcessingDetails(rhsDetails.ctx().right, rhsTempDetails);
-    final var rhsEvaluationInstructions = rawExprProcessor.apply(rhsProcessingDetails);
+    // Wrap RHS evaluation with memory management for proper ARC (RETAIN + SCOPE_REGISTER)
+    final var rhsEvaluationInstructions = variableMemoryManagement.apply(
+        () -> rawExprProcessor.apply(rhsProcessingDetails),
+        rhsTempDetails
+    );
 
     // Generate unique scope for the NULL_CHECK case
     final var nullCheckScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
@@ -406,7 +412,11 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var rhsTemp = stackContext.generateTempName();
     final var rhsTempDetails = new VariableDetails(rhsTemp, debugInfo);
     final var rhsProcessingDetails = new ExprProcessingDetails(rhsDetails.ctx().right, rhsTempDetails);
-    final var rhsEvaluationInstructions = rawExprProcessor.apply(rhsProcessingDetails);
+    // Wrap RHS evaluation with memory management for proper ARC (RETAIN + SCOPE_REGISTER)
+    final var rhsEvaluationInstructions = variableMemoryManagement.apply(
+        () -> rawExprProcessor.apply(rhsProcessingDetails),
+        rhsTempDetails
+    );
 
     // Case 1: NULL_CHECK - if LHS is null → evaluate RHS
     final var nullCheckScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
@@ -492,7 +502,13 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
                                                     final String chainType) {
     final var resultVariable = lhsDetails.variableDetails().resultVariable();
     final var debugInfo = lhsDetails.variableDetails().debugInfo();
-    final var scopeId = stackContext.currentScopeId();
+
+    // Create dedicated scope for comparison coalescing operator (matches Elvis pattern)
+    final var coalesceScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(coalesceScopeId, debugInfo, IRFrameType.BLOCK);
+
+    final var instructions = new ArrayList<IRInstr>();
+    instructions.add(ScopeInstr.enter(coalesceScopeId, debugInfo));
 
     // Generate LHS evaluation - result stored in temp
     final var lhsTemp = stackContext.generateTempName();
@@ -508,11 +524,16 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var rhsTemp = stackContext.generateTempName();
     final var rhsTempDetails = new VariableDetails(rhsTemp, debugInfo);
     final var rhsProcessingDetails = new ExprProcessingDetails(rhsDetails.ctx().right, rhsTempDetails);
-    final var rhsEvaluationInstructions = rawExprProcessor.apply(rhsProcessingDetails);
+    // Wrap RHS evaluation with memory management for proper ARC (RETAIN + SCOPE_REGISTER)
+    final var rhsEvaluationInstructions = variableMemoryManagement.apply(
+        () -> rawExprProcessor.apply(rhsProcessingDetails),
+        rhsTempDetails
+    );
 
-    // Case 1: NULL_CHECK on LHS → if null, return RHS
+    // Case 1: NULL_CHECK on LHS → if null, return RHS (unique scope ID)
+    final var lhsNullCheckScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     final var lhsNullCheckCase = ConditionCaseDetails.createNullCheck(
-        scopeId,
+        lhsNullCheckScopeId,
         lhsEvaluationInstructions,
         null, // No EK9 Boolean condition result for null check
         lhsNullCheckCondition, // primitive boolean condition
@@ -540,8 +561,10 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         callDetailsForIsFalse.apply(lhsIsSetResultTemp)
     ));
 
+    // Case 2: unique scope ID
+    final var lhsIsSetCheckScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     final var lhsIsSetCheckCase = ConditionCaseDetails.createExpression(
-        scopeId,
+        lhsIsSetCheckScopeId,
         lhsIsSetCheckInstructions,
         lhsIsSetResultTemp, // EK9 Boolean result
         lhsInvertedPrimitiveTemp, // Inverted primitive condition
@@ -556,9 +579,10 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
     final var rhsNullCheckCondition = stackContext.generateTempName();
     rhsEvalInstructions.add(MemoryInstr.isNull(rhsNullCheckCondition, rhsTemp, debugInfo));
 
-    // Case 3: NULL_CHECK on RHS → if null, return LHS
+    // Case 3: NULL_CHECK on RHS → if null, return LHS (unique scope ID)
+    final var rhsNullCheckScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     final var rhsNullCheckCase = ConditionCaseDetails.createNullCheck(
-        scopeId,
+        rhsNullCheckScopeId,
         rhsEvalInstructions,
         null, // No EK9 Boolean condition result for null check
         rhsNullCheckCondition, // primitive boolean condition
@@ -585,8 +609,10 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         callDetailsForIsFalse.apply(rhsIsSetResultTemp)
     ));
 
+    // Case 4: unique scope ID
+    final var rhsIsSetCheckScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     final var rhsIsSetCheckCase = ConditionCaseDetails.createExpression(
-        scopeId,
+        rhsIsSetCheckScopeId,
         rhsIsSetCheckInstructions,
         rhsIsSetResultTemp, // EK9 Boolean result
         rhsInvertedPrimitiveTemp, // Inverted primitive condition
@@ -604,16 +630,16 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         lhsTemp,
         lhsType,
         comparisonOperator,
-        List.of(rhsTemp),
+        List.of(rhsType),           // parameterTypes - types of parameters
         "org.ek9.lang::Boolean",
-        List.of(rhsType),
+        List.of(rhsTemp),           // arguments - actual variable names to pass
         new CallMetaDataDetails(true, 2),
         false
     );
 
     comparisonInstructions.add(CallInstr.operator(comparisonResultDetails, comparisonCallDetails));
     comparisonInstructions.add(MemoryInstr.retain(comparisonResultTemp, debugInfo));
-    comparisonInstructions.add(ScopeInstr.register(comparisonResultTemp, scopeId, debugInfo));
+    comparisonInstructions.add(ScopeInstr.register(comparisonResultTemp, coalesceScopeId, debugInfo));
 
     // Extract primitive boolean from comparison result
     final var comparisonPrimitiveTemp = stackContext.generateTempName();
@@ -622,8 +648,10 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         callDetailsForIsTrue.apply(comparisonResultTemp)
     ));
 
+    // Case 5: COMPARISON - unique scope ID
+    final var comparisonScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     final var comparisonCase = ConditionCaseDetails.createExpression(
-        scopeId,
+        comparisonScopeId,
         comparisonInstructions,
         comparisonResultTemp, // EK9 Boolean result
         comparisonPrimitiveTemp, // Primitive condition
@@ -641,11 +669,16 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
         defaultBodyEvaluation,
         rhsTemp,
         debugInfo,
-        scopeId,
+        coalesceScopeId,
         chainType
     );
 
-    return apply(controlFlowChainDetails);
+    instructions.addAll(apply(controlFlowChainDetails));
+
+    instructions.add(ScopeInstr.exit(coalesceScopeId, debugInfo));
+    stackContext.exitScope();
+
+    return instructions;
   }
 
   /**

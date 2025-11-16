@@ -1,0 +1,110 @@
+#!ek9
+<?-
+  Comprehensive bytecode generation test for ALL comparison coalescing operators
+
+  Purpose: Verify correct bytecode generation for all 4 comparison coalescing operators
+  in a single program, ensuring unique label generation and correct behavior.
+
+  Operators tested:
+  - <? (less-than coalescing)
+  - >? (greater-than coalescing)
+  - <=? (less-equal coalescing)
+  - >=? (greater-equal coalescing)
+
+  Each operator handles 5 cases:
+  1. LHS null check
+  2. LHS unset check
+  3. RHS null check
+  4. RHS unset check
+  5. Comparison evaluation
+-?>
+defines module bytecode.test
+
+  defines program
+
+    AllComparisonCoalescingOperators()
+      stdout <- Stdout()
+
+      // Test 1: Less-than coalescing operator (<?)
+      // Case: both values set, 10 <? 5 → 5 (lesser value)
+      a1 <- 10
+      b1 <- 5
+      result1 <- a1 <? b1
+      stdout.println("LT Test 1: " + $result1)
+
+      // Case: LHS unset, RHS set → RHS
+      unset1 <- Integer()
+      c1 <- 42
+      result2 <- unset1 <? c1
+      stdout.println("LT Test 2: " + $result2)
+
+      // Test 2: Greater-than coalescing operator (>?)
+      // Case: both values set, 10 >? 5 → 10 (greater value)
+      a2 <- 10
+      b2 <- 5
+      result3 <- a2 >? b2
+      stdout.println("GT Test 1: " + $result3)
+
+      // Case: RHS unset, LHS set → LHS
+      d2 <- 99
+      unset2 <- Integer()
+      result4 <- d2 >? unset2
+      stdout.println("GT Test 2: " + $result4)
+
+      // Test 3: Less-equal coalescing operator (<=?)
+      // Case: equal values, 50 <=? 50 → 50 (LHS when equal)
+      a3 <- 50
+      b3 <- 50
+      result5 <- a3 <=? b3
+      stdout.println("LTE Test 1: " + $result5)
+
+      // Case: LHS less than RHS, 30 <=? 40 → 30
+      c3 <- 30
+      d3 <- 40
+      result6 <- c3 <=? d3
+      stdout.println("LTE Test 2: " + $result6)
+
+      // Test 4: Greater-equal coalescing operator (>=?)
+      // Case: equal values, 70 >=? 70 → 70 (LHS when equal)
+      a4 <- 70
+      b4 <- 70
+      result7 <- a4 >=? b4
+      stdout.println("GTE Test 1: " + $result7)
+
+      // Case: LHS greater than RHS, 90 >=? 80 → 90
+      c4 <- 90
+      d4 <- 80
+      result8 <- c4 >=? d4
+      stdout.println("GTE Test 2: " + $result8)
+
+      // Test 5: Mixed operators in same scope
+      // Verify unique label generation for multiple operators
+      x <- 100
+      y <- 200
+      z <- 150
+
+      mix1 <- x <? y   // 100 <? 200 → 100
+      mix2 <- x >? z   // 100 >? 150 → 150
+      mix3 <- y <=? z  // 200 <=? 150 → 150 (RHS when false)
+      mix4 <- y >=? z  // 200 >=? 150 → 200
+
+      stdout.println("Mix Test 1: " + $mix1)
+      stdout.println("Mix Test 2: " + $mix2)
+      stdout.println("Mix Test 3: " + $mix3)
+      stdout.println("Mix Test 4: " + $mix4)
+
+      // Comprehensive assertions
+      assert result1 == 5
+      assert result2 == 42
+      assert result3 == 10
+      assert result4 == 99
+      assert result5 == 50
+      assert result6 == 30
+      assert result7 == 70
+      assert result8 == 90
+      assert mix1 == 100
+      assert mix2 == 150
+      assert mix3 == 150
+      assert mix4 == 200
+
+//EOF

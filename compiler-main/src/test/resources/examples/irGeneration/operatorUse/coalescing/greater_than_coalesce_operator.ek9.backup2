@@ -1,35 +1,35 @@
 #!ek9
 <?-
-  Test IR generation for less-equal coalescing operator (<=?)
+  Test IR generation for greater-than coalescing operator (>?)
 
-  Purpose: Verify IR generation for less-equal coalescing operator that gracefully
-  handles null/unset operands while returning the lesser/equal value when both are valid.
+  Purpose: Verify IR generation for greater-than coalescing operator that gracefully
+  handles null/unset operands while returning the greater value when both are valid.
 
   Expected IR: CONTROL_FLOW_CHAIN with 6 cases:
   - Case 1: NULL_CHECK on LHS → if null, return RHS
   - Case 2: IS_SET check on LHS → if not set, return RHS
   - Case 3: NULL_CHECK on RHS → if null, return LHS
   - Case 4: IS_SET check on RHS → if not set, return LHS
-  - Case 5: COMPARISON (LHS <= RHS) → if true, return LHS
+  - Case 5: COMPARISON (LHS > RHS) → if true, return LHS
   - Default: return RHS
 -?>
-defines module lessEqualCoalesce.test
+defines module greaterThanCoalesce.test
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "lessEqualCoalesce.test::testLessEqualCoalesce": `
-    ConstructDfn: lessEqualCoalesce.test::testLessEqualCoalesce()->org.ek9.lang::Void
-    OperationDfn: lessEqualCoalesce.test::testLessEqualCoalesce.c_init()->org.ek9.lang::Void
+    @IR: IR_GENERATION: FUNCTION: "greaterThanCoalesce.test::testGreaterThanCoalesce": `
+    ConstructDfn: greaterThanCoalesce.test::testGreaterThanCoalesce()->org.ek9.lang::Void
+    OperationDfn: greaterThanCoalesce.test::testGreaterThanCoalesce.c_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     RETURN
-    OperationDfn: lessEqualCoalesce.test::testLessEqualCoalesce.i_init()->org.ek9.lang::Void
+    OperationDfn: greaterThanCoalesce.test::testGreaterThanCoalesce.i_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     RETURN
-    OperationDfn: lessEqualCoalesce.test::testLessEqualCoalesce.testLessEqualCoalesce()->lessEqualCoalesce.test::testLessEqualCoalesce
+    OperationDfn: greaterThanCoalesce.test::testGreaterThanCoalesce.testGreaterThanCoalesce()->greaterThanCoalesce.test::testGreaterThanCoalesce
     BasicBlock: _entry_1
-    CALL (lessEqualCoalesce.test::testLessEqualCoalesce)this.i_init() [pure=false, complexity=0]
+    CALL (greaterThanCoalesce.test::testGreaterThanCoalesce)this.i_init() [pure=false, complexity=0]
     RETURN this
-    OperationDfn: lessEqualCoalesce.test::testLessEqualCoalesce._call()->org.ek9.lang::Void
+    OperationDfn: greaterThanCoalesce.test::testGreaterThanCoalesce._call()->org.ek9.lang::Void
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1
     REFERENCE x, org.ek9.lang::Integer
@@ -40,7 +40,7 @@ defines module lessEqualCoalesce.test
     RETAIN x
     SCOPE_REGISTER x, _scope_1
     REFERENCE y, org.ek9.lang::Integer
-    _temp2 = LOAD_LITERAL 10, org.ek9.lang::Integer
+    _temp2 = LOAD_LITERAL 5, org.ek9.lang::Integer
     RETAIN _temp2
     SCOPE_REGISTER _temp2, _scope_1
     STORE y, _temp2
@@ -50,7 +50,7 @@ defines module lessEqualCoalesce.test
     SCOPE_ENTER _scope_2
     _temp3 = CONTROL_FLOW_CHAIN
     [
-    chain_type: "LESS_EQUAL_COALESCING_OPERATOR"
+    chain_type: "GREATER_THAN_COALESCING_OPERATOR"
     condition_chain:
     [
     [
@@ -65,8 +65,6 @@ defines module lessEqualCoalesce.test
     body_evaluation:
     [
     _temp6 = LOAD y
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_2
     ]
     body_result: _temp6
     ],
@@ -85,8 +83,6 @@ defines module lessEqualCoalesce.test
     body_evaluation:
     [
     _temp6 = LOAD y
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_2
     ]
     body_result: _temp6
     ],
@@ -96,8 +92,6 @@ defines module lessEqualCoalesce.test
     condition_evaluation:
     [
     _temp6 = LOAD y
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_2
     _temp9 = IS_NULL _temp6
     ]
     primitive_condition: _temp9
@@ -128,7 +122,7 @@ defines module lessEqualCoalesce.test
     case_type: "EXPRESSION"
     condition_evaluation:
     [
-    _temp12 = CALL (org.ek9.lang::Integer)_temp4._lteq(_temp6) [pure=true, complexity=2]
+    _temp12 = CALL (org.ek9.lang::Integer)_temp4._gt(org.ek9.lang::Integer) [pure=true, complexity=2]
     RETAIN _temp12
     SCOPE_REGISTER _temp12, _scope_2
     _temp13 = CALL (org.ek9.lang::Boolean)_temp12._true() [pure=true, complexity=0]
@@ -162,10 +156,10 @@ defines module lessEqualCoalesce.test
     ASSERT _temp17
     SCOPE_EXIT _scope_1
     RETURN`
-    testLessEqualCoalesce()
+    testGreaterThanCoalesce()
       x <- 10
-      y <- 10
-      result <- x <=? y  // Returns 10 (equal values, LHS returned)
+      y <- 5
+      result <- x >? y  // Returns 10 (greater value)
       assert result == 10
 
 //EOF

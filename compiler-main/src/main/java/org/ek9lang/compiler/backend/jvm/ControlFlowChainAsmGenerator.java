@@ -16,6 +16,10 @@ import org.objectweb.asm.ClassWriter;
  *   <li>QUESTION_OPERATOR - EK9 question operator (?) for null/set checking</li>
  *   <li>NULL_COALESCING_OPERATOR - EK9 null coalescing (??) for null-safe defaults</li>
  *   <li>ELVIS_COALESCING_OPERATOR - EK9 elvis coalescing (:?) for null/unset-safe defaults</li>
+ *   <li>LESS_THAN_COALESCING_OPERATOR</li>
+ *   <li>GREATER_THAN_COALESCING_OPERATOR</li>
+ *   <li>LESS_EQUAL_COALESCING_OPERATOR</li>
+ *   <li>GREATER_EQUAL_COALESCING_OPERATOR</li>
  *   <li>GUARDED_ASSIGNMENT - EK9 guarded assignment (:=?) for conditional initialization</li>
  *   <li>IF_ELSE_IF - If/else and if/else-if/else statements</li>
  *   <li>WHILE_LOOP - While loop statements</li>
@@ -42,6 +46,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   private QuestionOperatorAsmGenerator questionOperatorGenerator;
   private NullCoalescingOperatorAsmGenerator nullCoalescingOperatorGenerator;
   private ElvisCoalescingOperatorAsmGenerator elvisCoalescingOperatorGenerator;
+  private ComparisonCoalescingOperatorAsmGenerator comparisonCoalescingOperatorGenerator;
   private GuardedAssignmentAsmGenerator guardedAssignmentGenerator;
   private IfElseAsmGenerator ifElseGenerator;
   private WhileLoopAsmGenerator whileLoopGenerator;
@@ -75,6 +80,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
       case "QUESTION_OPERATOR" -> generateQuestionOperator(instr);
       case "NULL_COALESCING_OPERATOR" -> generateNullCoalescingOperator(instr);
       case "ELVIS_COALESCING_OPERATOR" -> generateElvisCoalescingOperator(instr);
+      case "LESS_THAN_COALESCING_OPERATOR", "GREATER_THAN_COALESCING_OPERATOR",
+          "LESS_EQUAL_COALESCING_OPERATOR", "GREATER_EQUAL_COALESCING_OPERATOR" ->
+          generateComparisonCoalescingOperator(instr);
       case "GUARDED_ASSIGNMENT" -> generateGuardedAssignment(instr);
       case "IF_ELSE_IF" -> generateIfElse(instr);
       case "WHILE_LOOP" -> generateWhileLoop(instr);
@@ -137,6 +145,23 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     elvisCoalescingOperatorGenerator.setSharedMethodContext(getMethodContext());
     elvisCoalescingOperatorGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
     elvisCoalescingOperatorGenerator.generate(instr);
+  }
+
+  /**
+   * Generate bytecode for comparison coalescing operators ({@code <?, >?, <=?, >=?}).
+   * Lazily instantiates ComparisonCoalescingOperatorAsmGenerator on first use.
+   *
+   * @param instr CONTROL_FLOW_CHAIN instruction with comparison coalescing type
+   */
+  private void generateComparisonCoalescingOperator(final ControlFlowChainInstr instr) {
+    if (comparisonCoalescingOperatorGenerator == null) {
+      comparisonCoalescingOperatorGenerator = new ComparisonCoalescingOperatorAsmGenerator(
+          constructTargetTuple, outputVisitor, classWriter, context);
+    }
+    // Always update context in case method changed
+    comparisonCoalescingOperatorGenerator.setSharedMethodContext(getMethodContext());
+    comparisonCoalescingOperatorGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
+    comparisonCoalescingOperatorGenerator.generate(instr);
   }
 
   /**

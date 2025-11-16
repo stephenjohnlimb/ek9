@@ -76,6 +76,8 @@ defines module mixedCoalesce.test
     body_evaluation:
     [
     _temp6 = LOAD b
+    RETAIN _temp6
+    SCOPE_REGISTER _temp6, _scope_2
     ]
     body_result: _temp6
     ]
@@ -121,6 +123,8 @@ defines module mixedCoalesce.test
     body_evaluation:
     [
     _temp12 = LOAD d
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_4
     ]
     body_result: _temp12
     ],
@@ -139,6 +143,8 @@ defines module mixedCoalesce.test
     body_evaluation:
     [
     _temp12 = LOAD d
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_4
     ]
     body_result: _temp12
     ]
@@ -184,6 +190,8 @@ defines module mixedCoalesce.test
     body_evaluation:
     [
     _temp20 = LOAD f
+    RETAIN _temp20
+    SCOPE_REGISTER _temp20, _scope_7
     ]
     body_result: _temp20
     ]
@@ -215,6 +223,8 @@ defines module mixedCoalesce.test
     body_evaluation:
     [
     _temp24 = LOAD_LITERAL 999, org.ek9.lang::Integer
+    RETAIN _temp24
+    SCOPE_REGISTER _temp24, _scope_9
     ]
     body_result: _temp24
     ],
@@ -233,6 +243,8 @@ defines module mixedCoalesce.test
     body_evaluation:
     [
     _temp24 = LOAD_LITERAL 999, org.ek9.lang::Integer
+    RETAIN _temp24
+    SCOPE_REGISTER _temp24, _scope_9
     ]
     body_result: _temp24
     ]

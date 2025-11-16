@@ -1,0 +1,50 @@
+#!ek9
+<?-
+  Bytecode generation test for less-than coalescing operator (<?)
+
+  Purpose: Verify correct bytecode generation for <? operator with null/unset handling
+
+  Test cases:
+  1. Both values set → returns lesser value
+  2. LHS unset → returns RHS
+  3. RHS unset → returns LHS
+  4. Both equal → returns RHS (default when condition false)
+-?>
+defines module bytecode.test
+
+  defines program
+
+    LessThanCoalescingOperator()
+      stdout <- Stdout()
+
+      // Case 1: Both values set, 5 < 10 → returns 5
+      a <- 10
+      b <- 5
+      result1 <- a <? b
+      stdout.println("Result1: " + $result1)
+
+      // Case 2: LHS unset, RHS set → returns RHS (42)
+      unsetValue <- Integer()
+      c <- 42
+      result2 <- unsetValue <? c
+      stdout.println("Result2: " + $result2)
+
+      // Case 3: Both values set, 50 < 60 → returns 50
+      d <- 50
+      e <- 60
+      result3 <- d <? e
+      stdout.println("Result3: " + $result3)
+
+      // Case 4: Both equal, 70 < 70 is false → returns RHS (70)
+      f <- 70
+      g <- 70
+      result4 <- f <? g
+      stdout.println("Result4: " + $result4)
+
+      // Assertions
+      assert result1 == 5
+      assert result2 == 42
+      assert result3 == 50
+      assert result4 == 70
+
+//EOF

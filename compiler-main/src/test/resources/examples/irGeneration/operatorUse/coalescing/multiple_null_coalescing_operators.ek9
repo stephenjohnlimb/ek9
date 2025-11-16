@@ -71,6 +71,8 @@ defines module multipleNullCoalesce.test
     body_evaluation:
     [
     _temp6 = LOAD b
+    RETAIN _temp6
+    SCOPE_REGISTER _temp6, _scope_2
     ]
     body_result: _temp6
     ]
@@ -116,6 +118,8 @@ defines module multipleNullCoalesce.test
     body_evaluation:
     [
     _temp12 = LOAD d
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_4
     ]
     body_result: _temp12
     ]
@@ -161,6 +165,8 @@ defines module multipleNullCoalesce.test
     body_evaluation:
     [
     _temp18 = LOAD f
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, _scope_6
     ]
     body_result: _temp18
     ]
@@ -206,6 +212,8 @@ defines module multipleNullCoalesce.test
     body_evaluation:
     [
     _temp24 = LOAD h
+    RETAIN _temp24
+    SCOPE_REGISTER _temp24, _scope_8
     ]
     body_result: _temp24
     ]
@@ -251,6 +259,8 @@ defines module multipleNullCoalesce.test
     body_evaluation:
     [
     _temp30 = LOAD j
+    RETAIN _temp30
+    SCOPE_REGISTER _temp30, _scope_10
     ]
     body_result: _temp30
     ]

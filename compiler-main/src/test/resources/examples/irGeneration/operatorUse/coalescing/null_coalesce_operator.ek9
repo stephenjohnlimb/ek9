@@ -61,6 +61,8 @@ defines module nullCoalesce.test
     body_evaluation:
     [
     _temp6 = LOAD y
+    RETAIN _temp6
+    SCOPE_REGISTER _temp6, _scope_2
     ]
     body_result: _temp6
     ]
