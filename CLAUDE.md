@@ -25,107 +25,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Mandatory Process for EK9 Directive and Test File Work
 
-**CRITICAL WORKFLOW**: When creating or modifying ANY EK9 test file with directives (@IR, @BYTECODE, @Resolved, @Error, @Complexity), you MUST follow this exact process. This is NON-NEGOTIABLE for compiler work where hundreds of test files must follow identical patterns.
+**CRITICAL WORKFLOW**: When creating/modifying EK9 test files with directives (@IR, @BYTECODE, @Resolved, @Error, @Complexity):
 
 **🛑 STOP - DO NOT IMPLEMENT IMMEDIATELY 🛑**
 
-**Step 1: Check Documentation First**
-```bash
-# Search for the directive name in documentation
-grep -r "@IR:\|@BYTECODE:\|@Resolved:\|@Error:" *.md
-# Read the relevant section completely
-# EK9_IR_TDD_METHODOLOGY.md - @IR directive format and examples
-# EK9_IR_AND_CODE_GENERATION.md - @BYTECODE directive format (lines 2274-2336)
-```
+1. Check documentation first (grep for directive examples)
+2. Find 2-3 working examples (MANDATORY)
+3. Copy structure from working example
+4. Modify content only - NEVER change format
+5. Validate against pattern
 
-**Step 2: Find Working Examples** (MANDATORY - not optional)
-```bash
-# Find 2-3 existing test files with the same directive type
-grep -r "@BYTECODE: CODE_GENERATION_AGGREGATES" compiler-main/src/test/resources/examples/bytecodeGeneration/
-grep -r "@IR: IR_GENERATION: FUNCTION" compiler-main/src/test/resources/examples/irGeneration/
-# Read complete examples - understand the EXACT format
-```
+**Why mandatory:** Steve has created hundreds of test files following identical patterns. Random format variations break test infrastructure and require 30+ min debugging per file. Following the pattern works immediately (5 min per file).
 
-**Step 3: Copy Structure from Working Example**
-- Open a working example file
-- Copy the ENTIRE directive structure including backticks
-- Note placement (BEFORE the construct it describes)
-- Note formatting (content starts on SAME line as opening backtick)
-
-**Step 4: Modify Content Only - NEVER Change Format**
-- Replace type name: `"module::OldName"` → `"module::NewName"`
-- Replace directive content within backticks
-- Keep ALL formatting identical (backticks, placement, spacing)
-- Use `#CP` for constant pool references in @BYTECODE (not actual numbers)
-
-**Step 5: Validate Against Pattern**
-- Compare your new file side-by-side with the example
-- Verify backtick placement matches exactly
-- Verify indentation matches exactly
-- Verify directive is BEFORE the construct (not after, not in comments)
-
-**Why This Process is Mandatory:**
-
-Steve has created **hundreds of test files** following identical patterns. The goal is **"boring consistency"** - easy to reproduce, easy to spot errors. Random format variations:
-- ❌ Break test infrastructure
-- ❌ Require debugging time (30+ min per file)
-- ❌ Scale terribly (hundreds more files needed)
-
-Following the pattern:
-- ✅ Works immediately (5 min per file)
-- ✅ Scales perfectly
-- ✅ Self-documenting through consistency
-
-**Common Anti-Patterns to AVOID:**
-
-❌ **Never use comment syntax for directives:**
-```ek9
-//@BYTECODE              ← WRONG - this is a comment, not a directive
-//public void _main();  ← WRONG - directives are NOT comments
-```
-
-✅ **Always use actual directive syntax:**
-```ek9
-@BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "module::Name": `content here
-with multiple lines
-within backticks`
-```
-
-❌ **Never place directives after the code:**
-```ek9
-MyFunction()
-  stdout.println("test")
-
-@IR: IR_GENERATION: ...  ← WRONG - too late, directive must be BEFORE
-```
-
-✅ **Always place directives before the construct:**
-```ek9
-@IR: IR_GENERATION: FUNCTION: "module::MyFunction": `...`
-MyFunction()
-  stdout.println("test")
-```
-
-❌ **Never start content on new line after backtick:**
-```ek9
-@BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "module::Name": `
-public class module.Name {  ← WRONG - must start on same line as backtick
-```
-
-✅ **Always start content on same line as opening backtick:**
-```ek9
-@BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "module::Name": `public class module.Name {
-  static {};
-  ...
-}`
-```
-
-**Documentation References:**
-- **EK9_IR_TDD_METHODOLOGY.md** - Complete @IR directive guide with examples
-- **EK9_IR_AND_CODE_GENERATION.md** (lines 2274-2336) - @BYTECODE format requirements
-- **Existing test files** - 30+ bytecode tests, 100+ IR tests following identical patterns
-
-**When in doubt**: Copy from a working example. Never invent new formats.
+**Complete process with examples and anti-patterns:** See **`EK9_DIRECTIVE_TEST_FILE_PROCESS.md`**
 
 ## Project Overview
 
@@ -509,469 +421,91 @@ All method names are consistent between OperatorMap and actual implementations.
 
 ### EK9 Control Flow Philosophy: Designed Exclusions
 
-**CRITICAL**: EK9 deliberately EXCLUDES several "standard" control flow features found in C, Java, C++, Python, and other mainstream languages. These are NOT missing features - they were **designed out of existence** based on 50+ years of production bug evidence. Understanding this design philosophy is essential for correct EK9 development.
+**CRITICAL**: EK9 deliberately EXCLUDES break/continue/return/fallthrough based on 50+ years of production bug evidence. These are NOT missing features - they were **designed out of existence**.
 
-#### What EK9 Does NOT Have (By Design)
+**What EK9 Does NOT Have (By Design):**
+- ❌ NO `break` statement
+- ❌ NO `continue` statement
+- ❌ NO `return` statement
+- ❌ NO switch fallthrough
 
-EK9 intentionally excludes these control flow mechanisms:
+**Grammar Evidence:** Review `EK9.g4` - these keywords don't exist in EK9's formal grammar.
 
-- ❌ **NO `break` statement** - Cannot exit loops early with break
-- ❌ **NO `continue` statement** - Cannot skip to next iteration with continue
-- ❌ **NO `return` statement** - Cannot return early from functions
-- ❌ **NO switch fallthrough** - Cases cannot "fall through" to next case
+**Why Removed:**
+- Microsoft Study (2011): 15% of production bugs involved break/continue
+- Apple SSL Bug (2014): `goto fail` bypassed SSL validation, affected millions
+- Linux Kernel: 200+ CVE fixes for "break in wrong loop" bugs
+- CERT: Switch fallthrough ranked #7 most dangerous coding error
 
-**Grammar Evidence:** Review `EK9.g4` (939 lines) - these keywords and mechanisms do not exist in EK9's formal grammar.
+**EK9's Superior Alternatives:**
+- **Stream pipelines** replace break/continue: `cat items | filter by matches | head`
+- **Guard expressions** (`<-`, `:=?`) replace early returns
+- **Multiple case values** replace switch fallthrough: `case MONDAY, TUESDAY, WEDNESDAY`
+- **Return value declarations** replace return statements: compiler enforces ALL paths initialize
 
-#### Why These Were Removed: Bug Evidence from Production Systems
+**Impact:**
+- Eliminate 15-25% of production bugs (Microsoft/Google data)
+- No Apple SSL-style bypass vulnerabilities
+- Modern languages moving this direction - EK9 is ahead
 
-EK9's exclusions are based on comprehensive evidence that these features are where bugs consistently hide:
+**Complete explanation:** See **`EK9_CONTROL_FLOW_PHILOSOPHY.md`** for bug evidence, detailed alternatives, and migration patterns.
 
-**Microsoft Study (2011):**
-- Analyzed production C# codebases
-- **15% of all production bugs** involved loop control flow errors (break/continue)
-- Nested loops with break/continue had **3x higher defect density**
-
-**Google Study (2006):**
-- Analyzed C++ and Java production code
-- Break/continue in nested structures: **3x higher bug rate**
-- Resource leaks from early returns: **23% of leak bugs** (FindBugs)
-
-**Apple SSL Bug (2014) - Major Security Vulnerability:**
-```c
-// Actual Apple SSL validation code that shipped
-if ((err = SSLHashSHA1.update(&hashCtx, &signedParams)) != 0)
-    goto fail;
-    goto fail;  // Duplicate line - ALWAYS bypassed validation
-if ((err = SSLHashSHA1.final(&hashCtx, &hashOut)) != 0)
-    goto fail;
-```
-- Early return (`goto fail`) bypassed SSL certificate validation
-- Shipped in iOS 7.0.6 - **major security vulnerability**
-- Affected millions of devices worldwide
-- Root cause: **early exit mechanism** allowed accidental bypass
-
-**Linux Kernel (2000-2020):**
-- **200+ CVE fixes** for "break in wrong loop" bugs
-- Nested loop break/continue errors consistently appear in security patches
-- Break statements in complex control flow = high-risk code
-
-**CERT Secure Coding Standards:**
-- Switch fallthrough ranked **#7 most dangerous coding error**
-- Estimated **10,000+ production bugs** industry-wide from forgotten `break` in switch
-
-**Academic Support:**
-- **Dijkstra (1968)**: "Go To Statement Considered Harmful" - early exits break structured programming
-- **Functional Programming Community (1980s-present)**: Iterators/streams eliminate need for break/continue
-- **Structured Programming Principles**: Single entry, single exit reduces complexity
-
-#### EK9's Superior Alternatives
-
-EK9 provides equally powerful but **safer** alternatives that eliminate these bug categories entirely:
-
-**1. Stream Pipelines Replace break/continue**
-
-Traditional approach (with break) - bug-prone:
-```ek9
-// ❌ This does NOT work in EK9 - break doesn't exist
-result <- String()
-for item in items
-  if item.matches()
-    result: item
-    break  // ❌ Compiler error - break doesn't exist
-```
-
-EK9 alternative - stream pipeline (safe):
-```ek9
-// ✅ EK9's safe alternative using stream pipeline
-result <- cat items | filter by matches | head
-
-// Explanation:
-// - cat items: Stream all items
-// - filter by matches: Keep only matching items
-// - head: Take first match (equivalent to break after first find)
-```
-
-More stream pipeline examples:
-```ek9
-// Skip first N items (replaces continue counter logic)
-processedItems <- cat items | skip 5 | collect
-
-// Take first N items (replaces break after N iterations)
-firstTen <- cat items | head 10 | collect
-
-// Skip items until condition (replaces continue until logic)
-validItems <- cat items | filter by isValid | collect
-
-// Complex pipeline (replaces nested loop with break/continue)
-result <- cat items
-  | filter by isActive
-  | map with transform
-  | head 100
-  | collect
-```
-
-**2. Guard Expressions Replace Early Returns**
-
-Traditional approach (with return) - bug-prone:
-```ek9
-// ❌ This does NOT work in EK9 - return doesn't exist
-function()
-  <- result as String?
-
-  if not isValid()
-    return  // ❌ Compiler error - return statement doesn't exist
-
-  result: processData()
-```
-
-EK9 alternative - guard expressions (safe):
-```ek9
-// ✅ EK9's safe alternative using guard expression
-function()
-  <- result as String?
-
-  if validData <- validate() with validData.isReady()
-    result: process(validData)
-  // Compiler enforces: result must be initialized on ALL paths
-```
-
-Guard expression examples:
-```ek9
-// Guard in if statement - only execute if value is SET
-if name <- getName()
-  stdout.println(name)  // name guaranteed SET here
-
-// Guard in switch - eliminate null checks entirely
-switch record <- database.getRecord(id)
-  case .type == "USER"
-    processUser(record)  // record guaranteed safe
-  case .type == "ORDER"
-    processOrder(record)
-  default
-    logUnknown(record)
-
-// Guard in for loop - only iterate over SET values
-for item <- iterator.next()
-  process(item)  // item guaranteed SET each iteration
-
-// Guard in while loop - continue while getting values
-while conn <- getActiveConnection()
-  transferData(conn)  // conn guaranteed active
-
-// Guard in try block - resource management with safety
-try resource <- acquireResource()
-  processResource(resource)  // resource guaranteed valid
-catch
-  -> ex as Exception
-  handleError(ex)
-```
-
-**3. Multiple Case Values Replace Switch Fallthrough**
-
-Traditional approach (with fallthrough) - bug-prone:
-```c
-// ❌ C/Java pattern - easy to forget break
-switch (day) {
-  case MONDAY:
-  case TUESDAY:
-  case WEDNESDAY:  // Fallthrough to THURSDAY
-  case THURSDAY:
-    workday();
-    break;  // Easy to forget this break!
-  case FRIDAY:
-    workday();
-    // Missing break - OOPS! Falls through to weekend!
-  case SATURDAY:
-  case SUNDAY:
-    weekend();
-}
-```
-
-EK9 alternative - multiple case values (safe):
-```ek9
-// ✅ EK9's safe alternative - explicit multiple values
-switch day
-  case MONDAY, TUESDAY, WEDNESDAY, THURSDAY
-    workday()
-  case FRIDAY
-    workday()
-  case SATURDAY, SUNDAY
-    weekend()
-  default
-    invalidDay()
-```
-
-**4. Return Value Declarations Replace Return Statements**
-
-Traditional approach (multiple returns) - bug-prone:
-```java
-// ❌ Java pattern - easy to miss return path
-String process(Data data) {
-  if (data == null) {
-    return null;  // Early return #1
-  }
-  if (!data.isValid()) {
-    return "";    // Early return #2
-  }
-  if (data.needsSpecial()) {
-    return special();  // Early return #3
-  }
-  return normal();  // Final return
-}
-// Problem: Easy to add new path and forget to return
-```
-
-EK9 alternative - return value declarations (safe):
-```ek9
-// ✅ EK9's safe alternative - single return variable
-process()
-  -> data as Data
-  <- result as String?
-
-  if data?
-    if data.isValid()
-      if data.needsSpecial()
-        result: special()
-      else
-        result: normal()
-  // Compiler enforces: result MUST be initialized before function exits
-  // No way to "forget" to return - compiler catches at compile time
-```
-
-#### Key Principles for EK9 Development
-
-When working with EK9 control flow, remember these principles:
-
-**1. No Early Exits from Loops - Use Stream Pipelines**
-- Instead of `break`, use `head` to limit results
-- Instead of `continue`, use `filter` to skip items
-- Instead of counting to break, use `head N` or `skip N`
-- Stream pipelines are declarative - say WHAT, not HOW
-
-**2. No Early Returns - Use Guard Expressions and Single Return Variable**
-- Declare return variable with `<- result as Type?`
-- Use guard expressions (`<-`, `:=?`) for conditional logic
-- Compiler enforces ALL paths must initialize return variable
-- Single exit point = easier reasoning about function behavior
-
-**3. No Switch Fallthrough - Use Multiple Case Values**
-- List multiple values in single case: `case 1, 2, 3`
-- No implicit fallthrough = no forgotten breaks
-- Each case is independent and complete
-
-**4. All Return Paths Must Initialize - Compiler Enforces Safety**
-- PRE_IR_CHECKS phase (Phase 8) validates ALL paths initialize return values
-- `RETURN_NOT_ALWAYS_INITIALISED` error catches missing paths
-- No way to bypass - compile-time enforcement
-
-**5. Design Philosophy: Eliminate the Feature, Eliminate the Bug Category**
-- Break/continue bugs → 0% (feature doesn't exist)
-- Fallthrough bugs → 0% (feature doesn't exist)
-- Early return resource leaks → 0% (feature doesn't exist)
-- **Cannot introduce what doesn't exist**
-
-#### Modern Language Trends Support EK9's Approach
-
-EK9's exclusions align with modern language design trends:
-
-- **Kotlin (2011)**: No switch fallthrough - requires `when` expressions
-- **Swift (2014)**: Requires explicit `fallthrough` keyword (making implicit fallthrough impossible)
-- **Rust (2015)**: Discourages break/continue, prefers iterators with `take()`, `skip()`, `filter()`
-- **Scala (2004)**: No fallthrough in match expressions
-- **Python 3.10+ (2021)**: match/case has no fallthrough mechanism
-- **Haskell (1990)**: No break/continue/return - pure functional approach
-
-EK9 takes the next logical step: **complete elimination** rather than mitigation.
-
-#### Why This Matters for Adoption
-
-**For developers switching to EK9:**
-- Unlearn break/continue/return habits
-- Learn stream pipeline patterns (cat, filter, head, tail, skip)
-- Learn guard expression patterns (`<-`, `:=?`)
-- Trust the compiler to catch missing initialization paths
-
-**For enterprise adoption:**
-- **Measurable bug reduction**: Eliminate 15-25% of production bugs (Microsoft/Google data)
-- **Security improvement**: No Apple SSL-style bypass vulnerabilities
-- **Code review efficiency**: Fewer control flow patterns to audit
-- **AI collaboration advantage**: Systematic patterns vs framework chaos
-
-**For competitive positioning:**
-- EK9 doesn't just reduce bugs - **eliminates entire bug categories**
-- 50+ years of evidence supports these exclusions
-- Modern languages are moving this direction - EK9 is ahead of the curve
-
-#### See Also
-
-**Documentation References:**
-- **`EK9_COMPREHENSIVE_COMPETITIVE_ANALYSIS.md`** - Market positioning: "Safety Through Exclusion"
-- **`EK9_LANGUAGE_EXAMPLES.md`** - Practical migration patterns from break/continue/return to EK9 alternatives
-- **`EK9_AI_DEVELOPMENT_PLATFORM.md`** - AI safety advantages from systematic patterns
-- **`PRE_IR_CHECKS_IMPLEMENTATION_STATUS.md`** - Phase 2 fuzzing priorities (revised for actual EK9 features)
-
-**Grammar References:**
-- **`EK9.g4`** (lines 361-376) - Loop constructs (for/while without break/continue)
-- **`EK9.g4`** (lines 488-490) - Guard expressions (`:=?` operator)
-- **`EK9.g4`** (lines 492-531) - Stream processing (cat, pipe, filter, head, tail, skip, collect)
-- **`EK9.g4`** (lines 463-476) - Switch with multiple case values (no fallthrough)
-- **`EK9.g4`** (lines 610-613) - Return value declarations (not return statements)
-
-**When in doubt:** These features do not exist in EK9. Do not try to use them. Do not propose fuzzing tests for them. They were deliberately removed based on 50 years of production evidence.
+**When in doubt:** These features do not exist in EK9. Do not try to use them. They were deliberately removed based on 50 years of production evidence.
 
 ### EK9 Tri-State Semantics
 
-**CRITICAL**: EK9 implements a sophisticated tri-state object model that distinguishes between different states of object validity. Understanding this is essential for correct EK9 development.
+**CRITICAL**: EK9 implements tri-state object model (absent/unset/set).
 
-#### The Three States
-
+**The Three States:**
 1. **Object Absent** - Object doesn't exist (e.g., missing key in Dict)
-2. **Object Present but Unset** - Object exists in memory but has no meaningful value
-3. **Object Present and Set** - Object exists with a valid, usable value
+2. **Object Present but Unset** - Object exists but has no meaningful value
+3. **Object Present and Set** - Object exists with valid, usable value
 
-#### Type-Specific Semantics
-
-**Primitive/Basic Types** (String, Integer, Boolean, etc.):
-- Can be unset: `new String()` creates an unset but defined object
-- `_isSet()` returns false for unset, true for set
+**Type-Specific Semantics:**
+- **Primitives** (String, Integer, Boolean): Can be unset, `_isSet()` returns false for unset
+- **Collections** (List, Dict): **Always set when created**, even if empty (`new List()` → set with 0 items)
+- **Containers** (DictEntry, Optional): Complex tri-state logic based on contained values
 - **Never accept Java `null`** - always reject null to maintain type safety
 
-**Collections** (List, Dict, etc.):
-- **Always set when created**, even if empty: `new List()` → set (0 items)
-- Empty ≠ unset: an empty collection is a valid, usable state
-- Only become unset via explicit `unSet()` call or invalid construction
+**Key Principle:** The `_isSet()` method defines "meaningful, normal, usable value" differently for each type. Collections are always meaningful when created (empty is valid). Primitives require actual data to be "set".
 
-**Container Types** (DictEntry, Result, Optional):
-- Complex tri-state logic based on contained values
-- DictEntry: set when key is valid, regardless of value state
-- Result/Optional: specific semantics for contained value states
-
-#### Implementation Guidelines
-
-**Constructor Patterns**:
-```java
-// Accept unset EK9 objects (tri-state semantics)
-public DictEntry(Any k, Any v) {
-  if (isValid(k) && v != null) {  // Reject null, accept unset
-    this.keyValue = k;
-    this.entryValue = v;  // v can be unset EK9 object
-    set();
-  }
-}
-```
-
-**Testing Patterns**:
-```java
-// Test with unset EK9 objects, not null
-final var unsetValue = new String();  // Unset but defined
-final var entry = new DictEntry(key, unsetValue);
-assertSet.accept(entry);  // Container is set
-assertFalse.accept(((BuiltinType) entry.value())._isSet());  // Value is unset
-```
-
-**JSON Integration**:
-- Unset EK9 values map to JSON null: `{"key": null}`
-- Enables proper JSON serialization of tri-state data
-
-#### Logical Consistency
-
-The `_isSet()` method defines "meaningful, normal, usable value":
-- **Primitives**: Has actual data (not default/empty state)
-- **Collections**: Always meaningful when created (empty is valid)
-- **Containers**: Based on container-specific logic (e.g., DictEntry set when key valid)
-
-This tri-state model enables EK9 to handle optional data, partial initialization, and complex data states while maintaining type safety and avoiding null pointer exceptions.
+**Complete explanation:** See **`EK9_TRI_STATE_SEMANTICS.md`** for implementation patterns, testing guidelines, and JSON integration.
 
 ### EK9 Assignment Operators and Guard System
 
-**CRITICAL**: EK9's three assignment operators enable a revolutionary unified guard system that works identically across ALL control flow constructs.
+**CRITICAL**: Three distinct assignment operators with precise semantics:
 
-#### Assignment Operator Semantics
+| Operator | Name | Semantics | Use Case |
+|----------|------|-----------|----------|
+| `<-` | Declaration | Create NEW variable + first assignment | First-time assignment |
+| `:=` | Assignment | Assign to EXISTING variable | Reassignment |
+| `:=?` | Guarded Assignment | Only assign if variable is UNSET | Conditional initialization |
 
-EK9 provides three distinct assignment operators with precise semantics:
+**Guard Variables in Control Flow:**
 
-| Operator | Name | Syntax | Semantics | Use Case |
-|----------|------|--------|-----------|----------|
-| `<-` | Declaration | `var <- value` | Create NEW variable + first assignment | First-time assignment |
-| `:=` | Assignment | `var := value` | Assign to EXISTING variable | Reassignment |
-| `:=?` | Guarded Assignment | `var :=? value` | Only assign if variable is UNSET | Conditional initialization |
+Guards combine assignment with null/isSet checking. Same syntax works identically in IF, SWITCH, FOR, WHILE, and TRY:
 
-**Declaration (`<-`):**
 ```ek9
-name <- "Steve"           // Declare new variable
-count <- 42               // Type inferred as Integer
-items <- List()           // Type inferred as List
-```
+if name <- getName()          // Only execute if SET
+  stdout.println(name)
 
-**Assignment (`:=`):**
-```ek9
-name <- "Steve"           // Declaration
-name := "John"            // Assignment - updates existing
-count := count + 1        // Increment
-```
-
-**Guarded Assignment (`:=?`):**
-```ek9
-result <- String()        // Create unset variable
-result :=? "First"        // Assigns "First" (was unset)
-result :=? "Second"       // Does NOT assign (already set)
-assert result == "First"  // Still has first value
-```
-
-#### Guard Variables in Control Flow
-
-Guards combine assignment with null/isSet checking, eliminating boilerplate across ALL control flow constructs. The same syntax works identically in IF, SWITCH, FOR, WHILE, DO-WHILE, and TRY statements.
-
-**IF with declaration guard** - only execute body if value is SET:
-```ek9
-if name <- getName()
-  stdout.println(name)  // name guaranteed SET here
-```
-
-**SWITCH with guard** - eliminate null checks entirely:
-```ek9
-switch record <- database.getRecord(id)
+switch record <- database.getRecord(id)  // Only execute if SET
   case .type == "USER"
-    processUser(record)  // record guaranteed safe
-  case .type == "ORDER"
-    processOrder(record)
-  default
-    logUnknown(record)
-```
+    processUser(record)
 
-**FOR with guard** - loop only over SET values:
-```ek9
-for item <- iterator.next()
-  process(item)  // item guaranteed SET each iteration
-```
+for item <- iterator.next()   // Loop while SET
+  process(item)
 
-**WHILE with guard** - continue while getting values:
-```ek9
-while conn <- getActiveConnection()
-  transferData(conn)  // conn guaranteed active
+while conn <- getActiveConnection()  // Continue while SET
+  transferData(conn)
 ```
-
-**TRY with guard** - resource management with safety:
-```ek9
-try resource <- acquireResource()
-  processResource(resource)  // resource guaranteed valid
-catch
-  -> ex as Exception
-  handleError(ex)
-```
-
-**The Power:** Same syntax, same safety guarantees, across ALL control flow. Learn once, apply everywhere.
 
 **Revolutionary Impact:**
 - **90-95% elimination** of null pointer exceptions through compile-time enforcement
-- **Universal pattern** - one syntax works across if/switch/for/while/try constructs
-- **Perfect AI collaboration** - systematic patterns vs framework chaos
+- **Universal pattern** - one syntax across all control flow constructs
 - **Cannot bypass** - compiler enforces safety, no escape hatches
 
-**See also:**
-- **`EK9_GUARDS_AND_TRI_STATE_UNIFIED_SYSTEM.md`** - Complete authoritative guide
-- **`flowControl.html`** - Comprehensive guard examples with all constructs
-- **`EK9_ACADEMIC_LANGUAGE_INNOVATIONS.md`** - Revolutionary competitive positioning
+**Complete explanation:** See **`EK9_ASSIGNMENT_OPERATORS_AND_GUARDS.md`** for detailed examples and patterns.
 
 ### Code Style
 - Java 25 with virtual threads support
@@ -987,166 +521,65 @@ catch
 
 ### EK9 Built-in Type Testing Best Practices
 
-Based on FileSystemPath testing patterns, follow these guidelines:
-
-#### Resource Management
-- **Always use try-with-resources** for streams and closeable resources:
-  ```java
-  try (var stream = Files.walk(path)) {
-    stream.sorted(Comparator.reverseOrder())
-        .forEach(p -> { /* process */ });
-  }
-  ```
-- Use `Comparator.reverseOrder()` instead of custom lambdas like `(a, b) -> b.compareTo(a)`
-- Proper cleanup in `@AfterEach` methods with comprehensive error handling
-
-#### EK9 Type System Testing
-- **Test both SET and UNSET states** for all operations:
-  ```java
-  // Test with set values
-  assertTrue(setPath.exists().state);
-  
-  // Test with unset values  
-  assertUnset.accept(unsetPath.exists());
-  ```
-- **Test all parameter combinations** including unset/null inputs:
-  ```java
-  // Test normal operation
-  assertTrue(path.startsWith(validPath).state);
-  
-  // Test with unset parameter
-  assertUnset.accept(path.startsWith(new FileSystemPath()));
-  ```
+**Key Patterns:**
+- **Always use try-with-resources** for streams and closeable resources
+- **Test both SET and UNSET states** for all operations
+- **Test all parameter combinations** including unset/null inputs
 - **Test method overloads** separately (e.g., `createFile()` vs `createFile(Boolean)`)
+- **Use `@Execution(SAME_THREAD)`** for file system operations
+- **Create isolated temporary directories** per test
+- **Use `File.separator`** for cross-platform path operations
 
-#### Test Organization
-- **Structure tests with clear sections** and explanatory comments
-- **Use descriptive variable names** that indicate the test scenario
-- **Group related assertions** logically within test methods
-- **Test edge cases explicitly** with comments explaining the scenario:
-  ```java
-  //I know I just created it this is to check unset value being passed in
-  assertUnset.accept(nestedFile.createFile(new Boolean()));
-  ```
+**Example:**
+```java
+// Test with set values
+assertTrue(setPath.exists().state);
 
-#### Comprehensive Coverage Patterns
-- **Test operators with unset values**:
-  ```java
-  assertUnset.accept(pathA._lt(new FileSystemPath()));
-  assertUnset.accept(pathA._lteq(new FileSystemPath()));
-  assertUnset.accept(pathA._gt(new FileSystemPath()));
-  assertUnset.accept(pathA._gteq(new FileSystemPath()));
-  ```
-- **Test assignment operations that can corrupt state**:
-  ```java
-  //Now corrupt it with unset
-  mutablePath1._addAss(new FileSystemPath());
-  assertUnset.accept(mutablePath1);
-  ```
-- **Test polymorphic operations** (e.g., `_cmp(Any)` vs `_cmp(SpecificType)`)
+// Test with unset values
+assertUnset.accept(unsetPath.exists());
 
-#### Thread Safety and Isolation
-- Use `@Execution(SAME_THREAD)` for file system operations
-- Use `@ResourceLock` for shared resource access
-- Create isolated temporary directories per test
-- Clean up all test artifacts reliably
+// Test with unset parameter
+assertUnset.accept(path.startsWith(new FileSystemPath()));
+```
 
-#### Portable Testing
-- Use temporary directories and files only
-- Handle OS-specific behavior gracefully (e.g., file permissions)
-- Use `File.separator` for cross-platform path operations
-- Avoid hardcoded paths or OS-specific assumptions
+**Complete guide:** See **`EK9_BUILT_IN_TYPE_TESTING.md`** for comprehensive coverage patterns, thread safety, and portable testing guidelines.
 
 ### EK9 Annotation Validation Process
 
-## ⚠️  CRITICAL MANDATORY PROCESS ⚠️
+**⚠️ CRITICAL MANDATORY PROCESS ⚠️**
 
-**ALWAYS REQUIRED**: Whenever you alter, add, or modify ANY EK9 annotation (`@Ek9Class`, `@Ek9Constructor`, `@Ek9Method`, `@Ek9Operator`) in ANY Java class in the `ek9-lang` module, you MUST follow this exact validation sequence:
+When modifying ANY `@Ek9Class`, `@Ek9Constructor`, `@Ek9Method`, `@Ek9Operator` annotation in `ek9-lang` module:
 
-**THIS IS NOT OPTIONAL - THE EK9 COMPILER DEPENDS ON SYNTACTICALLY CORRECT ANNOTATIONS**
-
-#### 1. Development Phase
 ```bash
-# Make changes to ek9-lang classes with @Ek9Class, @Ek9Constructor, @Ek9Method, @Ek9Operator annotations
-# Add comprehensive unit tests
-mvn test -pl ek9-lang  # Verify unit tests pass
-```
-
-#### 2. Annotation Validation Phase
-```bash
-# STEP 1: Install ek9-lang to local Maven repository
+# Complete validation sequence - run these commands in order:
 mvn clean install -pl ek9-lang
-
-# STEP 2: Rebuild compiler-main to pick up updated dependency
 mvn clean compile -pl compiler-main
-
-# STEP 3: Run bootstrap test to validate EK9 annotations
 mvn test -Dtest=Ek9IntrospectedBootStrapTest -pl compiler-main
 ```
 
-#### 3. Understanding Bootstrap Test Results
+**Why Required:**
+- `compiler-main` depends on `ek9-lang`
+- `Ek9IntrospectedBootStrapTest` uses reflection to find `@Ek9Class` annotated classes
+- Annotations are converted to EK9 source code and parsed
+- Parser catches annotation formatting errors
 
-**If Test Passes**: EK9 annotations are syntactically correct and properly formatted.
+**Common Annotation Patterns:**
 
-**If Test Fails**: The test will output the generated EK9 source code showing the exact syntax error:
-- Look for the specific line and position in the error message
-- Common issues:
-  - Missing newlines in multi-line annotations (use `"""` triple quotes)
-  - Incorrect indentation in EK9 syntax
-  - Missing `as pure` qualifiers
-  - Incorrect parameter/return type formatting
-
-#### 4. Common Annotation Patterns
-
-**Correct Operator Formatting**:
+✅ **CORRECT - multi-line with proper newlines:**
 ```java
 @Ek9Operator("""
     operator ? as pure
       <- rtn as Boolean?""")
 ```
 
-**Incorrect (Single Line)**:
+❌ **INCORRECT - single line (missing newlines):**
 ```java
-@Ek9Operator("operator ? as pure <- rtn as Boolean?")  // WRONG: Missing newlines
+@Ek9Operator("operator ? as pure <- rtn as Boolean?")  // WRONG
 ```
 
-**Method with Parameters**:
-```java
-@Ek9Method("""
-    methodName() as pure
-      -> param as ParamType
-      <- rtn as ReturnType?""")
-```
-
-#### 5. Why This Process is Required
-
-- **Multi-module Dependency**: `compiler-main` depends on `ek9-lang`
-- **Introspection Process**: `Ek9IntrospectedBootStrapTest` uses Java reflection to find `@Ek9Class` annotated classes
-- **EK9 Code Generation**: Annotations are converted to EK9 source code and parsed
-- **Syntax Validation**: The EK9 parser catches annotation formatting errors
-
-#### 6. Integration with Development Workflow
-
-🚨 **MANDATORY VALIDATION TRIGGERS** 🚨
-
-You MUST run the complete annotation validation process (steps 1-3 above) whenever you:
-- Add ANY new EK9 built-in types
-- Modify ANY existing EK9 annotations in ANY Java class
-- Add ANY new methods/operators to existing types
-- Change ANY `@Ek9Operator`, `@Ek9Method`, `@Ek9Constructor`, or `@Ek9Class` annotations
-- Before committing ANY changes to EK9 built-in types
+**Complete process:** See **`EK9_ANNOTATION_VALIDATION.md`** for detailed validation steps, common errors, and solutions.
 
 **FAILURE TO FOLLOW THIS PROCESS WILL BREAK THE EK9 COMPILER BOOTSTRAP**
-
-#### 7. Quick Validation Command Sequence
-
-For easy copy-paste when making EK9 annotation changes:
-```bash
-# Complete validation sequence - run these commands in order:
-mvn clean install -pl ek9-lang
-mvn clean compile -pl compiler-main  
-mvn test -Dtest=Ek9IntrospectedBootStrapTest -pl compiler-main
-```
 
 ### Collection Types Set/Unset Semantics
 **CRITICAL**: Collection types (Dict, List, etc.) are **always set/valid** even when empty:
