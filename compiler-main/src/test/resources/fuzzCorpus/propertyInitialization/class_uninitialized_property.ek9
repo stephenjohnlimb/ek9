@@ -1,0 +1,32 @@
+#!ek9
+<?-
+  FUZZ TEST: Class Uninitialized Property
+
+  Tests that class properties declared but never initialized anywhere
+  trigger NEVER_INITIALISED and EXPLICIT_CONSTRUCTOR_REQUIRED errors.
+
+  Pattern: Class with property never initialized, used without check.
+  Error Count: 3 errors (NEVER_INITIALISED, NOT_INITIALISED_BEFORE_USE, EXPLICIT_CONSTRUCTOR_REQUIRED)
+-?>
+defines module complexity.class.never.init
+
+  defines class
+
+    <?-
+      Class with property that is never initialized anywhere.
+      Requires explicit constructor to handle initialization.
+    -?>
+    @Error: PRE_IR_CHECKS: EXPLICIT_CONSTRUCTOR_REQUIRED
+    ClassWithUninitializedProps
+      @Error: PRE_IR_CHECKS: NEVER_INITIALISED
+      prop1 as String?
+
+      <?-
+        Method tries to use prop1 without initialization check.
+      -?>
+      useProperty()
+        @Error: PRE_IR_CHECKS: NOT_INITIALISED_BEFORE_USE
+        result <- prop1 + " suffix"
+        assert result?
+
+//EOF

@@ -1,0 +1,31 @@
+#!ek9
+<?-
+  FUZZ TEST: Component Uninitialized Property
+
+  Tests that component properties must be initialized similar to classes.
+  Components with uninitialized properties require explicit constructors.
+
+  Pattern: Component with property never initialized, used without check.
+  Error Count: 3 errors (NEVER_INITIALISED, NOT_INITIALISED_BEFORE_USE, EXPLICIT_CONSTRUCTOR_REQUIRED)
+-?>
+defines module complexity.component.init
+
+  defines component
+
+    <?-
+      Component with uninitialized property.
+      Should require explicit constructor.
+    -?>
+    @Error: PRE_IR_CHECKS: EXPLICIT_CONSTRUCTOR_REQUIRED
+    ComponentWithUninitProp
+      @Error: PRE_IR_CHECKS: NEVER_INITIALISED
+      data as String?
+
+      processData()
+        @Error: PRE_IR_CHECKS: NOT_INITIALISED_BEFORE_USE
+        result <- data + " processed"
+
+        stdout <- Stdout()
+        stdout.println(result)
+
+//EOF

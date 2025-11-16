@@ -1,0 +1,40 @@
+#!ek9
+<?-
+  FUZZ TEST: Switch Default Case Missing Initialization
+
+  Tests that switch statements with default cases must initialize variables
+  on ALL paths including the default case.
+
+  Pattern: Switch with cases that initialize, but default case forgets.
+  Error Count: 1 USED_BEFORE_INITIALISED error
+-?>
+defines module complexity.switch.missing.default
+
+  defines function
+
+    <?-
+      Switch with default case that forgets to initialize variable.
+      Some cases initialize, but default case forgets.
+    -?>
+    SwitchDefaultMissingInit()
+      value <- 42
+      result as String?
+
+      <?- Switch with default that forgets to initialize -?>
+      switch value
+        case 1
+          result: "one"
+        case 2
+          result: "two"
+        case 3
+          result: "three"
+        default
+          <?- Default case forgets to initialize result -?>
+          stdout <- Stdout()
+          stdout.println("Default case")
+
+      <?- result may be uninitialized if value is 42 -?>
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert result?
+
+//EOF

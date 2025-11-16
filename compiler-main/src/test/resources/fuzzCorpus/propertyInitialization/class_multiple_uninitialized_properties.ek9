@@ -1,0 +1,41 @@
+#!ek9
+<?-
+  FUZZ TEST: Class with Multiple Uninitialized Properties
+
+  Tests that classes with multiple uninitialized properties trigger
+  multiple NEVER_INITIALISED errors plus EXPLICIT_CONSTRUCTOR_REQUIRED.
+
+  Pattern: Class with 2+ properties never initialized, both used without checks.
+  Error Count: 5 errors (2 NEVER_INITIALISED, 2 NOT_INITIALISED_BEFORE_USE, 1 EXPLICIT_CONSTRUCTOR_REQUIRED)
+-?>
+defines module complexity.class.multiple.never.init
+
+  defines class
+
+    <?-
+      Class with multiple properties never initialized.
+      All properties must be initialized or explicit constructor required.
+    -?>
+    @Error: PRE_IR_CHECKS: EXPLICIT_CONSTRUCTOR_REQUIRED
+    ClassWithMultipleUninitProps
+      @Error: PRE_IR_CHECKS: NEVER_INITIALISED
+      id as Integer?
+
+      @Error: PRE_IR_CHECKS: NEVER_INITIALISED
+      name as String?
+
+      <?-
+        Method uses both uninitialized properties without checks.
+      -?>
+      display()
+        @Error: PRE_IR_CHECKS: NOT_INITIALISED_BEFORE_USE
+        idCopy <- id + 1
+
+        @Error: PRE_IR_CHECKS: NOT_INITIALISED_BEFORE_USE
+        output <- `Name: ${name}`
+
+        stdout <- Stdout()
+        stdout.println(output)
+        assert idCopy?
+
+//EOF

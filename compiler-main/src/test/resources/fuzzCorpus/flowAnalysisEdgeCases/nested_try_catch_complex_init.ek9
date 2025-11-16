@@ -1,0 +1,47 @@
+#!ek9
+<?-
+  FUZZ TEST: Nested Try/Catch Blocks - Complex Initialization
+
+  Tests nested try/catch blocks where variables may not be initialized
+  on all exception paths through multiple nesting levels.
+
+  Pattern: Inner try/catch where catch forgets to initialize,
+  then variable used in outer try block.
+  Error Count: 1 USED_BEFORE_INITIALISED error
+-?>
+defines module complexity.nested.try
+
+  defines function
+
+    getValueFunction() as pure
+      <- rtn <- 22
+
+    <?-
+      Nested try/catch where inner try initializes a variable,
+      but inner catch doesn't initialize it.
+      Then outer try uses the variable which might not be initialized.
+    -?>
+    NestedTryCatchComplexInit()
+      innerVar as Integer?
+
+      try
+        <?- Inner try may fail -?>
+        try
+          innerVar: 42
+        catch
+          -> ex as Exception
+          <?- Inner catch forgets to initialize innerVar -?>
+          stdout <- Stdout()
+          stdout.println(`Inner error: ${ex}`)
+
+        <?- This uses innerVar which might not be initialized -?>
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        result <- innerVar + 10
+        assert result?
+
+      catch
+        -> ex as Exception
+        stdout <- Stdout()
+        stdout.println(`Outer error: ${ex}`)
+
+//EOF

@@ -1,0 +1,39 @@
+#!ek9
+<?-
+  FUZZ TEST: Component Method Return Value Initialization
+
+  Tests that component methods must properly initialize return values
+  on all code paths, similar to regular functions.
+
+  Pattern: Component method with conditional initialization of return value.
+  Error Count: 1 RETURN_NOT_ALWAYS_INITIALISED error
+-?>
+defines module complexity.component.method.return
+
+  defines component
+
+    <?-
+      Base component with abstract method.
+    -?>
+    BaseComponent as abstract
+      processValue() as abstract
+        -> input as String
+        <- result as String?
+
+    <?-
+      Component that extends base but fails to initialize return value
+      on all paths.
+    -?>
+    DerivedComponent is BaseComponent
+      default DerivedComponent()
+
+      override processValue()
+        -> input as String
+        @Error: PRE_IR_CHECKS: RETURN_NOT_ALWAYS_INITIALISED
+        <- result as String?
+
+        <?- Conditional initialization - result not set on else path -?>
+        if input?
+          result: input + " processed"
+
+//EOF

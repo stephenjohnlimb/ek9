@@ -1,0 +1,38 @@
+#!ek9
+<?-
+  FUZZ TEST: Multiple Control Flow Paths - Incomplete Initialization
+
+  Tests that variables must be initialized on ALL control flow paths
+  before use, not just some paths.
+
+  Pattern: If/else structure where one branch forgets to initialize.
+  Error Count: 1 USED_BEFORE_INITIALISED error
+-?>
+defines module complexity.multiple.paths
+
+  defines function
+
+    <?-
+      Function with multiple control flow paths.
+      One path initializes a variable, another doesn't.
+      Then the variable is used, causing USED_BEFORE_INITIALISED error.
+    -?>
+    MultiplePathsIncompleteInit()
+      <- result as Integer: 0
+
+      condition <- true
+      value as Integer?
+
+      <?- First path initializes value -?>
+      if condition
+        value: 42
+      else
+        <?- This path forgets to initialize value -?>
+        stdout <- Stdout()
+        stdout.println("Else branch")
+
+      <?- Using value here when it might not be initialized -?>
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      result: value
+
+//EOF

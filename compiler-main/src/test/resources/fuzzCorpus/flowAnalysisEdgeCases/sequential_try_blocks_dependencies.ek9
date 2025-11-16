@@ -1,0 +1,48 @@
+#!ek9
+<?-
+  FUZZ TEST: Sequential Try Blocks - Initialization Dependencies
+
+  Tests multiple sequential try blocks where later blocks depend on
+  variables that may not be initialized by earlier blocks.
+
+  Pattern: First try/catch where catch forgets to initialize,
+  then second try depends on that variable.
+  Error Count: 2 USED_BEFORE_INITIALISED errors
+-?>
+defines module complexity.sequential.try
+
+  defines function
+
+    getValueFunction() as pure
+      <- rtn <- 22
+
+    <?-
+      Sequential try blocks where second block depends on first.
+      If first block's catch doesn't initialize, second block fails.
+    -?>
+    SequentialTryDependency()
+      firstVar as Integer?
+      secondVar as Integer?
+
+      <?- First try may fail to initialize firstVar -?>
+      try
+        firstVar: 42
+      catch
+        -> ex as Exception
+        <?- Catch forgets to initialize firstVar -?>
+        stdout <- Stdout()
+        stdout.println(`First error: ${ex}`)
+
+      <?- Second try depends on firstVar being initialized -?>
+      try
+        @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+        secondVar: firstVar * 2
+      catch
+        -> ex as Exception
+        stdout <- Stdout()
+        stdout.println(`Second error: ${ex}`)
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert secondVar?
+
+//EOF

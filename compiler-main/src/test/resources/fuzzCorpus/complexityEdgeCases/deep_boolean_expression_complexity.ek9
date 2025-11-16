@@ -1,0 +1,62 @@
+#!ek9
+<?-
+  FUZZ TEST: Deep Boolean Expression Complexity
+
+  Tests that deeply nested boolean expressions contribute to cyclomatic complexity.
+  Pattern: Nested boolean logic with multiple levels of (and/or) operators.
+
+  Target: Exceed 50 complexity threshold with deeply nested boolean logic.
+  Each 'and'/'or' on Boolean type adds +1 to complexity.
+
+  Error Count: 1 EXCESSIVE_COMPLEXITY error
+-?>
+defines module complexity.deep.boolean
+
+  defines function
+
+    <?-
+      Deep boolean expression with excessive complexity.
+      Each 'and'/'or' on Boolean type adds +1 to complexity.
+      Target: Exceed 50 complexity threshold with deeply nested boolean logic.
+    -?>
+    @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+    DeepBooleanExpressionComplexity()
+      result as Boolean?
+
+      <?- Declare all boolean variables -?>
+      a <- true
+      b <- false
+      c <- true
+      d <- false
+      e <- true
+      f <- false
+      g <- true
+      h <- false
+      i <- true
+      j <- false
+      k <- true
+      l <- false
+      m <- true
+      n <- false
+      o <- true
+      p <- false
+      q <- true
+      r <- false
+      s <- true
+      t <- false
+      u <- true
+      v <- false
+      w <- true
+      x <- false
+
+      <?-
+        Deeply nested boolean expression.
+        Base: 1 (function)
+        Each and/or: +1 (Boolean short-circuit branching)
+        Target structure with 3 levels deep, 50+ boolean operators
+      -?>
+      result: (((a and b) or (c and d)) and ((e or f) and (g or h))) and (((i and j) or (k and l)) and ((m or n) and (o or p))) and (((q and r) or (s and t)) and ((u or v) and (w or x))) and (((a or b) and (c or d)) or ((e and f) or (g and h))) and (((i or j) and (k or l)) or ((m and n) or (o and p))) and (((q or r) and (s or t)) or ((u and v) or (w and x))) and (((a and b) or (c and d)) and ((e or f) and (g or h)))
+
+      assert result?
+
+//EOF
