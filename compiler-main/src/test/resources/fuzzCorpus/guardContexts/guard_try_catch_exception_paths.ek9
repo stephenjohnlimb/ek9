@@ -1,0 +1,87 @@
+#!ek9
+<?-
+  FUZZ TEST: Guard contexts - Try/catch with guard
+
+  Tests that guards in try/catch statements can leave variables uninitialized
+  when the guard prevents try execution or catch blocks don't initialize.
+
+  Error Count: 3 USED_BEFORE_INITIALISED errors
+-?>
+defines module guard.fuzz.trycatch
+
+  defines record
+    Resource
+      data <- "test data"
+
+      default Resource() as pure
+
+      override operator ? as pure
+        <- rtn as Boolean: data?
+
+  defines function
+
+    <?-
+      Returns a resource that may or may not be set.
+    -?>
+    acquireResource() as pure
+      <- rtn as Resource?
+      rtn: Resource()
+
+    <?-
+      Try/catch with guard where the guard may prevent try execution.
+      If acquireResource() returns unset, the try never executes.
+      Therefore 'result' remains uninitialized.
+    -?>
+    TryWithGuardUninitializedVariable()
+      resource as Resource?
+      result as String?
+
+      <?- Guard may prevent try execution, leaving result uninitialized -?>
+      try resource ?= acquireResource()
+        result: resource.data
+      catch
+        -> ex as Exception
+        stdout <- Stdout()
+        stdout.println(`Exception: ${ex}`)
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert result?
+
+    <?-
+      Try/catch with guard where catch block forgets to initialize.
+    -?>
+    TryWithGuardCatchMissingInit()
+      resource as Resource?
+      result as String?
+
+      try resource ?= acquireResource()
+        result: resource.data
+      catch
+        -> ex as Exception
+        <?- Catch block forgets to initialize result -?>
+        stdout <- Stdout()
+        stdout.println(`Caught exception`)
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert result?
+
+    <?-
+      Try/catch with guard and finally block.
+      The catch block doesn't initialize result.
+    -?>
+    TryWithGuardFinally()
+      resource as Resource?
+      result as String?
+
+      try resource ?= acquireResource()
+        result: resource.data
+      catch
+        -> ex as Exception
+        <?- Catch forgets to initialize result -?>
+        stdout <- Stdout()
+        stdout.println(`Error: ${ex}`)
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert result?
+
+//EOF

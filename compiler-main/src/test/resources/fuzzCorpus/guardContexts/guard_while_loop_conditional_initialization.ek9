@@ -1,0 +1,80 @@
+#!ek9
+<?-
+  FUZZ TEST: Guard contexts - While loop with guard
+
+  Tests that guards in while loop statements can leave variables uninitialized
+  when the guard prevents loop execution.
+
+  Error Count: 4 USED_BEFORE_INITIALISED errors
+-?>
+defines module guard.fuzz.while
+
+  defines function
+
+    <?-
+      Returns a Boolean that may or may not be set.
+    -?>
+    getBoolean() as pure
+      <- rtn as Boolean?
+      rtn: true
+
+    <?-
+      While loop with guard where the guard may prevent loop execution.
+      If getBoolean() returns unset, the loop never executes.
+      Therefore 'accumulator' remains uninitialized.
+    -?>
+    WhileWithGuardUninitializedVariable()
+      counter <- 0
+      trigger as Boolean?
+      accumulator as Integer?
+
+      <?- Guard may prevent while loop execution, leaving accumulator uninitialized -?>
+      while trigger ?= getBoolean() with trigger and counter < 5
+        accumulator: counter
+        counter: counter + 1
+        trigger: counter < 5
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert accumulator?
+
+    <?-
+      While loop with guard where loop body has conditional initialization.
+    -?>
+    WhileWithGuardConditionalInit()
+      counter <- 0
+      trigger as Boolean?
+      result as String?
+
+      while trigger ?= getBoolean() with trigger
+        if counter > 2
+          result: "found"
+        counter: counter + 1
+        trigger: counter < 5
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert result?
+
+    <?-
+      While loop with guard affecting multiple variables.
+    -?>
+    WhileWithGuardMultipleVariables()
+      counter <- 0
+      trigger as Boolean?
+      first as Integer?
+      second as String?
+
+      while trigger ?= getBoolean() with trigger
+        if counter == 0
+          first: counter
+        if counter == 10
+          second: "ten"
+        counter: counter + 1
+        trigger: counter < 5
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert first?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert second?
+
+//EOF

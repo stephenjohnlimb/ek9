@@ -1,0 +1,65 @@
+#!ek9
+<?-
+  FUZZ TEST: Guard contexts - For loop with guard
+
+  Tests that guards in for loop statements can leave variables uninitialized
+  when the guard prevents loop execution.
+
+  Error Count: 3 USED_BEFORE_INITIALISED errors
+-?>
+defines module guard.fuzz.forloop
+
+  defines function
+
+    <?-
+      Returns a list that may or may not be set.
+    -?>
+    getValues() as pure
+      <- rtn as List of Integer?
+      rtn: [1, 2, 3, 4, 5]
+
+    <?-
+      For loop with guard where the guard may prevent loop execution.
+      If getValues() returns unset, the loop never executes.
+      Therefore 'result' remains uninitialized.
+    -?>
+    ForLoopWithGuardUninitializedBody()
+      values as List of Integer?
+      result as Integer?
+
+      <?- Guard may prevent loop execution, leaving result uninitialized -?>
+      for values ?= getValues() then item in values
+        result: item * 2
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert result?
+
+    <?-
+      Similar scenario but with different pattern.
+    -?>
+    ForLoopGuardAccumulatorPattern()
+      values as List of Integer?
+      total as Integer?
+
+      for values ?= getValues() then item in values
+        total: item
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert total?
+
+    <?-
+      For loop with nested control flow where guard affects initialization.
+      Even though loop executes, the condition inside means result may not be set.
+    -?>
+    ForLoopGuardNestedCondition()
+      values as List of Integer?
+      result as Integer?
+
+      for values ?= getValues() then item in values
+        if item > 3
+          result: item
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert result?
+
+//EOF

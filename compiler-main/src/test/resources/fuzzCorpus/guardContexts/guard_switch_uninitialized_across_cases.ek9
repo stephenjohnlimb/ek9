@@ -1,0 +1,101 @@
+#!ek9
+<?-
+  FUZZ TEST: Guard contexts - Switch with guard
+
+  Tests that guards in switch statements can leave variables uninitialized
+  when the guard prevents switch execution or cases don't initialize.
+
+  Error Count: 4 USED_BEFORE_INITIALISED errors
+-?>
+defines module guard.fuzz.switch
+
+  defines record
+    SomeRecord
+      name <- "test"
+      value <- 42
+
+      default SomeRecord() as pure
+
+      override operator ? as pure
+        <- rtn as Boolean: name? and value?
+
+  defines function
+
+    <?-
+      Returns a record that may or may not be set.
+    -?>
+    getRecord() as pure
+      <- rtn as SomeRecord?
+      rtn: SomeRecord()
+
+    <?-
+      Switch with guard where the guard may prevent switch execution.
+      If getRecord() returns unset, the switch never executes.
+      Therefore 'result' remains uninitialized.
+    -?>
+    SwitchWithGuardUninitializedVariable()
+      conditional <- 42
+      record as SomeRecord?
+      result as String?
+
+      <?- Guard may prevent switch execution, leaving result uninitialized -?>
+      switch record ?= getRecord() with conditional
+        case < 10
+          result: record.name
+        case < 50
+          result: "mid-range"
+        default
+          result: "high"
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert result?
+
+    <?-
+      Switch with guard where ONE case forgets to initialize.
+      Even if switch executes, not all paths initialize result.
+    -?>
+    SwitchWithGuardIncompleteInitialization()
+      conditional <- 42
+      record as SomeRecord?
+      result as String?
+
+      switch record ?= getRecord() with conditional
+        case < 10
+          result: record.name
+        case < 50
+          <?- This case forgets to initialize result -?>
+          stdout <- Stdout()
+          stdout.println(`Value is ${record.value}`)
+        default
+          result: "default"
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert result?
+
+    <?-
+      Switch with guard and multiple variables, some not initialized in all cases.
+    -?>
+    SwitchWithGuardMultipleVariables()
+      conditional <- 25
+      record as SomeRecord?
+      result1 as String?
+      result2 as Integer?
+
+      switch record ?= getRecord() with conditional
+        case < 10
+          result1: record.name
+          result2: 10
+        case < 30
+          result1: "medium"
+          <?- Forgets result2 -?>
+        default
+          result2: 100
+          <?- Forgets result1 -?>
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert result1?
+
+      @Error: PRE_IR_CHECKS: USED_BEFORE_INITIALISED
+      assert result2?
+
+//EOF
