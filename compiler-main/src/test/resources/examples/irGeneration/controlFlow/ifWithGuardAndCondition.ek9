@@ -36,7 +36,6 @@ defines module controlFlow
     STORE result, _temp1
     RETAIN result
     SCOPE_ENTER _scope_2
-    SCOPE_ENTER _scope_2
     REFERENCE value, org.ek9.lang::Integer
     _temp4 = FUNCTION_INSTANCE controlFlow::fetchOptionalValue
     _temp2 = CALL (controlFlow::fetchOptionalValue)_temp4._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
@@ -56,46 +55,90 @@ defines module controlFlow
     condition_evaluation:
     [
     SCOPE_ENTER _scope_3
-    _temp6 = LOAD value
-    _temp7 = CALL (org.ek9.lang::Integer)_temp6.?() [pure=false, complexity=0]
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_3
-    _temp9 = LOAD value
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_3
-    _temp10 = LOAD_LITERAL 10, org.ek9.lang::Integer
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, _scope_3
-    _temp8 = CALL (org.ek9.lang::Integer)_temp9._gt(_temp10) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    _temp5 = LOGICAL_AND_BLOCK
+    [
+    left_evaluation:
+    [
+    _temp6 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_3
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp7 = IS_NULL value
+    ]
+    primitive_condition: _temp7
+    body_evaluation:
+    [
+    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
     RETAIN _temp8
     SCOPE_REGISTER _temp8, _scope_3
-    _temp11 = LOAD _temp7
-    _temp12 = LOAD _temp8
-    _temp5 = CALL (org.ek9.lang::Boolean)_temp11.and(_temp12) [pure=false, complexity=0]
-    RETAIN _temp5
-    SCOPE_REGISTER _temp5, _scope_3
-    _temp13 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+    ]
+    body_result: _temp8
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp9 = LOAD value
+    _temp10 = CALL (org.ek9.lang::Integer)_temp9._isSet() [pure=true, complexity=0]
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_3
+    ]
+    default_result: _temp10
+    scope_id: _scope_3
+    ]
+    _temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
+    ]
+    left_operand: _temp6
+    left_condition: _temp11
+    right_evaluation:
+    [
+    _temp13 = LOAD value
+    RETAIN _temp13
+    SCOPE_REGISTER _temp13, _scope_3
+    _temp14 = LOAD_LITERAL 10, org.ek9.lang::Integer
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, _scope_3
+    _temp12 = CALL (org.ek9.lang::Integer)_temp13._gt(_temp14) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_3
+    ]
+    right_operand: _temp12
+    result_computation:
+    [
+    _temp15 = CALL (org.ek9.lang::Boolean)_temp6._and(_temp12) [pure=true, complexity=0]
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, _scope_3
+    ]
+    logical_result: _temp15
+    scope_id: _scope_3
+    ]
+    _temp16 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
     SCOPE_EXIT _scope_3
     ]
     condition_result: _temp5
-    primitive_condition: _temp13
+    primitive_condition: _temp16
     body_evaluation:
     [
     SCOPE_ENTER _scope_4
-    _temp15 = LOAD_LITERAL Value is high: , org.ek9.lang::String
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_4
-    _temp17 = LOAD value
+    _temp18 = LOAD_LITERAL Value is high: , org.ek9.lang::String
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, _scope_4
+    _temp20 = LOAD value
+    RETAIN _temp20
+    SCOPE_REGISTER _temp20, _scope_4
+    _temp19 = CALL (org.ek9.lang::Integer)_temp20._string() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp19
+    SCOPE_REGISTER _temp19, _scope_4
+    _temp17 = CALL (org.ek9.lang::String)_temp18._add(_temp19) [pure=true, complexity=2, effects=RETURN_MUTATION]
     RETAIN _temp17
     SCOPE_REGISTER _temp17, _scope_4
-    _temp16 = CALL (org.ek9.lang::Integer)_temp17._string() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp16
-    SCOPE_REGISTER _temp16, _scope_4
-    _temp14 = CALL (org.ek9.lang::String)_temp15._add(_temp16) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_4
     RELEASE result
-    STORE result, _temp14
+    STORE result, _temp17
     RETAIN result
     SCOPE_EXIT _scope_4
     ]
@@ -104,17 +147,16 @@ defines module controlFlow
     default_body_evaluation:
     [
     SCOPE_ENTER _scope_5
-    _temp18 = LOAD_LITERAL Value is low or unset, org.ek9.lang::String
-    RETAIN _temp18
-    SCOPE_REGISTER _temp18, _scope_5
+    _temp21 = LOAD_LITERAL Value is low or unset, org.ek9.lang::String
+    RETAIN _temp21
+    SCOPE_REGISTER _temp21, _scope_5
     RELEASE result
-    STORE result, _temp18
+    STORE result, _temp21
     RETAIN result
     SCOPE_EXIT _scope_5
     ]
     scope_id: _scope_2
     ]
-    SCOPE_EXIT _scope_2
     SCOPE_EXIT _scope_2
     SCOPE_EXIT _scope_1
     RETURN result`

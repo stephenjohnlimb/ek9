@@ -1,2 +1,2 @@
-Got value <= threshold
+No value or value <= threshold
 Done

@@ -39,7 +39,6 @@ public final class IfStatementGenerator extends AbstractGenerator
   public List<IRInstr> apply(final EK9Parser.IfStatementContext ctx) {
     AssertValue.checkNotNull("IfStatementContext cannot be null", ctx);
 
-    final var instructions = new ArrayList<IRInstr>();
     final var debugInfo = stackContext.createDebugInfo(ctx);
 
     // Enter NEW scope for entire if/else chain
@@ -47,7 +46,8 @@ public final class IfStatementGenerator extends AbstractGenerator
     final var chainScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     stackContext.enterScope(chainScopeId, debugInfo, IRFrameType.BLOCK);
 
-    instructions.add(ScopeInstr.enter(chainScopeId, debugInfo));
+    // NOTE: ControlFlowChainGenerator.apply() will add SCOPE_ENTER instruction
+    // for guard scope, so we don't add it here to avoid duplicate
 
     // Accumulate guard variables from ALL if/else-if blocks
     // Each block can have its own guard that lives in the chain scope
@@ -93,10 +93,11 @@ public final class IfStatementGenerator extends AbstractGenerator
     );
 
     // Use ControlFlowChainGenerator to generate IR
-    instructions.addAll(generators.controlFlowChainGenerator.apply(details));
+    // NOTE: ControlFlowChainGenerator.apply() will add SCOPE_ENTER and SCOPE_EXIT
+    // instructions for guard scope, so we don't add them here
+    final var instructions = new ArrayList<>(generators.controlFlowChainGenerator.apply(details));
 
-    // Exit chain scope
-    instructions.add(ScopeInstr.exit(chainScopeId, debugInfo));
+    // Exit chain scope from stack context (IR instructions already added by ControlFlowChainGenerator)
     stackContext.exitScope();
 
     return instructions;
@@ -181,29 +182,32 @@ public final class IfStatementGenerator extends AbstractGenerator
     final var conditionDetails = createTempVariable(debugInfo);
 
     // Case 1: Guard WITH explicit condition - need BOTH isSet AND condition
+    // Use LOGICAL_AND_BLOCK for short-circuit evaluation (condition only evaluated if guard succeeds)
     if (blockGuard.hasGuardVariables() && preFlowCtx.preFlowStatement() != null && conditionExpr != null) {
       // Get the guard variable info
       final var guardVarSymbol = getRecordedSymbolOrException(preFlowCtx.preFlowStatement().variableDeclaration());
-      final var guardVarName = new org.ek9lang.compiler.phase7.support.VariableNameForIR().apply(guardVarSymbol);
-
-      // Generate isSet check: guard?
-      final var operandVar = stackContext.generateTempName();
-      conditionEvaluation.add(org.ek9lang.compiler.ir.instructions.MemoryInstr.load(
-          operandVar, guardVarName, debugInfo));
 
       final var booleanType = stackContext.getParsedModule().getEk9Types().ek9Boolean();
-      final var guardType = guardVarSymbol.getType().orElseThrow(
-          () -> new org.ek9lang.core.CompilerException("Guard variable must have a type"));
+      final var booleanTypeName = typeNameOrException.apply(booleanType);
 
-      final var isSetTemp = stackContext.generateTempName();
-      final var unaryParams = new org.ek9lang.compiler.phase7.support.UnaryOperatorParams(
-          operandVar, "?", guardType, booleanType, isSetTemp, stackContext.currentScopeId(), debugInfo);
-      conditionEvaluation.addAll(generators.unaryOperatorInvoker.apply(unaryParams));
+      // LEFT EVALUATION: Generate question operator with explicit IS_NULL check
+      final var guardCheckTemp = stackContext.generateTempName();
+      final var leftEvaluationInstructions = new ArrayList<>(
+          generators.controlFlowChainGenerator.generateQuestionOperatorForVariable(
+              guardVarSymbol, guardCheckTemp, debugInfo));
 
-      // Generate explicit condition evaluation
+      // CONDITIONAL EVALUATION: Convert guard result to primitive boolean for short-circuit check
+      final var guardPrimitive = stackContext.generateTempName();
+      final var guardTrueCallDetails = new org.ek9lang.compiler.ir.data.CallDetails(
+          guardCheckTemp, booleanTypeName, "_true", List.of(), "boolean", List.of(),
+          new org.ek9lang.compiler.ir.data.CallMetaDataDetails(true, 0), false);
+      leftEvaluationInstructions.add(org.ek9lang.compiler.ir.instructions.CallInstr.call(
+          guardPrimitive, debugInfo, guardTrueCallDetails));
+
+      // RIGHT EVALUATION: Generate explicit condition (ONLY evaluated if guard succeeds)
       final var explicitCondTemp = stackContext.generateTempName();
       final var explicitCondDetails = new org.ek9lang.compiler.phase7.support.VariableDetails(explicitCondTemp, debugInfo);
-      conditionEvaluation.addAll(
+      final var rightEvaluationInstructions = new ArrayList<>(
           generators.variableMemoryManagement.apply(
               () -> generators.exprGenerator.apply(
                   new ExprProcessingDetails(conditionExpr, explicitCondDetails)
@@ -212,19 +216,39 @@ public final class IfStatementGenerator extends AbstractGenerator
           )
       );
 
-      // AND them together: isSet AND condition
-      final var isSetOperand = stackContext.generateTempName();
-      final var explicitOperand = stackContext.generateTempName();
-      conditionEvaluation.add(org.ek9lang.compiler.ir.instructions.MemoryInstr.load(
-          isSetOperand, isSetTemp, debugInfo));
-      conditionEvaluation.add(org.ek9lang.compiler.ir.instructions.MemoryInstr.load(
-          explicitOperand, explicitCondTemp, debugInfo));
+      // RESULT EVALUATION: AND guard with condition
+      final var resultTemp = stackContext.generateTempName();
+      final var andCallDetails = new org.ek9lang.compiler.ir.data.CallDetails(
+          guardCheckTemp, booleanTypeName, "_and", List.of(booleanTypeName), booleanTypeName,
+          List.of(explicitCondTemp), new org.ek9lang.compiler.ir.data.CallMetaDataDetails(true, 0), false);
+      final var resultComputationInstructions = new ArrayList<IRInstr>();
+      resultComputationInstructions.add(org.ek9lang.compiler.ir.instructions.CallInstr.operator(
+          resultTemp, debugInfo, andCallDetails));
 
-      final var binaryParams = new org.ek9lang.compiler.phase7.support.BinaryOperatorParams(
-          isSetOperand, explicitOperand, "and",
-          booleanType, booleanType, booleanType,
-          conditionDetails.resultVariable(), stackContext.currentScopeId(), debugInfo);
-      conditionEvaluation.addAll(generators.binaryOperatorInvoker.apply(binaryParams));
+      final var resultVariableDetails = new org.ek9lang.compiler.phase7.support.VariableDetails(resultTemp, debugInfo);
+      generators.variableMemoryManagement.apply(() -> resultComputationInstructions, resultVariableDetails);
+
+      // Create LOGICAL_AND_BLOCK with short-circuit evaluation
+      final var leftEvaluation = new org.ek9lang.compiler.phase7.support.OperandEvaluation(
+          leftEvaluationInstructions, guardCheckTemp);
+      final var conditionalEvaluation = new org.ek9lang.compiler.phase7.support.ConditionalEvaluation(
+          List.of(), guardPrimitive);
+      final var rightEvaluation = new org.ek9lang.compiler.phase7.support.OperandEvaluation(
+          rightEvaluationInstructions, explicitCondTemp);
+      final var resultEvaluation = new org.ek9lang.compiler.phase7.support.OperandEvaluation(
+          resultComputationInstructions, resultTemp);
+
+      final var logicalDetails = new org.ek9lang.compiler.ir.data.LogicalDetails(
+          conditionDetails.resultVariable(),
+          leftEvaluation,
+          conditionalEvaluation,
+          rightEvaluation,
+          resultEvaluation,
+          debugInfo,
+          conditionScopeId);
+
+      final var logicalAndBlock = org.ek9lang.compiler.ir.instructions.LogicalOperationInstr.andOperation(logicalDetails);
+      conditionEvaluation.add(logicalAndBlock);
 
     } else if (conditionExpr != null) {
       // Case 2: Explicit condition only (no guard)
@@ -239,19 +263,12 @@ public final class IfStatementGenerator extends AbstractGenerator
     } else if (blockGuard.hasGuardVariables() && preFlowCtx.preFlowStatement() != null) {
       // Case 3: Guard only (implicit isSet check)
       final var guardVarSymbol = getRecordedSymbolOrException(preFlowCtx.preFlowStatement().variableDeclaration());
-      final var guardVarName = new org.ek9lang.compiler.phase7.support.VariableNameForIR().apply(guardVarSymbol);
 
-      final var operandVar = stackContext.generateTempName();
-      conditionEvaluation.add(org.ek9lang.compiler.ir.instructions.MemoryInstr.load(
-          operandVar, guardVarName, debugInfo));
-
-      final var booleanType = stackContext.getParsedModule().getEk9Types().ek9Boolean();
-      final var guardType = guardVarSymbol.getType().orElseThrow(
-          () -> new org.ek9lang.core.CompilerException("Guard variable must have a type"));
-      final var unaryParams = new org.ek9lang.compiler.phase7.support.UnaryOperatorParams(
-          operandVar, "?", guardType, booleanType,
-          conditionDetails.resultVariable(), stackContext.currentScopeId(), debugInfo);
-      conditionEvaluation.addAll(generators.unaryOperatorInvoker.apply(unaryParams));
+      // Generate question operator with explicit IS_NULL check
+      // This replaces UnaryOperatorParams to emit IS_NULL instruction in IR
+      conditionEvaluation.addAll(
+          generators.controlFlowChainGenerator.generateQuestionOperatorForVariable(
+              guardVarSymbol, conditionDetails.resultVariable(), debugInfo));
     } else {
       throw new org.ek9lang.core.CompilerException(
           "If statement must have either an expression or a guard variable");

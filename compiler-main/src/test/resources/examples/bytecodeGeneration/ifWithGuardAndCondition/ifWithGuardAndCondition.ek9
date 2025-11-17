@@ -38,9 +38,9 @@ defines module bytecode.test
         11: astore_2
         12: aconst_null
         13: astore        4
-        15: new           #CP                 // class org/ek9/lang/_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
+        15: new           #CP                 // class org/ek9/lang/String
         18: dup
-        19: invokespecial #CP                 // Method org/ek9/lang/_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC."<init>":()V
+        19: invokespecial #CP                 // Method org/ek9/lang/String."<init>":()V
         22: astore        5
         24: aload         5
         26: astore        4
@@ -58,128 +58,127 @@ defines module bytecode.test
         51: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
         54: istore        9
         56: iload         9
-        58: ifeq          86
+        58: ifeq          75
         61: ldc           #CP                 // String Alpha
         63: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
         66: astore        10
-        68: new           #CP                 // class org/ek9/lang/_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
-        71: dup
-        72: aload         10
-        74: invokespecial #CP                 // Method org/ek9/lang/_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC."<init>":(Lorg/ek9/lang/String;)V
-        77: astore        11
-        79: aload         11
-        81: astore        4
-        83: goto          144
-        86: aload_1
-        87: astore        12
-        89: iconst_2
-        90: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
-        93: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
-        96: astore        13
-        98: aload         12
-       100: aload         13
-       102: invokevirtual #CP                 // Method org/ek9/lang/Integer._eq:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
-       105: astore        14
-       107: aload         14
-       109: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
-       112: istore        15
-       114: iload         15
-       116: ifeq          144
-       119: ldc           #CP                 // String Gamma
-       121: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-       124: astore        16
-       126: new           #CP                 // class org/ek9/lang/_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
-       129: dup
-       130: aload         16
-       132: invokespecial #CP                 // Method org/ek9/lang/_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC."<init>":(Lorg/ek9/lang/String;)V
-       135: astore        17
-       137: aload         17
-       139: astore        4
-       141: goto          144
-       144: aconst_null
+        68: aload         10
+        70: astore        4
+        72: goto          122
+        75: aload_1
+        76: astore        11
+        78: iconst_2
+        79: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        82: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        85: astore        12
+        87: aload         11
+        89: aload         12
+        91: invokevirtual #CP                 // Method org/ek9/lang/Integer._eq:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+        94: astore        13
+        96: aload         13
+        98: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       101: istore        14
+       103: iload         14
+       105: ifeq          122
+       108: ldc           #CP                 // String Gamma
+       110: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       113: astore        15
+       115: aload         15
+       117: astore        4
+       119: goto          122
+       122: aconst_null
+       123: astore        16
+       125: ldc           #CP                 // String Beta
+       127: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       130: astore        17
+       132: aload         17
+       134: astore        16
+       136: aconst_null
+       137: astore        18
+       139: aload         4
+       141: astore        19
+       143: aload         19
        145: astore        18
-       147: ldc           #CP                 // String Beta
-       149: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-       152: astore        19
-       154: aload         19
-       156: astore        18
-       158: aconst_null
-       159: astore        20
-       161: aload         4
-       163: astore        21
-       165: aload         21
-       167: astore        20
-       169: aload         20
+       147: aload         18
+       149: ifnull        156
+       152: iconst_0
+       153: goto          157
+       156: iconst_1
+       157: istore        20
+       159: iload         20
+       161: ifeq          176
+       164: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
+       167: astore        21
+       169: aload         21
        171: astore        22
-       173: aload         22
-       175: invokevirtual #CP                 // Method org/ek9/lang/_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC._isSet:()Lorg/ek9/lang/Boolean;
+       173: goto          191
+       176: aload         18
        178: astore        23
        180: aload         23
-       182: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
-       185: istore        24
-       187: iload         24
-       189: ifeq          292
-       192: aconst_null
-       193: astore        25
-       195: aload         20
-       197: astore        26
-       199: aload         26
-       201: invokevirtual #CP                 // Method org/ek9/lang/_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC.get:()Lorg/ek9/lang/String;
-       204: astore        27
-       206: aload         27
-       208: astore        25
-       210: aload         25
-       212: astore        28
-       214: aload         18
-       216: astore        29
-       218: aload         28
-       220: aload         29
-       222: invokevirtual #CP                 // Method org/ek9/lang/String._gt:(Lorg/ek9/lang/String;)Lorg/ek9/lang/Boolean;
-       225: astore        30
-       227: aload         30
-       229: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
-       232: istore        31
-       234: iload         31
-       236: ifeq          272
-       239: aload_2
-       240: astore        32
-       242: ldc           #CP                 // String Got value > threshold:
-       244: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-       247: astore        33
-       249: aload         25
-       251: astore        34
-       253: aload         33
-       255: aload         34
-       257: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
-       260: astore        35
-       262: aload         32
-       264: aload         35
-       266: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
-       269: goto          289
-       272: aload_2
-       273: astore        36
-       275: ldc           #CP                 // String Got value <= threshold
-       277: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-       280: astore        37
-       282: aload         36
-       284: aload         37
+       182: invokevirtual #CP                 // Method org/ek9/lang/String._isSet:()Lorg/ek9/lang/Boolean;
+       185: astore        24
+       187: aload         24
+       189: astore        22
+       191: aload         22
+       193: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       196: istore        25
+       198: iload         25
+       200: ifeq          236
+       203: aload         18
+       205: astore        26
+       207: aload         16
+       209: astore        27
+       211: aload         26
+       213: aload         27
+       215: invokevirtual #CP                 // Method org/ek9/lang/String._gt:(Lorg/ek9/lang/String;)Lorg/ek9/lang/Boolean;
+       218: astore        28
+       220: aload         22
+       222: aload         28
+       224: invokevirtual #CP                 // Method org/ek9/lang/Boolean._and:(Lorg/ek9/lang/Boolean;)Lorg/ek9/lang/Boolean;
+       227: astore        29
+       229: aload         29
+       231: astore        30
+       233: goto          240
+       236: aload         22
+       238: astore        30
+       240: aload         30
+       242: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       245: istore        31
+       247: iload         31
+       249: ifeq          292
+       252: aload_2
+       253: astore        32
+       255: ldc           #CP                 // String Got value > threshold:
+       257: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       260: astore        33
+       262: aload         18
+       264: astore        34
+       266: aload         34
+       268: invokevirtual #CP                 // Method org/ek9/lang/String._string:()Lorg/ek9/lang/String;
+       271: astore        35
+       273: aload         33
+       275: aload         35
+       277: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
+       280: astore        36
+       282: aload         32
+       284: aload         36
        286: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
        289: goto          309
        292: aload_2
-       293: astore        38
-       295: ldc           #CP                 // String No value
+       293: astore        37
+       295: ldc           #CP                 // String No value or value <= threshold
        297: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-       300: astore        39
-       302: aload         38
-       304: aload         39
+       300: astore        38
+       302: aload         37
+       304: aload         38
        306: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
        309: aload_2
-       310: astore        40
+       310: astore        39
        312: ldc           #CP                 // String Done
        314: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-       317: astore        41
-       319: aload         40
-       321: aload         41
+       317: astore        40
+       319: aload         39
+       321: aload         40
        323: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
        326: return
 }`
@@ -188,29 +187,26 @@ defines module bytecode.test
 
       stdout <- Stdout()
 
-      // Create Optional based on testCase
-      // testCase 0: unset Optional (guard fails)
-      // testCase 1: Optional("Alpha") - guard succeeds, condition fails ("Alpha" < "Beta")
-      // testCase 2: Optional("Gamma") - guard succeeds, condition succeeds ("Gamma" > "Beta")
-      optionalValue <- Optional() of String
+      // Create optional String value based on testCase
+      // testCase 0: unset String (guard fails)
+      // testCase 1: "Alpha" - guard succeeds, condition fails ("Alpha" < "Beta")
+      // testCase 2: "Gamma" - guard succeeds, condition succeeds ("Gamma" > "Beta")
+      optionalValue <- String()
 
       if testCase == 1
-        optionalValue: Optional("Alpha")
+        optionalValue: "Alpha"
       else if testCase == 2
-        optionalValue: Optional("Gamma")
+        optionalValue: "Gamma"
 
       threshold <- "Beta"
 
       // Guard AND condition pattern: if value <- optionalValue with condition
-      // Need to extract the value first, then check condition
-      if value <- optionalValue
-        extracted <- value.get()
-        if extracted > threshold
-          stdout.println("Got value > threshold: " + extracted)
-        else
-          stdout.println("Got value <= threshold")
+      // Uses "with" keyword to combine guard + condition in single expression
+      // Short-circuit: condition only evaluated if guard succeeds (value is set)
+      if value <- optionalValue with value > threshold
+        stdout.println("Got value > threshold: " + $value)
       else
-        stdout.println("No value")
+        stdout.println("No value or value <= threshold")
 
       stdout.println("Done")
 

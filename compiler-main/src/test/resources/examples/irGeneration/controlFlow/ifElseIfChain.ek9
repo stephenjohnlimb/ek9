@@ -28,7 +28,6 @@ defines module controlFlow
     SCOPE_REGISTER _temp1, _scope_1
     STORE result, _temp1
     RETAIN result
-    SCOPE_ENTER _scope_2
     CONTROL_FLOW_CHAIN
     [
     chain_type: "IF_ELSE_IF"
@@ -144,7 +143,6 @@ defines module controlFlow
     ]
     scope_id: _scope_2
     ]
-    SCOPE_EXIT _scope_2
     SCOPE_EXIT _scope_1
     RETURN result`
     ifElseIfChain()
