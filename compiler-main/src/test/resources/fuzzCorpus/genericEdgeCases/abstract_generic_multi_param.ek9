@@ -1,0 +1,40 @@
+#!ek9
+<?-
+  Test 9: GENERIC_FUNCTION_IMPLEMENTATION_REQUIRED
+
+  Testing abstract generic functions that need implementation.
+  Current coverage: Only 2 examples exist (thin coverage).
+
+  Expected error:
+  - GENERIC_FUNCTION_IMPLEMENTATION_REQUIRED when abstract generic used without implementation
+-?>
+defines module fuzztest.generic.implementation.required
+
+  defines function
+
+    //Abstract generic function that processes items
+    AbstractGenericProcessor() of type T as abstract
+      -> input as T
+      <- result as T?
+
+    //Abstract generic function with multiple type parameters
+    AbstractGenericMapper() of type (S, T) as abstract
+      -> source as S
+      <- target as T?
+
+  defines program
+
+    TestAbstractGenericImplementation()
+      stdout <- Stdout()
+
+      //Try to use abstract generic function without providing implementation
+      @Error: FULL_RESOLUTION: GENERIC_FUNCTION_IMPLEMENTATION_REQUIRED
+      processor <- () is AbstractGenericProcessor of String as function
+
+      //Try to use multi-param abstract generic without implementation
+      @Error: FULL_RESOLUTION: GENERIC_FUNCTION_IMPLEMENTATION_REQUIRED
+      mapper <- () is AbstractGenericMapper of (Integer, String) as function
+
+      stdout.println("Should not reach here")
+
+//EOF

@@ -1,0 +1,30 @@
+#!ek9
+<?-
+  Test: Generic Function Signature Mismatch
+
+  Testing when implementation is provided but signature doesn't match.
+-?>
+defines module fuzztest.generic.signature.mismatch
+
+  defines function
+
+    //Abstract generic function expecting T -> T?
+    AbstractProcessor() of type T as abstract
+      -> input as T
+      <- result as T?
+
+  defines program
+
+    TestSignatureMismatch()
+      stdout <- Stdout()
+
+      //Implementation with WRONG return type (String instead of Integer)
+      processor1 <- () is AbstractProcessor of Integer as function
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        result: "wrong return type"
+
+      assert processor1?
+
+      stdout.println("Done")
+
+//EOF
