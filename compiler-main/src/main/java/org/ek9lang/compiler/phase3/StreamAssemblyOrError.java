@@ -138,9 +138,16 @@ public class StreamAssemblyOrError extends TypedSymbolAccess implements Consumer
 
   private void streamTypeOrError(final IToken errorLocation, final ISymbol streamType) {
 
-    //I would normally expect other errors to have been emitted before this, so we I see this it may mean
-    //that other checks should be enhanced.
-    if (streamType == null || symbolsAndScopes.getEk9Types().ek9Void().isExactSameType(streamType)) {
+    // Check for null (compiler bug) vs Void (user error)
+    if (streamType == null) {
+      // This should never happen - earlier phases should have resolved stream types.
+      throw new CompilerException("Internal compiler error: Stream type is null at "
+          + errorLocation.getSourceName() + ":" + errorLocation.getLine()
+          + ". This indicates earlier validation phases failed.");
+    }
+
+    // Void cannot be used in streams - this is a user error
+    if (symbolsAndScopes.getEk9Types().ek9Void().isExactSameType(streamType)) {
       errorListener.semanticError(errorLocation, "", STREAM_TYPE_NOT_DEFINED);
     }
 

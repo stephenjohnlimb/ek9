@@ -1,0 +1,64 @@
+#!ek9
+<?-
+  Checks that 'default' modifier is only used on constructors, not regular methods.
+  The 'default' keyword is valid for:
+  1. Constructors (to control visibility)
+  2. Operators (to auto-generate implementations)
+
+  Using 'default' on regular methods is invalid.
+-?>
+defines module bad.default.methods.examples
+
+  defines trait
+    T1
+      //Invalid: default on regular method in trait (with body)
+      @Error: SYMBOL_DEFINITION: DEFAULT_ONLY_FOR_CONSTRUCTORS
+      default someMethod() as pure
+        -> arg0 as String
+        <- rtn as String: String(arg0)
+
+      //Valid: abstract method without default
+      anotherMethod() as pure abstract
+        -> arg0 as String
+        <- rtn as String?
+
+  defines class
+    C1
+      //Valid: default constructor
+      default C1()
+
+      //Invalid: default on regular method with body
+      @Error: SYMBOL_DEFINITION: DEFAULT_ONLY_FOR_CONSTRUCTORS
+      default normalMethod()
+        -> arg0 as String
+        <- rtn as String: String(arg0)
+
+      //Valid: regular method without default
+      validMethod()
+        -> arg0 as String
+        <- rtn as String: String(arg0)
+
+  defines record
+    R1
+      prop1 <- String()
+
+      //Valid: default constructor
+      default R1()
+
+      //Invalid: default on regular method in record
+      @Error: SYMBOL_DEFINITION: DEFAULT_ONLY_FOR_CONSTRUCTORS
+      default getValue()
+        <- rtn as String: String(prop1)
+
+  defines component
+    Comp1
+      //Valid: default constructor
+      default Comp1()
+
+      //Invalid: default on regular method in component
+      @Error: SYMBOL_DEFINITION: DEFAULT_ONLY_FOR_CONSTRUCTORS
+      default processData()
+        -> data as String
+        <- rtn as String: String(data)
+
+//EOF

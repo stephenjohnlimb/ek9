@@ -17,6 +17,7 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.core.CompilerException;
 
 /**
  * Checks and assigns type a 'this' or 'super' symbol, but only if it valid.
@@ -154,8 +155,11 @@ final class ThisOrSuperOrError extends TypedSymbolAccess implements Consumer<EK9
 
   private void emitHasNoSuper(final ParserRuleContext ctx, final ISymbol basicType) {
 
-    final var msg = getSymbolErrorWithName(basicType) + ":";
-    errorListener.semanticError(ctx.start, msg, ErrorListener.SemanticClassification.AGGREGATE_HAS_NO_SUPER);
+    // This should never happen - all aggregates in EK9 have at least 'Any' as implicit super.
+    // If we reach here, the compiler's symbol resolution or type system is broken.
+    throw new CompilerException("Internal compiler error: Aggregate '" + basicType.getFriendlyName()
+        + "' has no super (not even 'Any') at " + ctx.start.getLine() + ":"
+        + ctx.start.getCharPositionInLine() + ". This indicates a symbol resolution bug.");
 
   }
 

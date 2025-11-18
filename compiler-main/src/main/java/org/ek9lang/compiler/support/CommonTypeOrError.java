@@ -1,7 +1,5 @@
 package org.ek9lang.compiler.support;
 
-import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.UNABLE_TO_DETERMINE_COMMON_TYPE;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +7,7 @@ import java.util.function.Function;
 import org.ek9lang.compiler.common.ErrorListener;
 import org.ek9lang.compiler.common.RuleSupport;
 import org.ek9lang.compiler.common.SymbolsAndScopes;
+import org.ek9lang.core.CompilerException;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.FunctionSymbol;
@@ -107,8 +106,11 @@ public class CommonTypeOrError extends RuleSupport
 
   private void emitNoCommonType(final IToken lineToken, final ISymbol argument) {
 
-    final var msg = "With '" + argument.getFriendlyName() + "':";
-    errorListener.semanticError(lineToken, msg, UNABLE_TO_DETERMINE_COMMON_TYPE);
+    // This should never happen - all types in EK9 are assignable to 'Any'.
+    // If we reach here, the compiler's type system is in an inconsistent state.
+    throw new CompilerException("Internal compiler error: Unable to determine common type for '"
+        + argument.getFriendlyName() + "' - even 'Any' failed. This indicates a type system bug at "
+        + lineToken.getSourceName() + ":" + lineToken.getLine());
 
   }
 }

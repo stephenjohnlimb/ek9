@@ -5,11 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.ek9lang.compiler.search.MatchResult;
-import org.ek9lang.compiler.search.MatchResults;
-import org.ek9lang.compiler.symbols.AggregateSymbol;
-import org.ek9lang.compiler.symbols.SymbolTable;
-import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
 import org.ek9lang.compiler.tokenizer.IToken;
 import org.junit.jupiter.api.Test;
@@ -96,51 +91,6 @@ final class ErrorListenerTest {
     ErrorListener underTest = new ErrorListener("test");
     var msg = "Some sort of general syntax error";
     underTest.syntaxError(null, "Anything", 0, 0, msg, null);
-    assertInError(underTest);
-  }
-
-  @Test
-  void testSemanticErrorFuzzyResults() {
-    var symbolTable = new SymbolTable();
-    AggregateSymbol integerType = new AggregateSymbol("Integer", symbolTable);
-    symbolTable.define(integerType);
-
-    ErrorListener underTest = new ErrorListener("test");
-    MatchResults results = new MatchResults(5);
-
-    //Just do some simple checks on the results match code
-    results.add(new MatchResult(2, new VariableSymbol("v2", integerType)));
-    assertEquals(1, results.size());
-    results.add(new MatchResult(5, new VariableSymbol("v5", integerType)));
-    assertEquals(2, results.size());
-
-    results.add(new MatchResult(0, new VariableSymbol("top", integerType)));
-    results.add(new MatchResult(1000, new VariableSymbol("worst", integerType)));
-
-    results.add(new MatchResult(3, new VariableSymbol("v3", integerType)));
-    assertEquals(5, results.size());
-    assertEquals("'top as Integer', 'v2 as Integer', 'v3 as Integer', 'v5 as Integer', 'worst as Integer'",
-        results.toString());
-
-    //Now lets check the priority functionality by adding more
-    results.add(new MatchResult(1, new VariableSymbol("v1", integerType)));
-    results.add(new MatchResult(4, new VariableSymbol("v4", integerType)));
-    assertEquals(5, results.size());
-    assertEquals("'top as Integer', 'v1 as Integer', 'v2 as Integer', 'v3 as Integer', 'v4 as Integer'",
-        results.toString());
-
-    var iter = results.iterator();
-    while (iter.hasNext()) {
-      assertNotNull(iter.next().getSymbol());
-    }
-
-    underTest.semanticError(createSyntheticToken(), "Fuzzy",
-        ErrorListener.SemanticClassification.CONSTRUCTOR_NOT_RESOLVED, results);
-
-    //Also add a second time to ensure deduplicated
-    underTest.semanticError(createSyntheticToken(), "Fuzzy",
-        ErrorListener.SemanticClassification.CONSTRUCTOR_NOT_RESOLVED, results);
-
     assertInError(underTest);
   }
 

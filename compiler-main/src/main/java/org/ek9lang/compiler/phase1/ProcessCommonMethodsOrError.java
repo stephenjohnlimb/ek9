@@ -38,13 +38,17 @@ final class ProcessCommonMethodsOrError extends RuleSupport
   @Override
   public void accept(final MethodSymbol method, final EK9Parser.MethodDeclarationContext ctx) {
 
+    final var message = "for method '" + ctx.identifier().getText() + "':";
+
+    // Check default misuse FIRST - more specific error than ABSTRACT_BUT_BODY_PROVIDED
+    checkDefaulted(method, ctx, message);
+
+    // Then check body appropriateness for abstract methods
     appropriateBodyOrError.accept(method, ctx.operationDetails());
     overrideOrAbstractOrError.accept(method);
 
-    final var message = "for method '" + ctx.identifier().getText() + "':";
     checkAccessModifier(method, ctx, message);
     checkConstructor(method, message);
-    checkDefaulted(method, ctx, message);
 
   }
 
@@ -102,6 +106,13 @@ final class ProcessCommonMethodsOrError extends RuleSupport
                               final EK9Parser.MethodDeclarationContext ctx,
                               final String errorMessage) {
 
+    // Check if default is used on non-constructor (regular method)
+    if (defaulted.test(method) && !method.isConstructor()) {
+      errorListener.semanticError(ctx.DEFAULT().getSymbol(), errorMessage,
+          ErrorListener.SemanticClassification.DEFAULT_ONLY_FOR_CONSTRUCTORS);
+    }
+
+    // Check if default constructor has parameters (existing validation)
     if (defaulted.test(method)
         && method.isConstructor()
         && !method.getCallParameters().isEmpty()

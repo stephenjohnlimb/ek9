@@ -18,11 +18,7 @@ defines module bad.classassignment.use
       //Explicitly allow this to be null
       p11 as Integer?
 
-      //make the mistake of thinking you can copy the supers
-      CC0
-        -> param as CCO
-        @Error: SYMBOL_DEFINITION: USE_OF_SUPER_INAPPROPRIATE
-        super :=: param
+      default CC0()
 
     C1
       p1 as String: String()
@@ -34,7 +30,7 @@ defines module bad.classassignment.use
       //This is not allowed, developer probably would mean copy the values.
       C1()
         -> param as C1
-        @Error: SYMBOL_DEFINITION: USE_OF_THIS_INAPPROPRIATE
+        @Error: SYMBOL_DEFINITION: USE_OF_THIS_OR_SUPER_INAPPROPRIATE
         this: param
 
     C2
@@ -43,8 +39,27 @@ defines module bad.classassignment.use
       //This is not allowed, this is always set and so makes no sense.
       C2()
         -> param as C2
-        @Error: SYMBOL_DEFINITION: USE_OF_THIS_INAPPROPRIATE
+        @Error: SYMBOL_DEFINITION: USE_OF_THIS_OR_SUPER_INAPPROPRIATE
         this :=? param
+
+    C2a
+      p1 as String: String()
+
+      //This is not allowed - cannot use direct assignment := to this
+      //Use :=: (copy), :~: (merge), or +=, -=, /=, *= instead
+      C2a()
+        -> param as C2a
+        @Error: SYMBOL_DEFINITION: USE_OF_THIS_OR_SUPER_INAPPROPRIATE
+        this := param
+
+    C2b extends C2a
+      p2 as String: String()
+
+      //This is not allowed - cannot use direct assignment := to super
+      C2b()
+        -> param as C2a
+        @Error: SYMBOL_DEFINITION: USE_OF_THIS_OR_SUPER_INAPPROPRIATE
+        super := param
 
     //But these are allowed
     C3
