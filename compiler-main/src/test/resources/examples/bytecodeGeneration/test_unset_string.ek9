@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  Quick test to verify UNSET String behavior
+-?>
+defines module test.unset
+
+  defines program
+
+    TestUnsetString()
+      stdout <- Stdout()
+
+      // Test 1: UNSET Integer to String
+      unsetInt <- Integer()
+      stdout.println("Test 1: Direct unset string")
+      unsetStr <- $unsetInt
+      stdout.println(unsetStr)  // Should be no-op if unsetStr is UNSET
+      stdout.println("After println of unset string")
+
+      // Test 2: String concatenation with UNSET
+      stdout.println("Test 2: Concat with unset")
+      result <- "Value: " + $unsetInt
+      stdout.println(result)  // Should be no-op if result is UNSET
+      stdout.println("After concat println")
+
+      // Test 3: Check if result is set
+      stdout.println("Test 3: Check isSet")
+      if result?
+        stdout.println("Result is SET")
+      else
+        stdout.println("Result is UNSET")
+
+      stdout.println("Done")
+
+//EOF

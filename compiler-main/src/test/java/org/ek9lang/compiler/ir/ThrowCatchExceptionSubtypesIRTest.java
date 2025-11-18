@@ -14,9 +14,8 @@ class ThrowCatchExceptionSubtypesIRTest extends AbstractIRGenerationTest {
   public ThrowCatchExceptionSubtypesIRTest() {
     // Module name: bytecode.test
     // Expected symbols: 1 program + 2 exception classes = 3
-    // showIR = true to see the IR output
     super("/examples/bytecodeGeneration/throwCatchExceptionSubtypes",
         List.of(new SymbolCountCheck("bytecode.test", 3)),
-        false, false, true);  // verbose=false, muteErrors=false, showIR=true
+        false, false, false);
   }
 }
