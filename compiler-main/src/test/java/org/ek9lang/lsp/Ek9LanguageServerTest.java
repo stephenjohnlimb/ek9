@@ -153,7 +153,8 @@ final class Ek9LanguageServerTest {
 
     var hover = hoverResult.get();
     assertNotNull(hover);
-    assertEquals("Module declaration block, https://www.ek9.io/structure.html#module",
+    assertEquals(
+        "MODULE: Primary code organization unit containing related constructs (functions, classes, records, etc.). Use to group logically related functionality. One module per .ek9 file. Syntax: `defines module ModuleName`. Modules are EK9's package/namespace equivalent. Use for organizing code into cohesive units. https://www.ek9.io/structure.html#module",
         hover.getContents().getRight().getValue());
     languageServer.shutdown();
   }
@@ -285,8 +286,8 @@ final class Ek9LanguageServerTest {
             languageServer::sendInfoBackToClient, MessageType.Error,
             languageServer::sendErrorBackToClient);
 
-    messageTypes.forEach((key, value) -> {
-      value.accept("A Message");
+    messageTypes.forEach((key, val) -> {
+      val.accept("A Message");
       client.getLastMessage().ifPresentOrElse(message -> assertEquals(key, message.getType()),
           () -> fail("Expecting message"));
     });
