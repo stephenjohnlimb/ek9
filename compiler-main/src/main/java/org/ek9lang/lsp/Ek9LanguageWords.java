@@ -225,7 +225,7 @@ final class Ek9LanguageWords {
     keywordMap.put("->", new KeyWordInformation("Incoming parameter(s)",
         List.of(), search -> !search.previousTokenIsPipe()));
 
-    keywordMap.put("<-", new KeyWordInformation("Returning / declaration/ out of",
+    keywordMap.put("<-", new KeyWordInformation("DECLARATION GUARD: Create new variable + check if SET (most common pattern). In control flow: only execute if value is SET. https://www.ek9.io/flowControl.html#guard_operators",
         List.of(), search -> !search.previousTokenIsPipe()));
 
   }
@@ -358,7 +358,7 @@ final class Ek9LanguageWords {
             List.of(), getSearchNotIndentsAndNotPipe()));
     keywordMap.put("?=",
         new KeyWordInformation(
-            "Guarded assignment (if/when conditionals), https://www.ek9.io/flowControl.html#if_elseif_else",
+            "GUARDED ASSIGNMENT: Checks RIGHT side (new value) is SET. ALWAYS evaluates expression. Use in control flow to validate new value. NOT same as :=? (different check). https://www.ek9.io/flowControl.html#guard_operators",
             List.of(""), getSearchNotIndentsAndNotPipe()));
     keywordMap.put("!=",
         new KeyWordInformation("Not Equals, https://www.ek9.io/operators.html#comparison",
@@ -382,7 +382,7 @@ final class Ek9LanguageWords {
         new KeyWordInformation(assignmentText,
             List.of(), getSearchNotIndentsAndNotPipe()));
     keywordMap.put(":=",
-        new KeyWordInformation(assignmentText,
+        new KeyWordInformation("BLIND ASSIGNMENT: Update existing variable with NO safety check. Use only when you KNOW value is valid. Consider ?= for safety. https://www.ek9.io/operators.html#assignment",
             List.of(), getSearchNotIndentsAndNotPipe()));
     keywordMap.put("::",
         new KeyWordInformation("References construct, https://www.ek9.io/basics.html#references_example",
@@ -397,7 +397,7 @@ final class Ek9LanguageWords {
         new KeyWordInformation("Replace, https://www.ek9.io/operators.html#modification",
             List.of(), getSearchNotIndentsAndNotPipe()));
     keywordMap.put(":=?",
-        new KeyWordInformation("Assign if unset, https://www.ek9.io/operators.html#ternary",
+        new KeyWordInformation("ASSIGNMENT IF UNSET: Checks LEFT side (current variable) FIRST. Only assigns if currently UNSET. LAZY evaluation (doesn't evaluate if already set). Perfect for caching. NOT same as ?= (opposite check). https://www.ek9.io/flowControl.html#guard_operators",
             List.of(), getSearchNotIndentsAndNotPipe()));
 
   }

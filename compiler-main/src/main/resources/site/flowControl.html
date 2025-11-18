@@ -157,6 +157,71 @@
       Learn the pattern once, apply it everywhere.
     </p>
 
+    <h4 id="guard_decision_tree">Quick Reference: Choosing the Right Guard Operator</h4>
+    <p>
+      Not sure which guard operator to use? Follow this decision tree:
+    </p>
+    <pre style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #4CAF50; overflow-x: auto;">
+┌─ First time using this variable?
+│  └─ YES → Use `&lt;-` (declaration guard)
+│     • Declares NEW variable
+│     • Checks if value is SET
+│     • Example: if name &lt;- getName()
+│
+│  └─ NO → Variable already exists...
+│     ┌─ Is variable already set with value you want to keep?
+│     │  (e.g., lazy cache, don't re-compute if already has value)
+│     │  └─ YES → Use `:=?` (assignment if unset)
+│     │     • Checks LEFT side first (is target unset?)
+│     │     • LAZY EVALUATION - only calls expression if left unset
+│     │     • Perfect for caching/lazy init patterns
+│     │     • Example: if cache :=? compute() with cache &gt; 100
+│     │
+│     └─ NO → Need to update/replace value...
+│        ┌─ Need to verify new value is valid before using?
+│        │  (e.g., fetching data that might fail)
+│        │  └─ YES → Use `?=` (guarded assignment)
+│        │     • Evaluates expression ALWAYS
+│        │     • Checks if result is SET
+│        │     • Example: if data ?= fetch() with data.isValid()
+│        │
+│        └─ NO → Use `:=` (blind assignment)
+│           • No safety checks
+│           • Use when value is known safe
+│           • Example: if count := getCount() with count &gt; 0
+</pre>
+    <table style="width:100%; margin: 15px 0; border: 1px solid #ddd;">
+      <tr>
+        <th style="padding: 10px; background-color: #4CAF50; color: white;">Scenario</th>
+        <th style="padding: 10px; background-color: #4CAF50; color: white;">Operator</th>
+        <th style="padding: 10px; background-color: #4CAF50; color: white;">When to Use</th>
+      </tr>
+      <tr>
+        <td style="padding: 8px;"><b>First use of variable</b></td>
+        <td style="padding: 8px; text-align: center;"><code>&lt;-</code></td>
+        <td style="padding: 8px;">Declaration + automatic guard check</td>
+      </tr>
+      <tr style="background-color: #f9f9f9;">
+        <td style="padding: 8px;"><b>Lazy cache pattern</b></td>
+        <td style="padding: 8px; text-align: center;"><code>:=?</code></td>
+        <td style="padding: 8px;">Don't re-evaluate if already set + guard check</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px;"><b>Update with validation</b></td>
+        <td style="padding: 8px; text-align: center;"><code>?=</code></td>
+        <td style="padding: 8px;">Always evaluate + guard check result</td>
+      </tr>
+      <tr style="background-color: #f9f9f9;">
+        <td style="padding: 8px;"><b>Known safe value</b></td>
+        <td style="padding: 8px; text-align: center;"><code>:=</code></td>
+        <td style="padding: 8px;">No guard (value certain or explicit condition validates)</td>
+      </tr>
+    </table>
+    <p>
+      <b>Key Principle:</b> Use guards (<code>&lt;-</code>, <code>?=</code>, <code>:=?</code>) whenever you need to check if a value is SET.
+      Only use <code>:=</code> (blind assignment) when you're certain the value is safe or have an explicit condition that validates it.
+    </p>
+
     <div style="border: 3px solid #ff6600; padding: 15px; background-color: #fff3e0; margin: 20px 0;">
       <h4 style="color: #ff6600; margin-top: 0;">🚀 Revolutionary Feature - Unique to EK9</h4>
       <p>
