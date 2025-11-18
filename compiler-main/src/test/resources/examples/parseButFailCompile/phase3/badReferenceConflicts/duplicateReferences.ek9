@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Tests REFERENCES_CONFLICT error when same symbol is referenced multiple times.
+
+  Note: Uses error count validation due to multi-file compilation.
+-?>
+defines module duplicate.references.test
+
+  //Reference the same class twice - should trigger REFERENCES_CONFLICT
+  references
+    external.module.for.conflicts::SharedClass
+    external.module.for.conflicts::SharedClass
+
+  defines function
+    testFunction()
+      <- rtn as String: "test"
+
+//EOF

@@ -469,7 +469,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     NOT_A_FUNCTION_DELEGATE("is not a function delegate"),
     DELEGATE_AND_METHOD_NAMES_CLASH("use of a delegate and methods of same name"),
     // Note: PARAMETERS_MUST_BE_OF_SAME_TYPE removed - never implemented/used (unreachable code)
-    STREAM_TYPE_NOT_DEFINED("stream pipeline parts must produce a type"),
+    STREAM_TYPE_NOT_DEFINED("Void cannot be used in stream pipelines"),
     MUST_RETURN_BOOLEAN("must return a Boolean"),
     ONLY_COMPATIBLE_WITH_BOOLEAN("only compatible with Boolean type"),
     MUST_BE_A_BOOLEAN("is not compatible with a Boolean type"),

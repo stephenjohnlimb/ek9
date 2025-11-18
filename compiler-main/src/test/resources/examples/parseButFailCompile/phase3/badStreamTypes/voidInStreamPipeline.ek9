@@ -1,9 +1,10 @@
 #!ek9
 <?-
-  Testing STREAM_TYPE_NOT_DEFINED error.
+  Tests STREAM_TYPE_NOT_DEFINED error.
   Stream pipeline with function that returns Void.
+  Void cannot be used in stream pipelines.
 -?>
-defines module working.area.test
+defines module bad.stream.types
 
   defines function
     voidFunction()
@@ -13,6 +14,7 @@ defines module working.area.test
 
     testStreamWithVoid()
       values <- ["a", "b", "c"]
+      @Error: FULL_RESOLUTION: STREAM_TYPE_NOT_DEFINED
       result <- cat values | map voidFunction | collect as Void
 
 //EOF

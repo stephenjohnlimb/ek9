@@ -28,7 +28,7 @@ defines module fuzztest.stream.teeing.operations
     TeeWithVoidTransform()
       <?- TEE transformation returns void -?>
       sideCollection <- List() of Integer
-      @Error: FULL_RESOLUTION: RETURNING_MISSING
+      @Error: FULL_RESOLUTION: STREAM_TYPE_NOT_DEFINED
       result <- cat [1, 2] | tee with VoidTransform then in sideCollection | collect as List of Integer
       assert result?
 

@@ -1,0 +1,22 @@
+#!ek9
+<?-
+  Tests that references must include the '::' module qualifier.
+  Valid reference format: module.name::SymbolName
+  Invalid reference format: SymbolName (missing ::)
+
+  Note: INVALID_SYMBOL_BY_REFERENCE is checked in phase 3 (REFERENCE_CHECKS).
+  This test uses error count validation instead of @Error directives.
+-?>
+defines module bad.reference.syntax
+
+  //Invalid: references without :: qualifier (3 errors expected)
+  references
+    SomeType
+    AnotherType
+    YetAnotherType
+
+  defines function
+    testFunction()
+      <- rtn as String: "test"
+
+//EOF

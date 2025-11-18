@@ -293,7 +293,7 @@ public class StreamAssemblyOrError extends TypedSymbolAccess implements Consumer
     function.getReturningSymbol().getType().ifPresent(returnType -> {
 
       if (returnType.isExactSameType(symbolsAndScopes.getEk9Types().ek9Void())) {
-        errorListener.semanticError(partCtx.start, "", RETURNING_MISSING);
+        errorListener.semanticError(partCtx.start, "", STREAM_TYPE_NOT_DEFINED);
       }
     });
 

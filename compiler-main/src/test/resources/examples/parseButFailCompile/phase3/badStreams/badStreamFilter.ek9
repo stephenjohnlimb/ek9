@@ -85,7 +85,7 @@ defines module bad.streams4
     BrokenStreamCatFilter4()
       collector <- StringCollector()
 
-      @Error: FULL_RESOLUTION: RETURNING_MISSING
+      @Error: FULL_RESOLUTION: STREAM_TYPE_NOT_DEFINED
       cat [1, 2, 3, 4] | filter with VoidReturnFunction > collector
       assert collector?
 

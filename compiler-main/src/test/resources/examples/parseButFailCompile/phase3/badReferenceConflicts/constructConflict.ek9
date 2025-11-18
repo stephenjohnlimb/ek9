@@ -1,0 +1,25 @@
+#!ek9
+<?-
+  Tests CONSTRUCT_REFERENCE_CONFLICT error when local construct
+  has same name as imported reference.
+
+  Note: Uses error count validation due to multi-file compilation.
+-?>
+defines module construct.reference.conflict.test
+
+  //Import SharedClass and sharedFunction from external module
+  references
+    external.module.for.conflicts::SharedClass
+    external.module.for.conflicts::sharedFunction
+
+  //Define local class with same name - should trigger CONSTRUCT_REFERENCE_CONFLICT
+  defines class
+    SharedClass
+      default SharedClass()
+
+  //Define local function with same name - should trigger CONSTRUCT_REFERENCE_CONFLICT
+  defines function
+    sharedFunction()
+      <- rtn as String: "local"
+
+//EOF

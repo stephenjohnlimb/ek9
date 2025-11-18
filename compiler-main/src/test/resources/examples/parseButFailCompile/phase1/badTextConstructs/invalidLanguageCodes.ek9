@@ -1,0 +1,41 @@
+#!ek9
+<?-
+  Tests that text construct language codes must follow pattern: [a-z]+(_[A-Z]+)?
+  Valid examples: "en", "de", "en_GB", "fr_FR"
+  Invalid examples: uppercase base, hyphens, incorrect format
+-?>
+defines module bad.text.language.codes
+
+  //Invalid: uppercase base (should be lowercase)
+  @Error: SYMBOL_DEFINITION: INVALID_VALUE
+  defines text for "EN"
+
+    TestText1
+      welcome()
+        "Welcome"
+
+  //Invalid: uppercase base with country code
+  @Error: SYMBOL_DEFINITION: INVALID_VALUE
+  defines text for "EN_US"
+
+    TestText2
+      greeting()
+        "Hello"
+
+  //Invalid: hyphen instead of underscore
+  @Error: SYMBOL_DEFINITION: INVALID_VALUE
+  defines text for "en-US"
+
+    TestText3
+      message()
+        "Hi there"
+
+  //Invalid: lowercase country code
+  @Error: SYMBOL_DEFINITION: INVALID_VALUE
+  defines text for "en_us"
+
+    TestText4
+      welcome()
+        "Welcome"
+
+//EOF

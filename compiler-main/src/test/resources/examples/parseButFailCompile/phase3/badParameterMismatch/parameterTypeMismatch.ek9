@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Tests PARAMETER_MISMATCH error.
+  Function call with wrong parameter type (Integer instead of String).
+-?>
+defines module bad.parameter.mismatch
+
+  defines function
+    acceptsString()
+      -> param as String
+      <- rtn as String: param
+
+    testParameterMismatch()
+      <- rtn as String: acceptsString(123)  //Passing Integer instead of String - should trigger PARAMETER_MISMATCH
+
+//EOF

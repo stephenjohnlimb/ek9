@@ -1,13 +1,7 @@
 package org.ek9lang.compiler.main;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
 import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilationPhase;
-import org.ek9lang.compiler.common.NodePrinter;
 import org.ek9lang.compiler.common.PhasesTest;
 import org.junit.jupiter.api.Test;
 
@@ -33,27 +27,14 @@ class WorkingAreaTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    //Need to clear out any existing targets (like clean) for this unit test.
-    ek9Workspace.getSources().stream().findFirst()
-        .ifPresent(source -> fileHandling.cleanEk9DirectoryStructureFor(source.getFileName(), targetArchitecture));
-
-    testToPhase(CompilationPhase.CODE_GENERATION_CONSTANTS);
+    testToPhase(CompilationPhase.FULL_RESOLUTION);
   }
 
   @Override
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
-    assertTrue(compilationResult);
-
-    final var output = new ByteArrayOutputStream();
-    try (final var printWriter = new PrintWriter(output)) {
-      final var printer = new NodePrinter(printWriter);
-      program
-          .getIRModules("bytecode.test")
-          .forEach(irModule -> irModule.getConstructs().forEach(printer::visit));
-    } catch (Exception _) {
-      fail("Failed to produce output.");
-    }
-    System.out.println(output);
+    // Testing CANNOT_EXTEND_IMPLEMENT_ITSELF - expect failure with error
+    System.out.println("Compilation result: " + compilationResult);
+    System.out.println("Number of errors: " + numberOfErrors);
   }
 }

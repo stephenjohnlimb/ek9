@@ -31,7 +31,7 @@ defines module fuzztest.stream.multiple.map
 
     MultipleMapWithVoidReturn()
       <?- Second MAP has void return -?>
-      @Error: FULL_RESOLUTION: RETURNING_MISSING
+      @Error: FULL_RESOLUTION: STREAM_TYPE_NOT_DEFINED
       result <- cat [1, 2] | map with IntToString | map with VoidTransform | collect as List of String
       assert result?
 

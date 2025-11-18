@@ -111,7 +111,7 @@ defines module bad.streams13
       mainCollection <- List() of String
       teeCollection <- List() of Integer
 
-      @Error: FULL_RESOLUTION: RETURNING_MISSING
+      @Error: FULL_RESOLUTION: STREAM_TYPE_NOT_DEFINED
       cat ["A", "B", "A", "Z"] | tee with InvalidFunctionOfString then in teeCollection > mainCollection
 
       assert mainCollection?

@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  Tests that module names org.ek9.lang and org.ek9.math are reserved
+  and cannot be used outside of compiler bootstrapping.
+
+  Note: INVALID_MODULE_NAME error occurs at line 0 (module definition token issue)
+  which prevents @Error directive matching. This is documented in ERROR_RECOVERY_ISSUES.md
+  Therefore this test uses error count validation instead of @Error directives.
+-?>
+defines module org.ek9.lang
+
+  defines function
+    testFunction()
+      <- rtn as String: "test"
+
+//EOF

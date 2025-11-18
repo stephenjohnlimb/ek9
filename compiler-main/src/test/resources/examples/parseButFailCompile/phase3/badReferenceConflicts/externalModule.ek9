@@ -1,0 +1,15 @@
+#!ek9
+<?-
+  Helper module that exports symbols for reference conflict testing.
+-?>
+defines module external.module.for.conflicts
+
+  defines class
+    SharedClass
+      default SharedClass()
+
+  defines function
+    sharedFunction()
+      <- rtn as String: "shared"
+
+//EOF

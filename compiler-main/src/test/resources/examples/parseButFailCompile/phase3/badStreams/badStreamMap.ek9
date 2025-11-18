@@ -103,7 +103,7 @@ defines module bad.streams3
 
     BrokenStreamCatMap5()
       collector <- StringCollector()
-      @Error: FULL_RESOLUTION: RETURNING_MISSING
+      @Error: FULL_RESOLUTION: STREAM_TYPE_NOT_DEFINED
       cat [1, 2, 3] | map with IncompatibleFunction2 > collector
 
     BrokenStreamCatMap6()

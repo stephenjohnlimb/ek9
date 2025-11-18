@@ -423,11 +423,13 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   @Override
   public void enterTextBodyDeclaration(final EK9Parser.TextBodyDeclarationContext ctx) {
 
-    //Can define directly because overloaded methods are allowed.
-    symbolsAndScopes.defineScopedSymbol(
-        symbolFactory.newTextBody(ctx, symbolsAndScopes.getTopScope()), ctx);
-
-    super.enterTextBodyDeclaration(ctx);
+    //Skip text body processing entirely if language was invalid (INVALID_VALUE error already reported)
+    if (currentTextBlockLanguage != null) {
+      //Can define directly because overloaded methods are allowed.
+      symbolsAndScopes.defineScopedSymbol(
+          symbolFactory.newTextBody(ctx, symbolsAndScopes.getTopScope()), ctx);
+      super.enterTextBodyDeclaration(ctx);
+    }
   }
 
   @Override
@@ -435,11 +437,13 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
     //We have to do this on the exit side, so that the whole method body params are defined
     //That way it can be cloned and added to the conceptual base.
 
-    if (symbolsAndScopes.getRecordedSymbol(ctx) instanceof MethodSymbol textMethodSymbol) {
-      symbolFactory.ensureTextBodyIsInSuper(textMethodSymbol);
+    //Skip text body processing entirely if language was invalid (INVALID_VALUE error already reported)
+    if (currentTextBlockLanguage != null) {
+      if (symbolsAndScopes.getRecordedSymbol(ctx) instanceof MethodSymbol textMethodSymbol) {
+        symbolFactory.ensureTextBodyIsInSuper(textMethodSymbol);
+      }
+      super.exitTextBodyDeclaration(ctx);
     }
-
-    super.exitTextBodyDeclaration(ctx);
 
   }
 
@@ -623,12 +627,6 @@ final class DefinitionListener extends AbstractEK9PhaseListener {
   }
 
   //Pipeline Part is not defined here, just reference the symbol being employed against the context in phase3.
-
-
-  @Override
-  public void enterPreFlowAndControl(final EK9Parser.PreFlowAndControlContext ctx) {
-    super.enterPreFlowAndControl(ctx);
-  }
 
   /**
    * Need to create a local scope for the if statement so that it is possible to detect
