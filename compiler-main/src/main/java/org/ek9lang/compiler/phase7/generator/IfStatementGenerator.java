@@ -61,8 +61,13 @@ public final class IfStatementGenerator extends AbstractGenerator
       final var blockGuard = processGuardVariableIfPresent(ifControlBlock, chainScopeId);
 
       // Accumulate guard variables and setup from this block
+      // NOTE: Setup (guardScopeSetup) includes declarations AND assignments
+      // Guard variables (guardVariables) only includes vars that need guard checks
+      // For := (blind assignment), setup is non-empty but guardVariables is empty
       if (blockGuard.hasGuardVariables()) {
         allGuardVariables.addAll(blockGuard.guardVariables());
+      }
+      if (!blockGuard.guardScopeSetup().isEmpty()) {
         allGuardSetup.addAll(blockGuard.guardScopeSetup());
       }
 
@@ -71,7 +76,9 @@ public final class IfStatementGenerator extends AbstractGenerator
     }
 
     // Create combined guard details from all blocks
-    final var guardDetails = allGuardVariables.isEmpty()
+    // NOTE: For := (blind assignment), allGuardVariables is empty but allGuardSetup has the assignment
+    // So we need to check guardSetup, not guardVariables!
+    final var guardDetails = allGuardSetup.isEmpty()
         ? GuardVariableDetails.none()
         : GuardVariableDetails.create(allGuardVariables, allGuardSetup, chainScopeId, null);
 
@@ -124,8 +131,16 @@ public final class IfStatementGenerator extends AbstractGenerator
 
   /**
    * Process a guard variable from a preFlowStatement.
-   * For variable declarations: if value <- getOptionalValue()
-   * Generates: variable declaration + isSet check
+   * Supports three types:
+   * - Variable declaration: if value <- getOptionalValue()  (<- operator, NEEDS guard check)
+   * - Assignment statement: if value := getOptionalValue()  (:= operator, NO guard check)
+   * - Assignment if unset: if value :=? getOptionalValue()  (:=? operator, NEEDS different pattern)
+   * - Guard expression: if value ?= getOptionalValue()      (?= operator, NEEDS guard check)
+   * Generates: variable setup + optional guard checks based on operator
+   * <p>
+   * CRITICAL: Only adds variable to guardVariables list if operator requires guard checks!
+   * This determines chain_type: "IF_ELSE_WITH_GUARDS" vs "IF_ELSE_IF"
+   * </p>
    */
   private GuardVariableDetails processGuardVariable(
       final EK9Parser.PreFlowStatementContext ctx,
@@ -134,18 +149,65 @@ public final class IfStatementGenerator extends AbstractGenerator
     final var guardSetup = new ArrayList<IRInstr>();
     final var guardVariables = new ArrayList<String>();
 
-    // Currently only support variable declaration as guard (e.g., value <- expr)
+    // Handle variable declaration as guard (e.g., value <- expr)
     if (ctx.variableDeclaration() != null) {
       // Generate variable declaration IR (REFERENCE + assignment)
       guardSetup.addAll(generators.variableDeclGenerator.apply(ctx.variableDeclaration()));
 
-      // Get the declared variable name for tracking
+      // <- always requires guard check, so add to guardVariables
       final var guardSymbol = getRecordedSymbolOrException(ctx.variableDeclaration());
       final var variableName = new org.ek9lang.compiler.phase7.support.VariableNameForIR().apply(guardSymbol);
       guardVariables.add(variableName);
+    } else if (ctx.assignmentStatement() != null) {
+      // Generate assignment statement IR
+      guardSetup.addAll(generators.assignmentStmtGenerator.apply(ctx.assignmentStatement()));
+
+      // Only add to guardVariables if the operator requires a guard check
+      final var operatorType = getGuardOperatorType(ctx);
+      if (requiresGuardCheck(operatorType)) {
+        final var assignSymbol = getRecordedSymbolOrException(ctx.assignmentStatement().identifier());
+        final var variableName = new org.ek9lang.compiler.phase7.support.VariableNameForIR().apply(assignSymbol);
+        guardVariables.add(variableName);
+      }
+      // For := (blind assignment), we do NOT add to guardVariables
+      // This ensures chain_type will be "IF_ELSE_IF" not "IF_ELSE_WITH_GUARDS"
+    } else if (ctx.guardExpression() != null) {
+      // ?= (guarded assignment) checks the RIGHT side (expression result) before assigning
+      // For now, treat it similarly to variable declaration with guard semantics
+      // The guard check will verify the assigned value is set
+
+      final var guardExpr = ctx.guardExpression();
+      final var debugInfo = stackContext.createDebugInfo(guardExpr);
+
+      // Get target variable symbol
+      final var targetSymbol = getRecordedSymbolOrException(guardExpr.identifier());
+      final var targetName = new org.ek9lang.compiler.phase7.support.VariableNameForIR().apply(targetSymbol);
+
+      // Create temp variable for expression result
+      final var tempDetails = createTempVariable(debugInfo);
+
+      // Evaluate the expression (RHS) into temp variable
+      guardSetup.addAll(
+          generators.variableMemoryManagement.apply(
+              () -> generators.exprGenerator.apply(
+                  new org.ek9lang.compiler.phase7.support.ExprProcessingDetails(guardExpr.expression(), tempDetails)
+              ),
+              tempDetails
+          )
+      );
+
+      // Assign temp to target variable (similar to := operator)
+      // The guard check on the target variable happens in condition evaluation
+      guardSetup.add(org.ek9lang.compiler.ir.instructions.MemoryInstr.release(targetName, debugInfo));
+      guardSetup.add(
+          org.ek9lang.compiler.ir.instructions.MemoryInstr.store(targetName, tempDetails.resultVariable(), debugInfo));
+      guardSetup.add(org.ek9lang.compiler.ir.instructions.MemoryInstr.retain(targetName, debugInfo));
+
+      // Add to guardVariables since ?= REQUIRES guard check
+      guardVariables.add(targetName);
     } else {
       throw new org.ek9lang.core.CompilerException(
-          "Only variable declarations are currently supported as guards (e.g., if value <- expr)");
+          "Invalid preFlowStatement - expected variableDeclaration, assignmentStatement, or guardExpression");
     }
 
     return GuardVariableDetails.create(guardVariables, guardSetup, guardScopeId, null);
@@ -156,8 +218,8 @@ public final class IfStatementGenerator extends AbstractGenerator
    * Condition evaluation happens in a TIGHT condition scope (freed immediately).
    * Body evaluation happens in a new nested scope.
    *
-   * @param ctx            The if control block context
-   * @param blockGuard     Guard details for THIS specific block (not all blocks)
+   * @param ctx        The if control block context
+   * @param blockGuard Guard details for THIS specific block (not all blocks)
    */
   private ConditionCaseDetails processIfControlBlockWithBranchScope(
       final EK9Parser.IfControlBlockContext ctx,
@@ -181,11 +243,19 @@ public final class IfStatementGenerator extends AbstractGenerator
 
     final var conditionDetails = createTempVariable(debugInfo);
 
-    // Case 1: Guard WITH explicit condition - need BOTH isSet AND condition
+    // Determine the guard operator type to decide if guard checks are needed
+    final var operatorType = getGuardOperatorType(preFlowCtx.preFlowStatement());
+    final var needsGuardCheck = requiresGuardCheck(operatorType);
+
+    // Check if there's ANY guard setup (declaration/assignment), regardless of whether it needs checks
+    final var hasGuardSetup = preFlowCtx.preFlowStatement() != null
+        && !blockGuard.guardScopeSetup().isEmpty();
+
+    // Case 1: Guard WITH explicit condition AND operator requires guard check (e.g., <-, ?=)
     // Use LOGICAL_AND_BLOCK for short-circuit evaluation (condition only evaluated if guard succeeds)
-    if (blockGuard.hasGuardVariables() && preFlowCtx.preFlowStatement() != null && conditionExpr != null) {
-      // Get the guard variable info
-      final var guardVarSymbol = getRecordedSymbolOrException(preFlowCtx.preFlowStatement().variableDeclaration());
+    if (blockGuard.hasGuardVariables() && hasGuardSetup && conditionExpr != null && needsGuardCheck) {
+      // Get the guard variable info using helper method (handles all guard types)
+      final var guardVarSymbol = getGuardSymbol(preFlowCtx.preFlowStatement());
 
       final var booleanType = stackContext.getParsedModule().getEk9Types().ek9Boolean();
       final var booleanTypeName = typeNameOrException.apply(booleanType);
@@ -206,7 +276,8 @@ public final class IfStatementGenerator extends AbstractGenerator
 
       // RIGHT EVALUATION: Generate explicit condition (ONLY evaluated if guard succeeds)
       final var explicitCondTemp = stackContext.generateTempName();
-      final var explicitCondDetails = new org.ek9lang.compiler.phase7.support.VariableDetails(explicitCondTemp, debugInfo);
+      final var explicitCondDetails =
+          new org.ek9lang.compiler.phase7.support.VariableDetails(explicitCondTemp, debugInfo);
       final var rightEvaluationInstructions = new ArrayList<>(
           generators.variableMemoryManagement.apply(
               () -> generators.exprGenerator.apply(
@@ -247,11 +318,13 @@ public final class IfStatementGenerator extends AbstractGenerator
           debugInfo,
           conditionScopeId);
 
-      final var logicalAndBlock = org.ek9lang.compiler.ir.instructions.LogicalOperationInstr.andOperation(logicalDetails);
+      final var logicalAndBlock =
+          org.ek9lang.compiler.ir.instructions.LogicalOperationInstr.andOperation(logicalDetails);
       conditionEvaluation.add(logicalAndBlock);
 
-    } else if (conditionExpr != null) {
-      // Case 2: Explicit condition only (no guard)
+    } else if (hasGuardSetup && conditionExpr != null && !needsGuardCheck) {
+      // Case 2: Guard setup (declaration/assignment) with condition but NO guard check required (e.g., :=, =)
+      // Just evaluate the explicit condition (guard setup was already included in the chain scope)
       conditionEvaluation.addAll(
           generators.variableMemoryManagement.apply(
               () -> generators.exprGenerator.apply(
@@ -260,9 +333,19 @@ public final class IfStatementGenerator extends AbstractGenerator
               conditionDetails
           )
       );
-    } else if (blockGuard.hasGuardVariables() && preFlowCtx.preFlowStatement() != null) {
-      // Case 3: Guard only (implicit isSet check)
-      final var guardVarSymbol = getRecordedSymbolOrException(preFlowCtx.preFlowStatement().variableDeclaration());
+    } else if (conditionExpr != null) {
+      // Case 3: Explicit condition only (no guard variable at all)
+      conditionEvaluation.addAll(
+          generators.variableMemoryManagement.apply(
+              () -> generators.exprGenerator.apply(
+                  new ExprProcessingDetails(conditionExpr, conditionDetails)
+              ),
+              conditionDetails
+          )
+      );
+    } else if (hasGuardSetup && blockGuard.hasGuardVariables() && needsGuardCheck) {
+      // Case 4: Guard only (implicit isSet check) AND guard check required (e.g., <-, ?=)
+      final var guardVarSymbol = getGuardSymbol(preFlowCtx.preFlowStatement());
 
       // Generate question operator with explicit IS_NULL check
       // This replaces UnaryOperatorParams to emit IS_NULL instruction in IR
@@ -329,6 +412,108 @@ public final class IfStatementGenerator extends AbstractGenerator
     stackContext.exitScope();
 
     return bodyEvaluation;
+  }
+
+  /**
+   * Gets the symbol from a preFlowStatement (handles variableDeclaration, assignmentStatement, guardExpression).
+   *
+   * @param preFlowStmt The preFlowStatement context
+   * @return The recorded symbol for the guard variable
+   */
+  private org.ek9lang.compiler.symbols.ISymbol getGuardSymbol(final EK9Parser.PreFlowStatementContext preFlowStmt) {
+    if (preFlowStmt == null) {
+      throw new org.ek9lang.core.CompilerException("preFlowStatement cannot be null");
+    }
+
+    if (preFlowStmt.variableDeclaration() != null) {
+      return getRecordedSymbolOrException(preFlowStmt.variableDeclaration());
+    }
+
+    if (preFlowStmt.assignmentStatement() != null) {
+      // Symbol is recorded on the identifier, not the statement
+      return getRecordedSymbolOrException(preFlowStmt.assignmentStatement().identifier());
+    }
+
+    if (preFlowStmt.guardExpression() != null) {
+      // Symbol is recorded on the identifier, not the expression
+      return getRecordedSymbolOrException(preFlowStmt.guardExpression().identifier());
+    }
+
+    throw new org.ek9lang.core.CompilerException(
+        "Invalid preFlowStatement - expected variableDeclaration, assignmentStatement, or guardExpression");
+  }
+
+  /**
+   * Determines the guard operator type from a preFlowStatement.
+   * Returns the operator token type, or null if not a guard pattern.
+   *
+   * @param preFlowStmt The preFlowStatement context
+   * @return The operator token type (LEFT_ARROW, ASSIGN, ASSIGN2, GUARD, ASSIGN_UNSET), or null
+   */
+  private Integer getGuardOperatorType(final EK9Parser.PreFlowStatementContext preFlowStmt) {
+    if (preFlowStmt == null) {
+      return null;
+    }
+
+    // Check variableDeclaration: <-, :=, =, etc.
+    if (preFlowStmt.variableDeclaration() != null) {
+      final var varDecl = preFlowStmt.variableDeclaration();
+      if (varDecl.op != null) {
+        return varDecl.op.getType();
+      }
+    }
+
+    // Check assignmentStatement: :=, :=?, etc.
+    if (preFlowStmt.assignmentStatement() != null) {
+      final var assignStmt = preFlowStmt.assignmentStatement();
+      if (assignStmt.op != null) {
+        return assignStmt.op.getType();
+      }
+    }
+
+    // Check guardExpression: ?=
+    if (preFlowStmt.guardExpression() != null) {
+      final var guardExpr = preFlowStmt.guardExpression();
+      if (guardExpr.op != null) {
+        return guardExpr.op.getType();
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Checks if the given operator requires guard checks (null check + isSet check).
+   * Returns true for operators that need guard checks: <-, ?=
+   * Returns false for operators that don't: :=, =
+   *
+   * @param operatorType The operator token type
+   * @return true if guard checks are required, false otherwise
+   */
+  private boolean requiresGuardCheck(final Integer operatorType) {
+    if (operatorType == null) {
+      return false;
+    }
+
+    // LEFT_ARROW (<-) - Declaration guard - WITH guard check
+    if (operatorType == org.ek9lang.antlr.EK9Parser.LEFT_ARROW) {
+      return true;
+    }
+
+    // GUARD (?=) - Guarded assignment - WITH guard check
+    if (operatorType == org.ek9lang.antlr.EK9Parser.GUARD) {
+      return true;
+    }
+
+    // ASSIGN (:=) or ASSIGN2 (=) - Blind assignment - NO guard check
+    if (operatorType == org.ek9lang.antlr.EK9Parser.ASSIGN
+        || operatorType == org.ek9lang.antlr.EK9Parser.ASSIGN2) {
+      return false;
+    }
+
+    // ASSIGN_UNSET (:=?) - Assignment if unset - WITH guard check on result
+    // After conditional assignment (only if left was unset), check if result is now set
+    return operatorType == org.ek9lang.antlr.EK9Parser.ASSIGN_UNSET;
   }
 
 }

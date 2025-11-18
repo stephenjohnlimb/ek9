@@ -1,0 +1,235 @@
+#!ek9
+<?-
+  Test IR generation for if statement with assignment if unset (:=?).
+  Assignment if unset checks the LEFT side (target variable) before evaluating/assigning.
+  Pattern: if existingVar :=? expr with condition
+  - Checks if LEFT-HAND SIDE is unset FIRST
+  - Only evaluates expression if left is unset
+  - Only assigns if left is unset (lazy evaluation)
+  - THEN checks if result is set (guard check on result)
+  - Different from ?= which always evaluates/assigns then checks result
+-?>
+defines module controlFlow
+
+  defines function
+
+    supplyInteger()
+      <- rtn as Integer?
+      rtn: 42
+
+    @IR: IR_GENERATION: FUNCTION: "controlFlow::ifAssignmentIfUnset": `
+    ConstructDfn: controlFlow::ifAssignmentIfUnset()->org.ek9.lang::String
+    OperationDfn: controlFlow::ifAssignmentIfUnset.c_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow::ifAssignmentIfUnset.i_init()->org.ek9.lang::Void  
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow::ifAssignmentIfUnset.ifAssignmentIfUnset()->controlFlow::ifAssignmentIfUnset  
+    BasicBlock: _entry_1
+    CALL (controlFlow::ifAssignmentIfUnset)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: controlFlow::ifAssignmentIfUnset._call()->org.ek9.lang::String  
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE result, org.ek9.lang::String
+    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE result, _temp1
+    RETAIN result
+    REFERENCE existing, org.ek9.lang::Integer
+    _temp2 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    STORE existing, _temp2
+    RETAIN existing
+    SCOPE_REGISTER existing, _scope_1
+    SCOPE_ENTER _scope_2
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "GUARDED_ASSIGNMENT"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    _temp6 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp7 = IS_NULL existing
+    ]
+    primitive_condition: _temp7
+    body_evaluation:
+    [
+    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, _scope_2
+    ]
+    body_result: _temp8
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp9 = LOAD existing
+    _temp10 = CALL (org.ek9.lang::Integer)_temp9._isSet() [pure=true, complexity=0]
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_2
+    ]
+    default_result: _temp10
+    scope_id: _scope_2
+    ]
+    _temp11 = CALL (org.ek9.lang::Boolean)_temp6._negate() [pure=true, complexity=0]
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_2
+    _temp12 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]
+    ]
+    condition_result: _temp11
+    primitive_condition: _temp12
+    body_evaluation:
+    [
+    _temp5 = FUNCTION_INSTANCE controlFlow::supplyInteger
+    _temp3 = CALL (controlFlow::supplyInteger)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_2
+    RELEASE existing
+    STORE existing, _temp3
+    RETAIN existing
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "IF_ELSE_WITH_GUARDS"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_4
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_3
+    _temp13 = LOGICAL_AND_BLOCK
+    [
+    left_evaluation:
+    [
+    _temp14 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_3
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp15 = IS_NULL existing
+    ]
+    primitive_condition: _temp15
+    body_evaluation:
+    [
+    _temp16 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp16
+    SCOPE_REGISTER _temp16, _scope_3
+    ]
+    body_result: _temp16
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp17 = LOAD existing
+    _temp18 = CALL (org.ek9.lang::Integer)_temp17._isSet() [pure=true, complexity=0]
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, _scope_3
+    ]
+    default_result: _temp18
+    scope_id: _scope_3
+    ]
+    _temp19 = CALL (org.ek9.lang::Boolean)_temp14._true() [pure=true, complexity=0]
+    ]
+    left_operand: _temp14
+    left_condition: _temp19
+    right_evaluation:
+    [
+    _temp21 = LOAD existing
+    RETAIN _temp21
+    SCOPE_REGISTER _temp21, _scope_3
+    _temp22 = LOAD_LITERAL 10, org.ek9.lang::Integer
+    RETAIN _temp22
+    SCOPE_REGISTER _temp22, _scope_3
+    _temp20 = CALL (org.ek9.lang::Integer)_temp21._gt(_temp22) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp20
+    SCOPE_REGISTER _temp20, _scope_3
+    ]
+    right_operand: _temp20
+    result_computation:
+    [
+    _temp23 = CALL (org.ek9.lang::Boolean)_temp14._and(_temp20) [pure=true, complexity=0]
+    RETAIN _temp23
+    SCOPE_REGISTER _temp23, _scope_3
+    ]
+    logical_result: _temp23
+    scope_id: _scope_3
+    ]
+    _temp24 = CALL (org.ek9.lang::Boolean)_temp13._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_3
+    ]
+    condition_result: _temp13
+    primitive_condition: _temp24
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp25 = LOAD_LITERAL High, org.ek9.lang::String
+    RETAIN _temp25
+    SCOPE_REGISTER _temp25, _scope_4
+    RELEASE result
+    STORE result, _temp25
+    RETAIN result
+    SCOPE_EXIT _scope_4
+    ]
+    ]
+    ]
+    default_body_evaluation:
+    [
+    SCOPE_ENTER _scope_5
+    _temp26 = LOAD_LITERAL Low, org.ek9.lang::String
+    RETAIN _temp26
+    SCOPE_REGISTER _temp26, _scope_5
+    RELEASE result
+    STORE result, _temp26
+    RETAIN result
+    SCOPE_EXIT _scope_5
+    ]
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2
+    SCOPE_EXIT _scope_1
+    RETURN result`
+    ifAssignmentIfUnset()
+      <-
+        result <- String()
+
+      // Declare variable first (unset)
+      existing <- Integer()
+
+      // Assignment if unset (:=?) - checks LEFT side, only assigns if unset
+      // THEN checks if result is set (guard check)
+      // This is lazy evaluation - don't evaluate expr if not needed
+      // Different from ?= which always evaluates
+      if existing :=? supplyInteger() with existing > 10
+        result: "High"
+      else
+        result: "Low"
+
+//EOF
