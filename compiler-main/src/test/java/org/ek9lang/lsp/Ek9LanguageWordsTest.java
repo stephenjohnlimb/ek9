@@ -75,7 +75,7 @@ final class Ek9LanguageWordsTest {
         .map(found -> found.hoverText)
         .orElse("");
 
-    assertEquals("DEFINES BLOCK: Begin definition section for module constructs (functions, classes, records, traits, etc.). All type definitions must appear within a `defines` block inside a module. Use to organize and declare all constructs. Module can have multiple defines blocks for organization. Use when: declaring any functions, classes, records, components, services, applications. Required for all type definitions - cannot define constructs outside defines block. https://www.ek9.io/structure.html",
+    assertEquals("DEFINES BLOCK: Begin definition section for module constructs (functions, classes, records, traits, etc.). All type definitions must appear within a `defines` block inside a module. Use to organize and declare all constructs. Module can have multiple defines blocks for organization. Use when: declaring any functions, classes, records, components, services, applications. Required for all type definitions - cannot define constructs outside defines block. https://ek9.io/structure.html",
         actual);
   }
 
