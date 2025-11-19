@@ -1,0 +1,117 @@
+#!ek9
+<?-
+  Test IR generation for simple ternary operator
+
+  Purpose: Verify IR generation for basic ternary conditional expression
+  Pattern: condition <- thenValue : elseValue
+
+  Expected IR: CONTROL_FLOW_CHAIN with TERNARY_OPERATOR chain type
+  - Condition evaluation in tight scope
+  - True branch evaluates thenValue
+  - False branch (default) evaluates elseValue
+-?>
+defines module simpleTernary.test
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "simpleTernary.test::testSimpleTernary": `
+    ConstructDfn: simpleTernary.test::testSimpleTernary()->org.ek9.lang::Void
+    OperationDfn: simpleTernary.test::testSimpleTernary.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: simpleTernary.test::testSimpleTernary.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: simpleTernary.test::testSimpleTernary.testSimpleTernary()->simpleTernary.test::testSimpleTernary
+    BasicBlock: _entry_1
+    CALL (simpleTernary.test::testSimpleTernary)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: simpleTernary.test::testSimpleTernary._call()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE x, org.ek9.lang::Integer
+    _temp1 = LOAD_LITERAL 15, org.ek9.lang::Integer
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE x, _temp1
+    RETAIN x
+    SCOPE_REGISTER x, _scope_1
+    REFERENCE result, org.ek9.lang::String
+    SCOPE_ENTER _scope_2
+    _temp2 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "TERNARY_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_4
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_3
+    _temp4 = LOAD x
+    RETAIN _temp4
+    SCOPE_REGISTER _temp4, _scope_3
+    _temp5 = LOAD_LITERAL 10, org.ek9.lang::Integer
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, _scope_3
+    _temp3 = CALL (org.ek9.lang::Integer)_temp4._gt(_temp5) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_3
+    _temp6 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_3
+    ]
+    condition_result: _temp3
+    primitive_condition: _temp6
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp7 = LOAD_LITERAL high, org.ek9.lang::String
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_4
+    RELEASE _temp2
+    STORE _temp2, _temp7
+    RETAIN _temp2
+    SCOPE_EXIT _scope_4
+    ]
+    body_result: _temp2
+    ]
+    ]
+    default_body_evaluation:
+    [
+    SCOPE_ENTER _scope_5
+    _temp8 = LOAD_LITERAL low, org.ek9.lang::String
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, _scope_5
+    RELEASE _temp2
+    STORE _temp2, _temp8
+    RETAIN _temp2
+    SCOPE_EXIT _scope_5
+    ]
+    default_result: _temp2
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    STORE result, _temp2
+    RETAIN result
+    SCOPE_REGISTER result, _scope_1
+    _temp10 = LOAD result
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_1
+    _temp11 = LOAD_LITERAL high, org.ek9.lang::String
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_1
+    _temp9 = CALL (org.ek9.lang::String)_temp10._eq(_temp11) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_1
+    _temp12 = CALL (org.ek9.lang::Boolean)_temp9._true() [pure=true, complexity=0]
+    ASSERT _temp12
+    SCOPE_EXIT _scope_1
+    RETURN`
+    testSimpleTernary()
+      x <- 15
+      result <- x > 10 <- "high" : "low"
+      assert result == "high"
+//EOF
