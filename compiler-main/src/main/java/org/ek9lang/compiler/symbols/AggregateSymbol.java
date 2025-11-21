@@ -6,7 +6,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -46,14 +45,8 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
   private static final long serialVersionUID = 1L;
 
   /**
-   * Also keep a back pointer to the direct subclasses.
-   * This is really useful for analysing a class or a trait.
-   */
-  private final List<IAggregateSymbol> subAggregateSymbols = new ArrayList<>();
-  /**
    * Might be null if a base 'class' or 'interface', basically the 'super'.
    */
-
   private IAggregateSymbol superAggregate;
   /**
    * Just used in commented output really - just handy to understand the origin of the aggregate
@@ -141,7 +134,6 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     getSuperAggregate().ifPresent(aggregateSymbol -> newCopy.superAggregate = aggregateSymbol);
 
     newCopy.markedAsDispatcher = markedAsDispatcher;
-    newCopy.subAggregateSymbols.addAll(getSubAggregateSymbols());
     newCopy.injectable = injectable;
     newCopy.pipeSinkType = pipeSinkType;
     newCopy.pipeSourceType = pipeSourceType;
@@ -156,14 +148,6 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
 
   public void setApplication(final AggregateSymbol application) {
     this.possibleApplication = application;
-  }
-
-  @Override
-  public void setName(final String name) {
-
-    super.setName(name);
-    getSuperAggregate().ifPresent(superSymbol -> superSymbol.addSubAggregateSymbol(this));
-
   }
 
   @Override
@@ -258,25 +242,6 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
 
     this.injectable = injectable;
 
-  }
-
-  @Override
-  public List<IAggregateSymbol> getSubAggregateSymbols() {
-
-    return Collections.unmodifiableList(subAggregateSymbols);
-  }
-
-  /**
-   * We note down any subtypes this type is used with.
-   * This has to be synchronized because multiple threads could attempt to add
-   * themselves as a sub aggregate.
-   */
-  @Override
-  public synchronized void addSubAggregateSymbol(final IAggregateSymbol sub) {
-
-    if (!subAggregateSymbols.contains(sub)) {
-      subAggregateSymbols.add(sub);
-    }
   }
 
   /**
@@ -494,7 +459,6 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
     AssertValue.checkNotNull("Optional superAggregateSymbol cannot be null", superAggregate);
     superAggregate.ifPresentOrElse(theSuper -> this.superAggregate = theSuper,
         () -> this.superAggregate = null);
-    getSuperAggregate().ifPresent(aggregateSymbol -> aggregateSymbol.addSubAggregateSymbol(this));
 
   }
 

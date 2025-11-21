@@ -61,8 +61,6 @@ public class AggregateWithTraitsSymbol extends AggregateSymbol {
 
     AssertValue.checkNotNull("Trait cannot be null", traitSymbol);
     traits.add(traitSymbol);
-    //Do we want this to be known as a sub aggregate?
-    traitSymbol.addSubAggregateSymbol(this);
 
   }
 

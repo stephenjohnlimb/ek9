@@ -35,25 +35,6 @@ public interface IAggregateSymbol extends ICanBeGeneric, IScopedSymbol {
   }
 
   /**
-   * To get a full hierarchy you will need to get these subclasses
-   * and then get the subclasses of those.
-   *
-   * @return a list of all the subclasses of this class
-   */
-  default List<IAggregateSymbol> getSubAggregateSymbols() {
-    return List.of();
-  }
-
-  /**
-   * used to add back pointers to subclasses.
-   *
-   * @param sub The subclass to point back to.
-   */
-  default void addSubAggregateSymbol(final IAggregateSymbol sub) {
-    //No operation
-  }
-
-  /**
    * Gets all methods that are effective, by this I mean
    * if supers (classes or traits) have the same method name
    * but, it has been overridden then we would only retain the

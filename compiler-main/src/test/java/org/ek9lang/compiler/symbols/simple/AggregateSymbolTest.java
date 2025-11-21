@@ -112,7 +112,7 @@ final class AggregateSymbolTest {
     constructor1.setConstructor(true);
     base1.define(constructor1);
     assertEquals(1, base1.getConstructors().size());
-    assertEquals(constructor1, base1.getConstructors().get(0));
+    assertEquals(constructor1, base1.getConstructors().getFirst());
 
     var abstractMethod1 = new MethodSymbol("abstractMethod", base1);
     abstractMethod1.setMarkedAbstract(true);
@@ -120,10 +120,10 @@ final class AggregateSymbolTest {
 
     //There should still only be the constructor
     assertEquals(1, base1.getAllNonAbstractMethods().size());
-    assertEquals(constructor1, base1.getAllNonAbstractMethods().get(0));
+    assertEquals(constructor1, base1.getAllNonAbstractMethods().getFirst());
     //And one abstract method
     assertEquals(1, base1.getAllAbstractMethods().size());
-    assertEquals(abstractMethod1, base1.getAllAbstractMethods().get(0));
+    assertEquals(abstractMethod1, base1.getAllAbstractMethods().getFirst());
 
     //Now lets make a subclass and try the method access
     AggregateSymbol cls1 = new AggregateSymbol("cls1", symbolTable);
@@ -138,7 +138,7 @@ final class AggregateSymbolTest {
     constructor2.setConstructor(true);
     cls1.define(constructor2);
     assertEquals(1, cls1.getConstructors().size());
-    assertEquals(constructor2, cls1.getConstructors().get(0));
+    assertEquals(constructor2, cls1.getConstructors().getFirst());
 
     //But if we do want 'all methods that are not abstract'
     assertEquals(2, cls1.getAllNonAbstractMethods().size());
@@ -175,9 +175,9 @@ final class AggregateSymbolTest {
 
     //Now just to be sure nothing somehow made it into base when we were adding to cls1
     assertEquals(1, base1.getConstructors().size());
-    assertEquals(constructor1, base1.getConstructors().get(0));
+    assertEquals(constructor1, base1.getConstructors().getFirst());
     assertEquals(1, base1.getAllAbstractMethods().size());
-    assertEquals(abstractMethod1, base1.getAllAbstractMethods().get(0));
+    assertEquals(abstractMethod1, base1.getAllAbstractMethods().getFirst());
 
     //But if we did the same on base1
     results = base1.resolveMatchingMethods(new MethodSymbolSearch("abstractMethod"), new MethodSymbolSearchResult());
@@ -204,7 +204,7 @@ final class AggregateSymbolTest {
     base1.define(field1);
 
     assertEquals(1, base1.getProperties().size());
-    assertEquals(field1, base1.getProperties().get(0));
+    assertEquals(field1, base1.getProperties().getFirst());
 
     //We can find by the correct type of search like this as well
     var resolvedField = base1.resolveMember(new SymbolSearch("field1"));
@@ -232,7 +232,7 @@ final class AggregateSymbolTest {
     alsoField1.setAggregatePropertyField(true);
     cls1.define(alsoField1);
     assertEquals(1, cls1.getProperties().size());
-    assertEquals(alsoField1, cls1.getProperties().get(0));
+    assertEquals(alsoField1, cls1.getProperties().getFirst());
 
     //Let's see if we can resolve field2 through the class hierarchy
     var resolvedField2 = cls1.resolveMember(new SymbolSearch("field2"));
@@ -256,7 +256,7 @@ final class AggregateSymbolTest {
     assertFalse(cls1.isImplementingInSomeWay(base1));
     assertFalse(cls1.hasImmediateSuper(base1));
 
-    //This should have two effects, setting the super in cls1 and adding a sub to base1
+    //Set the super in cls1
     cls1.setSuperAggregate(base1);
 
     assertTrue(cls1.isImplementingInSomeWay(base1));
@@ -265,11 +265,6 @@ final class AggregateSymbolTest {
     var theSuper = cls1.getAnySuperTypeOrFunction();
     assertTrue(theSuper.isPresent());
     assertEquals(base1, theSuper.get());
-
-    //Now check the base has cls1 as a sub type
-    var subs = base1.getSubAggregateSymbols();
-    assertEquals(1, subs.size());
-    assertEquals(cls1, subs.get(0));
 
     //Let's check assignability
     assertTrue(cls1.isAssignableTo(cls1));
@@ -289,12 +284,6 @@ final class AggregateSymbolTest {
     theSuper = cls2.getAnySuperTypeOrFunction();
     assertTrue(theSuper.isPresent());
     assertEquals(base1, theSuper.get());
-
-    subs = base1.getSubAggregateSymbols();
-    assertEquals(3, subs.size());
-    assertEquals(cls1, subs.get(0));
-    assertEquals(cloned, subs.get(1));
-    assertEquals(cls2, subs.get(2));
 
     //Let's check assignability for cls2 and check cls1 and cls2 are not assignable.
     assertTrue(cls2.isAssignableTo(base1));
@@ -349,7 +338,7 @@ final class AggregateSymbolTest {
     underTest.define(method);
 
     assertEquals(1, underTest.getAllNonAbstractMethodsInThisScopeOnly().size());
-    assertEquals(method, underTest.getAllNonAbstractMethodsInThisScopeOnly().get(0));
+    assertEquals(method, underTest.getAllNonAbstractMethodsInThisScopeOnly().getFirst());
 
     //Now search and find that method, must add in the param to be able to resolve it.
     Optional<ISymbol> resolvedMethod = underTest.resolveInThisScopeOnly(
@@ -412,7 +401,7 @@ final class AggregateSymbolTest {
     underTest.define(prop1);
 
     assertEquals(1, underTest.getProperties().size());
-    assertEquals(prop1, underTest.getProperties().get(0));
+    assertEquals(prop1, underTest.getProperties().getFirst());
 
     Optional<ISymbol> resolvedProperty =
         underTest.resolveInThisScopeOnly(new SymbolSearch("prop1"));
