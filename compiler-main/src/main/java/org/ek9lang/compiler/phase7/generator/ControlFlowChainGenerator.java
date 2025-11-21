@@ -682,6 +682,141 @@ public final class ControlFlowChainGenerator extends AbstractGenerator
   }
 
   /**
+   * Generate IR for ternary operator: condition &lt;- thenValue : elseValue.
+   * <p>
+   * Pattern: CONTROL_FLOW_CHAIN with TERNARY_OPERATOR chain type
+   * - Condition evaluation in tight scope
+   * - True branch evaluates thenValue
+   * - False branch (default) evaluates elseValue
+   * </p>
+   *
+   * @param details ExprProcessingDetails containing result variable and ternary expression context
+   * @return List of IR instructions for ternary operator
+   */
+  public List<IRInstr> generateTernary(final ExprProcessingDetails details) {
+    final var ctx = details.ctx();
+    final var instructions = new ArrayList<IRInstr>();
+    final var debugInfo = details.variableDetails().debugInfo();
+
+    // Extract ternary parts from grammar
+    final var controlExpr = ctx.control;  // condition expression
+    final var ternaryParts = ctx.ternaryPart();
+    final var thenPart = ternaryParts.get(0);  // first ternaryPart (true branch)
+    final var elsePart = ternaryParts.get(1);  // second ternaryPart (false branch)
+
+    // Create scope for ternary evaluation
+    final var ternaryScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(ternaryScopeId, debugInfo, IRFrameType.BLOCK);
+
+    instructions.add(ScopeInstr.enter(ternaryScopeId, debugInfo));
+
+    // 1. Evaluate condition in tight scope
+    final var conditionScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(conditionScopeId, debugInfo, IRFrameType.BLOCK);
+
+    final var conditionEvaluation = new ArrayList<IRInstr>();
+    conditionEvaluation.add(ScopeInstr.enter(conditionScopeId, debugInfo));
+
+    // Evaluate control expression
+    final var conditionTemp = stackContext.generateTempName();
+    final var conditionDetails = new VariableDetails(conditionTemp, debugInfo);
+    conditionEvaluation.addAll(
+        variableMemoryManagement.apply(
+            () -> rawExprProcessor.apply(new ExprProcessingDetails(controlExpr, conditionDetails)),
+            conditionDetails
+        )
+    );
+
+    // Extract primitive boolean for branching
+    final var primitiveCondition = stackContext.generateTempName();
+    conditionEvaluation.add(CallInstr.operator(
+        new VariableDetails(primitiveCondition, debugInfo),
+        callDetailsForIsTrue.apply(conditionTemp)
+    ));
+
+    conditionEvaluation.add(ScopeInstr.exit(conditionScopeId, debugInfo));
+    stackContext.exitScope();
+
+    // 2. Create true branch (thenPart)
+    final var thenScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(thenScopeId, debugInfo, IRFrameType.BLOCK);
+
+    final var thenBodyEvaluation = new ArrayList<IRInstr>();
+    thenBodyEvaluation.add(ScopeInstr.enter(thenScopeId, debugInfo));
+
+    final var resultVariable = details.variableDetails().resultVariable();
+    final var thenResultTemp = stackContext.generateTempName();
+    final var thenResultDetails = new VariableDetails(thenResultTemp, debugInfo);
+
+    thenBodyEvaluation.addAll(
+        variableMemoryManagement.apply(
+            () -> rawExprProcessor.apply(new ExprProcessingDetails(thenPart.expression(), thenResultDetails)),
+            thenResultDetails
+        )
+    );
+
+    // Store then result to output variable
+    thenBodyEvaluation.add(MemoryInstr.release(resultVariable, debugInfo));
+    thenBodyEvaluation.add(MemoryInstr.store(resultVariable, thenResultTemp, debugInfo));
+    thenBodyEvaluation.add(MemoryInstr.retain(resultVariable, debugInfo));
+
+    thenBodyEvaluation.add(ScopeInstr.exit(thenScopeId, debugInfo));
+    stackContext.exitScope();
+
+    // 3. Create false branch (elsePart) as default
+    final var elseScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(elseScopeId, debugInfo, IRFrameType.BLOCK);
+
+    final var elseBodyEvaluation = new ArrayList<IRInstr>();
+    elseBodyEvaluation.add(ScopeInstr.enter(elseScopeId, debugInfo));
+
+    final var elseResultTemp = stackContext.generateTempName();
+    final var elseResultDetails = new VariableDetails(elseResultTemp, debugInfo);
+
+    elseBodyEvaluation.addAll(
+        variableMemoryManagement.apply(
+            () -> rawExprProcessor.apply(new ExprProcessingDetails(elsePart.expression(), elseResultDetails)),
+            elseResultDetails
+        )
+    );
+
+    // Store else result to output variable
+    elseBodyEvaluation.add(MemoryInstr.release(resultVariable, debugInfo));
+    elseBodyEvaluation.add(MemoryInstr.store(resultVariable, elseResultTemp, debugInfo));
+    elseBodyEvaluation.add(MemoryInstr.retain(resultVariable, debugInfo));
+
+    elseBodyEvaluation.add(ScopeInstr.exit(elseScopeId, debugInfo));
+    stackContext.exitScope();
+
+    // 4. Create ConditionCaseDetails for true branch
+    final var conditionCase = ConditionCaseDetails.createExpression(
+        thenScopeId,
+        conditionEvaluation,
+        conditionTemp,
+        primitiveCondition,
+        thenBodyEvaluation,
+        resultVariable
+    );
+
+    // 5. Build CONTROL_FLOW_CHAIN
+    final var controlFlowDetails = ControlFlowChainDetails.createTernaryOperator(
+        resultVariable,
+        List.of(conditionCase),
+        elseBodyEvaluation,
+        resultVariable,
+        debugInfo,
+        ternaryScopeId
+    );
+
+    instructions.addAll(apply(controlFlowDetails));
+
+    instructions.add(ScopeInstr.exit(ternaryScopeId, debugInfo));
+    stackContext.exitScope();
+
+    return instructions;
+  }
+
+  /**
    * Generate evaluation instructions for Boolean(false).
    */
   private List<IRInstr> generateBooleanFalseEvaluation(final VariableDetails variableDetails) {

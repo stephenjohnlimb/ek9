@@ -154,15 +154,11 @@ public final class ExprInstrGenerator extends AbstractGenerator
     final var ctx = details.ctx();
     final var coalescingType = ctx.coalescing.getType();
 
-    if (coalescingType == EK9Parser.CHECK) {
-      // Null coalescing operator (??)
-      return generators.controlFlowChainGenerator.generateNullCoalescing(details, details);
-    } else if (coalescingType == EK9Parser.ELVIS) {
-      // Elvis coalescing operator (:?)
-      return generators.controlFlowChainGenerator.generateElvisCoalescing(details, details);
-    } else {
-      throw new CompilerException("Unsupported coalescing operator: " + coalescingType);
-    }
+    return switch (coalescingType) {
+      case EK9Parser.CHECK -> generators.controlFlowChainGenerator.generateNullCoalescing(details, details);
+      case EK9Parser.ELVIS -> generators.controlFlowChainGenerator.generateElvisCoalescing(details, details);
+      default -> throw new CompilerException("Unsupported coalescing operator: " + coalescingType);
+    };
   }
 
   private List<IRInstr> processCoalescingEquality(final ExprProcessingDetails details) {
@@ -270,6 +266,9 @@ public final class ExprInstrGenerator extends AbstractGenerator
     } else if (ctx.dict() != null) {
       AssertValue.fail("Dict literals not yet implemented");
       return List.of();
+    } else if (ctx.control != null) {
+      // Ternary operator: condition <- thenValue : elseValue
+      return generators.controlFlowChainGenerator.generateTernary(details);
     }
 
     AssertValue.fail("processControlsOrStructures: Unsupported expression pattern");

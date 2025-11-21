@@ -154,7 +154,7 @@ final class Ek9LanguageServerTest {
     var hover = hoverResult.get();
     assertNotNull(hover);
     assertEquals(
-        "MODULE: Primary code organization unit containing related constructs (functions, classes, records, etc.). Use to group logically related functionality. One module per .ek9 file. Syntax: `defines module ModuleName`. Modules are EK9's package/namespace equivalent. Use for organizing code into cohesive units. https://www.ek9.io/structure.html#module",
+        "MODULE: Primary code organization unit containing related constructs (functions, classes, records, etc.). Use to group logically related functionality. One module per .ek9 file. Syntax: `defines module ModuleName`. Modules are EK9's package/namespace equivalent. Use for organizing code into cohesive units. https://ek9.io/structure.html#module",
         hover.getContents().getRight().getValue());
     languageServer.shutdown();
   }

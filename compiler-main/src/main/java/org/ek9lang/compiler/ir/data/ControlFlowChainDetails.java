@@ -216,6 +216,35 @@ public record ControlFlowChainDetails(
   }
 
   /**
+   * Create details for a Ternary operator (condition &lt;- thenValue : elseValue).
+   * Returns thenValue if condition is true, else returns elseValue.
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   */
+  public static ControlFlowChainDetails createTernaryOperator(
+      String result,
+      List<ConditionCaseDetails> conditionChain,
+      List<IRInstr> defaultBodyEvaluation,
+      String defaultResult,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    return new ControlFlowChainDetails(
+        result,
+        "TERNARY_OPERATOR",
+        GuardVariableDetails.none(), // No guard variables for ternary operator
+        EvaluationVariableDetails.none(), // No evaluation variable for ternary operator
+        ReturnVariableDetails.none(), // No return variable for ternary operator
+        conditionChain,
+        DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
+        null, // No enum optimization
+        null, // No try block
+        List.of(), // No finally block
+        debugInfo,
+        scopeId
+    );
+  }
+
+  /**
    * Create details for an if/else statement.
    * STACK-BASED: scopeId parameter extracted from stack context in generator.
    */

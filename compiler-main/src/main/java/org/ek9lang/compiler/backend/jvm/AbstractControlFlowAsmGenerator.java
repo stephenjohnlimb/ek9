@@ -373,8 +373,10 @@ abstract class AbstractControlFlowAsmGenerator extends AbstractAsmGenerator {
     processBodyEvaluation(conditionCase.bodyEvaluation());
     // Stack: empty
 
-    // 4. Copy body result to overall result (if exists)
-    if (resultVar != null && conditionCase.bodyResult() != null) {
+    // 4. Copy body result to overall result (if exists and different)
+    // NOTE: Skip copy if body already stored directly to resultVar (e.g., ternary operator)
+    if (resultVar != null && conditionCase.bodyResult() != null
+        && !conditionCase.bodyResult().equals(resultVar)) {
       copyResultVariable(conditionCase.bodyResult(), resultVar);
       // Stack: empty
     }

@@ -14,7 +14,7 @@ class MixedCoalescingOperatorsTest extends AbstractBytecodeGenerationTest {
     //Module name: bytecode.test, expected symbol count: 1 (the program)
     super("/examples/bytecodeGeneration/mixedCoalescingOperators",
         List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, true); // Enable showBytecode for analysis
+        false, false, false);
   }
 
   /**

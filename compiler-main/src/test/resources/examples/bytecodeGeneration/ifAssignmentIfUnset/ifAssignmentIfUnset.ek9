@@ -1,0 +1,227 @@
+#!ek9
+<?-
+  Bytecode test for if statement with assignment if unset (:=?) without condition.
+  Tests assignment if unset pattern: if existing :=? expr
+  Checks LEFT side first, only assigns if unset, then checks if result is set.
+-?>
+defines module bytecode.test
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::IfAssignmentIfUnset": `public class bytecode.test.IfAssignmentIfUnset {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.IfAssignmentIfUnset();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main(org.ek9.lang.Integer);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aconst_null
+        13: astore        4
+        15: new           #CP                 // class org/ek9/lang/Integer
+        18: dup
+        19: invokespecial #CP                 // Method org/ek9/lang/Integer."<init>":()V
+        22: astore        5
+        24: aload         5
+        26: astore        4
+        28: aload_1
+        29: astore        6
+        31: iconst_0
+        32: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        35: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        38: astore        7
+        40: aload         6
+        42: aload         7
+        44: invokevirtual #CP                 // Method org/ek9/lang/Integer._lt:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+        47: astore        8
+        49: aload         8
+        51: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        54: istore        9
+        56: iload         9
+        58: ifeq          89
+        61: bipush        100
+        63: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        66: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        69: astore        10
+        71: new           #CP                 // class org/ek9/lang/Integer
+        74: dup
+        75: aload         10
+        77: invokespecial #CP                 // Method org/ek9/lang/Integer."<init>":(Lorg/ek9/lang/Integer;)V
+        80: astore        11
+        82: aload         11
+        84: astore        4
+        86: goto          89
+        89: aconst_null
+        90: astore        12
+        92: new           #CP                 // class org/ek9/lang/Integer
+        95: dup
+        96: invokespecial #CP                 // Method org/ek9/lang/Integer."<init>":()V
+        99: astore        13
+       101: aload         13
+       103: astore        12
+       105: aload_1
+       106: astore        14
+       108: iconst_0
+       109: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+       112: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+       115: astore        15
+       117: aload         14
+       119: aload         15
+       121: invokevirtual #CP                 // Method org/ek9/lang/Integer._gt:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+       124: astore        16
+       126: aload         16
+       128: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       131: istore        17
+       133: iload         17
+       135: ifeq          166
+       138: bipush        42
+       140: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+       143: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+       146: astore        18
+       148: new           #CP                 // class org/ek9/lang/Integer
+       151: dup
+       152: aload         18
+       154: invokespecial #CP                 // Method org/ek9/lang/Integer."<init>":(Lorg/ek9/lang/Integer;)V
+       157: astore        19
+       159: aload         19
+       161: astore        12
+       163: goto          166
+       166: aload         4
+       168: ifnull        175
+       171: iconst_0
+       172: goto          176
+       175: iconst_1
+       176: istore        20
+       178: iload         20
+       180: ifeq          195
+       183: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
+       186: astore        21
+       188: aload         21
+       190: astore        22
+       192: goto          210
+       195: aload         4
+       197: astore        23
+       199: aload         23
+       201: invokevirtual #CP                 // Method org/ek9/lang/Integer._isSet:()Lorg/ek9/lang/Boolean;
+       204: astore        24
+       206: aload         24
+       208: astore        22
+       210: aload         22
+       212: invokevirtual #CP                 // Method org/ek9/lang/Boolean._negate:()Lorg/ek9/lang/Boolean;
+       215: astore        25
+       217: aload         25
+       219: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       222: istore        26
+       224: iload         26
+       226: ifeq          237
+       229: aload         12
+       231: astore        27
+       233: aload         27
+       235: astore        4
+       237: aload         4
+       239: ifnull        246
+       242: iconst_0
+       243: goto          247
+       246: iconst_1
+       247: istore        28
+       249: iload         28
+       251: ifeq          266
+       254: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
+       257: astore        29
+       259: aload         29
+       261: astore        30
+       263: goto          281
+       266: aload         4
+       268: astore        31
+       270: aload         31
+       272: invokevirtual #CP                 // Method org/ek9/lang/Integer._isSet:()Lorg/ek9/lang/Boolean;
+       275: astore        32
+       277: aload         32
+       279: astore        30
+       281: aload         30
+       283: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       286: istore        33
+       288: iload         33
+       290: ifeq          333
+       293: aload_2
+       294: astore        34
+       296: ldc           #CP                 // String Value:
+       298: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       301: astore        35
+       303: aload         4
+       305: astore        36
+       307: aload         36
+       309: invokevirtual #CP                 // Method org/ek9/lang/Integer._string:()Lorg/ek9/lang/String;
+       312: astore        37
+       314: aload         35
+       316: aload         37
+       318: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
+       321: astore        38
+       323: aload         34
+       325: aload         38
+       327: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       330: goto          350
+       333: aload_2
+       334: astore        39
+       336: ldc           #CP                 // String Unset
+       338: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       341: astore        40
+       343: aload         39
+       345: aload         40
+       347: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       350: aload_2
+       351: astore        41
+       353: ldc           #CP                 // String Done
+       355: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       358: astore        42
+       360: aload         41
+       362: aload         42
+       364: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       367: return
+}`
+    IfAssignmentIfUnset()
+      -> inputValue as Integer
+
+      stdout <- Stdout()
+
+      // Declare variable and conditionally pre-set it
+      existing <- Integer()
+      if inputValue < 0
+        existing: Integer(100)  // Pre-set with 100
+
+      // Create value to potentially assign (conditionally set)
+      newValue <- Integer()
+      if inputValue > 0
+        newValue: Integer(42)
+
+      // Assignment if unset (:=?) without condition
+      // Checks if existing is unset FIRST
+      // Only assigns newValue if existing is unset
+      // Then checks if result (existing) is set
+      if existing :=? newValue
+        stdout.println("Value: " + $existing)
+      else
+        stdout.println("Unset")
+
+      stdout.println("Done")
+
+//EOF

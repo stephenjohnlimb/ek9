@@ -20,6 +20,7 @@ import org.objectweb.asm.ClassWriter;
  *   <li>GREATER_THAN_COALESCING_OPERATOR</li>
  *   <li>LESS_EQUAL_COALESCING_OPERATOR</li>
  *   <li>GREATER_EQUAL_COALESCING_OPERATOR</li>
+ *   <li>TERNARY_OPERATOR - EK9 ternary operator (condition &lt;- then : else) for conditional expressions</li>
  *   <li>GUARDED_ASSIGNMENT - EK9 guarded assignment (:=?) for conditional initialization</li>
  *   <li>IF_ELSE_IF - If/else and if/else-if/else statements</li>
  *   <li>IF_ELSE_WITH_GUARDS - If/else with guard variables (if x &lt;- expr with condition)</li>
@@ -48,6 +49,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   private NullCoalescingOperatorAsmGenerator nullCoalescingOperatorGenerator;
   private ElvisCoalescingOperatorAsmGenerator elvisCoalescingOperatorGenerator;
   private ComparisonCoalescingOperatorAsmGenerator comparisonCoalescingOperatorGenerator;
+  private TernaryOperatorAsmGenerator ternaryOperatorGenerator;
   private GuardedAssignmentAsmGenerator guardedAssignmentGenerator;
   private IfElseAsmGenerator ifElseGenerator;
   private WhileLoopAsmGenerator whileLoopGenerator;
@@ -84,6 +86,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
       case "LESS_THAN_COALESCING_OPERATOR", "GREATER_THAN_COALESCING_OPERATOR",
           "LESS_EQUAL_COALESCING_OPERATOR", "GREATER_EQUAL_COALESCING_OPERATOR" ->
           generateComparisonCoalescingOperator(instr);
+      case "TERNARY_OPERATOR" -> generateTernaryOperator(instr);
       case "GUARDED_ASSIGNMENT" -> generateGuardedAssignment(instr);
       case "IF_ELSE_IF", "IF_ELSE_WITH_GUARDS" -> generateIfElse(instr);
       case "WHILE_LOOP" -> generateWhileLoop(instr);
@@ -163,6 +166,23 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     comparisonCoalescingOperatorGenerator.setSharedMethodContext(getMethodContext());
     comparisonCoalescingOperatorGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
     comparisonCoalescingOperatorGenerator.generate(instr);
+  }
+
+  /**
+   * Generate bytecode for ternary operator.
+   * Lazily instantiates TernaryOperatorAsmGenerator on first use.
+   *
+   * @param instr CONTROL_FLOW_CHAIN instruction with TERNARY_OPERATOR type
+   */
+  private void generateTernaryOperator(final ControlFlowChainInstr instr) {
+    if (ternaryOperatorGenerator == null) {
+      ternaryOperatorGenerator = new TernaryOperatorAsmGenerator(
+          constructTargetTuple, outputVisitor, classWriter, context);
+    }
+    // Always update context in case method changed
+    ternaryOperatorGenerator.setSharedMethodContext(getMethodContext());
+    ternaryOperatorGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
+    ternaryOperatorGenerator.generate(instr);
   }
 
   /**
@@ -288,6 +308,12 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     if (elvisCoalescingOperatorGenerator != null) {
       elvisCoalescingOperatorGenerator.setSharedMethodContext(context);
     }
+    if (comparisonCoalescingOperatorGenerator != null) {
+      comparisonCoalescingOperatorGenerator.setSharedMethodContext(context);
+    }
+    if (ternaryOperatorGenerator != null) {
+      ternaryOperatorGenerator.setSharedMethodContext(context);
+    }
     if (guardedAssignmentGenerator != null) {
       guardedAssignmentGenerator.setSharedMethodContext(context);
     }
@@ -329,6 +355,12 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     }
     if (elvisCoalescingOperatorGenerator != null) {
       elvisCoalescingOperatorGenerator.setCurrentMethodVisitor(mv);
+    }
+    if (comparisonCoalescingOperatorGenerator != null) {
+      comparisonCoalescingOperatorGenerator.setCurrentMethodVisitor(mv);
+    }
+    if (ternaryOperatorGenerator != null) {
+      ternaryOperatorGenerator.setCurrentMethodVisitor(mv);
     }
     if (guardedAssignmentGenerator != null) {
       guardedAssignmentGenerator.setCurrentMethodVisitor(mv);

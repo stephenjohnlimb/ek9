@@ -12,9 +12,8 @@ class SimpleClassIRTest extends AbstractIRGenerationTest {
   public SimpleClassIRTest() {
     // Module name: bytecode.test
     // Expected symbols: 1 program + 1 class = 2
-    // showIR = true to see the IR output
     super("/examples/bytecodeGeneration/simpleClass",
         List.of(new SymbolCountCheck("bytecode.test", 2)),
-        false, false, true);  // verbose=false, muteErrors=false, showIR=true
+        false, false, false);
   }
 }
