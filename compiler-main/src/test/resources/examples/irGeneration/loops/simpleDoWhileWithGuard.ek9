@@ -60,20 +60,73 @@ defines module loops.doWhileGuard
     condition_evaluation:
     [
     SCOPE_ENTER _scope_5
-    _temp9 = LOAD value
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_5
-    _temp10 = LOAD counter
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, _scope_5
-    _temp8 = CALL (org.ek9.lang::Integer)_temp9._gt(_temp10) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_5
-    _temp11 = CALL (org.ek9.lang::Boolean)_temp8._true() [pure=true, complexity=0]
+    _temp8 = LOGICAL_AND_BLOCK
+    [
+    left_evaluation:
+    [
+    _temp9 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_5
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp10 = IS_NULL value
+    ]
+    primitive_condition: _temp10
+    body_evaluation:
+    [
+    _temp11 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_5
+    ]
+    body_result: _temp11
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp12 = LOAD value
+    _temp13 = CALL (org.ek9.lang::Integer)_temp12._isSet() [pure=true, complexity=0]
+    RETAIN _temp13
+    SCOPE_REGISTER _temp13, _scope_5
+    ]
+    default_result: _temp13
+    scope_id: _scope_5
+    ]
+    _temp14 = CALL (org.ek9.lang::Boolean)_temp9._true() [pure=true, complexity=0]
+    ]
+    left_operand: _temp9
+    left_condition: _temp14
+    right_evaluation:
+    [
+    _temp16 = LOAD value
+    RETAIN _temp16
+    SCOPE_REGISTER _temp16, _scope_5
+    _temp17 = LOAD counter
+    RETAIN _temp17
+    SCOPE_REGISTER _temp17, _scope_5
+    _temp15 = CALL (org.ek9.lang::Integer)_temp16._gt(_temp17) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, _scope_5
+    ]
+    right_operand: _temp15
+    result_computation:
+    [
+    _temp18 = CALL (org.ek9.lang::Boolean)_temp9._and(_temp15) [pure=true, complexity=0]
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, _scope_5
+    ]
+    logical_result: _temp18
+    scope_id: _scope_5
+    ]
+    _temp19 = CALL (org.ek9.lang::Boolean)_temp8._true() [pure=true, complexity=0]
     SCOPE_EXIT _scope_5
     ]
     condition_result: _temp8
-    primitive_condition: _temp11
+    primitive_condition: _temp19
     body_evaluation:
     [
     SCOPE_ENTER _scope_4
@@ -97,7 +150,7 @@ defines module loops.doWhileGuard
     ]
     SCOPE_EXIT _scope_3
     SCOPE_EXIT _scope_2
-    _temp12 = CONTROL_FLOW_CHAIN
+    _temp20 = CONTROL_FLOW_CHAIN
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:
@@ -107,32 +160,32 @@ defines module loops.doWhileGuard
     case_type: "NULL_CHECK"
     condition_evaluation:
     [
-    _temp13 = LOAD counter
-    _temp14 = IS_NULL _temp13
+    _temp21 = LOAD counter
+    _temp22 = IS_NULL _temp21
     ]
-    primitive_condition: _temp14
+    primitive_condition: _temp22
     body_evaluation:
     [
-    _temp15 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_1
+    _temp23 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp23
+    SCOPE_REGISTER _temp23, _scope_1
     ]
-    body_result: _temp15
+    body_result: _temp23
     ]
     ]
     default_body_evaluation:
     [
-    _temp16 = CALL (org.ek9.lang::Integer)_temp13._isSet() [pure=true, complexity=0]
-    RETAIN _temp16
-    SCOPE_REGISTER _temp16, _scope_1
+    _temp24 = CALL (org.ek9.lang::Integer)_temp21._isSet() [pure=true, complexity=0]
+    RETAIN _temp24
+    SCOPE_REGISTER _temp24, _scope_1
     ]
-    default_result: _temp16
+    default_result: _temp24
     scope_id: _scope_1
     ]
-    RETAIN _temp12
-    SCOPE_REGISTER _temp12, _scope_1
-    _temp17 = CALL (org.ek9.lang::Boolean)_temp12._true() [pure=true, complexity=0]
-    ASSERT _temp17
+    RETAIN _temp20
+    SCOPE_REGISTER _temp20, _scope_1
+    _temp25 = CALL (org.ek9.lang::Boolean)_temp20._true() [pure=true, complexity=0]
+    ASSERT _temp25
     SCOPE_EXIT _scope_1
     RETURN`
     simpleDoWhileWithGuard()

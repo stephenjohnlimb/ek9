@@ -10,8 +10,6 @@ import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
-import org.ek9lang.compiler.phase7.support.BooleanExtractionParams;
-import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.core.AssertValue;
 
@@ -36,12 +34,14 @@ public final class WhileStatementGenerator extends AbstractGenerator
     implements Function<EK9Parser.WhileStatementExpressionContext, List<IRInstr>> {
 
   private final GeneratorSet generators;
+  private final GuardedConditionEvaluator guardedConditionEvaluator;
 
   public WhileStatementGenerator(final IRGenerationContext stackContext,
                                  final GeneratorSet generators) {
     super(stackContext);
     AssertValue.checkNotNull("GeneratorSet cannot be null", generators);
     this.generators = generators;
+    this.guardedConditionEvaluator = new GuardedConditionEvaluator(stackContext, generators);
   }
 
   @Override
@@ -101,18 +101,17 @@ public final class WhileStatementGenerator extends AbstractGenerator
     // Enter condition iteration scope
     conditionEvaluation.add(ScopeInstr.enter(conditionIterationScopeId, debugInfo));
 
-    // Generate condition expression with memory management
-    // Scope is on stack, so helper uses correct currentScopeId()
-    conditionEvaluation.addAll(generators.variableMemoryManagement.apply(
-        () -> generators.exprGenerator.apply(new ExprProcessingDetails(ctx.control, conditionResult)),
-        conditionResult
-    ));
+    // Evaluate guarded condition (handles all 4 cases: guard+condition, guard-only, condition-only, etc.)
+    final var evaluation = guardedConditionEvaluator.evaluate(
+        ctx.control,                  // Condition expression (may be null for guard-only)
+        ctx.preFlowStatement(),       // Guard variable (may be null for condition-only)
+        conditionResult,              // Result variable
+        conditionIterationScopeId,    // Scope ID for condition evaluation
+        debugInfo);                   // Debug information
 
-    // Add primitive boolean conversion for backend branching
-    final var primitiveCondition = stackContext.generateTempName();
-    final var extractionParams = new BooleanExtractionParams(
-        conditionResult.resultVariable(), primitiveCondition, debugInfo);
-    conditionEvaluation.addAll(generators.primitiveBooleanExtractor.apply(extractionParams));
+    // Add the generated condition evaluation instructions
+    conditionEvaluation.addAll(evaluation.instructions());
+    final var primitiveCondition = evaluation.primitiveCondition();
 
     // Exit condition iteration scope
     conditionEvaluation.add(ScopeInstr.exit(conditionIterationScopeId, debugInfo));
@@ -217,18 +216,17 @@ public final class WhileStatementGenerator extends AbstractGenerator
     // Enter condition iteration scope
     conditionEvaluation.add(ScopeInstr.enter(conditionIterationScopeId, debugInfo));
 
-    // Generate condition expression with memory management
-    // Scope is on stack, so helper uses correct currentScopeId()
-    conditionEvaluation.addAll(generators.variableMemoryManagement.apply(
-        () -> generators.exprGenerator.apply(new ExprProcessingDetails(ctx.control, conditionResult)),
-        conditionResult
-    ));
+    // Evaluate guarded condition (same 4-case pattern as WHILE)
+    final var evaluation = guardedConditionEvaluator.evaluate(
+        ctx.control,                  // Condition expression (may be null for guard-only)
+        ctx.preFlowStatement(),       // Guard variable (may be null for condition-only)
+        conditionResult,              // Result variable
+        conditionIterationScopeId,    // Scope ID for condition evaluation
+        debugInfo);                   // Debug information
 
-    // Convert to primitive boolean for backend branching
-    final var primitiveCondition = stackContext.generateTempName();
-    final var extractionParams = new BooleanExtractionParams(
-        conditionResult.resultVariable(), primitiveCondition, debugInfo);
-    conditionEvaluation.addAll(generators.primitiveBooleanExtractor.apply(extractionParams));
+    // Add the generated condition evaluation instructions
+    conditionEvaluation.addAll(evaluation.instructions());
+    final var primitiveCondition = evaluation.primitiveCondition();
 
     // Exit condition iteration scope
     conditionEvaluation.add(ScopeInstr.exit(conditionIterationScopeId, debugInfo));

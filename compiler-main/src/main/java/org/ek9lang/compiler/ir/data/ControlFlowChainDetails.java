@@ -332,6 +332,38 @@ public record ControlFlowChainDetails(
   }
 
   /**
+   * Create details for a while loop with guard variables (statement form).
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   *
+   * @param guardDetails   Guard variable details (guard <- expr())
+   * @param conditionChain Single ConditionCaseDetails with loop condition and body
+   * @param debugInfo      Debug information
+   * @param scopeId        Condition scope ID (_scope_2) where temps are registered
+   * @return ControlFlowChainDetails configured for while loop with guards
+   */
+  public static ControlFlowChainDetails createWhileLoopWithGuards(
+      GuardVariableDetails guardDetails,
+      List<ConditionCaseDetails> conditionChain,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    return new ControlFlowChainDetails(
+        null,                           // No result for statement form
+        guardDetails.hasGuardVariables() ? "WHILE_LOOP_WITH_GUARDS" : "WHILE_LOOP",
+        guardDetails,                   // Pass through guard details
+        EvaluationVariableDetails.none(), // No evaluation variable
+        ReturnVariableDetails.none(),   // No return variable (statement form)
+        conditionChain,                 // Single case with condition + body
+        DefaultCaseDetails.none(),      // No default case
+        null,                           // No enum optimization
+        null,                           // No try block
+        List.of(),                      // No finally block
+        debugInfo,
+        scopeId                         // Condition scope ID
+    );
+  }
+
+  /**
    * Create details for a do-while loop (statement form).
    * STACK-BASED: scopeId parameter extracted from stack context in generator.
    * <p>
@@ -354,6 +386,43 @@ public record ControlFlowChainDetails(
         null,                           // No result for statement form
         "DO_WHILE_LOOP",                // Chain type for backend
         GuardVariableDetails.none(),    // No guards yet
+        EvaluationVariableDetails.none(), // No evaluation variable
+        ReturnVariableDetails.none(),   // No return variable (statement form)
+        conditionChain,                 // Single case with body + condition
+        DefaultCaseDetails.none(),      // No default case
+        null,                           // No enum optimization
+        null,                           // No try block
+        List.of(),                      // No finally block
+        debugInfo,
+        scopeId                         // Whole loop scope ID
+    );
+  }
+
+  /**
+   * Create details for a do-while loop with guard variables (statement form).
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   * <p>
+   * Key difference from while loop: Body executes FIRST (at least once),
+   * then condition is evaluated. Backend generates IFNE (jump if true)
+   * instead of IFEQ (jump if false).
+   * </p>
+   *
+   * @param guardDetails   Guard variable details (do guard <- expr() { body } while condition)
+   * @param conditionChain Single ConditionCaseDetails with loop body and condition
+   * @param debugInfo      Debug information
+   * @param scopeId        Whole loop scope ID (_scope_2) for loop control
+   * @return ControlFlowChainDetails configured for do-while loop with guards
+   */
+  public static ControlFlowChainDetails createDoWhileLoopWithGuards(
+      GuardVariableDetails guardDetails,
+      List<ConditionCaseDetails> conditionChain,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    return new ControlFlowChainDetails(
+        null,                           // No result for statement form
+        guardDetails.hasGuardVariables() ? "DO_WHILE_LOOP_WITH_GUARDS" : "DO_WHILE_LOOP",
+        guardDetails,                   // Pass through guard details
         EvaluationVariableDetails.none(), // No evaluation variable
         ReturnVariableDetails.none(),   // No return variable (statement form)
         conditionChain,                 // Single case with body + condition
