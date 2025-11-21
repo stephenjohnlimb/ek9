@@ -1,18 +1,29 @@
 #!ek9
 <?-
-  Testing STREAM_TYPE_NOT_DEFINED error.
-  Stream pipeline with function that returns Void.
+  Testing CANNOT_EXTEND_IMPLEMENT_ITSELF error.
+  Classes and traits cannot extend/implement themselves.
 -?>
 defines module working.area.test
 
-  defines function
-    voidFunction()
-      -> arg as String
-      assert arg?
-      //No return value - returns Void
+  defines trait
 
-    testStreamWithVoid()
-      values <- ["a", "b", "c"]
-      result <- cat values | map voidFunction | collect as Void
+    <?-
+      Trait attempting to extend itself - creates circular reference
+    -?>
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    T1 with trait of T1
+      someMethod()
+        -> arg as String
+        assert arg?
+
+  defines class
+
+    <?-
+      Class attempting to extend itself - creates circular reference
+    -?>
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    C1 extends C1 as open
+      prop1 <- "value"
+      default C1()
 
 //EOF

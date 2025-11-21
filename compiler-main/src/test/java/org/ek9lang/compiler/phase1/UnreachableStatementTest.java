@@ -20,7 +20,9 @@ class UnreachableStatementTest {
     assertTrue(errorListener.hasErrors());
     var errorDetails = errorListener.getErrors().next();
     assertEquals(
-        "Error   : 'Cause' on line 5 position 0: Unreachable, because of 'Target' on line 10: all paths lead to an Exception",
+        "Error   : E07370: 'Cause' on line 5 position 0: Unreachable, because of 'Target' on line 10: all paths lead to an Exception"
+            + System.lineSeparator()
+            + "             See: https://ek9.io/errors.html#E07370",
         errorDetails.toString());
 
   }
