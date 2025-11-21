@@ -335,7 +335,7 @@ public record ControlFlowChainDetails(
    * Create details for a while loop with guard variables (statement form).
    * STACK-BASED: scopeId parameter extracted from stack context in generator.
    *
-   * @param guardDetails   Guard variable details (guard <- expr())
+   * @param guardDetails   Guard variable details (guard &lt;- expr())
    * @param conditionChain Single ConditionCaseDetails with loop condition and body
    * @param debugInfo      Debug information
    * @param scopeId        Condition scope ID (_scope_2) where temps are registered
@@ -407,7 +407,7 @@ public record ControlFlowChainDetails(
    * instead of IFEQ (jump if false).
    * </p>
    *
-   * @param guardDetails   Guard variable details (do guard <- expr() { body } while condition)
+   * @param guardDetails   Guard variable details (do guard &lt;- expr() { body } while condition)
    * @param conditionChain Single ConditionCaseDetails with loop body and condition
    * @param debugInfo      Debug information
    * @param scopeId        Whole loop scope ID (_scope_2) for loop control
@@ -462,6 +462,45 @@ public record ControlFlowChainDetails(
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
         null, // No enum optimization for general switch
+        null, // No try block
+        List.of(), // No finally block
+        debugInfo,
+        scopeId
+    );
+  }
+
+  /**
+   * Create details for a switch statement with guard variable support.
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   * <p>
+   * Uses guard details to determine chain type:
+   * - SWITCH_WITH_GUARDS when guards are present
+   * - SWITCH when no guards present
+   * </p>
+   */
+  public static ControlFlowChainDetails createSwitchWithGuards(
+      String result,
+      GuardVariableDetails guardDetails,
+      String evaluationVariable,
+      String evaluationVariableType,
+      String returnVariable,
+      String returnVariableType,
+      List<IRInstr> returnVariableSetup,
+      List<ConditionCaseDetails> conditionChain,
+      List<IRInstr> defaultBodyEvaluation,
+      String defaultResult,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    return new ControlFlowChainDetails(
+        result,
+        guardDetails.hasGuardVariables() ? "SWITCH_WITH_GUARDS" : "SWITCH",
+        guardDetails,
+        EvaluationVariableDetails.withSetup(evaluationVariable, evaluationVariableType, List.of()),
+        ReturnVariableDetails.withSetup(returnVariable, returnVariableType, returnVariableSetup),
+        conditionChain,
+        DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
+        null, // No enum optimization
         null, // No try block
         List.of(), // No finally block
         debugInfo,
@@ -547,7 +586,8 @@ public record ControlFlowChainDetails(
    * Check if this is a switch construct.
    */
   public boolean isSwitch() {
-    return "SWITCH".equals(chainType) || "SWITCH_ENUM".equals(chainType);
+    return "SWITCH".equals(chainType) || "SWITCH_ENUM".equals(chainType)
+        || "SWITCH_WITH_GUARDS".equals(chainType);
   }
 
   /**

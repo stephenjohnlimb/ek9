@@ -46,7 +46,7 @@ defines module controlFlow.guard
     SCOPE_REGISTER value, _scope_2
     CONTROL_FLOW_CHAIN
     [
-    chain_type: "SWITCH"
+    chain_type: "SWITCH_WITH_GUARDS"
     evaluation_variable: value
     evaluation_variable_type: "org.ek9.lang::Integer"
     condition_chain:

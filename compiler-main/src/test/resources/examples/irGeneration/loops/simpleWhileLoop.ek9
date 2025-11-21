@@ -35,56 +35,52 @@ defines module loops
     STORE counter, _temp2
     RETAIN counter
     SCOPE_REGISTER counter, _scope_1
-    SCOPE_ENTER _scope_2
-    SCOPE_ENTER _scope_3
     CONTROL_FLOW_CHAIN
     [
     chain_type: "WHILE_LOOP"
     condition_chain:
     [
     [
-    case_scope_id: _scope_4
+    case_scope_id: _scope_3
     case_type: "EXPRESSION"
     condition_evaluation:
     [
-    SCOPE_ENTER _scope_4
+    SCOPE_ENTER _scope_3
     _temp4 = LOAD counter
     RETAIN _temp4
-    SCOPE_REGISTER _temp4, _scope_4
+    SCOPE_REGISTER _temp4, _scope_3
     _temp5 = LOAD_LITERAL 10, org.ek9.lang::Integer
     RETAIN _temp5
-    SCOPE_REGISTER _temp5, _scope_4
+    SCOPE_REGISTER _temp5, _scope_3
     _temp3 = CALL (org.ek9.lang::Integer)_temp4._lt(_temp5) [pure=true, complexity=2, effects=RETURN_MUTATION]
     RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_4
+    SCOPE_REGISTER _temp3, _scope_3
     _temp6 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_4
+    SCOPE_EXIT _scope_3
     ]
     condition_result: _temp3
     primitive_condition: _temp6
     body_evaluation:
     [
-    SCOPE_ENTER _scope_5
+    SCOPE_ENTER _scope_4
     _temp8 = LOAD counter
     RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_5
+    SCOPE_REGISTER _temp8, _scope_4
     _temp9 = LOAD_LITERAL 1, org.ek9.lang::Integer
     RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_5
+    SCOPE_REGISTER _temp9, _scope_4
     _temp7 = CALL (org.ek9.lang::Integer)_temp8._add(_temp9) [pure=true, complexity=2, effects=RETURN_MUTATION]
     RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_5
+    SCOPE_REGISTER _temp7, _scope_4
     RELEASE counter
     STORE counter, _temp7
     RETAIN counter
-    SCOPE_EXIT _scope_5
+    SCOPE_EXIT _scope_4
     ]
     ]
     ]
-    scope_id: _scope_3
+    scope_id: _scope_2
     ]
-    SCOPE_EXIT _scope_3
-    SCOPE_EXIT _scope_2
     _temp11 = LOAD stdout
     RETAIN _temp11
     SCOPE_REGISTER _temp11, _scope_1

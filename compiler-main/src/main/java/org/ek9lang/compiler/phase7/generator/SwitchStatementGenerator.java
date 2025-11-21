@@ -6,6 +6,7 @@ import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
+import org.ek9lang.compiler.ir.data.GuardVariableDetails;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
@@ -13,6 +14,7 @@ import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
+import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.core.AssertValue;
 
@@ -58,6 +60,7 @@ public final class SwitchStatementGenerator extends AbstractGenerator
     validateSwitchStatementFormOnly(ctx);
 
     // 1. Enter chain scope for entire switch
+    // SWITCH needs manual scope management because evaluation variable lives for entire switch
     final var chainScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     stackContext.enterScope(chainScopeId, debugInfo, IRFrameType.BLOCK);
     instructions.add(ScopeInstr.enter(chainScopeId, debugInfo));
@@ -67,6 +70,7 @@ public final class SwitchStatementGenerator extends AbstractGenerator
     //    Form #2: control=expression only (explicit switch expression)
     //    Form #3: preFlowStatement (WITH|THEN) control=expression (guard + explicit control)
     final EvalVariable evalVariable;
+    String guardVariableName = null;  // Track guard variable name for chain type
     final boolean hasGuard = ctx.preFlowAndControl().preFlowStatement() != null;
     final boolean hasControl = ctx.preFlowAndControl().control != null;
 
@@ -74,13 +78,15 @@ public final class SwitchStatementGenerator extends AbstractGenerator
       // Form #3: Guard + Control
       // Example: switch opt <- getOpt() then opt.get()
       // Guard declares variable, control specifies what to switch on
-      evaluateGuardVariable(ctx.preFlowAndControl(), instructions);
+      final var guardResult = evaluateGuardVariableInline(ctx.preFlowAndControl(), instructions);
+      guardVariableName = guardResult.name();
       evalVariable = evaluateSwitchExpressionInline(ctx.preFlowAndControl(), instructions);
     } else if (hasGuard) {
       // Form #1: Guard only
       // Example: switch value <- getValue()
       // Guard variable becomes the switch expression implicitly
-      evalVariable = evaluateGuardVariable(ctx.preFlowAndControl(), instructions);
+      evalVariable = evaluateGuardVariableInline(ctx.preFlowAndControl(), instructions);
+      guardVariableName = evalVariable.name();
     } else {
       // Form #2: Control only
       // Example: switch myValue
@@ -101,11 +107,17 @@ public final class SwitchStatementGenerator extends AbstractGenerator
     }
 
     // 5. Create CONTROL_FLOW_CHAIN details
-    final var details = ControlFlowChainDetails.createSwitch(
+    // Uses createSwitchWithGuards to produce SWITCH_WITH_GUARDS when guards present
+    // Pass guard variable name so hasGuardVariables() returns true for guards
+    final var guardDetails = guardVariableName != null
+        ? GuardVariableDetails.create(List.of(guardVariableName), List.of(), chainScopeId, null)
+        : GuardVariableDetails.none();
+
+    final var details = ControlFlowChainDetails.createSwitchWithGuards(
         null,  // no result (statement form)
+        guardDetails,
         evalVariable.name(),
         evalVariable.type(),
-        List.of(),  // no setup - already done inline
         null,  // no return variable
         null,  // no return variable type
         List.of(),  // no return variable setup
@@ -116,8 +128,8 @@ public final class SwitchStatementGenerator extends AbstractGenerator
         chainScopeId
     );
 
-    // 6. Generate CONTROL_FLOW_CHAIN instruction
-    instructions.addAll(generators.controlFlowChainGenerator.apply(details));
+    // 6. Generate CONTROL_FLOW_CHAIN instruction (just the chain, not scope)
+    instructions.add(org.ek9lang.compiler.ir.instructions.ControlFlowChainInstr.controlFlowChain(details));
 
     // 7. Exit chain scope
     instructions.add(ScopeInstr.exit(chainScopeId, debugInfo));
@@ -245,24 +257,18 @@ public final class SwitchStatementGenerator extends AbstractGenerator
   }
 
   /**
-   * Evaluate guard variable for switch statement.
+   * Evaluate guard variable for switch statement inline.
    * Pattern: switch value <- getValue()
    * <p>
    * Uses existing variableDeclGenerator to handle the variable declaration,
    * then extracts the guard variable information to use as switch expression.
-   * </p>
-   * <p>
-   * NOTE: This implementation follows the IF statement pattern where guards
-   * are implicitly checked for isSet. For now, we evaluate the guard but
-   * do NOT add the isSet check - the switch will use the guard variable directly.
-   * Future enhancement: Wrap entire switch in guard isSet check.
    * </p>
    *
    * @param ctx          preFlowAndControl context with guard
    * @param instructions List to append guard evaluation instructions
    * @return EvalVariable with guard variable name and type
    */
-  private EvalVariable evaluateGuardVariable(
+  private EvalVariable evaluateGuardVariableInline(
       final EK9Parser.PreFlowAndControlContext ctx,
       final List<IRInstr> instructions) {
 
@@ -274,7 +280,7 @@ public final class SwitchStatementGenerator extends AbstractGenerator
 
       // Extract guard variable information
       final var guardSymbol = getRecordedSymbolOrException(guardStmt.variableDeclaration());
-      final var guardVarName = new org.ek9lang.compiler.phase7.support.VariableNameForIR().apply(guardSymbol);
+      final var guardVarName = new VariableNameForIR().apply(guardSymbol);
       final var guardTypeName = typeNameOrException.apply(guardSymbol);
 
       return new EvalVariable(guardVarName, guardTypeName, guardSymbol);
