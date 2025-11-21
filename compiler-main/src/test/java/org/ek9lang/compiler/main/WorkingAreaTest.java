@@ -27,7 +27,7 @@ class WorkingAreaTest extends PhasesTest {
 
   @Test
   void testPhaseDevelopment() {
-    testToPhase(CompilationPhase.FULL_RESOLUTION);
+    testToPhase(CompilationPhase.TYPE_HIERARCHY_CHECKS);
   }
 
   @Override
