@@ -1,0 +1,146 @@
+#!ek9
+<?-
+  Test IR generation for switch statement with guard variable.
+  Guard: switch value <- provideOptionalValue()
+  - Declares and initializes guard variable
+  - Guard variable becomes the switch expression
+  - Switch executes cases using guard variable
+-?>
+defines module controlFlow.guard
+
+  defines function
+
+    getValue()
+      <- rtn as Integer?
+      rtn: 42
+
+    @IR: IR_GENERATION: FUNCTION: "controlFlow.guard::simpleSwitchWithGuard": `
+    ConstructDfn: controlFlow.guard::simpleSwitchWithGuard()->org.ek9.lang::String
+    OperationDfn: controlFlow.guard::simpleSwitchWithGuard.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow.guard::simpleSwitchWithGuard.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow.guard::simpleSwitchWithGuard.simpleSwitchWithGuard()->controlFlow.guard::simpleSwitchWithGuard
+    BasicBlock: _entry_1
+    CALL (controlFlow.guard::simpleSwitchWithGuard)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: controlFlow.guard::simpleSwitchWithGuard._call()->org.ek9.lang::String
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE result, org.ek9.lang::String
+    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE result, _temp1
+    RETAIN result
+    SCOPE_ENTER _scope_2
+    REFERENCE value, org.ek9.lang::Integer
+    _temp4 = FUNCTION_INSTANCE controlFlow.guard::getValue
+    _temp2 = CALL (controlFlow.guard::getValue)_temp4._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_2
+    STORE value, _temp2
+    RETAIN value
+    SCOPE_REGISTER value, _scope_2
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "SWITCH"
+    evaluation_variable: value
+    evaluation_variable_type: "org.ek9.lang::Integer"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_4
+    case_type: "LITERAL"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_3
+    _temp5 = LOAD value
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, _scope_3
+    _temp6 = LOAD_LITERAL 42, org.ek9.lang::Integer
+    RETAIN _temp6
+    SCOPE_REGISTER _temp6, _scope_3
+    _temp7 = CALL (org.ek9.lang::Integer)_temp5._eq(_temp6) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_3
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp7._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_3
+    ]
+    condition_result: _temp7
+    primitive_condition: _temp8
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp9 = LOAD_LITERAL Found forty-two, org.ek9.lang::String
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_4
+    RELEASE result
+    STORE result, _temp9
+    RETAIN result
+    SCOPE_EXIT _scope_4
+    ]
+    ],
+    [
+    case_scope_id: _scope_6
+    case_type: "LITERAL"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_5
+    _temp10 = LOAD value
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_5
+    _temp11 = LOAD_LITERAL 1, org.ek9.lang::Integer
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_5
+    _temp12 = CALL (org.ek9.lang::Integer)_temp10._eq(_temp11) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_5
+    _temp13 = CALL (org.ek9.lang::Boolean)_temp12._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_5
+    ]
+    condition_result: _temp12
+    primitive_condition: _temp13
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_6
+    _temp14 = LOAD_LITERAL Found one, org.ek9.lang::String
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, _scope_6
+    RELEASE result
+    STORE result, _temp14
+    RETAIN result
+    SCOPE_EXIT _scope_6
+    ]
+    ]
+    ]
+    default_body_evaluation:
+    [
+    SCOPE_ENTER _scope_7
+    _temp15 = LOAD_LITERAL Found something else, org.ek9.lang::String
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, _scope_7
+    RELEASE result
+    STORE result, _temp15
+    RETAIN result
+    SCOPE_EXIT _scope_7
+    ]
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2
+    SCOPE_EXIT _scope_1
+    RETURN result`
+    simpleSwitchWithGuard()
+      <- result <- String()
+
+      switch value <- getValue()
+        case 42
+          result := "Found forty-two"
+        case 1
+          result := "Found one"
+        default
+          result := "Found something else"
+
+//EOF

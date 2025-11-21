@@ -18,7 +18,9 @@ class SwitchIRTest extends AbstractIRGenerationTest {
             new SymbolCountCheck(1, "controlFlow.character", 1),  // simpleSwitchCharacterPromotion
             new SymbolCountCheck(1, "controlFlow.equality", 1),  // simpleSwitchExplicitEquality
             new SymbolCountCheck(1, "controlFlow.multiple", 1),  // multipleCaseLiterals
-            new SymbolCountCheck(1, "controlFlow.multichar", 1)),  // multipleCaseCharacterPromotion
+            new SymbolCountCheck(1, "controlFlow.multichar", 1),  // multipleCaseCharacterPromotion
+            new SymbolCountCheck(1, "controlFlow.guard", 2),  // simpleSwitchWithGuard (2 functions: getValue, simpleSwitchWithGuard)
+            new SymbolCountCheck(1, "controlFlow.guardControl", 2)),  // switchWithGuardAndControl (2 functions: getOptionalValue, switchWithGuardAndControl)
         false, false, false);  // verbose=false, muteErrors=false, showIR=false
   }
 

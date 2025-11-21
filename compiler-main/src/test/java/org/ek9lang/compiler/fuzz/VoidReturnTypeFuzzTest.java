@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
  * 1. void_function_assignment.ek9 - Assign Void function result to variable
  * - Pattern: Function with no return value assigned to variable
  * - Error: Void return type cannot be used with assignment
- * - Tests RETURN_TYPE_VOID_MEANINGLESS (existing coverage: 2 tests)
+ * - Tests RETURN_TYPE_VOID_MEANINGLESS
  * <br/>
  * 2. void_method_assignment.ek9 - Assign Void method result to variable
  * - Pattern: Method with no return value assigned to variable
@@ -36,10 +36,12 @@ import org.junit.jupiter.api.Test;
  * <p>Validates: Void return type enforcement prevents meaningless assignments
  * and ensures proper distinction between statements and expressions.
  * </p>
- * <p>Gap addressed: Void return errors had minimal coverage:
- * - RETURN_TYPE_VOID_MEANINGLESS: 2 existing tests → 4 total tests
- * Covers function and method Void return assignments.
- * This ensures EK9 correctly prevents meaningless Void assignments.
+ * <p><strong>Note on Switch Tests:</strong>
+ * Switch statements with Void values (e.g., {@code switch value <- GetVoidValue()})
+ * generate multiple errors: one for the guard assignment (RETURN_TYPE_VOID_MEANINGLESS)
+ * and one for case comparisons (METHOD_NOT_RESOLVED). Since @Error directives cannot
+ * be placed inside control flow blocks, these scenarios don't fit the fuzz test pattern
+ * and are better tested in regular compilation tests.
  * </p>
  */
 class VoidReturnTypeFuzzTest extends FuzzTestBase {

@@ -56,15 +56,37 @@ public final class SwitchStatementGenerator extends AbstractGenerator
 
     // Validate - throw exceptions for unsupported features
     validateSwitchStatementFormOnly(ctx);
-    validateNoGuards(ctx.preFlowAndControl());
 
     // 1. Enter chain scope for entire switch
     final var chainScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     stackContext.enterScope(chainScopeId, debugInfo, IRFrameType.BLOCK);
     instructions.add(ScopeInstr.enter(chainScopeId, debugInfo));
 
-    // 2. Evaluate switch expression INLINE (in chain scope)
-    final var evalVariable = evaluateSwitchExpressionInline(ctx.preFlowAndControl(), instructions);
+    // 2. Check for three forms (from grammar preFlowAndControl):
+    //    Form #1: preFlowStatement only (guard becomes switch expression)
+    //    Form #2: control=expression only (explicit switch expression)
+    //    Form #3: preFlowStatement (WITH|THEN) control=expression (guard + explicit control)
+    final EvalVariable evalVariable;
+    final boolean hasGuard = ctx.preFlowAndControl().preFlowStatement() != null;
+    final boolean hasControl = ctx.preFlowAndControl().control != null;
+
+    if (hasGuard && hasControl) {
+      // Form #3: Guard + Control
+      // Example: switch opt <- getOpt() then opt.get()
+      // Guard declares variable, control specifies what to switch on
+      evaluateGuardVariable(ctx.preFlowAndControl(), instructions);
+      evalVariable = evaluateSwitchExpressionInline(ctx.preFlowAndControl(), instructions);
+    } else if (hasGuard) {
+      // Form #1: Guard only
+      // Example: switch value <- getValue()
+      // Guard variable becomes the switch expression implicitly
+      evalVariable = evaluateGuardVariable(ctx.preFlowAndControl(), instructions);
+    } else {
+      // Form #2: Control only
+      // Example: switch myValue
+      // Explicit switch expression
+      evalVariable = evaluateSwitchExpressionInline(ctx.preFlowAndControl(), instructions);
+    }
 
     // 3. Process each case statement
     final var conditionChain = new ArrayList<ConditionCaseDetails>();
@@ -223,6 +245,48 @@ public final class SwitchStatementGenerator extends AbstractGenerator
   }
 
   /**
+   * Evaluate guard variable for switch statement.
+   * Pattern: switch value <- getValue()
+   * <p>
+   * Uses existing variableDeclGenerator to handle the variable declaration,
+   * then extracts the guard variable information to use as switch expression.
+   * </p>
+   * <p>
+   * NOTE: This implementation follows the IF statement pattern where guards
+   * are implicitly checked for isSet. For now, we evaluate the guard but
+   * do NOT add the isSet check - the switch will use the guard variable directly.
+   * Future enhancement: Wrap entire switch in guard isSet check.
+   * </p>
+   *
+   * @param ctx          preFlowAndControl context with guard
+   * @param instructions List to append guard evaluation instructions
+   * @return EvalVariable with guard variable name and type
+   */
+  private EvalVariable evaluateGuardVariable(
+      final EK9Parser.PreFlowAndControlContext ctx,
+      final List<IRInstr> instructions) {
+
+    final var guardStmt = ctx.preFlowStatement();
+
+    // Use existing variable declaration generator (handles REFERENCE, STORE, RETAIN, SCOPE_REGISTER)
+    if (guardStmt.variableDeclaration() != null) {
+      instructions.addAll(generators.variableDeclGenerator.apply(guardStmt.variableDeclaration()));
+
+      // Extract guard variable information
+      final var guardSymbol = getRecordedSymbolOrException(guardStmt.variableDeclaration());
+      final var guardVarName = new org.ek9lang.compiler.phase7.support.VariableNameForIR().apply(guardSymbol);
+      final var guardTypeName = typeNameOrException.apply(guardSymbol);
+
+      return new EvalVariable(guardVarName, guardTypeName, guardSymbol);
+    }
+
+    // For now, only support variable declaration form (value <- expr)
+    // Future: Support assignment (:=) and guarded assignment (?=) forms
+    throw new org.ek9lang.core.CompilerException(
+        "Switch guards currently only support variable declaration form (value <- expr)");
+  }
+
+  /**
    * Process all block statements in a block context.
    * Same pattern as IfStatementGenerator.
    */
@@ -239,13 +303,6 @@ public final class SwitchStatementGenerator extends AbstractGenerator
    */
   private void validateSwitchStatementFormOnly(final EK9Parser.SwitchStatementExpressionContext ctx) {
     validateStatementFormOnly(ctx.returningParam(), "Switch");
-  }
-
-  /**
-   * Validate that there are no guard variables.
-   */
-  private void validateNoGuards(final EK9Parser.PreFlowAndControlContext ctx) {
-    validateNoPreFlowStatement(ctx.preFlowStatement(), "Switch");
   }
 
   /**

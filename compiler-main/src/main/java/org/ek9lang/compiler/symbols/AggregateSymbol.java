@@ -268,9 +268,11 @@ public class AggregateSymbol extends PossibleGenericSymbol implements IAggregate
 
   /**
    * We note down any subtypes this type is used with.
+   * This has to be synchronized because multiple threads could attempt to add
+   * themselves as a sub aggregate.
    */
   @Override
-  public void addSubAggregateSymbol(final IAggregateSymbol sub) {
+  public synchronized void addSubAggregateSymbol(final IAggregateSymbol sub) {
 
     if (!subAggregateSymbols.contains(sub)) {
       subAggregateSymbols.add(sub);

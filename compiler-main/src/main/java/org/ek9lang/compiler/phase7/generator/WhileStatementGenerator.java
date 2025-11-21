@@ -63,6 +63,7 @@ public final class WhileStatementGenerator extends AbstractGenerator
   /**
    * Generate IR for simple while loop: while condition { body }
    * Follows the same two-scope pattern as if/else for architectural consistency.
+   * Supports guards: while value <- getValue() then condition
    */
   private List<IRInstr> generateSimpleWhileLoop(
       final EK9Parser.WhileStatementExpressionContext ctx) {
@@ -70,14 +71,18 @@ public final class WhileStatementGenerator extends AbstractGenerator
     final var instructions = new ArrayList<IRInstr>();
     final var debugInfo = stackContext.createDebugInfo(ctx);
 
-    // Check for guard (preFlowStatement)
-    validateNoPreFlowStatement(ctx.preFlowStatement(), "While loop");
-
-    // SCOPE 1: Enter loop outer scope (for future guards)
+    // SCOPE 1: Enter loop outer scope (for guards)
     // This matches if/else pattern exactly - outer wrapper for guards
     final var outerScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     stackContext.enterScope(outerScopeId, debugInfo, IRFrameType.BLOCK);
     instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
+
+    // Check for guard (preFlowStatement) and evaluate if present
+    // Guard evaluates ONCE before loop starts (not each iteration)
+    // Guard variable is scoped to the loop and available in condition and body
+    if (ctx.preFlowStatement() != null) {
+      evaluateGuardVariable(ctx.preFlowStatement(), instructions);
+    }
 
     // SCOPE 2: Enter whole loop scope (loop control structure)
     final var wholeLoopScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
@@ -163,6 +168,7 @@ public final class WhileStatementGenerator extends AbstractGenerator
   /**
    * Generate IR for do-while loop: do { body } while condition
    * Key difference: Body executes FIRST (at least once), then condition is evaluated.
+   * Supports guards: do value <- getValue() { body } while condition
    */
   private List<IRInstr> generateDoWhileLoop(
       final EK9Parser.WhileStatementExpressionContext ctx) {
@@ -170,13 +176,17 @@ public final class WhileStatementGenerator extends AbstractGenerator
     final var instructions = new ArrayList<IRInstr>();
     final var debugInfo = stackContext.createDebugInfo(ctx);
 
-    // Check for guard (preFlowStatement)
-    validateNoPreFlowStatement(ctx.preFlowStatement(), "Do-while loop");
-
-    // SCOPE 1: Enter loop outer scope (for future guards)
+    // SCOPE 1: Enter loop outer scope (for guards)
     final var outerScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     stackContext.enterScope(outerScopeId, debugInfo, IRFrameType.BLOCK);
     instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
+
+    // Check for guard (preFlowStatement) and evaluate if present
+    // Guard evaluates ONCE before loop starts (not each iteration)
+    // Guard variable is scoped to the loop and available in condition and body
+    if (ctx.preFlowStatement() != null) {
+      evaluateGuardVariable(ctx.preFlowStatement(), instructions);
+    }
 
     // SCOPE 2: Enter whole loop scope (loop control structure)
     final var wholeLoopScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
@@ -256,6 +266,39 @@ public final class WhileStatementGenerator extends AbstractGenerator
     stackContext.exitScope();
 
     return instructions;
+  }
+
+  /**
+   * Evaluate guard variable for while/do-while loop.
+   * Pattern: while value <- getValue() then condition
+   * <p>
+   * Guard is evaluated ONCE before the loop starts (not on each iteration).
+   * Guard variable is scoped to the entire loop and available in both condition and body.
+   * Uses existing variableDeclGenerator to handle REFERENCE, STORE, RETAIN, SCOPE_REGISTER.
+   * </p>
+   * <p>
+   * NOTE: This implementation evaluates the guard but does NOT add isSet check wrapper.
+   * Future enhancement: Wrap entire loop in guard isSet check (like IF guards do).
+   * </p>
+   *
+   * @param preFlowStmt  preFlowStatement context with guard
+   * @param instructions List to append guard evaluation instructions
+   */
+  private void evaluateGuardVariable(
+      final EK9Parser.PreFlowStatementContext preFlowStmt,
+      final List<IRInstr> instructions) {
+
+    // Use existing variable declaration generator (handles REFERENCE, STORE, RETAIN, SCOPE_REGISTER)
+    // Guard variable will be registered to the current scope (outer scope)
+    if (preFlowStmt.variableDeclaration() != null) {
+      instructions.addAll(generators.variableDeclGenerator.apply(preFlowStmt.variableDeclaration()));
+      return;
+    }
+
+    // For now, only support variable declaration form (value <- expr)
+    // Future: Support assignment (:=) and guarded assignment (?=) forms
+    throw new org.ek9lang.core.CompilerException(
+        "While/Do-while guards currently only support variable declaration form (value <- expr)");
   }
 
 }

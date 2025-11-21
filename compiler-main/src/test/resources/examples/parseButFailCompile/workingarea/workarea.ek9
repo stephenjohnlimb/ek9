@@ -1,18 +1,29 @@
 #!ek9
 <?-
-  Testing STREAM_TYPE_NOT_DEFINED error.
-  Stream pipeline with function that returns Void.
+  Test IR generation for do-while loop with guard.
+  Pattern: do guard <- expression() { body } while condition
+
+  Key characteristics:
+  - Guard evaluates ONCE before loop starts
+  - Body executes FIRST (at least once), accessing guard variable
+  - Condition checked AFTER body
+  - Guard variable scoped to entire loop
 -?>
-defines module working.area.test
+defines module loops.doWhileGuard
 
   defines function
-    voidFunction()
-      -> arg as String
-      assert arg?
-      //No return value - returns Void
 
-    testStreamWithVoid()
-      values <- ["a", "b", "c"]
-      result <- cat values | map voidFunction | collect as Void
+    getValue()
+      <- rtn as Integer?
+      rtn: 5
+
+    simpleDoWhileWithGuard()
+      counter <- 0
+
+      do value <- getValue()
+        counter := counter + 1
+      while value > counter
+
+      assert counter?
 
 //EOF
