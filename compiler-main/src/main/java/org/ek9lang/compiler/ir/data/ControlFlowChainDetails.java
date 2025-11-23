@@ -740,6 +740,27 @@ public record ControlFlowChainDetails(
   }
 
   /**
+   * Check if this construct has a guard entry check (for WHILE/DO-WHILE loops).
+   */
+  public boolean hasGuardEntryCheck() {
+    return guardDetails != null && guardDetails.hasGuardEntryCheck();
+  }
+
+  /**
+   * Get guard entry check instructions (for WHILE/DO-WHILE loops).
+   */
+  public List<IRInstr> guardEntryCheck() {
+    return guardDetails != null ? guardDetails.guardEntryCheck() : List.of();
+  }
+
+  /**
+   * Get guard entry check primitive variable name (for WHILE/DO-WHILE loops).
+   */
+  public String guardEntryCheckPrimitive() {
+    return guardDetails != null ? guardDetails.guardEntryCheckPrimitive() : null;
+  }
+
+  /**
    * Check if this construct has an evaluation variable.
    */
   public boolean hasEvaluationVariable() {

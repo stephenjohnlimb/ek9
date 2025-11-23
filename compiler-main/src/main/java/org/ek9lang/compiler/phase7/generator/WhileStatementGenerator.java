@@ -12,7 +12,6 @@ import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.IRConstants;
-import org.ek9lang.compiler.phase7.support.VariableNameForIR;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -37,6 +36,7 @@ public final class WhileStatementGenerator extends AbstractGenerator
 
   private final GeneratorSet generators;
   private final GuardedConditionEvaluator guardedConditionEvaluator;
+  private final LoopGuardHelper loopGuardHelper;
 
   public WhileStatementGenerator(final IRGenerationContext stackContext,
                                  final GeneratorSet generators) {
@@ -44,6 +44,7 @@ public final class WhileStatementGenerator extends AbstractGenerator
     AssertValue.checkNotNull("GeneratorSet cannot be null", generators);
     this.generators = generators;
     this.guardedConditionEvaluator = new GuardedConditionEvaluator(stackContext, generators);
+    this.loopGuardHelper = new LoopGuardHelper(stackContext, generators);
   }
 
   @Override
@@ -67,6 +68,11 @@ public final class WhileStatementGenerator extends AbstractGenerator
    * Follows the same single-scope pattern as if/else for architectural consistency.
    * Supports guards: while value <- getValue() then condition
    * <p>
+   * For guards with entry checks (?= and <- operators), the guard is checked ONCE at loop entry.
+   * If the check fails, the entire loop is skipped. This is implemented by wrapping the loop
+   * in an IF_ELSE_IF that checks the guard entry condition.
+   * </p>
+   * <p>
    * NOTE: ControlFlowChainGenerator.apply() will add SCOPE_ENTER/EXIT instructions
    * for the chain scope, so we don't add them here to avoid duplicates.
    * </p>
@@ -81,8 +87,35 @@ public final class WhileStatementGenerator extends AbstractGenerator
     final var chainScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     stackContext.enterScope(chainScopeId, debugInfo, IRFrameType.BLOCK);
 
-    // Process guard if present
-    final var guardDetails = evaluateGuardVariable(ctx.preFlowStatement(), chainScopeId);
+    // Process guard if present (using shared helper)
+    final var guardDetails = loopGuardHelper.evaluateGuardVariable(ctx.preFlowStatement(), chainScopeId);
+
+    // Generate the core while loop
+    final var whileLoopInstructions = generateWhileLoopCore(ctx, guardDetails, chainScopeId, debugInfo);
+
+    // If guard has entry check, wrap loop in IF that checks entry condition (using shared helper)
+    final List<IRInstr> instructions;
+    if (guardDetails.hasGuardEntryCheck()) {
+      instructions = loopGuardHelper.wrapChainWithGuardEntryCheck(
+          guardDetails, whileLoopInstructions, chainScopeId, debugInfo);
+    } else {
+      instructions = new ArrayList<>(generators.controlFlowChainGenerator.apply(whileLoopInstructions));
+    }
+
+    // Exit chain scope from stack context (IR instructions already added by ControlFlowChainGenerator)
+    stackContext.exitScope();
+
+    return instructions;
+  }
+
+  /**
+   * Generate the core while loop without entry check wrapping.
+   */
+  private ControlFlowChainDetails generateWhileLoopCore(
+      final EK9Parser.WhileStatementExpressionContext ctx,
+      final GuardVariableDetails guardDetails,
+      final String chainScopeId,
+      final org.ek9lang.compiler.ir.support.DebugInfo debugInfo) {
 
     // SCOPE 3 (or SCOPE 2): Enter condition iteration scope (for tight temp management)
     // This scope enters/exits each iteration to release condition temps
@@ -96,10 +129,11 @@ public final class WhileStatementGenerator extends AbstractGenerator
     // Enter condition iteration scope
     conditionEvaluation.add(ScopeInstr.enter(conditionIterationScopeId, debugInfo));
 
-    // Evaluate guarded condition (handles all 4 cases: guard+condition, guard-only, condition-only, etc.)
+    // Evaluate condition ONLY (guard check happens once at entry, not each iteration)
+    // Pass null for preFlowStatement to get condition-only evaluation
     final var evaluation = guardedConditionEvaluator.evaluate(
-        ctx.control,                  // Condition expression (may be null for guard-only)
-        ctx.preFlowStatement(),       // Guard variable (may be null for condition-only)
+        ctx.control,                  // Condition expression (REQUIRED for while loops)
+        null,                         // NO guard check in condition - guard checked once at entry
         conditionResult,              // Result variable
         conditionIterationScopeId,    // Scope ID for condition evaluation
         debugInfo);                   // Debug information
@@ -141,22 +175,12 @@ public final class WhileStatementGenerator extends AbstractGenerator
     // Create CONTROL_FLOW_CHAIN with chain scope ID
     // Uses createWhileLoopWithGuards to produce WHILE_LOOP_WITH_GUARDS when guards present
     // Backend will interpret WHILE_LOOP or WHILE_LOOP_WITH_GUARDS to generate loop-back logic
-    final var whileDetails = ControlFlowChainDetails.createWhileLoopWithGuards(
+    return ControlFlowChainDetails.createWhileLoopWithGuards(
         guardDetails,
         List.of(conditionCase),
         debugInfo,
         chainScopeId    // Chain scope ID (same pattern as IF)
     );
-
-    // Use ControlFlowChainGenerator to generate IR
-    // NOTE: ControlFlowChainGenerator.apply() will add SCOPE_ENTER and SCOPE_EXIT
-    // instructions for chain scope, so we don't add them here
-    final var instructions = new ArrayList<>(generators.controlFlowChainGenerator.apply(whileDetails));
-
-    // Exit chain scope from stack context (IR instructions already added by ControlFlowChainGenerator)
-    stackContext.exitScope();
-
-    return instructions;
   }
 
   /**
@@ -164,6 +188,11 @@ public final class WhileStatementGenerator extends AbstractGenerator
    * Key difference: Body executes FIRST (at least once), then condition is evaluated.
    * Follows the same single-scope pattern as if/else for architectural consistency.
    * Supports guards: do value <- getValue() { body } while condition
+   * <p>
+   * For guards with entry checks (?= and <- operators), the guard is checked ONCE at loop entry.
+   * If the check fails, the entire loop is skipped. This is implemented by wrapping the loop
+   * in an IF_ELSE_IF that checks the guard entry condition.
+   * </p>
    * <p>
    * NOTE: ControlFlowChainGenerator.apply() will add SCOPE_ENTER/EXIT instructions
    * for the chain scope, so we don't add them here to avoid duplicates.
@@ -179,8 +208,35 @@ public final class WhileStatementGenerator extends AbstractGenerator
     final var chainScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     stackContext.enterScope(chainScopeId, debugInfo, IRFrameType.BLOCK);
 
-    // Process guard if present
-    final var guardDetails = evaluateGuardVariable(ctx.preFlowStatement(), chainScopeId);
+    // Process guard if present (using shared helper)
+    final var guardDetails = loopGuardHelper.evaluateGuardVariable(ctx.preFlowStatement(), chainScopeId);
+
+    // Generate the core do-while loop
+    final var doWhileLoopInstructions = generateDoWhileLoopCore(ctx, guardDetails, chainScopeId, debugInfo);
+
+    // If guard has entry check, wrap loop in IF that checks entry condition (using shared helper)
+    final List<IRInstr> instructions;
+    if (guardDetails.hasGuardEntryCheck()) {
+      instructions = loopGuardHelper.wrapChainWithGuardEntryCheck(
+          guardDetails, doWhileLoopInstructions, chainScopeId, debugInfo);
+    } else {
+      instructions = new ArrayList<>(generators.controlFlowChainGenerator.apply(doWhileLoopInstructions));
+    }
+
+    // Exit chain scope from stack context (IR instructions already added by ControlFlowChainGenerator)
+    stackContext.exitScope();
+
+    return instructions;
+  }
+
+  /**
+   * Generate the core do-while loop without entry check wrapping.
+   */
+  private ControlFlowChainDetails generateDoWhileLoopCore(
+      final EK9Parser.WhileStatementExpressionContext ctx,
+      final GuardVariableDetails guardDetails,
+      final String chainScopeId,
+      final org.ek9lang.compiler.ir.support.DebugInfo debugInfo) {
 
     // Body iteration scope (executes FIRST in do-while)
     final var bodyIterationScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
@@ -206,10 +262,11 @@ public final class WhileStatementGenerator extends AbstractGenerator
     // Enter condition iteration scope
     conditionEvaluation.add(ScopeInstr.enter(conditionIterationScopeId, debugInfo));
 
-    // Evaluate guarded condition (same 4-case pattern as WHILE)
+    // Evaluate condition ONLY (guard check happens once at entry, not each iteration)
+    // Pass null for preFlowStatement to get condition-only evaluation
     final var evaluation = guardedConditionEvaluator.evaluate(
-        ctx.control,                  // Condition expression (may be null for guard-only)
-        ctx.preFlowStatement(),       // Guard variable (may be null for condition-only)
+        ctx.control,                  // Condition expression (REQUIRED for do-while loops)
+        null,                         // NO guard check in condition - guard checked once at entry
         conditionResult,              // Result variable
         conditionIterationScopeId,    // Scope ID for condition evaluation
         debugInfo);                   // Debug information
@@ -237,71 +294,12 @@ public final class WhileStatementGenerator extends AbstractGenerator
 
     // Create CONTROL_FLOW_CHAIN with chain scope ID
     // Uses createDoWhileLoopWithGuards to produce DO_WHILE_LOOP_WITH_GUARDS when guards present
-    final var doWhileDetails = ControlFlowChainDetails.createDoWhileLoopWithGuards(
+    return ControlFlowChainDetails.createDoWhileLoopWithGuards(
         guardDetails,
         List.of(conditionCase),
         debugInfo,
         chainScopeId    // Chain scope ID (same pattern as IF)
     );
-
-    // Use ControlFlowChainGenerator to generate IR
-    // NOTE: ControlFlowChainGenerator.apply() will add SCOPE_ENTER and SCOPE_EXIT
-    // instructions for chain scope, so we don't add them here
-    final var instructions = new ArrayList<>(generators.controlFlowChainGenerator.apply(doWhileDetails));
-
-    // Exit chain scope from stack context (IR instructions already added by ControlFlowChainGenerator)
-    stackContext.exitScope();
-
-    return instructions;
-  }
-
-  /**
-   * Evaluate guard variable for while/do-while loop.
-   * Pattern: while value <- getValue() then condition
-   * <p>
-   * Guard is evaluated ONCE before the loop starts (not on each iteration).
-   * Guard variable is scoped to the entire loop and available in both condition and body.
-   * Uses existing variableDeclGenerator to handle REFERENCE, STORE, RETAIN, SCOPE_REGISTER.
-   * </p>
-   * <p>
-   * Returns GuardVariableDetails containing the guard variable name and setup instructions.
-   * This enables the factory method to produce WHILE_LOOP_WITH_GUARDS chain type when
-   * guards are present, providing a consistent pattern across all control flow constructs.
-   * </p>
-   *
-   * @param preFlowStmt  preFlowStatement context with guard (may be null)
-   * @param guardScopeId Scope ID where guard variable lives
-   * @return GuardVariableDetails with guard info, or GuardVariableDetails.none() if no guard
-   */
-  private GuardVariableDetails evaluateGuardVariable(
-      final EK9Parser.PreFlowStatementContext preFlowStmt,
-      final String guardScopeId) {
-
-    // No guard present - return empty guard details
-    if (preFlowStmt == null) {
-      return GuardVariableDetails.none();
-    }
-
-    final var guardSetup = new ArrayList<IRInstr>();
-    final var guardVariables = new ArrayList<String>();
-
-    // Use existing variable declaration generator (handles REFERENCE, STORE, RETAIN, SCOPE_REGISTER)
-    // Guard variable will be registered to the current scope (outer scope)
-    if (preFlowStmt.variableDeclaration() != null) {
-      guardSetup.addAll(generators.variableDeclGenerator.apply(preFlowStmt.variableDeclaration()));
-
-      // Get the guard variable name for GuardVariableDetails
-      final var guardSymbol = getRecordedSymbolOrException(preFlowStmt.variableDeclaration());
-      final var variableName = new VariableNameForIR().apply(guardSymbol);
-      guardVariables.add(variableName);
-
-      return GuardVariableDetails.create(guardVariables, guardSetup, guardScopeId, null);
-    }
-
-    // For now, only support variable declaration form (value <- expr)
-    // Future: Support assignment (:=) and guarded assignment (?=) forms
-    throw new org.ek9lang.core.CompilerException(
-        "While/Do-while guards currently only support variable declaration form (value <- expr)");
   }
 
 }

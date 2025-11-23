@@ -371,4 +371,56 @@ public final class GuardedConditionEvaluator extends AbstractGenerator {
     // After conditional assignment (only if left was unset), check if result is now set
     return operatorType == EK9Parser.ASSIGN_UNSET;
   }
+
+  /**
+   * Evaluates guard only for a pre-resolved variable (used by WHILE/DO-WHILE for entry check).
+   * <p>
+   * This generates the IS_NULL + _isSet() check for a guard variable that has already been
+   * declared and assigned. Used when the guard check needs to be separate from condition evaluation.
+   * </p>
+   *
+   * @param guardSymbol     The guard variable symbol
+   * @param variableName    The guard variable name in IR
+   * @param conditionResult Variable to store the condition result (EK9 Boolean type)
+   * @param scopeId         Scope ID where condition evaluation happens
+   * @param debugInfo       Debug information for error reporting
+   * @return ConditionEvaluation containing instructions and primitive condition variable name
+   */
+  public ConditionEvaluation evaluateGuardOnlyForVariable(
+      final ISymbol guardSymbol,
+      final String variableName,
+      final VariableDetails conditionResult,
+      final String scopeId,
+      final DebugInfo debugInfo) {
+
+    AssertValue.checkNotNull("guardSymbol cannot be null", guardSymbol);
+    AssertValue.checkNotNull("variableName cannot be null", variableName);
+    AssertValue.checkNotNull("conditionResult cannot be null", conditionResult);
+    AssertValue.checkNotNull("scopeId cannot be null", scopeId);
+
+    // Generate question operator with explicit IS_NULL + _isSet() check
+    // This is the same logic as evaluateGuardOnly but using the variable directly
+    final var conditionEvaluation = new ArrayList<>(
+        generators.controlFlowChainGenerator.generateQuestionOperatorForVariable(
+            guardSymbol, conditionResult.resultVariable(), debugInfo));
+
+    // Extract primitive boolean for backend branching
+    final var primitiveCondition = extractPrimitiveBoolean(
+        conditionResult.resultVariable(), debugInfo, conditionEvaluation);
+
+    return new ConditionEvaluation(conditionEvaluation, primitiveCondition);
+  }
+
+  /**
+   * Result of condition evaluation containing both instructions and primitive condition.
+   * <p>
+   * The instructions are the IR instructions to evaluate the condition (including guard checks).
+   * The primitiveCondition is the name of a primitive boolean variable for backend branching.
+   * </p>
+   *
+   * @param instructions       IR instructions to evaluate the condition
+   * @param primitiveCondition Name of primitive boolean variable for backend branching
+   */
+  public record ConditionEvaluation(List<IRInstr> instructions, String primitiveCondition) {
+  }
 }

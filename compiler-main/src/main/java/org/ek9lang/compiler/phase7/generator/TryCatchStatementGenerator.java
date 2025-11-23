@@ -50,12 +50,14 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
 
   private final GeneratorSet generators;
   private final OperatorMap operatorMap = new OperatorMap();
+  private final LoopGuardHelper loopGuardHelper;
 
   public TryCatchStatementGenerator(final IRGenerationContext stackContext,
                                     final GeneratorSet generators) {
     super(stackContext);
     AssertValue.checkNotNull("GeneratorSet cannot be null", generators);
     this.generators = generators;
+    this.loopGuardHelper = new LoopGuardHelper(stackContext, generators);
   }
 
   @Override
@@ -65,32 +67,51 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
     // Check for expression form (returningParam)
     validateStatementFormOnly(ctx.returningParam(), "Try");
 
-    // Check for guards (preFlowStatement)
-    validateNoPreFlowStatement(ctx.preFlowStatement(), "Try statement");
+    final var debugInfo = stackContext.createDebugInfo(ctx);
 
-    // Check for resource management (declareArgumentParam)
+    // SCOPE 1: Enter outer scope (guard scope)
+    final var outerScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(outerScopeId, debugInfo, IRFrameType.BLOCK);
+
+    // Process guard if present (using shared helper)
+    final var guardDetails = loopGuardHelper.evaluateGuardVariable(ctx.preFlowStatement(), outerScopeId);
+
+    // Generate the core try/catch/finally (with or without resources)
+    final List<IRInstr> tryInstructions;
     if (ctx.declareArgumentParam() != null) {
-      return generateTryWithResources(ctx);
+      tryInstructions = generateTryWithResourcesCore(ctx, debugInfo);
+    } else {
+      tryInstructions = generateSimpleTryCatchFinallyCore(ctx, debugInfo);
     }
 
-    // Simple try/catch/finally (statement form)
-    return generateSimpleTryCatchFinally(ctx);
+    // If guard has entry check, wrap try in IF that checks entry condition (using shared helper)
+    final List<IRInstr> instructions;
+    if (guardDetails.hasGuardEntryCheck()) {
+      instructions = loopGuardHelper.wrapBodyWithGuardEntryCheck(
+          guardDetails, tryInstructions, outerScopeId, debugInfo);
+    } else {
+      // No guard - just add scope enter/exit around the try
+      instructions = new ArrayList<>();
+      instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
+      instructions.addAll(tryInstructions);
+      instructions.add(ScopeInstr.exit(outerScopeId, debugInfo));
+    }
+
+    // Exit outer scope from stack context
+    stackContext.exitScope();
+
+    return instructions;
   }
 
   /**
-   * Generate IR for simple try/catch/finally statement.
-   * Follows the same two-scope pattern as while loops for architectural consistency.
+   * Generate IR for simple try/catch/finally statement (without guard wrapping).
+   * The outer scope is managed by the caller (apply method).
    */
-  private List<IRInstr> generateSimpleTryCatchFinally(
-      final EK9Parser.TryStatementExpressionContext ctx) {
+  private List<IRInstr> generateSimpleTryCatchFinallyCore(
+      final EK9Parser.TryStatementExpressionContext ctx,
+      final org.ek9lang.compiler.ir.support.DebugInfo debugInfo) {
 
     final var instructions = new ArrayList<IRInstr>();
-    final var debugInfo = stackContext.createDebugInfo(ctx);
-
-    // SCOPE 1: Enter outer scope (for future guards)
-    final var outerScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
-    stackContext.enterScope(outerScopeId, debugInfo, IRFrameType.BLOCK);
-    instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
 
     // SCOPE 2: Enter control flow scope (try/catch control structure)
     final var controlFlowScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
@@ -124,20 +145,18 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
     instructions.add(ScopeInstr.exit(controlFlowScopeId, debugInfo));
     stackContext.exitScope();
 
-    // Exit outer scope
-    instructions.add(ScopeInstr.exit(outerScopeId, debugInfo));
-    stackContext.exitScope();
+    // Note: outer scope exit is handled by the caller (apply method)
 
     return instructions;
   }
 
   /**
-   * Generate IR for try-with-resources statement.
+   * Generate IR for try-with-resources statement (without guard wrapping).
+   * The outer scope is managed by the caller (apply method).
    * <p>
    * Scope structure:
    * </p>
    * <pre>
-   *   Outer Scope (_scope_1): Try/catch wrapper
    *   Resource Scope (_scope_2): Resource initialization and management
    *   Control Flow Scope (_scope_3): Try/catch control structure
    *   Try Scope (_scope_4): Try block execution
@@ -145,21 +164,16 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
    *   Finally Scope (_scope_6): Finally block execution (synthetic or explicit)
    * </pre>
    * <p>
-   * Resources are initialized in _scope_2 with RETAIN + SCOPE_REGISTER.
+   * Resources are initialized in resource scope with RETAIN + SCOPE_REGISTER.
    * Resources are closed automatically in EVALUATION (finally) in REVERSE order.
    * close() executes BEFORE user's finally code (matches Java semantics).
    * </p>
    */
-  private List<IRInstr> generateTryWithResources(
-      final EK9Parser.TryStatementExpressionContext ctx) {
+  private List<IRInstr> generateTryWithResourcesCore(
+      final EK9Parser.TryStatementExpressionContext ctx,
+      final org.ek9lang.compiler.ir.support.DebugInfo debugInfo) {
 
     final var instructions = new ArrayList<IRInstr>();
-    final var debugInfo = stackContext.createDebugInfo(ctx);
-
-    // SCOPE 1: Enter outer scope
-    final var outerScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
-    stackContext.enterScope(outerScopeId, debugInfo, IRFrameType.BLOCK);
-    instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
 
     // SCOPE 2: Enter resource scope for resource initialization
     final var resourceScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
@@ -207,9 +221,7 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
     instructions.add(ScopeInstr.exit(resourceScopeId, debugInfo));
     stackContext.exitScope();
 
-    // Exit outer scope
-    instructions.add(ScopeInstr.exit(outerScopeId, debugInfo));
-    stackContext.exitScope();
+    // Note: outer scope exit is handled by the caller (apply method)
 
     return instructions;
   }

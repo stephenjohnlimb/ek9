@@ -63,12 +63,14 @@ public final class ForRangeGenerator extends AbstractGenerator
 
   private final OperatorMap operatorMap = new OperatorMap();
   private final GeneratorSet generators;
+  private final LoopGuardHelper loopGuardHelper;
 
   ForRangeGenerator(final IRGenerationContext stackContext,
                     final GeneratorSet generators) {
     super(stackContext);
     AssertValue.checkNotNull("GeneratorSet cannot be null", generators);
     this.generators = generators;
+    this.loopGuardHelper = new LoopGuardHelper(stackContext, generators);
   }
 
   /**
@@ -86,20 +88,53 @@ public final class ForRangeGenerator extends AbstractGenerator
   @Override
   public List<IRInstr> apply(final EK9Parser.ForStatementExpressionContext ctx) {
 
-    final var instructions = new ArrayList<IRInstr>();
     final var debugInfo = stackContext.createDebugInfo(ctx);
     final var forRangeCtx = ctx.forRange();
 
-    validateNoPreFlowStatement(forRangeCtx.preFlowStatement(), "For-range loop");
+    // SCOPE 1: Enter guard/outer scope
+    // Matches while pattern for architectural consistency
+    final var outerScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(outerScopeId, debugInfo, IRFrameType.BLOCK);
+
+    // Process guard if present (using shared helper)
+    final var guardDetails = loopGuardHelper.evaluateGuardVariable(
+        forRangeCtx.preFlowStatement(), outerScopeId);
+
+    // Generate the core for-range loop
+    final var loopInstructions = generateForRangeLoopCore(ctx, forRangeCtx, debugInfo, outerScopeId);
+
+    // If guard has entry check, wrap loop in IF that checks entry condition (using shared helper)
+    final List<IRInstr> instructions;
+    if (guardDetails.hasGuardEntryCheck()) {
+      instructions = loopGuardHelper.wrapBodyWithGuardEntryCheck(
+          guardDetails, loopInstructions, outerScopeId, debugInfo);
+    } else {
+      // No guard - just add scope enter/exit around the loop
+      instructions = new ArrayList<>();
+      instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
+      instructions.addAll(loopInstructions);
+      instructions.add(ScopeInstr.exit(outerScopeId, debugInfo));
+    }
+
+    // Exit outer scope from stack context
+    stackContext.exitScope();
+
+    return instructions;
+  }
+
+  /**
+   * Generate the core for-range loop instructions (without guard wrapping).
+   */
+  private List<IRInstr> generateForRangeLoopCore(
+      final EK9Parser.ForStatementExpressionContext ctx,
+      final EK9Parser.ForRangeContext forRangeCtx,
+      final DebugInfo debugInfo,
+      final String outerScopeId) {
+
+    final var instructions = new ArrayList<IRInstr>();
 
     // Get loop variable name
     final var loopVariableName = forRangeCtx.identifier(0).getText();
-
-    // SCOPE 1: Enter loop outer scope (for future guards)
-    // Matches if/else and while pattern for architectural consistency
-    final var outerScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
-    stackContext.enterScope(outerScopeId, debugInfo, IRFrameType.BLOCK);
-    instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
 
     // SCOPE 2: Enter loop scope (for initialization temps)
     // This scope contains start, end, by, direction, current variables
@@ -163,10 +198,6 @@ public final class ForRangeGenerator extends AbstractGenerator
 
     // Exit loop scope
     instructions.add(ScopeInstr.exit(loopScopeId, debugInfo));
-    stackContext.exitScope();
-
-    // Exit outer scope
-    instructions.add(ScopeInstr.exit(outerScopeId, debugInfo));
     stackContext.exitScope();
 
     return instructions;

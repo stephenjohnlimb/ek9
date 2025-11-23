@@ -1,0 +1,222 @@
+#!ek9
+<?-
+  Test IR generation for for-in loop with guarded assignment (?=).
+  Guarded assignment checks the RIGHT side (expression result) before assigning.
+  Pattern: for existingVar ?= expr then item in items
+  - Assigns to EXISTING variable (not declaration)
+  - WITH guard entry check (IS_NULL + _isSet)
+  - Guard evaluated ONCE at entry
+  - Loop runs only if guard succeeds
+-?>
+defines module loops.forin.guardedAssign
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "loops.forin.guardedAssign::getItems": `
+    ConstructDfn: loops.forin.guardedAssign::getItems()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+    OperationDfn: loops.forin.guardedAssign::getItems.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops.forin.guardedAssign::getItems.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops.forin.guardedAssign::getItems.getItems()->loops.forin.guardedAssign::getItems
+    BasicBlock: _entry_1
+    CALL (loops.forin.guardedAssign::getItems)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: loops.forin.guardedAssign::getItems._call()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE rtn, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+    _temp1 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.<init>() [pure=true, complexity=0, effects=RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    RELEASE rtn
+    STORE rtn, _temp1
+    RETAIN rtn
+    _temp2 = LOAD rtn
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    _temp3 = LOAD_LITERAL one, org.ek9.lang::String
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_1
+    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp2._addAss(_temp3) [pure=false, complexity=0, effects=THIS_MUTATION]
+    _temp4 = LOAD rtn
+    RETAIN _temp4
+    SCOPE_REGISTER _temp4, _scope_1
+    _temp5 = LOAD_LITERAL two, org.ek9.lang::String
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, _scope_1
+    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp4._addAss(_temp5) [pure=false, complexity=0, effects=THIS_MUTATION]
+    _temp6 = LOAD rtn
+    RETAIN _temp6
+    SCOPE_REGISTER _temp6, _scope_1
+    _temp7 = LOAD_LITERAL three, org.ek9.lang::String
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_1
+    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp6._addAss(_temp7) [pure=false, complexity=0, effects=THIS_MUTATION]
+    SCOPE_EXIT _scope_1
+    RETURN rtn`
+    getItems()
+      <- rtn as List of String?
+      rtn: List() of String
+      rtn += "one"
+      rtn += "two"
+      rtn += "three"
+
+    @IR: IR_GENERATION: FUNCTION: "loops.forin.guardedAssign::forInGuardedAssignment": `
+    ConstructDfn: loops.forin.guardedAssign::forInGuardedAssignment()->org.ek9.lang::Void
+    OperationDfn: loops.forin.guardedAssign::forInGuardedAssignment.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops.forin.guardedAssign::forInGuardedAssignment.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops.forin.guardedAssign::forInGuardedAssignment.forInGuardedAssignment()->loops.forin.guardedAssign::forInGuardedAssignment
+    BasicBlock: _entry_1
+    CALL (loops.forin.guardedAssign::forInGuardedAssignment)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: loops.forin.guardedAssign::forInGuardedAssignment._call()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE stdout, org.ek9.lang::Stdout
+    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE stdout, _temp1
+    RETAIN stdout
+    SCOPE_REGISTER stdout, _scope_1
+    REFERENCE items, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+    _temp2 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.<init>() [pure=true, complexity=0, effects=RETURN_MUTATION]
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    STORE items, _temp2
+    RETAIN items
+    SCOPE_REGISTER items, _scope_1
+    SCOPE_ENTER _scope_2
+    _temp5 = FUNCTION_INSTANCE loops.forin.guardedAssign::getItems
+    _temp3 = CALL (loops.forin.guardedAssign::getItems)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_2
+    RELEASE items
+    STORE items, _temp3
+    RETAIN items
+    _temp6 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp7 = IS_NULL items
+    ]
+    primitive_condition: _temp7
+    body_evaluation:
+    [
+    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, _scope_2
+    ]
+    body_result: _temp8
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp9 = LOAD items
+    _temp10 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp9._isSet() [pure=true, complexity=0]
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_2
+    ]
+    default_result: _temp10
+    scope_id: _scope_2
+    ]
+    _temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "IF_ELSE_IF"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    ]
+    condition_result: _temp6
+    primitive_condition: _temp11
+    body_evaluation:
+    [
+    _temp12 = LOAD items
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_2
+    _temp13 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp12.iterator() [pure=false, complexity=0]
+    RETAIN _temp13
+    SCOPE_REGISTER _temp13, _scope_2
+    SCOPE_ENTER _scope_3
+    REFERENCE item, org.ek9.lang::String
+    SCOPE_REGISTER item, _scope_3
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "WHILE_LOOP"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_4
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp14 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp13.hasNext() [pure=false, complexity=0]
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, _scope_4
+    _temp15 = CALL (org.ek9.lang::Boolean)_temp14._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_4
+    ]
+    condition_result: _temp14
+    primitive_condition: _temp15
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_5
+    _temp16 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp13.next() [pure=false, complexity=0]
+    RETAIN _temp16
+    SCOPE_REGISTER _temp16, _scope_5
+    RELEASE item
+    STORE item, _temp16
+    RETAIN item
+    _temp18 = LOAD stdout
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, _scope_5
+    _temp19 = LOAD item
+    RETAIN _temp19
+    SCOPE_REGISTER _temp19, _scope_5
+    CALL (org.ek9.lang::Stdout)_temp18.println(_temp19) [pure=true, complexity=1]
+    SCOPE_EXIT _scope_5
+    ]
+    ]
+    ]
+    scope_id: _scope_3
+    ]
+    SCOPE_EXIT _scope_3
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2
+    SCOPE_EXIT _scope_1
+    RETURN`
+    forInGuardedAssignment()
+      stdout <- Stdout()
+
+      // Declare variable first (unset)
+      items <- List() of String
+
+      // Guarded assignment (?=) - checks if assigned value is set
+      // Guard entry check happens ONCE, loop runs only if guard succeeds
+      for items ?= getItems() then item in items
+        stdout.println(item)
+
+//EOF

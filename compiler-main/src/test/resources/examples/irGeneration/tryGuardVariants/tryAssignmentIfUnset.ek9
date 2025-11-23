@@ -1,0 +1,278 @@
+#!ek9
+<?-
+  Test IR generation for try statement with assignment if unset (:=?).
+  Assignment if unset checks the LEFT side (target variable) before evaluating/assigning.
+  Pattern: try existingVar :=? expr
+  - Checks if LEFT-HAND SIDE is unset FIRST
+  - Only evaluates expression if left is unset
+  - Only assigns if left is unset (lazy evaluation)
+  - THEN guard entry check (IS_NULL + _isSet) on result
+  - Guard evaluated ONCE at entry
+-?>
+defines module tryGuardVariants.assignIfUnset
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "tryGuardVariants.assignIfUnset::getConfig": `
+    ConstructDfn: tryGuardVariants.assignIfUnset::getConfig()->org.ek9.lang::String
+    OperationDfn: tryGuardVariants.assignIfUnset::getConfig.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: tryGuardVariants.assignIfUnset::getConfig.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: tryGuardVariants.assignIfUnset::getConfig.getConfig()->tryGuardVariants.assignIfUnset::getConfig
+    BasicBlock: _entry_1
+    CALL (tryGuardVariants.assignIfUnset::getConfig)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: tryGuardVariants.assignIfUnset::getConfig._call()->org.ek9.lang::String
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE rtn, org.ek9.lang::String
+    _temp1 = LOAD_LITERAL config-value, org.ek9.lang::String
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    RELEASE rtn
+    STORE rtn, _temp1
+    RETAIN rtn
+    SCOPE_EXIT _scope_1
+    RETURN rtn`
+    getConfig()
+      <- rtn as String?
+      rtn: "config-value"
+
+    @IR: IR_GENERATION: FUNCTION: "tryGuardVariants.assignIfUnset::tryAssignmentIfUnset": `
+    ConstructDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset()->org.ek9.lang::Void
+    OperationDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset.tryAssignmentIfUnset()->tryGuardVariants.assignIfUnset::tryAssignmentIfUnset
+    BasicBlock: _entry_1
+    CALL (tryGuardVariants.assignIfUnset::tryAssignmentIfUnset)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset._call()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE stdout, org.ek9.lang::Stdout
+    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE stdout, _temp1
+    RETAIN stdout
+    SCOPE_REGISTER stdout, _scope_1
+    REFERENCE config, org.ek9.lang::String
+    _temp2 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    STORE config, _temp2
+    RETAIN config
+    SCOPE_REGISTER config, _scope_1
+    SCOPE_ENTER _scope_2
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "GUARDED_ASSIGNMENT"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    _temp6 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp7 = IS_NULL config
+    ]
+    primitive_condition: _temp7
+    body_evaluation:
+    [
+    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, _scope_2
+    ]
+    body_result: _temp8
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp9 = LOAD config
+    _temp10 = CALL (org.ek9.lang::String)_temp9._isSet() [pure=true, complexity=0]
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_2
+    ]
+    default_result: _temp10
+    scope_id: _scope_2
+    ]
+    _temp11 = CALL (org.ek9.lang::Boolean)_temp6._negate() [pure=true, complexity=0]
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_2
+    _temp12 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]
+    ]
+    condition_result: _temp11
+    primitive_condition: _temp12
+    body_evaluation:
+    [
+    _temp5 = FUNCTION_INSTANCE tryGuardVariants.assignIfUnset::getConfig
+    _temp3 = CALL (tryGuardVariants.assignIfUnset::getConfig)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_2
+    RELEASE config
+    STORE config, _temp3
+    RETAIN config
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
+    _temp13 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp14 = IS_NULL config
+    ]
+    primitive_condition: _temp14
+    body_evaluation:
+    [
+    _temp15 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, _scope_2
+    ]
+    body_result: _temp15
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp16 = LOAD config
+    _temp17 = CALL (org.ek9.lang::String)_temp16._isSet() [pure=true, complexity=0]
+    RETAIN _temp17
+    SCOPE_REGISTER _temp17, _scope_2
+    ]
+    default_result: _temp17
+    scope_id: _scope_2
+    ]
+    _temp18 = CALL (org.ek9.lang::Boolean)_temp13._true() [pure=true, complexity=0]
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "IF_ELSE_IF"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    ]
+    condition_result: _temp13
+    primitive_condition: _temp18
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_3
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "TRY_CATCH_FINALLY"
+    try_block_details:
+    [
+    try_scope_id: _scope_4
+    try_body_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp20 = LOAD stdout
+    RETAIN _temp20
+    SCOPE_REGISTER _temp20, _scope_4
+    _temp21 = LOAD_LITERAL Config loaded:, org.ek9.lang::String
+    RETAIN _temp21
+    SCOPE_REGISTER _temp21, _scope_4
+    CALL (org.ek9.lang::Stdout)_temp20.println(_temp21) [pure=true, complexity=1]
+    _temp23 = LOAD stdout
+    RETAIN _temp23
+    SCOPE_REGISTER _temp23, _scope_4
+    _temp24 = LOAD config
+    RETAIN _temp24
+    SCOPE_REGISTER _temp24, _scope_4
+    CALL (org.ek9.lang::Stdout)_temp23.println(_temp24) [pure=true, complexity=1]
+    SCOPE_EXIT _scope_4
+    ]
+    ]
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_5
+    case_type: "EXCEPTION_HANDLER"
+    condition_evaluation:
+    [
+    ]
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_5
+    REFERENCE ex, org.ek9.lang::Exception
+    SCOPE_REGISTER ex, _scope_5
+    _temp26 = LOAD stdout
+    RETAIN _temp26
+    SCOPE_REGISTER _temp26, _scope_5
+    _temp27 = LOAD_LITERAL Failed to load config, org.ek9.lang::String
+    RETAIN _temp27
+    SCOPE_REGISTER _temp27, _scope_5
+    CALL (org.ek9.lang::Stdout)_temp26.println(_temp27) [pure=true, complexity=1]
+    SCOPE_EXIT _scope_5
+    ]
+    exception_type: "org.ek9.lang::Exception"
+    exception_variable: ex
+    ]
+    ]
+    finally_block_evaluation:
+    [
+    SCOPE_ENTER _scope_6
+    _temp29 = LOAD stdout
+    RETAIN _temp29
+    SCOPE_REGISTER _temp29, _scope_6
+    _temp30 = LOAD_LITERAL Cleanup complete, org.ek9.lang::String
+    RETAIN _temp30
+    SCOPE_REGISTER _temp30, _scope_6
+    CALL (org.ek9.lang::Stdout)_temp29.println(_temp30) [pure=true, complexity=1]
+    SCOPE_EXIT _scope_6
+    ]
+    scope_id: _scope_3
+    ]
+    SCOPE_EXIT _scope_3
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2
+    SCOPE_EXIT _scope_1
+    RETURN`
+    tryAssignmentIfUnset()
+      stdout <- Stdout()
+
+      // Declare variable first (unset)
+      config <- String()
+
+      // Assignment if unset (:=?) - checks LEFT side, only assigns if unset
+      // Guard entry check happens ONCE, try block runs only if guard succeeds
+      try config :=? getConfig()
+        stdout.println("Config loaded:")
+        stdout.println(config)
+      catch
+        -> ex as Exception
+        stdout.println("Failed to load config")
+      finally
+        stdout.println("Cleanup complete")
+
+//EOF

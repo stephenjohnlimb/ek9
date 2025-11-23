@@ -45,6 +45,54 @@ defines module loops.guard
     STORE value, _temp2
     RETAIN value
     SCOPE_REGISTER value, _scope_2
+    _temp5 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp6 = IS_NULL value
+    ]
+    primitive_condition: _temp6
+    body_evaluation:
+    [
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_2
+    ]
+    body_result: _temp7
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp8 = LOAD value
+    _temp9 = CALL (org.ek9.lang::Integer)_temp8._isSet() [pure=true, complexity=0]
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_2
+    ]
+    default_result: _temp9
+    scope_id: _scope_2
+    ]
+    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "IF_ELSE_IF"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    ]
+    condition_result: _temp5
+    primitive_condition: _temp10
+    body_evaluation:
+    [
     CONTROL_FLOW_CHAIN
     [
     chain_type: "WHILE_LOOP_WITH_GUARDS"
@@ -56,89 +104,41 @@ defines module loops.guard
     condition_evaluation:
     [
     SCOPE_ENTER _scope_3
-    _temp5 = LOGICAL_AND_BLOCK
-    [
-    left_evaluation:
-    [
-    _temp6 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_3
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp7 = IS_NULL value
-    ]
-    primitive_condition: _temp7
-    body_evaluation:
-    [
-    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_3
-    ]
-    body_result: _temp8
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp9 = LOAD value
-    _temp10 = CALL (org.ek9.lang::Integer)_temp9._isSet() [pure=true, complexity=0]
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, _scope_3
-    ]
-    default_result: _temp10
-    scope_id: _scope_3
-    ]
-    _temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
-    ]
-    left_operand: _temp6
-    left_condition: _temp11
-    right_evaluation:
-    [
-    _temp13 = LOAD value
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, _scope_3
-    _temp14 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_3
-    _temp12 = CALL (org.ek9.lang::Integer)_temp13._gt(_temp14) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    _temp12 = LOAD value
     RETAIN _temp12
     SCOPE_REGISTER _temp12, _scope_3
-    ]
-    right_operand: _temp12
-    result_computation:
-    [
-    _temp15 = CALL (org.ek9.lang::Boolean)_temp6._and(_temp12) [pure=true, complexity=0]
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_3
-    ]
-    logical_result: _temp15
-    scope_id: _scope_3
-    ]
-    _temp16 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+    _temp13 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp13
+    SCOPE_REGISTER _temp13, _scope_3
+    _temp11 = CALL (org.ek9.lang::Integer)_temp12._gt(_temp13) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_3
+    _temp14 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]
     SCOPE_EXIT _scope_3
     ]
-    condition_result: _temp5
-    primitive_condition: _temp16
+    condition_result: _temp11
+    primitive_condition: _temp14
     body_evaluation:
     [
     SCOPE_ENTER _scope_4
-    _temp18 = LOAD counter
-    RETAIN _temp18
-    SCOPE_REGISTER _temp18, _scope_4
-    _temp19 = LOAD_LITERAL 1, org.ek9.lang::Integer
-    RETAIN _temp19
-    SCOPE_REGISTER _temp19, _scope_4
-    _temp17 = CALL (org.ek9.lang::Integer)_temp18._add(_temp19) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    _temp16 = LOAD counter
+    RETAIN _temp16
+    SCOPE_REGISTER _temp16, _scope_4
+    _temp17 = LOAD_LITERAL 1, org.ek9.lang::Integer
     RETAIN _temp17
     SCOPE_REGISTER _temp17, _scope_4
+    _temp15 = CALL (org.ek9.lang::Integer)_temp16._add(_temp17) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, _scope_4
     RELEASE counter
-    STORE counter, _temp17
+    STORE counter, _temp15
     RETAIN counter
     SCOPE_EXIT _scope_4
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
     ]
     ]
     ]

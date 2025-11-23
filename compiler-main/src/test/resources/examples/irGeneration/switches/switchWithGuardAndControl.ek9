@@ -6,12 +6,37 @@
   Key difference from guard-only form:
   - Guard declares variable (opt)
   - Control expression specifies what to switch on (opt.get())
-  - Guard variable != switch expression
+  - Guard check is on guard variable (opt), NOT switch expression (opt.get())
+  - If guard fails, switch is skipped entirely (consistent with WHILE/FOR/TRY)
 -?>
 defines module controlFlow.guardControl
 
   defines function
 
+    @IR: IR_GENERATION: FUNCTION: "controlFlow.guardControl::getOptionalValue": `
+    ConstructDfn: controlFlow.guardControl::getOptionalValue()->org.ek9.lang::_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
+    OperationDfn: controlFlow.guardControl::getOptionalValue.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow.guardControl::getOptionalValue.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow.guardControl::getOptionalValue.getOptionalValue()->controlFlow.guardControl::getOptionalValue
+    BasicBlock: _entry_1
+    CALL (controlFlow.guardControl::getOptionalValue)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: controlFlow.guardControl::getOptionalValue._call()->org.ek9.lang::_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE rtn, org.ek9.lang::_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
+    _temp2 = LOAD_LITERAL test, org.ek9.lang::String
+    _temp1 = CALL (org.ek9.lang::_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC)org.ek9.lang::_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC.<init>(_temp2) [pure=true, complexity=0, effects=RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE rtn, _temp1
+    RETAIN rtn
+    SCOPE_EXIT _scope_1
+    RETURN rtn`
     getOptionalValue()
       <- rtn <- Optional("test")
 
@@ -45,94 +70,149 @@ defines module controlFlow.guardControl
     STORE opt, _temp2
     RETAIN opt
     SCOPE_REGISTER opt, _scope_2
-    _temp6 = LOAD opt
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_2
-    _temp5 = CALL (org.ek9.lang::_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC)_temp6.get() [pure=true, complexity=0, effects=RETURN_MUTATION]
-    RETAIN _temp5
-    SCOPE_REGISTER _temp5, _scope_2
+    _temp5 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp6 = IS_NULL opt
+    ]
+    primitive_condition: _temp6
+    body_evaluation:
+    [
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_2
+    ]
+    body_result: _temp7
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp8 = LOAD opt
+    _temp9 = CALL (org.ek9.lang::_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC)_temp8._isSet() [pure=true, complexity=0]
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_2
+    ]
+    default_result: _temp9
+    scope_id: _scope_2
+    ]
+    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "IF_ELSE_IF"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    ]
+    condition_result: _temp5
+    primitive_condition: _temp10
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_3
+    _temp12 = LOAD opt
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_3
+    _temp11 = CALL (org.ek9.lang::_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC)_temp12.get() [pure=true, complexity=0, effects=RETURN_MUTATION]
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_3
     CONTROL_FLOW_CHAIN
     [
     chain_type: "SWITCH_WITH_GUARDS"
-    evaluation_variable: _temp5
+    evaluation_variable: _temp11
     evaluation_variable_type: "org.ek9.lang::String"
     condition_chain:
     [
     [
-    case_scope_id: _scope_4
+    case_scope_id: _scope_5
     case_type: "LITERAL"
     condition_evaluation:
     [
-    SCOPE_ENTER _scope_3
-    _temp7 = LOAD _temp5
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_3
-    _temp8 = LOAD_LITERAL test, org.ek9.lang::String
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_3
-    _temp9 = CALL (org.ek9.lang::String)_temp7._eq(_temp8) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_3
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp9._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_3
+    SCOPE_ENTER _scope_4
+    _temp13 = LOAD _temp11
+    RETAIN _temp13
+    SCOPE_REGISTER _temp13, _scope_4
+    _temp14 = LOAD_LITERAL test, org.ek9.lang::String
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, _scope_4
+    _temp15 = CALL (org.ek9.lang::String)_temp13._eq(_temp14) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, _scope_4
+    _temp16 = CALL (org.ek9.lang::Boolean)_temp15._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_4
     ]
-    condition_result: _temp9
-    primitive_condition: _temp10
+    condition_result: _temp15
+    primitive_condition: _temp16
     body_evaluation:
     [
-    SCOPE_ENTER _scope_4
-    _temp11 = LOAD_LITERAL Found test, org.ek9.lang::String
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_4
+    SCOPE_ENTER _scope_5
+    _temp17 = LOAD_LITERAL Found test, org.ek9.lang::String
+    RETAIN _temp17
+    SCOPE_REGISTER _temp17, _scope_5
     RELEASE result
-    STORE result, _temp11
+    STORE result, _temp17
     RETAIN result
-    SCOPE_EXIT _scope_4
+    SCOPE_EXIT _scope_5
     ]
     ],
     [
-    case_scope_id: _scope_6
+    case_scope_id: _scope_7
     case_type: "LITERAL"
     condition_evaluation:
     [
-    SCOPE_ENTER _scope_5
-    _temp12 = LOAD _temp5
-    RETAIN _temp12
-    SCOPE_REGISTER _temp12, _scope_5
-    _temp13 = LOAD_LITERAL other, org.ek9.lang::String
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, _scope_5
-    _temp14 = CALL (org.ek9.lang::String)_temp12._eq(_temp13) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_5
-    _temp15 = CALL (org.ek9.lang::Boolean)_temp14._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_5
+    SCOPE_ENTER _scope_6
+    _temp18 = LOAD _temp11
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, _scope_6
+    _temp19 = LOAD_LITERAL other, org.ek9.lang::String
+    RETAIN _temp19
+    SCOPE_REGISTER _temp19, _scope_6
+    _temp20 = CALL (org.ek9.lang::String)_temp18._eq(_temp19) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp20
+    SCOPE_REGISTER _temp20, _scope_6
+    _temp21 = CALL (org.ek9.lang::Boolean)_temp20._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_6
     ]
-    condition_result: _temp14
-    primitive_condition: _temp15
+    condition_result: _temp20
+    primitive_condition: _temp21
     body_evaluation:
     [
-    SCOPE_ENTER _scope_6
-    _temp16 = LOAD_LITERAL Found other, org.ek9.lang::String
-    RETAIN _temp16
-    SCOPE_REGISTER _temp16, _scope_6
+    SCOPE_ENTER _scope_7
+    _temp22 = LOAD_LITERAL Found other, org.ek9.lang::String
+    RETAIN _temp22
+    SCOPE_REGISTER _temp22, _scope_7
     RELEASE result
-    STORE result, _temp16
+    STORE result, _temp22
     RETAIN result
-    SCOPE_EXIT _scope_6
+    SCOPE_EXIT _scope_7
     ]
     ]
     ]
     default_body_evaluation:
     [
-    SCOPE_ENTER _scope_7
-    _temp17 = LOAD_LITERAL Not found, org.ek9.lang::String
-    RETAIN _temp17
-    SCOPE_REGISTER _temp17, _scope_7
+    SCOPE_ENTER _scope_8
+    _temp23 = LOAD_LITERAL Not found, org.ek9.lang::String
+    RETAIN _temp23
+    SCOPE_REGISTER _temp23, _scope_8
     RELEASE result
-    STORE result, _temp17
+    STORE result, _temp23
     RETAIN result
-    SCOPE_EXIT _scope_7
+    SCOPE_EXIT _scope_8
+    ]
+    scope_id: _scope_3
+    ]
+    SCOPE_EXIT _scope_3
+    ]
+    ]
     ]
     scope_id: _scope_2
     ]

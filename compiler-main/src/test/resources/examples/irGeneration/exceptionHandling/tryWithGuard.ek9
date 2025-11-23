@@ -1,0 +1,208 @@
+#!ek9
+<?-
+  Test IR generation for try statement with guard variable.
+  Guard: try config <- getConfig()
+  - Guard expression evaluated once before try block starts
+  - Guard variable available in try block body
+  - Entry check wraps the TRY_CATCH_FINALLY in IF_ELSE_IF
+-?>
+defines module exceptionHandling.guard
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "exceptionHandling.guard::getConfig": `
+    ConstructDfn: exceptionHandling.guard::getConfig()->org.ek9.lang::String
+    OperationDfn: exceptionHandling.guard::getConfig.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: exceptionHandling.guard::getConfig.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: exceptionHandling.guard::getConfig.getConfig()->exceptionHandling.guard::getConfig  // ./tryWithGuard.ek9:37:5
+    BasicBlock: _entry_1
+    CALL (exceptionHandling.guard::getConfig)this.i_init() [pure=false, complexity=0]  // ./tryWithGuard.ek9:37:5
+    RETURN this  // ./tryWithGuard.ek9:37:5
+    OperationDfn: exceptionHandling.guard::getConfig._call()->org.ek9.lang::String  // ./tryWithGuard.ek9:37:5
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./tryWithGuard.ek9:39:7
+    REFERENCE rtn, org.ek9.lang::String  // ./tryWithGuard.ek9:38:10
+    _temp1 = LOAD_LITERAL config-value, org.ek9.lang::String  // ./tryWithGuard.ek9:39:12
+    RETAIN _temp1  // ./tryWithGuard.ek9:39:12
+    SCOPE_REGISTER _temp1, _scope_1  // ./tryWithGuard.ek9:39:12
+    RELEASE rtn  // ./tryWithGuard.ek9:39:12
+    STORE rtn, _temp1  // ./tryWithGuard.ek9:39:12
+    RETAIN rtn  // ./tryWithGuard.ek9:39:12
+    SCOPE_EXIT _scope_1  // ./tryWithGuard.ek9:39:7
+    RETURN rtn  // ./tryWithGuard.ek9:38:10`
+    getConfig()
+      <- rtn as String?
+      rtn: "config-value"
+
+    @IR: IR_GENERATION: FUNCTION: "exceptionHandling.guard::tryWithGuard": `
+    ConstructDfn: exceptionHandling.guard::tryWithGuard()->org.ek9.lang::Void
+    OperationDfn: exceptionHandling.guard::tryWithGuard.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: exceptionHandling.guard::tryWithGuard.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: exceptionHandling.guard::tryWithGuard.tryWithGuard()->exceptionHandling.guard::tryWithGuard  // ./tryWithGuard.ek9:196:5
+    BasicBlock: _entry_1
+    CALL (exceptionHandling.guard::tryWithGuard)this.i_init() [pure=false, complexity=0]  // ./tryWithGuard.ek9:196:5
+    RETURN this  // ./tryWithGuard.ek9:196:5
+    OperationDfn: exceptionHandling.guard::tryWithGuard._call()->org.ek9.lang::Void  // ./tryWithGuard.ek9:196:5
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1  // ./tryWithGuard.ek9:197:7
+    REFERENCE stdout, org.ek9.lang::Stdout  // ./tryWithGuard.ek9:197:7
+    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./tryWithGuard.ek9:197:17
+    RETAIN _temp1  // ./tryWithGuard.ek9:197:17
+    SCOPE_REGISTER _temp1, _scope_1  // ./tryWithGuard.ek9:197:17
+    STORE stdout, _temp1  // ./tryWithGuard.ek9:197:17
+    RETAIN stdout  // ./tryWithGuard.ek9:197:17
+    SCOPE_REGISTER stdout, _scope_1  // ./tryWithGuard.ek9:197:17
+    SCOPE_ENTER _scope_2  // ./tryWithGuard.ek9:199:7
+    REFERENCE config, org.ek9.lang::String  // ./tryWithGuard.ek9:199:11
+    _temp4 = FUNCTION_INSTANCE exceptionHandling.guard::getConfig  // ./tryWithGuard.ek9:199:21
+    _temp2 = CALL (exceptionHandling.guard::getConfig)_temp4._call() [pure=false, complexity=2, effects=RETURN_MUTATION]  // ./tryWithGuard.ek9:199:21
+    RETAIN _temp2  // ./tryWithGuard.ek9:199:21
+    SCOPE_REGISTER _temp2, _scope_2  // ./tryWithGuard.ek9:199:21
+    STORE config, _temp2  // ./tryWithGuard.ek9:199:21
+    RETAIN config  // ./tryWithGuard.ek9:199:21
+    SCOPE_REGISTER config, _scope_2  // ./tryWithGuard.ek9:199:21
+    _temp5 = CONTROL_FLOW_CHAIN  // ./tryWithGuard.ek9:199:11
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp6 = IS_NULL config  // ./tryWithGuard.ek9:199:11
+    ]
+    primitive_condition: _temp6
+    body_evaluation:
+    [
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./tryWithGuard.ek9:199:11
+    RETAIN _temp7  // ./tryWithGuard.ek9:199:11
+    SCOPE_REGISTER _temp7, _scope_2  // ./tryWithGuard.ek9:199:11
+    ]
+    body_result: _temp7
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp8 = LOAD config  // ./tryWithGuard.ek9:199:11
+    _temp9 = CALL (org.ek9.lang::String)_temp8._isSet() [pure=true, complexity=0]  // ./tryWithGuard.ek9:199:11
+    RETAIN _temp9  // ./tryWithGuard.ek9:199:11
+    SCOPE_REGISTER _temp9, _scope_2  // ./tryWithGuard.ek9:199:11
+    ]
+    default_result: _temp9
+    scope_id: _scope_2
+    ]
+    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]  // ./tryWithGuard.ek9:199:11
+    CONTROL_FLOW_CHAIN  // ./tryWithGuard.ek9:199:7
+    [
+    chain_type: "IF_ELSE_IF"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    ]
+    condition_result: _temp5
+    primitive_condition: _temp10
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_3  // ./tryWithGuard.ek9:199:7
+    CONTROL_FLOW_CHAIN  // ./tryWithGuard.ek9:199:7
+    [
+    chain_type: "TRY_CATCH_FINALLY"
+    try_block_details:
+    [
+    try_scope_id: _scope_4
+    try_body_evaluation:
+    [
+    SCOPE_ENTER _scope_4  // ./tryWithGuard.ek9:199:7
+    _temp12 = LOAD stdout  // ./tryWithGuard.ek9:200:9
+    RETAIN _temp12  // ./tryWithGuard.ek9:200:9
+    SCOPE_REGISTER _temp12, _scope_4  // ./tryWithGuard.ek9:200:9
+    _temp13 = LOAD_LITERAL Config loaded:, org.ek9.lang::String  // ./tryWithGuard.ek9:200:24
+    RETAIN _temp13  // ./tryWithGuard.ek9:200:24
+    SCOPE_REGISTER _temp13, _scope_4  // ./tryWithGuard.ek9:200:24
+    CALL (org.ek9.lang::Stdout)_temp12.println(_temp13) [pure=true, complexity=1]  // ./tryWithGuard.ek9:200:16
+    _temp15 = LOAD stdout  // ./tryWithGuard.ek9:201:9
+    RETAIN _temp15  // ./tryWithGuard.ek9:201:9
+    SCOPE_REGISTER _temp15, _scope_4  // ./tryWithGuard.ek9:201:9
+    _temp16 = LOAD config  // ./tryWithGuard.ek9:201:24
+    RETAIN _temp16  // ./tryWithGuard.ek9:201:24
+    SCOPE_REGISTER _temp16, _scope_4  // ./tryWithGuard.ek9:201:24
+    CALL (org.ek9.lang::Stdout)_temp15.println(_temp16) [pure=true, complexity=1]  // ./tryWithGuard.ek9:201:16
+    SCOPE_EXIT _scope_4  // ./tryWithGuard.ek9:199:7
+    ]
+    ]
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_5
+    case_type: "EXCEPTION_HANDLER"
+    condition_evaluation:
+    [
+    ]
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_5  // ./tryWithGuard.ek9:202:7
+    REFERENCE ex, org.ek9.lang::Exception  // ./tryWithGuard.ek9:202:7
+    SCOPE_REGISTER ex, _scope_5  // ./tryWithGuard.ek9:202:7
+    _temp18 = LOAD stdout  // ./tryWithGuard.ek9:204:9
+    RETAIN _temp18  // ./tryWithGuard.ek9:204:9
+    SCOPE_REGISTER _temp18, _scope_5  // ./tryWithGuard.ek9:204:9
+    _temp19 = LOAD_LITERAL Failed to load config, org.ek9.lang::String  // ./tryWithGuard.ek9:204:24
+    RETAIN _temp19  // ./tryWithGuard.ek9:204:24
+    SCOPE_REGISTER _temp19, _scope_5  // ./tryWithGuard.ek9:204:24
+    CALL (org.ek9.lang::Stdout)_temp18.println(_temp19) [pure=true, complexity=1]  // ./tryWithGuard.ek9:204:16
+    SCOPE_EXIT _scope_5  // ./tryWithGuard.ek9:202:7
+    ]
+    exception_type: "org.ek9.lang::Exception"
+    exception_variable: ex
+    ]
+    ]
+    finally_block_evaluation:
+    [
+    SCOPE_ENTER _scope_6  // ./tryWithGuard.ek9:205:7
+    _temp21 = LOAD stdout  // ./tryWithGuard.ek9:206:9
+    RETAIN _temp21  // ./tryWithGuard.ek9:206:9
+    SCOPE_REGISTER _temp21, _scope_6  // ./tryWithGuard.ek9:206:9
+    _temp22 = LOAD_LITERAL Cleanup complete, org.ek9.lang::String  // ./tryWithGuard.ek9:206:24
+    RETAIN _temp22  // ./tryWithGuard.ek9:206:24
+    SCOPE_REGISTER _temp22, _scope_6  // ./tryWithGuard.ek9:206:24
+    CALL (org.ek9.lang::Stdout)_temp21.println(_temp22) [pure=true, complexity=1]  // ./tryWithGuard.ek9:206:16
+    SCOPE_EXIT _scope_6  // ./tryWithGuard.ek9:205:7
+    ]
+    scope_id: _scope_3
+    ]
+    SCOPE_EXIT _scope_3  // ./tryWithGuard.ek9:199:7
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2  // ./tryWithGuard.ek9:199:7
+    SCOPE_EXIT _scope_1  // ./tryWithGuard.ek9:197:7
+    RETURN  // ./tryWithGuard.ek9:196:5`
+    tryWithGuard()
+      stdout <- Stdout()
+
+      try config <- getConfig()
+        stdout.println("Config loaded:")
+        stdout.println(config)
+      catch
+        -> ex as Exception
+        stdout.println("Failed to load config")
+      finally
+        stdout.println("Cleanup complete")
+
+//EOF

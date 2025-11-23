@@ -1,15 +1,40 @@
 #!ek9
 <?-
   Test IR generation for switch statement with guard variable.
-  Guard: switch value <- provideOptionalValue()
+  Guard: switch value <- getValue()
   - Declares and initializes guard variable
-  - Guard variable becomes the switch expression
-  - Switch executes cases using guard variable
+  - Guard check (IS_NULL + _isSet) wraps switch in IF_ELSE_IF
+  - If guard passes, switch executes cases (SWITCH_WITH_GUARDS)
+  - If guard fails, switch is skipped entirely (consistent with WHILE/FOR/TRY)
 -?>
 defines module controlFlow.guard
 
   defines function
 
+    @IR: IR_GENERATION: FUNCTION: "controlFlow.guard::getValue": `
+    ConstructDfn: controlFlow.guard::getValue()->org.ek9.lang::Integer
+    OperationDfn: controlFlow.guard::getValue.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow.guard::getValue.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: controlFlow.guard::getValue.getValue()->controlFlow.guard::getValue
+    BasicBlock: _entry_1
+    CALL (controlFlow.guard::getValue)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: controlFlow.guard::getValue._call()->org.ek9.lang::Integer
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE rtn, org.ek9.lang::Integer
+    _temp1 = LOAD_LITERAL 42, org.ek9.lang::Integer
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    RELEASE rtn
+    STORE rtn, _temp1
+    RETAIN rtn
+    SCOPE_EXIT _scope_1
+    RETURN rtn`
     getValue()
       <- rtn as Integer?
       rtn: 42
@@ -44,88 +69,146 @@ defines module controlFlow.guard
     STORE value, _temp2
     RETAIN value
     SCOPE_REGISTER value, _scope_2
+    _temp5 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp6 = IS_NULL value
+    ]
+    primitive_condition: _temp6
+    body_evaluation:
+    [
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_2
+    ]
+    body_result: _temp7
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp8 = LOAD value
+    _temp9 = CALL (org.ek9.lang::Integer)_temp8._isSet() [pure=true, complexity=0]
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_2
+    ]
+    default_result: _temp9
+    scope_id: _scope_2
+    ]
+    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "IF_ELSE_IF"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    ]
+    condition_result: _temp5
+    primitive_condition: _temp10
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_3
+    _temp11 = LOAD value
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_3
     CONTROL_FLOW_CHAIN
     [
     chain_type: "SWITCH_WITH_GUARDS"
-    evaluation_variable: value
+    evaluation_variable: _temp11
     evaluation_variable_type: "org.ek9.lang::Integer"
     condition_chain:
     [
     [
-    case_scope_id: _scope_4
+    case_scope_id: _scope_5
     case_type: "LITERAL"
     condition_evaluation:
     [
-    SCOPE_ENTER _scope_3
-    _temp5 = LOAD value
-    RETAIN _temp5
-    SCOPE_REGISTER _temp5, _scope_3
-    _temp6 = LOAD_LITERAL 42, org.ek9.lang::Integer
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_3
-    _temp7 = CALL (org.ek9.lang::Integer)_temp5._eq(_temp6) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_3
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp7._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_3
+    SCOPE_ENTER _scope_4
+    _temp12 = LOAD _temp11
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_4
+    _temp13 = LOAD_LITERAL 42, org.ek9.lang::Integer
+    RETAIN _temp13
+    SCOPE_REGISTER _temp13, _scope_4
+    _temp14 = CALL (org.ek9.lang::Integer)_temp12._eq(_temp13) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, _scope_4
+    _temp15 = CALL (org.ek9.lang::Boolean)_temp14._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_4
     ]
-    condition_result: _temp7
-    primitive_condition: _temp8
+    condition_result: _temp14
+    primitive_condition: _temp15
     body_evaluation:
     [
-    SCOPE_ENTER _scope_4
-    _temp9 = LOAD_LITERAL Found forty-two, org.ek9.lang::String
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_4
+    SCOPE_ENTER _scope_5
+    _temp16 = LOAD_LITERAL Found forty-two, org.ek9.lang::String
+    RETAIN _temp16
+    SCOPE_REGISTER _temp16, _scope_5
     RELEASE result
-    STORE result, _temp9
+    STORE result, _temp16
     RETAIN result
-    SCOPE_EXIT _scope_4
+    SCOPE_EXIT _scope_5
     ]
     ],
     [
-    case_scope_id: _scope_6
+    case_scope_id: _scope_7
     case_type: "LITERAL"
     condition_evaluation:
     [
-    SCOPE_ENTER _scope_5
-    _temp10 = LOAD value
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, _scope_5
-    _temp11 = LOAD_LITERAL 1, org.ek9.lang::Integer
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_5
-    _temp12 = CALL (org.ek9.lang::Integer)_temp10._eq(_temp11) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp12
-    SCOPE_REGISTER _temp12, _scope_5
-    _temp13 = CALL (org.ek9.lang::Boolean)_temp12._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_5
+    SCOPE_ENTER _scope_6
+    _temp17 = LOAD _temp11
+    RETAIN _temp17
+    SCOPE_REGISTER _temp17, _scope_6
+    _temp18 = LOAD_LITERAL 1, org.ek9.lang::Integer
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, _scope_6
+    _temp19 = CALL (org.ek9.lang::Integer)_temp17._eq(_temp18) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp19
+    SCOPE_REGISTER _temp19, _scope_6
+    _temp20 = CALL (org.ek9.lang::Boolean)_temp19._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_6
     ]
-    condition_result: _temp12
-    primitive_condition: _temp13
+    condition_result: _temp19
+    primitive_condition: _temp20
     body_evaluation:
     [
-    SCOPE_ENTER _scope_6
-    _temp14 = LOAD_LITERAL Found one, org.ek9.lang::String
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_6
+    SCOPE_ENTER _scope_7
+    _temp21 = LOAD_LITERAL Found one, org.ek9.lang::String
+    RETAIN _temp21
+    SCOPE_REGISTER _temp21, _scope_7
     RELEASE result
-    STORE result, _temp14
+    STORE result, _temp21
     RETAIN result
-    SCOPE_EXIT _scope_6
+    SCOPE_EXIT _scope_7
     ]
     ]
     ]
     default_body_evaluation:
     [
-    SCOPE_ENTER _scope_7
-    _temp15 = LOAD_LITERAL Found something else, org.ek9.lang::String
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_7
+    SCOPE_ENTER _scope_8
+    _temp22 = LOAD_LITERAL Found something else, org.ek9.lang::String
+    RETAIN _temp22
+    SCOPE_REGISTER _temp22, _scope_8
     RELEASE result
-    STORE result, _temp15
+    STORE result, _temp22
     RETAIN result
-    SCOPE_EXIT _scope_7
+    SCOPE_EXIT _scope_8
+    ]
+    scope_id: _scope_3
+    ]
+    SCOPE_EXIT _scope_3
+    ]
+    ]
     ]
     scope_id: _scope_2
     ]

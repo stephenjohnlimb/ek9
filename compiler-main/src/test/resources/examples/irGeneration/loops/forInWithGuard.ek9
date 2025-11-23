@@ -1,0 +1,209 @@
+#!ek9
+<?-
+  Test IR generation for for-in loop with guard variable.
+  Guard: for items <- getItems() then item in items
+  - Guard expression evaluated once before loop starts
+  - Guard variable available in iteration expression
+  - Entry check wraps the WHILE_LOOP in IF_ELSE_IF
+-?>
+defines module loops.forin.guard
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "loops.forin.guard::getItems": `
+    ConstructDfn: loops.forin.guard::getItems()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+    OperationDfn: loops.forin.guard::getItems.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops.forin.guard::getItems.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops.forin.guard::getItems.getItems()->loops.forin.guard::getItems
+    BasicBlock: _entry_1
+    CALL (loops.forin.guard::getItems)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: loops.forin.guard::getItems._call()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE rtn, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+    _temp1 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.<init>() [pure=true, complexity=0, effects=RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    RELEASE rtn
+    STORE rtn, _temp1
+    RETAIN rtn
+    _temp2 = LOAD rtn
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    _temp3 = LOAD_LITERAL one, org.ek9.lang::String
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_1
+    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp2._addAss(_temp3) [pure=false, complexity=0, effects=THIS_MUTATION]
+    _temp4 = LOAD rtn
+    RETAIN _temp4
+    SCOPE_REGISTER _temp4, _scope_1
+    _temp5 = LOAD_LITERAL two, org.ek9.lang::String
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, _scope_1
+    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp4._addAss(_temp5) [pure=false, complexity=0, effects=THIS_MUTATION]
+    _temp6 = LOAD rtn
+    RETAIN _temp6
+    SCOPE_REGISTER _temp6, _scope_1
+    _temp7 = LOAD_LITERAL three, org.ek9.lang::String
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_1
+    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp6._addAss(_temp7) [pure=false, complexity=0, effects=THIS_MUTATION]
+    SCOPE_EXIT _scope_1
+    RETURN rtn`
+    getItems()
+      <- rtn as List of String?
+      rtn: List() of String
+      rtn += "one"
+      rtn += "two"
+      rtn += "three"
+
+    @IR: IR_GENERATION: FUNCTION: "loops.forin.guard::forInWithGuard": `
+    ConstructDfn: loops.forin.guard::forInWithGuard()->org.ek9.lang::Void
+    OperationDfn: loops.forin.guard::forInWithGuard.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops.forin.guard::forInWithGuard.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops.forin.guard::forInWithGuard.forInWithGuard()->loops.forin.guard::forInWithGuard
+    BasicBlock: _entry_1
+    CALL (loops.forin.guard::forInWithGuard)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: loops.forin.guard::forInWithGuard._call()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE stdout, org.ek9.lang::Stdout
+    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE stdout, _temp1
+    RETAIN stdout
+    SCOPE_REGISTER stdout, _scope_1
+    SCOPE_ENTER _scope_2
+    REFERENCE items, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+    _temp4 = FUNCTION_INSTANCE loops.forin.guard::getItems
+    _temp2 = CALL (loops.forin.guard::getItems)_temp4._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_2
+    STORE items, _temp2
+    RETAIN items
+    SCOPE_REGISTER items, _scope_2
+    _temp5 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp6 = IS_NULL items
+    ]
+    primitive_condition: _temp6
+    body_evaluation:
+    [
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_2
+    ]
+    body_result: _temp7
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp8 = LOAD items
+    _temp9 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp8._isSet() [pure=true, complexity=0]
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_2
+    ]
+    default_result: _temp9
+    scope_id: _scope_2
+    ]
+    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "IF_ELSE_IF"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    ]
+    condition_result: _temp5
+    primitive_condition: _temp10
+    body_evaluation:
+    [
+    _temp11 = LOAD items
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_2
+    _temp12 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp11.iterator() [pure=false, complexity=0]
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_2
+    SCOPE_ENTER _scope_3
+    REFERENCE item, org.ek9.lang::String
+    SCOPE_REGISTER item, _scope_3
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "WHILE_LOOP"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_4
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp13 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp12.hasNext() [pure=false, complexity=0]
+    RETAIN _temp13
+    SCOPE_REGISTER _temp13, _scope_4
+    _temp14 = CALL (org.ek9.lang::Boolean)_temp13._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_4
+    ]
+    condition_result: _temp13
+    primitive_condition: _temp14
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_5
+    _temp15 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp12.next() [pure=false, complexity=0]
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, _scope_5
+    RELEASE item
+    STORE item, _temp15
+    RETAIN item
+    _temp17 = LOAD stdout
+    RETAIN _temp17
+    SCOPE_REGISTER _temp17, _scope_5
+    _temp18 = LOAD item
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, _scope_5
+    CALL (org.ek9.lang::Stdout)_temp17.println(_temp18) [pure=true, complexity=1]
+    SCOPE_EXIT _scope_5
+    ]
+    ]
+    ]
+    scope_id: _scope_3
+    ]
+    SCOPE_EXIT _scope_3
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2
+    SCOPE_EXIT _scope_1
+    RETURN`
+    forInWithGuard()
+      stdout <- Stdout()
+
+      for items <- getItems() then item in items
+        stdout.println(item)
+
+//EOF

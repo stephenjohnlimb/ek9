@@ -7,6 +7,9 @@ This document provides comprehensive guidance for working with EK9's Intermediat
 - **`EK9_COMPILER_PHASES.md`** - Detailed compiler phase implementation and pipeline
 - **`EK9_Compiler_Architecture_and_Design.md`** - Complete architectural specification
 - **`EK9_PRAGMATIC_PURITY_ARCHITECTURE.md`** - Purity model and backend optimization architecture
+- **`EK9_CONTROL_FLOW_IR_DESIGN.md`** - Control flow chain architecture and guard integration
+- **`EK9_DUAL_BACKEND_IR_ARCHITECTURE.md`** - How IR supports both JVM and LLVM backends (SSA, ARC)
+- **`EK9_IR_TO_LLVM_MAPPING.md`** - Specific EK9 IR to LLVM IR mapping patterns
 
 ## Implementation Status
 
@@ -1811,7 +1814,7 @@ The LOGICAL_AND_BLOCK/LOGICAL_OR_BLOCK pattern establishes a foundation for **co
 
 #### Planned Control Flow Extensions
 - **`CONDITIONAL_BLOCK`**: if/else statements with similar pre-computation approach
-- **`SWITCH_CHAIN_BLOCK`**: EK9 switch statements with sequential case evaluation
+- **`CONTROL_FLOW_CHAIN`**: EK9 switch statements with sequential case evaluation
 - **`WHILE_BLOCK`**: Loop constructs with condition and body pre-computation  
 - **`EXCEPTION_BLOCK`**: try/catch with exception handling path pre-computation
 - **`ITERATION_BLOCK`**: for loops with iterator and body pre-computation
@@ -2356,7 +2359,7 @@ When reviewing IR generation examples, focus on **structural correctness** rathe
 
 3. **Medium-Level IR Structures**:
    - LOGICAL_AND_BLOCK/LOGICAL_OR_BLOCK with complete path pre-computation
-   - SWITCH_CHAIN_BLOCK with explicit condition evaluation
+   - CONTROL_FLOW_CHAIN with explicit condition evaluation
    - Nested structures maintain proper scope management
 
 #### ❌ **What NOT to Flag as Issues**

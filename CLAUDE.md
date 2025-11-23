@@ -289,6 +289,32 @@ For specific EK9 development tasks, refer to these comprehensive guides:
   - Optimization passes and target-specific considerations
   - **Use this guide when:** Working on compiler backend, IR generation, or code generation
 
+- **`EK9_CONTROL_FLOW_IR_DESIGN.md`** - Control flow IR architecture and guard integration
+  - CONTROL_FLOW_CHAIN unified instruction for all control flow
+  - Guard variable patterns (`<-`, `:=`, `:=?`, `?=`)
+  - Guard entry check pattern (QUESTION_OPERATOR)
+  - FOR-IN as WHILE_LOOP, FOR-RANGE as polymorphic dispatch
+  - **Use this guide when:** Working on if/switch/while/for/try IR generation or bytecode
+
+- **`EK9_DUAL_BACKEND_IR_ARCHITECTURE.md`** - How IR supports both JVM and LLVM backends
+  - SSA compatibility analysis (SSA-ready without being pure SSA)
+  - ARC memory management (RETAIN/RELEASE/SCOPE_* patterns)
+  - Control flow bytecode generation patterns
+  - Backend-specific implementation differences
+  - **Use this guide when:** Understanding dual-backend design, SSA conversion, or ARC semantics
+
+- **`EK9_IR_TO_LLVM_MAPPING.md`** - Specific EK9 IR to LLVM IR mapping patterns
+  - LLVM runtime function declarations
+  - PHI node generation at control flow merge points
+  - Memory management runtime calls
+  - **Use this guide when:** Implementing LLVM backend code generation
+
+- **`EK9_BACKEND_IMPLEMENTATION_ARCHITECTURE.md`** - Program entry point and execution architecture
+  - Universal entry point strategy (ek9.Main)
+  - Program registry and command-line parsing
+  - JVM and LLVM backend program execution patterns
+  - **Use this guide when:** Working on program entry points or execution infrastructure
+
 ### Language and Examples
 - **`EK9_LANGUAGE_EXAMPLES.md`** - Idiomatic EK9 source code examples and patterns
   - EK9 syntax and semantic demonstrations

@@ -42,22 +42,20 @@ public final class ForInGenerator extends AbstractGenerator
 
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
   private final GeneratorSet generators;
+  private final LoopGuardHelper loopGuardHelper;
 
   ForInGenerator(final IRGenerationContext stackContext,
                  final GeneratorSet generators) {
     super(stackContext);
     this.generators = generators;
+    this.loopGuardHelper = new LoopGuardHelper(stackContext, generators);
   }
 
   @Override
   public List<IRInstr> apply(final EK9Parser.ForStatementExpressionContext ctx) {
 
     final var forLoopCtx = ctx.forLoop();
-    final var instructions = new ArrayList<IRInstr>();
     final var debugInfo = stackContext.createDebugInfo(ctx);
-
-    // Check guards (not implemented yet)
-    validateNoPreFlowStatement(forLoopCtx.preFlowStatement(), "For-in loop");
 
     // Get squirreled pattern
     final var forSymbol = getRecordedSymbolOrException(ctx);
@@ -66,10 +64,46 @@ public final class ForInGenerator extends AbstractGenerator
       throw new CompilerException("No iteration pattern squirreled for for-loop");
     }
 
-    // SCOPE 1: Outer scope (matches while - for guards)
+    // SCOPE 1: Outer scope (guard scope)
     final var outerScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     stackContext.enterScope(outerScopeId, debugInfo, IRFrameType.BLOCK);
-    instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
+
+    // Process guard if present (using shared helper)
+    final var guardDetails = loopGuardHelper.evaluateGuardVariable(
+        forLoopCtx.preFlowStatement(), outerScopeId);
+
+    // Generate the core for-in loop
+    final var loopInstructions = generateForInLoopCore(ctx, forLoopCtx, pattern, debugInfo);
+
+    // If guard has entry check, wrap loop in IF that checks entry condition (using shared helper)
+    final List<IRInstr> instructions;
+    if (guardDetails.hasGuardEntryCheck()) {
+      instructions = loopGuardHelper.wrapBodyWithGuardEntryCheck(
+          guardDetails, loopInstructions, outerScopeId, debugInfo);
+    } else {
+      // No guard - just add scope enter/exit around the loop
+      instructions = new ArrayList<>();
+      instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
+      instructions.addAll(loopInstructions);
+      instructions.add(ScopeInstr.exit(outerScopeId, debugInfo));
+    }
+
+    // Exit outer scope from stack context
+    stackContext.exitScope();
+
+    return instructions;
+  }
+
+  /**
+   * Generate the core for-in loop instructions (without guard wrapping).
+   */
+  private List<IRInstr> generateForInLoopCore(
+      final EK9Parser.ForStatementExpressionContext ctx,
+      final EK9Parser.ForLoopContext forLoopCtx,
+      final String pattern,
+      final DebugInfo debugInfo) {
+
+    final var instructions = new ArrayList<IRInstr>();
 
     // Setup: Generate iterator variable based on pattern
     final var collectionSymbol = getRecordedSymbolOrException(forLoopCtx.expression());
@@ -120,12 +154,11 @@ public final class ForInGenerator extends AbstractGenerator
 
     instructions.addAll(generators.controlFlowChainGenerator.apply(whileDetails));
 
-    // Exit scopes
+    // Exit whole loop scope
     instructions.add(ScopeInstr.exit(wholeLoopScopeId, debugInfo));
     stackContext.exitScope();
 
-    instructions.add(ScopeInstr.exit(outerScopeId, debugInfo));
-    stackContext.exitScope();
+    // Note: outerScopeId exit is handled by the caller (apply method)
 
     return instructions;
   }

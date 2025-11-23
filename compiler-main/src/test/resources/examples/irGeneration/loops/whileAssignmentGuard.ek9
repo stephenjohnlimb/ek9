@@ -1,0 +1,115 @@
+#!ek9
+<?-
+  Test IR generation for while loop with assignment guard (:=).
+  Assignment guard does NOT perform null/isSet checks - it's a blind assignment.
+  Pattern: while existingVar := expr then condition
+  - Assigns to EXISTING variable (not declaration)
+  - NO guard entry check
+  - Just STORE + condition evaluation on each iteration
+  - Guard evaluated ONCE at entry, condition on each iteration
+-?>
+defines module loops.assignGuard
+
+  defines function
+
+    getValue()
+      <- rtn as Integer?
+      rtn: 5
+
+    @IR: IR_GENERATION: FUNCTION: "loops.assignGuard::whileAssignmentGuard": `
+    ConstructDfn: loops.assignGuard::whileAssignmentGuard()->org.ek9.lang::Integer
+    OperationDfn: loops.assignGuard::whileAssignmentGuard.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops.assignGuard::whileAssignmentGuard.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops.assignGuard::whileAssignmentGuard.whileAssignmentGuard()->loops.assignGuard::whileAssignmentGuard
+    BasicBlock: _entry_1
+    CALL (loops.assignGuard::whileAssignmentGuard)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: loops.assignGuard::whileAssignmentGuard._call()->org.ek9.lang::Integer
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE counter, org.ek9.lang::Integer
+    _temp1 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE counter, _temp1
+    RETAIN counter
+    REFERENCE value, org.ek9.lang::Integer
+    _temp2 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    STORE value, _temp2
+    RETAIN value
+    SCOPE_REGISTER value, _scope_1
+    SCOPE_ENTER _scope_2
+    _temp5 = FUNCTION_INSTANCE loops.assignGuard::getValue
+    _temp3 = CALL (loops.assignGuard::getValue)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_2
+    RELEASE value
+    STORE value, _temp3
+    RETAIN value
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "WHILE_LOOP"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_3
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_3
+    _temp7 = LOAD value
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_3
+    _temp8 = LOAD counter
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, _scope_3
+    _temp6 = CALL (org.ek9.lang::Integer)_temp7._gt(_temp8) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp6
+    SCOPE_REGISTER _temp6, _scope_3
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_3
+    ]
+    condition_result: _temp6
+    primitive_condition: _temp9
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp11 = LOAD counter
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_4
+    _temp12 = LOAD_LITERAL 1, org.ek9.lang::Integer
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_4
+    _temp10 = CALL (org.ek9.lang::Integer)_temp11._add(_temp12) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_4
+    RELEASE counter
+    STORE counter, _temp10
+    RETAIN counter
+    SCOPE_EXIT _scope_4
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2
+    SCOPE_EXIT _scope_1
+    RETURN counter`
+    whileAssignmentGuard()
+      <- counter <- Integer()
+
+      // Declare variable first (unset)
+      value <- Integer()
+
+      // Assignment guard (:=) - blind assignment, NO guard check
+      // Assigns once at entry, then condition checked each iteration
+      while value := getValue() then value > counter
+        counter := counter + 1
+
+//EOF

@@ -7,7 +7,9 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
 import org.ek9lang.compiler.ir.data.GuardVariableDetails;
+import org.ek9lang.compiler.ir.instructions.ControlFlowChainInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
@@ -27,11 +29,15 @@ import org.ek9lang.core.AssertValue;
  * - Integer type evaluation variable
  * - Default case
  * - Statement form only (no return value)
+ * - Guard variables with all operators ({@code <-}, {@code :=}, {@code :=?}, {@code ?=})
+ * </p>
+ * <p>
+ * For guards with guard checks ({@code <-}, {@code ?=} operators), if the guard fails
+ * (null or unset), the switch is skipped entirely (consistent with WHILE/FOR/TRY guards).
  * </p>
  * <p>
  * NOT yet supported:
  * - Expression form (switch as expression returning value)
- * - Guard variables in switch
  * - Enum case comparisons
  * - Multiple literals per case (case 1, 2, 3)
  * - Expression cases (case &lt; 12, case &gt; 50)
@@ -41,98 +47,184 @@ public final class SwitchStatementGenerator extends AbstractGenerator
     implements Function<EK9Parser.SwitchStatementExpressionContext, List<IRInstr>> {
 
   private final GeneratorSet generators;
+  private final LoopGuardHelper loopGuardHelper;
 
   public SwitchStatementGenerator(final IRGenerationContext stackContext,
                                   final GeneratorSet generators) {
     super(stackContext);
     AssertValue.checkNotNull("GeneratorSet cannot be null", generators);
     this.generators = generators;
+    this.loopGuardHelper = new LoopGuardHelper(stackContext, generators);
   }
 
   @Override
   public List<IRInstr> apply(final EK9Parser.SwitchStatementExpressionContext ctx) {
     AssertValue.checkNotNull("SwitchStatementExpressionContext cannot be null", ctx);
 
-    final var instructions = new ArrayList<IRInstr>();
     final var debugInfo = stackContext.createDebugInfo(ctx);
 
     // Validate - throw exceptions for unsupported features
     validateSwitchStatementFormOnly(ctx);
 
-    // 1. Enter chain scope for entire switch
-    // SWITCH needs manual scope management because evaluation variable lives for entire switch
+    // Check for guard
+    final var preFlowStmt = ctx.preFlowAndControl().preFlowStatement();
+    final boolean hasGuard = preFlowStmt != null;
+    final boolean hasControl = ctx.preFlowAndControl().control != null;
+
+    // If guard present, use guard-wrapped pattern (consistent with WHILE/FOR/TRY)
+    if (hasGuard) {
+      return generateSwitchWithGuard(ctx, preFlowStmt, hasControl, debugInfo);
+    } else {
+      return generateSwitchWithoutGuard(ctx, debugInfo);
+    }
+  }
+
+  /**
+   * Generate switch without guard - original pattern.
+   */
+  private List<IRInstr> generateSwitchWithoutGuard(
+      final EK9Parser.SwitchStatementExpressionContext ctx,
+      final org.ek9lang.compiler.ir.support.DebugInfo debugInfo) {
+
+    final var instructions = new ArrayList<IRInstr>();
+
+    // Enter chain scope for switch
     final var chainScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     stackContext.enterScope(chainScopeId, debugInfo, IRFrameType.BLOCK);
     instructions.add(ScopeInstr.enter(chainScopeId, debugInfo));
 
-    // 2. Check for three forms (from grammar preFlowAndControl):
-    //    Form #1: preFlowStatement only (guard becomes switch expression)
-    //    Form #2: control=expression only (explicit switch expression)
-    //    Form #3: preFlowStatement (WITH|THEN) control=expression (guard + explicit control)
-    final EvalVariable evalVariable;
-    String guardVariableName = null;  // Track guard variable name for chain type
-    final boolean hasGuard = ctx.preFlowAndControl().preFlowStatement() != null;
-    final boolean hasControl = ctx.preFlowAndControl().control != null;
+    // Evaluate switch expression
+    final var evalVariable = evaluateSwitchExpressionInline(ctx.preFlowAndControl(), instructions);
 
-    if (hasGuard && hasControl) {
-      // Form #3: Guard + Control
-      // Example: switch opt <- getOpt() then opt.get()
-      // Guard declares variable, control specifies what to switch on
-      final var guardResult = evaluateGuardVariableInline(ctx.preFlowAndControl(), instructions);
-      guardVariableName = guardResult.name();
-      evalVariable = evaluateSwitchExpressionInline(ctx.preFlowAndControl(), instructions);
-    } else if (hasGuard) {
-      // Form #1: Guard only
-      // Example: switch value <- getValue()
-      // Guard variable becomes the switch expression implicitly
-      evalVariable = evaluateGuardVariableInline(ctx.preFlowAndControl(), instructions);
-      guardVariableName = evalVariable.name();
-    } else {
-      // Form #2: Control only
-      // Example: switch myValue
-      // Explicit switch expression
-      evalVariable = evaluateSwitchExpressionInline(ctx.preFlowAndControl(), instructions);
-    }
-
-    // 3. Process each case statement
+    // Process cases and default
     final var conditionChain = new ArrayList<ConditionCaseDetails>();
     for (var caseStmt : ctx.caseStatement()) {
       conditionChain.add(processCaseStatement(caseStmt, evalVariable));
     }
 
-    // 4. Process default case (if present)
     List<IRInstr> defaultBodyEvaluation = List.of();
     if (ctx.block() != null) {
       defaultBodyEvaluation = processDefaultCase(ctx.block());
     }
 
-    // 5. Create CONTROL_FLOW_CHAIN details
-    // Uses createSwitchWithGuards to produce SWITCH_WITH_GUARDS when guards present
-    // Pass guard variable name so hasGuardVariables() returns true for guards
-    final var guardDetails = guardVariableName != null
-        ? GuardVariableDetails.create(List.of(guardVariableName), List.of(), chainScopeId, null)
-        : GuardVariableDetails.none();
-
-    final var details = ControlFlowChainDetails.createSwitchWithGuards(
-        null,  // no result (statement form)
-        guardDetails,
+    // Create SWITCH chain (no guards)
+    final var switchDetails = ControlFlowChainDetails.createSwitchWithGuards(
+        null,
+        GuardVariableDetails.none(),
         evalVariable.name(),
         evalVariable.type(),
-        null,  // no return variable
-        null,  // no return variable type
-        List.of(),  // no return variable setup
+        null, null, List.of(),
         conditionChain,
         defaultBodyEvaluation,
-        null,  // no default result
+        null,
         debugInfo,
         chainScopeId
     );
 
-    // 6. Generate CONTROL_FLOW_CHAIN instruction (just the chain, not scope)
-    instructions.add(org.ek9lang.compiler.ir.instructions.ControlFlowChainInstr.controlFlowChain(details));
+    instructions.add(ControlFlowChainInstr.controlFlowChain(switchDetails));
 
-    // 7. Exit chain scope
+    // Exit chain scope
     instructions.add(ScopeInstr.exit(chainScopeId, debugInfo));
+    stackContext.exitScope();
+
+    return instructions;
+  }
+
+  /**
+   * Generate switch with guard - uses LoopGuardHelper pattern (consistent with WHILE/FOR/TRY).
+   */
+  private List<IRInstr> generateSwitchWithGuard(
+      final EK9Parser.SwitchStatementExpressionContext ctx,
+      final EK9Parser.PreFlowStatementContext preFlowStmt,
+      final boolean hasControl,
+      final org.ek9lang.compiler.ir.support.DebugInfo debugInfo) {
+
+    // Create guard scope for entire switch
+    final var guardScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(guardScopeId, debugInfo, IRFrameType.BLOCK);
+
+    // Evaluate guard using LoopGuardHelper
+    final var guardDetails = loopGuardHelper.evaluateGuardVariable(preFlowStmt, guardScopeId);
+
+    // Build switch body instructions
+    final var switchBodyInstructions = new ArrayList<IRInstr>();
+
+    // Enter chain scope for switch evaluation variable
+    final var chainScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
+    stackContext.enterScope(chainScopeId, debugInfo, IRFrameType.BLOCK);
+    switchBodyInstructions.add(ScopeInstr.enter(chainScopeId, debugInfo));
+
+    // Evaluate switch expression
+    final EvalVariable evalVariable;
+    if (hasControl) {
+      // Form #3: Guard + Control - switch on the control expression
+      evalVariable = evaluateSwitchExpressionInline(ctx.preFlowAndControl(), switchBodyInstructions);
+    } else {
+      // Form #1: Guard only - switch on the guard variable itself
+      final var guardSymbol = getRecordedSymbolOrException(preFlowStmt.variableDeclaration() != null
+          ? preFlowStmt.variableDeclaration()
+          : preFlowStmt.assignmentStatement() != null
+              ? preFlowStmt.assignmentStatement().identifier()
+              : preFlowStmt.guardExpression().identifier());
+      final var guardVarName = new VariableNameForIR().apply(guardSymbol);
+      final var guardTypeName = typeNameOrException.apply(guardSymbol);
+      // Load guard variable as evaluation variable
+      final var evalTemp = stackContext.generateTempName();
+      switchBodyInstructions.add(MemoryInstr.load(evalTemp, guardVarName, debugInfo));
+      switchBodyInstructions.add(MemoryInstr.retain(evalTemp, debugInfo));
+      switchBodyInstructions.add(ScopeInstr.register(evalTemp, chainScopeId, debugInfo));
+      evalVariable = new EvalVariable(evalTemp, guardTypeName, guardSymbol);
+    }
+
+    // Process cases and default
+    final var conditionChain = new ArrayList<ConditionCaseDetails>();
+    for (var caseStmt : ctx.caseStatement()) {
+      conditionChain.add(processCaseStatement(caseStmt, evalVariable));
+    }
+
+    List<IRInstr> defaultBodyEvaluation = List.of();
+    if (ctx.block() != null) {
+      defaultBodyEvaluation = processDefaultCase(ctx.block());
+    }
+
+    // Create SWITCH_WITH_GUARDS chain
+    final var switchChainGuardDetails = GuardVariableDetails.create(
+        guardDetails.guardVariables(), List.of(), chainScopeId, null);
+
+    final var switchDetails = ControlFlowChainDetails.createSwitchWithGuards(
+        null,
+        switchChainGuardDetails,
+        evalVariable.name(),
+        evalVariable.type(),
+        null, null, List.of(),
+        conditionChain,
+        defaultBodyEvaluation,
+        null,
+        debugInfo,
+        chainScopeId
+    );
+
+    switchBodyInstructions.add(ControlFlowChainInstr.controlFlowChain(switchDetails));
+
+    // Exit chain scope
+    switchBodyInstructions.add(ScopeInstr.exit(chainScopeId, debugInfo));
+    stackContext.exitScope();
+
+    // Wrap switch in guard entry check if needed
+    final List<IRInstr> instructions;
+    if (guardDetails.hasGuardEntryCheck()) {
+      instructions = loopGuardHelper.wrapBodyWithGuardEntryCheck(
+          guardDetails, switchBodyInstructions, guardScopeId, debugInfo);
+    } else {
+      // No guard check (e.g., := operator) - just emit with guard setup
+      instructions = new ArrayList<>();
+      instructions.add(ScopeInstr.enter(guardScopeId, debugInfo));
+      instructions.addAll(guardDetails.guardScopeSetup());
+      instructions.addAll(switchBodyInstructions);
+      instructions.add(ScopeInstr.exit(guardScopeId, debugInfo));
+    }
+
+    // Exit guard scope
     stackContext.exitScope();
 
     return instructions;
@@ -254,42 +346,6 @@ public final class SwitchStatementGenerator extends AbstractGenerator
     stackContext.exitScope();
 
     return bodyEvaluation;
-  }
-
-  /**
-   * Evaluate guard variable for switch statement inline.
-   * Pattern: switch value <- getValue()
-   * <p>
-   * Uses existing variableDeclGenerator to handle the variable declaration,
-   * then extracts the guard variable information to use as switch expression.
-   * </p>
-   *
-   * @param ctx          preFlowAndControl context with guard
-   * @param instructions List to append guard evaluation instructions
-   * @return EvalVariable with guard variable name and type
-   */
-  private EvalVariable evaluateGuardVariableInline(
-      final EK9Parser.PreFlowAndControlContext ctx,
-      final List<IRInstr> instructions) {
-
-    final var guardStmt = ctx.preFlowStatement();
-
-    // Use existing variable declaration generator (handles REFERENCE, STORE, RETAIN, SCOPE_REGISTER)
-    if (guardStmt.variableDeclaration() != null) {
-      instructions.addAll(generators.variableDeclGenerator.apply(guardStmt.variableDeclaration()));
-
-      // Extract guard variable information
-      final var guardSymbol = getRecordedSymbolOrException(guardStmt.variableDeclaration());
-      final var guardVarName = new VariableNameForIR().apply(guardSymbol);
-      final var guardTypeName = typeNameOrException.apply(guardSymbol);
-
-      return new EvalVariable(guardVarName, guardTypeName, guardSymbol);
-    }
-
-    // For now, only support variable declaration form (value <- expr)
-    // Future: Support assignment (:=) and guarded assignment (?=) forms
-    throw new org.ek9lang.core.CompilerException(
-        "Switch guards currently only support variable declaration form (value <- expr)");
   }
 
   /**

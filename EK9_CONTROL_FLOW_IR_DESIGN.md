@@ -1,17 +1,19 @@
 # EK9 Control Flow IR Design
 
-This document provides the comprehensive design specification for EK9's unified control flow intermediate representation using the SWITCH_CHAIN_BLOCK structure. This design unifies if/else, if/else-if, and switch statements into a single, powerful IR construct that enables aggressive backend optimizations while preserving EK9's semantic richness.
+This document provides the comprehensive design specification for EK9's unified control flow intermediate representation using the CONTROL_FLOW_CHAIN structure. This design unifies if/else, if/else-if, switch, while, do-while, for-range, for-in, and try statements into a single, powerful IR construct that enables aggressive backend optimizations while preserving EK9's semantic richness.
 
 **Related Documentation:**
 - **`EK9_IR_AND_CODE_GENERATION.md`** - General IR generation principles and patterns
 - **`EK9_Compiler_Architecture_and_Design.md`** - Complete architectural specification
+- **`EK9_DUAL_BACKEND_IR_ARCHITECTURE.md`** - How IR supports both JVM and LLVM backends (SSA, ARC)
+- **`EK9_IR_TO_LLVM_MAPPING.md`** - Specific EK9 IR to LLVM IR mapping patterns
 - **`CLAUDE.md`** - Main project overview and development guidelines
 
 ## Architecture Overview
 
 ### Design Philosophy
 
-Following EK9's **declarative IR approach** established by LOGICAL_AND_BLOCK and LOGICAL_OR_BLOCK, the SWITCH_CHAIN_BLOCK provides a unified structure for all sequential conditional evaluation constructs.
+Following EK9's **declarative IR approach** established by LOGICAL_AND_BLOCK and LOGICAL_OR_BLOCK, the CONTROL_FLOW_CHAIN provides a unified structure for all sequential conditional evaluation constructs.
 
 **Key Principles:**
 - **Pre-computation of all execution paths** - All conditions and bodies are evaluated upfront
@@ -26,12 +28,216 @@ Following EK9's **declarative IR approach** established by LOGICAL_AND_BLOCK and
 3. **Semantic Elegance**: Matches EK9's "switch as chained if/else-if" language design
 4. **Performance Predictability**: Clear optimization boundaries for different construct types
 
-## SWITCH_CHAIN_BLOCK Structure
+## Guard Integration Architecture
+
+This section documents the architectural decisions for how guard variables integrate with control flow constructs. Understanding these patterns is essential for backend development and future maintenance.
+
+### Guard Entry Check Pattern
+
+All control flow constructs with guard variables that require checking (`<-`, `?=`, `:=?`) use the **QUESTION_OPERATOR** pattern for null-safety:
+
+```ir
+_temp = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+  [
+    case_type: "NULL_CHECK"
+    condition_evaluation: [IS_NULL guardVariable]
+    body_evaluation: [Boolean._ofFalse()]  // If null, return false
+    body_result: _tempFalse
+  ]
+]
+default_body_evaluation: [guardVariable._isSet()]  // If not null, check isSet
+default_result: _tempIsSet
+]
+```
+
+**Why "QUESTION_OPERATOR"?** This name derives from EK9's `?` operator which checks if a value is "set" (has a meaningful value). The QUESTION_OPERATOR combines null-check with `_isSet()` to implement tri-state semantics.
+
+### IF vs Other Constructs: Different Integration Patterns
+
+**Critical Design Decision:** IF statements integrate guards differently from SWITCH/WHILE/FOR/TRY.
+
+#### IF Statement Pattern: LOGICAL_AND_BLOCK Integration
+
+IF statements integrate guard checks directly into the condition using `LOGICAL_AND_BLOCK`:
+
+```ir
+// if value <- getValue() with value > 10
+LOGICAL_AND_BLOCK
+[
+  left: QUESTION_OPERATOR [guard check on value]
+  right: value._gt(10)  // Only evaluated if left is true (short-circuit)
+]
+```
+
+**Rationale:** IF statements already have conditions to evaluate. The guard check naturally combines with the condition using short-circuit AND logic. This is semantically correct: "if (value is set AND value > 10)".
+
+#### SWITCH/WHILE/FOR/TRY Pattern: IF_ELSE_IF Wrapper
+
+These constructs wrap the entire body in an IF_ELSE_IF guard check:
+
+```ir
+// switch value <- getValue()
+QUESTION_OPERATOR [guard check] → Boolean result
+IF_ELSE_IF
+[
+  condition: guard check result
+  body: SWITCH_WITH_GUARDS [actual switch logic]
+  default: []  // Guard fails → skip entirely
+]
+```
+
+**Rationale:** These constructs don't have a natural "condition" to combine with:
+- SWITCH evaluates an expression against cases, not a boolean condition
+- WHILE/FOR have iteration conditions, not entry conditions
+- TRY has no condition at all
+
+The IF_ELSE_IF wrapper provides a clean entry gate: "if guard passes, execute construct; otherwise skip".
+
+### Guard-Fail Behavior: Consistent Skip Semantic
+
+**All constructs skip entirely when guard fails.** This is a deliberate design decision for consistency:
+
+| Construct | Guard Passes | Guard Fails |
+|-----------|--------------|-------------|
+| IF | Execute body (condition permitting) | Skip to else |
+| SWITCH | Execute SWITCH_WITH_GUARDS | **Skip entirely** |
+| WHILE | Execute WHILE_LOOP_WITH_GUARDS | **Skip entirely** |
+| DO-WHILE | Execute DO_WHILE_LOOP_WITH_GUARDS | **Skip entirely** |
+| FOR-RANGE | Execute FOR_RANGE_POLYMORPHIC | **Skip entirely** |
+| FOR-IN | Execute WHILE_LOOP (iterator) | **Skip entirely** |
+| TRY | Execute TRY_CATCH_FINALLY | **Skip entirely** |
+
+**Historical Note:** An earlier implementation had SWITCH execute its default case on guard failure. This was changed for consistency - all constructs now skip entirely on guard failure.
+
+### FOR-IN Implementation: WHILE_LOOP Internally
+
+FOR-IN loops are implemented using `WHILE_LOOP` chain type internally:
+
+```ek9
+for item in collection
+  process(item)
+```
+
+Generates:
+
+```ir
+// Iterator setup
+_iterator = collection.iterator()
+
+// Uses WHILE_LOOP chain type
+CONTROL_FLOW_CHAIN
+[
+chain_type: "WHILE_LOOP"
+condition_chain:
+[
+  condition_evaluation: [_iterator.hasNext()]
+  body_evaluation: [
+    item = _iterator.next()
+    process(item)
+  ]
+]
+]
+```
+
+**Rationale:** FOR-IN is semantically a while loop over an iterator. Using WHILE_LOOP:
+1. Reuses existing WHILE infrastructure
+2. Correctly represents the iteration pattern
+3. Enables same backend optimizations as WHILE
+
+### FOR-RANGE: Specialized Instruction Type
+
+FOR-RANGE uses `ForRangePolymorphicInstr`, NOT CONTROL_FLOW_CHAIN:
+
+```ek9
+for i in 1 ... 10
+  process(i)
+```
+
+Generates:
+
+```ir
+FOR_RANGE_POLYMORPHIC
+[
+  loop_variable: i
+  start: 1
+  end: 10
+  inclusive: true
+  body: [process(i)]
+]
+```
+
+**Rationale:** FOR-RANGE has specialized semantics:
+1. Polymorphic iteration (works with Integer, Float, Character, Date, etc.)
+2. Ascending/descending direction detection
+3. Inclusive (`...`) vs exclusive (`..<`) bounds
+4. Potential for backend-specific optimizations (loop unrolling, SIMD)
+
+A CONTROL_FLOW_CHAIN would be overly verbose for this common pattern.
+
+### Guard Scope vs Chain Scope
+
+Guarded constructs have TWO scope levels:
+
+```
+Guard Scope (_scope_2)           ← Contains guard variable + owns entire construct
+├── Guard variable declaration
+├── Guard setup instructions
+└── Chain Scope (_scope_3)       ← Contains construct-specific state
+    ├── Evaluation variable (switch)
+    ├── Loop variable (for)
+    └── Body instructions
+```
+
+**Guard Scope:**
+- Created first, contains guard variable
+- Wraps the entire construct including any IF_ELSE_IF wrapper
+- Guard variable lifetime = entire construct execution
+
+**Chain Scope:**
+- Created inside guard scope (or as only scope if no guard)
+- Contains construct-specific state (switch expression, loop counter)
+- Cleaned up before guard scope on construct exit
+
+### Exception Handler Ownership Transfer
+
+Exception handlers have a special ARC pattern:
+
+```ir
+// In catch block
+REFERENCE ex, ExceptionType
+SCOPE_REGISTER ex, catchScopeId
+// NOTE: No RETAIN needed!
+```
+
+**Why no RETAIN?** The JVM/runtime creates the exception object with refcount=1 and transfers ownership to the catch block. Adding RETAIN would cause a memory leak (refcount=2, only one RELEASE on scope exit).
+
+This is documented here because it differs from the standard "RETAIN after assignment" pattern used elsewhere.
+
+### Chain Type Reference
+
+| Chain Type | Used For | Guard Variant |
+|------------|----------|---------------|
+| `IF_ELSE_IF` | If/else-if chains | `IF_ELSE_WITH_GUARDS` |
+| `SWITCH` | Switch statements | `SWITCH_WITH_GUARDS` |
+| `SWITCH_ENUM` | Enum switches | N/A (enum always has value) |
+| `WHILE_LOOP` | While loops, FOR-IN | `WHILE_LOOP_WITH_GUARDS` |
+| `DO_WHILE_LOOP` | Do-while loops | `DO_WHILE_LOOP_WITH_GUARDS` |
+| `QUESTION_OPERATOR` | Guard entry checks | N/A (IS the guard check) |
+| `GUARDED_ASSIGNMENT` | `:=?` operator | N/A |
+| `TRY_CATCH_FINALLY` | Exception handling | N/A (uses wrapper) |
+
+**Note:** FOR-RANGE uses `ForRangePolymorphicInstr`, not CONTROL_FLOW_CHAIN.
+
+## CONTROL_FLOW_CHAIN Structure
 
 ### Complete IR Structure Definition
 
 ```ir
-_temp1 = SWITCH_CHAIN_BLOCK  // ./source.ek9:line:col
+_temp1 = CONTROL_FLOW_CHAIN  // ./source.ek9:line:col
 [
 // Scope management
 switch_scope_id: _switch_scope_1
@@ -140,7 +346,7 @@ scope_id: _switch_scope_1
 
 ### Grammar Analysis
 
-EK9's grammar naturally maps to SWITCH_CHAIN_BLOCK:
+EK9's grammar naturally maps to CONTROL_FLOW_CHAIN:
 
 ```antlr
 // If statement grammar
@@ -166,7 +372,7 @@ if condition
 ```
 
 ```ir
-_temp1 = SWITCH_CHAIN_BLOCK
+_temp1 = CONTROL_FLOW_CHAIN
 [
 evaluation_variable: null
 condition_chain: [
@@ -191,7 +397,7 @@ else
 ```
 
 ```ir
-_temp1 = SWITCH_CHAIN_BLOCK
+_temp1 = CONTROL_FLOW_CHAIN
 [
 evaluation_variable: null
 condition_chain: [
@@ -222,7 +428,7 @@ result <- switch enumVal
 ```
 
 ```ir
-_temp1 = SWITCH_CHAIN_BLOCK
+_temp1 = CONTROL_FLOW_CHAIN
 [
 evaluation_variable: enumVal
 return_variable: rtn
@@ -267,7 +473,7 @@ result <- switch stringVar
 ```
 
 ```ir
-_temp1 = SWITCH_CHAIN_BLOCK
+_temp1 = CONTROL_FLOW_CHAIN
 [
 evaluation_variable: stringVar
 condition_chain: [
@@ -595,11 +801,11 @@ examples/irGeneration/controlFlow/
 #### Test Pattern Example
 ```ek9
 // simpleEnumSwitch.ek9
-@IR: SWITCH_CHAIN_BLOCK_GENERATION: FUNCTION: "test::enumSwitchExample": `
+@IR: CONTROL_FLOW_CHAIN_GENERATION: FUNCTION: "test::enumSwitchExample": `
 OperationDfn: test::enumSwitchExample._call()->org.ek9.lang::Void
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1
-_temp1 = SWITCH_CHAIN_BLOCK  // ./simpleEnumSwitch.ek9:10:15
+_temp1 = CONTROL_FLOW_CHAIN  // ./simpleEnumSwitch.ek9:10:15
 [
 evaluation_variable: enumVal
 evaluation_variable_type: "test::Color"
@@ -742,7 +948,7 @@ body_evaluation:
 
 ## Summary
 
-The SWITCH_CHAIN_BLOCK design provides a unified, powerful IR construct that:
+The CONTROL_FLOW_CHAIN design provides a unified, powerful IR construct that:
 
 - **Consolidates all EK9 control flow** into a single, well-understood structure
 - **Enables aggressive backend optimizations** through semantic hints and optimization metadata

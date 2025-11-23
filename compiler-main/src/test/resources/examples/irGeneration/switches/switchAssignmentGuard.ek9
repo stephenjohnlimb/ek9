@@ -1,0 +1,225 @@
+#!ek9
+<?-
+  Test IR generation for switch with assignment guard (:=).
+  Assignment guard does NOT perform null/isSet checks - it's a blind assignment.
+  Pattern: switch existingVar := expr
+  - Assigns to EXISTING variable (not declaration)
+  - NO guard check (no IF_ELSE_IF wrapper)
+  - Just STORE + case comparisons (SWITCH chain type)
+-?>
+defines module switches.assignGuard
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "switches.assignGuard::getValue": `
+    ConstructDfn: switches.assignGuard::getValue()->org.ek9.lang::Integer
+    OperationDfn: switches.assignGuard::getValue.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: switches.assignGuard::getValue.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: switches.assignGuard::getValue.getValue()->switches.assignGuard::getValue
+    BasicBlock: _entry_1
+    CALL (switches.assignGuard::getValue)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: switches.assignGuard::getValue._call()->org.ek9.lang::Integer
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE rtn, org.ek9.lang::Integer
+    _temp1 = LOAD_LITERAL 2, org.ek9.lang::Integer
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    RELEASE rtn
+    STORE rtn, _temp1
+    RETAIN rtn
+    SCOPE_EXIT _scope_1
+    RETURN rtn`
+    getValue()
+      <- rtn as Integer?
+      rtn: 2
+
+    @IR: IR_GENERATION: FUNCTION: "switches.assignGuard::switchAssignmentGuard": `
+    ConstructDfn: switches.assignGuard::switchAssignmentGuard()->org.ek9.lang::String
+    OperationDfn: switches.assignGuard::switchAssignmentGuard.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: switches.assignGuard::switchAssignmentGuard.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: switches.assignGuard::switchAssignmentGuard.switchAssignmentGuard()->switches.assignGuard::switchAssignmentGuard
+    BasicBlock: _entry_1
+    CALL (switches.assignGuard::switchAssignmentGuard)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: switches.assignGuard::switchAssignmentGuard._call()->org.ek9.lang::String
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE result, org.ek9.lang::String
+    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE result, _temp1
+    RETAIN result
+    REFERENCE value, org.ek9.lang::Integer
+    _temp2 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    STORE value, _temp2
+    RETAIN value
+    SCOPE_REGISTER value, _scope_1
+    SCOPE_ENTER _scope_2
+    _temp5 = FUNCTION_INSTANCE switches.assignGuard::getValue
+    _temp3 = CALL (switches.assignGuard::getValue)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_2
+    RELEASE value
+    STORE value, _temp3
+    RETAIN value
+    SCOPE_ENTER _scope_3
+    _temp6 = LOAD value
+    RETAIN _temp6
+    SCOPE_REGISTER _temp6, _scope_3
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "SWITCH"
+    evaluation_variable: _temp6
+    evaluation_variable_type: "org.ek9.lang::Integer"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_5
+    case_type: "LITERAL"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp7 = LOAD _temp6
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_4
+    _temp8 = LOAD_LITERAL 1, org.ek9.lang::Integer
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, _scope_4
+    _temp9 = CALL (org.ek9.lang::Integer)_temp7._eq(_temp8) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_4
+    _temp10 = CALL (org.ek9.lang::Boolean)_temp9._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_4
+    ]
+    condition_result: _temp9
+    primitive_condition: _temp10
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_5
+    _temp11 = LOAD_LITERAL One, org.ek9.lang::String
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_5
+    RELEASE result
+    STORE result, _temp11
+    RETAIN result
+    SCOPE_EXIT _scope_5
+    ]
+    ],
+    [
+    case_scope_id: _scope_7
+    case_type: "LITERAL"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_6
+    _temp12 = LOAD _temp6
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_6
+    _temp13 = LOAD_LITERAL 2, org.ek9.lang::Integer
+    RETAIN _temp13
+    SCOPE_REGISTER _temp13, _scope_6
+    _temp14 = CALL (org.ek9.lang::Integer)_temp12._eq(_temp13) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, _scope_6
+    _temp15 = CALL (org.ek9.lang::Boolean)_temp14._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_6
+    ]
+    condition_result: _temp14
+    primitive_condition: _temp15
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_7
+    _temp16 = LOAD_LITERAL Two, org.ek9.lang::String
+    RETAIN _temp16
+    SCOPE_REGISTER _temp16, _scope_7
+    RELEASE result
+    STORE result, _temp16
+    RETAIN result
+    SCOPE_EXIT _scope_7
+    ]
+    ]
+    ]
+    default_body_evaluation:
+    [
+    SCOPE_ENTER _scope_8
+    _temp17 = LOAD_LITERAL Other, org.ek9.lang::String
+    RETAIN _temp17
+    SCOPE_REGISTER _temp17, _scope_8
+    RELEASE result
+    STORE result, _temp17
+    RETAIN result
+    SCOPE_EXIT _scope_8
+    ]
+    scope_id: _scope_3
+    ]
+    SCOPE_EXIT _scope_3
+    SCOPE_EXIT _scope_2
+    _temp18 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_1
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp19 = LOAD value
+    _temp20 = IS_NULL _temp19
+    ]
+    primitive_condition: _temp20
+    body_evaluation:
+    [
+    _temp21 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp21
+    SCOPE_REGISTER _temp21, _scope_1
+    ]
+    body_result: _temp21
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp22 = CALL (org.ek9.lang::Integer)_temp19._isSet() [pure=true, complexity=0]
+    RETAIN _temp22
+    SCOPE_REGISTER _temp22, _scope_1
+    ]
+    default_result: _temp22
+    scope_id: _scope_1
+    ]
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, _scope_1
+    _temp23 = CALL (org.ek9.lang::Boolean)_temp18._true() [pure=true, complexity=0]
+    ASSERT _temp23
+    SCOPE_EXIT _scope_1
+    RETURN result`
+    switchAssignmentGuard()
+      <- result <- String()
+
+      // Declare variable first (unset)
+      value <- Integer()
+
+      // Assignment guard (:=) - blind assignment, NO guard check
+      switch value := getValue()
+        case 1
+          result: "One"
+        case 2
+          result: "Two"
+        default
+          result: "Other"
+
+      // Reference value to satisfy unreferenced variable check
+      assert value?
+
+//EOF

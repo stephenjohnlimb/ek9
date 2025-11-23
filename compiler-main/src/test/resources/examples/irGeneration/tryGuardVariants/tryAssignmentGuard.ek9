@@ -1,0 +1,161 @@
+#!ek9
+<?-
+  Test IR generation for try statement with assignment guard (:=).
+  Assignment guard does NOT perform null/isSet checks - it's a blind assignment.
+  Pattern: try existingVar := expr
+  - Assigns to EXISTING variable (not declaration)
+  - NO guard entry check
+  - Just STORE before try block starts
+  - Guard evaluated ONCE at entry
+-?>
+defines module tryGuardVariants.assignGuard
+
+  defines function
+
+    @IR: IR_GENERATION: FUNCTION: "tryGuardVariants.assignGuard::getConfig": `
+    ConstructDfn: tryGuardVariants.assignGuard::getConfig()->org.ek9.lang::String
+    OperationDfn: tryGuardVariants.assignGuard::getConfig.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: tryGuardVariants.assignGuard::getConfig.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: tryGuardVariants.assignGuard::getConfig.getConfig()->tryGuardVariants.assignGuard::getConfig
+    BasicBlock: _entry_1
+    CALL (tryGuardVariants.assignGuard::getConfig)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: tryGuardVariants.assignGuard::getConfig._call()->org.ek9.lang::String
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE rtn, org.ek9.lang::String
+    _temp1 = LOAD_LITERAL config-value, org.ek9.lang::String
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    RELEASE rtn
+    STORE rtn, _temp1
+    RETAIN rtn
+    SCOPE_EXIT _scope_1
+    RETURN rtn`
+    getConfig()
+      <- rtn as String?
+      rtn: "config-value"
+
+    @IR: IR_GENERATION: FUNCTION: "tryGuardVariants.assignGuard::tryAssignmentGuard": `
+    ConstructDfn: tryGuardVariants.assignGuard::tryAssignmentGuard()->org.ek9.lang::Void
+    OperationDfn: tryGuardVariants.assignGuard::tryAssignmentGuard.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: tryGuardVariants.assignGuard::tryAssignmentGuard.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: tryGuardVariants.assignGuard::tryAssignmentGuard.tryAssignmentGuard()->tryGuardVariants.assignGuard::tryAssignmentGuard
+    BasicBlock: _entry_1
+    CALL (tryGuardVariants.assignGuard::tryAssignmentGuard)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: tryGuardVariants.assignGuard::tryAssignmentGuard._call()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE stdout, org.ek9.lang::Stdout
+    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE stdout, _temp1
+    RETAIN stdout
+    SCOPE_REGISTER stdout, _scope_1
+    REFERENCE config, org.ek9.lang::String
+    _temp2 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    STORE config, _temp2
+    RETAIN config
+    SCOPE_REGISTER config, _scope_1
+    SCOPE_ENTER _scope_2
+    SCOPE_ENTER _scope_3
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "TRY_CATCH_FINALLY"
+    try_block_details:
+    [
+    try_scope_id: _scope_4
+    try_body_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp7 = LOAD stdout
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_4
+    _temp8 = LOAD_LITERAL Config loaded:, org.ek9.lang::String
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, _scope_4
+    CALL (org.ek9.lang::Stdout)_temp7.println(_temp8) [pure=true, complexity=1]
+    _temp10 = LOAD stdout
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_4
+    _temp11 = LOAD config
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_4
+    CALL (org.ek9.lang::Stdout)_temp10.println(_temp11) [pure=true, complexity=1]
+    SCOPE_EXIT _scope_4
+    ]
+    ]
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_5
+    case_type: "EXCEPTION_HANDLER"
+    condition_evaluation:
+    [
+    ]
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_5
+    REFERENCE ex, org.ek9.lang::Exception
+    SCOPE_REGISTER ex, _scope_5
+    _temp13 = LOAD stdout
+    RETAIN _temp13
+    SCOPE_REGISTER _temp13, _scope_5
+    _temp14 = LOAD_LITERAL Failed to load config, org.ek9.lang::String
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, _scope_5
+    CALL (org.ek9.lang::Stdout)_temp13.println(_temp14) [pure=true, complexity=1]
+    SCOPE_EXIT _scope_5
+    ]
+    exception_type: "org.ek9.lang::Exception"
+    exception_variable: ex
+    ]
+    ]
+    finally_block_evaluation:
+    [
+    SCOPE_ENTER _scope_6
+    _temp16 = LOAD stdout
+    RETAIN _temp16
+    SCOPE_REGISTER _temp16, _scope_6
+    _temp17 = LOAD_LITERAL Cleanup complete, org.ek9.lang::String
+    RETAIN _temp17
+    SCOPE_REGISTER _temp17, _scope_6
+    CALL (org.ek9.lang::Stdout)_temp16.println(_temp17) [pure=true, complexity=1]
+    SCOPE_EXIT _scope_6
+    ]
+    scope_id: _scope_3
+    ]
+    SCOPE_EXIT _scope_3
+    SCOPE_EXIT _scope_2
+    SCOPE_EXIT _scope_1
+    RETURN`
+    tryAssignmentGuard()
+      stdout <- Stdout()
+
+      // Declare variable first (unset)
+      config <- String()
+
+      // Assignment guard (:=) - blind assignment, NO guard check
+      // Assigns once at entry, then try block runs
+      try config := getConfig()
+        stdout.println("Config loaded:")
+        stdout.println(config)
+      catch
+        -> ex as Exception
+        stdout.println("Failed to load config")
+      finally
+        stdout.println("Cleanup complete")
+
+//EOF

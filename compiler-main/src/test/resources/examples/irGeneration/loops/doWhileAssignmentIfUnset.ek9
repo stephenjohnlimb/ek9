@@ -1,0 +1,226 @@
+#!ek9
+<?-
+  Test IR generation for do-while loop with assignment if unset (:=?).
+  Assignment if unset checks the LEFT side (target variable) before evaluating/assigning.
+  Pattern: do existingVar :=? expr { body } while condition
+  - Checks if LEFT-HAND SIDE is unset FIRST
+  - Only evaluates expression if left is unset
+  - WITH guard entry check (IS_NULL + _isSet) on result
+  - Body executes FIRST (at least once) if guard passes
+  - Condition evaluated after body (without guard check)
+-?>
+defines module loops.doAssignIfUnset
+
+  defines function
+
+    getValue()
+      <- rtn as Integer?
+      rtn: 5
+
+    @IR: IR_GENERATION: FUNCTION: "loops.doAssignIfUnset::doWhileAssignmentIfUnset": `
+    ConstructDfn: loops.doAssignIfUnset::doWhileAssignmentIfUnset()->org.ek9.lang::Integer
+    OperationDfn: loops.doAssignIfUnset::doWhileAssignmentIfUnset.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops.doAssignIfUnset::doWhileAssignmentIfUnset.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: loops.doAssignIfUnset::doWhileAssignmentIfUnset.doWhileAssignmentIfUnset()->loops.doAssignIfUnset::doWhileAssignmentIfUnset
+    BasicBlock: _entry_1
+    CALL (loops.doAssignIfUnset::doWhileAssignmentIfUnset)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: loops.doAssignIfUnset::doWhileAssignmentIfUnset._call()->org.ek9.lang::Integer
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE counter, org.ek9.lang::Integer
+    _temp1 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    STORE counter, _temp1
+    RETAIN counter
+    REFERENCE value, org.ek9.lang::Integer
+    _temp2 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_1
+    STORE value, _temp2
+    RETAIN value
+    SCOPE_REGISTER value, _scope_1
+    SCOPE_ENTER _scope_2
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "GUARDED_ASSIGNMENT"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    _temp6 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp7 = IS_NULL value
+    ]
+    primitive_condition: _temp7
+    body_evaluation:
+    [
+    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, _scope_2
+    ]
+    body_result: _temp8
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp9 = LOAD value
+    _temp10 = CALL (org.ek9.lang::Integer)_temp9._isSet() [pure=true, complexity=0]
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_2
+    ]
+    default_result: _temp10
+    scope_id: _scope_2
+    ]
+    _temp11 = CALL (org.ek9.lang::Boolean)_temp6._negate() [pure=true, complexity=0]
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_2
+    _temp12 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]
+    ]
+    condition_result: _temp11
+    primitive_condition: _temp12
+    body_evaluation:
+    [
+    _temp5 = FUNCTION_INSTANCE loops.doAssignIfUnset::getValue
+    _temp3 = CALL (loops.doAssignIfUnset::getValue)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, _scope_2
+    RELEASE value
+    STORE value, _temp3
+    RETAIN value
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
+    _temp13 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp14 = IS_NULL value
+    ]
+    primitive_condition: _temp14
+    body_evaluation:
+    [
+    _temp15 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, _scope_2
+    ]
+    body_result: _temp15
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp16 = LOAD value
+    _temp17 = CALL (org.ek9.lang::Integer)_temp16._isSet() [pure=true, complexity=0]
+    RETAIN _temp17
+    SCOPE_REGISTER _temp17, _scope_2
+    ]
+    default_result: _temp17
+    scope_id: _scope_2
+    ]
+    _temp18 = CALL (org.ek9.lang::Boolean)_temp13._true() [pure=true, complexity=0]
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "IF_ELSE_IF"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    ]
+    condition_result: _temp13
+    primitive_condition: _temp18
+    body_evaluation:
+    [
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "DO_WHILE_LOOP_WITH_GUARDS"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_3
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp23 = LOAD value
+    RETAIN _temp23
+    SCOPE_REGISTER _temp23, _scope_4
+    _temp24 = LOAD counter
+    RETAIN _temp24
+    SCOPE_REGISTER _temp24, _scope_4
+    _temp22 = CALL (org.ek9.lang::Integer)_temp23._gt(_temp24) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp22
+    SCOPE_REGISTER _temp22, _scope_4
+    _temp25 = CALL (org.ek9.lang::Boolean)_temp22._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_4
+    ]
+    condition_result: _temp22
+    primitive_condition: _temp25
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_3
+    _temp20 = LOAD counter
+    RETAIN _temp20
+    SCOPE_REGISTER _temp20, _scope_3
+    _temp21 = LOAD_LITERAL 1, org.ek9.lang::Integer
+    RETAIN _temp21
+    SCOPE_REGISTER _temp21, _scope_3
+    _temp19 = CALL (org.ek9.lang::Integer)_temp20._add(_temp21) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp19
+    SCOPE_REGISTER _temp19, _scope_3
+    RELEASE counter
+    STORE counter, _temp19
+    RETAIN counter
+    SCOPE_EXIT _scope_3
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2
+    SCOPE_EXIT _scope_1
+    RETURN counter`
+    doWhileAssignmentIfUnset()
+      <- counter <- Integer()
+
+      // Declare variable first (unset)
+      value <- Integer()
+
+      // Assignment if unset (:=?) - checks LEFT side, only assigns if unset
+      // Guard entry check happens ONCE, body first, then condition
+      do value :=? getValue()
+        counter := counter + 1
+      while value > counter
+
+//EOF

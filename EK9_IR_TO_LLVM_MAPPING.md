@@ -1,5 +1,10 @@
 # EK9 IR to LLVM Mapping Guide
 
+**Related Documentation:**
+- **`EK9_DUAL_BACKEND_IR_ARCHITECTURE.md`** - How IR supports both JVM and LLVM backends (SSA, ARC)
+- **`EK9_CONTROL_FLOW_IR_DESIGN.md`** - Control flow chain architecture and guard integration
+- **`EK9_IR_AND_CODE_GENERATION.md`** - General IR generation principles and patterns
+
 ## Overview
 
 This document describes how EK9's intermediate representation (IR) maps to LLVM IR, providing the complete bridge from EK9 source code → EK9 IR → LLVM IR. The mapping preserves EK9's memory management semantics, type system, and control flow patterns while leveraging LLVM's optimization capabilities.
@@ -97,13 +102,13 @@ call void @ek9_scope_register(i8* %scope_1, i8* %value_obj)
 
 ## Control Flow Mapping
 
-### SWITCH_CHAIN_BLOCK to LLVM Control Flow
+### CONTROL_FLOW_CHAIN to LLVM Control Flow
 
-EK9's unified SWITCH_CHAIN_BLOCK IR construct maps to LLVM's structured control flow:
+EK9's unified CONTROL_FLOW_CHAIN IR construct maps to LLVM's structured control flow:
 
-**EK9 IR SWITCH_CHAIN_BLOCK:**
+**EK9 IR CONTROL_FLOW_CHAIN:**
 ```ir
-_temp2 = SWITCH_CHAIN_BLOCK  // ./source.ek9:75:7
+_temp2 = CONTROL_FLOW_CHAIN  // ./source.ek9:75:7
 [
 chain_type: "QUESTION_OPERATOR"
 condition_chain:
@@ -173,7 +178,7 @@ call void @ek9_scope_register(i8* %scope_1, i8* %_temp2)
 
 **LLVM Optimization Benefits:**
 - **Branch prediction**: LLVM can optimize branch patterns based on usage
-- **Dead code elimination**: Unused paths in SWITCH_CHAIN_BLOCK can be eliminated
+- **Dead code elimination**: Unused paths in CONTROL_FLOW_CHAIN can be eliminated
 - **Constant propagation**: Known constant conditions can collapse entire branches
 - **PHI node optimization**: LLVM's SSA form enables advanced optimizations
 
@@ -285,7 +290,7 @@ RELEASE value
 STORE value, _temp1
 RETAIN value
 SCOPE_REGISTER value, _scope_1
-_temp2 = SWITCH_CHAIN_BLOCK [...]  ; Question operator value?
+_temp2 = CONTROL_FLOW_CHAIN [...]  ; Question operator value?
 RETAIN _temp2
 SCOPE_REGISTER _temp2, _scope_1
 _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()
@@ -393,7 +398,7 @@ declare i1 @org_ek9_lang_Boolean_true(i8*)
 - **Dead Object Elimination**: Unused objects can be eliminated entirely
 
 **Control Flow Optimizations:**
-- **Branch Prediction**: Profile-guided optimization for SWITCH_CHAIN_BLOCK patterns
+- **Branch Prediction**: Profile-guided optimization for CONTROL_FLOW_CHAIN patterns
 - **Constant Folding**: Known constant conditions can eliminate entire code paths
 - **PHI Node Optimization**: LLVM's SSA form enables advanced data flow analysis
 

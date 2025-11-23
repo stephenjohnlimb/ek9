@@ -703,7 +703,7 @@ examples/
 │   ├── controlFlow/          # if/else, loops, switch
 │   │   ├── conditionals/     # CONDITIONAL_BLOCK patterns
 │   │   ├── loops/            # WHILE_BLOCK, ITERATION_BLOCK
-│   │   └── switches/         # SWITCH_CHAIN_BLOCK  
+│   │   └── switches/         # CONTROL_FLOW_CHAIN  
 │   └── integration/          # Complex multi-construct tests
 │       ├── realWorldPatterns/  # common programming patterns
 │       └── regressionTests/    # bug prevention cases

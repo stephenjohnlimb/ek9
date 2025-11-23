@@ -87,13 +87,13 @@ ASTORE 1                    ; Store in slot 1 (value)
 
 ## Control Flow Mapping
 
-### SWITCH_CHAIN_BLOCK to JVM Control Flow
+### CONTROL_FLOW_CHAIN to JVM Control Flow
 
-EK9's unified SWITCH_CHAIN_BLOCK IR construct maps to JVM's branching instructions:
+EK9's unified CONTROL_FLOW_CHAIN IR construct maps to JVM's branching instructions:
 
-**EK9 IR SWITCH_CHAIN_BLOCK:**
+**EK9 IR CONTROL_FLOW_CHAIN:**
 ```ir
-_temp2 = SWITCH_CHAIN_BLOCK  // ./source.ek9:75:7
+_temp2 = CONTROL_FLOW_CHAIN  // ./source.ek9:75:7
 [
 chain_type: "QUESTION_OPERATOR"
 condition_chain:
@@ -278,7 +278,7 @@ RELEASE value
 STORE value, _temp1
 RETAIN value
 SCOPE_REGISTER value, _scope_1
-_temp2 = SWITCH_CHAIN_BLOCK [...]  ; Question operator value?
+_temp2 = CONTROL_FLOW_CHAIN [...]  ; Question operator value?
 RETAIN _temp2
 SCOPE_REGISTER _temp2, _scope_1
 _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true()
