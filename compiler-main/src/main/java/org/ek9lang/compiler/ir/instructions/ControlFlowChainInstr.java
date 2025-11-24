@@ -4,7 +4,6 @@ import java.util.List;
 import org.ek9lang.compiler.ir.IROpcode;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
-import org.ek9lang.compiler.ir.data.EnumOptimizationDetails;
 import org.ek9lang.compiler.ir.data.TryBlockDetails;
 import org.ek9lang.core.AssertValue;
 
@@ -42,7 +41,6 @@ public final class ControlFlowChainInstr extends IRInstr {
   private final List<ConditionCaseDetails> conditionChain;
   private final List<IRInstr> defaultBodyEvaluation;
   private final String defaultResult;
-  private final EnumOptimizationDetails enumOptimizationInfo;
   private final TryBlockDetails tryBlockDetails;
   private final List<IRInstr> finallyBlockEvaluation;
   private final String scopeId;
@@ -74,7 +72,6 @@ public final class ControlFlowChainInstr extends IRInstr {
     this.defaultBodyEvaluation = details.defaultBodyEvaluation() != null
         ? details.defaultBodyEvaluation() : List.of();
     this.defaultResult = details.defaultResult();
-    this.enumOptimizationInfo = details.enumOptimizationInfo();
     this.tryBlockDetails = details.tryBlockDetails();
     this.finallyBlockEvaluation = details.finallyBlockEvaluation() != null
         ? details.finallyBlockEvaluation() : List.of();
@@ -161,20 +158,6 @@ public final class ControlFlowChainInstr extends IRInstr {
     return !defaultBodyEvaluation.isEmpty();
   }
 
-  /**
-   * Check if this construct has enum optimization information.
-   */
-  public boolean hasEnumOptimization() {
-    return enumOptimizationInfo != null;
-  }
-
-  /**
-   * Check if this is a switch construct.
-   */
-  public boolean isSwitch() {
-    return "SWITCH".equals(chainType) || "SWITCH_ENUM".equals(chainType);
-  }
-
   @Override
   public String toString() {
     var builder = new StringBuilder();
@@ -189,7 +172,6 @@ public final class ControlFlowChainInstr extends IRInstr {
     appendConditionChainSection(builder);
     appendFinallyBlockSection(builder);
     appendDefaultCaseSection(builder);
-    appendEnumOptimizationSection(builder);
 
     builder.append("scope_id: ").append(scopeId).append("\n");
     builder.append("]");
@@ -315,18 +297,6 @@ public final class ControlFlowChainInstr extends IRInstr {
       if (defaultResult != null) {
         builder.append("default_result: ").append(defaultResult).append("\n");
       }
-    }
-  }
-
-  private void appendEnumOptimizationSection(StringBuilder builder) {
-    if (hasEnumOptimization()) {
-      builder.append("enum_optimization_info:\n[\n");
-      builder.append("enum_type: \"").append(enumOptimizationInfo.enumType()).append("\"\n");
-      builder.append("enum_values: ").append(enumOptimizationInfo.enumValues()).append("\n");
-      builder.append("enum_ordinals: ").append(enumOptimizationInfo.enumOrdinals()).append("\n");
-      builder.append("is_exhaustive: ").append(enumOptimizationInfo.isExhaustive()).append("\n");
-      builder.append("is_dense: ").append(enumOptimizationInfo.isDense()).append("\n");
-      builder.append("]\n");
     }
   }
 

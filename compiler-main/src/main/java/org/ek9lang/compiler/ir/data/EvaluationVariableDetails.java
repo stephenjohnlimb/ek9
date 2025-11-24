@@ -48,15 +48,6 @@ public record EvaluationVariableDetails(
   }
 
   /**
-   * Create evaluation variable details for existing variable.
-   */
-  public static EvaluationVariableDetails forVariable(
-      String evaluationVariable,
-      String evaluationVariableType) {
-    return new EvaluationVariableDetails(evaluationVariable, evaluationVariableType, List.of());
-  }
-
-  /**
    * Create evaluation variable details with setup instructions.
    */
   public static EvaluationVariableDetails withSetup(
@@ -71,13 +62,6 @@ public record EvaluationVariableDetails(
    */
   public boolean hasEvaluationVariable() {
     return evaluationVariable != null;
-  }
-
-  /**
-   * Check if this has setup instructions.
-   */
-  public boolean hasSetupInstructions() {
-    return evaluationVariableSetup != null && !evaluationVariableSetup.isEmpty();
   }
 
   /**
@@ -105,7 +89,7 @@ public record EvaluationVariableDetails(
       builder.append(", type=").append(evaluationVariableType);
     }
 
-    if (hasSetupInstructions()) {
+    if (evaluationVariableSetup != null && !evaluationVariableSetup.isEmpty()) {
       builder.append(", setup=[");
       for (int i = 0; i < evaluationVariableSetup.size(); i++) {
         if (i > 0) {

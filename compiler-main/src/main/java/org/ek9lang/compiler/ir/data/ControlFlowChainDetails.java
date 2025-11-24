@@ -68,12 +68,6 @@ public record ControlFlowChainDetails(
     DefaultCaseDetails defaultDetails,
 
     /*
-     * Enum-specific optimization information.
-     * null for non-enum switches.
-     */
-    EnumOptimizationDetails enumOptimizationInfo,
-
-    /*
      * Try block information for try/catch/finally constructs.
      * Contains try scope and try body evaluation.
      * null for non-exception-handling constructs.
@@ -120,7 +114,6 @@ public record ControlFlowChainDetails(
         ReturnVariableDetails.none(), // No return variable for question operator
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
-        null, // No enum optimization
         null, // No try block
         List.of(), // No finally block
         debugInfo,
@@ -148,7 +141,6 @@ public record ControlFlowChainDetails(
         ReturnVariableDetails.none(), // No return variable for null coalescing
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
-        null, // No enum optimization
         null, // No try block
         List.of(), // No finally block
         debugInfo,
@@ -177,7 +169,6 @@ public record ControlFlowChainDetails(
         ReturnVariableDetails.none(), // No return variable for elvis coalescing
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
-        null, // No enum optimization
         null, // No try block
         List.of(), // No finally block
         debugInfo,
@@ -207,7 +198,6 @@ public record ControlFlowChainDetails(
         ReturnVariableDetails.none(), // No return variable for comparison coalescing
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
-        null, // No enum optimization
         null, // No try block
         List.of(), // No finally block
         debugInfo,
@@ -236,7 +226,6 @@ public record ControlFlowChainDetails(
         ReturnVariableDetails.none(), // No return variable for ternary operator
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
-        null, // No enum optimization
         null, // No try block
         List.of(), // No finally block
         debugInfo,
@@ -264,7 +253,6 @@ public record ControlFlowChainDetails(
         ReturnVariableDetails.none(), // No return variable for legacy if/else
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
-        null, // No enum optimization
         null, // No try block
         List.of(), // No finally block
         debugInfo,
@@ -293,7 +281,6 @@ public record ControlFlowChainDetails(
         ReturnVariableDetails.none(), // No return variable for statement form
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
-        null, // No enum optimization
         null, // No try block
         List.of(), // No finally block
         debugInfo,
@@ -323,7 +310,6 @@ public record ControlFlowChainDetails(
         ReturnVariableDetails.none(),   // No return variable (statement form)
         conditionChain,                 // Single case with condition + body
         DefaultCaseDetails.none(),      // No default case
-        null,                           // No enum optimization
         null,                           // No try block
         List.of(),                      // No finally block
         debugInfo,
@@ -355,46 +341,10 @@ public record ControlFlowChainDetails(
         ReturnVariableDetails.none(),   // No return variable (statement form)
         conditionChain,                 // Single case with condition + body
         DefaultCaseDetails.none(),      // No default case
-        null,                           // No enum optimization
         null,                           // No try block
         List.of(),                      // No finally block
         debugInfo,
         scopeId                         // Condition scope ID
-    );
-  }
-
-  /**
-   * Create details for a do-while loop (statement form).
-   * STACK-BASED: scopeId parameter extracted from stack context in generator.
-   * <p>
-   * Key difference from while loop: Body executes FIRST (at least once),
-   * then condition is evaluated. Backend generates IFNE (jump if true)
-   * instead of IFEQ (jump if false).
-   * </p>
-   *
-   * @param conditionChain Single ConditionCaseDetails with loop body and condition
-   * @param debugInfo      Debug information
-   * @param scopeId        Whole loop scope ID (_scope_2) for loop control
-   * @return ControlFlowChainDetails configured for do-while loop
-   */
-  public static ControlFlowChainDetails createDoWhileLoop(
-      List<ConditionCaseDetails> conditionChain,
-      DebugInfo debugInfo,
-      String scopeId) {
-
-    return new ControlFlowChainDetails(
-        null,                           // No result for statement form
-        "DO_WHILE_LOOP",                // Chain type for backend
-        GuardVariableDetails.none(),    // No guards yet
-        EvaluationVariableDetails.none(), // No evaluation variable
-        ReturnVariableDetails.none(),   // No return variable (statement form)
-        conditionChain,                 // Single case with body + condition
-        DefaultCaseDetails.none(),      // No default case
-        null,                           // No enum optimization
-        null,                           // No try block
-        List.of(),                      // No finally block
-        debugInfo,
-        scopeId                         // Whole loop scope ID
     );
   }
 
@@ -427,45 +377,10 @@ public record ControlFlowChainDetails(
         ReturnVariableDetails.none(),   // No return variable (statement form)
         conditionChain,                 // Single case with body + condition
         DefaultCaseDetails.none(),      // No default case
-        null,                           // No enum optimization
         null,                           // No try block
         List.of(),                      // No finally block
         debugInfo,
         scopeId                         // Whole loop scope ID
-    );
-  }
-
-  /**
-   * Create details for a general switch statement.
-   * STACK-BASED: scopeId parameter extracted from stack context in generator.
-   */
-  public static ControlFlowChainDetails createSwitch(
-      String result,
-      String evaluationVariable,
-      String evaluationVariableType,
-      List<IRInstr> evaluationVariableSetup,
-      String returnVariable,
-      String returnVariableType,
-      List<IRInstr> returnVariableSetup,
-      List<ConditionCaseDetails> conditionChain,
-      List<IRInstr> defaultBodyEvaluation,
-      String defaultResult,
-      DebugInfo debugInfo,
-      String scopeId) {
-
-    return new ControlFlowChainDetails(
-        result,
-        "SWITCH",
-        GuardVariableDetails.none(), // No guard variables in legacy switch
-        EvaluationVariableDetails.withSetup(evaluationVariable, evaluationVariableType, evaluationVariableSetup),
-        ReturnVariableDetails.withSetup(returnVariable, returnVariableType, returnVariableSetup),
-        conditionChain,
-        DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
-        null, // No enum optimization for general switch
-        null, // No try block
-        List.of(), // No finally block
-        debugInfo,
-        scopeId
     );
   }
 
@@ -500,7 +415,6 @@ public record ControlFlowChainDetails(
         ReturnVariableDetails.withSetup(returnVariable, returnVariableType, returnVariableSetup),
         conditionChain,
         DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
-        null, // No enum optimization
         null, // No try block
         List.of(), // No finally block
         debugInfo,
@@ -545,7 +459,6 @@ public record ControlFlowChainDetails(
         returnDetails,
         catchHandlers, // Catch blocks represented as condition cases
         DefaultCaseDetails.none(), // No default case (finally is not a default)
-        null, // No enum optimization
         tryBlockDetails,
         finallyBlockEvaluation,
         debugInfo,
@@ -554,40 +467,11 @@ public record ControlFlowChainDetails(
   }
 
   /**
-   * Check if this switch has enum optimization information.
-   */
-  public boolean hasEnumOptimization() {
-    return enumOptimizationInfo != null;
-  }
-
-  /**
    * Get the scope ID extracted from stack context at Details creation time.
    * STACK-BASED: scopeId comes from IRGenerationContext.currentScopeId() where this object is created.
    */
   public String getScopeId() {
     return scopeId;
-  }
-
-  /**
-   * Check if this is a Question operator.
-   */
-  public boolean isQuestionOperator() {
-    return "QUESTION_OPERATOR".equals(chainType);
-  }
-
-  /**
-   * Check if this is an if/else construct.
-   */
-  public boolean isIfElse() {
-    return "IF_ELSE_IF".equals(chainType);
-  }
-
-  /**
-   * Check if this is a switch construct.
-   */
-  public boolean isSwitch() {
-    return "SWITCH".equals(chainType) || "SWITCH_ENUM".equals(chainType)
-        || "SWITCH_WITH_GUARDS".equals(chainType);
   }
 
   /**
@@ -622,11 +506,6 @@ public record ControlFlowChainDetails(
     // Add default details if present
     if (defaultDetails != null && !defaultDetails.isEmpty()) {
       builder.append(", default=").append(defaultDetails);
-    }
-
-    // Add enum optimization if present
-    if (enumOptimizationInfo != null) {
-      builder.append(", enumOpt=true");
     }
 
     return builder.append("]").toString();
@@ -761,38 +640,10 @@ public record ControlFlowChainDetails(
   }
 
   /**
-   * Check if this construct has an evaluation variable.
-   */
-  public boolean hasEvaluationVariable() {
-    return evaluationDetails != null && evaluationDetails.hasEvaluationVariable();
-  }
-
-  /**
-   * Check if this construct has a return variable.
-   */
-  public boolean hasReturnVariable() {
-    return returnDetails != null && returnDetails.hasReturnVariable();
-  }
-
-  /**
    * Check if this construct has a default case.
    */
   public boolean hasDefaultCase() {
     return defaultDetails != null && defaultDetails.hasDefaultCase();
-  }
-
-  /**
-   * Check if this is a guard-enabled construct.
-   */
-  public boolean isGuardEnabled() {
-    return chainType.endsWith("_WITH_GUARDS");
-  }
-
-  /**
-   * Check if this construct has a try block.
-   */
-  public boolean hasTryBlock() {
-    return tryBlockDetails != null;
   }
 
   /**
@@ -814,12 +665,5 @@ public record ControlFlowChainDetails(
    */
   public String tryBodyResult() {
     return tryBlockDetails != null ? tryBlockDetails.tryBodyResult() : null;
-  }
-
-  /**
-   * Check if this construct has a finally block.
-   */
-  public boolean hasFinallyBlock() {
-    return finallyBlockEvaluation != null && !finallyBlockEvaluation.isEmpty();
   }
 }

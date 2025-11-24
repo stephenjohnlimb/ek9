@@ -40,13 +40,6 @@ public record DefaultCaseDetails(
   }
 
   /**
-   * Create default case details with instructions only.
-   */
-  public static DefaultCaseDetails withInstructions(List<IRInstr> defaultBodyEvaluation) {
-    return new DefaultCaseDetails(defaultBodyEvaluation, null);
-  }
-
-  /**
    * Create default case details with instructions and result.
    */
   public static DefaultCaseDetails withResult(
@@ -60,13 +53,6 @@ public record DefaultCaseDetails(
    */
   public boolean hasDefaultCase() {
     return defaultBodyEvaluation != null && !defaultBodyEvaluation.isEmpty();
-  }
-
-  /**
-   * Check if this has a default result variable.
-   */
-  public boolean hasDefaultResult() {
-    return defaultResult != null;
   }
 
   /**
@@ -97,7 +83,7 @@ public record DefaultCaseDetails(
     }
     builder.append("]");
 
-    if (hasDefaultResult()) {
+    if (defaultResult != null) {
       builder.append("result=").append(defaultResult);
     }
 

@@ -48,15 +48,6 @@ public record ReturnVariableDetails(
   }
 
   /**
-   * Create return variable details for existing variable.
-   */
-  public static ReturnVariableDetails forVariable(
-      String returnVariable,
-      String returnVariableType) {
-    return new ReturnVariableDetails(returnVariable, returnVariableType, List.of());
-  }
-
-  /**
    * Create return variable details with setup instructions.
    */
   public static ReturnVariableDetails withSetup(
@@ -71,13 +62,6 @@ public record ReturnVariableDetails(
    */
   public boolean hasReturnVariable() {
     return returnVariable != null;
-  }
-
-  /**
-   * Check if this has setup instructions.
-   */
-  public boolean hasSetupInstructions() {
-    return returnVariableSetup != null && !returnVariableSetup.isEmpty();
   }
 
   /**
@@ -105,7 +89,7 @@ public record ReturnVariableDetails(
       builder.append(", type=").append(returnVariableType);
     }
 
-    if (hasSetupInstructions()) {
+    if (returnVariableSetup != null && !returnVariableSetup.isEmpty()) {
       builder.append(", setup=[");
       for (int i = 0; i < returnVariableSetup.size(); i++) {
         if (i > 0) {

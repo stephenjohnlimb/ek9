@@ -29,15 +29,6 @@ public final class CallInstr extends IRInstr {
   }
 
   /**
-   * Create virtual method call with complete type information: CALL_VIRTUAL result = object.method(args...)
-   */
-  public static CallInstr callVirtual(final String result,
-                                      final DebugInfo debugInfo,
-                                      final CallDetails callDetails) {
-    return new CallInstr(IROpcode.CALL_VIRTUAL, result, debugInfo, callDetails);
-  }
-
-  /**
    * Create static method call with complete type information: CALL_STATIC result = Type.method(args...)
    */
   public static CallInstr callStatic(final String result,
@@ -50,17 +41,6 @@ public final class CallInstr extends IRInstr {
                                      final CallDetails callDetails) {
     return new CallInstr(IROpcode.CALL_STATIC,
         variableDetails.resultVariable(), variableDetails.debugInfo(), callDetails);
-  }
-
-
-  /**
-   * Create dispatcher method call with complete type information:
-   * CALL_DISPATCHER result = object.dispatcherMethod(args...)
-   */
-  public static CallInstr callDispatcher(final String result,
-                                         final DebugInfo debugInfo,
-                                         final CallDetails callDetails) {
-    return new CallInstr(IROpcode.CALL_DISPATCHER, result, debugInfo, callDetails);
   }
 
   /**

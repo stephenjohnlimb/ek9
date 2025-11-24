@@ -17,13 +17,6 @@ public record BytecodeStackFrame(
 ) {
 
   /**
-   * Create frame with no context data.
-   */
-  public static BytecodeStackFrame basic(final String scopeId, final BytecodeFrameType frameType) {
-    return new BytecodeStackFrame(scopeId, frameType, null);
-  }
-
-  /**
    * Create frame with type-specific context data.
    */
   public static BytecodeStackFrame withContext(
