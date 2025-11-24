@@ -98,6 +98,8 @@ final class IRDfnGenerator {
       case EK9Parser.ConstantBlockContext constants -> createIRForConstantBlock(constants);
       case EK9Parser.PackageBlockContext packages -> createIRForPackageBlock(packages);
       case EK9Parser.TextBlockContext texts -> createIRForTextBlock(texts);
+      case EK9Parser.ApplicationBlockContext applications -> createIRForApplicationBlock(applications);
+      case EK9Parser.ServiceBlockContext services -> createIRForServiceBlock(services);
       default -> throw new CompilerException(ctx.getText() + " block type not implemented");
     }
   }
@@ -137,6 +139,14 @@ final class IRDfnGenerator {
 
   private void createIRForTextBlock(final EK9Parser.TextBlockContext ctx) {
     ctx.textDeclaration().forEach(this::processTextDeclaration);
+  }
+
+  private void createIRForApplicationBlock(final EK9Parser.ApplicationBlockContext ctx) {
+    throw new CompilerException("Application block IR generation not implemented");
+  }
+
+  private void createIRForServiceBlock(final EK9Parser.ServiceBlockContext ctx) {
+    throw new CompilerException("Service block IR generation not implemented");
   }
 
   private void createIRForProgram(final EK9Parser.ProgramBlockContext ctx) {
