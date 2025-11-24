@@ -1,0 +1,178 @@
+#!ek9
+<?-
+  Bytecode test for try statement with guard variable.
+  Tests guard variable pattern: try value <- expr
+  Guard is evaluated once, if set the try block executes.
+-?>
+defines module bytecode.test.tryguard
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.tryguard::TryWithGuard": `public class bytecode.test.tryguard.TryWithGuard {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.tryguard.TryWithGuard();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main(org.ek9.lang.Integer);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aconst_null
+        13: astore        4
+        15: new           #CP                 // class org/ek9/lang/String
+        18: dup
+        19: invokespecial #CP                 // Method org/ek9/lang/String."<init>":()V
+        22: astore        5
+        24: aload         5
+        26: astore        4
+        28: aload_1
+        29: astore        6
+        31: iconst_0
+        32: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        35: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        38: astore        7
+        40: aload         6
+        42: aload         7
+        44: invokevirtual #CP                 // Method org/ek9/lang/Integer._gt:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+        47: astore        8
+        49: aload         8
+        51: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        54: istore        9
+        56: iload         9
+        58: ifeq          75
+        61: ldc           #CP                 // String config-value
+        63: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        66: astore        10
+        68: aload         10
+        70: astore        4
+        72: goto          75
+        75: aconst_null
+        76: astore        11
+        78: aload         4
+        80: astore        12
+        82: aload         12
+        84: astore        11
+        86: aload         11
+        88: ifnull        95
+        91: iconst_0
+        92: goto          96
+        95: iconst_1
+        96: istore        13
+        98: iload         13
+       100: ifeq          115
+       103: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
+       106: astore        14
+       108: aload         14
+       110: astore        15
+       112: goto          130
+       115: aload         11
+       117: astore        16
+       119: aload         16
+       121: invokevirtual #CP                 // Method org/ek9/lang/String._isSet:()Lorg/ek9/lang/Boolean;
+       124: astore        17
+       126: aload         17
+       128: astore        15
+       130: aload         15
+       132: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       135: istore        18
+       137: iload         18
+       139: ifeq          234
+       142: aconst_null
+       143: astore        19
+       145: aload_2
+       146: astore        20
+       148: ldc           #CP                 // String Config:
+       150: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       153: astore        21
+       155: aload         11
+       157: astore        22
+       159: aload         21
+       161: aload         22
+       163: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
+       166: astore        23
+       168: aload         20
+       170: aload         23
+       172: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       175: goto          206
+       178: astore        24
+       180: aload_2
+       181: astore        25
+       183: ldc           #CP                 // String Error occurred
+       185: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       188: astore        26
+       190: aload         25
+       192: aload         26
+       194: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       197: goto          206
+       200: athrow
+       201: astore        19
+       203: goto          206
+       206: aload_2
+       207: astore        27
+       209: ldc           #CP                 // String Cleanup
+       211: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       214: astore        28
+       216: aload         27
+       218: aload         28
+       220: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       223: aload         19
+       225: ifnull        231
+       228: aload         19
+       230: athrow
+       231: goto          234
+       234: aload_2
+       235: astore        29
+       237: ldc           #CP                 // String Done
+       239: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       242: astore        30
+       244: aload         29
+       246: aload         30
+       248: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       251: return
+      Exception table:
+         from    to  target type
+           145   175   178   Class org/ek9/lang/Exception
+           206   231   200   Class org/ek9/lang/Exception
+           145   200   201   any
+}`
+
+    TryWithGuard()
+      -> input as Integer
+
+      stdout <- Stdout()
+
+      // Compute the config value inline (simulating function result)
+      exprValue <- String()
+      if input > 0
+        exprValue: "config-value"
+
+      // Try with guard - guard checked once, then try executes
+      try config <- exprValue
+        stdout.println("Config: " + config)
+      catch
+        -> ex as Exception
+        stdout.println("Error occurred")
+      finally
+        stdout.println("Cleanup")
+
+      stdout.println("Done")
+
+//EOF

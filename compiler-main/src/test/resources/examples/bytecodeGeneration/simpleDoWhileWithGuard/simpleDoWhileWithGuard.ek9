@@ -1,0 +1,202 @@
+#!ek9
+<?-
+  Bytecode test for do-while statement with guard and condition.
+  Tests guard variable pattern: do value <- expr ... while condition
+  Guard is evaluated once at entry, body runs at least once, condition checked after each iteration.
+-?>
+defines module bytecode.test.dowhileguard
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.dowhileguard::SimpleDoWhileWithGuard": `public class bytecode.test.dowhileguard.SimpleDoWhileWithGuard {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.dowhileguard.SimpleDoWhileWithGuard();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main(org.ek9.lang.Integer);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aconst_null
+        13: astore        4
+        15: iconst_0
+        16: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        19: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        22: astore        5
+        24: aload         5
+        26: astore        4
+        28: aconst_null
+        29: astore        6
+        31: new           #CP                 // class org/ek9/lang/Integer
+        34: dup
+        35: invokespecial #CP                 // Method org/ek9/lang/Integer."<init>":()V
+        38: astore        7
+        40: aload         7
+        42: astore        6
+        44: aload_1
+        45: astore        8
+        47: iconst_0
+        48: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        51: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        54: astore        9
+        56: aload         8
+        58: aload         9
+        60: invokevirtual #CP                 // Method org/ek9/lang/Integer._gt:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+        63: astore        10
+        65: aload         10
+        67: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        70: istore        11
+        72: iload         11
+        74: ifeq          98
+        77: aload_1
+        78: astore        12
+        80: new           #CP                 // class org/ek9/lang/Integer
+        83: dup
+        84: aload         12
+        86: invokespecial #CP                 // Method org/ek9/lang/Integer."<init>":(Lorg/ek9/lang/Integer;)V
+        89: astore        13
+        91: aload         13
+        93: astore        6
+        95: goto          98
+        98: aconst_null
+        99: astore        14
+       101: aload         6
+       103: astore        15
+       105: aload         15
+       107: astore        14
+       109: aload         14
+       111: ifnull        118
+       114: iconst_0
+       115: goto          119
+       118: iconst_1
+       119: istore        16
+       121: iload         16
+       123: ifeq          138
+       126: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
+       129: astore        17
+       131: aload         17
+       133: astore        18
+       135: goto          153
+       138: aload         14
+       140: astore        19
+       142: aload         19
+       144: invokevirtual #CP                 // Method org/ek9/lang/Integer._isSet:()Lorg/ek9/lang/Boolean;
+       147: astore        20
+       149: aload         20
+       151: astore        18
+       153: aload         18
+       155: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       158: istore        21
+       160: iload         21
+       162: ifeq          260
+       165: aload         4
+       167: astore        22
+       169: iconst_1
+       170: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+       173: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+       176: astore        23
+       178: aload         22
+       180: aload         23
+       182: invokevirtual #CP                 // Method org/ek9/lang/Integer._add:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+       185: astore        24
+       187: aload         24
+       189: astore        4
+       191: aload_2
+       192: astore        25
+       194: ldc           #CP                 // String Iteration:
+       196: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       199: astore        26
+       201: aload         4
+       203: astore        27
+       205: aload         27
+       207: invokevirtual #CP                 // Method org/ek9/lang/Integer._string:()Lorg/ek9/lang/String;
+       210: astore        28
+       212: aload         26
+       214: aload         28
+       216: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
+       219: astore        29
+       221: aload         25
+       223: aload         29
+       225: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       228: aload         4
+       230: astore        30
+       232: aload         14
+       234: astore        31
+       236: aload         30
+       238: aload         31
+       240: invokevirtual #CP                 // Method org/ek9/lang/Integer._lt:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+       243: astore        32
+       245: aload         32
+       247: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       250: istore        33
+       252: iload         33
+       254: ifne          165
+       257: goto          260
+       260: aload_2
+       261: astore        34
+       263: ldc           #CP                 // String Total:
+       265: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       268: astore        35
+       270: aload         4
+       272: astore        36
+       274: aload         36
+       276: invokevirtual #CP                 // Method org/ek9/lang/Integer._string:()Lorg/ek9/lang/String;
+       279: astore        37
+       281: aload         35
+       283: aload         37
+       285: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
+       288: astore        38
+       290: aload         34
+       292: aload         38
+       294: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       297: aload_2
+       298: astore        39
+       300: ldc           #CP                 // String Done
+       302: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       305: astore        40
+       307: aload         39
+       309: aload         40
+       311: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       314: return
+}`
+
+    SimpleDoWhileWithGuard()
+      -> maxIterations as Integer
+
+      stdout <- Stdout()
+      count <- 0
+
+      // Compute the limit inline (simulating function result)
+      exprValue <- Integer()
+      if maxIterations > 0
+        exprValue: Integer(maxIterations)
+
+      // Do-while loop with guard - guard checked once, body runs at least once
+      // Loops while count < limit (if limit is set/positive)
+      do limit <- exprValue
+        count := count + 1
+        stdout.println("Iteration: " + $count)
+      while count < limit
+
+      stdout.println("Total: " + $count)
+      stdout.println("Done")
+
+//EOF

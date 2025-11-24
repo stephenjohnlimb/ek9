@@ -1,0 +1,340 @@
+#!ek9
+defines module bytecode.test.forrangeassignifunset
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.forrangeassignifunset::ForRangeAssignmentIfUnset": `public class bytecode.test.forrangeassignifunset.ForRangeAssignmentIfUnset {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.forrangeassignifunset.ForRangeAssignmentIfUnset();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main(org.ek9.lang.Integer);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aconst_null
+        13: astore        4
+        15: iconst_0
+        16: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        19: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        22: astore        5
+        24: aload         5
+        26: astore        4
+        28: aconst_null
+        29: astore        6
+        31: new           #CP                 // class org/ek9/lang/Integer
+        34: dup
+        35: invokespecial #CP                 // Method org/ek9/lang/Integer."<init>":()V
+        38: astore        7
+        40: aload         7
+        42: astore        6
+        44: aload_1
+        45: astore        8
+        47: iconst_0
+        48: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        51: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        54: astore        9
+        56: aload         8
+        58: aload         9
+        60: invokevirtual #CP                 // Method org/ek9/lang/Integer._gt:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+        63: astore        10
+        65: aload         10
+        67: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        70: istore        11
+        72: iload         11
+        74: ifeq          87
+        77: aload_1
+        78: astore        12
+        80: aload         12
+        82: astore        6
+        84: goto          87
+        87: aload         6
+        89: astore        13
+        91: aload         13
+        93: ifnull        100
+        96: iconst_0
+        97: goto          101
+       100: iconst_1
+       101: istore        14
+       103: iload         14
+       105: ifeq          120
+       108: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
+       111: astore        15
+       113: aload         15
+       115: astore        16
+       117: goto          131
+       120: aload         13
+       122: invokevirtual #CP                 // Method org/ek9/lang/Integer._isSet:()Lorg/ek9/lang/Boolean;
+       125: astore        17
+       127: aload         17
+       129: astore        16
+       131: aload         16
+       133: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       136: istore        18
+       138: iload         18
+       140: ifeq          599
+       143: aconst_null
+       144: astore        19
+       146: iconst_1
+       147: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+       150: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+       153: astore        20
+       155: aload         20
+       157: astore        21
+       159: aload         6
+       161: astore        22
+       163: aload         22
+       165: astore        23
+       167: aload         21
+       169: invokevirtual #CP                 // Method org/ek9/lang/Integer._isSet:()Lorg/ek9/lang/Boolean;
+       172: astore        24
+       174: aload         24
+       176: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       179: istore        25
+       181: iload         25
+       183: ifne          196
+       186: new           #CP                 // class java/lang/AssertionError
+       189: dup
+       190: ldc           #CP                 // String For-range \'start\' value must be set
+       192: invokespecial #CP                 // Method java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
+       195: athrow
+       196: aload         23
+       198: invokevirtual #CP                 // Method org/ek9/lang/Integer._isSet:()Lorg/ek9/lang/Boolean;
+       201: astore        26
+       203: aload         26
+       205: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       208: istore        27
+       210: iload         27
+       212: ifne          225
+       215: new           #CP                 // class java/lang/AssertionError
+       218: dup
+       219: ldc           #CP                 // String For-range \'end\' value must be set
+       221: invokespecial #CP                 // Method java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
+       224: athrow
+       225: aload         21
+       227: aload         23
+       229: invokevirtual #CP                 // Method org/ek9/lang/Integer._cmp:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+       232: astore        28
+       234: aload         21
+       236: astore        29
+       238: iconst_0
+       239: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+       242: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+       245: astore        30
+       247: aload         28
+       249: aload         30
+       251: invokevirtual #CP                 // Method org/ek9/lang/Integer._lt:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+       254: astore        31
+       256: aload         31
+       258: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       261: istore        32
+       263: iload         32
+       265: ifne          363
+       268: iconst_0
+       269: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+       272: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+       275: astore        33
+       277: aload         28
+       279: aload         33
+       281: invokevirtual #CP                 // Method org/ek9/lang/Integer._gt:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+       284: astore        34
+       286: aload         34
+       288: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       291: istore        35
+       293: iload         35
+       295: ifne          481
+       298: aload         29
+       300: astore        19
+       302: aload         4
+       304: astore        36
+       306: aload         19
+       308: astore        37
+       310: aload         36
+       312: aload         37
+       314: invokevirtual #CP                 // Method org/ek9/lang/Integer._add:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+       317: astore        38
+       319: aload         38
+       321: astore        4
+       323: aload_2
+       324: astore        39
+       326: ldc           #CP                 // String i=
+       328: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       331: astore        40
+       333: aload         19
+       335: astore        41
+       337: aload         41
+       339: invokevirtual #CP                 // Method org/ek9/lang/Integer._string:()Lorg/ek9/lang/String;
+       342: astore        42
+       344: aload         40
+       346: aload         42
+       348: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
+       351: astore        43
+       353: aload         39
+       355: aload         43
+       357: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       360: goto          596
+       363: aload         29
+       365: aload         23
+       367: invokevirtual #CP                 // Method org/ek9/lang/Integer._cmp:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+       370: astore        44
+       372: iconst_0
+       373: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+       376: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+       379: astore        45
+       381: aload         44
+       383: aload         45
+       385: invokevirtual #CP                 // Method org/ek9/lang/Integer._lteq:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+       388: astore        46
+       390: aload         46
+       392: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       395: istore        47
+       397: iload         47
+       399: ifeq          596
+       402: aload         29
+       404: astore        19
+       406: aload         4
+       408: astore        36
+       410: aload         19
+       412: astore        37
+       414: aload         36
+       416: aload         37
+       418: invokevirtual #CP                 // Method org/ek9/lang/Integer._add:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+       421: astore        38
+       423: aload         38
+       425: astore        4
+       427: aload_2
+       428: astore        39
+       430: ldc           #CP                 // String i=
+       432: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       435: astore        40
+       437: aload         19
+       439: astore        41
+       441: aload         41
+       443: invokevirtual #CP                 // Method org/ek9/lang/Integer._string:()Lorg/ek9/lang/String;
+       446: astore        42
+       448: aload         40
+       450: aload         42
+       452: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
+       455: astore        43
+       457: aload         39
+       459: aload         43
+       461: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       464: aload         29
+       466: invokevirtual #CP                 // Method org/ek9/lang/Integer._inc:()Lorg/ek9/lang/Integer;
+       469: astore        48
+       471: aload         48
+       473: astore        29
+       475: goto          363
+       478: nop
+       479: nop
+       480: athrow
+       481: aload         29
+       483: aload         23
+       485: invokevirtual #CP                 // Method org/ek9/lang/Integer._cmp:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+       488: astore        49
+       490: iconst_0
+       491: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+       494: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+       497: astore        50
+       499: aload         49
+       501: aload         50
+       503: invokevirtual #CP                 // Method org/ek9/lang/Integer._gteq:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+       506: astore        51
+       508: aload         51
+       510: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       513: istore        52
+       515: iload         52
+       517: ifeq          596
+       520: aload         29
+       522: astore        19
+       524: aload         4
+       526: astore        36
+       528: aload         19
+       530: astore        37
+       532: aload         36
+       534: aload         37
+       536: invokevirtual #CP                 // Method org/ek9/lang/Integer._add:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+       539: astore        38
+       541: aload         38
+       543: astore        4
+       545: aload_2
+       546: astore        39
+       548: ldc           #CP                 // String i=
+       550: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       553: astore        40
+       555: aload         19
+       557: astore        41
+       559: aload         41
+       561: invokevirtual #CP                 // Method org/ek9/lang/Integer._string:()Lorg/ek9/lang/String;
+       564: astore        42
+       566: aload         40
+       568: aload         42
+       570: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
+       573: astore        43
+       575: aload         39
+       577: aload         43
+       579: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       582: aload         29
+       584: invokevirtual #CP                 // Method org/ek9/lang/Integer._dec:()Lorg/ek9/lang/Integer;
+       587: astore        53
+       589: aload         53
+       591: astore        29
+       593: goto          481
+       596: goto          599
+       599: aload_2
+       600: astore        54
+       602: ldc           #CP                // String Total:
+       604: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       607: astore        55
+       609: aload         4
+       611: astore        56
+       613: aload         56
+       615: invokevirtual #CP                 // Method org/ek9/lang/Integer._string:()Lorg/ek9/lang/String;
+       618: astore        57
+       620: aload         55
+       622: aload         57
+       624: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
+       627: astore        58
+       629: aload         54
+       631: aload         58
+       633: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       636: return
+}`
+
+    ForRangeAssignmentIfUnset()
+      -> input as Integer
+      stdout <- Stdout()
+      total <- 0
+
+      // Simulating assignment if unset (:=?) pattern for for-range
+      // Create unset limit, only assign if input > 0
+      limit <- Integer()
+      if input > 0
+        limit: input
+
+      // Assignment if unset (:=?) checks if left side was unset, then assigns
+      if limit?
+        for i in 1 ... limit
+          total := total + i
+          stdout.println("i=" + $i)
+
+      stdout.println("Total: " + $total)
+//EOF

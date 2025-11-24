@@ -56,8 +56,6 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   private DoWhileLoopAsmGenerator doWhileLoopGenerator;
   private SwitchAsmGenerator switchGenerator;
   private TryCatchAsmGenerator tryCatchGenerator;
-  // Future generators:
-  // private ForLoopAsmGenerator forLoopGenerator;
 
   private final BytecodeGenerationContext context;
 
@@ -89,12 +87,10 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
       case "TERNARY_OPERATOR" -> generateTernaryOperator(instr);
       case "GUARDED_ASSIGNMENT" -> generateGuardedAssignment(instr);
       case "IF_ELSE_IF", "IF_ELSE_WITH_GUARDS" -> generateIfElse(instr);
-      case "WHILE_LOOP" -> generateWhileLoop(instr);
-      case "DO_WHILE_LOOP" -> generateDoWhileLoop(instr);
-      case "SWITCH", "SWITCH_ENUM" -> generateSwitch(instr);
+      case "WHILE_LOOP", "WHILE_LOOP_WITH_GUARDS" -> generateWhileLoop(instr);
+      case "DO_WHILE_LOOP", "DO_WHILE_LOOP_WITH_GUARDS" -> generateDoWhileLoop(instr);
+      case "SWITCH", "SWITCH_ENUM", "SWITCH_WITH_GUARDS" -> generateSwitch(instr);
       case "TRY_CATCH_FINALLY" -> generateTryCatch(instr);
-      // Future cases will be added here as generators are implemented:
-      // case "FOR" -> generateForLoop(instr);
       default -> throw new CompilerException(
           "Unsupported control flow chain type: " + chainType);
     }
