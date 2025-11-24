@@ -66,10 +66,10 @@ public class CodeGenerationPreparation extends CompilerPhase {
     compilableProgramAccess.accept(program ->
         workspace
             .getSources()
-            .parallelStream()
+            .stream()
             .filter(CompilableSource::isNotExtern)
             .map(source -> getSourceTargetTuple(program, source, projectDotEK9Directory))
-            .flatMap(List::parallelStream)
+            .flatMap(List::stream)
             .filter(this::targetOutOfDateWithSource)
             .forEach(tuple -> createFile(tuple.targetFile))
     );
@@ -104,7 +104,7 @@ public class CodeGenerationPreparation extends CompilerPhase {
     return program
         .getIRModuleForCompilableSource(compilableSource)
         .getConstructs()
-        .parallelStream()
+        .stream()
         .map(construct ->
             new SourceTargetTuple(compilableSource, locator.apply(construct, projectDotEK9Directory)))
         .toList();

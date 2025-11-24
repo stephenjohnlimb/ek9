@@ -72,12 +72,12 @@ final class IRDfnGenerator {
    */
   void create(final EK9Parser.CompilationUnitContext compilationUnitContext) {
 
-    //Note that each module block can be processed in parallel
+    //Module blocks are processed sequentially to avoid nested parallelism
+    //(this is already called from a parallelStream in IRGenerator).
     //Access to the irModule (add Construct) is synchronized.
     compilationUnitContext
         .moduleDeclaration()
         .moduleBlock()
-        .parallelStream()
         .forEach(this::createIRForModuleBlock);
   }
 

@@ -52,7 +52,7 @@ public final class ModuleDuplicateSymbolChecks extends CompilerPhase {
   private void checkForDuplicateSymbols(final CompilableProgram program) {
 
     program.getParsedModuleNames()
-        .parallelStream()
+        .stream()
         .map(program::getParsedModules)
         .forEach(this::checkModules);
 

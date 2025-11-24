@@ -102,14 +102,15 @@ public class CodeGenerationAggregates extends CompilerPhase {
         .toList();
 
     // Phase 1: Generate all non-program constructs (classes, records, etc.)
-    constructs.parallelStream()
+    // Sequential to avoid nested parallelism (already called from parallelStream at line 72)
+    constructs.stream()
         .filter(construct -> !construct.isProgram())
         .map(construct -> new ConstructTargetTuple(construct, relativeFileName, compilerFlags,
             locator.apply(construct, projectDotEK9Directory)))
         .forEach(this::produceConstructOutput);
 
     // Phase 2: Generate program constructs (after classes are written to disk)
-    constructs.parallelStream()
+    constructs.stream()
         .filter(IRConstruct::isProgram)
         .map(construct -> new ConstructTargetTuple(construct, relativeFileName, compilerFlags,
             locator.apply(construct, projectDotEK9Directory)))
