@@ -1,0 +1,22 @@
+#!ek9
+<?-
+  Combination Error Test: Type and Method Resolution Failures
+  Tests compiler's ability to report both TYPE_NOT_RESOLVED and METHOD_NOT_RESOLVED
+  independently without cascading false positives.
+
+  Expected: 2 independent errors
+  - TYPE_NOT_RESOLVED for UnknownType
+  - METHOD_NOT_RESOLVED for missingMethod call
+-?>
+defines module fuzztest.combinationerrors.typeandmethod
+
+  defines function
+
+    testFunction()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      unknown <- UnknownType()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      result <- unknown.missingMethod()
+
+//EOF

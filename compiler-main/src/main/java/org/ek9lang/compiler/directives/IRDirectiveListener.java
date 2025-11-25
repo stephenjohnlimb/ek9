@@ -42,13 +42,16 @@ public class IRDirectiveListener extends ResolvedDirectiveListener {
     super.symbolMatch(compilationEvent, resolutionDirective, symbol);
 
     //Now get the construct for the symbol we are checking.
-    final var construct = compilationEvent
+    //Create defensive copy to avoid ConcurrentModificationException during parallel processing
+    final var irModules = List.copyOf(compilationEvent
         .parsedModule()
-        .getIRModules()
+        .getIRModules());
+
+    final var construct = irModules
         .stream()
         .filter(module -> module.getSource().equals(compilationEvent.source()))
         .map(IRModule::getConstructs)
-        .flatMap(List::stream)
+        .flatMap(constructs -> List.copyOf(constructs).stream())
         .filter(toCheck -> toCheck.isForSymbol(symbol))
         .findFirst()
         .orElseThrow(

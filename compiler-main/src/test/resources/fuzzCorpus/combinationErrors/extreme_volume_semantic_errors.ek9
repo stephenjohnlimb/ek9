@@ -1,0 +1,237 @@
+#!ek9
+<?-
+  Combination Error Test: Extreme Volume Semantic Errors
+  Tests compiler's error recovery with 70 independent errors in a single file.
+
+  Expected: 70 independent errors reported without cascading false positives
+  Tests compiler robustness under extreme error volume conditions.
+-?>
+defines module fuzztest.combinationerrors.extremevolume
+
+  defines function
+
+    testFunction()
+      //Section 1: Unknown type resolutions (15 errors)
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj1 <- UnknownType1()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj2 <- UnknownType2()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj3 <- UnknownType3()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj4 <- UnknownType4()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj5 <- UnknownType5()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj6 <- UnknownType6()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj7 <- UnknownType7()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj8 <- UnknownType8()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj9 <- UnknownType9()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj10 <- UnknownType10()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj11 <- UnknownType11()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj12 <- UnknownType12()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj13 <- UnknownType13()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj14 <- UnknownType14()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj15 <- UnknownType15()
+
+      //Section 2: Unused variables (20 errors)
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused1 <- String()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused2 <- Integer()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused3 <- Boolean()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused4 <- Float()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused5 <- Date()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused6 <- Duration()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused7 <- String()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused8 <- Integer()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused9 <- Boolean()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused10 <- Float()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused11 <- Date()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused12 <- String()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused13 <- Integer()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused14 <- Boolean()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused15 <- Float()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused16 <- String()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused17 <- Integer()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused18 <- Boolean()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused19 <- Float()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused20 <- Date()
+
+      //Section 3: Type incompatibilities (30 errors: 15 NOT_REFERENCED + 15 INCOMPATIBLE_TYPES)
+      val1 <- 42
+      val2 <- "hello"
+      val3 <- true
+      val4 <- 3.14
+      val5 <- Date()
+      val6 <- Duration()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp1 <- String()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp1 := val1
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp2 <- Integer()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp2 := val2
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp3 <- Boolean()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp3 := val4
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp4 <- Float()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp4 := val3
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp5 <- Date()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp5 := val1
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp6 <- String()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp6 := val5
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp7 <- Integer()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp7 := val3
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp8 <- Boolean()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp8 := val2
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp9 <- Float()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp9 := val5
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp10 <- Date()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp10 := val2
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp11 <- Duration()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp11 := val1
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp12 <- String()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp12 := val6
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp13 <- Integer()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp13 := val5
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp14 <- Boolean()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp14 := val6
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp15 <- Float()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp15 := val2
+
+      //Section 4: Missing methods (5 errors)
+      validStr <- String()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result1 <- validStr.missingMethod1()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result2 <- validStr.missingMethod2()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result3 <- validStr.missingMethod3()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result4 <- validStr.missingMethod4()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result5 <- validStr.missingMethod5()
+
+//EOF

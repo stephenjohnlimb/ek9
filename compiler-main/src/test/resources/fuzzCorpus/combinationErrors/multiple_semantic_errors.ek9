@@ -1,0 +1,49 @@
+#!ek9
+<?-
+  Combination Error Test: Multiple Semantic Errors in Single File
+  Tests compiler's error recovery with 10 independent errors.
+
+  Expected: 10 independent errors reported without cascading false positives
+-?>
+defines module fuzztest.combinationerrors.multiplesemantic
+
+  defines function
+
+    testFunction()
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      unknown1 <- UnknownType()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      unknown2 <- AnotherUnknownType()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused1 <- String()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused2 <- Integer()
+
+      value1 <- 42
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      text1 <- String()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      text1 := value1
+
+      value2 <- "hello"
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      number1 <- Integer()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      number1 := value2
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      text2 <- String()
+
+      validString <- String()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result <- validString.nonExistentMethod()
+
+//EOF

@@ -1,0 +1,23 @@
+#!ek9
+<?-
+  Combination Error Test: Incompatible Types with Not Referenced
+  Tests interaction between type checking and unused variable detection.
+
+  Expected: 2 independent errors
+  - INCOMPATIBLE_TYPES for Integer assigned to String variable
+  - NOT_REFERENCED for unused value variable
+-?>
+defines module fuzztest.combinationerrors.incompatibletypes
+
+  defines function
+
+    testFunction()
+      value as Integer?
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      text <- String()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      text := value
+
+//EOF

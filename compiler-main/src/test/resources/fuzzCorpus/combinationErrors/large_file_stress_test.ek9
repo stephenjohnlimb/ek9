@@ -1,0 +1,368 @@
+#!ek9
+<?-
+  Stress Test: Large File with Scattered Errors
+  Tests compiler performance with large EK9 file (~500 lines).
+
+  Contains many functions with realistic patterns.
+  15 errors scattered throughout to test real-world error recovery.
+
+  Expected: 15 errors reported across large codebase
+-?>
+defines module fuzztest.combinationerrors.largefilestress
+
+  defines function
+
+    //Function 1
+    processUserData()
+      -> username as String
+      <- result as Boolean: Boolean()
+
+      valid <- username.length() > 0
+      result := valid
+
+    //Function 2
+    validateEmail()
+      -> email as String
+      <- valid as Boolean: Boolean()
+
+      hasAt <- email.contains("@")
+      hasDot <- email.contains(".")
+      valid := hasAt and hasDot
+
+    //Function 3: ERROR 1 - Unknown type
+    createUser()
+      -> name as String
+      <- user as String?
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      validator <- UnknownValidator()
+
+      user: name
+
+    //Function 4
+    formatName()
+      ->
+        first as String
+        last as String
+      <- full as String: String()
+
+      full := first + " " + last
+
+    //Function 5: ERROR 2 - Unused variable
+    calculateAge()
+      -> birthYear as Integer
+      <- age as Integer: Integer()
+
+      currentYear <- 2024
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      tempValue <- Integer()
+
+      age := currentYear - birthYear
+
+    //Function 6
+    isAdult()
+      -> age as Integer
+      <- adult as Boolean: Boolean()
+
+      adult := age >= 18
+
+    //Function 7: ERROR 3 - Type incompatibility
+    convertToString()
+      -> number as Integer
+      <- text as String: String()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp <- Integer()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp := text
+
+      text := $number
+
+    //Function 8
+    checkPassword()
+      -> password as String
+      <- strong as Boolean: Boolean()
+
+      length <- password.length()
+      strong := length >= 8
+
+    //Function 9: ERROR 4 - Unknown method
+    hashPassword()
+      -> password as String
+      <- hashed as String: String()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result <- password.unknownHashMethod()
+
+      hashed := "HASH_" + password
+
+    //Function 10
+    generateToken()
+      <- token as String: String()
+
+      timestamp <- DateTime()
+      token := "TOKEN_" + $timestamp
+
+    //Function 11: ERROR 5 - Unused variable
+    validateToken()
+      -> token as String
+      <- valid as Boolean: Boolean()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      expiry <- DateTime()
+
+      valid := token.length() > 0
+
+    //Function 12
+    parseInteger()
+      -> text as String
+      <- number as Integer: Integer()
+
+      number := 42
+
+    //Function 13: ERROR 6 - Type incompatibility
+    combineValues()
+      ->
+        a as Integer
+        b as String
+      <- result as String: String()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp <- String()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp := a
+
+      result := $a + b
+
+    //Function 14
+    isPositive()
+      -> number as Integer
+      <- positive as Boolean: Boolean()
+
+      positive := number > 0
+
+    //Function 15: ERROR 7 - Unknown type
+    processData()
+      -> data as String
+      <- processed as String: String()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      processor <- DataProcessor()
+
+      processed := data
+
+    //Function 16
+    trimText()
+      -> text as String
+      <- trimmed as String: String()
+
+      trimmed := text
+
+    //Function 17: ERROR 8 - Unused variable
+    formatDate()
+      -> date as DateTime
+      <- formatted as String: String()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      timezone <- String()
+
+      formatted := $date
+
+    //Function 18
+    getCurrentTime()
+      <- current as DateTime: DateTime()
+
+      current := DateTime()
+
+    //Function 19: ERROR 9 - Type incompatibility
+    mergeData()
+      ->
+        first as String
+        second as Integer
+      <- merged as Integer: Integer()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp <- Integer()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp := first
+
+      merged := second
+
+    //Function 20
+    checkEmpty()
+      ->
+        text as String
+      <- empty as Boolean: Boolean()
+
+      empty := text.length() == 0
+
+    //Function 21: ERROR 10 - Unknown method
+    encryptData()
+      -> data as String
+      <- encrypted as String: String()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result <- data.encryptMethod()
+
+      encrypted := "ENC_" + data
+
+    //Function 22
+    decryptData()
+      -> data as String
+      <- decrypted as String: String()
+
+      decrypted := data
+
+    //Function 23: ERROR 11 - Unused variable
+    logMessage()
+      -> message as String
+      <- logged as Boolean: Boolean()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      timestamp <- DateTime()
+
+      logged := message.length() > 0
+
+    //Function 24
+    toUpperCase()
+      -> text as String
+      <- upper as String: String()
+
+      upper := text.upperCase()
+
+    //Function 25: ERROR 12 - Type incompatibility
+    calculateTotal()
+      ->
+        price as Integer
+        quantity as String
+      <- total as String: String()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp <- String()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp := price
+
+      total := $price + quantity
+
+    //Function 26
+    applyDiscount()
+      ->
+        price as Integer
+        discount as Integer
+      <- finalPrice as Integer: Integer()
+
+      finalPrice := price - discount
+
+    //Function 27: ERROR 13 - Unknown type
+    initializeSystem()
+      <- initialized as Boolean: Boolean()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      system <- SystemInitializer()
+
+      initialized := true
+
+    //Function 28
+    shutdownSystem()
+      <- shutdown as Boolean: Boolean()
+
+      shutdown := true
+
+    //Function 29: ERROR 14 - Unused variable
+    cleanupResources()
+      <- cleaned as Boolean: Boolean()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      resourceList <- String()
+
+      cleaned := true
+
+    //Function 30
+    allocateMemory()
+      -> size as Integer
+      <- allocated as Boolean: Boolean()
+
+      allocated := size > 0
+
+    //Function 31
+    freeMemory()
+      -> size as Integer
+      <- freed as Boolean: Boolean()
+
+      freed := size > 0
+
+    //Function 32: ERROR 15 - Unused variable
+    monitorPerformance()
+      <- metrics as String: String()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      samples <- Integer()
+
+      metrics := "PERF_DATA"
+
+    //Function 33
+    generateReport()
+      -> data as String
+      <- report as String: String()
+
+      report := "REPORT: " + data
+
+    //Function 34
+    saveToDatabase()
+      -> data as String
+      <- saved as Boolean: Boolean()
+
+      saved := data.length() > 0
+
+    //Function 35
+    loadFromDatabase()
+      -> id as String
+      <- data as String: String()
+
+      data := "DATA_" + id
+
+    //Function 36
+    cacheResult()
+      ->
+        key as String
+        value as String
+      <- cached as Boolean: Boolean()
+
+      cached := key.length() > 0
+
+    //Function 37
+    invalidateCache()
+      -> key as String
+      <- invalidated as Boolean: Boolean()
+
+      invalidated := key.length() > 0
+
+    //Function 38
+    compressData()
+      -> data as String
+      <- compressed as String: String()
+
+      compressed := "COMP_" + data
+
+    //Function 39
+    decompressData()
+      ->
+        data as String
+      <- decompressed as String: String()
+
+      decompressed := data
+
+    //Function 40
+    validateInput()
+      ->
+        input as String
+      <- valid as Boolean: Boolean()
+
+      valid := input.length() > 0
+
+//EOF

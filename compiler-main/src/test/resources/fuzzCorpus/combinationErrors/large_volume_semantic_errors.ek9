@@ -1,0 +1,109 @@
+#!ek9
+<?-
+  Combination Error Test: Large Volume Semantic Errors
+  Tests compiler's error recovery with 27 independent errors in a single file.
+
+  Expected: 27 independent errors reported without cascading false positives
+  Tests compiler robustness under high error volume conditions.
+-?>
+defines module fuzztest.combinationerrors.largevolume
+
+  defines function
+
+    testFunction()
+      //Section 1: Unknown type resolutions (5 errors)
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj1 <- UnknownType1()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj2 <- UnknownType2()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj3 <- UnknownType3()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj4 <- UnknownType4()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      obj5 <- UnknownType5()
+
+      //Section 2: Unused variables (5 errors)
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused1 <- String()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused2 <- Integer()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused3 <- Boolean()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused4 <- Float()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      unused5 <- String()
+
+      //Section 3: Type incompatibilities (4 errors)
+      intValue <- 42
+      strValue <- "hello"
+      boolValue <- true
+      floatValue <- 3.14
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp1 <- String()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp1 := intValue
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp2 <- Integer()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp2 := strValue
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp3 <- Boolean()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp3 := floatValue
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp4 <- Float()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp4 := boolValue
+
+      //Section 4: Missing methods (3 errors)
+      validStr <- String()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result1 <- validStr.nonExistentMethod1()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result2 <- validStr.nonExistentMethod2()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      result3 <- validStr.nonExistentMethod3()
+
+      //Section 5: More type incompatibilities (3 errors)
+      date1 <- Date()
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp5 <- String()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp5 := date1
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp6 <- Date()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp6 := intValue
+
+      @Error: FULL_RESOLUTION: NOT_REFERENCED
+      temp7 <- Integer()
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      temp7 := date1
+
+//EOF
