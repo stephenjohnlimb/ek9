@@ -1,0 +1,163 @@
+#!ek9
+<?-
+  Bytecode test for do-while expression form.
+  Expression form: result: do guard <- value body while condition
+  The do-while returns a value through the rtn variable (accumulator pattern).
+
+  This program computes the sum of integers from 0 to limit-1.
+  Unlike while, do-while executes body at least once before checking condition.
+  For limit=5: sum = 0 + 1 + 2 + 3 + 4 = 10
+  For limit=0: sum = 0 (body executes once, then condition fails)
+-?>
+defines module bytecode.test
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::DoWhileExpression": `public class bytecode.test.DoWhileExpression {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.DoWhileExpression();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main(org.ek9.lang.Integer);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aconst_null
+        13: astore        4
+        15: aconst_null
+        16: astore        5
+        18: iconst_0
+        19: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        22: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        25: astore        6
+        27: aload         6
+        29: astore        5
+        31: aload         5
+        33: ifnull        40
+        36: iconst_0
+        37: goto          41
+        40: iconst_1
+        41: istore        7
+        43: iload         7
+        45: ifeq          60
+        48: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
+        51: astore        8
+        53: aload         8
+        55: astore        9
+        57: goto          75
+        60: aload         5
+        62: astore        10
+        64: aload         10
+        66: invokevirtual #CP                 // Method org/ek9/lang/Integer._isSet:()Lorg/ek9/lang/Boolean;
+        69: astore        11
+        71: aload         11
+        73: astore        9
+        75: aload         9
+        77: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        80: istore        12
+        82: aconst_null
+        83: astore        13
+        85: iconst_0
+        86: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        89: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        92: astore        14
+        94: aload         14
+        96: astore        13
+        98: iload         12
+       100: ifeq          181
+       103: aload         13
+       105: astore        15
+       107: aload         5
+       109: astore        16
+       111: aload         15
+       113: aload         16
+       115: invokevirtual #CP                 // Method org/ek9/lang/Integer._add:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+       118: astore        17
+       120: aload         17
+       122: astore        13
+       124: aload         5
+       126: astore        18
+       128: iconst_1
+       129: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+       132: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+       135: astore        19
+       137: aload         18
+       139: aload         19
+       141: invokevirtual #CP                 // Method org/ek9/lang/Integer._add:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+       144: astore        20
+       146: aload         20
+       148: astore        5
+       150: aload         5
+       152: astore        21
+       154: aload_1
+       155: astore        22
+       157: aload         21
+       159: aload         22
+       161: invokevirtual #CP                 // Method org/ek9/lang/Integer._lt:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+       164: astore        23
+       166: aload         23
+       168: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       171: istore        24
+       173: iload         24
+       175: ifne          103
+       178: goto          181
+       181: aload         13
+       183: astore        25
+       185: aload         25
+       187: astore        4
+       189: aload_2
+       190: astore        26
+       192: aload         4
+       194: astore        27
+       196: aload         26
+       198: aload         27
+       200: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       205: aload_2
+       206: astore        28
+       208: ldc           #CP                 // String Done
+       210: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       213: astore        29
+       215: aload         28
+       217: aload         29
+       219: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       222: return
+}`
+
+    DoWhileExpression()
+      -> limit as Integer
+
+      stdout <- Stdout()
+
+      // Do-while expression that accumulates sum from 0 to limit-1
+      // Body executes at least once (do-while characteristic)
+      result <- do counter <- 0
+        <- rtn <- 0
+        rtn: rtn + counter
+        counter: counter + 1
+      while counter < limit
+
+      // Print the result (accumulated sum)
+      stdout.println(result)
+
+      // Always print to verify program continues
+      stdout.println("Done")
+
+//EOF

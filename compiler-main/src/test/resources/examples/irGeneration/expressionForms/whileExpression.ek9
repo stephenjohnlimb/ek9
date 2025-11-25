@@ -1,0 +1,189 @@
+#!ek9
+<?-
+  Test IR generation for while expression form.
+  Expression form: result <- while guard <- value with condition
+  The while returns a value through the rtn variable (accumulator pattern).
+-?>
+defines module expressionForms.whileExpr
+
+  defines function
+
+    <?-
+      While expression with guard that accumulates a sum.
+      Uses counter as loop control, rtn accumulates the sum.
+      Returns the accumulated sum.
+    -?>
+    @IR: IR_GENERATION: FUNCTION: "expressionForms.whileExpr::whileExpression": `
+    ConstructDfn: expressionForms.whileExpr::whileExpression(org.ek9.lang::Integer)->org.ek9.lang::Integer
+    OperationDfn: expressionForms.whileExpr::whileExpression.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: expressionForms.whileExpr::whileExpression.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: expressionForms.whileExpr::whileExpression.whileExpression()->expressionForms.whileExpr::whileExpression
+    BasicBlock: _entry_1
+    CALL (expressionForms.whileExpr::whileExpression)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: expressionForms.whileExpr::whileExpression._call(org.ek9.lang::Integer)->org.ek9.lang::Integer
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE limit, org.ek9.lang::Integer
+    REFERENCE result, org.ek9.lang::Integer
+    SCOPE_ENTER _scope_2
+    REFERENCE counter, org.ek9.lang::Integer
+    _temp2 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_2
+    STORE counter, _temp2
+    RETAIN counter
+    SCOPE_REGISTER counter, _scope_2
+    _temp3 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp4 = IS_NULL counter
+    ]
+    primitive_condition: _temp4
+    body_evaluation:
+    [
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, _scope_2
+    ]
+    body_result: _temp5
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp6 = LOAD counter
+    _temp7 = CALL (org.ek9.lang::Integer)_temp6._isSet() [pure=true, complexity=0]
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_2
+    ]
+    default_result: _temp7
+    scope_id: _scope_2
+    ]
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=true, complexity=0]
+    REFERENCE rtn, org.ek9.lang::Integer
+    _temp9 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_2
+    STORE rtn, _temp9
+    RETAIN rtn
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "IF_ELSE_IF"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    ]
+    condition_result: _temp3
+    primitive_condition: _temp8
+    body_evaluation:
+    [
+    rtn = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "WHILE_EXPRESSION"
+    return_variable: rtn
+    return_variable_type: "org.ek9.lang::Integer"
+    return_variable_setup:
+    [
+    REFERENCE rtn, org.ek9.lang::Integer
+    _temp9 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_2
+    STORE rtn, _temp9
+    RETAIN rtn
+    ]
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_3
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_3
+    _temp11 = LOAD counter
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_3
+    _temp12 = LOAD limit
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_3
+    _temp10 = CALL (org.ek9.lang::Integer)_temp11._lt(_temp12) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_3
+    _temp13 = CALL (org.ek9.lang::Boolean)_temp10._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_3
+    ]
+    condition_result: _temp10
+    primitive_condition: _temp13
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp15 = LOAD rtn
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, _scope_4
+    _temp16 = LOAD counter
+    RETAIN _temp16
+    SCOPE_REGISTER _temp16, _scope_4
+    _temp14 = CALL (org.ek9.lang::Integer)_temp15._add(_temp16) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, _scope_4
+    RELEASE rtn
+    STORE rtn, _temp14
+    RETAIN rtn
+    _temp18 = LOAD counter
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, _scope_4
+    _temp19 = LOAD_LITERAL 1, org.ek9.lang::Integer
+    RETAIN _temp19
+    SCOPE_REGISTER _temp19, _scope_4
+    _temp17 = CALL (org.ek9.lang::Integer)_temp18._add(_temp19) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp17
+    SCOPE_REGISTER _temp17, _scope_4
+    RELEASE counter
+    STORE counter, _temp17
+    RETAIN counter
+    SCOPE_EXIT _scope_4
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2
+    STORE _temp1, rtn
+    RELEASE rtn
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    RELEASE result
+    STORE result, _temp1
+    RETAIN result
+    SCOPE_EXIT _scope_1
+    RETURN result`
+    whileExpression()
+      -> limit as Integer
+      <- result as Integer?
+
+      //While expression form - result is assigned the value of rtn when loop exits
+      result: while counter <- 0 with counter < limit
+        <- rtn <- 0
+        rtn: rtn + counter
+        counter: counter + 1
+
+//EOF

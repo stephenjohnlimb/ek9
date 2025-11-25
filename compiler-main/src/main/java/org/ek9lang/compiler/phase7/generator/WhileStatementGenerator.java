@@ -8,6 +8,7 @@ import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
 import org.ek9lang.compiler.ir.data.GuardVariableDetails;
 import org.ek9lang.compiler.ir.data.ReturnVariableDetails;
+import org.ek9lang.compiler.ir.instructions.ControlFlowChainInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
@@ -114,13 +115,17 @@ public final class WhileStatementGenerator extends AbstractGenerator
     // If guard has entry check, wrap loop in IF that checks entry condition (using shared helper)
     final List<IRInstr> instructions;
     if (guardDetails.hasGuardEntryCheck()) {
-      // For expression form with guards, emit return variable setup BEFORE guard check
-      final var wrappedInstructions = new ArrayList<>(returnDetails.returnVariableSetup());
-      wrappedInstructions.addAll(
-          generators.controlFlowChainGenerator.apply(whileLoopInstructions)
-      );
-      instructions = loopGuardHelper.wrapChainWithGuardEntryCheck(
-          guardDetails, whileLoopInstructions, chainScopeId, debugInfo);
+      if (returnDetails.hasReturnVariable()) {
+        // Expression form with guards: return variable setup AFTER guard check but BEFORE IF
+        // This ensures rtn is always initialized regardless of whether the IF executes
+        // Cannot use wrapBodyWithGuardEntryCheck because it puts everything inside IF body
+        instructions = buildExpressionFormWithGuard(guardDetails, returnDetails,
+            whileLoopInstructions, chainScopeId, debugInfo);
+      } else {
+        // Statement form with guards: no return variable setup needed
+        instructions = loopGuardHelper.wrapChainWithGuardEntryCheck(
+            guardDetails, whileLoopInstructions, chainScopeId, debugInfo);
+      }
     } else {
       final var generatedInstructions = new ArrayList<IRInstr>();
       // For expression form, emit return variable setup instructions first
@@ -204,11 +209,12 @@ public final class WhileStatementGenerator extends AbstractGenerator
         null                                  // no result (statement form)
     );
 
-    // Create CONTROL_FLOW_CHAIN with chain scope ID
-    // Uses createWhileLoopWithGuards to produce WHILE_LOOP_WITH_GUARDS when guards present
-    // Backend will interpret WHILE_LOOP or WHILE_LOOP_WITH_GUARDS to generate loop-back logic
-    return ControlFlowChainDetails.createWhileLoopWithGuards(
+    // Create CONTROL_FLOW_CHAIN with chain scope ID using unified factory
+    // Automatically selects expression vs statement form based on returnDetails
+    // Backend will interpret chain type to generate appropriate loop logic
+    return ControlFlowChainDetails.createWhileLoopUnified(
         guardDetails,
+        returnDetails,
         List.of(conditionCase),
         debugInfo,
         chainScopeId    // Chain scope ID (same pattern as IF)
@@ -248,18 +254,23 @@ public final class WhileStatementGenerator extends AbstractGenerator
     final var returnDetails = returningParamProcessor.process(ctx.returningParam(), chainScopeId);
 
     // Generate the core do-while loop
-    final var doWhileLoopInstructions = generateDoWhileLoopCore(ctx, guardDetails, returnDetails, chainScopeId, debugInfo);
+    final var doWhileLoopInstructions =
+        generateDoWhileLoopCore(ctx, guardDetails, returnDetails, chainScopeId, debugInfo);
 
     // If guard has entry check, wrap loop in IF that checks entry condition (using shared helper)
     final List<IRInstr> instructions;
     if (guardDetails.hasGuardEntryCheck()) {
-      // For expression form with guards, emit return variable setup BEFORE guard check
-      final var wrappedInstructions = new ArrayList<>(returnDetails.returnVariableSetup());
-      wrappedInstructions.addAll(
-          generators.controlFlowChainGenerator.apply(doWhileLoopInstructions)
-      );
-      instructions = loopGuardHelper.wrapChainWithGuardEntryCheck(
-          guardDetails, doWhileLoopInstructions, chainScopeId, debugInfo);
+      if (returnDetails.hasReturnVariable()) {
+        // Expression form with guards: return variable setup AFTER guard check but BEFORE IF
+        // This ensures rtn is always initialized regardless of whether the IF executes
+        // Cannot use wrapBodyWithGuardEntryCheck because it puts everything inside IF body
+        instructions = buildExpressionFormWithGuard(guardDetails, returnDetails,
+            doWhileLoopInstructions, chainScopeId, debugInfo);
+      } else {
+        // Statement form with guards: no return variable setup needed
+        instructions = loopGuardHelper.wrapChainWithGuardEntryCheck(
+            guardDetails, doWhileLoopInstructions, chainScopeId, debugInfo);
+      }
     } else {
       final var generatedInstructions = new ArrayList<IRInstr>();
       // For expression form, emit return variable setup instructions first
@@ -342,14 +353,96 @@ public final class WhileStatementGenerator extends AbstractGenerator
         null                                  // no result (statement form)
     );
 
-    // Create CONTROL_FLOW_CHAIN with chain scope ID
-    // Uses createDoWhileLoopWithGuards to produce DO_WHILE_LOOP_WITH_GUARDS when guards present
-    return ControlFlowChainDetails.createDoWhileLoopWithGuards(
+    // Create CONTROL_FLOW_CHAIN with chain scope ID using unified factory
+    // Automatically selects expression vs statement form based on returnDetails
+    return ControlFlowChainDetails.createDoWhileLoopUnified(
         guardDetails,
+        returnDetails,
         List.of(conditionCase),
         debugInfo,
         chainScopeId    // Chain scope ID (same pattern as IF)
     );
+  }
+
+  /**
+   * Build expression form with guard entry check.
+   * <p>
+   * For expression forms with guards, we need a specific structure:
+   * </p>
+   * <pre>
+   *   SCOPE_ENTER guardScopeId
+   *   guardSetup                  // Evaluate guard variable
+   *   guardEntryCheck             // Check if guard is valid
+   *   returnVariableSetup         // Initialize rtn (OUTSIDE IF - always executed)
+   *   IF_ELSE_IF (entryCheck) {
+   *     body: WHILE/DO_WHILE chain only
+   *   }
+   *   SCOPE_EXIT guardScopeId
+   * </pre>
+   * <p>
+   * This ensures the return variable is always initialized, even if the guard
+   * check fails and the IF body doesn't execute. The JVM requires all local
+   * variables to be initialized on all code paths.
+   * </p>
+   *
+   * @param guardDetails  Guard variable details with entry check
+   * @param returnDetails Return variable details with setup instructions
+   * @param loopChain     The WHILE or DO_WHILE loop chain
+   * @param guardScopeId  The scope ID for the guard
+   * @param debugInfo     Debug information
+   * @return Instructions with proper structure
+   */
+  private List<IRInstr> buildExpressionFormWithGuard(
+      final GuardVariableDetails guardDetails,
+      final ReturnVariableDetails returnDetails,
+      final ControlFlowChainDetails loopChain,
+      final String guardScopeId,
+      final DebugInfo debugInfo) {
+
+    final var instructions = new ArrayList<IRInstr>();
+
+    // 1. Enter guard scope
+    instructions.add(ScopeInstr.enter(guardScopeId, debugInfo));
+
+    // 2. Guard setup (evaluates expression and assigns to guard variable)
+    instructions.addAll(guardDetails.guardScopeSetup());
+
+    // 3. Guard entry check (IS_NULL + _isSet) - produces primitive boolean
+    instructions.addAll(guardDetails.guardEntryCheck());
+
+    // 4. Return variable setup (INSIDE scope, but OUTSIDE IF - always executed)
+    // This ensures rtn is initialized on all code paths
+    instructions.addAll(returnDetails.returnVariableSetup());
+
+    // 5. Create IF wrapper: if (entryCheckPasses) { loopChain }
+    // Only the loop chain goes in the IF body - rtn is already initialized above
+    final var ifConditionCase = ConditionCaseDetails.createExpression(
+        guardScopeId,                            // case_scope_id
+        List.of(),                               // condition evaluation (already done above)
+        guardDetails.guardEntryCheckResult(),    // EK9 Boolean result for condition_result
+        guardDetails.guardEntryCheckPrimitive(), // primitive boolean from entry check
+        List.of(ControlFlowChainInstr.controlFlowChain(loopChain)),  // body: loop chain only
+        null                                     // no result (statement form)
+    );
+
+    // Create IF_ELSE_IF control flow chain (no default/else - just skip body if false)
+    final var ifDetails = ControlFlowChainDetails.createIfElseWithGuards(
+        null,                                    // no result
+        GuardVariableDetails.none(),             // guards already handled above
+        List.of(ifConditionCase),
+        List.of(),                               // no default body
+        null,                                    // no default result
+        debugInfo,
+        guardScopeId
+    );
+
+    // Add IF control flow chain instruction
+    instructions.add(ControlFlowChainInstr.controlFlowChain(ifDetails));
+
+    // 6. Exit guard scope
+    instructions.add(ScopeInstr.exit(guardScopeId, debugInfo));
+
+    return instructions;
   }
 
 }

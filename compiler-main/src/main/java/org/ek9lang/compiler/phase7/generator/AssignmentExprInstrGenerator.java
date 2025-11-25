@@ -3,6 +3,8 @@ package org.ek9lang.compiler.phase7.generator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
@@ -96,116 +98,88 @@ final class AssignmentExprInstrGenerator extends AbstractGenerator
   }
 
   /**
-   * Process switch expression: result <- switch value <- rtn <- initialValue ...
-   * The switch has a returningParam that provides the result value.
+   * Helper method for processing control flow expressions (switch, while, for, try).
    * <p>
    * Ownership Transfer Pattern:
-   * 1. Switch generator creates `rtn` (RETAINED, not scope-registered)
+   * 1. Control flow generator creates `rtn` (RETAINED, not scope-registered)
    * 2. CONTROL_FLOW_CHAIN modifies `rtn`
    * 3. After scope exit, `rtn` is still alive
    * 4. Transfer ownership: STORE rhsExprResult, rtn; RELEASE rtn
    * 5. Caller (VariableMemoryManagement) adds: RETAIN + SCOPE_REGISTER rhsExprResult
    * </p>
+   *
+   * @param generator       Supplier that generates the control flow expression IR
+   * @param returningParam  The returningParam context containing return variable info
+   * @param parentCtx       The parent context for debug info
+   * @param rhsExprResult   The target variable for ownership transfer
+   * @return List of IR instructions including ownership transfer
    */
-  private List<IRInstr> processSwitchExpression(final String rhsExprResult) {
-    // Generate the switch expression - it handles the returningParam internally
-    final var instructions =
-        new ArrayList<>(generators.switchStatementGenerator.apply(ctx.switchStatementExpression()));
+  private List<IRInstr> processControlFlowExpression(
+      final Supplier<List<IRInstr>> generator,
+      final EK9Parser.ReturningParamContext returningParam,
+      final ParserRuleContext parentCtx,
+      final String rhsExprResult) {
+
+    // Generate the control flow expression
+    final var instructions = new ArrayList<>(generator.get());
 
     // Extract return variable name from returningParam
     final var returningParamProcessor = new ReturningParamProcessor(stackContext, generators);
-    final var returnVariableName = returningParamProcessor
-        .getReturnVariableName(ctx.switchStatementExpression().returningParam());
+    final var returnVariableName = returningParamProcessor.getReturnVariableName(returningParam);
 
     // Create debug info for ownership transfer
-    final var debugInfo = stackContext.createDebugInfo(ctx.switchStatementExpression());
+    final var debugInfo = stackContext.createDebugInfo(parentCtx);
 
     // Transfer ownership from return variable to assignment target
     // Pattern: STORE target, source; RELEASE source (ownership transfer)
-    instructions.add(MemoryInstr.store(
-        rhsExprResult, returnVariableName, debugInfo));
-    instructions.add(MemoryInstr.release(
-        returnVariableName, debugInfo));
+    instructions.add(MemoryInstr.store(rhsExprResult, returnVariableName, debugInfo));
+    instructions.add(MemoryInstr.release(returnVariableName, debugInfo));
 
     // Caller (VariableMemoryManagement) will add: RETAIN + SCOPE_REGISTER rhsExprResult
     return instructions;
   }
 
   /**
+   * Process switch expression: result <- switch value <- rtn <- initialValue ...
+   */
+  private List<IRInstr> processSwitchExpression(final String rhsExprResult) {
+    return processControlFlowExpression(
+        () -> generators.switchStatementGenerator.apply(ctx.switchStatementExpression()),
+        ctx.switchStatementExpression().returningParam(),
+        ctx.switchStatementExpression(),
+        rhsExprResult);
+  }
+
+  /**
    * Process while/do-while expression: result <- while condition <- rtn <- initialValue ...
-   * Uses same ownership transfer pattern as switch expression.
    */
   private List<IRInstr> processWhileExpression(final String rhsExprResult) {
-
-    // Generate the while expression
-    final var instructions = new ArrayList<>(generators.whileStatementGenerator.apply(ctx.whileStatementExpression()));
-
-    // Extract return variable name from returningParam
-    final var returningParamProcessor = new ReturningParamProcessor(stackContext, generators);
-    final var returnVariableName = returningParamProcessor
-        .getReturnVariableName(ctx.whileStatementExpression().returningParam());
-
-    // Create debug info for ownership transfer
-    final var debugInfo = stackContext.createDebugInfo(ctx.whileStatementExpression());
-
-    // Transfer ownership from return variable to assignment target
-    instructions.add(MemoryInstr.store(
-        rhsExprResult, returnVariableName, debugInfo));
-    instructions.add(MemoryInstr.release(
-        returnVariableName, debugInfo));
-
-    return instructions;
+    return processControlFlowExpression(
+        () -> generators.whileStatementGenerator.apply(ctx.whileStatementExpression()),
+        ctx.whileStatementExpression().returningParam(),
+        ctx.whileStatementExpression(),
+        rhsExprResult);
   }
 
   /**
    * Process for loop expression: result <- for i in range <- rtn <- initialValue ...
-   * Uses same ownership transfer pattern as switch expression.
    */
   private List<IRInstr> processForExpression(final String rhsExprResult) {
-
-    // Generate the for expression
-    final var instructions = new ArrayList<>(generators.forStatementGenerator.apply(ctx.forStatementExpression()));
-
-    // Extract return variable name from returningParam
-    final var returningParamProcessor = new ReturningParamProcessor(stackContext, generators);
-    final var returnVariableName = returningParamProcessor
-        .getReturnVariableName(ctx.forStatementExpression().returningParam());
-
-    // Create debug info for ownership transfer
-    final var debugInfo = stackContext.createDebugInfo(ctx.forStatementExpression());
-
-    // Transfer ownership from return variable to assignment target
-    instructions.add(MemoryInstr.store(
-        rhsExprResult, returnVariableName, debugInfo));
-    instructions.add(MemoryInstr.release(
-        returnVariableName, debugInfo));
-
-    return instructions;
+    return processControlFlowExpression(
+        () -> generators.forStatementGenerator.apply(ctx.forStatementExpression()),
+        ctx.forStatementExpression().returningParam(),
+        ctx.forStatementExpression(),
+        rhsExprResult);
   }
 
   /**
    * Process try-catch expression: result <- try <- rtn <- initialValue ...
-   * Uses same ownership transfer pattern as switch expression.
    */
   private List<IRInstr> processTryExpression(final String rhsExprResult) {
-
-    // Generate the try expression
-    final var instructions = new ArrayList<>(generators.tryCatchStatementGenerator.apply(ctx.tryStatementExpression()));
-
-    // Extract return variable name from returningParam
-    final var returningParamProcessor = new ReturningParamProcessor(stackContext, generators);
-    final var returnVariableName = returningParamProcessor
-        .getReturnVariableName(ctx.tryStatementExpression().returningParam());
-
-    // Create debug info for ownership transfer
-    final var debugInfo = stackContext.createDebugInfo(ctx.tryStatementExpression());
-
-    // Transfer ownership from return variable to assignment target
-    instructions.add(MemoryInstr.store(
-        rhsExprResult, returnVariableName, debugInfo));
-    instructions.add(MemoryInstr.release(
-        returnVariableName, debugInfo));
-
-    return instructions;
+    return processControlFlowExpression(
+        () -> generators.tryCatchStatementGenerator.apply(ctx.tryStatementExpression()),
+        ctx.tryStatementExpression().returningParam(),
+        ctx.tryStatementExpression(),
+        rhsExprResult);
   }
 }

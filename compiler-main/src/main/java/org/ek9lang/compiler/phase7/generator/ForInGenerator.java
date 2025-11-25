@@ -91,12 +91,14 @@ public final class ForInGenerator extends AbstractGenerator
     // If guard has entry check, wrap loop in IF that checks entry condition (using shared helper)
     final List<IRInstr> instructions;
     if (guardDetails.hasGuardEntryCheck()) {
-      // For expression form with guards, emit return variable setup BEFORE guard check
-      final var wrappedInstructions = new ArrayList<IRInstr>();
-      wrappedInstructions.addAll(returnDetails.returnVariableSetup());
-      wrappedInstructions.addAll(loopInstructions);
-      instructions = loopGuardHelper.wrapBodyWithGuardEntryCheck(
-          guardDetails, wrappedInstructions, outerScopeId, debugInfo);
+      // For expression form with guards, use wrapExpressionFormWithGuardEntryCheck
+      // This emits return variable setup OUTSIDE IF wrapper so variable exists on all code paths
+      instructions = loopGuardHelper.wrapExpressionFormWithGuardEntryCheck(
+          guardDetails,
+          returnDetails.returnVariableSetup(),  // Return variable init goes OUTSIDE IF
+          loopInstructions,                     // Body goes INSIDE IF
+          outerScopeId,
+          debugInfo);
     } else {
       // No guard - add scope enter/exit around the loop
       instructions = new ArrayList<>();

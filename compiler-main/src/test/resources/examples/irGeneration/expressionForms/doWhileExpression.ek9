@@ -1,0 +1,190 @@
+#!ek9
+<?-
+  Test IR generation for do-while expression form.
+  Expression form: result <- do guard <- value { body } while condition
+  The do-while returns a value through the rtn variable (accumulator pattern).
+-?>
+defines module expressionForms.doWhileExpr
+
+  defines function
+
+    <?-
+      Do-while expression with guard that accumulates a sum.
+      Uses counter as loop control, rtn accumulates the sum.
+      Body executes at least once (do-while characteristic).
+    -?>
+    @IR: IR_GENERATION: FUNCTION: "expressionForms.doWhileExpr::doWhileExpression": `
+    ConstructDfn: expressionForms.doWhileExpr::doWhileExpression(org.ek9.lang::Integer)->org.ek9.lang::Integer
+    OperationDfn: expressionForms.doWhileExpr::doWhileExpression.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: expressionForms.doWhileExpr::doWhileExpression.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: expressionForms.doWhileExpr::doWhileExpression.doWhileExpression()->expressionForms.doWhileExpr::doWhileExpression
+    BasicBlock: _entry_1
+    CALL (expressionForms.doWhileExpr::doWhileExpression)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: expressionForms.doWhileExpr::doWhileExpression._call(org.ek9.lang::Integer)->org.ek9.lang::Integer
+    BasicBlock: _entry_1
+    SCOPE_ENTER _scope_1
+    REFERENCE limit, org.ek9.lang::Integer
+    REFERENCE result, org.ek9.lang::Integer
+    SCOPE_ENTER _scope_2
+    REFERENCE counter, org.ek9.lang::Integer
+    _temp2 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, _scope_2
+    STORE counter, _temp2
+    RETAIN counter
+    SCOPE_REGISTER counter, _scope_2
+    _temp3 = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "QUESTION_OPERATOR"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "NULL_CHECK"
+    condition_evaluation:
+    [
+    _temp4 = IS_NULL counter
+    ]
+    primitive_condition: _temp4
+    body_evaluation:
+    [
+    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, _scope_2
+    ]
+    body_result: _temp5
+    ]
+    ]
+    default_body_evaluation:
+    [
+    _temp6 = LOAD counter
+    _temp7 = CALL (org.ek9.lang::Integer)_temp6._isSet() [pure=true, complexity=0]
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, _scope_2
+    ]
+    default_result: _temp7
+    scope_id: _scope_2
+    ]
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=true, complexity=0]
+    REFERENCE rtn, org.ek9.lang::Integer
+    _temp9 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_2
+    STORE rtn, _temp9
+    RETAIN rtn
+    CONTROL_FLOW_CHAIN
+    [
+    chain_type: "IF_ELSE_IF"
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_2
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    ]
+    condition_result: _temp3
+    primitive_condition: _temp8
+    body_evaluation:
+    [
+    rtn = CONTROL_FLOW_CHAIN
+    [
+    chain_type: "DO_WHILE_EXPRESSION"
+    return_variable: rtn
+    return_variable_type: "org.ek9.lang::Integer"
+    return_variable_setup:
+    [
+    REFERENCE rtn, org.ek9.lang::Integer
+    _temp9 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, _scope_2
+    STORE rtn, _temp9
+    RETAIN rtn
+    ]
+    condition_chain:
+    [
+    [
+    case_scope_id: _scope_3
+    case_type: "EXPRESSION"
+    condition_evaluation:
+    [
+    SCOPE_ENTER _scope_4
+    _temp17 = LOAD counter
+    RETAIN _temp17
+    SCOPE_REGISTER _temp17, _scope_4
+    _temp18 = LOAD limit
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, _scope_4
+    _temp16 = CALL (org.ek9.lang::Integer)_temp17._lt(_temp18) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp16
+    SCOPE_REGISTER _temp16, _scope_4
+    _temp19 = CALL (org.ek9.lang::Boolean)_temp16._true() [pure=true, complexity=0]
+    SCOPE_EXIT _scope_4
+    ]
+    condition_result: _temp16
+    primitive_condition: _temp19
+    body_evaluation:
+    [
+    SCOPE_ENTER _scope_3
+    _temp11 = LOAD rtn
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, _scope_3
+    _temp12 = LOAD counter
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, _scope_3
+    _temp10 = CALL (org.ek9.lang::Integer)_temp11._add(_temp12) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, _scope_3
+    RELEASE rtn
+    STORE rtn, _temp10
+    RETAIN rtn
+    _temp14 = LOAD counter
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, _scope_3
+    _temp15 = LOAD_LITERAL 1, org.ek9.lang::Integer
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, _scope_3
+    _temp13 = CALL (org.ek9.lang::Integer)_temp14._add(_temp15) [pure=true, complexity=2, effects=RETURN_MUTATION]
+    RETAIN _temp13
+    SCOPE_REGISTER _temp13, _scope_3
+    RELEASE counter
+    STORE counter, _temp13
+    RETAIN counter
+    SCOPE_EXIT _scope_3
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
+    ]
+    ]
+    ]
+    scope_id: _scope_2
+    ]
+    SCOPE_EXIT _scope_2
+    STORE _temp1, rtn
+    RELEASE rtn
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, _scope_1
+    RELEASE result
+    STORE result, _temp1
+    RETAIN result
+    SCOPE_EXIT _scope_1
+    RETURN result`
+    doWhileExpression()
+      -> limit as Integer
+      <- result as Integer?
+
+      //Do-while expression form - body executes first, then condition is checked
+      result: do counter <- 0
+        <- rtn <- 0
+        rtn: rtn + counter
+        counter: counter + 1
+      while counter < limit
+
+//EOF

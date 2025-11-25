@@ -709,7 +709,88 @@ public record ControlFlowChainDetails(
   }
 
   // ================================================================================
-  // End of Expression Form Factory Methods
+  // Unified Factory Methods (select expression vs statement form automatically)
+  // ================================================================================
+
+  /**
+   * Unified factory for while loops - automatically selects expression or statement form.
+   * <p>
+   * Selection priority:
+   * 1. Expression form if returnDetails has return variable
+   * 2. Statement form with guards if guardDetails has guards
+   * 3. Plain statement form otherwise
+   * </p>
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   *
+   * @param guardDetails   Guard variable details (may be empty)
+   * @param returnDetails  Return variable details (may be empty)
+   * @param conditionChain Single ConditionCaseDetails with loop condition and body
+   * @param debugInfo      Debug information
+   * @param scopeId        Scope ID from stack context
+   * @return ControlFlowChainDetails configured for appropriate while form
+   */
+  public static ControlFlowChainDetails createWhileLoopUnified(
+      GuardVariableDetails guardDetails,
+      ReturnVariableDetails returnDetails,
+      List<ConditionCaseDetails> conditionChain,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    if (returnDetails.hasReturnVariable()) {
+      // Expression form - guards NOT supported (enforced by semantic analysis)
+      return createWhileExpression(
+          returnDetails.returnVariable(), returnDetails, conditionChain, debugInfo, scopeId);
+    } else if (guardDetails.hasGuardScope()) {
+      // Statement form with guards - use hasGuardScope() not hasGuardVariables()
+      // because assignment guards (:=) have a scope but no NEW guard variables
+      return createWhileLoopWithGuards(guardDetails, conditionChain, debugInfo, scopeId);
+    } else {
+      // Plain statement form
+      return createWhileLoop(conditionChain, debugInfo, scopeId);
+    }
+  }
+
+  /**
+   * Unified factory for do-while loops - automatically selects expression or statement form.
+   * <p>
+   * Selection priority:
+   * 1. Expression form if returnDetails has return variable
+   * 2. Statement form with guards if guardDetails has guards
+   * 3. Plain statement form otherwise
+   * </p>
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   *
+   * @param guardDetails   Guard variable details (may be empty)
+   * @param returnDetails  Return variable details (may be empty)
+   * @param conditionChain Single ConditionCaseDetails with loop body and condition
+   * @param debugInfo      Debug information
+   * @param scopeId        Scope ID from stack context
+   * @return ControlFlowChainDetails configured for appropriate do-while form
+   */
+  public static ControlFlowChainDetails createDoWhileLoopUnified(
+      GuardVariableDetails guardDetails,
+      ReturnVariableDetails returnDetails,
+      List<ConditionCaseDetails> conditionChain,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    if (returnDetails.hasReturnVariable()) {
+      // Expression form - guards NOT supported (enforced by semantic analysis)
+      return createDoWhileExpression(
+          returnDetails.returnVariable(), returnDetails, conditionChain, debugInfo, scopeId);
+    } else if (guardDetails.hasGuardScope()) {
+      // Statement form with guards - use hasGuardScope() not hasGuardVariables()
+      // because assignment guards (:=) have a scope but no NEW guard variables
+      return createDoWhileLoopWithGuards(guardDetails, conditionChain, debugInfo, scopeId);
+    } else {
+      // Plain statement form - use guards factory with empty guards
+      return createDoWhileLoopWithGuards(
+          GuardVariableDetails.none(), conditionChain, debugInfo, scopeId);
+    }
+  }
+
+  // ================================================================================
+  // End of Factory Methods
   // ================================================================================
 
   /**

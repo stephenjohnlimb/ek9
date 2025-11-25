@@ -280,6 +280,84 @@ public final class LoopGuardHelper extends AbstractGenerator {
   }
 
   /**
+   * Wrap body instructions in an IF_ELSE_IF for EXPRESSION FORM with return variable.
+   * <p>
+   * CRITICAL: For expression forms, the return variable must be initialized OUTSIDE the IF wrapper
+   * so the variable exists on all code paths (including when guard fails). This prevents JVM
+   * VerifyError "Bad local variable type" when accessing the return variable after the IF.
+   * </p>
+   * <p>
+   * Structure:
+   * </p>
+   * <ol>
+   *   <li>SCOPE_ENTER (guard scope)</li>
+   *   <li>Guard setup (assignment)</li>
+   *   <li>Guard entry check (IS_NULL + _isSet)</li>
+   *   <li>Return variable setup (OUTSIDE IF - always executed)</li>
+   *   <li>IF (entry check passes) { body only }</li>
+   *   <li>SCOPE_EXIT (guard scope)</li>
+   * </ol>
+   *
+   * @param guardDetails             Guard variable details with entry check info
+   * @param returnVariableSetup      Return variable initialization instructions (expression form)
+   * @param bodyInstructionsWithoutRtn Body instructions WITHOUT return variable setup
+   * @param guardScopeId             The scope ID for the guard
+   * @param debugInfo                Debug information
+   * @return Instructions with guard wrapper and properly placed return variable
+   */
+  public List<IRInstr> wrapExpressionFormWithGuardEntryCheck(
+      final GuardVariableDetails guardDetails,
+      final List<IRInstr> returnVariableSetup,
+      final List<IRInstr> bodyInstructionsWithoutRtn,
+      final String guardScopeId,
+      final DebugInfo debugInfo) {
+
+    final var instructions = new ArrayList<IRInstr>();
+
+    // 1. Enter guard scope
+    instructions.add(ScopeInstr.enter(guardScopeId, debugInfo));
+
+    // 2. Guard setup (evaluates expression and assigns to guard variable)
+    instructions.addAll(guardDetails.guardScopeSetup());
+
+    // 3. Guard entry check (IS_NULL + _isSet) - produces primitive boolean
+    instructions.addAll(guardDetails.guardEntryCheck());
+
+    // 4. Return variable setup - OUTSIDE IF, always executed so variable exists on all paths
+    instructions.addAll(returnVariableSetup);
+
+    // 5. Create IF wrapper: if (entryCheckPasses) { body only }
+    // Body does NOT include return variable setup - it's already done above
+    final var ifConditionCase = ConditionCaseDetails.createExpression(
+        guardScopeId,                           // case_scope_id
+        List.of(),                              // condition evaluation (already done above)
+        guardDetails.guardEntryCheckResult(),   // EK9 Boolean result for condition_result
+        guardDetails.guardEntryCheckPrimitive(), // primitive boolean from entry check
+        bodyInstructionsWithoutRtn,             // body WITHOUT return variable setup
+        null                                    // no result (statement form)
+    );
+
+    // Create IF_ELSE_IF control flow chain (no default/else - just skip body if false)
+    final var ifDetails = ControlFlowChainDetails.createIfElseWithGuards(
+        null,                                   // no result
+        GuardVariableDetails.none(),            // guards already handled above
+        List.of(ifConditionCase),
+        List.of(),                              // no default body
+        null,                                   // no default result
+        debugInfo,
+        guardScopeId
+    );
+
+    // Add IF control flow chain instruction
+    instructions.add(ControlFlowChainInstr.controlFlowChain(ifDetails));
+
+    // 6. Exit guard scope
+    instructions.add(ScopeInstr.exit(guardScopeId, debugInfo));
+
+    return instructions;
+  }
+
+  /**
    * Generate guard entry check instructions for a guard variable.
    * This evaluates IS_NULL + _isSet() ONCE at entry.
    * If the check fails (null or not set), the body should be skipped.

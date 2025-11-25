@@ -88,8 +88,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
       case "TERNARY_OPERATOR" -> generateTernaryOperator(instr);
       case "GUARDED_ASSIGNMENT" -> generateGuardedAssignment(instr);
       case "IF_ELSE_IF", "IF_ELSE_WITH_GUARDS" -> generateIfElse(instr);
-      case "WHILE_LOOP", "WHILE_LOOP_WITH_GUARDS" -> generateWhileLoop(instr);
-      case "DO_WHILE_LOOP", "DO_WHILE_LOOP_WITH_GUARDS" -> generateDoWhileLoop(instr);
+      case "WHILE_LOOP", "WHILE_LOOP_WITH_GUARDS", "WHILE_EXPRESSION" -> generateWhileLoop(instr);
+      case "DO_WHILE_LOOP", "DO_WHILE_LOOP_WITH_GUARDS", "DO_WHILE_EXPRESSION" ->
+          generateDoWhileLoop(instr);
       case "SWITCH", "SWITCH_ENUM", "SWITCH_WITH_GUARDS" -> generateSwitch(instr);
       case "SWITCH_EXPRESSION" -> generateSwitchExpression(instr);
       case "TRY_CATCH_FINALLY" -> generateTryCatch(instr);
