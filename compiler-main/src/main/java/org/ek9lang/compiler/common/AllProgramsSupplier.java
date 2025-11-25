@@ -25,7 +25,7 @@ public final class AllProgramsSupplier
 
     compilableProgramSharedThreadContext.accept(compilableProgram -> compilableProgram
         .getParsedModuleNames()
-        .parallelStream()
+        .stream()
         .map(compilableProgram::getParsedModules)
         .flatMap(Collection::stream)
         .map(ParsedModule::getModuleScope)
