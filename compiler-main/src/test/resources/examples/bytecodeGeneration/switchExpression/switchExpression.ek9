@@ -1,0 +1,139 @@
+#!ek9
+<?-
+  Bytecode test for switch expression form.
+  Expression form: result <- switch value <- rtn : defaultValue
+  The switch returns a value through the rtn variable.
+-?>
+defines module bytecode.test
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::SwitchExpression": `public class bytecode.test.SwitchExpression {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.SwitchExpression();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main(org.ek9.lang.Integer);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aconst_null
+        13: astore        4
+        15: aconst_null
+        16: astore        5
+        18: ldc           #CP                 // String Unknown
+        20: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        23: astore        6
+        25: aload         6
+        27: astore        5
+        29: aload_1
+        30: astore        7
+        32: aload         7
+        34: astore        8
+        36: iconst_1
+        37: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        40: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        43: astore        9
+        45: aload         8
+        47: aload         9
+        49: invokevirtual #CP                 // Method org/ek9/lang/Integer._eq:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+        52: astore        10
+        54: aload         10
+        56: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        59: istore        11
+        61: iload         11
+        63: ifeq          80
+        66: ldc           #CP                 // String One
+        68: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        71: astore        12
+        73: aload         12
+        75: astore        5
+        77: goto          139
+        80: aload         7
+        82: astore        13
+        84: iconst_2
+        85: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        88: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        91: astore        14
+        93: aload         13
+        95: aload         14
+        97: invokevirtual #CP                 // Method org/ek9/lang/Integer._eq:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+       100: astore        15
+       102: aload         15
+       104: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       107: istore        16
+       109: iload         16
+       111: ifeq          128
+       114: ldc           #CP                 // String Two
+       116: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       119: astore        17
+       121: aload         17
+       123: astore        5
+       125: goto          139
+       128: ldc           #CP                 // String Other
+       130: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       133: astore        18
+       135: aload         18
+       137: astore        5
+       139: aload         5
+       141: astore        19
+       143: aload         19
+       145: astore        4
+       147: aload_2
+       148: astore        20
+       150: aload         4
+       152: astore        21
+       154: aload         20
+       156: aload         21
+       158: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       161: aload_2
+       162: astore        22
+       164: ldc           #CP                 // String Done
+       166: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       169: astore        23
+       171: aload         22
+       173: aload         23
+       175: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       178: return
+}`
+
+    SwitchExpression()
+      -> value as Integer
+
+      stdout <- Stdout()
+
+      // Switch expression that returns a String based on input
+      result <- switch value
+        <- rtn as String: "Unknown"
+        case 1
+          rtn: "One"
+        case 2
+          rtn: "Two"
+        default
+          rtn: "Other"
+
+      // Print the result
+      stdout.println(result)
+
+      // Always print to verify program continues
+      stdout.println("Done")
+
+//EOF

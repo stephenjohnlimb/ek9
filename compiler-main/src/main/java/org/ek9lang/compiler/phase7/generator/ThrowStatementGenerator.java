@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ThrowInstr;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
@@ -100,7 +102,7 @@ public final class ThrowStatementGenerator extends AbstractGenerator
    */
   private List<IRInstr> processThrowWithIdentifier(
       final EK9Parser.IdentifierReferenceContext identCtx,
-      final org.ek9lang.compiler.ir.support.DebugInfo debugInfo) {
+      final DebugInfo debugInfo) {
 
     final var instructions = new ArrayList<IRInstr>();
 
@@ -113,7 +115,7 @@ public final class ThrowStatementGenerator extends AbstractGenerator
     // The exception object was already RETAINED + SCOPE_REGISTERED at declaration.
     // During unwinding, backend executes SCOPE_EXIT which releases that reference.
     // This additional RETAIN ensures the exception survives unwinding with refcount = 1.
-    instructions.add(org.ek9lang.compiler.ir.instructions.MemoryInstr.retain(exceptionVarName, debugInfo));
+    instructions.add(MemoryInstr.retain(exceptionVarName, debugInfo));
 
     // Transfer ownership to exception mechanism
     instructions.add(ThrowInstr.throwException(exceptionVarName, debugInfo));

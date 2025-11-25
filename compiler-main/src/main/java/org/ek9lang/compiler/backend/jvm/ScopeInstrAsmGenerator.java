@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 
@@ -78,7 +79,7 @@ final class ScopeInstrAsmGenerator extends AbstractAsmGenerator
     // SCOPE_EXIT must find existing scope from SCOPE_ENTER
     final var scopeInfo = getMethodContext().scopeMap.get(scopeId);
     if (scopeInfo == null) {
-      throw new org.ek9lang.core.CompilerException(
+      throw new CompilerException(
           "SCOPE_EXIT for scope '" + scopeId + "' without matching SCOPE_ENTER. "
           + "This indicates a bug in IR generation.");
     }

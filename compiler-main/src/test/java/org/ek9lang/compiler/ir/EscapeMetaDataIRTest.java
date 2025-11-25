@@ -22,7 +22,7 @@ class EscapeMetaDataIRTest {
         EscapeMetaDataDetails.LifetimeScope.LOCAL_SCOPE,
         Set.of("STACK_CANDIDATE")
     );
-    
+
     assertEquals(EscapeMetaDataDetails.EscapeLevel.NONE, metadata.escapeLevel());
     assertEquals(EscapeMetaDataDetails.LifetimeScope.LOCAL_SCOPE, metadata.lifetimeScope());
     assertTrue(metadata.optimizationHints().contains("STACK_CANDIDATE"));
@@ -67,7 +67,7 @@ class EscapeMetaDataIRTest {
   void testIRInstructionEscapeMetaDataIntegration() {
     // Test IRInstr with escape metadata
     final var instr = MemoryInstr.load("_temp1", "variable");
-    
+
     // Initially no metadata
     assertFalse(instr.hasEscapeMetaData());
     assertTrue(instr.getEscapeMetaData().isEmpty());
@@ -75,7 +75,7 @@ class EscapeMetaDataIRTest {
     // Add metadata
     final var metadata = EscapeMetaDataDetails.noEscape(EscapeMetaDataDetails.LifetimeScope.LOCAL_SCOPE);
     instr.setEscapeMetaData(metadata);
-    
+
     // Verify metadata is present
     assertTrue(instr.hasEscapeMetaData());
     assertTrue(instr.getEscapeMetaData().isPresent());
@@ -86,15 +86,15 @@ class EscapeMetaDataIRTest {
   void testIRInstructionStringificationWithMetaData() {
     // Test that IR instruction toString includes escape metadata
     final var instr = MemoryInstr.load("_temp1", "variable");
-    
+
     // Without metadata
     final var withoutMetadata = instr.toString();
     assertEquals("_temp1 = LOAD variable", withoutMetadata);
-    
+
     // With metadata
     final var metadata = EscapeMetaDataDetails.noEscape(EscapeMetaDataDetails.LifetimeScope.LOCAL_SCOPE);
     instr.setEscapeMetaData(metadata);
-    
+
     final var withMetadata = instr.toString();
     final var expected = "_temp1 = LOAD variable [escape=NONE, lifetime=LOCAL_SCOPE, hints=STACK_CANDIDATE]";
     assertEquals(expected, withMetadata);

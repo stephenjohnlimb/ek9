@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.OperatorMap;
+import org.ek9lang.compiler.ir.data.ReturnVariableDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.ForRangePolymorphicInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
@@ -30,7 +31,14 @@ import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
 /**
- * Generates IR for for-range loops using FOR_RANGE_POLYMORPHIC instruction.
+ * Generates IR for for-range loops and expressions using FOR_RANGE_POLYMORPHIC instruction.
+ * <p>
+ * Supports both statement and expression forms:
+ * </p>
+ * <ul>
+ *   <li>Statement form: {@code for i in 1 ... 10} - no return value</li>
+ *   <li>Expression form: {@code result <- for i in 1 ... 10 <- rtn <- 0} - accumulator pattern</li>
+ * </ul>
  * <p>
  * POLYMORPHIC DESIGN: Works with ANY type that implements required operators:
  * - &lt;=&gt; operator for direction detection and loop conditions
@@ -64,6 +72,7 @@ public final class ForRangeGenerator extends AbstractGenerator
   private final OperatorMap operatorMap = new OperatorMap();
   private final GeneratorSet generators;
   private final LoopGuardHelper loopGuardHelper;
+  private final ReturningParamProcessor returningParamProcessor;
 
   ForRangeGenerator(final IRGenerationContext stackContext,
                     final GeneratorSet generators) {
@@ -71,16 +80,21 @@ public final class ForRangeGenerator extends AbstractGenerator
     AssertValue.checkNotNull("GeneratorSet cannot be null", generators);
     this.generators = generators;
     this.loopGuardHelper = new LoopGuardHelper(stackContext, generators);
+    this.returningParamProcessor = new ReturningParamProcessor(stackContext, generators);
   }
 
   /**
    * Main orchestration method for for-range loop IR generation.
    * Generates FOR_RANGE_POLYMORPHIC instruction with initialization and body.
    * <p>
+   * Supports both statement form (no returningParam) and expression form
+   * (with returningParam for accumulator pattern).
+   * </p>
+   * <p>
    * Scope structure (follows CONTROL_FLOW_CHAIN pattern):
    * </p>
    * <pre>
-   *   Outer Scope: Loop wrapper for future guards
+   *   Outer Scope: Loop wrapper for guards + return variable (expression form)
    *   Loop Scope: Initialization temps (start, end, by, direction, current)
    *   Body Scope: Body iteration temps, enters/exits each iteration
    * </pre>
@@ -100,18 +114,28 @@ public final class ForRangeGenerator extends AbstractGenerator
     final var guardDetails = loopGuardHelper.evaluateGuardVariable(
         forRangeCtx.preFlowStatement(), outerScopeId);
 
+    // Process return variable for expression form (declared in outer scope)
+    final var returnDetails = returningParamProcessor.process(ctx.returningParam(), outerScopeId);
+
     // Generate the core for-range loop
-    final var loopInstructions = generateForRangeLoopCore(ctx, forRangeCtx, debugInfo, outerScopeId);
+    final var loopInstructions = generateForRangeLoopCore(ctx, forRangeCtx, returnDetails, debugInfo, outerScopeId);
 
     // If guard has entry check, wrap loop in IF that checks entry condition (using shared helper)
     final List<IRInstr> instructions;
     if (guardDetails.hasGuardEntryCheck()) {
+      // For expression form with guards, emit return variable setup BEFORE guard check
+      // This ensures the return variable exists even if guard fails
+      final var wrappedInstructions = new ArrayList<IRInstr>();
+      wrappedInstructions.addAll(returnDetails.returnVariableSetup());
+      wrappedInstructions.addAll(loopInstructions);
       instructions = loopGuardHelper.wrapBodyWithGuardEntryCheck(
-          guardDetails, loopInstructions, outerScopeId, debugInfo);
+          guardDetails, wrappedInstructions, outerScopeId, debugInfo);
     } else {
-      // No guard - just add scope enter/exit around the loop
+      // No guard - add scope enter/exit around the loop
       instructions = new ArrayList<>();
       instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
+      // Emit return variable setup in outer scope (expression form)
+      instructions.addAll(returnDetails.returnVariableSetup());
       instructions.addAll(loopInstructions);
       instructions.add(ScopeInstr.exit(outerScopeId, debugInfo));
     }
@@ -124,10 +148,15 @@ public final class ForRangeGenerator extends AbstractGenerator
 
   /**
    * Generate the core for-range loop instructions (without guard wrapping).
+   * <p>
+   * For expression form, the return variable is already declared in outer scope.
+   * The body statements include assignments to the return variable (accumulator pattern).
+   * </p>
    */
   private List<IRInstr> generateForRangeLoopCore(
       final EK9Parser.ForStatementExpressionContext ctx,
       final EK9Parser.ForRangeContext forRangeCtx,
+      final ReturnVariableDetails returnDetails,
       final DebugInfo debugInfo,
       final String outerScopeId) {
 

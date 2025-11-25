@@ -15,7 +15,7 @@ class TryGuardVariantIRTest extends AbstractIRGenerationTest {
             new SymbolCountCheck(1, "tryGuardVariants.assignGuard", 2),  // tryAssignmentGuard (2 functions)
             new SymbolCountCheck(1, "tryGuardVariants.guardedAssign", 2),  // tryGuardedAssignment (2 functions)
             new SymbolCountCheck(1, "tryGuardVariants.assignIfUnset", 2)),  // tryAssignmentIfUnset (2 functions)
-        false, false, true);  // verbose=false, muteErrors=false, showIR=true
+        false, false, false);  // verbose=false, muteErrors=false, showIR=true
   }
 
   @Override

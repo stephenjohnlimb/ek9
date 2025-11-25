@@ -7,27 +7,35 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
 import org.ek9lang.compiler.ir.data.GuardVariableDetails;
+import org.ek9lang.compiler.ir.data.ReturnVariableDetails;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
+import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.core.AssertValue;
 
 /**
- * Generates IR for while and do-while loops using CONTROL_FLOW_CHAIN.
- * Currently handles simple while and do-while loops (no guards, statement form only).
+ * Generates IR for while and do-while loops and expressions using CONTROL_FLOW_CHAIN.
+ * <p>
+ * Supports both statement and expression forms:
+ * </p>
+ * <ul>
+ *   <li>Statement form: {@code while condition { body }} - no return value</li>
+ *   <li>Expression form: {@code result <- while condition <- rtn <- 0 { body }} - accumulator pattern</li>
+ * </ul>
  * <p>
  * Scope structure:
  * </p>
  * <pre>
- *   Outer Scope (_scope_1): Loop wrapper for future guards
+ *   Outer Scope (_scope_1): Loop wrapper for guards + return variable (expression form)
  *   Whole Loop Scope (_scope_2): Loop control structure
  *   Condition Iteration Scope (_scope_3): Condition temps, enters/exits each iteration
  *   Body Iteration Scope (_scope_4): Body execution, enters/exits each iteration
  * </pre>
  * <p>
- * The outer scope pattern enables future guard and expression form support.
+ * The outer scope pattern enables guard and expression form support.
  * Both condition and body use iteration scopes for tight memory management.
  * </p>
  */
@@ -37,6 +45,7 @@ public final class WhileStatementGenerator extends AbstractGenerator
   private final GeneratorSet generators;
   private final GuardedConditionEvaluator guardedConditionEvaluator;
   private final LoopGuardHelper loopGuardHelper;
+  private final ReturningParamProcessor returningParamProcessor;
 
   public WhileStatementGenerator(final IRGenerationContext stackContext,
                                  final GeneratorSet generators) {
@@ -45,28 +54,33 @@ public final class WhileStatementGenerator extends AbstractGenerator
     this.generators = generators;
     this.guardedConditionEvaluator = new GuardedConditionEvaluator(stackContext, generators);
     this.loopGuardHelper = new LoopGuardHelper(stackContext, generators);
+    this.returningParamProcessor = new ReturningParamProcessor(stackContext, generators);
   }
 
   @Override
   public List<IRInstr> apply(final EK9Parser.WhileStatementExpressionContext ctx) {
     AssertValue.checkNotNull("WhileStatementExpressionContext cannot be null", ctx);
 
+    // Detect expression form via returningParam
+    final var isExpressionForm = returningParamProcessor.isExpressionForm(ctx.returningParam());
+
     // Detect which form: while ... or do ... while
     if (ctx.DO() != null) {
-      return generateDoWhileLoop(ctx);
+      return generateDoWhileLoop(ctx, isExpressionForm);
     }
 
-    // Check for expression form (returningParam)
-    validateStatementFormOnly(ctx.returningParam(), "While loop");
-
-    // Simple while loop (statement form)
-    return generateSimpleWhileLoop(ctx);
+    // while loop (statement or expression form)
+    return generateSimpleWhileLoop(ctx, isExpressionForm);
   }
 
   /**
    * Generate IR for simple while loop: while condition { body }
    * Follows the same single-scope pattern as if/else for architectural consistency.
    * Supports guards: while value <- getValue() then condition
+   * <p>
+   * Supports both statement and expression forms. For expression form, the return
+   * variable is declared in the outer scope and accumulates values during the loop.
+   * </p>
    * <p>
    * For guards with entry checks (?= and <- operators), the guard is checked ONCE at loop entry.
    * If the check fails, the entire loop is skipped. This is implemented by wrapping the loop
@@ -78,11 +92,12 @@ public final class WhileStatementGenerator extends AbstractGenerator
    * </p>
    */
   private List<IRInstr> generateSimpleWhileLoop(
-      final EK9Parser.WhileStatementExpressionContext ctx) {
+      final EK9Parser.WhileStatementExpressionContext ctx,
+      final boolean isExpressionForm) {
 
     final var debugInfo = stackContext.createDebugInfo(ctx);
 
-    // Enter scope for entire while loop (contains guard variables and loop control)
+    // Enter scope for entire while loop (contains guard variables, return variable, and loop control)
     // NOTE: ControlFlowChainGenerator.apply() will add SCOPE_ENTER instruction
     final var chainScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     stackContext.enterScope(chainScopeId, debugInfo, IRFrameType.BLOCK);
@@ -90,16 +105,28 @@ public final class WhileStatementGenerator extends AbstractGenerator
     // Process guard if present (using shared helper)
     final var guardDetails = loopGuardHelper.evaluateGuardVariable(ctx.preFlowStatement(), chainScopeId);
 
-    // Generate the core while loop
-    final var whileLoopInstructions = generateWhileLoopCore(ctx, guardDetails, chainScopeId, debugInfo);
+    // Process return variable for expression form (declared in outer scope)
+    final var returnDetails = returningParamProcessor.process(ctx.returningParam(), chainScopeId);
+
+    // Generate the core while loop (return variable setup handled by returnDetails)
+    final var whileLoopInstructions = generateWhileLoopCore(ctx, guardDetails, returnDetails, chainScopeId, debugInfo);
 
     // If guard has entry check, wrap loop in IF that checks entry condition (using shared helper)
     final List<IRInstr> instructions;
     if (guardDetails.hasGuardEntryCheck()) {
+      // For expression form with guards, emit return variable setup BEFORE guard check
+      final var wrappedInstructions = new ArrayList<>(returnDetails.returnVariableSetup());
+      wrappedInstructions.addAll(
+          generators.controlFlowChainGenerator.apply(whileLoopInstructions)
+      );
       instructions = loopGuardHelper.wrapChainWithGuardEntryCheck(
           guardDetails, whileLoopInstructions, chainScopeId, debugInfo);
     } else {
-      instructions = new ArrayList<>(generators.controlFlowChainGenerator.apply(whileLoopInstructions));
+      final var generatedInstructions = new ArrayList<IRInstr>();
+      // For expression form, emit return variable setup instructions first
+      generatedInstructions.addAll(returnDetails.returnVariableSetup());
+      generatedInstructions.addAll(generators.controlFlowChainGenerator.apply(whileLoopInstructions));
+      instructions = generatedInstructions;
     }
 
     // Exit chain scope from stack context (IR instructions already added by ControlFlowChainGenerator)
@@ -110,12 +137,17 @@ public final class WhileStatementGenerator extends AbstractGenerator
 
   /**
    * Generate the core while loop without entry check wrapping.
+   * <p>
+   * For expression form, the return variable is already declared in outer scope.
+   * The body statements include assignments to the return variable (accumulator pattern).
+   * </p>
    */
   private ControlFlowChainDetails generateWhileLoopCore(
       final EK9Parser.WhileStatementExpressionContext ctx,
       final GuardVariableDetails guardDetails,
+      final ReturnVariableDetails returnDetails,
       final String chainScopeId,
-      final org.ek9lang.compiler.ir.support.DebugInfo debugInfo) {
+      final DebugInfo debugInfo) {
 
     // SCOPE 3 (or SCOPE 2): Enter condition iteration scope (for tight temp management)
     // This scope enters/exits each iteration to release condition temps
@@ -199,11 +231,12 @@ public final class WhileStatementGenerator extends AbstractGenerator
    * </p>
    */
   private List<IRInstr> generateDoWhileLoop(
-      final EK9Parser.WhileStatementExpressionContext ctx) {
+      final EK9Parser.WhileStatementExpressionContext ctx,
+      final boolean isExpressionForm) {
 
     final var debugInfo = stackContext.createDebugInfo(ctx);
 
-    // Enter scope for entire do-while loop (contains guard variables and loop control)
+    // Enter scope for entire do-while loop (contains guard variables, return variable, and loop control)
     // NOTE: ControlFlowChainGenerator.apply() will add SCOPE_ENTER instruction
     final var chainScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     stackContext.enterScope(chainScopeId, debugInfo, IRFrameType.BLOCK);
@@ -211,16 +244,28 @@ public final class WhileStatementGenerator extends AbstractGenerator
     // Process guard if present (using shared helper)
     final var guardDetails = loopGuardHelper.evaluateGuardVariable(ctx.preFlowStatement(), chainScopeId);
 
+    // Process return variable for expression form (declared in outer scope)
+    final var returnDetails = returningParamProcessor.process(ctx.returningParam(), chainScopeId);
+
     // Generate the core do-while loop
-    final var doWhileLoopInstructions = generateDoWhileLoopCore(ctx, guardDetails, chainScopeId, debugInfo);
+    final var doWhileLoopInstructions = generateDoWhileLoopCore(ctx, guardDetails, returnDetails, chainScopeId, debugInfo);
 
     // If guard has entry check, wrap loop in IF that checks entry condition (using shared helper)
     final List<IRInstr> instructions;
     if (guardDetails.hasGuardEntryCheck()) {
+      // For expression form with guards, emit return variable setup BEFORE guard check
+      final var wrappedInstructions = new ArrayList<>(returnDetails.returnVariableSetup());
+      wrappedInstructions.addAll(
+          generators.controlFlowChainGenerator.apply(doWhileLoopInstructions)
+      );
       instructions = loopGuardHelper.wrapChainWithGuardEntryCheck(
           guardDetails, doWhileLoopInstructions, chainScopeId, debugInfo);
     } else {
-      instructions = new ArrayList<>(generators.controlFlowChainGenerator.apply(doWhileLoopInstructions));
+      final var generatedInstructions = new ArrayList<IRInstr>();
+      // For expression form, emit return variable setup instructions first
+      generatedInstructions.addAll(returnDetails.returnVariableSetup());
+      generatedInstructions.addAll(generators.controlFlowChainGenerator.apply(doWhileLoopInstructions));
+      instructions = generatedInstructions;
     }
 
     // Exit chain scope from stack context (IR instructions already added by ControlFlowChainGenerator)
@@ -231,12 +276,17 @@ public final class WhileStatementGenerator extends AbstractGenerator
 
   /**
    * Generate the core do-while loop without entry check wrapping.
+   * <p>
+   * For expression form, the return variable is already declared in outer scope.
+   * The body statements include assignments to the return variable (accumulator pattern).
+   * </p>
    */
   private ControlFlowChainDetails generateDoWhileLoopCore(
       final EK9Parser.WhileStatementExpressionContext ctx,
       final GuardVariableDetails guardDetails,
+      final ReturnVariableDetails returnDetails,
       final String chainScopeId,
-      final org.ek9lang.compiler.ir.support.DebugInfo debugInfo) {
+      final DebugInfo debugInfo) {
 
     // Body iteration scope (executes FIRST in do-while)
     final var bodyIterationScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);

@@ -12,8 +12,12 @@ import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
 import org.ek9lang.compiler.phase7.support.VariableDetails;
+import org.ek9lang.compiler.symbols.CallSymbol;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 
 /**
  * Base class for all IR generators providing common utilities for safer symbol access,
@@ -240,20 +244,18 @@ abstract class AbstractGenerator {
    * Handles the pattern: CallSymbol → MethodSymbol/FunctionSymbol → returning type.
    * Falls back to expression type if not a CallSymbol.
    *
-   * @param ctx The parse tree context containing the expression symbol
+   * @param ctx            The parse tree context containing the expression symbol
    * @param fallbackSymbol Symbol to use if resolved method has no return type
    * @return The return type of the operation
    */
   protected ISymbol extractReturnType(final ParseTree ctx, final ISymbol fallbackSymbol) {
     final var exprSymbol = getRecordedSymbolOrException(ctx);
 
-    if (exprSymbol instanceof org.ek9lang.compiler.symbols.CallSymbol cs) {
+    if (exprSymbol instanceof CallSymbol cs) {
       final var resolvedMethod = cs.getResolvedSymbolToCall();
       return switch (resolvedMethod) {
-        case org.ek9lang.compiler.symbols.MethodSymbol ms ->
-            ms.getReturningSymbol().getType().orElse(fallbackSymbol);
-        case org.ek9lang.compiler.symbols.FunctionSymbol fs ->
-            fs.getReturningSymbol().getType().orElse(fallbackSymbol);
+        case MethodSymbol ms -> ms.getReturningSymbol().getType().orElse(fallbackSymbol);
+        case FunctionSymbol fs -> fs.getReturningSymbol().getType().orElse(fallbackSymbol);
         default -> fallbackSymbol;  // Fallback for other symbol types
       };
     }
@@ -265,7 +267,7 @@ abstract class AbstractGenerator {
    * Process all block statements in an instruction block.
    * Consolidates the common pattern of iterating over block statements and delegating to a generator.
    *
-   * @param ctx              The instruction block context
+   * @param ctx                The instruction block context
    * @param blockStmtGenerator The generator function for individual block statements
    * @return List of IR instructions from all block statements
    */
@@ -291,7 +293,7 @@ abstract class AbstractGenerator {
       final EK9Parser.PreFlowStatementContext preFlowCtx,
       final String constructName) {
     if (preFlowCtx != null) {
-      throw new org.ek9lang.core.CompilerException(constructName + " guards not yet implemented");
+      throw new CompilerException(constructName + " guards not yet implemented");
     }
   }
 
@@ -307,7 +309,7 @@ abstract class AbstractGenerator {
       final EK9Parser.ReturningParamContext returningParamCtx,
       final String constructName) {
     if (returningParamCtx != null) {
-      throw new org.ek9lang.core.CompilerException(constructName + " expression form not yet implemented");
+      throw new CompilerException(constructName + " expression form not yet implemented");
     }
   }
 

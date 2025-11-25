@@ -29,17 +29,28 @@ import org.ek9lang.core.CompilerException;
 
 /**
  * Generates IR for try/catch/finally constructs using CONTROL_FLOW_CHAIN.
- * Currently handles simple try/catch/finally (no guards, statement form only).
+ * <p>
+ * Supports both statement and expression forms:
+ * </p>
+ * <ul>
+ *   <li>Statement form: {@code try { body }} - no return value</li>
+ *   <li>Expression form: {@code result <- try <- rtn <- defaultValue { body }} - accumulator pattern</li>
+ * </ul>
  * <p>
  * Scope structure:
  * </p>
  * <pre>
- *   Outer Scope (_scope_1): Try/catch wrapper for future guards
+ *   Outer Scope (_scope_1): Try/catch wrapper for guards + return variable (expression form)
  *   Control Flow Scope (_scope_2): Try/catch control structure
  *   Try Scope (_scope_3): Try block execution (isolated)
  *   Catch Scope (_scope_4): Catch handler execution (isolated, if present)
  *   Finally Scope (_scope_5): Finally block execution (if present)
  * </pre>
+ * <p>
+ * For expression form, the return variable is declared in the outer scope and can be
+ * assigned in both try and catch blocks. The finally block executes for cleanup
+ * but does not affect the return value.
+ * </p>
  * <p>
  * EK9 supports SINGLE catch block only (not multiple).
  * Both 'catch' and 'handle' keywords are supported.
@@ -51,6 +62,7 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
   private final GeneratorSet generators;
   private final OperatorMap operatorMap = new OperatorMap();
   private final LoopGuardHelper loopGuardHelper;
+  private final ReturningParamProcessor returningParamProcessor;
 
   public TryCatchStatementGenerator(final IRGenerationContext stackContext,
                                     final GeneratorSet generators) {
@@ -58,41 +70,48 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
     AssertValue.checkNotNull("GeneratorSet cannot be null", generators);
     this.generators = generators;
     this.loopGuardHelper = new LoopGuardHelper(stackContext, generators);
+    this.returningParamProcessor = new ReturningParamProcessor(stackContext, generators);
   }
 
   @Override
   public List<IRInstr> apply(final EK9Parser.TryStatementExpressionContext ctx) {
     AssertValue.checkNotNull("TryStatementExpressionContext cannot be null", ctx);
 
-    // Check for expression form (returningParam)
-    validateStatementFormOnly(ctx.returningParam(), "Try");
-
     final var debugInfo = stackContext.createDebugInfo(ctx);
 
-    // SCOPE 1: Enter outer scope (guard scope)
+    // SCOPE 1: Enter outer scope (guard scope + return variable for expression form)
     final var outerScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     stackContext.enterScope(outerScopeId, debugInfo, IRFrameType.BLOCK);
 
     // Process guard if present (using shared helper)
     final var guardDetails = loopGuardHelper.evaluateGuardVariable(ctx.preFlowStatement(), outerScopeId);
 
+    // Process return variable for expression form (declared in outer scope)
+    final var returnDetails = returningParamProcessor.process(ctx.returningParam(), outerScopeId);
+
     // Generate the core try/catch/finally (with or without resources)
     final List<IRInstr> tryInstructions;
     if (ctx.declareArgumentParam() != null) {
-      tryInstructions = generateTryWithResourcesCore(ctx, debugInfo);
+      tryInstructions = generateTryWithResourcesCore(ctx, returnDetails, debugInfo);
     } else {
-      tryInstructions = generateSimpleTryCatchFinallyCore(ctx, debugInfo);
+      tryInstructions = generateSimpleTryCatchFinallyCore(ctx, returnDetails, debugInfo);
     }
 
     // If guard has entry check, wrap try in IF that checks entry condition (using shared helper)
     final List<IRInstr> instructions;
     if (guardDetails.hasGuardEntryCheck()) {
+      // For expression form with guards, emit return variable setup BEFORE guard check
+      final var wrappedInstructions = new ArrayList<IRInstr>();
+      wrappedInstructions.addAll(returnDetails.returnVariableSetup());
+      wrappedInstructions.addAll(tryInstructions);
       instructions = loopGuardHelper.wrapBodyWithGuardEntryCheck(
-          guardDetails, tryInstructions, outerScopeId, debugInfo);
+          guardDetails, wrappedInstructions, outerScopeId, debugInfo);
     } else {
       // No guard - just add scope enter/exit around the try
       instructions = new ArrayList<>();
       instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
+      // Emit return variable setup in outer scope (expression form)
+      instructions.addAll(returnDetails.returnVariableSetup());
       instructions.addAll(tryInstructions);
       instructions.add(ScopeInstr.exit(outerScopeId, debugInfo));
     }
@@ -106,10 +125,15 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
   /**
    * Generate IR for simple try/catch/finally statement (without guard wrapping).
    * The outer scope is managed by the caller (apply method).
+   * <p>
+   * For expression form, the return variable is already declared in outer scope.
+   * The try and catch blocks include assignments to the return variable.
+   * </p>
    */
   private List<IRInstr> generateSimpleTryCatchFinallyCore(
       final EK9Parser.TryStatementExpressionContext ctx,
-      final org.ek9lang.compiler.ir.support.DebugInfo debugInfo) {
+      final ReturnVariableDetails returnDetails,
+      final DebugInfo debugInfo) {
 
     final var instructions = new ArrayList<IRInstr>();
 
@@ -129,9 +153,9 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
 
     // Create CONTROL_FLOW_CHAIN
     final var tryCatchDetails = ControlFlowChainDetails.createTryCatchFinally(
-        null,                           // No result (statement form)
+        null,                           // No result (expression result via return variable)
         GuardVariableDetails.none(),    // No guards yet
-        ReturnVariableDetails.none(),   // No return variable (statement form)
+        returnDetails,                  // Return variable for expression form
         tryBlockDetails,                // Try block details
         catchHandler.map(List::of).orElse(List.of()), // Single catch handler or empty
         finallyEvaluation,              // Finally block instructions
@@ -168,10 +192,15 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
    * Resources are closed automatically in EVALUATION (finally) in REVERSE order.
    * close() executes BEFORE user's finally code (matches Java semantics).
    * </p>
+   * <p>
+   * For expression form, the return variable is already declared in outer scope.
+   * The try and catch blocks include assignments to the return variable.
+   * </p>
    */
   private List<IRInstr> generateTryWithResourcesCore(
       final EK9Parser.TryStatementExpressionContext ctx,
-      final org.ek9lang.compiler.ir.support.DebugInfo debugInfo) {
+      final ReturnVariableDetails returnDetails,
+      final DebugInfo debugInfo) {
 
     final var instructions = new ArrayList<IRInstr>();
 
@@ -201,9 +230,9 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
 
     // Create CONTROL_FLOW_CHAIN
     final var tryCatchDetails = ControlFlowChainDetails.createTryCatchFinally(
-        null,                           // No result (statement form)
+        null,                           // No result (expression result via return variable)
         GuardVariableDetails.none(),    // No guards
-        ReturnVariableDetails.none(),   // No return variable (statement form)
+        returnDetails,                  // Return variable for expression form
         tryBlockDetails,                // Try block details
         catchHandler.map(List::of).orElse(List.of()), // Single catch handler or empty
         finallyEvaluation,              // Finally block with resource cleanup

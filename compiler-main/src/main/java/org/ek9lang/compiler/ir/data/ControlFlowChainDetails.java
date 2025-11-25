@@ -466,6 +466,252 @@ public record ControlFlowChainDetails(
     );
   }
 
+  // ================================================================================
+  // Expression Form Factory Methods
+  // These factory methods are for expression forms (result <- control_flow_expr)
+  // where the construct produces a value assigned to a declared return variable.
+  // Expression forms do NOT support guards (GUARD_USED_IN_EXPRESSION error).
+  // ================================================================================
+
+  /**
+   * Create details for a switch expression (result &lt;- switch expr).
+   * <p>
+   * Expression forms return a value via the return variable declared in returningParam.
+   * Guards are NOT supported in expression forms (enforced by semantic analysis).
+   * </p>
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   *
+   * @param result                 The overall result variable for the control flow
+   * @param evaluationDetails      Evaluation variable details for the switch expression
+   * @param returnDetails          Return variable details from returningParam processing
+   * @param conditionChain         List of case conditions with their bodies
+   * @param defaultBodyEvaluation  Default case body instructions
+   * @param defaultResult          Default case result variable
+   * @param debugInfo              Debug information
+   * @param scopeId                Scope ID from stack context
+   * @return ControlFlowChainDetails configured for switch expression
+   */
+  public static ControlFlowChainDetails createSwitchExpression(
+      String result,
+      EvaluationVariableDetails evaluationDetails,
+      ReturnVariableDetails returnDetails,
+      List<ConditionCaseDetails> conditionChain,
+      List<IRInstr> defaultBodyEvaluation,
+      String defaultResult,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    return new ControlFlowChainDetails(
+        result,
+        "SWITCH_EXPRESSION",
+        GuardVariableDetails.none(), // Guards NOT supported in expression forms
+        evaluationDetails,
+        returnDetails,
+        conditionChain,
+        DefaultCaseDetails.withResult(defaultBodyEvaluation, defaultResult),
+        null, // No try block
+        List.of(), // No finally block
+        debugInfo,
+        scopeId
+    );
+  }
+
+  /**
+   * Create details for a for-range expression (result &lt;- for i in start ..&lt; end).
+   * <p>
+   * Expression forms return a value via the return variable declared in returningParam.
+   * Guards are NOT supported in expression forms (enforced by semantic analysis).
+   * The loop accumulates results into the return variable.
+   * </p>
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   *
+   * @param result           The overall result variable for the control flow
+   * @param returnDetails    Return variable details from returningParam processing
+   * @param conditionChain   Loop condition with body (single element)
+   * @param debugInfo        Debug information
+   * @param scopeId          Scope ID from stack context
+   * @return ControlFlowChainDetails configured for for-range expression
+   */
+  public static ControlFlowChainDetails createForRangeExpression(
+      String result,
+      ReturnVariableDetails returnDetails,
+      List<ConditionCaseDetails> conditionChain,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    return new ControlFlowChainDetails(
+        result,
+        "FOR_RANGE_EXPRESSION",
+        GuardVariableDetails.none(), // Guards NOT supported in expression forms
+        EvaluationVariableDetails.none(), // No evaluation variable for for-range
+        returnDetails,
+        conditionChain,
+        DefaultCaseDetails.none(), // No default case for loops
+        null, // No try block
+        List.of(), // No finally block
+        debugInfo,
+        scopeId
+    );
+  }
+
+  /**
+   * Create details for a for-in expression (result &lt;- for item in collection).
+   * <p>
+   * Expression forms return a value via the return variable declared in returningParam.
+   * Guards are NOT supported in expression forms (enforced by semantic analysis).
+   * The loop accumulates results into the return variable.
+   * </p>
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   *
+   * @param result           The overall result variable for the control flow
+   * @param returnDetails    Return variable details from returningParam processing
+   * @param conditionChain   Loop condition with body (single element)
+   * @param debugInfo        Debug information
+   * @param scopeId          Scope ID from stack context
+   * @return ControlFlowChainDetails configured for for-in expression
+   */
+  public static ControlFlowChainDetails createForInExpression(
+      String result,
+      ReturnVariableDetails returnDetails,
+      List<ConditionCaseDetails> conditionChain,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    return new ControlFlowChainDetails(
+        result,
+        "FOR_IN_EXPRESSION",
+        GuardVariableDetails.none(), // Guards NOT supported in expression forms
+        EvaluationVariableDetails.none(), // No evaluation variable for for-in
+        returnDetails,
+        conditionChain,
+        DefaultCaseDetails.none(), // No default case for loops
+        null, // No try block
+        List.of(), // No finally block
+        debugInfo,
+        scopeId
+    );
+  }
+
+  /**
+   * Create details for a while expression (result &lt;- while condition).
+   * <p>
+   * Expression forms return a value via the return variable declared in returningParam.
+   * Guards are NOT supported in expression forms (enforced by semantic analysis).
+   * </p>
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   *
+   * @param result           The overall result variable for the control flow
+   * @param returnDetails    Return variable details from returningParam processing
+   * @param conditionChain   Loop condition with body (single element)
+   * @param debugInfo        Debug information
+   * @param scopeId          Scope ID from stack context
+   * @return ControlFlowChainDetails configured for while expression
+   */
+  public static ControlFlowChainDetails createWhileExpression(
+      String result,
+      ReturnVariableDetails returnDetails,
+      List<ConditionCaseDetails> conditionChain,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    return new ControlFlowChainDetails(
+        result,
+        "WHILE_EXPRESSION",
+        GuardVariableDetails.none(), // Guards NOT supported in expression forms
+        EvaluationVariableDetails.none(), // No evaluation variable for while
+        returnDetails,
+        conditionChain,
+        DefaultCaseDetails.none(), // No default case for loops
+        null, // No try block
+        List.of(), // No finally block
+        debugInfo,
+        scopeId
+    );
+  }
+
+  /**
+   * Create details for a do-while expression (result &lt;- do { body } while condition).
+   * <p>
+   * Expression forms return a value via the return variable declared in returningParam.
+   * Guards are NOT supported in expression forms (enforced by semantic analysis).
+   * Body executes at least once before condition is checked.
+   * </p>
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   *
+   * @param result           The overall result variable for the control flow
+   * @param returnDetails    Return variable details from returningParam processing
+   * @param conditionChain   Loop body with condition (single element)
+   * @param debugInfo        Debug information
+   * @param scopeId          Scope ID from stack context
+   * @return ControlFlowChainDetails configured for do-while expression
+   */
+  public static ControlFlowChainDetails createDoWhileExpression(
+      String result,
+      ReturnVariableDetails returnDetails,
+      List<ConditionCaseDetails> conditionChain,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    return new ControlFlowChainDetails(
+        result,
+        "DO_WHILE_EXPRESSION",
+        GuardVariableDetails.none(), // Guards NOT supported in expression forms
+        EvaluationVariableDetails.none(), // No evaluation variable for do-while
+        returnDetails,
+        conditionChain,
+        DefaultCaseDetails.none(), // No default case for loops
+        null, // No try block
+        List.of(), // No finally block
+        debugInfo,
+        scopeId
+    );
+  }
+
+  /**
+   * Create details for a try-catch expression (result &lt;- try { expr } catch { handler }).
+   * <p>
+   * Expression forms return a value via the return variable declared in returningParam.
+   * Guards are NOT supported in expression forms (enforced by semantic analysis).
+   * </p>
+   * STACK-BASED: scopeId parameter extracted from stack context in generator.
+   *
+   * @param result                 The overall result variable for the control flow
+   * @param returnDetails          Return variable details from returningParam processing
+   * @param tryBlockDetails        Try block scope and body evaluation
+   * @param catchHandlers          List of catch handlers as condition cases
+   * @param finallyBlockEvaluation Finally block instructions (empty if no finally)
+   * @param debugInfo              Debug information
+   * @param scopeId                Scope ID from stack context
+   * @return ControlFlowChainDetails configured for try-catch expression
+   */
+  public static ControlFlowChainDetails createTryCatchExpression(
+      String result,
+      ReturnVariableDetails returnDetails,
+      TryBlockDetails tryBlockDetails,
+      List<ConditionCaseDetails> catchHandlers,
+      List<IRInstr> finallyBlockEvaluation,
+      DebugInfo debugInfo,
+      String scopeId) {
+
+    return new ControlFlowChainDetails(
+        result,
+        "TRY_CATCH_EXPRESSION",
+        GuardVariableDetails.none(), // Guards NOT supported in expression forms
+        EvaluationVariableDetails.none(), // No evaluation variable for try-catch
+        returnDetails,
+        catchHandlers,
+        DefaultCaseDetails.none(), // No default case (finally is not a default)
+        tryBlockDetails,
+        finallyBlockEvaluation,
+        debugInfo,
+        scopeId
+    );
+  }
+
+  // ================================================================================
+  // End of Expression Form Factory Methods
+  // ================================================================================
+
   /**
    * Get the scope ID extracted from stack context at Details creation time.
    * STACK-BASED: scopeId comes from IRGenerationContext.currentScopeId() where this object is created.

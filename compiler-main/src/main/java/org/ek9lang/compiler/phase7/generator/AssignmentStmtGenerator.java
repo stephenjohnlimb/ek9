@@ -89,7 +89,7 @@ public final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     // Use injected ExprInstrGenerator for better object reuse
     final var generator =
-        new AssignmentExprInstrGenerator(stackContext, generators.exprGenerator, ctx.assignmentExpression());
+        new AssignmentExprInstrGenerator(stackContext, generators, ctx.assignmentExpression());
 
     if (isMethodBasedAssignment(ctx.op)) {
       processMethodBasedAssignment(ctx, lhsSymbol, instructions);
@@ -124,7 +124,7 @@ public final class AssignmentStmtGenerator extends AbstractGenerator implements
 
     // Use injected ExprInstrGenerator for better object reuse
     final var generator =
-        new AssignmentExprInstrGenerator(stackContext, generators.exprGenerator, ctx.assignmentExpression());
+        new AssignmentExprInstrGenerator(stackContext, generators, ctx.assignmentExpression());
 
     if (isMethodBasedAssignment(ctx.op)) {
       processMethodBasedAssignment(ctx, lhsSymbol, instructions);
@@ -218,7 +218,7 @@ public final class AssignmentStmtGenerator extends AbstractGenerator implements
                                                     final VariableDetails variableDetails) {
 
     // Use injected ExprInstrGenerator for better object reuse
-    final var generator = new AssignmentExprInstrGenerator(stackContext, generators.exprGenerator, assignExprCtx);
+    final var generator = new AssignmentExprInstrGenerator(stackContext, generators, assignExprCtx);
     return generator.apply(variableDetails.resultVariable());
   }
 }

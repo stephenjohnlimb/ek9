@@ -55,6 +55,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   private WhileLoopAsmGenerator whileLoopGenerator;
   private DoWhileLoopAsmGenerator doWhileLoopGenerator;
   private SwitchAsmGenerator switchGenerator;
+  private SwitchExpressionAsmGenerator switchExpressionGenerator;
   private TryCatchAsmGenerator tryCatchGenerator;
 
   private final BytecodeGenerationContext context;
@@ -90,6 +91,7 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
       case "WHILE_LOOP", "WHILE_LOOP_WITH_GUARDS" -> generateWhileLoop(instr);
       case "DO_WHILE_LOOP", "DO_WHILE_LOOP_WITH_GUARDS" -> generateDoWhileLoop(instr);
       case "SWITCH", "SWITCH_ENUM", "SWITCH_WITH_GUARDS" -> generateSwitch(instr);
+      case "SWITCH_EXPRESSION" -> generateSwitchExpression(instr);
       case "TRY_CATCH_FINALLY" -> generateTryCatch(instr);
       default -> throw new CompilerException(
           "Unsupported control flow chain type: " + chainType);
@@ -267,6 +269,23 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
   }
 
   /**
+   * Generate bytecode for switch expression form.
+   * Lazily instantiates SwitchExpressionAsmGenerator on first use.
+   *
+   * @param instr CONTROL_FLOW_CHAIN instruction with SWITCH_EXPRESSION type
+   */
+  private void generateSwitchExpression(final ControlFlowChainInstr instr) {
+    if (switchExpressionGenerator == null) {
+      switchExpressionGenerator = new SwitchExpressionAsmGenerator(
+          constructTargetTuple, outputVisitor, classWriter, context);
+    }
+    // Always update context in case method changed
+    switchExpressionGenerator.setSharedMethodContext(getMethodContext());
+    switchExpressionGenerator.setCurrentMethodVisitor(getCurrentMethodVisitor());
+    switchExpressionGenerator.generate(instr);
+  }
+
+  /**
    * Generate bytecode for try/catch/finally statements.
    * Lazily instantiates TryCatchAsmGenerator on first use.
    *
@@ -325,6 +344,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     if (switchGenerator != null) {
       switchGenerator.setSharedMethodContext(context);
     }
+    if (switchExpressionGenerator != null) {
+      switchExpressionGenerator.setSharedMethodContext(context);
+    }
     if (tryCatchGenerator != null) {
       tryCatchGenerator.setSharedMethodContext(context);
     }
@@ -372,6 +394,9 @@ final class ControlFlowChainAsmGenerator extends AbstractAsmGenerator {
     }
     if (switchGenerator != null) {
       switchGenerator.setCurrentMethodVisitor(mv);
+    }
+    if (switchExpressionGenerator != null) {
+      switchExpressionGenerator.setCurrentMethodVisitor(mv);
     }
     if (tryCatchGenerator != null) {
       tryCatchGenerator.setCurrentMethodVisitor(mv);

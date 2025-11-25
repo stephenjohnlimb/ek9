@@ -7,6 +7,7 @@ import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.SymbolTypeOrException;
 import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
+import org.ek9lang.compiler.ir.data.ReturnVariableDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
@@ -25,13 +26,20 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.core.CompilerException;
 
 /**
- * Generates IR for for-in loops: for item in collection.
+ * Generates IR for for-in loops and expressions: for item in collection.
+ * <p>
+ * Supports both statement and expression forms:
+ * </p>
+ * <ul>
+ *   <li>Statement form: {@code for item in collection} - no return value</li>
+ *   <li>Expression form: {@code result <- for item in collection <- rtn <- 0} - accumulator pattern</li>
+ * </ul>
  * <p>
  * Reuses while loop infrastructure with iterator setup.
  * </p>
  * <p>
  * Follows WhileStatementGenerator pattern with 4 scopes:
- * - Outer scope (guards + iterator)
+ * - Outer scope (guards + iterator + return variable for expression form)
  * - Whole loop scope
  * - Condition iteration scope (hasNext)
  * - Body iteration scope (next + user body)
@@ -43,12 +51,14 @@ public final class ForInGenerator extends AbstractGenerator
   private final SymbolTypeOrException symbolTypeOrException = new SymbolTypeOrException();
   private final GeneratorSet generators;
   private final LoopGuardHelper loopGuardHelper;
+  private final ReturningParamProcessor returningParamProcessor;
 
   ForInGenerator(final IRGenerationContext stackContext,
                  final GeneratorSet generators) {
     super(stackContext);
     this.generators = generators;
     this.loopGuardHelper = new LoopGuardHelper(stackContext, generators);
+    this.returningParamProcessor = new ReturningParamProcessor(stackContext, generators);
   }
 
   @Override
@@ -64,7 +74,7 @@ public final class ForInGenerator extends AbstractGenerator
       throw new CompilerException("No iteration pattern squirreled for for-loop");
     }
 
-    // SCOPE 1: Outer scope (guard scope)
+    // SCOPE 1: Outer scope (guard scope + return variable for expression form)
     final var outerScopeId = stackContext.generateScopeId(IRConstants.GENERAL_SCOPE);
     stackContext.enterScope(outerScopeId, debugInfo, IRFrameType.BLOCK);
 
@@ -72,18 +82,27 @@ public final class ForInGenerator extends AbstractGenerator
     final var guardDetails = loopGuardHelper.evaluateGuardVariable(
         forLoopCtx.preFlowStatement(), outerScopeId);
 
+    // Process return variable for expression form (declared in outer scope)
+    final var returnDetails = returningParamProcessor.process(ctx.returningParam(), outerScopeId);
+
     // Generate the core for-in loop
-    final var loopInstructions = generateForInLoopCore(ctx, forLoopCtx, pattern, debugInfo);
+    final var loopInstructions = generateForInLoopCore(ctx, forLoopCtx, pattern, returnDetails, debugInfo);
 
     // If guard has entry check, wrap loop in IF that checks entry condition (using shared helper)
     final List<IRInstr> instructions;
     if (guardDetails.hasGuardEntryCheck()) {
+      // For expression form with guards, emit return variable setup BEFORE guard check
+      final var wrappedInstructions = new ArrayList<IRInstr>();
+      wrappedInstructions.addAll(returnDetails.returnVariableSetup());
+      wrappedInstructions.addAll(loopInstructions);
       instructions = loopGuardHelper.wrapBodyWithGuardEntryCheck(
-          guardDetails, loopInstructions, outerScopeId, debugInfo);
+          guardDetails, wrappedInstructions, outerScopeId, debugInfo);
     } else {
-      // No guard - just add scope enter/exit around the loop
+      // No guard - add scope enter/exit around the loop
       instructions = new ArrayList<>();
       instructions.add(ScopeInstr.enter(outerScopeId, debugInfo));
+      // Emit return variable setup in outer scope (expression form)
+      instructions.addAll(returnDetails.returnVariableSetup());
       instructions.addAll(loopInstructions);
       instructions.add(ScopeInstr.exit(outerScopeId, debugInfo));
     }
@@ -96,11 +115,16 @@ public final class ForInGenerator extends AbstractGenerator
 
   /**
    * Generate the core for-in loop instructions (without guard wrapping).
+   * <p>
+   * For expression form, the return variable is already declared in outer scope.
+   * The body statements include assignments to the return variable (accumulator pattern).
+   * </p>
    */
   private List<IRInstr> generateForInLoopCore(
       final EK9Parser.ForStatementExpressionContext ctx,
       final EK9Parser.ForLoopContext forLoopCtx,
       final String pattern,
+      final ReturnVariableDetails returnDetails,
       final DebugInfo debugInfo) {
 
     final var instructions = new ArrayList<IRInstr>();

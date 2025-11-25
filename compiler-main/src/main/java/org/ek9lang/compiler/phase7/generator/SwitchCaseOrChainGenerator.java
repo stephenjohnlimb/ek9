@@ -14,6 +14,7 @@ import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.phase7.calls.CallContext;
 import org.ek9lang.compiler.phase7.calls.CallDetailsForIsTrue;
+import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.ConditionalEvaluation;
 import org.ek9lang.compiler.phase7.support.ExprProcessingDetails;
 import org.ek9lang.compiler.phase7.support.LiteralProcessingDetails;
@@ -52,7 +53,7 @@ public final class SwitchCaseOrChainGenerator extends AbstractGenerator {
   private final CallDetailsForIsTrue callDetailsForTrue = new CallDetailsForIsTrue();
   private final VariableNameForIR variableNameForIR = new VariableNameForIR();
 
-  public SwitchCaseOrChainGenerator(final org.ek9lang.compiler.phase7.generation.IRGenerationContext stackContext,
+  public SwitchCaseOrChainGenerator(final IRGenerationContext stackContext,
                                     final VariableMemoryManagement variableMemoryManagement,
                                     final GeneratorSet generators) {
     super(stackContext);

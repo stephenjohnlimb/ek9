@@ -2,6 +2,7 @@ package org.ek9lang.compiler.backend.jvm;
 
 import org.ek9lang.compiler.backend.ConstructTargetTuple;
 import org.ek9lang.compiler.ir.instructions.ControlFlowChainInstr;
+import org.ek9lang.core.CompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 
@@ -91,13 +92,13 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
 
     // Validation: must have at least try block
     if (tryDetails == null) {
-      throw new org.ek9lang.core.CompilerException(
+      throw new CompilerException(
           "TRY_CATCH_FINALLY must have tryBlockDetails");
     }
 
     // Validation: must have at least one catch handler or finally block
     if (catchHandlers.isEmpty() && !hasFinallyBlock) {
-      throw new org.ek9lang.core.CompilerException(
+      throw new CompilerException(
           "TRY_CATCH_FINALLY must have at least one catch handler or finally block");
     }
 

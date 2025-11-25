@@ -31,7 +31,7 @@ class LoopIRTest extends AbstractIRGenerationTest {
             new SymbolCountCheck(1, "loops.forin.assignGuard", 2),  // forInAssignmentGuard (2 functions)
             new SymbolCountCheck(1, "loops.forin.guardedAssign", 2),  // forInGuardedAssignment (2 functions)
             new SymbolCountCheck(1, "loops.forin.assignIfUnset", 2)),  // forInAssignmentIfUnset (2 functions)
-        false, false, true);  // verbose=false, muteErrors=false, showIR=true
+        false, false, false);  // verbose=false, muteErrors=false, showIR=true
   }
 
   @Override

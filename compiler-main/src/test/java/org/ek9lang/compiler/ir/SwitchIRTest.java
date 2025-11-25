@@ -24,7 +24,7 @@ class SwitchIRTest extends AbstractIRGenerationTest {
             new SymbolCountCheck(1, "switches.assignGuard", 2),  // switchAssignmentGuard (2 functions: getValue, switchAssignmentGuard)
             new SymbolCountCheck(1, "switches.assignIfUnset", 2),  // switchAssignmentIfUnset (2 functions: getValue, switchAssignmentIfUnset)
             new SymbolCountCheck(1, "switches.guardedAssign", 2)),  // switchGuardedAssignment (2 functions: getValue, switchGuardedAssignment)
-        false, false, true);  // verbose=false, muteErrors=false, showIR=true
+        false, false, false);  // verbose=false, muteErrors=false, showIR=true
   }
 
   @Override

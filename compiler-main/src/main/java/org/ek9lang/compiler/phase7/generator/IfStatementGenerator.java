@@ -8,11 +8,13 @@ import org.ek9lang.compiler.ir.data.ConditionCaseDetails;
 import org.ek9lang.compiler.ir.data.ControlFlowChainDetails;
 import org.ek9lang.compiler.ir.data.GuardVariableDetails;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
+import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.phase7.generation.IRFrameType;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.core.AssertValue;
+import org.ek9lang.core.CompilerException;
 
 /**
  * Generates IR for if/else statements using CONTROL_FLOW_CHAIN.
@@ -198,15 +200,15 @@ public final class IfStatementGenerator extends AbstractGenerator
 
       // Assign temp to target variable (similar to := operator)
       // The guard check on the target variable happens in condition evaluation
-      guardSetup.add(org.ek9lang.compiler.ir.instructions.MemoryInstr.release(targetName, debugInfo));
+      guardSetup.add(MemoryInstr.release(targetName, debugInfo));
       guardSetup.add(
-          org.ek9lang.compiler.ir.instructions.MemoryInstr.store(targetName, tempDetails.resultVariable(), debugInfo));
-      guardSetup.add(org.ek9lang.compiler.ir.instructions.MemoryInstr.retain(targetName, debugInfo));
+          MemoryInstr.store(targetName, tempDetails.resultVariable(), debugInfo));
+      guardSetup.add(MemoryInstr.retain(targetName, debugInfo));
 
       // Add to guardVariables since ?= REQUIRES guard check
       guardVariables.add(targetName);
     } else {
-      throw new org.ek9lang.core.CompilerException(
+      throw new CompilerException(
           "Invalid preFlowStatement - expected variableDeclaration, assignmentStatement, or guardExpression");
     }
 
