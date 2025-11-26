@@ -16,7 +16,10 @@ class ControlFlowExpressionIRTest extends AbstractIRGenerationTest {
         List.of(
             new SymbolCountCheck(1, "expressionForms", 1),
             new SymbolCountCheck(1, "expressionForms.whileExpr", 1),
-            new SymbolCountCheck(1, "expressionForms.doWhileExpr", 1)
+            new SymbolCountCheck(1, "expressionForms.doWhileExpr", 1),
+            new SymbolCountCheck(1, "expressionForms.forRangeExpr", 1),
+            new SymbolCountCheck(1, "expressionForms.forInExpr", 1),
+            new SymbolCountCheck(1, "expressionForms.tryExpr", 1)
         ), false, false, true); // verbose=false, muteErrors=false, showIR=true
   }
 

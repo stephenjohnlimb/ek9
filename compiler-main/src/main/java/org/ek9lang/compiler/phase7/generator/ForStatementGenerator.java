@@ -50,14 +50,13 @@ public final class ForStatementGenerator extends AbstractGenerator
     AssertValue.checkNotNull("ForStatementExpressionContext cannot be null", ctx);
 
     if (ctx.forLoop() != null) {
-      // For-in loop: for item in collection
+      // For-in loop (iterator-based): for item in collection
+      // Expression form is supported via returningParam (accumulator pattern)
       return generators.forInGenerator.apply(ctx);
     }
 
-    // Expression form: for i in 1..10 returning sum += i
-    validateStatementFormOnly(ctx.returningParam(), "For loop");
-
     // For-range loop: for i in 1..10 or for i in start..end BY step
+    // Expression form is supported via returningParam (accumulator pattern)
     return generators.forRangeGenerator.apply(ctx);
   }
 }

@@ -1,0 +1,156 @@
+#!ek9
+<?-
+  Bytecode test for for-in expression form.
+  Expression form: result <- for item in collection <- rtn <- initialValue
+  The for-in returns a value through the rtn variable (accumulator pattern).
+
+  This program concatenates strings from a list.
+  For list ["Hello", " ", "World"]: result = "Hello World"
+-?>
+defines module bytecode.test.forinexpr
+
+  defines program
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.forinexpr::ForInExpression": `public class bytecode.test.forinexpr.ForInExpression {
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.forinexpr.ForInExpression();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public void _main(org.ek9.lang.String);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aconst_null
+        13: astore        4
+        15: new           #CP                 // class org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+        18: dup
+        19: invokespecial #CP                 // Method org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1."<init>":()V
+        22: astore        5
+        24: aload         5
+        26: astore        4
+        28: aload         4
+        30: astore        6
+        32: ldc           #CP                 // String Hello
+        34: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        37: astore        7
+        39: aload         6
+        41: aload         7
+        43: invokevirtual #CP                 // Method org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._addAss:(Lorg/ek9/lang/String;)V
+        46: aload         4
+        48: astore        8
+        50: ldc           #CP                 // String
+        52: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        55: astore        9
+        57: aload         8
+        59: aload         9
+        61: invokevirtual #CP                 // Method org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._addAss:(Lorg/ek9/lang/String;)V
+        64: aload         4
+        66: astore        10
+        68: aload_1
+        69: astore        11
+        71: aload         10
+        73: aload         11
+        75: invokevirtual #CP                 // Method org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1._addAss:(Lorg/ek9/lang/String;)V
+        78: aconst_null
+        79: astore        12
+        81: aconst_null
+        82: astore        13
+        84: ldc           #CP                 // String
+        86: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        89: astore        14
+        91: aload         14
+        93: astore        13
+        95: aload         4
+        97: astore        15
+        99: aload         15
+       101: invokevirtual #CP                 // Method org/ek9/lang/_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.iterator:()Lorg/ek9/lang/_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2;
+       104: astore        16
+       106: aconst_null
+       107: astore        17
+       109: aload         16
+       111: invokevirtual #CP                 // Method org/ek9/lang/_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2.hasNext:()Lorg/ek9/lang/Boolean;
+       114: astore        18
+       116: aload         18
+       118: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+       121: istore        19
+       123: iload         19
+       125: ifeq          163
+       128: aload         16
+       130: invokevirtual #CP                 // Method org/ek9/lang/_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2.next:()Lorg/ek9/lang/String;
+       133: astore        20
+       135: aload         20
+       137: astore        17
+       139: aload         13
+       141: astore        21
+       143: aload         17
+       145: astore        22
+       147: aload         21
+       149: aload         22
+       151: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
+       154: astore        23
+       156: aload         23
+       158: astore        13
+       160: goto          109
+       163: aload         13
+       165: astore        24
+       167: aload         24
+       169: astore        12
+       171: aload_2
+       172: astore        25
+       174: aload         12
+       176: astore        26
+       178: aload         25
+       180: aload         26
+       182: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       185: aload_2
+       186: astore        27
+       188: ldc           #CP                 // String Done
+       190: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       193: astore        28
+       195: aload         27
+       197: aload         28
+       199: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       202: return
+}`
+
+    ForInExpression()
+      -> arg as String
+
+      stdout <- Stdout()
+
+      // Build a list of strings
+      items <- List() of String
+      items += "Hello"
+      items += " "
+      items += arg
+
+      // For-in expression that concatenates strings
+      result <- for item in items
+        <- rtn <- ""
+        rtn: rtn + item
+
+      // Print the result (concatenated string)
+      stdout.println(result)
+
+      // Always print to verify program continues
+      stdout.println("Done")
+
+//EOF
