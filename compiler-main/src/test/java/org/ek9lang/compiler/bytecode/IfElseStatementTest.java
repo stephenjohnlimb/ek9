@@ -4,17 +4,14 @@ import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
 /**
- * Test bytecode generation for if/else statements.
+ * Test bytecode generation and execution for if/else statements.
+ * Tests conditional branching with else clause.
  */
-class IfElseStatementTest extends AbstractBytecodeGenerationTest {
+class IfElseStatementTest extends AbstractExecutableBytecodeTest {
   public IfElseStatementTest() {
     super("/examples/bytecodeGeneration/ifElseStatement",
-        List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, false);  // showBytecode=false - @BYTECODE directive in place
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test",
+        "IfElseStatement",
+        List.of(new SymbolCountCheck("bytecode.test", 1)));
   }
 }

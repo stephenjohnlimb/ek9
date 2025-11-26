@@ -4,7 +4,7 @@ import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
 /**
- * Test bytecode generation for try expression form.
+ * Test bytecode generation and execution for try expression form.
  * Tests the expression form where try returns a value via returningParam.
  * Pattern: result <- try <- rtn <- initialValue ... catch -> ex ... rtn: value
  *
@@ -16,16 +16,11 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * </ul>
  * </p>
  */
-class TryExpressionTest extends AbstractBytecodeGenerationTest {
-
+class TryExpressionTest extends AbstractExecutableBytecodeTest {
   public TryExpressionTest() {
     super("/examples/bytecodeGeneration/tryExpression",
-        List.of(new SymbolCountCheck("bytecode.test.tryexpr", 1)),
-        false, false, false);
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test.tryexpr",
+        "TryExpression",
+        List.of(new SymbolCountCheck("bytecode.test.tryexpr", 1)));
   }
 }

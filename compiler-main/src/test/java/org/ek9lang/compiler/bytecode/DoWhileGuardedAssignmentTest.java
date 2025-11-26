@@ -3,12 +3,14 @@ package org.ek9lang.compiler.bytecode;
 import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
-class DoWhileGuardedAssignmentTest extends AbstractBytecodeGenerationTest {
+/**
+ * Test bytecode generation and execution for do-while loop with guarded assignment (?=).
+ */
+class DoWhileGuardedAssignmentTest extends AbstractExecutableBytecodeTest {
   public DoWhileGuardedAssignmentTest() {
     super("/examples/bytecodeGeneration/doWhileGuardedAssignment",
-        List.of(new SymbolCountCheck("bytecode.test.dowhileguardedassign", 1)),
-        false, false, false);
+        "bytecode.test.dowhileguardedassign",
+        "DoWhileGuardedAssignment",
+        List.of(new SymbolCountCheck("bytecode.test.dowhileguardedassign", 1)));
   }
-  @Override
-  protected boolean addDebugInstrumentation() { return false; }
 }

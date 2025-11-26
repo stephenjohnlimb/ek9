@@ -4,7 +4,7 @@ import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
 /**
- * Test bytecode generation for for-in expression form.
+ * Test bytecode generation and execution for for-in expression form.
  * Tests the expression form where for-in returns a value via returningParam (accumulator pattern).
  * Pattern: result <- for item in collection <- rtn <- initialValue
  *
@@ -16,16 +16,11 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * </ul>
  * </p>
  */
-class ForInExpressionTest extends AbstractBytecodeGenerationTest {
-
+class ForInExpressionTest extends AbstractExecutableBytecodeTest {
   public ForInExpressionTest() {
     super("/examples/bytecodeGeneration/forInExpression",
-        List.of(new SymbolCountCheck("bytecode.test.forinexpr", 1)),
-        false, false, false);
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test.forinexpr",
+        "ForInExpression",
+        List.of(new SymbolCountCheck("bytecode.test.forinexpr", 1)));
   }
 }

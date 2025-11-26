@@ -4,17 +4,13 @@ import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
 /**
- * Test bytecode generation for while loop with assignment guard (:=).
+ * Test bytecode generation and execution for while loop with assignment guard (:=).
  */
-class WhileAssignmentGuardTest extends AbstractBytecodeGenerationTest {
+class WhileAssignmentGuardTest extends AbstractExecutableBytecodeTest {
   public WhileAssignmentGuardTest() {
     super("/examples/bytecodeGeneration/whileAssignmentGuard",
-        List.of(new SymbolCountCheck("bytecode.test.whileassignguard", 1)),
-        false, false, false);  // showBytecode=false - @BYTECODE directive in place
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test.whileassignguard",
+        "WhileAssignmentGuard",
+        List.of(new SymbolCountCheck("bytecode.test.whileassignguard", 1)));
   }
 }

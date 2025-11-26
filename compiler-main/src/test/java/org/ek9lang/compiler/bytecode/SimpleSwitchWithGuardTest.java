@@ -4,17 +4,13 @@ import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
 /**
- * Test bytecode generation for switch statement with guard (implicit isSet check).
+ * Test bytecode generation and execution for switch statement with guard (implicit isSet check).
  */
-class SimpleSwitchWithGuardTest extends AbstractBytecodeGenerationTest {
+class SimpleSwitchWithGuardTest extends AbstractExecutableBytecodeTest {
   public SimpleSwitchWithGuardTest() {
     super("/examples/bytecodeGeneration/simpleSwitchWithGuard",
-        List.of(new SymbolCountCheck("bytecode.test.switchguard", 1)),
-        false, false, false);  // showBytecode=false - @BYTECODE directive in place
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test.switchguard",
+        "SimpleSwitchWithGuard",
+        List.of(new SymbolCountCheck("bytecode.test.switchguard", 1)));
   }
 }

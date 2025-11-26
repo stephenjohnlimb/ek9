@@ -1,12 +1,16 @@
 package org.ek9lang.compiler.bytecode;
+
 import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
-class SwitchGuardedAssignmentTest extends AbstractBytecodeGenerationTest {
+/**
+ * Test bytecode generation and execution for switch with guarded assignment (?=).
+ */
+class SwitchGuardedAssignmentTest extends AbstractExecutableBytecodeTest {
   public SwitchGuardedAssignmentTest() {
     super("/examples/bytecodeGeneration/switchGuardedAssignment",
-        List.of(new SymbolCountCheck("bytecode.test.switchguardedassign", 1)),
-        false, false, false);
+        "bytecode.test.switchguardedassign",
+        "SwitchGuardedAssignment",
+        List.of(new SymbolCountCheck("bytecode.test.switchguardedassign", 1)));
   }
-  @Override protected boolean addDebugInstrumentation() { return false; }
 }

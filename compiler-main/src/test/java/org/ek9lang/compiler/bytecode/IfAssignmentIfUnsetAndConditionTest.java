@@ -4,17 +4,13 @@ import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
 /**
- * Test bytecode generation for if statement with assignment if unset (:=?) with condition.
+ * Test bytecode generation and execution for if statement with assignment if unset (:=?) with condition.
  */
-class IfAssignmentIfUnsetAndConditionTest extends AbstractBytecodeGenerationTest {
+class IfAssignmentIfUnsetAndConditionTest extends AbstractExecutableBytecodeTest {
   public IfAssignmentIfUnsetAndConditionTest() {
     super("/examples/bytecodeGeneration/ifAssignmentIfUnsetAndCondition",
-        List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, false);
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test",
+        "IfAssignmentIfUnsetAndCondition",
+        List.of(new SymbolCountCheck("bytecode.test", 1)));
   }
 }

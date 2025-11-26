@@ -1,0 +1,22 @@
+#!ek9
+<?-
+  POC for in-JVM bytecode test execution.
+  Uses Stdout for output - thread-local capture handles parallel safety.
+  Takes a name argument.
+-?>
+defines module bytecode.test.injvmpoc
+
+  defines program
+
+    InJvmPoc()
+      -> name as String
+
+      stdout <- Stdout()
+
+      // Print greeting with the argument
+      stdout.println("Hello, " + name + "!")
+
+      // Print completion message
+      stdout.println("POC Complete")
+
+//EOF

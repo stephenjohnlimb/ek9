@@ -4,17 +4,13 @@ import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
 /**
- * Test bytecode generation for switch with multiple Character cases requiring promotion.
+ * Test bytecode generation and execution for switch with multiple Character cases requiring promotion.
  */
-class MultipleCaseCharacterPromotionTest extends AbstractBytecodeGenerationTest {
+class MultipleCaseCharacterPromotionTest extends AbstractExecutableBytecodeTest {
   public MultipleCaseCharacterPromotionTest() {
     super("/examples/bytecodeGeneration/multipleCaseCharacterPromotion",
-        List.of(new SymbolCountCheck("bytecode.test.multichar", 1)),
-        false, false, false);
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;  // Clean bytecode for easier validation
+        "bytecode.test.multichar",
+        "MultipleCaseCharacterPromotion",
+        List.of(new SymbolCountCheck("bytecode.test.multichar", 1)));
   }
 }

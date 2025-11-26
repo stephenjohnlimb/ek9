@@ -1,12 +1,16 @@
 package org.ek9lang.compiler.bytecode;
+
 import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
-class TryAssignmentIfUnsetTest extends AbstractBytecodeGenerationTest {
+/**
+ * Test bytecode generation and execution for try with assignment if unset (:=?).
+ */
+class TryAssignmentIfUnsetTest extends AbstractExecutableBytecodeTest {
   public TryAssignmentIfUnsetTest() {
     super("/examples/bytecodeGeneration/tryAssignmentIfUnset",
-        List.of(new SymbolCountCheck("bytecode.test.tryassignifunset", 1)),
-        false, false, false);
+        "bytecode.test.tryassignifunset",
+        "TryAssignmentIfUnset",
+        List.of(new SymbolCountCheck("bytecode.test.tryassignifunset", 1)));
   }
-  @Override protected boolean addDebugInstrumentation() { return false; }
 }

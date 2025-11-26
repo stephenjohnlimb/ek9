@@ -4,7 +4,7 @@ import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
 /**
- * Test bytecode generation for for-range expression form.
+ * Test bytecode generation and execution for for-range expression form.
  * Tests the expression form where for-range returns a value via returningParam (accumulator pattern).
  * Pattern: result <- for i in start ... end <- rtn <- initialValue
  *
@@ -16,16 +16,11 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * </ul>
  * </p>
  */
-class ForRangeExpressionTest extends AbstractBytecodeGenerationTest {
-
+class ForRangeExpressionTest extends AbstractExecutableBytecodeTest {
   public ForRangeExpressionTest() {
     super("/examples/bytecodeGeneration/forRangeExpression",
-        List.of(new SymbolCountCheck("bytecode.test.forrangeexpr", 1)),
-        false, false, false);
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test.forrangeexpr",
+        "ForRangeExpression",
+        List.of(new SymbolCountCheck("bytecode.test.forrangeexpr", 1)));
   }
 }

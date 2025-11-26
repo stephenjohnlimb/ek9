@@ -4,17 +4,13 @@ import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
 /**
- * Test bytecode generation for if statement with guarded assignment (?=) without condition.
+ * Test bytecode generation and execution for if statement with guarded assignment (?=) without condition.
  */
-class IfGuardedAssignmentTest extends AbstractBytecodeGenerationTest {
+class IfGuardedAssignmentTest extends AbstractExecutableBytecodeTest {
   public IfGuardedAssignmentTest() {
     super("/examples/bytecodeGeneration/ifGuardedAssignment",
-        List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, false);
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test",
+        "IfGuardedAssignment",
+        List.of(new SymbolCountCheck("bytecode.test", 1)));
   }
 }
