@@ -1,0 +1,31 @@
+#!ek9
+<?-
+  Mutation Test: Nested If Statements (10 levels)
+  Tests compiler/parser handling of moderately deep if nesting.
+
+  Complexity: 1 (base) + 10 (if blocks) = 11 (well under 50 limit)
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.nesting.if010
+
+  defines function
+
+    testNestedIf10Levels()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 0
+        if value > 1
+          if value > 2
+            if value > 3
+              if value > 4
+                if value > 5
+                  if value > 6
+                    if value > 7
+                      if value > 8
+                        if value > 9
+                          result: 10
+
+      assert result?
+
+//EOF

@@ -1,0 +1,45 @@
+#!ek9
+<?-
+  Mutation Test: Nested If Statements (24 levels - Maximum Valid)
+  Tests compiler at maximum valid complexity for single function with comparisons.
+
+  Complexity: 1 (base) + 24 (if blocks) + 24 (comparisons) = 49 (just under 50 limit)
+  This is a boundary stress test - should compile successfully.
+-?>
+defines module fuzztest.mutation.valid.nesting.if024
+
+  defines function
+
+    testNestedIf24Levels()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 0
+        if value > 1
+          if value > 2
+            if value > 3
+              if value > 4
+                if value > 5
+                  if value > 6
+                    if value > 7
+                      if value > 8
+                        if value > 9
+                          if value > 10
+                            if value > 11
+                              if value > 12
+                                if value > 13
+                                  if value > 14
+                                    if value > 15
+                                      if value > 16
+                                        if value > 17
+                                          if value > 18
+                                            if value > 19
+                                              if value > 20
+                                                if value > 21
+                                                  if value > 22
+                                                    if value > 23
+                                                      result: 24
+
+      assert result?
+
+//EOF

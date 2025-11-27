@@ -1,0 +1,81 @@
+#!ek9
+<?-
+  Mutation Test: Nested While Loops (20 levels)
+  Tests compiler/parser handling of deep while loop nesting.
+
+  Complexity: 1 (base) + 20 (while loops) = 21 (under 50 limit)
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.nesting.while020
+
+  defines function
+
+    testNestedWhile20Levels()
+      -> maxDepth as Integer
+      <- result as Integer: 0
+
+      depth1 <- 0
+      while depth1 < maxDepth
+        depth2 <- 0
+        while depth2 < maxDepth
+          depth3 <- 0
+          while depth3 < maxDepth
+            depth4 <- 0
+            while depth4 < maxDepth
+              depth5 <- 0
+              while depth5 < maxDepth
+                depth6 <- 0
+                while depth6 < maxDepth
+                  depth7 <- 0
+                  while depth7 < maxDepth
+                    depth8 <- 0
+                    while depth8 < maxDepth
+                      depth9 <- 0
+                      while depth9 < maxDepth
+                        depth10 <- 0
+                        while depth10 < maxDepth
+                          depth11 <- 0
+                          while depth11 < maxDepth
+                            depth12 <- 0
+                            while depth12 < maxDepth
+                              depth13 <- 0
+                              while depth13 < maxDepth
+                                depth14 <- 0
+                                while depth14 < maxDepth
+                                  depth15 <- 0
+                                  while depth15 < maxDepth
+                                    depth16 <- 0
+                                    while depth16 < maxDepth
+                                      depth17 <- 0
+                                      while depth17 < maxDepth
+                                        depth18 <- 0
+                                        while depth18 < maxDepth
+                                          depth19 <- 0
+                                          while depth19 < maxDepth
+                                            depth20 <- 0
+                                            while depth20 < maxDepth
+                                              result: result + 1
+                                              depth20: depth20 + 1
+                                            depth19: depth19 + 1
+                                          depth18: depth18 + 1
+                                        depth17: depth17 + 1
+                                      depth16: depth16 + 1
+                                    depth15: depth15 + 1
+                                  depth14: depth14 + 1
+                                depth13: depth13 + 1
+                              depth12: depth12 + 1
+                            depth11: depth11 + 1
+                          depth10: depth10 + 1
+                        depth9: depth9 + 1
+                      depth8: depth8 + 1
+                    depth7: depth7 + 1
+                  depth6: depth6 + 1
+                depth5: depth5 + 1
+              depth4: depth4 + 1
+            depth3: depth3 + 1
+          depth2: depth2 + 1
+        depth1: depth1 + 1
+
+      assert result?
+
+//EOF

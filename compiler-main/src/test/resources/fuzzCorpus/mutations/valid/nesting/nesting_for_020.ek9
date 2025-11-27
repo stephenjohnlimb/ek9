@@ -1,0 +1,41 @@
+#!ek9
+<?-
+  Mutation Test: Nested For Loops (20 levels)
+  Tests compiler/parser handling of deep for loop nesting.
+
+  Complexity: 1 (base) + 20 (for loops) + 20 (for ranges) = 41 (under 50 limit)
+  Note: for range adds +1 complexity each
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.nesting.for020
+
+  defines function
+
+    testNestedFor20Levels()
+      <- result as Integer: 0
+
+      for i1 in 1 ... 2
+        for i2 in 1 ... 2
+          for i3 in 1 ... 2
+            for i4 in 1 ... 2
+              for i5 in 1 ... 2
+                for i6 in 1 ... 2
+                  for i7 in 1 ... 2
+                    for i8 in 1 ... 2
+                      for i9 in 1 ... 2
+                        for i10 in 1 ... 2
+                          for i11 in 1 ... 2
+                            for i12 in 1 ... 2
+                              for i13 in 1 ... 2
+                                for i14 in 1 ... 2
+                                  for i15 in 1 ... 2
+                                    for i16 in 1 ... 2
+                                      for i17 in 1 ... 2
+                                        for i18 in 1 ... 2
+                                          for i19 in 1 ... 2
+                                            for i20 in 1 ... 2
+                                              result: result + 1
+
+      assert result?
+
+//EOF

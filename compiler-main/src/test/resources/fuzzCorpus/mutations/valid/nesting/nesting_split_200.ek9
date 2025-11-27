@@ -1,0 +1,280 @@
+#!ek9
+<?-
+  Mutation Test: Split Nesting (200 total levels)
+  Tests compiler/parser handling of extremely deep nesting split across functions.
+
+  Strategy: 10 functions, each with 20 levels of nesting
+  Each function: 1 (base) + 20 (if) + 20 (comparisons) = 41 complexity (under 50)
+  Total nesting depth: 200 levels across call chain.
+
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.nesting.split200
+
+  defines function
+
+    layer10()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 180
+        if value > 181
+          if value > 182
+            if value > 183
+              if value > 184
+                if value > 185
+                  if value > 186
+                    if value > 187
+                      if value > 188
+                        if value > 189
+                          if value > 190
+                            if value > 191
+                              if value > 192
+                                if value > 193
+                                  if value > 194
+                                    if value > 195
+                                      if value > 196
+                                        if value > 197
+                                          if value > 198
+                                            if value > 199
+                                              result: 200
+
+    layer9()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 160
+        if value > 161
+          if value > 162
+            if value > 163
+              if value > 164
+                if value > 165
+                  if value > 166
+                    if value > 167
+                      if value > 168
+                        if value > 169
+                          if value > 170
+                            if value > 171
+                              if value > 172
+                                if value > 173
+                                  if value > 174
+                                    if value > 175
+                                      if value > 176
+                                        if value > 177
+                                          if value > 178
+                                            if value > 179
+                                              result: layer10(value)
+
+    layer8()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 140
+        if value > 141
+          if value > 142
+            if value > 143
+              if value > 144
+                if value > 145
+                  if value > 146
+                    if value > 147
+                      if value > 148
+                        if value > 149
+                          if value > 150
+                            if value > 151
+                              if value > 152
+                                if value > 153
+                                  if value > 154
+                                    if value > 155
+                                      if value > 156
+                                        if value > 157
+                                          if value > 158
+                                            if value > 159
+                                              result: layer9(value)
+
+    layer7()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 120
+        if value > 121
+          if value > 122
+            if value > 123
+              if value > 124
+                if value > 125
+                  if value > 126
+                    if value > 127
+                      if value > 128
+                        if value > 129
+                          if value > 130
+                            if value > 131
+                              if value > 132
+                                if value > 133
+                                  if value > 134
+                                    if value > 135
+                                      if value > 136
+                                        if value > 137
+                                          if value > 138
+                                            if value > 139
+                                              result: layer8(value)
+
+    layer6()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 100
+        if value > 101
+          if value > 102
+            if value > 103
+              if value > 104
+                if value > 105
+                  if value > 106
+                    if value > 107
+                      if value > 108
+                        if value > 109
+                          if value > 110
+                            if value > 111
+                              if value > 112
+                                if value > 113
+                                  if value > 114
+                                    if value > 115
+                                      if value > 116
+                                        if value > 117
+                                          if value > 118
+                                            if value > 119
+                                              result: layer7(value)
+
+    layer5()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 80
+        if value > 81
+          if value > 82
+            if value > 83
+              if value > 84
+                if value > 85
+                  if value > 86
+                    if value > 87
+                      if value > 88
+                        if value > 89
+                          if value > 90
+                            if value > 91
+                              if value > 92
+                                if value > 93
+                                  if value > 94
+                                    if value > 95
+                                      if value > 96
+                                        if value > 97
+                                          if value > 98
+                                            if value > 99
+                                              result: layer6(value)
+
+    layer4()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 60
+        if value > 61
+          if value > 62
+            if value > 63
+              if value > 64
+                if value > 65
+                  if value > 66
+                    if value > 67
+                      if value > 68
+                        if value > 69
+                          if value > 70
+                            if value > 71
+                              if value > 72
+                                if value > 73
+                                  if value > 74
+                                    if value > 75
+                                      if value > 76
+                                        if value > 77
+                                          if value > 78
+                                            if value > 79
+                                              result: layer5(value)
+
+    layer3()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 40
+        if value > 41
+          if value > 42
+            if value > 43
+              if value > 44
+                if value > 45
+                  if value > 46
+                    if value > 47
+                      if value > 48
+                        if value > 49
+                          if value > 50
+                            if value > 51
+                              if value > 52
+                                if value > 53
+                                  if value > 54
+                                    if value > 55
+                                      if value > 56
+                                        if value > 57
+                                          if value > 58
+                                            if value > 59
+                                              result: layer4(value)
+
+    layer2()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 20
+        if value > 21
+          if value > 22
+            if value > 23
+              if value > 24
+                if value > 25
+                  if value > 26
+                    if value > 27
+                      if value > 28
+                        if value > 29
+                          if value > 30
+                            if value > 31
+                              if value > 32
+                                if value > 33
+                                  if value > 34
+                                    if value > 35
+                                      if value > 36
+                                        if value > 37
+                                          if value > 38
+                                            if value > 39
+                                              result: layer3(value)
+
+    layer1()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 0
+        if value > 1
+          if value > 2
+            if value > 3
+              if value > 4
+                if value > 5
+                  if value > 6
+                    if value > 7
+                      if value > 8
+                        if value > 9
+                          if value > 10
+                            if value > 11
+                              if value > 12
+                                if value > 13
+                                  if value > 14
+                                    if value > 15
+                                      if value > 16
+                                        if value > 17
+                                          if value > 18
+                                            if value > 19
+                                              result: layer2(value)
+
+    testSplit200Levels()
+      result <- layer1(200)
+      assert result?
+
+//EOF

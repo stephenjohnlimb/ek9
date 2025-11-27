@@ -1,0 +1,81 @@
+#!ek9
+<?-
+  Mutation Test: Excessive Nesting (60 levels)
+  Tests EXCESSIVE_COMPLEXITY detection for deep single-function nesting.
+
+  Complexity: 1 (base) + 60 (if blocks) + 60 (comparisons) = 121 (exceeds 50 limit by 71)
+  Should trigger EXCESSIVE_COMPLEXITY error.
+-?>
+defines module fuzztest.mutation.invalid.nesting.if060
+
+  @Complexity: PRE_IR_CHECKS: FUNCTION: "testExcessiveNesting60": 121
+  defines function
+
+    @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+    testExcessiveNesting60()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 0
+        if value > 1
+          if value > 2
+            if value > 3
+              if value > 4
+                if value > 5
+                  if value > 6
+                    if value > 7
+                      if value > 8
+                        if value > 9
+                          if value > 10
+                            if value > 11
+                              if value > 12
+                                if value > 13
+                                  if value > 14
+                                    if value > 15
+                                      if value > 16
+                                        if value > 17
+                                          if value > 18
+                                            if value > 19
+                                              if value > 20
+                                                if value > 21
+                                                  if value > 22
+                                                    if value > 23
+                                                      if value > 24
+                                                        if value > 25
+                                                          if value > 26
+                                                            if value > 27
+                                                              if value > 28
+                                                                if value > 29
+                                                                  if value > 30
+                                                                    if value > 31
+                                                                      if value > 32
+                                                                        if value > 33
+                                                                          if value > 34
+                                                                            if value > 35
+                                                                              if value > 36
+                                                                                if value > 37
+                                                                                  if value > 38
+                                                                                    if value > 39
+                                                                                      if value > 40
+                                                                                        if value > 41
+                                                                                          if value > 42
+                                                                                            if value > 43
+                                                                                              if value > 44
+                                                                                                if value > 45
+                                                                                                  if value > 46
+                                                                                                    if value > 47
+                                                                                                      if value > 48
+                                                                                                        if value > 49
+                                                                                                          if value > 50
+                                                                                                            if value > 51
+                                                                                                              if value > 52
+                                                                                                                if value > 53
+                                                                                                                  if value > 54
+                                                                                                                    if value > 55
+                                                                                                                      if value > 56
+                                                                                                                        if value > 57
+                                                                                                                          if value > 58
+                                                                                                                            if value > 59
+                                                                                                                              result: 60
+
+//EOF

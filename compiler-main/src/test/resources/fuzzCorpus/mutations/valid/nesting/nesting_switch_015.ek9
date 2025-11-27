@@ -1,0 +1,82 @@
+#!ek9
+<?-
+  Mutation Test: Nested Switch Statements (15 levels)
+  Tests compiler/parser handling of deep switch nesting.
+
+  Complexity: 1 (base) + 15 (case expressions) + 15 (default cases) = 31 (under 50 limit)
+  Note: switch itself doesn't add complexity, but each case and default does.
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.nesting.switch015
+
+  defines function
+
+    testNestedSwitch15Levels()
+      -> value as Integer
+      <- result as Integer: 0
+
+      switch value
+        case > 0
+          switch value
+            case > 1
+              switch value
+                case > 2
+                  switch value
+                    case > 3
+                      switch value
+                        case > 4
+                          switch value
+                            case > 5
+                              switch value
+                                case > 6
+                                  switch value
+                                    case > 7
+                                      switch value
+                                        case > 8
+                                          switch value
+                                            case > 9
+                                              switch value
+                                                case > 10
+                                                  switch value
+                                                    case > 11
+                                                      switch value
+                                                        case > 12
+                                                          switch value
+                                                            case > 13
+                                                              switch value
+                                                                case > 14
+                                                                  result: 15
+                                                                default
+                                                                  result: 14
+                                                            default
+                                                              result: 13
+                                                        default
+                                                          result: 12
+                                                    default
+                                                      result: 11
+                                                default
+                                                  result: 10
+                                            default
+                                              result: 9
+                                        default
+                                          result: 8
+                                    default
+                                      result: 7
+                                default
+                                  result: 6
+                            default
+                              result: 5
+                        default
+                          result: 4
+                    default
+                      result: 3
+                default
+                  result: 2
+            default
+              result: 1
+        default
+          result: 0
+
+      assert result?
+
+//EOF
