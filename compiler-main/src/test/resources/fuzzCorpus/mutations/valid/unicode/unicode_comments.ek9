@@ -1,0 +1,149 @@
+#!ek9
+<?-
+  Unicode Mutation Test: Unicode in Comments
+  Tests compiler handling of Unicode in comment blocks.
+
+  Validates: Various Unicode scripts, emoji, RTL text in comments
+  All code identifiers remain ASCII, Unicode in documentation.
+
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.unicode.comments
+
+  <?-
+    Documentation in multiple languages:
+    English: This function demonstrates Unicode in comments
+    Spanish: Esta función demuestra Unicode en comentarios
+    French: Cette fonction démontre Unicode dans les commentaires
+    German: Diese Funktion demonstriert Unicode in Kommentaren
+  -?>
+  defines function
+
+    <?- Russian comment: Привет мир -?>
+    testRussianComment()
+      value <- 42
+      assert value?
+
+    <?- Chinese comment: 你好世界 -?>
+    testChineseComment()
+      value <- "test"
+      assert value?
+
+    <?- Japanese comment: こんにちは世界 -?>
+    testJapaneseComment()
+      value <- true
+      assert value?
+
+    <?- Korean comment: 안녕하세요 세계 -?>
+    testKoreanComment()
+      value <- 123
+      assert value?
+
+    <?- Arabic comment: مرحبا بالعالم -?>
+    testArabicComment()
+      value <- "arabic"
+      assert value?
+
+    <?- Hebrew comment: שלום עולם -?>
+    testHebrewComment()
+      value <- "hebrew"
+      assert value?
+
+    <?-
+      Emoji in comments work too! 😊👍✨
+      Build status: ✅ Passing
+      Test coverage: 💯 Complete
+      Performance: 🚀 Fast
+    -?>
+    testEmojiComment()
+      status <- "passing"
+      assert status?
+
+    <?-
+      Mixed scripts in single comment:
+      English: Hello
+      Spanish: Hola
+      Russian: Привет
+      Chinese: 你好
+      Arabic: مرحبا
+      Hebrew: שלום
+      Japanese: こんにちは
+      Korean: 안녕하세요
+    -?>
+    testMixedScriptComment()
+      languages <- 8
+      assert languages?
+
+    <?-
+      Bidirectional (BiDi) text in comments:
+      User: أحمد (Ahmed) - ID: 12345
+      Status: نشط (Active)
+      Location: القاهرة (Cairo)
+    -?>
+    testBiDiComment()
+      user_id <- 12345
+      assert user_id?
+
+    <?-
+      Technical documentation with Unicode:
+      Mathematical symbols: ∀x ∈ ℝ, x² ≥ 0
+      Greek letters: α, β, γ, δ, ε, θ, λ, π, σ, ω
+      Arrows: → ← ↔ ⇒ ⇐ ⇔
+      Logic: ∧ ∨ ¬ ⊕ ∃ ∀
+    -?>
+    testTechnicalUnicodeComment()
+      formula <- "x^2"
+      assert formula?
+
+    <?-
+      Box drawing characters in comments:
+      ┌───────────────┐
+      │ Test Results  │
+      ├───────────────┤
+      │ ✅ Pass: 100  │
+      │ ❌ Fail: 0    │
+      └───────────────┘
+    -?>
+    testBoxDrawingComment()
+      pass_count <- 100
+      fail_count <- 0
+      assert pass_count?
+      assert fail_count == 0
+
+    <?-
+      Currency symbols: $ € £ ¥ ₹ ₽ ₿
+      Copyright: © 2024
+      Trademark: ™ ®
+      Degree: 温度 25°C
+    -?>
+    testSymbolsComment()
+      temperature <- 25
+      assert temperature?
+
+    <?-
+      Long comment with extensive Unicode content to test parser robustness:
+
+      This is a comprehensive test of Unicode in EK9 comments. The EK9 language
+      supports full Unicode in string literals and comments, allowing developers
+      to write documentation in their native language.
+
+      Examples in different scripts:
+      - Latin Extended: José, café, naïve, Zürich
+      - Cyrillic: Москва, Київ, София
+      - CJK: 北京, 東京, 서울
+      - Arabic: القاهرة, بغداد, دمشق
+      - Hebrew: ירושלים, תל אביב
+      - Devanagari: मुंबई, दिल्ली
+      - Thai: กรุงเทพ
+
+      Mathematical notation: ∫₀^∞ e^(-x²) dx = √π/2
+
+      Emoji for documentation: 📝 Note, ⚠️ Warning, ✅ Success, ❌ Error
+
+      This demonstrates that EK9 properly handles Unicode in all comment contexts.
+    -?>
+    testExtensiveUnicodeComment()
+      comprehensive_test <- true
+      assert comprehensive_test?
+
+//EOF

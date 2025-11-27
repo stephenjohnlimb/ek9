@@ -1,0 +1,133 @@
+#!ek9
+<?-
+  Unicode Mutation Test: RTL (Right-to-Left) Text
+  Tests compiler handling of RTL scripts in string literals.
+
+  Validates: Arabic, Hebrew, and bidirectional text mixing
+  Identifiers remain ASCII (LTR), RTL only in strings.
+
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.unicode.rtl
+
+  defines function
+
+    testArabic()
+      // Arabic script (RTL)
+      greeting <- "مرحبا"              // Hello
+      world <- "العالم"                // World
+      hello_world <- "مرحبا بالعالم"   // Hello World
+
+      programming <- "البرمجة"         // Programming
+      computer <- "حاسوب"              // Computer
+      language <- "لغة البرمجة"       // Programming Language
+
+      assert greeting?
+      assert world?
+      assert hello_world?
+      assert programming?
+      assert computer?
+      assert language?
+
+    testHebrew()
+      // Hebrew script (RTL)
+      greeting <- "שלום"               // Hello/Peace
+      world <- "עולם"                  // World
+      hello_world <- "שלום עולם"      // Hello World
+
+      programming <- "תכנות"           // Programming
+      computer <- "מחשב"               // Computer
+      language <- "שפת תכנות"          // Programming Language
+
+      assert greeting?
+      assert world?
+      assert hello_world?
+      assert programming?
+      assert computer?
+      assert language?
+
+    testArabicNumbers()
+      // Arabic with Arabic-Indic numerals
+      numbers <- "١٢٣٤٥٦٧٨٩٠"        // Arabic-Indic digits 1234567890
+      mixed <- "العدد ١٢٣"             // Number 123
+
+      assert numbers?
+      assert mixed?
+
+    testBidirectionalText()
+      // Mix of LTR (Latin) and RTL (Arabic/Hebrew) - BiDi
+      mixed_arabic <- "Hello مرحبا World"
+      mixed_hebrew <- "Programming תכנות Language"
+
+      // Email-like pattern with RTL
+      email_like <- "user@example.com (مرحبا)"
+
+      // Path-like with RTL
+      path_like <- "/home/مستخدم/documents"
+
+      assert mixed_arabic?
+      assert mixed_hebrew?
+      assert email_like?
+      assert path_like?
+
+    testRTLWithPunctuation()
+      // RTL text with Latin punctuation
+      sentence_arabic <- "مرحبا، كيف حالك؟"  // Hello, how are you?
+      sentence_hebrew <- "שלום, מה שלומך?"   // Hello, how are you?
+
+      question_arabic <- "ما اسمك؟"         // What is your name?
+      question_hebrew <- "מה שמך?"          // What is your name?
+
+      assert sentence_arabic?
+      assert sentence_hebrew?
+      assert question_arabic?
+      assert question_hebrew?
+
+    testRTLWithQuotes()
+      // RTL text with embedded quotes
+      quoted_arabic <- "قال \"مرحبا\" للجميع"
+      quoted_hebrew <- "הוא אמר \"שלום\" לכולם"
+
+      assert quoted_arabic?
+      assert quoted_hebrew?
+
+    testComplexBiDi()
+      // Complex bidirectional scenarios
+      // English + Arabic + numbers + punctuation
+      complex1 <- "User: أحمد (ID: 12345) - Status: نشط"
+
+      // Hebrew name in English sentence
+      complex2 <- "Welcome to the system, שמואל!"
+
+      // Mix all three
+      complex3 <- "System: 123, User: José, Status: نشط, Note: תקין"
+
+      assert complex1?
+      assert complex2?
+      assert complex3?
+
+    testRTLInStringOperations()
+      // Test RTL strings work with operators
+      arabic1 <- "مرحبا"
+      arabic2 <- "العالم"
+      combined <- arabic1 + " " + arabic2
+
+      assert combined?
+      assert combined == "مرحبا العالم"
+
+      hebrew1 <- "שלום"
+      hebrew2 <- "עולם"
+      combined_hebrew <- hebrew1 + " " + hebrew2
+
+      assert combined_hebrew?
+      assert combined_hebrew == "שלום עולם"
+
+    testRTLWithEmoji()
+      // RTL text mixed with emoji
+      arabic_emoji <- "مرحبا 👋 كيف حالك؟ 😊"
+      hebrew_emoji <- "שלום 👋 מה שלומך? 😊"
+
+      assert arabic_emoji?
+      assert hebrew_emoji?
+
+//EOF

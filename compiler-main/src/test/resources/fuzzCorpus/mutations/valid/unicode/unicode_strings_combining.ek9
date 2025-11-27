@@ -1,0 +1,124 @@
+#!ek9
+<?-
+  Unicode Mutation Test: Combining Characters and Special Cases
+  Tests compiler handling of combining marks, zero-width characters, etc.
+
+  Validates: Combining diacriticals, zero-width joiners, normalization forms
+  Identifiers remain ASCII, complex Unicode only in strings.
+
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.unicode.combining
+
+  defines function
+
+    testCombiningDiacriticals()
+      // Base character + combining diacritical marks
+      e_acute <- "é"          // e + combining acute (U+0301)
+      n_tilde <- "ñ"          // n + combining tilde (U+0303)
+      a_ring <- "å"           // a + combining ring above (U+030A)
+
+      // Multiple combining marks on same base
+      complex <- "ệ"          // e + circumflex + dot below
+
+      assert e_acute?
+      assert n_tilde?
+      assert a_ring?
+      assert complex?
+
+    testCombiningSequences()
+      // Longer sequences with combining marks
+      vietnamese <- "Tiếng Việt"     // Vietnamese with tone marks
+      turkish <- "İstanbul"           // Turkish with dotted I
+      polish <- "Łódź"                // Polish with stroke
+
+      assert vietnamese?
+      assert turkish?
+      assert polish?
+
+    testZeroWidthJoiner()
+      // Zero-Width Joiner (ZWJ) - used in emoji and Indic scripts
+      family_emoji <- "👨‍👩‍👧‍👦"      // ZWJ sequences
+      indian <- "क्ष"                  // Devanagari with ZWJ
+
+      assert family_emoji?
+      assert indian?
+
+    testZeroWidthNonJoiner()
+      // Zero-Width Non-Joiner (ZWNJ) - prevents ligatures
+      persian <- "می‌خواهم"          // Persian with ZWNJ
+
+      assert persian?
+
+    testZeroWidthSpace()
+      // Zero-Width Space (ZWSP) - invisible word break
+      with_zwsp <- "word​break"       // Contains U+200B between words
+
+      assert with_zwsp?
+
+    testNormalizationForms()
+      // Same visual character, different Unicode representations
+      // NFC (composed): é = U+00E9
+      nfc_form <- "café"
+
+      // NFD (decomposed): é = e (U+0065) + ́ (U+0301)
+      nfd_form <- "café"
+
+      // Both should be valid strings
+      assert nfc_form?
+      assert nfd_form?
+
+    testVariationSelectors()
+      // Variation selectors change character presentation
+      text_style <- "☺︎"       // Text presentation
+      emoji_style <- "☺️"      // Emoji presentation
+
+      assert text_style?
+      assert emoji_style?
+
+    testDirectionalMarks()
+      // Left-to-Right Mark (LRM) and Right-to-Left Mark (RLM)
+      with_lrm <- "Test‎Text"  // Contains LRM (U+200E)
+      with_rlm <- "Test‏Text"  // Contains RLM (U+200F)
+
+      assert with_lrm?
+      assert with_rlm?
+
+    testControlCharacters()
+      // Soft hyphen (invisible unless at line break)
+      with_soft_hyphen <- "soft­hyphen"  // Contains U+00AD
+
+      // Non-breaking space
+      with_nbsp <- "non breaking"        // Contains U+00A0
+
+      assert with_soft_hyphen?
+      assert with_nbsp?
+
+    testUnicodeNormalization()
+      // Test that different normalizations are handled
+      precomposed <- "Ω"     // Ohm sign U+2126
+      omega <- "Ω"            // Greek capital omega U+03A9
+
+      // Both should work in strings
+      assert precomposed?
+      assert omega?
+
+    testComplexCombiningSequences()
+      // Multiple combining marks creating complex glyphs
+      devanagari <- "हिन्दी"            // Hindi with multiple combining marks
+      thai <- "ภาษาไทย"                  // Thai with tone marks
+      arabic_marks <- "اَلْعَرَبِيَّة"   // Arabic with diacriticals
+
+      assert devanagari?
+      assert thai?
+      assert arabic_marks?
+
+    testEdgeCases()
+      // Grapheme clusters that span multiple code points
+      flag_england <- "🏴󠁧󠁢󠁥󠁮󠁧󠁿"  // Flag: England (7 code points!)
+      keycap <- "5️⃣"                     // Keycap 5
+
+      assert flag_england?
+      assert keycap?
+
+//EOF

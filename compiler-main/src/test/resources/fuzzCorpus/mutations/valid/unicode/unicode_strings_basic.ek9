@@ -1,0 +1,94 @@
+#!ek9
+<?-
+  Unicode Mutation Test: Basic Unicode Strings
+  Tests compiler handling of various Unicode scripts in string literals.
+
+  Validates: Latin Extended, Cyrillic, Chinese (CJK), Japanese, Korean
+  All identifiers remain ASCII (by design), Unicode only in strings.
+
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.unicode.basic
+
+  defines function
+
+    testLatinExtended()
+      // Latin Extended characters (European languages)
+      spanish <- "José García - Niño pequeño"
+      french <- "Café français - Œuvre d'art"
+      german <- "Günter Müller - Größe"
+      portuguese <- "João Façanha - Ação"
+
+      assert spanish?
+      assert french?
+      assert german?
+      assert portuguese?
+
+    testCyrillic()
+      // Cyrillic script (Russian, Ukrainian, etc.)
+      russian <- "Привет мир - Hello World"
+      ukrainian <- "Доброго дня - Good day"
+      bulgarian <- "Здравейте - Hello"
+
+      assert russian?
+      assert ukrainian?
+      assert bulgarian?
+
+    testChineseSimplified()
+      // Simplified Chinese (CJK)
+      greeting <- "你好世界"          // Hello World
+      numbers <- "一二三四五"         // Numbers 1-5
+      phrase <- "学习编程很有趣"       // Learning programming is fun
+
+      assert greeting?
+      assert numbers?
+      assert phrase?
+
+    testChineseTraditional()
+      // Traditional Chinese
+      greeting <- "您好世界"          // Hello World
+      phrase <- "學習程式設計"        // Learning programming
+
+      assert greeting?
+      assert phrase?
+
+    testJapanese()
+      // Japanese (Hiragana, Katakana, Kanji)
+      hiragana <- "こんにちは"       // Hello (Hiragana)
+      katakana <- "コンピュータ"     // Computer (Katakana)
+      kanji <- "日本語プログラミング" // Japanese Programming (Mixed)
+
+      assert hiragana?
+      assert katakana?
+      assert kanji?
+
+    testKorean()
+      // Korean (Hangul)
+      greeting <- "안녕하세요"        // Hello
+      programming <- "프로그래밍"     // Programming
+      computer <- "컴퓨터 과학"       // Computer Science
+
+      assert greeting?
+      assert programming?
+      assert computer?
+
+    testMixedScripts()
+      // Mixed scripts in single string
+      mixed1 <- "Hello Привет 你好 안녕"
+      mixed2 <- "User: José (Ж) 李明"
+      mixed3 <- "Café 咖啡 커피"
+
+      assert mixed1?
+      assert mixed2?
+      assert mixed3?
+
+    testUnicodeInStringOperations()
+      // Test that Unicode strings work with operators
+      name1 <- "José"
+      name2 <- "María"
+      fullName <- name1 + " " + name2
+
+      assert fullName?
+      assert fullName == "José María"
+
+//EOF

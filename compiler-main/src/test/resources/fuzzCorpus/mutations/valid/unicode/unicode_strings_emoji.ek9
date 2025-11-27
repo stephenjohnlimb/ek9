@@ -1,0 +1,121 @@
+#!ek9
+<?-
+  Unicode Mutation Test: Emoji in Strings
+  Tests compiler handling of emoji and pictographic characters.
+
+  Validates: Basic emoji, skin tones, gender variants, multi-byte sequences
+  Identifiers remain ASCII, emoji only in string literals.
+
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.unicode.emoji
+
+  defines function
+
+    testBasicEmoji()
+      // Common emoji
+      faces <- "😀😃😄😁😆😅"
+      hands <- "👋👍👎✌️🤝👏"
+      hearts <- "❤️💙💚💛🧡💜"
+
+      assert faces?
+      assert hands?
+      assert hearts?
+
+    testEmojiWithText()
+      // Emoji mixed with regular text
+      greeting <- "Hello 👋 World 🌍"
+      status <- "Build successful ✅"
+      error <- "Error occurred ❌"
+      warning <- "Warning ⚠️ Check logs"
+
+      assert greeting?
+      assert status?
+      assert error?
+      assert warning?
+
+    testEmojiSkinTones()
+      // Emoji with skin tone modifiers
+      hand1 <- "👋🏻"  // Light skin tone
+      hand2 <- "👋🏽"  // Medium skin tone
+      hand3 <- "👋🏿"  // Dark skin tone
+
+      thumbs1 <- "👍🏻👍🏼👍🏽👍🏾👍🏿"
+
+      assert hand1?
+      assert hand2?
+      assert hand3?
+      assert thumbs1?
+
+    testEmojiGenderVariants()
+      // Emoji with gender variants and ZWJ sequences
+      person <- "👨👩🧑"
+      professional <- "👨‍💻👩‍💻"  // Programmer (with ZWJ)
+      family <- "👨‍👩‍👧‍👦"        // Family (multiple ZWJ)
+
+      assert person?
+      assert professional?
+      assert family?
+
+    testEmojiFlags()
+      // Country flags (regional indicator symbols)
+      flags <- "🇺🇸🇬🇧🇫🇷🇩🇪🇯🇵🇨🇳"
+
+      assert flags?
+
+    testEmojiObjects()
+      // Various object emoji
+      tech <- "💻📱⌚️🖥️⌨️🖱️"
+      food <- "🍕🍔🍟🍿🥤🍦"
+      travel <- "✈️🚗🚕🚙🚌🚎"
+      nature <- "🌲🌳🌴🌱🌿🍀"
+
+      assert tech?
+      assert food?
+      assert travel?
+      assert nature?
+
+    testEmojiSymbols()
+      // Symbols and special emoji
+      arrows <- "⬆️⬇️⬅️➡️↗️↘️"
+      math <- "➕➖✖️➗"
+      checks <- "✅✔️☑️❎"
+      stars <- "⭐️🌟✨💫"
+
+      assert arrows?
+      assert math?
+      assert checks?
+      assert stars?
+
+    testEmojiSequences()
+      // Complex multi-code-point sequences
+      kiss <- "💏"      // Kiss
+      couple <- "💑"    // Couple with heart
+      rainbow <- "🌈"   // Rainbow
+      flag <- "🏳️‍🌈"    // Rainbow flag (ZWJ sequence)
+
+      assert kiss?
+      assert couple?
+      assert rainbow?
+      assert flag?
+
+    testEmojiInStringOperations()
+      // Test emoji work with string operations
+      part1 <- "Hello 👋"
+      part2 <- " World 🌍"
+      combined <- part1 + part2
+
+      assert combined?
+      assert combined == "Hello 👋 World 🌍"
+
+    testMixedUnicodeAndEmoji()
+      // Mix regular Unicode and emoji
+      mixed1 <- "José says 👋 to María"
+      mixed2 <- "Привет 🇷🇺 Hello 🇺🇸 你好 🇨🇳"
+      mixed3 <- "Programming 💻 is fun! 😄"
+
+      assert mixed1?
+      assert mixed2?
+      assert mixed3?
+
+//EOF

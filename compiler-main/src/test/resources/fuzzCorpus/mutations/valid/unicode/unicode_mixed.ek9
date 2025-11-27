@@ -1,0 +1,161 @@
+#!ek9
+<?-
+  Unicode Mutation Test: Mixed Scenarios and Edge Cases
+  Tests compiler handling of complex Unicode combinations.
+
+  Validates: Edge cases, stress tests, real-world patterns
+  All identifiers remain ASCII, complex Unicode in strings/comments.
+
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.unicode.mixed
+
+  defines function
+
+    testRealWorldUserNames()
+      // Real-world international names
+      names <- ["José García", "François Müller", "Владимир Иванов",
+                "李明", "محمد علي", "שרה כהן", "Åse Østergård"]
+
+      assert names?
+
+    testRealWorldEmails()
+      // Email-like patterns with Unicode in display names
+      email1 <- "José García <jose@example.com>"
+      email2 <- "François Müller <francois@example.com>"
+      email3 <- "李明 <liming@example.com>"
+
+      assert email1?
+      assert email2?
+      assert email3?
+
+    testRealWorldAddresses()
+      // International address formats
+      address1 <- "123 Straße, München, Deutschland"
+      address2 <- "北京市朝阳区"
+      address3 <- "القاهرة، مصر"
+
+      assert address1?
+      assert address2?
+      assert address3?
+
+    testMultilineUnicode()
+      // Unicode with newline escapes
+      poem <- "Roses are red 🌹\nViolets are blue 💙\nUnicode works ✨\nIn EK9 too 🎉"
+
+      assert poem?
+
+    testEscapeSequencesWithUnicode()
+      // Mix escape sequences and Unicode
+      mixed <- "Line 1: Hello\nLine 2: 你好\nLine 3: مرحبا"
+
+      assert mixed?
+
+    testUnicodeInAssertions()
+      // Unicode in comparison operations
+      name1 <- "José"
+      name2 <- "José"
+
+      assert name1 == name2
+
+      emoji1 <- "👋"
+      emoji2 <- "👋"
+
+      assert emoji1 == emoji2
+
+    testUnicodeStringLength()
+      // Test length calculations with Unicode
+      ascii_str <- "hello"      // 5 ASCII characters
+      unicode_str <- "你好"      // 2 CJK characters
+      emoji_str <- "👋🌍"        // 2 emoji (may be multiple code points each)
+
+      assert ascii_str?
+      assert unicode_str?
+      assert emoji_str?
+
+    testUnicodeInListsAndCollections()
+      // Unicode in collection types
+      multi_language_list <- ["Hello", "Hola", "Привет", "你好", "مرحبا"]
+      emoji_list <- ["😀", "😃", "😄", "😁", "😆"]
+
+      assert multi_language_list?
+      assert emoji_list?
+
+    testComplexUnicodeMixing()
+      // Extremely mixed content
+      complex <- "User: José 👤 | Status: نشط ✅ | Score: 💯 | Location: 東京 🗼"
+
+      assert complex?
+
+    testUnicodeEdgeCasesInStrings()
+      // Various edge cases
+      only_spaces <- "   "
+      only_emoji <- "😀😃😄"
+      only_arabic <- "مرحبا"
+      only_hebrew <- "שלום"
+      only_chinese <- "你好"
+
+      assert only_spaces?
+      assert only_emoji?
+      assert only_arabic?
+      assert only_hebrew?
+      assert only_chinese?
+
+    testUnicodeWithSpecialCharacters()
+      // Unicode mixed with special programming characters
+      json_like <- "{\"name\": \"José\", \"greeting\": \"👋\"}"
+      xml_like <- "<user name=\"François\" emoji=\"😊\"/>"
+      path_like <- "/home/用户/documents/文件.txt"
+
+      assert json_like?
+      assert xml_like?
+      assert path_like?
+
+    testLongUnicodeStrings()
+      // Stress test with long Unicode strings
+      long_mixed <- "Hello " + "مرحبا " + "你好 " + "こんにちは " + "안녕하세요 " +
+      "שלום " + "Привет " + "Bonjour " + "Hola " + "Ciao " +
+      "😀😃😄😁😆😅😂🤣😊😇"
+
+      assert long_mixed?
+
+    testUnicodeInInterpolation()
+      // Test Unicode in string interpolation contexts
+      name <- "José"
+      greeting <- `Hello ${name}! 👋`
+
+      assert greeting?
+
+    testReservedWordsWithUnicodeSuffix()
+      // ASCII reserved words with Unicode in separate strings
+      if_result <- "if: αληθινός"     // 'true' in Greek
+      while_result <- "while: пока"   // 'while' in Russian
+      for_result <- "for: 为"         // 'for' in Chinese
+
+      assert if_result?
+      assert while_result?
+      assert for_result?
+
+    testUnicodeInProgramLogic()
+      // Practical use: Localized messages
+      language <- "es"
+
+      message <- switch language
+        <- rtn as String: String()
+        case == "en"
+          rtn: "Hello World! 👋"
+        case == "es"
+          rtn: "¡Hola Mundo! 👋"
+        case == "ru"
+          rtn: "Привет мир! 👋"
+        case == "zh"
+          rtn: "你好世界！ 👋"
+        case == "ar"
+          rtn: "مرحبا بالعالم! 👋"
+        default
+          rtn: "Hello! 👋"
+
+      assert message?
+      assert message == "¡Hola Mundo! 👋"
+
+//EOF
