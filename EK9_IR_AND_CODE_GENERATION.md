@@ -74,6 +74,42 @@ This document provides comprehensive guidance for working with EK9's Intermediat
 
 **Note**: This document describes both **current implementation** (marked ✅ or 🔨) and **architectural design for future features** (marked 📋 DEFERRED). Deferred features have infrastructure in place but implementation is postponed until after feature completeness.
 
+### 🚨 Known Limitations and TODO Items
+
+#### Implicit Type Bytecode Generation (org.ek9.lang::_*)
+
+**Status**: ⚠️ WORKAROUND IN PLACE - Requires future implementation
+
+**Problem**: EK9 uses implicit/internal types for:
+- Parameterized generics: `_List_*`, `_Iterator_*`, `_Dict_*`, etc.
+- Abstract function signatures: `_Routine_*`, `_BiRoutine_*`, etc.
+
+These types exist in the EK9 type system for compile-time checking but **do not have bytecode generated**. Currently, constructs that would extend these types extend `java.lang.Object` instead.
+
+**Current Workaround** (in `AsmStructureCreator.java`):
+- `determineSuperclassName()`: Returns `Object` for implicit types
+- `injectSuperConstructorCall()`: Calls `Object.<init>()` for implicit types
+- `needsObjectSuperCall()`: Returns true for implicit types
+
+**What Works**:
+- Direct function inheritance chains: `helloGreeting → baseGreeting → Object`
+- Abstract functions with concrete implementations
+- Simple parameterized type usage (when types are resolved)
+
+**What Does NOT Work** (requires future implementation):
+- True function polymorphism (holding concrete function via abstract signature type)
+- Runtime type checks against implicit types
+- Generic type instantiation at runtime
+
+**When to Implement**: When tackling:
+1. Generic/parameterized functions (`List<String>`, `Iterator<T>`)
+2. True function polymorphism (variables typed as abstract function signatures)
+
+**Files with TODO markers**:
+- `compiler-main/src/main/java/org/ek9lang/compiler/backend/jvm/AsmStructureCreator.java`
+  - See `determineSuperclassName()` javadoc for main TODO
+  - See `injectSuperConstructorCall()` and `needsObjectSuperCall()` for related TODOs
+
 ## IR Generation Overview
 
 EK9's IR generation transforms resolved symbols from the compiler frontend phases into a target-agnostic intermediate representation that can be translated to multiple backends (JVM bytecode, LLVM IR, etc.).

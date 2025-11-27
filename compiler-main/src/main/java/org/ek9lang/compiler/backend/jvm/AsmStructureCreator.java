@@ -377,12 +377,12 @@ final class AsmStructureCreator implements Opcodes {
     final var mv = classWriter.visitMethod(ACC_PUBLIC, METHOD_INIT, constructorDescriptor, null, null);
     mv.visitCode();
 
-    // CRITICAL: Inject super() call if not already in IR.
-    // The IR generator skips super() calls when the superclass needs JVM-specific handling.
-    //
-    // EXCEPTION: If the constructor delegates with this(), skip the super() call.
-    // The delegated constructor will handle all initialization including super() calls.
-    if (!hasThisDelegation(operation)) {
+    // CRITICAL: Inject super() call only if IR doesn't have one.
+    // The IR generator adds super() calls when there's an explicit super type.
+    // We only inject when:
+    // 1. No this() delegation (delegated constructor handles super)
+    // 2. IR doesn't have super call (no explicit super type)
+    if (!hasThisDelegation(operation) && needsObjectSuperCall(construct)) {
       injectSuperConstructorCall(mv, construct);
     }
 
@@ -775,10 +775,32 @@ final class AsmStructureCreator implements Opcodes {
    * The abstract function types (like _Routine, _BiRoutine) are for EK9 type checking,
    * not JVM inheritance. Abstract function types don't have bytecode generated yet.
    * </p>
+   * <p>
+   * TODO: IMPLICIT TYPE BYTECODE GENERATION REQUIRED
+   * When implementing generics (List&lt;String&gt;, Iterator&lt;T&gt;) and true function polymorphism
+   * (holding concrete function via abstract signature type), we must generate bytecode for
+   * implicit types like _Routine_*, _List_*, _Iterator_*. Currently these types only exist
+   * in the EK9 type system for compile-time checking. This workaround (extending Object)
+   * supports direct inheritance chains (helloGreeting → baseGreeting → Object) but NOT
+   * polymorphic usage via abstract function signature types.
+   * See also: injectSuperConstructorCall(), needsObjectSuperCall()
+   * </p>
    */
   private String determineSuperclassName(final ISymbol symbol) {
-    // Functions always extend Object directly (abstract function types don't have bytecode)
-    if (symbol instanceof FunctionSymbol) {
+    // Handle function symbols - may extend other functions or implicit types
+    if (symbol instanceof FunctionSymbol functionSymbol) {
+      final var superFunction = functionSymbol.getSuperFunction();
+      if (superFunction.isPresent()) {
+        final var superName = superFunction.get().getFullyQualifiedName();
+        // TODO: Generate bytecode for implicit types (org.ek9.lang::_*) when implementing
+        // generics and function polymorphism. Currently we extend Object as a workaround.
+        if (superName.startsWith("org.ek9.lang::_")) {
+          return JAVA_LANG_OBJECT;
+        }
+        // User-defined super function - use it as superclass
+        return jvmNameConverter.apply(superName);
+      }
+      // No super function - extend Object directly
       return JAVA_LANG_OBJECT;
     }
 
@@ -808,11 +830,25 @@ final class AsmStructureCreator implements Opcodes {
   private void injectSuperConstructorCall(final MethodVisitor mv, final IRConstruct construct) {
     final var symbol = construct.getSymbol();
 
-    // Functions always call Object constructor directly
-    // (Abstract function types like _Routine don't have bytecode yet)
-    if (symbol instanceof FunctionSymbol) {
+    // Functions may extend other functions, so check for super function
+    if (symbol instanceof FunctionSymbol functionSymbol) {
       mv.visitVarInsn(ALOAD, 0);
-      mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_OBJECT, METHOD_INIT, DESC_VOID_TO_VOID, false);
+      final var superFunction = functionSymbol.getSuperFunction();
+      if (superFunction.isEmpty()) {
+        // No super function - call Object constructor directly
+        mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_OBJECT, METHOD_INIT, DESC_VOID_TO_VOID, false);
+      } else {
+        final var superName = superFunction.get().getFullyQualifiedName();
+        // TODO: When bytecode generation for implicit types (org.ek9.lang::_*) is implemented,
+        // call the actual super constructor instead of Object. See determineSuperclassName().
+        if (superName.startsWith("org.ek9.lang::_")) {
+          mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_OBJECT, METHOD_INIT, DESC_VOID_TO_VOID, false);
+        } else {
+          // User-defined super function - call its constructor
+          final var superJvmName = jvmNameConverter.apply(superName);
+          mv.visitMethodInsn(INVOKESPECIAL, superJvmName, METHOD_INIT, DESC_VOID_TO_VOID, false);
+        }
+      }
       return;
     }
 
@@ -866,8 +902,16 @@ final class AsmStructureCreator implements Opcodes {
 
     // Handle function symbols (functions use getSuperFunction instead of getSuperAggregate)
     if (symbol instanceof FunctionSymbol functionSymbol) {
+      final var superFunction = functionSymbol.getSuperFunction();
       // No super function = defaults to Object, need to inject super()
-      return functionSymbol.getSuperFunction().isEmpty();
+      if (superFunction.isEmpty()) {
+        return true;
+      }
+      // TODO: When bytecode generation for implicit types is implemented, this logic
+      // will need updating. See determineSuperclassName() for the main TODO.
+      // Currently: implicit types (org.ek9.lang::_*) don't have bytecode, so we inject Object super call.
+      final var superName = superFunction.get().getFullyQualifiedName();
+      return superName.startsWith("org.ek9.lang::_");
     }
 
     return false;

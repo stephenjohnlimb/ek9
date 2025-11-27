@@ -15,7 +15,9 @@ class FunctionsIRTest extends AbstractIRGenerationTest {
         List.of(
             new SymbolCountCheck("ir.test.functions.simple", 1),
             new SymbolCountCheck("ir.test.functions.multiparams", 1),
-            new SymbolCountCheck("ir.test.functions.returnvalue", 1)
+            new SymbolCountCheck("ir.test.functions.returnvalue", 1),
+            new SymbolCountCheck("ir.test.functions.abstract", 1),
+            new SymbolCountCheck("ir.test.functions.extendsabstract", 2)
         ), false, false, false);
   }
 

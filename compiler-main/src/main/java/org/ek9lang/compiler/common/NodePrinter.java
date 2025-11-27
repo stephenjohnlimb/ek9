@@ -51,8 +51,11 @@ public class NodePrinter implements INodeVisitor {
     final var debugLocation = operation.getDebugInfo() != null ? operation.getDebugInfo() : "";
     final var operationSignature = symbolSignatureGenerator.apply(symbol);
     printWriter.printf("OperationDfn: %s  %s%n", operationSignature, debugLocation);
-    // Using BasicBlock IR
-    operation.getBody().accept(this);
+    // Using BasicBlock IR - abstract operations have no body
+    final var body = operation.getBody();
+    if (body != null) {
+      body.accept(this);
+    }
 
   }
 
