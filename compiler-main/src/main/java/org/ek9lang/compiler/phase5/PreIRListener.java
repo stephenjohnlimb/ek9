@@ -15,6 +15,7 @@ import org.ek9lang.compiler.common.ScopeStackConsistencyListener;
 final class PreIRListener extends ScopeStackConsistencyListener {
 
   private final ComplexityCounter complexityCounter = new ComplexityCounter();
+  private final NestingDepthCounter nestingCounter = new NestingDepthCounter();
   private final FormOfComparator formOfComparator = new FormOfComparator();
   private final FormOfBooleanLogic formOfBooleanLogic;
   private final VariableOnlyOrError variableOnlyOrError;
@@ -35,6 +36,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   private final AcceptableArgumentComplexityOrError acceptableArgumentComplexityOrError;
   private final IdentifierAsPropertyOrError processIdentifierAsProperty;
   private final AcceptableConstructComplexityOrError acceptableConstructComplexityOrError;
+  private final AcceptableNestingDepthOrError acceptableNestingOrError;
   private final SuitablePropertyInitialisationOrError suitablePropertyInitialisationOrError;
   private final ObjectAccessExpressionValidOrError objectAccessExpressionValidOrError;
   private final IfBlockSafeGenericAccessMarker ifBlockSafeGenericAccessMarker;
@@ -89,6 +91,8 @@ final class PreIRListener extends ScopeStackConsistencyListener {
         new IdentifierAsPropertyOrError(symbolsAndScopes, errorListener);
     this.acceptableConstructComplexityOrError =
         new AcceptableConstructComplexityOrError(symbolsAndScopes, errorListener, complexityCounter);
+    this.acceptableNestingOrError =
+        new AcceptableNestingDepthOrError(symbolsAndScopes, errorListener, nestingCounter);
     this.suitablePropertyInitialisationOrError =
         new SuitablePropertyInitialisationOrError(symbolsAndScopes, errorListener);
     this.objectAccessExpressionValidOrError =
@@ -231,13 +235,14 @@ final class PreIRListener extends ScopeStackConsistencyListener {
     symbolHasTypeOrError.accept(ctx);
 
     complexityCounter.push(1);
+    nestingCounter.pushScope();
     super.enterFunctionDeclaration(ctx);
   }
 
   @Override
   public void exitFunctionDeclaration(final EK9Parser.FunctionDeclarationContext ctx) {
 
-    functionOrError.andThen(acceptableConstructComplexityOrError).accept(ctx);
+    functionOrError.andThen(acceptableConstructComplexityOrError).andThen(acceptableNestingOrError).accept(ctx);
     super.exitFunctionDeclaration(ctx);
   }
 
@@ -247,13 +252,14 @@ final class PreIRListener extends ScopeStackConsistencyListener {
     symbolHasTypeOrError.accept(ctx);
 
     complexityCounter.push(1);
+    nestingCounter.pushScope();
     super.enterMethodDeclaration(ctx);
   }
 
   @Override
   public void exitMethodDeclaration(final EK9Parser.MethodDeclarationContext ctx) {
 
-    methodOrError.andThen(acceptableConstructComplexityOrError).accept(ctx);
+    methodOrError.andThen(acceptableConstructComplexityOrError).andThen(acceptableNestingOrError).accept(ctx);
     super.exitMethodDeclaration(ctx);
   }
 
@@ -263,13 +269,14 @@ final class PreIRListener extends ScopeStackConsistencyListener {
     symbolHasTypeOrError.accept(ctx);
 
     complexityCounter.push(1);
+    nestingCounter.pushScope();
     super.enterOperatorDeclaration(ctx);
   }
 
   @Override
   public void exitOperatorDeclaration(final EK9Parser.OperatorDeclarationContext ctx) {
 
-    operatorOrError.andThen(acceptableConstructComplexityOrError).accept(ctx);
+    operatorOrError.andThen(acceptableConstructComplexityOrError).andThen(acceptableNestingOrError).accept(ctx);
     super.exitOperatorDeclaration(ctx);
   }
 
@@ -279,13 +286,14 @@ final class PreIRListener extends ScopeStackConsistencyListener {
     symbolHasTypeOrError.accept(ctx);
 
     complexityCounter.push(1);
+    nestingCounter.pushScope();
     super.enterServiceOperationDeclaration(ctx);
   }
 
   @Override
   public void exitServiceOperationDeclaration(final EK9Parser.ServiceOperationDeclarationContext ctx) {
 
-    serviceOperationOrError.andThen(acceptableConstructComplexityOrError).accept(ctx);
+    serviceOperationOrError.andThen(acceptableConstructComplexityOrError).andThen(acceptableNestingOrError).accept(ctx);
     super.exitServiceOperationDeclaration(ctx);
   }
 
@@ -303,6 +311,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
     //Quite complex to understand.
     complexityCounter.push(2);
+    nestingCounter.pushScope();
     processDynamicFunctionDeclarationEntry.accept(ctx);
     super.enterDynamicFunctionDeclaration(ctx);
   }
@@ -310,7 +319,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   @Override
   public void exitDynamicFunctionDeclaration(final EK9Parser.DynamicFunctionDeclarationContext ctx) {
 
-    dynamicFunctionOrError.andThen(acceptableConstructComplexityOrError).accept(ctx);
+    dynamicFunctionOrError.andThen(acceptableConstructComplexityOrError).andThen(acceptableNestingOrError).accept(ctx);
 
     super.exitDynamicFunctionDeclaration(ctx);
   }
@@ -451,6 +460,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
     symbolHasTypeOrError.accept(ctx);
     forLoopSafeGenericAccessMarker.accept(ctx);
+    nestingCounter.enterNesting();
     super.enterForStatementExpression(ctx);
   }
 
@@ -501,6 +511,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
     symbolHasTypeOrError.accept(ctx);
     tryBlockSafeGenericAccessMarker.accept(ctx);
     complexityCounter.incrementComplexity();
+    nestingCounter.enterNesting();
     super.enterTryStatementExpression(ctx);
   }
 
@@ -596,6 +607,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
     complexityCounter.incrementComplexity();
     whileLoopSafeGenericAccessMarker.accept(ctx);
+    nestingCounter.enterNesting();
 
     super.enterWhileStatementExpression(ctx);
   }
@@ -686,11 +698,19 @@ final class PreIRListener extends ScopeStackConsistencyListener {
   }
 
   @Override
+  public void enterIfStatement(final EK9Parser.IfStatementContext ctx) {
+
+    nestingCounter.enterNesting();
+    super.enterIfStatement(ctx);
+  }
+
+  @Override
   public void exitIfStatement(final EK9Parser.IfStatementContext ctx) {
 
     //Note that exit to pop stack first.
     super.exitIfStatement(ctx);
 
+    nestingCounter.exitNesting();
     ifStatementOrError.accept(ctx);
   }
 
@@ -699,6 +719,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
     symbolHasTypeOrError.accept(ctx);
     switchBlockSafeGenericAccessMarker.accept(ctx);
+    nestingCounter.enterNesting();
     super.enterSwitchStatementExpression(ctx);
   }
 
@@ -707,6 +728,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
     super.exitSwitchStatementExpression(ctx);
 
+    nestingCounter.exitNesting();
     switchStatementOrError.accept(ctx);
   }
 
@@ -715,6 +737,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
     super.exitTryStatementExpression(ctx);
 
+    nestingCounter.exitNesting();
     tryStatementOrError.accept(ctx);
   }
 
@@ -723,6 +746,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
     super.exitForStatementExpression(ctx);
 
+    nestingCounter.exitNesting();
     forStatementOrError.accept(ctx);
   }
 
@@ -731,6 +755,7 @@ final class PreIRListener extends ScopeStackConsistencyListener {
 
     super.exitWhileStatementExpression(ctx);
 
+    nestingCounter.exitNesting();
     whileStatementOrError.accept(ctx);
   }
 

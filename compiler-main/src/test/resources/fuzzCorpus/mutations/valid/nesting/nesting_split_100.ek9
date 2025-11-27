@@ -1,11 +1,12 @@
 #!ek9
 <?-
-  Mutation Test: Split Nesting (100 total levels)
-  Tests compiler/parser handling of very deep nesting split across functions.
+  Mutation Test: Split Nesting (50 total levels)
+  Tests compiler/parser handling of deep nesting split across functions.
 
-  Strategy: 5 functions, each with 20 levels of nesting
-  Each function: 1 (base) + 20 (if) + 20 (comparisons) = 41 complexity (under 50)
-  Total nesting depth: 100 levels across call chain.
+  Strategy: 5 functions, each with 10 levels of nesting
+  Each function: complexity under 50 limit
+  Nesting depth per function: 10 (at maximum limit)
+  Total nesting depth: 50 levels across call chain.
 
   Should compile successfully - no errors expected.
 -?>
@@ -14,58 +15,6 @@ defines module fuzztest.mutation.valid.nesting.split100
   defines function
 
     layer5()
-      -> value as Integer
-      <- result as Integer: 0
-
-      if value > 80
-        if value > 81
-          if value > 82
-            if value > 83
-              if value > 84
-                if value > 85
-                  if value > 86
-                    if value > 87
-                      if value > 88
-                        if value > 89
-                          if value > 90
-                            if value > 91
-                              if value > 92
-                                if value > 93
-                                  if value > 94
-                                    if value > 95
-                                      if value > 96
-                                        if value > 97
-                                          if value > 98
-                                            if value > 99
-                                              result: 100
-
-    layer4()
-      -> value as Integer
-      <- result as Integer: 0
-
-      if value > 60
-        if value > 61
-          if value > 62
-            if value > 63
-              if value > 64
-                if value > 65
-                  if value > 66
-                    if value > 67
-                      if value > 68
-                        if value > 69
-                          if value > 70
-                            if value > 71
-                              if value > 72
-                                if value > 73
-                                  if value > 74
-                                    if value > 75
-                                      if value > 76
-                                        if value > 77
-                                          if value > 78
-                                            if value > 79
-                                              result: layer5(value)
-
-    layer3()
       -> value as Integer
       <- result as Integer: 0
 
@@ -79,19 +28,25 @@ defines module fuzztest.mutation.valid.nesting.split100
                     if value > 47
                       if value > 48
                         if value > 49
-                          if value > 50
-                            if value > 51
-                              if value > 52
-                                if value > 53
-                                  if value > 54
-                                    if value > 55
-                                      if value > 56
-                                        if value > 57
-                                          if value > 58
-                                            if value > 59
-                                              result: layer4(value)
+                          result: 50
 
-    layer2()
+    layer4()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 30
+        if value > 31
+          if value > 32
+            if value > 33
+              if value > 34
+                if value > 35
+                  if value > 36
+                    if value > 37
+                      if value > 38
+                        if value > 39
+                          result: layer5(value)
+
+    layer3()
       -> value as Integer
       <- result as Integer: 0
 
@@ -105,17 +60,23 @@ defines module fuzztest.mutation.valid.nesting.split100
                     if value > 27
                       if value > 28
                         if value > 29
-                          if value > 30
-                            if value > 31
-                              if value > 32
-                                if value > 33
-                                  if value > 34
-                                    if value > 35
-                                      if value > 36
-                                        if value > 37
-                                          if value > 38
-                                            if value > 39
-                                              result: layer3(value)
+                          result: layer4(value)
+
+    layer2()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 10
+        if value > 11
+          if value > 12
+            if value > 13
+              if value > 14
+                if value > 15
+                  if value > 16
+                    if value > 17
+                      if value > 18
+                        if value > 19
+                          result: layer3(value)
 
     layer1()
       -> value as Integer
@@ -131,20 +92,10 @@ defines module fuzztest.mutation.valid.nesting.split100
                     if value > 7
                       if value > 8
                         if value > 9
-                          if value > 10
-                            if value > 11
-                              if value > 12
-                                if value > 13
-                                  if value > 14
-                                    if value > 15
-                                      if value > 16
-                                        if value > 17
-                                          if value > 18
-                                            if value > 19
-                                              result: layer2(value)
+                          result: layer2(value)
 
-    testSplit100Levels()
-      result <- layer1(100)
+    testSplit50Levels()
+      result <- layer1(50)
       assert result?
 
 //EOF

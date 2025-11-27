@@ -1,17 +1,17 @@
 #!ek9
 <?-
-  Mutation Test: Nested Switch Statements (15 levels)
-  Tests compiler/parser handling of deep switch nesting.
+  Mutation Test: Nested Switch Statements (10 levels)
+  Tests compiler/parser handling of switch nesting at maximum allowed depth.
 
-  Complexity: 1 (base) + 15 (case expressions) + 15 (default cases) = 31 (under 50 limit)
-  Note: switch itself doesn't add complexity, but each case and default does.
+  Complexity: 1 (base) + 10 (case expressions) + 10 (default cases) = 21 (under 50 limit)
+  Nesting depth: 10 (at maximum limit)
   Should compile successfully - no errors expected.
 -?>
 defines module fuzztest.mutation.valid.nesting.switch015
 
   defines function
 
-    testNestedSwitch15Levels()
+    testNestedSwitch10Levels()
       -> value as Integer
       <- result as Integer: 0
 
@@ -35,27 +35,7 @@ defines module fuzztest.mutation.valid.nesting.switch015
                                         case > 8
                                           switch value
                                             case > 9
-                                              switch value
-                                                case > 10
-                                                  switch value
-                                                    case > 11
-                                                      switch value
-                                                        case > 12
-                                                          switch value
-                                                            case > 13
-                                                              switch value
-                                                                case > 14
-                                                                  result: 15
-                                                                default
-                                                                  result: 14
-                                                            default
-                                                              result: 13
-                                                        default
-                                                          result: 12
-                                                    default
-                                                      result: 11
-                                                default
-                                                  result: 10
+                                              result: 10
                                             default
                                               result: 9
                                         default

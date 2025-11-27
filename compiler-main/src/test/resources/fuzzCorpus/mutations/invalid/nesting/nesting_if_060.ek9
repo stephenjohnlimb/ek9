@@ -4,6 +4,7 @@
   Tests EXCESSIVE_COMPLEXITY detection for deep single-function nesting.
 
   Complexity: 1 (base) + 60 (if blocks) + 60 (comparisons) = 121 (exceeds 50 limit by 71)
+  Nesting depth: 60 (also exceeds maximum of 10)
   Should trigger EXCESSIVE_COMPLEXITY error.
 -?>
 defines module fuzztest.mutation.invalid.nesting.if060

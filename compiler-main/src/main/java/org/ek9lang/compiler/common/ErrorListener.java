@@ -357,6 +357,7 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
     ERROR_MISSING("E50230", "but the error is missing"),
     DIRECTIVE_SYMBOL_COMPLEXITY("E50240", "complexity mismatch"),
     EXCESSIVE_COMPLEXITY("E11010", "excessive complexity - refactor"),
+    EXCESSIVE_NESTING("E11011", "excessive nesting - extract function"),
     DIRECTIVE_SYMBOL_NOT_RESOLVED("E50250", "symbol not resolved"),
     DIRECTIVE_HIERARCHY_NOT_RESOLVED("E50260", "symbol hierarchy not in place"),
     DIRECTIVE_SYMBOL_CATEGORY_MISMATCH("E50270", "symbol category mismatched"),

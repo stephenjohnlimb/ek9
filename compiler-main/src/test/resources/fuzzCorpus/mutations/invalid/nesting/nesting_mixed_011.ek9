@@ -1,0 +1,58 @@
+#!ek9
+<?-
+  Mutation Test: Mixed Control Flow Nesting (11 levels)
+  Tests EXCESSIVE_NESTING detection with mixed control flow types.
+
+  Proves nesting tracking is agnostic to control flow type by mixing:
+  - if statements
+  - while loops
+  - for loops
+  - switch statements
+  - try blocks
+
+  Pattern: if -> while -> for -> switch -> try -> if -> while -> for -> switch -> try -> if
+  Nesting depth: 11 (exceeds maximum of 10 by 1)
+  Complexity: ~25 (well under 50 limit)
+  Should trigger EXCESSIVE_NESTING error (not EXCESSIVE_COMPLEXITY).
+-?>
+defines module fuzztest.mutation.invalid.nesting.mixed011
+
+  defines function
+
+    @Error: PRE_IR_CHECKS: EXCESSIVE_NESTING
+    testMixedNesting11()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 0                              //Level 1: if
+        counter <- 0
+        while counter < 1                       //Level 2: while
+          for i in 1 ... 2                      //Level 3: for
+            switch value                        //Level 4: switch
+              case > 0
+                try                             //Level 5: try
+                  if value > 1                  //Level 6: if
+                    counter2 <- 0
+                    while counter2 < 1          //Level 7: while
+                      for j in 1 ... 2          //Level 8: for
+                        switch value            //Level 9: switch
+                          case > 1
+                            try                 //Level 10: try
+                              if value > 2      //Level 11: if - exceeds limit!
+                                result: 11
+                            catch
+                              -> ex as Exception
+                              result: -1
+                          default
+                            result: 9
+                      counter2: counter2 + 1
+                catch
+                  -> ex as Exception
+                  result: -1
+              default
+                result: 4
+          counter: counter + 1
+
+      assert result?
+
+//EOF

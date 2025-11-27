@@ -4603,6 +4603,73 @@ processData()
 
     <h4>See Also</h4>
     <ul>
+      <li><a href="#E11011">E11011: Excessive Nesting</a></li>
+    </ul>
+
+    <hr/>
+
+    <h3 id="E11011">E11011: Excessive Nesting</h3>
+    <p><strong>Classification:</strong> EXCESSIVE_NESTING</p>
+
+    <h4>Description</h4>
+    <p>
+      A function, method, or operator has excessive nesting depth of control structures.
+      Deep nesting makes code difficult to read, understand, and maintain. The maximum
+      allowed nesting depth is 10 levels.
+    </p>
+
+    <h4>Example (Error)</h4>
+    <div class="bad-ek9-code">
+      <pre>#!ek9
+@Error: PRE_IR_CHECKS: EXCESSIVE_NESTING
+processData()
+  -> value as Integer
+  <- result as Integer: 0
+
+  if value > 0
+    if value > 1
+      if value > 2
+        if value > 3
+          if value > 4
+            if value > 5
+              if value > 6
+                if value > 7
+                  if value > 8
+                    if value > 9
+                      if value > 10  //11th level - exceeds limit!
+                        result: 11</pre>
+    </div>
+
+    <h4>Solution</h4>
+    <div class="ek9-code">
+      <pre>#!ek9
+//Extract nested logic into separate functions
+processDeepValue()
+  -> value as Integer
+  <- result as Integer: value > 10 ? 11 : 10
+
+processData()
+  -> value as Integer
+  <- result as Integer: 0
+
+  if value > 0
+    if value > 1
+      if value > 2
+        if value > 3
+          if value > 4
+            result: processDeepValue(value)</pre>
+    </div>
+
+    <p class="warning">
+      <strong>Best Practice:</strong> Keep nesting shallow by extracting deeply nested
+      logic into helper functions. If you find yourself nesting more than 3-4 levels deep,
+      consider refactoring. Guard clauses and early returns (via guard expressions) can
+      also help reduce nesting.
+    </p>
+
+    <h4>See Also</h4>
+    <ul>
+      <li><a href="#E11010">E11010: Excessive Complexity</a></li>
     </ul>
 
     <hr/>

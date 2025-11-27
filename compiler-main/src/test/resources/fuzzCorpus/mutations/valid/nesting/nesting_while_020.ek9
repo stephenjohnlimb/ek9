@@ -1,16 +1,17 @@
 #!ek9
 <?-
-  Mutation Test: Nested While Loops (20 levels)
-  Tests compiler/parser handling of deep while loop nesting.
+  Mutation Test: Nested While Loops (10 levels)
+  Tests compiler/parser handling of while loop nesting at maximum allowed depth.
 
-  Complexity: 1 (base) + 20 (while loops) = 21 (under 50 limit)
+  Complexity: 1 (base) + 10 (while loops) + 10 (comparisons) = 21 (under 50 limit)
+  Nesting depth: 10 (at maximum limit)
   Should compile successfully - no errors expected.
 -?>
 defines module fuzztest.mutation.valid.nesting.while020
 
   defines function
 
-    testNestedWhile20Levels()
+    testNestedWhile10Levels()
       -> maxDepth as Integer
       <- result as Integer: 0
 
@@ -34,37 +35,7 @@ defines module fuzztest.mutation.valid.nesting.while020
                       while depth9 < maxDepth
                         depth10 <- 0
                         while depth10 < maxDepth
-                          depth11 <- 0
-                          while depth11 < maxDepth
-                            depth12 <- 0
-                            while depth12 < maxDepth
-                              depth13 <- 0
-                              while depth13 < maxDepth
-                                depth14 <- 0
-                                while depth14 < maxDepth
-                                  depth15 <- 0
-                                  while depth15 < maxDepth
-                                    depth16 <- 0
-                                    while depth16 < maxDepth
-                                      depth17 <- 0
-                                      while depth17 < maxDepth
-                                        depth18 <- 0
-                                        while depth18 < maxDepth
-                                          depth19 <- 0
-                                          while depth19 < maxDepth
-                                            depth20 <- 0
-                                            while depth20 < maxDepth
-                                              result: result + 1
-                                              depth20: depth20 + 1
-                                            depth19: depth19 + 1
-                                          depth18: depth18 + 1
-                                        depth17: depth17 + 1
-                                      depth16: depth16 + 1
-                                    depth15: depth15 + 1
-                                  depth14: depth14 + 1
-                                depth13: depth13 + 1
-                              depth12: depth12 + 1
-                            depth11: depth11 + 1
+                          result: result + 1
                           depth10: depth10 + 1
                         depth9: depth9 + 1
                       depth8: depth8 + 1

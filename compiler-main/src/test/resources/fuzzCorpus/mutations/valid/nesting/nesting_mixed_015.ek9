@@ -1,17 +1,18 @@
 #!ek9
 <?-
-  Mutation Test: Mixed Control Flow Nesting (15 levels)
-  Tests compiler/parser handling of mixed if/while/for nesting.
+  Mutation Test: Mixed Control Flow Nesting (10 levels)
+  Tests compiler/parser handling of mixed if/while/for nesting at maximum depth.
 
-  Complexity: 1 (base) + 5*(if+comp) + 5*(while+comp) + 5*(for+range)
-            = 1 + 10 + 10 + 10 = 31 (under 50 limit)
+  Pattern: 3 if + 3 while + 3 for + 1 if = 10 levels
+  Complexity: under 50 limit
+  Nesting depth: 10 (at maximum limit)
   Should compile successfully - no errors expected.
 -?>
 defines module fuzztest.mutation.valid.nesting.mixed015
 
   defines function
 
-    testMixedNesting15Levels()
+    testMixedNesting10Levels()
       -> value as Integer
       <- result as Integer: 0
 
@@ -27,20 +28,10 @@ defines module fuzztest.mutation.valid.nesting.mixed015
                     counter3 <- 0
                     while counter3 < value
                       for i3 in 1 ... 2
-                        if value > 3
-                          counter4 <- 0
-                          while counter4 < value
-                            for i4 in 1 ... 2
-                              if value > 4
-                                counter5 <- 0
-                                while counter5 < value
-                                  for i5 in 1 ... 2
-                                    result: result + 1
-                                  counter5: counter5 + 1
-                              counter4: counter4 + 1
-                          counter3: counter3 + 1
-                      counter2: counter2 + 1
-                  counter1: counter1 + 1
+                        result: result + 1
+                      counter3: counter3 + 1
+                  counter2: counter2 + 1
+              counter1: counter1 + 1
 
       assert result?
 

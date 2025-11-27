@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  Mutation Test: Nesting Depth Limit (11 levels)
+  Tests EXCESSIVE_NESTING detection when nesting exceeds 10 but complexity is OK.
+
+  Complexity: 1 (base) + 11 (if blocks) + 11 (comparisons) = 23 (under 50 limit)
+  Nesting depth: 11 (exceeds maximum of 10 by 1)
+  Should trigger EXCESSIVE_NESTING error (not EXCESSIVE_COMPLEXITY).
+-?>
+defines module fuzztest.mutation.invalid.nesting.depth011
+
+  defines function
+
+    @Error: PRE_IR_CHECKS: EXCESSIVE_NESTING
+    testNestingDepth11()
+      -> value as Integer
+      <- result as Integer: 0
+
+      if value > 0
+        if value > 1
+          if value > 2
+            if value > 3
+              if value > 4
+                if value > 5
+                  if value > 6
+                    if value > 7
+                      if value > 8
+                        if value > 9
+                          if value > 10
+                            result: 11
+
+      assert result?
+
+//EOF

@@ -4,6 +4,7 @@
   Tests EXCESSIVE_COMPLEXITY detection for extreme single-function nesting.
 
   Complexity: 1 (base) + 100 (if blocks) + 100 (comparisons) = 201 (exceeds 50 limit by 151)
+  Nesting depth: 100 (also exceeds maximum of 10)
   Should trigger EXCESSIVE_COMPLEXITY error.
   This also stress tests the parser with very deep AST.
 -?>
