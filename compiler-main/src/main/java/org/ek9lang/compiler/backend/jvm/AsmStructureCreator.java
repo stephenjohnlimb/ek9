@@ -27,6 +27,7 @@ import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolGenus;
 import org.ek9lang.core.CompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -93,8 +94,9 @@ final class AsmStructureCreator implements Opcodes {
     // Generate field declarations
     generateFieldDeclarations(construct);
 
-    // For functions: generate singleton pattern (INSTANCE field + getInstance method)
-    if (construct.isFunction()) {
+    // For concrete functions (FUNCTION genus): generate singleton pattern
+    // Abstract function traits (FUNCTION_TRAIT genus) cannot be instantiated - no singleton
+    if (construct.getSymbol().getGenus() == SymbolGenus.FUNCTION) {
       generateFunctionSingletonField(construct);
       generateFunctionGetInstanceMethod(construct);
     }
@@ -179,7 +181,13 @@ final class AsmStructureCreator implements Opcodes {
       interfaces = null;  // No interfaces
     }
 
-    classWriter.visit(V21, ACC_PUBLIC, jvmClassName, null, jvmSuperClassName, interfaces);
+    // Determine access flags - abstract function traits need ACC_ABSTRACT
+    int accessFlags = ACC_PUBLIC;
+    if (construct.isFunction() && construct.getSymbol().getGenus() == SymbolGenus.FUNCTION_TRAIT) {
+      accessFlags |= ACC_ABSTRACT;
+    }
+
+    classWriter.visit(V21, accessFlags, jvmClassName, null, jvmSuperClassName, interfaces);
 
     // Add source file information for debugging
     final var normalizedSourceFileName = construct.getNormalizedSourceFileName();
@@ -275,9 +283,10 @@ final class AsmStructureCreator implements Opcodes {
     final var mv = classWriter.visitMethod(ACC_STATIC, METHOD_CLINIT, DESC_VOID_TO_VOID, null, null);
     mv.visitCode();
 
-    // For functions: initialize singleton INSTANCE field before any IR instructions
+    // For concrete functions (FUNCTION genus): initialize singleton INSTANCE field
+    // Abstract function traits (FUNCTION_TRAIT genus) have no INSTANCE to initialize
     final var construct = constructTargetTuple.construct();
-    if (construct.isFunction()) {
+    if (construct.getSymbol().getGenus() == SymbolGenus.FUNCTION) {
       generateFunctionSingletonInit(mv, construct);
     }
 
@@ -398,6 +407,11 @@ final class AsmStructureCreator implements Opcodes {
    * Generate general method (not c_init, i_init, or constructor).
    * Handles methods with parameters and return types.
    * Maps EK9 operators to JVM method names using OperatorMap.
+   * <p>
+   * For abstract function traits (FUNCTION_TRAIT genus), the _call method is abstract:
+   * - No method body generated
+   * - ACC_ABSTRACT flag added to method access flags
+   * </p>
    */
   private void generateGeneralMethodFromIR(final OperationInstr operation) {
     final var symbol = operation.getSymbol();
@@ -413,8 +427,26 @@ final class AsmStructureCreator implements Opcodes {
 
     final var methodDescriptor = buildGeneralMethodDescriptor(operation);
 
-    // Use ACC_PUBLIC for all methods (can refine access modifiers later)
-    final var mv = classWriter.visitMethod(ACC_PUBLIC, methodName, methodDescriptor, null, null);
+    // Check if this is an abstract method in a FUNCTION_TRAIT
+    final var construct = constructTargetTuple.construct();
+    final boolean isAbstractMethod = construct.isFunction()
+        && construct.getSymbol().getGenus() == SymbolGenus.FUNCTION_TRAIT
+        && "_call".equals(methodName);
+
+    // Determine access flags - abstract methods need ACC_ABSTRACT
+    int accessFlags = ACC_PUBLIC;
+    if (isAbstractMethod) {
+      accessFlags |= ACC_ABSTRACT;
+    }
+
+    final var mv = classWriter.visitMethod(accessFlags, methodName, methodDescriptor, null, null);
+
+    // Abstract methods have no body - just signature
+    if (isAbstractMethod) {
+      mv.visitEnd();
+      return;
+    }
+
     mv.visitCode();
 
     final var basicBlock = operation.getBody();
