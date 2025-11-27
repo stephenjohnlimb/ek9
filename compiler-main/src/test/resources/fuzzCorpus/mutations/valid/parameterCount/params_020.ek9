@@ -1,0 +1,40 @@
+#!ek9
+<?-
+  Mutation test: Twenty parameters
+  Tests compiler handling of 20-parameter functions.
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.parameter.count.twenty
+
+  defines function
+
+    twentyParameters()
+      ->
+        p001 as Integer
+        p002 as Integer
+        p003 as Integer
+        p004 as Integer
+        p005 as Integer
+        p006 as Integer
+        p007 as Integer
+        p008 as Integer
+        p009 as Integer
+        p010 as Integer
+        p011 as Integer
+        p012 as Integer
+        p013 as Integer
+        p014 as Integer
+        p015 as Integer
+        p016 as Integer
+        p017 as Integer
+        p018 as Integer
+        p019 as Integer
+        p020 as Integer
+      <- rtn as Integer: p001 + p020
+
+    testTwentyParameters()
+      result <- twentyParameters(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
+      assert result?
+      assert result == 21
+
+//EOF

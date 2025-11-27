@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  Mutation test: Zero parameters
+  Tests compiler handling of parameterless functions.
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.parameter.count.zero
+
+  defines function
+
+    noParameters()
+      <- rtn as Integer: 42
+
+    testNoParameters()
+      result <- noParameters()
+      assert result?
+      assert result == 42
+
+//EOF

@@ -1,0 +1,25 @@
+#!ek9
+<?-
+  Mutation test: Five parameters
+  Tests compiler handling of 5-parameter functions.
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.parameter.count.five
+
+  defines function
+
+    fiveParameters()
+      ->
+        p001 as Integer
+        p002 as Integer
+        p003 as Integer
+        p004 as Integer
+        p005 as Integer
+      <- rtn as Integer: p001 + p005
+
+    testFiveParameters()
+      result <- fiveParameters(1, 2, 3, 4, 5)
+      assert result?
+      assert result == 6
+
+//EOF

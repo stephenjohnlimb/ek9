@@ -1,0 +1,20 @@
+#!ek9
+<?-
+  Mutation test: One parameter
+  Tests compiler handling of single-parameter functions.
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.parameter.count.one
+
+  defines function
+
+    oneParameter()
+      -> p01 as Integer
+      <- rtn as Integer: p01
+
+    testOneParameter()
+      result <- oneParameter(42)
+      assert result?
+      assert result == 42
+
+//EOF
