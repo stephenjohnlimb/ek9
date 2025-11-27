@@ -1,0 +1,40 @@
+#!ek9
+<?-
+  Mutation test: Very short identifiers (1 character)
+  Tests compiler handling of minimal-length identifiers.
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.identifier.length.short001
+
+  defines function
+    a()
+      <- r as Integer: 1
+
+    b()
+      <- r as Integer: 2
+
+    c()
+      <- r as Integer: 3
+
+  defines function
+    testShortIdentifiers()
+      x <- 1
+      y <- 2
+      z <- 3
+
+      assert x?
+      assert y?
+      assert z?
+
+      p <- a()
+      q <- b()
+      r <- c()
+
+      assert p?
+      assert q?
+      assert r?
+
+      s <- x + y + z
+      assert s == 6
+
+//EOF

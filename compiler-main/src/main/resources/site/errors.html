@@ -10243,7 +10243,8 @@ defines module bad.trycatchfinally.example
       enumeration values are inherently immutable and cannot be modified, assigned to, or used with mutation operators like
       <code>++</code>, <code>--</code>, <code>+=</code>, or assignment operators like <code>:=</code>, <code>:=:</code>,
       <code>:^:</code>, <code>:~:</code>. Additionally, trying to mutate the result of a method call that returns nothing
-      (void) will trigger this error.
+      (void) will trigger this error. Also while loop variables can and do change, they are not mutable directly.
+      So for example you cannot modify and mutate 'i' in a 'for i' style loop.
     </p>
 
     <h4>Example (Error)</h4>

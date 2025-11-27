@@ -1,0 +1,32 @@
+#!ek9
+<?-
+  Mutation test: Long identifiers (50 characters)
+  Tests compiler handling of moderate-length identifiers.
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.identifier.length.long050
+
+  defines function
+    thisIsAFiftyCharacterLongFunctionNameForTestingA()
+      <- rtn as Integer: 100
+
+    thisIsAFiftyCharacterLongFunctionNameForTestingB()
+      <- rtn as Integer: 200
+
+  defines function
+    testLongIdentifiers()
+      thisIsAFiftyCharacterLongVariableNameForTesting <- 42
+
+      assert thisIsAFiftyCharacterLongVariableNameForTesting?
+      assert thisIsAFiftyCharacterLongVariableNameForTesting == 42
+
+      resultFromFunctionCallWithVeryLongIdentifierName <- thisIsAFiftyCharacterLongFunctionNameForTestingA()
+      assert resultFromFunctionCallWithVeryLongIdentifierName == 100
+
+      anotherResultFromFunctionCallWithLongIdentifier <- thisIsAFiftyCharacterLongFunctionNameForTestingB()
+      assert anotherResultFromFunctionCallWithLongIdentifier == 200
+
+      sumOfValuesWithExtremelyLongVariableIdentifiers <- thisIsAFiftyCharacterLongVariableNameForTesting + resultFromFunctionCallWithVeryLongIdentifierName
+      assert sumOfValuesWithExtremelyLongVariableIdentifiers == 142
+
+//EOF

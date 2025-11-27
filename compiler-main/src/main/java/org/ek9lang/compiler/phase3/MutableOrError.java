@@ -40,12 +40,12 @@ final class MutableOrError implements BiConsumer<IToken, ISymbol> {
 
   private void emitNotMutableError(final IToken locationForError, final ISymbol symbol) {
     if (!symbol.isMutable()) {
-      errorListener.semanticError(locationForError, "'" + symbol.getFriendlyName() + "':", NOT_MUTABLE);
+      errorListener.semanticError(locationForError, "'" + symbol.getFriendlyName() + "' cannot be changed:", NOT_MUTABLE);
     }
 
     symbol.getType().ifPresent(symbolType -> {
       if (symbolsAndScopes.getEk9Types().ek9Void().isExactSameType(symbolType)) {
-        errorListener.semanticError(locationForError, "'Void' type:", NOT_MUTABLE);
+        errorListener.semanticError(locationForError, "changes to 'Void' type is meaningless:", NOT_MUTABLE);
       }
     });
   }

@@ -1,0 +1,29 @@
+#!ek9
+<?-
+  Mutation test: Very long identifiers (100 characters)
+  Tests compiler handling of very long identifiers.
+  Should compile successfully - no errors expected.
+-?>
+defines module fuzztest.mutation.valid.identifier.length.long100
+
+  defines function
+    thisIsAnExtremelyLongFunctionNameThatTestsTheCompilersAbilityToHandleVeryLongIdentifiersWithoutA()
+      <- rtn as Integer: 1000
+
+    thisIsAnExtremelyLongFunctionNameThatTestsTheCompilersAbilityToHandleVeryLongIdentifiersWithoutB()
+      <- rtn as Integer: 2000
+
+  defines function
+    testVeryLongIdentifiers()
+      thisIsAnExtremelyLongVariableNameThatExceedsTypicalLengthsButShouldStillBeHandledCorrectlyByC <- 999
+
+      assert thisIsAnExtremelyLongVariableNameThatExceedsTypicalLengthsButShouldStillBeHandledCorrectlyByC?
+      assert thisIsAnExtremelyLongVariableNameThatExceedsTypicalLengthsButShouldStillBeHandledCorrectlyByC == 999
+
+      resultFromFunctionCallWithVeryLongIdentifierNameThatTestsCompilerCapabilitiesForHandlingLongIds <- thisIsAnExtremelyLongFunctionNameThatTestsTheCompilersAbilityToHandleVeryLongIdentifiersWithoutA()
+      assert resultFromFunctionCallWithVeryLongIdentifierNameThatTestsCompilerCapabilitiesForHandlingLongIds == 1000
+
+      anotherResultFromFunctionCallWithExtremelyLongIdentifierForRobustnessTestingOfCompilerParser <- thisIsAnExtremelyLongFunctionNameThatTestsTheCompilersAbilityToHandleVeryLongIdentifiersWithoutB()
+      assert anotherResultFromFunctionCallWithExtremelyLongIdentifierForRobustnessTestingOfCompilerParser == 2000
+
+//EOF
