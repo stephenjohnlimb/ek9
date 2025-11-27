@@ -1,7 +1,6 @@
 package org.ek9lang.compiler.bytecode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -66,9 +65,9 @@ abstract class AbstractExecutableBytecodeTest extends AbstractBytecodeGeneration
    * Constructor for executable bytecode tests.
    *
    * @param fromResourcesDirectory Directory containing the .ek9 source file
-   * @param moduleName Module name (e.g., "bytecode.test")
-   * @param programName Program name within the module (e.g., "SwitchExpression")
-   * @param expectedSymbols Symbol count checks for validation
+   * @param moduleName             Module name (e.g., "bytecode.test")
+   * @param programName            Program name within the module (e.g., "SwitchExpression")
+   * @param expectedSymbols        Symbol count checks for validation
    */
   public AbstractExecutableBytecodeTest(final String fromResourcesDirectory,
                                         final String moduleName,
@@ -97,8 +96,8 @@ abstract class AbstractExecutableBytecodeTest extends AbstractBytecodeGeneration
   @Override
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
-    assertTrue(compilationResult);
-    assertEquals(0, numberOfErrors);
+    // Call parent to handle symbol checks and showBytecode
+    super.assertFinalResults(compilationResult, numberOfErrors, program);
 
     // Execute in-JVM and verify output (if test cases exist)
     try {

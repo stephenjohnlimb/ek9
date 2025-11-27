@@ -24,6 +24,6 @@ class TryWithResourceExceptionPathsTest extends AbstractExecutableBytecodeTest {
     super("/examples/bytecodeGeneration/tryWithResourceExceptionPaths",
         "bytecode.test.resources",
         "TryWithResourceExceptionPaths",
-        List.of(new SymbolCountCheck("bytecode.test.resources", 1)));
+        List.of(new SymbolCountCheck("bytecode.test.resources", 3)));  // 2 classes + 1 program
   }
 }

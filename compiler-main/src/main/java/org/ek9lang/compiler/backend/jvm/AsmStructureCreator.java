@@ -2,9 +2,11 @@ package org.ek9lang.compiler.backend.jvm;
 
 import static org.ek9lang.compiler.support.JVMTypeNames.DESC_VOID_TO_VOID;
 import static org.ek9lang.compiler.support.JVMTypeNames.EK9_LANG_ANY;
+import static org.ek9lang.compiler.support.JVMTypeNames.FIELD_INSTANCE;
 import static org.ek9lang.compiler.support.JVMTypeNames.JAVA_LANG_OBJECT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_CLINIT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_C_INIT;
+import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_GET_INSTANCE;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_INIT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_I_INIT;
 import static org.ek9lang.compiler.support.JVMTypeNames.METHOD_MAIN;
@@ -21,6 +23,7 @@ import org.ek9lang.compiler.ir.instructions.Field;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.ir.instructions.ProgramEntryPointInstr;
+import org.ek9lang.compiler.symbols.FunctionSymbol;
 import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -75,7 +78,11 @@ final class AsmStructureCreator implements Opcodes {
 
   /**
    * Process general class (not a program) bytecode generation.
-   * Handles classes, records, traits, and other aggregate types.
+   * Handles classes, records, traits, functions, and other aggregate types.
+   * <p>
+   * Functions are special: they require a singleton pattern with a static INSTANCE
+   * field and getInstance() method to enable function calls via FUNCTION_INSTANCE IR instruction.
+   * </p>
    */
   private void processGeneralClass() {
     final IRConstruct construct = constructTargetTuple.construct();
@@ -85,6 +92,12 @@ final class AsmStructureCreator implements Opcodes {
 
     // Generate field declarations
     generateFieldDeclarations(construct);
+
+    // For functions: generate singleton pattern (INSTANCE field + getInstance method)
+    if (construct.isFunction()) {
+      generateFunctionSingletonField(construct);
+      generateFunctionGetInstanceMethod(construct);
+    }
 
     // Generate methods from IR operations
     generateClassMethodsFromIR(construct);
@@ -150,12 +163,7 @@ final class AsmStructureCreator implements Opcodes {
 
     // Extract superclass from symbol (defaults to Object if no explicit superclass)
     final var symbol = construct.getSymbol();
-    final var ek9SuperClassName = (symbol instanceof IAggregateSymbol aggregateSymbol)
-        ? aggregateSymbol.getSuperAggregate()
-        .map(ISymbol::getFullyQualifiedName)
-        .map(jvmNameConverter)
-        .orElse(JAVA_LANG_OBJECT)
-        : JAVA_LANG_OBJECT;
+    final var ek9SuperClassName = determineSuperclassName(symbol);
 
     // SPECIAL CASE: Any is an interface in Java, not a class
     // If EK9 superclass is Any, generate: class X extends Object implements Any
@@ -258,10 +266,20 @@ final class AsmStructureCreator implements Opcodes {
 
   /**
    * Generate &lt;clinit&gt; static initializer from c_init IR operation.
+   * <p>
+   * For functions, also initializes the singleton INSTANCE field:
+   * INSTANCE = new FunctionType();
+   * </p>
    */
   private void generateStaticInitializerFromIR(final OperationInstr operation) {
     final var mv = classWriter.visitMethod(ACC_STATIC, METHOD_CLINIT, DESC_VOID_TO_VOID, null, null);
     mv.visitCode();
+
+    // For functions: initialize singleton INSTANCE field before any IR instructions
+    final var construct = constructTargetTuple.construct();
+    if (construct.isFunction()) {
+      generateFunctionSingletonInit(mv, construct);
+    }
 
     // Process the operation's basic block using actual IR instructions
     final var basicBlock = operation.getBody();
@@ -272,6 +290,31 @@ final class AsmStructureCreator implements Opcodes {
     // Don't add extra RETURN - IR instructions already include RETURN via BranchInstr
     mv.visitMaxs(0, 0);
     mv.visitEnd();
+  }
+
+  /**
+   * Generate singleton initialization in &lt;clinit&gt;.
+   * <p>
+   * Generates: INSTANCE = new FunctionType();
+   * Bytecode: NEW, DUP, INVOKESPECIAL &lt;init&gt;, PUTSTATIC INSTANCE
+   * </p>
+   */
+  private void generateFunctionSingletonInit(final MethodVisitor mv, final IRConstruct construct) {
+    final var className = construct.getFullyQualifiedName();
+    final var jvmClassName = jvmNameConverter.apply(className);
+    final var fieldDescriptor = "L" + jvmClassName + ";";
+
+    // NEW FunctionType
+    mv.visitTypeInsn(NEW, jvmClassName);
+
+    // DUP (keep reference for PUTSTATIC after constructor returns)
+    mv.visitInsn(DUP);
+
+    // INVOKESPECIAL FunctionType.<init>()V
+    mv.visitMethodInsn(INVOKESPECIAL, jvmClassName, METHOD_INIT, DESC_VOID_TO_VOID, false);
+
+    // PUTSTATIC INSTANCE
+    mv.visitFieldInsn(PUTSTATIC, jvmClassName, FIELD_INSTANCE, fieldDescriptor);
   }
 
   /**
@@ -325,17 +368,13 @@ final class AsmStructureCreator implements Opcodes {
     final var mv = classWriter.visitMethod(ACC_PUBLIC, METHOD_INIT, constructorDescriptor, null, null);
     mv.visitCode();
 
-    // CRITICAL: Classes extending Any (interface in Java) need explicit Object super() call
-    // The IR generator skips super() calls for Any (as it's conceptually the base class)
-    // but bytecode must call Object.<init>() since Any is an interface
-    // This is a JVM-specific implementation detail - IR correctly reflects EK9 semantics
+    // CRITICAL: Inject super() call if not already in IR.
+    // The IR generator skips super() calls when the superclass needs JVM-specific handling.
     //
-    // EXCEPTION: If the constructor delegates with this(), skip the Object super() call.
+    // EXCEPTION: If the constructor delegates with this(), skip the super() call.
     // The delegated constructor will handle all initialization including super() calls.
-    if (extendsAny(construct) && !hasThisDelegation(operation)) {
-      // Inject Object super constructor call at start
-      mv.visitVarInsn(ALOAD, 0);
-      mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_OBJECT, METHOD_INIT, DESC_VOID_TO_VOID, false);
+    if (!hasThisDelegation(operation)) {
+      injectSuperConstructorCall(mv, construct);
     }
 
     // IR already contains super constructor call for non-Any superclasses - OutputVisitor will handle it
@@ -380,7 +419,9 @@ final class AsmStructureCreator implements Opcodes {
 
     final var basicBlock = operation.getBody();
     if (basicBlock != null) {
-      processBasicBlock(mv, basicBlock);
+      // Pre-register method parameters so they're at correct local variable slots
+      final var parameterNames = extractParameterNames(operation);
+      processBasicBlock(mv, basicBlock, parameterNames, false);
     }
 
     // Don't add extra RETURN - IR instructions already include RETURN via BranchInstr
@@ -396,10 +437,13 @@ final class AsmStructureCreator implements Opcodes {
     // Extract parameters from operation symbol (MethodSymbol for constructors)
     final var symbol = operation.getSymbol();
 
-    // Get parameters - constructors are represented as MethodSymbol
+    // Get INPUT parameters - filter out returning parameters (declared with <-)
+    // Returning parameters are return values, not JVM constructor parameters
     final List<ISymbol> parameters;
     if (symbol instanceof MethodSymbol methodSymbol) {
-      parameters = methodSymbol.getCallParameters();
+      parameters = methodSymbol.getCallParameters().stream()
+          .filter(param -> !param.isReturningParameter())
+          .toList();
     } else {
       parameters = Collections.emptyList();
     }
@@ -427,11 +471,14 @@ final class AsmStructureCreator implements Opcodes {
     final var returnType = operation.getSymbol().getType()
         .orElseThrow(() -> new CompilerException("Method must have return type: " + operation.getSymbol().getName()));
 
-    // Get parameters from the symbol's call parameters
+    // Get INPUT parameters from the symbol's call parameters (exclude returning parameters)
+    // Returning parameters (declared with <-) are return values, not JVM method parameters
     final var symbol = operation.getSymbol();
     final List<ISymbol> parameters;
     if (symbol instanceof MethodSymbol methodSymbol) {
-      parameters = methodSymbol.getCallParameters();
+      parameters = methodSymbol.getCallParameters().stream()
+          .filter(param -> !param.isReturningParameter())
+          .toList();
     } else {
       parameters = Collections.emptyList();
     }
@@ -663,21 +710,135 @@ final class AsmStructureCreator implements Opcodes {
   }
 
   /**
-   * Extract parameter names from operation symbol for method/constructor.
+   * Extract INPUT parameter names from operation symbol for method/constructor.
    * Method parameters must be pre-registered in the variable map to prevent
    * the IR from allocating temporary variables in their slots.
+   * <p>
+   * IMPORTANT: Filters out returning parameters (declared with &lt;-) since those
+   * are return values, not input parameters. Only input parameters (declared with -&gt;)
+   * occupy JVM method parameter slots.
+   * </p>
    *
    * @param operation The operation (method/constructor) to extract parameters from
-   * @return List of parameter names in declaration order
+   * @return List of INPUT parameter names in declaration order
    */
   private List<String> extractParameterNames(final OperationInstr operation) {
     final var symbol = operation.getSymbol();
     if (symbol instanceof MethodSymbol methodSymbol) {
       return methodSymbol.getCallParameters().stream()
+          .filter(param -> !param.isReturningParameter())  // Exclude return values
           .map(ISymbol::getName)
           .toList();
     }
     return Collections.emptyList();
+  }
+
+  /**
+   * Determine the JVM superclass name for a symbol.
+   * <p>
+   * Handles both aggregate symbols (classes) and function symbols.
+   * </p>
+   * <p>
+   * IMPORTANT: Functions always extend Object directly in bytecode.
+   * The abstract function types (like _Routine, _BiRoutine) are for EK9 type checking,
+   * not JVM inheritance. Abstract function types don't have bytecode generated yet.
+   * </p>
+   */
+  private String determineSuperclassName(final ISymbol symbol) {
+    // Functions always extend Object directly (abstract function types don't have bytecode)
+    if (symbol instanceof FunctionSymbol) {
+      return JAVA_LANG_OBJECT;
+    }
+
+    // Handle aggregate symbols - extend declared superclass
+    if (symbol instanceof IAggregateSymbol aggregateSymbol) {
+      return aggregateSymbol.getSuperAggregate()
+          .map(ISymbol::getFullyQualifiedName)
+          .map(jvmNameConverter)
+          .orElse(JAVA_LANG_OBJECT);
+    }
+
+    // Default to Object
+    return JAVA_LANG_OBJECT;
+  }
+
+  /**
+   * Inject appropriate super constructor call for the construct.
+   * <p>
+   * Determines the correct superclass to call based on construct type:
+   * - Functions with super function: call super function's constructor
+   * - Functions without super function: call Object's constructor
+   * - Classes extending Any: call Object's constructor (Any is interface in Java)
+   * - Classes with explicit superclass: call that superclass's constructor
+   * - Classes without superclass: call Object's constructor
+   * </p>
+   */
+  private void injectSuperConstructorCall(final MethodVisitor mv, final IRConstruct construct) {
+    final var symbol = construct.getSymbol();
+
+    // Functions always call Object constructor directly
+    // (Abstract function types like _Routine don't have bytecode yet)
+    if (symbol instanceof FunctionSymbol) {
+      mv.visitVarInsn(ALOAD, 0);
+      mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_OBJECT, METHOD_INIT, DESC_VOID_TO_VOID, false);
+      return;
+    }
+
+    // Handle aggregate symbols (classes, records, etc.)
+    if (symbol instanceof IAggregateSymbol aggregateSymbol) {
+      final var superAggregate = aggregateSymbol.getSuperAggregate();
+      mv.visitVarInsn(ALOAD, 0);
+      if (superAggregate.isEmpty() || "org.ek9.lang::Any".equals(superAggregate.get().getFullyQualifiedName())) {
+        // No superclass or extends Any (interface) - call Object constructor
+        mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_OBJECT, METHOD_INIT, DESC_VOID_TO_VOID, false);
+      } else {
+        // Has explicit superclass - call that constructor
+        final var superJvmName = jvmNameConverter.apply(superAggregate.get().getFullyQualifiedName());
+        mv.visitMethodInsn(INVOKESPECIAL, superJvmName, METHOD_INIT, DESC_VOID_TO_VOID, false);
+      }
+      return;
+    }
+
+    // Fallback: call Object constructor
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitMethodInsn(INVOKESPECIAL, JAVA_LANG_OBJECT, METHOD_INIT, DESC_VOID_TO_VOID, false);
+  }
+
+  /**
+   * Check if construct needs an explicit Object.&lt;init&gt;() super call injected.
+   * <p>
+   * Returns true when the IR does NOT contain a super() call but bytecode requires one:
+   * 1. Classes extending Any (Any is an interface in Java, super() goes to Object)
+   * 2. Classes/functions with no explicit superclass (implicitly extend Object)
+   * </p>
+   *
+   * @param construct The IR construct to check
+   * @return true if Object super() call needs to be injected
+   */
+  private boolean needsObjectSuperCall(final IRConstruct construct) {
+    final var symbol = construct.getSymbol();
+
+    // Handle aggregate symbols (classes, records, etc.)
+    if (symbol instanceof IAggregateSymbol aggregateSymbol) {
+      final var superAggregate = aggregateSymbol.getSuperAggregate();
+
+      // No superclass = defaults to Object, need to inject super()
+      if (superAggregate.isEmpty()) {
+        return true;
+      }
+
+      // Extends Any = Java Object (since Any is interface), need to inject super()
+      final var superName = superAggregate.get().getFullyQualifiedName();
+      return "org.ek9.lang::Any".equals(superName);
+    }
+
+    // Handle function symbols (functions use getSuperFunction instead of getSuperAggregate)
+    if (symbol instanceof FunctionSymbol functionSymbol) {
+      // No super function = defaults to Object, need to inject super()
+      return functionSymbol.getSuperFunction().isEmpty();
+    }
+
+    return false;
   }
 
   /**
@@ -727,6 +888,65 @@ final class AsmStructureCreator implements Opcodes {
     }
 
     return false;
+  }
+
+  /**
+   * Generate static INSTANCE field for function singleton pattern.
+   * <p>
+   * Functions in EK9 are singleton objects - each named function has exactly one instance.
+   * This generates: private static final FunctionType INSTANCE;
+   * The field is initialized in &lt;clinit&gt; via generateStaticInitializerFromIR.
+   * </p>
+   *
+   * @param construct The function IR construct
+   */
+  private void generateFunctionSingletonField(final IRConstruct construct) {
+    final var className = construct.getFullyQualifiedName();
+    final var jvmClassName = jvmNameConverter.apply(className);
+    final var fieldDescriptor = "L" + jvmClassName + ";";
+
+    // Generate: private static final FunctionType INSTANCE;
+    classWriter.visitField(
+        ACC_PRIVATE | ACC_STATIC | ACC_FINAL,
+        FIELD_INSTANCE,
+        fieldDescriptor,
+        null,
+        null
+    ).visitEnd();
+  }
+
+  /**
+   * Generate static getInstance() method for function singleton pattern.
+   * <p>
+   * This generates:
+   * public static FunctionType getInstance() { return INSTANCE; }
+   * </p>
+   *
+   * @param construct The function IR construct
+   */
+  private void generateFunctionGetInstanceMethod(final IRConstruct construct) {
+    final var className = construct.getFullyQualifiedName();
+    final var jvmClassName = jvmNameConverter.apply(className);
+    final var returnDescriptor = "L" + jvmClassName + ";";
+    final var methodDescriptor = "()" + returnDescriptor;
+
+    final var mv = classWriter.visitMethod(
+        ACC_PUBLIC | ACC_STATIC,
+        METHOD_GET_INSTANCE,
+        methodDescriptor,
+        null,
+        null
+    );
+    mv.visitCode();
+
+    // GETSTATIC this.INSTANCE
+    mv.visitFieldInsn(GETSTATIC, jvmClassName, FIELD_INSTANCE, returnDescriptor);
+
+    // ARETURN
+    mv.visitInsn(ARETURN);
+
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
   }
 
   byte[] getByteCode() {
