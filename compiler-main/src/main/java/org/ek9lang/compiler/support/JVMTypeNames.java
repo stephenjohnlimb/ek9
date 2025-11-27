@@ -107,6 +107,10 @@ public final class JVMTypeNames {
   public static final String METHOD_C_INIT = "c_init";  // Static initializer (IR name)
   public static final String METHOD_MAIN = "_main";     // EK9 program entry point
 
+  // Function singleton pattern
+  public static final String METHOD_GET_INSTANCE = "getInstance";  // Static getter for function singleton
+  public static final String FIELD_INSTANCE = "INSTANCE";          // Static field for function singleton
+
   private JVMTypeNames() {
     //stop construction.
   }

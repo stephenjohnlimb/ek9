@@ -31,7 +31,7 @@ class OperatorMappingTest extends AbstractBytecodeGenerationTest {
     // Expected symbols: OperatorTestClass (1) + TestOperatorMapping program (1) = 2
     super("/examples/bytecodeGeneration/operatorMapping",
         List.of(new SymbolCountCheck("bytecode.test.operators", 2)),
-        false, false, false);  // showBytecode=false - @BYTECODE directive updated with fix
+        false, false, false);  // showBytecode=false - @BYTECODE directive verified
   }
 
   @Override

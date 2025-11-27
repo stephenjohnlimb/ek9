@@ -1,0 +1,83 @@
+#!ek9
+<?-
+  Bytecode test for simple function calls.
+  Verifies that functions can be called from programs and produce correct output.
+
+  Key validation: Function singleton pattern
+  - INSTANCE field (private static final)
+  - getInstance() method returning INSTANCE
+  - <clinit> creating and storing the instance
+  - _call() method for function execution
+-?>
+defines module bytecode.test.simplefunctioncall
+
+  @BYTECODE: CODE_GENERATION_AGGREGATES: FUNCTION: "bytecode.test.simplefunctioncall::greet": `public class bytecode.test.simplefunctioncall.greet {
+  private static final bytecode.test.simplefunctioncall.greet INSTANCE;
+
+  public static bytecode.test.simplefunctioncall.greet getInstance();
+    Code:
+         0: getstatic     #CP                 // Field INSTANCE:Lbytecode/test/simplefunctioncall/greet;
+         3: areturn
+
+  static {};
+    Code:
+         0: new           #CP                  // class bytecode/test/simplefunctioncall/greet
+         3: dup
+         4: invokespecial #CP                 // Method "<init>":()V
+         7: putstatic     #CP                 // Field INSTANCE:Lbytecode/test/simplefunctioncall/greet;
+        10: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.simplefunctioncall.greet();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  public org.ek9.lang.String _call(org.ek9.lang.String);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: ldc           #CP                 // String Hello,
+         4: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+         7: astore_3
+         8: aload_1
+         9: astore        4
+        11: aload_3
+        12: aload         4
+        14: invokevirtual #CP                 // Method org/ek9/lang/String._add:(Lorg/ek9/lang/String;)Lorg/ek9/lang/String;
+        17: astore        5
+        19: aload         5
+        21: astore_2
+        22: aload_2
+        23: areturn
+}`
+
+  defines function
+
+    greet()
+      -> name as String
+      <- greeting as String: "Hello, " + name
+
+    add()
+      ->
+        a as Integer
+        b as Integer
+      <- sum as Integer: a + b
+
+  defines program
+
+    SimpleFunctionCall()
+      -> arg as String
+      stdout <- Stdout()
+      result <- greet(arg)
+      stdout.println(result)
+      total <- add(10, 20)
+      stdout.println("Sum is " + $total)
+
+//EOF

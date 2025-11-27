@@ -90,75 +90,65 @@ defines module bytecode.test.operators
   public org.ek9.lang.Integer _cmp(bytecode.test.operators.OperatorTestClass);
     Code:
          0: aconst_null
-         1: astore_1
-         2: aconst_null
-         3: astore_2
-         4: iconst_0
-         5: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
-         8: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
-        11: astore_3
-        12: aload_3
-        13: astore_2
-        14: aload_2
-        15: areturn
+         1: astore_2
+         2: iconst_0
+         3: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+         6: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aload_2
+        13: areturn
 
   public org.ek9.lang.Boolean _eq(bytecode.test.operators.OperatorTestClass);
     Code:
          0: aconst_null
-         1: astore_1
-         2: aconst_null
-         3: astore_2
-         4: iconst_1
-         5: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
-         8: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
-        11: astore_3
-        12: aload_3
-        13: astore_2
-        14: aload_2
-        15: areturn
+         1: astore_2
+         2: iconst_1
+         3: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+         6: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aload_2
+        13: areturn
 
   public org.ek9.lang.Boolean _neq(bytecode.test.operators.OperatorTestClass);
     Code:
          0: aconst_null
-         1: astore_1
-         2: aconst_null
-         3: astore_2
-         4: iconst_0
-         5: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
-         8: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
-        11: astore_3
-        12: aload_3
-        13: astore_2
-        14: aload_2
-        15: areturn
+         1: astore_2
+         2: iconst_0
+         3: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+         6: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aload_2
+        13: areturn
 
   public bytecode.test.operators.OperatorTestClass _add(bytecode.test.operators.OperatorTestClass);
     Code:
          0: aconst_null
-         1: astore_1
-         2: aconst_null
-         3: astore_2
-         4: aload_0
-         5: astore_3
-         6: aload_3
-         7: astore_2
-         8: aload_2
-         9: areturn
+         1: astore_2
+         2: aload_0
+         3: astore_3
+         4: aload_3
+         5: astore_2
+         6: aload_2
+         7: areturn
 
   public org.ek9.lang.Boolean _lt(bytecode.test.operators.OperatorTestClass);
     Code:
          0: aconst_null
-         1: astore_1
-         2: aconst_null
-         3: astore_2
-         4: iconst_0
-         5: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
-         8: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
-        11: astore_3
-        12: aload_3
-        13: astore_2
-        14: aload_2
-        15: areturn
+         1: astore_2
+         2: iconst_0
+         3: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+         6: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aload_2
+        13: areturn
 
   public bytecode.test.operators.OperatorTestClass();
     Code:
