@@ -15,4 +15,8 @@ class SyntheticClassEqualsIRTest extends AbstractIRGenerationTest {
         ), false, false, false);
   }
 
+  @Override
+  protected boolean addDebugInstrumentation() {
+    return false;
+  }
 }

@@ -43,6 +43,7 @@ public final class SyntheticOperatorGenerator {
   private final IRGenerationContext stackContext;
   private final EqualsGenerator equalsGenerator;
   private final CompareGenerator compareGenerator;
+  private final IsSetGenerator isSetGenerator;
 
   /**
    * Create a new synthetic operator generator.
@@ -54,6 +55,7 @@ public final class SyntheticOperatorGenerator {
     this.stackContext = stackContext;
     this.equalsGenerator = new EqualsGenerator(stackContext);
     this.compareGenerator = new CompareGenerator(stackContext);
+    this.isSetGenerator = new IsSetGenerator(stackContext);
   }
 
   /**
@@ -133,6 +135,7 @@ public final class SyntheticOperatorGenerator {
       case "$" -> generateToStringOperator(instructionBuilder, operatorSymbol, aggregateSymbol);
       case ":=:" -> generateCopyOperator(instructionBuilder, operatorSymbol, aggregateSymbol);
       case "<=>" -> generateCompareOperator(instructionBuilder, operatorSymbol, aggregateSymbol);
+      case "?" -> generateIsSetOperator(instructionBuilder, operatorSymbol, aggregateSymbol);
       case "<", "<=", ">", ">=" ->
           generateOrdinalComparisonOperator(instructionBuilder, operatorName, operatorSymbol, aggregateSymbol);
       case "++", "--" ->
@@ -238,6 +241,22 @@ public final class SyntheticOperatorGenerator {
   }
 
   /**
+   * Generate _isSet (?) operator - check if all fields are set.
+   *
+   * <p>Delegates to {@link IsSetGenerator} which implements:</p>
+   * <ul>
+   *   <li>Field-by-field isSet checking</li>
+   *   <li>Short-circuit evaluation (return false on first unset field)</li>
+   *   <li>Returns true only if ALL fields are set</li>
+   * </ul>
+   */
+  private List<IRInstr> generateIsSetOperator(final IRInstructionBuilder builder,
+                                              final MethodSymbol operatorSymbol,
+                                              final AggregateSymbol aggregateSymbol) {
+    return isSetGenerator.generate(operatorSymbol, aggregateSymbol);
+  }
+
+  /**
    * Generate ordinal comparison operators (_lt, _lte, _gt, _gte) for enumerations.
    * TODO: Implement ordinal comparison
    */
@@ -263,13 +282,18 @@ public final class SyntheticOperatorGenerator {
 
   /**
    * Generate _isSet method - check if all required fields are set.
-   * TODO: Implement field isSet checking
+   *
+   * <p>Delegates to {@link IsSetGenerator} which implements:</p>
+   * <ul>
+   *   <li>Field-by-field isSet checking</li>
+   *   <li>Short-circuit evaluation (return false on first unset field)</li>
+   *   <li>Returns true only if ALL fields are set</li>
+   * </ul>
    */
   private List<IRInstr> generateIsSetMethod(final IRInstructionBuilder builder,
                                             final MethodSymbol methodSymbol,
                                             final AggregateSymbol aggregateSymbol) {
-    // TODO: Implementation
-    return generatePlaceholder(builder, "_isSet");
+    return isSetGenerator.generate(methodSymbol, aggregateSymbol);
   }
 
   /**

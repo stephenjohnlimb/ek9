@@ -54,7 +54,8 @@ import org.ek9lang.core.AssertValue;
 final class EqualsGenerator extends AbstractSyntheticGenerator {
 
   private static final String RETURN_VAR = "rtn";
-  private static final String OTHER_PARAM = "other";
+  // Must match AggregateManipulator.PARAM - the actual parameter name in MethodSymbol
+  private static final String OTHER_PARAM = "param";
 
   EqualsGenerator(final IRGenerationContext stackContext) {
     super(stackContext);
@@ -76,6 +77,7 @@ final class EqualsGenerator extends AbstractSyntheticGenerator {
     final var instructions = new ArrayList<IRInstr>();
     final var debugInfo = createDebugInfo(operatorSymbol);
     final var scopeId = stackContext.generateScopeId("_eq");
+    final var aggregateTypeName = aggregateSymbol.getFullyQualifiedName();
 
     // Labels for control flow
     final var returnUnsetLabel = generateLabelName("return_unset");
@@ -89,8 +91,8 @@ final class EqualsGenerator extends AbstractSyntheticGenerator {
     instructions.add(MemoryInstr.reference(RETURN_VAR, getBooleanTypeName(), debugInfo));
 
     // Generate isSet guards for this and other
-    instructions.addAll(generateThisIsSetGuard(debugInfo, returnUnsetLabel, scopeId));
-    instructions.addAll(generateIsSetGuard(OTHER_PARAM, debugInfo, returnUnsetLabel, scopeId));
+    instructions.addAll(generateThisIsSetGuard(aggregateTypeName, debugInfo, returnUnsetLabel, scopeId));
+    instructions.addAll(generateIsSetGuard(OTHER_PARAM, aggregateTypeName, debugInfo, returnUnsetLabel, scopeId));
 
     // Check if super has the == operator
     final var superHasEq = superHasOperator(aggregateSymbol, "==");
@@ -153,15 +155,17 @@ final class EqualsGenerator extends AbstractSyntheticGenerator {
     instructions.addAll(generateMethodCall(
         superResultVar,
         IRConstants.SUPER,
+        superAggregate.getFullyQualifiedName(),
         "_eq",
         List.of(OTHER_PARAM),
+        List.of(superAggregate.getFullyQualifiedName()),
         getBooleanTypeName(),
         debugInfo,
         scopeId
     ));
 
     // Check if super result is set
-    instructions.addAll(generateIsSetGuard(superResultVar, debugInfo, returnUnsetLabel, scopeId));
+    instructions.addAll(generateIsSetGuard(superResultVar, getBooleanTypeName(), debugInfo, returnUnsetLabel, scopeId));
 
     // Check if super result is true
     instructions.addAll(generateTrueCheck(superResultVar, debugInfo, returnFalseLabel, scopeId));
@@ -179,6 +183,7 @@ final class EqualsGenerator extends AbstractSyntheticGenerator {
                                               final String returnFalseLabel) {
 
     final var fieldName = field.getName();
+    final var fieldTypeName = getTypeName(field);
 
     // Load this.field
     final var thisFieldVar = generateTempName();
@@ -195,15 +200,17 @@ final class EqualsGenerator extends AbstractSyntheticGenerator {
     instructions.addAll(generateMethodCall(
         eqResultVar,
         thisFieldVar,
+        fieldTypeName,
         "_eq",
         List.of(otherFieldVar),
+        List.of(fieldTypeName),
         getBooleanTypeName(),
         debugInfo,
         scopeId
     ));
 
     // Check if result is set
-    instructions.addAll(generateIsSetGuard(eqResultVar, debugInfo, returnUnsetLabel, scopeId));
+    instructions.addAll(generateIsSetGuard(eqResultVar, getBooleanTypeName(), debugInfo, returnUnsetLabel, scopeId));
 
     // Check if result is true (branch to false if not)
     instructions.addAll(generateTrueCheck(eqResultVar, debugInfo, returnFalseLabel, scopeId));
@@ -224,7 +231,9 @@ final class EqualsGenerator extends AbstractSyntheticGenerator {
     final var instructions = new ArrayList<>(generateMethodCall(
         trueResultVar,
         booleanVar,
+        getBooleanTypeName(),
         "_true",
+        List.of(),
         List.of(),
         "boolean", // Primitive type
         debugInfo,
@@ -250,13 +259,11 @@ final class EqualsGenerator extends AbstractSyntheticGenerator {
     // Label
     instructions.add(LabelInstr.label(labelName));
 
-    // Create unset value via Boolean._new()
+    // Create unset value via constructor call
+    // Pattern: CALL (Type)Type.<init>() - creates new instance with NEW + DUP + INVOKESPECIAL
     final var resultTemp = generateTempName();
-    instructions.addAll(generateMethodCall(
+    instructions.addAll(generateConstructorCall(
         resultTemp,
-        null,
-        "_new",
-        List.of(),
         returnTypeName,
         debugInfo,
         scopeId
@@ -287,12 +294,14 @@ final class EqualsGenerator extends AbstractSyntheticGenerator {
     // Label
     instructions.add(LabelInstr.label(labelName));
 
-    // Create Boolean via Boolean._of(value)
+    // Create Boolean via Boolean._ofTrue() or _ofFalse()
     final var resultTemp = generateTempName();
     instructions.addAll(generateMethodCall(
         resultTemp,
         null,
+        getBooleanTypeName(),
         value ? "_ofTrue" : "_ofFalse",
+        List.of(),
         List.of(),
         getBooleanTypeName(),
         debugInfo,

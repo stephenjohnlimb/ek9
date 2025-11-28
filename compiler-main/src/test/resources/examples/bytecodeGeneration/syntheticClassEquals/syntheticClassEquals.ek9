@@ -1,0 +1,182 @@
+#!ek9
+<?-
+  Bytecode test for synthetic operator generation.
+  Tests default operator <=> on a simple class with ONE field.
+-?>
+defines module bytecode.syntheticClassEquals
+
+  defines class
+
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.syntheticClassEquals::SimplePoint": `public class bytecode.syntheticClassEquals.SimplePoint implements org.ek9.lang.Any
+
+{
+  private org.ek9.lang.Integer x;
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: aconst_null
+         1: aload_0
+         2: swap
+         3: putfield      #CP                 // Field x:Lorg/ek9/lang/Integer;
+         6: new           #CP                 // class org/ek9/lang/Integer
+         9: dup
+        10: invokespecial #CP                 // Method org/ek9/lang/Integer."<init>":()V
+        13: astore_1
+        14: aload_1
+        15: aload_0
+        16: swap
+        17: putfield      #CP                 // Field x:Lorg/ek9/lang/Integer;
+        20: return
+
+  public bytecode.syntheticClassEquals.SimplePoint();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: aload_0
+         9: getfield      #CP                 // Field x:Lorg/ek9/lang/Integer;
+        12: astore_1
+        13: iconst_5
+        14: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        17: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        20: astore_2
+        21: aload_1
+        22: aload_2
+        23: invokevirtual #CP                 // Method org/ek9/lang/Integer._copy:(Lorg/ek9/lang/Integer;)V
+        26: return
+
+  public org.ek9.lang.Boolean _isSet();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: aload_0
+         3: getfield      #CP                 // Field x:Lorg/ek9/lang/Integer;
+         6: astore_2
+         7: aload_2
+         8: invokevirtual #CP                 // Method org/ek9/lang/Integer._isSet:()Lorg/ek9/lang/Boolean;
+        11: astore_3
+        12: aload_3
+        13: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        16: istore        4
+        18: iload         4
+        20: ifeq          26
+        23: goto          36
+        26: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
+        29: astore        5
+        31: aload         5
+        33: astore_1
+        34: aload_1
+        35: areturn
+        36: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofTrue:()Lorg/ek9/lang/Boolean;
+        39: astore        6
+        41: aload         6
+        43: astore_1
+        44: aload_1
+        45: areturn
+
+  public org.ek9.lang.Integer _cmp(bytecode.syntheticClassEquals.SimplePoint);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: aload_0
+         3: invokevirtual #CP                 // Method _isSet:()Lorg/ek9/lang/Boolean;
+         6: astore_3
+         7: aload_3
+         8: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        11: istore        4
+        13: iload         4
+        15: ifeq          115
+        18: aload_1
+        19: invokevirtual #CP                 // Method _isSet:()Lorg/ek9/lang/Boolean;
+        22: astore        5
+        24: aload         5
+        26: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        29: istore        6
+        31: iload         6
+        33: ifeq          115
+        36: aload_0
+        37: getfield      #CP                 // Field x:Lorg/ek9/lang/Integer;
+        40: astore        7
+        42: aload_1
+        43: getfield      #CP                 // Field x:Lorg/ek9/lang/Integer;
+        46: astore        8
+        48: aload         7
+        50: aload         8
+        52: invokevirtual #CP                 // Method org/ek9/lang/Integer._cmp:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
+        55: astore        9
+        57: aload         9
+        59: invokevirtual #CP                 // Method org/ek9/lang/Integer._isSet:()Lorg/ek9/lang/Boolean;
+        62: astore        10
+        64: aload         10
+        66: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        69: istore        11
+        71: iload         11
+        73: ifeq          115
+        76: iconst_0
+        77: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+        80: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+        83: astore        12
+        85: aload         9
+        87: aload         12
+        89: invokevirtual #CP                 // Method org/ek9/lang/Integer._eq:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+        92: astore        13
+        94: aload         13
+        96: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        99: istore        14
+       101: iload         14
+       103: ifne          112
+       106: aload         9
+       108: astore_2
+       109: goto          143
+       112: goto          129
+       115: new           #CP                 // class org/ek9/lang/Integer
+       118: dup
+       119: invokespecial #CP                 // Method org/ek9/lang/Integer."<init>":()V
+       122: astore        15
+       124: aload         15
+       126: astore_2
+       127: aload_2
+       128: areturn
+       129: iconst_0
+       130: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
+       133: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
+       136: astore        16
+       138: aload         16
+       140: astore_2
+       141: aload_2
+       142: areturn
+       143: aload_2
+       144: areturn
+}`
+
+    SimplePoint
+      x <- Integer()
+
+      SimplePoint()
+        this.x :=: 5
+
+      //Needed for _isSet() to return true when object is set
+      default operator ?
+
+      //This is the synthetic operator that causes the Frame.merge error
+      default operator <=>
+
+  defines program
+
+    TestSyntheticClassEquals()
+      stdout <- Stdout()
+
+      stdout.println("Test 1: Compare equal points")
+      p1 <- SimplePoint()
+      p2 <- SimplePoint()
+      cmp1 <- p1 <=> p2
+      stdout.println(cmp1)
+
+      stdout.println("All tests passed")
+
+//EOF

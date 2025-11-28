@@ -56,7 +56,8 @@ import org.ek9lang.core.AssertValue;
 final class CompareGenerator extends AbstractSyntheticGenerator {
 
   private static final String RETURN_VAR = "rtn";
-  private static final String OTHER_PARAM = "other";
+  // Must match AggregateManipulator.PARAM - the actual parameter name in MethodSymbol
+  private static final String OTHER_PARAM = "param";
 
   CompareGenerator(final IRGenerationContext stackContext) {
     super(stackContext);
@@ -78,10 +79,12 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     final var instructions = new ArrayList<IRInstr>();
     final var debugInfo = createDebugInfo(operatorSymbol);
     final var scopeId = stackContext.generateScopeId("_cmp");
+    final var aggregateTypeName = aggregateSymbol.getFullyQualifiedName();
 
     // Labels for control flow - generate ONCE and reuse
     final var returnUnsetLabel = generateLabelName("return_unset");
     final var returnZeroLabel = generateLabelName("return_zero");
+    final var returnResultLabel = generateLabelName("return_result");
 
     // Enter scope
     instructions.add(ScopeInstr.enter(scopeId, debugInfo));
@@ -90,8 +93,8 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     instructions.add(MemoryInstr.reference(RETURN_VAR, getIntegerTypeName(), debugInfo));
 
     // Generate isSet guards for this and other
-    instructions.addAll(generateThisIsSetGuard(debugInfo, returnUnsetLabel, scopeId));
-    instructions.addAll(generateIsSetGuard(OTHER_PARAM, debugInfo, returnUnsetLabel, scopeId));
+    instructions.addAll(generateThisIsSetGuard(aggregateTypeName, debugInfo, returnUnsetLabel, scopeId));
+    instructions.addAll(generateIsSetGuard(OTHER_PARAM, aggregateTypeName, debugInfo, returnUnsetLabel, scopeId));
 
     // Check if super has the <=> operator
     final var superHasCmp = superHasOperator(aggregateSymbol, "<=>");
@@ -99,7 +102,7 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     // Generate super._cmp check only if super actually has the operator
     if (superHasCmp) {
       instructions.addAll(generateSuperCmpCheck(aggregateSymbol, debugInfo, scopeId,
-          returnUnsetLabel));
+          returnUnsetLabel, returnResultLabel));
     }
 
     // Generate field-by-field comparison for this class's own fields only
@@ -108,17 +111,18 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     final var fields = getSyntheticFields(aggregateSymbol);
     for (final var field : fields) {
       instructions.addAll(generateFieldCmpCheck(field, debugInfo, scopeId,
-          returnUnsetLabel));
+          returnUnsetLabel, returnResultLabel));
     }
 
     // All checks passed (all returned zero) - branch to return zero
     instructions.add(BranchInstr.branch(returnZeroLabel, debugInfo));
 
-    // Return blocks
+    // Return blocks - all share single scope exit point
     instructions.addAll(generateUnsetReturnBlockWithLabel(returnUnsetLabel, getIntegerTypeName(),
         RETURN_VAR, debugInfo, scopeId));
     instructions.addAll(generateZeroReturnBlockWithLabel(returnZeroLabel,
         RETURN_VAR, debugInfo, scopeId));
+    instructions.addAll(generateResultReturnBlock(returnResultLabel, debugInfo, scopeId));
 
     return instructions;
   }
@@ -129,7 +133,8 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
   private List<IRInstr> generateSuperCmpCheck(final AggregateSymbol aggregateSymbol,
                                                final DebugInfo debugInfo,
                                                final String scopeId,
-                                               final String returnUnsetLabel) {
+                                               final String returnUnsetLabel,
+                                               final String returnResultLabel) {
 
     final var instructions = new ArrayList<IRInstr>();
 
@@ -151,18 +156,20 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     instructions.addAll(generateMethodCall(
         superResultVar,
         IRConstants.SUPER,
+        superAggregate.getFullyQualifiedName(),
         "_cmp",
         List.of(OTHER_PARAM),
+        List.of(superAggregate.getFullyQualifiedName()),
         getIntegerTypeName(),
         debugInfo,
         scopeId
     ));
 
     // Check if super result is set
-    instructions.addAll(generateIsSetGuard(superResultVar, debugInfo, returnUnsetLabel, scopeId));
+    instructions.addAll(generateIsSetGuard(superResultVar, getIntegerTypeName(), debugInfo, returnUnsetLabel, scopeId));
 
-    // Check if super result is non-zero - if so, return it
-    instructions.addAll(generateNonZeroCheck(superResultVar, debugInfo, scopeId));
+    // Check if super result is non-zero - if so, store and branch to return
+    instructions.addAll(generateNonZeroCheck(superResultVar, debugInfo, scopeId, returnResultLabel));
 
     return instructions;
   }
@@ -173,9 +180,11 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
   private List<IRInstr> generateFieldCmpCheck(final ISymbol field,
                                                final DebugInfo debugInfo,
                                                final String scopeId,
-                                               final String returnUnsetLabel) {
+                                               final String returnUnsetLabel,
+                                               final String returnResultLabel) {
 
     final var fieldName = field.getName();
+    final var fieldTypeName = getTypeName(field);
 
     // Load this.field
     final var thisFieldVar = generateTempName();
@@ -192,43 +201,44 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     instructions.addAll(generateMethodCall(
         cmpResultVar,
         thisFieldVar,
+        fieldTypeName,
         "_cmp",
         List.of(otherFieldVar),
+        List.of(fieldTypeName),
         getIntegerTypeName(),
         debugInfo,
         scopeId
     ));
 
     // Check if result is set
-    instructions.addAll(generateIsSetGuard(cmpResultVar, debugInfo, returnUnsetLabel, scopeId));
+    instructions.addAll(generateIsSetGuard(cmpResultVar, getIntegerTypeName(), debugInfo, returnUnsetLabel, scopeId));
 
-    // Check if result is non-zero - if so, return it immediately
-    instructions.addAll(generateNonZeroCheck(cmpResultVar, debugInfo, scopeId));
+    // Check if result is non-zero - if so, store and branch to return
+    instructions.addAll(generateNonZeroCheck(cmpResultVar, debugInfo, scopeId, returnResultLabel));
 
     return instructions;
   }
 
   /**
-   * Generate check if Integer variable is non-zero. If non-zero, return immediately.
+   * Generate check if Integer variable is non-zero. If non-zero, branch to return.
    *
    * <p>Pattern:</p>
    * <pre>
    *   _zero = LOAD_LITERAL 0 -> Integer
    *   _isZero = CALL cmpResult._eq(_zero) -> Boolean
-   *   _isZeroSet = CALL _isZero._isSet() -> Boolean
-   *   BRANCH_FALSE _isZeroSet, return_unset  // propagate unset
    *   _isZeroVal = CALL _isZero._true() -> boolean
    *   BRANCH_TRUE _isZeroVal, continue_label  // If zero, continue
-   *   // If not zero, return the result
+   *   // If not zero, store result and branch to return
    *   STORE rtn, cmpResult
-   *   SCOPE_EXIT scope_id
-   *   RETURN rtn
+   *   RETAIN rtn
+   *   BRANCH return_result_label
    *   continue_label:
    * </pre>
    */
   private List<IRInstr> generateNonZeroCheck(final String integerVar,
                                               final DebugInfo debugInfo,
-                                              final String scopeId) {
+                                              final String scopeId,
+                                              final String returnResultLabel) {
 
     final var instructions = new ArrayList<IRInstr>();
 
@@ -243,8 +253,10 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     instructions.addAll(generateMethodCall(
         isZeroVar,
         integerVar,
+        getIntegerTypeName(),
         "_eq",
         List.of(zeroVar),
+        List.of(getIntegerTypeName()),
         getBooleanTypeName(),
         debugInfo,
         scopeId
@@ -255,7 +267,9 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     instructions.addAll(generateMethodCall(
         isZeroBoolVar,
         isZeroVar,
+        getBooleanTypeName(),
         "_true",
+        List.of(),
         List.of(),
         "boolean",
         debugInfo,
@@ -268,15 +282,33 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     // If zero (equal to zero), branch to continue
     instructions.add(BranchInstr.branchIfTrue(isZeroBoolVar, continueLabel, debugInfo));
 
-    // If not zero, return the result immediately
+    // If not zero, store result and branch to shared return block
     instructions.add(MemoryInstr.store(RETURN_VAR, integerVar, debugInfo));
     instructions.add(MemoryInstr.retain(RETURN_VAR, debugInfo));
-    // NO SCOPE_REGISTER for return var - ownership transfers to caller
-    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
-    instructions.add(BranchInstr.returnValue(RETURN_VAR, debugInfo));
+    // Branch to the shared return block (no inline SCOPE_EXIT/RETURN)
+    instructions.add(BranchInstr.branch(returnResultLabel, debugInfo));
 
     // Continue label
     instructions.add(LabelInstr.label(continueLabel));
+
+    return instructions;
+  }
+
+  /**
+   * Generate the return result block - returns whatever is in RETURN_VAR.
+   * This is a shared return point for non-zero comparison results.
+   */
+  private List<IRInstr> generateResultReturnBlock(final String labelName,
+                                                   final DebugInfo debugInfo,
+                                                   final String scopeId) {
+    final var instructions = new ArrayList<IRInstr>();
+
+    // Label
+    instructions.add(LabelInstr.label(labelName));
+
+    // Scope cleanup and return - RETURN_VAR was already set by caller
+    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
+    instructions.add(BranchInstr.returnValue(RETURN_VAR, debugInfo));
 
     return instructions;
   }
@@ -294,13 +326,11 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     // Label
     instructions.add(LabelInstr.label(labelName));
 
-    // Create unset value via Integer._new()
+    // Create unset value via constructor call
+    // Pattern: CALL (Type)Type.<init>() - creates new instance with NEW + DUP + INVOKESPECIAL
     final var resultTemp = generateTempName();
-    instructions.addAll(generateMethodCall(
+    instructions.addAll(generateConstructorCall(
         resultTemp,
-        null,
-        "_new",
-        List.of(),
         returnTypeName,
         debugInfo,
         scopeId

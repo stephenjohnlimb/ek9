@@ -122,27 +122,40 @@ public abstract class AbstractSyntheticGenerator {
    *   BRANCH_IF_FALSE _temp_val -> unset_label
    * </pre>
    *
-   * @param debugInfo  Debug information for the instructions
-   * @param unsetLabel Label to branch to if unset
-   * @param scopeId    Current scope ID for memory management
+   * @param aggregateTypeName The fully qualified type name of the aggregate
+   * @param debugInfo         Debug information for the instructions
+   * @param unsetLabel        Label to branch to if unset
+   * @param scopeId           Current scope ID for memory management
    * @return List of IR instructions for the guard
    */
-  protected List<IRInstr> generateThisIsSetGuard(final DebugInfo debugInfo,
+  protected List<IRInstr> generateThisIsSetGuard(final String aggregateTypeName,
+                                                 final DebugInfo debugInfo,
                                                  final String unsetLabel,
                                                  final String scopeId) {
-    return generateIsSetGuard(IRConstants.THIS, debugInfo, unsetLabel, scopeId);
+    return generateIsSetGuard(IRConstants.THIS, aggregateTypeName, debugInfo, unsetLabel, scopeId);
   }
 
   /**
    * Generate isSet guard check for a variable with branch to unset return.
    *
+   * <p>The check generates:</p>
+   * <pre>
+   *   1. _temp = CALL variable._isSet() -> Boolean
+   *   2. RETAIN/SCOPE_REGISTER _temp
+   *   3. _tempBool = CALL _temp._true() -> boolean (primitive)
+   *   4. RETAIN/SCOPE_REGISTER _tempBool
+   *   5. BRANCH_FALSE _tempBool, unsetLabel
+   * </pre>
+   *
    * @param variableName The variable to check
+   * @param typeName     The fully qualified type name of the variable
    * @param debugInfo    Debug information for the instructions
    * @param unsetLabel   Label to branch to if unset
    * @param scopeId      Current scope ID for memory management
    * @return List of IR instructions for the guard
    */
   protected List<IRInstr> generateIsSetGuard(final String variableName,
+                                             final String typeName,
                                              final DebugInfo debugInfo,
                                              final String unsetLabel,
                                              final String scopeId) {
@@ -151,25 +164,42 @@ public abstract class AbstractSyntheticGenerator {
     // Generate temp name for isSet result
     final var isSetResult = generateTempName();
 
-    // Call _isSet() on the variable
+    // Call _isSet() on the variable - returns Boolean object
+    // isTraitCall=false because we're calling on a class instance, not through a trait reference
     final var callDetails = new CallDetails(
         variableName,
-        null, // Target type will be resolved
+        typeName,
         "_isSet",
         List.of(),
         getBooleanTypeName(),
         List.of(),
         CallMetaDataDetails.defaultMetaData(),
-        true // isSet is pure
+        false // isTraitCall - class method call uses invokevirtual
     );
     instructions.add(CallInstr.call(isSetResult, debugInfo, callDetails));
 
-    // Memory management for the result
+    // Memory management for the Boolean result
     instructions.add(MemoryInstr.retain(isSetResult, debugInfo));
     instructions.add(ScopeInstr.register(isSetResult, scopeId, debugInfo));
 
-    // Branch if not set
-    instructions.add(BranchInstr.branchIfFalse(isSetResult, unsetLabel, debugInfo));
+    // Convert Boolean to primitive boolean via _true()
+    // Note: Primitive results don't need RETAIN/SCOPE_REGISTER - they're stack values
+    final var primitiveBoolResult = generateTempName();
+    final var trueCallDetails = new CallDetails(
+        isSetResult,
+        getBooleanTypeName(),
+        "_true",
+        List.of(),
+        "boolean",
+        List.of(),
+        CallMetaDataDetails.defaultMetaData(),
+        false // isTraitCall - class method call uses invokevirtual
+    );
+    instructions.add(CallInstr.call(primitiveBoolResult, debugInfo, trueCallDetails));
+
+    // Branch if not set (primitive boolean is false/0)
+    // No memory management needed for primitive - it's stored directly with ISTORE
+    instructions.add(BranchInstr.branchIfFalse(primitiveBoolResult, unsetLabel, debugInfo));
 
     return instructions;
   }
@@ -202,19 +232,20 @@ public abstract class AbstractSyntheticGenerator {
     // Label for the unset return block
     instructions.add(LabelInstr.label(generateLabelName("return_unset")));
 
-    // Create unset value via _new() factory
+    // Create unset value via constructor call
+    // Pattern: CALL (Type)Type.<init>() - creates new instance with NEW + DUP + INVOKESPECIAL
     final var resultTemp = generateTempName();
     final var callDetails = new CallDetails(
-        null, // Static call
+        returnTypeName, // Target is the class name for constructor calls
         returnTypeName,
-        "_new",
+        "<init>",
         List.of(),
         returnTypeName,
         List.of(),
         CallMetaDataDetails.defaultMetaData(),
-        true
+        false // isTraitCall - constructor uses invokespecial
     );
-    instructions.add(CallInstr.callStatic(resultTemp, debugInfo, callDetails));
+    instructions.add(CallInstr.call(resultTemp, debugInfo, callDetails));
 
     // Memory management for temp
     instructions.add(MemoryInstr.retain(resultTemp, debugInfo));
@@ -261,7 +292,7 @@ public abstract class AbstractSyntheticGenerator {
         getBooleanTypeName(),
         List.of(String.valueOf(value)),
         CallMetaDataDetails.defaultMetaData(),
-        true
+        false // isTraitCall - static call doesn't use invokeinterface
     );
     instructions.add(CallInstr.callStatic(resultTemp, debugInfo, callDetails));
 
@@ -363,38 +394,92 @@ public abstract class AbstractSyntheticGenerator {
   }
 
   /**
+   * Generate a constructor call to create a new instance.
+   *
+   * <p>Pattern:</p>
+   * <pre>
+   *   _result = CALL (Type)Type.&lt;init&gt;() [pure=true, complexity=1, effects=RETURN_MUTATION]
+   *   RETAIN _result
+   *   SCOPE_REGISTER _result, scope_id
+   * </pre>
+   *
+   * @param resultVar Variable to store result
+   * @param typeName  Fully qualified type name to construct
+   * @param debugInfo Debug information
+   * @param scopeId   Current scope ID
+   * @return List of IR instructions
+   */
+  protected List<IRInstr> generateConstructorCall(final String resultVar,
+                                                   final String typeName,
+                                                   final DebugInfo debugInfo,
+                                                   final String scopeId) {
+    final var instructions = new ArrayList<IRInstr>();
+
+    // Generate constructor CALL instruction
+    // Target is the class name for constructor calls (triggers NEW + DUP + INVOKESPECIAL pattern)
+    final var callDetails = new CallDetails(
+        typeName, // Target is the class name
+        typeName,
+        "<init>",
+        List.of(),
+        typeName,
+        List.of(),
+        CallMetaDataDetails.defaultMetaData(),
+        false // isTraitCall - constructor uses invokespecial
+    );
+    instructions.add(CallInstr.call(resultVar, debugInfo, callDetails));
+
+    // Memory management
+    instructions.add(MemoryInstr.retain(resultVar, debugInfo));
+    instructions.add(ScopeInstr.register(resultVar, scopeId, debugInfo));
+
+    return instructions;
+  }
+
+  /**
    * Generate a method call on a variable with result storage and memory management.
    *
-   * @param resultVar  Variable to store result
-   * @param targetVar  Variable to call method on
-   * @param methodName Method to call
-   * @param arguments  Method arguments
-   * @param returnType Return type of method
-   * @param debugInfo  Debug information
-   * @param scopeId    Current scope ID
+   * @param resultVar      Variable to store result
+   * @param targetVar      Variable to call method on (null for static calls)
+   * @param targetType     Fully qualified type name of the target
+   * @param methodName     Method to call
+   * @param arguments      Method argument variable names
+   * @param parameterTypes Parameter types (must match arguments)
+   * @param returnType     Return type of method
+   * @param debugInfo      Debug information
+   * @param scopeId        Current scope ID
    * @return List of IR instructions
    */
   protected List<IRInstr> generateMethodCall(final String resultVar,
                                              final String targetVar,
+                                             final String targetType,
                                              final String methodName,
                                              final List<String> arguments,
+                                             final List<String> parameterTypes,
                                              final String returnType,
                                              final DebugInfo debugInfo,
                                              final String scopeId) {
     final var instructions = new ArrayList<IRInstr>();
 
     // Generate CALL instruction
+    // isTraitCall=false because we're calling on class instances, not through trait references
     final var callDetails = new CallDetails(
         targetVar,
-        null, // Type resolved from target
+        targetType,
         methodName,
-        List.of(), // Parameter types resolved
+        parameterTypes,
         returnType,
         arguments,
         CallMetaDataDetails.defaultMetaData(),
-        true // Assume pure for now
+        false // isTraitCall - class method call uses invokevirtual
     );
-    instructions.add(CallInstr.call(resultVar, debugInfo, callDetails));
+
+    // Use static call if no target variable
+    if (targetVar == null) {
+      instructions.add(CallInstr.callStatic(resultVar, debugInfo, callDetails));
+    } else {
+      instructions.add(CallInstr.call(resultVar, debugInfo, callDetails));
+    }
 
     // Memory management for non-void results
     if (resultVar != null) {

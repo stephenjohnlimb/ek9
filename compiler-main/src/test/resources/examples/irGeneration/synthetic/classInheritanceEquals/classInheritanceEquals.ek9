@@ -34,57 +34,62 @@ defines module synthetic.classInheritanceEquals
     BasicBlock: _entry_1
     SCOPE_ENTER __cmp_1
     REFERENCE rtn, org.ek9.lang::Integer
-    _temp1 = CALL (null)this._isSet() [pure=false, complexity=0, trait=true]
+    _temp1 = CALL (synthetic.classInheritanceEquals::Animal)this._isSet() [pure=false, complexity=0]
     RETAIN _temp1
     SCOPE_REGISTER _temp1, __cmp_1
-    BRANCH_FALSE _temp1, _return_unset_1
-    _temp2 = CALL (null)other._isSet() [pure=false, complexity=0, trait=true]
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, __cmp_1
+    _temp2 = CALL (org.ek9.lang::Boolean)_temp1._true() [pure=false, complexity=0]
     BRANCH_FALSE _temp2, _return_unset_1
-    _temp3 = LOAD this.name
+    _temp3 = CALL (synthetic.classInheritanceEquals::Animal)param._isSet() [pure=false, complexity=0]
     RETAIN _temp3
     SCOPE_REGISTER _temp3, __cmp_1
-    _temp4 = LOAD other.name
-    RETAIN _temp4
-    SCOPE_REGISTER _temp4, __cmp_1
-    _temp5 = CALL (null)_temp3._cmp(_temp4) [pure=false, complexity=0, trait=true]
+    _temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=false, complexity=0]
+    BRANCH_FALSE _temp4, _return_unset_1
+    _temp5 = LOAD this.name
     RETAIN _temp5
     SCOPE_REGISTER _temp5, __cmp_1
-    _temp6 = CALL (null)_temp5._isSet() [pure=false, complexity=0, trait=true]
+    _temp6 = LOAD param.name
     RETAIN _temp6
     SCOPE_REGISTER _temp6, __cmp_1
-    BRANCH_FALSE _temp6, _return_unset_1
-    _temp7 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    _temp7 = CALL (org.ek9.lang::String)_temp5._cmp(_temp6) [pure=false, complexity=0]
     RETAIN _temp7
     SCOPE_REGISTER _temp7, __cmp_1
-    _temp8 = CALL (null)_temp5._eq(_temp7) [pure=false, complexity=0, trait=true]
+    _temp8 = CALL (org.ek9.lang::Integer)_temp7._isSet() [pure=false, complexity=0]
     RETAIN _temp8
     SCOPE_REGISTER _temp8, __cmp_1
-    _temp9 = CALL (null)_temp8._true() [pure=false, complexity=0, trait=true]
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, __cmp_1
-    BRANCH_TRUE _temp9, _continue_cmp_1
-    STORE rtn, _temp5
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp8._true() [pure=false, complexity=0]
+    BRANCH_FALSE _temp9, _return_unset_1
+    _temp10 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, __cmp_1
+    _temp11 = CALL (org.ek9.lang::Integer)_temp7._eq(_temp10) [pure=false, complexity=0]
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, __cmp_1
+    _temp12 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=false, complexity=0]
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, __cmp_1
+    BRANCH_TRUE _temp12, _continue_cmp_1
+    STORE rtn, _temp7
     RETAIN rtn
-    SCOPE_EXIT __cmp_1
-    RETURN rtn
+    BRANCH _return_result_1
     LABEL _continue_cmp_1
     BRANCH _return_zero_1
     LABEL _return_unset_1
-    _temp10 = CALL (null)._new() [pure=false, complexity=0, trait=true]
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, __cmp_1
-    STORE rtn, _temp10
+    _temp13 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=false, complexity=0]
+    RETAIN _temp13
+    SCOPE_REGISTER _temp13, __cmp_1
+    STORE rtn, _temp13
     RETAIN rtn
     SCOPE_EXIT __cmp_1
     RETURN rtn
     LABEL _return_zero_1
-    _temp11 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, __cmp_1
-    STORE rtn, _temp11
+    _temp14 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, __cmp_1
+    STORE rtn, _temp14
     RETAIN rtn
+    SCOPE_EXIT __cmp_1
+    RETURN rtn
+    LABEL _return_result_1
     SCOPE_EXIT __cmp_1
     RETURN rtn
     OperationDfn: synthetic.classInheritanceEquals::Animal.Animal()->synthetic.classInheritanceEquals::Animal
@@ -116,132 +121,140 @@ defines module synthetic.classInheritanceEquals
     BasicBlock: _entry_1
     SCOPE_ENTER __cmp_1
     REFERENCE rtn, org.ek9.lang::Integer
-    _temp1 = CALL (null)this._isSet() [pure=false, complexity=0, trait=true]
+    _temp1 = CALL (synthetic.classInheritanceEquals::Cat)this._isSet() [pure=false, complexity=0]
     RETAIN _temp1
     SCOPE_REGISTER _temp1, __cmp_1
-    BRANCH_FALSE _temp1, _return_unset_1
-    _temp2 = CALL (null)other._isSet() [pure=false, complexity=0, trait=true]
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, __cmp_1
+    _temp2 = CALL (org.ek9.lang::Boolean)_temp1._true() [pure=false, complexity=0]
     BRANCH_FALSE _temp2, _return_unset_1
-    _temp3 = CALL (null)super._cmp(other) [pure=false, complexity=0, trait=true]
+    _temp3 = CALL (synthetic.classInheritanceEquals::Cat)param._isSet() [pure=false, complexity=0]
     RETAIN _temp3
     SCOPE_REGISTER _temp3, __cmp_1
-    _temp4 = CALL (null)_temp3._isSet() [pure=false, complexity=0, trait=true]
-    RETAIN _temp4
-    SCOPE_REGISTER _temp4, __cmp_1
+    _temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=false, complexity=0]
     BRANCH_FALSE _temp4, _return_unset_1
-    _temp5 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    _temp5 = CALL (synthetic.classInheritanceEquals::Animal)super._cmp(param) [pure=false, complexity=0]
     RETAIN _temp5
     SCOPE_REGISTER _temp5, __cmp_1
-    _temp6 = CALL (null)_temp3._eq(_temp5) [pure=false, complexity=0, trait=true]
+    _temp6 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=false, complexity=0]
     RETAIN _temp6
     SCOPE_REGISTER _temp6, __cmp_1
-    _temp7 = CALL (null)_temp6._true() [pure=false, complexity=0, trait=true]
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, __cmp_1
-    BRANCH_TRUE _temp7, _continue_cmp_1
-    STORE rtn, _temp3
-    RETAIN rtn
-    SCOPE_EXIT __cmp_1
-    RETURN rtn
-    LABEL _continue_cmp_1
-    _temp8 = LOAD this.breed
+    _temp7 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=false, complexity=0]
+    BRANCH_FALSE _temp7, _return_unset_1
+    _temp8 = LOAD_LITERAL 0, org.ek9.lang::Integer
     RETAIN _temp8
     SCOPE_REGISTER _temp8, __cmp_1
-    _temp9 = LOAD other.breed
+    _temp9 = CALL (org.ek9.lang::Integer)_temp5._eq(_temp8) [pure=false, complexity=0]
     RETAIN _temp9
     SCOPE_REGISTER _temp9, __cmp_1
-    _temp10 = CALL (null)_temp8._cmp(_temp9) [pure=false, complexity=0, trait=true]
+    _temp10 = CALL (org.ek9.lang::Boolean)_temp9._true() [pure=false, complexity=0]
     RETAIN _temp10
     SCOPE_REGISTER _temp10, __cmp_1
-    _temp11 = CALL (null)_temp10._isSet() [pure=false, complexity=0, trait=true]
+    BRANCH_TRUE _temp10, _continue_cmp_1
+    STORE rtn, _temp5
+    RETAIN rtn
+    BRANCH _return_result_1
+    LABEL _continue_cmp_1
+    _temp11 = LOAD this.breed
     RETAIN _temp11
     SCOPE_REGISTER _temp11, __cmp_1
-    BRANCH_FALSE _temp11, _return_unset_1
-    _temp12 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    _temp12 = LOAD param.breed
     RETAIN _temp12
     SCOPE_REGISTER _temp12, __cmp_1
-    _temp13 = CALL (null)_temp10._eq(_temp12) [pure=false, complexity=0, trait=true]
+    _temp13 = CALL (org.ek9.lang::String)_temp11._cmp(_temp12) [pure=false, complexity=0]
     RETAIN _temp13
     SCOPE_REGISTER _temp13, __cmp_1
-    _temp14 = CALL (null)_temp13._true() [pure=false, complexity=0, trait=true]
+    _temp14 = CALL (org.ek9.lang::Integer)_temp13._isSet() [pure=false, complexity=0]
     RETAIN _temp14
     SCOPE_REGISTER _temp14, __cmp_1
-    BRANCH_TRUE _temp14, _continue_cmp_2
-    STORE rtn, _temp10
+    _temp15 = CALL (org.ek9.lang::Boolean)_temp14._true() [pure=false, complexity=0]
+    BRANCH_FALSE _temp15, _return_unset_1
+    _temp16 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp16
+    SCOPE_REGISTER _temp16, __cmp_1
+    _temp17 = CALL (org.ek9.lang::Integer)_temp13._eq(_temp16) [pure=false, complexity=0]
+    RETAIN _temp17
+    SCOPE_REGISTER _temp17, __cmp_1
+    _temp18 = CALL (org.ek9.lang::Boolean)_temp17._true() [pure=false, complexity=0]
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, __cmp_1
+    BRANCH_TRUE _temp18, _continue_cmp_2
+    STORE rtn, _temp13
     RETAIN rtn
-    SCOPE_EXIT __cmp_1
-    RETURN rtn
+    BRANCH _return_result_1
     LABEL _continue_cmp_2
     BRANCH _return_zero_1
     LABEL _return_unset_1
-    _temp15 = CALL (null)._new() [pure=false, complexity=0, trait=true]
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, __cmp_1
-    STORE rtn, _temp15
+    _temp19 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=false, complexity=0]
+    RETAIN _temp19
+    SCOPE_REGISTER _temp19, __cmp_1
+    STORE rtn, _temp19
     RETAIN rtn
     SCOPE_EXIT __cmp_1
     RETURN rtn
     LABEL _return_zero_1
-    _temp16 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp16
-    SCOPE_REGISTER _temp16, __cmp_1
-    STORE rtn, _temp16
+    _temp20 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp20
+    SCOPE_REGISTER _temp20, __cmp_1
+    STORE rtn, _temp20
     RETAIN rtn
+    SCOPE_EXIT __cmp_1
+    RETURN rtn
+    LABEL _return_result_1
     SCOPE_EXIT __cmp_1
     RETURN rtn
     OperationDfn: synthetic.classInheritanceEquals::Cat.==(synthetic.classInheritanceEquals::Cat)->org.ek9.lang::Boolean
     BasicBlock: _entry_2
     SCOPE_ENTER __eq_1
     REFERENCE rtn, org.ek9.lang::Boolean
-    _temp17 = CALL (null)this._isSet() [pure=false, complexity=0, trait=true]
-    RETAIN _temp17
-    SCOPE_REGISTER _temp17, __eq_1
-    BRANCH_FALSE _temp17, _return_unset_2
-    _temp18 = CALL (null)other._isSet() [pure=false, complexity=0, trait=true]
-    RETAIN _temp18
-    SCOPE_REGISTER _temp18, __eq_1
-    BRANCH_FALSE _temp18, _return_unset_2
-    _temp19 = LOAD this.breed
-    RETAIN _temp19
-    SCOPE_REGISTER _temp19, __eq_1
-    _temp20 = LOAD other.breed
-    RETAIN _temp20
-    SCOPE_REGISTER _temp20, __eq_1
-    _temp21 = CALL (null)_temp19._eq(_temp20) [pure=false, complexity=0, trait=true]
+    _temp21 = CALL (synthetic.classInheritanceEquals::Cat)this._isSet() [pure=false, complexity=0]
     RETAIN _temp21
     SCOPE_REGISTER _temp21, __eq_1
-    _temp22 = CALL (null)_temp21._isSet() [pure=false, complexity=0, trait=true]
-    RETAIN _temp22
-    SCOPE_REGISTER _temp22, __eq_1
+    _temp22 = CALL (org.ek9.lang::Boolean)_temp21._true() [pure=false, complexity=0]
     BRANCH_FALSE _temp22, _return_unset_2
-    _temp23 = CALL (null)_temp21._true() [pure=false, complexity=0, trait=true]
+    _temp23 = CALL (synthetic.classInheritanceEquals::Cat)param._isSet() [pure=false, complexity=0]
     RETAIN _temp23
     SCOPE_REGISTER _temp23, __eq_1
-    BRANCH_FALSE _temp23, _return_false_1
+    _temp24 = CALL (org.ek9.lang::Boolean)_temp23._true() [pure=false, complexity=0]
+    BRANCH_FALSE _temp24, _return_unset_2
+    _temp25 = LOAD this.breed
+    RETAIN _temp25
+    SCOPE_REGISTER _temp25, __eq_1
+    _temp26 = LOAD param.breed
+    RETAIN _temp26
+    SCOPE_REGISTER _temp26, __eq_1
+    _temp27 = CALL (org.ek9.lang::String)_temp25._eq(_temp26) [pure=false, complexity=0]
+    RETAIN _temp27
+    SCOPE_REGISTER _temp27, __eq_1
+    _temp28 = CALL (org.ek9.lang::Boolean)_temp27._isSet() [pure=false, complexity=0]
+    RETAIN _temp28
+    SCOPE_REGISTER _temp28, __eq_1
+    _temp29 = CALL (org.ek9.lang::Boolean)_temp28._true() [pure=false, complexity=0]
+    BRANCH_FALSE _temp29, _return_unset_2
+    _temp30 = CALL (org.ek9.lang::Boolean)_temp27._true() [pure=false, complexity=0]
+    RETAIN _temp30
+    SCOPE_REGISTER _temp30, __eq_1
+    BRANCH_FALSE _temp30, _return_false_1
     BRANCH _return_true_1
     LABEL _return_unset_2
-    _temp24 = CALL (null)._new() [pure=false, complexity=0, trait=true]
-    RETAIN _temp24
-    SCOPE_REGISTER _temp24, __eq_1
-    STORE rtn, _temp24
+    _temp31 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>() [pure=false, complexity=0]
+    RETAIN _temp31
+    SCOPE_REGISTER _temp31, __eq_1
+    STORE rtn, _temp31
     RETAIN rtn
     SCOPE_EXIT __eq_1
     RETURN rtn
     LABEL _return_false_1
-    _temp25 = CALL (null)._ofFalse() [pure=false, complexity=0, trait=true]
-    RETAIN _temp25
-    SCOPE_REGISTER _temp25, __eq_1
-    STORE rtn, _temp25
+    _temp32 = CALL_STATIC (org.ek9.lang::Boolean)._ofFalse() [pure=false, complexity=0]
+    RETAIN _temp32
+    SCOPE_REGISTER _temp32, __eq_1
+    STORE rtn, _temp32
     RETAIN rtn
     SCOPE_EXIT __eq_1
     RETURN rtn
     LABEL _return_true_1
-    _temp26 = CALL (null)._ofTrue() [pure=false, complexity=0, trait=true]
-    RETAIN _temp26
-    SCOPE_REGISTER _temp26, __eq_1
-    STORE rtn, _temp26
+    _temp33 = CALL_STATIC (org.ek9.lang::Boolean)._ofTrue() [pure=false, complexity=0]
+    RETAIN _temp33
+    SCOPE_REGISTER _temp33, __eq_1
+    STORE rtn, _temp33
     RETAIN rtn
     SCOPE_EXIT __eq_1
     RETURN rtn

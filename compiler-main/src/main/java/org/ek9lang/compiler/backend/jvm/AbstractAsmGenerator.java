@@ -318,17 +318,36 @@ abstract class AbstractAsmGenerator {
 
   /**
    * Generate common JVM instructions for loading a variable.
-   * Handles both local variables (ALOAD) and field access (GETFIELD).
+   * Handles local variables (ALOAD), field access on this (GETFIELD), and
+   * field access on other variables (ALOAD + GETFIELD).
    */
   protected void generateLoadVariable(final String variableName) {
     if (isFieldAccess(variableName)) {
-      // Field access: ALOAD_0 (this) + GETFIELD
+      // Field access on 'this': ALOAD_0 (this) + GETFIELD
       final var fieldName = extractFieldName(variableName);
       final var fieldDescriptor = getFieldDescriptor(variableName);
       final var ownerClass = getOwnerClassName();
 
       // Load 'this' reference (always in slot 0 for instance methods)
       getCurrentMethodVisitor().visitVarInsn(Opcodes.ALOAD, 0);
+
+      // Generate GETFIELD instruction
+      getCurrentMethodVisitor().visitFieldInsn(
+          Opcodes.GETFIELD,
+          ownerClass,
+          fieldName,
+          fieldDescriptor
+      );
+    } else if (isVariableFieldAccess(variableName)) {
+      // Field access on another variable (e.g., "param.x"): ALOAD var + GETFIELD
+      final var parts = variableName.split("\\.", 2);
+      final var objectVar = parts[0];
+      final var fieldName = parts[1];
+      final var fieldDescriptor = getFieldDescriptor("this." + fieldName);
+      final var ownerClass = getOwnerClassName();
+
+      // Load the variable that contains the object
+      getCurrentMethodVisitor().visitVarInsn(Opcodes.ALOAD, getVariableIndex(objectVar));
 
       // Generate GETFIELD instruction
       getCurrentMethodVisitor().visitFieldInsn(
@@ -387,7 +406,7 @@ abstract class AbstractAsmGenerator {
   }
 
   /**
-   * Check if variable name represents field access.
+   * Check if variable name represents field access on 'this'.
    * <p>
    * Field access can be:
    * 1. Explicit: "this.fieldName" - Direct field reference with prefix
@@ -399,7 +418,7 @@ abstract class AbstractAsmGenerator {
    * </p>
    *
    * @param variableName Variable name to check
-   * @return true if this is a field access pattern
+   * @return true if this is a field access pattern on 'this'
    */
   protected boolean isFieldAccess(final String variableName) {
     if (variableName == null) {
@@ -414,6 +433,40 @@ abstract class AbstractAsmGenerator {
     // Check implicit "fieldName" format - does "this.fieldName" exist in metadata?
     final var withPrefix = "this." + variableName;
     return methodContext.fieldDescriptorMap.containsKey(withPrefix);
+  }
+
+  /**
+   * Check if variable name represents field access on another variable (not 'this').
+   * <p>
+   * Matches patterns like "param.x" or "other.fieldName" where:
+   * - The variable before the dot is a local variable or parameter
+   * - The name after the dot is a field that exists in the current class
+   * </p>
+   *
+   * @param variableName Variable name to check (e.g., "param.x")
+   * @return true if this is field access on another variable
+   */
+  protected boolean isVariableFieldAccess(final String variableName) {
+    if (variableName == null || !variableName.contains(".")) {
+      return false;
+    }
+
+    // Already handled by isFieldAccess
+    if (variableName.startsWith("this.")) {
+      return false;
+    }
+
+    // Check if pattern matches "variableName.fieldName" where fieldName is a known field
+    final var parts = variableName.split("\\.", 2);
+    if (parts.length != 2) {
+      return false;
+    }
+
+    final var fieldName = parts[1];
+
+    // Check if the field exists in our field metadata
+    final var withThisPrefix = "this." + fieldName;
+    return methodContext.fieldDescriptorMap.containsKey(withThisPrefix);
   }
 
   /**
