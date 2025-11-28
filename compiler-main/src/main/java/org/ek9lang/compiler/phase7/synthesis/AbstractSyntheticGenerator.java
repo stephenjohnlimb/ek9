@@ -14,7 +14,9 @@ import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
+import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -290,6 +292,39 @@ public abstract class AbstractSyntheticGenerator {
    */
   protected List<ISymbol> getSyntheticFields(final AggregateSymbol aggregateSymbol) {
     return new ArrayList<>(aggregateSymbol.getProperties());
+  }
+
+  /**
+   * Check if the super aggregate has a specific operator defined.
+   *
+   * @param aggregateSymbol The aggregate whose super we're checking
+   * @param operatorName    The operator name (e.g., "==", "&lt;=&gt;")
+   * @return true if super has the operator, false otherwise
+   */
+  protected boolean superHasOperator(final AggregateSymbol aggregateSymbol,
+                                     final String operatorName) {
+    final var superOpt = aggregateSymbol.getSuperAggregate();
+    if (superOpt.isEmpty()) {
+      return false;
+    }
+
+    final var superAggregate = superOpt.get();
+    if (isAnyType(superAggregate)) {
+      return false;
+    }
+
+    // Check if super has this operator in its own scope (not inherited)
+    return superAggregate.getAllMethodInThisScopeOnly().stream()
+        .filter(MethodSymbol::isOperator)
+        .anyMatch(method -> method.getName().equals(operatorName));
+  }
+
+  /**
+   * Check if the given type is the Any type.
+   */
+  protected boolean isAnyType(final IAggregateSymbol type) {
+    final var anyType = stackContext.getParsedModule().getEk9Types().ek9Any();
+    return anyType.isExactSameType(type);
   }
 
   /**

@@ -1,0 +1,259 @@
+#!ek9
+<?-
+  Test inheritance with default operators.
+
+  This tests the encapsulation-respecting approach:
+  - Animal has <=> but NOT ==
+  - Cat extends Animal and has both <=> and ==
+
+  Key behaviors verified:
+  - Cat.<=> calls super._cmp() because Animal has <=>
+  - Cat.== does NOT call super._eq() because Animal doesn't have ==
+  - Cat.== only compares its own fields (breed), respecting encapsulation
+-?>
+defines module synthetic.classInheritanceEquals
+
+  defines class
+
+    @IR: IR_GENERATION: TYPE: "synthetic.classInheritanceEquals::Animal": `
+    ConstructDfn: synthetic.classInheritanceEquals::Animal
+    Field: name, org.ek9.lang::String
+    OperationDfn: synthetic.classInheritanceEquals::Animal.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: synthetic.classInheritanceEquals::Animal.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    REFERENCE this.name, org.ek9.lang::String
+    _temp1 = LOAD_LITERAL Unknown, org.ek9.lang::String
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, i_init
+    STORE this.name, _temp1
+    RETAIN this.name
+    RETURN
+    OperationDfn: synthetic.classInheritanceEquals::Animal.<=>(synthetic.classInheritanceEquals::Animal)->org.ek9.lang::Integer
+    BasicBlock: _entry_1
+    SCOPE_ENTER __cmp_1
+    REFERENCE rtn, org.ek9.lang::Integer
+    _temp1 = CALL (null)this._isSet() [pure=false, complexity=0, trait=true]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, __cmp_1
+    BRANCH_FALSE _temp1, _return_unset_1
+    _temp2 = CALL (null)other._isSet() [pure=false, complexity=0, trait=true]
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, __cmp_1
+    BRANCH_FALSE _temp2, _return_unset_1
+    _temp3 = LOAD this.name
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, __cmp_1
+    _temp4 = LOAD other.name
+    RETAIN _temp4
+    SCOPE_REGISTER _temp4, __cmp_1
+    _temp5 = CALL (null)_temp3._cmp(_temp4) [pure=false, complexity=0, trait=true]
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, __cmp_1
+    _temp6 = CALL (null)_temp5._isSet() [pure=false, complexity=0, trait=true]
+    RETAIN _temp6
+    SCOPE_REGISTER _temp6, __cmp_1
+    BRANCH_FALSE _temp6, _return_unset_1
+    _temp7 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, __cmp_1
+    _temp8 = CALL (null)_temp5._eq(_temp7) [pure=false, complexity=0, trait=true]
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, __cmp_1
+    _temp9 = CALL (null)_temp8._true() [pure=false, complexity=0, trait=true]
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, __cmp_1
+    BRANCH_TRUE _temp9, _continue_cmp_1
+    STORE rtn, _temp5
+    RETAIN rtn
+    SCOPE_EXIT __cmp_1
+    RETURN rtn
+    LABEL _continue_cmp_1
+    BRANCH _return_zero_1
+    LABEL _return_unset_1
+    _temp10 = CALL (null)._new() [pure=false, complexity=0, trait=true]
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, __cmp_1
+    STORE rtn, _temp10
+    RETAIN rtn
+    SCOPE_EXIT __cmp_1
+    RETURN rtn
+    LABEL _return_zero_1
+    _temp11 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, __cmp_1
+    STORE rtn, _temp11
+    RETAIN rtn
+    SCOPE_EXIT __cmp_1
+    RETURN rtn
+    OperationDfn: synthetic.classInheritanceEquals::Animal.Animal()->synthetic.classInheritanceEquals::Animal
+    BasicBlock: _entry_2
+    CALL (synthetic.classInheritanceEquals::Animal)this.i_init() [pure=false, complexity=0]
+    RETURN this`
+    Animal as open
+      name <- "Unknown"
+
+      default operator <=>
+
+    @IR: IR_GENERATION: TYPE: "synthetic.classInheritanceEquals::Cat": `
+    ConstructDfn: synthetic.classInheritanceEquals::Cat
+    Field: breed, org.ek9.lang::String
+    OperationDfn: synthetic.classInheritanceEquals::Cat.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    _temp_c_init = CALL_STATIC (synthetic.classInheritanceEquals::Animal).c_init() [pure=false, complexity=0]
+    RETURN
+    OperationDfn: synthetic.classInheritanceEquals::Cat.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    REFERENCE this.breed, org.ek9.lang::String
+    _temp1 = LOAD_LITERAL Domestic, org.ek9.lang::String
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, i_init
+    STORE this.breed, _temp1
+    RETAIN this.breed
+    RETURN
+    OperationDfn: synthetic.classInheritanceEquals::Cat.<=>(synthetic.classInheritanceEquals::Cat)->org.ek9.lang::Integer
+    BasicBlock: _entry_1
+    SCOPE_ENTER __cmp_1
+    REFERENCE rtn, org.ek9.lang::Integer
+    _temp1 = CALL (null)this._isSet() [pure=false, complexity=0, trait=true]
+    RETAIN _temp1
+    SCOPE_REGISTER _temp1, __cmp_1
+    BRANCH_FALSE _temp1, _return_unset_1
+    _temp2 = CALL (null)other._isSet() [pure=false, complexity=0, trait=true]
+    RETAIN _temp2
+    SCOPE_REGISTER _temp2, __cmp_1
+    BRANCH_FALSE _temp2, _return_unset_1
+    _temp3 = CALL (null)super._cmp(other) [pure=false, complexity=0, trait=true]
+    RETAIN _temp3
+    SCOPE_REGISTER _temp3, __cmp_1
+    _temp4 = CALL (null)_temp3._isSet() [pure=false, complexity=0, trait=true]
+    RETAIN _temp4
+    SCOPE_REGISTER _temp4, __cmp_1
+    BRANCH_FALSE _temp4, _return_unset_1
+    _temp5 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp5
+    SCOPE_REGISTER _temp5, __cmp_1
+    _temp6 = CALL (null)_temp3._eq(_temp5) [pure=false, complexity=0, trait=true]
+    RETAIN _temp6
+    SCOPE_REGISTER _temp6, __cmp_1
+    _temp7 = CALL (null)_temp6._true() [pure=false, complexity=0, trait=true]
+    RETAIN _temp7
+    SCOPE_REGISTER _temp7, __cmp_1
+    BRANCH_TRUE _temp7, _continue_cmp_1
+    STORE rtn, _temp3
+    RETAIN rtn
+    SCOPE_EXIT __cmp_1
+    RETURN rtn
+    LABEL _continue_cmp_1
+    _temp8 = LOAD this.breed
+    RETAIN _temp8
+    SCOPE_REGISTER _temp8, __cmp_1
+    _temp9 = LOAD other.breed
+    RETAIN _temp9
+    SCOPE_REGISTER _temp9, __cmp_1
+    _temp10 = CALL (null)_temp8._cmp(_temp9) [pure=false, complexity=0, trait=true]
+    RETAIN _temp10
+    SCOPE_REGISTER _temp10, __cmp_1
+    _temp11 = CALL (null)_temp10._isSet() [pure=false, complexity=0, trait=true]
+    RETAIN _temp11
+    SCOPE_REGISTER _temp11, __cmp_1
+    BRANCH_FALSE _temp11, _return_unset_1
+    _temp12 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp12
+    SCOPE_REGISTER _temp12, __cmp_1
+    _temp13 = CALL (null)_temp10._eq(_temp12) [pure=false, complexity=0, trait=true]
+    RETAIN _temp13
+    SCOPE_REGISTER _temp13, __cmp_1
+    _temp14 = CALL (null)_temp13._true() [pure=false, complexity=0, trait=true]
+    RETAIN _temp14
+    SCOPE_REGISTER _temp14, __cmp_1
+    BRANCH_TRUE _temp14, _continue_cmp_2
+    STORE rtn, _temp10
+    RETAIN rtn
+    SCOPE_EXIT __cmp_1
+    RETURN rtn
+    LABEL _continue_cmp_2
+    BRANCH _return_zero_1
+    LABEL _return_unset_1
+    _temp15 = CALL (null)._new() [pure=false, complexity=0, trait=true]
+    RETAIN _temp15
+    SCOPE_REGISTER _temp15, __cmp_1
+    STORE rtn, _temp15
+    RETAIN rtn
+    SCOPE_EXIT __cmp_1
+    RETURN rtn
+    LABEL _return_zero_1
+    _temp16 = LOAD_LITERAL 0, org.ek9.lang::Integer
+    RETAIN _temp16
+    SCOPE_REGISTER _temp16, __cmp_1
+    STORE rtn, _temp16
+    RETAIN rtn
+    SCOPE_EXIT __cmp_1
+    RETURN rtn
+    OperationDfn: synthetic.classInheritanceEquals::Cat.==(synthetic.classInheritanceEquals::Cat)->org.ek9.lang::Boolean
+    BasicBlock: _entry_2
+    SCOPE_ENTER __eq_1
+    REFERENCE rtn, org.ek9.lang::Boolean
+    _temp17 = CALL (null)this._isSet() [pure=false, complexity=0, trait=true]
+    RETAIN _temp17
+    SCOPE_REGISTER _temp17, __eq_1
+    BRANCH_FALSE _temp17, _return_unset_2
+    _temp18 = CALL (null)other._isSet() [pure=false, complexity=0, trait=true]
+    RETAIN _temp18
+    SCOPE_REGISTER _temp18, __eq_1
+    BRANCH_FALSE _temp18, _return_unset_2
+    _temp19 = LOAD this.breed
+    RETAIN _temp19
+    SCOPE_REGISTER _temp19, __eq_1
+    _temp20 = LOAD other.breed
+    RETAIN _temp20
+    SCOPE_REGISTER _temp20, __eq_1
+    _temp21 = CALL (null)_temp19._eq(_temp20) [pure=false, complexity=0, trait=true]
+    RETAIN _temp21
+    SCOPE_REGISTER _temp21, __eq_1
+    _temp22 = CALL (null)_temp21._isSet() [pure=false, complexity=0, trait=true]
+    RETAIN _temp22
+    SCOPE_REGISTER _temp22, __eq_1
+    BRANCH_FALSE _temp22, _return_unset_2
+    _temp23 = CALL (null)_temp21._true() [pure=false, complexity=0, trait=true]
+    RETAIN _temp23
+    SCOPE_REGISTER _temp23, __eq_1
+    BRANCH_FALSE _temp23, _return_false_1
+    BRANCH _return_true_1
+    LABEL _return_unset_2
+    _temp24 = CALL (null)._new() [pure=false, complexity=0, trait=true]
+    RETAIN _temp24
+    SCOPE_REGISTER _temp24, __eq_1
+    STORE rtn, _temp24
+    RETAIN rtn
+    SCOPE_EXIT __eq_1
+    RETURN rtn
+    LABEL _return_false_1
+    _temp25 = CALL (null)._ofFalse() [pure=false, complexity=0, trait=true]
+    RETAIN _temp25
+    SCOPE_REGISTER _temp25, __eq_1
+    STORE rtn, _temp25
+    RETAIN rtn
+    SCOPE_EXIT __eq_1
+    RETURN rtn
+    LABEL _return_true_1
+    _temp26 = CALL (null)._ofTrue() [pure=false, complexity=0, trait=true]
+    RETAIN _temp26
+    SCOPE_REGISTER _temp26, __eq_1
+    STORE rtn, _temp26
+    RETAIN rtn
+    SCOPE_EXIT __eq_1
+    RETURN rtn
+    OperationDfn: synthetic.classInheritanceEquals::Cat.Cat()->synthetic.classInheritanceEquals::Cat
+    BasicBlock: _entry_3
+    _temp_super_init = CALL (synthetic.classInheritanceEquals::Animal)super.<init>() [pure=false, complexity=0]
+    CALL (synthetic.classInheritanceEquals::Cat)this.i_init() [pure=false, complexity=0]
+    RETURN this`
+    Cat extends Animal
+      breed <- "Domestic"
+
+      default operator <=>
+      default operator ==
+
+//EOF

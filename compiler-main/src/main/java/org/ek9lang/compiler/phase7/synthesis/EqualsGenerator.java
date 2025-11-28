@@ -11,7 +11,6 @@ import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
-import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.core.AssertValue;
@@ -93,11 +92,18 @@ final class EqualsGenerator extends AbstractSyntheticGenerator {
     instructions.addAll(generateThisIsSetGuard(debugInfo, returnUnsetLabel, scopeId));
     instructions.addAll(generateIsSetGuard(OTHER_PARAM, debugInfo, returnUnsetLabel, scopeId));
 
-    // Generate super._eq check if super is not Any
-    instructions.addAll(generateSuperEqCheck(aggregateSymbol, debugInfo, scopeId,
-        returnUnsetLabel, returnFalseLabel));
+    // Check if super has the == operator
+    final var superHasEq = superHasOperator(aggregateSymbol, "==");
 
-    // Generate field-by-field comparison
+    // Generate super._eq check only if super actually has the operator
+    if (superHasEq) {
+      instructions.addAll(generateSuperEqCheck(aggregateSymbol, debugInfo, scopeId,
+          returnUnsetLabel, returnFalseLabel));
+    }
+
+    // Generate field-by-field comparison for this class's own fields only
+    // We respect encapsulation: inherited fields are handled by super._eq() if it exists
+    // If super doesn't have ==, it chose not to participate in equality - we respect that
     final var fields = getSyntheticFields(aggregateSymbol);
     for (final var field : fields) {
       instructions.addAll(generateFieldEqCheck(field, debugInfo, scopeId,
@@ -229,14 +235,6 @@ final class EqualsGenerator extends AbstractSyntheticGenerator {
     instructions.add(BranchInstr.branchIfFalse(trueResultVar, falseLabel, debugInfo));
 
     return instructions;
-  }
-
-  /**
-   * Check if the given type is the Any type.
-   */
-  private boolean isAnyType(final IAggregateSymbol type) {
-    final var anyType = stackContext.getParsedModule().getEk9Types().ek9Any();
-    return anyType.isExactSameType(type);
   }
 
   /**
