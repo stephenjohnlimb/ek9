@@ -1,0 +1,16 @@
+#!ek9
+defines module fuzztest.selfreference.component
+
+  // @ExpectPhase: TYPE_HIERARCHY_CHECKS
+  // @ExpectError: CIRCULAR_HIERARCHY_DETECTED
+  // @TestDescription: Self-referential component - component extends itself directly
+
+  defines component
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    SelfComponent is SelfComponent as open
+      doSomething()
+        -> result as String
+        result: "done"
+
+//EOF

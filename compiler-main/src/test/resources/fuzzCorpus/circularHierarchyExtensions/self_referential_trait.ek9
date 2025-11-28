@@ -1,0 +1,14 @@
+#!ek9
+defines module fuzztest.selfreference.trait
+
+  // @ExpectPhase: TYPE_HIERARCHY_CHECKS
+  // @ExpectError: CIRCULAR_HIERARCHY_DETECTED
+  // @TestDescription: Self-referential trait - trait extends itself directly
+
+  defines trait
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    SelfTrait is SelfTrait
+      method()
+
+//EOF

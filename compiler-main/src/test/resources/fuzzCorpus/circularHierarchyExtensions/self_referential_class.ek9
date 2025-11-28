@@ -1,0 +1,16 @@
+#!ek9
+defines module fuzztest.selfreference.class
+
+  // @ExpectPhase: TYPE_HIERARCHY_CHECKS
+  // @ExpectError: CIRCULAR_HIERARCHY_DETECTED
+  // @TestDescription: Self-referential class - class extends itself directly
+
+  defines class
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    SelfClass is SelfClass as open
+      field <- "self"
+
+      default SelfClass()
+
+//EOF
