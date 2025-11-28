@@ -2,13 +2,11 @@ package org.ek9lang.compiler.phase7;
 
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
-import org.ek9lang.compiler.ir.instructions.OperationInstr;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
-import org.ek9lang.compiler.phase7.generation.IRInstructionBuilder;
 import org.ek9lang.compiler.phase7.support.FieldCreator;
 import org.ek9lang.compiler.phase7.support.FieldsFromCapture;
-import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.phase7.support.OperationDetailContextOrError;
+import org.ek9lang.compiler.phase7.synthesis.SyntheticOperatorGenerator;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -23,12 +21,13 @@ import org.ek9lang.core.CompilerException;
 abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
 
   private final OperationDetailContextOrError operationDetailContextOrError;
-
+  private final SyntheticOperatorGenerator syntheticOperatorGenerator;
   private final SymbolGenus expectedGenus;
 
   AggregateDfnGenerator(final IRGenerationContext stackContext, final SymbolGenus forGenus) {
     super(stackContext);
     this.operationDetailContextOrError = new OperationDetailContextOrError(stackContext.getParsedModule());
+    this.syntheticOperatorGenerator = new SyntheticOperatorGenerator(stackContext);
     this.expectedGenus = forGenus;
   }
 
@@ -145,40 +144,36 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
 
   /**
    * Process a synthetic operator (generated from 'default operator' declarations).
-   * For now, creates placeholder - full implementation will be added later.
+   *
+   * <p>Delegates to {@link SyntheticOperatorGenerator} which produces complete IR
+   * instruction sequences for each operator type. This ensures:</p>
+   * <ul>
+   *   <li>Single implementation serves both JVM and LLVM backends</li>
+   *   <li>Testable via @IR directives</li>
+   *   <li>IR optimization benefits both backends</li>
+   * </ul>
+   *
+   * @param construct      The IR construct to add the operation to
+   * @param operatorSymbol The synthetic operator method symbol
    */
   private void processSyntheticOperator(final IRConstruct construct, final MethodSymbol operatorSymbol) {
-    final var debugInfo = stackContext.createDebugInfo(operatorSymbol.getSourceToken());
-    final var operation = new OperationInstr(operatorSymbol, debugInfo);
-
-    // Generate placeholder body using stack-based instruction builder  
-    var instructionBuilder = new IRInstructionBuilder(stackContext);
-
-    // TODO: Implement based on operator type and base operators
-    // This will be complex and handled in later implementation phases
-    instructionBuilder.returnVoid(); // Placeholder
-
-    operation.setBody(instructionBuilder.createBasicBlock(IRConstants.ENTRY_LABEL));
-
+    final var aggregateSymbol = (AggregateSymbol) operatorSymbol.getParentScope();
+    final var operation = syntheticOperatorGenerator.generateOperator(operatorSymbol, aggregateSymbol);
     construct.add(operation);
   }
 
   /**
-   * Process a synthetic regular method (e.g., _isSet, _hash generated from properties).
-   * For now, creates placeholder - full implementation will be added later.
+   * Process a synthetic regular method (e.g., _isSet generated from properties).
+   *
+   * <p>Delegates to {@link SyntheticOperatorGenerator} which produces complete IR
+   * instruction sequences for synthetic methods.</p>
+   *
+   * @param construct    The IR construct to add the operation to
+   * @param methodSymbol The synthetic method symbol
    */
   private void processSyntheticRegularMethod(final IRConstruct construct, final MethodSymbol methodSymbol) {
-    final var debugInfo = stackContext.createDebugInfo(methodSymbol.getSourceToken());
-    final var operation = new OperationInstr(methodSymbol, debugInfo);
-
-    // Generate placeholder body using stack-based instruction builder
-    var instructionBuilder = new IRInstructionBuilder(stackContext);
-
-    // TODO: Implement based on method semantics (e.g., _isSet, _hash)
-    instructionBuilder.returnVoid(); // Placeholder
-
-    operation.setBody(instructionBuilder.createBasicBlock(IRConstants.ENTRY_LABEL));
-
+    final var aggregateSymbol = (AggregateSymbol) methodSymbol.getParentScope();
+    final var operation = syntheticOperatorGenerator.generateMethod(methodSymbol, aggregateSymbol);
     construct.add(operation);
   }
 

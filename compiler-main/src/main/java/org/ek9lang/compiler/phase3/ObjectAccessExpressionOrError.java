@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.phase3;
 
+import static org.ek9lang.compiler.common.ErrorListener.SemanticClassification.NOT_MUTABLE;
+
 import java.util.function.Consumer;
 import org.antlr.v4.runtime.Token;
 import org.ek9lang.antlr.EK9Parser;
@@ -11,6 +13,8 @@ import org.ek9lang.compiler.symbols.IAggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.SymbolGenus;
+import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.CompilerException;
 
 /**
@@ -98,12 +102,13 @@ final class ObjectAccessExpressionOrError extends TypedSymbolAccess
 
   private void resolveObjectAccess(final EK9Parser.ObjectAccessContext ctx, final ISymbol inThisSymbol) {
 
+
     inThisSymbol.getType().ifPresent(type -> {
       if (type instanceof IAggregateSymbol aggregate) {
         if (ctx.objectAccessType().identifier() != null) {
           identifierUse(ctx, aggregate);
         } else {
-          operationCallUse(ctx, aggregate);
+          operationCallUse(ctx, inThisSymbol, aggregate);
         }
       }
     });
@@ -123,11 +128,21 @@ final class ObjectAccessExpressionOrError extends TypedSymbolAccess
 
   }
 
-  private void operationCallUse(final EK9Parser.ObjectAccessContext ctx, final IAggregateSymbol aggregate) {
+  private void operationCallUse(final EK9Parser.ObjectAccessContext ctx,
+                                final ISymbol fromSymbol,
+                                final IAggregateSymbol aggregate) {
 
     final var resolved = operationCallOrError.apply(ctx.objectAccessType().operationCall(), aggregate);
 
     if (resolved != null) {
+
+      //Now when an ek9 developer has a real ek9 constant and calls a mutable method on it
+      //we must emit an error indicating that the constant cannot be mutated.
+      final var isConstantVariable = fromSymbol.isConstant() && fromSymbol.isVariable();
+      if (isConstantVariable && resolved.isNotMarkedPure()) {
+        emitNotMutableError(new Ek9Token(ctx.start), fromSymbol);
+      }
+
       final var existingCallSymbol = symbolsAndScopes.getRecordedSymbol(ctx.objectAccessType().operationCall());
 
       if (existingCallSymbol instanceof CallSymbol callSymbol) {
@@ -138,6 +153,10 @@ final class ObjectAccessExpressionOrError extends TypedSymbolAccess
         throw new CompilerException("Expecting a callSymbol 'receptacle' to be present");
       }
     }
+  }
 
+  private void emitNotMutableError(final IToken locationForError, final ISymbol symbol) {
+    errorListener.semanticError(locationForError, "'" + symbol.getFriendlyName() + "' cannot be changed:",
+        NOT_MUTABLE);
   }
 }

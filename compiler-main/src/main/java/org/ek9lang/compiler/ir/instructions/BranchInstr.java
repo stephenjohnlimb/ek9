@@ -52,6 +52,37 @@ public final class BranchInstr extends IRInstr {
     return assertValue(condition, "", debugInfo);
   }
 
+  /**
+   * Create unconditional branch: BRANCH target_label.
+   */
+  public static BranchInstr branch(final String targetLabel, final DebugInfo debugInfo) {
+    return new BranchInstr(IROpcode.BRANCH, null, debugInfo).addOperand(targetLabel);
+  }
+
+  /**
+   * Create conditional branch if true: BRANCH_TRUE condition, target_label.
+   * Branches to target if condition is true (non-zero).
+   */
+  public static BranchInstr branchIfTrue(final String condition,
+                                         final String targetLabel,
+                                         final DebugInfo debugInfo) {
+    return new BranchInstr(IROpcode.BRANCH_TRUE, null, debugInfo)
+        .addOperand(condition)
+        .addOperand(targetLabel);
+  }
+
+  /**
+   * Create conditional branch if false: BRANCH_FALSE condition, target_label.
+   * Branches to target if condition is false (zero).
+   */
+  public static BranchInstr branchIfFalse(final String condition,
+                                          final String targetLabel,
+                                          final DebugInfo debugInfo) {
+    return new BranchInstr(IROpcode.BRANCH_FALSE, null, debugInfo)
+        .addOperand(condition)
+        .addOperand(targetLabel);
+  }
+
   private BranchInstr(final IROpcode opcode, final String result, final DebugInfo debugInfo) {
     super(opcode, result, debugInfo);
   }

@@ -1,0 +1,214 @@
+#!ek9
+<?-
+  Test synthetic generation of _cmp (<=>) and _eq (==) operators for a class.
+
+  This test verifies:
+  1. The SyntheticOperatorGenerator is invoked for default operators
+  2. The generated IR is correctly structured for both operators
+
+  The _cmp operator should compare fields and return Integer:
+  - If this or other is unset, return unset
+  - If any field comparison returns non-zero, return that value
+  - If all field comparisons return zero, return zero
+
+  The _eq operator should compare fields and return Boolean:
+  - If this or other is unset, return unset
+  - If all field comparisons are equal, return true
+  - Otherwise return false
+
+  Note: default operator == requires default operator <=> to exist.
+-?>
+defines module synthetic.classEquals
+
+  defines class
+
+    @IR: IR_GENERATION: TYPE: "synthetic.classEquals::Person": `
+    ConstructDfn: synthetic.classEquals::Person
+    Field: name, org.ek9.lang::String  // ./classEquals.ek9:208:7
+    Field: age, org.ek9.lang::Integer  // ./classEquals.ek9:209:7
+    OperationDfn: synthetic.classEquals::Person.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: synthetic.classEquals::Person.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    REFERENCE this.name, org.ek9.lang::String  // ./classEquals.ek9:208:7
+    _temp1 = LOAD_LITERAL Steve, org.ek9.lang::String  // ./classEquals.ek9:208:15
+    RETAIN _temp1  // ./classEquals.ek9:208:15
+    SCOPE_REGISTER _temp1, i_init  // ./classEquals.ek9:208:15
+    STORE this.name, _temp1  // ./classEquals.ek9:208:15
+    RETAIN this.name  // ./classEquals.ek9:208:15
+    REFERENCE this.age, org.ek9.lang::Integer  // ./classEquals.ek9:209:7
+    _temp2 = LOAD_LITERAL 25, org.ek9.lang::Integer  // ./classEquals.ek9:209:14
+    RETAIN _temp2  // ./classEquals.ek9:209:14
+    SCOPE_REGISTER _temp2, i_init  // ./classEquals.ek9:209:14
+    STORE this.age, _temp2  // ./classEquals.ek9:209:14
+    RETAIN this.age  // ./classEquals.ek9:209:14
+    RETURN
+    OperationDfn: synthetic.classEquals::Person.<=>(synthetic.classEquals::Person)->org.ek9.lang::Integer  // ./classEquals.ek9:211:24
+    BasicBlock: _entry_1
+    SCOPE_ENTER __cmp_1  // ./classEquals.ek9:211:24
+    REFERENCE rtn, org.ek9.lang::Integer  // ./classEquals.ek9:211:24
+    _temp1 = CALL (null)this._isSet() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:211:24
+    RETAIN _temp1  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp1, __cmp_1  // ./classEquals.ek9:211:24
+    BRANCH_FALSE _temp1, _return_unset_1  // ./classEquals.ek9:211:24
+    _temp2 = CALL (null)other._isSet() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:211:24
+    RETAIN _temp2  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp2, __cmp_1  // ./classEquals.ek9:211:24
+    BRANCH_FALSE _temp2, _return_unset_1  // ./classEquals.ek9:211:24
+    _temp3 = LOAD this.name  // ./classEquals.ek9:211:24
+    RETAIN _temp3  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp3, __cmp_1  // ./classEquals.ek9:211:24
+    _temp4 = LOAD other.name  // ./classEquals.ek9:211:24
+    RETAIN _temp4  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp4, __cmp_1  // ./classEquals.ek9:211:24
+    _temp5 = CALL (null)_temp3._cmp(_temp4) [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:211:24
+    RETAIN _temp5  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp5, __cmp_1  // ./classEquals.ek9:211:24
+    _temp6 = CALL (null)_temp5._isSet() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:211:24
+    RETAIN _temp6  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp6, __cmp_1  // ./classEquals.ek9:211:24
+    BRANCH_FALSE _temp6, _return_unset_1  // ./classEquals.ek9:211:24
+    _temp7 = LOAD_LITERAL 0, org.ek9.lang::Integer  // ./classEquals.ek9:211:24
+    RETAIN _temp7  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp7, __cmp_1  // ./classEquals.ek9:211:24
+    _temp8 = CALL (null)_temp5._eq(_temp7) [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:211:24
+    RETAIN _temp8  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp8, __cmp_1  // ./classEquals.ek9:211:24
+    _temp9 = CALL (null)_temp8._true() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:211:24
+    RETAIN _temp9  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp9, __cmp_1  // ./classEquals.ek9:211:24
+    BRANCH_TRUE _temp9, _continue_cmp_1  // ./classEquals.ek9:211:24
+    STORE rtn, _temp5  // ./classEquals.ek9:211:24
+    RETAIN rtn  // ./classEquals.ek9:211:24
+    SCOPE_EXIT __cmp_1  // ./classEquals.ek9:211:24
+    RETURN rtn  // ./classEquals.ek9:211:24
+    LABEL _continue_cmp_1
+    _temp10 = LOAD this.age  // ./classEquals.ek9:211:24
+    RETAIN _temp10  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp10, __cmp_1  // ./classEquals.ek9:211:24
+    _temp11 = LOAD other.age  // ./classEquals.ek9:211:24
+    RETAIN _temp11  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp11, __cmp_1  // ./classEquals.ek9:211:24
+    _temp12 = CALL (null)_temp10._cmp(_temp11) [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:211:24
+    RETAIN _temp12  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp12, __cmp_1  // ./classEquals.ek9:211:24
+    _temp13 = CALL (null)_temp12._isSet() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:211:24
+    RETAIN _temp13  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp13, __cmp_1  // ./classEquals.ek9:211:24
+    BRANCH_FALSE _temp13, _return_unset_1  // ./classEquals.ek9:211:24
+    _temp14 = LOAD_LITERAL 0, org.ek9.lang::Integer  // ./classEquals.ek9:211:24
+    RETAIN _temp14  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp14, __cmp_1  // ./classEquals.ek9:211:24
+    _temp15 = CALL (null)_temp12._eq(_temp14) [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:211:24
+    RETAIN _temp15  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp15, __cmp_1  // ./classEquals.ek9:211:24
+    _temp16 = CALL (null)_temp15._true() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:211:24
+    RETAIN _temp16  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp16, __cmp_1  // ./classEquals.ek9:211:24
+    BRANCH_TRUE _temp16, _continue_cmp_2  // ./classEquals.ek9:211:24
+    STORE rtn, _temp12  // ./classEquals.ek9:211:24
+    RETAIN rtn  // ./classEquals.ek9:211:24
+    SCOPE_EXIT __cmp_1  // ./classEquals.ek9:211:24
+    RETURN rtn  // ./classEquals.ek9:211:24
+    LABEL _continue_cmp_2
+    BRANCH _return_zero_1  // ./classEquals.ek9:211:24
+    LABEL _return_unset_1
+    _temp17 = CALL (null)._new() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:211:24
+    RETAIN _temp17  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp17, __cmp_1  // ./classEquals.ek9:211:24
+    STORE rtn, _temp17  // ./classEquals.ek9:211:24
+    RETAIN rtn  // ./classEquals.ek9:211:24
+    SCOPE_EXIT __cmp_1  // ./classEquals.ek9:211:24
+    RETURN rtn  // ./classEquals.ek9:211:24
+    LABEL _return_zero_1
+    _temp18 = LOAD_LITERAL 0, org.ek9.lang::Integer  // ./classEquals.ek9:211:24
+    RETAIN _temp18  // ./classEquals.ek9:211:24
+    SCOPE_REGISTER _temp18, __cmp_1  // ./classEquals.ek9:211:24
+    STORE rtn, _temp18  // ./classEquals.ek9:211:24
+    RETAIN rtn  // ./classEquals.ek9:211:24
+    SCOPE_EXIT __cmp_1  // ./classEquals.ek9:211:24
+    RETURN rtn  // ./classEquals.ek9:211:24
+    OperationDfn: synthetic.classEquals::Person.==(synthetic.classEquals::Person)->org.ek9.lang::Boolean  // ./classEquals.ek9:212:24
+    BasicBlock: _entry_2
+    SCOPE_ENTER __eq_1  // ./classEquals.ek9:212:24
+    REFERENCE rtn, org.ek9.lang::Boolean  // ./classEquals.ek9:212:24
+    _temp19 = CALL (null)this._isSet() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:212:24
+    RETAIN _temp19  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp19, __eq_1  // ./classEquals.ek9:212:24
+    BRANCH_FALSE _temp19, _return_unset_2  // ./classEquals.ek9:212:24
+    _temp20 = CALL (null)other._isSet() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:212:24
+    RETAIN _temp20  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp20, __eq_1  // ./classEquals.ek9:212:24
+    BRANCH_FALSE _temp20, _return_unset_2  // ./classEquals.ek9:212:24
+    _temp21 = LOAD this.name  // ./classEquals.ek9:212:24
+    RETAIN _temp21  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp21, __eq_1  // ./classEquals.ek9:212:24
+    _temp22 = LOAD other.name  // ./classEquals.ek9:212:24
+    RETAIN _temp22  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp22, __eq_1  // ./classEquals.ek9:212:24
+    _temp23 = CALL (null)_temp21._eq(_temp22) [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:212:24
+    RETAIN _temp23  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp23, __eq_1  // ./classEquals.ek9:212:24
+    _temp24 = CALL (null)_temp23._isSet() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:212:24
+    RETAIN _temp24  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp24, __eq_1  // ./classEquals.ek9:212:24
+    BRANCH_FALSE _temp24, _return_unset_2  // ./classEquals.ek9:212:24
+    _temp25 = CALL (null)_temp23._true() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:212:24
+    RETAIN _temp25  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp25, __eq_1  // ./classEquals.ek9:212:24
+    BRANCH_FALSE _temp25, _return_false_1  // ./classEquals.ek9:212:24
+    _temp26 = LOAD this.age  // ./classEquals.ek9:212:24
+    RETAIN _temp26  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp26, __eq_1  // ./classEquals.ek9:212:24
+    _temp27 = LOAD other.age  // ./classEquals.ek9:212:24
+    RETAIN _temp27  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp27, __eq_1  // ./classEquals.ek9:212:24
+    _temp28 = CALL (null)_temp26._eq(_temp27) [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:212:24
+    RETAIN _temp28  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp28, __eq_1  // ./classEquals.ek9:212:24
+    _temp29 = CALL (null)_temp28._isSet() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:212:24
+    RETAIN _temp29  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp29, __eq_1  // ./classEquals.ek9:212:24
+    BRANCH_FALSE _temp29, _return_unset_2  // ./classEquals.ek9:212:24
+    _temp30 = CALL (null)_temp28._true() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:212:24
+    RETAIN _temp30  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp30, __eq_1  // ./classEquals.ek9:212:24
+    BRANCH_FALSE _temp30, _return_false_1  // ./classEquals.ek9:212:24
+    BRANCH _return_true_1  // ./classEquals.ek9:212:24
+    LABEL _return_unset_2
+    _temp31 = CALL (null)._new() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:212:24
+    RETAIN _temp31  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp31, __eq_1  // ./classEquals.ek9:212:24
+    STORE rtn, _temp31  // ./classEquals.ek9:212:24
+    RETAIN rtn  // ./classEquals.ek9:212:24
+    SCOPE_EXIT __eq_1  // ./classEquals.ek9:212:24
+    RETURN rtn  // ./classEquals.ek9:212:24
+    LABEL _return_false_1
+    _temp32 = CALL (null)._ofFalse() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:212:24
+    RETAIN _temp32  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp32, __eq_1  // ./classEquals.ek9:212:24
+    STORE rtn, _temp32  // ./classEquals.ek9:212:24
+    RETAIN rtn  // ./classEquals.ek9:212:24
+    SCOPE_EXIT __eq_1  // ./classEquals.ek9:212:24
+    RETURN rtn  // ./classEquals.ek9:212:24
+    LABEL _return_true_1
+    _temp33 = CALL (null)._ofTrue() [pure=false, complexity=0, trait=true]  // ./classEquals.ek9:212:24
+    RETAIN _temp33  // ./classEquals.ek9:212:24
+    SCOPE_REGISTER _temp33, __eq_1  // ./classEquals.ek9:212:24
+    STORE rtn, _temp33  // ./classEquals.ek9:212:24
+    RETAIN rtn  // ./classEquals.ek9:212:24
+    SCOPE_EXIT __eq_1  // ./classEquals.ek9:212:24
+    RETURN rtn  // ./classEquals.ek9:212:24
+    OperationDfn: synthetic.classEquals::Person.Person()->synthetic.classEquals::Person  // ./classEquals.ek9:207:5
+    BasicBlock: _entry_3
+    CALL (synthetic.classEquals::Person)this.i_init() [pure=false, complexity=0]  // ./classEquals.ek9:207:5
+    RETURN this  // ./classEquals.ek9:207:5`
+    Person
+      name <- "Steve"
+      age <- 25
+
+      default operator <=>
+      default operator ==
+
+//EOF

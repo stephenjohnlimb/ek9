@@ -315,6 +315,13 @@ For specific EK9 development tasks, refer to these comprehensive guides:
   - JVM and LLVM backend program execution patterns
   - **Use this guide when:** Working on program entry points or execution infrastructure
 
+- **`EK9_SYNTHETIC_OPERATOR_GENERATION_PLAN.md`** - Synthetic operator generation at IR level
+  - Architecture for generating `default` operator implementations
+  - IR patterns for _eq, _neq, _hashcode, _string, _copy, _cmp, _inc, _dec
+  - Record, class, and enumeration synthesis
+  - Testing strategy with @IR directives
+  - **Use this guide when:** Implementing synthetic operators, working on records, enumerations, or `default` keyword support
+
 ### Language and Examples
 - **`EK9_LANGUAGE_EXAMPLES.md`** - Idiomatic EK9 source code examples and patterns
   - EK9 syntax and semantic demonstrations
