@@ -17,8 +17,10 @@ import org.junit.jupiter.api.Test;
  *
  * <p>Test corpus: fuzzCorpus/mutations/invalid/nesting (4 test files)
  * Validates that excessive nesting correctly triggers appropriate errors:
- *
- * <p>EXCESSIVE_COMPLEXITY test scenarios:
+ * </p>
+ * <p>
+ *   EXCESSIVE_COMPLEXITY test scenarios:
+ * </p>
  * <ol>
  *   <li>nesting_if_060.ek9 - 60 nested if statements
  *       <ul>
@@ -35,7 +37,7 @@ import org.junit.jupiter.api.Test;
  *   </li>
  * </ol>
  *
- * <p>EXCESSIVE_NESTING test scenarios:
+ * <p>EXCESSIVE_NESTING test scenarios:</p>
  * <ol>
  *   <li>nesting_depth_011.ek9 - 11 nested if statements (pure if nesting)
  *       <ul>
@@ -54,7 +56,7 @@ import org.junit.jupiter.api.Test;
  *   </li>
  * </ol>
  *
- * <p>Expected behavior:
+ * <p>Expected behavior:</p>
  * <ul>
  *   <li>Compiler detects functions exceeding 50 complexity threshold (EXCESSIVE_COMPLEXITY)</li>
  *   <li>Compiler detects control flow exceeding 10 nesting depth (EXCESSIVE_NESTING)</li>
@@ -65,6 +67,7 @@ import org.junit.jupiter.api.Test;
  *
  * <p>Validates: Both cyclomatic complexity and nesting depth limits are correctly
  * enforced on deeply nested control flow structures.
+ * </p>
  *
  * @see ValidNestingMutationTest for tests within both complexity and nesting limits
  */
