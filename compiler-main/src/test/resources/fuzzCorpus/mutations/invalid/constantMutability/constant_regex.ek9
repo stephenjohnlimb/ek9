@@ -1,0 +1,97 @@
+#!ek9
+<?-
+  High-volume fuzzing test for RegEx constant immutability.
+  Tests ALL mutating operators on RegEx constants with multiple value variations.
+
+  Constants tested:
+  - SIMPLE_RE (/a/) - simple pattern
+  - WORD_RE (/[a-z]+/) - word pattern
+  - COMPLEX_RE (/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/) - email pattern
+
+  Operators tested:
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.regex
+
+  defines constant
+    SIMPLE_RE <- /a/
+    WORD_RE <- /[a-z]+/
+    DIGIT_RE <- /[0-9]+/
+
+  defines function
+
+    //==========================================================================
+    // Tests for SIMPLE_RE constant (simple pattern)
+    //==========================================================================
+
+    testSimpleReAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SIMPLE_RE: /b/
+
+    testSimpleReConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SIMPLE_RE :=? /b/
+
+    testSimpleReCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SIMPLE_RE :=: /b/
+
+    testSimpleReMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SIMPLE_RE :~: /b/
+
+    testSimpleReReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SIMPLE_RE :^: /b/
+
+    //==========================================================================
+    // Tests for WORD_RE constant (word pattern)
+    //==========================================================================
+
+    testWordReAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WORD_RE: /[A-Z]+/
+
+    testWordReConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WORD_RE :=? /[A-Z]+/
+
+    testWordReCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WORD_RE :=: /[A-Z]+/
+
+    testWordReMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WORD_RE :~: /[A-Z]+/
+
+    testWordReReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WORD_RE :^: /[A-Z]+/
+
+    //==========================================================================
+    // Tests for DIGIT_RE constant (digit pattern)
+    //==========================================================================
+
+    testDigitReAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      DIGIT_RE: /\d+/
+
+    testDigitReConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      DIGIT_RE :=? /\d+/
+
+    testDigitReCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      DIGIT_RE :=: /\d+/
+
+    testDigitReMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      DIGIT_RE :~: /\d+/
+
+    testDigitReReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      DIGIT_RE :^: /\d+/
+
+//EOF

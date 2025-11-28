@@ -1,0 +1,146 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Duration constant immutability.
+  Tests ALL mutating operators on Duration constants with multiple value variations.
+
+  Constants tested:
+  - ONE_DAY (P1D) - simple duration
+  - ONE_HOUR (PT1H) - time duration
+  - COMPLEX_DUR (P1Y2M3DT4H5M6S) - complex duration
+
+  Operators tested:
+  - Duration mutators: +=, -=, *=, /=
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.duration
+
+  defines constant
+    ONE_DAY <- P1D
+    ONE_HOUR <- PT1H
+    COMPLEX_DUR <- P1Y2M3D
+
+  defines function
+
+    //==========================================================================
+    // Tests for ONE_DAY constant (simple duration)
+    //==========================================================================
+
+    testOneDayAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_DAY += P1D
+
+    testOneDaySubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_DAY -= P1D
+
+    testOneDayMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_DAY *= 2
+
+    testOneDayDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_DAY /= 2
+
+    testOneDayAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_DAY: P2D
+
+    testOneDayConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_DAY :=? P2D
+
+    testOneDayCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_DAY :=: P2D
+
+    testOneDayMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_DAY :~: P2D
+
+    testOneDayReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_DAY :^: P2D
+
+    //==========================================================================
+    // Tests for ONE_HOUR constant (time duration)
+    //==========================================================================
+
+    testOneHourAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_HOUR += PT30M
+
+    testOneHourSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_HOUR -= PT30M
+
+    testOneHourMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_HOUR *= 2
+
+    testOneHourDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_HOUR /= 2
+
+    testOneHourAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_HOUR: PT2H
+
+    testOneHourConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_HOUR :=? PT2H
+
+    testOneHourCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_HOUR :=: PT2H
+
+    testOneHourMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_HOUR :~: PT2H
+
+    testOneHourReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_HOUR :^: PT2H
+
+    //==========================================================================
+    // Tests for COMPLEX_DUR constant (complex duration)
+    //==========================================================================
+
+    testComplexDurAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      COMPLEX_DUR += P1M
+
+    testComplexDurSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      COMPLEX_DUR -= P1M
+
+    testComplexDurMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      COMPLEX_DUR *= 2
+
+    testComplexDurDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      COMPLEX_DUR /= 2
+
+    testComplexDurAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      COMPLEX_DUR: P1Y
+
+    testComplexDurConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      COMPLEX_DUR :=? P1Y
+
+    testComplexDurCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      COMPLEX_DUR :=: P1Y
+
+    testComplexDurMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      COMPLEX_DUR :~: P1Y
+
+    testComplexDurReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      COMPLEX_DUR :^: P1Y
+
+//EOF

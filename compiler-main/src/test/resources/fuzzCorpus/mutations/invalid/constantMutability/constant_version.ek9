@@ -1,0 +1,80 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Version constant immutability.
+  Tests mutating operators on Version constants with multiple value variations.
+
+  Constants tested:
+  - V1 (1.0.0-0) - simple version
+  - V2 (2.5.9-0) - typical version
+  - V3 (1.0.0-feature-0) - version with feature tag
+
+  Operators tested:
+  - Assignment operators: :, :=?, :=:
+
+  Note: Version does NOT support ++, --, +=, -=, *=, /=, :~:, :^:
+
+  TODO: Mutator methods (incrementMajor, incrementMinor, incrementPatch,
+  incrementBuildNumber) should also produce NOT_MUTABLE errors but currently
+  don't - this is a gap in the compiler's mutability checking for method calls.
+  See constant_version_methods.ek9 for tests that expose this gap.
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.version
+
+  defines constant
+    V1 <- 1.0.0-0
+    V2 <- 2.5.9-0
+    V3 <- 1.0.0-feature-0
+
+  defines function
+
+    //==========================================================================
+    // Tests for V1 constant (simple version: 1.0.0-0)
+    //==========================================================================
+
+    testV1Assignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V1: 2.0.0-0
+
+    testV1ConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V1 :=? 2.0.0-0
+
+    testV1CopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V1 :=: 2.0.0-0
+
+    //==========================================================================
+    // Tests for V2 constant (typical version: 2.5.9-0)
+    //==========================================================================
+
+    testV2Assignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V2: 3.0.0-0
+
+    testV2ConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V2 :=? 3.0.0-0
+
+    testV2CopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V2 :=: 3.0.0-0
+
+    //==========================================================================
+    // Tests for V3 constant (version with feature: 1.0.0-feature-0)
+    //==========================================================================
+
+    testV3Assignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V3: 2.0.0-0
+
+    testV3ConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V3 :=? 2.0.0-0
+
+    testV3CopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V3 :=: 2.0.0-0
+
+//EOF

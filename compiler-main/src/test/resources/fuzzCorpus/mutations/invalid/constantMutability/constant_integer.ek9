@@ -1,0 +1,170 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Integer constant immutability.
+  Tests ALL mutating operators on Integer constants with multiple value variations.
+
+  Constants tested:
+  - ZERO (0) - boundary value
+  - ANSWER (42) - typical value
+  - MAX_INT (9223372036854775807) - maximum value
+
+  Operators tested:
+  - Arithmetic mutators: ++, --, +=, -=, *=, /=
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.integer
+
+  defines constant
+    ZERO <- 0
+    ANSWER <- 42
+    MAX_INT <- 9223372036854775807
+
+  defines function
+
+    //==========================================================================
+    // Tests for ZERO constant (boundary value: 0)
+    //==========================================================================
+
+    testZeroIncrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO++
+
+    testZeroDecrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO--
+
+    testZeroAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO += 1
+
+    testZeroSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO -= 1
+
+    testZeroMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO *= 2
+
+    testZeroDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO /= 2
+
+    testZeroAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO: 100
+
+    testZeroConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO :=? 100
+
+    testZeroCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO :=: 100
+
+    testZeroMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO :~: 100
+
+    testZeroReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO :^: 100
+
+    //==========================================================================
+    // Tests for ANSWER constant (typical value: 42)
+    //==========================================================================
+
+    testAnswerIncrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER++
+
+    testAnswerDecrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER--
+
+    testAnswerAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER += 1
+
+    testAnswerSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER -= 1
+
+    testAnswerMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER *= 2
+
+    testAnswerDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER /= 2
+
+    testAnswerAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER: 100
+
+    testAnswerConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER :=? 100
+
+    testAnswerCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER :=: 100
+
+    testAnswerMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER :~: 100
+
+    testAnswerReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER :^: 100
+
+    //==========================================================================
+    // Tests for MAX_INT constant (boundary value: max)
+    //==========================================================================
+
+    testMaxIntIncrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MAX_INT++
+
+    testMaxIntDecrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MAX_INT--
+
+    testMaxIntAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MAX_INT += 1
+
+    testMaxIntSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MAX_INT -= 1
+
+    testMaxIntMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MAX_INT *= 2
+
+    testMaxIntDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MAX_INT /= 2
+
+    testMaxIntAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MAX_INT: 100
+
+    testMaxIntConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MAX_INT :=? 100
+
+    testMaxIntCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MAX_INT :=: 100
+
+    testMaxIntMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MAX_INT :~: 100
+
+    testMaxIntReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MAX_INT :^: 100
+
+//EOF

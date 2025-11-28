@@ -1,0 +1,73 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Boolean constant immutability.
+  Tests ALL mutating operators on Boolean constants with both value variations.
+
+  Constants tested:
+  - TRUE_CONST (true) - first value
+  - FALSE_CONST (false) - second value
+
+  Operators tested:
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Note: ++, --, +=, -=, *=, /= are not defined for Boolean.
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.boolean
+
+  defines constant
+    TRUE_CONST <- true
+    FALSE_CONST <- false
+
+  defines function
+
+    //==========================================================================
+    // Tests for TRUE_CONST constant
+    //==========================================================================
+
+    testTrueAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TRUE_CONST: false
+
+    testTrueConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TRUE_CONST :=? false
+
+    testTrueCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TRUE_CONST :=: false
+
+    testTrueMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TRUE_CONST :~: false
+
+    testTrueReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TRUE_CONST :^: false
+
+    //==========================================================================
+    // Tests for FALSE_CONST constant
+    //==========================================================================
+
+    testFalseAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      FALSE_CONST: true
+
+    testFalseConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      FALSE_CONST :=? true
+
+    testFalseCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      FALSE_CONST :=: true
+
+    testFalseMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      FALSE_CONST :~: true
+
+    testFalseReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      FALSE_CONST :^: true
+
+//EOF

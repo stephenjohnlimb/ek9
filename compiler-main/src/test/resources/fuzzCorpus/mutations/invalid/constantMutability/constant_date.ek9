@@ -1,0 +1,122 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Date constant immutability.
+  Tests ALL mutating operators on Date constants with multiple value variations.
+
+  Constants tested:
+  - EPOCH_DATE (2000-01-01) - epoch boundary
+  - TYPICAL_DATE (2024-06-15) - typical value
+  - LEAP_DATE (2024-02-29) - leap year date
+
+  Operators tested:
+  - Temporal mutators: +=, -= (with Duration)
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.date
+
+  defines constant
+    EPOCH_DATE <- 2000-01-01
+    TYPICAL_DATE <- 2024-06-15
+    LEAP_DATE <- 2024-02-29
+
+  defines function
+
+    //==========================================================================
+    // Tests for EPOCH_DATE constant (epoch boundary)
+    //==========================================================================
+
+    testEpochDateAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EPOCH_DATE += P1D
+
+    testEpochDateSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EPOCH_DATE -= P1D
+
+    testEpochDateAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EPOCH_DATE: 2025-01-01
+
+    testEpochDateConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EPOCH_DATE :=? 2025-01-01
+
+    testEpochDateCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EPOCH_DATE :=: 2025-01-01
+
+    testEpochDateMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EPOCH_DATE :~: 2025-01-01
+
+    testEpochDateReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EPOCH_DATE :^: 2025-01-01
+
+    //==========================================================================
+    // Tests for TYPICAL_DATE constant (typical value)
+    //==========================================================================
+
+    testTypicalDateAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TYPICAL_DATE += P1M
+
+    testTypicalDateSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TYPICAL_DATE -= P1M
+
+    testTypicalDateAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TYPICAL_DATE: 2025-01-01
+
+    testTypicalDateConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TYPICAL_DATE :=? 2025-01-01
+
+    testTypicalDateCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TYPICAL_DATE :=: 2025-01-01
+
+    testTypicalDateMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TYPICAL_DATE :~: 2025-01-01
+
+    testTypicalDateReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TYPICAL_DATE :^: 2025-01-01
+
+    //==========================================================================
+    // Tests for LEAP_DATE constant (leap year date)
+    //==========================================================================
+
+    testLeapDateAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LEAP_DATE += P1Y
+
+    testLeapDateSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LEAP_DATE -= P1Y
+
+    testLeapDateAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LEAP_DATE: 2025-01-01
+
+    testLeapDateConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LEAP_DATE :=? 2025-01-01
+
+    testLeapDateCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LEAP_DATE :=: 2025-01-01
+
+    testLeapDateMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LEAP_DATE :~: 2025-01-01
+
+    testLeapDateReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LEAP_DATE :^: 2025-01-01
+
+//EOF

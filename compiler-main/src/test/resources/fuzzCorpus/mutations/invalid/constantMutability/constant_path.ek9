@@ -1,0 +1,110 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Path constant immutability.
+  Tests ALL mutating operators on Path constants with multiple value variations.
+
+  Constants tested:
+  - SIMPLE_PATH ($?.name) - simple property access
+  - ARRAY_PATH ($?.items[0]) - array access
+  - DEEP_PATH ($?.store.book[0].title) - deep nested access
+
+  Operators tested:
+  - Path mutators: += (path concatenation)
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.path
+
+  defines constant
+    SIMPLE_PATH <- $?.name
+    ARRAY_PATH <- $?.items[0]
+    DEEP_PATH <- $?.store.book[0].title
+
+  defines function
+
+    //==========================================================================
+    // Tests for SIMPLE_PATH constant (simple property access)
+    //==========================================================================
+
+    testSimplePathAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SIMPLE_PATH += $?.extra
+
+    testSimplePathAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SIMPLE_PATH: $?.other
+
+    testSimplePathConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SIMPLE_PATH :=? $?.other
+
+    testSimplePathCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SIMPLE_PATH :=: $?.other
+
+    testSimplePathMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SIMPLE_PATH :~: $?.other
+
+    testSimplePathReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SIMPLE_PATH :^: $?.other
+
+    //==========================================================================
+    // Tests for ARRAY_PATH constant (array access)
+    //==========================================================================
+
+    testArrayPathAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ARRAY_PATH += $?.value
+
+    testArrayPathAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ARRAY_PATH: $?.items[1]
+
+    testArrayPathConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ARRAY_PATH :=? $?.items[1]
+
+    testArrayPathCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ARRAY_PATH :=: $?.items[1]
+
+    testArrayPathMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ARRAY_PATH :~: $?.items[1]
+
+    testArrayPathReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ARRAY_PATH :^: $?.items[1]
+
+    //==========================================================================
+    // Tests for DEEP_PATH constant (deep nested access)
+    //==========================================================================
+
+    testDeepPathAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      DEEP_PATH += $?.author
+
+    testDeepPathAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      DEEP_PATH: $?.store.book[1].title
+
+    testDeepPathConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      DEEP_PATH :=? $?.store.book[1].title
+
+    testDeepPathCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      DEEP_PATH :=: $?.store.book[1].title
+
+    testDeepPathMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      DEEP_PATH :~: $?.store.book[1].title
+
+    testDeepPathReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      DEEP_PATH :^: $?.store.book[1].title
+
+//EOF

@@ -1,0 +1,122 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Time constant immutability.
+  Tests ALL mutating operators on Time constants with multiple value variations.
+
+  Constants tested:
+  - MIDNIGHT (00:00:00) - boundary value (start of day)
+  - NOON (12:00:00) - typical value
+  - END_OF_DAY (23:59:59) - boundary value (end of day)
+
+  Operators tested:
+  - Temporal mutators: +=, -= (with Duration)
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.time
+
+  defines constant
+    MIDNIGHT <- 00:00:00
+    NOON <- 12:00:00
+    END_OF_DAY <- 23:59:59
+
+  defines function
+
+    //==========================================================================
+    // Tests for MIDNIGHT constant (start of day)
+    //==========================================================================
+
+    testMidnightAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MIDNIGHT += PT1H
+
+    testMidnightSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MIDNIGHT -= PT1H
+
+    testMidnightAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MIDNIGHT: 06:00:00
+
+    testMidnightConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MIDNIGHT :=? 06:00:00
+
+    testMidnightCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MIDNIGHT :=: 06:00:00
+
+    testMidnightMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MIDNIGHT :~: 06:00:00
+
+    testMidnightReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MIDNIGHT :^: 06:00:00
+
+    //==========================================================================
+    // Tests for NOON constant (typical value)
+    //==========================================================================
+
+    testNoonAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NOON += PT30M
+
+    testNoonSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NOON -= PT30M
+
+    testNoonAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NOON: 15:00:00
+
+    testNoonConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NOON :=? 15:00:00
+
+    testNoonCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NOON :=: 15:00:00
+
+    testNoonMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NOON :~: 15:00:00
+
+    testNoonReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      NOON :^: 15:00:00
+
+    //==========================================================================
+    // Tests for END_OF_DAY constant (end of day)
+    //==========================================================================
+
+    testEndOfDayAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      END_OF_DAY += PT1S
+
+    testEndOfDaySubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      END_OF_DAY -= PT1S
+
+    testEndOfDayAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      END_OF_DAY: 00:00:00
+
+    testEndOfDayConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      END_OF_DAY :=? 00:00:00
+
+    testEndOfDayCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      END_OF_DAY :=: 00:00:00
+
+    testEndOfDayMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      END_OF_DAY :~: 00:00:00
+
+    testEndOfDayReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      END_OF_DAY :^: 00:00:00
+
+//EOF

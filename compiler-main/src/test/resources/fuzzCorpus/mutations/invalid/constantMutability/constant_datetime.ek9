@@ -1,0 +1,122 @@
+#!ek9
+<?-
+  High-volume fuzzing test for DateTime constant immutability.
+  Tests ALL mutating operators on DateTime constants with multiple value variations.
+
+  Constants tested:
+  - EPOCH_DT (2000-01-01T00:00:00Z) - epoch boundary
+  - TYPICAL_DT (2024-06-15T14:30:00Z) - typical value
+  - WITH_OFFSET (2024-12-31T23:59:59+05:30) - with timezone offset
+
+  Operators tested:
+  - Temporal mutators: +=, -= (with Duration)
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.datetime
+
+  defines constant
+    EPOCH_DT <- 2000-01-01T00:00:00Z
+    TYPICAL_DT <- 2024-06-15T14:30:00Z
+    WITH_OFFSET <- 2024-12-31T23:59:59+05:30
+
+  defines function
+
+    //==========================================================================
+    // Tests for EPOCH_DT constant (epoch boundary)
+    //==========================================================================
+
+    testEpochDtAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EPOCH_DT += P1D
+
+    testEpochDtSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EPOCH_DT -= P1D
+
+    testEpochDtAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EPOCH_DT: 2025-01-01T00:00:00Z
+
+    testEpochDtConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EPOCH_DT :=? 2025-01-01T00:00:00Z
+
+    testEpochDtCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EPOCH_DT :=: 2025-01-01T00:00:00Z
+
+    testEpochDtMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EPOCH_DT :~: 2025-01-01T00:00:00Z
+
+    testEpochDtReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EPOCH_DT :^: 2025-01-01T00:00:00Z
+
+    //==========================================================================
+    // Tests for TYPICAL_DT constant (typical value)
+    //==========================================================================
+
+    testTypicalDtAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TYPICAL_DT += PT2H
+
+    testTypicalDtSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TYPICAL_DT -= PT2H
+
+    testTypicalDtAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TYPICAL_DT: 2025-01-01T00:00:00Z
+
+    testTypicalDtConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TYPICAL_DT :=? 2025-01-01T00:00:00Z
+
+    testTypicalDtCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TYPICAL_DT :=: 2025-01-01T00:00:00Z
+
+    testTypicalDtMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TYPICAL_DT :~: 2025-01-01T00:00:00Z
+
+    testTypicalDtReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      TYPICAL_DT :^: 2025-01-01T00:00:00Z
+
+    //==========================================================================
+    // Tests for WITH_OFFSET constant (with timezone offset)
+    //==========================================================================
+
+    testWithOffsetAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WITH_OFFSET += P1M
+
+    testWithOffsetSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WITH_OFFSET -= P1M
+
+    testWithOffsetAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WITH_OFFSET: 2025-01-01T00:00:00Z
+
+    testWithOffsetConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WITH_OFFSET :=? 2025-01-01T00:00:00Z
+
+    testWithOffsetCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WITH_OFFSET :=: 2025-01-01T00:00:00Z
+
+    testWithOffsetMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WITH_OFFSET :~: 2025-01-01T00:00:00Z
+
+    testWithOffsetReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WITH_OFFSET :^: 2025-01-01T00:00:00Z
+
+//EOF

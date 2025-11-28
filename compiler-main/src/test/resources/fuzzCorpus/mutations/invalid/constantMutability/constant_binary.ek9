@@ -1,0 +1,146 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Binary constant immutability.
+  Tests ALL mutating operators on Binary constants with multiple value variations.
+
+  Constants tested:
+  - ZERO_BIN (0b0) - boundary value (zero)
+  - ONE_BIN (0b1) - single bit
+  - PATTERN_BIN (0b10101010) - bit pattern
+
+  Operators tested:
+  - Arithmetic mutators: ++, --, +=, -=
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.binary
+
+  defines constant
+    ZERO_BIN <- 0b0
+    ONE_BIN <- 0b1
+    PATTERN_BIN <- 0b10101010
+
+  defines function
+
+    //==========================================================================
+    // Tests for ZERO_BIN constant (boundary value)
+    //==========================================================================
+
+    testZeroBinIncrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_BIN++
+
+    testZeroBinDecrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_BIN--
+
+    testZeroBinAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_BIN += 0b1
+
+    testZeroBinSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_BIN -= 0b1
+
+    testZeroBinAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_BIN: 0b11111111
+
+    testZeroBinConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_BIN :=? 0b11111111
+
+    testZeroBinCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_BIN :=: 0b11111111
+
+    testZeroBinMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_BIN :~: 0b11111111
+
+    testZeroBinReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_BIN :^: 0b11111111
+
+    //==========================================================================
+    // Tests for ONE_BIN constant (single bit)
+    //==========================================================================
+
+    testOneBinIncrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_BIN++
+
+    testOneBinDecrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_BIN--
+
+    testOneBinAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_BIN += 0b1
+
+    testOneBinSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_BIN -= 0b1
+
+    testOneBinAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_BIN: 0b0
+
+    testOneBinConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_BIN :=? 0b0
+
+    testOneBinCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_BIN :=: 0b0
+
+    testOneBinMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_BIN :~: 0b0
+
+    testOneBinReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_BIN :^: 0b0
+
+    //==========================================================================
+    // Tests for PATTERN_BIN constant (bit pattern)
+    //==========================================================================
+
+    testPatternBinIncrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PATTERN_BIN++
+
+    testPatternBinDecrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PATTERN_BIN--
+
+    testPatternBinAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PATTERN_BIN += 0b1
+
+    testPatternBinSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PATTERN_BIN -= 0b1
+
+    testPatternBinAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PATTERN_BIN: 0b01010101
+
+    testPatternBinConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PATTERN_BIN :=? 0b01010101
+
+    testPatternBinCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PATTERN_BIN :=: 0b01010101
+
+    testPatternBinMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PATTERN_BIN :~: 0b01010101
+
+    testPatternBinReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PATTERN_BIN :^: 0b01010101
+
+//EOF

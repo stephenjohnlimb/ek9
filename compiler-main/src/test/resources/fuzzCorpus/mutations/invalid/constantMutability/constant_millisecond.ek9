@@ -1,0 +1,122 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Millisecond constant immutability.
+  Tests ALL mutating operators on Millisecond constants with multiple value variations.
+
+  Constants tested:
+  - ZERO_MS (0ms) - boundary value
+  - ONE_SEC (1000ms) - typical value
+  - LARGE_MS (86400000ms) - large value (one day)
+
+  Operators tested:
+  - Millisecond mutators: +=, -=
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.millisecond
+
+  defines constant
+    ZERO_MS <- 0ms
+    ONE_SEC <- 1000ms
+    LARGE_MS <- 86400000ms
+
+  defines function
+
+    //==========================================================================
+    // Tests for ZERO_MS constant (boundary value)
+    //==========================================================================
+
+    testZeroMsAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_MS += 100ms
+
+    testZeroMsSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_MS -= 100ms
+
+    testZeroMsAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_MS: 500ms
+
+    testZeroMsConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_MS :=? 500ms
+
+    testZeroMsCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_MS :=: 500ms
+
+    testZeroMsMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_MS :~: 500ms
+
+    testZeroMsReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_MS :^: 500ms
+
+    //==========================================================================
+    // Tests for ONE_SEC constant (typical value)
+    //==========================================================================
+
+    testOneSecAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_SEC += 500ms
+
+    testOneSecSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_SEC -= 500ms
+
+    testOneSecAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_SEC: 2000ms
+
+    testOneSecConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_SEC :=? 2000ms
+
+    testOneSecCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_SEC :=: 2000ms
+
+    testOneSecMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_SEC :~: 2000ms
+
+    testOneSecReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_SEC :^: 2000ms
+
+    //==========================================================================
+    // Tests for LARGE_MS constant (large value)
+    //==========================================================================
+
+    testLargeMsAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_MS += 1000ms
+
+    testLargeMsSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_MS -= 1000ms
+
+    testLargeMsAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_MS: 1000ms
+
+    testLargeMsConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_MS :=? 1000ms
+
+    testLargeMsCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_MS :=: 1000ms
+
+    testLargeMsMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_MS :~: 1000ms
+
+    testLargeMsReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_MS :^: 1000ms
+
+//EOF

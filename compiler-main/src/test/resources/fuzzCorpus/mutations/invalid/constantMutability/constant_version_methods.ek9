@@ -1,0 +1,91 @@
+#!ek9
+<?-
+  Fuzzing test for Version constant mutator methods.
+  Tests calling non-pure methods on Version constants.
+
+  BUG REFERENCE: These tests expose a gap where calling mutating methods
+  on constants does not produce NOT_MUTABLE errors.
+
+  Constants tested:
+  - V1 (1.0.0-0) - simple version
+  - V2 (2.5.9-0) - typical version
+  - V3 (1.0.0-feature-0) - version with feature tag
+
+  Methods tested:
+  - incrementMajor() - non-pure mutator
+  - incrementMinor() - non-pure mutator
+  - incrementPatch() - non-pure mutator
+  - incrementBuildNumber() - non-pure mutator
+
+  Expected: All method calls should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.version.methods
+
+  defines constant
+    V1 <- 1.0.0-0
+    V2 <- 2.5.9-0
+    V3 <- 1.0.0-feature-0
+
+  defines function
+
+    //==========================================================================
+    // Tests for V1 constant (simple version: 1.0.0-0)
+    //==========================================================================
+
+    testV1IncrementMajor()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V1.incrementMajor()
+
+    testV1IncrementMinor()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V1.incrementMinor()
+
+    testV1IncrementPatch()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V1.incrementPatch()
+
+    testV1IncrementBuildNumber()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V1.incrementBuildNumber()
+
+    //==========================================================================
+    // Tests for V2 constant (typical version: 2.5.9-0)
+    //==========================================================================
+
+    testV2IncrementMajor()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V2.incrementMajor()
+
+    testV2IncrementMinor()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V2.incrementMinor()
+
+    testV2IncrementPatch()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V2.incrementPatch()
+
+    testV2IncrementBuildNumber()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V2.incrementBuildNumber()
+
+    //==========================================================================
+    // Tests for V3 constant (version with feature: 1.0.0-feature-0)
+    //==========================================================================
+
+    testV3IncrementMajor()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V3.incrementMajor()
+
+    testV3IncrementMinor()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V3.incrementMinor()
+
+    testV3IncrementPatch()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V3.incrementPatch()
+
+    testV3IncrementBuildNumber()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      V3.incrementBuildNumber()
+
+//EOF

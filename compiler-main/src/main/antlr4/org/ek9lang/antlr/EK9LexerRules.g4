@@ -344,7 +344,12 @@ FloatingPointLiteral
 //Or look like this major.minor.patch-buildNo is 3.2.1-feature12-9 for a feature based version
 VersionNumberLiteral
     : Digit+ ('.' Digit+) ('.' Digit+) ('-' Digit+)
-    | Digit+ ('.' Digit+) ('.' Digit+) ('-' StringCharacter+ Digits* StringCharacter*) ('-' Digit+)
+    | Digit+ ('.' Digit+) ('.' Digit+) ('-' VersionFeatureChar+ Digits* VersionFeatureChar*) ('-' Digit+)
+    ;
+
+fragment
+VersionFeatureChar
+    : [a-zA-Z_]
     ;
 
 fragment

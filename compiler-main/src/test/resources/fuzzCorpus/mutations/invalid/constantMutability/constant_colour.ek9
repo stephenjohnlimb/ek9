@@ -1,0 +1,97 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Colour constant immutability.
+  Tests ALL mutating operators on Colour constants with multiple value variations.
+
+  Constants tested:
+  - BLACK (#000000) - boundary value
+  - WHITE (#FFFFFF) - boundary value
+  - CUSTOM (#AB6F2B) - typical value
+
+  Operators tested:
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.colour
+
+  defines constant
+    BLACK <- #000000
+    WHITE <- #FFFFFF
+    CUSTOM <- #AB6F2B
+
+  defines function
+
+    //==========================================================================
+    // Tests for BLACK constant (boundary value)
+    //==========================================================================
+
+    testBlackAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      BLACK: #111111
+
+    testBlackConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      BLACK :=? #111111
+
+    testBlackCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      BLACK :=: #111111
+
+    testBlackMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      BLACK :~: #111111
+
+    testBlackReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      BLACK :^: #111111
+
+    //==========================================================================
+    // Tests for WHITE constant (boundary value)
+    //==========================================================================
+
+    testWhiteAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WHITE: #EEEEEE
+
+    testWhiteConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WHITE :=? #EEEEEE
+
+    testWhiteCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WHITE :=: #EEEEEE
+
+    testWhiteMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WHITE :~: #EEEEEE
+
+    testWhiteReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      WHITE :^: #EEEEEE
+
+    //==========================================================================
+    // Tests for CUSTOM constant (typical value)
+    //==========================================================================
+
+    testCustomAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CUSTOM: #123456
+
+    testCustomConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CUSTOM :=? #123456
+
+    testCustomCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CUSTOM :=: #123456
+
+    testCustomMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CUSTOM :~: #123456
+
+    testCustomReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CUSTOM :^: #123456
+
+//EOF

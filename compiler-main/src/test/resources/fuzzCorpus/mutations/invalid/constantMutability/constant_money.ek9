@@ -1,0 +1,146 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Money constant immutability.
+  Tests ALL mutating operators on Money constants with multiple value variations.
+
+  Constants tested:
+  - ZERO_USD (0#USD) - boundary value
+  - PRICE (99.99#USD) - typical value
+  - LARGE_EUR (1000000#EUR) - large value with different currency
+
+  Operators tested:
+  - Money mutators: +=, -=, *=, /=
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.money
+
+  defines constant
+    ZERO_USD <- 0#USD
+    PRICE <- 99.99#USD
+    LARGE_EUR <- 1000000#EUR
+
+  defines function
+
+    //==========================================================================
+    // Tests for ZERO_USD constant (boundary value)
+    //==========================================================================
+
+    testZeroUsdAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_USD += 10#USD
+
+    testZeroUsdSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_USD -= 10#USD
+
+    testZeroUsdMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_USD *= 2
+
+    testZeroUsdDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_USD /= 2
+
+    testZeroUsdAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_USD: 100#USD
+
+    testZeroUsdConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_USD :=? 100#USD
+
+    testZeroUsdCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_USD :=: 100#USD
+
+    testZeroUsdMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_USD :~: 100#USD
+
+    testZeroUsdReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_USD :^: 100#USD
+
+    //==========================================================================
+    // Tests for PRICE constant (typical value)
+    //==========================================================================
+
+    testPriceAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PRICE += 0.01#USD
+
+    testPriceSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PRICE -= 0.01#USD
+
+    testPriceMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PRICE *= 2
+
+    testPriceDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PRICE /= 2
+
+    testPriceAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PRICE: 49.99#USD
+
+    testPriceConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PRICE :=? 49.99#USD
+
+    testPriceCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PRICE :=: 49.99#USD
+
+    testPriceMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PRICE :~: 49.99#USD
+
+    testPriceReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PRICE :^: 49.99#USD
+
+    //==========================================================================
+    // Tests for LARGE_EUR constant (large value with different currency)
+    //==========================================================================
+
+    testLargeEurAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_EUR += 1000#EUR
+
+    testLargeEurSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_EUR -= 1000#EUR
+
+    testLargeEurMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_EUR *= 2
+
+    testLargeEurDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_EUR /= 2
+
+    testLargeEurAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_EUR: 500000#EUR
+
+    testLargeEurConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_EUR :=? 500000#EUR
+
+    testLargeEurCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_EUR :=: 500000#EUR
+
+    testLargeEurMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_EUR :~: 500000#EUR
+
+    testLargeEurReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_EUR :^: 500000#EUR
+
+//EOF

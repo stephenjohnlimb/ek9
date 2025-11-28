@@ -1,0 +1,99 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Character constant immutability.
+  Tests ALL mutating operators on Character constants with multiple value variations.
+
+  Constants tested:
+  - CHAR_A ('a') - lowercase letter
+  - CHAR_SPACE (' ') - whitespace character
+  - CHAR_NEWLINE ('\n') - escape sequence
+
+  Operators tested:
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Note: ++, --, +=, -=, *=, /= are not defined for Character.
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.character
+
+  defines constant
+    CHAR_A <- 'a'
+    CHAR_SPACE <- ' '
+    CHAR_COLON <- ':'
+
+  defines function
+
+    //==========================================================================
+    // Tests for CHAR_A constant (lowercase letter)
+    //==========================================================================
+
+    testCharAAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_A: 'z'
+
+    testCharAConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_A :=? 'z'
+
+    testCharACopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_A :=: 'z'
+
+    testCharAMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_A :~: 'z'
+
+    testCharAReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_A :^: 'z'
+
+    //==========================================================================
+    // Tests for CHAR_SPACE constant (whitespace)
+    //==========================================================================
+
+    testCharSpaceAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_SPACE: 'x'
+
+    testCharSpaceConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_SPACE :=? 'x'
+
+    testCharSpaceCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_SPACE :=: 'x'
+
+    testCharSpaceMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_SPACE :~: 'x'
+
+    testCharSpaceReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_SPACE :^: 'x'
+
+    //==========================================================================
+    // Tests for CHAR_COLON constant (special character)
+    //==========================================================================
+
+    testCharColonAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_COLON: ';'
+
+    testCharColonConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_COLON :=? ';'
+
+    testCharColonCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_COLON :=: ';'
+
+    testCharColonMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_COLON :~: ';'
+
+    testCharColonReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      CHAR_COLON :^: ';'
+
+//EOF

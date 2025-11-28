@@ -1,0 +1,170 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Float constant immutability.
+  Tests ALL mutating operators on Float constants with multiple value variations.
+
+  Constants tested:
+  - ZERO_F (0.0) - boundary value
+  - PI (3.14159265358979) - typical value
+  - LARGE_F (1.7976931348623157E308) - large value
+
+  Operators tested:
+  - Arithmetic mutators: ++, --, +=, -=, *=, /=
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.float
+
+  defines constant
+    ZERO_F <- 0.0
+    PI <- 3.14159265358979
+    LARGE_F <- 1.7976931348623157E308
+
+  defines function
+
+    //==========================================================================
+    // Tests for ZERO_F constant (boundary value: 0.0)
+    //==========================================================================
+
+    testZeroFIncrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_F++
+
+    testZeroFDecrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_F--
+
+    testZeroFAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_F += 1.0
+
+    testZeroFSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_F -= 1.0
+
+    testZeroFMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_F *= 2.0
+
+    testZeroFDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_F /= 2.0
+
+    testZeroFAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_F: 100.0
+
+    testZeroFConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_F :=? 100.0
+
+    testZeroFCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_F :=: 100.0
+
+    testZeroFMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_F :~: 100.0
+
+    testZeroFReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_F :^: 100.0
+
+    //==========================================================================
+    // Tests for PI constant (typical value: 3.14159...)
+    //==========================================================================
+
+    testPiIncrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PI++
+
+    testPiDecrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PI--
+
+    testPiAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PI += 1.0
+
+    testPiSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PI -= 1.0
+
+    testPiMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PI *= 2.0
+
+    testPiDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PI /= 2.0
+
+    testPiAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PI: 100.0
+
+    testPiConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PI :=? 100.0
+
+    testPiCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PI :=: 100.0
+
+    testPiMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PI :~: 100.0
+
+    testPiReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      PI :^: 100.0
+
+    //==========================================================================
+    // Tests for LARGE_F constant (large value)
+    //==========================================================================
+
+    testLargeFIncrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_F++
+
+    testLargeFDecrement()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_F--
+
+    testLargeFAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_F += 1.0
+
+    testLargeFSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_F -= 1.0
+
+    testLargeFMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_F *= 2.0
+
+    testLargeFDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_F /= 2.0
+
+    testLargeFAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_F: 100.0
+
+    testLargeFConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_F :=? 100.0
+
+    testLargeFCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_F :=: 100.0
+
+    testLargeFMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_F :~: 100.0
+
+    testLargeFReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LARGE_F :^: 100.0
+
+//EOF

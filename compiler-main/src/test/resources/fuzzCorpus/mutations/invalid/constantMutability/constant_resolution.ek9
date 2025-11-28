@@ -1,0 +1,97 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Resolution constant immutability.
+  Tests ALL mutating operators on Resolution constants with multiple value variations.
+
+  Constants tested:
+  - LOW_RES (72dpi) - low resolution
+  - MEDIUM_RES (150dpi) - medium resolution
+  - HIGH_RES (300dpi) - high resolution
+
+  Operators tested:
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.resolution
+
+  defines constant
+    LOW_RES <- 72dpi
+    MEDIUM_RES <- 150dpi
+    HIGH_RES <- 300dpi
+
+  defines function
+
+    //==========================================================================
+    // Tests for LOW_RES constant (low resolution)
+    //==========================================================================
+
+    testLowResAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LOW_RES: 96dpi
+
+    testLowResConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LOW_RES :=? 96dpi
+
+    testLowResCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LOW_RES :=: 96dpi
+
+    testLowResMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LOW_RES :~: 96dpi
+
+    testLowResReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LOW_RES :^: 96dpi
+
+    //==========================================================================
+    // Tests for MEDIUM_RES constant (medium resolution)
+    //==========================================================================
+
+    testMediumResAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MEDIUM_RES: 200dpi
+
+    testMediumResConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MEDIUM_RES :=? 200dpi
+
+    testMediumResCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MEDIUM_RES :=: 200dpi
+
+    testMediumResMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MEDIUM_RES :~: 200dpi
+
+    testMediumResReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      MEDIUM_RES :^: 200dpi
+
+    //==========================================================================
+    // Tests for HIGH_RES constant (high resolution)
+    //==========================================================================
+
+    testHighResAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      HIGH_RES: 600dpi
+
+    testHighResConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      HIGH_RES :=? 600dpi
+
+    testHighResCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      HIGH_RES :=: 600dpi
+
+    testHighResMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      HIGH_RES :~: 600dpi
+
+    testHighResReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      HIGH_RES :^: 600dpi
+
+//EOF

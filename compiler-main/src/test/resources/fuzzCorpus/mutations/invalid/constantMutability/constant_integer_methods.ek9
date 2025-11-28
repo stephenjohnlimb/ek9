@@ -1,0 +1,120 @@
+#!ek9
+<?-
+  Fuzzing test for Integer constant operator-as-method calls.
+  Tests calling mutating operators as methods on Integer constants.
+
+  This tests the SAME operators as constant_integer.ek9 but using
+  method call syntax instead of operator syntax.
+
+  Comparison:
+  - constant_integer.ek9: ZERO++        (operator syntax)
+  - This file:            ZERO.++()     (method syntax)
+
+  Both should produce NOT_MUTABLE errors.
+
+  Constants tested:
+  - ZERO (0) - boundary value
+  - ANSWER (42) - typical value
+
+  Operators tested (as method calls):
+  - .++() - increment
+  - .--() - decrement
+  - .+=(arg) - add assign
+  - .-=(arg) - subtract assign
+  - .*=(arg) - multiply assign
+  - ./=(arg) - divide assign
+  - .:=:(arg) - copy into
+  - .:~:(arg) - merge
+  - .:^:(arg) - replace
+
+  Expected: All method calls should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.integer.methods
+
+  defines constant
+    ZERO <- 0
+    ANSWER <- 42
+
+  defines function
+
+    //==========================================================================
+    // Tests for ZERO constant - operator-as-method syntax
+    //==========================================================================
+
+    testZeroIncrementMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO.++()
+
+    testZeroDecrementMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO.--()
+
+    testZeroAddAssignMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO.+=(1)
+
+    testZeroSubtractAssignMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO.-=(1)
+
+    testZeroMultiplyAssignMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO.*=(2)
+
+    testZeroDivideAssignMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO./=(2)
+
+    testZeroCopyMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO.:=:(100)
+
+    testZeroMergeMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO.:~:(100)
+
+    testZeroReplaceMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO.:^:(100)
+
+    //==========================================================================
+    // Tests for ANSWER constant - operator-as-method syntax
+    //==========================================================================
+
+    testAnswerIncrementMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER.++()
+
+    testAnswerDecrementMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER.--()
+
+    testAnswerAddAssignMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER.+=(1)
+
+    testAnswerSubtractAssignMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER.-=(1)
+
+    testAnswerMultiplyAssignMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER.*=(2)
+
+    testAnswerDivideAssignMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER./=(2)
+
+    testAnswerCopyMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER.:=:(100)
+
+    testAnswerMergeMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER.:~:(100)
+
+    testAnswerReplaceMethod()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ANSWER.:^:(100)
+
+//EOF

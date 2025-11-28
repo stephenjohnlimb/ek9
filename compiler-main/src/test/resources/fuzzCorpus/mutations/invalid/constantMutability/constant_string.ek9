@@ -1,0 +1,113 @@
+#!ek9
+<?-
+  High-volume fuzzing test for String constant immutability.
+  Tests ALL mutating operators on String constants with multiple value variations.
+
+  Constants tested:
+  - EMPTY_STR ("") - boundary value (empty string)
+  - GREETING ("Hello") - typical value
+  - LONG_STR ("The quick brown fox...") - longer value
+
+  Operators tested:
+  - String mutators: +=
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Note: ++, --, -=, *=, /= are not defined for String - these will test
+  OPERATOR_NOT_DEFINED which is also valid fuzzing coverage.
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.string
+
+  defines constant
+    EMPTY_STR <- ""
+    GREETING <- "Hello"
+    LONG_STR <- "The quick brown fox jumps over the lazy dog"
+
+  defines function
+
+    //==========================================================================
+    // Tests for EMPTY_STR constant (boundary value: empty string)
+    //==========================================================================
+
+    testEmptyStrAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EMPTY_STR += " World"
+
+    testEmptyStrAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EMPTY_STR: "New Value"
+
+    testEmptyStrConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EMPTY_STR :=? "New Value"
+
+    testEmptyStrCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EMPTY_STR :=: "New Value"
+
+    testEmptyStrMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EMPTY_STR :~: "New Value"
+
+    testEmptyStrReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      EMPTY_STR :^: "New Value"
+
+    //==========================================================================
+    // Tests for GREETING constant (typical value: "Hello")
+    //==========================================================================
+
+    testGreetingAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      GREETING += " World"
+
+    testGreetingAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      GREETING: "Goodbye"
+
+    testGreetingConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      GREETING :=? "Goodbye"
+
+    testGreetingCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      GREETING :=: "Goodbye"
+
+    testGreetingMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      GREETING :~: "Goodbye"
+
+    testGreetingReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      GREETING :^: "Goodbye"
+
+    //==========================================================================
+    // Tests for LONG_STR constant (longer value)
+    //==========================================================================
+
+    testLongStrAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LONG_STR += " and more text"
+
+    testLongStrAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LONG_STR: "Replaced"
+
+    testLongStrConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LONG_STR :=? "Replaced"
+
+    testLongStrCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LONG_STR :=: "Replaced"
+
+    testLongStrMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LONG_STR :~: "Replaced"
+
+    testLongStrReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      LONG_STR :^: "Replaced"
+
+//EOF

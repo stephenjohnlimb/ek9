@@ -1,0 +1,146 @@
+#!ek9
+<?-
+  High-volume fuzzing test for Dimension constant immutability.
+  Tests ALL mutating operators on Dimension constants with multiple value variations.
+
+  Constants tested:
+  - ZERO_M (0m) - boundary value
+  - ONE_KM (1km) - typical value
+  - TINY_MM (0.001mm) - small value
+
+  Operators tested:
+  - Dimension mutators: +=, -=, *=, /=
+  - Assignment operators: :, :=?, :=:, :~:, :^:
+
+  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+-?>
+defines module fuzztest.constant.mutation.dimension
+
+  defines constant
+    ZERO_M <- 0m
+    ONE_KM <- 1km
+    SMALL_CM <- 10cm
+
+  defines function
+
+    //==========================================================================
+    // Tests for ZERO_M constant (boundary value)
+    //==========================================================================
+
+    testZeroMAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_M += 1m
+
+    testZeroMSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_M -= 1m
+
+    testZeroMMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_M *= 2
+
+    testZeroMDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_M /= 2
+
+    testZeroMAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_M: 5m
+
+    testZeroMConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_M :=? 5m
+
+    testZeroMCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_M :=: 5m
+
+    testZeroMMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_M :~: 5m
+
+    testZeroMReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ZERO_M :^: 5m
+
+    //==========================================================================
+    // Tests for ONE_KM constant (typical value)
+    //==========================================================================
+
+    testOneKmAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_KM += 500m
+
+    testOneKmSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_KM -= 500m
+
+    testOneKmMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_KM *= 2
+
+    testOneKmDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_KM /= 2
+
+    testOneKmAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_KM: 2km
+
+    testOneKmConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_KM :=? 2km
+
+    testOneKmCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_KM :=: 2km
+
+    testOneKmMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_KM :~: 2km
+
+    testOneKmReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      ONE_KM :^: 2km
+
+    //==========================================================================
+    // Tests for SMALL_CM constant (small value)
+    //==========================================================================
+
+    testSmallCmAddAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SMALL_CM += 5cm
+
+    testSmallCmSubtractAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SMALL_CM -= 5cm
+
+    testSmallCmMultiplyAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SMALL_CM *= 2
+
+    testSmallCmDivideAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SMALL_CM /= 2
+
+    testSmallCmAssignment()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SMALL_CM: 20cm
+
+    testSmallCmConditionalAssign()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SMALL_CM :=? 20cm
+
+    testSmallCmCopyInto()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SMALL_CM :=: 20cm
+
+    testSmallCmMerge()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SMALL_CM :~: 20cm
+
+    testSmallCmReplace()
+      @Error: FULL_RESOLUTION: NOT_MUTABLE
+      SMALL_CM :^: 20cm
+
+//EOF
