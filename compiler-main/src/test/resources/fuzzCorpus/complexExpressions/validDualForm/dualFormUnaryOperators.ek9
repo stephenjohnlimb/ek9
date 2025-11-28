@@ -1,0 +1,49 @@
+#!ek9
+<?-
+  Fuzz Test: Dual-form unary operators - sqrt and abs
+
+  Tests that unary operators work in both operator form and method form.
+  Operator form: sqrt 16, abs -5
+  Method form: value.sqrt(), value.abs()
+-?>
+defines module fuzz.dualform.unary
+
+  defines function
+
+    <?- Test sqrt operator form -?>
+    testSqrtOperatorForm()
+      <- result as Float: sqrt 16
+
+    <?- Test sqrt method form -?>
+    testSqrtMethodForm()
+      <- result as Float?
+
+      value <- 16
+      result: value.sqrt()
+
+    <?- Test abs operator form -?>
+    testAbsOperatorForm()
+      <- result as Integer: abs -5
+
+    <?- Test abs method form -?>
+    testAbsMethodForm()
+      <- result as Integer?
+
+      value <- -5
+      result: value.abs()
+
+    <?- Test sqrt with float -?>
+    testSqrtFloatMethodForm()
+      <- result as Float?
+
+      value <- 25.0
+      result: value.sqrt()
+
+    <?- Test abs with float -?>
+    testAbsFloatMethodForm()
+      <- result as Float?
+
+      value <- -3.14
+      result: value.abs()
+
+//EOF

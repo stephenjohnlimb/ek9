@@ -1,0 +1,80 @@
+#!ek9
+<?-
+  Fuzz Test: Dual-form binary operators
+
+  Tests that binary arithmetic operators work in both operator form
+  and method form.
+  Operator form: a + b
+  Method form: a.+(b)
+-?>
+defines module fuzz.dualform.binary
+
+  defines function
+
+    <?- Test addition operator form -?>
+    testAddOperatorForm()
+      <- result as Integer: 5 + 3
+
+    <?- Test addition method form -?>
+    testAddMethodForm()
+      <- result as Integer?
+
+      a <- 5
+      result: a.+(3)
+
+    <?- Test subtraction operator form -?>
+    testSubOperatorForm()
+      <- result as Integer: 10 - 3
+
+    <?- Test subtraction method form -?>
+    testSubMethodForm()
+      <- result as Integer?
+
+      a <- 10
+      result: a.-(3)
+
+    <?- Test multiplication operator form -?>
+    testMulOperatorForm()
+      <- result as Integer: 4 * 5
+
+    <?- Test multiplication method form -?>
+    testMulMethodForm()
+      <- result as Integer?
+
+      a <- 4
+      result: a.*(5)
+
+    <?- Test division operator form -?>
+    testDivOperatorForm()
+      <- result as Integer: 20 / 4
+
+    <?- Test division method form -?>
+    testDivMethodForm()
+      <- result as Integer?
+
+      a <- 20
+      result: a./(4)
+
+    <?- Test modulo operator form -?>
+    testModOperatorForm()
+      <- result as Integer: 17 mod 5
+
+    <?- Test modulo method form -?>
+    testModMethodForm()
+      <- result as Integer?
+
+      a <- 17
+      result: a.mod(5)
+
+    <?- Test power operator form -?>
+    testPowerOperatorForm()
+      <- result as Float: 2.0 ^ 3.0
+
+    <?- Test power method form -?>
+    testPowerMethodForm()
+      <- result as Float?
+
+      a <- 2.0
+      result: a.^(3.0)
+
+//EOF

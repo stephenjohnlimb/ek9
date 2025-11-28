@@ -1,0 +1,114 @@
+#!ek9
+<?-
+  Fuzz Test: Parentheses with method-form operators
+
+  Tests combining parenthesis grouping with method-form operator calls.
+  Note: Cannot chain method calls directly on parenthesized expressions.
+  Pattern: a.+(b) works, but (a.+(b)).*(c) does NOT work in EK9.
+  Must use intermediate variables or operator form for outer operations.
+-?>
+defines module fuzz.parenthesis.methodform
+
+  defines function
+
+    <?- Test simple parenthesized method call result used in operator -?>
+    testMethodResultInOperator()
+      <- result as Integer?
+
+      a <- 5
+      b <- 3
+      c <- 2
+
+      //Use method form result in operator expression
+      inner <- a.+(b)
+      result: (inner) * c
+
+    <?- Test nested method calls with intermediate variable -?>
+    testNestedMethodWithVar()
+      <- result as Integer?
+
+      a <- 10
+      b <- 5
+      c <- 3
+
+      //Build up with intermediate variables
+      step1 <- a.+(b)
+      step2 <- step1.*(c)
+      result: step2
+
+    <?- Test multiple method call results combined -?>
+    testMultipleMethodResults()
+      <- result as Integer?
+
+      a <- 5
+      b <- 3
+      c <- 2
+      d <- 4
+
+      //Separate method calls, combined with operators
+      sum1 <- a.+(b)
+      sum2 <- c.+(d)
+      result: sum1 + sum2
+
+    <?- Test method chaining without parentheses -?>
+    testMethodChainNoParen()
+      <- result as Integer?
+
+      a <- 10
+
+      //Method chaining works without wrapping in parentheses
+      result: a.+(5).*(2).-(3)
+
+    <?- Test comparison method with parentheses -?>
+    testComparisonMethod()
+      <- result as Boolean?
+
+      a <- 5
+      b <- 10
+
+      //Comparison method results combined
+      lt <- a.<(b)
+      gt <- b.>(a)
+      result: lt and gt
+
+    <?- Test mixed forms with parentheses around operator expressions -?>
+    testMixedFormsParens()
+      <- result as Integer?
+
+      a <- 10
+      b <- 5
+      c <- 3
+
+      //Method form inside, operator form outside
+      inner <- a.+(b)
+      result: (inner * c) + (inner - c)
+
+    <?- Test sqrt and abs method forms -?>
+    testUnaryMethods()
+      <- result as Float?
+
+      a <- 16.0
+      b <- -5.0
+
+      //Unary method results combined
+      sqrtA <- a.sqrt()
+      absB <- b.abs()
+      result: sqrtA + absB
+
+    <?- Test complex expression building up -?>
+    testComplexBuildup()
+      <- result as Float?
+
+      x <- 10.0
+      y <- 5.0
+      z <- 2.0
+
+      //Build complex expression with intermediate steps
+      sum <- x.+(y)
+      product <- sum.*(z)
+      diff <- x.-(y)
+      quotient <- product / diff
+      power <- z.^(2.0)
+      result: quotient + power
+
+//EOF

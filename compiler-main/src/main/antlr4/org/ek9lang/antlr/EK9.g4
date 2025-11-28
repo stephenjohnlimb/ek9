@@ -680,6 +680,8 @@ moduleSegment
     : Identifier
     // Stream operations and constructs (safe keywords already allowed as identifiers)
     | DISPATCHER
+    | ABS
+    | SQRT
     | SORT
     | CAT
     | FILTER
@@ -773,6 +775,8 @@ moduleSegment
 identifier
     : Identifier
     | DISPATCHER
+    | ABS
+    | SQRT
     | SORT
     | CAT
     | FILTER

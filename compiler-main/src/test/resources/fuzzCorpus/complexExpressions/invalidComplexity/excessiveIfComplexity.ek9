@@ -1,0 +1,75 @@
+#!ek9
+<?-
+  Fuzz Test: Excessive if-statement complexity
+
+  This function exceeds the maximum complexity limit of 50 by using
+  many if statements and comparisons.
+  Each if control block adds +1 and each comparison adds +1.
+-?>
+defines module fuzz.complexity.excessive.ifstatement
+
+  defines function
+
+    @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+    excessiveIfFunction()
+      <- result as Integer?
+
+      a <- 1
+      result: 0
+
+      //Each if adds +1, each comparison adds +1
+      //25 if blocks with comparisons = 50+ complexity
+      if a > 0
+        result: result + 1
+      if a > 1
+        result: result + 1
+      if a > 2
+        result: result + 1
+      if a > 3
+        result: result + 1
+      if a > 4
+        result: result + 1
+      if a > 5
+        result: result + 1
+      if a > 6
+        result: result + 1
+      if a > 7
+        result: result + 1
+      if a > 8
+        result: result + 1
+      if a > 9
+        result: result + 1
+      if a > 10
+        result: result + 1
+      if a > 11
+        result: result + 1
+      if a > 12
+        result: result + 1
+      if a > 13
+        result: result + 1
+      if a > 14
+        result: result + 1
+      if a > 15
+        result: result + 1
+      if a > 16
+        result: result + 1
+      if a > 17
+        result: result + 1
+      if a > 18
+        result: result + 1
+      if a > 19
+        result: result + 1
+      if a > 20
+        result: result + 1
+      if a > 21
+        result: result + 1
+      if a > 22
+        result: result + 1
+      if a > 23
+        result: result + 1
+      if a > 24
+        result: result + 1
+      if a > 25
+        result: result + 1
+
+//EOF

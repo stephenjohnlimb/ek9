@@ -1,0 +1,91 @@
+#!ek9
+<?-
+  Fuzz Test: Dual-form comparison operators
+
+  Tests that comparison operators work in both operator form
+  and method form.
+  Operator form: a < b
+  Method form: a.<(b)
+-?>
+defines module fuzz.dualform.comparison
+
+  defines function
+
+    <?- Test less than operator form -?>
+    testLessThanOperator()
+      <- result as Boolean: 5 < 10
+
+    <?- Test less than method form -?>
+    testLessThanMethod()
+      <- result as Boolean?
+
+      a <- 5
+      result: a.<(10)
+
+    <?- Test less than or equal operator form -?>
+    testLessEqualOperator()
+      <- result as Boolean: 5 <= 5
+
+    <?- Test less than or equal method form -?>
+    testLessEqualMethod()
+      <- result as Boolean?
+
+      a <- 5
+      result: a.<=(5)
+
+    <?- Test greater than operator form -?>
+    testGreaterThanOperator()
+      <- result as Boolean: 10 > 5
+
+    <?- Test greater than method form -?>
+    testGreaterThanMethod()
+      <- result as Boolean?
+
+      a <- 10
+      result: a.>(5)
+
+    <?- Test greater than or equal operator form -?>
+    testGreaterEqualOperator()
+      <- result as Boolean: 10 >= 10
+
+    <?- Test greater than or equal method form -?>
+    testGreaterEqualMethod()
+      <- result as Boolean?
+
+      a <- 10
+      result: a.>=(10)
+
+    <?- Test equal operator form -?>
+    testEqualOperator()
+      <- result as Boolean: 7 == 7
+
+    <?- Test equal method form -?>
+    testEqualMethod()
+      <- result as Boolean?
+
+      a <- 7
+      result: a.==(7)
+
+    <?- Test not equal operator form -?>
+    testNotEqualOperator()
+      <- result as Boolean: 7 <> 8
+
+    <?- Test not equal method form -?>
+    testNotEqualMethod()
+      <- result as Boolean?
+
+      a <- 7
+      result: a.<>(8)
+
+    <?- Test comparison/spaceship operator form -?>
+    testComparisonOperator()
+      <- result as Integer: 5 <=> 10
+
+    <?- Test comparison/spaceship method form -?>
+    testComparisonMethod()
+      <- result as Integer?
+
+      a <- 5
+      result: a.<=>(10)
+
+//EOF

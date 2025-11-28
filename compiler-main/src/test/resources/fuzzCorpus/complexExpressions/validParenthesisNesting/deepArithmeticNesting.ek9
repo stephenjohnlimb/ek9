@@ -1,0 +1,64 @@
+#!ek9
+<?-
+  Fuzz Test: Deep arithmetic parenthesis nesting
+
+  Tests compiler robustness with deeply nested arithmetic expressions.
+  Parentheses don't add to complexity but create deep AST structures
+  that stress parser recursion, tree traversal, and IR generation.
+-?>
+defines module fuzz.parenthesis.deep.arithmetic
+
+  defines function
+
+    <?- Test 10 levels of parenthesis nesting -?>
+    testNesting10()
+      <- result as Integer?
+
+      a <- 1
+      b <- 2
+      //10 levels deep
+      result: ((((((((((a + b))))))))))
+
+    <?- Test 20 levels of parenthesis nesting -?>
+    testNesting20()
+      <- result as Integer?
+
+      a <- 1
+      b <- 2
+      //20 levels deep
+      result: ((((((((((((((((((((a + b))))))))))))))))))))
+
+    <?- Test 30 levels of parenthesis nesting -?>
+    testNesting30()
+      <- result as Integer?
+
+      a <- 1
+      b <- 2
+      //30 levels deep
+      result: ((((((((((((((((((((((((((((((a + b))))))))))))))))))))))))))))))
+
+    <?- Test 10 levels with operations at each level -?>
+    testNestedOperations10()
+      <- result as Integer?
+
+      a <- 100
+      //Each level has an operation
+      result: ((((((((((a + 1) + 2) + 3) + 4) + 5) - 1) - 2) - 3) - 4) - 5)
+
+    <?- Test 15 levels with mixed operations -?>
+    testNestedMixedOps15()
+      <- result as Integer?
+
+      a <- 100
+      //Mixed operations at each level
+      result: (((((((((((((((a + 10) * 2) - 5) / 3) + 7) * 2) - 3) + 1) * 2) - 4) + 6) / 2) + 8) - 2) * 1)
+
+    <?- Test deep nesting with floats -?>
+    testDeepFloatNesting()
+      <- result as Float?
+
+      x <- 1.0
+      //15 levels with float operations
+      result: (((((((((((((((x + 0.1) + 0.2) + 0.3) + 0.4) + 0.5) - 0.1) - 0.2) - 0.3) - 0.4) - 0.5) * 2.0) / 2.0) + 1.0) - 1.0) * 1.0)
+
+//EOF

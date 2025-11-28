@@ -1,0 +1,107 @@
+#!ek9
+<?-
+  Fuzz Test: Boolean parenthesis nesting
+
+  Tests deeply nested and wide boolean expressions with parentheses.
+  Boolean expressions with and/or DO add to complexity due to short-circuit
+  evaluation creating execution branches.
+-?>
+defines module fuzz.parenthesis.boolean
+
+  defines function
+
+    <?- Test nested boolean grouping -?>
+    testNestedBooleanGroups()
+      <- result as Boolean?
+
+      a <- true
+      b <- false
+      c <- true
+      d <- false
+
+      //Nested boolean groups
+      result: ((a and b) or (c and d)) and ((a or b) and (c or d))
+
+    <?- Test deep boolean nesting -?>
+    testDeepBooleanNesting()
+      <- result as Boolean?
+
+      x <- true
+
+      //10 levels of boolean nesting
+      result: ((((((((((x and true) or false) and true) or false) and true) or false) and true) or false) and true) or false)
+
+    <?- Test wide boolean groups -?>
+    testWideBooleanGroups()
+      <- result as Boolean?
+
+      a <- true
+      b <- true
+      c <- true
+      d <- true
+      e <- true
+
+      //Many groups at same level
+      result: (a and b) or (b and c) or (c and d) or (d and e) or (e and a)
+
+    <?- Test comparison results in nested boolean -?>
+    testComparisonBooleanNesting()
+      <- result as Boolean?
+
+      x <- 5
+      y <- 10
+      z <- 15
+
+      //Comparisons grouped with boolean operators
+      result: ((x < y) and (y < z)) or ((x > 0) and (z < 20))
+
+    <?- Test mixed and/or/xor with parentheses -?>
+    testMixedBooleanOps()
+      <- result as Boolean?
+
+      a <- true
+      b <- false
+      c <- true
+
+      //Mixed boolean operators with grouping
+      result: ((a and b) or c) xor ((a or b) and c)
+
+    <?- Test not with nested parentheses -?>
+    testNotWithNesting()
+      <- result as Boolean?
+
+      a <- true
+      b <- false
+
+      //Negation with nested expressions
+      result: not ((a and b) or (not a and not b))
+
+    <?- Test complex validation pattern -?>
+    testValidationPattern()
+      <- result as Boolean?
+
+      age <- 25
+      hasId <- true
+      hasPermit <- true
+      isStudent <- false
+      isSenior <- false
+
+      //Real-world validation logic
+      isAdult <- age >= 18
+      hasDocuments <- hasId and hasPermit
+      hasDiscount <- isStudent or isSenior
+
+      result: (isAdult and hasDocuments) or (hasDiscount and hasId)
+
+    <?- Test deeply nested validation -?>
+    testDeepValidation()
+      <- result as Boolean?
+
+      a <- 10
+      b <- 20
+      c <- 30
+
+      //Multi-level validation checks
+      result: (((a > 0) and (a < 100)) and ((b > 0) and (b < 100))) and (((c > 0) and (c < 100)) or (c == 0))
+
+//EOF

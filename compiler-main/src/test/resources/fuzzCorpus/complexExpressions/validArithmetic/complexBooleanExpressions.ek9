@@ -1,0 +1,79 @@
+#!ek9
+<?-
+  Fuzz Test: Complex boolean expressions
+
+  Tests complex boolean expressions with multiple operators,
+  comparisons, and logical combinations. These contribute to
+  complexity counts in EK9.
+-?>
+defines module fuzz.boolean.complex
+
+  defines function
+
+    <?- Test: simple comparison chain -?>
+    testComparisonChain()
+      <- result as Boolean?
+
+      x <- 5
+      result: x > 0 and x < 10
+
+    <?- Test: multiple OR conditions -?>
+    testMultipleOr()
+      <- result as Boolean?
+
+      status <- 1
+      result: status == 0 or status == 1 or status == 2
+
+    <?- Test: mixed AND and OR with parentheses -?>
+    testMixedAndOr()
+      <- result as Boolean?
+
+      a <- true
+      b <- false
+      c <- true
+      result: (a and b) or (b and c) or (a and c)
+
+    <?- Test: range check pattern -?>
+    testRangeCheck()
+      <- result as Boolean?
+
+      value <- 50
+      min <- 0
+      max <- 100
+      result: value >= min and value <= max
+
+    <?- Test: complex validation logic -?>
+    testValidationLogic()
+      <- result as Boolean?
+
+      age <- 25
+      hasLicense <- true
+      hasInsurance <- true
+      result: age >= 18 and (hasLicense and hasInsurance)
+
+    <?- Test: triple condition check -?>
+    testTripleCondition()
+      <- result as Boolean?
+
+      x <- 5
+      y <- 10
+      z <- 15
+      result: x < y and y < z and z > 0
+
+    <?- Test: negation with complex expression -?>
+    testNegationComplex()
+      <- result as Boolean?
+
+      isActive <- true
+      isValid <- true
+      result: not (isActive and isValid)
+
+    <?- Test: xor with comparisons -?>
+    testXorComparisons()
+      <- result as Boolean?
+
+      a <- 5
+      b <- 10
+      result: (a > 0) xor (b < 0)
+
+//EOF

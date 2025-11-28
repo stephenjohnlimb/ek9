@@ -1,0 +1,91 @@
+#!ek9
+<?-
+  Fuzz Test: Excessive loop complexity
+
+  This function exceeds the maximum complexity limit of 50 by using
+  many for-range loops combined with comparisons in if statements.
+  Each for-range adds +1, each if adds +1, each comparison adds +1.
+-?>
+defines module fuzz.complexity.excessive.loops
+
+  defines function
+
+    @Error: PRE_IR_CHECKS: EXCESSIVE_COMPLEXITY
+    excessiveLoopFunction()
+      <- result as Integer?
+
+      total <- 0
+
+      //Each for-range adds +1, each if adds +1, each comparison adds +1
+      //17 loops x 3 = 51+ complexity
+      for i in 1 ... 5
+        if i > 2
+          total: total + 1
+
+      for j in 1 ... 5
+        if j > 2
+          total: total + 1
+
+      for k in 1 ... 5
+        if k > 2
+          total: total + 1
+
+      for l in 1 ... 5
+        if l > 2
+          total: total + 1
+
+      for m in 1 ... 5
+        if m > 2
+          total: total + 1
+
+      for n in 1 ... 5
+        if n > 2
+          total: total + 1
+
+      for o in 1 ... 5
+        if o > 2
+          total: total + 1
+
+      for p in 1 ... 5
+        if p > 2
+          total: total + 1
+
+      for q in 1 ... 5
+        if q > 2
+          total: total + 1
+
+      for r in 1 ... 5
+        if r > 2
+          total: total + 1
+
+      for s in 1 ... 5
+        if s > 2
+          total: total + 1
+
+      for t in 1 ... 5
+        if t > 2
+          total: total + 1
+
+      for u in 1 ... 5
+        if u > 2
+          total: total + 1
+
+      for v in 1 ... 5
+        if v > 2
+          total: total + 1
+
+      for w in 1 ... 5
+        if w > 2
+          total: total + 1
+
+      for x in 1 ... 5
+        if x > 2
+          total: total + 1
+
+      for y in 1 ... 5
+        if y > 2
+          total: total + 1
+
+      result: total
+
+//EOF

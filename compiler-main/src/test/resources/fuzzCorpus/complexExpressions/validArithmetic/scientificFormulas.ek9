@@ -1,0 +1,79 @@
+#!ek9
+<?-
+  Fuzz Test: Scientific formula expressions
+
+  Tests complex mathematical expressions typical in scientific
+  and engineering calculations. Uses float types for precision.
+-?>
+defines module fuzz.arithmetic.scientific
+
+  defines function
+
+    <?- Quadratic formula discriminant: b^2 - 4ac -?>
+    testQuadraticDiscriminant()
+      <- result as Float?
+
+      a <- 1.0
+      b <- 5.0
+      c <- 6.0
+      result: b ^ 2.0 - 4.0 * a * c
+
+    <?- Distance formula: sqrt((x2-x1)^2 + (y2-y1)^2) -?>
+    testDistanceFormula()
+      <- result as Float?
+
+      x1 <- 0.0
+      y1 <- 0.0
+      x2 <- 3.0
+      y2 <- 4.0
+      result: sqrt ((x2 - x1) ^ 2.0 + (y2 - y1) ^ 2.0)
+
+    <?- Pythagorean theorem: c = sqrt(a^2 + b^2) -?>
+    testPythagorean()
+      <- result as Float?
+
+      a <- 3.0
+      b <- 4.0
+      result: sqrt (a ^ 2.0 + b ^ 2.0)
+
+    <?- Celsius to Fahrenheit: F = C * 9/5 + 32 -?>
+    testCelsiusToFahrenheit()
+      <- result as Float?
+
+      celsius <- 100.0
+      result: celsius * 9.0 / 5.0 + 32.0
+
+    <?- Simple interest: A = P(1 + rt) -?>
+    testSimpleInterest()
+      <- result as Float?
+
+      principal <- 1000.0
+      rate <- 0.05
+      time <- 2.0
+      result: principal * (1.0 + rate * time)
+
+    <?- Kinetic energy: KE = 0.5 * m * v^2 -?>
+    testKineticEnergy()
+      <- result as Float?
+
+      mass <- 10.0
+      velocity <- 5.0
+      result: 0.5 * mass * velocity ^ 2.0
+
+    <?- Standard deviation component: (x - mean)^2 -?>
+    testVarianceComponent()
+      <- result as Float?
+
+      x <- 7.0
+      mean <- 5.0
+      result: (x - mean) ^ 2.0
+
+    <?- BMI formula: weight / height^2 -?>
+    testBMI()
+      <- result as Float?
+
+      weight <- 70.0
+      height <- 1.75
+      result: weight / height ^ 2.0
+
+//EOF

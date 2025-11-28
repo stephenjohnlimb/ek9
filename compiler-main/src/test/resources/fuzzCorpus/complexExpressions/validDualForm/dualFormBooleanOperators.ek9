@@ -1,0 +1,59 @@
+#!ek9
+<?-
+  Fuzz Test: Dual-form boolean operators
+
+  Tests that boolean operators work in both operator form
+  and method form.
+  Operator form: a and b
+  Method form: a.and(b)
+  Note: 'not' is prefix-only with no method form.
+-?>
+defines module fuzz.dualform.boolean
+
+  defines function
+
+    <?- Test and operator form -?>
+    testAndOperator()
+      <- result as Boolean: true and false
+
+    <?- Test and method form -?>
+    testAndMethod()
+      <- result as Boolean?
+
+      a <- true
+      result: a.and(false)
+
+    <?- Test or operator form -?>
+    testOrOperator()
+      <- result as Boolean: true or false
+
+    <?- Test or method form -?>
+    testOrMethod()
+      <- result as Boolean?
+
+      a <- false
+      result: a.or(true)
+
+    <?- Test xor operator form -?>
+    testXorOperator()
+      <- result as Boolean: true xor false
+
+    <?- Test xor method form -?>
+    testXorMethod()
+      <- result as Boolean?
+
+      a <- true
+      result: a.xor(false)
+
+    <?- Test not operator form - prefix only -?>
+    testNotOperator()
+      <- result as Boolean: not true
+
+    <?- Test chained boolean methods -?>
+    testChainedBoolean()
+      <- result as Boolean?
+
+      a <- true
+      result: a.and(true).or(false)
+
+//EOF

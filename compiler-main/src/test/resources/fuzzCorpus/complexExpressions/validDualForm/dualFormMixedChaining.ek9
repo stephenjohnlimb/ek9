@@ -1,0 +1,71 @@
+#!ek9
+<?-
+  Fuzz Test: Mixed-form and chained operator expressions
+
+  Tests combinations of operator form and method form,
+  plus method chaining patterns.
+-?>
+defines module fuzz.dualform.mixed
+
+  defines function
+
+    <?- Test simple method chaining -?>
+    testMethodChain()
+      <- result as Integer?
+
+      a <- 5
+      result: a.+(3).*(2)
+
+    <?- Test mixing operator and method forms -?>
+    testMixedForms()
+      <- result as Integer?
+
+      a <- 10
+      b <- 5
+      result: a + b.*(2)
+
+    <?- Test chained unary and binary methods -?>
+    testUnaryBinaryChain()
+      <- result as Float?
+
+      a <- 16.0
+      result: a.sqrt().+(4.0)
+
+    <?- Test comparison after arithmetic -?>
+    testArithmeticThenCompare()
+      <- result as Boolean?
+
+      a <- 5
+      b <- 10
+      result: a.+(5).<=(b)
+
+    <?- Test boolean after comparison -?>
+    testCompareThenBoolean()
+      <- result as Boolean?
+
+      x <- 5
+      y <- 10
+      result: x.<(10).and(y.>(5))
+
+    <?- Test abs chain -?>
+    testAbsChain()
+      <- result as Integer?
+
+      a <- -5
+      result: a.abs().+(10)
+
+    <?- Test complex arithmetic chain -?>
+    testComplexArithmeticChain()
+      <- result as Integer?
+
+      a <- 10
+      result: a.*(2).+(5)./(5)
+
+    <?- Test float chain with sqrt -?>
+    testFloatSqrtChain()
+      <- result as Float?
+
+      a <- 100.0
+      result: a.sqrt().*(2.0).+(5.0)
+
+//EOF

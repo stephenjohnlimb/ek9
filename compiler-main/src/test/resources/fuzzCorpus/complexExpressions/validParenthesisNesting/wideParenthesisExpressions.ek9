@@ -1,0 +1,68 @@
+#!ek9
+<?-
+  Fuzz Test: Wide parenthesis expressions
+
+  Tests compiler robustness with many parenthesized groups at the same level.
+  This creates wide AST structures rather than deep ones.
+  Pattern: (a + b) * (c + d) + (e - f) * (g + h) ...
+-?>
+defines module fuzz.parenthesis.wide
+
+  defines function
+
+    <?- Test 10 parenthesized groups at same level -?>
+    testWide10Groups()
+      <- result as Integer?
+
+      a <- 1
+      b <- 2
+      c <- 3
+      d <- 4
+      e <- 5
+
+      //10 groups at same level
+      result: (a + b) + (b + c) + (c + d) + (d + e) + (e + a) + (a + c) + (b + d) + (c + e) + (d + a) + (e + b)
+
+    <?- Test 15 groups with mixed operators -?>
+    testWide15MixedOps()
+      <- result as Integer?
+
+      a <- 10
+      b <- 5
+      c <- 3
+      d <- 2
+
+      //15 groups with various operators between them
+      result: (a + b) * (c + d) - (a - b) + (c * d) / (a + c) + (b - d) * (a + d) - (b + c) + (a * b) / (c + d) + (a - c) * (b + d) - (c - d) + (a + b) * (c - d) - (b * c)
+
+    <?- Test 20 groups addition only -?>
+    testWide20Addition()
+      <- result as Integer?
+
+      x <- 1
+
+      //20 groups, simpler pattern
+      result: (x + 1) + (x + 2) + (x + 3) + (x + 4) + (x + 5) + (x + 6) + (x + 7) + (x + 8) + (x + 9) + (x + 10) + (x + 11) + (x + 12) + (x + 13) + (x + 14) + (x + 15) + (x + 16) + (x + 17) + (x + 18) + (x + 19) + (x + 20)
+
+    <?- Test wide with floats -?>
+    testWideFloat()
+      <- result as Float?
+
+      x <- 1.0
+      y <- 2.0
+
+      //10 float groups
+      result: (x + y) * (x - y) + (x * y) / (x + y) - (y - x) + (x ^ y) - (y / x) + (x + x) * (y + y) - (x * x)
+
+    <?- Test wide with comparison results -?>
+    testWideComparisons()
+      <- result as Integer?
+
+      a <- 5
+      b <- 10
+      c <- 15
+
+      //Multiple groups with mixed operations
+      result: (a + b) + (b + c) + (c + a) + (a * 2) + (b * 2) + (c * 2)
+
+//EOF
