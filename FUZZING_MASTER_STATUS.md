@@ -1121,6 +1121,15 @@ invalidFunction()
 1. ❌ **Trait Constructors:** Traits don't support constructors in EK9 (invalid test removed)
 2. ❌ **Wrong Phase:** RESULT errors at SYMBOL_DEFINITION not FULL_RESOLUTION
 3. ❌ **Directive Placement:** On function declaration doesn't work - must be on error line
+4. ❌ **Duplicate Coverage:** ALWAYS check `parseButFailCompile/` before creating fuzz tests - many error codes already have comprehensive tests there (e.g., NOT_ACCESSIBLE, NOT_ABSTRACT_AND_NO_BODY_PROVIDED, NOT_RESOLVED). Fuzz tests should add NEW mutation patterns, not duplicate existing coverage.
+
+### Pre-Fuzz Checklist
+
+Before creating any new fuzz test suite:
+1. **Search existing coverage:** `grep -r "ERROR_CODE" compiler-main/src/test/resources/examples/parseButFailCompile/`
+2. **Check fuzzCorpus:** Verify error code not already covered in existing fuzz tests
+3. **Identify new patterns:** Only proceed if the fuzz test adds genuinely new mutation patterns not covered by existing tests
+4. **Document the gap:** Explain what NEW coverage the fuzz test provides
 
 ---
 

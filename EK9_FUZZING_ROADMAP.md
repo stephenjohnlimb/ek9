@@ -1231,6 +1231,9 @@ The following areas have **excellent existing coverage** and should NOT have add
 - Adding the test would duplicate existing coverage
 - The error type is a variation of an already-tested pattern
 
+**Session 2025-11-29 Example:**
+Access Control (NOT_ACCESSIBLE), Reference Constraints (NOT_RESOLVED), and Abstract/Body (NOT_ABSTRACT_AND_NO_BODY_PROVIDED) tests were created and then **deleted** after discovering they duplicated existing `parseButFailCompile/phase3/badAccessChecks/`, `parseButFailCompile/phase3/badCalls/`, and `parseButFailCompile/phase1/badMethodAndFunctionUse/` tests. Always check first!
+
 ### Verification Process
 
 Before proposing a new test suite:
