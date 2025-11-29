@@ -1,0 +1,36 @@
+#!ek9
+<?-
+  Extension Constraints Mutation Test: Not Open Class
+  Classes must be marked as 'open' or 'abstract' to be extended.
+
+  Mutation: Extending a class not marked as open
+  Expected: NOT_OPEN_TO_EXTENSION at EXPLICIT_TYPE_SYMBOL_DEFINITION
+-?>
+defines module fuzz.extension.notopenclass
+
+  defines class
+
+    ClosedClass
+      value <- "closed"
+
+    OpenClass as open
+      value <- "open"
+
+    AbstractClass as abstract
+      value <- "abstract"
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
+    TriesToExtendClosed1 extends ClosedClass
+      extra <- "extra"
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
+    TriesToExtendClosed2 is ClosedClass
+      extra <- "extra"
+
+    ValidExtendsOpen extends OpenClass
+      extra <- "extra"
+
+    ValidExtendsAbstract extends AbstractClass
+      extra <- "extra"
+
+//EOF

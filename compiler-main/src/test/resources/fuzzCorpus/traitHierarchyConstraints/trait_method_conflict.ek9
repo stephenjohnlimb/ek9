@@ -1,0 +1,46 @@
+#!ek9
+<?-
+  Trait Hierarchy Mutation Test: Method Conflict
+  When multiple traits have same method signature with implementation,
+  the class must provide its own implementation to resolve conflict.
+
+  Mutation: Class with multiple traits having conflicting methods
+  Expected: METHODS_CONFLICT at FULL_RESOLUTION
+-?>
+defines module fuzz.trait.methodconflict
+
+  defines trait
+
+    TraitA
+      conflictMethod()
+        <- rtn <- true
+
+    TraitB
+      conflictMethod()
+        <- rtn <- false
+
+    TraitC
+      conflictMethod()
+        <- rtn as String: "C"
+
+  defines class
+
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    BrokenClass1 with trait of TraitA, TraitB
+      default BrokenClass1()
+      default operator ?
+
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    BrokenClass2 with trait of TraitB, TraitC
+      default BrokenClass2()
+      default operator ?
+
+    ResolvedClass with trait of TraitA, TraitB
+      default ResolvedClass()
+
+      override conflictMethod()
+        <- rtn <- true
+
+      default operator ?
+
+//EOF

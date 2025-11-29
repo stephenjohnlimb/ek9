@@ -1,0 +1,35 @@
+#!ek9
+<?-
+  This/Super Constraints Mutation Test: Outside Constructor
+  this() and super() calls are only valid in constructors.
+
+  Mutation: Using this()/super() in regular methods
+  Expected: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR at FULL_RESOLUTION
+-?>
+defines module fuzz.thissuper.outsideconstructor
+
+  defines class
+
+    BaseClass as open
+      BaseClass()
+        assert true
+
+    DerivedClass extends BaseClass
+      method1()
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
+        val <- this()
+
+      method2()
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
+        val <- super()
+
+    AnotherDerived extends BaseClass
+      anotherMethod()
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
+        result <- this()
+
+      yetAnother()
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
+        result <- super()
+
+//EOF

@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  This/Super Constraints Mutation Test: Super in Trait
+  super. is inappropriate for accessing trait methods.
+  Traits implicitly inherit from Any, so using super produces
+  SUPER_FOR_ANY_NOT_REQUIRED error.
+
+  Mutation: Using super. to access methods in trait
+  Expected: SUPER_FOR_ANY_NOT_REQUIRED at FULL_RESOLUTION
+-?>
+defines module fuzz.thissuper.superintrait
+
+  defines trait
+
+    BaseTrait
+      methodX()
+        <- rtn as String: "X"
+
+      methodP()
+        <- rtn as String: "P"
+        @Error: FULL_RESOLUTION: SUPER_FOR_ANY_NOT_REQUIRED
+        rtn: super.methodX()
+
+    DerivedTrait is BaseTrait
+      methodY()
+        @Error: FULL_RESOLUTION: SUPER_FOR_ANY_NOT_REQUIRED
+        <- rtn as String: super.methodX()
+
+    MixedTrait with trait of BaseTrait
+      methodZ()
+        @Error: FULL_RESOLUTION: SUPER_FOR_ANY_NOT_REQUIRED
+        <- rtn as String: super.methodP()
+
+//EOF

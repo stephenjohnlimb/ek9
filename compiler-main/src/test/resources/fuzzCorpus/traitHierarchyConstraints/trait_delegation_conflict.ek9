@@ -1,0 +1,55 @@
+#!ek9
+<?-
+  Trait Hierarchy Mutation Test: Delegation Conflict
+  When delegating multiple traits with conflicting methods,
+  conflict must be resolved.
+
+  Mutation: Trait delegation with conflicting method implementations
+  Expected: METHODS_CONFLICT at FULL_RESOLUTION
+-?>
+defines module fuzz.trait.delegationconflict
+
+  defines trait
+
+    TraitX
+      execute()
+        <- rtn <- true
+
+      getValue()
+        <- rtn as Integer: 10
+
+    TraitY
+      execute()
+        <- rtn <- false
+
+      getName()
+        <- rtn as String: "Y"
+
+  defines class
+
+    ImplX with trait of TraitX
+      default ImplX()
+      default operator ?
+
+    ImplY with trait of TraitY
+      default ImplY()
+      default operator ?
+
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    DelegatingClass with trait of (
+      TraitX by implX,
+      TraitY by implY
+      )
+      implX as ImplX?
+      implY as ImplY?
+
+      DelegatingClass()
+        ->
+          implX as ImplX
+          implY as ImplY
+        this.implX: implX
+        this.implY: implY
+
+      default operator ?
+
+//EOF

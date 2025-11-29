@@ -1,0 +1,42 @@
+#!ek9
+<?-
+  Dispatcher Hierarchy Mutation Test: Multiple Entry Points
+  Only one method can be marked as dispatcher entry point.
+
+  Mutation: Multiple methods marked as dispatcher
+  Expected: DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED at FULL_RESOLUTION
+-?>
+defines module fuzz.dispatcher.multipleentry
+
+  defines class
+
+    MultipleDispatchers1
+      @Error: FULL_RESOLUTION: DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED
+      process() as dispatcher
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_PARAMETER_GENUS
+        -> arg as Any
+        assert arg?
+
+      @Error: FULL_RESOLUTION: DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED
+      process() as dispatcher
+        -> arg as Integer
+        assert arg?
+
+      @Error: FULL_RESOLUTION: DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED
+      process() as dispatcher
+        -> arg as Float
+        assert arg?
+
+    MultipleDispatchers2
+      @Error: FULL_RESOLUTION: DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED
+      handle() as dispatcher
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_PARAMETER_GENUS
+        -> arg as Any
+        assert arg?
+
+      @Error: FULL_RESOLUTION: DISPATCHERS_ONLY_HAVE_ONE_METHOD_ENTRY_POINT_MARKED
+      handle() as dispatcher
+        -> arg as String
+        assert arg?
+
+//EOF

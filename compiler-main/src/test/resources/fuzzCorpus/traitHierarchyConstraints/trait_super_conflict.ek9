@@ -1,0 +1,44 @@
+#!ek9
+<?-
+  Trait Hierarchy Mutation Test: Super and Trait Conflict
+  When class extends super and has trait with same method,
+  conflict must be resolved.
+
+  Mutation: Class extending super with conflicting trait method
+  Expected: METHODS_CONFLICT at FULL_RESOLUTION
+-?>
+defines module fuzz.trait.superconflict
+
+  defines trait
+
+    ConflictTrait
+      process()
+        <- rtn <- true
+
+  defines class
+
+    BaseClass as open
+      process()
+        <- rtn <- false
+
+      default operator ?
+
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    DerivedWithTrait1 extends BaseClass with trait of ConflictTrait
+      default DerivedWithTrait1()
+      default operator ?
+
+    @Error: FULL_RESOLUTION: METHODS_CONFLICT
+    DerivedWithTrait2 is BaseClass with trait of ConflictTrait
+      default DerivedWithTrait2()
+      default operator ?
+
+    ResolvedDerived extends BaseClass with trait of ConflictTrait
+      default ResolvedDerived()
+
+      override process()
+        <- rtn <- true
+
+      default operator ?
+
+//EOF

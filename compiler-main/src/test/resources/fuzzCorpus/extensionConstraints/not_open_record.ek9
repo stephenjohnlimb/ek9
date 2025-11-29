@@ -1,0 +1,32 @@
+#!ek9
+<?-
+  Extension Constraints Mutation Test: Not Open Record
+  Records must be marked as 'open' to be extended.
+
+  Mutation: Extending a record not marked as open
+  Expected: NOT_OPEN_TO_EXTENSION at EXPLICIT_TYPE_SYMBOL_DEFINITION
+-?>
+defines module fuzz.extension.notopenrecord
+
+  defines record
+
+    ClosedRecord
+      name <- String()
+      age <- Integer()
+
+    OpenRecord as open
+      name <- String()
+      age <- Integer()
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
+    ExtendsClosedRecord1 extends ClosedRecord
+      email <- String()
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
+    ExtendsClosedRecord2 is ClosedRecord
+      email <- String()
+
+    ValidExtendsOpen extends OpenRecord
+      email <- String()
+
+//EOF

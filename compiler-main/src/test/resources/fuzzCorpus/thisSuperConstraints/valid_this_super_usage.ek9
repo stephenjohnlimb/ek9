@@ -1,0 +1,46 @@
+#!ek9
+<?-
+  This/Super Constraints Mutation Test: Valid Usage for Contrast
+  Shows valid this/super patterns vs invalid ones.
+  Only the invalid patterns have @Error annotations.
+
+  Tests contrast between valid constructor delegation and invalid method calls.
+-?>
+defines module fuzz.thissuper.validusage
+
+  defines class
+
+    BaseValid as open
+      value <- ""
+
+      BaseValid()
+        value :=? "default"
+
+      BaseValid()
+        -> arg as String
+        value :=? arg
+
+    DerivedValid extends BaseValid
+
+      DerivedValid()
+        super()
+
+      DerivedValid()
+        -> arg as String
+        super(arg)
+
+      DerivedValid()
+        ->
+          arg1 as String
+          arg2 as String
+        this(arg1 + arg2)
+
+      invalidMethod1()
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
+        this()
+
+      invalidMethod2()
+        @Error: FULL_RESOLUTION: THIS_AND_SUPER_CALLS_ONLY_IN_CONSTRUCTOR
+        super()
+
+//EOF

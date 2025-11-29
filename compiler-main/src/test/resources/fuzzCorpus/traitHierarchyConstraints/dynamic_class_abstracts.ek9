@@ -1,0 +1,48 @@
+#!ek9
+<?-
+  Trait Hierarchy Mutation Test: Dynamic Class Must Implement Abstracts
+  Dynamic classes with traits must implement all abstract methods.
+
+  Mutation: Dynamic class missing abstract method implementations
+  Expected: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS at FULL_RESOLUTION
+-?>
+defines module fuzz.trait.dynamicabstracts
+
+  defines trait
+
+    ValidatorTrait
+      validate() as abstract
+        -> arg as String
+        <- rtn as Boolean?
+
+      maxLength()
+        <- rtn as Integer: 100
+
+    ComparatorTrait
+      compare() as abstract
+        ->
+          a as String
+          b as String
+        <- rtn as Integer?
+
+  defines function
+
+    MissingValidateImpl()
+      @Error: FULL_RESOLUTION: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS
+      validator <- () with trait of ValidatorTrait
+      assert validator?
+
+    MissingCompareImpl()
+      @Error: FULL_RESOLUTION: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS
+      comparator <- () with trait of ComparatorTrait
+      assert comparator?
+
+    PartialImpl()
+      @Error: FULL_RESOLUTION: DYNAMIC_CLASS_MUST_IMPLEMENT_ABSTRACTS
+      validator <- () with trait of ValidatorTrait
+        override maxLength()
+          <- rtn as Integer: 50
+
+      assert validator?
+
+//EOF

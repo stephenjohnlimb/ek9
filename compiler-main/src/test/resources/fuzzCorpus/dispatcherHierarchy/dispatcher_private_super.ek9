@@ -1,0 +1,40 @@
+#!ek9
+<?-
+  Dispatcher Hierarchy Mutation Test: Private in Super
+  Private methods in super class cannot be used by dispatcher.
+
+  Mutation: Dispatcher in child class matching private super method
+  Expected: DISPATCHER_PRIVATE_IN_SUPER at FULL_RESOLUTION
+-?>
+defines module fuzz.dispatcher.privatesuper
+
+  defines class
+
+    SuperWithPrivate1 as open
+      @Error: FULL_RESOLUTION: DISPATCHER_PRIVATE_IN_SUPER
+      private process()
+        -> arg as Integer
+        assert arg?
+
+    ChildDispatcher1 extends SuperWithPrivate1
+      process() as dispatcher
+        -> arg as Any
+        assert arg?
+
+    SuperWithPrivate2 as open
+      @Error: FULL_RESOLUTION: DISPATCHER_PRIVATE_IN_SUPER
+      private handle()
+        -> arg as String
+        assert arg?
+
+      @Error: FULL_RESOLUTION: DISPATCHER_PRIVATE_IN_SUPER
+      private handle()
+        -> arg as Float
+        assert arg?
+
+    ChildDispatcher2 extends SuperWithPrivate2
+      handle() as dispatcher
+        -> arg as Any
+        assert arg?
+
+//EOF

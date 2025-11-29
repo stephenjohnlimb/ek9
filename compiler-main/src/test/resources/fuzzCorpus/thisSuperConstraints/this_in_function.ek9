@@ -1,0 +1,33 @@
+#!ek9
+<?-
+  This/Super Constraints Mutation Test: This in Function
+  this() call is inappropriate in function context.
+
+  Mutation: Using this() call inside function body
+  Expected: INAPPROPRIATE_USE_OF_THIS at FULL_RESOLUTION
+-?>
+defines module fuzz.thissuper.thisinfunction
+
+  defines function
+
+    InvalidFunction1()
+      <- rtn <- false
+
+      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_THIS
+      result1 <- this()
+
+    InvalidFunction2()
+      <- rtn <- false
+
+      if rtn == false
+        @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_THIS
+        result2 <- this()
+
+    InvalidFunction3()
+      -> arg as String
+      <- rtn <- ""
+
+      @Error: FULL_RESOLUTION: INAPPROPRIATE_USE_OF_THIS
+      rtn: this()
+
+//EOF

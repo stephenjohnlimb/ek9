@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  Extension Constraints Mutation Test: Type Not Resolved
+  Extending a non-existent type produces resolution error.
+
+  Mutation: Extending types that don't exist
+  Expected: TYPE_NOT_RESOLVED at EXPLICIT_TYPE_SYMBOL_DEFINITION
+-?>
+defines module fuzz.extension.typenotresolved
+
+  defines constant
+    SOME_VALUE <- 100
+
+  defines class
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    ExtendsMissing1 extends NonExistent
+      value <- "value"
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    ExtendsMissing2 is MissingType
+      value <- "value"
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    ExtendsConstant extends SOME_VALUE
+      value <- "value"
+
+  defines function
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    ExtendsMissingFunc is NotDefinedFunction
+      <- rtn as Integer: 0
+
+//EOF

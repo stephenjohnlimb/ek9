@@ -1,0 +1,40 @@
+#!ek9
+<?-
+  Dispatcher Hierarchy Mutation Test: Parameter Count Mismatch
+  Dispatcher methods must have matching parameter counts.
+
+  Mutation: Dispatcher entry and matching methods have different param counts
+  Expected: INVALID_NUMBER_OF_PARAMETERS at FULL_RESOLUTION
+-?>
+defines module fuzz.dispatcher.paramcount
+
+  defines class
+
+    MismatchParams1
+      process() as dispatcher
+        -> arg as Any
+        assert arg?
+
+      @Error: FULL_RESOLUTION: INVALID_NUMBER_OF_PARAMETERS
+      process()
+        ->
+          arg1 as Integer
+          arg2 as Integer
+        assert arg1? and arg2?
+
+    MismatchParams2
+      @Error: FULL_RESOLUTION: INVALID_NUMBER_OF_PARAMETERS
+      process() as dispatcher
+        var <- 1
+        assert var?
+
+    MismatchParams3
+      @Error: FULL_RESOLUTION: INVALID_NUMBER_OF_PARAMETERS
+      process() as dispatcher
+        ->
+          arg1 as Integer
+          arg2 as Integer
+          arg3 as Integer
+        assert arg1? and arg2? and arg3?
+
+//EOF

@@ -1,0 +1,38 @@
+#!ek9
+<?-
+  Dispatcher Hierarchy Mutation Test: Purity Mismatch
+  If dispatcher is pure, all matching methods must be pure.
+
+  Mutation: Pure dispatcher with non-pure matching methods
+  Expected: DISPATCHER_PURE_MISMATCH at FULL_RESOLUTION
+-?>
+defines module fuzz.dispatcher.puritymismatch
+
+  defines class
+
+    PureDispatcherNonPureMethod1
+      process() as pure dispatcher
+        -> arg as Any
+        assert arg?
+
+      @Error: FULL_RESOLUTION: DISPATCHER_PURE_MISMATCH
+      process()
+        -> arg as Integer
+        assert arg?
+
+    PureDispatcherNonPureMethod2
+      handle() as pure dispatcher
+        -> arg as Any
+        assert arg?
+
+      @Error: FULL_RESOLUTION: DISPATCHER_PURE_MISMATCH
+      handle()
+        -> arg as String
+        assert arg?
+
+      @Error: FULL_RESOLUTION: DISPATCHER_PURE_MISMATCH
+      handle()
+        -> arg as Float
+        assert arg?
+
+//EOF

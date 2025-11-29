@@ -1,0 +1,44 @@
+#!ek9
+<?-
+  Extension Constraints Mutation Test: Incompatible Genus
+  Classes cannot extend traits, functions cannot extend classes, etc.
+
+  Mutation: Extending incompatible construct types
+  Expected: INCOMPATIBLE_GENUS at EXPLICIT_TYPE_SYMBOL_DEFINITION
+-?>
+defines module fuzz.extension.incompatiblegenus
+
+  defines trait
+
+    SomeTrait
+      doSomething() as abstract
+
+  defines function
+
+    SomeFunction()
+      <- rtn <- 0
+
+  defines class
+
+    SomeClass as open
+      value <- "class"
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    ClassExtendsTrait extends SomeTrait
+      value <- "bad"
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    ClassExtendsFunction extends SomeFunction
+      value <- "bad"
+
+  defines function
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    FunctionExtendsClass extends SomeClass
+      <- rtn as Integer: 0
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    FunctionExtendsTrait extends SomeTrait
+      <- rtn as Integer: 0
+
+//EOF

@@ -1,0 +1,52 @@
+#!ek9
+<?-
+  Override Constraint Mutation Test: Multiple Violations
+  Several override constraint violations in one class.
+
+  Mutation: Multiple override errors in single class hierarchy
+  Expected: Multiple errors at FULL_RESOLUTION
+-?>
+defines module fuzz.override.multiple
+
+  defines class
+
+    BaseClass as open
+      process()
+        -> arg as String
+        <- rtn as String: arg
+
+      protected helper()
+        -> x as Integer
+        <- rtn as Integer: x
+
+      private internal()
+        -> flag as Boolean
+        <- rtn as Boolean: flag
+
+    DerivedClass extends BaseClass
+
+      //Missing 'override' keyword
+      @Error: FULL_RESOLUTION: METHOD_OVERRIDES
+      process()
+        -> arg as String
+        <- rtn as String: `[${arg}]`
+
+      //Access modifier change
+      @Error: FULL_RESOLUTION: METHOD_ACCESS_MODIFIERS_DIFFER
+      private helper()
+        -> x as Integer
+        <- rtn as Integer: x + 1
+
+      //Cannot override private
+      @Error: FULL_RESOLUTION: DOES_NOT_OVERRIDE
+      override internal()
+        -> flag as Boolean
+        <- rtn as Boolean: not flag
+
+      //Method doesn't exist in parent
+      @Error: FULL_RESOLUTION: DOES_NOT_OVERRIDE
+      override nonexistent()
+        -> value as Float
+        <- rtn as Float: value
+
+//EOF

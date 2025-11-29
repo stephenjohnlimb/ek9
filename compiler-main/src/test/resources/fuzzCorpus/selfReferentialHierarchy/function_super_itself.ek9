@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Self-Referential Hierarchy Mutation Test: Function Super Itself
+  A function cannot have itself as its super function.
+
+  Mutation: Direct self-reference in function declaration
+  Expected: CIRCULAR_HIERARCHY_DETECTED at TYPE_HIERARCHY_CHECKS
+-?>
+defines module fuzz.hierarchy.self.function
+
+  defines function
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    SelfSuperFunction is SelfSuperFunction as open
+      -> arg as Integer
+      <- rtn as Integer: arg
+
+//EOF

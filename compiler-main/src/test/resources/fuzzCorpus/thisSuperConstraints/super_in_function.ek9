@@ -1,0 +1,27 @@
+#!ek9
+<?-
+  This/Super Constraints Mutation Test: Super in Function
+  super() is inappropriate in function context.
+
+  Mutation: Using super() call inside function body
+  Expected: INCOMPATIBLE_GENUS at FULL_RESOLUTION
+-?>
+defines module fuzz.thissuper.superinfunction
+
+  defines function
+
+    InvalidFunctionSuper1()
+      <- rtn <- ""
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
+      result1 <- super()
+
+    InvalidFunctionSuper2()
+      -> arg as Integer
+      <- rtn <- 0
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
+      result2 <- super()
+      rtn: arg
+
+//EOF

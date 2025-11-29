@@ -1,0 +1,31 @@
+#!ek9
+<?-
+  Purity Inheritance Mutation Test: Function Purity Mismatch
+  Function inheritance must match purity of super.
+
+  Mutation: Function extends with mismatched purity
+  Expected: SUPER_IS_PURE or SUPER_IS_NOT_PURE at FULL_RESOLUTION
+-?>
+defines module fuzz.purity.functionpuritymismatch
+
+  defines function
+
+    PureBase as pure abstract
+      -> arg as String
+      <- rtn as Integer?
+
+    NonPureBase as abstract
+      -> arg as String
+      <- rtn as Integer?
+
+    @Error: FULL_RESOLUTION: SUPER_IS_PURE
+    MissingPure is PureBase
+      -> arg as String
+      <- rtn as Integer: length arg
+
+    @Error: FULL_RESOLUTION: SUPER_IS_NOT_PURE
+    ExtraPure is NonPureBase as pure
+      -> arg as String
+      <- rtn as Integer: length arg
+
+//EOF

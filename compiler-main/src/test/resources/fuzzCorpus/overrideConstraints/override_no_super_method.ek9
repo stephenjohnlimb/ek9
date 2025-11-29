@@ -1,0 +1,32 @@
+#!ek9
+<?-
+  Override Constraint Mutation Test: Override Without Super Method
+  Cannot use 'override' when there is no method to override in hierarchy.
+
+  Mutation: Override keyword on method that doesn't exist in parent
+  Expected: DOES_NOT_OVERRIDE at FULL_RESOLUTION
+-?>
+defines module fuzz.override.nosuper
+
+  defines class
+
+    BaseClass as open
+      process()
+        -> arg as String
+        <- rtn as String: arg
+
+    DerivedClass extends BaseClass
+      //Method 'handle' doesn't exist in BaseClass
+      @Error: FULL_RESOLUTION: DOES_NOT_OVERRIDE
+      override handle()
+        -> arg as String
+        <- rtn as String: arg
+
+    DerivedClass2 extends BaseClass
+      //Method 'process' exists but different signature
+      @Error: FULL_RESOLUTION: DOES_NOT_OVERRIDE
+      override process()
+        -> arg as Integer
+        <- rtn as Integer: arg
+
+//EOF

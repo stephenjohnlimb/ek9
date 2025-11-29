@@ -1,0 +1,51 @@
+#!ek9
+<?-
+  Purity Inheritance Mutation Test: Mixed Constructor Purity
+  If any constructor is pure, all constructors must be pure.
+
+  Mutation: Mix of pure and non-pure constructors in same class
+  Expected: MIX_OF_PURE_AND_NOT_PURE_CONSTRUCTORS at FULL_RESOLUTION
+-?>
+defines module fuzz.purity.mixedconstructorpurity
+
+  defines class
+
+    MixedClass1
+      value <- String()
+
+      @Error: FULL_RESOLUTION: MIX_OF_PURE_AND_NOT_PURE_CONSTRUCTORS
+      default MixedClass1()
+
+      MixedClass1() as pure
+        -> arg as String
+        value :=? arg
+
+    MixedClass2
+      value <- Integer()
+
+      MixedClass2() as pure
+        -> arg as Integer
+        value :=? arg
+
+      @Error: FULL_RESOLUTION: MIX_OF_PURE_AND_NOT_PURE_CONSTRUCTORS
+      MixedClass2()
+        ->
+          arg1 as Integer
+          arg2 as Integer
+        value :=? arg1 + arg2
+
+    MixedClass3
+      value <- String()
+
+      @Error: FULL_RESOLUTION: MIX_OF_PURE_AND_NOT_PURE_CONSTRUCTORS
+      MixedClass3()
+        -> arg as String
+        value :=? arg
+
+      MixedClass3() as pure
+        ->
+          arg1 as String
+          arg2 as String
+        value :=? `${arg1} ${arg2}`
+
+//EOF

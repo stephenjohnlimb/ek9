@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  Self-Referential Hierarchy Mutation Test: Class Extends Itself
+  A class cannot extend itself - creates immediate circular dependency.
+
+  Mutation: Direct self-extension in class declaration
+  Expected: CIRCULAR_HIERARCHY_DETECTED at TYPE_HIERARCHY_CHECKS
+-?>
+defines module fuzz.hierarchy.self.class
+
+  defines class
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    SelfExtendingClass is SelfExtendingClass as open
+      value <- "test"
+
+      default SelfExtendingClass()
+
+//EOF

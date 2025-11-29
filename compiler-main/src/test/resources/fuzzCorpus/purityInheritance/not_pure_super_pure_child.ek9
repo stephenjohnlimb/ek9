@@ -1,0 +1,27 @@
+#!ek9
+<?-
+  Purity Inheritance Mutation Test: Not Pure Super Pure Child
+  If super is not pure, derived cannot be pure.
+
+  Mutation: Non-pure function super with pure child override
+  Expected: SUPER_IS_NOT_PURE at FULL_RESOLUTION
+-?>
+defines module fuzz.purity.notpuresuperpurechild
+
+  defines function
+
+    NonPureBase as abstract
+      -> arg as Integer
+      <- rtn as String?
+
+    @Error: FULL_RESOLUTION: SUPER_IS_NOT_PURE
+    PureDerived is NonPureBase as pure
+      -> arg as Integer
+      <- rtn as String: $arg
+
+    DynamicPure() as pure
+      <- rtn as NonPureBase?
+      @Error: FULL_RESOLUTION: SUPER_IS_NOT_PURE
+      rtn :=? () is NonPureBase as pure function (rtn :=? "test")
+
+//EOF

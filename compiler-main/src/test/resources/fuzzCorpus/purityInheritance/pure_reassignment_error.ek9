@@ -1,0 +1,29 @@
+#!ek9
+<?-
+  Purity Inheritance Mutation Test: Pure Reassignment Error
+  Pure functions cannot reassign variables directly.
+
+  Mutation: Direct assignment in pure context
+  Expected: NO_PURE_REASSIGNMENT at FULL_RESOLUTION
+-?>
+defines module fuzz.purity.purereassignment
+
+  defines function
+
+    PureWithReassignment1() as pure
+      value <- "initial"
+
+      @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
+      value := "changed"
+
+      assert value?
+
+    PureWithReassignment2() as pure
+      value <- 42
+
+      @Error: FULL_RESOLUTION: NO_PURE_REASSIGNMENT
+      value: 100
+
+      assert value?
+
+//EOF

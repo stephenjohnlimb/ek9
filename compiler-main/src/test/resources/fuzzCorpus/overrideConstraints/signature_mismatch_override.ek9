@@ -1,0 +1,39 @@
+#!ek9
+<?-
+  Override Constraint Mutation Test: Signature Mismatch
+  Override requires exact signature match (parameters must match).
+
+  Mutation: Override with different parameter types
+  Expected: DOES_NOT_OVERRIDE at FULL_RESOLUTION
+-?>
+defines module fuzz.override.signature
+
+  defines class
+
+    BaseClass as open
+      process()
+        -> arg as String
+        <- rtn as String: arg
+
+      compute()
+        ->
+          x as Integer
+          y as Integer
+        <-
+          rtn as Integer: x + y
+
+    DerivedClass extends BaseClass
+      //Wrong parameter type (Integer vs String)
+      @Error: FULL_RESOLUTION: DOES_NOT_OVERRIDE
+      override process()
+        -> arg as Integer
+        <- rtn as String: $arg
+
+    DerivedClass2 extends BaseClass
+      //Different number of parameters
+      @Error: FULL_RESOLUTION: DOES_NOT_OVERRIDE
+      override compute()
+        -> x as Integer
+        <- rtn as Integer: x
+
+//EOF

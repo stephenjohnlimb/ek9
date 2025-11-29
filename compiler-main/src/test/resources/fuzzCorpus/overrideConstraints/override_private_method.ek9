@@ -1,0 +1,32 @@
+#!ek9
+<?-
+  Override Constraint Mutation Test: Override Private Method
+  Cannot override private methods - they are invisible to subclasses.
+
+  Mutation: Override keyword on method that is private in parent
+  Expected: DOES_NOT_OVERRIDE at FULL_RESOLUTION
+-?>
+defines module fuzz.override.private
+
+  defines class
+
+    BaseClass as open
+      private helper()
+        -> arg as String
+        <- rtn as String: arg
+
+    DerivedClass extends BaseClass
+      //Cannot override private method
+      @Error: FULL_RESOLUTION: DOES_NOT_OVERRIDE
+      override helper()
+        -> arg as String
+        <- rtn as String: `[${arg}]`
+
+    DerivedClass2 extends BaseClass as open
+      //Even protected override doesn't work for private
+      @Error: FULL_RESOLUTION: DOES_NOT_OVERRIDE
+      override protected helper()
+        -> arg as String
+        <- rtn as String: `[${arg}]`
+
+//EOF

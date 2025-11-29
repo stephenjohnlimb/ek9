@@ -1,0 +1,28 @@
+#!ek9
+<?-
+  This/Super Constraints Mutation Test: Super for Any
+  super is not required when only implicit Any parent exists.
+
+  Mutation: Using super() or super. when class only inherits from Any
+  Expected: SUPER_FOR_ANY_NOT_REQUIRED at FULL_RESOLUTION
+-?>
+defines module fuzz.thissuper.superforany
+
+  defines class
+
+    NoExplicitSuper1
+      method1()
+        @Error: FULL_RESOLUTION: SUPER_FOR_ANY_NOT_REQUIRED
+        super.method1()
+
+    NoExplicitSuper2
+      NoExplicitSuper2()
+        @Error: FULL_RESOLUTION: SUPER_FOR_ANY_NOT_REQUIRED
+        super()
+
+    NoExplicitSuper3
+      method2()
+        @Error: FULL_RESOLUTION: SUPER_FOR_ANY_NOT_REQUIRED
+        val <- super()
+
+//EOF

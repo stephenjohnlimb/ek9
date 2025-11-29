@@ -1,0 +1,37 @@
+#!ek9
+<?-
+  Override Constraint Mutation Test: Override With Override Keyword
+  When override keyword is present but access changes.
+
+  Mutation: Override keyword with access modifier changes
+  Expected: METHOD_ACCESS_MODIFIERS_DIFFER at FULL_RESOLUTION
+-?>
+defines module fuzz.override.withkeyword
+
+  defines class
+
+    BasePublic as open
+      process()
+        -> arg as String
+        <- rtn as String: arg
+
+    DerivedProtected extends BasePublic as open
+      //Override keyword doesn't allow access change
+      @Error: FULL_RESOLUTION: METHOD_ACCESS_MODIFIERS_DIFFER
+      override protected process()
+        -> arg as String
+        <- rtn as String: `[${arg}]`
+
+    BaseProtected as open
+      protected helper()
+        -> arg as Integer
+        <- rtn as Integer: arg
+
+    DerivedPublic extends BaseProtected
+      //Cannot widen protected to public
+      @Error: FULL_RESOLUTION: METHOD_ACCESS_MODIFIERS_DIFFER
+      override helper()
+        -> arg as Integer
+        <- rtn as Integer: arg + 1
+
+//EOF

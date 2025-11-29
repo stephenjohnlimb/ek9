@@ -1,0 +1,36 @@
+#!ek9
+<?-
+  Override Constraint Mutation Test: Return Type Mismatch
+  Override return type must be covariant (same or subtype).
+
+  Mutation: Override with incompatible return type
+  Expected: DOES_NOT_OVERRIDE at FULL_RESOLUTION
+-?>
+defines module fuzz.override.returntype
+
+  defines class
+
+    BaseClass as open
+      process()
+        -> arg as String
+        <- rtn as String: arg
+
+      compute()
+        -> x as Integer
+        <- rtn as Integer: x
+
+    DerivedClass extends BaseClass
+      //Wrong return type (Integer vs String)
+      @Error: FULL_RESOLUTION: COVARIANCE_MISMATCH
+      override process()
+        -> arg as String
+        <- rtn as Integer: length arg
+
+    DerivedClass2 extends BaseClass
+      //Wrong return type (String vs Integer)
+      @Error: FULL_RESOLUTION: COVARIANCE_MISMATCH
+      override compute()
+        -> x as Integer
+        <- rtn as String: $x
+
+//EOF

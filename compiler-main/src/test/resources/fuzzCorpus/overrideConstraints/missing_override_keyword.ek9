@@ -1,0 +1,36 @@
+#!ek9
+<?-
+  Override Constraint Mutation Test: Missing Override Keyword
+  Must use 'override' keyword when overriding a method.
+
+  Mutation: Method with same signature but no override keyword
+  Expected: METHOD_OVERRIDES at FULL_RESOLUTION
+-?>
+defines module fuzz.override.missing
+
+  defines class
+
+    BaseClass as open
+      process()
+        -> arg as String
+        <- rtn as String: arg
+
+      protected helper()
+        -> arg as Integer
+        <- rtn as Integer: arg
+
+    DerivedClass extends BaseClass
+      //Missing 'override' keyword
+      @Error: FULL_RESOLUTION: METHOD_OVERRIDES
+      process()
+        -> arg as String
+        <- rtn as String: `[${arg}]`
+
+    DerivedClass2 extends BaseClass as open
+      //Missing 'override' on protected method
+      @Error: FULL_RESOLUTION: METHOD_OVERRIDES
+      protected helper()
+        -> arg as Integer
+        <- rtn as Integer: arg + 1
+
+//EOF

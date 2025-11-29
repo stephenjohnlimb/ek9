@@ -1,0 +1,30 @@
+#!ek9
+<?-
+  Extension Constraints Mutation Test: Not Open Function
+  Functions must be abstract to be extended.
+
+  Mutation: Extending a non-abstract function
+  Expected: NOT_OPEN_TO_EXTENSION at EXPLICIT_TYPE_SYMBOL_DEFINITION
+-?>
+defines module fuzz.extension.notopenfunction
+
+  defines function
+
+    ClosedFunction()
+      <- rtn <- 0
+
+    AbstractFunction as abstract
+      <- rtn as Integer?
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
+    TriesToExtendClosed1 is ClosedFunction
+      <- rtn as Integer: 1
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: NOT_OPEN_TO_EXTENSION
+    TriesToExtendClosed2 extends ClosedFunction
+      <- rtn as Integer: 2
+
+    ValidExtendsAbstract extends AbstractFunction
+      <- rtn as Integer: 42
+
+//EOF

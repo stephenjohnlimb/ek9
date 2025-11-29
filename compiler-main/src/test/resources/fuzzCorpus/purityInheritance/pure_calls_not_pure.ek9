@@ -1,0 +1,32 @@
+#!ek9
+<?-
+  Purity Inheritance Mutation Test: Pure Calls Not Pure
+  Pure functions cannot call non-pure functions.
+
+  Mutation: Pure function body calls non-pure function
+  Expected: NONE_PURE_CALL_IN_PURE_SCOPE at FULL_RESOLUTION
+-?>
+defines module fuzz.purity.purecallsnotpure
+
+  defines function
+
+    NonPureHelper()
+      <- rtn as String: "helper"
+
+    PureCallerOne() as pure
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      <- rtn as String: NonPureHelper()
+
+    NonPureCompute()
+      -> arg as Integer
+      <- rtn as Integer: arg * 2
+
+    PureCallerTwo() as pure
+      -> arg as Integer
+      <- rtn as Integer?
+
+      @Error: FULL_RESOLUTION: NONE_PURE_CALL_IN_PURE_SCOPE
+      result <- NonPureCompute(arg)
+      rtn :=? result
+
+//EOF

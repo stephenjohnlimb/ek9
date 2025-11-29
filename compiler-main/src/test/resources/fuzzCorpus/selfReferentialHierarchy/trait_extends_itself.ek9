@@ -1,0 +1,20 @@
+#!ek9
+<?-
+  Self-Referential Hierarchy Mutation Test: Trait Extends Itself
+  A trait cannot extend itself via 'is' - creates immediate circular dependency.
+
+  Mutation: Direct self-extension in trait declaration
+  Expected: CIRCULAR_HIERARCHY_DETECTED at TYPE_HIERARCHY_CHECKS
+-?>
+defines module fuzz.hierarchy.self.trait
+
+  defines trait
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    SelfExtendingTrait is SelfExtendingTrait
+
+      process()
+        -> data as String
+        <- result as String?
+
+//EOF

@@ -1,0 +1,35 @@
+#!ek9
+<?-
+  Self-Referential Hierarchy Mutation Test: Multiple Self References
+  Multiple constructs each with self-referential declarations.
+
+  Mutation: Class, trait, and function all self-referencing
+  Expected: CIRCULAR_HIERARCHY_DETECTED for each
+-?>
+defines module fuzz.hierarchy.self.multiple
+
+  defines class
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    BadClass1 is BadClass1 as open
+      value <- "test"
+
+      default BadClass1()
+
+  defines trait
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    BadTrait1 is BadTrait1
+
+      process()
+        -> data as String
+        <- result as String?
+
+  defines function
+
+    @Error: TYPE_HIERARCHY_CHECKS: CIRCULAR_HIERARCHY_DETECTED
+    BadFunction1 is BadFunction1 as open
+      -> arg as Integer
+      <- rtn as Integer: arg
+
+//EOF

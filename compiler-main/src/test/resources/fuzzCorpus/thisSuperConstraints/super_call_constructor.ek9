@@ -1,0 +1,32 @@
+#!ek9
+<?-
+  This/Super Constraints Mutation Test: Super Call in Constructor
+  super() call is not required when class only has implicit Any parent.
+
+  Mutation: Calling super() in constructor when no explicit parent
+  Expected: SUPER_FOR_ANY_NOT_REQUIRED at FULL_RESOLUTION
+-?>
+defines module fuzz.thissuper.supercallconstructor
+
+  defines class
+
+    OnlyAnyParent1
+      OnlyAnyParent1()
+        @Error: FULL_RESOLUTION: SUPER_FOR_ANY_NOT_REQUIRED
+        super()
+
+      OnlyAnyParent1()
+        -> arg as String
+        @Error: FULL_RESOLUTION: SUPER_FOR_ANY_NOT_REQUIRED
+        super()
+        assert arg?
+
+    OnlyAnyParent2
+      value <- String()
+
+      OnlyAnyParent2()
+        @Error: FULL_RESOLUTION: SUPER_FOR_ANY_NOT_REQUIRED
+        super()
+        value :=? "default"
+
+//EOF

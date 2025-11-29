@@ -1,0 +1,44 @@
+#!ek9
+<?-
+  Override Constraint Mutation Test: Access Modifier Mismatch
+  Cannot change access modifier when overriding methods.
+
+  Mutation: Methods with same signature but different access levels
+  Expected: METHOD_ACCESS_MODIFIERS_DIFFER at FULL_RESOLUTION
+-?>
+defines module fuzz.override.access
+
+  defines class
+
+    BasePublic as open
+      process()
+        -> arg as String
+        <- rtn as String: arg
+
+    DerivedPrivate extends BasePublic
+      //Cannot make public method private
+      @Error: FULL_RESOLUTION: METHOD_ACCESS_MODIFIERS_DIFFER
+      private process()
+        -> arg as String
+        <- rtn as String: `[${arg}]`
+
+    DerivedProtected extends BasePublic as open
+      //Cannot make public method protected
+      @Error: FULL_RESOLUTION: METHOD_ACCESS_MODIFIERS_DIFFER
+      protected process()
+        -> arg as String
+        <- rtn as String: `[${arg}]`
+
+    BaseProtected as open
+      protected helper()
+        -> arg as Integer
+        <- rtn as Integer: arg
+
+    DerivedPrivate2 extends BaseProtected
+      //Cannot make protected method private
+      @Error: FULL_RESOLUTION: METHOD_ACCESS_MODIFIERS_DIFFER
+      private helper()
+        -> arg as Integer
+        <- rtn as Integer: arg + 1
+
+//EOF
