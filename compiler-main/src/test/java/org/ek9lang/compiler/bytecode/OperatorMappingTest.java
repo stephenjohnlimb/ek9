@@ -24,18 +24,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * <p>This test will initially FAIL or not compile, documenting the bug.
  * After fixing operator mapping in JVM backend, this test validates the fix.</p>
  */
-class OperatorMappingTest extends AbstractBytecodeGenerationTest {
+class OperatorMappingTest extends AbstractExecutableBytecodeTest {
 
   public OperatorMappingTest() {
-    // Module: bytecode.test.operators
-    // Expected symbols: OperatorTestClass (1) + TestOperatorMapping program (1) = 2
     super("/examples/bytecodeGeneration/operatorMapping",
-        List.of(new SymbolCountCheck("bytecode.test.operators", 2)),
-        false, false, false);  // showBytecode=false - @BYTECODE directive verified
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test.operators",
+        "TestOperatorMapping",
+        List.of(new SymbolCountCheck("bytecode.test.operators", 2)));
   }
 }

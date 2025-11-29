@@ -1,0 +1,7 @@
+Test 1: Compare equal cats
+Test 2: Compare cats with different names (parent field)
+Test 3: Compare cats with different breeds (child field)
+Test 4: Equality check (equal cats)
+Test 5: Equality check (different names)
+Test 6: Equality check (different breeds)
+All tests passed

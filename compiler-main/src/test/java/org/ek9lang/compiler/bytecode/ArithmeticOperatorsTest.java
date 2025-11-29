@@ -7,22 +7,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * Test bytecode generation for Integer arithmetic operators.
  * Tests: + (addition), - (subtraction), * (multiplication), / (division), - (negation)
  */
-class ArithmeticOperatorsTest extends AbstractBytecodeGenerationTest {
+class ArithmeticOperatorsTest extends AbstractExecutableBytecodeTest {
 
   public ArithmeticOperatorsTest() {
-    //Each bytecode test gets its own directory for parallel execution safety
-    //Module name: bytecode.test, expected symbol count: 1 (the program)
     super("/examples/bytecodeGeneration/arithmeticOperators",
-        List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, false);  // showBytecode disabled after directive verified
-  }
-
-  /**
-   * Disable debug instrumentation for minimal bytecode output.
-   * Debug info is already validated in HelloWorld and Boolean operator tests.
-   */
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test",
+        "ArithmeticOperators",
+        List.of(new SymbolCountCheck("bytecode.test", 1)));
   }
 }

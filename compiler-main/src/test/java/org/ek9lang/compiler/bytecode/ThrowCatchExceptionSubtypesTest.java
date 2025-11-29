@@ -18,20 +18,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * Only supertype or exact type should match.
  * </p>
  */
-class ThrowCatchExceptionSubtypesTest extends AbstractBytecodeGenerationTest {
+class ThrowCatchExceptionSubtypesTest extends AbstractExecutableBytecodeTest {
 
   public ThrowCatchExceptionSubtypesTest() {
-    // Module name: bytecode.test, expected symbols: 1 program + 2 exception classes = 3
     super("/examples/bytecodeGeneration/throwCatchExceptionSubtypes",
-        List.of(new SymbolCountCheck("bytecode.test", 3)),
-        false, false, false);
-  }
-
-  /**
-   * Disable debug instrumentation for minimal bytecode output.
-   */
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test",
+        "ThrowCatchSubtypes",
+        List.of(new SymbolCountCheck("bytecode.test", 3)));
   }
 }

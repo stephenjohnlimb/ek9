@@ -16,18 +16,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  *   <li>LocalVariableTable shows both resources with correct scopes</li>
  * </ul>
  */
-class TryWithMultipleResourcesTest extends AbstractBytecodeGenerationTest {
+class TryWithMultipleResourcesTest extends AbstractExecutableBytecodeTest {
 
   public TryWithMultipleResourcesTest() {
-    // Module: bytecode.test.multi
-    // Expected symbols: TestResource class (1) + TryWithMultipleResources program (1) = 2
     super("/examples/bytecodeGeneration/tryWithMultipleResources",
-        List.of(new SymbolCountCheck("bytecode.test.multi", 2)),
-        false, false, false);
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test.multi",
+        "TryWithMultipleResources",
+        List.of(new SymbolCountCheck("bytecode.test.multi", 2)));
   }
 }

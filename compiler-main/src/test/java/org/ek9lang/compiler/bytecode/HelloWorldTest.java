@@ -4,22 +4,27 @@ import java.util.List;
 import org.ek9lang.compiler.support.SymbolCountCheck;
 
 /**
- * Test bytecode generation for a simple HelloWorld program.
- * This test validates the @BYTE_CODE directive infrastructure by compiling
- * a minimal EK9 program and checking generated JVM bytecode.
+ * Test bytecode generation and execution for a simple HelloWorld program.
+ * This test validates the complete pipeline by compiling and executing
+ * a minimal EK9 program and verifying its output.
  *<p>
  * IMPORTANT: Each bytecode test MUST have its own directory to enable parallel execution
  * without .ek9 directory contention (see AbstractBytecodeGenerationTest javadoc).
  * </p>
  */
-class HelloWorldTest extends AbstractBytecodeGenerationTest {
+class HelloWorldTest extends AbstractExecutableBytecodeTest {
 
   public HelloWorldTest() {
     //Each bytecode test gets its own directory for parallel execution safety
-    //Disable showBytecode until getPackageModuleName() issue is resolved
-    //Module name: bytecode.test, expected symbol count: 1 (the program)
+    //Module name: bytecode.test, program name: HelloWorld, expected symbol count: 1
     super("/examples/bytecodeGeneration/helloWorld",
-        List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, false);
+        "bytecode.test",
+        "HelloWorld",
+        List.of(new SymbolCountCheck("bytecode.test", 1)));
+  }
+
+  @Override
+  protected boolean addDebugInstrumentation() {
+    return true;  // Match @BYTECODE directive which includes debug sections
   }
 }

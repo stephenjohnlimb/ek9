@@ -1,0 +1,9 @@
+Test 1: Compare equal cats
+0
+Test 2: Compare cats with different names (parent field)
+17
+Test 3: Compare cats with different breeds (child field)
+3
+Test 4: isSet check
+cat1 is set
+All tests passed

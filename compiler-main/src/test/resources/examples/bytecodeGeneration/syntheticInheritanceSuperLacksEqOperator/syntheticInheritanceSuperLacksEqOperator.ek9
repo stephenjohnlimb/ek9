@@ -1,0 +1,82 @@
+#!ek9
+<?-
+  Bytecode test for synthetic operators with inheritance where super HAS <=> but LACKS ==.
+
+  This tests that when:
+  - Animal (parent) has default operator <=> but NOT default operator ==
+  - Cat (child) has BOTH default operator <=> and default operator ==
+
+  The generated Cat._cmp() bytecode should:
+  - Call super._cmp() (because Animal HAS <=>)
+  - Then compare Cat's own fields
+
+  The generated Cat._eq() bytecode should:
+  - NOT call super._eq() (because Animal doesn't have ==)
+  - Only compare Cat's own fields
+-?>
+defines module bytecode.syntheticInheritanceSuperLacksEqOperator
+
+  defines class
+
+    Animal as open
+      name <- String()
+
+      Animal()
+        this.name :=: "Unknown"
+
+      Animal()
+        -> n as String
+        this.name :=: n
+
+      //Note: Animal has <=> but NOT ==
+      default operator <=>
+
+    Cat extends Animal
+      breed <- String()
+
+      Cat()
+        ->
+          n as String
+          b as String
+        super(n)
+        this.breed :=: b
+
+      default operator <=>
+      default operator ==
+
+  defines program
+
+    TestSyntheticInheritanceSuperLacksEqOperator()
+      stdout <- Stdout()
+
+      stdout.println("Test 1: Compare equal cats")
+      cat1 <- Cat("Whiskers", "Siamese")
+      cat2 <- Cat("Whiskers", "Siamese")
+      cmp1 <- cat1 <=> cat2
+      stdout.println(cmp1)
+
+      stdout.println("Test 2: Compare cats with different names (parent field)")
+      cat3 <- Cat("Fluffy", "Siamese")
+      cmp2 <- cat1 <=> cat3
+      stdout.println(cmp2)
+
+      stdout.println("Test 3: Compare cats with different breeds (child field)")
+      cat4 <- Cat("Whiskers", "Persian")
+      cmp3 <- cat1 <=> cat4
+      stdout.println(cmp3)
+
+      stdout.println("Test 4: Equality check (equal cats)")
+      eq1 <- cat1 == cat2
+      stdout.println(eq1)
+
+      stdout.println("Test 5: Equality check (different names)")
+      eq2 <- cat1 == cat3
+      stdout.println(eq2)
+
+      stdout.println("Test 6: Equality check (different breeds)")
+      eq3 <- cat1 == cat4
+      stdout.println(eq3)
+
+      stdout.println("All tests passed")
+
+//EOF

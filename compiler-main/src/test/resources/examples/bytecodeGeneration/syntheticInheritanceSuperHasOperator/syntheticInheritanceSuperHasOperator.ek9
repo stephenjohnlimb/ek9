@@ -1,0 +1,73 @@
+#!ek9
+<?-
+  Bytecode test for synthetic operators with inheritance where super HAS the same operator.
+
+  This tests that when:
+  - Animal (parent) has default operator <=> and default operator ?
+  - Cat (child) also has default operator <=> and default operator ?
+
+  The generated Cat._cmp() bytecode should:
+  1. Call super._cmp() first (because Animal has <=>)
+  2. Then compare Cat's own fields
+
+  The generated Cat._isSet() bytecode should:
+  - Only check Cat's own fields (NOT call super._isSet())
+-?>
+defines module bytecode.syntheticInheritanceSuperHasOperator
+
+  defines class
+
+    Animal as open
+      name <- String()
+
+      Animal()
+        this.name :=: "Unknown"
+
+      Animal()
+        -> n as String
+        this.name :=: n
+
+      default operator ?
+      default operator <=>
+
+    Cat extends Animal
+      breed <- String()
+
+      Cat()
+        ->
+          n as String
+          b as String
+        super(n)
+        this.breed :=: b
+
+      default operator ?
+      default operator <=>
+
+  defines program
+
+    TestSyntheticInheritanceSuperHasOperator()
+      stdout <- Stdout()
+
+      stdout.println("Test 1: Compare equal cats")
+      cat1 <- Cat("Whiskers", "Siamese")
+      cat2 <- Cat("Whiskers", "Siamese")
+      cmp1 <- cat1 <=> cat2
+      stdout.println(cmp1)
+
+      stdout.println("Test 2: Compare cats with different names (parent field)")
+      cat3 <- Cat("Fluffy", "Siamese")
+      cmp2 <- cat1 <=> cat3
+      stdout.println(cmp2)
+
+      stdout.println("Test 3: Compare cats with different breeds (child field)")
+      cat4 <- Cat("Whiskers", "Persian")
+      cmp3 <- cat1 <=> cat4
+      stdout.println(cmp3)
+
+      stdout.println("Test 4: isSet check")
+      if cat1?
+        stdout.println("cat1 is set")
+
+      stdout.println("All tests passed")
+
+//EOF

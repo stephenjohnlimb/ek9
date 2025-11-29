@@ -16,21 +16,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * - No duplicate handler
  * </p>
  */
-class TryCatchTest extends AbstractBytecodeGenerationTest {
+class TryCatchTest extends AbstractExecutableBytecodeTest {
 
   public TryCatchTest() {
-    // Each bytecode test gets its own directory for parallel execution safety
-    // Module name: bytecode.test, expected symbol count: 1 (the program)
     super("/examples/bytecodeGeneration/tryCatch",
-        List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, false);
-  }
-
-  /**
-   * Disable debug instrumentation for minimal bytecode output.
-   */
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test",
+        "TryCatch",
+        List.of(new SymbolCountCheck("bytecode.test", 1)));
   }
 }

@@ -26,22 +26,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * "All tests passed"
  * </p>
  */
-class SimpleClassTest extends AbstractBytecodeGenerationTest {
+class SimpleClassTest extends AbstractExecutableBytecodeTest {
 
   public SimpleClassTest() {
-    // Each bytecode test gets its own directory for parallel execution safety
-    // Module name: bytecode.test
-    // Expected symbols: 1 program (TestSimpleClass) + 1 class (SimpleClass) = 2
     super("/examples/bytecodeGeneration/simpleClass",
-        List.of(new SymbolCountCheck("bytecode.test", 2)),
-        false, false, false);
-  }
-
-  /**
-   * Disable debug instrumentation for minimal bytecode output.
-   */
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test",
+        "TestSimpleClass",
+        List.of(new SymbolCountCheck("bytecode.test", 2)));
   }
 }

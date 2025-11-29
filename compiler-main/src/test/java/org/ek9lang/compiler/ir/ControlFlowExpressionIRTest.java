@@ -20,7 +20,7 @@ class ControlFlowExpressionIRTest extends AbstractIRGenerationTest {
             new SymbolCountCheck(1, "expressionForms.forRangeExpr", 1),
             new SymbolCountCheck(1, "expressionForms.forInExpr", 1),
             new SymbolCountCheck(1, "expressionForms.tryExpr", 1)
-        ), false, false, true); // verbose=false, muteErrors=false, showIR=true
+        ), false, false, false); // verbose=false, muteErrors=false, showIR=true
   }
 
   @Override

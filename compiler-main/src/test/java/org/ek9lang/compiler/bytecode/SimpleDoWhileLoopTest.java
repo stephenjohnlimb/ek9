@@ -19,17 +19,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  *   <li>Stdout output (runtime validation: should print 5)</li>
  * </ul>
  */
-class SimpleDoWhileLoopTest extends AbstractBytecodeGenerationTest {
+class SimpleDoWhileLoopTest extends AbstractExecutableBytecodeTest {
 
   public SimpleDoWhileLoopTest() {
-    // Each bytecode test gets its own directory for parallel execution safety
     super("/examples/bytecodeGeneration/simpleDoWhileLoop",
-        List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, false);  // Bytecode validation enabled
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;  // Minimal bytecode for easier validation
+        "bytecode.test",
+        "SimpleDoWhileLoop",
+        List.of(new SymbolCountCheck("bytecode.test", 1)));
   }
 }

@@ -42,6 +42,7 @@ public final class SyntheticOperatorGenerator {
 
   private final IRGenerationContext stackContext;
   private final EqualsGenerator equalsGenerator;
+  private final NotEqualsGenerator notEqualsGenerator;
   private final CompareGenerator compareGenerator;
   private final IsSetGenerator isSetGenerator;
 
@@ -54,6 +55,7 @@ public final class SyntheticOperatorGenerator {
     AssertValue.checkNotNull("stackContext cannot be null", stackContext);
     this.stackContext = stackContext;
     this.equalsGenerator = new EqualsGenerator(stackContext);
+    this.notEqualsGenerator = new NotEqualsGenerator(stackContext);
     this.compareGenerator = new CompareGenerator(stackContext);
     this.isSetGenerator = new IsSetGenerator(stackContext);
   }
@@ -179,14 +181,20 @@ public final class SyntheticOperatorGenerator {
   }
 
   /**
-   * Generate _neq operator - delegates to _eq and negates.
-   * TODO: Implement delegation to _eq with negation
+   * Generate _neq ({@literal <>}) operator - delegates to _eq and negates.
+   *
+   * <p>Delegates to {@link NotEqualsGenerator} which implements:</p>
+   * <ul>
+   *   <li>Call this._eq(param) to get equality result</li>
+   *   <li>If result is unset, return unset</li>
+   *   <li>If result is true, return false (not equal)</li>
+   *   <li>If result is false, return true (not equal)</li>
+   * </ul>
    */
   private List<IRInstr> generateNotEqualsOperator(final IRInstructionBuilder builder,
                                                   final MethodSymbol operatorSymbol,
                                                   final AggregateSymbol aggregateSymbol) {
-    // TODO: Phase 3 implementation
-    return generatePlaceholder(builder, "_neq");
+    return notEqualsGenerator.generate(operatorSymbol, aggregateSymbol);
   }
 
   /**

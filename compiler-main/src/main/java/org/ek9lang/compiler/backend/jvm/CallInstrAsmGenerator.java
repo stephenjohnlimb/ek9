@@ -149,6 +149,12 @@ final class CallInstrAsmGenerator extends AbstractAsmGenerator
 
   /**
    * Generate instance method call (INVOKEVIRTUAL) or constructor call (NEW + INVOKESPECIAL).
+   * <p>
+   * Handles three cases:
+   * 1. Constructor calls (method = &lt;init&gt;): NEW + DUP + args + INVOKESPECIAL
+   * 2. Super method calls (target = "super"): ALOAD_0 + args + INVOKESPECIAL (parent method)
+   * 3. Regular calls: ALOAD target + args + INVOKEVIRTUAL/INVOKEINTERFACE
+   * </p>
    */
   private void generateInstanceCall(final String targetObject,
                                     final String methodName,
@@ -181,6 +187,27 @@ final class CallInstrAsmGenerator extends AbstractAsmGenerator
           jvmOwnerName,
           METHOD_INIT,
           constructorDescriptor,
+          false
+      );
+    } else if ("super".equals(targetObject)) {
+      // Super method call: ALOAD_0 (this) + args + INVOKESPECIAL (parent method)
+      // "super" refers to the same object as "this" (slot 0), but the method
+      // is invoked on the parent class using INVOKESPECIAL to bypass virtual dispatch.
+      getCurrentMethodVisitor().visitVarInsn(Opcodes.ALOAD, 0); // Load 'this'
+
+      // Load arguments onto stack
+      for (final var argument : arguments) {
+        generateLoadVariable(argument);
+      }
+
+      final var methodDescriptor = generateMethodDescriptor(parameterTypes, returnTypeName);
+
+      // INVOKESPECIAL bypasses virtual dispatch and calls the parent class method directly
+      getCurrentMethodVisitor().visitMethodInsn(
+          Opcodes.INVOKESPECIAL,
+          jvmOwnerName,
+          jvmMethodName,
+          methodDescriptor,
           false
       );
     } else {

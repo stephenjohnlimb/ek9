@@ -20,17 +20,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  *   <li>Final stdout output (runtime verification: should print 55)</li>
  * </ul>
  */
-class SimpleForRangeLoopTest extends AbstractBytecodeGenerationTest {
+class SimpleForRangeLoopTest extends AbstractExecutableBytecodeTest {
 
   public SimpleForRangeLoopTest() {
-    // One directory per test - parallel execution safety
     super("/examples/bytecodeGeneration/simpleForRangeLoop",
-        List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, false);
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;  // Clean bytecode for easier validation
+        "bytecode.test",
+        "SimpleForRangeLoop",
+        List.of(new SymbolCountCheck("bytecode.test", 1)));
   }
 }

@@ -20,15 +20,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * <p>If this test FAILS with VerifyError, we've successfully isolated the minimal reproduction case.
  * If this test PASSES, the bug requires more complex nesting.
  */
-class NestedIfInForRangeTest extends AbstractBytecodeGenerationTest {
+class NestedIfInForRangeTest extends AbstractExecutableBytecodeTest {
+
   public NestedIfInForRangeTest() {
     super("/examples/bytecodeGeneration/nestedIfInForRange",
-        List.of(new SymbolCountCheck("bytecode.test.nested", 1)),
-        false, false, false);  // Show bytecode for analysis
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test.nested",
+        "NestedIfInForRange",
+        List.of(new SymbolCountCheck("bytecode.test.nested", 1)));
   }
 }

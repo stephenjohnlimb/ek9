@@ -2,6 +2,7 @@ package org.ek9lang.compiler.bytecode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -76,7 +77,12 @@ public final class BytecodeExecutor {
 
         // Create program instance and invoke _main
         final Object programInstance = programClass.getDeclaredConstructor().newInstance();
-        mainMethod.invoke(programInstance, ek9Args);
+        try {
+          mainMethod.invoke(programInstance, ek9Args);
+        } catch (InvocationTargetException e) {
+          // Capture exception output like Java does for uncaught exceptions
+          formatExceptionOutput(e.getCause(), programClassName, outputCapture);
+        }
       }
 
       // Get captured output
@@ -135,5 +141,41 @@ public final class BytecodeExecutor {
       default -> throw new IllegalArgumentException(
           "Unsupported parameter type: " + typeName + " for value: " + value);
     };
+  }
+
+  /**
+   * Formats an uncaught exception output like Java does when exceptions reach main().
+   * Format: "Exception in thread \"main\" [exception.toString()]\n\tat [stacktrace]"
+   */
+  private static void formatExceptionOutput(final Throwable cause,
+                                            final String programClassName,
+                                            final ByteArrayOutputStream outputCapture) {
+    final PrintStream ps = new PrintStream(outputCapture);
+
+    // Format the exception header - use toString() which includes the message for EK9 exceptions
+    ps.print("Exception in thread \"main\" ");
+    ps.println(cause.toString());
+
+    // Print filtered stack trace
+    for (StackTraceElement element : cause.getStackTrace()) {
+      final String className = element.getClassName();
+      // Only include program class frames, skip reflection internals
+      if (className.equals(programClassName)) {
+        ps.print("\tat ");
+        ps.print(className);
+        ps.print(".");
+        ps.print(element.getMethodName());
+        ps.print("(");
+        if (element.getFileName() != null) {
+          ps.print(element.getFileName());
+        } else {
+          ps.print("Unknown Source");
+        }
+        ps.println(")");
+      }
+    }
+
+    // Add synthetic ek9.Main frame to match expected output format
+    ps.println("\tat ek9.Main.main(Unknown Source)");
   }
 }
