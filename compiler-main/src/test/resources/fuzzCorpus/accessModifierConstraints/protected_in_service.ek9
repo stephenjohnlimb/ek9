@@ -1,0 +1,30 @@
+#!ek9
+<?-
+  Access Modifier Constraint Mutation Test: Protected in Service
+  Services cannot have protected methods - only public or private allowed.
+
+  Mutation: Multiple protected methods in service
+  Expected: METHOD_MODIFIER_PROTECTED_IN_SERVICE for each
+-?>
+defines module fuzz.access.service.protected
+
+  defines service
+
+    DataService for :/api/data
+
+      //Valid - private helper method
+      private processData()
+        <- rtn <- 0
+
+      //Invalid - protected regular method
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_SERVICE
+      protected helper1()
+        <- rtn <- 1
+
+      //Invalid - protected method with param
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_SERVICE
+      protected helper2()
+        -> value as Integer
+        <- rtn <- 2
+
+//EOF

@@ -1,0 +1,43 @@
+#!ek9
+<?-
+  Access Modifier Constraint Mutation Test: Protected in Closed Class
+  Classes that are not open for extension cannot have protected methods.
+
+  Mutation: Multiple protected methods in closed class
+  Expected: METHOD_MODIFIER_PROTECTED_IN_CLOSED_CLASS for each
+-?>
+defines module fuzz.access.closedclass.protected
+
+  defines class
+
+    //This class is closed (no 'as open' = cannot be extended)
+    ClosedClass
+      value <- 0
+
+      //Valid - constructor
+      ClosedClass()
+        -> v as Integer
+        value :=: v
+
+      //Valid - private method
+      private internalProcess()
+        var <- 1
+        assert var?
+
+      //Valid - public method
+      getValue()
+        <- rtn <- 0
+
+      //Invalid - protected method in closed class
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_CLOSED_CLASS
+      protected doSomething()
+        var <- 1
+        assert var?
+
+      //Invalid - another protected method
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_CLOSED_CLASS
+      protected transform()
+        -> factor as Integer
+        <- rtn <- 2
+
+//EOF

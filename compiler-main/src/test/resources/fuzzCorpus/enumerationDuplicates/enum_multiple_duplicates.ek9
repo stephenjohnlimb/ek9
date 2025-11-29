@@ -1,0 +1,22 @@
+#!ek9
+<?-
+  Enumeration Duplicate Value Mutation Test: Multiple Duplicates
+  Each enumeration value must be unique within the type.
+
+  Mutation: Multiple different values duplicated in same enumeration
+  Expected: POSSIBLE_DUPLICATE_ENUMERATED_VALUE for each duplicate
+-?>
+defines module fuzz.enum.duplicate.multiple
+
+  defines type
+    Priority
+      Low
+      Medium
+      High
+      @Error: SYMBOL_DEFINITION: POSSIBLE_DUPLICATE_ENUMERATED_VALUE
+      Low
+      Critical
+      @Error: SYMBOL_DEFINITION: POSSIBLE_DUPLICATE_ENUMERATED_VALUE
+      High
+
+//EOF

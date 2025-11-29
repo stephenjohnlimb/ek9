@@ -1,0 +1,33 @@
+#!ek9
+<?-
+  Record Method Constraint Mutation Test: Public Method
+  Records can only have constructors and operators, not regular methods.
+
+  Mutation: Public method instead of constructor/operator
+  Expected: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS
+-?>
+defines module fuzz.record.method.public
+
+  defines record
+    PersonRecord
+      name <- ""
+      age <- 0
+
+      PersonRecord()
+        ->
+          name as String
+          age as Integer
+        this.name :=: name
+        this.age :=: age
+
+      //Invalid - records cannot have public methods
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS
+      getName()
+        <- rtn as String: name
+
+      //Invalid - another public method
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS
+      getAge()
+        <- rtn as Integer: age
+
+//EOF

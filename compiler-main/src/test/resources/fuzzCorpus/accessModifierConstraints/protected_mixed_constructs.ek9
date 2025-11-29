@@ -1,0 +1,38 @@
+#!ek9
+<?-
+  Access Modifier Constraint Mutation Test: Protected in Mixed Constructs
+  Tests protected methods across multiple construct types in one file.
+
+  Mutation: Service, component, and closed class each with protected method
+  Expected: Different error codes for each construct type
+-?>
+defines module fuzz.access.mixed.protected
+
+  defines service
+
+    //Protected in service
+    MixedService for :/api/mixed
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_SERVICE
+      protected serviceHelper()
+        <- rtn <- "service"
+
+  defines component
+
+    //Protected in component
+    MixedComponent
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_COMPONENT
+      protected componentHelper()
+        <- rtn <- "component"
+
+  defines class
+
+    //Protected in closed class
+    MixedClass
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_CLOSED_CLASS
+      protected classHelper()
+        <- rtn <- "class"
+
+//EOF

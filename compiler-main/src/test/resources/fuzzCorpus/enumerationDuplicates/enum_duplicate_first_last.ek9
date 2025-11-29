@@ -1,0 +1,23 @@
+#!ek9
+<?-
+  Enumeration Duplicate Value Mutation Test: First and Last Position
+  Each enumeration value must be unique within the type.
+
+  Mutation: First value duplicated at end of enumeration
+  Expected: POSSIBLE_DUPLICATE_ENUMERATED_VALUE
+-?>
+defines module fuzz.enum.duplicate.firstlast
+
+  defines type
+    DayOfWeek
+      Monday
+      Tuesday
+      Wednesday
+      Thursday
+      Friday
+      Saturday
+      Sunday
+      @Error: SYMBOL_DEFINITION: POSSIBLE_DUPLICATE_ENUMERATED_VALUE
+      Monday
+
+//EOF

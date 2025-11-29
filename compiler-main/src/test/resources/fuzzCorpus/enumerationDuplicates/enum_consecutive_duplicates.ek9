@@ -1,0 +1,22 @@
+#!ek9
+<?-
+  Enumeration Duplicate Value Mutation Test: Consecutive Duplicates
+  Each enumeration value must be unique within the type.
+
+  Mutation: Same value repeated immediately (consecutive duplicates)
+  Expected: POSSIBLE_DUPLICATE_ENUMERATED_VALUE
+-?>
+defines module fuzz.enum.duplicate.consecutive
+
+  defines type
+    Currency
+      USD
+      EUR
+      @Error: SYMBOL_DEFINITION: POSSIBLE_DUPLICATE_ENUMERATED_VALUE
+      EUR
+      GBP
+      JPY
+      @Error: SYMBOL_DEFINITION: POSSIBLE_DUPLICATE_ENUMERATED_VALUE
+      JPY
+
+//EOF

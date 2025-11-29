@@ -1,0 +1,44 @@
+#!ek9
+<?-
+  Record Method Constraint Mutation Test: Multiple Invalid Methods
+  Records can only have constructors and operators, not regular methods.
+
+  Mutation: Multiple different method types in one record
+  Expected: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS for each
+-?>
+defines module fuzz.record.method.multiple
+
+  defines record
+    ComplexRecord
+      id <- 0
+      name <- ""
+
+      //Valid - constructor
+      ComplexRecord()
+        ->
+          id as Integer
+          name as String
+        this.id :=: id
+        this.name :=: name
+
+      //Invalid - public getter
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS
+      getId()
+        <- rtn as Integer: id
+
+      //Invalid - setter-like method
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS
+      setName()
+        -> value as String
+        name :=: value
+
+      //Invalid - validation method
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS
+      isValid()
+        <- rtn as Boolean: id > 0 and name?
+
+      //Valid - operator after invalid methods
+      operator $ as pure
+        <- rtn as String: `${id}: ${name}`
+
+//EOF

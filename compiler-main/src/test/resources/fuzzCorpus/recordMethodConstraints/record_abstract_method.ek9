@@ -1,0 +1,31 @@
+#!ek9
+<?-
+  Record Method Constraint Mutation Test: Abstract Method
+  Records can only have constructors and operators, not regular methods.
+
+  Mutation: Abstract method in record
+  Expected: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS
+-?>
+defines module fuzz.record.method.abstract
+
+  defines record
+    //Abstract record with abstract method attempt
+    DataRecord as abstract
+      value <- 0
+
+      DataRecord()
+        -> value as Integer
+        this.value :=: value
+
+      //Invalid - records cannot have abstract methods
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS
+      process() as abstract
+        <- rtn as Integer?
+
+      //Invalid - abstract method with parameters
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS
+      transform() as abstract
+        -> factor as Float
+        <- rtn as Float?
+
+//EOF

@@ -1,0 +1,42 @@
+#!ek9
+<?-
+  Access Modifier Constraint Mutation Test: Protected in Component
+  Components cannot have protected methods - only public or private allowed.
+
+  Mutation: Multiple protected methods in component
+  Expected: METHOD_MODIFIER_PROTECTED_IN_COMPONENT for each
+-?>
+defines module fuzz.access.component.protected
+
+  defines component
+
+    DataProcessor
+
+      //Valid - private method
+      private validate()
+        <- rtn <- true
+
+      //Valid - public method
+      process()
+        <- rtn <- 0
+
+      //Invalid - protected method
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_COMPONENT
+      protected transform()
+        -> value as String
+        <- rtn <- 1
+
+      //Invalid - protected method with multiple params
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_COMPONENT
+      protected calculate()
+        ->
+          a as Integer
+          b as Integer
+        <- rtn <- 2
+
+      //Invalid - protected method no params
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_PROTECTED_IN_COMPONENT
+      protected getStatus()
+        <- rtn <- 3
+
+//EOF

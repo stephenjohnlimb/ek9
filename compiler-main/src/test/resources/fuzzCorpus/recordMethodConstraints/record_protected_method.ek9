@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  Record Method Constraint Mutation Test: Protected Method
+  Records can only have constructors and operators, not regular methods.
+
+  Mutation: Protected method instead of constructor/operator
+  Expected: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS
+-?>
+defines module fuzz.record.method.protected
+
+  defines record
+    AddressRecord
+      street <- ""
+      city <- ""
+
+      AddressRecord()
+        ->
+          street as String
+          city as String
+        this.street :=: street
+        this.city :=: city
+
+      //Invalid - records cannot have protected methods
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS
+      protected formatAddress()
+        <- rtn as String: `${street}, ${city}`
+
+      //Invalid - protected method with parameters
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: RECORDS_ONLY_SUPPORT_CONSTRUCTOR_AND_OPERATOR_METHODS
+      protected validateStreet()
+        -> minLength as Integer
+        <- rtn as Boolean: length street >= minLength
+
+//EOF
