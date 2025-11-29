@@ -1,0 +1,30 @@
+#!ek9
+<?-
+  Trait Constraint Mutation Test: Private Methods
+  Trait methods don't need access modifiers - all are effectively public.
+
+  Mutation: Multiple private methods in trait
+  Expected: METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT for each
+-?>
+defines module fuzz.trait.modifier.private
+
+  defines trait
+
+    InvalidTrait4
+
+      //Invalid - private in trait
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT
+      private helper1()
+        <- result <- 1
+
+      //Invalid - another private method
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT
+      private helper2()
+        -> value as Integer
+        <- result <- 2
+
+      //Valid - no modifier needed
+      publicMethod()
+        <- result as Integer?
+
+//EOF

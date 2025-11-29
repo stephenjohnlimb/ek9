@@ -1,0 +1,20 @@
+#!ek9
+<?-
+  Dispatcher Body Constraint Mutation Test: Pure Dispatcher No Body
+  Dispatcher methods must have a body - they are the entry point for dispatch.
+
+  Mutation: Pure dispatcher without body
+  Expected: DISPATCHER_BUT_NO_BODY_PROVIDED
+-?>
+defines module fuzz.dispatcher.nobody.pure
+
+  defines class
+
+    InvalidDispatcher4
+
+      //Pure dispatcher without body
+      @Error: SYMBOL_DEFINITION: DISPATCHER_BUT_NO_BODY_PROVIDED
+      process() as pure dispatcher
+        -> arg as Any
+
+//EOF

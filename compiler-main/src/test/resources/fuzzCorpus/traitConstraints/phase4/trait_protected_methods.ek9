@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  Trait Constraint Mutation Test: Protected Methods
+  Trait methods don't need access modifiers - all are effectively public.
+
+  Mutation: Multiple protected methods in trait
+  Expected: METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT for each
+-?>
+defines module fuzz.trait.modifier.protected
+
+  defines trait
+
+    InvalidTrait5
+
+      //Invalid - protected in trait
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT
+      protected process1()
+        <- result <- 1
+
+      //Invalid - another protected method
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT
+      protected process2()
+        -> data as String
+        <- result <- 2
+
+      //Invalid - protected with multiple params
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT
+      protected calculate()
+        ->
+          a as Integer
+          b as Integer
+        <- result <- 3
+
+//EOF

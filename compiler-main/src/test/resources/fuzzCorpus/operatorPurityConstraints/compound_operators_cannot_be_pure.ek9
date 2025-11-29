@@ -1,0 +1,44 @@
+#!ek9
+<?-
+  Operator Purity Constraint Mutation Test: Compound Operators Cannot Be Pure
+  Compound assignment operators mutate state and cannot be pure.
+
+  Mutation: Compound operators marked as pure
+  Expected: OPERATOR_CANNOT_BE_PURE for each
+-?>
+defines module fuzz.operator.compound.cannotbepure
+
+  defines class
+
+    Counter
+      count <- 0
+
+      Counter()
+        -> initial as Integer
+        count :=: initial
+
+      //Invalid - += mutates, cannot be pure
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_CANNOT_BE_PURE
+      operator += as pure
+        -> amount as Integer
+        count :=: count + amount
+
+      //Invalid - -= mutates, cannot be pure
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_CANNOT_BE_PURE
+      operator -= as pure
+        -> amount as Integer
+        count :=: count - amount
+
+      //Invalid - *= mutates, cannot be pure
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_CANNOT_BE_PURE
+      operator *= as pure
+        -> factor as Integer
+        count :=: count * factor
+
+      //Invalid - /= mutates, cannot be pure
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_CANNOT_BE_PURE
+      operator /= as pure
+        -> divisor as Integer
+        count :=: count / divisor
+
+//EOF

@@ -1,0 +1,32 @@
+#!ek9
+<?-
+  Trait Constraint Mutation Test: Multiple Constructors
+  Traits cannot have constructors - they are interfaces with optional implementations.
+
+  Mutation: Multiple constructor attempts in same trait
+  Expected: TRAITS_DO_NOT_HAVE_CONSTRUCTORS for each
+-?>
+defines module fuzz.trait.constructor.multiple
+
+  defines trait
+
+    InvalidTrait1
+
+      //First invalid constructor
+      @Error: SYMBOL_DEFINITION: TRAITS_DO_NOT_HAVE_CONSTRUCTORS
+      InvalidTrait1()
+        -> arg as String
+
+      //Second invalid constructor (different params)
+      @Error: SYMBOL_DEFINITION: TRAITS_DO_NOT_HAVE_CONSTRUCTORS
+      InvalidTrait1()
+        ->
+          arg1 as String
+          arg2 as Integer
+
+      //Valid trait method
+      process()
+        -> data as String
+        <- result as String?
+
+//EOF

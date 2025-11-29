@@ -1,0 +1,25 @@
+#!ek9
+<?-
+  Dispatcher Body Constraint Mutation Test: Multiple No-Body Dispatchers
+  Dispatcher methods must have a body - they are the entry point for dispatch.
+
+  Mutation: Multiple dispatcher methods without bodies in same class
+  Expected: DISPATCHER_BUT_NO_BODY_PROVIDED for each
+-?>
+defines module fuzz.dispatcher.nobody.multiple
+
+  defines class
+
+    InvalidDispatcher2
+
+      //First dispatcher without body
+      @Error: SYMBOL_DEFINITION: DISPATCHER_BUT_NO_BODY_PROVIDED
+      process() as dispatcher
+        -> arg as Any
+
+      //Second dispatcher without body (different name)
+      @Error: SYMBOL_DEFINITION: DISPATCHER_BUT_NO_BODY_PROVIDED
+      handle() as dispatcher
+        -> event as Any
+
+//EOF

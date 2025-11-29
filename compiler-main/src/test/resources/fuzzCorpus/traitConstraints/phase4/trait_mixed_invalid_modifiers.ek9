@@ -1,0 +1,35 @@
+#!ek9
+<?-
+  Trait Constraint Mutation Test: Mixed Invalid Modifiers
+  Trait methods don't need access modifiers - all are effectively public.
+
+  Mutation: Mix of private and protected methods in same trait
+  Expected: METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT for each
+-?>
+defines module fuzz.trait.modifier.mixed
+
+  defines trait
+
+    InvalidTrait6
+
+      //Invalid - private
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT
+      private secretMethod()
+        <- result <- 0
+
+      //Valid - no modifier
+      normalMethod()
+        <- result as Integer?
+
+      //Invalid - protected
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT
+      protected guardedMethod()
+        <- result <- 1
+
+      //Invalid - another private
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: METHOD_MODIFIER_NOT_REQUIRED_IN_TRAIT
+      private anotherSecret()
+        -> value as String
+        <- result <- 2
+
+//EOF

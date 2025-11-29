@@ -1,0 +1,38 @@
+#!ek9
+<?-
+  Operator Purity Constraint Mutation Test: Operators That Cannot Be Pure
+  Mutating operators cannot be pure - they change object state.
+
+  Mutation: Multiple mutating operators marked as pure
+  Expected: OPERATOR_CANNOT_BE_PURE for each
+-?>
+defines module fuzz.operator.cannotbepure
+
+  defines class
+
+    TestClass2
+      value <- 0
+
+      TestClass2()
+        -> v as Integer
+        value :=: v
+
+      //Invalid - copy operator mutates, cannot be pure
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_CANNOT_BE_PURE
+      operator :=: as pure
+        -> other as TestClass2
+        value :=: other.value
+
+      //Invalid - merge operator mutates, cannot be pure
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_CANNOT_BE_PURE
+      operator :~: as pure
+        -> other as TestClass2
+        value :=: value + other.value
+
+      //Invalid - replace operator mutates, cannot be pure
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_CANNOT_BE_PURE
+      operator :^: as pure
+        -> other as TestClass2
+        value :=: other.value
+
+//EOF

@@ -1,0 +1,27 @@
+#!ek9
+<?-
+  Operator Purity Constraint Mutation Test: Matches Operator Must Be Pure
+  The matches operator doesn't mutate state and must be declared pure.
+
+  Mutation: matches operator without pure modifier
+  Expected: OPERATOR_MUST_BE_PURE
+  Note: contains is already tested in operatorMisuse/contains_not_pure.ek9
+-?>
+defines module fuzz.operator.mustbepure
+
+  defines class
+
+    TestClass1
+      value <- 0
+
+      TestClass1()
+        -> v as Integer
+        value :=: v
+
+      //Invalid - matches must be pure
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: OPERATOR_MUST_BE_PURE
+      operator matches
+        -> pattern as TestClass1
+        <- result as Boolean: value == pattern.value
+
+//EOF

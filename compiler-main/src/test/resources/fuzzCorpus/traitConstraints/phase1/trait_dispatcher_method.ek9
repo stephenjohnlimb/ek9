@@ -1,0 +1,32 @@
+#!ek9
+<?-
+  Trait Constraint Mutation Test: Dispatcher Method
+  Dispatchers are only supported in classes, not traits.
+
+  Mutation: Multiple dispatcher attempts in trait
+  Expected: DISPATCH_ONLY_SUPPORTED_IN_CLASSES for each
+-?>
+defines module fuzz.trait.dispatcher
+
+  defines trait
+
+    InvalidTrait3
+
+      //Invalid dispatcher in trait
+      @Error: SYMBOL_DEFINITION: DISPATCH_ONLY_SUPPORTED_IN_CLASSES
+      process() as dispatcher
+        -> arg as Any
+        assert arg?
+
+      //Another invalid dispatcher
+      @Error: SYMBOL_DEFINITION: DISPATCH_ONLY_SUPPORTED_IN_CLASSES
+      handle() as dispatcher
+        -> event as Any
+        assert event?
+
+      //Valid trait method
+      normalMethod()
+        -> data as String
+        <- result as String?
+
+//EOF

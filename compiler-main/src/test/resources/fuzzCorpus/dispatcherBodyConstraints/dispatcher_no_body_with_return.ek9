@@ -1,0 +1,21 @@
+#!ek9
+<?-
+  Dispatcher Body Constraint Mutation Test: No Body With Return Type
+  Dispatcher methods must have a body - they are the entry point for dispatch.
+
+  Mutation: Dispatcher without body but declaring return type
+  Expected: DISPATCHER_BUT_NO_BODY_PROVIDED
+-?>
+defines module fuzz.dispatcher.nobody.withreturn
+
+  defines class
+
+    InvalidDispatcher3
+
+      //Dispatcher with return declaration but no body
+      @Error: SYMBOL_DEFINITION: DISPATCHER_BUT_NO_BODY_PROVIDED
+      process() as dispatcher
+        -> arg as Any
+        <- result as Boolean?
+
+//EOF
