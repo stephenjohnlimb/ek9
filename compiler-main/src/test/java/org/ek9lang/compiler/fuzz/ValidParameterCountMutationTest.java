@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 class ValidParameterCountMutationTest extends FuzzTestBase {
 
   public ValidParameterCountMutationTest() {
-    super("mutations/valid/parameterCount", CompilationPhase.PRE_IR_CHECKS, false);
+    super("mutations/valid/parameterCount", CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Test

@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Test;
 class ValidUnicodeMutationTest extends FuzzTestBase {
 
   public ValidUnicodeMutationTest() {
-    super("mutations/valid/unicode", CompilationPhase.PRE_IR_CHECKS, false);
+    super("mutations/valid/unicode", CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Test

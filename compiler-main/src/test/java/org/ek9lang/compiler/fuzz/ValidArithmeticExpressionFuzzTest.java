@@ -52,7 +52,7 @@ class ValidArithmeticExpressionFuzzTest extends FuzzTestBase {
   private static final int EXPECTED_FILE_COUNT = 3;
 
   public ValidArithmeticExpressionFuzzTest() {
-    super("complexExpressions/validArithmetic", CompilationPhase.PRE_IR_CHECKS, false);
+    super("complexExpressions/validArithmetic", CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Test

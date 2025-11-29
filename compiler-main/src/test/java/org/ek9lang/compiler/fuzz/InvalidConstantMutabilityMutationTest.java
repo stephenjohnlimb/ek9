@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 class InvalidConstantMutabilityMutationTest extends FuzzTestBase {
 
   public InvalidConstantMutabilityMutationTest() {
-    super("mutations/invalid/constantMutability", CompilationPhase.FULL_RESOLUTION, false);
+    super("mutations/invalid/constantMutability", CompilationPhase.FULL_RESOLUTION);
   }
 
   @Test

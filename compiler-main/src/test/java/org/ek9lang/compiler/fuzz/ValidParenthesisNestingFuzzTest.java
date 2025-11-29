@@ -51,7 +51,7 @@ class ValidParenthesisNestingFuzzTest extends FuzzTestBase {
   private static final int EXPECTED_FILE_COUNT = 5;
 
   public ValidParenthesisNestingFuzzTest() {
-    super("complexExpressions/validParenthesisNesting", CompilationPhase.PRE_IR_CHECKS, false);
+    super("complexExpressions/validParenthesisNesting", CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Test

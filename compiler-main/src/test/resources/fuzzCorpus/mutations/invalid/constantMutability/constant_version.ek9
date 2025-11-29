@@ -13,12 +13,10 @@
 
   Note: Version does NOT support ++, --, +=, -=, *=, /=, :~:, :^:
 
-  TODO: Mutator methods (incrementMajor, incrementMinor, incrementPatch,
-  incrementBuildNumber) should also produce NOT_MUTABLE errors but currently
-  don't - this is a gap in the compiler's mutability checking for method calls.
-  See constant_version_methods.ek9 for tests that expose this gap.
+  See also: constant_version_methods.ek9 for mutator method tests
+  (incrementMajor, incrementMinor, incrementPatch, incrementBuildNumber)
 
-  Expected: All mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+  Expected: All 9 mutations should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
 -?>
 defines module fuzztest.constant.mutation.version
 

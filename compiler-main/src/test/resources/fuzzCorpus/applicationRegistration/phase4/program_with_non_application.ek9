@@ -1,0 +1,59 @@
+#!ek9
+<?-
+  Application Registration Fuzz Test: Program With Non-Application Types
+  Tests that programs can only use 'with application of' with actual applications.
+
+  Expected Errors:
+  - INCOMPATIBLE_GENUS for trait, class, component used as application
+  - TYPE_NOT_RESOLVED for undefined types
+-?>
+defines module fuzz.program.with.invalid.application
+
+  defines trait
+    SomeTrait
+      doSomething() as abstract
+
+  defines class
+    SomeClass
+      default SomeClass()
+
+  defines component
+    SomeComponent
+      getValue()
+        <- rtn as Integer: 42
+
+  defines application
+    ValidApplication
+      register SomeComponent()
+
+  defines program
+    //Valid - using actual application
+    ValidProgram with application of ValidApplication
+      stdout <- Stdout()
+      stdout.println("Valid")
+
+    //Invalid - cannot use trait as application
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    InvalidProgram1 with application of SomeTrait
+      stdout <- Stdout()
+      stdout.println("Invalid")
+
+    //Invalid - cannot use class as application
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    InvalidProgram2 with application of SomeClass
+      stdout <- Stdout()
+      stdout.println("Invalid")
+
+    //Invalid - cannot use component directly as application
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    InvalidProgram3 with application of SomeComponent
+      stdout <- Stdout()
+      stdout.println("Invalid")
+
+    //Invalid - undefined type
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    InvalidProgram4 with application of NonExistent
+      stdout <- Stdout()
+      stdout.println("Invalid")
+
+//EOF

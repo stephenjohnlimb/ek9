@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 class ValidIdentifierLengthMutationTest extends FuzzTestBase {
 
   public ValidIdentifierLengthMutationTest() {
-    super("mutations/valid/identifierLength", CompilationPhase.PRE_IR_CHECKS, false);
+    super("mutations/valid/identifierLength", CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Test

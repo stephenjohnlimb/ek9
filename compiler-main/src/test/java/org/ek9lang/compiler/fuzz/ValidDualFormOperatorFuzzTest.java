@@ -44,7 +44,7 @@ class ValidDualFormOperatorFuzzTest extends FuzzTestBase {
   private static final int EXPECTED_FILE_COUNT = 5;
 
   public ValidDualFormOperatorFuzzTest() {
-    super("complexExpressions/validDualForm", CompilationPhase.PRE_IR_CHECKS, false);
+    super("complexExpressions/validDualForm", CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Test

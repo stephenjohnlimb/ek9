@@ -1,0 +1,29 @@
+#!ek9
+<?-
+  Text Construct Fuzz Test: Parameter Count Mismatch Between Locales
+  Tests that text methods must have matching parameter counts across all language variants.
+
+  Test Case: English version has 1 param, French version has 2 params
+  Expected: TEXT_METHOD_MISSING because signatures don't match
+-?>
+defines module text.parameter.count.mismatch
+
+  defines text for "en"
+    @Error: FULL_RESOLUTION: TEXT_METHOD_MISSING
+    OrderConfirmation
+      //English version - single parameter
+      confirm()
+        -> orderId as String
+        `Order ${orderId} confirmed`
+
+  defines text for "fr"
+    @Error: FULL_RESOLUTION: TEXT_METHOD_MISSING
+    OrderConfirmation
+      //French version - two parameters (different signature)
+      confirm()
+        ->
+          orderId as String
+          customerName as String
+        `Commande ${orderId} confirmée pour ${customerName}`
+
+//EOF

@@ -1,0 +1,27 @@
+#!ek9
+<?-
+  Text Construct Fuzz Test: Parameter Type Mismatch Between Locales
+  Tests that text methods must have matching parameter types across all language variants.
+
+  Test Case: English version uses String, Spanish version uses Integer
+  Expected: TEXT_METHOD_MISSING because signatures don't match
+-?>
+defines module text.parameter.type.mismatch
+
+  defines text for "en"
+    @Error: FULL_RESOLUTION: TEXT_METHOD_MISSING
+    PriceDisplay
+      //English version takes String
+      formatPrice()
+        -> price as String
+        `Price: ${price}`
+
+  defines text for "es"
+    @Error: FULL_RESOLUTION: TEXT_METHOD_MISSING
+    PriceDisplay
+      //Spanish version takes Integer - different type!
+      formatPrice()
+        -> price as Integer
+        `Precio: ${price}`
+
+//EOF

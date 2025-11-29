@@ -1,0 +1,61 @@
+#!ek9
+<?-
+  Application Registration Fuzz Test: Registering Non-Component Types
+  Tests that applications can only register components/services, not other constructs.
+
+  Valid registrations:
+  - Components (with 'as' abstract type clause)
+  - Services
+
+  Invalid registrations:
+  - Functions, classes, records - INCOMPATIBLE_GENUS
+-?>
+defines module fuzz.application.register.invalid.types
+
+  defines function
+    SomeFunction()
+      <- rtn <- true
+
+  defines class
+    SomeClass
+      default SomeClass()
+
+  defines record
+    SomeRecord
+      default SomeRecord()
+
+  defines component
+    BaseComponent as abstract
+      getValue() as abstract
+        <- rtn as Integer?
+
+    ConcreteComponent is BaseComponent
+      override getValue()
+        <- rtn as Integer: 42
+
+  defines service
+    SomeService :/test
+      index() :/index
+        <- rtn as HTTPResponse: () with trait of HTTPResponse
+
+  defines application
+    TestApp
+      //Valid - service registration is OK
+      register SomeService()
+
+      //Valid - component with abstract type is OK
+      register ConcreteComponent() as BaseComponent
+
+      //Invalid - cannot register a function
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
+      register SomeFunction()
+
+      //Invalid - cannot register a class
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
+      register SomeClass()
+
+      //Invalid - cannot register a record
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_GENUS
+      register SomeRecord()
+
+//EOF

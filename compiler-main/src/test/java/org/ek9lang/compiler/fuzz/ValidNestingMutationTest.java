@@ -44,7 +44,7 @@ class ValidNestingMutationTest extends FuzzTestBase {
   private static final int EXPECTED_FILE_COUNT = 9;
 
   public ValidNestingMutationTest() {
-    super("mutations/valid/nesting", CompilationPhase.PRE_IR_CHECKS, false);
+    super("mutations/valid/nesting", CompilationPhase.PRE_IR_CHECKS);
   }
 
   @Test

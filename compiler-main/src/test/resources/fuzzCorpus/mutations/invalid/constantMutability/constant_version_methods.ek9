@@ -3,21 +3,21 @@
   Fuzzing test for Version constant mutator methods.
   Tests calling non-pure methods on Version constants.
 
-  BUG REFERENCE: These tests expose a gap where calling mutating methods
-  on constants does not produce NOT_MUTABLE errors.
+  This test validates that calling mutating methods on constants is correctly
+  detected and rejected by the compiler with NOT_MUTABLE errors.
 
   Constants tested:
   - V1 (1.0.0-0) - simple version
   - V2 (2.5.9-0) - typical version
   - V3 (1.0.0-feature-0) - version with feature tag
 
-  Methods tested:
-  - incrementMajor() - non-pure mutator
-  - incrementMinor() - non-pure mutator
-  - incrementPatch() - non-pure mutator
-  - incrementBuildNumber() - non-pure mutator
+  Methods tested (all are non-pure mutators):
+  - incrementMajor() - increments major version, resets minor/patch/build
+  - incrementMinor() - increments minor version, resets patch/build
+  - incrementPatch() - increments patch version, resets build
+  - incrementBuildNumber() - increments build number only
 
-  Expected: All method calls should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
+  Expected: All 12 method calls should fail with NOT_MUTABLE at FULL_RESOLUTION phase.
 -?>
 defines module fuzztest.constant.mutation.version.methods
 

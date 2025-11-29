@@ -1,0 +1,26 @@
+#!ek9
+<?-
+  Text Construct Fuzz Test: No Parameters vs Parameters Mismatch
+  Tests that text methods must match - one has params, other doesn't.
+
+  Test Case: German version has no params, Italian version has params
+  Expected: TEXT_METHOD_MISSING because signatures don't match
+-?>
+defines module text.no.params.vs.params
+
+  defines text for "de"
+    @Error: FULL_RESOLUTION: TEXT_METHOD_MISSING
+    StatusMessage
+      //German version - no parameters (static text)
+      getStatus()
+        "Status: Aktiv"
+
+  defines text for "it"
+    @Error: FULL_RESOLUTION: TEXT_METHOD_MISSING
+    StatusMessage
+      //Italian version - has parameter (dynamic text)
+      getStatus()
+        -> statusCode as Integer
+        `Stato: ${statusCode}`
+
+//EOF
