@@ -18,17 +18,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  *   <li>Final stdout output (runtime verification: should print "onetwothree")</li>
  * </ul>
  */
-class SimpleForInLoopTest extends AbstractBytecodeGenerationTest {
+class SimpleForInLoopTest extends AbstractExecutableBytecodeTest {
 
   public SimpleForInLoopTest() {
-    // One directory per test - parallel execution safety
     super("/examples/bytecodeGeneration/simpleForInLoop",
-        List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, false);  // showBytecode = false (final validation)
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;  // Clean bytecode for easier validation
+        "bytecode.test",
+        "SimpleForInLoop",
+        List.of(new SymbolCountCheck("bytecode.test", 1)));
   }
 }

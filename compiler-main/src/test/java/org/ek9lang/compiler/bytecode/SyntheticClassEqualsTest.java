@@ -23,15 +23,13 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * - Field comparisons use invokevirtual for _cmp/_eq
  * </p>
  */
-class SyntheticClassEqualsTest extends AbstractBytecodeGenerationTest {
+class SyntheticClassEqualsTest extends AbstractExecutableBytecodeTest {
 
   public SyntheticClassEqualsTest() {
-    // Module: bytecode.syntheticClassEquals
-    // Expected: 1 program (TestSyntheticClassEquals) + 1 class (Point) = 2
-    // showBytecode=true for debugging synthetic operator output
     super("/examples/bytecodeGeneration/syntheticClassEquals",
-        List.of(new SymbolCountCheck("bytecode.syntheticClassEquals", 2)),
-        false, false, true);
+        "bytecode.syntheticClassEquals",
+        "TestSyntheticClassEquals",
+        List.of(new SymbolCountCheck("bytecode.syntheticClassEquals", 2)));
   }
 
   @Override

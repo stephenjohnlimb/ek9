@@ -16,16 +16,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * </ul>
  * </p>
  */
-class WhileExpressionTest extends AbstractBytecodeGenerationTest {
+class WhileExpressionTest extends AbstractExecutableBytecodeTest {
 
   public WhileExpressionTest() {
     super("/examples/bytecodeGeneration/whileExpression",
-        List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, false);
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test",
+        "WhileExpression",
+        List.of(new SymbolCountCheck("bytecode.test", 1)));
   }
 }

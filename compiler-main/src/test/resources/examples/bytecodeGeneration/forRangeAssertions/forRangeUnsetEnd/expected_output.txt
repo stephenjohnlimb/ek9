@@ -1,0 +1,3 @@
+Exception in thread "main" java.lang.AssertionError: For-range 'end' value must be set
+	at bytecode.test.ForRangeUnsetEnd._main(forRangeUnsetEnd.ek9)
+	at ek9.Main.main(Unknown Source)

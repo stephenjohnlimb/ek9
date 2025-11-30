@@ -25,11 +25,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  *   <li>Runtime: Would throw AssertionError before loop body executes</li>
  * </ul>
  */
-class ForRangeUnsetStartTest extends AbstractBytecodeGenerationTest {
+class ForRangeUnsetStartTest extends AbstractExecutableBytecodeTest {
 
   public ForRangeUnsetStartTest() {
     super("/examples/bytecodeGeneration/forRangeAssertions/forRangeUnsetStart",
-        List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, false);
+        "bytecode.test",
+        "ForRangeUnsetStart",
+        List.of(new SymbolCountCheck("bytecode.test", 1)));
   }
 }

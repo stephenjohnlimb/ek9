@@ -16,20 +16,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * - Initialization order: super() -&gt; i_init() -&gt; constructor body
  * </p>
  */
-class ConstructorCallsTest extends AbstractBytecodeGenerationTest {
+class ConstructorCallsTest extends AbstractExecutableBytecodeTest {
 
   public ConstructorCallsTest() {
-    // Module: bytecode.test
-    // Expected symbols: 5 classes + 1 program = 6
-    // Classes: BaseWithParam, ChildWithExplicitSuper, BaseWithSyntheticConstructor,
-    //          ChildCallingSynthetic, DelegatingConstructor
     super("/examples/bytecodeGeneration/constructorCalls",
-        List.of(new SymbolCountCheck("bytecode.test", 6)),
-        false, false, false);  // showBytecode=true - extracting bytecode
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test",
+        "TestConstructorCalls",
+        List.of(new SymbolCountCheck("bytecode.test", 6)));
   }
 }

@@ -15,21 +15,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * - Resource close() on normal and exception paths
  * </p>
  */
-class TryWithResourceNoCatchTest extends AbstractBytecodeGenerationTest {
+class TryWithResourceNoCatchTest extends AbstractExecutableBytecodeTest {
 
   public TryWithResourceNoCatchTest() {
-    // Each bytecode test gets its own directory for parallel execution safety
-    // Module name: bytecode.test, expected symbol count: 2 (program + TestResource class)
     super("/examples/bytecodeGeneration/tryWithResourceNoCatch",
-        List.of(new SymbolCountCheck("bytecode.test", 2)),
-        false, false, false);
-  }
-
-  /**
-   * Disable debug instrumentation for minimal bytecode output.
-   */
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test",
+        "TryWithResourceNoCatch",
+        List.of(new SymbolCountCheck("bytecode.test", 2)));
   }
 }

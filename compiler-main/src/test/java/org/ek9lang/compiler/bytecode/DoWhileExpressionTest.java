@@ -17,16 +17,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  * </ul>
  * </p>
  */
-class DoWhileExpressionTest extends AbstractBytecodeGenerationTest {
+class DoWhileExpressionTest extends AbstractExecutableBytecodeTest {
 
   public DoWhileExpressionTest() {
     super("/examples/bytecodeGeneration/doWhileExpression",
-        List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, false);
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test",
+        "DoWhileExpression",
+        List.of(new SymbolCountCheck("bytecode.test", 1)));
   }
 }

@@ -7,152 +7,99 @@ defines module bytecode.test
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::IsSetOperator": `public class bytecode.test.IsSetOperator {
-      static {};
-        Code:
-             0: return
+  static {};
+    Code:
+         0: return
 
-      private void i_init();
-        Code:
-             0: return
+  private void i_init();
+    Code:
+         0: return
 
-      public bytecode.test.IsSetOperator();
-        Code:
-             0: aload_0
-             1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
-             4: aload_0
-             5: invokevirtual #CP                 // Method i_init:()V
-             8: return
-          LineNumberTable:
-            line 156: 4
-            line 156: 8
+  public bytecode.test.IsSetOperator();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
 
-      public void _main();
-        Code:
-             0: aconst_null
-             1: astore_1
-             2: new           #CP                 // class org/ek9/lang/Stdout
-             5: dup
-             6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
-             9: astore_2
-            10: aload_2
-            11: astore_1
-            12: aconst_null
-            13: astore_3
-            14: ldc           #CP                 // String Steve
-            16: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-            19: astore        4
-            21: aload         4
-            23: astore_3
-            24: aconst_null
-            25: astore        5
-            27: new           #CP                 // class org/ek9/lang/String
-            30: dup
-            31: invokespecial #CP                 // Method org/ek9/lang/String."<init>":()V
-            34: astore        6
-            36: aload         6
-            38: astore        5
-            40: aload_1
-            41: astore        7
-            43: aload_3
-            44: astore        8
-            46: aload         8
-            48: ifnull        55
-            51: iconst_0
-            52: goto          56
-            55: iconst_1
-            56: istore        9
-            58: iload         9
-            60: ifeq          75
-            63: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
-            66: astore        10
-            68: aload         10
-            70: astore        11
-            72: goto          86
-            75: aload         8
-            77: invokevirtual #CP                 // Method org/ek9/lang/String._isSet:()Lorg/ek9/lang/Boolean;
-            80: astore        12
-            82: aload         12
-            84: astore        11
-            86: aload         7
-            88: aload         11
-            90: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
-            95: aload_1
-            96: astore        13
-            98: aload         5
-           100: astore        14
-           102: aload         14
-           104: ifnull        111
-           107: iconst_0
-           108: goto          112
-           111: iconst_1
-           112: istore        15
-           114: iload         15
-           116: ifeq          131
-           119: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
-           122: astore        16
-           124: aload         16
-           126: astore        17
-           128: goto          142
-           131: aload         14
-           133: invokevirtual #CP                 // Method org/ek9/lang/String._isSet:()Lorg/ek9/lang/Boolean;
-           136: astore        18
-           138: aload         18
-           140: astore        17
-           142: aload         13
-           144: aload         17
-           146: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
-           151: return
-    }
-    SourceDebugExtension:
-      SMAP
-      IsSetOperator.class
-      EK9
-      *S EK9
-      *F
-      + 1 isSetOperator.ek9
-      isSetOperator.ek9
-      *L
-      156#1:156
-      156#1:156
-      157#1:157
-      157#1:157
-      157#1:157
-      157#1:157
-      157#1:157
-      157#1:157
-      157#1:157
-      157#1:157
-      158#1:158
-      158#1:158
-      158#1:158
-      158#1:158
-      158#1:158
-      158#1:158
-      158#1:158
-      159#1:159
-      159#1:159
-      159#1:159
-      159#1:159
-      159#1:159
-      159#1:159
-      159#1:159
-      161#1:161
-      161#1:161
-      161#1:161
-      161#1:161
-      161#1:161
-      161#1:161
-      161#1:161
-      162#1:162
-      162#1:162
-      162#1:162
-      162#1:162
-      162#1:162
-      162#1:162
-      162#1:162
-      157#1:157
-      156#1:156
-      *E`
+  public void _main();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aconst_null
+        13: astore_3
+        14: ldc           #CP                 // String Steve
+        16: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        19: astore        4
+        21: aload         4
+        23: astore_3
+        24: aconst_null
+        25: astore        5
+        27: new           #CP                 // class org/ek9/lang/String
+        30: dup
+        31: invokespecial #CP                 // Method org/ek9/lang/String."<init>":()V
+        34: astore        6
+        36: aload         6
+        38: astore        5
+        40: aload_1
+        41: astore        7
+        43: aload_3
+        44: astore        8
+        46: aload         8
+        48: ifnull        55
+        51: iconst_0
+        52: goto          56
+        55: iconst_1
+        56: istore        9
+        58: iload         9
+        60: ifeq          75
+        63: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
+        66: astore        10
+        68: aload         10
+        70: astore        11
+        72: goto          86
+        75: aload         8
+        77: invokevirtual #CP                 // Method org/ek9/lang/String._isSet:()Lorg/ek9/lang/Boolean;
+        80: astore        12
+        82: aload         12
+        84: astore        11
+        86: aload         7
+        88: aload         11
+        90: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+        95: aload_1
+        96: astore        13
+        98: aload         5
+       100: astore        14
+       102: aload         14
+       104: ifnull        111
+       107: iconst_0
+       108: goto          112
+       111: iconst_1
+       112: istore        15
+       114: iload         15
+       116: ifeq          131
+       119: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
+       122: astore        16
+       124: aload         16
+       126: astore        17
+       128: goto          142
+       131: aload         14
+       133: invokevirtual #CP                 // Method org/ek9/lang/String._isSet:()Lorg/ek9/lang/Boolean;
+       136: astore        18
+       138: aload         18
+       140: astore        17
+       142: aload         13
+       144: aload         17
+       146: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
+       151: return
+}`
     IsSetOperator()
       stdout <- Stdout()
       set <- "Steve"

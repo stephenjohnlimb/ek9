@@ -13,21 +13,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  *   <li>Edge cases (equal values, different comparisons)</li>
  * </ul>
  */
-class AllComparisonCoalescingOperatorsTest extends AbstractBytecodeGenerationTest {
+class AllComparisonCoalescingOperatorsTest extends AbstractExecutableBytecodeTest {
 
   public AllComparisonCoalescingOperatorsTest() {
-    //Each bytecode test gets its own directory for parallel execution safety
-    //Module name: bytecode.test, expected symbol count: 1 (the program)
     super("/examples/bytecodeGeneration/allComparisonCoalescingOperators",
-        List.of(new SymbolCountCheck("bytecode.test", 1)),
-        false, false, false); // showBytecode disabled for cleaner test output
-  }
-
-  /**
-   * Disable debug instrumentation for minimal bytecode output.
-   */
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test",
+        "AllComparisonCoalescingOperators",
+        List.of(new SymbolCountCheck("bytecode.test", 1)));
   }
 }

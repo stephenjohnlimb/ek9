@@ -16,18 +16,12 @@ import org.ek9lang.compiler.support.SymbolCountCheck;
  *   <li>Correct execution order: try → catch → implicit cleanup → explicit finally → rethrow</li>
  * </ul>
  */
-class TryWithMultipleResourcesAndFinallyTest extends AbstractBytecodeGenerationTest {
+class TryWithMultipleResourcesAndFinallyTest extends AbstractExecutableBytecodeTest {
 
   public TryWithMultipleResourcesAndFinallyTest() {
-    // Module: bytecode.test.resources.finally
-    // Expected symbols: TestResource class (1) + TryWithMultipleResourcesAndFinally program (1) = 2
     super("/examples/bytecodeGeneration/tryWithMultipleResourcesAndFinally",
-        List.of(new SymbolCountCheck("bytecode.test.resources.finally", 2)),
-        false, false, false);
-  }
-
-  @Override
-  protected boolean addDebugInstrumentation() {
-    return false;
+        "bytecode.test.resources.finally",
+        "TryWithMultipleResourcesAndFinally",
+        List.of(new SymbolCountCheck("bytecode.test.resources.finally", 2)));
   }
 }

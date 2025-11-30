@@ -1,0 +1,11 @@
+Test 0: isSet check
+p1 is set
+p2 is set
+Test 1: Not equals on equal points
+false
+Test 2: Not equals on different points
+true
+Test 3: Consistency with equals
+true
+false
+All tests passed
