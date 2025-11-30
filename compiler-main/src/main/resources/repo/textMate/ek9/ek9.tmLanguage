@@ -10,19 +10,21 @@
 	<string>ek9</string>
 	<key>patterns</key>
 	<array>
+		<!-- Shebang - must be first -->
 		<dict>
 			<key>match</key>
-			<string>//.*</string>
+			<string>^#!ek9\s*$</string>
 			<key>name</key>
-			<string>comment.line.ek9</string>
+			<string>comment.line.shebang.ek9</string>
 		</dict>
+		<!-- Block comments (before line comments for correct precedence) -->
 		<dict>
 			<key>begin</key>
 			<string>&lt;!--</string>
 			<key>end</key>
 			<string>--&gt;</string>
 			<key>name</key>
-			<string>comment.block.ek9</string>
+			<string>comment.block.html.ek9</string>
 		</dict>
 		<dict>
 			<key>begin</key>
@@ -30,7 +32,7 @@
 			<key>end</key>
 			<string>-\?&gt;</string>
 			<key>name</key>
-			<string>comment.block.ek9</string>
+			<string>comment.block.documentation.ek9</string>
 		</dict>
 		<dict>
 			<key>begin</key>
@@ -40,123 +42,506 @@
 			<key>name</key>
 			<string>comment.block.ek9</string>
 		</dict>
+		<!-- Line comments -->
 		<dict>
 			<key>match</key>
-			<string>\b(if|else|by|in|is|allow|extends|do|switch|given|case|when|default|register|aspect|while|for|references|module|operator|defines|as|of|then)\b</string>
+			<string>//.*$</string>
 			<key>name</key>
-			<string>markup.bold.ek9</string>
+			<string>comment.line.double-slash.ek9</string>
 		</dict>
+		<!-- Directives (@Resolved, @Error, @IR, etc.) -->
 		<dict>
 			<key>match</key>
-			<string>\b(try|throw|catch|handle|finally|constrain|range|assert)\b</string>
+			<string>@[A-Za-z_][A-Za-z0-9_]*</string>
 			<key>name</key>
-			<string>markup.bold.ek9</string>
+			<string>entity.other.attribute-name.directive.ek9</string>
 		</dict>
+		<!-- Interpolated strings (backtick) with ${} support -->
 		<dict>
-			<key>match</key>
-			<string>\b(override|public|private|protected|with|isolated|pure|abstract|dispatcher|only)\b</string>
+			<key>begin</key>
+			<string>`</string>
+			<key>beginCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.string.begin.ek9</string>
+				</dict>
+			</dict>
+			<key>end</key>
+			<string>`</string>
+			<key>endCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.string.end.ek9</string>
+				</dict>
+			</dict>
 			<key>name</key>
-			<string>keyword.operator.ek9</string>
+			<string>string.quoted.backtick.ek9</string>
+			<key>patterns</key>
+			<array>
+				<!-- String interpolation ${...} -->
+				<dict>
+					<key>begin</key>
+					<string>\$\{</string>
+					<key>beginCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.section.interpolation.begin.ek9</string>
+						</dict>
+					</dict>
+					<key>end</key>
+					<string>\}</string>
+					<key>endCaptures</key>
+					<dict>
+						<key>0</key>
+						<dict>
+							<key>name</key>
+							<string>punctuation.section.interpolation.end.ek9</string>
+						</dict>
+					</dict>
+					<key>name</key>
+					<string>meta.interpolation.ek9</string>
+					<key>contentName</key>
+					<string>source.ek9.embedded</string>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>include</key>
+							<string>$self</string>
+						</dict>
+					</array>
+				</dict>
+				<!-- Escape sequences -->
+				<dict>
+					<key>match</key>
+					<string>\\[`$\\nrtbf"']</string>
+					<key>name</key>
+					<string>constant.character.escape.ek9</string>
+				</dict>
+				<!-- Unicode escapes -->
+				<dict>
+					<key>match</key>
+					<string>\\u[0-9A-Fa-f]{4}</string>
+					<key>name</key>
+					<string>constant.character.escape.unicode.ek9</string>
+				</dict>
+			</array>
 		</dict>
-		<dict>
-			<key>match</key>
-			<string>\b(cat|filter|group|split|call|async|package|map|sort|flatten|uniq|tee|head|tail|skip|join|collect)\b</string>
-			<key>name</key>
-			<string>keyword.other.ek9</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>\b(GET|HEAD|POST|PUT|PATCH|PATH|HEADER|QUERY|REQUEST|CONTENT|CONTEXT)\b</string>
-			<key>name</key>
-			<string>keyword.other.ek9</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>\b(constant|references|application|program|class|component|text|trait|function|type|record|service)\b</string>
-			<key>name</key>
-			<string>storage.type.ek9</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>\b(Void|Any|Boolean|Bits|String|Character|Integer|Float|Date|Time|DateTime|Font|Colour|Colour|Dimension|RegEx|Duration|Millisecond|Money|Path|JSON|Locale|Version)\b</string>
-			<key>name</key>
-			<string>storage.type.ek9</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>\b(Exception|List|Dict|DictEntry|Map|Optional|PriorityQueue|Iterator|Result|Clock|StringInput|StringOutput|HTTPRequest|HTTPResponse)\b</string>
-			<key>name</key>
-			<string>storage.type.ek9</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>(\(|\)|:=|::|&lt;&gt;|!=|&lt;~&gt;|\[|\]|\{|\}|&lt;=&gt;|&lt;=|&gt;=|\*=|/=|\+=|-=|=|!|&gt;&gt;|&lt;&lt;|-&gt;|&lt;-|&lt;|&gt;|\?|\+\+|--|\+|-|~|\*|/|\^|#\^|#!|#\?|#&lt;|#&gt;|:|\.\.\.|,|\$|\$\$|\|)</string>
-			<key>name</key>
-			<string>constant.ek9</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>\b(true|false|mod|rem|sqrt|and|or|xor|abs|not|contains|matches|empty|length|open|close)\b</string>
-			<key>name</key>
-			<string>constant.ek9</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>(;)</string>
-			<key>name</key>
-			<string>markup.underline.ek9</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>\b(\d*\.\d+\w*|\d+\w*)\b</string>
-			<key>name</key>
-			<string>string.other.ek9</string>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>""</string>
-			<key>name</key>
-			<string>string.quoted.double.ek9</string>
-		</dict>
+		<!-- Double-quoted strings -->
 		<dict>
 			<key>begin</key>
 			<string>"</string>
+			<key>beginCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.string.begin.ek9</string>
+				</dict>
+			</dict>
 			<key>end</key>
 			<string>"</string>
+			<key>endCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.string.end.ek9</string>
+				</dict>
+			</dict>
 			<key>name</key>
 			<string>string.quoted.double.ek9</string>
 			<key>patterns</key>
 			<array>
 				<dict>
 					<key>match</key>
-					<string>\.</string>
+					<string>\\[\\nrtbf"']</string>
 					<key>name</key>
 					<string>constant.character.escape.ek9</string>
 				</dict>
-			</array>
-		</dict>
-		<dict>
-			<key>match</key>
-			<string>``</string>
-			<key>name</key>
-			<string>string.quoted.backtick.ek9</string>
-		</dict>
-		<dict>
-			<key>begin</key>
-			<string>`</string>
-			<key>end</key>
-			<string>`</string>
-			<key>name</key>
-			<string>string.quoted.backtick.ek9</string>
-			<key>patterns</key>
-			<array>
 				<dict>
 					<key>match</key>
-					<string>\.</string>
+					<string>\\u[0-9A-Fa-f]{4}</string>
 					<key>name</key>
-					<string>constant.character.escape.ek9</string>
+					<string>constant.character.escape.unicode.ek9</string>
 				</dict>
 			</array>
+		</dict>
+		<!-- Character literals -->
+		<dict>
+			<key>match</key>
+			<string>'(\\[\\nrtbf"']|\\u[0-9A-Fa-f]{4}|[^'\\])'</string>
+			<key>name</key>
+			<string>string.quoted.single.character.ek9</string>
+		</dict>
+		<!-- Regex literals - context sensitive, typically after = or ( -->
+		<dict>
+			<key>match</key>
+			<string>(?&lt;=&lt;-\s|:=\s|:\s|=\s|\(\s*)/(?!\s)(?:[^/\\]|\\.)+/</string>
+			<key>name</key>
+			<string>string.regexp.ek9</string>
+		</dict>
+		<!-- URI protocol literals -->
+		<dict>
+			<key>match</key>
+			<string>:/[a-zA-Z0-9_{}/-]+</string>
+			<key>name</key>
+			<string>string.unquoted.uri.ek9</string>
+		</dict>
+		<!-- Path literals $?.field[0].field -->
+		<dict>
+			<key>match</key>
+			<string>\$\?(\.[a-zA-Z0-9_-]+|\[\d+\])+</string>
+			<key>name</key>
+			<string>string.unquoted.path.ek9</string>
+		</dict>
+		<!-- DateTime literals (before date to match longer pattern first) -->
+		<dict>
+			<key>match</key>
+			<string>\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})\b</string>
+			<key>name</key>
+			<string>constant.other.datetime.ek9</string>
+		</dict>
+		<!-- Date literals -->
+		<dict>
+			<key>match</key>
+			<string>\b\d{4}-\d{2}-\d{2}\b</string>
+			<key>name</key>
+			<string>constant.other.date.ek9</string>
+		</dict>
+		<!-- Time literals -->
+		<dict>
+			<key>match</key>
+			<string>\b\d{2}:\d{2}(:\d{2})?\b</string>
+			<key>name</key>
+			<string>constant.other.time.ek9</string>
+		</dict>
+		<!-- Duration literals (ISO 8601) P[n]Y[n]M[n]W[n]DT[n]H[n]M[n]S -->
+		<dict>
+			<key>match</key>
+			<string>\bP(-?\d+[YMWD])*T?(-?\d+[HMS])*\b</string>
+			<key>name</key>
+			<string>constant.other.duration.ek9</string>
+		</dict>
+		<!-- Millisecond literals -->
+		<dict>
+			<key>match</key>
+			<string>\b\d+ms\b</string>
+			<key>name</key>
+			<string>constant.numeric.millisecond.ek9</string>
+		</dict>
+		<!-- Money literals (e.g., 300000#USD) -->
+		<dict>
+			<key>match</key>
+			<string>\b\d+(\.\d+)?#[A-Z]{3}\b</string>
+			<key>name</key>
+			<string>constant.numeric.money.ek9</string>
+		</dict>
+		<!-- Color literals (e.g., #AB6F2B or #AB6F2BFF) -->
+		<dict>
+			<key>match</key>
+			<string>#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?\b</string>
+			<key>name</key>
+			<string>constant.other.color.ek9</string>
+		</dict>
+		<!-- Dimension literals (e.g., 2m, 2.5px, 100%) -->
+		<dict>
+			<key>match</key>
+			<string>\b\d+(\.\d+)?(km|m|cm|mm|mile|in|pc|pt|px|em|ex|ch|rem|vw|vh|vmin|vmax|%|dpi|dpc)\b</string>
+			<key>name</key>
+			<string>constant.numeric.dimension.ek9</string>
+		</dict>
+		<!-- Version literals (e.g., 1.0.0-1 or 1.0.0-feature-1) -->
+		<dict>
+			<key>match</key>
+			<string>\b\d+\.\d+\.\d+-([a-zA-Z_]+\d*[a-zA-Z_]*-)?\d+\b</string>
+			<key>name</key>
+			<string>constant.other.version.ek9</string>
+		</dict>
+		<!-- Binary literals -->
+		<dict>
+			<key>match</key>
+			<string>\b0[bB][01_]+\b</string>
+			<key>name</key>
+			<string>constant.numeric.binary.ek9</string>
+		</dict>
+		<!-- Hex literals -->
+		<dict>
+			<key>match</key>
+			<string>\b0[xX][0-9A-Fa-f_]+\b</string>
+			<key>name</key>
+			<string>constant.numeric.hex.ek9</string>
+		</dict>
+		<!-- Floating point numbers -->
+		<dict>
+			<key>match</key>
+			<string>\b\d+\.\d+([eE][+-]?\d+)?\b</string>
+			<key>name</key>
+			<string>constant.numeric.float.ek9</string>
+		</dict>
+		<!-- Integer numbers -->
+		<dict>
+			<key>match</key>
+			<string>\b\d+\b</string>
+			<key>name</key>
+			<string>constant.numeric.integer.ek9</string>
+		</dict>
+		<!-- Boolean literals -->
+		<dict>
+			<key>match</key>
+			<string>\b(true|false)\b</string>
+			<key>name</key>
+			<string>constant.language.boolean.ek9</string>
+		</dict>
+		<!-- Language variables: this, super -->
+		<dict>
+			<key>match</key>
+			<string>\b(this|super)\b</string>
+			<key>name</key>
+			<string>variable.language.ek9</string>
+		</dict>
+		<!-- Declaration keywords -->
+		<dict>
+			<key>match</key>
+			<string>\b(defines|module|extern)\b</string>
+			<key>name</key>
+			<string>keyword.declaration.ek9</string>
+		</dict>
+		<!-- Construct type keywords -->
+		<dict>
+			<key>match</key>
+			<string>\b(constant|references|application|program|class|component|text|trait|function|type|record|service|package)\b</string>
+			<key>name</key>
+			<string>storage.type.construct.ek9</string>
+		</dict>
+		<!-- Control flow keywords -->
+		<dict>
+			<key>match</key>
+			<string>\b(if|else|switch|given|case|when|default|while|for|do|try|catch|handle|finally|throw|assert)\b</string>
+			<key>name</key>
+			<string>keyword.control.ek9</string>
+		</dict>
+		<!-- Storage modifiers -->
+		<dict>
+			<key>match</key>
+			<string>\b(public|private|protected|pure|abstract|override|open|dispatcher|isolated|only)\b</string>
+			<key>name</key>
+			<string>storage.modifier.ek9</string>
+		</dict>
+		<!-- Inheritance and composition keywords -->
+		<dict>
+			<key>match</key>
+			<string>\b(extends|is|with|trait|of|by|allow)\b</string>
+			<key>name</key>
+			<string>keyword.other.inheritance.ek9</string>
+		</dict>
+		<!-- Other language keywords -->
+		<dict>
+			<key>match</key>
+			<string>\b(as|in|then|register|aspect|operator|constrain|range|for)\b</string>
+			<key>name</key>
+			<string>keyword.other.ek9</string>
+		</dict>
+		<!-- Stream/pipeline operations -->
+		<dict>
+			<key>match</key>
+			<string>\b(cat|filter|select|map|sort|flatten|uniq|tee|head|tail|skip|join|split|group|collect|call|async)\b</string>
+			<key>name</key>
+			<string>keyword.operator.stream.ek9</string>
+		</dict>
+		<!-- HTTP verbs -->
+		<dict>
+			<key>match</key>
+			<string>\b(GET|DELETE|HEAD|POST|PUT|PATCH|OPTIONS)\b</string>
+			<key>name</key>
+			<string>keyword.other.http-verb.ek9</string>
+		</dict>
+		<!-- HTTP access modifiers -->
+		<dict>
+			<key>match</key>
+			<string>\b(PATH|HEADER|QUERY|REQUEST|CONTENT|CONTEXT)\b</string>
+			<key>name</key>
+			<string>keyword.other.http-access.ek9</string>
+		</dict>
+		<!-- Logical operators -->
+		<dict>
+			<key>match</key>
+			<string>\b(and|or|xor|not)\b</string>
+			<key>name</key>
+			<string>keyword.operator.logical.ek9</string>
+		</dict>
+		<!-- Word operators -->
+		<dict>
+			<key>match</key>
+			<string>\b(mod|rem|abs|sqrt|contains|matches|empty|length|open|close)\b</string>
+			<key>name</key>
+			<string>keyword.operator.word.ek9</string>
+		</dict>
+		<!-- Built-in primitive types -->
+		<dict>
+			<key>match</key>
+			<string>\b(Void|Any|Boolean|Bits|String|Character|Integer|Float|Date|Time|DateTime|Duration|Millisecond|Money|Dimension|Resolution|RegEx|Colour|Color|Font|Path|JSON|Locale|Version)\b</string>
+			<key>name</key>
+			<string>support.type.primitive.ek9</string>
+		</dict>
+		<!-- Built-in collection and container types -->
+		<dict>
+			<key>match</key>
+			<string>\b(List|Dict|DictEntry|Optional|PriorityQueue|Iterator|Result|Supplier|Consumer|UnaryOperator|BinaryOperator|Comparator|Predicate|BiFunction|BiPredicate)\b</string>
+			<key>name</key>
+			<string>support.type.collection.ek9</string>
+		</dict>
+		<!-- Built-in I/O and system types -->
+		<dict>
+			<key>match</key>
+			<string>\b(Stdout|Stderr|Stdin|TextFile|StringInput|StringOutput|HTTPRequest|HTTPResponse|Clock|SystemClock)\b</string>
+			<key>name</key>
+			<string>support.type.io.ek9</string>
+		</dict>
+		<!-- Built-in exception and utility types -->
+		<dict>
+			<key>match</key>
+			<string>\b(Exception|GUID|HMAC|MutexLock|MutexKey|StringBuilder)\b</string>
+			<key>name</key>
+			<string>support.type.utility.ek9</string>
+		</dict>
+		<!-- Copy/Merge/Replace operators (distinctive EK9 operators) -->
+		<dict>
+			<key>match</key>
+			<string>(:=:|:~:|:\^:)</string>
+			<key>name</key>
+			<string>keyword.operator.copy-merge.ek9</string>
+		</dict>
+		<!-- Guard and conditional assignment operators -->
+		<dict>
+			<key>match</key>
+			<string>(:=\?|\?=)</string>
+			<key>name</key>
+			<string>keyword.operator.guard.ek9</string>
+		</dict>
+		<!-- Null coalescing operators -->
+		<dict>
+			<key>match</key>
+			<string>(\?\?|\?:)</string>
+			<key>name</key>
+			<string>keyword.operator.coalescing.ek9</string>
+		</dict>
+		<!-- Coalescing comparison operators -->
+		<dict>
+			<key>match</key>
+			<string>(&lt;=\?|&gt;=\?|&lt;\?|&gt;\?)</string>
+			<key>name</key>
+			<string>keyword.operator.coalescing-comparison.ek9</string>
+		</dict>
+		<!-- Arrow operators (parameter/return) -->
+		<dict>
+			<key>match</key>
+			<string>(&lt;-|-&gt;)</string>
+			<key>name</key>
+			<string>keyword.operator.arrow.ek9</string>
+		</dict>
+		<!-- Comparison operators -->
+		<dict>
+			<key>match</key>
+			<string>(&lt;=&gt;|&lt;~&gt;|&lt;&gt;|!=|==|&lt;=|&gt;=|&lt;|&gt;)</string>
+			<key>name</key>
+			<string>keyword.operator.comparison.ek9</string>
+		</dict>
+		<!-- Assignment operators -->
+		<dict>
+			<key>match</key>
+			<string>(:=|=)</string>
+			<key>name</key>
+			<string>keyword.operator.assignment.ek9</string>
+		</dict>
+		<!-- Compound assignment operators -->
+		<dict>
+			<key>match</key>
+			<string>(\+=|-=|\*=|/=)</string>
+			<key>name</key>
+			<string>keyword.operator.assignment.compound.ek9</string>
+		</dict>
+		<!-- Increment/decrement operators -->
+		<dict>
+			<key>match</key>
+			<string>(\+\+|--)</string>
+			<key>name</key>
+			<string>keyword.operator.increment.ek9</string>
+		</dict>
+		<!-- Arithmetic operators -->
+		<dict>
+			<key>match</key>
+			<string>(\+|-|\*|/|\^)</string>
+			<key>name</key>
+			<string>keyword.operator.arithmetic.ek9</string>
+		</dict>
+		<!-- Bitwise shift operators -->
+		<dict>
+			<key>match</key>
+			<string>(&lt;&lt;|&gt;&gt;)</string>
+			<key>name</key>
+			<string>keyword.operator.bitwise.ek9</string>
+		</dict>
+		<!-- EK9 special operators (hashcode, promote, prefix, suffix, string, json) -->
+		<dict>
+			<key>match</key>
+			<string>(#\?|#\^|#&lt;|#&gt;|\$\$|\$)</string>
+			<key>name</key>
+			<string>keyword.operator.special.ek9</string>
+		</dict>
+		<!-- Unary operators -->
+		<dict>
+			<key>match</key>
+			<string>(!|~|\?)</string>
+			<key>name</key>
+			<string>keyword.operator.unary.ek9</string>
+		</dict>
+		<!-- Range operator -->
+		<dict>
+			<key>match</key>
+			<string>\.\.\.</string>
+			<key>name</key>
+			<string>keyword.operator.range.ek9</string>
+		</dict>
+		<!-- Pipe operator -->
+		<dict>
+			<key>match</key>
+			<string>\|</string>
+			<key>name</key>
+			<string>keyword.operator.pipe.ek9</string>
+		</dict>
+		<!-- Scope resolution operator -->
+		<dict>
+			<key>match</key>
+			<string>::</string>
+			<key>name</key>
+			<string>keyword.operator.scope.ek9</string>
+		</dict>
+		<!-- Colon (type separator) -->
+		<dict>
+			<key>match</key>
+			<string>:</string>
+			<key>name</key>
+			<string>punctuation.separator.type.ek9</string>
+		</dict>
+		<!-- Punctuation -->
+		<dict>
+			<key>match</key>
+			<string>[(){}\[\],;]</string>
+			<key>name</key>
+			<string>punctuation.ek9</string>
+		</dict>
+		<!-- Member access dot -->
+		<dict>
+			<key>match</key>
+			<string>\.</string>
+			<key>name</key>
+			<string>punctuation.accessor.ek9</string>
 		</dict>
 	</array>
 	<key>repository</key>

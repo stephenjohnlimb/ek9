@@ -1,0 +1,714 @@
+#!ek9
+<?-
+  TextMate Highlighting Showcase
+
+  This file demonstrates EK9 syntax elements for TextMate grammar validation.
+  Based on working patterns from existing EK9 examples.
+-?>
+
+<!-
+  Regular block comment for temporarily disabling code.
+-!>
+
+<!--
+  HTML-style block comment.
+-->
+
+defines module com.ek9.highlighting.showcase
+
+  //===========================================================================
+  // SECTION 1: Constants - All Literal Types
+  //===========================================================================
+
+  defines constant
+
+    // Boolean literals
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "enableFeature"
+    enableFeature <- true
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "disableLogging"
+    disableLogging <- false
+
+    // Character literal
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "delimiter"
+    delimiter <- ':'
+
+    // String literal
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "greeting"
+    greeting <- "Hello, World!"
+
+    // Integer literals
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "maxRetries"
+    maxRetries <- 10
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "negativeValue"
+    negativeValue <- -42
+
+    // Binary literal
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "bitMask"
+    bitMask <- 0b11110000
+
+    // Float literal
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "pi"
+    pi <- 3.14159
+
+    // Time literals
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "noon"
+    noon <- 12:00
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "preciseTime"
+    preciseTime <- 23:59:59
+
+    // Date literal
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "millennium"
+    millennium <- 2000-01-01
+
+    // DateTime literal
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "launchDateTime"
+    launchDateTime <- 2024-06-15T09:30:00-05:00
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "utcDateTime"
+    utcDateTime <- 2024-12-25T00:00:00Z
+
+    // Duration literals
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "fullDuration"
+    fullDuration <- P1Y2M3DT4H5M6S
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "twoYears"
+    twoYears <- P2Y
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "twoHours"
+    twoHours <- PT2H
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "negativeDuration"
+    negativeDuration <- P-2D
+
+    // Millisecond literal
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "timeout"
+    timeout <- 500ms
+
+    // Money literal
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "salary"
+    salary <- 75000#USD
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "euroAmount"
+    euroAmount <- 1234.56#EUR
+
+    // Color literal
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "primaryColor"
+    primaryColor <- #3498DB
+
+    // Dimension literals
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "screenWidth"
+    screenWidth <- 1920px
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "fontSize"
+    fontSize <- 16pt
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "distanceKm"
+    distanceKm <- 42km
+
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "heightMeters"
+    heightMeters <- 2m
+
+    // Regex literal
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "emailPattern"
+    emailPattern <- /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
+
+    // Version literal
+    @Resolved: EXPLICIT_TYPE_SYMBOL_DEFINITION: VARIABLE: "appVersion"
+    appVersion <- 2.1.0-45
+
+  //===========================================================================
+  // SECTION 2: Type Declarations
+  //===========================================================================
+
+  defines type
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Priority"
+    Priority
+      Low,
+      Medium,
+      High,
+      Critical
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "CardSuit"
+    CardSuit
+      Hearts,
+      Diamonds,
+      Clubs,
+      Spades
+
+    // Constrained types
+    @Resolved: SYMBOL_DEFINITION: TYPE: "PositiveIndex"
+    PositiveIndex as Integer constrain
+      > 0
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Name"
+    Name as String constrain as
+      matches /^[a-zA-Z -]+$/
+
+  //===========================================================================
+  // SECTION 3: Records with Operators
+  //===========================================================================
+
+  defines record
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Person"
+    Person
+      firstName as String: String()
+      lastName as String: String()
+      age as Integer: Integer()
+
+      Person()
+        ->
+          firstName as String
+          lastName as String
+          age as Integer
+        this.firstName: firstName
+        this.lastName: lastName
+        this.age: age
+
+      // Copy operator
+      operator :=:
+        -> from as Person
+        firstName :=: from.firstName
+        lastName :=: from.lastName
+        age :=: from.age
+
+      // Merge operator
+      operator :~:
+        -> from as Person
+        if from.firstName?
+          firstName :=: from.firstName
+        if from.lastName?
+          lastName :=: from.lastName
+        if from.age?
+          age :=: from.age
+
+      // String conversion
+      operator $ as pure
+        <- rtn as String: `${firstName} ${lastName} (${age})`
+
+      // Hashcode
+      operator #? as pure
+        <- rtn as Integer: (#? firstName) + (#? lastName) * 31
+
+      // Equality
+      operator == as pure
+        -> other as Person
+        <- rtn as Boolean: firstName == other.firstName and lastName == other.lastName
+
+      // Comparison (spaceship)
+      operator <=> as pure
+        -> other as Person
+        <- rtn as Integer: lastName <=> other.lastName
+
+      // Promote to String
+      operator #^ as pure
+        <- rtn as String: $this
+
+      // IsSet
+      override operator ? as pure
+        <- rtn as Boolean: firstName? and lastName?
+
+  //===========================================================================
+  // SECTION 4: Traits
+  //===========================================================================
+
+  defines trait
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Validator"
+    Validator
+      validate()
+        -> value as String
+        <- rtn as Boolean?
+
+  //===========================================================================
+  // SECTION 5: Classes
+  //===========================================================================
+
+  defines class
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "SimpleValidator"
+    SimpleValidator trait of Validator
+      minLength as Integer: 1
+
+      SimpleValidator()
+        -> minLength as Integer
+        this.minLength: minLength
+
+      override validate()
+        -> value as String
+        <- rtn as Boolean: value? and length value >= minLength
+
+      default operator ?
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Vehicle"
+    Vehicle as abstract
+      make as String: String()
+      model as String: String()
+      year as Integer: Integer()
+
+      protected Vehicle()
+        ->
+          make as String
+          model as String
+          year as Integer
+        this.make: make
+        this.model: model
+        this.year: year
+
+      describe() as pure abstract
+        <- rtn as String?
+
+      operator $ as pure
+        <- rtn as String: `${year} ${make} ${model}`
+
+      default operator ?
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "Car"
+    Car extends Vehicle
+      numDoors as Integer: Integer()
+
+      Car()
+        ->
+          make as String
+          model as String
+          year as Integer
+          numDoors as Integer
+        super(make, model, year)
+        this.numDoors: numDoors
+
+      override describe() as pure
+        <- rtn as String: `${this} with ${numDoors} doors`
+
+  //===========================================================================
+  // SECTION 6: Functions
+  //===========================================================================
+
+  defines function
+
+    // Pure function
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "add"
+    add() as pure
+      ->
+        a as Integer
+        b as Integer
+      <- rtn as Integer: a + b
+
+    // Word operators: mod, rem, abs
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "mathOperations"
+    mathOperations() as pure
+      -> value as Integer
+      <- rtn as String: String()
+
+      modResult <- value mod 10
+      remResult <- value rem 7
+      absValue <- abs value
+
+      rtn: `mod=${modResult}, rem=${remResult}, abs=${absValue}`
+
+    // Abstract function
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "transformer"
+    transformer() as pure abstract
+      -> input as String
+      <- output as String?
+
+    // Logical operators: and, or, xor, not
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "logicalOperations"
+    logicalOperations() as pure
+      ->
+        a as Boolean
+        b as Boolean
+      <- rtn as String: String()
+
+      andResult <- a and b
+      orResult <- a or b
+      xorResult <- a xor b
+      notResult <- not a
+
+      rtn: `and=${andResult}, or=${orResult}, xor=${xorResult}, not=${notResult}`
+
+    // contains and matches
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "stringChecks"
+    stringChecks() as pure
+      ->
+        text as String
+        pattern as RegEx
+      <- rtn as Boolean: text matches pattern
+
+    // Filter predicate for streams
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "isSet"
+    isSet
+      -> item as Integer
+      <- rtn as Boolean: item?
+
+    // Filter predicate for persons
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "hasValidAge"
+    hasValidAge
+      -> person as Person
+      <- rtn as Boolean: person.age? and person.age > 0
+
+  //===========================================================================
+  // SECTION 7: Control Flow
+  //===========================================================================
+
+  defines function
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "getValue"
+    getValue()
+      <- rtn as Integer: 42
+
+    // If/else
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "ifElseDemo"
+    ifElseDemo()
+      -> value as Integer
+      <- rtn as String: "unknown"
+
+      if value < 0
+        rtn: "negative"
+      else if value == 0
+        rtn: "zero"
+      else
+        rtn: "positive"
+
+    // If with guard
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "ifGuardDemo"
+    ifGuardDemo()
+      <- rtn as String: "no value"
+
+      if v <- getValue() then v > 0
+        rtn: `Got positive value: ${v}`
+
+    // Switch/case
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "switchDemo"
+    switchDemo()
+      -> priority as Priority
+      <- rtn as String: "unknown"
+
+      switch priority
+        case Priority.Low
+          rtn: "Low priority"
+        case Priority.Medium
+          rtn: "Medium priority"
+        case Priority.High, Priority.Critical
+          rtn: "High or Critical priority"
+        default
+          rtn: "Unset priority"
+
+    // Given/when
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "givenWhenDemo"
+    givenWhenDemo()
+      -> value as Integer
+      <- rtn as String: String()
+
+      rtn: given value
+        <- result as String: "default"
+        when < 0
+          result: "negative"
+        when 0
+          result: "zero"
+        when > 0
+          result: "positive"
+        default
+          result: "unset"
+
+    // While loop
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "whileDemo"
+    whileDemo()
+      -> limit as Integer
+      <- rtn as Integer: 0
+
+      counter <- 0
+      while counter < limit
+        rtn += counter
+        counter++
+
+    // For loop with range
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "forRangeDemo"
+    forRangeDemo()
+      -> limit as Integer
+      <- rtn as Integer: 0
+
+      for i in 1 ... limit
+        rtn += i
+
+    // For loop with enumeration
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "forEnumDemo"
+    forEnumDemo()
+
+      for suit in CardSuit
+        Stdout().println($suit)
+
+    // Try/catch/finally
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "tryCatchDemo"
+    tryCatchDemo()
+      <- rtn as String: "success"
+
+      try
+        assert true
+        rtn: "Completed successfully"
+      catch
+        -> ex as Exception
+        rtn: `Error: ${ex.reason()}`
+      finally
+        Stdout().println("Cleanup completed")
+
+    // Ternary expression
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "ternaryDemo"
+    ternaryDemo() as pure
+      -> condition as Boolean
+      <- rtn as String: condition <- "yes" else "no"
+
+  //===========================================================================
+  // SECTION 8: Streams
+  //===========================================================================
+
+  defines function
+
+    // Basic cat and collect
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "streamBasicDemo"
+    streamBasicDemo()
+      <- rtn as List of Integer: cat [1, 2, 3, 4, 5] | collect as List of Integer
+
+    // Filter with function reference
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "streamFilterDemo"
+    streamFilterDemo()
+      -> items as List of Integer
+      <- rtn as List of Integer: cat items | filter by isSet | collect as List of Integer
+
+    // Sort, uniq operations
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "streamSortUniqDemo"
+    streamSortUniqDemo()
+      -> items as List of Integer
+      <- rtn as List of Integer: cat items | sort | uniq | collect as List of Integer
+
+    // Head, skip operations
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "streamLimitDemo"
+    streamLimitDemo()
+      -> items as List of Integer
+      <- rtn as List of Integer: cat items | skip 2 | head 3 | collect as List of Integer
+
+    // Stream to stdout
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "streamOutputDemo"
+    streamOutputDemo()
+      -> items as List of String
+      stdout <- Stdout()
+      cat items > stdout
+
+  //===========================================================================
+  // SECTION 9: Dynamic Functions
+  //===========================================================================
+
+  defines function
+
+    // Dynamic function extending abstract
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "dynamicFunctionDemo"
+    dynamicFunctionDemo()
+      -> prefix as String
+      <- rtn as transformer: (prefix) is transformer as pure function
+        output: prefix + ": " + input
+
+    // Dynamic class with trait
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "dynamicClassDemo"
+    dynamicClassDemo()
+      -> minLen as Integer
+      <- rtn as Validator: (minLen) trait of Validator as class
+
+        override validate()
+          -> value as String
+          <- result as Boolean: value? and length value >= minLen
+
+        default operator ?
+
+  //===========================================================================
+  // SECTION 10: String Interpolation
+  //===========================================================================
+
+  defines function
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "stringInterpolationDemo"
+    stringInterpolationDemo()
+      ->
+        name as String
+        age as Integer
+      <- rtn as String: `Hello, ${name}! You are ${age} years old.`
+
+  //===========================================================================
+  // SECTION 11: Comparison Operators
+  //===========================================================================
+
+  defines function
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "comparisonDemo"
+    comparisonDemo() as pure
+      ->
+        a as Integer
+        b as Integer
+      <- rtn as String: String()
+
+      eq <- a == b
+      ne <- a <> b
+      lt <- a < b
+      gt <- a > b
+      cmp <- a <=> b
+
+      rtn: `eq=${eq}, ne=${ne}, lt=${lt}, gt=${gt}, cmp=${cmp}`
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "fuzzyCompareDemo"
+    fuzzyCompareDemo() as pure
+      ->
+        a as String
+        b as String
+      <- rtn as Integer: a <~> b
+
+  //===========================================================================
+  // SECTION 12: Coalescing and Guard Operators
+  //===========================================================================
+
+  defines function
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "coalescingDemo"
+    coalescingDemo()
+      ->
+        primary as String
+        fallback as String
+      <- rtn as String: primary ?? fallback
+
+    @Resolved: SYMBOL_DEFINITION: FUNCTION: "guardAssignmentDemo"
+    guardAssignmentDemo()
+      -> maybeValue as String
+      <- rtn as String: "no value"
+
+      rtn :=? maybeValue
+
+  //===========================================================================
+  // SECTION 13: Service with HTTP Operations
+  //===========================================================================
+
+  defines text for "en"
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "WebContent_en"
+    WebContent
+
+      indexPage()
+        `<html><body><h1>Welcome</h1></body></html>`
+
+  defines service
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "SimpleService"
+    SimpleService :/api/items
+
+      index() as GET for :/
+        <- response as HTTPResponse: () with trait of HTTPResponse
+          webContent <- WebContent("en")
+
+          override cacheControl() as pure
+            <- rtn as String: "public,max-age=3600"
+          override contentType() as pure
+            <- rtn as String: "text/html"
+          override contentLanguage() as pure
+            <- rtn as String: "en"
+          override content()
+            <- rtn as String: webContent.indexPage()
+          override status() as pure
+            <- rtn as Integer: 200
+          default operator ?
+
+      byId() as GET for :/{id}
+        -> id as String
+        <- response as HTTPResponse: (id) with trait of HTTPResponse
+          override content()
+            <- rtn as String: `Item: ${id}`
+          override status() as pure
+            <- rtn as Integer: 200
+          default operator ?
+
+  //===========================================================================
+  // SECTION 14: Component and Application
+  //===========================================================================
+
+  defines component
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "DataStore"
+    DataStore as abstract
+
+      getData() as pure abstract
+        <- rtn as List of String?
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "InMemoryStore"
+    InMemoryStore extends DataStore
+      data <- List() of String
+
+      InMemoryStore()
+        data += "Item 1"
+        data += "Item 2"
+        data += "Item 3"
+
+      override getData() as pure
+        <- rtn as List of String: data
+
+  defines application
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "ShowcaseApp"
+    ShowcaseApp
+      register InMemoryStore() as DataStore
+
+  //===========================================================================
+  // SECTION 15: Main Program
+  //===========================================================================
+
+  defines program
+
+    @Resolved: SYMBOL_DEFINITION: TYPE: "TextMateShowcase"
+    TextMateShowcase() with application of ShowcaseApp
+
+      dataStore as DataStore!
+
+      stdout <- Stdout()
+
+      stdout.println("=== EK9 TextMate Highlighting Showcase ===")
+
+      // Using constants
+      stdout.println(`Feature enabled: ${enableFeature}`)
+      stdout.println(`Max retries: ${maxRetries}`)
+      stdout.println(`Timeout: ${timeout}`)
+      stdout.println(`Primary color: ${primaryColor}`)
+      stdout.println(`App version: ${appVersion}`)
+
+      // Records and operators
+      person1 <- Person("John", "Doe", 30)
+      person2 <- Person("Jane", "Smith", 25)
+
+      stdout.println(`Person 1: ${person1}`)
+      stdout.println(`Person 2: ${person2}`)
+      stdout.println(`Equal: ${person1 == person2}`)
+      stdout.println(`Compare: ${person1 <=> person2}`)
+
+      // Stream operations
+      numbers <- [1, 2, 3, 4, 5, Integer(), 7, 8, 9, 10]
+      filteredNumbers <- cat numbers | filter by isSet | collect as List of Integer
+      stdout.println(`Filtered numbers: ${filteredNumbers}`)
+
+      // Control flow
+      for priority in Priority
+        stdout.println(switchDemo(priority))
+
+      // String interpolation
+      stdout.println(stringInterpolationDemo("World", 42))
+
+      // Math operations
+      stdout.println(mathOperations(17))
+
+      // Dynamic function
+      prefixer <- dynamicFunctionDemo("PREFIX")
+      stdout.println(prefixer("test input"))
+
+      // From injected component
+      items <- dataStore.getData()
+      cat items > stdout
+
+      stdout.println("=== Showcase Complete ===")
+
+//EOF
