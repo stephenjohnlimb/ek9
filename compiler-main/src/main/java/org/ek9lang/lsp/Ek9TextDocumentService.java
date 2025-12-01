@@ -29,6 +29,7 @@ import org.ek9lang.core.Logger;
  */
 final class Ek9TextDocumentService extends Ek9Service implements TextDocumentService {
   private final Ek9LanguageWords languageWords;
+  private final SymbolHoverFormatter hoverFormatter = new SymbolHoverFormatter();
   private final Function<String, CompletionItem> newKeyWordCompletionItem = completion -> {
     final var languageKeyWord = new CompletionItem(completion);
     languageKeyWord.setKind(CompletionItemKind.Keyword);
@@ -78,14 +79,34 @@ final class Ek9TextDocumentService extends Ek9Service implements TextDocumentSer
 
     return CompletableFuture.supplyAsync(() -> {
       final var tokenResult = getNearestToken(params);
-      Hover rtn = null;
-      if (getLanguageServer().getCompilerConfig().isProvideLanguageHoverHelp()) {
+
+      // Try symbol hover first (for variables, functions, types)
+      Hover rtn = hoverViaSymbol(params, tokenResult);
+
+      // Fall back to keyword hover if no symbol found
+      if (rtn == null && getLanguageServer().getCompilerConfig().isProvideLanguageHoverHelp()) {
         rtn = hoverViaLanguageKeyWord(tokenResult);
       }
-      //Here we can then add in lots of different type of hover
 
       return rtn;
     });
+  }
+
+  private Hover hoverViaSymbol(final HoverParams params, final TokenResult tokenResult) {
+
+    if(params == null || tokenResult == null || !tokenResult.isPresent()) {
+      return null;
+    }
+
+    final var source = getWorkspace().getSource(getFilename(params.getTextDocument()));
+    if (source == null) {
+      return null;
+    }
+
+    final var located = getCompilerService().locateSymbol(source, tokenResult.getToken());
+
+    return hoverFormatter.apply(located);
+
   }
 
   private Hover hoverViaLanguageKeyWord(final TokenResult tokenResult) {

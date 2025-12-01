@@ -1,0 +1,20 @@
+#!ek9
+defines module com.customer.lsp.hoversymboltest
+
+  defines function
+
+    getGreeting()
+      <- greeting as String: "Hello, World!"
+
+  defines program
+
+    HoverTestProgram()
+      stdout <- Stdout()
+
+      message <- getGreeting()
+      stdout.println(message)
+
+      counter <- 42
+      stdout.println($counter)
+
+//EOF

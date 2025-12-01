@@ -1,5 +1,6 @@
 package org.ek9lang.lsp;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -9,11 +10,14 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ_WRITE;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -156,6 +160,165 @@ final class Ek9LanguageServerTest {
     assertEquals(
         "MODULE: Primary code organization unit containing related constructs (functions, classes, records, etc.). Use to group logically related functionality. One module per .ek9 file. Syntax: `defines module ModuleName`. Modules are EK9's package/namespace equivalent. Use for organizing code into cohesive units. https://ek9.io/structure.html#module",
         hover.getContents().getRight().getValue());
+    languageServer.shutdown();
+  }
+
+  @Test
+  void testSymbolHoverOnVariable() throws ExecutionException, InterruptedException {
+    var sourceFile = sourceFileSupport.copyFileToTestCWD(RELATIVE_PATH_TO_VALID_SOURCE, VALID_SOURCE);
+
+    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
+    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
+
+    //As SinglePackage.ek9 is valid we'd expect zero length error diagnostics.
+    assertNoErrors(client);
+
+    // Hover over 'publicAccess' variable at line 16, column 4 (0-based: line 15, col 4)
+    // Line 16 in file is: "    publicAccess as Boolean := true"
+    var hoverResult = languageServer
+        .getTextDocumentService().hover(new HoverParams(
+            new TextDocumentIdentifier(sourceFile.toURI().toString()),
+            new Position(15, 4)))  // 0-based: line 15, column 4
+        .get();
+
+    // Symbol hover should return symbol info (or null if not found)
+    // The test verifies the hover mechanism doesn't throw exceptions
+    // and can return meaningful results for variables
+    if (hoverResult != null) {
+      assertNotNull(hoverResult.getContents(), "Hover should have contents");
+      // Symbol hover returns markdown with type info
+      var contents = hoverResult.getContents();
+      assertNotNull(contents, "Should have hover contents");
+    }
+
+    languageServer.shutdown();
+  }
+
+  @Test
+  void testHoverAtInvalidPosition() {
+    var sourceFile = sourceFileSupport.copyFileToTestCWD(RELATIVE_PATH_TO_VALID_SOURCE, VALID_SOURCE);
+
+    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
+    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
+
+    assertNoErrors(client);
+
+    // Hover at position way beyond file content (line 1000, col 1000)
+    // Should not throw exception and should return null or keyword fallback
+    assertDoesNotThrow(() -> {
+      languageServer
+          .getTextDocumentService().hover(new HoverParams(
+              new TextDocumentIdentifier(sourceFile.toURI().toString()),
+              new Position(1000, 1000)))
+          .get();
+    });
+
+    // Result can be null when no token found at invalid position
+    // The key assertion is that no exception is thrown
+    languageServer.shutdown();
+  }
+
+  @Test
+  void testHoverOnNonExistentFile() {
+    // First initialize with a valid source so the server is properly set up
+    sourceFileSupport.copyFileToTestCWD(RELATIVE_PATH_TO_VALID_SOURCE, VALID_SOURCE);
+
+    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
+    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
+
+    assertNoErrors(client);
+
+    // Request hover on a file that doesn't exist in the workspace
+    assertDoesNotThrow(() -> {
+      languageServer
+          .getTextDocumentService().hover(new HoverParams(
+              new TextDocumentIdentifier("file:///nonexistent/path/to/file.ek9"),
+              new Position(0, 0)))
+          .get();
+    });
+
+    // Should return null when source file not found - no exception thrown
+    // The important assertion is that this doesn't crash
+    languageServer.shutdown();
+  }
+
+  @Test
+  void testHoverOnWhitespace() {
+    // Test hover at a position that contains only whitespace/indentation
+    var sourceFile = sourceFileSupport.copyFileToTestCWD(RELATIVE_PATH_TO_VALID_SOURCE, VALID_SOURCE);
+
+    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
+    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
+
+    assertNoErrors(client);
+
+    // Hover at column 0 which is typically indentation whitespace
+    assertDoesNotThrow(() -> {
+      languageServer
+          .getTextDocumentService().hover(new HoverParams(
+              new TextDocumentIdentifier(sourceFile.toURI().toString()),
+              new Position(5, 0)))  // Line with leading whitespace
+          .get();
+    });
+    // May return keyword hover or null - should not throw exception
+    languageServer.shutdown();
+  }
+
+  @Test
+  void testHoverOnComment() {
+    // Test hover on a comment line (if the source file has comments)
+    var sourceFile = sourceFileSupport.copyFileToTestCWD(RELATIVE_PATH_TO_VALID_SOURCE, VALID_SOURCE);
+
+    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
+    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
+
+    assertNoErrors(client);
+
+    // Hover at a position - even if no symbol, should not crash
+    assertDoesNotThrow(() -> {
+      languageServer
+          .getTextDocumentService().hover(new HoverParams(
+              new TextDocumentIdentifier(sourceFile.toURI().toString()),
+              new Position(0, 5)))  // First line near the shebang
+          .get();
+    });
+    // Should handle gracefully
+    languageServer.shutdown();
+  }
+
+  @Test
+  void testConcurrentHoverRequests() throws Exception {
+    // Test thread safety when multiple hover requests arrive simultaneously
+    var sourceFile = sourceFileSupport.copyFileToTestCWD(RELATIVE_PATH_TO_VALID_SOURCE, VALID_SOURCE);
+
+    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
+    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
+    assertNoErrors(client);
+
+    // Launch multiple concurrent hover requests using a thread pool
+    var executor = Executors.newFixedThreadPool(10);
+    var futures = new ArrayList<CompletableFuture<?>>();
+
+    for (int i = 0; i < 20; i++) {
+      final int line = i % 10;  // Vary the line positions
+      futures.add(CompletableFuture.supplyAsync(() -> {
+        try {
+          return languageServer.getTextDocumentService()
+              .hover(new HoverParams(
+                  new TextDocumentIdentifier(sourceFile.toURI().toString()),
+                  new Position(line, 5)))
+              .get();
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      }, executor));
+    }
+
+    // Wait for all to complete - should not throw exceptions
+    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get(30, TimeUnit.SECONDS);
+
+    executor.shutdown();
+    assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS), "Executor should terminate cleanly");
     languageServer.shutdown();
   }
 

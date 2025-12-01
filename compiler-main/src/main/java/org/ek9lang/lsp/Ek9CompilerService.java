@@ -1,16 +1,27 @@
 package org.ek9lang.lsp;
 
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import org.ek9lang.compiler.CompilableProgram;
 import org.ek9lang.compiler.CompilableSource;
 import org.ek9lang.compiler.Ek9Compiler;
 import org.ek9lang.compiler.common.CompilationPhaseListener;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.config.FrontEndSupplier;
+import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.Logger;
+import org.ek9lang.core.SharedThreadContext;
 
 /**
  * Designed to be the bridge between LSP mechanisms and the Ek9Compiler itself.
  */
 final class Ek9CompilerService extends Ek9Service {
+
+  /**
+   * Store the last compiled program for access by hover and other LSP features.
+   */
+  private SharedThreadContext<CompilableProgram> lastCompiledProgram;
 
   //This triggers the loading via introspection of the EK9 builtin types interface.
   private final InitialCompilableProgramSupplier initialCompilableProgramSupplier =
@@ -62,6 +73,8 @@ final class Ek9CompilerService extends Ek9Service {
   void recompileWorkSpace() {
 
     final var sharedCompilableProgram = initialCompilableProgramSupplier.get();
+    this.lastCompiledProgram = sharedCompilableProgram;
+
     final var frontEndSupplier = new FrontEndSupplier(sharedCompilableProgram, listener, reporter, true);
 
     final var compiler = new Ek9Compiler(frontEndSupplier, true);
@@ -69,6 +82,22 @@ final class Ek9CompilerService extends Ek9Service {
     compiler.compile(getWorkspace(), getCompilerFlags());
 
     reportAnyErrors();
+  }
+
+
+  Optional<ISymbol> locateSymbol(final CompilableSource source, final IToken token) {
+
+    final AtomicReference<Optional<ISymbol>> found = new AtomicReference<>(Optional.empty());
+    lastCompiledProgram.accept(program -> {
+          final var module = program.getParsedModuleForCompilableSource(source);
+          if (module != null) {
+            // Use ParsedModule's exposed locator method
+            found.set(module.locateSymbolAtToken(source, token));
+          }
+        }
+    );
+
+    return found.get();
   }
 
   private void reportAnyErrors() {

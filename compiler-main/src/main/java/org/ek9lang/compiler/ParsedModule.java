@@ -3,7 +3,9 @@ package org.ek9lang.compiler;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.directives.Directive;
@@ -12,6 +14,7 @@ import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.IScope;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.ModuleScope;
+import org.ek9lang.compiler.tokenizer.IToken;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.SharedThreadContext;
 
@@ -84,6 +87,12 @@ public final class ParsedModule implements Module, Serializable {
    * After the processing the module scope will contain the Symbols and basic interface structures needed.
    */
   private transient ParsedModuleTransientData transientData;
+
+  /**
+   * Locator for finding symbols at specific token positions in the parse tree.
+   * Lazily initialized when needed.
+   */
+  private transient BiFunction<CompilableSource, IToken, Optional<ISymbol>> symbolLocator;
 
   /**
    * The name of the module as defined in the EK9 source code. But remember this same module name
@@ -198,6 +207,28 @@ public final class ParsedModule implements Module, Serializable {
     }
 
     return transientData;
+  }
+
+  private BiFunction<CompilableSource, IToken, Optional<ISymbol>> getSymbolLocator() {
+
+    if (symbolLocator == null) {
+      symbolLocator = new ParseTreeSymbolLocator(this);
+    }
+
+    return symbolLocator;
+  }
+
+  /**
+   * Locate a symbol at a specific token position in the source.
+   * This traverses the parse tree to find the node matching the token,
+   * then returns any recorded symbol for that node.
+   */
+  public Optional<ISymbol> locateSymbolAtToken(final CompilableSource source, final IToken targetToken) {
+
+    AssertValue.checkNotNull("CompilableSource cannot be null", source);
+    AssertValue.checkNotNull("IToken cannot be null", targetToken);
+
+    return getSymbolLocator().apply(source, targetToken);
   }
 
   /**
