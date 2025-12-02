@@ -1,7 +1,7 @@
 # EK9 Compiler Fuzzing Test Roadmap
 
 **Last Updated:** 2025-12-02
-**Version:** 6.5 (Hierarchy, Override, Access & Record Constraints Added)
+**Version:** 6.6 (Generic Parameterization, Resolution & Complex Scenario Tests Added)
 **Status:** ✅ **FRONTEND COMPLETE (100%)** | 🔨 **BACKEND IN ACTIVE DEVELOPMENT** | 🤖 **AI-Assisted Intelligent Fuzzing**
 
 ---
@@ -98,7 +98,7 @@ The EK9 compiler has **achieved world-class frontend testing coverage** with 812
   - examples/parseAndCompile: 172 valid EK9 programs
   - examples/parseButFailCompile: 233 invalid programs with 1,664 @Error directives
   - badExamples: 6 fundamentally broken syntax files
-  - fuzzCorpus: 515 systematic fuzzing test programs ✅
+  - fuzzCorpus: 523 systematic fuzzing test programs ✅
     - Phase 0-6: 240 test programs ✅
     - Phase 7: 8 generic operator test programs ✅
     - Phase 8: 24 flow analysis test programs ✅
@@ -1475,7 +1475,7 @@ These areas have good coverage but may warrant additional edge case testing in t
 | examples/parseAndCompile | 172 | Valid EK9 code |
 | examples/parseButFailCompile | 233 | Invalid with @Error annotations |
 | badExamples | 6 | Fundamentally broken syntax |
-| fuzzCorpus | 515 | ✅ Syntax/semantic fuzzing (Phases 0-8) |
+| fuzzCorpus | 523 | ✅ Syntax/semantic fuzzing (Phases 0-8) |
 | **Backend Tests** | **306** | **Phases 10-14** |
 | examples/irGeneration | 154 | IR generation tests with @IR directives |
 | examples/bytecodeGeneration | 96 | Bytecode tests with @BYTECODE directives |
@@ -1513,10 +1513,10 @@ These areas have good coverage but may warrant additional edge case testing in t
 | Total test programs | 1,185 | 879 frontend + 306 backend |
 | Frontend test programs | 879 | ✅ Phases 0-8 complete coverage |
 | Backend test programs | 306 | 🔨 Phases 10-14 active development |
-| Fuzz corpus files | 515 | Systematic frontend fuzzing |
-| Fuzz test suites | 80 | ✅ All major syntax + semantic categories |
+| Fuzz corpus files | 523 | Systematic frontend fuzzing |
+| Fuzz test suites | 83 | ✅ All major syntax + semantic categories |
 | Operator fuzz tests | 36 | Phase 1/4 operator validation + purity constraints |
-| Generic tests | 10 | Phase 7 (8 operators + 2 advanced) |
+| Generic tests | 17 | Phase 7 (8 operators + 2 advanced + 7 parameterization/resolution) |
 | Flow analysis tests | 24 | ✅ Phase 8 (2025-11-16) |
 | Complex expression tests | 16 | ✅ Dual-form, arithmetic, nesting (2025-11-28) |
 | Constraint validation tests | 11 | ✅ Traits, dispatchers, operator purity (2025-11-29) |
