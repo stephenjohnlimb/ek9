@@ -22,6 +22,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
@@ -48,6 +49,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 //Because this depends on specific files existing and different tests add and remove them.
 //Specific tests that manipulate files and specifics in ek9 must not run in parallel.
@@ -64,6 +68,9 @@ final class Ek9LanguageServerTest {
       "/examples/parseButFailCompile/phase1/abnormalBlockTermination/";
   static final String RELATIVE_PATH_TO_CLAUDE_SOURCE = "/claude/mcp-lsp/";
   static final String CLAUDE_SOURCE = "StringAndDateIsSet.ek9";
+  static final String RELATIVE_PATH_TO_LARGE_SOURCE =
+      "/examples/bytecodeGeneration/comprehensiveNestedControlFlow/";
+  static final String LARGE_SOURCE = "comprehensiveNestedControlFlow.ek9";
 
   private static final OsSupport osSupport = new OsSupport(true);
   private static final FileHandling fileHandling = new FileHandling(osSupport);
@@ -187,96 +194,33 @@ final class Ek9LanguageServerTest {
     languageServer.shutdown();
   }
 
-  @Test
-  void testHoverAtInvalidPosition() {
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("hoverEdgeCases")
+  void testHoverEdgeCases(String description, String fileUriOverride, int line, int col) {
     var sourceFile = sourceFileSupport.copyFileToTestCWD(RELATIVE_PATH_TO_VALID_SOURCE, VALID_SOURCE);
 
     Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
     SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
-
     assertNoErrors(client);
 
-    // Hover at position way beyond file content (line 1000, col 1000)
-    // Should not throw exception and should return null or keyword fallback
-    assertDoesNotThrow(() -> {
-      languageServer
-          .getTextDocumentService().hover(new HoverParams(
-              new TextDocumentIdentifier(sourceFile.toURI().toString()),
-              new Position(1000, 1000)))
-          .get();
-    });
+    // Use override URI if provided, otherwise use the real source file
+    String fileUri = fileUriOverride != null ? fileUriOverride : sourceFile.toURI().toString();
 
-    // Result can be null when no token found at invalid position
-    // The key assertion is that no exception is thrown
+    assertDoesNotThrow(() -> languageServer.getTextDocumentService()
+            .hover(new HoverParams(new TextDocumentIdentifier(fileUri), new Position(line, col)))
+            .get(),
+        "Hover should not throw for: " + description);
+
     languageServer.shutdown();
   }
 
-  @Test
-  void testHoverOnNonExistentFile() {
-    // First initialize with a valid source so the server is properly set up
-    sourceFileSupport.copyFileToTestCWD(RELATIVE_PATH_TO_VALID_SOURCE, VALID_SOURCE);
-
-    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
-    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
-
-    assertNoErrors(client);
-
-    // Request hover on a file that doesn't exist in the workspace
-    assertDoesNotThrow(() -> {
-      languageServer
-          .getTextDocumentService().hover(new HoverParams(
-              new TextDocumentIdentifier("file:///nonexistent/path/to/file.ek9"),
-              new Position(0, 0)))
-          .get();
-    });
-
-    // Should return null when source file not found - no exception thrown
-    // The important assertion is that this doesn't crash
-    languageServer.shutdown();
-  }
-
-  @Test
-  void testHoverOnWhitespace() {
-    // Test hover at a position that contains only whitespace/indentation
-    var sourceFile = sourceFileSupport.copyFileToTestCWD(RELATIVE_PATH_TO_VALID_SOURCE, VALID_SOURCE);
-
-    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
-    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
-
-    assertNoErrors(client);
-
-    // Hover at column 0 which is typically indentation whitespace
-    assertDoesNotThrow(() -> {
-      languageServer
-          .getTextDocumentService().hover(new HoverParams(
-              new TextDocumentIdentifier(sourceFile.toURI().toString()),
-              new Position(5, 0)))  // Line with leading whitespace
-          .get();
-    });
-    // May return keyword hover or null - should not throw exception
-    languageServer.shutdown();
-  }
-
-  @Test
-  void testHoverOnComment() {
-    // Test hover on a comment line (if the source file has comments)
-    var sourceFile = sourceFileSupport.copyFileToTestCWD(RELATIVE_PATH_TO_VALID_SOURCE, VALID_SOURCE);
-
-    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
-    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
-
-    assertNoErrors(client);
-
-    // Hover at a position - even if no symbol, should not crash
-    assertDoesNotThrow(() -> {
-      languageServer
-          .getTextDocumentService().hover(new HoverParams(
-              new TextDocumentIdentifier(sourceFile.toURI().toString()),
-              new Position(0, 5)))  // First line near the shebang
-          .get();
-    });
-    // Should handle gracefully
-    languageServer.shutdown();
+  private static Stream<Arguments> hoverEdgeCases() {
+    return Stream.of(
+        Arguments.of("invalid position beyond file", null, 1000, 1000),
+        Arguments.of("non-existent file", "file:///nonexistent/path/to/file.ek9", 0, 0),
+        Arguments.of("whitespace position", null, 5, 0),
+        Arguments.of("comment/shebang line", null, 0, 5)
+    );
   }
 
   @Test
@@ -312,6 +256,77 @@ final class Ek9LanguageServerTest {
 
     executor.shutdown();
     assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS), "Executor should terminate cleanly");
+    languageServer.shutdown();
+  }
+
+  @Test
+  void testLargeFileHoverPerformance() throws Exception {
+    // Test hover performance on a large file (1238 lines)
+    var sourceFile = sourceFileSupport.copyFileToTestCWD(RELATIVE_PATH_TO_LARGE_SOURCE, LARGE_SOURCE);
+
+    Ek9LanguageServer languageServer = new Ek9LanguageServer(osSupport);
+    SimulatedLspClient client = prepareLanguageServer.apply(languageServer);
+    assertNoErrors(client);
+
+    System.out.println("=== Large File Hover Performance Test ===");
+    System.out.println("File: " + LARGE_SOURCE + " (1238 lines)");
+    System.out.println("Note: Lines 35-1140 are @BYTECODE directive, actual code starts at line 1141");
+
+    // Test hover at various positions:
+    // - Lines in @BYTECODE directive (large embedded text) - tests traversal speed
+    // - Lines in actual EK9 program code (line 1141+) - tests symbol lookup
+    // Line/Column pairs: line (0-indexed), column (0-indexed)
+    int[][] testPositions = {
+        {0, 0},      // #!ek9 shebang
+        {49, 10},    // Inside @BYTECODE directive
+        {199, 10},   // Deep inside @BYTECODE
+        {499, 10},   // Middle of @BYTECODE
+        {799, 10},   // Later in @BYTECODE
+        {1140, 6},   // Line 1141: "    ComprehensiveNestedControlFlow()" - function name
+        {1145, 8},   // Line 1146: "      stdout <- Stdout()" - stdout variable
+        {1162, 8},   // Line 1163: "      counter <- 0" - counter variable
+        {1171, 11},  // Line 1172: "        if counter mod 2 == 0" - counter
+        {1211, 8},   // Line 1212: "      stdout.println(...)" - stdout
+        {1228, 9},   // Line 1229: "      if grandTotal > 200..." - grandTotal
+    };
+
+    long totalTime = 0;
+    int foundCount = 0;
+    for (int[] pos : testPositions) {
+      int line = pos[0];
+      int col = pos[1];
+      long start = System.nanoTime();
+
+      var hoverResult = languageServer.getTextDocumentService()
+          .hover(new HoverParams(
+              new TextDocumentIdentifier(sourceFile.toURI().toString()),
+              new Position(line, col)))
+          .get(10, TimeUnit.SECONDS);
+
+      long durationNs = System.nanoTime() - start;
+      long durationMs = durationNs / 1_000_000;
+      totalTime += durationMs;
+
+      String resultInfo;
+      if (hoverResult != null && hoverResult.getContents() != null) {
+        foundCount++;
+        resultInfo = "SYMBOL";
+      } else if (hoverResult != null) {
+        resultInfo = "hover (no content)";
+      } else {
+        resultInfo = "null";
+      }
+      System.out.printf("  Line %4d col %2d: %4d ms (%s)%n", line + 1, col, durationMs, resultInfo);
+
+      // Each hover should complete within 2 seconds
+      assertTrue(durationMs < 2000,
+          "Hover at line " + (line + 1) + " col " + col + " took too long: " + durationMs + "ms");
+    }
+
+    System.out.printf("  Symbols found: %d of %d%n", foundCount, testPositions.length);
+    System.out.printf("  Average:   %4d ms%n", totalTime / testPositions.length);
+    System.out.printf("  Total:     %4d ms for %d hovers%n", totalTime, testPositions.length);
+
     languageServer.shutdown();
   }
 
