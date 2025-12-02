@@ -1,0 +1,24 @@
+#!ek9
+<?-
+  Tests that Component types cannot be used with 'constrain as'.
+
+  Expected error: TYPE_CANNOT_BE_CONSTRAINED
+  Phase: EXPLICIT_TYPE_SYMBOL_DEFINITION
+
+  Only CLASS, CLASS_CONSTRAINED, CLASS_ENUMERATION, RECORD are constrainable.
+  Components are not valid base types for constraints.
+-?>
+defines module fuzztest.constrain.component
+
+  defines component
+    TestComponent
+      check()
+        <- rtn <- true
+
+  defines type
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_CANNOT_BE_CONSTRAINED
+    BadConstrainComponent as TestComponent constrain as
+      == true
+
+//EOF

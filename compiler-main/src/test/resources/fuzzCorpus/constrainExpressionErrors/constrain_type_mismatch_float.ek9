@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  Tests type mismatch in constraint: Float with String literal.
+
+  Expected error: METHOD_NOT_RESOLVED
+  Phase: FULL_RESOLUTION
+
+  Float does not have comparison operators that take String,
+  so using a String literal in a Float constraint fails.
+-?>
+defines module fuzztest.constrain.mismatch.float
+
+  defines type
+
+    BadFloatWithString as Float constrain as
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      <= "Hello"
+
+//EOF

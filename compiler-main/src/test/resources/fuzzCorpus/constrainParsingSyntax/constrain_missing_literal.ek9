@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Tests parsing error: constraint expression with operator but no literal.
+
+  Expected error: SYNTAX_ERROR
+  Phase: PARSING
+
+  The constraint expression requires a literal value after the comparison
+  operator. Missing the literal causes a parse error.
+-?>
+defines module fuzztest.constrain.parse.missingliteral
+
+  defines type
+
+    BadMissingLiteral as Integer constrain as
+      >
+
+//EOF

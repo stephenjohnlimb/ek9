@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  Tests that Boolean type cannot be used with 'constrain as'.
+
+  Expected error: TYPE_CANNOT_BE_CONSTRAINED
+  Phase: EXPLICIT_TYPE_SYMBOL_DEFINITION
+
+  Boolean is explicitly excluded from being constrainable,
+  even though it is a CLASS type.
+-?>
+defines module fuzztest.constrain.boolean
+
+  defines type
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_CANNOT_BE_CONSTRAINED
+    BadConstrainBoolean as Boolean constrain as
+      true
+
+//EOF

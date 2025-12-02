@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  Tests type mismatch in constraint: Integer with String literal.
+
+  Expected error: METHOD_NOT_RESOLVED
+  Phase: FULL_RESOLUTION
+
+  Integer does not have comparison operators that take String,
+  so using a String literal in an Integer constraint fails.
+-?>
+defines module fuzztest.constrain.mismatch.integer
+
+  defines type
+
+    BadIntegerWithString as Integer constrain as
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      > "Steve"
+
+//EOF

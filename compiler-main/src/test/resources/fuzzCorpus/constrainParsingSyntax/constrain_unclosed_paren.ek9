@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Tests parsing error: constraint expression with unclosed parenthesis.
+
+  Expected error: SYNTAX_ERROR
+  Phase: PARSING
+
+  Complex constraint expressions can use parentheses for grouping,
+  but they must be properly balanced.
+-?>
+defines module fuzztest.constrain.parse.unclosedparen
+
+  defines type
+
+    BadUnclosedParen as Integer constrain as
+      (> 0 and < 10
+
+//EOF

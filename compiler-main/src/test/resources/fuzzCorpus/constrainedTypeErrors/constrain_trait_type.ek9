@@ -1,0 +1,24 @@
+#!ek9
+<?-
+  Tests that Trait types cannot be used with 'constrain as'.
+
+  Expected error: TYPE_CANNOT_BE_CONSTRAINED
+  Phase: EXPLICIT_TYPE_SYMBOL_DEFINITION
+
+  Traits are not valid base types for constraints.
+  Only CLASS, CLASS_CONSTRAINED, CLASS_ENUMERATION, RECORD are constrainable.
+-?>
+defines module fuzztest.constrain.trait
+
+  defines trait
+    TestTrait
+      check()
+        <- rtn <- true
+
+  defines type
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_CANNOT_BE_CONSTRAINED
+    BadConstrainTrait as TestTrait constrain as
+      == true
+
+//EOF

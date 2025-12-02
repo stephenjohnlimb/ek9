@@ -1,0 +1,24 @@
+#!ek9
+<?-
+  Tests that abstract classes cannot be used with 'constrain as'.
+
+  Expected error: TYPE_CANNOT_BE_CONSTRAINED
+  Phase: EXPLICIT_TYPE_SYMBOL_DEFINITION
+
+  Abstract classes cannot be instantiated, so they cannot be
+  used as the base type for a constrained type.
+-?>
+defines module fuzztest.constrain.abstractclass
+
+  defines class
+    AbstractClass as abstract
+      check() as abstract
+        <- rtn as Boolean?
+
+  defines type
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_CANNOT_BE_CONSTRAINED
+    BadConstrainAbstract as AbstractClass constrain as
+      == true
+
+//EOF

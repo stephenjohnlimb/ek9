@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  Tests using 'contains' operator on a type that doesn't have it.
+
+  Expected error: METHOD_NOT_RESOLVED
+  Phase: FULL_RESOLUTION
+
+  Integer does not have a 'contains' operator, so using it in a
+  constrain expression should fail at resolution.
+-?>
+defines module fuzztest.constrain.invalid.contains
+
+  defines type
+
+    BadIntegerContains as Integer constrain as
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      contains 5
+
+//EOF
