@@ -153,13 +153,12 @@ final class Ek9LanguageServerTest {
 
     var hoverResult = languageServer
         .getTextDocumentService().hover(new HoverParams(new TextDocumentIdentifier(sourceFile.toURI().toString()),
-            new Position(1, 9)));
+            new Position(1, 9))).get();
 
-    var hover = hoverResult.get();
-    assertNotNull(hover);
+    assertNotNull(hoverResult);
     assertEquals(
         "MODULE: Primary code organization unit containing related constructs (functions, classes, records, etc.). Use to group logically related functionality. One module per .ek9 file. Syntax: `defines module ModuleName`. Modules are EK9's package/namespace equivalent. Use for organizing code into cohesive units. https://ek9.io/structure.html#module",
-        hover.getContents().getRight().getValue());
+        hoverResult.getContents().getRight().getValue());
     languageServer.shutdown();
   }
 
@@ -173,23 +172,17 @@ final class Ek9LanguageServerTest {
     //As SinglePackage.ek9 is valid we'd expect zero length error diagnostics.
     assertNoErrors(client);
 
-    // Hover over 'publicAccess' variable at line 16, column 4 (0-based: line 15, col 4)
-    // Line 16 in file is: "    publicAccess as Boolean := true"
     var hoverResult = languageServer
         .getTextDocumentService().hover(new HoverParams(
             new TextDocumentIdentifier(sourceFile.toURI().toString()),
-            new Position(15, 4)))  // 0-based: line 15, column 4
+            new Position(15, 4)))
         .get();
+    assertNotNull(hoverResult);
 
-    // Symbol hover should return symbol info (or null if not found)
-    // The test verifies the hover mechanism doesn't throw exceptions
-    // and can return meaningful results for variables
-    if (hoverResult != null) {
-      assertNotNull(hoverResult.getContents(), "Hover should have contents");
-      // Symbol hover returns markdown with type info
-      var contents = hoverResult.getContents();
-      assertNotNull(contents, "Should have hover contents");
-    }
+    assertNotNull(hoverResult.getContents(), "Hover should have contents");
+    // Symbol hover returns markdown with type info
+    var contents = hoverResult.getContents();
+    assertNotNull(contents, "Should have hover contents");
 
     languageServer.shutdown();
   }

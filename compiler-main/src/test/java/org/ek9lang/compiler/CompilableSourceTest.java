@@ -39,9 +39,9 @@ final class CompilableSourceTest {
 
   static Stream<ExpectedTokenPosition> getPositionsToSearchFor() {
     return Stream.of(new ExpectedTokenPosition(2, 1, "defines"),
-        new ExpectedTokenPosition(2, 8, "defines"),
+        new ExpectedTokenPosition(2, 7, "defines"),
         new ExpectedTokenPosition(2, 9, "module"),
-        new ExpectedTokenPosition(2, 15, "module"),
+        new ExpectedTokenPosition(2, 14, "module"),
         new ExpectedTokenPosition(2, 16, "introduction"),
         new ExpectedTokenPosition(3, 5, "defines"),
         new ExpectedTokenPosition(4, 5, "HelloWorld"),

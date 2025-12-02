@@ -131,8 +131,6 @@ final class Ek9LanguageServer implements IEk9LanguageServer {
   @Override
   public Ek9WorkspaceService getWorkspaceService() {
 
-    Logger.debug("EK9: getWorkspaceService");
-
     return workspaceService;
   }
 

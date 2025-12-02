@@ -36,12 +36,9 @@ final class ParseTreeSymbolLocator
   private Optional<ISymbol> findSymbolAtToken(final ParseTree node, final IToken targetToken) {
 
     // Check if this node's token matches our target
-    if (nodeMatchesToken(node, targetToken)) {
-      // Check for recorded symbol at this node
-      final var symbol = parsedModule.getRecordedSymbol(node);
-      if (symbol != null) {
-        return Optional.of(symbol);
-      }
+    final var located = getSymbol(node, targetToken);
+    if (located.isPresent()) {
+      return located;
     }
 
     // Recurse into children (depth-first to find most specific node)
@@ -56,17 +53,30 @@ final class ParseTreeSymbolLocator
     return Optional.empty();
   }
 
+  private Optional<ISymbol> getSymbol(final ParseTree node, final IToken targetToken) {
+
+    //While the node and the target token may match, it might be the wrong structure registered.
+    //This is because we use the line and character position, this could match multiple context parts.
+    //Not all are recorded with the ISymbol.
+    if (nodeMatchesToken(node, targetToken)) {
+      return Optional.ofNullable(parsedModule.getRecordedSymbol(node));
+    }
+    return Optional.empty();
+  }
+
   private boolean nodeMatchesToken(final ParseTree node, final IToken targetToken) {
 
     if (node instanceof TerminalNode terminal) {
       final var nodeToken = terminal.getSymbol();
-      return nodeToken.getTokenIndex() == targetToken.getTokenIndex();
+      return nodeToken.getLine() == targetToken.getLine()
+          && nodeToken.getCharPositionInLine() == targetToken.getCharPositionInLine();
     }
 
     if (node instanceof ParserRuleContext ctx && ctx.start != null) {
       // Check if target token is within this rule's span
-      return ctx.start.getTokenIndex() <= targetToken.getTokenIndex()
-          && targetToken.getTokenIndex() <= ctx.stop.getTokenIndex();
+      final var startTokenPosition = ctx.start.getCharPositionInLine();
+      final var targetTokenPosition = targetToken.getCharPositionInLine();
+      return ctx.start.getLine() == targetToken.getLine() && startTokenPosition == targetTokenPosition;
     }
 
     return false;

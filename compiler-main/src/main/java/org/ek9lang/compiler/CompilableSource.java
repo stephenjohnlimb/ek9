@@ -129,7 +129,7 @@ public final class CompilableSource implements Source, Serializable, TokenConsum
       //Now the position won't be exact, so we need to find the lower bound.
       for (int i = 0; i < lineOfTokens.size(); i++) {
         var t = lineOfTokens.get(i);
-        if (t.getCharPositionInLine() < characterPosition) {
+        if (t.getCharPositionInLine() <= characterPosition) {
           rtn = new TokenResult(t, lineOfTokens, i);
         } else {
           return rtn;

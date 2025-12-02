@@ -80,12 +80,14 @@ final class Ek9TextDocumentService extends Ek9Service implements TextDocumentSer
     return CompletableFuture.supplyAsync(() -> {
       final var tokenResult = getNearestToken(params);
 
-      // Try symbol hover first (for variables, functions, types)
-      Hover rtn = hoverViaSymbol(params, tokenResult);
-
-      // Fall back to keyword hover if no symbol found
-      if (rtn == null && getLanguageServer().getCompilerConfig().isProvideLanguageHoverHelp()) {
+      Hover rtn = null;
+      if (getLanguageServer().getCompilerConfig().isProvideLanguageHoverHelp()) {
         rtn = hoverViaLanguageKeyWord(tokenResult);
+      }
+
+      if (rtn == null) {
+        rtn = hoverViaSymbol(params, tokenResult);
+
       }
 
       return rtn;
@@ -94,7 +96,7 @@ final class Ek9TextDocumentService extends Ek9Service implements TextDocumentSer
 
   private Hover hoverViaSymbol(final HoverParams params, final TokenResult tokenResult) {
 
-    if(params == null || tokenResult == null || !tokenResult.isPresent()) {
+    if (params == null || tokenResult == null || !tokenResult.isPresent()) {
       return null;
     }
 
@@ -104,7 +106,7 @@ final class Ek9TextDocumentService extends Ek9Service implements TextDocumentSer
     }
 
     final var located = getCompilerService().locateSymbol(source, tokenResult.getToken());
-
+    Logger.debug("hoverViaSymbol located symbol is " + located);
     return hoverFormatter.apply(located);
 
   }
