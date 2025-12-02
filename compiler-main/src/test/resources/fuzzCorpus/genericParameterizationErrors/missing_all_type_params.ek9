@@ -1,0 +1,85 @@
+#!ek9
+<?-
+  Tests generics used without any type parameters.
+
+  Expected error: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+  Phase: SYMBOL_DEFINITION
+
+  Test scenarios:
+  1. Generic used as parameter type without parameterization
+  2. Generic used as return type without parameterization
+  3. Two-param generic used as parameter without parameterization
+  4. Generic used as local variable type without parameterization
+-?>
+defines module fuzztest.generic.missing.all.type.params
+
+  defines class
+
+    <?-
+      Single-parameter generic class.
+    -?>
+    Container of type T
+      value as T?
+
+      default Container()
+
+      Container()
+        -> arg as T
+        value :=? arg
+
+      default operator ?
+
+    <?-
+      Two-parameter generic class.
+    -?>
+    Pair of type (K, V)
+      key as K?
+      value as V?
+
+      default Pair()
+
+      Pair()
+        ->
+          k as K
+          v as V
+        key :=? k
+        value :=? v
+
+      default operator ?
+
+  defines function
+
+    <?-
+      Test: Generic used as parameter type without parameterization.
+    -?>
+    TestAsParameter()
+      @Error: SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+      -> arg as Container
+      assert arg?
+
+    <?-
+      Test: Generic used as return type without parameterization.
+    -?>
+    TestAsReturnType()
+      -> arg as String
+      @Error: SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+      <- rtn as Container?
+      assert arg?
+
+    <?-
+      Test: Two-param generic used as parameter without parameterization.
+    -?>
+    TestPairAsParameter()
+      @Error: SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+      -> arg as Pair
+      assert arg?
+
+    <?-
+      Test: Generic used as local variable type without parameterization.
+    -?>
+    TestAsLocalVariable()
+      @Error: SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+      local as Container?
+      assert local?
+
+//EOF

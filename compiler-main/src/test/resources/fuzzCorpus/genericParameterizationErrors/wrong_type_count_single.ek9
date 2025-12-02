@@ -1,0 +1,76 @@
+#!ek9
+<?-
+  Tests single-parameter generic types given wrong number of type arguments.
+
+  Expected error: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+  Phase: SYMBOL_DEFINITION
+
+  Test scenarios:
+  1. Single-param generic class given two type arguments
+  2. Single-param generic class given three type arguments
+  3. Single-param generic function given two type arguments
+  4. Using generic type without parameters (as type in signature)
+-?>
+defines module fuzztest.generic.wrong.type.count.single
+
+  defines class
+
+    <?-
+      Simple single-parameter generic class.
+    -?>
+    SingleBox of type T
+      value as T?
+
+      default SingleBox()
+
+      SingleBox()
+        -> arg as T
+        value :=? arg
+
+      getValue()
+        <- rtn as T: value
+
+      default operator ?
+
+  defines function
+
+    <?-
+      Simple single-parameter generic function.
+    -?>
+    SingleTransform() of type T
+      -> input as T
+      <- output as T: input
+
+    <?-
+      Test: Provide TWO type arguments to single-param generic class.
+    -?>
+    TestClassWithTwoParams()
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      wrongBox <- SingleBox() of (String, Integer)
+      assert wrongBox?
+
+    <?-
+      Test: Provide THREE type arguments to single-param generic class.
+    -?>
+    TestClassWithThreeParams()
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      wrongBox <- SingleBox() of (String, Integer, Float)
+      assert wrongBox?
+
+    <?-
+      Test: Provide TWO type arguments to single-param generic function.
+    -?>
+    TestFunctionWithTwoParams()
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      wrongFunc <- SingleTransform() of (String, Integer)
+      assert wrongFunc?
+
+    <?-
+      Test: Use generic class as type without parameterization.
+    -?>
+    TestMissingParams()
+      @Error: SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+      -> arg as SingleBox
+      assert arg?
+
+//EOF

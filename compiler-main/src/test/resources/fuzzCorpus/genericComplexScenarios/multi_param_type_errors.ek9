@@ -1,0 +1,95 @@
+#!ek9
+<?-
+  Tests multi-parameter generic scenarios with invalid type combinations.
+
+  Expected error: TYPE_NOT_RESOLVED
+  Phase: EXPLICIT_TYPE_SYMBOL_DEFINITION
+
+  Tests scenarios where one or more type parameters in multi-param
+  generics are non-existent or invalid.
+-?>
+defines module fuzztest.generic.complex.multiparam
+
+  defines class
+
+    <?-
+      Two-parameter generic class.
+    -?>
+    Pair of type (K, V)
+      key as K?
+      value as V?
+
+      default Pair()
+
+      Pair()
+        ->
+          k as K
+          v as V
+        key :=? k
+        value :=? v
+
+      default operator ?
+
+    <?-
+      Three-parameter generic class.
+    -?>
+    Triple of type (A, B, C)
+      first as A?
+      second as B?
+      third as C?
+
+      default Triple()
+
+      Triple()
+        ->
+          a as A
+          b as B
+          c as C
+        first :=? a
+        second :=? b
+        third :=? c
+
+      default operator ?
+
+  defines function
+
+    <?-
+      Control: Valid multi-param usage.
+    -?>
+    TestValidPair()
+      p <- Pair() of (String, Integer)
+      assert p?
+
+    <?-
+      Test: First type parameter non-existent.
+    -?>
+    TestFirstParamNonExistent()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+      wrongPair <- Pair() of (NonExistentKey, Integer)
+      assert wrongPair?
+
+    <?-
+      Test: Second type parameter non-existent.
+    -?>
+    TestSecondParamNonExistent()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+      wrongPair <- Pair() of (String, NonExistentValue)
+      assert wrongPair?
+
+    <?-
+      Test: Triple with middle param non-existent.
+    -?>
+    TestTripleMiddleNonExistent()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+      wrongTriple <- Triple() of (String, NonExistent, Float)
+      assert wrongTriple?
+
+    <?-
+      Test: Triple with first and last params non-existent.
+    -?>
+    TestTripleFirstAndLastNonExistent()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+      wrongTriple <- Triple() of (NonExistent1, Integer, NonExistent2)
+      assert wrongTriple?
+
+//EOF

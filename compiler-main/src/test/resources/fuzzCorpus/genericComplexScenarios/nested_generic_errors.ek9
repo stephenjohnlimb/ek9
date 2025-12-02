@@ -1,0 +1,62 @@
+#!ek9
+<?-
+  Tests nested generic scenarios with invalid types.
+
+  Expected error: TYPE_NOT_RESOLVED
+  Phase: EXPLICIT_TYPE_SYMBOL_DEFINITION
+
+  Tests scenarios where nested generic types contain non-existent
+  or invalid types at inner or outer levels.
+-?>
+defines module fuzztest.generic.complex.nested
+
+  defines class
+
+    <?-
+      Simple generic class for nesting tests.
+    -?>
+    Box of type T
+      value as T?
+
+      default Box()
+
+      Box()
+        -> arg as T
+        value :=? arg
+
+      default operator ?
+
+  defines function
+
+    <?-
+      Control: Valid nested generic usage.
+    -?>
+    TestValidNested()
+      nestedBox <- Box() of (Box of String)
+      assert nestedBox?
+
+    <?-
+      Test: Nested generic with non-existent inner type.
+    -?>
+    TestNestedNonExistentInner()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+      wrongBox <- Box() of (Box of NonExistent)
+      assert wrongBox?
+
+    <?-
+      Test: Nested generic with misspelled inner type.
+    -?>
+    TestNestedMisspelledInner()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+      wrongBox <- Box() of (Box of Integr)
+      assert wrongBox?
+
+    <?-
+      Test: Nested generic where outer type doesn't exist.
+    -?>
+    TestNestedNonExistentOuter()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+      wrongBox <- NonExistentContainer() of (Box of String)
+      assert wrongBox?
+
+//EOF

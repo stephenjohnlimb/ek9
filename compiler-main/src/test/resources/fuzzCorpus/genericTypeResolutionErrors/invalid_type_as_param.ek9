@@ -1,0 +1,61 @@
+#!ek9
+<?-
+  Tests generics parameterized with non-existent or invalid types.
+
+  Expected error: TYPE_NOT_RESOLVED
+  Phase: EXPLICIT_TYPE_SYMBOL_DEFINITION or FULL_RESOLUTION
+
+  Tests scenarios where non-existent types are used as generic parameters.
+-?>
+defines module fuzztest.generic.invalid.type.as.param
+
+  defines class
+
+    <?-
+      Simple generic class.
+    -?>
+    Box of type T
+      value as T?
+
+      default Box()
+
+      Box()
+        -> arg as T
+        value :=? arg
+
+      default operator ?
+
+  defines function
+
+    <?-
+      Test: Generic parameterized with non-existent type.
+    -?>
+    TestNonExistentType()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+      wrongBox <- Box() of NonExistentType
+      assert wrongBox?
+
+    <?-
+      Test: Generic parameterized with misspelled type.
+    -?>
+    TestMisspelledType()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+      wrongBox <- Box() of Strng
+      assert wrongBox?
+
+    <?-
+      Test: Generic parameterized with non-existent nested type.
+    -?>
+    TestNonExistentNestedType()
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+      wrongBox <- Box() of (SomeModule::SomeType)
+      assert wrongBox?
+
+    <?-
+      Control test: Correct usage with existing type.
+    -?>
+    TestCorrectUsage()
+      correctBox <- Box() of String
+      assert correctBox?
+
+//EOF

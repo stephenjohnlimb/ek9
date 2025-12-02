@@ -1,0 +1,94 @@
+#!ek9
+<?-
+  Tests two-parameter generic types given wrong number of type arguments.
+
+  Expected error: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+  Phase: SYMBOL_DEFINITION
+
+  Test scenarios:
+  1. Two-param generic class given one type argument
+  2. Two-param generic class given three type arguments
+  3. Two-param generic used as type without parameterization
+  4. Another two-param generic with wrong count
+-?>
+defines module fuzztest.generic.wrong.type.count.double
+
+  defines class
+
+    <?-
+      Two-parameter generic class (like Dict or Pair).
+    -?>
+    Pair of type (K, V)
+      key as K?
+      value as V?
+
+      default Pair()
+
+      Pair()
+        ->
+          k as K
+          v as V
+        key :=? k
+        value :=? v
+
+      getKey()
+        <- rtn as K: key
+
+      getValue()
+        <- rtn as V: value
+
+      default operator ?
+
+    <?-
+      Another two-parameter generic class.
+    -?>
+    Mapping of type (A, B)
+      source as A?
+      target as B?
+
+      default Mapping()
+
+      Mapping()
+        ->
+          s as A
+          t as B
+        source :=? s
+        target :=? t
+
+      default operator ?
+
+  defines function
+
+    <?-
+      Test: Provide ONE type argument to two-param generic class.
+    -?>
+    TestClassWithOneParam()
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      wrongPair <- Pair() of String
+      assert wrongPair?
+
+    <?-
+      Test: Provide THREE type arguments to two-param generic class.
+    -?>
+    TestClassWithThreeParams()
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      wrongPair <- Pair() of (String, Integer, Float)
+      assert wrongPair?
+
+    <?-
+      Test: Provide ZERO type arguments to two-param generic (as type).
+    -?>
+    TestClassWithZeroParams()
+      @Error: SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+      -> arg as Pair
+      assert arg?
+
+    <?-
+      Test: Provide ONE type argument to another two-param generic.
+    -?>
+    TestMappingWithOneParam()
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      wrongMapping <- Mapping() of Integer
+      assert wrongMapping?
+
+//EOF

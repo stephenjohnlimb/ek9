@@ -1,0 +1,82 @@
+#!ek9
+<?-
+  Tests three-parameter generic types given wrong number of type arguments.
+
+  Expected error: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+  Phase: SYMBOL_DEFINITION
+
+  Test scenarios:
+  1. Three-param generic class given one type argument
+  2. Three-param generic class given two type arguments
+  3. Three-param generic class given four type arguments
+  4. Three-param generic used as type without parameterization
+-?>
+defines module fuzztest.generic.wrong.type.count.triple
+
+  defines class
+
+    <?-
+      Three-parameter generic class (like a tuple or triple).
+    -?>
+    Triple of type (A, B, C)
+      first as A?
+      second as B?
+      third as C?
+
+      default Triple()
+
+      Triple()
+        ->
+          a as A
+          b as B
+          c as C
+        first :=? a
+        second :=? b
+        third :=? c
+
+      getFirst()
+        <- rtn as A: first
+
+      getSecond()
+        <- rtn as B: second
+
+      getThird()
+        <- rtn as C: third
+
+      default operator ?
+
+  defines function
+
+    <?-
+      Test: Provide ONE type argument to three-param generic class.
+    -?>
+    TestWithOneParam()
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      wrongTriple <- Triple() of String
+      assert wrongTriple?
+
+    <?-
+      Test: Provide TWO type arguments to three-param generic class.
+    -?>
+    TestWithTwoParams()
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      wrongTriple <- Triple() of (String, Integer)
+      assert wrongTriple?
+
+    <?-
+      Test: Provide FOUR type arguments to three-param generic class.
+    -?>
+    TestWithFourParams()
+      @Error: SYMBOL_DEFINITION: GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT
+      wrongTriple <- Triple() of (String, Integer, Float, Boolean)
+      assert wrongTriple?
+
+    <?-
+      Test: Provide ZERO type arguments to three-param generic (as type).
+    -?>
+    TestWithZeroParams()
+      @Error: SYMBOL_DEFINITION: TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION
+      -> arg as Triple
+      assert arg?
+
+//EOF
