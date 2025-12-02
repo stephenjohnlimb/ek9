@@ -33,7 +33,7 @@ class WorkingAreaTest extends PhasesTest {
   @Override
   protected void assertFinalResults(final boolean compilationResult, final int numberOfErrors,
                                     final CompilableProgram program) {
-    // Testing CANNOT_EXTEND_IMPLEMENT_ITSELF - expect failure with error
+    // Testing workarea.ek9 - expect failure with error
     System.out.println("Compilation result: " + compilationResult);
     System.out.println("Number of errors: " + numberOfErrors);
   }

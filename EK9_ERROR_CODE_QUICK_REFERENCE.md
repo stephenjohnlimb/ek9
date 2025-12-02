@@ -46,7 +46,6 @@ DIRECTIVE_ERROR_MISMATCH("E50310", "count does not match"),
 
 // MULTI-PHASE ERRORS (E50xxx)
 NOT_RESOLVED("E50001", "not resolved"),
-CANNOT_EXTEND_IMPLEMENT_ITSELF("E05010", "extension/implementation of self is not logical"),
 CIRCULAR_HIERARCHY_DETECTED("E05020", "a circular type/function hierarchy has been used"),
 METHOD_NOT_RESOLVED("E50060", "method/function not resolved"),
 TYPE_NOT_RESOLVED("E50010", "type not resolved"),

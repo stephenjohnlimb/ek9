@@ -107,11 +107,10 @@ Error codes E00xxx are reserved for future syntax error categorization.
 
 ## PHASE 05: TYPE_HIERARCHY_CHECKS
 
-### E05010-E05200: Type Hierarchy Validation Errors
+### E05020-E05200: Type Hierarchy Validation Errors
 
 | Code | SemanticClassification | Description |
 |------|----------------------|-------------|
-| E05010 | CANNOT_EXTEND_IMPLEMENT_ITSELF | extension/implementation of self is not logical |
 | E05020 | CIRCULAR_HIERARCHY_DETECTED | a circular type/function hierarchy has been used |
 | E05030 | NOT_OPEN_TO_EXTENSION | not open to be extended |
 | E05040 | SUPER_FOR_ANY_NOT_REQUIRED | 'super' for implicit 'Any' base class is not required |
@@ -461,7 +460,6 @@ All 220 SemanticClassification enum values mapped to error codes:
 | BAD_NOT_OPERATOR | E07650 | 07 |
 | CALL_ABSTRACT_TYPE | E50080 | 50 |
 | CANNOT_BE_ABSTRACT | E50040 | 50 |
-| CANNOT_EXTEND_IMPLEMENT_ITSELF | E05010 | 05 |
 | CANNOT_SUPPORT_TO_JSON_DUPLICATE_PROPERTY_FIELD | E02020 | 02 |
 | CAPTURED_VARIABLE_MUST_BE_NAMED | E06230 | 06 |
 | CIRCULAR_HIERARCHY_DETECTED | E05020 | 05 |

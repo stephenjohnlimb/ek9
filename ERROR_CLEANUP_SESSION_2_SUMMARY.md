@@ -16,11 +16,12 @@ Continued error cleanup work from previous session, focusing on untested product
 
 ## Errors Analyzed But Not Removed
 
-### 2. CANNOT_EXTEND_IMPLEMENT_ITSELF ✅ Already Tested
+### 2. CANNOT_EXTEND_IMPLEMENT_ITSELF ✅ RETIRED
 - **Finding**: Only triggered via `@Implements` directive testing
 - **Evidence**: `ImplementsDirectiveListener.java:49-54` checks `if (symbol == additionalSymbol)`
 - **Existing Coverage**: `badResolutionDirectives.ek9:82` - `@Implements: SYMBOL_DEFINITION: TYPE: "DType": "DType"`
-- **Conclusion**: Has test coverage via directive system - no additional test needed
+- **Resolution**: Error retired and replaced with CIRCULAR_HIERARCHY_DETECTED (same concept, one error code)
+- **Changes**: Removed from ErrorListener.java, updated ImplementsDirectiveListener.java to use CIRCULAR_HIERARCHY_DETECTED
 
 ### 3. USE_OF_THIS_OR_SUPER_INAPPROPRIATE ⚠️ Needs Test
 - **Trigger Condition**: Assignment to `this` or `super` using direct assignment operators (`:=`, `=`, `<-`, etc.)

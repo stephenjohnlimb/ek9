@@ -51,7 +51,7 @@ public class ImplementsDirectiveListener extends ResolvedDirectiveListener {
           errorListener.directiveError(resolutionDirective.getDirectiveToken(),
               messagePrefix + resolutionDirective.getSymbolName()
                   + "' == '" + resolutionDirective.getAdditionalName() + "',",
-              ErrorListener.SemanticClassification.CANNOT_EXTEND_IMPLEMENT_ITSELF);
+              ErrorListener.SemanticClassification.CIRCULAR_HIERARCHY_DETECTED);
         }
         if (!checkHierarchy(symbol, additionalSymbol)) {
           errorListener.directiveError(resolutionDirective.getDirectiveToken(),
