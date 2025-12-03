@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Tests 'function' block with 'finally'.
+-?>
+defines module fuzztest.control.function.finally
+
+  defines function
+
+    testFunctionWithFinally()
+      <- result as Integer?
+
+      function
+        @Error: FULL_RESOLUTION: NOT_RESOLVED
+        result := missingVariable
+      finally
+        result: 0
+
+//EOF

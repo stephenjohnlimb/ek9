@@ -1,0 +1,20 @@
+#!ek9
+<?-
+  Tests HTTP OPTIONS verb CORS pattern with missing return.
+
+  Expected error: SERVICE_MISSING_RETURN
+  Phase: EXPLICIT_TYPE_SYMBOL_DEFINITION
+
+  OPTIONS operations used for CORS preflight require a return value
+  compatible with HTTPResponse. Missing return causes an error.
+-?>
+defines module fuzztest.http.options.cors
+
+  defines service
+    OptionsCorsService :/api
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_MISSING_RETURN
+      corsHandler() as OPTIONS for :/cors
+        stdout.println("CORS preflight")
+
+//EOF

@@ -1,0 +1,21 @@
+#!ek9
+<?-
+  Tests HTTP OPTIONS verb with path parameter and invalid return.
+
+  Expected error: SERVICE_INCOMPATIBLE_RETURN_TYPE
+  Phase: EXPLICIT_TYPE_SYMBOL_DEFINITION
+
+  OPTIONS verb operations can have path parameters for specific resources.
+  This tests the OPTIONS grammar with path variables.
+-?>
+defines module fuzztest.http.options.pathparam
+
+  defines service
+    OptionsPathService :/api
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_INCOMPATIBLE_RETURN_TYPE
+      preflightResource() as OPTIONS for :/resource/{id}
+        -> id as String :=: PATH "id"
+        <- rtn as String: "allowed"
+
+//EOF

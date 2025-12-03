@@ -1,0 +1,23 @@
+#!ek9
+<?-
+  Tests nested 'function' blocks for complex control flow.
+-?>
+defines module fuzztest.control.function.nested
+
+  defines function
+
+    testNestedFunction()
+      <- result as Integer?
+
+      function
+        function
+          @Error: FULL_RESOLUTION: NOT_RESOLVED
+          innerResult <- unknownFunction()
+          @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+          result: innerResult
+        handle
+          @Error: FULL_RESOLUTION: TYPE_MUST_EXTEND_EXCEPTION
+          -> innerEx as Integer
+          result: 0
+
+//EOF

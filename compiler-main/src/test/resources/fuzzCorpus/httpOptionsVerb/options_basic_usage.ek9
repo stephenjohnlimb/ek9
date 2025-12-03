@@ -1,0 +1,20 @@
+#!ek9
+<?-
+  Tests HTTP OPTIONS verb basic usage with invalid return type.
+
+  Expected error: SERVICE_INCOMPATIBLE_RETURN_TYPE
+  Phase: EXPLICIT_TYPE_SYMBOL_DEFINITION
+
+  OPTIONS verb for CORS preflight requires HTTPResponse compatible return.
+  Using String as return type is invalid for service operations.
+-?>
+defines module fuzztest.http.options.basic
+
+  defines service
+    OptionsBasicService :/api
+
+      @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: SERVICE_INCOMPATIBLE_RETURN_TYPE
+      preflight() as OPTIONS for :/resource
+        <- rtn as String: "allowed"
+
+//EOF

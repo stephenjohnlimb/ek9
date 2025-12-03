@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Tests 'allow only' with invalid genus (record instead of class).
+-?>
+defines module fuzztest.trait.allowonly.genus
+
+  defines record
+    SomeRecord
+      value as Integer: 0
+
+  defines trait
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    TraitRestrictedToRecord allow only SomeRecord
+
+      abstractMethod() as abstract
+
+//EOF

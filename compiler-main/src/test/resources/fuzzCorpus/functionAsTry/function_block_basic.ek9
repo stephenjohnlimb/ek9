@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Tests basic 'function' block as alternative to 'try'.
+-?>
+defines module fuzztest.control.function.basic
+
+  defines function
+
+    testFunctionBlock()
+      <- result as Integer?
+
+      function
+        @Error: FULL_RESOLUTION: NOT_RESOLVED
+        undeclaredVar := 42
+        @Error: FULL_RESOLUTION: NOT_RESOLVED
+        result: undeclaredVar
+
+//EOF

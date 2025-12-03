@@ -1,0 +1,19 @@
+#!ek9
+<?-
+  Tests 'function' block with 'handle' (catch alternative).
+-?>
+defines module fuzztest.control.function.handle
+
+  defines function
+
+    testFunctionWithHandle()
+      <- result as Integer?
+
+      function
+        result: 1
+      handle
+        @Error: FULL_RESOLUTION: TYPE_MUST_EXTEND_EXCEPTION
+        -> ex as String
+        result: 0
+
+//EOF

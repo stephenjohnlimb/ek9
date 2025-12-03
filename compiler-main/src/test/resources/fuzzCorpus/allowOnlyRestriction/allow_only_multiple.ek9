@@ -1,0 +1,22 @@
+#!ek9
+<?-
+  Tests 'allow only' with multiple types including invalid one.
+-?>
+defines module fuzztest.trait.allowonly.multiple
+
+  defines class
+    ValidClass
+      value as Integer: 0
+
+  defines record
+    InvalidRecord
+      data as String: ""
+
+  defines trait
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: INCOMPATIBLE_GENUS
+    MultiRestrictedTrait allow only ValidClass, InvalidRecord
+
+      abstractMethod() as abstract
+
+//EOF

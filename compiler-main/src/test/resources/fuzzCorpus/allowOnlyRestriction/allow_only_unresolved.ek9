@@ -1,0 +1,14 @@
+#!ek9
+<?-
+  Tests 'allow only' with unresolved type reference.
+-?>
+defines module fuzztest.trait.allowonly.unresolved
+
+  defines trait
+
+    @Error: EXPLICIT_TYPE_SYMBOL_DEFINITION: TYPE_NOT_RESOLVED
+    RestrictedTrait allow only NonExistentType
+
+      abstractMethod() as abstract
+
+//EOF
