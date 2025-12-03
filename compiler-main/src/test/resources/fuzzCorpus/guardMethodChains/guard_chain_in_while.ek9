@@ -1,0 +1,32 @@
+#!ek9
+<?-
+  Tests method chain guard in while loop with type mismatch in assignment.
+  Pattern: while x <- iter.next().transform() with condition where types mismatch.
+-?>
+defines module fuzztest.complex.guardchain.inwhile
+
+  defines class
+
+    Iterator
+      next() as pure
+        <- rtn as Transformer: Transformer()
+
+    Transformer
+      default Transformer() as pure
+
+      transform() as pure
+        <- rtn as String: "text"
+
+  defines function
+
+    testWhileGuardChainTypeMismatch()
+      <- result as Integer?
+
+      iter <- Iterator()
+      keepGoing <- true
+
+      while x <- iter.next().transform() with keepGoing
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        result: x
+
+//EOF

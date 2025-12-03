@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Tests comparison coalescing (<?, >?) with unresolved variable.
+-?>
+defines module fuzztest.complex.coalesce.comparison
+
+  defines function
+
+    testComparisonCoalesceUnresolved()
+      <- result as Integer?
+
+      a <- 10
+      b <- 20
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      result: a <? undefinedVar >? b
+
+//EOF

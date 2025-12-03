@@ -1,0 +1,28 @@
+#!ek9
+<?-
+  Tests mixed control flow guards: if-guard containing while-guard.
+  Pattern: Different guard types nested with unresolved in inner.
+-?>
+defines module fuzztest.complex.nestedguard.mixed
+
+  defines function
+
+    getCondition() as pure
+      <- rtn as Boolean?
+      rtn: true
+
+    getIteratorValue() as pure
+      <- rtn as Integer?
+      rtn: 42
+
+    testMixedControlGuards()
+      <- result as Integer?
+
+      keepGoing <- true
+
+      if cond <- getCondition()
+        while val <- getIteratorValue() with keepGoing
+          @Error: FULL_RESOLUTION: NOT_RESOLVED
+          result: val + undefinedCounter
+
+//EOF

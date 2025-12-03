@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  Tests 3-level method chain in guard with unresolved method.
+  Pattern: if x <- obj.a().b().c() where c() doesn't exist.
+-?>
+defines module fuzztest.complex.guardchain.threedeep
+
+  defines class
+
+    ChainableA
+      default ChainableA() as pure
+
+      getB() as pure
+        <- rtn as ChainableB: ChainableB()
+
+    ChainableB
+      default ChainableB() as pure
+
+      getC() as pure
+        <- rtn as Integer: 42
+
+  defines function
+
+    testThreeMethodChainUnresolved()
+      <- result as Integer?
+
+      obj <- ChainableA()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      if x <- obj.getB().getC().getNonExistent()
+        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        result: x
+
+//EOF

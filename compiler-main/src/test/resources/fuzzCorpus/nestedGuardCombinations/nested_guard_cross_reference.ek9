@@ -1,0 +1,26 @@
+#!ek9
+<?-
+  Tests inner guard referencing outer guard with type mismatch.
+  Pattern: Inner guard uses outer guard variable in incompatible way.
+-?>
+defines module fuzztest.complex.nestedguard.crossref
+
+  defines function
+
+    getOuter() as pure
+      <- rtn as String?
+      rtn: "outer"
+
+    getInner() as pure
+      <- rtn as Integer?
+      rtn: 42
+
+    testNestedGuardCrossReference()
+      <- result as Integer?
+
+      if outer <- getOuter()
+        if inner <- getInner()
+          @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+          result: inner + outer
+
+//EOF

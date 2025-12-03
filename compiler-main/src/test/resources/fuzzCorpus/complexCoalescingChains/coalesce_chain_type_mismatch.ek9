@@ -1,0 +1,20 @@
+#!ek9
+<?-
+  Tests 4-deep coalescing chain with type mismatch in middle.
+-?>
+defines module fuzztest.complex.coalesce.chain
+
+  defines function
+
+    testCoalesceChainTypeMismatch()
+      <- result as Integer?
+
+      a <- Integer()
+      b <- Integer()
+      c <- "string in chain"
+      d <- 42
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      result: a ?? b ?? c ?? d
+
+//EOF

@@ -1,0 +1,27 @@
+#!ek9
+<?-
+  Tests guard on method chain with invalid condition type.
+  Pattern: if x <- obj.a().b() with x > "string"
+-?>
+defines module fuzztest.complex.guardchain.withcondition
+
+  defines class
+
+    Provider
+      default Provider() as pure
+
+      getValue() as pure
+        <- rtn as Integer: 100
+
+  defines function
+
+    testGuardChainInvalidCondition()
+      <- result as Integer?
+
+      obj <- Provider()
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      if x <- obj.getValue() with x > "not a number"
+        result: x
+
+//EOF

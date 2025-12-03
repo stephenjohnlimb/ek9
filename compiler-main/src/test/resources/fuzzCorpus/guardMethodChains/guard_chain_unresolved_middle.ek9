@@ -1,0 +1,28 @@
+#!ek9
+<?-
+  Tests method chain with unresolved method in middle of chain.
+  Pattern: if x <- obj.a().unknownMethod().c()
+-?>
+defines module fuzztest.complex.guardchain.unresolvedmiddle
+
+  defines class
+
+    Start
+      default Start() as pure
+
+      getNext() as pure
+        <- rtn as Integer: 42
+
+  defines function
+
+    testChainUnresolvedMiddle()
+      <- result as Integer?
+
+      obj <- Start()
+
+      @Error: FULL_RESOLUTION: METHOD_NOT_RESOLVED
+      if x <- obj.getNext().unknownMethod().getFinal()
+        @Error: FULL_RESOLUTION: TYPE_NOT_RESOLVED
+        result: x
+
+//EOF

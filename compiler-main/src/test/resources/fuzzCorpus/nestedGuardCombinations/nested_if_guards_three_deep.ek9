@@ -1,0 +1,31 @@
+#!ek9
+<?-
+  Tests 3-deep nested if guards with type error in innermost.
+  Pattern: if-guard inside if-guard inside if-guard.
+-?>
+defines module fuzztest.complex.nestedguard.threedeep
+
+  defines function
+
+    getOuter() as pure
+      <- rtn as Integer?
+      rtn: 10
+
+    getMiddle() as pure
+      <- rtn as Integer?
+      rtn: 20
+
+    getInner() as pure
+      <- rtn as String?
+      rtn: "text"
+
+    testThreeDeepNestedGuards()
+      <- result as Integer?
+
+      if outer <- getOuter()
+        if middle <- getMiddle()
+          if inner <- getInner()
+            @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+            result: outer + middle + inner
+
+//EOF

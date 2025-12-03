@@ -1,0 +1,23 @@
+#!ek9
+<?-
+  Tests coalescing inside guard body with unresolved variable.
+  Pattern: Guard block using coalescing on undefined variable.
+-?>
+defines module fuzztest.complex.guardcoalesce.inbody
+
+  defines function
+
+    getValue() as pure
+      <- rtn as Integer?
+      rtn: 100
+
+    testCoalesceInGuardBody()
+      <- result as Integer?
+
+      fallback <- 0
+
+      if x <- getValue()
+        @Error: FULL_RESOLUTION: NOT_RESOLVED
+        result: x ?? undefinedVar ?? fallback
+
+//EOF

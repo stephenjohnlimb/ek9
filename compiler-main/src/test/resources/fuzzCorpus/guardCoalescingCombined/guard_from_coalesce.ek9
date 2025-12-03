@@ -1,0 +1,26 @@
+#!ek9
+<?-
+  Tests guard declaration from coalescing result with type mismatch.
+  Pattern: if x <- (a ?? b) where types don't match.
+-?>
+defines module fuzztest.complex.guardcoalesce.fromcoalesce
+
+  defines function
+
+    getInteger() as pure
+      <- rtn as Integer: 42
+
+    getString() as pure
+      <- rtn as String: "hello"
+
+    testGuardFromCoalesceTypeMismatch()
+      <- result as Integer?
+
+      intVal <- getInteger()
+      strVal <- getString()
+
+      if x <- (intVal ?? strVal)
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        result: x
+
+//EOF

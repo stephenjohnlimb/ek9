@@ -1,0 +1,21 @@
+#!ek9
+<?-
+  Tests guard with invalid comparison in condition.
+  String cannot be compared with > to Integer.
+-?>
+defines module fuzztest.complex.guardcoalesce.withcondition
+
+  defines function
+
+    getValue() as pure
+      <- rtn as String?
+      rtn: "test"
+
+    testGuardWithInvalidCondition()
+      <- result as String?
+
+      @Error: FULL_RESOLUTION: OPERATOR_NOT_DEFINED
+      if x <- getValue() with x > 0
+        result: x
+
+//EOF

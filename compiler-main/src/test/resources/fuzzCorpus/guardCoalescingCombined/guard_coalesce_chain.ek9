@@ -1,0 +1,37 @@
+#!ek9
+<?-
+  Tests guard with chained coalescing operators.
+  Pattern: if x <- (a ?? b ?? c ?? d) with type errors in chain.
+-?>
+defines module fuzztest.complex.guardcoalesce.chain
+
+  defines function
+
+    getA() as pure
+      <- rtn as Integer?
+      rtn: Integer()
+
+    getB() as pure
+      <- rtn as Integer?
+      rtn: Integer()
+
+    getC() as pure
+      <- rtn as String?
+      rtn: "mixed type"
+
+    getD() as pure
+      <- rtn as Integer: 42
+
+    testGuardCoalesceChainTypeMismatch()
+      <- result as Integer?
+
+      a <- getA()
+      b <- getB()
+      c <- getC()
+      d <- getD()
+
+      if x <- (a ?? b ?? c ?? d)
+        @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+        result: x
+
+//EOF

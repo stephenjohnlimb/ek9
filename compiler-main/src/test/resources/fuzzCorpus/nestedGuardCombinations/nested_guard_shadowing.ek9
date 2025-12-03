@@ -1,0 +1,26 @@
+#!ek9
+<?-
+  Tests nested guard with type mismatch when assigning to outer variable.
+  Pattern: Inner guard assigns to outer variable with wrong type.
+-?>
+defines module fuzztest.complex.nestedguard.shadowing
+
+  defines function
+
+    getInteger() as pure
+      <- rtn as Integer?
+      rtn: 100
+
+    getString() as pure
+      <- rtn as String?
+      rtn: "text"
+
+    testNestedGuardTypeMismatch()
+      <- result as Integer?
+
+      if x <- getInteger()
+        if y <- getString()
+          @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+          result: y
+
+//EOF

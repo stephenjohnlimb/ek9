@@ -1,0 +1,18 @@
+#!ek9
+<?-
+  Tests mixing different coalescing operators with type error.
+-?>
+defines module fuzztest.complex.coalesce.mixed
+
+  defines function
+
+    testMixedCoalescingOperators()
+      <- result as Integer?
+
+      intVal <- 10
+      strVal <- "text"
+
+      @Error: FULL_RESOLUTION: INCOMPATIBLE_TYPES
+      result: intVal ?: strVal
+
+//EOF

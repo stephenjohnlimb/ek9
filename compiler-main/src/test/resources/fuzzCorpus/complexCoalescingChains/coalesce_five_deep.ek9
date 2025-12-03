@@ -1,0 +1,20 @@
+#!ek9
+<?-
+  Tests 5-deep coalescing with unresolved at end.
+-?>
+defines module fuzztest.complex.coalesce.fivedeep
+
+  defines function
+
+    testFiveDeepCoalesce()
+      <- result as Integer?
+
+      a <- Integer()
+      b <- Integer()
+      c <- Integer()
+      d <- Integer()
+
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      result: a ?? b ?? c ?? d ?? undefinedFallback
+
+//EOF
