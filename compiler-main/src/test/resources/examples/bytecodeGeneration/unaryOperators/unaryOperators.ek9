@@ -4,18 +4,10 @@ defines module bytecode.test
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::UnaryOperators": `public class bytecode.test.UnaryOperators {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.UnaryOperators();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -124,6 +116,14 @@ defines module bytecode.test
        196: aload         30
        198: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
        203: return
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
 
     UnaryOperators()

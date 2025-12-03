@@ -4,18 +4,10 @@ defines module bytecode.test
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::ComparisonOperators": `public class bytecode.test.ComparisonOperators {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.ComparisonOperators();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -321,6 +313,14 @@ defines module bytecode.test
        598: aload         92
        600: invokeinterface #CP,  2           // InterfaceMethod org/ek9/lang/StringOutput.println:(Lorg/ek9/lang/Any;)V
        605: return
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
 
     ComparisonOperators()

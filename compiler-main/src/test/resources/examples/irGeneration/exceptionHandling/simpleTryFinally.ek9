@@ -9,82 +9,82 @@ defines module exceptionHandling
 
     @IR: IR_GENERATION: FUNCTION: "exceptionHandling::simpleTryFinally": `
     ConstructDfn: exceptionHandling::simpleTryFinally()->org.ek9.lang::Void
-    OperationDfn: exceptionHandling::simpleTryFinally.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: exceptionHandling::simpleTryFinally.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: exceptionHandling::simpleTryFinally.simpleTryFinally()->exceptionHandling::simpleTryFinally  // ./simpleTryFinally.ek9:88:5
-    BasicBlock: _entry_1
-    CALL (exceptionHandling::simpleTryFinally)this.i_init() [pure=false, complexity=0]  // ./simpleTryFinally.ek9:88:5
-    RETURN this  // ./simpleTryFinally.ek9:88:5
-    OperationDfn: exceptionHandling::simpleTryFinally._call()->org.ek9.lang::Void  // ./simpleTryFinally.ek9:88:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./simpleTryFinally.ek9:89:7
-    REFERENCE stdout, org.ek9.lang::Stdout  // ./simpleTryFinally.ek9:89:7
-    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./simpleTryFinally.ek9:89:17
-    RETAIN _temp1  // ./simpleTryFinally.ek9:89:17
-    SCOPE_REGISTER _temp1, _scope_1  // ./simpleTryFinally.ek9:89:17
-    STORE stdout, _temp1  // ./simpleTryFinally.ek9:89:17
-    RETAIN stdout  // ./simpleTryFinally.ek9:89:17
-    SCOPE_REGISTER stdout, _scope_1  // ./simpleTryFinally.ek9:89:17
-    SCOPE_ENTER _scope_2  // ./simpleTryFinally.ek9:91:7
-    SCOPE_ENTER _scope_3  // ./simpleTryFinally.ek9:91:7
-    CONTROL_FLOW_CHAIN  // ./simpleTryFinally.ek9:91:7
-    [
-    chain_type: "TRY_CATCH_FINALLY"
-    try_block_details:
-    [
-    try_scope_id: _scope_4
-    try_body_evaluation:
-    [
-    SCOPE_ENTER _scope_4  // ./simpleTryFinally.ek9:91:7
-    _temp3 = LOAD stdout  // ./simpleTryFinally.ek9:92:9
-    RETAIN _temp3  // ./simpleTryFinally.ek9:92:9
-    SCOPE_REGISTER _temp3, _scope_4  // ./simpleTryFinally.ek9:92:9
-    _temp4 = LOAD_LITERAL Try block executing, org.ek9.lang::String  // ./simpleTryFinally.ek9:92:24
-    RETAIN _temp4  // ./simpleTryFinally.ek9:92:24
-    SCOPE_REGISTER _temp4, _scope_4  // ./simpleTryFinally.ek9:92:24
-    CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=true, complexity=1]  // ./simpleTryFinally.ek9:92:16
-    REFERENCE value, org.ek9.lang::Integer  // ./simpleTryFinally.ek9:93:9
-    _temp5 = LOAD_LITERAL 42, org.ek9.lang::Integer  // ./simpleTryFinally.ek9:93:18
-    RETAIN _temp5  // ./simpleTryFinally.ek9:93:18
-    SCOPE_REGISTER _temp5, _scope_4  // ./simpleTryFinally.ek9:93:18
-    STORE value, _temp5  // ./simpleTryFinally.ek9:93:18
-    RETAIN value  // ./simpleTryFinally.ek9:93:18
-    SCOPE_REGISTER value, _scope_4  // ./simpleTryFinally.ek9:93:18
-    _temp7 = LOAD stdout  // ./simpleTryFinally.ek9:94:9
-    RETAIN _temp7  // ./simpleTryFinally.ek9:94:9
-    SCOPE_REGISTER _temp7, _scope_4  // ./simpleTryFinally.ek9:94:9
-    _temp8 = LOAD value  // ./simpleTryFinally.ek9:94:24
-    RETAIN _temp8  // ./simpleTryFinally.ek9:94:24
-    SCOPE_REGISTER _temp8, _scope_4  // ./simpleTryFinally.ek9:94:24
-    CALL (org.ek9.lang::StringOutput)_temp7.println(_temp8) [pure=true, complexity=1, trait=true]  // ./simpleTryFinally.ek9:94:16
-    SCOPE_EXIT _scope_4  // ./simpleTryFinally.ek9:91:7
-    ]
-    ]
-    condition_chain:
-    [
-    ]
-    finally_block_evaluation:
-    [
-    SCOPE_ENTER _scope_5  // ./simpleTryFinally.ek9:95:7
-    _temp10 = LOAD stdout  // ./simpleTryFinally.ek9:96:9
-    RETAIN _temp10  // ./simpleTryFinally.ek9:96:9
-    SCOPE_REGISTER _temp10, _scope_5  // ./simpleTryFinally.ek9:96:9
-    _temp11 = LOAD_LITERAL Finally block executing, org.ek9.lang::String  // ./simpleTryFinally.ek9:96:24
-    RETAIN _temp11  // ./simpleTryFinally.ek9:96:24
-    SCOPE_REGISTER _temp11, _scope_5  // ./simpleTryFinally.ek9:96:24
-    CALL (org.ek9.lang::Stdout)_temp10.println(_temp11) [pure=true, complexity=1]  // ./simpleTryFinally.ek9:96:16
-    SCOPE_EXIT _scope_5  // ./simpleTryFinally.ek9:95:7
-    ]
-    scope_id: _scope_3
-    ]
-    SCOPE_EXIT _scope_3  // ./simpleTryFinally.ek9:91:7
-    SCOPE_EXIT _scope_2  // ./simpleTryFinally.ek9:91:7
-    SCOPE_EXIT _scope_1  // ./simpleTryFinally.ek9:89:7
-    RETURN  // ./simpleTryFinally.ek9:88:5`
+OperationDfn: exceptionHandling::simpleTryFinally._call()->org.ek9.lang::Void  // ./simpleTryFinally.ek9:88:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./simpleTryFinally.ek9:89:7
+REFERENCE stdout, org.ek9.lang::Stdout  // ./simpleTryFinally.ek9:89:7
+_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./simpleTryFinally.ek9:89:17
+RETAIN _temp1  // ./simpleTryFinally.ek9:89:17
+SCOPE_REGISTER _temp1, _scope_1  // ./simpleTryFinally.ek9:89:17
+STORE stdout, _temp1  // ./simpleTryFinally.ek9:89:17
+RETAIN stdout  // ./simpleTryFinally.ek9:89:17
+SCOPE_REGISTER stdout, _scope_1  // ./simpleTryFinally.ek9:89:17
+SCOPE_ENTER _scope_2  // ./simpleTryFinally.ek9:91:7
+SCOPE_ENTER _scope_3  // ./simpleTryFinally.ek9:91:7
+CONTROL_FLOW_CHAIN  // ./simpleTryFinally.ek9:91:7
+[
+chain_type: "TRY_CATCH_FINALLY"
+try_block_details:
+[
+try_scope_id: _scope_4
+try_body_evaluation:
+[
+SCOPE_ENTER _scope_4  // ./simpleTryFinally.ek9:91:7
+_temp3 = LOAD stdout  // ./simpleTryFinally.ek9:92:9
+RETAIN _temp3  // ./simpleTryFinally.ek9:92:9
+SCOPE_REGISTER _temp3, _scope_4  // ./simpleTryFinally.ek9:92:9
+_temp4 = LOAD_LITERAL Try block executing, org.ek9.lang::String  // ./simpleTryFinally.ek9:92:24
+RETAIN _temp4  // ./simpleTryFinally.ek9:92:24
+SCOPE_REGISTER _temp4, _scope_4  // ./simpleTryFinally.ek9:92:24
+CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=true, complexity=1]  // ./simpleTryFinally.ek9:92:16
+REFERENCE value, org.ek9.lang::Integer  // ./simpleTryFinally.ek9:93:9
+_temp5 = LOAD_LITERAL 42, org.ek9.lang::Integer  // ./simpleTryFinally.ek9:93:18
+RETAIN _temp5  // ./simpleTryFinally.ek9:93:18
+SCOPE_REGISTER _temp5, _scope_4  // ./simpleTryFinally.ek9:93:18
+STORE value, _temp5  // ./simpleTryFinally.ek9:93:18
+RETAIN value  // ./simpleTryFinally.ek9:93:18
+SCOPE_REGISTER value, _scope_4  // ./simpleTryFinally.ek9:93:18
+_temp7 = LOAD stdout  // ./simpleTryFinally.ek9:94:9
+RETAIN _temp7  // ./simpleTryFinally.ek9:94:9
+SCOPE_REGISTER _temp7, _scope_4  // ./simpleTryFinally.ek9:94:9
+_temp8 = LOAD value  // ./simpleTryFinally.ek9:94:24
+RETAIN _temp8  // ./simpleTryFinally.ek9:94:24
+SCOPE_REGISTER _temp8, _scope_4  // ./simpleTryFinally.ek9:94:24
+CALL (org.ek9.lang::StringOutput)_temp7.println(_temp8) [pure=true, complexity=1, trait=true]  // ./simpleTryFinally.ek9:94:16
+SCOPE_EXIT _scope_4  // ./simpleTryFinally.ek9:91:7
+]
+]
+condition_chain:
+[
+]
+finally_block_evaluation:
+[
+SCOPE_ENTER _scope_5  // ./simpleTryFinally.ek9:95:7
+_temp10 = LOAD stdout  // ./simpleTryFinally.ek9:96:9
+RETAIN _temp10  // ./simpleTryFinally.ek9:96:9
+SCOPE_REGISTER _temp10, _scope_5  // ./simpleTryFinally.ek9:96:9
+_temp11 = LOAD_LITERAL Finally block executing, org.ek9.lang::String  // ./simpleTryFinally.ek9:96:24
+RETAIN _temp11  // ./simpleTryFinally.ek9:96:24
+SCOPE_REGISTER _temp11, _scope_5  // ./simpleTryFinally.ek9:96:24
+CALL (org.ek9.lang::Stdout)_temp10.println(_temp11) [pure=true, complexity=1]  // ./simpleTryFinally.ek9:96:16
+SCOPE_EXIT _scope_5  // ./simpleTryFinally.ek9:95:7
+]
+scope_id: _scope_3
+]
+SCOPE_EXIT _scope_3  // ./simpleTryFinally.ek9:91:7
+SCOPE_EXIT _scope_2  // ./simpleTryFinally.ek9:91:7
+SCOPE_EXIT _scope_1  // ./simpleTryFinally.ek9:89:7
+RETURN  // ./simpleTryFinally.ek9:88:5
+OperationDfn: exceptionHandling::simpleTryFinally.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: exceptionHandling::simpleTryFinally.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: exceptionHandling::simpleTryFinally.simpleTryFinally()->exceptionHandling::simpleTryFinally  // ./simpleTryFinally.ek9:88:5
+BasicBlock: _entry_1
+CALL (exceptionHandling::simpleTryFinally)this.i_init() [pure=false, complexity=0]  // ./simpleTryFinally.ek9:88:5
+RETURN this  // ./simpleTryFinally.ek9:88:5`
     simpleTryFinally()
       stdout <- Stdout()
 

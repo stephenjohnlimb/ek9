@@ -24,90 +24,90 @@ defines module exceptionHandling
 
     @IR: IR_GENERATION: FUNCTION: "exceptionHandling::testNoFinally": `
     ConstructDfn: exceptionHandling::testNoFinally()->org.ek9.lang::String
-    OperationDfn: exceptionHandling::testNoFinally.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: exceptionHandling::testNoFinally.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: exceptionHandling::testNoFinally.testNoFinally()->exceptionHandling::testNoFinally  // ./tryWithResourceNoFinally.ek9:111:5
-    BasicBlock: _entry_1
-    CALL (exceptionHandling::testNoFinally)this.i_init() [pure=false, complexity=0]  // ./tryWithResourceNoFinally.ek9:111:5
-    RETURN this  // ./tryWithResourceNoFinally.ek9:111:5
-    OperationDfn: exceptionHandling::testNoFinally._call()->org.ek9.lang::String  // ./tryWithResourceNoFinally.ek9:111:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./tryWithResourceNoFinally.ek9:114:7
-    REFERENCE rtn, org.ek9.lang::String  // ./tryWithResourceNoFinally.ek9:112:10
-    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./tryWithResourceNoFinally.ek9:112:25
-    RETAIN _temp1  // ./tryWithResourceNoFinally.ek9:112:25
-    SCOPE_REGISTER _temp1, _scope_1  // ./tryWithResourceNoFinally.ek9:112:25
-    STORE rtn, _temp1  // ./tryWithResourceNoFinally.ek9:112:25
-    RETAIN rtn  // ./tryWithResourceNoFinally.ek9:112:25
-    SCOPE_ENTER _scope_2  // ./tryWithResourceNoFinally.ek9:114:7
-    SCOPE_ENTER _scope_3  // ./tryWithResourceNoFinally.ek9:114:7
-    REFERENCE resource, exceptionHandling::SimpleResource2  // ./tryWithResourceNoFinally.ek9:115:12
-    _temp3 = LOAD_LITERAL test, org.ek9.lang::String  // ./tryWithResourceNoFinally.ek9:115:40
-    _temp2 = CALL (exceptionHandling::SimpleResource2)exceptionHandling::SimpleResource2.<init>(_temp3) [pure=false, complexity=2, effects=RETURN_MUTATION]  // ./tryWithResourceNoFinally.ek9:115:24
-    STORE resource, _temp2  // ./tryWithResourceNoFinally.ek9:115:12
-    SCOPE_REGISTER resource, _scope_3  // ./tryWithResourceNoFinally.ek9:115:12
-    RETAIN resource  // ./tryWithResourceNoFinally.ek9:115:12
-    SCOPE_ENTER _scope_4  // ./tryWithResourceNoFinally.ek9:114:7
-    CONTROL_FLOW_CHAIN  // ./tryWithResourceNoFinally.ek9:114:7
-    [
-    chain_type: "TRY_CATCH_FINALLY"
-    try_block_details:
-    [
-    try_scope_id: _scope_5
-    try_body_evaluation:
-    [
-    SCOPE_ENTER _scope_5  // ./tryWithResourceNoFinally.ek9:114:7
-    _temp4 = LOAD_LITERAL OK, org.ek9.lang::String  // ./tryWithResourceNoFinally.ek9:116:14
-    RETAIN _temp4  // ./tryWithResourceNoFinally.ek9:116:14
-    SCOPE_REGISTER _temp4, _scope_5  // ./tryWithResourceNoFinally.ek9:116:14
-    RELEASE rtn  // ./tryWithResourceNoFinally.ek9:116:14
-    STORE rtn, _temp4  // ./tryWithResourceNoFinally.ek9:116:14
-    RETAIN rtn  // ./tryWithResourceNoFinally.ek9:116:14
-    SCOPE_EXIT _scope_5  // ./tryWithResourceNoFinally.ek9:114:7
-    ]
-    ]
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_6
-    case_type: "EXCEPTION_HANDLER"
-    condition_evaluation:
-    [
-    ]
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_6  // ./tryWithResourceNoFinally.ek9:117:7
-    REFERENCE ex, org.ek9.lang::Exception  // ./tryWithResourceNoFinally.ek9:117:7
-    SCOPE_REGISTER ex, _scope_6  // ./tryWithResourceNoFinally.ek9:117:7
-    _temp5 = LOAD_LITERAL ERROR, org.ek9.lang::String  // ./tryWithResourceNoFinally.ek9:119:14
-    RETAIN _temp5  // ./tryWithResourceNoFinally.ek9:119:14
-    SCOPE_REGISTER _temp5, _scope_6  // ./tryWithResourceNoFinally.ek9:119:14
-    RELEASE rtn  // ./tryWithResourceNoFinally.ek9:119:14
-    STORE rtn, _temp5  // ./tryWithResourceNoFinally.ek9:119:14
-    RETAIN rtn  // ./tryWithResourceNoFinally.ek9:119:14
-    SCOPE_EXIT _scope_6  // ./tryWithResourceNoFinally.ek9:117:7
-    ]
-    exception_type: "org.ek9.lang::Exception"
-    exception_variable: ex
-    ]
-    ]
-    finally_block_evaluation:
-    [
-    SCOPE_ENTER _scope_7  // ./tryWithResourceNoFinally.ek9:114:7
-    CALL (exceptionHandling::SimpleResource2)resource._close() [pure=true, complexity=0]  // ./tryWithResourceNoFinally.ek9:115:12
-    SCOPE_EXIT _scope_7  // ./tryWithResourceNoFinally.ek9:114:7
-    ]
-    scope_id: _scope_4
-    ]
-    SCOPE_EXIT _scope_4  // ./tryWithResourceNoFinally.ek9:114:7
-    SCOPE_EXIT _scope_3  // ./tryWithResourceNoFinally.ek9:114:7
-    SCOPE_EXIT _scope_2  // ./tryWithResourceNoFinally.ek9:114:7
-    SCOPE_EXIT _scope_1  // ./tryWithResourceNoFinally.ek9:114:7
-    RETURN rtn  // ./tryWithResourceNoFinally.ek9:112:10`
+OperationDfn: exceptionHandling::testNoFinally._call()->org.ek9.lang::String  // ./tryWithResourceNoFinally.ek9:111:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./tryWithResourceNoFinally.ek9:114:7
+REFERENCE rtn, org.ek9.lang::String  // ./tryWithResourceNoFinally.ek9:112:10
+_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./tryWithResourceNoFinally.ek9:112:25
+RETAIN _temp1  // ./tryWithResourceNoFinally.ek9:112:25
+SCOPE_REGISTER _temp1, _scope_1  // ./tryWithResourceNoFinally.ek9:112:25
+STORE rtn, _temp1  // ./tryWithResourceNoFinally.ek9:112:25
+RETAIN rtn  // ./tryWithResourceNoFinally.ek9:112:25
+SCOPE_ENTER _scope_2  // ./tryWithResourceNoFinally.ek9:114:7
+SCOPE_ENTER _scope_3  // ./tryWithResourceNoFinally.ek9:114:7
+REFERENCE resource, exceptionHandling::SimpleResource2  // ./tryWithResourceNoFinally.ek9:115:12
+_temp3 = LOAD_LITERAL test, org.ek9.lang::String  // ./tryWithResourceNoFinally.ek9:115:40
+_temp2 = CALL (exceptionHandling::SimpleResource2)exceptionHandling::SimpleResource2.<init>(_temp3) [pure=false, complexity=2, effects=RETURN_MUTATION]  // ./tryWithResourceNoFinally.ek9:115:24
+STORE resource, _temp2  // ./tryWithResourceNoFinally.ek9:115:12
+SCOPE_REGISTER resource, _scope_3  // ./tryWithResourceNoFinally.ek9:115:12
+RETAIN resource  // ./tryWithResourceNoFinally.ek9:115:12
+SCOPE_ENTER _scope_4  // ./tryWithResourceNoFinally.ek9:114:7
+CONTROL_FLOW_CHAIN  // ./tryWithResourceNoFinally.ek9:114:7
+[
+chain_type: "TRY_CATCH_FINALLY"
+try_block_details:
+[
+try_scope_id: _scope_5
+try_body_evaluation:
+[
+SCOPE_ENTER _scope_5  // ./tryWithResourceNoFinally.ek9:114:7
+_temp4 = LOAD_LITERAL OK, org.ek9.lang::String  // ./tryWithResourceNoFinally.ek9:116:14
+RETAIN _temp4  // ./tryWithResourceNoFinally.ek9:116:14
+SCOPE_REGISTER _temp4, _scope_5  // ./tryWithResourceNoFinally.ek9:116:14
+RELEASE rtn  // ./tryWithResourceNoFinally.ek9:116:14
+STORE rtn, _temp4  // ./tryWithResourceNoFinally.ek9:116:14
+RETAIN rtn  // ./tryWithResourceNoFinally.ek9:116:14
+SCOPE_EXIT _scope_5  // ./tryWithResourceNoFinally.ek9:114:7
+]
+]
+condition_chain:
+[
+[
+case_scope_id: _scope_6
+case_type: "EXCEPTION_HANDLER"
+condition_evaluation:
+[
+]
+body_evaluation:
+[
+SCOPE_ENTER _scope_6  // ./tryWithResourceNoFinally.ek9:117:7
+REFERENCE ex, org.ek9.lang::Exception  // ./tryWithResourceNoFinally.ek9:117:7
+SCOPE_REGISTER ex, _scope_6  // ./tryWithResourceNoFinally.ek9:117:7
+_temp5 = LOAD_LITERAL ERROR, org.ek9.lang::String  // ./tryWithResourceNoFinally.ek9:119:14
+RETAIN _temp5  // ./tryWithResourceNoFinally.ek9:119:14
+SCOPE_REGISTER _temp5, _scope_6  // ./tryWithResourceNoFinally.ek9:119:14
+RELEASE rtn  // ./tryWithResourceNoFinally.ek9:119:14
+STORE rtn, _temp5  // ./tryWithResourceNoFinally.ek9:119:14
+RETAIN rtn  // ./tryWithResourceNoFinally.ek9:119:14
+SCOPE_EXIT _scope_6  // ./tryWithResourceNoFinally.ek9:117:7
+]
+exception_type: "org.ek9.lang::Exception"
+exception_variable: ex
+]
+]
+finally_block_evaluation:
+[
+SCOPE_ENTER _scope_7  // ./tryWithResourceNoFinally.ek9:114:7
+CALL (exceptionHandling::SimpleResource2)resource._close() [pure=true, complexity=0]  // ./tryWithResourceNoFinally.ek9:115:12
+SCOPE_EXIT _scope_7  // ./tryWithResourceNoFinally.ek9:114:7
+]
+scope_id: _scope_4
+]
+SCOPE_EXIT _scope_4  // ./tryWithResourceNoFinally.ek9:114:7
+SCOPE_EXIT _scope_3  // ./tryWithResourceNoFinally.ek9:114:7
+SCOPE_EXIT _scope_2  // ./tryWithResourceNoFinally.ek9:114:7
+SCOPE_EXIT _scope_1  // ./tryWithResourceNoFinally.ek9:114:7
+RETURN rtn  // ./tryWithResourceNoFinally.ek9:112:10
+OperationDfn: exceptionHandling::testNoFinally.testNoFinally()->exceptionHandling::testNoFinally  // ./tryWithResourceNoFinally.ek9:111:5
+BasicBlock: _entry_1
+CALL (exceptionHandling::testNoFinally)this.i_init() [pure=false, complexity=0]  // ./tryWithResourceNoFinally.ek9:111:5
+RETURN this  // ./tryWithResourceNoFinally.ek9:111:5
+OperationDfn: exceptionHandling::testNoFinally.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: exceptionHandling::testNoFinally.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     testNoFinally()
       <- rtn as String: String()
 

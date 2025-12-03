@@ -19,94 +19,94 @@ defines module controlFlow
 
     @IR: IR_GENERATION: FUNCTION: "controlFlow::ifAssignmentGuard": `
     ConstructDfn: controlFlow::ifAssignmentGuard()->org.ek9.lang::String
-    OperationDfn: controlFlow::ifAssignmentGuard.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: controlFlow::ifAssignmentGuard.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: controlFlow::ifAssignmentGuard.ifAssignmentGuard()->controlFlow::ifAssignmentGuard
-    BasicBlock: _entry_1
-    CALL (controlFlow::ifAssignmentGuard)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: controlFlow::ifAssignmentGuard._call()->org.ek9.lang::String
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE result, org.ek9.lang::String
-    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE result, _temp1
-    RETAIN result
-    REFERENCE value, org.ek9.lang::Integer
-    _temp2 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_1
-    STORE value, _temp2
-    RETAIN value
-    SCOPE_REGISTER value, _scope_1
-    SCOPE_ENTER _scope_2
-    _temp5 = FUNCTION_INSTANCE controlFlow::provideValue
-    _temp3 = CALL (controlFlow::provideValue)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_2
-    RELEASE value
-    STORE value, _temp3
-    RETAIN value
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "IF_ELSE_IF"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_4
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_3
-    _temp7 = LOAD value
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_3
-    _temp8 = LOAD_LITERAL 10, org.ek9.lang::Integer
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_3
-    _temp6 = CALL (org.ek9.lang::Integer)_temp7._gt(_temp8) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_3
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_3
-    ]
-    condition_result: _temp6
-    primitive_condition: _temp9
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_4
-    _temp10 = LOAD_LITERAL High, org.ek9.lang::String
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, _scope_4
-    RELEASE result
-    STORE result, _temp10
-    RETAIN result
-    SCOPE_EXIT _scope_4
-    ]
-    ]
-    ]
-    default_body_evaluation:
-    [
-    SCOPE_ENTER _scope_5
-    _temp11 = LOAD_LITERAL Low, org.ek9.lang::String
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_5
-    RELEASE result
-    STORE result, _temp11
-    RETAIN result
-    SCOPE_EXIT _scope_5
-    ]
-    scope_id: _scope_2
-    ]
-    SCOPE_EXIT _scope_2
-    SCOPE_EXIT _scope_1
-    RETURN result`
+OperationDfn: controlFlow::ifAssignmentGuard._call()->org.ek9.lang::String  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE result, org.ek9.lang::String
+_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE result, _temp1
+RETAIN result
+REFERENCE value, org.ek9.lang::Integer
+_temp2 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+STORE value, _temp2
+RETAIN value
+SCOPE_REGISTER value, _scope_1
+SCOPE_ENTER _scope_2
+_temp5 = FUNCTION_INSTANCE controlFlow::provideValue
+_temp3 = CALL (controlFlow::provideValue)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_2
+RELEASE value
+STORE value, _temp3
+RETAIN value
+CONTROL_FLOW_CHAIN
+[
+chain_type: "IF_ELSE_IF"
+condition_chain:
+[
+[
+case_scope_id: _scope_4
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_3
+_temp7 = LOAD value
+RETAIN _temp7
+SCOPE_REGISTER _temp7, _scope_3
+_temp8 = LOAD_LITERAL 10, org.ek9.lang::Integer
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_3
+_temp6 = CALL (org.ek9.lang::Integer)_temp7._gt(_temp8) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp6
+SCOPE_REGISTER _temp6, _scope_3
+_temp9 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_3
+]
+condition_result: _temp6
+primitive_condition: _temp9
+body_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp10 = LOAD_LITERAL High, org.ek9.lang::String
+RETAIN _temp10
+SCOPE_REGISTER _temp10, _scope_4
+RELEASE result
+STORE result, _temp10
+RETAIN result
+SCOPE_EXIT _scope_4
+]
+]
+]
+default_body_evaluation:
+[
+SCOPE_ENTER _scope_5
+_temp11 = LOAD_LITERAL Low, org.ek9.lang::String
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_5
+RELEASE result
+STORE result, _temp11
+RETAIN result
+SCOPE_EXIT _scope_5
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+SCOPE_EXIT _scope_1
+RETURN result
+OperationDfn: controlFlow::ifAssignmentGuard.ifAssignmentGuard()->controlFlow::ifAssignmentGuard  
+BasicBlock: _entry_1
+CALL (controlFlow::ifAssignmentGuard)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: controlFlow::ifAssignmentGuard.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: controlFlow::ifAssignmentGuard.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     ifAssignmentGuard()
       <-
         result <- String()

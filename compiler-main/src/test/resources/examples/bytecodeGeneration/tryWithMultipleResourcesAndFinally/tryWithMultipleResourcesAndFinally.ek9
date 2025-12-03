@@ -30,18 +30,10 @@ defines module bytecode.test.resources.finally
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.resources.finally::TryWithMultipleResourcesAndFinally": `public class bytecode.test.resources.finally.TryWithMultipleResourcesAndFinally {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.resources.finally.TryWithMultipleResourcesAndFinally();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -168,6 +160,14 @@ defines module bytecode.test.resources.finally
             63   119   122   Class org/ek9/lang/Exception
            143   191   137   Class org/ek9/lang/Exception
             63   137   138   any
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
     TryWithMultipleResourcesAndFinally()
       result <- String()

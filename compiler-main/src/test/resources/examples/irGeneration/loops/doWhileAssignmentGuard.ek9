@@ -18,89 +18,89 @@ defines module loops.doAssignGuard
 
     @IR: IR_GENERATION: FUNCTION: "loops.doAssignGuard::doWhileAssignmentGuard": `
     ConstructDfn: loops.doAssignGuard::doWhileAssignmentGuard()->org.ek9.lang::Integer
-    OperationDfn: loops.doAssignGuard::doWhileAssignmentGuard.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops.doAssignGuard::doWhileAssignmentGuard.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops.doAssignGuard::doWhileAssignmentGuard.doWhileAssignmentGuard()->loops.doAssignGuard::doWhileAssignmentGuard
-    BasicBlock: _entry_1
-    CALL (loops.doAssignGuard::doWhileAssignmentGuard)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: loops.doAssignGuard::doWhileAssignmentGuard._call()->org.ek9.lang::Integer
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE counter, org.ek9.lang::Integer
-    _temp1 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE counter, _temp1
-    RETAIN counter
-    REFERENCE value, org.ek9.lang::Integer
-    _temp2 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_1
-    STORE value, _temp2
-    RETAIN value
-    SCOPE_REGISTER value, _scope_1
-    SCOPE_ENTER _scope_2
-    _temp5 = FUNCTION_INSTANCE loops.doAssignGuard::getValue
-    _temp3 = CALL (loops.doAssignGuard::getValue)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_2
-    RELEASE value
-    STORE value, _temp3
-    RETAIN value
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "DO_WHILE_LOOP"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_3
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_4
-    _temp10 = LOAD value
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, _scope_4
-    _temp11 = LOAD counter
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_4
-    _temp9 = CALL (org.ek9.lang::Integer)_temp10._gt(_temp11) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_4
-    _temp12 = CALL (org.ek9.lang::Boolean)_temp9._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_4
-    ]
-    condition_result: _temp9
-    primitive_condition: _temp12
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_3
-    _temp7 = LOAD counter
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_3
-    _temp8 = LOAD_LITERAL 1, org.ek9.lang::Integer
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_3
-    _temp6 = CALL (org.ek9.lang::Integer)_temp7._add(_temp8) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_3
-    RELEASE counter
-    STORE counter, _temp6
-    RETAIN counter
-    SCOPE_EXIT _scope_3
-    ]
-    ]
-    ]
-    scope_id: _scope_2
-    ]
-    SCOPE_EXIT _scope_2
-    SCOPE_EXIT _scope_1
-    RETURN counter`
+OperationDfn: loops.doAssignGuard::doWhileAssignmentGuard._call()->org.ek9.lang::Integer  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE counter, org.ek9.lang::Integer
+_temp1 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE counter, _temp1
+RETAIN counter
+REFERENCE value, org.ek9.lang::Integer
+_temp2 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+STORE value, _temp2
+RETAIN value
+SCOPE_REGISTER value, _scope_1
+SCOPE_ENTER _scope_2
+_temp5 = FUNCTION_INSTANCE loops.doAssignGuard::getValue
+_temp3 = CALL (loops.doAssignGuard::getValue)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_2
+RELEASE value
+STORE value, _temp3
+RETAIN value
+CONTROL_FLOW_CHAIN
+[
+chain_type: "DO_WHILE_LOOP"
+condition_chain:
+[
+[
+case_scope_id: _scope_3
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp10 = LOAD value
+RETAIN _temp10
+SCOPE_REGISTER _temp10, _scope_4
+_temp11 = LOAD counter
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_4
+_temp9 = CALL (org.ek9.lang::Integer)_temp10._gt(_temp11) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_4
+_temp12 = CALL (org.ek9.lang::Boolean)_temp9._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_4
+]
+condition_result: _temp9
+primitive_condition: _temp12
+body_evaluation:
+[
+SCOPE_ENTER _scope_3
+_temp7 = LOAD counter
+RETAIN _temp7
+SCOPE_REGISTER _temp7, _scope_3
+_temp8 = LOAD_LITERAL 1, org.ek9.lang::Integer
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_3
+_temp6 = CALL (org.ek9.lang::Integer)_temp7._add(_temp8) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp6
+SCOPE_REGISTER _temp6, _scope_3
+RELEASE counter
+STORE counter, _temp6
+RETAIN counter
+SCOPE_EXIT _scope_3
+]
+]
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+SCOPE_EXIT _scope_1
+RETURN counter
+OperationDfn: loops.doAssignGuard::doWhileAssignmentGuard.doWhileAssignmentGuard()->loops.doAssignGuard::doWhileAssignmentGuard  
+BasicBlock: _entry_1
+CALL (loops.doAssignGuard::doWhileAssignmentGuard)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: loops.doAssignGuard::doWhileAssignmentGuard.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: loops.doAssignGuard::doWhileAssignmentGuard.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     doWhileAssignmentGuard()
       <- counter <- Integer()
 

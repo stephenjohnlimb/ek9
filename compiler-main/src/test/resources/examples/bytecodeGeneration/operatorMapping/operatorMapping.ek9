@@ -21,14 +21,6 @@ defines module bytecode.test.operators
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.operators::OperatorTestClass": `public class bytecode.test.operators.OperatorTestClass implements org.ek9.lang.Any
 
 {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public org.ek9.lang.Boolean _isSet();
     Code:
          0: aconst_null
@@ -42,37 +34,44 @@ defines module bytecode.test.operators
         12: aload_1
         13: areturn
 
-  public void _close();
+  public org.ek9.lang.Boolean _lt(bytecode.test.operators.OperatorTestClass);
     Code:
          0: aconst_null
-         1: astore_1
-         2: new           #CP                 // class org/ek9/lang/Stdout
-         5: dup
-         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
-         9: astore_2
-        10: aload_2
-        11: astore_1
-        12: aload_1
-        13: astore_3
-        14: ldc           #CP                 // String Closing
-        16: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-        19: astore        4
-        21: aload_3
-        22: aload         4
-        24: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
-        27: return
+         1: astore_2
+         2: iconst_0
+         3: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+         6: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aload_2
+        13: areturn
 
-  public org.ek9.lang.String _string();
+  public org.ek9.lang.Boolean _neq(bytecode.test.operators.OperatorTestClass);
     Code:
          0: aconst_null
-         1: astore_1
-         2: ldc           #CP                 // String OperatorTestClass
-         4: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-         7: astore_2
-         8: aload_2
-         9: astore_1
-        10: aload_1
-        11: areturn
+         1: astore_2
+         2: iconst_0
+         3: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+         6: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aload_2
+        13: areturn
+
+  public org.ek9.lang.Boolean _eq(bytecode.test.operators.OperatorTestClass);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: iconst_1
+         3: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+         6: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aload_2
+        13: areturn
 
   public org.ek9.lang.Integer _hashcode();
     Code:
@@ -100,32 +99,6 @@ defines module bytecode.test.operators
         12: aload_2
         13: areturn
 
-  public org.ek9.lang.Boolean _eq(bytecode.test.operators.OperatorTestClass);
-    Code:
-         0: aconst_null
-         1: astore_2
-         2: iconst_1
-         3: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
-         6: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
-         9: astore_3
-        10: aload_3
-        11: astore_2
-        12: aload_2
-        13: areturn
-
-  public org.ek9.lang.Boolean _neq(bytecode.test.operators.OperatorTestClass);
-    Code:
-         0: aconst_null
-         1: astore_2
-         2: iconst_0
-         3: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
-         6: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
-         9: astore_3
-        10: aload_3
-        11: astore_2
-        12: aload_2
-        13: areturn
-
   public bytecode.test.operators.OperatorTestClass _add(bytecode.test.operators.OperatorTestClass);
     Code:
          0: aconst_null
@@ -137,19 +110,6 @@ defines module bytecode.test.operators
          6: aload_2
          7: areturn
 
-  public org.ek9.lang.Boolean _lt(bytecode.test.operators.OperatorTestClass);
-    Code:
-         0: aconst_null
-         1: astore_2
-         2: iconst_0
-         3: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
-         6: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
-         9: astore_3
-        10: aload_3
-        11: astore_2
-        12: aload_2
-        13: areturn
-
   public bytecode.test.operators.OperatorTestClass();
     Code:
          0: aload_0
@@ -157,6 +117,46 @@ defines module bytecode.test.operators
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
+
+  public org.ek9.lang.String _string();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: ldc           #CP                 // String OperatorTestClass
+         4: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+         7: astore_2
+         8: aload_2
+         9: astore_1
+        10: aload_1
+        11: areturn
+
+  static {};
+    Code:
+         0: return
+
+  public void _close();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_2
+        10: aload_2
+        11: astore_1
+        12: aload_1
+        13: astore_3
+        14: ldc           #CP                 // String Closing
+        16: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        19: astore        4
+        21: aload_3
+        22: aload         4
+        24: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        27: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
     OperatorTestClass
 

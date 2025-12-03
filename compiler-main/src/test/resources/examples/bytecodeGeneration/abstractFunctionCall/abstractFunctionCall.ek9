@@ -10,13 +10,7 @@
 defines module bytecode.test.abstractfunctioncall
 
   @BYTECODE: CODE_GENERATION_AGGREGATES: FUNCTION: "bytecode.test.abstractfunctioncall::baseGreeting": `public abstract class bytecode.test.abstractfunctioncall.baseGreeting {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
+  public abstract org.ek9.lang.String _call(org.ek9.lang.String);
 
   public bytecode.test.abstractfunctioncall.baseGreeting();
     Code:
@@ -26,8 +20,14 @@ defines module bytecode.test.abstractfunctioncall
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
 
-  public abstract org.ek9.lang.String _call(org.ek9.lang.String);
-  }`
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+}`
 
   defines function
 
@@ -47,26 +47,6 @@ defines module bytecode.test.abstractfunctioncall
          0: getstatic     #CP                 // Field INSTANCE:Lbytecode/test/abstractfunctioncall/helloGreeting;
          3: areturn
 
-  static {};
-    Code:
-         0: new           #CP                  // class bytecode/test/abstractfunctioncall/helloGreeting
-         3: dup
-         4: invokespecial #CP                 // Method "<init>":()V
-         7: putstatic     #CP                 // Field INSTANCE:Lbytecode/test/abstractfunctioncall/helloGreeting;
-        10: return
-
-  private void i_init();
-    Code:
-         0: return
-
-  public bytecode.test.abstractfunctioncall.helloGreeting();
-    Code:
-         0: aload_0
-         1: invokespecial #CP                 // Method bytecode/test/abstractfunctioncall/baseGreeting."<init>":()V
-         4: aload_0
-         5: invokevirtual #CP                 // Method i_init:()V
-         8: return
-
   public org.ek9.lang.String _call(org.ek9.lang.String);
     Code:
          0: aconst_null
@@ -84,6 +64,26 @@ defines module bytecode.test.abstractfunctioncall
         21: astore_2
         22: aload_2
         23: areturn
+
+  public bytecode.test.abstractfunctioncall.helloGreeting();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method bytecode/test/abstractfunctioncall/baseGreeting."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
+
+  static {};
+    Code:
+         0: new           #CP                  // class bytecode/test/abstractfunctioncall/helloGreeting
+         3: dup
+         4: invokespecial #CP                 // Method "<init>":()V
+         7: putstatic     #CP                 // Field INSTANCE:Lbytecode/test/abstractfunctioncall/helloGreeting;
+        10: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
     helloGreeting() extends baseGreeting
       -> name as String

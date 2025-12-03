@@ -13,107 +13,107 @@ defines module ternaryInteger.test
 
     @IR: IR_GENERATION: FUNCTION: "ternaryInteger.test::testTernaryWithIntegers": `
     ConstructDfn: ternaryInteger.test::testTernaryWithIntegers()->org.ek9.lang::Void
-    OperationDfn: ternaryInteger.test::testTernaryWithIntegers.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: ternaryInteger.test::testTernaryWithIntegers.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: ternaryInteger.test::testTernaryWithIntegers.testTernaryWithIntegers()->ternaryInteger.test::testTernaryWithIntegers
-    BasicBlock: _entry_1
-    CALL (ternaryInteger.test::testTernaryWithIntegers)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: ternaryInteger.test::testTernaryWithIntegers._call()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE x, org.ek9.lang::Integer
-    _temp1 = LOAD_LITERAL 15, org.ek9.lang::Integer
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE x, _temp1
-    RETAIN x
-    SCOPE_REGISTER x, _scope_1
-    REFERENCE condition, org.ek9.lang::Boolean
-    _temp3 = LOAD x
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_1
-    _temp4 = LOAD_LITERAL 10, org.ek9.lang::Integer
-    RETAIN _temp4
-    SCOPE_REGISTER _temp4, _scope_1
-    _temp2 = CALL (org.ek9.lang::Integer)_temp3._gt(_temp4) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_1
-    STORE condition, _temp2
-    RETAIN condition
-    SCOPE_REGISTER condition, _scope_1
-    REFERENCE result, org.ek9.lang::Integer
-    SCOPE_ENTER _scope_2
-    _temp5 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "TERNARY_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_4
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_3
-    _temp6 = LOAD condition
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_3
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_3
-    ]
-    condition_result: _temp6
-    primitive_condition: _temp7
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_4
-    _temp8 = LOAD_LITERAL 100, org.ek9.lang::Integer
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_4
-    RELEASE _temp5
-    STORE _temp5, _temp8
-    RETAIN _temp5
-    SCOPE_EXIT _scope_4
-    ]
-    body_result: _temp5
-    ]
-    ]
-    default_body_evaluation:
-    [
-    SCOPE_ENTER _scope_5
-    _temp9 = LOAD_LITERAL 200, org.ek9.lang::Integer
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_5
-    RELEASE _temp5
-    STORE _temp5, _temp9
-    RETAIN _temp5
-    SCOPE_EXIT _scope_5
-    ]
-    default_result: _temp5
-    scope_id: _scope_2
-    ]
-    SCOPE_EXIT _scope_2
-    RETAIN _temp5
-    SCOPE_REGISTER _temp5, _scope_1
-    STORE result, _temp5
-    RETAIN result
-    SCOPE_REGISTER result, _scope_1
-    _temp11 = LOAD result
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_1
-    _temp12 = LOAD_LITERAL 100, org.ek9.lang::Integer
-    RETAIN _temp12
-    SCOPE_REGISTER _temp12, _scope_1
-    _temp10 = CALL (org.ek9.lang::Integer)_temp11._eq(_temp12) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, _scope_1
-    _temp13 = CALL (org.ek9.lang::Boolean)_temp10._true() [pure=true, complexity=0]
-    ASSERT _temp13
-    SCOPE_EXIT _scope_1
-    RETURN`
+OperationDfn: ternaryInteger.test::testTernaryWithIntegers._call()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE x, org.ek9.lang::Integer
+_temp1 = LOAD_LITERAL 15, org.ek9.lang::Integer
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE x, _temp1
+RETAIN x
+SCOPE_REGISTER x, _scope_1
+REFERENCE condition, org.ek9.lang::Boolean
+_temp3 = LOAD x
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_1
+_temp4 = LOAD_LITERAL 10, org.ek9.lang::Integer
+RETAIN _temp4
+SCOPE_REGISTER _temp4, _scope_1
+_temp2 = CALL (org.ek9.lang::Integer)_temp3._gt(_temp4) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+STORE condition, _temp2
+RETAIN condition
+SCOPE_REGISTER condition, _scope_1
+REFERENCE result, org.ek9.lang::Integer
+SCOPE_ENTER _scope_2
+_temp5 = CONTROL_FLOW_CHAIN
+[
+chain_type: "TERNARY_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_4
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_3
+_temp6 = LOAD condition
+RETAIN _temp6
+SCOPE_REGISTER _temp6, _scope_3
+_temp7 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_3
+]
+condition_result: _temp6
+primitive_condition: _temp7
+body_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp8 = LOAD_LITERAL 100, org.ek9.lang::Integer
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_4
+RELEASE _temp5
+STORE _temp5, _temp8
+RETAIN _temp5
+SCOPE_EXIT _scope_4
+]
+body_result: _temp5
+]
+]
+default_body_evaluation:
+[
+SCOPE_ENTER _scope_5
+_temp9 = LOAD_LITERAL 200, org.ek9.lang::Integer
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_5
+RELEASE _temp5
+STORE _temp5, _temp9
+RETAIN _temp5
+SCOPE_EXIT _scope_5
+]
+default_result: _temp5
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+RETAIN _temp5
+SCOPE_REGISTER _temp5, _scope_1
+STORE result, _temp5
+RETAIN result
+SCOPE_REGISTER result, _scope_1
+_temp11 = LOAD result
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_1
+_temp12 = LOAD_LITERAL 100, org.ek9.lang::Integer
+RETAIN _temp12
+SCOPE_REGISTER _temp12, _scope_1
+_temp10 = CALL (org.ek9.lang::Integer)_temp11._eq(_temp12) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp10
+SCOPE_REGISTER _temp10, _scope_1
+_temp13 = CALL (org.ek9.lang::Boolean)_temp10._true() [pure=true, complexity=0]
+ASSERT _temp13
+SCOPE_EXIT _scope_1
+RETURN
+OperationDfn: ternaryInteger.test::testTernaryWithIntegers.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: ternaryInteger.test::testTernaryWithIntegers.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: ternaryInteger.test::testTernaryWithIntegers.testTernaryWithIntegers()->ternaryInteger.test::testTernaryWithIntegers  
+BasicBlock: _entry_1
+CALL (ternaryInteger.test::testTernaryWithIntegers)this.i_init() [pure=false, complexity=0]
+RETURN this`
     testTernaryWithIntegers()
       x <- 15
       condition <- x > 10

@@ -9,18 +9,10 @@ defines module bytecode.test
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::TryCatchFinally":`public class bytecode.test.TryCatchFinally {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.TryCatchFinally();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -92,6 +84,14 @@ defines module bytecode.test
             14    64    67   Class org/ek9/lang/Exception
             94   117    89   Class org/ek9/lang/Exception
             14    89    90   any
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
     TryCatchFinally()
       stdout <- Stdout()

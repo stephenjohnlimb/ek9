@@ -13,16 +13,6 @@ defines module shiftLeft.test
 
     @IR: IR_GENERATION: FUNCTION: "shiftLeft.test::testShiftLeft": `
     ConstructDfn: shiftLeft.test::testShiftLeft()->org.ek9.lang::Void
-    OperationDfn: shiftLeft.test::testShiftLeft.c_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: shiftLeft.test::testShiftLeft.i_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: shiftLeft.test::testShiftLeft.testShiftLeft()->shiftLeft.test::testShiftLeft  // ./shift_left_operator.ek9:94:5
-    BasicBlock: _entry_1
-    CALL (shiftLeft.test::testShiftLeft)this.i_init() [pure=false, complexity=0]  // ./shift_left_operator.ek9:94:5
-    RETURN this  // ./shift_left_operator.ek9:94:5
     OperationDfn: shiftLeft.test::testShiftLeft._call()->org.ek9.lang::Void  // ./shift_left_operator.ek9:94:5
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./shift_left_operator.ek9:95:7
@@ -90,7 +80,17 @@ defines module shiftLeft.test
     _temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]  // ./shift_left_operator.ek9:98:7
     ASSERT _temp11  // ./shift_left_operator.ek9:98:7
     SCOPE_EXIT _scope_1  // ./shift_left_operator.ek9:95:7
-    RETURN  // ./shift_left_operator.ek9:94:5`
+    RETURN  // ./shift_left_operator.ek9:94:5
+    OperationDfn: shiftLeft.test::testShiftLeft.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: shiftLeft.test::testShiftLeft.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: shiftLeft.test::testShiftLeft.testShiftLeft()->shiftLeft.test::testShiftLeft  // ./shift_left_operator.ek9:94:5
+    BasicBlock: _entry_1
+    CALL (shiftLeft.test::testShiftLeft)this.i_init() [pure=false, complexity=0]  // ./shift_left_operator.ek9:94:5
+    RETURN this  // ./shift_left_operator.ek9:94:5`
     testShiftLeft()
       bits as Bits: 0b01010101
       shiftAmount as Integer: 2

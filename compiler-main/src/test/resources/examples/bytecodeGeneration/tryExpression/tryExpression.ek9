@@ -13,18 +13,10 @@ defines module bytecode.test.tryexpr
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.tryexpr::TryExpression": `public class bytecode.test.tryexpr.TryExpression {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.tryexpr.TryExpression();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -93,8 +85,15 @@ defines module bytecode.test.tryexpr
       Exception table:
          from    to  target type
             31    56    59   Class org/ek9/lang/Exception
-}
-`
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+}`
 
     TryExpression()
       -> input as Integer

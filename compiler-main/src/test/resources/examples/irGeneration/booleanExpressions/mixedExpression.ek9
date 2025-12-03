@@ -6,88 +6,88 @@ defines module booleanExpressions
 
     @IR: IR_GENERATION: FUNCTION: "booleanExpressions::mixedBooleanExpression": `
     ConstructDfn: booleanExpressions::mixedBooleanExpression(org.ek9.lang::Boolean,org.ek9.lang::Boolean,org.ek9.lang::Boolean)->org.ek9.lang::Boolean
-    OperationDfn: booleanExpressions::mixedBooleanExpression.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: booleanExpressions::mixedBooleanExpression.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: booleanExpressions::mixedBooleanExpression.mixedBooleanExpression()->booleanExpressions::mixedBooleanExpression  // ./mixedExpression.ek9:91:5
-    BasicBlock: _entry_1
-    CALL (booleanExpressions::mixedBooleanExpression)this.i_init() [pure=false, complexity=0]  // ./mixedExpression.ek9:91:5
-    RETURN this  // ./mixedExpression.ek9:91:5
-    OperationDfn: booleanExpressions::mixedBooleanExpression._call(org.ek9.lang::Boolean,org.ek9.lang::Boolean,org.ek9.lang::Boolean)->org.ek9.lang::Boolean  // ./mixedExpression.ek9:91:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./mixedExpression.ek9:99:7
-    REFERENCE arg0, org.ek9.lang::Boolean  // ./mixedExpression.ek9:93:9
-    REFERENCE arg1, org.ek9.lang::Boolean  // ./mixedExpression.ek9:94:9
-    REFERENCE arg2, org.ek9.lang::Boolean  // ./mixedExpression.ek9:95:9
-    REFERENCE rtn, org.ek9.lang::Boolean  // ./mixedExpression.ek9:97:9
-    _temp1 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./mixedExpression.ek9:97:25
-    RETAIN _temp1  // ./mixedExpression.ek9:97:25
-    SCOPE_REGISTER _temp1, _scope_1  // ./mixedExpression.ek9:97:25
-    STORE rtn, _temp1  // ./mixedExpression.ek9:97:25
-    RETAIN rtn  // ./mixedExpression.ek9:97:25
-    _temp2 = LOGICAL_AND_BLOCK  // ./mixedExpression.ek9:99:12
-    [
-    left_evaluation:
-    [
-    _temp3 = LOAD arg0  // ./mixedExpression.ek9:99:12
-    RETAIN _temp3  // ./mixedExpression.ek9:99:12
-    SCOPE_REGISTER _temp3, _scope_1  // ./mixedExpression.ek9:99:12
-    _temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=true, complexity=0]  // ./mixedExpression.ek9:99:12
-    ]
-    left_operand: _temp3
-    left_condition: _temp4
-    right_evaluation:
-    [
-    _temp5 = LOGICAL_OR_BLOCK  // ./mixedExpression.ek9:99:22
-    [
-    left_evaluation:
-    [
-    _temp6 = LOAD arg1  // ./mixedExpression.ek9:99:22
-    RETAIN _temp6  // ./mixedExpression.ek9:99:22
-    SCOPE_REGISTER _temp6, _scope_1  // ./mixedExpression.ek9:99:22
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]  // ./mixedExpression.ek9:99:22
-    ]
-    left_operand: _temp6
-    left_condition: _temp7
-    right_evaluation:
-    [
-    _temp8 = LOAD arg2  // ./mixedExpression.ek9:99:30
-    RETAIN _temp8  // ./mixedExpression.ek9:99:30
-    SCOPE_REGISTER _temp8, _scope_1  // ./mixedExpression.ek9:99:30
-    ]
-    right_operand: _temp8
-    result_computation:
-    [
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp6._or(_temp8) [pure=true, complexity=0]  // ./mixedExpression.ek9:99:22
-    RETAIN _temp9  // ./mixedExpression.ek9:99:22
-    SCOPE_REGISTER _temp9, _scope_1  // ./mixedExpression.ek9:99:22
-    ]
-    logical_result: _temp9
-    scope_id: _scope_1
-    ]
-    RETAIN _temp5  // ./mixedExpression.ek9:99:21
-    SCOPE_REGISTER _temp5, _scope_1  // ./mixedExpression.ek9:99:21
-    ]
-    right_operand: _temp5
-    result_computation:
-    [
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp3._and(_temp5) [pure=true, complexity=0]  // ./mixedExpression.ek9:99:12
-    RETAIN _temp10  // ./mixedExpression.ek9:99:12
-    SCOPE_REGISTER _temp10, _scope_1  // ./mixedExpression.ek9:99:12
-    ]
-    logical_result: _temp10
-    scope_id: _scope_1
-    ]
-    RETAIN _temp2  // ./mixedExpression.ek9:99:12
-    SCOPE_REGISTER _temp2, _scope_1  // ./mixedExpression.ek9:99:12
-    RELEASE rtn  // ./mixedExpression.ek9:99:12
-    STORE rtn, _temp2  // ./mixedExpression.ek9:99:12
-    RETAIN rtn  // ./mixedExpression.ek9:99:12
-    SCOPE_EXIT _scope_1  // ./mixedExpression.ek9:99:7
-    RETURN rtn  // ./mixedExpression.ek9:97:9`
+OperationDfn: booleanExpressions::mixedBooleanExpression._call(org.ek9.lang::Boolean,org.ek9.lang::Boolean,org.ek9.lang::Boolean)->org.ek9.lang::Boolean  // ./mixedExpression.ek9:91:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./mixedExpression.ek9:99:7
+REFERENCE arg0, org.ek9.lang::Boolean  // ./mixedExpression.ek9:93:9
+REFERENCE arg1, org.ek9.lang::Boolean  // ./mixedExpression.ek9:94:9
+REFERENCE arg2, org.ek9.lang::Boolean  // ./mixedExpression.ek9:95:9
+REFERENCE rtn, org.ek9.lang::Boolean  // ./mixedExpression.ek9:97:9
+_temp1 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./mixedExpression.ek9:97:25
+RETAIN _temp1  // ./mixedExpression.ek9:97:25
+SCOPE_REGISTER _temp1, _scope_1  // ./mixedExpression.ek9:97:25
+STORE rtn, _temp1  // ./mixedExpression.ek9:97:25
+RETAIN rtn  // ./mixedExpression.ek9:97:25
+_temp2 = LOGICAL_AND_BLOCK  // ./mixedExpression.ek9:99:12
+[
+left_evaluation:
+[
+_temp3 = LOAD arg0  // ./mixedExpression.ek9:99:12
+RETAIN _temp3  // ./mixedExpression.ek9:99:12
+SCOPE_REGISTER _temp3, _scope_1  // ./mixedExpression.ek9:99:12
+_temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=true, complexity=0]  // ./mixedExpression.ek9:99:12
+]
+left_operand: _temp3
+left_condition: _temp4
+right_evaluation:
+[
+_temp5 = LOGICAL_OR_BLOCK  // ./mixedExpression.ek9:99:22
+[
+left_evaluation:
+[
+_temp6 = LOAD arg1  // ./mixedExpression.ek9:99:22
+RETAIN _temp6  // ./mixedExpression.ek9:99:22
+SCOPE_REGISTER _temp6, _scope_1  // ./mixedExpression.ek9:99:22
+_temp7 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]  // ./mixedExpression.ek9:99:22
+]
+left_operand: _temp6
+left_condition: _temp7
+right_evaluation:
+[
+_temp8 = LOAD arg2  // ./mixedExpression.ek9:99:30
+RETAIN _temp8  // ./mixedExpression.ek9:99:30
+SCOPE_REGISTER _temp8, _scope_1  // ./mixedExpression.ek9:99:30
+]
+right_operand: _temp8
+result_computation:
+[
+_temp9 = CALL (org.ek9.lang::Boolean)_temp6._or(_temp8) [pure=true, complexity=0]  // ./mixedExpression.ek9:99:22
+RETAIN _temp9  // ./mixedExpression.ek9:99:22
+SCOPE_REGISTER _temp9, _scope_1  // ./mixedExpression.ek9:99:22
+]
+logical_result: _temp9
+scope_id: _scope_1
+]
+RETAIN _temp5  // ./mixedExpression.ek9:99:21
+SCOPE_REGISTER _temp5, _scope_1  // ./mixedExpression.ek9:99:21
+]
+right_operand: _temp5
+result_computation:
+[
+_temp10 = CALL (org.ek9.lang::Boolean)_temp3._and(_temp5) [pure=true, complexity=0]  // ./mixedExpression.ek9:99:12
+RETAIN _temp10  // ./mixedExpression.ek9:99:12
+SCOPE_REGISTER _temp10, _scope_1  // ./mixedExpression.ek9:99:12
+]
+logical_result: _temp10
+scope_id: _scope_1
+]
+RETAIN _temp2  // ./mixedExpression.ek9:99:12
+SCOPE_REGISTER _temp2, _scope_1  // ./mixedExpression.ek9:99:12
+RELEASE rtn  // ./mixedExpression.ek9:99:12
+STORE rtn, _temp2  // ./mixedExpression.ek9:99:12
+RETAIN rtn  // ./mixedExpression.ek9:99:12
+SCOPE_EXIT _scope_1  // ./mixedExpression.ek9:99:7
+RETURN rtn  // ./mixedExpression.ek9:97:9
+OperationDfn: booleanExpressions::mixedBooleanExpression.mixedBooleanExpression()->booleanExpressions::mixedBooleanExpression  // ./mixedExpression.ek9:91:5
+BasicBlock: _entry_1
+CALL (booleanExpressions::mixedBooleanExpression)this.i_init() [pure=false, complexity=0]  // ./mixedExpression.ek9:91:5
+RETURN this  // ./mixedExpression.ek9:91:5
+OperationDfn: booleanExpressions::mixedBooleanExpression.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: booleanExpressions::mixedBooleanExpression.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     mixedBooleanExpression()
       ->
         arg0 as Boolean

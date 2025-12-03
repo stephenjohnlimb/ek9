@@ -4,18 +4,10 @@ defines module bytecode.test.tryassignguard
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.tryassignguard::TryAssignmentGuard": `public class bytecode.test.tryassignguard.TryAssignmentGuard {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.tryassignguard.TryAssignmentGuard();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -173,6 +165,14 @@ defines module bytecode.test.tryassignguard
            201   231   234   Class org/ek9/lang/Exception
            262   287   256   Class org/ek9/lang/Exception
            201   256   257   any
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
 
     TryAssignmentGuard()

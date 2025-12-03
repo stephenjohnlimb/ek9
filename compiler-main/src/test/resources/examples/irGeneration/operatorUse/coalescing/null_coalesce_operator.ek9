@@ -15,16 +15,6 @@ defines module nullCoalesce.test
 
     @IR: IR_GENERATION: FUNCTION: "nullCoalesce.test::testNullCoalesce": `
     ConstructDfn: nullCoalesce.test::testNullCoalesce()->org.ek9.lang::Void
-    OperationDfn: nullCoalesce.test::testNullCoalesce.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: nullCoalesce.test::testNullCoalesce.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: nullCoalesce.test::testNullCoalesce.testNullCoalesce()->nullCoalesce.test::testNullCoalesce
-    BasicBlock: _entry_1
-    CALL (nullCoalesce.test::testNullCoalesce)this.i_init() [pure=false, complexity=0]
-    RETURN this
     OperationDfn: nullCoalesce.test::testNullCoalesce._call()->org.ek9.lang::Void
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1
@@ -87,7 +77,17 @@ defines module nullCoalesce.test
     _temp10 = CALL (org.ek9.lang::Boolean)_temp7._true() [pure=true, complexity=0]
     ASSERT _temp10
     SCOPE_EXIT _scope_1
-    RETURN`
+    RETURN
+    OperationDfn: nullCoalesce.test::testNullCoalesce.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: nullCoalesce.test::testNullCoalesce.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: nullCoalesce.test::testNullCoalesce.testNullCoalesce()->nullCoalesce.test::testNullCoalesce
+    BasicBlock: _entry_1
+    CALL (nullCoalesce.test::testNullCoalesce)this.i_init() [pure=false, complexity=0]
+    RETURN this`
     testNullCoalesce()
       x <- 5
       y <- 10

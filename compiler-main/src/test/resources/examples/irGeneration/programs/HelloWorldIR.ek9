@@ -5,56 +5,56 @@ defines module introduction1
 
     @IR: IR_GENERATION: TYPE: "introduction1::HelloWorld": `
     ConstructDfn: introduction1::HelloWorld
-    PROGRAM_ENTRY_POINT_BLOCK
-    [
-    programs_count: 4
-    available_programs:
-    [
-    introduction1::HelloMessage
-    [
-    0:message:org.ek9.lang::String
-    ]
-    introduction1::HelloWorld
-    introduction2::HelloEarth
-    introduction2::HelloMars
-    ]
-    ]
-    OperationDfn: introduction1::HelloWorld.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: introduction1::HelloWorld.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: introduction1::HelloWorld.HelloWorld()->introduction1::HelloWorld  // ./HelloWorldIR.ek9:58:5
-    BasicBlock: _entry_1
-    CALL (introduction1::HelloWorld)this.i_init() [pure=false, complexity=0]  // ./HelloWorldIR.ek9:58:5
-    RETURN this  // ./HelloWorldIR.ek9:58:5
-    OperationDfn: introduction1::HelloWorld._main()->org.ek9.lang::Void  // ./HelloWorldIR.ek9:58:5
-    BasicBlock: _entry_2
-    SCOPE_ENTER _scope_1  // ./HelloWorldIR.ek9:60:7
-    REFERENCE stdout, org.ek9.lang::Stdout  // ./HelloWorldIR.ek9:60:7
-    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./HelloWorldIR.ek9:60:17
-    RETAIN _temp1  // ./HelloWorldIR.ek9:60:17
-    SCOPE_REGISTER _temp1, _scope_1  // ./HelloWorldIR.ek9:60:17
-    STORE stdout, _temp1  // ./HelloWorldIR.ek9:60:17
-    RETAIN stdout  // ./HelloWorldIR.ek9:60:17
-    SCOPE_REGISTER stdout, _scope_1  // ./HelloWorldIR.ek9:60:17
-    REFERENCE toOutput, org.ek9.lang::String  // ./HelloWorldIR.ek9:61:7
-    _temp2 = LOAD_LITERAL Hello, World, org.ek9.lang::String  // ./HelloWorldIR.ek9:61:19
-    RETAIN _temp2  // ./HelloWorldIR.ek9:61:19
-    SCOPE_REGISTER _temp2, _scope_1  // ./HelloWorldIR.ek9:61:19
-    STORE toOutput, _temp2  // ./HelloWorldIR.ek9:61:19
-    RETAIN toOutput  // ./HelloWorldIR.ek9:61:19
-    SCOPE_REGISTER toOutput, _scope_1  // ./HelloWorldIR.ek9:61:19
-    _temp4 = LOAD stdout  // ./HelloWorldIR.ek9:62:7
-    RETAIN _temp4  // ./HelloWorldIR.ek9:62:7
-    SCOPE_REGISTER _temp4, _scope_1  // ./HelloWorldIR.ek9:62:7
-    _temp5 = LOAD toOutput  // ./HelloWorldIR.ek9:62:22
-    RETAIN _temp5  // ./HelloWorldIR.ek9:62:22
-    SCOPE_REGISTER _temp5, _scope_1  // ./HelloWorldIR.ek9:62:22
-    CALL (org.ek9.lang::Stdout)_temp4.println(_temp5) [pure=true, complexity=1]  // ./HelloWorldIR.ek9:62:14
-    SCOPE_EXIT _scope_1  // ./HelloWorldIR.ek9:60:7
-    RETURN  // ./HelloWorldIR.ek9:58:5`
+PROGRAM_ENTRY_POINT_BLOCK
+[
+programs_count: 4
+available_programs:
+[
+introduction1::HelloMessage
+[
+0:message:org.ek9.lang::String
+]
+introduction1::HelloWorld
+introduction2::HelloEarth
+introduction2::HelloMars
+]
+]
+OperationDfn: introduction1::HelloWorld.HelloWorld()->introduction1::HelloWorld  // ./HelloWorldIR.ek9:58:5
+BasicBlock: _entry_1
+CALL (introduction1::HelloWorld)this.i_init() [pure=false, complexity=0]  // ./HelloWorldIR.ek9:58:5
+RETURN this  // ./HelloWorldIR.ek9:58:5
+OperationDfn: introduction1::HelloWorld._main()->org.ek9.lang::Void  // ./HelloWorldIR.ek9:58:5
+BasicBlock: _entry_2
+SCOPE_ENTER _scope_1  // ./HelloWorldIR.ek9:60:7
+REFERENCE stdout, org.ek9.lang::Stdout  // ./HelloWorldIR.ek9:60:7
+_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./HelloWorldIR.ek9:60:17
+RETAIN _temp1  // ./HelloWorldIR.ek9:60:17
+SCOPE_REGISTER _temp1, _scope_1  // ./HelloWorldIR.ek9:60:17
+STORE stdout, _temp1  // ./HelloWorldIR.ek9:60:17
+RETAIN stdout  // ./HelloWorldIR.ek9:60:17
+SCOPE_REGISTER stdout, _scope_1  // ./HelloWorldIR.ek9:60:17
+REFERENCE toOutput, org.ek9.lang::String  // ./HelloWorldIR.ek9:61:7
+_temp2 = LOAD_LITERAL Hello, World, org.ek9.lang::String  // ./HelloWorldIR.ek9:61:19
+RETAIN _temp2  // ./HelloWorldIR.ek9:61:19
+SCOPE_REGISTER _temp2, _scope_1  // ./HelloWorldIR.ek9:61:19
+STORE toOutput, _temp2  // ./HelloWorldIR.ek9:61:19
+RETAIN toOutput  // ./HelloWorldIR.ek9:61:19
+SCOPE_REGISTER toOutput, _scope_1  // ./HelloWorldIR.ek9:61:19
+_temp4 = LOAD stdout  // ./HelloWorldIR.ek9:62:7
+RETAIN _temp4  // ./HelloWorldIR.ek9:62:7
+SCOPE_REGISTER _temp4, _scope_1  // ./HelloWorldIR.ek9:62:7
+_temp5 = LOAD toOutput  // ./HelloWorldIR.ek9:62:22
+RETAIN _temp5  // ./HelloWorldIR.ek9:62:22
+SCOPE_REGISTER _temp5, _scope_1  // ./HelloWorldIR.ek9:62:22
+CALL (org.ek9.lang::Stdout)_temp4.println(_temp5) [pure=true, complexity=1]  // ./HelloWorldIR.ek9:62:14
+SCOPE_EXIT _scope_1  // ./HelloWorldIR.ek9:60:7
+RETURN  // ./HelloWorldIR.ek9:58:5
+OperationDfn: introduction1::HelloWorld.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: introduction1::HelloWorld.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     HelloWorld()
 
       stdout <- Stdout()
@@ -63,50 +63,50 @@ defines module introduction1
 
     @IR: IR_GENERATION: TYPE: "introduction1::HelloMessage": `
     ConstructDfn: introduction1::HelloMessage
-    PROGRAM_ENTRY_POINT_BLOCK
-    [
-    programs_count: 4
-    available_programs:
-    [
-    introduction1::HelloMessage
-    [
-    0:message:org.ek9.lang::String
-    ]
-    introduction1::HelloWorld
-    introduction2::HelloEarth
-    introduction2::HelloMars
-    ]
-    ]
-    OperationDfn: introduction1::HelloMessage.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: introduction1::HelloMessage.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: introduction1::HelloMessage.HelloMessage()->introduction1::HelloMessage  // ./HelloWorldIR.ek9:110:5
-    BasicBlock: _entry_1
-    CALL (introduction1::HelloMessage)this.i_init() [pure=false, complexity=0]  // ./HelloWorldIR.ek9:110:5
-    RETURN this  // ./HelloWorldIR.ek9:110:5
-    OperationDfn: introduction1::HelloMessage._main(org.ek9.lang::String)->org.ek9.lang::Void  // ./HelloWorldIR.ek9:110:5
-    BasicBlock: _entry_2
-    SCOPE_ENTER _scope_1  // ./HelloWorldIR.ek9:113:7
-    REFERENCE message, org.ek9.lang::String  // ./HelloWorldIR.ek9:111:10
-    REFERENCE stdout, org.ek9.lang::Stdout  // ./HelloWorldIR.ek9:113:7
-    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./HelloWorldIR.ek9:113:17
-    RETAIN _temp1  // ./HelloWorldIR.ek9:113:17
-    SCOPE_REGISTER _temp1, _scope_1  // ./HelloWorldIR.ek9:113:17
-    STORE stdout, _temp1  // ./HelloWorldIR.ek9:113:17
-    RETAIN stdout  // ./HelloWorldIR.ek9:113:17
-    SCOPE_REGISTER stdout, _scope_1  // ./HelloWorldIR.ek9:113:17
-    _temp3 = LOAD stdout  // ./HelloWorldIR.ek9:114:7
-    RETAIN _temp3  // ./HelloWorldIR.ek9:114:7
-    SCOPE_REGISTER _temp3, _scope_1  // ./HelloWorldIR.ek9:114:7
-    _temp4 = LOAD message  // ./HelloWorldIR.ek9:114:22
-    RETAIN _temp4  // ./HelloWorldIR.ek9:114:22
-    SCOPE_REGISTER _temp4, _scope_1  // ./HelloWorldIR.ek9:114:22
-    CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=true, complexity=1]  // ./HelloWorldIR.ek9:114:14
-    SCOPE_EXIT _scope_1  // ./HelloWorldIR.ek9:113:7
-    RETURN  // ./HelloWorldIR.ek9:110:5`
+PROGRAM_ENTRY_POINT_BLOCK
+[
+programs_count: 4
+available_programs:
+[
+introduction1::HelloMessage
+[
+0:message:org.ek9.lang::String
+]
+introduction1::HelloWorld
+introduction2::HelloEarth
+introduction2::HelloMars
+]
+]
+OperationDfn: introduction1::HelloMessage.HelloMessage()->introduction1::HelloMessage  // ./HelloWorldIR.ek9:110:5
+BasicBlock: _entry_1
+CALL (introduction1::HelloMessage)this.i_init() [pure=false, complexity=0]  // ./HelloWorldIR.ek9:110:5
+RETURN this  // ./HelloWorldIR.ek9:110:5
+OperationDfn: introduction1::HelloMessage._main(org.ek9.lang::String)->org.ek9.lang::Void  // ./HelloWorldIR.ek9:110:5
+BasicBlock: _entry_2
+SCOPE_ENTER _scope_1  // ./HelloWorldIR.ek9:113:7
+REFERENCE message, org.ek9.lang::String  // ./HelloWorldIR.ek9:111:10
+REFERENCE stdout, org.ek9.lang::Stdout  // ./HelloWorldIR.ek9:113:7
+_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./HelloWorldIR.ek9:113:17
+RETAIN _temp1  // ./HelloWorldIR.ek9:113:17
+SCOPE_REGISTER _temp1, _scope_1  // ./HelloWorldIR.ek9:113:17
+STORE stdout, _temp1  // ./HelloWorldIR.ek9:113:17
+RETAIN stdout  // ./HelloWorldIR.ek9:113:17
+SCOPE_REGISTER stdout, _scope_1  // ./HelloWorldIR.ek9:113:17
+_temp3 = LOAD stdout  // ./HelloWorldIR.ek9:114:7
+RETAIN _temp3  // ./HelloWorldIR.ek9:114:7
+SCOPE_REGISTER _temp3, _scope_1  // ./HelloWorldIR.ek9:114:7
+_temp4 = LOAD message  // ./HelloWorldIR.ek9:114:22
+RETAIN _temp4  // ./HelloWorldIR.ek9:114:22
+SCOPE_REGISTER _temp4, _scope_1  // ./HelloWorldIR.ek9:114:22
+CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=true, complexity=1]  // ./HelloWorldIR.ek9:114:14
+SCOPE_EXIT _scope_1  // ./HelloWorldIR.ek9:113:7
+RETURN  // ./HelloWorldIR.ek9:110:5
+OperationDfn: introduction1::HelloMessage.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: introduction1::HelloMessage.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     HelloMessage()
       -> message as String
 

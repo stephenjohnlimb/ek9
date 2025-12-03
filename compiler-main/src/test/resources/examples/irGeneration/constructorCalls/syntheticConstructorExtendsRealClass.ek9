@@ -16,6 +16,11 @@ defines module constructorCalls
     @IR: IR_GENERATION: TYPE: "constructorCalls::ChildWithSyntheticConstructor": `
     ConstructDfn: constructorCalls::ChildWithSyntheticConstructor
     Field: childField, org.ek9.lang::String  // ./syntheticConstructorExtendsRealClass.ek9:38:7
+    OperationDfn: constructorCalls::ChildWithSyntheticConstructor.ChildWithSyntheticConstructor()->constructorCalls::ChildWithSyntheticConstructor  // ./syntheticConstructorExtendsRealClass.ek9:37:5
+    BasicBlock: _entry_1
+    _temp_super_init = CALL (constructorCalls::SyntheticBase)super.<init>() [pure=false, complexity=0]
+    CALL (constructorCalls::ChildWithSyntheticConstructor)this.i_init() [pure=false, complexity=0]  // ./syntheticConstructorExtendsRealClass.ek9:37:5
+    RETURN this  // ./syntheticConstructorExtendsRealClass.ek9:37:5
     OperationDfn: constructorCalls::ChildWithSyntheticConstructor.c_init()->org.ek9.lang::Void
     BasicBlock: _entry_1
     _temp_c_init = CALL_STATIC (constructorCalls::SyntheticBase).c_init() [pure=false, complexity=0]
@@ -28,12 +33,7 @@ defines module constructorCalls
     SCOPE_REGISTER _temp1, i_init  // ./syntheticConstructorExtendsRealClass.ek9:38:31
     STORE this.childField, _temp1  // ./syntheticConstructorExtendsRealClass.ek9:38:31
     RETAIN this.childField  // ./syntheticConstructorExtendsRealClass.ek9:38:31
-    RETURN
-    OperationDfn: constructorCalls::ChildWithSyntheticConstructor.ChildWithSyntheticConstructor()->constructorCalls::ChildWithSyntheticConstructor  // ./syntheticConstructorExtendsRealClass.ek9:37:5
-    BasicBlock: _entry_1
-    _temp_super_init = CALL (constructorCalls::SyntheticBase)super.<init>() [pure=false, complexity=0]
-    CALL (constructorCalls::ChildWithSyntheticConstructor)this.i_init() [pure=false, complexity=0]  // ./syntheticConstructorExtendsRealClass.ek9:37:5
-    RETURN this  // ./syntheticConstructorExtendsRealClass.ek9:37:5`
+    RETURN`
     ChildWithSyntheticConstructor extends SyntheticBase
       childField as String := "Child Field"
       // No explicit constructor - synthetic one should call SyntheticBase.<init>, not SyntheticBase.SyntheticBase()

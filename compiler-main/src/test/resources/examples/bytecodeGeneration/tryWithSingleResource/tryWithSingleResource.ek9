@@ -29,18 +29,10 @@ defines module bytecode.test
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::TryWithSingleResource":`public class bytecode.test.TryWithSingleResource {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.TryWithSingleResource();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -139,6 +131,14 @@ defines module bytecode.test
             38    94    97   Class org/ek9/lang/Exception
            118   130   112   Class org/ek9/lang/Exception
             38   112   113   any
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
     TryWithSingleResource()
       result <- String()

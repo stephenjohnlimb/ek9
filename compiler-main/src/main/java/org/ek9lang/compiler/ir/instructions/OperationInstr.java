@@ -1,5 +1,7 @@
 package org.ek9lang.compiler.ir.instructions;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.symbols.ISymbol;
@@ -16,11 +18,13 @@ import org.ek9lang.core.AssertValue;
  * function signature would be applied (to the 'call' operation).
  * </p>
  */
-public final class OperationInstr implements INode {
+public final class OperationInstr implements INode, Comparable<OperationInstr> {
 
   private final DebugInfo debugInfo;
   private BasicBlockInstr basicBlockBody;
   private final ISymbol symbol;
+  private boolean isDispatcher = false;
+  private final List<OperationInstr> dispatchImplementations = new ArrayList<>();
 
   public OperationInstr(final ISymbol symbol, final DebugInfo debugInfo) {
 
@@ -47,11 +51,30 @@ public final class OperationInstr implements INode {
     return debugInfo;
   }
 
+  public boolean isDispatcher() {
+    return isDispatcher;
+  }
+
+  public void setDispatcher(boolean dispatcher) {
+    isDispatcher = dispatcher;
+  }
+
+  public List<OperationInstr> getDispatchImplementations() {
+    return List.copyOf(dispatchImplementations);
+  }
+
+  public void addDispatchImplementation(final OperationInstr impl) {
+    AssertValue.checkNotNull("Dispatch implementation cannot be null", impl);
+    dispatchImplementations.add(impl);
+  }
+
   @SuppressWarnings("checkstyle:OperatorWrap")
   @Override
   public String toString() {
     return "OperationInstr{"
         + "symbol=" + symbol
+        + ", isDispatcher=" + isDispatcher
+        + ", dispatchImplementations=" + dispatchImplementations
         + ", body=" + basicBlockBody
         + '}';
   }
@@ -59,5 +82,10 @@ public final class OperationInstr implements INode {
   @Override
   public void accept(final INodeVisitor visitor) {
     visitor.visit(this);
+  }
+
+  @Override
+  public int compareTo(final OperationInstr o) {
+    return symbol.getFriendlyName().compareTo(o.getSymbol().getFriendlyName());
   }
 }

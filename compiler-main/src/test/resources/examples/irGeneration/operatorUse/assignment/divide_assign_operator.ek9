@@ -14,16 +14,6 @@ defines module divide_assign.test
   
     @IR: IR_GENERATION: FUNCTION: "divide_assign.test::testDivideAssign": `
 ConstructDfn: divide_assign.test::testDivideAssign()->org.ek9.lang::Void
-OperationDfn: divide_assign.test::testDivideAssign.c_init()->org.ek9.lang::Void  
-BasicBlock: _entry_1
-RETURN
-OperationDfn: divide_assign.test::testDivideAssign.i_init()->org.ek9.lang::Void  
-BasicBlock: _entry_1
-RETURN
-OperationDfn: divide_assign.test::testDivideAssign.testDivideAssign()->divide_assign.test::testDivideAssign  // ./divide_assign_operator.ek9:82:5
-BasicBlock: _entry_1
-CALL (divide_assign.test::testDivideAssign)this.i_init() [pure=false, complexity=0]  // ./divide_assign_operator.ek9:82:5
-RETURN this  // ./divide_assign_operator.ek9:82:5
 OperationDfn: divide_assign.test::testDivideAssign._call()->org.ek9.lang::Void  // ./divide_assign_operator.ek9:82:5
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1  // ./divide_assign_operator.ek9:83:7
@@ -78,7 +68,17 @@ SCOPE_REGISTER _temp4, _scope_1  // ./divide_assign_operator.ek9:85:7
 _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./divide_assign_operator.ek9:85:7
 ASSERT _temp9  // ./divide_assign_operator.ek9:85:7
 SCOPE_EXIT _scope_1  // ./divide_assign_operator.ek9:83:7
-RETURN  // ./divide_assign_operator.ek9:82:5`
+RETURN  // ./divide_assign_operator.ek9:82:5
+OperationDfn: divide_assign.test::testDivideAssign.c_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: divide_assign.test::testDivideAssign.i_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: divide_assign.test::testDivideAssign.testDivideAssign()->divide_assign.test::testDivideAssign  // ./divide_assign_operator.ek9:82:5
+BasicBlock: _entry_1
+CALL (divide_assign.test::testDivideAssign)this.i_init() [pure=false, complexity=0]  // ./divide_assign_operator.ek9:82:5
+RETURN this  // ./divide_assign_operator.ek9:82:5`
     testDivideAssign()
       x as Integer: 12
       x /= 3

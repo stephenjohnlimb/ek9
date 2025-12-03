@@ -14,16 +14,6 @@ defines module subtract_assign.test
   
     @IR: IR_GENERATION: FUNCTION: "subtract_assign.test::testSubtractAssign": `
 ConstructDfn: subtract_assign.test::testSubtractAssign()->org.ek9.lang::Void
-OperationDfn: subtract_assign.test::testSubtractAssign.c_init()->org.ek9.lang::Void  
-BasicBlock: _entry_1
-RETURN
-OperationDfn: subtract_assign.test::testSubtractAssign.i_init()->org.ek9.lang::Void  
-BasicBlock: _entry_1
-RETURN
-OperationDfn: subtract_assign.test::testSubtractAssign.testSubtractAssign()->subtract_assign.test::testSubtractAssign  // ./subtract_assign_operator.ek9:82:5
-BasicBlock: _entry_1
-CALL (subtract_assign.test::testSubtractAssign)this.i_init() [pure=false, complexity=0]  // ./subtract_assign_operator.ek9:82:5
-RETURN this  // ./subtract_assign_operator.ek9:82:5
 OperationDfn: subtract_assign.test::testSubtractAssign._call()->org.ek9.lang::Void  // ./subtract_assign_operator.ek9:82:5
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1  // ./subtract_assign_operator.ek9:83:7
@@ -78,7 +68,17 @@ SCOPE_REGISTER _temp4, _scope_1  // ./subtract_assign_operator.ek9:85:7
 _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./subtract_assign_operator.ek9:85:7
 ASSERT _temp9  // ./subtract_assign_operator.ek9:85:7
 SCOPE_EXIT _scope_1  // ./subtract_assign_operator.ek9:83:7
-RETURN  // ./subtract_assign_operator.ek9:82:5`
+RETURN  // ./subtract_assign_operator.ek9:82:5
+OperationDfn: subtract_assign.test::testSubtractAssign.c_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: subtract_assign.test::testSubtractAssign.i_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: subtract_assign.test::testSubtractAssign.testSubtractAssign()->subtract_assign.test::testSubtractAssign  // ./subtract_assign_operator.ek9:82:5
+BasicBlock: _entry_1
+CALL (subtract_assign.test::testSubtractAssign)this.i_init() [pure=false, complexity=0]  // ./subtract_assign_operator.ek9:82:5
+RETURN this  // ./subtract_assign_operator.ek9:82:5`
     testSubtractAssign()
       x as Integer: 10
       x -= 3

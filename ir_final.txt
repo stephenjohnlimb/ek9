@@ -1,0 +1,380 @@
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/usr/local/Cellar/maven/3.9.9/libexec/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper (file:/usr/local/Cellar/maven/3.9.9/libexec/lib/guava-33.2.1-jre.jar)
+WARNING: Please consider reporting this to the maintainers of class com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+EK9Comp : Directiv: IR_GENERATION, source: /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/operatorUse/assignment/add_assign_operator.ek9
+EK9Comp : Directiv: E50250: '@' on line 15 position 4: 'IR: IR_GENERATION: FUNCTION: "add_assign.test::testAddAssignment": "
+ConstructDfn: add_assign.test::testAddAssignment()->org.ek9.lang::Void
+OperationDfn: add_assign.test::testAddAssignment._call()->org.ek9.lang::Void  // ./add_assign_operator.ek9:82:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./add_assign_operator.ek9:83:7
+REFERENCE value, org.ek9.lang::Integer  // ./add_assign_operator.ek9:83:7
+_temp1 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./add_assign_operator.ek9:83:25
+RETAIN _temp1  // ./add_assign_operator.ek9:83:25
+SCOPE_REGISTER _temp1, _scope_1  // ./add_assign_operator.ek9:83:25
+STORE value, _temp1  // ./add_assign_operator.ek9:83:25
+RETAIN value  // ./add_assign_operator.ek9:83:25
+SCOPE_REGISTER value, _scope_1  // ./add_assign_operator.ek9:83:25
+_temp2 = LOAD value  // ./add_assign_operator.ek9:84:13
+RETAIN _temp2  // ./add_assign_operator.ek9:84:13
+SCOPE_REGISTER _temp2, _scope_1  // ./add_assign_operator.ek9:84:13
+_temp3 = LOAD_LITERAL 10, org.ek9.lang::Integer  // ./add_assign_operator.ek9:84:16
+RETAIN _temp3  // ./add_assign_operator.ek9:84:13
+SCOPE_REGISTER _temp3, _scope_1  // ./add_assign_operator.ek9:84:13
+CALL (org.ek9.lang::Integer)_temp2._addAss(_temp3) [pure=false, complexity=0, effects=THIS_MUTATION]  // ./add_assign_operator.ek9:84:13
+_temp4 = CONTROL_FLOW_CHAIN  // ./add_assign_operator.ek9:85:19
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp5 = LOAD value  // ./add_assign_operator.ek9:85:19
+_temp6 = IS_NULL _temp5  // ./add_assign_operator.ek9:85:19
+]
+primitive_condition: _temp6
+body_evaluation:
+[
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./add_assign_operator.ek9:85:19
+RETAIN _temp7  // ./add_assign_operator.ek9:85:19
+SCOPE_REGISTER _temp7, _scope_1  // ./add_assign_operator.ek9:85:19
+]
+body_result: _temp7
+]
+]
+default_body_evaluation:
+[
+_temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./add_assign_operator.ek9:85:19
+RETAIN _temp8  // ./add_assign_operator.ek9:85:19
+SCOPE_REGISTER _temp8, _scope_1  // ./add_assign_operator.ek9:85:19
+]
+default_result: _temp8
+scope_id: _scope_1
+]
+RETAIN _temp4  // ./add_assign_operator.ek9:85:7
+SCOPE_REGISTER _temp4, _scope_1  // ./add_assign_operator.ek9:85:7
+_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./add_assign_operator.ek9:85:7
+ASSERT _temp9  // ./add_assign_operator.ek9:85:7
+SCOPE_EXIT _scope_1  // ./add_assign_operator.ek9:83:7
+RETURN  // ./add_assign_operator.ek9:82:5
+OperationDfn: add_assign.test::testAddAssignment.c_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: add_assign.test::testAddAssignment.i_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: add_assign.test::testAddAssignment.testAddAssignment()->add_assign.test::testAddAssignment  // ./add_assign_operator.ek9:82:5
+BasicBlock: _entry_1
+CALL (add_assign.test::testAddAssignment)this.i_init() [pure=false, complexity=0]  // ./add_assign_operator.ek9:82:5
+RETURN this  // ./add_assign_operator.ek9:82:5": Line: 82': symbol not resolved
+             See: https://ek9.io/errors.html#E50250
+Dumping all Symbols from all Modules
+For scope name [add_assign.test] /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/operatorUse/assignment/add_assign_operator.ek9
+Internal Name: [testAddAssign] Presentable Name: [Void <- testAddAssign()] [add_assign.test::testAddAssign] as FUNCTION
+For scope name [anaddass.test] /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/operatorUse/assignment/add_assignment_operator.ek9
+Internal Name: [testAddAssignment] Presentable Name: [Void <- testAddAssignment()] [anaddass.test::testAddAssignment] as FUNCTION
+For scope name [colon_equals_assignment.test] /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/operatorUse/assignment/colon_equals_assignment_operator.ek9
+Internal Name: [testColonEqualsAssignment] Presentable Name: [Void <- testColonEqualsAssignment()] [colon_equals_assignment.test::testColonEqualsAssignment] as FUNCTION
+For scope name [divide_assign.test] /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/operatorUse/assignment/divide_assign_operator.ek9
+Internal Name: [testDivideAssign] Presentable Name: [Void <- testDivideAssign()] [divide_assign.test::testDivideAssign] as FUNCTION
+For scope name [equals_assignment.test] /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/operatorUse/assignment/equals_assignment_operator.ek9
+Internal Name: [testEqualsAssignment] Presentable Name: [Void <- testEqualsAssignment()] [equals_assignment.test::testEqualsAssignment] as FUNCTION
+For scope name [multiply_assign.test] /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/operatorUse/assignment/multiply_assign_operator.ek9
+Internal Name: [testMultiplyAssign] Presentable Name: [Void <- testMultiplyAssign()] [multiply_assign.test::testMultiplyAssign] as FUNCTION
+For scope name [org.ek9.lang] org-ek9-lang.ek9
+Internal Name: [Any] Presentable Name: [Any] [org.ek9.lang::Any] as ANY
+Internal Name: [Aspect] Presentable Name: [Aspect] [org.ek9.lang::Aspect] as TYPE
+Internal Name: [Bits] Presentable Name: [Bits] [org.ek9.lang::Bits] as TYPE
+Internal Name: [Boolean] Presentable Name: [Boolean] [org.ek9.lang::Boolean] as TYPE
+Internal Name: [Character] Presentable Name: [Character] [org.ek9.lang::Character] as TYPE
+Internal Name: [Colour] Presentable Name: [Colour] [org.ek9.lang::Colour] as TYPE
+Internal Name: [Date] Presentable Name: [Date] [org.ek9.lang::Date] as TYPE
+Internal Name: [DateTime] Presentable Name: [DateTime] [org.ek9.lang::DateTime] as TYPE
+Internal Name: [Dimension] Presentable Name: [Dimension] [org.ek9.lang::Dimension] as TYPE
+Internal Name: [Duration] Presentable Name: [Duration] [org.ek9.lang::Duration] as TYPE
+Internal Name: [EnvVars] Presentable Name: [EnvVars] [org.ek9.lang::EnvVars] as TYPE
+Internal Name: [Exception] Presentable Name: [Exception] [org.ek9.lang::Exception] as TYPE
+Internal Name: [FileSystem] Presentable Name: [FileSystem] [org.ek9.lang::FileSystem] as TYPE
+Internal Name: [FileSystemPath] Presentable Name: [FileSystemPath] [org.ek9.lang::FileSystemPath] as TYPE
+Internal Name: [Float] Presentable Name: [Float] [org.ek9.lang::Float] as TYPE
+Internal Name: [GUID] Presentable Name: [GUID] [org.ek9.lang::GUID] as TYPE
+Internal Name: [GetOpt] Presentable Name: [GetOpt] [org.ek9.lang::GetOpt] as TYPE
+Internal Name: [HMAC] Presentable Name: [HMAC] [org.ek9.lang::HMAC] as TYPE
+Internal Name: [Integer] Presentable Name: [Integer] [org.ek9.lang::Integer] as TYPE
+Internal Name: [JSON] Presentable Name: [JSON] [org.ek9.lang::JSON] as TYPE
+Internal Name: [JoinPoint] Presentable Name: [JoinPoint] [org.ek9.lang::JoinPoint] as TYPE
+Internal Name: [Locale] Presentable Name: [Locale] [org.ek9.lang::Locale] as TYPE
+Internal Name: [Millisecond] Presentable Name: [Millisecond] [org.ek9.lang::Millisecond] as TYPE
+Internal Name: [Money] Presentable Name: [Money] [org.ek9.lang::Money] as TYPE
+Internal Name: [OS] Presentable Name: [OS] [org.ek9.lang::OS] as TYPE
+Internal Name: [Path] Presentable Name: [Path] [org.ek9.lang::Path] as TYPE
+Internal Name: [PreparedMetaData] Presentable Name: [PreparedMetaData] [org.ek9.lang::PreparedMetaData] as TYPE
+Internal Name: [RegEx] Presentable Name: [RegEx] [org.ek9.lang::RegEx] as TYPE
+Internal Name: [Resolution] Presentable Name: [Resolution] [org.ek9.lang::Resolution] as TYPE
+Internal Name: [Signals] Presentable Name: [Signals] [org.ek9.lang::Signals] as TYPE
+Internal Name: [Stderr] Presentable Name: [Stderr] [org.ek9.lang::Stderr] as TYPE
+Internal Name: [Stdin] Presentable Name: [Stdin] [org.ek9.lang::Stdin] as TYPE
+Internal Name: [Stdout] Presentable Name: [Stdout] [org.ek9.lang::Stdout] as TYPE
+Internal Name: [String] Presentable Name: [String] [org.ek9.lang::String] as TYPE
+Internal Name: [SystemClock] Presentable Name: [SystemClock] [org.ek9.lang::SystemClock] as TYPE
+Internal Name: [TCP] Presentable Name: [TCP] [org.ek9.lang::TCP] as TYPE
+Internal Name: [TextFile] Presentable Name: [TextFile] [org.ek9.lang::TextFile] as TYPE
+Internal Name: [Time] Presentable Name: [Time] [org.ek9.lang::Time] as TYPE
+Internal Name: [UDP] Presentable Name: [UDP] [org.ek9.lang::UDP] as TYPE
+Internal Name: [Version] Presentable Name: [Version] [org.ek9.lang::Version] as TYPE
+Internal Name: [Void] Presentable Name: [Void] [org.ek9.lang::Void] as TYPE
+Internal Name: [SignalHandler] Presentable Name: [Integer <- SignalHandler(signal as String) as abstract] [org.ek9.lang::SignalHandler] as FUNCTION
+Internal Name: [TCPHandler] Presentable Name: [Void <- TCPHandler(input as StringInput, output as StringOutput) as abstract] [org.ek9.lang::TCPHandler] as FUNCTION
+Internal Name: [Acceptor] Presentable Name: [Void <- Acceptor(t as T) as abstract of type T] [org.ek9.lang::Acceptor] as TEMPLATE_FUNCTION
+Internal Name: [Assessor] Presentable Name: [Boolean <- Assessor(t as T) as abstract of type T] [org.ek9.lang::Assessor] as TEMPLATE_FUNCTION
+Internal Name: [BiAcceptor] Presentable Name: [Void <- BiAcceptor(t as T, u as U) as abstract of type (T, U)] [org.ek9.lang::BiAcceptor] as TEMPLATE_FUNCTION
+Internal Name: [BiAssessor] Presentable Name: [Boolean <- BiAssessor(t as T, u as U) as abstract of type (T, U)] [org.ek9.lang::BiAssessor] as TEMPLATE_FUNCTION
+Internal Name: [BiConsumer] Presentable Name: [Void <- BiConsumer(t as T, u as U) as abstract of type (T, U)] [org.ek9.lang::BiConsumer] as TEMPLATE_FUNCTION
+Internal Name: [BiFunction] Presentable Name: [R <- BiFunction(t as T, u as U) as abstract of type (T, U, R)] [org.ek9.lang::BiFunction] as TEMPLATE_FUNCTION
+Internal Name: [BiPredicate] Presentable Name: [Boolean <- BiPredicate(t as T, u as U) as abstract of type (T, U)] [org.ek9.lang::BiPredicate] as TEMPLATE_FUNCTION
+Internal Name: [BiRoutine] Presentable Name: [R <- BiRoutine(t as T, u as U) as abstract of type (T, U, R)] [org.ek9.lang::BiRoutine] as TEMPLATE_FUNCTION
+Internal Name: [Comparator] Presentable Name: [Integer <- Comparator(t1 as T, t2 as T) as abstract of type T] [org.ek9.lang::Comparator] as TEMPLATE_FUNCTION
+Internal Name: [Consumer] Presentable Name: [Void <- Consumer(t as T) as abstract of type T] [org.ek9.lang::Consumer] as TEMPLATE_FUNCTION
+Internal Name: [Function] Presentable Name: [R <- Function(t as T) as abstract of type (T, R)] [org.ek9.lang::Function] as TEMPLATE_FUNCTION
+Internal Name: [MutexKey] Presentable Name: [Void <- MutexKey(value as T) as abstract of type T] [org.ek9.lang::MutexKey] as TEMPLATE_FUNCTION
+Internal Name: [Predicate] Presentable Name: [Boolean <- Predicate(t as T) as abstract of type T] [org.ek9.lang::Predicate] as TEMPLATE_FUNCTION
+Internal Name: [Producer] Presentable Name: [T <- Producer() as abstract of type T] [org.ek9.lang::Producer] as TEMPLATE_FUNCTION
+Internal Name: [Routine] Presentable Name: [R <- Routine(t as T) as abstract of type (T, R)] [org.ek9.lang::Routine] as TEMPLATE_FUNCTION
+Internal Name: [Supplier] Presentable Name: [T <- Supplier() as abstract of type T] [org.ek9.lang::Supplier] as TEMPLATE_FUNCTION
+Internal Name: [UnaryOperator] Presentable Name: [T <- UnaryOperator(t as T) as abstract of type T] [org.ek9.lang::UnaryOperator] as TEMPLATE_FUNCTION
+Internal Name: [Dict] Presentable Name: [Dict of type (K, V)] [org.ek9.lang::Dict] as TEMPLATE_TYPE
+Internal Name: [DictEntry] Presentable Name: [DictEntry of type (K, V)] [org.ek9.lang::DictEntry] as TEMPLATE_TYPE
+Internal Name: [Iterator] Presentable Name: [Iterator of type T] [org.ek9.lang::Iterator] as TEMPLATE_TYPE
+Internal Name: [List] Presentable Name: [List of type T] [org.ek9.lang::List] as TEMPLATE_TYPE
+Internal Name: [_Iterator_A77CCAB0ABC28539C36A07D6A3D3DC05E822FBC5A4B50CAD439F87BE04732BAA] Presentable Name: [Iterator of type T of type T] [org.ek9.lang::_Iterator_A77CCAB0ABC28539C36A07D6A3D3DC05E822FBC5A4B50CAD439F87BE04732BAA] as TEMPLATE_TYPE
+Internal Name: [MutexLock] Presentable Name: [MutexLock of type T] [org.ek9.lang::MutexLock] as TEMPLATE_TYPE
+Internal Name: [_MutexKey_FA9186A023E294CFF8CD0003FD058A703F3817A19CCA9863048321D27D7F47A6] Presentable Name: [Void <- MutexKey(value as T) as abstract of type T] [org.ek9.lang::_MutexKey_FA9186A023E294CFF8CD0003FD058A703F3817A19CCA9863048321D27D7F47A6] as TEMPLATE_FUNCTION
+Internal Name: [Optional] Presentable Name: [Optional of type T] [org.ek9.lang::Optional] as TEMPLATE_TYPE
+Internal Name: [_Iterator_CD24F5EF82C5EEB826EAA4BEAD9F34F9AA876C92367D5DE18B2D42AD40813B39] Presentable Name: [Iterator of type T of type T] [org.ek9.lang::_Iterator_CD24F5EF82C5EEB826EAA4BEAD9F34F9AA876C92367D5DE18B2D42AD40813B39] as TEMPLATE_TYPE
+Internal Name: [_Acceptor_2086FB4FC1339EA1984C44D2C6E633C2A503018C97145D38988227E47976AE40] Presentable Name: [Void <- Acceptor(t as T) as abstract of type T] [org.ek9.lang::_Acceptor_2086FB4FC1339EA1984C44D2C6E633C2A503018C97145D38988227E47976AE40] as TEMPLATE_FUNCTION
+Internal Name: [_Consumer_AF239317960E8FF67B5E3AB9DDD0FB63D5044313496BC7DCF4A3290B855D5689] Presentable Name: [Void <- Consumer(t as T) as abstract of type T] [org.ek9.lang::_Consumer_AF239317960E8FF67B5E3AB9DDD0FB63D5044313496BC7DCF4A3290B855D5689] as TEMPLATE_FUNCTION
+Internal Name: [PriorityQueue] Presentable Name: [PriorityQueue of type T] [org.ek9.lang::PriorityQueue] as TEMPLATE_TYPE
+Internal Name: [_Iterator_906DEAE3A85D7DF2DBAD2754760906E4BAB88DB328C78AC68C31BA82AECD0534] Presentable Name: [Iterator of type T of type T] [org.ek9.lang::_Iterator_906DEAE3A85D7DF2DBAD2754760906E4BAB88DB328C78AC68C31BA82AECD0534] as TEMPLATE_TYPE
+Internal Name: [_List_FFE07AFCDBFE2DE3EAC341FE9695C21ECF81EF826DEB557C38E2296FA329B759] Presentable Name: [List of type T of type T] [org.ek9.lang::_List_FFE07AFCDBFE2DE3EAC341FE9695C21ECF81EF826DEB557C38E2296FA329B759] as TEMPLATE_TYPE
+Internal Name: [_Comparator_E008E1203A3CA635FC99B23D3CFA54817C22C69984CDD5498D37AD0D9D3EEA1A] Presentable Name: [Integer <- Comparator(t1 as T, t2 as T) as abstract of type T] [org.ek9.lang::_Comparator_E008E1203A3CA635FC99B23D3CFA54817C22C69984CDD5498D37AD0D9D3EEA1A] as TEMPLATE_FUNCTION
+Internal Name: [Result] Presentable Name: [Result of type (O, E)] [org.ek9.lang::Result] as TEMPLATE_TYPE
+Internal Name: [_Iterator_0730AF3BEA79226C5B51D3143F73B0E32DA02CFDB84219E69EC45377BC0E9599] Presentable Name: [Iterator of type T of type O] [org.ek9.lang::_Iterator_0730AF3BEA79226C5B51D3143F73B0E32DA02CFDB84219E69EC45377BC0E9599] as TEMPLATE_TYPE
+Internal Name: [_Acceptor_A6A59F6A208AE2171A182707783185C05EBAF91651CC378259EE4847447BFFAD] Presentable Name: [Void <- Acceptor(t as E) as abstract of type E] [org.ek9.lang::_Acceptor_A6A59F6A208AE2171A182707783185C05EBAF91651CC378259EE4847447BFFAD] as TEMPLATE_FUNCTION
+Internal Name: [_Consumer_9D78E4104848DDA5B64A08B6CEF5E8924E8544A03207FB6C4BCBB54BE8B17D2D] Presentable Name: [Void <- Consumer(t as E) as abstract of type E] [org.ek9.lang::_Consumer_9D78E4104848DDA5B64A08B6CEF5E8924E8544A03207FB6C4BCBB54BE8B17D2D] as TEMPLATE_FUNCTION
+Internal Name: [_Acceptor_51CCB7EE378698B4EE11CE1E043091DDB126281991F25C2A95ECFAF3A496C152] Presentable Name: [Void <- Acceptor(t as O) as abstract of type O] [org.ek9.lang::_Acceptor_51CCB7EE378698B4EE11CE1E043091DDB126281991F25C2A95ECFAF3A496C152] as TEMPLATE_FUNCTION
+Internal Name: [_Consumer_5ABE125766171886E200698A5D215D8C18A52A1CD0C2CBCC594E9139A2EF018C] Presentable Name: [Void <- Consumer(t as O) as abstract of type O] [org.ek9.lang::_Consumer_5ABE125766171886E200698A5D215D8C18A52A1CD0C2CBCC594E9139A2EF018C] as TEMPLATE_FUNCTION
+Internal Name: [Clock] Presentable Name: [Clock] [org.ek9.lang::Clock] as TYPE
+Internal Name: [File] Presentable Name: [File] [org.ek9.lang::File] as TYPE
+Internal Name: [HTTPRequest] Presentable Name: [HTTPRequest] [org.ek9.lang::HTTPRequest] as TYPE
+Internal Name: [HTTPResponse] Presentable Name: [HTTPResponse] [org.ek9.lang::HTTPResponse] as TYPE
+Internal Name: [IO] Presentable Name: [IO] [org.ek9.lang::IO] as TYPE
+Internal Name: [StringInput] Presentable Name: [StringInput] [org.ek9.lang::StringInput] as TYPE
+Internal Name: [StringOutput] Presentable Name: [StringOutput] [org.ek9.lang::StringOutput] as TYPE
+Internal Name: [TCPConnection] Presentable Name: [TCPConnection] [org.ek9.lang::TCPConnection] as TYPE
+Internal Name: [NetworkProperties] Presentable Name: [NetworkProperties] [org.ek9.lang::NetworkProperties] as TYPE
+Internal Name: [UDPPacket] Presentable Name: [UDPPacket] [org.ek9.lang::UDPPacket] as TYPE
+Internal Name: [Package] Presentable Name: [Package] [org.ek9.lang::Package] as TYPE
+Internal Name: [_Iterator_6E53B4C9D56633C9606BBF50DB03B8B3D0E6FDD8FC70D7C04705495D86D9FD65] Presentable Name: [Iterator of type T of type Boolean] [org.ek9.lang::_Iterator_6E53B4C9D56633C9606BBF50DB03B8B3D0E6FDD8FC70D7C04705495D86D9FD65] as TYPE
+Internal Name: [_Dict_E9A1EFF0D62E8EB35F7B0572E7F2C5492D6C980FE8B69376B38612DE6EBEC25F] Presentable Name: [Dict of type (K, V) of type (String, String)] [org.ek9.lang::_Dict_E9A1EFF0D62E8EB35F7B0572E7F2C5492D6C980FE8B69376B38612DE6EBEC25F] as TYPE
+Internal Name: [_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1] Presentable Name: [List of type T of type String] [org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1] as TYPE
+Internal Name: [_Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C] Presentable Name: [Iterator of type T of type JSON] [org.ek9.lang::_Iterator_8A55E2CE14B3B336B88069A9954BBCB8C58B64CA55768EECCED18381C1DA376C] as TYPE
+Internal Name: [_Result_F734611776882C04A5CCDA69711ED473DD228A77B04C00E81CD193016B024456] Presentable Name: [Result of type (O, E) of type (JSON, String)] [org.ek9.lang::_Result_F734611776882C04A5CCDA69711ED473DD228A77B04C00E81CD193016B024456] as TYPE
+Internal Name: [_Iterator_7E0CA90C1F947ECE11C43ED0BB21B854FFD82455CECBC0C3EA4CC4A6EA343408] Presentable Name: [Iterator of type T of type Character] [org.ek9.lang::_Iterator_7E0CA90C1F947ECE11C43ED0BB21B854FFD82455CECBC0C3EA4CC4A6EA343408] as TYPE
+Internal Name: [_Routine_FBDC122C72DDA8D9FB5E9330791F693799150FAE8A0DD15E7791EE349DF9B6B6] Presentable Name: [Integer <- Routine(t as String) as abstract of type (String, Integer)] [org.ek9.lang::_Routine_FBDC122C72DDA8D9FB5E9330791F693799150FAE8A0DD15E7791EE349DF9B6B6] as FUNCTION
+Internal Name: [_BiAcceptor_3969260B9061761829AC1A62A19646C29DEE6E26AAFF3943F50E028117080E47] Presentable Name: [Void <- BiAcceptor(t as StringInput, u as StringOutput) as abstract of type (StringInput, StringOutput)] [org.ek9.lang::_BiAcceptor_3969260B9061761829AC1A62A19646C29DEE6E26AAFF3943F50E028117080E47] as FUNCTION
+Internal Name: [_Acceptor_68AD0984C4A8F872A87EFCA024F047A2D0F4F353DAF55AF1971432FC85A005C7] Presentable Name: [Void <- Acceptor(t as Boolean) as abstract of type Boolean] [org.ek9.lang::_Acceptor_68AD0984C4A8F872A87EFCA024F047A2D0F4F353DAF55AF1971432FC85A005C7] as FUNCTION
+Internal Name: [_Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868] Presentable Name: [Void <- Acceptor(t as JSON) as abstract of type JSON] [org.ek9.lang::_Acceptor_C11B98C5CC2836C6E2F7989D1C00504F1BCA1AC727BCB48944C8C88EA9306868] as FUNCTION
+Internal Name: [_Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA] Presentable Name: [Void <- Acceptor(t as String) as abstract of type String] [org.ek9.lang::_Acceptor_49176569D07D81D30581FB294F0767BF3C9A372BB2B21E1876D8263E8C7070AA] as FUNCTION
+Internal Name: [_Consumer_35C1E030E709DE21968BD70F23DAB830A2DF912350D691EFC740F039054F02DF] Presentable Name: [Void <- Consumer(t as Boolean) as abstract of type Boolean] [org.ek9.lang::_Consumer_35C1E030E709DE21968BD70F23DAB830A2DF912350D691EFC740F039054F02DF] as FUNCTION
+Internal Name: [_Consumer_376C0B739AC00DD9FA60B1DE33853E8AA9F76AF08832303EB1027CCB027B8588] Presentable Name: [Void <- Consumer(t as JSON) as abstract of type JSON] [org.ek9.lang::_Consumer_376C0B739AC00DD9FA60B1DE33853E8AA9F76AF08832303EB1027CCB027B8588] as FUNCTION
+Internal Name: [_Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0] Presentable Name: [Void <- Consumer(t as String) as abstract of type String] [org.ek9.lang::_Consumer_1E1E02606C5968CCC6142A837F3CE0F81F440D54B5B564E9138AF830959EB9E0] as FUNCTION
+Internal Name: [_Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6] Presentable Name: [Dict of type (K, V) of type (String, Integer)] [org.ek9.lang::_Dict_7E7710D38A91EC202D64601DF4D9FB5B4AF2026CC3EF59394F5CF6B738812BB6] as TYPE
+Internal Name: [_DictEntry_87A55D447A2FC20E1611D0A0F5F49C2A4B57F40CD33E7FB15E43352011BFDD4E] Presentable Name: [DictEntry of type (K, V) of type (String, Integer)] [org.ek9.lang::_DictEntry_87A55D447A2FC20E1611D0A0F5F49C2A4B57F40CD33E7FB15E43352011BFDD4E] as TYPE
+Internal Name: [_DictEntry_8179CD93B60C7CEF656D347EFAA68A41FCC0DFA832E9FC8E5DE6D645B02AC487] Presentable Name: [DictEntry of type (K, V) of type (String, String)] [org.ek9.lang::_DictEntry_8179CD93B60C7CEF656D347EFAA68A41FCC0DFA832E9FC8E5DE6D645B02AC487] as TYPE
+Internal Name: [_Iterator_48D70134B2562F23E0D9F143A4A9BF02060D37448527B5CDB59DBC1C05F5D826] Presentable Name: [Iterator of type T of type DictEntry of type (K, V) of type (String, Integer)] [org.ek9.lang::_Iterator_48D70134B2562F23E0D9F143A4A9BF02060D37448527B5CDB59DBC1C05F5D826] as TYPE
+Internal Name: [_Iterator_66111C2B710ABD8FDA1988CF5DDC4BBC71C07280CA899D51F77E28BB2FE7717D] Presentable Name: [Iterator of type T of type DictEntry of type (K, V) of type (String, String)] [org.ek9.lang::_Iterator_66111C2B710ABD8FDA1988CF5DDC4BBC71C07280CA899D51F77E28BB2FE7717D] as TYPE
+Internal Name: [_Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4] Presentable Name: [Iterator of type T of type Integer] [org.ek9.lang::_Iterator_2648BF49C605A31A24BDA0751F2E0F0936F554C621EB0CE8472863EE4EEB4EB4] as TYPE
+Internal Name: [_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2] Presentable Name: [Iterator of type T of type String] [org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2] as TYPE
+Internal Name: [_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC] Presentable Name: [Optional of type T of type String] [org.ek9.lang::_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC] as TYPE
+Internal Name: [_Result_8B848533C5497B92D394BCE7DBD6BA96340DC392994BAC3C8A54E22C80ABAC65] Presentable Name: [Result of type (O, E) of type (String, Boolean)] [org.ek9.lang::_Result_8B848533C5497B92D394BCE7DBD6BA96340DC392994BAC3C8A54E22C80ABAC65] as TYPE
+Internal Name: [_Acceptor_779DA0DADFBEE9784B274AB5753077F80C9BA566145394B4B7873AE49DC9C8EF] Presentable Name: [Void <- Acceptor(t as T) as abstract of type T] [org.ek9.lang::_Acceptor_779DA0DADFBEE9784B274AB5753077F80C9BA566145394B4B7873AE49DC9C8EF] as TEMPLATE_FUNCTION
+Internal Name: [_DictEntry_1FA04A3D83572DAB9B8A6B22C554B7186C9251929C491CE9C1133793C76268D0] Presentable Name: [DictEntry of type (K, V) of type (K, V)] [org.ek9.lang::_DictEntry_1FA04A3D83572DAB9B8A6B22C554B7186C9251929C491CE9C1133793C76268D0] as TEMPLATE_TYPE
+Internal Name: [_Iterator_930304EFC618F78ED3279CBC858DEB9A7073131579D539466FA0AB32C4D7D6A3] Presentable Name: [Iterator of type T of type K] [org.ek9.lang::_Iterator_930304EFC618F78ED3279CBC858DEB9A7073131579D539466FA0AB32C4D7D6A3] as TEMPLATE_TYPE
+Internal Name: [_Iterator_D2E532193BA458BCCBFE99BE23B6901E74C68C2B1425D5FC5A2B3AABF8502F4E] Presentable Name: [Iterator of type T of type V] [org.ek9.lang::_Iterator_D2E532193BA458BCCBFE99BE23B6901E74C68C2B1425D5FC5A2B3AABF8502F4E] as TEMPLATE_TYPE
+For scope name [pointer_assignment.test] /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/operatorUse/assignment/pointer_assignment_operator.ek9
+Internal Name: [testPointerAssignment] Presentable Name: [Void <- testPointerAssignment()] [pointer_assignment.test::testPointerAssignment] as FUNCTION
+For scope name [subtract_assign.test] /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/operatorUse/assignment/subtract_assign_operator.ek9
+Internal Name: [testSubtractAssign] Presentable Name: [Void <- testSubtractAssign()] [subtract_assign.test::testSubtractAssign] as FUNCTION
+Directiv: IR_GENERATION, source: /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/operatorUse/assignment/add_assign_operator.ek9
+Directiv: E50250: '@' on line 15 position 4: 'IR: IR_GENERATION: FUNCTION: "add_assign.test::testAddAssignment": "
+ConstructDfn: add_assign.test::testAddAssignment()->org.ek9.lang::Void
+OperationDfn: add_assign.test::testAddAssignment._call()->org.ek9.lang::Void  // ./add_assign_operator.ek9:82:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./add_assign_operator.ek9:83:7
+REFERENCE value, org.ek9.lang::Integer  // ./add_assign_operator.ek9:83:7
+_temp1 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./add_assign_operator.ek9:83:25
+RETAIN _temp1  // ./add_assign_operator.ek9:83:25
+SCOPE_REGISTER _temp1, _scope_1  // ./add_assign_operator.ek9:83:25
+STORE value, _temp1  // ./add_assign_operator.ek9:83:25
+RETAIN value  // ./add_assign_operator.ek9:83:25
+SCOPE_REGISTER value, _scope_1  // ./add_assign_operator.ek9:83:25
+_temp2 = LOAD value  // ./add_assign_operator.ek9:84:13
+RETAIN _temp2  // ./add_assign_operator.ek9:84:13
+SCOPE_REGISTER _temp2, _scope_1  // ./add_assign_operator.ek9:84:13
+_temp3 = LOAD_LITERAL 10, org.ek9.lang::Integer  // ./add_assign_operator.ek9:84:16
+RETAIN _temp3  // ./add_assign_operator.ek9:84:13
+SCOPE_REGISTER _temp3, _scope_1  // ./add_assign_operator.ek9:84:13
+CALL (org.ek9.lang::Integer)_temp2._addAss(_temp3) [pure=false, complexity=0, effects=THIS_MUTATION]  // ./add_assign_operator.ek9:84:13
+_temp4 = CONTROL_FLOW_CHAIN  // ./add_assign_operator.ek9:85:19
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp5 = LOAD value  // ./add_assign_operator.ek9:85:19
+_temp6 = IS_NULL _temp5  // ./add_assign_operator.ek9:85:19
+]
+primitive_condition: _temp6
+body_evaluation:
+[
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./add_assign_operator.ek9:85:19
+RETAIN _temp7  // ./add_assign_operator.ek9:85:19
+SCOPE_REGISTER _temp7, _scope_1  // ./add_assign_operator.ek9:85:19
+]
+body_result: _temp7
+]
+]
+default_body_evaluation:
+[
+_temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./add_assign_operator.ek9:85:19
+RETAIN _temp8  // ./add_assign_operator.ek9:85:19
+SCOPE_REGISTER _temp8, _scope_1  // ./add_assign_operator.ek9:85:19
+]
+default_result: _temp8
+scope_id: _scope_1
+]
+RETAIN _temp4  // ./add_assign_operator.ek9:85:7
+SCOPE_REGISTER _temp4, _scope_1  // ./add_assign_operator.ek9:85:7
+_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./add_assign_operator.ek9:85:7
+ASSERT _temp9  // ./add_assign_operator.ek9:85:7
+SCOPE_EXIT _scope_1  // ./add_assign_operator.ek9:83:7
+RETURN  // ./add_assign_operator.ek9:82:5
+OperationDfn: add_assign.test::testAddAssignment.c_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: add_assign.test::testAddAssignment.i_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: add_assign.test::testAddAssignment.testAddAssignment()->add_assign.test::testAddAssignment  // ./add_assign_operator.ek9:82:5
+BasicBlock: _entry_1
+CALL (add_assign.test::testAddAssignment)this.i_init() [pure=false, complexity=0]  // ./add_assign_operator.ek9:82:5
+RETURN this  // ./add_assign_operator.ek9:82:5": Line: 82': symbol not resolved
+             See: https://ek9.io/errors.html#E50250 in /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/operatorUse/assignment/add_assign_operator.ek9
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 3.308 s <<< FAILURE! -- in org.ek9lang.compiler.ir.AssignmentOperatorIRTest
+[ERROR] org.ek9lang.compiler.ir.AssignmentOperatorIRTest.testPhaseDevelopment -- Time elapsed: 3.298 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: There are '@' directives that have failed ==> expected: <false> but was: <true>
+	at org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:55)
+	at org.junit.jupiter.api.AssertFalse.assertFalse(AssertFalse.java:40)
+	at org.junit.jupiter.api.Assertions.assertFalse(Assertions.java:235)
+	at org.ek9lang.compiler.common.PhasesTest.checkCompilationPhase(PhasesTest.java:160)
+	at org.ek9lang.compiler.common.PhasesTest.lambda$testToPhase$0(PhasesTest.java:202)
+	at org.ek9lang.compiler.common.CompilationPhaseListener.accept(CompilationPhaseListener.java:12)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at org.ek9lang.compiler.phase7.IRGenerator.defineIR(IRGenerator.java:89)
+	at org.ek9lang.compiler.phase7.IRGenerator.lambda$defineIRMultiThreaded$0(IRGenerator.java:61)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:186)
+	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1716)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:570)
+	at java.base/java.util.stream.ForEachOps$ForEachTask.compute(ForEachOps.java:293)
+	at java.base/java.util.concurrent.CountedCompleter.exec(CountedCompleter.java:759)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:511)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.helpComplete(ForkJoinPool.java:1537)
+	at java.base/java.util.concurrent.ForkJoinPool.helpComplete(ForkJoinPool.java:2332)
+	at java.base/java.util.concurrent.ForkJoinTask.awaitDone(ForkJoinTask.java:497)
+	at java.base/java.util.concurrent.ForkJoinTask.join(ForkJoinTask.java:666)
+	at java.base/java.util.concurrent.ForkJoinTask.invoke(ForkJoinTask.java:681)
+	at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateParallel(ForEachOps.java:162)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateParallel(ForEachOps.java:176)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:264)
+	at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:632)
+	at java.base/java.util.stream.ReferencePipeline$Head.forEach(ReferencePipeline.java:806)
+	at org.ek9lang.compiler.phase7.IRGenerator.defineIRMultiThreaded(IRGenerator.java:61)
+	at org.ek9lang.compiler.phase7.IRGenerator.underTakeIRDefinition(IRGenerator.java:50)
+	at org.ek9lang.compiler.phase7.IRGenerator.doApply(IRGenerator.java:45)
+	at org.ek9lang.compiler.CompilerPhase.apply(CompilerPhase.java:42)
+	at org.ek9lang.compiler.CompilerPhase.apply(CompilerPhase.java:15)
+	at org.ek9lang.compiler.Ek9Compiler.compile(Ek9Compiler.java:59)
+	at org.ek9lang.compiler.common.PhasesTest.testToPhase(PhasesTest.java:214)
+	at org.ek9lang.compiler.ir.AbstractIRGenerationTest.testPhaseDevelopment(AbstractIRGenerationTest.java:49)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:725)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:149)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:140)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:84)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(ExecutableInvoker.java:115)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.lambda$invoke$0(ExecutableInvoker.java:105)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:104)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:98)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:214)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:210)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:135)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:66)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService$ExclusiveTask.compute(ForkJoinPoolHierarchicalTestExecutorService.java:185)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService.invokeAll(ForkJoinPoolHierarchicalTestExecutorService.java:129)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService$ExclusiveTask.compute(ForkJoinPoolHierarchicalTestExecutorService.java:185)
+	at java.base/java.util.concurrent.RecursiveAction.exec(RecursiveAction.java:194)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:511)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1450)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2019)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:187)
+
+[ERROR] Failures: 
+[ERROR]   AssignmentOperatorIRTest>AbstractIRGenerationTest.testPhaseDevelopment:49->PhasesTest.testToPhase:214->PhasesTest.lambda$testToPhase$0:202->PhasesTest.checkCompilationPhase:160 There are '@' directives that have failed ==> expected: <false> but was: <true>
+[ERROR] Tests run: 42, Failures: 1, Errors: 0, Skipped: 0
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) on project compiler-main: There are test failures.
+[ERROR] 
+[ERROR] Please refer to /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

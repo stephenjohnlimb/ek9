@@ -34,6 +34,7 @@ public class OperatorMap {
     addOperator(">=", "_gteq", true, true, true);
     addOperator("==", "_eq", true, true, true);
     addOperator("<>", "_neq", true, true, true);
+    addOperator("!=", "_neq", true, true, true);
 
     // Bit shift operators - pure, require argument, return same type
     addOperator("<<", "_shftl", true, true, true);
@@ -266,7 +267,8 @@ public class OperatorMap {
         && !ek9Operator.equals(">=")
         && !ek9Operator.equals("<=")
         && !ek9Operator.equals("==")
-        && !ek9Operator.equals("<>"))
+        && !ek9Operator.equals("<>")
+        && !ek9Operator.equals("!="))
         || ek9Operator.equals(":=:")
         || ek9Operator.equals(":^:")
         || ek9Operator.equals(":~:")

@@ -4,18 +4,10 @@ defines module bytecode.test.forrangeassignifunset
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.forrangeassignifunset::ForRangeAssignmentIfUnset": `public class bytecode.test.forrangeassignifunset.ForRangeAssignmentIfUnset {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.forrangeassignifunset.ForRangeAssignmentIfUnset();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -301,7 +293,7 @@ defines module bytecode.test.forrangeassignifunset
        596: goto          599
        599: aload_2
        600: astore        54
-       602: ldc           #CP                // String Total:
+       602: ldc           #CP                 // String Total:
        604: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
        607: astore        55
        609: aload         4
@@ -317,6 +309,14 @@ defines module bytecode.test.forrangeassignifunset
        631: aload         58
        633: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
        636: return
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
 
     ForRangeAssignmentIfUnset()

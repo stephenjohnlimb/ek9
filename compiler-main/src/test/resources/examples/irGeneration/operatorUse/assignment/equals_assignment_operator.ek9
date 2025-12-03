@@ -12,65 +12,65 @@ defines module equals_assignment.test
   defines function
 
     @IR: IR_GENERATION: FUNCTION: "equals_assignment.test::testEqualsAssignment": `
-    ConstructDfn: equals_assignment.test::testEqualsAssignment()->org.ek9.lang::Void
-    OperationDfn: equals_assignment.test::testEqualsAssignment.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: equals_assignment.test::testEqualsAssignment.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: equals_assignment.test::testEqualsAssignment.testEqualsAssignment()->equals_assignment.test::testEqualsAssignment  // ./equals_assignment_operator.ek9:74:5
-    BasicBlock: _entry_1
-    CALL (equals_assignment.test::testEqualsAssignment)this.i_init() [pure=false, complexity=0]  // ./equals_assignment_operator.ek9:74:5
-    RETURN this  // ./equals_assignment_operator.ek9:74:5
-    OperationDfn: equals_assignment.test::testEqualsAssignment._call()->org.ek9.lang::Void  // ./equals_assignment_operator.ek9:74:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./equals_assignment_operator.ek9:75:7
-    REFERENCE x, org.ek9.lang::Integer  // ./equals_assignment_operator.ek9:75:7
-    _temp1 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./equals_assignment_operator.ek9:76:11
-    RETAIN _temp1  // ./equals_assignment_operator.ek9:76:11
-    SCOPE_REGISTER _temp1, _scope_1  // ./equals_assignment_operator.ek9:76:11
-    RELEASE x  // ./equals_assignment_operator.ek9:76:11
-    STORE x, _temp1  // ./equals_assignment_operator.ek9:76:11
-    RETAIN x  // ./equals_assignment_operator.ek9:76:11
-    _temp2 = CONTROL_FLOW_CHAIN  // ./equals_assignment_operator.ek9:77:15
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp3 = LOAD x  // ./equals_assignment_operator.ek9:77:15
-    _temp4 = IS_NULL _temp3  // ./equals_assignment_operator.ek9:77:15
-    ]
-    primitive_condition: _temp4
-    body_evaluation:
-    [
-    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./equals_assignment_operator.ek9:77:15
-    RETAIN _temp5  // ./equals_assignment_operator.ek9:77:15
-    SCOPE_REGISTER _temp5, _scope_1  // ./equals_assignment_operator.ek9:77:15
-    ]
-    body_result: _temp5
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp6 = CALL (org.ek9.lang::Integer)_temp3._isSet() [pure=true, complexity=0]  // ./equals_assignment_operator.ek9:77:15
-    RETAIN _temp6  // ./equals_assignment_operator.ek9:77:15
-    SCOPE_REGISTER _temp6, _scope_1  // ./equals_assignment_operator.ek9:77:15
-    ]
-    default_result: _temp6
-    scope_id: _scope_1
-    ]
-    RETAIN _temp2  // ./equals_assignment_operator.ek9:77:7
-    SCOPE_REGISTER _temp2, _scope_1  // ./equals_assignment_operator.ek9:77:7
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./equals_assignment_operator.ek9:77:7
-    ASSERT _temp7  // ./equals_assignment_operator.ek9:77:7
-    SCOPE_EXIT _scope_1  // ./equals_assignment_operator.ek9:75:7
-    RETURN  // ./equals_assignment_operator.ek9:74:5`
+ConstructDfn: equals_assignment.test::testEqualsAssignment()->org.ek9.lang::Void
+OperationDfn: equals_assignment.test::testEqualsAssignment._call()->org.ek9.lang::Void  // ./equals_assignment_operator.ek9:74:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./equals_assignment_operator.ek9:75:7
+REFERENCE x, org.ek9.lang::Integer  // ./equals_assignment_operator.ek9:75:7
+_temp1 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./equals_assignment_operator.ek9:76:11
+RETAIN _temp1  // ./equals_assignment_operator.ek9:76:11
+SCOPE_REGISTER _temp1, _scope_1  // ./equals_assignment_operator.ek9:76:11
+RELEASE x  // ./equals_assignment_operator.ek9:76:11
+STORE x, _temp1  // ./equals_assignment_operator.ek9:76:11
+RETAIN x  // ./equals_assignment_operator.ek9:76:11
+_temp2 = CONTROL_FLOW_CHAIN  // ./equals_assignment_operator.ek9:77:15
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp3 = LOAD x  // ./equals_assignment_operator.ek9:77:15
+_temp4 = IS_NULL _temp3  // ./equals_assignment_operator.ek9:77:15
+]
+primitive_condition: _temp4
+body_evaluation:
+[
+_temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./equals_assignment_operator.ek9:77:15
+RETAIN _temp5  // ./equals_assignment_operator.ek9:77:15
+SCOPE_REGISTER _temp5, _scope_1  // ./equals_assignment_operator.ek9:77:15
+]
+body_result: _temp5
+]
+]
+default_body_evaluation:
+[
+_temp6 = CALL (org.ek9.lang::Integer)_temp3._isSet() [pure=true, complexity=0]  // ./equals_assignment_operator.ek9:77:15
+RETAIN _temp6  // ./equals_assignment_operator.ek9:77:15
+SCOPE_REGISTER _temp6, _scope_1  // ./equals_assignment_operator.ek9:77:15
+]
+default_result: _temp6
+scope_id: _scope_1
+]
+RETAIN _temp2  // ./equals_assignment_operator.ek9:77:7
+SCOPE_REGISTER _temp2, _scope_1  // ./equals_assignment_operator.ek9:77:7
+_temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./equals_assignment_operator.ek9:77:7
+ASSERT _temp7  // ./equals_assignment_operator.ek9:77:7
+SCOPE_EXIT _scope_1  // ./equals_assignment_operator.ek9:75:7
+RETURN  // ./equals_assignment_operator.ek9:74:5
+OperationDfn: equals_assignment.test::testEqualsAssignment.c_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: equals_assignment.test::testEqualsAssignment.i_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: equals_assignment.test::testEqualsAssignment.testEqualsAssignment()->equals_assignment.test::testEqualsAssignment  // ./equals_assignment_operator.ek9:74:5
+BasicBlock: _entry_1
+CALL (equals_assignment.test::testEqualsAssignment)this.i_init() [pure=false, complexity=0]  // ./equals_assignment_operator.ek9:74:5
+RETURN this  // ./equals_assignment_operator.ek9:74:5`
     testEqualsAssignment()
       x as Integer?
       x = 5

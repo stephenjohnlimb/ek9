@@ -13,102 +13,102 @@ defines module isSet.test
 
     @IR: IR_GENERATION: FUNCTION: "isSet.test::testIsSet": `
     ConstructDfn: isSet.test::testIsSet()->org.ek9.lang::Void
-    OperationDfn: isSet.test::testIsSet.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: isSet.test::testIsSet.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: isSet.test::testIsSet.testIsSet()->isSet.test::testIsSet  // ./isSet_operator.ek9:112:5
-    BasicBlock: _entry_1
-    CALL (isSet.test::testIsSet)this.i_init() [pure=false, complexity=0]  // ./isSet_operator.ek9:112:5
-    RETURN this  // ./isSet_operator.ek9:112:5
-    OperationDfn: isSet.test::testIsSet._call()->org.ek9.lang::Void  // ./isSet_operator.ek9:112:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./isSet_operator.ek9:113:7
-    REFERENCE x, org.ek9.lang::Integer  // ./isSet_operator.ek9:113:7
-    _temp1 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./isSet_operator.ek9:113:21
-    RETAIN _temp1  // ./isSet_operator.ek9:113:21
-    SCOPE_REGISTER _temp1, _scope_1  // ./isSet_operator.ek9:113:21
-    STORE x, _temp1  // ./isSet_operator.ek9:113:21
-    RETAIN x  // ./isSet_operator.ek9:113:21
-    SCOPE_REGISTER x, _scope_1  // ./isSet_operator.ek9:113:21
-    REFERENCE result, org.ek9.lang::Boolean  // ./isSet_operator.ek9:114:7
-    _temp2 = CONTROL_FLOW_CHAIN  // ./isSet_operator.ek9:114:18
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp3 = LOAD x  // ./isSet_operator.ek9:114:18
-    _temp4 = IS_NULL _temp3  // ./isSet_operator.ek9:114:18
-    ]
-    primitive_condition: _temp4
-    body_evaluation:
-    [
-    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./isSet_operator.ek9:114:18
-    RETAIN _temp5  // ./isSet_operator.ek9:114:18
-    SCOPE_REGISTER _temp5, _scope_1  // ./isSet_operator.ek9:114:18
-    ]
-    body_result: _temp5
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp6 = CALL (org.ek9.lang::Integer)_temp3._isSet() [pure=true, complexity=0]  // ./isSet_operator.ek9:114:18
-    RETAIN _temp6  // ./isSet_operator.ek9:114:18
-    SCOPE_REGISTER _temp6, _scope_1  // ./isSet_operator.ek9:114:18
-    ]
-    default_result: _temp6
-    scope_id: _scope_1
-    ]
-    RETAIN _temp2  // ./isSet_operator.ek9:114:18
-    SCOPE_REGISTER _temp2, _scope_1  // ./isSet_operator.ek9:114:18
-    STORE result, _temp2  // ./isSet_operator.ek9:114:18
-    RETAIN result  // ./isSet_operator.ek9:114:18
-    SCOPE_REGISTER result, _scope_1  // ./isSet_operator.ek9:114:18
-    _temp7 = CONTROL_FLOW_CHAIN  // ./isSet_operator.ek9:115:20
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp8 = LOAD result  // ./isSet_operator.ek9:115:20
-    _temp9 = IS_NULL _temp8  // ./isSet_operator.ek9:115:20
-    ]
-    primitive_condition: _temp9
-    body_evaluation:
-    [
-    _temp10 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./isSet_operator.ek9:115:20
-    RETAIN _temp10  // ./isSet_operator.ek9:115:20
-    SCOPE_REGISTER _temp10, _scope_1  // ./isSet_operator.ek9:115:20
-    ]
-    body_result: _temp10
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp11 = CALL (org.ek9.lang::Boolean)_temp8._isSet() [pure=true, complexity=0]  // ./isSet_operator.ek9:115:20
-    RETAIN _temp11  // ./isSet_operator.ek9:115:20
-    SCOPE_REGISTER _temp11, _scope_1  // ./isSet_operator.ek9:115:20
-    ]
-    default_result: _temp11
-    scope_id: _scope_1
-    ]
-    RETAIN _temp7  // ./isSet_operator.ek9:115:7
-    SCOPE_REGISTER _temp7, _scope_1  // ./isSet_operator.ek9:115:7
-    _temp12 = CALL (org.ek9.lang::Boolean)_temp7._true() [pure=true, complexity=0]  // ./isSet_operator.ek9:115:7
-    ASSERT _temp12  // ./isSet_operator.ek9:115:7
-    SCOPE_EXIT _scope_1  // ./isSet_operator.ek9:113:7
-    RETURN  // ./isSet_operator.ek9:112:5`
+OperationDfn: isSet.test::testIsSet._call()->org.ek9.lang::Void  // ./isSet_operator.ek9:112:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./isSet_operator.ek9:113:7
+REFERENCE x, org.ek9.lang::Integer  // ./isSet_operator.ek9:113:7
+_temp1 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./isSet_operator.ek9:113:21
+RETAIN _temp1  // ./isSet_operator.ek9:113:21
+SCOPE_REGISTER _temp1, _scope_1  // ./isSet_operator.ek9:113:21
+STORE x, _temp1  // ./isSet_operator.ek9:113:21
+RETAIN x  // ./isSet_operator.ek9:113:21
+SCOPE_REGISTER x, _scope_1  // ./isSet_operator.ek9:113:21
+REFERENCE result, org.ek9.lang::Boolean  // ./isSet_operator.ek9:114:7
+_temp2 = CONTROL_FLOW_CHAIN  // ./isSet_operator.ek9:114:18
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp3 = LOAD x  // ./isSet_operator.ek9:114:18
+_temp4 = IS_NULL _temp3  // ./isSet_operator.ek9:114:18
+]
+primitive_condition: _temp4
+body_evaluation:
+[
+_temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./isSet_operator.ek9:114:18
+RETAIN _temp5  // ./isSet_operator.ek9:114:18
+SCOPE_REGISTER _temp5, _scope_1  // ./isSet_operator.ek9:114:18
+]
+body_result: _temp5
+]
+]
+default_body_evaluation:
+[
+_temp6 = CALL (org.ek9.lang::Integer)_temp3._isSet() [pure=true, complexity=0]  // ./isSet_operator.ek9:114:18
+RETAIN _temp6  // ./isSet_operator.ek9:114:18
+SCOPE_REGISTER _temp6, _scope_1  // ./isSet_operator.ek9:114:18
+]
+default_result: _temp6
+scope_id: _scope_1
+]
+RETAIN _temp2  // ./isSet_operator.ek9:114:18
+SCOPE_REGISTER _temp2, _scope_1  // ./isSet_operator.ek9:114:18
+STORE result, _temp2  // ./isSet_operator.ek9:114:18
+RETAIN result  // ./isSet_operator.ek9:114:18
+SCOPE_REGISTER result, _scope_1  // ./isSet_operator.ek9:114:18
+_temp7 = CONTROL_FLOW_CHAIN  // ./isSet_operator.ek9:115:20
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp8 = LOAD result  // ./isSet_operator.ek9:115:20
+_temp9 = IS_NULL _temp8  // ./isSet_operator.ek9:115:20
+]
+primitive_condition: _temp9
+body_evaluation:
+[
+_temp10 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./isSet_operator.ek9:115:20
+RETAIN _temp10  // ./isSet_operator.ek9:115:20
+SCOPE_REGISTER _temp10, _scope_1  // ./isSet_operator.ek9:115:20
+]
+body_result: _temp10
+]
+]
+default_body_evaluation:
+[
+_temp11 = CALL (org.ek9.lang::Boolean)_temp8._isSet() [pure=true, complexity=0]  // ./isSet_operator.ek9:115:20
+RETAIN _temp11  // ./isSet_operator.ek9:115:20
+SCOPE_REGISTER _temp11, _scope_1  // ./isSet_operator.ek9:115:20
+]
+default_result: _temp11
+scope_id: _scope_1
+]
+RETAIN _temp7  // ./isSet_operator.ek9:115:7
+SCOPE_REGISTER _temp7, _scope_1  // ./isSet_operator.ek9:115:7
+_temp12 = CALL (org.ek9.lang::Boolean)_temp7._true() [pure=true, complexity=0]  // ./isSet_operator.ek9:115:7
+ASSERT _temp12  // ./isSet_operator.ek9:115:7
+SCOPE_EXIT _scope_1  // ./isSet_operator.ek9:113:7
+RETURN  // ./isSet_operator.ek9:112:5
+OperationDfn: isSet.test::testIsSet.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: isSet.test::testIsSet.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: isSet.test::testIsSet.testIsSet()->isSet.test::testIsSet  // ./isSet_operator.ek9:112:5
+BasicBlock: _entry_1
+CALL (isSet.test::testIsSet)this.i_init() [pure=false, complexity=0]  // ./isSet_operator.ek9:112:5
+RETURN this  // ./isSet_operator.ek9:112:5`
     testIsSet()
       x as Integer: 5
       result <- x?

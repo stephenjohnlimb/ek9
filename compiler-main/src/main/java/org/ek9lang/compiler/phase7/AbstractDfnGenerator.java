@@ -22,7 +22,6 @@ import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.core.AssertValue;
-import org.ek9lang.core.CompilerException;
 
 /**
  * Acts as a base for the main construct definitions.
@@ -63,29 +62,19 @@ abstract class AbstractDfnGenerator {
     return new DebugInfoCreator(stackContext.getCurrentIRContext());
   }
 
-  protected void processAsMethodOrOperator(final IRConstruct construct,
-                                           final ISymbol symbol,
+  protected void processAsMethodOrOperator(final OperationInstr operation,
                                            final EK9Parser.OperationDetailsContext ctx) {
 
-    AssertValue.checkNotNull("IRConstruct cannot be null", construct);
-    AssertValue.checkNotNull("ISymbol cannot be null", symbol);
+    AssertValue.checkNotNull("OperationInstr cannot be null", operation);
     AssertValue.checkNotNull("Ctx cannot be null", ctx);
 
-    if (symbol instanceof MethodSymbol method) {
-      final var debugInfo = createDebugInfoCreator().apply(method.getSourceToken());
-      final var operation = new OperationInstr(method, debugInfo);
+    // Use stack context for method-level coordination with fresh IRContext
+    var methodDebugInfo = stackContext.createDebugInfo(operation.getSymbol().getSourceToken());
+    stackContext.enterMethodScope(operation.getSymbol().getName(), methodDebugInfo, IRFrameType.METHOD);
 
-      // Use stack context for method-level coordination with fresh IRContext
-      var methodDebugInfo = stackContext.createDebugInfo(method.getSourceToken());
-      stackContext.enterMethodScope(method.getName(), methodDebugInfo, IRFrameType.METHOD);
+    operationDfnGenerator.accept(operation, ctx);
 
-      operationDfnGenerator.accept(operation, ctx);
-
-      stackContext.exitScope();
-      construct.add(operation);
-    } else {
-      throw new CompilerException("Expecting a Method Symbol");
-    }
+    stackContext.exitScope();
   }
 
   /**
@@ -210,11 +199,10 @@ abstract class AbstractDfnGenerator {
    * 2. Call own class's i_init method
    * 3. Return this
    */
-  protected void processSyntheticConstructor(final IRConstruct construct,
-                                             final MethodSymbol constructorSymbol,
+  protected void processSyntheticConstructor(final OperationInstr operation,
                                              final IScopedSymbol superType) {
-    final var debugInfo = stackContext.createDebugInfo(constructorSymbol.getSourceToken());
-    final var operation = new OperationInstr(constructorSymbol, debugInfo);
+
+    final var constructorSymbol = (MethodSymbol) operation.getSymbol();
 
     // Generate constructor body using stack-based instruction builder
     var instructionBuilder = new IRInstructionBuilder(stackContext);
@@ -227,16 +215,14 @@ abstract class AbstractDfnGenerator {
 
     // 2. Call own class's i_init method (i_init returns void, so don't assign to temp variable)
     instructionBuilder.callThisMethod(scopedSymbol.getFullyQualifiedName(), IRConstants.I_INIT_METHOD,
-        null, debugInfo);
+        null, operation.getDebugInfo());
 
 
     // 3. Return this
-    instructionBuilder.returnValue(IRConstants.THIS, debugInfo);
+    instructionBuilder.returnValue(IRConstants.THIS, operation.getDebugInfo());
 
     //Now package up the instructions in a block and add to the operation.
     operation.setBody(instructionBuilder.createBasicBlock(IRConstants.ENTRY_LABEL));
-
-    construct.add(operation);
   }
 
 }

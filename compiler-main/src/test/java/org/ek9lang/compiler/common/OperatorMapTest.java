@@ -18,7 +18,11 @@ class OperatorMapTest {
       assertTrue(underTest.checkForward(forwardKey));
       final var mappedToValue = underTest.getForward(forwardKey);
       final var checkKey = underTest.getBackward(mappedToValue);
-      assertEquals(forwardKey, checkKey);
+      if (mappedToValue.equals("_neq")) {
+        assertTrue(checkKey.equals("<>") || checkKey.equals("!="));
+      } else {
+        assertEquals(forwardKey, checkKey);
+      }
     }
   }
 

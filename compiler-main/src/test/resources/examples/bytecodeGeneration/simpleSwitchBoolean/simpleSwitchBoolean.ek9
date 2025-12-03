@@ -8,100 +8,100 @@ defines module bytecode.test.bool
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.bool::SimpleSwitchBoolean":`public class bytecode.test.bool.SimpleSwitchBoolean {
-    static {};
-      Code:
-           0: return
+  public bytecode.test.bool.SimpleSwitchBoolean();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
 
-    private void i_init();
-      Code:
-           0: return
+  public void _main(org.ek9.lang.Boolean);
+    Code:
+         0: aconst_null
+         1: astore_2
+         2: new           #CP                 // class org/ek9/lang/Stdout
+         5: dup
+         6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+         9: astore_3
+        10: aload_3
+        11: astore_2
+        12: aload_1
+        13: astore        4
+        15: aload         4
+        17: astore        5
+        19: iconst_1
+        20: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+        23: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+        26: astore        6
+        28: aload         5
+        30: aload         6
+        32: invokevirtual #CP                 // Method org/ek9/lang/Boolean._eq:(Lorg/ek9/lang/Boolean;)Lorg/ek9/lang/Boolean;
+        35: astore        7
+        37: aload         7
+        39: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        42: istore        8
+        44: iload         8
+        46: ifeq          69
+        49: aload_2
+        50: astore        9
+        52: ldc           #CP                 // String True case
+        54: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        57: astore        10
+        59: aload         9
+        61: aload         10
+        63: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        66: goto          140
+        69: aload         4
+        71: astore        11
+        73: iconst_0
+        74: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
+        77: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
+        80: astore        12
+        82: aload         11
+        84: aload         12
+        86: invokevirtual #CP                 // Method org/ek9/lang/Boolean._eq:(Lorg/ek9/lang/Boolean;)Lorg/ek9/lang/Boolean;
+        89: astore        13
+        91: aload         13
+        93: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
+        96: istore        14
+        98: iload         14
+       100: ifeq          123
+       103: aload_2
+       104: astore        15
+       106: ldc           #CP                 // String False case
+       108: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       111: astore        16
+       113: aload         15
+       115: aload         16
+       117: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       120: goto          140
+       123: aload_2
+       124: astore        17
+       126: ldc           #CP                 // String Unset
+       128: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       131: astore        18
+       133: aload         17
+       135: aload         18
+       137: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       140: aload_2
+       141: astore        19
+       143: ldc           #CP                 // String Done
+       145: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       148: astore        20
+       150: aload         19
+       152: aload         20
+       154: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       157: return
 
-    public bytecode.test.bool.SimpleSwitchBoolean();
-      Code:
-           0: aload_0
-           1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
-           4: aload_0
-           5: invokevirtual #CP                 // Method i_init:()V
-           8: return
+  static {};
+    Code:
+         0: return
 
-    public void _main(org.ek9.lang.Boolean);
-      Code:
-           0: aconst_null
-           1: astore_2
-           2: new           #CP                 // class org/ek9/lang/Stdout
-           5: dup
-           6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
-           9: astore_3
-          10: aload_3
-          11: astore_2
-          12: aload_1
-          13: astore        4
-          15: aload         4
-          17: astore        5
-          19: iconst_1
-          20: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
-          23: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
-          26: astore        6
-          28: aload         5
-          30: aload         6
-          32: invokevirtual #CP                 // Method org/ek9/lang/Boolean._eq:(Lorg/ek9/lang/Boolean;)Lorg/ek9/lang/Boolean;
-          35: astore        7
-          37: aload         7
-          39: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
-          42: istore        8
-          44: iload         8
-          46: ifeq          69
-          49: aload_2
-          50: astore        9
-          52: ldc           #CP                 // String True case
-          54: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-          57: astore        10
-          59: aload         9
-          61: aload         10
-          63: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
-          66: goto          140
-          69: aload         4
-          71: astore        11
-          73: iconst_0
-          74: invokestatic  #CP                 // Method java/lang/Boolean.toString:(Z)Ljava/lang/String;
-          77: invokestatic  #CP                 // Method org/ek9/lang/Boolean._of:(Ljava/lang/String;)Lorg/ek9/lang/Boolean;
-          80: astore        12
-          82: aload         11
-          84: aload         12
-          86: invokevirtual #CP                 // Method org/ek9/lang/Boolean._eq:(Lorg/ek9/lang/Boolean;)Lorg/ek9/lang/Boolean;
-          89: astore        13
-          91: aload         13
-          93: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
-          96: istore        14
-          98: iload         14
-         100: ifeq          123
-         103: aload_2
-         104: astore        15
-         106: ldc           #CP                 // String False case
-         108: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-         111: astore        16
-         113: aload         15
-         115: aload         16
-         117: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
-         120: goto          140
-         123: aload_2
-         124: astore        17
-         126: ldc           #CP                 // String Unset
-         128: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-         131: astore        18
-         133: aload         17
-         135: aload         18
-         137: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
-         140: aload_2
-         141: astore        19
-         143: ldc           #CP                 // String Done
-         145: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-         148: astore        20
-         150: aload         19
-         152: aload         20
-         154: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
-         157: return
-  }`
+  private void i_init();
+    Code:
+         0: return
+}`
     SimpleSwitchBoolean()
       -> flag as Boolean
 

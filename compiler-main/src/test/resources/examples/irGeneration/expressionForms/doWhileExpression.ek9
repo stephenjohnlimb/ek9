@@ -15,16 +15,6 @@ defines module expressionForms.doWhileExpr
     -?>
     @IR: IR_GENERATION: FUNCTION: "expressionForms.doWhileExpr::doWhileExpression": `
     ConstructDfn: expressionForms.doWhileExpr::doWhileExpression(org.ek9.lang::Integer)->org.ek9.lang::Integer
-    OperationDfn: expressionForms.doWhileExpr::doWhileExpression.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: expressionForms.doWhileExpr::doWhileExpression.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: expressionForms.doWhileExpr::doWhileExpression.doWhileExpression()->expressionForms.doWhileExpr::doWhileExpression
-    BasicBlock: _entry_1
-    CALL (expressionForms.doWhileExpr::doWhileExpression)this.i_init() [pure=false, complexity=0]
-    RETURN this
     OperationDfn: expressionForms.doWhileExpr::doWhileExpression._call(org.ek9.lang::Integer)->org.ek9.lang::Integer
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1
@@ -175,7 +165,17 @@ defines module expressionForms.doWhileExpr
     STORE result, _temp1
     RETAIN result
     SCOPE_EXIT _scope_1
-    RETURN result`
+    RETURN result
+    OperationDfn: expressionForms.doWhileExpr::doWhileExpression.doWhileExpression()->expressionForms.doWhileExpr::doWhileExpression
+    BasicBlock: _entry_1
+    CALL (expressionForms.doWhileExpr::doWhileExpression)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: expressionForms.doWhileExpr::doWhileExpression.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: expressionForms.doWhileExpr::doWhileExpression.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN`
     doWhileExpression()
       -> limit as Integer
       <- result as Integer?

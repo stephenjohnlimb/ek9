@@ -9,109 +9,109 @@ defines module loops
 
     @IR: IR_GENERATION: FUNCTION: "loops::simpleForInLoop": `
     ConstructDfn: loops::simpleForInLoop()->org.ek9.lang::Void
-    OperationDfn: loops::simpleForInLoop.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops::simpleForInLoop.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops::simpleForInLoop.simpleForInLoop()->loops::simpleForInLoop
-    BasicBlock: _entry_1
-    CALL (loops::simpleForInLoop)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: loops::simpleForInLoop._call()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE stdout, org.ek9.lang::Stdout
-    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE stdout, _temp1
-    RETAIN stdout
-    SCOPE_REGISTER stdout, _scope_1
-    REFERENCE items, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
-    _temp2 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.<init>() [pure=true, complexity=0, effects=RETURN_MUTATION]
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_1
-    STORE items, _temp2
-    RETAIN items
-    SCOPE_REGISTER items, _scope_1
-    _temp3 = LOAD items
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_1
-    _temp4 = LOAD_LITERAL one, org.ek9.lang::String
-    RETAIN _temp4
-    SCOPE_REGISTER _temp4, _scope_1
-    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp3._addAss(_temp4) [pure=false, complexity=0, effects=THIS_MUTATION]
-    _temp5 = LOAD items
-    RETAIN _temp5
-    SCOPE_REGISTER _temp5, _scope_1
-    _temp6 = LOAD_LITERAL two, org.ek9.lang::String
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_1
-    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp5._addAss(_temp6) [pure=false, complexity=0, effects=THIS_MUTATION]
-    _temp7 = LOAD items
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_1
-    _temp8 = LOAD_LITERAL three, org.ek9.lang::String
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_1
-    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp7._addAss(_temp8) [pure=false, complexity=0, effects=THIS_MUTATION]
-    SCOPE_ENTER _scope_2
-    _temp9 = LOAD items
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_2
-    _temp10 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp9.iterator() [pure=false, complexity=0]
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, _scope_2
-    SCOPE_ENTER _scope_3
-    REFERENCE item, org.ek9.lang::String
-    SCOPE_REGISTER item, _scope_3
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "WHILE_LOOP"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_4
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_4
-    _temp11 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp10.hasNext() [pure=false, complexity=0]
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_4
-    _temp12 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_4
-    ]
-    condition_result: _temp11
-    primitive_condition: _temp12
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_5
-    _temp13 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp10.next() [pure=false, complexity=0]
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, _scope_5
-    RELEASE item
-    STORE item, _temp13
-    RETAIN item
-    _temp15 = LOAD stdout
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_5
-    _temp16 = LOAD item
-    RETAIN _temp16
-    SCOPE_REGISTER _temp16, _scope_5
-    CALL (org.ek9.lang::Stdout)_temp15.println(_temp16) [pure=true, complexity=1]
-    SCOPE_EXIT _scope_5
-    ]
-    ]
-    ]
-    scope_id: _scope_3
-    ]
-    SCOPE_EXIT _scope_3
-    SCOPE_EXIT _scope_2
-    SCOPE_EXIT _scope_1
-    RETURN`
+OperationDfn: loops::simpleForInLoop._call()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE stdout, org.ek9.lang::Stdout
+_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE stdout, _temp1
+RETAIN stdout
+SCOPE_REGISTER stdout, _scope_1
+REFERENCE items, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+_temp2 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.<init>() [pure=true, complexity=0, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+STORE items, _temp2
+RETAIN items
+SCOPE_REGISTER items, _scope_1
+_temp3 = LOAD items
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_1
+_temp4 = LOAD_LITERAL one, org.ek9.lang::String
+RETAIN _temp4
+SCOPE_REGISTER _temp4, _scope_1
+CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp3._addAss(_temp4) [pure=false, complexity=0, effects=THIS_MUTATION]
+_temp5 = LOAD items
+RETAIN _temp5
+SCOPE_REGISTER _temp5, _scope_1
+_temp6 = LOAD_LITERAL two, org.ek9.lang::String
+RETAIN _temp6
+SCOPE_REGISTER _temp6, _scope_1
+CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp5._addAss(_temp6) [pure=false, complexity=0, effects=THIS_MUTATION]
+_temp7 = LOAD items
+RETAIN _temp7
+SCOPE_REGISTER _temp7, _scope_1
+_temp8 = LOAD_LITERAL three, org.ek9.lang::String
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_1
+CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp7._addAss(_temp8) [pure=false, complexity=0, effects=THIS_MUTATION]
+SCOPE_ENTER _scope_2
+_temp9 = LOAD items
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_2
+_temp10 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp9.iterator() [pure=false, complexity=0]
+RETAIN _temp10
+SCOPE_REGISTER _temp10, _scope_2
+SCOPE_ENTER _scope_3
+REFERENCE item, org.ek9.lang::String
+SCOPE_REGISTER item, _scope_3
+CONTROL_FLOW_CHAIN
+[
+chain_type: "WHILE_LOOP"
+condition_chain:
+[
+[
+case_scope_id: _scope_4
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp11 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp10.hasNext() [pure=false, complexity=0]
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_4
+_temp12 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_4
+]
+condition_result: _temp11
+primitive_condition: _temp12
+body_evaluation:
+[
+SCOPE_ENTER _scope_5
+_temp13 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp10.next() [pure=false, complexity=0]
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_5
+RELEASE item
+STORE item, _temp13
+RETAIN item
+_temp15 = LOAD stdout
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_5
+_temp16 = LOAD item
+RETAIN _temp16
+SCOPE_REGISTER _temp16, _scope_5
+CALL (org.ek9.lang::Stdout)_temp15.println(_temp16) [pure=true, complexity=1]
+SCOPE_EXIT _scope_5
+]
+]
+]
+scope_id: _scope_3
+]
+SCOPE_EXIT _scope_3
+SCOPE_EXIT _scope_2
+SCOPE_EXIT _scope_1
+RETURN
+OperationDfn: loops::simpleForInLoop.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: loops::simpleForInLoop.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: loops::simpleForInLoop.simpleForInLoop()->loops::simpleForInLoop  
+BasicBlock: _entry_1
+CALL (loops::simpleForInLoop)this.i_init() [pure=false, complexity=0]
+RETURN this`
     simpleForInLoop()
       stdout <- Stdout()
       items <- List() of String

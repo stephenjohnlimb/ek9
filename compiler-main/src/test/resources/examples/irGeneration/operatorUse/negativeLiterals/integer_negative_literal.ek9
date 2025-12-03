@@ -15,64 +15,64 @@ defines module integer.negative.literal.test
 
     @IR: IR_GENERATION: FUNCTION: "integer.negative.literal.test::testIntegerNegativeLiteral": `
     ConstructDfn: integer.negative.literal.test::testIntegerNegativeLiteral()->org.ek9.lang::Void
-    OperationDfn: integer.negative.literal.test::testIntegerNegativeLiteral.c_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: integer.negative.literal.test::testIntegerNegativeLiteral.i_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: integer.negative.literal.test::testIntegerNegativeLiteral.testIntegerNegativeLiteral()->integer.negative.literal.test::testIntegerNegativeLiteral  // ./integer_negative_literal.ek9:76:5
-    BasicBlock: _entry_1
-    CALL (integer.negative.literal.test::testIntegerNegativeLiteral)this.i_init() [pure=false, complexity=0]  // ./integer_negative_literal.ek9:76:5
-    RETURN this  // ./integer_negative_literal.ek9:76:5
-    OperationDfn: integer.negative.literal.test::testIntegerNegativeLiteral._call()->org.ek9.lang::Void  // ./integer_negative_literal.ek9:76:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./integer_negative_literal.ek9:78:7
-    REFERENCE negIntLit, org.ek9.lang::Integer  // ./integer_negative_literal.ek9:78:7
-    _temp1 = LOAD_LITERAL -5, org.ek9.lang::Integer  // ./integer_negative_literal.ek9:78:20
-    RETAIN _temp1  // ./integer_negative_literal.ek9:78:20
-    SCOPE_REGISTER _temp1, _scope_1  // ./integer_negative_literal.ek9:78:20
-    STORE negIntLit, _temp1  // ./integer_negative_literal.ek9:78:20
-    RETAIN negIntLit  // ./integer_negative_literal.ek9:78:20
-    SCOPE_REGISTER negIntLit, _scope_1  // ./integer_negative_literal.ek9:78:20
-    _temp2 = CONTROL_FLOW_CHAIN  // ./integer_negative_literal.ek9:79:23
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp3 = LOAD negIntLit  // ./integer_negative_literal.ek9:79:23
-    _temp4 = IS_NULL _temp3  // ./integer_negative_literal.ek9:79:23
-    ]
-    primitive_condition: _temp4
-    body_evaluation:
-    [
-    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./integer_negative_literal.ek9:79:23
-    RETAIN _temp5  // ./integer_negative_literal.ek9:79:23
-    SCOPE_REGISTER _temp5, _scope_1  // ./integer_negative_literal.ek9:79:23
-    ]
-    body_result: _temp5
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp6 = CALL (org.ek9.lang::Integer)_temp3._isSet() [pure=true, complexity=0]  // ./integer_negative_literal.ek9:79:23
-    RETAIN _temp6  // ./integer_negative_literal.ek9:79:23
-    SCOPE_REGISTER _temp6, _scope_1  // ./integer_negative_literal.ek9:79:23
-    ]
-    default_result: _temp6
-    scope_id: _scope_1
-    ]
-    RETAIN _temp2  // ./integer_negative_literal.ek9:79:7
-    SCOPE_REGISTER _temp2, _scope_1  // ./integer_negative_literal.ek9:79:7
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./integer_negative_literal.ek9:79:7
-    ASSERT _temp7  // ./integer_negative_literal.ek9:79:7
-    SCOPE_EXIT _scope_1  // ./integer_negative_literal.ek9:78:7
-    RETURN  // ./integer_negative_literal.ek9:76:5`
+OperationDfn: integer.negative.literal.test::testIntegerNegativeLiteral._call()->org.ek9.lang::Void  // ./integer_negative_literal.ek9:76:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./integer_negative_literal.ek9:78:7
+REFERENCE negIntLit, org.ek9.lang::Integer  // ./integer_negative_literal.ek9:78:7
+_temp1 = LOAD_LITERAL -5, org.ek9.lang::Integer  // ./integer_negative_literal.ek9:78:20
+RETAIN _temp1  // ./integer_negative_literal.ek9:78:20
+SCOPE_REGISTER _temp1, _scope_1  // ./integer_negative_literal.ek9:78:20
+STORE negIntLit, _temp1  // ./integer_negative_literal.ek9:78:20
+RETAIN negIntLit  // ./integer_negative_literal.ek9:78:20
+SCOPE_REGISTER negIntLit, _scope_1  // ./integer_negative_literal.ek9:78:20
+_temp2 = CONTROL_FLOW_CHAIN  // ./integer_negative_literal.ek9:79:23
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp3 = LOAD negIntLit  // ./integer_negative_literal.ek9:79:23
+_temp4 = IS_NULL _temp3  // ./integer_negative_literal.ek9:79:23
+]
+primitive_condition: _temp4
+body_evaluation:
+[
+_temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./integer_negative_literal.ek9:79:23
+RETAIN _temp5  // ./integer_negative_literal.ek9:79:23
+SCOPE_REGISTER _temp5, _scope_1  // ./integer_negative_literal.ek9:79:23
+]
+body_result: _temp5
+]
+]
+default_body_evaluation:
+[
+_temp6 = CALL (org.ek9.lang::Integer)_temp3._isSet() [pure=true, complexity=0]  // ./integer_negative_literal.ek9:79:23
+RETAIN _temp6  // ./integer_negative_literal.ek9:79:23
+SCOPE_REGISTER _temp6, _scope_1  // ./integer_negative_literal.ek9:79:23
+]
+default_result: _temp6
+scope_id: _scope_1
+]
+RETAIN _temp2  // ./integer_negative_literal.ek9:79:7
+SCOPE_REGISTER _temp2, _scope_1  // ./integer_negative_literal.ek9:79:7
+_temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./integer_negative_literal.ek9:79:7
+ASSERT _temp7  // ./integer_negative_literal.ek9:79:7
+SCOPE_EXIT _scope_1  // ./integer_negative_literal.ek9:78:7
+RETURN  // ./integer_negative_literal.ek9:76:5
+OperationDfn: integer.negative.literal.test::testIntegerNegativeLiteral.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: integer.negative.literal.test::testIntegerNegativeLiteral.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: integer.negative.literal.test::testIntegerNegativeLiteral.testIntegerNegativeLiteral()->integer.negative.literal.test::testIntegerNegativeLiteral  // ./integer_negative_literal.ek9:76:5
+BasicBlock: _entry_1
+CALL (integer.negative.literal.test::testIntegerNegativeLiteral)this.i_init() [pure=false, complexity=0]  // ./integer_negative_literal.ek9:76:5
+RETURN this  // ./integer_negative_literal.ek9:76:5`
     testIntegerNegativeLiteral()
       // Negative literal should be LOAD_LITERAL -5 (compile-time constant)
       negIntLit <- -5

@@ -5,33 +5,33 @@ defines module local.variableDeclarations
 
     @IR: IR_GENERATION: FUNCTION: "local.variableDeclarations::LocalVariableUse": `
     ConstructDfn: local.variableDeclarations::LocalVariableUse()->org.ek9.lang::Void
-    OperationDfn: local.variableDeclarations::LocalVariableUse.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: local.variableDeclarations::LocalVariableUse.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: local.variableDeclarations::LocalVariableUse.LocalVariableUse()->local.variableDeclarations::LocalVariableUse  // ./variableDeclaration.ek9:35:5
-    BasicBlock: _entry_1
-    CALL (local.variableDeclarations::LocalVariableUse)this.i_init() [pure=false, complexity=0]  // ./variableDeclaration.ek9:35:5
-    RETURN this  // ./variableDeclaration.ek9:35:5
-    OperationDfn: local.variableDeclarations::LocalVariableUse._call()->org.ek9.lang::Void  // ./variableDeclaration.ek9:35:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./variableDeclaration.ek9:38:7
-    REFERENCE localVar, org.ek9.lang::Boolean  // ./variableDeclaration.ek9:38:7
-    _temp1 = LOAD_LITERAL true, org.ek9.lang::Boolean  // ./variableDeclaration.ek9:38:19
-    RETAIN _temp1  // ./variableDeclaration.ek9:38:19
-    SCOPE_REGISTER _temp1, _scope_1  // ./variableDeclaration.ek9:38:19
-    STORE localVar, _temp1  // ./variableDeclaration.ek9:38:19
-    RETAIN localVar  // ./variableDeclaration.ek9:38:19
-    SCOPE_REGISTER localVar, _scope_1  // ./variableDeclaration.ek9:38:19
-    _temp2 = LOAD localVar  // ./variableDeclaration.ek9:42:7
-    RETAIN _temp2  // ./variableDeclaration.ek9:42:7
-    SCOPE_REGISTER _temp2, _scope_1  // ./variableDeclaration.ek9:42:7
-    _temp3 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./variableDeclaration.ek9:42:7
-    ASSERT _temp3  // ./variableDeclaration.ek9:42:7
-    SCOPE_EXIT _scope_1  // ./variableDeclaration.ek9:38:7
-    RETURN  // ./variableDeclaration.ek9:35:5`
+OperationDfn: local.variableDeclarations::LocalVariableUse.LocalVariableUse()->local.variableDeclarations::LocalVariableUse  // ./variableDeclaration.ek9:35:5
+BasicBlock: _entry_1
+CALL (local.variableDeclarations::LocalVariableUse)this.i_init() [pure=false, complexity=0]  // ./variableDeclaration.ek9:35:5
+RETURN this  // ./variableDeclaration.ek9:35:5
+OperationDfn: local.variableDeclarations::LocalVariableUse._call()->org.ek9.lang::Void  // ./variableDeclaration.ek9:35:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./variableDeclaration.ek9:38:7
+REFERENCE localVar, org.ek9.lang::Boolean  // ./variableDeclaration.ek9:38:7
+_temp1 = LOAD_LITERAL true, org.ek9.lang::Boolean  // ./variableDeclaration.ek9:38:19
+RETAIN _temp1  // ./variableDeclaration.ek9:38:19
+SCOPE_REGISTER _temp1, _scope_1  // ./variableDeclaration.ek9:38:19
+STORE localVar, _temp1  // ./variableDeclaration.ek9:38:19
+RETAIN localVar  // ./variableDeclaration.ek9:38:19
+SCOPE_REGISTER localVar, _scope_1  // ./variableDeclaration.ek9:38:19
+_temp2 = LOAD localVar  // ./variableDeclaration.ek9:42:7
+RETAIN _temp2  // ./variableDeclaration.ek9:42:7
+SCOPE_REGISTER _temp2, _scope_1  // ./variableDeclaration.ek9:42:7
+_temp3 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./variableDeclaration.ek9:42:7
+ASSERT _temp3  // ./variableDeclaration.ek9:42:7
+SCOPE_EXIT _scope_1  // ./variableDeclaration.ek9:38:7
+RETURN  // ./variableDeclaration.ek9:35:5
+OperationDfn: local.variableDeclarations::LocalVariableUse.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: local.variableDeclarations::LocalVariableUse.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     LocalVariableUse()
 
       //This is what we want to test the IR for

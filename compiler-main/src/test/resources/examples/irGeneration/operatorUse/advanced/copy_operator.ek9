@@ -12,115 +12,115 @@ defines module copy.test
   defines function
 
     @IR: IR_GENERATION: FUNCTION: "copy.test::testCopy": `
-    ConstructDfn: copy.test::testCopy()->org.ek9.lang::Void
-    OperationDfn: copy.test::testCopy.c_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: copy.test::testCopy.i_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: copy.test::testCopy.testCopy()->copy.test::testCopy  // ./copy_operator.ek9:124:5
-    BasicBlock: _entry_1
-    CALL (copy.test::testCopy)this.i_init() [pure=false, complexity=0]  // ./copy_operator.ek9:124:5
-    RETURN this  // ./copy_operator.ek9:124:5
-    OperationDfn: copy.test::testCopy._call()->org.ek9.lang::Void  // ./copy_operator.ek9:124:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./copy_operator.ek9:125:7
-    REFERENCE original, org.ek9.lang::String  // ./copy_operator.ek9:125:7
-    _temp1 = LOAD_LITERAL Hello World, org.ek9.lang::String  // ./copy_operator.ek9:125:27
-    RETAIN _temp1  // ./copy_operator.ek9:125:27
-    SCOPE_REGISTER _temp1, _scope_1  // ./copy_operator.ek9:125:27
-    STORE original, _temp1  // ./copy_operator.ek9:125:27
-    RETAIN original  // ./copy_operator.ek9:125:27
-    SCOPE_REGISTER original, _scope_1  // ./copy_operator.ek9:125:27
-    REFERENCE copy, org.ek9.lang::String  // ./copy_operator.ek9:126:7
-    _temp2 = LOAD original  // ./copy_operator.ek9:125:7
-    RETAIN _temp2  // ./copy_operator.ek9:125:7
-    SCOPE_REGISTER _temp2, _scope_1  // ./copy_operator.ek9:125:7
-    STORE copy, _temp2  // ./copy_operator.ek9:125:7
-    RETAIN copy  // ./copy_operator.ek9:125:7
-    SCOPE_REGISTER copy, _scope_1  // ./copy_operator.ek9:125:7
-    _temp3 = LOAD copy  // ./copy_operator.ek9:127:12
-    RETAIN _temp3  // ./copy_operator.ek9:127:12
-    SCOPE_REGISTER _temp3, _scope_1  // ./copy_operator.ek9:127:12
-    _temp4 = LOAD original  // ./copy_operator.ek9:125:7
-    RETAIN _temp4  // ./copy_operator.ek9:127:12
-    SCOPE_REGISTER _temp4, _scope_1  // ./copy_operator.ek9:127:12
-    CALL (org.ek9.lang::String)_temp3._copy(_temp4) [pure=false, complexity=0, effects=THIS_MUTATION]  // ./copy_operator.ek9:127:12
-    _temp5 = CONTROL_FLOW_CHAIN  // ./copy_operator.ek9:128:22
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp6 = LOAD original  // ./copy_operator.ek9:128:22
-    _temp7 = IS_NULL _temp6  // ./copy_operator.ek9:128:22
-    ]
-    primitive_condition: _temp7
-    body_evaluation:
-    [
-    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./copy_operator.ek9:128:22
-    RETAIN _temp8  // ./copy_operator.ek9:128:22
-    SCOPE_REGISTER _temp8, _scope_1  // ./copy_operator.ek9:128:22
-    ]
-    body_result: _temp8
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp9 = CALL (org.ek9.lang::String)_temp6._isSet() [pure=true, complexity=0]  // ./copy_operator.ek9:128:22
-    RETAIN _temp9  // ./copy_operator.ek9:128:22
-    SCOPE_REGISTER _temp9, _scope_1  // ./copy_operator.ek9:128:22
-    ]
-    default_result: _temp9
-    scope_id: _scope_1
-    ]
-    RETAIN _temp5  // ./copy_operator.ek9:128:7
-    SCOPE_REGISTER _temp5, _scope_1  // ./copy_operator.ek9:128:7
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]  // ./copy_operator.ek9:128:7
-    ASSERT _temp10  // ./copy_operator.ek9:128:7
-    _temp11 = CONTROL_FLOW_CHAIN  // ./copy_operator.ek9:129:18
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp12 = LOAD copy  // ./copy_operator.ek9:129:18
-    _temp13 = IS_NULL _temp12  // ./copy_operator.ek9:129:18
-    ]
-    primitive_condition: _temp13
-    body_evaluation:
-    [
-    _temp14 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./copy_operator.ek9:129:18
-    RETAIN _temp14  // ./copy_operator.ek9:129:18
-    SCOPE_REGISTER _temp14, _scope_1  // ./copy_operator.ek9:129:18
-    ]
-    body_result: _temp14
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp15 = CALL (org.ek9.lang::String)_temp12._isSet() [pure=true, complexity=0]  // ./copy_operator.ek9:129:18
-    RETAIN _temp15  // ./copy_operator.ek9:129:18
-    SCOPE_REGISTER _temp15, _scope_1  // ./copy_operator.ek9:129:18
-    ]
-    default_result: _temp15
-    scope_id: _scope_1
-    ]
-    RETAIN _temp11  // ./copy_operator.ek9:129:7
-    SCOPE_REGISTER _temp11, _scope_1  // ./copy_operator.ek9:129:7
-    _temp16 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]  // ./copy_operator.ek9:129:7
-    ASSERT _temp16  // ./copy_operator.ek9:129:7
-    SCOPE_EXIT _scope_1  // ./copy_operator.ek9:125:7
-    RETURN  // ./copy_operator.ek9:124:5`
+ConstructDfn: copy.test::testCopy()->org.ek9.lang::Void
+OperationDfn: copy.test::testCopy._call()->org.ek9.lang::Void  // ./copy_operator.ek9:124:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./copy_operator.ek9:125:7
+REFERENCE original, org.ek9.lang::String  // ./copy_operator.ek9:125:7
+_temp1 = LOAD_LITERAL Hello World, org.ek9.lang::String  // ./copy_operator.ek9:125:27
+RETAIN _temp1  // ./copy_operator.ek9:125:27
+SCOPE_REGISTER _temp1, _scope_1  // ./copy_operator.ek9:125:27
+STORE original, _temp1  // ./copy_operator.ek9:125:27
+RETAIN original  // ./copy_operator.ek9:125:27
+SCOPE_REGISTER original, _scope_1  // ./copy_operator.ek9:125:27
+REFERENCE copy, org.ek9.lang::String  // ./copy_operator.ek9:126:7
+_temp2 = LOAD original  // ./copy_operator.ek9:125:7
+RETAIN _temp2  // ./copy_operator.ek9:125:7
+SCOPE_REGISTER _temp2, _scope_1  // ./copy_operator.ek9:125:7
+STORE copy, _temp2  // ./copy_operator.ek9:125:7
+RETAIN copy  // ./copy_operator.ek9:125:7
+SCOPE_REGISTER copy, _scope_1  // ./copy_operator.ek9:125:7
+_temp3 = LOAD copy  // ./copy_operator.ek9:127:12
+RETAIN _temp3  // ./copy_operator.ek9:127:12
+SCOPE_REGISTER _temp3, _scope_1  // ./copy_operator.ek9:127:12
+_temp4 = LOAD original  // ./copy_operator.ek9:125:7
+RETAIN _temp4  // ./copy_operator.ek9:127:12
+SCOPE_REGISTER _temp4, _scope_1  // ./copy_operator.ek9:127:12
+CALL (org.ek9.lang::String)_temp3._copy(_temp4) [pure=false, complexity=0, effects=THIS_MUTATION]  // ./copy_operator.ek9:127:12
+_temp5 = CONTROL_FLOW_CHAIN  // ./copy_operator.ek9:128:22
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp6 = LOAD original  // ./copy_operator.ek9:128:22
+_temp7 = IS_NULL _temp6  // ./copy_operator.ek9:128:22
+]
+primitive_condition: _temp7
+body_evaluation:
+[
+_temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./copy_operator.ek9:128:22
+RETAIN _temp8  // ./copy_operator.ek9:128:22
+SCOPE_REGISTER _temp8, _scope_1  // ./copy_operator.ek9:128:22
+]
+body_result: _temp8
+]
+]
+default_body_evaluation:
+[
+_temp9 = CALL (org.ek9.lang::String)_temp6._isSet() [pure=true, complexity=0]  // ./copy_operator.ek9:128:22
+RETAIN _temp9  // ./copy_operator.ek9:128:22
+SCOPE_REGISTER _temp9, _scope_1  // ./copy_operator.ek9:128:22
+]
+default_result: _temp9
+scope_id: _scope_1
+]
+RETAIN _temp5  // ./copy_operator.ek9:128:7
+SCOPE_REGISTER _temp5, _scope_1  // ./copy_operator.ek9:128:7
+_temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]  // ./copy_operator.ek9:128:7
+ASSERT _temp10  // ./copy_operator.ek9:128:7
+_temp11 = CONTROL_FLOW_CHAIN  // ./copy_operator.ek9:129:18
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp12 = LOAD copy  // ./copy_operator.ek9:129:18
+_temp13 = IS_NULL _temp12  // ./copy_operator.ek9:129:18
+]
+primitive_condition: _temp13
+body_evaluation:
+[
+_temp14 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./copy_operator.ek9:129:18
+RETAIN _temp14  // ./copy_operator.ek9:129:18
+SCOPE_REGISTER _temp14, _scope_1  // ./copy_operator.ek9:129:18
+]
+body_result: _temp14
+]
+]
+default_body_evaluation:
+[
+_temp15 = CALL (org.ek9.lang::String)_temp12._isSet() [pure=true, complexity=0]  // ./copy_operator.ek9:129:18
+RETAIN _temp15  // ./copy_operator.ek9:129:18
+SCOPE_REGISTER _temp15, _scope_1  // ./copy_operator.ek9:129:18
+]
+default_result: _temp15
+scope_id: _scope_1
+]
+RETAIN _temp11  // ./copy_operator.ek9:129:7
+SCOPE_REGISTER _temp11, _scope_1  // ./copy_operator.ek9:129:7
+_temp16 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]  // ./copy_operator.ek9:129:7
+ASSERT _temp16  // ./copy_operator.ek9:129:7
+SCOPE_EXIT _scope_1  // ./copy_operator.ek9:125:7
+RETURN  // ./copy_operator.ek9:124:5
+OperationDfn: copy.test::testCopy.c_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: copy.test::testCopy.i_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: copy.test::testCopy.testCopy()->copy.test::testCopy  // ./copy_operator.ek9:124:5
+BasicBlock: _entry_1
+CALL (copy.test::testCopy)this.i_init() [pure=false, complexity=0]  // ./copy_operator.ek9:124:5
+RETURN this  // ./copy_operator.ek9:124:5`
     testCopy()
       original as String: "Hello World"
       copy as String: original

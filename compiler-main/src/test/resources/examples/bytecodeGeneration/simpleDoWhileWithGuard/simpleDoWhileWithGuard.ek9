@@ -9,18 +9,10 @@ defines module bytecode.test.dowhileguard
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.dowhileguard::SimpleDoWhileWithGuard": `public class bytecode.test.dowhileguard.SimpleDoWhileWithGuard {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.dowhileguard.SimpleDoWhileWithGuard();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -176,6 +168,14 @@ defines module bytecode.test.dowhileguard
        309: aload         40
        311: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
        314: return
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
 
     SimpleDoWhileWithGuard()

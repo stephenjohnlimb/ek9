@@ -12,79 +12,79 @@ defines module merge.test
   defines function
 
     @IR: IR_GENERATION: FUNCTION: "merge.test::testMerge": `
-    ConstructDfn: merge.test::testMerge()->org.ek9.lang::Void
-    OperationDfn: merge.test::testMerge.c_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: merge.test::testMerge.i_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: merge.test::testMerge.testMerge()->merge.test::testMerge  // ./merge_operator.ek9:88:5
-    BasicBlock: _entry_1
-    CALL (merge.test::testMerge)this.i_init() [pure=false, complexity=0]  // ./merge_operator.ek9:88:5
-    RETURN this  // ./merge_operator.ek9:88:5
-    OperationDfn: merge.test::testMerge._call()->org.ek9.lang::Void  // ./merge_operator.ek9:88:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./merge_operator.ek9:89:7
-    REFERENCE x, org.ek9.lang::Integer  // ./merge_operator.ek9:89:7
-    _temp1 = LOAD_LITERAL 42, org.ek9.lang::Integer  // ./merge_operator.ek9:89:21
-    RETAIN _temp1  // ./merge_operator.ek9:89:21
-    SCOPE_REGISTER _temp1, _scope_1  // ./merge_operator.ek9:89:21
-    STORE x, _temp1  // ./merge_operator.ek9:89:21
-    RETAIN x  // ./merge_operator.ek9:89:21
-    SCOPE_REGISTER x, _scope_1  // ./merge_operator.ek9:89:21
-    REFERENCE y, org.ek9.lang::Integer  // ./merge_operator.ek9:90:7
-    _temp2 = LOAD_LITERAL 100, org.ek9.lang::Integer  // ./merge_operator.ek9:90:21
-    RETAIN _temp2  // ./merge_operator.ek9:90:21
-    SCOPE_REGISTER _temp2, _scope_1  // ./merge_operator.ek9:90:21
-    STORE y, _temp2  // ./merge_operator.ek9:90:21
-    RETAIN y  // ./merge_operator.ek9:90:21
-    SCOPE_REGISTER y, _scope_1  // ./merge_operator.ek9:90:21
-    _temp3 = LOAD x  // ./merge_operator.ek9:91:9
-    RETAIN _temp3  // ./merge_operator.ek9:91:9
-    SCOPE_REGISTER _temp3, _scope_1  // ./merge_operator.ek9:91:9
-    _temp4 = LOAD y  // ./merge_operator.ek9:90:7
-    RETAIN _temp4  // ./merge_operator.ek9:91:9
-    SCOPE_REGISTER _temp4, _scope_1  // ./merge_operator.ek9:91:9
-    CALL (org.ek9.lang::Integer)_temp3._merge(_temp4) [pure=false, complexity=0, effects=THIS_MUTATION]  // ./merge_operator.ek9:91:9
-    _temp5 = CONTROL_FLOW_CHAIN  // ./merge_operator.ek9:92:15
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp6 = LOAD x  // ./merge_operator.ek9:92:15
-    _temp7 = IS_NULL _temp6  // ./merge_operator.ek9:92:15
-    ]
-    primitive_condition: _temp7
-    body_evaluation:
-    [
-    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./merge_operator.ek9:92:15
-    RETAIN _temp8  // ./merge_operator.ek9:92:15
-    SCOPE_REGISTER _temp8, _scope_1  // ./merge_operator.ek9:92:15
-    ]
-    body_result: _temp8
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp9 = CALL (org.ek9.lang::Integer)_temp6._isSet() [pure=true, complexity=0]  // ./merge_operator.ek9:92:15
-    RETAIN _temp9  // ./merge_operator.ek9:92:15
-    SCOPE_REGISTER _temp9, _scope_1  // ./merge_operator.ek9:92:15
-    ]
-    default_result: _temp9
-    scope_id: _scope_1
-    ]
-    RETAIN _temp5  // ./merge_operator.ek9:92:7
-    SCOPE_REGISTER _temp5, _scope_1  // ./merge_operator.ek9:92:7
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]  // ./merge_operator.ek9:92:7
-    ASSERT _temp10  // ./merge_operator.ek9:92:7
-    SCOPE_EXIT _scope_1  // ./merge_operator.ek9:89:7
-    RETURN  // ./merge_operator.ek9:88:5`
+ConstructDfn: merge.test::testMerge()->org.ek9.lang::Void
+OperationDfn: merge.test::testMerge._call()->org.ek9.lang::Void  // ./merge_operator.ek9:88:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./merge_operator.ek9:89:7
+REFERENCE x, org.ek9.lang::Integer  // ./merge_operator.ek9:89:7
+_temp1 = LOAD_LITERAL 42, org.ek9.lang::Integer  // ./merge_operator.ek9:89:21
+RETAIN _temp1  // ./merge_operator.ek9:89:21
+SCOPE_REGISTER _temp1, _scope_1  // ./merge_operator.ek9:89:21
+STORE x, _temp1  // ./merge_operator.ek9:89:21
+RETAIN x  // ./merge_operator.ek9:89:21
+SCOPE_REGISTER x, _scope_1  // ./merge_operator.ek9:89:21
+REFERENCE y, org.ek9.lang::Integer  // ./merge_operator.ek9:90:7
+_temp2 = LOAD_LITERAL 100, org.ek9.lang::Integer  // ./merge_operator.ek9:90:21
+RETAIN _temp2  // ./merge_operator.ek9:90:21
+SCOPE_REGISTER _temp2, _scope_1  // ./merge_operator.ek9:90:21
+STORE y, _temp2  // ./merge_operator.ek9:90:21
+RETAIN y  // ./merge_operator.ek9:90:21
+SCOPE_REGISTER y, _scope_1  // ./merge_operator.ek9:90:21
+_temp3 = LOAD x  // ./merge_operator.ek9:91:9
+RETAIN _temp3  // ./merge_operator.ek9:91:9
+SCOPE_REGISTER _temp3, _scope_1  // ./merge_operator.ek9:91:9
+_temp4 = LOAD y  // ./merge_operator.ek9:90:7
+RETAIN _temp4  // ./merge_operator.ek9:91:9
+SCOPE_REGISTER _temp4, _scope_1  // ./merge_operator.ek9:91:9
+CALL (org.ek9.lang::Integer)_temp3._merge(_temp4) [pure=false, complexity=0, effects=THIS_MUTATION]  // ./merge_operator.ek9:91:9
+_temp5 = CONTROL_FLOW_CHAIN  // ./merge_operator.ek9:92:15
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp6 = LOAD x  // ./merge_operator.ek9:92:15
+_temp7 = IS_NULL _temp6  // ./merge_operator.ek9:92:15
+]
+primitive_condition: _temp7
+body_evaluation:
+[
+_temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./merge_operator.ek9:92:15
+RETAIN _temp8  // ./merge_operator.ek9:92:15
+SCOPE_REGISTER _temp8, _scope_1  // ./merge_operator.ek9:92:15
+]
+body_result: _temp8
+]
+]
+default_body_evaluation:
+[
+_temp9 = CALL (org.ek9.lang::Integer)_temp6._isSet() [pure=true, complexity=0]  // ./merge_operator.ek9:92:15
+RETAIN _temp9  // ./merge_operator.ek9:92:15
+SCOPE_REGISTER _temp9, _scope_1  // ./merge_operator.ek9:92:15
+]
+default_result: _temp9
+scope_id: _scope_1
+]
+RETAIN _temp5  // ./merge_operator.ek9:92:7
+SCOPE_REGISTER _temp5, _scope_1  // ./merge_operator.ek9:92:7
+_temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]  // ./merge_operator.ek9:92:7
+ASSERT _temp10  // ./merge_operator.ek9:92:7
+SCOPE_EXIT _scope_1  // ./merge_operator.ek9:89:7
+RETURN  // ./merge_operator.ek9:88:5
+OperationDfn: merge.test::testMerge.c_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: merge.test::testMerge.i_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: merge.test::testMerge.testMerge()->merge.test::testMerge  // ./merge_operator.ek9:88:5
+BasicBlock: _entry_1
+CALL (merge.test::testMerge)this.i_init() [pure=false, complexity=0]  // ./merge_operator.ek9:88:5
+RETURN this  // ./merge_operator.ek9:88:5`
     testMerge()
       x as Integer: 42
       y as Integer: 100

@@ -15,16 +15,6 @@ defines module expressionForms.whileExpr
     -?>
     @IR: IR_GENERATION: FUNCTION: "expressionForms.whileExpr::whileExpression": `
     ConstructDfn: expressionForms.whileExpr::whileExpression(org.ek9.lang::Integer)->org.ek9.lang::Integer
-    OperationDfn: expressionForms.whileExpr::whileExpression.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: expressionForms.whileExpr::whileExpression.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: expressionForms.whileExpr::whileExpression.whileExpression()->expressionForms.whileExpr::whileExpression
-    BasicBlock: _entry_1
-    CALL (expressionForms.whileExpr::whileExpression)this.i_init() [pure=false, complexity=0]
-    RETURN this
     OperationDfn: expressionForms.whileExpr::whileExpression._call(org.ek9.lang::Integer)->org.ek9.lang::Integer
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1
@@ -175,7 +165,17 @@ defines module expressionForms.whileExpr
     STORE result, _temp1
     RETAIN result
     SCOPE_EXIT _scope_1
-    RETURN result`
+    RETURN result
+    OperationDfn: expressionForms.whileExpr::whileExpression.whileExpression()->expressionForms.whileExpr::whileExpression
+    BasicBlock: _entry_1
+    CALL (expressionForms.whileExpr::whileExpression)this.i_init() [pure=false, complexity=0]
+    RETURN this
+    OperationDfn: expressionForms.whileExpr::whileExpression.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: expressionForms.whileExpr::whileExpression.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN`
     whileExpression()
       -> limit as Integer
       <- result as Integer?

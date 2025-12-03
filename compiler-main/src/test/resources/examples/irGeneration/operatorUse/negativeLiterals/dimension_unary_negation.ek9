@@ -15,74 +15,74 @@ defines module dimension.unary.negation.test
 
     @IR: IR_GENERATION: FUNCTION: "dimension.unary.negation.test::testDimensionUnaryNegation": `
     ConstructDfn: dimension.unary.negation.test::testDimensionUnaryNegation()->org.ek9.lang::Void
-    OperationDfn: dimension.unary.negation.test::testDimensionUnaryNegation.c_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: dimension.unary.negation.test::testDimensionUnaryNegation.i_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: dimension.unary.negation.test::testDimensionUnaryNegation.testDimensionUnaryNegation()->dimension.unary.negation.test::testDimensionUnaryNegation  // ./dimension_unary_negation.ek9:86:5
-    BasicBlock: _entry_1
-    CALL (dimension.unary.negation.test::testDimensionUnaryNegation)this.i_init() [pure=false, complexity=0]  // ./dimension_unary_negation.ek9:86:5
-    RETURN this  // ./dimension_unary_negation.ek9:86:5
-    OperationDfn: dimension.unary.negation.test::testDimensionUnaryNegation._call()->org.ek9.lang::Void  // ./dimension_unary_negation.ek9:86:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./dimension_unary_negation.ek9:88:7
-    REFERENCE someDim, org.ek9.lang::Dimension  // ./dimension_unary_negation.ek9:88:7
-    _temp1 = LOAD_LITERAL 3.5em, org.ek9.lang::Dimension  // ./dimension_unary_negation.ek9:88:29
-    RETAIN _temp1  // ./dimension_unary_negation.ek9:88:29
-    SCOPE_REGISTER _temp1, _scope_1  // ./dimension_unary_negation.ek9:88:29
-    STORE someDim, _temp1  // ./dimension_unary_negation.ek9:88:29
-    RETAIN someDim  // ./dimension_unary_negation.ek9:88:29
-    SCOPE_REGISTER someDim, _scope_1  // ./dimension_unary_negation.ek9:88:29
-    REFERENCE negDimVar, org.ek9.lang::Dimension  // ./dimension_unary_negation.ek9:91:7
-    _temp3 = LOAD someDim  // ./dimension_unary_negation.ek9:91:20
-    RETAIN _temp3  // ./dimension_unary_negation.ek9:91:20
-    SCOPE_REGISTER _temp3, _scope_1  // ./dimension_unary_negation.ek9:91:20
-    _temp2 = CALL (org.ek9.lang::Dimension)_temp3._negate() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./dimension_unary_negation.ek9:91:20
-    RETAIN _temp2  // ./dimension_unary_negation.ek9:91:20
-    SCOPE_REGISTER _temp2, _scope_1  // ./dimension_unary_negation.ek9:91:20
-    STORE negDimVar, _temp2  // ./dimension_unary_negation.ek9:91:20
-    RETAIN negDimVar  // ./dimension_unary_negation.ek9:91:20
-    SCOPE_REGISTER negDimVar, _scope_1  // ./dimension_unary_negation.ek9:91:20
-    _temp4 = CONTROL_FLOW_CHAIN  // ./dimension_unary_negation.ek9:92:23
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp5 = LOAD negDimVar  // ./dimension_unary_negation.ek9:92:23
-    _temp6 = IS_NULL _temp5  // ./dimension_unary_negation.ek9:92:23
-    ]
-    primitive_condition: _temp6
-    body_evaluation:
-    [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./dimension_unary_negation.ek9:92:23
-    RETAIN _temp7  // ./dimension_unary_negation.ek9:92:23
-    SCOPE_REGISTER _temp7, _scope_1  // ./dimension_unary_negation.ek9:92:23
-    ]
-    body_result: _temp7
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp8 = CALL (org.ek9.lang::Dimension)_temp5._isSet() [pure=true, complexity=0]  // ./dimension_unary_negation.ek9:92:23
-    RETAIN _temp8  // ./dimension_unary_negation.ek9:92:23
-    SCOPE_REGISTER _temp8, _scope_1  // ./dimension_unary_negation.ek9:92:23
-    ]
-    default_result: _temp8
-    scope_id: _scope_1
-    ]
-    RETAIN _temp4  // ./dimension_unary_negation.ek9:92:7
-    SCOPE_REGISTER _temp4, _scope_1  // ./dimension_unary_negation.ek9:92:7
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./dimension_unary_negation.ek9:92:7
-    ASSERT _temp9  // ./dimension_unary_negation.ek9:92:7
-    SCOPE_EXIT _scope_1  // ./dimension_unary_negation.ek9:88:7
-    RETURN  // ./dimension_unary_negation.ek9:86:5`
+OperationDfn: dimension.unary.negation.test::testDimensionUnaryNegation._call()->org.ek9.lang::Void  // ./dimension_unary_negation.ek9:86:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./dimension_unary_negation.ek9:88:7
+REFERENCE someDim, org.ek9.lang::Dimension  // ./dimension_unary_negation.ek9:88:7
+_temp1 = LOAD_LITERAL 3.5em, org.ek9.lang::Dimension  // ./dimension_unary_negation.ek9:88:29
+RETAIN _temp1  // ./dimension_unary_negation.ek9:88:29
+SCOPE_REGISTER _temp1, _scope_1  // ./dimension_unary_negation.ek9:88:29
+STORE someDim, _temp1  // ./dimension_unary_negation.ek9:88:29
+RETAIN someDim  // ./dimension_unary_negation.ek9:88:29
+SCOPE_REGISTER someDim, _scope_1  // ./dimension_unary_negation.ek9:88:29
+REFERENCE negDimVar, org.ek9.lang::Dimension  // ./dimension_unary_negation.ek9:91:7
+_temp3 = LOAD someDim  // ./dimension_unary_negation.ek9:91:20
+RETAIN _temp3  // ./dimension_unary_negation.ek9:91:20
+SCOPE_REGISTER _temp3, _scope_1  // ./dimension_unary_negation.ek9:91:20
+_temp2 = CALL (org.ek9.lang::Dimension)_temp3._negate() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./dimension_unary_negation.ek9:91:20
+RETAIN _temp2  // ./dimension_unary_negation.ek9:91:20
+SCOPE_REGISTER _temp2, _scope_1  // ./dimension_unary_negation.ek9:91:20
+STORE negDimVar, _temp2  // ./dimension_unary_negation.ek9:91:20
+RETAIN negDimVar  // ./dimension_unary_negation.ek9:91:20
+SCOPE_REGISTER negDimVar, _scope_1  // ./dimension_unary_negation.ek9:91:20
+_temp4 = CONTROL_FLOW_CHAIN  // ./dimension_unary_negation.ek9:92:23
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp5 = LOAD negDimVar  // ./dimension_unary_negation.ek9:92:23
+_temp6 = IS_NULL _temp5  // ./dimension_unary_negation.ek9:92:23
+]
+primitive_condition: _temp6
+body_evaluation:
+[
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./dimension_unary_negation.ek9:92:23
+RETAIN _temp7  // ./dimension_unary_negation.ek9:92:23
+SCOPE_REGISTER _temp7, _scope_1  // ./dimension_unary_negation.ek9:92:23
+]
+body_result: _temp7
+]
+]
+default_body_evaluation:
+[
+_temp8 = CALL (org.ek9.lang::Dimension)_temp5._isSet() [pure=true, complexity=0]  // ./dimension_unary_negation.ek9:92:23
+RETAIN _temp8  // ./dimension_unary_negation.ek9:92:23
+SCOPE_REGISTER _temp8, _scope_1  // ./dimension_unary_negation.ek9:92:23
+]
+default_result: _temp8
+scope_id: _scope_1
+]
+RETAIN _temp4  // ./dimension_unary_negation.ek9:92:7
+SCOPE_REGISTER _temp4, _scope_1  // ./dimension_unary_negation.ek9:92:7
+_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./dimension_unary_negation.ek9:92:7
+ASSERT _temp9  // ./dimension_unary_negation.ek9:92:7
+SCOPE_EXIT _scope_1  // ./dimension_unary_negation.ek9:88:7
+RETURN  // ./dimension_unary_negation.ek9:86:5
+OperationDfn: dimension.unary.negation.test::testDimensionUnaryNegation.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: dimension.unary.negation.test::testDimensionUnaryNegation.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: dimension.unary.negation.test::testDimensionUnaryNegation.testDimensionUnaryNegation()->dimension.unary.negation.test::testDimensionUnaryNegation  // ./dimension_unary_negation.ek9:86:5
+BasicBlock: _entry_1
+CALL (dimension.unary.negation.test::testDimensionUnaryNegation)this.i_init() [pure=false, complexity=0]  // ./dimension_unary_negation.ek9:86:5
+RETURN this  // ./dimension_unary_negation.ek9:86:5`
     testDimensionUnaryNegation()
       // Variable for unary negation
       someDim as Dimension: 3.5em

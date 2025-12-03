@@ -19,16 +19,6 @@ defines module lessEqualCoalesce.test
 
     @IR: IR_GENERATION: FUNCTION: "lessEqualCoalesce.test::testLessEqualCoalesce": `
     ConstructDfn: lessEqualCoalesce.test::testLessEqualCoalesce()->org.ek9.lang::Void
-    OperationDfn: lessEqualCoalesce.test::testLessEqualCoalesce.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: lessEqualCoalesce.test::testLessEqualCoalesce.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: lessEqualCoalesce.test::testLessEqualCoalesce.testLessEqualCoalesce()->lessEqualCoalesce.test::testLessEqualCoalesce
-    BasicBlock: _entry_1
-    CALL (lessEqualCoalesce.test::testLessEqualCoalesce)this.i_init() [pure=false, complexity=0]
-    RETURN this
     OperationDfn: lessEqualCoalesce.test::testLessEqualCoalesce._call()->org.ek9.lang::Void
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1
@@ -161,7 +151,17 @@ defines module lessEqualCoalesce.test
     _temp17 = CALL (org.ek9.lang::Boolean)_temp14._true() [pure=true, complexity=0]
     ASSERT _temp17
     SCOPE_EXIT _scope_1
-    RETURN`
+    RETURN
+    OperationDfn: lessEqualCoalesce.test::testLessEqualCoalesce.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: lessEqualCoalesce.test::testLessEqualCoalesce.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: lessEqualCoalesce.test::testLessEqualCoalesce.testLessEqualCoalesce()->lessEqualCoalesce.test::testLessEqualCoalesce
+    BasicBlock: _entry_1
+    CALL (lessEqualCoalesce.test::testLessEqualCoalesce)this.i_init() [pure=false, complexity=0]
+    RETURN this`
     testLessEqualCoalesce()
       x <- 10
       y <- 10

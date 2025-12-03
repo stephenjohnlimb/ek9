@@ -1,11 +1,12 @@
 #!ek9
 <?-
-  Test IR generation for less than operator (<)
+  Test IR generation for less-than operator (<)
   
   Purpose: Analyze IR generation for Integer._lt(Integer) method resolution,
   literal loading, temporary variable management, and optimization potential.
   
   Expected IR: Method call to Integer._lt() with Integer parameter
+  Returns: Boolean
 -?>
 defines module less_than.test
 
@@ -13,33 +14,23 @@ defines module less_than.test
 
     @IR: IR_GENERATION: FUNCTION: "less_than.test::testLessThan": `
     ConstructDfn: less_than.test::testLessThan()->org.ek9.lang::Void
-    OperationDfn: less_than.test::testLessThan.c_init()->org.ek9.lang::Void  
+    OperationDfn: less_than.test::testLessThan._call()->org.ek9.lang::Void  // ./less_than_operator.ek9:81:5
     BasicBlock: _entry_1
-    RETURN
-    OperationDfn: less_than.test::testLessThan.i_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: less_than.test::testLessThan.testLessThan()->less_than.test::testLessThan  // ./less_than_operator.ek9:80:5
-    BasicBlock: _entry_1
-    CALL (less_than.test::testLessThan)this.i_init() [pure=false, complexity=0]  // ./less_than_operator.ek9:80:5
-    RETURN this  // ./less_than_operator.ek9:80:5
-    OperationDfn: less_than.test::testLessThan._call()->org.ek9.lang::Void  // ./less_than_operator.ek9:80:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./less_than_operator.ek9:81:7
-    REFERENCE z, org.ek9.lang::Boolean  // ./less_than_operator.ek9:81:7
-    _temp2 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./less_than_operator.ek9:81:12
-    RETAIN _temp2  // ./less_than_operator.ek9:81:12
-    SCOPE_REGISTER _temp2, _scope_1  // ./less_than_operator.ek9:81:12
-    _temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./less_than_operator.ek9:81:16
-    RETAIN _temp3  // ./less_than_operator.ek9:81:16
-    SCOPE_REGISTER _temp3, _scope_1  // ./less_than_operator.ek9:81:16
-    _temp1 = CALL (org.ek9.lang::Integer)_temp2._lt(_temp3) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./less_than_operator.ek9:81:14
-    RETAIN _temp1  // ./less_than_operator.ek9:81:12
-    SCOPE_REGISTER _temp1, _scope_1  // ./less_than_operator.ek9:81:12
-    STORE z, _temp1  // ./less_than_operator.ek9:81:12
-    RETAIN z  // ./less_than_operator.ek9:81:12
-    SCOPE_REGISTER z, _scope_1  // ./less_than_operator.ek9:81:12
-    _temp4 = CONTROL_FLOW_CHAIN  // ./less_than_operator.ek9:82:15
+    SCOPE_ENTER _scope_1  // ./less_than_operator.ek9:82:7
+    REFERENCE z, org.ek9.lang::Boolean  // ./less_than_operator.ek9:82:7
+    _temp2 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./less_than_operator.ek9:82:12
+    RETAIN _temp2  // ./less_than_operator.ek9:82:12
+    SCOPE_REGISTER _temp2, _scope_1  // ./less_than_operator.ek9:82:12
+    _temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./less_than_operator.ek9:82:16
+    RETAIN _temp3  // ./less_than_operator.ek9:82:16
+    SCOPE_REGISTER _temp3, _scope_1  // ./less_than_operator.ek9:82:16
+    _temp1 = CALL (org.ek9.lang::Integer)_temp2._lt(_temp3) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./less_than_operator.ek9:82:14
+    RETAIN _temp1  // ./less_than_operator.ek9:82:12
+    SCOPE_REGISTER _temp1, _scope_1  // ./less_than_operator.ek9:82:12
+    STORE z, _temp1  // ./less_than_operator.ek9:82:12
+    RETAIN z  // ./less_than_operator.ek9:82:12
+    SCOPE_REGISTER z, _scope_1  // ./less_than_operator.ek9:82:12
+    _temp4 = CONTROL_FLOW_CHAIN  // ./less_than_operator.ek9:83:15
     [
     chain_type: "QUESTION_OPERATOR"
     condition_chain:
@@ -49,34 +40,44 @@ defines module less_than.test
     case_type: "NULL_CHECK"
     condition_evaluation:
     [
-    _temp5 = LOAD z  // ./less_than_operator.ek9:82:15
-    _temp6 = IS_NULL _temp5  // ./less_than_operator.ek9:82:15
+    _temp5 = LOAD z  // ./less_than_operator.ek9:83:15
+    _temp6 = IS_NULL _temp5  // ./less_than_operator.ek9:83:15
     ]
     primitive_condition: _temp6
     body_evaluation:
     [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./less_than_operator.ek9:82:15
-    RETAIN _temp7  // ./less_than_operator.ek9:82:15
-    SCOPE_REGISTER _temp7, _scope_1  // ./less_than_operator.ek9:82:15
+    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./less_than_operator.ek9:83:15
+    RETAIN _temp7  // ./less_than_operator.ek9:83:15
+    SCOPE_REGISTER _temp7, _scope_1  // ./less_than_operator.ek9:83:15
     ]
     body_result: _temp7
     ]
     ]
     default_body_evaluation:
     [
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=true, complexity=0]  // ./less_than_operator.ek9:82:15
-    RETAIN _temp8  // ./less_than_operator.ek9:82:15
-    SCOPE_REGISTER _temp8, _scope_1  // ./less_than_operator.ek9:82:15
+    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=true, complexity=0]  // ./less_than_operator.ek9:83:15
+    RETAIN _temp8  // ./less_than_operator.ek9:83:15
+    SCOPE_REGISTER _temp8, _scope_1  // ./less_than_operator.ek9:83:15
     ]
     default_result: _temp8
     scope_id: _scope_1
     ]
-    RETAIN _temp4  // ./less_than_operator.ek9:82:7
-    SCOPE_REGISTER _temp4, _scope_1  // ./less_than_operator.ek9:82:7
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./less_than_operator.ek9:82:7
-    ASSERT _temp9  // ./less_than_operator.ek9:82:7
-    SCOPE_EXIT _scope_1  // ./less_than_operator.ek9:81:7
-    RETURN  // ./less_than_operator.ek9:80:5`
+    RETAIN _temp4  // ./less_than_operator.ek9:83:7
+    SCOPE_REGISTER _temp4, _scope_1  // ./less_than_operator.ek9:83:7
+    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./less_than_operator.ek9:83:7
+    ASSERT _temp9  // ./less_than_operator.ek9:83:7
+    SCOPE_EXIT _scope_1  // ./less_than_operator.ek9:82:7
+    RETURN  // ./less_than_operator.ek9:81:5
+    OperationDfn: less_than.test::testLessThan.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: less_than.test::testLessThan.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: less_than.test::testLessThan.testLessThan()->less_than.test::testLessThan  // ./less_than_operator.ek9:81:5
+    BasicBlock: _entry_1
+    CALL (less_than.test::testLessThan)this.i_init() [pure=false, complexity=0]  // ./less_than_operator.ek9:81:5
+    RETURN this  // ./less_than_operator.ek9:81:5`
     testLessThan()
       z <- 1 < 2
       assert z?

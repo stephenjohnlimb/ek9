@@ -9,220 +9,220 @@ defines module loops
 
     @IR: IR_GENERATION: FUNCTION: "loops::simpleForRangeLoop": `
     ConstructDfn: loops::simpleForRangeLoop()->org.ek9.lang::Void
-    OperationDfn: loops::simpleForRangeLoop.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops::simpleForRangeLoop.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops::simpleForRangeLoop.simpleForRangeLoop()->loops::simpleForRangeLoop
-    BasicBlock: _entry_1
-    CALL (loops::simpleForRangeLoop)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: loops::simpleForRangeLoop._call()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE stdout, org.ek9.lang::Stdout
-    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE stdout, _temp1
-    RETAIN stdout
-    SCOPE_REGISTER stdout, _scope_1
-    REFERENCE sum, org.ek9.lang::Integer
-    _temp2 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_1
-    STORE sum, _temp2
-    RETAIN sum
-    SCOPE_REGISTER sum, _scope_1
-    SCOPE_ENTER _scope_2
-    SCOPE_ENTER _scope_3
-    REFERENCE i, org.ek9.lang::Integer
-    SCOPE_REGISTER i, _scope_3
-    FOR_RANGE_POLYMORPHIC
-    [
-    initialization:
-    [
-    _temp4 = LOAD_LITERAL 1, org.ek9.lang::Integer
-    RETAIN _temp4
-    SCOPE_REGISTER _temp4, _scope_3
-    _temp3 = LOAD _temp4
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_3
-    _temp6 = LOAD_LITERAL 10, org.ek9.lang::Integer
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_3
-    _temp5 = LOAD _temp6
-    RETAIN _temp5
-    SCOPE_REGISTER _temp5, _scope_3
-    _temp7 = CALL (org.ek9.lang::Integer)_temp3._isSet() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_3
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp7._true() [pure=true, complexity=0]
-    ASSERT _temp8, For-range 'start' value must be set
-    _temp9 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_3
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp9._true() [pure=true, complexity=0]
-    ASSERT _temp10, For-range 'end' value must be set
-    _temp11 = CALL (org.ek9.lang::Integer)_temp3._cmp(_temp5) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_3
-    _temp12 = LOAD _temp3
-    RETAIN _temp12
-    SCOPE_REGISTER _temp12, _scope_3
-    ]
-    dispatch_cases:
-    [
-    ascending:
-    [
-    direction_check:
-    [
-    SCOPE_ENTER _scope_5
-    _temp16 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp16
-    SCOPE_REGISTER _temp16, _scope_5
-    _temp17 = CALL (org.ek9.lang::Integer)_temp11._lt(_temp16) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp17
-    SCOPE_REGISTER _temp17, _scope_5
-    _temp18 = CALL (org.ek9.lang::Boolean)_temp17._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_5
-    ]
-    direction_primitive: _temp18
-    loop_condition_template:
-    [
-    SCOPE_ENTER _scope_6
-    _temp19 = CALL (org.ek9.lang::Integer)_temp12._cmp(_temp5) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp19
-    SCOPE_REGISTER _temp19, _scope_6
-    _temp20 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp20
-    SCOPE_REGISTER _temp20, _scope_6
-    _temp21 = CALL (org.ek9.lang::Integer)_temp19._lteq(_temp20) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp21
-    SCOPE_REGISTER _temp21, _scope_6
-    _temp22 = CALL (org.ek9.lang::Boolean)_temp21._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_6
-    ]
-    loop_condition_primitive: _temp22
-    loop_body_setup:
-    [
-    RELEASE i
-    STORE i, _temp12
-    RETAIN i
-    ]
-    loop_increment:
-    [
-    SCOPE_ENTER _scope_7
-    _temp23 = CALL (org.ek9.lang::Integer)_temp12._inc() [pure=false, complexity=0, effects=RETURN_MUTATION,THIS_MUTATION]
-    RETAIN _temp23
-    SCOPE_REGISTER _temp23, _scope_7
-    STORE _temp12, _temp23
-    SCOPE_EXIT _scope_7
-    ]
-    ]
-    descending:
-    [
-    direction_check:
-    [
-    SCOPE_ENTER _scope_8
-    _temp24 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp24
-    SCOPE_REGISTER _temp24, _scope_8
-    _temp25 = CALL (org.ek9.lang::Integer)_temp11._gt(_temp24) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp25
-    SCOPE_REGISTER _temp25, _scope_8
-    _temp26 = CALL (org.ek9.lang::Boolean)_temp25._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_8
-    ]
-    direction_primitive: _temp26
-    loop_condition_template:
-    [
-    SCOPE_ENTER _scope_9
-    _temp27 = CALL (org.ek9.lang::Integer)_temp12._cmp(_temp5) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp27
-    SCOPE_REGISTER _temp27, _scope_9
-    _temp28 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp28
-    SCOPE_REGISTER _temp28, _scope_9
-    _temp29 = CALL (org.ek9.lang::Integer)_temp27._gteq(_temp28) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp29
-    SCOPE_REGISTER _temp29, _scope_9
-    _temp30 = CALL (org.ek9.lang::Boolean)_temp29._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_9
-    ]
-    loop_condition_primitive: _temp30
-    loop_body_setup:
-    [
-    RELEASE i
-    STORE i, _temp12
-    RETAIN i
-    ]
-    loop_increment:
-    [
-    SCOPE_ENTER _scope_10
-    _temp31 = CALL (org.ek9.lang::Integer)_temp12._dec() [pure=false, complexity=0, effects=RETURN_MUTATION,THIS_MUTATION]
-    RETAIN _temp31
-    SCOPE_REGISTER _temp31, _scope_10
-    STORE _temp12, _temp31
-    SCOPE_EXIT _scope_10
-    ]
-    ]
-    equal:
-    [
-    loop_body_setup:
-    [
-    RELEASE i
-    STORE i, _temp12
-    RETAIN i
-    ]
-    single_iteration: true
-    ]
-    ]
-    body:
-    [
-    SCOPE_ENTER _scope_4
-    _temp14 = LOAD sum
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_4
-    _temp15 = LOAD i
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_4
-    _temp13 = CALL (org.ek9.lang::Integer)_temp14._add(_temp15) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, _scope_4
-    RELEASE sum
-    STORE sum, _temp13
-    RETAIN sum
-    SCOPE_EXIT _scope_4
-    ]
-    metadata:
-    [
-    direction_variable: "_temp11"
-    current_variable: "_temp12"
-    loop_variable: "i"
-    end_variable: "_temp5"
-    range_type: "org.ek9.lang::Integer"
-    ]
-    scope_metadata:
-    [
-    outer_scope: "_scope_2"
-    loop_scope: "_scope_3"
-    body_scope: "_scope_4"
-    ]
-    ]
-    SCOPE_EXIT _scope_3
-    SCOPE_EXIT _scope_2
-    _temp33 = LOAD stdout
-    RETAIN _temp33
-    SCOPE_REGISTER _temp33, _scope_1
-    _temp34 = LOAD sum
-    RETAIN _temp34
-    SCOPE_REGISTER _temp34, _scope_1
-    CALL (org.ek9.lang::StringOutput)_temp33.println(_temp34) [pure=true, complexity=1, trait=true]
-    SCOPE_EXIT _scope_1
-    RETURN`
+OperationDfn: loops::simpleForRangeLoop._call()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE stdout, org.ek9.lang::Stdout
+_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE stdout, _temp1
+RETAIN stdout
+SCOPE_REGISTER stdout, _scope_1
+REFERENCE sum, org.ek9.lang::Integer
+_temp2 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+STORE sum, _temp2
+RETAIN sum
+SCOPE_REGISTER sum, _scope_1
+SCOPE_ENTER _scope_2
+SCOPE_ENTER _scope_3
+REFERENCE i, org.ek9.lang::Integer
+SCOPE_REGISTER i, _scope_3
+FOR_RANGE_POLYMORPHIC
+[
+initialization:
+[
+_temp4 = LOAD_LITERAL 1, org.ek9.lang::Integer
+RETAIN _temp4
+SCOPE_REGISTER _temp4, _scope_3
+_temp3 = LOAD _temp4
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_3
+_temp6 = LOAD_LITERAL 10, org.ek9.lang::Integer
+RETAIN _temp6
+SCOPE_REGISTER _temp6, _scope_3
+_temp5 = LOAD _temp6
+RETAIN _temp5
+SCOPE_REGISTER _temp5, _scope_3
+_temp7 = CALL (org.ek9.lang::Integer)_temp3._isSet() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp7
+SCOPE_REGISTER _temp7, _scope_3
+_temp8 = CALL (org.ek9.lang::Boolean)_temp7._true() [pure=true, complexity=0]
+ASSERT _temp8, For-range 'start' value must be set
+_temp9 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_3
+_temp10 = CALL (org.ek9.lang::Boolean)_temp9._true() [pure=true, complexity=0]
+ASSERT _temp10, For-range 'end' value must be set
+_temp11 = CALL (org.ek9.lang::Integer)_temp3._cmp(_temp5) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_3
+_temp12 = LOAD _temp3
+RETAIN _temp12
+SCOPE_REGISTER _temp12, _scope_3
+]
+dispatch_cases:
+[
+ascending:
+[
+direction_check:
+[
+SCOPE_ENTER _scope_5
+_temp16 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp16
+SCOPE_REGISTER _temp16, _scope_5
+_temp17 = CALL (org.ek9.lang::Integer)_temp11._lt(_temp16) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp17
+SCOPE_REGISTER _temp17, _scope_5
+_temp18 = CALL (org.ek9.lang::Boolean)_temp17._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_5
+]
+direction_primitive: _temp18
+loop_condition_template:
+[
+SCOPE_ENTER _scope_6
+_temp19 = CALL (org.ek9.lang::Integer)_temp12._cmp(_temp5) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp19
+SCOPE_REGISTER _temp19, _scope_6
+_temp20 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp20
+SCOPE_REGISTER _temp20, _scope_6
+_temp21 = CALL (org.ek9.lang::Integer)_temp19._lteq(_temp20) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp21
+SCOPE_REGISTER _temp21, _scope_6
+_temp22 = CALL (org.ek9.lang::Boolean)_temp21._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_6
+]
+loop_condition_primitive: _temp22
+loop_body_setup:
+[
+RELEASE i
+STORE i, _temp12
+RETAIN i
+]
+loop_increment:
+[
+SCOPE_ENTER _scope_7
+_temp23 = CALL (org.ek9.lang::Integer)_temp12._inc() [pure=false, complexity=0, effects=RETURN_MUTATION,THIS_MUTATION]
+RETAIN _temp23
+SCOPE_REGISTER _temp23, _scope_7
+STORE _temp12, _temp23
+SCOPE_EXIT _scope_7
+]
+]
+descending:
+[
+direction_check:
+[
+SCOPE_ENTER _scope_8
+_temp24 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp24
+SCOPE_REGISTER _temp24, _scope_8
+_temp25 = CALL (org.ek9.lang::Integer)_temp11._gt(_temp24) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp25
+SCOPE_REGISTER _temp25, _scope_8
+_temp26 = CALL (org.ek9.lang::Boolean)_temp25._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_8
+]
+direction_primitive: _temp26
+loop_condition_template:
+[
+SCOPE_ENTER _scope_9
+_temp27 = CALL (org.ek9.lang::Integer)_temp12._cmp(_temp5) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp27
+SCOPE_REGISTER _temp27, _scope_9
+_temp28 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp28
+SCOPE_REGISTER _temp28, _scope_9
+_temp29 = CALL (org.ek9.lang::Integer)_temp27._gteq(_temp28) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp29
+SCOPE_REGISTER _temp29, _scope_9
+_temp30 = CALL (org.ek9.lang::Boolean)_temp29._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_9
+]
+loop_condition_primitive: _temp30
+loop_body_setup:
+[
+RELEASE i
+STORE i, _temp12
+RETAIN i
+]
+loop_increment:
+[
+SCOPE_ENTER _scope_10
+_temp31 = CALL (org.ek9.lang::Integer)_temp12._dec() [pure=false, complexity=0, effects=RETURN_MUTATION,THIS_MUTATION]
+RETAIN _temp31
+SCOPE_REGISTER _temp31, _scope_10
+STORE _temp12, _temp31
+SCOPE_EXIT _scope_10
+]
+]
+equal:
+[
+loop_body_setup:
+[
+RELEASE i
+STORE i, _temp12
+RETAIN i
+]
+single_iteration: true
+]
+]
+body:
+[
+SCOPE_ENTER _scope_4
+_temp14 = LOAD sum
+RETAIN _temp14
+SCOPE_REGISTER _temp14, _scope_4
+_temp15 = LOAD i
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_4
+_temp13 = CALL (org.ek9.lang::Integer)_temp14._add(_temp15) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_4
+RELEASE sum
+STORE sum, _temp13
+RETAIN sum
+SCOPE_EXIT _scope_4
+]
+metadata:
+[
+direction_variable: "_temp11"
+current_variable: "_temp12"
+loop_variable: "i"
+end_variable: "_temp5"
+range_type: "org.ek9.lang::Integer"
+]
+scope_metadata:
+[
+outer_scope: "_scope_2"
+loop_scope: "_scope_3"
+body_scope: "_scope_4"
+]
+]
+SCOPE_EXIT _scope_3
+SCOPE_EXIT _scope_2
+_temp33 = LOAD stdout
+RETAIN _temp33
+SCOPE_REGISTER _temp33, _scope_1
+_temp34 = LOAD sum
+RETAIN _temp34
+SCOPE_REGISTER _temp34, _scope_1
+CALL (org.ek9.lang::StringOutput)_temp33.println(_temp34) [pure=true, complexity=1, trait=true]
+SCOPE_EXIT _scope_1
+RETURN
+OperationDfn: loops::simpleForRangeLoop.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: loops::simpleForRangeLoop.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: loops::simpleForRangeLoop.simpleForRangeLoop()->loops::simpleForRangeLoop  
+BasicBlock: _entry_1
+CALL (loops::simpleForRangeLoop)this.i_init() [pure=false, complexity=0]
+RETURN this`
     simpleForRangeLoop()
       stdout <- Stdout()
       sum <- 0

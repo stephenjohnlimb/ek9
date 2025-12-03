@@ -6,16 +6,6 @@ defines module booleanExpressions
 
     @IR: IR_GENERATION: FUNCTION: "booleanExpressions::andBooleanExpression": `
     ConstructDfn: booleanExpressions::andBooleanExpression(org.ek9.lang::Boolean,org.ek9.lang::Boolean)->org.ek9.lang::Boolean
-    OperationDfn: booleanExpressions::andBooleanExpression.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: booleanExpressions::andBooleanExpression.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: booleanExpressions::andBooleanExpression.andBooleanExpression()->booleanExpressions::andBooleanExpression  // ./andExpression.ek9:59:5
-    BasicBlock: _entry_1
-    CALL (booleanExpressions::andBooleanExpression)this.i_init() [pure=false, complexity=0]  // ./andExpression.ek9:59:5
-    RETURN this  // ./andExpression.ek9:59:5
     OperationDfn: booleanExpressions::andBooleanExpression._call(org.ek9.lang::Boolean,org.ek9.lang::Boolean)->org.ek9.lang::Boolean  // ./andExpression.ek9:59:5
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./andExpression.ek9:66:7
@@ -55,7 +45,17 @@ defines module booleanExpressions
     STORE rtn, _temp1  // ./andExpression.ek9:66:12
     RETAIN rtn  // ./andExpression.ek9:66:12
     SCOPE_EXIT _scope_1  // ./andExpression.ek9:66:7
-    RETURN rtn  // ./andExpression.ek9:64:9`
+    RETURN rtn  // ./andExpression.ek9:64:9
+    OperationDfn: booleanExpressions::andBooleanExpression.andBooleanExpression()->booleanExpressions::andBooleanExpression  // ./andExpression.ek9:59:5
+    BasicBlock: _entry_1
+    CALL (booleanExpressions::andBooleanExpression)this.i_init() [pure=false, complexity=0]  // ./andExpression.ek9:59:5
+    RETURN this  // ./andExpression.ek9:59:5
+    OperationDfn: booleanExpressions::andBooleanExpression.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: booleanExpressions::andBooleanExpression.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN`
     andBooleanExpression()
       ->
         arg0 as Boolean

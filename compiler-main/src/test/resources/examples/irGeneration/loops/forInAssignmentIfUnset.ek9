@@ -15,49 +15,49 @@ defines module loops.forin.assignIfUnset
 
     @IR: IR_GENERATION: FUNCTION: "loops.forin.assignIfUnset::getItems": `
     ConstructDfn: loops.forin.assignIfUnset::getItems()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
-    OperationDfn: loops.forin.assignIfUnset::getItems.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops.forin.assignIfUnset::getItems.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops.forin.assignIfUnset::getItems.getItems()->loops.forin.assignIfUnset::getItems
-    BasicBlock: _entry_1
-    CALL (loops.forin.assignIfUnset::getItems)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: loops.forin.assignIfUnset::getItems._call()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE rtn, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
-    _temp1 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.<init>() [pure=true, complexity=0, effects=RETURN_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    RELEASE rtn
-    STORE rtn, _temp1
-    RETAIN rtn
-    _temp2 = LOAD rtn
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_1
-    _temp3 = LOAD_LITERAL one, org.ek9.lang::String
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_1
-    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp2._addAss(_temp3) [pure=false, complexity=0, effects=THIS_MUTATION]
-    _temp4 = LOAD rtn
-    RETAIN _temp4
-    SCOPE_REGISTER _temp4, _scope_1
-    _temp5 = LOAD_LITERAL two, org.ek9.lang::String
-    RETAIN _temp5
-    SCOPE_REGISTER _temp5, _scope_1
-    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp4._addAss(_temp5) [pure=false, complexity=0, effects=THIS_MUTATION]
-    _temp6 = LOAD rtn
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_1
-    _temp7 = LOAD_LITERAL three, org.ek9.lang::String
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_1
-    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp6._addAss(_temp7) [pure=false, complexity=0, effects=THIS_MUTATION]
-    SCOPE_EXIT _scope_1
-    RETURN rtn`
+OperationDfn: loops.forin.assignIfUnset::getItems._call()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE rtn, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+_temp1 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.<init>() [pure=true, complexity=0, effects=RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+RELEASE rtn
+STORE rtn, _temp1
+RETAIN rtn
+_temp2 = LOAD rtn
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+_temp3 = LOAD_LITERAL one, org.ek9.lang::String
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_1
+CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp2._addAss(_temp3) [pure=false, complexity=0, effects=THIS_MUTATION]
+_temp4 = LOAD rtn
+RETAIN _temp4
+SCOPE_REGISTER _temp4, _scope_1
+_temp5 = LOAD_LITERAL two, org.ek9.lang::String
+RETAIN _temp5
+SCOPE_REGISTER _temp5, _scope_1
+CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp4._addAss(_temp5) [pure=false, complexity=0, effects=THIS_MUTATION]
+_temp6 = LOAD rtn
+RETAIN _temp6
+SCOPE_REGISTER _temp6, _scope_1
+_temp7 = LOAD_LITERAL three, org.ek9.lang::String
+RETAIN _temp7
+SCOPE_REGISTER _temp7, _scope_1
+CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp6._addAss(_temp7) [pure=false, complexity=0, effects=THIS_MUTATION]
+SCOPE_EXIT _scope_1
+RETURN rtn
+OperationDfn: loops.forin.assignIfUnset::getItems.getItems()->loops.forin.assignIfUnset::getItems  
+BasicBlock: _entry_1
+CALL (loops.forin.assignIfUnset::getItems)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: loops.forin.assignIfUnset::getItems.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: loops.forin.assignIfUnset::getItems.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     getItems()
       <- rtn as List of String?
       rtn: List() of String
@@ -67,204 +67,204 @@ defines module loops.forin.assignIfUnset
 
     @IR: IR_GENERATION: FUNCTION: "loops.forin.assignIfUnset::forInAssignmentIfUnset": `
     ConstructDfn: loops.forin.assignIfUnset::forInAssignmentIfUnset()->org.ek9.lang::Void
-    OperationDfn: loops.forin.assignIfUnset::forInAssignmentIfUnset.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops.forin.assignIfUnset::forInAssignmentIfUnset.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops.forin.assignIfUnset::forInAssignmentIfUnset.forInAssignmentIfUnset()->loops.forin.assignIfUnset::forInAssignmentIfUnset
-    BasicBlock: _entry_1
-    CALL (loops.forin.assignIfUnset::forInAssignmentIfUnset)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: loops.forin.assignIfUnset::forInAssignmentIfUnset._call()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE stdout, org.ek9.lang::Stdout
-    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE stdout, _temp1
-    RETAIN stdout
-    SCOPE_REGISTER stdout, _scope_1
-    REFERENCE items, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
-    _temp2 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.<init>() [pure=true, complexity=0, effects=RETURN_MUTATION]
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_1
-    STORE items, _temp2
-    RETAIN items
-    SCOPE_REGISTER items, _scope_1
-    SCOPE_ENTER _scope_2
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "GUARDED_ASSIGNMENT"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_2
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    _temp6 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_2
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp7 = IS_NULL items
-    ]
-    primitive_condition: _temp7
-    body_evaluation:
-    [
-    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_2
-    ]
-    body_result: _temp8
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp9 = LOAD items
-    _temp10 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp9._isSet() [pure=true, complexity=0]
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, _scope_2
-    ]
-    default_result: _temp10
-    scope_id: _scope_2
-    ]
-    _temp11 = CALL (org.ek9.lang::Boolean)_temp6._negate() [pure=true, complexity=0]
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_2
-    _temp12 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]
-    ]
-    condition_result: _temp11
-    primitive_condition: _temp12
-    body_evaluation:
-    [
-    _temp5 = FUNCTION_INSTANCE loops.forin.assignIfUnset::getItems
-    _temp3 = CALL (loops.forin.assignIfUnset::getItems)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_2
-    RELEASE items
-    STORE items, _temp3
-    RETAIN items
-    ]
-    ]
-    ]
-    scope_id: _scope_2
-    ]
-    _temp13 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_2
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp14 = IS_NULL items
-    ]
-    primitive_condition: _temp14
-    body_evaluation:
-    [
-    _temp15 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_2
-    ]
-    body_result: _temp15
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp16 = LOAD items
-    _temp17 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp16._isSet() [pure=true, complexity=0]
-    RETAIN _temp17
-    SCOPE_REGISTER _temp17, _scope_2
-    ]
-    default_result: _temp17
-    scope_id: _scope_2
-    ]
-    _temp18 = CALL (org.ek9.lang::Boolean)_temp13._true() [pure=true, complexity=0]
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "IF_ELSE_IF"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_2
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    ]
-    condition_result: _temp13
-    primitive_condition: _temp18
-    body_evaluation:
-    [
-    _temp19 = LOAD items
-    RETAIN _temp19
-    SCOPE_REGISTER _temp19, _scope_2
-    _temp20 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp19.iterator() [pure=false, complexity=0]
-    RETAIN _temp20
-    SCOPE_REGISTER _temp20, _scope_2
-    SCOPE_ENTER _scope_3
-    REFERENCE item, org.ek9.lang::String
-    SCOPE_REGISTER item, _scope_3
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "WHILE_LOOP"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_4
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_4
-    _temp21 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp20.hasNext() [pure=false, complexity=0]
-    RETAIN _temp21
-    SCOPE_REGISTER _temp21, _scope_4
-    _temp22 = CALL (org.ek9.lang::Boolean)_temp21._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_4
-    ]
-    condition_result: _temp21
-    primitive_condition: _temp22
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_5
-    _temp23 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp20.next() [pure=false, complexity=0]
-    RETAIN _temp23
-    SCOPE_REGISTER _temp23, _scope_5
-    RELEASE item
-    STORE item, _temp23
-    RETAIN item
-    _temp25 = LOAD stdout
-    RETAIN _temp25
-    SCOPE_REGISTER _temp25, _scope_5
-    _temp26 = LOAD item
-    RETAIN _temp26
-    SCOPE_REGISTER _temp26, _scope_5
-    CALL (org.ek9.lang::Stdout)_temp25.println(_temp26) [pure=true, complexity=1]
-    SCOPE_EXIT _scope_5
-    ]
-    ]
-    ]
-    scope_id: _scope_3
-    ]
-    SCOPE_EXIT _scope_3
-    ]
-    ]
-    ]
-    scope_id: _scope_2
-    ]
-    SCOPE_EXIT _scope_2
-    SCOPE_EXIT _scope_1
-    RETURN`
+OperationDfn: loops.forin.assignIfUnset::forInAssignmentIfUnset._call()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE stdout, org.ek9.lang::Stdout
+_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE stdout, _temp1
+RETAIN stdout
+SCOPE_REGISTER stdout, _scope_1
+REFERENCE items, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+_temp2 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.<init>() [pure=true, complexity=0, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+STORE items, _temp2
+RETAIN items
+SCOPE_REGISTER items, _scope_1
+SCOPE_ENTER _scope_2
+CONTROL_FLOW_CHAIN
+[
+chain_type: "GUARDED_ASSIGNMENT"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+_temp6 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp7 = IS_NULL items
+]
+primitive_condition: _temp7
+body_evaluation:
+[
+_temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_2
+]
+body_result: _temp8
+]
+]
+default_body_evaluation:
+[
+_temp9 = LOAD items
+_temp10 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp9._isSet() [pure=true, complexity=0]
+RETAIN _temp10
+SCOPE_REGISTER _temp10, _scope_2
+]
+default_result: _temp10
+scope_id: _scope_2
+]
+_temp11 = CALL (org.ek9.lang::Boolean)_temp6._negate() [pure=true, complexity=0]
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_2
+_temp12 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]
+]
+condition_result: _temp11
+primitive_condition: _temp12
+body_evaluation:
+[
+_temp5 = FUNCTION_INSTANCE loops.forin.assignIfUnset::getItems
+_temp3 = CALL (loops.forin.assignIfUnset::getItems)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_2
+RELEASE items
+STORE items, _temp3
+RETAIN items
+]
+]
+]
+scope_id: _scope_2
+]
+_temp13 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp14 = IS_NULL items
+]
+primitive_condition: _temp14
+body_evaluation:
+[
+_temp15 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_2
+]
+body_result: _temp15
+]
+]
+default_body_evaluation:
+[
+_temp16 = LOAD items
+_temp17 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp16._isSet() [pure=true, complexity=0]
+RETAIN _temp17
+SCOPE_REGISTER _temp17, _scope_2
+]
+default_result: _temp17
+scope_id: _scope_2
+]
+_temp18 = CALL (org.ek9.lang::Boolean)_temp13._true() [pure=true, complexity=0]
+CONTROL_FLOW_CHAIN
+[
+chain_type: "IF_ELSE_IF"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+]
+condition_result: _temp13
+primitive_condition: _temp18
+body_evaluation:
+[
+_temp19 = LOAD items
+RETAIN _temp19
+SCOPE_REGISTER _temp19, _scope_2
+_temp20 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp19.iterator() [pure=false, complexity=0]
+RETAIN _temp20
+SCOPE_REGISTER _temp20, _scope_2
+SCOPE_ENTER _scope_3
+REFERENCE item, org.ek9.lang::String
+SCOPE_REGISTER item, _scope_3
+CONTROL_FLOW_CHAIN
+[
+chain_type: "WHILE_LOOP"
+condition_chain:
+[
+[
+case_scope_id: _scope_4
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp21 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp20.hasNext() [pure=false, complexity=0]
+RETAIN _temp21
+SCOPE_REGISTER _temp21, _scope_4
+_temp22 = CALL (org.ek9.lang::Boolean)_temp21._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_4
+]
+condition_result: _temp21
+primitive_condition: _temp22
+body_evaluation:
+[
+SCOPE_ENTER _scope_5
+_temp23 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp20.next() [pure=false, complexity=0]
+RETAIN _temp23
+SCOPE_REGISTER _temp23, _scope_5
+RELEASE item
+STORE item, _temp23
+RETAIN item
+_temp25 = LOAD stdout
+RETAIN _temp25
+SCOPE_REGISTER _temp25, _scope_5
+_temp26 = LOAD item
+RETAIN _temp26
+SCOPE_REGISTER _temp26, _scope_5
+CALL (org.ek9.lang::Stdout)_temp25.println(_temp26) [pure=true, complexity=1]
+SCOPE_EXIT _scope_5
+]
+]
+]
+scope_id: _scope_3
+]
+SCOPE_EXIT _scope_3
+]
+]
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+SCOPE_EXIT _scope_1
+RETURN
+OperationDfn: loops.forin.assignIfUnset::forInAssignmentIfUnset.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: loops.forin.assignIfUnset::forInAssignmentIfUnset.forInAssignmentIfUnset()->loops.forin.assignIfUnset::forInAssignmentIfUnset  
+BasicBlock: _entry_1
+CALL (loops.forin.assignIfUnset::forInAssignmentIfUnset)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: loops.forin.assignIfUnset::forInAssignmentIfUnset.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     forInAssignmentIfUnset()
       stdout <- Stdout()
 

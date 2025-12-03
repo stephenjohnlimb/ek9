@@ -9,18 +9,10 @@ defines module bytecode.test.forrangeguard
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.forrangeguard::ForRangeWithGuard": `public class bytecode.test.forrangeguard.ForRangeWithGuard {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.forrangeguard.ForRangeWithGuard();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -389,6 +381,14 @@ defines module bytecode.test.forrangeguard
        778: aload         68
        780: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
        783: return
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
 
     ForRangeWithGuard()

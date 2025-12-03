@@ -19,173 +19,173 @@ defines module loops.doWhileGuard
 
     @IR: IR_GENERATION: FUNCTION: "loops.doWhileGuard::simpleDoWhileWithGuard": `
     ConstructDfn: loops.doWhileGuard::simpleDoWhileWithGuard()->org.ek9.lang::Void
-    OperationDfn: loops.doWhileGuard::simpleDoWhileWithGuard.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops.doWhileGuard::simpleDoWhileWithGuard.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops.doWhileGuard::simpleDoWhileWithGuard.simpleDoWhileWithGuard()->loops.doWhileGuard::simpleDoWhileWithGuard
-    BasicBlock: _entry_1
-    CALL (loops.doWhileGuard::simpleDoWhileWithGuard)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: loops.doWhileGuard::simpleDoWhileWithGuard._call()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE counter, org.ek9.lang::Integer
-    _temp1 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE counter, _temp1
-    RETAIN counter
-    SCOPE_REGISTER counter, _scope_1
-    SCOPE_ENTER _scope_2
-    REFERENCE value, org.ek9.lang::Integer
-    _temp4 = FUNCTION_INSTANCE loops.doWhileGuard::getValue
-    _temp2 = CALL (loops.doWhileGuard::getValue)_temp4._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_2
-    STORE value, _temp2
-    RETAIN value
-    SCOPE_REGISTER value, _scope_2
-    _temp5 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_2
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp6 = IS_NULL value
-    ]
-    primitive_condition: _temp6
-    body_evaluation:
-    [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_2
-    ]
-    body_result: _temp7
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp8 = LOAD value
-    _temp9 = CALL (org.ek9.lang::Integer)_temp8._isSet() [pure=true, complexity=0]
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_2
-    ]
-    default_result: _temp9
-    scope_id: _scope_2
-    ]
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "IF_ELSE_IF"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_2
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    ]
-    condition_result: _temp5
-    primitive_condition: _temp10
-    body_evaluation:
-    [
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "DO_WHILE_LOOP_WITH_GUARDS"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_3
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_4
-    _temp15 = LOAD value
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_4
-    _temp16 = LOAD counter
-    RETAIN _temp16
-    SCOPE_REGISTER _temp16, _scope_4
-    _temp14 = CALL (org.ek9.lang::Integer)_temp15._gt(_temp16) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_4
-    _temp17 = CALL (org.ek9.lang::Boolean)_temp14._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_4
-    ]
-    condition_result: _temp14
-    primitive_condition: _temp17
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_3
-    _temp12 = LOAD counter
-    RETAIN _temp12
-    SCOPE_REGISTER _temp12, _scope_3
-    _temp13 = LOAD_LITERAL 1, org.ek9.lang::Integer
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, _scope_3
-    _temp11 = CALL (org.ek9.lang::Integer)_temp12._add(_temp13) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_3
-    RELEASE counter
-    STORE counter, _temp11
-    RETAIN counter
-    SCOPE_EXIT _scope_3
-    ]
-    ]
-    ]
-    scope_id: _scope_2
-    ]
-    ]
-    ]
-    ]
-    scope_id: _scope_2
-    ]
-    SCOPE_EXIT _scope_2
-    _temp18 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp19 = LOAD counter
-    _temp20 = IS_NULL _temp19
-    ]
-    primitive_condition: _temp20
-    body_evaluation:
-    [
-    _temp21 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
-    RETAIN _temp21
-    SCOPE_REGISTER _temp21, _scope_1
-    ]
-    body_result: _temp21
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp22 = CALL (org.ek9.lang::Integer)_temp19._isSet() [pure=true, complexity=0]
-    RETAIN _temp22
-    SCOPE_REGISTER _temp22, _scope_1
-    ]
-    default_result: _temp22
-    scope_id: _scope_1
-    ]
-    RETAIN _temp18
-    SCOPE_REGISTER _temp18, _scope_1
-    _temp23 = CALL (org.ek9.lang::Boolean)_temp18._true() [pure=true, complexity=0]
-    ASSERT _temp23
-    SCOPE_EXIT _scope_1
-    RETURN`
+OperationDfn: loops.doWhileGuard::simpleDoWhileWithGuard._call()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE counter, org.ek9.lang::Integer
+_temp1 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE counter, _temp1
+RETAIN counter
+SCOPE_REGISTER counter, _scope_1
+SCOPE_ENTER _scope_2
+REFERENCE value, org.ek9.lang::Integer
+_temp4 = FUNCTION_INSTANCE loops.doWhileGuard::getValue
+_temp2 = CALL (loops.doWhileGuard::getValue)_temp4._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_2
+STORE value, _temp2
+RETAIN value
+SCOPE_REGISTER value, _scope_2
+_temp5 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp6 = IS_NULL value
+]
+primitive_condition: _temp6
+body_evaluation:
+[
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp7
+SCOPE_REGISTER _temp7, _scope_2
+]
+body_result: _temp7
+]
+]
+default_body_evaluation:
+[
+_temp8 = LOAD value
+_temp9 = CALL (org.ek9.lang::Integer)_temp8._isSet() [pure=true, complexity=0]
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_2
+]
+default_result: _temp9
+scope_id: _scope_2
+]
+_temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+CONTROL_FLOW_CHAIN
+[
+chain_type: "IF_ELSE_IF"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+]
+condition_result: _temp5
+primitive_condition: _temp10
+body_evaluation:
+[
+CONTROL_FLOW_CHAIN
+[
+chain_type: "DO_WHILE_LOOP_WITH_GUARDS"
+condition_chain:
+[
+[
+case_scope_id: _scope_3
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp15 = LOAD value
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_4
+_temp16 = LOAD counter
+RETAIN _temp16
+SCOPE_REGISTER _temp16, _scope_4
+_temp14 = CALL (org.ek9.lang::Integer)_temp15._gt(_temp16) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp14
+SCOPE_REGISTER _temp14, _scope_4
+_temp17 = CALL (org.ek9.lang::Boolean)_temp14._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_4
+]
+condition_result: _temp14
+primitive_condition: _temp17
+body_evaluation:
+[
+SCOPE_ENTER _scope_3
+_temp12 = LOAD counter
+RETAIN _temp12
+SCOPE_REGISTER _temp12, _scope_3
+_temp13 = LOAD_LITERAL 1, org.ek9.lang::Integer
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_3
+_temp11 = CALL (org.ek9.lang::Integer)_temp12._add(_temp13) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_3
+RELEASE counter
+STORE counter, _temp11
+RETAIN counter
+SCOPE_EXIT _scope_3
+]
+]
+]
+scope_id: _scope_2
+]
+]
+]
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+_temp18 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp19 = LOAD counter
+_temp20 = IS_NULL _temp19
+]
+primitive_condition: _temp20
+body_evaluation:
+[
+_temp21 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp21
+SCOPE_REGISTER _temp21, _scope_1
+]
+body_result: _temp21
+]
+]
+default_body_evaluation:
+[
+_temp22 = CALL (org.ek9.lang::Integer)_temp19._isSet() [pure=true, complexity=0]
+RETAIN _temp22
+SCOPE_REGISTER _temp22, _scope_1
+]
+default_result: _temp22
+scope_id: _scope_1
+]
+RETAIN _temp18
+SCOPE_REGISTER _temp18, _scope_1
+_temp23 = CALL (org.ek9.lang::Boolean)_temp18._true() [pure=true, complexity=0]
+ASSERT _temp23
+SCOPE_EXIT _scope_1
+RETURN
+OperationDfn: loops.doWhileGuard::simpleDoWhileWithGuard.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: loops.doWhileGuard::simpleDoWhileWithGuard.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: loops.doWhileGuard::simpleDoWhileWithGuard.simpleDoWhileWithGuard()->loops.doWhileGuard::simpleDoWhileWithGuard  
+BasicBlock: _entry_1
+CALL (loops.doWhileGuard::simpleDoWhileWithGuard)this.i_init() [pure=false, complexity=0]
+RETURN this`
     simpleDoWhileWithGuard()
       counter <- 0
 

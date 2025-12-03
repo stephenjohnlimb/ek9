@@ -9,18 +9,10 @@ defines module bytecode.test.whileguard
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.whileguard::SimpleWhileWithGuard": `public class bytecode.test.whileguard.SimpleWhileWithGuard {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.whileguard.SimpleWhileWithGuard();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -177,6 +169,14 @@ defines module bytecode.test.whileguard
        312: aload         40
        314: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
        317: return
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
 
     SimpleWhileWithGuard()

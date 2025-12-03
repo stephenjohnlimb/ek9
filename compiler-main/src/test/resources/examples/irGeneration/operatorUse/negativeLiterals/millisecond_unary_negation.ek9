@@ -15,74 +15,74 @@ defines module millisecond.unary.negation.test
 
     @IR: IR_GENERATION: FUNCTION: "millisecond.unary.negation.test::testMillisecondUnaryNegation": `
     ConstructDfn: millisecond.unary.negation.test::testMillisecondUnaryNegation()->org.ek9.lang::Void
-    OperationDfn: millisecond.unary.negation.test::testMillisecondUnaryNegation.c_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: millisecond.unary.negation.test::testMillisecondUnaryNegation.i_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: millisecond.unary.negation.test::testMillisecondUnaryNegation.testMillisecondUnaryNegation()->millisecond.unary.negation.test::testMillisecondUnaryNegation  // ./millisecond_unary_negation.ek9:86:5
-    BasicBlock: _entry_1
-    CALL (millisecond.unary.negation.test::testMillisecondUnaryNegation)this.i_init() [pure=false, complexity=0]  // ./millisecond_unary_negation.ek9:86:5
-    RETURN this  // ./millisecond_unary_negation.ek9:86:5
-    OperationDfn: millisecond.unary.negation.test::testMillisecondUnaryNegation._call()->org.ek9.lang::Void  // ./millisecond_unary_negation.ek9:86:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./millisecond_unary_negation.ek9:88:7
-    REFERENCE someMs, org.ek9.lang::Millisecond  // ./millisecond_unary_negation.ek9:88:7
-    _temp1 = LOAD_LITERAL 100ms, org.ek9.lang::Millisecond  // ./millisecond_unary_negation.ek9:88:30
-    RETAIN _temp1  // ./millisecond_unary_negation.ek9:88:30
-    SCOPE_REGISTER _temp1, _scope_1  // ./millisecond_unary_negation.ek9:88:30
-    STORE someMs, _temp1  // ./millisecond_unary_negation.ek9:88:30
-    RETAIN someMs  // ./millisecond_unary_negation.ek9:88:30
-    SCOPE_REGISTER someMs, _scope_1  // ./millisecond_unary_negation.ek9:88:30
-    REFERENCE negMsVar, org.ek9.lang::Millisecond  // ./millisecond_unary_negation.ek9:91:7
-    _temp3 = LOAD someMs  // ./millisecond_unary_negation.ek9:91:19
-    RETAIN _temp3  // ./millisecond_unary_negation.ek9:91:19
-    SCOPE_REGISTER _temp3, _scope_1  // ./millisecond_unary_negation.ek9:91:19
-    _temp2 = CALL (org.ek9.lang::Millisecond)_temp3._negate() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./millisecond_unary_negation.ek9:91:19
-    RETAIN _temp2  // ./millisecond_unary_negation.ek9:91:19
-    SCOPE_REGISTER _temp2, _scope_1  // ./millisecond_unary_negation.ek9:91:19
-    STORE negMsVar, _temp2  // ./millisecond_unary_negation.ek9:91:19
-    RETAIN negMsVar  // ./millisecond_unary_negation.ek9:91:19
-    SCOPE_REGISTER negMsVar, _scope_1  // ./millisecond_unary_negation.ek9:91:19
-    _temp4 = CONTROL_FLOW_CHAIN  // ./millisecond_unary_negation.ek9:92:22
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp5 = LOAD negMsVar  // ./millisecond_unary_negation.ek9:92:22
-    _temp6 = IS_NULL _temp5  // ./millisecond_unary_negation.ek9:92:22
-    ]
-    primitive_condition: _temp6
-    body_evaluation:
-    [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./millisecond_unary_negation.ek9:92:22
-    RETAIN _temp7  // ./millisecond_unary_negation.ek9:92:22
-    SCOPE_REGISTER _temp7, _scope_1  // ./millisecond_unary_negation.ek9:92:22
-    ]
-    body_result: _temp7
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp8 = CALL (org.ek9.lang::Millisecond)_temp5._isSet() [pure=true, complexity=0]  // ./millisecond_unary_negation.ek9:92:22
-    RETAIN _temp8  // ./millisecond_unary_negation.ek9:92:22
-    SCOPE_REGISTER _temp8, _scope_1  // ./millisecond_unary_negation.ek9:92:22
-    ]
-    default_result: _temp8
-    scope_id: _scope_1
-    ]
-    RETAIN _temp4  // ./millisecond_unary_negation.ek9:92:7
-    SCOPE_REGISTER _temp4, _scope_1  // ./millisecond_unary_negation.ek9:92:7
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./millisecond_unary_negation.ek9:92:7
-    ASSERT _temp9  // ./millisecond_unary_negation.ek9:92:7
-    SCOPE_EXIT _scope_1  // ./millisecond_unary_negation.ek9:88:7
-    RETURN  // ./millisecond_unary_negation.ek9:86:5`
+OperationDfn: millisecond.unary.negation.test::testMillisecondUnaryNegation._call()->org.ek9.lang::Void  // ./millisecond_unary_negation.ek9:86:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./millisecond_unary_negation.ek9:88:7
+REFERENCE someMs, org.ek9.lang::Millisecond  // ./millisecond_unary_negation.ek9:88:7
+_temp1 = LOAD_LITERAL 100ms, org.ek9.lang::Millisecond  // ./millisecond_unary_negation.ek9:88:30
+RETAIN _temp1  // ./millisecond_unary_negation.ek9:88:30
+SCOPE_REGISTER _temp1, _scope_1  // ./millisecond_unary_negation.ek9:88:30
+STORE someMs, _temp1  // ./millisecond_unary_negation.ek9:88:30
+RETAIN someMs  // ./millisecond_unary_negation.ek9:88:30
+SCOPE_REGISTER someMs, _scope_1  // ./millisecond_unary_negation.ek9:88:30
+REFERENCE negMsVar, org.ek9.lang::Millisecond  // ./millisecond_unary_negation.ek9:91:7
+_temp3 = LOAD someMs  // ./millisecond_unary_negation.ek9:91:19
+RETAIN _temp3  // ./millisecond_unary_negation.ek9:91:19
+SCOPE_REGISTER _temp3, _scope_1  // ./millisecond_unary_negation.ek9:91:19
+_temp2 = CALL (org.ek9.lang::Millisecond)_temp3._negate() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./millisecond_unary_negation.ek9:91:19
+RETAIN _temp2  // ./millisecond_unary_negation.ek9:91:19
+SCOPE_REGISTER _temp2, _scope_1  // ./millisecond_unary_negation.ek9:91:19
+STORE negMsVar, _temp2  // ./millisecond_unary_negation.ek9:91:19
+RETAIN negMsVar  // ./millisecond_unary_negation.ek9:91:19
+SCOPE_REGISTER negMsVar, _scope_1  // ./millisecond_unary_negation.ek9:91:19
+_temp4 = CONTROL_FLOW_CHAIN  // ./millisecond_unary_negation.ek9:92:22
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp5 = LOAD negMsVar  // ./millisecond_unary_negation.ek9:92:22
+_temp6 = IS_NULL _temp5  // ./millisecond_unary_negation.ek9:92:22
+]
+primitive_condition: _temp6
+body_evaluation:
+[
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./millisecond_unary_negation.ek9:92:22
+RETAIN _temp7  // ./millisecond_unary_negation.ek9:92:22
+SCOPE_REGISTER _temp7, _scope_1  // ./millisecond_unary_negation.ek9:92:22
+]
+body_result: _temp7
+]
+]
+default_body_evaluation:
+[
+_temp8 = CALL (org.ek9.lang::Millisecond)_temp5._isSet() [pure=true, complexity=0]  // ./millisecond_unary_negation.ek9:92:22
+RETAIN _temp8  // ./millisecond_unary_negation.ek9:92:22
+SCOPE_REGISTER _temp8, _scope_1  // ./millisecond_unary_negation.ek9:92:22
+]
+default_result: _temp8
+scope_id: _scope_1
+]
+RETAIN _temp4  // ./millisecond_unary_negation.ek9:92:7
+SCOPE_REGISTER _temp4, _scope_1  // ./millisecond_unary_negation.ek9:92:7
+_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./millisecond_unary_negation.ek9:92:7
+ASSERT _temp9  // ./millisecond_unary_negation.ek9:92:7
+SCOPE_EXIT _scope_1  // ./millisecond_unary_negation.ek9:88:7
+RETURN  // ./millisecond_unary_negation.ek9:86:5
+OperationDfn: millisecond.unary.negation.test::testMillisecondUnaryNegation.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: millisecond.unary.negation.test::testMillisecondUnaryNegation.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: millisecond.unary.negation.test::testMillisecondUnaryNegation.testMillisecondUnaryNegation()->millisecond.unary.negation.test::testMillisecondUnaryNegation  // ./millisecond_unary_negation.ek9:86:5
+BasicBlock: _entry_1
+CALL (millisecond.unary.negation.test::testMillisecondUnaryNegation)this.i_init() [pure=false, complexity=0]  // ./millisecond_unary_negation.ek9:86:5
+RETURN this  // ./millisecond_unary_negation.ek9:86:5`
     testMillisecondUnaryNegation()
       // Variable for unary negation
       someMs as Millisecond: 100ms

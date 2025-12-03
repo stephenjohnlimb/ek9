@@ -11,225 +11,225 @@ defines module controlFlow.multichar
 
     @IR: IR_GENERATION: FUNCTION: "controlFlow.multichar::multipleCaseCharacterPromotion": `
     ConstructDfn: controlFlow.multichar::multipleCaseCharacterPromotion(org.ek9.lang::String)->org.ek9.lang::String
-    OperationDfn: controlFlow.multichar::multipleCaseCharacterPromotion.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: controlFlow.multichar::multipleCaseCharacterPromotion.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: controlFlow.multichar::multipleCaseCharacterPromotion.multipleCaseCharacterPromotion()->controlFlow.multichar::multipleCaseCharacterPromotion
-    BasicBlock: _entry_1
-    CALL (controlFlow.multichar::multipleCaseCharacterPromotion)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: controlFlow.multichar::multipleCaseCharacterPromotion._call(org.ek9.lang::String)->org.ek9.lang::String
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE text, org.ek9.lang::String
-    REFERENCE result, org.ek9.lang::String
-    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE result, _temp1
-    RETAIN result
-    SCOPE_ENTER _scope_2
-    _temp2 = LOAD text
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_2
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "SWITCH"
-    evaluation_variable: _temp2
-    evaluation_variable_type: "org.ek9.lang::String"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_4
-    case_type: "LITERAL"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_3
-    _temp19 = LOGICAL_OR_BLOCK
-    [
-    left_evaluation:
-    [
-    _temp3 = LOAD _temp2
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_3
-    _temp4 = LOAD_LITERAL D, org.ek9.lang::Character
-    RETAIN _temp4
-    SCOPE_REGISTER _temp4, _scope_3
-    _temp6 = CALL (org.ek9.lang::Character)_temp4._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_3
-    _temp5 = CALL (org.ek9.lang::String)_temp3._eq(_temp6) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp5
-    SCOPE_REGISTER _temp5, _scope_3
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
-    ]
-    left_operand: _temp5
-    left_condition: _temp7
-    right_evaluation:
-    [
-    _temp18 = LOGICAL_OR_BLOCK
-    [
-    left_evaluation:
-    [
-    _temp8 = LOAD _temp2
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_3
-    _temp9 = LOAD_LITERAL A, org.ek9.lang::Character
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_3
-    _temp11 = CALL (org.ek9.lang::Character)_temp9._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_3
-    _temp10 = CALL (org.ek9.lang::String)_temp8._eq(_temp11) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, _scope_3
-    _temp12 = CALL (org.ek9.lang::Boolean)_temp10._true() [pure=true, complexity=0]
-    ]
-    left_operand: _temp10
-    left_condition: _temp12
-    right_evaluation:
-    [
-    _temp13 = LOAD _temp2
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, _scope_3
-    _temp14 = LOAD_LITERAL Z, org.ek9.lang::Character
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_3
-    _temp16 = CALL (org.ek9.lang::Character)_temp14._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
-    RETAIN _temp16
-    SCOPE_REGISTER _temp16, _scope_3
-    _temp15 = CALL (org.ek9.lang::String)_temp13._eq(_temp16) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_3
-    _temp17 = CALL (org.ek9.lang::Boolean)_temp15._true() [pure=true, complexity=0]
-    ]
-    right_operand: _temp15
-    result_computation:
-    [
-    _temp18 = CALL (org.ek9.lang::Boolean)_temp10._or(_temp15) [pure=true, complexity=0]
-    RETAIN _temp18
-    SCOPE_REGISTER _temp18, _scope_3
-    ]
-    logical_result: _temp18
-    scope_id: _scope_3
-    ]
-    ]
-    right_operand: _temp18
-    result_computation:
-    [
-    _temp19 = CALL (org.ek9.lang::Boolean)_temp5._or(_temp18) [pure=true, complexity=0]
-    RETAIN _temp19
-    SCOPE_REGISTER _temp19, _scope_3
-    ]
-    logical_result: _temp19
-    scope_id: _scope_3
-    ]
-    _temp20 = CALL (org.ek9.lang::Boolean)_temp19._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_3
-    ]
-    condition_result: _temp19
-    primitive_condition: _temp20
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_4
-    _temp21 = LOAD_LITERAL Found A, D or Z, org.ek9.lang::String
-    RETAIN _temp21
-    SCOPE_REGISTER _temp21, _scope_4
-    RELEASE result
-    STORE result, _temp21
-    RETAIN result
-    SCOPE_EXIT _scope_4
-    ]
-    ],
-    [
-    case_scope_id: _scope_6
-    case_type: "LITERAL"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_5
-    _temp32 = LOGICAL_OR_BLOCK
-    [
-    left_evaluation:
-    [
-    _temp22 = LOAD _temp2
-    RETAIN _temp22
-    SCOPE_REGISTER _temp22, _scope_5
-    _temp23 = LOAD_LITERAL X, org.ek9.lang::Character
-    RETAIN _temp23
-    SCOPE_REGISTER _temp23, _scope_5
-    _temp25 = CALL (org.ek9.lang::Character)_temp23._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
-    RETAIN _temp25
-    SCOPE_REGISTER _temp25, _scope_5
-    _temp24 = CALL (org.ek9.lang::String)_temp22._eq(_temp25) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp24
-    SCOPE_REGISTER _temp24, _scope_5
-    _temp26 = CALL (org.ek9.lang::Boolean)_temp24._true() [pure=true, complexity=0]
-    ]
-    left_operand: _temp24
-    left_condition: _temp26
-    right_evaluation:
-    [
-    _temp27 = LOAD _temp2
-    RETAIN _temp27
-    SCOPE_REGISTER _temp27, _scope_5
-    _temp28 = LOAD_LITERAL Y, org.ek9.lang::Character
-    RETAIN _temp28
-    SCOPE_REGISTER _temp28, _scope_5
-    _temp30 = CALL (org.ek9.lang::Character)_temp28._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
-    RETAIN _temp30
-    SCOPE_REGISTER _temp30, _scope_5
-    _temp29 = CALL (org.ek9.lang::String)_temp27._eq(_temp30) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp29
-    SCOPE_REGISTER _temp29, _scope_5
-    _temp31 = CALL (org.ek9.lang::Boolean)_temp29._true() [pure=true, complexity=0]
-    ]
-    right_operand: _temp29
-    result_computation:
-    [
-    _temp32 = CALL (org.ek9.lang::Boolean)_temp24._or(_temp29) [pure=true, complexity=0]
-    RETAIN _temp32
-    SCOPE_REGISTER _temp32, _scope_5
-    ]
-    logical_result: _temp32
-    scope_id: _scope_5
-    ]
-    _temp33 = CALL (org.ek9.lang::Boolean)_temp32._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_5
-    ]
-    condition_result: _temp32
-    primitive_condition: _temp33
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_6
-    _temp34 = LOAD_LITERAL Found X or Y, org.ek9.lang::String
-    RETAIN _temp34
-    SCOPE_REGISTER _temp34, _scope_6
-    RELEASE result
-    STORE result, _temp34
-    RETAIN result
-    SCOPE_EXIT _scope_6
-    ]
-    ]
-    ]
-    default_body_evaluation:
-    [
-    SCOPE_ENTER _scope_7
-    _temp35 = LOAD_LITERAL Other letter, org.ek9.lang::String
-    RETAIN _temp35
-    SCOPE_REGISTER _temp35, _scope_7
-    RELEASE result
-    STORE result, _temp35
-    RETAIN result
-    SCOPE_EXIT _scope_7
-    ]
-    scope_id: _scope_2
-    ]
-    SCOPE_EXIT _scope_2
-    SCOPE_EXIT _scope_1
-    RETURN result`
+OperationDfn: controlFlow.multichar::multipleCaseCharacterPromotion._call(org.ek9.lang::String)->org.ek9.lang::String  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE text, org.ek9.lang::String
+REFERENCE result, org.ek9.lang::String
+_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE result, _temp1
+RETAIN result
+SCOPE_ENTER _scope_2
+_temp2 = LOAD text
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_2
+CONTROL_FLOW_CHAIN
+[
+chain_type: "SWITCH"
+evaluation_variable: _temp2
+evaluation_variable_type: "org.ek9.lang::String"
+condition_chain:
+[
+[
+case_scope_id: _scope_4
+case_type: "LITERAL"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_3
+_temp19 = LOGICAL_OR_BLOCK
+[
+left_evaluation:
+[
+_temp3 = LOAD _temp2
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_3
+_temp4 = LOAD_LITERAL D, org.ek9.lang::Character
+RETAIN _temp4
+SCOPE_REGISTER _temp4, _scope_3
+_temp6 = CALL (org.ek9.lang::Character)_temp4._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
+RETAIN _temp6
+SCOPE_REGISTER _temp6, _scope_3
+_temp5 = CALL (org.ek9.lang::String)_temp3._eq(_temp6) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp5
+SCOPE_REGISTER _temp5, _scope_3
+_temp7 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+]
+left_operand: _temp5
+left_condition: _temp7
+right_evaluation:
+[
+_temp18 = LOGICAL_OR_BLOCK
+[
+left_evaluation:
+[
+_temp8 = LOAD _temp2
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_3
+_temp9 = LOAD_LITERAL A, org.ek9.lang::Character
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_3
+_temp11 = CALL (org.ek9.lang::Character)_temp9._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_3
+_temp10 = CALL (org.ek9.lang::String)_temp8._eq(_temp11) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp10
+SCOPE_REGISTER _temp10, _scope_3
+_temp12 = CALL (org.ek9.lang::Boolean)_temp10._true() [pure=true, complexity=0]
+]
+left_operand: _temp10
+left_condition: _temp12
+right_evaluation:
+[
+_temp13 = LOAD _temp2
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_3
+_temp14 = LOAD_LITERAL Z, org.ek9.lang::Character
+RETAIN _temp14
+SCOPE_REGISTER _temp14, _scope_3
+_temp16 = CALL (org.ek9.lang::Character)_temp14._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
+RETAIN _temp16
+SCOPE_REGISTER _temp16, _scope_3
+_temp15 = CALL (org.ek9.lang::String)_temp13._eq(_temp16) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_3
+_temp17 = CALL (org.ek9.lang::Boolean)_temp15._true() [pure=true, complexity=0]
+]
+right_operand: _temp15
+result_computation:
+[
+_temp18 = CALL (org.ek9.lang::Boolean)_temp10._or(_temp15) [pure=true, complexity=0]
+RETAIN _temp18
+SCOPE_REGISTER _temp18, _scope_3
+]
+logical_result: _temp18
+scope_id: _scope_3
+]
+]
+right_operand: _temp18
+result_computation:
+[
+_temp19 = CALL (org.ek9.lang::Boolean)_temp5._or(_temp18) [pure=true, complexity=0]
+RETAIN _temp19
+SCOPE_REGISTER _temp19, _scope_3
+]
+logical_result: _temp19
+scope_id: _scope_3
+]
+_temp20 = CALL (org.ek9.lang::Boolean)_temp19._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_3
+]
+condition_result: _temp19
+primitive_condition: _temp20
+body_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp21 = LOAD_LITERAL Found A, D or Z, org.ek9.lang::String
+RETAIN _temp21
+SCOPE_REGISTER _temp21, _scope_4
+RELEASE result
+STORE result, _temp21
+RETAIN result
+SCOPE_EXIT _scope_4
+]
+],
+[
+case_scope_id: _scope_6
+case_type: "LITERAL"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_5
+_temp32 = LOGICAL_OR_BLOCK
+[
+left_evaluation:
+[
+_temp22 = LOAD _temp2
+RETAIN _temp22
+SCOPE_REGISTER _temp22, _scope_5
+_temp23 = LOAD_LITERAL X, org.ek9.lang::Character
+RETAIN _temp23
+SCOPE_REGISTER _temp23, _scope_5
+_temp25 = CALL (org.ek9.lang::Character)_temp23._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
+RETAIN _temp25
+SCOPE_REGISTER _temp25, _scope_5
+_temp24 = CALL (org.ek9.lang::String)_temp22._eq(_temp25) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp24
+SCOPE_REGISTER _temp24, _scope_5
+_temp26 = CALL (org.ek9.lang::Boolean)_temp24._true() [pure=true, complexity=0]
+]
+left_operand: _temp24
+left_condition: _temp26
+right_evaluation:
+[
+_temp27 = LOAD _temp2
+RETAIN _temp27
+SCOPE_REGISTER _temp27, _scope_5
+_temp28 = LOAD_LITERAL Y, org.ek9.lang::Character
+RETAIN _temp28
+SCOPE_REGISTER _temp28, _scope_5
+_temp30 = CALL (org.ek9.lang::Character)_temp28._promote() [pure=true, complexity=0, effects=RETURN_MUTATION]
+RETAIN _temp30
+SCOPE_REGISTER _temp30, _scope_5
+_temp29 = CALL (org.ek9.lang::String)_temp27._eq(_temp30) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp29
+SCOPE_REGISTER _temp29, _scope_5
+_temp31 = CALL (org.ek9.lang::Boolean)_temp29._true() [pure=true, complexity=0]
+]
+right_operand: _temp29
+result_computation:
+[
+_temp32 = CALL (org.ek9.lang::Boolean)_temp24._or(_temp29) [pure=true, complexity=0]
+RETAIN _temp32
+SCOPE_REGISTER _temp32, _scope_5
+]
+logical_result: _temp32
+scope_id: _scope_5
+]
+_temp33 = CALL (org.ek9.lang::Boolean)_temp32._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_5
+]
+condition_result: _temp32
+primitive_condition: _temp33
+body_evaluation:
+[
+SCOPE_ENTER _scope_6
+_temp34 = LOAD_LITERAL Found X or Y, org.ek9.lang::String
+RETAIN _temp34
+SCOPE_REGISTER _temp34, _scope_6
+RELEASE result
+STORE result, _temp34
+RETAIN result
+SCOPE_EXIT _scope_6
+]
+]
+]
+default_body_evaluation:
+[
+SCOPE_ENTER _scope_7
+_temp35 = LOAD_LITERAL Other letter, org.ek9.lang::String
+RETAIN _temp35
+SCOPE_REGISTER _temp35, _scope_7
+RELEASE result
+STORE result, _temp35
+RETAIN result
+SCOPE_EXIT _scope_7
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+SCOPE_EXIT _scope_1
+RETURN result
+OperationDfn: controlFlow.multichar::multipleCaseCharacterPromotion.multipleCaseCharacterPromotion()->controlFlow.multichar::multipleCaseCharacterPromotion  
+BasicBlock: _entry_1
+CALL (controlFlow.multichar::multipleCaseCharacterPromotion)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: controlFlow.multichar::multipleCaseCharacterPromotion.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: controlFlow.multichar::multipleCaseCharacterPromotion.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     multipleCaseCharacterPromotion()
       -> text as String
       <- result <- String()

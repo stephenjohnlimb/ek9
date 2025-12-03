@@ -16,120 +16,120 @@ defines module controlFlow
 
     @IR: IR_GENERATION: FUNCTION: "controlFlow::ifWithGuard": `
     ConstructDfn: controlFlow::ifWithGuard()->org.ek9.lang::String
-    OperationDfn: controlFlow::ifWithGuard.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: controlFlow::ifWithGuard.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: controlFlow::ifWithGuard.ifWithGuard()->controlFlow::ifWithGuard
-    BasicBlock: _entry_1
-    CALL (controlFlow::ifWithGuard)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: controlFlow::ifWithGuard._call()->org.ek9.lang::String
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE result, org.ek9.lang::String
-    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE result, _temp1
-    RETAIN result
-    SCOPE_ENTER _scope_2
-    REFERENCE value, org.ek9.lang::Integer
-    _temp4 = FUNCTION_INSTANCE controlFlow::provideOptionalValue
-    _temp2 = CALL (controlFlow::provideOptionalValue)_temp4._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_2
-    STORE value, _temp2
-    RETAIN value
-    SCOPE_REGISTER value, _scope_2
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "IF_ELSE_WITH_GUARDS"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_4
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_3
-    _temp5 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_3
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp6 = IS_NULL value
-    ]
-    primitive_condition: _temp6
-    body_evaluation:
-    [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_3
-    ]
-    body_result: _temp7
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp8 = LOAD value
-    _temp9 = CALL (org.ek9.lang::Integer)_temp8._isSet() [pure=true, complexity=0]
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_3
-    ]
-    default_result: _temp9
-    scope_id: _scope_3
-    ]
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_3
-    ]
-    condition_result: _temp5
-    primitive_condition: _temp10
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_4
-    _temp12 = LOAD_LITERAL Value is: , org.ek9.lang::String
-    RETAIN _temp12
-    SCOPE_REGISTER _temp12, _scope_4
-    _temp14 = LOAD value
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_4
-    _temp13 = CALL (org.ek9.lang::Integer)_temp14._string() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, _scope_4
-    _temp11 = CALL (org.ek9.lang::String)_temp12._add(_temp13) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_4
-    RELEASE result
-    STORE result, _temp11
-    RETAIN result
-    SCOPE_EXIT _scope_4
-    ]
-    ]
-    ]
-    default_body_evaluation:
-    [
-    SCOPE_ENTER _scope_5
-    _temp15 = LOAD_LITERAL No value, org.ek9.lang::String
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_5
-    RELEASE result
-    STORE result, _temp15
-    RETAIN result
-    SCOPE_EXIT _scope_5
-    ]
-    scope_id: _scope_2
-    ]
-    SCOPE_EXIT _scope_2
-    SCOPE_EXIT _scope_1
-    RETURN result`
+OperationDfn: controlFlow::ifWithGuard._call()->org.ek9.lang::String  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE result, org.ek9.lang::String
+_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE result, _temp1
+RETAIN result
+SCOPE_ENTER _scope_2
+REFERENCE value, org.ek9.lang::Integer
+_temp4 = FUNCTION_INSTANCE controlFlow::provideOptionalValue
+_temp2 = CALL (controlFlow::provideOptionalValue)_temp4._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_2
+STORE value, _temp2
+RETAIN value
+SCOPE_REGISTER value, _scope_2
+CONTROL_FLOW_CHAIN
+[
+chain_type: "IF_ELSE_WITH_GUARDS"
+condition_chain:
+[
+[
+case_scope_id: _scope_4
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_3
+_temp5 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_3
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp6 = IS_NULL value
+]
+primitive_condition: _temp6
+body_evaluation:
+[
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp7
+SCOPE_REGISTER _temp7, _scope_3
+]
+body_result: _temp7
+]
+]
+default_body_evaluation:
+[
+_temp8 = LOAD value
+_temp9 = CALL (org.ek9.lang::Integer)_temp8._isSet() [pure=true, complexity=0]
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_3
+]
+default_result: _temp9
+scope_id: _scope_3
+]
+_temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_3
+]
+condition_result: _temp5
+primitive_condition: _temp10
+body_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp12 = LOAD_LITERAL Value is: , org.ek9.lang::String
+RETAIN _temp12
+SCOPE_REGISTER _temp12, _scope_4
+_temp14 = LOAD value
+RETAIN _temp14
+SCOPE_REGISTER _temp14, _scope_4
+_temp13 = CALL (org.ek9.lang::Integer)_temp14._string() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_4
+_temp11 = CALL (org.ek9.lang::String)_temp12._add(_temp13) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_4
+RELEASE result
+STORE result, _temp11
+RETAIN result
+SCOPE_EXIT _scope_4
+]
+]
+]
+default_body_evaluation:
+[
+SCOPE_ENTER _scope_5
+_temp15 = LOAD_LITERAL No value, org.ek9.lang::String
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_5
+RELEASE result
+STORE result, _temp15
+RETAIN result
+SCOPE_EXIT _scope_5
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+SCOPE_EXIT _scope_1
+RETURN result
+OperationDfn: controlFlow::ifWithGuard.ifWithGuard()->controlFlow::ifWithGuard  
+BasicBlock: _entry_1
+CALL (controlFlow::ifWithGuard)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: controlFlow::ifWithGuard.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: controlFlow::ifWithGuard.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     ifWithGuard()
       <-
         result <- String()

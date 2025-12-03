@@ -10,16 +10,6 @@ defines module constructorcalls.test
 
     @IR: IR_GENERATION: FUNCTION: "constructorcalls.test::checkStringConstruction": `
     ConstructDfn: constructorcalls.test::checkStringConstruction()->org.ek9.lang::Void
-    OperationDfn: constructorcalls.test::checkStringConstruction.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: constructorcalls.test::checkStringConstruction.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: constructorcalls.test::checkStringConstruction.checkStringConstruction()->constructorcalls.test::checkStringConstruction  // ./constructorCall.ek9:71:5
-    BasicBlock: _entry_1
-    CALL (constructorcalls.test::checkStringConstruction)this.i_init() [pure=false, complexity=0]  // ./constructorCall.ek9:71:5
-    RETURN this  // ./constructorCall.ek9:71:5
     OperationDfn: constructorcalls.test::checkStringConstruction._call()->org.ek9.lang::Void  // ./constructorCall.ek9:71:5
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1  // ./constructorCall.ek9:72:7
@@ -67,7 +57,17 @@ defines module constructorcalls.test
     _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./constructorCall.ek9:73:7
     ASSERT _temp7  // ./constructorCall.ek9:73:7
     SCOPE_EXIT _scope_1  // ./constructorCall.ek9:72:7
-    RETURN  // ./constructorCall.ek9:71:5`
+    RETURN  // ./constructorCall.ek9:71:5
+    OperationDfn: constructorcalls.test::checkStringConstruction.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: constructorcalls.test::checkStringConstruction.checkStringConstruction()->constructorcalls.test::checkStringConstruction  // ./constructorCall.ek9:71:5
+    BasicBlock: _entry_1
+    CALL (constructorcalls.test::checkStringConstruction)this.i_init() [pure=false, complexity=0]  // ./constructorCall.ek9:71:5
+    RETURN this  // ./constructorCall.ek9:71:5
+    OperationDfn: constructorcalls.test::checkStringConstruction.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN`
     checkStringConstruction()
       aString <- String()
       assert aString?

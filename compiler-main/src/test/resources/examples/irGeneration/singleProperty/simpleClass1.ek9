@@ -9,67 +9,67 @@ defines module singleProperty
 
     @IR: IR_GENERATION: TYPE: "singleProperty::Example1": `
     ConstructDfn: singleProperty::Example1
-    Field: aField, org.ek9.lang::String  // ./simpleClass1.ek9:74:7
-    OperationDfn: singleProperty::Example1.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: singleProperty::Example1.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    REFERENCE this.aField, org.ek9.lang::String  // ./simpleClass1.ek9:74:7
-    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./simpleClass1.ek9:74:27
-    RETAIN _temp1  // ./simpleClass1.ek9:74:27
-    SCOPE_REGISTER _temp1, i_init  // ./simpleClass1.ek9:74:27
-    STORE this.aField, _temp1  // ./simpleClass1.ek9:74:27
-    RETAIN this.aField  // ./simpleClass1.ek9:74:27
-    RETURN
-    OperationDfn: singleProperty::Example1.Example1()->singleProperty::Example1  // ./simpleClass1.ek9:76:7
-    BasicBlock: _entry_1
-    CALL (singleProperty::Example1)this.i_init() [pure=false, complexity=0]  // ./simpleClass1.ek9:76:7
-    SCOPE_ENTER _scope_1  // ./simpleClass1.ek9:79:9
-    _temp1 = LOAD_LITERAL Steve, org.ek9.lang::String  // ./simpleClass1.ek9:79:17
-    RETAIN _temp1  // ./simpleClass1.ek9:79:17
-    SCOPE_REGISTER _temp1, _scope_1  // ./simpleClass1.ek9:79:17
-    RELEASE this.aField  // ./simpleClass1.ek9:79:17
-    STORE this.aField, _temp1  // ./simpleClass1.ek9:79:17
-    RETAIN this.aField  // ./simpleClass1.ek9:79:17
-    _temp2 = CONTROL_FLOW_CHAIN  // ./simpleClass1.ek9:80:22
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp3 = LOAD this.aField  // ./simpleClass1.ek9:80:22
-    _temp4 = IS_NULL _temp3  // ./simpleClass1.ek9:80:22
-    ]
-    primitive_condition: _temp4
-    body_evaluation:
-    [
-    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./simpleClass1.ek9:80:22
-    RETAIN _temp5  // ./simpleClass1.ek9:80:22
-    SCOPE_REGISTER _temp5, _scope_1  // ./simpleClass1.ek9:80:22
-    ]
-    body_result: _temp5
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp6 = CALL (org.ek9.lang::String)_temp3._isSet() [pure=true, complexity=0]  // ./simpleClass1.ek9:80:22
-    RETAIN _temp6  // ./simpleClass1.ek9:80:22
-    SCOPE_REGISTER _temp6, _scope_1  // ./simpleClass1.ek9:80:22
-    ]
-    default_result: _temp6
-    scope_id: _scope_1
-    ]
-    RETAIN _temp2  // ./simpleClass1.ek9:80:9
-    SCOPE_REGISTER _temp2, _scope_1  // ./simpleClass1.ek9:80:9
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./simpleClass1.ek9:80:9
-    ASSERT _temp7  // ./simpleClass1.ek9:80:9
-    SCOPE_EXIT _scope_1  // ./simpleClass1.ek9:79:9
-    RETURN  // ./simpleClass1.ek9:76:7`
+Field: aField, org.ek9.lang::String  // ./simpleClass1.ek9:74:7
+OperationDfn: singleProperty::Example1.Example1()->singleProperty::Example1  // ./simpleClass1.ek9:76:7
+BasicBlock: _entry_1
+CALL (singleProperty::Example1)this.i_init() [pure=false, complexity=0]  // ./simpleClass1.ek9:76:7
+SCOPE_ENTER _scope_1  // ./simpleClass1.ek9:79:9
+_temp1 = LOAD_LITERAL Steve, org.ek9.lang::String  // ./simpleClass1.ek9:79:17
+RETAIN _temp1  // ./simpleClass1.ek9:79:17
+SCOPE_REGISTER _temp1, _scope_1  // ./simpleClass1.ek9:79:17
+RELEASE this.aField  // ./simpleClass1.ek9:79:17
+STORE this.aField, _temp1  // ./simpleClass1.ek9:79:17
+RETAIN this.aField  // ./simpleClass1.ek9:79:17
+_temp2 = CONTROL_FLOW_CHAIN  // ./simpleClass1.ek9:80:22
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp3 = LOAD this.aField  // ./simpleClass1.ek9:80:22
+_temp4 = IS_NULL _temp3  // ./simpleClass1.ek9:80:22
+]
+primitive_condition: _temp4
+body_evaluation:
+[
+_temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./simpleClass1.ek9:80:22
+RETAIN _temp5  // ./simpleClass1.ek9:80:22
+SCOPE_REGISTER _temp5, _scope_1  // ./simpleClass1.ek9:80:22
+]
+body_result: _temp5
+]
+]
+default_body_evaluation:
+[
+_temp6 = CALL (org.ek9.lang::String)_temp3._isSet() [pure=true, complexity=0]  // ./simpleClass1.ek9:80:22
+RETAIN _temp6  // ./simpleClass1.ek9:80:22
+SCOPE_REGISTER _temp6, _scope_1  // ./simpleClass1.ek9:80:22
+]
+default_result: _temp6
+scope_id: _scope_1
+]
+RETAIN _temp2  // ./simpleClass1.ek9:80:9
+SCOPE_REGISTER _temp2, _scope_1  // ./simpleClass1.ek9:80:9
+_temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./simpleClass1.ek9:80:9
+ASSERT _temp7  // ./simpleClass1.ek9:80:9
+SCOPE_EXIT _scope_1  // ./simpleClass1.ek9:79:9
+RETURN  // ./simpleClass1.ek9:76:7
+OperationDfn: singleProperty::Example1.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: singleProperty::Example1.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+REFERENCE this.aField, org.ek9.lang::String  // ./simpleClass1.ek9:74:7
+_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./simpleClass1.ek9:74:27
+RETAIN _temp1  // ./simpleClass1.ek9:74:27
+SCOPE_REGISTER _temp1, i_init  // ./simpleClass1.ek9:74:27
+STORE this.aField, _temp1  // ./simpleClass1.ek9:74:27
+RETAIN this.aField  // ./simpleClass1.ek9:74:27
+RETURN`
     Example1
       aField as String := String()
 

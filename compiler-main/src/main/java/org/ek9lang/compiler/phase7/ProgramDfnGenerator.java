@@ -100,10 +100,13 @@ final class ProgramDfnGenerator extends AbstractDfnGenerator
         .stream()
         .filter(MethodSymbol::isConstructor)
         .findFirst().orElseThrow();
-
+    
+    final var debugInfo = createDebugInfoCreator().apply(constructor.getSourceToken());
+    final var operation = new OperationInstr(constructor, debugInfo);
+    construct.add(operation);
+    
     // Now process the synthetic constructor which will call the i_init we just created
-    super.processSyntheticConstructor(construct, constructor, null);
-
+    super.processSyntheticConstructor(operation, null);
   }
 
   private void populateMainMethod(final IRConstruct construct,

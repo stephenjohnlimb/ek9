@@ -18,16 +18,6 @@ defines module elvisCoalesce.test
 
     @IR: IR_GENERATION: FUNCTION: "elvisCoalesce.test::testElvisCoalesce": `
     ConstructDfn: elvisCoalesce.test::testElvisCoalesce()->org.ek9.lang::Void
-    OperationDfn: elvisCoalesce.test::testElvisCoalesce.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: elvisCoalesce.test::testElvisCoalesce.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: elvisCoalesce.test::testElvisCoalesce.testElvisCoalesce()->elvisCoalesce.test::testElvisCoalesce
-    BasicBlock: _entry_1
-    CALL (elvisCoalesce.test::testElvisCoalesce)this.i_init() [pure=false, complexity=0]
-    RETURN this
     OperationDfn: elvisCoalesce.test::testElvisCoalesce._call()->org.ek9.lang::Void
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1
@@ -110,7 +100,17 @@ defines module elvisCoalesce.test
     _temp12 = CALL (org.ek9.lang::Boolean)_temp9._true() [pure=true, complexity=0]
     ASSERT _temp12
     SCOPE_EXIT _scope_1
-    RETURN`
+    RETURN
+    OperationDfn: elvisCoalesce.test::testElvisCoalesce.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: elvisCoalesce.test::testElvisCoalesce.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: elvisCoalesce.test::testElvisCoalesce.testElvisCoalesce()->elvisCoalesce.test::testElvisCoalesce
+    BasicBlock: _entry_1
+    CALL (elvisCoalesce.test::testElvisCoalesce)this.i_init() [pure=false, complexity=0]
+    RETURN this`
     testElvisCoalesce()
       x <- 5
       y <- 10

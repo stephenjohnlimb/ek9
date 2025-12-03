@@ -33,18 +33,10 @@ defines module bytecode.test.nested
     //A bit large, but we need to ensure that combinations of control flow do actually work together.
     //Which was good because there was a bug to be fixed.
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.nested::ComprehensiveNestedControlFlow":`public class bytecode.test.nested.ComprehensiveNestedControlFlow {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.nested.ComprehensiveNestedControlFlow();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -1137,6 +1129,14 @@ defines module bytecode.test.nested
       2385: aload         244
       2387: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
       2390: return
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
     ComprehensiveNestedControlFlow()
       ->

@@ -67,61 +67,61 @@ This document provides comprehensive guidance for working with EK9's Intermediat
 
 ### Why Correctness Precedes Optimization
 
-1. **Foundation First**: Incomplete IR generation blocks both JVM and LLVM backends
-2. **Parallel Development**: Both backend Claudes can work simultaneously once IR is complete
-3. **Testing Confidence**: Correct behavior enables comprehensive cross-backend validation
-4. **User Trust**: Working features are more valuable than optimized incomplete features
+1.  **Foundation First**: Incomplete IR generation blocks both JVM and LLVM backends
+2.  **Parallel Development**: Both backend Claudes can work simultaneously once IR is complete
+3.  **Testing Confidence**: Correct behavior enables comprehensive cross-backend validation
+4.  **User Trust**: Working features are more valuable than optimized incomplete features
 
 **Note**: This document describes both **current implementation** (marked ✅ or 🔨) and **architectural design for future features** (marked 📋 DEFERRED). Deferred features have infrastructure in place but implementation is postponed until after feature completeness.
 
 ### 🚨 Known Limitations and TODO Items
 
-#### Implicit Type Bytecode Generation (org.ek9.lang::_*)
+#### Implicit Type Bytecode Generation (org.ek9.lang::_*) 
 
 **Status**: ⚠️ WORKAROUND IN PLACE - Requires future implementation
 
 **Problem**: EK9 uses implicit/internal types for:
-- Parameterized generics: `_List_*`, `_Iterator_*`, `_Dict_*`, etc.
-- Abstract function signatures: `_Routine_*`, `_BiRoutine_*`, etc.
+-   Parameterized generics: `_List_*`, `_Iterator_*`, `_Dict_*`, etc.
+-   Abstract function signatures: `_Routine_*`, `_BiRoutine_*`, etc.
 
 These types exist in the EK9 type system for compile-time checking but **do not have bytecode generated**. Currently, constructs that would extend these types extend `java.lang.Object` instead.
 
 **Current Workaround** (in `AsmStructureCreator.java`):
-- `determineSuperclassName()`: Returns `Object` for implicit types
-- `injectSuperConstructorCall()`: Calls `Object.<init>()` for implicit types
-- `needsObjectSuperCall()`: Returns true for implicit types
+-   `determineSuperclassName()`: Returns `Object` for implicit types
+-   `injectSuperConstructorCall()`: Calls `Object.<init>()` for implicit types
+-   `needsObjectSuperCall()`: Returns true for implicit types
 
 **What Works**:
-- Direct function inheritance chains: `helloGreeting → baseGreeting → Object`
-- Abstract functions with concrete implementations
-- Simple parameterized type usage (when types are resolved)
+-   Direct function inheritance chains: `helloGreeting → baseGreeting → Object`
+-   Abstract functions with concrete implementations
+-   Simple parameterized type usage (when types are resolved)
 
 **What Does NOT Work** (requires future implementation):
-- True function polymorphism (holding concrete function via abstract signature type)
-- Runtime type checks against implicit types
-- Generic type instantiation at runtime
+-   True function polymorphism (holding concrete function via abstract signature type)
+-   Runtime type checks against implicit types
+-   Generic type instantiation at runtime
 
 **When to Implement**: When tackling:
-1. Generic/parameterized functions (`List<String>`, `Iterator<T>`)
-2. True function polymorphism (variables typed as abstract function signatures)
+1.  Generic/parameterized functions (`List<String>`, `Iterator<T>`)
+2.  True function polymorphism (variables typed as abstract function signatures)
 
 **Files with TODO markers**:
-- `compiler-main/src/main/java/org/ek9lang/compiler/backend/jvm/AsmStructureCreator.java`
-  - See `determineSuperclassName()` javadoc for main TODO
-  - See `injectSuperConstructorCall()` and `needsObjectSuperCall()` for related TODOs
+-   `compiler-main/src/main/java/org/ek9lang/compiler/backend/jvm/AsmStructureCreator.java`
+    -   See `determineSuperclassName()` javadoc for main TODO
+    -   See `injectSuperConstructorCall()` and `needsObjectSuperCall()` for related TODOs
 
 ## IR Generation Overview
 
 EK9's IR generation transforms resolved symbols from the compiler frontend phases into a target-agnostic intermediate representation that can be translated to multiple backends (JVM bytecode, LLVM IR, etc.).
 
 ### IR Design Principles
-- **Target-agnostic**: IR must work equally well for JVM and LLVM targets
-- **Symbol-driven**: Uses resolved symbols from `ParsedModule.getRecordedSymbol()` instead of AST text parsing
-- **Structured typed objects**: IR consists of typed Java objects (CallInstr, MemoryInstr, etc.) consumed directly by backends via method calls - **zero parsing overhead**
-- **Dual representation**:
-  - **Production**: Backends access IR via typed methods (`callInstr.getMethodName()`)
-  - **Testing**: String representation (`toString()`) used only for `@IR` directive validation
-- **Fully qualified type names**: All types use complete qualified names to avoid ambiguity
+-   **Target-agnostic**: IR must work equally well for JVM and LLVM targets
+-   **Symbol-driven**: Uses resolved symbols from `ParsedModule.getRecordedSymbol()` instead of AST text parsing
+-   **Structured typed objects**: IR consists of typed Java objects (CallInstr, MemoryInstr, etc.) consumed directly by backends via method calls - **zero parsing overhead**
+-   **Dual representation**:
+    -   **Production**: Backends access IR via typed methods (`callInstr.getMethodName()`)
+    -   **Testing**: String representation (`toString()`) used only for `@IR` directive validation
+-   **Fully qualified type names**: All types use complete qualified names to avoid ambiguity
 
 ## IR Architecture: Typed Objects with Dual Representation
 
@@ -148,12 +148,12 @@ Typed Java Objects
 
 **Comparison with Industry Approaches**:
 
-| IR Type | Representation | Backend Consumption | Parsing Cost | Example |
-|---|---|---|---|---|
-| **LLVM IR** | Text `.ll` files | Parse text → data structures | **High** | Parse "call i32 @foo()" |
-| **JVM Bytecode** | Binary `.class` | Parse binary → internal form | **Medium** | Class file parsing |
-| **SPIR-V** | Binary | Parse binary → instructions | **Medium** | Vulkan shader parsing |
-| **EK9 IR** | **Typed Java objects** | **Direct method calls** | **ZERO** ✅ | `callInstr.getMethodName()` |
+| IR Type           | Representation | Backend Consumption   | Parsing Cost | Example             |
+|:------------------|:---------------|:----------------------|:-------------|:--------------------|
+| **LLVM IR**       | Text `.ll` files | Parse text → data structures | **High**     | Parse "call i32 @foo()" |
+| **JVM Bytecode**  | Binary `.class` | Parse binary → internal form | **Medium**   | Class file parsing  |
+| **SPIR-V**        | Binary         | Parse binary → instructions | **Medium**   | Vulkan shader parsing |
+| **EK9 IR**        | **Typed Java objects** | **Direct method calls** | **ZERO** ✅  | `callInstr.getMethodName()` |
 
 ### Implementation Example
 
@@ -195,26 +195,26 @@ CALL _temp1 = object.method(arg1, arg2) [pure=true, complexity=1]
 
 ### Advantages of Typed Object Architecture
 
-1. ✅ **Zero Parsing Overhead**: Backends access data directly, no text processing
-2. ✅ **Type Safety**: Compiler catches API misuse at compile time
-3. ✅ **IDE Support**: Autocomplete, refactoring, navigation all work
-4. ✅ **Maintainability**: Refactor IR structure, compiler finds all usages
-5. ✅ **Debugging**: Inspect typed objects in debugger, not raw strings
-6. ✅ **Testing**: String representation provides human-readable validation
-7. ✅ **Performance**: Direct method calls vs string parsing + validation
+1.  ✅ **Zero Parsing Overhead**: Backends access data directly, no text processing
+2.  ✅ **Type Safety**: Compiler catches API misuse at compile time
+3.  ✅ **IDE Support**: Autocomplete, refactoring, navigation all work
+4.  ✅ **Maintainability**: Refactor IR structure, compiler finds all usages
+5.  ✅ **Debugging**: Inspect typed objects in debugger, not raw strings
+6.  ✅ **Testing**: String representation provides human-readable validation
+7.  ✅ **Performance**: Direct method calls vs string parsing + validation
 
 ### String Representation Use Cases
 
 **Only Used For**:
-- ✅ `@IR` directive testing in `.ek9` files
-- ✅ Debug logging and error messages
-- ✅ IR visualization tools
-- ✅ Documentation and examples
+-   ✅ `@IR` directive testing in `.ek9` files
+-   ✅ Debug logging and error messages
+-   ✅ IR visualization tools
+-   ✅ Documentation and examples
 
 **Never Used For**:
-- ❌ Backend code generation (uses typed methods)
-- ❌ IR optimization passes (operates on objects)
-- ❌ IR validation (works with typed data)
+-   ❌ Backend code generation (uses typed methods)
+-   ❌ IR optimization passes (operates on objects)
+-   ❌ IR validation (works with typed data)
 
 ## Strategic Development Approach
 
@@ -226,12 +226,12 @@ EK9's IR generation follows a proven compiler development methodology based on *
 **Objective**: Establish correct IR output for foundational language constructs using `@IR` directive validation.
 
 **Priority Constructs** (in dependency order):
-1. **Basic Operations**: Variable declarations, assignments, literal values
-2. **Operators**: Arithmetic (`+`, `-`, `*`), comparison (`==`, `!=`, `<`, `>`), logical (`&&`, `||`)
-3. **Method Calls**: Simple method invocation (`object.method()`)
-4. **Chained Calls**: Method chaining (`user.getName().toUpperCase()`)
-5. **Constructors**: Object instantiation (`new Class()`)
-6. **Delegate Calls**: Function variable invocation
+1.  **Basic Operations**: Variable declarations, assignments, literal values
+2.  **Operators**: Arithmetic (`+`, `-`, `*`), comparison (`==`, `!=`, `<`, `>`), logical (`&&`, `||`)
+3.  **Method Calls**: Simple method invocation (`object.method()`)
+4.  **Chained Calls**: Method chaining (`user.getName().toUpperCase()`)
+5.  **Constructors**: Object instantiation (`new Class()`)
+6.  **Delegate Calls**: Function variable invocation
 
 **Success Criteria**: `@IR` directives in `.ek9` test files match expected IR output exactly.
 
@@ -242,39 +242,39 @@ EK9's IR generation follows a proven compiler development methodology based on *
 
 **Refactoring Strategy**: Extract three distinct abstraction layers:
 
-1. **High-Level Semantic Analysis**
-   - Symbol resolution and type validation
-   - Construct-specific semantic rules
-   - Error condition detection
+1.  **High-Level Semantic Analysis**
+    -   Symbol resolution and type validation
+    -   Construct-specific semantic rules
+    -   Error condition detection
 
-2. **Mid-Level Instruction Sequencing**  
-   - IR instruction pattern generation
-   - Instruction dependency management
-   - Optimization opportunity identification
+2.  **Mid-Level Instruction Sequencing**  
+    -   IR instruction pattern generation
+    -   Instruction dependency management
+    -   Optimization opportunity identification
 
-3. **Low-Level IR Emission**
-   - Raw IR instruction creation
-   - Target-neutral instruction formatting
-   - IR validation and serialization
+3.  **Low-Level IR Emission**
+    -   Raw IR instruction creation
+    -   Target-neutral instruction formatting
+    -   IR validation and serialization
 
 #### Phase 3: Component Reuse Acceleration (Future)
 **Objective**: Leverage reusable components to rapidly implement complex language constructs.
 
 **Expected Acceleration**: Complex constructs should "drop out" faster due to component reuse:
 
-- **Conditionals** (if/else/switch): Reuse condition evaluation + branch patterns
-- **Loops** (for/while): Reuse condition evaluation + iterator patterns  
-- **Try/Catch/Finally**: Reuse scope management + method call patterns
-- **Streams**: Reuse method chaining + lambda/delegate patterns
-- **AOP**: Reuse method interception + parameter passing patterns
-- **Trait Delegates**: Reuse method resolution + delegation patterns
-- **Injection**: Reuse constructor patterns + dependency resolution
+-   **Conditionals** (if/else/switch): Reuse condition evaluation + branch patterns
+-   **Loops** (for/while): Reuse condition evaluation + iterator patterns  
+-   **Try/Catch/Finally**: Reuse scope management + method call patterns
+-   **Streams**: Reuse method chaining + lambda/delegate patterns
+-   **AOP**: Reuse method interception + parameter passing patterns
+-   **Trait Delegates**: Reuse method resolution + delegation patterns
+-   **Injection**: Reuse constructor patterns + dependency resolution
 
 ### Helper Pattern Evolution
 
 **Successful Pattern Examples** (already implemented):
-- **`TypeNameOrException`**: Eliminates repetitive null checking and type name extraction
-- **`SymbolTypeOrException`**: Standardizes symbol-to-type resolution with error handling
+-   **`TypeNameOrException`**: Eliminates repetitive null checking and type name extraction
+-   **`SymbolTypeOrException`**: Standardizes symbol-to-type resolution with error handling
 
 **These patterns eliminate hundreds of lines of duplication** and establish the template for Phase 2 refactoring.
 
@@ -292,19 +292,19 @@ var typeName = symbol.getFullyQualifiedName(); // Safe to call
 ```
 
 **Benefits**:
-- **Cleaner code**: No defensive null checking everywhere
-- **Faster execution**: No redundant validation  
-- **Clear failure points**: Distinguish compiler bugs from user errors
-- **Maintainable focus**: IR generation logic, not error handling
+-   **Cleaner code**: No defensive null checking everywhere
+-   **Faster execution**: No redundant validation  
+-   **Clear failure points**: Distinguish compiler bugs from user errors
+-   **Maintainable focus**: IR generation logic, not error handling
 
 ### Development Timeline Prediction
 
 **Based on foundation-first approach**:
 
-- **Months 1-3**: Basic constructs + foundation (current phase)
-- **Months 4-6**: Strategic refactoring + abstraction layers
-- **Months 7-9**: Complex constructs (accelerated due to reuse)
-- **Months 10-12**: Advanced features (very fast due to component reuse)
+-   **Months 1-3**: Basic constructs + foundation (current phase)
+-   **Months 4-6**: Strategic refactoring + abstraction layers
+-   **Months 7-9**: Complex constructs (accelerated due to reuse)
+-   **Months 10-12**: Advanced features (very fast due to component reuse)
 
 **Velocity Acceleration Pattern**: Each subsequent complex construct should require 50% less development time due to component reuse.
 
@@ -317,11 +317,11 @@ EK9's strategic approach leverages the existing, well-tested **`org.ek9.lang` Ja
 ### Conversion Feasibility Assessment: **Very High (8.5/10)**
 
 #### **Strategic Advantages**
-1. **Clean Architecture**: Annotation-driven design (`@Ek9Class`, `@Ek9Method`, `@Ek9Operator`) enables automated extraction
-2. **Logic Separation**: Business logic cleanly separated from language-specific concerns
-3. **Tri-State Semantics**: EK9's `isSet`/`unSet()` model maps perfectly to C++ optional semantics
-4. **Factory Patterns**: `String._of()` patterns translate directly to C++ static methods
-5. **Proven Edge Cases**: All algorithms debugged and tested in Java implementation
+1.  **Clean Architecture**: Annotation-driven design (`@Ek9Class`, `@Ek9Method`, `@Ek9Operator`) enables automated extraction
+2.  **Logic Separation**: Business logic cleanly separated from language-specific concerns
+3.  **Tri-State Semantics**: EK9's `isSet`/`unSet()` model maps perfectly to C++ optional semantics
+4.  **Factory Patterns**: `String._of()` patterns translate directly to C++ static methods
+5.  **Proven Edge Cases**: All algorithms debugged and tested in Java implementation
 
 ### Automated Conversion Strategy
 
@@ -332,7 +332,7 @@ Extend existing `java-introspection` infrastructure for C++ header generation:
 // Existing: Generate EK9 source from Java annotations
 @Ek9Method("""
     trim() as pure
-        <- rtn as String?""")
+        <-rtn as String?""")
 public String trim() { /* logic */ }
 
 // New: Generate C++ headers from same annotations
@@ -419,10 +419,10 @@ declare %ek9_string* @ek9_string_uppercase(%ek9_string*)
 
 #### **Comprehensive Test Coverage Transfer**
 **Current Java Test Suite**: 89 JUnit test files with systematic edge case coverage
-- Tri-state validation (unset/set combinations)  
-- Boundary conditions and type safety
-- Complete operator coverage
-- Factory method validation
+-   Tri-state validation (unset/set combinations)  
+-   Boundary conditions and type safety
+-   Complete operator coverage
+-   Factory method validation
 
 #### **Test Translation Approach**:
 **Java JUnit Pattern**:
@@ -455,19 +455,19 @@ void assertComparisonOperatorsWithUnset(const ek9_ptr<String>& validValue) {
 ```
 
 #### **Automated Test Generation Potential**: **High (80-90% automated)**
-- Mechanical JUnit → Google Test syntax conversion
-- Pattern-based test template generation
-- Assertion helper method translation
+-   Mechanical JUnit → Google Test syntax conversion
+-   Pattern-based test template generation
+-   Assertion helper method translation
 
 ### Development Timeline Estimates
 
 | Phase | Component | Effort | Duration |
-|-------|-----------|--------|----------|
-| **Phase 1** | Annotation extraction enhancement | Low | 2-3 weeks |
+|:------|:----------|:-------|:---------|
+| **Phase 1** | Annotation extraction enhancement | Low    | 2-3 weeks |
 | **Phase 2** | ARC implementation + core infrastructure | Medium | 3-4 weeks |
 | **Phase 3** | Core types (String, Integer, Boolean, Float) | Medium | 3-4 weeks |
 | **Phase 4** | Collections (List, Dict, Iterator) | Medium-High | 4-5 weeks |
-| **Phase 5** | I/O & System types (File, Network, etc.) | High | 6-8 weeks |
+| **Phase 5** | I/O & System types (File, Network, etc.) | High   | 6-8 weeks |
 | **Phase 6** | Test suite conversion | Low-Medium | 1-2 weeks |
 | **Phase 7** | Build system + LLVM integration | Medium | 3-4 weeks |
 
@@ -477,38 +477,38 @@ void assertComparisonOperatorsWithUnset(const ek9_ptr<String>& validValue) {
 ### Risk Assessment
 
 #### **Low Risk**:
-- ✅ Basic type conversion (proven patterns)
-- ✅ Annotation extraction (infrastructure exists)  
-- ✅ Factory pattern translation (direct mapping)
-- ✅ Tri-state semantics (perfect conceptual match)
-- ✅ Test logic transfer (comprehensive coverage exists)
+-   ✅ Basic type conversion (proven patterns)
+-   ✅ Annotation extraction (infrastructure exists)  
+-   ✅ Factory pattern translation (direct mapping)
+-   ✅ Tri-state semantics (perfect conceptual match)
+-   ✅ Test logic transfer (comprehensive coverage exists)
 
 #### **Medium Risk**:
-- Collection types with complex iterator patterns
-- Platform-specific I/O operations
-- Complex regex operations requiring std::regex
+-   Collection types with complex iterator patterns
+-   Platform-specific I/O operations
+-   Complex regex operations requiring std::regex
 
-#### **High Risk**:  
-- Threading primitives (if required)
-- Platform-specific optimizations
-- Debugger integration complexity
+#### **High Risk**:
+-   Threading primitives (if required)
+-   Platform-specific optimizations
+-   Debugger integration complexity
 
 ### Strategic Benefits
 
-1. **Proven Business Logic**: All algorithms already debugged in Java
-2. **Comprehensive Test Coverage**: Edge cases identified and validated  
-3. **Clean Architecture**: Annotation-driven enables systematic conversion
-4. **ARC Integration**: Memory-safe C++ runtime with deterministic cleanup
-5. **Static Linking**: Self-contained native binaries with embedded runtime
+1.  **Proven Business Logic**: All algorithms already debugged in Java
+2.  **Comprehensive Test Coverage**: Edge cases identified and validated  
+3.  **Clean Architecture**: Annotation-driven enables systematic conversion
+4.  **ARC Integration**: Memory-safe C++ runtime with deterministic cleanup
+5.  **Static Linking**: Self-contained native binaries with embedded runtime
 
 This approach provides **substantially lower risk** than developing a C++ standard library from scratch, while delivering **native performance** with **guaranteed correctness** through comprehensive test transfer.
 
 ### Symbol Table to IR Transformation
 The IR generation process in Phase 10 (IR_GENERATION) transforms resolved symbols:
-1. **Context Creation**: `IRGenerationContext` provides centralized state management
-2. **Symbol Resolution**: Use `parsedModule.getRecordedSymbol(ctx)` for all AST nodes
-3. **Type Information**: Extract fully qualified type names using `symbol.getType().getFullyQualifiedName()`
-4. **Value Extraction**: Get literal values and identifiers from resolved symbols
+1.  **Context Creation**: `IRGenerationContext` provides centralized state management
+2.  **Symbol Resolution**: Use `parsedModule.getRecordedSymbol(ctx)` for all AST nodes
+3.  **Type Information**: Extract fully qualified type names using `symbol.getType().getFullyQualifiedName()`
+4.  **Value Extraction**: Get literal values and identifiers from resolved symbols
 
 ## IR Literal Value Representation
 
@@ -517,13 +517,13 @@ The IR generation process in Phase 10 (IR_GENERATION) transforms resolved symbol
 **Chosen Approach**: Structured IR using typed Java objects (CallInstr, MemoryInstr, LiteralInstr, etc.) with literal values stored as Strings internally.
 
 **How It Works**:
-- **IR Structure**: Typed Java objects (e.g., `LiteralInstr`) with methods like `getValue()`, `getType()`
-- **Literal Storage**: String representation inside objects (e.g., `"2"`, `"Hello"`, `"true"`)
-- **Backend Access**: Typed method calls - `literalInstr.getValue()` returns `"2"` as String
-- **No Parsing**: Backends call typed methods, not parse text
+-   **IR Structure**: Typed Java objects (e.g., `LiteralInstr`) with methods like `getValue()`, `getType()`
+-   **Literal Storage**: String representation inside objects (e.g., `"2"`, `"Hello"`, `"true"`)
+-   **Backend Access**: Typed method calls - `literalInstr.getValue()` returns `"2"` as String
+-   **No Parsing**: Backends call typed methods, not parse text
 
 **Alternative Considered**: ISymbol-based IR storing rich symbol objects.
-- **Rejected because**: Couples IR to compiler symbol table, not serializable, complex for code generation backends.
+-   **Rejected because**: Couples IR to compiler symbol table, not serializable, complex for code generation backends.
 
 ### Dual Representation Pattern
 
@@ -544,43 +544,43 @@ literalInstr.toString() → "LOAD_LITERAL 2, org.ek9.lang::Integer"
 ```
 
 This dual representation provides:
-- ✅ **Zero parsing overhead** for backends (typed object access)
-- ✅ **Human-readable output** for testing (`@IR` directives)
-- ✅ **Type safety** (compile-time errors vs runtime parsing errors)
+-   ✅ **Zero parsing overhead** for backends (typed object access)
+-   ✅ **Human-readable output** for testing (`@IR` directives)
+-   ✅ **Type safety** (compile-time errors vs runtime parsing errors)
 
 ### Literal Value Encoding Rules
 
 All literal values are stored as Java Strings that preserve their original semantic representation:
 
-| EK9 Source | Internal Storage (Java String) | IR Output |
-|------------|-------------------------------|-----------|
-| `2` | `"2"` | `LOAD_LITERAL 2 (org.ek9lang.lang.Integer)` |
-| `2024-12-25` | `"2024-12-25"` | `LOAD_LITERAL 2024-12-25 (org.ek9lang.lang.Date)` |
-| `"Hello, World"` | `"\"Hello, World\""` | `LOAD_LITERAL "Hello, World" (org.ek9lang.lang.String)` |
-| `true` | `"true"` | `LOAD_LITERAL true (org.ek9lang.lang.Boolean)` |
+| EK9 Source         | Internal Storage (Java String)      | IR Output                               |
+|:-------------------|:------------------------------------|:----------------------------------------|
+| `2`                | `"2"`                               | `LOAD_LITERAL 2 (org.ek9lang.lang.Integer)` |
+| `2024-12-25`       | `"2024-12-25"`                      | `LOAD_LITERAL 2024-12-25 (org.ek9lang.lang.Date)` |
+| `"Hello, World"`   | `"\"Hello, World\""`                | `LOAD_LITERAL "Hello, World" (org.ek9lang.lang.String)` |
+| `true`             | `"true"`                            | `LOAD_LITERAL true (org.ek9lang.lang.Boolean)` |
 
 **Critical Rule**: String literals retain their quotes as part of the stored value to distinguish them from other literal types.
 
 ### Type Name Strategy
 
 All types use fully qualified names to avoid ambiguity across different contexts:
-- `String` → `org.ek9lang.lang.String`
-- `Integer` → `org.ek9lang.lang.Integer`  
-- `List of String` → `_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1`
+-   `String` → `org.ek9lang.lang.String`
+-   `Integer` → `org.ek9.lang.Integer`
+-   `List of String` → `_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1`
 
 ### Code Generation Implications
 
 This encoding strategy enables backends to correctly interpret literal values:
 
 **JVM Bytecode Generation**:
-- `2` → `bipush 2` or `ldc 2`
-- `"Hello, World"` → `ldc "Hello, World"`
-- Can distinguish numeric vs string constants
+-   `2` → `bipush 2` or `ldc 2`
+-   `"Hello, World"` → `ldc "Hello, World"`
+-   Can distinguish numeric vs string constants
 
-**LLVM IR Generation**:  
-- `2` → `i32 2`
-- `"Hello, World"` → `i8* getelementptr (...)`
-- Type-aware constant generation
+**LLVM IR Generation**:
+-   `2` → `i32 2`
+-   `"Hello, World"` → `i8* getelementptr (...)`
+-   Type-aware constant generation
 
 **Parsing Strategy**: Backends parse the stored literal values based on the fully qualified type information provided in the IR instruction.
 
@@ -588,17 +588,18 @@ This encoding strategy enables backends to correctly interpret literal values:
 
 ### Java Bytecode Generation (Current Implementation)
 *This section will contain:*
-- Java bytecode generation patterns
-- EK9 to Java type mapping strategies
-- Optimization techniques for Java target
-- Integration with Java ecosystem
+-   Java bytecode generation patterns
+-   EK9 to Java type mapping strategies
+-   Optimization techniques for Java target
+-   Integration with Java ecosystem
 
 ### LLVM C++ Target Support (Planned)
 *This section will contain:*
-- LLVM IR generation planning (early experimental stage)
-- Native compilation strategies
-- Cross-platform considerations
-- Performance optimization approaches
+-   LLVM IR generation planning (early experimental stage)
+-   Native compilation strategies
+-   Memory management strategies
+-   System integration considerations
+-   Performance optimization opportunities
 
 ## Strategic Context: EK9's Multi-Backend Optimization Innovation
 
@@ -608,21 +609,21 @@ EK9's three-phase optimization strategy represents a significant departure from 
 
 #### Traditional Industry Approaches
 
-**Single-Backend Architectures (Dominant Industry Pattern):**
-- **CLANG/LLVM**: Direct AST → LLVM IR → LLVM optimization passes
-- **Rust (rustc)**: HIR → MIR → LLVM IR → LLVM optimization
-- **Go (gc)**: AST → SSA IR → architecture-specific codegen
-- **Java (javac + HotSpot)**: Java → Bytecode → HotSpot JIT optimization
-- **C# (.NET)**: C# → CIL → Runtime JIT optimization
+**Single-Backend Architectures (Dominant Industry Pattern)**:
+-   **CLANG/LLVM**: Direct AST → LLVM IR → LLVM optimization passes
+-   **Rust (rustc)**: HIR → MIR → LLVM IR → LLVM optimization
+-   **Go (gc)**: AST → SSA IR → architecture-specific codegen
+-   **Java (javac + HotSpot)**: Java → Bytecode → HotSpot JIT optimization
+-   **C# (.NET)**: C# → CIL → Runtime JIT optimization
 
-**Industry Standard Pattern:**
+**Industry Standard Pattern**:
 ```
 Language → Target-Specific IR → Target-Specific Optimization
 ```
 
 #### EK9's Multi-Backend Innovation
 
-**EK9's Three-Phase Strategy:**
+**EK9's Three-Phase Strategy**:
 ```
 Phase 10: Rich Semantic IR → Future Phase 12: Global Optimization → Multiple Target Backends
                               ↓                              ↓
@@ -632,68 +633,68 @@ Phase 10: Rich Semantic IR → Future Phase 12: Global Optimization → Multiple
 
 ### Competitive Analysis Matrix
 
-| Capability | Rust | Go | Java | C# | CLANG | **EK9** |
-|------------|------|----|----|-----|-------|---------|
-| **Multi-Backend Support** | ❌ LLVM-only | ❌ gc-only | ❌ JVM-only | ❌ .NET-only | ❌ LLVM-only | **🟡 JVM Complete + LLVM Planned** |
-| **Semantic IR Preservation** | 🟡 MIR adequate | ❌ Low-level SSA | ❌ JVM-specific | ❌ .NET-specific | ❌ Low-level LLVM | **✅ Rich cross-target** |
-| **Cross-Target Optimization** | ❌ LLVM-bound | ❌ Single target | ❌ JVM-bound | ❌ .NET-bound | ❌ LLVM-bound | **🟡 Planned Phase 12** |
-| **Backend Agnostic Design** | ❌ LLVM-influenced | 🟡 Some independence | ❌ JVM-constrained | ❌ .NET-constrained | ❌ LLVM-constrained | **✅ True independence** |
-| **Optimization Composability** | ❌ LLVM-only | ❌ Compile-time only | 🟡 Runtime-focused | 🟡 Runtime-focused | 🟡 Compile-time only | **✅ Compile+Runtime+Static** |
+| Capability                 | Rust       | Go           | Java          | C#            | CLANG        | **EK9**                        |
+|:---------------------------|:-----------|:-------------|:--------------|:--------------|:-------------|:-------------------------------|
+| **Multi-Backend Support**  | ❌ LLVM-only | ❌ gc-only     | ❌ JVM-only     | ❌ .NET-only    | ❌ LLVM-only   | **🟡 JVM Complete + LLVM Planned** |
+| **Semantic IR Preservation** | 🟡 MIR adequate | ❌ Low-level SSA | ❌ JVM-specific | ❌ .NET-specific | ❌ Low-level LLVM | **✅ Rich cross-target**        |
+| **Cross-Target Optimization**| ❌ LLVM-bound | ❌ Single target | ❌ JVM-bound    | ❌ .NET-bound   | ❌ LLVM-bound  | **🟡 Planned Phase 12**          |
+| **Backend Agnostic Design**| ❌ LLVM-influenced| 🟡 Some independence | ❌ JVM-constrained| ❌ .NET-constrained| ❌ LLVM-constrained| **✅ True independence**       |
+| **Optimization Composability**| ❌ LLVM-only | ❌ Compile-time only | 🟡 Runtime-focused| 🟡 Runtime-focused| 🟡 Compile-time only| **✅ Compile+Runtime+Static**  |
 
 ### Strategic Advantages of EK9's Approach
 
 #### ✅ **Unique Competitive Advantages**
 
-1. **Multi-Backend Native Design (Planned)**
-   - Industry: Choose target first, optimize for it
-   - EK9: Designed to optimize for multiple targets simultaneously (JVM complete, LLVM planned)
+1.  **Multi-Backend Native Design (Planned)**
+    -   Industry: Choose target first, optimize for it
+    -   EK9: Designed to optimize for multiple targets simultaneously (JVM complete, LLVM planned)
 
-2. **Cross-Target Optimization Investment (Architecture)**
-   - Industry: Optimization work is target-specific and non-transferable
-   - EK9: Planned Phase 12 optimizations will benefit all backends once implemented
+2.  **Cross-Target Optimization Investment (Architecture)**
+    -   Industry: Optimization work is target-specific and non-transferable
+    -   EK9: Planned Phase 12 optimizations will benefit all backends once implemented
 
-3. **Semantic Richness at Scale**
-   - Industry: Early lowering loses high-level optimization opportunities
-   - EK9: Preserve complete semantic context through global optimization phase
+3.  **Semantic Richness at Scale**
+    -   Industry: Early lowering loses high-level optimization opportunities
+    -   EK9: Preserve complete semantic context through global optimization phase
 
-4. **Backend-Agnostic Language Evolution**
-   - Industry: Language features constrained by target capabilities
-   - EK9: Language features designed for optimal expression across all targets
+4.  **Backend-Agnostic Language Evolution**
+    -   Industry: Language features constrained by target capabilities
+    -   EK9: Language features designed for optimal expression across all targets
 
-5. **Optimization Strategy Flexibility**
-   - Industry: Committed to single approach (static vs JIT vs hybrid)
-   - EK9: Compose compile-time + runtime + static optimization simultaneously
+5.  **Optimization Strategy Flexibility**
+    -   Industry: Committed to single approach (static vs JIT vs hybrid)
+    -   EK9: Compose compile-time + runtime + static optimization simultaneously
 
 #### 🎯 **Potential Industry Impact**
 
 **If Successful, EK9 Could Pioneer:**
-- Multi-backend compiler architectures becoming industry standard
-- Semantic IR preservation being prioritized over early optimization
-- Cross-target optimization sharing reducing industry development costs
-- Backend-agnostic language design becoming competitive advantage
+-   Multi-backend compiler architectures becoming industry standard
+-   Semantic IR preservation being prioritized over early optimization
+-   Cross-target optimization sharing reducing industry development costs
+-   Backend-agnostic language design becoming competitive advantage
 
 ### Risk Assessment
 
 #### ⚠️ **Strategic Risks**
-- **Complexity**: Three-phase approach unproven at production scale
-- **Performance**: Additional phases could impact compilation speed
-- **Maintenance**: Multiple backend support increases complexity
-- **Market Adoption**: Industry momentum favors proven single-backend approaches
+-   **Complexity**: Three-phase approach unproven at production scale
+-   **Performance**: Additional phases could impact compilation speed
+-   **Maintenance**: Multiple backend support increases complexity
+-   **Market Adoption**: Industry momentum favors proven single-backend approaches
 
 #### 🚀 **Strategic Opportunities**
-- **Performance**: Designed for superior optimization across current and future targets
-- **Development Efficiency**: Shared optimization reduces per-target work
-- **Future-Proofing**: New backends benefit from existing optimization work
-- **Competitive Differentiation**: Unique position in compiler landscape
+-   **Performance**: Designed for superior optimization across current and future targets
+-   **Development Efficiency**: Shared optimization reduces per-target work
+-   **Future-Proofing**: New backends benefit from existing optimization work
+-   **Competitive Differentiation**: Unique position in compiler landscape
 
 ### Architectural Decision Implications
 
 This strategic context reinforces why EK9's IR generation philosophy is **fundamentally different** from industry norms:
 
-- **Verbose IR is a feature**, not inefficiency
-- **Semantic richness enables cross-backend optimization**
-- **Phase separation is strategic**, not just organizational
-- **Medium-level constructs serve multiple targets** (JVM implemented, LLVM planned, future targets)
+-   **Verbose IR is a feature**, not inefficiency
+-   **Semantic richness enables cross-backend optimization**
+-   **Phase separation is strategic**, not just organizational
+-   **Medium-level constructs serve multiple targets** (JVM implemented, LLVM planned, future targets)
 
 **Key Insight**: EK9's approach trades compilation complexity for runtime performance potential across multiple targets - a strategic architectural bet designed for current JVM and future LLVM targets.
 
@@ -745,13 +746,13 @@ _temp4 = QUESTION_BLOCK [
 #### LLVM Optimization Effectiveness ✅ **Excellent**
 LLVM's optimization passes handle redundant null check elimination exceptionally well:
 
-**LLVM Optimization Passes:**
-- **EarlyCSE**: Common Subexpression Elimination removes duplicate IS_NULL checks
-- **GVN**: Global Value Numbering identifies equivalent null check computations  
-- **LICM**: Loop-Invariant Code Motion hoists null checks out of loops
-- **DeadStoreElimination**: Removes redundant memory operations
+**LLVM Optimization Passes**:
+-   **EarlyCSE**: Common Subexpression Elimination removes duplicate IS_NULL checks
+-   **GVN**: Global Value Numbering identifies equivalent null check computations  
+-   **LICM**: Loop-Invariant Code Motion hoists null checks out of loops
+-   **DeadStoreElimination**: Removes redundant memory operations
 
-**LLVM IR Example:**
+**LLVM IR Example**:
 ```llvm
 ; Before optimization
 %null1 = icmp eq ptr %value, null
@@ -766,13 +767,13 @@ LLVM's optimization passes handle redundant null check elimination exceptionally
 #### JVM/HotSpot Optimization Effectiveness ✅ **Excellent**
 HotSpot's C1/C2 compilers excel at null check elimination:
 
-**HotSpot Optimizations:**
-- **Null Check Elimination**: Removes provably redundant null checks
-- **Range Check Elimination**: Similar pattern for array bounds
-- **Method Inlining**: Can see across method boundaries for interprocedural optimization
-- **Profile-Guided Optimization**: Uses runtime feedback to optimize frequent patterns
+**HotSpot Optimizations**:
+-   **Null Check Elimination**: Removes provably redundant null checks
+-   **Range Check Elimination**: Similar pattern for array bounds
+-   **Method Inlining**: Can see across method boundaries for interprocedural optimization
+-   **Profile-Guided Optimization**: Uses runtime feedback to optimize frequent patterns
 
-**Bytecode Optimization Example:**
+**Bytecode Optimization Example**:
 ```java
 // Before HotSpot optimization
 if (value == null) // First null check
@@ -788,23 +789,23 @@ if (value == null) // Single null check, result reused
 **CARDINAL RULE: Phase 10 IR Generation is for CORRECTNESS and SEMANTIC RICHNESS, NOT efficiency**
 
 ### ❌ NEVER Do These "Optimizations" in IR Generation:
-- ❌ **Reduce LOAD/RETAIN/SCOPE_REGISTER sequences** - This destroys semantic context
-- ❌ **Combine multiple operations into fewer IR instructions** - This reduces optimization opportunities  
-- ❌ **"Fix" apparent duplication** - The duplication IS the feature
-- ❌ **Make IR generation "more efficient"** - Efficiency happens in Phase 12 and backends
-- ❌ **Worry about IR instruction count** - More instructions = more optimization opportunities
+-   ❌ **Reduce LOAD/RETAIN/SCOPE_REGISTER sequences** - This destroys semantic context
+-   ❌ **Combine multiple operations into fewer IR instructions** - This reduces optimization opportunities  
+-   ❌ **"Fix" apparent duplication** - The duplication IS the feature
+-   ❌ **Make IR generation "more efficient"** - Efficiency happens in Phase 12 and backends
+-   ❌ **Worry about IR instruction count** - More instructions = more optimization opportunities
 
 ### ✅ ALWAYS Do These in IR Generation:
-- ✅ **Generate complete semantic information** - Every temporary, every retention, every scope registration
-- ✅ **Make operations explicit** - Better to over-specify than under-specify
-- ✅ **Maintain independence between IR generators** - Each generator should work without complex state
-- ✅ **Preserve all debug information** - Line numbers, positions, type information
-- ✅ **Follow memory management patterns religiously** - Even if it seems "redundant"
+-   ✅ **Generate complete semantic information** - Every temporary, every retention, every scope registration
+-   ✅ **Make operations explicit** - Better to over-specify than under-specify
+-   ✅ **Maintain independence between IR generators** - Each generator should work without complex state
+-   ✅ **Preserve all debug information** - Line numbers, positions, type information
+-   ✅ **Follow memory management patterns religiously** - Even if it seems "redundant"
 
-**WHY THIS MATTERS:**
-- **Phase 12** needs complete semantic context to make global optimization decisions
-- **Backends** need rich information to apply sophisticated target-specific optimizations  
-- **Early optimization** destroys the information later phases need to be truly optimal
+**WHY THIS MATTERS**:
+-   **Phase 12** needs complete semantic context to make global optimization decisions
+-   **Backends** need rich information to apply sophisticated target-specific optimizations  
+-   **Early optimization** destroys the information later phases need to be truly optimal
 
 ### Optimization Strategy Decision: Correctness-First Approach
 
@@ -813,10 +814,10 @@ if (value == null) // Single null check, result reused
 ### IR Generation Strategy: Simplicity and Semantic Clarity
 
 **Current Approach (Phase 10: IR_GENERATION)**:
-- **Each operation loads variables independently** - even if the same variable is used multiple times
-- **Explicit memory management** - every LOAD gets its own RETAIN/SCOPE_REGISTER sequence
-- **Simple IR generation code** - each generator works independently without complex state tracking
-- **Complete semantic information** - every operation shows its exact memory management needs
+-   **Each operation loads variables independently** - even if the same variable is used multiple times
+-   **Explicit memory management** - every LOAD gets its own RETAIN/SCOPE_REGISTER sequence
+-   **Simple IR generation code** - each generator works independently without complex state tracking
+-   **Complete semantic information** - every operation shows its exact memory management needs
 
 **Example of Correct "Duplicate" Operations**:
 ```java
@@ -828,85 +829,85 @@ _temp4 = IS_NULL _temp3                // Null check
 _temp6 = CALL (org.ek9.lang::Boolean)_temp3._isSet()  // Method call
 
 // Second operation: Same variable, different usage context
-_temp10 = LOAD value                   // Load for different operation - CORRECT
-RETAIN _temp10                         // Reference count = 1 - CORRECT  
-SCOPE_REGISTER _temp10, _scope_1       // Register for cleanup - CORRECT
+_temp10 = LOAD value                   // Load #2 - CORRECT, NOT redundant
+RETAIN _temp10                         // Retain #2 - CORRECT, NOT redundant  
+SCOPE_REGISTER _temp10, _scope_1       // Register #2 - CORRECT, NOT redundant  
 _temp11 = IS_NULL _temp10              // Different usage context
 ```
 
 **Why This "Duplication" is Correct by Design**:
-1. **Semantic Clarity**: Each operation explicitly shows its memory management requirements
-2. **Simple Code Generation**: No complex state tracking between IR generators required
-3. **Complete Context**: Phase 12 optimization gets full picture of variable usage patterns
-4. **Backend Enablement**: Rich semantic information enables superior backend optimization
+1.  **Semantic Clarity**: Each operation explicitly shows its memory management requirements
+2.  **Simple Code Generation**: No complex state tracking between IR generators required
+3.  **Complete Context**: Phase 12 optimization gets full picture of variable usage patterns
+4.  **Backend Enablement**: Rich semantic information enables superior backend optimization
 
 **Phase 12: IR_OPTIMISATION (Future Enhancement)**
 With complete IR structure, optimization can perform:
-- **Variable Load Coalescing**: Eliminate redundant LOAD/RETAIN/REGISTER sequences within scopes
-- **Stack-Based Optimization**: Convert heap-based reference counting to stack operations where safe
-- **Global Variable Analysis**: Make sophisticated decisions based on complete variable lifetime information
-- **RETAIN/REGISTER Elimination**: Remove unnecessary memory management operations
+-   **Variable Load Coalescing**: Eliminate redundant LOAD/RETAIN/REGISTER sequences within scopes
+-   **Stack-Based Optimization**: Convert heap-based reference counting to stack operations where safe
+-   **Global Variable Analysis**: Make sophisticated decisions based on complete variable lifetime information
+-   **RETAIN/REGISTER Elimination**: Remove unnecessary memory management operations
 
 ## The Three-Phase Optimization Strategy
 
 **🎯 PHASE 7: IR_GENERATION** - *Maximize Semantic Information*
-- **Goal**: Generate correct, complete, semantically rich IR
-- **Approach**: Every operation explicit, every temporary retained, every debug detail preserved
-- **Mindset**: "More IR instructions = more optimization opportunities for later phases"
-- **Success Metric**: Correctness and completeness, NOT efficiency
+-   **Goal**: Generate correct, complete, semantically rich IR
+-   **Approach**: Every operation explicit, every temporary retained, every debug detail preserved
+-   **Mindset**: "More IR instructions = more optimization opportunities for later phases"
+-   **Success Metric**: Correctness and completeness, NOT efficiency
 
 **🎯 PHASE 12: IR_OPTIMISATION** - *Global Context Analysis*  
-- **Goal**: Eliminate redundancy with full program context
-- **Approach**: Variable load coalescing, stack optimization, global lifetime analysis
-- **Mindset**: "Now I have complete semantic context, what can I safely optimize?"
-- **Success Metric**: Provably safe optimization with semantic preservation
+-   **Goal**: Eliminate redundancy with full program context
+-   **Approach**: Variable load coalescing, stack optimization, global lifetime analysis
+-   **Mindset**: "Now I have complete semantic context, what can I safely optimize?"
+-   **Success Metric**: Provably safe optimization with semantic preservation
 
 **🎯 BACKEND PHASES**: *Target-Specific Powerhouse*
-- **Goal**: Leverage target-specific optimization capabilities  
-- **Approach**: Let LLVM/HotSpot apply their sophisticated optimization passes
-- **Mindset**: "Rich semantic information enables superior target optimization"
-- **Success Metric**: Maximum performance on specific target architectures
+-   **Goal**: Leverage target-specific optimization capabilities  
+-   **Approach**: Let LLVM/HotSpot apply their sophisticated optimization passes
+-   **Mindset**: "Rich semantic information enables superior target optimization"
+-   **Success Metric**: Maximum performance on specific target architectures
 
 ### Why This Strategy Works
-**Each Phase Builds On The Previous:**
-- Phase 10 provides the **semantic foundation** for optimization
-- Phase 12 provides **global context** that individual IR generators can't see
-- Backends provide **target-specific expertise** that generic IR can't match
+**Each Phase Builds On The Previous**:
+-   Phase 10 provides the **semantic foundation** for optimization
+-   Phase 12 provides **global context** that individual IR generators can't see
+-   Backends provide **target-specific expertise** that generic IR can't match
 
 **Benefits of Correctness-First Strategy**:
-1. **Separation of Concerns**: IR generation focuses on correctness, optimization focuses on performance
-2. **Maintainable Codebase**: Each IR generator is simple and independent
-3. **Optimization Flexibility**: Complete semantic information enables global optimization decisions
-4. **Correctness Guarantee**: Optimization never breaks semantic correctness
-5. **Maximum Backend Potential**: Rich IR enables backends to achieve their theoretical best performance
+1.  **Separation of Concerns**: IR generation focuses on correctness, optimization focuses on performance
+2.  **Maintainable Codebase**: Each IR generator is simple and independent
+3.  **Optimization Flexibility**: Complete semantic information enables global optimization decisions
+4.  **Correctness Guarantee**: Optimization never breaks semantic correctness
+5.  **Maximum Backend Potential**: Rich IR enables backends to achieve their theoretical best performance
 
-**Benefits of Explicit IS_NULL Approach:**
-1. **Semantic Clarity**: Backends understand null-checking intent precisely
-2. **Optimization Enablement**: Rich semantic information enables better backend optimization
-3. **Debug Transparency**: Null checking logic is visible in IR inspection
-4. **Correctness**: No ambiguity about null safety semantics
+**Benefits of Explicit IS_NULL Approach**:
+1.  **Semantic Clarity**: Backends understand null-checking intent precisely
+2.  **Optimization Enablement**: Rich semantic information enables better backend optimization
+3.  **Debug Transparency**: Null checking logic is visible in IR inspection
+4.  **Correctness**: No ambiguity about null safety semantics
 
 ### General IR Optimization Principles
 
-**Conservative IR-Level Optimizations (Future):**
-- Same variable, same basic block, no intervening assignments
-- Identical operands within small scope windows
-- Clear dataflow analysis showing no mutations between operations
+**Conservative IR-Level Optimizations (Future)**:
+-   Same variable, same basic block, no intervening assignments
+-   Identical operands within small scope windows
+-   Clear dataflow analysis showing no mutations between operations
 
-**Backend-Level Optimizations (Current):**
-- Cross-function optimizations
-- Complex control flow scenarios
-- Target-specific optimizations
-- Interprocedural analysis
-- Profile-guided optimization
+**Backend-Level Optimizations (Current)**:
+-   Cross-function optimizations
+-   Complex control flow scenarios
+-   Target-specific optimizations
+-   Interprocedural analysis
+-   Profile-guided optimization
 
 ### Performance Measurement Strategy
 
-**Optimization Validation Approach:**
-1. **Baseline Measurement**: Profile current backend-optimized performance
-2. **Hotspot Identification**: Identify actual performance bottlenecks in real applications
-3. **Incremental Enhancement**: Add IR-level optimizations only where profiling shows benefit
-4. **Regression Testing**: Ensure optimizations don't break correctness
+**Optimization Validation Approach**:
+1.  **Baseline Measurement**: Profile current backend-optimized performance
+2.  **Hotspot Identification**: Identify actual performance bottlenecks in real applications
+3.  **Incremental Enhancement**: Add IR-level optimizations only where profiling shows benefit
+4.  **Regression Testing**: Ensure optimizations don't break correctness
 
 **Key Insight**: Explicit semantic information (like IS_NULL) **enables** backend optimization rather than hindering it. Backends now have perfect information about null-checking intent, leading to superior optimization results.
 
@@ -914,17 +915,18 @@ With complete IR structure, optimization can perform:
 
 ### Java Target Specifics
 *This section will contain:*
-- Java interoperability requirements
-- JVM limitations and workarounds
-- Performance characteristics
-- Debugging and profiling integration
+-   Java interoperability requirements
+-   JVM limitations and workarounds
+-   Performance characteristics
+-   Debugging and profiling integration
 
 ### Native Target Planning
 *This section will contain:*
-- Native code generation requirements
-- Memory management strategies
-- System integration considerations
-- Performance optimization opportunities
+-   LLVM IR generation planning (early experimental stage)
+-   Native compilation strategies
+-   Memory management strategies
+-   System integration considerations
+-   Performance optimization opportunities
 
 ## IR Debugging and Analysis
 
@@ -932,7 +934,7 @@ With complete IR structure, optimization can perform:
 
 EK9's IR system includes comprehensive debug information support for source mapping and debugging:
 
-**DebugInfo Record Structure:**
+**DebugInfo Record Structure**:
 ```java
 public record DebugInfo(
     String sourceFile,      // Relative .ek9 file path  
@@ -942,15 +944,15 @@ public record DebugInfo(
 )
 ```
 
-**Key Design Decisions:**
-- **Relative Paths**: Uses `CompilableSource.getRelativeFileName()` for portability
-- **Symbol-Driven**: Extracts location from `ISymbol.getSourceToken()`
-- **Optional Integration**: Controlled by `CompilerFlags.isDebuggingInstrumentation()`
-- **IR Comment Format**: `// workarea.ek9:12:15 'original text'`
+**Key Design Decisions**:
+-   **Relative Paths**: Uses `CompilableSource.getRelativeFileName()` for portability
+-   **Symbol-Driven**: Extracts location from `ISymbol.getSourceToken()`
+-   **Optional Integration**: Controlled by `CompilerFlags.isDebuggingInstrumentation()`
+-   **IR Comment Format**: `// workarea.ek9:12:15 'original text'`
 
 ### Debug Information Architecture
 
-**Encapsulation Pattern:**
+**Encapsulation Pattern**:
 ```java
 // DebugInfoCreator encapsulates debug information generation logic
 final class DebugInfoCreator implements Function<ISymbol, DebugInfo> {
@@ -965,18 +967,18 @@ private final DebugInfoCreator debugInfoCreator;
 final var debugInfo = debugInfoCreator.apply(symbol);
 ```
 
-**IR Integration:**
-- All `IRInstruction` subclasses support optional `DebugInfo`
-- Debug information appears as IR comments: `CALL method() // ./file.ek9:10:5`
-- Enables source mapping for target code generation (JVM, LLVM, etc.)
+**IR Integration**:
+-   All `IRInstruction` subclasses support optional `DebugInfo`
+-   Debug information appears as IR comments: `CALL method() // ./file.ek9:10:5`
+-   Enables source mapping for target code generation (JVM, LLVM, etc.)
 
 ### Testing and Verification
 
-**Debug Output Verification:**
-- WorkingAreaTest demonstrates debug instrumentation with `-Dek9.instructionInstrumentation=true`
-- Relative path formatting: `./workarea.ek9:8:17` (not absolute paths)
-- Method call tracking: `CALL _temp6.println(toOutput) // ./workarea.ek9:13:14`
-- Constructor call tracking: `CALL org.ek9.lang::Stdout.<init>() // ./workarea.ek9:8:17`
+**Debug Output Verification**:
+-   WorkingAreaTest demonstrates debug instrumentation with `-Dek9.instructionInstrumentation=true`
+-   Relative path formatting: `./workarea.ek9:8:17` (not absolute paths)
+-   Method call tracking: `CALL _temp6.println(toOutput) // ./workarea.ek9:13:14`
+-   Constructor call tracking: `CALL org.ek9.lang::Stdout.<init>() // ./workarea.ek9:8:17`
 
 ## IR Generation Patterns
 
@@ -984,14 +986,14 @@ final var debugInfo = debugInfoCreator.apply(symbol);
 
 EK9 functions are transformed into class-like constructs with synthetic `_call` methods, following the "Everything as Object" design principle:
 
-**EK9 Source:**
+**EK9 Source**:
 ```ek9
 checkAssert()
   -> arg0 as Boolean
   assert arg0
 ```
 
-**Generated IR Structure:**
+**Generated IR Structure**:
 ```
 ConstructDfn: justAssert::checkAssert
 OperationDfn: justAssert::checkAssert._call()->org.ek9.lang::Void
@@ -1005,21 +1007,21 @@ IRInstruction: SCOPE_EXIT _scope_1
 IRInstruction: RETURN
 ```
 
-**Key Transformation Components:**
-- **FunctionDfnGenerator**: Creates function-as-class constructs with synthetic `_call` methods
-- **OperationDfnGenerator**: Handles function body processing with proper scope management
-- **Synthetic Method Pattern**: Functions become classes with `_call()` methods for uniform invocation
+**Key Transformation Components**:
+-   **FunctionDfnGenerator**: Creates function-as-class constructs with synthetic `_call` methods
+-   **OperationDfnGenerator**: Handles function body processing with proper scope management
+-   **Synthetic Method Pattern**: Functions become classes with `_call()` methods for uniform invocation
 
 ### Assert Statement Processing Pattern
 
 EK9 assert statements convert Boolean expressions to primitive booleans before assertion:
 
-**Processing Steps:**
-1. **Expression Evaluation**: Generate IR to evaluate the assert expression to a temporary variable
-2. **Boolean Conversion**: Call `_true()` method on the Boolean object to get primitive boolean value
-3. **Assertion**: Use ASSERT IR instruction with the primitive boolean result
+**Processing Steps**:
+1.  **Expression Evaluation**: Generate IR to evaluate the assert expression to a temporary variable
+2.  **Boolean Conversion**: Call `_true()` method on the Boolean object to get primitive boolean value
+3.  **Assertion**: Use ASSERT IR instruction with the primitive boolean result
 
-**AssertStmtGenerator Implementation:**
+**AssertStmtGenerator Implementation**:
 ```java
 // Evaluate the assert expression
 final var rhsExprResult = context.generateTempName();
@@ -1045,11 +1047,11 @@ EK9's IR generation includes sophisticated memory ownership tracking through sco
 **[EK9_ARC_MEMORY_MANAGEMENT.md](EK9_ARC_MEMORY_MANAGEMENT.md)**
 
 This document provides comprehensive coverage of:
-- ARC principles and ownership model
-- Declaration vs reassignment patterns
-- Complete memory traces and examples
-- Comparison with Swift's approach
-- Backend implementation details
+-   ARC principles and ownership model
+-   Declaration vs reassignment patterns
+-   Complete memory traces and examples
+-   Comparison with Swift's approach
+-   Backend implementation details
 
 **Key takeaway:** Variables are registered to scopes at **declaration ONLY**, not at reassignment.
 
@@ -1060,48 +1062,48 @@ This document provides comprehensive coverage of:
 **🚨 MOST CRITICAL DISTINCTION:**
 
 **LOCAL VARIABLES** (owned by scope):
-- ✅ RETAIN + SCOPE_REGISTER to declaring scope
-- Released when scope exits
+-   ✅ RETAIN + SCOPE_REGISTER to declaring scope
+-   Released when scope exits
 
 **OBJECT FIELDS** (owned by object):
-- ✅ RETAIN only (NO SCOPE_REGISTER)
-- Released when object is destroyed
-- **Fields initialized in i_init() must NOT be SCOPE_REGISTER'd to i_init scope**
+-   ✅ RETAIN only (NO SCOPE_REGISTER)
+-   Released when object is destroyed
+-   **Fields initialized in i_init() must NOT be SCOPE_REGISTER'd to i_init scope**
 
 **See [EK9_ARC_MEMORY_MANAGEMENT.md](EK9_ARC_MEMORY_MANAGEMENT.md#-critical-object-fields-vs-local-variables) for complete documentation.**
 
 ### General Memory Management Rules
 
 **ALWAYS RETAIN + SCOPE_REGISTER (for local variables/temporaries):**
-- ✅ Object literals: `LOAD_LITERAL "text", org.ek9.lang::String`
-- ✅ Object method calls: `CALL obj._method()` → returns EK9 object
-- ✅ Static object calls: `CALL_STATIC Type._staticMethod()` → returns EK9 object
-- ✅ Variable references: After `STORE var, _temp`
-- ✅ CONTROL_FLOW_CHAIN results (return EK9 objects)
+-   ✅ Object literals: `LOAD_LITERAL "text", org.ek9.lang::String`
+-   ✅ Object method calls: `CALL obj._method()` → returns EK9 object
+-   ✅ Static object calls: `CALL_STATIC Type._staticMethod()` → returns EK9 object
+-   ✅ Variable references: After `STORE var, _temp`
+-   ✅ CONTROL_FLOW_CHAIN results (return EK9 objects)
 
-**NEVER RETAIN/SCOPE_REGISTER:**
-- ❌ Primitive method returns: `obj._true()` → returns primitive `boolean`
-- ❌ IS_NULL results → returns primitive `boolean`
-- ❌ Primitive arithmetic/comparison → returns primitive values
-- ❌ REFERENCE declarations → just declares variable, no object yet
-- ❌ Object fields → RETAIN only, NO SCOPE_REGISTER (owned by object)
+**NEVER RETAIN/SCOPE_REGISTER**:
+-   ❌ Primitive method returns: `obj._true()` → returns primitive `boolean`
+-   ❌ IS_NULL results → returns primitive `boolean`
+-   ❌ Primitive arithmetic/comparison → returns primitive values
+-   ❌ REFERENCE declarations → just declares variable, no object yet
+-   ❌ Object fields → RETAIN only, NO SCOPE_REGISTER (owned by object)
 
-**Common IR Analysis Mistakes:**
-1. **`_temp = CALL obj._true()`** → NO retention needed (primitive boolean)
-2. **`_temp = IS_NULL obj`** → NO retention needed (primitive boolean)
-3. **`_temp = CALL obj._isSet()`** → NEEDS retention (returns Boolean object)
-4. **`_temp = CALL obj._method()`** → NEEDS retention (returns EK9 object)
-5. **`SCOPE_REGISTER this.field, i_init`** → WRONG! Fields must NOT be scope-registered
+**Common IR Analysis Mistakes**:
+1.  **`_temp = CALL obj._true()`** → NO retention needed (primitive boolean)
+2.  **`_temp = IS_NULL obj`** → NO retention needed (primitive boolean)
+3.  **`_temp = CALL obj._isSet()`** → NEEDS retention (returns Boolean object)
+4.  **`_temp = CALL obj._method()`** → NEEDS retention (returns EK9 object)
+5.  **`SCOPE_REGISTER this.field, i_init`** → WRONG! Fields must NOT be scope-registered
 
 ### Field Initialization Pattern (in i_init())
 
-**EK9 Source:**
+**EK9 Source**:
 ```ek9
 class Example
   aField as String := "Steve"
 ```
 
-**Generated IR:**
+**Generated IR**:
 ```
 OperationDfn: Example.i_init()->Void
 BasicBlock: _entry_1
@@ -1115,34 +1117,34 @@ RETAIN this.aField                         ← Field retained
 RETURN
 ```
 
-**Memory Management Flow:**
-1. **Temporary creation**: `_temp1` created, retained, registered to `i_init`
-2. **Field assignment**: `this.aField` stores reference, retains object (refcount=2)
-3. **i_init exit**: `_temp1` released (refcount=1), field remains alive
-4. **Object destruction**: Field released by object destructor
+**Memory Management Flow**:
+1.  **Temporary creation**: `_temp1` created, retained, registered to `i_init`
+2.  **Field assignment**: `this.aField` stores reference, retains object (refcount=2)
+3.  **i_init exit**: `_temp1` released (refcount=1), field remains alive
+4.  **Object destruction**: Field released by object destructor
 
-**Why This Matters:**
-- Fields must outlive `i_init()` method
-- Object uses fields after `i_init()` exits
-- SCOPE_REGISTER to `i_init` would cause premature release → use-after-free
+**Why This Matters**:
+-   Fields must outlive `i_init()` method
+-   Object uses fields after `i_init()` exits
+-   SCOPE_REGISTER to `i_init` would cause premature release → use-after-free
 
-**ShouldRegisterVariableInScope Logic (Two-Tier Architecture):**
-- **Operation Scope Variables** (`_call` scope): Variable registration based on lifetime
-  - **Parameters**: **FALSE** - caller-managed memory, no SCOPE_REGISTER 
-  - **Return variables**: **TRUE** - operation-managed until RETURN
-  - **Parameter temporaries**: **TRUE** - operation-owned temporaries need cleanup
-- **Block Scope Variables** (`_scope_*` scopes): **TRUE** - block-managed memory, needs SCOPE_REGISTER
+**ShouldRegisterVariableInScope Logic (Two-Tier Architecture)**:
+-   **Operation Scope Variables** (`_call` scope): Variable registration based on lifetime
+    -   **Parameters**: **FALSE** - caller-managed memory, no SCOPE_REGISTER 
+    -   **Return variables**: **TRUE** - operation-managed until RETURN
+    -   **Parameter temporaries**: **TRUE** - operation-owned temporaries need cleanup
+-   **Block Scope Variables** (`_scope_*` scopes): **TRUE** - block-managed memory, needs SCOPE_REGISTER
 
 **CRITICAL UNDERSTANDING: Variable Declaration vs Object Reference**
 
-**Variable Declaration (REFERENCE):**
+**Variable Declaration (REFERENCE)**:
 ```java
 // REFERENCE only declares that a variable CAN hold a reference - NO object exists yet
 REFERENCE localVar, org.ek9.lang::Boolean  // Variable declaration only
 // NO SCOPE_REGISTER at this point - localVar doesn't reference any object yet
 ```
 
-**Object Creation and Reference Counting:**
+**Object Creation and Reference Counting**:
 ```java
 // Step 1: Create object and establish first reference
 _temp1 = LOAD_LITERAL true, org.ek9.lang::Boolean  // Create Boolean object
@@ -1155,14 +1157,14 @@ RETAIN localVar                                   // Reference count = 2
 SCOPE_REGISTER localVar, _scope_1                // Register localVar for cleanup
 ```
 
-**Key Memory Management Principles:**
-1. **REFERENCE declares variables** - NO object, NO SCOPE_REGISTER needed
-2. **SCOPE_REGISTER happens when variable references an object** - after STORE operations
-3. **Same object can have multiple variable references** - each gets RETAIN/SCOPE_REGISTER
-4. **Reference counting tracks object lifetime** - SCOPE_EXIT auto-releases all registered variables
-5. **Primitive return values** (like `_true()` method) need NO memory management
+**Key Memory Management Principles**:
+1.  **REFERENCE declares variables** - NO object, NO SCOPE_REGISTER needed
+2.  **SCOPE_REGISTER happens when variable references an object** - after STORE operations
+3.  **Same object can have multiple variable references** - each gets RETAIN/SCOPE_REGISTER
+4.  **Reference counting tracks object lifetime** - SCOPE_EXIT auto-releases all registered variables
+5.  **Primitive return values** (like `_true()` method) need NO memory management
 
-**Parameter Handling Pattern (Two-Tier Architecture):**
+**Parameter Handling Pattern (Two-Tier Architecture)**:
 ```java
 // Parameters get REFERENCE declaration only - no scope registration in _call scope
 instructions.add(MemoryInstr.reference(paramName, paramType, debugInfo));
@@ -1207,11 +1209,11 @@ RETAIN variableName                          // Reference count = 2 for new obje
 // NO SCOPE_REGISTER                         // Variable already registered at declaration!
 ```
 
-**Memory Management Rules:**
-1. **SCOPE_REGISTER happens at variable declaration** - When variable first references an object
-2. **Reassignments do NOT SCOPE_REGISTER** - Variable already registered to declaring scope
-3. **Declaring scope owns the variable** - Releases whatever it points to at scope exit
-4. **Scope exit releases CURRENT value** - Not the value at registration time
+**Memory Management Rules**:
+1.  **SCOPE_REGISTER happens at variable declaration** - When variable first references an object
+2.  **Reassignments do NOT SCOPE_REGISTER** - Variable already registered to declaring scope
+3.  **Declaring scope owns the variable** - Releases whatever it points to at scope exit
+4.  **Scope exit releases CURRENT value** - Not the value at registration time
 
 ### CRITICAL: Understanding "Duplicate" Memory Operations
 
@@ -1236,21 +1238,21 @@ _temp4 = IS_NULL _temp3                // Null check for guarded assignment
 
 // Second operation: Question operator on same variable  
 _temp10 = LOAD value                   // Load #2 - CORRECT, NOT redundant
-RETAIN _temp10                         // Retain #2 - CORRECT, NOT redundant
+RETAIN _temp10                         // Retain #2 - CORRECT, NOT redundant  
 SCOPE_REGISTER _temp10, _scope_1       // Register #2 - CORRECT, NOT redundant  
-_temp11 = IS_NULL _temp10              // Null check for question operator
+_temp11 = IS_NULL _temp10              // Different usage context
 ```
 
 **Why Multiple Loads Are Necessary**:
-1. **Semantic Independence**: Each operation must show its complete memory management requirements
-2. **Phase 12 Context**: Optimization phase needs to see all variable usage patterns to make global decisions
-3. **Backend Flexibility**: Backends can optimize based on complete semantic information
-4. **Simple Generators**: Each IR generator works independently without complex state management
+1.  **Semantic Clarity**: Each operation explicitly shows its memory management requirements
+2.  **Phase 12 Context**: Optimization phase needs to see all variable usage patterns to make global decisions
+3.  **Backend Flexibility**: Backends can optimize based on complete semantic information
+4.  **Simple Generators**: Each IR generator works independently without complex state management
 
 **Safe RELEASE on Uninitialized Variables**: The `RELEASE` operation before first assignment is safe and avoids explicit null checks:
 ```java
 REFERENCE value, org.ek9.lang::Integer        // Declaration only - no object yet
-_temp1 = LOAD_LITERAL 1, org.ek9.lang::Integer
+_temp1 = LOAD_LITERAL true, org.ek9.lang::Boolean
 RETAIN _temp1
 SCOPE_REGISTER _temp1, _scope_1
 RELEASE value                                 // SAFE on uninitialized - backend handles null check
@@ -1267,13 +1269,13 @@ EK9 uses a sophisticated **two-tier scope architecture** that combines implicit 
 
 **Key Architectural Decision**: Operation scopes are **structurally implicit** within `OperationDfn` boundaries, not procedurally explicit via SCOPE_ENTER/EXIT instructions.
 
-**Rationale for Implicit Design:**
-- **Language Semantics**: Method/function boundaries are structural in EK9 (like most languages), not procedural constructs
-- **Backend Alignment**: Both JVM and LLVM expect implicit function scope (method frames vs function definitions)
-- **IR Clarity**: Eliminates redundant SCOPE_ENTER/_call/SCOPE_EXIT/_call pairs at every operation
-- **Proven Architecture**: Current tests demonstrate correct memory management with this approach
+**Rationale for Implicit Design**:
+-   **Language Semantics**: Method/function boundaries are structural in EK9 (like most languages), not procedural constructs
+-   **Backend Alignment**: Both JVM and LLVM expect implicit function scope (method frames vs function definitions)
+-   **IR Clarity**: Eliminates redundant SCOPE_ENTER/_call/SCOPE_EXIT/_call pairs at every operation
+-   **Proven Architecture**: Current tests demonstrate correct memory management with this approach
 
-**Implicit Operation Scope Example:**
+**Implicit Operation Scope Example**:
 ```
 OperationDfn: module::function._call(arg1, arg2) -> ReturnType
 BasicBlock: _entry_1
@@ -1289,17 +1291,17 @@ RETAIN rtn
 RETURN rtn                              // Implicit _call scope cleanup occurs here
 ```
 
-**Memory Management in Implicit Scopes:**
-- **Scope Entry**: Implicit at OperationDfn/BasicBlock start
-- **Variable Registration**: `SCOPE_REGISTER variable, _call` references implicit scope
-- **Scope Cleanup**: Implicit at RETURN instruction (not explicit SCOPE_EXIT)
-- **Backend Handling**: JVM method frame cleanup, LLVM function return cleanup
+**Memory Management in Implicit Scopes**:
+-   **Scope Entry**: Implicit at OperationDfn/BasicBlock start
+-   **Variable Registration**: `SCOPE_REGISTER variable, _call` references implicit scope
+-   **Scope Cleanup**: Implicit at RETURN instruction (not explicit SCOPE_EXIT)
+-   **Backend Handling**: JVM method frame cleanup, LLVM function return cleanup
 
 #### **Tier 2: Explicit Block Scopes (`_scope_N`)**
 
 **Block scopes within operations are explicitly managed** because they represent procedural constructs that require explicit lifetime management.
 
-**Explicit Block Scope Example:**
+**Explicit Block Scope Example**:
 ```
 SCOPE_ENTER _scope_1                    // Explicit entry for instruction block
 _temp2 = LOGICAL_AND_BLOCK              // Block-level computation
@@ -1312,87 +1314,87 @@ SCOPE_REGISTER _temp2, _scope_1         // Block result registered to block scop
 SCOPE_EXIT _scope_1                     // Explicit cleanup of block scope
 ```
 
-**Block Scope Lifecycle:**
-- **Scope Entry**: Explicit SCOPE_ENTER instruction
-- **Variable Registration**: All temporary variables within block registered
-- **Scope Cleanup**: Explicit SCOPE_EXIT instruction with automatic RELEASE of all registered variables
+**Block Scope Lifecycle**:
+-   **Scope Entry**: Explicit SCOPE_ENTER instruction
+-   **Variable Registration**: All temporary variables within block registered
+-   **Scope Cleanup**: Explicit SCOPE_EXIT instruction with automatic RELEASE of all registered variables
 
 #### **Architecture Benefits**
 
-**1. Semantic Accuracy:**
-- Operation scopes reflect natural language boundaries (implicit method scope)
-- Block scopes reflect procedural constructs requiring explicit management
+**1. Semantic Accuracy**:
+-   Operation scopes reflect natural language boundaries (implicit method scope)
+-   Block scopes reflect procedural constructs requiring explicit management
 
-**2. Backend Compatibility:**
-- **JVM**: Implicit operation scopes map to method frame lifecycle
-- **LLVM**: Implicit operation scopes map to function definition boundaries
-- **Both**: Explicit block scopes map to local variable lifetime management
+**2. Backend Compatibility**:
+-   **JVM**: Implicit operation scopes map to method frame lifecycle
+-   **LLVM**: Implicit operation scopes map to function definition boundaries
+-   **Both**: Explicit block scopes map to local variable lifetime management
 
-**3. IR Clarity:**
-- Clean separation between method-level vs block-level scope concerns
-- Reduced IR verbosity (no redundant operation scope instructions)
-- SCOPE_REGISTER clearly indicates which scope owns each variable
+**3. IR Clarity**:
+-   Clean separation between method-level vs block-level scope concerns
+-   Reduced IR verbosity (no redundant operation scope instructions)
+-   SCOPE_REGISTER clearly indicates which scope owns each variable
 
-**4. Memory Management Correctness:**
-- Implicit operation scope cleanup at RETURN ensures proper method exit
-- Explicit block scope cleanup prevents memory leaks within method body
-- Two-tier model prevents scope registration confusion
+**4. Memory Management Correctness**:
+-   Implicit operation scope cleanup at RETURN ensures proper method exit
+-   Explicit block scope cleanup prevents memory leaks within method body
+-   Two-tier model prevents scope registration confusion
 
 #### **Implementation Guidelines**
 
-**For Operation Scope Variables:**
+**For Operation Scope Variables**:
 ```
 SCOPE_REGISTER returnVariable, _call    // Return variables owned by operation
 SCOPE_REGISTER parameterTemps, _call    // Parameter temporaries owned by operation
 ```
 
-**For Block Scope Variables:**  
+**For Block Scope Variables**:  
 ```
 SCOPE_REGISTER localTemps, _scope_1     // Local computations owned by block
 SCOPE_REGISTER blockResults, _scope_1   // Block results owned by block
 ```
 
-**Scope Cleanup Expectations:**
-- `_call` scope: Cleanup occurs implicitly at operation end (RETURN)
-- `_scope_N` scope: Cleanup occurs explicitly at SCOPE_EXIT instruction
+**Scope Cleanup Expectations**:
+-   `_call` scope: Cleanup occurs implicitly at operation end (RETURN)
+-   `_scope_N` scope: Cleanup occurs explicitly at SCOPE_EXIT instruction
 
 #### **Backend Implementation Guidance**
 
-**JVM Backend (Java Bytecode):**
-- **Implicit Operation Scopes**: No special handling required
-  - Method frame automatically provides operation scope boundaries
-  - SCOPE_REGISTER to `_call` scope tracks variables for method exit cleanup
-  - RETURN instruction triggers automatic local variable cleanup
-- **Explicit Block Scopes**: Map to local variable scope management
-  - SCOPE_ENTER → Local variable table entry point
-  - SCOPE_EXIT → Local variable table exit point + cleanup logic
+**JVM Backend (Java Bytecode)**:
+-   **Implicit Operation Scopes**: No special handling required
+    -   Method frame automatically provides operation scope boundaries
+    -   SCOPE_REGISTER to `_call` scope tracks variables for method exit cleanup
+    -   RETURN instruction triggers automatic local variable cleanup
+-   **Explicit Block Scopes**: Map to local variable scope management
+    -   SCOPE_ENTER → Local variable table entry point
+    -   SCOPE_EXIT → Local variable table exit point + cleanup logic
 
-**LLVM Backend (Planned C++ Target):**
-- **Implicit Operation Scopes**: Function boundary management
-  - Function definition provides operation scope boundaries
-  - SCOPE_REGISTER to `_call` scope tracks variables for function exit cleanup  
-  - RETURN instruction triggers ARC release of registered variables
-- **Explicit Block Scopes**: Map to LLVM local scope blocks
-  - SCOPE_ENTER → LLVM block entry with variable lifetime tracking
-  - SCOPE_EXIT → ARC release of block-registered variables
+**LLVM Backend (Planned C++ Target)**:
+-   **Implicit Operation Scopes**: Function boundary management
+    -   Function definition provides operation scope boundaries
+    -   SCOPE_REGISTER to `_call` scope tracks variables for function exit cleanup  
+    -   RETURN instruction triggers ARC release of registered variables
+-   **Explicit Block Scopes**: Map to LLVM local scope blocks
+    -   SCOPE_ENTER → LLVM block entry with variable lifetime tracking
+    -   SCOPE_EXIT → ARC release of block-registered variables
 
-**Cross-Backend Consistency:**
+**Cross-Backend Consistency**:
 Both backends handle implicit operation scopes naturally through their function/method constructs, while explicit block scopes require scope management logic. This architectural alignment validates the two-tier design choice.
 
 #### **Stack-Based Migration Success**
 
 The current two-tier architecture resulted from the successful **stack-based scope migration** that eliminated parameter threading throughout IR generation:
 
-**Before Migration Issues:**
-- Artificial `_return_1` scopes causing registration mismatches  
-- Complex parameter threading of scope IDs
-- Scope entry/exit inconsistencies
+**Before Migration Issues**:
+-   Artificial `_return_1` scopes causing registration mismatches  
+-   Complex parameter threading of scope IDs
+-   Scope entry/exit inconsistencies
 
-**After Migration Benefits:**
-- Clean operation scope (`_call`) without artificial subdivisions
-- Stack-based scope management via `IRGenerationContext`
-- Consistent scope registration and memory management
-- All Boolean expression tests pass with correct IR generation
+**After Migration Benefits**:
+-   Clean operation scope (`_call`) without artificial subdivisions
+-   Stack-based scope management via `IRGenerationContext`
+-   Consistent scope registration and memory management
+-   All Boolean expression tests pass with correct IR generation
 
 **Migration Validation**: The corrected IR in Boolean expression tests demonstrates that the two-tier architecture produces semantically correct, backend-ready IR with proper memory management patterns.
 
@@ -1400,7 +1402,7 @@ The current two-tier architecture resulted from the successful **stack-based sco
 
 **Discovery Context**: During if/else statement implementation, debug tracing revealed a three-tier scope structure that initially appeared unexpected but is architecturally correct.
 
-**The Three-Tier Scope Structure for Control Flow:**
+**The Three-Tier Scope Structure for Control Flow**:
 
 ```
 Function/Method Body:
@@ -1441,41 +1443,41 @@ Function/Method Body:
   SCOPE_EXIT _scope_1
 ```
 
-**Scope Hierarchy Explanation:**
+**Scope Hierarchy Explanation**:
 
 **Tier 1: Function Body Scope (`_scope_1`)**
-- **Origin**: `OperationDfnGenerator.processInstructionBlock()` (lines 156-166)
-- **Purpose**: Standard function/method body scope created for ALL operations
-- **Lifecycle**: Enters at function start, exits at function RETURN
-- **Memory Management**: Holds function-level variables and temporaries
-- **Universality**: Every function/method gets this scope automatically
+-   **Origin**: `OperationDfnGenerator.processInstructionBlock()` (lines 156-166)
+-   **Purpose**: Standard function/method body scope created for ALL operations
+-   **Lifecycle**: Enters at function start, exits at function RETURN
+-   **Memory Management**: Holds function-level variables and temporaries
+-   **Universality**: Every function/method gets this scope automatically
 
 **Tier 2: Control Flow Chain Scope (`_scope_2`)**
-- **Origin**: `IfStatementGenerator.apply()` creates chain scope for entire if/else-if/else structure
-- **Purpose**: Scope for condition evaluation temporaries shared across all branches
-- **Lifecycle**: Enters before CONTROL_FLOW_CHAIN, exits after all branches complete
-- **Memory Management**: Condition temporaries registered here for cleanup after branching
-- **Benefits**: Condition evaluation cleanup happens once, not per-branch
+-   **Origin**: `IfStatementGenerator.apply()` creates chain scope for entire if/else-if/else structure
+-   **Purpose**: Scope for condition evaluation temporaries shared across all branches
+-   **Lifecycle**: Enters before CONTROL_FLOW_CHAIN, exits after all branches complete
+-   **Memory Management**: Condition temporaries registered here for cleanup after branching
+-   **Benefits**: Condition evaluation cleanup happens once, not per-branch
 
 **Tier 3: Branch Body Scopes (`_scope_3`, `_scope_4`, `_scope_5`, etc.)**
-- **Origin**: `processIfControlBlockWithBranchScope()` and `processElseBlockWithBranchScope()`
-- **Purpose**: Isolated scopes for each branch body (if, else-if, else)
-- **Lifecycle**: Enters at branch start, exits at branch end
-- **Memory Management**: Branch-local variables registered here
-- **Benefits**: Each branch has isolated lifetime for local variables
+-   **Origin**: `processIfControlBlockWithBranchScope()` and `processElseBlockWithBranchScope()`
+-   **Purpose**: Isolated scopes for each branch body (if, else-if, else)
+-   **Lifecycle**: Enters at branch start, exits at branch end
+-   **Memory Management**: Branch-local variables registered here
+-   **Benefits**: Each branch has isolated lifetime for local variables
 
-**Semantic Correctness Rationale:**
+**Semantic Correctness Rationale**:
 
-1. **Condition Temporaries in Chain Scope**: Condition evaluation happens BEFORE branch selection, so temporaries must live in parent scope (_scope_2), not branch scopes
-2. **Unique Branch Scopes**: Each branch body gets its own scope to prevent variable lifetime conflicts between mutually exclusive branches
-3. **Automatic Function Scope**: _scope_1 is standard for all operations, providing consistent function-level scope management
+1.  **Condition Temporaries in Chain Scope**: Condition evaluation happens BEFORE branch selection, so temporaries must live in parent scope (_scope_2), not branch scopes
+2.  **Unique Branch Scopes**: Each branch body gets its own scope to prevent variable lifetime conflicts between mutually exclusive branches
+3.  **Automatic Function Scope**: _scope_1 is standard for all operations, providing consistent function-level scope management
 
-**Key Implementation Locations:**
-- **Function Scope Creation**: `OperationDfnGenerator.java:156-166`
-- **Chain Scope Creation**: `IfStatementGenerator.java:50-56`
-- **Branch Scope Creation**: `IfStatementGenerator.java:134-148` (if/else-if) and `169-179` (else)
+**Key Implementation Locations**:
+-   **Function Scope Creation**: `OperationDfnGenerator.java:156-166`
+-   **Chain Scope Creation**: `IfStatementGenerator.java:50-56`
+-   **Branch Scope Creation**: `IfStatementGenerator.java:134-148` (if/else-if) and `169-179` (else)
 
-**Debug Verification:**
+**Debug Verification**:
 Debug logging added in Phase 7 implementation confirmed this three-tier structure is correct and semantically necessary for proper memory management and scope isolation in control flow constructs.
 
 ## Medium-Level IR: LOGICAL_AND_BLOCK and LOGICAL_OR_BLOCK
@@ -1488,11 +1490,11 @@ EK9 introduces a novel medium-level IR approach for Boolean logical operations t
 
 ### Architecture Philosophy
 
-**Problem with Traditional Approaches:**
-- **Low-level PHI nodes**: LLVM PHI predecessor relationship issues, complex maintenance
-- **Basic block IRs**: Backend-specific, poor cross-target portability  
-- **Pure functional IRs**: Loss of imperative execution semantics
-- **Runtime branching**: Limited optimization opportunities
+**Problem with Traditional Approaches**:
+-   **Low-level PHI nodes**: LLVM PHI predecessor relationship issues, complex maintenance
+-   **Basic block IRs**: Backend-specific, poor cross-target portability  
+-   **Pure functional IRs**: Loss of imperative execution semantics
+-   **Runtime branching**: Limited optimization opportunities
 
 **EK9's Solution: Medium-Level Declarative Blocks**
 ```
@@ -1562,12 +1564,12 @@ _temp_result = LOGICAL_OR_BLOCK  // debug_info
 
 ### Complex Expression Example
 
-**EK9 Source:**
+**EK9 Source**:
 ```ek9
 rtn: arg0 and (arg1 or arg2)
 ```
 
-**Generated IR:**
+**Generated IR**:
 ```
 _temp2 = LOGICAL_AND_BLOCK  // ./workarea.ek9:35:17
 {
@@ -1617,42 +1619,42 @@ _temp2 = LOGICAL_AND_BLOCK  // ./workarea.ek9:35:17
 ### Key Design Principles
 
 #### 1. Complete Path Pre-computation
-- **All execution paths** are evaluated during IR generation
-- **Right operand evaluation** instructions fully computed
-- **Result computation** instructions (EK9 method calls) fully specified
-- **No runtime path construction** required
+-   **All execution paths** are evaluated during IR generation
+-   **Right operand evaluation** instructions fully computed
+-   **Result computation** instructions (EK9 method calls) fully specified
+-   **No runtime path construction** required
 
 #### 2. Dual Semantic Preservation  
-- **Primitive boolean conditions** (`left_condition`) for backend control flow optimization
-- **EK9 Boolean objects** (`left_operand`, `right_operand`, `logical_result`) for language semantics
-- **Both representations available** simultaneously for backend choice
+-   **Primitive boolean conditions** (`left_condition`) for backend control flow optimization
+-   **EK9 Boolean objects** (`left_operand`, `right_operand`, `logical_result`) for language semantics
+-   **Both representations available** simultaneously for backend choice
 
 #### 3. Single Condition Model
-- Only **left condition needed** for short-circuit decisions
-- **AND operation**: if `left_condition` is false → short-circuit to `left_operand`
-- **OR operation**: if `left_condition` is true → short-circuit to `left_operand` 
-- **Right condition irrelevant** in short-circuit evaluation
+-   Only **left condition needed** for short-circuit decisions
+-   **AND operation**: if `left_condition` is false → short-circuit to `left_operand`
+-   **OR operation**: if `left_condition` is true → short-circuit to `left_operand`
+-   **Right condition irrelevant** in short-circuit evaluation
 
 #### 4. Context-Aware Memory Management
 **Fundamental Rule**: The location where a variable is first created/accessed owns the memory management responsibility.
 
-- **First creation point** determines `RETAIN`/`SCOPE_REGISTER` responsibility
-- **Context awareness**: Different variable origins (parameter, local, return) have different scope rules
-- **No duplication**: Only one location handles memory management per variable
-- **Lifecycle correctness**: Variables managed according to their actual usage context
+-   **First creation point** determines `RETAIN`/`SCOPE_REGISTER` responsibility
+-   **Context awareness**: Different variable origins (parameter, local, return) have different scope rules
+-   **No duplication**: Only one location handles memory management per variable
+-   **Lifecycle correctness**: Variables managed according to their actual usage context
 
 **Example Applications**:
-- **Return parameters**: Should NOT be scope-registered (outlive current scope)
-- **Local variables**: Should be scope-registered for cleanup
-- **Parameters**: Context-dependent scope registration
-- **Intermediate results**: Appropriate scope management based on role
+-   **Return parameters**: Should NOT be scope-registered (outlive current scope)
+-   **Local variables**: Should be scope-registered for cleanup
+-   **Parameters**: Context-dependent scope registration
+-   **Intermediate results**: Appropriate scope management based on role
 
 #### 5. Context-Aware Variable Creation
 **Key Principle**: The calling context determines variable handling - whether a result is expected and how it should be managed.
 
 **Statement vs Expression Context Distinction**:
-- **Statement context** (`someFunction();`): No result variable expected, caller passes `null` resultVariable
-- **Expression context** (`result = someFunction();`): Result variable provided by caller
+-   **Statement context** (`someFunction();`): No result variable expected, caller passes `null` resultVariable
+-   **Expression context** (`result = someFunction();`): Result variable provided by caller
 
 **Context-Aware Implementation**:
 ```java
@@ -1672,22 +1674,22 @@ if (resultDetails.resultVariable() == null) {
 ```
 
 **Memory Management Responsibility Separation**:
-- **CallInstrGenerator**: Knows when temp variables are needed based on context
-- **VariableMemoryManagement**: Handles memory lifecycle for local variables
-- **Constructor calls**: Handle own object lifecycle, no additional memory management needed
-- **Field assignments**: Object lifecycle manages memory, not temporary variables
+-   **CallInstrGenerator**: Knows when temp variables are needed based on context
+-   **VariableMemoryManagement**: Handles memory lifecycle for local variables
+-   **Constructor calls**: Handle own object lifecycle, no additional memory management needed
+-   **Field assignments**: Object lifecycle manages memory, not temporary variables
 
 **Benefits of Context-Aware Design**:
-- **Eliminates unnecessary temp variables**: Void function calls don't create unused temps
-- **Proper memory management**: Only variables needing lifecycle management get RETAIN/SCOPE_REGISTER
-- **Clear separation of concerns**: Each component knows its responsibility context
-- **More efficient IR**: Reduces instruction overhead for common statement patterns
+-   **Eliminates unnecessary temp variables**: Void function calls don't create unused temps
+-   **Proper memory management**: Only variables needing lifecycle management get RETAIN/SCOPE_REGISTER
+-   **Clear separation of concerns**: Each component knows its responsibility context
+-   **More efficient IR**: Reduces instruction overhead for common statement patterns
 
 ### Backend Mapping Strategies
 
 #### LLVM Backend Lowering
 
-**Short-Circuit Branch Strategy:**
+**Short-Circuit Branch Strategy**:
 ```llvm
 ; Left operand evaluation and condition check
 %left_operand = call %EK9Boolean @evaluate_left_operand()
@@ -1713,14 +1715,14 @@ merge:
                                   [%logical_result, %evaluate_right]
 ```
 
-**LLVM Advantages:**
-- **Proper PHI predecessors**: Each PHI has correct basic block relationships  
-- **Pre-computed instruction sequences**: LLVM optimization passes can analyze complete paths
-- **Speculative execution support**: Both paths available for parallel execution
+**LLVM Advantages**:
+-   **Proper PHI predecessors**: Each PHI has correct basic block relationships  
+-   **Pre-computed instruction sequences**: LLVM optimization passes can analyze complete paths
+-   **Speculative execution support**: Both paths available for parallel execution
 
 #### JVM Backend Lowering
 
-**Flexible Strategy Selection:**
+**Flexible Strategy Selection**:
 
 **Option 1: Short-Circuit Bytecode**
 ```java
@@ -1752,85 +1754,85 @@ ALOAD right_operand_var
 INVOKEVIRTUAL EK9Boolean.and(EK9Boolean;)EK9Boolean;
 ```
 
-**JVM Advantages:**
-- **Context-driven optimization**: Can choose short-circuit vs full evaluation per usage
-- **Stack-based efficiency**: Natural fit for JVM execution model
-- **JIT optimization opportunities**: HotSpot can optimize frequent patterns
+**JVM Advantages**:
+-   **Context-driven optimization**: Can choose short-circuit vs full evaluation per usage
+-   **Stack-based efficiency**: Natural fit for JVM execution model
+-   **JIT optimization opportunities**: HotSpot can optimize frequent patterns
 
 ### Performance Characteristics and CPU Architecture Benefits
 
 #### Modern CPU Optimization Opportunities
 
-**Branch Prediction Enhancement:**
-- **Pre-computed paths enable unprecedented branch prediction optimization**
-- **Static analysis hints**: Backends can provide branch probability information
-- **Dual path prefetching**: CPUs can prefetch both short-circuit and full evaluation paths
-- **Pipeline preparation**: Method calls and instruction sequences can be pre-pipelined
+**Branch Prediction Enhancement**:
+-   **Pre-computed paths enable unprecedented branch prediction optimization**
+-   **Static analysis hints**: Backends can provide branch probability information
+-   **Dual path prefetching**: CPUs can prefetch both short-circuit and full evaluation paths
+-   **Pipeline preparation**: Method calls and instruction sequences can be pre-pipelined
 
-**Speculative Execution Benefits:**
-- **Parallel path execution**: Modern CPUs can execute both paths speculatively
-- **Result selection**: Choose correct path when condition resolves  
-- **Cache optimization**: Pre-computed instruction sequences enable superior cache layout
+**Speculative Execution Benefits**:
+-   **Parallel path execution**: Modern CPUs can execute both paths speculatively
+-   **Result selection**: Choose correct path when condition resolves  
+-   **Cache optimization**: Pre-computed instruction sequences enable superior cache layout
 
-**CPU Architecture Specific Advantages:**
+**CPU Architecture Specific Advantages**:
 
-**Intel Ice Lake/Sapphire Rapids:**
-- **µop Cache optimization**: Pre-computed paths fit perfectly in micro-op cache patterns
-- **Enhanced branch prediction**: Static hints improve branch predictor accuracy
-- **Better execution port utilization**: Known instruction sequences improve scheduling
+**Intel Ice Lake/Sapphire Rapids**:
+-   **µop Cache optimization**: Pre-computed paths fit perfectly in micro-op cache patterns
+-   **Enhanced branch prediction**: Static hints improve branch predictor accuracy
+-   **Better execution port utilization**: Known instruction sequences improve scheduling
 
-**AMD Zen 4:**
-- **Op Cache optimization**: Predictable instruction patterns improve op cache usage
-- **Branch Target Buffer**: Better BTB utilization with pre-known targets  
-- **Execution unit scheduling**: Pre-computed dependency chains improve parallel execution
+**AMD Zen 4**:
+-   **Op Cache optimization**: Predictable instruction patterns improve op cache usage
+-   **Branch Target Buffer**: Better BTB utilization with pre-known targets  
+-   **Execution unit scheduling**: Pre-computed dependency chains improve parallel execution
 
-**ARM Neoverse V1/V2:**
-- **Branch Target Identification**: Enhanced security with compile-time known targets
-- **Instruction fetch patterns**: Improved instruction fetch with predictable sequences
-- **SVE integration**: Vector operations can be pre-planned and optimized
+**ARM Neoverse V1/V2**:
+-   **Branch Target Identification**: Enhanced security with compile-time known targets
+-   **Instruction fetch patterns**: Improved instruction fetch with predictable sequences
+-   **SVE integration**: Vector operations can be pre-planned and optimized
 
 #### Competitive Analysis vs Industry IRs
 
-| Feature | EK9 LOGICAL_BLOCK | MLIR | XLA HLO | Swift SIL | V8 Turbofan |
-|---------|-------------------|------|---------|-----------|-------------|
-| **Abstraction Level** | **Medium-High** | Medium | High | Medium-Low | Medium-Low |
-| **Path Pre-computation** | **✅ Complete** | ❌ On-demand | ❌ Functional | ❌ Basic blocks | ❌ Speculative |
-| **Dual Semantics** | **✅ Primitive + Object** | ❌ Single | ❌ Functional | ❌ Basic blocks | ❌ Speculative |  
-| **Backend Agnostic** | **✅ Clean mapping** | Requires dialects | Tensor-focused | Swift-specific | JS-specific |
-| **Branch Prediction** | **✅ Advanced hints** | Standard | N/A | Standard | Profile-guided |
-| **CPU Architecture** | **✅ Future-optimized** | General | ML-optimized | Mobile-focused | JS-optimized |
+| Feature                | EK9 LOGICAL_BLOCK | MLIR          | XLA HLO       | Swift SIL   | V8 Turbofan   |
+|:-----------------------|:------------------|:--------------|:--------------|:--------------|:--------------|
+| **Abstraction Level**  | **Medium-High**   | Medium        | High          | Medium-Low    | Medium-Low    |
+| **Path Pre-computation** | **✅ Complete**     | ❌ On-demand  | ❌ Functional | ❌ Basic blocks | ❌ Speculative |
+| **Dual Semantics**     | **✅ Primitive + Object** | ❌ Single     | ❌ Functional | ❌ Basic blocks | ❌ Speculative |
+| **Backend Agnostic**   | **✅ Clean mapping**| Requires dialects | Tensor-focused | Swift-specific | JS-specific   |
+| **Branch Prediction**  | **✅ Advanced hints** | Standard      | N/A           | Standard      | Profile-guided |
+| **CPU Architecture**   | **✅ Future-optimized** | General       | ML-optimized  | Mobile-focused | JS-optimized  |
 
-**Strategic Positioning:**
-- **More structured** than low-level basic block IRs
-- **More explicit** than pure functional IRs  
-- **More self-contained** than dialect-based systems
-- **Better backend flexibility** than runtime-specific IRs
-- **Future-proof** for modern CPU architectures
+**Strategic Positioning**:
+-   **More structured** than low-level basic block IRs
+-   **More explicit** than pure functional IRs  
+-   **More self-contained** than dialect-based systems
+-   **Better backend flexibility** than runtime-specific IRs
+-   **Future-proof** for modern CPU architectures
 
 ### Implementation Classes and Patterns
 
 #### Core IR Instructions
-- **`LogicalOperationInstr`**: Base class for LOGICAL_AND_BLOCK and LOGICAL_OR_BLOCK
-- **`IROpcode.LOGICAL_AND_BLOCK`**: Enum value for AND operations
-- **`IROpcode.LOGICAL_OR_BLOCK`**: Enum value for OR operations
+-   **`LogicalOperationInstr`**: Base class for LOGICAL_AND_BLOCK and LOGICAL_OR_BLOCK
+-   **`IROpcode.LOGICAL_AND_BLOCK`**: Enum value for AND operations
+-   **`IROpcode.LOGICAL_OR_BLOCK`**: Enum value for OR operations
 
 #### Generator Classes
-- **`ShortCircuitAndGenerator`**: Generates LOGICAL_AND_BLOCK IR structures
-- **`ShortCircuitOrGenerator`**: Generates LOGICAL_OR_BLOCK IR structures  
-- **`CallDetailsForTrue`**: Helper for consistent Boolean-to-primitive conversion
+-   **`ShortCircuitAndGenerator`**: Generates LOGICAL_AND_BLOCK IR structures
+-   **`ShortCircuitOrGenerator`**: Generates LOGICAL_OR_BLOCK IR structures  
+-   **`CallDetailsForTrue`**: Helper for consistent Boolean-to-primitive conversion
 
 #### Integration Points
-- **`ExprInstrGenerator`**: Uses logical generators for AND/OR expressions
-- **`RecordExprProcessing`**: Handles nested expression evaluation with proper memory management
-- **Memory Management**: Context-aware RETAIN/SCOPE_REGISTER following first-creation ownership rules
+-   **`ExprInstrGenerator`**: Uses logical generators for AND/OR expressions
+-   **`RecordExprProcessing`**: Handles nested expression evaluation with proper memory management
+-   **Memory Management**: Context-aware RETAIN/SCOPE_REGISTER following first-creation ownership rules
 
 ### Testing and Validation
 
 #### Test-Driven Development Pattern
-- **`WorkingAreaTest`**: Live testing environment for IR generation validation
-- **Complex expression testing**: Mixed AND/OR expressions like `arg0 and (arg1 or arg2)`
-- **Memory management validation**: Ensures no duplicate RETAIN/SCOPE_REGISTER calls
-- **Formatting validation**: Clean, readable IR output with proper nested indentation
+-   **`WorkingAreaTest`**: Live testing environment for IR generation validation
+-   **Complex expression testing**: Mixed AND/OR expressions like `arg0 and (arg1 or arg2)`
+-   **Memory management validation**: Ensures no duplicate RETAIN/SCOPE_REGISTER calls
+-   **Formatting validation**: Clean, readable IR output with proper nested indentation
 
 #### Debug Output Analysis
 ```
@@ -1838,28 +1840,28 @@ INVOKEVIRTUAL EK9Boolean.and(EK9Boolean;)EK9Boolean;
 mvn test -Dtest=WorkingAreaTest -Dek9.instructionInstrumentation=true
 ```
 
-**Example debug output shows:**
-- **Complete path pre-computation**: All right_evaluation and result_computation instructions visible
-- **Proper nesting**: Nested LOGICAL_OR_BLOCK inside LOGICAL_AND_BLOCK correctly formatted
-- **Memory management**: Context-aware, non-duplicated memory handling
-- **Debug location tracking**: Each instruction annotated with source location
+**Example debug output shows**:
+-   **Complete path pre-computation**: All right_evaluation and result_computation instructions visible
+-   **Proper nesting**: Nested LOGICAL_OR_BLOCK inside LOGICAL_AND_BLOCK correctly formatted
+-   **Memory management**: Context-aware, non-duplicated memory handling
+-   **Debug location tracking**: Each instruction annotated with source location
 
 ### Future Extensions
 
 The LOGICAL_AND_BLOCK/LOGICAL_OR_BLOCK pattern establishes a foundation for **comprehensive medium-level IR constructs**:
 
 #### Planned Control Flow Extensions
-- **`CONDITIONAL_BLOCK`**: if/else statements with similar pre-computation approach
-- **`CONTROL_FLOW_CHAIN`**: EK9 switch statements with sequential case evaluation
-- **`WHILE_BLOCK`**: Loop constructs with condition and body pre-computation  
-- **`EXCEPTION_BLOCK`**: try/catch with exception handling path pre-computation
-- **`ITERATION_BLOCK`**: for loops with iterator and body pre-computation
+-   **`CONDITIONAL_BLOCK`**: if/else statements with similar pre-computation approach
+-   **`CONTROL_FLOW_CHAIN`**: EK9 switch statements with sequential case evaluation
+-   **`WHILE_BLOCK`**: Loop constructs with condition and body pre-computation  
+-   **`EXCEPTION_BLOCK`**: try/catch with exception handling path pre-computation
+-   **`ITERATION_BLOCK`**: for loops with iterator and body pre-computation
 
 #### Consistency Benefits
-- **Unified IR vocabulary**: All control flow uses similar declarative block structures
-- **Common optimization patterns**: Backends can apply similar optimization strategies across all constructs
-- **Consistent memory management**: Same context-aware ownership rules apply to all blocks
-- **Predictable performance**: Similar CPU architecture optimization opportunities across all control flow
+-   **Unified IR vocabulary**: All control flow uses similar declarative block structures
+-   **Common optimization patterns**: Backends can apply similar optimization strategies across all constructs
+-   **Consistent memory management**: Same context-aware ownership rules apply to all blocks
+-   **Predictable performance**: Similar CPU architecture optimization opportunities across all control flow
 
 ## High-Level IR: QUESTION_BLOCK and GUARDED_ASSIGNMENT_BLOCK
 
@@ -1973,10 +1975,10 @@ merge:
 #### Composition Benefits
 
 **Code Reuse**: GUARDED_ASSIGNMENT_BLOCK reuses QUESTION_BLOCK logic, ensuring:
-- **Consistent null-safety semantics** across operators
-- **Single source of truth** for null checking logic  
-- **Reduced maintenance burden** with shared implementation
-- **Optimization consistency** across both constructs
+-   **Consistent null-safety semantics** across operators
+-   **Single source of truth** for null checking logic  
+-   **Reduced maintenance burden** with shared implementation
+-   **Optimization consistency** across both constructs
 
 ### Performance Characteristics
 
@@ -1999,20 +2001,20 @@ assert value?   // Third null check in assertion
 ### Implementation Classes
 
 #### Core IR Instructions
-- **`QuestionOperatorInstr`**: QUESTION_BLOCK instruction with explicit null check condition
-- **`GuardedAssignmentBlockInstr`**: GUARDED_ASSIGNMENT_BLOCK instruction with composition
-- **`IROpcode.QUESTION_BLOCK`**: Enum value for question operator blocks
-- **`IROpcode.GUARDED_ASSIGNMENT_BLOCK`**: Enum value for guarded assignment blocks
+-   **`QuestionOperatorInstr`**: QUESTION_BLOCK instruction with explicit null check condition
+-   **`GuardedAssignmentBlockInstr`**: GUARDED_ASSIGNMENT_BLOCK instruction with composition
+-   **`IROpcode.QUESTION_BLOCK`**: Enum value for question operator blocks
+-   **`IROpcode.GUARDED_ASSIGNMENT_BLOCK`**: Enum value for guarded assignment blocks
 
 #### Generator Classes  
-- **`QuestionBlockGenerator`**: Generates QUESTION_BLOCK IR with explicit IS_NULL
-- **`GuardedAssignmentBlockGenerator`**: Generates GUARDED_ASSIGNMENT_BLOCK using composition
-- **`GuardedAssignmentGenerator`**: Simplified wrapper using block generator delegation
+-   **`QuestionBlockGenerator`**: Generates QUESTION_BLOCK IR with explicit IS_NULL
+-   **`GuardedAssignmentBlockGenerator`**: Generates GUARDED_ASSIGNMENT_BLOCK using composition
+-   **`GuardedAssignmentGenerator`**: Simplified wrapper using block generator delegation
 
 #### Integration and Composition
-- **Composition Pattern**: GuardedAssignmentBlockGenerator reuses QuestionBlockGenerator logic
-- **Semantic Consistency**: Both constructs use identical null-safety evaluation logic
-- **Memory Management**: Standard RETAIN/SCOPE_REGISTER patterns with proper cleanup
+-   **Composition Pattern**: GuardedAssignmentBlockGenerator reuses QuestionBlockGenerator logic
+-   **Semantic Consistency**: Both constructs use identical null-safety evaluation logic
+-   **Memory Management**: Standard RETAIN/SCOPE_REGISTER patterns with proper cleanup
 
 ### Testing and Real-World Usage
 
@@ -2025,45 +2027,45 @@ guardedAssignment()
 ```
 
 **Generated IR Highlights**:
-- **Explicit null checking**: `IS_NULL` instructions provide clear semantics
-- **Composition reuse**: Guarded assignment uses QUESTION_BLOCK internally  
-- **Backend optimization ready**: Clear control flow for optimization passes
-- **Memory safety**: Proper RETAIN/RELEASE/SCOPE_REGISTER patterns
+-   **Explicit null checking**: `IS_NULL` instructions provide clear semantics
+-   **Composition reuse**: Guarded assignment uses QUESTION_BLOCK internally  
+-   **Backend optimization ready**: Clear control flow for optimization passes
+-   **Memory safety**: Proper RETAIN/RELEASE/SCOPE_REGISTER patterns
 
 ### Strategic Benefits
 
 **Developer Benefits**:
-- **Predictable null-safety**: Clear semantics for null handling
-- **Composable operations**: Question operator and guarded assignment work together cleanly
-- **Debug transparency**: IR inspection shows exact null-checking logic
+-   **Predictable null-safety**: Clear semantics for null handling
+-   **Composable operations**: Question operator and guarded assignment work together cleanly
+-   **Debug transparency**: IR inspection shows exact null-checking logic
 
 **Backend Benefits**:
-- **Optimization enablement**: Explicit semantics enable superior optimization
-- **Target flexibility**: High-level constructs allow target-specific lowering strategies
-- **Performance predictability**: Clear performance characteristics across targets
+-   **Optimization enablement**: Explicit semantics enable superior optimization
+-   **Target flexibility**: High-level constructs allow target-specific lowering strategies
+-   **Performance predictability**: Clear performance characteristics across targets
 
 **Compiler Benefits**:
-- **Code reuse**: Composition reduces implementation complexity from 76 to ~15 lines
-- **Consistency**: Single source of truth for null-safety logic
-- **Maintainability**: Shared implementation reduces bug surface area
+-   **Code reuse**: Composition reduces implementation complexity from 76 to ~15 lines
+-   **Consistency**: Single source of truth for null-safety logic
+-   **Maintainability**: Shared implementation reduces bug surface area
 
 ## Implementation Patterns
 
 ### Common IR Transformation Patterns
-- **Symbol-Driven Processing**: Always use `parsedModule.getRecordedSymbol(ctx)` instead of text parsing
-- **Temporary Variable Generation**: Use `context.generateTempName()` for intermediate results
-- **Debug Information Integration**: Apply consistent debug info from `DebugInfoCreator`
-- **Type-Safe Operations**: All operations use fully qualified type names
+-   **Symbol-Driven Processing**: Always use `parsedModule.getRecordedSymbol(ctx)` instead of text parsing
+-   **Temporary Variable Generation**: Use `context.generateTempName()` for intermediate results
+-   **Debug Information Integration**: Apply consistent debug info from `DebugInfoCreator`
+-   **Type-Safe Operations**: All operations use fully qualified type names
 
 ### Error Handling in Code Generation
-- **Null Validation**: All generators validate input parameters with `AssertValue.checkNotNull()`
-- **Symbol Type Checking**: Verify expected symbol types before processing (e.g., `instanceof AggregateSymbol`)
-- **Context Preservation**: Maintain parse context relationships for error reporting
+-   **Null Validation**: All generators validate input parameters with `AssertValue.checkNotNull()`
+-   **Symbol Type Checking**: Verify expected symbol types before processing (e.g., `instanceof AggregateSymbol`)
+-   **Context Preservation**: Maintain parse context relationships for error reporting
 
 ### Resource Management Strategies
-- **Scope-Based Cleanup**: Use SCOPE_ENTER/SCOPE_EXIT for automatic memory management
-- **Ownership Tracking**: Distinguish between caller-owned (parameters) and function-owned (locals) memory
-- **Reference Counting**: Apply RETAIN/RELEASE based on ownership and scope registration
+-   **Scope-Based Cleanup**: Use SCOPE_ENTER/SCOPE_EXIT for automatic memory management
+-   **Ownership Tracking**: Distinguish between caller-owned (parameters) and function-owned (locals) memory
+-   **Reference Counting**: Apply RETAIN/RELEASE based on ownership and scope registration
 
 ## Constructor Calls and Memory Management Architecture
 
@@ -2073,7 +2075,7 @@ EK9's constructor call IR generation is designed to work optimally across both J
 
 #### Constructor Call IR Patterns
 
-**EK9 Constructor Calls Generate This IR:**
+**EK9 Constructor Calls Generate This IR**:
 ```
 // super() constructor call
 _temp1 = CALL (constructorCalls::Base)constructorCalls::Base.<init>() [pure=false, complexity=1, effects=RETURN_MUTATION]
@@ -2088,7 +2090,7 @@ _temp_i_init = CALL (constructorCalls::Child)this.i_init() [pure=false, complexi
 
 #### JVM Backend: Object-Oriented Native Approach
 
-**Constructor Translation:**
+**Constructor Translation**:
 ```java
 // EK9 IR: _temp1 = CALL (constructorCalls::Base)constructorCalls::Base.<init>()
 // JVM Bytecode:
@@ -2097,14 +2099,14 @@ INVOKESPECIAL Base.<init>()V   // Call super constructor (VOID return)
 // IR return value ignored - JVM modifies 'this' in-place
 ```
 
-**Memory Management:**
-- **Constructor returns**: Ignored (JVM handles object identity)
-- **RETAIN/RELEASE instructions**: Ignored (GC handles automatically)  
-- **SCOPE_ENTER/SCOPE_EXIT**: Ignored (JVM stack/locals handle scope)
+**Memory Management**:
+-   **Constructor returns**: Ignored (JVM handles object identity)
+-   **RETAIN/RELEASE instructions**: Ignored (GC handles automatically)  
+-   **SCOPE_ENTER/SCOPE_EXIT**: Ignored (JVM stack/locals handle scope)
 
 #### LLVM Native Backend: VTable and ARC Integration
 
-**Object Structure:**
+**Object Structure**:
 ```c
 typedef struct Child {
     ek9_RefCount* ref_count;        // ← SINGLE ARC counter for entire object
@@ -2115,7 +2117,7 @@ typedef struct Child {
 } Child;
 ```
 
-**Constructor Translation:**
+**Constructor Translation**:
 ```c
 // EK9 IR: _temp1 = CALL (constructorCalls::Base)constructorCalls::Base.<init>()
 Base* _temp1 = Base_constructor_init(this);  
@@ -2155,7 +2157,7 @@ ek9_release(parameter->ref_count);      // When parameter leaves scope
 
 ### Constructor Delegation Support
 
-**EK9 Constructor Delegation Example:**
+**EK9 Constructor Delegation Example**:
 ```ek9
 Example()
   -> input as String  
@@ -2165,7 +2167,7 @@ Example()
   this("Default")   // Delegate to parameterized constructor
 ```
 
-**Generated IR (Simplified):**
+**Generated IR (Simplified)**:
 ```
 // Constructor 1: Example(String)
 _temp_i_init = CALL (Example)this.i_init()
@@ -2176,8 +2178,8 @@ _temp2 = LOAD_LITERAL "Default"
 _temp1 = CALL (Example)Example.<init>(_temp2)  // Delegate call
 ```
 
-**LLVM Native Implementation:**
-```c
+**LLVM Native Implementation**:
+```cpp
 // Delegating constructor
 Example* Example_constructor_default(Example* this) {
     String* param = String_from_literal("Default");
@@ -2193,13 +2195,13 @@ Example* Example_constructor_default(Example* this) {
 
 ### VTable Initialization During Construction
 
-**Construction Sequence:**
-1. **Object Allocation**: Single `malloc()` for entire object hierarchy
-2. **Parent Constructor**: Sets up base vtable and parent fields  
-3. **Child Constructor**: Upgrades to full child vtable with overrides
-4. **Field Initialization**: Individual fields get proper ARC management
+**Construction Sequence**:
+1.  **Object Allocation**: Single `malloc()` for entire object hierarchy
+2.  **Parent Constructor**: Sets up base vtable and parent fields  
+3.  **Child Constructor**: Upgrades to full child vtable with overrides
+4.  **Field Initialization**: Individual fields get proper ARC management
 
-**VTable Progression:**
+**VTable Progression**:
 ```c
 // Step 1: super.<init>() sets base vtable
 this->vtable = &Base_vtable_instance;     // Parent methods only
@@ -2208,7 +2210,7 @@ this->vtable = &Base_vtable_instance;     // Parent methods only
 this->vtable = &Child_vtable_instance;    // Child + overridden parent methods
 ```
 
-**Single ARC Counter Throughout:**
+**Single ARC Counter Throughout**:
 ```c
 // One reference counter manages entire object lifecycle
 this->ref_count->count = 1;  // Set once, never changes during construction
@@ -2220,18 +2222,18 @@ free(this);                      // Single deallocation
 
 ### Multi-Target Architecture Benefits
 
-1. **JVM Backend**: Uses natural object-oriented constructor semantics and GC
-2. **LLVM Backend**: Explicit control over vtable initialization and ARC lifecycle  
-3. **Constructor Delegation**: Works seamlessly in both backends with object identity preservation
-4. **Optimization Ready**: Rich IR enables backend-specific optimization (LLVM passes, HotSpot JIT)
-5. **Debug Support**: Object identity maintained throughout construction in both targets
+1.  **JVM Backend**: Uses natural object-oriented constructor semantics and GC
+2.  **LLVM Backend**: Explicit control over vtable initialization and ARC lifecycle  
+3.  **Constructor Delegation**: Works seamlessly in both backends with object identity preservation
+4.  **Optimization Ready**: Rich IR enables backend-specific optimization (LLVM passes, HotSpot JIT)
+5.  **Debug Support**: Object identity maintained throughout construction in both targets
 
 This architecture demonstrates EK9's multi-backend design philosophy: generate semantically rich IR that each backend can interpret according to its strengths and constraints.
 
 ### Testing and Validation Approaches
-- **@IR Directive Pattern**: Embed expected IR in EK9 source files for test-driven IR development
-- **AbstractIRGenerationTest**: Standard test infrastructure for IR generation validation
-- **Debug Instrumentation**: Enable debug output with `-Dek9.instructionInstrumentation=true` for verification
+-   **@IR Directive Pattern**: Embed expected IR in EK9 source files for test-driven IR development
+-   **AbstractIRGenerationTest**: Standard test infrastructure for IR generation validation
+-   **Debug Instrumentation**: Enable debug output with `-Dek9.instructionInstrumentation=true` for verification
 
 ## IR + Bytecode Test Development Workflow
 
@@ -2244,18 +2246,18 @@ When implementing new language features or control flow constructs, follow this 
 **Location**: `/examples/irGeneration/<category>/`
 
 **Steps**:
-1. Create `.ek9` file with EK9 source code for the feature
-2. Add `@IR` directive with `PLACEHOLDER` content:
-   ```ek9
-   @IR: IR_GENERATION: FUNCTION: "module::functionName": `
-   [PLACEHOLDER - will be filled after capturing actual IR]
-   `
-   ```
-3. Create corresponding JUnit test extending `AbstractIRGenerationTest`
-4. Run test with `showIR=true` in constructor to capture actual IR output
-5. Copy the generated IR output and update the `@IR` directive
-6. Set `showIR=false` in test constructor
-7. Verify test passes with bytecode validation enabled
+1.  Create `.ek9` file with EK9 source code for the feature
+2.  Add `@IR` directive with `PLACEHOLDER` content:
+    ```ek9
+    @IR: IR_GENERATION: FUNCTION: "module::functionName": `
+    [PLACEHOLDER - will be filled after capturing actual IR]
+    `
+    ```
+3.  Create corresponding JUnit test extending `AbstractIRGenerationTest`
+4.  Run test with `showIR=true` in constructor to capture actual IR output
+5.  Copy the generated IR output and update the `@IR` directive
+6.  Set `showIR=false` in test constructor
+7.  Verify test passes with bytecode validation enabled
 
 **Example Test Class**:
 ```java
@@ -2275,18 +2277,18 @@ class LoopIRTest extends AbstractIRGenerationTest {
 **Location**: `/examples/bytecodeGeneration/<testName>/`
 
 **Steps**:
-1. Create `.ek9` file in dedicated subdirectory
-2. Create corresponding `<TestName>Test.java` extending `AbstractBytecodeGenerationTest`
-3. Add `@BYTECODE` directive with `PLACEHOLDER`:
-   ```ek9
-   @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "module::TypeName": `
-   [PLACEHOLDER - will be filled after capturing actual bytecode]
-   `
-   ```
-4. Run test with `showBytecode=true` to capture actual bytecode
-5. **CRITICAL**: Copy bytecode starting on SAME LINE as closing backtick (see formatting rules below)
-6. Set `showBytecode=false` in test constructor
-7. Verify test passes
+1.  Create `.ek9` file in dedicated subdirectory
+2.  Create corresponding `<TestName>Test.java` extending `AbstractBytecodeGenerationTest`
+3.  Add `@BYTECODE` directive with `PLACEHOLDER`:
+    ```ek9
+    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "module::TypeName": `
+    [PLACEHOLDER - will be filled after capturing actual bytecode]
+    `
+    ```
+4.  Run test with `showBytecode=true` to capture actual bytecode
+5.  **CRITICAL**: Copy bytecode starting on SAME LINE as closing backtick (see formatting rules below)
+6.  Set `showBytecode=false` in test constructor
+7.  Verify test passes
 
 **Example Test Class**:
 ```java
@@ -2333,9 +2335,10 @@ public class bytecode.test.SimpleDoWhileLoop {
 ```
 
 **Why This Matters**:
-- `LineByLineComparator` splits content by `\n` and compares line counts
-- Starting on a new line adds an empty line that doesn't exist in actual bytecode output
-- Exact line count matching is required for test to pass
+-   `LineByLineComparator` splits content by `
+` and compares line counts
+-   Starting on a new line adds an empty line that doesn't exist in actual bytecode output
+-   Exact line count matching is required for test to pass
 
 **Best Practice**: Copy the exact format from existing working tests like `simpleWhileLoop.ek9`
 
@@ -2344,12 +2347,12 @@ public class bytecode.test.SimpleDoWhileLoop {
 #### Symptom: "Number of lines differ: expected X, actual Y"
 
 **Common Causes**:
-1. **Bytecode starts on new line** ← Most common issue
-   - Fix: Put `public class...` on same line as closing backtick
-2. **Extra indentation in bytecode content**
-   - Fix: Remove leading spaces (bytecode should have no extra indentation)
-3. **Missing/extra trailing newlines**
-   - Fix: Use `od -c` to inspect exact bytes, or copy from working test
+1.  **Bytecode starts on new line** ← Most common issue
+    -   Fix: Put `public class...` on same line as closing backtick
+2.  **Extra indentation in bytecode content**
+    -   Fix: Remove leading spaces (bytecode should have no extra indentation)
+3.  **Missing/extra trailing newlines**
+    -   Fix: Use `od -c` to inspect exact bytes, or copy from working test
 
 #### Symptom: "Line N differs - Expected: [] Actual: [public class...]"
 
@@ -2380,52 +2383,52 @@ diff <(sed -n '11,83p' simpleWhileLoop.ek9) <(sed -n '11,83p' simpleDoWhileLoop.
 
 #### Step-by-Step Process
 
-1. **Enable showBytecode in test constructor**:
-   ```java
-   public OperatorMappingTest() {
-       super("/examples/bytecodeGeneration/operatorMapping",
-           List.of(new SymbolCountCheck("bytecode.test.operators", 2)),
-           false, false, true);  // showBytecode = true
-   }
-   ```
+1.  **Enable showBytecode in test constructor**:
+    ```java
+    public OperatorMappingTest() {
+        super("/examples/bytecodeGeneration/operatorMapping",
+            List.of(new SymbolCountCheck("bytecode.test.operators", 2)),
+            false, false, true);  // showBytecode = true
+    }
+    ```
 
-2. **Run the test**:
-   ```bash
-   mvn test -Dtest=OperatorMappingTest -pl compiler-main
-   ```
+2.  **Run the test**:
+    ```bash
+    mvn test -Dtest=OperatorMappingTest -pl compiler-main
+    ```
 
-3. **Capture the output**: The test outputs normalized bytecode to stdout:
-   ```
-   === Generated Bytecode ===
+3.  **Capture the output**: The test outputs normalized bytecode to stdout:
+    ```
+    === Generated Bytecode ===
 
-   Class file: OperatorTestClass.class
-   public class bytecode.test.operators.OperatorTestClass implements org.ek9.lang.Any
+    Class file: OperatorTestClass.class
+    public class bytecode.test.operators.OperatorTestClass implements org.ek9.lang.Any
 
-   {
-     static {};
-       Code:
-            0: return
-   ...
-   ```
+    {
+      static {};
+        Code:
+             0: return
+    ... 
+    ```
 
-4. **Copy bytecode to @BYTECODE directive**: Copy the output starting from `public class...` and paste into the EK9 source file's `@BYTECODE` directive (on the SAME line as the backtick).
+4.  **Copy bytecode to @BYTECODE directive**: Copy the output starting from `public class...` and paste into the EK9 source file's `@BYTECODE` directive (on the SAME line as the backtick).
 
-5. **Disable showBytecode**:
-   ```java
-           false, false, false);  // showBytecode = false - @BYTECODE directive verified
-   ```
+5.  **Disable showBytecode**:
+    ```java
+            false, false, false);  // showBytecode = false - @BYTECODE directive verified
+    ```
 
-6. **Verify test passes**:
-   ```bash
-   mvn test -Dtest=OperatorMappingTest -pl compiler-main
-   ```
+6.  **Verify test passes**:
+    ```bash
+    mvn test -Dtest=OperatorMappingTest -pl compiler-main
+    ```
 
 #### Why Use This Approach
 
-- **Accuracy**: Bytecode is normalized by `BytecodeNormalizer.normalize()` ensuring consistent format
-- **Efficiency**: No manual bytecode construction or guessing slot allocations
-- **Maintenance**: When bytecode generation changes, re-capture with `showBytecode=true`
-- **Debugging**: Easy to see what bytecode was actually generated vs expected
+-   **Accuracy**: Bytecode is normalized by `BytecodeNormalizer.normalize()` ensuring consistent format
+-   **Efficiency**: No manual bytecode construction or guessing slot allocations
+-   **Maintenance**: When bytecode generation changes, re-capture with `showBytecode=true`
+-   **Debugging**: Easy to see what bytecode was actually generated vs expected
 
 #### Constructor Parameters Reference
 
@@ -2447,44 +2450,46 @@ When reviewing IR generation examples, focus on **structural correctness** rathe
 
 #### ✅ **Correct Patterns to Expect**
 
-1. **Multiple LOAD Operations on Same Variable**:
-   - Each IR generator loads variables independently
-   - Creates complete semantic context for optimization phases
-   - Enables simple, maintainable IR generation code
+1.  **Multiple LOAD Operations on Same Variable**:
+    -   Each IR generator loads variables independently
+    -   Creates complete semantic context for optimization phases
+    -   Enables simple, maintainable IR generation code
 
-2. **Explicit Memory Management**:
-   - Every LOAD gets RETAIN/SCOPE_REGISTER sequence
-   - RELEASE operations are safe on uninitialized variables
-   - Parameters get REFERENCE only (caller-managed)
-   - Return variables registered to operation scope (_call)
+2.  **Explicit Memory Management**:
+    -   Every LOAD gets RETAIN/SCOPE_REGISTER sequence
+    -   RELEASE operations are safe on uninitialized variables
+    -   Parameters get REFERENCE only (caller-managed)
+    -   Return variables registered to operation scope (_call)
 
-3. **Medium-Level IR Structures**:
-   - LOGICAL_AND_BLOCK/LOGICAL_OR_BLOCK with complete path pre-computation
-   - CONTROL_FLOW_CHAIN with explicit condition evaluation
-   - Nested structures maintain proper scope management
+3.  **Medium-Level IR Structures**:
+    -   LOGICAL_AND_BLOCK/LOGICAL_OR_BLOCK with complete path pre-computation
+    -   CONTROL_FLOW_CHAIN with explicit condition evaluation
+    -   Nested structures maintain proper scope management
 
 #### ❌ **What NOT to Flag as Issues**
 
-1. **"Redundant" Variable Loading**: Multiple LOADs of same variable are correct by design
-2. **"Excessive" RETAIN/REGISTER**: Each operation shows complete memory requirements explicitly  
-3. **RELEASE on Uninitialized**: Safe operations that avoid explicit null checks
-4. **"Verbose" IR Structure**: Semantic clarity is prioritized over conciseness
+1.  **"Redundant" Variable Loading**: Multiple LOADs of same variable are correct by design
+2.  **"Excessive" RETAIN/REGISTER**: Each operation shows complete memory requirements explicitly  
+3.  **RELEASE on Uninitialized**: Safe operations that avoid explicit null checks
+4.  **"Verbose" IR Structure**: Semantic clarity is prioritized over conciseness
 
 #### 🔍 **What TO Review For**
 
-1. **Debug Information**: Accurate line:column mapping to source
-2. **Scope Hierarchy**: Proper SCOPE_ENTER/SCOPE_EXIT pairing
-3. **Memory Ownership**: Parameters, locals, and returns follow documented patterns
-4. **IR Structure**: Medium-level constructs follow documented formats
+1.  **Debug Information**: Accurate line:column mapping to source
+2.  **Scope Hierarchy**: Proper SCOPE_ENTER/SCOPE_EXIT pairing
+3.  **Memory Ownership**: Parameters, locals, and returns follow documented patterns
+4.  **IR Structure**: Medium-level constructs follow documented formats
 
 ### IR Optimization Strategy Reminder
 
-- **Phase 10 (IR_GENERATION)**: Generate correct, semantically clear IR
-- **Phase 12 (IR_OPTIMISATION)**: Eliminate redundancy with global context
-- **Backend Phases**: Target-specific optimization with full semantic information
+-   **Phase 10 (IR_GENERATION)**: Generate correct, semantically clear IR
+-   **Phase 12 (IR_OPTIMISATION)**: Eliminate redundancy with global context
+-   **Backend Phases**: Target-specific optimization with full semantic information
 
 **Key Principle**: Apparent "inefficiencies" in generated IR are features, not bugs. They provide the semantic richness needed for sophisticated optimization in later phases.
 
 ---
 
 This document captures the complete IR generation strategy and design philosophy for EK9. All IR generation should follow these patterns to ensure correctness, maintainability, and optimization opportunity preservation.
+
+---

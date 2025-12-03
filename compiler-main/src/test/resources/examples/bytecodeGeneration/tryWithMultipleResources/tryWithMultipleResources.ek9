@@ -29,18 +29,10 @@ defines module bytecode.test.multi
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.multi::TryWithMultipleResources":`public class bytecode.test.multi.TryWithMultipleResources {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.multi.TryWithMultipleResources();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -153,6 +145,14 @@ defines module bytecode.test.multi
             63   119   122   Class org/ek9/lang/Exception
            143   160   137   Class org/ek9/lang/Exception
             63   137   138   any
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
     TryWithMultipleResources()
       result <- String()

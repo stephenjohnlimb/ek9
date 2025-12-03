@@ -1,0 +1,1507 @@
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/usr/local/Cellar/maven/3.9.9/libexec/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper (file:/usr/local/Cellar/maven/3.9.9/libexec/lib/guava-33.2.1-jre.jar)
+WARNING: Please consider reporting this to the maintainers of class com.google.common.util.concurrent.AbstractFuture$UnsafeAtomicHelper
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+Line 2 differs
+Expected: [OperationDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset.c_init()->org.ek9.lang::Void]
+Actual:   [OperationDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset._call()->org.ek9.lang::Void]
+===IR_UPDATE_START===
+FILE: /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/tryGuardVariants/tryAssignmentIfUnset.ek9
+SYMBOL: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset
+CATEGORY: FUNCTION
+---IR_CONTENT_START---
+
+ConstructDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset()->org.ek9.lang::Void
+OperationDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset._call()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE stdout, org.ek9.lang::Stdout
+_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE stdout, _temp1
+RETAIN stdout
+SCOPE_REGISTER stdout, _scope_1
+REFERENCE config, org.ek9.lang::String
+_temp2 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+STORE config, _temp2
+RETAIN config
+SCOPE_REGISTER config, _scope_1
+SCOPE_ENTER _scope_2
+CONTROL_FLOW_CHAIN
+[
+chain_type: "GUARDED_ASSIGNMENT"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+_temp6 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp7 = IS_NULL config
+]
+primitive_condition: _temp7
+body_evaluation:
+[
+_temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_2
+]
+body_result: _temp8
+]
+]
+default_body_evaluation:
+[
+_temp9 = LOAD config
+_temp10 = CALL (org.ek9.lang::String)_temp9._isSet() [pure=true, complexity=0]
+RETAIN _temp10
+SCOPE_REGISTER _temp10, _scope_2
+]
+default_result: _temp10
+scope_id: _scope_2
+]
+_temp11 = CALL (org.ek9.lang::Boolean)_temp6._negate() [pure=true, complexity=0]
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_2
+_temp12 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]
+]
+condition_result: _temp11
+primitive_condition: _temp12
+body_evaluation:
+[
+_temp5 = FUNCTION_INSTANCE tryGuardVariants.assignIfUnset::getConfig
+_temp3 = CALL (tryGuardVariants.assignIfUnset::getConfig)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_2
+RELEASE config
+STORE config, _temp3
+RETAIN config
+]
+]
+]
+scope_id: _scope_2
+]
+_temp13 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp14 = IS_NULL config
+]
+primitive_condition: _temp14
+body_evaluation:
+[
+_temp15 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_2
+]
+body_result: _temp15
+]
+]
+default_body_evaluation:
+[
+_temp16 = LOAD config
+_temp17 = CALL (org.ek9.lang::String)_temp16._isSet() [pure=true, complexity=0]
+RETAIN _temp17
+SCOPE_REGISTER _temp17, _scope_2
+]
+default_result: _temp17
+scope_id: _scope_2
+]
+_temp18 = CALL (org.ek9.lang::Boolean)_temp13._true() [pure=true, complexity=0]
+CONTROL_FLOW_CHAIN
+[
+chain_type: "IF_ELSE_IF"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+]
+condition_result: _temp13
+primitive_condition: _temp18
+body_evaluation:
+[
+SCOPE_ENTER _scope_3
+CONTROL_FLOW_CHAIN
+[
+chain_type: "TRY_CATCH_FINALLY"
+try_block_details:
+[
+try_scope_id: _scope_4
+try_body_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp20 = LOAD stdout
+RETAIN _temp20
+SCOPE_REGISTER _temp20, _scope_4
+_temp21 = LOAD_LITERAL Config loaded:, org.ek9.lang::String
+RETAIN _temp21
+SCOPE_REGISTER _temp21, _scope_4
+CALL (org.ek9.lang::Stdout)_temp20.println(_temp21) [pure=true, complexity=1]
+_temp23 = LOAD stdout
+RETAIN _temp23
+SCOPE_REGISTER _temp23, _scope_4
+_temp24 = LOAD config
+RETAIN _temp24
+SCOPE_REGISTER _temp24, _scope_4
+CALL (org.ek9.lang::Stdout)_temp23.println(_temp24) [pure=true, complexity=1]
+SCOPE_EXIT _scope_4
+]
+]
+condition_chain:
+[
+[
+case_scope_id: _scope_5
+case_type: "EXCEPTION_HANDLER"
+condition_evaluation:
+[
+]
+body_evaluation:
+[
+SCOPE_ENTER _scope_5
+REFERENCE ex, org.ek9.lang::Exception
+SCOPE_REGISTER ex, _scope_5
+_temp26 = LOAD stdout
+RETAIN _temp26
+SCOPE_REGISTER _temp26, _scope_5
+_temp27 = LOAD_LITERAL Failed to load config, org.ek9.lang::String
+RETAIN _temp27
+SCOPE_REGISTER _temp27, _scope_5
+CALL (org.ek9.lang::Stdout)_temp26.println(_temp27) [pure=true, complexity=1]
+SCOPE_EXIT _scope_5
+]
+exception_type: "org.ek9.lang::Exception"
+exception_variable: ex
+]
+]
+finally_block_evaluation:
+[
+SCOPE_ENTER _scope_6
+_temp29 = LOAD stdout
+RETAIN _temp29
+SCOPE_REGISTER _temp29, _scope_6
+_temp30 = LOAD_LITERAL Cleanup complete, org.ek9.lang::String
+RETAIN _temp30
+SCOPE_REGISTER _temp30, _scope_6
+CALL (org.ek9.lang::Stdout)_temp29.println(_temp30) [pure=true, complexity=1]
+SCOPE_EXIT _scope_6
+]
+scope_id: _scope_3
+]
+SCOPE_EXIT _scope_3
+]
+]
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+SCOPE_EXIT _scope_1
+RETURN
+OperationDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset.tryAssignmentIfUnset()->tryGuardVariants.assignIfUnset::tryAssignmentIfUnset  
+BasicBlock: _entry_1
+CALL (tryGuardVariants.assignIfUnset::tryAssignmentIfUnset)this.i_init() [pure=false, complexity=0]
+RETURN this
+---IR_CONTENT_END---
+===IR_UPDATE_END===
+[ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 3.139 s <<< FAILURE! -- in org.ek9lang.compiler.ir.TryGuardVariantIRTest
+[ERROR] org.ek9lang.compiler.ir.TryGuardVariantIRTest.testPhaseDevelopment -- Time elapsed: 3.061 s <<< ERROR!
+org.ek9lang.core.CompilerException: Expected IR and Generated IR line difference
+	at org.ek9lang.compiler.directives.IRDirectiveListener.symbolMatch(IRDirectiveListener.java:80)
+	at org.ek9lang.compiler.directives.ResolutionDirectiveListener.lambda$processDirectives$0(ResolutionDirectiveListener.java:41)
+	at java.base/java.util.Optional.ifPresentOrElse(Optional.java:196)
+	at org.ek9lang.compiler.directives.ResolutionDirectiveListener.processDirectives(ResolutionDirectiveListener.java:41)
+	at org.ek9lang.compiler.directives.IRDirectiveListener.accept(IRDirectiveListener.java:31)
+	at org.ek9lang.compiler.directives.IRDirectiveListener.accept(IRDirectiveListener.java:18)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at org.ek9lang.compiler.phase7.IRGenerator.defineIR(IRGenerator.java:89)
+	at org.ek9lang.compiler.phase7.IRGenerator.lambda$defineIRMultiThreaded$0(IRGenerator.java:61)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:186)
+	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1716)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:570)
+	at java.base/java.util.stream.ForEachOps$ForEachTask.compute(ForEachOps.java:293)
+	at java.base/java.util.concurrent.CountedCompleter.exec(CountedCompleter.java:759)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:511)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.helpComplete(ForkJoinPool.java:1537)
+	at java.base/java.util.concurrent.ForkJoinPool.helpComplete(ForkJoinPool.java:2332)
+	at java.base/java.util.concurrent.ForkJoinTask.awaitDone(ForkJoinTask.java:497)
+	at java.base/java.util.concurrent.ForkJoinTask.join(ForkJoinTask.java:666)
+	at java.base/java.util.concurrent.ForkJoinTask.invoke(ForkJoinTask.java:681)
+	at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateParallel(ForEachOps.java:162)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateParallel(ForEachOps.java:176)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:264)
+	at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:632)
+	at java.base/java.util.stream.ReferencePipeline$Head.forEach(ReferencePipeline.java:806)
+	at org.ek9lang.compiler.phase7.IRGenerator.defineIRMultiThreaded(IRGenerator.java:61)
+	at org.ek9lang.compiler.phase7.IRGenerator.underTakeIRDefinition(IRGenerator.java:50)
+	at org.ek9lang.compiler.phase7.IRGenerator.doApply(IRGenerator.java:45)
+	at org.ek9lang.compiler.CompilerPhase.apply(CompilerPhase.java:42)
+	at org.ek9lang.compiler.CompilerPhase.apply(CompilerPhase.java:15)
+	at org.ek9lang.compiler.Ek9Compiler.compile(Ek9Compiler.java:59)
+	at org.ek9lang.compiler.common.PhasesTest.testToPhase(PhasesTest.java:214)
+	at org.ek9lang.compiler.ir.AbstractIRGenerationTest.testPhaseDevelopment(AbstractIRGenerationTest.java:49)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:725)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:149)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:140)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:84)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(ExecutableInvoker.java:115)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.lambda$invoke$0(ExecutableInvoker.java:105)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:104)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:98)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:214)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:210)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:135)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:66)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService$ExclusiveTask.compute(ForkJoinPoolHierarchicalTestExecutorService.java:185)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService.invokeAll(ForkJoinPoolHierarchicalTestExecutorService.java:129)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService$ExclusiveTask.compute(ForkJoinPoolHierarchicalTestExecutorService.java:185)
+	at java.base/java.util.concurrent.RecursiveAction.exec(RecursiveAction.java:194)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:511)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1450)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2019)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:187)
+
+[ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 3.332 s <<< FAILURE! -- in org.ek9lang.compiler.ir.AssignmentOperatorIRTest
+[ERROR] org.ek9lang.compiler.ir.AssignmentOperatorIRTest.testPhaseDevelopment -- Time elapsed: 3.324 s <<< ERROR!
+org.ek9lang.core.CompilerException: Unable to locate IRConstruct: anaddass.test::testAddAssignment
+	at org.ek9lang.compiler.directives.IRDirectiveListener.lambda$symbolMatch$3(IRDirectiveListener.java:59)
+	at java.base/java.util.Optional.orElseThrow(Optional.java:403)
+	at org.ek9lang.compiler.directives.IRDirectiveListener.symbolMatch(IRDirectiveListener.java:58)
+	at org.ek9lang.compiler.directives.ResolutionDirectiveListener.lambda$processDirectives$0(ResolutionDirectiveListener.java:41)
+	at java.base/java.util.Optional.ifPresentOrElse(Optional.java:196)
+	at org.ek9lang.compiler.directives.ResolutionDirectiveListener.processDirectives(ResolutionDirectiveListener.java:41)
+	at org.ek9lang.compiler.directives.IRDirectiveListener.accept(IRDirectiveListener.java:31)
+	at org.ek9lang.compiler.directives.IRDirectiveListener.accept(IRDirectiveListener.java:18)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at org.ek9lang.compiler.phase7.IRGenerator.defineIR(IRGenerator.java:89)
+	at org.ek9lang.compiler.phase7.IRGenerator.lambda$defineIRMultiThreaded$0(IRGenerator.java:61)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:186)
+	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1716)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:570)
+	at java.base/java.util.stream.ForEachOps$ForEachTask.compute(ForEachOps.java:293)
+	at java.base/java.util.concurrent.CountedCompleter.exec(CountedCompleter.java:759)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:511)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.helpComplete(ForkJoinPool.java:1537)
+	at java.base/java.util.concurrent.ForkJoinPool.helpComplete(ForkJoinPool.java:2332)
+	at java.base/java.util.concurrent.ForkJoinTask.awaitDone(ForkJoinTask.java:497)
+	at java.base/java.util.concurrent.ForkJoinTask.join(ForkJoinTask.java:666)
+	at java.base/java.util.concurrent.ForkJoinTask.invoke(ForkJoinTask.java:681)
+	at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateParallel(ForEachOps.java:162)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateParallel(ForEachOps.java:176)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:264)
+	at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:632)
+	at java.base/java.util.stream.ReferencePipeline$Head.forEach(ReferencePipeline.java:806)
+	at org.ek9lang.compiler.phase7.IRGenerator.defineIRMultiThreaded(IRGenerator.java:61)
+	at org.ek9lang.compiler.phase7.IRGenerator.underTakeIRDefinition(IRGenerator.java:50)
+	at org.ek9lang.compiler.phase7.IRGenerator.doApply(IRGenerator.java:45)
+	at org.ek9lang.compiler.CompilerPhase.apply(CompilerPhase.java:42)
+	at org.ek9lang.compiler.CompilerPhase.apply(CompilerPhase.java:15)
+	at org.ek9lang.compiler.Ek9Compiler.compile(Ek9Compiler.java:59)
+	at org.ek9lang.compiler.common.PhasesTest.testToPhase(PhasesTest.java:214)
+	at org.ek9lang.compiler.ir.AbstractIRGenerationTest.testPhaseDevelopment(AbstractIRGenerationTest.java:49)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:725)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:149)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:140)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:84)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(ExecutableInvoker.java:115)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.lambda$invoke$0(ExecutableInvoker.java:105)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:104)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:98)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:214)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:210)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:135)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:66)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService$ExclusiveTask.compute(ForkJoinPoolHierarchicalTestExecutorService.java:185)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService.invokeAll(ForkJoinPoolHierarchicalTestExecutorService.java:129)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService$ExclusiveTask.compute(ForkJoinPoolHierarchicalTestExecutorService.java:185)
+	at java.base/java.util.concurrent.RecursiveAction.exec(RecursiveAction.java:194)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:511)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1450)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2019)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:187)
+
+Number of lines differ: expected 127, actual 78
+Line 1 differs
+Expected: [Line 2 differs]
+Actual:   [ConstructDfn: exceptionHandling::simpleTryFinally()->org.ek9.lang::Void]
+===IR_UPDATE_START===
+FILE: /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/exceptionHandling/simpleTryFinally.ek9
+SYMBOL: exceptionHandling::simpleTryFinally
+CATEGORY: FUNCTION
+---IR_CONTENT_START---
+
+ConstructDfn: exceptionHandling::simpleTryFinally()->org.ek9.lang::Void
+OperationDfn: exceptionHandling::simpleTryFinally._call()->org.ek9.lang::Void  // ./simpleTryFinally.ek9:137:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./simpleTryFinally.ek9:138:7
+REFERENCE stdout, org.ek9.lang::Stdout  // ./simpleTryFinally.ek9:138:7
+_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./simpleTryFinally.ek9:138:17
+RETAIN _temp1  // ./simpleTryFinally.ek9:138:17
+SCOPE_REGISTER _temp1, _scope_1  // ./simpleTryFinally.ek9:138:17
+STORE stdout, _temp1  // ./simpleTryFinally.ek9:138:17
+RETAIN stdout  // ./simpleTryFinally.ek9:138:17
+SCOPE_REGISTER stdout, _scope_1  // ./simpleTryFinally.ek9:138:17
+SCOPE_ENTER _scope_2  // ./simpleTryFinally.ek9:140:7
+SCOPE_ENTER _scope_3  // ./simpleTryFinally.ek9:140:7
+CONTROL_FLOW_CHAIN  // ./simpleTryFinally.ek9:140:7
+[
+chain_type: "TRY_CATCH_FINALLY"
+try_block_details:
+[
+try_scope_id: _scope_4
+try_body_evaluation:
+[
+SCOPE_ENTER _scope_4  // ./simpleTryFinally.ek9:140:7
+_temp3 = LOAD stdout  // ./simpleTryFinally.ek9:141:9
+RETAIN _temp3  // ./simpleTryFinally.ek9:141:9
+SCOPE_REGISTER _temp3, _scope_4  // ./simpleTryFinally.ek9:141:9
+_temp4 = LOAD_LITERAL Try block executing, org.ek9.lang::String  // ./simpleTryFinally.ek9:141:24
+RETAIN _temp4  // ./simpleTryFinally.ek9:141:24
+SCOPE_REGISTER _temp4, _scope_4  // ./simpleTryFinally.ek9:141:24
+CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=true, complexity=1]  // ./simpleTryFinally.ek9:141:16
+REFERENCE value, org.ek9.lang::Integer  // ./simpleTryFinally.ek9:142:9
+_temp5 = LOAD_LITERAL 42, org.ek9.lang::Integer  // ./simpleTryFinally.ek9:142:18
+RETAIN _temp5  // ./simpleTryFinally.ek9:142:18
+SCOPE_REGISTER _temp5, _scope_4  // ./simpleTryFinally.ek9:142:18
+STORE value, _temp5  // ./simpleTryFinally.ek9:142:18
+RETAIN value  // ./simpleTryFinally.ek9:142:18
+SCOPE_REGISTER value, _scope_4  // ./simpleTryFinally.ek9:142:18
+_temp7 = LOAD stdout  // ./simpleTryFinally.ek9:143:9
+RETAIN _temp7  // ./simpleTryFinally.ek9:143:9
+SCOPE_REGISTER _temp7, _scope_4  // ./simpleTryFinally.ek9:143:9
+_temp8 = LOAD value  // ./simpleTryFinally.ek9:143:24
+RETAIN _temp8  // ./simpleTryFinally.ek9:143:24
+SCOPE_REGISTER _temp8, _scope_4  // ./simpleTryFinally.ek9:143:24
+CALL (org.ek9.lang::StringOutput)_temp7.println(_temp8) [pure=true, complexity=1, trait=true]  // ./simpleTryFinally.ek9:143:16
+SCOPE_EXIT _scope_4  // ./simpleTryFinally.ek9:140:7
+]
+]
+condition_chain:
+[
+]
+finally_block_evaluation:
+[
+SCOPE_ENTER _scope_5  // ./simpleTryFinally.ek9:144:7
+_temp10 = LOAD stdout  // ./simpleTryFinally.ek9:145:9
+RETAIN _temp10  // ./simpleTryFinally.ek9:145:9
+SCOPE_REGISTER _temp10, _scope_5  // ./simpleTryFinally.ek9:145:9
+_temp11 = LOAD_LITERAL Finally block executing, org.ek9.lang::String  // ./simpleTryFinally.ek9:145:24
+RETAIN _temp11  // ./simpleTryFinally.ek9:145:24
+SCOPE_REGISTER _temp11, _scope_5  // ./simpleTryFinally.ek9:145:24
+CALL (org.ek9.lang::Stdout)_temp10.println(_temp11) [pure=true, complexity=1]  // ./simpleTryFinally.ek9:145:16
+SCOPE_EXIT _scope_5  // ./simpleTryFinally.ek9:144:7
+]
+scope_id: _scope_3
+]
+SCOPE_EXIT _scope_3  // ./simpleTryFinally.ek9:140:7
+SCOPE_EXIT _scope_2  // ./simpleTryFinally.ek9:140:7
+SCOPE_EXIT _scope_1  // ./simpleTryFinally.ek9:138:7
+RETURN  // ./simpleTryFinally.ek9:137:5
+OperationDfn: exceptionHandling::simpleTryFinally.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: exceptionHandling::simpleTryFinally.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: exceptionHandling::simpleTryFinally.simpleTryFinally()->exceptionHandling::simpleTryFinally  // ./simpleTryFinally.ek9:137:5
+BasicBlock: _entry_1
+CALL (exceptionHandling::simpleTryFinally)this.i_init() [pure=false, complexity=0]  // ./simpleTryFinally.ek9:137:5
+RETURN this  // ./simpleTryFinally.ek9:137:5
+---IR_CONTENT_END---
+===IR_UPDATE_END===
+[ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 3.437 s <<< FAILURE! -- in org.ek9lang.compiler.ir.ExceptionHandlingIRTest
+[ERROR] org.ek9lang.compiler.ir.ExceptionHandlingIRTest.testPhaseDevelopment -- Time elapsed: 3.354 s <<< ERROR!
+org.ek9lang.core.CompilerException: Expected IR and Generated IR line difference
+	at org.ek9lang.compiler.directives.IRDirectiveListener.symbolMatch(IRDirectiveListener.java:80)
+	at org.ek9lang.compiler.directives.ResolutionDirectiveListener.lambda$processDirectives$0(ResolutionDirectiveListener.java:41)
+	at java.base/java.util.Optional.ifPresentOrElse(Optional.java:196)
+	at org.ek9lang.compiler.directives.ResolutionDirectiveListener.processDirectives(ResolutionDirectiveListener.java:41)
+	at org.ek9lang.compiler.directives.IRDirectiveListener.accept(IRDirectiveListener.java:31)
+	at org.ek9lang.compiler.directives.IRDirectiveListener.accept(IRDirectiveListener.java:18)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at org.ek9lang.compiler.phase7.IRGenerator.defineIR(IRGenerator.java:89)
+	at org.ek9lang.compiler.phase7.IRGenerator.lambda$defineIRMultiThreaded$0(IRGenerator.java:61)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:186)
+	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1716)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:570)
+	at java.base/java.util.stream.ForEachOps$ForEachTask.compute(ForEachOps.java:293)
+	at java.base/java.util.concurrent.CountedCompleter.exec(CountedCompleter.java:759)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:511)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.helpComplete(ForkJoinPool.java:1537)
+	at java.base/java.util.concurrent.ForkJoinPool.helpComplete(ForkJoinPool.java:2332)
+	at java.base/java.util.concurrent.ForkJoinTask.awaitDone(ForkJoinTask.java:497)
+	at java.base/java.util.concurrent.ForkJoinTask.join(ForkJoinTask.java:666)
+	at java.base/java.util.concurrent.ForkJoinTask.invoke(ForkJoinTask.java:681)
+	at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateParallel(ForEachOps.java:162)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateParallel(ForEachOps.java:176)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:264)
+	at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:632)
+	at java.base/java.util.stream.ReferencePipeline$Head.forEach(ReferencePipeline.java:806)
+	at org.ek9lang.compiler.phase7.IRGenerator.defineIRMultiThreaded(IRGenerator.java:61)
+	at org.ek9lang.compiler.phase7.IRGenerator.underTakeIRDefinition(IRGenerator.java:50)
+	at org.ek9lang.compiler.phase7.IRGenerator.doApply(IRGenerator.java:45)
+	at org.ek9lang.compiler.CompilerPhase.apply(CompilerPhase.java:42)
+	at org.ek9lang.compiler.CompilerPhase.apply(CompilerPhase.java:15)
+	at org.ek9lang.compiler.Ek9Compiler.compile(Ek9Compiler.java:59)
+	at org.ek9lang.compiler.common.PhasesTest.testToPhase(PhasesTest.java:214)
+	at org.ek9lang.compiler.ir.AbstractIRGenerationTest.testPhaseDevelopment(AbstractIRGenerationTest.java:49)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:725)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:149)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:140)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:84)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(ExecutableInvoker.java:115)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.lambda$invoke$0(ExecutableInvoker.java:105)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:104)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:98)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:214)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:210)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:135)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:66)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService$ExclusiveTask.compute(ForkJoinPoolHierarchicalTestExecutorService.java:185)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService.invokeAll(ForkJoinPoolHierarchicalTestExecutorService.java:129)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService$ExclusiveTask.compute(ForkJoinPoolHierarchicalTestExecutorService.java:185)
+	at java.base/java.util.concurrent.RecursiveAction.exec(RecursiveAction.java:194)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:511)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1450)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2019)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:187)
+
+Line 2 differs
+Expected: [OperationDfn: switches.guardedAssign::switchGuardedAssignment.c_init()->org.ek9.lang::Void]
+Actual:   [OperationDfn: switches.guardedAssign::switchGuardedAssignment._call()->org.ek9.lang::String]
+===IR_UPDATE_START===
+FILE: /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/switches/switchGuardedAssignment.ek9
+SYMBOL: switches.guardedAssign::switchGuardedAssignment
+CATEGORY: FUNCTION
+---IR_CONTENT_START---
+
+ConstructDfn: switches.guardedAssign::switchGuardedAssignment()->org.ek9.lang::String
+OperationDfn: switches.guardedAssign::switchGuardedAssignment._call()->org.ek9.lang::String  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE result, org.ek9.lang::String
+_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE result, _temp1
+RETAIN result
+REFERENCE value, org.ek9.lang::Integer
+_temp2 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+STORE value, _temp2
+RETAIN value
+SCOPE_REGISTER value, _scope_1
+SCOPE_ENTER _scope_2
+_temp5 = FUNCTION_INSTANCE switches.guardedAssign::getValue
+_temp3 = CALL (switches.guardedAssign::getValue)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_2
+RELEASE value
+STORE value, _temp3
+RETAIN value
+_temp6 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp7 = IS_NULL value
+]
+primitive_condition: _temp7
+body_evaluation:
+[
+_temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_2
+]
+body_result: _temp8
+]
+]
+default_body_evaluation:
+[
+_temp9 = LOAD value
+_temp10 = CALL (org.ek9.lang::Integer)_temp9._isSet() [pure=true, complexity=0]
+RETAIN _temp10
+SCOPE_REGISTER _temp10, _scope_2
+]
+default_result: _temp10
+scope_id: _scope_2
+]
+_temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
+CONTROL_FLOW_CHAIN
+[
+chain_type: "IF_ELSE_IF"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+]
+condition_result: _temp6
+primitive_condition: _temp11
+body_evaluation:
+[
+SCOPE_ENTER _scope_3
+_temp12 = LOAD value
+RETAIN _temp12
+SCOPE_REGISTER _temp12, _scope_3
+CONTROL_FLOW_CHAIN
+[
+chain_type: "SWITCH_WITH_GUARDS"
+evaluation_variable: _temp12
+evaluation_variable_type: "org.ek9.lang::Integer"
+condition_chain:
+[
+[
+case_scope_id: _scope_5
+case_type: "LITERAL"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp13 = LOAD _temp12
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_4
+_temp14 = LOAD_LITERAL 1, org.ek9.lang::Integer
+RETAIN _temp14
+SCOPE_REGISTER _temp14, _scope_4
+_temp15 = CALL (org.ek9.lang::Integer)_temp13._eq(_temp14) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_4
+_temp16 = CALL (org.ek9.lang::Boolean)_temp15._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_4
+]
+condition_result: _temp15
+primitive_condition: _temp16
+body_evaluation:
+[
+SCOPE_ENTER _scope_5
+_temp17 = LOAD_LITERAL One, org.ek9.lang::String
+RETAIN _temp17
+SCOPE_REGISTER _temp17, _scope_5
+RELEASE result
+STORE result, _temp17
+RETAIN result
+SCOPE_EXIT _scope_5
+]
+],
+[
+case_scope_id: _scope_7
+case_type: "LITERAL"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_6
+_temp18 = LOAD _temp12
+RETAIN _temp18
+SCOPE_REGISTER _temp18, _scope_6
+_temp19 = LOAD_LITERAL 2, org.ek9.lang::Integer
+RETAIN _temp19
+SCOPE_REGISTER _temp19, _scope_6
+_temp20 = CALL (org.ek9.lang::Integer)_temp18._eq(_temp19) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp20
+SCOPE_REGISTER _temp20, _scope_6
+_temp21 = CALL (org.ek9.lang::Boolean)_temp20._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_6
+]
+condition_result: _temp20
+primitive_condition: _temp21
+body_evaluation:
+[
+SCOPE_ENTER _scope_7
+_temp22 = LOAD_LITERAL Two, org.ek9.lang::String
+RETAIN _temp22
+SCOPE_REGISTER _temp22, _scope_7
+RELEASE result
+STORE result, _temp22
+RETAIN result
+SCOPE_EXIT _scope_7
+]
+]
+]
+default_body_evaluation:
+[
+SCOPE_ENTER _scope_8
+_temp23 = LOAD_LITERAL Other, org.ek9.lang::String
+RETAIN _temp23
+SCOPE_REGISTER _temp23, _scope_8
+RELEASE result
+STORE result, _temp23
+RETAIN result
+SCOPE_EXIT _scope_8
+]
+scope_id: _scope_3
+]
+SCOPE_EXIT _scope_3
+]
+]
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+_temp24 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp25 = LOAD value
+_temp26 = IS_NULL _temp25
+]
+primitive_condition: _temp26
+body_evaluation:
+[
+_temp27 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp27
+SCOPE_REGISTER _temp27, _scope_1
+]
+body_result: _temp27
+]
+]
+default_body_evaluation:
+[
+_temp28 = CALL (org.ek9.lang::Integer)_temp25._isSet() [pure=true, complexity=0]
+RETAIN _temp28
+SCOPE_REGISTER _temp28, _scope_1
+]
+default_result: _temp28
+scope_id: _scope_1
+]
+RETAIN _temp24
+SCOPE_REGISTER _temp24, _scope_1
+_temp29 = CALL (org.ek9.lang::Boolean)_temp24._true() [pure=true, complexity=0]
+ASSERT _temp29
+SCOPE_EXIT _scope_1
+RETURN result
+OperationDfn: switches.guardedAssign::switchGuardedAssignment.switchGuardedAssignment()->switches.guardedAssign::switchGuardedAssignment  
+BasicBlock: _entry_1
+CALL (switches.guardedAssign::switchGuardedAssignment)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: switches.guardedAssign::switchGuardedAssignment.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: switches.guardedAssign::switchGuardedAssignment.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+---IR_CONTENT_END---
+===IR_UPDATE_END===
+[ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.512 s <<< FAILURE! -- in org.ek9lang.compiler.ir.SwitchIRTest
+[ERROR] org.ek9lang.compiler.ir.SwitchIRTest.testPhaseDevelopment -- Time elapsed: 0.506 s <<< ERROR!
+org.ek9lang.core.CompilerException: Expected IR and Generated IR line difference
+	at org.ek9lang.compiler.directives.IRDirectiveListener.symbolMatch(IRDirectiveListener.java:80)
+	at org.ek9lang.compiler.directives.ResolutionDirectiveListener.lambda$processDirectives$0(ResolutionDirectiveListener.java:41)
+	at java.base/java.util.Optional.ifPresentOrElse(Optional.java:196)
+	at org.ek9lang.compiler.directives.ResolutionDirectiveListener.processDirectives(ResolutionDirectiveListener.java:41)
+	at org.ek9lang.compiler.directives.IRDirectiveListener.accept(IRDirectiveListener.java:31)
+	at org.ek9lang.compiler.directives.IRDirectiveListener.accept(IRDirectiveListener.java:18)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at org.ek9lang.compiler.phase7.IRGenerator.defineIR(IRGenerator.java:89)
+	at org.ek9lang.compiler.phase7.IRGenerator.lambda$defineIRMultiThreaded$0(IRGenerator.java:61)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:186)
+	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1716)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:570)
+	at java.base/java.util.stream.ForEachOps$ForEachTask.compute(ForEachOps.java:293)
+	at java.base/java.util.concurrent.CountedCompleter.exec(CountedCompleter.java:759)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:511)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.helpComplete(ForkJoinPool.java:1537)
+	at java.base/java.util.concurrent.ForkJoinPool.helpComplete(ForkJoinPool.java:2332)
+	at java.base/java.util.concurrent.ForkJoinTask.awaitDone(ForkJoinTask.java:497)
+	at java.base/java.util.concurrent.ForkJoinTask.join(ForkJoinTask.java:666)
+	at java.base/java.util.concurrent.ForkJoinTask.invoke(ForkJoinTask.java:681)
+	at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateParallel(ForEachOps.java:162)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateParallel(ForEachOps.java:176)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:264)
+	at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:632)
+	at java.base/java.util.stream.ReferencePipeline$Head.forEach(ReferencePipeline.java:806)
+	at org.ek9lang.compiler.phase7.IRGenerator.defineIRMultiThreaded(IRGenerator.java:61)
+	at org.ek9lang.compiler.phase7.IRGenerator.underTakeIRDefinition(IRGenerator.java:50)
+	at org.ek9lang.compiler.phase7.IRGenerator.doApply(IRGenerator.java:45)
+	at org.ek9lang.compiler.CompilerPhase.apply(CompilerPhase.java:42)
+	at org.ek9lang.compiler.CompilerPhase.apply(CompilerPhase.java:15)
+	at org.ek9lang.compiler.Ek9Compiler.compile(Ek9Compiler.java:59)
+	at org.ek9lang.compiler.common.PhasesTest.testToPhase(PhasesTest.java:214)
+	at org.ek9lang.compiler.ir.AbstractIRGenerationTest.testPhaseDevelopment(AbstractIRGenerationTest.java:49)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:725)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:149)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:140)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:84)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(ExecutableInvoker.java:115)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.lambda$invoke$0(ExecutableInvoker.java:105)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:104)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:98)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:214)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:210)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:135)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:66)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService$ExclusiveTask.compute(ForkJoinPoolHierarchicalTestExecutorService.java:185)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService.invokeAll(ForkJoinPoolHierarchicalTestExecutorService.java:129)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService$ExclusiveTask.compute(ForkJoinPoolHierarchicalTestExecutorService.java:185)
+	at java.base/java.util.concurrent.RecursiveAction.exec(RecursiveAction.java:194)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:511)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1450)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2019)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:187)
+
+Line 2 differs
+Expected: [OperationDfn: loops.forrange.assignGuard::forRangeAssignmentGuard.c_init()->org.ek9.lang::Void]
+Actual:   [OperationDfn: loops.forrange.assignGuard::forRangeAssignmentGuard._call()->org.ek9.lang::Integer]
+===IR_UPDATE_START===
+FILE: /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/loops/forRangeAssignmentGuard.ek9
+SYMBOL: loops.forrange.assignGuard::forRangeAssignmentGuard
+CATEGORY: FUNCTION
+---IR_CONTENT_START---
+
+ConstructDfn: loops.forrange.assignGuard::forRangeAssignmentGuard()->org.ek9.lang::Integer
+OperationDfn: loops.forrange.assignGuard::forRangeAssignmentGuard._call()->org.ek9.lang::Integer  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE sum, org.ek9.lang::Integer
+_temp1 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE sum, _temp1
+RETAIN sum
+REFERENCE limit, org.ek9.lang::Integer
+_temp2 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+STORE limit, _temp2
+RETAIN limit
+SCOPE_REGISTER limit, _scope_1
+SCOPE_ENTER _scope_2
+SCOPE_ENTER _scope_3
+REFERENCE i, org.ek9.lang::Integer
+SCOPE_REGISTER i, _scope_3
+FOR_RANGE_POLYMORPHIC
+[
+initialization:
+[
+_temp7 = LOAD_LITERAL 1, org.ek9.lang::Integer
+RETAIN _temp7
+SCOPE_REGISTER _temp7, _scope_3
+_temp6 = LOAD _temp7
+RETAIN _temp6
+SCOPE_REGISTER _temp6, _scope_3
+_temp9 = LOAD limit
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_3
+_temp8 = LOAD _temp9
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_3
+_temp10 = CALL (org.ek9.lang::Integer)_temp6._isSet() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp10
+SCOPE_REGISTER _temp10, _scope_3
+_temp11 = CALL (org.ek9.lang::Boolean)_temp10._true() [pure=true, complexity=0]
+ASSERT _temp11, For-range 'start' value must be set
+_temp12 = CALL (org.ek9.lang::Integer)_temp8._isSet() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp12
+SCOPE_REGISTER _temp12, _scope_3
+_temp13 = CALL (org.ek9.lang::Boolean)_temp12._true() [pure=true, complexity=0]
+ASSERT _temp13, For-range 'end' value must be set
+_temp14 = CALL (org.ek9.lang::Integer)_temp6._cmp(_temp8) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp14
+SCOPE_REGISTER _temp14, _scope_3
+_temp15 = LOAD _temp6
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_3
+]
+dispatch_cases:
+[
+ascending:
+[
+direction_check:
+[
+SCOPE_ENTER _scope_5
+_temp19 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp19
+SCOPE_REGISTER _temp19, _scope_5
+_temp20 = CALL (org.ek9.lang::Integer)_temp14._lt(_temp19) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp20
+SCOPE_REGISTER _temp20, _scope_5
+_temp21 = CALL (org.ek9.lang::Boolean)_temp20._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_5
+]
+direction_primitive: _temp21
+loop_condition_template:
+[
+SCOPE_ENTER _scope_6
+_temp22 = CALL (org.ek9.lang::Integer)_temp15._cmp(_temp8) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp22
+SCOPE_REGISTER _temp22, _scope_6
+_temp23 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp23
+SCOPE_REGISTER _temp23, _scope_6
+_temp24 = CALL (org.ek9.lang::Integer)_temp22._lteq(_temp23) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp24
+SCOPE_REGISTER _temp24, _scope_6
+_temp25 = CALL (org.ek9.lang::Boolean)_temp24._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_6
+]
+loop_condition_primitive: _temp25
+loop_body_setup:
+[
+RELEASE i
+STORE i, _temp15
+RETAIN i
+]
+loop_increment:
+[
+SCOPE_ENTER _scope_7
+_temp26 = CALL (org.ek9.lang::Integer)_temp15._inc() [pure=false, complexity=0, effects=RETURN_MUTATION,THIS_MUTATION]
+RETAIN _temp26
+SCOPE_REGISTER _temp26, _scope_7
+STORE _temp15, _temp26
+SCOPE_EXIT _scope_7
+]
+]
+descending:
+[
+direction_check:
+[
+SCOPE_ENTER _scope_8
+_temp27 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp27
+SCOPE_REGISTER _temp27, _scope_8
+_temp28 = CALL (org.ek9.lang::Integer)_temp14._gt(_temp27) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp28
+SCOPE_REGISTER _temp28, _scope_8
+_temp29 = CALL (org.ek9.lang::Boolean)_temp28._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_8
+]
+direction_primitive: _temp29
+loop_condition_template:
+[
+SCOPE_ENTER _scope_9
+_temp30 = CALL (org.ek9.lang::Integer)_temp15._cmp(_temp8) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp30
+SCOPE_REGISTER _temp30, _scope_9
+_temp31 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp31
+SCOPE_REGISTER _temp31, _scope_9
+_temp32 = CALL (org.ek9.lang::Integer)_temp30._gteq(_temp31) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp32
+SCOPE_REGISTER _temp32, _scope_9
+_temp33 = CALL (org.ek9.lang::Boolean)_temp32._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_9
+]
+loop_condition_primitive: _temp33
+loop_body_setup:
+[
+RELEASE i
+STORE i, _temp15
+RETAIN i
+]
+loop_increment:
+[
+SCOPE_ENTER _scope_10
+_temp34 = CALL (org.ek9.lang::Integer)_temp15._dec() [pure=false, complexity=0, effects=RETURN_MUTATION,THIS_MUTATION]
+RETAIN _temp34
+SCOPE_REGISTER _temp34, _scope_10
+STORE _temp15, _temp34
+SCOPE_EXIT _scope_10
+]
+]
+equal:
+[
+loop_body_setup:
+[
+RELEASE i
+STORE i, _temp15
+RETAIN i
+]
+single_iteration: true
+]
+]
+body:
+[
+SCOPE_ENTER _scope_4
+_temp17 = LOAD sum
+RETAIN _temp17
+SCOPE_REGISTER _temp17, _scope_4
+_temp18 = LOAD i
+RETAIN _temp18
+SCOPE_REGISTER _temp18, _scope_4
+_temp16 = CALL (org.ek9.lang::Integer)_temp17._add(_temp18) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp16
+SCOPE_REGISTER _temp16, _scope_4
+RELEASE sum
+STORE sum, _temp16
+RETAIN sum
+SCOPE_EXIT _scope_4
+]
+metadata:
+[
+direction_variable: "_temp14"
+current_variable: "_temp15"
+loop_variable: "i"
+end_variable: "_temp8"
+range_type: "org.ek9.lang::Integer"
+]
+scope_metadata:
+[
+outer_scope: "_scope_2"
+loop_scope: "_scope_3"
+body_scope: "_scope_4"
+]
+]
+SCOPE_EXIT _scope_3
+SCOPE_EXIT _scope_2
+SCOPE_EXIT _scope_1
+RETURN sum
+OperationDfn: loops.forrange.assignGuard::forRangeAssignmentGuard.forRangeAssignmentGuard()->loops.forrange.assignGuard::forRangeAssignmentGuard  
+BasicBlock: _entry_1
+CALL (loops.forrange.assignGuard::forRangeAssignmentGuard)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: loops.forrange.assignGuard::forRangeAssignmentGuard.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: loops.forrange.assignGuard::forRangeAssignmentGuard.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+---IR_CONTENT_END---
+===IR_UPDATE_END===
+[ERROR] Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.652 s <<< FAILURE! -- in org.ek9lang.compiler.ir.LoopIRTest
+[ERROR] org.ek9lang.compiler.ir.LoopIRTest.testPhaseDevelopment -- Time elapsed: 0.646 s <<< ERROR!
+org.ek9lang.core.CompilerException: Expected IR and Generated IR line difference
+	at org.ek9lang.compiler.directives.IRDirectiveListener.symbolMatch(IRDirectiveListener.java:80)
+	at org.ek9lang.compiler.directives.ResolutionDirectiveListener.lambda$processDirectives$0(ResolutionDirectiveListener.java:41)
+	at java.base/java.util.Optional.ifPresentOrElse(Optional.java:196)
+	at org.ek9lang.compiler.directives.ResolutionDirectiveListener.processDirectives(ResolutionDirectiveListener.java:41)
+	at org.ek9lang.compiler.directives.IRDirectiveListener.accept(IRDirectiveListener.java:31)
+	at org.ek9lang.compiler.directives.IRDirectiveListener.accept(IRDirectiveListener.java:18)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at java.base/java.util.function.Consumer.lambda$andThen$0(Consumer.java:65)
+	at org.ek9lang.compiler.phase7.IRGenerator.defineIR(IRGenerator.java:89)
+	at org.ek9lang.compiler.phase7.IRGenerator.lambda$defineIRMultiThreaded$0(IRGenerator.java:61)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:186)
+	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1716)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:570)
+	at java.base/java.util.stream.ForEachOps$ForEachTask.compute(ForEachOps.java:293)
+	at java.base/java.util.concurrent.CountedCompleter.exec(CountedCompleter.java:759)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:511)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.helpComplete(ForkJoinPool.java:1537)
+	at java.base/java.util.concurrent.ForkJoinPool.helpComplete(ForkJoinPool.java:2332)
+	at java.base/java.util.concurrent.ForkJoinTask.awaitDone(ForkJoinTask.java:497)
+	at java.base/java.util.concurrent.ForkJoinTask.join(ForkJoinTask.java:666)
+	at java.base/java.util.concurrent.ForkJoinTask.invoke(ForkJoinTask.java:681)
+	at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateParallel(ForEachOps.java:162)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateParallel(ForEachOps.java:176)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:264)
+	at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:632)
+	at java.base/java.util.stream.ReferencePipeline$Head.forEach(ReferencePipeline.java:806)
+	at org.ek9lang.compiler.phase7.IRGenerator.defineIRMultiThreaded(IRGenerator.java:61)
+	at org.ek9lang.compiler.phase7.IRGenerator.underTakeIRDefinition(IRGenerator.java:50)
+	at org.ek9lang.compiler.phase7.IRGenerator.doApply(IRGenerator.java:45)
+	at org.ek9lang.compiler.CompilerPhase.apply(CompilerPhase.java:42)
+	at org.ek9lang.compiler.CompilerPhase.apply(CompilerPhase.java:15)
+	at org.ek9lang.compiler.Ek9Compiler.compile(Ek9Compiler.java:59)
+	at org.ek9lang.compiler.common.PhasesTest.testToPhase(PhasesTest.java:214)
+	at org.ek9lang.compiler.ir.AbstractIRGenerationTest.testPhaseDevelopment(AbstractIRGenerationTest.java:49)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:725)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:149)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:140)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:84)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(ExecutableInvoker.java:115)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.lambda$invoke$0(ExecutableInvoker.java:105)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:104)
+	at org.junit.jupiter.engine.execution.ExecutableInvoker.invoke(ExecutableInvoker.java:98)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:214)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:210)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:135)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:66)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService$ExclusiveTask.compute(ForkJoinPoolHierarchicalTestExecutorService.java:185)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService.invokeAll(ForkJoinPoolHierarchicalTestExecutorService.java:129)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.ForkJoinPoolHierarchicalTestExecutorService$ExclusiveTask.compute(ForkJoinPoolHierarchicalTestExecutorService.java:185)
+	at java.base/java.util.concurrent.RecursiveAction.exec(RecursiveAction.java:194)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:511)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1450)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:2019)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:187)
+
+Line 2 differs
+Expected: [OperationDfn: loops.guardedAssign::whileGuardedAssignment.c_init()->org.ek9.lang::Void]
+Actual:   [OperationDfn: loops.guardedAssign::whileGuardedAssignment._call()->org.ek9.lang::Integer]
+===IR_UPDATE_START===
+FILE: /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/loops/whileGuardedAssignment.ek9
+SYMBOL: loops.guardedAssign::whileGuardedAssignment
+CATEGORY: FUNCTION
+---IR_CONTENT_START---
+
+ConstructDfn: loops.guardedAssign::whileGuardedAssignment()->org.ek9.lang::Integer
+OperationDfn: loops.guardedAssign::whileGuardedAssignment._call()->org.ek9.lang::Integer  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE counter, org.ek9.lang::Integer
+_temp1 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE counter, _temp1
+RETAIN counter
+REFERENCE value, org.ek9.lang::Integer
+_temp2 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+STORE value, _temp2
+RETAIN value
+SCOPE_REGISTER value, _scope_1
+SCOPE_ENTER _scope_2
+_temp5 = FUNCTION_INSTANCE loops.guardedAssign::getValue
+_temp3 = CALL (loops.guardedAssign::getValue)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_2
+RELEASE value
+STORE value, _temp3
+RETAIN value
+_temp6 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp7 = IS_NULL value
+]
+primitive_condition: _temp7
+body_evaluation:
+[
+_temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_2
+]
+body_result: _temp8
+]
+]
+default_body_evaluation:
+[
+_temp9 = LOAD value
+_temp10 = CALL (org.ek9.lang::Integer)_temp9._isSet() [pure=true, complexity=0]
+RETAIN _temp10
+SCOPE_REGISTER _temp10, _scope_2
+]
+default_result: _temp10
+scope_id: _scope_2
+]
+_temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
+CONTROL_FLOW_CHAIN
+[
+chain_type: "IF_ELSE_IF"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+]
+condition_result: _temp6
+primitive_condition: _temp11
+body_evaluation:
+[
+CONTROL_FLOW_CHAIN
+[
+chain_type: "WHILE_LOOP_WITH_GUARDS"
+condition_chain:
+[
+[
+case_scope_id: _scope_3
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_3
+_temp13 = LOAD value
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_3
+_temp14 = LOAD counter
+RETAIN _temp14
+SCOPE_REGISTER _temp14, _scope_3
+_temp12 = CALL (org.ek9.lang::Integer)_temp13._gt(_temp14) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp12
+SCOPE_REGISTER _temp12, _scope_3
+_temp15 = CALL (org.ek9.lang::Boolean)_temp12._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_3
+]
+condition_result: _temp12
+primitive_condition: _temp15
+body_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp17 = LOAD counter
+RETAIN _temp17
+SCOPE_REGISTER _temp17, _scope_4
+_temp18 = LOAD_LITERAL 1, org.ek9.lang::Integer
+RETAIN _temp18
+SCOPE_REGISTER _temp18, _scope_4
+_temp16 = CALL (org.ek9.lang::Integer)_temp17._add(_temp18) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp16
+SCOPE_REGISTER _temp16, _scope_4
+RELEASE counter
+STORE counter, _temp16
+RETAIN counter
+SCOPE_EXIT _scope_4
+]
+]
+]
+scope_id: _scope_2
+]
+]
+]
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+SCOPE_EXIT _scope_1
+RETURN counter
+OperationDfn: loops.guardedAssign::whileGuardedAssignment.whileGuardedAssignment()->loops.guardedAssign::whileGuardedAssignment  
+BasicBlock: _entry_1
+CALL (loops.guardedAssign::whileGuardedAssignment)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: loops.guardedAssign::whileGuardedAssignment.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: loops.guardedAssign::whileGuardedAssignment.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+---IR_CONTENT_END---
+===IR_UPDATE_END===
+Line 2 differs
+Expected: [OperationDfn: loops.forin.guard::forInWithGuard.c_init()->org.ek9.lang::Void]
+Actual:   [OperationDfn: loops.forin.guard::forInWithGuard._call()->org.ek9.lang::Void]
+===IR_UPDATE_START===
+FILE: /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/test-classes/examples/irGeneration/loops/forInWithGuard.ek9
+SYMBOL: loops.forin.guard::forInWithGuard
+CATEGORY: FUNCTION
+---IR_CONTENT_START---
+
+ConstructDfn: loops.forin.guard::forInWithGuard()->org.ek9.lang::Void
+OperationDfn: loops.forin.guard::forInWithGuard._call()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE stdout, org.ek9.lang::Stdout
+_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE stdout, _temp1
+RETAIN stdout
+SCOPE_REGISTER stdout, _scope_1
+SCOPE_ENTER _scope_2
+REFERENCE items, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+_temp4 = FUNCTION_INSTANCE loops.forin.guard::getItems
+_temp2 = CALL (loops.forin.guard::getItems)_temp4._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_2
+STORE items, _temp2
+RETAIN items
+SCOPE_REGISTER items, _scope_2
+_temp5 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp6 = IS_NULL items
+]
+primitive_condition: _temp6
+body_evaluation:
+[
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp7
+SCOPE_REGISTER _temp7, _scope_2
+]
+body_result: _temp7
+]
+]
+default_body_evaluation:
+[
+_temp8 = LOAD items
+_temp9 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp8._isSet() [pure=true, complexity=0]
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_2
+]
+default_result: _temp9
+scope_id: _scope_2
+]
+_temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+CONTROL_FLOW_CHAIN
+[
+chain_type: "IF_ELSE_IF"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+]
+condition_result: _temp5
+primitive_condition: _temp10
+body_evaluation:
+[
+_temp11 = LOAD items
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_2
+_temp12 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp11.iterator() [pure=false, complexity=0]
+RETAIN _temp12
+SCOPE_REGISTER _temp12, _scope_2
+SCOPE_ENTER _scope_3
+REFERENCE item, org.ek9.lang::String
+SCOPE_REGISTER item, _scope_3
+CONTROL_FLOW_CHAIN
+[
+chain_type: "WHILE_LOOP"
+condition_chain:
+[
+[
+case_scope_id: _scope_4
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp13 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp12.hasNext() [pure=false, complexity=0]
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_4
+_temp14 = CALL (org.ek9.lang::Boolean)_temp13._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_4
+]
+condition_result: _temp13
+primitive_condition: _temp14
+body_evaluation:
+[
+SCOPE_ENTER _scope_5
+_temp15 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp12.next() [pure=false, complexity=0]
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_5
+RELEASE item
+STORE item, _temp15
+RETAIN item
+_temp17 = LOAD stdout
+RETAIN _temp17
+SCOPE_REGISTER _temp17, _scope_5
+_temp18 = LOAD item
+RETAIN _temp18
+SCOPE_REGISTER _temp18, _scope_5
+CALL (org.ek9.lang::Stdout)_temp17.println(_temp18) [pure=true, complexity=1]
+SCOPE_EXIT _scope_5
+]
+]
+]
+scope_id: _scope_3
+]
+SCOPE_EXIT _scope_3
+]
+]
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+SCOPE_EXIT _scope_1
+RETURN
+OperationDfn: loops.forin.guard::forInWithGuard.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: loops.forin.guard::forInWithGuard.forInWithGuard()->loops.forin.guard::forInWithGuard  
+BasicBlock: _entry_1
+CALL (loops.forin.guard::forInWithGuard)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: loops.forin.guard::forInWithGuard.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+---IR_CONTENT_END---
+===IR_UPDATE_END===
+[ERROR] Errors: 
+[ERROR]   AssignmentOperatorIRTest>AbstractIRGenerationTest.testPhaseDevelopment:49->PhasesTest.testToPhase:214 » Compiler Unable to locate IRConstruct: anaddass.test::testAddAssignment
+[ERROR]   ExceptionHandlingIRTest>AbstractIRGenerationTest.testPhaseDevelopment:49->PhasesTest.testToPhase:214 » Compiler Expected IR and Generated IR line difference
+[ERROR]   LoopIRTest>AbstractIRGenerationTest.testPhaseDevelopment:49->PhasesTest.testToPhase:214 » Compiler Expected IR and Generated IR line difference
+[ERROR]   SwitchIRTest>AbstractIRGenerationTest.testPhaseDevelopment:49->PhasesTest.testToPhase:214 » Compiler Expected IR and Generated IR line difference
+[ERROR]   TryGuardVariantIRTest>AbstractIRGenerationTest.testPhaseDevelopment:49->PhasesTest.testToPhase:214 » Compiler Expected IR and Generated IR line difference
+[ERROR] Tests run: 42, Failures: 0, Errors: 5, Skipped: 0
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) on project compiler-main: 
+[ERROR] 
+[ERROR] Please refer to /Users/stevelimb/IdeaProjects/ek9llvm/compiler-main/target/surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

@@ -4,18 +4,10 @@ defines module bytecode.test
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test::ElvisCoalescingOperator": `public class bytecode.test.ElvisCoalescingOperator {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.ElvisCoalescingOperator();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -201,6 +193,14 @@ defines module bytecode.test
        375: invokespecial #CP                 // Method java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
        378: athrow
        379: return
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
 
     ElvisCoalescingOperator()

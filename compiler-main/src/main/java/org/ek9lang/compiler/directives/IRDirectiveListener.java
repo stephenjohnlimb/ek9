@@ -17,6 +17,7 @@ import org.ek9lang.core.CompilerException;
  */
 public class IRDirectiveListener extends ResolvedDirectiveListener {
 
+  private static final Object OUTPUT_LOCK = new Object();
   private final BiPredicate<String, String> lineComparator = new LineByLineComparator(System.err);
 
   @Override
@@ -64,7 +65,18 @@ public class IRDirectiveListener extends ResolvedDirectiveListener {
     }
 
     if (!lineComparator.test(resolutionDirective.getAdditionalName(), output.toString())) {
-      System.err.println(output);
+      // Output structured format for automated update script - synchronized to prevent interleaving
+      synchronized (OUTPUT_LOCK) {
+        System.err.println("===IR_UPDATE_START===");
+        System.err.println("FILE: " + compilationEvent.source().getFileName());
+        System.err.println("SYMBOL: " + resolutionDirective.getSymbolName());
+        System.err.println("CATEGORY: " + resolutionDirective.getSymbolCategory());
+        System.err.println("---IR_CONTENT_START---");
+        System.err.print(output);
+        System.err.println("---IR_CONTENT_END---");
+        System.err.println("===IR_UPDATE_END===");
+        System.err.flush();
+      }
       throw new CompilerException("Expected IR and Generated IR line difference");
     }
 

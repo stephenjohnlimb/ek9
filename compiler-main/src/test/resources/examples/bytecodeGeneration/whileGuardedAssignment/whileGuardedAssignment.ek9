@@ -9,27 +9,11 @@ defines module bytecode.test.whileguardedassign
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.whileguardedassign::WhileGuardedAssignment": `public class bytecode.test.whileguardedassign.WhileGuardedAssignment {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
-  public bytecode.test.whileguardedassign.WhileGuardedAssignment();
-    Code:
-         0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
-         4: aload_0
-         5: invokevirtual #CP                 // Method i_init:()V
-         8: return
-
   public void _main(org.ek9.lang.Integer);
     Code:
          0: aconst_null
          1: astore_2
-         2: new           #CP                 // class org/ek9/lang/Stdout
+         2: new           #CP                  // class org/ek9/lang/Stdout
          5: dup
          6: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
          9: astore_3
@@ -175,6 +159,22 @@ defines module bytecode.test.whileguardedassign
        308: aload         39
        310: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
        313: return
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
+
+  public bytecode.test.whileguardedassign.WhileGuardedAssignment();
+    Code:
+         0: aload_0
+         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: invokevirtual #CP                 // Method i_init:()V
+         8: return
 }`
 
     WhileGuardedAssignment()

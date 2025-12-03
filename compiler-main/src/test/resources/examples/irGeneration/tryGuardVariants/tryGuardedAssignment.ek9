@@ -14,193 +14,193 @@ defines module tryGuardVariants.guardedAssign
 
     @IR: IR_GENERATION: FUNCTION: "tryGuardVariants.guardedAssign::getConfig": `
     ConstructDfn: tryGuardVariants.guardedAssign::getConfig()->org.ek9.lang::String
-    OperationDfn: tryGuardVariants.guardedAssign::getConfig.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: tryGuardVariants.guardedAssign::getConfig.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: tryGuardVariants.guardedAssign::getConfig.getConfig()->tryGuardVariants.guardedAssign::getConfig
-    BasicBlock: _entry_1
-    CALL (tryGuardVariants.guardedAssign::getConfig)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: tryGuardVariants.guardedAssign::getConfig._call()->org.ek9.lang::String
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE rtn, org.ek9.lang::String
-    _temp1 = LOAD_LITERAL config-value, org.ek9.lang::String
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    RELEASE rtn
-    STORE rtn, _temp1
-    RETAIN rtn
-    SCOPE_EXIT _scope_1
-    RETURN rtn`
+OperationDfn: tryGuardVariants.guardedAssign::getConfig._call()->org.ek9.lang::String  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE rtn, org.ek9.lang::String
+_temp1 = LOAD_LITERAL config-value, org.ek9.lang::String
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+RELEASE rtn
+STORE rtn, _temp1
+RETAIN rtn
+SCOPE_EXIT _scope_1
+RETURN rtn
+OperationDfn: tryGuardVariants.guardedAssign::getConfig.getConfig()->tryGuardVariants.guardedAssign::getConfig  
+BasicBlock: _entry_1
+CALL (tryGuardVariants.guardedAssign::getConfig)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: tryGuardVariants.guardedAssign::getConfig.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: tryGuardVariants.guardedAssign::getConfig.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     getConfig()
       <- rtn as String?
       rtn: "config-value"
 
     @IR: IR_GENERATION: FUNCTION: "tryGuardVariants.guardedAssign::tryGuardedAssignment": `
     ConstructDfn: tryGuardVariants.guardedAssign::tryGuardedAssignment()->org.ek9.lang::Void
-    OperationDfn: tryGuardVariants.guardedAssign::tryGuardedAssignment.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: tryGuardVariants.guardedAssign::tryGuardedAssignment.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: tryGuardVariants.guardedAssign::tryGuardedAssignment.tryGuardedAssignment()->tryGuardVariants.guardedAssign::tryGuardedAssignment
-    BasicBlock: _entry_1
-    CALL (tryGuardVariants.guardedAssign::tryGuardedAssignment)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: tryGuardVariants.guardedAssign::tryGuardedAssignment._call()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE stdout, org.ek9.lang::Stdout
-    _temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE stdout, _temp1
-    RETAIN stdout
-    SCOPE_REGISTER stdout, _scope_1
-    REFERENCE config, org.ek9.lang::String
-    _temp2 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_1
-    STORE config, _temp2
-    RETAIN config
-    SCOPE_REGISTER config, _scope_1
-    SCOPE_ENTER _scope_2
-    _temp5 = FUNCTION_INSTANCE tryGuardVariants.guardedAssign::getConfig
-    _temp3 = CALL (tryGuardVariants.guardedAssign::getConfig)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_2
-    RELEASE config
-    STORE config, _temp3
-    RETAIN config
-    _temp6 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_2
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp7 = IS_NULL config
-    ]
-    primitive_condition: _temp7
-    body_evaluation:
-    [
-    _temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_2
-    ]
-    body_result: _temp8
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp9 = LOAD config
-    _temp10 = CALL (org.ek9.lang::String)_temp9._isSet() [pure=true, complexity=0]
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, _scope_2
-    ]
-    default_result: _temp10
-    scope_id: _scope_2
-    ]
-    _temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "IF_ELSE_IF"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_2
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    ]
-    condition_result: _temp6
-    primitive_condition: _temp11
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_3
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "TRY_CATCH_FINALLY"
-    try_block_details:
-    [
-    try_scope_id: _scope_4
-    try_body_evaluation:
-    [
-    SCOPE_ENTER _scope_4
-    _temp13 = LOAD stdout
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, _scope_4
-    _temp14 = LOAD_LITERAL Config loaded:, org.ek9.lang::String
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_4
-    CALL (org.ek9.lang::Stdout)_temp13.println(_temp14) [pure=true, complexity=1]
-    _temp16 = LOAD stdout
-    RETAIN _temp16
-    SCOPE_REGISTER _temp16, _scope_4
-    _temp17 = LOAD config
-    RETAIN _temp17
-    SCOPE_REGISTER _temp17, _scope_4
-    CALL (org.ek9.lang::Stdout)_temp16.println(_temp17) [pure=true, complexity=1]
-    SCOPE_EXIT _scope_4
-    ]
-    ]
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_5
-    case_type: "EXCEPTION_HANDLER"
-    condition_evaluation:
-    [
-    ]
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_5
-    REFERENCE ex, org.ek9.lang::Exception
-    SCOPE_REGISTER ex, _scope_5
-    _temp19 = LOAD stdout
-    RETAIN _temp19
-    SCOPE_REGISTER _temp19, _scope_5
-    _temp20 = LOAD_LITERAL Failed to load config, org.ek9.lang::String
-    RETAIN _temp20
-    SCOPE_REGISTER _temp20, _scope_5
-    CALL (org.ek9.lang::Stdout)_temp19.println(_temp20) [pure=true, complexity=1]
-    SCOPE_EXIT _scope_5
-    ]
-    exception_type: "org.ek9.lang::Exception"
-    exception_variable: ex
-    ]
-    ]
-    finally_block_evaluation:
-    [
-    SCOPE_ENTER _scope_6
-    _temp22 = LOAD stdout
-    RETAIN _temp22
-    SCOPE_REGISTER _temp22, _scope_6
-    _temp23 = LOAD_LITERAL Cleanup complete, org.ek9.lang::String
-    RETAIN _temp23
-    SCOPE_REGISTER _temp23, _scope_6
-    CALL (org.ek9.lang::Stdout)_temp22.println(_temp23) [pure=true, complexity=1]
-    SCOPE_EXIT _scope_6
-    ]
-    scope_id: _scope_3
-    ]
-    SCOPE_EXIT _scope_3
-    ]
-    ]
-    ]
-    scope_id: _scope_2
-    ]
-    SCOPE_EXIT _scope_2
-    SCOPE_EXIT _scope_1
-    RETURN`
+OperationDfn: tryGuardVariants.guardedAssign::tryGuardedAssignment._call()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE stdout, org.ek9.lang::Stdout
+_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE stdout, _temp1
+RETAIN stdout
+SCOPE_REGISTER stdout, _scope_1
+REFERENCE config, org.ek9.lang::String
+_temp2 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+STORE config, _temp2
+RETAIN config
+SCOPE_REGISTER config, _scope_1
+SCOPE_ENTER _scope_2
+_temp5 = FUNCTION_INSTANCE tryGuardVariants.guardedAssign::getConfig
+_temp3 = CALL (tryGuardVariants.guardedAssign::getConfig)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_2
+RELEASE config
+STORE config, _temp3
+RETAIN config
+_temp6 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp7 = IS_NULL config
+]
+primitive_condition: _temp7
+body_evaluation:
+[
+_temp8 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_2
+]
+body_result: _temp8
+]
+]
+default_body_evaluation:
+[
+_temp9 = LOAD config
+_temp10 = CALL (org.ek9.lang::String)_temp9._isSet() [pure=true, complexity=0]
+RETAIN _temp10
+SCOPE_REGISTER _temp10, _scope_2
+]
+default_result: _temp10
+scope_id: _scope_2
+]
+_temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
+CONTROL_FLOW_CHAIN
+[
+chain_type: "IF_ELSE_IF"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+]
+condition_result: _temp6
+primitive_condition: _temp11
+body_evaluation:
+[
+SCOPE_ENTER _scope_3
+CONTROL_FLOW_CHAIN
+[
+chain_type: "TRY_CATCH_FINALLY"
+try_block_details:
+[
+try_scope_id: _scope_4
+try_body_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp13 = LOAD stdout
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_4
+_temp14 = LOAD_LITERAL Config loaded:, org.ek9.lang::String
+RETAIN _temp14
+SCOPE_REGISTER _temp14, _scope_4
+CALL (org.ek9.lang::Stdout)_temp13.println(_temp14) [pure=true, complexity=1]
+_temp16 = LOAD stdout
+RETAIN _temp16
+SCOPE_REGISTER _temp16, _scope_4
+_temp17 = LOAD config
+RETAIN _temp17
+SCOPE_REGISTER _temp17, _scope_4
+CALL (org.ek9.lang::Stdout)_temp16.println(_temp17) [pure=true, complexity=1]
+SCOPE_EXIT _scope_4
+]
+]
+condition_chain:
+[
+[
+case_scope_id: _scope_5
+case_type: "EXCEPTION_HANDLER"
+condition_evaluation:
+[
+]
+body_evaluation:
+[
+SCOPE_ENTER _scope_5
+REFERENCE ex, org.ek9.lang::Exception
+SCOPE_REGISTER ex, _scope_5
+_temp19 = LOAD stdout
+RETAIN _temp19
+SCOPE_REGISTER _temp19, _scope_5
+_temp20 = LOAD_LITERAL Failed to load config, org.ek9.lang::String
+RETAIN _temp20
+SCOPE_REGISTER _temp20, _scope_5
+CALL (org.ek9.lang::Stdout)_temp19.println(_temp20) [pure=true, complexity=1]
+SCOPE_EXIT _scope_5
+]
+exception_type: "org.ek9.lang::Exception"
+exception_variable: ex
+]
+]
+finally_block_evaluation:
+[
+SCOPE_ENTER _scope_6
+_temp22 = LOAD stdout
+RETAIN _temp22
+SCOPE_REGISTER _temp22, _scope_6
+_temp23 = LOAD_LITERAL Cleanup complete, org.ek9.lang::String
+RETAIN _temp23
+SCOPE_REGISTER _temp23, _scope_6
+CALL (org.ek9.lang::Stdout)_temp22.println(_temp23) [pure=true, complexity=1]
+SCOPE_EXIT _scope_6
+]
+scope_id: _scope_3
+]
+SCOPE_EXIT _scope_3
+]
+]
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+SCOPE_EXIT _scope_1
+RETURN
+OperationDfn: tryGuardVariants.guardedAssign::tryGuardedAssignment.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: tryGuardVariants.guardedAssign::tryGuardedAssignment.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: tryGuardVariants.guardedAssign::tryGuardedAssignment.tryGuardedAssignment()->tryGuardVariants.guardedAssign::tryGuardedAssignment  
+BasicBlock: _entry_1
+CALL (tryGuardVariants.guardedAssign::tryGuardedAssignment)this.i_init() [pure=false, complexity=0]
+RETURN this`
     tryGuardedAssignment()
       stdout <- Stdout()
 

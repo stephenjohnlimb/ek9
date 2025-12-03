@@ -5,6 +5,7 @@ import org.ek9lang.compiler.common.TypeNameOrException;
 import org.ek9lang.compiler.ir.instructions.Field;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.phase7.generation.DebugInfoCreator;
+import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.VariableSymbol;
 
@@ -14,13 +15,15 @@ import org.ek9lang.compiler.symbols.VariableSymbol;
 public class FieldCreator implements Consumer<ISymbol> {
 
   private final IRConstruct construct;
+  private final IRGenerationContext context;
   private final DebugInfoCreator debugInfoCreator;
   final TypeNameOrException typeNameOrException = new TypeNameOrException();
 
   public FieldCreator(final IRConstruct construct,
-                            final DebugInfoCreator debugInfoCreator) {
-
+                      final IRGenerationContext context,
+                      final DebugInfoCreator debugInfoCreator) {
     this.construct = construct;
+    this.context = context;
     this.debugInfoCreator = debugInfoCreator;
   }
 
@@ -32,7 +35,8 @@ public class FieldCreator implements Consumer<ISymbol> {
       final var debugInfo = debugInfoCreator.apply(variableSymbol.getSourceToken());
 
       final var field = new Field(variableSymbol, fieldName, typeName, debugInfo);
-      construct.addField(field);
+      final var ek9Types = context.getParsedModule().getEk9Types();
+      construct.addField(field, ek9Types);
     }
   }
 }

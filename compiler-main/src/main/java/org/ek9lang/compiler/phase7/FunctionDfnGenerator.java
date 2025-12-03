@@ -65,7 +65,7 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
   private void createFieldDeclarations(final IRConstruct construct, final FunctionSymbol functionSymbol) {
 
     final var debugInfoCreator = createDebugInfoCreator();
-    final var fieldCreator = new FieldCreator(construct, debugInfoCreator);
+    final var fieldCreator = new FieldCreator(construct, stackContext, debugInfoCreator);
     final var fieldsFromCapture = new FieldsFromCapture(fieldCreator);
 
     fieldsFromCapture.accept(functionSymbol);
@@ -83,11 +83,14 @@ final class FunctionDfnGenerator extends AbstractDfnGenerator
 
     // Constructor method coordination
     final var constructorMethod = createSyntheticFunctionConstructorMethod(functionSymbol);
-    var debugInfo = stackContext.createDebugInfo(constructorMethod.getSourceToken());
+    final var debugInfo = stackContext.createDebugInfo(constructorMethod.getSourceToken());
+    final var operation = new OperationInstr(constructorMethod, debugInfo);
+    construct.add(operation);
+
     stackContext.enterMethodScope("constructor", debugInfo, IRFrameType.METHOD);
 
     final IScopedSymbol superType = functionSymbol.getSuperFunction().orElse(null);
-    processSyntheticConstructor(construct, constructorMethod, superType);
+    processSyntheticConstructor(operation, superType);
     stackContext.exitScope();
   }
 

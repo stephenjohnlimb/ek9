@@ -9,41 +9,41 @@ defines module expressions
 
     @IR: IR_GENERATION: FUNCTION: "expressions::simpleListLiteral": `
     ConstructDfn: expressions::simpleListLiteral()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
-    OperationDfn: expressions::simpleListLiteral.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: expressions::simpleListLiteral.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: expressions::simpleListLiteral.simpleListLiteral()->expressions::simpleListLiteral
-    BasicBlock: _entry_1
-    CALL (expressions::simpleListLiteral)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: expressions::simpleListLiteral._call()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE rtn, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
-    _temp1 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.<init>() [pure=true, complexity=0, effects=RETURN_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    _temp2 = LOAD_LITERAL one, org.ek9.lang::String
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_1
-    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp1._addAss(_temp2) [pure=false, complexity=0, effects=THIS_MUTATION]
-    _temp3 = LOAD_LITERAL two, org.ek9.lang::String
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_1
-    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp1._addAss(_temp3) [pure=false, complexity=0, effects=THIS_MUTATION]
-    _temp4 = LOAD_LITERAL three, org.ek9.lang::String
-    RETAIN _temp4
-    SCOPE_REGISTER _temp4, _scope_1
-    CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp1._addAss(_temp4) [pure=false, complexity=0, effects=THIS_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE rtn, _temp1
-    RETAIN rtn
-    SCOPE_EXIT _scope_1
-    RETURN rtn`
+OperationDfn: expressions::simpleListLiteral._call()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE rtn, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+_temp1 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1.<init>() [pure=true, complexity=0, effects=RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+_temp2 = LOAD_LITERAL one, org.ek9.lang::String
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp1._addAss(_temp2) [pure=false, complexity=0, effects=THIS_MUTATION]
+_temp3 = LOAD_LITERAL two, org.ek9.lang::String
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_1
+CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp1._addAss(_temp3) [pure=false, complexity=0, effects=THIS_MUTATION]
+_temp4 = LOAD_LITERAL three, org.ek9.lang::String
+RETAIN _temp4
+SCOPE_REGISTER _temp4, _scope_1
+CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp1._addAss(_temp4) [pure=false, complexity=0, effects=THIS_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE rtn, _temp1
+RETAIN rtn
+SCOPE_EXIT _scope_1
+RETURN rtn
+OperationDfn: expressions::simpleListLiteral.simpleListLiteral()->expressions::simpleListLiteral  
+BasicBlock: _entry_1
+CALL (expressions::simpleListLiteral)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: expressions::simpleListLiteral.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: expressions::simpleListLiteral.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     simpleListLiteral()
       <- rtn as List of String: ["one", "two", "three"]
 

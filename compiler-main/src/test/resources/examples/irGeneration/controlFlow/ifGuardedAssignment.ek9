@@ -19,147 +19,147 @@ defines module controlFlow
 
     @IR: IR_GENERATION: FUNCTION: "controlFlow::ifGuardedAssignment": `
     ConstructDfn: controlFlow::ifGuardedAssignment()->org.ek9.lang::String
-    OperationDfn: controlFlow::ifGuardedAssignment.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: controlFlow::ifGuardedAssignment.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: controlFlow::ifGuardedAssignment.ifGuardedAssignment()->controlFlow::ifGuardedAssignment
-    BasicBlock: _entry_1
-    CALL (controlFlow::ifGuardedAssignment)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: controlFlow::ifGuardedAssignment._call()->org.ek9.lang::String
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE result, org.ek9.lang::String
-    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE result, _temp1
-    RETAIN result
-    REFERENCE existing, org.ek9.lang::Integer
-    _temp2 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_1
-    STORE existing, _temp2
-    RETAIN existing
-    SCOPE_REGISTER existing, _scope_1
-    SCOPE_ENTER _scope_2
-    _temp5 = FUNCTION_INSTANCE controlFlow::provideOptional
-    _temp3 = CALL (controlFlow::provideOptional)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_2
-    RELEASE existing
-    STORE existing, _temp3
-    RETAIN existing
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "IF_ELSE_WITH_GUARDS"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_4
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_3
-    _temp6 = LOGICAL_AND_BLOCK
-    [
-    left_evaluation:
-    [
-    _temp7 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_3
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp8 = IS_NULL existing
-    ]
-    primitive_condition: _temp8
-    body_evaluation:
-    [
-    _temp9 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_3
-    ]
-    body_result: _temp9
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp10 = LOAD existing
-    _temp11 = CALL (org.ek9.lang::Integer)_temp10._isSet() [pure=true, complexity=0]
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_3
-    ]
-    default_result: _temp11
-    scope_id: _scope_3
-    ]
-    _temp12 = CALL (org.ek9.lang::Boolean)_temp7._true() [pure=true, complexity=0]
-    ]
-    left_operand: _temp7
-    left_condition: _temp12
-    right_evaluation:
-    [
-    _temp14 = LOAD existing
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_3
-    _temp15 = LOAD_LITERAL 10, org.ek9.lang::Integer
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_3
-    _temp13 = CALL (org.ek9.lang::Integer)_temp14._gt(_temp15) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, _scope_3
-    ]
-    right_operand: _temp13
-    result_computation:
-    [
-    _temp16 = CALL (org.ek9.lang::Boolean)_temp7._and(_temp13) [pure=true, complexity=0]
-    RETAIN _temp16
-    SCOPE_REGISTER _temp16, _scope_3
-    ]
-    logical_result: _temp16
-    scope_id: _scope_3
-    ]
-    _temp17 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_3
-    ]
-    condition_result: _temp6
-    primitive_condition: _temp17
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_4
-    _temp18 = LOAD_LITERAL High, org.ek9.lang::String
-    RETAIN _temp18
-    SCOPE_REGISTER _temp18, _scope_4
-    RELEASE result
-    STORE result, _temp18
-    RETAIN result
-    SCOPE_EXIT _scope_4
-    ]
-    ]
-    ]
-    default_body_evaluation:
-    [
-    SCOPE_ENTER _scope_5
-    _temp19 = LOAD_LITERAL Low, org.ek9.lang::String
-    RETAIN _temp19
-    SCOPE_REGISTER _temp19, _scope_5
-    RELEASE result
-    STORE result, _temp19
-    RETAIN result
-    SCOPE_EXIT _scope_5
-    ]
-    scope_id: _scope_2
-    ]
-    SCOPE_EXIT _scope_2
-    SCOPE_EXIT _scope_1
-    RETURN result`
+OperationDfn: controlFlow::ifGuardedAssignment._call()->org.ek9.lang::String  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE result, org.ek9.lang::String
+_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE result, _temp1
+RETAIN result
+REFERENCE existing, org.ek9.lang::Integer
+_temp2 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+STORE existing, _temp2
+RETAIN existing
+SCOPE_REGISTER existing, _scope_1
+SCOPE_ENTER _scope_2
+_temp5 = FUNCTION_INSTANCE controlFlow::provideOptional
+_temp3 = CALL (controlFlow::provideOptional)_temp5._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_2
+RELEASE existing
+STORE existing, _temp3
+RETAIN existing
+CONTROL_FLOW_CHAIN
+[
+chain_type: "IF_ELSE_WITH_GUARDS"
+condition_chain:
+[
+[
+case_scope_id: _scope_4
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_3
+_temp6 = LOGICAL_AND_BLOCK
+[
+left_evaluation:
+[
+_temp7 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_3
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp8 = IS_NULL existing
+]
+primitive_condition: _temp8
+body_evaluation:
+[
+_temp9 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_3
+]
+body_result: _temp9
+]
+]
+default_body_evaluation:
+[
+_temp10 = LOAD existing
+_temp11 = CALL (org.ek9.lang::Integer)_temp10._isSet() [pure=true, complexity=0]
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_3
+]
+default_result: _temp11
+scope_id: _scope_3
+]
+_temp12 = CALL (org.ek9.lang::Boolean)_temp7._true() [pure=true, complexity=0]
+]
+left_operand: _temp7
+left_condition: _temp12
+right_evaluation:
+[
+_temp14 = LOAD existing
+RETAIN _temp14
+SCOPE_REGISTER _temp14, _scope_3
+_temp15 = LOAD_LITERAL 10, org.ek9.lang::Integer
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_3
+_temp13 = CALL (org.ek9.lang::Integer)_temp14._gt(_temp15) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_3
+]
+right_operand: _temp13
+result_computation:
+[
+_temp16 = CALL (org.ek9.lang::Boolean)_temp7._and(_temp13) [pure=true, complexity=0]
+RETAIN _temp16
+SCOPE_REGISTER _temp16, _scope_3
+]
+logical_result: _temp16
+scope_id: _scope_3
+]
+_temp17 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_3
+]
+condition_result: _temp6
+primitive_condition: _temp17
+body_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp18 = LOAD_LITERAL High, org.ek9.lang::String
+RETAIN _temp18
+SCOPE_REGISTER _temp18, _scope_4
+RELEASE result
+STORE result, _temp18
+RETAIN result
+SCOPE_EXIT _scope_4
+]
+]
+]
+default_body_evaluation:
+[
+SCOPE_ENTER _scope_5
+_temp19 = LOAD_LITERAL Low, org.ek9.lang::String
+RETAIN _temp19
+SCOPE_REGISTER _temp19, _scope_5
+RELEASE result
+STORE result, _temp19
+RETAIN result
+SCOPE_EXIT _scope_5
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+SCOPE_EXIT _scope_1
+RETURN result
+OperationDfn: controlFlow::ifGuardedAssignment.ifGuardedAssignment()->controlFlow::ifGuardedAssignment  
+BasicBlock: _entry_1
+CALL (controlFlow::ifGuardedAssignment)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: controlFlow::ifGuardedAssignment.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: controlFlow::ifGuardedAssignment.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     ifGuardedAssignment()
       <-
         result <- String()

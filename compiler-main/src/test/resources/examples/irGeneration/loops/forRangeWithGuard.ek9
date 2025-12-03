@@ -12,294 +12,294 @@ defines module loops.forrange.guard
 
     @IR: IR_GENERATION: FUNCTION: "loops.forrange.guard::getLimit": `
     ConstructDfn: loops.forrange.guard::getLimit()->org.ek9.lang::Integer
-    OperationDfn: loops.forrange.guard::getLimit.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops.forrange.guard::getLimit.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops.forrange.guard::getLimit.getLimit()->loops.forrange.guard::getLimit
-    BasicBlock: _entry_1
-    CALL (loops.forrange.guard::getLimit)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: loops.forrange.guard::getLimit._call()->org.ek9.lang::Integer
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE rtn, org.ek9.lang::Integer
-    _temp1 = LOAD_LITERAL 5, org.ek9.lang::Integer
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    RELEASE rtn
-    STORE rtn, _temp1
-    RETAIN rtn
-    SCOPE_EXIT _scope_1
-    RETURN rtn`
+OperationDfn: loops.forrange.guard::getLimit._call()->org.ek9.lang::Integer  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE rtn, org.ek9.lang::Integer
+_temp1 = LOAD_LITERAL 5, org.ek9.lang::Integer
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+RELEASE rtn
+STORE rtn, _temp1
+RETAIN rtn
+SCOPE_EXIT _scope_1
+RETURN rtn
+OperationDfn: loops.forrange.guard::getLimit.getLimit()->loops.forrange.guard::getLimit  
+BasicBlock: _entry_1
+CALL (loops.forrange.guard::getLimit)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: loops.forrange.guard::getLimit.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: loops.forrange.guard::getLimit.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     getLimit()
       <- rtn as Integer?
       rtn: 5
 
     @IR: IR_GENERATION: FUNCTION: "loops.forrange.guard::forRangeWithGuard": `
     ConstructDfn: loops.forrange.guard::forRangeWithGuard()->org.ek9.lang::Integer
-    OperationDfn: loops.forrange.guard::forRangeWithGuard.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops.forrange.guard::forRangeWithGuard.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: loops.forrange.guard::forRangeWithGuard.forRangeWithGuard()->loops.forrange.guard::forRangeWithGuard
-    BasicBlock: _entry_1
-    CALL (loops.forrange.guard::forRangeWithGuard)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: loops.forrange.guard::forRangeWithGuard._call()->org.ek9.lang::Integer
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE sum, org.ek9.lang::Integer
-    _temp1 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE sum, _temp1
-    RETAIN sum
-    SCOPE_ENTER _scope_2
-    REFERENCE limit, org.ek9.lang::Integer
-    _temp4 = FUNCTION_INSTANCE loops.forrange.guard::getLimit
-    _temp2 = CALL (loops.forrange.guard::getLimit)_temp4._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_2
-    STORE limit, _temp2
-    RETAIN limit
-    SCOPE_REGISTER limit, _scope_2
-    _temp5 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_2
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp6 = IS_NULL limit
-    ]
-    primitive_condition: _temp6
-    body_evaluation:
-    [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_2
-    ]
-    body_result: _temp7
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp8 = LOAD limit
-    _temp9 = CALL (org.ek9.lang::Integer)_temp8._isSet() [pure=true, complexity=0]
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_2
-    ]
-    default_result: _temp9
-    scope_id: _scope_2
-    ]
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "IF_ELSE_IF"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_2
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    ]
-    condition_result: _temp5
-    primitive_condition: _temp10
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_3
-    REFERENCE i, org.ek9.lang::Integer
-    SCOPE_REGISTER i, _scope_3
-    FOR_RANGE_POLYMORPHIC
-    [
-    initialization:
-    [
-    _temp12 = LOAD_LITERAL 1, org.ek9.lang::Integer
-    RETAIN _temp12
-    SCOPE_REGISTER _temp12, _scope_3
-    _temp11 = LOAD _temp12
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_3
-    _temp14 = LOAD limit
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_3
-    _temp13 = LOAD _temp14
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, _scope_3
-    _temp15 = CALL (org.ek9.lang::Integer)_temp11._isSet() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_3
-    _temp16 = CALL (org.ek9.lang::Boolean)_temp15._true() [pure=true, complexity=0]
-    ASSERT _temp16, For-range 'start' value must be set
-    _temp17 = CALL (org.ek9.lang::Integer)_temp13._isSet() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp17
-    SCOPE_REGISTER _temp17, _scope_3
-    _temp18 = CALL (org.ek9.lang::Boolean)_temp17._true() [pure=true, complexity=0]
-    ASSERT _temp18, For-range 'end' value must be set
-    _temp19 = CALL (org.ek9.lang::Integer)_temp11._cmp(_temp13) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp19
-    SCOPE_REGISTER _temp19, _scope_3
-    _temp20 = LOAD _temp11
-    RETAIN _temp20
-    SCOPE_REGISTER _temp20, _scope_3
-    ]
-    dispatch_cases:
-    [
-    ascending:
-    [
-    direction_check:
-    [
-    SCOPE_ENTER _scope_5
-    _temp24 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp24
-    SCOPE_REGISTER _temp24, _scope_5
-    _temp25 = CALL (org.ek9.lang::Integer)_temp19._lt(_temp24) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp25
-    SCOPE_REGISTER _temp25, _scope_5
-    _temp26 = CALL (org.ek9.lang::Boolean)_temp25._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_5
-    ]
-    direction_primitive: _temp26
-    loop_condition_template:
-    [
-    SCOPE_ENTER _scope_6
-    _temp27 = CALL (org.ek9.lang::Integer)_temp20._cmp(_temp13) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp27
-    SCOPE_REGISTER _temp27, _scope_6
-    _temp28 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp28
-    SCOPE_REGISTER _temp28, _scope_6
-    _temp29 = CALL (org.ek9.lang::Integer)_temp27._lteq(_temp28) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp29
-    SCOPE_REGISTER _temp29, _scope_6
-    _temp30 = CALL (org.ek9.lang::Boolean)_temp29._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_6
-    ]
-    loop_condition_primitive: _temp30
-    loop_body_setup:
-    [
-    RELEASE i
-    STORE i, _temp20
-    RETAIN i
-    ]
-    loop_increment:
-    [
-    SCOPE_ENTER _scope_7
-    _temp31 = CALL (org.ek9.lang::Integer)_temp20._inc() [pure=false, complexity=0, effects=RETURN_MUTATION,THIS_MUTATION]
-    RETAIN _temp31
-    SCOPE_REGISTER _temp31, _scope_7
-    STORE _temp20, _temp31
-    SCOPE_EXIT _scope_7
-    ]
-    ]
-    descending:
-    [
-    direction_check:
-    [
-    SCOPE_ENTER _scope_8
-    _temp32 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp32
-    SCOPE_REGISTER _temp32, _scope_8
-    _temp33 = CALL (org.ek9.lang::Integer)_temp19._gt(_temp32) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp33
-    SCOPE_REGISTER _temp33, _scope_8
-    _temp34 = CALL (org.ek9.lang::Boolean)_temp33._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_8
-    ]
-    direction_primitive: _temp34
-    loop_condition_template:
-    [
-    SCOPE_ENTER _scope_9
-    _temp35 = CALL (org.ek9.lang::Integer)_temp20._cmp(_temp13) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp35
-    SCOPE_REGISTER _temp35, _scope_9
-    _temp36 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp36
-    SCOPE_REGISTER _temp36, _scope_9
-    _temp37 = CALL (org.ek9.lang::Integer)_temp35._gteq(_temp36) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp37
-    SCOPE_REGISTER _temp37, _scope_9
-    _temp38 = CALL (org.ek9.lang::Boolean)_temp37._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_9
-    ]
-    loop_condition_primitive: _temp38
-    loop_body_setup:
-    [
-    RELEASE i
-    STORE i, _temp20
-    RETAIN i
-    ]
-    loop_increment:
-    [
-    SCOPE_ENTER _scope_10
-    _temp39 = CALL (org.ek9.lang::Integer)_temp20._dec() [pure=false, complexity=0, effects=RETURN_MUTATION,THIS_MUTATION]
-    RETAIN _temp39
-    SCOPE_REGISTER _temp39, _scope_10
-    STORE _temp20, _temp39
-    SCOPE_EXIT _scope_10
-    ]
-    ]
-    equal:
-    [
-    loop_body_setup:
-    [
-    RELEASE i
-    STORE i, _temp20
-    RETAIN i
-    ]
-    single_iteration: true
-    ]
-    ]
-    body:
-    [
-    SCOPE_ENTER _scope_4
-    _temp22 = LOAD sum
-    RETAIN _temp22
-    SCOPE_REGISTER _temp22, _scope_4
-    _temp23 = LOAD i
-    RETAIN _temp23
-    SCOPE_REGISTER _temp23, _scope_4
-    _temp21 = CALL (org.ek9.lang::Integer)_temp22._add(_temp23) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp21
-    SCOPE_REGISTER _temp21, _scope_4
-    RELEASE sum
-    STORE sum, _temp21
-    RETAIN sum
-    SCOPE_EXIT _scope_4
-    ]
-    metadata:
-    [
-    direction_variable: "_temp19"
-    current_variable: "_temp20"
-    loop_variable: "i"
-    end_variable: "_temp13"
-    range_type: "org.ek9.lang::Integer"
-    ]
-    scope_metadata:
-    [
-    outer_scope: "_scope_2"
-    loop_scope: "_scope_3"
-    body_scope: "_scope_4"
-    ]
-    ]
-    SCOPE_EXIT _scope_3
-    ]
-    ]
-    ]
-    scope_id: _scope_2
-    ]
-    SCOPE_EXIT _scope_2
-    SCOPE_EXIT _scope_1
-    RETURN sum`
+OperationDfn: loops.forrange.guard::forRangeWithGuard._call()->org.ek9.lang::Integer  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE sum, org.ek9.lang::Integer
+_temp1 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE sum, _temp1
+RETAIN sum
+SCOPE_ENTER _scope_2
+REFERENCE limit, org.ek9.lang::Integer
+_temp4 = FUNCTION_INSTANCE loops.forrange.guard::getLimit
+_temp2 = CALL (loops.forrange.guard::getLimit)_temp4._call() [pure=false, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_2
+STORE limit, _temp2
+RETAIN limit
+SCOPE_REGISTER limit, _scope_2
+_temp5 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp6 = IS_NULL limit
+]
+primitive_condition: _temp6
+body_evaluation:
+[
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp7
+SCOPE_REGISTER _temp7, _scope_2
+]
+body_result: _temp7
+]
+]
+default_body_evaluation:
+[
+_temp8 = LOAD limit
+_temp9 = CALL (org.ek9.lang::Integer)_temp8._isSet() [pure=true, complexity=0]
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_2
+]
+default_result: _temp9
+scope_id: _scope_2
+]
+_temp10 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+CONTROL_FLOW_CHAIN
+[
+chain_type: "IF_ELSE_IF"
+condition_chain:
+[
+[
+case_scope_id: _scope_2
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+]
+condition_result: _temp5
+primitive_condition: _temp10
+body_evaluation:
+[
+SCOPE_ENTER _scope_3
+REFERENCE i, org.ek9.lang::Integer
+SCOPE_REGISTER i, _scope_3
+FOR_RANGE_POLYMORPHIC
+[
+initialization:
+[
+_temp12 = LOAD_LITERAL 1, org.ek9.lang::Integer
+RETAIN _temp12
+SCOPE_REGISTER _temp12, _scope_3
+_temp11 = LOAD _temp12
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_3
+_temp14 = LOAD limit
+RETAIN _temp14
+SCOPE_REGISTER _temp14, _scope_3
+_temp13 = LOAD _temp14
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_3
+_temp15 = CALL (org.ek9.lang::Integer)_temp11._isSet() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_3
+_temp16 = CALL (org.ek9.lang::Boolean)_temp15._true() [pure=true, complexity=0]
+ASSERT _temp16, For-range 'start' value must be set
+_temp17 = CALL (org.ek9.lang::Integer)_temp13._isSet() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp17
+SCOPE_REGISTER _temp17, _scope_3
+_temp18 = CALL (org.ek9.lang::Boolean)_temp17._true() [pure=true, complexity=0]
+ASSERT _temp18, For-range 'end' value must be set
+_temp19 = CALL (org.ek9.lang::Integer)_temp11._cmp(_temp13) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp19
+SCOPE_REGISTER _temp19, _scope_3
+_temp20 = LOAD _temp11
+RETAIN _temp20
+SCOPE_REGISTER _temp20, _scope_3
+]
+dispatch_cases:
+[
+ascending:
+[
+direction_check:
+[
+SCOPE_ENTER _scope_5
+_temp24 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp24
+SCOPE_REGISTER _temp24, _scope_5
+_temp25 = CALL (org.ek9.lang::Integer)_temp19._lt(_temp24) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp25
+SCOPE_REGISTER _temp25, _scope_5
+_temp26 = CALL (org.ek9.lang::Boolean)_temp25._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_5
+]
+direction_primitive: _temp26
+loop_condition_template:
+[
+SCOPE_ENTER _scope_6
+_temp27 = CALL (org.ek9.lang::Integer)_temp20._cmp(_temp13) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp27
+SCOPE_REGISTER _temp27, _scope_6
+_temp28 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp28
+SCOPE_REGISTER _temp28, _scope_6
+_temp29 = CALL (org.ek9.lang::Integer)_temp27._lteq(_temp28) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp29
+SCOPE_REGISTER _temp29, _scope_6
+_temp30 = CALL (org.ek9.lang::Boolean)_temp29._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_6
+]
+loop_condition_primitive: _temp30
+loop_body_setup:
+[
+RELEASE i
+STORE i, _temp20
+RETAIN i
+]
+loop_increment:
+[
+SCOPE_ENTER _scope_7
+_temp31 = CALL (org.ek9.lang::Integer)_temp20._inc() [pure=false, complexity=0, effects=RETURN_MUTATION,THIS_MUTATION]
+RETAIN _temp31
+SCOPE_REGISTER _temp31, _scope_7
+STORE _temp20, _temp31
+SCOPE_EXIT _scope_7
+]
+]
+descending:
+[
+direction_check:
+[
+SCOPE_ENTER _scope_8
+_temp32 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp32
+SCOPE_REGISTER _temp32, _scope_8
+_temp33 = CALL (org.ek9.lang::Integer)_temp19._gt(_temp32) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp33
+SCOPE_REGISTER _temp33, _scope_8
+_temp34 = CALL (org.ek9.lang::Boolean)_temp33._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_8
+]
+direction_primitive: _temp34
+loop_condition_template:
+[
+SCOPE_ENTER _scope_9
+_temp35 = CALL (org.ek9.lang::Integer)_temp20._cmp(_temp13) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp35
+SCOPE_REGISTER _temp35, _scope_9
+_temp36 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp36
+SCOPE_REGISTER _temp36, _scope_9
+_temp37 = CALL (org.ek9.lang::Integer)_temp35._gteq(_temp36) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp37
+SCOPE_REGISTER _temp37, _scope_9
+_temp38 = CALL (org.ek9.lang::Boolean)_temp37._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_9
+]
+loop_condition_primitive: _temp38
+loop_body_setup:
+[
+RELEASE i
+STORE i, _temp20
+RETAIN i
+]
+loop_increment:
+[
+SCOPE_ENTER _scope_10
+_temp39 = CALL (org.ek9.lang::Integer)_temp20._dec() [pure=false, complexity=0, effects=RETURN_MUTATION,THIS_MUTATION]
+RETAIN _temp39
+SCOPE_REGISTER _temp39, _scope_10
+STORE _temp20, _temp39
+SCOPE_EXIT _scope_10
+]
+]
+equal:
+[
+loop_body_setup:
+[
+RELEASE i
+STORE i, _temp20
+RETAIN i
+]
+single_iteration: true
+]
+]
+body:
+[
+SCOPE_ENTER _scope_4
+_temp22 = LOAD sum
+RETAIN _temp22
+SCOPE_REGISTER _temp22, _scope_4
+_temp23 = LOAD i
+RETAIN _temp23
+SCOPE_REGISTER _temp23, _scope_4
+_temp21 = CALL (org.ek9.lang::Integer)_temp22._add(_temp23) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp21
+SCOPE_REGISTER _temp21, _scope_4
+RELEASE sum
+STORE sum, _temp21
+RETAIN sum
+SCOPE_EXIT _scope_4
+]
+metadata:
+[
+direction_variable: "_temp19"
+current_variable: "_temp20"
+loop_variable: "i"
+end_variable: "_temp13"
+range_type: "org.ek9.lang::Integer"
+]
+scope_metadata:
+[
+outer_scope: "_scope_2"
+loop_scope: "_scope_3"
+body_scope: "_scope_4"
+]
+]
+SCOPE_EXIT _scope_3
+]
+]
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+SCOPE_EXIT _scope_1
+RETURN sum
+OperationDfn: loops.forrange.guard::forRangeWithGuard.forRangeWithGuard()->loops.forrange.guard::forRangeWithGuard  
+BasicBlock: _entry_1
+CALL (loops.forrange.guard::forRangeWithGuard)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: loops.forrange.guard::forRangeWithGuard.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: loops.forrange.guard::forRangeWithGuard.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     forRangeWithGuard()
       <- sum <- Integer()
 

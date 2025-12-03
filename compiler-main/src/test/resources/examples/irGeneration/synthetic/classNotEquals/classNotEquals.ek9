@@ -19,236 +19,236 @@ defines module synthetic.classNotEquals
 
     @IR: IR_GENERATION: TYPE: "synthetic.classNotEquals::Person": `
     ConstructDfn: synthetic.classNotEquals::Person
-    Field: name, org.ek9.lang::String
-    Field: age, org.ek9.lang::Integer
-    OperationDfn: synthetic.classNotEquals::Person.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: synthetic.classNotEquals::Person.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    REFERENCE this.name, org.ek9.lang::String
-    _temp1 = LOAD_LITERAL Steve, org.ek9.lang::String
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, i_init
-    STORE this.name, _temp1
-    RETAIN this.name
-    REFERENCE this.age, org.ek9.lang::Integer
-    _temp2 = LOAD_LITERAL 25, org.ek9.lang::Integer
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, i_init
-    STORE this.age, _temp2
-    RETAIN this.age
-    RETURN
-    OperationDfn: synthetic.classNotEquals::Person.<=>(synthetic.classNotEquals::Person)->org.ek9.lang::Integer
-    BasicBlock: _entry_1
-    SCOPE_ENTER __cmp_1
-    REFERENCE rtn, org.ek9.lang::Integer
-    _temp1 = CALL (synthetic.classNotEquals::Person)this._isSet() [pure=false, complexity=0]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, __cmp_1
-    _temp2 = CALL (org.ek9.lang::Boolean)_temp1._true() [pure=false, complexity=0]
-    BRANCH_FALSE _temp2, _return_unset_1
-    _temp3 = CALL (synthetic.classNotEquals::Person)param._isSet() [pure=false, complexity=0]
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, __cmp_1
-    _temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=false, complexity=0]
-    BRANCH_FALSE _temp4, _return_unset_1
-    _temp5 = LOAD this.name
-    RETAIN _temp5
-    SCOPE_REGISTER _temp5, __cmp_1
-    _temp6 = LOAD param.name
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, __cmp_1
-    _temp7 = CALL (org.ek9.lang::String)_temp5._cmp(_temp6) [pure=false, complexity=0]
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, __cmp_1
-    _temp8 = CALL (org.ek9.lang::Integer)_temp7._isSet() [pure=false, complexity=0]
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, __cmp_1
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp8._true() [pure=false, complexity=0]
-    BRANCH_FALSE _temp9, _return_unset_1
-    _temp10 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, __cmp_1
-    _temp11 = CALL (org.ek9.lang::Integer)_temp7._eq(_temp10) [pure=false, complexity=0]
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, __cmp_1
-    _temp12 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=false, complexity=0]
-    RETAIN _temp12
-    SCOPE_REGISTER _temp12, __cmp_1
-    BRANCH_TRUE _temp12, _continue_cmp_1
-    STORE rtn, _temp7
-    RETAIN rtn
-    BRANCH _return_result_1
-    LABEL _continue_cmp_1
-    _temp13 = LOAD this.age
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, __cmp_1
-    _temp14 = LOAD param.age
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, __cmp_1
-    _temp15 = CALL (org.ek9.lang::Integer)_temp13._cmp(_temp14) [pure=false, complexity=0]
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, __cmp_1
-    _temp16 = CALL (org.ek9.lang::Integer)_temp15._isSet() [pure=false, complexity=0]
-    RETAIN _temp16
-    SCOPE_REGISTER _temp16, __cmp_1
-    _temp17 = CALL (org.ek9.lang::Boolean)_temp16._true() [pure=false, complexity=0]
-    BRANCH_FALSE _temp17, _return_unset_1
-    _temp18 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp18
-    SCOPE_REGISTER _temp18, __cmp_1
-    _temp19 = CALL (org.ek9.lang::Integer)_temp15._eq(_temp18) [pure=false, complexity=0]
-    RETAIN _temp19
-    SCOPE_REGISTER _temp19, __cmp_1
-    _temp20 = CALL (org.ek9.lang::Boolean)_temp19._true() [pure=false, complexity=0]
-    RETAIN _temp20
-    SCOPE_REGISTER _temp20, __cmp_1
-    BRANCH_TRUE _temp20, _continue_cmp_2
-    STORE rtn, _temp15
-    RETAIN rtn
-    BRANCH _return_result_1
-    LABEL _continue_cmp_2
-    BRANCH _return_zero_1
-    LABEL _return_unset_1
-    _temp21 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=false, complexity=0]
-    RETAIN _temp21
-    SCOPE_REGISTER _temp21, __cmp_1
-    STORE rtn, _temp21
-    RETAIN rtn
-    SCOPE_EXIT __cmp_1
-    RETURN rtn
-    LABEL _return_zero_1
-    _temp22 = LOAD_LITERAL 0, org.ek9.lang::Integer
-    RETAIN _temp22
-    SCOPE_REGISTER _temp22, __cmp_1
-    STORE rtn, _temp22
-    RETAIN rtn
-    SCOPE_EXIT __cmp_1
-    RETURN rtn
-    LABEL _return_result_1
-    SCOPE_EXIT __cmp_1
-    RETURN rtn
-    OperationDfn: synthetic.classNotEquals::Person.==(synthetic.classNotEquals::Person)->org.ek9.lang::Boolean
-    BasicBlock: _entry_2
-    SCOPE_ENTER __eq_1
-    REFERENCE rtn, org.ek9.lang::Boolean
-    _temp23 = CALL (synthetic.classNotEquals::Person)this._isSet() [pure=false, complexity=0]
-    RETAIN _temp23
-    SCOPE_REGISTER _temp23, __eq_1
-    _temp24 = CALL (org.ek9.lang::Boolean)_temp23._true() [pure=false, complexity=0]
-    BRANCH_FALSE _temp24, _return_unset_2
-    _temp25 = CALL (synthetic.classNotEquals::Person)param._isSet() [pure=false, complexity=0]
-    RETAIN _temp25
-    SCOPE_REGISTER _temp25, __eq_1
-    _temp26 = CALL (org.ek9.lang::Boolean)_temp25._true() [pure=false, complexity=0]
-    BRANCH_FALSE _temp26, _return_unset_2
-    _temp27 = LOAD this.name
-    RETAIN _temp27
-    SCOPE_REGISTER _temp27, __eq_1
-    _temp28 = LOAD param.name
-    RETAIN _temp28
-    SCOPE_REGISTER _temp28, __eq_1
-    _temp29 = CALL (org.ek9.lang::String)_temp27._eq(_temp28) [pure=false, complexity=0]
-    RETAIN _temp29
-    SCOPE_REGISTER _temp29, __eq_1
-    _temp30 = CALL (org.ek9.lang::Boolean)_temp29._isSet() [pure=false, complexity=0]
-    RETAIN _temp30
-    SCOPE_REGISTER _temp30, __eq_1
-    _temp31 = CALL (org.ek9.lang::Boolean)_temp30._true() [pure=false, complexity=0]
-    BRANCH_FALSE _temp31, _return_unset_2
-    _temp32 = CALL (org.ek9.lang::Boolean)_temp29._true() [pure=false, complexity=0]
-    RETAIN _temp32
-    SCOPE_REGISTER _temp32, __eq_1
-    BRANCH_FALSE _temp32, _return_false_1
-    _temp33 = LOAD this.age
-    RETAIN _temp33
-    SCOPE_REGISTER _temp33, __eq_1
-    _temp34 = LOAD param.age
-    RETAIN _temp34
-    SCOPE_REGISTER _temp34, __eq_1
-    _temp35 = CALL (org.ek9.lang::Integer)_temp33._eq(_temp34) [pure=false, complexity=0]
-    RETAIN _temp35
-    SCOPE_REGISTER _temp35, __eq_1
-    _temp36 = CALL (org.ek9.lang::Boolean)_temp35._isSet() [pure=false, complexity=0]
-    RETAIN _temp36
-    SCOPE_REGISTER _temp36, __eq_1
-    _temp37 = CALL (org.ek9.lang::Boolean)_temp36._true() [pure=false, complexity=0]
-    BRANCH_FALSE _temp37, _return_unset_2
-    _temp38 = CALL (org.ek9.lang::Boolean)_temp35._true() [pure=false, complexity=0]
-    RETAIN _temp38
-    SCOPE_REGISTER _temp38, __eq_1
-    BRANCH_FALSE _temp38, _return_false_1
-    BRANCH _return_true_1
-    LABEL _return_unset_2
-    _temp39 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>() [pure=false, complexity=0]
-    RETAIN _temp39
-    SCOPE_REGISTER _temp39, __eq_1
-    STORE rtn, _temp39
-    RETAIN rtn
-    SCOPE_EXIT __eq_1
-    RETURN rtn
-    LABEL _return_false_1
-    _temp40 = CALL_STATIC (org.ek9.lang::Boolean)._ofFalse() [pure=false, complexity=0]
-    RETAIN _temp40
-    SCOPE_REGISTER _temp40, __eq_1
-    STORE rtn, _temp40
-    RETAIN rtn
-    SCOPE_EXIT __eq_1
-    RETURN rtn
-    LABEL _return_true_1
-    _temp41 = CALL_STATIC (org.ek9.lang::Boolean)._ofTrue() [pure=false, complexity=0]
-    RETAIN _temp41
-    SCOPE_REGISTER _temp41, __eq_1
-    STORE rtn, _temp41
-    RETAIN rtn
-    SCOPE_EXIT __eq_1
-    RETURN rtn
-    OperationDfn: synthetic.classNotEquals::Person.<>(synthetic.classNotEquals::Person)->org.ek9.lang::Boolean
-    BasicBlock: _entry_3
-    SCOPE_ENTER __neq_1
-    REFERENCE rtn, org.ek9.lang::Boolean
-    _temp42 = CALL (synthetic.classNotEquals::Person)this._eq(param) [pure=false, complexity=0]
-    RETAIN _temp42
-    SCOPE_REGISTER _temp42, __neq_1
-    _temp43 = CALL (org.ek9.lang::Boolean)_temp42._isSet() [pure=false, complexity=0]
-    RETAIN _temp43
-    SCOPE_REGISTER _temp43, __neq_1
-    _temp44 = CALL (org.ek9.lang::Boolean)_temp43._true() [pure=false, complexity=0]
-    BRANCH_FALSE _temp44, _return_unset_3
-    _temp45 = CALL (org.ek9.lang::Boolean)_temp42._true() [pure=false, complexity=0]
-    RETAIN _temp45
-    SCOPE_REGISTER _temp45, __neq_1
-    BRANCH_TRUE _temp45, _return_false_2
-    BRANCH _return_true_2
-    LABEL _return_unset_3
-    _temp46 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>() [pure=false, complexity=0]
-    RETAIN _temp46
-    SCOPE_REGISTER _temp46, __neq_1
-    STORE rtn, _temp46
-    RETAIN rtn
-    SCOPE_EXIT __neq_1
-    RETURN rtn
-    LABEL _return_false_2
-    _temp47 = CALL_STATIC (org.ek9.lang::Boolean)._ofFalse() [pure=false, complexity=0]
-    RETAIN _temp47
-    SCOPE_REGISTER _temp47, __neq_1
-    STORE rtn, _temp47
-    RETAIN rtn
-    SCOPE_EXIT __neq_1
-    RETURN rtn
-    LABEL _return_true_2
-    _temp48 = CALL_STATIC (org.ek9.lang::Boolean)._ofTrue() [pure=false, complexity=0]
-    RETAIN _temp48
-    SCOPE_REGISTER _temp48, __neq_1
-    STORE rtn, _temp48
-    RETAIN rtn
-    SCOPE_EXIT __neq_1
-    RETURN rtn
-    OperationDfn: synthetic.classNotEquals::Person.Person()->synthetic.classNotEquals::Person
-    BasicBlock: _entry_4
-    CALL (synthetic.classNotEquals::Person)this.i_init() [pure=false, complexity=0]
-    RETURN this`
+Field: name, org.ek9.lang::String  
+Field: age, org.ek9.lang::Integer  
+OperationDfn: synthetic.classNotEquals::Person.<>(synthetic.classNotEquals::Person)->org.ek9.lang::Boolean  
+BasicBlock: _entry_3
+SCOPE_ENTER __neq_1
+REFERENCE rtn, org.ek9.lang::Boolean
+_temp42 = CALL (synthetic.classNotEquals::Person)this._eq(param) [pure=false, complexity=0]
+RETAIN _temp42
+SCOPE_REGISTER _temp42, __neq_1
+_temp43 = CALL (org.ek9.lang::Boolean)_temp42._isSet() [pure=false, complexity=0]
+RETAIN _temp43
+SCOPE_REGISTER _temp43, __neq_1
+_temp44 = CALL (org.ek9.lang::Boolean)_temp43._true() [pure=false, complexity=0]
+BRANCH_FALSE _temp44, _return_unset_3
+_temp45 = CALL (org.ek9.lang::Boolean)_temp42._true() [pure=false, complexity=0]
+RETAIN _temp45
+SCOPE_REGISTER _temp45, __neq_1
+BRANCH_TRUE _temp45, _return_false_2
+BRANCH _return_true_2
+LABEL _return_unset_3
+_temp46 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>() [pure=false, complexity=0]
+RETAIN _temp46
+SCOPE_REGISTER _temp46, __neq_1
+STORE rtn, _temp46
+RETAIN rtn
+SCOPE_EXIT __neq_1
+RETURN rtn
+LABEL _return_false_2
+_temp47 = CALL_STATIC (org.ek9.lang::Boolean)._ofFalse() [pure=false, complexity=0]
+RETAIN _temp47
+SCOPE_REGISTER _temp47, __neq_1
+STORE rtn, _temp47
+RETAIN rtn
+SCOPE_EXIT __neq_1
+RETURN rtn
+LABEL _return_true_2
+_temp48 = CALL_STATIC (org.ek9.lang::Boolean)._ofTrue() [pure=false, complexity=0]
+RETAIN _temp48
+SCOPE_REGISTER _temp48, __neq_1
+STORE rtn, _temp48
+RETAIN rtn
+SCOPE_EXIT __neq_1
+RETURN rtn
+OperationDfn: synthetic.classNotEquals::Person.==(synthetic.classNotEquals::Person)->org.ek9.lang::Boolean  
+BasicBlock: _entry_2
+SCOPE_ENTER __eq_1
+REFERENCE rtn, org.ek9.lang::Boolean
+_temp23 = CALL (synthetic.classNotEquals::Person)this._isSet() [pure=false, complexity=0]
+RETAIN _temp23
+SCOPE_REGISTER _temp23, __eq_1
+_temp24 = CALL (org.ek9.lang::Boolean)_temp23._true() [pure=false, complexity=0]
+BRANCH_FALSE _temp24, _return_unset_2
+_temp25 = CALL (synthetic.classNotEquals::Person)param._isSet() [pure=false, complexity=0]
+RETAIN _temp25
+SCOPE_REGISTER _temp25, __eq_1
+_temp26 = CALL (org.ek9.lang::Boolean)_temp25._true() [pure=false, complexity=0]
+BRANCH_FALSE _temp26, _return_unset_2
+_temp27 = LOAD this.name
+RETAIN _temp27
+SCOPE_REGISTER _temp27, __eq_1
+_temp28 = LOAD param.name
+RETAIN _temp28
+SCOPE_REGISTER _temp28, __eq_1
+_temp29 = CALL (org.ek9.lang::String)_temp27._eq(_temp28) [pure=false, complexity=0]
+RETAIN _temp29
+SCOPE_REGISTER _temp29, __eq_1
+_temp30 = CALL (org.ek9.lang::Boolean)_temp29._isSet() [pure=false, complexity=0]
+RETAIN _temp30
+SCOPE_REGISTER _temp30, __eq_1
+_temp31 = CALL (org.ek9.lang::Boolean)_temp30._true() [pure=false, complexity=0]
+BRANCH_FALSE _temp31, _return_unset_2
+_temp32 = CALL (org.ek9.lang::Boolean)_temp29._true() [pure=false, complexity=0]
+RETAIN _temp32
+SCOPE_REGISTER _temp32, __eq_1
+BRANCH_FALSE _temp32, _return_false_1
+_temp33 = LOAD this.age
+RETAIN _temp33
+SCOPE_REGISTER _temp33, __eq_1
+_temp34 = LOAD param.age
+RETAIN _temp34
+SCOPE_REGISTER _temp34, __eq_1
+_temp35 = CALL (org.ek9.lang::Integer)_temp33._eq(_temp34) [pure=false, complexity=0]
+RETAIN _temp35
+SCOPE_REGISTER _temp35, __eq_1
+_temp36 = CALL (org.ek9.lang::Boolean)_temp35._isSet() [pure=false, complexity=0]
+RETAIN _temp36
+SCOPE_REGISTER _temp36, __eq_1
+_temp37 = CALL (org.ek9.lang::Boolean)_temp36._true() [pure=false, complexity=0]
+BRANCH_FALSE _temp37, _return_unset_2
+_temp38 = CALL (org.ek9.lang::Boolean)_temp35._true() [pure=false, complexity=0]
+RETAIN _temp38
+SCOPE_REGISTER _temp38, __eq_1
+BRANCH_FALSE _temp38, _return_false_1
+BRANCH _return_true_1
+LABEL _return_unset_2
+_temp39 = CALL (org.ek9.lang::Boolean)org.ek9.lang::Boolean.<init>() [pure=false, complexity=0]
+RETAIN _temp39
+SCOPE_REGISTER _temp39, __eq_1
+STORE rtn, _temp39
+RETAIN rtn
+SCOPE_EXIT __eq_1
+RETURN rtn
+LABEL _return_false_1
+_temp40 = CALL_STATIC (org.ek9.lang::Boolean)._ofFalse() [pure=false, complexity=0]
+RETAIN _temp40
+SCOPE_REGISTER _temp40, __eq_1
+STORE rtn, _temp40
+RETAIN rtn
+SCOPE_EXIT __eq_1
+RETURN rtn
+LABEL _return_true_1
+_temp41 = CALL_STATIC (org.ek9.lang::Boolean)._ofTrue() [pure=false, complexity=0]
+RETAIN _temp41
+SCOPE_REGISTER _temp41, __eq_1
+STORE rtn, _temp41
+RETAIN rtn
+SCOPE_EXIT __eq_1
+RETURN rtn
+OperationDfn: synthetic.classNotEquals::Person.<=>(synthetic.classNotEquals::Person)->org.ek9.lang::Integer  
+BasicBlock: _entry_1
+SCOPE_ENTER __cmp_1
+REFERENCE rtn, org.ek9.lang::Integer
+_temp1 = CALL (synthetic.classNotEquals::Person)this._isSet() [pure=false, complexity=0]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, __cmp_1
+_temp2 = CALL (org.ek9.lang::Boolean)_temp1._true() [pure=false, complexity=0]
+BRANCH_FALSE _temp2, _return_unset_1
+_temp3 = CALL (synthetic.classNotEquals::Person)param._isSet() [pure=false, complexity=0]
+RETAIN _temp3
+SCOPE_REGISTER _temp3, __cmp_1
+_temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=false, complexity=0]
+BRANCH_FALSE _temp4, _return_unset_1
+_temp5 = LOAD this.name
+RETAIN _temp5
+SCOPE_REGISTER _temp5, __cmp_1
+_temp6 = LOAD param.name
+RETAIN _temp6
+SCOPE_REGISTER _temp6, __cmp_1
+_temp7 = CALL (org.ek9.lang::String)_temp5._cmp(_temp6) [pure=false, complexity=0]
+RETAIN _temp7
+SCOPE_REGISTER _temp7, __cmp_1
+_temp8 = CALL (org.ek9.lang::Integer)_temp7._isSet() [pure=false, complexity=0]
+RETAIN _temp8
+SCOPE_REGISTER _temp8, __cmp_1
+_temp9 = CALL (org.ek9.lang::Boolean)_temp8._true() [pure=false, complexity=0]
+BRANCH_FALSE _temp9, _return_unset_1
+_temp10 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp10
+SCOPE_REGISTER _temp10, __cmp_1
+_temp11 = CALL (org.ek9.lang::Integer)_temp7._eq(_temp10) [pure=false, complexity=0]
+RETAIN _temp11
+SCOPE_REGISTER _temp11, __cmp_1
+_temp12 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=false, complexity=0]
+RETAIN _temp12
+SCOPE_REGISTER _temp12, __cmp_1
+BRANCH_TRUE _temp12, _continue_cmp_1
+STORE rtn, _temp7
+RETAIN rtn
+BRANCH _return_result_1
+LABEL _continue_cmp_1
+_temp13 = LOAD this.age
+RETAIN _temp13
+SCOPE_REGISTER _temp13, __cmp_1
+_temp14 = LOAD param.age
+RETAIN _temp14
+SCOPE_REGISTER _temp14, __cmp_1
+_temp15 = CALL (org.ek9.lang::Integer)_temp13._cmp(_temp14) [pure=false, complexity=0]
+RETAIN _temp15
+SCOPE_REGISTER _temp15, __cmp_1
+_temp16 = CALL (org.ek9.lang::Integer)_temp15._isSet() [pure=false, complexity=0]
+RETAIN _temp16
+SCOPE_REGISTER _temp16, __cmp_1
+_temp17 = CALL (org.ek9.lang::Boolean)_temp16._true() [pure=false, complexity=0]
+BRANCH_FALSE _temp17, _return_unset_1
+_temp18 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp18
+SCOPE_REGISTER _temp18, __cmp_1
+_temp19 = CALL (org.ek9.lang::Integer)_temp15._eq(_temp18) [pure=false, complexity=0]
+RETAIN _temp19
+SCOPE_REGISTER _temp19, __cmp_1
+_temp20 = CALL (org.ek9.lang::Boolean)_temp19._true() [pure=false, complexity=0]
+RETAIN _temp20
+SCOPE_REGISTER _temp20, __cmp_1
+BRANCH_TRUE _temp20, _continue_cmp_2
+STORE rtn, _temp15
+RETAIN rtn
+BRANCH _return_result_1
+LABEL _continue_cmp_2
+BRANCH _return_zero_1
+LABEL _return_unset_1
+_temp21 = CALL (org.ek9.lang::Integer)org.ek9.lang::Integer.<init>() [pure=false, complexity=0]
+RETAIN _temp21
+SCOPE_REGISTER _temp21, __cmp_1
+STORE rtn, _temp21
+RETAIN rtn
+SCOPE_EXIT __cmp_1
+RETURN rtn
+LABEL _return_zero_1
+_temp22 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp22
+SCOPE_REGISTER _temp22, __cmp_1
+STORE rtn, _temp22
+RETAIN rtn
+SCOPE_EXIT __cmp_1
+RETURN rtn
+LABEL _return_result_1
+SCOPE_EXIT __cmp_1
+RETURN rtn
+OperationDfn: synthetic.classNotEquals::Person.Person()->synthetic.classNotEquals::Person  
+BasicBlock: _entry_4
+CALL (synthetic.classNotEquals::Person)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: synthetic.classNotEquals::Person.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: synthetic.classNotEquals::Person.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+REFERENCE this.name, org.ek9.lang::String
+_temp1 = LOAD_LITERAL Steve, org.ek9.lang::String
+RETAIN _temp1
+SCOPE_REGISTER _temp1, i_init
+STORE this.name, _temp1
+RETAIN this.name
+REFERENCE this.age, org.ek9.lang::Integer
+_temp2 = LOAD_LITERAL 25, org.ek9.lang::Integer
+RETAIN _temp2
+SCOPE_REGISTER _temp2, i_init
+STORE this.age, _temp2
+RETAIN this.age
+RETURN`
     Person
       name <- "Steve"
       age <- 25

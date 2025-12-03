@@ -14,84 +14,84 @@ defines module anxor.test
   
     @IR: IR_GENERATION: FUNCTION: "anxor.test::testXor": `
     ConstructDfn: anxor.test::testXor()->org.ek9.lang::Void
-    OperationDfn: anxor.test::testXor.c_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: anxor.test::testXor.i_init()->org.ek9.lang::Void  
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: anxor.test::testXor.testXor()->anxor.test::testXor  // ./xor_operator.ek9:95:5
-    BasicBlock: _entry_1
-    CALL (anxor.test::testXor)this.i_init() [pure=false, complexity=0]  // ./xor_operator.ek9:95:5
-    RETURN this  // ./xor_operator.ek9:95:5
-    OperationDfn: anxor.test::testXor._call()->org.ek9.lang::Void  // ./xor_operator.ek9:95:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./xor_operator.ek9:96:7
-    REFERENCE a, org.ek9.lang::Boolean  // ./xor_operator.ek9:96:7
-    _temp1 = LOAD_LITERAL true, org.ek9.lang::Boolean  // ./xor_operator.ek9:96:21
-    RETAIN _temp1  // ./xor_operator.ek9:96:21
-    SCOPE_REGISTER _temp1, _scope_1  // ./xor_operator.ek9:96:21
-    STORE a, _temp1  // ./xor_operator.ek9:96:21
-    RETAIN a  // ./xor_operator.ek9:96:21
-    SCOPE_REGISTER a, _scope_1  // ./xor_operator.ek9:96:21
-    REFERENCE b, org.ek9.lang::Boolean  // ./xor_operator.ek9:97:7
-    _temp2 = LOAD_LITERAL false, org.ek9.lang::Boolean  // ./xor_operator.ek9:97:21
-    RETAIN _temp2  // ./xor_operator.ek9:97:21
-    SCOPE_REGISTER _temp2, _scope_1  // ./xor_operator.ek9:97:21
-    STORE b, _temp2  // ./xor_operator.ek9:97:21
-    RETAIN b  // ./xor_operator.ek9:97:21
-    SCOPE_REGISTER b, _scope_1  // ./xor_operator.ek9:97:21
-    REFERENCE result, org.ek9.lang::Boolean  // ./xor_operator.ek9:98:7
-    _temp4 = LOAD a  // ./xor_operator.ek9:98:17
-    RETAIN _temp4  // ./xor_operator.ek9:98:17
-    SCOPE_REGISTER _temp4, _scope_1  // ./xor_operator.ek9:98:17
-    _temp5 = LOAD b  // ./xor_operator.ek9:98:23
-    RETAIN _temp5  // ./xor_operator.ek9:98:23
-    SCOPE_REGISTER _temp5, _scope_1  // ./xor_operator.ek9:98:23
-    _temp3 = CALL (org.ek9.lang::Boolean)_temp4._xor(_temp5) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./xor_operator.ek9:98:19
-    RETAIN _temp3  // ./xor_operator.ek9:98:17
-    SCOPE_REGISTER _temp3, _scope_1  // ./xor_operator.ek9:98:17
-    STORE result, _temp3  // ./xor_operator.ek9:98:17
-    RETAIN result  // ./xor_operator.ek9:98:17
-    SCOPE_REGISTER result, _scope_1  // ./xor_operator.ek9:98:17
-    _temp6 = CONTROL_FLOW_CHAIN  // ./xor_operator.ek9:99:20
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp7 = LOAD result  // ./xor_operator.ek9:99:20
-    _temp8 = IS_NULL _temp7  // ./xor_operator.ek9:99:20
-    ]
-    primitive_condition: _temp8
-    body_evaluation:
-    [
-    _temp9 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./xor_operator.ek9:99:20
-    RETAIN _temp9  // ./xor_operator.ek9:99:20
-    SCOPE_REGISTER _temp9, _scope_1  // ./xor_operator.ek9:99:20
-    ]
-    body_result: _temp9
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp10 = CALL (org.ek9.lang::Boolean)_temp7._isSet() [pure=true, complexity=0]  // ./xor_operator.ek9:99:20
-    RETAIN _temp10  // ./xor_operator.ek9:99:20
-    SCOPE_REGISTER _temp10, _scope_1  // ./xor_operator.ek9:99:20
-    ]
-    default_result: _temp10
-    scope_id: _scope_1
-    ]
-    RETAIN _temp6  // ./xor_operator.ek9:99:7
-    SCOPE_REGISTER _temp6, _scope_1  // ./xor_operator.ek9:99:7
-    _temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]  // ./xor_operator.ek9:99:7
-    ASSERT _temp11  // ./xor_operator.ek9:99:7
-    SCOPE_EXIT _scope_1  // ./xor_operator.ek9:96:7
-    RETURN  // ./xor_operator.ek9:95:5`
+OperationDfn: anxor.test::testXor._call()->org.ek9.lang::Void  // ./xor_operator.ek9:95:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./xor_operator.ek9:96:7
+REFERENCE a, org.ek9.lang::Boolean  // ./xor_operator.ek9:96:7
+_temp1 = LOAD_LITERAL true, org.ek9.lang::Boolean  // ./xor_operator.ek9:96:21
+RETAIN _temp1  // ./xor_operator.ek9:96:21
+SCOPE_REGISTER _temp1, _scope_1  // ./xor_operator.ek9:96:21
+STORE a, _temp1  // ./xor_operator.ek9:96:21
+RETAIN a  // ./xor_operator.ek9:96:21
+SCOPE_REGISTER a, _scope_1  // ./xor_operator.ek9:96:21
+REFERENCE b, org.ek9.lang::Boolean  // ./xor_operator.ek9:97:7
+_temp2 = LOAD_LITERAL false, org.ek9.lang::Boolean  // ./xor_operator.ek9:97:21
+RETAIN _temp2  // ./xor_operator.ek9:97:21
+SCOPE_REGISTER _temp2, _scope_1  // ./xor_operator.ek9:97:21
+STORE b, _temp2  // ./xor_operator.ek9:97:21
+RETAIN b  // ./xor_operator.ek9:97:21
+SCOPE_REGISTER b, _scope_1  // ./xor_operator.ek9:97:21
+REFERENCE result, org.ek9.lang::Boolean  // ./xor_operator.ek9:98:7
+_temp4 = LOAD a  // ./xor_operator.ek9:98:17
+RETAIN _temp4  // ./xor_operator.ek9:98:17
+SCOPE_REGISTER _temp4, _scope_1  // ./xor_operator.ek9:98:17
+_temp5 = LOAD b  // ./xor_operator.ek9:98:23
+RETAIN _temp5  // ./xor_operator.ek9:98:23
+SCOPE_REGISTER _temp5, _scope_1  // ./xor_operator.ek9:98:23
+_temp3 = CALL (org.ek9.lang::Boolean)_temp4._xor(_temp5) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./xor_operator.ek9:98:19
+RETAIN _temp3  // ./xor_operator.ek9:98:17
+SCOPE_REGISTER _temp3, _scope_1  // ./xor_operator.ek9:98:17
+STORE result, _temp3  // ./xor_operator.ek9:98:17
+RETAIN result  // ./xor_operator.ek9:98:17
+SCOPE_REGISTER result, _scope_1  // ./xor_operator.ek9:98:17
+_temp6 = CONTROL_FLOW_CHAIN  // ./xor_operator.ek9:99:20
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp7 = LOAD result  // ./xor_operator.ek9:99:20
+_temp8 = IS_NULL _temp7  // ./xor_operator.ek9:99:20
+]
+primitive_condition: _temp8
+body_evaluation:
+[
+_temp9 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./xor_operator.ek9:99:20
+RETAIN _temp9  // ./xor_operator.ek9:99:20
+SCOPE_REGISTER _temp9, _scope_1  // ./xor_operator.ek9:99:20
+]
+body_result: _temp9
+]
+]
+default_body_evaluation:
+[
+_temp10 = CALL (org.ek9.lang::Boolean)_temp7._isSet() [pure=true, complexity=0]  // ./xor_operator.ek9:99:20
+RETAIN _temp10  // ./xor_operator.ek9:99:20
+SCOPE_REGISTER _temp10, _scope_1  // ./xor_operator.ek9:99:20
+]
+default_result: _temp10
+scope_id: _scope_1
+]
+RETAIN _temp6  // ./xor_operator.ek9:99:7
+SCOPE_REGISTER _temp6, _scope_1  // ./xor_operator.ek9:99:7
+_temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]  // ./xor_operator.ek9:99:7
+ASSERT _temp11  // ./xor_operator.ek9:99:7
+SCOPE_EXIT _scope_1  // ./xor_operator.ek9:96:7
+RETURN  // ./xor_operator.ek9:95:5
+OperationDfn: anxor.test::testXor.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: anxor.test::testXor.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: anxor.test::testXor.testXor()->anxor.test::testXor  // ./xor_operator.ek9:95:5
+BasicBlock: _entry_1
+CALL (anxor.test::testXor)this.i_init() [pure=false, complexity=0]  // ./xor_operator.ek9:95:5
+RETURN this  // ./xor_operator.ek9:95:5`
     testXor()
       a as Boolean: true
       b as Boolean: false  

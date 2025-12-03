@@ -12,36 +12,26 @@ defines module add_assign.test
 
   defines function
   
-    @IR: IR_GENERATION: FUNCTION: "add_assign.test::testAddAssign": `
-ConstructDfn: add_assign.test::testAddAssign()->org.ek9.lang::Void
-OperationDfn: add_assign.test::testAddAssign.c_init()->org.ek9.lang::Void  
-BasicBlock: _entry_1
-RETURN
-OperationDfn: add_assign.test::testAddAssign.i_init()->org.ek9.lang::Void  
-BasicBlock: _entry_1
-RETURN
-OperationDfn: add_assign.test::testAddAssign.testAddAssign()->add_assign.test::testAddAssign  // ./add_assign_operator.ek9:82:5
-BasicBlock: _entry_1
-CALL (add_assign.test::testAddAssign)this.i_init() [pure=false, complexity=0]  // ./add_assign_operator.ek9:82:5
-RETURN this  // ./add_assign_operator.ek9:82:5
-OperationDfn: add_assign.test::testAddAssign._call()->org.ek9.lang::Void  // ./add_assign_operator.ek9:82:5
+    @IR: IR_GENERATION: FUNCTION: "add_assign.test::testAddAssignment": `
+ConstructDfn: add_assign.test::testAddAssignment()->org.ek9.lang::Void
+OperationDfn: add_assign.test::testAddAssignment._call()->org.ek9.lang::Void  // ./add_assign_operator.ek9:82:5
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1  // ./add_assign_operator.ek9:83:7
-REFERENCE x, org.ek9.lang::Integer  // ./add_assign_operator.ek9:83:7
-_temp1 = LOAD_LITERAL 10, org.ek9.lang::Integer  // ./add_assign_operator.ek9:83:21
-RETAIN _temp1  // ./add_assign_operator.ek9:83:21
-SCOPE_REGISTER _temp1, _scope_1  // ./add_assign_operator.ek9:83:21
-STORE x, _temp1  // ./add_assign_operator.ek9:83:21
-RETAIN x  // ./add_assign_operator.ek9:83:21
-SCOPE_REGISTER x, _scope_1  // ./add_assign_operator.ek9:83:21
-_temp2 = LOAD x  // ./add_assign_operator.ek9:84:9
-RETAIN _temp2  // ./add_assign_operator.ek9:84:9
-SCOPE_REGISTER _temp2, _scope_1  // ./add_assign_operator.ek9:84:9
-_temp3 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./add_assign_operator.ek9:84:12
-RETAIN _temp3  // ./add_assign_operator.ek9:84:9
-SCOPE_REGISTER _temp3, _scope_1  // ./add_assign_operator.ek9:84:9
-CALL (org.ek9.lang::Integer)_temp2._addAss(_temp3) [pure=false, complexity=0, effects=THIS_MUTATION]  // ./add_assign_operator.ek9:84:9
-_temp4 = CONTROL_FLOW_CHAIN  // ./add_assign_operator.ek9:85:15
+REFERENCE value, org.ek9.lang::Integer  // ./add_assign_operator.ek9:83:7
+_temp1 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./add_assign_operator.ek9:83:25
+RETAIN _temp1  // ./add_assign_operator.ek9:83:25
+SCOPE_REGISTER _temp1, _scope_1  // ./add_assign_operator.ek9:83:25
+STORE value, _temp1  // ./add_assign_operator.ek9:83:25
+RETAIN value  // ./add_assign_operator.ek9:83:25
+SCOPE_REGISTER value, _scope_1  // ./add_assign_operator.ek9:83:25
+_temp2 = LOAD value  // ./add_assign_operator.ek9:84:13
+RETAIN _temp2  // ./add_assign_operator.ek9:84:13
+SCOPE_REGISTER _temp2, _scope_1  // ./add_assign_operator.ek9:84:13
+_temp3 = LOAD_LITERAL 10, org.ek9.lang::Integer  // ./add_assign_operator.ek9:84:16
+RETAIN _temp3  // ./add_assign_operator.ek9:84:13
+SCOPE_REGISTER _temp3, _scope_1  // ./add_assign_operator.ek9:84:13
+CALL (org.ek9.lang::Integer)_temp2._addAss(_temp3) [pure=false, complexity=0, effects=THIS_MUTATION]  // ./add_assign_operator.ek9:84:13
+_temp4 = CONTROL_FLOW_CHAIN  // ./add_assign_operator.ek9:85:19
 [
 chain_type: "QUESTION_OPERATOR"
 condition_chain:
@@ -51,24 +41,24 @@ case_scope_id: _scope_1
 case_type: "NULL_CHECK"
 condition_evaluation:
 [
-_temp5 = LOAD x  // ./add_assign_operator.ek9:85:15
-_temp6 = IS_NULL _temp5  // ./add_assign_operator.ek9:85:15
+_temp5 = LOAD value  // ./add_assign_operator.ek9:85:19
+_temp6 = IS_NULL _temp5  // ./add_assign_operator.ek9:85:19
 ]
 primitive_condition: _temp6
 body_evaluation:
 [
-_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./add_assign_operator.ek9:85:15
-RETAIN _temp7  // ./add_assign_operator.ek9:85:15
-SCOPE_REGISTER _temp7, _scope_1  // ./add_assign_operator.ek9:85:15
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./add_assign_operator.ek9:85:19
+RETAIN _temp7  // ./add_assign_operator.ek9:85:19
+SCOPE_REGISTER _temp7, _scope_1  // ./add_assign_operator.ek9:85:19
 ]
 body_result: _temp7
 ]
 ]
 default_body_evaluation:
 [
-_temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./add_assign_operator.ek9:85:15
-RETAIN _temp8  // ./add_assign_operator.ek9:85:15
-SCOPE_REGISTER _temp8, _scope_1  // ./add_assign_operator.ek9:85:15
+_temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./add_assign_operator.ek9:85:19
+RETAIN _temp8  // ./add_assign_operator.ek9:85:19
+SCOPE_REGISTER _temp8, _scope_1  // ./add_assign_operator.ek9:85:19
 ]
 default_result: _temp8
 scope_id: _scope_1
@@ -78,10 +68,20 @@ SCOPE_REGISTER _temp4, _scope_1  // ./add_assign_operator.ek9:85:7
 _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./add_assign_operator.ek9:85:7
 ASSERT _temp9  // ./add_assign_operator.ek9:85:7
 SCOPE_EXIT _scope_1  // ./add_assign_operator.ek9:83:7
-RETURN  // ./add_assign_operator.ek9:82:5`
-    testAddAssign()
-      x as Integer: 10
-      x += 5
-      assert x?
+RETURN  // ./add_assign_operator.ek9:82:5
+OperationDfn: add_assign.test::testAddAssignment.c_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: add_assign.test::testAddAssignment.i_init()->org.ek9.lang::Void
+BasicBlock: _entry_1
+RETURN
+OperationDfn: add_assign.test::testAddAssignment.testAddAssignment()->add_assign.test::testAddAssignment  // ./add_assign_operator.ek9:82:5
+BasicBlock: _entry_1
+CALL (add_assign.test::testAddAssignment)this.i_init() [pure=false, complexity=0]  // ./add_assign_operator.ek9:82:5
+RETURN this  // ./add_assign_operator.ek9:82:5`
+    testAddAssignment()
+      value as Integer: 5
+      value += 10
+      assert value?
 
 //EOF

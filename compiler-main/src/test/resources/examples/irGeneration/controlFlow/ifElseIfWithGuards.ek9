@@ -26,258 +26,258 @@ defines module controlFlow
 
     @IR: IR_GENERATION: FUNCTION: "controlFlow::ifElseIfWithGuards": `
     ConstructDfn: controlFlow::ifElseIfWithGuards()->org.ek9.lang::String
-    OperationDfn: controlFlow::ifElseIfWithGuards.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: controlFlow::ifElseIfWithGuards.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: controlFlow::ifElseIfWithGuards.ifElseIfWithGuards()->controlFlow::ifElseIfWithGuards
-    BasicBlock: _entry_1
-    CALL (controlFlow::ifElseIfWithGuards)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: controlFlow::ifElseIfWithGuards._call()->org.ek9.lang::String
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE result, org.ek9.lang::String
-    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE result, _temp1
-    RETAIN result
-    SCOPE_ENTER _scope_2
-    REFERENCE usTemp, org.ek9.lang::Integer
-    _temp3 = LOAD_LITERAL US, org.ek9.lang::String
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_2
-    _temp5 = FUNCTION_INSTANCE controlFlow::getTemperature
-    _temp2 = CALL (controlFlow::getTemperature)_temp5._call(_temp3) [pure=false, complexity=5, effects=RETURN_MUTATION]
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_2
-    STORE usTemp, _temp2
-    RETAIN usTemp
-    SCOPE_REGISTER usTemp, _scope_2
-    REFERENCE gbTemp, org.ek9.lang::Integer
-    _temp23 = LOAD_LITERAL GB, org.ek9.lang::String
-    RETAIN _temp23
-    SCOPE_REGISTER _temp23, _scope_2
-    _temp25 = FUNCTION_INSTANCE controlFlow::getTemperature
-    _temp22 = CALL (controlFlow::getTemperature)_temp25._call(_temp23) [pure=false, complexity=5, effects=RETURN_MUTATION]
-    RETAIN _temp22
-    SCOPE_REGISTER _temp22, _scope_2
-    STORE gbTemp, _temp22
-    RETAIN gbTemp
-    SCOPE_REGISTER gbTemp, _scope_2
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "IF_ELSE_WITH_GUARDS"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_4
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_3
-    _temp6 = LOGICAL_AND_BLOCK
-    [
-    left_evaluation:
-    [
-    _temp7 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_3
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp8 = IS_NULL usTemp
-    ]
-    primitive_condition: _temp8
-    body_evaluation:
-    [
-    _temp9 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_3
-    ]
-    body_result: _temp9
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp10 = LOAD usTemp
-    _temp11 = CALL (org.ek9.lang::Integer)_temp10._isSet() [pure=true, complexity=0]
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_3
-    ]
-    default_result: _temp11
-    scope_id: _scope_3
-    ]
-    _temp12 = CALL (org.ek9.lang::Boolean)_temp7._true() [pure=true, complexity=0]
-    ]
-    left_operand: _temp7
-    left_condition: _temp12
-    right_evaluation:
-    [
-    _temp14 = LOAD usTemp
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_3
-    _temp15 = LOAD_LITERAL 70, org.ek9.lang::Integer
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_3
-    _temp13 = CALL (org.ek9.lang::Integer)_temp14._gt(_temp15) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, _scope_3
-    ]
-    right_operand: _temp13
-    result_computation:
-    [
-    _temp16 = CALL (org.ek9.lang::Boolean)_temp7._and(_temp13) [pure=true, complexity=0]
-    RETAIN _temp16
-    SCOPE_REGISTER _temp16, _scope_3
-    ]
-    logical_result: _temp16
-    scope_id: _scope_3
-    ]
-    _temp17 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_3
-    ]
-    condition_result: _temp6
-    primitive_condition: _temp17
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_4
-    _temp19 = LOAD_LITERAL Warm in US: , org.ek9.lang::String
-    RETAIN _temp19
-    SCOPE_REGISTER _temp19, _scope_4
-    _temp21 = LOAD usTemp
-    RETAIN _temp21
-    SCOPE_REGISTER _temp21, _scope_4
-    _temp20 = CALL (org.ek9.lang::Integer)_temp21._string() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp20
-    SCOPE_REGISTER _temp20, _scope_4
-    _temp18 = CALL (org.ek9.lang::String)_temp19._add(_temp20) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp18
-    SCOPE_REGISTER _temp18, _scope_4
-    RELEASE result
-    STORE result, _temp18
-    RETAIN result
-    SCOPE_EXIT _scope_4
-    ]
-    ],
-    [
-    case_scope_id: _scope_6
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_5
-    _temp26 = LOGICAL_AND_BLOCK
-    [
-    left_evaluation:
-    [
-    _temp27 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_5
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp28 = IS_NULL gbTemp
-    ]
-    primitive_condition: _temp28
-    body_evaluation:
-    [
-    _temp29 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
-    RETAIN _temp29
-    SCOPE_REGISTER _temp29, _scope_5
-    ]
-    body_result: _temp29
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp30 = LOAD gbTemp
-    _temp31 = CALL (org.ek9.lang::Integer)_temp30._isSet() [pure=true, complexity=0]
-    RETAIN _temp31
-    SCOPE_REGISTER _temp31, _scope_5
-    ]
-    default_result: _temp31
-    scope_id: _scope_5
-    ]
-    _temp32 = CALL (org.ek9.lang::Boolean)_temp27._true() [pure=true, complexity=0]
-    ]
-    left_operand: _temp27
-    left_condition: _temp32
-    right_evaluation:
-    [
-    _temp34 = LOAD gbTemp
-    RETAIN _temp34
-    SCOPE_REGISTER _temp34, _scope_5
-    _temp35 = LOAD_LITERAL 15, org.ek9.lang::Integer
-    RETAIN _temp35
-    SCOPE_REGISTER _temp35, _scope_5
-    _temp33 = CALL (org.ek9.lang::Integer)_temp34._gt(_temp35) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp33
-    SCOPE_REGISTER _temp33, _scope_5
-    ]
-    right_operand: _temp33
-    result_computation:
-    [
-    _temp36 = CALL (org.ek9.lang::Boolean)_temp27._and(_temp33) [pure=true, complexity=0]
-    RETAIN _temp36
-    SCOPE_REGISTER _temp36, _scope_5
-    ]
-    logical_result: _temp36
-    scope_id: _scope_5
-    ]
-    _temp37 = CALL (org.ek9.lang::Boolean)_temp26._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_5
-    ]
-    condition_result: _temp26
-    primitive_condition: _temp37
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_6
-    _temp39 = LOAD_LITERAL Mild in GB: , org.ek9.lang::String
-    RETAIN _temp39
-    SCOPE_REGISTER _temp39, _scope_6
-    _temp41 = LOAD gbTemp
-    RETAIN _temp41
-    SCOPE_REGISTER _temp41, _scope_6
-    _temp40 = CALL (org.ek9.lang::Integer)_temp41._string() [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp40
-    SCOPE_REGISTER _temp40, _scope_6
-    _temp38 = CALL (org.ek9.lang::String)_temp39._add(_temp40) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp38
-    SCOPE_REGISTER _temp38, _scope_6
-    RELEASE result
-    STORE result, _temp38
-    RETAIN result
-    SCOPE_EXIT _scope_6
-    ]
-    ]
-    ]
-    default_body_evaluation:
-    [
-    SCOPE_ENTER _scope_7
-    _temp42 = LOAD_LITERAL Temperature unavailable or too cold, org.ek9.lang::String
-    RETAIN _temp42
-    SCOPE_REGISTER _temp42, _scope_7
-    RELEASE result
-    STORE result, _temp42
-    RETAIN result
-    SCOPE_EXIT _scope_7
-    ]
-    scope_id: _scope_2
-    ]
-    SCOPE_EXIT _scope_2
-    SCOPE_EXIT _scope_1
-    RETURN result`
+OperationDfn: controlFlow::ifElseIfWithGuards._call()->org.ek9.lang::String  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE result, org.ek9.lang::String
+_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE result, _temp1
+RETAIN result
+SCOPE_ENTER _scope_2
+REFERENCE usTemp, org.ek9.lang::Integer
+_temp3 = LOAD_LITERAL US, org.ek9.lang::String
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_2
+_temp5 = FUNCTION_INSTANCE controlFlow::getTemperature
+_temp2 = CALL (controlFlow::getTemperature)_temp5._call(_temp3) [pure=false, complexity=5, effects=RETURN_MUTATION]
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_2
+STORE usTemp, _temp2
+RETAIN usTemp
+SCOPE_REGISTER usTemp, _scope_2
+REFERENCE gbTemp, org.ek9.lang::Integer
+_temp23 = LOAD_LITERAL GB, org.ek9.lang::String
+RETAIN _temp23
+SCOPE_REGISTER _temp23, _scope_2
+_temp25 = FUNCTION_INSTANCE controlFlow::getTemperature
+_temp22 = CALL (controlFlow::getTemperature)_temp25._call(_temp23) [pure=false, complexity=5, effects=RETURN_MUTATION]
+RETAIN _temp22
+SCOPE_REGISTER _temp22, _scope_2
+STORE gbTemp, _temp22
+RETAIN gbTemp
+SCOPE_REGISTER gbTemp, _scope_2
+CONTROL_FLOW_CHAIN
+[
+chain_type: "IF_ELSE_WITH_GUARDS"
+condition_chain:
+[
+[
+case_scope_id: _scope_4
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_3
+_temp6 = LOGICAL_AND_BLOCK
+[
+left_evaluation:
+[
+_temp7 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_3
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp8 = IS_NULL usTemp
+]
+primitive_condition: _temp8
+body_evaluation:
+[
+_temp9 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_3
+]
+body_result: _temp9
+]
+]
+default_body_evaluation:
+[
+_temp10 = LOAD usTemp
+_temp11 = CALL (org.ek9.lang::Integer)_temp10._isSet() [pure=true, complexity=0]
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_3
+]
+default_result: _temp11
+scope_id: _scope_3
+]
+_temp12 = CALL (org.ek9.lang::Boolean)_temp7._true() [pure=true, complexity=0]
+]
+left_operand: _temp7
+left_condition: _temp12
+right_evaluation:
+[
+_temp14 = LOAD usTemp
+RETAIN _temp14
+SCOPE_REGISTER _temp14, _scope_3
+_temp15 = LOAD_LITERAL 70, org.ek9.lang::Integer
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_3
+_temp13 = CALL (org.ek9.lang::Integer)_temp14._gt(_temp15) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_3
+]
+right_operand: _temp13
+result_computation:
+[
+_temp16 = CALL (org.ek9.lang::Boolean)_temp7._and(_temp13) [pure=true, complexity=0]
+RETAIN _temp16
+SCOPE_REGISTER _temp16, _scope_3
+]
+logical_result: _temp16
+scope_id: _scope_3
+]
+_temp17 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_3
+]
+condition_result: _temp6
+primitive_condition: _temp17
+body_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp19 = LOAD_LITERAL Warm in US: , org.ek9.lang::String
+RETAIN _temp19
+SCOPE_REGISTER _temp19, _scope_4
+_temp21 = LOAD usTemp
+RETAIN _temp21
+SCOPE_REGISTER _temp21, _scope_4
+_temp20 = CALL (org.ek9.lang::Integer)_temp21._string() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp20
+SCOPE_REGISTER _temp20, _scope_4
+_temp18 = CALL (org.ek9.lang::String)_temp19._add(_temp20) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp18
+SCOPE_REGISTER _temp18, _scope_4
+RELEASE result
+STORE result, _temp18
+RETAIN result
+SCOPE_EXIT _scope_4
+]
+],
+[
+case_scope_id: _scope_6
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_5
+_temp26 = LOGICAL_AND_BLOCK
+[
+left_evaluation:
+[
+_temp27 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_5
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp28 = IS_NULL gbTemp
+]
+primitive_condition: _temp28
+body_evaluation:
+[
+_temp29 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp29
+SCOPE_REGISTER _temp29, _scope_5
+]
+body_result: _temp29
+]
+]
+default_body_evaluation:
+[
+_temp30 = LOAD gbTemp
+_temp31 = CALL (org.ek9.lang::Integer)_temp30._isSet() [pure=true, complexity=0]
+RETAIN _temp31
+SCOPE_REGISTER _temp31, _scope_5
+]
+default_result: _temp31
+scope_id: _scope_5
+]
+_temp32 = CALL (org.ek9.lang::Boolean)_temp27._true() [pure=true, complexity=0]
+]
+left_operand: _temp27
+left_condition: _temp32
+right_evaluation:
+[
+_temp34 = LOAD gbTemp
+RETAIN _temp34
+SCOPE_REGISTER _temp34, _scope_5
+_temp35 = LOAD_LITERAL 15, org.ek9.lang::Integer
+RETAIN _temp35
+SCOPE_REGISTER _temp35, _scope_5
+_temp33 = CALL (org.ek9.lang::Integer)_temp34._gt(_temp35) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp33
+SCOPE_REGISTER _temp33, _scope_5
+]
+right_operand: _temp33
+result_computation:
+[
+_temp36 = CALL (org.ek9.lang::Boolean)_temp27._and(_temp33) [pure=true, complexity=0]
+RETAIN _temp36
+SCOPE_REGISTER _temp36, _scope_5
+]
+logical_result: _temp36
+scope_id: _scope_5
+]
+_temp37 = CALL (org.ek9.lang::Boolean)_temp26._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_5
+]
+condition_result: _temp26
+primitive_condition: _temp37
+body_evaluation:
+[
+SCOPE_ENTER _scope_6
+_temp39 = LOAD_LITERAL Mild in GB: , org.ek9.lang::String
+RETAIN _temp39
+SCOPE_REGISTER _temp39, _scope_6
+_temp41 = LOAD gbTemp
+RETAIN _temp41
+SCOPE_REGISTER _temp41, _scope_6
+_temp40 = CALL (org.ek9.lang::Integer)_temp41._string() [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp40
+SCOPE_REGISTER _temp40, _scope_6
+_temp38 = CALL (org.ek9.lang::String)_temp39._add(_temp40) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp38
+SCOPE_REGISTER _temp38, _scope_6
+RELEASE result
+STORE result, _temp38
+RETAIN result
+SCOPE_EXIT _scope_6
+]
+]
+]
+default_body_evaluation:
+[
+SCOPE_ENTER _scope_7
+_temp42 = LOAD_LITERAL Temperature unavailable or too cold, org.ek9.lang::String
+RETAIN _temp42
+SCOPE_REGISTER _temp42, _scope_7
+RELEASE result
+STORE result, _temp42
+RETAIN result
+SCOPE_EXIT _scope_7
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+SCOPE_EXIT _scope_1
+RETURN result
+OperationDfn: controlFlow::ifElseIfWithGuards.ifElseIfWithGuards()->controlFlow::ifElseIfWithGuards  
+BasicBlock: _entry_1
+CALL (controlFlow::ifElseIfWithGuards)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: controlFlow::ifElseIfWithGuards.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: controlFlow::ifElseIfWithGuards.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     ifElseIfWithGuards()
       <-
         result <- String()

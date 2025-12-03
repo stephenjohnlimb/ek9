@@ -30,16 +30,6 @@ defines module mixedCoalesce.test
 
     @IR: IR_GENERATION: FUNCTION: "mixedCoalesce.test::testMixedCoalesce": `
     ConstructDfn: mixedCoalesce.test::testMixedCoalesce()->org.ek9.lang::Void
-    OperationDfn: mixedCoalesce.test::testMixedCoalesce.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: mixedCoalesce.test::testMixedCoalesce.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: mixedCoalesce.test::testMixedCoalesce.testMixedCoalesce()->mixedCoalesce.test::testMixedCoalesce
-    BasicBlock: _entry_1
-    CALL (mixedCoalesce.test::testMixedCoalesce)this.i_init() [pure=false, complexity=0]
-    RETURN this
     OperationDfn: mixedCoalesce.test::testMixedCoalesce._call()->org.ek9.lang::Void
     BasicBlock: _entry_1
     SCOPE_ENTER _scope_1
@@ -302,7 +292,17 @@ defines module mixedCoalesce.test
     _temp42 = CALL (org.ek9.lang::Boolean)_temp39._true() [pure=true, complexity=0]
     ASSERT _temp42
     SCOPE_EXIT _scope_1
-    RETURN`
+    RETURN
+    OperationDfn: mixedCoalesce.test::testMixedCoalesce.c_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: mixedCoalesce.test::testMixedCoalesce.i_init()->org.ek9.lang::Void
+    BasicBlock: _entry_1
+    RETURN
+    OperationDfn: mixedCoalesce.test::testMixedCoalesce.testMixedCoalesce()->mixedCoalesce.test::testMixedCoalesce
+    BasicBlock: _entry_1
+    CALL (mixedCoalesce.test::testMixedCoalesce)this.i_init() [pure=false, complexity=0]
+    RETURN this`
     testMixedCoalesce()
       // Mix null coalescing and Elvis operators
       a <- 10

@@ -4,18 +4,10 @@ defines module bytecode.test.foringuardedassign
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.foringuardedassign::ForInGuardedAssignment": `public class bytecode.test.foringuardedassign.ForInGuardedAssignment {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.foringuardedassign.ForInGuardedAssignment();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -151,6 +143,14 @@ defines module bytecode.test.foringuardedassign
        269: aload         35
        271: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
        274: return
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
 
     ForInGuardedAssignment()

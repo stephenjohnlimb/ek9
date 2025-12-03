@@ -5,8 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import org.ek9lang.compiler.common.INodeVisitor;
 import org.ek9lang.compiler.common.SymbolSignatureExtractor;
+import org.ek9lang.compiler.symbols.Ek9Types;
 import org.ek9lang.compiler.symbols.ISymbol;
-import org.ek9lang.compiler.symbols.SymbolGenus;
+import org.ek9lang.compiler.support.ReferenceTypeChecker;
 import org.ek9lang.core.AssertValue;
 
 /**
@@ -28,6 +29,8 @@ public final class IRConstruct implements INode {
   private final ISymbol symbol;
   private final String sourceFileName;
   private final List<Field> fields = new ArrayList<>();
+  private final List<ISymbol> implementsTraits = new ArrayList<>();
+  private final List<Field> traceableFields = new ArrayList<>();
   private final List<OperationInstr> operations = new ArrayList<>();
   private ProgramEntryPointInstr programEntryPoint;
 
@@ -105,12 +108,30 @@ public final class IRConstruct implements INode {
   }
 
   public boolean isProgram() {
-    return symbol.getGenus() == SymbolGenus.PROGRAM;
+    return "PROGRAM".equals(symbol.getGenus().getDescription());
   }
 
-  public void addField(final Field field) {
+  public void addField(final Field field, final Ek9Types ek9Types) {
     AssertValue.checkNotNull("Field cannot be null", field);
     fields.add(field);
+    field.getSymbol().getType().ifPresent(type -> {
+      if (ReferenceTypeChecker.isReferenceType(type, ek9Types)) {
+        traceableFields.add(field);
+      }
+    });
+  }
+
+  public List<Field> getTraceableFields() {
+    return List.copyOf(traceableFields);
+  }
+
+  public void addImplementedTrait(final ISymbol traitSymbol) {
+    AssertValue.checkNotNull("Implemented trait symbol cannot be null", traitSymbol);
+    implementsTraits.add(traitSymbol);
+  }
+
+  public List<ISymbol> getImplementedTraits() {
+    return List.copyOf(implementsTraits);
   }
 
   public void add(final OperationInstr operation) {
@@ -127,7 +148,8 @@ public final class IRConstruct implements INode {
   }
 
   public List<OperationInstr> getOperations() {
-    return List.copyOf(operations);
+    //Now sort so always in same order for deterministic outputting.
+    return operations.stream().sorted().toList();
   }
 
   public void setProgramEntryPoint(final ProgramEntryPointInstr programEntryPoint) {
@@ -149,7 +171,9 @@ public final class IRConstruct implements INode {
     return "Construct{" +
         "symbol=" + symbol +
         ", fields=" + fields +
-        ", operations=" + operations +
+        ", implementsTraits=" + implementsTraits +
+        ", traceableFields=" + traceableFields +
+        ", operations=" + getOperations() +
         '}';
   }
 }

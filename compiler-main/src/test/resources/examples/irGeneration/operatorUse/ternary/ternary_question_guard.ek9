@@ -13,126 +13,126 @@ defines module ternaryQuestion.test
 
     @IR: IR_GENERATION: FUNCTION: "ternaryQuestion.test::testTernaryQuestion": `
     ConstructDfn: ternaryQuestion.test::testTernaryQuestion()->org.ek9.lang::Void
-    OperationDfn: ternaryQuestion.test::testTernaryQuestion.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: ternaryQuestion.test::testTernaryQuestion.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: ternaryQuestion.test::testTernaryQuestion.testTernaryQuestion()->ternaryQuestion.test::testTernaryQuestion
-    BasicBlock: _entry_1
-    CALL (ternaryQuestion.test::testTernaryQuestion)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: ternaryQuestion.test::testTernaryQuestion._call()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE opt, org.ek9.lang::String
-    _temp2 = LOAD_LITERAL value, org.ek9.lang::String
-    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>(_temp2) [pure=true, complexity=1, effects=RETURN_MUTATION]
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE opt, _temp1
-    RETAIN opt
-    SCOPE_REGISTER opt, _scope_1
-    REFERENCE result, org.ek9.lang::String
-    SCOPE_ENTER _scope_2
-    _temp3 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "TERNARY_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_4
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_3
-    _temp4 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_3
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp5 = LOAD opt
-    _temp6 = IS_NULL _temp5
-    ]
-    primitive_condition: _temp6
-    body_evaluation:
-    [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_3
-    ]
-    body_result: _temp7
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp8 = CALL (org.ek9.lang::String)_temp5._isSet() [pure=true, complexity=0]
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_3
-    ]
-    default_result: _temp8
-    scope_id: _scope_3
-    ]
-    RETAIN _temp4
-    SCOPE_REGISTER _temp4, _scope_3
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_3
-    ]
-    condition_result: _temp4
-    primitive_condition: _temp9
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_4
-    _temp10 = LOAD opt
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, _scope_4
-    RELEASE _temp3
-    STORE _temp3, _temp10
-    RETAIN _temp3
-    SCOPE_EXIT _scope_4
-    ]
-    body_result: _temp3
-    ]
-    ]
-    default_body_evaluation:
-    [
-    SCOPE_ENTER _scope_5
-    _temp11 = LOAD_LITERAL default, org.ek9.lang::String
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_5
-    RELEASE _temp3
-    STORE _temp3, _temp11
-    RETAIN _temp3
-    SCOPE_EXIT _scope_5
-    ]
-    default_result: _temp3
-    scope_id: _scope_2
-    ]
-    SCOPE_EXIT _scope_2
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_1
-    STORE result, _temp3
-    RETAIN result
-    SCOPE_REGISTER result, _scope_1
-    _temp13 = LOAD result
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, _scope_1
-    _temp14 = LOAD_LITERAL value, org.ek9.lang::String
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_1
-    _temp12 = CALL (org.ek9.lang::String)_temp13._eq(_temp14) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp12
-    SCOPE_REGISTER _temp12, _scope_1
-    _temp15 = CALL (org.ek9.lang::Boolean)_temp12._true() [pure=true, complexity=0]
-    ASSERT _temp15
-    SCOPE_EXIT _scope_1
-    RETURN`
+OperationDfn: ternaryQuestion.test::testTernaryQuestion._call()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE opt, org.ek9.lang::String
+_temp2 = LOAD_LITERAL value, org.ek9.lang::String
+_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>(_temp2) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE opt, _temp1
+RETAIN opt
+SCOPE_REGISTER opt, _scope_1
+REFERENCE result, org.ek9.lang::String
+SCOPE_ENTER _scope_2
+_temp3 = CONTROL_FLOW_CHAIN
+[
+chain_type: "TERNARY_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_4
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_3
+_temp4 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_3
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp5 = LOAD opt
+_temp6 = IS_NULL _temp5
+]
+primitive_condition: _temp6
+body_evaluation:
+[
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp7
+SCOPE_REGISTER _temp7, _scope_3
+]
+body_result: _temp7
+]
+]
+default_body_evaluation:
+[
+_temp8 = CALL (org.ek9.lang::String)_temp5._isSet() [pure=true, complexity=0]
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_3
+]
+default_result: _temp8
+scope_id: _scope_3
+]
+RETAIN _temp4
+SCOPE_REGISTER _temp4, _scope_3
+_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_3
+]
+condition_result: _temp4
+primitive_condition: _temp9
+body_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp10 = LOAD opt
+RETAIN _temp10
+SCOPE_REGISTER _temp10, _scope_4
+RELEASE _temp3
+STORE _temp3, _temp10
+RETAIN _temp3
+SCOPE_EXIT _scope_4
+]
+body_result: _temp3
+]
+]
+default_body_evaluation:
+[
+SCOPE_ENTER _scope_5
+_temp11 = LOAD_LITERAL default, org.ek9.lang::String
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_5
+RELEASE _temp3
+STORE _temp3, _temp11
+RETAIN _temp3
+SCOPE_EXIT _scope_5
+]
+default_result: _temp3
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_1
+STORE result, _temp3
+RETAIN result
+SCOPE_REGISTER result, _scope_1
+_temp13 = LOAD result
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_1
+_temp14 = LOAD_LITERAL value, org.ek9.lang::String
+RETAIN _temp14
+SCOPE_REGISTER _temp14, _scope_1
+_temp12 = CALL (org.ek9.lang::String)_temp13._eq(_temp14) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp12
+SCOPE_REGISTER _temp12, _scope_1
+_temp15 = CALL (org.ek9.lang::Boolean)_temp12._true() [pure=true, complexity=0]
+ASSERT _temp15
+SCOPE_EXIT _scope_1
+RETURN
+OperationDfn: ternaryQuestion.test::testTernaryQuestion.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: ternaryQuestion.test::testTernaryQuestion.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: ternaryQuestion.test::testTernaryQuestion.testTernaryQuestion()->ternaryQuestion.test::testTernaryQuestion  
+BasicBlock: _entry_1
+CALL (ternaryQuestion.test::testTernaryQuestion)this.i_init() [pure=false, complexity=0]
+RETURN this`
     testTernaryQuestion()
       opt <- String("value")
       result <- opt? <- opt : "default"

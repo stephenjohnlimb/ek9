@@ -9,18 +9,10 @@ defines module bytecode.test.tryguard
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.tryguard::TryWithGuard": `public class bytecode.test.tryguard.TryWithGuard {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.tryguard.TryWithGuard();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -152,6 +144,14 @@ defines module bytecode.test.tryguard
            145   175   178   Class org/ek9/lang/Exception
            206   231   200   Class org/ek9/lang/Exception
            145   200   201   any
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
 
     TryWithGuard()

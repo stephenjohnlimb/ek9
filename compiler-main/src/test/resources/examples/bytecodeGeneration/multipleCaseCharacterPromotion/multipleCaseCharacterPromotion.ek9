@@ -8,18 +8,10 @@ defines module bytecode.test.multichar
   defines program
 
     @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.test.multichar::MultipleCaseCharacterPromotion":`public class bytecode.test.multichar.MultipleCaseCharacterPromotion {
-  static {};
-    Code:
-         0: return
-
-  private void i_init();
-    Code:
-         0: return
-
   public bytecode.test.multichar.MultipleCaseCharacterPromotion();
     Code:
          0: aload_0
-         1: invokespecial #CP                 // Method java/lang/Object."<init>":()V
+         1: invokespecial #CP                  // Method java/lang/Object."<init>":()V
          4: aload_0
          5: invokevirtual #CP                 // Method i_init:()V
          8: return
@@ -194,6 +186,14 @@ defines module bytecode.test.multichar
        368: aload         42
        370: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
        373: return
+
+  static {};
+    Code:
+         0: return
+
+  private void i_init();
+    Code:
+         0: return
 }`
 
     MultipleCaseCharacterPromotion()
