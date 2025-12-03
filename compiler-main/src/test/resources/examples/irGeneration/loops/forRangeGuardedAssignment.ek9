@@ -12,8 +12,7 @@ defines module loops.forrange.guardedAssign
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "loops.forrange.guardedAssign::getLimit": `
-    ConstructDfn: loops.forrange.guardedAssign::getLimit()->org.ek9.lang::Integer
+    @IR: IR_GENERATION: FUNCTION: "loops.forrange.guardedAssign::getLimit": `ConstructDfn: loops.forrange.guardedAssign::getLimit()->org.ek9.lang::Integer
 OperationDfn: loops.forrange.guardedAssign::getLimit._call()->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1
@@ -40,8 +39,7 @@ RETURN`
       <- rtn as Integer?
       rtn: 5
 
-    @IR: IR_GENERATION: FUNCTION: "loops.forrange.guardedAssign::forRangeGuardedAssignment": `
-    ConstructDfn: loops.forrange.guardedAssign::forRangeGuardedAssignment()->org.ek9.lang::Integer
+    @IR: IR_GENERATION: FUNCTION: "loops.forrange.guardedAssign::forRangeGuardedAssignment": `ConstructDfn: loops.forrange.guardedAssign::forRangeGuardedAssignment()->org.ek9.lang::Integer
 OperationDfn: loops.forrange.guardedAssign::forRangeGuardedAssignment._call()->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

@@ -7,8 +7,7 @@ defines module controlFlow.equality
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "controlFlow.equality::simpleSwitchExplicitEquality": `
-    ConstructDfn: controlFlow.equality::simpleSwitchExplicitEquality(org.ek9.lang::Integer)->org.ek9.lang::String
+    @IR: IR_GENERATION: FUNCTION: "controlFlow.equality::simpleSwitchExplicitEquality": `ConstructDfn: controlFlow.equality::simpleSwitchExplicitEquality(org.ek9.lang::Integer)->org.ek9.lang::String
 OperationDfn: controlFlow.equality::simpleSwitchExplicitEquality._call(org.ek9.lang::Integer)->org.ek9.lang::String  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

@@ -8,36 +8,35 @@ defines module simpleClasses
 
   defines class
 
-    @IR: IR_GENERATION: TYPE: "simpleClasses::Example": `
-    ConstructDfn: simpleClasses::Example
-Field: aField, org.ek9.lang::String  // ./singleClass.ek9:104:7
-Field: bField, org.ek9.lang::String  // ./singleClass.ek9:105:7
-Field: cField, org.ek9.lang::String  // ./singleClass.ek9:106:7
-Field: dField, org.ek9.lang::String  // ./singleClass.ek9:107:7
-OperationDfn: simpleClasses::Example.Example()->simpleClasses::Example  // ./singleClass.ek9:109:7
+    @IR: IR_GENERATION: TYPE: "simpleClasses::Example": `ConstructDfn: simpleClasses::Example
+Field: aField, org.ek9.lang::String  // ./singleClass.ek9:190:7
+Field: bField, org.ek9.lang::String  // ./singleClass.ek9:191:7
+Field: cField, org.ek9.lang::String  // ./singleClass.ek9:192:7
+Field: dField, org.ek9.lang::String  // ./singleClass.ek9:193:7
+OperationDfn: simpleClasses::Example.Example()->simpleClasses::Example  // ./singleClass.ek9:195:7
 BasicBlock: _entry_1
-CALL (simpleClasses::Example)this.i_init() [pure=false, complexity=0]  // ./singleClass.ek9:109:7
-SCOPE_ENTER _scope_1  // ./singleClass.ek9:110:9
-_temp1 = LOAD_LITERAL Now Initialised, org.ek9.lang::String  // ./singleClass.ek9:110:17
-RETAIN _temp1  // ./singleClass.ek9:110:17
-SCOPE_REGISTER _temp1, _scope_1  // ./singleClass.ek9:110:17
-RELEASE this.aField  // ./singleClass.ek9:110:17
-STORE this.aField, _temp1  // ./singleClass.ek9:110:17
-RETAIN this.aField  // ./singleClass.ek9:110:17
-REFERENCE local1, org.ek9.lang::Integer  // ./singleClass.ek9:112:9
-_temp2 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./singleClass.ek9:112:19
-RETAIN _temp2  // ./singleClass.ek9:112:19
-SCOPE_REGISTER _temp2, _scope_1  // ./singleClass.ek9:112:19
-STORE local1, _temp2  // ./singleClass.ek9:112:19
-RETAIN local1  // ./singleClass.ek9:112:19
-SCOPE_REGISTER local1, _scope_1  // ./singleClass.ek9:112:19
-_temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./singleClass.ek9:113:17
-RETAIN _temp3  // ./singleClass.ek9:113:17
-SCOPE_REGISTER _temp3, _scope_1  // ./singleClass.ek9:113:17
-RELEASE local1  // ./singleClass.ek9:113:17
-STORE local1, _temp3  // ./singleClass.ek9:113:17
-RETAIN local1  // ./singleClass.ek9:113:17
-_temp4 = CONTROL_FLOW_CHAIN  // ./singleClass.ek9:114:22
+CALL (simpleClasses::Example)this.i_init() [pure=false, complexity=0]  // ./singleClass.ek9:195:7
+SCOPE_ENTER _scope_1  // ./singleClass.ek9:196:9
+_temp1 = LOAD_LITERAL Now Initialised, org.ek9.lang::String  // ./singleClass.ek9:196:17
+RETAIN _temp1  // ./singleClass.ek9:196:17
+SCOPE_REGISTER _temp1, _scope_1  // ./singleClass.ek9:196:17
+RELEASE this.aField  // ./singleClass.ek9:196:17
+STORE this.aField, _temp1  // ./singleClass.ek9:196:17
+RETAIN this.aField  // ./singleClass.ek9:196:17
+REFERENCE local1, org.ek9.lang::Integer  // ./singleClass.ek9:198:9
+_temp2 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./singleClass.ek9:198:19
+RETAIN _temp2  // ./singleClass.ek9:198:19
+SCOPE_REGISTER _temp2, _scope_1  // ./singleClass.ek9:198:19
+STORE local1, _temp2  // ./singleClass.ek9:198:19
+RETAIN local1  // ./singleClass.ek9:198:19
+SCOPE_REGISTER local1, _scope_1  // ./singleClass.ek9:198:19
+_temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./singleClass.ek9:199:17
+RETAIN _temp3  // ./singleClass.ek9:199:17
+SCOPE_REGISTER _temp3, _scope_1  // ./singleClass.ek9:199:17
+RELEASE local1  // ./singleClass.ek9:199:17
+STORE local1, _temp3  // ./singleClass.ek9:199:17
+RETAIN local1  // ./singleClass.ek9:199:17
+_temp4 = CONTROL_FLOW_CHAIN  // ./singleClass.ek9:200:22
 [
 chain_type: "QUESTION_OPERATOR"
 condition_chain:
@@ -47,58 +46,145 @@ case_scope_id: _scope_1
 case_type: "NULL_CHECK"
 condition_evaluation:
 [
-_temp5 = LOAD local1  // ./singleClass.ek9:114:22
-_temp6 = IS_NULL _temp5  // ./singleClass.ek9:114:22
+_temp5 = LOAD local1  // ./singleClass.ek9:200:22
+_temp6 = IS_NULL _temp5  // ./singleClass.ek9:200:22
 ]
 primitive_condition: _temp6
 body_evaluation:
 [
-_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./singleClass.ek9:114:22
-RETAIN _temp7  // ./singleClass.ek9:114:22
-SCOPE_REGISTER _temp7, _scope_1  // ./singleClass.ek9:114:22
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./singleClass.ek9:200:22
+RETAIN _temp7  // ./singleClass.ek9:200:22
+SCOPE_REGISTER _temp7, _scope_1  // ./singleClass.ek9:200:22
 ]
 body_result: _temp7
 ]
 ]
 default_body_evaluation:
 [
-_temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./singleClass.ek9:114:22
-RETAIN _temp8  // ./singleClass.ek9:114:22
-SCOPE_REGISTER _temp8, _scope_1  // ./singleClass.ek9:114:22
+_temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./singleClass.ek9:200:22
+RETAIN _temp8  // ./singleClass.ek9:200:22
+SCOPE_REGISTER _temp8, _scope_1  // ./singleClass.ek9:200:22
 ]
 default_result: _temp8
 scope_id: _scope_1
 ]
-RETAIN _temp4  // ./singleClass.ek9:114:9
-SCOPE_REGISTER _temp4, _scope_1  // ./singleClass.ek9:114:9
-_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./singleClass.ek9:114:9
-ASSERT _temp9  // ./singleClass.ek9:114:9
-SCOPE_EXIT _scope_1  // ./singleClass.ek9:110:9
-RETURN  // ./singleClass.ek9:109:7
+RETAIN _temp4  // ./singleClass.ek9:200:9
+SCOPE_REGISTER _temp4, _scope_1  // ./singleClass.ek9:200:9
+_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./singleClass.ek9:200:9
+ASSERT _temp9  // ./singleClass.ek9:200:9
+SCOPE_EXIT _scope_1  // ./singleClass.ek9:196:9
+RETURN  // ./singleClass.ek9:195:7
+OperationDfn: simpleClasses::Example._fieldSetStatus()->org.ek9.lang::Integer  // ./singleClass.ek9:189:5
+BasicBlock: _entry_1
+SCOPE_ENTER __fieldSetStatus_1  // ./singleClass.ek9:189:5
+REFERENCE rtn, org.ek9.lang::Integer  // ./singleClass.ek9:189:5
+_temp1 = LOAD_LITERAL 0, org.ek9.lang::Integer  // ./singleClass.ek9:189:5
+RETAIN _temp1  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp1, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+STORE rtn, _temp1  // ./singleClass.ek9:189:5
+RETAIN rtn  // ./singleClass.ek9:189:5
+_temp2 = LOAD this.aField  // ./singleClass.ek9:189:5
+RETAIN _temp2  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp2, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+_temp3 = CALL (org.ek9.lang::String)_temp2._isSet() [pure=false, complexity=0]  // ./singleClass.ek9:189:5
+RETAIN _temp3  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp3, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+_temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=false, complexity=0]  // ./singleClass.ek9:189:5
+RETAIN _temp4  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp4, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+BRANCH_FALSE _temp4, _field_skip_1  // ./singleClass.ek9:189:5
+_temp5 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./singleClass.ek9:189:5
+RETAIN _temp5  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp5, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+_temp6 = CALL (org.ek9.lang::Integer)rtn._or(_temp5) [pure=false, complexity=0]  // ./singleClass.ek9:189:5
+RETAIN _temp6  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp6, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+STORE rtn, _temp6  // ./singleClass.ek9:189:5
+RETAIN rtn  // ./singleClass.ek9:189:5
+LABEL _field_skip_1
+_temp7 = LOAD this.bField  // ./singleClass.ek9:189:5
+RETAIN _temp7  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp7, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+_temp8 = CALL (org.ek9.lang::String)_temp7._isSet() [pure=false, complexity=0]  // ./singleClass.ek9:189:5
+RETAIN _temp8  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp8, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+_temp9 = CALL (org.ek9.lang::Boolean)_temp8._true() [pure=false, complexity=0]  // ./singleClass.ek9:189:5
+RETAIN _temp9  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp9, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+BRANCH_FALSE _temp9, _field_skip_2  // ./singleClass.ek9:189:5
+_temp10 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./singleClass.ek9:189:5
+RETAIN _temp10  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp10, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+_temp11 = CALL (org.ek9.lang::Integer)rtn._or(_temp10) [pure=false, complexity=0]  // ./singleClass.ek9:189:5
+RETAIN _temp11  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp11, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+STORE rtn, _temp11  // ./singleClass.ek9:189:5
+RETAIN rtn  // ./singleClass.ek9:189:5
+LABEL _field_skip_2
+_temp12 = LOAD this.cField  // ./singleClass.ek9:189:5
+RETAIN _temp12  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp12, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+_temp13 = CALL (org.ek9.lang::String)_temp12._isSet() [pure=false, complexity=0]  // ./singleClass.ek9:189:5
+RETAIN _temp13  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp13, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+_temp14 = CALL (org.ek9.lang::Boolean)_temp13._true() [pure=false, complexity=0]  // ./singleClass.ek9:189:5
+RETAIN _temp14  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp14, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+BRANCH_FALSE _temp14, _field_skip_3  // ./singleClass.ek9:189:5
+_temp15 = LOAD_LITERAL 4, org.ek9.lang::Integer  // ./singleClass.ek9:189:5
+RETAIN _temp15  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp15, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+_temp16 = CALL (org.ek9.lang::Integer)rtn._or(_temp15) [pure=false, complexity=0]  // ./singleClass.ek9:189:5
+RETAIN _temp16  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp16, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+STORE rtn, _temp16  // ./singleClass.ek9:189:5
+RETAIN rtn  // ./singleClass.ek9:189:5
+LABEL _field_skip_3
+_temp17 = LOAD this.dField  // ./singleClass.ek9:189:5
+RETAIN _temp17  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp17, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+_temp18 = CALL (org.ek9.lang::String)_temp17._isSet() [pure=false, complexity=0]  // ./singleClass.ek9:189:5
+RETAIN _temp18  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp18, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+_temp19 = CALL (org.ek9.lang::Boolean)_temp18._true() [pure=false, complexity=0]  // ./singleClass.ek9:189:5
+RETAIN _temp19  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp19, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+BRANCH_FALSE _temp19, _field_skip_4  // ./singleClass.ek9:189:5
+_temp20 = LOAD_LITERAL 8, org.ek9.lang::Integer  // ./singleClass.ek9:189:5
+RETAIN _temp20  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp20, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+_temp21 = CALL (org.ek9.lang::Integer)rtn._or(_temp20) [pure=false, complexity=0]  // ./singleClass.ek9:189:5
+RETAIN _temp21  // ./singleClass.ek9:189:5
+SCOPE_REGISTER _temp21, __fieldSetStatus_1  // ./singleClass.ek9:189:5
+STORE rtn, _temp21  // ./singleClass.ek9:189:5
+RETAIN rtn  // ./singleClass.ek9:189:5
+LABEL _field_skip_4
+SCOPE_EXIT __fieldSetStatus_1  // ./singleClass.ek9:189:5
+RETURN rtn  // ./singleClass.ek9:189:5
 OperationDfn: simpleClasses::Example.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
 OperationDfn: simpleClasses::Example.i_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
-REFERENCE this.aField, org.ek9.lang::String  // ./singleClass.ek9:104:7
-REFERENCE this.bField, org.ek9.lang::String  // ./singleClass.ek9:105:7
-_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./singleClass.ek9:105:27
-RETAIN _temp1  // ./singleClass.ek9:105:27
-SCOPE_REGISTER _temp1, i_init  // ./singleClass.ek9:105:27
-STORE this.bField, _temp1  // ./singleClass.ek9:105:27
-RETAIN this.bField  // ./singleClass.ek9:105:27
-REFERENCE this.cField, org.ek9.lang::String  // ./singleClass.ek9:106:7
-_temp2 = LOAD_LITERAL Steve, org.ek9.lang::String  // ./singleClass.ek9:106:27
-RETAIN _temp2  // ./singleClass.ek9:106:27
-SCOPE_REGISTER _temp2, i_init  // ./singleClass.ek9:106:27
-STORE this.cField, _temp2  // ./singleClass.ek9:106:27
-RETAIN this.cField  // ./singleClass.ek9:106:27
-REFERENCE this.dField, org.ek9.lang::String  // ./singleClass.ek9:107:7
-_temp3 = LOAD_LITERAL Stephen, org.ek9.lang::String  // ./singleClass.ek9:107:17
-RETAIN _temp3  // ./singleClass.ek9:107:17
-SCOPE_REGISTER _temp3, i_init  // ./singleClass.ek9:107:17
-STORE this.dField, _temp3  // ./singleClass.ek9:107:17
-RETAIN this.dField  // ./singleClass.ek9:107:17
+REFERENCE this.aField, org.ek9.lang::String  // ./singleClass.ek9:190:7
+REFERENCE this.bField, org.ek9.lang::String  // ./singleClass.ek9:191:7
+_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./singleClass.ek9:191:27
+RETAIN _temp1  // ./singleClass.ek9:191:27
+SCOPE_REGISTER _temp1, i_init  // ./singleClass.ek9:191:27
+STORE this.bField, _temp1  // ./singleClass.ek9:191:27
+RETAIN this.bField  // ./singleClass.ek9:191:27
+REFERENCE this.cField, org.ek9.lang::String  // ./singleClass.ek9:192:7
+_temp2 = LOAD_LITERAL Steve, org.ek9.lang::String  // ./singleClass.ek9:192:27
+RETAIN _temp2  // ./singleClass.ek9:192:27
+SCOPE_REGISTER _temp2, i_init  // ./singleClass.ek9:192:27
+STORE this.cField, _temp2  // ./singleClass.ek9:192:27
+RETAIN this.cField  // ./singleClass.ek9:192:27
+REFERENCE this.dField, org.ek9.lang::String  // ./singleClass.ek9:193:7
+_temp3 = LOAD_LITERAL Stephen, org.ek9.lang::String  // ./singleClass.ek9:193:17
+RETAIN _temp3  // ./singleClass.ek9:193:17
+SCOPE_REGISTER _temp3, i_init  // ./singleClass.ek9:193:17
+STORE this.dField, _temp3  // ./singleClass.ek9:193:17
+RETAIN this.dField  // ./singleClass.ek9:193:17
 RETURN`
     Example as open
       aField as String?

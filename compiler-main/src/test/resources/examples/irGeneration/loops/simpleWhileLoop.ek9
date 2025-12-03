@@ -6,8 +6,7 @@ defines module loops
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "loops::simpleWhileLoop": `
-    ConstructDfn: loops::simpleWhileLoop()->org.ek9.lang::Void
+    @IR: IR_GENERATION: FUNCTION: "loops::simpleWhileLoop": `ConstructDfn: loops::simpleWhileLoop()->org.ek9.lang::Void
 OperationDfn: loops::simpleWhileLoop._call()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

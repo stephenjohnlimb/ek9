@@ -23,313 +23,312 @@ defines module multipleNullCoalesce.test
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "multipleNullCoalesce.test::testMultipleNullCoalesce": `
-    ConstructDfn: multipleNullCoalesce.test::testMultipleNullCoalesce()->org.ek9.lang::Void
-    OperationDfn: multipleNullCoalesce.test::testMultipleNullCoalesce._call()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE a, org.ek9.lang::Integer
-    _temp1 = LOAD_LITERAL 10, org.ek9.lang::Integer
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE a, _temp1
-    RETAIN a
-    SCOPE_REGISTER a, _scope_1
-    REFERENCE b, org.ek9.lang::Integer
-    _temp2 = LOAD_LITERAL 20, org.ek9.lang::Integer
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_1
-    STORE b, _temp2
-    RETAIN b
-    SCOPE_REGISTER b, _scope_1
-    REFERENCE result1, org.ek9.lang::Integer
-    SCOPE_ENTER _scope_2
-    _temp3 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "NULL_COALESCING_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_3
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp4 = LOAD a
-    _temp5 = IS_NULL _temp4
-    ]
-    primitive_condition: _temp5
-    body_evaluation:
-    [
-    _temp6 = LOAD b
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_2
-    ]
-    body_result: _temp6
-    ]
-    ]
-    scope_id: _scope_2
-    ]
-    SCOPE_EXIT _scope_2
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_1
-    STORE result1, _temp3
-    RETAIN result1
-    SCOPE_REGISTER result1, _scope_1
-    REFERENCE c, org.ek9.lang::Integer
-    _temp7 = LOAD_LITERAL 30, org.ek9.lang::Integer
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_1
-    STORE c, _temp7
-    RETAIN c
-    SCOPE_REGISTER c, _scope_1
-    REFERENCE d, org.ek9.lang::Integer
-    _temp8 = LOAD_LITERAL 40, org.ek9.lang::Integer
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_1
-    STORE d, _temp8
-    RETAIN d
-    SCOPE_REGISTER d, _scope_1
-    REFERENCE result2, org.ek9.lang::Integer
-    SCOPE_ENTER _scope_4
-    _temp9 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "NULL_COALESCING_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_5
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp10 = LOAD c
-    _temp11 = IS_NULL _temp10
-    ]
-    primitive_condition: _temp11
-    body_evaluation:
-    [
-    _temp12 = LOAD d
-    RETAIN _temp12
-    SCOPE_REGISTER _temp12, _scope_4
-    ]
-    body_result: _temp12
-    ]
-    ]
-    scope_id: _scope_4
-    ]
-    SCOPE_EXIT _scope_4
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_1
-    STORE result2, _temp9
-    RETAIN result2
-    SCOPE_REGISTER result2, _scope_1
-    REFERENCE e, org.ek9.lang::Integer
-    _temp13 = LOAD_LITERAL 50, org.ek9.lang::Integer
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, _scope_1
-    STORE e, _temp13
-    RETAIN e
-    SCOPE_REGISTER e, _scope_1
-    REFERENCE f, org.ek9.lang::Integer
-    _temp14 = LOAD_LITERAL 60, org.ek9.lang::Integer
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_1
-    STORE f, _temp14
-    RETAIN f
-    SCOPE_REGISTER f, _scope_1
-    REFERENCE result3, org.ek9.lang::Integer
-    SCOPE_ENTER _scope_6
-    _temp15 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "NULL_COALESCING_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_7
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp16 = LOAD e
-    _temp17 = IS_NULL _temp16
-    ]
-    primitive_condition: _temp17
-    body_evaluation:
-    [
-    _temp18 = LOAD f
-    RETAIN _temp18
-    SCOPE_REGISTER _temp18, _scope_6
-    ]
-    body_result: _temp18
-    ]
-    ]
-    scope_id: _scope_6
-    ]
-    SCOPE_EXIT _scope_6
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_1
-    STORE result3, _temp15
-    RETAIN result3
-    SCOPE_REGISTER result3, _scope_1
-    REFERENCE g, org.ek9.lang::Integer
-    _temp19 = LOAD_LITERAL 70, org.ek9.lang::Integer
-    RETAIN _temp19
-    SCOPE_REGISTER _temp19, _scope_1
-    STORE g, _temp19
-    RETAIN g
-    SCOPE_REGISTER g, _scope_1
-    REFERENCE h, org.ek9.lang::Integer
-    _temp20 = LOAD_LITERAL 80, org.ek9.lang::Integer
-    RETAIN _temp20
-    SCOPE_REGISTER _temp20, _scope_1
-    STORE h, _temp20
-    RETAIN h
-    SCOPE_REGISTER h, _scope_1
-    REFERENCE result4, org.ek9.lang::Integer
-    SCOPE_ENTER _scope_8
-    _temp21 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "NULL_COALESCING_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_9
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp22 = LOAD g
-    _temp23 = IS_NULL _temp22
-    ]
-    primitive_condition: _temp23
-    body_evaluation:
-    [
-    _temp24 = LOAD h
-    RETAIN _temp24
-    SCOPE_REGISTER _temp24, _scope_8
-    ]
-    body_result: _temp24
-    ]
-    ]
-    scope_id: _scope_8
-    ]
-    SCOPE_EXIT _scope_8
-    RETAIN _temp21
-    SCOPE_REGISTER _temp21, _scope_1
-    STORE result4, _temp21
-    RETAIN result4
-    SCOPE_REGISTER result4, _scope_1
-    REFERENCE i, org.ek9.lang::Integer
-    _temp25 = LOAD_LITERAL 90, org.ek9.lang::Integer
-    RETAIN _temp25
-    SCOPE_REGISTER _temp25, _scope_1
-    STORE i, _temp25
-    RETAIN i
-    SCOPE_REGISTER i, _scope_1
-    REFERENCE j, org.ek9.lang::Integer
-    _temp26 = LOAD_LITERAL 100, org.ek9.lang::Integer
-    RETAIN _temp26
-    SCOPE_REGISTER _temp26, _scope_1
-    STORE j, _temp26
-    RETAIN j
-    SCOPE_REGISTER j, _scope_1
-    REFERENCE result5, org.ek9.lang::Integer
-    SCOPE_ENTER _scope_10
-    _temp27 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "NULL_COALESCING_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_11
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp28 = LOAD i
-    _temp29 = IS_NULL _temp28
-    ]
-    primitive_condition: _temp29
-    body_evaluation:
-    [
-    _temp30 = LOAD j
-    RETAIN _temp30
-    SCOPE_REGISTER _temp30, _scope_10
-    ]
-    body_result: _temp30
-    ]
-    ]
-    scope_id: _scope_10
-    ]
-    SCOPE_EXIT _scope_10
-    RETAIN _temp27
-    SCOPE_REGISTER _temp27, _scope_1
-    STORE result5, _temp27
-    RETAIN result5
-    SCOPE_REGISTER result5, _scope_1
-    _temp32 = LOAD result1
-    RETAIN _temp32
-    SCOPE_REGISTER _temp32, _scope_1
-    _temp33 = LOAD_LITERAL 10, org.ek9.lang::Integer
-    RETAIN _temp33
-    SCOPE_REGISTER _temp33, _scope_1
-    _temp31 = CALL (org.ek9.lang::Integer)_temp32._eq(_temp33) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp31
-    SCOPE_REGISTER _temp31, _scope_1
-    _temp34 = CALL (org.ek9.lang::Boolean)_temp31._true() [pure=true, complexity=0]
-    ASSERT _temp34
-    _temp36 = LOAD result2
-    RETAIN _temp36
-    SCOPE_REGISTER _temp36, _scope_1
-    _temp37 = LOAD_LITERAL 30, org.ek9.lang::Integer
-    RETAIN _temp37
-    SCOPE_REGISTER _temp37, _scope_1
-    _temp35 = CALL (org.ek9.lang::Integer)_temp36._eq(_temp37) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp35
-    SCOPE_REGISTER _temp35, _scope_1
-    _temp38 = CALL (org.ek9.lang::Boolean)_temp35._true() [pure=true, complexity=0]
-    ASSERT _temp38
-    _temp40 = LOAD result3
-    RETAIN _temp40
-    SCOPE_REGISTER _temp40, _scope_1
-    _temp41 = LOAD_LITERAL 50, org.ek9.lang::Integer
-    RETAIN _temp41
-    SCOPE_REGISTER _temp41, _scope_1
-    _temp39 = CALL (org.ek9.lang::Integer)_temp40._eq(_temp41) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp39
-    SCOPE_REGISTER _temp39, _scope_1
-    _temp42 = CALL (org.ek9.lang::Boolean)_temp39._true() [pure=true, complexity=0]
-    ASSERT _temp42
-    _temp44 = LOAD result4
-    RETAIN _temp44
-    SCOPE_REGISTER _temp44, _scope_1
-    _temp45 = LOAD_LITERAL 70, org.ek9.lang::Integer
-    RETAIN _temp45
-    SCOPE_REGISTER _temp45, _scope_1
-    _temp43 = CALL (org.ek9.lang::Integer)_temp44._eq(_temp45) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp43
-    SCOPE_REGISTER _temp43, _scope_1
-    _temp46 = CALL (org.ek9.lang::Boolean)_temp43._true() [pure=true, complexity=0]
-    ASSERT _temp46
-    _temp48 = LOAD result5
-    RETAIN _temp48
-    SCOPE_REGISTER _temp48, _scope_1
-    _temp49 = LOAD_LITERAL 90, org.ek9.lang::Integer
-    RETAIN _temp49
-    SCOPE_REGISTER _temp49, _scope_1
-    _temp47 = CALL (org.ek9.lang::Integer)_temp48._eq(_temp49) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp47
-    SCOPE_REGISTER _temp47, _scope_1
-    _temp50 = CALL (org.ek9.lang::Boolean)_temp47._true() [pure=true, complexity=0]
-    ASSERT _temp50
-    SCOPE_EXIT _scope_1
-    RETURN
-    OperationDfn: multipleNullCoalesce.test::testMultipleNullCoalesce.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: multipleNullCoalesce.test::testMultipleNullCoalesce.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: multipleNullCoalesce.test::testMultipleNullCoalesce.testMultipleNullCoalesce()->multipleNullCoalesce.test::testMultipleNullCoalesce
-    BasicBlock: _entry_1
-    CALL (multipleNullCoalesce.test::testMultipleNullCoalesce)this.i_init() [pure=false, complexity=0]
-    RETURN this`
+    @IR: IR_GENERATION: FUNCTION: "multipleNullCoalesce.test::testMultipleNullCoalesce": `ConstructDfn: multipleNullCoalesce.test::testMultipleNullCoalesce()->org.ek9.lang::Void
+OperationDfn: multipleNullCoalesce.test::testMultipleNullCoalesce._call()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE a, org.ek9.lang::Integer
+_temp1 = LOAD_LITERAL 10, org.ek9.lang::Integer
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE a, _temp1
+RETAIN a
+SCOPE_REGISTER a, _scope_1
+REFERENCE b, org.ek9.lang::Integer
+_temp2 = LOAD_LITERAL 20, org.ek9.lang::Integer
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+STORE b, _temp2
+RETAIN b
+SCOPE_REGISTER b, _scope_1
+REFERENCE result1, org.ek9.lang::Integer
+SCOPE_ENTER _scope_2
+_temp3 = CONTROL_FLOW_CHAIN
+[
+chain_type: "NULL_COALESCING_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_3
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp4 = LOAD a
+_temp5 = IS_NULL _temp4
+]
+primitive_condition: _temp5
+body_evaluation:
+[
+_temp6 = LOAD b
+RETAIN _temp6
+SCOPE_REGISTER _temp6, _scope_2
+]
+body_result: _temp6
+]
+]
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_1
+STORE result1, _temp3
+RETAIN result1
+SCOPE_REGISTER result1, _scope_1
+REFERENCE c, org.ek9.lang::Integer
+_temp7 = LOAD_LITERAL 30, org.ek9.lang::Integer
+RETAIN _temp7
+SCOPE_REGISTER _temp7, _scope_1
+STORE c, _temp7
+RETAIN c
+SCOPE_REGISTER c, _scope_1
+REFERENCE d, org.ek9.lang::Integer
+_temp8 = LOAD_LITERAL 40, org.ek9.lang::Integer
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_1
+STORE d, _temp8
+RETAIN d
+SCOPE_REGISTER d, _scope_1
+REFERENCE result2, org.ek9.lang::Integer
+SCOPE_ENTER _scope_4
+_temp9 = CONTROL_FLOW_CHAIN
+[
+chain_type: "NULL_COALESCING_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_5
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp10 = LOAD c
+_temp11 = IS_NULL _temp10
+]
+primitive_condition: _temp11
+body_evaluation:
+[
+_temp12 = LOAD d
+RETAIN _temp12
+SCOPE_REGISTER _temp12, _scope_4
+]
+body_result: _temp12
+]
+]
+scope_id: _scope_4
+]
+SCOPE_EXIT _scope_4
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_1
+STORE result2, _temp9
+RETAIN result2
+SCOPE_REGISTER result2, _scope_1
+REFERENCE e, org.ek9.lang::Integer
+_temp13 = LOAD_LITERAL 50, org.ek9.lang::Integer
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_1
+STORE e, _temp13
+RETAIN e
+SCOPE_REGISTER e, _scope_1
+REFERENCE f, org.ek9.lang::Integer
+_temp14 = LOAD_LITERAL 60, org.ek9.lang::Integer
+RETAIN _temp14
+SCOPE_REGISTER _temp14, _scope_1
+STORE f, _temp14
+RETAIN f
+SCOPE_REGISTER f, _scope_1
+REFERENCE result3, org.ek9.lang::Integer
+SCOPE_ENTER _scope_6
+_temp15 = CONTROL_FLOW_CHAIN
+[
+chain_type: "NULL_COALESCING_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_7
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp16 = LOAD e
+_temp17 = IS_NULL _temp16
+]
+primitive_condition: _temp17
+body_evaluation:
+[
+_temp18 = LOAD f
+RETAIN _temp18
+SCOPE_REGISTER _temp18, _scope_6
+]
+body_result: _temp18
+]
+]
+scope_id: _scope_6
+]
+SCOPE_EXIT _scope_6
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_1
+STORE result3, _temp15
+RETAIN result3
+SCOPE_REGISTER result3, _scope_1
+REFERENCE g, org.ek9.lang::Integer
+_temp19 = LOAD_LITERAL 70, org.ek9.lang::Integer
+RETAIN _temp19
+SCOPE_REGISTER _temp19, _scope_1
+STORE g, _temp19
+RETAIN g
+SCOPE_REGISTER g, _scope_1
+REFERENCE h, org.ek9.lang::Integer
+_temp20 = LOAD_LITERAL 80, org.ek9.lang::Integer
+RETAIN _temp20
+SCOPE_REGISTER _temp20, _scope_1
+STORE h, _temp20
+RETAIN h
+SCOPE_REGISTER h, _scope_1
+REFERENCE result4, org.ek9.lang::Integer
+SCOPE_ENTER _scope_8
+_temp21 = CONTROL_FLOW_CHAIN
+[
+chain_type: "NULL_COALESCING_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_9
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp22 = LOAD g
+_temp23 = IS_NULL _temp22
+]
+primitive_condition: _temp23
+body_evaluation:
+[
+_temp24 = LOAD h
+RETAIN _temp24
+SCOPE_REGISTER _temp24, _scope_8
+]
+body_result: _temp24
+]
+]
+scope_id: _scope_8
+]
+SCOPE_EXIT _scope_8
+RETAIN _temp21
+SCOPE_REGISTER _temp21, _scope_1
+STORE result4, _temp21
+RETAIN result4
+SCOPE_REGISTER result4, _scope_1
+REFERENCE i, org.ek9.lang::Integer
+_temp25 = LOAD_LITERAL 90, org.ek9.lang::Integer
+RETAIN _temp25
+SCOPE_REGISTER _temp25, _scope_1
+STORE i, _temp25
+RETAIN i
+SCOPE_REGISTER i, _scope_1
+REFERENCE j, org.ek9.lang::Integer
+_temp26 = LOAD_LITERAL 100, org.ek9.lang::Integer
+RETAIN _temp26
+SCOPE_REGISTER _temp26, _scope_1
+STORE j, _temp26
+RETAIN j
+SCOPE_REGISTER j, _scope_1
+REFERENCE result5, org.ek9.lang::Integer
+SCOPE_ENTER _scope_10
+_temp27 = CONTROL_FLOW_CHAIN
+[
+chain_type: "NULL_COALESCING_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_11
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp28 = LOAD i
+_temp29 = IS_NULL _temp28
+]
+primitive_condition: _temp29
+body_evaluation:
+[
+_temp30 = LOAD j
+RETAIN _temp30
+SCOPE_REGISTER _temp30, _scope_10
+]
+body_result: _temp30
+]
+]
+scope_id: _scope_10
+]
+SCOPE_EXIT _scope_10
+RETAIN _temp27
+SCOPE_REGISTER _temp27, _scope_1
+STORE result5, _temp27
+RETAIN result5
+SCOPE_REGISTER result5, _scope_1
+_temp32 = LOAD result1
+RETAIN _temp32
+SCOPE_REGISTER _temp32, _scope_1
+_temp33 = LOAD_LITERAL 10, org.ek9.lang::Integer
+RETAIN _temp33
+SCOPE_REGISTER _temp33, _scope_1
+_temp31 = CALL (org.ek9.lang::Integer)_temp32._eq(_temp33) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp31
+SCOPE_REGISTER _temp31, _scope_1
+_temp34 = CALL (org.ek9.lang::Boolean)_temp31._true() [pure=true, complexity=0]
+ASSERT _temp34
+_temp36 = LOAD result2
+RETAIN _temp36
+SCOPE_REGISTER _temp36, _scope_1
+_temp37 = LOAD_LITERAL 30, org.ek9.lang::Integer
+RETAIN _temp37
+SCOPE_REGISTER _temp37, _scope_1
+_temp35 = CALL (org.ek9.lang::Integer)_temp36._eq(_temp37) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp35
+SCOPE_REGISTER _temp35, _scope_1
+_temp38 = CALL (org.ek9.lang::Boolean)_temp35._true() [pure=true, complexity=0]
+ASSERT _temp38
+_temp40 = LOAD result3
+RETAIN _temp40
+SCOPE_REGISTER _temp40, _scope_1
+_temp41 = LOAD_LITERAL 50, org.ek9.lang::Integer
+RETAIN _temp41
+SCOPE_REGISTER _temp41, _scope_1
+_temp39 = CALL (org.ek9.lang::Integer)_temp40._eq(_temp41) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp39
+SCOPE_REGISTER _temp39, _scope_1
+_temp42 = CALL (org.ek9.lang::Boolean)_temp39._true() [pure=true, complexity=0]
+ASSERT _temp42
+_temp44 = LOAD result4
+RETAIN _temp44
+SCOPE_REGISTER _temp44, _scope_1
+_temp45 = LOAD_LITERAL 70, org.ek9.lang::Integer
+RETAIN _temp45
+SCOPE_REGISTER _temp45, _scope_1
+_temp43 = CALL (org.ek9.lang::Integer)_temp44._eq(_temp45) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp43
+SCOPE_REGISTER _temp43, _scope_1
+_temp46 = CALL (org.ek9.lang::Boolean)_temp43._true() [pure=true, complexity=0]
+ASSERT _temp46
+_temp48 = LOAD result5
+RETAIN _temp48
+SCOPE_REGISTER _temp48, _scope_1
+_temp49 = LOAD_LITERAL 90, org.ek9.lang::Integer
+RETAIN _temp49
+SCOPE_REGISTER _temp49, _scope_1
+_temp47 = CALL (org.ek9.lang::Integer)_temp48._eq(_temp49) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp47
+SCOPE_REGISTER _temp47, _scope_1
+_temp50 = CALL (org.ek9.lang::Boolean)_temp47._true() [pure=true, complexity=0]
+ASSERT _temp50
+SCOPE_EXIT _scope_1
+RETURN
+OperationDfn: multipleNullCoalesce.test::testMultipleNullCoalesce.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: multipleNullCoalesce.test::testMultipleNullCoalesce.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: multipleNullCoalesce.test::testMultipleNullCoalesce.testMultipleNullCoalesce()->multipleNullCoalesce.test::testMultipleNullCoalesce  
+BasicBlock: _entry_1
+CALL (multipleNullCoalesce.test::testMultipleNullCoalesce)this.i_init() [pure=false, complexity=0]
+RETURN this`
     testMultipleNullCoalesce()
       // Test 5 sequential null coalescing operations
       a <- 10

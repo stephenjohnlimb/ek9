@@ -11,39 +11,38 @@ defines module contains.test
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "contains.test::testContains": `
-    ConstructDfn: contains.test::testContains()->org.ek9.lang::Void
-OperationDfn: contains.test::testContains._call()->org.ek9.lang::Void  // ./contains_operator.ek9:94:5
+    @IR: IR_GENERATION: FUNCTION: "contains.test::testContains": `ConstructDfn: contains.test::testContains()->org.ek9.lang::Void
+OperationDfn: contains.test::testContains._call()->org.ek9.lang::Void  // ./contains_operator.ek9:93:5
 BasicBlock: _entry_1
-SCOPE_ENTER _scope_1  // ./contains_operator.ek9:95:7
-REFERENCE text, org.ek9.lang::String  // ./contains_operator.ek9:95:7
-_temp1 = LOAD_LITERAL hello world, org.ek9.lang::String  // ./contains_operator.ek9:95:23
-RETAIN _temp1  // ./contains_operator.ek9:95:23
-SCOPE_REGISTER _temp1, _scope_1  // ./contains_operator.ek9:95:23
-STORE text, _temp1  // ./contains_operator.ek9:95:23
-RETAIN text  // ./contains_operator.ek9:95:23
-SCOPE_REGISTER text, _scope_1  // ./contains_operator.ek9:95:23
-REFERENCE substring, org.ek9.lang::String  // ./contains_operator.ek9:96:7
-_temp2 = LOAD_LITERAL world, org.ek9.lang::String  // ./contains_operator.ek9:96:28
-RETAIN _temp2  // ./contains_operator.ek9:96:28
-SCOPE_REGISTER _temp2, _scope_1  // ./contains_operator.ek9:96:28
-STORE substring, _temp2  // ./contains_operator.ek9:96:28
-RETAIN substring  // ./contains_operator.ek9:96:28
-SCOPE_REGISTER substring, _scope_1  // ./contains_operator.ek9:96:28
-REFERENCE result, org.ek9.lang::Boolean  // ./contains_operator.ek9:97:7
-_temp4 = LOAD text  // ./contains_operator.ek9:97:17
-RETAIN _temp4  // ./contains_operator.ek9:97:17
-SCOPE_REGISTER _temp4, _scope_1  // ./contains_operator.ek9:97:17
-_temp5 = LOAD substring  // ./contains_operator.ek9:97:31
-RETAIN _temp5  // ./contains_operator.ek9:97:31
-SCOPE_REGISTER _temp5, _scope_1  // ./contains_operator.ek9:97:31
-_temp3 = CALL (org.ek9.lang::String)_temp4._contains(_temp5) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./contains_operator.ek9:97:22
-RETAIN _temp3  // ./contains_operator.ek9:97:17
-SCOPE_REGISTER _temp3, _scope_1  // ./contains_operator.ek9:97:17
-STORE result, _temp3  // ./contains_operator.ek9:97:17
-RETAIN result  // ./contains_operator.ek9:97:17
-SCOPE_REGISTER result, _scope_1  // ./contains_operator.ek9:97:17
-_temp6 = CONTROL_FLOW_CHAIN  // ./contains_operator.ek9:98:20
+SCOPE_ENTER _scope_1  // ./contains_operator.ek9:94:7
+REFERENCE text, org.ek9.lang::String  // ./contains_operator.ek9:94:7
+_temp1 = LOAD_LITERAL hello world, org.ek9.lang::String  // ./contains_operator.ek9:94:23
+RETAIN _temp1  // ./contains_operator.ek9:94:23
+SCOPE_REGISTER _temp1, _scope_1  // ./contains_operator.ek9:94:23
+STORE text, _temp1  // ./contains_operator.ek9:94:23
+RETAIN text  // ./contains_operator.ek9:94:23
+SCOPE_REGISTER text, _scope_1  // ./contains_operator.ek9:94:23
+REFERENCE substring, org.ek9.lang::String  // ./contains_operator.ek9:95:7
+_temp2 = LOAD_LITERAL world, org.ek9.lang::String  // ./contains_operator.ek9:95:28
+RETAIN _temp2  // ./contains_operator.ek9:95:28
+SCOPE_REGISTER _temp2, _scope_1  // ./contains_operator.ek9:95:28
+STORE substring, _temp2  // ./contains_operator.ek9:95:28
+RETAIN substring  // ./contains_operator.ek9:95:28
+SCOPE_REGISTER substring, _scope_1  // ./contains_operator.ek9:95:28
+REFERENCE result, org.ek9.lang::Boolean  // ./contains_operator.ek9:96:7
+_temp4 = LOAD text  // ./contains_operator.ek9:96:17
+RETAIN _temp4  // ./contains_operator.ek9:96:17
+SCOPE_REGISTER _temp4, _scope_1  // ./contains_operator.ek9:96:17
+_temp5 = LOAD substring  // ./contains_operator.ek9:96:31
+RETAIN _temp5  // ./contains_operator.ek9:96:31
+SCOPE_REGISTER _temp5, _scope_1  // ./contains_operator.ek9:96:31
+_temp3 = CALL (org.ek9.lang::String)_temp4._contains(_temp5) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./contains_operator.ek9:96:22
+RETAIN _temp3  // ./contains_operator.ek9:96:17
+SCOPE_REGISTER _temp3, _scope_1  // ./contains_operator.ek9:96:17
+STORE result, _temp3  // ./contains_operator.ek9:96:17
+RETAIN result  // ./contains_operator.ek9:96:17
+SCOPE_REGISTER result, _scope_1  // ./contains_operator.ek9:96:17
+_temp6 = CONTROL_FLOW_CHAIN  // ./contains_operator.ek9:97:20
 [
 chain_type: "QUESTION_OPERATOR"
 condition_chain:
@@ -53,44 +52,44 @@ case_scope_id: _scope_1
 case_type: "NULL_CHECK"
 condition_evaluation:
 [
-_temp7 = LOAD result  // ./contains_operator.ek9:98:20
-_temp8 = IS_NULL _temp7  // ./contains_operator.ek9:98:20
+_temp7 = LOAD result  // ./contains_operator.ek9:97:20
+_temp8 = IS_NULL _temp7  // ./contains_operator.ek9:97:20
 ]
 primitive_condition: _temp8
 body_evaluation:
 [
-_temp9 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./contains_operator.ek9:98:20
-RETAIN _temp9  // ./contains_operator.ek9:98:20
-SCOPE_REGISTER _temp9, _scope_1  // ./contains_operator.ek9:98:20
+_temp9 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./contains_operator.ek9:97:20
+RETAIN _temp9  // ./contains_operator.ek9:97:20
+SCOPE_REGISTER _temp9, _scope_1  // ./contains_operator.ek9:97:20
 ]
 body_result: _temp9
 ]
 ]
 default_body_evaluation:
 [
-_temp10 = CALL (org.ek9.lang::Boolean)_temp7._isSet() [pure=true, complexity=0]  // ./contains_operator.ek9:98:20
-RETAIN _temp10  // ./contains_operator.ek9:98:20
-SCOPE_REGISTER _temp10, _scope_1  // ./contains_operator.ek9:98:20
+_temp10 = CALL (org.ek9.lang::Boolean)_temp7._isSet() [pure=true, complexity=0]  // ./contains_operator.ek9:97:20
+RETAIN _temp10  // ./contains_operator.ek9:97:20
+SCOPE_REGISTER _temp10, _scope_1  // ./contains_operator.ek9:97:20
 ]
 default_result: _temp10
 scope_id: _scope_1
 ]
-RETAIN _temp6  // ./contains_operator.ek9:98:7
-SCOPE_REGISTER _temp6, _scope_1  // ./contains_operator.ek9:98:7
-_temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]  // ./contains_operator.ek9:98:7
-ASSERT _temp11  // ./contains_operator.ek9:98:7
-SCOPE_EXIT _scope_1  // ./contains_operator.ek9:95:7
-RETURN  // ./contains_operator.ek9:94:5
+RETAIN _temp6  // ./contains_operator.ek9:97:7
+SCOPE_REGISTER _temp6, _scope_1  // ./contains_operator.ek9:97:7
+_temp11 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]  // ./contains_operator.ek9:97:7
+ASSERT _temp11  // ./contains_operator.ek9:97:7
+SCOPE_EXIT _scope_1  // ./contains_operator.ek9:94:7
+RETURN  // ./contains_operator.ek9:93:5
 OperationDfn: contains.test::testContains.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
 OperationDfn: contains.test::testContains.i_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
-OperationDfn: contains.test::testContains.testContains()->contains.test::testContains  // ./contains_operator.ek9:94:5
+OperationDfn: contains.test::testContains.testContains()->contains.test::testContains  // ./contains_operator.ek9:93:5
 BasicBlock: _entry_1
-CALL (contains.test::testContains)this.i_init() [pure=false, complexity=0]  // ./contains_operator.ek9:94:5
-RETURN this  // ./contains_operator.ek9:94:5`
+CALL (contains.test::testContains)this.i_init() [pure=false, complexity=0]  // ./contains_operator.ek9:93:5
+RETURN this  // ./contains_operator.ek9:93:5`
     testContains()
       text as String: "hello world"
       substring as String: "world"

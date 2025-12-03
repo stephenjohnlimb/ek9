@@ -26,7 +26,7 @@ public class NodePrinter implements INodeVisitor {
   @Override
   public void visit(final IRConstruct construct) {
 
-    printWriter.printf("%nConstructDfn: %s%n", construct.getSignatureQualifiedName());
+    printWriter.printf("ConstructDfn: %s%n", construct.getSignatureQualifiedName());
 
     // Print program entry point first (if present)
     construct.getProgramEntryPoint().ifPresent(programEntryPoint -> programEntryPoint.accept(this));

@@ -14,8 +14,7 @@ defines module switches.assignIfUnset
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "switches.assignIfUnset::getValue": `
-    ConstructDfn: switches.assignIfUnset::getValue()->org.ek9.lang::Integer
+    @IR: IR_GENERATION: FUNCTION: "switches.assignIfUnset::getValue": `ConstructDfn: switches.assignIfUnset::getValue()->org.ek9.lang::Integer
 OperationDfn: switches.assignIfUnset::getValue._call()->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1
@@ -42,8 +41,7 @@ RETURN`
       <- rtn as Integer?
       rtn: 2
 
-    @IR: IR_GENERATION: FUNCTION: "switches.assignIfUnset::switchAssignmentIfUnset": `
-    ConstructDfn: switches.assignIfUnset::switchAssignmentIfUnset()->org.ek9.lang::String
+    @IR: IR_GENERATION: FUNCTION: "switches.assignIfUnset::switchAssignmentIfUnset": `ConstructDfn: switches.assignIfUnset::switchAssignmentIfUnset()->org.ek9.lang::String
 OperationDfn: switches.assignIfUnset::switchAssignmentIfUnset._call()->org.ek9.lang::String  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

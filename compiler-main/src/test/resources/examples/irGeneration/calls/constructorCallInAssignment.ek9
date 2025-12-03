@@ -6,66 +6,65 @@ defines module constructorassignmentcalls.test
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "constructorassignmentcalls.test::checkStringConstructionWithAssignment": `
-    ConstructDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment()->org.ek9.lang::Void
-    OperationDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment._call()->org.ek9.lang::Void  // ./constructorCallInAssignment.ek9:69:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./constructorCallInAssignment.ek9:70:7
-    REFERENCE aString, org.ek9.lang::String  // ./constructorCallInAssignment.ek9:70:7
-    _temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./constructorCallInAssignment.ek9:71:16
-    RETAIN _temp1  // ./constructorCallInAssignment.ek9:71:16
-    SCOPE_REGISTER _temp1, _scope_1  // ./constructorCallInAssignment.ek9:71:16
-    RELEASE aString  // ./constructorCallInAssignment.ek9:71:16
-    STORE aString, _temp1  // ./constructorCallInAssignment.ek9:71:16
-    RETAIN aString  // ./constructorCallInAssignment.ek9:71:16
-    _temp2 = CONTROL_FLOW_CHAIN  // ./constructorCallInAssignment.ek9:72:21
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp3 = LOAD aString  // ./constructorCallInAssignment.ek9:72:21
-    _temp4 = IS_NULL _temp3  // ./constructorCallInAssignment.ek9:72:21
-    ]
-    primitive_condition: _temp4
-    body_evaluation:
-    [
-    _temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./constructorCallInAssignment.ek9:72:21
-    RETAIN _temp5  // ./constructorCallInAssignment.ek9:72:21
-    SCOPE_REGISTER _temp5, _scope_1  // ./constructorCallInAssignment.ek9:72:21
-    ]
-    body_result: _temp5
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp6 = CALL (org.ek9.lang::String)_temp3._isSet() [pure=true, complexity=0]  // ./constructorCallInAssignment.ek9:72:21
-    RETAIN _temp6  // ./constructorCallInAssignment.ek9:72:21
-    SCOPE_REGISTER _temp6, _scope_1  // ./constructorCallInAssignment.ek9:72:21
-    ]
-    default_result: _temp6
-    scope_id: _scope_1
-    ]
-    RETAIN _temp2  // ./constructorCallInAssignment.ek9:72:7
-    SCOPE_REGISTER _temp2, _scope_1  // ./constructorCallInAssignment.ek9:72:7
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./constructorCallInAssignment.ek9:72:7
-    ASSERT _temp7  // ./constructorCallInAssignment.ek9:72:7
-    SCOPE_EXIT _scope_1  // ./constructorCallInAssignment.ek9:70:7
-    RETURN  // ./constructorCallInAssignment.ek9:69:5
-    OperationDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment.checkStringConstructionWithAssignment()->constructorassignmentcalls.test::checkStringConstructionWithAssignment  // ./constructorCallInAssignment.ek9:69:5
-    BasicBlock: _entry_1
-    CALL (constructorassignmentcalls.test::checkStringConstructionWithAssignment)this.i_init() [pure=false, complexity=0]  // ./constructorCallInAssignment.ek9:69:5
-    RETURN this  // ./constructorCallInAssignment.ek9:69:5
-    OperationDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN`
+    @IR: IR_GENERATION: FUNCTION: "constructorassignmentcalls.test::checkStringConstructionWithAssignment": `ConstructDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment()->org.ek9.lang::Void
+OperationDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment._call()->org.ek9.lang::Void  // ./constructorCallInAssignment.ek9:68:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./constructorCallInAssignment.ek9:69:7
+REFERENCE aString, org.ek9.lang::String  // ./constructorCallInAssignment.ek9:69:7
+_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./constructorCallInAssignment.ek9:70:16
+RETAIN _temp1  // ./constructorCallInAssignment.ek9:70:16
+SCOPE_REGISTER _temp1, _scope_1  // ./constructorCallInAssignment.ek9:70:16
+RELEASE aString  // ./constructorCallInAssignment.ek9:70:16
+STORE aString, _temp1  // ./constructorCallInAssignment.ek9:70:16
+RETAIN aString  // ./constructorCallInAssignment.ek9:70:16
+_temp2 = CONTROL_FLOW_CHAIN  // ./constructorCallInAssignment.ek9:71:21
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp3 = LOAD aString  // ./constructorCallInAssignment.ek9:71:21
+_temp4 = IS_NULL _temp3  // ./constructorCallInAssignment.ek9:71:21
+]
+primitive_condition: _temp4
+body_evaluation:
+[
+_temp5 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./constructorCallInAssignment.ek9:71:21
+RETAIN _temp5  // ./constructorCallInAssignment.ek9:71:21
+SCOPE_REGISTER _temp5, _scope_1  // ./constructorCallInAssignment.ek9:71:21
+]
+body_result: _temp5
+]
+]
+default_body_evaluation:
+[
+_temp6 = CALL (org.ek9.lang::String)_temp3._isSet() [pure=true, complexity=0]  // ./constructorCallInAssignment.ek9:71:21
+RETAIN _temp6  // ./constructorCallInAssignment.ek9:71:21
+SCOPE_REGISTER _temp6, _scope_1  // ./constructorCallInAssignment.ek9:71:21
+]
+default_result: _temp6
+scope_id: _scope_1
+]
+RETAIN _temp2  // ./constructorCallInAssignment.ek9:71:7
+SCOPE_REGISTER _temp2, _scope_1  // ./constructorCallInAssignment.ek9:71:7
+_temp7 = CALL (org.ek9.lang::Boolean)_temp2._true() [pure=true, complexity=0]  // ./constructorCallInAssignment.ek9:71:7
+ASSERT _temp7  // ./constructorCallInAssignment.ek9:71:7
+SCOPE_EXIT _scope_1  // ./constructorCallInAssignment.ek9:69:7
+RETURN  // ./constructorCallInAssignment.ek9:68:5
+OperationDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment.checkStringConstructionWithAssignment()->constructorassignmentcalls.test::checkStringConstructionWithAssignment  // ./constructorCallInAssignment.ek9:68:5
+BasicBlock: _entry_1
+CALL (constructorassignmentcalls.test::checkStringConstructionWithAssignment)this.i_init() [pure=false, complexity=0]  // ./constructorCallInAssignment.ek9:68:5
+RETURN this  // ./constructorCallInAssignment.ek9:68:5
+OperationDfn: constructorassignmentcalls.test::checkStringConstructionWithAssignment.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     checkStringConstructionWithAssignment()
       aString as String?
       aString: String()

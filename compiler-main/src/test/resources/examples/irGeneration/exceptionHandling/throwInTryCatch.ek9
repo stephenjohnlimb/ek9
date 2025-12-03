@@ -10,29 +10,28 @@ defines module exceptionHandling
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "exceptionHandling::throwInTryCatch": `
-    ConstructDfn: exceptionHandling::throwInTryCatch()->org.ek9.lang::Void
-OperationDfn: exceptionHandling::throwInTryCatch._call()->org.ek9.lang::Void  // ./throwInTryCatch.ek9:98:5
+    @IR: IR_GENERATION: FUNCTION: "exceptionHandling::throwInTryCatch": `ConstructDfn: exceptionHandling::throwInTryCatch()->org.ek9.lang::Void
+OperationDfn: exceptionHandling::throwInTryCatch._call()->org.ek9.lang::Void  // ./throwInTryCatch.ek9:97:5
 BasicBlock: _entry_1
-SCOPE_ENTER _scope_1  // ./throwInTryCatch.ek9:99:7
-REFERENCE stdout, org.ek9.lang::Stdout  // ./throwInTryCatch.ek9:99:7
-_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./throwInTryCatch.ek9:99:17
-RETAIN _temp1  // ./throwInTryCatch.ek9:99:17
-SCOPE_REGISTER _temp1, _scope_1  // ./throwInTryCatch.ek9:99:17
-STORE stdout, _temp1  // ./throwInTryCatch.ek9:99:17
-RETAIN stdout  // ./throwInTryCatch.ek9:99:17
-SCOPE_REGISTER stdout, _scope_1  // ./throwInTryCatch.ek9:99:17
-REFERENCE ex, org.ek9.lang::Exception  // ./throwInTryCatch.ek9:100:7
-_temp3 = LOAD_LITERAL Thrown exception, org.ek9.lang::String  // ./throwInTryCatch.ek9:100:23
-_temp2 = CALL (org.ek9.lang::Exception)org.ek9.lang::Exception.<init>(_temp3) [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./throwInTryCatch.ek9:100:13
-RETAIN _temp2  // ./throwInTryCatch.ek9:100:13
-SCOPE_REGISTER _temp2, _scope_1  // ./throwInTryCatch.ek9:100:13
-STORE ex, _temp2  // ./throwInTryCatch.ek9:100:13
-RETAIN ex  // ./throwInTryCatch.ek9:100:13
-SCOPE_REGISTER ex, _scope_1  // ./throwInTryCatch.ek9:100:13
-SCOPE_ENTER _scope_2  // ./throwInTryCatch.ek9:102:7
-SCOPE_ENTER _scope_3  // ./throwInTryCatch.ek9:102:7
-CONTROL_FLOW_CHAIN  // ./throwInTryCatch.ek9:102:7
+SCOPE_ENTER _scope_1  // ./throwInTryCatch.ek9:98:7
+REFERENCE stdout, org.ek9.lang::Stdout  // ./throwInTryCatch.ek9:98:7
+_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./throwInTryCatch.ek9:98:17
+RETAIN _temp1  // ./throwInTryCatch.ek9:98:17
+SCOPE_REGISTER _temp1, _scope_1  // ./throwInTryCatch.ek9:98:17
+STORE stdout, _temp1  // ./throwInTryCatch.ek9:98:17
+RETAIN stdout  // ./throwInTryCatch.ek9:98:17
+SCOPE_REGISTER stdout, _scope_1  // ./throwInTryCatch.ek9:98:17
+REFERENCE ex, org.ek9.lang::Exception  // ./throwInTryCatch.ek9:99:7
+_temp3 = LOAD_LITERAL Thrown exception, org.ek9.lang::String  // ./throwInTryCatch.ek9:99:23
+_temp2 = CALL (org.ek9.lang::Exception)org.ek9.lang::Exception.<init>(_temp3) [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./throwInTryCatch.ek9:99:13
+RETAIN _temp2  // ./throwInTryCatch.ek9:99:13
+SCOPE_REGISTER _temp2, _scope_1  // ./throwInTryCatch.ek9:99:13
+STORE ex, _temp2  // ./throwInTryCatch.ek9:99:13
+RETAIN ex  // ./throwInTryCatch.ek9:99:13
+SCOPE_REGISTER ex, _scope_1  // ./throwInTryCatch.ek9:99:13
+SCOPE_ENTER _scope_2  // ./throwInTryCatch.ek9:101:7
+SCOPE_ENTER _scope_3  // ./throwInTryCatch.ek9:101:7
+CONTROL_FLOW_CHAIN  // ./throwInTryCatch.ek9:101:7
 [
 chain_type: "TRY_CATCH_FINALLY"
 try_block_details:
@@ -40,17 +39,17 @@ try_block_details:
 try_scope_id: _scope_4
 try_body_evaluation:
 [
-SCOPE_ENTER _scope_4  // ./throwInTryCatch.ek9:102:7
-_temp5 = LOAD stdout  // ./throwInTryCatch.ek9:103:9
-RETAIN _temp5  // ./throwInTryCatch.ek9:103:9
-SCOPE_REGISTER _temp5, _scope_4  // ./throwInTryCatch.ek9:103:9
-_temp6 = LOAD_LITERAL Before throw, org.ek9.lang::String  // ./throwInTryCatch.ek9:103:24
-RETAIN _temp6  // ./throwInTryCatch.ek9:103:24
-SCOPE_REGISTER _temp6, _scope_4  // ./throwInTryCatch.ek9:103:24
-CALL (org.ek9.lang::Stdout)_temp5.println(_temp6) [pure=true, complexity=1]  // ./throwInTryCatch.ek9:103:16
-RETAIN ex  // ./throwInTryCatch.ek9:104:9
-THROW ex  // ./throwInTryCatch.ek9:104:9
-SCOPE_EXIT _scope_4  // ./throwInTryCatch.ek9:102:7
+SCOPE_ENTER _scope_4  // ./throwInTryCatch.ek9:101:7
+_temp5 = LOAD stdout  // ./throwInTryCatch.ek9:102:9
+RETAIN _temp5  // ./throwInTryCatch.ek9:102:9
+SCOPE_REGISTER _temp5, _scope_4  // ./throwInTryCatch.ek9:102:9
+_temp6 = LOAD_LITERAL Before throw, org.ek9.lang::String  // ./throwInTryCatch.ek9:102:24
+RETAIN _temp6  // ./throwInTryCatch.ek9:102:24
+SCOPE_REGISTER _temp6, _scope_4  // ./throwInTryCatch.ek9:102:24
+CALL (org.ek9.lang::Stdout)_temp5.println(_temp6) [pure=true, complexity=1]  // ./throwInTryCatch.ek9:102:16
+RETAIN ex  // ./throwInTryCatch.ek9:103:9
+THROW ex  // ./throwInTryCatch.ek9:103:9
+SCOPE_EXIT _scope_4  // ./throwInTryCatch.ek9:101:7
 ]
 ]
 condition_chain:
@@ -63,17 +62,17 @@ condition_evaluation:
 ]
 body_evaluation:
 [
-SCOPE_ENTER _scope_5  // ./throwInTryCatch.ek9:105:7
-REFERENCE caught, org.ek9.lang::Exception  // ./throwInTryCatch.ek9:105:7
-SCOPE_REGISTER caught, _scope_5  // ./throwInTryCatch.ek9:105:7
-_temp8 = LOAD stdout  // ./throwInTryCatch.ek9:107:9
-RETAIN _temp8  // ./throwInTryCatch.ek9:107:9
-SCOPE_REGISTER _temp8, _scope_5  // ./throwInTryCatch.ek9:107:9
-_temp9 = LOAD_LITERAL Caught exception, org.ek9.lang::String  // ./throwInTryCatch.ek9:107:24
-RETAIN _temp9  // ./throwInTryCatch.ek9:107:24
-SCOPE_REGISTER _temp9, _scope_5  // ./throwInTryCatch.ek9:107:24
-CALL (org.ek9.lang::Stdout)_temp8.println(_temp9) [pure=true, complexity=1]  // ./throwInTryCatch.ek9:107:16
-SCOPE_EXIT _scope_5  // ./throwInTryCatch.ek9:105:7
+SCOPE_ENTER _scope_5  // ./throwInTryCatch.ek9:104:7
+REFERENCE caught, org.ek9.lang::Exception  // ./throwInTryCatch.ek9:104:7
+SCOPE_REGISTER caught, _scope_5  // ./throwInTryCatch.ek9:104:7
+_temp8 = LOAD stdout  // ./throwInTryCatch.ek9:106:9
+RETAIN _temp8  // ./throwInTryCatch.ek9:106:9
+SCOPE_REGISTER _temp8, _scope_5  // ./throwInTryCatch.ek9:106:9
+_temp9 = LOAD_LITERAL Caught exception, org.ek9.lang::String  // ./throwInTryCatch.ek9:106:24
+RETAIN _temp9  // ./throwInTryCatch.ek9:106:24
+SCOPE_REGISTER _temp9, _scope_5  // ./throwInTryCatch.ek9:106:24
+CALL (org.ek9.lang::Stdout)_temp8.println(_temp9) [pure=true, complexity=1]  // ./throwInTryCatch.ek9:106:16
+SCOPE_EXIT _scope_5  // ./throwInTryCatch.ek9:104:7
 ]
 exception_type: "org.ek9.lang::Exception"
 exception_variable: caught
@@ -81,20 +80,20 @@ exception_variable: caught
 ]
 scope_id: _scope_3
 ]
-SCOPE_EXIT _scope_3  // ./throwInTryCatch.ek9:102:7
-SCOPE_EXIT _scope_2  // ./throwInTryCatch.ek9:102:7
-SCOPE_EXIT _scope_1  // ./throwInTryCatch.ek9:99:7
-RETURN  // ./throwInTryCatch.ek9:98:5
+SCOPE_EXIT _scope_3  // ./throwInTryCatch.ek9:101:7
+SCOPE_EXIT _scope_2  // ./throwInTryCatch.ek9:101:7
+SCOPE_EXIT _scope_1  // ./throwInTryCatch.ek9:98:7
+RETURN  // ./throwInTryCatch.ek9:97:5
 OperationDfn: exceptionHandling::throwInTryCatch.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
 OperationDfn: exceptionHandling::throwInTryCatch.i_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
-OperationDfn: exceptionHandling::throwInTryCatch.throwInTryCatch()->exceptionHandling::throwInTryCatch  // ./throwInTryCatch.ek9:98:5
+OperationDfn: exceptionHandling::throwInTryCatch.throwInTryCatch()->exceptionHandling::throwInTryCatch  // ./throwInTryCatch.ek9:97:5
 BasicBlock: _entry_1
-CALL (exceptionHandling::throwInTryCatch)this.i_init() [pure=false, complexity=0]  // ./throwInTryCatch.ek9:98:5
-RETURN this  // ./throwInTryCatch.ek9:98:5`
+CALL (exceptionHandling::throwInTryCatch)this.i_init() [pure=false, complexity=0]  // ./throwInTryCatch.ek9:97:5
+RETURN this  // ./throwInTryCatch.ek9:97:5`
     throwInTryCatch()
       stdout <- Stdout()
       ex <- Exception("Thrown exception")

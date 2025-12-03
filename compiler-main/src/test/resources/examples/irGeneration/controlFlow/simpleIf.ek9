@@ -5,8 +5,7 @@
 defines module controlFlow
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "controlFlow::simpleIf": `
-    ConstructDfn: controlFlow::simpleIf(org.ek9.lang::Integer)->org.ek9.lang::String
+    @IR: IR_GENERATION: FUNCTION: "controlFlow::simpleIf": `ConstructDfn: controlFlow::simpleIf(org.ek9.lang::Integer)->org.ek9.lang::String
 OperationDfn: controlFlow::simpleIf._call(org.ek9.lang::Integer)->org.ek9.lang::String  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

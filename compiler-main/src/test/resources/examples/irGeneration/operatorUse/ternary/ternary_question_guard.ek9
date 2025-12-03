@@ -11,8 +11,7 @@ defines module ternaryQuestion.test
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "ternaryQuestion.test::testTernaryQuestion": `
-    ConstructDfn: ternaryQuestion.test::testTernaryQuestion()->org.ek9.lang::Void
+    @IR: IR_GENERATION: FUNCTION: "ternaryQuestion.test::testTernaryQuestion": `ConstructDfn: ternaryQuestion.test::testTernaryQuestion()->org.ek9.lang::Void
 OperationDfn: ternaryQuestion.test::testTernaryQuestion._call()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

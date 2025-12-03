@@ -14,8 +14,7 @@ defines module simpleTernary.test
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "simpleTernary.test::testSimpleTernary": `
-    ConstructDfn: simpleTernary.test::testSimpleTernary()->org.ek9.lang::Void
+    @IR: IR_GENERATION: FUNCTION: "simpleTernary.test::testSimpleTernary": `ConstructDfn: simpleTernary.test::testSimpleTernary()->org.ek9.lang::Void
 OperationDfn: simpleTernary.test::testSimpleTernary._call()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

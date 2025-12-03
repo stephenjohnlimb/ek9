@@ -7,8 +7,7 @@ defines module expressions
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "expressions::simpleListLiteral": `
-    ConstructDfn: expressions::simpleListLiteral()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+    @IR: IR_GENERATION: FUNCTION: "expressions::simpleListLiteral": `ConstructDfn: expressions::simpleListLiteral()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
 OperationDfn: expressions::simpleListLiteral._call()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

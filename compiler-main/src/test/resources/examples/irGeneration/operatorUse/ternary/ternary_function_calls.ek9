@@ -11,8 +11,7 @@ defines module ternaryInteger.test
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "ternaryInteger.test::testTernaryWithIntegers": `
-    ConstructDfn: ternaryInteger.test::testTernaryWithIntegers()->org.ek9.lang::Void
+    @IR: IR_GENERATION: FUNCTION: "ternaryInteger.test::testTernaryWithIntegers": `ConstructDfn: ternaryInteger.test::testTernaryWithIntegers()->org.ek9.lang::Void
 OperationDfn: ternaryInteger.test::testTernaryWithIntegers._call()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

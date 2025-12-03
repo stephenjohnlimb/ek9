@@ -13,8 +13,7 @@ defines module loops.forrange.assignIfUnset
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "loops.forrange.assignIfUnset::getLimit": `
-    ConstructDfn: loops.forrange.assignIfUnset::getLimit()->org.ek9.lang::Integer
+    @IR: IR_GENERATION: FUNCTION: "loops.forrange.assignIfUnset::getLimit": `ConstructDfn: loops.forrange.assignIfUnset::getLimit()->org.ek9.lang::Integer
 OperationDfn: loops.forrange.assignIfUnset::getLimit._call()->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1
@@ -41,8 +40,7 @@ RETURN`
       <- rtn as Integer?
       rtn: 5
 
-    @IR: IR_GENERATION: FUNCTION: "loops.forrange.assignIfUnset::forRangeAssignmentIfUnset": `
-    ConstructDfn: loops.forrange.assignIfUnset::forRangeAssignmentIfUnset()->org.ek9.lang::Integer
+    @IR: IR_GENERATION: FUNCTION: "loops.forrange.assignIfUnset::forRangeAssignmentIfUnset": `ConstructDfn: loops.forrange.assignIfUnset::forRangeAssignmentIfUnset()->org.ek9.lang::Integer
 OperationDfn: loops.forrange.assignIfUnset::forRangeAssignmentIfUnset._call()->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

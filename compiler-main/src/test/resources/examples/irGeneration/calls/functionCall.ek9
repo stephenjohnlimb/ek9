@@ -12,28 +12,27 @@ defines module functioncalls.test
       -> arg0 as Float
       assert arg0?
 
-    @IR: IR_GENERATION: FUNCTION: "functioncalls.test::callingFunction": `
-    ConstructDfn: functioncalls.test::callingFunction()->org.ek9.lang::Void
-    OperationDfn: functioncalls.test::callingFunction._call()->org.ek9.lang::Void  // ./functionCall.ek9:37:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./functionCall.ek9:38:7
-    _temp1 = LOAD_LITERAL 6.3, org.ek9.lang::Float  // ./functionCall.ek9:38:17
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    _temp2 = FUNCTION_INSTANCE functioncalls.test::aFunction  // ./functionCall.ek9:38:7
-    CALL (functioncalls.test::aFunction)_temp2._call(_temp1) [pure=true, complexity=2]  // ./functionCall.ek9:38:7
-    SCOPE_EXIT _scope_1  // ./functionCall.ek9:38:7
-    RETURN  // ./functionCall.ek9:37:5
-    OperationDfn: functioncalls.test::callingFunction.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: functioncalls.test::callingFunction.callingFunction()->functioncalls.test::callingFunction  // ./functionCall.ek9:37:5
-    BasicBlock: _entry_1
-    CALL (functioncalls.test::callingFunction)this.i_init() [pure=false, complexity=0]  // ./functionCall.ek9:37:5
-    RETURN this  // ./functionCall.ek9:37:5
-    OperationDfn: functioncalls.test::callingFunction.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN`
+    @IR: IR_GENERATION: FUNCTION: "functioncalls.test::callingFunction": `ConstructDfn: functioncalls.test::callingFunction()->org.ek9.lang::Void
+OperationDfn: functioncalls.test::callingFunction._call()->org.ek9.lang::Void  // ./functionCall.ek9:36:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./functionCall.ek9:37:7
+_temp1 = LOAD_LITERAL 6.3, org.ek9.lang::Float  // ./functionCall.ek9:37:17
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+_temp2 = FUNCTION_INSTANCE functioncalls.test::aFunction  // ./functionCall.ek9:37:7
+CALL (functioncalls.test::aFunction)_temp2._call(_temp1) [pure=true, complexity=2]  // ./functionCall.ek9:37:7
+SCOPE_EXIT _scope_1  // ./functionCall.ek9:37:7
+RETURN  // ./functionCall.ek9:36:5
+OperationDfn: functioncalls.test::callingFunction.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: functioncalls.test::callingFunction.callingFunction()->functioncalls.test::callingFunction  // ./functionCall.ek9:36:5
+BasicBlock: _entry_1
+CALL (functioncalls.test::callingFunction)this.i_init() [pure=false, complexity=0]  // ./functionCall.ek9:36:5
+RETURN this  // ./functionCall.ek9:36:5
+OperationDfn: functioncalls.test::callingFunction.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     callingFunction()
       aFunction(6.3)
 

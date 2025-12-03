@@ -7,8 +7,7 @@ defines module controlFlow.string
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "controlFlow.string::simpleSwitchString": `
-    ConstructDfn: controlFlow.string::simpleSwitchString(org.ek9.lang::String)->org.ek9.lang::String
+    @IR: IR_GENERATION: FUNCTION: "controlFlow.string::simpleSwitchString": `ConstructDfn: controlFlow.string::simpleSwitchString(org.ek9.lang::String)->org.ek9.lang::String
 OperationDfn: controlFlow.string::simpleSwitchString._call(org.ek9.lang::String)->org.ek9.lang::String  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

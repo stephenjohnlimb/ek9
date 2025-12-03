@@ -22,27 +22,26 @@ defines module exceptionHandling
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "exceptionHandling::testSingleResource": `
-    ConstructDfn: exceptionHandling::testSingleResource()->org.ek9.lang::String
-OperationDfn: exceptionHandling::testSingleResource._call()->org.ek9.lang::String  // ./tryWithSingleResource.ek9:111:5
+    @IR: IR_GENERATION: FUNCTION: "exceptionHandling::testSingleResource": `ConstructDfn: exceptionHandling::testSingleResource()->org.ek9.lang::String
+OperationDfn: exceptionHandling::testSingleResource._call()->org.ek9.lang::String  // ./tryWithSingleResource.ek9:110:5
 BasicBlock: _entry_1
-SCOPE_ENTER _scope_1  // ./tryWithSingleResource.ek9:114:7
-REFERENCE rtn, org.ek9.lang::String  // ./tryWithSingleResource.ek9:112:10
-_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./tryWithSingleResource.ek9:112:25
-RETAIN _temp1  // ./tryWithSingleResource.ek9:112:25
-SCOPE_REGISTER _temp1, _scope_1  // ./tryWithSingleResource.ek9:112:25
-STORE rtn, _temp1  // ./tryWithSingleResource.ek9:112:25
-RETAIN rtn  // ./tryWithSingleResource.ek9:112:25
-SCOPE_ENTER _scope_2  // ./tryWithSingleResource.ek9:114:7
-SCOPE_ENTER _scope_3  // ./tryWithSingleResource.ek9:114:7
-REFERENCE resource, exceptionHandling::SimpleResource3  // ./tryWithSingleResource.ek9:115:12
-_temp3 = LOAD_LITERAL test, org.ek9.lang::String  // ./tryWithSingleResource.ek9:115:40
-_temp2 = CALL (exceptionHandling::SimpleResource3)exceptionHandling::SimpleResource3.<init>(_temp3) [pure=false, complexity=2, effects=RETURN_MUTATION]  // ./tryWithSingleResource.ek9:115:24
-STORE resource, _temp2  // ./tryWithSingleResource.ek9:115:12
-SCOPE_REGISTER resource, _scope_3  // ./tryWithSingleResource.ek9:115:12
-RETAIN resource  // ./tryWithSingleResource.ek9:115:12
-SCOPE_ENTER _scope_4  // ./tryWithSingleResource.ek9:114:7
-CONTROL_FLOW_CHAIN  // ./tryWithSingleResource.ek9:114:7
+SCOPE_ENTER _scope_1  // ./tryWithSingleResource.ek9:113:7
+REFERENCE rtn, org.ek9.lang::String  // ./tryWithSingleResource.ek9:111:10
+_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./tryWithSingleResource.ek9:111:25
+RETAIN _temp1  // ./tryWithSingleResource.ek9:111:25
+SCOPE_REGISTER _temp1, _scope_1  // ./tryWithSingleResource.ek9:111:25
+STORE rtn, _temp1  // ./tryWithSingleResource.ek9:111:25
+RETAIN rtn  // ./tryWithSingleResource.ek9:111:25
+SCOPE_ENTER _scope_2  // ./tryWithSingleResource.ek9:113:7
+SCOPE_ENTER _scope_3  // ./tryWithSingleResource.ek9:113:7
+REFERENCE resource, exceptionHandling::SimpleResource3  // ./tryWithSingleResource.ek9:114:12
+_temp3 = LOAD_LITERAL test, org.ek9.lang::String  // ./tryWithSingleResource.ek9:114:40
+_temp2 = CALL (exceptionHandling::SimpleResource3)exceptionHandling::SimpleResource3.<init>(_temp3) [pure=false, complexity=2, effects=RETURN_MUTATION]  // ./tryWithSingleResource.ek9:114:24
+STORE resource, _temp2  // ./tryWithSingleResource.ek9:114:12
+SCOPE_REGISTER resource, _scope_3  // ./tryWithSingleResource.ek9:114:12
+RETAIN resource  // ./tryWithSingleResource.ek9:114:12
+SCOPE_ENTER _scope_4  // ./tryWithSingleResource.ek9:113:7
+CONTROL_FLOW_CHAIN  // ./tryWithSingleResource.ek9:113:7
 [
 chain_type: "TRY_CATCH_FINALLY"
 try_block_details:
@@ -50,14 +49,14 @@ try_block_details:
 try_scope_id: _scope_5
 try_body_evaluation:
 [
-SCOPE_ENTER _scope_5  // ./tryWithSingleResource.ek9:114:7
-_temp4 = LOAD_LITERAL OK, org.ek9.lang::String  // ./tryWithSingleResource.ek9:116:14
-RETAIN _temp4  // ./tryWithSingleResource.ek9:116:14
-SCOPE_REGISTER _temp4, _scope_5  // ./tryWithSingleResource.ek9:116:14
-RELEASE rtn  // ./tryWithSingleResource.ek9:116:14
-STORE rtn, _temp4  // ./tryWithSingleResource.ek9:116:14
-RETAIN rtn  // ./tryWithSingleResource.ek9:116:14
-SCOPE_EXIT _scope_5  // ./tryWithSingleResource.ek9:114:7
+SCOPE_ENTER _scope_5  // ./tryWithSingleResource.ek9:113:7
+_temp4 = LOAD_LITERAL OK, org.ek9.lang::String  // ./tryWithSingleResource.ek9:115:14
+RETAIN _temp4  // ./tryWithSingleResource.ek9:115:14
+SCOPE_REGISTER _temp4, _scope_5  // ./tryWithSingleResource.ek9:115:14
+RELEASE rtn  // ./tryWithSingleResource.ek9:115:14
+STORE rtn, _temp4  // ./tryWithSingleResource.ek9:115:14
+RETAIN rtn  // ./tryWithSingleResource.ek9:115:14
+SCOPE_EXIT _scope_5  // ./tryWithSingleResource.ek9:113:7
 ]
 ]
 condition_chain:
@@ -70,16 +69,16 @@ condition_evaluation:
 ]
 body_evaluation:
 [
-SCOPE_ENTER _scope_6  // ./tryWithSingleResource.ek9:117:7
-REFERENCE ex, org.ek9.lang::Exception  // ./tryWithSingleResource.ek9:117:7
-SCOPE_REGISTER ex, _scope_6  // ./tryWithSingleResource.ek9:117:7
-_temp5 = LOAD_LITERAL ERROR, org.ek9.lang::String  // ./tryWithSingleResource.ek9:119:14
-RETAIN _temp5  // ./tryWithSingleResource.ek9:119:14
-SCOPE_REGISTER _temp5, _scope_6  // ./tryWithSingleResource.ek9:119:14
-RELEASE rtn  // ./tryWithSingleResource.ek9:119:14
-STORE rtn, _temp5  // ./tryWithSingleResource.ek9:119:14
-RETAIN rtn  // ./tryWithSingleResource.ek9:119:14
-SCOPE_EXIT _scope_6  // ./tryWithSingleResource.ek9:117:7
+SCOPE_ENTER _scope_6  // ./tryWithSingleResource.ek9:116:7
+REFERENCE ex, org.ek9.lang::Exception  // ./tryWithSingleResource.ek9:116:7
+SCOPE_REGISTER ex, _scope_6  // ./tryWithSingleResource.ek9:116:7
+_temp5 = LOAD_LITERAL ERROR, org.ek9.lang::String  // ./tryWithSingleResource.ek9:118:14
+RETAIN _temp5  // ./tryWithSingleResource.ek9:118:14
+SCOPE_REGISTER _temp5, _scope_6  // ./tryWithSingleResource.ek9:118:14
+RELEASE rtn  // ./tryWithSingleResource.ek9:118:14
+STORE rtn, _temp5  // ./tryWithSingleResource.ek9:118:14
+RETAIN rtn  // ./tryWithSingleResource.ek9:118:14
+SCOPE_EXIT _scope_6  // ./tryWithSingleResource.ek9:116:7
 ]
 exception_type: "org.ek9.lang::Exception"
 exception_variable: ex
@@ -87,21 +86,21 @@ exception_variable: ex
 ]
 finally_block_evaluation:
 [
-SCOPE_ENTER _scope_7  // ./tryWithSingleResource.ek9:114:7
-CALL (exceptionHandling::SimpleResource3)resource._close() [pure=true, complexity=0]  // ./tryWithSingleResource.ek9:115:12
-SCOPE_EXIT _scope_7  // ./tryWithSingleResource.ek9:114:7
+SCOPE_ENTER _scope_7  // ./tryWithSingleResource.ek9:113:7
+CALL (exceptionHandling::SimpleResource3)resource._close() [pure=true, complexity=0]  // ./tryWithSingleResource.ek9:114:12
+SCOPE_EXIT _scope_7  // ./tryWithSingleResource.ek9:113:7
 ]
 scope_id: _scope_4
 ]
-SCOPE_EXIT _scope_4  // ./tryWithSingleResource.ek9:114:7
-SCOPE_EXIT _scope_3  // ./tryWithSingleResource.ek9:114:7
-SCOPE_EXIT _scope_2  // ./tryWithSingleResource.ek9:114:7
-SCOPE_EXIT _scope_1  // ./tryWithSingleResource.ek9:114:7
-RETURN rtn  // ./tryWithSingleResource.ek9:112:10
-OperationDfn: exceptionHandling::testSingleResource.testSingleResource()->exceptionHandling::testSingleResource  // ./tryWithSingleResource.ek9:111:5
+SCOPE_EXIT _scope_4  // ./tryWithSingleResource.ek9:113:7
+SCOPE_EXIT _scope_3  // ./tryWithSingleResource.ek9:113:7
+SCOPE_EXIT _scope_2  // ./tryWithSingleResource.ek9:113:7
+SCOPE_EXIT _scope_1  // ./tryWithSingleResource.ek9:113:7
+RETURN rtn  // ./tryWithSingleResource.ek9:111:10
+OperationDfn: exceptionHandling::testSingleResource.testSingleResource()->exceptionHandling::testSingleResource  // ./tryWithSingleResource.ek9:110:5
 BasicBlock: _entry_1
-CALL (exceptionHandling::testSingleResource)this.i_init() [pure=false, complexity=0]  // ./tryWithSingleResource.ek9:111:5
-RETURN this  // ./tryWithSingleResource.ek9:111:5
+CALL (exceptionHandling::testSingleResource)this.i_init() [pure=false, complexity=0]  // ./tryWithSingleResource.ek9:110:5
+RETURN this  // ./tryWithSingleResource.ek9:110:5
 OperationDfn: exceptionHandling::testSingleResource.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN

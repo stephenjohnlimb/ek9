@@ -18,8 +18,7 @@ defines module loops.assignIfUnset
       <- rtn as Integer?
       rtn: 5
 
-    @IR: IR_GENERATION: FUNCTION: "loops.assignIfUnset::whileAssignmentIfUnset": `
-    ConstructDfn: loops.assignIfUnset::whileAssignmentIfUnset()->org.ek9.lang::Integer
+    @IR: IR_GENERATION: FUNCTION: "loops.assignIfUnset::whileAssignmentIfUnset": `ConstructDfn: loops.assignIfUnset::whileAssignmentIfUnset()->org.ek9.lang::Integer
 OperationDfn: loops.assignIfUnset::whileAssignmentIfUnset._call()->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

@@ -13,8 +13,7 @@ defines module loops.forin.assignIfUnset
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "loops.forin.assignIfUnset::getItems": `
-    ConstructDfn: loops.forin.assignIfUnset::getItems()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+    @IR: IR_GENERATION: FUNCTION: "loops.forin.assignIfUnset::getItems": `ConstructDfn: loops.forin.assignIfUnset::getItems()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
 OperationDfn: loops.forin.assignIfUnset::getItems._call()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1
@@ -65,8 +64,7 @@ RETURN`
       rtn += "two"
       rtn += "three"
 
-    @IR: IR_GENERATION: FUNCTION: "loops.forin.assignIfUnset::forInAssignmentIfUnset": `
-    ConstructDfn: loops.forin.assignIfUnset::forInAssignmentIfUnset()->org.ek9.lang::Void
+    @IR: IR_GENERATION: FUNCTION: "loops.forin.assignIfUnset::forInAssignmentIfUnset": `ConstructDfn: loops.forin.assignIfUnset::forInAssignmentIfUnset()->org.ek9.lang::Void
 OperationDfn: loops.forin.assignIfUnset::forInAssignmentIfUnset._call()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

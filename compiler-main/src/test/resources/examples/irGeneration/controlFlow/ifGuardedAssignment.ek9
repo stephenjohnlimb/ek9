@@ -17,8 +17,7 @@ defines module controlFlow
       <- rtn as Integer?
       rtn: 42
 
-    @IR: IR_GENERATION: FUNCTION: "controlFlow::ifGuardedAssignment": `
-    ConstructDfn: controlFlow::ifGuardedAssignment()->org.ek9.lang::String
+    @IR: IR_GENERATION: FUNCTION: "controlFlow::ifGuardedAssignment": `ConstructDfn: controlFlow::ifGuardedAssignment()->org.ek9.lang::String
 OperationDfn: controlFlow::ifGuardedAssignment._call()->org.ek9.lang::String  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

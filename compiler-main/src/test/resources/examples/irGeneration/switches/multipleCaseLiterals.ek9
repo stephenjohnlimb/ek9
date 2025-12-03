@@ -8,8 +8,7 @@ defines module controlFlow.multiple
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "controlFlow.multiple::multipleCaseLiterals": `
-    ConstructDfn: controlFlow.multiple::multipleCaseLiterals(org.ek9.lang::Integer)->org.ek9.lang::String
+    @IR: IR_GENERATION: FUNCTION: "controlFlow.multiple::multipleCaseLiterals": `ConstructDfn: controlFlow.multiple::multipleCaseLiterals(org.ek9.lang::Integer)->org.ek9.lang::String
 OperationDfn: controlFlow.multiple::multipleCaseLiterals._call(org.ek9.lang::Integer)->org.ek9.lang::String  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

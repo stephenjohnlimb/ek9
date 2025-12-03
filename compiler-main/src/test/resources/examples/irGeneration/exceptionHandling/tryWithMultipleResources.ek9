@@ -22,33 +22,32 @@ defines module exceptionHandling
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "exceptionHandling::testMultipleResources": `
-    ConstructDfn: exceptionHandling::testMultipleResources()->org.ek9.lang::String
-OperationDfn: exceptionHandling::testMultipleResources._call()->org.ek9.lang::String  // ./tryWithMultipleResources.ek9:118:5
+    @IR: IR_GENERATION: FUNCTION: "exceptionHandling::testMultipleResources": `ConstructDfn: exceptionHandling::testMultipleResources()->org.ek9.lang::String
+OperationDfn: exceptionHandling::testMultipleResources._call()->org.ek9.lang::String  // ./tryWithMultipleResources.ek9:117:5
 BasicBlock: _entry_1
-SCOPE_ENTER _scope_1  // ./tryWithMultipleResources.ek9:121:7
-REFERENCE rtn, org.ek9.lang::String  // ./tryWithMultipleResources.ek9:119:10
-_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./tryWithMultipleResources.ek9:119:25
-RETAIN _temp1  // ./tryWithMultipleResources.ek9:119:25
-SCOPE_REGISTER _temp1, _scope_1  // ./tryWithMultipleResources.ek9:119:25
-STORE rtn, _temp1  // ./tryWithMultipleResources.ek9:119:25
-RETAIN rtn  // ./tryWithMultipleResources.ek9:119:25
-SCOPE_ENTER _scope_2  // ./tryWithMultipleResources.ek9:121:7
-SCOPE_ENTER _scope_3  // ./tryWithMultipleResources.ek9:121:7
-REFERENCE resource1, exceptionHandling::SimpleResource1  // ./tryWithMultipleResources.ek9:123:11
-_temp3 = LOAD_LITERAL first, org.ek9.lang::String  // ./tryWithMultipleResources.ek9:123:40
-_temp2 = CALL (exceptionHandling::SimpleResource1)exceptionHandling::SimpleResource1.<init>(_temp3) [pure=false, complexity=2, effects=RETURN_MUTATION]  // ./tryWithMultipleResources.ek9:123:24
-STORE resource1, _temp2  // ./tryWithMultipleResources.ek9:123:11
-SCOPE_REGISTER resource1, _scope_3  // ./tryWithMultipleResources.ek9:123:11
-RETAIN resource1  // ./tryWithMultipleResources.ek9:123:11
-REFERENCE resource2, exceptionHandling::SimpleResource1  // ./tryWithMultipleResources.ek9:124:11
-_temp5 = LOAD_LITERAL second, org.ek9.lang::String  // ./tryWithMultipleResources.ek9:124:40
-_temp4 = CALL (exceptionHandling::SimpleResource1)exceptionHandling::SimpleResource1.<init>(_temp5) [pure=false, complexity=2, effects=RETURN_MUTATION]  // ./tryWithMultipleResources.ek9:124:24
-STORE resource2, _temp4  // ./tryWithMultipleResources.ek9:124:11
-SCOPE_REGISTER resource2, _scope_3  // ./tryWithMultipleResources.ek9:124:11
-RETAIN resource2  // ./tryWithMultipleResources.ek9:124:11
-SCOPE_ENTER _scope_4  // ./tryWithMultipleResources.ek9:121:7
-CONTROL_FLOW_CHAIN  // ./tryWithMultipleResources.ek9:121:7
+SCOPE_ENTER _scope_1  // ./tryWithMultipleResources.ek9:120:7
+REFERENCE rtn, org.ek9.lang::String  // ./tryWithMultipleResources.ek9:118:10
+_temp1 = CALL (org.ek9.lang::String)org.ek9.lang::String.<init>() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./tryWithMultipleResources.ek9:118:25
+RETAIN _temp1  // ./tryWithMultipleResources.ek9:118:25
+SCOPE_REGISTER _temp1, _scope_1  // ./tryWithMultipleResources.ek9:118:25
+STORE rtn, _temp1  // ./tryWithMultipleResources.ek9:118:25
+RETAIN rtn  // ./tryWithMultipleResources.ek9:118:25
+SCOPE_ENTER _scope_2  // ./tryWithMultipleResources.ek9:120:7
+SCOPE_ENTER _scope_3  // ./tryWithMultipleResources.ek9:120:7
+REFERENCE resource1, exceptionHandling::SimpleResource1  // ./tryWithMultipleResources.ek9:122:11
+_temp3 = LOAD_LITERAL first, org.ek9.lang::String  // ./tryWithMultipleResources.ek9:122:40
+_temp2 = CALL (exceptionHandling::SimpleResource1)exceptionHandling::SimpleResource1.<init>(_temp3) [pure=false, complexity=2, effects=RETURN_MUTATION]  // ./tryWithMultipleResources.ek9:122:24
+STORE resource1, _temp2  // ./tryWithMultipleResources.ek9:122:11
+SCOPE_REGISTER resource1, _scope_3  // ./tryWithMultipleResources.ek9:122:11
+RETAIN resource1  // ./tryWithMultipleResources.ek9:122:11
+REFERENCE resource2, exceptionHandling::SimpleResource1  // ./tryWithMultipleResources.ek9:123:11
+_temp5 = LOAD_LITERAL second, org.ek9.lang::String  // ./tryWithMultipleResources.ek9:123:40
+_temp4 = CALL (exceptionHandling::SimpleResource1)exceptionHandling::SimpleResource1.<init>(_temp5) [pure=false, complexity=2, effects=RETURN_MUTATION]  // ./tryWithMultipleResources.ek9:123:24
+STORE resource2, _temp4  // ./tryWithMultipleResources.ek9:123:11
+SCOPE_REGISTER resource2, _scope_3  // ./tryWithMultipleResources.ek9:123:11
+RETAIN resource2  // ./tryWithMultipleResources.ek9:123:11
+SCOPE_ENTER _scope_4  // ./tryWithMultipleResources.ek9:120:7
+CONTROL_FLOW_CHAIN  // ./tryWithMultipleResources.ek9:120:7
 [
 chain_type: "TRY_CATCH_FINALLY"
 try_block_details:
@@ -56,14 +55,14 @@ try_block_details:
 try_scope_id: _scope_5
 try_body_evaluation:
 [
-SCOPE_ENTER _scope_5  // ./tryWithMultipleResources.ek9:121:7
-_temp6 = LOAD_LITERAL OK, org.ek9.lang::String  // ./tryWithMultipleResources.ek9:125:14
-RETAIN _temp6  // ./tryWithMultipleResources.ek9:125:14
-SCOPE_REGISTER _temp6, _scope_5  // ./tryWithMultipleResources.ek9:125:14
-RELEASE rtn  // ./tryWithMultipleResources.ek9:125:14
-STORE rtn, _temp6  // ./tryWithMultipleResources.ek9:125:14
-RETAIN rtn  // ./tryWithMultipleResources.ek9:125:14
-SCOPE_EXIT _scope_5  // ./tryWithMultipleResources.ek9:121:7
+SCOPE_ENTER _scope_5  // ./tryWithMultipleResources.ek9:120:7
+_temp6 = LOAD_LITERAL OK, org.ek9.lang::String  // ./tryWithMultipleResources.ek9:124:14
+RETAIN _temp6  // ./tryWithMultipleResources.ek9:124:14
+SCOPE_REGISTER _temp6, _scope_5  // ./tryWithMultipleResources.ek9:124:14
+RELEASE rtn  // ./tryWithMultipleResources.ek9:124:14
+STORE rtn, _temp6  // ./tryWithMultipleResources.ek9:124:14
+RETAIN rtn  // ./tryWithMultipleResources.ek9:124:14
+SCOPE_EXIT _scope_5  // ./tryWithMultipleResources.ek9:120:7
 ]
 ]
 condition_chain:
@@ -76,16 +75,16 @@ condition_evaluation:
 ]
 body_evaluation:
 [
-SCOPE_ENTER _scope_6  // ./tryWithMultipleResources.ek9:126:7
-REFERENCE ex, org.ek9.lang::Exception  // ./tryWithMultipleResources.ek9:126:7
-SCOPE_REGISTER ex, _scope_6  // ./tryWithMultipleResources.ek9:126:7
-_temp7 = LOAD_LITERAL ERROR, org.ek9.lang::String  // ./tryWithMultipleResources.ek9:128:14
-RETAIN _temp7  // ./tryWithMultipleResources.ek9:128:14
-SCOPE_REGISTER _temp7, _scope_6  // ./tryWithMultipleResources.ek9:128:14
-RELEASE rtn  // ./tryWithMultipleResources.ek9:128:14
-STORE rtn, _temp7  // ./tryWithMultipleResources.ek9:128:14
-RETAIN rtn  // ./tryWithMultipleResources.ek9:128:14
-SCOPE_EXIT _scope_6  // ./tryWithMultipleResources.ek9:126:7
+SCOPE_ENTER _scope_6  // ./tryWithMultipleResources.ek9:125:7
+REFERENCE ex, org.ek9.lang::Exception  // ./tryWithMultipleResources.ek9:125:7
+SCOPE_REGISTER ex, _scope_6  // ./tryWithMultipleResources.ek9:125:7
+_temp7 = LOAD_LITERAL ERROR, org.ek9.lang::String  // ./tryWithMultipleResources.ek9:127:14
+RETAIN _temp7  // ./tryWithMultipleResources.ek9:127:14
+SCOPE_REGISTER _temp7, _scope_6  // ./tryWithMultipleResources.ek9:127:14
+RELEASE rtn  // ./tryWithMultipleResources.ek9:127:14
+STORE rtn, _temp7  // ./tryWithMultipleResources.ek9:127:14
+RETAIN rtn  // ./tryWithMultipleResources.ek9:127:14
+SCOPE_EXIT _scope_6  // ./tryWithMultipleResources.ek9:125:7
 ]
 exception_type: "org.ek9.lang::Exception"
 exception_variable: ex
@@ -93,22 +92,22 @@ exception_variable: ex
 ]
 finally_block_evaluation:
 [
-SCOPE_ENTER _scope_7  // ./tryWithMultipleResources.ek9:121:7
-CALL (exceptionHandling::SimpleResource1)resource2._close() [pure=true, complexity=0]  // ./tryWithMultipleResources.ek9:124:11
-CALL (exceptionHandling::SimpleResource1)resource1._close() [pure=true, complexity=0]  // ./tryWithMultipleResources.ek9:123:11
-SCOPE_EXIT _scope_7  // ./tryWithMultipleResources.ek9:121:7
+SCOPE_ENTER _scope_7  // ./tryWithMultipleResources.ek9:120:7
+CALL (exceptionHandling::SimpleResource1)resource2._close() [pure=true, complexity=0]  // ./tryWithMultipleResources.ek9:123:11
+CALL (exceptionHandling::SimpleResource1)resource1._close() [pure=true, complexity=0]  // ./tryWithMultipleResources.ek9:122:11
+SCOPE_EXIT _scope_7  // ./tryWithMultipleResources.ek9:120:7
 ]
 scope_id: _scope_4
 ]
-SCOPE_EXIT _scope_4  // ./tryWithMultipleResources.ek9:121:7
-SCOPE_EXIT _scope_3  // ./tryWithMultipleResources.ek9:121:7
-SCOPE_EXIT _scope_2  // ./tryWithMultipleResources.ek9:121:7
-SCOPE_EXIT _scope_1  // ./tryWithMultipleResources.ek9:121:7
-RETURN rtn  // ./tryWithMultipleResources.ek9:119:10
-OperationDfn: exceptionHandling::testMultipleResources.testMultipleResources()->exceptionHandling::testMultipleResources  // ./tryWithMultipleResources.ek9:118:5
+SCOPE_EXIT _scope_4  // ./tryWithMultipleResources.ek9:120:7
+SCOPE_EXIT _scope_3  // ./tryWithMultipleResources.ek9:120:7
+SCOPE_EXIT _scope_2  // ./tryWithMultipleResources.ek9:120:7
+SCOPE_EXIT _scope_1  // ./tryWithMultipleResources.ek9:120:7
+RETURN rtn  // ./tryWithMultipleResources.ek9:118:10
+OperationDfn: exceptionHandling::testMultipleResources.testMultipleResources()->exceptionHandling::testMultipleResources  // ./tryWithMultipleResources.ek9:117:5
 BasicBlock: _entry_1
-CALL (exceptionHandling::testMultipleResources)this.i_init() [pure=false, complexity=0]  // ./tryWithMultipleResources.ek9:118:5
-RETURN this  // ./tryWithMultipleResources.ek9:118:5
+CALL (exceptionHandling::testMultipleResources)this.i_init() [pure=false, complexity=0]  // ./tryWithMultipleResources.ek9:117:5
+RETURN this  // ./tryWithMultipleResources.ek9:117:5
 OperationDfn: exceptionHandling::testMultipleResources.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN

@@ -10,8 +10,7 @@ defines module loops.forin.guard
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "loops.forin.guard::getItems": `
-    ConstructDfn: loops.forin.guard::getItems()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+    @IR: IR_GENERATION: FUNCTION: "loops.forin.guard::getItems": `ConstructDfn: loops.forin.guard::getItems()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
 OperationDfn: loops.forin.guard::getItems._call()->org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1
@@ -62,8 +61,7 @@ RETURN`
       rtn += "two"
       rtn += "three"
 
-    @IR: IR_GENERATION: FUNCTION: "loops.forin.guard::forInWithGuard": `
-    ConstructDfn: loops.forin.guard::forInWithGuard()->org.ek9.lang::Void
+    @IR: IR_GENERATION: FUNCTION: "loops.forin.guard::forInWithGuard": `ConstructDfn: loops.forin.guard::forInWithGuard()->org.ek9.lang::Void
 OperationDfn: loops.forin.guard::forInWithGuard._call()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

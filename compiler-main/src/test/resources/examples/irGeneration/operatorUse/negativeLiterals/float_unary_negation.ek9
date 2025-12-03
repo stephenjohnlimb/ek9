@@ -13,29 +13,28 @@ defines module float.unary.negation.test
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "float.unary.negation.test::testFloatUnaryNegation": `
-    ConstructDfn: float.unary.negation.test::testFloatUnaryNegation()->org.ek9.lang::Void
-OperationDfn: float.unary.negation.test::testFloatUnaryNegation._call()->org.ek9.lang::Void  // ./float_unary_negation.ek9:86:5
+    @IR: IR_GENERATION: FUNCTION: "float.unary.negation.test::testFloatUnaryNegation": `ConstructDfn: float.unary.negation.test::testFloatUnaryNegation()->org.ek9.lang::Void
+OperationDfn: float.unary.negation.test::testFloatUnaryNegation._call()->org.ek9.lang::Void  // ./float_unary_negation.ek9:85:5
 BasicBlock: _entry_1
-SCOPE_ENTER _scope_1  // ./float_unary_negation.ek9:88:7
-REFERENCE someFloat, org.ek9.lang::Float  // ./float_unary_negation.ek9:88:7
-_temp1 = LOAD_LITERAL 3.14, org.ek9.lang::Float  // ./float_unary_negation.ek9:88:27
-RETAIN _temp1  // ./float_unary_negation.ek9:88:27
-SCOPE_REGISTER _temp1, _scope_1  // ./float_unary_negation.ek9:88:27
-STORE someFloat, _temp1  // ./float_unary_negation.ek9:88:27
-RETAIN someFloat  // ./float_unary_negation.ek9:88:27
-SCOPE_REGISTER someFloat, _scope_1  // ./float_unary_negation.ek9:88:27
-REFERENCE negFloatVar, org.ek9.lang::Float  // ./float_unary_negation.ek9:91:7
-_temp3 = LOAD someFloat  // ./float_unary_negation.ek9:91:22
-RETAIN _temp3  // ./float_unary_negation.ek9:91:22
-SCOPE_REGISTER _temp3, _scope_1  // ./float_unary_negation.ek9:91:22
-_temp2 = CALL (org.ek9.lang::Float)_temp3._negate() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./float_unary_negation.ek9:91:22
-RETAIN _temp2  // ./float_unary_negation.ek9:91:22
-SCOPE_REGISTER _temp2, _scope_1  // ./float_unary_negation.ek9:91:22
-STORE negFloatVar, _temp2  // ./float_unary_negation.ek9:91:22
-RETAIN negFloatVar  // ./float_unary_negation.ek9:91:22
-SCOPE_REGISTER negFloatVar, _scope_1  // ./float_unary_negation.ek9:91:22
-_temp4 = CONTROL_FLOW_CHAIN  // ./float_unary_negation.ek9:92:25
+SCOPE_ENTER _scope_1  // ./float_unary_negation.ek9:87:7
+REFERENCE someFloat, org.ek9.lang::Float  // ./float_unary_negation.ek9:87:7
+_temp1 = LOAD_LITERAL 3.14, org.ek9.lang::Float  // ./float_unary_negation.ek9:87:27
+RETAIN _temp1  // ./float_unary_negation.ek9:87:27
+SCOPE_REGISTER _temp1, _scope_1  // ./float_unary_negation.ek9:87:27
+STORE someFloat, _temp1  // ./float_unary_negation.ek9:87:27
+RETAIN someFloat  // ./float_unary_negation.ek9:87:27
+SCOPE_REGISTER someFloat, _scope_1  // ./float_unary_negation.ek9:87:27
+REFERENCE negFloatVar, org.ek9.lang::Float  // ./float_unary_negation.ek9:90:7
+_temp3 = LOAD someFloat  // ./float_unary_negation.ek9:90:22
+RETAIN _temp3  // ./float_unary_negation.ek9:90:22
+SCOPE_REGISTER _temp3, _scope_1  // ./float_unary_negation.ek9:90:22
+_temp2 = CALL (org.ek9.lang::Float)_temp3._negate() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./float_unary_negation.ek9:90:22
+RETAIN _temp2  // ./float_unary_negation.ek9:90:22
+SCOPE_REGISTER _temp2, _scope_1  // ./float_unary_negation.ek9:90:22
+STORE negFloatVar, _temp2  // ./float_unary_negation.ek9:90:22
+RETAIN negFloatVar  // ./float_unary_negation.ek9:90:22
+SCOPE_REGISTER negFloatVar, _scope_1  // ./float_unary_negation.ek9:90:22
+_temp4 = CONTROL_FLOW_CHAIN  // ./float_unary_negation.ek9:91:25
 [
 chain_type: "QUESTION_OPERATOR"
 condition_chain:
@@ -45,44 +44,44 @@ case_scope_id: _scope_1
 case_type: "NULL_CHECK"
 condition_evaluation:
 [
-_temp5 = LOAD negFloatVar  // ./float_unary_negation.ek9:92:25
-_temp6 = IS_NULL _temp5  // ./float_unary_negation.ek9:92:25
+_temp5 = LOAD negFloatVar  // ./float_unary_negation.ek9:91:25
+_temp6 = IS_NULL _temp5  // ./float_unary_negation.ek9:91:25
 ]
 primitive_condition: _temp6
 body_evaluation:
 [
-_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./float_unary_negation.ek9:92:25
-RETAIN _temp7  // ./float_unary_negation.ek9:92:25
-SCOPE_REGISTER _temp7, _scope_1  // ./float_unary_negation.ek9:92:25
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./float_unary_negation.ek9:91:25
+RETAIN _temp7  // ./float_unary_negation.ek9:91:25
+SCOPE_REGISTER _temp7, _scope_1  // ./float_unary_negation.ek9:91:25
 ]
 body_result: _temp7
 ]
 ]
 default_body_evaluation:
 [
-_temp8 = CALL (org.ek9.lang::Float)_temp5._isSet() [pure=true, complexity=0]  // ./float_unary_negation.ek9:92:25
-RETAIN _temp8  // ./float_unary_negation.ek9:92:25
-SCOPE_REGISTER _temp8, _scope_1  // ./float_unary_negation.ek9:92:25
+_temp8 = CALL (org.ek9.lang::Float)_temp5._isSet() [pure=true, complexity=0]  // ./float_unary_negation.ek9:91:25
+RETAIN _temp8  // ./float_unary_negation.ek9:91:25
+SCOPE_REGISTER _temp8, _scope_1  // ./float_unary_negation.ek9:91:25
 ]
 default_result: _temp8
 scope_id: _scope_1
 ]
-RETAIN _temp4  // ./float_unary_negation.ek9:92:7
-SCOPE_REGISTER _temp4, _scope_1  // ./float_unary_negation.ek9:92:7
-_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./float_unary_negation.ek9:92:7
-ASSERT _temp9  // ./float_unary_negation.ek9:92:7
-SCOPE_EXIT _scope_1  // ./float_unary_negation.ek9:88:7
-RETURN  // ./float_unary_negation.ek9:86:5
+RETAIN _temp4  // ./float_unary_negation.ek9:91:7
+SCOPE_REGISTER _temp4, _scope_1  // ./float_unary_negation.ek9:91:7
+_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./float_unary_negation.ek9:91:7
+ASSERT _temp9  // ./float_unary_negation.ek9:91:7
+SCOPE_EXIT _scope_1  // ./float_unary_negation.ek9:87:7
+RETURN  // ./float_unary_negation.ek9:85:5
 OperationDfn: float.unary.negation.test::testFloatUnaryNegation.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
 OperationDfn: float.unary.negation.test::testFloatUnaryNegation.i_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
-OperationDfn: float.unary.negation.test::testFloatUnaryNegation.testFloatUnaryNegation()->float.unary.negation.test::testFloatUnaryNegation  // ./float_unary_negation.ek9:86:5
+OperationDfn: float.unary.negation.test::testFloatUnaryNegation.testFloatUnaryNegation()->float.unary.negation.test::testFloatUnaryNegation  // ./float_unary_negation.ek9:85:5
 BasicBlock: _entry_1
-CALL (float.unary.negation.test::testFloatUnaryNegation)this.i_init() [pure=false, complexity=0]  // ./float_unary_negation.ek9:86:5
-RETURN this  // ./float_unary_negation.ek9:86:5`
+CALL (float.unary.negation.test::testFloatUnaryNegation)this.i_init() [pure=false, complexity=0]  // ./float_unary_negation.ek9:85:5
+RETURN this  // ./float_unary_negation.ek9:85:5`
     testFloatUnaryNegation()
       // Variable for unary negation
       someFloat as Float: 3.14

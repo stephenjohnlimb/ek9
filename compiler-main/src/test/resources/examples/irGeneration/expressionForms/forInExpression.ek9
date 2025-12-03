@@ -13,96 +13,95 @@ defines module expressionForms.forInExpr
       Iterates over items in a list, rtn accumulates the concatenation.
       Returns the concatenated string.
     -?>
-    @IR: IR_GENERATION: FUNCTION: "expressionForms.forInExpr::forInExpression": `
-    ConstructDfn: expressionForms.forInExpr::forInExpression(org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)->org.ek9.lang::String
-    OperationDfn: expressionForms.forInExpr::forInExpression._call(org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)->org.ek9.lang::String
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE items, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
-    REFERENCE result, org.ek9.lang::String
-    SCOPE_ENTER _scope_2
-    REFERENCE rtn, org.ek9.lang::String
-    _temp2 = LOAD_LITERAL org.ek9.lang::String
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_2
-    STORE rtn, _temp2
-    RETAIN rtn
-    _temp3 = LOAD items
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_2
-    _temp4 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp3.iterator() [pure=false, complexity=0]
-    RETAIN _temp4
-    SCOPE_REGISTER _temp4, _scope_2
-    SCOPE_ENTER _scope_3
-    REFERENCE item, org.ek9.lang::String
-    SCOPE_REGISTER item, _scope_3
-    CONTROL_FLOW_CHAIN
-    [
-    chain_type: "WHILE_LOOP"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_4
-    case_type: "EXPRESSION"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_4
-    _temp5 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp4.hasNext() [pure=false, complexity=0]
-    RETAIN _temp5
-    SCOPE_REGISTER _temp5, _scope_4
-    _temp6 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_4
-    ]
-    condition_result: _temp5
-    primitive_condition: _temp6
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_5
-    _temp7 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp4.next() [pure=false, complexity=0]
-    RETAIN _temp7
-    SCOPE_REGISTER _temp7, _scope_5
-    RELEASE item
-    STORE item, _temp7
-    RETAIN item
-    _temp9 = LOAD rtn
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_5
-    _temp10 = LOAD item
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, _scope_5
-    _temp8 = CALL (org.ek9.lang::String)_temp9._add(_temp10) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_5
-    RELEASE rtn
-    STORE rtn, _temp8
-    RETAIN rtn
-    SCOPE_EXIT _scope_5
-    ]
-    ]
-    ]
-    scope_id: _scope_3
-    ]
-    SCOPE_EXIT _scope_3
-    SCOPE_EXIT _scope_2
-    STORE _temp1, rtn
-    RELEASE rtn
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    RELEASE result
-    STORE result, _temp1
-    RETAIN result
-    SCOPE_EXIT _scope_1
-    RETURN result
-    OperationDfn: expressionForms.forInExpr::forInExpression.forInExpression()->expressionForms.forInExpr::forInExpression
-    BasicBlock: _entry_1
-    CALL (expressionForms.forInExpr::forInExpression)this.i_init() [pure=false, complexity=0]
-    RETURN this
-    OperationDfn: expressionForms.forInExpr::forInExpression.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: expressionForms.forInExpr::forInExpression.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN`
+    @IR: IR_GENERATION: FUNCTION: "expressionForms.forInExpr::forInExpression": `ConstructDfn: expressionForms.forInExpr::forInExpression(org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)->org.ek9.lang::String
+OperationDfn: expressionForms.forInExpr::forInExpression._call(org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)->org.ek9.lang::String  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE items, org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1
+REFERENCE result, org.ek9.lang::String
+SCOPE_ENTER _scope_2
+REFERENCE rtn, org.ek9.lang::String
+_temp2 = LOAD_LITERAL org.ek9.lang::String
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_2
+STORE rtn, _temp2
+RETAIN rtn
+_temp3 = LOAD items
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_2
+_temp4 = CALL (org.ek9.lang::_List_8F118296CF271EAEB58F9D4B4FDDDB2DA7B80C13BF342D8C4A916D54EBB208E1)_temp3.iterator() [pure=false, complexity=0]
+RETAIN _temp4
+SCOPE_REGISTER _temp4, _scope_2
+SCOPE_ENTER _scope_3
+REFERENCE item, org.ek9.lang::String
+SCOPE_REGISTER item, _scope_3
+CONTROL_FLOW_CHAIN
+[
+chain_type: "WHILE_LOOP"
+condition_chain:
+[
+[
+case_scope_id: _scope_4
+case_type: "EXPRESSION"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp5 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp4.hasNext() [pure=false, complexity=0]
+RETAIN _temp5
+SCOPE_REGISTER _temp5, _scope_4
+_temp6 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_4
+]
+condition_result: _temp5
+primitive_condition: _temp6
+body_evaluation:
+[
+SCOPE_ENTER _scope_5
+_temp7 = CALL (org.ek9.lang::_Iterator_852BE8F78E9C7E622E0E2BDC5523BEFF664305AD702B04CE0463ED42C1FE2CA2)_temp4.next() [pure=false, complexity=0]
+RETAIN _temp7
+SCOPE_REGISTER _temp7, _scope_5
+RELEASE item
+STORE item, _temp7
+RETAIN item
+_temp9 = LOAD rtn
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_5
+_temp10 = LOAD item
+RETAIN _temp10
+SCOPE_REGISTER _temp10, _scope_5
+_temp8 = CALL (org.ek9.lang::String)_temp9._add(_temp10) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_5
+RELEASE rtn
+STORE rtn, _temp8
+RETAIN rtn
+SCOPE_EXIT _scope_5
+]
+]
+]
+scope_id: _scope_3
+]
+SCOPE_EXIT _scope_3
+SCOPE_EXIT _scope_2
+STORE _temp1, rtn
+RELEASE rtn
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+RELEASE result
+STORE result, _temp1
+RETAIN result
+SCOPE_EXIT _scope_1
+RETURN result
+OperationDfn: expressionForms.forInExpr::forInExpression.forInExpression()->expressionForms.forInExpr::forInExpression  
+BasicBlock: _entry_1
+CALL (expressionForms.forInExpr::forInExpression)this.i_init() [pure=false, complexity=0]
+RETURN this
+OperationDfn: expressionForms.forInExpr::forInExpression.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: expressionForms.forInExpr::forInExpression.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN`
     forInExpression()
       -> items as List of String
       <- result as String?

@@ -1,0 +1,79 @@
+#!ek9
+<?-
+  Bytecode test for synthetic derived comparison operators.
+  Tests default operators <, <=, >, >= on a simple class.
+  These operators delegate to _cmp (<=>).
+-?>
+defines module bytecode.syntheticDerivedComparison
+
+  defines class
+
+    SimpleValue
+      value <- Integer()
+
+      SimpleValue()
+        this.value :=: 10
+
+      SimpleValue()
+        -> v as Integer
+        this.value :=: v
+
+      default operator ?
+      default operator <=>
+      default operator <
+      default operator <=
+      default operator >
+      default operator >=
+
+  defines program
+
+    TestSyntheticDerivedComparison()
+      stdout <- Stdout()
+
+      stdout.println("Test 1: Less than operator (<)")
+      v5 <- SimpleValue(5)
+      v10 <- SimpleValue(10)
+      v15 <- SimpleValue(15)
+
+      lt1 <- v5 < v10
+      stdout.println(lt1)
+
+      lt2 <- v10 < v5
+      stdout.println(lt2)
+
+      lt3 <- v10 < v10
+      stdout.println(lt3)
+
+      stdout.println("Test 2: Less than or equal operator (<=)")
+      lte1 <- v5 <= v10
+      stdout.println(lte1)
+
+      lte2 <- v10 <= v10
+      stdout.println(lte2)
+
+      lte3 <- v15 <= v10
+      stdout.println(lte3)
+
+      stdout.println("Test 3: Greater than operator (>)")
+      gt1 <- v15 > v10
+      stdout.println(gt1)
+
+      gt2 <- v10 > v15
+      stdout.println(gt2)
+
+      gt3 <- v10 > v10
+      stdout.println(gt3)
+
+      stdout.println("Test 4: Greater than or equal operator (>=)")
+      gte1 <- v15 >= v10
+      stdout.println(gte1)
+
+      gte2 <- v10 >= v10
+      stdout.println(gte2)
+
+      gte3 <- v5 >= v10
+      stdout.println(gte3)
+
+      stdout.println("All tests passed")
+
+//EOF

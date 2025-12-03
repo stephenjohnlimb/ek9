@@ -11,8 +11,7 @@ defines module switches.assignGuard
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "switches.assignGuard::getValue": `
-    ConstructDfn: switches.assignGuard::getValue()->org.ek9.lang::Integer
+    @IR: IR_GENERATION: FUNCTION: "switches.assignGuard::getValue": `ConstructDfn: switches.assignGuard::getValue()->org.ek9.lang::Integer
 OperationDfn: switches.assignGuard::getValue._call()->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1
@@ -39,8 +38,7 @@ RETURN`
       <- rtn as Integer?
       rtn: 2
 
-    @IR: IR_GENERATION: FUNCTION: "switches.assignGuard::switchAssignmentGuard": `
-    ConstructDfn: switches.assignGuard::switchAssignmentGuard()->org.ek9.lang::String
+    @IR: IR_GENERATION: FUNCTION: "switches.assignGuard::switchAssignmentGuard": `ConstructDfn: switches.assignGuard::switchAssignmentGuard()->org.ek9.lang::String
 OperationDfn: switches.assignGuard::switchAssignmentGuard._call()->org.ek9.lang::String  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

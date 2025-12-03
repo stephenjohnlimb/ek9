@@ -443,6 +443,32 @@ public class AggregateManipulator {
   }
 
   /**
+   * Create the _fieldSetStatus synthetic method.
+   *
+   * <p>This method returns an Integer bitmask indicating which fields are set.
+   * It is called by comparison operators to pre-compute field status before
+   * performing field-by-field comparisons. The IR optimizer can cache and
+   * reuse results within expressions.</p>
+   *
+   * @param aggregateSymbol The aggregate to create the method for
+   * @return The _fieldSetStatus method symbol
+   */
+  public MethodSymbol createFieldSetStatusMethod(final IAggregateSymbol aggregateSymbol) {
+
+    final var integerType = resolveInteger(aggregateSymbol);
+    final var method = new MethodSymbol("_fieldSetStatus", aggregateSymbol);
+
+    method.setReturningSymbol(new VariableSymbol("_rtn", integerType));
+    method.setParsedModule(aggregateSymbol.getParsedModule());
+    method.setAccessModifier(PUBLIC);
+    method.setMarkedPure(true);
+    method.setOperator(false);  // This is a method, not an operator
+    method.setSynthetic(true);
+
+    return method;
+  }
+
+  /**
    * Just creates a public operator with the name specified.
    */
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")

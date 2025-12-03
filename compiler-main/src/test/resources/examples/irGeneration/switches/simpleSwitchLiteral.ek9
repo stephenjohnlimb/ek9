@@ -7,8 +7,7 @@ defines module controlFlow
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "controlFlow::simpleSwitchLiteral": `
-    ConstructDfn: controlFlow::simpleSwitchLiteral(org.ek9.lang::Integer)->org.ek9.lang::String
+    @IR: IR_GENERATION: FUNCTION: "controlFlow::simpleSwitchLiteral": `ConstructDfn: controlFlow::simpleSwitchLiteral(org.ek9.lang::Integer)->org.ek9.lang::String
 OperationDfn: controlFlow::simpleSwitchLiteral._call(org.ek9.lang::Integer)->org.ek9.lang::String  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

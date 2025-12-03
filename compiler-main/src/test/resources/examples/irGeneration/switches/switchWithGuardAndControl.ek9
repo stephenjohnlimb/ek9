@@ -13,8 +13,7 @@ defines module controlFlow.guardControl
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "controlFlow.guardControl::getOptionalValue": `
-    ConstructDfn: controlFlow.guardControl::getOptionalValue()->org.ek9.lang::_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
+    @IR: IR_GENERATION: FUNCTION: "controlFlow.guardControl::getOptionalValue": `ConstructDfn: controlFlow.guardControl::getOptionalValue()->org.ek9.lang::_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC
 OperationDfn: controlFlow.guardControl::getOptionalValue._call()->org.ek9.lang::_Optional_C011A3DC69C147B21BB3B4318CD6E648E5B36284DE9A0658F8CDDD33D8C1B5BC  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1
@@ -40,8 +39,7 @@ RETURN`
     getOptionalValue()
       <- rtn <- Optional("test")
 
-    @IR: IR_GENERATION: FUNCTION: "controlFlow.guardControl::switchWithGuardAndControl": `
-    ConstructDfn: controlFlow.guardControl::switchWithGuardAndControl()->org.ek9.lang::String
+    @IR: IR_GENERATION: FUNCTION: "controlFlow.guardControl::switchWithGuardAndControl": `ConstructDfn: controlFlow.guardControl::switchWithGuardAndControl()->org.ek9.lang::String
 OperationDfn: controlFlow.guardControl::switchWithGuardAndControl._call()->org.ek9.lang::String  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

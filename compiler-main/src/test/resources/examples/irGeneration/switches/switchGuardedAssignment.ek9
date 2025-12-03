@@ -12,8 +12,7 @@ defines module switches.guardedAssign
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "switches.guardedAssign::getValue": `
-    ConstructDfn: switches.guardedAssign::getValue()->org.ek9.lang::Integer
+    @IR: IR_GENERATION: FUNCTION: "switches.guardedAssign::getValue": `ConstructDfn: switches.guardedAssign::getValue()->org.ek9.lang::Integer
 OperationDfn: switches.guardedAssign::getValue._call()->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1
@@ -40,8 +39,7 @@ RETURN`
       <- rtn as Integer?
       rtn: 2
 
-    @IR: IR_GENERATION: FUNCTION: "switches.guardedAssign::switchGuardedAssignment": `
-    ConstructDfn: switches.guardedAssign::switchGuardedAssignment()->org.ek9.lang::String
+    @IR: IR_GENERATION: FUNCTION: "switches.guardedAssign::switchGuardedAssignment": `ConstructDfn: switches.guardedAssign::switchGuardedAssignment()->org.ek9.lang::String
 OperationDfn: switches.guardedAssign::switchGuardedAssignment._call()->org.ek9.lang::String  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

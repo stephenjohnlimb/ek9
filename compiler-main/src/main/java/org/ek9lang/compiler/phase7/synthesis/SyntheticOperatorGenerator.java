@@ -44,7 +44,9 @@ public final class SyntheticOperatorGenerator {
   private final EqualsGenerator equalsGenerator;
   private final NotEqualsGenerator notEqualsGenerator;
   private final CompareGenerator compareGenerator;
+  private final DerivedComparisonGenerator derivedComparisonGenerator;
   private final IsSetGenerator isSetGenerator;
+  private final FieldSetStatusGenerator fieldSetStatusGenerator;
 
   /**
    * Create a new synthetic operator generator.
@@ -57,7 +59,9 @@ public final class SyntheticOperatorGenerator {
     this.equalsGenerator = new EqualsGenerator(stackContext);
     this.notEqualsGenerator = new NotEqualsGenerator(stackContext);
     this.compareGenerator = new CompareGenerator(stackContext);
+    this.derivedComparisonGenerator = new DerivedComparisonGenerator(stackContext);
     this.isSetGenerator = new IsSetGenerator(stackContext);
+    this.fieldSetStatusGenerator = new FieldSetStatusGenerator(stackContext);
   }
 
   /**
@@ -156,6 +160,7 @@ public final class SyntheticOperatorGenerator {
 
     return switch (methodName) {
       case "_isSet" -> generateIsSetMethod(instructionBuilder, methodSymbol, aggregateSymbol);
+      case "_fieldSetStatus" -> generateFieldSetStatusMethod(instructionBuilder, methodSymbol, aggregateSymbol);
       default -> generatePlaceholder(instructionBuilder, methodName);
     };
   }
@@ -265,15 +270,23 @@ public final class SyntheticOperatorGenerator {
   }
 
   /**
-   * Generate ordinal comparison operators (_lt, _lte, _gt, _gte) for enumerations.
-   * TODO: Implement ordinal comparison
+   * Generate derived comparison operators ({@literal <}, {@literal <=}, {@literal >}, {@literal >=}).
+   *
+   * <p>Delegates to {@link DerivedComparisonGenerator} which implements:</p>
+   * <ul>
+   *   <li>Call this._cmp(other) to get Integer comparison result</li>
+   *   <li>Check if result is unset, return unset if so</li>
+   *   <li>Compare result to 0 using appropriate Integer method</li>
+   *   <li>Return the Boolean comparison result</li>
+   * </ul>
+   *
+   * <p>This approach leverages the existing _cmp implementation for all tri-state semantics.</p>
    */
   private List<IRInstr> generateOrdinalComparisonOperator(final IRInstructionBuilder builder,
                                                           final String operatorName,
                                                           final MethodSymbol operatorSymbol,
                                                           final AggregateSymbol aggregateSymbol) {
-    // TODO: Phase 8 implementation
-    return generatePlaceholder(builder, operatorName);
+    return derivedComparisonGenerator.generate(operatorName, operatorSymbol, aggregateSymbol);
   }
 
   /**
@@ -302,6 +315,26 @@ public final class SyntheticOperatorGenerator {
                                             final MethodSymbol methodSymbol,
                                             final AggregateSymbol aggregateSymbol) {
     return isSetGenerator.generate(methodSymbol, aggregateSymbol);
+  }
+
+  /**
+   * Generate _fieldSetStatus method - returns bitmask of field set statuses.
+   *
+   * <p>Delegates to {@link FieldSetStatusGenerator} which implements:</p>
+   * <ul>
+   *   <li>For each field, call _isSet() and set corresponding bit</li>
+   *   <li>Returns Integer bitmask (bit N = field N status)</li>
+   *   <li>Enables efficient field-by-field comparison in operators</li>
+   * </ul>
+   *
+   * <p>This method is called by comparison operators to pre-compute
+   * field status before performing comparisons, enabling the IR optimizer
+   * to cache and reuse results within expressions.</p>
+   */
+  private List<IRInstr> generateFieldSetStatusMethod(final IRInstructionBuilder builder,
+                                                      final MethodSymbol methodSymbol,
+                                                      final AggregateSymbol aggregateSymbol) {
+    return fieldSetStatusGenerator.generate(methodSymbol, aggregateSymbol);
   }
 
   /**

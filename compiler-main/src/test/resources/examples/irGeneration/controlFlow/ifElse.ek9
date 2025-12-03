@@ -6,8 +6,7 @@ defines module controlFlow
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "controlFlow::ifElse": `
-    ConstructDfn: controlFlow::ifElse(org.ek9.lang::Integer)->org.ek9.lang::String
+    @IR: IR_GENERATION: FUNCTION: "controlFlow::ifElse": `ConstructDfn: controlFlow::ifElse(org.ek9.lang::Integer)->org.ek9.lang::String
 OperationDfn: controlFlow::ifElse._call(org.ek9.lang::Integer)->org.ek9.lang::String  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

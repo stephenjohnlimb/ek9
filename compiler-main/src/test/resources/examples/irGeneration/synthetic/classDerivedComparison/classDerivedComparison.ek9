@@ -1,0 +1,31 @@
+#!ek9
+<?-
+  Test IR generation for synthetic derived comparison operators on classes.
+
+  This test verifies that DerivedComparisonGenerator correctly produces IR
+  for <, <=, >, >= operators by delegating to _cmp.
+
+  Expected pattern for each derived operator:
+  1. Call this._cmp(other) to get Integer comparison result
+  2. Check if result is set, return unset Boolean if not
+  3. Compare result to 0 using Integer._lt/_lte/_gt/_gte
+  4. Return the Boolean comparison result
+-?>
+defines module synthetic.classDerivedComparison
+
+  defines class
+
+    SimpleValue
+      value <- Integer()
+
+      SimpleValue()
+        this.value :=: 10
+
+      default operator ?
+      default operator <=>
+      default operator <
+      default operator <=
+      default operator >
+      default operator >=
+
+//EOF

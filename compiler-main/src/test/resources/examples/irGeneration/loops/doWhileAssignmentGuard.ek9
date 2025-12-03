@@ -16,8 +16,7 @@ defines module loops.doAssignGuard
       <- rtn as Integer?
       rtn: 5
 
-    @IR: IR_GENERATION: FUNCTION: "loops.doAssignGuard::doWhileAssignmentGuard": `
-    ConstructDfn: loops.doAssignGuard::doWhileAssignmentGuard()->org.ek9.lang::Integer
+    @IR: IR_GENERATION: FUNCTION: "loops.doAssignGuard::doWhileAssignmentGuard": `ConstructDfn: loops.doAssignGuard::doWhileAssignmentGuard()->org.ek9.lang::Integer
 OperationDfn: loops.doAssignGuard::doWhileAssignmentGuard._call()->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

@@ -17,8 +17,7 @@ defines module loops.doWhileGuard
       <- rtn as Integer?
       rtn: 5
 
-    @IR: IR_GENERATION: FUNCTION: "loops.doWhileGuard::simpleDoWhileWithGuard": `
-    ConstructDfn: loops.doWhileGuard::simpleDoWhileWithGuard()->org.ek9.lang::Void
+    @IR: IR_GENERATION: FUNCTION: "loops.doWhileGuard::simpleDoWhileWithGuard": `ConstructDfn: loops.doWhileGuard::simpleDoWhileWithGuard()->org.ek9.lang::Void
 OperationDfn: loops.doWhileGuard::simpleDoWhileWithGuard._call()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

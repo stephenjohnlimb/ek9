@@ -7,8 +7,7 @@ defines module controlFlow.character
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "controlFlow.character::simpleSwitchCharacterPromotion": `
-    ConstructDfn: controlFlow.character::simpleSwitchCharacterPromotion(org.ek9.lang::String)->org.ek9.lang::String
+    @IR: IR_GENERATION: FUNCTION: "controlFlow.character::simpleSwitchCharacterPromotion": `ConstructDfn: controlFlow.character::simpleSwitchCharacterPromotion(org.ek9.lang::String)->org.ek9.lang::String
 OperationDfn: controlFlow.character::simpleSwitchCharacterPromotion._call(org.ek9.lang::String)->org.ek9.lang::String  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

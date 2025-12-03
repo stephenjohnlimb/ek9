@@ -11,29 +11,28 @@ defines module string.test
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "string.test::testString": `
-    ConstructDfn: string.test::testString()->org.ek9.lang::Void
-OperationDfn: string.test::testString._call()->org.ek9.lang::Void  // ./string_operator.ek9:84:5
+    @IR: IR_GENERATION: FUNCTION: "string.test::testString": `ConstructDfn: string.test::testString()->org.ek9.lang::Void
+OperationDfn: string.test::testString._call()->org.ek9.lang::Void  // ./string_operator.ek9:83:5
 BasicBlock: _entry_1
-SCOPE_ENTER _scope_1  // ./string_operator.ek9:85:7
-REFERENCE x, org.ek9.lang::Integer  // ./string_operator.ek9:85:7
-_temp1 = LOAD_LITERAL 42, org.ek9.lang::Integer  // ./string_operator.ek9:85:21
-RETAIN _temp1  // ./string_operator.ek9:85:21
-SCOPE_REGISTER _temp1, _scope_1  // ./string_operator.ek9:85:21
-STORE x, _temp1  // ./string_operator.ek9:85:21
-RETAIN x  // ./string_operator.ek9:85:21
-SCOPE_REGISTER x, _scope_1  // ./string_operator.ek9:85:21
-REFERENCE result, org.ek9.lang::String  // ./string_operator.ek9:86:7
-_temp3 = LOAD x  // ./string_operator.ek9:86:17
-RETAIN _temp3  // ./string_operator.ek9:86:17
-SCOPE_REGISTER _temp3, _scope_1  // ./string_operator.ek9:86:17
-_temp2 = CALL (org.ek9.lang::Integer)_temp3._string() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./string_operator.ek9:86:17
-RETAIN _temp2  // ./string_operator.ek9:86:17
-SCOPE_REGISTER _temp2, _scope_1  // ./string_operator.ek9:86:17
-STORE result, _temp2  // ./string_operator.ek9:86:17
-RETAIN result  // ./string_operator.ek9:86:17
-SCOPE_REGISTER result, _scope_1  // ./string_operator.ek9:86:17
-_temp4 = CONTROL_FLOW_CHAIN  // ./string_operator.ek9:87:20
+SCOPE_ENTER _scope_1  // ./string_operator.ek9:84:7
+REFERENCE x, org.ek9.lang::Integer  // ./string_operator.ek9:84:7
+_temp1 = LOAD_LITERAL 42, org.ek9.lang::Integer  // ./string_operator.ek9:84:21
+RETAIN _temp1  // ./string_operator.ek9:84:21
+SCOPE_REGISTER _temp1, _scope_1  // ./string_operator.ek9:84:21
+STORE x, _temp1  // ./string_operator.ek9:84:21
+RETAIN x  // ./string_operator.ek9:84:21
+SCOPE_REGISTER x, _scope_1  // ./string_operator.ek9:84:21
+REFERENCE result, org.ek9.lang::String  // ./string_operator.ek9:85:7
+_temp3 = LOAD x  // ./string_operator.ek9:85:17
+RETAIN _temp3  // ./string_operator.ek9:85:17
+SCOPE_REGISTER _temp3, _scope_1  // ./string_operator.ek9:85:17
+_temp2 = CALL (org.ek9.lang::Integer)_temp3._string() [pure=true, complexity=1, effects=RETURN_MUTATION]  // ./string_operator.ek9:85:17
+RETAIN _temp2  // ./string_operator.ek9:85:17
+SCOPE_REGISTER _temp2, _scope_1  // ./string_operator.ek9:85:17
+STORE result, _temp2  // ./string_operator.ek9:85:17
+RETAIN result  // ./string_operator.ek9:85:17
+SCOPE_REGISTER result, _scope_1  // ./string_operator.ek9:85:17
+_temp4 = CONTROL_FLOW_CHAIN  // ./string_operator.ek9:86:20
 [
 chain_type: "QUESTION_OPERATOR"
 condition_chain:
@@ -43,44 +42,44 @@ case_scope_id: _scope_1
 case_type: "NULL_CHECK"
 condition_evaluation:
 [
-_temp5 = LOAD result  // ./string_operator.ek9:87:20
-_temp6 = IS_NULL _temp5  // ./string_operator.ek9:87:20
+_temp5 = LOAD result  // ./string_operator.ek9:86:20
+_temp6 = IS_NULL _temp5  // ./string_operator.ek9:86:20
 ]
 primitive_condition: _temp6
 body_evaluation:
 [
-_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./string_operator.ek9:87:20
-RETAIN _temp7  // ./string_operator.ek9:87:20
-SCOPE_REGISTER _temp7, _scope_1  // ./string_operator.ek9:87:20
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./string_operator.ek9:86:20
+RETAIN _temp7  // ./string_operator.ek9:86:20
+SCOPE_REGISTER _temp7, _scope_1  // ./string_operator.ek9:86:20
 ]
 body_result: _temp7
 ]
 ]
 default_body_evaluation:
 [
-_temp8 = CALL (org.ek9.lang::String)_temp5._isSet() [pure=true, complexity=0]  // ./string_operator.ek9:87:20
-RETAIN _temp8  // ./string_operator.ek9:87:20
-SCOPE_REGISTER _temp8, _scope_1  // ./string_operator.ek9:87:20
+_temp8 = CALL (org.ek9.lang::String)_temp5._isSet() [pure=true, complexity=0]  // ./string_operator.ek9:86:20
+RETAIN _temp8  // ./string_operator.ek9:86:20
+SCOPE_REGISTER _temp8, _scope_1  // ./string_operator.ek9:86:20
 ]
 default_result: _temp8
 scope_id: _scope_1
 ]
-RETAIN _temp4  // ./string_operator.ek9:87:7
-SCOPE_REGISTER _temp4, _scope_1  // ./string_operator.ek9:87:7
-_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./string_operator.ek9:87:7
-ASSERT _temp9  // ./string_operator.ek9:87:7
-SCOPE_EXIT _scope_1  // ./string_operator.ek9:85:7
-RETURN  // ./string_operator.ek9:84:5
+RETAIN _temp4  // ./string_operator.ek9:86:7
+SCOPE_REGISTER _temp4, _scope_1  // ./string_operator.ek9:86:7
+_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./string_operator.ek9:86:7
+ASSERT _temp9  // ./string_operator.ek9:86:7
+SCOPE_EXIT _scope_1  // ./string_operator.ek9:84:7
+RETURN  // ./string_operator.ek9:83:5
 OperationDfn: string.test::testString.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
 OperationDfn: string.test::testString.i_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
-OperationDfn: string.test::testString.testString()->string.test::testString  // ./string_operator.ek9:84:5
+OperationDfn: string.test::testString.testString()->string.test::testString  // ./string_operator.ek9:83:5
 BasicBlock: _entry_1
-CALL (string.test::testString)this.i_init() [pure=false, complexity=0]  // ./string_operator.ek9:84:5
-RETURN this  // ./string_operator.ek9:84:5`
+CALL (string.test::testString)this.i_init() [pure=false, complexity=0]  // ./string_operator.ek9:83:5
+RETURN this  // ./string_operator.ek9:83:5`
     testString()
       x as Integer: 42
       result <- $x

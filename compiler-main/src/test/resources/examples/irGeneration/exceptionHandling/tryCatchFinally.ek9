@@ -7,21 +7,20 @@ defines module exceptionHandling
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "exceptionHandling::tryCatchFinally": `
-    ConstructDfn: exceptionHandling::tryCatchFinally()->org.ek9.lang::Void
-OperationDfn: exceptionHandling::tryCatchFinally._call()->org.ek9.lang::Void  // ./tryCatchFinally.ek9:111:5
+    @IR: IR_GENERATION: FUNCTION: "exceptionHandling::tryCatchFinally": `ConstructDfn: exceptionHandling::tryCatchFinally()->org.ek9.lang::Void
+OperationDfn: exceptionHandling::tryCatchFinally._call()->org.ek9.lang::Void  // ./tryCatchFinally.ek9:110:5
 BasicBlock: _entry_1
-SCOPE_ENTER _scope_1  // ./tryCatchFinally.ek9:112:7
-REFERENCE stdout, org.ek9.lang::Stdout  // ./tryCatchFinally.ek9:112:7
-_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./tryCatchFinally.ek9:112:17
-RETAIN _temp1  // ./tryCatchFinally.ek9:112:17
-SCOPE_REGISTER _temp1, _scope_1  // ./tryCatchFinally.ek9:112:17
-STORE stdout, _temp1  // ./tryCatchFinally.ek9:112:17
-RETAIN stdout  // ./tryCatchFinally.ek9:112:17
-SCOPE_REGISTER stdout, _scope_1  // ./tryCatchFinally.ek9:112:17
-SCOPE_ENTER _scope_2  // ./tryCatchFinally.ek9:114:7
-SCOPE_ENTER _scope_3  // ./tryCatchFinally.ek9:114:7
-CONTROL_FLOW_CHAIN  // ./tryCatchFinally.ek9:114:7
+SCOPE_ENTER _scope_1  // ./tryCatchFinally.ek9:111:7
+REFERENCE stdout, org.ek9.lang::Stdout  // ./tryCatchFinally.ek9:111:7
+_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./tryCatchFinally.ek9:111:17
+RETAIN _temp1  // ./tryCatchFinally.ek9:111:17
+SCOPE_REGISTER _temp1, _scope_1  // ./tryCatchFinally.ek9:111:17
+STORE stdout, _temp1  // ./tryCatchFinally.ek9:111:17
+RETAIN stdout  // ./tryCatchFinally.ek9:111:17
+SCOPE_REGISTER stdout, _scope_1  // ./tryCatchFinally.ek9:111:17
+SCOPE_ENTER _scope_2  // ./tryCatchFinally.ek9:113:7
+SCOPE_ENTER _scope_3  // ./tryCatchFinally.ek9:113:7
+CONTROL_FLOW_CHAIN  // ./tryCatchFinally.ek9:113:7
 [
 chain_type: "TRY_CATCH_FINALLY"
 try_block_details:
@@ -29,29 +28,29 @@ try_block_details:
 try_scope_id: _scope_4
 try_body_evaluation:
 [
-SCOPE_ENTER _scope_4  // ./tryCatchFinally.ek9:114:7
-_temp3 = LOAD stdout  // ./tryCatchFinally.ek9:115:9
-RETAIN _temp3  // ./tryCatchFinally.ek9:115:9
-SCOPE_REGISTER _temp3, _scope_4  // ./tryCatchFinally.ek9:115:9
-_temp4 = LOAD_LITERAL Try block executing, org.ek9.lang::String  // ./tryCatchFinally.ek9:115:24
-RETAIN _temp4  // ./tryCatchFinally.ek9:115:24
-SCOPE_REGISTER _temp4, _scope_4  // ./tryCatchFinally.ek9:115:24
-CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=true, complexity=1]  // ./tryCatchFinally.ek9:115:16
-REFERENCE value, org.ek9.lang::Integer  // ./tryCatchFinally.ek9:116:9
-_temp5 = LOAD_LITERAL 42, org.ek9.lang::Integer  // ./tryCatchFinally.ek9:116:18
-RETAIN _temp5  // ./tryCatchFinally.ek9:116:18
-SCOPE_REGISTER _temp5, _scope_4  // ./tryCatchFinally.ek9:116:18
-STORE value, _temp5  // ./tryCatchFinally.ek9:116:18
-RETAIN value  // ./tryCatchFinally.ek9:116:18
-SCOPE_REGISTER value, _scope_4  // ./tryCatchFinally.ek9:116:18
-_temp7 = LOAD stdout  // ./tryCatchFinally.ek9:117:9
-RETAIN _temp7  // ./tryCatchFinally.ek9:117:9
-SCOPE_REGISTER _temp7, _scope_4  // ./tryCatchFinally.ek9:117:9
-_temp8 = LOAD value  // ./tryCatchFinally.ek9:117:24
-RETAIN _temp8  // ./tryCatchFinally.ek9:117:24
-SCOPE_REGISTER _temp8, _scope_4  // ./tryCatchFinally.ek9:117:24
-CALL (org.ek9.lang::StringOutput)_temp7.println(_temp8) [pure=true, complexity=1, trait=true]  // ./tryCatchFinally.ek9:117:16
-SCOPE_EXIT _scope_4  // ./tryCatchFinally.ek9:114:7
+SCOPE_ENTER _scope_4  // ./tryCatchFinally.ek9:113:7
+_temp3 = LOAD stdout  // ./tryCatchFinally.ek9:114:9
+RETAIN _temp3  // ./tryCatchFinally.ek9:114:9
+SCOPE_REGISTER _temp3, _scope_4  // ./tryCatchFinally.ek9:114:9
+_temp4 = LOAD_LITERAL Try block executing, org.ek9.lang::String  // ./tryCatchFinally.ek9:114:24
+RETAIN _temp4  // ./tryCatchFinally.ek9:114:24
+SCOPE_REGISTER _temp4, _scope_4  // ./tryCatchFinally.ek9:114:24
+CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=true, complexity=1]  // ./tryCatchFinally.ek9:114:16
+REFERENCE value, org.ek9.lang::Integer  // ./tryCatchFinally.ek9:115:9
+_temp5 = LOAD_LITERAL 42, org.ek9.lang::Integer  // ./tryCatchFinally.ek9:115:18
+RETAIN _temp5  // ./tryCatchFinally.ek9:115:18
+SCOPE_REGISTER _temp5, _scope_4  // ./tryCatchFinally.ek9:115:18
+STORE value, _temp5  // ./tryCatchFinally.ek9:115:18
+RETAIN value  // ./tryCatchFinally.ek9:115:18
+SCOPE_REGISTER value, _scope_4  // ./tryCatchFinally.ek9:115:18
+_temp7 = LOAD stdout  // ./tryCatchFinally.ek9:116:9
+RETAIN _temp7  // ./tryCatchFinally.ek9:116:9
+SCOPE_REGISTER _temp7, _scope_4  // ./tryCatchFinally.ek9:116:9
+_temp8 = LOAD value  // ./tryCatchFinally.ek9:116:24
+RETAIN _temp8  // ./tryCatchFinally.ek9:116:24
+SCOPE_REGISTER _temp8, _scope_4  // ./tryCatchFinally.ek9:116:24
+CALL (org.ek9.lang::StringOutput)_temp7.println(_temp8) [pure=true, complexity=1, trait=true]  // ./tryCatchFinally.ek9:116:16
+SCOPE_EXIT _scope_4  // ./tryCatchFinally.ek9:113:7
 ]
 ]
 condition_chain:
@@ -64,17 +63,17 @@ condition_evaluation:
 ]
 body_evaluation:
 [
-SCOPE_ENTER _scope_5  // ./tryCatchFinally.ek9:118:7
-REFERENCE ex, org.ek9.lang::Exception  // ./tryCatchFinally.ek9:118:7
-SCOPE_REGISTER ex, _scope_5  // ./tryCatchFinally.ek9:118:7
-_temp10 = LOAD stdout  // ./tryCatchFinally.ek9:120:9
-RETAIN _temp10  // ./tryCatchFinally.ek9:120:9
-SCOPE_REGISTER _temp10, _scope_5  // ./tryCatchFinally.ek9:120:9
-_temp11 = LOAD_LITERAL Catch block executing, org.ek9.lang::String  // ./tryCatchFinally.ek9:120:24
-RETAIN _temp11  // ./tryCatchFinally.ek9:120:24
-SCOPE_REGISTER _temp11, _scope_5  // ./tryCatchFinally.ek9:120:24
-CALL (org.ek9.lang::Stdout)_temp10.println(_temp11) [pure=true, complexity=1]  // ./tryCatchFinally.ek9:120:16
-SCOPE_EXIT _scope_5  // ./tryCatchFinally.ek9:118:7
+SCOPE_ENTER _scope_5  // ./tryCatchFinally.ek9:117:7
+REFERENCE ex, org.ek9.lang::Exception  // ./tryCatchFinally.ek9:117:7
+SCOPE_REGISTER ex, _scope_5  // ./tryCatchFinally.ek9:117:7
+_temp10 = LOAD stdout  // ./tryCatchFinally.ek9:119:9
+RETAIN _temp10  // ./tryCatchFinally.ek9:119:9
+SCOPE_REGISTER _temp10, _scope_5  // ./tryCatchFinally.ek9:119:9
+_temp11 = LOAD_LITERAL Catch block executing, org.ek9.lang::String  // ./tryCatchFinally.ek9:119:24
+RETAIN _temp11  // ./tryCatchFinally.ek9:119:24
+SCOPE_REGISTER _temp11, _scope_5  // ./tryCatchFinally.ek9:119:24
+CALL (org.ek9.lang::Stdout)_temp10.println(_temp11) [pure=true, complexity=1]  // ./tryCatchFinally.ek9:119:16
+SCOPE_EXIT _scope_5  // ./tryCatchFinally.ek9:117:7
 ]
 exception_type: "org.ek9.lang::Exception"
 exception_variable: ex
@@ -82,32 +81,32 @@ exception_variable: ex
 ]
 finally_block_evaluation:
 [
-SCOPE_ENTER _scope_6  // ./tryCatchFinally.ek9:121:7
-_temp13 = LOAD stdout  // ./tryCatchFinally.ek9:122:9
-RETAIN _temp13  // ./tryCatchFinally.ek9:122:9
-SCOPE_REGISTER _temp13, _scope_6  // ./tryCatchFinally.ek9:122:9
-_temp14 = LOAD_LITERAL Finally block executing, org.ek9.lang::String  // ./tryCatchFinally.ek9:122:24
-RETAIN _temp14  // ./tryCatchFinally.ek9:122:24
-SCOPE_REGISTER _temp14, _scope_6  // ./tryCatchFinally.ek9:122:24
-CALL (org.ek9.lang::Stdout)_temp13.println(_temp14) [pure=true, complexity=1]  // ./tryCatchFinally.ek9:122:16
-SCOPE_EXIT _scope_6  // ./tryCatchFinally.ek9:121:7
+SCOPE_ENTER _scope_6  // ./tryCatchFinally.ek9:120:7
+_temp13 = LOAD stdout  // ./tryCatchFinally.ek9:121:9
+RETAIN _temp13  // ./tryCatchFinally.ek9:121:9
+SCOPE_REGISTER _temp13, _scope_6  // ./tryCatchFinally.ek9:121:9
+_temp14 = LOAD_LITERAL Finally block executing, org.ek9.lang::String  // ./tryCatchFinally.ek9:121:24
+RETAIN _temp14  // ./tryCatchFinally.ek9:121:24
+SCOPE_REGISTER _temp14, _scope_6  // ./tryCatchFinally.ek9:121:24
+CALL (org.ek9.lang::Stdout)_temp13.println(_temp14) [pure=true, complexity=1]  // ./tryCatchFinally.ek9:121:16
+SCOPE_EXIT _scope_6  // ./tryCatchFinally.ek9:120:7
 ]
 scope_id: _scope_3
 ]
-SCOPE_EXIT _scope_3  // ./tryCatchFinally.ek9:114:7
-SCOPE_EXIT _scope_2  // ./tryCatchFinally.ek9:114:7
-SCOPE_EXIT _scope_1  // ./tryCatchFinally.ek9:112:7
-RETURN  // ./tryCatchFinally.ek9:111:5
+SCOPE_EXIT _scope_3  // ./tryCatchFinally.ek9:113:7
+SCOPE_EXIT _scope_2  // ./tryCatchFinally.ek9:113:7
+SCOPE_EXIT _scope_1  // ./tryCatchFinally.ek9:111:7
+RETURN  // ./tryCatchFinally.ek9:110:5
 OperationDfn: exceptionHandling::tryCatchFinally.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
 OperationDfn: exceptionHandling::tryCatchFinally.i_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
-OperationDfn: exceptionHandling::tryCatchFinally.tryCatchFinally()->exceptionHandling::tryCatchFinally  // ./tryCatchFinally.ek9:111:5
+OperationDfn: exceptionHandling::tryCatchFinally.tryCatchFinally()->exceptionHandling::tryCatchFinally  // ./tryCatchFinally.ek9:110:5
 BasicBlock: _entry_1
-CALL (exceptionHandling::tryCatchFinally)this.i_init() [pure=false, complexity=0]  // ./tryCatchFinally.ek9:111:5
-RETURN this  // ./tryCatchFinally.ek9:111:5`
+CALL (exceptionHandling::tryCatchFinally)this.i_init() [pure=false, complexity=0]  // ./tryCatchFinally.ek9:110:5
+RETURN this  // ./tryCatchFinally.ek9:110:5`
     tryCatchFinally()
       stdout <- Stdout()
 

@@ -15,8 +15,7 @@ defines module loops.guard
       <- rtn as Integer?
       rtn: 5
 
-    @IR: IR_GENERATION: FUNCTION: "loops.guard::simpleWhileWithGuard": `
-    ConstructDfn: loops.guard::simpleWhileWithGuard()->org.ek9.lang::Integer
+    @IR: IR_GENERATION: FUNCTION: "loops.guard::simpleWhileWithGuard": `ConstructDfn: loops.guard::simpleWhileWithGuard()->org.ek9.lang::Integer
 OperationDfn: loops.guard::simpleWhileWithGuard._call()->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

@@ -13,8 +13,7 @@ defines module tryGuardVariants.assignIfUnset
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "tryGuardVariants.assignIfUnset::getConfig": `
-    ConstructDfn: tryGuardVariants.assignIfUnset::getConfig()->org.ek9.lang::String
+    @IR: IR_GENERATION: FUNCTION: "tryGuardVariants.assignIfUnset::getConfig": `ConstructDfn: tryGuardVariants.assignIfUnset::getConfig()->org.ek9.lang::String
 OperationDfn: tryGuardVariants.assignIfUnset::getConfig._call()->org.ek9.lang::String  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1
@@ -41,8 +40,7 @@ RETURN`
       <- rtn as String?
       rtn: "config-value"
 
-    @IR: IR_GENERATION: FUNCTION: "tryGuardVariants.assignIfUnset::tryAssignmentIfUnset": `
-    ConstructDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset()->org.ek9.lang::Void
+    @IR: IR_GENERATION: FUNCTION: "tryGuardVariants.assignIfUnset::tryAssignmentIfUnset": `ConstructDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset()->org.ek9.lang::Void
 OperationDfn: tryGuardVariants.assignIfUnset::tryAssignmentIfUnset._call()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

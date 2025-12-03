@@ -7,8 +7,7 @@ defines module loops
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "loops::floatForRangeLoop": `
-    ConstructDfn: loops::floatForRangeLoop()->org.ek9.lang::Void
+    @IR: IR_GENERATION: FUNCTION: "loops::floatForRangeLoop": `ConstructDfn: loops::floatForRangeLoop()->org.ek9.lang::Void
 OperationDfn: loops::floatForRangeLoop._call()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

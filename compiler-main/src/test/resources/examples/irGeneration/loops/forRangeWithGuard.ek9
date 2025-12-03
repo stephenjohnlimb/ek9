@@ -10,8 +10,7 @@ defines module loops.forrange.guard
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "loops.forrange.guard::getLimit": `
-    ConstructDfn: loops.forrange.guard::getLimit()->org.ek9.lang::Integer
+    @IR: IR_GENERATION: FUNCTION: "loops.forrange.guard::getLimit": `ConstructDfn: loops.forrange.guard::getLimit()->org.ek9.lang::Integer
 OperationDfn: loops.forrange.guard::getLimit._call()->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1
@@ -38,8 +37,7 @@ RETURN`
       <- rtn as Integer?
       rtn: 5
 
-    @IR: IR_GENERATION: FUNCTION: "loops.forrange.guard::forRangeWithGuard": `
-    ConstructDfn: loops.forrange.guard::forRangeWithGuard()->org.ek9.lang::Integer
+    @IR: IR_GENERATION: FUNCTION: "loops.forrange.guard::forRangeWithGuard": `ConstructDfn: loops.forrange.guard::forRangeWithGuard()->org.ek9.lang::Integer
 OperationDfn: loops.forrange.guard::forRangeWithGuard._call()->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1

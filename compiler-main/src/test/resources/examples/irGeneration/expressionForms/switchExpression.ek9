@@ -8,178 +8,177 @@ defines module expressionForms
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "expressionForms::switchExpression": `
-    ConstructDfn: expressionForms::switchExpression(org.ek9.lang::Integer)->org.ek9.lang::Void
-    OperationDfn: expressionForms::switchExpression._call(org.ek9.lang::Integer)->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1
-    REFERENCE value, org.ek9.lang::Integer
-    REFERENCE result, org.ek9.lang::String
-    SCOPE_ENTER _scope_2
-    REFERENCE rtn, org.ek9.lang::String
-    _temp2 = LOAD_LITERAL Unknown, org.ek9.lang::String
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_2
-    STORE rtn, _temp2
-    RETAIN rtn
-    _temp3 = LOAD value
-    RETAIN _temp3
-    SCOPE_REGISTER _temp3, _scope_2
-    rtn = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "SWITCH_EXPRESSION"
-    evaluation_variable: _temp3
-    evaluation_variable_type: "org.ek9.lang::Integer"
-    return_variable: rtn
-    return_variable_type: "org.ek9.lang::String"
-    return_variable_setup:
-    [
-    REFERENCE rtn, org.ek9.lang::String
-    _temp2 = LOAD_LITERAL Unknown, org.ek9.lang::String
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_2
-    STORE rtn, _temp2
-    RETAIN rtn
-    ]
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_4
-    case_type: "LITERAL"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_3
-    _temp4 = LOAD _temp3
-    RETAIN _temp4
-    SCOPE_REGISTER _temp4, _scope_3
-    _temp5 = LOAD_LITERAL 1, org.ek9.lang::Integer
-    RETAIN _temp5
-    SCOPE_REGISTER _temp5, _scope_3
-    _temp6 = CALL (org.ek9.lang::Integer)_temp4._eq(_temp5) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp6
-    SCOPE_REGISTER _temp6, _scope_3
-    _temp7 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_3
-    ]
-    condition_result: _temp6
-    primitive_condition: _temp7
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_4
-    _temp8 = LOAD_LITERAL One, org.ek9.lang::String
-    RETAIN _temp8
-    SCOPE_REGISTER _temp8, _scope_4
-    RELEASE rtn
-    STORE rtn, _temp8
-    RETAIN rtn
-    SCOPE_EXIT _scope_4
-    ]
-    body_result: rtn
-    ],
-    [
-    case_scope_id: _scope_6
-    case_type: "LITERAL"
-    condition_evaluation:
-    [
-    SCOPE_ENTER _scope_5
-    _temp9 = LOAD _temp3
-    RETAIN _temp9
-    SCOPE_REGISTER _temp9, _scope_5
-    _temp10 = LOAD_LITERAL 2, org.ek9.lang::Integer
-    RETAIN _temp10
-    SCOPE_REGISTER _temp10, _scope_5
-    _temp11 = CALL (org.ek9.lang::Integer)_temp9._eq(_temp10) [pure=true, complexity=2, effects=RETURN_MUTATION]
-    RETAIN _temp11
-    SCOPE_REGISTER _temp11, _scope_5
-    _temp12 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]
-    SCOPE_EXIT _scope_5
-    ]
-    condition_result: _temp11
-    primitive_condition: _temp12
-    body_evaluation:
-    [
-    SCOPE_ENTER _scope_6
-    _temp13 = LOAD_LITERAL Two, org.ek9.lang::String
-    RETAIN _temp13
-    SCOPE_REGISTER _temp13, _scope_6
-    RELEASE rtn
-    STORE rtn, _temp13
-    RETAIN rtn
-    SCOPE_EXIT _scope_6
-    ]
-    body_result: rtn
-    ]
-    ]
-    default_body_evaluation:
-    [
-    SCOPE_ENTER _scope_7
-    _temp14 = LOAD_LITERAL Other, org.ek9.lang::String
-    RETAIN _temp14
-    SCOPE_REGISTER _temp14, _scope_7
-    RELEASE rtn
-    STORE rtn, _temp14
-    RETAIN rtn
-    SCOPE_EXIT _scope_7
-    ]
-    default_result: rtn
-    scope_id: _scope_2
-    ]
-    SCOPE_EXIT _scope_2
-    STORE _temp1, rtn
-    RELEASE rtn
-    RETAIN _temp1
-    SCOPE_REGISTER _temp1, _scope_1
-    STORE result, _temp1
-    RETAIN result
-    SCOPE_REGISTER result, _scope_1
-    _temp15 = CONTROL_FLOW_CHAIN
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp16 = LOAD result
-    _temp17 = IS_NULL _temp16
-    ]
-    primitive_condition: _temp17
-    body_evaluation:
-    [
-    _temp18 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
-    RETAIN _temp18
-    SCOPE_REGISTER _temp18, _scope_1
-    ]
-    body_result: _temp18
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp19 = CALL (org.ek9.lang::String)_temp16._isSet() [pure=true, complexity=0]
-    RETAIN _temp19
-    SCOPE_REGISTER _temp19, _scope_1
-    ]
-    default_result: _temp19
-    scope_id: _scope_1
-    ]
-    RETAIN _temp15
-    SCOPE_REGISTER _temp15, _scope_1
-    _temp20 = CALL (org.ek9.lang::Boolean)_temp15._true() [pure=true, complexity=0]
-    ASSERT _temp20
-    SCOPE_EXIT _scope_1
-    RETURN
-    OperationDfn: expressionForms::switchExpression.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: expressionForms::switchExpression.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: expressionForms::switchExpression.switchExpression()->expressionForms::switchExpression
-    BasicBlock: _entry_1
-    CALL (expressionForms::switchExpression)this.i_init() [pure=false, complexity=0]
-    RETURN this`
+    @IR: IR_GENERATION: FUNCTION: "expressionForms::switchExpression": `ConstructDfn: expressionForms::switchExpression(org.ek9.lang::Integer)->org.ek9.lang::Void
+OperationDfn: expressionForms::switchExpression._call(org.ek9.lang::Integer)->org.ek9.lang::Void  
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1
+REFERENCE value, org.ek9.lang::Integer
+REFERENCE result, org.ek9.lang::String
+SCOPE_ENTER _scope_2
+REFERENCE rtn, org.ek9.lang::String
+_temp2 = LOAD_LITERAL Unknown, org.ek9.lang::String
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_2
+STORE rtn, _temp2
+RETAIN rtn
+_temp3 = LOAD value
+RETAIN _temp3
+SCOPE_REGISTER _temp3, _scope_2
+rtn = CONTROL_FLOW_CHAIN
+[
+chain_type: "SWITCH_EXPRESSION"
+evaluation_variable: _temp3
+evaluation_variable_type: "org.ek9.lang::Integer"
+return_variable: rtn
+return_variable_type: "org.ek9.lang::String"
+return_variable_setup:
+[
+REFERENCE rtn, org.ek9.lang::String
+_temp2 = LOAD_LITERAL Unknown, org.ek9.lang::String
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_2
+STORE rtn, _temp2
+RETAIN rtn
+]
+condition_chain:
+[
+[
+case_scope_id: _scope_4
+case_type: "LITERAL"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_3
+_temp4 = LOAD _temp3
+RETAIN _temp4
+SCOPE_REGISTER _temp4, _scope_3
+_temp5 = LOAD_LITERAL 1, org.ek9.lang::Integer
+RETAIN _temp5
+SCOPE_REGISTER _temp5, _scope_3
+_temp6 = CALL (org.ek9.lang::Integer)_temp4._eq(_temp5) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp6
+SCOPE_REGISTER _temp6, _scope_3
+_temp7 = CALL (org.ek9.lang::Boolean)_temp6._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_3
+]
+condition_result: _temp6
+primitive_condition: _temp7
+body_evaluation:
+[
+SCOPE_ENTER _scope_4
+_temp8 = LOAD_LITERAL One, org.ek9.lang::String
+RETAIN _temp8
+SCOPE_REGISTER _temp8, _scope_4
+RELEASE rtn
+STORE rtn, _temp8
+RETAIN rtn
+SCOPE_EXIT _scope_4
+]
+body_result: rtn
+],
+[
+case_scope_id: _scope_6
+case_type: "LITERAL"
+condition_evaluation:
+[
+SCOPE_ENTER _scope_5
+_temp9 = LOAD _temp3
+RETAIN _temp9
+SCOPE_REGISTER _temp9, _scope_5
+_temp10 = LOAD_LITERAL 2, org.ek9.lang::Integer
+RETAIN _temp10
+SCOPE_REGISTER _temp10, _scope_5
+_temp11 = CALL (org.ek9.lang::Integer)_temp9._eq(_temp10) [pure=true, complexity=2, effects=RETURN_MUTATION]
+RETAIN _temp11
+SCOPE_REGISTER _temp11, _scope_5
+_temp12 = CALL (org.ek9.lang::Boolean)_temp11._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_5
+]
+condition_result: _temp11
+primitive_condition: _temp12
+body_evaluation:
+[
+SCOPE_ENTER _scope_6
+_temp13 = LOAD_LITERAL Two, org.ek9.lang::String
+RETAIN _temp13
+SCOPE_REGISTER _temp13, _scope_6
+RELEASE rtn
+STORE rtn, _temp13
+RETAIN rtn
+SCOPE_EXIT _scope_6
+]
+body_result: rtn
+]
+]
+default_body_evaluation:
+[
+SCOPE_ENTER _scope_7
+_temp14 = LOAD_LITERAL Other, org.ek9.lang::String
+RETAIN _temp14
+SCOPE_REGISTER _temp14, _scope_7
+RELEASE rtn
+STORE rtn, _temp14
+RETAIN rtn
+SCOPE_EXIT _scope_7
+]
+default_result: rtn
+scope_id: _scope_2
+]
+SCOPE_EXIT _scope_2
+STORE _temp1, rtn
+RELEASE rtn
+RETAIN _temp1
+SCOPE_REGISTER _temp1, _scope_1
+STORE result, _temp1
+RETAIN result
+SCOPE_REGISTER result, _scope_1
+_temp15 = CONTROL_FLOW_CHAIN
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp16 = LOAD result
+_temp17 = IS_NULL _temp16
+]
+primitive_condition: _temp17
+body_evaluation:
+[
+_temp18 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]
+RETAIN _temp18
+SCOPE_REGISTER _temp18, _scope_1
+]
+body_result: _temp18
+]
+]
+default_body_evaluation:
+[
+_temp19 = CALL (org.ek9.lang::String)_temp16._isSet() [pure=true, complexity=0]
+RETAIN _temp19
+SCOPE_REGISTER _temp19, _scope_1
+]
+default_result: _temp19
+scope_id: _scope_1
+]
+RETAIN _temp15
+SCOPE_REGISTER _temp15, _scope_1
+_temp20 = CALL (org.ek9.lang::Boolean)_temp15._true() [pure=true, complexity=0]
+ASSERT _temp20
+SCOPE_EXIT _scope_1
+RETURN
+OperationDfn: expressionForms::switchExpression.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: expressionForms::switchExpression.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: expressionForms::switchExpression.switchExpression()->expressionForms::switchExpression  
+BasicBlock: _entry_1
+CALL (expressionForms::switchExpression)this.i_init() [pure=false, complexity=0]
+RETURN this`
     switchExpression()
       -> value as Integer
 

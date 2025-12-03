@@ -11,25 +11,24 @@ defines module subtraction.test
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "subtraction.test::testSubtraction": `
-ConstructDfn: subtraction.test::testSubtraction()->org.ek9.lang::Void
-OperationDfn: subtraction.test::testSubtraction._call()->org.ek9.lang::Void  // ./subtraction_operator.ek9:80:5
+    @IR: IR_GENERATION: FUNCTION: "subtraction.test::testSubtraction": `ConstructDfn: subtraction.test::testSubtraction()->org.ek9.lang::Void
+OperationDfn: subtraction.test::testSubtraction._call()->org.ek9.lang::Void  // ./subtraction_operator.ek9:79:5
 BasicBlock: _entry_1
-SCOPE_ENTER _scope_1  // ./subtraction_operator.ek9:81:7
-REFERENCE z, org.ek9.lang::Integer  // ./subtraction_operator.ek9:81:7
-_temp2 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./subtraction_operator.ek9:81:12
-RETAIN _temp2  // ./subtraction_operator.ek9:81:12
-SCOPE_REGISTER _temp2, _scope_1  // ./subtraction_operator.ek9:81:12
-_temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./subtraction_operator.ek9:81:16
-RETAIN _temp3  // ./subtraction_operator.ek9:81:16
-SCOPE_REGISTER _temp3, _scope_1  // ./subtraction_operator.ek9:81:16
-_temp1 = CALL (org.ek9.lang::Integer)_temp2._sub(_temp3) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./subtraction_operator.ek9:81:14
-RETAIN _temp1  // ./subtraction_operator.ek9:81:12
-SCOPE_REGISTER _temp1, _scope_1  // ./subtraction_operator.ek9:81:12
-STORE z, _temp1  // ./subtraction_operator.ek9:81:12
-RETAIN z  // ./subtraction_operator.ek9:81:12
-SCOPE_REGISTER z, _scope_1  // ./subtraction_operator.ek9:81:12
-_temp4 = CONTROL_FLOW_CHAIN  // ./subtraction_operator.ek9:82:15
+SCOPE_ENTER _scope_1  // ./subtraction_operator.ek9:80:7
+REFERENCE z, org.ek9.lang::Integer  // ./subtraction_operator.ek9:80:7
+_temp2 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./subtraction_operator.ek9:80:12
+RETAIN _temp2  // ./subtraction_operator.ek9:80:12
+SCOPE_REGISTER _temp2, _scope_1  // ./subtraction_operator.ek9:80:12
+_temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./subtraction_operator.ek9:80:16
+RETAIN _temp3  // ./subtraction_operator.ek9:80:16
+SCOPE_REGISTER _temp3, _scope_1  // ./subtraction_operator.ek9:80:16
+_temp1 = CALL (org.ek9.lang::Integer)_temp2._sub(_temp3) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./subtraction_operator.ek9:80:14
+RETAIN _temp1  // ./subtraction_operator.ek9:80:12
+SCOPE_REGISTER _temp1, _scope_1  // ./subtraction_operator.ek9:80:12
+STORE z, _temp1  // ./subtraction_operator.ek9:80:12
+RETAIN z  // ./subtraction_operator.ek9:80:12
+SCOPE_REGISTER z, _scope_1  // ./subtraction_operator.ek9:80:12
+_temp4 = CONTROL_FLOW_CHAIN  // ./subtraction_operator.ek9:81:15
 [
 chain_type: "QUESTION_OPERATOR"
 condition_chain:
@@ -39,44 +38,44 @@ case_scope_id: _scope_1
 case_type: "NULL_CHECK"
 condition_evaluation:
 [
-_temp5 = LOAD z  // ./subtraction_operator.ek9:82:15
-_temp6 = IS_NULL _temp5  // ./subtraction_operator.ek9:82:15
+_temp5 = LOAD z  // ./subtraction_operator.ek9:81:15
+_temp6 = IS_NULL _temp5  // ./subtraction_operator.ek9:81:15
 ]
 primitive_condition: _temp6
 body_evaluation:
 [
-_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./subtraction_operator.ek9:82:15
-RETAIN _temp7  // ./subtraction_operator.ek9:82:15
-SCOPE_REGISTER _temp7, _scope_1  // ./subtraction_operator.ek9:82:15
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./subtraction_operator.ek9:81:15
+RETAIN _temp7  // ./subtraction_operator.ek9:81:15
+SCOPE_REGISTER _temp7, _scope_1  // ./subtraction_operator.ek9:81:15
 ]
 body_result: _temp7
 ]
 ]
 default_body_evaluation:
 [
-_temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./subtraction_operator.ek9:82:15
-RETAIN _temp8  // ./subtraction_operator.ek9:82:15
-SCOPE_REGISTER _temp8, _scope_1  // ./subtraction_operator.ek9:82:15
+_temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./subtraction_operator.ek9:81:15
+RETAIN _temp8  // ./subtraction_operator.ek9:81:15
+SCOPE_REGISTER _temp8, _scope_1  // ./subtraction_operator.ek9:81:15
 ]
 default_result: _temp8
 scope_id: _scope_1
 ]
-RETAIN _temp4  // ./subtraction_operator.ek9:82:7
-SCOPE_REGISTER _temp4, _scope_1  // ./subtraction_operator.ek9:82:7
-_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./subtraction_operator.ek9:82:7
-ASSERT _temp9  // ./subtraction_operator.ek9:82:7
-SCOPE_EXIT _scope_1  // ./subtraction_operator.ek9:81:7
-RETURN  // ./subtraction_operator.ek9:80:5
-OperationDfn: subtraction.test::testSubtraction.c_init()->org.ek9.lang::Void
+RETAIN _temp4  // ./subtraction_operator.ek9:81:7
+SCOPE_REGISTER _temp4, _scope_1  // ./subtraction_operator.ek9:81:7
+_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./subtraction_operator.ek9:81:7
+ASSERT _temp9  // ./subtraction_operator.ek9:81:7
+SCOPE_EXIT _scope_1  // ./subtraction_operator.ek9:80:7
+RETURN  // ./subtraction_operator.ek9:79:5
+OperationDfn: subtraction.test::testSubtraction.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
-OperationDfn: subtraction.test::testSubtraction.i_init()->org.ek9.lang::Void
+OperationDfn: subtraction.test::testSubtraction.i_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
-OperationDfn: subtraction.test::testSubtraction.testSubtraction()->subtraction.test::testSubtraction  // ./subtraction_operator.ek9:80:5
+OperationDfn: subtraction.test::testSubtraction.testSubtraction()->subtraction.test::testSubtraction  // ./subtraction_operator.ek9:79:5
 BasicBlock: _entry_1
-CALL (subtraction.test::testSubtraction)this.i_init() [pure=false, complexity=0]  // ./subtraction_operator.ek9:80:5
-RETURN this  // ./subtraction_operator.ek9:80:5`
+CALL (subtraction.test::testSubtraction)this.i_init() [pure=false, complexity=0]  // ./subtraction_operator.ek9:79:5
+RETURN this  // ./subtraction_operator.ek9:79:5`
     testSubtraction()
       z <- 5 - 2
       assert z?

@@ -11,29 +11,28 @@ defines module increment.test
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "increment.test::testIncrement": `
-    ConstructDfn: increment.test::testIncrement()->org.ek9.lang::Void
-OperationDfn: increment.test::testIncrement._call()->org.ek9.lang::Void  // ./increment_operator.ek9:120:5
+    @IR: IR_GENERATION: FUNCTION: "increment.test::testIncrement": `ConstructDfn: increment.test::testIncrement()->org.ek9.lang::Void
+OperationDfn: increment.test::testIncrement._call()->org.ek9.lang::Void  // ./increment_operator.ek9:119:5
 BasicBlock: _entry_1
-SCOPE_ENTER _scope_1  // ./increment_operator.ek9:121:7
-REFERENCE x, org.ek9.lang::Integer  // ./increment_operator.ek9:121:7
-_temp1 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./increment_operator.ek9:121:21
-RETAIN _temp1  // ./increment_operator.ek9:121:21
-SCOPE_REGISTER _temp1, _scope_1  // ./increment_operator.ek9:121:21
-STORE x, _temp1  // ./increment_operator.ek9:121:21
-RETAIN x  // ./increment_operator.ek9:121:21
-SCOPE_REGISTER x, _scope_1  // ./increment_operator.ek9:121:21
-REFERENCE result, org.ek9.lang::Integer  // ./increment_operator.ek9:122:7
-_temp3 = LOAD x  // ./increment_operator.ek9:122:17
-RETAIN _temp3  // ./increment_operator.ek9:122:17
-SCOPE_REGISTER _temp3, _scope_1  // ./increment_operator.ek9:122:17
-_temp2 = CALL (org.ek9.lang::Integer)_temp3._inc() [pure=false, complexity=0, effects=RETURN_MUTATION,THIS_MUTATION]  // ./increment_operator.ek9:122:18
-RETAIN _temp2  // ./increment_operator.ek9:122:17
-SCOPE_REGISTER _temp2, _scope_1  // ./increment_operator.ek9:122:17
-STORE result, _temp2  // ./increment_operator.ek9:122:17
-RETAIN result  // ./increment_operator.ek9:122:17
-SCOPE_REGISTER result, _scope_1  // ./increment_operator.ek9:122:17
-_temp4 = CONTROL_FLOW_CHAIN  // ./increment_operator.ek9:123:20
+SCOPE_ENTER _scope_1  // ./increment_operator.ek9:120:7
+REFERENCE x, org.ek9.lang::Integer  // ./increment_operator.ek9:120:7
+_temp1 = LOAD_LITERAL 5, org.ek9.lang::Integer  // ./increment_operator.ek9:120:21
+RETAIN _temp1  // ./increment_operator.ek9:120:21
+SCOPE_REGISTER _temp1, _scope_1  // ./increment_operator.ek9:120:21
+STORE x, _temp1  // ./increment_operator.ek9:120:21
+RETAIN x  // ./increment_operator.ek9:120:21
+SCOPE_REGISTER x, _scope_1  // ./increment_operator.ek9:120:21
+REFERENCE result, org.ek9.lang::Integer  // ./increment_operator.ek9:121:7
+_temp3 = LOAD x  // ./increment_operator.ek9:121:17
+RETAIN _temp3  // ./increment_operator.ek9:121:17
+SCOPE_REGISTER _temp3, _scope_1  // ./increment_operator.ek9:121:17
+_temp2 = CALL (org.ek9.lang::Integer)_temp3._inc() [pure=false, complexity=0, effects=RETURN_MUTATION,THIS_MUTATION]  // ./increment_operator.ek9:121:18
+RETAIN _temp2  // ./increment_operator.ek9:121:17
+SCOPE_REGISTER _temp2, _scope_1  // ./increment_operator.ek9:121:17
+STORE result, _temp2  // ./increment_operator.ek9:121:17
+RETAIN result  // ./increment_operator.ek9:121:17
+SCOPE_REGISTER result, _scope_1  // ./increment_operator.ek9:121:17
+_temp4 = CONTROL_FLOW_CHAIN  // ./increment_operator.ek9:122:20
 [
 chain_type: "QUESTION_OPERATOR"
 condition_chain:
@@ -43,33 +42,33 @@ case_scope_id: _scope_1
 case_type: "NULL_CHECK"
 condition_evaluation:
 [
-_temp5 = LOAD result  // ./increment_operator.ek9:123:20
-_temp6 = IS_NULL _temp5  // ./increment_operator.ek9:123:20
+_temp5 = LOAD result  // ./increment_operator.ek9:122:20
+_temp6 = IS_NULL _temp5  // ./increment_operator.ek9:122:20
 ]
 primitive_condition: _temp6
 body_evaluation:
 [
-_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./increment_operator.ek9:123:20
-RETAIN _temp7  // ./increment_operator.ek9:123:20
-SCOPE_REGISTER _temp7, _scope_1  // ./increment_operator.ek9:123:20
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./increment_operator.ek9:122:20
+RETAIN _temp7  // ./increment_operator.ek9:122:20
+SCOPE_REGISTER _temp7, _scope_1  // ./increment_operator.ek9:122:20
 ]
 body_result: _temp7
 ]
 ]
 default_body_evaluation:
 [
-_temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./increment_operator.ek9:123:20
-RETAIN _temp8  // ./increment_operator.ek9:123:20
-SCOPE_REGISTER _temp8, _scope_1  // ./increment_operator.ek9:123:20
+_temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./increment_operator.ek9:122:20
+RETAIN _temp8  // ./increment_operator.ek9:122:20
+SCOPE_REGISTER _temp8, _scope_1  // ./increment_operator.ek9:122:20
 ]
 default_result: _temp8
 scope_id: _scope_1
 ]
-RETAIN _temp4  // ./increment_operator.ek9:123:7
-SCOPE_REGISTER _temp4, _scope_1  // ./increment_operator.ek9:123:7
-_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./increment_operator.ek9:123:7
-ASSERT _temp9  // ./increment_operator.ek9:123:7
-_temp10 = CONTROL_FLOW_CHAIN  // ./increment_operator.ek9:124:15
+RETAIN _temp4  // ./increment_operator.ek9:122:7
+SCOPE_REGISTER _temp4, _scope_1  // ./increment_operator.ek9:122:7
+_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./increment_operator.ek9:122:7
+ASSERT _temp9  // ./increment_operator.ek9:122:7
+_temp10 = CONTROL_FLOW_CHAIN  // ./increment_operator.ek9:123:15
 [
 chain_type: "QUESTION_OPERATOR"
 condition_chain:
@@ -79,44 +78,44 @@ case_scope_id: _scope_1
 case_type: "NULL_CHECK"
 condition_evaluation:
 [
-_temp11 = LOAD x  // ./increment_operator.ek9:124:15
-_temp12 = IS_NULL _temp11  // ./increment_operator.ek9:124:15
+_temp11 = LOAD x  // ./increment_operator.ek9:123:15
+_temp12 = IS_NULL _temp11  // ./increment_operator.ek9:123:15
 ]
 primitive_condition: _temp12
 body_evaluation:
 [
-_temp13 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./increment_operator.ek9:124:15
-RETAIN _temp13  // ./increment_operator.ek9:124:15
-SCOPE_REGISTER _temp13, _scope_1  // ./increment_operator.ek9:124:15
+_temp13 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./increment_operator.ek9:123:15
+RETAIN _temp13  // ./increment_operator.ek9:123:15
+SCOPE_REGISTER _temp13, _scope_1  // ./increment_operator.ek9:123:15
 ]
 body_result: _temp13
 ]
 ]
 default_body_evaluation:
 [
-_temp14 = CALL (org.ek9.lang::Integer)_temp11._isSet() [pure=true, complexity=0]  // ./increment_operator.ek9:124:15
-RETAIN _temp14  // ./increment_operator.ek9:124:15
-SCOPE_REGISTER _temp14, _scope_1  // ./increment_operator.ek9:124:15
+_temp14 = CALL (org.ek9.lang::Integer)_temp11._isSet() [pure=true, complexity=0]  // ./increment_operator.ek9:123:15
+RETAIN _temp14  // ./increment_operator.ek9:123:15
+SCOPE_REGISTER _temp14, _scope_1  // ./increment_operator.ek9:123:15
 ]
 default_result: _temp14
 scope_id: _scope_1
 ]
-RETAIN _temp10  // ./increment_operator.ek9:124:7
-SCOPE_REGISTER _temp10, _scope_1  // ./increment_operator.ek9:124:7
-_temp15 = CALL (org.ek9.lang::Boolean)_temp10._true() [pure=true, complexity=0]  // ./increment_operator.ek9:124:7
-ASSERT _temp15  // ./increment_operator.ek9:124:7
-SCOPE_EXIT _scope_1  // ./increment_operator.ek9:121:7
-RETURN  // ./increment_operator.ek9:120:5
+RETAIN _temp10  // ./increment_operator.ek9:123:7
+SCOPE_REGISTER _temp10, _scope_1  // ./increment_operator.ek9:123:7
+_temp15 = CALL (org.ek9.lang::Boolean)_temp10._true() [pure=true, complexity=0]  // ./increment_operator.ek9:123:7
+ASSERT _temp15  // ./increment_operator.ek9:123:7
+SCOPE_EXIT _scope_1  // ./increment_operator.ek9:120:7
+RETURN  // ./increment_operator.ek9:119:5
 OperationDfn: increment.test::testIncrement.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
 OperationDfn: increment.test::testIncrement.i_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
-OperationDfn: increment.test::testIncrement.testIncrement()->increment.test::testIncrement  // ./increment_operator.ek9:120:5
+OperationDfn: increment.test::testIncrement.testIncrement()->increment.test::testIncrement  // ./increment_operator.ek9:119:5
 BasicBlock: _entry_1
-CALL (increment.test::testIncrement)this.i_init() [pure=false, complexity=0]  // ./increment_operator.ek9:120:5
-RETURN this  // ./increment_operator.ek9:120:5`
+CALL (increment.test::testIncrement)this.i_init() [pure=false, complexity=0]  // ./increment_operator.ek9:119:5
+RETURN this  // ./increment_operator.ek9:119:5`
     testIncrement()
       x as Integer: 5
       result <- x++

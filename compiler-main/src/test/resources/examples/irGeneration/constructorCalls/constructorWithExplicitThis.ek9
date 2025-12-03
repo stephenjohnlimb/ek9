@@ -7,38 +7,67 @@ defines module constructorCalls
 
   defines class
 
-    @IR: IR_GENERATION: TYPE: "constructorCalls::Example": `
-    ConstructDfn: constructorCalls::Example
-    Field: field, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:43:7
-    OperationDfn: constructorCalls::Example.Example()->constructorCalls::Example  // ./constructorWithExplicitThis.ek9:49:7
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./constructorWithExplicitThis.ek9:50:9
-    _temp2 = LOAD_LITERAL Default, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:50:14
-    RETAIN _temp2
-    SCOPE_REGISTER _temp2, _scope_1
-    _temp1 = CALL (constructorCalls::Example)this.<init>(_temp2) [pure=false, complexity=1, effects=RETURN_MUTATION]  // ./constructorWithExplicitThis.ek9:50:9
-    SCOPE_EXIT _scope_1  // ./constructorWithExplicitThis.ek9:50:9
-    RETURN  // ./constructorWithExplicitThis.ek9:49:7
-    OperationDfn: constructorCalls::Example.Example(org.ek9.lang::String)->constructorCalls::Example  // ./constructorWithExplicitThis.ek9:45:7
-    BasicBlock: _entry_1
-    CALL (constructorCalls::Example)this.i_init() [pure=false, complexity=0]  // ./constructorWithExplicitThis.ek9:45:7
-    SCOPE_ENTER _scope_1  // ./constructorWithExplicitThis.ek9:47:9
-    REFERENCE input, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:46:12
-    _temp1 = LOAD input  // ./constructorWithExplicitThis.ek9:46:12
-    RETAIN _temp1  // ./constructorWithExplicitThis.ek9:46:12
-    SCOPE_REGISTER _temp1, _scope_1  // ./constructorWithExplicitThis.ek9:46:12
-    RELEASE this.field  // ./constructorWithExplicitThis.ek9:46:12
-    STORE this.field, _temp1  // ./constructorWithExplicitThis.ek9:46:12
-    RETAIN this.field  // ./constructorWithExplicitThis.ek9:46:12
-    SCOPE_EXIT _scope_1  // ./constructorWithExplicitThis.ek9:47:9
-    RETURN  // ./constructorWithExplicitThis.ek9:45:7
-    OperationDfn: constructorCalls::Example.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: constructorCalls::Example.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    REFERENCE this.field, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:43:7
-    RETURN`
+    @IR: IR_GENERATION: TYPE: "constructorCalls::Example": `ConstructDfn: constructorCalls::Example
+Field: field, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:72:7
+OperationDfn: constructorCalls::Example.Example()->constructorCalls::Example  // ./constructorWithExplicitThis.ek9:78:7
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./constructorWithExplicitThis.ek9:79:9
+_temp2 = LOAD_LITERAL Default, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:79:14
+RETAIN _temp2
+SCOPE_REGISTER _temp2, _scope_1
+_temp1 = CALL (constructorCalls::Example)this.<init>(_temp2) [pure=false, complexity=1, effects=RETURN_MUTATION]  // ./constructorWithExplicitThis.ek9:79:9
+SCOPE_EXIT _scope_1  // ./constructorWithExplicitThis.ek9:79:9
+RETURN  // ./constructorWithExplicitThis.ek9:78:7
+OperationDfn: constructorCalls::Example.Example(org.ek9.lang::String)->constructorCalls::Example  // ./constructorWithExplicitThis.ek9:74:7
+BasicBlock: _entry_1
+CALL (constructorCalls::Example)this.i_init() [pure=false, complexity=0]  // ./constructorWithExplicitThis.ek9:74:7
+SCOPE_ENTER _scope_1  // ./constructorWithExplicitThis.ek9:76:9
+REFERENCE input, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:75:12
+_temp1 = LOAD input  // ./constructorWithExplicitThis.ek9:75:12
+RETAIN _temp1  // ./constructorWithExplicitThis.ek9:75:12
+SCOPE_REGISTER _temp1, _scope_1  // ./constructorWithExplicitThis.ek9:75:12
+RELEASE this.field  // ./constructorWithExplicitThis.ek9:75:12
+STORE this.field, _temp1  // ./constructorWithExplicitThis.ek9:75:12
+RETAIN this.field  // ./constructorWithExplicitThis.ek9:75:12
+SCOPE_EXIT _scope_1  // ./constructorWithExplicitThis.ek9:76:9
+RETURN  // ./constructorWithExplicitThis.ek9:74:7
+OperationDfn: constructorCalls::Example._fieldSetStatus()->org.ek9.lang::Integer  // ./constructorWithExplicitThis.ek9:71:5
+BasicBlock: _entry_1
+SCOPE_ENTER __fieldSetStatus_1  // ./constructorWithExplicitThis.ek9:71:5
+REFERENCE rtn, org.ek9.lang::Integer  // ./constructorWithExplicitThis.ek9:71:5
+_temp1 = LOAD_LITERAL 0, org.ek9.lang::Integer  // ./constructorWithExplicitThis.ek9:71:5
+RETAIN _temp1  // ./constructorWithExplicitThis.ek9:71:5
+SCOPE_REGISTER _temp1, __fieldSetStatus_1  // ./constructorWithExplicitThis.ek9:71:5
+STORE rtn, _temp1  // ./constructorWithExplicitThis.ek9:71:5
+RETAIN rtn  // ./constructorWithExplicitThis.ek9:71:5
+_temp2 = LOAD this.field  // ./constructorWithExplicitThis.ek9:71:5
+RETAIN _temp2  // ./constructorWithExplicitThis.ek9:71:5
+SCOPE_REGISTER _temp2, __fieldSetStatus_1  // ./constructorWithExplicitThis.ek9:71:5
+_temp3 = CALL (org.ek9.lang::String)_temp2._isSet() [pure=false, complexity=0]  // ./constructorWithExplicitThis.ek9:71:5
+RETAIN _temp3  // ./constructorWithExplicitThis.ek9:71:5
+SCOPE_REGISTER _temp3, __fieldSetStatus_1  // ./constructorWithExplicitThis.ek9:71:5
+_temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=false, complexity=0]  // ./constructorWithExplicitThis.ek9:71:5
+RETAIN _temp4  // ./constructorWithExplicitThis.ek9:71:5
+SCOPE_REGISTER _temp4, __fieldSetStatus_1  // ./constructorWithExplicitThis.ek9:71:5
+BRANCH_FALSE _temp4, _field_skip_1  // ./constructorWithExplicitThis.ek9:71:5
+_temp5 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./constructorWithExplicitThis.ek9:71:5
+RETAIN _temp5  // ./constructorWithExplicitThis.ek9:71:5
+SCOPE_REGISTER _temp5, __fieldSetStatus_1  // ./constructorWithExplicitThis.ek9:71:5
+_temp6 = CALL (org.ek9.lang::Integer)rtn._or(_temp5) [pure=false, complexity=0]  // ./constructorWithExplicitThis.ek9:71:5
+RETAIN _temp6  // ./constructorWithExplicitThis.ek9:71:5
+SCOPE_REGISTER _temp6, __fieldSetStatus_1  // ./constructorWithExplicitThis.ek9:71:5
+STORE rtn, _temp6  // ./constructorWithExplicitThis.ek9:71:5
+RETAIN rtn  // ./constructorWithExplicitThis.ek9:71:5
+LABEL _field_skip_1
+SCOPE_EXIT __fieldSetStatus_1  // ./constructorWithExplicitThis.ek9:71:5
+RETURN rtn  // ./constructorWithExplicitThis.ek9:71:5
+OperationDfn: constructorCalls::Example.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: constructorCalls::Example.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+REFERENCE this.field, org.ek9.lang::String  // ./constructorWithExplicitThis.ek9:72:7
+RETURN`
     Example as open
       field as String?
 

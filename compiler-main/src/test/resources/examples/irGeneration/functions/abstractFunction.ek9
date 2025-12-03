@@ -17,13 +17,12 @@ defines module ir.test.functions.abstract
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "ir.test.functions.abstract::simpleAbstract": `
-    ConstructDfn: ir.test.functions.abstract::simpleAbstract()->org.ek9.lang::String
-OperationDfn: ir.test.functions.abstract::simpleAbstract._call()->org.ek9.lang::String  // ./abstractFunction.ek9:33:5
-OperationDfn: ir.test.functions.abstract::simpleAbstract.simpleAbstract()->ir.test.functions.abstract::simpleAbstract  // ./abstractFunction.ek9:33:5
+    @IR: IR_GENERATION: FUNCTION: "ir.test.functions.abstract::simpleAbstract": `ConstructDfn: ir.test.functions.abstract::simpleAbstract()->org.ek9.lang::String
+OperationDfn: ir.test.functions.abstract::simpleAbstract._call()->org.ek9.lang::String  // ./abstractFunction.ek9:32:5
+OperationDfn: ir.test.functions.abstract::simpleAbstract.simpleAbstract()->ir.test.functions.abstract::simpleAbstract  // ./abstractFunction.ek9:32:5
 BasicBlock: _entry_1
-CALL (ir.test.functions.abstract::simpleAbstract)this.i_init() [pure=false, complexity=0]  // ./abstractFunction.ek9:33:5
-RETURN this  // ./abstractFunction.ek9:33:5
+CALL (ir.test.functions.abstract::simpleAbstract)this.i_init() [pure=false, complexity=0]  // ./abstractFunction.ek9:32:5
+RETURN this  // ./abstractFunction.ek9:32:5
 OperationDfn: ir.test.functions.abstract::simpleAbstract.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN

@@ -9,40 +9,39 @@ defines module ir.test.functions.multiparams
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "ir.test.functions.multiparams::multiParamFunction": `
-    ConstructDfn: ir.test.functions.multiparams::multiParamFunction(org.ek9.lang::String,org.ek9.lang::Integer,org.ek9.lang::Boolean)->org.ek9.lang::Void
-OperationDfn: ir.test.functions.multiparams::multiParamFunction._call(org.ek9.lang::String,org.ek9.lang::Integer,org.ek9.lang::Boolean)->org.ek9.lang::Void  // ./functionWithMultipleParams.ek9:46:5
+    @IR: IR_GENERATION: FUNCTION: "ir.test.functions.multiparams::multiParamFunction": `ConstructDfn: ir.test.functions.multiparams::multiParamFunction(org.ek9.lang::String,org.ek9.lang::Integer,org.ek9.lang::Boolean)->org.ek9.lang::Void
+OperationDfn: ir.test.functions.multiparams::multiParamFunction._call(org.ek9.lang::String,org.ek9.lang::Integer,org.ek9.lang::Boolean)->org.ek9.lang::Void  // ./functionWithMultipleParams.ek9:45:5
 BasicBlock: _entry_1
-SCOPE_ENTER _scope_1  // ./functionWithMultipleParams.ek9:51:7
-REFERENCE name, org.ek9.lang::String  // ./functionWithMultipleParams.ek9:48:9
-REFERENCE age, org.ek9.lang::Integer  // ./functionWithMultipleParams.ek9:49:9
-REFERENCE active, org.ek9.lang::Boolean  // ./functionWithMultipleParams.ek9:50:9
-REFERENCE stdout, org.ek9.lang::Stdout  // ./functionWithMultipleParams.ek9:51:7
-_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./functionWithMultipleParams.ek9:51:17
-RETAIN _temp1  // ./functionWithMultipleParams.ek9:51:17
-SCOPE_REGISTER _temp1, _scope_1  // ./functionWithMultipleParams.ek9:51:17
-STORE stdout, _temp1  // ./functionWithMultipleParams.ek9:51:17
-RETAIN stdout  // ./functionWithMultipleParams.ek9:51:17
-SCOPE_REGISTER stdout, _scope_1  // ./functionWithMultipleParams.ek9:51:17
-_temp3 = LOAD stdout  // ./functionWithMultipleParams.ek9:52:7
-RETAIN _temp3  // ./functionWithMultipleParams.ek9:52:7
-SCOPE_REGISTER _temp3, _scope_1  // ./functionWithMultipleParams.ek9:52:7
-_temp4 = LOAD name  // ./functionWithMultipleParams.ek9:52:22
-RETAIN _temp4  // ./functionWithMultipleParams.ek9:52:22
-SCOPE_REGISTER _temp4, _scope_1  // ./functionWithMultipleParams.ek9:52:22
-CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=true, complexity=1]  // ./functionWithMultipleParams.ek9:52:14
-SCOPE_EXIT _scope_1  // ./functionWithMultipleParams.ek9:51:7
-RETURN  // ./functionWithMultipleParams.ek9:46:5
+SCOPE_ENTER _scope_1  // ./functionWithMultipleParams.ek9:50:7
+REFERENCE name, org.ek9.lang::String  // ./functionWithMultipleParams.ek9:47:9
+REFERENCE age, org.ek9.lang::Integer  // ./functionWithMultipleParams.ek9:48:9
+REFERENCE active, org.ek9.lang::Boolean  // ./functionWithMultipleParams.ek9:49:9
+REFERENCE stdout, org.ek9.lang::Stdout  // ./functionWithMultipleParams.ek9:50:7
+_temp1 = CALL (org.ek9.lang::Stdout)org.ek9.lang::Stdout.<init>() [pure=true, complexity=1, effects=IO,RETURN_MUTATION]  // ./functionWithMultipleParams.ek9:50:17
+RETAIN _temp1  // ./functionWithMultipleParams.ek9:50:17
+SCOPE_REGISTER _temp1, _scope_1  // ./functionWithMultipleParams.ek9:50:17
+STORE stdout, _temp1  // ./functionWithMultipleParams.ek9:50:17
+RETAIN stdout  // ./functionWithMultipleParams.ek9:50:17
+SCOPE_REGISTER stdout, _scope_1  // ./functionWithMultipleParams.ek9:50:17
+_temp3 = LOAD stdout  // ./functionWithMultipleParams.ek9:51:7
+RETAIN _temp3  // ./functionWithMultipleParams.ek9:51:7
+SCOPE_REGISTER _temp3, _scope_1  // ./functionWithMultipleParams.ek9:51:7
+_temp4 = LOAD name  // ./functionWithMultipleParams.ek9:51:22
+RETAIN _temp4  // ./functionWithMultipleParams.ek9:51:22
+SCOPE_REGISTER _temp4, _scope_1  // ./functionWithMultipleParams.ek9:51:22
+CALL (org.ek9.lang::Stdout)_temp3.println(_temp4) [pure=true, complexity=1]  // ./functionWithMultipleParams.ek9:51:14
+SCOPE_EXIT _scope_1  // ./functionWithMultipleParams.ek9:50:7
+RETURN  // ./functionWithMultipleParams.ek9:45:5
 OperationDfn: ir.test.functions.multiparams::multiParamFunction.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
 OperationDfn: ir.test.functions.multiparams::multiParamFunction.i_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
-OperationDfn: ir.test.functions.multiparams::multiParamFunction.multiParamFunction()->ir.test.functions.multiparams::multiParamFunction  // ./functionWithMultipleParams.ek9:46:5
+OperationDfn: ir.test.functions.multiparams::multiParamFunction.multiParamFunction()->ir.test.functions.multiparams::multiParamFunction  // ./functionWithMultipleParams.ek9:45:5
 BasicBlock: _entry_1
-CALL (ir.test.functions.multiparams::multiParamFunction)this.i_init() [pure=false, complexity=0]  // ./functionWithMultipleParams.ek9:46:5
-RETURN this  // ./functionWithMultipleParams.ek9:46:5`
+CALL (ir.test.functions.multiparams::multiParamFunction)this.i_init() [pure=false, complexity=0]  // ./functionWithMultipleParams.ek9:45:5
+RETURN this  // ./functionWithMultipleParams.ek9:45:5`
     multiParamFunction()
       ->
         name as String

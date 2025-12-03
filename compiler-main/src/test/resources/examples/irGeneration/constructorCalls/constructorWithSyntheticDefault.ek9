@@ -7,25 +7,54 @@ defines module constructorCalls
 
   defines class
 
-    @IR: IR_GENERATION: TYPE: "constructorCalls::NoExplicitConstructor": `
-    ConstructDfn: constructorCalls::NoExplicitConstructor
-    Field: field, org.ek9.lang::String  // ./constructorWithSyntheticDefault.ek9:30:7
-    OperationDfn: constructorCalls::NoExplicitConstructor.NoExplicitConstructor()->constructorCalls::NoExplicitConstructor  // ./constructorWithSyntheticDefault.ek9:29:5
-    BasicBlock: _entry_1
-    CALL (constructorCalls::NoExplicitConstructor)this.i_init() [pure=false, complexity=0]  // ./constructorWithSyntheticDefault.ek9:29:5
-    RETURN this  // ./constructorWithSyntheticDefault.ek9:29:5
-    OperationDfn: constructorCalls::NoExplicitConstructor.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: constructorCalls::NoExplicitConstructor.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    REFERENCE this.field, org.ek9.lang::String  // ./constructorWithSyntheticDefault.ek9:30:7
-    _temp1 = LOAD_LITERAL Auto Init, org.ek9.lang::String  // ./constructorWithSyntheticDefault.ek9:30:26
-    RETAIN _temp1  // ./constructorWithSyntheticDefault.ek9:30:26
-    SCOPE_REGISTER _temp1, i_init  // ./constructorWithSyntheticDefault.ek9:30:26
-    STORE this.field, _temp1  // ./constructorWithSyntheticDefault.ek9:30:26
-    RETAIN this.field  // ./constructorWithSyntheticDefault.ek9:30:26
-    RETURN`
+    @IR: IR_GENERATION: TYPE: "constructorCalls::NoExplicitConstructor": `ConstructDfn: constructorCalls::NoExplicitConstructor
+Field: field, org.ek9.lang::String  // ./constructorWithSyntheticDefault.ek9:59:7
+OperationDfn: constructorCalls::NoExplicitConstructor._fieldSetStatus()->org.ek9.lang::Integer  // ./constructorWithSyntheticDefault.ek9:58:5
+BasicBlock: _entry_2
+SCOPE_ENTER __fieldSetStatus_1  // ./constructorWithSyntheticDefault.ek9:58:5
+REFERENCE rtn, org.ek9.lang::Integer  // ./constructorWithSyntheticDefault.ek9:58:5
+_temp1 = LOAD_LITERAL 0, org.ek9.lang::Integer  // ./constructorWithSyntheticDefault.ek9:58:5
+RETAIN _temp1  // ./constructorWithSyntheticDefault.ek9:58:5
+SCOPE_REGISTER _temp1, __fieldSetStatus_1  // ./constructorWithSyntheticDefault.ek9:58:5
+STORE rtn, _temp1  // ./constructorWithSyntheticDefault.ek9:58:5
+RETAIN rtn  // ./constructorWithSyntheticDefault.ek9:58:5
+_temp2 = LOAD this.field  // ./constructorWithSyntheticDefault.ek9:58:5
+RETAIN _temp2  // ./constructorWithSyntheticDefault.ek9:58:5
+SCOPE_REGISTER _temp2, __fieldSetStatus_1  // ./constructorWithSyntheticDefault.ek9:58:5
+_temp3 = CALL (org.ek9.lang::String)_temp2._isSet() [pure=false, complexity=0]  // ./constructorWithSyntheticDefault.ek9:58:5
+RETAIN _temp3  // ./constructorWithSyntheticDefault.ek9:58:5
+SCOPE_REGISTER _temp3, __fieldSetStatus_1  // ./constructorWithSyntheticDefault.ek9:58:5
+_temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=false, complexity=0]  // ./constructorWithSyntheticDefault.ek9:58:5
+RETAIN _temp4  // ./constructorWithSyntheticDefault.ek9:58:5
+SCOPE_REGISTER _temp4, __fieldSetStatus_1  // ./constructorWithSyntheticDefault.ek9:58:5
+BRANCH_FALSE _temp4, _field_skip_1  // ./constructorWithSyntheticDefault.ek9:58:5
+_temp5 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./constructorWithSyntheticDefault.ek9:58:5
+RETAIN _temp5  // ./constructorWithSyntheticDefault.ek9:58:5
+SCOPE_REGISTER _temp5, __fieldSetStatus_1  // ./constructorWithSyntheticDefault.ek9:58:5
+_temp6 = CALL (org.ek9.lang::Integer)rtn._or(_temp5) [pure=false, complexity=0]  // ./constructorWithSyntheticDefault.ek9:58:5
+RETAIN _temp6  // ./constructorWithSyntheticDefault.ek9:58:5
+SCOPE_REGISTER _temp6, __fieldSetStatus_1  // ./constructorWithSyntheticDefault.ek9:58:5
+STORE rtn, _temp6  // ./constructorWithSyntheticDefault.ek9:58:5
+RETAIN rtn  // ./constructorWithSyntheticDefault.ek9:58:5
+LABEL _field_skip_1
+SCOPE_EXIT __fieldSetStatus_1  // ./constructorWithSyntheticDefault.ek9:58:5
+RETURN rtn  // ./constructorWithSyntheticDefault.ek9:58:5
+OperationDfn: constructorCalls::NoExplicitConstructor.NoExplicitConstructor()->constructorCalls::NoExplicitConstructor  // ./constructorWithSyntheticDefault.ek9:58:5
+BasicBlock: _entry_1
+CALL (constructorCalls::NoExplicitConstructor)this.i_init() [pure=false, complexity=0]  // ./constructorWithSyntheticDefault.ek9:58:5
+RETURN this  // ./constructorWithSyntheticDefault.ek9:58:5
+OperationDfn: constructorCalls::NoExplicitConstructor.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: constructorCalls::NoExplicitConstructor.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+REFERENCE this.field, org.ek9.lang::String  // ./constructorWithSyntheticDefault.ek9:59:7
+_temp1 = LOAD_LITERAL Auto Init, org.ek9.lang::String  // ./constructorWithSyntheticDefault.ek9:59:26
+RETAIN _temp1  // ./constructorWithSyntheticDefault.ek9:59:26
+SCOPE_REGISTER _temp1, i_init  // ./constructorWithSyntheticDefault.ek9:59:26
+STORE this.field, _temp1  // ./constructorWithSyntheticDefault.ek9:59:26
+RETAIN this.field  // ./constructorWithSyntheticDefault.ek9:59:26
+RETURN`
     NoExplicitConstructor as open
       field as String := "Auto Init"
       // No explicit constructor - should generate synthetic one with i_init call

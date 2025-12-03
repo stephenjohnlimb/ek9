@@ -1,7 +1,10 @@
 package org.ek9lang.compiler.phase7;
 
+import static org.ek9lang.compiler.support.AggregateManipulator.PUBLIC;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.ir.instructions.IRConstruct;
 import org.ek9lang.compiler.ir.instructions.OperationInstr;
@@ -14,8 +17,11 @@ import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.AggregateWithTraitsSymbol;
 import org.ek9lang.compiler.symbols.IScopedSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
+import org.ek9lang.compiler.search.MethodSymbolSearch;
 import org.ek9lang.compiler.symbols.MethodSymbol;
+import org.ek9lang.compiler.symbols.SymbolCategory;
 import org.ek9lang.compiler.symbols.SymbolGenus;
+import org.ek9lang.compiler.symbols.VariableSymbol;
 import org.ek9lang.core.AssertValue;
 import org.ek9lang.core.CompilerException;
 
@@ -54,6 +60,10 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
 
     // Create three-phase initialization operations
     createInitializationOperations(construct, aggregateSymbol, ctx);
+
+    // Add _fieldSetStatus synthetic method if needed (just-in-time for IR generation)
+    // This catches ALL aggregates including monomorphized ones
+    addFieldSetStatusMethodIfRequired(aggregateSymbol);
 
     // Process aggregateParts if present (methods, operators)
     if (ctx != null) {
@@ -207,9 +217,61 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
     final var methodSymbol = (MethodSymbol) operationToPopulate.getSymbol();
     final var aggregateSymbol = (AggregateSymbol) methodSymbol.getParentScope();
     final var generatedOperation = syntheticOperatorGenerator.generateMethod(methodSymbol, aggregateSymbol);
-    
+
     //Copy the body from the generated one to the one from our map.
     operationToPopulate.setBody(generatedOperation.getBody());
+  }
+
+  /**
+   * Adds the _fieldSetStatus synthetic method to an aggregate if required.
+   *
+   * <p>This method is called just-in-time during IR generation to ensure ALL aggregates
+   * (including monomorphized generics) get the _fieldSetStatus method. This is infrastructure
+   * for comparison operators and is not callable by EK9 developers.</p>
+   *
+   * <p>The method returns an Integer bitmask where each bit represents a field's set status.</p>
+   *
+   * @param aggregateSymbol The aggregate to potentially add _fieldSetStatus to.
+   */
+  private void addFieldSetStatusMethodIfRequired(final AggregateSymbol aggregateSymbol) {
+
+    // Skip generic templates - only process concrete aggregates
+    if (aggregateSymbol.getCategory().equals(SymbolCategory.TEMPLATE_TYPE)) {
+      return;
+    }
+
+    // Only add if aggregate has properties
+    if (aggregateSymbol.getProperties().isEmpty()) {
+      return;
+    }
+
+    // Check if _fieldSetStatus already exists
+    final var search = new MethodSymbolSearch("_fieldSetStatus");
+    if (aggregateSymbol.resolveInThisScopeOnly(search).isPresent()) {
+      return;
+    }
+
+    // Create and add the _fieldSetStatus method
+    final var integerType = resolveInteger(aggregateSymbol);
+    final var method = new MethodSymbol("_fieldSetStatus", aggregateSymbol);
+
+    method.setReturningSymbol(new VariableSymbol("_rtn", integerType.orElse(null)));
+    method.setParsedModule(aggregateSymbol.getParsedModule());
+    method.setAccessModifier(PUBLIC);
+    method.setMarkedPure(true);
+    method.setOperator(false);
+    method.setSynthetic(true);
+    method.setSourceToken(aggregateSymbol.getSourceToken());
+
+    aggregateSymbol.define(method);
+  }
+
+  /**
+   * Resolves the Integer type from the parsed module's EK9 types.
+   */
+  private Optional<ISymbol> resolveInteger(final AggregateSymbol aggregateSymbol) {
+
+    return Optional.of(getParsedModule().getEk9Types().ek9Integer());
   }
 
 }

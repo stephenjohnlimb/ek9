@@ -12,72 +12,71 @@ defines module not_equals.test
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "not_equals.test::testNotEquals": `
-    ConstructDfn: not_equals.test::testNotEquals()->org.ek9.lang::Void
-    OperationDfn: not_equals.test::testNotEquals._call()->org.ek9.lang::Void  // ./not_equals_operator.ek9:81:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./not_equals_operator.ek9:82:7
-    REFERENCE z, org.ek9.lang::Boolean  // ./not_equals_operator.ek9:82:7
-    _temp2 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./not_equals_operator.ek9:82:12
-    RETAIN _temp2  // ./not_equals_operator.ek9:82:12
-    SCOPE_REGISTER _temp2, _scope_1  // ./not_equals_operator.ek9:82:12
-    _temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./not_equals_operator.ek9:82:17
-    RETAIN _temp3  // ./not_equals_operator.ek9:82:17
-    SCOPE_REGISTER _temp3, _scope_1  // ./not_equals_operator.ek9:82:17
-    _temp1 = CALL (org.ek9.lang::Integer)_temp2._neq(_temp3) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./not_equals_operator.ek9:82:14
-    RETAIN _temp1  // ./not_equals_operator.ek9:82:12
-    SCOPE_REGISTER _temp1, _scope_1  // ./not_equals_operator.ek9:82:12
-    STORE z, _temp1  // ./not_equals_operator.ek9:82:12
-    RETAIN z  // ./not_equals_operator.ek9:82:12
-    SCOPE_REGISTER z, _scope_1  // ./not_equals_operator.ek9:82:12
-    _temp4 = CONTROL_FLOW_CHAIN  // ./not_equals_operator.ek9:83:15
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp5 = LOAD z  // ./not_equals_operator.ek9:83:15
-    _temp6 = IS_NULL _temp5  // ./not_equals_operator.ek9:83:15
-    ]
-    primitive_condition: _temp6
-    body_evaluation:
-    [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./not_equals_operator.ek9:83:15
-    RETAIN _temp7  // ./not_equals_operator.ek9:83:15
-    SCOPE_REGISTER _temp7, _scope_1  // ./not_equals_operator.ek9:83:15
-    ]
-    body_result: _temp7
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=true, complexity=0]  // ./not_equals_operator.ek9:83:15
-    RETAIN _temp8  // ./not_equals_operator.ek9:83:15
-    SCOPE_REGISTER _temp8, _scope_1  // ./not_equals_operator.ek9:83:15
-    ]
-    default_result: _temp8
-    scope_id: _scope_1
-    ]
-    RETAIN _temp4  // ./not_equals_operator.ek9:83:7
-    SCOPE_REGISTER _temp4, _scope_1  // ./not_equals_operator.ek9:83:7
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./not_equals_operator.ek9:83:7
-    ASSERT _temp9  // ./not_equals_operator.ek9:83:7
-    SCOPE_EXIT _scope_1  // ./not_equals_operator.ek9:82:7
-    RETURN  // ./not_equals_operator.ek9:81:5
-    OperationDfn: not_equals.test::testNotEquals.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: not_equals.test::testNotEquals.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: not_equals.test::testNotEquals.testNotEquals()->not_equals.test::testNotEquals  // ./not_equals_operator.ek9:81:5
-    BasicBlock: _entry_1
-    CALL (not_equals.test::testNotEquals)this.i_init() [pure=false, complexity=0]  // ./not_equals_operator.ek9:81:5
-    RETURN this  // ./not_equals_operator.ek9:81:5`
+    @IR: IR_GENERATION: FUNCTION: "not_equals.test::testNotEquals": `ConstructDfn: not_equals.test::testNotEquals()->org.ek9.lang::Void
+OperationDfn: not_equals.test::testNotEquals._call()->org.ek9.lang::Void  // ./not_equals_operator.ek9:80:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./not_equals_operator.ek9:81:7
+REFERENCE z, org.ek9.lang::Boolean  // ./not_equals_operator.ek9:81:7
+_temp2 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./not_equals_operator.ek9:81:12
+RETAIN _temp2  // ./not_equals_operator.ek9:81:12
+SCOPE_REGISTER _temp2, _scope_1  // ./not_equals_operator.ek9:81:12
+_temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./not_equals_operator.ek9:81:17
+RETAIN _temp3  // ./not_equals_operator.ek9:81:17
+SCOPE_REGISTER _temp3, _scope_1  // ./not_equals_operator.ek9:81:17
+_temp1 = CALL (org.ek9.lang::Integer)_temp2._neq(_temp3) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./not_equals_operator.ek9:81:14
+RETAIN _temp1  // ./not_equals_operator.ek9:81:12
+SCOPE_REGISTER _temp1, _scope_1  // ./not_equals_operator.ek9:81:12
+STORE z, _temp1  // ./not_equals_operator.ek9:81:12
+RETAIN z  // ./not_equals_operator.ek9:81:12
+SCOPE_REGISTER z, _scope_1  // ./not_equals_operator.ek9:81:12
+_temp4 = CONTROL_FLOW_CHAIN  // ./not_equals_operator.ek9:82:15
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp5 = LOAD z  // ./not_equals_operator.ek9:82:15
+_temp6 = IS_NULL _temp5  // ./not_equals_operator.ek9:82:15
+]
+primitive_condition: _temp6
+body_evaluation:
+[
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./not_equals_operator.ek9:82:15
+RETAIN _temp7  // ./not_equals_operator.ek9:82:15
+SCOPE_REGISTER _temp7, _scope_1  // ./not_equals_operator.ek9:82:15
+]
+body_result: _temp7
+]
+]
+default_body_evaluation:
+[
+_temp8 = CALL (org.ek9.lang::Boolean)_temp5._isSet() [pure=true, complexity=0]  // ./not_equals_operator.ek9:82:15
+RETAIN _temp8  // ./not_equals_operator.ek9:82:15
+SCOPE_REGISTER _temp8, _scope_1  // ./not_equals_operator.ek9:82:15
+]
+default_result: _temp8
+scope_id: _scope_1
+]
+RETAIN _temp4  // ./not_equals_operator.ek9:82:7
+SCOPE_REGISTER _temp4, _scope_1  // ./not_equals_operator.ek9:82:7
+_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./not_equals_operator.ek9:82:7
+ASSERT _temp9  // ./not_equals_operator.ek9:82:7
+SCOPE_EXIT _scope_1  // ./not_equals_operator.ek9:81:7
+RETURN  // ./not_equals_operator.ek9:80:5
+OperationDfn: not_equals.test::testNotEquals.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: not_equals.test::testNotEquals.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: not_equals.test::testNotEquals.testNotEquals()->not_equals.test::testNotEquals  // ./not_equals_operator.ek9:80:5
+BasicBlock: _entry_1
+CALL (not_equals.test::testNotEquals)this.i_init() [pure=false, complexity=0]  // ./not_equals_operator.ek9:80:5
+RETURN this  // ./not_equals_operator.ek9:80:5`
     testNotEquals()
       z <- 1 != 2
       assert z?

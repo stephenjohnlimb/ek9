@@ -12,72 +12,71 @@ defines module compare.test
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "compare.test::testCompare": `
-    ConstructDfn: compare.test::testCompare()->org.ek9.lang::Void
-    OperationDfn: compare.test::testCompare._call()->org.ek9.lang::Void  // ./compare_operator.ek9:81:5
-    BasicBlock: _entry_1
-    SCOPE_ENTER _scope_1  // ./compare_operator.ek9:82:7
-    REFERENCE z, org.ek9.lang::Integer  // ./compare_operator.ek9:82:7
-    _temp2 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./compare_operator.ek9:82:12
-    RETAIN _temp2  // ./compare_operator.ek9:82:12
-    SCOPE_REGISTER _temp2, _scope_1  // ./compare_operator.ek9:82:12
-    _temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./compare_operator.ek9:82:18
-    RETAIN _temp3  // ./compare_operator.ek9:82:18
-    SCOPE_REGISTER _temp3, _scope_1  // ./compare_operator.ek9:82:18
-    _temp1 = CALL (org.ek9.lang::Integer)_temp2._cmp(_temp3) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./compare_operator.ek9:82:14
-    RETAIN _temp1  // ./compare_operator.ek9:82:12
-    SCOPE_REGISTER _temp1, _scope_1  // ./compare_operator.ek9:82:12
-    STORE z, _temp1  // ./compare_operator.ek9:82:12
-    RETAIN z  // ./compare_operator.ek9:82:12
-    SCOPE_REGISTER z, _scope_1  // ./compare_operator.ek9:82:12
-    _temp4 = CONTROL_FLOW_CHAIN  // ./compare_operator.ek9:83:15
-    [
-    chain_type: "QUESTION_OPERATOR"
-    condition_chain:
-    [
-    [
-    case_scope_id: _scope_1
-    case_type: "NULL_CHECK"
-    condition_evaluation:
-    [
-    _temp5 = LOAD z  // ./compare_operator.ek9:83:15
-    _temp6 = IS_NULL _temp5  // ./compare_operator.ek9:83:15
-    ]
-    primitive_condition: _temp6
-    body_evaluation:
-    [
-    _temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./compare_operator.ek9:83:15
-    RETAIN _temp7  // ./compare_operator.ek9:83:15
-    SCOPE_REGISTER _temp7, _scope_1  // ./compare_operator.ek9:83:15
-    ]
-    body_result: _temp7
-    ]
-    ]
-    default_body_evaluation:
-    [
-    _temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./compare_operator.ek9:83:15
-    RETAIN _temp8  // ./compare_operator.ek9:83:15
-    SCOPE_REGISTER _temp8, _scope_1  // ./compare_operator.ek9:83:15
-    ]
-    default_result: _temp8
-    scope_id: _scope_1
-    ]
-    RETAIN _temp4  // ./compare_operator.ek9:83:7
-    SCOPE_REGISTER _temp4, _scope_1  // ./compare_operator.ek9:83:7
-    _temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./compare_operator.ek9:83:7
-    ASSERT _temp9  // ./compare_operator.ek9:83:7
-    SCOPE_EXIT _scope_1  // ./compare_operator.ek9:82:7
-    RETURN  // ./compare_operator.ek9:81:5
-    OperationDfn: compare.test::testCompare.c_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: compare.test::testCompare.i_init()->org.ek9.lang::Void
-    BasicBlock: _entry_1
-    RETURN
-    OperationDfn: compare.test::testCompare.testCompare()->compare.test::testCompare  // ./compare_operator.ek9:81:5
-    BasicBlock: _entry_1
-    CALL (compare.test::testCompare)this.i_init() [pure=false, complexity=0]  // ./compare_operator.ek9:81:5
-    RETURN this  // ./compare_operator.ek9:81:5`
+    @IR: IR_GENERATION: FUNCTION: "compare.test::testCompare": `ConstructDfn: compare.test::testCompare()->org.ek9.lang::Void
+OperationDfn: compare.test::testCompare._call()->org.ek9.lang::Void  // ./compare_operator.ek9:80:5
+BasicBlock: _entry_1
+SCOPE_ENTER _scope_1  // ./compare_operator.ek9:81:7
+REFERENCE z, org.ek9.lang::Integer  // ./compare_operator.ek9:81:7
+_temp2 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./compare_operator.ek9:81:12
+RETAIN _temp2  // ./compare_operator.ek9:81:12
+SCOPE_REGISTER _temp2, _scope_1  // ./compare_operator.ek9:81:12
+_temp3 = LOAD_LITERAL 2, org.ek9.lang::Integer  // ./compare_operator.ek9:81:18
+RETAIN _temp3  // ./compare_operator.ek9:81:18
+SCOPE_REGISTER _temp3, _scope_1  // ./compare_operator.ek9:81:18
+_temp1 = CALL (org.ek9.lang::Integer)_temp2._cmp(_temp3) [pure=true, complexity=2, effects=RETURN_MUTATION]  // ./compare_operator.ek9:81:14
+RETAIN _temp1  // ./compare_operator.ek9:81:12
+SCOPE_REGISTER _temp1, _scope_1  // ./compare_operator.ek9:81:12
+STORE z, _temp1  // ./compare_operator.ek9:81:12
+RETAIN z  // ./compare_operator.ek9:81:12
+SCOPE_REGISTER z, _scope_1  // ./compare_operator.ek9:81:12
+_temp4 = CONTROL_FLOW_CHAIN  // ./compare_operator.ek9:82:15
+[
+chain_type: "QUESTION_OPERATOR"
+condition_chain:
+[
+[
+case_scope_id: _scope_1
+case_type: "NULL_CHECK"
+condition_evaluation:
+[
+_temp5 = LOAD z  // ./compare_operator.ek9:82:15
+_temp6 = IS_NULL _temp5  // ./compare_operator.ek9:82:15
+]
+primitive_condition: _temp6
+body_evaluation:
+[
+_temp7 = CALL_STATIC (org.ek9.lang::Boolean)org.ek9.lang::Boolean._ofFalse() [pure=true, complexity=0]  // ./compare_operator.ek9:82:15
+RETAIN _temp7  // ./compare_operator.ek9:82:15
+SCOPE_REGISTER _temp7, _scope_1  // ./compare_operator.ek9:82:15
+]
+body_result: _temp7
+]
+]
+default_body_evaluation:
+[
+_temp8 = CALL (org.ek9.lang::Integer)_temp5._isSet() [pure=true, complexity=0]  // ./compare_operator.ek9:82:15
+RETAIN _temp8  // ./compare_operator.ek9:82:15
+SCOPE_REGISTER _temp8, _scope_1  // ./compare_operator.ek9:82:15
+]
+default_result: _temp8
+scope_id: _scope_1
+]
+RETAIN _temp4  // ./compare_operator.ek9:82:7
+SCOPE_REGISTER _temp4, _scope_1  // ./compare_operator.ek9:82:7
+_temp9 = CALL (org.ek9.lang::Boolean)_temp4._true() [pure=true, complexity=0]  // ./compare_operator.ek9:82:7
+ASSERT _temp9  // ./compare_operator.ek9:82:7
+SCOPE_EXIT _scope_1  // ./compare_operator.ek9:81:7
+RETURN  // ./compare_operator.ek9:80:5
+OperationDfn: compare.test::testCompare.c_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: compare.test::testCompare.i_init()->org.ek9.lang::Void  
+BasicBlock: _entry_1
+RETURN
+OperationDfn: compare.test::testCompare.testCompare()->compare.test::testCompare  // ./compare_operator.ek9:80:5
+BasicBlock: _entry_1
+CALL (compare.test::testCompare)this.i_init() [pure=false, complexity=0]  // ./compare_operator.ek9:80:5
+RETURN this  // ./compare_operator.ek9:80:5`
     testCompare()
       z <- 1 <=> 2
       assert z?

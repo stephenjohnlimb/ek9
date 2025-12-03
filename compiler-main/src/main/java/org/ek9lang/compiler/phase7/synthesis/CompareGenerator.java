@@ -96,6 +96,13 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     instructions.addAll(generateThisIsSetGuard(aggregateTypeName, debugInfo, returnUnsetLabel, scopeId));
     instructions.addAll(generateIsSetGuard(OTHER_PARAM, aggregateTypeName, debugInfo, returnUnsetLabel, scopeId));
 
+    // Generate field set status check if aggregate has fields
+    // This optimizes tri-state comparison by early-detecting set/unset mismatches
+    final var fields = getSyntheticFields(aggregateSymbol);
+    if (!fields.isEmpty()) {
+      instructions.addAll(generateFieldSetStatusCheck(aggregateTypeName, debugInfo, scopeId, returnUnsetLabel));
+    }
+
     // Check if super has the <=> operator
     final var superHasCmp = superHasOperator(aggregateSymbol, "<=>");
 
@@ -108,7 +115,6 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     // Generate field-by-field comparison for this class's own fields only
     // We respect encapsulation: inherited fields are handled by super._cmp() if it exists
     // If super doesn't have <=>, it chose not to participate in comparison - we respect that
-    final var fields = getSyntheticFields(aggregateSymbol);
     for (final var field : fields) {
       instructions.addAll(generateFieldCmpCheck(field, debugInfo, scopeId,
           returnUnsetLabel, returnResultLabel));
@@ -123,6 +129,95 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     instructions.addAll(generateZeroReturnBlockWithLabel(returnZeroLabel,
         RETURN_VAR, debugInfo, scopeId));
     instructions.addAll(generateResultReturnBlock(returnResultLabel, debugInfo, scopeId));
+
+    return instructions;
+  }
+
+  /**
+   * Generate field set status comparison check.
+   *
+   * <p>This optimization compares the _fieldSetStatus() bitmasks of both objects.
+   * If the bitmasks differ, it means different fields are set/unset between the objects,
+   * so the comparison result should be unset (tri-state semantics).</p>
+   *
+   * <p>Pattern:</p>
+   * <pre>
+   *   _thisStatus = CALL this._fieldSetStatus() -> Integer
+   *   _otherStatus = CALL other._fieldSetStatus() -> Integer
+   *   _statusEq = CALL _thisStatus._eq(_otherStatus) -> Boolean
+   *   _statusEqSet = CALL _statusEq._isSet() -> Boolean
+   *   BRANCH_IF_FALSE _statusEqSet -> return_unset  // shouldn't happen but safe
+   *   _statusEqVal = CALL _statusEq._true() -> boolean
+   *   BRANCH_IF_FALSE _statusEqVal -> return_unset  // different field set patterns
+   * </pre>
+   */
+  private List<IRInstr> generateFieldSetStatusCheck(final String aggregateTypeName,
+                                                     final DebugInfo debugInfo,
+                                                     final String scopeId,
+                                                     final String returnUnsetLabel) {
+    final var instructions = new ArrayList<IRInstr>();
+
+    // Call this._fieldSetStatus()
+    final var thisStatusVar = generateTempName();
+    instructions.addAll(generateMethodCall(
+        thisStatusVar,
+        IRConstants.THIS,
+        aggregateTypeName,
+        "_fieldSetStatus",
+        List.of(),
+        List.of(),
+        getIntegerTypeName(),
+        debugInfo,
+        scopeId
+    ));
+
+    // Call other._fieldSetStatus()
+    final var otherStatusVar = generateTempName();
+    instructions.addAll(generateMethodCall(
+        otherStatusVar,
+        OTHER_PARAM,
+        aggregateTypeName,
+        "_fieldSetStatus",
+        List.of(),
+        List.of(),
+        getIntegerTypeName(),
+        debugInfo,
+        scopeId
+    ));
+
+    // Compare the bitmasks with _eq
+    final var statusEqVar = generateTempName();
+    instructions.addAll(generateMethodCall(
+        statusEqVar,
+        thisStatusVar,
+        getIntegerTypeName(),
+        "_eq",
+        List.of(otherStatusVar),
+        List.of(getIntegerTypeName()),
+        getBooleanTypeName(),
+        debugInfo,
+        scopeId
+    ));
+
+    // Check if comparison result is set (defensive - should always be set for Integer)
+    instructions.addAll(generateIsSetGuard(statusEqVar, getBooleanTypeName(), debugInfo, returnUnsetLabel, scopeId));
+
+    // Check if bitmasks are equal - if not, return unset (set/unset mismatch)
+    final var statusEqBoolVar = generateTempName();
+    instructions.addAll(generateMethodCall(
+        statusEqBoolVar,
+        statusEqVar,
+        getBooleanTypeName(),
+        "_true",
+        List.of(),
+        List.of(),
+        "boolean",
+        debugInfo,
+        scopeId
+    ));
+
+    // Branch to return unset if bitmasks differ
+    instructions.add(BranchInstr.branchIfFalse(statusEqBoolVar, returnUnsetLabel, debugInfo));
 
     return instructions;
   }

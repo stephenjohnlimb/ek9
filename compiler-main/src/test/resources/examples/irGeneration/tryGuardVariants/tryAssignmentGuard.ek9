@@ -12,8 +12,7 @@ defines module tryGuardVariants.assignGuard
 
   defines function
 
-    @IR: IR_GENERATION: FUNCTION: "tryGuardVariants.assignGuard::getConfig": `
-    ConstructDfn: tryGuardVariants.assignGuard::getConfig()->org.ek9.lang::String
+    @IR: IR_GENERATION: FUNCTION: "tryGuardVariants.assignGuard::getConfig": `ConstructDfn: tryGuardVariants.assignGuard::getConfig()->org.ek9.lang::String
 OperationDfn: tryGuardVariants.assignGuard::getConfig._call()->org.ek9.lang::String  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1
@@ -40,8 +39,7 @@ RETURN`
       <- rtn as String?
       rtn: "config-value"
 
-    @IR: IR_GENERATION: FUNCTION: "tryGuardVariants.assignGuard::tryAssignmentGuard": `
-    ConstructDfn: tryGuardVariants.assignGuard::tryAssignmentGuard()->org.ek9.lang::Void
+    @IR: IR_GENERATION: FUNCTION: "tryGuardVariants.assignGuard::tryAssignmentGuard": `ConstructDfn: tryGuardVariants.assignGuard::tryAssignmentGuard()->org.ek9.lang::Void
 OperationDfn: tryGuardVariants.assignGuard::tryAssignmentGuard._call()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 SCOPE_ENTER _scope_1
