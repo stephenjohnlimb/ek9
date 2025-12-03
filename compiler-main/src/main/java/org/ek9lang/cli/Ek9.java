@@ -14,6 +14,7 @@ import org.ek9lang.compiler.Ek9LanguageBootStrap;
 import org.ek9lang.compiler.common.CompilationEvent;
 import org.ek9lang.compiler.common.CompilerReporter;
 import org.ek9lang.compiler.common.Reporter;
+import org.ek9lang.compiler.common.VerboseErrorMessages;
 import org.ek9lang.compiler.config.FullPhaseSupplier;
 import org.ek9lang.core.FileHandling;
 import org.ek9lang.core.Logger;
@@ -53,6 +54,9 @@ final class Ek9 {
    */
   private static final Function<CommandLine, CompilationContext> compilationContextCreation =
       commandLine -> {
+        // Enable verbose error messages if -ve flag specified (for AI-assisted development)
+        VerboseErrorMessages.setVerboseEnabled(commandLine.options().isErrorVerbose());
+
         final var fileHandling = commandLine.getFileHandling();
         final var muteReportedErrors = false;
         final var compilationReporter = new CompilationReporter(commandLine.options().isVerbose());

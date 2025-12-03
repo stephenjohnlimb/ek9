@@ -4,10 +4,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.ek9lang.compiler.common.ErrorListener;
+import org.ek9lang.compiler.common.VerboseErrorMessages;
 import org.ek9lang.compiler.tokenizer.Ek9Token;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class UnreachableStatementTest {
+
+  @BeforeEach
+  void setUp() {
+    // Disable verbose mode for exact string comparison
+    VerboseErrorMessages.setVerboseEnabled(false);
+  }
+
+  @AfterEach
+  void tearDown() {
+    VerboseErrorMessages.setVerboseEnabled(false);
+  }
 
   @Test
   void testUnreachableStatement() {

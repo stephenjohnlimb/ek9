@@ -160,6 +160,46 @@ Error   : E50001: 'symbol' on line 10: is not resolved
       to stop compilation at that phase for debugging.
     </p>
 
+    <h2 id="verbose-mode">Verbose Error Mode (-ve)</h2>
+
+    <p>
+      For AI-assisted development, use the <code>-ve</code> flag to get detailed error explanations:
+    </p>
+
+    <div class="ek9-code">
+      <pre>ek9 -ve -C myfile.ek9</pre>
+    </div>
+
+    <p>
+      When verbose mode is enabled, each error includes additional context:
+    </p>
+
+    <ul>
+      <li><strong>COMMON CAUSES</strong> - typical reasons for this error</li>
+      <li><strong>TO FIX</strong> - suggested remediation steps</li>
+      <li><strong>DISTINCTION</strong> - clarification from similar error codes</li>
+    </ul>
+
+    <h3>Example Verbose Output</h3>
+
+    <div class="ek9-code">
+      <pre>Error   : E50060: 'unknownMethod' on line 10: method/function not resolved
+             See: https://ek9.io/errors.html#E50060
+COMMON CAUSES:
+- Method name typo
+- Wrong number of parameters
+- Wrong parameter types (no matching overload)
+- Calling private method from outside class
+TO FIX: Check method name, parameter count and types
+DISTINCTION: E50060 is for method/function calls.
+E50001 is for identifier lookup. E07620 is for operators.</pre>
+    </div>
+
+    <p class="info">
+      <strong>Note:</strong> Verbose mode is automatically enabled for EK9 unit tests
+      to help developers and AI assistants understand test failures more quickly.
+    </p>
+
 
     <h2 id="common-errors">Common Errors (E50xxx)</h2>
 

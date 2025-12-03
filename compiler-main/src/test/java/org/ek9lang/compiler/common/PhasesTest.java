@@ -74,6 +74,9 @@ public abstract class PhasesTest {
   public PhasesTest(final String fromResourcesDirectory, final List<String> expectedModules,
                     final boolean verbose, final boolean muteReportedErrors, final boolean enableDirectiveErrors) {
 
+    // Enable verbose error messages by default for tests (helps AI assistants understand errors)
+    VerboseErrorMessages.setVerboseEnabled(true);
+
     //Just so when you see stuff streaming out in errors you can work out which Test class is doing it.
     if (verbose) {
 

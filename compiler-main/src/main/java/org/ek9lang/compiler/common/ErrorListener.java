@@ -859,6 +859,21 @@ public class ErrorListener extends BaseErrorListener implements Serializable {
         buffer.append(System.lineSeparator());
         buffer.append("             See: https://ek9.io/errors.html#");
         buffer.append(semanticClassification.getErrorCode());
+
+        // Add verbose error text if enabled (for AI-assisted development)
+        if (VerboseErrorMessages.isVerboseEnabled()) {
+          final var verbose = VerboseErrorMessages.getVerboseMessage(
+              semanticClassification.getErrorCode());
+          if (verbose != null && !verbose.isEmpty()) {
+            // Indent each line to align with "See:" for consistent formatting
+            final var indent = "             ";
+            for (String line : verbose.split("\n")) {
+              buffer.append(System.lineSeparator());
+              buffer.append(indent);
+              buffer.append(line);
+            }
+          }
+        }
       }
 
       return buffer.toString();

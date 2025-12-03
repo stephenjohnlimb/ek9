@@ -86,6 +86,9 @@ final class CommandLineTest {
   private final Consumer<CommandLine> assertDebugVerbose =
       commandLineDetails -> assertTrue(commandLineDetails.options().isDebugVerbose());
 
+  private final Consumer<CommandLine> assertErrorVerbose =
+      commandLineDetails -> assertTrue(commandLineDetails.options().isErrorVerbose());
+
   private final Consumer<CommandLine> assertCheckCompile =
       commandLineDetails -> assertTrue(commandLineDetails.options().isCheckCompileOnly());
 
@@ -321,6 +324,15 @@ final class CommandLineTest {
     var process = makeProcess.apply("-C -dv");
     assertFullCompilation
         .andThen(assertDebugVerbose)
+        .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
+  }
+
+  @Test
+  @SuppressWarnings("java:S2699")
+  void testCommandLineFullErrorVerboseCompile() {
+    var process = makeProcess.apply("-C -ve");
+    assertFullCompilation
+        .andThen(assertErrorVerbose)
         .accept(Optional.of("SinglePackage.ek9").map(process).orElseThrow());
   }
 

@@ -37,6 +37,7 @@ public record CommandLineHelp(String helpText) {
         \t-Up Check for newer version of ek9 and upgrade if available.
         \t-v Verbose mode
         \t-dv Debug mode - produces internal debug information during compilation
+        \t-ve Verbose errors - provides detailed AI-friendly error descriptions
         \t-t Runs all unit tests that have been found, this triggers -Cd full compile first
         \t-d port Run in debug mode (requires debugging information - on a port)
         \t-e <name>=<value> set environment variable i.e. user=Steve or user='Steve Limb' for spaces

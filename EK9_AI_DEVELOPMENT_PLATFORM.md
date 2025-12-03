@@ -1377,6 +1377,49 @@ Suggestion: Consider using guard clauses to reduce nesting
 - **Actionable Suggestions**: Concrete steps to fix issues
 - **Pattern References**: Links to documentation for learning correct patterns
 
+#### Verbose Error Mode (`-ve` Flag)
+
+EK9 provides a **verbose errors mode** specifically designed for AI-assisted development. Enable with:
+
+```bash
+ek9 -ve -C myfile.ek9
+```
+
+**Verbose Message Design Philosophy:**
+
+Each error code's verbose message is an **accumulating knowledge base** of known scenarios that cause that error. The design principles are:
+
+1. **Multiple bullet points are encouraged** - Each bullet represents a "typical repeating scenario" encountered in real usage
+2. **Specificity helps recognition** - AI (or human) pattern-matches against the list to find "ah yes, that's exactly my situation"
+3. **Grow organically from experience** - As new error patterns are encountered (e.g., through fuzz testing), add another bullet point
+4. **No need for one "perfect" general explanation** - Concrete scenarios are more actionable than abstract descriptions
+
+**Example Verbose Message Structure:**
+
+```
+Error   : E50060: 'getValue' on line 15: method/function not resolved
+         See: https://ek9.io/errors.html#E50060
+         COMMON CAUSES:
+         - Method name typo
+         - Wrong number of parameters
+         - Wrong parameter types (no matching overload)
+         - Calling private method from outside class
+         - In method chain, previous method returns different type than expected
+         TO FIX:
+         - Check method name, parameter count and types
+         - For chains, verify each method's return type matches next call's receiver
+         DISTINCTION:
+         - E50060 is for method/function calls
+         - E50001 is for identifier lookup
+         - E07620 is for operators
+```
+
+**How Verbose Messages Evolve:**
+
+When encountering a new error pattern (e.g., during fuzz testing or real development), simply add another bullet point describing that specific scenario. The verbose messages become living documentation grounded in actual experience rather than theoretical coverage.
+
+**Implementation:** See `VerboseErrorMessages.java` - static HashMap keyed by error code, enabled by default in JUnit tests via `PhasesTest`.
+
 ### 3. Consistent Code Generation Patterns
 
 **Template-Based AI Generation:**

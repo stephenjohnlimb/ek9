@@ -24,7 +24,7 @@ public class CommandLineOptions {
 
   public boolean isModifierParam(String param) {
 
-    return Set.of("-V", "-h", "-v", "-dv", "-ls", "-lsh").contains(param);
+    return Set.of("-V", "-h", "-v", "-dv", "-ve", "-ls", "-lsh").contains(param);
   }
 
   public boolean isMainParam(final String param) {
@@ -117,6 +117,11 @@ public class CommandLineOptions {
   public boolean isDebugVerbose() {
 
     return isOptionPresentInAppParameters(Set.of("-dv"));
+  }
+
+  public boolean isErrorVerbose() {
+
+    return isOptionPresentInAppParameters(Set.of("-ve"));
   }
 
   public boolean isGenerateSigningKeys() {

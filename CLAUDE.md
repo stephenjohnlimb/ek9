@@ -256,7 +256,7 @@ For specific EK9 development tasks, refer to these comprehensive guides:
 - **`EK9_ENTERPRISE_ADOPTION_ROADMAP.md`** - Implementation strategies
 
 **AI Collaboration** (Relevant for AI-assisted development):
-- **`EK9_AI_DEVELOPMENT_PLATFORM.md`** - AI collaboration framework and guardrails
+- **`EK9_AI_DEVELOPMENT_PLATFORM.md`** - AI collaboration framework, guardrails, and verbose error message design philosophy (`-ve` flag)
 - **`EK9_AI_FRIENDLY_LANGUAGE_STRATEGY.md`** - AI-specific design patterns
 
 **When to reference these documents**:
