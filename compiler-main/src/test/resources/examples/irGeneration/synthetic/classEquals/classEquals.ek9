@@ -25,7 +25,7 @@ defines module synthetic.classEquals
     @IR: IR_GENERATION: TYPE: "synthetic.classEquals::Person": `ConstructDfn: synthetic.classEquals::Person
 Field: name, org.ek9.lang::String  
 Field: age, org.ek9.lang::Integer  
-OperationDfn: synthetic.classEquals::Person.==(synthetic.classEquals::Person)->org.ek9.lang::Boolean  
+OperationDfn: synthetic.classEquals::Person._eq(synthetic.classEquals::Person)->org.ek9.lang::Boolean  
 BasicBlock: _entry_2
 SCOPE_ENTER __eq_1
 REFERENCE rtn, org.ek9.lang::Boolean
@@ -118,7 +118,7 @@ STORE rtn, _temp53
 RETAIN rtn
 SCOPE_EXIT __eq_1
 RETURN rtn
-OperationDfn: synthetic.classEquals::Person.<=>(synthetic.classEquals::Person)->org.ek9.lang::Integer  
+OperationDfn: synthetic.classEquals::Person._cmp(synthetic.classEquals::Person)->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER __cmp_1
 REFERENCE rtn, org.ek9.lang::Integer

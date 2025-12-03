@@ -20,7 +20,7 @@ defines module synthetic.classNotEquals
     @IR: IR_GENERATION: TYPE: "synthetic.classNotEquals::Person": `ConstructDfn: synthetic.classNotEquals::Person
 Field: name, org.ek9.lang::String  
 Field: age, org.ek9.lang::Integer  
-OperationDfn: synthetic.classNotEquals::Person.<>(synthetic.classNotEquals::Person)->org.ek9.lang::Boolean  
+OperationDfn: synthetic.classNotEquals::Person._neq(synthetic.classNotEquals::Person)->org.ek9.lang::Boolean  
 BasicBlock: _entry_3
 SCOPE_ENTER __neq_1
 REFERENCE rtn, org.ek9.lang::Boolean
@@ -61,7 +61,7 @@ STORE rtn, _temp60
 RETAIN rtn
 SCOPE_EXIT __neq_1
 RETURN rtn
-OperationDfn: synthetic.classNotEquals::Person.==(synthetic.classNotEquals::Person)->org.ek9.lang::Boolean  
+OperationDfn: synthetic.classNotEquals::Person._eq(synthetic.classNotEquals::Person)->org.ek9.lang::Boolean  
 BasicBlock: _entry_2
 SCOPE_ENTER __eq_1
 REFERENCE rtn, org.ek9.lang::Boolean
@@ -154,7 +154,7 @@ STORE rtn, _temp53
 RETAIN rtn
 SCOPE_EXIT __eq_1
 RETURN rtn
-OperationDfn: synthetic.classNotEquals::Person.<=>(synthetic.classNotEquals::Person)->org.ek9.lang::Integer  
+OperationDfn: synthetic.classNotEquals::Person._cmp(synthetic.classNotEquals::Person)->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER __cmp_1
 REFERENCE rtn, org.ek9.lang::Integer

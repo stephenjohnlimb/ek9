@@ -2612,6 +2612,38 @@ defines module introduction
       simple and straightforward manner. But it also enables you to provide a finite list if you wish and provide
       your own implementations as and when you see fit.
     </p>
+    <h4>Operators Supporting Default</h4>
+    <p>
+      The following operators can be declared with the <b>default</b> keyword on <i>records</i> and <i>classes</i>:
+    </p>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Operator</th>
+          <th>Method</th>
+          <th>Return Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><b>&lt;=&gt;</b></td><td>_cmp</td><td>Integer</td><td>Three-way comparison (returns -1, 0, or 1)</td></tr>
+        <tr><td><b>==</b></td><td>_eq</td><td>Boolean</td><td>Equality check</td></tr>
+        <tr><td><b>&lt;&gt;</b></td><td>_neq</td><td>Boolean</td><td>Not equals (delegates to ==)</td></tr>
+        <tr><td><b>&lt;</b></td><td>_lt</td><td>Boolean</td><td>Less than (derived from &lt;=&gt;)</td></tr>
+        <tr><td><b>&lt;=</b></td><td>_lte</td><td>Boolean</td><td>Less than or equal (derived from &lt;=&gt;)</td></tr>
+        <tr><td><b>&gt;</b></td><td>_gt</td><td>Boolean</td><td>Greater than (derived from &lt;=&gt;)</td></tr>
+        <tr><td><b>&gt;=</b></td><td>_gte</td><td>Boolean</td><td>Greater than or equal (derived from &lt;=&gt;)</td></tr>
+        <tr><td><b>?</b></td><td>_isSet</td><td>Boolean</td><td>Check if all fields are set</td></tr>
+        <tr><td><b>$</b></td><td>_string</td><td>String</td><td>String representation</td></tr>
+        <tr><td><b>$$</b></td><td>_toJson</td><td>JSON</td><td>JSON representation</td></tr>
+        <tr><td><b>#?</b></td><td>_hashcode</td><td>Integer</td><td>Hash code of all fields</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Note: The comparison operators (<b>&lt;</b>, <b>&lt;=</b>, <b>&gt;</b>, <b>&gt;=</b>, <b>==</b>, <b>&lt;&gt;</b>)
+      require the <b>&lt;=&gt;</b> operator to be present (either defaulted or explicitly defined) on the same type
+      and any super types.
+    </p>
     <h2>Summary</h2>
     <p>
       As you can see there are quite a few operators, most should be fairly obvious; especially the logical and

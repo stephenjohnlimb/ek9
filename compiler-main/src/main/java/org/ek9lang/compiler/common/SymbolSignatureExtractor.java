@@ -11,11 +11,13 @@ import org.ek9lang.compiler.symbols.MethodSymbol;
  * Function that extracts signature-qualified-name from a symbol.
  * For functions and methods, includes parameters and return type.
  * For methods, includes the parent construct name.
+ * For operators, converts EK9 operator symbols to internal method names using OperatorMap.
  * For other symbols, returns the fully qualified name.
  */
 public final class SymbolSignatureExtractor implements Function<ISymbol, String> {
 
   private final TypeNameOrException typeNameOrException = new TypeNameOrException();
+  private final OperatorMap operatorMap = new OperatorMap();
 
   @Override
   public String apply(final ISymbol symbol) {
@@ -39,17 +41,39 @@ public final class SymbolSignatureExtractor implements Function<ISymbol, String>
   /**
    * Get qualified name for a method including parent construct.
    * Format: "module::construct.methodName"
+   * For operators, converts the operator symbol to its internal method name.
    */
   private String getMethodQualifiedName(final ISymbol symbol) {
     if (symbol instanceof IScope methodScope) {
       final var enclosingScope = methodScope.getEnclosingScope();
       if (enclosingScope instanceof ISymbol parentSymbol) {
         // Parent construct name + method name: "module::construct.methodName"
-        return parentSymbol.getFullyQualifiedName() + "." + symbol.getName();
+        // For operators, convert to internal method name using OperatorMap
+        final var methodName = getMethodName(symbol);
+        return parentSymbol.getFullyQualifiedName() + "." + methodName;
       }
     }
     // Fallback if no parent found
     return symbol.getFullyQualifiedName();
+  }
+
+  /**
+   * Get the method name for a symbol.
+   * For operators, converts the EK9 operator symbol to its internal method name.
+   * For example: "?" -> "_isSet", "==" -> "_eq", "#?" -> "_hashcode"
+   */
+  private String getMethodName(final ISymbol symbol) {
+    final var symbolName = symbol.getName();
+
+    // Check if this is an operator that needs conversion
+    if (symbol instanceof MethodSymbol methodSymbol && methodSymbol.isOperator()) {
+      if (operatorMap.hasOperator(symbolName)) {
+        return operatorMap.getForward(symbolName);
+      }
+    }
+
+    // Return original name for non-operators or operators not in map
+    return symbolName;
   }
 
   /**

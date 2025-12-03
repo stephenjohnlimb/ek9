@@ -34,7 +34,57 @@ public class DirectivesSymbolName implements Function<EK9Parser.DirectiveContext
       throw new IllegalArgumentException("Symbol name is empty");
     }
 
-    return result;
+    return processEscapeSequences(result);
+  }
+
+  /**
+   * Process escape sequences in the string content.
+   * Handles: \$ -> $, \` -> `, \\ -> \, \n -> newline, \t -> tab
+   */
+  private String processEscapeSequences(final String input) {
+
+    final var sb = new StringBuilder();
+    var i = 0;
+    while (i < input.length()) {
+      final var c = input.charAt(i);
+      if (c == '\\' && i + 1 < input.length()) {
+        final var next = input.charAt(i + 1);
+        switch (next) {
+          case '$' -> {
+            sb.append('$');
+            i += 2;
+          }
+          case '`' -> {
+            sb.append('`');
+            i += 2;
+          }
+          case '\\' -> {
+            sb.append('\\');
+            i += 2;
+          }
+          case 'n' -> {
+            sb.append('\n');
+            i += 2;
+          }
+          case 't' -> {
+            sb.append('\t');
+            i += 2;
+          }
+          case 'r' -> {
+            sb.append('\r');
+            i += 2;
+          }
+          default -> {
+            sb.append(c);
+            i++;
+          }
+        }
+      } else {
+        sb.append(c);
+        i++;
+      }
+    }
+    return sb.toString();
   }
 
 }

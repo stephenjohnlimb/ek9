@@ -21,7 +21,7 @@ OperationDfn: synthetic.classInheritanceEquals::Animal.Animal()->synthetic.class
 BasicBlock: _entry_2
 CALL (synthetic.classInheritanceEquals::Animal)this.i_init() [pure=false, complexity=0]
 RETURN this
-OperationDfn: synthetic.classInheritanceEquals::Animal.<=>(synthetic.classInheritanceEquals::Animal)->org.ek9.lang::Integer  
+OperationDfn: synthetic.classInheritanceEquals::Animal._cmp(synthetic.classInheritanceEquals::Animal)->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER __cmp_1
 REFERENCE rtn, org.ek9.lang::Integer
@@ -150,7 +150,7 @@ RETURN`
 
     @IR: IR_GENERATION: TYPE: "synthetic.classInheritanceEquals::Cat": `ConstructDfn: synthetic.classInheritanceEquals::Cat
 Field: breed, org.ek9.lang::String  
-OperationDfn: synthetic.classInheritanceEquals::Cat.<=>(synthetic.classInheritanceEquals::Cat)->org.ek9.lang::Integer  
+OperationDfn: synthetic.classInheritanceEquals::Cat._cmp(synthetic.classInheritanceEquals::Cat)->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER __cmp_1
 REFERENCE rtn, org.ek9.lang::Integer
@@ -252,7 +252,7 @@ RETURN rtn
 LABEL _return_result_1
 SCOPE_EXIT __cmp_1
 RETURN rtn
-OperationDfn: synthetic.classInheritanceEquals::Cat.==(synthetic.classInheritanceEquals::Cat)->org.ek9.lang::Boolean  
+OperationDfn: synthetic.classInheritanceEquals::Cat._eq(synthetic.classInheritanceEquals::Cat)->org.ek9.lang::Boolean  
 BasicBlock: _entry_2
 SCOPE_ENTER __eq_1
 REFERENCE rtn, org.ek9.lang::Boolean

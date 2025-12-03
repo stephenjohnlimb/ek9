@@ -47,6 +47,8 @@ public final class SyntheticOperatorGenerator {
   private final DerivedComparisonGenerator derivedComparisonGenerator;
   private final IsSetGenerator isSetGenerator;
   private final FieldSetStatusGenerator fieldSetStatusGenerator;
+  private final HashCodeGenerator hashCodeGenerator;
+  private final ToStringGenerator toStringGenerator;
 
   /**
    * Create a new synthetic operator generator.
@@ -62,6 +64,8 @@ public final class SyntheticOperatorGenerator {
     this.derivedComparisonGenerator = new DerivedComparisonGenerator(stackContext);
     this.isSetGenerator = new IsSetGenerator(stackContext);
     this.fieldSetStatusGenerator = new FieldSetStatusGenerator(stackContext);
+    this.hashCodeGenerator = new HashCodeGenerator(stackContext);
+    this.toStringGenerator = new ToStringGenerator(stackContext);
   }
 
   /**
@@ -203,25 +207,37 @@ public final class SyntheticOperatorGenerator {
   }
 
   /**
-   * Generate _hashcode operator - combine hashes of all fields.
-   * TODO: Implement hash combination pattern
+   * Generate _hashcode (#?) operator - combine hashes of all fields.
+   *
+   * <p>Delegates to {@link HashCodeGenerator} which implements:</p>
+   * <ul>
+   *   <li>Initialize with _fieldSetStatus() as base hash</li>
+   *   <li>For each SET field, compute field.#?() and combine</li>
+   *   <li>Uses polynomial hash: result = result * 31 + fieldHash</li>
+   *   <li>Returns Integer (always set - hash of "nothing" is valid)</li>
+   * </ul>
    */
   private List<IRInstr> generateHashCodeOperator(final IRInstructionBuilder builder,
                                                  final MethodSymbol operatorSymbol,
                                                  final AggregateSymbol aggregateSymbol) {
-    // TODO: Phase 4 implementation
-    return generatePlaceholder(builder, "_hashcode");
+    return hashCodeGenerator.generate(operatorSymbol, aggregateSymbol);
   }
 
   /**
-   * Generate _string operator - string representation of all fields.
-   * TODO: Implement string building pattern
+   * Generate _string ($) operator - string representation of all fields.
+   *
+   * <p>Delegates to {@link ToStringGenerator} which implements:</p>
+   * <ul>
+   *   <li>Format: "ClassName(field1=value1, field2=value2)"</li>
+   *   <li>SET fields show their string value via $</li>
+   *   <li>UNSET fields show "?" as placeholder</li>
+   *   <li>Returns String (always set)</li>
+   * </ul>
    */
   private List<IRInstr> generateToStringOperator(final IRInstructionBuilder builder,
                                                  final MethodSymbol operatorSymbol,
                                                  final AggregateSymbol aggregateSymbol) {
-    // TODO: Phase 5 implementation
-    return generatePlaceholder(builder, "_string");
+    return toStringGenerator.generate(operatorSymbol, aggregateSymbol);
   }
 
   /**
