@@ -155,7 +155,8 @@ final class ToStringGenerator extends AbstractSyntheticGenerator {
         scopeId
     ));
 
-    // Store result
+    // Store result - must RELEASE old value first for ARC
+    instructions.add(MemoryInstr.release(RETURN_VAR, debugInfo));
     instructions.add(MemoryInstr.store(RETURN_VAR, concatenatedVar, debugInfo));
     instructions.add(MemoryInstr.retain(RETURN_VAR, debugInfo));
 
@@ -184,7 +185,8 @@ final class ToStringGenerator extends AbstractSyntheticGenerator {
         scopeId
     ));
 
-    // Store result
+    // Store result - must RELEASE old value first for ARC
+    instructions.add(MemoryInstr.release(RETURN_VAR, debugInfo));
     instructions.add(MemoryInstr.store(RETURN_VAR, concatenatedVar, debugInfo));
     instructions.add(MemoryInstr.retain(RETURN_VAR, debugInfo));
 

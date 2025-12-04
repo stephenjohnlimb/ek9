@@ -84,7 +84,8 @@ public class OperatorFactory {
         getDefaultOperator(aggregate, "?"),
         getDefaultOperator(aggregate, "$"),
         getDefaultOperator(aggregate, "$$"),
-        getDefaultOperator(aggregate, "#?")
+        getDefaultOperator(aggregate, "#?"),
+        getDefaultOperator(aggregate, ":=:")
     ));
 
   }
@@ -104,6 +105,7 @@ public class OperatorFactory {
       case "$" -> aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, stringType);
       case "$$" -> aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, jsonType);
       case "#?" -> aggregateManipulator.createPurePublicSimpleOperator(aggregate, operator, integerType);
+      case ":=:" -> aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, operator);
       default -> null;
     };
 
@@ -156,7 +158,7 @@ public class OperatorFactory {
         //Mutator type operators
         aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, ":~:"),
         aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, ":^:"),
-        aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, ":=:"),
+        // Note: :=: is now in getAllPossibleDefaultOperators() - don't duplicate here
         aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, "|"),
         aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, "+="),
         aggregateManipulator.createMutatorOperatorReturnVoid(aggregate, "-="),

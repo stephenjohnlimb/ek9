@@ -49,6 +49,7 @@ public final class SyntheticOperatorGenerator {
   private final FieldSetStatusGenerator fieldSetStatusGenerator;
   private final HashCodeGenerator hashCodeGenerator;
   private final ToStringGenerator toStringGenerator;
+  private final CopyGenerator copyGenerator;
 
   /**
    * Create a new synthetic operator generator.
@@ -66,6 +67,7 @@ public final class SyntheticOperatorGenerator {
     this.fieldSetStatusGenerator = new FieldSetStatusGenerator(stackContext);
     this.hashCodeGenerator = new HashCodeGenerator(stackContext);
     this.toStringGenerator = new ToStringGenerator(stackContext);
+    this.copyGenerator = new CopyGenerator(stackContext);
   }
 
   /**
@@ -241,14 +243,20 @@ public final class SyntheticOperatorGenerator {
   }
 
   /**
-   * Generate _copy operator - copy all fields from source.
-   * TODO: Implement field copy pattern
+   * Generate _copy (:=:) operator - copy all fields from source.
+   *
+   * <p>Delegates to {@link CopyGenerator} which implements:</p>
+   * <ul>
+   *   <li>Call super._copy(source) if super is not Any</li>
+   *   <li>For each field: load from source and store to this</li>
+   *   <li>Returns Void (this is a mutating operation)</li>
+   *   <li>Both SET and UNSET fields are copied</li>
+   * </ul>
    */
   private List<IRInstr> generateCopyOperator(final IRInstructionBuilder builder,
                                              final MethodSymbol operatorSymbol,
                                              final AggregateSymbol aggregateSymbol) {
-    // TODO: Phase 6 implementation
-    return generatePlaceholder(builder, "_copy");
+    return copyGenerator.generate(operatorSymbol, aggregateSymbol);
   }
 
   /**

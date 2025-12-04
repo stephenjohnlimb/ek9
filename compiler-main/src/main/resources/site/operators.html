@@ -855,12 +855,19 @@
       ':=:'</b> operator as that is quite different in nature.
     </p>
     <p>
+      The <b>'default operator :=:'</b> does a <u>shallow copy</u> (copies field references). This is because
+      deep copy requires domain-specific knowledge - only you know which fields need true duplication versus
+      shared references. For example, in insurance: a <i>coverClass</i> might be a fixed product definition
+      that should be shared, while <i>customerData</i> must be independently duplicated.
+    </p>
+    <p>
       The <b>merge ':~:'</b> operator is similar in many ways to <b>copy ':=:'</b> operator in the fact that it
       alters the underlying content of the variable. In general the <b>merge ':~:'</b> operator is very useful
       when used with aggregates.
       Below is an example of a <i>record</i>; this treats fields that are not <b>set</b> as being suitable for
       replacement. There is quite a bit going on in this example, it shows a couple of other operators that have
-      not yet need described, but is more fully featured as an example.
+      not yet need described, but is more fully featured as an example. The <b>:=:</b> implementation shown
+      below demonstrates a <u>deep copy</u> pattern - calling <b>:=:</b> on each field recursively.
     </p>
     <pre id="record_merge_example">#!ek9
 defines module introduction
@@ -886,7 +893,9 @@ defines module introduction
         -&gt; arg as Person
         &lt;- rtn as Boolean: arg? and first==arg.first and last==arg.last and dob==arg.dob and profession==arg.profession
       
-      //copy
+      //Deep copy example - calls :=: on each field for true independence.
+      //Note: 'default operator :=:' does shallow copy (just references).
+      //Implement your own :=: when you need deep copy or selective copying.
       operator :=:
         -&gt; arg as Person
         &lt;- rtn as Person: this

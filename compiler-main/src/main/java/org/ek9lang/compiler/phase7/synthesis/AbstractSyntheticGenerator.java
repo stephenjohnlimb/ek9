@@ -359,6 +359,19 @@ public abstract class AbstractSyntheticGenerator {
   }
 
   /**
+   * Get the fully qualified name of the super aggregate.
+   *
+   * @param aggregateSymbol The aggregate to get super from
+   * @return The super type name, or empty string if no super (other than Any)
+   */
+  protected String getSuperTypeName(final AggregateSymbol aggregateSymbol) {
+    return aggregateSymbol.getSuperAggregate()
+        .filter(superAgg -> !isAnyType(superAgg))
+        .map(ISymbol::getFullyQualifiedName)
+        .orElse("");
+  }
+
+  /**
    * Generate field load instruction with memory management.
    *
    * <p>Pattern:</p>

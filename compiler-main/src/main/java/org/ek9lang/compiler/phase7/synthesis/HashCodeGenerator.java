@@ -242,7 +242,8 @@ final class HashCodeGenerator extends AbstractSyntheticGenerator {
         scopeId
     ));
 
-    // Store combined result
+    // Store combined result - must RELEASE old value first for ARC
+    instructions.add(MemoryInstr.release(RETURN_VAR, debugInfo));
     instructions.add(MemoryInstr.store(RETURN_VAR, combinedVar, debugInfo));
     instructions.add(MemoryInstr.retain(RETURN_VAR, debugInfo));
 

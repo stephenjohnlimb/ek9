@@ -465,7 +465,7 @@ final class Ek9LanguageWords {
             List.of(), getSearchNotIndentsAndNotPipe()));
     keywordMap.put(":=:",
         new KeyWordInformation(
-            "DEEP COPY: Create complete independent copy of object (target :=: source). Recursively copies all nested objects. Use when you need to modify copy without affecting original. Unlike shallow copy (just references), deep copy duplicates all nested data. Returns new object. https://ek9.io/operators.html#modification",
+            "COPY: Copy operator (target :=: source). The 'default' implementation does SHALLOW copy (copies field references). For DEEP copy, implement your own :=: operator - only you know which fields need true duplication vs shared references (e.g., insurance: coverClass shared, customerData duplicated). See HTML docs for deep copy example pattern. https://ek9.io/operators.html#modification",
             List.of(), getSearchNotIndentsAndNotPipe()));
     keywordMap.put(":~:",
         new KeyWordInformation(

@@ -34,7 +34,10 @@ import org.ek9lang.compiler.tokenizer.IToken;
  * "$":
  * "$$":
  * "#?":
+ * ":=:":
  * </pre>
+ * Note: The :=: (copy) operator does a shallow copy and does not require field types
+ * to have their own :=: operator.
  */
 final class DefaultOperatorsOrError extends TypedSymbolAccess implements Consumer<AggregateSymbol> {
   private final RetrieveDefaultedOperators retrieveDefaultedOperators = new RetrieveDefaultedOperators();
@@ -172,7 +175,7 @@ final class DefaultOperatorsOrError extends TypedSymbolAccess implements Consume
 
   private boolean isNotASortOfComparisonOperator(final MethodSymbol operator) {
 
-    return !isASortOfComparisonOperator(operator);
+    return !isASortOfComparisonOperator(operator) && !isCopyOperator(operator);
 
   }
 
@@ -182,6 +185,16 @@ final class DefaultOperatorsOrError extends TypedSymbolAccess implements Consume
       case "<", "<=", ">", ">=", "==", "<>", "<=>" -> true;
       default -> false;
     };
+
+  }
+
+  /**
+   * The copy operator (:=:) does a shallow copy of field references.
+   * It does not require field types to have their own :=: operator.
+   */
+  private boolean isCopyOperator(final MethodSymbol operator) {
+
+    return ":=:".equals(operator.getName());
 
   }
 
