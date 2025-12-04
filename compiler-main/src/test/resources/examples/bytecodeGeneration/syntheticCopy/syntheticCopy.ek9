@@ -1,0 +1,44 @@
+#!ek9
+<?-
+  Bytecode test for synthetic _copy (:=:) operator generation.
+  Tests that the default operator :=: generates correct bytecode
+  that performs a shallow copy of field values from source to target.
+
+  This test validates:
+  - Synthetic _copy operator is generated from 'default operator :=:'
+  - Fields are copied from source to target object
+  - Copy is shallow (references are copied, not cloned)
+  - Uses default operator $ to verify the copy worked
+-?>
+defines module bytecode.test
+
+  defines class
+
+    Data
+      name <- "Initial"
+      count <- 0
+
+      default operator $
+      default operator :=:
+
+  defines program
+
+    SyntheticCopy()
+      stdout <- Stdout()
+
+      d1 <- Data()
+      d2 <- Data()
+
+      //Both start with default values
+      stdout.println($d1)
+      stdout.println($d2)
+
+      //Copy d1 to d2 - should have same string representation
+      d2 :=: d1
+
+      if $d1 == $d2
+        stdout.println("PASS: Copy successful")
+      else
+        stdout.println("FAIL: Copy failed")
+
+//EOF

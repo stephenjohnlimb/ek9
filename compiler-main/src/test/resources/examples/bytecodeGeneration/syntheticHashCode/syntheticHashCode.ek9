@@ -1,0 +1,63 @@
+#!ek9
+<?-
+  Bytecode test for synthetic _hashcode (#?) operator generation.
+  Tests that the default operator #? generates correct bytecode
+  that produces a hash code based on field values.
+
+  This test validates:
+  - Synthetic _hashcode operator is generated from 'default operator #?'
+  - Two objects with identical field values produce the same hash code
+  - Two objects with different field values produce different hash codes
+  - Hash code is computed from field values using polynomial hash (31 * prev + field.#?)
+-?>
+defines module bytecode.test
+
+  defines class
+
+    ItemA
+      name <- "Test"
+      value <- 42
+
+      default operator #?
+      default operator $
+
+    ItemB
+      name <- "Different"
+      value <- 99
+
+      default operator #?
+      default operator $
+
+  defines program
+
+    SyntheticHashCode()
+      stdout <- Stdout()
+
+      //Two identical objects (same class, same default values)
+      a1 <- ItemA()
+      a2 <- ItemA()
+
+      stdout.println($a1)
+      stdout.println($a2)
+
+      ha1 <- #?a1
+      ha2 <- #?a2
+
+      if ha1 == ha2
+        stdout.println("PASS: Same hash for identical objects")
+      else
+        stdout.println("FAIL: Expected same hash for identical objects")
+
+      //Two different objects (different class, different values)
+      b1 <- ItemB()
+
+      stdout.println($b1)
+
+      hb1 <- #?b1
+
+      if ha1 <> hb1
+        stdout.println("PASS: Different hash for different objects")
+      else
+        stdout.println("FAIL: Expected different hash for different objects")
+
+//EOF

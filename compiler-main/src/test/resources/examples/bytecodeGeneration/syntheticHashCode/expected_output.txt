@@ -1,0 +1,5 @@
+ItemA(name=Test, value=42)
+ItemA(name=Test, value=42)
+PASS: Same hash for identical objects
+ItemB(name=Different, value=99)
+PASS: Different hash for different objects

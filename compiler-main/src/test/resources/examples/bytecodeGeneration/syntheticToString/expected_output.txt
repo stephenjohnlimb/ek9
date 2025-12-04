@@ -1,0 +1,1 @@
+Product(name=Widget, price=100)

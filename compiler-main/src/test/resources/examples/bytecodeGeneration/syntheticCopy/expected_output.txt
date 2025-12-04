@@ -1,0 +1,3 @@
+Data(name=Initial, count=0)
+Data(name=Initial, count=0)
+PASS: Copy successful
