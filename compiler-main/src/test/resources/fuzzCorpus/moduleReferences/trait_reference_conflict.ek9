@@ -1,0 +1,17 @@
+#!ek9
+<?-
+  REFERENCE_CHECKS Fuzz Test: Trait vs reference conflict
+  A trait with same name as a self-referenced symbol should trigger CONSTRUCT_REFERENCE_CONFLICT
+-?>
+defines module fuzztest.references.trait.conflict
+
+  references
+    fuzztest.references.trait.conflict::TestTrait
+
+  defines trait
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
+    TestTrait
+      doSomething() as abstract
+        <- rtn as String?
+
+//EOF

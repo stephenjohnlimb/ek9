@@ -1,0 +1,16 @@
+#!ek9
+<?-
+  REFERENCE_CHECKS Fuzz Test: Record vs reference conflict
+  A record with same name as a self-referenced symbol should trigger CONSTRUCT_REFERENCE_CONFLICT
+-?>
+defines module fuzztest.references.record.conflict
+
+  references
+    fuzztest.references.record.conflict::TestRecord
+
+  defines record
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
+    TestRecord
+      name as String?
+
+//EOF

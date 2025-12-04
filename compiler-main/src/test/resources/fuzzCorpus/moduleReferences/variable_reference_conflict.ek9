@@ -1,0 +1,20 @@
+#!ek9
+<?-
+  REFERENCE_CHECKS Fuzz Test: Variable vs reference conflict
+  A local variable with same name as a referenced symbol should trigger CONSTRUCT_REFERENCE_CONFLICT
+-?>
+defines module fuzztest.references.variable.conflict
+
+  references
+    org.ek9.lang::String
+
+  defines function
+
+    testVariableConflict()
+      <- rtn as Boolean: true
+
+      // Local variable 'String' conflicts with referenced type 'String'
+      @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
+      String <- "local variable named String"
+
+//EOF

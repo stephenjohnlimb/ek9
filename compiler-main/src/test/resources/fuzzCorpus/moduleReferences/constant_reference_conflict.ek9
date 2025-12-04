@@ -1,0 +1,15 @@
+#!ek9
+<?-
+  REFERENCE_CHECKS Fuzz Test: Constant vs reference conflict
+  A constant with same name as a self-referenced symbol should trigger CONSTRUCT_REFERENCE_CONFLICT
+-?>
+defines module fuzztest.references.constant.conflict
+
+  references
+    fuzztest.references.constant.conflict::TEST_CONSTANT
+
+  defines constant
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
+    TEST_CONSTANT <- "test value"
+
+//EOF

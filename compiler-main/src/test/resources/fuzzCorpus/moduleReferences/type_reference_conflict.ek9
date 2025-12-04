@@ -1,0 +1,15 @@
+#!ek9
+<?-
+  REFERENCE_CHECKS Fuzz Test: Type vs reference conflict
+  A type alias with same name as a self-referenced symbol should trigger CONSTRUCT_REFERENCE_CONFLICT
+-?>
+defines module fuzztest.references.type.conflict
+
+  references
+    fuzztest.references.type.conflict::TestType
+
+  defines type
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
+    TestType as String
+
+//EOF

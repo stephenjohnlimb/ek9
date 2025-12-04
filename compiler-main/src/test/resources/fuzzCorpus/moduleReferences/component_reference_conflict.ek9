@@ -1,0 +1,17 @@
+#!ek9
+<?-
+  REFERENCE_CHECKS Fuzz Test: Component vs reference conflict
+  A component with same name as a self-referenced symbol should trigger CONSTRUCT_REFERENCE_CONFLICT
+-?>
+defines module fuzztest.references.component.conflict
+
+  references
+    fuzztest.references.component.conflict::TestComponent
+
+  defines component
+    @Error: REFERENCE_CHECKS: CONSTRUCT_REFERENCE_CONFLICT
+    TestComponent
+      doSomething()
+        <- rtn as String: "done"
+
+//EOF
