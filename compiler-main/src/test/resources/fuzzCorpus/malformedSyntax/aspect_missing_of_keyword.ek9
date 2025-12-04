@@ -1,0 +1,38 @@
+#!ek9
+defines module fuzz.aspect.validation.missing.of
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (missing 'of' after 'aspect')
+  // @TestDescription: 'with aspect' without 'of' keyword
+
+  defines class
+    SomeAspect extends Aspect
+      override beforeAdvice()
+        -> joinPoint as JoinPoint
+        <- rtn as PreparedMetaData: PreparedMetaData(joinPoint)
+
+      override afterAdvice()
+        -> preparedMetaData as PreparedMetaData
+
+  defines component
+
+    SimpleComponent as abstract
+      doSomething() as abstract
+        <- rtn as String?
+
+    ConcreteComponent extends SimpleComponent
+      override doSomething()
+        <- rtn as String: "done"
+
+  defines application
+
+    badAspectApp
+      register ConcreteComponent() as SimpleComponent with aspect SomeAspect()
+
+  defines program
+
+    TestProgram with application of badAspectApp
+      stdout <- Stdout()
+      stdout.println("Test")
+
+//EOF

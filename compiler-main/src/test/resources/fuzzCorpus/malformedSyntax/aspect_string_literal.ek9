@@ -1,0 +1,29 @@
+#!ek9
+defines module fuzz.aspect.validation.string.literal
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (string literal instead of call expression)
+  // @TestDescription: Using a string literal as aspect type instead of a call
+
+  defines component
+
+    SimpleComponent as abstract
+      doSomething() as abstract
+        <- rtn as String?
+
+    ConcreteComponent extends SimpleComponent
+      override doSomething()
+        <- rtn as String: "done"
+
+  defines application
+
+    badAspectApp
+      register ConcreteComponent() as SimpleComponent with aspect of "StringLiteral"
+
+  defines program
+
+    TestProgram with application of badAspectApp
+      stdout <- Stdout()
+      stdout.println("Test")
+
+//EOF

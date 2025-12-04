@@ -1,0 +1,18 @@
+#!ek9
+defines module fuzztest.statements.dowhile003
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (nested do blocks - inner missing while)
+  // @TestDescription: Nested do-while where inner do block has no corresponding while
+
+  defines function
+    testNestedDoMissingInnerWhile()
+      outer <- 0
+      do
+        inner <- 0
+        do
+          inner++
+        outer++
+      while outer < 3
+
+//EOF

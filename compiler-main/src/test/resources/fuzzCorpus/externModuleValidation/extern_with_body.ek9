@@ -1,0 +1,17 @@
+#!ek9
+<?-
+  Extern Module Fuzz Test: Non-abstract method with body in extern module
+  In an extern module, methods should be abstract or have bodies.
+  Having a body on a method marked abstract is an error.
+-?>
+defines extern module fuzz.extern.validation.body.conflict
+
+  defines class
+
+    ExternClass
+      // Method marked abstract but with body - invalid in extern
+      @Error: SYMBOL_DEFINITION: ABSTRACT_BUT_BODY_PROVIDED
+      doSomething() as abstract
+        <- rtn <- "This body shouldn't be here"
+
+//EOF

@@ -1,0 +1,30 @@
+#!ek9
+<?-
+  Aspect Validation Fuzz Test: Undefined aspect type
+  Tests that using an undefined type as an aspect produces NOT_RESOLVED error.
+-?>
+defines module fuzz.aspect.validation.undefined.type
+
+  defines component
+
+    SimpleComponent as abstract
+      doSomething() as abstract
+        <- rtn as String?
+
+    ConcreteComponent extends SimpleComponent
+      override doSomething()
+        <- rtn as String: "done"
+
+  defines application
+
+    badAspectApp
+      @Error: FULL_RESOLUTION: NOT_RESOLVED
+      register ConcreteComponent() as SimpleComponent with aspect of UndefinedAspect()
+
+  defines program
+
+    TestProgram with application of badAspectApp
+      stdout <- Stdout()
+      stdout.println("Test")
+
+//EOF

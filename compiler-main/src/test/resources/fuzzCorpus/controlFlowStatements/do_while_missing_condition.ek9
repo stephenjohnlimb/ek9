@@ -1,0 +1,19 @@
+#!ek9
+defines module fuzztest.statements.dowhile001
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (do-while missing condition expression after 'while')
+  // @TestDescription: do-while with 'while' keyword but no condition expression
+
+  defines function
+    testDoWhileMissingCondition()
+      count <- 0
+      do
+        count++
+      while
+
+  defines function
+    process()
+      <- rtn as String: "done"
+
+//EOF

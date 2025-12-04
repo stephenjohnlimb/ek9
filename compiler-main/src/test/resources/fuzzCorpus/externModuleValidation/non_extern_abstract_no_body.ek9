@@ -1,0 +1,17 @@
+#!ek9
+<?-
+  Extern Module Fuzz Test: Abstract method without body in non-extern class
+  In a non-extern, non-abstract class, all methods must have bodies.
+  A class that is not abstract cannot have abstract methods.
+-?>
+defines module fuzz.extern.validation.non.extern.abstract
+
+  defines class
+
+    // Regular (non-abstract) class cannot have abstract methods
+    ConcreteClass
+      @Error: SYMBOL_DEFINITION: METHOD_MARKED_ABSTRACT_IN_NON_ABSTRACT_CONSTRUCT
+      doSomething() as abstract
+        <- rtn as String?
+
+//EOF

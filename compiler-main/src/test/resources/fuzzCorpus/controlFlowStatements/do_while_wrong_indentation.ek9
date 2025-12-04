@@ -1,0 +1,19 @@
+#!ek9
+defines module fuzztest.statements.dowhile002
+
+  // @ExpectPhase: PARSING
+  // @ExpectError: SYNTAX_ERROR (while at wrong indentation level)
+  // @TestDescription: do-while where 'while' keyword is indented inside the do block
+
+  defines function
+    testDoWhileWrongIndentation()
+      count <- 0
+      do
+        count++
+        while count < 5
+
+  defines function
+    process()
+      <- rtn as String: "done"
+
+//EOF
