@@ -1,0 +1,28 @@
+#!ek9
+<?-
+  Runtime fuzz test for WHILE loop with unset guard variable.
+  Tests that WHILE loop never enters when guard value._isSet() returns false.
+
+  When guard variable is unset, the WHILE body should NOT execute even once.
+  This verifies correct tri-state semantics at runtime for loops.
+-?>
+defines module fuzz.runtime.while.guardunset
+
+  defines program
+
+    WhileGuardUnset()
+      stdout <- Stdout()
+
+      // Create an unset Integer - will fail _isSet() check
+      unsetValue <- Integer()
+      counter <- 0
+
+      // WHILE guard with unset value - loop should never enter
+      // Guard is checked first: if unsetValue._isSet() is false, loop never enters
+      while value <- unsetValue then counter < 10
+        counter: counter + 1
+        stdout.println("ERROR: Should not execute - guard was unset")
+
+      stdout.println("Correctly skipped unset guard")
+
+//EOF

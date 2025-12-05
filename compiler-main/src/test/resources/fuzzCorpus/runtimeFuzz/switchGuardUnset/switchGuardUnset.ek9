@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  Runtime fuzz test for SWITCH statement with unset guard variable.
+  Tests that entire SWITCH is skipped when guard value._isSet() returns false.
+
+  When guard variable is unset, no case (including default) should execute.
+  This verifies correct tri-state semantics at runtime for switch statements.
+-?>
+defines module fuzz.runtime.switch.guardunset
+
+  defines program
+
+    SwitchGuardUnset()
+      stdout <- Stdout()
+
+      // Create an unset Integer - will fail _isSet() check
+      unsetValue <- Integer()
+
+      // Track if any case executed
+      message <- "No case executed"
+
+      // SWITCH guard with unset value - entire switch should be skipped
+      switch value <- unsetValue
+        case 1
+          message: "ERROR: Case 1 executed"
+        case 2
+          message: "ERROR: Case 2 executed"
+        default
+          message: "ERROR: Default executed"
+
+      stdout.println(message)
+      stdout.println("Correctly skipped unset guard")
+
+//EOF

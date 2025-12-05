@@ -1,0 +1,25 @@
+#!ek9
+<?-
+  Runtime fuzz test for FOR-IN loop with empty collection.
+  Tests that FOR-IN loop never enters when the collection is empty.
+
+  When iterating over an empty list, the loop body should not execute.
+  This verifies correct iterator handling at runtime.
+-?>
+defines module fuzz.runtime.forin.emptylist
+
+  defines program
+
+    ForInEmptyList()
+      stdout <- Stdout()
+
+      // Create an empty list
+      emptyList <- List() of String
+
+      // FOR-IN with empty list - loop should never enter
+      for item in emptyList
+        stdout.println("ERROR: Should not execute - list is empty")
+
+      stdout.println("Correctly skipped empty list")
+
+//EOF

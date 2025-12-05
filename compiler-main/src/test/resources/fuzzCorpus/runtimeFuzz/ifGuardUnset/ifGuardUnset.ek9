@@ -1,0 +1,25 @@
+#!ek9
+<?-
+  Runtime fuzz test for IF statement with unset guard variable.
+  Tests that IF body is skipped when guard value._isSet() returns false.
+
+  When guard variable is unset, the IF body should NOT execute.
+  This verifies correct tri-state semantics at runtime.
+-?>
+defines module fuzz.runtime.if.guardunset
+
+  defines program
+
+    IfGuardUnset()
+      stdout <- Stdout()
+
+      // Create an unset Integer - will fail _isSet() check
+      unsetValue <- Integer()
+
+      // IF guard with unset value - body should be skipped
+      if value <- unsetValue
+        stdout.println("ERROR: Should not execute - guard was unset")
+
+      stdout.println("Correctly skipped unset guard")
+
+//EOF

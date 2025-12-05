@@ -1,0 +1,2 @@
+No case executed
+Correctly skipped unset guard
