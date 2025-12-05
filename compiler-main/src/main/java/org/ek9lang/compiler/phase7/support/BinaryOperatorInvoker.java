@@ -41,11 +41,15 @@ public final class BinaryOperatorInvoker implements Function<BinaryOperatorParam
    * Handles:
    * - CallContext creation
    * - CallDetailsBuilder invocation
-   * - Memory management (RETAIN/SCOPE_REGISTER)
+   * - Memory management (RETAIN/SCOPE_REGISTER) for operators with return values
+   * </p>
+   * <p>
+   * For void-returning operators (+=, -=, *=, /=), resultTemp may be null.
+   * These mutating operators modify the left operand in place and don't return a value.
    * </p>
    *
    * @param params Binary operator parameters
-   * @return Instructions ending with result in params.resultTemp()
+   * @return Instructions ending with result in params.resultTemp() (if non-void)
    */
   @Override
   public List<IRInstr> apply(final BinaryOperatorParams params) {
@@ -66,6 +70,12 @@ public final class BinaryOperatorInvoker implements Function<BinaryOperatorParam
         params.debugInfo(),
         callResult.callDetails()
     ));
+
+    // For void-returning operators (mutating operators like +=), skip memory management
+    // as there is no result to manage
+    if (params.resultTemp() == null) {
+      return callInstructions;
+    }
 
     return variableMemoryManagement.apply(
         () -> callInstructions,

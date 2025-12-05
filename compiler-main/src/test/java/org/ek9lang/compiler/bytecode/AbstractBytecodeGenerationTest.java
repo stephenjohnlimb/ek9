@@ -72,7 +72,7 @@ import org.junit.jupiter.api.Test;
  * }
  * }</pre>
  */
-abstract class AbstractBytecodeGenerationTest extends PhasesTest {
+public abstract class AbstractBytecodeGenerationTest extends PhasesTest {
 
   private final List<SymbolCountCheck> expectedSymbols;
   private final boolean showBytecode;

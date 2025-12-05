@@ -124,10 +124,11 @@ final class ForRangePolymorphicAsmGenerator extends AbstractControlFlowAsmGenera
     generateDispatch(instr.getDispatchCases(), ascLabel, descLabel);
     // Stack: empty (both paths - branch taken or fall through)
 
-    // 5. Equal case (fall through from dispatch when direction == 0)
+    // 5. Equal case (only executes when direction == 0)
+    // Now has explicit direction check to prevent fall-through from failed BY validation
     placeLabel(equalLabel);
     // Stack: empty
-    generateEqualCase(instr.getDispatchCases().equal(), instr.getBodyInstructions());
+    generateEqualCase(instr.getDispatchCases().equal(), instr.getBodyInstructions(), endLabel);
     // Stack: empty
     jumpTo(endLabel);
     // Stack: irrelevant (control transferred)
@@ -286,6 +287,8 @@ final class ForRangePolymorphicAsmGenerator extends AbstractControlFlowAsmGenera
    * Pattern:
    * </p>
    * <pre>
+   * [direction check: direction == 0]
+   * ifeq endLabel           ; Skip if direction != 0 (failed BY validation)
    * [body setup: loopVariable = current]
    * [body instructions]
    * ; Fall through to end (no loop)
@@ -293,15 +296,31 @@ final class ForRangePolymorphicAsmGenerator extends AbstractControlFlowAsmGenera
    * <p>
    * Stack: empty before, empty after
    * </p>
+   * <p>
+   * The direction check prevents execution when BY validation fails for
+   * ascending/descending cases, causing fall-through to equal case even
+   * though direction != 0.
+   * </p>
    *
    * @param equalCase Equal case details from IR
    * @param body      IR instructions for loop body (user code, shared)
+   * @param endLabel  Label to jump to if direction check fails
    */
   private void generateEqualCase(final ForRangePolymorphicInstr.EqualCase equalCase,
-                                  final List<IRInstr> body) {
+                                  final List<IRInstr> body,
+                                  final Label endLabel) {
     // Set dispatch case BEFORE processing body (makes labels unique)
     context.enterDispatchCase(BytecodeGenerationContext.DispatchCase.EQUAL);
     try {
+      // Direction check: direction == 0 (only execute if start == end)
+      processInstructions(equalCase.directionCheck());
+      // Stack: empty (direction check result in primitive boolean variable)
+
+      // Branch to end if direction != 0 (this is a guard against fall-through
+      // from failed BY validation in ascending/descending cases)
+      branchIfFalse(equalCase.directionPrimitive(), endLabel);
+      // Stack: empty (both paths - continue or branch)
+
       // Body setup: loopVariable = current
       processInstructions(equalCase.loopBodySetup());
       // Stack: empty

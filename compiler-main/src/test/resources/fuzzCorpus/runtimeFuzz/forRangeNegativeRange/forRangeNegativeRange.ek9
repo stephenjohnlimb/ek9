@@ -1,0 +1,25 @@
+#!ek9
+<?-
+  Runtime Fuzz Test: For-range with negative values
+
+  Tests for-range behavior when start and end are negative numbers.
+  Verifies correct iteration across zero boundary and with negative values.
+
+  Range: -3 ... 2 should iterate -3, -2, -1, 0, 1, 2 (6 iterations)
+-?>
+defines module fuzz.runtime.forrange.negativerange
+
+  defines program
+
+    ForRangeNegativeRange()
+      stdout <- Stdout()
+      count <- 0
+
+      // Range crossing zero: -3 to 2
+      for i in -3 ... 2
+        count: count + 1
+        stdout.println($i)
+
+      stdout.println("count=" + $count)
+
+//EOF

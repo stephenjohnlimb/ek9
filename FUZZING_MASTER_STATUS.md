@@ -1,6 +1,6 @@
 # EK9 Compiler Fuzzing: Master Status Report
 
-**Last Updated:** 2025-12-02
+**Last Updated:** 2025-12-04
 **Project:** EK9 Compiler Multi-Phase Fuzzing Test Suite
 **Status:** ✅ **100% FRONTEND ERROR COVERAGE ACHIEVED** | ✅ Phases 0-8 Covered | ✅ All Critical Gaps Closed | ✅ AI-Assisted Intelligent Fuzzing
 
@@ -76,17 +76,18 @@ EK9's AI-assisted approach achieves comparable or better results through intelli
 
 | Metric | Count | Status |
 |--------|-------|--------|
-| **Test Suites** | 81 | ✅ All Passing |
-| **Test Files** | 504 | ✅ All Passing |
+| **Test Suites** | 95 | ✅ All Passing |
+| **Test Files** | 580 | ✅ All Passing |
 | **Error Types Covered** | 205/205 | ✅ **100% Frontend Coverage** |
 | **Compilation Failures** | 0 | ✅ Zero Regressions |
-| **Total Fuzz Suites** | 81 (incl. mutation tests) | ✅ All Passing |
-| **Total Corpus Files** | 504 | ✅ Zero Failures |
+| **Total Fuzz Suites** | 95 (incl. mutation tests) | ✅ All Passing |
+| **Total Corpus Files** | 580 | ✅ Zero Failures |
 | **Frontend Error Coverage** | **100%** | ✅ **MILESTONE ACHIEVED** |
 | **Robustness Tests** | 33 | ✅ Literal Validation |
 | **Mutation Tests** | 48 | ✅ Valid Code Pattern + Constant Mutability |
 | **Complex Expression Tests** | 16 | ✅ Dual-form, Arithmetic, Parenthesis Nesting |
 | **Constraint Validation Tests** | 78 | ✅ Traits, Dispatchers, Operators, Hierarchy, Access, Records |
+| **Reference Conflict Tests** | 13 | ✅ All construct types vs reference conflicts |
 
 ### Progress Tracking
 
@@ -125,9 +126,13 @@ EK9's AI-assisted approach achieves comparable or better results through intelli
 | **Generic Parameterization Errors** | 4 | 1 | 2 (GENERIC_TYPE_OR_FUNCTION_PARAMETERS_INCORRECT, TEMPLATE_TYPE_REQUIRES_PARAMETERIZATION) | ✅ Complete | 2025-12-02 |
 | **Generic Type Resolution Errors** | 1 | 1 | 1 (TYPE_NOT_RESOLVED) | ✅ Complete | 2025-12-02 |
 | **Generic Complex Scenarios** | 2 | 1 | 1 (TYPE_NOT_RESOLVED in nested/multi-param) | ✅ Complete | 2025-12-02 |
-| **Total Completed** | **333** | **63** | **95+** | ✅ **100%** | - |
+| **Reference Conflict Coverage** | 6 | 0 | 1 (CONSTRUCT_REFERENCE_CONFLICT for record, trait, type, constant, component, variable) | ✅ Complete | 2025-12-04 |
+| **Aspect Validation** | 1 | 1 | 1 (NOT_RESOLVED for undefined aspect) | ✅ Complete | 2025-12-04 |
+| **Extern Module Validation** | 2 | 1 | 2 (ABSTRACT_BUT_BODY_PROVIDED, METHOD_MARKED_ABSTRACT_IN_NON_ABSTRACT_CONSTRUCT) | ✅ Complete | 2025-12-04 |
+| **Do-While Control Flow** | 3 | 0 | 0 (PARSING errors - malformed do-while syntax) | ✅ Complete | 2025-12-04 |
+| **Total Completed** | **345** | **66** | **99+** | ✅ **100%** | - |
 | **Existing (Phases 0-6)** | 189 | 20 | 148+ | ✅ Stable | - |
-| **Grand Total** | **523** | **83** | **205/205** | ✅ **100% FRONTEND** | - |
+| **Grand Total** | **580** | **95** | **205/205** | ✅ **100% FRONTEND** | - |
 
 **Notes:**
 - *Literal Validation: 0 error types (robustness testing only - no compile-time validation exists)
@@ -154,6 +159,10 @@ EK9's AI-assisted approach achieves comparable or better results through intelli
 - **Access Modifier Constraints:** 1 test suite (AccessModifierConstraintsFuzzTest) covering 4 files validating protected modifier restrictions in closed classes, components, and services
 - **Enumeration Duplicates:** 1 test suite (EnumerationDuplicatesFuzzTest) covering 4 files validating duplicate enumeration value detection
 - **Record Method Constraints:** 1 test suite (RecordMethodConstraintsFuzzTest) covering 4 files validating record method restrictions (abstract methods, access modifiers)
+- **Reference Conflict Coverage (2025-12-04):** Expanded CONSTRUCT_REFERENCE_CONFLICT testing from 2 construct types (class, function) to 8 construct types (+ record, trait, type, constant, component, variable). Tests self-referencing patterns where local constructs conflict with referenced symbols.
+- **Aspect Validation (2025-12-04):** AspectValidationFuzzTest covering aspect registration with undefined types (NOT_RESOLVED error). PARSING errors for invalid aspect syntax moved to malformedSyntax.
+- **Extern Module Validation (2025-12-04):** ExternModuleValidationFuzzTest covering extern module body/abstract conflicts. Tests ABSTRACT_BUT_BODY_PROVIDED (abstract method with body in extern) and METHOD_MARKED_ABSTRACT_IN_NON_ABSTRACT_CONSTRUCT.
+- **Do-While Control Flow (2025-12-04):** Added 3 malformed do-while tests (missing condition, wrong indentation, nested missing inner while) to controlFlowStatements corpus. All PARSING errors.
 
 ---
 

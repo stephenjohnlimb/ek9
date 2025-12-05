@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Function;
 import org.ek9lang.antlr.EK9Parser;
 import org.ek9lang.compiler.common.OperatorMap;
-import org.ek9lang.compiler.ir.data.ReturnVariableDetails;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.ForRangePolymorphicInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
@@ -118,7 +117,7 @@ public final class ForRangeGenerator extends AbstractGenerator
     final var returnDetails = returningParamProcessor.process(ctx.returningParam(), outerScopeId);
 
     // Generate the core for-range loop
-    final var loopInstructions = generateForRangeLoopCore(ctx, forRangeCtx, returnDetails, debugInfo, outerScopeId);
+    final var loopInstructions = generateForRangeLoopCore(ctx, forRangeCtx, debugInfo, outerScopeId);
 
     // If guard has entry check, wrap loop in IF that checks entry condition (using shared helper)
     final List<IRInstr> instructions;
@@ -157,7 +156,6 @@ public final class ForRangeGenerator extends AbstractGenerator
   private List<IRInstr> generateForRangeLoopCore(
       final EK9Parser.ForStatementExpressionContext ctx,
       final EK9Parser.ForRangeContext forRangeCtx,
-      final ReturnVariableDetails returnDetails,
       final DebugInfo debugInfo,
       final String outerScopeId) {
 
@@ -499,7 +497,8 @@ public final class ForRangeGenerator extends AbstractGenerator
 
     final var ascendingCase = generateAscendingCase(initData, loopVariableName, debugInfo);
     final var descendingCase = generateDescendingCase(initData, loopVariableName, debugInfo);
-    final var equalCase = generateEqualCase(loopVariableName, initData.currentTemp, debugInfo);
+    final var equalCase = generateEqualCase(
+        loopVariableName, initData.currentTemp, initData.directionTemp, debugInfo);
 
     return new ForRangePolymorphicInstr.DispatchCases(
         ascendingCase,
@@ -540,9 +539,16 @@ public final class ForRangeGenerator extends AbstractGenerator
       final java.util.function.Function<CaseConstructorParams, T> caseConstructor) {
 
     // Direction check: direction < 0 (ascending) or direction > 0 (descending)
-    final var directionCheckResult = config.directionOperator().equals("<")
-        ? generateDirectionLessThanZero(initData.directionTemp, debugInfo)
-        : generateDirectionGreaterThanZero(initData.directionTemp, debugInfo);
+    // PLUS: when BY clause present, validate that 'by' moves us TOWARD the end
+    // This is type-agnostic: works with Integer, Duration, Date, or any user type
+    // Check: (start + by) <=> start must have same sign as required direction
+    final var directionCheckResult = generateDirectionCheckWithByValidation(
+        config.directionOperator(),
+        initData.directionTemp,
+        initData.startTemp,
+        initData.byTemp,
+        initData.rangeType,
+        debugInfo);
 
     // Loop condition: current <= end (ascending) or current >= end (descending)
     final var loopConditionResult = generateLoopCondition(
@@ -643,19 +649,52 @@ public final class ForRangeGenerator extends AbstractGenerator
 
   /**
    * Generate equal dispatch case (direction == 0, single iteration).
+   * <p>
+   * Includes explicit direction check to prevent fall-through execution when
+   * BY validation fails for ascending/descending cases.
+   * </p>
    */
   private ForRangePolymorphicInstr.EqualCase generateEqualCase(
       final String loopVariableName,
       final String currentTemp,
+      final String directionTemp,
       final DebugInfo debugInfo) {
+
+    // Direction check: direction == 0 (meaning start == end)
+    final var directionCheck = generateDirectionEqualZero(directionTemp, debugInfo);
 
     // Body setup: loopVariable = current
     final var loopBodySetup = generateBodySetup(loopVariableName, currentTemp, debugInfo);
 
     return new ForRangePolymorphicInstr.EqualCase(
+        directionCheck.instructions(),
+        directionCheck.primitiveVariableName(),
         loopBodySetup,
         true  // Single iteration flag
     );
+  }
+
+  /**
+   * Generate direction check: direction == 0 (for equal case).
+   * Returns structured result with IR sequence and primitive boolean variable.
+   */
+  private ConditionEvaluationResult generateDirectionEqualZero(
+      final String directionTemp,
+      final DebugInfo debugInfo) {
+
+    final var params = new DirectionCheckParams(
+        directionTemp,
+        operatorMap.getForward("=="),
+        stackContext.generateTempName(),  // zeroTemp
+        stackContext.generateTempName(),  // booleanObjectTemp
+        stackContext.generateTempName(),  // primitiveBooleanTemp
+        stackContext.getParsedModule().getEk9Types().ek9Integer(),
+        stackContext.getParsedModule().getEk9Types().ek9Boolean(),
+        stackContext.currentScopeId(),
+        debugInfo
+    );
+
+    return generators.directionCheckBuilder.apply(params);
   }
 
   /**
@@ -704,6 +743,189 @@ public final class ForRangeGenerator extends AbstractGenerator
     );
 
     return generators.directionCheckBuilder.apply(params);
+  }
+
+  /**
+   * Generate direction check with BY value validation.
+   * <p>
+   * When a BY clause is present, we must verify that applying '+= by' moves us
+   * TOWARD the end, not away from it. This check is type-agnostic and works with
+   * Integer, Duration, Date, or any user-defined type.
+   * </p>
+   * <p>
+   * The validation computes: (start + by) &lt;=&gt; start
+   * <ul>
+   *   <li>For ascending (direction &lt; 0): result must be &gt; 0 (by moves us UP)</li>
+   *   <li>For descending (direction &gt; 0): result must be &lt; 0 (by moves us DOWN)</li>
+   * </ul>
+   * </p>
+   * <p>
+   * Without this check, mismatched direction/by combinations cause infinite loops:
+   * <ul>
+   *   <li>{@code for i in 1 ... 10 by -1} would loop: 1, 0, -1, -2, ... forever</li>
+   *   <li>{@code for i in 10 ... 1 by 2} would loop: 10, 12, 14, ... forever</li>
+   * </ul>
+   * </p>
+   */
+  private ConditionEvaluationResult generateDirectionCheckWithByValidation(
+      final String directionOperator,
+      final String directionTemp,
+      final String startTemp,
+      final String byTemp,  // nullable - no BY clause
+      final ISymbol rangeType,
+      final DebugInfo debugInfo) {
+
+    // Generate basic direction check (produces EK9 Boolean object and primitive)
+    final var basicCheck = directionOperator.equals("<")
+        ? generateDirectionLessThanZero(directionTemp, debugInfo)
+        : generateDirectionGreaterThanZero(directionTemp, debugInfo);
+
+    // If no BY clause, just return the basic direction check
+    if (byTemp == null) {
+      return basicCheck;
+    }
+
+    // BY clause present: validate that 'by' moves us toward the end
+    // We combine both checks using Boolean._and() method at the EK9 object level
+    // This avoids JVM issues with primitive boolean storage across control flow paths
+    return generateCombinedDirectionAndByCheck(
+        directionOperator,
+        directionTemp,
+        startTemp,
+        byTemp,
+        rangeType,
+        debugInfo
+    );
+  }
+
+  /**
+   * Generate combined direction and BY validation check.
+   * <p>
+   * Produces both Boolean objects and combines them with _and() before extracting primitive.
+   * This approach avoids JVM bytecode verification issues with primitive boolean storage.
+   * </p>
+   */
+  private ConditionEvaluationResult generateCombinedDirectionAndByCheck(
+      final String directionOperator,
+      final String directionTemp,
+      final String startTemp,
+      final String byTemp,
+      final ISymbol rangeType,
+      final DebugInfo debugInfo) {
+
+    // Temps for direction check
+    final var zeroTemp1 = stackContext.generateTempName();
+    final var directionBooleanTemp = stackContext.generateTempName();
+
+    // Temps for BY validation
+    final var testValueTemp = stackContext.generateTempName();
+    final var byDirectionTemp = stackContext.generateTempName();
+    final var zeroTemp2 = stackContext.generateTempName();
+    final var byBooleanTemp = stackContext.generateTempName();
+
+    // Temps for combining
+    final var combinedBooleanTemp = stackContext.generateTempName();
+    final var combinedPrimitiveTemp = stackContext.generateTempName();
+
+    final var booleanType = stackContext.getParsedModule().getEk9Types().ek9Boolean();
+    final var integerType = stackContext.getParsedModule().getEk9Types().ek9Integer();
+    final var requiredSign = directionOperator.equals("<") ? ">" : "<";
+
+    final var instructions = generators.scopedInstructionExecutor.execute(() -> {
+
+      // === Part 1: Direction check (direction < 0 or direction > 0) ===
+      // Load literal 0 for direction comparison
+      final var literal1Params = new LiteralParams(zeroTemp1, "0", integerType, debugInfo);
+      final var scopedInstructions = new ArrayList<>(generators.managedLiteralLoader.apply(literal1Params));
+
+      // Compare direction with 0 (produces Boolean object, no primitive extraction yet)
+      final var directionCmpParams = new BinaryOperatorParams(
+          directionTemp,
+          zeroTemp1,
+          operatorMap.getForward(directionOperator),
+          integerType,
+          integerType,
+          booleanType,
+          directionBooleanTemp,
+          stackContext.currentScopeId(),
+          debugInfo
+      );
+      scopedInstructions.addAll(generators.binaryOperatorInvoker.apply(directionCmpParams));
+
+      // === Part 2: BY validation ((start + by) <=> start) compared to 0 ===
+      // testValue = start + by
+      final var addParams = new BinaryOperatorParams(
+          startTemp,
+          byTemp,
+          operatorMap.getForward("+"),
+          rangeType,
+          rangeType,
+          rangeType,
+          testValueTemp,
+          stackContext.currentScopeId(),
+          debugInfo
+      );
+      scopedInstructions.addAll(generators.binaryOperatorInvoker.apply(addParams));
+
+      // byDirection = testValue <=> start
+      final var cmpParams = new BinaryOperatorParams(
+          testValueTemp,
+          startTemp,
+          operatorMap.getForward("<=>"),
+          rangeType,
+          rangeType,
+          integerType,
+          byDirectionTemp,
+          stackContext.currentScopeId(),
+          debugInfo
+      );
+      scopedInstructions.addAll(generators.binaryOperatorInvoker.apply(cmpParams));
+
+      // Load literal 0 for BY comparison
+      final var literal2Params = new LiteralParams(zeroTemp2, "0", integerType, debugInfo);
+      scopedInstructions.addAll(generators.managedLiteralLoader.apply(literal2Params));
+
+      // byOk = byDirection > 0 (ascending) or byDirection < 0 (descending)
+      final var byCmpParams = new BinaryOperatorParams(
+          byDirectionTemp,
+          zeroTemp2,
+          operatorMap.getForward(requiredSign),
+          integerType,
+          integerType,
+          booleanType,
+          byBooleanTemp,
+          stackContext.currentScopeId(),
+          debugInfo
+      );
+      scopedInstructions.addAll(generators.binaryOperatorInvoker.apply(byCmpParams));
+
+      // === Part 3: Combine with Boolean._and() ===
+      // combined = directionOk._and(byOk)
+      final var andParams = new BinaryOperatorParams(
+          directionBooleanTemp,
+          byBooleanTemp,
+          operatorMap.getForward("and"),
+          booleanType,
+          booleanType,
+          booleanType,
+          combinedBooleanTemp,
+          stackContext.currentScopeId(),
+          debugInfo
+      );
+      scopedInstructions.addAll(generators.binaryOperatorInvoker.apply(andParams));
+
+      // === Part 4: Extract primitive from combined Boolean ===
+      final var extractionParams = new BooleanExtractionParams(
+          combinedBooleanTemp,
+          combinedPrimitiveTemp,
+          debugInfo
+      );
+      scopedInstructions.addAll(generators.primitiveBooleanExtractor.apply(extractionParams));
+
+      return scopedInstructions;
+    }, debugInfo);
+
+    return new ConditionEvaluationResult(instructions, combinedPrimitiveTemp);
   }
 
   /**
@@ -844,6 +1066,10 @@ public final class ForRangeGenerator extends AbstractGenerator
   /**
    * Generate increment by: current += by.
    * Wraps all temps in SCOPE_ENTER/EXIT for proper memory management.
+   * <p>
+   * Note: += is a mutating operator that modifies 'current' in place and returns void.
+   * No result storage is needed - the left operand is updated directly.
+   * </p>
    */
   private List<IRInstr> generateIncrementBy(
       final String currentTemp,
@@ -854,26 +1080,22 @@ public final class ForRangeGenerator extends AbstractGenerator
 
     return generators.scopedInstructionExecutor.execute(() -> {
 
-      // Call current += by with memory management
-      final var newValueTemp = stackContext.generateTempName();
+      // Call current += by - this mutates current in place (returns void)
+      // Pass null for result type and result temp since += returns void
       final var params = new BinaryOperatorParams(
           currentTemp,
           byTemp,
           operatorMap.getForward("+="),
           rangeType,
           byType,
-          rangeType,
-          newValueTemp,
+          null,  // Mutating operator returns void - no return type
+          null,  // No result temp needed - operator mutates in place
           stackContext.currentScopeId(),
           debugInfo
       );
 
-      final var scopedInstructions = new ArrayList<>(generators.binaryOperatorInvoker.apply(params));
-
-      // Update current variable (STORE only, current is already owned by loop_scope)
-      scopedInstructions.add(MemoryInstr.store(currentTemp, newValueTemp, debugInfo));
-
-      return scopedInstructions;
+      // No store needed after call - += mutates currentTemp in place
+      return new ArrayList<>(generators.binaryOperatorInvoker.apply(params));
     }, debugInfo);
   }
 

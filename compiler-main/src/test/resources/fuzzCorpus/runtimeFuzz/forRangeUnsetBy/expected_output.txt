@@ -1,0 +1,3 @@
+Exception in thread "main" java.lang.AssertionError: For-range 'by' value must be set
+	at fuzz.runtime.forrange.unsetby.ForRangeUnsetBy._main(forRangeUnsetBy.ek9)
+	at ek9.Main.main(Unknown Source)

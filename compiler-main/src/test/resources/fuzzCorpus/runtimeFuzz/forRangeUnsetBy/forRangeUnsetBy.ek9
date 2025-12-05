@@ -1,0 +1,22 @@
+#!ek9
+<?-
+  Runtime fuzz test for FOR_RANGE with unset BY value.
+  Tests that ASSERT bytecode throws AssertionError when by._isSet() is false.
+  Should fail at runtime with AssertionError before loop body executes.
+-?>
+defines module fuzz.runtime.forrange.unsetby
+
+  defines program
+
+    ForRangeUnsetBy()
+      stdout <- Stdout()
+      unsetBy <- Integer()  // Unset value - will fail by._isSet() assertion
+
+      // Should throw AssertionError at ASSERT instruction for by._isSet()
+      for i in 1 ... 10 by unsetBy
+        stdout.println(i)
+
+      // Should never reach here - AssertionError thrown during initialization
+      stdout.println("ERROR: Should have thrown AssertionError")
+
+//EOF

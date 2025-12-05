@@ -303,6 +303,19 @@ SCOPE_EXIT _scope_10
 ]
 equal:
 [
+direction_check:
+[
+SCOPE_ENTER _scope_11
+_temp48 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp48
+SCOPE_REGISTER _temp48, _scope_11
+_temp49 = CALL (org.ek9.lang::Integer)_temp27._eq(_temp48) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp49
+SCOPE_REGISTER _temp49, _scope_11
+_temp50 = CALL (org.ek9.lang::Boolean)_temp49._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_11
+]
+direction_primitive: _temp50
 loop_body_setup:
 [
 RELEASE i

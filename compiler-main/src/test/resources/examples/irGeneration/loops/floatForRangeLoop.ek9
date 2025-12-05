@@ -160,6 +160,19 @@ SCOPE_EXIT _scope_10
 ]
 equal:
 [
+direction_check:
+[
+SCOPE_ENTER _scope_11
+_temp32 = LOAD_LITERAL 0, org.ek9.lang::Integer
+RETAIN _temp32
+SCOPE_REGISTER _temp32, _scope_11
+_temp33 = CALL (org.ek9.lang::Integer)_temp11._eq(_temp32) [pure=true, complexity=1, effects=RETURN_MUTATION]
+RETAIN _temp33
+SCOPE_REGISTER _temp33, _scope_11
+_temp34 = CALL (org.ek9.lang::Boolean)_temp33._true() [pure=true, complexity=0]
+SCOPE_EXIT _scope_11
+]
+direction_primitive: _temp34
 loop_body_setup:
 [
 RELEASE x
@@ -203,13 +216,13 @@ body_scope: "_scope_4"
 ]
 SCOPE_EXIT _scope_3
 SCOPE_EXIT _scope_2
-_temp33 = LOAD stdout
-RETAIN _temp33
-SCOPE_REGISTER _temp33, _scope_1
-_temp34 = LOAD sum
-RETAIN _temp34
-SCOPE_REGISTER _temp34, _scope_1
-CALL (org.ek9.lang::StringOutput)_temp33.println(_temp34) [pure=true, complexity=1, trait=true]
+_temp36 = LOAD stdout
+RETAIN _temp36
+SCOPE_REGISTER _temp36, _scope_1
+_temp37 = LOAD sum
+RETAIN _temp37
+SCOPE_REGISTER _temp37, _scope_1
+CALL (org.ek9.lang::StringOutput)_temp36.println(_temp37) [pure=true, complexity=1, trait=true]
 SCOPE_EXIT _scope_1
 RETURN
 OperationDfn: loops::floatForRangeLoop.c_init()->org.ek9.lang::Void  

@@ -1,0 +1,26 @@
+#!ek9
+<?-
+  Runtime Fuzz Test: For-range with descending range (start > end)
+
+  When start is greater than end, the three-way dispatch goes to the
+  "descending" branch. The loop should iterate downward using decrement.
+
+  Tests: 10 ... 1 should iterate 10, 9, 8, 7, 6, 5, 4, 3, 2, 1
+-?>
+defines module fuzz.runtime.forrange.descending
+
+  defines program
+
+    ForRangeDescending()
+      stdout <- Stdout()
+      sum <- 0
+
+      // Descending range: start > end (10 ... 1)
+      // Should iterate 10 times, decrementing from 10 to 1
+      for i in 10 ... 1
+        sum: sum + i
+
+      // Sum of 10+9+8+7+6+5+4+3+2+1 = 55
+      stdout.println("sum=" + $sum)
+
+//EOF

@@ -313,6 +313,14 @@ public final class ForRangePolymorphicInstr extends IRInstr {
   }
 
   private void appendEqualCase(StringBuilder builder, EqualCase equalCase) {
+    builder.append("direction_check:\n");
+    builder.append("[\n");
+    for (var instr : equalCase.directionCheck()) {
+      builder.append(instr.toString()).append("\n");
+    }
+    builder.append("]\n");
+    builder.append("direction_primitive: ").append(equalCase.directionPrimitive()).append("\n");
+
     builder.append("loop_body_setup:\n");
     builder.append("[\n");
     for (var instr : equalCase.loopBodySetup()) {
@@ -439,12 +447,21 @@ public final class ForRangePolymorphicInstr extends IRInstr {
    *
    * <p>Example: for i in 5 ... 5</p>
    * <p>Just setup loop variable and execute body once</p>
+   * <p>
+   * Includes direction check (direction == 0) to prevent fall-through execution when
+   * BY validation fails for ascending/descending cases. Without this check,
+   * {@code for i in 10 ... 1 by 2} would incorrectly execute the equal case.
+   * </p>
    */
   public record EqualCase(
+      List<IRInstr> directionCheck,        // IR: direction == 0
+      String directionPrimitive,           // Primitive boolean variable name
       List<IRInstr> loopBodySetup,         // IR: loopVariable = current
       boolean singleIteration              // Always true
   ) {
     public EqualCase {
+      AssertValue.checkNotNull("Direction check cannot be null", directionCheck);
+      AssertValue.checkNotEmpty("Direction primitive cannot be empty", directionPrimitive);
       AssertValue.checkNotNull("Loop body setup cannot be null", loopBodySetup);
     }
   }

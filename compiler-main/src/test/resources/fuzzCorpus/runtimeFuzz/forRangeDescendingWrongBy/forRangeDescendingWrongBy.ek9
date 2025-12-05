@@ -1,0 +1,24 @@
+#!ek9
+<?-
+  Runtime Fuzz Test: For-range descending with wrong direction 'by' value
+
+  Tests that for-range loops with descending range (10 ... 1) but
+  positive 'by' value (+2) correctly produces no iterations.
+
+  Expected: No iterations because 10 ... 1 by 2 is impossible
+-?>
+defines module fuzz.runtime.forrange.descendingwrongby
+
+  defines program
+
+    ForRangeDescendingWrongBy()
+      stdout <- Stdout()
+
+      stdout.println("before")
+
+      for i in 10 ... 1 by 2
+        stdout.println($i)
+
+      stdout.println("after")
+
+//EOF

@@ -1,0 +1,26 @@
+#!ek9
+<?-
+  Runtime Fuzz Test: For-range with empty range (start == end)
+
+  When start equals end, the three-way dispatch goes to the "equal" branch.
+  The loop body should execute exactly ONCE with i equal to that value.
+
+  This tests the edge case where the range contains only a single value.
+-?>
+defines module fuzz.runtime.forrange.emptyrange
+
+  defines program
+
+    ForRangeEmptyRange()
+      stdout <- Stdout()
+      count <- 0
+
+      // Empty range: start == end (5 ... 5)
+      // Should execute exactly once with i = 5
+      for i in 5 ... 5
+        count: count + 1
+        stdout.println("i=" + $i)
+
+      stdout.println("count=" + $count)
+
+//EOF

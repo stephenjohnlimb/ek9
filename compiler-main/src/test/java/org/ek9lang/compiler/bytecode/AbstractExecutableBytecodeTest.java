@@ -52,7 +52,7 @@ import org.junit.jupiter.api.Test;
  * }
  * }</pre>
  */
-abstract class AbstractExecutableBytecodeTest extends AbstractBytecodeGenerationTest {
+public abstract class AbstractExecutableBytecodeTest extends AbstractBytecodeGenerationTest {
 
   private static final String COMMANDLINE_ARG_PREFIX = "commandline_arg_";
   private static final String EXPECTED_CASE_PREFIX = "expected_case_";
@@ -132,7 +132,7 @@ abstract class AbstractExecutableBytecodeTest extends AbstractBytecodeGeneration
 
     int passedCount = 0;
     for (TestCaseConfig testCase : testCases) {
-      verifyTestCase(bytecodeDir.toPath(), testResourceDir, programClassName, testCase);
+      verifyTestCase(bytecodeDir.toPath(), programClassName, testCase);
       passedCount++;
     }
 
@@ -199,8 +199,9 @@ abstract class AbstractExecutableBytecodeTest extends AbstractBytecodeGeneration
   /**
    * Execute program with given test case configuration and verify output.
    */
-  private void verifyTestCase(final Path bytecodeDir, final Path testResourceDir,
-                              final String programClassName, final TestCaseConfig testCase) throws Exception {
+  private void verifyTestCase(final Path bytecodeDir,
+                              final String programClassName,
+                              final TestCaseConfig testCase) throws Exception {
     // Execute program - thread-local capture handles parallel safety
     final var actualOutput = BytecodeExecutor.execute(bytecodeDir, programClassName, testCase.args());
 

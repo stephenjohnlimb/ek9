@@ -1,0 +1,29 @@
+#!ek9
+<?-
+  Runtime Fuzz Test: Guard assignment with unset value
+
+  Tests that guard assignment (<-) with an unset source value
+  correctly prevents the guarded block from executing.
+
+  An unset Integer is used directly in the guard expression,
+  so the if-block should NOT execute.
+-?>
+defines module fuzz.runtime.guard.assignmentunset
+
+  defines program
+
+    GuardAssignmentUnset()
+      stdout <- Stdout()
+
+      stdout.println("before")
+
+      // Create an unset Integer
+      unsetValue <- Integer()
+
+      // Guard assignment: should NOT execute block because unsetValue is unset
+      if value <- unsetValue
+        stdout.println("inside=" + $value)
+
+      stdout.println("after")
+
+//EOF

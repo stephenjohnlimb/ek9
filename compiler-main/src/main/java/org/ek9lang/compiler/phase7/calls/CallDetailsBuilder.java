@@ -143,23 +143,29 @@ public final class CallDetailsBuilder implements Function<CallContext, CallDetai
         .map(typeNameOrException)
         .toList();
 
-    // Use the return type from CallContext if available
+    // ALWAYS check OperatorMap first for operator return type.
+    // This protects against callers passing incorrect return types for mutating operators.
     String returnType;
     CallMetaDataDetails metaData;
 
-    if (context.returnType() != null) {
-      // Use the provided return type
-      returnType = typeNameOrException.apply(context.returnType());
-    } else if (operatorMap.hasMethod(context.methodName())) {
-      // Fallback for synthetic operators without resolved methods
+    if (operatorMap.hasMethod(context.methodName())) {
+      // OperatorMap is authoritative for standard operators
       final var operatorDetails = operatorMap.getOperatorDetailsByMethod(context.methodName());
       if (operatorDetails.hasReturn()) {
-        returnType = targetTypeName; // Fallback assumption
+        // Operator returns a value - use provided type or fallback to target type
+        returnType = context.returnType() != null
+            ? typeNameOrException.apply(context.returnType())
+            : targetTypeName;
       } else {
+        // Operator returns void (mutating operators like +=, -=, *=, /=)
+        // Ignore caller's return type - OperatorMap is authoritative
         returnType = EK9_VOID;
       }
+    } else if (context.returnType() != null) {
+      // Unknown operator, trust caller (shouldn't happen for standard operators)
+      returnType = typeNameOrException.apply(context.returnType());
     } else {
-      throw new CompilerException("Unknown operator: " + context.methodName());
+      throw new CompilerException("Unknown operator with no return type: " + context.methodName());
     }
 
     // Get metadata from OperatorMap
