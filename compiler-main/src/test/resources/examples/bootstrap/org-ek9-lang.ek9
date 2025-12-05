@@ -40,6 +40,15 @@ defines extern module org.ek9.lang
       override operator ? as pure
         <- rtn as Boolean?
 
+    Bits as open
+      Bits() as pure
+
+      Bits() as pure
+        -> arg0 as String
+
+      override operator ? as pure
+        <- rtn as Boolean?
+
     Float as open
       Float() as pure
 

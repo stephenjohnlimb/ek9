@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.compiler.ir.instructions.BranchInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
-import org.ek9lang.compiler.ir.instructions.LabelInstr;
-import org.ek9lang.compiler.ir.instructions.LiteralInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
@@ -19,38 +17,42 @@ import org.ek9lang.core.AssertValue;
 /**
  * Generates synthetic IR for the _fieldSetStatus() method.
  *
- * <p>This method returns an Integer bitmask where each bit represents
- * whether a field is set (1) or not set (0). The bit position
- * corresponds to the field's declaration order:</p>
+ * <p>This method returns a Bits value where each bit represents whether a field
+ * is set (1) or not set (0). The bit position corresponds to the field's
+ * declaration order:</p>
  * <ul>
  *   <li>Bit 0 = field 0 status</li>
  *   <li>Bit 1 = field 1 status</li>
  *   <li>Bit N = field N status</li>
  * </ul>
  *
+ * <p>Using Bits instead of Integer removes the 32-field limit and provides
+ * a cleaner API for checking field status.</p>
+ *
  * <p>The generated code follows this pattern:</p>
  * <pre>
- * Integer _fieldSetStatus():
- *   result = 0
+ * Bits _fieldSetStatus():
+ *   result = Bits()    // Empty Bits (set but with 0 bits)
  *
- *   // For each field at index i (mask = 2^i):
- *   if field[i]._isSet():
- *     result = result._or(mask)
+ *   // For each field:
+ *   isSet = field._isSet()
+ *   result._addAss(isSet)  // Append bit: result += isSet
  *
  *   return result
  * </pre>
  *
- * <p>Callers can check if field N is set using:</p>
- * <pre>
- *   status._and(MASK_N)._gt(0)
- * </pre>
- * <p>where MASK_N = 2^N (compile-time constant)</p>
+ * <p>Callers can use:</p>
+ * <ul>
+ *   <li>{@code status._eq(other)} - compare if two objects have identical set fields</li>
+ *   <li>{@code status._empty()} - check if no fields are set</li>
+ *   <li>{@code status._xor(other)} - find fields set differently</li>
+ * </ul>
  *
  * <p>This approach enables:</p>
  * <ul>
- *   <li>Efficient field status checking with a single method call</li>
- *   <li>Optimization opportunity: IR optimizer can cache results</li>
- *   <li>Compact representation: one Integer for up to 32 fields</li>
+ *   <li>Unlimited field count (no 32-field limit)</li>
+ *   <li>Efficient field status comparison with single method call</li>
+ *   <li>IR optimizer can cache results across expressions</li>
  * </ul>
  *
  * <p>Note: EK9 guarantees fields are always initialized (to unset values),
@@ -88,29 +90,35 @@ final class FieldSetStatusGenerator extends AbstractSyntheticGenerator {
     // Enter scope
     instructions.add(ScopeInstr.enter(scopeId, debugInfo));
 
-    // Reference return variable
-    instructions.add(MemoryInstr.reference(RETURN_VAR, getIntegerTypeName(), debugInfo));
+    // Reference return variable with Bits type
+    instructions.add(MemoryInstr.reference(RETURN_VAR, getBitsTypeName(), debugInfo));
 
-    // Initialize result to 0
-    final var resultVar = generateTempName();
-    instructions.add(LiteralInstr.literal(resultVar, "0", getIntegerTypeName(), debugInfo));
-    instructions.add(MemoryInstr.retain(resultVar, debugInfo));
-    instructions.add(ScopeInstr.register(resultVar, scopeId, debugInfo));
+    // Create new empty-but-set Bits by calling Bits(String) with empty string.
+    // Using Bits() creates an unset Bits, but Bits("") creates a set Bits with 0 bits.
+    // This is critical because _addAss(Boolean) requires this.isSet == true to work.
+    final var emptyStringVar = generateTempName();
+    instructions.addAll(generateStringLiteralLoad(emptyStringVar, "", debugInfo, scopeId));
 
-    // Store initial value to return variable
-    instructions.add(MemoryInstr.store(RETURN_VAR, resultVar, debugInfo));
+    final var bitsVar = generateTempName();
+    instructions.addAll(generateConstructorCallWithArgs(
+        bitsVar,
+        getBitsTypeName(),
+        List.of(emptyStringVar),
+        List.of(getStringTypeName()),
+        debugInfo,
+        scopeId
+    ));
+
+    // Store to return variable
+    instructions.add(MemoryInstr.store(RETURN_VAR, bitsVar, debugInfo));
     instructions.add(MemoryInstr.retain(RETURN_VAR, debugInfo));
 
     // Get fields for this aggregate (not inherited - those are handled by super's _fieldSetStatus)
     final var fields = getSyntheticFields(aggregateSymbol);
 
-    // Generate field status check for each field
-    int fieldIndex = 0;
+    // Generate field status append for each field
     for (final var field : fields) {
-      // Calculate mask for this field: 2^fieldIndex
-      final int mask = 1 << fieldIndex;
-      instructions.addAll(generateFieldStatusCheck(field, mask, debugInfo, scopeId));
-      fieldIndex++;
+      instructions.addAll(generateFieldStatusAppend(field, debugInfo, scopeId));
     }
 
     // Return the accumulated status
@@ -121,38 +129,35 @@ final class FieldSetStatusGenerator extends AbstractSyntheticGenerator {
   }
 
   /**
-   * Generate field status check and OR into result if set.
+   * Generate field status check and append to Bits result.
    *
    * <p>Pattern for each field:</p>
    * <pre>
    *   fieldValue = LOAD this.field
    *   isSetResult = CALL fieldValue._isSet()
-   *   isSetBool = CALL isSetResult._true()
-   *   BRANCH_FALSE isSetBool, skip_label  // If not set, skip
-   *   // Field is set - OR the mask into result
-   *   maskLiteral = LOAD_LITERAL mask
-   *   newResult = CALL rtn._or(maskLiteral)
-   *   STORE rtn, newResult
-   *   skip_label:
+   *   CALL rtn._addAss(isSetResult)  // rtn += isSetResult
    * </pre>
+   *
+   * <p>This is simpler than the old Integer bitmask approach because:</p>
+   * <ul>
+   *   <li>No mask calculation needed</li>
+   *   <li>No conditional branching - always append</li>
+   *   <li>_addAss mutates in place</li>
+   * </ul>
    */
-  private List<IRInstr> generateFieldStatusCheck(final ISymbol field,
-                                                  final int mask,
-                                                  final DebugInfo debugInfo,
-                                                  final String scopeId) {
+  private List<IRInstr> generateFieldStatusAppend(final ISymbol field,
+                                                   final DebugInfo debugInfo,
+                                                   final String scopeId) {
 
     final var fieldName = field.getName();
     final var fieldTypeName = getTypeName(field);
     final var instructions = new ArrayList<IRInstr>();
 
-    // Label to skip if field is unset
-    final var skipLabel = generateLabelName("field_skip");
-
     // Load field value
     final var fieldVar = generateTempName();
     instructions.addAll(generateFieldLoad(fieldVar, IRConstants.THIS, fieldName, debugInfo, scopeId));
 
-    // Call field._isSet()
+    // Call field._isSet() -> Boolean
     final var isSetResultVar = generateTempName();
     instructions.addAll(generateMethodCall(
         isSetResultVar,
@@ -166,49 +171,19 @@ final class FieldSetStatusGenerator extends AbstractSyntheticGenerator {
         scopeId
     ));
 
-    // Extract boolean value via _true()
-    final var isSetBoolVar = generateTempName();
+    // Call rtn._addAss(isSetResult) to append the boolean as a bit
+    // This is a mutating call (returns void), so we pass null for result var
     instructions.addAll(generateMethodCall(
-        isSetBoolVar,
-        isSetResultVar,
-        getBooleanTypeName(),
-        "_true",
-        List.of(),
-        List.of(),
-        "boolean",
-        debugInfo,
-        scopeId
-    ));
-
-    // If not set, skip
-    instructions.add(BranchInstr.branchIfFalse(isSetBoolVar, skipLabel, debugInfo));
-
-    // Field is set - OR the mask into result
-    final var maskVar = generateTempName();
-    instructions.add(LiteralInstr.literal(maskVar, String.valueOf(mask), getIntegerTypeName(), debugInfo));
-    instructions.add(MemoryInstr.retain(maskVar, debugInfo));
-    instructions.add(ScopeInstr.register(maskVar, scopeId, debugInfo));
-
-    // Call rtn._or(mask)
-    final var newResultVar = generateTempName();
-    instructions.addAll(generateMethodCall(
-        newResultVar,
+        null,  // void return - no result variable
         RETURN_VAR,
-        getIntegerTypeName(),
-        "_or",
-        List.of(maskVar),
-        List.of(getIntegerTypeName()),
-        getIntegerTypeName(),
+        getBitsTypeName(),
+        "_addAss",
+        List.of(isSetResultVar),
+        List.of(getBooleanTypeName()),
+        getVoidTypeName(),
         debugInfo,
         scopeId
     ));
-
-    // Store new result
-    instructions.add(MemoryInstr.store(RETURN_VAR, newResultVar, debugInfo));
-    instructions.add(MemoryInstr.retain(RETURN_VAR, debugInfo));
-
-    // Skip label
-    instructions.add(LabelInstr.label(skipLabel));
 
     return instructions;
   }

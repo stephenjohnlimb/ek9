@@ -229,7 +229,8 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
    * (including monomorphized generics) get the _fieldSetStatus method. This is infrastructure
    * for comparison operators and is not callable by EK9 developers.</p>
    *
-   * <p>The method returns an Integer bitmask where each bit represents a field's set status.</p>
+   * <p>The method returns a Bits value where each bit represents a field's set status.
+   * Using Bits instead of Integer removes the 32-field limit.</p>
    *
    * @param aggregateSymbol The aggregate to potentially add _fieldSetStatus to.
    */
@@ -252,10 +253,10 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
     }
 
     // Create and add the _fieldSetStatus method
-    final var integerType = resolveInteger(aggregateSymbol);
+    final var bitsType = resolveBits(aggregateSymbol);
     final var method = new MethodSymbol("_fieldSetStatus", aggregateSymbol);
 
-    method.setReturningSymbol(new VariableSymbol("_rtn", integerType.orElse(null)));
+    method.setReturningSymbol(new VariableSymbol("_rtn", bitsType.orElse(null)));
     method.setParsedModule(aggregateSymbol.getParsedModule());
     method.setAccessModifier(PUBLIC);
     method.setMarkedPure(true);
@@ -267,11 +268,11 @@ abstract class AggregateDfnGenerator extends AbstractDfnGenerator {
   }
 
   /**
-   * Resolves the Integer type from the parsed module's EK9 types.
+   * Resolves the Bits type from the parsed module's EK9 types.
    */
-  private Optional<ISymbol> resolveInteger(final AggregateSymbol aggregateSymbol) {
+  private Optional<ISymbol> resolveBits(final AggregateSymbol aggregateSymbol) {
 
-    return Optional.of(getParsedModule().getEk9Types().ek9Integer());
+    return Optional.of(getParsedModule().getEk9Types().ek9Bits());
   }
 
 }

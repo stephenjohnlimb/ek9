@@ -21,6 +21,27 @@ OperationDfn: synthetic.classInheritanceEquals::Animal.Animal()->synthetic.class
 BasicBlock: _entry_2
 CALL (synthetic.classInheritanceEquals::Animal)this.i_init() [pure=false, complexity=0]
 RETURN this
+OperationDfn: synthetic.classInheritanceEquals::Animal._fieldSetStatus()->org.ek9.lang::Bits  
+BasicBlock: _entry_3
+SCOPE_ENTER __fieldSetStatus_1
+REFERENCE rtn, org.ek9.lang::Bits
+_temp21 = LOAD_LITERAL org.ek9.lang::String
+RETAIN _temp21
+SCOPE_REGISTER _temp21, __fieldSetStatus_1
+_temp22 = CALL (org.ek9.lang::Bits)org.ek9.lang::Bits.<init>(_temp21) [pure=false, complexity=0]
+RETAIN _temp22
+SCOPE_REGISTER _temp22, __fieldSetStatus_1
+STORE rtn, _temp22
+RETAIN rtn
+_temp23 = LOAD this.name
+RETAIN _temp23
+SCOPE_REGISTER _temp23, __fieldSetStatus_1
+_temp24 = CALL (org.ek9.lang::String)_temp23._isSet() [pure=false, complexity=0]
+RETAIN _temp24
+SCOPE_REGISTER _temp24, __fieldSetStatus_1
+CALL (org.ek9.lang::Bits)rtn._addAss(_temp24) [pure=false, complexity=0]
+SCOPE_EXIT __fieldSetStatus_1
+RETURN rtn
 OperationDfn: synthetic.classInheritanceEquals::Animal._cmp(synthetic.classInheritanceEquals::Animal)->org.ek9.lang::Integer  
 BasicBlock: _entry_1
 SCOPE_ENTER __cmp_1
@@ -41,7 +62,7 @@ SCOPE_REGISTER _temp5, __cmp_1
 _temp6 = CALL (synthetic.classInheritanceEquals::Animal)param._fieldSetStatus() [pure=false, complexity=0]
 RETAIN _temp6
 SCOPE_REGISTER _temp6, __cmp_1
-_temp7 = CALL (org.ek9.lang::Integer)_temp5._eq(_temp6) [pure=false, complexity=0]
+_temp7 = CALL (org.ek9.lang::Bits)_temp5._eq(_temp6) [pure=false, complexity=0]
 RETAIN _temp7
 SCOPE_REGISTER _temp7, __cmp_1
 _temp8 = CALL (org.ek9.lang::Boolean)_temp7._isSet() [pure=false, complexity=0]
@@ -101,36 +122,6 @@ RETURN rtn
 LABEL _return_result_1
 SCOPE_EXIT __cmp_1
 RETURN rtn
-OperationDfn: synthetic.classInheritanceEquals::Animal._fieldSetStatus()->org.ek9.lang::Integer  
-BasicBlock: _entry_3
-SCOPE_ENTER __fieldSetStatus_1
-REFERENCE rtn, org.ek9.lang::Integer
-_temp21 = LOAD_LITERAL 0, org.ek9.lang::Integer
-RETAIN _temp21
-SCOPE_REGISTER _temp21, __fieldSetStatus_1
-STORE rtn, _temp21
-RETAIN rtn
-_temp22 = LOAD this.name
-RETAIN _temp22
-SCOPE_REGISTER _temp22, __fieldSetStatus_1
-_temp23 = CALL (org.ek9.lang::String)_temp22._isSet() [pure=false, complexity=0]
-RETAIN _temp23
-SCOPE_REGISTER _temp23, __fieldSetStatus_1
-_temp24 = CALL (org.ek9.lang::Boolean)_temp23._true() [pure=false, complexity=0]
-RETAIN _temp24
-SCOPE_REGISTER _temp24, __fieldSetStatus_1
-BRANCH_FALSE _temp24, _field_skip_1
-_temp25 = LOAD_LITERAL 1, org.ek9.lang::Integer
-RETAIN _temp25
-SCOPE_REGISTER _temp25, __fieldSetStatus_1
-_temp26 = CALL (org.ek9.lang::Integer)rtn._or(_temp25) [pure=false, complexity=0]
-RETAIN _temp26
-SCOPE_REGISTER _temp26, __fieldSetStatus_1
-STORE rtn, _temp26
-RETAIN rtn
-LABEL _field_skip_1
-SCOPE_EXIT __fieldSetStatus_1
-RETURN rtn
 OperationDfn: synthetic.classInheritanceEquals::Animal.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
@@ -170,7 +161,7 @@ SCOPE_REGISTER _temp5, __cmp_1
 _temp6 = CALL (synthetic.classInheritanceEquals::Cat)param._fieldSetStatus() [pure=false, complexity=0]
 RETAIN _temp6
 SCOPE_REGISTER _temp6, __cmp_1
-_temp7 = CALL (org.ek9.lang::Integer)_temp5._eq(_temp6) [pure=false, complexity=0]
+_temp7 = CALL (org.ek9.lang::Bits)_temp5._eq(_temp6) [pure=false, complexity=0]
 RETAIN _temp7
 SCOPE_REGISTER _temp7, __cmp_1
 _temp8 = CALL (org.ek9.lang::Boolean)_temp7._isSet() [pure=false, complexity=0]
@@ -252,6 +243,27 @@ RETURN rtn
 LABEL _return_result_1
 SCOPE_EXIT __cmp_1
 RETURN rtn
+OperationDfn: synthetic.classInheritanceEquals::Cat._fieldSetStatus()->org.ek9.lang::Bits  
+BasicBlock: _entry_4
+SCOPE_ENTER __fieldSetStatus_1
+REFERENCE rtn, org.ek9.lang::Bits
+_temp46 = LOAD_LITERAL org.ek9.lang::String
+RETAIN _temp46
+SCOPE_REGISTER _temp46, __fieldSetStatus_1
+_temp47 = CALL (org.ek9.lang::Bits)org.ek9.lang::Bits.<init>(_temp46) [pure=false, complexity=0]
+RETAIN _temp47
+SCOPE_REGISTER _temp47, __fieldSetStatus_1
+STORE rtn, _temp47
+RETAIN rtn
+_temp48 = LOAD this.breed
+RETAIN _temp48
+SCOPE_REGISTER _temp48, __fieldSetStatus_1
+_temp49 = CALL (org.ek9.lang::String)_temp48._isSet() [pure=false, complexity=0]
+RETAIN _temp49
+SCOPE_REGISTER _temp49, __fieldSetStatus_1
+CALL (org.ek9.lang::Bits)rtn._addAss(_temp49) [pure=false, complexity=0]
+SCOPE_EXIT __fieldSetStatus_1
+RETURN rtn
 OperationDfn: synthetic.classInheritanceEquals::Cat._eq(synthetic.classInheritanceEquals::Cat)->org.ek9.lang::Boolean  
 BasicBlock: _entry_2
 SCOPE_ENTER __eq_1
@@ -272,7 +284,7 @@ SCOPE_REGISTER _temp31, __eq_1
 _temp32 = CALL (synthetic.classInheritanceEquals::Cat)param._fieldSetStatus() [pure=false, complexity=0]
 RETAIN _temp32
 SCOPE_REGISTER _temp32, __eq_1
-_temp33 = CALL (org.ek9.lang::Integer)_temp31._eq(_temp32) [pure=false, complexity=0]
+_temp33 = CALL (org.ek9.lang::Bits)_temp31._eq(_temp32) [pure=false, complexity=0]
 RETAIN _temp33
 SCOPE_REGISTER _temp33, __eq_1
 _temp34 = CALL (org.ek9.lang::Boolean)_temp33._isSet() [pure=false, complexity=0]
@@ -332,36 +344,6 @@ BasicBlock: _entry_3
 _temp_super_init = CALL (synthetic.classInheritanceEquals::Animal)super.<init>() [pure=false, complexity=0]
 CALL (synthetic.classInheritanceEquals::Cat)this.i_init() [pure=false, complexity=0]
 RETURN this
-OperationDfn: synthetic.classInheritanceEquals::Cat._fieldSetStatus()->org.ek9.lang::Integer  
-BasicBlock: _entry_4
-SCOPE_ENTER __fieldSetStatus_1
-REFERENCE rtn, org.ek9.lang::Integer
-_temp46 = LOAD_LITERAL 0, org.ek9.lang::Integer
-RETAIN _temp46
-SCOPE_REGISTER _temp46, __fieldSetStatus_1
-STORE rtn, _temp46
-RETAIN rtn
-_temp47 = LOAD this.breed
-RETAIN _temp47
-SCOPE_REGISTER _temp47, __fieldSetStatus_1
-_temp48 = CALL (org.ek9.lang::String)_temp47._isSet() [pure=false, complexity=0]
-RETAIN _temp48
-SCOPE_REGISTER _temp48, __fieldSetStatus_1
-_temp49 = CALL (org.ek9.lang::Boolean)_temp48._true() [pure=false, complexity=0]
-RETAIN _temp49
-SCOPE_REGISTER _temp49, __fieldSetStatus_1
-BRANCH_FALSE _temp49, _field_skip_1
-_temp50 = LOAD_LITERAL 1, org.ek9.lang::Integer
-RETAIN _temp50
-SCOPE_REGISTER _temp50, __fieldSetStatus_1
-_temp51 = CALL (org.ek9.lang::Integer)rtn._or(_temp50) [pure=false, complexity=0]
-RETAIN _temp51
-SCOPE_REGISTER _temp51, __fieldSetStatus_1
-STORE rtn, _temp51
-RETAIN rtn
-LABEL _field_skip_1
-SCOPE_EXIT __fieldSetStatus_1
-RETURN rtn
 OperationDfn: synthetic.classInheritanceEquals::Cat.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 _temp_c_init = CALL_STATIC (synthetic.classInheritanceEquals::Animal).c_init() [pure=false, complexity=0]

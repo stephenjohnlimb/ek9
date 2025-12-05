@@ -14,56 +14,47 @@ defines module constructorCalls
         baseField: "initialised"
 
     @IR: IR_GENERATION: TYPE: "constructorCalls::Child": `ConstructDfn: constructorCalls::Child
-Field: childField, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:69:7
-OperationDfn: constructorCalls::Child.Child()->constructorCalls::Child  // ./constructorWithExplicitSuper.ek9:71:7
+Field: childField, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:60:7
+OperationDfn: constructorCalls::Child._fieldSetStatus()->org.ek9.lang::Bits  // ./constructorWithExplicitSuper.ek9:59:5
 BasicBlock: _entry_1
-SCOPE_ENTER _scope_1  // ./constructorWithExplicitSuper.ek9:72:9
-_temp1 = CALL (constructorCalls::Base)super.<init>() [pure=false, complexity=1, effects=RETURN_MUTATION]  // ./constructorWithExplicitSuper.ek9:72:9
-CALL (constructorCalls::Child)this.i_init() [pure=false, complexity=0]  // ./constructorWithExplicitSuper.ek9:71:7
-SCOPE_EXIT _scope_1  // ./constructorWithExplicitSuper.ek9:72:9
-RETURN  // ./constructorWithExplicitSuper.ek9:71:7
-OperationDfn: constructorCalls::Child._fieldSetStatus()->org.ek9.lang::Integer  // ./constructorWithExplicitSuper.ek9:68:5
+SCOPE_ENTER __fieldSetStatus_1  // ./constructorWithExplicitSuper.ek9:59:5
+REFERENCE rtn, org.ek9.lang::Bits  // ./constructorWithExplicitSuper.ek9:59:5
+_temp1 = LOAD_LITERAL org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:59:5
+RETAIN _temp1  // ./constructorWithExplicitSuper.ek9:59:5
+SCOPE_REGISTER _temp1, __fieldSetStatus_1  // ./constructorWithExplicitSuper.ek9:59:5
+_temp2 = CALL (org.ek9.lang::Bits)org.ek9.lang::Bits.<init>(_temp1) [pure=false, complexity=0]  // ./constructorWithExplicitSuper.ek9:59:5
+RETAIN _temp2  // ./constructorWithExplicitSuper.ek9:59:5
+SCOPE_REGISTER _temp2, __fieldSetStatus_1  // ./constructorWithExplicitSuper.ek9:59:5
+STORE rtn, _temp2  // ./constructorWithExplicitSuper.ek9:59:5
+RETAIN rtn  // ./constructorWithExplicitSuper.ek9:59:5
+_temp3 = LOAD this.childField  // ./constructorWithExplicitSuper.ek9:59:5
+RETAIN _temp3  // ./constructorWithExplicitSuper.ek9:59:5
+SCOPE_REGISTER _temp3, __fieldSetStatus_1  // ./constructorWithExplicitSuper.ek9:59:5
+_temp4 = CALL (org.ek9.lang::String)_temp3._isSet() [pure=false, complexity=0]  // ./constructorWithExplicitSuper.ek9:59:5
+RETAIN _temp4  // ./constructorWithExplicitSuper.ek9:59:5
+SCOPE_REGISTER _temp4, __fieldSetStatus_1  // ./constructorWithExplicitSuper.ek9:59:5
+CALL (org.ek9.lang::Bits)rtn._addAss(_temp4) [pure=false, complexity=0]  // ./constructorWithExplicitSuper.ek9:59:5
+SCOPE_EXIT __fieldSetStatus_1  // ./constructorWithExplicitSuper.ek9:59:5
+RETURN rtn  // ./constructorWithExplicitSuper.ek9:59:5
+OperationDfn: constructorCalls::Child.Child()->constructorCalls::Child  // ./constructorWithExplicitSuper.ek9:62:7
 BasicBlock: _entry_1
-SCOPE_ENTER __fieldSetStatus_1  // ./constructorWithExplicitSuper.ek9:68:5
-REFERENCE rtn, org.ek9.lang::Integer  // ./constructorWithExplicitSuper.ek9:68:5
-_temp1 = LOAD_LITERAL 0, org.ek9.lang::Integer  // ./constructorWithExplicitSuper.ek9:68:5
-RETAIN _temp1  // ./constructorWithExplicitSuper.ek9:68:5
-SCOPE_REGISTER _temp1, __fieldSetStatus_1  // ./constructorWithExplicitSuper.ek9:68:5
-STORE rtn, _temp1  // ./constructorWithExplicitSuper.ek9:68:5
-RETAIN rtn  // ./constructorWithExplicitSuper.ek9:68:5
-_temp2 = LOAD this.childField  // ./constructorWithExplicitSuper.ek9:68:5
-RETAIN _temp2  // ./constructorWithExplicitSuper.ek9:68:5
-SCOPE_REGISTER _temp2, __fieldSetStatus_1  // ./constructorWithExplicitSuper.ek9:68:5
-_temp3 = CALL (org.ek9.lang::String)_temp2._isSet() [pure=false, complexity=0]  // ./constructorWithExplicitSuper.ek9:68:5
-RETAIN _temp3  // ./constructorWithExplicitSuper.ek9:68:5
-SCOPE_REGISTER _temp3, __fieldSetStatus_1  // ./constructorWithExplicitSuper.ek9:68:5
-_temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=false, complexity=0]  // ./constructorWithExplicitSuper.ek9:68:5
-RETAIN _temp4  // ./constructorWithExplicitSuper.ek9:68:5
-SCOPE_REGISTER _temp4, __fieldSetStatus_1  // ./constructorWithExplicitSuper.ek9:68:5
-BRANCH_FALSE _temp4, _field_skip_1  // ./constructorWithExplicitSuper.ek9:68:5
-_temp5 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./constructorWithExplicitSuper.ek9:68:5
-RETAIN _temp5  // ./constructorWithExplicitSuper.ek9:68:5
-SCOPE_REGISTER _temp5, __fieldSetStatus_1  // ./constructorWithExplicitSuper.ek9:68:5
-_temp6 = CALL (org.ek9.lang::Integer)rtn._or(_temp5) [pure=false, complexity=0]  // ./constructorWithExplicitSuper.ek9:68:5
-RETAIN _temp6  // ./constructorWithExplicitSuper.ek9:68:5
-SCOPE_REGISTER _temp6, __fieldSetStatus_1  // ./constructorWithExplicitSuper.ek9:68:5
-STORE rtn, _temp6  // ./constructorWithExplicitSuper.ek9:68:5
-RETAIN rtn  // ./constructorWithExplicitSuper.ek9:68:5
-LABEL _field_skip_1
-SCOPE_EXIT __fieldSetStatus_1  // ./constructorWithExplicitSuper.ek9:68:5
-RETURN rtn  // ./constructorWithExplicitSuper.ek9:68:5
+SCOPE_ENTER _scope_1  // ./constructorWithExplicitSuper.ek9:63:9
+_temp1 = CALL (constructorCalls::Base)super.<init>() [pure=false, complexity=1, effects=RETURN_MUTATION]  // ./constructorWithExplicitSuper.ek9:63:9
+CALL (constructorCalls::Child)this.i_init() [pure=false, complexity=0]  // ./constructorWithExplicitSuper.ek9:62:7
+SCOPE_EXIT _scope_1  // ./constructorWithExplicitSuper.ek9:63:9
+RETURN  // ./constructorWithExplicitSuper.ek9:62:7
 OperationDfn: constructorCalls::Child.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 _temp_c_init = CALL_STATIC (constructorCalls::Base).c_init() [pure=false, complexity=0]
 RETURN
 OperationDfn: constructorCalls::Child.i_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
-REFERENCE this.childField, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:69:7
-_temp1 = LOAD_LITERAL Child Field, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:69:31
-RETAIN _temp1  // ./constructorWithExplicitSuper.ek9:69:31
-SCOPE_REGISTER _temp1, i_init  // ./constructorWithExplicitSuper.ek9:69:31
-STORE this.childField, _temp1  // ./constructorWithExplicitSuper.ek9:69:31
-RETAIN this.childField  // ./constructorWithExplicitSuper.ek9:69:31
+REFERENCE this.childField, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:60:7
+_temp1 = LOAD_LITERAL Child Field, org.ek9.lang::String  // ./constructorWithExplicitSuper.ek9:60:31
+RETAIN _temp1  // ./constructorWithExplicitSuper.ek9:60:31
+SCOPE_REGISTER _temp1, i_init  // ./constructorWithExplicitSuper.ek9:60:31
+STORE this.childField, _temp1  // ./constructorWithExplicitSuper.ek9:60:31
+RETAIN this.childField  // ./constructorWithExplicitSuper.ek9:60:31
 RETURN`
     Child extends Base
       childField as String := "Child Field"

@@ -1,0 +1,27 @@
+#!ek9
+<?-
+  Basic JSON test - not using synthetic operators
+  Tests basic JSON creation and string conversion
+-?>
+defines module bytecode.test
+
+  defines program
+
+    JsonBasicTest()
+      stdout <- Stdout()
+
+      // Create empty JSON object
+      json <- JSON()
+      objJson <- json.object()
+
+      // Create a name/value pair
+      nameStr <- "test"
+      valueJson <- $$nameStr
+      pair <- JSON(nameStr, valueJson)
+
+      // Merge into object
+      objJson :~: pair
+
+      stdout.println($objJson)
+
+//EOF

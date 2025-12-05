@@ -157,7 +157,7 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
                                                      final String returnUnsetLabel) {
     final var instructions = new ArrayList<IRInstr>();
 
-    // Call this._fieldSetStatus()
+    // Call this._fieldSetStatus() -> Bits
     final var thisStatusVar = generateTempName();
     instructions.addAll(generateMethodCall(
         thisStatusVar,
@@ -166,12 +166,12 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
         "_fieldSetStatus",
         List.of(),
         List.of(),
-        getIntegerTypeName(),
+        getBitsTypeName(),
         debugInfo,
         scopeId
     ));
 
-    // Call other._fieldSetStatus()
+    // Call other._fieldSetStatus() -> Bits
     final var otherStatusVar = generateTempName();
     instructions.addAll(generateMethodCall(
         otherStatusVar,
@@ -180,20 +180,20 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
         "_fieldSetStatus",
         List.of(),
         List.of(),
-        getIntegerTypeName(),
+        getBitsTypeName(),
         debugInfo,
         scopeId
     ));
 
-    // Compare the bitmasks with _eq
+    // Compare the Bits with _eq
     final var statusEqVar = generateTempName();
     instructions.addAll(generateMethodCall(
         statusEqVar,
         thisStatusVar,
-        getIntegerTypeName(),
+        getBitsTypeName(),
         "_eq",
         List.of(otherStatusVar),
-        List.of(getIntegerTypeName()),
+        List.of(getBitsTypeName()),
         getBooleanTypeName(),
         debugInfo,
         scopeId
@@ -408,40 +408,7 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     return instructions;
   }
 
-  /**
-   * Generate the unset return block using the provided label name.
-   */
-  private List<IRInstr> generateUnsetReturnBlockWithLabel(final String labelName,
-                                                          final String returnTypeName,
-                                                          final String returnVarName,
-                                                          final DebugInfo debugInfo,
-                                                          final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
-
-    // Label
-    instructions.add(LabelInstr.label(labelName));
-
-    // Create unset value via constructor call
-    // Pattern: CALL (Type)Type.<init>() - creates new instance with NEW + DUP + INVOKESPECIAL
-    final var resultTemp = generateTempName();
-    instructions.addAll(generateConstructorCall(
-        resultTemp,
-        returnTypeName,
-        debugInfo,
-        scopeId
-    ));
-
-    // Store to return variable and retain for ownership transfer
-    instructions.add(MemoryInstr.store(returnVarName, resultTemp, debugInfo));
-    instructions.add(MemoryInstr.retain(returnVarName, debugInfo));
-    // NO SCOPE_REGISTER for return var - ownership transfers to caller
-
-    // Scope cleanup and return
-    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
-    instructions.add(BranchInstr.returnValue(returnVarName, debugInfo));
-
-    return instructions;
-  }
+  // NOTE: generateUnsetReturnBlockWithLabel is now inherited from AbstractSyntheticGenerator
 
   /**
    * Generate the zero return block using the provided label name.

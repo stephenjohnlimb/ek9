@@ -23,7 +23,8 @@ import org.ek9lang.core.AssertValue;
  * <pre>
  * Integer _hashcode():
  *   // Initialize with field set status as base hash
- *   result = this._fieldSetStatus()
+ *   status = this._fieldSetStatus()  // Returns Bits
+ *   result = status._hashcode()      // Convert Bits to Integer
  *
  *   // For each field:
  *   if field._isSet():
@@ -38,13 +39,13 @@ import org.ek9lang.core.AssertValue;
  * <ul>
  *   <li>Returns Integer (always set - hash of "nothing" is valid)</li>
  *   <li>Only SET fields contribute to hash</li>
- *   <li>Field set status bitmask is included as base hash</li>
+ *   <li>Field set status (as Bits) is hashed as base value</li>
  *   <li>Uses polynomial hash: result = result * 31 + fieldHash</li>
  *   <li>Objects with different set/unset patterns have different hashes</li>
  * </ul>
  *
- * <p>The inclusion of _fieldSetStatus() as the initial hash value ensures
- * that two objects with the same set field values but different unset
+ * <p>The inclusion of _fieldSetStatus()._hashcode() as the initial hash value
+ * ensures that two objects with the same set field values but different unset
  * fields will produce different hash codes.</p>
  */
 final class HashCodeGenerator extends AbstractSyntheticGenerator {
@@ -98,16 +99,18 @@ final class HashCodeGenerator extends AbstractSyntheticGenerator {
   }
 
   /**
-   * Initialize result with _fieldSetStatus() call.
+   * Initialize result with _fieldSetStatus()._hashcode() call.
    *
-   * <p>This provides the base hash that encodes which fields are set.</p>
+   * <p>This provides the base hash that encodes which fields are set.
+   * Since _fieldSetStatus() now returns Bits, we call _hashcode() on it
+   * to get an Integer for the polynomial hash algorithm.</p>
    */
   private List<IRInstr> initializeWithFieldSetStatus(final String aggregateTypeName,
                                                       final DebugInfo debugInfo,
                                                       final String scopeId) {
     final var instructions = new ArrayList<IRInstr>();
 
-    // Call this._fieldSetStatus() -> Integer
+    // Call this._fieldSetStatus() -> Bits
     final var statusVar = generateTempName();
     instructions.addAll(generateMethodCall(
         statusVar,
@@ -116,13 +119,27 @@ final class HashCodeGenerator extends AbstractSyntheticGenerator {
         "_fieldSetStatus",
         List.of(),
         List.of(),
+        getBitsTypeName(),
+        debugInfo,
+        scopeId
+    ));
+
+    // Call status._hashcode() -> Integer
+    final var statusHashVar = generateTempName();
+    instructions.addAll(generateMethodCall(
+        statusHashVar,
+        statusVar,
+        getBitsTypeName(),
+        "_hashcode",
+        List.of(),
+        List.of(),
         getIntegerTypeName(),
         debugInfo,
         scopeId
     ));
 
     // Store as initial result
-    instructions.add(MemoryInstr.store(RETURN_VAR, statusVar, debugInfo));
+    instructions.add(MemoryInstr.store(RETURN_VAR, statusHashVar, debugInfo));
     instructions.add(MemoryInstr.retain(RETURN_VAR, debugInfo));
 
     return instructions;

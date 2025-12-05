@@ -14,54 +14,45 @@ defines module constructorCalls
       baseField as String := "Base Field"
 
     @IR: IR_GENERATION: TYPE: "constructorCalls::ChildWithSyntheticConstructor": `ConstructDfn: constructorCalls::ChildWithSyntheticConstructor
-Field: childField, org.ek9.lang::String  // ./syntheticConstructorExtendsRealClass.ek9:67:7
-OperationDfn: constructorCalls::ChildWithSyntheticConstructor.ChildWithSyntheticConstructor()->constructorCalls::ChildWithSyntheticConstructor  // ./syntheticConstructorExtendsRealClass.ek9:66:5
+Field: childField, org.ek9.lang::String  // ./syntheticConstructorExtendsRealClass.ek9:58:7
+OperationDfn: constructorCalls::ChildWithSyntheticConstructor._fieldSetStatus()->org.ek9.lang::Bits  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+BasicBlock: _entry_2
+SCOPE_ENTER __fieldSetStatus_1  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+REFERENCE rtn, org.ek9.lang::Bits  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+_temp1 = LOAD_LITERAL org.ek9.lang::String  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+RETAIN _temp1  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+SCOPE_REGISTER _temp1, __fieldSetStatus_1  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+_temp2 = CALL (org.ek9.lang::Bits)org.ek9.lang::Bits.<init>(_temp1) [pure=false, complexity=0]  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+RETAIN _temp2  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+SCOPE_REGISTER _temp2, __fieldSetStatus_1  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+STORE rtn, _temp2  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+RETAIN rtn  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+_temp3 = LOAD this.childField  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+RETAIN _temp3  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+SCOPE_REGISTER _temp3, __fieldSetStatus_1  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+_temp4 = CALL (org.ek9.lang::String)_temp3._isSet() [pure=false, complexity=0]  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+RETAIN _temp4  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+SCOPE_REGISTER _temp4, __fieldSetStatus_1  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+CALL (org.ek9.lang::Bits)rtn._addAss(_temp4) [pure=false, complexity=0]  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+SCOPE_EXIT __fieldSetStatus_1  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+RETURN rtn  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+OperationDfn: constructorCalls::ChildWithSyntheticConstructor.ChildWithSyntheticConstructor()->constructorCalls::ChildWithSyntheticConstructor  // ./syntheticConstructorExtendsRealClass.ek9:57:5
 BasicBlock: _entry_1
 _temp_super_init = CALL (constructorCalls::SyntheticBase)super.<init>() [pure=false, complexity=0]
-CALL (constructorCalls::ChildWithSyntheticConstructor)this.i_init() [pure=false, complexity=0]  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-RETURN this  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-OperationDfn: constructorCalls::ChildWithSyntheticConstructor._fieldSetStatus()->org.ek9.lang::Integer  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-BasicBlock: _entry_2
-SCOPE_ENTER __fieldSetStatus_1  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-REFERENCE rtn, org.ek9.lang::Integer  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-_temp1 = LOAD_LITERAL 0, org.ek9.lang::Integer  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-RETAIN _temp1  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-SCOPE_REGISTER _temp1, __fieldSetStatus_1  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-STORE rtn, _temp1  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-RETAIN rtn  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-_temp2 = LOAD this.childField  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-RETAIN _temp2  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-SCOPE_REGISTER _temp2, __fieldSetStatus_1  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-_temp3 = CALL (org.ek9.lang::String)_temp2._isSet() [pure=false, complexity=0]  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-RETAIN _temp3  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-SCOPE_REGISTER _temp3, __fieldSetStatus_1  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-_temp4 = CALL (org.ek9.lang::Boolean)_temp3._true() [pure=false, complexity=0]  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-RETAIN _temp4  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-SCOPE_REGISTER _temp4, __fieldSetStatus_1  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-BRANCH_FALSE _temp4, _field_skip_1  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-_temp5 = LOAD_LITERAL 1, org.ek9.lang::Integer  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-RETAIN _temp5  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-SCOPE_REGISTER _temp5, __fieldSetStatus_1  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-_temp6 = CALL (org.ek9.lang::Integer)rtn._or(_temp5) [pure=false, complexity=0]  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-RETAIN _temp6  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-SCOPE_REGISTER _temp6, __fieldSetStatus_1  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-STORE rtn, _temp6  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-RETAIN rtn  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-LABEL _field_skip_1
-SCOPE_EXIT __fieldSetStatus_1  // ./syntheticConstructorExtendsRealClass.ek9:66:5
-RETURN rtn  // ./syntheticConstructorExtendsRealClass.ek9:66:5
+CALL (constructorCalls::ChildWithSyntheticConstructor)this.i_init() [pure=false, complexity=0]  // ./syntheticConstructorExtendsRealClass.ek9:57:5
+RETURN this  // ./syntheticConstructorExtendsRealClass.ek9:57:5
 OperationDfn: constructorCalls::ChildWithSyntheticConstructor.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 _temp_c_init = CALL_STATIC (constructorCalls::SyntheticBase).c_init() [pure=false, complexity=0]
 RETURN
 OperationDfn: constructorCalls::ChildWithSyntheticConstructor.i_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
-REFERENCE this.childField, org.ek9.lang::String  // ./syntheticConstructorExtendsRealClass.ek9:67:7
-_temp1 = LOAD_LITERAL Child Field, org.ek9.lang::String  // ./syntheticConstructorExtendsRealClass.ek9:67:31
-RETAIN _temp1  // ./syntheticConstructorExtendsRealClass.ek9:67:31
-SCOPE_REGISTER _temp1, i_init  // ./syntheticConstructorExtendsRealClass.ek9:67:31
-STORE this.childField, _temp1  // ./syntheticConstructorExtendsRealClass.ek9:67:31
-RETAIN this.childField  // ./syntheticConstructorExtendsRealClass.ek9:67:31
+REFERENCE this.childField, org.ek9.lang::String  // ./syntheticConstructorExtendsRealClass.ek9:58:7
+_temp1 = LOAD_LITERAL Child Field, org.ek9.lang::String  // ./syntheticConstructorExtendsRealClass.ek9:58:31
+RETAIN _temp1  // ./syntheticConstructorExtendsRealClass.ek9:58:31
+SCOPE_REGISTER _temp1, i_init  // ./syntheticConstructorExtendsRealClass.ek9:58:31
+STORE this.childField, _temp1  // ./syntheticConstructorExtendsRealClass.ek9:58:31
+RETAIN this.childField  // ./syntheticConstructorExtendsRealClass.ek9:58:31
 RETURN`
     ChildWithSyntheticConstructor extends SyntheticBase
       childField as String := "Child Field"

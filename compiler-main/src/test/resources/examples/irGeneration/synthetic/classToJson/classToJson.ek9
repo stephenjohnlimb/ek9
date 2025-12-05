@@ -1,0 +1,24 @@
+#!ek9
+<?-
+  Test synthetic generation of _json ($$) operator for a class.
+
+  This test verifies:
+  1. The SyntheticOperatorGenerator is invoked for default $$ operator
+  2. The generated IR correctly:
+     - Creates JSON object via JSON().object()
+     - For each field, calls field._json() recursively
+     - Creates name/value pairs via JSON(String, JSON) constructor
+     - Merges pairs into result via _merge
+     - Returns JSON
+-?>
+defines module synthetic.classToJson
+
+  defines class
+
+    SimpleData
+      name <- "Test"
+      value <- 42
+
+      default operator $$
+
+//EOF

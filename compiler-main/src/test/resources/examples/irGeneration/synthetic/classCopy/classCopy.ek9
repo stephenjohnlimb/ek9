@@ -20,62 +20,41 @@ defines module synthetic.classCopy
   defines class
 
     @IR: IR_GENERATION: TYPE: "synthetic.classCopy::Item": `ConstructDfn: synthetic.classCopy::Item
-Field: name, org.ek9.lang::String
-Field: quantity, org.ek9.lang::Integer
-OperationDfn: synthetic.classCopy::Item._fieldSetStatus()->org.ek9.lang::Integer
+Field: name, org.ek9.lang::String  
+Field: quantity, org.ek9.lang::Integer  
+OperationDfn: synthetic.classCopy::Item._fieldSetStatus()->org.ek9.lang::Bits  
 BasicBlock: _entry_3
 SCOPE_ENTER __fieldSetStatus_1
-REFERENCE rtn, org.ek9.lang::Integer
-_temp3 = LOAD_LITERAL 0, org.ek9.lang::Integer
+REFERENCE rtn, org.ek9.lang::Bits
+_temp3 = LOAD_LITERAL org.ek9.lang::String
 RETAIN _temp3
 SCOPE_REGISTER _temp3, __fieldSetStatus_1
-STORE rtn, _temp3
-RETAIN rtn
-_temp4 = LOAD this.name
+_temp4 = CALL (org.ek9.lang::Bits)org.ek9.lang::Bits.<init>(_temp3) [pure=false, complexity=0]
 RETAIN _temp4
 SCOPE_REGISTER _temp4, __fieldSetStatus_1
-_temp5 = CALL (org.ek9.lang::String)_temp4._isSet() [pure=false, complexity=0]
+STORE rtn, _temp4
+RETAIN rtn
+_temp5 = LOAD this.name
 RETAIN _temp5
 SCOPE_REGISTER _temp5, __fieldSetStatus_1
-_temp6 = CALL (org.ek9.lang::Boolean)_temp5._true() [pure=false, complexity=0]
+_temp6 = CALL (org.ek9.lang::String)_temp5._isSet() [pure=false, complexity=0]
 RETAIN _temp6
 SCOPE_REGISTER _temp6, __fieldSetStatus_1
-BRANCH_FALSE _temp6, _field_skip_1
-_temp7 = LOAD_LITERAL 1, org.ek9.lang::Integer
+CALL (org.ek9.lang::Bits)rtn._addAss(_temp6) [pure=false, complexity=0]
+_temp7 = LOAD this.quantity
 RETAIN _temp7
 SCOPE_REGISTER _temp7, __fieldSetStatus_1
-_temp8 = CALL (org.ek9.lang::Integer)rtn._or(_temp7) [pure=false, complexity=0]
+_temp8 = CALL (org.ek9.lang::Integer)_temp7._isSet() [pure=false, complexity=0]
 RETAIN _temp8
 SCOPE_REGISTER _temp8, __fieldSetStatus_1
-STORE rtn, _temp8
-RETAIN rtn
-LABEL _field_skip_1
-_temp9 = LOAD this.quantity
-RETAIN _temp9
-SCOPE_REGISTER _temp9, __fieldSetStatus_1
-_temp10 = CALL (org.ek9.lang::Integer)_temp9._isSet() [pure=false, complexity=0]
-RETAIN _temp10
-SCOPE_REGISTER _temp10, __fieldSetStatus_1
-_temp11 = CALL (org.ek9.lang::Boolean)_temp10._true() [pure=false, complexity=0]
-RETAIN _temp11
-SCOPE_REGISTER _temp11, __fieldSetStatus_1
-BRANCH_FALSE _temp11, _field_skip_2
-_temp12 = LOAD_LITERAL 2, org.ek9.lang::Integer
-RETAIN _temp12
-SCOPE_REGISTER _temp12, __fieldSetStatus_1
-_temp13 = CALL (org.ek9.lang::Integer)rtn._or(_temp12) [pure=false, complexity=0]
-RETAIN _temp13
-SCOPE_REGISTER _temp13, __fieldSetStatus_1
-STORE rtn, _temp13
-RETAIN rtn
-LABEL _field_skip_2
+CALL (org.ek9.lang::Bits)rtn._addAss(_temp8) [pure=false, complexity=0]
 SCOPE_EXIT __fieldSetStatus_1
 RETURN rtn
-OperationDfn: synthetic.classCopy::Item.Item()->synthetic.classCopy::Item
+OperationDfn: synthetic.classCopy::Item.Item()->synthetic.classCopy::Item  
 BasicBlock: _entry_2
 CALL (synthetic.classCopy::Item)this.i_init() [pure=false, complexity=0]
 RETURN this
-OperationDfn: synthetic.classCopy::Item._copy(synthetic.classCopy::Item)->org.ek9.lang::Void
+OperationDfn: synthetic.classCopy::Item._copy(synthetic.classCopy::Item)->org.ek9.lang::Void  
 BasicBlock: _entry_1
 SCOPE_ENTER __copy_1
 _temp1 = LOAD param.name
@@ -92,10 +71,10 @@ STORE this.quantity, _temp2
 RETAIN this.quantity
 SCOPE_EXIT __copy_1
 RETURN
-OperationDfn: synthetic.classCopy::Item.c_init()->org.ek9.lang::Void
+OperationDfn: synthetic.classCopy::Item.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
-OperationDfn: synthetic.classCopy::Item.i_init()->org.ek9.lang::Void
+OperationDfn: synthetic.classCopy::Item.i_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 REFERENCE this.name, org.ek9.lang::String
 _temp1 = LOAD_LITERAL Widget, org.ek9.lang::String

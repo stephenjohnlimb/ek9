@@ -25,6 +25,34 @@ defines module synthetic.classEquals
     @IR: IR_GENERATION: TYPE: "synthetic.classEquals::Person": `ConstructDfn: synthetic.classEquals::Person
 Field: name, org.ek9.lang::String  
 Field: age, org.ek9.lang::Integer  
+OperationDfn: synthetic.classEquals::Person._fieldSetStatus()->org.ek9.lang::Bits  
+BasicBlock: _entry_4
+SCOPE_ENTER __fieldSetStatus_1
+REFERENCE rtn, org.ek9.lang::Bits
+_temp54 = LOAD_LITERAL org.ek9.lang::String
+RETAIN _temp54
+SCOPE_REGISTER _temp54, __fieldSetStatus_1
+_temp55 = CALL (org.ek9.lang::Bits)org.ek9.lang::Bits.<init>(_temp54) [pure=false, complexity=0]
+RETAIN _temp55
+SCOPE_REGISTER _temp55, __fieldSetStatus_1
+STORE rtn, _temp55
+RETAIN rtn
+_temp56 = LOAD this.name
+RETAIN _temp56
+SCOPE_REGISTER _temp56, __fieldSetStatus_1
+_temp57 = CALL (org.ek9.lang::String)_temp56._isSet() [pure=false, complexity=0]
+RETAIN _temp57
+SCOPE_REGISTER _temp57, __fieldSetStatus_1
+CALL (org.ek9.lang::Bits)rtn._addAss(_temp57) [pure=false, complexity=0]
+_temp58 = LOAD this.age
+RETAIN _temp58
+SCOPE_REGISTER _temp58, __fieldSetStatus_1
+_temp59 = CALL (org.ek9.lang::Integer)_temp58._isSet() [pure=false, complexity=0]
+RETAIN _temp59
+SCOPE_REGISTER _temp59, __fieldSetStatus_1
+CALL (org.ek9.lang::Bits)rtn._addAss(_temp59) [pure=false, complexity=0]
+SCOPE_EXIT __fieldSetStatus_1
+RETURN rtn
 OperationDfn: synthetic.classEquals::Person._eq(synthetic.classEquals::Person)->org.ek9.lang::Boolean  
 BasicBlock: _entry_2
 SCOPE_ENTER __eq_1
@@ -45,7 +73,7 @@ SCOPE_REGISTER _temp33, __eq_1
 _temp34 = CALL (synthetic.classEquals::Person)param._fieldSetStatus() [pure=false, complexity=0]
 RETAIN _temp34
 SCOPE_REGISTER _temp34, __eq_1
-_temp35 = CALL (org.ek9.lang::Integer)_temp33._eq(_temp34) [pure=false, complexity=0]
+_temp35 = CALL (org.ek9.lang::Bits)_temp33._eq(_temp34) [pure=false, complexity=0]
 RETAIN _temp35
 SCOPE_REGISTER _temp35, __eq_1
 _temp36 = CALL (org.ek9.lang::Boolean)_temp35._isSet() [pure=false, complexity=0]
@@ -138,7 +166,7 @@ SCOPE_REGISTER _temp5, __cmp_1
 _temp6 = CALL (synthetic.classEquals::Person)param._fieldSetStatus() [pure=false, complexity=0]
 RETAIN _temp6
 SCOPE_REGISTER _temp6, __cmp_1
-_temp7 = CALL (org.ek9.lang::Integer)_temp5._eq(_temp6) [pure=false, complexity=0]
+_temp7 = CALL (org.ek9.lang::Bits)_temp5._eq(_temp6) [pure=false, complexity=0]
 RETAIN _temp7
 SCOPE_REGISTER _temp7, __cmp_1
 _temp8 = CALL (org.ek9.lang::Boolean)_temp7._isSet() [pure=false, complexity=0]
@@ -225,55 +253,6 @@ SCOPE_EXIT __cmp_1
 RETURN rtn
 LABEL _return_result_1
 SCOPE_EXIT __cmp_1
-RETURN rtn
-OperationDfn: synthetic.classEquals::Person._fieldSetStatus()->org.ek9.lang::Integer  
-BasicBlock: _entry_4
-SCOPE_ENTER __fieldSetStatus_1
-REFERENCE rtn, org.ek9.lang::Integer
-_temp54 = LOAD_LITERAL 0, org.ek9.lang::Integer
-RETAIN _temp54
-SCOPE_REGISTER _temp54, __fieldSetStatus_1
-STORE rtn, _temp54
-RETAIN rtn
-_temp55 = LOAD this.name
-RETAIN _temp55
-SCOPE_REGISTER _temp55, __fieldSetStatus_1
-_temp56 = CALL (org.ek9.lang::String)_temp55._isSet() [pure=false, complexity=0]
-RETAIN _temp56
-SCOPE_REGISTER _temp56, __fieldSetStatus_1
-_temp57 = CALL (org.ek9.lang::Boolean)_temp56._true() [pure=false, complexity=0]
-RETAIN _temp57
-SCOPE_REGISTER _temp57, __fieldSetStatus_1
-BRANCH_FALSE _temp57, _field_skip_1
-_temp58 = LOAD_LITERAL 1, org.ek9.lang::Integer
-RETAIN _temp58
-SCOPE_REGISTER _temp58, __fieldSetStatus_1
-_temp59 = CALL (org.ek9.lang::Integer)rtn._or(_temp58) [pure=false, complexity=0]
-RETAIN _temp59
-SCOPE_REGISTER _temp59, __fieldSetStatus_1
-STORE rtn, _temp59
-RETAIN rtn
-LABEL _field_skip_1
-_temp60 = LOAD this.age
-RETAIN _temp60
-SCOPE_REGISTER _temp60, __fieldSetStatus_1
-_temp61 = CALL (org.ek9.lang::Integer)_temp60._isSet() [pure=false, complexity=0]
-RETAIN _temp61
-SCOPE_REGISTER _temp61, __fieldSetStatus_1
-_temp62 = CALL (org.ek9.lang::Boolean)_temp61._true() [pure=false, complexity=0]
-RETAIN _temp62
-SCOPE_REGISTER _temp62, __fieldSetStatus_1
-BRANCH_FALSE _temp62, _field_skip_2
-_temp63 = LOAD_LITERAL 2, org.ek9.lang::Integer
-RETAIN _temp63
-SCOPE_REGISTER _temp63, __fieldSetStatus_1
-_temp64 = CALL (org.ek9.lang::Integer)rtn._or(_temp63) [pure=false, complexity=0]
-RETAIN _temp64
-SCOPE_REGISTER _temp64, __fieldSetStatus_1
-STORE rtn, _temp64
-RETAIN rtn
-LABEL _field_skip_2
-SCOPE_EXIT __fieldSetStatus_1
 RETURN rtn
 OperationDfn: synthetic.classEquals::Person.Person()->synthetic.classEquals::Person  
 BasicBlock: _entry_3

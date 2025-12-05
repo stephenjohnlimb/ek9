@@ -1,0 +1,33 @@
+#!ek9
+<?-
+  Bytecode test for synthetic _json ($$) operator generation.
+  Tests that the default operator $$ generates correct bytecode
+  that produces valid JSON output.
+
+  This test validates:
+  - Synthetic _json operator is generated from 'default operator $$'
+  - JSON object contains field names as keys
+  - Field values are converted to JSON recursively
+  - Output can be printed as string via $
+-?>
+defines module bytecode.test
+
+  defines class
+
+    SimpleData
+      name <- "Test"
+      value <- 42
+
+      default operator $$
+
+  defines program
+
+    SyntheticJsonSimple()
+      stdout <- Stdout()
+
+      d <- SimpleData()
+      j <- $$d
+
+      stdout.println($j)
+
+//EOF

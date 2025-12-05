@@ -445,8 +445,11 @@ public class AggregateManipulator {
   /**
    * Create the _fieldSetStatus synthetic method.
    *
-   * <p>This method returns an Integer bitmask indicating which fields are set.
-   * It is called by comparison operators to pre-compute field status before
+   * <p>This method returns a Bits value indicating which fields are set.
+   * Each bit corresponds to a field in declaration order, where 1 means set
+   * and 0 means unset. Using Bits removes the 32-field limit of Integer.</p>
+   *
+   * <p>It is called by comparison operators to pre-compute field status before
    * performing field-by-field comparisons. The IR optimizer can cache and
    * reuse results within expressions.</p>
    *
@@ -455,10 +458,10 @@ public class AggregateManipulator {
    */
   public MethodSymbol createFieldSetStatusMethod(final IAggregateSymbol aggregateSymbol) {
 
-    final var integerType = resolveInteger(aggregateSymbol);
+    final var bitsType = resolveBits(aggregateSymbol);
     final var method = new MethodSymbol("_fieldSetStatus", aggregateSymbol);
 
-    method.setReturningSymbol(new VariableSymbol("_rtn", integerType));
+    method.setReturningSymbol(new VariableSymbol("_rtn", bitsType));
     method.setParsedModule(aggregateSymbol.getParsedModule());
     method.setAccessModifier(PUBLIC);
     method.setMarkedPure(true);
@@ -615,6 +618,19 @@ public class AggregateManipulator {
     }
 
     return scope.resolve(new TypeSymbolSearch(EK9TypeNames.EK9_JSON));
+  }
+
+  /**
+   * Resolve Bits from cached ek9 types or full scope hierarchy resolution.
+   * Used for _fieldSetStatus() which returns a Bits value representing field set status.
+   */
+  public Optional<ISymbol> resolveBits(final IScope scope) {
+
+    if (ek9Types != null) {
+      return Optional.of(ek9Types.ek9Bits());
+    }
+
+    return scope.resolve(new TypeSymbolSearch(EK9TypeNames.EK9_BITS));
   }
 
 }

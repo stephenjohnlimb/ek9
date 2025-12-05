@@ -20,6 +20,12 @@ defines extern module org.ek9.lang
       Integer() as pure
         -> arg0 as Integer
 
+    Bits as open
+      Bits() as pure
+
+      Bits() as pure
+        -> arg0 as String
+
     Float as open
       Float() as pure
 

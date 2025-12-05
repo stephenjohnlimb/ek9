@@ -15,9 +15,9 @@ defines module synthetic.classToString
   defines class
 
     @IR: IR_GENERATION: TYPE: "synthetic.classToString::Product": `ConstructDfn: synthetic.classToString::Product
-Field: name, org.ek9.lang::String
-Field: price, org.ek9.lang::Integer
-OperationDfn: synthetic.classToString::Product._isSet()->org.ek9.lang::Boolean
+Field: name, org.ek9.lang::String  
+Field: price, org.ek9.lang::Integer  
+OperationDfn: synthetic.classToString::Product._isSet()->org.ek9.lang::Boolean  
 BasicBlock: _entry_1
 SCOPE_ENTER __isSet_1
 REFERENCE rtn, org.ek9.lang::Boolean
@@ -58,60 +58,39 @@ STORE rtn, _temp8
 RETAIN rtn
 SCOPE_EXIT __isSet_1
 RETURN rtn
-OperationDfn: synthetic.classToString::Product._fieldSetStatus()->org.ek9.lang::Integer
+OperationDfn: synthetic.classToString::Product._fieldSetStatus()->org.ek9.lang::Bits  
 BasicBlock: _entry_4
 SCOPE_ENTER __fieldSetStatus_1
-REFERENCE rtn, org.ek9.lang::Integer
-_temp34 = LOAD_LITERAL 0, org.ek9.lang::Integer
+REFERENCE rtn, org.ek9.lang::Bits
+_temp34 = LOAD_LITERAL org.ek9.lang::String
 RETAIN _temp34
 SCOPE_REGISTER _temp34, __fieldSetStatus_1
-STORE rtn, _temp34
-RETAIN rtn
-_temp35 = LOAD this.name
+_temp35 = CALL (org.ek9.lang::Bits)org.ek9.lang::Bits.<init>(_temp34) [pure=false, complexity=0]
 RETAIN _temp35
 SCOPE_REGISTER _temp35, __fieldSetStatus_1
-_temp36 = CALL (org.ek9.lang::String)_temp35._isSet() [pure=false, complexity=0]
+STORE rtn, _temp35
+RETAIN rtn
+_temp36 = LOAD this.name
 RETAIN _temp36
 SCOPE_REGISTER _temp36, __fieldSetStatus_1
-_temp37 = CALL (org.ek9.lang::Boolean)_temp36._true() [pure=false, complexity=0]
+_temp37 = CALL (org.ek9.lang::String)_temp36._isSet() [pure=false, complexity=0]
 RETAIN _temp37
 SCOPE_REGISTER _temp37, __fieldSetStatus_1
-BRANCH_FALSE _temp37, _field_skip_1
-_temp38 = LOAD_LITERAL 1, org.ek9.lang::Integer
+CALL (org.ek9.lang::Bits)rtn._addAss(_temp37) [pure=false, complexity=0]
+_temp38 = LOAD this.price
 RETAIN _temp38
 SCOPE_REGISTER _temp38, __fieldSetStatus_1
-_temp39 = CALL (org.ek9.lang::Integer)rtn._or(_temp38) [pure=false, complexity=0]
+_temp39 = CALL (org.ek9.lang::Integer)_temp38._isSet() [pure=false, complexity=0]
 RETAIN _temp39
 SCOPE_REGISTER _temp39, __fieldSetStatus_1
-STORE rtn, _temp39
-RETAIN rtn
-LABEL _field_skip_1
-_temp40 = LOAD this.price
-RETAIN _temp40
-SCOPE_REGISTER _temp40, __fieldSetStatus_1
-_temp41 = CALL (org.ek9.lang::Integer)_temp40._isSet() [pure=false, complexity=0]
-RETAIN _temp41
-SCOPE_REGISTER _temp41, __fieldSetStatus_1
-_temp42 = CALL (org.ek9.lang::Boolean)_temp41._true() [pure=false, complexity=0]
-RETAIN _temp42
-SCOPE_REGISTER _temp42, __fieldSetStatus_1
-BRANCH_FALSE _temp42, _field_skip_2
-_temp43 = LOAD_LITERAL 2, org.ek9.lang::Integer
-RETAIN _temp43
-SCOPE_REGISTER _temp43, __fieldSetStatus_1
-_temp44 = CALL (org.ek9.lang::Integer)rtn._or(_temp43) [pure=false, complexity=0]
-RETAIN _temp44
-SCOPE_REGISTER _temp44, __fieldSetStatus_1
-STORE rtn, _temp44
-RETAIN rtn
-LABEL _field_skip_2
+CALL (org.ek9.lang::Bits)rtn._addAss(_temp39) [pure=false, complexity=0]
 SCOPE_EXIT __fieldSetStatus_1
 RETURN rtn
-OperationDfn: synthetic.classToString::Product.Product()->synthetic.classToString::Product
+OperationDfn: synthetic.classToString::Product.Product()->synthetic.classToString::Product  
 BasicBlock: _entry_3
 CALL (synthetic.classToString::Product)this.i_init() [pure=false, complexity=0]
 RETURN this
-OperationDfn: synthetic.classToString::Product._string()->org.ek9.lang::String
+OperationDfn: synthetic.classToString::Product._string()->org.ek9.lang::String  
 BasicBlock: _entry_2
 SCOPE_ENTER __string_1
 REFERENCE rtn, org.ek9.lang::String
@@ -229,10 +208,10 @@ STORE rtn, _temp33
 RETAIN rtn
 SCOPE_EXIT __string_1
 RETURN rtn
-OperationDfn: synthetic.classToString::Product.c_init()->org.ek9.lang::Void
+OperationDfn: synthetic.classToString::Product.c_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 RETURN
-OperationDfn: synthetic.classToString::Product.i_init()->org.ek9.lang::Void
+OperationDfn: synthetic.classToString::Product.i_init()->org.ek9.lang::Void  
 BasicBlock: _entry_1
 REFERENCE this.name, org.ek9.lang::String
 _temp1 = LOAD_LITERAL Gadget, org.ek9.lang::String

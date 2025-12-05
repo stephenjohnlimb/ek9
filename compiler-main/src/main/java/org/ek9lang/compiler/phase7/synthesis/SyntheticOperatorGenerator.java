@@ -49,6 +49,7 @@ public final class SyntheticOperatorGenerator {
   private final FieldSetStatusGenerator fieldSetStatusGenerator;
   private final HashCodeGenerator hashCodeGenerator;
   private final ToStringGenerator toStringGenerator;
+  private final ToJsonGenerator toJsonGenerator;
   private final CopyGenerator copyGenerator;
 
   /**
@@ -67,6 +68,7 @@ public final class SyntheticOperatorGenerator {
     this.fieldSetStatusGenerator = new FieldSetStatusGenerator(stackContext);
     this.hashCodeGenerator = new HashCodeGenerator(stackContext);
     this.toStringGenerator = new ToStringGenerator(stackContext);
+    this.toJsonGenerator = new ToJsonGenerator(stackContext);
     this.copyGenerator = new CopyGenerator(stackContext);
   }
 
@@ -145,6 +147,7 @@ public final class SyntheticOperatorGenerator {
       case "<>" -> generateNotEqualsOperator(instructionBuilder, operatorSymbol, aggregateSymbol);
       case "#?" -> generateHashCodeOperator(instructionBuilder, operatorSymbol, aggregateSymbol);
       case "$" -> generateToStringOperator(instructionBuilder, operatorSymbol, aggregateSymbol);
+      case "$$" -> generateToJsonOperator(instructionBuilder, operatorSymbol, aggregateSymbol);
       case ":=:" -> generateCopyOperator(instructionBuilder, operatorSymbol, aggregateSymbol);
       case "<=>" -> generateCompareOperator(instructionBuilder, operatorSymbol, aggregateSymbol);
       case "?" -> generateIsSetOperator(instructionBuilder, operatorSymbol, aggregateSymbol);
@@ -240,6 +243,24 @@ public final class SyntheticOperatorGenerator {
                                                  final MethodSymbol operatorSymbol,
                                                  final AggregateSymbol aggregateSymbol) {
     return toStringGenerator.generate(operatorSymbol, aggregateSymbol);
+  }
+
+  /**
+   * Generate _json ($$) operator - JSON representation of all fields.
+   *
+   * <p>Delegates to {@link ToJsonGenerator} which implements:</p>
+   * <ul>
+   *   <li>Format: {"field1": value1, "field2": value2}</li>
+   *   <li>Each field value is converted via $$ (_json) recursively</li>
+   *   <li>Unset field values become JSON null</li>
+   *   <li>Lists produce JSON arrays, Dicts produce nested objects</li>
+   *   <li>Returns JSON (set for set objects, unset for unset objects)</li>
+   * </ul>
+   */
+  private List<IRInstr> generateToJsonOperator(final IRInstructionBuilder builder,
+                                               final MethodSymbol operatorSymbol,
+                                               final AggregateSymbol aggregateSymbol) {
+    return toJsonGenerator.generate(operatorSymbol, aggregateSymbol);
   }
 
   /**

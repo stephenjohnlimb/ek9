@@ -1,6 +1,7 @@
 package org.ek9lang.compiler.phase1;
 
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_ANY;
+import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BITS;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_BOOLEAN;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_CHARACTER;
 import static org.ek9lang.compiler.support.EK9TypeNames.EK9_COMPARATOR;
@@ -65,6 +66,7 @@ final class BuiltInTypeCacheResolver implements Function<IScope, Ek9Types> {
           resolveType(scope, EK9_FLOAT),
           resolveType(scope, EK9_STRING),
           resolveType(scope, EK9_CHARACTER),
+          resolveType(scope, EK9_BITS),
           resolveType(scope, EK9_DATE),
           resolveType(scope, EK9_DATETIME),
           resolveType(scope, EK9_TIME),

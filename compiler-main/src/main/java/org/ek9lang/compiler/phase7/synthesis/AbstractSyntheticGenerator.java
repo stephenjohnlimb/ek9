@@ -8,6 +8,7 @@ import org.ek9lang.compiler.ir.instructions.BranchInstr;
 import org.ek9lang.compiler.ir.instructions.CallInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.LabelInstr;
+import org.ek9lang.compiler.ir.instructions.LiteralInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
@@ -78,6 +79,13 @@ public abstract class AbstractSyntheticGenerator {
    */
   protected String getStringTypeName() {
     return stackContext.getParsedModule().getEk9Types().ek9String().getFullyQualifiedName();
+  }
+
+  /**
+   * Get the Bits type name from the EK9 type system.
+   */
+  protected String getBitsTypeName() {
+    return stackContext.getParsedModule().getEk9Types().ek9Bits().getFullyQualifiedName();
   }
 
   /**
@@ -426,6 +434,33 @@ public abstract class AbstractSyntheticGenerator {
                                                    final String typeName,
                                                    final DebugInfo debugInfo,
                                                    final String scopeId) {
+    return generateConstructorCallWithArgs(resultVar, typeName, List.of(), List.of(), debugInfo, scopeId);
+  }
+
+  /**
+   * Generate a constructor call with arguments to create a new instance.
+   *
+   * <p>Pattern:</p>
+   * <pre>
+   *   _result = CALL (Type)Type.&lt;init&gt;(args) [pure=true, complexity=1, effects=RETURN_MUTATION]
+   *   RETAIN _result
+   *   SCOPE_REGISTER _result, scope_id
+   * </pre>
+   *
+   * @param resultVar      Variable to store result
+   * @param typeName       Fully qualified type name to construct
+   * @param arguments      Argument variable names to pass to constructor
+   * @param parameterTypes Parameter types (must match arguments)
+   * @param debugInfo      Debug information
+   * @param scopeId        Current scope ID
+   * @return List of IR instructions
+   */
+  protected List<IRInstr> generateConstructorCallWithArgs(final String resultVar,
+                                                           final String typeName,
+                                                           final List<String> arguments,
+                                                           final List<String> parameterTypes,
+                                                           final DebugInfo debugInfo,
+                                                           final String scopeId) {
     final var instructions = new ArrayList<IRInstr>();
 
     // Generate constructor CALL instruction
@@ -434,9 +469,9 @@ public abstract class AbstractSyntheticGenerator {
         typeName, // Target is the class name
         typeName,
         "<init>",
-        List.of(),
+        parameterTypes,
         typeName,
-        List.of(),
+        arguments,
         CallMetaDataDetails.defaultMetaData(),
         false // isTraitCall - constructor uses invokespecial
     );
@@ -445,6 +480,77 @@ public abstract class AbstractSyntheticGenerator {
     // Memory management
     instructions.add(MemoryInstr.retain(resultVar, debugInfo));
     instructions.add(ScopeInstr.register(resultVar, scopeId, debugInfo));
+
+    return instructions;
+  }
+
+  /**
+   * Generate a string literal load with memory management.
+   *
+   * <p>Pattern:</p>
+   * <pre>
+   *   _temp = LOAD_LITERAL "value", org.ek9.lang::String
+   *   RETAIN _temp
+   *   SCOPE_REGISTER _temp, scope_id
+   * </pre>
+   *
+   * @param resultVar    Variable to store the loaded literal
+   * @param literalValue The string literal value
+   * @param debugInfo    Debug information
+   * @param scopeId      Current scope ID
+   * @return List of IR instructions
+   */
+  protected List<IRInstr> generateStringLiteralLoad(final String resultVar,
+                                                     final String literalValue,
+                                                     final DebugInfo debugInfo,
+                                                     final String scopeId) {
+    final var instructions = new ArrayList<IRInstr>();
+
+    // Generate LOAD_LITERAL instruction for the string
+    instructions.add(LiteralInstr.literal(resultVar, literalValue, getStringTypeName(), debugInfo));
+
+    // Memory management
+    instructions.add(MemoryInstr.retain(resultVar, debugInfo));
+    instructions.add(ScopeInstr.register(resultVar, scopeId, debugInfo));
+
+    return instructions;
+  }
+
+  /**
+   * Generate unset return block at a specific label.
+   *
+   * <p>Unlike {@link #generateUnsetReturnBlock}, this version uses the
+   * provided label name instead of generating a new one. Use this when
+   * you need to branch to the unset return from multiple locations.</p>
+   *
+   * @param labelName      The label name for this block
+   * @param returnTypeName The type of value to return
+   * @param returnVarName  The name of the return variable
+   * @param debugInfo      Debug information
+   * @param scopeId        Current scope ID
+   * @return List of IR instructions for the unset return block
+   */
+  protected List<IRInstr> generateUnsetReturnBlockWithLabel(final String labelName,
+                                                             final String returnTypeName,
+                                                             final String returnVarName,
+                                                             final DebugInfo debugInfo,
+                                                             final String scopeId) {
+    final var instructions = new ArrayList<IRInstr>();
+
+    // Use the provided label name
+    instructions.add(LabelInstr.label(labelName));
+
+    // Create unset value via constructor call
+    final var resultTemp = generateTempName();
+    instructions.addAll(generateConstructorCall(resultTemp, returnTypeName, debugInfo, scopeId));
+
+    // Store to return variable and retain for ownership transfer
+    instructions.add(MemoryInstr.store(returnVarName, resultTemp, debugInfo));
+    instructions.add(MemoryInstr.retain(returnVarName, debugInfo));
+
+    // Scope cleanup and return
+    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
+    instructions.add(BranchInstr.returnValue(returnVarName, debugInfo));
 
     return instructions;
   }

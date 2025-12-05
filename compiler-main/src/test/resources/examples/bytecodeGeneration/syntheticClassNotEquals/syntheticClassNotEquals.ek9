@@ -61,6 +61,41 @@ defines module bytecode.syntheticClassNotEquals
         69: aload_1
         70: areturn
 
+  public org.ek9.lang.Bits _fieldSetStatus();
+    Code:
+         0: aconst_null
+         1: astore_1
+         2: ldc           #CP                 // String
+         4: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+         7: astore_2
+         8: new           #CP                 // class org/ek9/lang/Bits
+        11: dup
+        12: aload_2
+        13: invokespecial #CP                 // Method org/ek9/lang/Bits."<init>":(Lorg/ek9/lang/String;)V
+        16: astore_3
+        17: aload_3
+        18: astore_1
+        19: aload_0
+        20: getfield      #CP                 // Field x:Lorg/ek9/lang/Integer;
+        23: astore        4
+        25: aload         4
+        27: invokevirtual #CP                 // Method org/ek9/lang/Integer._isSet:()Lorg/ek9/lang/Boolean;
+        30: astore        5
+        32: aload_1
+        33: aload         5
+        35: invokevirtual #CP                 // Method org/ek9/lang/Bits._addAss:(Lorg/ek9/lang/Boolean;)V
+        38: aload_0
+        39: getfield      #CP                 // Field y:Lorg/ek9/lang/Integer;
+        42: astore        6
+        44: aload         6
+        46: invokevirtual #CP                 // Method org/ek9/lang/Integer._isSet:()Lorg/ek9/lang/Boolean;
+        49: astore        7
+        51: aload_1
+        52: aload         7
+        54: invokevirtual #CP                 // Method org/ek9/lang/Bits._addAss:(Lorg/ek9/lang/Boolean;)V
+        57: aload_1
+        58: areturn
+
   public org.ek9.lang.Boolean _neq(bytecode.syntheticClassNotEquals.SimplePoint);
     Code:
          0: aconst_null
@@ -125,14 +160,14 @@ defines module bytecode.syntheticClassNotEquals
         31: iload         6
         33: ifeq          195
         36: aload_0
-        37: invokevirtual #CP                 // Method _fieldSetStatus:()Lorg/ek9/lang/Integer;
+        37: invokevirtual #CP                 // Method _fieldSetStatus:()Lorg/ek9/lang/Bits;
         40: astore        7
         42: aload_1
-        43: invokevirtual #CP                 // Method _fieldSetStatus:()Lorg/ek9/lang/Integer;
+        43: invokevirtual #CP                 // Method _fieldSetStatus:()Lorg/ek9/lang/Bits;
         46: astore        8
         48: aload         7
         50: aload         8
-        52: invokevirtual #CP                 // Method org/ek9/lang/Integer._eq:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+        52: invokevirtual #CP                 // Method org/ek9/lang/Bits._eq:(Lorg/ek9/lang/Bits;)Lorg/ek9/lang/Boolean;
         55: astore        9
         57: aload         9
         59: invokevirtual #CP                 // Method org/ek9/lang/Boolean._isSet:()Lorg/ek9/lang/Boolean;
@@ -236,14 +271,14 @@ defines module bytecode.syntheticClassNotEquals
         31: iload         6
         33: ifeq          243
         36: aload_0
-        37: invokevirtual #CP                 // Method _fieldSetStatus:()Lorg/ek9/lang/Integer;
+        37: invokevirtual #CP                 // Method _fieldSetStatus:()Lorg/ek9/lang/Bits;
         40: astore        7
         42: aload_1
-        43: invokevirtual #CP                 // Method _fieldSetStatus:()Lorg/ek9/lang/Integer;
+        43: invokevirtual #CP                 // Method _fieldSetStatus:()Lorg/ek9/lang/Bits;
         46: astore        8
         48: aload         7
         50: aload         8
-        52: invokevirtual #CP                 // Method org/ek9/lang/Integer._eq:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Boolean;
+        52: invokevirtual #CP                 // Method org/ek9/lang/Bits._eq:(Lorg/ek9/lang/Bits;)Lorg/ek9/lang/Boolean;
         55: astore        9
         57: aload         9
         59: invokevirtual #CP                 // Method org/ek9/lang/Boolean._isSet:()Lorg/ek9/lang/Boolean;
@@ -345,61 +380,6 @@ defines module bytecode.syntheticClassNotEquals
        270: areturn
        271: aload_2
        272: areturn
-
-  public org.ek9.lang.Integer _fieldSetStatus();
-    Code:
-         0: aconst_null
-         1: astore_1
-         2: iconst_0
-         3: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
-         6: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
-         9: astore_2
-        10: aload_2
-        11: astore_1
-        12: aload_0
-        13: getfield      #CP                 // Field x:Lorg/ek9/lang/Integer;
-        16: astore_3
-        17: aload_3
-        18: invokevirtual #CP                 // Method org/ek9/lang/Integer._isSet:()Lorg/ek9/lang/Boolean;
-        21: astore        4
-        23: aload         4
-        25: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
-        28: istore        5
-        30: iload         5
-        32: ifeq          55
-        35: iconst_1
-        36: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
-        39: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
-        42: astore        6
-        44: aload_1
-        45: aload         6
-        47: invokevirtual #CP                 // Method org/ek9/lang/Integer._or:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
-        50: astore        7
-        52: aload         7
-        54: astore_1
-        55: aload_0
-        56: getfield      #CP                 // Field y:Lorg/ek9/lang/Integer;
-        59: astore        8
-        61: aload         8
-        63: invokevirtual #CP                 // Method org/ek9/lang/Integer._isSet:()Lorg/ek9/lang/Boolean;
-        66: astore        9
-        68: aload         9
-        70: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
-        73: istore        10
-        75: iload         10
-        77: ifeq          100
-        80: iconst_2
-        81: invokestatic  #CP                 // Method java/lang/Integer.toString:(I)Ljava/lang/String;
-        84: invokestatic  #CP                 // Method org/ek9/lang/Integer._of:(Ljava/lang/String;)Lorg/ek9/lang/Integer;
-        87: astore        11
-        89: aload_1
-        90: aload         11
-        92: invokevirtual #CP                 // Method org/ek9/lang/Integer._or:(Lorg/ek9/lang/Integer;)Lorg/ek9/lang/Integer;
-        95: astore        12
-        97: aload         12
-        99: astore_1
-       100: aload_1
-       101: areturn
 
   public bytecode.syntheticClassNotEquals.SimplePoint();
     Code:
