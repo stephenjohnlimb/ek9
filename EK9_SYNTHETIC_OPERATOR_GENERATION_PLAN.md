@@ -1,8 +1,8 @@
 # EK9 Synthetic Operator Generation Plan
 
 **Author:** Steve Limb & Claude Code
-**Date:** 2025-11-28
-**Status:** Planning
+**Date:** 2025-11-28 (Updated: 2025-12-05)
+**Status:** Active Implementation (Phases 1-6 complete, `_json` operator added, enumeration work pending)
 
 ## Executive Summary
 
@@ -124,6 +124,52 @@ org.ek9lang.compiler.ir.synthesis/
 
 ---
 
+## Field Set Status Optimization
+
+### The `_fieldSetStatus()` Helper Method
+
+Synthetic operators that need to check or compare field set status use a shared helper method generated for each aggregate type.
+
+**Signature:** `_fieldSetStatus() -> Bits`
+
+**Purpose:** Returns a `Bits` value where each bit represents whether the corresponding field is set:
+- Bit 0 = first field's set status
+- Bit 1 = second field's set status
+- etc.
+
+**Why Bits (not Integer):**
+- **Unlimited fields** - Integer limits to 32 fields; Bits has no limit
+- **Cleaner API** - `_empty()` checks if all fields unset in single call
+- **Rich operators** - `_eq()`, `_xor()`, `_and()` for status comparison
+
+**IR Pattern:**
+```
+_fieldSetStatus() -> org.ek9.lang::Bits
+  result = NEW Bits("")          // Empty-but-set Bits (not unset!)
+  for each field:
+    isSet = CALL field._isSet()
+    CALL result._addAss(isSet)   // Append: result += isSet (mutates in place)
+  return result
+```
+
+**Critical Implementation Detail:** Uses `Bits("")` (empty string) not `Bits()` (no-args). The no-args constructor creates an *unset* Bits, but `Bits("")` creates a *set* Bits with 0 bits. This is required because `_addAss(Boolean)` requires `this.isSet == true` to work correctly.
+
+**Used By:**
+
+| Generator | Usage |
+|-----------|-------|
+| `EqualsGenerator` | `thisStatus._eq(otherStatus)` - compare field set patterns before field comparison |
+| `CompareGenerator` | `thisStatus._eq(otherStatus)` - compare field set patterns before field comparison |
+| `HashCodeGenerator` | `status._hashcode()` - incorporate set status into hash as base value |
+| `ToJsonGenerator` | `status._empty()` - check if any fields set (optimization: skip empty objects) |
+| `ToStringGenerator` | Does NOT use `_fieldSetStatus()` - iterates fields directly |
+
+**Optimization Impact:**
+- For `_json` and `_string`: Reduces N `_isSet()` calls to 2 method calls (`_fieldSetStatus()._empty()`)
+- For `_eq` and `_cmp`: Early detection of set/unset mismatches before expensive field comparisons
+
+---
+
 ## Aggregate Type Mapping
 
 | EK9 Construct | Java Bytecode | Synthetic Operators |
@@ -146,6 +192,7 @@ org.ek9lang.compiler.ir.synthesis/
 | `<>` | `_neq` | `(T other) -> Boolean` | Logical NOT of `_eq` |
 | `#?` | `_hashcode` | `() -> Integer` | Combined hash of all fields |
 | `$` | `_string` | `() -> String` | "TypeName(field1=v1, field2=v2)" |
+| `$$` | `_json` | `() -> JSON` | JSON representation of object |
 | `:=:` | `_copy` | `(T source)` | Copy all fields from source |
 
 ### Additional Operators for Enumerations
@@ -585,17 +632,28 @@ compiler-main/src/test/resources/examples/
 │           └── enumNavigation.ek9        # @IR test for _inc/_dec
 │
 └── bytecodeGeneration/
-    └── synthetic/
-        ├── syntheticRecordEquals/
-        │   ├── syntheticRecordEquals.ek9
-        │   ├── test.sh
-        │   └── expected_output.txt
-        ├── syntheticRecordHashCode/
-        │   └── ...
-        ├── syntheticEnumeration/
-        │   └── ...
-        └── comprehensiveSynthetic/       # All operators together
-            └── ...
+    ├── synthetic/
+    │   ├── syntheticRecordEquals/
+    │   │   ├── syntheticRecordEquals.ek9
+    │   │   ├── test.sh
+    │   │   └── expected_output.txt
+    │   ├── syntheticRecordHashCode/
+    │   │   └── ...
+    │   ├── syntheticEnumeration/
+    │   │   └── ...
+    │   └── comprehensiveSynthetic/       # All operators together
+    │       └── ...
+    │
+    └── json/                             # JSON operator tests (NEW)
+        ├── jsonSingleString/             # Single String field
+        ├── jsonSingleInteger/            # Single Integer field
+        ├── jsonMultipleFields/           # Multiple mixed types
+        ├── jsonBooleanFloat/             # Boolean and Float fields
+        ├── jsonNestedObject/             # Nested class field
+        ├── jsonListField/                # List of Strings field
+        ├── jsonOneFieldUnset/            # One field unset (excluded from output)
+        ├── jsonAllFieldsUnset/           # All fields unset (empty JSON {})
+        └── jsonInheritance/              # Parent + child fields
 ```
 
 ### Test Levels
@@ -815,12 +873,13 @@ p1 == p2       // true or unset?
 
 ### Phase Completion Checklist
 
-- [ ] **Phase 1 Complete:** Infrastructure in place, synthetic detection working
-- [ ] **Phase 2 Complete:** `_eq` generates correct IR, all tests pass
-- [ ] **Phase 3 Complete:** `_neq` generates correct IR, all tests pass
-- [ ] **Phase 4 Complete:** `_hashcode` generates correct IR, all tests pass
-- [ ] **Phase 5 Complete:** `_string` generates correct IR, all tests pass
-- [ ] **Phase 6 Complete:** `_copy` generates correct IR, all tests pass
+- [x] **Phase 1 Complete:** Infrastructure in place, synthetic detection working
+- [x] **Phase 2 Complete:** `_eq` generates correct IR, all tests pass
+- [x] **Phase 3 Complete:** `_neq` generates correct IR, all tests pass
+- [x] **Phase 4 Complete:** `_hashcode` generates correct IR, all tests pass
+- [x] **Phase 5 Complete:** `_string` generates correct IR, all tests pass
+- [x] **Phase 6 Complete:** `_copy` generates correct IR, all tests pass
+- [x] **Phase 6.5 Complete:** `_json` generates correct IR, comprehensive JSON tests pass (NEW - 2025-12-05)
 - [ ] **Phase 7 Complete:** Enumeration infrastructure in place
 - [ ] **Phase 8 Complete:** Enum comparisons working
 - [ ] **Phase 9 Complete:** Enum navigation working

@@ -141,8 +141,8 @@ final class EqualsGenerator extends AbstractSyntheticGenerator {
    *
    * <p>Pattern:</p>
    * <pre>
-   *   _thisStatus = CALL this._fieldSetStatus() -> Integer
-   *   _otherStatus = CALL other._fieldSetStatus() -> Integer
+   *   _thisStatus = CALL this._fieldSetStatus() -> Bits
+   *   _otherStatus = CALL other._fieldSetStatus() -> Bits
    *   _statusEq = CALL _thisStatus._eq(_otherStatus) -> Boolean
    *   _statusEqSet = CALL _statusEq._isSet() -> Boolean
    *   BRANCH_IF_FALSE _statusEqSet -> return_unset  // shouldn't happen but safe
