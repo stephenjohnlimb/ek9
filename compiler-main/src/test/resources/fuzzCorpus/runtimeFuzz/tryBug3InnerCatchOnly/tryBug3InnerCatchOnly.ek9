@@ -1,0 +1,38 @@
+#!ek9
+<?-
+  Runtime fuzz test: Bug #3 Variation - Inner has catch only (no finally).
+
+  Tests pattern where inner try has catch only,
+  and outer try has BOTH catch AND finally.
+  Exception is caught at inner level, so outer catch should NOT execute.
+
+  Pattern: try { try { THROW } catch } catch finally
+-?>
+defines module fuzz.runtime.try.bug3.innercatchonly
+
+  defines program
+
+    TryBug3InnerCatchOnly()
+      stdout <- Stdout()
+
+      stdout.println("Starting test")
+
+      try
+        stdout.println("Outer try: start")
+        try
+          stdout.println("Inner try: about to throw")
+          ex <- Exception("Test exception")
+          throw ex
+        catch
+          -> e as Exception
+          stdout.println("Inner catch: caught exception")
+        stdout.println("Outer try: after inner block")
+      catch
+        -> e as Exception
+        stdout.println("ERROR: Outer catch should not execute")
+      finally
+        stdout.println("Outer finally: cleanup")
+
+      stdout.println("Done")
+
+//EOF

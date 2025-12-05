@@ -1,0 +1,7 @@
+Starting test
+Resource acquired: test
+Body: using resource
+Resource close() throwing: test
+Outer catch: caught close exception - absorbed
+Outer finally: cleanup
+Done - close exception was properly absorbed

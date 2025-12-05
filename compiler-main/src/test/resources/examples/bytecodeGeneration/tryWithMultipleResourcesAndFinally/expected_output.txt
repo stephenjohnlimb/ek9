@@ -1,5 +1,5 @@
 Try: OK
-Closing resource
-Closing resource
 Finally executed
+Closing resource
+Closing resource
 Result: OK

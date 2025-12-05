@@ -1,0 +1,67 @@
+#!ek9
+<?-
+  Runtime fuzz test: Full complexity - inner resource + explicit finally + close() throws.
+
+  This is the most complex case combining:
+  - Inner try-with-resources (close throws)
+  - Inner explicit finally block
+  - Outer catch + finally (Bug #3 pattern)
+
+  Key questions:
+  1. Does inner explicit finally run when close() throws?
+  2. What's the order: close() then finally, or finally then close()?
+  3. Does outer catch catch the close() exception?
+  4. Does outer finally run?
+  5. Does program continue to Done?
+
+  Expected order: body → close() (throws) → inner finally → outer catch → outer finally → Done
+-?>
+defines module fuzz.runtime.resource.innerfinallyclose
+
+  defines class
+
+    ThrowingResource
+      name <- String()
+
+      ThrowingResource()
+        ->
+          resourceName as String
+        stdout <- Stdout()
+        stdout.println("Resource acquired: " + resourceName)
+        assert resourceName?
+        this.name :=: resourceName
+
+      operator close as pure
+        stdout <- Stdout()
+        stdout.println("Resource close() throwing: " + name)
+        ex <- Exception("Close failed: " + name)
+        throw ex
+
+      override operator ? as pure
+        <- rtn <- true
+
+  defines program
+
+    TryResourceInnerFinallyCloseThrows()
+      stdout <- Stdout()
+
+      stdout.println("Starting test")
+
+      // Full complexity: inner has resource + explicit finally, outer has catch + finally
+      try
+        try
+          ->
+            resource <- ThrowingResource("test")
+          stdout.println("Body: using resource")
+          // close() will be called here implicitly, and will throw
+        finally
+          stdout.println("Inner explicit finally: should still run")
+      catch
+        -> ex as Exception
+        stdout.println("Outer catch: caught close exception")
+      finally
+        stdout.println("Outer finally: cleanup")
+
+      stdout.println("Done - all blocks executed correctly")
+
+//EOF

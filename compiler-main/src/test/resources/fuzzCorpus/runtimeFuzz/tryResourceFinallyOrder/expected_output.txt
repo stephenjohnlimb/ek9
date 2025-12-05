@@ -1,0 +1,15 @@
+Starting test
+=== Test 1: Resource + explicit finally ===
+Resource acquired: test1
+Body: using resource
+Explicit finally: cleanup
+Resource close(): test1
+After test 1
+=== Test 2: Nested resource + finally ===
+Resource acquired: test2
+Inner body: using resource
+Inner explicit finally: cleanup
+Resource close(): test2
+Outer body: after inner try
+Outer explicit finally: cleanup
+Done

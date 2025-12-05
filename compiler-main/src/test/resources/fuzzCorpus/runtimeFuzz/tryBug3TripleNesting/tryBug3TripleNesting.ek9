@@ -1,0 +1,39 @@
+#!ek9
+<?-
+  Runtime fuzz test: Bug #3 Variation - Triple nesting with finally at each level.
+
+  Tests 3-level nesting where exception propagates through multiple finally blocks
+  to outermost catch. All three finally blocks must execute.
+
+  Pattern: try { try { try { THROW } finally } finally } catch finally
+-?>
+defines module fuzz.runtime.try.bug3.triplenesting
+
+  defines program
+
+    TryBug3TripleNesting()
+      stdout <- Stdout()
+
+      stdout.println("Starting test")
+
+      try
+        stdout.println("Level 1: start")
+        try
+          stdout.println("Level 2: start")
+          try
+            stdout.println("Level 3: about to throw")
+            ex <- Exception("Deep exception")
+            throw ex
+          finally
+            stdout.println("Level 3 finally: cleanup")
+        finally
+          stdout.println("Level 2 finally: cleanup")
+      catch
+        -> e as Exception
+        stdout.println("Level 1 catch: caught deep exception")
+      finally
+        stdout.println("Level 1 finally: cleanup")
+
+      stdout.println("Done")
+
+//EOF

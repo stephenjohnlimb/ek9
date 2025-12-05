@@ -326,8 +326,14 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
    * Process finally block with automatic resource cleanup.
    * <p>
    * Creates synthetic finally block if user didn't provide one (when resources present).
-   * close() calls execute BEFORE user's finally code (matches Java semantics).
+   * User's finally code executes FIRST (so user can still use resources).
+   * close() calls execute AFTER user's finally code (compiler-added cleanup).
    * Resources closed in REVERSE order: last declared, first closed.
+   * </p>
+   * <p>
+   * This differs from Java where close() runs before explicit finally.
+   * EK9's approach ensures user's cleanup code has access to valid resources
+   * and is guaranteed to run even if close() throws an exception.
    * </p>
    */
   private List<IRInstr> processFinallyBlockWithResourceCleanup(
@@ -351,7 +357,15 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
     final var finallyEvaluation = new ArrayList<IRInstr>();
     finallyEvaluation.add(ScopeInstr.enter(finallyScopeId, debugInfo));
 
-    // AUTO-GENERATED: close() calls FIRST, REVERSE order (last declared, first closed)
+    // User's finally code FIRST (if user provided explicit finally block)
+    // This ensures user's cleanup code can still use resources before they're closed
+    if (finallyCtx != null) {
+      finallyEvaluation.addAll(processBlockStatements(finallyCtx.block()));
+    }
+
+    // AUTO-GENERATED: close() calls SECOND (after user's finally code)
+    // Resources closed in REVERSE order (last declared, first closed)
+    // This is "invisible" to the EK9 developer - compiler adds close() after their code
     for (int i = resources.size() - 1; i >= 0; i--) {
       final var resource = resources.get(i);
       final var resourceSymbol = resource.symbol();
@@ -377,11 +391,6 @@ public final class TryCatchStatementGenerator extends AbstractGenerator
 
       // CALL resource.close() - null result (void return)
       finallyEvaluation.add(CallInstr.call(null, resourceDebugInfo, closeCallDetails));
-    }
-
-    // User's finally code SECOND (after close() calls, if user provided finally)
-    if (finallyCtx != null) {
-      finallyEvaluation.addAll(processBlockStatements(finallyCtx.block()));
     }
 
     finallyEvaluation.add(ScopeInstr.exit(finallyScopeId, debugInfo));

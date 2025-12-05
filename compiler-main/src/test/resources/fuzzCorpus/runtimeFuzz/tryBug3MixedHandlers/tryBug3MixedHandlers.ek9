@@ -1,0 +1,43 @@
+#!ek9
+<?-
+  Runtime fuzz test: Bug #3 Variation - Mixed handlers at different levels.
+
+  Tests pattern where middle level has catch that re-throws,
+  inner level has finally only, outer level has catch AND finally.
+  Exception propagates through all levels.
+
+  Pattern: try { try { try { THROW } finally } catch { RETHROW } } catch finally
+-?>
+defines module fuzz.runtime.try.bug3.mixedhandlers
+
+  defines program
+
+    TryBug3MixedHandlers()
+      stdout <- Stdout()
+
+      stdout.println("Starting test")
+
+      try
+        stdout.println("Outer: start")
+        try
+          stdout.println("Middle: start")
+          try
+            stdout.println("Inner: about to throw")
+            ex <- Exception("Original exception")
+            throw ex
+          finally
+            stdout.println("Inner finally: cleanup")
+        catch
+          -> e as Exception
+          stdout.println("Middle catch: caught, rethrowing")
+          newEx <- Exception("Rethrown from middle")
+          throw newEx
+      catch
+        -> e as Exception
+        stdout.println("Outer catch: caught rethrown exception")
+      finally
+        stdout.println("Outer finally: cleanup")
+
+      stdout.println("Done")
+
+//EOF

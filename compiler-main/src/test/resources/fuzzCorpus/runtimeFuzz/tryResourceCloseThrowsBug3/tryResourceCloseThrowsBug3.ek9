@@ -1,0 +1,63 @@
+#!ek9
+<?-
+  Runtime fuzz test: Bug #3 pattern with resource close() exception.
+
+  Tests that Bug #3 fix applies to resource close() exceptions, not just
+  explicit throw statements.
+
+  Pattern: Inner try-with-resources (close throws), outer catch + finally.
+  This is exactly Bug #3 pattern but with implicit close() exception.
+
+  Expected: close() exception caught by outer catch, outer finally runs, Done reached.
+-?>
+defines module fuzz.runtime.resource.closethrowsbug3
+
+  defines class
+
+    ThrowingResource
+      name <- String()
+
+      ThrowingResource()
+        ->
+          resourceName as String
+        stdout <- Stdout()
+        stdout.println("Resource acquired: " + resourceName)
+        assert resourceName?
+        this.name :=: resourceName
+
+      operator close as pure
+        stdout <- Stdout()
+        stdout.println("Resource close() throwing: " + name)
+        ex <- Exception("Close failed: " + name)
+        throw ex
+
+      override operator ? as pure
+        <- rtn <- true
+
+  defines program
+
+    TryResourceCloseThrowsBug3()
+      stdout <- Stdout()
+
+      stdout.println("Starting test")
+
+      // Bug #3 pattern: outer try has BOTH catch AND finally
+      // close() throws, should be caught, finally should run, Done should print
+      try
+        try
+          ->
+            resource <- ThrowingResource("test")
+          stdout.println("Body: using resource")
+          // close() will be called here implicitly, and will throw
+        catch
+          -> ex as Exception
+          stdout.println("Inner catch: should NOT catch close() exception")
+      catch
+        -> ex as Exception
+        stdout.println("Outer catch: caught close exception - absorbed")
+      finally
+        stdout.println("Outer finally: cleanup")
+
+      stdout.println("Done - close exception was properly absorbed")
+
+//EOF

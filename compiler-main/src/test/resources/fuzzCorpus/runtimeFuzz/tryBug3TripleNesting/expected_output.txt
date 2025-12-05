@@ -1,0 +1,9 @@
+Starting test
+Level 1: start
+Level 2: start
+Level 3: about to throw
+Level 3 finally: cleanup
+Level 2 finally: cleanup
+Level 1 catch: caught deep exception
+Level 1 finally: cleanup
+Done

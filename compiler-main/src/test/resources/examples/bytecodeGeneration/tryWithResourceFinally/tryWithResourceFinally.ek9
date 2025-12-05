@@ -67,22 +67,22 @@ defines module bytecode.test
         56: goto          64
         59: astore        4
         61: goto          64
-        64: aload_1
-        65: invokevirtual #CP                 // Method bytecode/test/TestResource._close:()V
-        68: new           #CP                 // class org/ek9/lang/Stdout
-        71: dup
-        72: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
-        75: astore        9
-        77: aload         9
-        79: astore        5
-        81: aload         5
-        83: astore        10
-        85: ldc           #CP                 // String Finally executing
-        87: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-        90: astore        11
-        92: aload         10
-        94: aload         11
-        96: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        64: new           #CP                 // class org/ek9/lang/Stdout
+        67: dup
+        68: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+        71: astore        9
+        73: aload         9
+        75: astore        5
+        77: aload         5
+        79: astore        10
+        81: ldc           #CP                 // String Finally executing
+        83: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+        86: astore        11
+        88: aload         10
+        90: aload         11
+        92: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+        95: aload_1
+        96: invokevirtual #CP                 // Method bytecode/test/TestResource._close:()V
         99: aload         4
        101: ifnull        107
        104: aload         4

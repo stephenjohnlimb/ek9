@@ -112,24 +112,24 @@ defines module bytecode.test.resources.finally
        137: athrow
        138: astore        9
        140: goto          143
-       143: aload         6
-       145: invokevirtual #CP                 // Method bytecode/test/resources/finally/TestResource._close:()V
-       148: aload_3
-       149: invokevirtual #CP                 // Method bytecode/test/resources/finally/TestResource._close:()V
-       152: new           #CP                 // class org/ek9/lang/Stdout
-       155: dup
-       156: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
-       159: astore        19
-       161: aload         19
-       163: astore        11
-       165: aload         11
-       167: astore        20
-       169: ldc           #CP                 // String Finally executed
-       171: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
-       174: astore        21
-       176: aload         20
-       178: aload         21
-       180: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       143: new           #CP                 // class org/ek9/lang/Stdout
+       146: dup
+       147: invokespecial #CP                 // Method org/ek9/lang/Stdout."<init>":()V
+       150: astore        19
+       152: aload         19
+       154: astore        11
+       156: aload         11
+       158: astore        20
+       160: ldc           #CP                 // String Finally executed
+       162: invokestatic  #CP                 // Method org/ek9/lang/String._of:(Ljava/lang/String;)Lorg/ek9/lang/String;
+       165: astore        21
+       167: aload         20
+       169: aload         21
+       171: invokevirtual #CP                 // Method org/ek9/lang/Stdout.println:(Lorg/ek9/lang/String;)V
+       174: aload         6
+       176: invokevirtual #CP                 // Method bytecode/test/resources/finally/TestResource._close:()V
+       179: aload_3
+       180: invokevirtual #CP                 // Method bytecode/test/resources/finally/TestResource._close:()V
        183: aload         9
        185: ifnull        191
        188: aload         9

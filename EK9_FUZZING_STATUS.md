@@ -12,11 +12,12 @@
 | Metric | Count |
 |--------|-------|
 | Compile-time fuzz tests | 544 EK9 files |
-| Runtime fuzz tests | 32 EK9 files |
-| Total fuzz corpus | 576 EK9 files |
-| Test suites | 127 classes |
+| Runtime fuzz tests | 37 EK9 files |
+| Total fuzz corpus | 581 EK9 files |
+| Test suites | 132 classes |
 | Frontend error coverage | 205/205 (100%) |
 | Bugs found via fuzzing | 9 |
+| Bugs fixed via fuzzing | 1 (Bug #3) |
 
 ### Key Directories
 
@@ -26,13 +27,13 @@ compiler-main/src/test/
 │   ├── FuzzTestBase.java                    # Base class for compile-time tests
 │   ├── *FuzzTest.java                       # 95 compile-time test suites
 │   └── runtime/
-│       └── *RuntimeFuzzTest.java            # 32 runtime test suites
+│       └── *RuntimeFuzzTest.java            # 37 runtime test suites
 │
 └── resources/fuzzCorpus/
     ├── [errorCategory]/                     # Compile-time test corpus (544 files)
     │   └── *.ek9                            # Tests with @Error directives
     └── runtimeFuzz/
-        └── [testName]/                      # Runtime test corpus (32 dirs)
+        └── [testName]/                      # Runtime test corpus (37 dirs)
             ├── [testName].ek9               # EK9 program
             └── expected_output.txt          # Expected stdout/stderr
 ```
@@ -168,7 +169,7 @@ Exception in thread "main" java.lang.AssertionError: For-range 'start' value mus
 | SwitchGuardUnsetRuntimeFuzzTest | SWITCH skipped when guard unset |
 | ForInEmptyListRuntimeFuzzTest | FOR-IN skips empty collection |
 
-**Try/Catch/Finally Tests (17 tests):**
+**Try/Catch/Finally Tests (22 tests):**
 
 | Test | Purpose |
 |------|---------|
@@ -179,6 +180,12 @@ Exception in thread "main" java.lang.AssertionError: For-range 'start' value mus
 | TryNestedCatchThrowsRuntimeFuzzTest | Catch throws new exception |
 | TryNestedFinallyThrowsRuntimeFuzzTest | Finally throws exception |
 | TryNested3LevelFinallyRuntimeFuzzTest | 2-level with finally propagation |
+| **Bug #3 Variations (RESOLVED)** | |
+| TryBug3ReproductionRuntimeFuzzTest | Exact Bug #3 pattern - exception absorbed correctly |
+| TryBug3InnerCatchFinallyRuntimeFuzzTest | Inner has both catch AND finally |
+| TryBug3InnerCatchOnlyRuntimeFuzzTest | Inner has catch only (no finally) |
+| TryBug3TripleNestingRuntimeFuzzTest | 3-level deep with finally at each level |
+| TryBug3MixedHandlersRuntimeFuzzTest | Mixed handlers with catch that re-throws |
 | **Multiple Catch Ordering** | |
 | TryMultipleCatchFirstRuntimeFuzzTest | First exception type matched |
 | TryMultipleCatchSecondRuntimeFuzzTest | Second exception type matched |
@@ -285,6 +292,7 @@ EK9 has unique semantics that are **runtime behaviors**:
 | Guard unset in SWITCH | ✅ Complete | 1 |
 | Empty collection FOR-IN | ✅ Complete | 1 |
 | Exception paths | ✅ Complete | 17 |
+| Bug #3 fix validation | ✅ Complete | 5 |
 
 **Pending - High Priority:**
 
@@ -296,14 +304,14 @@ EK9 has unique semantics that are **runtime behaviors**:
 | Stream execution | cat → filter → map → collect end-to-end | MEDIUM |
 | Dynamic constructs | Dynamic class/function closure capture | MEDIUM |
 
-**Known Bugs to Create Failing Tests For:**
+**Known Bugs:**
 
-| Bug | Description | Location |
-|-----|-------------|----------|
-| Bug #3 | Exception propagates after catch when outer try has both catch AND finally | `EXCEPTION_HANDLING_BUGS.md` |
-| Bug #2 | Resource close() exceptions are uncaught | `EXCEPTION_HANDLING_BUGS.md` |
+| Bug | Status | Description | Location |
+|-----|--------|-------------|----------|
+| Bug #3 | ✅ RESOLVED | Exception propagates after catch when outer try has both catch AND finally | Fixed in `TryCatchAsmGenerator.java` |
+| Bug #2 | ❌ OPEN | Resource close() exceptions are uncaught | `EXCEPTION_HANDLING_BUGS.md` |
 
-**The ratio opportunity:** 544 compile-time tests vs 32 runtime tests. As backend matures, each compile-time error has a "valid twin" that should execute correctly.
+**The ratio opportunity:** 544 compile-time tests vs 37 runtime tests. As backend matures, each compile-time error has a "valid twin" that should execute correctly.
 
 ### Systematic Coverage
 
@@ -373,7 +381,7 @@ Before creating new fuzz tests:
 | IR Generation tests | 154 with @IR directives |
 | Bytecode tests | 96 with @BYTECODE directives |
 | E2E execution tests | 91 test.sh scripts |
-| Runtime fuzz tests | 32 (FOR_RANGE + guards + try/catch/finally) |
+| Runtime fuzz tests | 37 (FOR_RANGE + guards + try/catch/finally + Bug #3 fix) |
 
 ---
 

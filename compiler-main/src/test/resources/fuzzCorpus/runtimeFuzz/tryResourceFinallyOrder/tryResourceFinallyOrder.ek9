@@ -1,0 +1,67 @@
+#!ek9
+<?-
+  Runtime fuzz test: Establish order of close() vs explicit finally.
+
+  Tests the order of operations when try-with-resources has BOTH
+  a resource (with implicit close) AND an explicit finally block.
+
+  This establishes the baseline semantic order before testing exceptions.
+
+  Key question: Does close() run BEFORE or AFTER explicit finally?
+-?>
+defines module fuzz.runtime.resource.finallyorder
+
+  defines class
+
+    LoggingResource
+      name <- String()
+
+      LoggingResource()
+        ->
+          resourceName as String
+        stdout <- Stdout()
+        stdout.println("Resource acquired: " + resourceName)
+        assert resourceName?
+        this.name :=: resourceName
+
+      operator close as pure
+        stdout <- Stdout()
+        stdout.println("Resource close(): " + name)
+
+      override operator ? as pure
+        <- rtn <- true
+
+  defines program
+
+    TryResourceFinallyOrder()
+      stdout <- Stdout()
+
+      stdout.println("Starting test")
+
+      // Test 1: Simple resource with explicit finally
+      stdout.println("=== Test 1: Resource + explicit finally ===")
+      try
+        ->
+          resource <- LoggingResource("test1")
+        stdout.println("Body: using resource")
+      finally
+        stdout.println("Explicit finally: cleanup")
+
+      stdout.println("After test 1")
+
+      // Test 2: Nested - inner resource with finally, outer just observes
+      stdout.println("=== Test 2: Nested resource + finally ===")
+      try
+        try
+          ->
+            resource <- LoggingResource("test2")
+          stdout.println("Inner body: using resource")
+        finally
+          stdout.println("Inner explicit finally: cleanup")
+        stdout.println("Outer body: after inner try")
+      finally
+        stdout.println("Outer explicit finally: cleanup")
+
+      stdout.println("Done")
+
+//EOF

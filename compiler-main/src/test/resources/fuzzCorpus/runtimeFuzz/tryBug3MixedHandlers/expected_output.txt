@@ -1,0 +1,9 @@
+Starting test
+Outer: start
+Middle: start
+Inner: about to throw
+Inner finally: cleanup
+Middle catch: caught, rethrowing
+Outer catch: caught rethrown exception
+Outer finally: cleanup
+Done

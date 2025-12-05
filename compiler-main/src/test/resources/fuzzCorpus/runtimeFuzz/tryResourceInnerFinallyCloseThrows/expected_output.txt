@@ -1,0 +1,8 @@
+Starting test
+Resource acquired: test
+Body: using resource
+Inner explicit finally: should still run
+Resource close() throwing: test
+Outer catch: caught close exception
+Outer finally: cleanup
+Done - all blocks executed correctly

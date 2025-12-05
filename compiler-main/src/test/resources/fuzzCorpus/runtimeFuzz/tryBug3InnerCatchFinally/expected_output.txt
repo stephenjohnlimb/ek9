@@ -1,0 +1,8 @@
+Starting test
+Outer try: start
+Inner try: about to throw
+Inner catch: caught exception
+Inner finally: cleanup
+Outer try: after inner block
+Outer finally: cleanup
+Done
