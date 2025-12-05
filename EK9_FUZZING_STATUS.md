@@ -12,11 +12,11 @@
 | Metric | Count |
 |--------|-------|
 | Compile-time fuzz tests | 544 EK9 files |
-| Runtime fuzz tests | 15 EK9 files |
-| Total fuzz corpus | 559 EK9 files |
-| Test suites | 110 classes |
+| Runtime fuzz tests | 32 EK9 files |
+| Total fuzz corpus | 576 EK9 files |
+| Test suites | 127 classes |
 | Frontend error coverage | 205/205 (100%) |
-| Bugs found via fuzzing | 8 |
+| Bugs found via fuzzing | 9 |
 
 ### Key Directories
 
@@ -26,13 +26,13 @@ compiler-main/src/test/
 │   ├── FuzzTestBase.java                    # Base class for compile-time tests
 │   ├── *FuzzTest.java                       # 95 compile-time test suites
 │   └── runtime/
-│       └── *RuntimeFuzzTest.java            # 15 runtime test suites
+│       └── *RuntimeFuzzTest.java            # 32 runtime test suites
 │
 └── resources/fuzzCorpus/
     ├── [errorCategory]/                     # Compile-time test corpus (544 files)
     │   └── *.ek9                            # Tests with @Error directives
     └── runtimeFuzz/
-        └── [testName]/                      # Runtime test corpus (15 dirs)
+        └── [testName]/                      # Runtime test corpus (32 dirs)
             ├── [testName].ek9               # EK9 program
             └── expected_output.txt          # Expected stdout/stderr
 ```
@@ -64,6 +64,7 @@ EK9 uses **reasoning-based fuzzing** rather than brute-force random generation:
 | E11011 EXCESSIVE_NESTING | Designed tests to stress nesting limits |
 | Default/abstract method defect | Targeted fuzzing of new feature |
 | `final` is reserved keyword | Discovered during test creation |
+| Exception propagates after catch (Bug #3) | Try/catch/finally nesting variation testing |
 
 ---
 
@@ -142,6 +143,8 @@ Exception in thread "main" java.lang.AssertionError: For-range 'start' value mus
 
 ### Current Runtime Coverage
 
+**FOR_RANGE Tests (11 tests):**
+
 | Test | Purpose |
 |------|---------|
 | ForRangeDescendingRuntimeFuzzTest | Descending range (10 → 1) |
@@ -155,15 +158,74 @@ Exception in thread "main" java.lang.AssertionError: For-range 'start' value mus
 | ForRangeUnsetStartRuntimeFuzzTest | AssertionError: start unset |
 | ForRangeUnsetEndRuntimeFuzzTest | AssertionError: end unset |
 | ForRangeUnsetByRuntimeFuzzTest | AssertionError: by unset |
+
+**Guard/Control Flow Tests (4 tests):**
+
+| Test | Purpose |
+|------|---------|
 | IfGuardUnsetRuntimeFuzzTest | IF body skipped when guard unset |
 | WhileGuardUnsetRuntimeFuzzTest | WHILE never enters when guard unset |
 | SwitchGuardUnsetRuntimeFuzzTest | SWITCH skipped when guard unset |
 | ForInEmptyListRuntimeFuzzTest | FOR-IN skips empty collection |
 
+**Try/Catch/Finally Tests (17 tests):**
+
+| Test | Purpose |
+|------|---------|
+| **Nesting Variations** | |
+| TryNestedInnerCaughtRuntimeFuzzTest | Inner catch handles, outer not triggered |
+| TryNestedPropagatesRuntimeFuzzTest | Exception propagates through inner finally |
+| TryNestedBothFinallyRuntimeFuzzTest | Both finally blocks execute in order |
+| TryNestedCatchThrowsRuntimeFuzzTest | Catch throws new exception |
+| TryNestedFinallyThrowsRuntimeFuzzTest | Finally throws exception |
+| TryNested3LevelFinallyRuntimeFuzzTest | 2-level with finally propagation |
+| **Multiple Catch Ordering** | |
+| TryMultipleCatchFirstRuntimeFuzzTest | First exception type matched |
+| TryMultipleCatchSecondRuntimeFuzzTest | Second exception type matched |
+| TryMultipleCatchFallbackRuntimeFuzzTest | Base Exception catches as fallback |
+| TryMultipleCatchNoneMatchRuntimeFuzzTest | None match, exception propagates |
+| **Finally Guarantee** | |
+| TryFinallyCatchThrowsRuntimeFuzzTest | Finally runs when catch throws |
+| TryFinallyOverridesRuntimeFuzzTest | Finally exception overrides try exception |
+| TryFinallyNormalThrowsRuntimeFuzzTest | Finally throws when try succeeds |
+| **Expression Form** | |
+| TryExpressionCatchReturnsRuntimeFuzzTest | Try expression returns value from catch |
+| TryExpressionBothPathsRuntimeFuzzTest | Both success and exception paths |
+| **Guard Integration** | |
+| TryGuardUnsetSkipsAllRuntimeFuzzTest | Guard unset skips entire try block |
+| TryGuardSetExecutesRuntimeFuzzTest | Guard set executes try body |
+
 ### Running Runtime Tests
 
 ```bash
 mvn test -Dtest="*RuntimeFuzzTest" -pl compiler-main
+```
+
+### EK9 Exception Handling Syntax Notes
+
+**Single catch per try:** EK9 does NOT support multiple catch blocks like Java. To catch multiple exception types, use nested tries:
+
+```ek9
+// WRONG - EK9 doesn't support this
+try
+  throw ex
+catch
+  -> e as ExceptionA
+  handle(e)
+catch                    // ERROR: No viable alternative
+  -> e as ExceptionB
+  handle(e)
+
+// CORRECT - Use nested tries
+try
+  try
+    throw ex
+  catch
+    -> e as ExceptionA
+    handle(e)
+catch
+  -> e as ExceptionB
+  handle(e)
 ```
 
 ---
@@ -214,21 +276,34 @@ EK9 has unique semantics that are **runtime behaviors**:
 
 ### Runtime Fuzzing Expansion
 
-**High priority - same patterns as FOR_RANGE:**
+**Completed:**
 
-| Category | Status |
-|----------|--------|
-| Guard unset in IF | ✅ Implemented |
-| Guard unset in WHILE | ✅ Implemented |
-| Guard unset in SWITCH | ✅ Implemented |
-| Empty collection FOR-IN | ✅ Implemented |
-| Collection boundaries | Dict missing key - pending |
-| Operator boundaries | MAX_INT + 1, division by zero |
-| Stream execution | cat → filter → map → collect end-to-end |
-| Exception paths | TRY-CATCH throw/catch/propagate |
-| Dynamic constructs | Dynamic class/function closure capture |
+| Category | Status | Tests |
+|----------|--------|-------|
+| Guard unset in IF | ✅ Complete | 1 |
+| Guard unset in WHILE | ✅ Complete | 1 |
+| Guard unset in SWITCH | ✅ Complete | 1 |
+| Empty collection FOR-IN | ✅ Complete | 1 |
+| Exception paths | ✅ Complete | 17 |
 
-**The ratio opportunity:** 544 compile-time tests vs 15 runtime tests. As backend matures, each compile-time error has a "valid twin" that should execute correctly.
+**Pending - High Priority:**
+
+| Category | Description | Priority |
+|----------|-------------|----------|
+| Try-with-resources | Resource acquisition/release with exceptions | HIGH |
+| Collection boundaries | Dict missing key, List out of bounds | HIGH |
+| Operator boundaries | MAX_INT + 1, division by zero, overflow | MEDIUM |
+| Stream execution | cat → filter → map → collect end-to-end | MEDIUM |
+| Dynamic constructs | Dynamic class/function closure capture | MEDIUM |
+
+**Known Bugs to Create Failing Tests For:**
+
+| Bug | Description | Location |
+|-----|-------------|----------|
+| Bug #3 | Exception propagates after catch when outer try has both catch AND finally | `EXCEPTION_HANDLING_BUGS.md` |
+| Bug #2 | Resource close() exceptions are uncaught | `EXCEPTION_HANDLING_BUGS.md` |
+
+**The ratio opportunity:** 544 compile-time tests vs 32 runtime tests. As backend matures, each compile-time error has a "valid twin" that should execute correctly.
 
 ### Systematic Coverage
 
@@ -298,7 +373,7 @@ Before creating new fuzz tests:
 | IR Generation tests | 154 with @IR directives |
 | Bytecode tests | 96 with @BYTECODE directives |
 | E2E execution tests | 91 test.sh scripts |
-| Runtime fuzz tests | 15 (control flow guards + FOR_RANGE) |
+| Runtime fuzz tests | 32 (FOR_RANGE + guards + try/catch/finally) |
 
 ---
 

@@ -1,8 +1,8 @@
 # EXCEPTION HANDLING COMPILER BUGS
 
-**Status:** Bug #1 RESOLVED ✅ | Bug #2 Status Unknown | Bug #3 NEW 🐛
+**Status:** Bug #1 RESOLVED ✅ | Bug #2 Status Unknown | Bug #3 RESOLVED ✅
 **Discovery Date:** 2025-11-13
-**Resolution Date:** 2025-11-16 (Bug #1)
+**Resolution Date:** 2025-11-16 (Bug #1), 2025-12-05 (Bug #3)
 **Last Updated:** 2025-12-05
 
 ---
@@ -11,7 +11,7 @@
 
 **Bug #1: ✅ RESOLVED** - Finally blocks now execute correctly during exception propagation
 **Bug #2: ⚠️ Status Unknown** - Needs verification
-**Bug #3: 🐛 NEW** - Exception propagates after catch when outer try has both catch AND finally
+**Bug #3: ✅ RESOLVED** - Exception propagates after catch when outer try has both catch AND finally (Fixed 2025-12-05)
 
 ---
 
@@ -19,9 +19,9 @@
 
 Three bugs discovered in EK9's exception handling bytecode generation:
 
-1. **✅ RESOLVED: Finally blocks don't execute during exception propagation** (Fixed as of 2025-11-16)
+1. **✅ RESOLVED: Finally blocks don't execute during exception propagation** (Fixed 2025-11-16)
 2. **⚠️ UNVERIFIED: Resource close() exceptions are uncaught** (Status unknown)
-3. **🐛 NEW: Exception propagates after catch when outer try has both catch AND finally** (Discovered 2025-12-05)
+3. **✅ RESOLVED: Exception propagates after catch when outer try has both catch AND finally** (Fixed 2025-12-05)
 
 These bugs were discovered by creating comprehensive E2E tests with correct expected outputs based on EK9 source code semantics.
 
@@ -310,9 +310,10 @@ The tests serve as:
 
 ## Bug #3: Exception Propagates After Catch When Outer Try Has Both Catch AND Finally
 
-**Status:** 🐛 **NEW BUG** discovered 2025-12-05
+**Status:** ✅ **FIXED** as of 2025-12-05
+**Resolution:** Use unique temp variable names per scope in `TryCatchAsmGenerator.java`
 
-### Description
+### Description (Historical Record)
 
 When an inner `try-finally` (no catch) throws an exception to an outer `try-catch-finally` (with BOTH catch AND finally), the exception propagates even AFTER the catch block executes. This is incorrect - the catch should absorb the exception.
 
@@ -389,9 +390,25 @@ The original test was modified to avoid the bug pattern. The test now validates 
 
 The exception handler registration may be creating a handler that catches and re-throws after finally execution, bypassing the catch block's absorption of the exception.
 
-### Severity: HIGH
+### Severity: HIGH (Now Fixed)
 
-This bug affects a common exception handling pattern. Users cannot use outer `finally` when catching exceptions propagated through inner `finally` blocks.
+This bug affected a common exception handling pattern. Users could not use outer `finally` when catching exceptions propagated through inner `finally` blocks.
+
+### Root Cause and Fix
+
+**Root Cause:** Nested try-finally blocks shared the same `_temp_finally_exception` variable name, causing the inner finally's stored exception to be incorrectly re-thrown by the outer finally.
+
+**Fix Applied:** Changed `TryCatchAsmGenerator.java:132` to use unique temp variable names:
+```java
+// BEFORE (buggy):
+tempExceptionIndex = getVariableIndex("_temp_finally_exception");
+
+// AFTER (fixed):
+final var uniqueTempVarName = "_temp_finally_exception_" + instr.getScopeId();
+tempExceptionIndex = getVariableIndex(uniqueTempVarName);
+```
+
+**Test Case:** `tryBug3ReproductionRuntimeFuzzTest` validates the fix.
 
 ---
 

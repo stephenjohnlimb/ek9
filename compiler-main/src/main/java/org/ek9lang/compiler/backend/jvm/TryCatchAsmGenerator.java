@@ -127,9 +127,14 @@ final class TryCatchAsmGenerator extends AbstractControlFlowAsmGenerator {
 
     // 2. Initialize temp exception variable to null (if finally block exists)
     // NOTE: Exception handler registration moved to after block generation (see step 8)
+    // BUG FIX: Use scopeId to create UNIQUE temp variable names per try block.
+    // Without this, nested try-finally blocks share the same temp variable,
+    // causing exceptions to be incorrectly re-thrown after being caught.
+    // See EXCEPTION_HANDLING_BUGS.md Bug #3 for details.
     final Integer tempExceptionIndex;
     if (hasFinallyBlock) {
-      tempExceptionIndex = getVariableIndex("_temp_finally_exception");
+      final var uniqueTempVarName = "_temp_finally_exception_" + instr.getScopeId();
+      tempExceptionIndex = getVariableIndex(uniqueTempVarName);
       getCurrentMethodVisitor().visitInsn(org.objectweb.asm.Opcodes.ACONST_NULL);
       getCurrentMethodVisitor().visitVarInsn(org.objectweb.asm.Opcodes.ASTORE, tempExceptionIndex);
     } else {

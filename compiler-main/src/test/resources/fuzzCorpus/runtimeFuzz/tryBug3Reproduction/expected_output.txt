@@ -1,0 +1,7 @@
+Starting test
+Outer try: start
+Inner try: about to throw
+Inner finally: cleanup
+Outer catch: caught exception - absorbed
+Outer finally: cleanup
+Done - exception was properly absorbed

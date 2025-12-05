@@ -1,0 +1,41 @@
+#!ek9
+<?-
+  Runtime fuzz test: Bug #3 Reproduction.
+
+  Tests the exact pattern that triggers Bug #3:
+  - Inner try-finally (NO catch) throws exception
+  - Outer try has BOTH catch AND finally
+  - Exception should be caught and absorbed by outer catch
+  - Outer finally should execute but NOT re-throw
+
+  BUG BEHAVIOR: Exception propagates AFTER catch executes
+  EXPECTED: "Done" should be reached after catch and finally
+
+  Pattern: try { try { THROW } finally } catch finally
+-?>
+defines module fuzz.runtime.try.bug3.reproduction
+
+  defines program
+
+    TryBug3Reproduction()
+      stdout <- Stdout()
+
+      stdout.println("Starting test")
+
+      try
+        stdout.println("Outer try: start")
+        try
+          stdout.println("Inner try: about to throw")
+          ex <- Exception("Bug3 test exception")
+          throw ex
+        finally
+          stdout.println("Inner finally: cleanup")
+      catch
+        -> e as Exception
+        stdout.println("Outer catch: caught exception - absorbed")
+      finally
+        stdout.println("Outer finally: cleanup")
+
+      stdout.println("Done - exception was properly absorbed")
+
+//EOF
