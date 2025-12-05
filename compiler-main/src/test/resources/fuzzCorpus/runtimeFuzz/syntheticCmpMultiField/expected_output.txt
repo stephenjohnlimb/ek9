@@ -1,0 +1,14 @@
+Test: Synthetic <=> multi-field comparison
+Test 1: Different first field
+person1: lastName=Alpha, firstName=Zed
+person2: lastName=Beta, firstName=Aaron
+PASS: Alpha < Beta (first field determines result)
+Test 2: Same first field, different second field
+person3: lastName=Smith, firstName=Alice
+person4: lastName=Smith, firstName=Bob
+PASS: Alice < Bob (second field determines result)
+Test 3: Both fields equal
+person5: lastName=Jones, firstName=Mary
+person6: lastName=Jones, firstName=Mary
+PASS: Both fields equal returns 0
+Test complete

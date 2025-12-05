@@ -1,0 +1,92 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic comparison operator - multi-field short-circuit.
+
+  Tests that multi-field comparison short-circuits correctly:
+  - If first field comparison returns non-zero, don't compare second field
+  - If first field comparison returns zero, continue to second field
+
+  This verifies the lexicographic comparison order.
+-?>
+defines module fuzz.runtime.synthetic.cmp.multifield
+
+  defines class
+
+    TestPerson
+      lastName <- String()
+      firstName <- String()
+
+      TestPerson()
+        ->
+          last as String
+          first as String
+        this.lastName :=: last
+        this.firstName :=: first
+
+      default operator ?
+      default operator <=>
+
+  defines program
+
+    SyntheticCmpMultiField()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic <=> multi-field comparison")
+
+      //Test 1: First field differs - should return result from first field
+      person1 <- TestPerson("Alpha", "Zed")
+      person2 <- TestPerson("Beta", "Aaron")
+
+      stdout.println("Test 1: Different first field")
+      stdout.println("person1: lastName=Alpha, firstName=Zed")
+      stdout.println("person2: lastName=Beta, firstName=Aaron")
+
+      cmp1 <- person1 <=> person2
+
+      if cmp1?
+        if cmp1 < 0
+          stdout.println("PASS: Alpha < Beta (first field determines result)")
+        else
+          stdout.println("FAIL: Expected negative, got " + $cmp1)
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      //Test 2: First field equal - should use second field
+      person3 <- TestPerson("Smith", "Alice")
+      person4 <- TestPerson("Smith", "Bob")
+
+      stdout.println("Test 2: Same first field, different second field")
+      stdout.println("person3: lastName=Smith, firstName=Alice")
+      stdout.println("person4: lastName=Smith, firstName=Bob")
+
+      cmp2 <- person3 <=> person4
+
+      if cmp2?
+        if cmp2 < 0
+          stdout.println("PASS: Alice < Bob (second field determines result)")
+        else
+          stdout.println("FAIL: Expected negative, got " + $cmp2)
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      //Test 3: Both fields equal
+      person5 <- TestPerson("Jones", "Mary")
+      person6 <- TestPerson("Jones", "Mary")
+
+      stdout.println("Test 3: Both fields equal")
+      stdout.println("person5: lastName=Jones, firstName=Mary")
+      stdout.println("person6: lastName=Jones, firstName=Mary")
+
+      cmp3 <- person5 <=> person6
+
+      if cmp3?
+        if cmp3 == 0
+          stdout.println("PASS: Both fields equal returns 0")
+        else
+          stdout.println("FAIL: Expected 0, got " + $cmp3)
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      stdout.println("Test complete")
+
+//EOF

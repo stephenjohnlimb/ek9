@@ -1,0 +1,63 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic comparison operator - different field set patterns.
+
+  Tests that when two objects have different fields set (field set status mismatch),
+  the synthetic <=> operator returns an UNSET result.
+
+  This is the CRITICAL tri-state test: objects with different set patterns
+  cannot be meaningfully compared, so the result must be unset.
+
+  Uses _fieldSetStatus() internally to detect the mismatch.
+-?>
+defines module fuzz.runtime.synthetic.cmp.fieldmismatch
+
+  defines class
+
+    TestData
+      name <- String()
+      value <- Integer()
+
+      //Constructor that only sets name
+      TestData()
+        -> n as String
+        this.name :=: n
+
+      //Constructor that sets both
+      TestData()
+        ->
+          n as String
+          v as Integer
+        this.name :=: n
+        this.value :=: v
+
+      default operator ?
+      default operator <=>
+
+  defines program
+
+    SyntheticCmpFieldMismatch()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic <=> with different field set patterns")
+
+      //obj1: name SET, value UNSET
+      obj1 <- TestData("Alpha")
+
+      //obj2: name SET, value SET
+      obj2 <- TestData("Alpha", 100)
+
+      stdout.println("obj1: name=Alpha, value=unset")
+      stdout.println("obj2: name=Alpha, value=100")
+
+      //Field set patterns differ: [true, false] vs [true, true]
+      cmp <- obj1 <=> obj2
+
+      if cmp?
+        stdout.println("FAIL: Result is SET (" + $cmp + ") despite field mismatch")
+      else
+        stdout.println("PASS: Result is UNSET (correct for field set mismatch)")
+
+      stdout.println("Test complete")
+
+//EOF

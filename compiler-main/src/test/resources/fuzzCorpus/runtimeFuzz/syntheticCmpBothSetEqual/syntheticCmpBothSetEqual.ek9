@@ -1,0 +1,54 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic comparison operator - both objects fully set with equal values.
+
+  Tests that when two objects are both fully set with identical field values,
+  the synthetic <=> operator returns 0 (equal).
+
+  This is the happy path for comparison - no tri-state complexity.
+-?>
+defines module fuzz.runtime.synthetic.cmp.bothsetequal
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator <=>
+
+  defines program
+
+    SyntheticCmpBothSetEqual()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic <=> both set, equal values")
+
+      p1 <- TestPoint(10, 20)
+      p2 <- TestPoint(10, 20)
+
+      stdout.println("p1: x=10, y=20")
+      stdout.println("p2: x=10, y=20")
+
+      cmp <- p1 <=> p2
+
+      if cmp?
+        stdout.println("Result is SET: " + $cmp)
+        if cmp == 0
+          stdout.println("PASS: Equal objects compare as 0")
+        else
+          stdout.println("FAIL: Expected 0, got " + $cmp)
+      else
+        stdout.println("FAIL: Result is UNSET (expected 0)")
+
+      stdout.println("Test complete")
+
+//EOF

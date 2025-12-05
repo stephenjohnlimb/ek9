@@ -1,0 +1,57 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic comparison operator - this is unset.
+
+  Tests that when 'this' object is not fully set (isSet returns false),
+  the synthetic <=> operator returns an UNSET result.
+
+  This tests the tri-state behavior: unset objects cannot be compared.
+-?>
+defines module fuzz.runtime.synthetic.cmp.thisunset
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator <=>
+
+  defines program
+
+    SyntheticCmpThisUnset()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic <=> when this is unset")
+
+      //Create an unset point - use default constructor (no params)
+      p1 <- TestPoint(Integer(), Integer())
+      p2 <- TestPoint(10, 20)
+
+      stdout.println("p1: unset (fields not initialized)")
+      stdout.println("p2: x=10, y=20")
+
+      //Check that p1 is actually unset
+      if p1?
+        stdout.println("p1 isSet: true (unexpected)")
+      else
+        stdout.println("p1 isSet: false (expected)")
+
+      cmp <- p1 <=> p2
+
+      if cmp?
+        stdout.println("FAIL: Result is SET (" + $cmp + ") when this is unset")
+      else
+        stdout.println("PASS: Result is UNSET (correct for unset this)")
+
+      stdout.println("Test complete")
+
+//EOF

@@ -1,0 +1,6 @@
+Test: Synthetic <=> when other is unset
+p1: x=10, y=20
+p2: unset (fields not initialized)
+p2 isSet: false (expected)
+PASS: Result is UNSET (correct for unset other)
+Test complete

@@ -1,0 +1,5 @@
+Test: Synthetic <=> with different field set patterns
+obj1: name=Alpha, value=unset
+obj2: name=Alpha, value=100
+PASS: Result is UNSET (correct for field set mismatch)
+Test complete

@@ -1,0 +1,52 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic comparison operator - this > other.
+
+  Tests that when two objects are both fully set and this > other,
+  the synthetic <=> operator returns 1.
+-?>
+defines module fuzz.runtime.synthetic.cmp.bothsetgreater
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator <=>
+
+  defines program
+
+    SyntheticCmpBothSetGreater()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic <=> both set, this > other")
+
+      p1 <- TestPoint(15, 20)
+      p2 <- TestPoint(10, 20)
+
+      stdout.println("p1: x=15, y=20")
+      stdout.println("p2: x=10, y=20")
+
+      cmp <- p1 <=> p2
+
+      if cmp?
+        stdout.println("Result is SET: " + $cmp)
+        if cmp > 0
+          stdout.println("PASS: p1 > p2 returns positive")
+        else
+          stdout.println("FAIL: Expected positive, got " + $cmp)
+      else
+        stdout.println("FAIL: Result is UNSET (expected positive)")
+
+      stdout.println("Test complete")
+
+//EOF

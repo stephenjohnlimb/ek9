@@ -1,0 +1,56 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic comparison operator - other is unset.
+
+  Tests that when 'other' object is not fully set (isSet returns false),
+  the synthetic <=> operator returns an UNSET result.
+
+  This tests the tri-state behavior: unset objects cannot be compared.
+-?>
+defines module fuzz.runtime.synthetic.cmp.otherunset
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator <=>
+
+  defines program
+
+    SyntheticCmpOtherUnset()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic <=> when other is unset")
+
+      p1 <- TestPoint(10, 20)
+      p2 <- TestPoint(Integer(), Integer())
+
+      stdout.println("p1: x=10, y=20")
+      stdout.println("p2: unset (fields not initialized)")
+
+      //Check that p2 is actually unset
+      if p2?
+        stdout.println("p2 isSet: true (unexpected)")
+      else
+        stdout.println("p2 isSet: false (expected)")
+
+      cmp <- p1 <=> p2
+
+      if cmp?
+        stdout.println("FAIL: Result is SET (" + $cmp + ") when other is unset")
+      else
+        stdout.println("PASS: Result is UNSET (correct for unset other)")
+
+      stdout.println("Test complete")
+
+//EOF

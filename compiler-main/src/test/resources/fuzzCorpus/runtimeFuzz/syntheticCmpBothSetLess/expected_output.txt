@@ -1,0 +1,6 @@
+Test: Synthetic <=> both set, this < other
+p1: x=5, y=20
+p2: x=10, y=20
+Result is SET: -1
+PASS: p1 < p2 returns negative
+Test complete
