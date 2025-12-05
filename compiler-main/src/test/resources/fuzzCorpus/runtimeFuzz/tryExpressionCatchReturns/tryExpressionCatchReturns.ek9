@@ -1,0 +1,31 @@
+#!ek9
+<?-
+  Runtime fuzz test: Try expression form, exception path returns value.
+
+  Tests that when try throws and catch handles, the catch block's
+  return value is used as the expression result.
+
+  Structure: result <- try { THROW; return 42 } catch { return -1 }
+-?>
+defines module fuzz.runtime.try.expression.catchreturns
+
+  defines program
+
+    TryExpressionCatchReturns()
+      stdout <- Stdout()
+
+      // Try expression: exception occurs, catch provides return value
+      result <- try
+        <- rtn <- 0
+        stdout.println("Try: about to throw")
+        ex <- Exception("Force catch path")
+        throw ex
+      catch
+        -> e as Exception
+        stdout.println("Catch: returning -1")
+        rtn: -1
+
+      stdout.println("Result: " + $result)
+      stdout.println("Done")
+
+//EOF

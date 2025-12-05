@@ -1,0 +1,31 @@
+#!ek9
+<?-
+  Runtime fuzz test: Inner finally throws exception.
+
+  Tests that exception from finally block propagates to outer catch.
+  The try body completes normally but finally throws.
+
+  Structure: try { try { normal } finally { THROW } } catch { handle }
+-?>
+defines module fuzz.runtime.try.nested.finallythrows
+
+  defines program
+
+    TryNestedFinallyThrows()
+      stdout <- Stdout()
+
+      try
+        stdout.println("Outer try: start")
+        try
+          stdout.println("Inner try: normal completion")
+        finally
+          stdout.println("Inner finally: about to throw")
+          ex <- Exception("Exception from finally")
+          throw ex
+      catch
+        -> e as Exception
+        stdout.println("Outer catch: caught finally exception")
+
+      stdout.println("Done")
+
+//EOF

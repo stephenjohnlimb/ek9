@@ -1,0 +1,5 @@
+Outer try: start
+Inner try: normal completion
+Inner finally: about to throw
+Outer catch: caught finally exception
+Done

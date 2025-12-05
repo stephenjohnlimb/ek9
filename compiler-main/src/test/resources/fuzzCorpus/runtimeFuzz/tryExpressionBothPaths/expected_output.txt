@@ -1,0 +1,3 @@
+Success path result: 42
+Exception path result: -100
+Done

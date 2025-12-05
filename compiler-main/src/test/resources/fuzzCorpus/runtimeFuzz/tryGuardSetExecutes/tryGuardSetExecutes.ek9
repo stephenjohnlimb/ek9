@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  Runtime fuzz test: Try guard set executes try body and finally.
+
+  Tests that when try guard is SET, the try body executes normally,
+  and finally also executes.
+
+  Contrast with tryGuardUnsetSkipsAll - this tests the SET case.
+-?>
+defines module fuzz.runtime.try.guard.setexecutes
+
+  defines program
+
+    TryGuardSetExecutes()
+      stdout <- Stdout()
+
+      // Create a set value
+      setValue <- 42
+
+      stdout.println("Before try: setValue = " + $setValue)
+
+      // Try with guard - when guard is set, try body executes
+      try value <- setValue
+        stdout.println("Try body: value = " + $value)
+      catch
+        -> e as Exception
+        stdout.println("ERROR: Catch should not execute")
+      finally
+        stdout.println("Finally: cleanup executes")
+
+      stdout.println("After try: normal completion")
+      stdout.println("Done")
+
+//EOF

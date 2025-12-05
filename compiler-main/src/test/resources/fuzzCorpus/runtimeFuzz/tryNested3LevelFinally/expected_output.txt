@@ -1,0 +1,6 @@
+Level 1: start
+Level 2: start
+Level 2: about to throw
+Level 2 finally: cleanup
+Level 1 catch: caught deep exception
+Done

@@ -1,0 +1,4 @@
+Try: about to throw
+Catch: returning -1
+Result: -1
+Done

@@ -1,0 +1,45 @@
+#!ek9
+<?-
+  Runtime fuzz test: Finally exception overrides try exception.
+
+  Tests that when both try and finally throw, the finally exception
+  propagates (the try exception is replaced/suppressed).
+
+  Structure: try { try { THROW A } finally { THROW B } } catch { sees B }
+-?>
+defines module fuzz.runtime.try.finally.overrides
+
+  defines class
+
+    ExceptionA extends Exception
+      ExceptionA()
+        -> reason as String
+        super(reason)
+
+    ExceptionB extends Exception
+      ExceptionB()
+        -> reason as String
+        super(reason)
+
+  defines program
+
+    TryFinallyOverrides()
+      stdout <- Stdout()
+
+      try
+        stdout.println("Outer: start")
+        try
+          stdout.println("Inner try: throwing ExceptionA")
+          ex1 <- ExceptionA("Original from try")
+          throw ex1
+        finally
+          stdout.println("Inner finally: throwing ExceptionB (overrides A)")
+          ex2 <- ExceptionB("Override from finally")
+          throw ex2
+      catch
+        -> e as ExceptionB
+        stdout.println("Outer catch: caught ExceptionB (finally's exception)")
+
+      stdout.println("Done")
+
+//EOF

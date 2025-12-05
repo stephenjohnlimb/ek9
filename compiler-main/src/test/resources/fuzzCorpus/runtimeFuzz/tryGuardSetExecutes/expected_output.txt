@@ -1,0 +1,5 @@
+Before try: setValue = 42
+Try body: value = 42
+Finally: cleanup executes
+After try: normal completion
+Done

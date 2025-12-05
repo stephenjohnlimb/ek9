@@ -1,0 +1,45 @@
+#!ek9
+<?-
+  Runtime fuzz test: Exception caught by parent type (polymorphic).
+
+  Tests that when thrown exception doesn't match specific type,
+  it's caught by a parent type (Exception).
+
+  In EK9, nested tries can simulate multiple catch blocks.
+-?>
+defines module fuzz.runtime.try.multicatch.second
+
+  defines class
+
+    ExceptionA extends Exception
+      ExceptionA()
+        -> reason as String
+        super(reason)
+
+    ExceptionB extends Exception
+      ExceptionB()
+        -> reason as String
+        super(reason)
+
+  defines program
+
+    TryMultipleCatchSecond()
+      stdout <- Stdout()
+
+      stdout.println("Try: throwing ExceptionB")
+      // Inner try catches ExceptionA (won't match)
+      // Outer try catches Exception (will match ExceptionB polymorphically)
+      try
+        try
+          ex <- ExceptionB("Test B")
+          throw ex
+        catch
+          -> e as ExceptionA
+          stdout.println("ERROR: ExceptionA should not match ExceptionB")
+      catch
+        -> e as Exception
+        stdout.println("Catch: Base Exception caught ExceptionB (correct)")
+
+      stdout.println("Done")
+
+//EOF

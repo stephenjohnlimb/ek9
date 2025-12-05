@@ -1,0 +1,44 @@
+#!ek9
+<?-
+  Runtime fuzz test: Exception propagates when inner doesn't match.
+
+  Tests that when inner catch doesn't match, exception propagates
+  to outer catch. This uses nested tries to simulate multiple
+  catch blocks.
+-?>
+defines module fuzz.runtime.try.multicatch.nonematch
+
+  defines class
+
+    ExceptionA extends Exception
+      ExceptionA()
+        -> reason as String
+        super(reason)
+
+    ExceptionC extends Exception
+      ExceptionC()
+        -> reason as String
+        super(reason)
+
+  defines program
+
+    TryMultipleCatchNoneMatch()
+      stdout <- Stdout()
+
+      stdout.println("Outer: start")
+      try
+        stdout.println("Middle: start")
+        try
+          stdout.println("Inner: throwing ExceptionC")
+          ex <- ExceptionC("Test C - no inner match")
+          throw ex
+        catch
+          -> e as ExceptionA
+          stdout.println("ERROR: ExceptionA should not match ExceptionC")
+      catch
+        -> e as Exception
+        stdout.println("Outer catch: caught propagated ExceptionC")
+
+      stdout.println("Done")
+
+//EOF

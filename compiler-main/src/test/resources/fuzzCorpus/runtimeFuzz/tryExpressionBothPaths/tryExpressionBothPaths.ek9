@@ -1,0 +1,47 @@
+#!ek9
+<?-
+  Runtime fuzz test: Try expression form with both success and exception paths.
+
+  Tests that try expression returns correct value from either path,
+  verifying both code paths produce expected results.
+-?>
+defines module fuzz.runtime.try.expression.bothpaths
+
+  defines function
+    getResultWithException() as pure
+      <- result as Integer?
+
+      result: try
+        <- rtn <- 0
+        ex <- Exception("Test")
+        throw ex
+      catch
+        -> e as Exception
+        rtn: -100
+
+    getResultWithoutException() as pure
+      <- result as Integer?
+
+      result: try
+        <- rtn <- 0
+        rtn: 42
+      catch
+        -> e as Exception
+        rtn: -1
+
+  defines program
+
+    TryExpressionBothPaths()
+      stdout <- Stdout()
+
+      // Test success path
+      successResult <- getResultWithoutException()
+      stdout.println("Success path result: " + $successResult)
+
+      // Test exception path
+      exceptionResult <- getResultWithException()
+      stdout.println("Exception path result: " + $exceptionResult)
+
+      stdout.println("Done")
+
+//EOF

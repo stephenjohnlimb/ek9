@@ -1,0 +1,5 @@
+Outer try: start
+Inner try: about to throw
+Inner catch: handled exception
+Outer try: after inner block
+Done

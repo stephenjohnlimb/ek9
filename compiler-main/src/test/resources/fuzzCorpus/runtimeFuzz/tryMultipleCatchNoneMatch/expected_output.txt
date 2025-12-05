@@ -1,0 +1,5 @@
+Outer: start
+Middle: start
+Inner: throwing ExceptionC
+Outer catch: caught propagated ExceptionC
+Done

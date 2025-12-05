@@ -1,0 +1,5 @@
+Outer try: start
+Inner try: throwing first exception
+Inner catch: received first, throwing second
+Outer catch: caught second exception
+Done

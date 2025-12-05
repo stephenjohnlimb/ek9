@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  Runtime fuzz test: Exception caught by exact type (first match).
+
+  Tests that when an exception type exactly matches the catch type,
+  it is caught at that level.
+
+  In EK9, to test multiple types we use nested tries.
+-?>
+defines module fuzz.runtime.try.multicatch.first
+
+  defines class
+
+    ExceptionA extends Exception
+      ExceptionA()
+        -> reason as String
+        super(reason)
+
+  defines program
+
+    TryMultipleCatchFirst()
+      stdout <- Stdout()
+
+      stdout.println("Try: throwing ExceptionA")
+      try
+        ex <- ExceptionA("Test A")
+        throw ex
+      catch
+        -> e as ExceptionA
+        stdout.println("Catch: ExceptionA matched (correct)")
+
+      stdout.println("Done")
+
+//EOF

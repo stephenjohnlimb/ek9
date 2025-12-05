@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  Runtime fuzz test: Try guard unset skips entire block including finally.
+
+  Tests EK9 tri-state semantics: when try guard is unset, the entire
+  try/catch/finally block is skipped - not just the try body.
+
+  This is different from traditional languages where finally always runs.
+-?>
+defines module fuzz.runtime.try.guard.unsetskipsall
+
+  defines program
+
+    TryGuardUnsetSkipsAll()
+      stdout <- Stdout()
+
+      // Create an unset value
+      unsetValue <- Integer()
+
+      stdout.println("Before try: unsetValue is unset")
+
+      // Try with guard - when guard is unset, entire block skipped
+      try value <- unsetValue
+        stdout.println("ERROR: Try body should not execute")
+      catch
+        -> e as Exception
+        stdout.println("ERROR: Catch should not execute")
+      finally
+        stdout.println("ERROR: Finally should not execute")
+
+      stdout.println("After try: block was skipped")
+      stdout.println("Done")
+
+//EOF

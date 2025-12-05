@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  Runtime fuzz test: Inner catch throws new exception.
+
+  Tests that when inner catch throws, outer catch handles the NEW exception.
+  This verifies exception replacement behavior.
+
+  Structure: try { try { THROW A } catch { THROW B } } catch { handle B }
+-?>
+defines module fuzz.runtime.try.nested.catchthrows
+
+  defines program
+
+    TryNestedCatchThrows()
+      stdout <- Stdout()
+
+      try
+        stdout.println("Outer try: start")
+        try
+          stdout.println("Inner try: throwing first exception")
+          ex1 <- Exception("First exception")
+          throw ex1
+        catch
+          -> e as Exception
+          stdout.println("Inner catch: received first, throwing second")
+          ex2 <- Exception("Second exception from catch")
+          throw ex2
+      catch
+        -> e as Exception
+        stdout.println("Outer catch: caught second exception")
+
+      stdout.println("Done")
+
+//EOF

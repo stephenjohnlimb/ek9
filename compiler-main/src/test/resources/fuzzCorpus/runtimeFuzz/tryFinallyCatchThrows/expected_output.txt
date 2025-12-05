@@ -1,0 +1,6 @@
+Outer: start
+Inner try: throwing first
+Inner catch: throwing second
+Inner finally: MUST execute despite catch throw
+Outer catch: caught second exception
+Done

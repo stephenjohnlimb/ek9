@@ -1,0 +1,5 @@
+Outer: start
+Inner try: throwing ExceptionA
+Inner finally: throwing ExceptionB (overrides A)
+Outer catch: caught ExceptionB (finally's exception)
+Done

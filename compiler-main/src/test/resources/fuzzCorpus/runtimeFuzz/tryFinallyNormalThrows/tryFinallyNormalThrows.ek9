@@ -1,0 +1,33 @@
+#!ek9
+<?-
+  Runtime fuzz test: Finally throws when try succeeds.
+
+  Tests that exception from finally propagates even when
+  try block completed normally (no exception in try).
+
+  Structure: try { try { normal } finally { THROW } } catch
+-?>
+defines module fuzz.runtime.try.finally.normalthrows
+
+  defines program
+
+    TryFinallyNormalThrows()
+      stdout <- Stdout()
+
+      try
+        stdout.println("Outer: start")
+        try
+          stdout.println("Inner try: completing normally")
+          value <- 42
+          stdout.println("Inner try: value = " + $value)
+        finally
+          stdout.println("Inner finally: throwing despite normal try")
+          ex <- Exception("Exception from finally after normal try")
+          throw ex
+      catch
+        -> e as Exception
+        stdout.println("Outer catch: caught finally exception")
+
+      stdout.println("Done")
+
+//EOF

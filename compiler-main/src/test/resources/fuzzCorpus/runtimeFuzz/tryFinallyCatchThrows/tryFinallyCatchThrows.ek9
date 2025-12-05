@@ -1,0 +1,36 @@
+#!ek9
+<?-
+  Runtime fuzz test: Finally runs even when catch throws.
+
+  Tests the critical guarantee: finally ALWAYS executes, even when
+  the catch block throws a new exception.
+
+  Structure: try { try { THROW } catch { THROW } finally } catch
+-?>
+defines module fuzz.runtime.try.finally.catchthrows
+
+  defines program
+
+    TryFinallyCatchThrows()
+      stdout <- Stdout()
+
+      try
+        stdout.println("Outer: start")
+        try
+          stdout.println("Inner try: throwing first")
+          ex1 <- Exception("First exception")
+          throw ex1
+        catch
+          -> e as Exception
+          stdout.println("Inner catch: throwing second")
+          ex2 <- Exception("Second from catch")
+          throw ex2
+        finally
+          stdout.println("Inner finally: MUST execute despite catch throw")
+      catch
+        -> e as Exception
+        stdout.println("Outer catch: caught second exception")
+
+      stdout.println("Done")
+
+//EOF

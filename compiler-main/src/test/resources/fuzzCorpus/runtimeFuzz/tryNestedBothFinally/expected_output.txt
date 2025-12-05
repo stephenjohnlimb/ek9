@@ -1,0 +1,7 @@
+Outer try: start
+Inner try: about to throw
+Inner catch: handled
+Inner finally: runs first
+Outer try: after inner block
+Outer finally: runs second
+Done

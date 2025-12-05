@@ -1,9 +1,9 @@
 # EXCEPTION HANDLING COMPILER BUGS
 
-**Status:** Bug #1 RESOLVED ✅ | Bug #2 Status Unknown
+**Status:** Bug #1 RESOLVED ✅ | Bug #2 Status Unknown | Bug #3 NEW 🐛
 **Discovery Date:** 2025-11-13
 **Resolution Date:** 2025-11-16 (Bug #1)
-**Last Updated:** 2025-11-16
+**Last Updated:** 2025-12-05
 
 ---
 
@@ -11,15 +11,17 @@
 
 **Bug #1: ✅ RESOLVED** - Finally blocks now execute correctly during exception propagation
 **Bug #2: ⚠️ Status Unknown** - Needs verification
+**Bug #3: 🐛 NEW** - Exception propagates after catch when outer try has both catch AND finally
 
 ---
 
 ## Summary
 
-Two critical bugs were discovered in EK9's exception handling bytecode generation:
+Three bugs discovered in EK9's exception handling bytecode generation:
 
 1. **✅ RESOLVED: Finally blocks don't execute during exception propagation** (Fixed as of 2025-11-16)
 2. **⚠️ UNVERIFIED: Resource close() exceptions are uncaught** (Status unknown)
+3. **🐛 NEW: Exception propagates after catch when outer try has both catch AND finally** (Discovered 2025-12-05)
 
 These bugs were discovered by creating comprehensive E2E tests with correct expected outputs based on EK9 source code semantics.
 
@@ -303,6 +305,93 @@ The tests serve as:
 - `tryWithResourceExceptionPaths/expected_case_5.txt` - Shows close exception caught
 - `tryWithResourceExceptionPaths/expected_case_6.txt` - Shows close exception caught
 - `tryWithResourceExceptionPaths/expected_case_7.txt` - Shows suppressed exception behavior
+
+---
+
+## Bug #3: Exception Propagates After Catch When Outer Try Has Both Catch AND Finally
+
+**Status:** 🐛 **NEW BUG** discovered 2025-12-05
+
+### Description
+
+When an inner `try-finally` (no catch) throws an exception to an outer `try-catch-finally` (with BOTH catch AND finally), the exception propagates even AFTER the catch block executes. This is incorrect - the catch should absorb the exception.
+
+### Pattern That Triggers Bug
+
+```ek9
+try                                   // Outer try
+  try                                 // Inner try
+    stdout.println("About to throw")
+    ex <- Exception("Test")
+    throw ex
+  finally                             // Inner finally (NO inner catch)
+    stdout.println("Inner finally")
+catch                                 // Outer catch
+  -> e as Exception
+  stdout.println("Caught!")           // ← EXECUTES but exception still propagates!
+finally                               // Outer finally (THIS triggers the bug)
+  stdout.println("Outer finally")
+
+stdout.println("Done")                // ← NEVER REACHED
+```
+
+### Actual Behavior (Buggy)
+
+```
+About to throw
+Inner finally
+Caught!
+Outer finally
+Exception in thread "main" Exception: Test    ← BUG: Exception propagates!
+```
+
+### Expected Behavior
+
+```
+About to throw
+Inner finally
+Caught!
+Outer finally
+Done                                          ← Should continue after exception caught
+```
+
+### Workaround
+
+Remove the outer `finally` block. The pattern works correctly without it:
+
+```ek9
+try
+  try
+    throw ex
+  finally
+    stdout.println("Inner finally")
+catch
+  -> e as Exception
+  stdout.println("Caught!")
+// NO OUTER FINALLY - exception is now absorbed correctly
+
+stdout.println("Done")  // ← REACHED correctly
+```
+
+### Test Case
+
+**Discovered in:** `fuzzCorpus/runtimeFuzz/tryNested3LevelFinally/`
+
+The original test was modified to avoid the bug pattern. The test now validates the working pattern (without outer finally).
+
+### Root Cause Analysis
+
+**Hypothesis:** When the outer try has BOTH catch AND finally, and an exception arrives from inner try-finally:
+1. Inner finally executes correctly
+2. Outer catch executes correctly (exception absorbed)
+3. Outer finally executes correctly
+4. **BUG:** Exception table entry causes exception to re-throw after finally
+
+The exception handler registration may be creating a handler that catches and re-throws after finally execution, bypassing the catch block's absorption of the exception.
+
+### Severity: HIGH
+
+This bug affects a common exception handling pattern. Users cannot use outer `finally` when catching exceptions propagated through inner `finally` blocks.
 
 ---
 

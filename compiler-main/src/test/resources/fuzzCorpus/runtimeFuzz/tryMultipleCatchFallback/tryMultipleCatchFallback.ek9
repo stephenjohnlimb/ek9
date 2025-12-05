@@ -1,0 +1,43 @@
+#!ek9
+<?-
+  Runtime fuzz test: Exception caught by base type as fallback.
+
+  Tests that when no specific type matches, the base Exception type
+  acts as a catch-all fallback.
+
+  Structure: throw C, inner catches A, outer catches Exception (catches C)
+-?>
+defines module fuzz.runtime.try.multicatch.fallback
+
+  defines class
+
+    ExceptionA extends Exception
+      ExceptionA()
+        -> reason as String
+        super(reason)
+
+    ExceptionC extends Exception
+      ExceptionC()
+        -> reason as String
+        super(reason)
+
+  defines program
+
+    TryMultipleCatchFallback()
+      stdout <- Stdout()
+
+      stdout.println("Try: throwing ExceptionC")
+      try
+        try
+          ex <- ExceptionC("Test C")
+          throw ex
+        catch
+          -> e as ExceptionA
+          stdout.println("ERROR: ExceptionA should not match ExceptionC")
+      catch
+        -> e as Exception
+        stdout.println("Catch: Base Exception caught ExceptionC (fallback)")
+
+      stdout.println("Done")
+
+//EOF

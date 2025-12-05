@@ -1,0 +1,33 @@
+#!ek9
+<?-
+  Runtime fuzz test: 2-level nested try, inner catch handles exception.
+
+  Tests that when inner try throws and inner catch handles it,
+  the outer catch is NOT triggered.
+
+  Structure: try { try { THROW } catch { handle } } catch { ERROR }
+-?>
+defines module fuzz.runtime.try.nested.innercaught
+
+  defines program
+
+    TryNestedInnerCaught()
+      stdout <- Stdout()
+
+      try
+        stdout.println("Outer try: start")
+        try
+          stdout.println("Inner try: about to throw")
+          ex <- Exception("Inner exception")
+          throw ex
+        catch
+          -> e as Exception
+          stdout.println("Inner catch: handled exception")
+        stdout.println("Outer try: after inner block")
+      catch
+        -> e as Exception
+        stdout.println("ERROR: Outer catch should not execute")
+
+      stdout.println("Done")
+
+//EOF

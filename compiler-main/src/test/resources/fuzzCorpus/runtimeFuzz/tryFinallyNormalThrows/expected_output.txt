@@ -1,0 +1,6 @@
+Outer: start
+Inner try: completing normally
+Inner try: value = 42
+Inner finally: throwing despite normal try
+Outer catch: caught finally exception
+Done
