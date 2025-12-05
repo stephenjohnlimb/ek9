@@ -1,0 +1,39 @@
+#!ek9
+<?-
+  JSON test: List field containing primitives
+
+  Tests that a class containing a List of Strings produces correct JSON array:
+  - Expected output: {"items":["apple","banana","cherry"]}
+  - Verifies List JSON array format works correctly
+-?>
+defines module bytecode.jsonListField
+
+  defines class
+
+    Container
+      items <- List() of String
+
+      Container()
+        items += "apple"
+        items += "banana"
+        items += "cherry"
+
+      default operator $$
+
+  defines program
+
+    JsonListFieldTest()
+      stdout <- Stdout()
+
+      c <- Container()
+      j <- $$c
+      jsonStr <- $j
+
+      stdout.println("JSON output: " + jsonStr)
+
+      // Verify list produces JSON array
+      assert jsonStr == `{"items":["apple","banana","cherry"]}`
+
+      stdout.println("Test passed: List field JSON")
+
+//EOF

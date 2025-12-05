@@ -1,0 +1,55 @@
+#!ek9
+<?-
+  JSON test: Inheritance scenario
+
+  Tests that a subclass includes both parent and child fields in JSON:
+  - Expected output: {"name":"Alice","age":30,"department":"Engineering"}
+  - Verifies inherited fields are included in JSON output
+-?>
+defines module bytecode.jsonInheritance
+
+  defines class
+
+    Person as open
+      name <- String()
+      age <- Integer()
+
+      Person()
+        ->
+          n as String
+          a as Integer
+        this.name :=: n
+        this.age :=: a
+
+      default operator $$
+
+    Employee extends Person
+      department <- String()
+
+      Employee()
+        ->
+          n as String
+          a as Integer
+          d as String
+        super(n, a)
+        this.department :=: d
+
+      default operator $$
+
+  defines program
+
+    JsonInheritanceTest()
+      stdout <- Stdout()
+
+      e <- Employee("Alice", 30, "Engineering")
+      j <- $$e
+      jsonStr <- $j
+
+      stdout.println("JSON output: " + jsonStr)
+
+      // Should include parent fields (name, age) and child field (department)
+      assert jsonStr == `{"name":"Alice","age":30,"department":"Engineering"}`
+
+      stdout.println("Test passed: Inheritance JSON")
+
+//EOF

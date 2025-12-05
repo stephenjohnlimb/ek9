@@ -1,0 +1,41 @@
+#!ek9
+<?-
+  JSON test: One field unset
+
+  Tests that a class with one unset field produces correct JSON:
+  - Expected output: {"name":"Alice"} (age is omitted because unset)
+  - Verifies unset fields are excluded from JSON output
+-?>
+defines module bytecode.jsonOneFieldUnset
+
+  defines class
+
+    Person
+      name <- String()
+      age <- Integer()
+
+      Person()
+        -> n as String
+        this.name :=: n
+
+      default operator $$
+
+  defines program
+
+    JsonOneFieldUnsetTest()
+      stdout <- Stdout()
+
+      // Create person with only name set, age remains unset
+      p <- Person("Alice")
+
+      j <- $$p
+      jsonStr <- $j
+
+      stdout.println("JSON output: " + jsonStr)
+
+      // Only name should appear, age is unset so excluded
+      assert jsonStr == `{"name":"Alice"}`
+
+      stdout.println("Test passed: One field unset JSON")
+
+//EOF

@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  JSON test: Single String field
+
+  Tests that a class with a single String field produces correct JSON:
+  - Expected output: {"name":"Alice"}
+  - Verifies synthetic _json ($$) operator generates correct JSON structure
+-?>
+defines module bytecode.jsonSingleString
+
+  defines class
+
+    Person
+      name <- "Alice"
+
+      default operator $$
+
+  defines program
+
+    JsonSingleStringTest()
+      stdout <- Stdout()
+
+      p <- Person()
+      j <- $$p
+      jsonStr <- $j
+
+      stdout.println("JSON output: " + jsonStr)
+
+      // Verify the JSON structure is correct
+      assert jsonStr == `{"name":"Alice"}`
+
+      stdout.println("Test passed: Single String field JSON")
+
+//EOF

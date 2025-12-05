@@ -1,0 +1,36 @@
+#!ek9
+<?-
+  JSON test: Boolean and Float fields
+
+  Tests that a class with Boolean and Float fields produces correct JSON:
+  - Expected output: {"enabled":false,"rate":3.14}
+  - Verifies Boolean false is rendered as JSON false (not string)
+  - Verifies Float is rendered as JSON number
+-?>
+defines module bytecode.jsonBooleanFloat
+
+  defines class
+
+    Settings
+      enabled <- false
+      rate <- 3.14
+
+      default operator $$
+
+  defines program
+
+    JsonBooleanFloatTest()
+      stdout <- Stdout()
+
+      s <- Settings()
+      j <- $$s
+      jsonStr <- $j
+
+      stdout.println("JSON output: " + jsonStr)
+
+      // Verify Boolean and Float are correctly rendered
+      assert jsonStr == `{"enabled":false,"rate":3.14}`
+
+      stdout.println("Test passed: Boolean and Float fields JSON")
+
+//EOF

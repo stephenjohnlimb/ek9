@@ -1,0 +1,38 @@
+#!ek9
+<?-
+  JSON test: All fields unset
+
+  Tests that a class with all fields unset produces empty JSON object:
+  - Expected output: {}
+  - Verifies empty object when no fields are set
+-?>
+defines module bytecode.jsonAllFieldsUnset
+
+  defines class
+
+    Person
+      name <- String()
+      age <- Integer()
+      active <- Boolean()
+
+      default operator $$
+
+  defines program
+
+    JsonAllFieldsUnsetTest()
+      stdout <- Stdout()
+
+      p <- Person()
+      // Leave all fields unset
+
+      j <- $$p
+      jsonStr <- $j
+
+      stdout.println("JSON output: " + jsonStr)
+
+      // All fields unset means empty JSON object
+      assert jsonStr == `{}`
+
+      stdout.println("Test passed: All fields unset JSON")
+
+//EOF

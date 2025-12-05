@@ -1,0 +1,38 @@
+#!ek9
+<?-
+  JSON test: Multiple mixed fields
+
+  Tests that a class with multiple fields of different types produces correct JSON:
+  - Expected output: {"name":"Bob","age":30,"active":true}
+  - Field order should match declaration order
+  - Verifies synthetic _json ($$) operator handles multiple field types
+-?>
+defines module bytecode.jsonMultipleFields
+
+  defines class
+
+    Person
+      name <- "Bob"
+      age <- 30
+      active <- true
+
+      default operator $$
+
+  defines program
+
+    JsonMultipleFieldsTest()
+      stdout <- Stdout()
+
+      p <- Person()
+      j <- $$p
+      jsonStr <- $j
+
+      stdout.println("JSON output: " + jsonStr)
+
+      // Verify the JSON structure is correct
+      // Fields should appear in declaration order
+      assert jsonStr == `{"name":"Bob","age":30,"active":true}`
+
+      stdout.println("Test passed: Multiple mixed fields JSON")
+
+//EOF

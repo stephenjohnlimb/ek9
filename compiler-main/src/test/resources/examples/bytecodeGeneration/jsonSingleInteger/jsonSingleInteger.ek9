@@ -1,0 +1,34 @@
+#!ek9
+<?-
+  JSON test: Single Integer field
+
+  Tests that a class with a single Integer field produces correct JSON:
+  - Expected output: {"age":25}
+  - Verifies synthetic _json ($$) operator generates correct JSON structure
+-?>
+defines module bytecode.jsonSingleInteger
+
+  defines class
+
+    Age
+      age <- 25
+
+      default operator $$
+
+  defines program
+
+    JsonSingleIntegerTest()
+      stdout <- Stdout()
+
+      a <- Age()
+      j <- $$a
+      jsonStr <- $j
+
+      stdout.println("JSON output: " + jsonStr)
+
+      // Verify the JSON structure is correct
+      assert jsonStr == `{"age":25}`
+
+      stdout.println("Test passed: Single Integer field JSON")
+
+//EOF

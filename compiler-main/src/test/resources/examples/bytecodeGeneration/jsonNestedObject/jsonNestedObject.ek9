@@ -1,0 +1,41 @@
+#!ek9
+<?-
+  JSON test: Nested object (class containing another class)
+
+  Tests that a class containing another class as a field produces nested JSON:
+  - Expected output: {"name":"Alice","address":{"city":"London","zip":"SW1"}}
+  - Verifies recursive _json calls work correctly
+-?>
+defines module bytecode.jsonNestedObject
+
+  defines class
+
+    Address
+      city <- "London"
+      zip <- "SW1"
+
+      default operator $$
+
+    Person
+      name <- "Alice"
+      address <- Address()
+
+      default operator $$
+
+  defines program
+
+    JsonNestedObjectTest()
+      stdout <- Stdout()
+
+      p <- Person()
+      j <- $$p
+      jsonStr <- $j
+
+      stdout.println("JSON output: " + jsonStr)
+
+      // Verify nested object structure
+      assert jsonStr == `{"name":"Alice","address":{"city":"London","zip":"SW1"}}`
+
+      stdout.println("Test passed: Nested object JSON")
+
+//EOF
