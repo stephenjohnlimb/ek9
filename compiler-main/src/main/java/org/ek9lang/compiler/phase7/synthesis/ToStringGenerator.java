@@ -22,6 +22,9 @@ import org.ek9lang.core.AssertValue;
  * <p>The generated code follows this pattern:</p>
  * <pre>
  * String _string():
+ *   // Guard: if object is unset, return UNSET
+ *   if !this._isSet() -> return unset String
+ *
  *   result = "ClassName("
  *   needsSeparator = false
  *
@@ -44,12 +47,14 @@ import org.ek9lang.core.AssertValue;
  *
  * <p>Key semantic requirements:</p>
  * <ul>
- *   <li>Returns String (always set)</li>
+ *   <li>Returns UNSET String if this._isSet() is false (empty objects have no string representation)</li>
  *   <li>Format: "ClassName(field1=value1, field2=value2)"</li>
  *   <li>SET fields show their string value via $</li>
  *   <li>UNSET fields show "?" as placeholder</li>
  *   <li>Uses simple class name (not fully qualified)</li>
  * </ul>
+ *
+ * <p>The ? guard ensures consistency: operations on empty objects propagate uncertainty.</p>
  */
 final class ToStringGenerator extends AbstractSyntheticGenerator {
 
@@ -77,12 +82,23 @@ final class ToStringGenerator extends AbstractSyntheticGenerator {
     final var instructions = new ArrayList<IRInstr>();
     final var debugInfo = createDebugInfo(operatorSymbol);
     final var scopeId = stackContext.generateScopeId("_string");
+    final var aggregateTypeName = aggregateSymbol.getFullyQualifiedName();
+
+    // Label for returning UNSET when object is unset
+    final var returnUnsetLabel = generateLabelName("return_unset");
+    final var returnStringLabel = generateLabelName("return_string");
 
     // Enter scope
     instructions.add(ScopeInstr.enter(scopeId, debugInfo));
 
     // Reference return variable
     instructions.add(MemoryInstr.reference(RETURN_VAR, getStringTypeName(), debugInfo));
+
+    // Guard: if no fields are set, return UNSET String
+    // Empty objects (no fields set) have no meaningful string representation
+    // Uses _fieldSetStatus()._empty() directly - no dependency on ? operator
+    instructions.addAll(generateAnyFieldSetGuard(aggregateSymbol, aggregateTypeName, debugInfo,
+        returnUnsetLabel, scopeId));
 
     // Initialize result with class name and opening parenthesis
     final var className = aggregateSymbol.getName();
@@ -99,7 +115,29 @@ final class ToStringGenerator extends AbstractSyntheticGenerator {
     // Append closing parenthesis
     instructions.addAll(appendStringLiteral(")", debugInfo, scopeId));
 
-    // Return the result
+    // Return the result string
+    instructions.add(BranchInstr.branch(returnStringLabel, debugInfo));
+
+    // Return blocks
+    instructions.addAll(generateUnsetReturnBlockWithLabel(returnUnsetLabel, getStringTypeName(),
+        RETURN_VAR, debugInfo, scopeId));
+    instructions.addAll(generateStringReturnBlock(returnStringLabel, debugInfo, scopeId));
+
+    return instructions;
+  }
+
+  /**
+   * Generate the return block for normal string return.
+   */
+  private List<IRInstr> generateStringReturnBlock(final String labelName,
+                                                  final DebugInfo debugInfo,
+                                                  final String scopeId) {
+    final var instructions = new ArrayList<IRInstr>();
+
+    // Label
+    instructions.add(LabelInstr.label(labelName));
+
+    // Scope cleanup and return
     instructions.add(ScopeInstr.exit(scopeId, debugInfo));
     instructions.add(BranchInstr.returnValue(RETURN_VAR, debugInfo));
 
@@ -110,8 +148,8 @@ final class ToStringGenerator extends AbstractSyntheticGenerator {
    * Initialize result with the given string literal.
    */
   private List<IRInstr> initializeResultString(final String value,
-                                                final DebugInfo debugInfo,
-                                                final String scopeId) {
+                                               final DebugInfo debugInfo,
+                                               final String scopeId) {
     final var instructions = new ArrayList<IRInstr>();
 
     // Create string literal
@@ -131,8 +169,8 @@ final class ToStringGenerator extends AbstractSyntheticGenerator {
    * Append a string literal to the result.
    */
   private List<IRInstr> appendStringLiteral(final String value,
-                                             final DebugInfo debugInfo,
-                                             final String scopeId) {
+                                            final DebugInfo debugInfo,
+                                            final String scopeId) {
     final var instructions = new ArrayList<IRInstr>();
 
     // Create string literal
@@ -167,13 +205,12 @@ final class ToStringGenerator extends AbstractSyntheticGenerator {
    * Append a string variable to the result.
    */
   private List<IRInstr> appendStringVariable(final String varName,
-                                              final DebugInfo debugInfo,
-                                              final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
+                                             final DebugInfo debugInfo,
+                                             final String scopeId) {
 
     // Concatenate: result = result + var via _add method (+ operator)
     final var concatenatedVar = generateTempName();
-    instructions.addAll(generateMethodCall(
+    final var instructions = new ArrayList<>(generateMethodCall(
         concatenatedVar,
         RETURN_VAR,
         getStringTypeName(),
@@ -219,13 +256,12 @@ final class ToStringGenerator extends AbstractSyntheticGenerator {
    * </pre>
    */
   private List<IRInstr> generateFieldStringContribution(final ISymbol field,
-                                                         final boolean isFirstField,
-                                                         final DebugInfo debugInfo,
-                                                         final String scopeId) {
+                                                        final boolean isFirstField,
+                                                        final DebugInfo debugInfo,
+                                                        final String scopeId) {
 
     final var fieldName = field.getName();
     final var fieldTypeName = getTypeName(field);
-    final var instructions = new ArrayList<IRInstr>();
 
     // Labels for control flow
     final var unsetLabel = generateLabelName("field_unset");
@@ -233,7 +269,8 @@ final class ToStringGenerator extends AbstractSyntheticGenerator {
 
     // Load field value
     final var fieldVar = generateTempName();
-    instructions.addAll(generateFieldLoad(fieldVar, IRConstants.THIS, fieldName, debugInfo, scopeId));
+    final var instructions =
+        new ArrayList<>(generateFieldLoad(fieldVar, IRConstants.THIS, fieldName, debugInfo, scopeId));
 
     // Call field._isSet()
     final var isSetResultVar = generateTempName();

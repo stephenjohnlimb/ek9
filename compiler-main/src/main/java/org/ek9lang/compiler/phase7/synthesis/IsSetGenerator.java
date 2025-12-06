@@ -21,19 +21,29 @@ import org.ek9lang.core.AssertValue;
  * <p>The generated code follows this pattern:</p>
  * <pre>
  * Boolean _isSet():
- *   // For each field in properties:
- *   //   result = this.field._isSet()
- *   //   if !result._true() -> return false
+ *   // Check super first (if not Any and has ? operator)
+ *   if super._isSet() -> return true  // Valid via parent
  *
- *   return true  // All fields are set
+ *   // For each field in own properties:
+ *   //   result = this.field._isSet()
+ *   //   if result._true() -> return true  // Found set field
+ *
+ *   return false  // No fields set = truly empty object
  * </pre>
  *
  * <p>Key semantic requirements:</p>
  * <ul>
- *   <li>Returns true only if ALL fields are set</li>
- *   <li>Returns false if ANY field is unset (short-circuit)</li>
+ *   <li>Returns true if ANY field is set (short-circuit on first set)</li>
+ *   <li>Returns true if super._isSet() returns true</li>
+ *   <li>Returns false only when ALL fields are unset (truly empty)</li>
  *   <li>No parameter checking needed (no "other" parameter)</li>
- *   <li>Super's _isSet is not called - each class handles its own fields</li>
+ * </ul>
+ *
+ * <p>This "ANY field set" semantic enables:</p>
+ * <ul>
+ *   <li>Partial objects with optional fields to be valid</li>
+ *   <li>Builder patterns where objects become valid incrementally</li>
+ *   <li>Reduced boilerplate (no need to override ? for optional fields)</li>
  * </ul>
  */
 final class IsSetGenerator extends AbstractSyntheticGenerator {
@@ -61,7 +71,7 @@ final class IsSetGenerator extends AbstractSyntheticGenerator {
     final var debugInfo = createDebugInfo(methodSymbol);
     final var scopeId = stackContext.generateScopeId("_isSet");
 
-    // Labels for control flow
+    // Labels for control flow - note the semantics flip from ALL to ANY
     final var returnFalseLabel = generateLabelName("return_false");
     final var returnTrueLabel = generateLabelName("return_true");
 
@@ -71,16 +81,23 @@ final class IsSetGenerator extends AbstractSyntheticGenerator {
     // Reference return variable
     instructions.add(MemoryInstr.reference(RETURN_VAR, getBooleanTypeName(), debugInfo));
 
-    // Generate field-by-field isSet check for this class's own fields only
-    final var fields = getSyntheticFields(aggregateSymbol);
-    for (final var field : fields) {
-      instructions.addAll(generateFieldIsSetCheck(field, debugInfo, scopeId, returnFalseLabel));
+    // Check super first - if super._isSet() returns true, we're valid via inheritance
+    final var superHasIsSet = superHasOperator(aggregateSymbol, "?");
+    if (superHasIsSet) {
+      instructions.addAll(generateSuperIsSetCheck(aggregateSymbol, debugInfo, scopeId, returnTrueLabel));
     }
 
-    // All checks passed - branch to return true
-    instructions.add(BranchInstr.branch(returnTrueLabel, debugInfo));
+    // Generate field-by-field isSet check for this class's own fields
+    // Key semantic change: return TRUE on first SET field (not false on first unset)
+    final var fields = getSyntheticFields(aggregateSymbol);
+    for (final var field : fields) {
+      instructions.addAll(generateFieldIsSetCheck(field, debugInfo, scopeId, returnTrueLabel));
+    }
 
-    // Return blocks
+    // No fields set (and super wasn't set) - branch to return false
+    instructions.add(BranchInstr.branch(returnFalseLabel, debugInfo));
+
+    // Return blocks - note: false first since that's now the "fall-through" case
     instructions.addAll(generateBooleanReturnBlockWithLabel(returnFalseLabel, false,
         RETURN_VAR, debugInfo, scopeId));
     instructions.addAll(generateBooleanReturnBlockWithLabel(returnTrueLabel, true,
@@ -90,12 +107,75 @@ final class IsSetGenerator extends AbstractSyntheticGenerator {
   }
 
   /**
+   * Generate super._isSet() check.
+   *
+   * <p>If super._isSet() returns true, the object is valid via inheritance,
+   * so we short-circuit to return true immediately.</p>
+   */
+  private List<IRInstr> generateSuperIsSetCheck(final AggregateSymbol aggregateSymbol,
+                                                 final DebugInfo debugInfo,
+                                                 final String scopeId,
+                                                 final String returnTrueLabel) {
+
+    final var instructions = new ArrayList<IRInstr>();
+
+    // Get super aggregate if present
+    final var superOpt = aggregateSymbol.getSuperAggregate();
+    if (superOpt.isEmpty()) {
+      return instructions;
+    }
+
+    final var superAggregate = superOpt.get();
+
+    // Skip if super is Any
+    if (isAnyType(superAggregate)) {
+      return instructions;
+    }
+
+    // Call super._isSet() -> Boolean
+    final var superResultVar = generateTempName();
+    instructions.addAll(generateMethodCall(
+        superResultVar,
+        IRConstants.SUPER,
+        superAggregate.getFullyQualifiedName(),
+        "_isSet",
+        List.of(),
+        List.of(),
+        getBooleanTypeName(),
+        debugInfo,
+        scopeId
+    ));
+
+    // Extract boolean value via _true()
+    final var superBoolVar = generateTempName();
+    instructions.addAll(generateMethodCall(
+        superBoolVar,
+        superResultVar,
+        getBooleanTypeName(),
+        "_true",
+        List.of(),
+        List.of(),
+        "boolean",
+        debugInfo,
+        scopeId
+    ));
+
+    // If super is set (true), branch to return true - valid via inheritance
+    instructions.add(BranchInstr.branchIfTrue(superBoolVar, returnTrueLabel, debugInfo));
+
+    return instructions;
+  }
+
+  /**
    * Generate field isSet check.
+   *
+   * <p>Key semantic change for "ANY field set": branches to return TRUE
+   * when field IS set (opposite of previous "ALL fields set" behavior).</p>
    */
   private List<IRInstr> generateFieldIsSetCheck(final ISymbol field,
                                                  final DebugInfo debugInfo,
                                                  final String scopeId,
-                                                 final String returnFalseLabel) {
+                                                 final String returnTrueLabel) {
 
     final var fieldName = field.getName();
     final var fieldTypeName = getTypeName(field);
@@ -133,8 +213,8 @@ final class IsSetGenerator extends AbstractSyntheticGenerator {
         scopeId
     ));
 
-    // Branch if false (field is not set)
-    instructions.add(BranchInstr.branchIfFalse(trueResultVar, returnFalseLabel, debugInfo));
+    // Branch if TRUE (field IS set) - ANY set field makes object valid
+    instructions.add(BranchInstr.branchIfTrue(trueResultVar, returnTrueLabel, debugInfo));
 
     return instructions;
   }

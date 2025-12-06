@@ -1,0 +1,7 @@
+Test: Synthetic #? on unset vs set objects
+pUnset isSet: false (expected)
+pSet isSet: true (expected)
+PASS: Hash of unset object is SET (hash of nothing is valid)
+PASS: Hash of set object is SET
+PASS: Different field set patterns produce different hashes
+Test complete

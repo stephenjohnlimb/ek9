@@ -1,0 +1,5 @@
+Test: Synthetic == both set, equal values
+p1: x=10, y=20
+p2: x=10, y=20
+PASS: Equal objects compare as true
+Test complete

@@ -1,0 +1,10 @@
+Test: Comparison operator symmetry
+Test 1: (5 < 10) == (10 > 5)
+PASS: < and > are symmetric
+Test 2: (10 > 5) == (5 < 10)
+PASS: > and < are symmetric
+Test 3: (5 <= 10) == (10 >= 5)
+PASS: <= and >= are symmetric
+Test 4: 5 < 10 AND 10 > 5 AND 5 <= 10 AND 10 >= 5
+PASS: All comparison directions agree
+Test complete

@@ -1,0 +1,52 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic == operator - both objects fully set with equal values.
+
+  Tests that when two objects are both fully set with identical field values,
+  the synthetic == operator returns true.
+-?>
+defines module fuzz.runtime.synthetic.eq.bothset
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator <=>
+      default operator ==
+
+  defines program
+
+    SyntheticEqBothSet()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic == both set, equal values")
+
+      p1 <- TestPoint(10, 20)
+      p2 <- TestPoint(10, 20)
+
+      stdout.println("p1: x=10, y=20")
+      stdout.println("p2: x=10, y=20")
+
+      eq <- p1 == p2
+
+      if eq?
+        if eq
+          stdout.println("PASS: Equal objects compare as true")
+        else
+          stdout.println("FAIL: Equal objects should be true")
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      stdout.println("Test complete")
+
+//EOF

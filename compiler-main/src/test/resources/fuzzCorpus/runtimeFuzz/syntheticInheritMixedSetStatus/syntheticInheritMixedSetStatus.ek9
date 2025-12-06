@@ -1,0 +1,85 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic comparison - inheritance with mixed field set status.
+
+  Tests that when parent fields are set but child fields are unset (or vice versa),
+  the field set status comparison correctly detects the mismatch.
+
+  The _fieldSetStatus() should include both parent and child fields, and if the
+  set patterns don't match between two objects, comparison returns UNSET.
+
+  Scenario:
+  - Animal has 'name' field
+  - Cat extends Animal with 'breed' field
+  - One cat has breed set, another has breed unset
+-?>
+defines module fuzz.runtime.synthetic.inherit.mixedsetstatus
+
+  defines class
+
+    Animal as open
+      name <- String()
+
+      Animal()
+        ->
+          n as String
+        this.name :=: n
+
+      default operator ?
+      default operator <=>
+
+    Cat extends Animal
+      breed <- String()
+
+      Cat()
+        ->
+          n as String
+          b as String
+        super(n)
+        this.breed :=: b
+
+      default operator ?
+      default operator <=>
+
+  defines program
+
+    SyntheticInheritMixedSetStatus()
+      stdout <- Stdout()
+
+      stdout.println("Test: Inheritance - mixed field set status")
+
+      //Both parent fields set, child field set vs unset
+      catFullySet <- Cat("Fluffy", "Siamese")
+      catBreedUnset <- Cat("Fluffy", String())
+
+      //Verify set status
+      if catFullySet?
+        stdout.println("catFullySet: isSet true")
+      else
+        stdout.println("catFullySet: isSet false")
+
+      //With "ANY field set" semantics, catBreedUnset? is true because parent's name is set
+      if catBreedUnset?
+        stdout.println("catBreedUnset: isSet true (expected - name from parent is set)")
+      else
+        stdout.println("catBreedUnset: isSet false (unexpected - parent name is set)")
+
+      //Compare objects with different field set patterns
+      cmp <- catFullySet <=> catBreedUnset
+
+      if cmp?
+        stdout.println("FAIL: Field set mismatch should return UNSET, got " + $cmp)
+      else
+        stdout.println("PASS: Field set mismatch returns UNSET")
+
+      //Also verify reverse comparison
+      cmp2 <- catBreedUnset <=> catFullySet
+
+      if cmp2?
+        stdout.println("FAIL: Reverse should also be UNSET, got " + $cmp2)
+      else
+        stdout.println("PASS: Reverse comparison also UNSET")
+
+      stdout.println("Test complete")
+
+//EOF

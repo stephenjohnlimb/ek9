@@ -1,0 +1,6 @@
+Test: Synthetic $ with all fields unset
+Point isSet: false (expected)
+String: TestPoint(x=?, y=?)
+PASS: Contains x=?
+PASS: Contains y=?
+Test complete

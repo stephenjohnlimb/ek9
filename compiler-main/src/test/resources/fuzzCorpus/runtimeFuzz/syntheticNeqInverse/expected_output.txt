@@ -1,0 +1,8 @@
+Test: Synthetic <> as inverse of ==
+Test 1: Equal objects
+PASS: == true, <> false
+Test 2: Different objects
+PASS: == false, <> true
+Test 3: One unset
+PASS: Both == and <> are UNSET
+Test complete

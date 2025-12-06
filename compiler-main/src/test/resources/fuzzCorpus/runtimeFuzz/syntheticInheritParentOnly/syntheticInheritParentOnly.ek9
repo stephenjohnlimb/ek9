@@ -1,0 +1,75 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic comparison - only parent has <=>.
+
+  Tests that when only the parent defines 'default operator <=>', the child
+  inherits it and comparison is based only on parent fields.
+
+  Scenario:
+  - Animal has 'name' field and 'default operator <=>'
+  - Cat extends Animal and has 'breed' field but NO <=> operator
+  - Comparison should only use 'name' from parent
+-?>
+defines module fuzz.runtime.synthetic.inherit.parentonly
+
+  defines class
+
+    Animal as open
+      name <- String()
+
+      Animal()
+        ->
+          n as String
+        this.name :=: n
+
+      default operator ?
+      default operator <=>
+
+    Cat extends Animal
+      breed <- String()
+
+      Cat()
+        ->
+          n as String
+          b as String
+        super(n)
+        this.breed :=: b
+
+      default operator ?
+
+  defines program
+
+    SyntheticInheritParentOnly()
+      stdout <- Stdout()
+
+      stdout.println("Test: Inheritance - only parent has <=>")
+
+      //Test 1: Same name, different breed -> should be equal (only name compared)
+      cat1 <- Cat("Fluffy", "Siamese")
+      cat2 <- Cat("Fluffy", "Persian")
+
+      cmp1 <- cat1 <=> cat2
+      if cmp1?
+        if cmp1 == 0
+          stdout.println("PASS: Same name (different breed ignored) -> 0")
+        else
+          stdout.println("FAIL: Expected 0 (breed should be ignored), got " + $cmp1)
+      else
+        stdout.println("FAIL: Result should be SET")
+
+      //Test 2: Different names -> compare by name
+      cat3 <- Cat("Alpha", "Tabby")
+      cat4 <- Cat("Beta", "Tabby")
+
+      cmp2 <- cat3 <=> cat4
+      if cmp2?
+        if cmp2 < 0
+          stdout.println("PASS: Alpha < Beta -> negative")
+        else
+          stdout.println("FAIL: Expected negative, got " + $cmp2)
+      else
+        stdout.println("FAIL: Result should be SET")
+
+      stdout.println("Test complete")
+
+//EOF

@@ -1,0 +1,115 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic comparison - multi-level inheritance.
+
+  Tests that synthetic comparison works correctly with three levels of inheritance:
+  - Grandparent: Entity with 'id' field
+  - Parent: Animal extends Entity with 'name' field
+  - Child: Cat extends Animal with 'breed' field
+
+  Comparison should be lexicographic through all levels: id, then name, then breed.
+-?>
+defines module fuzz.runtime.synthetic.inherit.multilevel
+
+  defines class
+
+    Entity as open
+      id <- Integer()
+
+      Entity()
+        ->
+          i as Integer
+        this.id :=: i
+
+      default operator ?
+      default operator <=>
+
+    Animal extends Entity as open
+      name <- String()
+
+      Animal()
+        ->
+          i as Integer
+          n as String
+        super(i)
+        this.name :=: n
+
+      default operator ?
+      default operator <=>
+
+    Cat extends Animal
+      breed <- String()
+
+      Cat()
+        ->
+          i as Integer
+          n as String
+          b as String
+        super(i, n)
+        this.breed :=: b
+
+      default operator ?
+      default operator <=>
+
+  defines program
+
+    SyntheticInheritMultiLevel()
+      stdout <- Stdout()
+
+      stdout.println("Test: Multi-level inheritance comparison")
+
+      //Test 1: All fields equal -> 0
+      cat1 <- Cat(1, "Fluffy", "Siamese")
+      cat2 <- Cat(1, "Fluffy", "Siamese")
+
+      cmp1 <- cat1 <=> cat2
+      if cmp1?
+        if cmp1 == 0
+          stdout.println("PASS: All fields equal -> 0")
+        else
+          stdout.println("FAIL: Expected 0, got " + $cmp1)
+      else
+        stdout.println("FAIL: Result should be SET")
+
+      //Test 2: Different id (grandparent) -> decides comparison
+      cat3 <- Cat(1, "Same", "Same")
+      cat4 <- Cat(2, "Same", "Same")
+
+      cmp2 <- cat3 <=> cat4
+      if cmp2?
+        if cmp2 < 0
+          stdout.println("PASS: id 1 < id 2 -> negative")
+        else
+          stdout.println("FAIL: Expected negative, got " + $cmp2)
+      else
+        stdout.println("FAIL: Result should be SET")
+
+      //Test 3: Same id, different name (parent) -> decides comparison
+      cat5 <- Cat(1, "Alpha", "Same")
+      cat6 <- Cat(1, "Beta", "Same")
+
+      cmp3 <- cat5 <=> cat6
+      if cmp3?
+        if cmp3 < 0
+          stdout.println("PASS: Same id, Alpha < Beta -> negative")
+        else
+          stdout.println("FAIL: Expected negative, got " + $cmp3)
+      else
+        stdout.println("FAIL: Result should be SET")
+
+      //Test 4: Same id, same name, different breed (child) -> decides comparison
+      cat7 <- Cat(1, "Same", "Persian")
+      cat8 <- Cat(1, "Same", "Tabby")
+
+      cmp4 <- cat7 <=> cat8
+      if cmp4?
+        if cmp4 < 0
+          stdout.println("PASS: Same id/name, Persian < Tabby -> negative")
+        else
+          stdout.println("FAIL: Expected negative, got " + $cmp4)
+      else
+        stdout.println("FAIL: Result should be SET")
+
+      stdout.println("Test complete")
+
+//EOF

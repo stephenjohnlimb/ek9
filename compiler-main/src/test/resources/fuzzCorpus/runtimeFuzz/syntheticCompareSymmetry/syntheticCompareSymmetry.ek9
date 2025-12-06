@@ -1,0 +1,89 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic comparison operators - symmetry verification.
+
+  Tests that the comparison operators maintain proper symmetry:
+  - a < b should be equivalent to b > a
+  - a <= b should be equivalent to b >= a
+  - a == b should imply b == a
+
+  This validates that all operators delegate correctly to <=>.
+-?>
+defines module fuzz.runtime.synthetic.compare.symmetry
+
+  defines class
+
+    TestValue
+      value <- Integer()
+
+      TestValue()
+        -> v as Integer
+        this.value :=: v
+
+      default operator ?
+      default operator <=>
+      default operator <
+      default operator <=
+      default operator >
+      default operator >=
+
+  defines program
+
+    SyntheticCompareSymmetry()
+      stdout <- Stdout()
+
+      stdout.println("Test: Comparison operator symmetry")
+
+      v5 <- TestValue(5)
+      v10 <- TestValue(10)
+
+      //Test 1: a < b == b > a
+      stdout.println("Test 1: (5 < 10) == (10 > 5)")
+      lt <- v5 < v10
+      gt <- v10 > v5
+      if lt? and gt?
+        if lt == gt
+          stdout.println("PASS: < and > are symmetric")
+        else
+          stdout.println("FAIL: < and > not symmetric")
+      else
+        stdout.println("FAIL: One result is UNSET")
+
+      //Test 2: a > b == b < a
+      stdout.println("Test 2: (10 > 5) == (5 < 10)")
+      gt2 <- v10 > v5
+      lt2 <- v5 < v10
+      if gt2? and lt2?
+        if gt2 == lt2
+          stdout.println("PASS: > and < are symmetric")
+        else
+          stdout.println("FAIL: > and < not symmetric")
+      else
+        stdout.println("FAIL: One result is UNSET")
+
+      //Test 3: a <= b == b >= a (when a < b)
+      stdout.println("Test 3: (5 <= 10) == (10 >= 5)")
+      lte <- v5 <= v10
+      gte <- v10 >= v5
+      if lte? and gte?
+        if lte == gte
+          stdout.println("PASS: <= and >= are symmetric")
+        else
+          stdout.println("FAIL: <= and >= not symmetric")
+      else
+        stdout.println("FAIL: One result is UNSET")
+
+      //Test 4: Verify all four in combination
+      stdout.println("Test 4: 5 < 10 AND 10 > 5 AND 5 <= 10 AND 10 >= 5")
+      allTrue <- lt and gt and lte and gte
+      if allTrue?
+        if allTrue
+          stdout.println("PASS: All comparison directions agree")
+        else
+          stdout.println("FAIL: Not all comparisons agree")
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      stdout.println("Test complete")
+
+//EOF

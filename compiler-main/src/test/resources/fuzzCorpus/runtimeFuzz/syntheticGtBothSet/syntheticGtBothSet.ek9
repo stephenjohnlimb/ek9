@@ -1,0 +1,71 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic > operator - both objects fully set.
+
+  Tests that the synthetic > operator (which delegates to <=>) works correctly:
+  - 15 > 10 -> true
+  - 10 > 15 -> false
+  - 10 > 10 -> false (not strictly greater than)
+-?>
+defines module fuzz.runtime.synthetic.gt.bothset
+
+  defines class
+
+    TestValue
+      value <- Integer()
+
+      TestValue()
+        -> v as Integer
+        this.value :=: v
+
+      default operator ?
+      default operator <=>
+      default operator >
+
+  defines program
+
+    SyntheticGtBothSet()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic > operator - both set")
+
+      v15 <- TestValue(15)
+      v10 <- TestValue(10)
+      v10b <- TestValue(10)
+
+      //Test 1: 15 > 10 -> true
+      stdout.println("Test 1: 15 > 10")
+      gt1 <- v15 > v10
+      if gt1?
+        if gt1
+          stdout.println("PASS: 15 > 10 is true")
+        else
+          stdout.println("FAIL: 15 > 10 should be true")
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      //Test 2: 10 > 15 -> false
+      stdout.println("Test 2: 10 > 15")
+      gt2 <- v10 > v15
+      if gt2?
+        if gt2
+          stdout.println("FAIL: 10 > 15 should be false")
+        else
+          stdout.println("PASS: 10 > 15 is false")
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      //Test 3: 10 > 10 -> false (not strictly greater)
+      stdout.println("Test 3: 10 > 10")
+      gt3 <- v10 > v10b
+      if gt3?
+        if gt3
+          stdout.println("FAIL: 10 > 10 should be false")
+        else
+          stdout.println("PASS: 10 > 10 is false")
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      stdout.println("Test complete")
+
+//EOF

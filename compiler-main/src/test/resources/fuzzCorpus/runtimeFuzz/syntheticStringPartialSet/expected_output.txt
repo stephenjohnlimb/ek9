@@ -1,0 +1,6 @@
+Test: Synthetic $ with partial fields set
+Point isSet: true (expected - x is set, ANY field makes it valid)
+String: TestPoint(x=42, y=?)
+PASS: Contains x=42
+PASS: Contains y=?
+Test complete

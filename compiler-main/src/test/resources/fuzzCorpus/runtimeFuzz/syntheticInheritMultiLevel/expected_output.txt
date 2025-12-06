@@ -1,0 +1,6 @@
+Test: Multi-level inheritance comparison
+PASS: All fields equal -> 0
+PASS: id 1 < id 2 -> negative
+PASS: Same id, Alpha < Beta -> negative
+PASS: Same id/name, Persian < Tabby -> negative
+Test complete

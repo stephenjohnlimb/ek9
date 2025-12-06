@@ -1,0 +1,71 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic <= operator - boundary case with equal values.
+
+  Tests that the synthetic <= operator returns true when values are equal.
+  This is the key distinction from < operator.
+-?>
+defines module fuzz.runtime.synthetic.lte.boundary
+
+  defines class
+
+    TestValue
+      value <- Integer()
+
+      TestValue()
+        -> v as Integer
+        this.value :=: v
+
+      default operator ?
+      default operator <=>
+      default operator <
+      default operator <=
+
+  defines program
+
+    SyntheticLteBoundary()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic <= operator - boundary cases")
+
+      v10a <- TestValue(10)
+      v10b <- TestValue(10)
+      v5 <- TestValue(5)
+      v15 <- TestValue(15)
+
+      //Test 1: 10 <= 10 -> true (equal values)
+      stdout.println("Test 1: 10 <= 10 (equal)")
+      lte1 <- v10a <= v10b
+      if lte1?
+        if lte1
+          stdout.println("PASS: 10 <= 10 is true")
+        else
+          stdout.println("FAIL: 10 <= 10 should be true")
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      //Test 2: 5 <= 10 -> true (less than)
+      stdout.println("Test 2: 5 <= 10 (less)")
+      lte2 <- v5 <= v10a
+      if lte2?
+        if lte2
+          stdout.println("PASS: 5 <= 10 is true")
+        else
+          stdout.println("FAIL: 5 <= 10 should be true")
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      //Test 3: 15 <= 10 -> false (greater than)
+      stdout.println("Test 3: 15 <= 10 (greater)")
+      lte3 <- v15 <= v10a
+      if lte3?
+        if lte3
+          stdout.println("FAIL: 15 <= 10 should be false")
+        else
+          stdout.println("PASS: 15 <= 10 is false")
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      stdout.println("Test complete")
+
+//EOF

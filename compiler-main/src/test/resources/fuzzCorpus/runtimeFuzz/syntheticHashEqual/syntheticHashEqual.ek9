@@ -1,0 +1,73 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic #? operator - hash consistency.
+
+  Tests that equal objects produce the same hash code:
+  - Two objects with identical field values must have identical hash codes
+  - This is required for correct behavior in hash-based collections
+-?>
+defines module fuzz.runtime.synthetic.hash.equal
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator <=>
+      default operator ==
+      default operator #?
+
+  defines program
+
+    SyntheticHashEqual()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic #? hash consistency")
+
+      p1 <- TestPoint(10, 20)
+      p2 <- TestPoint(10, 20)
+      p3 <- TestPoint(99, 20)
+
+      //First verify they are equal
+      if p1 == p2
+        stdout.println("p1 == p2 confirmed")
+      else
+        stdout.println("ERROR: p1 should equal p2")
+
+      //Test 1: Equal objects have same hash
+      stdout.println("Test 1: Equal objects have same hash")
+      h1 <- #?p1
+      h2 <- #?p2
+
+      if h1? and h2?
+        if h1 == h2
+          stdout.println("PASS: Equal objects have equal hash codes")
+        else
+          stdout.println("FAIL: Hash codes differ: " + $h1 + " vs " + $h2)
+      else
+        stdout.println("FAIL: Hash codes are UNSET")
+
+      //Test 2: Different objects may have different hash (not guaranteed but likely)
+      stdout.println("Test 2: Different objects")
+      h3 <- #?p3
+
+      if h3?
+        if h1 <> h3
+          stdout.println("INFO: Different objects have different hashes (expected)")
+        else
+          stdout.println("INFO: Hash collision (possible but unlikely)")
+      else
+        stdout.println("FAIL: Hash is UNSET")
+
+      stdout.println("Test complete")
+
+//EOF

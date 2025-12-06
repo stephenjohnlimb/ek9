@@ -1,0 +1,4 @@
+Test: Inheritance - only parent has <=>
+PASS: Same name (different breed ignored) -> 0
+PASS: Alpha < Beta -> negative
+Test complete

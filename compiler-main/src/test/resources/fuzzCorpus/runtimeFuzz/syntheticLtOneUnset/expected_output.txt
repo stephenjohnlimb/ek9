@@ -1,0 +1,7 @@
+Test: Synthetic < operator - one unset
+vUnset isSet: false (expected)
+Test 1: set < unset
+PASS: Result is UNSET
+Test 2: unset < set
+PASS: Result is UNSET
+Test complete

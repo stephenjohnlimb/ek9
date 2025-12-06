@@ -1,0 +1,7 @@
+Test: Synthetic == when one is unset
+pSet: x=10, y=20
+pUnset: unset
+pUnset isSet: false (expected)
+PASS: set == unset is UNSET
+PASS: unset == set is UNSET
+Test complete

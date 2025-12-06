@@ -1,0 +1,7 @@
+Test: Synthetic $ with all fields set
+Point isSet: true (expected)
+String: TestPoint(x=10, y=20)
+PASS: Contains class name
+PASS: Contains x=10
+PASS: Contains y=20
+Test complete

@@ -1,0 +1,91 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic comparison with inheritance - both parent and child have <=>.
+
+  Tests that when both parent and child define 'default operator <=>', the comparison
+  first uses super._cmp() for parent fields, then compares child fields only if
+  the parent comparison returns 0 (equal).
+
+  Scenario:
+  - Animal has 'name' field
+  - Cat extends Animal and has 'breed' field
+  - Both define 'default operator <=>'
+  - Comparison should be lexicographic: name first, then breed
+-?>
+defines module fuzz.runtime.synthetic.inherit.bothhavecmp
+
+  defines class
+
+    Animal as open
+      name <- String()
+
+      Animal()
+        ->
+          n as String
+        this.name :=: n
+
+      default operator ?
+      default operator <=>
+
+    Cat extends Animal
+      breed <- String()
+
+      Cat()
+        ->
+          n as String
+          b as String
+        super(n)
+        this.breed :=: b
+
+      default operator ?
+      default operator <=>
+
+  defines program
+
+    SyntheticInheritBothHaveCmp()
+      stdout <- Stdout()
+
+      stdout.println("Test: Inheritance - both parent and child have <=>")
+
+      //Test 1: Same name, same breed -> 0
+      cat1 <- Cat("Fluffy", "Siamese")
+      cat2 <- Cat("Fluffy", "Siamese")
+
+      cmp1 <- cat1 <=> cat2
+      if cmp1?
+        if cmp1 == 0
+          stdout.println("PASS: Same name, same breed -> 0")
+        else
+          stdout.println("FAIL: Expected 0, got " + $cmp1)
+      else
+        stdout.println("FAIL: Result should be SET")
+
+      //Test 2: Different names -> compare by name only
+      cat3 <- Cat("Alpha", "Siamese")
+      cat4 <- Cat("Beta", "Siamese")
+
+      cmp2 <- cat3 <=> cat4
+      if cmp2?
+        if cmp2 < 0
+          stdout.println("PASS: Alpha < Beta -> negative")
+        else
+          stdout.println("FAIL: Expected negative, got " + $cmp2)
+      else
+        stdout.println("FAIL: Result should be SET")
+
+      //Test 3: Same name, different breed -> compare by breed
+      cat5 <- Cat("Same", "Persian")
+      cat6 <- Cat("Same", "Tabby")
+
+      cmp3 <- cat5 <=> cat6
+      if cmp3?
+        if cmp3 < 0
+          stdout.println("PASS: Same name, Persian < Tabby -> negative")
+        else
+          stdout.println("FAIL: Expected negative, got " + $cmp3)
+      else
+        stdout.println("FAIL: Result should be SET")
+
+      stdout.println("Test complete")
+
+//EOF

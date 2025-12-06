@@ -683,38 +683,66 @@ public final class VerboseErrorMessages {
     VERBOSE_MESSAGES.put("E07180", """
         COMMON CAUSES:
         - 'default' operator requires operator missing from this type
+        - For 'default operator <=>', type needs comparison capability
+        - For 'default operator ==', type needs '<=>'' defined
         TO FIX:
-        - Implement required operator on this type""");
+        - Implement required operator on this type first
+        - Check that '<=>' is defined if using comparison operators
+        SEMANTICS NOTE:
+        - 'default operator ?' returns true if ANY field is set (not all)
+        - 'default operator #?/$/$' return UNSET if no fields are set""");
 
     VERBOSE_MESSAGES.put("E07190", """
         COMMON CAUSES:
         - 'default' operator requires operator missing from super
+        - Parent class needs same operator capability for inheritance to work
         TO FIX:
-        - Implement required operator in parent type""");
+        - Implement required operator in parent type
+        - Or remove inheritance and implement directly
+        SEMANTICS NOTE:
+        - For '?', if super.? returns true, derived class also returns true""");
 
     VERBOSE_MESSAGES.put("E07200", """
         COMMON CAUSES:
         - 'default' operator requires operator missing from property type
+        - A field's type doesn't support the operator being defaulted
         TO FIX:
-        - Ensure property type has required operator""");
+        - Ensure property type has required operator
+        - For primitives like Integer/String, operators are built-in
+        - For custom types, add 'default operator X' or explicit implementation
+        SEMANTICS NOTE:
+        - Each field type must support the operator for 'default' to work""");
 
     VERBOSE_MESSAGES.put("E07210", """
         COMMON CAUSES:
         - Function delegate with 'default' operator not supported
+        - Fields that are function delegates have limited default support
         TO FIX:
-        - Only '?' operator supported with function delegate fields""");
+        - Only '?' operator supported with function delegate fields
+        - For other operators, implement them manually
+        NOTE:
+        - Function delegates can only be checked for set/unset status""");
 
     VERBOSE_MESSAGES.put("E07220", """
         COMMON CAUSES:
         - Using 'default' on unsupported operator
+        - Not all operators can be auto-generated
         TO FIX:
-        - 'default' only works with specific operators""");
+        - 'default' works with: ?, ==, <>, <, <=, >, >=, <=>, $, $$, #?, :=:
+        - For other operators, implement them explicitly
+        SEMANTICS NOTE:
+        - 'default operator ?' = true if ANY field set (not all)
+        - 'default operator #?/$/$' = UNSET if object completely empty
+        - Custom ? does NOT affect default #?/$/$ guards""");
 
     VERBOSE_MESSAGES.put("E07230", """
         COMMON CAUSES:
         - 'default' operator with explicit signature/body
+        - Cannot specify parameters or implementation for default operators
         TO FIX:
-        - Remove signature and body from 'default' operator""");
+        - Remove signature and body from 'default' operator
+        - Use just: 'default operator <symbol>'
+        - If you need custom behavior, don't use 'default'""");
 
     VERBOSE_MESSAGES.put("E07240", """
         COMMON CAUSES:

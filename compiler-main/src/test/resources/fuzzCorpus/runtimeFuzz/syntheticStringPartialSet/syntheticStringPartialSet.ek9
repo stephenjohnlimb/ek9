@@ -1,0 +1,60 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic $ operator - partial fields set.
+
+  Tests that the synthetic string operator produces the expected format
+  when some fields are set and some are unset: "ClassName(field1=value, field2=?)"
+-?>
+defines module fuzz.runtime.synthetic.string.partialset
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator $
+
+  defines program
+
+    SyntheticStringPartialSet()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic $ with partial fields set")
+
+      //Only x set, y unset
+      p <- TestPoint(42, Integer())
+
+      //Verify set status - with "ANY field set" semantics, p? is true because x is set
+      if p?
+        stdout.println("Point isSet: true (expected - x is set, ANY field makes it valid)")
+      else
+        stdout.println("Point isSet: false (unexpected - x is set)")
+
+      //Get string representation
+      s <- $p
+
+      stdout.println("String: " + s)
+
+      //Verify format
+      if s.contains("x=42")
+        stdout.println("PASS: Contains x=42")
+      else
+        stdout.println("FAIL: Missing x=42")
+
+      if s.contains("y=?")
+        stdout.println("PASS: Contains y=?")
+      else
+        stdout.println("FAIL: Missing y=?")
+
+      stdout.println("Test complete")
+
+//EOF

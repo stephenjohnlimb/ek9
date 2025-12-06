@@ -1,0 +1,8 @@
+Test: Synthetic > operator - both set
+Test 1: 15 > 10
+PASS: 15 > 10 is true
+Test 2: 10 > 15
+PASS: 10 > 15 is false
+Test 3: 10 > 10
+PASS: 10 > 10 is false
+Test complete

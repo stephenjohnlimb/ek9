@@ -1,0 +1,8 @@
+Test: Synthetic >= operator - boundary cases
+Test 1: 10 >= 10 (equal)
+PASS: 10 >= 10 is true
+Test 2: 15 >= 10 (greater)
+PASS: 15 >= 10 is true
+Test 3: 5 >= 10 (less)
+PASS: 5 >= 10 is false
+Test complete

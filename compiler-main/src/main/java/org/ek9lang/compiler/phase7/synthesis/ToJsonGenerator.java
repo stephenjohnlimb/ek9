@@ -22,10 +22,8 @@ import org.ek9lang.core.AssertValue;
  * <p>The generated code follows this pattern:</p>
  * <pre>
  * JSON _json():
- *   // Check if any field is set using Bits._empty()
- *   status = this._fieldSetStatus()  // Returns Bits
- *   isEmpty = status._empty()        // Returns Boolean (true if no fields set)
- *   if isEmpty._true(): goto return_unset
+ *   // Guard: if object is unset, return UNSET JSON
+ *   if !this._isSet() -> return unset JSON
  *
  *   // has_data: at least one field is set
  *   jsonTemp = JSON()
@@ -44,13 +42,9 @@ import org.ek9lang.core.AssertValue;
  *     return new JSON()  // Unset JSON
  * </pre>
  *
- * <p>Semantic: If ALL fields are unset, the object has no meaningful data,
- * so we return an unset JSON. If ANY field is set, we proceed with normal
- * JSON construction. This is consistent with _string and _hashcode semantics.</p>
- *
  * <p>Key semantic requirements:</p>
  * <ul>
- *   <li>Returns unset JSON if all fields are unset</li>
+ *   <li>Returns UNSET JSON if this._isSet() is false (empty objects serialize to null)</li>
  *   <li>Returns set JSON if any field is set</li>
  *   <li>Format: {"field1": value1, "field2": value2}</li>
  *   <li>Each field value is converted via $$ (_json) recursively</li>
@@ -58,7 +52,7 @@ import org.ek9lang.core.AssertValue;
  *   <li>Lists produce JSON arrays, Dicts produce nested objects</li>
  * </ul>
  *
- * <p>Uses Bits._empty() instead of N individual _isSet() calls for efficiency.</p>
+ * <p>The ? guard ensures consistency: operations on empty objects propagate uncertainty.</p>
  */
 final class ToJsonGenerator extends AbstractSyntheticGenerator {
 
@@ -84,8 +78,11 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
     final var instructions = new ArrayList<IRInstr>();
     final var debugInfo = createDebugInfo(operatorSymbol);
     final var scopeId = stackContext.generateScopeId("_json");
-    final var returnUnsetLabel = generateLabelName("return_unset");
     final var aggregateTypeName = aggregateSymbol.getFullyQualifiedName();
+
+    // Labels for control flow
+    final var returnUnsetLabel = generateLabelName("return_unset");
+    final var returnJsonLabel = generateLabelName("return_json");
 
     // Enter scope
     instructions.add(ScopeInstr.enter(scopeId, debugInfo));
@@ -93,9 +90,11 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
     // Reference return variable
     instructions.add(MemoryInstr.reference(RETURN_VAR, getJsonTypeName(), debugInfo));
 
-    // Check if any field is set using _fieldSetStatus()._empty()
-    // This replaces N _isSet() calls with 2 method calls
-    instructions.addAll(generateEmptyFieldCheck(aggregateTypeName, returnUnsetLabel, debugInfo, scopeId));
+    // Guard: if no fields are set, return UNSET JSON
+    // Empty objects (no fields set) serialize to null
+    // Uses _fieldSetStatus()._empty() directly - no dependency on ? operator
+    instructions.addAll(generateAnyFieldSetGuard(aggregateSymbol, aggregateTypeName, debugInfo,
+        returnUnsetLabel, scopeId));
 
     // If we get here, at least one field is set - proceed with JSON construction
     final var fields = getSyntheticFields(aggregateSymbol);
@@ -108,17 +107,31 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
       instructions.addAll(generateFieldJsonContribution(field, debugInfo, scopeId));
     }
 
-    // Return the result
+    // Return the result JSON
+    instructions.add(BranchInstr.branch(returnJsonLabel, debugInfo));
+
+    // Return blocks
+    instructions.addAll(generateUnsetReturnBlockWithLabel(returnUnsetLabel, getJsonTypeName(),
+        RETURN_VAR, debugInfo, scopeId));
+    instructions.addAll(generateJsonReturnBlock(returnJsonLabel, debugInfo, scopeId));
+
+    return instructions;
+  }
+
+  /**
+   * Generate the return block for normal JSON return.
+   */
+  private List<IRInstr> generateJsonReturnBlock(final String labelName,
+                                                final DebugInfo debugInfo,
+                                                final String scopeId) {
+    final var instructions = new ArrayList<IRInstr>();
+
+    // Label
+    instructions.add(LabelInstr.label(labelName));
+
+    // Scope cleanup and return
     instructions.add(ScopeInstr.exit(scopeId, debugInfo));
     instructions.add(BranchInstr.returnValue(RETURN_VAR, debugInfo));
-
-    // Unset return block - return new unset JSON
-    instructions.addAll(generateUnsetReturnBlockWithLabel(
-        returnUnsetLabel,
-        getJsonTypeName(),
-        RETURN_VAR,
-        debugInfo,
-        scopeId));
 
     return instructions;
   }
@@ -128,74 +141,6 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
    */
   private String getJsonTypeName() {
     return stackContext.getParsedModule().getEk9Types().ek9Json().getFullyQualifiedName();
-  }
-
-  /**
-   * Generate check if all fields are unset using _fieldSetStatus()._empty().
-   *
-   * <p>Pattern:</p>
-   * <pre>
-   *   status = this._fieldSetStatus()  // Returns Bits
-   *   isEmpty = status._empty()        // Returns Boolean (true if no bits set)
-   *   isEmptyBool = isEmpty._true()    // Extract boolean
-   *   BRANCH_TRUE isEmptyBool, returnUnsetLabel
-   * </pre>
-   *
-   * <p>This is more efficient than checking each field individually - just 2 method calls
-   * instead of N _isSet() calls.</p>
-   */
-  private List<IRInstr> generateEmptyFieldCheck(final String aggregateTypeName,
-                                                  final String returnUnsetLabel,
-                                                  final DebugInfo debugInfo,
-                                                  final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
-
-    // Call this._fieldSetStatus() -> Bits
-    final var statusVar = generateTempName();
-    instructions.addAll(generateMethodCall(
-        statusVar,
-        IRConstants.THIS,
-        aggregateTypeName,
-        "_fieldSetStatus",
-        List.of(),
-        List.of(),
-        getBitsTypeName(),
-        debugInfo,
-        scopeId
-    ));
-
-    // Call status._empty() -> Boolean
-    final var isEmptyVar = generateTempName();
-    instructions.addAll(generateMethodCall(
-        isEmptyVar,
-        statusVar,
-        getBitsTypeName(),
-        "_empty",
-        List.of(),
-        List.of(),
-        getBooleanTypeName(),
-        debugInfo,
-        scopeId
-    ));
-
-    // Extract boolean via _true()
-    final var isEmptyBoolVar = generateTempName();
-    instructions.addAll(generateMethodCall(
-        isEmptyBoolVar,
-        isEmptyVar,
-        getBooleanTypeName(),
-        "_true",
-        List.of(),
-        List.of(),
-        "boolean",
-        debugInfo,
-        scopeId
-    ));
-
-    // If empty (no fields set), branch to unset return
-    instructions.add(BranchInstr.branchIfTrue(isEmptyBoolVar, returnUnsetLabel, debugInfo));
-
-    return instructions;
   }
 
   /**
@@ -209,12 +154,12 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
    * </pre>
    */
   private List<IRInstr> createEmptyJsonObject(final DebugInfo debugInfo,
-                                               final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
+                                              final String scopeId) {
+
 
     // Create JSON instance via default constructor
     final var jsonTemp = generateTempName();
-    instructions.addAll(generateConstructorCall(jsonTemp, getJsonTypeName(), debugInfo, scopeId));
+    final var instructions = new ArrayList<>(generateConstructorCall(jsonTemp, getJsonTypeName(), debugInfo, scopeId));
 
     // Call object() method to create empty JSON object {}
     final var objectResult = generateTempName();
@@ -250,16 +195,17 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
    * </pre>
    */
   private List<IRInstr> generateFieldJsonContribution(final ISymbol field,
-                                                       final DebugInfo debugInfo,
-                                                       final String scopeId) {
+                                                      final DebugInfo debugInfo,
+                                                      final String scopeId) {
 
     final var fieldName = field.getName();
     final var fieldTypeName = getTypeName(field);
-    final var instructions = new ArrayList<IRInstr>();
+
 
     // Load field value
     final var fieldVar = generateTempName();
-    instructions.addAll(generateFieldLoad(fieldVar, IRConstants.THIS, fieldName, debugInfo, scopeId));
+    final var instructions =
+        new ArrayList<>(generateFieldLoad(fieldVar, IRConstants.THIS, fieldName, debugInfo, scopeId));
 
     // Call field._json() to get JSON representation
     final var fieldJsonVar = generateTempName();
@@ -311,28 +257,29 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
   /**
    * Generate a constructor call with two arguments.
    *
-   * @param resultVar    Variable to store result
-   * @param typeName     Fully qualified type name to construct
-   * @param arg1Var      First argument variable name
-   * @param arg1Type     First argument type
-   * @param arg2Var      Second argument variable name
-   * @param arg2Type     Second argument type
-   * @param debugInfo    Debug information
-   * @param scopeId      Current scope ID
+   * @param resultVar Variable to store result
+   * @param typeName  Fully qualified type name to construct
+   * @param arg1Var   First argument variable name
+   * @param arg1Type  First argument type
+   * @param arg2Var   Second argument variable name
+   * @param arg2Type  Second argument type
+   * @param debugInfo Debug information
+   * @param scopeId   Current scope ID
    * @return List of IR instructions
    */
   private List<IRInstr> generateTwoArgConstructorCall(final String resultVar,
-                                                       final String typeName,
-                                                       final String arg1Var,
-                                                       final String arg1Type,
-                                                       final String arg2Var,
-                                                       final String arg2Type,
-                                                       final DebugInfo debugInfo,
-                                                       final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
+                                                      final String typeName,
+                                                      final String arg1Var,
+                                                      final String arg1Type,
+                                                      final String arg2Var,
+                                                      final String arg2Type,
+                                                      final DebugInfo debugInfo,
+                                                      final String scopeId) {
 
     // Generate constructor CALL with two arguments
-    instructions.addAll(generateMethodCall(
+    // Target is class name for constructor
+
+    return new ArrayList<>(generateMethodCall(
         resultVar,
         typeName, // Target is class name for constructor
         typeName,
@@ -343,8 +290,6 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
         debugInfo,
         scopeId
     ));
-
-    return instructions;
   }
 
   /**
@@ -360,12 +305,12 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
    * @return List of IR instructions
    */
   private List<IRInstr> generateVoidMethodCall(final String targetVar,
-                                                final String targetType,
-                                                final String methodName,
-                                                final List<String> arguments,
-                                                final List<String> parameterTypes,
-                                                final DebugInfo debugInfo,
-                                                final String scopeId) {
+                                               final String targetType,
+                                               final String methodName,
+                                               final List<String> arguments,
+                                               final List<String> parameterTypes,
+                                               final DebugInfo debugInfo,
+                                               final String scopeId) {
     // Use null for result var since it's void
     return generateMethodCall(
         null,

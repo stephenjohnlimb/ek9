@@ -1,0 +1,79 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic #? operator - hash of unset vs set objects.
+
+  Tests that the hash operator ALWAYS returns a SET value, even for unset objects.
+  This is intentional design: "hash of nothing is valid" - an unset object still
+  has a valid hash code based on its field set pattern (Bits).
+
+  The key verification is that:
+  1. Hash is SET for both unset and set objects
+  2. Different field set patterns produce different hash codes
+-?>
+defines module fuzz.runtime.synthetic.hash.unset
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator <=>
+      default operator ==
+      default operator <>
+      default operator #?
+
+  defines program
+
+    SyntheticHashUnset()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic #? on unset vs set objects")
+
+      pUnset <- TestPoint(Integer(), Integer())
+      pSet <- TestPoint(10, 20)
+
+      //Verify object isSet status
+      if pUnset?
+        stdout.println("pUnset isSet: true (unexpected)")
+      else
+        stdout.println("pUnset isSet: false (expected)")
+
+      if pSet?
+        stdout.println("pSet isSet: true (expected)")
+      else
+        stdout.println("pSet isSet: false (unexpected)")
+
+      //Test hash of unset object - should be SET (hash of nothing is valid)
+      hUnset <- #?pUnset
+
+      if hUnset?
+        stdout.println("PASS: Hash of unset object is SET (hash of nothing is valid)")
+      else
+        stdout.println("FAIL: Hash should always be SET")
+
+      //Test hash of set object
+      hSet <- #?pSet
+
+      if hSet?
+        stdout.println("PASS: Hash of set object is SET")
+      else
+        stdout.println("FAIL: Hash of set object should be SET")
+
+      //Verify different field set patterns produce different hashes
+      if hUnset <> hSet
+        stdout.println("PASS: Different field set patterns produce different hashes")
+      else
+        stdout.println("INFO: Hashes are equal (hash collision)")
+
+      stdout.println("Test complete")
+
+//EOF

@@ -1,0 +1,5 @@
+Test: Inheritance - both parent and child have <=>
+PASS: Same name, same breed -> 0
+PASS: Alpha < Beta -> negative
+PASS: Same name, Persian < Tabby -> negative
+Test complete

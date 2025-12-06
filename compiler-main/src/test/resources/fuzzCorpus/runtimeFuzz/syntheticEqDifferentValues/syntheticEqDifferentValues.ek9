@@ -1,0 +1,52 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic == operator - both set but different values.
+
+  Tests that when two objects are both fully set but have different values,
+  the synthetic == operator returns false.
+-?>
+defines module fuzz.runtime.synthetic.eq.differentvalues
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator <=>
+      default operator ==
+
+  defines program
+
+    SyntheticEqDifferentValues()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic == both set, different values")
+
+      p1 <- TestPoint(10, 20)
+      p2 <- TestPoint(99, 20)
+
+      stdout.println("p1: x=10, y=20")
+      stdout.println("p2: x=99, y=20")
+
+      eq <- p1 == p2
+
+      if eq?
+        if eq
+          stdout.println("FAIL: Different objects should not be equal")
+        else
+          stdout.println("PASS: Different objects compare as false")
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      stdout.println("Test complete")
+
+//EOF

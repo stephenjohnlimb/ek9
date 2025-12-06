@@ -1,0 +1,71 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic < operator - both objects fully set.
+
+  Tests that the synthetic < operator (which delegates to <=>) works correctly:
+  - 5 < 10 -> true
+  - 10 < 5 -> false
+  - 10 < 10 -> false (not strictly less than)
+-?>
+defines module fuzz.runtime.synthetic.lt.bothset
+
+  defines class
+
+    TestValue
+      value <- Integer()
+
+      TestValue()
+        -> v as Integer
+        this.value :=: v
+
+      default operator ?
+      default operator <=>
+      default operator <
+
+  defines program
+
+    SyntheticLtBothSet()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic < operator - both set")
+
+      v5 <- TestValue(5)
+      v10 <- TestValue(10)
+      v10b <- TestValue(10)
+
+      //Test 1: 5 < 10 -> true
+      stdout.println("Test 1: 5 < 10")
+      lt1 <- v5 < v10
+      if lt1?
+        if lt1
+          stdout.println("PASS: 5 < 10 is true")
+        else
+          stdout.println("FAIL: 5 < 10 should be true")
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      //Test 2: 10 < 5 -> false
+      stdout.println("Test 2: 10 < 5")
+      lt2 <- v10 < v5
+      if lt2?
+        if lt2
+          stdout.println("FAIL: 10 < 5 should be false")
+        else
+          stdout.println("PASS: 10 < 5 is false")
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      //Test 3: 10 < 10 -> false (not strictly less)
+      stdout.println("Test 3: 10 < 10")
+      lt3 <- v10 < v10b
+      if lt3?
+        if lt3
+          stdout.println("FAIL: 10 < 10 should be false")
+        else
+          stdout.println("PASS: 10 < 10 is false")
+      else
+        stdout.println("FAIL: Result is UNSET")
+
+      stdout.println("Test complete")
+
+//EOF

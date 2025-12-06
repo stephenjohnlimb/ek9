@@ -2,6 +2,7 @@ package org.ek9lang.compiler.phase7.synthesis;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.ir.instructions.BranchInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
 import org.ek9lang.compiler.ir.instructions.LabelInstr;
@@ -45,6 +46,7 @@ final class DerivedComparisonGenerator extends AbstractSyntheticGenerator {
 
   private static final String RETURN_VAR = "rtn";
   private static final String OTHER_PARAM = "param";
+  private final OperatorMap operatorMap = new OperatorMap();
 
   DerivedComparisonGenerator(final IRGenerationContext stackContext) {
     super(stackContext);
@@ -147,15 +149,10 @@ final class DerivedComparisonGenerator extends AbstractSyntheticGenerator {
 
   /**
    * Get the Integer comparison method to call based on operator.
+   * Uses OperatorMap to ensure correct method names (e.g., {@literal <=} -> _lteq, not _lte).
    */
   private String getComparisonMethod(final String operatorName) {
-    return switch (operatorName) {
-      case "<" -> "_lt";
-      case "<=" -> "_lte";
-      case ">" -> "_gt";
-      case ">=" -> "_gte";
-      default -> throw new IllegalArgumentException("Unknown comparison operator: " + operatorName);
-    };
+    return operatorMap.getForward(operatorName);
   }
 
   /**

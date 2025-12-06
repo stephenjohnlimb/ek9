@@ -1,0 +1,64 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic $ operator - all fields set.
+
+  Tests that the synthetic string operator produces the expected format
+  when all fields are set: "ClassName(field1=value1, field2=value2)"
+-?>
+defines module fuzz.runtime.synthetic.string.allset
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator $
+
+  defines program
+
+    SyntheticStringAllSet()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic $ with all fields set")
+
+      p <- TestPoint(10, 20)
+
+      //Verify set status
+      if p?
+        stdout.println("Point isSet: true (expected)")
+      else
+        stdout.println("Point isSet: false (unexpected)")
+
+      //Get string representation
+      s <- $p
+
+      stdout.println("String: " + s)
+
+      //Verify format contains expected parts
+      if s.contains("TestPoint(")
+        stdout.println("PASS: Contains class name")
+      else
+        stdout.println("FAIL: Missing class name")
+
+      if s.contains("x=10")
+        stdout.println("PASS: Contains x=10")
+      else
+        stdout.println("FAIL: Missing x=10")
+
+      if s.contains("y=20")
+        stdout.println("PASS: Contains y=20")
+      else
+        stdout.println("FAIL: Missing y=20")
+
+      stdout.println("Test complete")
+
+//EOF

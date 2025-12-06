@@ -2642,16 +2642,47 @@ defines module introduction
         <tr><td><b>&lt;=</b></td><td>_lte</td><td>Boolean</td><td>Less than or equal (derived from &lt;=&gt;)</td></tr>
         <tr><td><b>&gt;</b></td><td>_gt</td><td>Boolean</td><td>Greater than (derived from &lt;=&gt;)</td></tr>
         <tr><td><b>&gt;=</b></td><td>_gte</td><td>Boolean</td><td>Greater than or equal (derived from &lt;=&gt;)</td></tr>
-        <tr><td><b>?</b></td><td>_isSet</td><td>Boolean</td><td>Check if all fields are set</td></tr>
-        <tr><td><b>$</b></td><td>_string</td><td>String</td><td>String representation</td></tr>
-        <tr><td><b>$$</b></td><td>_toJson</td><td>JSON</td><td>JSON representation</td></tr>
-        <tr><td><b>#?</b></td><td>_hashcode</td><td>Integer</td><td>Hash code of all fields</td></tr>
+        <tr><td><b>?</b></td><td>_isSet</td><td>Boolean</td><td>Check if ANY field is set (or super.?)</td></tr>
+        <tr><td><b>$</b></td><td>_string</td><td>String?</td><td>String representation (UNSET if no fields set)</td></tr>
+        <tr><td><b>$$</b></td><td>_toJson</td><td>JSON</td><td>JSON representation (null if no fields set)</td></tr>
+        <tr><td><b>#?</b></td><td>_hashcode</td><td>Integer?</td><td>Hash code (UNSET if no fields set)</td></tr>
       </tbody>
     </table>
     <p>
       Note: The comparison operators (<b>&lt;</b>, <b>&lt;=</b>, <b>&gt;</b>, <b>&gt;=</b>, <b>==</b>, <b>&lt;&gt;</b>)
       require the <b>&lt;=&gt;</b> operator to be present (either defaulted or explicitly defined) on the same type
       and any super types.
+    </p>
+    <h4>Default Operator Semantics</h4>
+    <p>
+      The <b>default operator ?</b> returns <b>true</b> if <b>ANY</b> field is set (not all fields). This enables
+      partial objects - objects with some but not all fields initialized - to be valid and usable. For types with
+      inheritance, if the super class has a <b>?</b> operator and it returns <b>true</b>, the derived class also
+      returns <b>true</b> (without checking its own fields).
+    </p>
+    <p>
+      <b>Note on Any:</b> Since all EK9 types implicitly extend <b>Any</b>, and <b>Any._isSet()</b> always returns
+      <b>false</b>, the default <b>?</b> operator does <i>not</i> call <b>super._isSet()</b> when the immediate
+      super is <b>Any</b>. This means a class with no explicit parent only checks its own fields. When you explicitly
+      extend another class, that parent's <b>?</b> is checked first.
+    </p>
+    <p>
+      The operators <b>#?</b> (hashcode), <b>$</b> (string), and <b>$$</b> (JSON) have <b>guards</b> that check
+      whether <b>any field has data</b>. If no fields are set (the object is completely empty), these operators
+      return <b>UNSET</b> (or <b>null</b> for JSON). This ensures that operations on truly empty objects
+      propagate uncertainty correctly.
+    </p>
+    <p>
+      <b>Important:</b> The guards use <b>_fieldSetStatus()._empty()</b> to check "has any data" - they do NOT
+      call your custom <b>?</b> operator. This separation ensures that:
+    </p>
+    <ul>
+      <li><b>Custom ?</b> - Your business logic for "is this object valid for my domain"</li>
+      <li><b>Default guards</b> - Physical check for "does this object have any data at all"</li>
+    </ul>
+    <p>
+      This means you can override <b>?</b> for domain validation without affecting how the default <b>#?</b>,
+      <b>$</b>, and <b>$$</b> operators behave.
     </p>
     <h2>Summary</h2>
     <p>

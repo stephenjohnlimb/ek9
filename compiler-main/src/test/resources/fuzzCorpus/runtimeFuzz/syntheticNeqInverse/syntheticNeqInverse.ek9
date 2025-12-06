@@ -1,0 +1,80 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic <> operator - inverse of ==.
+
+  Tests that the <> operator is the logical inverse of ==:
+  - If a == b is true, then a <> b should be false
+  - If a == b is false, then a <> b should be true
+  - If a == b is unset, then a <> b should be unset
+-?>
+defines module fuzz.runtime.synthetic.neq.inverse
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator <=>
+      default operator ==
+      default operator <>
+
+  defines program
+
+    SyntheticNeqInverse()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic <> as inverse of ==")
+
+      p1 <- TestPoint(10, 20)
+      p2 <- TestPoint(10, 20)
+      p3 <- TestPoint(99, 20)
+
+      //Test 1: Equal objects - == true, <> false
+      stdout.println("Test 1: Equal objects")
+      eq1 <- p1 == p2
+      neq1 <- p1 <> p2
+
+      if eq1? and neq1?
+        if eq1 and not neq1
+          stdout.println("PASS: == true, <> false")
+        else
+          stdout.println("FAIL: Expected == true, <> false")
+      else
+        stdout.println("FAIL: Results are UNSET")
+
+      //Test 2: Different objects - == false, <> true
+      stdout.println("Test 2: Different objects")
+      eq2 <- p1 == p3
+      neq2 <- p1 <> p3
+
+      if eq2? and neq2?
+        if not eq2 and neq2
+          stdout.println("PASS: == false, <> true")
+        else
+          stdout.println("FAIL: Expected == false, <> true")
+      else
+        stdout.println("FAIL: Results are UNSET")
+
+      //Test 3: One unset - both should be unset
+      stdout.println("Test 3: One unset")
+      pUnset <- TestPoint(Integer(), Integer())
+      eq3 <- p1 == pUnset
+      neq3 <- p1 <> pUnset
+
+      if not eq3? and not neq3?
+        stdout.println("PASS: Both == and <> are UNSET")
+      else
+        stdout.println("FAIL: Expected both to be UNSET")
+
+      stdout.println("Test complete")
+
+//EOF

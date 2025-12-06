@@ -5,9 +5,7 @@
 -?>
 defines module bytecode.syntheticClassEquals
 
-  defines class
-
-    @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.syntheticClassEquals::SimplePoint": `public class bytecode.syntheticClassEquals.SimplePoint implements org.ek9.lang.Any
+  @BYTECODE: CODE_GENERATION_AGGREGATES: TYPE: "bytecode.syntheticClassEquals::SimplePoint": `public class bytecode.syntheticClassEquals.SimplePoint implements org.ek9.lang.Any
 
 {
   private org.ek9.lang.Integer x;
@@ -26,8 +24,8 @@ defines module bytecode.syntheticClassEquals
         13: invokevirtual #CP                 // Method org/ek9/lang/Boolean._true:()Z
         16: istore        4
         18: iload         4
-        20: ifeq          26
-        23: goto          36
+        20: ifne          36
+        23: goto          26
         26: invokestatic  #CP                 // Method org/ek9/lang/Boolean._ofFalse:()Lorg/ek9/lang/Boolean;
         29: astore        5
         31: aload         5
@@ -202,6 +200,8 @@ defines module bytecode.syntheticClassEquals
         17: putfield      #CP                 // Field x:Lorg/ek9/lang/Integer;
         20: return
 }`
+
+  defines class
 
     SimplePoint
       x <- Integer()

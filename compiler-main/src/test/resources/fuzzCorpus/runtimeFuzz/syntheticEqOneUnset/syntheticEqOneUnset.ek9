@@ -1,0 +1,62 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic == operator - one object unset.
+
+  Tests that when one object is unset, the == operator returns UNSET.
+  This validates tri-state semantics for equality.
+-?>
+defines module fuzz.runtime.synthetic.eq.oneunset
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator <=>
+      default operator ==
+
+  defines program
+
+    SyntheticEqOneUnset()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic == when one is unset")
+
+      pSet <- TestPoint(10, 20)
+      pUnset <- TestPoint(Integer(), Integer())
+
+      stdout.println("pSet: x=10, y=20")
+      stdout.println("pUnset: unset")
+
+      //Check that pUnset is actually unset
+      if pUnset?
+        stdout.println("pUnset isSet: true (unexpected)")
+      else
+        stdout.println("pUnset isSet: false (expected)")
+
+      //Test set == unset
+      eq1 <- pSet == pUnset
+      if eq1?
+        stdout.println("FAIL: set == unset should be UNSET")
+      else
+        stdout.println("PASS: set == unset is UNSET")
+
+      //Test unset == set
+      eq2 <- pUnset == pSet
+      if eq2?
+        stdout.println("FAIL: unset == set should be UNSET")
+      else
+        stdout.println("PASS: unset == set is UNSET")
+
+      stdout.println("Test complete")
+
+//EOF

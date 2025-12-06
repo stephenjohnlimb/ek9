@@ -1,0 +1,6 @@
+Test: Inheritance - mixed field set status
+catFullySet: isSet true
+catBreedUnset: isSet true (expected - name from parent is set)
+PASS: Field set mismatch returns UNSET
+PASS: Reverse comparison also UNSET
+Test complete

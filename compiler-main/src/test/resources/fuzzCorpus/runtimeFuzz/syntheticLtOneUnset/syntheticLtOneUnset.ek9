@@ -1,0 +1,57 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic < operator - one object unset.
+
+  Tests that when one object is unset, the < operator returns UNSET.
+  This validates tri-state propagation through the delegation chain.
+-?>
+defines module fuzz.runtime.synthetic.lt.oneunset
+
+  defines class
+
+    TestValue
+      value <- Integer()
+
+      TestValue()
+        -> v as Integer
+        this.value :=: v
+
+      default operator ?
+      default operator <=>
+      default operator <
+
+  defines program
+
+    SyntheticLtOneUnset()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic < operator - one unset")
+
+      vSet <- TestValue(10)
+      vUnset <- TestValue(Integer())
+
+      //Check that vUnset is actually unset
+      if vUnset?
+        stdout.println("vUnset isSet: true (unexpected)")
+      else
+        stdout.println("vUnset isSet: false (expected)")
+
+      //Test 1: set < unset -> unset
+      stdout.println("Test 1: set < unset")
+      lt1 <- vSet < vUnset
+      if lt1?
+        stdout.println("FAIL: Result is SET when other is unset")
+      else
+        stdout.println("PASS: Result is UNSET")
+
+      //Test 2: unset < set -> unset
+      stdout.println("Test 2: unset < set")
+      lt2 <- vUnset < vSet
+      if lt2?
+        stdout.println("FAIL: Result is SET when this is unset")
+      else
+        stdout.println("PASS: Result is UNSET")
+
+      stdout.println("Test complete")
+
+//EOF

@@ -213,6 +213,136 @@ public abstract class AbstractSyntheticGenerator {
   }
 
   /**
+   * Generate guard that returns UNSET if no fields are set (ANY field set semantics).
+   *
+   * <p>Uses _fieldSetStatus()._empty() directly, avoiding dependency on ? operator.
+   * Also checks super._isSet() if super has ? operator defined.</p>
+   *
+   * <p>Pattern:</p>
+   * <pre>
+   *   // If super has ? operator, check it first
+   *   superIsSet = super._isSet()
+   *   superBool = superIsSet._true()
+   *   BRANCH_TRUE superBool, continue_label  // Super is set, skip own field check
+   *
+   *   // Check own fields
+   *   status = this._fieldSetStatus() -> Bits
+   *   isEmpty = status._empty() -> Boolean
+   *   isEmptyBool = isEmpty._true()
+   *   BRANCH_TRUE isEmptyBool, returnUnsetLabel  // No fields set, return UNSET
+   *
+   *   continue_label:
+   * </pre>
+   *
+   * @param aggregateSymbol The aggregate being checked
+   * @param aggregateTypeName Fully qualified type name
+   * @param debugInfo Debug information
+   * @param returnUnsetLabel Label to branch to if no fields are set
+   * @param scopeId Current scope ID
+   * @return List of IR instructions implementing the guard
+   */
+  protected List<IRInstr> generateAnyFieldSetGuard(final AggregateSymbol aggregateSymbol,
+                                                    final String aggregateTypeName,
+                                                    final DebugInfo debugInfo,
+                                                    final String returnUnsetLabel,
+                                                    final String scopeId) {
+    final var instructions = new ArrayList<IRInstr>();
+    final var continueLabel = generateLabelName("has_data");
+
+    // Check super._isSet() first if super has ? operator
+    // If super is set, we have data - skip to continue_label
+    final var superHasIsSet = superHasOperator(aggregateSymbol, "?");
+    if (superHasIsSet) {
+      final var superOpt = aggregateSymbol.getSuperAggregate();
+      if (superOpt.isPresent() && !isAnyType(superOpt.get())) {
+        final var superAggregate = superOpt.get();
+
+        // Call super._isSet() -> Boolean
+        final var superResultVar = generateTempName();
+        instructions.addAll(generateMethodCall(
+            superResultVar,
+            IRConstants.SUPER,
+            superAggregate.getFullyQualifiedName(),
+            "_isSet",
+            List.of(),
+            List.of(),
+            getBooleanTypeName(),
+            debugInfo,
+            scopeId
+        ));
+
+        // Extract boolean via _true()
+        final var superBoolVar = generateTempName();
+        instructions.addAll(generateMethodCall(
+            superBoolVar,
+            superResultVar,
+            getBooleanTypeName(),
+            "_true",
+            List.of(),
+            List.of(),
+            "boolean",
+            debugInfo,
+            scopeId
+        ));
+
+        // If super is set, skip to continue_label (we have data)
+        instructions.add(BranchInstr.branchIfTrue(superBoolVar, continueLabel, debugInfo));
+      }
+    }
+
+    // Check own fields via _fieldSetStatus()._empty()
+    // Call this._fieldSetStatus() -> Bits
+    final var statusVar = generateTempName();
+    instructions.addAll(generateMethodCall(
+        statusVar,
+        IRConstants.THIS,
+        aggregateTypeName,
+        "_fieldSetStatus",
+        List.of(),
+        List.of(),
+        getBitsTypeName(),
+        debugInfo,
+        scopeId
+    ));
+
+    // Call status._empty() -> Boolean
+    final var isEmptyVar = generateTempName();
+    instructions.addAll(generateMethodCall(
+        isEmptyVar,
+        statusVar,
+        getBitsTypeName(),
+        "_empty",
+        List.of(),
+        List.of(),
+        getBooleanTypeName(),
+        debugInfo,
+        scopeId
+    ));
+
+    // Extract boolean via _true()
+    final var isEmptyBoolVar = generateTempName();
+    instructions.addAll(generateMethodCall(
+        isEmptyBoolVar,
+        isEmptyVar,
+        getBooleanTypeName(),
+        "_true",
+        List.of(),
+        List.of(),
+        "boolean",
+        debugInfo,
+        scopeId
+    ));
+
+    // If empty (no own fields set) AND super wasn't set, branch to unset return
+    instructions.add(BranchInstr.branchIfTrue(isEmptyBoolVar, returnUnsetLabel, debugInfo));
+
+    // Continue label - either super was set, or own fields are set
+    instructions.add(LabelInstr.label(continueLabel));
+
+    return instructions;
+  }
+
+  /**
    * Generate the return_unset basic block that returns an unset value.
    *
    * <p>Pattern for Boolean return:</p>
@@ -364,6 +494,20 @@ public abstract class AbstractSyntheticGenerator {
   protected boolean isAnyType(final IAggregateSymbol type) {
     final var anyType = stackContext.getParsedModule().getEk9Types().ek9Any();
     return anyType.isExactSameType(type);
+  }
+
+  /**
+   * Check if the given aggregate has a specific operator defined (in its own scope).
+   *
+   * @param aggregateSymbol The aggregate to check
+   * @param operatorName    The operator name (e.g., "?", "$", "#?")
+   * @return true if the aggregate has the operator, false otherwise
+   */
+  protected boolean aggregateHasOperator(final AggregateSymbol aggregateSymbol,
+                                          final String operatorName) {
+    return aggregateSymbol.getAllMethodInThisScopeOnly().stream()
+        .filter(MethodSymbol::isOperator)
+        .anyMatch(method -> method.getName().equals(operatorName));
   }
 
   /**

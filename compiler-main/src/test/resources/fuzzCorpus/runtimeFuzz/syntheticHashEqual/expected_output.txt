@@ -1,0 +1,7 @@
+Test: Synthetic #? hash consistency
+p1 == p2 confirmed
+Test 1: Equal objects have same hash
+PASS: Equal objects have equal hash codes
+Test 2: Different objects
+INFO: Different objects have different hashes (expected)
+Test complete

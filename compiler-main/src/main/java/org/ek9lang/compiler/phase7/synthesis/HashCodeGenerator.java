@@ -22,6 +22,9 @@ import org.ek9lang.core.AssertValue;
  * <p>The generated code follows this pattern:</p>
  * <pre>
  * Integer _hashcode():
+ *   // Guard: if object is unset, return UNSET
+ *   if !this._isSet() -> return unset Integer
+ *
  *   // Initialize with field set status as base hash
  *   status = this._fieldSetStatus()  // Returns Bits
  *   result = status._hashcode()      // Convert Bits to Integer
@@ -37,7 +40,7 @@ import org.ek9lang.core.AssertValue;
  *
  * <p>Key semantic requirements:</p>
  * <ul>
- *   <li>Returns Integer (always set - hash of "nothing" is valid)</li>
+ *   <li>Returns UNSET Integer if this._isSet() is false (empty objects have no hash)</li>
  *   <li>Only SET fields contribute to hash</li>
  *   <li>Field set status (as Bits) is hashed as base value</li>
  *   <li>Uses polynomial hash: result = result * 31 + fieldHash</li>
@@ -47,6 +50,8 @@ import org.ek9lang.core.AssertValue;
  * <p>The inclusion of _fieldSetStatus()._hashcode() as the initial hash value
  * ensures that two objects with the same set field values but different unset
  * fields will produce different hash codes.</p>
+ *
+ * <p>The ? guard ensures consistency: operations on empty objects propagate uncertainty.</p>
  */
 final class HashCodeGenerator extends AbstractSyntheticGenerator {
 
@@ -75,11 +80,21 @@ final class HashCodeGenerator extends AbstractSyntheticGenerator {
     final var scopeId = stackContext.generateScopeId("_hashcode");
     final var aggregateTypeName = aggregateSymbol.getFullyQualifiedName();
 
+    // Label for returning UNSET when object is unset
+    final var returnUnsetLabel = generateLabelName("return_unset");
+    final var returnHashLabel = generateLabelName("return_hash");
+
     // Enter scope
     instructions.add(ScopeInstr.enter(scopeId, debugInfo));
 
     // Reference return variable
     instructions.add(MemoryInstr.reference(RETURN_VAR, getIntegerTypeName(), debugInfo));
+
+    // Guard: if no fields are set, return UNSET Integer
+    // Empty objects (no fields set) have no meaningful hash
+    // Uses _fieldSetStatus()._empty() directly - no dependency on ? operator
+    instructions.addAll(generateAnyFieldSetGuard(aggregateSymbol, aggregateTypeName, debugInfo,
+        returnUnsetLabel, scopeId));
 
     // Initialize result with _fieldSetStatus() as base hash
     // This ensures objects with different set/unset patterns have different hashes
@@ -92,6 +107,28 @@ final class HashCodeGenerator extends AbstractSyntheticGenerator {
     }
 
     // Return the accumulated hash
+    instructions.add(BranchInstr.branch(returnHashLabel, debugInfo));
+
+    // Return blocks
+    instructions.addAll(generateUnsetReturnBlockWithLabel(returnUnsetLabel, getIntegerTypeName(),
+        RETURN_VAR, debugInfo, scopeId));
+    instructions.addAll(generateHashReturnBlock(returnHashLabel, debugInfo, scopeId));
+
+    return instructions;
+  }
+
+  /**
+   * Generate the return block for normal hash return.
+   */
+  private List<IRInstr> generateHashReturnBlock(final String labelName,
+                                                 final DebugInfo debugInfo,
+                                                 final String scopeId) {
+    final var instructions = new ArrayList<IRInstr>();
+
+    // Label
+    instructions.add(LabelInstr.label(labelName));
+
+    // Scope cleanup and return
     instructions.add(ScopeInstr.exit(scopeId, debugInfo));
     instructions.add(BranchInstr.returnValue(RETURN_VAR, debugInfo));
 
@@ -108,11 +145,10 @@ final class HashCodeGenerator extends AbstractSyntheticGenerator {
   private List<IRInstr> initializeWithFieldSetStatus(final String aggregateTypeName,
                                                       final DebugInfo debugInfo,
                                                       final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
 
     // Call this._fieldSetStatus() -> Bits
     final var statusVar = generateTempName();
-    instructions.addAll(generateMethodCall(
+    final var instructions = new ArrayList<>(generateMethodCall(
         statusVar,
         IRConstants.THIS,
         aggregateTypeName,
@@ -171,14 +207,13 @@ final class HashCodeGenerator extends AbstractSyntheticGenerator {
 
     final var fieldName = field.getName();
     final var fieldTypeName = getTypeName(field);
-    final var instructions = new ArrayList<IRInstr>();
 
     // Label to skip if field is unset
     final var skipLabel = generateLabelName("hash_skip");
 
     // Load field value
     final var fieldVar = generateTempName();
-    instructions.addAll(generateFieldLoad(fieldVar, IRConstants.THIS, fieldName, debugInfo, scopeId));
+    final var instructions = new ArrayList<>(generateFieldLoad(fieldVar, IRConstants.THIS, fieldName, debugInfo, scopeId));
 
     // Call field._isSet()
     final var isSetResultVar = generateTempName();

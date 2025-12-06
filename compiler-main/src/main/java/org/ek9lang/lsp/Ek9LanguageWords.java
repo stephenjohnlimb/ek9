@@ -238,17 +238,17 @@ final class Ek9LanguageWords {
   private void populateConversionOperators(final Map<String, KeyWordInformation> keywordMap) {
 
     keywordMap.put("$", new KeyWordInformation(
-        "STRING CONVERSION: Convert any value to String representation (value$ → \"string\"). All EK9 types implement this operator. Use for display, logging, debugging, or string concatenation. More explicit than implicit toString(). Returns String representation of value. https://ek9.io/operators.html#functional",
+        "STRING CONVERSION: Convert any value to String representation (value$ → \"string\"). All EK9 types implement this operator. Use for display, logging, debugging, or string concatenation. More explicit than implicit toString(). Returns String representation of value. NOTE: For 'default operator $', returns UNSET if the object has no fields set (completely empty). This prevents displaying meaningless empty objects. https://ek9.io/operators.html#functional",
         List.of(), getSearchNotIndentsAndNotPipe()));
     keywordMap.put("$$", new KeyWordInformation(
-        "JSON CONVERSION: Convert value to JSON string representation (value$$ → \"{json}\"). Works with records, classes, collections. Use for API responses, data serialization, or persistence. Returns JSON-formatted String. Unset values map to JSON null. https://ek9.io/operators.html#functional",
+        "JSON CONVERSION: Convert value to JSON string representation (value$$ → \"{json}\"). Works with records, classes, collections. Use for API responses, data serialization, or persistence. Returns JSON-formatted String. Unset values map to JSON null. NOTE: For 'default operator $$', returns JSON null if the object has no fields set (completely empty). https://ek9.io/operators.html#functional",
         List.of(), getSearchNotIndentsAndNotPipe()));
 
     keywordMap.put("#^", new KeyWordInformation(
         "TYPE PROMOTION: Convert value to wider/more general type (Integer → Float, specific type → Any). Returns promoted value if possible, returns unset if promotion not supported. Use when you need automatic type widening for polymorphic operations or generic containers. https://ek9.io/operators.html#functional",
         List.of(), getSearchNotIndentsAndNotPipe()));
     keywordMap.put("#?", new KeyWordInformation(
-        "HASH CODE: Get hash code integer for value (value#? → hash). All EK9 types implement this operator. Use for hash-based collections (Dict, Set), equality comparisons, or custom hashing. Returns Integer hash code. Equal values must have equal hash codes. https://ek9.io/operators.html#functional",
+        "HASH CODE: Get hash code integer for value (value#? → hash). All EK9 types implement this operator. Use for hash-based collections (Dict, Set), equality comparisons, or custom hashing. Returns Integer hash code. Equal values must have equal hash codes. NOTE: For 'default operator #?', returns UNSET if the object has no fields set (completely empty). This prevents hashing meaningless empty objects. https://ek9.io/operators.html#functional",
         List.of(), getSearchNotIndentsAndNotPipe()));
     keywordMap.put("#<", new KeyWordInformation(
         "GET FIRST: Extract first element from collection or sequence (list#< → firstItem). Works with List, String (first character), Iterator. Use when you need just the first element without iteration. Returns first element or unset if collection empty. https://ek9.io/operators.html#functional",
@@ -416,7 +416,7 @@ final class Ek9LanguageWords {
 
     keywordMap.put("?",
         new KeyWordInformation(
-            "IS SET: Check if value is set/initialized (not unset/null). Returns Boolean: true if value has valid data, false if unset. Fundamental to EK9's tri-state system (absent, unset, set). Use when: validating optional values, checking before access, conditional logic on presence. Works with all EK9 types. Central to null-safety. Example: if value? then use(value). https://ek9.io/operators.html#ternary",
+            "IS SET: Check if value is set/initialized (not unset/null). Returns Boolean: true if value has valid data, false if unset. Fundamental to EK9's tri-state system (absent, unset, set). Use when: validating optional values, checking before access, conditional logic on presence. Works with all EK9 types. Central to null-safety. Example: if value? then use(value). NOTE: For 'default operator ?', returns true if ANY field is set (not all), or if super.? returns true. This enables partial objects to be valid. https://ek9.io/operators.html#ternary",
             List.of(), getSearchNotIndentsAndNotPipe()));
     keywordMap.put("??",
         new KeyWordInformation(
@@ -518,8 +518,8 @@ final class Ek9LanguageWords {
             List.of("case"), TokenResult::previousTokensIndentsOrFirst));
     keywordMap.put("default",
         new KeyWordInformation(
-            "DEFAULT: Fallback case in switch/given when no other case matches. Always executes if no explicit case matched. OPTIONAL but recommended for completeness. Use when: handling unexpected values, ensuring all paths covered. Compiler may require if return value must be initialized in all branches. https://ek9.io/flowControl.html#switch",
-            List.of("default\n"), TokenResult::previousTokensIndentsOrFirst));
+            "DUAL USE (context-dependent): (1) SWITCH FALLBACK - case in switch/given when no other case matches. (2) DEFAULT OPERATOR - auto-generate operator implementation for classes/records (default operator ?, ==, <>, <, <=, >, >=, <=>, $, $$, #?, :=:). Semantics: 'default operator ?' returns true if ANY field is set (not all). 'default operator #?/$/$' return UNSET if no fields are set. Custom ? operators do NOT affect default #?/$/$ guards - they check physical data presence, not business validity. https://ek9.io/operators.html",
+            List.of("default\n", "default operator"), TokenResult::previousTokensIndentsOrFirst));
     keywordMap.put("when",
         new KeyWordInformation(
             "WHEN: Alternative keyword for `if` in conditional expressions. `if` and `when` are synonyms. Some developers find `when` reads more naturally in certain contexts. Use based on readability preference. Identical behavior to `if`. Supports same guard syntax and conditions. https://ek9.io/flowControl.html#if_elseif_else",
