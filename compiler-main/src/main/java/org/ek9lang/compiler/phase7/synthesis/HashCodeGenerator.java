@@ -11,6 +11,7 @@ import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.phase7.synthesis.support.ReturnBlockHelper;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -110,27 +111,11 @@ final class HashCodeGenerator extends AbstractSyntheticGenerator {
     instructions.add(BranchInstr.branch(returnHashLabel, debugInfo));
 
     // Return blocks
+    final var returnBlockHelper = new ReturnBlockHelper(stackContext);
     instructions.addAll(generateUnsetReturnBlockWithLabel(returnUnsetLabel, getIntegerTypeName(),
         RETURN_VAR, debugInfo, scopeId));
-    instructions.addAll(generateHashReturnBlock(returnHashLabel, debugInfo, scopeId));
-
-    return instructions;
-  }
-
-  /**
-   * Generate the return block for normal hash return.
-   */
-  private List<IRInstr> generateHashReturnBlock(final String labelName,
-                                                 final DebugInfo debugInfo,
-                                                 final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
-
-    // Label
-    instructions.add(LabelInstr.label(labelName));
-
-    // Scope cleanup and return
-    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
-    instructions.add(BranchInstr.returnValue(RETURN_VAR, debugInfo));
+    instructions.addAll(returnBlockHelper.generateValueReturn(returnHashLabel, RETURN_VAR,
+        debugInfo, scopeId));
 
     return instructions;
   }

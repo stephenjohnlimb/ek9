@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.compiler.ir.instructions.BranchInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
-import org.ek9lang.compiler.ir.instructions.LabelInstr;
 import org.ek9lang.compiler.ir.instructions.LiteralInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.phase7.synthesis.support.ReturnBlockHelper;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -111,27 +111,11 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
     instructions.add(BranchInstr.branch(returnJsonLabel, debugInfo));
 
     // Return blocks
+    final var returnBlockHelper = new ReturnBlockHelper(stackContext);
     instructions.addAll(generateUnsetReturnBlockWithLabel(returnUnsetLabel, getJsonTypeName(),
         RETURN_VAR, debugInfo, scopeId));
-    instructions.addAll(generateJsonReturnBlock(returnJsonLabel, debugInfo, scopeId));
-
-    return instructions;
-  }
-
-  /**
-   * Generate the return block for normal JSON return.
-   */
-  private List<IRInstr> generateJsonReturnBlock(final String labelName,
-                                                final DebugInfo debugInfo,
-                                                final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
-
-    // Label
-    instructions.add(LabelInstr.label(labelName));
-
-    // Scope cleanup and return
-    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
-    instructions.add(BranchInstr.returnValue(RETURN_VAR, debugInfo));
+    instructions.addAll(returnBlockHelper.generateValueReturn(returnJsonLabel, RETURN_VAR,
+        debugInfo, scopeId));
 
     return instructions;
   }

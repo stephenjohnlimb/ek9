@@ -11,6 +11,7 @@ import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.phase7.synthesis.support.ReturnBlockHelper;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -124,9 +125,10 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     instructions.add(BranchInstr.branch(returnZeroLabel, debugInfo));
 
     // Return blocks - all share single scope exit point
+    final var returnBlockHelper = new ReturnBlockHelper(stackContext);
     instructions.addAll(generateUnsetReturnBlockWithLabel(returnUnsetLabel, getIntegerTypeName(),
         RETURN_VAR, debugInfo, scopeId));
-    instructions.addAll(generateZeroReturnBlockWithLabel(returnZeroLabel,
+    instructions.addAll(returnBlockHelper.generateIntegerReturn(returnZeroLabel, 0,
         RETURN_VAR, debugInfo, scopeId));
     instructions.addAll(generateResultReturnBlock(returnResultLabel, RETURN_VAR, debugInfo, scopeId));
 
@@ -298,36 +300,4 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     return instructions;
   }
 
-  // NOTE: generateUnsetReturnBlockWithLabel and generateResultReturnBlock
-  // are now inherited from AbstractSyntheticGenerator
-
-  /**
-   * Generate the zero return block using the provided label name.
-   */
-  private List<IRInstr> generateZeroReturnBlockWithLabel(final String labelName,
-                                                          final String returnVarName,
-                                                          final DebugInfo debugInfo,
-                                                          final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
-
-    // Label
-    instructions.add(LabelInstr.label(labelName));
-
-    // Create Integer zero via literal
-    final var resultTemp = generateTempName();
-    instructions.add(LiteralInstr.literal(resultTemp, "0", getIntegerTypeName(), debugInfo));
-    instructions.add(MemoryInstr.retain(resultTemp, debugInfo));
-    instructions.add(ScopeInstr.register(resultTemp, scopeId, debugInfo));
-
-    // Store to return variable and retain for ownership transfer
-    instructions.add(MemoryInstr.store(returnVarName, resultTemp, debugInfo));
-    instructions.add(MemoryInstr.retain(returnVarName, debugInfo));
-    // NO SCOPE_REGISTER for return var - ownership transfers to caller
-
-    // Scope cleanup and return
-    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
-    instructions.add(BranchInstr.returnValue(returnVarName, debugInfo));
-
-    return instructions;
-  }
 }

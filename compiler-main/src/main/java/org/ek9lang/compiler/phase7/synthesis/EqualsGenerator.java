@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.compiler.ir.instructions.BranchInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
-import org.ek9lang.compiler.ir.instructions.LabelInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.phase7.synthesis.support.ReturnBlockHelper;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.ISymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
@@ -122,11 +122,12 @@ final class EqualsGenerator extends AbstractSyntheticGenerator {
     instructions.add(BranchInstr.branch(returnTrueLabel, debugInfo));
 
     // Return blocks - use same label names that were generated above
+    final var returnBlockHelper = new ReturnBlockHelper(stackContext);
     instructions.addAll(generateUnsetReturnBlockWithLabel(returnUnsetLabel, getBooleanTypeName(),
         RETURN_VAR, debugInfo, scopeId));
-    instructions.addAll(generateBooleanReturnBlockWithLabel(returnFalseLabel, false,
+    instructions.addAll(returnBlockHelper.generateBooleanReturn(returnFalseLabel, false,
         RETURN_VAR, debugInfo, scopeId));
-    instructions.addAll(generateBooleanReturnBlockWithLabel(returnTrueLabel, true,
+    instructions.addAll(returnBlockHelper.generateBooleanReturn(returnTrueLabel, true,
         RETURN_VAR, debugInfo, scopeId));
 
     return instructions;
@@ -250,44 +251,4 @@ final class EqualsGenerator extends AbstractSyntheticGenerator {
     return instructions;
   }
 
-  // NOTE: generateUnsetReturnBlockWithLabel is now inherited from AbstractSyntheticGenerator
-
-  /**
-   * Generate the boolean return block using the provided label name.
-   */
-  private List<IRInstr> generateBooleanReturnBlockWithLabel(final String labelName,
-                                                            final boolean value,
-                                                            final String returnVarName,
-                                                            final DebugInfo debugInfo,
-                                                            final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
-
-    // Label
-    instructions.add(LabelInstr.label(labelName));
-
-    // Create Boolean via Boolean._ofTrue() or _ofFalse()
-    final var resultTemp = generateTempName();
-    instructions.addAll(generateMethodCall(
-        resultTemp,
-        null,
-        getBooleanTypeName(),
-        value ? "_ofTrue" : "_ofFalse",
-        List.of(),
-        List.of(),
-        getBooleanTypeName(),
-        debugInfo,
-        scopeId
-    ));
-
-    // Store to return variable and retain for ownership transfer
-    instructions.add(MemoryInstr.store(returnVarName, resultTemp, debugInfo));
-    instructions.add(MemoryInstr.retain(returnVarName, debugInfo));
-    // NO SCOPE_REGISTER for return var - ownership transfers to caller
-
-    // Scope cleanup and return
-    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
-    instructions.add(BranchInstr.returnValue(returnVarName, debugInfo));
-
-    return instructions;
-  }
 }

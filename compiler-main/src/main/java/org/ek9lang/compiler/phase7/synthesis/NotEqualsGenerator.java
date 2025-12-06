@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ek9lang.compiler.ir.instructions.BranchInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
-import org.ek9lang.compiler.ir.instructions.LabelInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.IRConstants;
+import org.ek9lang.compiler.phase7.synthesis.support.ReturnBlockHelper;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.core.AssertValue;
@@ -104,9 +104,13 @@ final class NotEqualsGenerator extends AbstractSyntheticGenerator {
         returnFalseLabel, returnTrueLabel, scopeId));
 
     // Return blocks
-    instructions.addAll(generateUnsetReturnBlockWithLabel(returnUnsetLabel, debugInfo, scopeId));
-    instructions.addAll(generateBooleanReturnBlockWithLabel(returnFalseLabel, false, debugInfo, scopeId));
-    instructions.addAll(generateBooleanReturnBlockWithLabel(returnTrueLabel, true, debugInfo, scopeId));
+    final var returnBlockHelper = new ReturnBlockHelper(stackContext);
+    instructions.addAll(returnBlockHelper.generateUnsetReturn(returnUnsetLabel, getBooleanTypeName(),
+        RETURN_VAR, debugInfo, scopeId));
+    instructions.addAll(returnBlockHelper.generateBooleanReturn(returnFalseLabel, false,
+        RETURN_VAR, debugInfo, scopeId));
+    instructions.addAll(returnBlockHelper.generateBooleanReturn(returnTrueLabel, true,
+        RETURN_VAR, debugInfo, scopeId));
 
     return instructions;
   }
@@ -138,67 +142,6 @@ final class NotEqualsGenerator extends AbstractSyntheticGenerator {
 
     // If eq was false, neq should be true - branch to true return
     instructions.add(BranchInstr.branch(trueLabel, debugInfo));
-
-    return instructions;
-  }
-
-  /**
-   * Generate the unset return block with a specific label.
-   */
-  private List<IRInstr> generateUnsetReturnBlockWithLabel(final String labelName,
-                                                           final DebugInfo debugInfo,
-                                                           final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
-
-    // Label
-    instructions.add(LabelInstr.label(labelName));
-
-    // Create unset Boolean via constructor
-    final var resultTemp = generateTempName();
-    instructions.addAll(generateConstructorCall(resultTemp, getBooleanTypeName(), debugInfo, scopeId));
-
-    // Store to return variable and retain for ownership transfer
-    instructions.add(MemoryInstr.store(RETURN_VAR, resultTemp, debugInfo));
-    instructions.add(MemoryInstr.retain(RETURN_VAR, debugInfo));
-
-    // Scope cleanup and return
-    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
-    instructions.add(BranchInstr.returnValue(RETURN_VAR, debugInfo));
-
-    return instructions;
-  }
-
-  /**
-   * Generate a boolean return block with a specific label.
-   */
-  private List<IRInstr> generateBooleanReturnBlockWithLabel(final String labelName,
-                                                             final boolean value,
-                                                             final DebugInfo debugInfo,
-                                                             final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
-
-    // Label
-    instructions.add(LabelInstr.label(labelName));
-
-    // Create Boolean via Boolean._ofTrue() or _ofFalse()
-    final var resultTemp = generateTempName();
-    instructions.addAll(generateMethodCall(
-        resultTemp,
-        null,
-        getBooleanTypeName(),
-        value ? IRConstants.OF_TRUE_METHOD : IRConstants.OF_FALSE_METHOD,
-        getBooleanTypeName(),
-        debugInfo,
-        scopeId
-    ));
-
-    // Store to return variable and retain for ownership transfer
-    instructions.add(MemoryInstr.store(RETURN_VAR, resultTemp, debugInfo));
-    instructions.add(MemoryInstr.retain(RETURN_VAR, debugInfo));
-
-    // Scope cleanup and return
-    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
-    instructions.add(BranchInstr.returnValue(RETURN_VAR, debugInfo));
 
     return instructions;
   }
