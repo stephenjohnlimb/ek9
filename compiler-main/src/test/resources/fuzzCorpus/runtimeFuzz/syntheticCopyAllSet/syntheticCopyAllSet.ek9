@@ -1,0 +1,56 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic :=: operator - copy from fully set object.
+
+  Tests that when copying from an object with all fields set,
+  all fields are correctly copied to the destination.
+-?>
+defines module fuzz.runtime.synthetic.copy.allset
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator $
+      default operator :=:
+
+  defines program
+
+    SyntheticCopyAllSet()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic :=: copy from fully set object")
+
+      //Create source with all fields set
+      src <- TestPoint(10, 20)
+
+      //Create empty destination
+      dst <- TestPoint()
+
+      stdout.println("Before copy:")
+      stdout.println("src: " + $src)
+      stdout.println("dst: " + $dst)
+      stdout.println("src?: " + $src?)
+      stdout.println("dst?: " + $dst?)
+
+      //Copy from source to destination
+      dst :=: src
+
+      stdout.println("After copy:")
+      stdout.println("src: " + $src)
+      stdout.println("dst: " + $dst)
+      stdout.println("dst?: " + $dst?)
+
+      stdout.println("Test complete")
+
+//EOF

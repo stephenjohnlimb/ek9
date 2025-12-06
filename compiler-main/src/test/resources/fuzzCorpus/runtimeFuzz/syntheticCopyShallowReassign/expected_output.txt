@@ -1,0 +1,9 @@
+Test: Shallow copy reassignment test
+After copy:
+src: Outer(inner=Inner(value=100))
+dst: Outer(inner=Inner(value=100))
+After src.setInner(Inner(777)):
+src: Outer(inner=Inner(value=777))
+dst: Outer(inner=Inner(value=777))
+srcInner (original): Inner(value=100)
+Test complete

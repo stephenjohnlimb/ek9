@@ -1,0 +1,38 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic ? operator - all fields unset.
+
+  Tests that when all fields are unset, the synthetic ? operator
+  returns false (object is considered "empty").
+-?>
+defines module fuzz.runtime.synthetic.isset.allunset
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      default operator ?
+
+  defines program
+
+    SyntheticIsSetAllUnset()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic ? with all fields unset")
+
+      p <- TestPoint()
+
+      stdout.println("p: x=unset, y=unset")
+
+      result <- p?
+
+      if result
+        stdout.println("FAIL: Empty object should return false")
+      else
+        stdout.println("PASS: Empty object correctly returns false")
+
+      stdout.println("Test complete")
+
+//EOF

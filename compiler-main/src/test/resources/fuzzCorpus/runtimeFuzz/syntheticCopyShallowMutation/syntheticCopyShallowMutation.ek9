@@ -1,0 +1,69 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic :=: operator - shallow copy mutation test.
+
+  Tests shallow vs deep copy semantics with nested objects.
+  After copying, mutate the nested object through src and observe
+  if dst sees the change (shallow copy) or not (deep copy).
+-?>
+defines module fuzz.runtime.synthetic.copy.shallowmutation
+
+  defines class
+
+    Inner
+      value <- Integer()
+
+      Inner()
+        -> v as Integer
+        this.value :=: v
+
+      setValue()
+        -> v as Integer
+        this.value :=: v
+
+      default operator ?
+      default operator $
+      default operator :=:
+
+    Outer
+      inner <- Inner()
+
+      Outer()
+        -> i as Inner
+        this.inner :=: i
+
+      default operator ?
+      default operator $
+      default operator :=:
+
+  defines program
+
+    SyntheticCopyShallowMutation()
+      stdout <- Stdout()
+
+      stdout.println("Test: Shallow copy mutation test")
+
+      //Create source with nested object
+      srcInner <- Inner(100)
+      src <- Outer(srcInner)
+
+      //Create destination by copying source
+      dst <- Outer(Inner(0))
+      dst :=: src
+
+      stdout.println("After copy, before mutation:")
+      stdout.println("src: " + $src)
+      stdout.println("dst: " + $dst)
+      stdout.println("srcInner: " + $srcInner)
+
+      //Mutate the inner object through srcInner reference
+      srcInner.setValue(999)
+
+      stdout.println("After srcInner.setValue(999):")
+      stdout.println("srcInner: " + $srcInner)
+      stdout.println("src: " + $src)
+      stdout.println("dst: " + $dst)
+
+      stdout.println("Test complete")
+
+//EOF

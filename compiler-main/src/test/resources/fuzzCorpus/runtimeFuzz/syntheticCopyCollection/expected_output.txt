@@ -1,0 +1,8 @@
+Test: Collection field copy
+After copy:
+src: Container(items=["one", "two", "three"])
+dst: Container(items=["one", "two", "three"])
+After src.addItem(ADDED):
+src: Container(items=["one", "two", "three", "ADDED"])
+dst: Container(items=["one", "two", "three", "ADDED"])
+Test complete

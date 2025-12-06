@@ -1,0 +1,59 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic :=: operator - collection field copy.
+
+  Tests shallow copy behavior with List field.
+  Collections are "always set when created" - does copy share the reference?
+-?>
+defines module fuzz.runtime.synthetic.copy.collection
+
+  defines class
+
+    Container
+      items <- List() of String
+
+      Container()
+        -> initialItems as List of String
+        this.items :=: initialItems
+
+      addItem()
+        -> item as String
+        this.items += item
+
+      default operator ?
+      default operator $
+      default operator :=:
+
+  defines program
+
+    SyntheticCopyCollection()
+      stdout <- Stdout()
+
+      stdout.println("Test: Collection field copy")
+
+      //Create source with items
+      srcItems <- List() of String
+      srcItems += "one"
+      srcItems += "two"
+      srcItems += "three"
+      src <- Container(srcItems)
+
+      //Create destination and copy
+      dstItems <- List() of String
+      dst <- Container(dstItems)
+      dst :=: src
+
+      stdout.println("After copy:")
+      stdout.println("src: " + $src)
+      stdout.println("dst: " + $dst)
+
+      //Add item to source
+      src.addItem("ADDED")
+
+      stdout.println("After src.addItem(ADDED):")
+      stdout.println("src: " + $src)
+      stdout.println("dst: " + $dst)
+
+      stdout.println("Test complete")
+
+//EOF

@@ -1,0 +1,11 @@
+Test: Synthetic :=: copy from empty object
+Before copy:
+src: TestPoint(x=?, y=?)
+dst: TestPoint(x=100, y=200)
+src?: false
+dst?: true
+After copy:
+src: TestPoint(x=?, y=?)
+dst: TestPoint(x=?, y=?)
+dst?: false
+Test complete

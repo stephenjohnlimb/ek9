@@ -1,0 +1,11 @@
+Test: Synthetic :=: copy with class inheritance
+Before copy:
+src: ExtendedPoint(y=75)
+dst: ExtendedPoint(y=?)
+src?: true
+dst?: false
+After copy:
+src: ExtendedPoint(y=75)
+dst: ExtendedPoint(y=75)
+dst?: true
+Test complete

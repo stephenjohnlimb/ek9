@@ -1,0 +1,8 @@
+Test: Synthetic :=: copy to already populated object
+Before copy:
+src: TestPoint(x=999, y=888)
+dst: TestPoint(x=111, y=222)
+After copy:
+src: TestPoint(x=999, y=888)
+dst: TestPoint(x=999, y=888)
+Test complete

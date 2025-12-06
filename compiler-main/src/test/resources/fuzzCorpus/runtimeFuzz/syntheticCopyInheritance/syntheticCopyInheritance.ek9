@@ -1,0 +1,66 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic :=: operator - copy with class inheritance.
+
+  Tests that when copying objects with inheritance,
+  both parent and child fields are correctly copied.
+-?>
+defines module fuzz.runtime.synthetic.copy.inheritance
+
+  defines class
+
+    BasePoint as open
+      x <- Integer()
+
+      BasePoint()
+        -> xVal as Integer
+        this.x :=: xVal
+
+      default operator ?
+      default operator $
+      default operator :=:
+
+    ExtendedPoint extends BasePoint
+      y <- Integer()
+
+      ExtendedPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        super(xVal)
+        this.y :=: yVal
+
+      default operator ?
+      default operator $
+      default operator :=:
+
+  defines program
+
+    SyntheticCopyInheritance()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic :=: copy with class inheritance")
+
+      //Create source with both parent and child fields set
+      src <- ExtendedPoint(50, 75)
+
+      //Create empty destination
+      dst <- ExtendedPoint()
+
+      stdout.println("Before copy:")
+      stdout.println("src: " + $src)
+      stdout.println("dst: " + $dst)
+      stdout.println("src?: " + $src?)
+      stdout.println("dst?: " + $dst?)
+
+      //Copy
+      dst :=: src
+
+      stdout.println("After copy:")
+      stdout.println("src: " + $src)
+      stdout.println("dst: " + $dst)
+      stdout.println("dst?: " + $dst?)
+
+      stdout.println("Test complete")
+
+//EOF

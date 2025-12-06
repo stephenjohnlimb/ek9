@@ -138,8 +138,69 @@ The `_isSet()` method defines "meaningful, normal, usable value":
 - **Primitives**: Has actual data (not default/empty state)
 - **Collections**: Always meaningful when created (empty is valid)
 - **Containers**: Based on container-specific logic (e.g., DictEntry set when key valid)
+- **Aggregates (records/classes)**: **ANY field set** semantics (see below)
 
 **Key insight:** The definition of "set" is type-dependent and context-aware, allowing EK9 to model real-world semantics accurately.
+
+### Aggregate Types: "ANY Field Set" Semantics
+
+For records and classes using `default operator ?`, the isSet semantics follow the **"ANY field set"** rule:
+
+```
+object? = true   if ANY field is set
+object? = false  only if ALL fields are unset
+```
+
+**Rationale:** An object with at least one meaningful field value has some valid state, even if other fields are unset. This supports partial initialization patterns common in real-world applications.
+
+**Example:**
+```ek9
+defines class
+  Person
+    name <- String()
+    age <- Integer()
+    default operator ?
+
+// Usage
+p <- Person()
+assert not p?        // All fields unset → false
+
+p.name: "Steve"
+assert p?            // ANY field set → true (even though age is unset)
+
+p.age: 42
+assert p?            // ALL fields set → still true
+```
+
+**Inheritance:** The "ANY field set" semantics propagate through inheritance. If either parent OR child fields are set, the object is considered set:
+
+```ek9
+defines class
+  Base as open
+    id <- Integer()
+    default operator ?
+
+  Derived extends Base
+    name <- String()
+    default operator ?
+
+// If parent field set, child unset → true
+d <- Derived()
+d.id: 1
+assert d?            // Parent field set → true
+
+// If parent unset, child field set → true
+d2 <- Derived()
+d2.name: "Test"
+assert d2?           // Child field set → true
+```
+
+**Shallow Copy Semantics:** When using `:=:` (copy), field references are copied, not deep cloned:
+
+```ek9
+dst :=: src  // Copies field references, not values
+// Mutation through src.field affects dst.field (same reference)
+```
 
 ## Comparison with Other Languages
 
@@ -169,4 +230,4 @@ The `_isSet()` method defines "meaningful, normal, usable value":
 
 ---
 
-**Last Updated**: 2025-11-15
+**Last Updated**: 2025-12-06

@@ -1,0 +1,42 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic ? operator - first field set.
+
+  Tests that when the first field is set (but others unset),
+  the synthetic ? operator returns true (ANY field set = valid).
+-?>
+defines module fuzz.runtime.synthetic.isset.onefieldset
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        -> xVal as Integer
+        this.x :=: xVal
+
+      default operator ?
+
+  defines program
+
+    SyntheticIsSetOneFieldSet()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic ? with first field set")
+
+      p <- TestPoint(10)
+
+      stdout.println("p: x=10, y=unset")
+
+      result <- p?
+
+      if result
+        stdout.println("PASS: Object with first field set returns true")
+      else
+        stdout.println("FAIL: Object with ANY field set should return true")
+
+      stdout.println("Test complete")
+
+//EOF

@@ -1,0 +1,43 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic ? operator - multiple fields, partial set.
+
+  Tests that when some fields are set and some are unset,
+  the synthetic ? operator returns true (ANY field set = valid).
+-?>
+defines module fuzz.runtime.synthetic.isset.partialset
+
+  defines class
+
+    TestData
+      name <- String()
+      value <- Integer()
+      flag <- Boolean()
+
+      TestData()
+        -> n as String
+        this.name :=: n
+
+      default operator ?
+
+  defines program
+
+    SyntheticIsSetPartialSet()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic ? with partial fields set")
+
+      d <- TestData("test")
+
+      stdout.println("d: name=test, value=unset, flag=unset")
+
+      result <- d?
+
+      if result
+        stdout.println("PASS: Partially set object returns true")
+      else
+        stdout.println("FAIL: Partially set object should return true")
+
+      stdout.println("Test complete")
+
+//EOF

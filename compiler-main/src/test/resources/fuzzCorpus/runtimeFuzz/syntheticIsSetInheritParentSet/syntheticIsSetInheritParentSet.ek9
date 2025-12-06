@@ -1,0 +1,50 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic ? operator - parent field set, child unset.
+
+  Tests that when the parent class has a field set but child has none,
+  the synthetic ? operator returns true (via super.?).
+-?>
+defines module fuzz.runtime.synthetic.isset.inheritparentset
+
+  defines class
+
+    BaseClass as open
+      id <- Integer()
+
+      BaseClass()
+        -> idVal as Integer
+        this.id :=: idVal
+
+      default operator ?
+
+    DerivedClass extends BaseClass
+      name <- String()
+
+      DerivedClass()
+        -> idVal as Integer
+        super(idVal)
+
+      default operator ?
+
+  defines program
+
+    SyntheticIsSetInheritParentSet()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic ? with parent field set, child unset")
+
+      d <- DerivedClass(42)
+
+      stdout.println("d: id=42 (parent), name=unset (child)")
+
+      result <- d?
+
+      if result
+        stdout.println("PASS: Object with parent field set returns true")
+      else
+        stdout.println("FAIL: Object with parent field set should return true")
+
+      stdout.println("Test complete")
+
+//EOF

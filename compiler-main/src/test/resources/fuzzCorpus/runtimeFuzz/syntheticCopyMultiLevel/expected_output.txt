@@ -1,0 +1,9 @@
+Test: Multi-level nesting copy
+After copy:
+src: Outer(middle=Middle(inner=Inner(value=100)))
+dst: Outer(middle=Middle(inner=Inner(value=100)))
+After innerObj.setValue(999):
+innerObj: Inner(value=999)
+src: Outer(middle=Middle(inner=Inner(value=999)))
+dst: Outer(middle=Middle(inner=Inner(value=999)))
+Test complete

@@ -1,0 +1,42 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic ? operator - last field set.
+
+  Tests that when the last field is set (but others unset),
+  the synthetic ? operator returns true (ANY field set = valid).
+-?>
+defines module fuzz.runtime.synthetic.isset.lastfieldset
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        -> yVal as Integer
+        this.y :=: yVal
+
+      default operator ?
+
+  defines program
+
+    SyntheticIsSetLastFieldSet()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic ? with last field set")
+
+      p <- TestPoint(20)
+
+      stdout.println("p: x=unset, y=20")
+
+      result <- p?
+
+      if result
+        stdout.println("PASS: Object with last field set returns true")
+      else
+        stdout.println("FAIL: Object with ANY field set should return true")
+
+      stdout.println("Test complete")
+
+//EOF

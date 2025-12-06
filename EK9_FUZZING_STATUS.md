@@ -1,6 +1,6 @@
 # EK9 Compiler Fuzzing Status
 
-**Last Updated:** 2025-12-05
+**Last Updated:** 2025-12-06
 **Status:** ✅ Frontend Complete (100%) | ✅ Runtime Fuzz Testing Active | 🔨 Backend In Development
 
 ---
@@ -12,11 +12,11 @@
 | Metric | Count |
 |--------|-------|
 | Compile-time fuzz tests | 544 EK9 files |
-| Runtime fuzz tests | 37 EK9 files |
-| Total fuzz corpus | 581 EK9 files |
-| Test suites | 132 classes |
+| Runtime fuzz tests | 54 EK9 files |
+| Total fuzz corpus | 598 EK9 files |
+| Test suites | 149 classes |
 | Frontend error coverage | 205/205 (100%) |
-| Bugs found via fuzzing | 9 |
+| Bugs found via fuzzing | 11 |
 | Bugs fixed via fuzzing | 1 (Bug #3) |
 
 ### Key Directories
@@ -66,6 +66,8 @@ EK9 uses **reasoning-based fuzzing** rather than brute-force random generation:
 | Default/abstract method defect | Targeted fuzzing of new feature |
 | `final` is reserved keyword | Discovered during test creation |
 | Exception propagates after catch (Bug #3) | Try/catch/finally nesting variation testing |
+| `++` (_inc) generates invalid bytecode | Synthetic operator fuzz testing - VerifyError at runtime |
+| Empty class missing `_fieldSetStatus()` | Synthetic operator fuzz testing - class with no fields |
 
 ---
 
@@ -202,6 +204,37 @@ Exception in thread "main" java.lang.AssertionError: For-range 'start' value mus
 | TryGuardUnsetSkipsAllRuntimeFuzzTest | Guard unset skips entire try block |
 | TryGuardSetExecutesRuntimeFuzzTest | Guard set executes try body |
 
+**Synthetic `?` (isSet) Tests (7 tests):**
+
+Tests the "ANY field set" semantics for `default operator ?` on aggregate types.
+
+| Test | Purpose |
+|------|---------|
+| SyntheticIsSetAllUnsetRuntimeFuzzTest | All fields unset → `?` returns false |
+| SyntheticIsSetOneFieldSetRuntimeFuzzTest | First field set, others unset → `?` returns true |
+| SyntheticIsSetLastFieldSetRuntimeFuzzTest | Last field set, others unset → `?` returns true |
+| SyntheticIsSetAllSetRuntimeFuzzTest | All fields set → `?` returns true |
+| SyntheticIsSetPartialSetRuntimeFuzzTest | Multiple fields, mixed set/unset → `?` returns true |
+| SyntheticIsSetInheritParentSetRuntimeFuzzTest | Parent field set, child unset → `?` returns true |
+| SyntheticIsSetInheritChildSetRuntimeFuzzTest | Parent unset, child field set → `?` returns true |
+
+**Synthetic `:=:` (copy) Tests (10 tests):**
+
+Tests shallow copy semantics for `default operator :=:` on aggregate types.
+
+| Test | Purpose |
+|------|---------|
+| SyntheticCopyAllSetRuntimeFuzzTest | Copy from fully set object - values preserved |
+| SyntheticCopyPartialSetRuntimeFuzzTest | Copy from partially set object - partial state preserved |
+| SyntheticCopyToEmptyRuntimeFuzzTest | Copy to empty destination - gets source values |
+| SyntheticCopyFromEmptyRuntimeFuzzTest | Copy from empty object - destination becomes empty |
+| SyntheticCopyOverwriteRuntimeFuzzTest | Copy to already populated object - overwrites all |
+| SyntheticCopyInheritanceRuntimeFuzzTest | Copy with class inheritance - super fields also copied |
+| SyntheticCopyShallowMutationRuntimeFuzzTest | **Proves shallow copy** - nested mutation propagates to both |
+| SyntheticCopyShallowReassignRuntimeFuzzTest | Reassignment after shallow copy - proves independence |
+| SyntheticCopyCollectionRuntimeFuzzTest | Collection field copy - **proves shallow** (List mutation visible in both) |
+| SyntheticCopyMultiLevelRuntimeFuzzTest | 3-level nesting copy - **proves shallow** propagates through all levels |
+
 ### Running Runtime Tests
 
 ```bash
@@ -310,8 +343,10 @@ EK9 has unique semantics that are **runtime behaviors**:
 |-----|--------|-------------|----------|
 | Bug #3 | ✅ RESOLVED | Exception propagates after catch when outer try has both catch AND finally | Fixed in `TryCatchAsmGenerator.java` |
 | Bug #2 | ❌ OPEN | Resource close() exceptions are uncaught | `EXCEPTION_HANDLING_BUGS.md` |
+| `++` (_inc) | ❌ OPEN | Generates invalid bytecode causing VerifyError | Synthetic operator bytecode generation |
+| Empty class `_fieldSetStatus()` | ❌ OPEN | Method not generated for classes with no fields | Synthetic operator IR generation |
 
-**The ratio opportunity:** 544 compile-time tests vs 37 runtime tests. As backend matures, each compile-time error has a "valid twin" that should execute correctly.
+**The ratio opportunity:** 544 compile-time tests vs 54 runtime tests. As backend matures, each compile-time error has a "valid twin" that should execute correctly.
 
 ### Systematic Coverage
 
@@ -381,7 +416,7 @@ Before creating new fuzz tests:
 | IR Generation tests | 154 with @IR directives |
 | Bytecode tests | 96 with @BYTECODE directives |
 | E2E execution tests | 91 test.sh scripts |
-| Runtime fuzz tests | 37 (FOR_RANGE + guards + try/catch/finally + Bug #3 fix) |
+| Runtime fuzz tests | 54 (FOR_RANGE + guards + try/catch + synthetic operators) |
 
 ---
 

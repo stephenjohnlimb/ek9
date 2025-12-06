@@ -1,0 +1,11 @@
+Test: Synthetic :=: copy to empty destination
+Before copy:
+src: TestPoint(x=42, y=84)
+dst: TestPoint(x=?, y=?)
+src?: true
+dst?: false
+After copy:
+src: TestPoint(x=42, y=84)
+dst: TestPoint(x=42, y=84)
+dst?: true
+Test complete

@@ -1,0 +1,56 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic :=: operator - copy from empty object.
+
+  Tests that when copying from an empty (unset) source object,
+  the destination becomes empty/unset.
+-?>
+defines module fuzz.runtime.synthetic.copy.fromempty
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator $
+      default operator :=:
+
+  defines program
+
+    SyntheticCopyFromEmpty()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic :=: copy from empty object")
+
+      //Create empty source
+      src <- TestPoint()
+
+      //Create destination with values
+      dst <- TestPoint(100, 200)
+
+      stdout.println("Before copy:")
+      stdout.println("src: " + $src)
+      stdout.println("dst: " + $dst)
+      stdout.println("src?: " + $src?)
+      stdout.println("dst?: " + $dst?)
+
+      //Copy from empty source
+      dst :=: src
+
+      stdout.println("After copy:")
+      stdout.println("src: " + $src)
+      stdout.println("dst: " + $dst)
+      stdout.println("dst?: " + $dst?)
+
+      stdout.println("Test complete")
+
+//EOF

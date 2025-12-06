@@ -1,0 +1,45 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic ? operator - all fields set.
+
+  Tests that when all fields are set, the synthetic ? operator
+  returns true.
+-?>
+defines module fuzz.runtime.synthetic.isset.allset
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+
+  defines program
+
+    SyntheticIsSetAllSet()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic ? with all fields set")
+
+      p <- TestPoint(10, 20)
+
+      stdout.println("p: x=10, y=20")
+
+      result <- p?
+
+      if result
+        stdout.println("PASS: Fully set object returns true")
+      else
+        stdout.println("FAIL: Fully set object should return true")
+
+      stdout.println("Test complete")
+
+//EOF

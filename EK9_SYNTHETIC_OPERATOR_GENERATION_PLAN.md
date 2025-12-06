@@ -1,8 +1,8 @@
 # EK9 Synthetic Operator Generation Plan
 
 **Author:** Steve Limb & Claude Code
-**Date:** 2025-11-28 (Updated: 2025-12-05)
-**Status:** Active Implementation (Phases 1-6 complete, `_json` operator added, enumeration work pending)
+**Date:** 2025-11-28 (Updated: 2025-12-06)
+**Status:** Active Implementation (Phases 1-6 complete, `_json` operator added, runtime fuzz testing complete, enumeration work pending)
 
 ## Executive Summary
 
@@ -893,6 +893,57 @@ p1 == p2       // true or unset?
 3. Edge cases (unset, boundary) are tested
 4. Both positive and negative test cases exist
 5. Memory management (RETAIN/SCOPE_REGISTER) is correct in generated IR
+
+---
+
+## Runtime Fuzz Testing Results (2025-12-06)
+
+### `?` (isSet) - "ANY Field Set" Semantics
+
+The `default operator ?` for aggregates implements **"ANY field set"** semantics:
+
+```
+object? = true   if ANY field is set
+object? = false  only if ALL fields are unset
+```
+
+**Rationale:** An object with at least one meaningful field value has some valid state.
+
+**7 runtime fuzz tests verify:**
+- All fields unset → false
+- First/last/any field set → true
+- Inheritance: parent OR child field set → true
+
+### `:=:` (copy) - Shallow Copy Semantics
+
+The `default operator :=:` implements **shallow copy** (references copied, not values):
+
+```ek9
+dst :=: src  // Copies field references
+// Mutation through src.nested affects dst.nested (same reference)
+```
+
+**10 runtime fuzz tests verify:**
+- Value copying (fully set, partial set, from/to empty, overwrite)
+- Inheritance (super fields also copied)
+- **Shallow copy proof**: mutation through original reference visible in both
+- Collection fields: shallow (List mutation visible in both)
+- Multi-level nesting: shallow propagates through all levels
+
+### Bugs Found Through Fuzz Testing
+
+| Bug | Status | Description |
+|-----|--------|-------------|
+| `++` (_inc) bytecode | ❌ OPEN | Generates invalid bytecode causing VerifyError at runtime |
+| Empty class `_fieldSetStatus()` | ❌ OPEN | Method not generated for classes with no fields |
+
+### Correct Behavior Verified
+
+| Behavior | Test Result |
+|----------|-------------|
+| Self-copy (`p :=: p`) | ✅ Correctly rejected at compile time (E08080) |
+| "ANY field set" semantics | ✅ All 7 variations pass |
+| Shallow copy semantics | ✅ Mutation propagation proven |
 
 ---
 

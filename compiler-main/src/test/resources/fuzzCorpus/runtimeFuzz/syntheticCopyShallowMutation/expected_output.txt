@@ -1,0 +1,10 @@
+Test: Shallow copy mutation test
+After copy, before mutation:
+src: Outer(inner=Inner(value=100))
+dst: Outer(inner=Inner(value=100))
+srcInner: Inner(value=100)
+After srcInner.setValue(999):
+srcInner: Inner(value=999)
+src: Outer(inner=Inner(value=999))
+dst: Outer(inner=Inner(value=999))
+Test complete

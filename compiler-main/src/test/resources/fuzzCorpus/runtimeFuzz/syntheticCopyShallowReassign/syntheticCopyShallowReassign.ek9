@@ -1,0 +1,68 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic :=: operator - shallow copy reassignment test.
+
+  Tests that after shallow copy, reassigning src's nested field to a new instance
+  does NOT affect dst (they share reference, but reassignment breaks that link).
+-?>
+defines module fuzz.runtime.synthetic.copy.shallowreassign
+
+  defines class
+
+    Inner
+      value <- Integer()
+
+      Inner()
+        -> v as Integer
+        this.value :=: v
+
+      default operator ?
+      default operator $
+      default operator :=:
+
+    Outer
+      inner <- Inner()
+
+      Outer()
+        -> i as Inner
+        this.inner :=: i
+
+      setInner()
+        -> i as Inner
+        this.inner :=: i
+
+      default operator ?
+      default operator $
+      default operator :=:
+
+  defines program
+
+    SyntheticCopyShallowReassign()
+      stdout <- Stdout()
+
+      stdout.println("Test: Shallow copy reassignment test")
+
+      //Create source with nested object
+      srcInner <- Inner(100)
+      src <- Outer(srcInner)
+
+      //Create destination by copying source
+      dst <- Outer(Inner(0))
+      dst :=: src
+
+      stdout.println("After copy:")
+      stdout.println("src: " + $src)
+      stdout.println("dst: " + $dst)
+
+      //Reassign src's inner to a new instance
+      newInner <- Inner(777)
+      src.setInner(newInner)
+
+      stdout.println("After src.setInner(Inner(777)):")
+      stdout.println("src: " + $src)
+      stdout.println("dst: " + $dst)
+      stdout.println("srcInner (original): " + $srcInner)
+
+      stdout.println("Test complete")
+
+//EOF

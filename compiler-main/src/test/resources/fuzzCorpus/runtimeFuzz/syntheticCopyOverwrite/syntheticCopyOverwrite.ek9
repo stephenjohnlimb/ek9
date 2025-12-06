@@ -1,0 +1,53 @@
+#!ek9
+<?-
+  Runtime fuzz test: Synthetic :=: operator - copy to already populated object.
+
+  Tests that when copying to an object that already has values,
+  all fields are overwritten with the source values.
+-?>
+defines module fuzz.runtime.synthetic.copy.overwrite
+
+  defines class
+
+    TestPoint
+      x <- Integer()
+      y <- Integer()
+
+      TestPoint()
+        ->
+          xVal as Integer
+          yVal as Integer
+        this.x :=: xVal
+        this.y :=: yVal
+
+      default operator ?
+      default operator $
+      default operator :=:
+
+  defines program
+
+    SyntheticCopyOverwrite()
+      stdout <- Stdout()
+
+      stdout.println("Test: Synthetic :=: copy to already populated object")
+
+      //Create source with values
+      src <- TestPoint(999, 888)
+
+      //Create destination with different values
+      dst <- TestPoint(111, 222)
+
+      stdout.println("Before copy:")
+      stdout.println("src: " + $src)
+      stdout.println("dst: " + $dst)
+
+      //Copy (overwrite)
+      dst :=: src
+
+      stdout.println("After copy:")
+      stdout.println("src: " + $src)
+      stdout.println("dst: " + $dst)
+
+      stdout.println("Test complete")
+
+//EOF
