@@ -146,16 +146,16 @@ final class FieldSetStatusGenerator extends AbstractSyntheticGenerator {
    * </ul>
    */
   private List<IRInstr> generateFieldStatusAppend(final ISymbol field,
-                                                   final DebugInfo debugInfo,
-                                                   final String scopeId) {
+                                                  final DebugInfo debugInfo,
+                                                  final String scopeId) {
 
     final var fieldName = field.getName();
     final var fieldTypeName = getTypeName(field);
-    final var instructions = new ArrayList<IRInstr>();
 
     // Load field value
     final var fieldVar = generateTempName();
-    instructions.addAll(generateFieldLoad(fieldVar, IRConstants.THIS, fieldName, debugInfo, scopeId));
+    final var instructions =
+        new ArrayList<>(generateFieldLoad(fieldVar, IRConstants.THIS, fieldName, debugInfo, scopeId));
 
     // Call field._isSet() -> Boolean
     final var isSetResultVar = generateTempName();
@@ -163,7 +163,7 @@ final class FieldSetStatusGenerator extends AbstractSyntheticGenerator {
         isSetResultVar,
         fieldVar,
         fieldTypeName,
-        IRConstants.IS_SET,
+        IRConstants.IS_SET_METHOD,
         List.of(),
         List.of(),
         getBooleanTypeName(),

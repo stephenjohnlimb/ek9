@@ -177,7 +177,7 @@ public abstract class AbstractSyntheticGenerator {
     final var callDetails = new CallDetails(
         variableName,
         typeName,
-        "_isSet",
+        IRConstants.IS_SET_METHOD,
         List.of(),
         getBooleanTypeName(),
         List.of(),
@@ -196,9 +196,9 @@ public abstract class AbstractSyntheticGenerator {
     final var trueCallDetails = new CallDetails(
         isSetResult,
         getBooleanTypeName(),
-        "_true",
+        IRConstants.TRUE_METHOD,
         List.of(),
-        "boolean",
+        IRConstants.BOOLEAN,
         List.of(),
         CallMetaDataDetails.defaultMetaData(),
         false // isTraitCall - class method call uses invokevirtual
@@ -263,7 +263,7 @@ public abstract class AbstractSyntheticGenerator {
             superResultVar,
             IRConstants.SUPER,
             superAggregate.getFullyQualifiedName(),
-            "_isSet",
+            IRConstants.IS_SET_METHOD,
             List.of(),
             List.of(),
             getBooleanTypeName(),
@@ -277,10 +277,10 @@ public abstract class AbstractSyntheticGenerator {
             superBoolVar,
             superResultVar,
             getBooleanTypeName(),
-            "_true",
+            IRConstants.TRUE_METHOD,
             List.of(),
             List.of(),
-            "boolean",
+            IRConstants.BOOLEAN,
             debugInfo,
             scopeId
         ));
@@ -297,7 +297,7 @@ public abstract class AbstractSyntheticGenerator {
         statusVar,
         IRConstants.THIS,
         aggregateTypeName,
-        "_fieldSetStatus",
+        IRConstants.FIELD_SET_STATUS_METHOD,
         List.of(),
         List.of(),
         getBitsTypeName(),
@@ -311,7 +311,7 @@ public abstract class AbstractSyntheticGenerator {
         isEmptyVar,
         statusVar,
         getBitsTypeName(),
-        "_empty",
+        IRConstants.EMPTY_METHOD,
         List.of(),
         List.of(),
         getBooleanTypeName(),
@@ -325,10 +325,10 @@ public abstract class AbstractSyntheticGenerator {
         isEmptyBoolVar,
         isEmptyVar,
         getBooleanTypeName(),
-        "_true",
+        IRConstants.TRUE_METHOD,
         List.of(),
         List.of(),
-        "boolean",
+        IRConstants.BOOLEAN,
         debugInfo,
         scopeId
     ));
@@ -376,7 +376,7 @@ public abstract class AbstractSyntheticGenerator {
     final var callDetails = new CallDetails(
         returnTypeName, // Target is the class name for constructor calls
         returnTypeName,
-        "<init>",
+        IRConstants.INIT_METHOD,
         List.of(),
         returnTypeName,
         List.of(),
@@ -426,7 +426,7 @@ public abstract class AbstractSyntheticGenerator {
         null, // Static call
         getBooleanTypeName(),
         "_of",
-        List.of("boolean"),
+        List.of(IRConstants.BOOLEAN),
         getBooleanTypeName(),
         List.of(String.valueOf(value)),
         CallMetaDataDetails.defaultMetaData(),
@@ -582,6 +582,29 @@ public abstract class AbstractSyntheticGenerator {
   }
 
   /**
+   * Generate a constructor call with a single argument to create a new instance.
+   *
+   * <p>Convenience overload for constructors taking exactly one argument.</p>
+   *
+   * @param resultVar     Variable to store result
+   * @param typeName      Fully qualified type name to construct
+   * @param argument      Single argument variable name
+   * @param parameterType Single parameter type
+   * @param debugInfo     Debug information
+   * @param scopeId       Current scope ID
+   * @return List of IR instructions
+   */
+  protected List<IRInstr> generateConstructorCall(final String resultVar,
+                                                   final String typeName,
+                                                   final String argument,
+                                                   final String parameterType,
+                                                   final DebugInfo debugInfo,
+                                                   final String scopeId) {
+    return generateConstructorCallWithArgs(resultVar, typeName,
+        List.of(argument), List.of(parameterType), debugInfo, scopeId);
+  }
+
+  /**
    * Generate a constructor call with arguments to create a new instance.
    *
    * <p>Pattern:</p>
@@ -612,7 +635,7 @@ public abstract class AbstractSyntheticGenerator {
     final var callDetails = new CallDetails(
         typeName, // Target is the class name
         typeName,
-        "<init>",
+        IRConstants.INIT_METHOD,
         parameterTypes,
         typeName,
         arguments,
@@ -661,6 +684,103 @@ public abstract class AbstractSyntheticGenerator {
   }
 
   /**
+   * Generate field set status comparison check.
+   *
+   * <p>This optimization compares the _fieldSetStatus() bitmasks of both objects.
+   * If the bitmasks differ, it means different fields are set/unset between the objects,
+   * so the comparison result should be unset (tri-state semantics).</p>
+   *
+   * <p>Pattern:</p>
+   * <pre>
+   *   _thisStatus = CALL this._fieldSetStatus() -> Bits
+   *   _otherStatus = CALL other._fieldSetStatus() -> Bits
+   *   _statusEq = CALL _thisStatus._eq(_otherStatus) -> Boolean
+   *   _statusEqSet = CALL _statusEq._isSet() -> Boolean
+   *   BRANCH_IF_FALSE _statusEqSet -> return_unset  // shouldn't happen but safe
+   *   _statusEqVal = CALL _statusEq._true() -> boolean
+   *   BRANCH_IF_FALSE _statusEqVal -> return_unset  // different field set patterns
+   * </pre>
+   *
+   * @param otherParamName    The name of the other parameter to compare with (typically "param")
+   * @param aggregateTypeName The fully qualified type name of the aggregate
+   * @param debugInfo         Debug information
+   * @param scopeId           Current scope ID
+   * @param returnUnsetLabel  Label to branch to if bitmasks differ
+   * @return List of IR instructions implementing the check
+   */
+  protected List<IRInstr> generateFieldSetStatusCheck(final String otherParamName,
+                                                       final String aggregateTypeName,
+                                                       final DebugInfo debugInfo,
+                                                       final String scopeId,
+                                                       final String returnUnsetLabel) {
+    final var instructions = new ArrayList<IRInstr>();
+
+    // Call this._fieldSetStatus() -> Bits
+    final var thisStatusVar = generateTempName();
+    instructions.addAll(generateMethodCall(
+        thisStatusVar,
+        IRConstants.THIS,
+        aggregateTypeName,
+        IRConstants.FIELD_SET_STATUS_METHOD,
+        List.of(),
+        List.of(),
+        getBitsTypeName(),
+        debugInfo,
+        scopeId
+    ));
+
+    // Call other._fieldSetStatus() -> Bits
+    final var otherStatusVar = generateTempName();
+    instructions.addAll(generateMethodCall(
+        otherStatusVar,
+        otherParamName,
+        aggregateTypeName,
+        IRConstants.FIELD_SET_STATUS_METHOD,
+        List.of(),
+        List.of(),
+        getBitsTypeName(),
+        debugInfo,
+        scopeId
+    ));
+
+    // Compare the Bits with _eq
+    final var statusEqVar = generateTempName();
+    instructions.addAll(generateMethodCall(
+        statusEqVar,
+        thisStatusVar,
+        getBitsTypeName(),
+        IRConstants.EQ_METHOD,
+        List.of(otherStatusVar),
+        List.of(getBitsTypeName()),
+        getBooleanTypeName(),
+        debugInfo,
+        scopeId
+    ));
+
+    // Check if comparison result is set (defensive - should always be set for Bits)
+    instructions.addAll(generateIsSetGuard(statusEqVar, getBooleanTypeName(), debugInfo, returnUnsetLabel, scopeId));
+
+    // Check if bitmasks are equal - if not, return unset (set/unset mismatch)
+    final var statusEqBoolVar = generateTempName();
+    instructions.addAll(generateMethodCall(
+        statusEqBoolVar,
+        statusEqVar,
+        getBooleanTypeName(),
+        IRConstants.TRUE_METHOD,
+        List.of(),
+        List.of(),
+        IRConstants.BOOLEAN,
+        debugInfo,
+        scopeId
+    ));
+
+    // Branch to return unset if bitmasks differ
+    instructions.add(BranchInstr.branchIfFalse(statusEqBoolVar, returnUnsetLabel, debugInfo));
+
+    return instructions;
+  }
+
+  /**
    * Generate unset return block at a specific label.
    *
    * <p>Unlike {@link #generateUnsetReturnBlock}, this version uses the
@@ -697,6 +817,95 @@ public abstract class AbstractSyntheticGenerator {
     instructions.add(BranchInstr.returnValue(returnVarName, debugInfo));
 
     return instructions;
+  }
+
+  /**
+   * Generate a result return block that returns whatever is in the return variable.
+   *
+   * <p>This is a shared return point when the return variable has already been set
+   * by the caller. Only performs scope cleanup and return.</p>
+   *
+   * <p>Pattern:</p>
+   * <pre>
+   *   label_name:
+   *   SCOPE_EXIT scope_id
+   *   RETURN returnVarName
+   * </pre>
+   *
+   * @param labelName     The label name for this block
+   * @param returnVarName The return variable name (already set by caller)
+   * @param debugInfo     Debug information
+   * @param scopeId       Current scope ID
+   * @return List of IR instructions for the return block
+   */
+  protected List<IRInstr> generateResultReturnBlock(final String labelName,
+                                                     final String returnVarName,
+                                                     final DebugInfo debugInfo,
+                                                     final String scopeId) {
+    final var instructions = new ArrayList<IRInstr>();
+
+    // Label
+    instructions.add(LabelInstr.label(labelName));
+
+    // Scope cleanup and return - return variable was already set by caller
+    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
+    instructions.add(BranchInstr.returnValue(returnVarName, debugInfo));
+
+    return instructions;
+  }
+
+  /**
+   * Generate a no-argument method call with result storage and memory management.
+   *
+   * <p>Convenience overload for the common case where the method takes no arguments.</p>
+   *
+   * @param resultVar  Variable to store result
+   * @param targetVar  Variable to call method on (null for static calls)
+   * @param targetType Fully qualified type name of the target
+   * @param methodName Method to call
+   * @param returnType Return type of method
+   * @param debugInfo  Debug information
+   * @param scopeId    Current scope ID
+   * @return List of IR instructions
+   */
+  protected List<IRInstr> generateMethodCall(final String resultVar,
+                                             final String targetVar,
+                                             final String targetType,
+                                             final String methodName,
+                                             final String returnType,
+                                             final DebugInfo debugInfo,
+                                             final String scopeId) {
+    return generateMethodCall(resultVar, targetVar, targetType, methodName,
+        List.of(), List.of(), returnType, debugInfo, scopeId);
+  }
+
+  /**
+   * Generate a single-argument method call with result storage and memory management.
+   *
+   * <p>Convenience overload for the common case where the method takes one argument.</p>
+   *
+   * @param resultVar     Variable to store result
+   * @param targetVar     Variable to call method on (null for static calls)
+   * @param targetType    Fully qualified type name of the target
+   * @param methodName    Method to call
+   * @param argument      Single argument variable name
+   * @param parameterType Single parameter type
+   * @param returnType    Return type of method
+   * @param debugInfo     Debug information
+   * @param scopeId       Current scope ID
+   * @return List of IR instructions
+   */
+  protected List<IRInstr> generateMethodCall(final String resultVar,
+                                             final String targetVar,
+                                             final String targetType,
+                                             final String methodName,
+                                             final String argument,
+                                             final String parameterType,
+                                             final String returnType,
+                                             final DebugInfo debugInfo,
+                                             final String scopeId) {
+    return generateMethodCall(resultVar, targetVar, targetType, methodName,
+        List.of(argument), List.of(parameterType), returnType, debugInfo, scopeId);
   }
 
   /**

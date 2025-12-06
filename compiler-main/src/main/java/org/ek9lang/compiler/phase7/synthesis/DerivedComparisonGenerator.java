@@ -5,11 +5,9 @@ import java.util.List;
 import org.ek9lang.compiler.common.OperatorMap;
 import org.ek9lang.compiler.ir.instructions.BranchInstr;
 import org.ek9lang.compiler.ir.instructions.IRInstr;
-import org.ek9lang.compiler.ir.instructions.LabelInstr;
 import org.ek9lang.compiler.ir.instructions.LiteralInstr;
 import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
-import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
 import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
@@ -89,9 +87,9 @@ final class DerivedComparisonGenerator extends AbstractSyntheticGenerator {
         cmpResultVar,
         IRConstants.THIS,
         aggregateTypeName,
-        "_cmp",
-        List.of(OTHER_PARAM),
-        List.of(aggregateTypeName),
+        IRConstants.CMP_METHOD,
+        OTHER_PARAM,
+        aggregateTypeName,
         getIntegerTypeName(),
         debugInfo,
         scopeId
@@ -115,8 +113,8 @@ final class DerivedComparisonGenerator extends AbstractSyntheticGenerator {
         cmpResultVar,
         getIntegerTypeName(),
         comparisonMethod,
-        List.of(zeroVar),
-        List.of(getIntegerTypeName()),
+        zeroVar,
+        getIntegerTypeName(),
         getBooleanTypeName(),
         debugInfo,
         scopeId
@@ -127,9 +125,10 @@ final class DerivedComparisonGenerator extends AbstractSyntheticGenerator {
     instructions.add(MemoryInstr.retain(RETURN_VAR, debugInfo));
     instructions.add(BranchInstr.branch(returnResultLabel, debugInfo));
 
-    // Return blocks
-    instructions.addAll(generateUnsetReturnBlockWithLabel(returnUnsetLabel, debugInfo, scopeId));
-    instructions.addAll(generateResultReturnBlock(returnResultLabel, debugInfo, scopeId));
+    // Return blocks - use inherited methods from AbstractSyntheticGenerator
+    instructions.addAll(generateUnsetReturnBlockWithLabel(returnUnsetLabel, getBooleanTypeName(),
+        RETURN_VAR, debugInfo, scopeId));
+    instructions.addAll(generateResultReturnBlock(returnResultLabel, RETURN_VAR, debugInfo, scopeId));
 
     return instructions;
   }
@@ -155,52 +154,6 @@ final class DerivedComparisonGenerator extends AbstractSyntheticGenerator {
     return operatorMap.getForward(operatorName);
   }
 
-  /**
-   * Generate the unset return block.
-   */
-  private List<IRInstr> generateUnsetReturnBlockWithLabel(final String labelName,
-                                                          final DebugInfo debugInfo,
-                                                          final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
-
-    // Label
-    instructions.add(LabelInstr.label(labelName));
-
-    // Create unset Boolean via constructor call
-    final var resultTemp = generateTempName();
-    instructions.addAll(generateConstructorCall(
-        resultTemp,
-        getBooleanTypeName(),
-        debugInfo,
-        scopeId
-    ));
-
-    // Store to return variable and retain for ownership transfer
-    instructions.add(MemoryInstr.store(RETURN_VAR, resultTemp, debugInfo));
-    instructions.add(MemoryInstr.retain(RETURN_VAR, debugInfo));
-
-    // Scope cleanup and return
-    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
-    instructions.add(BranchInstr.returnValue(RETURN_VAR, debugInfo));
-
-    return instructions;
-  }
-
-  /**
-   * Generate the result return block - returns whatever is in RETURN_VAR.
-   */
-  private List<IRInstr> generateResultReturnBlock(final String labelName,
-                                                   final DebugInfo debugInfo,
-                                                   final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
-
-    // Label
-    instructions.add(LabelInstr.label(labelName));
-
-    // Scope cleanup and return - RETURN_VAR was already set
-    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
-    instructions.add(BranchInstr.returnValue(RETURN_VAR, debugInfo));
-
-    return instructions;
-  }
+  // NOTE: generateUnsetReturnBlockWithLabel and generateResultReturnBlock
+  // are inherited from AbstractSyntheticGenerator
 }

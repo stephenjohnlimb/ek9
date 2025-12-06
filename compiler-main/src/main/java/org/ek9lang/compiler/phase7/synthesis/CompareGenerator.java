@@ -100,7 +100,7 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     // This optimizes tri-state comparison by early-detecting set/unset mismatches
     final var fields = getSyntheticFields(aggregateSymbol);
     if (!fields.isEmpty()) {
-      instructions.addAll(generateFieldSetStatusCheck(aggregateTypeName, debugInfo, scopeId, returnUnsetLabel));
+      instructions.addAll(generateFieldSetStatusCheck(OTHER_PARAM, aggregateTypeName, debugInfo, scopeId, returnUnsetLabel));
     }
 
     // Check if super has the <=> operator
@@ -128,96 +128,7 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
         RETURN_VAR, debugInfo, scopeId));
     instructions.addAll(generateZeroReturnBlockWithLabel(returnZeroLabel,
         RETURN_VAR, debugInfo, scopeId));
-    instructions.addAll(generateResultReturnBlock(returnResultLabel, debugInfo, scopeId));
-
-    return instructions;
-  }
-
-  /**
-   * Generate field set status comparison check.
-   *
-   * <p>This optimization compares the _fieldSetStatus() bitmasks of both objects.
-   * If the bitmasks differ, it means different fields are set/unset between the objects,
-   * so the comparison result should be unset (tri-state semantics).</p>
-   *
-   * <p>Pattern:</p>
-   * <pre>
-   *   _thisStatus = CALL this._fieldSetStatus() -> Bits
-   *   _otherStatus = CALL other._fieldSetStatus() -> Bits
-   *   _statusEq = CALL _thisStatus._eq(_otherStatus) -> Boolean
-   *   _statusEqSet = CALL _statusEq._isSet() -> Boolean
-   *   BRANCH_IF_FALSE _statusEqSet -> return_unset  // shouldn't happen but safe
-   *   _statusEqVal = CALL _statusEq._true() -> boolean
-   *   BRANCH_IF_FALSE _statusEqVal -> return_unset  // different field set patterns
-   * </pre>
-   */
-  private List<IRInstr> generateFieldSetStatusCheck(final String aggregateTypeName,
-                                                     final DebugInfo debugInfo,
-                                                     final String scopeId,
-                                                     final String returnUnsetLabel) {
-    final var instructions = new ArrayList<IRInstr>();
-
-    // Call this._fieldSetStatus() -> Bits
-    final var thisStatusVar = generateTempName();
-    instructions.addAll(generateMethodCall(
-        thisStatusVar,
-        IRConstants.THIS,
-        aggregateTypeName,
-        "_fieldSetStatus",
-        List.of(),
-        List.of(),
-        getBitsTypeName(),
-        debugInfo,
-        scopeId
-    ));
-
-    // Call other._fieldSetStatus() -> Bits
-    final var otherStatusVar = generateTempName();
-    instructions.addAll(generateMethodCall(
-        otherStatusVar,
-        OTHER_PARAM,
-        aggregateTypeName,
-        "_fieldSetStatus",
-        List.of(),
-        List.of(),
-        getBitsTypeName(),
-        debugInfo,
-        scopeId
-    ));
-
-    // Compare the Bits with _eq
-    final var statusEqVar = generateTempName();
-    instructions.addAll(generateMethodCall(
-        statusEqVar,
-        thisStatusVar,
-        getBitsTypeName(),
-        "_eq",
-        List.of(otherStatusVar),
-        List.of(getBitsTypeName()),
-        getBooleanTypeName(),
-        debugInfo,
-        scopeId
-    ));
-
-    // Check if comparison result is set (defensive - should always be set for Integer)
-    instructions.addAll(generateIsSetGuard(statusEqVar, getBooleanTypeName(), debugInfo, returnUnsetLabel, scopeId));
-
-    // Check if bitmasks are equal - if not, return unset (set/unset mismatch)
-    final var statusEqBoolVar = generateTempName();
-    instructions.addAll(generateMethodCall(
-        statusEqBoolVar,
-        statusEqVar,
-        getBooleanTypeName(),
-        "_true",
-        List.of(),
-        List.of(),
-        "boolean",
-        debugInfo,
-        scopeId
-    ));
-
-    // Branch to return unset if bitmasks differ
-    instructions.add(BranchInstr.branchIfFalse(statusEqBoolVar, returnUnsetLabel, debugInfo));
+    instructions.addAll(generateResultReturnBlock(returnResultLabel, RETURN_VAR, debugInfo, scopeId));
 
     return instructions;
   }
@@ -252,9 +163,9 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
         superResultVar,
         IRConstants.SUPER,
         superAggregate.getFullyQualifiedName(),
-        "_cmp",
-        List.of(OTHER_PARAM),
-        List.of(superAggregate.getFullyQualifiedName()),
+        IRConstants.CMP_METHOD,
+        OTHER_PARAM,
+        superAggregate.getFullyQualifiedName(),
         getIntegerTypeName(),
         debugInfo,
         scopeId
@@ -297,9 +208,9 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
         cmpResultVar,
         thisFieldVar,
         fieldTypeName,
-        "_cmp",
-        List.of(otherFieldVar),
-        List.of(fieldTypeName),
+        IRConstants.CMP_METHOD,
+        otherFieldVar,
+        fieldTypeName,
         getIntegerTypeName(),
         debugInfo,
         scopeId
@@ -349,9 +260,9 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
         isZeroVar,
         integerVar,
         getIntegerTypeName(),
-        "_eq",
-        List.of(zeroVar),
-        List.of(getIntegerTypeName()),
+        IRConstants.EQ_METHOD,
+        zeroVar,
+        getIntegerTypeName(),
         getBooleanTypeName(),
         debugInfo,
         scopeId
@@ -363,10 +274,8 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
         isZeroBoolVar,
         isZeroVar,
         getBooleanTypeName(),
-        "_true",
-        List.of(),
-        List.of(),
-        "boolean",
+        IRConstants.TRUE_METHOD,
+        IRConstants.BOOLEAN,
         debugInfo,
         scopeId
     ));
@@ -389,26 +298,8 @@ final class CompareGenerator extends AbstractSyntheticGenerator {
     return instructions;
   }
 
-  /**
-   * Generate the return result block - returns whatever is in RETURN_VAR.
-   * This is a shared return point for non-zero comparison results.
-   */
-  private List<IRInstr> generateResultReturnBlock(final String labelName,
-                                                   final DebugInfo debugInfo,
-                                                   final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
-
-    // Label
-    instructions.add(LabelInstr.label(labelName));
-
-    // Scope cleanup and return - RETURN_VAR was already set by caller
-    instructions.add(ScopeInstr.exit(scopeId, debugInfo));
-    instructions.add(BranchInstr.returnValue(RETURN_VAR, debugInfo));
-
-    return instructions;
-  }
-
-  // NOTE: generateUnsetReturnBlockWithLabel is now inherited from AbstractSyntheticGenerator
+  // NOTE: generateUnsetReturnBlockWithLabel and generateResultReturnBlock
+  // are now inherited from AbstractSyntheticGenerator
 
   /**
    * Generate the zero return block using the provided label name.

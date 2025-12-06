@@ -94,8 +94,8 @@ final class CopyGenerator extends AbstractSyntheticGenerator {
    * Note that _copy returns Void, so no result variable or memory management needed.</p>
    */
   private List<IRInstr> generateSuperCopyCall(final AggregateSymbol aggregateSymbol,
-                                               final DebugInfo debugInfo,
-                                               final String scopeId) {
+                                              final DebugInfo debugInfo,
+                                              final String scopeId) {
     final var superOpt = aggregateSymbol.getSuperAggregate();
     if (superOpt.isEmpty() || isAnyType(superOpt.get())) {
       return List.of();
@@ -109,9 +109,9 @@ final class CopyGenerator extends AbstractSyntheticGenerator {
         null, // No result for void return
         IRConstants.SUPER,
         superAggregate.getFullyQualifiedName(),
-        "_copy",
-        List.of(SOURCE_PARAM),
-        List.of(superAggregate.getFullyQualifiedName()),
+        IRConstants.COPY_METHOD,
+        SOURCE_PARAM,
+        superAggregate.getFullyQualifiedName(),
         getVoidTypeName(),
         debugInfo,
         scopeId
@@ -131,14 +131,14 @@ final class CopyGenerator extends AbstractSyntheticGenerator {
    * </pre>
    */
   private List<IRInstr> generateFieldCopy(final ISymbol field,
-                                           final DebugInfo debugInfo,
-                                           final String scopeId) {
-    final var instructions = new ArrayList<IRInstr>();
+                                          final DebugInfo debugInfo,
+                                          final String scopeId) {
     final var fieldName = field.getName();
 
     // Load field value from source (param)
     final var sourceValueVar = generateTempName();
-    instructions.addAll(generateFieldLoad(sourceValueVar, SOURCE_PARAM, fieldName, debugInfo, scopeId));
+    final var instructions =
+        new ArrayList<>(generateFieldLoad(sourceValueVar, SOURCE_PARAM, fieldName, debugInfo, scopeId));
 
     // Store to this.field - must RELEASE old value first for ARC
     final var thisFieldRef = IRConstants.THIS + "." + fieldName;

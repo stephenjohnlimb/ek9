@@ -148,7 +148,7 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
    *
    * <p>Pattern:</p>
    * <pre>
-   *   jsonTemp = CALL JSON.<init>() -> JSON    // Create JSON instance
+   *   jsonTemp = CALL JSON.&lt;init&gt;() -> JSON    // Create JSON instance
    *   objectResult = CALL jsonTemp.object() -> JSON  // Make it an empty object {}
    *   STORE rtn = objectResult
    * </pre>
@@ -168,8 +168,6 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
         jsonTemp,
         getJsonTypeName(),
         "object",
-        List.of(),
-        List.of(),
         getJsonTypeName(),
         debugInfo,
         scopeId
@@ -190,7 +188,7 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
    *   fieldValue = LOAD this.field
    *   fieldJson = CALL fieldValue._json() -> JSON    // Recursive conversion
    *   nameString = LITERAL "fieldName"
-   *   pair = CALL JSON.<init>(nameString, fieldJson) -> JSON  // Name/value pair
+   *   pair = CALL JSON.&lt;init&gt;(nameString, fieldJson) -> JSON  // Name/value pair
    *   CALL result._merge(pair)                       // Merge into result
    * </pre>
    */
@@ -213,9 +211,7 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
         fieldJsonVar,
         fieldVar,
         fieldTypeName,
-        "_json",
-        List.of(),
-        List.of(),
+        IRConstants.JSON_METHOD,
         getJsonTypeName(),
         debugInfo,
         scopeId
@@ -241,12 +237,14 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
     ));
 
     // Merge pair into result via _merge method
-    instructions.addAll(generateVoidMethodCall(
+    instructions.addAll(generateMethodCall(
+        null,
         RETURN_VAR,
         getJsonTypeName(),
-        "_merge",
-        List.of(pairVar),
-        List.of(getJsonTypeName()),
+        IRConstants.MERGE_METHOD,
+        pairVar,
+        getJsonTypeName(),
+        getVoidTypeName(),
         debugInfo,
         scopeId
     ));
@@ -283,7 +281,7 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
         resultVar,
         typeName, // Target is class name for constructor
         typeName,
-        "<init>",
+        IRConstants.INIT_METHOD,
         List.of(arg1Var, arg2Var),
         List.of(arg1Type, arg2Type),
         typeName,
@@ -292,36 +290,4 @@ final class ToJsonGenerator extends AbstractSyntheticGenerator {
     ));
   }
 
-  /**
-   * Generate a void method call (no return value).
-   *
-   * @param targetVar      Variable to call method on
-   * @param targetType     Fully qualified type name of the target
-   * @param methodName     Method to call
-   * @param arguments      Method argument variable names
-   * @param parameterTypes Parameter types
-   * @param debugInfo      Debug information
-   * @param scopeId        Current scope ID
-   * @return List of IR instructions
-   */
-  private List<IRInstr> generateVoidMethodCall(final String targetVar,
-                                               final String targetType,
-                                               final String methodName,
-                                               final List<String> arguments,
-                                               final List<String> parameterTypes,
-                                               final DebugInfo debugInfo,
-                                               final String scopeId) {
-    // Use null for result var since it's void
-    return generateMethodCall(
-        null,
-        targetVar,
-        targetType,
-        methodName,
-        arguments,
-        parameterTypes,
-        getVoidTypeName(),
-        debugInfo,
-        scopeId
-    );
-  }
 }

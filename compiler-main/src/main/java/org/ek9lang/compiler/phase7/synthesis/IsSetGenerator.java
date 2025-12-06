@@ -138,9 +138,7 @@ final class IsSetGenerator extends AbstractSyntheticGenerator {
         superResultVar,
         IRConstants.SUPER,
         superAggregate.getFullyQualifiedName(),
-        "_isSet",
-        List.of(),
-        List.of(),
+        IRConstants.IS_SET_METHOD,
         getBooleanTypeName(),
         debugInfo,
         scopeId
@@ -152,10 +150,8 @@ final class IsSetGenerator extends AbstractSyntheticGenerator {
         superBoolVar,
         superResultVar,
         getBooleanTypeName(),
-        "_true",
-        List.of(),
-        List.of(),
-        "boolean",
+        IRConstants.TRUE_METHOD,
+        IRConstants.BOOLEAN,
         debugInfo,
         scopeId
     ));
@@ -191,9 +187,7 @@ final class IsSetGenerator extends AbstractSyntheticGenerator {
         isSetResultVar,
         thisFieldVar,
         fieldTypeName,
-        "_isSet",
-        List.of(),
-        List.of(),
+        IRConstants.IS_SET_METHOD,
         getBooleanTypeName(),
         debugInfo,
         scopeId
@@ -205,10 +199,8 @@ final class IsSetGenerator extends AbstractSyntheticGenerator {
         trueResultVar,
         isSetResultVar,
         getBooleanTypeName(),
-        "_true",
-        List.of(),
-        List.of(),
-        "boolean", // Primitive type
+        IRConstants.TRUE_METHOD,
+        IRConstants.BOOLEAN,
         debugInfo,
         scopeId
     ));
@@ -238,9 +230,7 @@ final class IsSetGenerator extends AbstractSyntheticGenerator {
         resultTemp,
         null,
         getBooleanTypeName(),
-        value ? "_ofTrue" : "_ofFalse",
-        List.of(),
-        List.of(),
+        value ? IRConstants.OF_TRUE_METHOD : IRConstants.OF_FALSE_METHOD,
         getBooleanTypeName(),
         debugInfo,
         scopeId

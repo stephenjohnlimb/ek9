@@ -35,16 +35,37 @@ public final class IRConstants {
   public static final String DO_SCOPE = "do";
   public static final String WHILE_SCOPE = "while";
 
-  //method calls
+  //method calls - initialization
   public static final String INIT_METHOD = "<init>";
   public static final String CALL_METHOD = "_call";
   public static final String C_INIT_METHOD = "c_init";
   public static final String I_INIT_METHOD = "i_init";
+
+  //method calls - boolean operations
   public static final String TRUE_METHOD = "_true";
   public static final String FALSE_METHOD = "_false";
   public static final String OF_TRUE_METHOD = "_ofTrue";
   public static final String OF_FALSE_METHOD = "_ofFalse";
-  public static final String IS_SET = "_isSet";
+  public static final String IS_SET_METHOD = "_isSet";
+
+  //method calls - comparison operators
+  public static final String EQ_METHOD = "_eq";
+  public static final String NEQ_METHOD = "_neq";
+  public static final String CMP_METHOD = "_cmp";
+
+  //method calls - field status
+  public static final String FIELD_SET_STATUS_METHOD = "_fieldSetStatus";
+  public static final String EMPTY_METHOD = "_empty";
+
+  //method calls - conversion operators
+  public static final String HASHCODE_METHOD = "_hashcode";
+  public static final String STRING_METHOD = "_string";
+  public static final String JSON_METHOD = "_json";
+
+  //method calls - mutation operators
+  public static final String COPY_METHOD = "_copy";
+  public static final String MERGE_METHOD = "_merge";
+  public static final String ADD_METHOD = "_add";
 
   //primitive types
   public static final String VOID = "void";

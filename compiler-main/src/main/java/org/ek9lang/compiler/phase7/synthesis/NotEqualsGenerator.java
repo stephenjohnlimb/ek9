@@ -9,6 +9,7 @@ import org.ek9lang.compiler.ir.instructions.MemoryInstr;
 import org.ek9lang.compiler.ir.instructions.ScopeInstr;
 import org.ek9lang.compiler.ir.support.DebugInfo;
 import org.ek9lang.compiler.phase7.generation.IRGenerationContext;
+import org.ek9lang.compiler.phase7.support.IRConstants;
 import org.ek9lang.compiler.symbols.AggregateSymbol;
 import org.ek9lang.compiler.symbols.MethodSymbol;
 import org.ek9lang.core.AssertValue;
@@ -84,11 +85,11 @@ final class NotEqualsGenerator extends AbstractSyntheticGenerator {
     final var eqResultVar = generateTempName();
     instructions.addAll(generateMethodCall(
         eqResultVar,
-        "this",
+        IRConstants.THIS,
         aggregateTypeName,
-        "_eq",
-        List.of(OTHER_PARAM),
-        List.of(aggregateTypeName),
+        IRConstants.EQ_METHOD,
+        OTHER_PARAM,
+        aggregateTypeName,
         getBooleanTypeName(),
         debugInfo,
         scopeId
@@ -126,10 +127,8 @@ final class NotEqualsGenerator extends AbstractSyntheticGenerator {
         trueResultVar,
         booleanVar,
         getBooleanTypeName(),
-        "_true",
-        List.of(),
-        List.of(),
-        "boolean",
+        IRConstants.TRUE_METHOD,
+        IRConstants.BOOLEAN,
         debugInfo,
         scopeId
     ));
@@ -187,9 +186,7 @@ final class NotEqualsGenerator extends AbstractSyntheticGenerator {
         resultTemp,
         null,
         getBooleanTypeName(),
-        value ? "_ofTrue" : "_ofFalse",
-        List.of(),
-        List.of(),
+        value ? IRConstants.OF_TRUE_METHOD : IRConstants.OF_FALSE_METHOD,
         getBooleanTypeName(),
         debugInfo,
         scopeId
